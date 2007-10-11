@@ -1,0 +1,512 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Condition=" '$(BuildingTraversal)' == 'true' " Project="..\..\silverlight.settings.targets" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Scripting</RootNamespace>
+    <AssemblyName>Microsoft.Scripting</AssemblyName>
+    <DocumentationFile>bin\Release\Microsoft.Scripting.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'FxCop|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\FxCop\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRules>-Microsoft.Design#CA2210;-Microsoft.Design#CA1020;-Microsoft.Design#CA1021;-Microsoft.Design#CA1014;-Microsoft.Usage#CA2209</CodeAnalysisRules>
+    <DocumentationFile>Bin\FxCop\Microsoft.Scripting.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug\</OutputPath>
+    <DocumentationFile>Bin\Debug\Microsoft.Scripting.xml</DocumentationFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release\</OutputPath>
+    <DocumentationFile>Bin\Release\Microsoft.Scripting.xml</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <BaseAddress>1929379840</BaseAddress>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Silverlight Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>Bin\Silverlight Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <NoStdLib>true</NoStdLib>
+    <DocumentationFile>Bin\Silverlight Debug\Microsoft.Scripting.xml</DocumentationFile>
+    <NoWarn>1591,618</NoWarn>
+    <SilverlightBuild>true</SilverlightBuild>
+    <SilverlightSdkPath>Utilities\Silverlight\x86ret\</SilverlightSdkPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Silverlight Release|AnyCPU' ">
+    <OutputPath>Bin\Silverlight Release\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <DocumentationFile>Bin\Silverlight Release\Microsoft.Scripting.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591,618</NoWarn>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <SilverlightBuild>true</SilverlightBuild>
+    <SilverlightSdkPath>Utilities\Silverlight\x86ret\</SilverlightSdkPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" Condition=" $(SilverlightBuild) != 'true' " />
+    <Reference Include="System.configuration" Condition=" $(SilverlightBuild) != 'true' " />
+    <Reference Include="mscorlib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Condition=" '$(SilverlightBuild)' == 'true' ">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SilverlightSdkPath)\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Condition=" '$(SilverlightBuild)' == 'true' ">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SilverlightSdkPath)\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Hosts\Silverlight\SilverlightVersion.cs" Condition=" '$(SilverlightBuild)' == 'true' ">
+      <Link>Properties\SilverlightVersion.cs</Link>
+    </Compile>
+    <Compile Include="ActionOnCallAttribute.cs" />
+    <Compile Include="Actions\AbstractObject.cs" />
+    <Compile Include="Actions\ArgumentInfo.cs" />
+    <Compile Include="Actions\CallSignature.cs" />
+    <Compile Include="Actions\DynamicAction.cs" />
+    <Compile Include="Actions\ActionBinder.cs" />
+    <Compile Include="Actions\BoundMemberTracker.cs" />
+    <Compile Include="Actions\ConstructorTracker.cs" />
+    <Compile Include="Actions\EventTracker.cs" />
+    <Compile Include="Actions\ExtensionPropertyTracker.cs" />
+    <Compile Include="Actions\FieldTracker.cs" />
+    <Compile Include="Actions\MethodTracker.cs" />
+    <Compile Include="Actions\NamespaceTracker.cs" />
+    <Compile Include="Actions\NestedTypeTracker.cs" />
+    <Compile Include="Actions\PropertyTracker.cs" />
+    <Compile Include="Actions\ReflectedPropertyTracker.cs" />
+    <Compile Include="Actions\RuleCache.cs" />
+    <Compile Include="Actions\CallAction.cs" />
+    <Compile Include="Actions\ConvertToAction.cs" />
+    <Compile Include="Actions\CreateInstanceAction.cs" />
+    <Compile Include="Actions\CreateInstanceBinderHelper.cs" />
+    <Compile Include="Actions\DeleteMemberAction.cs" />
+    <Compile Include="Actions\DeleteMemberBinderHelper.cs" />
+    <Compile Include="Actions\DoOperationBinderHelper.cs" />
+    <Compile Include="Actions\DynamicSiteHelpers.Generated.cs" />
+    <Compile Include="Actions\DoOperationAction.cs" />
+    <Compile Include="Actions\DynamicSiteHelpers.cs" />
+    <Compile Include="Actions\EmptyRuleSet.cs" />
+    <Compile Include="Actions\MemberTracker.cs" />
+    <Compile Include="Actions\GetMemberAction.cs" />
+    <Compile Include="Actions\GetMemberBinderHelper.cs" />
+    <Compile Include="Actions\InvokeMemberAction.cs" />
+    <Compile Include="Actions\MemberAction.cs" />
+    <Compile Include="Actions\MemberBinderHelper.cs" />
+    <Compile Include="Actions\MemberGroup.cs" />
+    <Compile Include="Actions\RuleSet.cs" />
+    <Compile Include="Actions\RuleTree.cs" />
+    <Compile Include="Actions\SetMemberAction.cs" />
+    <Compile Include="Actions\SetMemberBinderHelper.cs" />
+    <Compile Include="Actions\SmallRuleSet.cs" />
+    <Compile Include="Actions\StandardRule.cs" />
+    <Compile Include="Actions\RuleBinder.cs" />
+    <Compile Include="Actions\TemplatedRuleBuilder.cs" />
+    <Compile Include="Actions\TopNamespaceTracker.cs" />
+    <Compile Include="Actions\TrackerTypes.cs" />
+    <Compile Include="Actions\TypeGroup.cs" />
+    <Compile Include="Actions\TypeTracker.cs" />
+    <Compile Include="AssemblyTypeNames.cs" />
+    <Compile Include="Ast\AstWriter.cs" />
+    <Compile Include="Ast\BinaryExpression.cs" />
+    <Compile Include="Ast\CatchBlock.cs" />
+    <Compile Include="Ast\CodeBlockWalker.cs" />
+    <Compile Include="Ast\ControlFlow.cs" />
+    <Compile Include="Ast\DynamicConversionExpression.cs" />
+    <Compile Include="Ast\AbstractValue.cs" />
+    <Compile Include="Ast\AbstractContext.cs" />
+    <Compile Include="Ast\DeleteUnboundExpression.cs" />
+    <Compile Include="Ast\DoStatementBuilder.cs" />
+    <Compile Include="Ast\InterpretChecker.cs" />
+    <Compile Include="Ast\IfStatementBuilder.cs" />
+    <Compile Include="Ast\MemberAssignment.cs" />
+    <Compile Include="Ast\TypeUtils.cs" />
+    <Compile Include="Cast.cs" />
+    <Compile Include="Cast.Generated.cs" />
+    <Compile Include="Generation\FrameStorageAllocator.cs" />
+    <Compile Include="Generation\KeywordArgBuilder.cs" />
+    <Compile Include="Generation\KeywordConstructorReturnBuilder.cs" />
+    <Compile Include="Generation\MethodBinderContext.cs" />
+    <Compile Include="Generation\MethodSignatureInfo.cs" />
+    <Compile Include="Generation\OutArgBuilder.cs" />
+    <Compile Include="Generation\ParamsDictArgBuilder.cs" />
+    <Compile Include="Generation\ReturnReferenceArgBuilder.cs" />
+    <Compile Include="Generation\RuntimeConstant.cs" />
+    <Compile Include="Ast\TryFlowAnalyzer.cs" />
+    <Compile Include="Ast\TryStatementBuilder.cs" />
+    <Compile Include="Ast\TypeBinaryExpression.cs" />
+    <Compile Include="Ast\UnaryExpression.cs" />
+    <Compile Include="Ast\CallWithThisExpression.cs" />
+    <Compile Include="Ast\ClosureBinder.cs" />
+    <Compile Include="Ast\CodeBlock.cs" />
+    <Compile Include="Ast\CodeBlockExpression.cs" />
+    <Compile Include="Ast\DeleteStatement.cs" />
+    <Compile Include="Ast\FlowChecker.cs" />
+    <Compile Include="Ast\GeneratorCodeBlock.cs" />
+    <Compile Include="Ast\ActionExpression.cs" />
+    <Compile Include="Ast\Arg.cs" />
+    <Compile Include="Ast\ArrayIndexAssignment.cs" />
+    <Compile Include="Ast\ArrayIndexExpression.cs" />
+    <Compile Include="Ast\BlockStatement.cs" />
+    <Compile Include="Ast\BoundAssignment.cs" />
+    <Compile Include="Ast\BoundExpression.cs" />
+    <Compile Include="Ast\BreakStatement.cs" />
+    <Compile Include="Ast\CodeContextExpression.cs" />
+    <Compile Include="Ast\CommaExpression.cs" />
+    <Compile Include="Actions\DynamicSite.cs" />
+    <Compile Include="Actions\DynamicSite.Generated.cs" />
+    <Compile Include="Ast\ConditionalExpression.cs" />
+    <Compile Include="Ast\ConstantExpression.cs" />
+    <Compile Include="Ast\ContinueStatement.cs" />
+    <Compile Include="Ast\MemberBinding.cs" />
+    <Compile Include="Ast\NewExpression.cs" />
+    <Compile Include="Ast\DoStatement.cs" />
+    <Compile Include="Ast\EmptyStatement.cs" />
+    <Compile Include="Ast\EnvironmentExpression.cs" />
+    <Compile Include="Ast\ExpressionStatement.cs" />
+    <Compile Include="Ast\IfStatement.cs" />
+    <Compile Include="Ast\IfStatementTest.cs" />
+    <Compile Include="Ast\LabeledStatement.cs" />
+    <Compile Include="Ast\MemberExpression.cs" />
+    <Compile Include="Ast\NewArrayExpression.cs" />
+    <Compile Include="Ast\DebugStatement.cs" />
+    <Compile Include="Ast\Expression.cs" />
+    <Compile Include="Ast\MethodCallExpression.cs" />
+    <Compile Include="Ast\Node.cs" />
+    <Compile Include="Ast\ParamsExpression.cs" />
+    <Compile Include="Ast\ParenthesizedExpression.cs" />
+    <Compile Include="Ast\ReturnStatement.cs" />
+    <Compile Include="Ast\ScopeStatment.cs" />
+    <Compile Include="Ast\ShortCircuitExpression.cs" />
+    <Compile Include="Ast\Statement.cs" />
+    <Compile Include="Ast\SwitchCase.cs" />
+    <Compile Include="Ast\SwitchStatement.cs" />
+    <Compile Include="Ast\ThrowExpression.cs" />
+    <Compile Include="Ast\TryStatement.cs" />
+    <Compile Include="Ast\UnboundAssignment.cs" />
+    <Compile Include="Ast\UnboundExpression.cs" />
+    <Compile Include="Ast\Variable.cs" />
+    <Compile Include="Ast\VariableReference.cs" />
+    <Compile Include="Ast\VoidExpression.cs" />
+    <Compile Include="Ast\Walker.Generated.cs" />
+    <Compile Include="Ast\LoopStatement.cs" />
+    <Compile Include="Ast\YieldLabelBuilder.cs" />
+    <Compile Include="Ast\YieldStatement.cs" />
+    <Compile Include="Ast\YieldTarget.cs" />
+    <Compile Include="BinderHelper.cs" />
+    <Compile Include="BinderType.cs" />
+    <Compile Include="Hosting\SourceCodeKind.cs" />
+    <Compile Include="Hosting\SourceCodeProperties.cs" />
+    <Compile Include="Hosting\SourceContentProvider.cs" />
+    <Compile Include="Hosting\SourceFileContentProvider.cs" />
+    <Compile Include="Hosting\SourceStringContentProvider.cs" />
+    <Compile Include="Hosting\SourceUnit.cs" />
+    <Compile Include="Hosting\SourceUnitReader.cs" />
+    <Compile Include="Types\BuiltinFunction.cs" />
+    <Compile Include="Types\BuiltinFunction.Generated.cs" />
+    <Compile Include="Generation\ByRefReturnBuilder.cs" />
+    <Compile Include="Actions\CallBinderHelper.cs" />
+    <Compile Include="CallTargets.cs" />
+    <Compile Include="ArgumentTypeException.cs" />
+    <Compile Include="ClrModule.cs" />
+    <Compile Include="Types\CoreReflectedTypeBuilder.cs" />
+    <Compile Include="DelegateSignatureInfo.cs" />
+    <Compile Include="FunctionType.cs" />
+    <Compile Include="Generation\FieldSlotFactory.cs" />
+    <Compile Include="Generation\LocalSlotFactory.cs" />
+    <Compile Include="Generation\ReturnFixer.cs" />
+    <Compile Include="Generation\Slots\ArgSlot.cs" />
+    <Compile Include="Generation\Slots\CastSlot.cs" />
+    <Compile Include="Generation\Slots\FieldSlot.cs" />
+    <Compile Include="Generation\Slots\IndexSlot.cs" />
+    <Compile Include="Generation\Slots\LazySlot.cs" />
+    <Compile Include="Generation\Slots\LocalNamedFrameSlot.cs" />
+    <Compile Include="Generation\Slots\LocalSlot.cs" />
+    <Compile Include="Generation\Slots\NamedFrameSlot.cs" />
+    <Compile Include="Generation\Slots\ParamArraySlot.cs" />
+    <Compile Include="Generation\Slots\PropertySlot.cs" />
+    <Compile Include="Generation\Slots\Slot.cs" />
+    <Compile Include="Generation\Slots\StaticFieldSlot.cs" />
+    <Compile Include="Generation\Slots\ThisSlot.cs" />
+    <Compile Include="Generation\StaticFieldSlotFactory.cs" />
+    <Compile Include="Generation\StubGenerator.cs" />
+    <Compile Include="Generation\TupleSlotFactory.cs" />
+    <Compile Include="Hosting\CodeDomCodeGen.cs" />
+    <Compile Include="Hosting\EngineOptions.cs" />
+    <Compile Include="IParameterSequence.cs" />
+    <Compile Include="KwArgBinder.cs" />
+    <Compile Include="ModuleContext.cs" />
+    <Compile Include="MethodBinder.cs" />
+    <Compile Include="MethodCandidate.cs" />
+    <Compile Include="NameType.cs" />
+    <Compile Include="NarrowingLevel.cs" />
+    <Compile Include="None.cs" />
+    <Compile Include="OperationFailed.cs" />
+    <Compile Include="OperatorSlotAttribute.cs" />
+    <Compile Include="ParameterWrapper.cs" />
+    <Compile Include="PositionTrackingWriter.cs" />
+    <Compile Include="Generation\CompilerConstant.cs" />
+    <Compile Include="CustomSymbolDictionary.cs" />
+    <Compile Include="ExplicitConversionMethodAttribute.cs" />
+    <Compile Include="DynamicHelpers.cs" />
+    <Compile Include="Extensible.cs" />
+    <Compile Include="Types\ExtensionTypeAttribute.cs" />
+    <Compile Include="ExtraKeyEnumerator.cs" />
+    <Compile Include="FunctionEnvironmentDictionary.cs" />
+    <Compile Include="Generation\ArgBuilder.cs" />
+    <Compile Include="Generation\ContextArgBuilder.cs" />
+    <Compile Include="Generation\DefaultArgBuilder.cs" />
+    <Compile Include="Generation\FunctionEnvironmentSlot.cs" />
+    <Compile Include="Generation\LocalStorage.cs" />
+    <Compile Include="Generation\LocalStorageAllocator.cs" />
+    <Compile Include="Generation\ModuleGlobalFactory.cs" />
+    <Compile Include="Generation\ModuleGlobalSlot.cs" />
+    <Compile Include="Generation\NullArgBuilder.cs" />
+    <Compile Include="Generation\ParamsArgBuilder.cs" />
+    <Compile Include="Generation\PropertyEnvironmentFactory.cs" />
+    <Compile Include="Generation\PropertyEnvironmentReference.cs" />
+    <Compile Include="Generation\ReferenceArgBuilder.cs" />
+    <Compile Include="Generation\ReturnBuilder.cs" />
+    <Compile Include="Generation\SimpleArgBuilder.cs" />
+    <Compile Include="Generation\Storage.cs" />
+    <Compile Include="Hosting\CompiledCode.cs" />
+    <Compile Include="Hosting\ScriptCode.cs" />
+    <Compile Include="Compilers\CompilerContext.cs" />
+    <Compile Include="ExceptionHelpers.cs" />
+    <Compile Include="Generation\MethodTarget.cs" />
+    <Compile Include="Generation\ParameterInfoWrapper.cs" />
+    <Compile Include="Hosting\CodeSenseProvider.cs" />
+    <Compile Include="Hosting\CodeSenseProvider.Remote.cs" />
+    <Compile Include="Hosting\CompiledCode.Remote.cs" />
+    <Compile Include="Compilers\CompilerOptions.cs" />
+    <Compile Include="Hosting\ScriptHost.Local.cs" />
+    <Compile Include="Hosting\RemoteWrapper.cs" />
+    <Compile Include="Hosting\ScriptDomainOptions.cs" />
+    <Compile Include="Hosting\TokenCategory.cs" />
+    <Compile Include="Hosting\TokenCategorizer.cs" />
+    <Compile Include="Hosting\TokenCategorizer.Remote.cs" />
+    <Compile Include="Hosting\TokenInfo.cs" />
+    <Compile Include="Hosting\TokenTriggers.cs" />
+    <Compile Include="IdDispenser.cs" />
+    <Compile Include="ImplicitConversionMethodAttribute.cs" />
+    <Compile Include="IConstructorWithCodeContext.cs" />
+    <Compile Include="InvariantContext.cs" />
+    <Compile Include="IValueEquality.cs" />
+    <Compile Include="KwCallInfo.cs" />
+    <Compile Include="LanguageContext.cs" />
+    <Compile Include="MutableTypeAttribute.cs" />
+    <Compile Include="OperatorMapping.cs" />
+    <Compile Include="Types\ReflectedEvent.cs" />
+    <Compile Include="Types\ReflectedExtensionProperty.cs" />
+    <Compile Include="Types\ReflectedField.cs" />
+    <Compile Include="Types\ReflectedGetterSetter.cs" />
+    <Compile Include="Types\ReflectedIndexer.cs" />
+    <Compile Include="Types\ReflectedProperty.cs" />
+    <Compile Include="Types\ReflectedTypeBuilder.cs" />
+    <Compile Include="ReflectionCache.cs" />
+    <Compile Include="ScopeMemberAttributes.cs" />
+    <Compile Include="ModuleChangeEventArgs.cs" />
+    <Compile Include="ModuleChangeEventType.cs" />
+    <Compile Include="ModuleGlobalCache.cs" />
+    <Compile Include="ModuleGlobalDictionary.cs" />
+    <Compile Include="ModuleGlobalWrapper.cs" />
+    <Compile Include="OptimizedModuleGenerator.cs" />
+    <Compile Include="Scope.cs" />
+    <Compile Include="PerfTrack.cs" />
+    <Compile Include="NotNullAttribute.cs" />
+    <Compile Include="ParamDictionaryAttribute.cs" />
+    <Compile Include="FastCallable.cs" />
+    <Compile Include="FastCallable.Generated.cs" />
+    <Compile Include="Generation\ConstantPool.cs" />
+    <Compile Include="Hosting\ErrorSink.cs" />
+    <Compile Include="Hosting\LanguageProvider.Remote.cs" />
+    <Compile Include="Hosting\ParserSink.cs" />
+    <Compile Include="Generation\EnvironmentSlot.cs" />
+    <Compile Include="Hosting\ScriptEngine.cs" />
+    <Compile Include="Hosting\ScriptEngine.Remote.cs" />
+    <Compile Include="Hosting\SingletonEngineFactory.cs" />
+    <Compile Include="ICallableWithCodeContext.cs" />
+    <Compile Include="Types\IContextAwareMember.cs" />
+    <Compile Include="ICallableWithThis.cs" />
+    <Compile Include="Script.cs" />
+    <Compile Include="ScriptDomainManager.cs" />
+    <Compile Include="ScriptModule.Remote.cs" />
+    <Compile Include="Generation\EnvironmentFactory.cs" />
+    <Compile Include="Generation\GlobalAllocator.cs" />
+    <Compile Include="ScriptModuleKind.cs" />
+    <Compile Include="ScriptNameAttribute.cs" />
+    <Compile Include="Types\ScriptTypeAttribute.cs" />
+    <Compile Include="DynamicStackFrame.cs" />
+    <Compile Include="StaticExtensionMethodAttribute.cs" />
+    <Compile Include="StaticThisAttribute.cs" />
+    <Compile Include="SymbolDictionary.cs" />
+    <Compile Include="BaseSymbolDictionary.cs" />
+    <Compile Include="SyntaxErrorException.cs" />
+    <Compile Include="TransformDictEnumerator.cs" />
+    <Compile Include="Types\TransformedName.cs" />
+    <Compile Include="TupleDictionary.cs" />
+    <Compile Include="Types\TypeCreatedEventArgs.cs" />
+    <Compile Include="Types\DynamicType.cs" />
+    <Compile Include="Types\DynamicTypeBuilder.cs" />
+    <Compile Include="Types\ExtensionPropertyInfo.cs" />
+    <Compile Include="TokenizerBuffer.cs" />
+    <Compile Include="UnboundNameException.cs" />
+    <Compile Include="Generation\StorageAllocator.cs" />
+    <Compile Include="Generator.cs" />
+    <Compile Include="Generation\Snippets.cs" />
+    <Compile Include="Hosting\PlatformAdaptationLayer.cs" />
+    <Compile Include="Hosting\ConsoleHost.cs" />
+    <Compile Include="Hosting\ConsoleHostOptions.cs" />
+    <Compile Include="Hosting\ScriptConfiguratiton.cs" />
+    <Compile Include="Hosting\ScriptEnvironment.Remote.cs" />
+    <Compile Include="Hosting\ScriptEnvironmentSetup.cs" />
+    <Compile Include="Hosting\ScriptHost.cs" />
+    <Compile Include="Hosting\LanguageProvider.cs" />
+    <Compile Include="Hosting\ScriptEnvironment.cs" />
+    <Compile Include="Hosting\ScriptHost.Remote.cs" />
+    <Compile Include="OptionsParser.cs" />
+    <Compile Include="RuntimeHelpers.cs" />
+    <Compile Include="Shell\BasicConsole.cs" />
+    <Compile Include="Shell\SuperConsole.cs" />
+    <Compile Include="Tuple.cs" />
+    <Compile Include="DynamicTypeChangedEventArgs.cs" />
+    <Compile Include="Generation\AssemblyGen.cs" />
+    <Compile Include="Generation\AssemblyGenAttributes.cs" />
+    <Compile Include="Generation\CodeGen.cs" />
+    <Compile Include="Generation\CodeGenOptions.cs" />
+    <Compile Include="Generation\CompilerHelpers.cs" />
+    <Compile Include="Generation\SlotFactory.cs" />
+    <Compile Include="Generation\ScopeAllocator.cs" />
+    <Compile Include="Generation\Targets.cs" />
+    <Compile Include="Generation\TypeGen.cs" />
+    <Compile Include="IAttributesCollection.cs" />
+    <Compile Include="ICustomMembers.cs" />
+    <Compile Include="IDynamicObject.cs" />
+    <Compile Include="IFancyCallable.cs" />
+    <Compile Include="ISlice.cs" />
+    <Compile Include="Types\ISuperDynamicObject.cs" />
+    <Compile Include="ContextId.cs" />
+    <Compile Include="PropertyMethodAttribute.cs" />
+    <Compile Include="ScriptModule.cs" />
+    <Compile Include="CodeContext.cs" />
+    <Compile Include="Shell\CommandLine.cs" />
+    <Compile Include="Shell\ConsoleOptions.cs" />
+    <Compile Include="Shell\IConsole.cs" />
+    <Compile Include="Shell\KeyboardInterruptException.cs" />
+    <Compile Include="Shell\Style.cs" />
+    <Compile Include="SourceLocation.cs" />
+    <Compile Include="SourceSpan.cs" />
+    <Compile Include="Types\DynamicMixin.cs" />
+    <Compile Include="Types\DynamicMixinBuilder.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Utils\Action.cs" />
+    <Compile Include="Utils\ArrayUtils.cs" />
+    <Compile Include="Utils\Assert.cs" />
+    <Compile Include="Utils\CheckedDictionaryEnumerator.cs" />
+    <Compile Include="Utils\CollectionUtils.cs" />
+    <Compile Include="Utils\ConsoleStream.cs" />
+    <Compile Include="Utils\Contract.cs" />
+    <Compile Include="Utils\CopyOnWriteList.cs" />
+    <Compile Include="Utils\DictionaryUnionEnumerator.cs" />
+    <Compile Include="Utils\ExceptionUtils.cs" />
+    <Compile Include="Utils\Function.cs" />
+    <Compile Include="Utils\IOUtils.cs" />
+    <Compile Include="Utils\ListStack.cs" />
+    <Compile Include="Utils\MathUtils.cs" />
+    <Compile Include="Utils\Publisher.cs" />
+    <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="Utils\StringUtils.cs" />
+    <Compile Include="Utils\StrongBox.cs" />
+    <Compile Include="Utils\TextStream.cs" />
+    <Compile Include="Utils\Utilities.cs" />
+    <Compile Include="Utils\WeakHandle.cs" />
+    <Compile Include="Utils\WeakHash.cs" />
+    <Compile Include="Math\MathResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MathResources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Operators.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Math\BigInteger.cs" />
+    <Compile Include="Math\Complex64.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SymbolId.cs" />
+    <Compile Include="SymbolTable.cs" />
+    <Compile Include="Types\DynamicTypeSlot.cs" />
+    <Compile Include="Types\DynamicTypeValueSlot.cs" />
+    <Compile Include="Uninitialized.cs" />
+    <Compile Include="SilverlightProxies.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Math\MathResources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MathResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" Condition=" '$(SilverlightTreeBuild)' != 'true' " />
+  <Import Project="..\..\silverlight.build.targets" Condition=" '$(SilverlightTreeBuild)' == 'true' " />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>
