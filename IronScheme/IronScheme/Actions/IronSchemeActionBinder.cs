@@ -19,7 +19,7 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Generation;
 using System.ComponentModel;
-using IronScheme.Compilers;
+using IronScheme.Compiler;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Types;

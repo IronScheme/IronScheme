@@ -35,7 +35,7 @@ namespace IronScheme.Hosting
 
     protected override void PrintInteractiveCodeResult(object obj)
     {
-      string strv = Builtins.DisplayFormat(obj);
+      string strv = ""; //Builtins.DisplayFormat(obj);
       Console.WriteLine("{0}", strv);
     }
 
