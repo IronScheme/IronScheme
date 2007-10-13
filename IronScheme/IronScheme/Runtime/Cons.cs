@@ -27,14 +27,13 @@ namespace IronScheme.Runtime
     internal object Car
     {
       get { return car; }
+      set { car = value; }
     }
 
     internal object Cdr
     {
-      get 
-      {
-        return cdr;
-      }
+      get {return cdr;}
+      set { cdr = value; }
     }
 
     Cons() : this(null)
@@ -49,95 +48,75 @@ namespace IronScheme.Runtime
     {
       this.car = car;
       this.cdr = cdr;
-
-      if (car is ExpressionList)
-      {
-
-        this.car = FromList(car as IEnumerable);
-        if (car is ImproperList)
-        {
-          this.car = Builtins.ToImproper(this.car as Cons);
-        }
-      }
-
-      if (cdr is ExpressionList)
-      {
-        this.cdr = FromList(cdr as IEnumerable);
-        if (cdr is ImproperList)
-        {
-          this.cdr = Builtins.ToImproper(this.cdr as Cons);
-        }
-      }
-
     }
 
-    public Cons Replaca(object car)
+    public Cons SetCar(object car)
     {
       this.car = car;
       return this;
     }
 
-    public Cons Replacd(object cdr)
+    public Cons SetCdr(object cdr)
     {
       this.cdr = cdr;
       return this;
     }
 
-    public Cons Reverse()
-    {
-      object list = null;
-      object o = this;
-      while (o != null)
-      {
-        list = new Cons(((Cons)o).car, list);
-        o = ((Cons)o).cdr;
-      }
-      return (Cons)list;
-    }
+    //public Cons Reverse()
+    //{
+    //  object list = null;
+    //  object o = this;
+    //  while (o != null)
+    //  {
+    //    list = new Cons(((Cons)o).car, list);
+    //    o = ((Cons)o).cdr;
+    //  }
+    //  return (Cons)list;
+    //}
 
 
-    public static Cons FromList(IEnumerable list)
-    {
-      if (list is Cons)
-      {
-        return list as Cons;
-      }
-      if (list == null)
-      {
-        return null;
-      }
-      object cdr = Builtins.Cdr(list);
-      if (cdr is IEnumerable)
-      {
-        Cons c = new Cons(Builtins.Car(list), FromList(cdr as IEnumerable));
-        return c;
-      }
-      else
-      {
-        Cons c = new Cons(Builtins.Car(list), cdr);
-        return c;
-      }
-    }
+    //public static Cons FromList(IEnumerable list)
+    //{
+    //  if (list is Cons)
+    //  {
+    //    return list as Cons;
+    //  }
+    //  if (list == null)
+    //  {
+    //    return null;
+    //  }
+    //  object cdr = Builtins.Cdr(list);
+    //  if (cdr is IEnumerable)
+    //  {
+    //    Cons c = new Cons(Builtins.Car(list), FromList(cdr as IEnumerable));
+    //    return c;
+    //  }
+    //  else
+    //  {
+    //    Cons c = new Cons(Builtins.Car(list), cdr);
+    //    return c;
+    //  }
+    //}
 
-    public static Cons FromArray(params object[] args)
-    {
-      if (args == null)
-      {
-        return null;
-      }
-      if (args.Length == 0)
-      {
-        return null;
-      }
-      else if (args.Length == 1)
-      {
-        return new Cons(args[0]);
-      }
-      else
-      {
-        return Cons.FromList(args);
-      }
-    }
+    //public static Cons FromArray(params object[] args)
+    //{
+    //  if (args == null)
+    //  {
+    //    return null;
+    //  }
+    //  if (args.Length == 0)
+    //  {
+    //    return null;
+    //  }
+    //  else if (args.Length == 1)
+    //  {
+    //    return new Cons(args[0]);
+    //  }
+    //  else
+    //  {
+    //    return Cons.FromList(args);
+    //  }
+    //}
 
     public bool IsPair
     {
@@ -176,7 +155,23 @@ namespace IronScheme.Runtime
 
     public override string ToString()
     {
-      return Builtins.WriteFormat(this);
+      List<string> v = new List<string>();
+      Cons s = this as Cons;
+
+      while (s != null)
+      {
+        v.Add(s.Car.ToString());
+        if (s.Cdr != null && !(s.Cdr is Cons))
+        {
+          v.Add(".");
+          v.Add(s.Cdr.ToString());
+          break;
+        }
+        s = s.Cdr as Cons;
+      }
+      return string.Format("({0})", string.Join(" ", v.ToArray()));
+
+      //return Builtins.WriteFormat(this);
     }
   }
 }

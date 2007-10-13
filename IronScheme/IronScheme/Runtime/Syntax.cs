@@ -5,6 +5,12 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
+  public interface ISyntaxObject
+  {
+    SourceSpan Location { get; set;}
+    object Value { get;} // return this
+  }
+
   public class Syntax
   {
     SourceSpan location = SourceSpan.None;
@@ -17,7 +23,7 @@ namespace IronScheme.Runtime
 
   }
 
-  public class Syntax<T> : Syntax
+  public class Syntax<T> : Syntax, ISyntaxObject
   {
     T value;
 
@@ -27,29 +33,11 @@ namespace IronScheme.Runtime
       set { this.value = value; }
     }
 
-    public static explicit operator T(Syntax<T> o)
+    object ISyntaxObject.Value
     {
-      return o.value;
-    }
-
-  }
-
-  public class SyntaxList : Syntax<Cons>, IEnumerable<Syntax>
-  {
-    public IEnumerator<Syntax> GetEnumerator()
-    {
-      foreach (Syntax s in Value)
-      {
-        yield return s;
-      }
-    }
-
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
+      get { return value; }
     }
   }
-
 
 
 
