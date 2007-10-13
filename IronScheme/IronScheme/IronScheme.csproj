@@ -51,10 +51,27 @@
     <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
     <Compile Include="IronSchemeLanguageContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\Booleans.cs" />
+    <Compile Include="Runtime\Builtins.cs" />
+    <Compile Include="Runtime\Characters.cs" />
+    <Compile Include="Runtime\Closure.cs" />
     <Compile Include="Runtime\Cons.cs" />
+    <Compile Include="Runtime\Control.cs" />
+    <Compile Include="Runtime\Environment.cs" />
+    <Compile Include="Runtime\Equality.cs" />
+    <Compile Include="Runtime\Fraction.cs" />
+    <Compile Include="Runtime\Lists.cs" />
+    <Compile Include="Runtime\Macro.cs" />
+    <Compile Include="Runtime\MultiEnumerable.cs" />
     <Compile Include="Runtime\Number.cs" />
+    <Compile Include="Runtime\Numbers.cs" />
+    <Compile Include="Runtime\Ports.cs" />
+    <Compile Include="Runtime\Promise.cs" />
     <Compile Include="Runtime\SchemeObject.cs" />
+    <Compile Include="Runtime\Strings.cs" />
+    <Compile Include="Runtime\Symbols.cs" />
     <Compile Include="Runtime\Syntax.cs" />
+    <Compile Include="Runtime\Vectors.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
