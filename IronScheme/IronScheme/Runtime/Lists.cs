@@ -48,7 +48,7 @@ namespace IronScheme.Runtime
 - assoc     
      */
 
-
+#if EXT_LIB
     [Builtin("unfold")]
     public static object Unfold(CodeContext cc, object function, object init, object pred)
     {
@@ -70,6 +70,8 @@ namespace IronScheme.Runtime
       FastCallable fc = function as FastCallable;
       return IsNull(list) ? end : fc.Call(cc, Car(list), FoldRight(cc, function, end, Cdr(list) as IEnumerable));
     }
+
+#endif
 
     [Builtin("pair?")]
     public static bool IsPair(object arg1)
@@ -93,52 +95,51 @@ namespace IronScheme.Runtime
       return arg1 == null;
     }
 
-
     [Builtin]
-    public static IEnumerable List(object arg1)
+    public static Cons List(object arg1)
     {
       return Runtime.Cons.FromArray(arg1);
     }
 
     [Builtin]
-    public static IEnumerable List(object arg1, object arg2)
+    public static Cons List(object arg1, object arg2)
     {
       return Runtime.Cons.FromArray(arg1, arg2);
     }
 
     [Builtin]
-    public static IEnumerable List(object arg1, object arg2, object arg3)
+    public static Cons List(object arg1, object arg2, object arg3)
     {
       return Runtime.Cons.FromArray(arg1, arg2, arg3);
     }
 
     [Builtin]
-    public static IEnumerable List(object arg1, object arg2, object arg3, object arg4)
+    public static Cons List(object arg1, object arg2, object arg3, object arg4)
     {
       return Runtime.Cons.FromArray(arg1, arg2, arg3, arg4);
     }
 
     [Builtin]
-    public static IEnumerable List(object arg1, object arg2, object arg3, object arg4, object arg5)
+    public static Cons List(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
       return Runtime.Cons.FromArray(arg1, arg2, arg3, arg4, arg5);
     }
 
 
     [Builtin]
-    public static IEnumerable List(params object[] args)
+    public static Cons List(params object[] args)
     {
       return Runtime.Cons.FromArray(args);
     }
 
     [Builtin]
-    public static IEnumerable Cons(object car)
+    public static Cons Cons(object car)
     {
       return new Cons(car);
     }
 
     [Builtin]
-    public static IEnumerable Cons(object car, object cdr)
+    public static Cons Cons(object car, object cdr)
     {
       return new Cons(car, cdr);
     }
@@ -146,7 +147,7 @@ namespace IronScheme.Runtime
     [Builtin]
     public static int Length(object args)
     {
-      Requires<IEnumerable>(args);
+      Requires<Cons>(args);
       if (args is string)
       {
         return ((string)args).Length;
@@ -173,19 +174,27 @@ namespace IronScheme.Runtime
       }
     }
 
-#if EXT_LIB
+
 
     [Builtin]
-    public static object First(IEnumerable args)
+    public static object First(object args)
     {
       return Car(args);
     }
 
     [Builtin]
-    public static object Second(IEnumerable args)
+    public static object Second(object args)
     {
       return Cadr(args);
     }
+
+    [Builtin]
+    public static object Third(object args)
+    {
+      return Caddr(args);
+    }
+
+#if EXT_LIB
 
     [Builtin]
     public static object Last(IEnumerable args)
@@ -268,18 +277,6 @@ namespace IronScheme.Runtime
         }
         return false;
       }
-      IEnumerable e = list as IEnumerable;
-      if (e != null)
-      {
-        foreach (object o in e)
-        {
-          if (pred(obj, o))
-          {
-            return o;
-          }
-        }
-        return false;
-      }
       return false;
     }
 
@@ -306,31 +303,17 @@ namespace IronScheme.Runtime
     [Builtin("set-car!")]
     public static object SetCar(object list, object value)
     {
-      RequiresNotNull<IEnumerable>(list);
-      if (list is Cons)
-      {
-        ((Cons)list).Replaca(value);
-        return Unspecified;
-      }
-      else
-      {
-        throw new NotSupportedException();
-      }
+      Cons c = RequiresNotNull<Runtime.Cons>(list);
+      c.SetCar(value);
+      return Unspecified;
     }
 
     [Builtin("set-cdr!")]
     public static object SetCdr(object list, object value)
     {
-      RequiresNotNull<IEnumerable>(list);
-      if (list is Cons)
-      {
-        ((Cons)list).Replacd(value);
-        return Unspecified;
-      }
-      else
-      {
-        throw new NotSupportedException();
-      }
+      Cons c = RequiresNotNull<Runtime.Cons>(list);
+      c.SetCdr(value);
+      return Unspecified;
     }
 
     [Builtin]
@@ -502,17 +485,17 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static IEnumerable Rest(object args)
+    public static Runtime.Cons Rest(object args)
     {
-      Requires<IEnumerable>(args);
-      return Cdr(args) as IEnumerable;
+      Requires<Runtime.Cons>(args);
+      return Cdr(args) as Runtime.Cons;
     }
 
 
     [Builtin]
     public static object Car(object args)
     {
-      Requires<IEnumerable>(args);
+      Requires<Runtime.Cons>(args);
       if (args == null)
       {
         return null;
@@ -521,44 +504,13 @@ namespace IronScheme.Runtime
       {
         return ((Cons)args).Car;
       }
-      if (args is string)
-      {
-        string sargs = (string)args;
-        if (sargs.Length == 0)
-        {
-          return null;
-        }
-        else
-        {
-          return sargs[0];
-        }
-      }
-      if (args is IList)
-      {
-        IList l = (IList)args;
-        if (l.Count == 0)
-        {
-          return null;
-        }
-        else
-        {
-          return l[0];
-        }
-      }
-      try
-      {
-        return ListRef(args, 0);
-      }
-      catch
-      {
-        return null;
-      }
+      return null;
     }
 
     [Builtin]
     public static object Cdr(object args)
     {
-      Requires<IEnumerable>(args);
+      Requires<Runtime.Cons>(args);
       if (args == null)
       {
         return null;
@@ -567,162 +519,102 @@ namespace IronScheme.Runtime
       {
         return ((Cons)args).Cdr;
       }
-      //if (args is ImproperList)
-      //{
-      //  return ((ImproperList)args).Rest();
-      //}
-      //if (args is ExpressionList)
-      //{
-      //  return ((ExpressionList)args).Rest();
-      //}
-      if (args is string)
-      {
-        string sargs = (string)args;
-        if (sargs.Length <= 1)
-        {
-          return null; // hmmmm empty or null?? stackoverflow dictates null :p (maybe if i scrolled down i would have seen)
-        }
-        else
-        {
-          return sargs.Substring(1);
-        }
-      }
-      ArrayList rest = new ArrayList();
-      int i = 0;
-      Type arraytype = null;
-      if (args != null)
-      {
-        foreach (object o in args as IEnumerable)
-        {
-          if (i > 0)
-          {
-            if (o != null)
-            {
-              Type et = o.GetType();
-              if (arraytype == null)
-              {
-                arraytype = et;
-              }
-              else
-              {
-                if (arraytype != et && arraytype != typeof(object))
-                {
-                  arraytype = typeof(object);
-                }
-              }
-            }
-            else
-            {
-              if (arraytype == null || arraytype.IsValueType)
-              {
-                arraytype = typeof(object);
-              }
-            }
-            rest.Add(o);
-          }
-          i++;
-        }
-      }
-      if (rest.Count == 0)
-      {
-        return null;
-      }
-      return rest.ToArray(arraytype ?? typeof(object));
+      return null;
     }
 
-    [Builtin]
-    public static IEnumerable Reverse(object lst)
-    {
-      IEnumerable list = Requires<IEnumerable>(lst);
-      if (list is Cons)
-      {
-        return ((Cons)list).Reverse();
-      }
-      else
-      {
-        ArrayList rev = new ArrayList();
-        foreach (object var in list)
-        {
-          rev.Add(var);
-        }
-        rev.Reverse();
-        return rev;
-      }
-    }
+    //[Builtin]
+    //public static IEnumerable Reverse(object lst)
+    //{
+    //  IEnumerable list = Requires<IEnumerable>(lst);
+    //  if (list is Cons)
+    //  {
+    //    return ((Cons)list).Reverse();
+    //  }
+    //  else
+    //  {
+    //    ArrayList rev = new ArrayList();
+    //    foreach (object var in list)
+    //    {
+    //      rev.Add(var);
+    //    }
+    //    rev.Reverse();
+    //    return rev;
+    //  }
+    //}
 
 
 
 
  
 
-    [Builtin("list-ref")]
-    public static object ListRef(object lst, object index)
-    {
-      IEnumerable list =  RequiresNotNull<IEnumerable>(lst);
-      int i =             RequiresNotNull<int>(index);
+    //[Builtin("list-ref")]
+    //public static object ListRef(object lst, object index)
+    //{
+    //  IEnumerable list =  RequiresNotNull<IEnumerable>(lst);
+    //  int i =             RequiresNotNull<int>(index);
 
-      if (list is IList)
-      {
-        return ((IList)list)[i];
-      }
-      else
-      {
-        int j = 0;
-        foreach (object o in list)
-        {
-          if (j == i)
-          {
-            return o;
-          }
-          j++;
-        }
-        throw new IndexOutOfRangeException();
-      }
-    }
+    //  if (list is IList)
+    //  {
+    //    return ((IList)list)[i];
+    //  }
+    //  else
+    //  {
+    //    int j = 0;
+    //    foreach (object o in list)
+    //    {
+    //      if (j == i)
+    //      {
+    //        return o;
+    //      }
+    //      j++;
+    //    }
+    //    throw new IndexOutOfRangeException();
+    //  }
+    //}
 
-    //The resulting list is always newly allocated, except that it shares structure with the last list argument. 
-    //The last argument may actually be any object; an improper list results if the last argument is not a proper list. 
-    [Builtin]
-    public static IEnumerable Append(params object[] args)
-    {
-      if (args.Length == 0)
-      {
-        return null;
-      }
-      string s = args[0] as string;
-      if (s != null)
-      {
-        StringBuilder sb = new StringBuilder(s);
+    ////The resulting list is always newly allocated, except that it shares structure with the last list argument. 
+    ////The last argument may actually be any object; an improper list results if the last argument is not a proper list. 
+    //[Builtin]
+    //public static IEnumerable Append(params object[] args)
+    //{
+    //  if (args.Length == 0)
+    //  {
+    //    return null;
+    //  }
+    //  string s = args[0] as string;
+    //  if (s != null)
+    //  {
+    //    StringBuilder sb = new StringBuilder(s);
 
-        for (int i = 1; i < args.Length; i++)
-        {
-          sb.Append(args[i] as string);
-        }
+    //    for (int i = 1; i < args.Length; i++)
+    //    {
+    //      sb.Append(args[i] as string);
+    //    }
 
-        return sb.ToString();
-      }
+    //    return sb.ToString();
+    //  }
 
-      List<object> all = new List<object>();
+    //  List<object> all = new List<object>();
 
-      for (int i = 0; i < args.Length; i++)
-      {
-        IEnumerable ii = args[i] as IEnumerable;
-        if (ii == null && i == args.Length - 1 && args[i] != null)
-        {
-          all.Add(args[i]);
-        }
-        else
-        {
-          if (ii != null)
-          {
-            foreach (object o in ii)
-            {
-              all.Add(o);
-            }
-          }
-        }
-      }
-      return Runtime.Cons.FromList(all);
-    }
+    //  for (int i = 0; i < args.Length; i++)
+    //  {
+    //    IEnumerable ii = args[i] as IEnumerable;
+    //    if (ii == null && i == args.Length - 1 && args[i] != null)
+    //    {
+    //      all.Add(args[i]);
+    //    }
+    //    else
+    //    {
+    //      if (ii != null)
+    //      {
+    //        foreach (object o in ii)
+    //        {
+    //          all.Add(o);
+    //        }
+    //      }
+    //    }
+    //  }
+    //  return Runtime.Cons.FromList(all);
+    //}
   }
 }

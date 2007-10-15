@@ -19,7 +19,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  public class Cons : IEnumerable
+  public class Cons
   {
     object car;
     object cdr;
@@ -75,48 +75,49 @@ namespace IronScheme.Runtime
     //}
 
 
-    //public static Cons FromList(IEnumerable list)
-    //{
-    //  if (list is Cons)
-    //  {
-    //    return list as Cons;
-    //  }
-    //  if (list == null)
-    //  {
-    //    return null;
-    //  }
-    //  object cdr = Builtins.Cdr(list);
-    //  if (cdr is IEnumerable)
-    //  {
-    //    Cons c = new Cons(Builtins.Car(list), FromList(cdr as IEnumerable));
-    //    return c;
-    //  }
-    //  else
-    //  {
-    //    Cons c = new Cons(Builtins.Car(list), cdr);
-    //    return c;
-    //  }
-    //}
+    public static Cons FromList(IEnumerable list)
+    {
+      if (list == null)
+      {
+        return null;
+      }
+      Cons first = null;
+      Cons c = null;
+      foreach (object var in list)
+      {
+        if (c == null)
+        {
+          first = c = new Cons(var);
+        }
+        else
+        {
+          Cons d = new Cons(var);
+          c.cdr = d;
+          c = d;
+        }
+      }
+      return first;
+    }
 
-    //public static Cons FromArray(params object[] args)
-    //{
-    //  if (args == null)
-    //  {
-    //    return null;
-    //  }
-    //  if (args.Length == 0)
-    //  {
-    //    return null;
-    //  }
-    //  else if (args.Length == 1)
-    //  {
-    //    return new Cons(args[0]);
-    //  }
-    //  else
-    //  {
-    //    return Cons.FromList(args);
-    //  }
-    //}
+    public static Cons FromArray(params object[] args)
+    {
+      if (args == null)
+      {
+        return null;
+      }
+      if (args.Length == 0)
+      {
+        return null;
+      }
+      else if (args.Length == 1)
+      {
+        return new Cons(args[0]);
+      }
+      else
+      {
+        return Cons.FromList(args);
+      }
+    }
 
     public bool IsPair
     {
@@ -125,53 +126,37 @@ namespace IronScheme.Runtime
 
     public bool IsProper
     {
-      get { return cdr is IEnumerable; }
+      get { return cdr is Cons; }
     }
 
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      yield return car;
-      Cons c = cdr as Cons;
-      if (c == null)
-      {
-        if (cdr == null)
-        {
-          yield break;
-        }
-        else
-        {
-          yield return cdr;
-        }
-      }
-      else
-      {
-        foreach (object to in c)
-        {
-          yield return to;
-        }
-      }
-    }
+    //IEnumerator IEnumerable.GetEnumerator()
+    //{
+    //  yield return car;
+    //  Cons c = cdr as Cons;
+    //  if (c == null)
+    //  {
+    //    if (cdr == null)
+    //    {
+    //      yield break;
+    //    }
+    //    else
+    //    {
+    //      yield return cdr;
+    //    }
+    //  }
+    //  else
+    //  {
+    //    foreach (object to in c)
+    //    {
+    //      yield return to;
+    //    }
+    //  }
+    //}
 
     public override string ToString()
     {
-      List<string> v = new List<string>();
-      Cons s = this as Cons;
-
-      while (s != null)
-      {
-        v.Add(s.Car.ToString());
-        if (s.Cdr != null && !(s.Cdr is Cons))
-        {
-          v.Add(".");
-          v.Add(s.Cdr.ToString());
-          break;
-        }
-        s = s.Cdr as Cons;
-      }
-      return string.Format("({0})", string.Join(" ", v.ToArray()));
-
-      //return Builtins.WriteFormat(this);
+      return Builtins.DisplayFormat(this);
     }
   }
 }

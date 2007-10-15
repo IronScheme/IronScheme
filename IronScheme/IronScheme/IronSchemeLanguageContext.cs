@@ -22,10 +22,12 @@ using IronScheme.Runtime;
 using IronScheme.Compiler;
 using Microsoft.Scripting.Generation;
 using System.IO;
-using Mast = Microsoft.Scripting.Ast.Ast;
+
 using System.Diagnostics;
 using Microsoft.Scripting.Types;
 using System.Collections;
+
+using Generator = IronScheme.Compiler.Generator;
 
 namespace IronScheme
 {
@@ -40,8 +42,7 @@ namespace IronScheme
 
     public override bool IsTrue(object arg)
     {
-      return false;
-      //return Builtins.IsTrue(arg);
+      return Builtins.IsTrue(arg);
     }
 
     public override bool TryLookupName(CodeContext context, SymbolId name, out object value)
@@ -154,54 +155,31 @@ namespace IronScheme
       {
         Cons parsed = SyntaxTransform.Transform(p.parsed);
 
-        Debug.WriteLine(parsed);
+        CodeBlock cb = Ast.CodeBlock(!clearresolver ? "__toploop__" : "__script__");
+        cb.IsGlobal = true;
 
-        //InitStage2();
+        List<Statement> stmts = new List<Statement>();
 
-        //stage2scanner.SetSource(parsed);
+        while (parsed != null)
+        {
+          object exp = parsed.Car;
+          Expression e = Generator.GetAst(exp,cb);
+          stmts.Add(Ast.Statement(e));
+          parsed = parsed.Cdr as Cons;
+        }
 
-        //if (stage2parser.Parse())
-        //{
-        //  if (clearresolver || !resolvercleared)
-        //  {
-        //    TypeResolver.Initialize(stage2parser.usings, stage2parser.references);
-        //    resolvercleared = true;
-        //  }
-        //  else
-        //  {
-        //    TypeResolver.Add(stage2parser.usings, stage2parser.references);
-        //  }
-        //  CodeBlock cb = Mast.CodeBlock(!clearresolver ? "__toploop__" : "__script__");
-        //  cb.IsGlobal = true;
+        if (stmts.Count > 0)
+        {
+          stmts[stmts.Count - 1] = Ast.Return(((ExpressionStatement)stmts[stmts.Count - 1]).Expression);
+        }
+        else
+        {
+          stmts.Add(Ast.Return(Ast.Null()));
+        }
 
-        //  List<Statement> stmts = new List<Statement>();
-         
-        //  if (stage2parser.parsed != null)
-        //  {
-        //    ExpressionList exprlist = stage2parser.parsed;
+        cb.Body = Ast.Block(stmts);
 
-        //    foreach (Ast.Expression expr in exprlist)
-        //    {
-        //      if (expr != null)
-        //      {
-        //        Microsoft.Scripting.Ast.Expression e = expr.GetAst(cb);
-        //        stmts.Add(Mast.Statement(expr.Span, e));
-        //      }
-        //    }
-
-        //    if (stmts.Count > 0)
-        //    {
-        //      stmts[stmts.Count - 1] = Mast.Return(((ExpressionStatement)stmts[stmts.Count - 1]).Expression);
-        //    }
-        //    else
-        //    {
-        //      stmts.Add(Mast.Return(Mast.Null()));
-        //    }
-        //  }
-
-        //  cb.Body = Mast.Block(stmts);
-
-        //  return cb;
+        return cb;
         //}
       }
       return null;

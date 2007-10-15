@@ -25,7 +25,7 @@ namespace IronScheme.Hosting
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
-      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".ls");
+      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".scm");
     }
 
     public override string LanguageDisplayName
@@ -73,7 +73,7 @@ namespace IronScheme.Hosting
           co.TabCompletion = true;
           co.ColorfulConsole = true;
           co.AutoIndent = true;
-          co.AutoIndentSize = 4;
+          co.AutoIndentSize = 2;
           co.Introspection = true;
           co.TabCompletion = true;
           return co;
