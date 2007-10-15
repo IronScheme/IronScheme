@@ -186,14 +186,14 @@ namespace IronScheme.Runtime
       {
         return ((BuiltinFunction)obj).Name;
       }
-      if (obj is Closure)
-      {
-        return ((Closure)obj).Name;
-      }
-      if (obj is Macro)
-      {
-        return ((Macro)obj).Name;
-      }
+      //if (obj is Closure)
+      //{
+      //  return ((Closure)obj).Name;
+      //}
+      //if (obj is Macro)
+      //{
+      //  return ((Macro)obj).Name;
+      //}
 
       if (obj is FastCallable)
       {
@@ -294,14 +294,14 @@ namespace IronScheme.Runtime
       {
         return ((BuiltinFunction)obj).Name;
       }
-      if (obj is Closure)
-      {
-        return ((Closure)obj).Name;
-      }
-      if (obj is Macro)
-      {
-        return ((Macro)obj).Name;
-      }
+      //if (obj is Closure)
+      //{
+      //  return ((Closure)obj).Name;
+      //}
+      //if (obj is Macro)
+      //{
+      //  return ((Macro)obj).Name;
+      //}
 
       if (obj is FastCallable)
       {
