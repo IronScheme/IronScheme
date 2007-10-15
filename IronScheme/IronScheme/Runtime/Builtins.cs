@@ -109,45 +109,6 @@ namespace IronScheme.Runtime
 
     #endregion
 
-    public static Cons ToImproper(Cons c)
-    {
-      Cons i = c;
-      Cons j = null;
-      while (i.Cdr != null)
-      {
-        j = i;
-        i = i.Cdr as Cons;
-        if (i == null)
-        {
-          return c; // improper already
-        }
-      }
-
-      j.Replacd(i.Car);
-      return c;
-    }
-
-    public static Cons MakeImproperList(params object[] list)
-    {
-      if (list.Length < 2)
-      {
-        throw new ArgumentException("needs at least 2 args");
-      }
-      if (list == null)
-      {
-        return null;
-      }
-      if (list.Length == 2)
-      {
-        return new Cons(list[0], list[1]);
-      }
-      else
-      {
-        Cons c = new Cons(list[0], MakeImproperList(ArrayUtils.RemoveFirst(list)));
-        return c;
-      }
-    }
-
     [Builtin]
     public static Type @typeof(object o)
     {
