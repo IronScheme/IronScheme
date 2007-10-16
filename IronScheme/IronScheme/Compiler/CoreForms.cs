@@ -89,10 +89,79 @@ namespace IronScheme.Compiler
 
 
     // lambda
-    public static Expression Lambda(object args, CodeBlock cb)
+    public static Expression Lambda(object args, CodeBlock c)
     {
-      return null;
+      CodeBlock cb = Ast.CodeBlock("lambda");
+      cb.Parent = c;
+
+      object arg = Builtins.First(args);
+      object body = Builtins.Cdr(args);
+
+      bool isrest = false;
+
+      Cons cargs = arg as Cons;
+      if (cargs != null)
+      {
+        while (cargs != null)
+        {
+          SymbolId an = (SymbolId)Builtins.First(cargs);
+          cb.CreateParameter(an, typeof(object), null);
+
+          Cons r = cargs.Cdr as Cons;
+
+          if (r == null && cargs.Cdr != null)
+          {
+            SymbolId ta = (SymbolId)cargs.Cdr;
+            cb.CreateParameter(ta, typeof(object), null);
+            isrest = true;
+            break;
+          }
+          else
+          {
+            cargs = r;
+          }
+        }
+      }
+      else
+      {
+        SymbolId an = (SymbolId)arg;
+        isrest = true;
+        cb.CreateParameter(an, typeof(object), null);
+      }
+
+      List<Statement> stmts = new List<Statement>();
+      //FillBody(cb, stmts, body);
+
+     Expression ex = null;
+
+      //if (isrest)
+      //{
+      //  ex =
+      //    Mast.Call(null, typeof(Closure).GetMethod("MakeVarArgX"), Mast.CodeContext(),
+      //    Mast.CodeBlockExpression(cb, false, false), Mast.Constant(cb.Parameters.Count), Mast.Constant(cb.Name));
+      //}
+      //else
+      //{
+      //  ex = MakeClosure(cb);
+      //}
+
+      //if (namehint != null)
+      //{
+      //  //cb.Parent = null;
+      //  cb.BindClosures();
+      //  if (isrest)
+      //  {
+      //    Compiler.Scope.SetName(SymbolTable.StringToId(namehint), Closure.MakeVarArgX(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Parameters.Count, cb.Name));
+      //  }
+      //  else
+      //  {
+      //    Compiler.Scope.SetName(SymbolTable.StringToId(namehint), Closure.Make(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Name));
+      //  }
+      //}
+
+      return ex;
     }
+
     // if
     public static Expression If(object args, CodeBlock cb)
     {
