@@ -176,6 +176,11 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    static readonly SymbolId quote = SymbolTable.StringToId("quote");
+    static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
+    static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
+    static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
+
     internal static string DisplayFormat(object obj)
     {
       if (obj == null)
@@ -226,10 +231,34 @@ namespace IronScheme.Runtime
         List<string> v = new List<string>();
         Cons s = obj as Cons;
 
+        if (s != null)
+        {
+          object scar = s.Car;
+          if (IsSymbol(scar))
+          {
+            if (IsEqual(quote, scar))
+            {
+              return "'" + DisplayFormat(Cadr(s));
+            }
+            if (IsEqual(quasiquote, scar))
+            {
+              return "`" + DisplayFormat(Cadr(s));
+            }
+            if (IsEqual(unquote, scar))
+            {
+              return "," + DisplayFormat(Cadr(s));
+            }
+            if (IsEqual(unquote_splicing, scar))
+            {
+              return ",@" + DisplayFormat(Cadr(s));
+            }
+          }
+        }
+
         while (s != null)
         {
           v.Add(DisplayFormat(s.Car));
-          if (s.Cdr != null && !(s.Cdr is IEnumerable))
+          if (s.Cdr != null && !(s.Cdr is Cons))
           {
             v.Add(".");
             v.Add(DisplayFormat(s.Cdr));
@@ -251,16 +280,6 @@ namespace IronScheme.Runtime
         return string.Format("#({0})", string.Join(" ", v.ToArray()));
       }
 
-      if (obj is IEnumerable)
-      {
-        List<string> v = new List<string>();
-        foreach (object io in (IEnumerable)obj)
-        {
-          v.Add(DisplayFormat(io));
-        }
-
-        return string.Format("({0})", string.Join(" ", v.ToArray()));
-      }
       if (obj is SymbolId)
       {
         return SymbolTable.IdToString((SymbolId)obj);
@@ -337,7 +356,7 @@ namespace IronScheme.Runtime
         while (s != null)
         {
           v.Add(WriteFormat(s.Car));
-          if (s.Cdr != null && !(s.Cdr is IEnumerable))
+          if (s.Cdr != null && !(s.Cdr is Cons))
           {
             v.Add(".");
             v.Add(WriteFormat(s.Cdr));

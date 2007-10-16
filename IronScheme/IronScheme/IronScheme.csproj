@@ -52,23 +52,35 @@
     <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
     <Compile Include="IronSchemeLanguageContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Runtime\Booleans.cs" />
     <Compile Include="Runtime\Builtins.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Content Include="Runtime\Characters.cs" />
+    <Content Include="Runtime\Closure.cs" />
     <Compile Include="Runtime\Cons.cs" />
+    <Content Include="Runtime\Control.cs" />
+    <Content Include="Runtime\Environment.cs" />
     <Compile Include="Runtime\Equality.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Content Include="Runtime\Fraction.cs" />
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Content Include="Runtime\Macro.cs" />
+    <Content Include="Runtime\MultiEnumerable.cs" />
     <Compile Include="Runtime\Number.cs" />
+    <Content Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
+    <Content Include="Runtime\Promise.cs" />
     <Compile Include="Runtime\SchemeObject.cs" />
+    <Content Include="Runtime\Strings.cs" />
     <Compile Include="Runtime\Symbols.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\Syntax.cs" />
+    <Content Include="Runtime\Vectors.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
