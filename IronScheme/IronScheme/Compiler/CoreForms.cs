@@ -420,6 +420,21 @@ namespace IronScheme.Compiler
       }
       return isrest;
     }
+    
+    static SymbolId namehint = SymbolId.Invalid;
+
+    public static SymbolId NameHint
+    {
+      get
+      {
+        if (namehint == SymbolId.Invalid)
+        {
+          return SymbolId.Empty;
+        }
+        return namehint;
+      }
+      set { namehint = value; }
+    }
 
     #endregion
     
@@ -445,8 +460,20 @@ namespace IronScheme.Compiler
         object first = Builtins.First(args);
         if (Builtins.IsSymbol(first))
         {
+          SymbolId f = (SymbolId)first;
+          object m;
+          if (Compiler.Scope.TryLookupName(f, out m))
+          {
+            Runtime.Macro macro = m as Runtime.Macro;
+            if (macro != null)
+            {
+              object result = macro.Invoke(Compiler, c.Cdr);
+              return GetAst(result, cb);
+            }
+          }
+
           GeneratorHandler gh;
-          if (generators.TryGetValue((SymbolId)first, out gh))
+          if (generators.TryGetValue(f, out gh))
           {
             return gh(c.Cdr, cb);
           }
@@ -486,24 +513,7 @@ namespace IronScheme.Compiler
       }
       return Ast.Assign(v, value);
     }
-
-    static SymbolId namehint = SymbolId.Invalid;
-
-    public static SymbolId NameHint
-    {
-      get 
-      {
-        if (namehint == SymbolId.Invalid)
-        {
-          return SymbolId.Empty;
-        }
-        return namehint; 
-      }
-      set { namehint = value; }
-    }
-
     
-
     // define
     public static Expression Define(object args, CodeBlock cb)
     {
@@ -546,7 +556,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        ex = Ast.Call(null, typeof(Runtime.Macro).GetMethod("Make"), Ast.CodeContext(), cbe, Ast.Constant(cb.Name));
+        ex = Ast.Call(null, typeof(Runtime.Macro).GetMethod("Make"), Ast.CodeContext(), cbe, Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
       }
 
       cb.BindClosures();
@@ -559,14 +569,12 @@ namespace IronScheme.Compiler
       }
       else
       {
-        Compiler.Scope.SetName(NameHint, Runtime.Macro.Make(Compiler, md, cb.Name));
+        Compiler.Scope.SetName(NameHint, Runtime.Macro.Make(Compiler, md, cb.Parameters.Count, cb.Name));
       }
 
       return ex;
     }
-
-
-
+    
     // lambda
     public static Expression Lambda(object args, CodeBlock c)
     {
