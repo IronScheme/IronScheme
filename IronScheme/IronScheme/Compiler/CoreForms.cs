@@ -4,14 +4,34 @@ using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
+using IronScheme.Hosting;
+using Microsoft.Scripting.Types;
+using Microsoft.Scripting.Actions;
+using System.Reflection;
+using Microsoft.Scripting.Hosting;
 
 namespace IronScheme.Compiler
 {
   static class Generator
   {
+    #region Helpers
+
     delegate Expression GeneratorHandler(object args, CodeBlock cb);
 
     readonly static Dictionary<SymbolId, GeneratorHandler> generators = new Dictionary<SymbolId, GeneratorHandler>();
+
+    readonly static Dictionary<SymbolId, BuiltinFunction> builtinmap =
+      new Dictionary<SymbolId, BuiltinFunction>();
+
+    public static Dictionary<SymbolId, BuiltinFunction> BuiltinFunctions
+    {
+      get { return Generator.builtinmap; }
+    } 
+
+
+    readonly static Dictionary<CodeBlock, Scope> scopemap = new Dictionary<CodeBlock, Scope>();
+
+    static CodeBlock evalblock;
 
     static Generator()
     {
@@ -19,25 +39,396 @@ namespace IronScheme.Compiler
       Add("quote", Quote);
       Add("lambda", Lambda);
       Add("if", If);
+      Add("define", Define);
+      Add("macro", Macro);
+
+      IronSchemeScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
+          typeof(Hosting.IronSchemeLanguageProvider)).GetEngine() as IronSchemeScriptEngine;
+      ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("macros"));
+      mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
+
+
+      CC = se.CreateContext(mc);
+
+      // builtin methods
+
+      Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
+
+      foreach (MethodInfo mi in typeof(Builtins).GetMethods())
+      {
+        foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
+        {
+          string mn = ba.Name ?? mi.Name.ToLower();
+          List<MethodBase> meths;
+          if (!all.TryGetValue(mn, out meths))
+          {
+            all[mn] = meths = new List<MethodBase>();
+          }
+          meths.Add(mi);
+        }
+      }
+
+      foreach (string mn in all.Keys)
+      {
+        builtinmap[SymbolTable.StringToId(mn)] = BuiltinFunction.MakeMethod(mn, all[mn].ToArray(), FunctionType.Function);
+      }
     }
+
+
+    readonly static CodeContext CC;
+
+    internal static CodeContext Compiler
+    {
+      get { return CC; }
+    }
+
+    static Expression Read(SymbolId name, CodeBlock cb, Type type)
+    {
+      SymbolId sname = name;
+
+      Scope scope = GetScope(cb);
+
+      object cvalue;
+      if (!scope.TryLookupName(sname, out cvalue))
+      {
+        scope.SetName(sname, cvalue = (type ?? typeof(object)));
+      }
+
+      Type t = cvalue as Type;
+
+      Variable v = FindVar(cb, sname);
+
+      if (v == null)
+      {
+        return Ast.Read(sname);
+      }
+
+      if (t.IsAssignableFrom(v.Type))
+      {
+        return Ast.Read(v);
+      }
+      else
+      {
+        return Ast.DynamicConvert(Ast.Read(v), t);
+      }
+    }
+
+    static Variable Create(SymbolId sname, CodeBlock cb, Type type)
+    {
+      if (cb.Name == "__toploop__")
+      {
+        if (evalblock == null)
+        {
+          evalblock = cb;
+        }
+        else
+        {
+          cb = evalblock;
+        }
+      }
+      
+      Scope scope = GetScope(cb);
+
+      object cvalue;
+      if (!scope.TryGetName(sname, out cvalue))
+      {
+        scope.SetName(sname, cvalue = (type ?? typeof(object)));
+      }
+
+      Type t = cvalue as Type;
+
+      if (t != type)
+      {
+        object ot;
+        if (scope.TryGetName(sname, out ot))
+        {
+          scope.SetName(sname, type);
+        }
+      }
+
+      Variable v = MakeVar(cb, sname, typeof(object));
+      return v;
+    }
+
+
+    static Variable CreateParameter(SymbolId sname, CodeBlock cb, Type type)
+    {
+      Scope scope = GetScope(cb);
+
+      object cvalue;
+      if (!scope.TryGetName(sname, out cvalue))
+      {
+        scope.SetName(sname, cvalue = (type ?? typeof(object)));
+      }
+
+      Type t = cvalue as Type;
+
+      if (t != type)
+      {
+        object ot;
+        if (scope.TryGetName(sname, out ot))
+        {
+          scope.SetName(sname, type);
+        }
+      }
+
+      Variable v = Variable.Parameter(cb, sname, typeof(object));
+      cb.Parameters.Add(v);
+      return v;
+    }
+
+    static Variable GetParameter(SymbolId sname, CodeBlock cb)
+    {
+      foreach (Variable par in cb.Parameters)
+      {
+        if (par.Name.CaseInsensitiveEquals(sname))
+        {
+          return par;
+        }
+      }
+      return null;
+    }
+
+    static Scope GetScope(CodeBlock key)
+    {
+      if (key.Name == "__toploop__")
+      {
+        if (evalblock == null)
+        {
+          evalblock = key;
+        }
+        else
+        {
+          key = evalblock;
+        }
+      }
+      Scope cs = null;
+      if (!scopemap.TryGetValue(key, out cs))
+      {
+        Scope parent = null;
+        if (key.Parent != null)
+        {
+          parent = GetScope(key.Parent);
+        }
+        scopemap[key] = cs = new Scope(parent, null);
+      }
+      return cs;
+    }
+
+    static Type GetVariableType(SymbolId sname, CodeBlock cb)
+    {
+      Variable par = GetParameter(sname, cb);
+      if (par != null)
+      {
+        return typeof(object);
+      }
+
+      Scope scope = GetScope(cb);
+
+      object cvalue;
+      if (scope.TryGetName(sname, out cvalue))
+      {
+        return cvalue as Type;
+      }
+
+      if (cb.Parent != null)
+      {
+        return GetVariableType(sname, cb.Parent);
+      }
+
+      return null;
+
+    }
+
+    static Variable MakeVar(CodeBlock cb, SymbolId name, Type type)
+    {
+      return cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local, type ?? typeof(object));
+    }
+
+    static Variable FindOrMakeVar(CodeBlock cb, SymbolId name, Type type)
+    {
+      Variable v = FindVar(cb, name);
+      return v ?? cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local, type ?? typeof(object));
+    }
+
+    static Variable FindVar(CodeBlock cb, SymbolId name)
+    {
+
+      // variables take precidence
+      foreach (Variable v in cb.Variables)
+      {
+        if (v.Name.CaseInsensitiveEquals(name))
+        {
+          return v;
+        }
+      }
+
+      foreach (Variable v in cb.Parameters)
+      {
+        if (v.Name.CaseInsensitiveEquals(name))
+        {
+          return v;
+        }
+      }
+
+      if (cb.Parent != null)
+      {
+        return FindVar(cb.Parent, name);
+      }
+      return null;
+    }
+
+    static MethodBinder listbinder;
+
+    static MethodInfo MakeList(params Expression[] args)
+    {
+      Type[] types = Array.ConvertAll<Expression, Type>(args,
+        delegate(Expression e) { return e.Type; });
+      if (listbinder == null)
+      {
+        BuiltinFunction l = builtinmap[SymbolTable.StringToId("list")];
+        listbinder = MethodBinder.MakeBinder(BINDER, l.Name, l.Targets, BinderType.Normal);
+      }
+
+      return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
+    }
+
+    static readonly ActionBinder BINDER = new IronScheme.Actions.IronSchemeActionBinder(null);
+
+    static MethodBase[] GetMethods(Type type, string name)
+    {
+      List<MethodBase> meths = new List<MethodBase>();
+      foreach (MemberInfo memi in type.GetMember(name, BindingFlags.Public | BindingFlags.Static |
+        BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase))
+      {
+        if (memi is MethodInfo)
+        {
+          meths.Add(memi as MethodBase);
+        }
+      }
+
+      return meths.ToArray();
+    }
+
+    static MethodInfo GetMethod(Type type, string name)
+    {
+      return type.GetMethod(name, BindingFlags.Static | BindingFlags.Public);
+    }
+
+
+
+    static Expression MakeClosure(CodeBlock cb)
+    {
+      return Ast.Call(null,
+        typeof(Closure).GetMethod("Make"), Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Name));
+    }
+
+
+
+    static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
+    {
+      Cons c = body;
+      while (c != null)
+      {
+        Expression e = GetAst(c.Car, cb);
+        if (c.Cdr == null)
+        {
+          if (allowtailcall)
+          {
+            if (e is MethodCallExpression && e.Type != typeof(void))
+            {
+              ((MethodCallExpression)e).TailCall = true;
+            }
+            if (e is ActionExpression && e.Type != typeof(void))
+            {
+              ((ActionExpression)e).TailCall = true;
+            }
+          }
+
+          stmts.Add(Ast.Return(e));
+        }
+        else
+        {
+          stmts.Add(Ast.Statement(e));
+        }
+        c = c.Cdr as Cons;
+      }
+
+      cb.Body = Ast.Block(stmts.ToArray());
+    }
+
 
     static void Add(string name, GeneratorHandler handler)
     {
       generators.Add(SymbolTable.StringToId(name), handler);
     }
 
+
+    static Expression[] GetAstList(Cons c, CodeBlock cb)
+    {
+      List<Expression> e = new List<Expression>();
+      while (c != null)
+      {
+        e.Add(GetAst(c.Car, cb));
+        c = c.Cdr as Cons;
+      }
+      return e.ToArray();
+    }
+
+    static Expression[] GetConsList(Cons c, CodeBlock cb)
+    {
+      List<Expression> e = new List<Expression>();
+      while (c != null)
+      {
+        e.Add(GetCons(c.Car, cb));
+        c = c.Cdr as Cons;
+      }
+      return e.ToArray();
+    }
+
+    static bool AssignParameters(CodeBlock cb, object arg)
+    {
+      bool isrest = false;
+      Cons cargs = arg as Cons;
+      if (cargs != null)
+      {
+        while (cargs != null)
+        {
+          SymbolId an = (SymbolId)Builtins.First(cargs);
+          CreateParameter(an, cb, typeof(object));
+
+          Cons r = cargs.Cdr as Cons;
+
+          if (r == null && cargs.Cdr != null)
+          {
+            SymbolId ta = (SymbolId)cargs.Cdr;
+            CreateParameter(ta, cb, typeof(object));
+            isrest = true;
+            break;
+          }
+          else
+          {
+            cargs = r;
+          }
+        }
+      }
+      else
+      {
+        SymbolId an = (SymbolId)arg;
+        isrest = true;
+        CreateParameter(an, cb, typeof(object));
+      }
+      return isrest;
+    }
+
+    #endregion
+    
     public static Expression GetCons(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
       if (c != null)
       {
-        List<Expression> items = new List<Expression>();
-        while (c != null)
-        {
-          items.Add(GetCons(Builtins.Car(c), cb));
-          c = c.Cdr as Cons;
-        }
-        return Ast.Call(null, typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) }), items.ToArray());
+        return Ast.Call(null, typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) }), GetConsList(c, cb));
       }
       else
       {
@@ -60,17 +451,18 @@ namespace IronScheme.Compiler
             return gh(c.Cdr, cb);
           }
         }
-        return null;
+        return Ast.Action.Call(typeof(object), GetAstList(c, cb));
       }
       else
       {
         if (Builtins.IsSymbol(args))
         {
-          return Ast.Read((SymbolId)args);
+          return Read((SymbolId)args, cb, typeof(object));
         }
         return Ast.Constant(args);
       }
     }
+
     // quote
     public static Expression Quote(object args, CodeBlock cb)
     {
@@ -81,9 +473,96 @@ namespace IronScheme.Compiler
     public static Expression Set(object args, CodeBlock cb)
     {
       SymbolId s = (SymbolId)Builtins.First(args);
+
+      namehint = s;
+
       Expression value = GetAst(Builtins.Second(args), cb);
 
-      return Ast.Assign(s, value);
+      Variable v = FindVar(cb, s);
+
+      if (value.Type.IsValueType)
+      {
+        value = Ast.DynamicConvert(value, typeof(object));
+      }
+      return Ast.Assign(v, value);
+    }
+
+    static SymbolId namehint = SymbolId.Invalid;
+
+    public static SymbolId NameHint
+    {
+      get 
+      {
+        if (namehint == SymbolId.Invalid)
+        {
+          return SymbolId.Empty;
+        }
+        return namehint; 
+      }
+      set { namehint = value; }
+    }
+
+    
+
+    // define
+    public static Expression Define(object args, CodeBlock cb)
+    {
+      SymbolId s = (SymbolId)Builtins.First(args);
+
+      namehint = s;
+
+      Expression value = GetAst(Builtins.Second(args), cb);
+
+      Variable v = Create(s, cb, typeof(object));
+
+      if (value.Type.IsValueType)
+      {
+        value = Ast.DynamicConvert(value, typeof(object));
+      }
+      return Ast.Assign(v, value);
+    }
+
+    // macro
+    public static Expression Macro(object args, CodeBlock c)
+    {
+      CodeBlock cb = Ast.CodeBlock(NameHint);
+      cb.Parent = c;
+
+      object arg = Builtins.First(args);
+      Cons body = Builtins.Cdr(args) as Cons;
+
+      bool isrest = AssignParameters(cb, arg);
+
+      List<Statement> stmts = new List<Statement>();
+      FillBody(cb, stmts, body, true);
+
+      CodeBlockExpression cbe = Ast.CodeBlockExpression(cb, false);
+
+      Expression ex = null;
+
+      if (isrest)
+      {
+        ex = Ast.Call(null, typeof(Runtime.Macro).GetMethod("MakeVarArgX"), Ast.CodeContext(), cbe, Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
+      }
+      else
+      {
+        ex = Ast.Call(null, typeof(Runtime.Macro).GetMethod("Make"), Ast.CodeContext(), cbe, Ast.Constant(cb.Name));
+      }
+
+      cb.BindClosures();
+
+      CallTargetWithContextN md = cb.GetDelegateForInterpreter(Compiler, false) as CallTargetWithContextN;
+
+      if (isrest)
+      {
+        Compiler.Scope.SetName(NameHint, Runtime.Macro.MakeVarArgX(Compiler, md, cb.Parameters.Count, cb.Name));
+      }
+      else
+      {
+        Compiler.Scope.SetName(NameHint, Runtime.Macro.Make(Compiler, md, cb.Name));
+      }
+
+      return ex;
     }
 
 
@@ -91,73 +570,43 @@ namespace IronScheme.Compiler
     // lambda
     public static Expression Lambda(object args, CodeBlock c)
     {
-      CodeBlock cb = Ast.CodeBlock("lambda");
+      CodeBlock cb = Ast.CodeBlock(NameHint);
       cb.Parent = c;
 
       object arg = Builtins.First(args);
-      object body = Builtins.Cdr(args);
+      Cons body = Builtins.Cdr(args) as Cons;
 
-      bool isrest = false;
+      bool isrest = AssignParameters(cb, arg);
 
-      Cons cargs = arg as Cons;
-      if (cargs != null)
+      List<Statement> stmts = new List<Statement>();
+      FillBody(cb, stmts, body, true);
+
+      Expression ex = null;
+
+      if (isrest)
       {
-        while (cargs != null)
-        {
-          SymbolId an = (SymbolId)Builtins.First(cargs);
-          cb.CreateParameter(an, typeof(object), null);
-
-          Cons r = cargs.Cdr as Cons;
-
-          if (r == null && cargs.Cdr != null)
-          {
-            SymbolId ta = (SymbolId)cargs.Cdr;
-            cb.CreateParameter(ta, typeof(object), null);
-            isrest = true;
-            break;
-          }
-          else
-          {
-            cargs = r;
-          }
-        }
+        ex =
+          Ast.Call(null, typeof(Closure).GetMethod("MakeVarArgX"), Ast.CodeContext(),
+          Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
       }
       else
       {
-        SymbolId an = (SymbolId)arg;
-        isrest = true;
-        cb.CreateParameter(an, typeof(object), null);
+        ex = MakeClosure(cb);
       }
 
-      List<Statement> stmts = new List<Statement>();
-      //FillBody(cb, stmts, body);
-
-     Expression ex = null;
-
-      //if (isrest)
-      //{
-      //  ex =
-      //    Mast.Call(null, typeof(Closure).GetMethod("MakeVarArgX"), Mast.CodeContext(),
-      //    Mast.CodeBlockExpression(cb, false, false), Mast.Constant(cb.Parameters.Count), Mast.Constant(cb.Name));
-      //}
-      //else
-      //{
-      //  ex = MakeClosure(cb);
-      //}
-
-      //if (namehint != null)
-      //{
-      //  //cb.Parent = null;
-      //  cb.BindClosures();
-      //  if (isrest)
-      //  {
-      //    Compiler.Scope.SetName(SymbolTable.StringToId(namehint), Closure.MakeVarArgX(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Parameters.Count, cb.Name));
-      //  }
-      //  else
-      //  {
-      //    Compiler.Scope.SetName(SymbolTable.StringToId(namehint), Closure.Make(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Name));
-      //  }
-      //}
+      if (NameHint != SymbolId.Empty)
+      {
+        //cb.Parent = null;
+        cb.BindClosures();
+        if (isrest)
+        {
+          Compiler.Scope.SetName(NameHint, Closure.MakeVarArgX(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Parameters.Count, cb.Name));
+        }
+        else
+        {
+          Compiler.Scope.SetName(NameHint, Closure.Make(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Name));
+        }
+      }
 
       return ex;
     }
@@ -184,112 +633,5 @@ namespace IronScheme.Compiler
       return Ast.Condition(testexp, GetAst(trueexp, cb), e, true);
     }
   }
-
-
-
-  /*
-  public class Lambda : SpecialExpression
-  {
-    internal string namehint;
-    ExpressionList args;
-    ExpressionList body;
-    internal CodeBlock cb;
-
-    internal ExpressionList Body
-    {
-      get { return body; }
-    }
-
-    internal ExpressionList Parameters
-    {
-      get { return args; }
-    }
-
-    public Lambda(ExpressionList args, ExpressionList body)
-    {
-      this.args = args;
-      this.body = body;
-    }
-
-    public override MSA.Expression GetAst(CodeBlock c)
-    {
-      string cbname = GetFullname(c, namehint ?? "lambda");
-
-      CodeBlock cb = Mast.CodeBlock(cbname);
-      cb.Parent = c;
-
-      this.cb = cb;
-
-      bool isrest = false;
-
-
-      foreach (Symbol s in args)
-      {
-        if (s.Name == "rested")
-        {
-          ;
-        }
-        if (s.Name == ".")
-        {
-          isrest = true;
-        }
-        else
-        {
-          if (isrest)
-          {
-            CreateParameter(s.Name, cb, typeof(IEnumerable));
-          }
-          else
-          {
-            CreateParameter(s.Name, cb, typeof(object));
-          }
-        }
-      }
-
-      List<Statement> stmts = new List<Statement>();
-      FillBody(cb, stmts, body);
-
-      MSA.Expression ex = null;
-
-      if (isrest)
-      {
-        ex =
-          Mast.Call(null, typeof(Closure).GetMethod("MakeVarArgX"), Mast.CodeContext(),
-          Mast.CodeBlockExpression(cb, false, false), Mast.Constant(cb.Parameters.Count), Mast.Constant(cb.Name));
-      }
-      else
-      {
-        ex = MakeClosure(cb);
-      }
-
-      if (namehint != null)
-      {
-        //cb.Parent = null;
-        cb.BindClosures();
-        if (isrest)
-        {
-          Compiler.Scope.SetName(SymbolTable.StringToId(namehint), Closure.MakeVarArgX(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Parameters.Count, cb.Name));
-        }
-        else
-        {
-          Compiler.Scope.SetName(SymbolTable.StringToId(namehint), Closure.Make(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Name));
-        }
-      }
-
-      return ex;
-    }
-
-
-
-    public override string ToString()
-    {
-      if (args.Count == 2 && ((Symbol)args[0]).Name == ".")
-      {
-        return string.Format("(lambda {0} {1})", args[1], Join(body));
-      }
-      return string.Format("(lambda ({0}) {1})", Join(args), Join(body));
-    }
-  }
-   */
 
 }
