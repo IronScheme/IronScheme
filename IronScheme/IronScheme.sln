@@ -18,7 +18,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9-2424-489F-8F3B-F1F7165E5A44}"
 	ProjectSection(SolutionItems) = preProject
 		tools\gplex.exe = tools\gplex.exe
-		tools\gplexx.frame = tools\gplexx.frame
 		tools\gppg.exe = tools\gppg.exe
 		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
 	EndProjectSection

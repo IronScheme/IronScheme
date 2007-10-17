@@ -47,6 +47,16 @@ namespace IronScheme
 
     public override bool TryLookupName(CodeContext context, SymbolId name, out object value)
     {
+      if (base.TryLookupName(context, name, out value))
+      {
+        return true;
+      }
+      BuiltinFunction bif;
+      if (Generator.BuiltinFunctions.TryGetValue(name, out bif))
+      {
+        value = bif;
+        return true;
+      }
       value = name;
       return false;
     }
