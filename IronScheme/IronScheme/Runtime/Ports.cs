@@ -189,23 +189,23 @@ namespace IronScheme.Runtime
       }
       if (obj is BuiltinFunction)
       {
-        return ((BuiltinFunction)obj).Name;
+        return "builtin::" + ((BuiltinFunction)obj).Name;
       }
-      //if (obj is Closure)
-      //{
-      //  return ((Closure)obj).Name;
-      //}
-      //if (obj is Macro)
-      //{
-      //  return ((Macro)obj).Name;
-      //}
+      if (obj is Closure)
+      {
+        return "closure::" + ((Closure)obj).Name;
+      }
+      if (obj is Macro)
+      {
+        return "macro::" + ((Macro)obj).Name;
+      }
 
       if (obj is FastCallable)
       {
         FieldInfo fi = obj.GetType().GetField("name", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
         if (fi != null)
         {
-          return fi.GetValue(obj) as string;
+          return "closure::" + fi.GetValue(obj) as string;
         }
       }
       MethodInfo mi = obj as MethodInfo;
@@ -309,18 +309,19 @@ namespace IronScheme.Runtime
       {
         return "()";
       }
+
       if (obj is BuiltinFunction)
       {
         return ((BuiltinFunction)obj).Name;
       }
-      //if (obj is Closure)
-      //{
-      //  return ((Closure)obj).Name;
-      //}
-      //if (obj is Macro)
-      //{
-      //  return ((Macro)obj).Name;
-      //}
+      if (obj is Closure)
+      {
+        return ((Closure)obj).Name;
+      }
+      if (obj is Macro)
+      {
+        return ((Macro)obj).Name;
+      }
 
       if (obj is FastCallable)
       {

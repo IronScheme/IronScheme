@@ -21,6 +21,13 @@ namespace IronScheme.Runtime
   public abstract class Macro : FastCallable
   {
     readonly string name;
+    readonly int paramcount;
+
+    public int ParamCount
+    {
+      get { return paramcount; }
+    } 
+
 
     public string Name
     {
@@ -28,8 +35,9 @@ namespace IronScheme.Runtime
     } 
 
     readonly Delegate target;
-    Macro(Delegate target, string name)
+    Macro(Delegate target, int paramcount, string name)
     {
+      this.paramcount = paramcount;
       this.name = name;
       this.target = target;
     }
@@ -47,7 +55,7 @@ namespace IronScheme.Runtime
 
       CallTargetWithContextN targetN { get { return target as CallTargetWithContextN; } }
 
-      public ContextMacro(CodeContext cc, Delegate target, string name) : base(target, name)
+      public ContextMacro(CodeContext cc, Delegate target, int paramcount, string name) : base(target, paramcount, name)
       {
         this.cc = cc;
       }
@@ -156,7 +164,7 @@ namespace IronScheme.Runtime
 
       CallTargetN targetN { get { return target as CallTargetN; } }
 
-      public SimpleMacro(Delegate target, string name) : base(target, name)
+      public SimpleMacro(Delegate target, int paramcount, string name) : base(target, paramcount, name)
       {
 
       }
@@ -200,16 +208,16 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static Macro Make(CodeContext cc, Delegate target, string name)
+    public static Macro Make(CodeContext cc, Delegate target, int paramcount, string name)
     {
       string targetname = target.GetType().Name;
       if (targetname.Contains("WithContext"))
       {
-        return new ContextMacro(cc, target, name);
+        return new ContextMacro(cc, target, paramcount, name);
       }
       else
       {
-        return new SimpleMacro(target, name);
+        return new SimpleMacro(target, paramcount, name);
       }
     }
 
@@ -225,13 +233,13 @@ namespace IronScheme.Runtime
 
     sealed class VarArgMacro : Macro
     {
-      int paramcount;
+      //int paramcount;
       Macro realtarget;
 
-      public VarArgMacro(CodeContext cc, Delegate target, int paramcount, string name) : base(target, name)
+      public VarArgMacro(CodeContext cc, Delegate target, int paramcount, string name) : base(target, paramcount, name)
       {
-        this.paramcount = paramcount;
-        realtarget = Make(cc, target, name);
+        //this.paramcount = paramcount;
+        realtarget = Make(cc, target, paramcount, name);
         if (realtarget is ContextMacro)
         {
           paramcount--;
@@ -240,18 +248,42 @@ namespace IronScheme.Runtime
 
       public override object Call(CodeContext context, params object[] args)
       {
-        object[] newargs = new object[paramcount];
-        Array.Copy(args, newargs, paramcount - 1);
-        object[] last = new object[args.Length - paramcount + 1];
-        Array.Copy(args, paramcount - 1, last, 0, last.Length);
-        newargs[paramcount - 1] = Cons.FromArray(last);
-        return realtarget.Call(context, newargs);
+        //object[] newargs = new object[paramcount];
+        //Array.Copy(args, newargs, paramcount - 1);
+        //object[] last = new object[args.Length - paramcount + 1];
+        //Array.Copy(args, paramcount - 1, last, 0, last.Length);
+        //newargs[paramcount - 1] = Cons.FromArray(last);
+        return realtarget.Call(context, args);
       }
 
       public override object CallInstance(CodeContext context, object instance, params object[] args)
       {
         throw new Exception("The method or operation is not implemented.");
       }
+    }
+
+    public object Invoke(CodeContext context, object arg0)
+    {
+      object[] args = new object[ParamCount];
+      int i = 0;
+      Cons c = arg0 as Cons;
+      while (c != null)
+      {
+        args[i] = c.Car;
+        if (c.Cdr != null && !(c.Cdr is Cons))
+        {
+          args[i + 1] = c.Cdr;
+          break;
+        }
+        if (c.Cdr != null && i == ParamCount - 2)
+        {
+          args[i + 1] = c.Cdr;
+          break;
+        }
+        i++;
+        c = c.Cdr as Cons;
+      }
+      return Call(context, args);
     }
 
     public override object Call(CodeContext context)
