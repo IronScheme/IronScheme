@@ -39,6 +39,15 @@ namespace IronScheme.Hosting
       Console.WriteLine("{0}", strv);
     }
 
+    public override string FormatException(Exception exception)
+    {
+      if (exception is MissingMemberException)
+      {
+        return string.Format("error: {0}", exception.Message);
+      }
+      return base.FormatException(exception);
+    }
+
     #region Abstract
 
 

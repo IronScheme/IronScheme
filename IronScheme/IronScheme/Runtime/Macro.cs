@@ -246,6 +246,30 @@ namespace IronScheme.Runtime
         }
       }
 
+      public override object Invoke(CodeContext context, object arg0)
+      {
+        object[] args = new object[ParamCount];
+        int i = 0;
+        Cons c = arg0 as Cons;
+        while (c != null)
+        {
+          args[i] = c.Car;
+          if (c.Cdr != null && !(c.Cdr is Cons))
+          {
+            args[i + 1] = c.Cdr;
+            break;
+          }
+          if (c.Cdr != null && i == ParamCount - 2)
+          {
+            args[i + 1] = c.Cdr;
+            break;
+          }
+          i++;
+          c = c.Cdr as Cons;
+        }
+        return Call(context, args);
+      }
+
       public override object Call(CodeContext context, params object[] args)
       {
         //object[] newargs = new object[paramcount];
@@ -262,7 +286,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public object Invoke(CodeContext context, object arg0)
+    public virtual object Invoke(CodeContext context, object arg0)
     {
       object[] args = new object[ParamCount];
       int i = 0;
@@ -270,19 +294,15 @@ namespace IronScheme.Runtime
       while (c != null)
       {
         args[i] = c.Car;
-        if (c.Cdr != null && !(c.Cdr is Cons))
-        {
-          args[i + 1] = c.Cdr;
-          break;
-        }
-        if (c.Cdr != null && i == ParamCount - 2)
-        {
-          args[i + 1] = c.Cdr;
-          break;
-        }
         i++;
         c = c.Cdr as Cons;
       }
+
+      if (i != ParamCount)
+      {
+        throw new Exception("bad paramcount");
+      }
+
       return Call(context, args);
     }
 

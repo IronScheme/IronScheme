@@ -253,6 +253,17 @@ namespace IronScheme.Compiler
 
     static Variable FindVar(CodeBlock cb, SymbolId name)
     {
+      if (cb.Name == "__toploop__")
+      {
+        if (evalblock == null)
+        {
+          evalblock = cb;
+        }
+        else
+        {
+          cb = evalblock;
+        }
+      }
 
       // variables take precidence
       foreach (Variable v in cb.Variables)
@@ -507,10 +518,16 @@ namespace IronScheme.Compiler
 
       Variable v = FindVar(cb, s);
 
+      if (v == null)
+      {
+        throw new MissingMemberException(string.Format("name '{0}' not defined", SymbolTable.IdToString(s)));
+      }
+
       if (value.Type.IsValueType)
       {
         value = Ast.DynamicConvert(value, typeof(object));
       }
+
       return Ast.Assign(v, value);
     }
     
