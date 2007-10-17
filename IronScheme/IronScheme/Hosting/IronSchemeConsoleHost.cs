@@ -26,8 +26,8 @@ namespace IronScheme.Hosting
       ScriptDomainManager.Options.AssemblyGenAttributes |=
         Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies |
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations | 
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations | 
         Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
     }

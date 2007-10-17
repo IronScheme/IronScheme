@@ -52,11 +52,11 @@
     <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
     <Compile Include="IronSchemeLanguageContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Content Include="Runtime\Booleans.cs" />
+    <Compile Include="Runtime\Booleans.cs" />
     <Compile Include="Runtime\Builtins.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Content Include="Runtime\Characters.cs" />
+    <Compile Include="Runtime\Characters.cs" />
     <Compile Include="Runtime\Closure.cs" />
     <Compile Include="Runtime\Cons.cs" />
     <Content Include="Runtime\Control.cs" />
@@ -73,7 +73,7 @@
     <Compile Include="Runtime\Number.cs" />
     <Content Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
-    <Content Include="Runtime\Promise.cs" />
+    <Compile Include="Runtime\Promise.cs" />
     <Compile Include="Runtime\SchemeObject.cs" />
     <Content Include="Runtime\Strings.cs" />
     <Compile Include="Runtime\Symbols.cs">
