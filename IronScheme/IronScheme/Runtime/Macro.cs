@@ -253,20 +253,21 @@ namespace IronScheme.Runtime
         Cons c = arg0 as Cons;
         while (c != null)
         {
-          args[i] = c.Car;
-          if (c.Cdr != null && !(c.Cdr is Cons))
+          args[i++] = c.Car;
+          if (i == ParamCount - 1)
           {
-            args[i + 1] = c.Cdr;
+            args[i++] = c.Cdr;
             break;
           }
-          if (c.Cdr != null && i == ParamCount - 2)
-          {
-            args[i + 1] = c.Cdr;
-            break;
-          }
-          i++;
           c = c.Cdr as Cons;
         }
+
+
+        if (i != ParamCount)
+        {
+          throw new Exception("bad paramcount");
+        }
+
         return Call(context, args);
       }
 
@@ -291,14 +292,13 @@ namespace IronScheme.Runtime
       object[] args = new object[ParamCount];
       int i = 0;
       Cons c = arg0 as Cons;
-      while (c != null)
+      while (c != null && i < ParamCount)
       {
-        args[i] = c.Car;
-        i++;
+        args[i++] = c.Car;
         c = c.Cdr as Cons;
       }
 
-      if (i != ParamCount)
+      if (i != ParamCount || c != null)
       {
         throw new Exception("bad paramcount");
       }
