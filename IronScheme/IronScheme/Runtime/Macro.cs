@@ -18,7 +18,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  public abstract class Macro : FastCallable
+  public abstract class Macro
   {
     readonly string name;
     readonly int paramcount;
@@ -41,6 +41,8 @@ namespace IronScheme.Runtime
       this.name = name;
       this.target = target;
     }
+
+    public abstract object Call(CodeContext cc, params object[] args);
 
     sealed class ContextMacro : Macro
     {
@@ -146,11 +148,6 @@ namespace IronScheme.Runtime
         }
         throw new Exception("The method or operation is not implemented.");
       }
-
-      public override object CallInstance(CodeContext context, object instance, params object[] args)
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
     }
 
     sealed class SimpleMacro : Macro
@@ -199,11 +196,6 @@ namespace IronScheme.Runtime
         {
           return target5(args[0], args[1], args[2], args[3], args[4]);
         }
-        throw new Exception("The method or operation is not implemented.");
-      }
-
-      public override object CallInstance(CodeContext context, object instance, params object[] args)
-      {
         throw new Exception("The method or operation is not implemented.");
       }
     }
@@ -280,11 +272,6 @@ namespace IronScheme.Runtime
         //newargs[paramcount - 1] = Cons.FromArray(last);
         return realtarget.Call(context, args);
       }
-
-      public override object CallInstance(CodeContext context, object instance, params object[] args)
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
     }
 
     public virtual object Invoke(CodeContext context, object arg0)
@@ -306,59 +293,36 @@ namespace IronScheme.Runtime
       return Call(context, args);
     }
 
-    public override object Call(CodeContext context)
+    public virtual object Call(CodeContext context)
     {
       return Call(context, new object[] { });
     }
 
-    public override object Call(CodeContext context, object arg0)
+    public virtual object Call(CodeContext context, object arg0)
     {
       return Call(context, new object[] { arg0 });
     }
 
-    public override object CallInstance(CodeContext context, object arg0)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public override object Call(CodeContext context, object arg0, object arg1)
+    public virtual object Call(CodeContext context, object arg0, object arg1)
     {
       return Call(context, new object[] { arg0, arg1 });
     }
 
-    public override object CallInstance(CodeContext context, object arg0, object arg1)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public override object Call(CodeContext context, object arg0, object arg1, object arg2)
+    public virtual object Call(CodeContext context, object arg0, object arg1, object arg2)
     {
       return Call(context, new object[] { arg0, arg1, arg2 });
     }
 
-    public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3)
+    public virtual object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3)
     {
       return Call(context, new object[] { arg0, arg1, arg2, arg3 });
     }
-
-    public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2, object arg3)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-    public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
+    
+    public virtual object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
     {
       return Call(context, new object[] { arg0, arg1, arg2, arg3, arg4 });
     }
 
-    public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
+
   }
 }
