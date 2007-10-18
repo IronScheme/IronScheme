@@ -393,7 +393,20 @@ namespace IronScheme.Compiler
       List<Expression> e = new List<Expression>();
       while (c != null)
       {
-        e.Add(GetCons(c.Car, cb));
+        if (nestinglevel == 1 && c.Car is Cons && Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
+        {
+          Cons l = Builtins.Cdar(c) as Cons;
+          e.AddRange(GetConsList(l, cb));
+        }
+        else
+        {
+          e.Add(GetCons(c.Car, cb));
+        }
+        if (c.Cdr != null && !(c.Cdr is Cons))
+        {
+          e.Add(GetCons(c.Cdr, cb));
+          break;
+        }
         c = c.Cdr as Cons;
       }
       return e.ToArray();
@@ -467,10 +480,6 @@ namespace IronScheme.Compiler
           {
             SymbolId s = (SymbolId)c.Car;
             if (Builtins.IsEqual(s, unquote))
-            {
-              return GetAst(Builtins.Second(c), cb);
-            }
-            else if (Builtins.IsEqual(s, unquote_splicing))
             {
               return GetAst(Builtins.Second(c), cb);
             }
