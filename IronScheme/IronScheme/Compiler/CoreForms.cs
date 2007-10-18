@@ -41,6 +41,8 @@ namespace IronScheme.Compiler
       Add("if", If);
       Add("define", Define);
       Add("macro", Macro);
+      Add("quasiquote", Quasiquote);
+    
 
       IronSchemeScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
           typeof(Hosting.IronSchemeLanguageProvider)).GetEngine() as IronSchemeScriptEngine;
@@ -431,6 +433,11 @@ namespace IronScheme.Compiler
       }
       return isrest;
     }
+
+    static readonly SymbolId quote = SymbolTable.StringToId("quote");
+    static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
+    static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
+    static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
     
     static SymbolId namehint = SymbolId.Invalid;
 
@@ -454,6 +461,21 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
+        if (nestinglevel == 1)
+        {
+          if (Builtins.IsSymbol(c.Car))
+          {
+            SymbolId s = (SymbolId)c.Car;
+            if (Builtins.IsEqual(s, unquote))
+            {
+              return GetAst(Builtins.Second(c), cb);
+            }
+            else if (Builtins.IsEqual(s, unquote_splicing))
+            {
+              return GetAst(Builtins.Second(c), cb);
+            }
+          }
+        }
         return Ast.Call(null, typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) }), GetConsList(c, cb));
       }
       else
@@ -504,7 +526,16 @@ namespace IronScheme.Compiler
     // quote
     public static Expression Quote(object args, CodeBlock cb)
     {
-      return GetCons(Builtins.Car(args), cb);
+      int t = nestinglevel;
+      nestinglevel = int.MaxValue/2;
+      try
+      {
+        return GetCons(Builtins.Car(args), cb);
+      }
+      finally
+      {
+        nestinglevel = t;
+      }
     }
 
     // set!
@@ -656,6 +687,21 @@ namespace IronScheme.Compiler
       Expression testexp = Ast.Call(null, typeof(Builtins).GetMethod("IsTrue"), GetAst(test,cb));
 
       return Ast.Condition(testexp, GetAst(trueexp, cb), e, true);
+    }
+
+    static int nestinglevel = 0;
+
+    public static Expression Quasiquote(object args, CodeBlock cb)
+    {
+      nestinglevel++;
+      try
+      {
+        return GetCons(Builtins.First(args), cb);
+      }
+      finally
+      {
+        nestinglevel--;
+      }
     }
   }
 
