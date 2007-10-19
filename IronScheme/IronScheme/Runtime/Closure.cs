@@ -51,60 +51,6 @@ namespace IronScheme.Runtime
         this.cc = cc;
       }
 
-      public override object Call(CodeContext context)
-      {
-        if (target0 != null)
-        {
-          return target0(cc);
-        }
-        return base.Call(context);
-      }
-
-      public override object Call(CodeContext context, object arg0)
-      {
-        if (target1 != null)
-        {
-          return target1(cc, arg0);
-        }
-        return base.Call(context, arg0);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1)
-      {
-        if (target2 != null)
-        {
-          return target2(cc, arg0, arg1);
-        }
-        return base.Call(context, arg0, arg1);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1, object arg2)
-      {
-        if (target3 != null)
-        {
-          return target3(cc, arg0, arg1, arg2);
-        }
-        return base.Call(context, arg0, arg1, arg2);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3)
-      {
-        if (target4 != null)
-        {
-          return target4(cc, arg0, arg1, arg2, arg3);
-        }
-        return base.Call(context, arg0, arg1, arg2, arg3);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
-      {
-        if (target5 != null)
-        {
-          return target5(cc, arg0, arg1, arg2, arg3, arg4);
-        }
-        return base.Call(context, arg0, arg1, arg2, arg3, arg4);
-      }
-
       public override object Call(CodeContext context, params object[] args)
       {
         if (targetN != null)
@@ -137,15 +83,17 @@ namespace IronScheme.Runtime
         }
         throw new Exception("The method or operation is not implemented.");
       }
-
-      public override object CallInstance(CodeContext context, object instance, params object[] args)
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
     }
 
     sealed class SimpleClosure : Closure
     {
+      CallTarget0 target0 { get { return target as CallTarget0; } }
+      CallTarget1 target1 { get { return target as CallTarget1; } }
+      CallTarget2 target2 { get { return target as CallTarget2; } }
+      CallTarget3 target3 { get { return target as CallTarget3; } }
+      CallTarget4 target4 { get { return target as CallTarget4; } }
+      CallTarget5 target5 { get { return target as CallTarget5; } }
+
       CallTargetN targetN { get { return target as CallTargetN; } }
 
       public SimpleClosure(Delegate target, string name) : base(target, name)
@@ -157,6 +105,30 @@ namespace IronScheme.Runtime
         if (targetN != null)
         {
           return targetN(args);
+        }
+        if (target0 != null)
+        {
+          return target0();
+        }
+        if (target1 != null)
+        {
+          return target1(args[0]);
+        }
+        if (target2 != null)
+        {
+          return target2(args[0], args[1]);
+        }
+        if (target3 != null)
+        {
+          return target3(args[0], args[1], args[2]);
+        }
+        if (target4 != null)
+        {
+          return target4(args[0], args[1], args[2], args[3]);
+        }
+        if (target5 != null)
+        {
+          return target5(args[0], args[1], args[2], args[3], args[4]);
         }
         throw new Exception("The method or operation is not implemented.");
       }
@@ -174,13 +146,9 @@ namespace IronScheme.Runtime
       {
         return new ContextClosure(cc, target, name);
       }
-      else if (targetname.EndsWith("N"))
-      {
-        return new SimpleClosure(target, name);
-      }
       else
       {
-        return FastCallable.Make(name, false, target.Method.GetParameters().Length, target);
+        return new SimpleClosure(target, name);
       }
     }
 
@@ -198,10 +166,6 @@ namespace IronScheme.Runtime
       {
         this.paramcount = paramcount;
         realtarget = Make(cc, target, name);
-        if (realtarget is ContextClosure)
-        {
-          paramcount--;
-        }
       }
 
       public override object Call(CodeContext context, params object[] args)
@@ -220,11 +184,6 @@ namespace IronScheme.Runtime
           return realtarget.Call(context, newargs);
         }
       }
-
-      public override object CallInstance(CodeContext context, object instance, params object[] args)
-      {
-        throw new Exception("The method or operation is not implemented.");
-      }
     }
 
     public override object Call(CodeContext context)
@@ -237,47 +196,51 @@ namespace IronScheme.Runtime
       return Call(context, new object[] { arg0 });
     }
 
-    public override object CallInstance(CodeContext context, object arg0)
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
     public override object Call(CodeContext context, object arg0, object arg1)
     {
       return Call(context, new object[] { arg0, arg1 });
-    }
-
-    public override object CallInstance(CodeContext context, object arg0, object arg1)
-    {
-      throw new Exception("The method or operation is not implemented.");
     }
 
     public override object Call(CodeContext context, object arg0, object arg1, object arg2)
     {
       return Call(context, new object[] { arg0, arg1, arg2 });
     }
+    public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3)
+    {
+      return Call(context, new object[] { arg0, arg1, arg2, arg3 });
+    }
 
-    public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2)
+    public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
+    {
+      return Call(context, new object[] { arg0, arg1, arg2, arg3, arg4 });
+    }
+
+    public override object CallInstance(CodeContext context, object arg0)
     {
       throw new Exception("The method or operation is not implemented.");
     }
 
-    public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3)
+    public override object CallInstance(CodeContext context, object arg0, object arg1)
     {
-      return Call(context, new object[] { arg0, arg1, arg2, arg3 });
+      throw new Exception("The method or operation is not implemented.");
+    }
+    
+    public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2)
+    {
+      throw new Exception("The method or operation is not implemented.");
     }
 
     public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2, object arg3)
     {
       throw new Exception("The method or operation is not implemented.");
     }
-
-    public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
+    
+    public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
     {
-      return Call(context, new object[] { arg0, arg1, arg2, arg3, arg4});
+      throw new Exception("The method or operation is not implemented.");
     }
 
-    public override object CallInstance(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
+    public override object CallInstance(CodeContext context, object instance, params object[] args)
     {
       throw new Exception("The method or operation is not implemented.");
     }

@@ -173,9 +173,7 @@ namespace IronScheme.Runtime
         return length;
       }
     }
-
-
-
+    
     [Builtin]
     public static object First(object args)
     {
@@ -193,37 +191,18 @@ namespace IronScheme.Runtime
     {
       return Caddr(args);
     }
-
-#if EXT_LIB
-
+    
     [Builtin]
-    public static object Last(IEnumerable args)
+    public static Cons Last(object args)
     {
-      if (args is string)
+      Cons c = args as Cons;
+      while (c.Cdr is Cons)
       {
-        string sa = args as string;
-        return sa[sa.Length - 1];
+        c = c.Cdr as Cons;
       }
-      else if (args is IList)
-      {
-        IList il = args as IList;
-        return il[il.Count - 1];
-      }
-      else
-      {
-        object last = null;
-        if (args != null)
-        {
-          foreach (object o in args)
-          {
-            last = o;
-          }
-        }
-        return last;
-      }
+      return c;
     }
-#endif
-
+    
     delegate bool Pred(object a, object b);
 
     static object AssocHelper(Pred pred, object obj, object list)
@@ -572,49 +551,67 @@ namespace IronScheme.Runtime
     //  }
     //}
 
-    ////The resulting list is always newly allocated, except that it shares structure with the last list argument. 
-    ////The last argument may actually be any object; an improper list results if the last argument is not a proper list. 
-    //[Builtin]
-    //public static IEnumerable Append(params object[] args)
-    //{
-    //  if (args.Length == 0)
-    //  {
-    //    return null;
-    //  }
-    //  string s = args[0] as string;
-    //  if (s != null)
-    //  {
-    //    StringBuilder sb = new StringBuilder(s);
+    //The resulting list is always newly allocated, except that it shares structure with the last list argument. 
+    //The last argument may actually be any object; an improper list results if the last argument is not a proper list. 
+    [Builtin]
+    public static Cons Append(params object[] args)
+    {
+      if (args.Length == 0)
+      {
+        return null;
+      }
 
-    //    for (int i = 1; i < args.Length; i++)
-    //    {
-    //      sb.Append(args[i] as string);
-    //    }
+      bool proper = true;
+ 
+      List<object> all = new List<object>();
 
-    //    return sb.ToString();
-    //  }
+      for (int i = 0; i < args.Length; i++)
+      {
+        Cons ii = args[i] as Cons;
 
-    //  List<object> all = new List<object>();
+        if (ii == null && i == args.Length - 1)
+        {
+          all.Add(args[i]);
+          proper = false;
+        }
+        else
+        {
+          while (ii != null)
+          {
+            all.Add(ii.Car);
+            if (i == args.Length - 1 && ii.Cdr != null && !(ii.Cdr is Cons))
+            {
+              all.Add(ii.Cdr);
+              break;
+            }
+            ii = ii.Cdr as Cons;
+          }
+        }
+      }
+      Cons c = Runtime.Cons.FromList(all);
+      if (!proper)
+      {
+        c = ToImproper(c);
+      }
+      return c;
+    }
 
-    //  for (int i = 0; i < args.Length; i++)
-    //  {
-    //    IEnumerable ii = args[i] as IEnumerable;
-    //    if (ii == null && i == args.Length - 1 && args[i] != null)
-    //    {
-    //      all.Add(args[i]);
-    //    }
-    //    else
-    //    {
-    //      if (ii != null)
-    //      {
-    //        foreach (object o in ii)
-    //        {
-    //          all.Add(o);
-    //        }
-    //      }
-    //    }
-    //  }
-    //  return Runtime.Cons.FromList(all);
-    //}
+    public static Cons ToImproper(Cons c)
+    {
+      Cons i = c;
+      Cons j = null;
+      while (i.Cdr != null)
+      {
+        j = i;
+        i = i.Cdr as Cons;
+        if (i == null)
+        {
+          return c; // improper already
+        }
+      }
+
+      j.Cdr = i.Car;
+      return c;
+    }
   }
 }

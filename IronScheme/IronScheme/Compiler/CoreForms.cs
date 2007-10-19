@@ -388,15 +388,18 @@ namespace IronScheme.Compiler
       return e.ToArray();
     }
 
-    static Expression[] GetConsList(Cons c, CodeBlock cb)
+    static Expression GetConsList(Cons c, CodeBlock cb)
     {
+      List<int> splices = new List<int>();
       List<Expression> e = new List<Expression>();
+      bool proper = true;
       while (c != null)
       {
         if (nestinglevel == 1 && c.Car is Cons && Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
         {
           Cons l = Builtins.Cdar(c) as Cons;
-          e.AddRange(GetConsList(l, cb));
+          splices.Add(e.Count);
+          e.Add(GetAst(l.Car, cb));
         }
         else
         {
@@ -405,12 +408,35 @@ namespace IronScheme.Compiler
         if (c.Cdr != null && !(c.Cdr is Cons))
         {
           e.Add(GetCons(c.Cdr, cb));
+          proper = false;
           break;
         }
         c = c.Cdr as Cons;
       }
-      return e.ToArray();
+
+      if (splices.Count == 0)
+      {
+        Expression r = Ast.Call(null, typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) }), e.ToArray());
+        if (!proper)
+        {
+          r = Ast.Call(null, typeof(Builtins).GetMethod("ToImproper"), r);
+        }
+        return r;
+      }
+      else
+      {
+        for (int i = 0; i < e.Count; i++)
+        {
+          if (!splices.Contains(i))
+          {
+            e[i] = Ast.Call(null, typeof(Builtins).GetMethod("Cons", CONS1), e[i]);
+          }
+        }
+        return Ast.Call(null, typeof(Builtins).GetMethod("Append"), e.ToArray());
+      }
     }
+
+    readonly static Type[] CONS1 = { typeof(object) };
 
     static bool AssignParameters(CodeBlock cb, object arg)
     {
@@ -485,7 +511,7 @@ namespace IronScheme.Compiler
             }
           }
         }
-        return Ast.Call(null, typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) }), GetConsList(c, cb));
+        return GetConsList(c, cb);
       }
       else
       {

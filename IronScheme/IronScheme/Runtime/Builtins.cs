@@ -60,55 +60,6 @@ namespace IronScheme.Runtime
 
     static readonly object Unspecified = null;
 
-
-    #region array
-
-
-
-    
-
-    //[Builtin]
-    //public static IEnumerable toarray(IEnumerable e)
-    //{
-    //  if (e is Array)
-    //  {
-    //    return e;
-    //  }
-    //  ArrayList list = e as ArrayList;
-    //  if (list == null)
-    //  {
-    //    list = new ArrayList();
-    //    foreach (object var in e)
-    //    {
-    //      list.Add(var);
-    //    }
-    //  }
-    //  return list.ToArray();
-    //}
-
-    //[Builtin]
-    //public static IEnumerable tolist(IEnumerable e)
-    //{
-    //  if (e is IList)
-    //  {
-    //    return e;
-    //  }
-    //  ArrayList list = e as ArrayList;
-    //  if (list == null)
-    //  {
-    //    list = new ArrayList();
-    //    foreach (object var in e)
-    //    {
-    //      list.Add(var);
-    //    }
-    //  }
-    //  return list;
-    //}
-
-
-
-    #endregion
-
     [Builtin]
     public static Type @typeof(object o)
     {

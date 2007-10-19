@@ -28,7 +28,6 @@ namespace IronScheme.Runtime
       get { return paramcount; }
     } 
 
-
     public string Name
     {
       get { return name; }
@@ -60,60 +59,6 @@ namespace IronScheme.Runtime
       public ContextMacro(CodeContext cc, Delegate target, int paramcount, string name) : base(target, paramcount, name)
       {
         this.cc = cc;
-      }
-
-      public override object Call(CodeContext context)
-      {
-        if (target0 != null)
-        {
-          return target0(cc);
-        }
-        return base.Call(context);
-      }
-
-      public override object Call(CodeContext context, object arg0)
-      {
-        if (target1 != null)
-        {
-          return target1(cc, arg0);
-        }
-        return base.Call(context, arg0);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1)
-      {
-        if (target2 != null)
-        {
-          return target2(cc, arg0, arg1);
-        }
-        return base.Call(context, arg0, arg1);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1, object arg2)
-      {
-        if (target3 != null)
-        {
-          return target3(cc, arg0, arg1, arg2);
-        }
-        return base.Call(context, arg0, arg1, arg2);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3)
-      {
-        if (target4 != null)
-        {
-          return target4(cc, arg0, arg1, arg2, arg3);
-        }
-        return base.Call(context, arg0, arg1, arg2, arg3);
-      }
-
-      public override object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
-      {
-        if (target5 != null)
-        {
-          return target5(cc, arg0, arg1, arg2, arg3, arg4);
-        }
-        return base.Call(context, arg0, arg1, arg2, arg3, arg4);
       }
 
       public override object Call(CodeContext context, params object[] args)
@@ -225,17 +170,11 @@ namespace IronScheme.Runtime
 
     sealed class VarArgMacro : Macro
     {
-      //int paramcount;
       Macro realtarget;
 
       public VarArgMacro(CodeContext cc, Delegate target, int paramcount, string name) : base(target, paramcount, name)
       {
-        //this.paramcount = paramcount;
         realtarget = Make(cc, target, paramcount, name);
-        if (realtarget is ContextMacro)
-        {
-          paramcount--;
-        }
       }
 
       public override object Invoke(CodeContext context, object arg0)
@@ -265,11 +204,6 @@ namespace IronScheme.Runtime
 
       public override object Call(CodeContext context, params object[] args)
       {
-        //object[] newargs = new object[paramcount];
-        //Array.Copy(args, newargs, paramcount - 1);
-        //object[] last = new object[args.Length - paramcount + 1];
-        //Array.Copy(args, paramcount - 1, last, 0, last.Length);
-        //newargs[paramcount - 1] = Cons.FromArray(last);
         return realtarget.Call(context, args);
       }
     }
@@ -292,37 +226,5 @@ namespace IronScheme.Runtime
 
       return Call(context, args);
     }
-
-    public virtual object Call(CodeContext context)
-    {
-      return Call(context, new object[] { });
-    }
-
-    public virtual object Call(CodeContext context, object arg0)
-    {
-      return Call(context, new object[] { arg0 });
-    }
-
-    public virtual object Call(CodeContext context, object arg0, object arg1)
-    {
-      return Call(context, new object[] { arg0, arg1 });
-    }
-
-    public virtual object Call(CodeContext context, object arg0, object arg1, object arg2)
-    {
-      return Call(context, new object[] { arg0, arg1, arg2 });
-    }
-
-    public virtual object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3)
-    {
-      return Call(context, new object[] { arg0, arg1, arg2, arg3 });
-    }
-    
-    public virtual object Call(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4)
-    {
-      return Call(context, new object[] { arg0, arg1, arg2, arg3, arg4 });
-    }
-
-
   }
 }

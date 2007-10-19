@@ -62,19 +62,6 @@ namespace IronScheme.Runtime
       return this;
     }
 
-    //public Cons Reverse()
-    //{
-    //  object list = null;
-    //  object o = this;
-    //  while (o != null)
-    //  {
-    //    list = new Cons(((Cons)o).car, list);
-    //    o = ((Cons)o).cdr;
-    //  }
-    //  return (Cons)list;
-    //}
-
-
     public static Cons FromList(IEnumerable list)
     {
       if (list == null)
@@ -128,31 +115,6 @@ namespace IronScheme.Runtime
     {
       get { return cdr is Cons; }
     }
-
-
-    //IEnumerator IEnumerable.GetEnumerator()
-    //{
-    //  yield return car;
-    //  Cons c = cdr as Cons;
-    //  if (c == null)
-    //  {
-    //    if (cdr == null)
-    //    {
-    //      yield break;
-    //    }
-    //    else
-    //    {
-    //      yield return cdr;
-    //    }
-    //  }
-    //  else
-    //  {
-    //    foreach (object to in c)
-    //    {
-    //      yield return to;
-    //    }
-    //  }
-    //}
 
     public override string ToString()
     {
