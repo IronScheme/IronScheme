@@ -179,8 +179,9 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static Cons Map(CodeContext cc, object fn, Cons list)
+    public static Cons Map(CodeContext cc, object fn, object lst)
     {
+      Cons list = Requires<Runtime.Cons>(lst);
       ArrayList returns = new ArrayList();
       while (list != null)
       {

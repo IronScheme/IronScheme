@@ -9,6 +9,7 @@ using Microsoft.Scripting.Types;
 using Microsoft.Scripting.Actions;
 using System.Reflection;
 using Microsoft.Scripting.Hosting;
+using Microsoft.Scripting.Utils;
 
 namespace IronScheme.Compiler
 {
@@ -524,6 +525,11 @@ namespace IronScheme.Compiler
 
     }
 
+    static Type[] GetExpressionTypes(Expression[] expr)
+    {
+      return Array.ConvertAll<Expression, Type>(expr, delegate(Expression e) { return e.Type; });
+    }
+
     public static Expression GetAst(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
@@ -534,6 +540,7 @@ namespace IronScheme.Compiler
         {
           SymbolId f = (SymbolId)first;
           object m;
+
           if (Compiler.Scope.TryLookupName(f, out m))
           {
             Runtime.Macro macro = m as Runtime.Macro;
@@ -548,6 +555,24 @@ namespace IronScheme.Compiler
           if (generators.TryGetValue(f, out gh))
           {
             return gh(c.Cdr, cb);
+          }
+
+          BuiltinFunction bf;
+          if (builtinmap.TryGetValue(f, out bf))
+          {
+            MethodBinder mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.Targets, BinderType.Normal);
+            Expression[] pars = GetAstList(c.Cdr as Cons, cb);
+            Type[] types = GetExpressionTypes(pars);
+            MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+            if (mc == null)
+            {
+              throw new Exception("No match for " + f);
+            }
+            if (mc.Target.NeedsContext)
+            {
+              pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+            }
+            return Ast.Call(null, mc.Target.Method as MethodInfo, pars);
           }
         }
         return Ast.Action.Call(typeof(object), GetAstList(c, cb));
