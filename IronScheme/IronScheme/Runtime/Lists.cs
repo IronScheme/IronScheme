@@ -582,6 +582,7 @@ namespace IronScheme.Runtime
             if (i == args.Length - 1 && ii.Cdr != null && !(ii.Cdr is Cons))
             {
               all.Add(ii.Cdr);
+
               break;
             }
             ii = ii.Cdr as Cons;

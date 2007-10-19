@@ -122,56 +122,55 @@ namespace IronScheme.Runtime
       }
     }
 
-    static object Apply(CodeContext cc, FastCallable fn, IEnumerable args)
+    static object ApplyInternal(CodeContext cc, FastCallable fn, Cons args)
     {
       List<object> targs = new List<object>();
-      if (args != null)
+      while (args != null)
       {
-        foreach (object var in args)
-        {
-          targs.Add(var);
-        }
+        targs.Add(args.Car);
+        args = args.Cdr as Cons;
       }
       return fn.Call(cc, targs.ToArray());
     }
 
     [Builtin]
-    public static object Apply(CodeContext cc, object fn, params object[] lists)
+    public static object Apply(CodeContext cc, object fn, params Cons[] lists)
     {
       ArrayList args = new ArrayList();
-      if (lists == null)
-      {
-        args.Add(null);
-      }
-      else
-      {
-        for (int i = 0; i < lists.Length - 1; i++)
-        {
-          args.Add(lists[i]);
-        }
-        if (lists.Length > 0)
-        {
-          foreach (object var in lists[lists.Length - 1] as IEnumerable)
-          {
-            args.Add(var);
-          }
-        }
-      }
+      //if (lists == null)
+      //{
+      //  args.Add(null);
+      //}
+      //else
+      //{
+      //  for (int i = 0; i < lists.Length - 1; i++)
+      //  {
+      //    args.Add(lists[i]);
+      //  }
+      //  if (lists.Length > 0)
+      //  {
+      //    foreach (object var in lists[lists.Length - 1] as IEnumerable)
+      //    {
+      //      args.Add(var);
+      //    }
+      //  }
+      //}
+      return null;
 
-      return Apply(cc, fn, args);
+      //return ApplyInternal(cc, fn, args);
     }
 
     [Builtin]
-    public static object Apply(CodeContext cc, object fn, IEnumerable args)
+    public static object Apply(CodeContext cc, object fn, Cons args)
     {
       if (fn is FastCallable)
       {
-        return Apply(cc, fn as FastCallable, args);
+        return ApplyInternal(cc, fn as FastCallable, args);
       }
       else if (fn is Delegate)
       {
         Delegate d = (Delegate)fn;
-        return Apply(cc, Closure.Make(cc, d, d.Method.Name), args);
+        return ApplyInternal(cc, Closure.Make(cc, d, d.Method.Name), args);
       }
       else
       {
@@ -180,50 +179,51 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static IEnumerable Map(CodeContext cc, object fn, IEnumerable list)
+    public static Cons Map(CodeContext cc, object fn, Cons list)
     {
       ArrayList returns = new ArrayList();
-      foreach (object obj in list)
+      while (list != null)
       {
-        returns.Add(Apply(cc, fn, (IEnumerable) new object[] { obj }));
+        returns.Add(Apply(cc, fn, new Cons(list.Car)));
+        list = list.Cdr as Cons;
       }
       return Runtime.Cons.FromList(returns);
     }
 
     [Builtin]
-    public static IEnumerable Map(CodeContext cc, object fn, params IEnumerable[] lists)
+    public static Cons Map(CodeContext cc, object fn, params Cons[] lists)
     {
       if (lists == null)
       {
         return null;
       }
       ArrayList returns = new ArrayList();
-      foreach (IEnumerable obj in new MultiEnumerable(lists))
-      {
-        returns.Add(Apply(cc, fn, obj));
-      }
+      //foreach (Cons obj in new MultiEnumerable(lists))
+      //{
+      //  returns.Add(Apply(cc, fn, obj));
+      //}
       return Runtime.Cons.FromList(returns);
     }
 
 
     [Builtin("for-each")]
-    public static void ForEach(CodeContext cc, object fn, IEnumerable list)
+    public static void ForEach(CodeContext cc, object fn, Cons list)
     {
       ArrayList returns = new ArrayList();
-      foreach (object obj in list)
-      {
-        returns.Add(Apply(cc, fn, (IEnumerable) new object[] { obj }));
-      }
+      //foreach (object obj in list)
+      //{
+      //  returns.Add(Apply(cc, fn, (IEnumerable) new object[] { obj }));
+      //}
     }
 
     [Builtin("for-each")]
-    public static void ForEach(CodeContext cc, object fn, params IEnumerable[] lists)
+    public static void ForEach(CodeContext cc, object fn, params Cons[] lists)
     {
       ArrayList returns = new ArrayList();
-      foreach (IEnumerable obj in new MultiEnumerable(lists))
-      {
-        returns.Add(Apply(cc, fn, obj));
-      }
+      //foreach (Cons obj in new MultiEnumerable(lists))
+      //{
+      //  returns.Add(Apply(cc, fn, obj));
+      //}
     }
 
   }

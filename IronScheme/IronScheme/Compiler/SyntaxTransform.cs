@@ -25,16 +25,16 @@ namespace IronScheme.Compiler
     public static Cons Transform(Cons input)
     {
       Cons c = input;
-      do
+      while (c != null)
       {
         c.Car = Transform(c.Car);
-        if (!(c.Cdr is Cons))
+        if (c.Cdr != null && !(c.Cdr is Cons))
         {
           c.Cdr = Transform(c.Cdr);
+          break;
         }
         c = c.Cdr as Cons;
       }
-      while (c != null);
       return input;
     }
 

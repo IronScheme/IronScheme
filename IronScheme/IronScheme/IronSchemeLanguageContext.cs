@@ -146,7 +146,10 @@ namespace IronScheme
       if (p.Parse())
       {
         Cons parsed = SyntaxTransform.Transform(p.parsed);
-        return parsed.Car;
+        if (parsed != null)
+        {
+          return parsed.Car;
+        }
       }
       return null;
     }
