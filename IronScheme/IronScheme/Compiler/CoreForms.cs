@@ -46,7 +46,7 @@ namespace IronScheme.Compiler
 
       IronSchemeScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
           typeof(Hosting.IronSchemeLanguageProvider)).GetEngine() as IronSchemeScriptEngine;
-      ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("macros"));
+      ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("CompileTime"));
       mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
 
 
@@ -328,15 +328,15 @@ namespace IronScheme.Compiler
       return type.GetMethod(name, BindingFlags.Static | BindingFlags.Public);
     }
 
+    static readonly MethodInfo closure_make = typeof(Closure).GetMethod("Make");
+    static readonly MethodInfo closure_varargs = typeof(Closure).GetMethod("MakeVarArgX");
 
-
-    static Expression MakeClosure(CodeBlock cb)
+    static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
-      return Ast.Call(null,
-        typeof(Closure).GetMethod("Make"), Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Name));
+      return Ast.Call(null,varargs ? closure_varargs : closure_make
+        , Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Name));
     }
-
-
+    
 
     static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
@@ -382,11 +382,20 @@ namespace IronScheme.Compiler
       List<Expression> e = new List<Expression>();
       while (c != null)
       {
+        if (c.Cdr != null && !(c.Cdr is Cons))
+        {
+          throw new NotSupportedException("improper list cant be used as an expression");
+        }
         e.Add(GetAst(c.Car, cb));
         c = c.Cdr as Cons;
       }
       return e.ToArray();
     }
+
+    static readonly MethodInfo list = typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) });
+    static readonly MethodInfo cons1 = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) });
+    static readonly MethodInfo append = typeof(Builtins).GetMethod("Append");
+    static readonly MethodInfo toimproper = typeof(Builtins).GetMethod("ToImproper");
 
     static Expression GetConsList(Cons c, CodeBlock cb)
     {
@@ -414,14 +423,11 @@ namespace IronScheme.Compiler
         c = c.Cdr as Cons;
       }
 
+      Expression r = null;
+
       if (splices.Count == 0)
       {
-        Expression r = Ast.Call(null, typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) }), e.ToArray());
-        if (!proper)
-        {
-          r = Ast.Call(null, typeof(Builtins).GetMethod("ToImproper"), r);
-        }
-        return r;
+        r = Ast.Call(null, list, e.ToArray());
       }
       else
       {
@@ -429,14 +435,17 @@ namespace IronScheme.Compiler
         {
           if (!splices.Contains(i))
           {
-            e[i] = Ast.Call(null, typeof(Builtins).GetMethod("Cons", CONS1), e[i]);
+            e[i] = Ast.Call(null, cons1, e[i]);
           }
         }
-        return Ast.Call(null, typeof(Builtins).GetMethod("Append"), e.ToArray());
+        r = Ast.Call(null, append, e.ToArray());
       }
+      if (!proper)
+      {
+        r = Ast.Call(null, toimproper, r);
+      }
+      return r;
     }
-
-    readonly static Type[] CONS1 = { typeof(object) };
 
     static bool AssignParameters(CodeBlock cb, object arg)
     {
@@ -500,16 +509,11 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (nestinglevel == 1)
+        if (nestinglevel == 1 &&
+            Builtins.IsSymbol(c.Car) &&
+            Builtins.IsEqual(c.Car, unquote))
         {
-          if (Builtins.IsSymbol(c.Car))
-          {
-            SymbolId s = (SymbolId)c.Car;
-            if (Builtins.IsEqual(s, unquote))
-            {
-              return GetAst(Builtins.Second(c), cb);
-            }
-          }
+          return GetAst(Builtins.Second(c), cb);
         }
         return GetConsList(c, cb);
       }
@@ -615,6 +619,9 @@ namespace IronScheme.Compiler
       return Ast.Assign(v, value);
     }
 
+    readonly static MethodInfo macro_vararg = typeof(Runtime.Macro).GetMethod("MakeVarArgX");
+    readonly static MethodInfo macro_make = typeof(Runtime.Macro).GetMethod("Make");
+
     // macro
     public static Expression Macro(object args, CodeBlock c)
     {
@@ -631,20 +638,12 @@ namespace IronScheme.Compiler
 
       CodeBlockExpression cbe = Ast.CodeBlockExpression(cb, false);
 
-      Expression ex = null;
-
-      if (isrest)
-      {
-        ex = Ast.Call(null, typeof(Runtime.Macro).GetMethod("MakeVarArgX"), Ast.CodeContext(), cbe, Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
-      }
-      else
-      {
-        ex = Ast.Call(null, typeof(Runtime.Macro).GetMethod("Make"), Ast.CodeContext(), cbe, Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
-      }
+      Expression ex = Ast.Call(null, isrest ? macro_vararg : macro_make, Ast.CodeContext(), cbe, 
+        Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
 
       cb.BindClosures();
 
-      CallTargetWithContextN md = cb.GetDelegateForInterpreter(Compiler, false) as CallTargetWithContextN;
+      Delegate md = cb.GetDelegateForInterpreter(Compiler, false) as Delegate;
 
       if (isrest)
       {
@@ -672,35 +671,27 @@ namespace IronScheme.Compiler
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
 
-      Expression ex = null;
+      Expression ex = MakeClosure(cb, isrest);
 
-      if (isrest)
-      {
-        ex =
-          Ast.Call(null, typeof(Closure).GetMethod("MakeVarArgX"), Ast.CodeContext(),
-          Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
-      }
-      else
-      {
-        ex = MakeClosure(cb);
-      }
-
-      if (NameHint != SymbolId.Empty)
-      {
-        //cb.Parent = null;
-        cb.BindClosures();
-        if (isrest)
-        {
-          Compiler.Scope.SetName(NameHint, Closure.MakeVarArgX(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Parameters.Count, cb.Name));
-        }
-        else
-        {
-          Compiler.Scope.SetName(NameHint, Closure.Make(Compiler, cb.GetDelegateForInterpreter(Compiler, false), cb.Name));
-        }
-      }
+      //if (NameHint != SymbolId.Empty)
+      //{
+      //  //cb.Parent = null;
+      //  cb.BindClosures();
+      //  Delegate md = cb.GetDelegateForInterpreter(Compiler, false) as Delegate;
+      //  if (isrest)
+      //  {
+      //    Compiler.Scope.SetName(NameHint, Closure.MakeVarArgX(Compiler, md, cb.Parameters.Count, cb.Name));
+      //  }
+      //  else
+      //  {
+      //    Compiler.Scope.SetName(NameHint, Closure.Make(Compiler, md, cb.Name));
+      //  }
+      //}
 
       return ex;
     }
+
+    static readonly MethodInfo istrue = typeof(Builtins).GetMethod("IsTrue");
 
     // if
     public static Expression If(object args, CodeBlock cb)
@@ -719,7 +710,7 @@ namespace IronScheme.Compiler
         e = Ast.Null();
       }
 
-      Expression testexp = Ast.Call(null, typeof(Builtins).GetMethod("IsTrue"), GetAst(test,cb));
+      Expression testexp = Ast.Call(null, istrue, GetAst(test,cb));
 
       return Ast.Condition(testexp, GetAst(trueexp, cb), e, true);
     }
