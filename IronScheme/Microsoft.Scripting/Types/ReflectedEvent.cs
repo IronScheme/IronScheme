@@ -151,14 +151,15 @@ namespace Microsoft.Scripting.Types {
             }
 
             // this one's correct, InPlaceAdd is wrong but we still have some dependencies on the wrong name.
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")] // TODO: fix
             [SpecialName]
-            public object op_AdditionAssignment(CodeContext context, object func) {
-                return InPlaceAdd(context, func);
+            public object op_AdditionAssignment(object func) {
+                return InPlaceAdd(func);
             }
 
             [SpecialName]
-            public object InPlaceAdd(CodeContext context, object func) {
-                Assert.NotNull(context, func);
+            public object InPlaceAdd(object func) {
+                Assert.NotNull(func);
 
                 MethodInfo add = _event.Info.GetAddMethod(true);
                 if (add.IsStatic) {

@@ -127,15 +127,12 @@ namespace Microsoft.Scripting {
         /// different than the Scope objects, so separate functions exist for pushing and popping them relative
         /// to the current scope.
         /// </summary>
-        public IDictionary<Ast.Variable,object> TemporaryStorage {
+        internal IDictionary<Ast.Variable, object> TemporaryStorage {
             get {
                 if (_temps == null) {
                     _temps = new Dictionary<Variable,object>();
                 }
                 return _temps;
-            }
-            set {
-                _temps = value;
             }
         }
 
@@ -144,7 +141,7 @@ namespace Microsoft.Scripting {
         /// When this function is called, the variables given by paramVars will be set to the values given by paramValues;
         /// when the returned object is disposed of, the supplied paramVars and tempVars variables will be removed from temporary storage.
         /// </summary>
-        public IDisposable TemporaryVariableContext(Variable[] tempVars, Variable[] paramVars, object[] paramValues) {
+        internal IDisposable TemporaryVariableContext(Variable[] tempVars, Variable[] paramVars, object[] paramValues) {
             return new TemporaryContextHelper(TemporaryStorage, tempVars, paramVars, paramValues);
         }
 
@@ -155,6 +152,7 @@ namespace Microsoft.Scripting {
             IDictionary<Variable, object> _temps;
             Variable[] _paramVars;
             Variable[] _tempVars;
+
             public TemporaryContextHelper(IDictionary<Variable, object> temps, Variable[] tempVars, Variable[] paramVars, object[] paramValues) {
                 _temps = temps;
                 _paramVars = paramVars;
@@ -163,6 +161,7 @@ namespace Microsoft.Scripting {
                     _temps[paramVars[i]] = paramValues[i];
                 }
             }
+
             public void Dispose() {
                 foreach (Variable v in _paramVars) {
                     _temps.Remove(v);
@@ -170,6 +169,8 @@ namespace Microsoft.Scripting {
                 foreach (Variable v in _tempVars) {
                     _temps.Remove(v);
                 }
+
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -814,8 +815,9 @@ namespace Microsoft.Scripting {
                         throw new MemberAccessException("can only write to member " + name.ToString());
                     }
                 } else {
-                    if (name is string) {
-                        CheckWritable(SymbolTable.StringToId((string)name));
+                    string stringName = name as string;
+                    if (stringName != null) {
+                        CheckWritable(SymbolTable.StringToId(stringName));
                     }
                 }
             }
@@ -827,9 +829,10 @@ namespace Microsoft.Scripting {
                 if (_objectAttrs != null){
                     return !_objectAttrs.TryGetValue(name, out scopeAttrs) ||
                             (scopeAttrs & ScopeMemberAttributes.DontDelete) == 0;
-                }else{
-                    if (name is string) {
-                        return CheckDeletable(SymbolTable.StringToId((string)name));  
+                } else {
+                    string stringName = name as string;
+                    if (stringName != null) {
+                        return CheckDeletable(SymbolTable.StringToId(stringName));  
                     }
                 }
                 return true;
@@ -843,8 +846,9 @@ namespace Microsoft.Scripting {
                     return !_objectAttrs.TryGetValue(name, out scopeAttrs) ||
                         (scopeAttrs & ScopeMemberAttributes.DontEnumerate) == 0;
                 } else {
-                    if (name is string) {
-                        return CheckEnumerable(SymbolTable.StringToId((string)name));  
+                    string stringName = name as string;
+                    if (stringName != null) {
+                        return CheckEnumerable(SymbolTable.StringToId(stringName));  
                     }
                 }
                 return true;

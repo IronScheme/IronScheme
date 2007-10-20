@@ -35,4 +35,8 @@ namespace Microsoft.Scripting.Ast {
         }
 #endif
     }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+    public static partial class Ast {
+    }
 }

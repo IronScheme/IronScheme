@@ -27,6 +27,7 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting {
     public class ModuleContext {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly ModuleContext[] EmptyArray = new ModuleContext[0];
 
         private readonly ScriptModule _module;

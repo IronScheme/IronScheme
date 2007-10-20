@@ -89,6 +89,7 @@ namespace Microsoft.Scripting {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
         public Assembly LoadAssemblyFromFileWithPath(string file) {
             if (file == null) throw new ArgumentTypeException("LoadAssemblyFromFileWithPath: arg 1 must be a string.");
             // We use Assembly.LoadFile instead of Assembly.LoadFrom as the latter first tries to use Assembly.Load
@@ -97,7 +98,7 @@ namespace Microsoft.Scripting {
 
         public Assembly LoadAssemblyFromFile(CodeContext context, string file) {
             if (file == null) throw new ArgumentTypeException("Expected string, got NoneType");
-            if (file == string.Empty) throw new ArgumentException("assembly name must not be empty string");
+            if (file.Length == 0) throw new ArgumentException("assembly name must not be empty string");
 
             if (file.IndexOf(System.IO.Path.DirectorySeparatorChar) != -1) {
                 throw new ArgumentException("filenames must not contain full paths, first add the path to sys.path");
@@ -106,6 +107,7 @@ namespace Microsoft.Scripting {
             return context.LanguageContext.LoadAssemblyFromFile(file);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadWithPartialName")]
         public Assembly LoadAssemblyByPartialName(string name) {
             if (name == null) throw new ArgumentTypeException("LoadAssemblyByPartialName: arg 1 must be a string");
 #pragma warning disable 618
@@ -154,7 +156,7 @@ namespace Microsoft.Scripting {
                 return;
             }
 
-            throw new ArgumentTypeException(String.Format("invalid assembly type. expected string or Assembly, got {0}", reference));
+            throw new ArgumentTypeException(String.Format("Invalid assembly type. Expected string or Assembly, got {0}.", reference));
         }
 
         private void AddReference(Assembly assembly) {

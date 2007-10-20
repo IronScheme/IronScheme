@@ -31,6 +31,7 @@ namespace Microsoft.Scripting.Actions {
     /// </summary>
     public class TopNamespaceTracker : NamespaceTracker {
         private int _initialized;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")] // TODO: fix
         private bool _isolated;
         private int _lastDiscovery = 0;
 
@@ -127,10 +128,10 @@ namespace Microsoft.Scripting.Actions {
 
         protected override void LoadNamespaces() {
             lock (this) {
-                for (int i = _lastDiscovery; i < PackageAssemblies.Count; i++) {
-                    DiscoverAllTypes(PackageAssemblies[i]);
+                for (int i = _lastDiscovery; i < _packageAssemblies.Count; i++) {
+                    DiscoverAllTypes(_packageAssemblies[i]);
                 }
-                _lastDiscovery = PackageAssemblies.Count;
+                _lastDiscovery = _packageAssemblies.Count;
             }
         }
 

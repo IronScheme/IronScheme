@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace Microsoft.Scripting.Types {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes")] // TODO: fix
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct, Inherited = false)]
     public class ScriptTypeAttribute : Attribute {
         private readonly string _name;

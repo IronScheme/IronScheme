@@ -25,7 +25,7 @@ using System.IO;
 
 namespace Microsoft.Scripting.Generation {
     public static class CompilerHelpers {
-        public static MethodAttributes PublicStatic = MethodAttributes.Public | MethodAttributes.Static;
+        public static readonly MethodAttributes PublicStatic = MethodAttributes.Public | MethodAttributes.Static;
 
         public static string[] GetArgumentNames(ParameterInfo[] parameterInfos) {
             string[] ret = new string[parameterInfos.Length];
@@ -119,9 +119,11 @@ namespace Microsoft.Scripting.Generation {
             return (pi.Attributes & (ParameterAttributes.Out)) == ParameterAttributes.Out;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public static object GetMissingValue(Type type) {
+            Contract.RequiresNotNull(type, "type");
+            
             if (type.IsByRef) type = type.GetElementType();
-
             if (type.IsEnum) return Activator.CreateInstance(type);
 
             switch (Type.GetTypeCode(type)) {
@@ -142,6 +144,7 @@ namespace Microsoft.Scripting.Generation {
                 case TypeCode.DBNull:
                 case TypeCode.String:
                     return null;
+
                 case TypeCode.Boolean: return false;
                 case TypeCode.Char: return '\0';
                 case TypeCode.SByte: return (sbyte)0;
@@ -194,9 +197,7 @@ namespace Microsoft.Scripting.Generation {
         /// <summary>
         /// allocates slots out of a FunctionEnvironment.
         /// </summary>
-        /// <param name="frame"></param>
-        /// <returns></returns>
-        internal static ScopeAllocator CreateFrameAllocator(Slot frame) {
+        internal static ScopeAllocator CreateFrameAllocator() {
             // Globals
             ScopeAllocator global = new ScopeAllocator(
                 null,

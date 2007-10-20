@@ -73,6 +73,9 @@ namespace Microsoft.Scripting.Ast {
         /// </summary>
         private List<YieldTarget> _finallyYields;
 
+        [ThreadStatic]
+        private static List<Exception> _evalExceptions;
+
         /// <summary>
         /// Called by <see cref="TryStatementBuilder"/>.
         /// Creates a try/catch/finally/else block.
@@ -110,7 +113,8 @@ namespace Microsoft.Scripting.Ast {
         public Statement FinallyStatement {
             get { return _finally; }
         }
-        
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2219:DoNotRaiseExceptionsInExceptionClauses")]
         protected override object DoExecute(CodeContext context) {
             bool rethrow = false;
             Exception savedExc = null;
@@ -121,15 +125,20 @@ namespace Microsoft.Scripting.Ast {
                 rethrow = true;
                 savedExc = exc;
                 if (_handlers != null) {
-                    foreach (CatchBlock handler in _handlers) {
-                        if (handler.Test.IsInstanceOfType(exc)) {
-                            rethrow = false;
-                            if (handler.Variable != null) {
-                                BoundAssignment.EvaluateAssign(context, handler.Variable, exc);
+                    PushEvalException(exc);
+                    try {
+                        foreach (CatchBlock handler in _handlers) {
+                            if (handler.Test.IsInstanceOfType(exc)) {
+                                rethrow = false;
+                                if (handler.Variable != null) {
+                                    BoundAssignment.EvaluateAssign(context, handler.Variable, exc);
+                                }
+                                ret = handler.Body.Execute(context);
+                                break;
                             }
-                            ret = handler.Body.Execute(context);
-                            break;
                         }
+                    } finally {
+                        PopEvalException();
                     }
                 }
             } finally {
@@ -146,6 +155,26 @@ namespace Microsoft.Scripting.Ast {
             }
 
             return ret;
+        }
+
+        private static void PopEvalException() {
+            _evalExceptions.RemoveAt(_evalExceptions.Count - 1);
+            if (_evalExceptions.Count == 0) _evalExceptions = null;
+        }
+
+        private static void PushEvalException(Exception exc) {
+            if (_evalExceptions == null) _evalExceptions = new List<Exception>();
+            _evalExceptions.Add(exc);
+        }
+
+        internal static Exception LastEvalException {
+            get {
+                if (_evalExceptions == null || _evalExceptions.Count == 0) {
+                    throw new InvalidOperationException("rethrow outside of catch block");
+                }
+
+                return _evalExceptions[_evalExceptions.Count - 1];
+            }
         }
 
         private void EmitGeneratorTry(CodeGen cg, TryFlowResult flow) {

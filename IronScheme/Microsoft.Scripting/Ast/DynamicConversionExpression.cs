@@ -34,6 +34,10 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+        public Expression Expression {
+            get { return _expression; }
+        }
+
         public override void Emit(CodeGen cg) {
             _expression.Emit(cg);
             cg.EmitConvert(_expression.Type, _conversion);

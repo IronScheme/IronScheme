@@ -16,6 +16,7 @@
 namespace Microsoft.Scripting.Hosting {
     public class ParserSink {
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")]
         public static readonly ParserSink Null = new ParserSink();
         
         public virtual void MatchPair(SourceSpan start, SourceSpan end, int priority) {

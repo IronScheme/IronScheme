@@ -28,7 +28,7 @@ namespace Microsoft.Scripting.Actions {
             _rules.Clear();
         }
 
-        private ActionRuleCache FindActionRuleCache(CodeContext callerContext, DynamicAction action, object[] args) {
+        private ActionRuleCache FindActionRuleCache(CodeContext callerContext, DynamicAction action) {
             ActionRuleCache actionRuleCache;
             lock (this) {
                 if (!_rules.TryGetValue(action, out actionRuleCache)) {
@@ -41,7 +41,7 @@ namespace Microsoft.Scripting.Actions {
         }
 
         internal StandardRule<T> FindRule<T>(CodeContext callerContext, DynamicAction action, object[] args) {
-            ActionRuleCache actionRuleCache = FindActionRuleCache(callerContext, action, args);
+            ActionRuleCache actionRuleCache = FindActionRuleCache(callerContext, action);
             StandardRule<T> rule = actionRuleCache.FindRule<T>(args);
             if (rule == null || !rule.IsValid) {
                 return null;
@@ -51,7 +51,7 @@ namespace Microsoft.Scripting.Actions {
         }
 
         internal void AddRule<T>(DynamicAction action, object[] args, StandardRule<T> rule) {
-            ActionRuleCache actionRuleCache = FindActionRuleCache(null, action, args);
+            ActionRuleCache actionRuleCache = FindActionRuleCache(null, action);
             actionRuleCache.AddRule<T>(args, rule);
         }
 

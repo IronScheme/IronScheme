@@ -19,14 +19,10 @@ using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class ParenthesizedExpression : Expression {
-        private readonly SourceLocation _start;
-        private readonly SourceLocation _end;
         private readonly Expression _expression;
 
-        internal ParenthesizedExpression(SourceSpan span, Expression expression) {
+        internal ParenthesizedExpression(Expression expression) {
             Debug.Assert(expression != null);
-            _start = span.Start;
-            _end = span.End;
             _expression = expression;
         }
 
@@ -61,13 +57,10 @@ namespace Microsoft.Scripting.Ast {
     /// </summary>
     public static partial class Ast {
         public static ParenthesizedExpression Parenthesize(Expression expression) {
-            return Parenthesize(SourceSpan.None, expression);
-        }
-        public static ParenthesizedExpression Parenthesize(SourceSpan span, Expression expression) {
             if (expression == null) {
                 throw new ArgumentNullException("expression");
             }
-            return new ParenthesizedExpression(span, expression);
+            return new ParenthesizedExpression(expression);
         }
     }
 }

@@ -34,7 +34,11 @@ namespace Microsoft.Scripting {
     /// <summary>
     /// Provides language specific facilities which are typicalled called by the runtime.
     /// </summary>
-    public abstract class LanguageContext : ICloneable {
+    public abstract class LanguageContext
+#if !SILVERLIGHT
+        : ICloneable
+#endif
+    {
         private static ModuleGlobalCache _noCache;
 
         public virtual ActionBinder Binder {
@@ -388,6 +392,7 @@ namespace Microsoft.Scripting {
             return true;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
         public virtual Assembly LoadAssemblyFromFile(string file) {
 #if SILVERLIGHT
             return null;

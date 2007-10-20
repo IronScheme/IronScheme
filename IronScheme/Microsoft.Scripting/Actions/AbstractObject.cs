@@ -18,10 +18,11 @@ using Microsoft.Scripting.Types;
 
 namespace Microsoft.Scripting.Actions {
     public class AbstractObject {
-        private Type _type;
-        private bool _exact;
-        private object _value;
+        private readonly Type _type;
+        private readonly bool _exact;
+        private readonly object _value;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")]
         public static readonly AbstractObject NullObject = new AbstractObject(null, true, null);
 
         public static AbstractObject[] MakeAll(object[] args) {
@@ -46,9 +47,9 @@ namespace Microsoft.Scripting.Actions {
         }
 
         public AbstractObject(Type type, bool exact, object value) {
-            this._type = type;
-            this._exact = exact;
-            this._value = value;
+            _type = type;
+            _exact = exact;
+            _value = value;
         }
 
         public bool IsNull {

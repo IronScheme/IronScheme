@@ -71,16 +71,16 @@ namespace Microsoft.Scripting.Types {
             return true;
         }
 
-        private bool ShouldSetOrDelete(object instance, DynamicMixin type) {
+        private bool ShouldSetOrDelete(DynamicMixin type) {
             DynamicType dt = type as DynamicType;
             
             // statics must be assigned through their type, not a derived type.  Non-statics can
             // be assigned through their instances.
-            return (dt != null && info.DeclaringType == dt.UnderlyingSystemType) || !info.IsStatic || info.IsLiteral;
+            return (dt != null && info.DeclaringType == dt.UnderlyingSystemType) || !info.IsStatic || info.IsLiteral || info.IsInitOnly;
         }
 
         public override bool TrySetValue(CodeContext context, object instance, DynamicMixin owner, object value) {
-            if (ShouldSetOrDelete(instance, owner)) {
+            if (ShouldSetOrDelete(owner)) {
                 DoSet(context, instance, value);
                 return true;
             }
@@ -89,11 +89,12 @@ namespace Microsoft.Scripting.Types {
         }
 
         public override bool IsSetDescriptor(CodeContext context, DynamicMixin owner) {
-            return (info.Attributes & FieldAttributes.InitOnly) != 0;
+            // field is settable if it is not readonly
+            return (info.Attributes & FieldAttributes.InitOnly) == 0 || info.IsLiteral;
         }
 
         public override bool TryDeleteValue(CodeContext context, object instance, DynamicMixin owner) {
-            if (ShouldSetOrDelete(instance, owner)) {
+            if (ShouldSetOrDelete(owner)) {
                 return base.TryDeleteValue(context, instance, owner);
             }
             return false;

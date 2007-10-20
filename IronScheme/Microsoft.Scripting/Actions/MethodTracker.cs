@@ -17,12 +17,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Actions {
     public class MethodTracker : MemberTracker {
-        private MethodInfo _method;
+        private readonly MethodInfo _method;
 
         public MethodTracker(MethodInfo method) {
+            Contract.RequiresNotNull(method, "method");
             _method = method;
         }
 

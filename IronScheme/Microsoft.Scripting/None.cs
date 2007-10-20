@@ -27,7 +27,7 @@ namespace Microsoft.Scripting {
     /// TODO Should be renamed to Null to reflect the standard .NET name rather than Python name
     /// </summary>
     public class None {
-        public static Type Type = typeof(None);
+        public static readonly Type Type = typeof(None);
 
         /// <summary>
         /// Private constructor is never called since 'null' is the only valid instance.

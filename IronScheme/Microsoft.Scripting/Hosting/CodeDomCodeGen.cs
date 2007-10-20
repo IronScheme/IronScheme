@@ -37,9 +37,9 @@ namespace Microsoft.Scripting.Hosting {
         abstract protected void WriteFunctionDefinition(CodeMemberMethod func);
         abstract protected string QuoteString(string val);
 
-        public SourceUnit GenerateCode(CodeObject codeDom, IScriptEngine engine) {
+        public SourceUnit GenerateCode(CodeMemberMethod codeDom, IScriptEngine engine) {
+            Contract.RequiresNotNull(codeDom, "codeDom");
             Contract.RequiresNotNull(engine, "engine");
-            Contract.Requires(codeDom is CodeMemberMethod);
 
             // Convert the CodeDom to source code
             if (_writer != null) {
@@ -47,7 +47,7 @@ namespace Microsoft.Scripting.Hosting {
             }
             _writer = new PositionTrackingWriter();
 
-            WriteFunctionDefinition((CodeMemberMethod)codeDom);
+            WriteFunctionDefinition(codeDom);
 
             return CreateSourceUnit(engine);
         }
@@ -81,6 +81,7 @@ namespace Microsoft.Scripting.Hosting {
             _writer.Write('\n');
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")] // TODO: fix
         protected void WriteStatement(CodeStatement s) {
             // Save statement source location
             if (s.LinePragma != null) {
@@ -95,6 +96,7 @@ namespace Microsoft.Scripting.Hosting {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")] // TODO: fix
         protected void WriteExpression(CodeExpression e) {
             if (e is CodeSnippetExpression) {
                 WriteSnippetExpression((CodeSnippetExpression)e);
@@ -113,8 +115,9 @@ namespace Microsoft.Scripting.Hosting {
         protected void WritePrimitiveExpression(CodePrimitiveExpression e) {
             object val = e.Value;
 
-            if (val is string) {
-                _writer.Write(QuoteString((string)val));
+            string strVal = val as string;
+            if (strVal != null) {
+                _writer.Write(QuoteString(strVal));
             }
             else {
                 _writer.Write(val);

@@ -46,7 +46,11 @@ namespace Microsoft.Scripting.Ast {
         protected override object DoEvaluate(CodeContext context) {
             object ret = _statement.Execute(context);
             // The interpreter is not able to deal with control flow inside of expressions
-            Debug.Assert(ret == Statement.NextStatement);
+
+            if (ret != Statement.NextStatement) {
+                throw new ExpressionReturnException(ret);
+            }
+
             return null;
         }
 
@@ -65,6 +69,25 @@ namespace Microsoft.Scripting.Ast {
         public static VoidExpression Void(Statement statement) {
             Contract.RequiresNotNull(statement, "statement");
             return new VoidExpression(statement);
+        }
+    }
+
+    [Serializable]
+    internal class ExpressionReturnException : Exception {
+        public readonly object Value;
+#if DEBUG
+        // used verify that we always handle the exception w/ the correct handler
+        // and no catch(Exception) sneaks in and catches our exception.
+        [ThreadStatic]
+        internal static int CurrentDepth;
+        public int Depth;
+#endif
+
+        public ExpressionReturnException(object value) {
+            Value = value;
+#if DEBUG
+            Depth = CurrentDepth;
+#endif
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.Scripting.Generation {
     public class ReferenceArgBuilder : SimpleArgBuilder {
         private Type _elementType;
         private Variable _tmp;
-        
+
         public ReferenceArgBuilder(int index, Type parameterType)
             : base(index, parameterType) {
             _elementType = parameterType.GetGenericArguments()[0];
@@ -50,20 +50,24 @@ namespace Microsoft.Scripting.Generation {
                 Ast.TypeIs(parameters[Index], BoxType),
                 Ast.Comma(
                     Ast.Assign(
-                        _tmp, 
+                        _tmp,
                         Ast.Call(
-                            null,
                             typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(_elementType),
-                            parameters[Index]
+                            Ast.ConvertHelper(parameters[Index], typeof(StrongBox<>).MakeGenericType(_elementType))
                         )
                     ),
                     Ast.Read(_tmp)
                 ),
-                Ast.Call(                   
-                    null, 
-                    typeof(RuntimeHelpers).GetMethod("IncorrectBoxType"),
-                    Ast.Constant(BoxType),
-                    parameters[Index]
+                // Condition requires types of both expressions to be identical.
+                // Putting the cast here is a temporary workaround until the
+                // emit address and reference argument passing is finished.
+                Ast.Convert(
+                    Ast.Call(
+                        typeof(RuntimeHelpers).GetMethod("IncorrectBoxType"),
+                        Ast.Constant(BoxType),
+                        Ast.ConvertHelper(parameters[Index], typeof(object))
+                    ),
+                    _elementType
                 )
             );
         }
@@ -73,10 +77,9 @@ namespace Microsoft.Scripting.Generation {
                 return typeof(StrongBox<>).MakeGenericType(_elementType);
             }
         }
-        
+
         internal override Expression UpdateFromReturn(MethodBinderContext context, Expression[] parameters) {
             return Ast.Call(
-                null,
                 typeof(RuntimeHelpers).GetMethod("UpdateBox").MakeGenericMethod(_elementType),
                 Ast.Convert(parameters[Index], BoxType),
                 Ast.Read(_tmp)

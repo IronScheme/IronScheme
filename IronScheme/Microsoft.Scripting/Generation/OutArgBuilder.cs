@@ -21,6 +21,7 @@ using Microsoft.Scripting.Actions;
 
 namespace Microsoft.Scripting.Generation {
     using Ast = Microsoft.Scripting.Ast.Ast;
+    using System.Reflection;
 
     /// <summary>
     /// Builds the argument for an out argument when not passed a StrongBox.  The out parameter
@@ -30,8 +31,8 @@ namespace Microsoft.Scripting.Generation {
         private Type _parameterType;
         private Variable _tmp;
 
-        public OutArgBuilder(Type parameterType) {
-            _parameterType = parameterType;
+        public OutArgBuilder(ParameterInfo parameter) {
+            _parameterType = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
         }
 
         public override int Priority {

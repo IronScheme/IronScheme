@@ -15,11 +15,13 @@
 
 using System;
 using System.Diagnostics;
+using System.CodeDom.Compiler;
 
 namespace Microsoft.Scripting {
     /// <summary>
     /// Implements explicit casts supported by the runtime.
     /// </summary>
+    [GeneratedCode("DLR", "2.0")]
     public static partial class Cast {
 
         #region Generated Type Casts

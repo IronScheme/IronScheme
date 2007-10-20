@@ -56,24 +56,7 @@ namespace Microsoft.Scripting.Actions {
                         }
                     }
 
-                    TrackerTypes memType = TrackerTypes.None;
-                    foreach (MemberTracker mt in group) {
-                        memType |= mt.MemberType;
-                    }
-
-                    // The logic for producing error messages here is too Python specific and doesn't make
-                    // a whole lot of sense.  We end up w/ different messages for properties & fields
-
-                    Type declType = GetDeclaringMemberType(group);
-                    if (memType == TrackerTypes.Field) {
-                        if (declType == type) {
-                            MakeUndeletableMemberError(declType);
-                        } else {
-                            MakeReadOnlyMemberError(type);
-                        }
-                    } else {
-                        MakeReadOnlyMemberError(declType);
-                    }
+                    MakeUndeletableMemberError(GetDeclaringMemberType(group));
                 } else {
                     MakeMissingMemberError(type);
                 }
@@ -93,11 +76,11 @@ namespace Microsoft.Scripting.Actions {
         }
 
         private void MakePropertyDeleteStatement(MethodInfo delete) {
-            Body = Ast.Block(Body, MakeCallStatement(delete, Rule.Parameters[0]));
+            AddToBody( MakeCallStatement(delete, Rule.Parameters[0]));
         }
 
         private void MakeCustomMembersBody(Type type) {
-            Body = Ast.Block(Body,
+            AddToBody(
                         Ast.If(
                             Ast.Call(
                                 Ast.Convert(Instance, typeof(ICustomMembers)),
@@ -124,7 +107,7 @@ namespace Microsoft.Scripting.Actions {
                 } else {
                     ret = Rule.MakeReturn(Binder, call);
                 }
-                Body = Ast.Block(Body, ret);
+                AddToBody( ret);
                 return delMem.ReturnType != typeof(bool);
             }
             return false;

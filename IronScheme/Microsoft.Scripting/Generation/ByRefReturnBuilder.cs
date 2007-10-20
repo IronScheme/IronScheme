@@ -25,11 +25,11 @@ using Microsoft.Scripting.Ast;
 namespace Microsoft.Scripting.Generation {
     using Ast = Microsoft.Scripting.Ast.Ast;
 
-    public class ByRefReturnBuilder : ReturnBuilder {    
+    public class ByRefReturnBuilder : ReturnBuilder {
         private IList<int> _returnArgs;
         private ActionBinder _binder;
 
-        public ByRefReturnBuilder(ActionBinder binder, Type returnType, IList<int> returnArgs)
+        public ByRefReturnBuilder(ActionBinder binder, IList<int> returnArgs)
             : base(typeof(object)) {
             _returnArgs = returnArgs;
             _binder = binder;
@@ -41,7 +41,7 @@ namespace Microsoft.Scripting.Generation {
                     return ret;
                 }
                 return Ast.Comma(ret, args[_returnArgs[0]].ToReturnExpression(context));
-            } 
+            }
 
             Expression[] retValues = new Expression[_returnArgs.Count];
             int rIndex = 0;
@@ -70,9 +70,9 @@ namespace Microsoft.Scripting.Generation {
                 ),
                 typeof(ActionBinder).GetMethod("GetByRefArray"),
                 retArray
-            );            
+            );
         }
-        
+
         public override object Build(CodeContext context, object[] args, object[] parameters, object ret) {
             if (_returnArgs.Count == 1) {
                 return GetValue(args, ret, _returnArgs[0]);
@@ -91,7 +91,7 @@ namespace Microsoft.Scripting.Generation {
             return ConvertToObject(args[index]);
         }
 
-        private static Expression GetValue(Expression[] args, Expression ret, int index) {            
+        private static Expression GetValue(Expression[] args, Expression ret, int index) {
             if (index == -1) return ret;
             Debug.Assert(index < args.Length);
             return args[index];
@@ -101,6 +101,6 @@ namespace Microsoft.Scripting.Generation {
             get { return _returnArgs.Count; }
         }
 
-        
+
     }
 }

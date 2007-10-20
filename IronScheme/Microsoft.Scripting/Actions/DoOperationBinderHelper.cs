@@ -1,17 +1,17 @@
-/* **********************************************************************************
+/* ****************************************************************************
  *
- * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Copyright (c) Microsoft Corporation. 
  *
- * This source code is subject to terms and conditions of the Shared Source License
- * for IronPython. A copy of the license can be found in the License.html file
- * at the root of this distribution. If you can not locate the Shared Source License
- * for IronPython, please send an email to dlr@microsoft.com.
- * By using this source code in any fashion, you are agreeing to be bound by
- * the terms of the Shared Source License for IronPython.
+ * This source code is subject to terms and conditions of the Microsoft Permissive License. A 
+ * copy of the license can be found in the License.html file at the root of this distribution. If 
+ * you cannot locate the  Microsoft Permissive License, please send an email to 
+ * dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+ * by the terms of the Microsoft Permissive License.
  *
  * You must not remove this notice, or any other, from this software.
  *
- * **********************************************************************************/
+ *
+ * ***************************************************************************/
 
 using System;
 using System.Collections;
@@ -185,6 +185,7 @@ namespace Microsoft.Scripting.Actions {
 
         #region Operator Rule
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")] // TODO: fix
         private StandardRule<T> MakeOperatorRule(OperatorInfo info) {
             MethodInfo[] targets = GetApplicableMembers(info);
             if (targets.Length > 0 && TryMakeBindingTarget(targets)) {
@@ -230,6 +231,13 @@ namespace Microsoft.Scripting.Actions {
                     return _rule;
                 } else if (info.Operator == Operators.Not && TypeUtils.IsIntegerOrBool(_types[0])) {
                     _rule.SetTarget(_rule.MakeReturn(Binder, Ast.Not(Param0)));
+                    return _rule;
+                }
+            }
+
+            if (info.Operator == Operators.IsTrue) {
+                if (_types[0] == typeof(bool)) {
+                    _rule.SetTarget(_rule.MakeReturn(Binder, Param0));
                     return _rule;
                 }
             }
@@ -396,9 +404,7 @@ namespace Microsoft.Scripting.Actions {
         private void SetErrorTarget(OperatorInfo info) {
             _rule.SetTarget(
                 _rule.MakeError(
-                    Binder,
-                    Ast.Call(
-                        null,
+                    Ast.SimpleCallHelper(
                         typeof(RuntimeHelpers).GetMethod("BadArgumentsForOperation"),
                         ArrayUtils.Insert((Expression)Ast.Constant(info.Operator), _rule.Parameters)
                     )
@@ -461,7 +467,7 @@ namespace Microsoft.Scripting.Actions {
             res.Add(new OperatorInfo(Operators.Negate,              "op_UnaryNegation",             "Negate"));         // - (unary)
             res.Add(new OperatorInfo(Operators.Positive,            "op_UnaryPlus",                 "Plus"));           // + (unary)
             res.Add(new OperatorInfo(Operators.Not,                 "op_LogicalNot",                null));             // !
-            //res.Add(new OperatorInfo(Operators.IsTrue,              "op_True",                      null));             // not defined
+            res.Add(new OperatorInfo(Operators.IsTrue,              "op_True",                      null));             // not defined
             res.Add(new OperatorInfo(Operators.IsFalse,             "op_False",                     null));             // not defined
             //res.Add(new OperatorInfo(Operators.AddressOf,           "op_AddressOf",                 null));             // & (unary)
             res.Add(new OperatorInfo(Operators.OnesComplement,      "op_OnesComplement",            "OnesComplement")); // ~
@@ -507,6 +513,10 @@ namespace Microsoft.Scripting.Actions {
             res.Add(new OperatorInfo(Operators.GetItem,             "get_Item",                     "GetItem"));        // x[y]
             res.Add(new OperatorInfo(Operators.SetItem,             "set_Item",                     "SetItem"));        // x[y] = z
             res.Add(new OperatorInfo(Operators.DeleteItem,          "del_Item",                     "DeleteItem"));     // not defined
+
+            res.Add(new OperatorInfo(Operators.GetEnumerator,       "GetEnumerator",                null));
+            res.Add(new OperatorInfo(Operators.Dispose,             "Dispose",                      null));
+
 
             return res.ToArray();
         }

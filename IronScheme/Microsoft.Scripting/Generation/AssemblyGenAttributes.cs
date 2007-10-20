@@ -21,6 +21,7 @@ namespace Microsoft.Scripting.Generation {
     /// <summary>
     /// Specifies options for assembly generation
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2217:DoNotMarkEnumsWithFlags")] // TODO: fix
     [Flags]
     public enum AssemblyGenAttributes {
         /// <summary> No options specified - use the default settings </summary>

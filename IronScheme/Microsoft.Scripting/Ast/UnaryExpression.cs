@@ -81,6 +81,15 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+        internal override void EmitAddress(CodeGen cg, Type asType) {
+            if (_op == UnaryOperators.Convert && Type == asType) {
+                _operand.EmitAddress(cg, asType);
+            } else {
+                base.EmitAddress(cg, asType);
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected override object DoEvaluate(CodeContext context) {
             object x = _operand.Evaluate(context);
             switch (_op) {
@@ -129,6 +138,16 @@ namespace Microsoft.Scripting.Ast {
             if (!type.IsVisible) throw new ArgumentException(String.Format(Resources.TypeMustBeVisible, type.FullName));
 
             return new UnaryExpression(expression, UnaryOperators.Convert, type);
+        }
+
+        public static Expression ConvertHelper(Expression expression, Type type) {
+            Contract.RequiresNotNull(expression, "expression");
+            Contract.RequiresNotNull(type, "type");
+
+            if (expression.Type != type) {
+                expression = Convert(expression, type);
+            }
+            return expression;
         }
 
         public static UnaryExpression Negate(Expression expression) {

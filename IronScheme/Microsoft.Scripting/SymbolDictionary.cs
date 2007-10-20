@@ -27,7 +27,7 @@ namespace Microsoft.Scripting {
     /// Like all SymbolDictionaries this supports both indexing using SymbolId's (IAttributesCollection)
     /// and via object keys (IDictionary&lt;object, object&gt;).
     /// </summary>
-    public class SymbolDictionary : BaseSymbolDictionary, IDictionary, IDictionary<object, object>, IAttributesCollection {
+    public sealed class SymbolDictionary : BaseSymbolDictionary, IDictionary, IDictionary<object, object>, IAttributesCollection {
         private Dictionary<SymbolId, object> _data = new Dictionary<SymbolId, object>();
 
         public SymbolDictionary() {
@@ -231,7 +231,8 @@ namespace Microsoft.Scripting {
         }
 
         public void CopyTo(KeyValuePair<object, object>[] array, int arrayIndex) {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException();
         }
 
         public int Count {

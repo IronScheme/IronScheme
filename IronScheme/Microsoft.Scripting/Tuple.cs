@@ -21,6 +21,7 @@ using System.Reflection;
 
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
+using System.CodeDom.Compiler;
 
 namespace Microsoft.Scripting {
     public abstract class Tuple {
@@ -271,6 +272,7 @@ namespace Microsoft.Scripting {
 
     // *** BEGIN GENERATED CODE ***
 
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0> : Tuple {
         public Tuple() { }
 
@@ -289,14 +291,14 @@ namespace Microsoft.Scripting {
         public override object GetValue(int index) {
             switch(index) {
                 case 0: return Item000;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
         public override void SetValue(int index, object value) {
             switch(index) {
                 case 0: Item000 = (T0)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {
@@ -305,6 +307,7 @@ namespace Microsoft.Scripting {
             }
         }
     }
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0, T1> : Tuple<T0> {
         public Tuple() { }
 
@@ -324,7 +327,7 @@ namespace Microsoft.Scripting {
             switch(index) {
                 case 0: return Item000;
                 case 1: return Item001;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
@@ -332,7 +335,7 @@ namespace Microsoft.Scripting {
             switch(index) {
                 case 0: Item000 = (T0)value; break;
                 case 1: Item001 = (T1)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {
@@ -341,6 +344,7 @@ namespace Microsoft.Scripting {
             }
         }
     }
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0, T1, T2, T3> : Tuple<T0, T1> {
         public Tuple() { }
 
@@ -368,7 +372,7 @@ namespace Microsoft.Scripting {
                 case 1: return Item001;
                 case 2: return Item002;
                 case 3: return Item003;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
@@ -378,7 +382,7 @@ namespace Microsoft.Scripting {
                 case 1: Item001 = (T1)value; break;
                 case 2: Item002 = (T2)value; break;
                 case 3: Item003 = (T3)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {
@@ -387,6 +391,7 @@ namespace Microsoft.Scripting {
             }
         }
     }
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0, T1, T2, T3, T4, T5, T6, T7> : Tuple<T0, T1, T2, T3> {
         public Tuple() { }
 
@@ -430,7 +435,7 @@ namespace Microsoft.Scripting {
                 case 5: return Item005;
                 case 6: return Item006;
                 case 7: return Item007;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
@@ -444,7 +449,7 @@ namespace Microsoft.Scripting {
                 case 5: Item005 = (T5)value; break;
                 case 6: Item006 = (T6)value; break;
                 case 7: Item007 = (T7)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {
@@ -453,6 +458,7 @@ namespace Microsoft.Scripting {
             }
         }
     }
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> : Tuple<T0, T1, T2, T3, T4, T5, T6, T7> {
         public Tuple() { }
 
@@ -528,7 +534,7 @@ namespace Microsoft.Scripting {
                 case 13: return Item013;
                 case 14: return Item014;
                 case 15: return Item015;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
@@ -550,7 +556,7 @@ namespace Microsoft.Scripting {
                 case 13: Item013 = (T13)value; break;
                 case 14: Item014 = (T14)value; break;
                 case 15: Item015 = (T15)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {
@@ -559,6 +565,7 @@ namespace Microsoft.Scripting {
             }
         }
     }
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> : Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15> {
         public Tuple() { }
 
@@ -698,7 +705,7 @@ namespace Microsoft.Scripting {
                 case 29: return Item029;
                 case 30: return Item030;
                 case 31: return Item031;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
@@ -736,7 +743,7 @@ namespace Microsoft.Scripting {
                 case 29: Item029 = (T29)value; break;
                 case 30: Item030 = (T30)value; break;
                 case 31: Item031 = (T31)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {
@@ -745,6 +752,7 @@ namespace Microsoft.Scripting {
             }
         }
     }
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63> : Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31> {
         public Tuple() { }
 
@@ -1012,7 +1020,7 @@ namespace Microsoft.Scripting {
                 case 61: return Item061;
                 case 62: return Item062;
                 case 63: return Item063;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
@@ -1082,7 +1090,7 @@ namespace Microsoft.Scripting {
                 case 61: Item061 = (T61)value; break;
                 case 62: Item062 = (T62)value; break;
                 case 63: Item063 = (T63)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {
@@ -1091,6 +1099,7 @@ namespace Microsoft.Scripting {
             }
         }
     }
+    [GeneratedCode("DLR", "2.0")]
     public class Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63, T64, T65, T66, T67, T68, T69, T70, T71, T72, T73, T74, T75, T76, T77, T78, T79, T80, T81, T82, T83, T84, T85, T86, T87, T88, T89, T90, T91, T92, T93, T94, T95, T96, T97, T98, T99, T100, T101, T102, T103, T104, T105, T106, T107, T108, T109, T110, T111, T112, T113, T114, T115, T116, T117, T118, T119, T120, T121, T122, T123, T124, T125, T126, T127> : Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23, T24, T25, T26, T27, T28, T29, T30, T31, T32, T33, T34, T35, T36, T37, T38, T39, T40, T41, T42, T43, T44, T45, T46, T47, T48, T49, T50, T51, T52, T53, T54, T55, T56, T57, T58, T59, T60, T61, T62, T63> {
         public Tuple() { }
 
@@ -1614,7 +1623,7 @@ namespace Microsoft.Scripting {
                 case 125: return Item125;
                 case 126: return Item126;
                 case 127: return Item127;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
 
@@ -1748,7 +1757,7 @@ namespace Microsoft.Scripting {
                 case 125: Item125 = (T125)value; break;
                 case 126: Item126 = (T126)value; break;
                 case 127: Item127 = (T127)value; break;
-                default: throw new ArgumentException("index");
+                default: throw new ArgumentOutOfRangeException("index");
             }
         }
         public override int Capacity {

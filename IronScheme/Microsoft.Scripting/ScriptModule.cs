@@ -198,9 +198,9 @@ namespace Microsoft.Scripting {
             }
             return OperationFailed.Value;
         }
-        
+
         [SpecialName]
-        public void SetMemberAfter(CodeContext context, string name, object value) {
+        public void SetMemberAfter(string name, object value) {
             OnModuleChange(new ModuleChangeEventArgs(SymbolTable.StringToId(name), ModuleChangeType.Set, value));
 
             Scope.SetName(SymbolTable.StringToId(name), value);

@@ -27,14 +27,11 @@ namespace Microsoft.Scripting.Ast {
     /// </summary>
     public class AbstractContext {
         private ActionBinder _binder;
-        private CodeBlock _fromBlock;
-        //private CodeBlock _toBlock;
 
         private Dictionary<Variable, Variable> _variableMap;
 
-        public AbstractContext(ActionBinder binder, CodeBlock fromBlock) {
-            this._binder = binder;
-            this._fromBlock = fromBlock;
+        public AbstractContext(ActionBinder binder) {
+            _binder = binder;
         }
 
         public void SetupToCodeBlock() {

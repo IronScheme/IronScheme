@@ -22,24 +22,18 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Actions {
     class RuleBinder : Walker {
-        private readonly Expression _test;
-        private readonly Statement _target;
-
         private Dictionary<Variable, VariableReference> _refs;
 
         public static VariableReference[] Bind(Expression test, Statement target) {
             Assert.NotNull(test, target);
 
-            RuleBinder rb = new RuleBinder(test, target);
+            RuleBinder rb = new RuleBinder();
             test.Walk(rb);
             target.Walk(rb);
             return rb.GetReferences();
         }
 
-        private RuleBinder(Expression test, Statement target) {
-            Assert.NotNull(test, target);
-            _test = test;
-            _target = target;
+        private RuleBinder() {
         }
 
         public override bool Walk(BoundAssignment node) {

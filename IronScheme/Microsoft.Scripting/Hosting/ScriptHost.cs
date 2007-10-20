@@ -125,7 +125,8 @@ namespace Microsoft.Scripting.Hosting {
         /// Normalization should be idempotent, i.e. NormalizePath(NormalizePath(path)) == NormalizePath(path) for any valid path.
         /// </remarks>
         public virtual string NormalizePath(string path) {
-            return (path != "") ? ScriptDomainManager.CurrentManager.PAL.GetFullPath(path) : "";
+            Contract.RequiresNotNull(path, "path");
+            return (path.Length > 0) ? ScriptDomainManager.CurrentManager.PAL.GetFullPath(path) : "";
         }
 
         public virtual string[] GetSourceFileNames(string mask, string searchPattern) {

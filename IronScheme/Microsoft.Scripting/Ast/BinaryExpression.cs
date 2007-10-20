@@ -350,6 +350,7 @@ namespace Microsoft.Scripting.Ast {
             return;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected override object DoEvaluate(CodeContext context) {
             if (_op == BinaryOperators.AndAlso) {
                 object ret = _left.Evaluate(context);
@@ -556,16 +557,7 @@ namespace Microsoft.Scripting.Ast {
         /// '??' operator in C#.
         /// </summary>
         public static Expression Coalesce(CodeBlock currentBlock, Expression left, Expression right) {
-            return CoalesceInternal(SourceSpan.None, currentBlock, left, right, null, false);
-        }
-
-        /// <summary>
-        /// Null coalescing expression (LINQ).
-        /// {result} ::= ((tmp = {_left}) == null) ? {right} : tmp
-        /// '??' operator in C#.
-        /// </summary>
-        public static Expression Coalesce(SourceSpan span, CodeBlock currentBlock, Expression left, Expression right) {
-            return CoalesceInternal(span, currentBlock, left, right, null, false);
+            return CoalesceInternal(currentBlock, left, right, null, false);
         }
 
         /// <summary>
@@ -574,18 +566,8 @@ namespace Microsoft.Scripting.Ast {
         /// Generalized AND semantics.
         /// </summary>
         public static Expression CoalesceTrue(CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue) {
-            RequiresPredicate(isTrue);
-            return CoalesceInternal(SourceSpan.None, currentBlock, left, right, isTrue, false);
-        }
-
-        /// <summary>
-        /// True coalescing expression.
-        /// {result} ::= IsTrue(tmp = {left}) ? {right} : tmp
-        /// Generalized AND semantics.
-        /// </summary>
-        public static Expression CoalesceTrue(SourceSpan span, CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue) {
-            RequiresPredicate(isTrue);
-            return CoalesceInternal(span, currentBlock, left, right, isTrue, false);
+            Contract.RequiresNotNull(isTrue, "isTrue");
+            return CoalesceInternal(currentBlock, left, right, isTrue, false);
         }
 
         /// <summary>
@@ -594,33 +576,33 @@ namespace Microsoft.Scripting.Ast {
         /// Generalized OR semantics.
         /// </summary>
         public static Expression CoalesceFalse(CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue) {
-            RequiresPredicate(isTrue);
-            return CoalesceInternal(SourceSpan.None, currentBlock, left, right, isTrue, true);
+            Contract.RequiresNotNull(isTrue, "isTrue");
+            return CoalesceInternal(currentBlock, left, right, isTrue, true);
         }
 
-        /// <summary>
-        /// False coalescing expression.
-        /// {result} ::= IsTrue(tmp = {left}) ? tmp : {right}
-        /// Generalized OR semantics.
-        /// </summary>
-        public static Expression CoalesceFalse(SourceSpan span, CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue) {
-            RequiresPredicate(isTrue);
-            return CoalesceInternal(span, currentBlock, left, right, isTrue, true);
-        }
-
-        private static Expression CoalesceInternal(SourceSpan span, CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrueOperator, bool isReverse) {
+        private static Expression CoalesceInternal(CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue, bool isReverse) {
             Contract.RequiresNotNull(currentBlock, "currentBlock");
             Contract.RequiresNotNull(left, "left");
             Contract.RequiresNotNull(right, "right");
 
+            // A bit too strict, but on a safe side.
+            Contract.Requires(left.Type == right.Type, "Expression types must match");
+
             Variable tmp = currentBlock.CreateTemporaryVariable(SymbolTable.StringToId("tmp_left"), left.Type);
 
-            Expression c;
-            if (isTrueOperator != null) {
-                // TODO: Optimization: take MethodInfo[] and choose an overload according to the type of the argument.
-                c = Call(null, isTrueOperator, Assign(tmp, left));
+            Expression condition;
+            if (isTrue != null) {
+                Contract.Requires(isTrue.ReturnType == typeof(bool), "isTrue", "Predicate must return bool.");
+                ParameterInfo[] parameters = isTrue.GetParameters();
+                Contract.Requires(parameters.Length == 1, "isTrue", "Predicate must take one parameter.");
+                Contract.Requires(isTrue.IsStatic && isTrue.IsPublic, "isTrue", "Predicate must be public and static.");
+
+                Type pt = parameters[0].ParameterType;
+                Contract.Requires(TypeUtils.CanAssign(pt, left.Type), "left", "Incorrect left expression type");
+                condition = Call(isTrue, Assign(tmp, left));
             } else {
-                c = Equal(Assign(tmp, left), Null());
+                Contract.Requires(TypeUtils.CanCompareToNull(left.Type), "left", "Incorrect left expression type");
+                condition = Equal(Assign(tmp, left), Null(left.Type));
             }
 
             Expression t, f;
@@ -632,13 +614,7 @@ namespace Microsoft.Scripting.Ast {
                 f = Read(tmp);
             }
 
-            return Condition(c, t, f, true);
-        }
-
-        private static void RequiresPredicate(MethodInfo method) {
-            Contract.RequiresNotNull(method, "method");
-            Debug.Assert(ReflectionUtils.SignatureEquals(method, typeof(object), typeof(bool)));
-            Debug.Assert(method.IsStatic && method.IsPublic);
+            return Condition(condition, t, f);
         }
 
         #endregion

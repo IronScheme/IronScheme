@@ -65,10 +65,40 @@ namespace Microsoft.Scripting.Generation {
                 Expression value = parameters[parameters.Count - _kwArgCount + _indexesUsed[i]];
                 switch(_membersSet[i].MemberType) {
                     case MemberTypes.Field:
-                        sets.Add(Ast.AssignField(Ast.Read(tmp), (FieldInfo)_membersSet[i], value));
+                        FieldInfo fi = (FieldInfo)_membersSet[i];
+                        if (!fi.IsLiteral && !fi.IsInitOnly) {
+                            sets.Add(Ast.AssignField(Ast.Read(tmp), fi, Ast.DynamicConvert(value, fi.FieldType)));
+                        } else {
+                            // call a helper which throws the error but "returns object"
+                            sets.Add(
+                                Ast.Convert(
+                                    Ast.Call(
+                                        typeof(RuntimeHelpers).GetMethod("ReadOnlyAssignError"),
+                                        Ast.Constant(true),
+                                        Ast.Constant(fi.Name)
+                                    ),
+                                    fi.FieldType
+                                )
+                            );
+                        }                        
                         break;
                     case MemberTypes.Property:
-                        sets.Add(Ast.AssignProperty(Ast.Read(tmp), (PropertyInfo)_membersSet[i], value));
+                        PropertyInfo pi = (PropertyInfo)_membersSet[i];
+                        if (pi.GetSetMethod(ScriptDomainManager.Options.PrivateBinding) != null) {
+                            sets.Add(Ast.AssignProperty(Ast.Read(tmp), pi, Ast.DynamicConvert(value, pi.PropertyType)));
+                        } else {
+                            // call a helper which throws the error but "returns object"
+                            sets.Add(
+                                Ast.Convert(
+                                    Ast.Call(
+                                        typeof(RuntimeHelpers).GetMethod("ReadOnlyAssignError"),
+                                        Ast.Constant(false),
+                                        Ast.Constant(pi.Name)
+                                    ),
+                                    pi.PropertyType
+                                )
+                            );
+                        }
                         break;
                 }
             }

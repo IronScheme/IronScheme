@@ -49,6 +49,7 @@ namespace Microsoft.Scripting {
 
         void IDisposable.Dispose() {
             // nothing needed to dispose
+            GC.SuppressFinalize(this);
         }
 
         #endregion

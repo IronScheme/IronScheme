@@ -101,6 +101,7 @@ namespace Microsoft.Scripting {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         protected virtual void ParseArgument(string arg) {
             Contract.RequiresNotNull(arg, "arg");
 
@@ -216,6 +217,7 @@ namespace Microsoft.Scripting {
             return new InvalidOptionException(String.Format(Resources.InvalidOptionValue, value, option));
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional", MessageId = "Body")] // TODO: fix
         public virtual void GetHelp(out string commandLine, out string[,] options, out string[,] environmentVariables, out string comments) {
 
             commandLine = "[options] [file|- [arguments]]";

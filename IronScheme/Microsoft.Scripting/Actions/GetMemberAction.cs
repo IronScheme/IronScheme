@@ -14,6 +14,7 @@
  * ***************************************************************************/
 
 using System;
+using Microsoft.Scripting.Utils;
 namespace Microsoft.Scripting.Actions {
     [Flags]
     public enum GetMemberBindingFlags {
@@ -35,15 +36,15 @@ namespace Microsoft.Scripting.Actions {
         GetMemberBindingFlags _flags;
 
         public static GetMemberAction Make(string name) {
-            return new GetMemberAction(SymbolTable.StringToId(name), GetMemberBindingFlags.Bound);
+            return Make(SymbolTable.StringToId(name), GetMemberBindingFlags.Bound);
         }
 
         public static GetMemberAction Make(SymbolId name) {
-            return new GetMemberAction(name, GetMemberBindingFlags.Bound);
+            return Make(name, GetMemberBindingFlags.Bound);
         }
 
         public static GetMemberAction Make(string name, GetMemberBindingFlags bindingFlags) {
-            return Make(SymbolTable.StringToId(name));
+            return Make(SymbolTable.StringToId(name), bindingFlags);
         }
 
         public static GetMemberAction Make(SymbolId name, GetMemberBindingFlags bindingFlags) {

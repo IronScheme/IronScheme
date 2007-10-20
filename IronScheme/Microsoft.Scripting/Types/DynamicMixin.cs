@@ -113,12 +113,10 @@ namespace Microsoft.Scripting.Types {
         /// Just looks into the context sensitive slots.
         /// </summary>
         public bool TryLookupContextSlot(CodeContext context, SymbolId name, out DynamicTypeSlot slot) {
+            Contract.RequiresNotNull(context, "context");
+            Contract.Requires(context.LanguageContext.ContextId != ContextId.Empty, "context", "Default context not allowed.");
+            
             Initialize();
-
-            if (context.LanguageContext.ContextId == ContextId.Empty) {
-                // Cannot pass the default context id here
-                throw new ArgumentException();
-            }
 
             SlotInfo si;
             bool success = _dict.TryGetValue(name, out si);
@@ -633,7 +631,7 @@ namespace Microsoft.Scripting.Types {
             }
 
             object names;
-            if (TryInvokeUnaryOperator(context, Operators.GetMemberNames, self, out names)) {
+            if (self != null && TryInvokeUnaryOperator(context, Operators.GetMemberNames, self, out names)) {
                 IList<SymbolId> symNames = names as IList<SymbolId>;
                 if (symNames == null) throw new InvalidOperationException(String.Format("GetMemberNames returned bad list: {0}", names));
 

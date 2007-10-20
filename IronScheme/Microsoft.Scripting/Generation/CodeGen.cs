@@ -42,10 +42,10 @@ namespace Microsoft.Scripting.Generation {
     /// at the IL level CodeGen raises the abstraction level to enable emitting of values, expressions,
     /// handling the details of exception handling, loops, etc...
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")] // TODO: fix
     public class CodeGen : IDisposable {
         private CodeGenOptions _options;
         private TypeGen _typeGen;
-        private AssemblyGen _assemblyGen;
         private ISymbolDocumentWriter _debugSymbolWriter;
         private ScopeAllocator _allocator;
 
@@ -71,7 +71,7 @@ namespace Microsoft.Scripting.Generation {
         private CompilerContext _context;
         private ActionBinder _binder;
 
-        private ConstantPool _constantPool;
+        private readonly ConstantPool _constantPool;
 
         private int _curLine;
         private TextWriter _ilOut;
@@ -92,7 +92,6 @@ namespace Microsoft.Scripting.Generation {
             IList<Type> paramTypes, ConstantPool constantPool) {
             Debug.Assert(typeGen == null || typeGen.AssemblyGen == assemblyGen);
             this._typeGen = typeGen;
-            this._assemblyGen = assemblyGen;
             this._methodInfo = mi;
             this._ilg = ilg;
             this._constantPool = constantPool;
@@ -254,6 +253,7 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "type")]
         public void PopTargets(TargetBlockType type) {
             Targets t = _targets.Pop();
             Debug.Assert(t.BlockType == type);
@@ -916,7 +916,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void EmitCodeContext() {
-            Debug.Assert(ContextSlot != null);
+            if (ContextSlot == null) throw new InvalidOperationException("ContextSlot not available.");
 
             ContextSlot.EmitGet(this);
         }
@@ -1031,8 +1031,8 @@ namespace Microsoft.Scripting.Generation {
         public void EmitArray(Type elementType, int count, EmitArrayHelper emit) {
             Contract.RequiresNotNull(elementType, "elementType");
             Contract.RequiresNotNull(emit, "emit");
-            if (count < 0) throw new ArgumentOutOfRangeException("count");
-
+            Contract.Requires(count >= 0, "count", "Count must be non-negative.");
+            
             EmitInt(count);
             Emit(OpCodes.Newarr, elementType);
             for (int i = 0; i < count; i++) {
@@ -1045,35 +1045,42 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        public void EmitTrueArgGet(int i) {
-            switch (i) {
+        public void EmitTrueArgGet(int index) {
+            Contract.Requires(index >= 0, "index");
+
+            switch (index) {
                 case 0: this.Emit(OpCodes.Ldarg_0); break;
                 case 1: this.Emit(OpCodes.Ldarg_1); break;
                 case 2: this.Emit(OpCodes.Ldarg_2); break;
                 case 3: this.Emit(OpCodes.Ldarg_3); break;
                 default:
-                    if (i >= -128 && i <= 127) {
-                        Emit(OpCodes.Ldarg_S, i);
+                    if (index <= Byte.MaxValue) {
+                        Emit(OpCodes.Ldarg_S, index);
                     } else {
-                        this.Emit(OpCodes.Ldarg, i);
+                        this.Emit(OpCodes.Ldarg, index);
                     }
                     break;
             }
         }
 
-        public void EmitArgGet(int i) {
+        public void EmitArgGet(int index) {
+            Contract.Requires(index >= 0 && index < Int32.MaxValue, "index");
+
             if (_methodInfo == null || !_methodInfo.IsStatic) {
-                if (i == Int32.MaxValue) throw new InvalidOperationException(Resources.InvalidOperation_TooManyArguments);
-                i += 1; // making room for this
+                // making room for this
+                index++;
             }
-            EmitTrueArgGet(i);
+
+            EmitTrueArgGet(index);
         }
 
-        public void EmitArgAddr(int i) {
-            if (i >= -128 && i <= 127) {
-                Emit(OpCodes.Ldarga_S, i);
+        public void EmitArgAddr(int index) {
+            Contract.Requires(index >= 0, "index");
+
+            if (index <= Byte.MaxValue) {
+                Emit(OpCodes.Ldarga_S, index);
             } else {
-                this.Emit(OpCodes.Ldarga, i);
+                this.Emit(OpCodes.Ldarga, index);
             }
         }
 
@@ -1588,12 +1595,15 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         internal void EmitConstantNoCache(object value) {
             Debug.Assert(!(value is CompilerConstant));
 
             string strVal;
             BigInteger bi;
             string[] sa;
+            MethodInfo methodInfo;
+            Type type;
 
             if (value == null) {
                 EmitNull();
@@ -1635,8 +1645,8 @@ namespace Microsoft.Scripting.Generation {
                 EmitULong((ulong)value);
             } else if (value is SymbolId) {
                 EmitSymbolId((SymbolId)value);
-            } else if (value is Type) {
-                EmitType((Type)value);
+            } else if ((type = value as Type) != null) {
+                EmitType(type);
             } else if (value is RuntimeTypeHandle) {
                 RuntimeTypeHandle rth = (RuntimeTypeHandle)value;
                 if (!rth.Equals(default(RuntimeTypeHandle))) {
@@ -1644,8 +1654,8 @@ namespace Microsoft.Scripting.Generation {
                 } else {
                     EmitConstant(new RuntimeConstant(value));
                 }
-            } else if (value is MethodInfo) {
-                Emit(OpCodes.Ldtoken, (MethodInfo)value);
+            } else if ((methodInfo = value as MethodInfo) != null) {
+                Emit(OpCodes.Ldtoken, methodInfo);
                 EmitCall(typeof(MethodBase).GetMethod("GetMethodFromHandle", new Type[] { typeof(RuntimeMethodHandle) }));
             } else if (value is RuntimeMethodHandle) {
                 RuntimeMethodHandle rmh = (RuntimeMethodHandle)value;
@@ -2061,6 +2071,7 @@ namespace Microsoft.Scripting.Generation {
             _curLine += lines;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "method")]
         private static string MakeSignature(MethodBase method) {
 #if DEBUG
             return ReflectionUtils.FormatSignature(new StringBuilder(), method).ToString();
@@ -2069,6 +2080,7 @@ namespace Microsoft.Scripting.Generation {
 #endif
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "type")]
         private static string MakeTypeName(Type type) {
 #if DEBUG
             return ReflectionUtils.FormatTypeName(new StringBuilder(), type).ToString();
@@ -2182,6 +2194,7 @@ namespace Microsoft.Scripting.Generation {
 
         public void Dispose() {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing) {
@@ -2207,11 +2220,10 @@ namespace Microsoft.Scripting.Generation {
             get {
                 return _constantPool; 
             }
-            set {
-                _constantPool = value;
-            }
         }
 
+        // TODO: fix
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public IList<Label> YieldLabels {
             get { return _yieldLabels; }
             set { _yieldLabels = value; }

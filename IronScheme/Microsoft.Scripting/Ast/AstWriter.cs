@@ -1,4 +1,4 @@
- /* ****************************************************************************
+/* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
  *
@@ -27,6 +27,11 @@ using Microsoft.Scripting.Generation;
 #if DEBUG
 namespace Microsoft.Scripting.Ast {
     class AstWriter : Walker {
+        private enum Flow {
+            None,
+            Space,
+            NewLine
+        };
 
         private struct Block {
             CodeBlock _block;
@@ -45,14 +50,58 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        private int _depth = 0;
+        private struct Alignment {
+            private readonly Statement _statement;
+            private readonly int _depth;
 
-        private TextWriter _outFile;
+            public Alignment(Statement statement, int depth) {
+                _statement = statement;
+                _depth = depth;
+            }
+
+            public Statement Statement {
+                get { return _statement; }
+            }
+            public int Depth {
+                get { return _depth; }
+            }
+        }
+
+        private const int Tab = 4;
+
+        private TextWriter _out;
         private Queue<Block> _blocks;
-
         private int _blockid;
+        private Stack<Alignment> _stack = new Stack<Alignment>();
+        private int _delta;
+        private Flow _flow;
 
         private AstWriter() {
+        }
+
+        private int Base {
+            get {
+                return _stack.Count > 0 ? _stack.Peek().Depth : 0;
+            }
+        }
+
+        private int Delta {
+            get { return _delta; }
+        }
+
+        private int Depth {
+            get { return Base + Delta; }
+        }
+
+        private void Indent() {
+            _delta += Tab;
+        }
+        private void Dedent() {
+            _delta -= Tab;
+        }
+
+        private void NewLine() {
+            _flow = Flow.NewLine;
         }
 
         /// <summary>
@@ -100,43 +149,20 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private void DoDump(Node node, string name, TextWriter outFile) {
-            _outFile = outFile;
-            _depth = 0;
-
-            _outFile.WriteLine("#\n# AST {0}\n#", name);
+            _out = outFile;
+            _out.WriteLine("\n\n//\n// AST {0}\n//", name);
 
             node.Walk(this);
-            Debug.Assert(_depth == 0);
-
+            Debug.Assert(_stack.Count == 0);
 
             while (_blocks != null && _blocks.Count > 0) {
                 Block b = _blocks.Dequeue();
-                Write("#");
-                Write(String.Format("# CODE BLOCK: {0} (# {1})", b.CodeBlock.Name, b.Id));
-                Write("#");
-
+                Write(String.Format("\n\n//\n// CODE BLOCK: {0} ({1})\n//\n", b.CodeBlock.Name, b.Id));
                 b.CodeBlock.Walk(this);
-
                 Write("");
 
-                Debug.Assert(_depth == 0);
+                Debug.Assert(_stack.Count == 0);
             }
-        }
-
-
-        private void Push(string label) {
-            Write(label);
-            _depth++;
-        }
-
-        private void Pop(string label) {
-            _depth--;
-            Write(label);
-        }
-
-        private void Pop() {
-            _depth--;
-            Debug.Assert(_depth >= 0);
         }
 
         private int Enqueue(CodeBlock block) {
@@ -147,22 +173,56 @@ namespace Microsoft.Scripting.Ast {
             return _blockid;
         }
 
-        public void Write(string s) {
-            _outFile.WriteLine(new string(' ', _depth * 3) + s);
+        #region The printing code
+
+        private void Out(string s) {
+            Out(Flow.None, s, Flow.None);
         }
 
-        private void Child(Node node) {
-            if (node != null) node.Walk(this);
+        private void Out(Flow before, string s) {
+            Out(before, s, Flow.None);
         }
 
-        // Unfortunately, overload resolution happens in our parent class, so we have to explicitly call this default case
-        public bool DefaultWalk(Node node, string name) {
-            Push(name);
-            return (node != null);
+        private void Out(string s, Flow after) {
+            Out(Flow.None, s, after);
         }
+
+        private void Out(Flow before, string s, Flow after) {
+            switch (GetFlow(before)) {
+                case Flow.None:
+                    break;
+                case Flow.Space:
+                    Write(" ");
+                    break;
+                case Flow.NewLine:
+                    WriteLine();
+                    Write(new String(' ', Depth));
+                    break;
+            }
+            Write(s);
+            _flow = after;
+        }
+
+        private void WriteLine() {
+            _out.WriteLine();
+        }
+        private void Write(string s) {
+            _out.Write(s);
+        }
+
+        private Flow GetFlow(Flow flow) {
+            // Get the biggest flow that is requested None < Space < NewLine
+            return (Flow)System.Math.Max((int)_flow, (int)flow);
+        }
+
+        private void WalkChild(Node n) {
+            if (n != null) n.Walk(this);
+        }
+
+        #endregion
 
         // More proper would be to make this a virtual method on Action
-        private string FormatAction(DynamicAction action) {
+        private static string FormatAction(DynamicAction action) {
             DoOperationAction doa;
             GetMemberAction gma;
             SetMemberAction sma;
@@ -187,567 +247,611 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
         // ActionExpression
         public override bool Walk(ActionExpression node) {
-            Push(".action " + FormatAction(node.Action) + "(");
-            return true;
-        }
-        public override void PostWalk(ActionExpression node) {
-            Pop(")");
+            Out(".action", Flow.Space);
+            Out(FormatAction(node.Action));
+            Out("(");
+            Indent();
+            NewLine();
+            foreach (Expression arg in node.Arguments) {
+                WalkChild(arg);
+                NewLine();
+            }
+            Dedent();
+            Out(")");
+            return false;
         }
 
         // ArrayIndexAssignment
         public override bool Walk(ArrayIndexAssignment node) {
-            return DefaultWalk(node, "< [] = >");
-        }
-        public override void PostWalk(ArrayIndexAssignment node) {
-            Pop();
+            WalkChild(node.Array);
+            Out("[");
+            WalkChild(node.Index);
+            Out("] = ");
+            WalkChild(node.Value);
+            return false;
         }
 
         // ArrayIndexExpression
         public override bool Walk(ArrayIndexExpression node) {
-            return DefaultWalk(node, "< [] >");
-        }
-        public override void PostWalk(ArrayIndexExpression node) {
-            Pop();
+            WalkChild(node.Array);
+            Out("[");
+            WalkChild(node.Index);
+            Out("]");
+            return false;
         }
 
         // BinaryExpression
         public override bool Walk(BinaryExpression node) {
-            return DefaultWalk(node, "<binaryexpr> Op:" + node.Operator.ToString());
-        }
-        public override void PostWalk(BinaryExpression node) {
-            Pop();
-        }
-
-        // StaticUnaryExpression
-        public override bool Walk(UnaryExpression node) {
+            WalkChild(node.Left);
+            string op;
             switch (node.Operator) {
-                case UnaryOperators.Convert:
-                    Push("(" + node.Type.ToString() + ") (");
-                    break;
-                case UnaryOperators.Negate:
-                    Push("- (");
-                    break;
-                case UnaryOperators.Not:
-                    Push(node.Type == typeof(bool) ? "! (" : "~ (");
-                    break;
-                case UnaryOperators.OnesComplement:
-                    Push("~ (");
-                    break;
+                case BinaryOperators.Equal: op = "="; break;
+                case BinaryOperators.NotEqual: op = "!="; break;
+                case BinaryOperators.AndAlso: op = "&&"; break;
+                case BinaryOperators.OrElse: op = "||"; break;
+                case BinaryOperators.GreaterThan: op = ">"; break;
+                case BinaryOperators.LessThan: op = "<"; break;
+                case BinaryOperators.GreaterThanEquals: op = ">="; break;
+                case BinaryOperators.LessThanEquals: op = "<="; break;
+                case BinaryOperators.Add: op = "+"; break;
+                case BinaryOperators.Subtract: op = "-"; break;
+                case BinaryOperators.Divide: op = "/"; break;
+                case BinaryOperators.Modulo: op = "%"; break;
+                case BinaryOperators.Multiply: op = "*"; break;
+                case BinaryOperators.LeftShift: op = "<<"; break;
+                case BinaryOperators.RightShift: op = ">>"; break;
+                case BinaryOperators.BitwiseAnd: op = "&"; break;
+                case BinaryOperators.BitwiseOr: op = "|"; break;
+                case BinaryOperators.ExclusiveOr: op = "^"; break;
+                default:
+                    throw new InvalidOperationException();
             }
-            return true;
-        }
-        public override void PostWalk(UnaryExpression node) {
-            Pop(")");
-        }
-
-        // DynamicConversionExpression
-        public override bool Walk(DynamicConversionExpression node) {
-            Push(".dynamic (" + node.Type.ToString() + ")");
-            return true;
-        }
-        public override void PostWalk(DynamicConversionExpression node) {
-            Pop();
+            Out(Flow.Space, op, Flow.Space);
+            WalkChild(node.Right);
+            return false;
         }
 
         // BoundAssignment
         public override bool Walk(BoundAssignment node) {
-            Push(String.Format(".bound {0} = ...", SymbolTable.IdToString(node.Variable.Name)));
-            return true;
-        }
-        public override void PostWalk(BoundAssignment node) {
-            Pop();
+            Out("(.bound " + SymbolTable.IdToString(node.Variable.Name) + ") = ");
+            WalkChild(node.Value);
+            return false;
         }
 
         // BoundExpression
         public override bool Walk(BoundExpression node) {
-            Write(".bound (" + node.Name.ToString() + ")");
-            return true;
-        }
-
-        // UnboundAssignment
-        public override bool Walk(UnboundAssignment node) {
-            Push(String.Format(".unbound {0} = ...", SymbolTable.IdToString(node.Name)));
-            return true;
-        }
-        public override void PostWalk(UnboundAssignment node) {
-            Pop();
-        }
-
-        // UnboundExpression
-        public override bool Walk(UnboundExpression node) {
-            Write(".unbound (" + node.Name.ToString() + ")");
-            return true;
-        }
-
-        // CallWithThisExpression
-        public override bool Walk(CallWithThisExpression node) {
-            return NotImplemented(node);
-        }
-
-        private void DumpCodeBlockExpression(CodeBlockExpression node) {
-            int id = Enqueue(node.Block);
-            Write(String.Format(".block {0} ({1}   #{2}) {3}{4}{5}", 
-                node.DelegateType != null ? node.DelegateType.Name : "no-type", 
-                node.Block.Name, 
-                id,
-                node.ForceWrapperMethod ? " ForceWrapperMethod" : "",
-                node.IsStronglyTyped ? " IsStronglyTyped" : "",
-                node.IsDeclarative ? " IsDeclarative" : ""));
-        }
-
-        // CodeBlockExpression
-        public override bool Walk(CodeBlockExpression node) {
-            // Walk gets called only if IsDeclarative==true
-            // So we do the real work in PostWalk
-            Debug.Assert(node.IsDeclarative);
+            Out("(.bound ");
+            Out(SymbolTable.IdToString(node.Name));
+            Out(")");
             return false;
         }
 
-        public override void PostWalk(CodeBlockExpression node) {
-            DumpCodeBlockExpression(node);
+        // CallWithThisExpression
+        public override bool Walk(CallWithThisExpression node) { throw NotImplemented(node); }
+        public override void PostWalk(CallWithThisExpression node) { }
+
+        // CodeBlockExpression
+        public override bool Walk(CodeBlockExpression node) {
+            int id = Enqueue(node.Block);
+            Out(String.Format(".block ({0} #{1}", node.Block.Name, id));
+            Indent();
+            bool nl = false;
+            if (node.ForceWrapperMethod) { nl = true; Out(Flow.NewLine, "ForceWrapper"); }
+            if (node.IsStronglyTyped) { nl = true; Out(Flow.NewLine, "StronglyTyped"); }
+            if (node.IsDeclarative) { nl = true; Out(Flow.NewLine, "Declarative"); }
+            Dedent();
+            Out(nl ? Flow.NewLine : Flow.None, ")");
+            return false;
         }
 
         // CodeContextExpression
         public override bool Walk(CodeContextExpression node) {
-            return DefaultWalk(node, ".context");
-        }
-        public override void PostWalk(CodeContextExpression node) {
-            Pop();
+            Out(".context");
+            return false;
         }
 
         // CommaExpression
         public override bool Walk(CommaExpression node) {
-            return DefaultWalk(node, ".comma (" + node.ValueIndex + ") {");
-        }
-        public override void PostWalk(CommaExpression node) {
-            Pop("}");
+            Out(String.Format(".comma ({0}) {{", node.ValueIndex), Flow.NewLine);
+            Indent();
+            for (int i = 0; i < node.Expressions.Count; i++) {
+                WalkChild(node.Expressions[i]);
+                Out(",", Flow.NewLine);
+            }
+            Dedent();
+            Out("}", Flow.NewLine);
+            return false;
         }
 
         // ConditionalExpression
         public override bool Walk(ConditionalExpression node) {
-            return DefaultWalk(node, "<?:>");
+            Out("(");
+            WalkChild(node.Test);
+            Out(" ? ");
+            WalkChild(node.TrueExpression);
+            Out(" : ");
+            WalkChild(node.FalseExpression);
+            Out(")");
+            return false;
         }
-        public override void PostWalk(ConditionalExpression node) {
-            Pop();
+
+        private static string Constant(object value) {
+            if (value == null) {
+                return ".null";
+            }
+
+            CompilerConstant cc;
+            if ((cc = value as CompilerConstant) != null) {
+                value = cc.Create();
+                if (value is ITemplatedValue) {
+                    return ".template (" + ((ITemplatedValue)value).ObjectValue.ToString() + ")";
+                }
+            }
+
+            Type t;
+            if ((t = value as Type) != null) {
+                return "((Type)" + t.Name + ")";
+            }
+            string s;
+            if ((s = value as string) != null) {
+                return "\"" + s + "\"";
+            }
+            if (value is int || value is double) {
+                return String.Format("{0:G}", value);
+            }
+            return "(" + value.GetType().Name + ")" + value.ToString();
         }
 
         // ConstantExpression
         public override bool Walk(ConstantExpression node) {
-            return DefaultWalk(node, GetConstantDisplay(node));
+            Out(Constant(node.Value));
+            return false;
         }
 
-        private static string GetConstantDisplay(ConstantExpression node) {
-            if (node.Value == null) return "(null)";
-
-            CompilerConstant cc = node.Value as CompilerConstant;
-
-            if (cc != null) {
-                object value = cc.Create();
-                if (value is ITemplatedValue) {
-                    return "TemplateVal: " + ((ITemplatedValue)value).ObjectValue.ToString();
-                }
-
-                return cc.Name + " " + cc.Type + " " + value.ToString();
-            } else if (node.Value is Type) {
-                return "Type: " + ((Type)node.Value).FullName;
-            }
-
-            string cs = node.Value as string;
-            if (cs != null) {
-                return "(string) \"" + cs + "\"";
-            }
-
-            return "(" + node.Value.GetType().Name + ") " + node.Value.ToString();
+        // DeleteUnboundExpression
+        public override bool Walk(DeleteUnboundExpression node) {
+            Out(String.Format(".delname({0})", SymbolTable.IdToString(node.Name)));
+            return false;
         }
 
-        public override void PostWalk(ConstantExpression node) {
-            Pop();
+        // DynamicConversionExpression
+        public override bool Walk(DynamicConversionExpression node) {
+            Out(String.Format(".convert.d ({0})", node.Type));
+            WalkChild(node.Expression);
+            Out(")");
+            return false;
         }
 
         // EnvironmentExpression
         public override bool Walk(EnvironmentExpression node) {
-            return DefaultWalk(node, "<$env>");
+            Out(".env");
+            return false;
         }
-        public override void PostWalk(EnvironmentExpression node) {
-            Pop();
+
+        // MemberAssignment
+        public override bool Walk(MemberAssignment node) {
+            WalkChild(node.Expression);
+            Out(".");
+            Out(node.Member.Name);
+            Out(" = ");
+            WalkChild(node.Value);
+            return false;
         }
 
         // MemberExpression
         public override bool Walk(MemberExpression node) {
-            return DefaultWalk(node, "<member> Name:" + node.Member.Name);
-        }
-        public override void PostWalk(MemberExpression node) {
-            Pop();
+            WalkChild(node.Expression);
+            Out(".");
+            Out(node.Member.Name);
+            return false;
         }
 
         // MethodCallExpression
         public override bool Walk(MethodCallExpression node) {
-            Push(".call " + node.Method.ReflectedType.Name + "." + node.Method.Name + " (");
             if (node.Instance != null) {
-                Push(".inst (");
-                Child(node.Instance);
-                Pop(")");
+                Out("(");
+                WalkChild(node.Instance);
+                Out(").");
             }
-            Push(".args (");
-            foreach (Expression e in node.Arguments) {
-                Child(e);
+            Out("(" + node.Method.ReflectedType.Name + "." + node.Method.Name + ")(");
+            if (node.Arguments != null && node.Arguments.Count > 0) {
+                NewLine(); Indent();
+                foreach (Expression e in node.Arguments) {
+                    WalkChild(e);
+                    Out(",", Flow.NewLine);
+                }
+                Dedent();
             }
-            Pop(")");
-            Pop(")");
+            Out(")");
             return false;
         }
 
-
         // NewArrayExpression
         public override bool Walk(NewArrayExpression node) {
-            Push(".new (" + node.Type.FullName + ") = {");
-            return true;
-        }
-        public override void PostWalk(NewArrayExpression node) {
-            Pop("}");
+            Out(".new " + node.Type.Name + "[] = {");
+            if (node.Expressions != null && node.Expressions.Count > 0) {
+                NewLine(); Indent();
+                foreach (Expression e in node.Expressions) {
+                    WalkChild(e);
+                    Out(",", Flow.NewLine);
+                }
+                Dedent();
+            }
+            Out("}");
+            return false;
         }
 
         // NewExpression
         public override bool Walk(NewExpression node) {
-            Push("<new> Name:" + node.Constructor.DeclaringType.FullName);
-            Push("args:");
-            foreach (Expression e in node.Arguments) {
-                Child(e);
+            Out(".new " + node.Type.Name + "(");
+            if (node.Arguments != null && node.Arguments.Count > 0) {
+                NewLine(); Indent();
+                foreach (Expression e in node.Arguments) {
+                    WalkChild(e);
+                    Out(",", Flow.NewLine);
+                }
+                Dedent();
             }
-            Pop();
-            Pop();
+            Out(")");
             return false;
         }
 
-
         // ParamsExpression
         public override bool Walk(ParamsExpression node) {
-            return DefaultWalk(node, "<$params$>");
-        }
-        public override void PostWalk(ParamsExpression node) {
-            Pop();
+            Out(".params");
+            return false;
         }
 
-        // ParenthesisExpression
+        // ParenthesizedExpression
         public override bool Walk(ParenthesizedExpression node) {
-            Push("(");
-            return true;
-        }
-        public override void PostWalk(ParenthesizedExpression node) {
-            Pop(")");
+            Out("(");
+            WalkChild(node.Expression);
+            Out(")");
+            return false;
         }
 
         // ShortCircuitExpression
         public override bool Walk(ShortCircuitExpression node) {
-            return NotImplemented(node);
+            throw NotImplemented(node);
+        }
+
+        // TypeBinaryExpression
+        public override bool Walk(TypeBinaryExpression node) {
+            WalkChild(node.Expression);
+            Out(Flow.Space, ".is", Flow.Space);
+            Out(node.Type.Name);
+            return false;
+        }
+
+        // UnaryExpression
+        public override bool Walk(UnaryExpression node) {
+            switch (node.Operator) {
+                case UnaryOperators.Convert:
+                    Out("(" + node.Type.Name + ")");
+                    break;
+                case UnaryOperators.Not:
+                    Out(node.Type == typeof(bool) ? "!" : "~");
+                    break;
+                case UnaryOperators.Negate:
+                    Out("-");
+                    break;
+                case UnaryOperators.OnesComplement:
+                    Out("~");
+                    break;
+            }
+
+            WalkChild(node.Operand);
+            return false;
+        }
+
+        // UnboundAssignment
+        public override bool Walk(UnboundAssignment node) {
+            Out(SymbolTable.IdToString(node.Name));
+            Out(" := ");
+            WalkChild(node.Value);
+            return false;
+        }
+
+        // UnboundExpression
+        public override bool Walk(UnboundExpression node) {
+            Out(".unbound " + SymbolTable.IdToString(node.Name));
+            return false;
         }
 
         // VoidExpression
         public override bool Walk(VoidExpression node) {
-            Push(".void (");
-            return true;
-        }
-        public override void PostWalk(VoidExpression node) {
-            Pop(")");
+            Out(".void {");
+            Indent();
+            WalkChild(node.Statement);
+            Dedent();
+            Out("}");
+            return false;
         }
 
         // BlockStatement
         public override bool Walk(BlockStatement node) {
-            Push("{");
-            return true;
-        }
-        public override void PostWalk(BlockStatement node) {
-            Pop("}");
+            Out("{");
+            NewLine(); Indent();
+            foreach (Statement s in node.Statements) {
+                WalkChild(s);
+                NewLine();
+            }
+            Dedent();
+            Out("}", Flow.NewLine);
+            return false;
         }
 
         // BreakStatement
         public override bool Walk(BreakStatement node) {
-            Write(".break");
+            Out(".break;", Flow.NewLine);
             return false;
         }
 
         // ContinueStatement
         public override bool Walk(ContinueStatement node) {
-            return DefaultWalk(node, ".continue;");
-        }
-        public override void PostWalk(ContinueStatement node) {
-            Pop();
+            Out(".continue;", Flow.NewLine);
+            return false;
         }
 
         // DebugStatement
         public override bool Walk(DebugStatement node) {
-            Write(".trace \"" + node.Marker + "\"");
+            Out(".debug(" + node.Marker + ");", Flow.NewLine);
             return false;
         }
 
-        // DelStatement
+        // DeleteStatement
         public override bool Walk(DeleteStatement node) {
-            string descr = ".del";
-            if (node.Variable != null)
-                descr += " " + SymbolTable.IdToString(node.Variable.Name);
-            return DefaultWalk(node, descr);
-        }
-        public override void PostWalk(DeleteStatement node) {
-            Pop();
+            Out(".del");
+            if (node.Variable != null) {
+                Out(Flow.Space, SymbolTable.IdToString(node.Variable.Name));
+            }
+            NewLine();
+            return false;
         }
 
         // DoStatement
         public override bool Walk(DoStatement node) {
-            Push(".do {");
-            node.Body.Walk(this);
-            Pop();
-            Push("} .while (");
-            node.Test.Walk(this);
-            Pop(");");
+            Out(".do {", Flow.NewLine);
+            Indent();
+            WalkChild(node.Body);
+            Dedent();
+            Out(Flow.NewLine, "} .while (");
+            WalkChild(node.Test);
+            Out(");");
             return false;
-        }
-
-        // LoopStatement
-        public override bool Walk(LoopStatement node) {
-            Push(".loop {");
-            return true;
-        }
-        public override void PostWalk(LoopStatement node) {
-            Pop("}");
         }
 
         // EmptyStatement
         public override bool Walk(EmptyStatement node) {
-            Write(";");
+            Out(";", Flow.NewLine);
+            return false;
+        }
+
+        // ExpressionStatement
+        public override bool Walk(ExpressionStatement node) {
+            WalkChild(node.Expression);
+            Out(";", Flow.NewLine);
             return false;
         }
 
         // IfStatement
         public override bool Walk(IfStatement node) {
             for (int i = 0; i < node.Tests.Count; i++) {
-                Push(i == 0 ? ".if (" : "} .else if (");
-                node.Tests[i].Test.Walk(this);
-                Write(") {");
-                node.Tests[i].Body.Walk(this);
-                Pop();
+                IfStatementTest test = node.Tests[i];
+                Out(i == 0 ? ".if (" : "} .elif (");
+                WalkChild(test.Test);
+                Out(") {", Flow.NewLine);
+                Indent();
+                WalkChild(test.Body);
+                Dedent();
             }
+
             if (node.ElseStatement != null) {
-                Push("} .else {");
-                Child(node.ElseStatement);
-                Pop("}");
-            } else {
-                Write("}");
+                Out("} .else {", Flow.NewLine);
+                Indent();
+                WalkChild(node.ElseStatement);
+                Dedent();
             }
+            Out("}");
             return false;
         }
 
         // LabeledStatement
         public override bool Walk(LabeledStatement node) {
-            return DefaultWalk(node, "<label>");
+            Out(".labeled {", Flow.NewLine);
+            Indent();
+            WalkChild(node.Statement);
+            Dedent();
+            Out(Flow.NewLine, "}");
+            return false;
         }
-        public override void PostWalk(LabeledStatement node) {
-            Pop();
+
+        // LoopStatement
+        public override bool Walk(LoopStatement node) {
+            Out(".for (; ");
+            WalkChild(node.Test);
+            Out("; ");
+            WalkChild(node.Increment);
+            Out(") {", Flow.NewLine);
+            Indent();
+            WalkChild(node.Body);
+            Dedent();
+            Out(Flow.NewLine, "}");
+            return false;
         }
 
         // ReturnStatement
         public override bool Walk(ReturnStatement node) {
-            return DefaultWalk(node, ".return (");
+            Out(".return", Flow.Space);
+            WalkChild(node.Expression);
+            Out(";", Flow.NewLine);
+            return false;
         }
-        public override void PostWalk(ReturnStatement node) {
-            Pop(")");
+
+        // ScopeStatement
+        public override bool Walk(ScopeStatement node) {
+            Out(".scope (");
+            WalkChild(node.Scope);
+            Out(") {", Flow.NewLine);
+            Indent();
+            WalkChild(node.Body);
+            Dedent();
+            Out("}", Flow.NewLine);
+            return false;
         }
 
         // SwitchStatement
         public override bool Walk(SwitchStatement node) {
-            Push(". switch (");
-            Child(node.TestValue);
-            Pop(")");
-            Push("}");
+            Out(".switch (");
+            WalkChild(node.TestValue);
+            Out(") {", Flow.NewLine);
             foreach (SwitchCase sc in node.Cases) {
-                DumpCase(sc);
+                Out(".case ");
+                WalkChild(sc.Value);
+                Out(":", Flow.NewLine);
+                Indent(); Indent();
+                WalkChild(sc.Body);
+                Dedent(); Dedent();
+                NewLine();
             }
-            Pop("}");
+            Out("}", Flow.NewLine);
             return false;
         }
 
-        private void DumpCase(SwitchCase sc) {
-            Push(".case (");
-            Child(sc.Value);
-            Pop(")");
-            Push("{");
-            Child(sc.Body);
-            Pop("}");
-        }
-
         // ThrowStatement
-        public override bool Walk(ThrowExpression node) {
-            return DefaultWalk(node, ".throw (");
-        }
-        public override void PostWalk(ThrowExpression node) {
-            Pop(")");
+        public override bool Walk(ThrowStatement node) {
+            Out(Flow.NewLine, ".throw (");
+            WalkChild(node.Exception);
+            Out(")", Flow.NewLine);
+            return false;
         }
 
         // TryStatement
         public override bool Walk(TryStatement node) {
-            Push(".try {");
-            node.Body.Walk(this);
-            if (node.Handlers != null) {
-                StringBuilder sb = new StringBuilder("} .catch (");
-
+            Out(".try {", Flow.NewLine);
+            Indent();
+            WalkChild(node.Body);
+            Dedent();
+            if (node.Handlers != null && node.Handlers.Count > 0) {
                 foreach (CatchBlock cb in node.Handlers) {
-                    Pop();
-                    sb.Append(cb.Test.Name);
+                    Out("} .catch ( " + cb.Test.Name);
                     if (cb.Variable != null) {
-                        sb.Append(" ");
-                        sb.Append(cb.Variable.Name);
+                        Out(Flow.Space, SymbolTable.IdToString(cb.Variable.Name));
                     }
-                    sb.Append(") {");
-
-                    Push(sb.ToString());
-                    cb.Body.Walk(this);
-                    sb.Length = 10;
+                    Out(") {", Flow.NewLine);
+                    Indent();
+                    WalkChild(cb.Body);
+                    Dedent();
                 }
             }
-
             if (node.FinallyStatement != null) {
-                Pop();
-                Push("} .finally {");
-                node.FinallyStatement.Walk(this);
+                Out("} .finally {", Flow.NewLine);
+                Indent();
+                WalkChild(node.FinallyStatement);
+                Dedent();
             }
-
-            Pop("}");
+            Out("}", Flow.NewLine);
             return false;
-        }
-
-        // CatchBlock
-        public override bool Walk(CatchBlock node) {
-            Push(". catch (");
-            return true;
-        }
-        public override void PostWalk(CatchBlock node) {
-            Pop(")");
         }
 
         // YieldStatement
         public override bool Walk(YieldStatement node) {
-            Push(".yield");
-            return true;
-        }
-        public override void PostWalk(YieldStatement node) {
-            Pop();
+            Out(".yield ");
+            WalkChild(node.Expression);
+            Out(";", Flow.NewLine);
+            return false;
         }
 
         // Arg
-        public override bool Walk(Arg node) {
-            Push(".arg");
-            if (node.Name != SymbolId.Empty) {
-                Push(SymbolTable.IdToString(node.Name));
-                Pop();
-            }
-            Child(node.Expression);
-            Pop();
-            return false;
-        }
+        public override bool Walk(Arg node) { throw NotImplemented(node); }
 
-        private string GetCodeBlockInfo(CodeBlock block) {
+        // CatchBlock
+        public override bool Walk(CatchBlock node) { throw NotImplemented(node); }
+
+        private static string GetCodeBlockInfo(CodeBlock block) {
             string info = String.Format("{0} {1} (", block.ReturnType.Name, block.Name);
-
             if (block.IsGlobal) {
-                info += "IsGlobal,";
+                info += " global,";
             }
-
             if (!block.IsVisible) {
-                info += "IsVisible=false,";
+                info += " hidden,";
             }
-
             if (block.IsClosure) {
-                info += "IsClosure,";
+                info += " closure,";
             }
-
             if (block.ParameterArray) {
-                info += "ParameterArray,";
+                info += " param array,";
             }
-
             if (block.HasEnvironment) {
-                info += "HasEnvironment,";
+                info += " environment,";
             }
-
             if (block.EmitLocalDictionary) {
-                info += "EmitLocalDictionary,";
+                info += " local dict";
             }
-
             info += ")";
-
             return info;
-        }
-
-        // CodeBlock
-        public override bool Walk(CodeBlock node) {
-            Push(".codeblock " + GetCodeBlockInfo(node) + " (");
-            foreach (Variable v in node.Parameters) {
-                DumpVariable(v);
-            }
-            Write(")");
-            
-            Push(".vars {");
-            foreach (Variable v in node.Variables) {
-                DumpVariable(v);
-            }
-            Pop("}");
-
-            Child(node.Body);
-            Pop("}");
-            return false;
         }
 
         private void DumpVariable(Variable v) {
             string descr = String.Format("{2} {0} ({1}", SymbolTable.IdToString(v.Name), v.Kind.ToString(), v.Type.Name);
-            if (v.Lift) { descr += ",Lift"; }
-            if (v.InParameterArray) { descr += ",InParameterArray"; }
-            descr += ")";
-            Push(descr);
-
-            if (v.DefaultValue != null) {
-                Child(v.DefaultValue);
+            if (v.Lift) {
+                descr += ",Lift";
             }
-            Pop();
+            if (v.InParameterArray) {
+                descr += ",InParameterArray";
+            }
+            descr += ")";
+            Out(descr);
+            if (v.DefaultValue != null) {
+                Out(" = ");
+                WalkChild(v.DefaultValue);
+            }
+            NewLine();
+        }
+
+        private void DumpBlock(CodeBlock node) {
+            Out(GetCodeBlockInfo(node));
+            Out("(");
+            Indent();
+            foreach (Variable v in node.Parameters) {
+                Out(Flow.NewLine, ".arg", Flow.Space);
+                DumpVariable(v);
+            }
+            Dedent();
+            Out(") {");
+            Indent();
+            foreach (Variable v in node.Variables) {
+                Out(Flow.NewLine, ".var", Flow.Space);
+                DumpVariable(v);
+            }
+            Out(Flow.NewLine, "", Flow.NewLine);
+            WalkChild(node.Body);
+            Dedent();
+            Out("}");
+        }
+
+        // CodeBlock
+        public override bool Walk(CodeBlock node) {
+            Out(".codeblock", Flow.Space);
+            DumpBlock(node);
+            return false;
         }
 
         // GeneratorCodeBlock
         public override bool Walk(GeneratorCodeBlock node) {
-            Push(".generator " + GetCodeBlockInfo(node) + " (");
-            foreach (Variable v in node.Parameters) {
-                DumpVariable(v);
-            }
-            Pop(")");
-            Push(".vars {");
-            foreach (Variable v in node.Variables) {
-                DumpVariable(v);
-            }
-            Pop("}");
-            Push("{");
-            Child(node.Body);
-            Pop("}");
+            Out(".generator", Flow.Space);
+            DumpBlock(node);
             return false;
         }
-
 
         // IfStatementTest
-        public override bool Walk(IfStatementTest node) {
-            return DefaultWalk(node, "<cond>");
-        }
-        public override void PostWalk(IfStatementTest node) {
-            Pop();
-        }
+        public override bool Walk(IfStatementTest node) { throw NotImplemented(node); }
 
-        public override bool Walk(ScopeStatement node) {
-            return DefaultWalk(node, "<scope>");
-        }
-        public override void PostWalk(ScopeStatement node) {
-            Pop();
-        }
-
-        private bool NotImplemented(Node node) {
-            Push("NOT IMPLEMENTED: " + node.GetType().Name);
-            Pop();
-            return false;
+        private static Exception NotImplemented(Node node) {
+            return new NotImplementedException("Not implemented: " + node.GetType().Name);
         }
     }
 }

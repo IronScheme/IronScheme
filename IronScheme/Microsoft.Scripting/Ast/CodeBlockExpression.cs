@@ -95,8 +95,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         protected override object DoEvaluate(CodeContext context) {
-            Debug.Assert(_delegateType == null); // We currently cannot create a strongly-typed delegate
-            return _block.GetDelegateForInterpreter(context, _forceWrapperMethod);
+            return _block.GetDelegateForInterpreter(context, _delegateType, _forceWrapperMethod);
         }
 
         public override void Emit(CodeGen cg) {

@@ -21,9 +21,13 @@ namespace Microsoft.Scripting {
     /// Singleton LanguageContext which represents a language-neutral LanguageContext
     /// </summary>
     public class InvariantContext : LanguageContext {
-        public static InvariantContext Instance;
-        public static CodeContext CodeContext;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] // TODO: fix
+        public readonly static InvariantContext Instance;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] // TODO: fix
+        public readonly static CodeContext CodeContext;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")] // TODO: fix
         static InvariantContext() {
             Instance = new InvariantContext();
             ModuleContext moduleContext = new ModuleContext(null);
@@ -36,7 +40,7 @@ namespace Microsoft.Scripting {
         }
 
         public override Microsoft.Scripting.Ast.CodeBlock ParseSourceCode(CompilerContext context) {
-            throw new Exception("The method or operation is not implemented.");
+            throw new NotSupportedException();
         }
     }
 }

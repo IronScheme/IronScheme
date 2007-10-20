@@ -209,7 +209,7 @@ namespace Microsoft.Scripting {
             ParameterInfo[] methodParams = method.GetParameters();
             List<ArgBuilder> argBuilders = new List<ArgBuilder>(methodParams.Length);
             List<ArgBuilder> defaultBuilders = new List<ArgBuilder>();
-            bool hasByRef = false;
+            bool hasByRefOrOut = false;
 
             foreach (ParameterInfo pi in methodParams) {
                 if (pi.ParameterType == typeof(CodeContext) && argBuilders.Count == 0) {
@@ -233,12 +233,13 @@ namespace Microsoft.Scripting {
 
                 ArgBuilder ab;
                 if (pi.ParameterType.IsByRef) {
-                    hasByRef = true;
+                    hasByRefOrOut = true;
                     Type refType = typeof(StrongBox<>).MakeGenericType(pi.ParameterType.GetElementType());
                     ParameterWrapper param = new ParameterWrapper(_binder, refType, true, SymbolTable.StringToId(pi.Name));
                     parameters.Add(param);
                     ab = new ReferenceArgBuilder(newIndex, param.Type);
                 } else {
+                    hasByRefOrOut |= CompilerHelpers.IsOutParameter(pi);
                     ParameterWrapper param = new ParameterWrapper(_binder, pi);
                     parameters.Add(param);
                     ab = new SimpleArgBuilder(newIndex, param.Type, pi);
@@ -276,7 +277,7 @@ namespace Microsoft.Scripting {
                 }
             }
 
-            if (hasByRef) AddSimpleTarget(MakeByRefReducedMethodTarget(method));
+            if (hasByRefOrOut) AddSimpleTarget(MakeByRefReducedMethodTarget(method));
             AddSimpleTarget(MakeMethodCandidate(method, parameters, instanceBuilder, argBuilders, returnBuilder));
         }
 
@@ -360,15 +361,14 @@ namespace Microsoft.Scripting {
                 }
 
                 ArgBuilder ab;
-                if (pi.ParameterType.IsByRef) {
+                if (CompilerHelpers.IsOutParameter(pi)) {
                     returnArgs.Add(argBuilders.Count);
-                    if (CompilerHelpers.IsOutParameter(pi)) {
-                        ab = new OutArgBuilder(pi.ParameterType.GetElementType()); 
-                    } else {
-                        ParameterWrapper param = new ParameterWrapper(_binder, pi.ParameterType.GetElementType(), SymbolTable.StringToId(pi.Name));
-                        parameters.Add(param);
-                        ab = new ReturnReferenceArgBuilder(newIndex, pi.ParameterType.GetElementType());
-                    }
+                    ab = new OutArgBuilder(pi); 
+                } else if (pi.ParameterType.IsByRef) {
+                    returnArgs.Add(argBuilders.Count);
+                    ParameterWrapper param = new ParameterWrapper(_binder, pi.ParameterType.GetElementType(), SymbolTable.StringToId(pi.Name));
+                    parameters.Add(param);
+                    ab = new ReturnReferenceArgBuilder(newIndex, pi.ParameterType.GetElementType());
                 } else {
                     ParameterWrapper param = new ParameterWrapper(_binder, pi);
                     parameters.Add(param);
@@ -383,7 +383,7 @@ namespace Microsoft.Scripting {
             }
 
             ReturnBuilder returnBuilder = MakeKeywordReturnBuilder(
-                new ByRefReturnBuilder(_binder, CompilerHelpers.GetReturnType(method), returnArgs), 
+                new ByRefReturnBuilder(_binder, returnArgs), 
                 method.GetParameters(), 
                 parameters);
 
@@ -499,7 +499,7 @@ namespace Microsoft.Scripting {
             List<MethodCandidate> targets = SelectTargets(callType, types, names);
 
             if (targets.Count == 1) {                
-                argTests = GetTypesForTest(targets[0], types, callType, _targets);
+                argTests = GetTypesForTest(types, _targets);
                 return targets[0];
             }
             argTests = null;
@@ -511,7 +511,7 @@ namespace Microsoft.Scripting {
             List<MethodCandidate> targets = SelectTargets(callType, types, SymbolId.EmptySymbols);
 
             if (targets.Count == 1) {
-                return targets[0].Target.AbstractCall(new AbstractContext(_binder._binder, null), args);
+                return targets[0].Target.AbstractCall(new AbstractContext(_binder._binder), args);
             } else {
                 if (targets.Count == 0) {
                     return AbstractValue.TypeError(NoApplicableTargetMessage(callType, types));
@@ -610,7 +610,7 @@ namespace Microsoft.Scripting {
             return false;
         }
 
-        private Type[] GetTypesForTest(MethodCandidate target, Type[] types, CallType callType, IList<MethodCandidate> candidates) {
+        private Type[] GetTypesForTest(Type[] types, IList<MethodCandidate> candidates) {
             // if we have a single target we need no tests.
             // if we have a binary operator we have to test to return NotImplemented
             if (_targets.Count == 1 && !_binder.IsBinaryOperator) return null;

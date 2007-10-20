@@ -36,7 +36,11 @@ namespace Microsoft.Scripting.Actions {
                 // TODO: This should go away when IConstructorWCC goes away.
                 Debug.Assert(!Action.Signature.HasKeywordArgument());
 
-                Expression call = Ast.Call(Rule.Parameters[0], typeof(IConstructorWithCodeContext).GetMethod("Construct"), GetICallableParameters(t, Rule));
+                Expression call = Ast.SimpleCallHelper(
+                    Rule.Parameters[0],
+                    typeof(IConstructorWithCodeContext).GetMethod("Construct"),
+                    GetICallableParameters(t, Rule)
+                );
 
                 Rule.SetTarget(Rule.MakeReturn(Binder, call));
                 Rule.MakeTest(t);
@@ -74,7 +78,7 @@ namespace Microsoft.Scripting.Actions {
             if (t != null) name = t.Name;
 
             Rule.SetTarget(
-                Rule.MakeError(Binder,
+                Rule.MakeError(
                     Ast.New(
                         typeof(ArgumentTypeException).GetConstructor(new Type[] { typeof(string) }),
                         Ast.Constant("Cannot create instances of " + name)

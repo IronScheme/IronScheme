@@ -92,6 +92,24 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+        class VariableAddress : EvaluationAddress {
+            public VariableAddress(Expression expr)
+                : base(expr) {
+            }
+
+            public override object GetValue(CodeContext context, bool outParam) {
+                if (outParam) {
+                    return null;
+                }
+
+                return base.GetValue(context, outParam);
+            }
+        }
+
+        internal override EvaluationAddress EvaluateAddress(CodeContext context) {
+            return new VariableAddress(this);
+        }
+
         internal override object EvaluateAssign(CodeContext context, object value) {
             return BoundAssignment.EvaluateAssign(context, Variable, value);
         }

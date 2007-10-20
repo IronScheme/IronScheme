@@ -25,6 +25,8 @@ namespace Microsoft.Scripting.Generation {
     /// </summary>
     public class LocalSlot : Slot {
         private readonly LocalBuilder _localBuilder;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private readonly CodeGen _codeGen;           // LocalSlot's can only be used w/ codegen that created them
 
         public LocalSlot(LocalBuilder localBuilder, CodeGen cg) {

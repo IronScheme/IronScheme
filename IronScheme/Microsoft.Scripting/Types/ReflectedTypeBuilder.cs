@@ -263,10 +263,6 @@ namespace Microsoft.Scripting.Types {
                 ScriptDomainManager.Options.PrivateBinding;
         }
 
-        private static object NewDict() {
-            return new SymbolDictionary();
-        }
-
         private void PublishDictionary() {
             if (_operImpl != null) {
                 foreach(KeyValuePair<OperatorMapping, OperatorInfo> kvp in _operImpl) {
@@ -627,7 +623,7 @@ namespace Microsoft.Scripting.Types {
                     if (!_operImpl.TryGetValue(op, out info)) {
                         object bf = BuiltinFunction.MakeMethod(mi.Name, mi, ft).GetDescriptor();
 
-                        _operImpl[op] = new OperatorInfo(name, bf, name.Context);
+                        _operImpl[op] = new OperatorInfo(bf);
                     } else {
                         info.Callable = ExtendMethod(mi, ft, info.Callable);
                     }
@@ -641,10 +637,6 @@ namespace Microsoft.Scripting.Types {
                     }
                 }
             }
-        }
-
-        private void EnsureOperImpl() {
-            if (_operImpl == null) _operImpl = new Dictionary<OperatorMapping, OperatorInfo>();
         }
 
         private void EnsureTransformDelegate() {
@@ -661,14 +653,10 @@ namespace Microsoft.Scripting.Types {
         }
 
         class OperatorInfo {
-            public ContextId Context;
             public object Callable;
-            public TransformedName TransformedName;
 
-            public OperatorInfo(TransformedName name, object callable, ContextId context) {
+            public OperatorInfo(object callable) {
                 Callable = callable;
-                Context = context;
-                TransformedName = name;
             }
         }
 
@@ -732,17 +720,13 @@ namespace Microsoft.Scripting.Types {
 
                 if (reverse) {
                     Operators revOp = CompilerHelpers.OperatorToReverseOperator(method.Operator);
-                    if (method.IsReversable && (!regular || revOp != method.Operator)) {
+                    if (method.IsReversible && (!regular || revOp != method.Operator)) {
                         OperatorMapping revmap = method.GetReversed();
 
                         yield return new TransformedName(mi.Name, revmap, ContextId.Empty);
                     }
                 }
             }
-        }
-
-        private void StoreOperator(string name, ContextId context, MethodInfo mi, FunctionType type) {
-            StoreMethod(name, context, mi, type);
         }
 
         private bool ReversedComparison(ParameterInfo[] parms, int ctxOffset, bool reverse) {

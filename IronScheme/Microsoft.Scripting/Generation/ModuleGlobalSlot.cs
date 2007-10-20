@@ -71,7 +71,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public override void EmitGetAddr(CodeGen cg) {
-            throw new Exception("can't get address of module global");
+            throw new NotSupportedException("Can't get address of module global.");
         }
 
         public override Type Type {

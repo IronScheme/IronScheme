@@ -33,6 +33,8 @@ namespace Microsoft.Scripting.Utils {
 
         public delegate TValue CreateValue();
 
+        // TODO: fix
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2201:DoNotRaiseReservedExceptionTypes")]
         public TValue GetOrCreateValue(TKey key, CreateValue create) {
             lock (data) {
                 PublishInfo<TValue> pubValue;
@@ -84,9 +86,20 @@ namespace Microsoft.Scripting.Utils {
             public PublishInfo() {
             }
 
+            // TODO: seems to be FxCop bug
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
             public T Value;
+
+            // TODO: seems to be FxCop bug
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
             public Exception Exception;
+
+            // TODO: seems to be FxCop bug
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
             private ManualResetEvent _waitEvent;
+
+            // TODO: seems to be FxCop bug
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
             private int _waiters;
 
             public void PublishValue(T value) {

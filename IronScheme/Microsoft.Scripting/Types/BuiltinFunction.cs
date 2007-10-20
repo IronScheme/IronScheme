@@ -307,6 +307,7 @@ namespace Microsoft.Scripting.Types {
         /// <summary>
         /// Gets the target methods that we'll be calling.  
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public MethodBase[] Targets {
             get {
                 return _targets;
@@ -576,6 +577,7 @@ namespace Microsoft.Scripting.Types {
             this.ctors = constructors;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public MethodBase[] ConstructorTargets {
             get {
                 return ctors;

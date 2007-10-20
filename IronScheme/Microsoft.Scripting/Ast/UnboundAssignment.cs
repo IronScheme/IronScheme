@@ -39,6 +39,10 @@ namespace Microsoft.Scripting.Ast {
             get { return _name; }
         }
 
+        public Expression Value {
+            get { return _value; }
+        }
+
         protected override object DoEvaluate(CodeContext context) {
             object value = _value.Evaluate(context);
             RuntimeHelpers.SetName(context, _name, value);

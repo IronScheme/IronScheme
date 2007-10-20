@@ -116,10 +116,6 @@ namespace Microsoft.Scripting.Ast {
         public virtual bool Walk(ShortCircuitExpression node) { return true; }
         public virtual void PostWalk(ShortCircuitExpression node) { }
 
-        // ThrowExpression
-        public virtual bool Walk(ThrowExpression node) { return true; }
-        public virtual void PostWalk(ThrowExpression node) { }
-
         // TypeBinaryExpression
         public virtual bool Walk(TypeBinaryExpression node) { return true; }
         public virtual void PostWalk(TypeBinaryExpression node) { }
@@ -195,6 +191,10 @@ namespace Microsoft.Scripting.Ast {
         // SwitchStatement
         public virtual bool Walk(SwitchStatement node) { return true; }
         public virtual void PostWalk(SwitchStatement node) { }
+
+        // ThrowStatement
+        public virtual bool Walk(ThrowStatement node) { return true; }
+        public virtual void PostWalk(ThrowStatement node) { }
 
         // TryStatement
         public virtual bool Walk(TryStatement node) { return true; }

@@ -84,7 +84,7 @@ namespace Microsoft.Scripting.Ast {
                 _catchBlocks = new List<CatchBlock>();
             }
 
-            _catchBlocks.Add(Ast.Catch(type, holder, Ast.IfThenElse(condition, body, Ast.Statement(Ast.Rethrow()))));
+            _catchBlocks.Add(Ast.Catch(type, holder, Ast.IfThenElse(condition, body, Ast.Rethrow())));
             return this;
         }
 
@@ -117,7 +117,11 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static implicit operator TryStatement(TryStatementBuilder builder) {
-            Assert.NotNull(builder);
+            return ToStatement(builder);
+        }
+        
+        public static TryStatement ToStatement(TryStatementBuilder builder) {
+            Contract.RequiresNotNull(builder, "builder");
             return new TryStatement(
                 builder._statementSpan,
                 builder._header,

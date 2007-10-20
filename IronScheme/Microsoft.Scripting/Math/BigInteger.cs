@@ -660,7 +660,7 @@ namespace Microsoft.Scripting.Math {
             return DivRem(x, y, out dummy);
         }
 
-        public static BigInteger Modulus(BigInteger x, BigInteger y) {
+        public static BigInteger Mod(BigInteger x, BigInteger y) {
             return x % y;
         }
 

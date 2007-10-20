@@ -81,12 +81,6 @@ namespace Microsoft.Scripting {
             return ReflectionCache.GetTypeTracker(typeWithMatchingArity);
         }
 
-        void AddType(Type t) {
-            Debug.Assert(NormalizedName == GetNormalizedTypeName(t.Name));
-
-            _typesByArity[GetGenericArity(t)] = t;
-        }
-
         /// <param name="existingTypeEntity">The merged list so far. Could be null</param>
         /// <param name="newType">The new type(s) to add to the merged list</param>
         /// <returns>The merged list. Could be a DynamicType or a TypeCollision</returns>

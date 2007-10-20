@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Actions {
     /// <summary>
@@ -33,7 +34,10 @@ namespace Microsoft.Scripting.Actions {
     /// It also provides a wrapper around the reflection APIs which cannot be extended from partial trust.
     /// </summary>
     public abstract class MemberTracker {
-        private static Dictionary<MemberInfo, MemberTracker> _trackers = new Dictionary<MemberInfo,MemberTracker>();
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
+        public static readonly MemberTracker[] EmptyTrackers = new MemberTracker[0];
+
+        private static Dictionary<MemberInfo, MemberTracker> _trackers = new Dictionary<MemberInfo, MemberTracker>();
 
         internal MemberTracker() {
         }
@@ -59,11 +63,9 @@ namespace Microsoft.Scripting.Actions {
             get;
         }
 
-        public static implicit operator MemberTracker(MemberInfo member) {
-            return GetTracker(member);
-        }
+        public static MemberTracker FromMemberInfo(MemberInfo member) {
+            Contract.RequiresNotNull(member, "member");
 
-        public static MemberTracker GetTracker(MemberInfo member) {
             lock (_trackers) {
                 MemberTracker res;
                 if (_trackers.TryGetValue(member, out res)) return res;

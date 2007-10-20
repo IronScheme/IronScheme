@@ -126,6 +126,8 @@ namespace Microsoft.Scripting.Actions {
                     return new DoOperationBinderHelper<T>(callerContext, (DoOperationAction)action, args).MakeRule();
                 case DynamicActionKind.DeleteMember:
                     return new DeleteMemberBinderHelper<T>(callerContext, (DeleteMemberAction)action, args).MakeRule();
+                case DynamicActionKind.InvokeMember:
+                    return new InvokeMemberBinderHelper<T>(callerContext, (InvokeMemberAction)action, args).MakeRule();
                 default:
                     throw new NotImplementedException(action.ToString());
             }
@@ -188,8 +190,8 @@ namespace Microsoft.Scripting.Actions {
         /// The default implemetnation first searches the type, then the flattened heirachy of the type, and then
         /// registered extension methods.
         /// </summary>
-        public virtual MemberGroup GetMember(DynamicAction action, Type type, string name) {            
-            MemberGroup members = type.GetMember(name);
+        public virtual MemberGroup GetMember(DynamicAction action, Type type, string name) {
+            MemberGroup members = new MemberGroup(type.GetMember(name));
 
             // check for generic types w/ arity...
             Type[] types = type.GetNestedTypes(BindingFlags.Public);
@@ -205,13 +207,13 @@ namespace Microsoft.Scripting.Actions {
             if (genTypes != null) {
                 List<MemberTracker> mt = new List<MemberTracker>(members);
                 foreach (Type t in genTypes) {
-                    mt.Add(t);
+                    mt.Add(MemberTracker.FromMemberInfo(t));
                 }
-                return new MemberGroup(mt.ToArray());
+                return MemberGroup.CreateInternal(mt.ToArray());
             }
             
             if (members.Count == 0) {
-                members = type.GetMember(name, BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance);
+                members = new MemberGroup(type.GetMember(name, BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance));
                 if (members.Count == 0) {
                     members = GetExtensionMembers(type, name);
                 }
@@ -224,7 +226,7 @@ namespace Microsoft.Scripting.Actions {
         /// doing this for the time being until we get a more robust error return mechanism.
         /// </summary>
         public virtual Statement MakeMissingMemberError<T>(StandardRule<T> rule, Type type, string name) {
-            return rule.MakeError(this,
+            return rule.MakeError(
                 Ast.Ast.New(
                     typeof(MissingMemberException).GetConstructor(new Type[] { typeof(string) }),
                     Ast.Ast.Constant(name)
@@ -237,7 +239,7 @@ namespace Microsoft.Scripting.Actions {
         /// doing this for the time being until we get a more robust error return mechanism.
         /// </summary>
         public virtual Statement MakeReadOnlyMemberError<T>(StandardRule<T> rule, Type type, string name) {
-            return rule.MakeError(this,
+            return rule.MakeError(
                 Ast.Ast.New(
                     typeof(MissingMemberException).GetConstructor(new Type[] { typeof(string) }),
                     Ast.Ast.Constant(name)
@@ -320,28 +322,28 @@ namespace Microsoft.Scripting.Actions {
             foreach (KeyValuePair<string, bool> kvp in namedArgs) {
                 if (kvp.Value == false) {
                     // unbound named argument.
-                    return rule.MakeError(binder._binder,
+                    return rule.MakeError(
                         Ast.Ast.Call(
-                            null,
                             typeof(RuntimeHelpers).GetMethod("TypeErrorForExtraKeywordArgument"),
-                            Ast.Ast.Constant(binder._name),
-                            Ast.Ast.Constant(kvp.Key)
+                            Ast.Ast.Constant(binder._name, typeof(string)),
+                            Ast.Ast.Constant(kvp.Key, typeof(string))
                         )
                     );
                 }
             }
 
-            return rule.MakeError(binder._binder,
+            return rule.MakeError(
                     Ast.Ast.Call(
-                        null,
-                        typeof(RuntimeHelpers).GetMethod("TypeErrorForIncorrectArgumentCount", new Type[] { typeof(string), typeof(int), typeof(int), typeof(int), typeof(int), typeof(bool), typeof(bool) }),
-                        Ast.Ast.Constant(binder._name),     // name
-                        Ast.Ast.Constant(minArgs),          // min formal normal arg cnt
-                        Ast.Ast.Constant(maxArgs),          // max formal normal arg cnt
-                        Ast.Ast.Constant(maxDflt),          // default cnt
-                        Ast.Ast.Constant(argsProvided),     // args provided
-                        Ast.Ast.Constant(hasArgList),       // hasArgList
-                        Ast.Ast.Constant(hasNamedArgument)  // kwargs provided
+                        typeof(RuntimeHelpers).GetMethod("TypeErrorForIncorrectArgumentCount", new Type[] {
+                            typeof(string), typeof(int), typeof(int), typeof(int), typeof(int), typeof(bool), typeof(bool)
+                        }),
+                        Ast.Ast.Constant(binder._name, typeof(string)), // name
+                        Ast.Ast.Constant(minArgs),                      // min formal normal arg cnt
+                        Ast.Ast.Constant(maxArgs),                      // max formal normal arg cnt
+                        Ast.Ast.Constant(maxDflt),                      // default cnt
+                        Ast.Ast.Constant(argsProvided),                 // args provided
+                        Ast.Ast.Constant(hasArgList),                   // hasArgList
+                        Ast.Ast.Constant(hasNamedArgument)              // kwargs provided
                     )
                 );
         }
@@ -372,7 +374,7 @@ namespace Microsoft.Scripting.Actions {
 
                 foreach (Type ext in extTypes) {
                     foreach (MemberInfo mi in ext.GetMember(name)) {
-                        members.Add(mi);
+                        members.Add(MemberTracker.FromMemberInfo(mi));
                     }
 
                     // TODO: Support indexed getters/setters w/ multiple methods
@@ -402,13 +404,13 @@ namespace Microsoft.Scripting.Actions {
                 }
 
                 if (members.Count != 0) {
-                    return new MemberGroup(members.ToArray());
+                    return MemberGroup.CreateInternal(members.ToArray());
                 }
 
                 curType = curType.BaseType;
             } while (curType != null);
 
-            return new MemberInfo[0];
+            return MemberGroup.EmptyGroup;
         }
 
         protected internal virtual IList<Type> GetExtensionTypes(Type t) {

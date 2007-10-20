@@ -117,7 +117,7 @@ namespace Microsoft.Scripting.Generation {
         public Expression MakeExpression(ActionBinder binder, StandardRule rule, Expression[] parameters) {
             MethodBinderContext context = new MethodBinderContext(binder, rule);
 
-            Expression check = Ast.Constant(true);
+            Expression check = Ast.True();
             if (_binder.IsBinaryOperator) {
                 // TODO: only if we have a narrowing level
 
@@ -141,7 +141,7 @@ namespace Microsoft.Scripting.Generation {
                 // public method
                 if (mi != null) {
                     Expression instance = mi.IsStatic ? null : _instanceBuilder.ToExpression(context, parameters);
-                    call = Ast.Call(instance, mi, args);
+                    call = Ast.SimpleCallHelper(instance, mi, args);
                 } else {
                     call = Ast.New((ConstructorInfo)Method, args);
                 }
@@ -152,7 +152,7 @@ namespace Microsoft.Scripting.Generation {
                     call = Ast.Call(
                         Ast.RuntimeConstant(mi),
                         typeof(MethodInfo).GetMethod("Invoke", new Type[] { typeof(object), typeof(object[]) }),
-                        instance,
+                        Ast.ConvertHelper(instance, typeof(object)),
                         Ast.NewArray(typeof(object[]), args)
                     );
                 } else {
@@ -181,13 +181,25 @@ namespace Microsoft.Scripting.Generation {
             }
 
             if (!check.IsConstant(true)) {
-                ret = Ast.Condition(check, ret, GetNotImplemented());
+                ret = Ast.Condition(
+                    check,
+                    Ast.ConvertHelper(ret, typeof(object)),
+                    GetNotImplemented()
+                );
             }
             return ret;
         }
 
         private static MethodCallExpression GetNotImplemented() {
-            return Ast.Call(Ast.ReadProperty(Ast.CodeContext(), typeof(CodeContext), "LanguageContext"), typeof(LanguageContext).GetMethod("GetNotImplemented"), Ast.NewArray(typeof(MethodCandidate[])));
+            return Ast.Call(
+                Ast.ReadProperty(
+                    Ast.CodeContext(),
+                    typeof(CodeContext),
+                    "LanguageContext"
+                ),
+                typeof(LanguageContext).GetMethod("GetNotImplemented"),
+                Ast.NewArray(typeof(MethodCandidate[]))
+            );
         }
 
         /// <summary>
@@ -236,7 +248,7 @@ namespace Microsoft.Scripting.Generation {
                 MethodInfo mi = Method as MethodInfo;
                 if (mi != null) {
                     Expression instance = mi.IsStatic ? null : _instanceBuilder.AbstractBuild(context, args).Expression;
-                    callExpr = Ast.Call(instance, mi, argExprs);
+                    callExpr = Ast.SimpleCallHelper(instance, mi, argExprs);
                 } else {
                     callExpr = Ast.New((ConstructorInfo)Method, argExprs);
                 }

@@ -19,7 +19,7 @@ using System.Text;
 
 namespace Microsoft.Scripting.Hosting {
 
-    [Serializable]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes"), Serializable] // TODO: fix
     public struct TokenInfo : IEquatable<TokenInfo> {
         private TokenCategory _category;
         private TokenTriggers _trigger;
