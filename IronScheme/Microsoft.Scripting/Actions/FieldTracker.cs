@@ -25,9 +25,10 @@ namespace Microsoft.Scripting.Actions {
     using Ast = Microsoft.Scripting.Ast.Ast;
 
     public class FieldTracker : MemberTracker {
-        private FieldInfo _field;
+        private readonly FieldInfo _field;
 
         public FieldTracker(FieldInfo field) {
+            Contract.RequiresNotNull(field, "field");
             _field = field;
         }
 
@@ -91,15 +92,15 @@ namespace Microsoft.Scripting.Actions {
             if (IsPublic && DeclaringType.IsPublic) {
                 if (!IsStatic) {
                     // return the field tracker...
-                    return binder.ReturnMemberTracker(Field);
+                    return binder.ReturnMemberTracker(FieldTracker.FromMemberInfo(Field));
                 }
                 return Ast.ReadField(null, Field);
             }
 
             return Ast.Call(
-                Ast.RuntimeConstant(Field),
+                Ast.ConvertHelper(Ast.RuntimeConstant(Field), typeof(FieldInfo)),
                 typeof(FieldInfo).GetMethod("GetValue"),
-                Ast.Constant(null)
+                Ast.Null()
             );
         }
 
@@ -107,9 +108,8 @@ namespace Microsoft.Scripting.Actions {
             if (DeclaringType.IsGenericType && DeclaringType.GetGenericTypeDefinition() == typeof(StrongBox<>)) {
                 // work around a CLR bug where we can't access generic fields from dynamic methods.
                 return Ast.Call(
-                    null,
                     typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(DeclaringType.GetGenericArguments()),
-                    instance
+                    Ast.ConvertHelper(instance, DeclaringType)
                 );
             }
 
@@ -121,9 +121,9 @@ namespace Microsoft.Scripting.Actions {
             }
 
             return Ast.Call(
-                Ast.RuntimeConstant(Field),
+                Ast.ConvertHelper(Ast.RuntimeConstant(Field), typeof(FieldInfo)),
                 typeof(FieldInfo).GetMethod("GetValue"),
-                instance
+                Ast.ConvertHelper(instance, typeof(object))
             );
         }
 

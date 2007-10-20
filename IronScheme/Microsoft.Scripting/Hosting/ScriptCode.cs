@@ -34,6 +34,7 @@ namespace Microsoft.Scripting {
     /// contexts. Hosting API counterpart for this class is <see cref="CompiledCode"/>.
     /// </summary>
     public class ScriptCode {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly ScriptCode[] EmptyArray = new ScriptCode[0];
 
         private readonly CodeBlock _code;

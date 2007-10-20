@@ -185,7 +185,7 @@ namespace Microsoft.Scripting.Actions {
                 return false;
             }
 
-            public override bool Walk(ThrowExpression node) {
+            public override bool Walk(ThrowStatement node) {
                 if (Name == "_stub_") {
                     NewExpression ne = node.Exception as NewExpression;
                     MethodCallExpression callExpr;

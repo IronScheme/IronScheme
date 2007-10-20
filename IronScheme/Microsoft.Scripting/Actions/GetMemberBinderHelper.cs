@@ -59,7 +59,7 @@ namespace Microsoft.Scripting.Actions {
         }
 
         public Statement MakeRuleBody(Type type, params MemberInfo[] members) {
-            return MakeBodyHelper(type, members);
+            return MakeBodyHelper(type, new MemberGroup(members));
         }
 
         private Statement MakeGetMemberTarget() {
@@ -99,16 +99,16 @@ namespace Microsoft.Scripting.Actions {
             Expression error;
             TrackerTypes memberType = GetMemberType(members, out error);
             if (error != null) {
-                Body = Ast.Block(Body, Rule.MakeError(Binder, error));
+                AddToBody(Rule.MakeError(error));
                 return Body;
             }
 
             switch (memberType) {
                 case TrackerTypes.Event: MakeEventBody(type, members); break;
-                case TrackerTypes.Field: MakeFieldBody(type, members); break;
+                case TrackerTypes.Field: MakeFieldBody(members); break;
                 case TrackerTypes.Method: MakeMethodBody(type, members); break;
                 case TrackerTypes.TypeGroup:
-                case TrackerTypes.Type: MakeTypeBody(type, members); break;
+                case TrackerTypes.Type: MakeTypeBody(members); break;
                 case TrackerTypes.Property: MakePropertyBody(type, members); break;
                 case TrackerTypes.Constructor:
                 case TrackerTypes.All:     
@@ -127,20 +127,20 @@ namespace Microsoft.Scripting.Actions {
 
             ReflectedEvent re = ReflectionCache.GetReflectedEvent(ei.Event);
 
-            Body = Ast.Block(Body,
+            AddToBody(
                 Rule.MakeReturn(
                     Binder,
-                    Ast.Call(null,
+                    Ast.Call(
                         typeof(RuntimeHelpers).GetMethod("MakeBoundEvent"),
-                        Ast.RuntimeConstant(re),
-                        Instance,
+                        Ast.ConvertHelper(Ast.RuntimeConstant(re), typeof(ReflectedEvent)),
+                        Ast.ConvertHelper(Instance, typeof(object)),
                         Ast.Constant(type)
                     )
                 )
             );
         }
 
-        private void MakeGenericBody(Type type, MemberGroup members) {
+        private void MakeGenericBody(MemberGroup members) {
             MemberTracker tracker = members[0];
             if (!_isStatic) {
                 tracker = tracker.BindToInstance(Instance);
@@ -151,14 +151,14 @@ namespace Microsoft.Scripting.Actions {
             if (val != null) {
                 newBody = Rule.MakeReturn(Binder, val);
             } else {
-                newBody = Rule.MakeError(Binder, tracker.GetError(Binder));
+                newBody = Rule.MakeError(tracker.GetError(Binder));
             }
 
-            Body = Ast.Block(Body, newBody);
+            AddToBody(newBody);
         }
 
-        private void MakeFieldBody(Type type, MemberGroup members) {
-            MakeGenericBody(type, members);
+        private void MakeFieldBody(MemberGroup members) {
+            MakeGenericBody(members);
         }
 
         private void MakeMethodBody(Type type, MemberGroup members) {
@@ -166,7 +166,7 @@ namespace Microsoft.Scripting.Actions {
 
             if (((target.FunctionType & FunctionType.FunctionMethodMask) != FunctionType.Function) && !_isStatic) {
                 // for strong box we need to bind the strong box, so we don't use Instance here.
-                Body = Ast.Block(Body,
+                AddToBody(
                     Rule.MakeReturn(
                     Binder,                        
                     Ast.New(typeof(BoundBuiltinFunction).GetConstructor(new Type[] { typeof(BuiltinFunction), typeof(object) }),
@@ -175,7 +175,7 @@ namespace Microsoft.Scripting.Actions {
                     )
                 ));
             } else {
-                Body = Ast.Block(Body,
+                AddToBody(
                     Rule.MakeReturn(
                         Binder,
                         Ast.RuntimeConstant(target)
@@ -184,17 +184,19 @@ namespace Microsoft.Scripting.Actions {
             }
         }
 
-        private void MakeTypeBody(Type type, MemberGroup members) {
+        private void MakeTypeBody(MemberGroup members) {
             TypeTracker typeTracker = (TypeTracker)members[0];
             for (int i = 1; i < members.Count; i++) {
                 typeTracker = TypeGroup.UpdateTypeEntity(typeTracker, (TypeTracker)members[i]);
             }
 
-            Body = Ast.Block(Body, Rule.MakeReturn(Binder, typeTracker.GetValue(Binder)));
+            AddToBody(Rule.MakeReturn(Binder, typeTracker.GetValue(Binder)));
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")] // TODO: fix
         private void MakePropertyBody(Type type, MemberGroup members) {
             PropertyTracker pi = members[0] as PropertyTracker;
+
             MethodInfo getter = pi.GetGetMethod(true);
 
             // Allow access to protected getters TODO: this should go, it supports IronPython semantics.
@@ -212,10 +214,12 @@ namespace Microsoft.Scripting.Actions {
             getter = CompilerHelpers.GetCallableMethod(getter);
 
             if (pi.GetIndexParameters().Length > 0) {
-                Body = Ast.Block(Body,
+                PropertyInfo property = ((ReflectedPropertyTracker)pi).Property; // TODO: Private binding on extension properties
+
+                AddToBody(
                     Rule.MakeReturn(Binder,
                         Ast.New(typeof(ReflectedIndexer).GetConstructor(new Type[] { typeof(ReflectedIndexer), typeof(object) }),
-                            Ast.RuntimeConstant(ReflectionCache.GetReflectedIndexer(((ReflectedPropertyTracker)pi).Property)), // TODO: Support indexers on extension properties
+                            Ast.RuntimeConstant(ReflectionCache.GetReflectedIndexer(property)),
                             _isStatic ? Ast.Null() : Instance
                         )
                     )
@@ -224,26 +228,31 @@ namespace Microsoft.Scripting.Actions {
                 MakeGenericPropertyError();
             } else if (IsStaticProperty(pi, getter)) {
                 if (_isStatic) {
-                    Body = Ast.Block(Body, MakeCallStatement(getter));
+                    AddToBody(MakeCallStatement(getter));
                 } else {
                     MakeIncorrectArgumentCountError();
                 }
             } else if (getter.IsPublic) {
-                // MakeCallStatement instead of Ast.ReadProperty because getter might
+                // MakeCallExpression instead of Ast.ReadProperty because getter might
                 // be a method on a base type after GetCallableMethod
+                Expression call;
                 if (_isStatic) {
-                    Body = Ast.Block(Body, MakeCallStatement(getter));
+                    call = MakeCallExpression(getter);
                 } else {
-                    Body = Ast.Block(Body, MakeCallStatement(getter, Instance));
+                    call = MakeCallExpression(getter, Instance);
                 }
+
+                AddToBody(Rule.MakeReturn(Binder, call));
             } else {
-                Body = Ast.Block(Body,
+                PropertyInfo property = ((ReflectedPropertyTracker)pi).Property; // TODO: Private binding on extension properties
+
+                AddToBody(
                     Rule.MakeReturn(
                         Binder,
                         Ast.Call(
-                            Ast.RuntimeConstant(((ReflectedPropertyTracker)pi).Property),   // TODO: Private binding on extension properties
+                            Ast.RuntimeConstant(property),   
                             typeof(PropertyInfo).GetMethod("GetValue", new Type[] { typeof(object), typeof(object[]) }),
-                            Instance,
+                            Ast.ConvertHelper(Instance, typeof(object)),
                             Ast.NewArray(typeof(object[]))
                         )
                     )
@@ -256,7 +265,7 @@ namespace Microsoft.Scripting.Actions {
             MethodInfo getMem = GetMethod(type, name);
             if (getMem != null && getMem.IsSpecialName) {
                 Variable tmp = Rule.GetTemporary(typeof(object), "getVal");
-                Body = Ast.Block(Body,
+                AddToBody(
                     Ast.If(
                         Ast.NotEqual(
                             Ast.Assign(
@@ -273,7 +282,7 @@ namespace Microsoft.Scripting.Actions {
 
         private void MakeCustomMembersBody(Type type) {
             Variable tmp = Rule.GetTemporary(typeof(object), "lookupRes");
-            Body = Ast.Block(Body,
+            AddToBody(
                         Ast.If(
                             Ast.Call(
                                 Ast.Convert(Instance, typeof(ICustomMembers)),
@@ -321,8 +330,8 @@ namespace Microsoft.Scripting.Actions {
         #region Error rules
 
         private void MakeIncorrectArgumentCountError() {
-            Body = Ast.Block(Body,
-                Rule.MakeError(Binder,
+            AddToBody(
+                Rule.MakeError(
                     MakeIncorrectArgumentExpression(0, 0)
                 )
             );
@@ -330,8 +339,8 @@ namespace Microsoft.Scripting.Actions {
 
         private void MakeGenericPropertyError() {
             // TODO: Better exception
-            Body = Ast.Block(Body, 
-                Rule.MakeError(Binder,
+            AddToBody(
+                Rule.MakeError(
                     MakeGenericPropertyExpression()
                 )
             );
@@ -341,7 +350,7 @@ namespace Microsoft.Scripting.Actions {
             if (!Action.IsNoThrow) {
                 MakeMissingMemberError(type);
             } else {
-                Body = Ast.Block(Body, Rule.MakeReturn(Binder, Ast.ReadField(null, typeof(OperationFailed).GetField("Value"))));
+                AddToBody(Rule.MakeReturn(Binder, Ast.ReadField(null, typeof(OperationFailed).GetField("Value"))));
             }
         }
         #endregion

@@ -30,7 +30,7 @@ namespace Microsoft.Scripting {
         private static Dictionary<object, ContextId> _contexts = new Dictionary<object,ContextId>();
         private static int _maxId = 1;
 
-        public static ContextId Empty = new ContextId();
+        public static readonly ContextId Empty = new ContextId();
 
         /// <summary>
         /// Registers a language within the system with the specified name.

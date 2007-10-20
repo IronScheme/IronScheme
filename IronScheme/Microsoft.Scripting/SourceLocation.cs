@@ -40,6 +40,7 @@ namespace Microsoft.Scripting {
             _column = column;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters")]
         private SourceLocation(int index, int line, int column, bool noChecks) {
             _index = index;
             _line = line;

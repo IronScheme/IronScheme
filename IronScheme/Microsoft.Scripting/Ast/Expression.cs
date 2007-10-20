@@ -136,6 +136,10 @@ namespace Microsoft.Scripting.Ast {
             return ret;
         }
 
+        internal virtual EvaluationAddress EvaluateAddress(CodeContext context) {
+            return new EvaluationAddress(this);
+        }
+
         internal virtual object EvaluateAssign(CodeContext context, object value) {
             return value;
         }

@@ -345,6 +345,7 @@ namespace Microsoft.Scripting.Ast {
 
         internal static Variable Create(SymbolId name, VariableKind kind, CodeBlock block, Type type, Expression defaultValue) {
             Contract.Requires(defaultValue == null || TypeUtils.CanAssign(type, defaultValue.Type));
+            Contract.Requires(kind != VariableKind.Parameter, "kind");
             return new Variable(name, kind, block, type, defaultValue);
         }
 

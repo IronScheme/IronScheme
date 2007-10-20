@@ -384,9 +384,13 @@ namespace Microsoft.Scripting {
         Decrement,
         Assign,
         IsFalse,
+        IsTrue,
         Or,
         And,
         Comma,
+
+        GetEnumerator,
+        Dispose,
 
         // TODO: What about these operators?  Should they go away?
         GetState,                   // Python reduce protocol

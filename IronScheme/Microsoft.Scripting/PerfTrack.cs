@@ -53,15 +53,18 @@ namespace Microsoft.Scripting {
         }
 
         private static int totalEvents = 0;
-        private static Dictionary<Categories, Dictionary<string, int>> _events = new Dictionary<Categories, Dictionary<string, int>>();
+        private static Dictionary<Categories, Dictionary<string, int>> _events = MakeEventsDictionary();
         private static Dictionary<Categories, int> summaryStats = new Dictionary<Categories, int>();
 
-        static PerfTrack() {
+        private static Dictionary<Categories, Dictionary<string, int>> MakeEventsDictionary() {
+            Dictionary<Categories, Dictionary<string, int>> result = new Dictionary<Categories, Dictionary<string, int>>();
+            
             // We do not use Enum.GetValues here since it is n ot available in SILVERLIGHT 
-            for(int i = 0; i < (int)Categories.Count; i++) {
-                Categories c = (Categories)i;
-                _events[c] = new Dictionary<string, int>();
+            for (int i = 0; i < (int)Categories.Count; i++) {
+                result[(Categories)i] = new Dictionary<string, int>();
             }
+
+            return result;
         }
 
 #if !SILVERLIGHT // Stopwatch

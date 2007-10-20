@@ -211,9 +211,8 @@ namespace Microsoft.Scripting.Ast {
 
         private bool GetExpressionValue(Expression expr, ref int val) {
             bool ret = false;
-
-            if (expr is ConstantExpression) {
-                ConstantExpression cexpr = expr as ConstantExpression;
+            ConstantExpression cexpr = expr as ConstantExpression;
+            if (cexpr != null) {
 
                 // Value is int
                 if (cexpr.Value is int) {
@@ -221,10 +220,12 @@ namespace Microsoft.Scripting.Ast {
 
                     ret = true;
                 } else if (cexpr.Value is double) {
-                    val = Convert.ToInt32((double)cexpr.Value);
+                    double dvalue = (double)cexpr.Value;
+
+                    val = Convert.ToInt32(dvalue);
 
                     // Handles the Num.0 case
-                    if (val == (double)cexpr.Value) ret = true;
+                    if (val == dvalue) ret = true;
                 }
 
                 // Ignore too large numbers to avoid overflows

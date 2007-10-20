@@ -105,20 +105,52 @@ namespace Microsoft.Scripting.Ast {
             return result;
         }
 
-        internal override object EvaluateAssign(CodeContext context, object value) {
-            object result = null;
-            for (int index = 0; index < _expressions.Count; index++) {
-                Expression current = _expressions[index];
+        class CommaAddress : EvaluationAddress {
+            private List<EvaluationAddress> _addrs;
 
-                if (current != null) {
-                    if (index == _valueIndex) {
-                        result = current.EvaluateAssign(context, value);
-                    } else {
-                        current.Evaluate(context);
+            public CommaAddress(CommaExpression address, List<EvaluationAddress> addresses)
+                : base(address) {
+                _addrs = addresses;
+            }
+
+            public override object GetValue(CodeContext context, bool outParam) {
+                object result = null;
+                for (int i = 0; i < _addrs.Count; i++) {
+                    EvaluationAddress current = _addrs[i];
+
+                    if (current != null) {
+                        object val = current.GetValue(context, outParam);
+                        if (i == Index) {
+                            result = val;
+                        }
                     }
                 }
+                return result;
             }
-            return result;
+
+            public override object AssignValue(CodeContext context, object value) {
+                EvaluationAddress addr = _addrs[Index];
+                if (addr != null) return addr.AssignValue(context, value);
+                return null;
+            }
+
+            private int Index {
+                get {
+                    return ((CommaExpression)Expression)._valueIndex;
+                }
+            }
+        }
+
+        internal override EvaluationAddress EvaluateAddress(CodeContext context) {
+            List<EvaluationAddress> addresses = new List<EvaluationAddress>();
+            foreach(Expression current in _expressions) {
+                if (current != null) {
+                    addresses.Add(current.EvaluateAddress(context));
+                } else {
+                    addresses.Add(null);
+                }
+            }
+            return new CommaAddress(this, addresses);
         }
 
         internal override void EmitAddress(CodeGen cg, Type asType) {

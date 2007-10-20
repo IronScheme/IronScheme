@@ -253,6 +253,9 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         protected virtual int ExecuteFile(string file, string[] args) {
+            Contract.RequiresNotNull(file, "file");
+            Contract.RequiresNotNull(args, "args");
+
             Assembly assembly = ScriptDomainManager.CurrentManager.PAL.LoadAssembly(file);
             MethodInfo method = null;
 
@@ -262,7 +265,7 @@ namespace Microsoft.Scripting.Hosting {
             }
 
             if (method == null) {
-                throw new Exception(String.Format("Missing entry point (file '{0}').", file));
+                throw new MissingMethodException(String.Format("Missing entry point (file '{0}').", file));
             }
 
             object result = null;
@@ -276,6 +279,7 @@ namespace Microsoft.Scripting.Hosting {
             return (result is int) ? (int)result : Environment.ExitCode;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected virtual int RunCommandLine(OptionsParser optionsParser) {
             Contract.RequiresNotNull(optionsParser, "optionsParser");
             

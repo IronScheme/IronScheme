@@ -20,9 +20,9 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class CatchBlock : Node {
-        private SourceLocation _start;
+        private readonly SourceLocation _start;
         private readonly SourceLocation _header;
-        private SourceLocation _end;
+        private readonly SourceLocation _end;
         private readonly Type _test;
         private readonly Variable _var;
         private readonly Statement _body;

@@ -58,12 +58,10 @@ namespace Microsoft.Scripting.Ast {
         }
 
         internal override void EmitAddress(CodeGen cg, Type asType) {
-           //EmitInstance(cg); // the instance is already emitted!
-
             if (asType != Type || _member.MemberType != MemberTypes.Field) {
                 base.EmitAddress(cg, asType);
             } else {
-                EmitInstance(cg); // have to emit here though
+                EmitInstance(cg);
                 cg.EmitFieldAddress((FieldInfo)_member);
             }
         }
@@ -147,14 +145,46 @@ namespace Microsoft.Scripting.Ast {
     /// Factory methods.
     /// </summary>
     public static partial class Ast {
-        public static MemberExpression ReadField(Expression expression, Type type, string field) {
+        internal static void CheckField(FieldInfo info, Expression instance, Expression rightValue) {
+            Contract.RequiresNotNull(info, "field");
+            Contract.Requires((instance == null) == info.IsStatic, "expression",
+                "Static field requires null expression, non-static field requires non-null expression.");
+            Contract.Requires(instance == null || TypeUtils.CanAssign(info.DeclaringType, instance.Type), "expression", "Incorrect instance type for the property");
+            Contract.Requires(rightValue == null || TypeUtils.CanAssign(info.FieldType, rightValue.Type), "value", "Incorrect value type for the field");
+        }
+
+        internal static void CheckProperty(PropertyInfo info, Expression instance, Expression rightValue) {
+            Contract.RequiresNotNull(info, "property");
+            MethodInfo mi = (rightValue != null) ? info.GetSetMethod() : info.GetGetMethod();
+            Contract.Requires(mi != null, "Property is not readable");
+            Contract.Requires((instance == null) == mi.IsStatic, "expression",
+                "Static property requires null expression, non-static property requires non-null expression.");
+            Contract.Requires(instance == null || TypeUtils.CanAssign(info.DeclaringType, instance.Type), "expression", "Incorrect instance type for the property");
+            Contract.Requires(rightValue == null || TypeUtils.CanAssign(info.PropertyType, rightValue.Type), "value", "Incorrect value type for the property");
+        }
+
+        internal static FieldInfo GetFieldChecked(Type type, string field, Expression instance, Expression rightValue) {
             Contract.RequiresNotNull(type, "type");
             Contract.RequiresNotNull(field, "field");
+
             FieldInfo fi = type.GetField(field);
-            if (fi == null) {
-                throw new ArgumentException(String.Format("Type {0} doesn't have field {1}", type, field));
-            }
-            return ReadField(expression, fi);
+            Contract.Requires(fi != null, "field", "Type doesn't have the specified field");
+            CheckField(fi, instance, rightValue);
+            return fi;
+        }
+
+        internal static PropertyInfo GetPropertyChecked(Type type, string property, Expression instance, Expression rightValue) {
+            Contract.RequiresNotNull(type, "type");
+            Contract.RequiresNotNull(property, "property");
+
+            PropertyInfo pi = type.GetProperty(property);
+            Contract.Requires(pi != null, "property", "Type doesn't have the specified property");
+            CheckProperty(pi, instance, rightValue);
+            return pi;
+        }
+
+        public static MemberExpression ReadField(Expression expression, Type type, string field) {
+            return ReadField(expression, GetFieldChecked(type, field, expression, null));
         }
 
         /// <summary>
@@ -166,29 +196,12 @@ namespace Microsoft.Scripting.Ast {
         /// <param name="field">Field represented by this Member expression.</param>
         /// <returns>New instance of Member expression</returns>
         public static MemberExpression ReadField(Expression expression, FieldInfo field) {
-            Contract.RequiresNotNull(field, "field");
-            if (field.IsStatic) {
-                Contract.Requires(expression == null, "expression", "Expression must be null for static field");
-            } else {
-                Contract.RequiresNotNull(expression, "expression");
-                Contract.Requires(field.DeclaringType.IsAssignableFrom(expression.Type));
-            }
-
+            CheckField(field, expression, null);
             return new MemberExpression(field, expression);
         }
 
         public static MemberExpression ReadProperty(Expression expression, Type type, string property) {
-            Contract.RequiresNotNull(type, "type");
-            Contract.RequiresNotNull(property, "property");
-            PropertyInfo pi = type.GetProperty(property);
-            if (pi == null) {
-                throw new ArgumentException(String.Format("Type {0} doesn't have property {1}", type, property));
-            }
-            if (!pi.CanRead) {
-                throw new ArgumentException(String.Format("Cannot read property {0}.{1}", pi.DeclaringType, pi.Name));
-            }
-
-            return ReadProperty(expression, pi);
+            return ReadProperty(expression, GetPropertyChecked(type, property, expression, null));
         }
 
         /// <summary>
@@ -200,16 +213,7 @@ namespace Microsoft.Scripting.Ast {
         /// <param name="property">PropertyInfo of the property to access</param>
         /// <returns>New instance of the MemberExpression.</returns>
         public static MemberExpression ReadProperty(Expression expression, PropertyInfo property) {
-            Contract.RequiresNotNull(property, "property");
-            MethodInfo getter = property.GetGetMethod();
-            Contract.RequiresNotNull(getter, "property");
-            if (getter.IsStatic) {
-                Contract.Requires(expression == null, "expression", "Instance must be null for static properties");
-            } else {
-                Contract.RequiresNotNull(expression, "expression");
-                Contract.Requires(property.DeclaringType.IsAssignableFrom(expression.Type), "expression", "Incorrect instance type for the property.");
-            }
-
+            CheckProperty(property, expression, null);
             return new MemberExpression(property, expression);
         }
     }

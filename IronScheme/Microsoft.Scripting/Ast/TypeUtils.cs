@@ -104,5 +104,14 @@ namespace Microsoft.Scripting.Ast {
             }
             return false;
         }
+
+        internal static bool IsGeneric(Type type) {
+            return type.ContainsGenericParameters || type.IsGenericTypeDefinition;
+        }
+
+        internal static bool CanCompareToNull(Type type) {
+            // This is a bit too conservative.
+            return !type.IsValueType;
+        }
     }
 }

@@ -23,7 +23,11 @@ namespace Microsoft.Scripting {
     /// TODO - If this class is really this simple, do we need it at all?
     /// </summary>
     [Serializable]
-    public class CompilerOptions : ICloneable {
+    public class CompilerOptions
+#if !SILVERLIGHT
+        : ICloneable
+#endif
+    {
         public CompilerOptions() {
         }
 

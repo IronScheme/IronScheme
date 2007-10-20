@@ -59,7 +59,10 @@ namespace Microsoft.Scripting.Actions {
             get {
                 if (_strongBoxType == null) return _rule.Parameters[0];
 
-                return Ast.Call(null, typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(_strongBoxType.GetGenericArguments()), _rule.Parameters[0]);
+                return Ast.Call(
+                    typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(_strongBoxType.GetGenericArguments()),
+                    Ast.ConvertHelper(_rule.Parameters[0], _strongBoxType)
+                );
             }
         }
 
@@ -110,12 +113,12 @@ namespace Microsoft.Scripting.Actions {
         }
 
         protected Expression MakeIncorrectArgumentExpression(int provided, int expected) {
-            return Ast.Call(null,
-                    typeof(RuntimeHelpers).GetMethod("TypeErrorForIncorrectArgumentCount", new Type[] { typeof(string), typeof(int), typeof(int) }),
-                    Ast.Constant(StringName),
-                    Ast.Constant(provided),
-                    Ast.Constant(expected)
-                );
+            return Ast.Call(
+                typeof(RuntimeHelpers).GetMethod("TypeErrorForIncorrectArgumentCount", new Type[] { typeof(string), typeof(int), typeof(int) }),
+                Ast.Constant(StringName),
+                Ast.Constant(provided),
+                Ast.Constant(expected)
+            );
         }
 
         private static Expression MakeAmbigiousMatchError(MemberGroup members) {
@@ -132,26 +135,39 @@ namespace Microsoft.Scripting.Actions {
         }
 
         protected void MakeMissingMemberError(Type type) {
-            Body = Ast.Block(Body, Binder.MakeMissingMemberError(Rule, type, StringName));
+            AddToBody(Binder.MakeMissingMemberError(Rule, type, StringName));
         }
 
         protected void MakeReadOnlyMemberError(Type type) {
-            Body = Ast.Block(Body, Binder.MakeReadOnlyMemberError(Rule, type, StringName));
+            AddToBody(Binder.MakeReadOnlyMemberError(Rule, type, StringName));
         }
 
         protected void MakeUndeletableMemberError(Type type) {
-            Body = Ast.Block(Body, Binder.MakeUndeletableMemberError(Rule, type, StringName));
+            AddToBody(Binder.MakeUndeletableMemberError(Rule, type, StringName));
         }
 
+        /// <summary>
+        /// There is no setter on Body.  Use AddToBody to extend it instead.
+        /// </summary>
         protected Statement Body {
             get {
                 return _body;
             }
-            set {
-                _body = value;
+        }
+
+        /// <summary>
+        /// Use this method to extend the Body.  It will create BlockStatements as needed.
+        /// </summary>
+        /// <param name="statement"></param>
+        protected void AddToBody(Statement statement) {
+            if (_body is EmptyStatement) {
+                _body = statement;
+            } else {
+                _body = Ast.Block(_body, statement);
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         protected object[] Arguments {
             get {
                 return _args;

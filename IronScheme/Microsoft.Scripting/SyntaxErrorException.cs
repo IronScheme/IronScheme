@@ -20,9 +20,9 @@ using System.Text;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
+using System.Security.Permissions;
 
 namespace Microsoft.Scripting {
-   
     [Serializable]
     public class SyntaxErrorException : Exception {
         private SourceSpan _span;
@@ -53,6 +53,18 @@ namespace Microsoft.Scripting {
 #if !SILVERLIGHT
         protected SyntaxErrorException(SerializationInfo info, StreamingContext context) 
             : base(info, context) { }
+
+        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context) {
+            Contract.RequiresNotNull(info, "info");
+
+            base.GetObjectData(info, context);
+            info.AddValue("Span", _span);
+            info.AddValue("SourceUnit", _sourceUnit);
+            info.AddValue("Severity", _severity);
+            info.AddValue("MappedLine", _mappedLine);
+            info.AddValue("ErrorCode", _errorCode);
+        }
 #endif
 
         /// <summary>

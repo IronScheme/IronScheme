@@ -160,7 +160,7 @@ namespace Microsoft.Scripting.Actions {
             Expression[] callArgs = new Expression[infos.Length];
             
             if (!method.IsStatic) {
-                callInst = parameters[0];
+                callInst = Ast.ConvertHelper(parameters[0], method.DeclaringType);
                 parameter = 1;
             }
             if (infos.Length > 0 && infos[0].ParameterType == typeof(CodeContext)) {
@@ -183,7 +183,7 @@ namespace Microsoft.Scripting.Actions {
                 return null;
             }
 
-            return Ast.Call(callInst, method, callArgs);
+            return Ast.SimpleCallHelper(callInst, method, callArgs);
         }
 
         public Statement MakeCallStatement(MethodInfo method, params Expression[] parameters) {

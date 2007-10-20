@@ -147,6 +147,14 @@ namespace Microsoft.Scripting.Actions {
             return obj is CallSignature && Equals((CallSignature)obj);
         }
 
+        public static bool operator ==(CallSignature left, CallSignature right) {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(CallSignature left, CallSignature right) {
+            return !left.Equals(right);
+        }
+
         public override string ToString() {
             if (_infos == null) {
                 return "Simple";

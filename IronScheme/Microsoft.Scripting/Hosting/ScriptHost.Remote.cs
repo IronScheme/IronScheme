@@ -46,13 +46,12 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         public RemoteScriptHost(IScriptHost host) {
-            Contract.RequiresNotNull(host, "host");
-            if (!(host is ILocalObject)) throw new ArgumentException("host");
+            Contract.Requires(host is ILocalObject, "host", "Host must be a local object.");
             _host = host;
         }
 
         internal void SetLocalHost(IScriptHost host) {
-            Debug.Assert(host != null && host is ILocalObject);
+            Contract.Requires(host is ILocalObject, "host", "Host must be a local object.");
             _host = host;
         }
 

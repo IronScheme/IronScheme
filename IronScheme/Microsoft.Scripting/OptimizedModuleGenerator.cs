@@ -54,9 +54,9 @@ namespace Microsoft.Scripting.Generation {
 
         public static OptimizedModuleGenerator Create(string moduleName, params ScriptCode[] scriptCodes) {
             Contract.RequiresNotNull(moduleName, "moduleName");
-            Contract.RequiresNotNull(scriptCodes, "scriptCodes");
-            if (scriptCodes.Length == 0) throw new ArgumentException("scriptCodes", "must have at least one ScriptCode");
-            if (scriptCodes.Length != 1) throw new ArgumentException("scriptCodes", "only one ScriptCode currently supported");
+            Contract.RequiresNotEmpty(scriptCodes, "scriptCodes");
+            
+            if (scriptCodes.Length != 1) throw new NotSupportedException("Only one ScriptCode currently supported");
 
             // Silverlight: can't access SecurityPermission
             if (!ScriptDomainManager.Options.GenerateModulesAsSnippets) {
@@ -199,16 +199,6 @@ namespace Microsoft.Scripting.Generation {
             : base(moduleName, scriptCodes) {
         }
 
-        private class LanguageInfo {
-            public StaticFieldSlotFactory SlotFactory;
-            public TypeGen TypeGen;
-
-            public LanguageInfo(StaticFieldSlotFactory slotFactory, TypeGen tg) {
-                TypeGen = tg;
-                SlotFactory = slotFactory;
-            }
-        }
-
         #region Abstract overrides
 
         protected override SlotFactory CreateSlotFactory(ScriptCode scriptCode) {
@@ -241,6 +231,7 @@ namespace Microsoft.Scripting.Generation {
         private Dictionary<LanguageContext, LanguageInfo> _languages = new Dictionary<LanguageContext, LanguageInfo>();
 
         private class LanguageInfo {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")] // TODO: fix
             public StaticFieldSlotFactory SlotFactory;
             public TypeGen TypeGen;
 
@@ -367,12 +358,11 @@ namespace Microsoft.Scripting.Generation {
         private void BuildDictionary(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
             MakeGetMethod(li, fields);
             MakeSetMethod(li, fields);
-            CodeGen keysMethod = MakeRawKeysMethod(li, fields);
-
-            MakeInitialization(keysMethod, li, fields);
+            MakeRawKeysMethod(li, fields);
+            MakeInitialization(li, fields);
         }
 
-        private static void MakeInitialization(CodeGen keysMethod, LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
+        private static void MakeInitialization(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
             li.TypeGen.TypeBuilder.AddInterfaceImplementation(typeof(IModuleDictionaryInitialization));
             CodeGen cg = li.TypeGen.DefineExplicitInterfaceImplementation(typeof(IModuleDictionaryInitialization).GetMethod("InitializeModuleDictionary"));
 

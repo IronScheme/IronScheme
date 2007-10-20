@@ -46,9 +46,9 @@ namespace Microsoft.Scripting.Ast {
         }
 
         protected override object DoEvaluate(CodeContext context) {
-            object[] array = (object[])_array.Evaluate(context);
+            Array array = (Array)_array.Evaluate(context);
             int index = (int)_index.Evaluate(context);
-            return array[index];
+            return array.GetValue(index);
         }
 
         public override void Emit(CodeGen cg) {

@@ -60,7 +60,24 @@ namespace Microsoft.Scripting.Ast {
 
         public object Execute(CodeContext context) {
             context.Scope.SourceLocation = Start;
-            return DoExecute(context);
+
+            try {
+                try {
+#if DEBUG
+                    ExpressionReturnException.CurrentDepth++;
+#endif
+                    return DoExecute(context);
+                } catch (ExpressionReturnException ex) {
+#if DEBUG
+                    Debug.Assert(ex.Depth == ExpressionReturnException.CurrentDepth);
+#endif
+                    return ex.Value;
+                }
+            } finally {
+#if DEBUG
+                ExpressionReturnException.CurrentDepth--;
+#endif
+            }
         }
 
         protected virtual object DoExecute(CodeContext context) {

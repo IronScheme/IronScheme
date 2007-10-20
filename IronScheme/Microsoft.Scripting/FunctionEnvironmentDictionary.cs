@@ -24,6 +24,7 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting {
     public interface IFunctionEnvironment {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         SymbolId[] Names {
             get;
         }

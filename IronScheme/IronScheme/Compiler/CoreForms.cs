@@ -334,7 +334,7 @@ namespace IronScheme.Compiler
 
     static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
-      return Ast.Call(null,varargs ? closure_varargs : closure_make
+      return Ast.SimpleCallHelper(varargs ? closure_varargs : closure_make
         , Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Name));
     }
     
@@ -351,11 +351,11 @@ namespace IronScheme.Compiler
           {
             if (e is MethodCallExpression && e.Type != typeof(void))
             {
-              ((MethodCallExpression)e).TailCall = true;
+              // ((MethodCallExpression)e).TailCall = true;
             }
             if (e is ActionExpression && e.Type != typeof(void))
             {
-              ((ActionExpression)e).TailCall = true;
+              //((ActionExpression)e).TailCall = true;
             }
           }
 
@@ -429,7 +429,7 @@ namespace IronScheme.Compiler
 
       if (splices.Count == 0)
       {
-        r = Ast.Call(null, list, e.ToArray());
+        r = Ast.ComplexCallHelper(list, e.ToArray());
       }
       else
       {
@@ -437,15 +437,15 @@ namespace IronScheme.Compiler
         {
           if (!splices.Contains(i))
           {
-            e[i] = Ast.Call(null, cons1, e[i]);
+            e[i] = Ast.SimpleCallHelper(cons1, e[i]);
           }
         }
-        r = Ast.Call(null, append, e.ToArray());
+        r = Ast.ComplexCallHelper(append, e.ToArray());
       }
 
       if (!proper)
       {
-        r = Ast.Call(null, toimproper, r);
+        r = Ast.SimpleCallHelper(toimproper, r);
       }
 
       return r;
@@ -588,7 +588,7 @@ namespace IronScheme.Compiler
             {
               pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
             }
-            return Ast.Call(null, mc.Target.Method as MethodInfo, pars);
+            return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
           }
         }
         return Ast.Action.Call(typeof(object), GetAstList(c, cb));
@@ -679,12 +679,12 @@ namespace IronScheme.Compiler
 
       CodeBlockExpression cbe = Ast.CodeBlockExpression(cb, false);
 
-      Expression ex = Ast.Call(null, isrest ? macro_vararg : macro_make, Ast.CodeContext(), cbe, 
+      Expression ex = Ast.SimpleCallHelper(isrest ? macro_vararg : macro_make, Ast.CodeContext(), cbe, 
         Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
 
       cb.BindClosures();
 
-      Delegate md = cb.GetDelegateForInterpreter(Compiler, false) as Delegate;
+      Delegate md = cb.GetDelegateForInterpreter(Compiler,null, false) as Delegate;
 
       if (isrest)
       {
@@ -755,10 +755,10 @@ namespace IronScheme.Compiler
 
       if (testexp.Type != typeof(bool))
       {
-        testexp = Ast.Call(null, istrue, testexp);
+        testexp = Ast.SimpleCallHelper(istrue, testexp);
       }
 
-      return Ast.Condition(testexp, GetAst(trueexp, cb), e, true);
+      return Ast.Condition(testexp, GetAst(trueexp, cb), e);
     }
 
     static int nestinglevel = 0;

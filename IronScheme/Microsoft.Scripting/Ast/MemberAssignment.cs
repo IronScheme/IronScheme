@@ -116,15 +116,7 @@ namespace Microsoft.Scripting.Ast {
     /// </summary>
     public static partial class Ast {
         public static MemberAssignment AssignField(Expression expression, Type type, string field, Expression value) {
-            Contract.RequiresNotNull(type, "type");
-            Contract.RequiresNotNull(field, "field");
-            Contract.RequiresNotNull(value, "value");
-
-            FieldInfo fi = type.GetField(field);
-            if (fi == null) {
-                throw new ArgumentException(String.Format("Type {0} doesn't have field {1}", type, field));
-            }
-            return AssignField(expression, fi, value);
+            return AssignField(expression, GetFieldChecked(type, field, expression, value), value);
         }
 
         /// <summary>
@@ -137,34 +129,12 @@ namespace Microsoft.Scripting.Ast {
         /// <param name="value">Value to set this field to.</param>
         /// <returns>New instance of Member expression</returns>
         public static MemberAssignment AssignField(Expression expression, FieldInfo field, Expression value) {
-            Contract.RequiresNotNull(field, "field");
-            Contract.RequiresNotNull(value, "value");
-
-            if (field.IsStatic) {
-                Contract.Requires(expression == null, "expression", "Expression must be null for static fields");
-            } else {
-                Contract.RequiresNotNull(expression, "expression");
-                Contract.Requires(TypeUtils.CanAssign(field.DeclaringType, expression.Type));
-            }
-
-            Contract.Requires(TypeUtils.CanAssign(field.FieldType, value.Type));
-
+            CheckField(field, expression, value);
             return new MemberAssignment(field, expression, value);
         }
 
         public static MemberAssignment AssignProperty(Expression expression, Type type, string property, Expression value) {
-            Contract.RequiresNotNull(type, "type");
-            Contract.RequiresNotNull(property, "property");
-            Contract.RequiresNotNull(value, "value");
-
-            PropertyInfo pi = type.GetProperty(property);
-            if (pi == null) {
-                throw new ArgumentException(String.Format("Type {0} doesn't have property {1}", type, property));
-            }
-            if (!pi.CanWrite) {
-                throw new ArgumentException(String.Format("Cannot assign property {0}.{1}", pi.DeclaringType, pi.Name));
-            }
-            return AssignProperty(expression, pi, value);
+            return AssignProperty(expression, GetPropertyChecked(type, property, expression, value), value);
         }
 
         /// <summary>
@@ -177,20 +147,7 @@ namespace Microsoft.Scripting.Ast {
         /// <param name="value">Value to set this property to.</param>
         /// <returns>New instance of the MemberExpression.</returns>
         public static MemberAssignment AssignProperty(Expression expression, PropertyInfo property, Expression value) {
-            Contract.RequiresNotNull(property, "property");
-            Contract.RequiresNotNull(value, "value");
-            MethodInfo setter = property.GetSetMethod();
-            Contract.Requires(setter != null, "property", "Property is read only");
-
-            if (setter.IsStatic) {
-                Contract.Requires(expression == null, "expression", "Expression must be null for static properties");
-            } else {
-                Contract.RequiresNotNull(expression, "expression");
-                Contract.Requires(property.DeclaringType.IsAssignableFrom(expression.Type), "expression", "Incorrect instance type for the property");
-            }
-
-            Contract.Requires(property.PropertyType.IsAssignableFrom(value.Type), "value", "Incorrect value type for the property");
-            
+            CheckProperty(property, expression, value);
             return new MemberAssignment(property, expression, value);
         }
     }

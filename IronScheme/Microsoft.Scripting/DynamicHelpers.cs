@@ -45,10 +45,6 @@ namespace Microsoft.Scripting {
             return DynamicType.SetDynamicType(type, ret);
         }
 
-        public static StackFrame[] GetStackFrames(Exception e, bool includeNonDynamicFrames) {
-            return null;
-        }
-
         public static DynamicStackFrame[] GetDynamicStackFrames(Exception e) {
             return GetDynamicStackFrames(e, true);
         }

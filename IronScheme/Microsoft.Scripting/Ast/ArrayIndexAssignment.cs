@@ -51,9 +51,9 @@ namespace Microsoft.Scripting.Ast {
 
         protected override object DoEvaluate(CodeContext context) {
             object value = _value.Evaluate(context); // evaluate the value first
-            object[] array = (object[])_array.Evaluate(context);
+            Array array = (Array)_array.Evaluate(context);
             int index = (int)_index.Evaluate(context);
-            array[index] = value;
+            array.SetValue(value, index);            
             return value;
         }
 

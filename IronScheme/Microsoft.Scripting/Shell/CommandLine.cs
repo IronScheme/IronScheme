@@ -66,24 +66,7 @@ namespace Microsoft.Scripting.Shell {
             Initialize();
             
             try {
-
-                int result;
-
-                if (options.Command != null) {
-                    result = RunCommand(options.Command);
-                }
-                else if (options.FileName != null) {
-                    result = RunFile(options.FileName);
-                }
-                else {
-                    return RunInteractive();
-                }
-
-                if (options.Introspection) {
-                    return RunInteractiveLoop();
-                }
-
-                return result;
+                return Run();
 
 #if !SILVERLIGHT // ThreadAbortException.ExceptionState
             } catch (System.Threading.ThreadAbortException tae) {
@@ -95,6 +78,31 @@ namespace Microsoft.Scripting.Shell {
             } finally {
                 Shutdown(engine);
             }
+        }
+
+        /// <summary>
+        /// Runs the command line.  Languages can override this to provide custom behavior other than:
+        ///     1. Running a single command
+        ///     2. Running a file
+        ///     3. Entering the interactive console loop.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual int Run() {
+            int result;
+
+            if (_options.Command != null) {
+                result = RunCommand(_options.Command);
+            } else if (_options.FileName != null) {
+                result = RunFile(_options.FileName);
+            } else {
+                return RunInteractive();
+            }
+
+            if (_options.Introspection) {
+                return RunInteractiveLoop();
+            }
+
+            return result;
         }
 
         protected virtual void Shutdown(IScriptEngine engine) {

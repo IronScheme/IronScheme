@@ -31,6 +31,7 @@ namespace Microsoft.Scripting.Ast {
         private readonly Expression _instance;
         private readonly ReadOnlyCollection<Expression> _arguments;
         private readonly ParameterInfo[] _parameterInfos;
+        private ReflectedCaller _caller;
 
         internal MethodCallExpression(MethodInfo method, Expression instance, IList<Expression> arguments, ParameterInfo[] parameters) {
             _method = method;
@@ -57,14 +58,15 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        public object EvaluateArgument(CodeContext context, Expression arg, Type asType) {
-            if (arg == null) {
-                return null;
-            } else {
-                // Convert the evaluated argument to the appropriate type to mirror the emit case.
-                // C# would try to convert for us, but using the binder preserves the semantics of the target language.
-                return context.LanguageContext.Binder.Convert(arg.Evaluate(context), asType);
+        private object EvaluateInstance(CodeContext context) {
+            object res = _instance.Evaluate(context);
+
+            // box "this" if it is a value type (in case _method tries to modify it)
+            // -- this keeps the same semantics as Emit().
+            if (_method.DeclaringType != null && _method.DeclaringType.IsValueType) {
+                res = System.Runtime.CompilerServices.RuntimeHelpers.GetObjectValue(res);
             }
+            return res;
         }
 
         protected override object DoEvaluate(CodeContext context) {
@@ -75,46 +77,44 @@ namespace Microsoft.Scripting.Ast {
             }
 
             object[] parameters = new object[_parameterInfos.Length];
+            EvaluationAddress[] paramAddrs = new EvaluationAddress[_parameterInfos.Length];
             if (_parameterInfos.Length > 0) {
-                int last = parameters.Length - 1;
+                int last = parameters.Length;
                 for (int i = 0; i < last; i++) {
-                    EvaluateOneArgument(context, parameters, i);
-                }
-                
-                // If the last parameter is a parameter array, throw the extra arguments into an array
-                int extraArgs = _arguments.Count - last;
-                if (CompilerHelpers.IsParamArray(_parameterInfos[last])) {
-                    if (extraArgs == 1 && _arguments[last] != null
-                        && _arguments[last].Type == _parameterInfos[last].ParameterType) {
-                        // If the last argument is an array, copy it over directly
-                        parameters[last] = _arguments[last].Evaluate(context);
-                    } else {
-                        object[] varargs = new object[_arguments.Count - last];
-                        for (int i = last; i < _arguments.Count; i++) {
-                            // No need to convert, since the destination type is just Object
-                            varargs[i - last] =  _arguments[i].Evaluate(context);
+                    ParameterInfo pi = _parameterInfos[i];
+
+                    if (pi.ParameterType.IsByRef) {
+                        paramAddrs[i] = _arguments[i].EvaluateAddress(context);
+
+                        object value = paramAddrs[i].GetValue(context, !IsInputParameter(i));
+                        if (IsInputParameter(i)) {
+                            parameters[i] = context.LanguageContext.Binder.Convert(
+                                value,
+                                _parameterInfos[i].ParameterType.GetElementType()
+                            );
                         }
-                        parameters[last] = varargs;
+                    } else if (IsInputParameter(i)) {
+                        Expression arg = _arguments[i];
+                        parameters[i] = arg != null ? arg.Evaluate(context) : null;
                     }
-                } else {
-                    EvaluateOneArgument(context, parameters, last);
                 }
             }
 
             try {
                 object res;
-                try {                    
+                try {
+                    // Call the method
+                    res = InvokeMethod(instance, parameters);
+
+                    // Return the singleton True or False object
                     if (Type == typeof(Boolean)) {
-                        // Return the singleton True or False object
-                        res = RuntimeHelpers.BooleanToObject((bool)_method.Invoke(instance, parameters));
-                    } else {
-                        res = _method.Invoke(instance, parameters);
+                        res = RuntimeHelpers.BooleanToObject((bool)res);
                     }
                 } finally {
                     // expose by-ref args
                     for (int i = 0; i < _parameterInfos.Length; i++) {
                         if (_parameterInfos[i].ParameterType.IsByRef) {
-                            _arguments[i].EvaluateAssign(context, parameters[i]);
+                            paramAddrs[i].AssignValue(context, parameters[i]);
                         }
                     }
                 }
@@ -131,115 +131,51 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        private void EvaluateOneArgument(CodeContext context, object[] parameters, int i) {
-            if (!_parameterInfos[i].IsOut || (_parameterInfos[i].Attributes & ParameterAttributes.In) != 0) {
-                if (!_parameterInfos[i].ParameterType.IsByRef) {
-                    parameters[i] = EvaluateArgument(context, _arguments[i], _parameterInfos[i].ParameterType);
-                } else {
-                    parameters[i] = EvaluateArgument(context, _arguments[i], _parameterInfos[i].ParameterType.GetElementType());
-                }
+        private bool IsInputParameter(int i) {
+            return !_parameterInfos[i].IsOut || (_parameterInfos[i].Attributes & ParameterAttributes.In) != 0;
+        }
+
+        private object InvokeMethod(object instance, object[] parameters) {
+            if (_caller == null) {
+                _caller = ReflectedCaller.Create(_method);
             }
+            if (instance == null) {
+                return _caller.Invoke(parameters);
+            } else {
+                return _caller.InvokeInstance(instance, parameters);
+            }
+
         }
 
         public override void Emit(CodeGen cg) {
             // Emit instance, if calling an instance method
-            Slot temp = null;
             if (!_method.IsStatic) {
-                EmitInstance(cg);
+                Type type = _method.DeclaringType;
+
+                if (type.IsValueType) {
+                    _instance.EmitAddress(cg, type);
+                } else {
+                    _instance.Emit(cg);
+                }
             }
 
             // Emit arguments
-            if (_parameterInfos.Length > 0) {
-                int current = 0;
-
-                // Emit all but the last directly, the last may be param array
-                while (current < _parameterInfos.Length - 1) {
-                    EmitArgument(cg, _parameterInfos[current], current);
-                    current++;
-                }
-
-                // Emit the last argument, possible a param array
-                ParameterInfo last = _parameterInfos[_parameterInfos.Length - 1];
-                if (CompilerHelpers.IsParamArray(last)) {
-                    Debug.Assert(last.ParameterType.HasElementType);
-                    Type elementType = last.ParameterType.GetElementType();
-
-                    // There are arguments available for emit
-                    int size = 0;
-                    if (_arguments.Count > _parameterInfos.Length - 1) {
-                        size = _arguments.Count - _parameterInfos.Length + 1;
-                    }
-
-                    if (size == 1 && _arguments[current].Type == last.ParameterType) {
-                        _arguments[current].Emit(cg);
-                    } else {
-                        cg.EmitInt(size);
-                        cg.Emit(OpCodes.Newarr, elementType);
-                        for (int i = 0; i < size; i++) {
-                            cg.Emit(OpCodes.Dup);
-                            cg.EmitInt(i);
-                            _arguments[current + i].EmitAs(cg, elementType);
-                            cg.EmitStoreElement(elementType);
-                        }
-                    }
-                } else {
-                    EmitArgument(cg, _parameterInfos[_parameterInfos.Length - 1], _parameterInfos.Length - 1);
-                }
+            Debug.Assert(_arguments.Count == _parameterInfos.Length);
+            for (int arg = 0; arg < _parameterInfos.Length; arg++) {
+                Expression argument = _arguments[arg];
+                Type type = _parameterInfos[arg].ParameterType;
+                EmitArgument(cg, argument, type);
             }
 
             // Emit the actual call
-            cg.EmitCall(_method, tailcall);
-
-            if (temp != null) {
-                cg.FreeLocalTmp(temp);
-            }
+            cg.EmitCall(_method);
         }
 
-        bool tailcall = false;
-
-        public bool TailCall
-        {
-          get { return tailcall; }
-          set { tailcall = false; }
-        }
-
-
-        private void EmitInstance(CodeGen cg) {
-            if (!_method.DeclaringType.IsValueType) {
-                _instance.EmitAs(cg, _method.DeclaringType);
+        private static void EmitArgument(CodeGen cg, Expression argument, Type type) {
+            if (type.IsByRef) {
+                argument.EmitAddress(cg, type.GetElementType());
             } else {
-                _instance.EmitAddress(cg, _method.DeclaringType);
-            }
-        }
-
-        private object EvaluateInstance(CodeContext context) {
-            object res = _instance.Evaluate(context);
-
-            // box "this" if it is a value type (in case _method tries to modify it)
-            // -- this keeps the same semantics as Emit().
-            if (_method.DeclaringType != null && _method.DeclaringType.IsValueType)
-                res = System.Runtime.CompilerServices.RuntimeHelpers.GetObjectValue(res);
-
-            return res;
-        }
-
-        private void EmitArgument(CodeGen cg, ParameterInfo param, int index) {
-            if (index < _arguments.Count) {
-                if (param.ParameterType.IsByRef) {
-                    _arguments[index].EmitAddress(cg, param.ParameterType.GetElementType());
-                } else {
-                    _arguments[index].EmitAs(cg, param.ParameterType);
-                }
-            } else {
-                Debug.Assert(!CompilerHelpers.IsMandatoryParameter(param));
-                if (CompilerHelpers.HasDefaultValue(param)) {
-                    object defaultValue = param.DefaultValue;
-                    cg.EmitConstant(defaultValue);
-                    cg.EmitConvert(defaultValue != null ? defaultValue.GetType() : typeof(object), param.ParameterType);
-                } else {
-                    Debug.Assert(param.IsOptional);
-                    cg.EmitMissingValue(param.ParameterType);
-                }
+                argument.Emit(cg);
             }
         }
 
@@ -262,15 +198,223 @@ namespace Microsoft.Scripting.Ast {
     /// Factory methods.
     /// </summary>
     public static partial class Ast {
+        public static MethodCallExpression Call(MethodInfo method, params Expression[] arguments) {
+            return Call(null, method, arguments);
+        }
+
         public static MethodCallExpression Call(Expression instance, MethodInfo method, params Expression[] arguments) {
             Contract.RequiresNotNull(method, "method");
+            Contract.Requires(!method.IsGenericMethodDefinition, "method");
+            Contract.Requires(!method.ContainsGenericParameters, "method");
+            if (method.IsStatic) {
+                Contract.Requires(instance == null, "instance", "Instance must be null for static method");
+            } else {
+                Contract.RequiresNotNull(instance, "instance");
+                if (!TypeUtils.CanAssign(method.DeclaringType, instance.Type)) {
+                    throw new ArgumentException(
+                        String.Format(
+                             "Invalid instance type for {0}.{1}. Expected {0}, got {2}.",
+                             method.DeclaringType.Name,
+                             method.Name,
+                             instance.Type.Name
+                        ),
+                        "instance"
+                    );
+                }
+            }
+
             Contract.RequiresNotNullItems(arguments, "arguments");
-            Contract.Requires(method.IsStatic == (instance == null), "instance", "Cannot call static/instance method with/without an instance.");
+            ParameterInfo[] parameters = method.GetParameters();
 
-            ParameterInfo[] ps = method.GetParameters();
-            Contract.Requires(CompilerHelpers.FormalParamsMatchActual(ps, arguments.Length), "method", "The number of parameters doesn't match the number of actual arguments");
+            Contract.Requires(parameters.Length == arguments.Length);
+            for (int index = 0; index < parameters.Length; index++) {
+                Type pt = parameters[index].ParameterType;
+                Contract.Requires(!TypeUtils.IsGeneric(pt), "arguments");
+                if (pt.IsByRef) {
+                    pt = pt.GetElementType();
+                }
+                if (!TypeUtils.CanAssign(pt, arguments[index].Type)) {
+                    throw new ArgumentException(
+                        String.Format(
+                            "Invalid type for argument {0}. Expected {1}, got {2}.",
+                            index, pt.Name, arguments[index].Type.Name
+                        ),
+                        "arguments"
+                    );
+                }
+            }
 
-            return new MethodCallExpression(method, instance, arguments, ps);
+            return new MethodCallExpression(method, instance, arguments, parameters);
+        }
+
+        /// <summary>
+        /// The helper to create the AST method call node. Will add conversions (Ast.Convert())
+        /// to parameters and instance if necessary.
+        /// </summary>
+        public static MethodCallExpression SimpleCallHelper(MethodInfo method, params Expression[] arguments) {
+            Contract.RequiresNotNull(method, "method");
+            Contract.Requires(method.IsStatic, "method", "Method must be static");
+            return SimpleCallHelper(null, method, arguments);
+        }
+
+        /// <summary>
+        /// The helper to create the AST method call node. Will add conversions (Ast.Convert())
+        /// to parameters and instance if necessary.
+        /// </summary>
+        public static MethodCallExpression SimpleCallHelper(Expression instance, MethodInfo method, params Expression[] arguments) {
+            Contract.RequiresNotNull(method, "method");
+            Contract.Requires(instance != null ^ method.IsStatic, "instance");
+            Contract.RequiresNotNullItems(arguments, "arguments");
+
+            ParameterInfo[] parameters = method.GetParameters();
+
+            Contract.Requires(arguments.Length == parameters.Length, "arguments", "Incorrect number of arguments");
+
+            if (instance != null) {
+                instance = ConvertHelper(instance, method.DeclaringType);
+            }
+
+            Expression[] clone = null;
+            for (int arg = 0; arg < arguments.Length; arg++) {
+                Expression argument = arguments[arg];
+                if (!CompatibleParameterTypes(parameters[arg].ParameterType, argument.Type)) {
+                    // Clone the arguments array if needed
+                    if (clone == null) {
+                        clone = new Expression[arguments.Length];
+                        // Copy the expressions into the clone
+                        for (int i = 0; i < arg; i++) {
+                            clone[i] = arguments[i];
+                        }
+                    }
+
+                    argument = ArgumentConvertHelper(argument, parameters[arg].ParameterType);
+                }
+
+                if (clone != null) {
+                    clone[arg] = argument;
+                }
+            }
+
+            return Call(instance, method, clone != null ? clone : arguments);
+        }
+
+        private static Expression ArgumentConvertHelper(Expression argument, Type type) {
+            if (argument.Type != type) {
+                if (type.IsByRef) {
+                    type = type.GetElementType();
+                }
+                if (argument.Type != type) {
+                    argument = Convert(argument, type);
+                }
+            }
+            return argument;
+        }
+
+        private static bool CompatibleParameterTypes(Type parameter, Type argument) {
+            if (parameter == argument) {
+                return true;
+            }
+            if (parameter.IsByRef && parameter.GetElementType() == argument) {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// The complex call helper to create the AST method call node.
+        /// Will add conversions (Ast.Convert()), deals with default parameter values and params arrays.
+        /// </summary>
+        public static Expression ComplexCallHelper(MethodInfo method, params Expression[] arguments) {
+            Contract.RequiresNotNull(method, "method");
+            Contract.Requires(method.IsStatic, "method", "Method must be static");
+            return ComplexCallHelper(null, method, arguments);
+        }
+
+        /// <summary>
+        /// The complex call helper to create the AST method call node.
+        /// Will add conversions (Ast.Convert()), deals with default parameter values and params arrays.
+        /// </summary>
+        public static Expression ComplexCallHelper(Expression instance, MethodInfo method, params Expression[] arguments) {
+            Contract.RequiresNotNull(method, "method");
+            Contract.RequiresNotNullItems(arguments, "arguments");
+            Contract.Requires(instance != null ^ method.IsStatic, "instance");
+
+            if (instance != null) {
+                instance = ConvertHelper(instance, method.DeclaringType);
+            }
+
+            ParameterInfo[] parameters = method.GetParameters();
+            Expression[] clone = null;
+
+            int current = 0;    // current parameter being populated
+            int consumed = 0;   // arguments so far consumed
+
+            // Validate the argument array, or populate the clone
+            while (current < parameters.Length) {
+                ParameterInfo parameter = parameters[current];
+                Expression argument;
+
+                // last parameter ... params array?
+                if ((current == parameters.Length - 1) && (CompilerHelpers.IsParamArray(parameter))) {
+                    // do we have any arguments to pass in?
+                    if (consumed < arguments.Length) {
+                        // Exactly one argument? If it is array of the right type, it goes directly
+                        if ((consumed == arguments.Length - 1) &&
+                            CompatibleParameterTypes(parameter.ParameterType, arguments[consumed].Type)) {
+                            argument = arguments[consumed++];
+                        } else {
+                            Type elementType = parameter.ParameterType.GetElementType();
+                            Expression[] paramArray = new Expression[arguments.Length - consumed];
+                            int paramIndex = 0;
+                            while (consumed < arguments.Length) {
+                                paramArray[paramIndex++] = ConvertHelper(arguments[consumed++], elementType);
+                            }
+                            argument = NewArray(parameter.ParameterType, paramArray);
+                        }
+                    } else {
+                        // No. Create an empty array.
+                        argument = NewArray(parameter.ParameterType);
+                    }
+                } else {
+                    if (consumed < arguments.Length) {
+                        // We have argument.
+                        argument = arguments[consumed++];
+                    } else {
+                        // Missing argument, try default value.
+                        Contract.Requires(!CompilerHelpers.IsMandatoryParameter(parameter), "arguments", "Argument not provided for a mandatory parameter");
+                        argument = CreateDefaultValueExpression(parameter);
+                    }
+                }
+
+                // Add conversion if needed
+                argument = ArgumentConvertHelper(argument, parameter.ParameterType);
+
+                // Do we need to make array clone?
+                if (clone == null && !(current < arguments.Length && (object)argument == (object)arguments[current])) {
+                    clone = new Expression[parameters.Length];
+                    for (int i = 0; i < current; i++) {
+                        clone[i] = arguments[i];
+                    }
+                }
+
+                if (clone != null) {
+                    clone[current] = argument;
+                }
+
+                // Next parameter
+                current++;
+            }
+            Contract.Requires(consumed == arguments.Length, "arguments", "Incorrect number of arguments");
+            return Call(instance, method, clone != null ? clone : arguments);
+        }
+
+        private static Expression CreateDefaultValueExpression(ParameterInfo parameter) {
+            if (CompilerHelpers.HasDefaultValue(parameter)) {
+                return Constant(parameter.DefaultValue, parameter.ParameterType);
+            } else {
+                // TODO: Handle via compiler constant.
+                throw new NotSupportedException("missing parameter value not yet supported");
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Shell;
 using System.Threading;
 using Microsoft.Scripting.Utils;
+using System.Globalization;
 
 namespace Microsoft.Scripting.Hosting {
 
@@ -44,6 +45,7 @@ namespace Microsoft.Scripting.Hosting {
 
         public List<string> IgnoredArgs { get { return _ignoredArgs; } }
         public List<string> Files { get { return _files; } }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public string[] SourceUnitSearchPaths { get { return _sourceUnitSearchPaths; } set { _sourceUnitSearchPaths = value; } }
         public Action RunAction { get { return _action; } set { _action = value; } }
         public ILanguageProvider LanguageProvider { get { return _languageProvider; } set { _languageProvider = value; } }
@@ -55,6 +57,7 @@ namespace Microsoft.Scripting.Hosting {
 
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional")] // TODO: fix
         public string[,] GetHelp() {
             return new string[,] {
                 { "/help",                     "Displays this help." },
@@ -82,6 +85,7 @@ namespace Microsoft.Scripting.Hosting {
             _options = options ?? new ConsoleHostOptions();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public void Parse(string[] args) {
             Contract.RequiresNotNull(args, "args");
 
@@ -99,25 +103,25 @@ namespace Microsoft.Scripting.Hosting {
                         break;
 
                     case "run":
-                        if (value == null) throw new Exception(String.Format("Missing value for option '{0}'.", name));
+                        OptionValueRequired(name, value);
                         _options.RunAction = ConsoleHostOptions.Action.RunFiles;
                         _options.Files.AddRange(value.Split(';'));
                         break;
 
                     case "execute":
-                        if (value == null) throw new Exception(String.Format("Missing value for option '{0}'.", name));
+                        OptionValueRequired(name, value);
                         _options.RunAction = ConsoleHostOptions.Action.ExecuteFile;
                         _options.Files.Add(value);
                         break;
                     
                     case "lang":
-                        if (value == null) throw new Exception(String.Format("Missing value for option '{0}'.", name));
+                        OptionValueRequired(name, value);
                         _options.LanguageProvider = GetLanguageProvider(value);
                         break;
 
                     case "path":
                     case "paths":
-                        if (value == null) throw new Exception(String.Format("Missing value for option '{0}'.", name));
+                        OptionValueRequired(name, value);
                         _options.SourceUnitSearchPaths = value.Split(';');
                         break;
 
@@ -169,7 +173,7 @@ namespace Microsoft.Scripting.Hosting {
             switch (_options.RunAction) {
                 case ConsoleHostOptions.Action.RunFiles:
                     if (_options.Files.Count == 0)
-                        throw new Exception("No file to run.");
+                        throw new InvalidOptionException("No file to run.");
 
                     if (_options.LanguageProvider == null)
                         _options.LanguageProvider = GetLanguageProvider(StringUtils.GetSuffix(_options.Files[0], '.', false));
@@ -215,13 +219,20 @@ namespace Microsoft.Scripting.Hosting {
                 name = null;
             }
 
-            if (name != null)
-                name = name.ToLower();
+            if (name != null) {
+                name = name.ToLower(CultureInfo.InvariantCulture);
+            }
+        }
+
+        protected void OptionValueRequired(string optionName, string value) {
+            if (value == null) {
+                throw new InvalidOptionException(String.Format(CultureInfo.CurrentCulture, Resources.MissingOptionValue, optionName));
+            }
         }
 
         [Conditional("SILVERLIGHT")]
-        private void OptionNotAvailableOnSilverlight(string option) {
-            throw new InvalidOptionException(String.Format("Option '{0}' is not available on Silverlight.", option));
+        private void OptionNotAvailableOnSilverlight(string optionName) {
+            throw new InvalidOptionException(String.Format("Option '{0}' is not available on Silverlight.", optionName));
         }
 
         private static LanguageProvider GetLanguageProvider(string languageId) {

@@ -23,12 +23,17 @@ namespace Microsoft.Scripting.Utils {
     public static class ArrayUtils {
 
 #if SILVERLIGHT
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly Type[] EmptyTypes = new Type[0];
 #else
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly Type[] EmptyTypes = Type.EmptyTypes;
 #endif
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly string[] EmptyStrings = new string[0];
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly object[] EmptyObjects = new object[0];
 
         public static TOutput[] ConvertAll<TInput, TOutput>(TInput[] input, Converter<TInput, TOutput> conv) {
@@ -68,6 +73,7 @@ namespace Microsoft.Scripting.Utils {
 #endif
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional", MessageId = "1#")] // TODO: fix
         public static void PrintTable(TextWriter output, string[,] table) {
             Contract.RequiresNotNull(output, "output");
             Contract.RequiresNotNull(table, "table");
@@ -175,6 +181,7 @@ namespace Microsoft.Scripting.Utils {
             return array;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1814:PreferJaggedArraysOverMultidimensional")] // TODO: fix
         public static T[,] Concatenate<T>(T[,] array1, T[,] array2) {
             int columnsCount = array1.GetLength(1);
             Debug.Assert(array2.GetLength(1) == columnsCount);

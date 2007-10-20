@@ -83,7 +83,10 @@ namespace Microsoft.Scripting.Utils {
         }
 
         public ICollection<TValue> Values {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get { 
+                // TODO:
+                throw new NotImplementedException(); 
+            }
         }
 
         public TValue this[TKey key] {
@@ -134,8 +137,9 @@ namespace Microsoft.Scripting.Utils {
                 }
             }
         }
-        
-        void Cleanup() {
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2004:RemoveCallsToGCKeepAlive")]
+        private void Cleanup() {
 
             int liveCount = 0;
             int emptyCount = 0;
@@ -168,31 +172,42 @@ namespace Microsoft.Scripting.Utils {
         #region ICollection<KeyValuePair<TKey,TValue>> Members
 
         public void Add(KeyValuePair<TKey, TValue> item) {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException();
         }
 
         public void Clear() {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException();
         }
 
         public bool Contains(KeyValuePair<TKey, TValue> item) {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException();
         }
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException();
         }
 
         public int Count {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get { 
+                // TODO:
+                throw new NotImplementedException(); 
+            }
         }
 
         public bool IsReadOnly {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get {
+                // TODO:
+                throw new NotImplementedException();
+            }
         }
 
         public bool Remove(KeyValuePair<TKey, TValue> item) {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException(); 
         }
 
         #endregion
@@ -200,7 +215,8 @@ namespace Microsoft.Scripting.Utils {
         #region IEnumerable<KeyValuePair<TKey,TValue>> Members
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException(); 
         }
 
         #endregion
@@ -208,7 +224,8 @@ namespace Microsoft.Scripting.Utils {
         #region IEnumerable Members
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-            throw new Exception("The method or operation is not implemented.");
+            // TODO:
+            throw new NotImplementedException(); 
         }
 
         #endregion
@@ -296,8 +313,9 @@ namespace Microsoft.Scripting.Utils {
         public T GetObjectFromId(int id) {
             object ret;
             if (dict.TryGetValue(id, out ret)) {
-                if (ret is WeakObject<T>) {
-                    return ((WeakObject<T>)ret).Target;
+                WeakObject<T> weakObj = ret as WeakObject<T>;
+                if (weakObj != null) {
+                    return weakObj.Target;
                 }
                 if (ret is T) {
                     return (T)ret;

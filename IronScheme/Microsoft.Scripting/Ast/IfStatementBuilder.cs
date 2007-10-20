@@ -56,7 +56,11 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static implicit operator IfStatement(IfStatementBuilder builder) {
-            Assert.NotNull(builder);
+            return ToStatement(builder);
+        }
+
+        public static IfStatement ToStatement(IfStatementBuilder builder) {
+            Contract.RequiresNotNull(builder, "builder");
             return new IfStatement(builder._statementSpan, builder._clauses.ToArray(), null);
         }
     }

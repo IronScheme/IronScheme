@@ -65,7 +65,7 @@ namespace Microsoft.Scripting.Actions {
             // This is much slower than building the ruleset, since we have to look up the rule every time;
             // we do it in debug mode to make sure we can still get through this code path
             // without generating IL.
-            if (context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (context.LanguageContext.Engine != null && context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0 };
                 using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(context);
@@ -127,7 +127,7 @@ namespace Microsoft.Scripting.Actions {
             rule = Context.LanguageContext.Binder.GetRule<FastDynamicSiteTarget<T0, Tret>>(Context, Action, new object[] { arg0 });
 
     #if DEBUG
-            if (Context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (Context.LanguageContext.Engine != null && Context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0 };
                 using (Context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(Context);
@@ -193,7 +193,7 @@ namespace Microsoft.Scripting.Actions {
             // This is much slower than building the ruleset, since we have to look up the rule every time;
             // we do it in debug mode to make sure we can still get through this code path
             // without generating IL.
-            if (context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (context.LanguageContext.Engine != null && context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1 };
                 using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(context);
@@ -255,7 +255,7 @@ namespace Microsoft.Scripting.Actions {
             rule = Context.LanguageContext.Binder.GetRule<FastDynamicSiteTarget<T0, T1, Tret>>(Context, Action, new object[] { arg0, arg1 });
 
     #if DEBUG
-            if (Context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (Context.LanguageContext.Engine != null && Context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1 };
                 using (Context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(Context);
@@ -321,7 +321,7 @@ namespace Microsoft.Scripting.Actions {
             // This is much slower than building the ruleset, since we have to look up the rule every time;
             // we do it in debug mode to make sure we can still get through this code path
             // without generating IL.
-            if (context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (context.LanguageContext.Engine != null && context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2 };
                 using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(context);
@@ -383,7 +383,7 @@ namespace Microsoft.Scripting.Actions {
             rule = Context.LanguageContext.Binder.GetRule<FastDynamicSiteTarget<T0, T1, T2, Tret>>(Context, Action, new object[] { arg0, arg1, arg2 });
 
     #if DEBUG
-            if (Context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (Context.LanguageContext.Engine != null && Context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2 };
                 using (Context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(Context);
@@ -449,7 +449,7 @@ namespace Microsoft.Scripting.Actions {
             // This is much slower than building the ruleset, since we have to look up the rule every time;
             // we do it in debug mode to make sure we can still get through this code path
             // without generating IL.
-            if (context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (context.LanguageContext.Engine != null && context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2, arg3 };
                 using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(context);
@@ -511,7 +511,7 @@ namespace Microsoft.Scripting.Actions {
             rule = Context.LanguageContext.Binder.GetRule<FastDynamicSiteTarget<T0, T1, T2, T3, Tret>>(Context, Action, new object[] { arg0, arg1, arg2, arg3 });
 
     #if DEBUG
-            if (Context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (Context.LanguageContext.Engine != null && Context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2, arg3 };
                 using (Context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(Context);
@@ -577,7 +577,7 @@ namespace Microsoft.Scripting.Actions {
             // This is much slower than building the ruleset, since we have to look up the rule every time;
             // we do it in debug mode to make sure we can still get through this code path
             // without generating IL.
-            if (context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (context.LanguageContext.Engine != null && context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2, arg3, arg4 };
                 using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(context);
@@ -639,7 +639,7 @@ namespace Microsoft.Scripting.Actions {
             rule = Context.LanguageContext.Binder.GetRule<FastDynamicSiteTarget<T0, T1, T2, T3, T4, Tret>>(Context, Action, new object[] { arg0, arg1, arg2, arg3, arg4 });
 
     #if DEBUG
-            if (Context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (Context.LanguageContext.Engine != null && Context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2, arg3, arg4 };
                 using (Context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(Context);
@@ -705,7 +705,7 @@ namespace Microsoft.Scripting.Actions {
             // This is much slower than building the ruleset, since we have to look up the rule every time;
             // we do it in debug mode to make sure we can still get through this code path
             // without generating IL.
-            if (context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (context.LanguageContext.Engine != null && context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2, arg3, arg4, arg5 };
                 using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(context);
@@ -767,7 +767,7 @@ namespace Microsoft.Scripting.Actions {
             rule = Context.LanguageContext.Binder.GetRule<FastDynamicSiteTarget<T0, T1, T2, T3, T4, T5, Tret>>(Context, Action, new object[] { arg0, arg1, arg2, arg3, arg4, arg5 });
 
     #if DEBUG
-            if (Context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (Context.LanguageContext.Engine != null && Context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0, arg1, arg2, arg3, arg4, arg5 };
                 using (Context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(Context);
@@ -833,7 +833,7 @@ namespace Microsoft.Scripting.Actions {
             // This is much slower than building the ruleset, since we have to look up the rule every time;
             // we do it in debug mode to make sure we can still get through this code path
             // without generating IL.
-            if (context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (context.LanguageContext.Engine != null && context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0 };
                 using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(context);
@@ -895,7 +895,7 @@ namespace Microsoft.Scripting.Actions {
             rule = Context.LanguageContext.Binder.GetRule<BigFastDynamicSiteTarget<T0, Tret>>(Context, Action, Tuple.GetTupleValues(arg0));
 
     #if DEBUG
-            if (Context.LanguageContext.Engine.Options.InterpretedMode) {
+            if (Context.LanguageContext.Engine != null && Context.LanguageContext.Engine.Options.InterpretedMode) {
                 object[] args = new object[] { arg0 };
                 using (Context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
                     bool result = (bool)rule.Test.Evaluate(Context);

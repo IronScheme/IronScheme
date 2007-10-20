@@ -170,7 +170,7 @@ namespace Microsoft.Scripting.Generation {
             IResourceWriter rw = _myModule.DefineResource(Path.GetFileName(file), name, attribute);
 
             string ext = Path.GetExtension(file);
-            if(String.Equals(ext, ".resources", StringComparison.InvariantCultureIgnoreCase)) {
+            if(String.Equals(ext, ".resources", StringComparison.OrdinalIgnoreCase)) {
                 ResourceReader rr = new ResourceReader(file);
                 using (rr) {
                     System.Collections.IDictionaryEnumerator de = rr.GetEnumerator();
@@ -186,6 +186,7 @@ namespace Microsoft.Scripting.Generation {
         }
 #endif
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
         public Assembly DumpAndLoad() {
 #if SILVERLIGHT // AssemblyBuilder.Save
             return _myAssembly;
@@ -334,7 +335,7 @@ namespace Microsoft.Scripting.Generation {
                 string toFile = Path.Combine(to, fi.Name);
                 FileInfo toInfo = new FileInfo(toFile);
 
-                if (fi.Extension.ToLower() == ".dll" || fi.Extension.ToLower() == ".exe") {
+                if (fi.Extension.ToLowerInvariant() == ".dll" || fi.Extension.ToLowerInvariant() == ".exe") {
                     if (!File.Exists(toFile) || toInfo.LastWriteTime < fi.LastWriteTime) {
                         try {
                             File.Copy(filename, toFile, true);

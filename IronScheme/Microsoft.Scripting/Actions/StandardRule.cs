@@ -61,6 +61,7 @@ namespace Microsoft.Scripting.Actions {
         /// <summary>
         /// Gets the logical parameters to the dynamic site in the form of Expressions.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public Expression[] Parameters {
             get {
                 return _parameters;
@@ -98,9 +99,16 @@ namespace Microsoft.Scripting.Actions {
             return Ast.Return(binder.ConvertExpression(expr, ReturnType));
         }
 
-        public Statement MakeError(ActionBinder binder, Expression expr) {
+        public Statement MakeError(Expression expr) {
+            if (expr != null) {
+                // TODO: Change to ConvertHelper
+                if (!TypeUtils.CanAssign(typeof(Exception), expr.Type)) {
+                    expr = Ast.Convert(expr, typeof(Exception));
+                }
+            }
+
             _error = true;
-            return Ast.Statement(Ast.Throw(expr));
+            return Ast.Throw(expr);
         }
 
         public bool IsError {
@@ -183,8 +191,12 @@ namespace Microsoft.Scripting.Actions {
                     Ast.Null()),
                 Ast.Equal(
                     Ast.Call(
-                        expr, typeof(object).GetMethod("GetType")),
-                        Ast.Constant(t)));
+                        Ast.ConvertHelper(expr, typeof(object)),
+                        typeof(object).GetMethod("GetType")
+                    ),
+                    Ast.Constant(t)
+                )
+            );
         }
 
         /// <summary>
@@ -223,7 +235,10 @@ namespace Microsoft.Scripting.Actions {
 
             Expression expr = AddTemplatedConstant(typeof(WeakReference), new WeakReference(value));
 
-            return Ast.ReadProperty(expr, typeof(WeakReference).GetProperty("Target"));
+            return Ast.ConvertHelper(
+                Ast.ReadProperty(expr, typeof(WeakReference).GetProperty("Target")),
+                type
+            );
         }
 
     }
@@ -363,7 +378,7 @@ namespace Microsoft.Scripting.Actions {
 
         public Expression MakeTestForTypes(Type[] types, int index) {
             Expression test = MakeTypeTest(types[index], index);
-            if (index+1 < types.Length) {
+            if (index < types.Length - 1) {
                 Expression nextTests = MakeTestForTypes(types, index + 1);
                 if (test.IsConstant(true)) {
                     return nextTests;

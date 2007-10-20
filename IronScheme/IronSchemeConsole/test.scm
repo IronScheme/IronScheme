@@ -14,7 +14,7 @@
   `(define ,name (macro ,args ,@body)))))
   
 (define-macro (begin . e)
-  `((lambda () . ,e)))
+  `((lambda () ,@e)))
 
 (let bar ((a '(1 2 3)))
   (if (null? a)

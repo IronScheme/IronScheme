@@ -25,6 +25,10 @@ namespace Microsoft.Scripting.Ast {
             _name = name;
         }
 
+        public SymbolId Name {
+            get { return _name; }
+        }
+
         public override void Emit(CodeGen cg) {
             // RuntimeHelpers.RemoveName(CodeContext, name)
             cg.EmitCodeContext();

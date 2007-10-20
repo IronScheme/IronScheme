@@ -144,7 +144,7 @@ namespace Microsoft.Scripting.Math {
             return new Complex64(real, imag);
         }
 
-        public static Complex64 Modulus(Complex64 x, Complex64 y) {
+        public static Complex64 Mod(Complex64 x, Complex64 y) {
             return x % y;
         }
 

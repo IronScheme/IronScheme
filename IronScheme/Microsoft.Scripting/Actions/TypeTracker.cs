@@ -53,6 +53,10 @@ namespace Microsoft.Scripting.Actions {
 
         #endregion
 
+        /// <summary>
+        /// Enables implicit Type to TypeTracker conversions accross dynamic languages.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
         public static implicit operator Type(TypeTracker tracker) {
             return tracker.Type;
         }

@@ -25,7 +25,7 @@ namespace Microsoft.Scripting {
         public bool IsBinary;
         public bool IsTernary;
         public bool IsReversed;
-        public bool IsReversable;
+        public bool IsReversible;
 
         public OperatorMapping(Operators op, bool isUnary, bool isBinary, bool isTernary) {
             Operator = op;
@@ -39,11 +39,11 @@ namespace Microsoft.Scripting {
             IsUnary = isUnary;
             IsBinary = isBinary;
             IsTernary = isTernary;
-            IsReversable = isReversable;
+            IsReversible = isReversable;
         }
 
         public OperatorMapping GetReversed() {
-            Debug.Assert(IsReversable);
+            Debug.Assert(IsReversible);
 
             OperatorMapping res;
             if (Operator != Operators.Power) {
@@ -51,13 +51,13 @@ namespace Microsoft.Scripting {
                     IsUnary,
                     IsBinary,
                     IsTernary,
-                    IsReversable);
+                    IsReversible);
             } else {
                 res = new OperatorMapping(CompilerHelpers.OperatorToReverseOperator(Operator),
                     IsUnary,
                     IsBinary,
                     false,
-                    IsReversable);
+                    IsReversible);
             }
             res.IsReversed = !IsReversed;
             return res;

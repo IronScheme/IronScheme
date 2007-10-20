@@ -192,10 +192,12 @@ namespace Microsoft.Scripting {
             private LanguageProvider _provider;
             private Type _type;
 
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")] // TODO: fix
             public string AssemblyName {
                 get { return _assemblyName; }
             }
 
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")] // TODO: fix
             public string TypeName {
                 get { return _typeName; }
             }
@@ -565,7 +567,7 @@ namespace Microsoft.Scripting {
 
         public void PublishModule(ScriptModule module) {
             Contract.RequiresNotNull(module, "module");
-            if (module.FileName == null) throw new ArgumentException("module");
+            Contract.Requires(module.FileName != null, "module", "Cannot publish module with null file name");
             PublishModule(module, module.FileName);
         }
         
@@ -681,7 +683,7 @@ namespace Microsoft.Scripting {
                         load.Done = true;
                         if (load.Mre != null) load.Mre.Set();
                     }
-                    throw e;
+                    throw;
                 } finally {
                     Monitor.Enter(_modules);
                     _loading.Remove(key);

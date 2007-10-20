@@ -17,13 +17,40 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Actions {
     public class MemberGroup : MemberTracker, IEnumerable<MemberTracker> {
-        private MemberTracker[] _members;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")]
+        public static readonly MemberGroup EmptyGroup = new MemberGroup(MemberTracker.EmptyTrackers);
+        
+        private readonly MemberTracker[] _members;
 
-        internal MemberGroup(MemberTracker[] members) {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "noChecks")]
+        private MemberGroup(MemberTracker[] members, bool noChecks) {
+            Assert.NotNullItems(members);
             _members = members;
+        }
+        
+        public MemberGroup(params MemberTracker[] members) {
+            Contract.RequiresNotNullItems(members, "members");
+            _members = members;
+        }
+
+        public MemberGroup(params MemberInfo[] members) {
+            Contract.RequiresNotNullItems(members, "members");
+
+            MemberTracker[] trackers = new MemberTracker[members.Length];
+            for (int i = 0; i < trackers.Length; i++) {
+                trackers[i] = MemberTracker.FromMemberInfo(members[i]);
+            }
+
+            _members = trackers;
+        }
+
+        internal static MemberGroup CreateInternal(MemberTracker[] members) {
+            Assert.NotNullItems(members);
+            return new MemberGroup(members, true);
         }
         
         public int Count {
@@ -36,19 +63,6 @@ namespace Microsoft.Scripting.Actions {
             get {
                 return _members[index];
             }
-        }
-
-        public static implicit operator MemberGroup(MemberTracker[] members) {
-            // TODO: Ensure only one member group per set of members.
-            return new MemberGroup(members);
-        }
-
-        public static implicit operator MemberGroup(MemberInfo[] members) {
-            MemberTracker[] trackers = new MemberTracker[members.Length];
-            for(int i = 0; i<trackers.Length; i++) {
-                trackers[i] = members[i];
-            }
-            return trackers;
         }
 
         #region IEnumerable<MemberTracker> Members

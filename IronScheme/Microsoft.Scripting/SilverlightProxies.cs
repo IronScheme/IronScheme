@@ -27,28 +27,6 @@ using System.Diagnostics;
 
 namespace System {
 
-    namespace Diagnostics {
-
-        namespace CodeAnalysis {
-            // This class is stubbed out because it's easier to do this than to put #if !SILVERLIGHT
-            // every place we use it.
-            [AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = true), Conditional("CODE_ANALYSIS")]
-            public class SuppressMessageAttribute : Attribute {
-                private string _category, _checkId, _justification, _messageId, _scope, _target;
-                public SuppressMessageAttribute(string category, string checkId) {
-                    _category = category;
-                    _checkId = checkId;
-                }
-                public string Category { get { return _category; } set { _category = value; } }
-                public string CheckId { get { return _checkId; } set { _checkId = value; } }
-                public string Justification { get { return _justification; } set { _justification = value; } }
-                public string MessageId { get { return _messageId; } set { _messageId = value;  } }
-                public string Scope { get { return _scope; } set { _scope = value; } }
-                public string Target { get { return _target; } set { _target = value; } }
-            }
-        }
-    }
-
     namespace Runtime.InteropServices {
         public sealed class DefaultParameterValueAttribute : Attribute {
             public DefaultParameterValueAttribute(object value) { }

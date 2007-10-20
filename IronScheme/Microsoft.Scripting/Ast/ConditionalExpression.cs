@@ -27,26 +27,11 @@ namespace Microsoft.Scripting.Ast {
         private readonly Expression _false;
         private readonly Type _expressionType;
 
-        internal ConditionalExpression(Expression testExpression, Expression trueExpression, Expression falseExpression, bool allowUpcast) {
-            _test = testExpression;
-            _true = trueExpression;
-            _false = falseExpression;
-
-            if (_true.Type.IsAssignableFrom(_false.Type)) {
-                _expressionType = _true.Type;
-            } else if (_false.Type.IsAssignableFrom(_true.Type)) {
-                _expressionType = _false.Type;
-            } else if (allowUpcast) {
-                _expressionType = typeof(object);
-                _true = Ast.Convert(_true, _expressionType);
-                _false = Ast.Convert(_false, _expressionType);
-            } else {
-                throw new ArgumentException(String.Format("Cannot determine the type of the conditional expression: {0}, {1}.", _true.Type, _false.Type));
-            }
-        }
-
-        public Expression FalseExpression {
-            get { return _false; }
+        internal ConditionalExpression(Expression test, Expression ifTrue, Expression ifFalse, Type type) {
+            _test = test;
+            _true = ifTrue;
+            _false = ifFalse;
+            _expressionType = type;
         }
 
         public Expression Test {
@@ -57,6 +42,10 @@ namespace Microsoft.Scripting.Ast {
             get { return _true; }
         }
 
+        public Expression FalseExpression {
+            get { return _false; }
+        }
+
         public override Type Type {
             get {
                 return _expressionType;
@@ -65,38 +54,39 @@ namespace Microsoft.Scripting.Ast {
 
         protected override object DoEvaluate(CodeContext context) {
             object ret = _test.Evaluate(context);
-            if (context.LanguageContext.IsTrue(ret)) {
+            if ((bool)ret) {
                 return _true.Evaluate(context);
             } else {
                 return _false.Evaluate(context);
             }
         }
 
-        internal override object EvaluateAssign(CodeContext context, object value) {
+        internal override EvaluationAddress EvaluateAddress(CodeContext context) {
             object ret = _test.Evaluate(context);
-            if (context.LanguageContext.IsTrue(ret)) {
-                return _true.EvaluateAssign(context, value);
+
+            if ((bool)ret) {
+                return _true.EvaluateAddress(context);
             } else {
-                return _false.EvaluateAssign(context, value);
+                return _false.EvaluateAddress(context);
             }
         }
 
         public override void Emit(CodeGen cg) {
             Label eoi = cg.DefineLabel();
             Label next = cg.DefineLabel();
-            _test.EmitAs(cg, typeof(bool));
+            _test.Emit(cg);
             cg.Emit(OpCodes.Brfalse, next);
-            _true.EmitCast(cg, _expressionType);
+            _true.Emit(cg);
             cg.Emit(OpCodes.Br, eoi);
             cg.MarkLabel(next);
-            _false.EmitCast(cg, _expressionType);
+            _false.Emit(cg);
             cg.MarkLabel(eoi);
         }
 
         internal override void EmitAddress(CodeGen cg, Type asType) {
             Label eoi = cg.DefineLabel();
             Label next = cg.DefineLabel();
-            _test.EmitAs(cg, typeof(bool));
+            _test.Emit(cg);
             cg.Emit(OpCodes.Brfalse, next);
             _true.EmitAddress(cg, asType);
             cg.Emit(OpCodes.Br, eoi);
@@ -116,19 +106,15 @@ namespace Microsoft.Scripting.Ast {
     }
 
     public static partial class Ast {
-        public static ConditionalExpression Condition(Expression test, Expression trueValue, Expression falseValue) {
-            return Condition(test, trueValue, falseValue, false);
-        }
-
-        /// <summary>
-        /// AllowUpcast: casts both expressions to Object if neither is a subtype of the other.
-        /// </summary>
-        public static ConditionalExpression Condition(Expression test, Expression trueValue, Expression falseValue, bool allowUpcast) {
+        public static ConditionalExpression Condition(Expression test, Expression ifTrue, Expression ifFalse) {
             Contract.RequiresNotNull(test, "test");
-            Contract.RequiresNotNull(trueValue, "trueValue");
-            Contract.RequiresNotNull(falseValue, "falseValue");
+            Contract.RequiresNotNull(ifTrue, "ifTrue");
+            Contract.RequiresNotNull(ifFalse, "ifFalse");
 
-            return new ConditionalExpression(test, trueValue, falseValue, allowUpcast);
+            Contract.Requires(test.Type == typeof(bool), "test", "Test must be bool");
+            Contract.Requires(ifTrue.Type == ifFalse.Type, "ifTrue", "Types must match");
+
+            return new ConditionalExpression(test, ifTrue, ifFalse, ifTrue.Type);
         }
     }
 }

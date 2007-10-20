@@ -77,7 +77,7 @@ namespace Microsoft.Scripting.Shell {
             _ctrlCEvent = new AutoResetEvent(false);
         }
 
-        protected virtual void SetupColors(bool colorful) {
+        private void SetupColors(bool colorful) {
 
             if (colorful) {
                 _promptColor = ConsoleColor.Gray;
@@ -91,7 +91,7 @@ namespace Microsoft.Scripting.Shell {
             }
         }
 
-        protected void WriteColor(TextWriter output, string str, Style style, ConsoleColor c) {
+        protected void WriteColor(TextWriter output, string str, ConsoleColor c) {
 #if !SILVERLIGHT // Console.ForegroundColor
             ConsoleColor origColor = Console.ForegroundColor;
             Console.ForegroundColor = c;
@@ -130,10 +130,10 @@ namespace Microsoft.Scripting.Shell {
 
         public virtual void Write(string text, Style style) {
             switch (style) {
-                case Style.Prompt: WriteColor(_output, text, style, _promptColor); break;
-                case Style.Out: WriteColor(_output, text, style, _outColor); break;
-                case Style.Error: WriteColor(_errorOutput, text, style, _errorColor); break;
-                case Style.Warning: WriteColor(_errorOutput, text, style, _warningColor); break;
+                case Style.Prompt: WriteColor(_output, text, _promptColor); break;
+                case Style.Out: WriteColor(_output, text, _outColor); break;
+                case Style.Error: WriteColor(_errorOutput, text, _errorColor); break;
+                case Style.Warning: WriteColor(_errorOutput, text, _warningColor); break;
             }
         }
 
@@ -153,6 +153,8 @@ namespace Microsoft.Scripting.Shell {
             if (_ctrlCEvent != null) {
                 _ctrlCEvent.Close();
             }
+
+            GC.SuppressFinalize(this);
         }
 
         #endregion

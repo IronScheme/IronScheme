@@ -65,12 +65,12 @@ namespace Microsoft.Scripting.Ast {
             _next = next;
         }
 
-        public override Delegate GetDelegateForInterpreter(CodeContext context, bool forceWrapperMethod) {
+        public override Delegate GetDelegateForInterpreter(CodeContext context, Type delegateType, bool forceWrapperMethod) {
             // For now, always return a compiled delegate (since yield is not implemented)
             lock (this) {
                 if (_delegate == null) {
                     FlowChecker.Check(this);
-                    _delegate = GetCompiledDelegate(context.ModuleContext.CompilerContext, forceWrapperMethod);
+                    _delegate = GetCompiledDelegate(context.ModuleContext.CompilerContext, delegateType, forceWrapperMethod);
                 }
                 return _delegate;
             }
@@ -80,7 +80,7 @@ namespace Microsoft.Scripting.Ast {
             if (!cg.HasAllocator) {
                 // In the interpreted case, we do not have an allocator yet
                 Debug.Assert(cg.InterpretedMode);
-                cg.Allocator = CompilerHelpers.CreateFrameAllocator(cg.ContextSlot);
+                cg.Allocator = CompilerHelpers.CreateFrameAllocator();
             }
             cg.Allocator.Block = this;
             CreateEnvironmentFactory(true);

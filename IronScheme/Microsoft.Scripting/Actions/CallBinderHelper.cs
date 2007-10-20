@@ -86,6 +86,15 @@ namespace Microsoft.Scripting.Actions {
             Type[] testTypes, argTypes;
             SymbolId[] argNames;
 
+            //If an instance is explicitly passed in as an argument, ignore it.
+            //Calls that need an instance will pick it up from the bound objects 
+            //passed in or the rule. CallType can differentiate between the type 
+            //of call during method binding.
+            int instanceIndex = Action.Signature.IndexOf(ArgumentKind.Instance);
+            if (instanceIndex > -1) {
+                _args = ArrayUtils.RemoveAt(_args, instanceIndex + 1);
+            }
+
             GetArgumentNamesAndTypes(out argNames, out argTypes);
 
             Type[] bindingArgs = argTypes;
@@ -110,12 +119,14 @@ namespace Microsoft.Scripting.Actions {
             if (cand != null) {
                 // if we succeed make the target for the rule
                 MethodBase target = cand.Target.Method;
+                MethodInfo targetMethod = target as MethodInfo;
 
-                if (target is MethodInfo)
-                    target = CompilerHelpers.GetCallableMethod((MethodInfo)target);
+                if (targetMethod != null) {
+                    target = CompilerHelpers.GetCallableMethod(targetMethod);
+                }
 
                 if (!MakeActionOnCallRule(target)) {
-                    Expression[] exprargs = FinishTestForCandidate(testTypes, argTypes, cand);
+                    Expression[] exprargs = FinishTestForCandidate(testTypes, argTypes);
 
                     _rule.SetTarget(_rule.MakeReturn(
                         Binder,
@@ -131,7 +142,7 @@ namespace Microsoft.Scripting.Actions {
             return targets[0].IsConstructor ? targets[0].DeclaringType.Name : targets[0].Name;
         }
 
-        private Expression[] FinishTestForCandidate(Type[] testTypes, Type[] argTypes, MethodCandidate cand) {
+        private Expression[] FinishTestForCandidate(Type[] testTypes, Type[] argTypes) {
             Expression[] exprargs = MakeArgumentExpressions();
 
             if (_reversedOperator) {
@@ -165,7 +176,8 @@ namespace Microsoft.Scripting.Actions {
                                 Ast.Call(
                                     Ast.Convert(
                                         _rule.Parameters[i + 1],
-                                        typeof(IList<object>)),
+                                        typeof(IList<object>)
+                                    ),
                                     typeof(IList<object>).GetMethod("get_Item"),
                                     Ast.Constant(j)
                                 )
@@ -184,7 +196,13 @@ namespace Microsoft.Scripting.Actions {
                             if (strKey == null) continue;
 
                             Expression dictExpr = _rule.Parameters[_rule.Parameters.Length - 1];
-                            exprargs.Add(Ast.Call(dictExpr, typeof(IDictionary).GetMethod("get_Item"), Ast.Constant(strKey)));
+                            exprargs.Add(
+                                Ast.Call(
+                                    Ast.ConvertHelper(dictExpr, typeof(IDictionary)),
+                                    typeof(IDictionary).GetMethod("get_Item"),
+                                    Ast.Constant(strKey)
+                                )
+                            );
                         }
                         break;
                 }
@@ -221,14 +239,26 @@ namespace Microsoft.Scripting.Actions {
             Expression call = null;
             if (!Action.Signature.HasKeywordArgument()) {
                 if (Action.Signature.HasInstanceArgument() && typeof(ICallableWithThis).IsAssignableFrom(t)) {
-                    call = Ast.Call(_rule.Parameters[0], typeof(ICallableWithThis).GetMethod("Call"), GetICallableParameters(t, _rule));
+                    call = Ast.SimpleCallHelper(
+                        _rule.Parameters[0],
+                        typeof(ICallableWithThis).GetMethod("Call"),
+                        GetICallableParameters(t, _rule)
+                    );
                 } else {
-                    call = Ast.Call(_rule.Parameters[0], typeof(ICallableWithCodeContext).GetMethod("Call"), GetICallableParameters(t, _rule));
+                    call = Ast.SimpleCallHelper(
+                        _rule.Parameters[0],
+                        typeof(ICallableWithCodeContext).GetMethod("Call"),
+                        GetICallableParameters(t, _rule)
+                    );
                 }
             } else if (typeof(IFancyCallable).IsAssignableFrom(t)) {
-                call = Ast.Call(_rule.Parameters[0], typeof(IFancyCallable).GetMethod("Call"), GetICallableParameters(t, _rule));
+                call = Ast.SimpleCallHelper(
+                    _rule.Parameters[0],
+                    typeof(IFancyCallable).GetMethod("Call"),
+                    GetICallableParameters(t, _rule)
+                );
             } else {
-                _rule.SetTarget(_rule.MakeError(Binder, MakeICallableError(t)));
+                _rule.SetTarget(_rule.MakeError(MakeICallableError(t)));
                 return;
             }
 
@@ -264,10 +294,9 @@ namespace Microsoft.Scripting.Actions {
             Expression argsArray = Ast.NewArray(typeof(object[]), plainArgs.ToArray());
             if (splat != null) {
                 argsArray = Ast.Call(
-                    null,
                     typeof(RuntimeHelpers).GetMethod("GetCombinedParameters"),
                     argsArray,
-                    splat
+                    Ast.ConvertHelper(splat, typeof(object))
                 );
             }
 
@@ -285,7 +314,6 @@ namespace Microsoft.Scripting.Actions {
                     }
 
                     argsArray = Ast.Call(
-                        null,
                         typeof(RuntimeHelpers).GetMethod("GetCombinedParameters"),
                         argsArray,
                         Ast.NewArray(typeof(object[]), namedValues.ToArray())
@@ -301,10 +329,9 @@ namespace Microsoft.Scripting.Actions {
                     argsArray = Ast.Comma(
                         Ast.Assign(namesVar, names),
                         Ast.Call(
-                            null,
                             typeof(RuntimeHelpers).GetMethod("GetCombinedKeywordParameters"),
                             argsArray,
-                            kwSplat,
+                            Ast.ConvertHelper(kwSplat, typeof(IAttributesCollection)),
                             Ast.Read(namesVar)
                         )
                     );
@@ -481,7 +508,7 @@ namespace Microsoft.Scripting.Actions {
                 _test,
                 Ast.AndAlso(
                     Ast.TypeIs(_rule.Parameters[_rule.Parameters.Length - 1], typeof(IDictionary)),
-                    Ast.Call(null,
+                    Ast.Call(
                         typeof(RuntimeHelpers).GetMethod("CheckDictionaryMembers"),
                         Ast.Convert(_rule.Parameters[_rule.Parameters.Length - 1], typeof(IDictionary)),
                         _rule.AddTemplatedConstant(typeof(string[]), names)
@@ -506,7 +533,7 @@ namespace Microsoft.Scripting.Actions {
 
         protected virtual void MakeCannotCallRule(Type type) {
             _rule.SetTarget(
-                _rule.MakeError(Binder,
+                _rule.MakeError(
                     Ast.New(
                         typeof(ArgumentTypeException).GetConstructor(new Type[] { typeof(string) }),
                         Ast.Constant(type.Name + " is not callable")
@@ -584,6 +611,7 @@ namespace Microsoft.Scripting.Actions {
             return BinderType.Normal;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         protected object[] Arguments {
             get {
                 return _args;

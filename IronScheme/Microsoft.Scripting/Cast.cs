@@ -44,7 +44,7 @@ namespace Microsoft.Scripting {
                 return ExplicitCastToValueType(o, to);
             } else {
                 Type type = o.GetType();
-                if (to.IsAssignableFrom(type)) {
+                if (to.IsInstanceOfType(o) || to.IsAssignableFrom(type)) {
                     return o;
                 } else {
                     throw new InvalidCastException(String.Format("Cannot cast {0} to {1}", type.Name, to.Name));

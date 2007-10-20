@@ -57,6 +57,14 @@ namespace Microsoft.Scripting.Actions {
             return _kind == other._kind && _name == other._name;
         }
 
+        public static bool operator ==(ArgumentInfo left, ArgumentInfo right) {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ArgumentInfo left, ArgumentInfo right) {
+            return !left.Equals(right);
+        }
+
         public override int GetHashCode() {
             return _name.GetHashCode() ^ (int)_kind;
         }

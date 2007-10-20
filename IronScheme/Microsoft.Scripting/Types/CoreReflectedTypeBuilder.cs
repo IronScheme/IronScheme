@@ -538,7 +538,7 @@ namespace Microsoft.Scripting.Types {
             }
 
             public override Microsoft.Scripting.Ast.CodeBlock ParseSourceCode(CompilerContext context) {
-                throw new Exception("The method or operation is not implemented.");
+                throw new NotSupportedException();
             }
         }
 

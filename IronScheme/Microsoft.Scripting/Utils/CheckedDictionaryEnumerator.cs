@@ -87,7 +87,9 @@ namespace Microsoft.Scripting.Utils {
 
         #region IDisposable Members
 
-        public void Dispose() { }
+        public void Dispose() {
+            GC.SuppressFinalize(this);
+        }
 
         #endregion
 

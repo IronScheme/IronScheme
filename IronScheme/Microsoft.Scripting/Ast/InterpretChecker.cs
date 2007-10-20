@@ -1,17 +1,17 @@
-/* **********************************************************************************
+/* ****************************************************************************
  *
- * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Copyright (c) Microsoft Corporation. 
  *
- * This source code is subject to terms and conditions of the Shared Source License
- * for IronPython. A copy of the license can be found in the License.html file
- * at the root of this distribution. If you can not locate the Shared Source License
- * for IronPython, please send an email to dlr@microsoft.com.
- * By using this source code in any fashion, you are agreeing to be bound by
- * the terms of the Shared Source License for IronPython.
+ * This source code is subject to terms and conditions of the Microsoft Permissive License. A 
+ * copy of the license can be found in the License.html file at the root of this distribution. If 
+ * you cannot locate the  Microsoft Permissive License, please send an email to 
+ * dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
+ * by the terms of the Microsoft Permissive License.
  *
  * You must not remove this notice, or any other, from this software.
  *
- * **********************************************************************************/
+ *
+ * ***************************************************************************/
 
 using System.Diagnostics;
 
@@ -99,7 +99,7 @@ namespace Microsoft.Scripting.Ast {
             _voidExpressionsDepth--;
         }
 
-        private bool DisallowControlFlowInVoidExpression(Statement node) { 
+        private bool DisallowControlFlowInVoidExpression() { 
             if (_voidExpressionsDepth > 0) {
                 _hasUnsupportedNodes = true;
                 return false;
@@ -107,9 +107,9 @@ namespace Microsoft.Scripting.Ast {
             return true;
         }
         
-        public override bool Walk(ReturnStatement node) { return DisallowControlFlowInVoidExpression(node); }
-        public override bool Walk(ContinueStatement node) { return DisallowControlFlowInVoidExpression(node); }
-        public override bool Walk(BreakStatement node) { return DisallowControlFlowInVoidExpression(node); }
+        public override bool Walk(ReturnStatement node) { return DisallowControlFlowInVoidExpression(); }
+        public override bool Walk(ContinueStatement node) { return DisallowControlFlowInVoidExpression(); }
+        public override bool Walk(BreakStatement node) { return DisallowControlFlowInVoidExpression(); }
 
         //
         // Nodes that may take a long time to execute

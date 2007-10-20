@@ -22,7 +22,8 @@ namespace Microsoft.Scripting.Types {
     /// <summary>
     /// Marks a class in the assembly as being an extension type for another type.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple=true)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes")] // TODO: fix
+    [AttributeUsage(AttributeTargets.Assembly, Inherited = false, AllowMultiple = true)]
     public class ExtensionTypeAttribute : Attribute {
         private Type _extensionType;
         private Type _extends;

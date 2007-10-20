@@ -19,6 +19,7 @@ using System.Diagnostics;
 namespace Microsoft.Scripting.Generation {
     sealed class GlobalNamedStorage : Storage {
         private readonly SymbolId _name;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")] // TODO: fix
         private readonly Type _type;
 
         internal GlobalNamedStorage(SymbolId name, Type type) {

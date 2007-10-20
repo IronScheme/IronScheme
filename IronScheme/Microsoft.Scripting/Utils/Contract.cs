@@ -23,7 +23,7 @@ namespace Microsoft.Scripting.Utils {
 
         public static void Requires(bool precondition) {
             if (!precondition) {
-                throw new ArgumentException();
+                throw new ArgumentException("Method precondition violated");
             }
         }
 

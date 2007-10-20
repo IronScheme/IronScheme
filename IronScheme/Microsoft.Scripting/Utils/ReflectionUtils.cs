@@ -36,9 +36,9 @@ namespace Microsoft.Scripting.Utils {
         public static bool IsNested(Type t) { return t.IsNested; }
 #endif
 
-#if DEBUG
         public static StringBuilder FormatSignature(StringBuilder result, MethodBase method) {
-            Assert.NotNull(result, method);
+            Contract.RequiresNotNull(result, "result");
+            Contract.RequiresNotNull(method, "method");
 
             MethodInfo methodInfo = method as MethodInfo;
             if (methodInfo != null) {
@@ -116,8 +116,6 @@ namespace Microsoft.Scripting.Utils {
             }
             return result;
         }
-
-#endif
 
         /// <exception cref="InvalidImplementationException">The type failed to instantiate.</exception>
         internal static T CreateInstance<T>(Type actualType, params object[] args) {
@@ -205,9 +203,7 @@ namespace Microsoft.Scripting.Utils {
             Contract.RequiresNotNull(delegateType, "delegateType");
 
             MethodInfo invokeMethod = delegateType.GetMethod("Invoke");
-            if (invokeMethod == null) {
-                throw new ArgumentException();
-            }
+            Contract.Requires(invokeMethod != null, "delegateType", "Invalid delegate type (Invoke method not found).");
 
             parameterInfos = invokeMethod.GetParameters();
             returnInfo = invokeMethod.ReturnParameter;

@@ -19,19 +19,22 @@ using System.Text;
 
 namespace Microsoft.Scripting {
     public sealed class KwCallInfo {
-        private object[] _args;
-        private string[] _names;
+        private readonly object[] _args;
+        private readonly string[] _names;
+
         public KwCallInfo(object[] args, string[] names) {
             _args = args;
             _names = names;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public object[] Arguments {
             get {
                 return _args;
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public string[] Names {
             get {
                 return _names;

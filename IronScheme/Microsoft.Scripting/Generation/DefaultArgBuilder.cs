@@ -40,6 +40,7 @@ namespace Microsoft.Scripting.Generation {
             get { return 2; }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public override object Build(CodeContext context, object[] args) {
             Type argType = _argumentType.IsByRef ? _argumentType.GetElementType() : _argumentType;
 

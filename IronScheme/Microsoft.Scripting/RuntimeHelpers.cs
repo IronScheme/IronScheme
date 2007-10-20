@@ -37,24 +37,33 @@ namespace Microsoft.Scripting {
     public static partial class RuntimeHelpers {
         private const int MIN_CACHE = -100;
         private const int MAX_CACHE = 1000;
-        private static readonly object[] cache = new object[MAX_CACHE - MIN_CACHE];
-        private static readonly string[] chars = new string[255];
+        private static readonly object[] cache = MakeCache();
+        private static readonly string[] chars = MakeSingleCharStrings();
 
         /// <summary> Singleton boxed instance of True.  We should never box additional instances. </summary>
         public static readonly object True = true;
         /// <summary> Singleton boxed instance of False  We should never box additional instances. </summary>
         public static readonly object False = false;
 
-        static RuntimeHelpers() {
-            for (int i = 0; i < (MAX_CACHE - MIN_CACHE); i++) {
-                cache[i] = (object)(i + MIN_CACHE);
+        private static object[] MakeCache() {
+            object[] result = new object[MAX_CACHE - MIN_CACHE];
+
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = (object)(i + MIN_CACHE);
             }
 
-            for (char ch = (char)0; ch < 255; ch++) {
-                chars[ch] = new string(ch, 1);
-            }
+            return result;
         }
 
+        private static string[] MakeSingleCharStrings() {
+            string[] result = new string[255];
+
+            for (char ch = (char)0; ch < result.Length; ch++) {
+                result[ch] = new string(ch, 1);
+            }
+
+            return result;
+        }
 
         public static string CharToString(char ch) {
             if (ch < 255) return chars[ch];
@@ -478,6 +487,10 @@ namespace Microsoft.Scripting {
             }
 
             throw new ArgumentTypeException(message.ToString());
+        }
+
+        public static object ReadOnlyAssignError(bool field, string fieldName) {
+            throw SimpleAttributeError(String.Format("{0} {1} is read-only", field ? "Field" : "Property", fieldName));
         }
     }
 }

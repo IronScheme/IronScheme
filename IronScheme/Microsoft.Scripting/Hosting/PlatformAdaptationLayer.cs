@@ -63,7 +63,6 @@ namespace Microsoft.Scripting.Hosting {
             foreach (string asm in new string[] {
                 "Microsoft.Scripting",
                 "Microsoft.Scripting.Silverlight",
-                "System.Silverlight.Scripting",
                 "IronPython",
                 "IronPython.Modules",
                 "Microsoft.JScript.Compiler",
@@ -93,6 +92,7 @@ namespace Microsoft.Scripting.Hosting {
 #endif
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
         public virtual Assembly LoadAssemblyFromPath(string path) {
 #if !SILVERLIGHT
             return Assembly.LoadFile(path);

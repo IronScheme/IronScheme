@@ -154,6 +154,7 @@ namespace Microsoft.Scripting {
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         protected SymbolId[] Extra {
             get { return _extra; }
             set { _extra = value; }

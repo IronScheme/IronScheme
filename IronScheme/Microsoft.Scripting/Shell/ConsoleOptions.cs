@@ -90,6 +90,7 @@ namespace Microsoft.Scripting.Shell {
             set { _autoIndentSize = value; }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public string[] RemainingArgs {
             get { return _remainingArgs; }
             set { _remainingArgs = value; }

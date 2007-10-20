@@ -269,7 +269,7 @@ namespace Microsoft.Scripting.Types {
                 lock (_subtypes) return _subtypes.ToArray();
             }
         }
-        
+
         /// <summary>
         /// Gets a description of where this type from.  This may include if it's a system type,
         /// language specific information, or other information.  This should be used for displaying
@@ -316,7 +316,7 @@ namespace Microsoft.Scripting.Types {
 
                     UpdateVersion();
                     _bases = newBases;
-                    
+
                 }
             }
         }
@@ -540,7 +540,7 @@ namespace Microsoft.Scripting.Types {
                     } else {
                         rule = new StandardRule<T>();
                         rule.SetTarget(
-                           rule.MakeError(context.LanguageContext.Binder,
+                           rule.MakeError(
                                Ast.New(
                                    typeof(ArgumentTypeException).GetConstructor(new Type[] { typeof(string) }),
                                    Ast.Constant("Cannot create instances of " + Name)
@@ -554,10 +554,11 @@ namespace Microsoft.Scripting.Types {
                     // TODO: Pull in the Python create logic for this when DynamicType moves out of MS.Scripting, this provides
                     // a minimal level of interop until then.
                     StandardRule<T> rule = new StandardRule<T>();
-                    Expression call = Ast.Call(
-                        Ast.Convert(rule.Parameters[0], typeof(IConstructorWithCodeContext)), 
-                        typeof(IConstructorWithCodeContext).GetMethod("Construct"), 
-                        ArrayUtils.Insert((Expression)Ast.CodeContext(), ArrayUtils.RemoveFirst(rule.Parameters)));
+                    Expression call = Ast.ComplexCallHelper(
+                        Ast.Convert(rule.Parameters[0], typeof(IConstructorWithCodeContext)),
+                        typeof(IConstructorWithCodeContext).GetMethod("Construct"),
+                        ArrayUtils.Insert((Expression)Ast.CodeContext(), ArrayUtils.RemoveFirst(rule.Parameters))
+                    );
 
                     rule.SetTarget(rule.MakeReturn(context.LanguageContext.Binder, call));
                     rule.SetTest(Ast.Equal(rule.Parameters[0], Ast.RuntimeConstant(args[0])));
@@ -569,12 +570,17 @@ namespace Microsoft.Scripting.Types {
 
         #endregion
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates")]
         public static implicit operator Type(DynamicType self) {
             return self.UnderlyingSystemType;
         }
 
         public static implicit operator TypeTracker(DynamicType self) {
-            return ReflectionCache.GetTypeTracker(self.UnderlyingSystemType);
+            return self.ToTypeTracker();
+        }
+
+        public TypeTracker ToTypeTracker() {
+            return ReflectionCache.GetTypeTracker(UnderlyingSystemType);
         }
     }
 }

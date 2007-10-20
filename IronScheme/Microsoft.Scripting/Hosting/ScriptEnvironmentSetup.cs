@@ -23,8 +23,10 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Hosting {
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes")] // TODO: fix
     [Serializable]
     public struct LanguageProviderSetup {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")] // TODO: fix
         public readonly string[] Names;
         public readonly string Assembly;
         public readonly string Type;
@@ -42,7 +44,8 @@ namespace Microsoft.Scripting.Hosting {
         private LanguageProviderSetup[] _languageProviders;
         private Type _hostType;
         private Type _palType;
-        
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         public LanguageProviderSetup[] LanguageProviders {
             get { 
                 return _languageProviders; 
@@ -82,7 +85,9 @@ namespace Microsoft.Scripting.Hosting {
         }
 
 #if !SILVERLIGHT
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2235:MarkAllNonSerializableFields")] // MBRO
         private RemoteScriptHost _remoteHost;
+
         private Type _localHostType;
         
         internal RemoteScriptHost RemoteHost {

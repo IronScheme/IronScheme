@@ -39,6 +39,7 @@ namespace Microsoft.Scripting.Utils {
         /// <summary>
         /// Volatile field. Written to when we need to do a memory barrier on Silverlight.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private static volatile int _memoryBarrier;
 
         public static void MemoryBarrier() {

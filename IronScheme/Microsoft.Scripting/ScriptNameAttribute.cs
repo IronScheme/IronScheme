@@ -23,6 +23,7 @@ namespace Microsoft.Scripting {
     /// be exposed to ScriptCode.  Languages can derive from ScriptName and override the
     /// Name and Context properties to provide custom behavior.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1813:AvoidUnsealedAttributes")] // TODO: fix
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
     public class ScriptNameAttribute : Attribute {
         private string _name;
