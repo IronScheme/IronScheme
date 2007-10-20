@@ -50,18 +50,6 @@ namespace IronScheme.Runtime
       this.cdr = cdr;
     }
 
-    public Cons SetCar(object car)
-    {
-      this.car = car;
-      return this;
-    }
-
-    public Cons SetCdr(object cdr)
-    {
-      this.cdr = cdr;
-      return this;
-    }
-
     public static Cons FromList(IEnumerable list)
     {
       if (list == null)
@@ -106,14 +94,9 @@ namespace IronScheme.Runtime
       }
     }
 
-    public bool IsPair
+    internal bool IsProper
     {
-      get { return !IsProper; }
-    }
-
-    public bool IsProper
-    {
-      get { return cdr is Cons; }
+      get { return cdr == null || (cdr is Cons && ((Cons)cdr).IsProper); }
     }
 
     public override string ToString()

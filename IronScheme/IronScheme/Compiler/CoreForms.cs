@@ -403,6 +403,7 @@ namespace IronScheme.Compiler
       List<int> splices = new List<int>();
       List<Expression> e = new List<Expression>();
       bool proper = true;
+
       while (c != null)
       {
         if (nestinglevel == 1 && c.Car is Cons && Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
@@ -441,12 +442,27 @@ namespace IronScheme.Compiler
         }
         r = Ast.Call(null, append, e.ToArray());
       }
+
       if (!proper)
       {
         r = Ast.Call(null, toimproper, r);
       }
+
       return r;
     }
+
+    static string GetFullname(SymbolId id, CodeBlock parent)
+    {
+      if (parent == null || parent.IsGlobal)
+      {
+        return SymbolTable.IdToString(id);
+      }
+      else
+      {
+        return parent.Name + "::" + SymbolTable.IdToString(id);
+      }
+    }
+
 
     static bool AssignParameters(CodeBlock cb, object arg)
     {
@@ -474,7 +490,7 @@ namespace IronScheme.Compiler
           }
         }
       }
-      else
+      else if (arg != null) // empty 
       {
         SymbolId an = (SymbolId)arg;
         isrest = true;
@@ -650,7 +666,7 @@ namespace IronScheme.Compiler
     // macro
     public static Expression Macro(object args, CodeBlock c)
     {
-      CodeBlock cb = Ast.CodeBlock(NameHint);
+      CodeBlock cb = Ast.CodeBlock(GetFullname(NameHint, c));
       cb.Parent = c;
 
       object arg = Builtins.First(args);
@@ -685,7 +701,7 @@ namespace IronScheme.Compiler
     // lambda
     public static Expression Lambda(object args, CodeBlock c)
     {
-      CodeBlock cb = Ast.CodeBlock(NameHint);
+      CodeBlock cb = Ast.CodeBlock(GetFullname(NameHint, c));
       cb.Parent = c;
 
       object arg = Builtins.First(args);
@@ -735,7 +751,12 @@ namespace IronScheme.Compiler
         e = Ast.Null();
       }
 
-      Expression testexp = Ast.Call(null, istrue, GetAst(test,cb));
+      Expression testexp = GetAst(test,cb);
+
+      if (testexp.Type != typeof(bool))
+      {
+        testexp = Ast.Call(null, istrue, testexp);
+      }
 
       return Ast.Condition(testexp, GetAst(trueexp, cb), e, true);
     }

@@ -1,0 +1,11 @@
+
+TODO
+====
+
+- Cons => syntax map
+- lexical scope for macro's
+- lex/parse errors => ErrorSink
+- numbers
+- strings
+- vectors
+

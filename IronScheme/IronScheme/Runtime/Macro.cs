@@ -180,23 +180,29 @@ namespace IronScheme.Runtime
       public override object Invoke(CodeContext context, object arg0)
       {
         object[] args = new object[ParamCount];
-        int i = 0;
-        Cons c = arg0 as Cons;
-        while (c != null)
+        if (ParamCount == 1)
         {
-          args[i++] = c.Car;
-          if (i == ParamCount - 1)
-          {
-            args[i++] = c.Cdr;
-            break;
-          }
-          c = c.Cdr as Cons;
+          args[0] = arg0;
         }
-
-
-        if (i != ParamCount)
+        else
         {
-          throw new Exception("bad paramcount");
+          int i = 0;
+          Cons c = arg0 as Cons;
+          while (c != null)
+          {
+            args[i++] = c.Car;
+            if (i == ParamCount - 1)
+            {
+              args[i++] = c.Cdr;
+              break;
+            }
+            c = c.Cdr as Cons;
+          }
+
+          if (i != ParamCount)
+          {
+            throw new Exception("bad paramcount");
+          }
         }
 
         return Call(context, args);

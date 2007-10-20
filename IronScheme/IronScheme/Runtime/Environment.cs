@@ -94,11 +94,11 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Eval(CodeContext cc, object expr)
     {
-      IEnumerable list = expr as IEnumerable;
+      Cons list = expr as Cons;
       if (list != null)
       {
         // we could modify the parser to accept this cons perhaps? this is easy and cheap for now
-        string exprstr = Runtime.Cons.FromList(list).ToString();
+        string exprstr = WriteFormat(list);
         return EvalString(cc, exprstr);
       }
       if (expr is SymbolId)
