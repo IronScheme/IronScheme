@@ -82,11 +82,19 @@ namespace IronScheme.Runtime
     [Builtin("list?")]
     public static bool IsList(object arg1)
     {
-      if (arg1 is Cons && !(((Cons)arg1).Cdr is Cons))
+      if (arg1 == null)
+      {
+        return true;
+      }
+      Cons c = arg1 as Cons;
+      if (c == null)
       {
         return false;
       }
-      return arg1 is Cons;
+      else
+      {
+        return c.IsProper;
+      }
     }
 
     [Builtin("null?")]
@@ -147,31 +155,21 @@ namespace IronScheme.Runtime
     [Builtin]
     public static int Length(object args)
     {
-      Requires<Cons>(args);
-      if (args is string)
+      Cons c = Requires<Runtime.Cons>(args);
+      int length = 0;
+
+      if (c != null)
       {
-        return ((string)args).Length;
-      }
-      else if (args is Array)
-      {
-        return ((Array)args).Length;
-      }
-      else if (args is ICollection)
-      {
-        return ((ICollection)args).Count;
-      }
-      else
-      {
-        int length = 0;
-        if (args != null)
+        // this does add some overhead
+        RequiresCondition(c.IsProper, "must be a properlist");
+        while (c != null)
         {
-          foreach (object var in args as IEnumerable)
-          {
-            length++;
-          }
+          length++;
+          c = c.Cdr as Cons;
         }
-        return length;
       }
+
+      return length;
     }
     
     [Builtin]
@@ -207,17 +205,20 @@ namespace IronScheme.Runtime
 
     static object AssocHelper(Pred pred, object obj, object list)
     {
-      IEnumerable e = Requires<IEnumerable>(list);
-      foreach (object o in e)
+      Cons e = Requires<Runtime.Cons>(list);
+
+      if (e != null)
       {
-        IEnumerable asslist = o as IEnumerable;
-        foreach (object assvar in asslist)
+        // this does add some overhead
+        RequiresCondition(e.IsProper, "must be a properlist");
+        while (e != null)
         {
-          if (pred(obj, assvar))
+          Cons ass = e.Car as Cons;
+          if (pred(obj, ass.Car))
           {
-            return asslist;
+            return ass;
           }
-          break; // not found
+          e = e.Cdr as Cons;
         }
       }
       return false;
@@ -243,18 +244,21 @@ namespace IronScheme.Runtime
 
     static object MemberHelper(Pred pred, object obj, object list)
     {
-      Cons c = list as Cons;
+      // must be properlist
+      Cons c = Requires<Runtime.Cons>(list);
+
       if (c != null)
       {
+        // this does add some overhead
+        RequiresCondition(c.IsProper, "must be a properlist");
         while (c != null)
         {
-          if (pred(Car(c), obj))
+          if (pred(c.Car, obj))
           {
             return c;
           }
-          c = Cdr(c) as Cons;
+          c = c.Cdr as Cons;
         }
-        return false;
       }
       return false;
     }
@@ -283,7 +287,7 @@ namespace IronScheme.Runtime
     public static object SetCar(object list, object value)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(list);
-      c.SetCar(value);
+      c.Car = value;
       return Unspecified;
     }
 
@@ -291,7 +295,7 @@ namespace IronScheme.Runtime
     public static object SetCdr(object list, object value)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(list);
-      c.SetCdr(value);
+      c.Cdr = value;
       return Unspecified;
     }
 
@@ -466,99 +470,99 @@ namespace IronScheme.Runtime
     [Builtin]
     public static Runtime.Cons Rest(object args)
     {
-      Requires<Runtime.Cons>(args);
-      return Cdr(args) as Runtime.Cons;
+      Cons c = RequiresNotNull<Runtime.Cons>(args);
+      return c.Cdr as Runtime.Cons;
     }
 
 
     [Builtin]
     public static object Car(object args)
     {
-      Requires<Runtime.Cons>(args);
-      if (args == null)
-      {
-        return null;
-      }
-      if (args is Cons)
-      {
-        return ((Cons)args).Car;
-      }
-      return null;
+      Cons c = RequiresNotNull<Runtime.Cons>(args);
+      return c.Car;
     }
 
     [Builtin]
     public static object Cdr(object args)
     {
-      Requires<Runtime.Cons>(args);
-      if (args == null)
-      {
-        return null;
-      }
-      if (args is Cons)
-      {
-        return ((Cons)args).Cdr;
-      }
-      return null;
+      Cons c = RequiresNotNull<Runtime.Cons>(args);
+      return c.Cdr;
     }
 
-    //[Builtin]
-    //public static IEnumerable Reverse(object lst)
-    //{
-    //  IEnumerable list = Requires<IEnumerable>(lst);
-    //  if (list is Cons)
-    //  {
-    //    return ((Cons)list).Reverse();
-    //  }
-    //  else
-    //  {
-    //    ArrayList rev = new ArrayList();
-    //    foreach (object var in list)
-    //    {
-    //      rev.Add(var);
-    //    }
-    //    rev.Reverse();
-    //    return rev;
-    //  }
-    //}
+    [Builtin]
+    public static Cons Reverse(object lst)
+    {
+      Cons c = Requires<Runtime.Cons>(lst);
+      Cons list = null;
+
+      if (c != null)
+      {
+        // this does add some overhead
+        RequiresCondition(c.IsProper, "must be a properlist");
+        while (c != null)
+        {
+          list = new Cons(c.Car, list);
+          c = c.Cdr as Cons;
+        }
+      }
+      return list;
+    }
+
+
+    [Builtin("list-tail")]
+    public static object ListTail(object lst, object index)
+    {
+      Cons list = RequiresNotNull<Runtime.Cons>(lst);
+      int i = RequiresNotNull<int>(index);
+      object c = list;
+
+      while (c != null)
+      {
+        if (i-- == 0)
+        {
+          return c;
+        }
+
+        c = ((Cons) c).Cdr;
+      }
+
+      throw new IndexOutOfRangeException();
+    }
 
 
 
 
- 
+    [Builtin("list-ref")]
+    public static object ListRef(object lst, object index)
+    {
+      Cons list = RequiresNotNull<Runtime.Cons>(lst);
+      int i = RequiresNotNull<int>(index);
 
-    //[Builtin("list-ref")]
-    //public static object ListRef(object lst, object index)
-    //{
-    //  IEnumerable list =  RequiresNotNull<IEnumerable>(lst);
-    //  int i =             RequiresNotNull<int>(index);
+      while (list != null)
+      {
+        if (i-- == 0)
+        {
+          return list.Car;
+        }
+        list = list.Cdr as Cons;
+      }
 
-    //  if (list is IList)
-    //  {
-    //    return ((IList)list)[i];
-    //  }
-    //  else
-    //  {
-    //    int j = 0;
-    //    foreach (object o in list)
-    //    {
-    //      if (j == i)
-    //      {
-    //        return o;
-    //      }
-    //      j++;
-    //    }
-    //    throw new IndexOutOfRangeException();
-    //  }
-    //}
+      throw new IndexOutOfRangeException();
+    }
 
     //The resulting list is always newly allocated, except that it shares structure with the last list argument. 
     //The last argument may actually be any object; an improper list results if the last argument is not a proper list. 
     [Builtin]
-    public static Cons Append(params object[] args)
+    public static object Append(params object[] args)
     {
       if (args.Length == 0)
       {
         return null;
+      }
+      // some fast rules
+      if (args.Length == 1)
+      {
+        return args[0];
       }
 
       bool proper = true;

@@ -148,6 +148,14 @@ namespace IronScheme.Runtime
     #endregion
 
 
+    static void RequiresCondition(bool condition, string message)
+    {
+      if (!condition)
+      {
+        throw new Exception(message);
+      }
+    }
+
     static object RequiresNotNull(object obj)
     {
       if (obj == null)

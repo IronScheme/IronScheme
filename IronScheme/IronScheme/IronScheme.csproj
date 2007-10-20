@@ -60,7 +60,7 @@
     <Compile Include="Runtime\Closure.cs" />
     <Compile Include="Runtime\Cons.cs" />
     <Compile Include="Runtime\Control.cs" />
-    <Content Include="Runtime\Environment.cs" />
+    <Compile Include="Runtime\Environment.cs" />
     <Compile Include="Runtime\Equality.cs">
       <SubType>Code</SubType>
     </Compile>

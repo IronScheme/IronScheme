@@ -208,23 +208,25 @@ namespace IronScheme.Runtime
 
 
     [Builtin("for-each")]
-    public static void ForEach(CodeContext cc, object fn, Cons list)
+    public static object ForEach(CodeContext cc, object fn, Cons list)
     {
       ArrayList returns = new ArrayList();
       //foreach (object obj in list)
       //{
       //  returns.Add(Apply(cc, fn, (IEnumerable) new object[] { obj }));
       //}
+      return Unspecified;
     }
 
     [Builtin("for-each")]
-    public static void ForEach(CodeContext cc, object fn, params Cons[] lists)
+    public static object ForEach(CodeContext cc, object fn, params Cons[] lists)
     {
       ArrayList returns = new ArrayList();
       //foreach (Cons obj in new MultiEnumerable(lists))
       //{
       //  returns.Add(Apply(cc, fn, obj));
       //}
+      return Unspecified;
     }
 
   }
