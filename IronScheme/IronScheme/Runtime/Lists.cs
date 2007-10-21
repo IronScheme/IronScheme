@@ -106,31 +106,31 @@ namespace IronScheme.Runtime
     [Builtin]
     public static Cons List(object arg1)
     {
-      return Runtime.Cons.FromArray(arg1);
+      return new Cons(arg1);
     }
 
     [Builtin]
     public static Cons List(object arg1, object arg2)
     {
-      return Runtime.Cons.FromArray(arg1, arg2);
+      return new Cons(arg1, new Cons(arg2));
     }
 
     [Builtin]
     public static Cons List(object arg1, object arg2, object arg3)
     {
-      return Runtime.Cons.FromArray(arg1, arg2, arg3);
+      return new Cons(arg1, new Cons(arg2, new Cons(arg3)));
     }
 
     [Builtin]
     public static Cons List(object arg1, object arg2, object arg3, object arg4)
     {
-      return Runtime.Cons.FromArray(arg1, arg2, arg3, arg4);
+      return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4))));
     }
 
     [Builtin]
     public static Cons List(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
-      return Runtime.Cons.FromArray(arg1, arg2, arg3, arg4, arg5);
+      return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4, new Cons(arg5)))));
     }
 
 

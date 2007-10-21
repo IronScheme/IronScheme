@@ -5,7 +5,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  public class Promise
+  public sealed class Promise
   {
     static readonly object uninitialized = new object();
     Delegate target;

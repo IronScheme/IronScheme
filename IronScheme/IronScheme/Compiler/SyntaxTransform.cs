@@ -22,6 +22,8 @@ namespace IronScheme.Compiler
 {
   static class SyntaxTransform
   {
+
+
     public static Cons Transform(Cons input)
     {
       Cons c = input;
@@ -40,57 +42,30 @@ namespace IronScheme.Compiler
 
     public static object Transform(object input)
     {
-      //ExpressionList exprlist = input as ExpressionList;
-
-      //if (exprlist != null)
+      //Cons c = input as Cons;
+      //if (c != null && Builtins.IsSymbol(c.Car))
       //{
-      //  if (exprlist.Count == 2 && exprlist[0] is Symbol)
-      //  {
-      //    Symbol s = exprlist[0] as Symbol;
+      //  SymbolId s = (SymbolId)c.Car;
 
-      //    switch (s.Name)
-      //    {
-      //      case "quote":
-      //        return new Quote(Transform(exprlist[1]));
-      //      case "quasiquote":
-      //        return new Quasiquote(Transform(exprlist[1]));
-      //      case "unquote":
-      //        return new Unquote(Transform(exprlist[1]));
-      //      case "unquote-splicing":
-      //        return new UnquoteSplicing(Transform(exprlist[1]));
-
-      //    }
-      //  }
-      //  if (exprlist.Count > 0 && exprlist[0] is Symbol)
+      //  object value;
+      //  if (Generator.Compiler.Scope.TryLookupName(s, out value))
       //  {
-      //    object value;
-      //    if (Expression.Compiler.Scope.TryLookupName(SymbolTable.StringToId(((Symbol)exprlist[0]).Name), out value))
+      //    if (value is Runtime.Macro)
       //    {
-      //      if (value is Runtime.Macro)
+      //      Debug.WriteLine(c, "macro:in ");
+
+      //      Runtime.Macro m = value as Runtime.Macro;
+      //      object result = m.Invoke(Generator.Compiler, c.Cdr);
+      //      Debug.WriteLine(result, "macro:out");
+
+      //      if (result == null)
       //      {
-      //        Debug.WriteLine(exprlist, "macro:input");
-              
-      //        Runtime.Macro m = value as Runtime.Macro;
-      //        object result = m.Call(Expression.Compiler, new List<Expression>(exprlist.Rest()).ToArray());
-
-      //        Debug.WriteLine(result, "macro:output");
-
-      //        if (result == null)
-      //        {
-      //          Debugger.Break();
-      //        }
-              
-      //        // remember to take it thru transform again
-      //        Expression r = IronLispLanguageContext.ReadExpressionString(result.ToString());
-      //        return r;
+      //        Debugger.Break();
       //      }
+
+      //      return Transform(result);
       //    }
       //  }
-      //  return Transform(exprlist);
-      //}
-      //else
-      //{
-      //  return input;
       //}
       return input;
     }

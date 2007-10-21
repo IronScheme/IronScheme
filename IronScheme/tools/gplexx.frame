@@ -9,6 +9,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using Microsoft.Scripting;
 #if !STANDALONE
 using gppg;
 #endif

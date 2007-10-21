@@ -11,16 +11,10 @@
 // -			added 128bit comparison in these cases only
 
 using System;
-using System.Security.Permissions;
-using System.Runtime.InteropServices;
 using System.Globalization;
 
 
-[assembly:CLSCompliant(true)]
-[assembly:SecurityPermission(SecurityAction.RequestMinimum, UnmanagedCode=true)]
-[assembly:ComVisible(false)]
-
-namespace FractionalNumbers
+namespace IronScheme.Runtime
 {
 	/// <summary>
 	/// An implementation of rational (fractional) numbers.
@@ -283,7 +277,6 @@ namespace FractionalNumbers
 		/// <param name="AB"></param>
 		/// <param name="CD"></param>
 		/// <returns></returns>
-		[method:CLSCompliant(false)]
 		internal UInt32[] UMult128(UInt64 ab, UInt64 cd)
 		{
 			UInt64 a = ab >> 32;
@@ -314,7 +307,6 @@ namespace FractionalNumbers
 		/// <param name="first"></param>
 		/// <param name="second"></param>
 		/// <returns></returns>
-		[method:CLSCompliant(false)]
 		internal Boolean Less128(UInt32[] first, UInt32[] second)
 		{
 			for (int i = 0; i < 4; i++)

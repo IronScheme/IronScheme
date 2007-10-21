@@ -45,6 +45,11 @@ namespace IronScheme.Hosting
       {
         return string.Format("error: {0}", exception.Message);
       }
+      if (exception is SyntaxErrorException)
+      {
+        SyntaxErrorException se = (SyntaxErrorException)exception;
+        return string.Format("{0} error: {1} at ({2}:{3})", se.ErrorCode == 2 ? "lexer" : "parser", se.Message, se.Line, se.Column);
+      }
       return base.FormatException(exception);
     }
 
@@ -86,6 +91,20 @@ namespace IronScheme.Hosting
     internal CodeContext CreateContext(ModuleContext mc)
     {
       return new CodeContext(new Scope(), LanguageContext, mc);
+    }
+
+    public override Microsoft.Scripting.Hosting.ErrorSink GetCompilerErrorSink()
+    {
+      return new ErrorSink();
+    }
+
+    class ErrorSink : Microsoft.Scripting.Hosting.ErrorSink
+    {
+      public override void Add(SourceUnit sourceUnit, string message, SourceSpan span, int errorCode, Severity severity)
+      {
+        base.Add(sourceUnit, message, span, errorCode, severity);
+        throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
+      }
     }
   }
 }
