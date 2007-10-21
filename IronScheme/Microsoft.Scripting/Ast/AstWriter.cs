@@ -112,7 +112,10 @@ namespace Microsoft.Scripting.Ast {
             if (ScriptDomainManager.Options.ShowASTs) {
                 AstWriter.ForceDump(node, descr, System.Console.Out);
             } else if (ScriptDomainManager.Options.DumpASTs) {
-                AstWriter.ForceDump(node, descr, new StreamWriter(FixPath(descr) + ".ast", true));
+              using (TextWriter w = new StreamWriter(FixPath(descr) + ".ast", descr == null))
+              {
+                AstWriter.ForceDump(node, descr, w);
+              }
             }
         }
 
@@ -138,6 +141,10 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private static string FixPath(string path) {
+          if (path == null)
+          {
+            return "REPL";
+          }
 #if !SILVERLIGHT // GetInvalidFileNameChars does not exist in CoreCLR
             char[] invalid = System.IO.Path.GetInvalidFileNameChars();
 

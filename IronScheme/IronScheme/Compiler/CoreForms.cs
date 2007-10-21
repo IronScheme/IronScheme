@@ -10,6 +10,7 @@ using Microsoft.Scripting.Actions;
 using System.Reflection;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
@@ -43,6 +44,7 @@ namespace IronScheme.Compiler
       Add("define", Define);
       Add("macro", Macro);
       Add("quasiquote", Quasiquote);
+      Add("time", Time);
     
 
       IronSchemeScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
@@ -80,7 +82,7 @@ namespace IronScheme.Compiler
 
     readonly static CodeContext CC;
 
-    internal static CodeContext Compiler
+    public static CodeContext Compiler
     {
       get { return CC; }
     }
@@ -345,6 +347,7 @@ namespace IronScheme.Compiler
       while (c != null)
       {
         Expression e = GetAst(c.Car, cb);
+        Statement s = null;
         if (c.Cdr == null)
         {
           if (allowtailcall)
@@ -359,12 +362,19 @@ namespace IronScheme.Compiler
             }
           }
 
-          stmts.Add(Ast.Return(e));
+          s = Ast.Return(e);
         }
         else
         {
-          stmts.Add(Ast.Statement(e));
+          s = Ast.Statement(e);
         }
+
+        if (Parser.sourcemap.ContainsKey(c.Car as Cons))
+        {
+          s.SetLoc(Parser.sourcemap[c.Car as Cons]);
+        }
+
+        stmts.Add(s);
         c = c.Cdr as Cons;
       }
 
@@ -429,7 +439,9 @@ namespace IronScheme.Compiler
 
       if (splices.Count == 0)
       {
-        r = Ast.ComplexCallHelper(list, e.ToArray());
+        Expression[] aa = e.ToArray();
+        MethodInfo lm = MakeList(aa);
+        r = Ast.ComplexCallHelper(lm, aa);
       }
       else
       {
@@ -506,13 +518,15 @@ namespace IronScheme.Compiler
     
     static SymbolId namehint = SymbolId.Invalid;
 
+    readonly static SymbolId Anonymous = SymbolTable.StringToId("anon");
+
     public static SymbolId NameHint
     {
       get
       {
         if (namehint == SymbolId.Invalid)
         {
-          return SymbolId.Empty;
+          return Anonymous;
         }
         return namehint;
       }
@@ -526,9 +540,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (nestinglevel == 1 &&
-            Builtins.IsSymbol(c.Car) &&
-            Builtins.IsEqual(c.Car, unquote))
+        if (nestinglevel == 1 && Builtins.IsEqual(c.Car, unquote))
         {
           return GetAst(Builtins.Second(c), cb);
         }
@@ -562,10 +574,50 @@ namespace IronScheme.Compiler
             Runtime.Macro macro = m as Runtime.Macro;
             if (macro != null)
             {
+              Debug.WriteLine(c, "macro::in ");
               object result = macro.Invoke(Compiler, c.Cdr);
+              Debug.WriteLine(result, "macro::out");
+              if (result is Cons && Parser.sourcemap.ContainsKey(c))
+              {
+                Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
+              }
               return GetAst(result, cb);
             }
           }
+
+          //if (f == SymbolTable.StringToId("macro-expand1"))
+          //{
+          //  args = Builtins.Cadr(args);
+          //  f = (SymbolId)Builtins.First(args); 
+
+          //  if (Compiler.Scope.TryLookupName(f, out m))
+          //  {
+          //    Runtime.Macro macro = m as Runtime.Macro;
+          //    if (macro != null)
+          //    {
+          //      object result = macro.Invoke(Compiler, c.Cdr);
+          //      result = new Cons(quote, new Cons(result));
+          //      return GetAst(result, cb);
+          //    }
+          //  }
+          //}
+
+          //if (f == SymbolTable.StringToId("macro-expand"))
+          //{
+          //  args = Builtins.Cadr(args);
+          //  f = (SymbolId)Builtins.First(args);
+
+          //  if (Compiler.Scope.TryLookupName(f, out m))
+          //  {
+          //    Runtime.Macro macro = m as Runtime.Macro;
+          //    if (macro != null)
+          //    {
+          //      object result = macro.Invoke(Compiler, c.Cdr);
+          //      Expression r = GetAst(result, cb);
+          //      return r;
+          //    }
+          //  }
+          //}
 
           GeneratorHandler gh;
           if (generators.TryGetValue(f, out gh))
@@ -627,6 +679,8 @@ namespace IronScheme.Compiler
 
       Expression value = GetAst(Builtins.Second(args), cb);
 
+      namehint = SymbolId.Invalid;
+
       Variable v = FindVar(cb, s);
 
       if (v == null)
@@ -649,15 +703,19 @@ namespace IronScheme.Compiler
 
       namehint = s;
 
+      Variable v = Create(s, cb, typeof(object));
+
       Expression value = GetAst(Builtins.Second(args), cb);
 
-      Variable v = Create(s, cb, typeof(object));
+      namehint = SymbolId.Invalid;
 
       if (value.Type.IsValueType)
       {
         value = Ast.DynamicConvert(value, typeof(object));
       }
-      return Ast.Assign(v, value);
+      Expression r = Ast.Assign(v, value);
+      object o = r.Evaluate(Compiler);
+      return r;
     }
 
     readonly static MethodInfo macro_vararg = typeof(Runtime.Macro).GetMethod("MakeVarArgX");
@@ -677,23 +735,12 @@ namespace IronScheme.Compiler
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
 
+      cb.BindClosures();
+
       CodeBlockExpression cbe = Ast.CodeBlockExpression(cb, false);
 
       Expression ex = Ast.SimpleCallHelper(isrest ? macro_vararg : macro_make, Ast.CodeContext(), cbe, 
         Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
-
-      cb.BindClosures();
-
-      Delegate md = cb.GetDelegateForInterpreter(Compiler,null, false) as Delegate;
-
-      if (isrest)
-      {
-        Compiler.Scope.SetName(NameHint, Runtime.Macro.MakeVarArgX(Compiler, md, cb.Parameters.Count, cb.Name));
-      }
-      else
-      {
-        Compiler.Scope.SetName(NameHint, Runtime.Macro.Make(Compiler, md, cb.Parameters.Count, cb.Name));
-      }
 
       return ex;
     }
@@ -714,21 +761,6 @@ namespace IronScheme.Compiler
 
       Expression ex = MakeClosure(cb, isrest);
 
-      //if (NameHint != SymbolId.Empty)
-      //{
-      //  //cb.Parent = null;
-      //  cb.BindClosures();
-      //  Delegate md = cb.GetDelegateForInterpreter(Compiler, false) as Delegate;
-      //  if (isrest)
-      //  {
-      //    Compiler.Scope.SetName(NameHint, Closure.MakeVarArgX(Compiler, md, cb.Parameters.Count, cb.Name));
-      //  }
-      //  else
-      //  {
-      //    Compiler.Scope.SetName(NameHint, Closure.Make(Compiler, md, cb.Name));
-      //  }
-      //}
-
       return ex;
     }
 
@@ -737,10 +769,15 @@ namespace IronScheme.Compiler
     // if
     public static Expression If(object args, CodeBlock cb)
     {
+      int alen = Builtins.Length(args);
+      if (alen < 2 || alen > 3)
+      {
+        throw new SyntaxErrorException("argument mismatch. expected: (if a b c?) got: " + new Cons("if", args));
+      }
       object test = Builtins.First(args);
       object trueexp = Builtins.Second(args);
-      object falseexp = Builtins.Third(args);
-      
+      object falseexp = alen == 3 ? Builtins.Third(args) : null;
+
       Expression e = null;
       if (falseexp != null)
       {
@@ -751,18 +788,31 @@ namespace IronScheme.Compiler
         e = Ast.Null();
       }
 
-      Expression testexp = GetAst(test,cb);
+      if (e.Type != typeof(object))
+      {
+        e = Ast.DynamicConvert(e, typeof(object));
+      }
+
+      Expression t = GetAst(trueexp, cb);
+
+      if (t.Type != typeof(object))
+      {
+        t = Ast.DynamicConvert(t, typeof(object));
+      }
+
+      Expression testexp = GetAst(test, cb);
 
       if (testexp.Type != typeof(bool))
       {
         testexp = Ast.SimpleCallHelper(istrue, testexp);
       }
 
-      return Ast.Condition(testexp, GetAst(trueexp, cb), e);
+      return Ast.Condition(testexp, t, e);
     }
 
     static int nestinglevel = 0;
 
+    // quasiquote
     public static Expression Quasiquote(object args, CodeBlock cb)
     {
       nestinglevel++;
@@ -775,6 +825,23 @@ namespace IronScheme.Compiler
         nestinglevel--;
       }
     }
+
+    static readonly MethodInfo Stopwatch_StartNew = typeof(Stopwatch).GetMethod("StartNew");
+    static readonly MethodInfo Stopwatch_Elapsed = typeof(Stopwatch).GetMethod("get_Elapsed");
+    static readonly MethodInfo display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
+
+    // trace timing
+    public static Expression Time(object args, CodeBlock cb)
+    {
+      Variable sw = cb.CreateTemporaryVariable(SymbolTable.StringToId("$timer"), typeof(Stopwatch));
+
+      return Ast.Comma(1, Ast.Assign(sw, Ast.Call(Stopwatch_StartNew)),
+        GetAst(Builtins.Car(args), cb),
+        Ast.SimpleCallHelper(display, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
+
+    }
+
+
   }
 
 }

@@ -39,6 +39,32 @@ static Cons Append(Cons c, Cons t)
   return c;
 }
 
+public static Dictionary<Cons,SourceSpan> sourcemap = new Dictionary<Cons,SourceSpan>();
+
+static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
+{
+  return new SourceSpan(
+    new SourceLocation(1, start.sLin, start.sCol + 1),
+    new SourceLocation(1, end.eLin, end.eCol + 1));
+}
+
+protected override SourceSpan GetLocation(gppg.LexLocation loc)
+{
+  return new SourceSpan(
+    new SourceLocation(1, loc.sLin, loc.sCol + 1),
+    new SourceLocation(1, loc.eLin, loc.eCol + 1));
+}
+
+static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
+{
+  if (o == null)
+  {
+    return null;
+  }
+  sourcemap[o] = GetLocation(start, end);
+  return o;
+}
+
 static readonly SymbolId quote = SymbolTable.StringToId("quote");
 static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
 static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
@@ -68,9 +94,9 @@ file
     ;
     
 list
-    : LBRACE exprlist RBRACE                      { $$ = $2; }
-    | LBRACK exprlist RBRACK                      { $$ = $2; }
-    | LBRACE exprlist expr DOT expr RBRACE        { $$ = Append($2, new Cons($3,$5)); } 
+    : LBRACE exprlist RBRACE                      { $$ = SetLocation($2,@1,@3); }
+    | LBRACK exprlist RBRACK                      { $$ = SetLocation($2,@1,@3); }
+    | LBRACE exprlist expr DOT expr RBRACE        { $$ = SetLocation(Append($2, new Cons($3,$5)),@1,@6); } 
     | specexpr expr                               { $$ = new Cons($1, new Cons($2)); }
     ;
 

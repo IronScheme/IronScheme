@@ -75,7 +75,7 @@ namespace IronScheme.Runtime
       throw new Continuation(value);
     }
     
-    [Builtin("call-with-current-continuation")]
+    [Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(CodeContext cc, object fc1)
     {
       FastCallable fc = RequiresNotNull<FastCallable>(fc1);
@@ -133,36 +133,22 @@ namespace IronScheme.Runtime
       return fn.Call(cc, targs.ToArray());
     }
 
+    //procedure:  (apply proc arg1 ... args) 
+    //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
+    
     [Builtin]
-    public static object Apply(CodeContext cc, object fn, params Cons[] lists)
+    public static object Apply(CodeContext cc, object fn, params object[] args)
     {
-      ArrayList args = new ArrayList();
-      //if (lists == null)
-      //{
-      //  args.Add(null);
-      //}
-      //else
-      //{
-      //  for (int i = 0; i < lists.Length - 1; i++)
-      //  {
-      //    args.Add(lists[i]);
-      //  }
-      //  if (lists.Length > 0)
-      //  {
-      //    foreach (object var in lists[lists.Length - 1] as IEnumerable)
-      //    {
-      //      args.Add(var);
-      //    }
-      //  }
-      //}
-      return null;
+      object[] head = ArrayUtils.RemoveLast(args);
+      Cons last = Requires<Runtime.Cons>(args[args.Length - 1]);
 
-      //return ApplyInternal(cc, fn, args);
+      return Apply(cc, fn, Append(List(head), last));
     }
 
     [Builtin]
-    public static object Apply(CodeContext cc, object fn, Cons args)
+    public static object Apply(CodeContext cc, object fn, object list)
     {
+      Cons args = Requires<Runtime.Cons>(list);
       if (fn is FastCallable)
       {
         return ApplyInternal(cc, fn as FastCallable, args);
@@ -192,40 +178,41 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static Cons Map(CodeContext cc, object fn, params Cons[] lists)
+    public static Cons Map(CodeContext cc, object fn, params object[] lists)
     {
       if (lists == null)
       {
         return null;
       }
       ArrayList returns = new ArrayList();
-      //foreach (Cons obj in new MultiEnumerable(lists))
-      //{
-      //  returns.Add(Apply(cc, fn, obj));
-      //}
+      foreach (Cons obj in new MultiEnumerable(lists))
+      {
+        returns.Add(Apply(cc, fn, obj));
+      }
       return Runtime.Cons.FromList(returns);
     }
 
 
     [Builtin("for-each")]
-    public static object ForEach(CodeContext cc, object fn, Cons list)
+    public static object ForEach(CodeContext cc, object fn, object list)
     {
-      ArrayList returns = new ArrayList();
-      //foreach (object obj in list)
-      //{
-      //  returns.Add(Apply(cc, fn, (IEnumerable) new object[] { obj }));
-      //}
+      Cons c = Requires<Runtime.Cons>(list);
+
+      while (c != null)
+      {
+        Apply(cc, fn, c);
+        c = c.Cdr as Cons;
+      }
       return Unspecified;
     }
 
     [Builtin("for-each")]
-    public static object ForEach(CodeContext cc, object fn, params Cons[] lists)
+    public static object ForEach(CodeContext cc, object fn, params object[] lists)
     {
-      ArrayList returns = new ArrayList();
-      //foreach (Cons obj in new MultiEnumerable(lists))
-      //{
-      //  returns.Add(Apply(cc, fn, obj));
-      //}
+      foreach (Cons obj in new MultiEnumerable(lists))
+      {
+        Apply(cc, fn, obj);
+      }
       return Unspecified;
     }
 

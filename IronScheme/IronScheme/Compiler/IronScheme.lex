@@ -167,7 +167,8 @@ atoms                  (#t|#f)
 
 "."                   { return Make(Tokens.DOT); }
 
-.                     { Console.Error.WriteLine("Bad input: '{0}' @ {1}:{2}", yytext, tokLin, tokCol); }
+.                     { Errors.Add(SourceUnit, string.Format("Bad input: '{0}'", yytext), 
+                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 
 
 <<EOF>>               { }

@@ -20,10 +20,10 @@ namespace IronScheme.Runtime
 {
   sealed class MultiEnumerable : IEnumerable
   {
-    IEnumerable[] lists;
+    Cons[] lists;
     public MultiEnumerable(params object[] lists)
     {
-      this.lists = Array.ConvertAll<object,IEnumerable>(lists , delegate(object o) { return o as IEnumerable ; });
+      this.lists = lists as Cons[];
     }
 
     #region IEnumerable Members
@@ -37,17 +37,11 @@ namespace IronScheme.Runtime
 
     sealed class MultiEnumerator : IEnumerator, IDisposable
     {
-      MultiEnumerable container;
-      List<IEnumerator> iters = new List<IEnumerator>();
+      Cons[] iters;
 
       public MultiEnumerator(MultiEnumerable container)
       {
-        this.container = container;
-
-        foreach (IEnumerable e in container.lists)
-        {
-          iters.Add(e.GetEnumerator());
-        }
+        iters = container.lists.Clone() as Cons[];
       }
       #region IEnumerator Members
 
@@ -55,20 +49,23 @@ namespace IronScheme.Runtime
       {
         get 
         {
-          List<object> currents = new List<object>();
-          foreach (IEnumerator e in iters)
+          object[] v = new object[iters.Length];
+
+          for (int i = 0; i < iters.Length; i++)
           {
-            currents.Add(e.Current);
+            v[i] = iters[i].Car;
           }
-          return currents;
+
+          return v;
         }
       }
 
       public bool MoveNext()
       {
-        foreach (IEnumerator e in iters)
+        for (int i = 0; i < iters.Length; i++)
         {
-          if (!e.MoveNext())
+          iters[i] = iters[i].Cdr as Cons;
+          if (iters[i] == null)
           {
             return false;
           }
@@ -78,10 +75,7 @@ namespace IronScheme.Runtime
 
       public void Reset()
       {
-        foreach (IEnumerator e in iters)
-        {
-          e.Reset();
-        }
+
       }
 
       #endregion
@@ -90,14 +84,7 @@ namespace IronScheme.Runtime
 
       public void Dispose()
       {
-        foreach (IEnumerator e in iters)
-        {
-          IDisposable id = e as IDisposable;
-          if (id != null)
-          {
-            id.Dispose();
-          }
-        }
+
       }
 
       #endregion

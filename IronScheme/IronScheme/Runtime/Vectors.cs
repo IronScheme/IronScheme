@@ -41,17 +41,17 @@ namespace IronScheme.Runtime
     [Builtin("vector?")]
     public static bool IsVector(object obj)
     {
-      return obj is IList;
+      return obj is object[];
     }
 
     [Builtin("make-vector")]
-    public static IList MakeVector(int k)
+    public static object[] MakeVector(int k)
     {
       return MakeVector(k, null);
     }
 
     [Builtin("make-vector")]
-    public static IList MakeVector(int k, object fill)
+    public static object[] MakeVector(int k, object fill)
     {
       object[] vector = new object[k];
       if (fill != null)
@@ -67,8 +67,8 @@ namespace IronScheme.Runtime
     [Builtin("vector-fill!")]
     public static object VectorFill(object vec, object fill)
     {
-      IList vector = RequiresNotNull<IList>(vec);
-      for (int i = 0; i < vector.Count; i++)
+      object[] vector = RequiresNotNull<object[]>(vec);
+      for (int i = 0; i < vector.Length; i++)
       {
         vector[i] = fill;
       }
@@ -76,13 +76,13 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector")]
-    public static IList Vector(params object[] args)
+    public static object[] Vector(params object[] args)
     {
       return args;
     }
 
     [Builtin("vector-append")]
-    public static IList VectorAppend(params object[] args)
+    public static object[] VectorAppend(params object[] args)
     {
       ArrayList all = new ArrayList();
       foreach (IEnumerable e in args)
@@ -98,43 +98,46 @@ namespace IronScheme.Runtime
     [Builtin("vector-length")]
     public static int VectorLength(object vec)
     {
-      IList l = RequiresNotNull<IList>(vec);
-      return l.Count;
+      object[] l = RequiresNotNull<object[]>(vec);
+      return l.Length;
     }
 
 
     [Builtin("vector-ref")]
     public static object VectorRef(object vec, int k)
     {
-      IList l = RequiresNotNull<IList>(vec);
+      object[] l = RequiresNotNull<object[]>(vec);
       return l[k];
     }
 
     [Builtin("vector-set!")]
     public static object VectorSet(object vec, int k, object value)
     {
-      IList l = RequiresNotNull<IList>(vec);
+      object[] l = RequiresNotNull<object[]>(vec);
       l[k] = value;
       return Unspecified;
     }
 
     [Builtin("vector->list")]
-    public static IEnumerable VectorToList(object vec)
+    public static Cons VectorToList(object vec)
     {
-      return Runtime.Cons.FromList(vec as IList);
+      object[] l = Requires<object[]>(vec);
+      return Runtime.Cons.FromArray(l);
     }
 
     [Builtin("list->vector")]
-    public static IList ListToVector(object list)
+    public static object[] ListToVector(object list)
     {
-      IEnumerable e = Requires<IEnumerable>(list);
+      Cons e = Requires<Cons>(list);
       ArrayList v = new ArrayList();
 
       if (e != null)
       {
-        foreach (object var in e)
+        RequiresCondition(e.IsProper, "must be a properlist");
+        while (e != null)
         {
-          v.Add(var);
+          v.Add(e.Car);
+          e = e.Cdr as Cons;
         }
       }
       return v.ToArray();

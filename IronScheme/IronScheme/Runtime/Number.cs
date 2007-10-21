@@ -81,9 +81,9 @@ namespace IronScheme.Runtime
     }
   }
 
-  public class Rational : Number<object>
+  public class Rational : Number<Fraction>
   {
-    public Rational(object value) : base(value)
+    public Rational(Fraction value) : base(value)
     {
     }
 

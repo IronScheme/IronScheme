@@ -92,6 +92,8 @@ namespace IronScheme
         scanner = new Scanner();
       }
       Scanner sc = scanner;
+      sc.SourceUnit = cc.SourceUnit;
+      sc.Errors = cc.Errors;
       sc.SetSource(expr, 0);
       return Parse(sc, cc, false);
     }
@@ -99,12 +101,14 @@ namespace IronScheme
     static CodeBlock ParseStream(Stream s, CompilerContext cc)
     {
       Scanner sc = new Scanner(s);
+      sc.Errors = cc.Errors;
+      sc.SourceUnit = cc.SourceUnit;
       return Parse(sc, cc, true);
     }
 
-    internal static object ParseExpressionString(string code)
+    internal static object ParseExpressionString(string code, CompilerContext cc)
     {
-      object expr = ReadExpressionString(code);
+      object expr = ReadExpressionString(code, cc);
       if (expr != null)
       {
         //InitStage2();
@@ -128,7 +132,7 @@ namespace IronScheme
       
     }
 
-    internal static object ReadExpressionString(string code)
+    internal static object ReadExpressionString(string code, CompilerContext cc)
     {
       if (parser == null)
       {
@@ -177,13 +181,20 @@ namespace IronScheme
         {
           object exp = parsed.Car;
           Expression e = Generator.GetAst(exp,cb);
-          stmts.Add(Ast.Statement(e));
+          Statement s = Ast.Statement(e);
+          if (exp is Cons && Parser.sourcemap.ContainsKey((Cons)exp))
+          {
+            s.SetLoc(Parser.sourcemap[(Cons)exp]);
+          }
+          stmts.Add(s);
           parsed = parsed.Cdr as Cons;
         }
 
         if (stmts.Count > 0)
         {
+          SourceSpan ss = stmts[stmts.Count - 1].Span;
           stmts[stmts.Count - 1] = Ast.Return(((ExpressionStatement)stmts[stmts.Count - 1]).Expression);
+          stmts[stmts.Count - 1].SetLoc(ss);
         }
         else
         {
@@ -193,7 +204,6 @@ namespace IronScheme
         cb.Body = Ast.Block(stmts);
 
         return cb;
-        //}
       }
       return null;
     }

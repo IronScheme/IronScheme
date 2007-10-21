@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using Microsoft.Scripting;
 
 
 namespace gppg
@@ -206,7 +207,7 @@ namespace gppg
 		public void ReportError()
 		{
             StringBuilder errorMsg = new StringBuilder();
-            errorMsg.AppendFormat("syntax error, unexpected {0}", TerminalToString(next));
+            errorMsg.AppendFormat("unexpected {0}", TerminalToString(next));
 
             if (current_state.parser_table.Count < 7)
             {
@@ -222,11 +223,13 @@ namespace gppg
                     first = false;
                 }
             }
-            errorMsg.AppendFormat(" near {0}", lastL);
-            scanner.yyerror(errorMsg.ToString());
+            scanner.Errors.Add(scanner.SourceUnit, errorMsg.ToString(), GetLocation(lastL), 1, Microsoft.Scripting.Hosting.Severity.Error);
+            //errorMsg.AppendFormat(" near {0}", lastL);
+            //scanner.yyerror(errorMsg.ToString());
             System.Diagnostics.Trace.WriteLine(errorMsg.ToString());
 		}
 
+    protected abstract SourceSpan GetLocation(YYLTYPE lastL);
 
 		public void ShiftErrorToken()
 		{

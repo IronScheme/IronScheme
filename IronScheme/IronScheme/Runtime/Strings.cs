@@ -264,7 +264,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string->list")]
-    public static IEnumerable StringToList(object obj)
+    public static Cons StringToList(object obj)
     {
       string s = GetString(obj);
 

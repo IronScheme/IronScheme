@@ -82,7 +82,7 @@ namespace IronScheme.Runtime
       while ((i = r.ReadLine()) != null)
       {
         input.AppendLine(i);
-        object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString());
+        object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString(), Compiler.Generator.Compiler.ModuleContext.CompilerContext);
         if (result != null)
         {
           return result;
