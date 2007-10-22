@@ -51,6 +51,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="core.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="init.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="test.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

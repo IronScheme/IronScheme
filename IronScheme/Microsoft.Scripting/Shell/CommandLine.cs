@@ -199,6 +199,10 @@ namespace Microsoft.Scripting.Shell {
             return RunInteractiveLoop();
         }
 
+      protected virtual void OnInteractiveLoopStart()
+      {
+      }
+
         /// <summary>
         /// Runs the interactive loop.  Repeatedly parse and run interactive actions
         /// until an exit code is received.  If any exceptions are unhandled displays
@@ -209,6 +213,8 @@ namespace Microsoft.Scripting.Shell {
             if (_module == null) {
                 _module = ScriptDomainManager.CurrentManager.CreateModule("<stdin>");
             }
+
+            OnInteractiveLoopStart();
             
             int? res = null;
             do {

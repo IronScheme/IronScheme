@@ -39,10 +39,31 @@ namespace IronScheme.Hosting
       return new IronSchemeScriptEngine(this, options ?? GetOptionsParser().EngineOptions, lc);
     }
 
-    public override Microsoft.Scripting.Shell.CommandLine GetCommandLine()
+
+
+    public override CommandLine GetCommandLine()
     {
-      CommandLine cl = new CommandLine();
+      CommandLine cl = new CommandLineX();
+      
       return cl;
+    }
+
+    class CommandLineX : CommandLine
+    {
+      protected override string Prompt
+      {
+        get{ return "> ";}
+      }
+
+      protected override string PromptContinuation
+      {
+        get{ return ". ";}
+      }
+
+      protected override void OnInteractiveLoopStart()
+      {
+        this.Engine.Execute("(load \"init.scm\")", Module);
+      }
     }
 
     public override OptionsParser GetOptionsParser()
@@ -54,11 +75,10 @@ namespace IronScheme.Hosting
     {
       public override void GetHelp(out string commandLine, out string[,] options, out string[,] environmentVariables, out string comments)
       {
-        commandLine = "IronScheme.exe";
-        options = new string[0, 0];
-        environmentVariables = new string[0, 0];
-        comments = "hello world";
-        Console.WriteLine("Hello world");
+        commandLine = null;
+        options = null;
+        environmentVariables = null;
+        comments = null;
       }
 
       class IronSchemeConsoleOptions : ConsoleOptions

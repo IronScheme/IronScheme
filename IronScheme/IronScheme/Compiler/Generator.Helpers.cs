@@ -13,9 +13,7 @@ namespace IronScheme.Compiler
 {
   static partial class Generator
   {
-    delegate Expression GeneratorHandler(object args, CodeBlock cb);
 
-    readonly static Dictionary<SymbolId, GeneratorHandler> generators = new Dictionary<SymbolId, GeneratorHandler>();
 
     readonly static Dictionary<SymbolId, BuiltinFunction> builtinmap =
       new Dictionary<SymbolId, BuiltinFunction>();
@@ -350,7 +348,7 @@ namespace IronScheme.Compiler
           s = Ast.Statement(e);
         }
 
-        if (Parser.sourcemap.ContainsKey(c.Car as Cons))
+        if (c.Car is Cons && Parser.sourcemap.ContainsKey(c.Car as Cons))
         {
           s.SetLoc(Parser.sourcemap[c.Car as Cons]);
         }
@@ -359,14 +357,11 @@ namespace IronScheme.Compiler
         c = c.Cdr as Cons;
       }
 
+
+
       cb.Body = Ast.Block(stmts.ToArray());
     }
 
-
-    static void Add(string name, GeneratorHandler handler)
-    {
-      generators.Add(SymbolTable.StringToId(name), handler);
-    }
 
 
     static Expression[] GetAstList(Cons c, CodeBlock cb)

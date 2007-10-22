@@ -185,7 +185,11 @@ namespace IronScheme.Runtime
     {
       if (obj == null)
       {
-        return "";
+        return "()";
+      }
+      if (obj == Builtins.Unspecified)
+      {
+        return "<unspecified>";
       }
       if (obj is BuiltinFunction)
       {
@@ -269,7 +273,7 @@ namespace IronScheme.Runtime
         return string.Format("({0})", string.Join(" ", v.ToArray()));
       }
 
-      if (obj is IList)
+      if (obj is object[])
       {
         List<string> v = new List<string>();
         foreach (object io in (IList)obj)
@@ -368,7 +372,7 @@ namespace IronScheme.Runtime
         return string.Format("({0})", string.Join(" ", v.ToArray()));
       }
 
-      if (obj is IList)
+      if (obj is object[])
       {
         List<string> v = new List<string>();
         foreach (object io in (IList)obj)
@@ -379,24 +383,9 @@ namespace IronScheme.Runtime
         return string.Format("#({0})", string.Join(" ", v.ToArray()));
       }
 
-      if (obj is IEnumerable)
-      {
-        List<string> v = new List<string>();
-        foreach (object io in (IEnumerable)obj)
-        {
-          v.Add(WriteFormat(io));
-        }
-
-        return string.Format("({0})", string.Join(" ", v.ToArray()));
-      }
       if (obj is SymbolId)
       {
         return SymbolTable.IdToString((SymbolId)obj);
-      }
-
-      if (obj is BuiltinFunction)
-      {
-        return ((BuiltinFunction)obj).Name;
       }
 
       return obj.ToString();
