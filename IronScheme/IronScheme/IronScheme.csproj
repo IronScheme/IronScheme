@@ -38,7 +38,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
-    <Compile Include="Compiler\CoreForms.cs" />
+    <Compile Include="Compiler\Generator.Helpers.cs" />
+    <Compile Include="Compiler\Generator.Diagnostics.cs" />
+    <Compile Include="Compiler\Generator.Symbols.cs" />
+    <Compile Include="Compiler\Generator.cs" />
+    <Compile Include="Compiler\Generator.Methods.cs" />
     <Compile Include="Compiler\IronScheme.lex.cs" />
     <Compile Include="Compiler\IronScheme.y.cs" />
     <Compile Include="Compiler\SyntaxTransform.cs" />
