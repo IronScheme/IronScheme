@@ -30,6 +30,8 @@ namespace IronScheme.Compiler
       
       Initialize();
     }
+
+    public readonly static FieldInfo Unspecified = typeof(Builtins).GetField("Unspecified");
     
     public static Expression GetCons(object args, CodeBlock cb)
     {
@@ -184,7 +186,7 @@ namespace IronScheme.Compiler
         value = Ast.DynamicConvert(value, typeof(object));
       }
 
-      return Ast.Assign(v, value);
+      return Ast.Comma( Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
     }
     
     // define
@@ -204,7 +206,7 @@ namespace IronScheme.Compiler
       {
         value = Ast.DynamicConvert(value, typeof(object));
       }
-      Expression r = Ast.Assign(v, value);
+      Expression r = Ast.Comma( Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
       if (cb.IsGlobal)
       {
         object o = r.Evaluate(Compiler);
@@ -276,7 +278,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        e = Ast.Null();
+        e = Ast.ReadField(null, Unspecified);
       }
 
       if (e.Type != typeof(object))

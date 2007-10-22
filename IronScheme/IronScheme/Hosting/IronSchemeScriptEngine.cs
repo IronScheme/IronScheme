@@ -35,8 +35,11 @@ namespace IronScheme.Hosting
 
     protected override void PrintInteractiveCodeResult(object obj)
     {
-      string strv = Builtins.DisplayFormat(obj);
-      Console.WriteLine("{0}", strv);
+      if (obj != Builtins.Unspecified)
+      {
+        string strv = Builtins.DisplayFormat(obj);
+        Console.WriteLine("{0}", strv);
+      }
     }
 
     public override string FormatException(Exception exception)
@@ -82,7 +85,7 @@ namespace IronScheme.Hosting
     {
       get
       {
-        return "0.0.1";
+        return "1.0.0";
       }
     }
 

@@ -58,7 +58,7 @@ namespace IronScheme.Runtime
       return true;
     }
 
-    static readonly object Unspecified = null;
+    public static readonly object Unspecified = new object();
 
     [Builtin]
     public static Type @typeof(object o)

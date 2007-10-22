@@ -198,7 +198,7 @@ namespace IronScheme
         }
         else
         {
-          stmts.Add(Ast.Return(Ast.Null()));
+          stmts.Add(Ast.Return(Ast.ReadField(null, Generator.Unspecified)));
         }
 
         cb.Body = Ast.Block(stmts);
