@@ -13,6 +13,7 @@ namespace IronScheme.Compiler
   {
     static readonly MethodInfo Stopwatch_StartNew = typeof(Stopwatch).GetMethod("StartNew");
     static readonly MethodInfo Stopwatch_Elapsed = typeof(Stopwatch).GetMethod("get_Elapsed");
+    static readonly MethodInfo Trace_Assert = typeof(Trace).GetMethod("Assert", new Type[] { typeof(bool), typeof(string) });
 
     // trace timing
     public static Expression Time(object args, CodeBlock cb)
@@ -23,6 +24,17 @@ namespace IronScheme.Compiler
         GetAst(Builtins.Car(args), cb),
         Ast.SimpleCallHelper(Builtins_Display, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
 
+    }
+
+    // assert
+    public static Expression Assert(object args, CodeBlock cb)
+    {
+      
+      object test = Builtins.First(args);
+      string teststr = Builtins.DisplayFormat(test);
+
+      return Ast.SimpleCallHelper(Trace_Assert,
+        Ast.SimpleCallHelper(Builtins_IsTrue,  GetAst(test, cb)), Ast.Constant(teststr));
     }
 
   }

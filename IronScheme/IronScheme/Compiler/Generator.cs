@@ -26,6 +26,7 @@ namespace IronScheme.Compiler
       Add("macro", Macro);
       Add("quasiquote", Quasiquote);
       Add("time", Time);
+      Add("assert", Assert);
       
       Initialize();
     }
@@ -204,7 +205,10 @@ namespace IronScheme.Compiler
         value = Ast.DynamicConvert(value, typeof(object));
       }
       Expression r = Ast.Assign(v, value);
-      object o = r.Evaluate(Compiler);
+      if (cb.IsGlobal)
+      {
+        object o = r.Evaluate(Compiler);
+      }
       return r;
     }
 
