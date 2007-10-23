@@ -1,5 +1,4 @@
 
-
 ;; test mother
 (let ((b '(1 2 3)))
   (let* ((a b)
@@ -26,5 +25,5 @@
  (tak 18 12 6) )
 
 (newline)
-(display "Press any key to exit.")
-(read-char)
+;(display "Press any key to exit.")
+;(read-char)

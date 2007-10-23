@@ -169,7 +169,7 @@ namespace IronScheme.Runtime
     {
       if (obj != null && !(obj is T))
       {
-        throw new ArgumentTypeException("Expected type '" + typeof(T).Name + "'");
+        throw new ArgumentTypeException("Expected type '" + typeof(T).Name + "', but got '" + obj.GetType().Name + "'");
       }
       if (obj == null)
       {
