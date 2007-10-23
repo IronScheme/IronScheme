@@ -40,7 +40,6 @@
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\Generator.Handlers.cs" />
     <Compile Include="Compiler\Generator.Helpers.cs" />
-    <Compile Include="Compiler\Generator.Diagnostics.cs" />
     <Compile Include="Compiler\Generator.Symbols.cs" />
     <Compile Include="Compiler\Generator.cs" />
     <Compile Include="Compiler\Generator.Methods.cs" />
@@ -69,6 +68,7 @@
     <Compile Include="Runtime\Equality.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Runtime\Extension.cs" />
     <Compile Include="Runtime\Fraction.cs" />
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>

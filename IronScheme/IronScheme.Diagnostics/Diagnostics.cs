@@ -6,36 +6,43 @@ using System.Diagnostics;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting;
 using IronScheme.Runtime;
+using IronScheme.Compiler;
 
-namespace IronScheme.Compiler
+using Generator = IronScheme.Compiler.Generator;
+
+[assembly: Extension(GeneratorType = typeof(IronScheme.Diagnostics.DiagGenerator))]
+
+namespace IronScheme.Diagnostics
 {
-  static partial class Generator
+  static class DiagGenerator
   {
     static readonly MethodInfo Stopwatch_StartNew = typeof(Stopwatch).GetMethod("StartNew");
     static readonly MethodInfo Stopwatch_Elapsed = typeof(Stopwatch).GetMethod("get_Elapsed");
     static readonly MethodInfo Trace_Assert = typeof(Trace).GetMethod("Assert", new Type[] { typeof(bool), typeof(string) });
+    static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
+    static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
 
     // trace timing
+    [Generator]
     public static Expression Time(object args, CodeBlock cb)
     {
       Variable sw = cb.CreateTemporaryVariable(SymbolTable.StringToId("$timer"), typeof(Stopwatch));
 
       return Ast.Comma(1, Ast.Assign(sw, Ast.Call(Stopwatch_StartNew)),
-        GetAst(Builtins.Car(args), cb),
+        Generator.GetAst(Builtins.Car(args), cb),
         Ast.SimpleCallHelper(Builtins_Display, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
-
     }
 
     // assert
+    [Generator]
     public static Expression Assert(object args, CodeBlock cb)
     {
-      
       object test = Builtins.First(args);
       string teststr = Builtins.DisplayFormat(test);
 
-      return Ast.SimpleCallHelper(Trace_Assert,
-        Ast.SimpleCallHelper(Builtins_IsTrue,  GetAst(test, cb)), Ast.Constant(teststr));
+      return Ast.Comma( Ast.SimpleCallHelper(Trace_Assert,
+        Ast.SimpleCallHelper(Builtins_IsTrue, Generator.GetAst(test, cb)), Ast.Constant(teststr)), 
+        Ast.ReadField(null, Generator.Unspecified));
     }
-
   }
 }

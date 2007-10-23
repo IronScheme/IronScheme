@@ -56,12 +56,70 @@ namespace IronScheme.Runtime
     [Builtin("load")]
     public static object Load(CodeContext cc, object filename)
     {
-      string path = filename as string;
-      SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
-      
-      ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
-      
-      object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+      string path = Path.GetFullPath(filename as string);
+
+      switch (Path.GetExtension(path))
+      {
+        case ".dll":
+          Assembly ext = Assembly.LoadFile(path);
+          if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
+          {
+            foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
+            {
+              if (ea.GeneratorType != null)
+              {
+                IronScheme.Compiler.Generator.AddGenerators(ea.GeneratorType);
+              }
+              if (ea.BuiltinsType != null)
+              {
+                IronScheme.Compiler.Generator.AddBuiltins(ea.BuiltinsType);
+              }
+            }
+          }
+          else
+          {
+            // just reference.?
+          }
+          break;
+        case ".exe":
+          Assembly mod = Assembly.LoadFile(path);
+          MethodInfo entry = null;
+          foreach (Type t in mod.GetExportedTypes())
+          {
+            if (t.BaseType == typeof(CustomSymbolDictionary))
+            {
+              List<Type> ii = new List<Type>(t.GetInterfaces());
+              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
+              {
+                entry = t.GetMethod("Initialize");
+                if (entry != null)
+                {
+                  break;
+                }
+              }
+            }
+          }
+
+          if (entry == null)
+          {
+            // what now?
+          }
+          else
+          {
+            IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as 
+              IModuleDictionaryInitialization;
+            init.InitializeModuleDictionary(cc);
+            entry.Invoke(null, new object[] { cc });
+          }
+          break;
+        default:
+          SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
+          ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
+
+          object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+          break;
+      }
+
       return Unspecified;
     }
 
@@ -183,7 +241,7 @@ namespace IronScheme.Runtime
     static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
     static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
 
-    internal static string DisplayFormat(object obj)
+    public static string DisplayFormat(object obj)
     {
       if (obj == null)
       {
@@ -313,7 +371,7 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-    internal static string WriteFormat(object obj)
+    public static string WriteFormat(object obj)
     {
       if (obj == null)
       {

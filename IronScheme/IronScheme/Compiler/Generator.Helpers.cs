@@ -39,19 +39,29 @@ namespace IronScheme.Compiler
 
       // builtin methods
 
+      AddBuiltins(typeof(Builtins));
+
+    }
+
+    public static void AddBuiltins(Type builtinstype)
+    {
       Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
 
-      foreach (MethodInfo mi in typeof(Builtins).GetMethods())
+      foreach (MethodInfo mi in builtinstype.GetMethods())
       {
-        foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
+        if (mi.IsStatic && Attribute.IsDefined(mi, typeof(BuiltinAttribute)))
         {
-          string mn = ba.Name ?? mi.Name.ToLower();
-          List<MethodBase> meths;
-          if (!all.TryGetValue(mn, out meths))
+
+          foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
           {
-            all[mn] = meths = new List<MethodBase>();
+            string name = ba.Name ?? mi.Name.ToLower();
+            List<MethodBase> meths;
+            if (!all.TryGetValue(name, out meths))
+            {
+              all[name] = meths = new List<MethodBase>();
+            }
+            meths.Add(mi);
           }
-          meths.Add(mi);
         }
       }
 
