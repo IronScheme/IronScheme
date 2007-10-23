@@ -75,7 +75,7 @@ namespace IronScheme.Runtime
     public static object Read(object port)
     {
       StringBuilder input = new StringBuilder();
-      TextReader r = port as TextReader;
+      TextReader r = RequiresNotNull<TextReader>(port);
 
       string i = null;
 
@@ -121,12 +121,13 @@ namespace IronScheme.Runtime
     [Builtin("read-char")]
     public static object ReadChar(object port)
     {
-      int r = ((TextReader)port).Read();
-      if (r == -1)
+      TextReader r = RequiresNotNull<TextReader>(port);
+      int c = r.Read();
+      if (c == -1)
       {
         return EOF;
       }
-      return (char)r;
+      return (char)c;
     }
 
     [Builtin("peek-char")]
@@ -139,25 +140,26 @@ namespace IronScheme.Runtime
     public static object PeekChar(object port)
     {
       TextReader r = RequiresNotNull<TextReader>(port);
-      int i = r.Peek();
-      if (i == -1)
+      int c = r.Peek();
+      if (c == -1)
       {
         return EOF;
       }
-      return (char)i;
+      return (char)c;
     }
 
     [Builtin("write-char")]
     public static object WriteChar(object ch)
     {
-      return WriteChar(CurrentOutputPort());
+      return WriteChar(ch, CurrentOutputPort());
     }
 
     [Builtin("write-char")]
     public static object WriteChar(object ch, object port)
     {
       TextWriter w = RequiresNotNull<TextWriter>(port);
-      w.Write((char)ch);
+      char c = RequiresNotNull<char>(ch);
+      w.Write(c);
       return Unspecified;
     }
 
@@ -186,6 +188,10 @@ namespace IronScheme.Runtime
       if (obj == null)
       {
         return "()";
+      }
+      if (obj == EOF)
+      {
+        return "<eof>";
       }
       if (obj == Builtins.Unspecified)
       {
@@ -422,10 +428,11 @@ namespace IronScheme.Runtime
     [Builtin("call-with-input-file")]
     public static object CallWithInputFile(CodeContext cc, object filename, object fc1)
     {
+      FastCallable f = RequiresNotNull<FastCallable>(fc1);
+      string path = RequiresNotNull<string>(filename);
+
       try
       {
-        FastCallable f = RequiresNotNull<FastCallable>(fc1);
-        string path = RequiresNotNull<string>(filename);
         using (TextReader r = File.OpenText(path))
         {
           f.Call(cc, r);
@@ -441,10 +448,11 @@ namespace IronScheme.Runtime
     [Builtin("call-with-output-file")]
     public static object CallWithOutputFile(CodeContext cc, object filename, object fc1)
     {
+      FastCallable f = RequiresNotNull<FastCallable>(fc1);
+      string path = RequiresNotNull<string>(filename);
+
       try
       {
-        FastCallable f = RequiresNotNull<FastCallable>(fc1);
-        string path = RequiresNotNull<string>(filename);
         using (TextWriter w = File.CreateText(path))
         {
           f.Call(cc, w);
