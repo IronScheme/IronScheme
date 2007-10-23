@@ -1,4 +1,6 @@
 
+(load-diags)
+
 ;; test mother
 (let ((b '(1 2 3)))
   (let* ((a b)

@@ -8,6 +8,7 @@ using System.Reflection;
 using IronScheme.Runtime;
 using Microsoft.Scripting.Hosting;
 using IronScheme.Hosting;
+using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Compiler
 {
@@ -32,6 +33,7 @@ namespace IronScheme.Compiler
       IronSchemeScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
           typeof(Hosting.IronSchemeLanguageProvider)).GetEngine() as IronSchemeScriptEngine;
       ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("CompileTime"));
+
       mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
 
 
@@ -40,6 +42,7 @@ namespace IronScheme.Compiler
       // builtin methods
 
       AddBuiltins(typeof(Builtins));
+
 
     }
 
@@ -77,6 +80,7 @@ namespace IronScheme.Compiler
     public static CodeContext Compiler
     {
       get { return CC; }
+      internal set { CC = value; }
     }
 
     static Expression Read(SymbolId name, CodeBlock cb, Type type)
@@ -372,6 +376,15 @@ namespace IronScheme.Compiler
       cb.Body = Ast.Block(stmts.ToArray());
     }
 
+    static Expression[] GetAstVector(object[] v, CodeBlock cb)
+    {
+      List<Expression> e = new List<Expression>();
+      foreach (object var in v)
+      {
+        e.Add(GetAst(var, cb));
+      }
+      return e.ToArray();
+    }
 
 
     static Expression[] GetAstList(Cons c, CodeBlock cb)
@@ -387,6 +400,16 @@ namespace IronScheme.Compiler
         c = c.Cdr as Cons;
       }
       return e.ToArray();
+    }
+
+    static Expression GetConsVector(object[] v, CodeBlock cb)
+    {
+      List<Expression> e = new List<Expression>();
+      foreach (object var in v)
+      {
+        e.Add(GetCons(var, cb));
+      }
+      return Ast.NewArray(typeof(object[]), e.ToArray());
     }
 
     static Expression GetConsList(Cons c, CodeBlock cb)

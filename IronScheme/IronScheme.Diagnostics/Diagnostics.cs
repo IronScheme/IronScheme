@@ -20,7 +20,7 @@ namespace IronScheme.Diagnostics
     static readonly MethodInfo Stopwatch_Elapsed = typeof(Stopwatch).GetMethod("get_Elapsed");
     static readonly MethodInfo Trace_Assert = typeof(Trace).GetMethod("Assert", new Type[] { typeof(bool), typeof(string) });
     static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
-    static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
+    static readonly MethodInfo Console_WriteLine = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(object) });
 
     // trace timing
     [Generator]
@@ -30,7 +30,7 @@ namespace IronScheme.Diagnostics
 
       return Ast.Comma(1, Ast.Assign(sw, Ast.Call(Stopwatch_StartNew)),
         Generator.GetAst(Builtins.Car(args), cb),
-        Ast.SimpleCallHelper(Builtins_Display, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
+        Ast.SimpleCallHelper(Console_WriteLine, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
     }
 
     // assert
