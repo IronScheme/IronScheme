@@ -15,7 +15,7 @@ namespace IronScheme.Compiler
 
     static void Add(string name, GeneratorHandler handler)
     {
-      generators.Add(SymbolTable.StringToId(name), handler);
+      generators[SymbolTable.StringToId(name)] = handler;
     }
 
     public static void AddGenerators(Type generatortype)

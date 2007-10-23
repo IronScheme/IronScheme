@@ -47,7 +47,7 @@ namespace IronScheme.Compiler
     }
 
     public readonly static FieldInfo Unspecified = typeof(Builtins).GetField("Unspecified");
-    
+
     public static Expression GetCons(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
@@ -58,6 +58,11 @@ namespace IronScheme.Compiler
           return GetAst(Builtins.Second(c), cb);
         }
         return GetConsList(c, cb);
+      }
+      object[] v = args as object[];
+      if (v != null)
+      {
+        return GetConsVector(v, cb);
       }
       else
       {
@@ -75,6 +80,7 @@ namespace IronScheme.Compiler
         if (Builtins.IsSymbol(first))
         {
           SymbolId f = (SymbolId)first;
+
           object m;
 
           if (Compiler.Scope.TryLookupName(f, out m))
@@ -82,9 +88,9 @@ namespace IronScheme.Compiler
             Runtime.Macro macro = m as Runtime.Macro;
             if (macro != null)
             {
-              Debug.WriteLine(c, "macro::in ");
+              //Debug.WriteLine(c, "macro::in ");
               object result = macro.Invoke(Compiler, c.Cdr);
-              Debug.WriteLine(result, "macro::out");
+              //Debug.WriteLine(result, "macro::out");
               if (result is Cons && Parser.sourcemap.ContainsKey(c))
               {
                 Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
@@ -153,15 +159,26 @@ namespace IronScheme.Compiler
         }
         return Ast.Action.Call(typeof(object), GetAstList(c, cb));
       }
+      object[] v = args as object[];
+      if (v != null)
+      {
+        return GetConsVector(v, cb);
+      }
       else
       {
         if (Builtins.IsSymbol(args))
         {
           return Read((SymbolId)args, cb, typeof(object));
         }
+        if (args == Builtins.Unspecified)
+        {
+          return Ast.ReadField(null, Unspecified);
+        }
         return Ast.Constant(args);
       }
     }
+
+
 
     // quote
     [Generator]

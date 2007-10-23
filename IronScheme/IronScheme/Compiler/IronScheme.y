@@ -113,7 +113,7 @@ expr
     | LITERAL                                     { $$ = $1 == "#t" ? (object)true : ($1 == "#f" ? (object)false : null);}
     | REAL                                        { $$ = Convert.ToDouble($1);}
     | CHARACTER                                   { $$ = $1[0];}
-    | VECTORLBRACE exprlist RBRACE                { $$ = $2;}
+    | VECTORLBRACE exprlist RBRACE                { $$ = Builtins.ListToVector($2);}
     ; 
 
 specexpr

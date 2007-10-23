@@ -22,6 +22,7 @@ using Microsoft.Scripting;
 using System.IO;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Types;
+using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
@@ -56,12 +57,13 @@ namespace IronScheme.Runtime
     [Builtin("load")]
     public static object Load(CodeContext cc, object filename)
     {
-      string path = Path.GetFullPath(filename as string);
+      Compiler.Generator.Compiler = cc;
+      string path = filename as string;
 
       switch (Path.GetExtension(path))
       {
         case ".dll":
-          Assembly ext = Assembly.LoadFile(path);
+          Assembly ext = Assembly.LoadFile(Path.GetFullPath(path));
           if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
           {
             foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
@@ -74,42 +76,15 @@ namespace IronScheme.Runtime
               {
                 IronScheme.Compiler.Generator.AddBuiltins(ea.BuiltinsType);
               }
+              if (ea.ScriptResource != null)
+              {
+                //TODO: ExtensionAttribute.ScriptResource
+              }
             }
           }
           else
           {
             // just reference.?
-          }
-          break;
-        case ".exe":
-          Assembly mod = Assembly.LoadFile(path);
-          MethodInfo entry = null;
-          foreach (Type t in mod.GetExportedTypes())
-          {
-            if (t.BaseType == typeof(CustomSymbolDictionary))
-            {
-              List<Type> ii = new List<Type>(t.GetInterfaces());
-              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
-              {
-                entry = t.GetMethod("Initialize");
-                if (entry != null)
-                {
-                  break;
-                }
-              }
-            }
-          }
-
-          if (entry == null)
-          {
-            // what now?
-          }
-          else
-          {
-            IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as 
-              IModuleDictionaryInitialization;
-            init.InitializeModuleDictionary(cc);
-            entry.Invoke(null, new object[] { cc });
           }
           break;
         default:
@@ -489,18 +464,11 @@ namespace IronScheme.Runtime
       FastCallable f = RequiresNotNull<FastCallable>(fc1);
       string path = RequiresNotNull<string>(filename);
 
-      try
+      using (TextReader r = File.OpenText(path))
       {
-        using (TextReader r = File.OpenText(path))
-        {
-          f.Call(cc, r);
-          return true;
-        }
+        f.Call(cc, r);
       }
-      catch
-      {
-        return false;
-      }
+      return Unspecified;
     }
 
     [Builtin("call-with-output-file")]
@@ -509,18 +477,11 @@ namespace IronScheme.Runtime
       FastCallable f = RequiresNotNull<FastCallable>(fc1);
       string path = RequiresNotNull<string>(filename);
 
-      try
+      using (TextWriter w = File.CreateText(path))
       {
-        using (TextWriter w = File.CreateText(path))
-        {
-          f.Call(cc, w);
-          return true;
-        }
+        f.Call(cc, w);
       }
-      catch
-      {
-        return false;
-      }
+      return Unspecified;
     }
 
     [Builtin("current-input-port")]
