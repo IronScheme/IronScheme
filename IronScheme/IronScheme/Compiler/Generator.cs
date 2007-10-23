@@ -12,21 +12,36 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using System.Diagnostics;
 
+[assembly: Extension(GeneratorType=typeof(Generator), BuiltinsType=typeof(Builtins))]
+
 namespace IronScheme.Compiler
 {
-  static partial class Generator
+  [AttributeUsage(AttributeTargets.Method, AllowMultiple=true)]
+  public sealed class GeneratorAttribute : Attribute
+  {
+    string name;
+
+    public string Name
+    {
+      get { return name; }
+      set { name = value; }
+    }
+
+    public GeneratorAttribute()
+    {
+    }
+
+    public GeneratorAttribute(string name)
+    {
+      this.name = name;
+    }
+  }
+
+  public static partial class Generator
   {
     static Generator()
     {
-      Add("set!", Set);
-      Add("quote", Quote);
-      Add("lambda", Lambda);
-      Add("if", If);
-      Add("define", Define);
-      Add("macro", Macro);
-      Add("quasiquote", Quasiquote);
-      Add("time", Time);
-      Add("assert", Assert);
+      AddGenerators(typeof(Generator));
       
       Initialize();
     }
@@ -149,6 +164,7 @@ namespace IronScheme.Compiler
     }
 
     // quote
+    [Generator]
     public static Expression Quote(object args, CodeBlock cb)
     {
       int t = nestinglevel;
@@ -164,6 +180,7 @@ namespace IronScheme.Compiler
     }
 
     // set!
+    [Generator("set!")]
     public static Expression Set(object args, CodeBlock cb)
     {
       SymbolId s = (SymbolId)Builtins.First(args);
@@ -190,6 +207,7 @@ namespace IronScheme.Compiler
     }
     
     // define
+    [Generator]
     public static Expression Define(object args, CodeBlock cb)
     {
       SymbolId s = (SymbolId)Builtins.First(args);
@@ -217,6 +235,7 @@ namespace IronScheme.Compiler
 
 
     // macro
+    [Generator]
     public static Expression Macro(object args, CodeBlock c)
     {
       CodeBlock cb = Ast.CodeBlock(GetFullname(NameHint, c));
@@ -241,6 +260,7 @@ namespace IronScheme.Compiler
     }
     
     // lambda
+    [Generator]
     public static Expression Lambda(object args, CodeBlock c)
     {
       CodeBlock cb = Ast.CodeBlock(GetFullname(NameHint, c));
@@ -260,6 +280,7 @@ namespace IronScheme.Compiler
     }
 
     // if
+    [Generator]
     public static Expression If(object args, CodeBlock cb)
     {
       int alen = Builtins.Length(args);
@@ -306,6 +327,7 @@ namespace IronScheme.Compiler
     static int nestinglevel = 0;
 
     // quasiquote
+    [Generator]
     public static Expression Quasiquote(object args, CodeBlock cb)
     {
       nestinglevel++;
