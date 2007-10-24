@@ -90,12 +90,12 @@ namespace IronScheme.Hosting
         get
         {
           ConsoleOptions co = new IronSchemeConsoleOptions();
-          co.TabCompletion = true;
+          //co.TabCompletion = true;
           co.ColorfulConsole = true;
-          co.AutoIndent = true;
+          //co.AutoIndent = true;
           co.AutoIndentSize = 2;
-          co.Introspection = true;
-          co.TabCompletion = true;
+          //co.Introspection = true;
+          //co.TabCompletion = true;
           return co;
         }
         set

@@ -17,7 +17,7 @@ using System.Text;
 using IronScheme.Hosting;
 using Microsoft.Scripting;
 
-namespace IronSchemeConsole
+namespace IronScheme.Console
 {
   class Program
   {

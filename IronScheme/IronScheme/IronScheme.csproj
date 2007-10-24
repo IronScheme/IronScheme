@@ -45,7 +45,7 @@
     <Compile Include="Compiler\Generator.Methods.cs" />
     <Compile Include="Compiler\IronScheme.lex.cs" />
     <Compile Include="Compiler\IronScheme.y.cs" />
-    <Compile Include="Compiler\SyntaxTransform.cs" />
+    <Compile Include="Compiler\SyntaxExpand.cs" />
     <Compile Include="gppg\IScanner.cs" />
     <Compile Include="gppg\ParserStack.cs" />
     <Compile Include="gppg\Rule.cs" />

@@ -41,3 +41,29 @@
                    (or ,@(cdr e))))))))
                    
                    
+(define-macro (cond . clauses)
+  (if (null? clauses)
+      ;; return unspecified
+      `(if #f #f)
+      ;; look at first clause
+      (let ((clause (car clauses))
+            (rest (cdr clauses))
+            (t (gensym)))
+        ;; single case 
+        (if (null? (cdr clause))
+            `(let ((,t ,(car clause)))
+               (if ,t ,t
+                   (cond ,@rest)))
+            ;; check for else
+            (if (eq? (car clause) 'else)
+                `(begin ,@(cdr clause))
+                ;; check for =>
+                (if (eq? (second clause) '=>)
+                    `(let ((,t ,(car clause)))
+                       (if ,t (,(third clause) ,t)
+                           (cond ,@rest)))
+                    ;; last case
+                    `(let ((,t ,(car clause)))
+                       (if ,t (begin ,@(cdr clause))
+                           (cond ,@rest)))))))))
+                   

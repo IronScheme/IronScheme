@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{5AD643C7-80C7-42A4-82B5-05ACF677FA83}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IronSchemeConsole</RootNamespace>
-    <AssemblyName>IronSchemeConsole</AssemblyName>
+    <RootNamespace>IronScheme.Clr</RootNamespace>
+    <AssemblyName>IronScheme.Clr</AssemblyName>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
@@ -37,14 +37,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Clr.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IronScheme.Diagnostics\IronScheme.Diagnostics.csproj">
-      <Project>{EC64AB10-2924-473F-BF1E-EC5E73C345CB}</Project>
-      <Name>IronScheme.Diagnostics</Name>
-    </ProjectReference>
     <ProjectReference Include="..\IronScheme\IronScheme.csproj">
       <Project>{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}</Project>
       <Name>IronScheme</Name>
@@ -53,17 +49,6 @@
       <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
       <Name>Microsoft.Scripting</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="core.scm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="init.scm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="test.scm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

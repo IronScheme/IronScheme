@@ -88,9 +88,9 @@ namespace IronScheme.Compiler
             Runtime.Macro macro = m as Runtime.Macro;
             if (macro != null)
             {
-              //Debug.WriteLine(c, "macro::in ");
-              object result = macro.Invoke(Compiler, c.Cdr);
-              //Debug.WriteLine(result, "macro::out");
+              Debug.WriteLine(c, "macro::in ");
+              object result = SyntaxExpander.Expand(macro.Invoke(Compiler, c.Cdr));
+              Debug.WriteLine(result, "macro::out");
               if (result is Cons && Parser.sourcemap.ContainsKey(c))
               {
                 Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
