@@ -76,19 +76,19 @@ namespace IronScheme.Runtime
       return result;
     }
 
-    static int symcount = 600;
+    static int symcount = 0;
 
     [Builtin]
     public static SymbolId GenSym()
     {
-      return SymbolTable.StringToId("gensym::anonymous::" + symcount++);
+      return SymbolTable.StringToId("#g:" + symcount++);
     }
 
     [Builtin]
     public static SymbolId GenSym(object name)
     {
       string s = RequiresNotNull<string>(name);
-      return SymbolTable.StringToId("gensym::" + s + "::" + symcount++);
+      return SymbolTable.StringToId("#g:" + s + ":" + symcount++);
     }
 
     [Builtin]
