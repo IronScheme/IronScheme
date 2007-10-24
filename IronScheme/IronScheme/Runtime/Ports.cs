@@ -30,16 +30,50 @@ namespace IronScheme.Runtime
   {
 
     [Builtin("with-input-from-file")]
-    public static object WithInputFromFile(object filename, object thunk)
+    public static object WithInputFromFile(CodeContext cc, object filename, object thunk)
     {
-      throw new NotImplementedException();
+      FastCallable f = RequiresNotNull<FastCallable>(thunk);
+      string path = RequiresNotNull<string>(filename);
+
+      TextReader old = Console.In;
+
+      try
+      {
+        using (TextReader r = File.OpenText(path))
+        {
+          Console.SetIn(r);
+          f.Call(cc);
+        }
+      }
+      finally
+      {
+        Console.SetIn(old);
+      }
+      return Unspecified;
     }
 
 
     [Builtin("with-output-to-file")]
-    public static object WithOutputToFile(object filename, object thunk)
+    public static object WithOutputToFile(CodeContext cc, object filename, object thunk)
     {
-      throw new NotImplementedException();
+      FastCallable f = RequiresNotNull<FastCallable>(thunk);
+      string path = RequiresNotNull<string>(filename);
+
+      TextWriter old = Console.Out;
+
+      try
+      {
+        using (TextWriter w = File.CreateText(path))
+        {
+          Console.SetOut(w);
+          f.Call(cc);
+        }
+      }
+      finally
+      {
+        Console.SetOut(old);
+      }
+      return Unspecified;
     }
 
     [Builtin("transcript-off")]
@@ -143,6 +177,42 @@ namespace IronScheme.Runtime
     public static bool IsEof(object obj)
     {
       return obj == EOF;
+    }
+
+    [Builtin("read-all")]
+    public static object ReadAll()
+    {
+      return ReadAll(CurrentInputPort());
+    }
+
+    [Builtin("read-all")]
+    public static object ReadAll(object port)
+    {
+      TextReader r = RequiresNotNull<TextReader>(port);
+      string c = r.ReadToEnd();
+      if (c == null)
+      {
+        return EOF;
+      }
+      return c;
+    }
+
+    [Builtin("read-line")]
+    public static object ReadLine()
+    {
+      return ReadLine(CurrentInputPort());
+    }
+
+    [Builtin("read-line")]
+    public static object ReadLine(object port)
+    {
+      TextReader r = RequiresNotNull<TextReader>(port);
+      string c = r.ReadLine();
+      if (c == null)
+      {
+        return EOF;
+      }
+      return c;
     }
 
     [Builtin("read-char")]
