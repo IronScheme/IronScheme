@@ -49,7 +49,7 @@ namespace IronScheme.Compiler
         {
           SymbolId s = (SymbolId)c.Car;
 
-          if (s == Generator.unquote || s == Generator.quasiquote)
+          if (s == Generator.quote || s == Generator.quasiquote)
           {
             return input;
           }
@@ -60,7 +60,9 @@ namespace IronScheme.Compiler
             if (value is Runtime.Macro)
             {
               Runtime.Macro m = value as Runtime.Macro;
-              object result = Expand(m.Invoke(Generator.Compiler, c.Cdr));
+
+              object result = m.Invoke(Generator.Compiler, c.Cdr);
+              result = Expand(result);
 
               if (result == null)
               {

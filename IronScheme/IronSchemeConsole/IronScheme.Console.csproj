@@ -65,6 +65,9 @@
     <None Include="init.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="mbe.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="test.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

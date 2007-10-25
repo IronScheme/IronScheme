@@ -26,11 +26,11 @@ namespace IronScheme.Hosting
       ScriptDomainManager.Options.AssemblyGenAttributes |=
 #if DEBUG
         Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies //|
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations //|
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
         //Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies|
 #endif
- //Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies
+ Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies
  ;
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
     }
@@ -56,6 +56,7 @@ namespace IronScheme.Hosting
     protected override void UnhandledException(IScriptEngine engine, Exception e)
     {
       base.UnhandledException(engine, e);
+      Console.ReadLine();
     }
   }
 }

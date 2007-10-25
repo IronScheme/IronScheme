@@ -330,8 +330,15 @@ namespace IronScheme.Compiler
 
     static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
-      return Ast.SimpleCallHelper(varargs ? Closure_MakeVarArgsX : Closure_Make
-        , Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Name));
+      if (varargs)
+      {
+        return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false),
+          Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
+      }
+      else
+      {
+        return Ast.SimpleCallHelper(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Name));
+      }
     }
 
     static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
@@ -422,9 +429,17 @@ namespace IronScheme.Compiler
       {
         if (nestinglevel == 1 && c.Car is Cons && Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
         {
-          Cons l = Builtins.Cdar(c) as Cons;
-          splices.Add(e.Count);
-          e.Add(GetAst(l.Car, cb));
+          nestinglevel--;
+          try
+          {
+            Cons l = Builtins.Cdar(c) as Cons;
+            splices.Add(e.Count);
+            e.Add(GetAst(l.Car, cb));
+          }
+          finally
+          {
+            nestinglevel++;
+          }
         }
         else
         {
