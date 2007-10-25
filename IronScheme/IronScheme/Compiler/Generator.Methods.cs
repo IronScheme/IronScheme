@@ -9,6 +9,7 @@ namespace IronScheme.Compiler
   static partial class Generator
   {
     static readonly MethodInfo Builtins_Cons = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) });
+    static readonly MethodInfo Builtins_Cons2 = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) , typeof(object)});
     static readonly MethodInfo Builtins_Append = typeof(Builtins).GetMethod("Append");
     static readonly MethodInfo Builtins_ToImproper = typeof(Builtins).GetMethod("ToImproper");
 

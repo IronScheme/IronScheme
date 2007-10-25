@@ -295,7 +295,7 @@ namespace Microsoft.Scripting.Ast {
             cg.Emit(OpCodes.Newarr, typeof(SymbolId));
 
             int index = 0;
-            cg.EmitDebugMarker("--- Environment IDs ---");
+            //cg.EmitDebugMarker("--- Environment IDs ---");
 
             foreach (Variable prm in _parameters) {
                 if (prm.Lift) {
@@ -308,7 +308,7 @@ namespace Microsoft.Scripting.Ast {
                     EmitSetVariableName(cg, index++, var.Name);
                 }
             }
-            cg.EmitDebugMarker("--- End Environment IDs ---");
+            //cg.EmitDebugMarker("--- End Environment IDs ---");
         }
 
         private static void EmitSetVariableName(CodeGen cg, int index, SymbolId name) {
@@ -348,7 +348,7 @@ namespace Microsoft.Scripting.Ast {
         internal EnvironmentSlot EmitEnvironmentAllocation(CodeGen cg) {
             Debug.Assert(_environmentFactory != null);
 
-            cg.EmitDebugMarker("-- ENV ALLOC START --");
+            //cg.EmitDebugMarker("-- ENV ALLOC START --");
 
             _environmentFactory.EmitStorage(cg);
             cg.Emit(OpCodes.Dup);
@@ -362,7 +362,7 @@ namespace Microsoft.Scripting.Ast {
 
             _environmentFactory.EmitNewEnvironment(cg);
 
-            cg.EmitDebugMarker("-- ENV ALLOC END --");
+            //cg.EmitDebugMarker("-- ENV ALLOC END --");
 
             return environmentSlot;
         }

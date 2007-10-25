@@ -55,7 +55,15 @@ namespace IronScheme.Compiler
       {
         if (nestinglevel == 1 && Builtins.IsEqual(c.Car, unquote))
         {
-          return GetAst(Builtins.Second(c), cb);
+          nestinglevel--;
+          try
+          {
+            return GetAst(Builtins.Second(c), cb);
+          }
+          finally
+          {
+            nestinglevel++;
+          }
         }
         return GetConsList(c, cb);
       }
@@ -88,9 +96,9 @@ namespace IronScheme.Compiler
             Runtime.Macro macro = m as Runtime.Macro;
             if (macro != null)
             {
-              Debug.WriteLine(c, "macro::in ");
+              Debug.WriteLine(Builtins.DisplayFormat(c), "macro::in ");
               object result = SyntaxExpander.Expand(macro.Invoke(Compiler, c.Cdr));
-              Debug.WriteLine(result, "macro::out");
+              Debug.WriteLine(Builtins.DisplayFormat(result), "macro::out");
               if (result is Cons && Parser.sourcemap.ContainsKey(c))
               {
                 Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
@@ -309,6 +317,27 @@ namespace IronScheme.Compiler
       object trueexp = Builtins.Second(args);
       object falseexp = alen == 3 ? Builtins.Third(args) : null;
 
+      // fast check for (if #f #f) == Unspecified or (if #t ...)
+      if (test is bool) // constant
+      {
+        bool tt = (bool)test;
+        if (tt)
+        {
+          return GetAst(test, cb);
+        }
+        else
+        {
+          if (falseexp == null)
+          {
+            return Ast.ReadField(null, Unspecified);
+          }
+          else
+          {
+            return GetAst(falseexp, cb);
+          }
+        }
+      }
+
       Expression e = null;
       if (falseexp != null)
       {
@@ -350,7 +379,14 @@ namespace IronScheme.Compiler
       nestinglevel++;
       try
       {
-        return GetCons(Builtins.First(args), cb);
+        if (nestinglevel == 1)
+        {
+          return GetCons(Builtins.First(args), cb);
+        }
+        else
+        {
+          return Ast.SimpleCallHelper(Builtins_Cons2, Ast.Constant(quasiquote), GetCons(args, cb));
+        }
       }
       finally
       {

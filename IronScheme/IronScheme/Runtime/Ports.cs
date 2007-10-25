@@ -347,7 +347,7 @@ namespace IronScheme.Runtime
         if (s != null)
         {
           object scar = s.Car;
-          if (IsSymbol(scar))
+          if (IsSymbol(scar) && s.Cdr != null)
           {
             if (IsEqual(quote, scar))
             {
