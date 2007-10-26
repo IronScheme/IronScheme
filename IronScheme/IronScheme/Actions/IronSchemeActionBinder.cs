@@ -107,7 +107,7 @@ namespace IronScheme.Actions
     {
       if (paramType == typeof(void))
       {
-        cg.Emit(System.Reflection.Emit.OpCodes.Pop);
+        cg.EmitFieldGet(Compiler.Generator.Unspecified);
       }
       else
       {
@@ -120,7 +120,7 @@ namespace IronScheme.Actions
       throw new Exception("The method or operation is not implemented.");
     }
 
-    public override Microsoft.Scripting.Ast.Expression ConvertExpression(Microsoft.Scripting.Ast.Expression expr, Type toType)
+    public override Expression ConvertExpression(Expression expr, Type toType)
     {
       if (toType == typeof(object))
       {
@@ -130,7 +130,7 @@ namespace IronScheme.Actions
       {
         return expr;
       }
-      return Microsoft.Scripting.Ast.Ast.Convert(expr, toType);
+      return Ast.DynamicConvert(expr, toType);
       //throw new NotImplementedException("The method or operation is not implemented.");
     }
 

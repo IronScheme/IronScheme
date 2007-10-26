@@ -16,36 +16,17 @@ using System.Collections.Generic;
 using System.Text;
 using IronScheme.Hosting;
 using Microsoft.Scripting;
+using IronScheme.Runtime;
+
+[assembly: Extension(GeneratorType = typeof(IronScheme.Console.ConsoleGenerator),
+  BuiltinsType=typeof(IronScheme.Console.ConsoleBuiltins))]
 
 namespace IronScheme.Console
 {
   class Program
   {
-
     static int Main(string[] args)
     {
-//      ScriptDomainManager.CurrentManager.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".scm");
-//#if DEBUG
-//      ScriptDomainManager.Options.AssemblyGenAttributes |=
-//        Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-//        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
-//        Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies |
-//        Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
-//        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
-//      //ScriptDomainManager.Options.DumpASTs = true;
-//      //ScriptDomainManager.Options.OptimizeEnvironments = false ;
-//#endif
-//      ScriptDomainManager.Options.DynamicStackTraceSupport = false;
-//      //ScriptDomainManager.Options.Frames = true;
-
-//      //Script.Evaluate(".ls", "(prl \"hello world\")");
-//      Script.ExecuteFile("test.scm");
-//      //Script.Execute(".ls", "(prl 1)");
-//      //Script.ExecuteFileContent("test.ls");
-
-//      //Console.ReadLine();
-//      return 0;
-
       return new IronSchemeConsoleHost().Run(args);
     }
   }

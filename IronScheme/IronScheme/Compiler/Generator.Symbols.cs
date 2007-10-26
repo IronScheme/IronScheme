@@ -5,7 +5,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
-  static partial class Generator
+  partial class Generator
   {
     internal static readonly SymbolId quote = SymbolTable.StringToId("quote");
     static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");

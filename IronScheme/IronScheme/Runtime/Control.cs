@@ -22,7 +22,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  public static partial class Builtins
+  public partial class Builtins
   {
     [Builtin]
     public static object Values(params object[] values)

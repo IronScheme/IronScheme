@@ -12,7 +12,7 @@ using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Compiler
 {
-  static partial class Generator
+  partial class Generator
   {
 
 
@@ -40,7 +40,7 @@ namespace IronScheme.Compiler
       CC = se.CreateContext(mc);
 
       // builtin methods
-
+      AddGenerators(typeof(Generator));
       AddBuiltins(typeof(Builtins));
 
 
@@ -70,7 +70,8 @@ namespace IronScheme.Compiler
 
       foreach (string mn in all.Keys)
       {
-        builtinmap[SymbolTable.StringToId(mn)] = BuiltinFunction.MakeMethod(mn, all[mn].ToArray(), FunctionType.Function);
+        SymbolId s = SymbolTable.StringToId(mn);
+        Compiler.Scope.SetName(s, builtinmap[s] = BuiltinFunction.MakeMethod(mn, all[mn].ToArray(), FunctionType.Function));
       }
     }
 

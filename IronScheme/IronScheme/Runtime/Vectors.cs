@@ -21,7 +21,7 @@ using System.Collections;
 
 namespace IronScheme.Runtime
 {
-  public static partial class Builtins
+  public partial class Builtins
   {
     /*
 ; 6.3.6

@@ -26,7 +26,7 @@ using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
-  public static partial class Builtins
+  public partial class Builtins
   {
 
     [Builtin("with-input-from-file")]
@@ -89,12 +89,21 @@ namespace IronScheme.Runtime
     [Builtin("load")]
     public static object Load(CodeContext cc, object filename)
     {
-      Compiler.Generator.Compiler = cc;
+      if (cc.Scope.ModuleScope != Compiler.Generator.Compiler.Scope.ModuleScope)
+      {
+        foreach (KeyValuePair<SymbolId, object> kv in Compiler.Generator.Compiler.Scope.Items)
+        {
+          cc.Scope.SetName(kv.Key, kv.Value);
+        }
+        Compiler.Generator.Compiler = cc;
+      }
+
       string path = filename as string;
 
       switch (Path.GetExtension(path))
       {
         case ".dll":
+        case ".exe":
           Assembly ext = Assembly.LoadFile(Path.GetFullPath(path));
           if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
           {

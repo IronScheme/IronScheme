@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Shell;
+using System.IO;
 
 namespace IronScheme.Hosting
 {
@@ -58,6 +59,15 @@ namespace IronScheme.Hosting
       protected override string PromptContinuation
       {
         get{ return ". ";}
+      }
+
+      protected override void Initialize()
+      {
+        if (File.Exists("REPL.ast"))
+        {
+          File.Delete("REPL.ast");
+        }
+        base.Initialize();
       }
 
       protected override void OnInteractiveLoopStart()
@@ -113,7 +123,7 @@ namespace IronScheme.Hosting
         get
         {
           EngineOptions eo = new IronSchemeEngineOptions();
-          eo.ClrDebuggingEnabled = true;
+          //eo.ClrDebuggingEnabled = true;
           eo.ProfileDrivenCompilation = false;
           return eo;
         }

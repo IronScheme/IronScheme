@@ -149,7 +149,7 @@ namespace IronScheme
 
       if (p.Parse())
       {
-        Cons parsed = SyntaxExpander.Expand(p.parsed);
+        Cons parsed = p.parsed;
         if (parsed != null)
         {
           return parsed.Car;
@@ -170,8 +170,7 @@ namespace IronScheme
 
       if (p.Parse())
       {
-        Cons parsed = //SyntaxTransform.Transform(
-          p.parsed;
+        Cons parsed = p.parsed;
 
         CodeBlock cb = Ast.CodeBlock(!clearresolver ? "__toploop__" : "__script__");
         cb.IsGlobal = true;

@@ -37,11 +37,11 @@ namespace IronScheme.Compiler
     }
   }
 
-  public static partial class Generator
+  public partial class Generator
   {
     static Generator()
     {
-      AddGenerators(typeof(Generator));
+      
       
       Initialize();
     }
@@ -78,6 +78,14 @@ namespace IronScheme.Compiler
       }
     }
 
+    static bool macrotrace = false;
+
+    public static bool MacroTrace
+    {
+      get { return Generator.macrotrace; }
+      set { Generator.macrotrace = value; }
+    }
+
 
     public static Expression GetAst(object args, CodeBlock cb)
     {
@@ -96,9 +104,15 @@ namespace IronScheme.Compiler
             Runtime.Macro macro = m as Runtime.Macro;
             if (macro != null)
             {
-              Debug.WriteLine(Builtins.DisplayFormat(c), "macro::in ");
+              if (macrotrace)
+              {
+                Debug.WriteLine(Builtins.DisplayFormat(c), "macro::in ");
+              }
               object result = SyntaxExpander.Expand(macro.Invoke(Compiler, c.Cdr));
-              Debug.WriteLine(Builtins.DisplayFormat(result), "macro::out");
+              if (macrotrace)
+              {
+                Debug.WriteLine(Builtins.DisplayFormat(result), "macro::out");
+              }
               if (result is Cons && Parser.sourcemap.ContainsKey(c))
               {
                 Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
@@ -107,39 +121,21 @@ namespace IronScheme.Compiler
             }
           }
 
-          //if (f == SymbolTable.StringToId("macro-expand1"))
-          //{
-          //  args = Builtins.Cadr(args);
-          //  f = (SymbolId)Builtins.First(args); 
+          if (f == SymbolTable.StringToId("macro-expand1"))
+          {
+            args = Builtins.Cadr(args);
+            object result = SyntaxExpander.Expand1(args);
+            result = new Cons(quote, new Cons(result));
+            return GetAst(result, cb);
+          }
 
-          //  if (Compiler.Scope.TryLookupName(f, out m))
-          //  {
-          //    Runtime.Macro macro = m as Runtime.Macro;
-          //    if (macro != null)
-          //    {
-          //      object result = macro.Invoke(Compiler, c.Cdr);
-          //      result = new Cons(quote, new Cons(result));
-          //      return GetAst(result, cb);
-          //    }
-          //  }
-          //}
-
-          //if (f == SymbolTable.StringToId("macro-expand"))
-          //{
-          //  args = Builtins.Cadr(args);
-          //  f = (SymbolId)Builtins.First(args);
-
-          //  if (Compiler.Scope.TryLookupName(f, out m))
-          //  {
-          //    Runtime.Macro macro = m as Runtime.Macro;
-          //    if (macro != null)
-          //    {
-          //      object result = macro.Invoke(Compiler, c.Cdr);
-          //      Expression r = GetAst(result, cb);
-          //      return r;
-          //    }
-          //  }
-          //}
+          if (f == SymbolTable.StringToId("macro-expand"))
+          {
+            args = Builtins.Cadr(args);
+            object result = SyntaxExpander.Expand(args);
+            result = new Cons(quote, new Cons(result));
+            return GetAst(result, cb);
+          }
 
           GeneratorHandler gh;
           if (generators.TryGetValue(f, out gh))
