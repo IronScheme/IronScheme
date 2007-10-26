@@ -42,14 +42,13 @@ namespace IronScheme.Runtime
         using (TextReader r = File.OpenText(path))
         {
           Console.SetIn(r);
-          f.Call(cc);
+          return f.Call(cc);
         }
       }
       finally
       {
         Console.SetIn(old);
       }
-      return Unspecified;
     }
 
 
@@ -66,14 +65,13 @@ namespace IronScheme.Runtime
         using (TextWriter w = File.CreateText(path))
         {
           Console.SetOut(w);
-          f.Call(cc);
+          return f.Call(cc);
         }
       }
       finally
       {
         Console.SetOut(old);
       }
-      return Unspecified;
     }
 
     [Builtin("transcript-off")]
@@ -536,9 +534,8 @@ namespace IronScheme.Runtime
 
       using (TextReader r = File.OpenText(path))
       {
-        f.Call(cc, r);
+        return f.Call(cc, r);
       }
-      return Unspecified;
     }
 
     [Builtin("call-with-output-file")]
@@ -549,9 +546,8 @@ namespace IronScheme.Runtime
 
       using (TextWriter w = File.CreateText(path))
       {
-        f.Call(cc, w);
+        return f.Call(cc, w);
       }
-      return Unspecified;
     }
 
     [Builtin("current-input-port")]

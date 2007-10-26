@@ -64,11 +64,6 @@ namespace IronScheme.Compiler
               object result = m.Invoke(Generator.Compiler, c.Cdr);
               result = Expand(result);
 
-              if (result == null)
-              {
-                Debugger.Break();
-              }
-
               return result;
             }
           }
