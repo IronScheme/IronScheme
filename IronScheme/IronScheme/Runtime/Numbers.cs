@@ -20,7 +20,7 @@ using Microsoft.Scripting.Utils;
 
 namespace IronScheme.Runtime
 {
-  public static partial class Builtins
+  public partial class Builtins
   {
     [Builtin("number->string")]
     public static string NumberToString(object obj)

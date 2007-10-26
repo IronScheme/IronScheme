@@ -14,12 +14,12 @@ using Generator = IronScheme.Compiler.Generator;
 
 namespace IronScheme.Diagnostics
 {
-  static class DiagGenerator
+  public class DiagGenerator : Generator
   {
     static readonly MethodInfo Stopwatch_StartNew = typeof(Stopwatch).GetMethod("StartNew");
     static readonly MethodInfo Stopwatch_Elapsed = typeof(Stopwatch).GetMethod("get_Elapsed");
     static readonly MethodInfo Trace_Assert = typeof(Trace).GetMethod("Assert", new Type[] { typeof(bool), typeof(string) });
-    static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
+    //static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
     static readonly MethodInfo Console_WriteLine = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(object) });
 
     // trace timing
@@ -30,7 +30,7 @@ namespace IronScheme.Diagnostics
 
       return Ast.Comma(1, Ast.Assign(sw, Ast.Call(Stopwatch_StartNew)),
         Generator.GetAst(Builtins.Car(args), cb),
-        Ast.SimpleCallHelper(Console_WriteLine, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
+        Ast.SimpleCallHelper(Builtins_Display, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
     }
 
     // assert
@@ -42,7 +42,7 @@ namespace IronScheme.Diagnostics
 
       return Ast.Comma( Ast.SimpleCallHelper(Trace_Assert,
         Ast.SimpleCallHelper(Builtins_IsTrue, Generator.GetAst(test, cb)), Ast.Constant(teststr)), 
-        Ast.ReadField(null, Generator.Unspecified));
+        Ast.ReadField(null, Unspecified));
     }
   }
 }

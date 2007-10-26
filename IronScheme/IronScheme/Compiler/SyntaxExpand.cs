@@ -42,6 +42,16 @@ namespace IronScheme.Compiler
 
     public static object Expand(object input)
     {
+      return Expand(input, false);
+    }
+
+    public static object Expand1(object input)
+    {
+      return Expand(input, true);
+    }
+
+    static object Expand(object input, bool expand1)
+    {
       Cons c = input as Cons;
       if (c != null)
       {
@@ -62,6 +72,10 @@ namespace IronScheme.Compiler
               Runtime.Macro m = value as Runtime.Macro;
 
               object result = m.Invoke(Generator.Compiler, c.Cdr);
+              if (expand1)
+              {
+                return result;
+              }
               result = Expand(result);
 
               return result;

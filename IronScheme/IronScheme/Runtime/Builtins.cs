@@ -46,7 +46,7 @@ namespace IronScheme.Runtime
     }
   }
 
-  public static partial class Builtins
+  public partial class Builtins
   {
     public static bool IsTrue(object arg)
     {

@@ -23,7 +23,7 @@ using System.IO;
 
 namespace IronScheme.Runtime
 {
-  public static partial class Builtins
+  public partial class Builtins
   {
     /*
 

@@ -77,7 +77,7 @@ namespace IronScheme.Hosting
     {
       get
       {
-        return "leppie 2007";
+        return "leppie (c) 2007";
       }
     }
 

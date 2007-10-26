@@ -22,7 +22,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  public static partial class Builtins
+  public partial class Builtins
   {
     /*
 ; 6.3.2

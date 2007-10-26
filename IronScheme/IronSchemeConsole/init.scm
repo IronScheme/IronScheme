@@ -1,8 +1,20 @@
 
-(display "Loading init.scm ... ")
+(display "Loading init.scm .")
+
+;; load some additional console helpers 
+(load "IronScheme.Console.exe")
+
+(display ".")
 
 ;; load core macros
 (load "core.scm")
+
+(display ".")
+
+;; now load Macro by Example for define-syntax
+(load "mbe.scm")
+
+(display ".")
 
 ;; this wil call load immediately, use with care :p
 ;; this is usefull for loading references at compile-time
@@ -19,5 +31,5 @@
 
 
 
-(display "done.")
+(display " done.")
 (newline)

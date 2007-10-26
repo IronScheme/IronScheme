@@ -20,7 +20,7 @@ using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
-  public static partial class Builtins
+  public partial class Builtins
   {
     [Builtin("equal?")]
     public static bool IsEquivalent(object first, object second)

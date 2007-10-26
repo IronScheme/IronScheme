@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace IronScheme.Compiler
 {
-  static partial class Generator
+  partial class Generator
   {
     delegate Expression GeneratorHandler(object args, CodeBlock cb);
 
@@ -15,7 +15,9 @@ namespace IronScheme.Compiler
 
     static void Add(string name, GeneratorHandler handler)
     {
-      generators[SymbolTable.StringToId(name)] = handler;
+      SymbolId s = SymbolTable.StringToId(name);
+      Compiler.ModuleContext.Module.Scope.SetName(s, handler);
+      generators[s] = handler;
     }
 
     public static void AddGenerators(Type generatortype)
