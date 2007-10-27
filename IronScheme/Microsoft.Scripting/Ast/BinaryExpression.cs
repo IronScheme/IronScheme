@@ -354,7 +354,8 @@ namespace Microsoft.Scripting.Ast {
         protected override object DoEvaluate(CodeContext context) {
             if (_op == BinaryOperators.AndAlso) {
                 object ret = _left.Evaluate(context);
-                return ((bool)ret) ? _right.Evaluate(context) : ret;
+                object rr = ((bool)ret) ? _right.Evaluate(context) : ret;
+                return rr;
             } else if (_op == BinaryOperators.OrElse) {
                 object ret = _left.Evaluate(context);
                 return ((bool)ret) ? ret : _right.Evaluate(context);

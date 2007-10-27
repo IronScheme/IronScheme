@@ -138,7 +138,7 @@ namespace Microsoft.Scripting {
                     formalCount = minFormalNormalArgumentCount - defaultArgumentCount;
                 } else {
                     formalCountQualifier = "at most";
-                    formalCount = minFormalNormalArgumentCount;
+                    formalCount = maxFormalNormalArgumentCount;
                 }
             } else {
                 formalCountQualifier = "exactly";

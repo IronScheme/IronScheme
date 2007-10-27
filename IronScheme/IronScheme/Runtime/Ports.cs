@@ -129,10 +129,19 @@ namespace IronScheme.Runtime
           }
           break;
         default:
-          SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
-          ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
+          // this still bombs out too much
+          //Compiler.Generator.CanAllowTailCall = true;
+          try
+          {
+            SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
+            ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
 
-          object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+            object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+          }
+          finally
+          {
+            Compiler.Generator.CanAllowTailCall = false;
+          }
           break;
       }
 
@@ -364,7 +373,7 @@ namespace IronScheme.Runtime
               {
                 return "Number";
               }
-              if (typeof(Closure).IsAssignableFrom(t))
+              if (typeof(FastCallable).IsAssignableFrom(t))
               {
                 return "Procedure";
               }
@@ -376,7 +385,7 @@ namespace IronScheme.Runtime
               {
                 return "Vector";
               }
-              return obj.GetType().Name;
+              return t.Name;
             }
           case TypeCode.String:
             return "String";

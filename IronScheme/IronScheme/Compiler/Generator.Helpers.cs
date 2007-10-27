@@ -306,7 +306,7 @@ namespace IronScheme.Compiler
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
     }
 
-    static readonly Microsoft.Scripting.Actions.ActionBinder BINDER = new IronScheme.Actions.IronSchemeActionBinder(null);
+    internal static readonly Microsoft.Scripting.Actions.ActionBinder BINDER = new IronScheme.Actions.IronSchemeActionBinder(null);
 
     static MethodBase[] GetMethods(Type type, string name)
     {
@@ -331,6 +331,7 @@ namespace IronScheme.Compiler
 
     static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
+      cb.BindClosures();
       if (varargs)
       {
         return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false),
@@ -342,6 +343,14 @@ namespace IronScheme.Compiler
       }
     }
 
+    static bool canallowtailcall = false;
+
+    internal static bool CanAllowTailCall
+    {
+      get { return Generator.canallowtailcall; }
+      set { Generator.canallowtailcall = value; }
+    }
+
     static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
       Cons c = body;
@@ -351,15 +360,15 @@ namespace IronScheme.Compiler
         Statement s = null;
         if (c.Cdr == null)
         {
-          if (allowtailcall)
+          if (canallowtailcall && allowtailcall)
           {
             if (e is MethodCallExpression && e.Type != typeof(void))
             {
-              // ((MethodCallExpression)e).TailCall = true;
+              ((MethodCallExpression)e).TailCall = true;
             }
             if (e is ActionExpression && e.Type != typeof(void))
             {
-              //((ActionExpression)e).TailCall = true;
+              ((ActionExpression)e).TailCall = true;
             }
           }
 

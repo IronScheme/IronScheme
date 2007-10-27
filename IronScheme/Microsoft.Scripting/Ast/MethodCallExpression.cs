@@ -168,7 +168,15 @@ namespace Microsoft.Scripting.Ast {
             }
 
             // Emit the actual call
-            cg.EmitCall(_method);
+            cg.EmitCall(_method, tailcall);
+        }
+
+        bool tailcall = false;
+
+        public bool TailCall
+        {
+          get { return tailcall; }
+          set { tailcall = value; }
         }
 
         private static void EmitArgument(CodeGen cg, Expression argument, Type type) {

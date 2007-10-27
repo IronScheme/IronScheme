@@ -27,13 +27,23 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Values(params object[] values)
     {
-      throw new NotImplementedException();
+      return values;
     }
 
     [Builtin("call-with-values")]
-    public static object CallWithValues(object producer, object consumer)
+    public static object CallWithValues(CodeContext cc, object producer, object consumer)
     {
-      throw new NotImplementedException();
+      FastCallable pro = RequiresNotNull<FastCallable>(producer);
+      FastCallable con = RequiresNotNull<FastCallable>(consumer);
+
+      object r = pro.Call(cc);
+
+      if (r is object[])
+      {
+        return con.Call(cc, (object[])r);
+      }
+
+      return con.Call(cc, r);
     }
 
     [Builtin("dynamic-wind")]
@@ -55,7 +65,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    class Continuation : Exception
+    internal class Continuation : Exception
     {
       readonly object value;
 
@@ -200,7 +210,7 @@ namespace IronScheme.Runtime
 
       while (c != null)
       {
-        Apply(cc, fn, c);
+        Apply(cc, fn, new Cons(c.Car));
         c = c.Cdr as Cons;
       }
       return Unspecified;
