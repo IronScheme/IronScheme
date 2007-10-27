@@ -53,6 +53,26 @@ namespace IronScheme.Hosting
         SyntaxErrorException se = (SyntaxErrorException)exception;
         return string.Format("{0} error: {1} at ({2}:{3})", se.ErrorCode == 2 ? "lexer" : "parser", se.Message, se.Line, se.Column);
       }
+      if (exception is Builtins.Continuation)
+      {
+        return "not supported: continuations cannot be used in this way, sorry :(";
+      }
+      if (exception is NotSupportedException)
+      {
+        return "not supported: " + exception.Message;
+      }
+      if (exception is NotImplementedException)
+      {
+        return "not implemented: " + exception.Message;
+      }
+      if (exception is ArgumentTypeException || exception is ArgumentNullException || exception is ArgumentException || exception is ArgumentOutOfRangeException)
+      {
+        return "argument error: " + exception.Message;
+      }
+      if (exception is ArgumentNullException)
+      {
+        //return "argument error: " + 
+      }
       return base.FormatException(exception);
     }
 
@@ -61,7 +81,7 @@ namespace IronScheme.Hosting
 
     public override ActionBinder DefaultBinder
     {
-      get { return new IronSchemeActionBinder(null); }
+      get { return Compiler.Generator.BINDER; }
     }
 
     #endregion
@@ -72,6 +92,30 @@ namespace IronScheme.Hosting
     }
 
     #region Virtual
+
+    protected override string[] FormatObjectMemberNames(IList<object> names)
+    {
+      string[] n = new string[names.Count];
+      for (int i = 0; i < names.Count; i++)
+      {
+        n[i] = names[i] as string;
+      }
+      Array.Sort(n);
+      return n;
+    }
+
+    protected override IList<object> Ops_GetAttrNames(CodeContext context, object obj)
+    {
+      List<object> ll = new List<object>();
+      foreach (SymbolId var in Compiler.Generator.Compiler.Scope.Keys)
+      {
+        ll.Add(SymbolTable.IdToString(var));
+      }
+
+      return ll;
+       
+      //return base.Ops_GetAttrNames(context, obj);
+    }
 
     public override string Copyright
     {

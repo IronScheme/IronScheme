@@ -35,6 +35,8 @@
       `(let ,args ,@body)
       `(let (,(car args))
          (let* ,(cdr args) ,@body))))
+         
+(define (void) (if #f #f))
 
 
 ;; beast #1: if .. elseif ... else
@@ -91,8 +93,7 @@
 ;; chest hair grower #2: same as cond, but has a test before the clauses
 (define-macro (case test . clauses)
   ;; helper to take care of recursion after the tests
-  (define case-helper
-    (lambda (test . clauses)
+  (define (case-helper test . clauses)
       (if(null? clauses) `(if #f #f)
           (let ((clause (car clauses))
                 (rest (cdr clauses))
@@ -103,7 +104,7 @@
                    (if (memv ,test ,t)
                        (begin ,@(cdr clause))
                        ;; dont call case, else extra variables are inserted
-                       ,(apply case-helper test rest))))))))
+                       ,(apply case-helper test rest)))))))
   (let ((t (gensym)))
     `(let ((,t ,test))
        ,(apply case-helper t clauses))))
@@ -111,17 +112,15 @@
 ;; not as hairy as I thought, maybe I am just getting better :)
 (define-macro (do clauses test . cmds)
   ;; helper for inits
-  (define getinit
-    (lambda (clause)
-      (list (car clause) (second clause))))
+  (define (getinit clause)
+      (list (car clause) (second clause)))
 
   ;; helper for successive calls
-  (define getnext
-    (lambda (clause)
+  (define (getnext clause)
       (let ((second (cdr clause)))
         (if (null? (cdr second))
             (car clause)
-            (third clause)))))
+            (third clause))))
 
   ;; lets begin :)
   (let ((t (gensym)))
@@ -129,21 +128,41 @@
        (if ,(car test)
            (begin ,@(cdr test))
            (begin ,@cmds (,t ,@(map getnext clauses)))))))
+           
+ ;; now its getting easy :)
+ (define-macro (letrec args . body)
+   ;; init to values inside body
+   (define (init-helper temp args)
+     `(set! ,(car args) ,temp))
+
+   ;; helper to init vars to false
+   (define (false a) #f)
+
+   (define temps (map (lambda (a)(gensym)) args))
+
+   ;; lets begin
+   `((lambda ,(map car args)
+       ((lambda ,temps
+         ,@(map init-helper temps args)
+         ,@body)
+       ,@(map second args)))
+     ,@(map false args)))         
 
 
 ;; now its getting easy :)
-(define-macro (letrec args . body)
+(define-macro (letrec* args . body)
   ;; init to values inside body
-  (define init-helper 
-    (lambda (args)
-      `(set! ,(car args) ,(second args))))
+  (define (init-helper args)
+      `(set! ,(car args) ,(second args)))
   
   ;; helper to init vars to false
-  (define false
-    (lambda (a) #f))
+  (define (false a) #f)
   
   ;; lets begin
   `((lambda ,(map car args)
       ,@(map init-helper args)
       ,@body) ,@(map false args)))
+
+
+
 

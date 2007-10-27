@@ -23,7 +23,8 @@ namespace IronScheme.Runtime
     Cons[] lists;
     public MultiEnumerable(params object[] lists)
     {
-      this.lists = lists as Cons[];
+      this.lists = new Cons[lists.Length];
+      Array.Copy(lists, this.lists, lists.Length);
     }
 
     #region IEnumerable Members
@@ -38,6 +39,7 @@ namespace IronScheme.Runtime
     sealed class MultiEnumerator : IEnumerator, IDisposable
     {
       Cons[] iters;
+      bool firstrun = true;
 
       public MultiEnumerator(MultiEnumerable container)
       {
@@ -56,12 +58,17 @@ namespace IronScheme.Runtime
             v[i] = iters[i].Car;
           }
 
-          return v;
+          return Cons.FromArray(v);
         }
       }
 
       public bool MoveNext()
       {
+        if (firstrun)
+        {
+          firstrun = false;
+          return iters.Length != 0;
+        }
         for (int i = 0; i < iters.Length; i++)
         {
           iters[i] = iters[i].Cdr as Cons;

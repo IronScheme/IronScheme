@@ -15,24 +15,51 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting;
+using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
-  public abstract class Closure : FastCallable
+  public abstract class Closure : FastCallable, IDynamicObject
   {
     readonly string name;
 
     public string Name
     {
       get { return name; }
-    } 
+    }
+
+    protected void CheckArgs(int expect, object[] args)
+    {
+      if (args.Length != expect)
+      {
+        throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, expect, args.Length);
+      }
+    }
 
     readonly Delegate target;
     Closure(Delegate target, string name)
     {
+      
       this.name = name;
       this.target = target;
     }
+
+
+    #region IDynamicObject Members
+
+    LanguageContext IDynamicObject.LanguageContext
+    {
+      get { throw new Exception("The method or operation is not implemented."); }
+    }
+
+    StandardRule<T> IDynamicObject.GetRule<T>(DynamicAction action, CodeContext context, object[] args)
+    {
+      return new CallBinderHelper<T, CallAction>(context, action as CallAction, args).MakeRule();
+    }
+
+    #endregion
+
+
     sealed class ContextClosure : Closure
     {
       CodeContext cc;
@@ -59,26 +86,32 @@ namespace IronScheme.Runtime
         }
         if (target0 != null)
         {
+          CheckArgs(0, args);
           return target0(cc);
         }
         if (target1 != null)
         {
+          CheckArgs(1, args);
           return target1(cc, args[0]);
         }
         if (target2 != null)
         {
+          CheckArgs(2, args);
           return target2(cc, args[0], args[1]);
         }
         if (target3 != null)
         {
+          CheckArgs(3, args);
           return target3(cc, args[0], args[1], args[2]);
         }
         if (target4 != null)
         {
+          CheckArgs(4, args);
           return target4(cc, args[0], args[1], args[2], args[3]);
         }
         if (target5 != null)
         {
+          CheckArgs(5, args);
           return target5(cc, args[0], args[1], args[2], args[3], args[4]);
         }
         throw new Exception("The method or operation is not implemented.");
@@ -108,26 +141,32 @@ namespace IronScheme.Runtime
         }
         if (target0 != null)
         {
+          CheckArgs(0, args);
           return target0();
         }
         if (target1 != null)
         {
+          CheckArgs(1, args);
           return target1(args[0]);
         }
         if (target2 != null)
         {
+          CheckArgs(2, args);
           return target2(args[0], args[1]);
         }
         if (target3 != null)
         {
+          CheckArgs(3, args);
           return target3(args[0], args[1], args[2]);
         }
         if (target4 != null)
         {
+          CheckArgs(4, args);
           return target4(args[0], args[1], args[2], args[3]);
         }
         if (target5 != null)
         {
+          CheckArgs(5, args);
           return target5(args[0], args[1], args[2], args[3], args[4]);
         }
         throw new Exception("The method or operation is not implemented.");
@@ -170,19 +209,16 @@ namespace IronScheme.Runtime
 
       public override object Call(CodeContext context, params object[] args)
       {
-        //if (args.Length == paramcount)
-        //{
-        //  return realtarget.Call(context, args);
-        //}
-        //else
+        if (args.Length + 1 < paramcount)
         {
-          object[] newargs = new object[paramcount];
-          Array.Copy(args, newargs, paramcount - 1);
-          object[] last = new object[args.Length - paramcount + 1];
-          Array.Copy(args, paramcount - 1, last, 0, last.Length);
-          newargs[paramcount - 1] = Cons.FromArray(last);
-          return realtarget.Call(context, newargs);
+          throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, paramcount - 1, int.MaxValue, 0, args.Length, false, false);
         }
+        object[] newargs = new object[paramcount];
+        Array.Copy(args, newargs, paramcount - 1);
+        object[] last = new object[args.Length - paramcount + 1];
+        Array.Copy(args, paramcount - 1, last, 0, last.Length);
+        newargs[paramcount - 1] = Cons.FromArray(last);
+        return realtarget.Call(context, newargs);
       }
     }
 
@@ -244,5 +280,7 @@ namespace IronScheme.Runtime
     {
       throw new Exception("The method or operation is not implemented.");
     }
+
+
   }
 }

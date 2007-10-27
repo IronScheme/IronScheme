@@ -119,31 +119,37 @@ namespace IronScheme.Compiler
               }
               return GetAst(result, cb);
             }
+
+            GeneratorHandler gh = m as GeneratorHandler;
+            if (gh != null)
+            {
+              if (!Parser.sourcemap.TryGetValue(c, out spanhint))
+              {
+                spanhint = SourceSpan.None;
+              }
+              return gh(c.Cdr, cb);
+            }
+
+            BuiltinFunction bf = m as BuiltinFunction;
+            if (bf != null)
+            {
+              MethodBinder mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.Targets, BinderType.Normal);
+              Expression[] pars = GetAstList(c.Cdr as Cons, cb);
+              Type[] types = GetExpressionTypes(pars);
+              MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+              if (mc == null)
+              {
+                throw new SyntaxErrorException("no match for " + f);
+              }
+              if (mc.Target.NeedsContext)
+              {
+                pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+              }
+              return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
+            }
           }
 
-          GeneratorHandler gh;
-          if (generators.TryGetValue(f, out gh))
-          {
-            return gh(c.Cdr, cb);
-          }
 
-          BuiltinFunction bf;
-          if (builtinmap.TryGetValue(f, out bf))
-          {
-            MethodBinder mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.Targets, BinderType.Normal);
-            Expression[] pars = GetAstList(c.Cdr as Cons, cb);
-            Type[] types = GetExpressionTypes(pars);
-            MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-            if (mc == null)
-            {
-              throw new SyntaxErrorException("No match for " + f);
-            }
-            if (mc.Target.NeedsContext)
-            {
-              pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-            }
-            return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
-          }
         }
         return Ast.Action.Call(typeof(object), GetAstList(c, cb));
       }
@@ -166,13 +172,14 @@ namespace IronScheme.Compiler
       }
     }
 
+    static SourceSpan spanhint;
+
     // macro-expand
     [Generator("macro-expand")]
     public static Expression MacroExpand(object args, CodeBlock cb)
     {
       args = Builtins.Car(args);
       object result = SyntaxExpander.Expand(args);
-      //result = new Cons(quote, new Cons(result));
       return GetCons(result, cb);
     }
 
@@ -182,7 +189,6 @@ namespace IronScheme.Compiler
     {
       args = Builtins.Car(args);
       object result = SyntaxExpander.Expand1(args);
-      result = new Cons(quote, new Cons(result));
       return GetAst(result, cb);
     }
 
@@ -234,26 +240,41 @@ namespace IronScheme.Compiler
     [Generator]
     public static Expression Define(object args, CodeBlock cb)
     {
-      SymbolId s = (SymbolId)Builtins.First(args);
 
-      namehint = s;
-
-      Variable v = Create(s, cb, typeof(object));
-
-      Expression value = GetAst(Builtins.Second(args), cb);
-
-      namehint = SymbolId.Invalid;
-
-      if (value.Type.IsValueType)
+      object f = Builtins.First(args);
+      if (f is SymbolId)
       {
-        value = Ast.DynamicConvert(value, typeof(object));
+        SymbolId s = (SymbolId)f;
+
+        namehint = s;
+
+        Variable v = Create(s, cb, typeof(object));
+
+        object second = Builtins.Second(args);
+
+        Expression value = GetAst(second, cb);
+
+        namehint = SymbolId.Invalid;
+
+        if (value.Type.IsValueType)
+        {
+          value = Ast.DynamicConvert(value, typeof(object));
+        }
+        Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
+        if (cb.IsGlobal)
+        {
+          object o = r.Evaluate(Compiler);
+        }
+        return r;
       }
-      Expression r = Ast.Comma( Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
-      if (cb.IsGlobal)
+      else
       {
-        object o = r.Evaluate(Compiler);
+        Cons r = (Cons)f;
+        Cons l = Cons.FromArray(r.Car, 
+          Builtins.Append(Cons.FromArray(SymbolTable.StringToId("lambda"), r.Cdr), Builtins.Cdr(args)));
+
+        return Define(l, cb);
       }
-      return r;
     }
 
 
@@ -287,7 +308,7 @@ namespace IronScheme.Compiler
     [Generator]
     public static Expression Lambda(object args, CodeBlock c)
     {
-      CodeBlock cb = Ast.CodeBlock(GetFullname(NameHint, c));
+      CodeBlock cb = Ast.CodeBlock(spanhint, GetFullname(NameHint, c));
       cb.Parent = c;
 
       object arg = Builtins.First(args);
@@ -297,6 +318,12 @@ namespace IronScheme.Compiler
 
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
+
+      //if (!isrest)
+      //{
+      //  cb.BindClosures();
+      //  return Ast.CodeBlockExpression(cb, false);
+      //}
 
       Expression ex = MakeClosure(cb, isrest);
 

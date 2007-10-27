@@ -91,6 +91,20 @@ namespace IronScheme.Hosting
         comments = null;
       }
 
+      bool notabcompletion = false;
+
+      protected override void ParseArgument(string arg)
+      {
+        if (arg == "-notabcompletion")
+        {
+          notabcompletion = true;
+        }
+        else
+        {
+          base.ParseArgument(arg);
+        }
+      }
+
       class IronSchemeConsoleOptions : ConsoleOptions
       {
       }
@@ -100,12 +114,8 @@ namespace IronScheme.Hosting
         get
         {
           ConsoleOptions co = new IronSchemeConsoleOptions();
-          //co.TabCompletion = true;
+          co.TabCompletion = !notabcompletion;
           co.ColorfulConsole = true;
-          //co.AutoIndent = true;
-          co.AutoIndentSize = 2;
-          //co.Introspection = true;
-          //co.TabCompletion = true;
           return co;
         }
         set
