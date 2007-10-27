@@ -61,11 +61,11 @@ namespace IronScheme.Runtime
     public static readonly object Unspecified = new object();
 
     [Builtin]
-    public static Type @typeof(object o)
+    public static Type Typeof(object o)
     {
       if (o == null)
       {
-        return null;
+        return typeof(Cons);
       }
       return o.GetType();
     }

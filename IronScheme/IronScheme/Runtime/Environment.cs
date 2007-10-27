@@ -81,7 +81,7 @@ namespace IronScheme.Runtime
     [Builtin]
     public static SymbolId GenSym()
     {
-      return SymbolTable.StringToId("#g:" + symcount++);
+      return SymbolTable.StringToId("#g" + symcount++);
     }
 
     [Builtin]

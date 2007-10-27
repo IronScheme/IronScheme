@@ -333,6 +333,59 @@ namespace IronScheme.Runtime
       {
         return mi.ToString();
       }
+
+      if (obj is Type)
+      {
+        Type t = (Type)obj;
+        switch (Type.GetTypeCode(t))
+        {
+          case TypeCode.Boolean:
+            return "Boolean";
+          case TypeCode.Char:
+            return "Character";
+          case TypeCode.DateTime:
+          case TypeCode.DBNull:
+          case TypeCode.Empty:
+          case TypeCode.Object:
+            {
+              if (t == typeof(SymbolId))
+              {
+                return "Symbol";
+              }
+              if (typeof(TextReader).IsAssignableFrom(t) || typeof(TextWriter).IsAssignableFrom(t))
+              {
+                return "Port";
+              }
+              if (t == typeof(Cons))
+              {
+                return "List";
+              }
+              if (t == typeof(Complex64) || t == typeof(Fraction))
+              {
+                return "Number";
+              }
+              if (typeof(Closure).IsAssignableFrom(t))
+              {
+                return "Procedure";
+              }
+              if (typeof(Macro).IsAssignableFrom(t) || typeof(Compiler.Generator.GeneratorHandler) == t)
+              {
+                return "Macro";
+              }
+              if (t == typeof(object[]))
+              {
+                return "Vector";
+              }
+              return obj.GetType().Name;
+            }
+          case TypeCode.String:
+            return "String";
+          default:
+            return "Number";
+        }
+
+      }
+
       if (obj is bool)
       {
         return ((bool)obj) ? "#t" : "#f";
