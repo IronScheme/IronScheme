@@ -121,22 +121,6 @@ namespace IronScheme.Compiler
             }
           }
 
-          if (f == SymbolTable.StringToId("macro-expand1"))
-          {
-            args = Builtins.Cadr(args);
-            object result = SyntaxExpander.Expand1(args);
-            result = new Cons(quote, new Cons(result));
-            return GetAst(result, cb);
-          }
-
-          if (f == SymbolTable.StringToId("macro-expand"))
-          {
-            args = Builtins.Cadr(args);
-            object result = SyntaxExpander.Expand(args);
-            result = new Cons(quote, new Cons(result));
-            return GetAst(result, cb);
-          }
-
           GeneratorHandler gh;
           if (generators.TryGetValue(f, out gh))
           {
@@ -182,6 +166,25 @@ namespace IronScheme.Compiler
       }
     }
 
+    // macro-expand
+    [Generator("macro-expand")]
+    public static Expression MacroExpand(object args, CodeBlock cb)
+    {
+      args = Builtins.Car(args);
+      object result = SyntaxExpander.Expand(args);
+      //result = new Cons(quote, new Cons(result));
+      return GetCons(result, cb);
+    }
+
+    // macro-expand1
+    [Generator("macro-expand1")]
+    public static Expression MacroExpand1(object args, CodeBlock cb)
+    {
+      args = Builtins.Car(args);
+      object result = SyntaxExpander.Expand1(args);
+      result = new Cons(quote, new Cons(result));
+      return GetAst(result, cb);
+    }
 
 
     // quote
@@ -381,6 +384,8 @@ namespace IronScheme.Compiler
         }
         else
         {
+          // does this ever get hit?
+          Debugger.Break(); 
           return Ast.SimpleCallHelper(Builtins_Cons2, Ast.Constant(quasiquote), GetCons(args, cb));
         }
       }

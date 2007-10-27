@@ -9,14 +9,14 @@ namespace IronScheme.Compiler
 {
   partial class Generator
   {
-    delegate Expression GeneratorHandler(object args, CodeBlock cb);
+    internal delegate Expression GeneratorHandler(object args, CodeBlock cb);
 
     readonly static Dictionary<SymbolId, GeneratorHandler> generators = new Dictionary<SymbolId, GeneratorHandler>();
 
     static void Add(string name, GeneratorHandler handler)
     {
       SymbolId s = SymbolTable.StringToId(name);
-      Compiler.ModuleContext.Module.Scope.SetName(s, handler);
+      Compiler.Scope.SetName(s, handler);
       generators[s] = handler;
     }
 
