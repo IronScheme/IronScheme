@@ -72,7 +72,7 @@ namespace IronScheme.Compiler
             Cons l = Cons.FromArray(r.Car,
               Builtins.Append(Cons.FromArray(Generator.lambda, r.Cdr), Builtins.Cdr(t)));
             c.Cdr = l;
-            return Expand(c);
+            return Expand((object)c);
           }
 
           object value;
