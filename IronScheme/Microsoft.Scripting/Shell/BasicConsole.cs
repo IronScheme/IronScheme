@@ -80,7 +80,7 @@ namespace Microsoft.Scripting.Shell {
         private void SetupColors(bool colorful) {
 
             if (colorful) {
-                _promptColor = ConsoleColor.Gray;
+                _promptColor = ConsoleColor.Cyan;
                 _outColor = ConsoleColor.Green;
                 _errorColor = ConsoleColor.Red;
                 _warningColor = ConsoleColor.Yellow;

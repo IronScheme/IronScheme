@@ -1,3 +1,16 @@
+#region License
+/* ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************/
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -86,6 +99,8 @@ namespace IronScheme.Compiler
       set { Generator.macrotrace = value; }
     }
 
+ 
+
 
     public static Expression GetAst(object args, CodeBlock cb)
     {
@@ -96,6 +111,7 @@ namespace IronScheme.Compiler
         if (Builtins.IsSymbol(first))
         {
           SymbolId f = (SymbolId)first;
+
 
           object m;
 
@@ -112,10 +128,6 @@ namespace IronScheme.Compiler
               if (macrotrace)
               {
                 Debug.WriteLine(Builtins.DisplayFormat(result), "macro::out");
-              }
-              if (result is Cons && Parser.sourcemap.ContainsKey(c))
-              {
-                Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
               }
               return GetAst(result, cb);
             }
@@ -269,6 +281,7 @@ namespace IronScheme.Compiler
       }
       else
       {
+        // i really need to make this transform a lot earlier
         Cons r = (Cons)f;
         Cons l = Cons.FromArray(r.Car, 
           Builtins.Append(Cons.FromArray(SymbolTable.StringToId("lambda"), r.Cdr), Builtins.Cdr(args)));

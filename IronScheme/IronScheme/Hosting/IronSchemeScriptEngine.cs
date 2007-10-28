@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Collections;
 using IronScheme.Runtime;
 using System.Diagnostics;
+using Microsoft.Scripting.Shell;
 
 namespace IronScheme.Hosting
 {
@@ -33,12 +34,17 @@ namespace IronScheme.Hosting
       ((IronSchemeLanguageContext)LanguageContext).se = this;
     }
 
+    IConsole Console
+    {
+      get { return (LanguageProvider as IronSchemeLanguageProvider).Console; }
+    }
+
     protected override void PrintInteractiveCodeResult(object obj)
     {
       if (obj != Builtins.Unspecified)
       {
         string strv = Builtins.DisplayFormat(obj);
-        Console.WriteLine("{0}", strv);
+        Console.WriteLine(string.Format("{0}", strv), Style.Out);
       }
     }
 

@@ -40,13 +40,20 @@ namespace IronScheme.Hosting
       return new IronSchemeScriptEngine(this, options ?? GetOptionsParser().EngineOptions, lc);
     }
 
+    CommandLineX cl = new CommandLineX();
 
+    public IConsole Console
+    {
+      get
+      {
+        return cl.GetConsole();
+      }
+
+    }
 
     public override CommandLine GetCommandLine()
     {
-      CommandLine cl = new CommandLineX();
-      
-      return cl;
+      return cl; 
     }
 
     class CommandLineX : CommandLine
@@ -54,6 +61,11 @@ namespace IronScheme.Hosting
       protected override string Prompt
       {
         get{ return "> ";}
+      }
+
+      internal IConsole GetConsole()
+      {
+        return Console;
       }
 
       protected override string PromptContinuation
@@ -69,6 +81,8 @@ namespace IronScheme.Hosting
         }
         base.Initialize();
       }
+
+      
 
       protected override void OnInteractiveLoopStart()
       {

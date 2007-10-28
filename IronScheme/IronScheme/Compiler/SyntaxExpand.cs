@@ -64,6 +64,17 @@ namespace IronScheme.Compiler
             return input;
           }
 
+
+          if (Builtins.IsEqual(s, Generator.define) && Builtins.IsPair(Builtins.Second(c)))
+          {
+            Cons t = (Cons)c.Cdr;
+            Cons r = (Cons)t.Car;
+            Cons l = Cons.FromArray(r.Car,
+              Builtins.Append(Cons.FromArray(Generator.lambda, r.Cdr), Builtins.Cdr(t)));
+            c.Cdr = l;
+            return Expand(c);
+          }
+
           object value;
           if (Generator.Compiler.Scope.TryLookupName(s, out value))
           {
@@ -72,6 +83,10 @@ namespace IronScheme.Compiler
               Runtime.Macro m = value as Runtime.Macro;
 
               object result = m.Invoke(Generator.Compiler, c.Cdr);
+              if (result is Cons && Parser.sourcemap.ContainsKey(c))
+              {
+                Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
+              }
               if (expand1)
               {
                 return result;
