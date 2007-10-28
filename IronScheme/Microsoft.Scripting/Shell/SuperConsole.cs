@@ -229,11 +229,7 @@ namespace Microsoft.Scripting.Shell {
             int len;
             for (len = _input.Length; len > 0; len--) {
                 char c = _input[len - 1];
-                if (Char.IsLetterOrDigit(c)) {
-                    continue;
-                } else if (c == '.' || c == '_') {
-                    continue;
-                } else {
+                if (c == '(' || c == ' ') {
                     break;
                 }
             }

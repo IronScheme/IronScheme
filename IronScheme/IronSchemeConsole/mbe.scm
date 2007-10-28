@@ -49,17 +49,28 @@
                       (loop (cdr l1))))
                 l1))))
 
-(define some
-  (lambda (f l)
-    (let loop ((l l))
-      (if (null? l) #f
-          (or (f (car l)) (loop (cdr l)))))))
-
-(define every
-  (lambda (f l)
-    (let loop ((l l))
-      (if (null? l) #t
-          (and (f (car l) (loop (cdr l))))))))
+;; from slib
+(define (some pred lst . rest)
+  (cond ((null? rest)
+	 (let mapf ((lst lst))
+	   (and (not (null? lst))
+		(or (pred (car lst)) (mapf (cdr lst))))))
+	(else (let mapf ((lst lst) (rest rest))
+		(and (not (null? lst))
+		     (or (apply pred (car lst) (map car rest))
+			 (mapf (cdr lst) (map cdr rest))))))))
+			 
+;; from slib
+(define (every pred lst . rest)
+  (cond ((null? rest)
+	 (let mapf ((lst lst))
+	   (or (null? lst)
+	       (and (pred (car lst)) (mapf (cdr lst))))))
+	(else (let mapf ((lst lst) (rest rest))
+		(or (null? lst)
+		    (and (apply pred (car lst) (map car rest))
+			 (mapf (cdr lst) (map cdr rest)))))))) 
+			 
 
 (define hyg:rassq
   (lambda (k al)
