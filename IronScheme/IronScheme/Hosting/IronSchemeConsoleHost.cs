@@ -47,7 +47,8 @@ namespace IronScheme.Hosting
 
     protected override void PrintLogo()
     {
-      Console.WriteLine("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", typeof(IronSchemeConsoleHost).Assembly.GetName().Version);
+      Console.WriteLine(string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
+      typeof(IronSchemeConsoleHost).Assembly.GetName().Version), Microsoft.Scripting.Shell.Style.Out);
       //Console.WriteLine("Ctrl+Z (or F6) then Enter to quit. On error, hit Enter to return to prompt.");
     }
 

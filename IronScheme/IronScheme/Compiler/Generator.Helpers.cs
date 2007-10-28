@@ -1,3 +1,16 @@
+#region License
+/* ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************/
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -50,21 +63,17 @@ namespace IronScheme.Compiler
     {
       Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
 
-      foreach (MethodInfo mi in builtinstype.GetMethods())
+      foreach (MethodInfo mi in builtinstype.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static))
       {
-        if (mi.IsStatic && Attribute.IsDefined(mi, typeof(BuiltinAttribute)))
+        foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
         {
-
-          foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
+          string name = ba.Name ?? mi.Name.ToLower();
+          List<MethodBase> meths;
+          if (!all.TryGetValue(name, out meths))
           {
-            string name = ba.Name ?? mi.Name.ToLower();
-            List<MethodBase> meths;
-            if (!all.TryGetValue(name, out meths))
-            {
-              all[name] = meths = new List<MethodBase>();
-            }
-            meths.Add(mi);
+            all[name] = meths = new List<MethodBase>();
           }
+          meths.Add(mi);
         }
       }
 
@@ -351,8 +360,37 @@ namespace IronScheme.Compiler
       set { Generator.canallowtailcall = value; }
     }
 
+
+
     static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
+      // declare all define at start of body, then change the define to 'set!'
+      // similar to letrec* behaviour; also expand the defines
+      Cons defcheck = body;
+      while (defcheck != null)
+      {
+        Cons h = defcheck.Car as Cons;
+
+        if (h == null)
+        {
+          break;
+        }
+
+        defcheck.Car = h = SyntaxExpander.Expand(defcheck.Car) as Cons;
+
+        if (h != null && Builtins.IsEqual(h.Car, define))
+        {
+          Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
+          stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
+          h.Car = set;
+        }
+        else
+        {
+          break;
+        }
+
+        defcheck = defcheck.Cdr as Cons;
+      }
       Cons c = body;
       while (c != null)
       {

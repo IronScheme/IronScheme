@@ -16,6 +16,7 @@ using System.Globalization;
 
 namespace IronScheme.Runtime
 {
+#if NEW_NUMBERS
 	/// <summary>
 	/// An implementation of rational (fractional) numbers.
 	/// Numeric range: -Int64.MaxValue/1 to Int64.MaxValue/1
@@ -667,4 +668,5 @@ namespace IronScheme.Runtime
 			return numerator.ToString(CultureInfo.CurrentCulture) + "/" + denominator.ToString(CultureInfo.CurrentCulture);
 		}
 	}
+#endif
 }

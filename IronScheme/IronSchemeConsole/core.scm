@@ -1,3 +1,17 @@
+
+#| License
+
+Copyright (c) Llewellyn Pritchard. 
+
+This source code is subject to terms and conditions of the Microsoft Public License. 
+A copy of the license can be found in the License.html file at the root of this distribution. 
+By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+Microsoft Public License.
+
+You must not remove this notice, or any other, from this software.
+
+|#
+
 ;;; derived forms, fully functional, but no error checking
 ;;; these are hygienic too, and optimized when possible
 
@@ -35,6 +49,7 @@
       `(let ,args ,@body)
       `(let (,(car args))
          (let* ,(cdr args) ,@body))))
+
          
 (define (void) (if #f #f))
 
@@ -136,8 +151,9 @@
      `(set! ,(car args) ,temp))
 
    ;; helper to init vars to false
-   (define (false a) #f)
+   (define (false a) (void))
 
+   ;; create temporaries
    (define temps (map (lambda (a)(gensym)) args))
 
    ;; lets begin
@@ -156,7 +172,7 @@
       `(set! ,(car args) ,(second args)))
   
   ;; helper to init vars to false
-  (define (false a) #f)
+  (define (false a) (void))
   
   ;; lets begin
   `((lambda ,(map car args)
