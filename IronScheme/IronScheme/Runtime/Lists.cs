@@ -606,6 +606,7 @@ namespace IronScheme.Runtime
     {
       Cons i = c;
       Cons j = null;
+
       while (i.Cdr != null)
       {
         j = i;
@@ -614,6 +615,11 @@ namespace IronScheme.Runtime
         {
           return c; // improper already
         }
+      }
+
+      if (j == null)
+      {
+        return c;
       }
 
       j.Cdr = i.Car;
