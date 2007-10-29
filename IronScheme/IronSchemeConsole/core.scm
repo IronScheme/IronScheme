@@ -144,8 +144,8 @@ You must not remove this notice, or any other, from this software.
            (begin ,@(cdr test))
            (begin ,@cmds (,t ,@(map getnext clauses)))))))
            
- ;; now its getting easy :)
- (define-macro (letrec args . body)
+;; now its getting easy :)
+(define-macro (letrec args . body)
    ;; init to values inside body
    (define (init-helper temp args)
      `(set! ,(car args) ,temp))
