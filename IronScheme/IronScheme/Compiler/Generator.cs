@@ -117,6 +117,12 @@ namespace IronScheme.Compiler
 
           if (Compiler.Scope.TryLookupName(f, out m))
           {
+            if (Builtins.IsEqual(define, f) && Builtins.IsPair(Builtins.First(c.Cdr)))
+            {
+              Cons ii = c.Cdr as Cons;
+              Cons jj = ii.Car as Cons;
+              c.Cdr = Builtins.List(jj.Car, Builtins.Append(Builtins.List(lambda, jj.Cdr), ii.Cdr));
+            }
             Runtime.Macro macro = m as Runtime.Macro;
             if (macro != null)
             {
@@ -279,15 +285,7 @@ namespace IronScheme.Compiler
         }
         return r;
       }
-      else
-      {
-        // i really need to make this transform a lot earlier
-        Cons r = (Cons)f;
-        Cons l = Cons.FromArray(r.Car, 
-          Builtins.Append(Cons.FromArray(SymbolTable.StringToId("lambda"), r.Cdr), Builtins.Cdr(args)));
-
-        return Define(l, cb);
-      }
+      throw new ArgumentException("expected symbol");
     }
 
 
