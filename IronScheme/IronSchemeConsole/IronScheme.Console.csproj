@@ -61,6 +61,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="case-lambda.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="core.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

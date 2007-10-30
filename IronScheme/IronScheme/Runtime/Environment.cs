@@ -24,6 +24,14 @@ using Microsoft.Scripting.Hosting;
 
 namespace IronScheme.Runtime
 {
+  public class SchemeException : Exception
+  {
+    public SchemeException(string msg) : base(msg)
+    {
+
+    }
+  }
+
   public partial class Builtins
   {
 
@@ -48,13 +56,8 @@ namespace IronScheme.Runtime
     [Builtin("error")]
     public static object Error(params object[] errors)
     {
-      Console.Write("Error: ");
-      foreach (object o in errors)
-      {
-        Console.Write("{0} ", o);
-      }
-      Console.WriteLine();
-      return Unspecified;
+      string[] ll = Array.ConvertAll<object, string>(errors, delegate(object o) { return o.ToString(); });
+      throw new SchemeException(string.Join(", ", ll));
     }
 
     static ScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(typeof(Hosting.IronSchemeLanguageProvider)).GetEngine();

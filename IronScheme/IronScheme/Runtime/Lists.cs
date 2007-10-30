@@ -574,7 +574,7 @@ namespace IronScheme.Runtime
       {
         Cons ii = args[i] as Cons;
 
-        if (ii == null && i == args.Length - 1)
+        if (ii == null && i == args.Length - 1 && args[i] != null)
         {
           all.Add(args[i]);
           proper = false;
@@ -615,11 +615,6 @@ namespace IronScheme.Runtime
         {
           return c; // improper already
         }
-      }
-
-      if (j == null)
-      {
-        return c;
       }
 
       j.Cdr = i.Car;

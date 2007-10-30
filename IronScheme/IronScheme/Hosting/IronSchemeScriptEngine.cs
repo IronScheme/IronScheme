@@ -57,7 +57,14 @@ namespace IronScheme.Hosting
       if (exception is SyntaxErrorException)
       {
         SyntaxErrorException se = (SyntaxErrorException)exception;
-        return string.Format("{0} error: {1} at ({2}:{3})", se.ErrorCode == 2 ? "lexer" : "parser", se.Message, se.Line, se.Column);
+        if (se.Column == 0 && se.Line == 0)
+        {
+          return string.Format("{0} error: {1}", se.ErrorCode == 2 ? "lexer" : "parser", se.Message);
+        }
+        else
+        {
+          return string.Format("{0} error: {1} at ({2}:{3})", se.ErrorCode == 2 ? "lexer" : "parser", se.Message, se.Line, se.Column);
+        }
       }
       if (exception is Builtins.Continuation)
       {
@@ -78,6 +85,10 @@ namespace IronScheme.Hosting
       if (exception is ArgumentNullException)
       {
         //return "argument error: " + 
+      }
+      if (exception is SchemeException)
+      {
+        return "error: " + exception.Message;
       }
       return base.FormatException(exception);
     }
