@@ -34,7 +34,7 @@ namespace IronScheme.Hosting
       ((IronSchemeLanguageContext)LanguageContext).se = this;
     }
 
-    IConsole Console
+    public IConsole IConsole
     {
       get { return (LanguageProvider as IronSchemeLanguageProvider).Console; }
     }
@@ -44,12 +44,20 @@ namespace IronScheme.Hosting
       if (obj != Builtins.Unspecified)
       {
         string strv = Builtins.DisplayFormat(obj);
-        Console.WriteLine(string.Format("{0}", strv), Style.Out);
+        IConsole.WriteLine(string.Format("{0}", strv), Style.Out);
       }
+    }
+
+    Exception lastException = null;
+
+    public Exception LastException
+    {
+      get { return lastException; }
     }
 
     public override string FormatException(Exception exception)
     {
+      lastException = exception;
       if (exception is MissingMemberException)
       {
         return string.Format("error: {0}", exception.Message);
@@ -124,7 +132,7 @@ namespace IronScheme.Hosting
     protected override IList<object> Ops_GetAttrNames(CodeContext context, object obj)
     {
       List<object> ll = new List<object>();
-      foreach (SymbolId var in Compiler.Generator.Compiler.Scope.Keys)
+      foreach (SymbolId var in IronScheme.Compiler.BaseHelper.cc.Scope.Keys)
       {
         ll.Add(SymbolTable.IdToString(var));
       }

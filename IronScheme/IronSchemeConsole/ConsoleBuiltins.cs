@@ -17,6 +17,12 @@ using System.Text;
 using Microsoft.Scripting;
 using IronScheme.Runtime;
 
+using Generator = IronScheme.Compiler.Generator;
+using System.IO;
+using System.Xml;
+using Microsoft.Scripting.Types;
+using System.Reflection;
+
 namespace IronScheme.Console
 {
   public class ConsoleBuiltins : Builtins
@@ -49,24 +55,77 @@ namespace IronScheme.Console
     [Builtin("enable-macro-trace")]
     public static object EnableMacroTrace()
     {
-      Compiler.Generator.MacroTrace = true;
+      Generator.MacroTrace = true;
       return Unspecified;
     }
 
     [Builtin("disable-macro-trace")]
     public static object DisableMacroTrace()
     {
-      Compiler.Generator.MacroTrace = false;
+      Generator.MacroTrace = false;
       return Unspecified;
     }
 
+    /// <summary>
+    /// Displays help of an object.
+    /// </summary>
+    /// <param name="obj">The obj.</param>
+    /// <returns></returns>
     [Builtin]
     public static object Help(object obj)
     {
-
+      if (obj != null)
+      {
+        if (obj is BuiltinFunction)
+        {
+          foreach (MethodBase m in ((BuiltinFunction)obj).Targets)
+          {
+            PrintMethodHelp(m);
+          }
+        }
+        else if (obj is Generator.GeneratorHandler)
+        {
+          PrintMethodHelp(((Generator.GeneratorHandler)obj).Method);
+        }
+      }
       return Unspecified;
     }
 
+    static bool PrintMethodHelp(MethodBase mb)
+    {
+      string fn = Path.ChangeExtension(mb.DeclaringType.Assembly.CodeBase, ".xml").Replace("file:///", "");
+
+      if (File.Exists(fn))
+      {
+
+        XmlDocument xml = new XmlDocument();
+        xml.Load(fn);
+
+        List<string> tokens = new List<string>(mb.ToString().Split(' '));
+        tokens.RemoveAt(0);
+
+        string tname = mb.DeclaringType.FullName + "." + string.Join("", tokens.ToArray());
+        XmlNodeList nl = xml.SelectNodes(string.Format("/doc/members/member[@name = 'M:{0}']", tname));
+        XmlNode n = nl.Item(0);
+
+        if (n == null)
+        {
+          return false;
+        }
+
+        XmlNode sumnode = n.SelectSingleNode("summary");
+
+        string summary = sumnode.InnerText.Trim();
+        System.Console.WriteLine(summary);
+      }
+      return true;
+
+    }
+
+
+    /// <summary>
+    /// Displays the license of IronScheme.
+    /// </summary>
     [Builtin]
     public static object License()
     {
@@ -92,6 +151,18 @@ A ""contributor"" is any person that distributes its contribution under this lic
 (D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
 (E) The software is licensed ""as-is."" You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement.
 ");
+    }
+
+    [Builtin]
+    public static object StackTrace()
+    {
+      Exception ex = ScriptEngine.LastException;
+      if (ex != null)
+      {
+        ScriptEngine.IConsole.Write(ScriptEngine.LastException.ToString(), Microsoft.Scripting.Shell.Style.Error);
+        System.Console.WriteLine();
+      }
+      return Unspecified;
     }
 
 

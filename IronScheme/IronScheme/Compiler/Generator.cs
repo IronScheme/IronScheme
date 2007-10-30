@@ -54,14 +54,12 @@ namespace IronScheme.Compiler
   {
     static Generator()
     {
-      
-      
       Initialize();
     }
 
-    public readonly static FieldInfo Unspecified = typeof(Builtins).GetField("Unspecified");
+    protected internal readonly static FieldInfo Unspecified = typeof(Builtins).GetField("Unspecified");
 
-    public static Expression GetCons(object args, CodeBlock cb)
+    protected static Expression GetCons(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
       if (c != null)
@@ -99,10 +97,10 @@ namespace IronScheme.Compiler
       set { Generator.macrotrace = value; }
     }
 
- 
 
+    static readonly Dictionary<BuiltinFunction, MethodBinder> methodbindercache = new Dictionary<BuiltinFunction, MethodBinder>();
 
-    public static Expression GetAst(object args, CodeBlock cb)
+    protected internal static Expression GetAst(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
       if (c != null)
@@ -115,7 +113,7 @@ namespace IronScheme.Compiler
 
           object m;
 
-          if (Compiler.Scope.TryLookupName(f, out m))
+          if (Context.Scope.TryLookupName(f, out m))
           {
             if (Builtins.IsEqual(define, f) && Builtins.IsPair(Builtins.First(c.Cdr)))
             {
@@ -130,7 +128,7 @@ namespace IronScheme.Compiler
               {
                 Debug.WriteLine(Builtins.DisplayFormat(c), "macro::in ");
               }
-              object result = SyntaxExpander.Expand(macro.Invoke(Compiler, c.Cdr));
+              object result = SyntaxExpander.Expand(macro.Invoke(Context, c.Cdr));
               if (macrotrace)
               {
                 Debug.WriteLine(Builtins.DisplayFormat(result), "macro::out");
@@ -151,7 +149,12 @@ namespace IronScheme.Compiler
             BuiltinFunction bf = m as BuiltinFunction;
             if (bf != null)
             {
-              MethodBinder mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.Targets, BinderType.Normal);
+
+              MethodBinder mb;
+              if (!methodbindercache.TryGetValue(bf, out mb))
+              {
+                methodbindercache[bf] = mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.Targets, BinderType.Normal);
+              }
               Expression[] pars = GetAstList(c.Cdr as Cons, cb);
               Type[] types = GetExpressionTypes(pars);
               MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
@@ -207,7 +210,7 @@ namespace IronScheme.Compiler
     {
       args = Builtins.Car(args);
       object result = SyntaxExpander.Expand1(args);
-      return GetAst(result, cb);
+      return GetCons(result, cb);
     }
 
 
@@ -255,6 +258,12 @@ namespace IronScheme.Compiler
     }
     
     // define
+    /// <summary>
+    /// Defines the specified args.
+    /// </summary>
+    /// <param name="args">The args.</param>
+    /// <param name="cb">The cb.</param>
+    /// <returns></returns>
     [Generator]
     public static Expression Define(object args, CodeBlock cb)
     {
@@ -281,7 +290,7 @@ namespace IronScheme.Compiler
         Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
         if (cb.IsGlobal)
         {
-          object o = r.Evaluate(Compiler);
+          object o = r.Evaluate(Context);
         }
         return r;
       }

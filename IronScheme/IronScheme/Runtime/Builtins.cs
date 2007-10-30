@@ -21,6 +21,7 @@ using System.Collections;
 using Microsoft.Scripting.Hosting;
 using System.ComponentModel;
 using Microsoft.Scripting.Utils;
+using IronScheme.Compiler;
 
 namespace IronScheme.Runtime
 {
@@ -46,7 +47,7 @@ namespace IronScheme.Runtime
     }
   }
 
-  public partial class Builtins
+  public partial class Builtins : BaseHelper
   {
     public static bool IsTrue(object arg)
     {
