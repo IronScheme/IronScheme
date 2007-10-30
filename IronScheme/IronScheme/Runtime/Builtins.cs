@@ -49,6 +49,14 @@ namespace IronScheme.Runtime
 
   public partial class Builtins : BaseHelper
   {
+
+    internal static Exception lastException = null;
+
+    protected static Exception LastException
+    {
+      get { return lastException; }
+    }
+
     public static bool IsTrue(object arg)
     {
       if (arg is bool)

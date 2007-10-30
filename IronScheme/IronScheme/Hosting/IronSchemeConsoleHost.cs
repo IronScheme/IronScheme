@@ -48,8 +48,7 @@ namespace IronScheme.Hosting
     protected override void Initialize()
     {
       base.Initialize();
-      this.Options.LanguageProvider = ScriptEnvironment.GetEnvironment().GetLanguageProvider(typeof(IronSchemeLanguageProvider));
-
+      Options.LanguageProvider = ScriptEnvironment.GetEnvironment().GetLanguageProvider(typeof(IronSchemeLanguageProvider));
     }
 
     protected override void PrintLogo()
@@ -58,12 +57,6 @@ namespace IronScheme.Hosting
       Console.ForegroundColor = ConsoleColor.Green;
       Console.WriteLine(logo);
       Console.ForegroundColor = old;
-      //Console.WriteLine("Ctrl+Z (or F6) then Enter to quit. On error, hit Enter to return to prompt.");
-    }
-
-    protected override void PrintHelp()
-    {
-      base.PrintHelp();
     }
 
     protected override void UnhandledException(IScriptEngine engine, Exception e)

@@ -15,7 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace IronScheme.Console
+namespace IronScheme.Runtime
 {
   class ConsoleGenerator
   {

@@ -30,7 +30,7 @@ namespace IronScheme.Compiler
     static readonly IronSchemeScriptEngine se;
     internal static CodeContext cc;
 
-    protected static IronSchemeScriptEngine ScriptEngine
+    protected static ScriptEngine ScriptEngine
     {
       get { return BaseHelper.se; }
     }
