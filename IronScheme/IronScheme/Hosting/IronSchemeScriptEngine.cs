@@ -26,7 +26,7 @@ using Microsoft.Scripting.Shell;
 
 namespace IronScheme.Hosting
 {
-  public class IronSchemeScriptEngine : ScriptEngine
+  class IronSchemeScriptEngine : ScriptEngine
   {
     public IronSchemeScriptEngine(LanguageProvider lp, EngineOptions eo, LanguageContext lc)
       : base(lp, eo, lc)
@@ -48,16 +48,9 @@ namespace IronScheme.Hosting
       }
     }
 
-    Exception lastException = null;
-
-    public Exception LastException
-    {
-      get { return lastException; }
-    }
-
     public override string FormatException(Exception exception)
     {
-      lastException = exception;
+      Builtins.lastException = exception;
       if (exception is MissingMemberException)
       {
         return string.Format("error: {0}", exception.Message);

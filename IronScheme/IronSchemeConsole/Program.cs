@@ -18,10 +18,10 @@ using IronScheme.Hosting;
 using Microsoft.Scripting;
 using IronScheme.Runtime;
 
-[assembly: Extension(GeneratorType = typeof(IronScheme.Console.ConsoleGenerator),
-  BuiltinsType=typeof(IronScheme.Console.ConsoleBuiltins))]
+[assembly: Extension(GeneratorType = typeof(IronScheme.Runtime.ConsoleGenerator),
+  BuiltinsType=typeof(IronScheme.Runtime.ConsoleBuiltins))]
 
-namespace IronScheme.Console
+namespace IronScheme.Runtime
 {
   class Program
   {

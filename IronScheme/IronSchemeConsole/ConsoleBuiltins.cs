@@ -23,7 +23,7 @@ using System.Xml;
 using Microsoft.Scripting.Types;
 using System.Reflection;
 
-namespace IronScheme.Console
+namespace IronScheme.Runtime
 {
   public class ConsoleBuiltins : Builtins
   {
@@ -156,11 +156,13 @@ A ""contributor"" is any person that distributes its contribution under this lic
     [Builtin]
     public static object StackTrace()
     {
-      Exception ex = ScriptEngine.LastException;
+      Exception ex = LastException;
       if (ex != null)
       {
-        ScriptEngine.IConsole.Write(ScriptEngine.LastException.ToString(), Microsoft.Scripting.Shell.Style.Error);
-        System.Console.WriteLine();
+        ConsoleColor old = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(ex.ToString());
+        Console.ForegroundColor = old;
       }
       return Unspecified;
     }
