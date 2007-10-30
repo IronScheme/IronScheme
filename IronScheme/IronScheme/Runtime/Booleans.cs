@@ -35,6 +35,13 @@ namespace IronScheme.Runtime
 
 
 
+    /// <summary>
+    /// Determines whether the specified obj is boolean.
+    /// </summary>
+    /// <param name="obj">The obj.</param>
+    /// <returns>
+    /// 	<c>true</c> if the specified obj is boolean; otherwise, <c>false</c>.
+    /// </returns>
     [Builtin("boolean?")]
     public static bool IsBoolean(object obj)
     {
@@ -42,6 +49,11 @@ namespace IronScheme.Runtime
     }
 
 
+    /// <summary>
+    /// Nots the specified obj.
+    /// </summary>
+    /// <param name="obj">The obj.</param>
+    /// <returns></returns>
     [Builtin("not")]
     public static bool Not(object obj)
     {

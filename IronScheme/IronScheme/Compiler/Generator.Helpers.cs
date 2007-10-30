@@ -25,7 +25,36 @@ using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Compiler
 {
-  partial class Generator
+  public abstract class BaseHelper
+  {
+    static readonly IronSchemeScriptEngine se;
+    internal static CodeContext cc;
+
+    protected static IronSchemeScriptEngine ScriptEngine
+    {
+      get { return BaseHelper.se; }
+    }
+
+    protected static CodeContext Context
+    {
+      get { return cc; }
+    }
+
+    static BaseHelper()
+    {
+      se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
+          typeof(Hosting.IronSchemeLanguageProvider)).GetEngine() as IronSchemeScriptEngine;
+
+      ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("CompileTime"));
+
+      mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
+
+
+      cc = se.CreateContext(mc);
+    }
+  }
+
+  partial class Generator : BaseHelper
   {
 
 
@@ -43,20 +72,9 @@ namespace IronScheme.Compiler
 
     static void Initialize()
     {
-      IronSchemeScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
-          typeof(Hosting.IronSchemeLanguageProvider)).GetEngine() as IronSchemeScriptEngine;
-      ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("CompileTime"));
-
-      mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
-
-
-      CC = se.CreateContext(mc);
-
       // builtin methods
       AddGenerators(typeof(Generator));
       AddBuiltins(typeof(Builtins));
-
-
     }
 
     public static void AddBuiltins(Type builtinstype)
@@ -80,18 +98,11 @@ namespace IronScheme.Compiler
       foreach (string mn in all.Keys)
       {
         SymbolId s = SymbolTable.StringToId(mn);
-        Compiler.Scope.SetName(s, builtinmap[s] = BuiltinFunction.MakeMethod(mn, all[mn].ToArray(), FunctionType.Function));
+        Context.Scope.SetName(s, builtinmap[s] = BuiltinFunction.MakeMethod(mn, all[mn].ToArray(), FunctionType.Function));
       }
     }
 
 
-    static CodeContext CC;
-
-    public static CodeContext Compiler
-    {
-      get { return CC; }
-      internal set { CC = value; }
-    }
 
     static Expression Read(SymbolId name, CodeBlock cb, Type type)
     {
@@ -585,7 +596,7 @@ namespace IronScheme.Compiler
 
     static SymbolId namehint = SymbolId.Invalid;
 
-    public static SymbolId NameHint
+    protected static SymbolId NameHint
     {
       get
       {

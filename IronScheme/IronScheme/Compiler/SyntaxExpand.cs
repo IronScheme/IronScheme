@@ -76,13 +76,13 @@ namespace IronScheme.Compiler
           }
 
           object value;
-          if (Generator.Compiler.Scope.TryLookupName(s, out value))
+          if (BaseHelper.cc.Scope.TryLookupName(s, out value))
           {
             if (value is Runtime.Macro)
             {
               Runtime.Macro m = value as Runtime.Macro;
 
-              object result = m.Invoke(Generator.Compiler, c.Cdr);
+              object result = m.Invoke(BaseHelper.cc, c.Cdr);
               if (result is Cons && Parser.sourcemap.ContainsKey(c))
               {
                 Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];

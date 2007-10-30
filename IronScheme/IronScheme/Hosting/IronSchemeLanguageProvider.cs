@@ -34,10 +34,16 @@ namespace IronScheme.Hosting
       get { return "IronScheme"; }
     }
 
+    IronSchemeScriptEngine se;
+
     public override ScriptEngine GetEngine(EngineOptions options)
     {
-      LanguageContext lc = new IronSchemeLanguageContext();
-      return new IronSchemeScriptEngine(this, options ?? GetOptionsParser().EngineOptions, lc);
+      if (se == null)
+      {
+        LanguageContext lc = new IronSchemeLanguageContext();
+        se = new IronSchemeScriptEngine(this, options ?? GetOptionsParser().EngineOptions, lc);
+      }
+      return se;
     }
 
     CommandLineX cl = new CommandLineX();

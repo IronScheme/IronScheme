@@ -21,19 +21,26 @@ namespace IronScheme.Hosting
 {
   public class IronSchemeConsoleHost : ConsoleHost
   {
+    string logo;
     public IronSchemeConsoleHost()
     {
-       ScriptDomainManager.Options.AssemblyGenAttributes |=
+      ScriptDomainManager.Options.AssemblyGenAttributes |=
 
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies
+       Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
+       Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies
 
 #if DEBUG
-        | Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
+ | Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
         //Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies|
-         Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies
 #endif
-      ;
+;
+        logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
+            typeof(IronSchemeConsoleHost).Assembly.GetName().Version);
+
+        Console.Title = logo;
+
+
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
     }
@@ -47,8 +54,10 @@ namespace IronScheme.Hosting
 
     protected override void PrintLogo()
     {
-      Console.WriteLine(string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
-      typeof(IronSchemeConsoleHost).Assembly.GetName().Version), Microsoft.Scripting.Shell.Style.Out);
+      ConsoleColor old = Console.ForegroundColor;
+      Console.ForegroundColor = ConsoleColor.Green;
+      Console.WriteLine(logo);
+      Console.ForegroundColor = old;
       //Console.WriteLine("Ctrl+Z (or F6) then Enter to quit. On error, hit Enter to return to prompt.");
     }
 

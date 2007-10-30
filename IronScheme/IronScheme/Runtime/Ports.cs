@@ -89,13 +89,13 @@ namespace IronScheme.Runtime
     [Builtin("load")]
     public static object Load(CodeContext cc, object filename)
     {
-      if (cc.Scope.ModuleScope != Compiler.Generator.Compiler.Scope.ModuleScope)
+      if (cc.Scope.ModuleScope != Context.Scope.ModuleScope)
       {
-        foreach (KeyValuePair<SymbolId, object> kv in Compiler.Generator.Compiler.Scope.Items)
+        foreach (KeyValuePair<SymbolId, object> kv in Context.Scope.Items)
         {
           cc.Scope.SetName(kv.Key, kv.Value);
         }
-        Compiler.Generator.Compiler = cc;
+        IronScheme.Compiler.BaseHelper.cc = cc;
       }
 
       string path = filename as string;
@@ -165,7 +165,7 @@ namespace IronScheme.Runtime
       while ((i = r.ReadLine()) != null)
       {
         input.AppendLine(i);
-        object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString(), Compiler.Generator.Compiler.ModuleContext.CompilerContext);
+        object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString(), Context.ModuleContext.CompilerContext);
         if (result != null)
         {
           return result;
