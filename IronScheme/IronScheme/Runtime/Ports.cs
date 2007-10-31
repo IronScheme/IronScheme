@@ -21,7 +21,6 @@ using System.Collections;
 using Microsoft.Scripting;
 using System.IO;
 using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Types;
 using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
