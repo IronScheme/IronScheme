@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Actions {
     public class ExtensionPropertyTracker : PropertyTracker {
@@ -38,6 +39,10 @@ namespace Microsoft.Scripting.Actions {
 
         public override Type DeclaringType {
             get { return _declaringType; }
+        }
+
+        public override bool IsStatic {
+            get { return IsStaticProperty(GetGetMethod(true) ?? GetSetMethod(true)); }
         }
 
         public override MethodInfo GetGetMethod() {
@@ -76,14 +81,21 @@ namespace Microsoft.Scripting.Actions {
             return GetDeleteMethod();
         }
 
-        public override bool IsExtension {
-            get {
-                return true;
-            }
-        }
-
         public override ParameterInfo[] GetIndexParameters() {
             return new ParameterInfo[0];
+        }
+
+        private bool IsStaticProperty(MethodInfo method) {            
+            return method.IsDefined(typeof(StaticExtensionMethodAttribute), false);
+        }
+
+        public override Type PropertyType {
+            get {
+                if (_getter != null) return _getter.ReturnType;
+
+                ParameterInfo[] pis = _setter.GetParameters();
+                return pis[pis.Length - 1].ParameterType;
+            }
         }
     }
 }

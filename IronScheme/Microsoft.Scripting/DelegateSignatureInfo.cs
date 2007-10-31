@@ -28,17 +28,15 @@ namespace Microsoft.Scripting {
         private readonly ActionBinder _binder;
         private readonly Type _returnType;
         private readonly ParameterInfo[] _parameters;
-        private readonly Action<Exception> _handler;
 
 #if DEBUG
         internal static readonly object TargetPlaceHolder = new object();
 #endif
 
-        public DelegateSignatureInfo(ActionBinder binder, Type returnType, ParameterInfo[] parameters, Action<Exception> handler) {
+        public DelegateSignatureInfo(ActionBinder binder, Type returnType, ParameterInfo[] parameters) {
             _binder = binder;
             _parameters = parameters;
             _returnType = returnType;
-            _handler = handler;
         }
 
         public override bool Equals(object obj) {
@@ -65,10 +63,6 @@ namespace Microsoft.Scripting {
                 }
             }
 
-            if (dsi._handler != _handler) {
-                return false;
-            }
-
             return true;
         }
 
@@ -80,9 +74,6 @@ namespace Microsoft.Scripting {
                 hashCode ^= _parameters[i].GetHashCode();
             }
             hashCode ^= _returnType.GetHashCode();
-            if (_handler != null) {
-                hashCode ^= _handler.GetHashCode();
-            }
             return hashCode;
         }
 
@@ -131,7 +122,7 @@ namespace Microsoft.Scripting {
             cg.ContextSlot = context;
 
             // Emit the stub
-            StubGenerator.EmitClrCallStub(cg, target, 0, StubGenerator.CallType.None, _handler);
+            StubGenerator.EmitClrCallStub(cg, target, 0, StubGenerator.CallType.None);
 
             // Finish the method
             MethodInfo method = cg.CreateDelegateMethodInfo();

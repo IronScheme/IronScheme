@@ -21,7 +21,8 @@ namespace Microsoft.Scripting.Ast {
     public class UnboundExpression : Expression {
         private readonly SymbolId _name;
 
-        internal UnboundExpression(SymbolId name) {
+        internal UnboundExpression(SymbolId name)
+            : base(AstNodeType.UnboundExpression) {
             _name = name;
         }
 
@@ -44,12 +45,6 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitCodeContext();
             cg.EmitSymbolId(_name);
             cg.EmitCall(typeof(RuntimeHelpers), "LookupName");
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-            }
-            walker.PostWalk(this);
         }
     }
 

@@ -19,14 +19,14 @@ using Microsoft.Scripting.Generation;
 namespace Microsoft.Scripting.Actions {
 
     public class DoOperationAction : DynamicAction {
-        private Operators _operation;
+        private readonly Operators _operation;
 
         public static DoOperationAction Make(Operators operation) {
             return new DoOperationAction(operation);
         }
 
         private DoOperationAction(Operators operation) {
-            this._operation = operation;
+            _operation = operation;
         }
 
         public Operators Operation {

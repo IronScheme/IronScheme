@@ -161,7 +161,7 @@ namespace Microsoft.Scripting {
 
         private void AddReference(Assembly assembly) {
             // Load the assembly into IronPython
-            if (DynamicHelpers.TopNamespace.LoadAssembly(assembly)) {
+            if (RuntimeHelpers.TopNamespace.LoadAssembly(assembly)) {
                 // Add it to the references tuple if we
                 // loaded a new assembly.
                 References.Add(assembly);

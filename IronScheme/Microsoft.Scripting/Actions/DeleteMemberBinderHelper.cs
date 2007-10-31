@@ -99,7 +99,7 @@ namespace Microsoft.Scripting.Actions {
         private bool MakeOperatorGetMemberBody(Type type, string name) {
             MethodInfo delMem = GetMethod(type, name);
             if (delMem != null && delMem.IsSpecialName) {
-                Expression call = MakeCallExpression(delMem, Rule.Parameters[0], Ast.Constant(StringName));
+                Expression call = Binder.MakeCallExpression(delMem, Rule.Parameters[0], Ast.Constant(StringName));
                 Statement ret;
 
                 if (delMem.ReturnType == typeof(bool)) {

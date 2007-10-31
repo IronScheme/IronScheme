@@ -76,31 +76,31 @@ namespace Microsoft.Scripting.Ast {
 
         internal static void BuildYieldTargets(GeneratorCodeBlock g, out List<YieldTarget> topTargets, out int temps) {
             YieldLabelBuilder b = new YieldLabelBuilder();
-            g.Body.Walk(b);
+            b.WalkNode(g.Body);
             topTargets = b._topTargets;
             temps = b._temps;
         }
 
         #region AstWalker method overloads
 
-        public override bool Walk(TryStatement node) {
+        protected internal override bool Walk(TryStatement node) {
             ExceptionBlock block = new ExceptionBlock(node);
 
             _tryBlocks.Push(block);
-            node.Body.Walk(this);
+            WalkNode(node.Body);
 
             IList<CatchBlock> handlers = node.Handlers;
             if (handlers != null) {
                 block.State = ExceptionBlock.TryStatementState.Handler;
                 for (int handler = 0; handler < handlers.Count; handler++) {
                     block.Handler = handler;
-                    handlers[handler].Body.Walk(this);
+                    WalkNode(handlers[handler].Body);
                 }
             }
 
             if (node.FinallyStatement != null) {
                 block.State = ExceptionBlock.TryStatementState.Finally;
-                node.FinallyStatement.Walk(this);
+                WalkNode(node.FinallyStatement);
             }
 
             Debug.Assert((object)block == (object)_tryBlocks.Peek());
@@ -109,11 +109,11 @@ namespace Microsoft.Scripting.Ast {
             return false;
         }
 
-        public override void PostWalk(TryStatement node) {
+        protected internal override void PostWalk(TryStatement node) {
             _temps += node.GetGeneratorTempCount();
         }
 
-        public override void PostWalk(YieldStatement node) {
+        protected internal override void PostWalk(YieldStatement node) {
             // Assign the yield statement index for codegen
             int index = _topTargets.Count;
             TargetLabel label = new TargetLabel();

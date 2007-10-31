@@ -133,7 +133,7 @@ namespace Microsoft.Scripting.Actions {
             }
             _typeNames[assem].AddTypeName(typeName);
 
-            string normalizedTypeName = TypeGroup.GetNormalizedTypeName(typeName);
+            string normalizedTypeName = ReflectionUtils.GetNormalizedTypeName(typeName);
             if (_dict.ContainsKey(normalizedTypeName)) {
                 // A similarly named type, namespace, or module already exists.
                 Type newType = LoadType(assem, GetFullChildName(typeName));
@@ -450,14 +450,14 @@ namespace Microsoft.Scripting.Actions {
 
             internal bool Contains(string normalizedTypeName) {
                 Debug.Assert(normalizedTypeName.IndexOf(Type.Delimiter) == -1); // This is the simple name, not the full name
-                Debug.Assert(TypeGroup.GetNormalizedTypeName(normalizedTypeName) == normalizedTypeName);
+                Debug.Assert(ReflectionUtils.GetNormalizedTypeName(normalizedTypeName) == normalizedTypeName);
 
                 return _simpleTypeNames.Contains(normalizedTypeName) || _genericTypeNames.ContainsKey(normalizedTypeName);
             }
 
             internal MemberTracker UpdateTypeEntity(TypeTracker existingTypeEntity, string normalizedTypeName) {
                 Debug.Assert(normalizedTypeName.IndexOf(Type.Delimiter) == -1); // This is the simple name, not the full name
-                Debug.Assert(TypeGroup.GetNormalizedTypeName(normalizedTypeName) == normalizedTypeName);
+                Debug.Assert(ReflectionUtils.GetNormalizedTypeName(normalizedTypeName) == normalizedTypeName);
 
                 // Look for a non-generic type
                 if (_simpleTypeNames.Contains(normalizedTypeName)) {
@@ -480,7 +480,7 @@ namespace Microsoft.Scripting.Actions {
             internal void AddTypeName(string typeName) {
                 Debug.Assert(typeName.IndexOf(Type.Delimiter) == -1); // This is the simple name, not the full name
 
-                string normalizedName = TypeGroup.GetNormalizedTypeName(typeName);
+                string normalizedName = ReflectionUtils.GetNormalizedTypeName(typeName);
                 if (normalizedName == typeName) {
                     _simpleTypeNames.Add(typeName);
                 } else {
@@ -531,6 +531,7 @@ namespace Microsoft.Scripting.Actions {
             object value;
             if (TryGetValue(action.Name, out value)) {
                 Debug.Assert(value is MemberTracker);
+                MemberTracker memValue = (MemberTracker)value;
 
                 StandardRule<T> rule = new StandardRule<T>();
                 rule.MakeTest(typeof(NamespaceTracker));
@@ -544,7 +545,8 @@ namespace Microsoft.Scripting.Actions {
                     )
                 );
 
-                Expression target = context.LanguageContext.Binder.ReturnMemberTracker((MemberTracker)value);
+
+                Expression target = context.LanguageContext.Binder.ReturnMemberTracker(memValue.DeclaringType, memValue);
 
                 rule.SetTarget(rule.MakeReturn(context.LanguageContext.Binder, target));
                 return rule;

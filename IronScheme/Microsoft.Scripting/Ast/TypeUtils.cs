@@ -67,6 +67,19 @@ namespace Microsoft.Scripting.Ast {
             return false;
         }
 
+        internal static bool IsUnsigned(Type type) {
+            type = GetNonNullableType(type);
+            if (!type.IsEnum) {
+                switch (Type.GetTypeCode(type)) {
+                    case TypeCode.UInt16:
+                    case TypeCode.UInt32:
+                    case TypeCode.UInt64:
+                        return true;
+                }
+            }
+            return false;
+        }
+
         internal static bool IsIntegerOrBool(Type type) {
             type = GetNonNullableType(type);
             if (!type.IsEnum) {
@@ -112,6 +125,47 @@ namespace Microsoft.Scripting.Ast {
         internal static bool CanCompareToNull(Type type) {
             // This is a bit too conservative.
             return !type.IsValueType;
+        }
+
+        /// <summary>
+        /// Returns a numerical code of the size of a type.  All types get both a horizontal
+        /// and vertical code.  Types that are lower in both dimensions have implicit conversions
+        /// to types that are higher in both dimensions.
+        /// </summary>
+        internal static bool GetNumericConversionOrder(TypeCode code, out int x, out int y) {
+            // implicit conversions:
+            //     0     1     2     3     4
+            // 0:       U1 -> U2 -> U4 -> U8
+            //          |     |     |
+            //          v     v     v
+            // 1: I1 -> I2 -> I4 -> I8
+            //          |     |     
+            //          v     v     
+            // 2:       R4 -> R8
+
+            switch (code) {
+                case TypeCode.Byte: x = 0; y = 0; break;
+                case TypeCode.UInt16: x = 1; y = 0; break;
+                case TypeCode.UInt32: x = 2; y = 0; break;
+                case TypeCode.UInt64: x = 3; y = 0; break;
+
+                case TypeCode.SByte: x = 0; y = 1; break;
+                case TypeCode.Int16: x = 1; y = 1; break;
+                case TypeCode.Int32: x = 2; y = 1; break;
+                case TypeCode.Int64: x = 3; y = 1; break;
+
+                case TypeCode.Single: x = 1; y = 2; break;
+                case TypeCode.Double: x = 2; y = 2; break;
+
+                default:
+                    x = y = 0;
+                    return false;
+            }
+            return true;
+        }
+
+        internal static bool IsImplicitlyConvertible(int fromX, int fromY, int toX, int toY) {
+            return fromX <= toX && fromY <= toY;
         }
     }
 }

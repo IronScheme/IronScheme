@@ -20,10 +20,11 @@ using Microsoft.Scripting.Utils;
 namespace Microsoft.Scripting.Ast {
     // TODO: Remove! Use ActionExpression instead.
     public class DynamicConversionExpression : Expression {
-        private readonly Expression _expression;
-        private readonly Type _conversion;
+        private readonly Expression /*!*/ _expression;
+        private readonly Type /*!*/ _conversion;
 
-        internal DynamicConversionExpression(Expression expression, Type conversion) {
+        internal DynamicConversionExpression(Expression /*!*/ expression, Type /*!*/ conversion)
+            : base(AstNodeType.DynamicConversionExpression) {
             _expression = expression;
             _conversion = conversion;
         }
@@ -47,14 +48,8 @@ namespace Microsoft.Scripting.Ast {
             object value = _expression.Evaluate(context);
             return context.LanguageContext.Binder.Convert(value, _conversion);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _expression.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
+
     public static partial class Ast {
         public static DynamicConversionExpression DynamicConvert(Expression expression, Type conversion) {
             Contract.RequiresNotNull(expression, "expression");

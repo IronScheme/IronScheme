@@ -186,7 +186,7 @@ namespace Microsoft.Scripting {
         }
 
         public string ToSignatureString() {
-            return DynamicHelpers.GetDynamicTypeFromType(Type).Name;
+            return Type.Name;
         }
     }
 

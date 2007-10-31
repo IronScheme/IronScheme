@@ -82,7 +82,7 @@ namespace Microsoft.Scripting.Hosting {
            throw new NotImplementedException("TODO");
         }
 
-        public ServiceType GetService<ServiceType>(params object[] args) 
+        public ServiceType/*?*/ GetService<ServiceType>(params object[] args) 
             where ServiceType : class {
 
             // TODO: Remote wrapper

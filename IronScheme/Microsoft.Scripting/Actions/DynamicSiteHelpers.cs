@@ -153,12 +153,25 @@ namespace Microsoft.Scripting.Actions {
             return Delegate.CreateDelegate(targetType, Activator.CreateInstance(dType), "BigFastInvoke");
         }
 
-        internal static CodeContext GetEvaluationContext<T>(LanguageContext languageContext, ref object []args) {
-            CodeContext context = new CodeContext(new Scope(), languageContext);
+        internal static CodeContext GetEvaluationContext<T>(CodeContext context, ref object []args) {
+            context = new CodeContext(new Scope(context.Scope, null), context.LanguageContext, context.ModuleContext);
             if (DynamicSiteHelpers.IsBigTarget(typeof(T))) {
                 args = new object[] { Tuple.MakeTuple(typeof(T).GetGenericArguments()[0], args) };
             }
             return context;
+        }
+
+        internal static void UpdateSite<T>(CodeContext callerContext, object site, ref T target, ref RuleSet<T> rules, StandardRule<T> rule) {
+            lock (site) {
+                bool monomorphic = rules.HasMonomorphicTarget(target);
+
+                rules = rules.AddRule(rule);
+                if (monomorphic || rules == EmptyRuleSet<T>.FixedInstance) {
+                    target = rule.MonomorphicRuleSet.GetOrMakeTarget(callerContext);
+                } else {
+                    target = rules.GetOrMakeTarget(callerContext);
+                }
+            }
         }
     }
 }

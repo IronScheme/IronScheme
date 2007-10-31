@@ -22,7 +22,6 @@ using System.Text;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Types;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Actions {
@@ -104,12 +103,17 @@ namespace Microsoft.Scripting.Actions {
             }
 
             switch (memberType) {
-                case TrackerTypes.Event: MakeEventBody(type, members); break;
-                case TrackerTypes.Field: MakeFieldBody(members); break;
-                case TrackerTypes.Method: MakeMethodBody(type, members); break;
                 case TrackerTypes.TypeGroup:
-                case TrackerTypes.Type: MakeTypeBody(members); break;
-                case TrackerTypes.Property: MakePropertyBody(type, members); break;
+                case TrackerTypes.Type: MakeTypeBody(type, members); break;
+                case TrackerTypes.Method:
+                    // turn into a MethodGroup                    
+                    MakeGenericBodyWorker(type, ReflectionCache.GetMethodGroup(StringName, members), _instance ?? Rule.Parameters[0]);
+                    break;
+                case TrackerTypes.Event:
+                case TrackerTypes.Field:                
+                case TrackerTypes.Property: 
+                    MakeGenericBody(type, members); 
+                    break;
                 case TrackerTypes.Constructor:
                 case TrackerTypes.All:     
                     // no members were found
@@ -122,142 +126,37 @@ namespace Microsoft.Scripting.Actions {
             return Body;
         }
 
-        private void MakeEventBody(Type type, MemberGroup members) {
-            EventTracker ei = (EventTracker)members[0];
-
-            ReflectedEvent re = ReflectionCache.GetReflectedEvent(ei.Event);
-
-            AddToBody(
-                Rule.MakeReturn(
-                    Binder,
-                    Ast.Call(
-                        typeof(RuntimeHelpers).GetMethod("MakeBoundEvent"),
-                        Ast.ConvertHelper(Ast.RuntimeConstant(re), typeof(ReflectedEvent)),
-                        Ast.ConvertHelper(Instance, typeof(object)),
-                        Ast.Constant(type)
-                    )
-                )
-            );
+        private void MakeGenericBody(Type type, MemberGroup members) {
+            MakeGenericBodyWorker(type, members[0], null);
         }
 
-        private void MakeGenericBody(MemberGroup members) {
-            MemberTracker tracker = members[0];
+        private void MakeGenericBody(Type type, MemberGroup members, Expression instance) {
+            MakeGenericBodyWorker(type, members[0], instance);
+        }
+
+        private void MakeGenericBodyWorker(Type type, MemberTracker tracker, Expression instance) {            
             if (!_isStatic) {
-                tracker = tracker.BindToInstance(Instance);
+                tracker = tracker.BindToInstance(instance ?? Instance);
             }
 
-            Expression val =  tracker.GetValue(Binder);
+            Expression val = tracker.GetValue(Binder, type);
             Statement newBody;
             if (val != null) {
                 newBody = Rule.MakeReturn(Binder, val);
             } else {
-                newBody = Rule.MakeError(tracker.GetError(Binder));
+                newBody = tracker.GetError(Binder).MakeErrorForRule(Rule, Binder);
             }
 
             AddToBody(newBody);
         }
 
-        private void MakeFieldBody(MemberGroup members) {
-            MakeGenericBody(members);
-        }
-
-        private void MakeMethodBody(Type type, MemberGroup members) {
-            BuiltinFunction target = ReflectionCache.GetMethodGroup(type, StringName, GetCallableMethods(members));
-
-            if (((target.FunctionType & FunctionType.FunctionMethodMask) != FunctionType.Function) && !_isStatic) {
-                // for strong box we need to bind the strong box, so we don't use Instance here.
-                AddToBody(
-                    Rule.MakeReturn(
-                    Binder,                        
-                    Ast.New(typeof(BoundBuiltinFunction).GetConstructor(new Type[] { typeof(BuiltinFunction), typeof(object) }),
-                        Ast.RuntimeConstant(target),
-                        _instance ?? Rule.Parameters[0]    
-                    )
-                ));
-            } else {
-                AddToBody(
-                    Rule.MakeReturn(
-                        Binder,
-                        Ast.RuntimeConstant(target)
-                    )
-                );
-            }
-        }
-
-        private void MakeTypeBody(MemberGroup members) {
+        private void MakeTypeBody(Type type, MemberGroup members) {
             TypeTracker typeTracker = (TypeTracker)members[0];
             for (int i = 1; i < members.Count; i++) {
                 typeTracker = TypeGroup.UpdateTypeEntity(typeTracker, (TypeTracker)members[i]);
             }
 
-            AddToBody(Rule.MakeReturn(Binder, typeTracker.GetValue(Binder)));
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")] // TODO: fix
-        private void MakePropertyBody(Type type, MemberGroup members) {
-            PropertyTracker pi = members[0] as PropertyTracker;
-
-            MethodInfo getter = pi.GetGetMethod(true);
-
-            // Allow access to protected getters TODO: this should go, it supports IronPython semantics.
-            if (getter != null && !getter.IsPublic && !(getter.IsFamily || getter.IsFamilyOrAssembly)) {
-                if (!ScriptDomainManager.Options.PrivateBinding) {
-                    getter = null;
-                }
-            }
-
-            if (getter == null) {
-                MakeMissingMemberRuleForGet(type);
-                return;
-            }
-
-            getter = CompilerHelpers.GetCallableMethod(getter);
-
-            if (pi.GetIndexParameters().Length > 0) {
-                PropertyInfo property = ((ReflectedPropertyTracker)pi).Property; // TODO: Private binding on extension properties
-
-                AddToBody(
-                    Rule.MakeReturn(Binder,
-                        Ast.New(typeof(ReflectedIndexer).GetConstructor(new Type[] { typeof(ReflectedIndexer), typeof(object) }),
-                            Ast.RuntimeConstant(ReflectionCache.GetReflectedIndexer(property)),
-                            _isStatic ? Ast.Null() : Instance
-                        )
-                    )
-                );
-            } else if (getter.ContainsGenericParameters) {
-                MakeGenericPropertyError();
-            } else if (IsStaticProperty(pi, getter)) {
-                if (_isStatic) {
-                    AddToBody(MakeCallStatement(getter));
-                } else {
-                    MakeIncorrectArgumentCountError();
-                }
-            } else if (getter.IsPublic) {
-                // MakeCallExpression instead of Ast.ReadProperty because getter might
-                // be a method on a base type after GetCallableMethod
-                Expression call;
-                if (_isStatic) {
-                    call = MakeCallExpression(getter);
-                } else {
-                    call = MakeCallExpression(getter, Instance);
-                }
-
-                AddToBody(Rule.MakeReturn(Binder, call));
-            } else {
-                PropertyInfo property = ((ReflectedPropertyTracker)pi).Property; // TODO: Private binding on extension properties
-
-                AddToBody(
-                    Rule.MakeReturn(
-                        Binder,
-                        Ast.Call(
-                            Ast.RuntimeConstant(property),   
-                            typeof(PropertyInfo).GetMethod("GetValue", new Type[] { typeof(object), typeof(object[]) }),
-                            Ast.ConvertHelper(Instance, typeof(object)),
-                            Ast.NewArray(typeof(object[]))
-                        )
-                    )
-                );
-            }                
+            AddToBody(Rule.MakeReturn(Binder, typeTracker.GetValue(Binder, type)));
         }
 
         /// <summary> if a member-injector is defined-on or registered-for this type call it </summary>
@@ -270,7 +169,7 @@ namespace Microsoft.Scripting.Actions {
                         Ast.NotEqual(
                             Ast.Assign(
                                 tmp,
-                                MakeCallExpression(getMem, Instance, Ast.Constant(StringName))
+                                Binder.MakeCallExpression(getMem, Instance, Ast.Constant(StringName))
                             ),
                             Ast.ReadField(null, typeof(OperationFailed).GetField("Value"))
                         ),

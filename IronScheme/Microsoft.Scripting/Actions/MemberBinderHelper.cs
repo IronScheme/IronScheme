@@ -23,6 +23,7 @@ using Microsoft.Scripting.Ast;
 namespace Microsoft.Scripting.Actions {
     using Ast = Microsoft.Scripting.Ast.Ast;
     using Microsoft.Scripting.Utils;
+    using Microsoft.Scripting.Generation;
 
     public class MemberBinderHelper<T, TActionKind> 
         : BinderHelper<T, TActionKind> where TActionKind : MemberAction {
@@ -40,7 +41,7 @@ namespace Microsoft.Scripting.Actions {
             _args = args;
 
             _target = args[0];
-            if (IsStrongBox(_target)) {
+            if (CompilerHelpers.IsStrongBox(_target)) {
                 _strongBoxType = _target.GetType();
                 _target = ((IStrongBox)_target).Value;
             }
@@ -60,7 +61,7 @@ namespace Microsoft.Scripting.Actions {
                 if (_strongBoxType == null) return _rule.Parameters[0];
 
                 return Ast.Call(
-                    typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(_strongBoxType.GetGenericArguments()),
+                    typeof(BinderOps).GetMethod("GetBox").MakeGenericMethod(_strongBoxType.GetGenericArguments()),
                     Ast.ConvertHelper(_rule.Parameters[0], _strongBoxType)
                 );
             }
@@ -173,14 +174,5 @@ namespace Microsoft.Scripting.Actions {
                 return _args;
             }
         }
-
-        protected static bool IsStaticProperty(PropertyTracker tracker, MethodInfo setter) {
-            if (tracker.IsExtension) {
-                return setter.IsDefined(typeof(StaticExtensionMethodAttribute), false);
-            }
-
-            return setter.IsStatic;
-        }
-
     }
 }

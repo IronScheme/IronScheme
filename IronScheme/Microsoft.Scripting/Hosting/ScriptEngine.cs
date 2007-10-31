@@ -154,7 +154,7 @@ namespace Microsoft.Scripting.Hosting {
             }
         }
 
-        internal protected LanguageContext LanguageContext {
+        public LanguageContext LanguageContext {
             get { return _languageContext; }
         }
 

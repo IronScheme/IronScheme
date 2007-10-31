@@ -98,7 +98,7 @@ namespace Microsoft.Scripting.Ast {
             } else {
                 // find it now.
                 TryFlowAnalyzer tfa = new TryFlowAnalyzer();
-                statement.Walk(tfa);
+                tfa.WalkNode(statement);
 
                 Debug.Assert(tfa._nesting == 0);
                 Debug.Assert(tfa._switch == 0);
@@ -107,26 +107,26 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        public override bool Walk(BreakStatement node) {
+        protected internal override bool Walk(BreakStatement node) {
             if (_nesting == 0 && _switch == 0) {
                 _result.Break = true;
             }
             return true;
         }
 
-        public override bool Walk(ContinueStatement node) {
+        protected internal override bool Walk(ContinueStatement node) {
             if (_nesting == 0) {
                 _result.Continue = true;
             }
             return true;
         }
 
-        public override bool Walk(ReturnStatement node) {
+        protected internal override bool Walk(ReturnStatement node) {
             _result.Return = true;
             return true;
         }
 
-        public override bool Walk(YieldStatement node) {
+        protected internal override bool Walk(YieldStatement node) {
             _result.Yield = true;
             return true;
         }
@@ -134,29 +134,29 @@ namespace Microsoft.Scripting.Ast {
         // Keep track of nested loops, only loop flow control
         // statements outside of nested loops concern us
 
-        public override bool Walk(LoopStatement node) {
+        protected internal override bool Walk(LoopStatement node) {
             _nesting++;
             return true;
         }
 
-        public override void PostWalk(LoopStatement node) {
+        protected internal override void PostWalk(LoopStatement node) {
             _nesting--;
         }
 
-        public override bool Walk(DoStatement node) {
+        protected internal override bool Walk(DoStatement node) {
             _nesting++;
             return true;
         }
 
-        public override void PostWalk(DoStatement node) {
+        protected internal override void PostWalk(DoStatement node) {
             _nesting--;
         }
 
-        public override bool Walk(SwitchStatement node) {
+        protected internal override bool Walk(SwitchStatement node) {
             _switch++;
             return true;
         }
-        public override void PostWalk(SwitchStatement node) {
+        protected internal override void PostWalk(SwitchStatement node) {
             _switch--;
         }
     }

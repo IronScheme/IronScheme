@@ -126,7 +126,7 @@ namespace Microsoft.Scripting.Ast {
                 builder._statementSpan,
                 builder._header,
                 builder._tryStatement, 
-                (builder._catchBlocks != null) ? builder._catchBlocks.ToArray() : null, 
+                (builder._catchBlocks != null) ? CollectionUtils.ToReadOnlyCollection(builder._catchBlocks.ToArray()) : null, 
                 builder._finallyStatement
             ); 
         }
@@ -135,7 +135,7 @@ namespace Microsoft.Scripting.Ast {
     public static partial class Ast {
 
         public static TryStatementBuilder Try(params Statement[] body) {
-            return new TryStatementBuilder(SourceSpan.None, SourceLocation.None, new BlockStatement(SourceSpan.None, body));
+            return new TryStatementBuilder(SourceSpan.None, SourceLocation.None, Ast.Block(body));
         }
         
         public static TryStatementBuilder Try(Statement body) {
@@ -147,7 +147,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static TryStatementBuilder Try(SourceSpan span, SourceLocation location, params Statement[] body) {
-            return new TryStatementBuilder(span, location, new BlockStatement(SourceSpan.None, body));
+            return new TryStatementBuilder(span, location, Ast.Block(body));
         }
 
         public static TryStatement TryCatch(SourceSpan span, SourceLocation header, Statement body, params CatchBlock[] handlers) {
@@ -163,11 +163,17 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static TryStatement TryCatchFinally(Statement body, CatchBlock[] handlers, Statement @finally) {
-            return new TryStatement(SourceSpan.None, SourceLocation.None, body, handlers, @finally);
+            return new TryStatement(
+                SourceSpan.None, SourceLocation.None,
+                body, CollectionUtils.ToReadOnlyCollection(handlers), @finally
+            );
         }
 
         public static TryStatement TryCatchFinally(SourceSpan span, SourceLocation header, Statement body, CatchBlock[] handlers, Statement @finally) {
-            return new TryStatement(span, header, body, handlers, @finally);
+            return new TryStatement(
+                span, header,
+                 body, CollectionUtils.ToReadOnlyCollection(handlers), @finally
+            );
         }
     }
 }

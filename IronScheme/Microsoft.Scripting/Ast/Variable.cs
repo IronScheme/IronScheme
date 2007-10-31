@@ -319,12 +319,8 @@ namespace Microsoft.Scripting.Ast {
             return new Variable(name, VariableKind.Parameter, block, type, null);
         }
 
-        internal static Variable Parameter(CodeBlock block, SymbolId name, Type type, Expression defaultValue) {
-            return new Variable(name, VariableKind.Parameter, block, type, defaultValue);
-        }
-
-        internal static Variable Parameter(CodeBlock block, SymbolId name, Type type, Expression defaultValue, bool parameterArray) {
-            return new Variable(name, VariableKind.Parameter, block, type, defaultValue, parameterArray);
+        internal static Variable Parameter(CodeBlock block, SymbolId name, Type type, bool parameterArray) {
+            return new Variable(name, VariableKind.Parameter, block, type, null, parameterArray);
         }
 
         internal static Variable Local(SymbolId name, CodeBlock block, Type type) {

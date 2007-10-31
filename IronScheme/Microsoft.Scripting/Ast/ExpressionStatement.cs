@@ -14,13 +14,14 @@
  * ***************************************************************************/
 
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class ExpressionStatement : Statement {
-        private readonly Expression _expression;
+        private readonly Expression /*!*/ _expression;
 
-        internal ExpressionStatement(SourceSpan span, Expression expression)
-            : base(span) {
+        internal ExpressionStatement(SourceSpan span, Expression /*!*/ expression)
+            : base(AstNodeType.ExpressionStatement, span) {
             _expression = expression;
         }
 
@@ -38,20 +39,15 @@ namespace Microsoft.Scripting.Ast {
             // expression needs to be emitted incase it has side-effects.
             _expression.EmitAs(cg, typeof(void));
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _expression.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
         public static Statement Statement(Expression expression) {
             return Statement(SourceSpan.None, expression);
         }
+
         public static Statement Statement(SourceSpan span, Expression expression) {
+            Contract.RequiresNotNull(expression, "expression");
             return new ExpressionStatement(span, expression);
         }
     }

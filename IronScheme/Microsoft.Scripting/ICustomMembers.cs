@@ -32,7 +32,6 @@ namespace Microsoft.Scripting {
 
     /// <summary>
     /// This interface objects to specify how to look up members (for code like "obj.member").
-    /// If an object does not implement this interface, its DynamicType is then asked to find the member.
     /// </summary>
     public interface ICustomMembers : IMembersList {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]

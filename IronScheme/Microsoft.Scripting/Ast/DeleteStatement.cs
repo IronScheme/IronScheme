@@ -14,7 +14,7 @@
  * ***************************************************************************/
 
 using System.Diagnostics;
-using System.Collections.Generic;
+using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
@@ -22,12 +22,12 @@ namespace Microsoft.Scripting.Ast {
     /// AST node representing deletion of the variable value.
     /// </summary>
     public class DeleteStatement : Statement {
-        private readonly Variable _var;
+        private readonly Variable /*!*/ _var;
         private VariableReference _ref;
         private bool _defined;
 
-        internal DeleteStatement(SourceSpan span, Variable var)
-            : base(span) {
+        internal DeleteStatement(SourceSpan span, Variable /*!*/ var)
+            : base(AstNodeType.DeleteStatement, span) {
             _var = var;
         }
 
@@ -70,16 +70,11 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitPosition(Start, End);
             _ref.Slot.EmitDelete(cg, _var.Name, !_defined);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
         public static DeleteStatement Delete(SourceSpan span, Variable variable) {
+            Contract.RequiresNotNull(variable, "variable");
             return new DeleteStatement(span, variable);
         }
     }

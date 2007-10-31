@@ -55,7 +55,7 @@ namespace Microsoft.Scripting.Hosting {
                 _assemblyFullNames.Add(asm.ToLower(), clrAssembly.FullName);
             }
 
-            _assemblyFullNames.Add("system.silverlight", "System.SilverLight, Version=1.0.0.0, PublicKeyToken=b03f5f7f11d50a3a");
+            _assemblyFullNames.Add("system.silverlight", "System.SilverLight, Version=1.1.0.0, PublicKeyToken=b03f5f7f11d50a3a");
             _assemblyFullNames.Add("agclr", "agclr, Version=0.0.0.0, PublicKeyToken=b03f5f7f11d50a3a");
             _assemblyFullNames.Add("microsoft.visualbasic", "Microsoft.VisualBasic, Version=8.1.0.0, PublicKeyToken=b03f5f7f11d50a3a");
 
@@ -65,11 +65,12 @@ namespace Microsoft.Scripting.Hosting {
                 "Microsoft.Scripting.Silverlight",
                 "IronPython",
                 "IronPython.Modules",
+                "IronRuby",
+                "IronRuby.Libraries",
                 "Microsoft.JScript.Compiler",
                 "Microsoft.JScript.Runtime",
                 "Microsoft.VisualBasic.Compiler",
-                "Microsoft.VisualBasic.Scripting",
-                "Ruby"}) {
+                "Microsoft.VisualBasic.Scripting"}) {
                 dlrAssembly.Name = asm;
                 _assemblyFullNames.Add(asm.ToLower(), dlrAssembly.FullName);
             }

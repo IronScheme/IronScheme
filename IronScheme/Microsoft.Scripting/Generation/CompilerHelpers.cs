@@ -18,12 +18,16 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.IO;
 
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
-using System.IO;
+using Microsoft.Scripting.Math;
+using Microsoft.Scripting.Actions;
 
 namespace Microsoft.Scripting.Generation {
+    using Ast = Microsoft.Scripting.Ast.Ast;
+
     public static class CompilerHelpers {
         public static readonly MethodAttributes PublicStatic = MethodAttributes.Public | MethodAttributes.Static;
 
@@ -76,13 +80,6 @@ namespace Microsoft.Scripting.Generation {
         public static bool IsOutParameter(ParameterInfo pi) {
             // not using IsIn/IsOut properties as they are not available in Silverlight:
             return (pi.Attributes & (ParameterAttributes.Out | ParameterAttributes.In)) == ParameterAttributes.Out;
-        }
-
-        internal static bool FormalParamsMatchActual(ParameterInfo[] parameters, int actualCount) {
-            Assert.NotNull(parameters);
-
-            return actualCount >= GetMandatoryParameterCount(parameters) &&
-                (actualCount <= parameters.Length || parameters.Length > 0 && IsParamArray(parameters[parameters.Length - 1]));
         }
 
         private static int GetMandatoryParameterCount(ParameterInfo[] parameters) {
@@ -417,8 +414,10 @@ namespace Microsoft.Scripting.Generation {
         /// Given a MethodInfo which may be declared on a non-public type this attempts to
         /// return a MethodInfo which will dispatch to the original MethodInfo but is declared
         /// on a public type.
+        /// 
+        /// Returns null if a public method cannot be obtained.
         /// </summary>
-        public static MethodInfo GetCallableMethod(MethodInfo method) {
+        public static MethodInfo TryGetCallableMethod(MethodInfo method) {
             if (method.DeclaringType.IsVisible) return method;
             // first try and get it from the base type we're overriding...
             method = method.GetBaseDefinition();
@@ -435,11 +434,24 @@ namespace Microsoft.Scripting.Generation {
                 }
             }
 
-            if (!ScriptDomainManager.Options.PrivateBinding) {
-                throw new InvalidOperationException(String.Format("{0}.{1} has no publiclly visible method", method.DeclaringType, method.Name));
-            }
-
             return method;
+        }
+
+        /// <summary>
+        /// Given a MethodInfo which may be declared on a non-public type this attempts to
+        /// return a MethodInfo which will dispatch to the original MethodInfo but is declared
+        /// on a public type.
+        /// 
+        /// Throws InvalidOperationException if the method cannot be obtained.
+        /// </summary>
+        public static MethodInfo GetCallableMethod(MethodInfo method) {
+            MethodInfo mi = TryGetCallableMethod(method);
+            if (mi == null) {
+                if (!ScriptDomainManager.Options.PrivateBinding) {
+                    throw new InvalidOperationException(String.Format("{0}.{1} has no publiclly visible method", method.DeclaringType, method.Name));
+                }
+            }
+            return mi;
         }
 
         public static bool CanOptimizeField(FieldInfo fi) {
@@ -492,15 +504,15 @@ namespace Microsoft.Scripting.Generation {
         }
 
         private static MethodBase GetStructDefaultCtor(Type t) {
-            return typeof(RuntimeHelpers).GetMethod("CreateInstance").MakeGenericMethod(t);
+            return typeof(BinderOps).GetMethod("CreateInstance").MakeGenericMethod(t);
         }
 
         private static MethodBase GetArrayCtor(Type t) {
-            return typeof(RuntimeHelpers).GetMethod("CreateArray").MakeGenericMethod(t.GetElementType());
+            return typeof(BinderOps).GetMethod("CreateArray").MakeGenericMethod(t.GetElementType());
         }
 
         private static MethodBase GetDelegateCtor(Type t) {
-            return typeof(RuntimeHelpers).GetMethod("CreateDelegate").MakeGenericMethod(t);
+            return typeof(BinderOps).GetMethod("CreateDelegate").MakeGenericMethod(t);
         }
 
         public static bool HasImplicitConversion(Type fromType, Type toType) {
@@ -559,6 +571,36 @@ namespace Microsoft.Scripting.Generation {
             }
 
             return false;
+        }
+
+        public static bool IsStrongBox(object target) {
+            Type t = CompilerHelpers.GetType(target);
+
+            return IsStrongBox(t);
+        }
+
+        public static bool IsStrongBox(Type t) {
+            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(StrongBox<>);
+        }
+
+        /// <summary>
+        /// Returns a value which indicates failure when a ConvertToAction of ImplicitTry or
+        /// ExplicitTry.
+        /// </summary>
+        public static Statement GetTryConvertReturnValue(CodeContext context, StandardRule rule) {
+            Statement failed;            
+            if (rule.ReturnType == typeof(BigInteger)) {
+                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.ReadField(null, typeof(BigInteger), "Zero"));
+            } else if (rule.ReturnType.IsInterface || rule.ReturnType.IsClass) {
+                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.Constant(null));
+            } else if(rule.ReturnType.IsGenericType && rule.ReturnType.GetGenericTypeDefinition() == typeof(Nullable<>) ||
+                (rule.ReturnType.IsGenericType && rule.ReturnType.GetGenericTypeDefinition() == typeof(Nullable<>))) {
+                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.Constant(null));
+            } else { 
+                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.RuntimeConstant(Activator.CreateInstance(rule.ReturnType)));
+            }
+            rule.IsError = true;
+            return failed;
         }
     }
 }

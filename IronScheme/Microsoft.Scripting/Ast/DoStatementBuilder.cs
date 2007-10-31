@@ -19,9 +19,9 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class DoStatementBuilder {
-        private Statement _body;
-        private SourceLocation _doLocation;
-        private SourceSpan _statementSpan;
+        private readonly Statement _body;
+        private readonly SourceLocation _doLocation;
+        private readonly SourceSpan _statementSpan;
 
         internal DoStatementBuilder(SourceSpan statementSpan, SourceLocation location, Statement body) {
             Contract.RequiresNotNull(body, "body");
@@ -33,6 +33,7 @@ namespace Microsoft.Scripting.Ast {
 
         public DoStatement While(Expression condition) {
             Contract.RequiresNotNull(condition, "condition");
+            Contract.Requires(condition.Type == typeof(bool), "condition", "Condition must be boolean");
 
             return new DoStatement(_statementSpan, _doLocation, condition, _body);
         }
@@ -40,6 +41,7 @@ namespace Microsoft.Scripting.Ast {
 
     public static partial class Ast {
         public static DoStatementBuilder Do(params Statement[] body) {
+            Contract.RequiresNotNullItems(body, "body");
             return new DoStatementBuilder(SourceSpan.None, SourceLocation.None, Block(body));
         }
 

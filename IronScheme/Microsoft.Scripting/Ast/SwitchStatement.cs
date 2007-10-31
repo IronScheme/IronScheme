@@ -14,45 +14,39 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Reflection.Emit;
-using System.Diagnostics;
-
-using Microsoft.Scripting.Generation;
 using System.Reflection;
+using System.Collections;
+using System.Diagnostics;
+using System.Reflection.Emit;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class SwitchStatement : Statement {
         private readonly SourceLocation _header;
         private readonly Expression _testValue;
+        private readonly ReadOnlyCollection<SwitchCase> _cases;
 
-        private readonly MethodInfo _tryGetSwitchIndexMethod;
-        private readonly MethodInfo _equalMethod;
+        private const int MaxJumpTableSize = 65536;
+        private const double MaxJumpTableSparsity = 10;
 
-        // TODO: Make SwitchCase[]
-        private readonly List<SwitchCase> _cases;
-
-        private const int JMPTABLE_SPARSITY = 10;
-
-        internal SwitchStatement(SourceSpan span, SourceLocation header, Expression testValue, List<SwitchCase> cases, 
-            MethodInfo tryGetSwitchIndexMethod, MethodInfo equalMethod)
-            : base(span) {
+        internal SwitchStatement(SourceSpan span, SourceLocation header, Expression/*!*/ testValue, ReadOnlyCollection<SwitchCase>/*!*/ cases)
+            : base(AstNodeType.SwitchStatement, span) {
             Assert.NotNullItems(cases);
-            Assert.NotNull(tryGetSwitchIndexMethod, equalMethod);
-            
+
             _testValue = testValue;
             _cases = cases;
             _header = header;
-            _tryGetSwitchIndexMethod = tryGetSwitchIndexMethod;
-            _equalMethod = equalMethod;
         }
 
         public Expression TestValue {
             get { return _testValue; }
         }
 
-        public List<SwitchCase> Cases {
+        public ReadOnlyCollection<SwitchCase> Cases {
             get { return _cases; }
         }
 
@@ -61,54 +55,42 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
-            Label breakTarget = cg.DefineLabel();
-            Nullable<Label> continueTarget = cg.BlockContinueLabel;
-
             cg.EmitPosition(Start, _header);
 
-            int defaultCaseLocation = -1;
+            Label breakTarget = cg.DefineLabel();
             Label defaultTarget = breakTarget;
             Label[] labels = new Label[_cases.Count];
 
-            // For all the "cases" create the labels
+            // Create all labels
             for (int i = 0; i < _cases.Count; i++) {
                 labels[i] = cg.DefineLabel();
 
                 // Default case.
-                if (_cases[i].Value == null) {
-
-                    // Store the default case's location
-                    defaultCaseLocation = i;
-
+                if (_cases[i].IsDefault) {
                     // Set the default target
-                    defaultTarget = labels[defaultCaseLocation];
-                    continue;
+                    defaultTarget = labels[i];
                 }
             }
 
             // Emit the test value
-            _testValue.EmitAsObject(cg);
+            _testValue.Emit(cg);
 
             // Check if jmp table can be emitted
-            bool emitJumpTable = TryEmitJumpTable(cg, labels, defaultCaseLocation, defaultTarget);
-
-            // There might be scenario(s) where the jmp table is not emitted
-            // Emit the switch as conditional branches then
-            if (!emitJumpTable) {
-                EmitConditionalBranches(cg, labels, defaultCaseLocation);
+            if (!TryEmitJumpTable(cg, labels, defaultTarget)) {
+                // There might be scenario(s) where the jmp table is not emitted
+                // Emit the switch as conditional branches then
+                EmitConditionalBranches(cg, labels);
             }
 
             // If "default" present, execute default code, else exit the switch            
             cg.Emit(OpCodes.Br, defaultTarget);
 
-            cg.PushTargets(breakTarget, continueTarget, this);
+            cg.PushTargets(breakTarget, cg.BlockContinueLabel, this);
 
             // Emit the bodies
             for (int i = 0; i < _cases.Count; i++) {
-
                 // First put the corresponding labels
                 cg.MarkLabel(labels[i]);
-
                 // And then emit the Body!!
                 _cases[i].Body.Emit(cg);
             }
@@ -118,155 +100,79 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // Emits the switch as if stmts
-        private void EmitConditionalBranches(CodeGen cg, Label[] labels, int defaultCaseLocation) {
-
-            Slot testValueSlot = cg.GetNamedLocal(typeof(object), "switchTestValue");
+        private void EmitConditionalBranches(CodeGen cg, Label[] labels) {
+            Slot testValueSlot = cg.GetNamedLocal(typeof(int), "switchTestValue");
             testValueSlot.EmitSet(cg);
 
             // For all the "cases" create their conditional branches
             for (int i = 0; i < _cases.Count; i++) {
-
                 // Not default case emit the condition
-                if (i != defaultCaseLocation) {
-
+                if (!_cases[i].IsDefault) {
                     // Test for equality of case value and the test expression
-                    cg.EmitCodeContext(); 
-                    _cases[i].Value.EmitAsObject(cg);
+                    cg.EmitInt(_cases[i].Value);
                     testValueSlot.EmitGet(cg);
-                    cg.EmitCall(_equalMethod);
-                    cg.Emit(OpCodes.Brtrue, labels[i]);
+                    cg.Emit(OpCodes.Beq, labels[i]);
                 }
             }
         }
 
         // Tries to emit switch as a jmp table
-        private bool TryEmitJumpTable(CodeGen cg, Label[] labels, int defaultCaseLocation, Label defaultTarget) {
+        private bool TryEmitJumpTable(CodeGen cg, Label[] labels, Label defaultTarget) {
+            if (_cases.Count > MaxJumpTableSize) {
+                return false;
+            }
 
-            int[] values = new int[_cases.Count];
             int min = Int32.MaxValue;
             int max = Int32.MinValue;
 
-            // Check if the values are int/double. Also get the min and max of the values
+            // Find the min and max of the values
             for (int i = 0; i < _cases.Count; ++i) {
-
                 // Not the default case.
-                if (i != defaultCaseLocation) {
-
-                    // Get the case value
-                    if (!GetExpressionValue(_cases[i].Value, ref values[i]))
-                        return false;
-
-                    if (min > values[i]) min = values[i];
-                    if (max < values[i]) max = values[i];
+                if (!_cases[i].IsDefault) {
+                    int val = _cases[i].Value;
+                    if (min > val) min = val;
+                    if (max < val) max = val;
                 }
             }
 
-            // Too sparse case value distribution. Don't emit jmp table
-            if ((max - min - _cases.Count) > JMPTABLE_SPARSITY) return false;
+            long delta = (long)max - (long)min;
+            if (delta > MaxJumpTableSize) {
+                return false;
+            }
+
+            // Value distribution is too sparse, don't emit jump table.
+            if (delta > _cases.Count + MaxJumpTableSparsity) {
+                return false;
+            }
 
             // The actual jmp table of switch
-            int len = max - min + 1;
+            int len = (int)delta + 1;
             Label[] jmpLabels = new Label[len];
 
-            // Put the default target for all labels initially
-            for (int i = 0; i < len; ++i) {
+            // Initialize all labels to the default
+            for (int i = 0; i < len; i++) {
                 jmpLabels[i] = defaultTarget;
             }
 
             // Replace with the actual label target for all cases
-            for (int i = 0; i < _cases.Count; ++i) {
-                if (i != defaultCaseLocation) {
-                    // normalise the values to min
-                    // and first case value takes precedence in case of same case values
-                    if (jmpLabels[values[i] - min] == defaultTarget)
-                        jmpLabels[values[i] - min] = labels[i];
+            for (int i = 0; i < _cases.Count; i++) {
+                SwitchCase sc = _cases[i];
+                if (!sc.IsDefault) {
+                    jmpLabels[sc.Value - min] = labels[i];
                 }
             }
-
-            Slot testValueSlot = cg.GetNamedLocal(typeof(object), "switchTestValue");
-            testValueSlot.EmitSet(cg);
-
-            // Call TryGetSwitchIndex(codeContext, testValue, out index)
-            cg.EmitCodeContext();
-            testValueSlot.EmitGet(cg);
-
-            Slot indexSlot = cg.GetLocalTmp(typeof(int));
-            indexSlot.EmitGetAddr(cg);
-
-            // Call the helper method to determine if the value is int/double and get it's range
-            cg.EmitCall(_tryGetSwitchIndexMethod);
-
-            // If the helper returns false (switch val not int/double) goto the default target
-            cg.Emit(OpCodes.Brfalse, defaultTarget);
 
             // Emit the normalized index and then switch based on that
-            indexSlot.EmitGet(cg);
-            cg.EmitInt(min);
-            cg.Emit(OpCodes.Sub); 
-
-            cg.Emit(OpCodes.Switch, jmpLabels);
-
-            return true;
-        }
-
-        private bool GetExpressionValue(Expression expr, ref int val) {
-            bool ret = false;
-            ConstantExpression cexpr = expr as ConstantExpression;
-            if (cexpr != null) {
-
-                // Value is int
-                if (cexpr.Value is int) {
-                    val = (int)cexpr.Value;
-
-                    ret = true;
-                } else if (cexpr.Value is double) {
-                    double dvalue = (double)cexpr.Value;
-
-                    val = Convert.ToInt32(dvalue);
-
-                    // Handles the Num.0 case
-                    if (val == dvalue) ret = true;
-                }
-
-                // Ignore too large numbers to avoid overflows
-                if (val > 1000000000) ret = false;
+            if (min != 0) {
+                cg.EmitInt(min);
+                cg.Emit(OpCodes.Sub);
             }
-            // TODO: After switch is cleaned up, this will not be needed anyway.
-            //else if (expr is UnaryExpression) {
-            //    UnaryExpression uexpr = expr as UnaryExpression;
-
-            //    ret = GetExpressionValue(uexpr.Expression, ref val);
-
-            //    if (ret) {
-            //        // Alow the unary minus and unary plus
-            //        if (uexpr.Operator == UnaryOperators.Negate) {
-            //            val = -val;
-            //        } else if (uexpr.Operator != UnaryOperators.Pos) {
-            //            ret = false;
-            //        }
-            //    }
-            //}
-
-            return ret;
+            cg.Emit(OpCodes.Switch, jmpLabels);
+            return true;
         }
 
         protected override object DoExecute(CodeContext context) {
             throw new NotImplementedException();
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _testValue.Walk(walker);
-                List<SwitchCase>.Enumerator cases = _cases.GetEnumerator();
-                while (cases.MoveNext()) {
-                    SwitchCase currentCase = cases.Current;
-                    if (currentCase.Value != null) {
-                        currentCase.Value.Walk(walker);
-                    }
-                    currentCase.Body.Walk(walker);
-                }
-            }
-            walker.PostWalk(this);
         }
     }
 
@@ -274,13 +180,106 @@ namespace Microsoft.Scripting.Ast {
     /// Factory methods.
     /// </summary>
     public static partial class Ast {
-        public static SwitchStatement Switch(SourceSpan span, SourceLocation header, Expression testValue, List<SwitchCase> cases, 
-            MethodInfo tryGetSwitchIndexMethod, MethodInfo equalMethod) {
+        public static SwitchStatement Switch(SourceSpan span, SourceLocation header, Expression value, params SwitchCase[] cases) {
+            Contract.RequiresNotNull(value, "value");
+            Contract.Requires(value.Type == typeof(int), "value", "Value must be int");
+            Contract.RequiresNotEmpty(cases, "cases");
+            Contract.RequiresNotNullItems(cases, "cases");
 
-            Debug.Assert(ReflectionUtils.SignatureEquals(tryGetSwitchIndexMethod, typeof(CodeContext), typeof(object), typeof(int).MakeByRefType(), typeof(bool)));
-            Debug.Assert(ReflectionUtils.SignatureEquals(equalMethod, typeof(CodeContext), typeof(object), typeof(object), typeof(bool)));
+            bool @default = false;
+            int max = Int32.MinValue;
+            int min = Int32.MaxValue;
+            foreach (SwitchCase sc in cases) {
+                if (sc.IsDefault) {
+                    Contract.Requires(@default == false, "cases", "Only one default clause allowed");
+                    @default = true;
+                } else {
+                    int val = sc.Value;
+                    if (val > max) max = val;
+                    if (val < min) min = val;
+                }
+            }
 
-            return new SwitchStatement(span, header, testValue, cases, tryGetSwitchIndexMethod, equalMethod);
+            Contract.Requires(UniqueCaseValues(cases, min, max), "cases", "Case values must be unique");
+
+            return new SwitchStatement(span, header, value, CollectionUtils.ToReadOnlyCollection(cases));
+        }
+
+        // Below his threshold we'll use brute force N^2 algorithm
+        private const int N2Threshold = 10;
+
+        // If values are in a small range, we'll use bit array
+        private const long BitArrayThreshold = 1024;
+
+        private static bool UniqueCaseValues(SwitchCase[] cases, int min, int max) {
+            int length = cases.Length;
+
+            // If we have small number of cases, use straightforward N2 algorithm
+            // which doesn't allocate memory
+            if (length < N2Threshold) {
+                for (int i = 0; i < length; i++) {
+                    SwitchCase sci = cases[i];
+                    if (sci.IsDefault) {
+                        continue;
+                    }
+                    for (int j = i + 1; j < length; j++) {
+                        SwitchCase scj = cases[j];
+                        if (scj.IsDefault) {
+                            continue;
+                        }
+
+                        if (sci.Value == scj.Value) {
+                            // Duplicate value found
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            // We have at least N2Threshold items so the min and max values
+            // are set to actual values and not the Int32.MaxValue and Int32.MaxValue
+            Debug.Assert(min <= max);
+            long delta = (long)max - (long)min;
+            if (delta < BitArrayThreshold) {
+                BitArray ba = new BitArray((int)delta + 1, false);
+
+                for (int i = 0; i < length; i++) {
+                    SwitchCase sc = cases[i];
+                    if (sc.IsDefault) {
+                        continue;
+                    }
+                    // normalize to 0 .. (max - min)
+                    int val = sc.Value - min;
+                    if (ba.Get(val)) {
+                        // Duplicate value found
+                        return false;
+                    }
+                    ba.Set(val, true);
+                }
+
+                return true;
+            }
+
+            // Too many values that are too spread around. Use dictionary
+            // Using Dictionary<int, object> as it is used elsewhere to
+            // minimize the impact of generic instantiation
+            Dictionary<int, object> dict = new Dictionary<int, object>(length);
+            for (int i = 0; i < length; i++) {
+                SwitchCase sc = cases[i];
+                if (sc.IsDefault) {
+                    continue;
+                }
+                int val = sc.Value;
+                if (dict.ContainsKey(val)) {
+                    // Duplicate value found
+                    return false;
+                }
+                dict[val] = null;
+            }
+
+            return true;
         }
     }
 }

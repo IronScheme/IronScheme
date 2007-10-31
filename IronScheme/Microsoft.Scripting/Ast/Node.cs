@@ -19,16 +19,21 @@ using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public abstract class Node {
-        protected Node() {
+        private readonly AstNodeType _nodeType;
+
+        protected Node(AstNodeType nodeType) {
+            _nodeType = nodeType;
         }
 
-        public abstract void Walk(Walker walker);
+        public AstNodeType NodeType {
+            get { return _nodeType; }
+        }
 
 #if DEBUG
         public string Dump {
             get {
                 using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
-                    AstWriter.ForceDump(this, null, writer);
+                    AstWriter.Dump(this, GetType().Name, writer);
                     return writer.ToString();
                 }
             }

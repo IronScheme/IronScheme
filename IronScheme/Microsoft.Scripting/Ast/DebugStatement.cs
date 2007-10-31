@@ -14,15 +14,15 @@
  * ***************************************************************************/
 
 using System;
+using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
-
     public class DebugStatement : Statement {
-        private readonly string _marker;
+        private readonly string /*!*/ _marker;
 
-        internal DebugStatement(string marker)
-            : base(SourceSpan.None) {
+        internal DebugStatement(string /*!*/ marker)
+            : base(AstNodeType.DebugStatement, SourceSpan.None) {
             _marker = marker;
         }
 
@@ -33,16 +33,11 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             cg.EmitDebugMarker(_marker);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
         public static DebugStatement DebugMarker(string marker) {
+            Contract.RequiresNotNull(marker, "marker");
             return new DebugStatement(marker);
         }
 

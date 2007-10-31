@@ -20,7 +20,6 @@ using System.Diagnostics;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Types;
 
 namespace Microsoft.Scripting.Actions {
     using Ast = Microsoft.Scripting.Ast.Ast;
@@ -28,6 +27,7 @@ namespace Microsoft.Scripting.Actions {
 
     public class SetMemberBinderHelper<T> :
         MemberBinderHelper<T, SetMemberAction> {
+        private bool _isStatic;
 
         public SetMemberBinderHelper(CodeContext context, SetMemberAction action, object[] args)
             : base(context, action, args) {
@@ -37,6 +37,12 @@ namespace Microsoft.Scripting.Actions {
             Type targetType = CompilerHelpers.GetType(Target);
 
             Rule.MakeTest(StrongBoxType ?? targetType);
+
+            if (typeof(TypeTracker).IsAssignableFrom(targetType)) {
+                targetType = ((TypeTracker)Target).Type;
+                _isStatic = true;
+                Rule.AddTest(Ast.Equal(Rule.Parameters[0], Ast.RuntimeConstant(Arguments[0])));
+            } 
 
             if (Target is ICustomMembers) {
                 MakeSetCustomMemberRule();
@@ -86,23 +92,21 @@ namespace Microsoft.Scripting.Actions {
                         throw new InvalidOperationException();
                 }
             } else {
-                AddToBody( Rule.MakeError(error));
+                AddToBody(Rule.MakeError(error));
             }
         }
 
-        private StandardRule<T> MakeEventValidation(MemberGroup members) {
-            ReflectedEvent ev = ReflectionCache.GetReflectedEvent(((EventTracker)members[0]).Event);
+        protected virtual StandardRule<T> MakeEventValidation(MemberGroup members) {
+            EventTracker ev = (EventTracker)members[0];
 
             // handles in place addition of events - this validates the user did the right thing, probably too Python specific.
             AddToBody(
-                Rule.MakeReturn(Binder,
+                Rule.MakeReturn(
+                    Binder,
                     Ast.Call(
+                        typeof(BinderOps).GetMethod("SetEvent"),
                         Ast.RuntimeConstant(ev),
-                        typeof(ReflectedEvent).GetMethod("TrySetValue"),
-                        Ast.CodeContext(),
-                        Ast.ConvertHelper(Rule.Parameters[0], typeof(object)),
-                        Ast.Null(typeof(DynamicMixin)),
-                        Ast.ConvertHelper(Rule.Parameters[1], typeof(object))
+                        Rule.Parameters[1]
                     )
                 )
             );
@@ -125,16 +129,31 @@ namespace Microsoft.Scripting.Actions {
             if (setter != null) {
                 setter = CompilerHelpers.GetCallableMethod(setter);
 
-                if (IsStaticProperty(info, setter)) {
+                if (info.IsStatic != _isStatic) {
                     // TODO: Too python specific
-                    AddToBody( Binder.MakeReadOnlyMemberError(Rule, targetType, StringName));
+                    AddToBody(Binder.MakeReadOnlyMemberError(Rule, targetType, StringName));
                 } else if (setter.ContainsGenericParameters) {
-                    AddToBody( Rule.MakeError(MakeGenericPropertyExpression()));
+                    AddToBody(Rule.MakeError(MakeGenericPropertyExpression()));
                 } else if (setter.IsPublic && !setter.DeclaringType.IsValueType) {
-                    AddToBody( Rule.MakeReturn(Binder, MakeReturnValue(MakeCallExpression(setter, Rule.Parameters))));
+                    if (_isStatic) {
+                        AddToBody(
+                            Rule.MakeReturn(
+                                Binder, 
+                                Ast.SimpleCallHelper(
+                                    setter, 
+                                    Binder.ConvertExpression(
+                                        Rule.Parameters[1],
+                                        setter.GetParameters()[0].ParameterType
+                                    )
+                                )
+                            )
+                        );
+                    } else {
+                        AddToBody(Rule.MakeReturn(Binder, MakeReturnValue(Binder.MakeCallExpression(setter, Rule.Parameters))));
+                    }
                 } else {
                     // TODO: Should be able to do better w/ value types.
-                    AddToBody( 
+                    AddToBody(
                         Rule.MakeReturn(
                             Binder,
                             MakeReturnValue(
@@ -150,7 +169,7 @@ namespace Microsoft.Scripting.Actions {
                     );
                 }
             } else {
-                AddToBody( Binder.MakeMissingMemberError(Rule, targetType, StringName));
+                AddToBody(Binder.MakeMissingMemberError(Rule, targetType, StringName));
             }
         }
 
@@ -160,11 +179,11 @@ namespace Microsoft.Scripting.Actions {
             if (field.DeclaringType.IsGenericType && field.DeclaringType.GetGenericTypeDefinition() == typeof(StrongBox<>)) {
                 // work around a CLR bug where we can't access generic fields from dynamic methods.
                 Type[] generic = field.DeclaringType.GetGenericArguments();
-                AddToBody( 
+                AddToBody(
                     Rule.MakeReturn(Binder,
                         MakeReturnValue(
                             Ast.Call(
-                                typeof(RuntimeHelpers).GetMethod("UpdateBox").MakeGenericMethod(generic),
+                                typeof(BinderOps).GetMethod("UpdateBox").MakeGenericMethod(generic),
                                 Ast.ConvertHelper(Instance, field.DeclaringType),
                                 Ast.ConvertHelper(Rule.Parameters[1], generic[0])
                             )
@@ -172,11 +191,11 @@ namespace Microsoft.Scripting.Actions {
                     )
                 );
             } else if (field.IsInitOnly || field.IsLiteral || (field.IsStatic && targetType != field.DeclaringType)) {     // TODO: Field static check too python specific
-                AddToBody( Binder.MakeReadOnlyMemberError(Rule, targetType, StringName));
+                AddToBody(Binder.MakeReadOnlyMemberError(Rule, targetType, StringName));
             } else if (field.DeclaringType.IsValueType) {
-                AddToBody( Rule.MakeError(Ast.New(typeof(ArgumentException).GetConstructor(new Type[] { typeof(string) }), Ast.Constant("cannot assign to value types"))));
+                AddToBody(Rule.MakeError(Ast.New(typeof(ArgumentException).GetConstructor(new Type[] { typeof(string) }), Ast.Constant("cannot assign to value types"))));
             } else if (field.IsPublic && field.DeclaringType.IsVisible) {
-                AddToBody( 
+                AddToBody(
                     Rule.MakeReturn(
                         Binder,
                         MakeReturnValue(
@@ -210,7 +229,7 @@ namespace Microsoft.Scripting.Actions {
         }
 
         private void MakeSetCustomMemberRule() {
-            AddToBody( 
+            AddToBody(
                 Rule.MakeReturn(Binder,
                     MakeReturnValue(
                         Ast.Call(
@@ -233,7 +252,7 @@ namespace Microsoft.Scripting.Actions {
         private bool MakeOperatorSetMemberBody(Type type, string name) {
             MethodInfo setMem = GetMethod(type, name);
             if (setMem != null && setMem.IsSpecialName) {
-                Expression call = MakeCallExpression(setMem, Rule.Parameters[0], Ast.Constant(StringName), Rule.Parameters[1]);
+                Expression call = Binder.MakeCallExpression(setMem, Rule.Parameters[0], Ast.Constant(StringName), Rule.Parameters[1]);
                 Statement ret;
 
                 if (setMem.ReturnType == typeof(bool)) {
@@ -241,7 +260,7 @@ namespace Microsoft.Scripting.Actions {
                 } else {
                     ret = Rule.MakeReturn(Binder, Ast.Comma(1, call, Rule.Parameters[1]));
                 }
-                AddToBody( ret);
+                AddToBody(ret);
                 return setMem.ReturnType != typeof(bool);
             }
 

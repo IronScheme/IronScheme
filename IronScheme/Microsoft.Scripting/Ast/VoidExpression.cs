@@ -22,10 +22,8 @@ namespace Microsoft.Scripting.Ast {
     public class VoidExpression : Expression {
         private Statement _statement;
 
-        internal VoidExpression(Statement statement) {
-            if (statement == null) {
-                throw new ArgumentNullException("statement");
-            }
+        internal VoidExpression(Statement statement)
+            : base(AstNodeType.VoidExpression) {
             _statement = statement;
         }
 
@@ -53,13 +51,6 @@ namespace Microsoft.Scripting.Ast {
 
             return null;
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _statement.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     /// <summary>
@@ -69,25 +60,6 @@ namespace Microsoft.Scripting.Ast {
         public static VoidExpression Void(Statement statement) {
             Contract.RequiresNotNull(statement, "statement");
             return new VoidExpression(statement);
-        }
-    }
-
-    [Serializable]
-    internal class ExpressionReturnException : Exception {
-        public readonly object Value;
-#if DEBUG
-        // used verify that we always handle the exception w/ the correct handler
-        // and no catch(Exception) sneaks in and catches our exception.
-        [ThreadStatic]
-        internal static int CurrentDepth;
-        public int Depth;
-#endif
-
-        public ExpressionReturnException(object value) {
-            Value = value;
-#if DEBUG
-            Depth = CurrentDepth;
-#endif
         }
     }
 }

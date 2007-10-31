@@ -21,22 +21,13 @@ using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
-    public enum UnaryOperators {
-        Convert,
-        Not,
-        Negate,
-        OnesComplement
-    }
-
     public class UnaryExpression : Expression {
-        private readonly Expression _operand;
-        private readonly UnaryOperators _op;
-        private readonly Type _type;
+        private readonly Expression /*!*/ _operand;
+        private readonly Type /*!*/ _type;
 
-        internal UnaryExpression(Expression expression, UnaryOperators op, Type type) {
-
+        internal UnaryExpression(AstNodeType nodeType, Expression /*!*/ expression, Type /*!*/ type)
+            : base(nodeType) {
             _operand = expression;
-            _op = op;
             _type = type;
         }
 
@@ -48,19 +39,16 @@ namespace Microsoft.Scripting.Ast {
             get { return _type; }
         }
 
-        public UnaryOperators Operator {
-            get { return _op; }
-        }
-
         public override void Emit(CodeGen cg) {
-            switch (_op) {
-                case UnaryOperators.Convert:
-                    _operand.Emit(cg);
+
+            _operand.Emit(cg);
+
+            switch (NodeType) {
+                case AstNodeType.Convert:
                     cg.EmitCast(_operand.Type, _type);
                     break;
 
-                case UnaryOperators.Not:
-                    _operand.Emit(cg);
+                case AstNodeType.Not:
                     if (_operand.Type == typeof(bool)) {
                         cg.Emit(OpCodes.Ldc_I4_0);
                         cg.Emit(OpCodes.Ceq);
@@ -68,12 +56,10 @@ namespace Microsoft.Scripting.Ast {
                         cg.Emit(OpCodes.Not);
                     }
                     break;
-                case UnaryOperators.Negate:
-                    _operand.Emit(cg);
+                case AstNodeType.Negate:
                     cg.Emit(OpCodes.Neg);
                     break;
-                case UnaryOperators.OnesComplement:
-                    _operand.Emit(cg);
+                case AstNodeType.OnesComplement:
                     cg.Emit(OpCodes.Not);
                     break;
                 default:
@@ -82,7 +68,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         internal override void EmitAddress(CodeGen cg, Type asType) {
-            if (_op == UnaryOperators.Convert && Type == asType) {
+            if (NodeType == AstNodeType.Convert && Type == asType) {
                 _operand.EmitAddress(cg, asType);
             } else {
                 base.EmitAddress(cg, asType);
@@ -92,11 +78,11 @@ namespace Microsoft.Scripting.Ast {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected override object DoEvaluate(CodeContext context) {
             object x = _operand.Evaluate(context);
-            switch (_op) {
-                case UnaryOperators.Convert:
+            switch (NodeType) {
+                case AstNodeType.Convert:
                     return Cast.Explicit(x, _type);
 
-                case UnaryOperators.Not:
+                case AstNodeType.Not:
                     if (x is bool) return (bool)x ? RuntimeHelpers.False : RuntimeHelpers.True;
                     if (x is int) return (int)~(int)x;
                     if (x is long) return (long)~(long)x;
@@ -108,23 +94,17 @@ namespace Microsoft.Scripting.Ast {
                     if (x is sbyte) return (sbyte)~(sbyte)x;
                     throw new InvalidOperationException("can't perform unary not on type " + CompilerHelpers.GetType(x).Name);
 
-                case UnaryOperators.Negate:
+                case AstNodeType.Negate:
                     if (x is int) return (int)(-(int)x);
                     if (x is long) return (long)(-(long)x);
                     if (x is short) return (short)(-(short)x);
                     if (x is float) return -(float)x;
                     if (x is double) return -(double)x;
                     throw new InvalidOperationException("can't negate type " + CompilerHelpers.GetType(x).Name);
+
                 default:
                     throw new NotImplementedException();
             }
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _operand.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 
@@ -135,9 +115,12 @@ namespace Microsoft.Scripting.Ast {
         public static UnaryExpression Convert(Expression expression, Type type) {
             Contract.RequiresNotNull(expression, "expression");
             Contract.RequiresNotNull(type, "type");
-            if (!type.IsVisible) throw new ArgumentException(String.Format(Resources.TypeMustBeVisible, type.FullName));
 
-            return new UnaryExpression(expression, UnaryOperators.Convert, type);
+            if (!type.IsVisible) {
+                throw new ArgumentException(String.Format(Resources.TypeMustBeVisible, type.FullName));
+            }
+
+            return new UnaryExpression(AstNodeType.Convert, expression, type);
         }
 
         public static Expression ConvertHelper(Expression expression, Type type) {
@@ -152,15 +135,16 @@ namespace Microsoft.Scripting.Ast {
 
         public static UnaryExpression Negate(Expression expression) {
             Contract.RequiresNotNull(expression, "expression");
+            Contract.Requires(TypeUtils.IsArithmetic(expression.Type) && !TypeUtils.IsUnsigned(expression.Type), "expression", "Expression must be signed numeric type");
 
-            return new UnaryExpression(expression, UnaryOperators.Negate, expression.Type);
+            return new UnaryExpression(AstNodeType.Negate, expression, expression.Type);
         }
 
         public static UnaryExpression Not(Expression expression) {
             Contract.RequiresNotNull(expression, "expression");
             Contract.Requires(TypeUtils.IsIntegerOrBool(expression.Type), "expression", "Expression type must be integer or boolean.");
 
-            return new UnaryExpression(expression, UnaryOperators.Not, expression.Type);
+            return new UnaryExpression(AstNodeType.Not, expression, expression.Type);
         }
     }
 }

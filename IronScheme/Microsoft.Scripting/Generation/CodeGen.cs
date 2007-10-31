@@ -468,6 +468,14 @@ namespace Microsoft.Scripting.Generation {
                         Emit(OpCodes.Box, fromType);
                         return true;
                     }
+
+                    // Box enum values when converting to Enum
+                    if (fromType.IsEnum && toType == typeof(Enum)) {
+                        Emit(OpCodes.Box, fromType);
+                        return true;
+                    }
+
+                    // TODO: any other cases where we need to box?
                 }
 
                 // Sub -> Superclass, reference -> interface, covariant arrays
@@ -518,12 +526,12 @@ namespace Microsoft.Scripting.Generation {
             TypeCode tc = Type.GetTypeCode(toType);
             int fx, fy, tx, ty;
 
-            if (!GetNumericConversionOrder(fc, out fx, out fy) || !GetNumericConversionOrder(tc, out tx, out ty)) {
+            if (!TypeUtils.GetNumericConversionOrder(fc, out fx, out fy) || !TypeUtils.GetNumericConversionOrder(tc, out tx, out ty)) {
                 // numeric <-> non-numeric
                 return false;
             }
 
-            bool isImplicit = IsImplicitlyConvertible(fx, fy, tx, ty);
+            bool isImplicit = TypeUtils.IsImplicitlyConvertible(fx, fy, tx, ty);
 
             if (implicitOnly && !isImplicit) {
                 return false;
@@ -546,42 +554,6 @@ namespace Microsoft.Scripting.Generation {
                 }
             }
 
-            return true;
-        }
-
-        private static bool IsImplicitlyConvertible(int fromX, int fromY, int toX, int toY) {
-            return fromX <= toX && fromY <= toY;
-        }
-        
-        private static bool GetNumericConversionOrder(TypeCode code, out int x, out int y) {
-            // implicit conversions:
-            //     0     1     2     3     4
-            // 0:       U1 -> U2 -> U4 -> U8
-            //          |     |     |
-            //          v     v     v
-            // 1: I1 -> I2 -> I4 -> I8
-            //          |     |     
-            //          v     v     
-            // 2:       R4 -> R8
-
-            switch (code) {
-                case TypeCode.Byte: x = 0; y = 0; break;
-                case TypeCode.UInt16: x = 1; y = 0; break;
-                case TypeCode.UInt32: x = 2; y = 0; break;
-                case TypeCode.UInt64: x = 3; y = 0; break;
-
-                case TypeCode.SByte: x = 0; y = 1; break;
-                case TypeCode.Int16: x = 1; y = 1; break;
-                case TypeCode.Int32: x = 2; y = 1; break;
-                case TypeCode.Int64: x = 3; y = 1; break;
-
-                case TypeCode.Single: x = 1; y = 2; break;
-                case TypeCode.Double: x = 2; y = 2; break;
-
-                default:
-                    x = y = 0;
-                    return false;
-            }
             return true;
         }
 
@@ -946,18 +918,6 @@ namespace Microsoft.Scripting.Generation {
             } else {
                 e.EmitAsObject(this);
             }
-        }
-
-        /// <summary>
-        /// Emits a strongly typed array from a list of expressions.
-        /// </summary>
-        public void EmitArrayFromExpressions(Type elementType, IList<Expression> items) {
-            Contract.RequiresNotNull(elementType, "elementType");
-            Contract.RequiresNotNull(items, "items");
-
-            EmitArray(elementType, items.Count, delegate(int index) {
-                items[index].EmitAs(this, elementType);
-            });
         }
 
         /// <summary>

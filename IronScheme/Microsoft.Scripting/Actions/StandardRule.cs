@@ -115,6 +115,9 @@ namespace Microsoft.Scripting.Actions {
             get {
                 return _error;
             }
+            internal set {
+                _error = value;
+            }
         }
 
 
@@ -241,6 +244,15 @@ namespace Microsoft.Scripting.Actions {
             );
         }
 
+        internal void RewriteTest(Expression test) {
+            Debug.Assert(test != null && (object)test != (object)_test);
+            _test = test;
+        }
+
+        internal void RewriteTarget(Statement target) {
+            Debug.Assert(target != null && (object)target != (object)_test);
+            _target = target;
+        }
     }
 
     /// <summary>
@@ -311,8 +323,7 @@ namespace Microsoft.Scripting.Actions {
         }
 
         private Variable MakeParameter(int index, string name, Type type) {
-            Variable ret = Variable.Parameter(null, SymbolTable.StringToId(name), type, null);
-
+            Variable ret = Variable.Parameter(null, SymbolTable.StringToId(name), type);
             ret.ParameterIndex = index;
             return ret;
         }
@@ -336,7 +347,9 @@ namespace Microsoft.Scripting.Actions {
             // Need to make sure we aren't generating into two different CodeGens at the same time
             lock (this) {
                 // First, finish binding my variable references
+                // And rewrite the AST if needed
                 if (_references == null) {
+                    AstRewriter.RewriteRule(this);
                     _references = RuleBinder.Bind(_test, _target);
                 }
 
@@ -450,9 +463,9 @@ namespace Microsoft.Scripting.Actions {
         public string Dump {
             get {
                 using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
-                    AstWriter.ForceDump(Test, "Test", writer);
+                    AstWriter.Dump(Test, "Test", writer);
                     writer.WriteLine();
-                    AstWriter.ForceDump(Target, "Target", writer);
+                    AstWriter.Dump(Target, "Target", writer);
                     return writer.ToString();
                 }
             }

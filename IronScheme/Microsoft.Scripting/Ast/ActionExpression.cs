@@ -17,6 +17,7 @@ using System;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
@@ -24,16 +25,12 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class ActionExpression : Expression {
-        private readonly IList<Expression> _arguments;
+        private readonly ReadOnlyCollection<Expression> _arguments;
         private readonly DynamicAction _action;
         private readonly Type _result;
 
-        internal ActionExpression(DynamicAction action, IList<Expression> arguments, Type result) {
-            Contract.RequiresNotNullItems(arguments, "arguments");
-            Contract.RequiresNotNull(action, "action");
-            Contract.RequiresNotNull(arguments, "arguments");
-            Contract.RequiresNotNull(result, "result");
-
+        internal ActionExpression(DynamicAction /*!*/ action, ReadOnlyCollection<Expression> /*!*/ arguments, Type /*!*/ result)
+            : base(AstNodeType.ActionExpression) {
             _action = action;
             _arguments = arguments;
             _result = result;
@@ -43,7 +40,7 @@ namespace Microsoft.Scripting.Ast {
             get { return _action; }
         }
 
-        public IList<Expression> Arguments {
+        public ReadOnlyCollection<Expression> Arguments {
             get { return _arguments; }
         }
 
@@ -126,15 +123,6 @@ namespace Microsoft.Scripting.Ast {
           get { return tailcall; }
           set { tailcall = false; }
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                foreach (Expression ex in _arguments) {
-                    ex.Walk(walker);
-                }
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
@@ -147,7 +135,7 @@ namespace Microsoft.Scripting.Ast {
             /// <param name="arguments">Array of arguments for the action expression</param>
             /// <returns>New instance of the ActionExpression</returns>
             public static ActionExpression Operator(Operators op, Type result, params Expression[] arguments) {
-                return new ActionExpression(DoOperationAction.Make(op), arguments, result);
+                return ActionExpression(DoOperationAction.Make(op), arguments, result);
             }
 
             /// <summary>
@@ -158,7 +146,7 @@ namespace Microsoft.Scripting.Ast {
             /// <param name="arguments">Array of arguments for the action expression</param>
             /// <returns>New instance of the ActionExpression</returns>
             public static ActionExpression GetMember(SymbolId name, Type result, params Expression[] arguments) {
-                return new ActionExpression(GetMemberAction.Make(name), arguments, result);
+                return ActionExpression(GetMemberAction.Make(name), arguments, result);
             }
 
             /// <summary>
@@ -170,7 +158,7 @@ namespace Microsoft.Scripting.Ast {
             /// <param name="getMemberFlags">The binding flags for the get operation</param>
             /// <returns>New instance of the ActionExpression</returns>
             public static ActionExpression GetMember(SymbolId name, GetMemberBindingFlags getMemberFlags, Type result, params Expression[] arguments) {
-                return new ActionExpression(GetMemberAction.Make(name, getMemberFlags), arguments, result);
+                return ActionExpression(GetMemberAction.Make(name, getMemberFlags), arguments, result);
             }
 
             /// <summary>
@@ -181,18 +169,18 @@ namespace Microsoft.Scripting.Ast {
             /// <param name="arguments">Array of arguments for the action expression</param>
             /// <returns>New instance of the ActionExpression</returns>
             public static ActionExpression SetMember(SymbolId name, Type result, params Expression[] arguments) {
-                return new ActionExpression(SetMemberAction.Make(name), arguments, result);
+                return ActionExpression(SetMemberAction.Make(name), arguments, result);
             }
 
             public static Expression DeleteMember(SymbolId name, params Expression[] arguments) {
-                return new ActionExpression(DeleteMemberAction.Make(name), arguments, typeof(object));
+                return ActionExpression(DeleteMemberAction.Make(name), arguments, typeof(object));
             }
 
             // TODO:
             public static ActionExpression InvokeMember(SymbolId name, Type result, InvokeMemberActionFlags flags, CallSignature signature, 
                 params Expression[] arguments) {
 
-                return new ActionExpression(InvokeMemberAction.Make(name, flags, signature), arguments, result);
+                return ActionExpression(InvokeMemberAction.Make(name, flags, signature), arguments, result);
             }
        
             public static ActionExpression Call(Type result, params Expression[] arguments) {
@@ -207,7 +195,7 @@ namespace Microsoft.Scripting.Ast {
             /// <param name="arguments">Array of arguments for the action expression</param>
             /// <returns>New instance of the ActionExpression</returns>
             public static ActionExpression Call(CallAction action, Type result, params Expression[] arguments) {
-                return new ActionExpression(action, arguments, result);
+                return ActionExpression(action, arguments, result);
             }
 
             /// <summary>
@@ -218,11 +206,71 @@ namespace Microsoft.Scripting.Ast {
             /// <param name="arguments">Array of arguments for the action expression</param>
             /// <returns>New instance of the ActionExpression</returns>
             public static ActionExpression Create(CreateInstanceAction action, Type result, params Expression[] arguments) {
-                return new ActionExpression(action, arguments, result);
+                return ActionExpression(action, arguments, result);
             }
 
             public static ActionExpression Create(Type result, params Expression[] arguments) {
-                return new ActionExpression(CreateInstanceAction.Make(arguments.Length - 1), arguments, result);
+                return ActionExpression(CreateInstanceAction.Make(arguments.Length - 1), arguments, result);
+            }
+
+            public static ActionExpression ConvertTo(ConvertToAction action, Expression argument, Type type) {
+                Utils.Contract.RequiresNotNull(action, "action");
+                Utils.Contract.RequiresNotNull(argument, "argument");
+                Utils.Contract.RequiresNotNull(type, "type");
+
+                return ActionExpression(action, new Expression[] { argument }, type);
+            }
+
+            public static ActionExpression ConvertTo(ConvertToAction action, Expression argument) {
+                return ConvertTo(action, argument, action.ToType);
+            }
+
+            public static ActionExpression ConvertTo(Type toType, Expression argument) {
+                Utils.Contract.RequiresNotNull(toType, "toType");
+
+                return ConvertTo(ConvertToAction.Make(toType), argument);
+            }
+
+            public static ActionExpression ConvertTo(Type toType, ConversionResultKind kind, Expression argument) {
+                Utils.Contract.RequiresNotNull(toType, "toType");
+
+                return ConvertTo(ConvertToAction.Make(toType, kind), argument);
+            }
+
+            internal static ActionExpression ActionExpression(DynamicAction action, IList<Expression> arguments, Type result) {
+                Contract.RequiresNotNull(action, "action");
+                Contract.RequiresNotNullItems(arguments, "arguments");
+                Contract.RequiresNotNull(result, "result");
+
+                ValidateAction(action, arguments);
+
+                return new ActionExpression(action, CollectionUtils.ToReadOnlyCollection(arguments), result);
+            }
+
+            private static void ValidateAction(DynamicAction action, IList<Expression> arguments) {
+                switch (action.Kind) {
+                    case DynamicActionKind.DoOperation:
+                        // TODO: ValidateDoOperationAction((DoOperationAction)action, arguments, result);
+                        break;
+                    case DynamicActionKind.ConvertTo:
+                        Contract.Requires(arguments.Count == 1, "arguments", "One argument required for convert action");
+                        break;
+                    case DynamicActionKind.GetMember:
+                        Contract.Requires(arguments.Count == 1, "arguments", "One argument required for get member action");
+                        break;
+                    case DynamicActionKind.SetMember:
+                        Contract.Requires(arguments.Count == 2, "arguments", "Two arguments required for set member action");
+                        break;
+                    case DynamicActionKind.DeleteMember:
+                        Contract.Requires(arguments.Count == 1, "arguments", "One argument required for delete member action");
+                        break;
+                    case DynamicActionKind.InvokeMember:
+                    case DynamicActionKind.Call:
+                    case DynamicActionKind.CreateInstance:
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid action kind", "action");
+                }
             }
         }
     }

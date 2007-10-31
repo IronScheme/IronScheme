@@ -29,7 +29,34 @@ namespace Microsoft.Scripting {
 
         #endregion
 
-        public static Type GetTargetType(bool needsContext, int nargs) {
+        public static Type GetTargetType(bool needsContext, int nargs, bool needsThis) {
+            if (needsThis) {
+                if (needsContext) {
+                    switch (nargs) {
+                        case 0: return typeof(CallTargetWithContextAndThis0);
+                        case 1: return typeof(CallTargetWithContextAndThis1);
+                        case 2: return typeof(CallTargetWithContextAndThis2);
+                        case 3: return typeof(CallTargetWithContextAndThis3);
+                        case 4: return typeof(CallTargetWithContextAndThis4);
+                        case 5: return typeof(CallTargetWithContextAndThis5);
+                    }
+                } else {
+                    switch (nargs) {
+                        case 0: return typeof(CallTargetWithThis0);
+                        case 1: return typeof(CallTargetWithThis1);
+                        case 2: return typeof(CallTargetWithThis2);
+                        case 3: return typeof(CallTargetWithThis3);
+                        case 4: return typeof(CallTargetWithThis4);
+                        case 5: return typeof(CallTargetWithThis5);
+                    }
+                }
+            } else {
+                return GetTargetType(needsContext, nargs);
+            }
+            throw new NotImplementedException();
+        }
+
+        private static Type GetTargetType(bool needsContext, int nargs) {
             if (needsContext) {
                 switch (nargs) {
                     case 0: return typeof(CallTargetWithContext0);

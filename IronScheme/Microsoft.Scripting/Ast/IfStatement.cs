@@ -14,26 +14,22 @@
  * ***************************************************************************/
 
 using System.Reflection.Emit;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.Scripting.Generation;
-using System;
-using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
 
     public class IfStatement : Statement {
-        private readonly IfStatementTest[] _tests;
+        private readonly ReadOnlyCollection<IfStatementTest> _tests;
         private readonly Statement _else;
 
-        internal IfStatement(SourceSpan span, IfStatementTest[] tests, Statement @else)
-            : base(span) {
-            Contract.RequiresNotNull(tests, "tests");
-
+        internal IfStatement(SourceSpan span, ReadOnlyCollection<IfStatementTest> /*!*/ tests, Statement @else)
+            : base(AstNodeType.IfStatement, span) {
             _tests = tests;
             _else = @else;
         }
 
-        public IList<IfStatementTest> Tests {
+        public ReadOnlyCollection<IfStatementTest> Tests {
             get { return _tests; }
         }
 
@@ -72,14 +68,6 @@ namespace Microsoft.Scripting.Ast {
                 _else.Emit(cg);
             }
             cg.MarkLabel(eoi);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                foreach (IfStatementTest t in _tests) t.Walk(walker);
-                if (_else != null) _else.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 }

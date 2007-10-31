@@ -27,7 +27,7 @@ namespace Microsoft.Scripting.Ast {
     /// For instance property/field, Expression must be != null.
     /// </summary>
     public class MemberExpression : Expression {
-        private readonly MemberInfo _member;
+        private readonly MemberInfo /*!*/ _member;
         private readonly Expression _expression;
 
         public MemberInfo Member {
@@ -52,7 +52,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        internal MemberExpression(MemberInfo member, Expression expression) {
+        internal MemberExpression(MemberInfo /*!*/ member, Expression expression)
+            : base(AstNodeType.MemberExpression) {
             _member = member;
             _expression = expression;
         }
@@ -129,15 +130,6 @@ namespace Microsoft.Scripting.Ast {
             }
 
             throw new InvalidOperationException();
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                if (_expression != null) {
-                    _expression.Walk(walker);
-                }
-            }
-            walker.PostWalk(this);
         }
     }
 

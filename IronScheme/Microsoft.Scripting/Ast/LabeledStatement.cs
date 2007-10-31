@@ -23,7 +23,7 @@ namespace Microsoft.Scripting.Ast {
         private Statement _statement;
 
         internal LabeledStatement(SourceSpan span, Statement statement)
-            : base(span) {
+            : base(AstNodeType.LabeledStatement, span) {
             _statement = statement;
         }
 
@@ -36,9 +36,11 @@ namespace Microsoft.Scripting.Ast {
             _statement = statement;
             return this;
         }
-                        
+
         public override void Emit(CodeGen cg) {
-            if (_statement == null) throw new InvalidOperationException("Incomplete LabelStatement");
+            if (_statement == null) {
+                throw new InvalidOperationException("Incomplete LabelStatement");
+            }
 
             Label label = cg.DefineLabel();
             cg.PushTargets(label, label, this);
@@ -48,15 +50,6 @@ namespace Microsoft.Scripting.Ast {
             cg.MarkLabel(label);
 
             cg.PopTargets();
-        }
-
-        public override void Walk(Walker walker) {
-            if (_statement == null) throw new InvalidOperationException("Incomplete LabelStatement");
-
-            if (walker.Walk(this)) {
-                _statement.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

@@ -261,5 +261,22 @@ namespace Microsoft.Scripting.Utils {
             }
             return result;
         }
+
+        /// <summary>
+        /// Converts a generic ICollection of T into an array of T.  
+        /// 
+        /// If the collection is already an  array of T the original collection is returned.
+        /// </summary>
+        public static T[] ToArray<T>(ICollection<T> list) {
+            T[] res = list as T[];
+            if (res == null) {
+                res = new T[list.Count];
+                int i = 0;
+                foreach (T obj in list) {
+                    res[i++] = obj;
+                }
+            }
+            return res;
+        }        
     }
 }

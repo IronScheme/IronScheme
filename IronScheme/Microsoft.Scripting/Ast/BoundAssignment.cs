@@ -23,16 +23,15 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class BoundAssignment : Expression {
-        private readonly Variable _variable;
-        private readonly Expression _value;
+        private readonly Variable /*!*/ _variable;
+        private readonly Expression /*!*/ _value;
         private bool _defined;
 
         // implementation detail.
         private VariableReference _vr;
 
-        internal BoundAssignment(Variable variable, Expression value) {
-            Contract.RequiresNotNull(variable, "variable");
-            Contract.RequiresNotNull(value, "value");
+        internal BoundAssignment(Variable /*!*/ variable, Expression /*!*/ value)
+            : base(AstNodeType.BoundAssignment) {
             _variable = variable;
             _value = value;
         }
@@ -80,10 +79,6 @@ namespace Microsoft.Scripting.Ast {
 
         protected override object DoEvaluate(CodeContext context) {
             object value = _value.Evaluate(context);
-
-            // Do an explicit conversion to mirror the emit case
-            value = context.LanguageContext.Binder.Convert(value, _variable.Type);
-
             EvaluateAssign(context, _variable, value);
             return value;
         }
@@ -106,13 +101,6 @@ namespace Microsoft.Scripting.Ast {
                     break;
             }
             return value;
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _value.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

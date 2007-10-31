@@ -84,8 +84,8 @@ namespace Microsoft.Scripting.Ast {
         private readonly Stack<Block> _stack = new Stack<Block>();
 
         public static void Bind(CodeBlock ast) {
-            ClosureBinder db = new ClosureBinder((CodeBlock)ast);
-            db.DoBind();
+            ClosureBinder cb = new ClosureBinder(ast);
+            cb.Bind();
         }
 
         private ClosureBinder(CodeBlock global) {
@@ -94,22 +94,22 @@ namespace Microsoft.Scripting.Ast {
 
         #region AstWalker overrides
 
-        public override bool Walk(BoundAssignment node) {
+        protected internal override bool Walk(BoundAssignment node) {
             node.Ref = Reference(node.Variable);
             return true;
         }
 
-        public override bool Walk(BoundExpression node) {
+        protected internal override bool Walk(BoundExpression node) {
             node.Ref = Reference(node.Variable);
             return true;
         }
 
-        public override bool Walk(DeleteStatement node) {
+        protected internal override bool Walk(DeleteStatement node) {
             node.Ref = Reference(node.Variable);
             return true;
         }
 
-        public override bool Walk(CatchBlock node) {
+        protected internal override bool Walk(CatchBlock node) {
             // CatchBlock is not required to have target variable
             if (node.Variable != null) {
                 node.Ref = Reference(node.Variable);
@@ -117,20 +117,20 @@ namespace Microsoft.Scripting.Ast {
             return true;            
         }
 
-        public override bool Walk(CodeBlock node) {
+        protected internal override bool Walk(CodeBlock node) {
             Push(node);
             return true;
         }
-        public override void PostWalk(CodeBlock node) {
+        protected internal override void PostWalk(CodeBlock node) {
             ProcessAndPop(node);
         }
 
-        public override bool Walk(GeneratorCodeBlock node) {
+        protected internal override bool Walk(GeneratorCodeBlock node) {
             Push(node);
             return true;
         }
 
-        public override void PostWalk(GeneratorCodeBlock node) {
+        protected internal override void PostWalk(GeneratorCodeBlock node) {
             int temps = node.BuildYieldTargets();
             AddGeneratorTemps(temps);
             ProcessAndPop(node);
@@ -154,9 +154,9 @@ namespace Microsoft.Scripting.Ast {
 
         #endregion
 
-        private void DoBind() {
+        private void Bind() {
             // Collect the context statements
-            _global.Walk(this);
+            WalkNode(_global);
             BindTheScopes();
         }
 
@@ -170,7 +170,9 @@ namespace Microsoft.Scripting.Ast {
         private void BindTheScopes() {
             for (int i = 0; i < _blocks.Count; i++) {
                 CodeBlock block = _blocks[i];
-                if (!block.IsGlobal) BindCodeBlock((CodeBlock)block);
+                if (!block.IsGlobal) {
+                    BindCodeBlock((CodeBlock)block);
+                }
             }
         }
 

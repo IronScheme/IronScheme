@@ -54,8 +54,7 @@ namespace Microsoft.Scripting.Hosting {
         void PublishModule(IScriptModule module, string publicName);
         IDictionary<string, IScriptModule> GetPublishedModules();
         
-        // TODO: remove exceptionHandler parameter - just a SL hack
-        Delegate GetDelegate(object callableObject, Type delegateType, Action<Exception> exceptionHandler);
+        Delegate GetDelegate(object callableObject, Type delegateType);
         
         // TODO:
         // Delegate CreateDelegate(IObjectHandle remoteCallableObject, Type delegateType);
@@ -161,8 +160,8 @@ namespace Microsoft.Scripting.Hosting {
 
         /// <summary>
         /// Creates a module.
-        /// </summary>
         /// <c>dictionary</c> can be <c>null</c>
+        /// </summary>
         /// <returns></returns>
         public IScriptModule CreateModule(string name, ScriptModuleKind kind, IAttributesCollection dictionary, params ICompiledCode[] compiledCodes) {
             Contract.RequiresNotNullItems(compiledCodes, "compiledCodes");
@@ -239,9 +238,8 @@ namespace Microsoft.Scripting.Hosting {
 
         #region Object Operations
 
-        // TODO: remove exceptionHandler param (Silverlight hack):
-        public Delegate GetDelegate(object callableObject, Type delegateType, Action<Exception> exceptionHandler) {
-            return DynamicHelpers.GetDelegate(callableObject, delegateType, exceptionHandler);            
+        public Delegate GetDelegate(object callableObject, Type delegateType) {
+            return RuntimeHelpers.GetDelegate(callableObject, delegateType);            
         }
 
         #endregion

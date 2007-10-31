@@ -17,12 +17,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+
+using Microsoft.Scripting.Ast;
 
 namespace Microsoft.Scripting.Actions {
     public class EventTracker : MemberTracker {
         private EventInfo _event;
 
-        public EventTracker(EventInfo eventInfo) {
+        internal EventTracker(EventInfo eventInfo) {
             _event = eventInfo;
         }
 
@@ -43,9 +46,31 @@ namespace Microsoft.Scripting.Actions {
                 return _event;
             }
         }
-      
+
+        public bool IsStatic {
+            get {
+                MethodInfo mi = Event.GetAddMethod(ScriptDomainManager.Options.PrivateBinding) ??
+                    Event.GetRemoveMethod(ScriptDomainManager.Options.PrivateBinding) ??
+                    Event.GetRaiseMethod(ScriptDomainManager.Options.PrivateBinding);
+
+                return mi.IsStatic;
+            }
+        }
+
+        internal override Expression GetBoundValue(ActionBinder binder, Type type, Expression instance) {
+            return binder.ReturnMemberTracker(type, new BoundMemberTracker(this, instance));
+        }
+
+        internal override MemberTracker BindToInstance(Expression instance) {
+            if (IsStatic) {
+                return this;
+            }
+
+            return new BoundMemberTracker(this, instance);
+        }
+
         public override string ToString() {
             return _event.ToString();
-        }
+        }       
     }
 }

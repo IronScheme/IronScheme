@@ -21,11 +21,12 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class ArrayIndexExpression : Expression {
-        private readonly Expression _array;
-        private readonly Expression _index;
-        private readonly Type _elementType;
+        private readonly Expression /*!*/ _array;
+        private readonly Expression /*!*/ _index;
+        private readonly Type /*!*/ _elementType;
 
-        internal ArrayIndexExpression(Expression array, Expression index) {
+        internal ArrayIndexExpression(Expression /*!*/ array, Expression /*!*/ index)
+            : base(AstNodeType.ArrayIndexExpression) {
             _array = array;
             _index = index;
             _elementType = array.Type.GetElementType();
@@ -58,14 +59,6 @@ namespace Microsoft.Scripting.Ast {
             _index.Emit(cg);
             // Load the array element
             cg.EmitLoadElement(_elementType);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _array.Walk(walker);
-                _index.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

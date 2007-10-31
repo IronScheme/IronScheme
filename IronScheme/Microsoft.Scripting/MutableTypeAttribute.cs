@@ -18,7 +18,7 @@ using System.Text;
 
 namespace Microsoft.Scripting {
     /// <summary>
-    /// Applied to a class, interface, or struct to indicate a script user can mutate the DynamicType at runtime.
+    /// TODO: Remove me
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct, Inherited = true)]
     public sealed class MutableTypeAttribute : Attribute {

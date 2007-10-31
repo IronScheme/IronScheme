@@ -21,13 +21,11 @@ namespace Microsoft.Scripting.Ast {
         private readonly SourceLocation _header;
         private readonly SourceLocation _end;
 
-        private readonly Expression _test;
-        private readonly Statement _body;
+        private readonly Expression /*!*/ _test;
+        private readonly Statement /*!*/ _body;
 
-        internal IfStatementTest(SourceSpan span, SourceLocation header, Expression test, Statement body) {
-            Contract.RequiresNotNull(test, "test");
-            Contract.RequiresNotNull(body, "body");
-
+        internal IfStatementTest(SourceSpan span, SourceLocation header, Expression /*!*/ test, Statement /*!*/ body)
+            : base(AstNodeType.IfStatementTest) {
             _test = test;
             _body = body;
             _header = header;
@@ -60,25 +58,23 @@ namespace Microsoft.Scripting.Ast {
         public Statement Body {
             get { return _body; }
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _test.Walk(walker);
-                _body.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
         public static IfStatementTest IfCondition(Expression test, Statement body) {
             return IfCondition(SourceSpan.None, SourceLocation.None, test, body);
         }
+
         public static IfStatementTest IfCondition(SourceSpan span, SourceLocation header, Expression test, Statement body) {
+            Contract.RequiresNotNull(test, "test");
+            Contract.RequiresNotNull(body, "body");
+            Contract.Requires(test.Type == typeof(bool), "test", "Test must be boolean");
+
             return new IfStatementTest(span, header, test, body);
         }
 
         public static IfStatementTest[] IfConditions(params IfStatementTest[] tests) {
+            Contract.RequiresNotNullItems(tests, "tests");
             return tests;
         }
     }

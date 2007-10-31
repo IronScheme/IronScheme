@@ -187,7 +187,7 @@ namespace Microsoft.Scripting.Ast {
 
         public static void Check(CodeBlock block) {
             FlowChecker fc = new FlowChecker(block);
-            block.Walk(fc);
+            fc.WalkNode(block);
         }
 
         #endregion
@@ -241,7 +241,7 @@ namespace Microsoft.Scripting.Ast {
         #region AstWalker Methods
 
         // BoundExpression
-        public override bool Walk(BoundExpression node) {
+        protected internal override bool Walk(BoundExpression node) {
             bool defined;
             if (TryCheckVariable(node.Variable, out defined)) {
                 node.IsDefined = defined;
@@ -250,25 +250,25 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // BoundAssignment
-        public override bool Walk(BoundAssignment node) {
-            node.Value.Walk(this);
+        protected internal override bool Walk(BoundAssignment node) {
+            WalkNode(node.Value);
             Define(node.Variable);
             return false;
         }
 
 
         // BreakStatement
-        public override bool Walk(BreakStatement node) {
+        protected internal override bool Walk(BreakStatement node) {
             ExitState exit = PeekStatement(node.Statement);
             exit.And(_bits);
             return true;
         }
 
         // ContinueStatement
-        public override bool Walk(ContinueStatement node) { return true; }
+        protected internal override bool Walk(ContinueStatement node) { return true; }
 
         // DelStatement
-        public override bool Walk(DeleteStatement node) {
+        protected internal override bool Walk(DeleteStatement node) {
             bool defined;
             if (TryCheckVariable(node.Variable, out defined)) {
                 node.IsDefined = defined;
@@ -276,17 +276,17 @@ namespace Microsoft.Scripting.Ast {
             return true;
         }
 
-        public override void PostWalk(DeleteStatement node) {
+        protected internal override void PostWalk(DeleteStatement node) {
             Delete(node.Variable);
         }
 
         // CodeBlockExpression interrupt flow analysis
-        public override bool Walk(CodeBlockExpression node) {
+        protected internal override bool Walk(CodeBlockExpression node) {
             return false;
         }
 
         // CodeBlock
-        public override bool Walk(CodeBlock node) {
+        protected internal override bool Walk(CodeBlock node) {
             foreach (Variable p in node.Parameters) {
                 // Define the parameters
                 Define(p);
@@ -295,12 +295,12 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // GeneratorCodeBlock
-        public override bool Walk(GeneratorCodeBlock node) {
+        protected internal override bool Walk(GeneratorCodeBlock node) {
             return Walk((CodeBlock)node);
         }
 
         // DoStatement
-        public override bool Walk(DoStatement node) {
+        protected internal override bool Walk(DoStatement node) {
             BitArray loop = new BitArray(_bits); // State at the loop entry with which the loop runs
             BitArray save = _bits;               // Save the state at loop entry
 
@@ -312,9 +312,9 @@ namespace Microsoft.Scripting.Ast {
             _bits = loop;
 
             // Walk the loop
-            node.Body.Walk(this);
+            WalkNode(node.Body);
             // Walk the test in the context of the loop
-            node.Test.Walk(this);
+            WalkNode(node.Test);
 
             // Handle the loop exit
             PopStatement();
@@ -328,7 +328,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // IfStatement
-        public override bool Walk(IfStatement node) {
+        protected internal override bool Walk(IfStatement node) {
             BitArray result = new BitArray(_bits.Length, true);
             BitArray save = _bits;
 
@@ -340,9 +340,9 @@ namespace Microsoft.Scripting.Ast {
                 _bits.Or(save);
 
                 // Flow the test first
-                ist.Test.Walk(this);
+                WalkNode(ist.Test);
                 // Flow the body
-                ist.Body.Walk(this);
+                WalkNode(ist.Body);
                 // Intersect
                 result.And(_bits);
             }
@@ -353,7 +353,7 @@ namespace Microsoft.Scripting.Ast {
 
             if (node.ElseStatement != null) {
                 // Flow the else_
-                node.ElseStatement.Walk(this);
+                WalkNode(node.ElseStatement);
             }
 
             // Intersect
@@ -368,10 +368,10 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // LoopStatement
-        public override bool Walk(LoopStatement node) {
+        protected internal override bool Walk(LoopStatement node) {
             // Expression is executed always at least once
             if (node.Test != null) {
-                node.Test.Walk(this);
+                WalkNode(node.Test);
             }
 
             // Beyond this point, either body will be executed (test succeeded),
@@ -381,10 +381,8 @@ namespace Microsoft.Scripting.Ast {
             BitArray exit = new BitArray(_bits.Length, true);
 
             PushStatement(exit);
-            node.Body.Walk(this);
-            if (node.Increment != null) {
-                node.Increment.Walk(this);
-            }
+            WalkNode(node.Body);
+            WalkNode(node.Increment);
             PopStatement();
 
             _bits.And(exit);
@@ -393,7 +391,7 @@ namespace Microsoft.Scripting.Ast {
                 // Flow the else
                 BitArray save = _bits;
                 _bits = opte;
-                node.ElseStatement.Walk(this);
+                WalkNode(node.ElseStatement);
                 // Restore the bits
                 _bits = save;
             }
@@ -405,7 +403,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // TryStatement
-        public override bool Walk(TryStatement node) {
+        protected internal override bool Walk(TryStatement node) {
             // The try body is guaranteed to be entered, but not completed,
             // the catch blocks are not guaranteed to be entered at all,
             // the finally block is guaranteed to be entered
@@ -423,7 +421,7 @@ namespace Microsoft.Scripting.Ast {
             _bits = new BitArray(_bits);
 
             // 1. Flow the body
-            node.Body.Walk(this);
+            WalkNode(node.Body);
             entry.And(_bits);
 
             // 2. Flow the catch clauses, starting always with the initial state,
@@ -436,7 +434,7 @@ namespace Microsoft.Scripting.Ast {
                     _bits.Or(entry);
 
                     // Flow the catch clause and propagate the 'damage' to the state we'll use for finally.
-                    node.Handlers[i].Walk(this);
+                    WalkNode(node.Handlers[i]);
                     entry.And(_bits);
                 }
             }
@@ -446,24 +444,24 @@ namespace Microsoft.Scripting.Ast {
 
             // 4. Flow the finally clause, if present.
             if (node.FinallyStatement != null) {
-                node.FinallyStatement.Walk(this);
+                WalkNode(node.FinallyStatement);
             }
 
             return false;
         }
 
         // SwitchStatement
-        public override bool Walk(SwitchStatement node) {
+        protected internal override bool Walk(SwitchStatement node) {
             // The expression is evaluated always.
             // Then each case clause expression is evaluated until match is found.
             // Therefore, the effects of the case clause expressions accumulate.
             // Default clause is evaluated last (so all case clause expressions must
             // accumulate first)
-            node.TestValue.Walk(this);
+            WalkNode(node.TestValue);
 
             // Flow all the cases, they all start with the same initial state
             int count;
-            List<SwitchCase> cases = node.Cases;
+            IList<SwitchCase> cases = node.Cases;
             if (cases != null && (count = cases.Count) > 0) {
                 SwitchCase @default = null;
                 // Save the initial state
@@ -478,7 +476,7 @@ namespace Microsoft.Scripting.Ast {
                 PushStatement(result);
 
                 for (int i = 0; i < count; i++) {
-                    if (cases[i].Value == null) {
+                    if (cases[i].IsDefault) {
                         Debug.Assert(@default == null);
 
                         // postpone the default case
@@ -486,17 +484,13 @@ namespace Microsoft.Scripting.Ast {
                         continue;
                     }
 
-                    // Walk the expression (accumulate effects in the values)
-                    _bits = values;
-                    cases[i].Value.Walk(this);
-
                     // Set the state for the walking of the body
                     caseFlow.SetAll(false);
                     caseFlow.Or(values);
 
                     // Walk the body
                     _bits = caseFlow;
-                    cases[i].Body.Walk(this);
+                    WalkNode(cases[i].Body);
 
                     // Accumulate the result into the overall case statement result.
                     result.And(caseFlow);
@@ -510,7 +504,7 @@ namespace Microsoft.Scripting.Ast {
 
                     // Walk the default body
                     _bits = caseFlow;
-                    @default.Body.Walk(this);
+                    WalkNode(@default.Body);
 
                     // Accumulate.
                     result.And(caseFlow);
@@ -536,11 +530,11 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // LabeledStatement
-        public override bool Walk(LabeledStatement node) {
+        protected internal override bool Walk(LabeledStatement node) {
             BitArray exit = new BitArray(_bits.Length, true);
             PushStatement(exit, node);
 
-            node.Statement.Walk(this);
+            WalkNode(node.Statement);
 
             PopStatement();
             _bits.And(exit);

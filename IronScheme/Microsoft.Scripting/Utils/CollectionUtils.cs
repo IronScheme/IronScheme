@@ -14,9 +14,9 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.Scripting.Utils {
     public static class CollectionUtils {
@@ -25,8 +25,13 @@ namespace Microsoft.Scripting.Utils {
             Contract.RequiresNotNull(collection, "collection");
             Contract.RequiresNotNull(items, "items");
 
-            foreach (T item in items) {
-                collection.Add(item);
+            List<T> list = collection as List<T>;
+            if (list != null) {
+                list.AddRange(items);
+            } else {
+                foreach (T item in items) {
+                    collection.Add(item);
+                }
             }
         }
 
@@ -89,6 +94,59 @@ namespace Microsoft.Scripting.Utils {
             }
 
             return true;
+        }
+
+        public static List<T> GetRange<T>(IList<T> list, int index, int count) {
+            Contract.RequiresNotNull(list, "list");
+            Contract.RequiresArrayRange(list, index, count, "index", "count");
+
+            List<T> result = new List<T>(count);
+            int stop = index + count;
+            for (int i = index; i < stop; i++) {
+                result.Add(list[i]);
+            }
+            return result;
+        }
+
+        public static void InsertRange<T>(IList<T> collection, int index, IEnumerable<T> items) {
+            Contract.RequiresNotNull(collection, "collection");
+            Contract.RequiresNotNull(items, "items");
+            Contract.RequiresArrayInsertIndex(collection, index, "index");
+
+            List<T> list = collection as List<T>;
+            if (list != null) {
+                list.InsertRange(index, items);
+            } else {
+                int i = index;
+                foreach (T obj in items) {
+                    collection.Insert(i++, obj);
+                }
+            }
+        }
+
+        public static void RemoveRange<T>(IList<T> collection, int index, int count) {
+            Contract.RequiresNotNull(collection, "collection");
+            Contract.RequiresArrayRange(collection, index, count, "index", "count");
+
+            List<T> list = collection as List<T>;
+            if (list != null) {
+                list.RemoveRange(index, count);
+            } else {
+                for (int i = index + count - 1; i >= index; i--) {
+                    collection.RemoveAt(i);
+                }
+            }
+        }
+
+        public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(IList<T> list) {
+            ReadOnlyCollection<T> roc;
+            if (list == null) {
+                return null;
+            } else if ((roc = list as ReadOnlyCollection<T>) != null) {
+                return roc;
+            } else {
+                return new ReadOnlyCollection<T>(list);
+            }
         }
     }
 }

@@ -28,11 +28,11 @@ namespace Microsoft.Scripting.Actions {
             _rules.Clear();
         }
 
-        private ActionRuleCache FindActionRuleCache(CodeContext callerContext, DynamicAction action) {
+        private ActionRuleCache FindActionRuleCache(DynamicAction action) {
             ActionRuleCache actionRuleCache;
             lock (this) {
                 if (!_rules.TryGetValue(action, out actionRuleCache)) {
-                    actionRuleCache = new ActionRuleCache(callerContext);
+                    actionRuleCache = new ActionRuleCache();
                     _rules[action] = actionRuleCache;
                 }
             }
@@ -41,17 +41,19 @@ namespace Microsoft.Scripting.Actions {
         }
 
         internal StandardRule<T> FindRule<T>(CodeContext callerContext, DynamicAction action, object[] args) {
-            ActionRuleCache actionRuleCache = FindActionRuleCache(callerContext, action);
-            StandardRule<T> rule = actionRuleCache.FindRule<T>(args);
-            if (rule == null || !rule.IsValid) {
-                return null;
-            }
+            ActionRuleCache actionRuleCache = FindActionRuleCache(action);
 
-            return rule;
+            return actionRuleCache.FindRule<T>(callerContext, args);
+        }
+
+        internal StandardRule<T> ExecuteRuleAndUpdateSite<T>(CodeContext callerContext, DynamicAction action, object[] args, object site, ref T target, ref RuleSet<T> rules, out object result) {
+            ActionRuleCache actionRuleCache = FindActionRuleCache(action);
+
+            return actionRuleCache.ExecuteRuleAndUpdateSite<T>(callerContext, args, site, ref target, ref rules, out result);
         }
 
         internal void AddRule<T>(DynamicAction action, object[] args, StandardRule<T> rule) {
-            ActionRuleCache actionRuleCache = FindActionRuleCache(null, action);
+            ActionRuleCache actionRuleCache = FindActionRuleCache(action);
             actionRuleCache.AddRule<T>(args, rule);
         }
 
@@ -59,39 +61,30 @@ namespace Microsoft.Scripting.Actions {
         /// All the cached rules for a given Action (per LanguageBinder)
         /// </summary>
         internal class ActionRuleCache {
-            private LanguageContext _context;
             private Dictionary<Type, object> _trees = new Dictionary<Type,object>();
 
-            public ActionRuleCache(CodeContext context) {
-                Debug.Assert(context != null);
-                _context = context.LanguageContext;
+            public ActionRuleCache() {
             }
 
             private RuleTree<T> GetOrMakeTree<T>() {
                 lock (_trees) {
                     if (!_trees.ContainsKey(typeof(T))) {
-                        _trees[typeof(T)] = RuleTree<T>.MakeRuleTree(_context);
+                        _trees[typeof(T)] = RuleTree<T>.MakeRuleTree();
                     }
                     return (RuleTree<T>)_trees[typeof(T)];
                 }
             }
 
             public void AddRule<T>(object[] args, StandardRule<T> newRule) {
-                RuleTree<T> rules = GetOrMakeTree<T>();
-
-                // These locks are used to protect the internal dictionaries in the RuleTreeNode types
-                // It should be investigated if there is a lock-free read design that could work here
-                lock (rules) {
-                    rules.AddRule(args, newRule);
-                }
+                GetOrMakeTree<T>().AddRule(args, newRule);
             }
 
-            public StandardRule<T> FindRule<T>(object[] args) {
-                RuleTree<T> rules = GetOrMakeTree<T>();
+            public StandardRule<T> FindRule<T>(CodeContext context, object[] args) {
+                return GetOrMakeTree<T>().GetRule(context, args);
+            }
 
-                lock (rules) {
-                    return rules.GetRule(args);
-                }
+            public StandardRule<T> ExecuteRuleAndUpdateSite<T>(CodeContext context, object[] args, object site, ref T target, ref RuleSet<T> rules, out object result) {
+               return GetOrMakeTree<T>().ExecuteRuleAndUpdateSite(context, args, site, ref target, ref rules, out result);
             }
         }
     }

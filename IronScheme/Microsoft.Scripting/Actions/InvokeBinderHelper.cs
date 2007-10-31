@@ -25,7 +25,6 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
-using Microsoft.Scripting.Types;
 
 namespace Microsoft.Scripting.Actions {
     using Ast = Microsoft.Scripting.Ast.Ast;
@@ -38,10 +37,10 @@ namespace Microsoft.Scripting.Actions {
         }
 
         public virtual StandardRule<T> MakeRule() {
-            GetMemberAction getAction = GetMemberAction.Make(Action.Name);
             CallAction callAction = CallAction.Make(Action.Signature);
 
-            // TODO First try to make a rule for get-member and see if we get back a constant method to call
+            // TODO: First try to make a rule for get-member and see if we get back a constant method to call
+            //GetMemberAction getAction = GetMemberAction.Make(Action.Name);
             //StandardRule<T> getRule = Binder.GetRule<T>(Context, getAction, new object[] { _args[0] });
             
             // otherwise, make a generic rule with embedded dynamic sites

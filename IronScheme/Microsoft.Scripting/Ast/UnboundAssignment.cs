@@ -21,10 +21,10 @@ using Microsoft.Scripting.Generation;
 namespace Microsoft.Scripting.Ast {
     public class UnboundAssignment : Expression {
         private readonly SymbolId _name;
-        private readonly Expression _value;
+        private readonly Expression /*!*/ _value;
 
-        internal UnboundAssignment(SymbolId name, Expression value) {
-            Debug.Assert(value != null);
+        internal UnboundAssignment(SymbolId name, Expression /*!*/ value)
+            : base(AstNodeType.UnboundAssignment) {
             _name = name;
             _value = value;
         }
@@ -54,13 +54,6 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitCodeContext();
             cg.EmitSymbolId(_name);
             cg.EmitCall(typeof(RuntimeHelpers), "SetNameReorder");
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _value.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

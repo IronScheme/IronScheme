@@ -21,20 +21,17 @@ using Microsoft.Scripting.Utils;
 namespace Microsoft.Scripting.Ast {
     public class DoStatement : Statement {
         private readonly SourceLocation _header;
-        private readonly Expression _test;
-        private readonly Statement _body;
+        private readonly Expression /*!*/ _test;
+        private readonly Statement /*!*/ _body;
 
         /// <summary>
         /// Called by <see cref="DoStatementBuilder"/>.
         /// </summary>
-        internal DoStatement(SourceSpan span, SourceLocation header, Expression test, Statement body)
-            : base(span) {
-            Contract.RequiresNotNull(test, "test");
-            Contract.RequiresNotNull(body, "body");
-
+        internal DoStatement(SourceSpan span, SourceLocation header, Expression /*!*/ test, Statement /*!*/ body)
+            : base(AstNodeType.DoStatement, span) {
+            _header = header;
             _test = test;
             _body = body;
-            _header = header;
         }
 
         public SourceLocation Header {
@@ -77,20 +74,11 @@ namespace Microsoft.Scripting.Ast {
             // TODO: Check if we need to emit position somewhere else also.
             cg.EmitPosition(Start, _header);
 
-            _test.EmitAs(cg, typeof(bool));
+            _test.Emit(cg);
             cg.Emit(OpCodes.Brtrue, startTarget);
 
             cg.PopTargets();            
             cg.MarkLabel(breakTarget);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {                
-                _body.Walk(walker);
-                _test.Walk(walker);
-            }
-
-            walker.PostWalk(this);
         }
     }
 }

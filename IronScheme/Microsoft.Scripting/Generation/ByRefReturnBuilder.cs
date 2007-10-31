@@ -55,7 +55,7 @@ namespace Microsoft.Scripting.Generation {
                 }
             }
 
-            Expression retArray = Ast.NewArray(typeof(object[]), retValues);
+            Expression retArray = Ast.NewArrayHelper(typeof(object[]), retValues);
             if (!usesRet) {
                 retArray = Ast.Comma(ret, retArray);
             }

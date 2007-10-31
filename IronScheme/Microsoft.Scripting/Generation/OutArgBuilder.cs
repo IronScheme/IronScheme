@@ -29,10 +29,12 @@ namespace Microsoft.Scripting.Generation {
     /// </summary>
     class OutArgBuilder : ArgBuilder {
         private Type _parameterType;
+        private bool _isRef;
         private Variable _tmp;
 
         public OutArgBuilder(ParameterInfo parameter) {
             _parameterType = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
+            _isRef = parameter.ParameterType.IsByRef;
         }
 
         public override int Priority {
@@ -40,10 +42,14 @@ namespace Microsoft.Scripting.Generation {
         }
 
         internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters) {
-            if (_tmp == null) {
-                _tmp = context.GetTemporary(_parameterType, "outParam");
+            if (_isRef) {
+                if (_tmp == null) {
+                    _tmp = context.GetTemporary(_parameterType, "outParam");
+                }
+                return Ast.Read(_tmp);
             }
-            return Ast.Read(_tmp);
+
+            return GetDefaultValue();
         }
 
         internal override Expression CheckExpression(MethodBinderContext context, Expression[] parameters) {
@@ -51,11 +57,23 @@ namespace Microsoft.Scripting.Generation {
         }
 
         internal override Expression ToReturnExpression(MethodBinderContext context) {
-            return Ast.Read(_tmp);
+            if (_isRef) {
+                return Ast.Read(_tmp);
+            }
+
+            return GetDefaultValue();
         }
 
         public override object Build(CodeContext context, object[] args) {
             return null;
+        }
+
+        private Expression GetDefaultValue() {
+            if (_parameterType.IsValueType) {
+                // default(T)                
+                return Ast.Constant(Activator.CreateInstance(_parameterType));
+            }
+            return Ast.Constant(null);
         }
     }
 }

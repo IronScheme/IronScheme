@@ -82,7 +82,8 @@ namespace Microsoft.Scripting.Ast {
 
         private Expression _explicitCodeContextExpression;
 
-        internal CodeBlock(SourceSpan span, string name, Type returnType) {
+        internal CodeBlock(AstNodeType nodeType, SourceSpan span, string name, Type returnType)
+            : base(nodeType) {
             Assert.NotNull(returnType);
 
             _name = name;
@@ -90,11 +91,6 @@ namespace Microsoft.Scripting.Ast {
             _start = span.Start;
             _end = span.End;
         }
-
-        internal CodeBlock(SourceSpan span, string name)
-            : this(span, name, typeof(object)) {
-        }
-
 
         public SourceLocation Start {
             get { return _start; }
@@ -225,14 +221,14 @@ namespace Microsoft.Scripting.Ast {
             _declarativeReferenceExists = true;
         }
 
-        public Variable CreateParameter(SymbolId name, Type type, Expression defaultValue) {
-            Variable variable = Variable.Parameter(this, name, type, defaultValue);
+        public Variable CreateParameter(SymbolId name, Type type) {
+            Variable variable = Variable.Parameter(this, name, type);
             _parameters.Add(variable);
             return variable;
         }
 
-        public Variable CreateParameter(SymbolId name, Type type, Expression defaultValue, bool inParameterArray) {
-            Variable variable = Variable.Parameter(this, name, type, defaultValue, inParameterArray);
+        public Variable CreateParameter(SymbolId name, Type type, bool inParameterArray) {
+            Variable variable = Variable.Parameter(this, name, type, inParameterArray);
             _parameters.Add(variable);
             return variable;
         }
@@ -374,9 +370,9 @@ namespace Microsoft.Scripting.Ast {
             // update CodeContext so it contains the nested scope for the locals
             //  ctxSlot = new CodeContext(currentCodeContext, locals)
             Slot ctxSlot = cg.GetNamedLocal(typeof(CodeContext), "$frame");
-            cg.EmitCodeContext();
             cg.EnvironmentSlot.EmitGetDictionary(cg);
-            cg.EmitInt(_visibleScope ? 1 : 0);
+            cg.EmitCodeContext();
+            cg.EmitBoolean(_visibleScope);
             cg.EmitCall(typeof(RuntimeHelpers), "CreateNestedCodeContext");
             ctxSlot.EmitSet(cg);
             return ctxSlot;
@@ -490,13 +486,6 @@ namespace Microsoft.Scripting.Ast {
             _generatorTemps += count;
         }
 
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                Body.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
-
         private object DoExecute(CodeContext context) {
             object ret;
 
@@ -570,11 +559,6 @@ namespace Microsoft.Scripting.Ast {
         protected ConstantPool GetStaticDataForBody(CodeGen cg) {
             if (cg.DynamicMethod) return new ConstantPool();
             else return null;
-        }
-
-        public void BindClosures() {
-            ClosureBinder.Bind(this);
-            FlowChecker.Check(this);
         }
 
         private bool ShouldCompile() {
@@ -664,8 +648,8 @@ namespace Microsoft.Scripting.Ast {
                     return ReflectionUtils.InvokeDelegate(_delegate, args);
                 }
             }
-            
-            CodeContext child = RuntimeHelpers.CreateNestedCodeContext(parent, new SymbolDictionary(), IsVisible);
+
+            CodeContext child = RuntimeHelpers.CreateNestedCodeContext(new SymbolDictionary(), parent, IsVisible);
             for (int i = 0; i < _parameters.Count; i++) {
                 RuntimeHelpers.SetName(child, _parameters[i].Name, args[i]);
             }
@@ -674,7 +658,7 @@ namespace Microsoft.Scripting.Ast {
 
         private object ExecuteWithChildContextAndThis(CodeContext parent, object @this, params object[] args) {
             if (_delegate != null) {
-                return RuntimeHelpers.CallWithThis(parent, _delegate, @this, args);
+                return parent.LanguageContext.CallWithThis(parent, _delegate, @this, args);
             }
 
             if (parent.LanguageContext.Engine.Options.ProfileDrivenCompilation) {
@@ -684,11 +668,11 @@ namespace Microsoft.Scripting.Ast {
                     }
                 }
                 if (_delegate != null) {
-                    return RuntimeHelpers.CallWithThis(parent, _delegate, @this, args);
+                    return parent.LanguageContext.CallWithThis(parent, _delegate, @this, args);
                 }
             }
 
-            CodeContext child = RuntimeHelpers.CreateNestedCodeContext(parent, new SymbolDictionary(), IsVisible);
+            CodeContext child = RuntimeHelpers.CreateNestedCodeContext(new SymbolDictionary(), parent, IsVisible);
             RuntimeHelpers.SetName(child, _parameters[0].Name, @this);
             for (int i = 1; i < _parameters.Count; i++) {
                 RuntimeHelpers.SetName(child, _parameters[i].Name, args[i-1]);
@@ -773,7 +757,7 @@ namespace Microsoft.Scripting.Ast {
                     return cg.CreateDelegate(delegateType);
                     //throw new NotImplementedException("Parameter arrays not implemented for code blocks in FastEval mode");
                 } else {
-                    delegateType = CallTargets.GetTargetType(true, _parameters.Count);
+                    delegateType = CallTargets.GetTargetType(true, _parameters.Count - (HasThis() ? 1 : 0), HasThis());
                     return cg.CreateDelegate(delegateType);
                 }
             } else {
@@ -822,7 +806,7 @@ namespace Microsoft.Scripting.Ast {
                     if (stronglyTyped) {
                         delegateType = ReflectionUtils.GetDelegateType(GetParameterTypes(hasContextParameter), _returnType);
                     } else {
-                        delegateType = CallTargets.GetTargetType(hasContextParameter, _parameters.Count);
+                        delegateType = CallTargets.GetTargetType(hasContextParameter, _parameters.Count - (hasThis ? 1 : 0), hasThis);
                     }
                 }
                 cg.EmitDelegateConstruction(impl, delegateType);
@@ -1167,23 +1151,33 @@ namespace Microsoft.Scripting.Ast {
 
     public static partial class Ast {
         public static CodeBlock CodeBlock(string name) {
-            return CodeBlock(SourceSpan.None, name);
-        }
-
-        public static CodeBlock CodeBlock(SourceSpan span, string name) {
-            return new CodeBlock(span, name, typeof(object));
+            return CodeBlock(SourceSpan.None, name, typeof(object));
         }
 
         public static CodeBlock CodeBlock(string name, Type returnType) {
-            return new CodeBlock(SourceSpan.None, name, returnType);
+            return CodeBlock(SourceSpan.None, name, returnType);
+        }
+
+        public static CodeBlock CodeBlock(SourceSpan span, string name) {
+            return CodeBlock(span, name, typeof(object));
         }
 
         public static CodeBlock CodeBlock(SymbolId name) {
-            return CodeBlock(SourceSpan.None, SymbolTable.IdToString(name));
+            return CodeBlock(SourceSpan.None, SymbolTable.IdToString(name), typeof(object));
+        }
+
+        public static CodeBlock CodeBlock(SymbolId name, Type returnType) {
+            return CodeBlock(SourceSpan.None, SymbolTable.IdToString(name), returnType);
         }
 
         public static CodeBlock CodeBlock(SourceSpan span, SymbolId name) {
-            return CodeBlock(span, SymbolTable.IdToString(name));
+            return CodeBlock(span, SymbolTable.IdToString(name), typeof(object));
+        }
+
+        public static CodeBlock CodeBlock(SourceSpan span, string name, Type returnType) {
+            Contract.RequiresNotNull(name, "name");
+            Contract.RequiresNotNull(returnType, "returnType");
+            return new CodeBlock(AstNodeType.CodeBlock, span, name, returnType);
         }
 
         public static CodeBlock EventHandlerBlock(string name, EventInfo eventInfo) {

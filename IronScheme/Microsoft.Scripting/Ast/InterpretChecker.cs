@@ -21,7 +21,7 @@ namespace Microsoft.Scripting.Ast {
     /// Currently, we can evaluate everything that does not contain as-yet-unsupported nodes.
     /// In the future, we may consider using heuristics based on size, presence of loops, etc.
     /// </summary>
-    public class InterpretChecker : Walker {
+    class InterpretChecker : Walker {
         private bool _hasUnsupportedNodes = false;
         private bool _hasLoops = false;
         private int _voidExpressionsDepth = 0;
@@ -36,7 +36,7 @@ namespace Microsoft.Scripting.Ast {
 
         public static bool CanEvaluate(CodeBlock node, bool useHeuristics) {
             InterpretChecker walker = new InterpretChecker();
-            node.Walk(walker);
+            walker.WalkNode(node);
             Debug.Assert(walker._voidExpressionsDepth == 0);
             return walker.EvaluationOK(useHeuristics);
         }
@@ -46,22 +46,22 @@ namespace Microsoft.Scripting.Ast {
         // Rather than adding to this category, consider implementing Evaluate() on the node!
         //
 
-        public override bool Walk(ParamsExpression node) {
+        protected internal override bool Walk(ParamsExpression node) {
             _hasUnsupportedNodes = true;
             return false;
         }
 
-        public override bool Walk(EnvironmentExpression node) {
+        protected internal override bool Walk(EnvironmentExpression node) {
             _hasUnsupportedNodes = true;
             return false;
         }
 
-        public override bool Walk(SwitchStatement node) {
+        protected internal override bool Walk(SwitchStatement node) {
             _hasUnsupportedNodes = true;
             return false;
         }
 
-        public override bool Walk(UnboundExpression node) {
+        protected internal override bool Walk(UnboundExpression node) {
             // Right now, locals() fails for nested functions.
             // This is a crude test, but at least it errs on the side of disabling evaluation.
             if (SymbolTable.IdToString(node.Name) == "locals") {
@@ -72,7 +72,7 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        public override void PostWalk(CodeBlockExpression node) {
+        protected internal override void PostWalk(CodeBlockExpression node) {
             // We use PostWalk here since Walk is only called for IsDeclarative=true
 
             // Currently, CodeBlockExpression ignores the DelegateType. This will result in the generation of 
@@ -90,12 +90,12 @@ namespace Microsoft.Scripting.Ast {
         // they should return a value. However, VoidExpression is a way to mix up expressions 
         // and statements. If a VoidExpression contains control flow, that causes a problem
 
-        public override bool Walk(VoidExpression node) {
+        protected internal override bool Walk(VoidExpression node) {
             _voidExpressionsDepth++;
             return true;
         }
 
-        public override void PostWalk(VoidExpression node) {
+        protected internal override void PostWalk(VoidExpression node) {
             _voidExpressionsDepth--;
         }
 
@@ -107,19 +107,19 @@ namespace Microsoft.Scripting.Ast {
             return true;
         }
         
-        public override bool Walk(ReturnStatement node) { return DisallowControlFlowInVoidExpression(); }
-        public override bool Walk(ContinueStatement node) { return DisallowControlFlowInVoidExpression(); }
-        public override bool Walk(BreakStatement node) { return DisallowControlFlowInVoidExpression(); }
+        protected internal override bool Walk(ReturnStatement node) { return DisallowControlFlowInVoidExpression(); }
+        protected internal override bool Walk(ContinueStatement node) { return DisallowControlFlowInVoidExpression(); }
+        protected internal override bool Walk(BreakStatement node) { return DisallowControlFlowInVoidExpression(); }
 
         //
         // Nodes that may take a long time to execute
         //
-        public override bool Walk(LoopStatement node) {
+        protected internal override bool Walk(LoopStatement node) {
             _hasLoops = true;
             return false;
         }
 
-        public override bool Walk(DoStatement node) {
+        protected internal override bool Walk(DoStatement node) {
             _hasLoops = true;
             return false;
         }

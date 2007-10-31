@@ -32,14 +32,7 @@ namespace Microsoft.Scripting.Generation {
         /// <summary>
         /// Generates stub to receive the CLR call and then call the dynamic language code.
         /// </summary>
-        public static void  EmitClrCallStub(CodeGen cg, Slot callTarget, int firstArg, CallType functionAttributes, Action<Exception> handler) {
-            if (handler != null) {
-                if (!cg.ConstantPool.IsBound) {
-                    throw new InvalidOperationException("calling stubs with exception handlers requires constant pool");
-                }
-                cg.BeginExceptionBlock();
-            }
-            
+        public static void  EmitClrCallStub(CodeGen cg, Slot callTarget, int firstArg, CallType functionAttributes) {
             List<ReturnFixer> fixers = new List<ReturnFixer>(0);
             IList<Slot> args = cg.ArgumentSlots;
             int nargs = args.Count - firstArg;
@@ -81,30 +74,6 @@ namespace Microsoft.Scripting.Generation {
             }
 
             cg.EmitCall(site.Type, "Invoke"); 
-
-            if (handler != null) {
-                Label ret = cg.DefineLabel();
-                Slot local = cg.GetLocalTmp(typeof(object));
-                local.EmitSet(cg);
-                cg.Emit(OpCodes.Leave_S, ret);
-                cg.BeginCatchBlock(typeof(Exception));
-
-                Slot exSlot = cg.GetLocalTmp(typeof(Exception));
-                exSlot.EmitSet(cg);
-
-                Slot handlerSlot = cg.ConstantPool.AddData(handler);
-                handlerSlot.EmitGet(cg);
-
-                exSlot.EmitGet(cg);
-                cg.EmitCall(typeof(Action<Exception>).GetMethod("Invoke"));
-
-                cg.EmitNull();
-                local.EmitSet(cg);
-                cg.Emit(OpCodes.Leave_S, ret);
-                cg.EndExceptionBlock();
-                cg.MarkLabel(ret);
-                local.EmitGet(cg);
-            }
 
             foreach (ReturnFixer rf in fixers) {
                 rf.FixReturn(cg);

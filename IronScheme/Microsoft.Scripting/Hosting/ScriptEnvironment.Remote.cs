@@ -167,7 +167,7 @@ namespace Microsoft.Scripting.Hosting {
             return result;
         }
 
-        public Delegate GetDelegate(object callableObject, Type delegateType, Action<Exception> exceptionHandler) {
+        public Delegate GetDelegate(object callableObject, Type delegateType) {
             // TODO:
             throw new NotImplementedException();
         }

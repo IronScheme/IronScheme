@@ -64,7 +64,7 @@ namespace Microsoft.Scripting.Actions {
 
         private StandardRule<T> MakeComparisonRule(DoOperationBinderHelper<T>.OperatorInfo info) {
             // check the first type if it has an applicable method
-            MethodInfo[] targets = GetApplicableMembers(info);
+            MethodInfo[] targets = GetApplicableMembers(info);            
             if (targets.Length > 0 && TryMakeBindingTarget(targets)) {
                 return _rule;
             }
@@ -188,6 +188,10 @@ namespace Microsoft.Scripting.Actions {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")] // TODO: fix
         private StandardRule<T> MakeOperatorRule(OperatorInfo info) {
             MethodInfo[] targets = GetApplicableMembers(info);
+            if (targets.Length == 0) {
+                targets = GetFallbackMembers(_types[0], info);
+            }
+
             if (targets.Length > 0 && TryMakeBindingTarget(targets)) {
                 return _rule;
             }
@@ -234,7 +238,7 @@ namespace Microsoft.Scripting.Actions {
                     return _rule;
                 }
             }
-
+            
             if (info.Operator == Operators.IsTrue) {
                 if (_types[0] == typeof(bool)) {
                     _rule.SetTarget(_rule.MakeReturn(Binder, Param0));
@@ -404,7 +408,7 @@ namespace Microsoft.Scripting.Actions {
         private void SetErrorTarget(OperatorInfo info) {
             _rule.SetTarget(
                 _rule.MakeError(
-                    Ast.SimpleCallHelper(
+                    Ast.ComplexCallHelper(
                         typeof(RuntimeHelpers).GetMethod("BadArgumentsForOperation"),
                         ArrayUtils.Insert((Expression)Ast.Constant(info.Operator), _rule.Parameters)
                     )
@@ -424,6 +428,36 @@ namespace Microsoft.Scripting.Actions {
 
             // filter down to just methods
             return FilterNonMethods(t, members);
+        }
+
+        /// <summary>
+        /// Gets alternate members which are specially recognized by the DLR for specific types when
+        /// all other member lookup fails.
+        /// </summary>
+        private MethodInfo[] GetFallbackMembers(Type t, OperatorInfo info) {
+            // if we have an event we need to make a strongly-typed event handler
+
+            if (t == typeof(EventTracker)) {
+                EventTracker et = ((EventTracker)_args[0]);
+                if (info.Operator == Operators.InPlaceAdd) {
+                    return new MethodInfo[] { typeof(BinderOps).GetMethod("EventTrackerInPlaceAdd").MakeGenericMethod(et.Event.EventHandlerType) };
+                } else if (info.Operator == Operators.InPlaceSubtract) {
+                    return new MethodInfo[] { typeof(BinderOps).GetMethod("EventTrackerInPlaceRemove").MakeGenericMethod(et.Event.EventHandlerType) };
+                }
+            } else if (t == typeof(BoundMemberTracker)) {
+                BoundMemberTracker bmt = ((BoundMemberTracker)_args[0]);
+                if (bmt.BoundTo.MemberType == TrackerTypes.Event) {
+                    EventTracker et = ((EventTracker)bmt.BoundTo);
+
+                    if (info.Operator == Operators.InPlaceAdd) {
+                        return new MethodInfo[] { typeof(BinderOps).GetMethod("BoundEventTrackerInPlaceAdd").MakeGenericMethod(et.Event.EventHandlerType) };
+                    } else if (info.Operator == Operators.InPlaceSubtract) {
+                        return new MethodInfo[] { typeof(BinderOps).GetMethod("BoundEventTrackerInPlaceRemove").MakeGenericMethod(et.Event.EventHandlerType) };
+                    }
+                }
+            }
+
+            return new MethodInfo[0];
         }
 
         private static MethodInfo[] FilterNonMethods(Type t, MemberGroup members) {

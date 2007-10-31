@@ -14,13 +14,15 @@
  * ***************************************************************************/
 
 using System;
+using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class EnvironmentExpression : Expression {
-        private Type _expressionType;
+        private readonly Type /*!*/ _expressionType;
 
-        internal EnvironmentExpression(Type expressionType) {
+        internal EnvironmentExpression(Type /*!*/ expressionType)
+            : base(AstNodeType.EnvironmentExpression) {
             _expressionType = expressionType;
         }
 
@@ -33,17 +35,11 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             cg.EmitEnvironmentOrNull();
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                ;
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
         public static EnvironmentExpression Environment(Type type) {
+            Contract.RequiresNotNull(type, "type");
             return new EnvironmentExpression(type);
         }
     }

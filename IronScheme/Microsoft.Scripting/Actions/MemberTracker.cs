@@ -64,6 +64,10 @@ namespace Microsoft.Scripting.Actions {
         }
 
         public static MemberTracker FromMemberInfo(MemberInfo member) {
+            return FromMemberInfo(member, false);
+        }
+
+        public static MemberTracker FromMemberInfo(MemberInfo member, bool isExtension) {
             Contract.RequiresNotNull(member, "member");
 
             lock (_trackers) {
@@ -74,7 +78,14 @@ namespace Microsoft.Scripting.Actions {
                     case MemberTypes.Constructor: res = new ConstructorTracker((ConstructorInfo)member); break;
                     case MemberTypes.Event: res = new EventTracker((EventInfo)member); break;
                     case MemberTypes.Field: res = new FieldTracker((FieldInfo)member); break;
-                    case MemberTypes.Method: res = new MethodTracker((MethodInfo)member); break;
+                    case MemberTypes.Method:
+                        MethodInfo mi = (MethodInfo)member;
+                        if (isExtension) {
+                            res = new MethodTracker(mi, member.IsDefined(typeof(StaticExtensionMethodAttribute), false));
+                        } else {
+                            res = new MethodTracker(mi);
+                        }
+                        break;
                     case MemberTypes.TypeInfo:
                     case MemberTypes.NestedType: res = new NestedTypeTracker((Type)member); break;
                     case MemberTypes.Property: res = new ReflectedPropertyTracker((PropertyInfo)member); break;
@@ -86,31 +97,80 @@ namespace Microsoft.Scripting.Actions {
             }
         }
 
+        #region Public expression builders
+
         /// <summary>
-        /// Returns the error associated with getting the value.  A null return value indicates that the default error message
-        /// should be provided by the caller.
+        /// Gets the expression that creates the value.  
+        /// 
+        /// Returns null if it's an error to get the value.  The caller can then call GetErrorForGet to get 
+        /// the correct error Expression (or null if they should provide a default).
         /// </summary>
-        public virtual Expression GetError(ActionBinder binder) {
+        public virtual Expression GetValue(ActionBinder binder, Type type) {
+            return binder.ReturnMemberTracker(type, this);
+        }
+
+        /// <summary>
+        /// Gets an expression that assigns a value to the left hand side.
+        /// 
+        /// Returns null if it's an error to assign to.  The caller can then call GetErrorForSet to
+        /// get the correct error Expression (or null if a default error should be provided).
+        /// </summary>
+        public virtual Expression SetValue(ActionBinder binder, Expression value) {
             return null;
         }
 
         /// <summary>
-        /// Gets the expression that creates the value.  Returns null if it's an error to get the value.  The caller can then
-        /// call GetError to get the correct error Expression (or null if they should provide a default).
+        /// Gets an expression that performs the specified operation on the object using the specified arguments.
+        /// 
+        /// Returns null if it's an error to perform the specific operation.  The caller can then call 
+        /// GetErrorsForDoOperation to get the correct error Expression (or null if a default error should be provided).
         /// </summary>
-        public virtual Expression GetValue(ActionBinder binder) {
-            return binder.ReturnMemberTracker(this);
+        public virtual Expression DoOperation(ActionBinder binder, Operators operation, params Expression[] arguments) {
+            return null;
         }
+
+        /// <summary>
+        /// Gets an expression that performs a call on the object using the specified arguments.
+        /// 
+        /// Returns null if it's an error to perform the specific operation.  The caller can then call 
+        /// GetErrorsForDoCall to get the correct error Expression (or null if a default error should be provided).
+        /// </summary>
+        public virtual Expression Call(ActionBinder binder, params Expression[] arguments) {
+            return null;
+        }
+
+        #endregion
+
+        #region Public error expression builders
+
+        /// <summary>
+        /// Returns the error associated with getting the value.  
+        /// 
+        /// A null return value indicates that the default error message should be provided by the caller.
+        /// </summary>
+        public virtual ErrorInfo GetError(ActionBinder binder) {
+            return null;
+        }
+
+        #endregion
+
+        #region Internal expression builders
 
         /// <summary>
         /// Internal helper for getting values that have been bound.  Called from BoundMemberTracker.
         /// </summary>
-        internal virtual Expression GetBoundValue(ActionBinder binder, Expression instance) {
-            return GetValue(binder);
+        internal virtual Expression GetBoundValue(ActionBinder binder, Type type, Expression instance) {
+            return GetValue(binder, type);
         }
 
         internal virtual MemberTracker BindToInstance(Expression instance) {
             return this;
         }
+
+        internal virtual ErrorInfo GetBoundError(ActionBinder binder, Expression instance) {
+            return null;
+        }
+
+        #endregion
     }
 }

@@ -54,7 +54,7 @@ namespace Microsoft.Scripting {
         /// <summary>
         /// Provides the ContextId which includes members that should only be shown for this LanguageContext.
         /// 
-        /// ContextId's are used for filtering by DynamicType and Scope's.
+        /// ContextId's are used for filtering by Scope's.
         /// </summary>
         public virtual ContextId ContextId {
             get {
@@ -151,22 +151,35 @@ namespace Microsoft.Scripting {
             if (options == null) options = GetCompilerOptions();
             if (errorSink == null) errorSink = Engine.GetCompilerErrorSink();
 
-            CompilerContext compilerContext = new CompilerContext(sourceUnit, options, errorSink);
+            CompilerContext context = new CompilerContext(sourceUnit, options, errorSink);
 
-            CodeBlock block = ParseSourceCode(compilerContext);
+            CodeBlock block = ParseSourceCode(context);
 
             if (block == null) {
                 throw new SyntaxErrorException();
             }
 
-            block.BindClosures();
+            DumpBlock(block, sourceUnit.Id);
 
-#if DEBUG
-            AstWriter.Dump(block, compilerContext);
-#endif
+            AnalyzeBlock(block);
+
+            DumpBlock(block, sourceUnit.Id);
 
             // TODO: ParseSourceCode can update CompilerContext.Options
-            return new ScriptCode(block, Engine.GetLanguageContext(compilerContext.Options), compilerContext);
+            return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
+        }
+
+        [Conditional("DEBUG")]
+        private static void DumpBlock(CodeBlock block, string id) {
+#if DEBUG
+            AstWriter.Dump(block, id);
+#endif
+        }
+
+        public static void AnalyzeBlock(CodeBlock block) {
+            ForestRewriter.Rewrite(block);
+            ClosureBinder.Bind(block);
+            FlowChecker.Check(block);
         }
 
         public virtual StreamReader GetSourceReader(Stream stream, Encoding defaultEncoding) {
@@ -284,17 +297,6 @@ namespace Microsoft.Scripting {
 
         public virtual bool IsTrue(object obj) {
             return false;
-        }
-
-        /// <summary>
-        /// Delete the property 'name' from the object 'target'
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="target">Object on which it is to be deleted</param>
-        /// <param name="name">property/member to be deleted</param>
-        /// <returns>returns null by default.</returns>
-        public virtual object DeleteMember(CodeContext context, object target, SymbolId name) {
-            return null;
         }
 
         /// <summary>

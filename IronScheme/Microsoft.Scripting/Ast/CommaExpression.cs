@@ -17,6 +17,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
@@ -27,15 +28,16 @@ namespace Microsoft.Scripting.Ast {
     /// The value of the CommaExpression is the expression identified by the index
     /// </summary>
     public class CommaExpression : Expression {
-        private IList<Expression> _expressions;
+        private readonly ReadOnlyCollection<Expression> /*!*/ _expressions;
         private int _valueIndex;
 
-        internal CommaExpression(int valueIndex, IList<Expression> expressions) {
+        internal CommaExpression(int valueIndex, ReadOnlyCollection<Expression> /*!*/ expressions)
+            : base(AstNodeType.CommaExpression) {
             _expressions = expressions;
             _valueIndex = valueIndex;
         }
 
-        public IList<Expression> Expressions {
+        public ReadOnlyCollection<Expression> Expressions {
             get { return _expressions; }
         }
 
@@ -170,15 +172,6 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                foreach (Expression e in _expressions) {
-                    e.Walk(walker);
-                }
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
@@ -220,7 +213,7 @@ namespace Microsoft.Scripting.Ast {
 
             Contract.RequiresArrayIndex(expressions, valueIndex, "valueIndex");
 
-            return new CommaExpression(valueIndex, expressions);
+            return new CommaExpression(valueIndex, CollectionUtils.ToReadOnlyCollection(expressions));
         }
     }
 }

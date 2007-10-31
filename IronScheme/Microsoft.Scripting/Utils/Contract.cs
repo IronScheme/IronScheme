@@ -78,7 +78,19 @@ namespace Microsoft.Scripting.Utils {
         }
 
         /// <summary>
-        /// Requires the array to be non-null and the range [offset, offset + count] to be a subset of [0, array.Count].
+        /// Requires the specified index to point inside the array or at the end
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Array is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Index is outside the array.</exception>
+        public static void RequiresArrayInsertIndex<T>(IList<T> array, int index, string indexName) {
+            Assert.NotEmpty(indexName);
+            Assert.NotNull(array);
+
+            if (index < 0 || index > array.Count) throw new ArgumentOutOfRangeException(indexName);
+        }
+
+        /// <summary>
+        /// Requires the range [offset, offset + count] to be a subset of [0, array.Count].
         /// </summary>
         /// <exception cref="ArgumentNullException">Array is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset or count are out of range.</exception>
@@ -89,6 +101,20 @@ namespace Microsoft.Scripting.Utils {
 
             if (count < 0) throw new ArgumentOutOfRangeException(countName);
             if (offset < 0 || array.Count - offset < count) throw new ArgumentOutOfRangeException(offsetName);
+        }
+
+        /// <summary>
+        /// Requires the range [offset, offset + count] to be a subset of [0, array.Count].
+        /// </summary>
+        /// <exception cref="ArgumentNullException">String is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Offset or count are out of range.</exception>
+        public static void RequiresArrayRange(string str, int offset, int count, string offsetName, string countName) {
+            Assert.NotEmpty(offsetName);
+            Assert.NotEmpty(countName);
+            Assert.NotNull(str);
+
+            if (count < 0) throw new ArgumentOutOfRangeException(countName);
+            if (offset < 0 || str.Length - offset < count) throw new ArgumentOutOfRangeException(offsetName);
         }
 
         /// <summary>

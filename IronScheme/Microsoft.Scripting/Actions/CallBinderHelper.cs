@@ -1,4 +1,3 @@
-
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -25,7 +24,6 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
-using Microsoft.Scripting.Types;
 
 namespace Microsoft.Scripting.Actions {
     using Ast = Microsoft.Scripting.Ast.Ast;
@@ -40,7 +38,6 @@ namespace Microsoft.Scripting.Actions {
     public class CallBinderHelper<T, ActionType> : BinderHelper<T, ActionType> where ActionType : CallAction {
         private object[] _args;                                     // the arguments the binder is binding to - args[0] is the target, args[1..n] are args to the target
         private Expression _instance;                               // the instance or null if this is a non-instance call
-        private Type _instanceType;                                 // the type of the instance variable
         private Expression _test;                                   // the test expression, built up and assigned at the end
         private StandardRule<T> _rule = new StandardRule<T>();      // the rule we end up producing
         private bool _binaryOperator, _reversedOperator;            // if we're producing a binary operator or a reversed operator (should go away, Python specific).
@@ -55,9 +52,16 @@ namespace Microsoft.Scripting.Actions {
             _test = _rule.MakeTypeTest(CompilerHelpers.GetType(_args[0]), 0);
         }
 
-        public CallBinderHelper(CodeContext context, ActionType action, object[] args, MethodBase[] targets)
+        public CallBinderHelper(CodeContext context, ActionType action, object[] args, IList<MethodBase> targets)
             : this(context, action, args) {
-            _targets = targets;
+            _targets = ArrayUtils.ToArray(targets);
+        }
+
+        public CallBinderHelper(CodeContext context, ActionType action, object[] args, IList<MethodBase> targets, bool isBinaryOperator, bool isReversedOperator)
+            : this(context, action, args) {
+            _targets = ArrayUtils.ToArray(targets);
+            _binaryOperator = isBinaryOperator;
+            _reversedOperator = isReversedOperator;
         }
 
         public virtual StandardRule<T> MakeRule() {
@@ -100,7 +104,7 @@ namespace Microsoft.Scripting.Actions {
             Type[] bindingArgs = argTypes;
             CallType callType = CallType.None;
             if (_instance != null) {
-                bindingArgs = ArrayUtils.Insert(_instanceType, argTypes);
+                bindingArgs = ArrayUtils.Insert(_instance.Type, argTypes);
                 callType = CallType.ImplicitInstance;
             }
 
@@ -145,15 +149,25 @@ namespace Microsoft.Scripting.Actions {
         private Expression[] FinishTestForCandidate(Type[] testTypes, Type[] argTypes) {
             Expression[] exprargs = MakeArgumentExpressions();
 
+            MakeSplatTests();
+
             if (_reversedOperator) {
                 ArrayUtils.SwapLastTwo(exprargs);
             }
 
-            MakeSplatTests();
-
             if (argTypes.Length > 0 && testTypes != null) {
                 // we've already tested the instance, no need to test it again...
-                _test = Ast.AndAlso(_test, MakeNecessaryTests(_rule, new Type[][] { testTypes }, exprargs));
+                Expression[] testArgs = exprargs;
+                Type[] types = testTypes;
+                for (int i = 0; i < testArgs.Length; i++) {
+                    if (testArgs[i] == _instance) {
+                        testArgs = ArrayUtils.RemoveAt(testArgs, i);
+                        types = ArrayUtils.RemoveAt(types, i);
+                        break;
+                    }
+                }
+                
+                _test = Ast.AndAlso(_test, MakeNecessaryTests(_rule, new Type[][] { types }, testArgs));
             }
 
             return exprargs;
@@ -291,10 +305,10 @@ namespace Microsoft.Scripting.Actions {
                 }
             }
 
-            Expression argsArray = Ast.NewArray(typeof(object[]), plainArgs.ToArray());
+            Expression argsArray = Ast.NewArrayHelper(typeof(object[]), plainArgs.ToArray());
             if (splat != null) {
                 argsArray = Ast.Call(
-                    typeof(RuntimeHelpers).GetMethod("GetCombinedParameters"),
+                    typeof(BinderOps).GetMethod("GetCombinedParameters"),
                     argsArray,
                     Ast.ConvertHelper(splat, typeof(object))
                 );
@@ -314,12 +328,12 @@ namespace Microsoft.Scripting.Actions {
                     }
 
                     argsArray = Ast.Call(
-                        typeof(RuntimeHelpers).GetMethod("GetCombinedParameters"),
+                        typeof(BinderOps).GetMethod("GetCombinedParameters"),
                         argsArray,
-                        Ast.NewArray(typeof(object[]), namedValues.ToArray())
+                        Ast.NewArrayHelper(typeof(object[]), namedValues.ToArray())
                     );
 
-                    names = Ast.NewArray(typeof(string[]), constNames.ToArray());
+                    names = Ast.NewArrayHelper(typeof(string[]), constNames.ToArray());
                 } else {
                     names = Ast.Null(typeof(string[]));
                 }
@@ -329,7 +343,7 @@ namespace Microsoft.Scripting.Actions {
                     argsArray = Ast.Comma(
                         Ast.Assign(namesVar, names),
                         Ast.Call(
-                            typeof(RuntimeHelpers).GetMethod("GetCombinedKeywordParameters"),
+                            typeof(BinderOps).GetMethod("GetCombinedKeywordParameters"),
                             argsArray,
                             Ast.ConvertHelper(kwSplat, typeof(IAttributesCollection)),
                             Ast.Read(namesVar)
@@ -358,19 +372,12 @@ namespace Microsoft.Scripting.Actions {
 
             object target = _args[0];
             MethodBase[] targets;
-            BuiltinFunction bf;
-            BuiltinMethodDescriptor bmd;
-            BoundBuiltinFunction bbf;
             Delegate d;
             MemberGroup mg;
+            MethodGroup mthgrp;
+            BoundMemberTracker bmt;
 
-            if ((bf = target as BuiltinFunction) != null) {
-                targets = GetBuiltinFunctionTargets(bf);
-            } else if ((bmd = target as BuiltinMethodDescriptor) != null) {
-                targets = GetBuiltinMethodDescTargets(bmd);
-            } else if ((bbf = target as BoundBuiltinFunction) != null) {
-                targets = GetBoundBuiltinFunctionTargets(bbf);
-            } else if ((d = target as Delegate) != null) {
+            if ((d = target as Delegate) != null) {
                 targets = GetDelegateTargets(d);
             } else if ((mg = target as MemberGroup) != null) {
                 List<MethodInfo> foundTargets = new List<MethodInfo>();
@@ -379,7 +386,18 @@ namespace Microsoft.Scripting.Actions {
                         foundTargets.Add(((MethodTracker)mt).Method);
                     }
                 }
-                targets = foundTargets.ToArray();                
+                targets = foundTargets.ToArray();
+            } else if ((mthgrp = target as MethodGroup) != null) {
+                _test = Ast.AndAlso(_test, Ast.Equal(Ast.Convert(Rule.Parameters[0], typeof(object)), Ast.RuntimeConstant(target)));
+
+                List<MethodBase> foundTargets = new List<MethodBase>();
+                foreach (MethodTracker mt in mthgrp.Methods) {
+                    foundTargets.Add(mt.Method);
+                }
+
+                targets = foundTargets.ToArray();
+            } else if ((bmt = target as BoundMemberTracker) != null) {
+                targets = GetBoundMemberTargets(bmt);
             } else {
                 targets = GetOperatorTargets(target);
             }
@@ -387,53 +405,48 @@ namespace Microsoft.Scripting.Actions {
             return targets;
         }
 
-        private MethodBase[] GetBuiltinFunctionTargets(BuiltinFunction bf) {
-            _test = Ast.AndAlso(_test, MakeFunctionTest(bf, _rule.Parameters[0]));
-            _reversedOperator = bf.IsReversedOperator;
-            _binaryOperator = bf.IsBinaryOperator;
-            return bf.Targets;
-        }
+        private MethodBase[] GetBoundMemberTargets(BoundMemberTracker bmt) {
+            Debug.Assert(bmt.Instance == null); // should be null for trackers that leak to user code
 
-        private MethodBase[] GetBuiltinMethodDescTargets(BuiltinMethodDescriptor bmd) {
-            _test = Ast.AndAlso(_test, MakeFunctionTest(bmd.Template,
+            MethodBase[] targets;            
+            _instance = Ast.Convert(
                 Ast.ReadProperty(
-                    Ast.Convert(_rule.Parameters[0], typeof(BuiltinMethodDescriptor)),
-                    typeof(BuiltinMethodDescriptor).GetProperty("Template")
-                )));
-            _reversedOperator = bmd.Template.IsReversedOperator;
-            _binaryOperator = bmd.Template.IsBinaryOperator;
-            return bmd.Template.Targets;
-        }
-
-        private MethodBase[] GetBoundBuiltinFunctionTargets(BoundBuiltinFunction bbf) {
-            _instanceType = CompilerHelpers.GetType(bbf.Self);
-            _instance = Ast.ReadProperty(Ast.Convert(_rule.Parameters[0], typeof(BoundBuiltinFunction)), typeof(BoundBuiltinFunction).GetProperty("Self"));
-
-            _test = Ast.AndAlso(_test,
-                    MakeFunctionTest(bbf.Target,
-                        Ast.ReadProperty(
-                            Ast.Convert(_rule.Parameters[0], typeof(BoundBuiltinFunction)),
-                            typeof(BoundBuiltinFunction).GetProperty("Target")
-                        )
+                    Ast.Convert(Rule.Parameters[0], typeof(BoundMemberTracker)), 
+                    typeof(BoundMemberTracker).GetProperty("ObjectInstance")
+                ),
+                CompilerHelpers.GetVisibleType(CompilerHelpers.GetType(bmt.ObjectInstance))
+            );
+            _test = Ast.AndAlso(
+                _test, 
+                Ast.Equal(
+                    Ast.ReadProperty(
+                        Ast.Convert(Rule.Parameters[0], typeof(BoundMemberTracker)), 
+                        typeof(BoundMemberTracker).GetProperty("BoundTo")
+                    ),
+                    Ast.RuntimeConstant(bmt.BoundTo)
+                )
+            );
+            _test = Ast.AndAlso(
+                _test,
+                Rule.MakeTypeTest(
+                    CompilerHelpers.GetType(bmt.ObjectInstance),
+                    Ast.ReadProperty(
+                        Ast.Convert(Rule.Parameters[0], typeof(BoundMemberTracker)),
+                        typeof(BoundMemberTracker).GetProperty("ObjectInstance")
                     )
-                );
-            _test = Ast.AndAlso(_test, _rule.MakeTypeTest(_instanceType, _instance));
-
-            if (IsStrongBox(bbf.Self)) {
-                _instance = Ast.ReadField(
-                    Ast.Convert(_instance, bbf.Self.GetType()),
-                    bbf.Self.GetType().GetField("Value")
-                );
-                _instanceType = _instanceType.GetGenericArguments()[0];
-            } else if(!_instanceType.IsEnum) {
-                // we don't want to cast the enum, it will unbox it and turn it into an int.  We
-                // presumably want to call a method on the Enum class though.
-                _instance = Ast.Convert(_instance, CompilerHelpers.GetVisibleType(_instanceType));
+                )
+            );                    
+            switch (bmt.BoundTo.MemberType) {
+                case TrackerTypes.MethodGroup:
+                    targets = ((MethodGroup)bmt.BoundTo).GetMethodBases();
+                    break;
+                case TrackerTypes.Method:
+                    targets = new MethodBase[] { ((MethodTracker)bmt.BoundTo).Method };
+                    break;
+                default:
+                    throw new InvalidOperationException(); // nothing else binds yet
             }
-
-            _reversedOperator = bbf.Target.IsReversedOperator;
-            _binaryOperator = bbf.Target.IsBinaryOperator;
-            return bbf.Target.Targets;
+            return targets;
         }
 
         private MethodBase[] GetDelegateTargets(Delegate d) {
@@ -463,7 +476,7 @@ namespace Microsoft.Scripting.Actions {
                 }
                 if (callTargets.Count > 0) {
                     targets = callTargets.ToArray();
-                    _instance = _rule.Parameters[0];
+                    _instance = Ast.Convert(_rule.Parameters[0], CompilerHelpers.GetType(_args[0]));
                 }
             }
             return targets;
@@ -509,21 +522,11 @@ namespace Microsoft.Scripting.Actions {
                 Ast.AndAlso(
                     Ast.TypeIs(_rule.Parameters[_rule.Parameters.Length - 1], typeof(IDictionary)),
                     Ast.Call(
-                        typeof(RuntimeHelpers).GetMethod("CheckDictionaryMembers"),
+                        typeof(BinderOps).GetMethod("CheckDictionaryMembers"),
                         Ast.Convert(_rule.Parameters[_rule.Parameters.Length - 1], typeof(IDictionary)),
                         _rule.AddTemplatedConstant(typeof(string[]), names)
                     )
                 )
-            );
-        }
-
-        private static BinaryExpression MakeFunctionTest(BuiltinFunction bf, Expression functionTarget) {
-            return Ast.Equal(
-                Ast.ReadProperty(
-                    Ast.Convert(functionTarget, typeof(BuiltinFunction)),
-                    typeof(BuiltinFunction).GetProperty("Id")
-                ),
-                Ast.Constant(bf.Id)
             );
         }
 
@@ -551,7 +554,7 @@ namespace Microsoft.Scripting.Actions {
                 SymbolId[] names;
                 Type[] vals;
                 GetArgumentNamesAndTypes(out names, out vals);
-                if (_instanceType != null) {
+                if (_instance != null) {
                     // target type was added to test already
                     argExpr = ArrayUtils.RemoveFirst(argExpr);
                 }
@@ -618,9 +621,18 @@ namespace Microsoft.Scripting.Actions {
             }
         }
 
-        protected StandardRule<T> Rule {
+        public StandardRule<T> Rule {
             get {
                 return _rule;
+            }
+        }
+
+        public Expression Instance {
+            get {
+                return _instance;
+            }
+            set {
+                _instance = value;
             }
         }
 
@@ -631,8 +643,7 @@ namespace Microsoft.Scripting.Actions {
             set {
                 _test = value;
             }
-        }
-
+        }        
         #endregion          
     }
 }

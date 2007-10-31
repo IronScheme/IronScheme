@@ -23,17 +23,16 @@ namespace Microsoft.Scripting.Ast {
         private readonly SourceLocation _start;
         private readonly SourceLocation _header;
         private readonly SourceLocation _end;
-        private readonly Type _test;
+        private readonly Type /*!*/ _test;
         private readonly Variable _var;
-        private readonly Statement _body;
+        private readonly Statement /*!*/ _body;
 
         private VariableReference _ref;
 
         private bool _yield;        // The catch block contains a yield
 
-        internal CatchBlock(SourceSpan span, SourceLocation header, Type test, Variable target, Statement body) {
-            Contract.RequiresNotNull(body, "body");
-
+        internal CatchBlock(SourceSpan span, SourceLocation header, Type /*!*/ test, Variable target, Statement /*!*/ body)
+            : base(AstNodeType.CatchBlock) {
             _test = test;
             _var = target;
             _body = body;
@@ -89,24 +88,22 @@ namespace Microsoft.Scripting.Ast {
             get { return _yield; }
             set { _yield = value; }
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _body.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
-        public static CatchBlock Catch(Type test, Statement body) {
-            return Catch(SourceSpan.None, SourceLocation.None, test, null, body);
+        public static CatchBlock Catch(Type type, Statement body) {
+            return Catch(SourceSpan.None, SourceLocation.None, type, null, body);
         }
-        public static CatchBlock Catch(Type test, Variable target, Statement body) {
-            return Catch(SourceSpan.None, SourceLocation.None, test, target, body);
+
+        public static CatchBlock Catch(Type type, Variable target, Statement body) {
+            return Catch(SourceSpan.None, SourceLocation.None, type, target, body);
         }
-        public static CatchBlock Catch(SourceSpan span, SourceLocation header, Type test, Variable target, Statement body) {
-            return new CatchBlock(span, header, test, target, body);
+
+        public static CatchBlock Catch(SourceSpan span, SourceLocation header, Type type, Variable target, Statement body) {
+            Contract.RequiresNotNull(type, "type");
+            Contract.Requires(target == null || TypeUtils.CanAssign(target.Type, type), "target");
+            Contract.RequiresNotNull(body, "body");
+            return new CatchBlock(span, header, type, target, body);
         }
     }
 }

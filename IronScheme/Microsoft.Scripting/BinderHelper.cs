@@ -28,10 +28,10 @@ namespace Microsoft.Scripting.Actions {
     using Ast = Microsoft.Scripting.Ast.Ast;
 
     public class BinderHelper<T, ActionType> where ActionType : DynamicAction {
-        private CodeContext _context;
-        private ActionType _action;
+        private readonly CodeContext/*!*/ _context;
+        private readonly ActionType/*!*/ _action;
         
-        public BinderHelper(CodeContext context, ActionType action) {
+        public BinderHelper(CodeContext/*!*/ context, ActionType/*!*/ action) {
             Contract.RequiresNotNull(context, "context");
             Contract.RequiresNotNull(action, "action");
 
@@ -39,13 +39,13 @@ namespace Microsoft.Scripting.Actions {
             _action = action;
         }        
 
-        protected CodeContext Context {
+        protected CodeContext/*!*/ Context {
             get {
                 return _context;
             }
         }
 
-        protected ActionType Action {
+        protected ActionType/*!*/ Action {
             get {
                 return _action;
             }
@@ -57,16 +57,6 @@ namespace Microsoft.Scripting.Actions {
             }
         }        
                
-        public static bool IsStrongBox(object target) {
-            Type t = CompilerHelpers.GetType(target);
-
-            return IsStrongBox(t);
-        }
-
-        public static bool IsStrongBox(Type t) {
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(StrongBox<>);
-        }
-
         public static UnaryExpression GetParamsList(StandardRule<T> rule) {
             return Ast.Convert(
                 rule.Parameters[rule.ParameterCount - 1],
@@ -148,47 +138,10 @@ namespace Microsoft.Scripting.Actions {
 
             return null;
         }
-
-        /// <summary>
-        /// Emits a call to the provided method using the given expressions.  If the
-        /// method is not static the first parameter is used for the instance.
-        /// </summary>
-        public Expression MakeCallExpression(MethodInfo method, params Expression[] parameters) {
-            ParameterInfo[] infos = method.GetParameters();
-            Expression callInst = null;
-            int parameter = 0, startArg = 0;
-            Expression[] callArgs = new Expression[infos.Length];
-            
-            if (!method.IsStatic) {
-                callInst = Ast.ConvertHelper(parameters[0], method.DeclaringType);
-                parameter = 1;
-            }
-            if (infos.Length > 0 && infos[0].ParameterType == typeof(CodeContext)) {
-                startArg = 1;
-                callArgs[0] = Ast.CodeContext();
-            }
-
-            for (int arg = startArg; arg < infos.Length; arg++) {
-                if (parameter < parameters.Length) {
-                    callArgs[arg] = Binder.ConvertExpression(
-                        parameters[parameter++],
-                        infos[arg].ParameterType);
-                } else {
-                    return null;
-                }
-            }
-
-            // check that we used all parameters
-            if (parameter != parameters.Length) {
-                return null;
-            }
-
-            return Ast.SimpleCallHelper(callInst, method, callArgs);
-        }
-
+        
         public Statement MakeCallStatement(MethodInfo method, params Expression[] parameters) {
             // TODO: Ast.Return not right, we need to go through the binder
-            Expression call = MakeCallExpression(method, parameters);
+            Expression call = Binder.MakeCallExpression(method, parameters);
             if (call != null) {
                 return Ast.Return(call);
             }

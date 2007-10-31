@@ -34,7 +34,7 @@ namespace Microsoft.Scripting.Ast {
     /// requested type.
     /// </summary>
     public class CodeBlockExpression : Expression {
-        private readonly CodeBlock _block;
+        private readonly CodeBlock /*!*/ _block;
         private readonly bool _forceWrapperMethod;
         private readonly bool _stronglyTyped;
         private readonly Type _delegateType;
@@ -62,7 +62,8 @@ namespace Microsoft.Scripting.Ast {
             get { return _isDeclarative; }
         }
 
-        internal CodeBlockExpression(CodeBlock block, bool forceWrapperMethod, bool stronglyTyped, bool isDeclarative, Type delegateType) {
+        internal CodeBlockExpression(CodeBlock /*!*/ block, bool forceWrapperMethod, bool stronglyTyped, bool isDeclarative, Type delegateType)
+            : base(AstNodeType.CodeBlockExpression) {
             Assert.NotNull(block);
 
             if (isDeclarative) {
@@ -78,14 +79,6 @@ namespace Microsoft.Scripting.Ast {
 
         public CodeBlock Block {
             get { return _block; }
-        }
-
-        public override void Walk(Walker walker) {
-            // do not walk into the referenced code block - we have already been there:
-            if (_isDeclarative && walker.Walk(this)) {
-                _block.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
 
         public override Type Type {

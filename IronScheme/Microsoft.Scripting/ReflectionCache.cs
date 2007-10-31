@@ -20,8 +20,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Utils;
 
-using Microsoft.Scripting.Types;
 using Microsoft.Scripting.Actions;
+using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting {
     /// <summary>
@@ -29,11 +29,8 @@ namespace Microsoft.Scripting {
     /// specific request.
     /// </summary>
     public class ReflectionCache {
-        private static Dictionary<MethodBaseCache, BuiltinFunction> _functions = new Dictionary<MethodBaseCache,BuiltinFunction>();
-        private static Dictionary<EventInfo, ReflectedEvent> _eventCache = new Dictionary<EventInfo, ReflectedEvent>();
-        private static Dictionary<PropertyInfo, ReflectedIndexer> _indexerCache = new Dictionary<PropertyInfo, ReflectedIndexer>();
+        private static Dictionary<MethodBaseCache, MethodGroup> _functions = new Dictionary<MethodBaseCache, MethodGroup>();
         private static Dictionary<Type, TypeTracker> _typeCache = new Dictionary<Type, TypeTracker>();
-        private static Dictionary<FieldInfo, ReflectedField> _fieldCache = new Dictionary<FieldInfo, ReflectedField>();
 
         /// <summary>
         /// Gets a singleton method group from the provided type.
@@ -42,7 +39,7 @@ namespace Microsoft.Scripting {
         /// combination.  In other words calling GetMethodGroup on a base type and a derived type that introduces
         /// no new methods under a given name will result in the same method group for both types.
         /// </summary>
-        public static BuiltinFunction GetMethodGroup(Type type, string name) {
+        public static MethodGroup GetMethodGroup(Type type, string name) {
             Contract.RequiresNotNull(type, "type");
             Contract.RequiresNotNull(name, "name");
 
@@ -53,59 +50,51 @@ namespace Microsoft.Scripting {
                 },
                 null);
 
-            return GetMethodGroup(type, name, mems);
+            MethodGroup res = null;
+            if (mems.Length != 0) {
+                MethodInfo[] methods = ArrayUtils.ConvertAll<MemberInfo, MethodInfo>(
+                    mems,
+                    delegate(MemberInfo x) { return (MethodInfo)x; }
+                );
+                res = GetMethodGroup(name, methods);
+            }
+            return res;
         }
 
-        public static BuiltinFunction GetMethodGroup(Type type, string name, MemberInfo[] mems) {
-            BuiltinFunction res = null;
+        public static MethodGroup GetMethodGroup(string name, MethodBase[] methods) {
+            MethodGroup res = null;
+            MethodBaseCache cache = new MethodBaseCache(name, methods);
+            lock (_functions) {
+                if (!_functions.TryGetValue(cache, out res)) {
+                    _functions[cache] = res = new MethodGroup(
+                        ArrayUtils.ConvertAll<MethodBase, MethodTracker>(
+                            methods,
+                            delegate(MethodBase x) {
+                                return (MethodTracker)MemberTracker.FromMemberInfo(x);
+                            }
+                        )
+                    );
+                }
+            }
+            return res;
+        }
 
-            MethodBase[] bases = ReflectionUtils.GetMethodInfos(mems);
+        public static MethodGroup GetMethodGroup(string name, MemberGroup mems) {
+            MethodGroup res = null;
 
-            if (mems.Length != 0) {
+            MethodBase[] bases = new MethodBase[mems.Count];
+            MethodTracker[] trackers = new MethodTracker[mems.Count];
+            for (int i = 0; i < bases.Length; i++) {
+                trackers[i] = (MethodTracker)mems[i];
+                bases[i] = trackers[i].Method;
+            }
+
+            if (mems.Count != 0) {
                 MethodBaseCache cache = new MethodBaseCache(name, bases);
                 lock (_functions) {
                     if (!_functions.TryGetValue(cache, out res)) {
-                        _functions[cache] = res = BuiltinFunction.MakeMethod(
-                            name,
-                            bases,
-                            GetMethodFunctionType(type, bases));
+                        _functions[cache] = res = new MethodGroup(trackers);
                     }
-                }
-            }
-
-            return res;
-        }
-
-        public static ReflectedIndexer GetReflectedIndexer(PropertyInfo info) {
-            ReflectedIndexer res;
-
-            lock (_indexerCache) {
-                if (!_indexerCache.TryGetValue(info, out res)) {
-                    _indexerCache[info] = res = new ReflectedIndexer(info, NameType.PythonProperty);
-                }
-            }
-
-            return res;
-        }
-
-        public static ReflectedEvent GetReflectedEvent(EventInfo info) {
-            ReflectedEvent res;
-
-            lock (_eventCache) {
-                if (!_eventCache.TryGetValue(info, out res)) {
-                    _eventCache[info] = res = new ReflectedEvent(info, false);
-                }
-            }
-
-            return res;
-        }
-
-        public static ReflectedField GetReflectedField(FieldInfo info) {
-            ReflectedField res;
-
-            lock (_fieldCache) {
-                if (!_fieldCache.TryGetValue(info, out res)) {
-                    _fieldCache[info] = res = new ReflectedField(info, NameType.Field);
                 }
             }
 
@@ -118,42 +107,20 @@ namespace Microsoft.Scripting {
             lock (_typeCache) {
                 if (!_typeCache.TryGetValue(type, out res)) {
                     _typeCache[type] = res = new NestedTypeTracker(type);
-                }                
+                }
             }
 
             return res;
         }
 
-        private static FunctionType GetMethodFunctionType(Type type, MethodBase[] methods) {
-            FunctionType ft = FunctionType.None;
-            foreach (MethodInfo mi in methods) {
-                if (mi.IsStatic && mi.IsSpecialName) {
-
-                    ParameterInfo[] pis = mi.GetParameters();
-                    if (pis.Length == 2 || (pis.Length == 3 && pis[0].ParameterType == typeof(CodeContext))) {
-                        ft |= FunctionType.BinaryOperator;
-
-                        if (pis[pis.Length - 2].ParameterType != type && pis[pis.Length - 1].ParameterType == type) {
-                            ft |= FunctionType.ReversedOperator;
-                        }
-                    }
-                }
-
-                if (mi.IsStatic && mi.DeclaringType.IsAssignableFrom(type)) {
-                    ft |= FunctionType.Function;
-                } else {
-                    ft |= FunctionType.Method;
-                }
-            }
-
-            return ft;
-        }
-
-        private class MethodBaseCache {
+        /// <summary>
+        /// TODO: Make me private again
+        /// </summary>
+        public class MethodBaseCache {
             private MethodBase[] _members;
             private string _name;
 
-            public MethodBaseCache(string name, MethodBase [] members) {
+            public MethodBaseCache(string name, MethodBase[] members) {
                 // sort by token so that the Equals / GetHashCode doesn't have
                 // to line up members if reflection returns them in different orders.
                 Array.Sort<MethodBase>(members, delegate(MethodBase x, MethodBase y) {
@@ -164,7 +131,7 @@ namespace Microsoft.Scripting {
                 });
                 _name = name;
                 _members = members;
-            }            
+            }
 
             public override bool Equals(object obj) {
                 MethodBaseCache other = obj as MethodBaseCache;
