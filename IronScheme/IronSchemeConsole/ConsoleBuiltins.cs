@@ -20,7 +20,6 @@ using IronScheme.Runtime;
 using Generator = IronScheme.Compiler.Generator;
 using System.IO;
 using System.Xml;
-using Microsoft.Scripting.Types;
 using System.Reflection;
 
 namespace IronScheme.Runtime

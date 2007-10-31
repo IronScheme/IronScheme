@@ -19,7 +19,7 @@ using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
-  public abstract class Closure : FastCallable, IDynamicObject
+  public abstract class Closure : IDynamicObject //, ICallableWithCodeContext
   {
     readonly string name;
 
@@ -47,12 +47,8 @@ namespace IronScheme.Runtime
 
     #region IDynamicObject Members
 
-    LanguageContext IDynamicObject.LanguageContext
-    {
-      get { throw new Exception("The method or operation is not implemented."); }
-    }
 
-    StandardRule<T> IDynamicObject.GetRule<T>(DynamicAction action, CodeContext context, object[] args)
+    public StandardRule<T> GetRule<T>(DynamicAction action, CodeContext context, object[] args)
     {
       return new CallBinderHelper<T, CallAction>(context, action as CallAction, args).MakeRule();
     }
@@ -178,7 +174,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static FastCallable Make(CodeContext cc, Delegate target, string name)
+    public static Closure Make(CodeContext cc, Delegate target, string name)
     {
       string targetname = target.GetType().Name;
       if (targetname.Contains("WithContext"))
@@ -191,7 +187,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static FastCallable MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
+    public static Closure MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
     {
       return new VarArgClosure(cc, target, paramcount, name);
     }
@@ -199,7 +195,7 @@ namespace IronScheme.Runtime
     sealed class VarArgClosure : Closure
     {
       int paramcount;
-      FastCallable realtarget;
+      Closure realtarget;
 
       public VarArgClosure(CodeContext cc, Delegate target, int paramcount, string name) : base(target, name)
       {
@@ -280,6 +276,8 @@ namespace IronScheme.Runtime
     {
       throw new Exception("The method or operation is not implemented.");
     }
+
+
 
 
   }

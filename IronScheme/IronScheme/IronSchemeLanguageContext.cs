@@ -24,7 +24,6 @@ using Microsoft.Scripting.Generation;
 using System.IO;
 
 using System.Diagnostics;
-using Microsoft.Scripting.Types;
 using System.Collections;
 
 using Generator = IronScheme.Compiler.Generator;

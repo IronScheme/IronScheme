@@ -22,7 +22,6 @@ using System.ComponentModel;
 using IronScheme.Compiler;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
-using Microsoft.Scripting.Types;
 
 namespace IronScheme.Actions
 {

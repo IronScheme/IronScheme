@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Types;
 using System.Reflection;
 using IronScheme.Runtime;
 using Microsoft.Scripting.Hosting;
