@@ -52,7 +52,7 @@ namespace Microsoft.Scripting.Generation {
                     Ast.Assign(
                         _tmp,
                         Ast.Call(
-                            typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(_elementType),
+                            typeof(BinderOps).GetMethod("GetBox").MakeGenericMethod(_elementType),
                             Ast.ConvertHelper(parameters[Index], typeof(StrongBox<>).MakeGenericType(_elementType))
                         )
                     ),
@@ -63,7 +63,7 @@ namespace Microsoft.Scripting.Generation {
                 // emit address and reference argument passing is finished.
                 Ast.Convert(
                     Ast.Call(
-                        typeof(RuntimeHelpers).GetMethod("IncorrectBoxType"),
+                        typeof(BinderOps).GetMethod("IncorrectBoxType"),
                         Ast.Constant(BoxType),
                         Ast.ConvertHelper(parameters[Index], typeof(object))
                     ),
@@ -80,7 +80,7 @@ namespace Microsoft.Scripting.Generation {
 
         internal override Expression UpdateFromReturn(MethodBinderContext context, Expression[] parameters) {
             return Ast.Call(
-                typeof(RuntimeHelpers).GetMethod("UpdateBox").MakeGenericMethod(_elementType),
+                typeof(BinderOps).GetMethod("UpdateBox").MakeGenericMethod(_elementType),
                 Ast.Convert(parameters[Index], BoxType),
                 Ast.Read(_tmp)
             );

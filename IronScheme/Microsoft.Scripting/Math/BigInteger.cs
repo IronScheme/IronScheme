@@ -185,27 +185,45 @@ namespace Microsoft.Scripting.Math {
             }
         }
 
+        public static implicit operator BigInteger(byte i) {
+            return Create((uint)i);
+        }
+
+        [CLSCompliant(false)]
+        public static implicit operator BigInteger(sbyte i) {
+            return Create((int)i);
+        }
+        
+        public static implicit operator BigInteger(short i) {
+            return Create((int)i);
+        }
+        
         [CLSCompliant(false)]
         public static implicit operator BigInteger(ushort i)
         {
             return Create((uint)i);
         }
+        
         [CLSCompliant(false)]
         public static implicit operator BigInteger(uint i)
         {
             return Create(i);
         }
+        
         public static implicit operator BigInteger(int i) {
             return Create(i);
         }
+        
         [CLSCompliant(false)]
         public static implicit operator BigInteger(ulong i)
         {
             return Create(i);
         }
+        
         public static implicit operator BigInteger(long i) {
             return Create(i);
         }
+        
         public static implicit operator BigInteger(decimal i) {
             return Create(i);
         }

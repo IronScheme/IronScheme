@@ -68,19 +68,21 @@ namespace Microsoft.Scripting.Actions {
         }
 
         public override StandardRule<T> GetRule(CodeContext context, params object[] args) {
-            context = DynamicSiteHelpers.GetEvaluationContext<T>(context.LanguageContext, ref args);
+            context = DynamicSiteHelpers.GetEvaluationContext<T>(context, ref args);
 
             for(int i = 0; i<_rules.Count; i++) {
                 StandardRule<T> rule = _rules[i];
+                if (!rule.IsValid) {
+                    continue;
+                }
 
-                using (context.Scope.TemporaryVariableContext(rule.TemporaryVariables, rule.ParamVariables, args)) {
-                    if (!rule.IsValid) {
-                        continue;
-                    }
-
-                    if (rule.Test == null || (bool)rule.Test.Evaluate(context)) {
+                CodeContext tmpCtx = context.Scope.GetTemporaryVariableContext(context, rule.ParamVariables, args);
+                try {
+                    if ((bool)rule.Test.Evaluate(tmpCtx)) {
                         return rule;
                     }
+                } finally {
+                    tmpCtx.Scope.TemporaryStorage.Clear();
                 }
             }
             return null;
@@ -159,7 +161,7 @@ namespace Microsoft.Scripting.Actions {
         private string StubName {
             get {
                 Walker w = new Walker();
-                _rules[0].Target.Walk(w);
+                w.WalkNode(_rules[0].Target);
                 if (w.Name.Length > 1000) {
                     return w.Name.Substring(0, 1000);
                 }
@@ -171,21 +173,21 @@ namespace Microsoft.Scripting.Actions {
         class Walker : Ast.Walker {
             public string Name = "_stub_";
 
-            public override bool Walk(MethodCallExpression node) {
+            protected internal override bool Walk(MethodCallExpression node) {
                 if (Name == "_stub_") {
                     Name = node.Method.ReflectedType + "." + node.Method.Name;
                 }
                 return false;
             }
 
-            public override bool Walk(NewExpression node) {
+            protected internal override bool Walk(NewExpression node) {
                 if (Name == "_stub_") {
                     Name = node.Constructor.DeclaringType + "..ctor";
                 }
                 return false;
             }
 
-            public override bool Walk(ThrowStatement node) {
+            protected internal override bool Walk(ThrowStatement node) {
                 if (Name == "_stub_") {
                     NewExpression ne = node.Exception as NewExpression;
                     MethodCallExpression callExpr;

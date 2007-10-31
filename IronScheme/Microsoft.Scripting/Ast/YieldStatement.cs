@@ -14,15 +14,16 @@
  * ***************************************************************************/
 
 using System.Reflection.Emit;
+using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class YieldStatement : Statement {
-        private readonly Expression _expr;
+        private readonly Expression /*!*/ _expr;
         private YieldTarget _target;
 
-        internal YieldStatement(SourceSpan span, Expression expression)
-            : base(span) {
+        internal YieldStatement(SourceSpan span, Expression /*!*/ expression)
+            : base(AstNodeType.YieldStatement, span) {
             _expr = expression;
         }
 
@@ -39,14 +40,8 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitPosition(Start, End);
             cg.EmitYield(_expr, _target);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _expr.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
+
     /// <summary>
     /// Factory methods
     /// </summary>
@@ -56,6 +51,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static YieldStatement Yield(SourceSpan span, Expression expression) {
+            Contract.Requires(expression != null, "expression");
             return new YieldStatement(span, expression);
         }
     }

@@ -20,7 +20,8 @@ using Microsoft.Scripting.Generation;
 namespace Microsoft.Scripting.Ast {
     public class CodeContextExpression : Expression {
 
-        internal CodeContextExpression() {
+        internal CodeContextExpression()
+            : base(AstNodeType.CodeContextExpression) {
         }
 
         public override Type Type {
@@ -35,12 +36,6 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg) {
             cg.EmitCodeContext();
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-            }
-            walker.PostWalk(this);
         }
     }
 

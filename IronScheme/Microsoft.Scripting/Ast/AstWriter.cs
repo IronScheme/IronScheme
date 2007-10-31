@@ -26,11 +26,14 @@ using Microsoft.Scripting.Generation;
 
 #if DEBUG
 namespace Microsoft.Scripting.Ast {
-    class AstWriter : Walker {
+    class AstWriter {
+        [Flags]
         private enum Flow {
             None,
             Space,
-            NewLine
+            NewLine,
+
+            Break = 0x8000      // newline if column > MaxColumn
         };
 
         private struct Block {
@@ -68,8 +71,11 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private const int Tab = 4;
+        private const int MaxColumn = 80;
 
         private TextWriter _out;
+        private int _column;
+
         private Queue<Block> _blocks;
         private int _blockid;
         private Stack<Alignment> _stack = new Stack<Alignment>();
@@ -104,72 +110,115 @@ namespace Microsoft.Scripting.Ast {
             _flow = Flow.NewLine;
         }
 
+#if !SILVERLIGHT
+        private static ConsoleColor GetAstColor() {
+            if (Console.BackgroundColor == ConsoleColor.White) {
+                return ConsoleColor.DarkCyan;
+            } else {
+                return ConsoleColor.Cyan;
+            }
+        }
+#endif
+
         /// <summary>
         /// Write out the given AST (only if ShowASTs or DumpASTs is enabled)
         /// </summary>
-        public static void Dump(Node node, CompilerContext context) {
-            string descr = context.SourceUnit.Id;
+        public static void Dump(CodeBlock/*!*/ block, string descr) {
+            Debug.Assert(block != null);
+
+            if (descr == null) {
+                descr = "unknown_ast";
+            }
+
             if (ScriptDomainManager.Options.ShowASTs) {
-                AstWriter.ForceDump(node, descr, System.Console.Out);
+#if !SILVERLIGHT
+                ConsoleColor color = Console.ForegroundColor;
+                try {
+                    Console.ForegroundColor = GetAstColor();
+#endif
+                    Dump(block, descr, System.Console.Out);
+#if !SILVERLIGHT
+                } finally {
+                    Console.ForegroundColor = color;
+                }
+#endif
             } else if (ScriptDomainManager.Options.DumpASTs) {
-              using (TextWriter w = new StreamWriter(FixPath(descr) + ".ast", descr == null))
-              {
-                AstWriter.ForceDump(node, descr, w);
-              }
+                StreamWriter sw = new StreamWriter(GetFilePath(descr), true);
+                using (sw) {
+                    Dump(block, descr, sw);
+                }
             }
         }
 
         /// <summary>
         /// Write out the given rule's AST (only if ShowRules is enabled)
         /// </summary>
-        public static void DumpRule<T>(StandardRule<T> rule) {
+        public static void Dump<T>(StandardRule<T> rule) {
             if (ScriptDomainManager.Options.ShowRules) {
-                AstWriter.ForceDump(rule.Test, rule.ToString() + ".Test", System.Console.Out);
-                AstWriter.ForceDump(rule.Target, rule.ToString() + ".Target", System.Console.Out);
+#if !SILVERLIGHT
+                ConsoleColor color = Console.ForegroundColor;
+                try {
+                    Console.ForegroundColor = GetAstColor();
+#endif
+                    AstWriter.Dump(rule.Test, "Rule.Test", System.Console.Out);
+                    AstWriter.Dump(rule.Target, "Rule.Target", System.Console.Out);
+#if !SILVERLIGHT
+                } finally {
+                    Console.ForegroundColor = color;
+                }
+#endif
             }
         }
 
         /// <summary>
         /// Write out the given AST
         /// </summary>
-        public static void ForceDump(Node node, string descr, TextWriter outFile) {
-            if (node != null) {
-                if (String.IsNullOrEmpty(descr)) descr = "<unknown>";
-                AstWriter dv = new AstWriter();
-                dv.DoDump(node, descr, outFile);
-            }
+        internal static void Dump(Node/*!*/ node, string/*!*/ descr, TextWriter/*!*/ writer) {
+            Debug.Assert(node != null);
+            Debug.Assert(descr != null);
+            Debug.Assert(writer != null);
+
+            AstWriter dv = new AstWriter();
+            dv.DoDump(node, descr, writer);
         }
 
-        private static string FixPath(string path) {
-          if (path == null)
-          {
-            return "REPL";
-          }
+        private static string GetFilePath(string/*!*/ path) {
+            Debug.Assert(path != null);
+
 #if !SILVERLIGHT // GetInvalidFileNameChars does not exist in CoreCLR
             char[] invalid = System.IO.Path.GetInvalidFileNameChars();
-
             foreach (char ch in invalid) {
                 path = path.Replace(ch, '_');
             }
 #endif
-            return path;
+            return path + ".ast";
         }
 
         private void DoDump(Node node, string name, TextWriter outFile) {
             _out = outFile;
-            _out.WriteLine("\n\n//\n// AST {0}\n//", name);
 
-            node.Walk(this);
+            WriteLine("//");
+            WriteLine("// AST {0}", name);
+            WriteLine("//");
+            WriteLine();
+
+            WalkNode(node);
             Debug.Assert(_stack.Count == 0);
 
             while (_blocks != null && _blocks.Count > 0) {
                 Block b = _blocks.Dequeue();
-                Write(String.Format("\n\n//\n// CODE BLOCK: {0} ({1})\n//\n", b.CodeBlock.Name, b.Id));
-                b.CodeBlock.Walk(this);
-                Write("");
+                WriteLine();
+                WriteLine("//");
+                WriteLine("// CODE BLOCK: {0} ({1})", b.CodeBlock.Name, b.Id);
+                WriteLine("//");
+                WriteLine();
+
+                WalkNode(b.CodeBlock);
 
                 Debug.Assert(_stack.Count == 0);
             }
+
+            WriteLine();
         }
 
         private int Enqueue(CodeBlock block) {
@@ -212,21 +261,221 @@ namespace Microsoft.Scripting.Ast {
 
         private void WriteLine() {
             _out.WriteLine();
+            _column = 0;
+        }
+        private void WriteLine(string s) {
+            _out.WriteLine(s);
+            _column = 0;
+        }
+        private void WriteLine(string format, object arg0) {
+            string s = String.Format(format, arg0);
+            WriteLine(s);
+        }
+        private void WriteLine(string format, object arg0, object arg1) {
+            string s = String.Format(format, arg0, arg1);
+            WriteLine(s);
         }
         private void Write(string s) {
             _out.Write(s);
+            _column += s.Length;
         }
 
         private Flow GetFlow(Flow flow) {
+            Flow last;
+
+            last = CheckBreak(_flow);
+            flow = CheckBreak(flow);
+
             // Get the biggest flow that is requested None < Space < NewLine
-            return (Flow)System.Math.Max((int)_flow, (int)flow);
+            return (Flow)System.Math.Max((int)last, (int)flow);
         }
 
-        private void WalkChild(Node n) {
-            if (n != null) n.Walk(this);
+        private Flow CheckBreak(Flow flow) {
+            if ((flow & Flow.Break) != 0) {
+                if (_column > (MaxColumn + Depth)) {
+                    flow = Flow.NewLine;
+                } else {
+                    flow &= ~Flow.Break;
+                }
+            }
+            return flow;
         }
 
         #endregion
+
+        #region The AST Output
+
+        private void WalkNode(Node node) {
+            if (node == null) {
+                return;
+            }
+
+            switch (node.NodeType) {
+                case AstNodeType.Add:
+                case AstNodeType.And:
+                case AstNodeType.AndAlso:
+                case AstNodeType.Divide:
+                case AstNodeType.Equal:
+                case AstNodeType.ExclusiveOr:
+                case AstNodeType.GreaterThan:
+                case AstNodeType.GreaterThanOrEqual:
+                case AstNodeType.LeftShift:
+                case AstNodeType.LessThan:
+                case AstNodeType.LessThanOrEqual:
+                case AstNodeType.Modulo:
+                case AstNodeType.Multiply:
+                case AstNodeType.NotEqual:
+                case AstNodeType.Or:
+                case AstNodeType.OrElse:
+                case AstNodeType.RightShift:
+                case AstNodeType.Subtract:
+                    Dump((BinaryExpression)node);
+                    break;
+                case AstNodeType.Call:
+                    Dump((MethodCallExpression)node);
+                    break;
+                case AstNodeType.Conditional:
+                    Dump((ConditionalExpression)node);
+                    break;
+                case AstNodeType.Constant:
+                    Dump((ConstantExpression)node);
+                    break;
+                case AstNodeType.Convert:
+                case AstNodeType.Negate:
+                case AstNodeType.Not:
+                case AstNodeType.OnesComplement:
+                    Dump((UnaryExpression)node);
+                    break;
+                case AstNodeType.New:
+                    Dump((NewExpression)node);
+                    break;
+                case AstNodeType.TypeIs:
+                    Dump((TypeBinaryExpression)node);
+                    break;
+                case AstNodeType.ActionExpression:
+                    Dump((ActionExpression)node);
+                    break;
+                case AstNodeType.ArrayIndexAssignment:
+                    Dump((ArrayIndexAssignment)node);
+                    break;
+                case AstNodeType.ArrayIndexExpression:
+                    Dump((ArrayIndexExpression)node);
+                    break;
+                case AstNodeType.BlockStatement:
+                    Dump((BlockStatement)node);
+                    break;
+                case AstNodeType.BoundAssignment:
+                    Dump((BoundAssignment)node);
+                    break;
+                case AstNodeType.BoundExpression:
+                    Dump((BoundExpression)node);
+                    break;
+                case AstNodeType.BreakStatement:
+                    Dump((BreakStatement)node);
+                    break;
+                case AstNodeType.CodeBlock:
+                    Dump((CodeBlock)node);
+                    break;
+                case AstNodeType.CodeBlockExpression:
+                    Dump((CodeBlockExpression)node);
+                    break;
+                case AstNodeType.CodeContextExpression:
+                    Dump((CodeContextExpression)node);
+                    break;
+                case AstNodeType.CommaExpression:
+                    Dump((CommaExpression)node);
+                    break;
+                case AstNodeType.ContinueStatement:
+                    Dump((ContinueStatement)node);
+                    break;
+                case AstNodeType.DebugStatement:
+                    Dump((DebugStatement)node);
+                    break;
+                case AstNodeType.DeleteStatement:
+                    Dump((DeleteStatement)node);
+                    break;
+                case AstNodeType.DeleteUnboundExpression:
+                    Dump((DeleteUnboundExpression)node);
+                    break;
+                case AstNodeType.DoStatement:
+                    Dump((DoStatement)node);
+                    break;
+                case AstNodeType.DynamicConversionExpression:
+                    Dump((DynamicConversionExpression)node);
+                    break;
+                case AstNodeType.EmptyStatement:
+                    Dump((EmptyStatement)node);
+                    break;
+                case AstNodeType.EnvironmentExpression:
+                    Dump((EnvironmentExpression)node);
+                    break;
+                case AstNodeType.ExpressionStatement:
+                    Dump((ExpressionStatement)node);
+                    break;
+                case AstNodeType.GeneratorCodeBlock:
+                    Dump((GeneratorCodeBlock)node);
+                    break;
+                case AstNodeType.IfStatement:
+                    Dump((IfStatement)node);
+                    break;
+                case AstNodeType.LabeledStatement:
+                    Dump((LabeledStatement)node);
+                    break;
+                case AstNodeType.LoopStatement:
+                    Dump((LoopStatement)node);
+                    break;
+                case AstNodeType.MemberAssignment:
+                    Dump((MemberAssignment)node);
+                    break;
+                case AstNodeType.MemberExpression:
+                    Dump((MemberExpression)node);
+                    break;
+                case AstNodeType.NewArrayExpression:
+                    Dump((NewArrayExpression)node);
+                    break;
+                case AstNodeType.ParamsExpression:
+                    Dump((ParamsExpression)node);
+                    break;
+                case AstNodeType.ParenthesizedExpression:
+                    Dump((ParenthesizedExpression)node);
+                    break;
+                case AstNodeType.ReturnStatement:
+                    Dump((ReturnStatement)node);
+                    break;
+                case AstNodeType.ScopeStatement:
+                    Dump((ScopeStatement)node);
+                    break;
+                case AstNodeType.SwitchStatement:
+                    Dump((SwitchStatement)node);
+                    break;
+                case AstNodeType.ThrowStatement:
+                    Dump((ThrowStatement)node);
+                    break;
+                case AstNodeType.TryStatement:
+                    Dump((TryStatement)node);
+                    break;
+                case AstNodeType.UnboundAssignment:
+                    Dump((UnboundAssignment)node);
+                    break;
+                case AstNodeType.UnboundExpression:
+                    Dump((UnboundExpression)node);
+                    break;
+                case AstNodeType.VoidExpression:
+                    Dump((VoidExpression)node);
+                    break;
+                case AstNodeType.YieldStatement:
+                    Dump((YieldStatement)node);
+                    break;
+
+                // These are handled within their respective statements
+                case AstNodeType.CatchBlock:
+                case AstNodeType.IfStatementTest:
+                case AstNodeType.SwitchCase:
+                default:
+                    throw new InvalidOperationException("Unexpected node type: " + node.NodeType.ToString());
+            }
+        }
+
 
         // More proper would be to make this a virtual method on Action
         private static string FormatAction(DynamicAction action) {
@@ -254,94 +503,83 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
         // ActionExpression
-        public override bool Walk(ActionExpression node) {
+        private void Dump(ActionExpression node) {
             Out(".action", Flow.Space);
             Out(FormatAction(node.Action));
             Out("(");
             Indent();
             NewLine();
             foreach (Expression arg in node.Arguments) {
-                WalkChild(arg);
+                WalkNode(arg);
                 NewLine();
             }
             Dedent();
             Out(")");
-            return false;
         }
 
         // ArrayIndexAssignment
-        public override bool Walk(ArrayIndexAssignment node) {
-            WalkChild(node.Array);
+        private void Dump(ArrayIndexAssignment node) {
+            WalkNode(node.Array);
             Out("[");
-            WalkChild(node.Index);
+            WalkNode(node.Index);
             Out("] = ");
-            WalkChild(node.Value);
-            return false;
+            WalkNode(node.Value);
         }
 
         // ArrayIndexExpression
-        public override bool Walk(ArrayIndexExpression node) {
-            WalkChild(node.Array);
+        private void Dump(ArrayIndexExpression node) {
+            WalkNode(node.Array);
             Out("[");
-            WalkChild(node.Index);
+            WalkNode(node.Index);
             Out("]");
-            return false;
         }
 
         // BinaryExpression
-        public override bool Walk(BinaryExpression node) {
-            WalkChild(node.Left);
+        private void Dump(BinaryExpression node) {
+            WalkNode(node.Left);
             string op;
-            switch (node.Operator) {
-                case BinaryOperators.Equal: op = "="; break;
-                case BinaryOperators.NotEqual: op = "!="; break;
-                case BinaryOperators.AndAlso: op = "&&"; break;
-                case BinaryOperators.OrElse: op = "||"; break;
-                case BinaryOperators.GreaterThan: op = ">"; break;
-                case BinaryOperators.LessThan: op = "<"; break;
-                case BinaryOperators.GreaterThanEquals: op = ">="; break;
-                case BinaryOperators.LessThanEquals: op = "<="; break;
-                case BinaryOperators.Add: op = "+"; break;
-                case BinaryOperators.Subtract: op = "-"; break;
-                case BinaryOperators.Divide: op = "/"; break;
-                case BinaryOperators.Modulo: op = "%"; break;
-                case BinaryOperators.Multiply: op = "*"; break;
-                case BinaryOperators.LeftShift: op = "<<"; break;
-                case BinaryOperators.RightShift: op = ">>"; break;
-                case BinaryOperators.BitwiseAnd: op = "&"; break;
-                case BinaryOperators.BitwiseOr: op = "|"; break;
-                case BinaryOperators.ExclusiveOr: op = "^"; break;
+            switch (node.NodeType) {
+                case AstNodeType.Equal: op = "=="; break;
+                case AstNodeType.NotEqual: op = "!="; break;
+                case AstNodeType.AndAlso: op = "&&"; break;
+                case AstNodeType.OrElse: op = "||"; break;
+                case AstNodeType.GreaterThan: op = ">"; break;
+                case AstNodeType.LessThan: op = "<"; break;
+                case AstNodeType.GreaterThanOrEqual: op = ">="; break;
+                case AstNodeType.LessThanOrEqual: op = "<="; break;
+                case AstNodeType.Add: op = "+"; break;
+                case AstNodeType.Subtract: op = "-"; break;
+                case AstNodeType.Divide: op = "/"; break;
+                case AstNodeType.Modulo: op = "%"; break;
+                case AstNodeType.Multiply: op = "*"; break;
+                case AstNodeType.LeftShift: op = "<<"; break;
+                case AstNodeType.RightShift: op = ">>"; break;
+                case AstNodeType.And: op = "&"; break;
+                case AstNodeType.Or: op = "|"; break;
+                case AstNodeType.ExclusiveOr: op = "^"; break;
                 default:
                     throw new InvalidOperationException();
             }
-            Out(Flow.Space, op, Flow.Space);
-            WalkChild(node.Right);
-            return false;
+            Out(Flow.Space, op, Flow.Space | Flow.Break);
+            WalkNode(node.Right);
         }
 
         // BoundAssignment
-        public override bool Walk(BoundAssignment node) {
+        private void Dump(BoundAssignment node) {
             Out("(.bound " + SymbolTable.IdToString(node.Variable.Name) + ") = ");
-            WalkChild(node.Value);
-            return false;
+            WalkNode(node.Value);
         }
 
         // BoundExpression
-        public override bool Walk(BoundExpression node) {
+        private void Dump(BoundExpression node) {
             Out("(.bound ");
             Out(SymbolTable.IdToString(node.Name));
             Out(")");
-            return false;
         }
 
-        // CallWithThisExpression
-        public override bool Walk(CallWithThisExpression node) { throw NotImplemented(node); }
-        public override void PostWalk(CallWithThisExpression node) { }
-
         // CodeBlockExpression
-        public override bool Walk(CodeBlockExpression node) {
+        private void Dump(CodeBlockExpression node) {
             int id = Enqueue(node.Block);
             Out(String.Format(".block ({0} #{1}", node.Block.Name, id));
             Indent();
@@ -351,38 +589,34 @@ namespace Microsoft.Scripting.Ast {
             if (node.IsDeclarative) { nl = true; Out(Flow.NewLine, "Declarative"); }
             Dedent();
             Out(nl ? Flow.NewLine : Flow.None, ")");
-            return false;
         }
 
         // CodeContextExpression
-        public override bool Walk(CodeContextExpression node) {
+        private void Dump(CodeContextExpression node) {
             Out(".context");
-            return false;
         }
 
         // CommaExpression
-        public override bool Walk(CommaExpression node) {
+        private void Dump(CommaExpression node) {
             Out(String.Format(".comma ({0}) {{", node.ValueIndex), Flow.NewLine);
             Indent();
             for (int i = 0; i < node.Expressions.Count; i++) {
-                WalkChild(node.Expressions[i]);
+                WalkNode(node.Expressions[i]);
                 Out(",", Flow.NewLine);
             }
             Dedent();
             Out("}", Flow.NewLine);
-            return false;
         }
 
         // ConditionalExpression
-        public override bool Walk(ConditionalExpression node) {
+        private void Dump(ConditionalExpression node) {
             Out("(");
-            WalkChild(node.Test);
+            WalkNode(node.Test);
             Out(" ? ");
-            WalkChild(node.TrueExpression);
+            WalkNode(node.IfTrue);
             Out(" : ");
-            WalkChild(node.FalseExpression);
+            WalkNode(node.IfFalse);
             Out(")");
-            return false;
         }
 
         private static string Constant(object value) {
@@ -413,334 +647,301 @@ namespace Microsoft.Scripting.Ast {
         }
 
         // ConstantExpression
-        public override bool Walk(ConstantExpression node) {
+        private void Dump(ConstantExpression node) {
             Out(Constant(node.Value));
-            return false;
         }
 
         // DeleteUnboundExpression
-        public override bool Walk(DeleteUnboundExpression node) {
+        private void Dump(DeleteUnboundExpression node) {
             Out(String.Format(".delname({0})", SymbolTable.IdToString(node.Name)));
-            return false;
         }
 
         // DynamicConversionExpression
-        public override bool Walk(DynamicConversionExpression node) {
-            Out(String.Format(".convert.d ({0})", node.Type));
-            WalkChild(node.Expression);
+        private void Dump(DynamicConversionExpression node) {
+            Out(String.Format("(.convert.d {0})(", node.Type));
+            WalkNode(node.Expression);
             Out(")");
-            return false;
         }
 
         // EnvironmentExpression
-        public override bool Walk(EnvironmentExpression node) {
+        private void Dump(EnvironmentExpression node) {
             Out(".env");
-            return false;
         }
 
         // MemberAssignment
-        public override bool Walk(MemberAssignment node) {
-            WalkChild(node.Expression);
+        private void Dump(MemberAssignment node) {
+            WalkNode(node.Expression);
             Out(".");
             Out(node.Member.Name);
             Out(" = ");
-            WalkChild(node.Value);
-            return false;
+            WalkNode(node.Value);
         }
 
         // MemberExpression
-        public override bool Walk(MemberExpression node) {
-            WalkChild(node.Expression);
+        private void Dump(MemberExpression node) {
+            WalkNode(node.Expression);
             Out(".");
             Out(node.Member.Name);
-            return false;
         }
 
         // MethodCallExpression
-        public override bool Walk(MethodCallExpression node) {
+        private void Dump(MethodCallExpression node) {
             if (node.Instance != null) {
                 Out("(");
-                WalkChild(node.Instance);
+                WalkNode(node.Instance);
                 Out(").");
             }
             Out("(" + node.Method.ReflectedType.Name + "." + node.Method.Name + ")(");
             if (node.Arguments != null && node.Arguments.Count > 0) {
                 NewLine(); Indent();
                 foreach (Expression e in node.Arguments) {
-                    WalkChild(e);
+                    WalkNode(e);
                     Out(",", Flow.NewLine);
                 }
                 Dedent();
             }
             Out(")");
-            return false;
         }
 
         // NewArrayExpression
-        public override bool Walk(NewArrayExpression node) {
-            Out(".new " + node.Type.Name + "[] = {");
+        private void Dump(NewArrayExpression node) {
+            Out(".new " + node.Type.Name + " = {");
             if (node.Expressions != null && node.Expressions.Count > 0) {
                 NewLine(); Indent();
                 foreach (Expression e in node.Expressions) {
-                    WalkChild(e);
+                    WalkNode(e);
                     Out(",", Flow.NewLine);
                 }
                 Dedent();
             }
             Out("}");
-            return false;
         }
 
         // NewExpression
-        public override bool Walk(NewExpression node) {
+        private void Dump(NewExpression node) {
             Out(".new " + node.Type.Name + "(");
             if (node.Arguments != null && node.Arguments.Count > 0) {
                 NewLine(); Indent();
                 foreach (Expression e in node.Arguments) {
-                    WalkChild(e);
+                    WalkNode(e);
                     Out(",", Flow.NewLine);
                 }
                 Dedent();
             }
             Out(")");
-            return false;
         }
 
         // ParamsExpression
-        public override bool Walk(ParamsExpression node) {
+        private void Dump(ParamsExpression node) {
             Out(".params");
-            return false;
         }
 
         // ParenthesizedExpression
-        public override bool Walk(ParenthesizedExpression node) {
+        private void Dump(ParenthesizedExpression node) {
             Out("(");
-            WalkChild(node.Expression);
+            WalkNode(node.Expression);
             Out(")");
-            return false;
-        }
-
-        // ShortCircuitExpression
-        public override bool Walk(ShortCircuitExpression node) {
-            throw NotImplemented(node);
         }
 
         // TypeBinaryExpression
-        public override bool Walk(TypeBinaryExpression node) {
-            WalkChild(node.Expression);
+        private void Dump(TypeBinaryExpression node) {
+            WalkNode(node.Expression);
             Out(Flow.Space, ".is", Flow.Space);
-            Out(node.Type.Name);
-            return false;
+            Out(node.TypeOperand.Name);
         }
 
         // UnaryExpression
-        public override bool Walk(UnaryExpression node) {
-            switch (node.Operator) {
-                case UnaryOperators.Convert:
+        private void Dump(UnaryExpression node) {
+            switch (node.NodeType) {
+                case AstNodeType.Convert:
                     Out("(" + node.Type.Name + ")");
                     break;
-                case UnaryOperators.Not:
+                case AstNodeType.Not:
                     Out(node.Type == typeof(bool) ? "!" : "~");
                     break;
-                case UnaryOperators.Negate:
+                case AstNodeType.Negate:
                     Out("-");
                     break;
-                case UnaryOperators.OnesComplement:
+                case AstNodeType.OnesComplement:
                     Out("~");
                     break;
             }
 
-            WalkChild(node.Operand);
-            return false;
+            WalkNode(node.Operand);
         }
 
         // UnboundAssignment
-        public override bool Walk(UnboundAssignment node) {
+        private void Dump(UnboundAssignment node) {
             Out(SymbolTable.IdToString(node.Name));
             Out(" := ");
-            WalkChild(node.Value);
-            return false;
+            WalkNode(node.Value);
         }
 
         // UnboundExpression
-        public override bool Walk(UnboundExpression node) {
+        private void Dump(UnboundExpression node) {
             Out(".unbound " + SymbolTable.IdToString(node.Name));
-            return false;
         }
 
         // VoidExpression
-        public override bool Walk(VoidExpression node) {
+        private void Dump(VoidExpression node) {
             Out(".void {");
             Indent();
-            WalkChild(node.Statement);
+            WalkNode(node.Statement);
             Dedent();
             Out("}");
-            return false;
         }
 
         // BlockStatement
-        public override bool Walk(BlockStatement node) {
+        private void Dump(BlockStatement node) {
             Out("{");
             NewLine(); Indent();
             foreach (Statement s in node.Statements) {
-                WalkChild(s);
+                WalkNode(s);
                 NewLine();
             }
             Dedent();
             Out("}", Flow.NewLine);
-            return false;
         }
 
         // BreakStatement
-        public override bool Walk(BreakStatement node) {
+        private void Dump(BreakStatement node) {
             Out(".break;", Flow.NewLine);
-            return false;
         }
 
         // ContinueStatement
-        public override bool Walk(ContinueStatement node) {
+        private void Dump(ContinueStatement node) {
             Out(".continue;", Flow.NewLine);
-            return false;
         }
 
         // DebugStatement
-        public override bool Walk(DebugStatement node) {
+        private void Dump(DebugStatement node) {
             Out(".debug(" + node.Marker + ");", Flow.NewLine);
-            return false;
         }
 
         // DeleteStatement
-        public override bool Walk(DeleteStatement node) {
+        private void Dump(DeleteStatement node) {
             Out(".del");
             if (node.Variable != null) {
                 Out(Flow.Space, SymbolTable.IdToString(node.Variable.Name));
             }
             NewLine();
-            return false;
         }
 
         // DoStatement
-        public override bool Walk(DoStatement node) {
+        private void Dump(DoStatement node) {
             Out(".do {", Flow.NewLine);
             Indent();
-            WalkChild(node.Body);
+            WalkNode(node.Body);
             Dedent();
             Out(Flow.NewLine, "} .while (");
-            WalkChild(node.Test);
+            WalkNode(node.Test);
             Out(");");
-            return false;
         }
 
         // EmptyStatement
-        public override bool Walk(EmptyStatement node) {
+        private void Dump(EmptyStatement node) {
             Out(";", Flow.NewLine);
-            return false;
         }
 
         // ExpressionStatement
-        public override bool Walk(ExpressionStatement node) {
-            WalkChild(node.Expression);
+        private void Dump(ExpressionStatement node) {
+            WalkNode(node.Expression);
             Out(";", Flow.NewLine);
-            return false;
         }
 
         // IfStatement
-        public override bool Walk(IfStatement node) {
+        private void Dump(IfStatement node) {
             for (int i = 0; i < node.Tests.Count; i++) {
                 IfStatementTest test = node.Tests[i];
                 Out(i == 0 ? ".if (" : "} .elif (");
-                WalkChild(test.Test);
+                WalkNode(test.Test);
                 Out(") {", Flow.NewLine);
                 Indent();
-                WalkChild(test.Body);
+                WalkNode(test.Body);
                 Dedent();
             }
 
             if (node.ElseStatement != null) {
                 Out("} .else {", Flow.NewLine);
                 Indent();
-                WalkChild(node.ElseStatement);
+                WalkNode(node.ElseStatement);
                 Dedent();
             }
-            Out("}");
-            return false;
+            Out("}", Flow.NewLine);
         }
 
         // LabeledStatement
-        public override bool Walk(LabeledStatement node) {
+        private void Dump(LabeledStatement node) {
             Out(".labeled {", Flow.NewLine);
             Indent();
-            WalkChild(node.Statement);
+            WalkNode(node.Statement);
             Dedent();
             Out(Flow.NewLine, "}");
-            return false;
         }
 
         // LoopStatement
-        public override bool Walk(LoopStatement node) {
+        private void Dump(LoopStatement node) {
             Out(".for (; ");
-            WalkChild(node.Test);
+            WalkNode(node.Test);
             Out("; ");
-            WalkChild(node.Increment);
+            WalkNode(node.Increment);
             Out(") {", Flow.NewLine);
             Indent();
-            WalkChild(node.Body);
+            WalkNode(node.Body);
             Dedent();
             Out(Flow.NewLine, "}");
-            return false;
         }
 
         // ReturnStatement
-        public override bool Walk(ReturnStatement node) {
+        private void Dump(ReturnStatement node) {
             Out(".return", Flow.Space);
-            WalkChild(node.Expression);
+            WalkNode(node.Expression);
             Out(";", Flow.NewLine);
-            return false;
         }
 
         // ScopeStatement
-        public override bool Walk(ScopeStatement node) {
+        private void Dump(ScopeStatement node) {
             Out(".scope (");
-            WalkChild(node.Scope);
+            WalkNode(node.Scope);
             Out(") {", Flow.NewLine);
             Indent();
-            WalkChild(node.Body);
+            WalkNode(node.Body);
             Dedent();
             Out("}", Flow.NewLine);
-            return false;
         }
 
         // SwitchStatement
-        public override bool Walk(SwitchStatement node) {
+        private void Dump(SwitchStatement node) {
             Out(".switch (");
-            WalkChild(node.TestValue);
+            WalkNode(node.TestValue);
             Out(") {", Flow.NewLine);
             foreach (SwitchCase sc in node.Cases) {
-                Out(".case ");
-                WalkChild(sc.Value);
+                if (sc.IsDefault) {
+                    Out(".default");
+                } else {
+                    Out(".case " + sc.Value);
+                }
                 Out(":", Flow.NewLine);
                 Indent(); Indent();
-                WalkChild(sc.Body);
+                WalkNode(sc.Body);
                 Dedent(); Dedent();
                 NewLine();
             }
             Out("}", Flow.NewLine);
-            return false;
         }
 
         // ThrowStatement
-        public override bool Walk(ThrowStatement node) {
+        private void Dump(ThrowStatement node) {
             Out(Flow.NewLine, ".throw (");
-            WalkChild(node.Exception);
+            WalkNode(node.Exception);
             Out(")", Flow.NewLine);
-            return false;
         }
 
         // TryStatement
-        public override bool Walk(TryStatement node) {
+        private void Dump(TryStatement node) {
             Out(".try {", Flow.NewLine);
             Indent();
-            WalkChild(node.Body);
+            WalkNode(node.Body);
             Dedent();
             if (node.Handlers != null && node.Handlers.Count > 0) {
                 foreach (CatchBlock cb in node.Handlers) {
@@ -750,33 +951,25 @@ namespace Microsoft.Scripting.Ast {
                     }
                     Out(") {", Flow.NewLine);
                     Indent();
-                    WalkChild(cb.Body);
+                    WalkNode(cb.Body);
                     Dedent();
                 }
             }
             if (node.FinallyStatement != null) {
                 Out("} .finally {", Flow.NewLine);
                 Indent();
-                WalkChild(node.FinallyStatement);
+                WalkNode(node.FinallyStatement);
                 Dedent();
             }
             Out("}", Flow.NewLine);
-            return false;
         }
 
         // YieldStatement
-        public override bool Walk(YieldStatement node) {
+        private void Dump(YieldStatement node) {
             Out(".yield ");
-            WalkChild(node.Expression);
+            WalkNode(node.Expression);
             Out(";", Flow.NewLine);
-            return false;
         }
-
-        // Arg
-        public override bool Walk(Arg node) { throw NotImplemented(node); }
-
-        // CatchBlock
-        public override bool Walk(CatchBlock node) { throw NotImplemented(node); }
 
         private static string GetCodeBlockInfo(CodeBlock block) {
             string info = String.Format("{0} {1} (", block.ReturnType.Name, block.Name);
@@ -814,7 +1007,7 @@ namespace Microsoft.Scripting.Ast {
             Out(descr);
             if (v.DefaultValue != null) {
                 Out(" = ");
-                WalkChild(v.DefaultValue);
+                WalkNode(v.DefaultValue);
             }
             NewLine();
         }
@@ -835,31 +1028,24 @@ namespace Microsoft.Scripting.Ast {
                 DumpVariable(v);
             }
             Out(Flow.NewLine, "", Flow.NewLine);
-            WalkChild(node.Body);
+            WalkNode(node.Body);
             Dedent();
             Out("}");
         }
 
         // CodeBlock
-        public override bool Walk(CodeBlock node) {
+        private void Dump(CodeBlock node) {
             Out(".codeblock", Flow.Space);
             DumpBlock(node);
-            return false;
         }
 
         // GeneratorCodeBlock
-        public override bool Walk(GeneratorCodeBlock node) {
+        private void Dump(GeneratorCodeBlock node) {
             Out(".generator", Flow.Space);
             DumpBlock(node);
-            return false;
         }
 
-        // IfStatementTest
-        public override bool Walk(IfStatementTest node) { throw NotImplemented(node); }
-
-        private static Exception NotImplemented(Node node) {
-            return new NotImplementedException("Not implemented: " + node.GetType().Name);
-        }
+        #endregion
     }
 }
 #endif

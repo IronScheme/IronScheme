@@ -28,30 +28,30 @@ namespace Microsoft.Scripting.Actions {
             Assert.NotNull(test, target);
 
             RuleBinder rb = new RuleBinder();
-            test.Walk(rb);
-            target.Walk(rb);
+            rb.WalkNode(test);
+            rb.WalkNode(target);
             return rb.GetReferences();
         }
 
         private RuleBinder() {
         }
 
-        public override bool Walk(BoundAssignment node) {
+        protected internal override bool Walk(BoundAssignment node) {
             node.Ref = GetOrMakeRef(node.Variable);
             return true;
         }
 
-        public override bool Walk(BoundExpression node) {
+        protected internal override bool Walk(BoundExpression node) {
             node.Ref = GetOrMakeRef(node.Variable);
             return true;
         }
 
-        public override bool Walk(DeleteStatement node) {
+        protected internal override bool Walk(DeleteStatement node) {
             node.Ref = GetOrMakeRef(node.Variable);
             return true;
         }
 
-        public override bool Walk(CatchBlock node) {
+        protected internal override bool Walk(CatchBlock node) {
             if (node.Variable != null) {
                 node.Ref = GetOrMakeRef(node.Variable);
             }

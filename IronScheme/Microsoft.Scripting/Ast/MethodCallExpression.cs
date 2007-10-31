@@ -31,12 +31,14 @@ namespace Microsoft.Scripting.Ast {
         private readonly Expression _instance;
         private readonly ReadOnlyCollection<Expression> _arguments;
         private readonly ParameterInfo[] _parameterInfos;
+
         private ReflectedCaller _caller;
 
-        internal MethodCallExpression(MethodInfo method, Expression instance, IList<Expression> arguments, ParameterInfo[] parameters) {
+        internal MethodCallExpression(MethodInfo /*!*/ method, Expression instance, ReadOnlyCollection<Expression> /*!*/ arguments, ParameterInfo[] /*!*/ parameters)
+            : base(AstNodeType.Call) {
             _method = method;
             _instance = instance;
-            _arguments = new ReadOnlyCollection<Expression>(arguments);
+            _arguments = arguments;
             _parameterInfos = parameters;
         }
 
@@ -186,20 +188,6 @@ namespace Microsoft.Scripting.Ast {
                 argument.Emit(cg);
             }
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                if (_instance != null) {
-                    _instance.Walk(walker);
-                }
-                if (_arguments != null) {
-                    foreach (Expression e in _arguments) {
-                        e.Walk(walker);
-                    }
-                }
-            }
-            walker.PostWalk(this);
-        }
     }
 
     /// <summary>
@@ -234,8 +222,16 @@ namespace Microsoft.Scripting.Ast {
             Contract.RequiresNotNullItems(arguments, "arguments");
             ParameterInfo[] parameters = method.GetParameters();
 
-            Contract.Requires(parameters.Length == arguments.Length);
-            for (int index = 0; index < parameters.Length; index++) {
+            ValidateCallArguments(parameters, arguments);
+
+            return new MethodCallExpression(method, instance, CollectionUtils.ToReadOnlyCollection(arguments), parameters);
+        }
+
+        private static void ValidateCallArguments(IList<ParameterInfo> parameters, IList<Expression> arguments) {
+            Contract.Requires(parameters.Count == arguments.Count, "arguments", "Argument count must match parameter count");
+
+            int count = parameters.Count;
+            for (int index = 0; index < count; index++) {
                 Type pt = parameters[index].ParameterType;
                 Contract.Requires(!TypeUtils.IsGeneric(pt), "arguments");
                 if (pt.IsByRef) {
@@ -251,8 +247,16 @@ namespace Microsoft.Scripting.Ast {
                     );
                 }
             }
+        }
 
-            return new MethodCallExpression(method, instance, arguments, parameters);
+        internal static MethodCallExpression Call(Expression instance, MethodInfo method, IList<Expression> arguments) {
+            if (arguments == null) {
+                return Call(instance, method);
+            } else {
+                Expression[] args = new Expression[arguments.Count];
+                arguments.CopyTo(args, 0);
+                return Call(instance, method, args);
+            }
         }
 
         /// <summary>
@@ -282,6 +286,15 @@ namespace Microsoft.Scripting.Ast {
                 instance = ConvertHelper(instance, method.DeclaringType);
             }
 
+            arguments = ArgumentConvertHelper(arguments, parameters);
+
+            return Call(instance, method, arguments);
+        }
+
+        private static Expression[]/*!*/ ArgumentConvertHelper(Expression[] /*!*/ arguments, ParameterInfo[] /*!*/ parameters) {
+            Debug.Assert(arguments != null);
+            Debug.Assert(arguments != null);
+
             Expression[] clone = null;
             for (int arg = 0; arg < arguments.Length; arg++) {
                 Expression argument = arguments[arg];
@@ -302,11 +315,10 @@ namespace Microsoft.Scripting.Ast {
                     clone[arg] = argument;
                 }
             }
-
-            return Call(instance, method, clone != null ? clone : arguments);
+            return clone ?? arguments;
         }
 
-        private static Expression ArgumentConvertHelper(Expression argument, Type type) {
+        private static Expression/*!*/ ArgumentConvertHelper(Expression/*!*/ argument, Type/*!*/ type) {
             if (argument.Type != type) {
                 if (type.IsByRef) {
                     type = type.GetElementType();

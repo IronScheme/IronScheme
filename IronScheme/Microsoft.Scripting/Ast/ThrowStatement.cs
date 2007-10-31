@@ -24,8 +24,8 @@ namespace Microsoft.Scripting.Ast {
     public class ThrowStatement : Statement {
         private readonly Expression _val;
 
-        internal ThrowStatement(SourceSpan span, Expression value) :
-            base(span) {
+        internal ThrowStatement(SourceSpan span, Expression value)
+            : base(AstNodeType.ThrowStatement, span) {
             _val = value;
         }
 
@@ -51,13 +51,6 @@ namespace Microsoft.Scripting.Ast {
                 _val.Emit(cg);
                 cg.Emit(OpCodes.Throw);
             }
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                if (_val != null) _val.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
 
         public Expression Exception {

@@ -45,7 +45,7 @@ namespace Microsoft.Scripting.Hosting {
         IConsole GetConsole(CommandLine commandLine, IScriptEngine engine, ConsoleOptions options); // TODO
        
         // generic interface:
-        ServiceType GetService<ServiceType>(params object[] args) where ServiceType : class;
+        ServiceType/*?*/ GetService<ServiceType>(params object[] args) where ServiceType : class;
     }
 
     /// <summary>
@@ -147,7 +147,7 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         // generic interface:
-        public virtual ServiceType GetService<ServiceType>(params object[] args) 
+        public virtual ServiceType/*?*/ GetService<ServiceType>(params object[] args) 
             where ServiceType : class {
 
             Type service_type = typeof(ServiceType);

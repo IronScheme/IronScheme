@@ -14,26 +14,24 @@
  * ***************************************************************************/
 
 using System;
+using System.Reflection;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-using System.Reflection;
-using System.Reflection.Emit;
-
-using System.Diagnostics;
-
-using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class NewExpression : Expression {
-        private readonly ConstructorInfo _constructor;
-        private readonly ReadOnlyCollection<Expression> _arguments;
-        private readonly ParameterInfo[] _parameterInfos;
+        private readonly ConstructorInfo /*!*/ _constructor;
+        private readonly ReadOnlyCollection<Expression> /*!*/ _arguments;
+        private readonly ParameterInfo[] /*!*/ _parameterInfos;
 
-        internal NewExpression(ConstructorInfo constructor, IList<Expression> arguments, ParameterInfo[] parameters) {
+        internal NewExpression(ConstructorInfo /*!*/ constructor, ReadOnlyCollection<Expression> /*!*/ arguments, ParameterInfo[] /*!*/ parameters)
+            : base(AstNodeType.New) {
             _constructor = constructor;
-            _arguments = new ReadOnlyCollection<Expression>(arguments);
+            _arguments = arguments;
             _parameterInfos = parameters;
         }
 
@@ -53,7 +51,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg) {
             for (int i = 0; i < _parameterInfos.Length; i++) {
-                _arguments[i].EmitAs(cg, _parameterInfos[i].ParameterType);
+                _arguments[i].Emit(cg);
             }
             cg.EmitNew(_constructor);
         }
@@ -69,17 +67,6 @@ namespace Microsoft.Scripting.Ast {
                 throw ExceptionHelpers.UpdateForRethrow(e.InnerException);
             }
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                if (_arguments != null) {
-                    foreach (Expression e in _arguments) {
-                        e.Walk(walker);
-                    }
-                }
-            }
-            walker.PostWalk(this);
-        }
     }
 
     /// <summary>
@@ -87,13 +74,27 @@ namespace Microsoft.Scripting.Ast {
     /// </summary>
     public static partial class Ast {
         public static NewExpression New(ConstructorInfo constructor, params Expression[] arguments) {
+            return New(constructor, (IList<Expression>)arguments);
+        }
+
+        public static NewExpression New(ConstructorInfo constructor, IList<Expression> arguments) {
             Contract.RequiresNotNull(constructor, "constructor");
             Contract.RequiresNotNullItems(arguments, "arguments");
 
-            ParameterInfo[] pi = constructor.GetParameters();
-            Contract.Requires(CompilerHelpers.FormalParamsMatchActual(pi, arguments.Length), "constructor", "The number of parameters doesn't match the number of actual arguments");
+            ParameterInfo[] parameters = constructor.GetParameters();
+            ValidateCallArguments(parameters, arguments);
 
-            return new NewExpression(constructor, arguments, pi);
+            return new NewExpression(constructor, CollectionUtils.ToReadOnlyCollection(arguments), parameters);
+        }
+
+        public static NewExpression SimpleNewHelper(ConstructorInfo constructor, params Expression[] arguments) {
+            Contract.RequiresNotNull(constructor, "constructor");
+            Contract.RequiresNotNullItems(arguments, "arguments");
+
+            ParameterInfo [] parameters = constructor.GetParameters();
+            Contract.Requires(arguments.Length == parameters.Length, "arguments", "Incorrect number of arguments");
+
+            return New(constructor, ArgumentConvertHelper(arguments, parameters));
         }
     }
 }

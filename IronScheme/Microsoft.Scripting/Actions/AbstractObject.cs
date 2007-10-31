@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using Microsoft.Scripting.Types;
 
 namespace Microsoft.Scripting.Actions {
     public class AbstractObject {
@@ -35,7 +34,7 @@ namespace Microsoft.Scripting.Actions {
 
         public static AbstractObject Make(object o) {
             if (o == null) return NullObject;
-            ISuperDynamicObject dynObj = o as ISuperDynamicObject;
+            IDynamicObject dynObj = o as IDynamicObject;
             if (dynObj != null) {
                 return new AbstractObject(o.GetType(), true, o);
             }

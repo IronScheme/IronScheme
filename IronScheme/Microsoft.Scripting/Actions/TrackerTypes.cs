@@ -34,8 +34,8 @@ namespace Microsoft.Scripting.Actions {
         Type = 0x20,        
         /// <summary> Specifies that the member is a namespace, representing a NamespaceTracker </summary>
         Namespace = 0x40,
-        /// <summary> Specifies that the member is a group of members, representing a MemberGroup</summary>
-        MemberGroup = 0x80,
+        /// <summary> Specifies that the member is a group of method overloads, representing a MethodGroup</summary>
+        MethodGroup = 0x80,
         /// <summary> Specifies that the member is a group of types that very by arity, representing a TypeGroup</summary>
         TypeGroup = 0x100,
         /// <summary> Specifies that the member is a bound to an instance, representing a BoundMemberTracker</summary>
@@ -43,6 +43,6 @@ namespace Microsoft.Scripting.Actions {
         //
         // Summary:
         //     Specifies all member types.
-        All = Constructor | Event | Field | Method | Property | Type | Namespace | MemberGroup | TypeGroup | Bound,
+        All = Constructor | Event | Field | Method | Property | Type | Namespace | MethodGroup | TypeGroup | Bound,
     }
 }

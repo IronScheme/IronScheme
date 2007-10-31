@@ -76,10 +76,6 @@ namespace Microsoft.Scripting {
 
 
         // A bunch of conversion code
-        public override void EmitConvertFromObject(Microsoft.Scripting.Generation.CodeGen cg, Type paramType) {
-            cg.EmitCast(typeof(object), paramType);
-        }
-
         public override object Convert(object obj, Type toType) {
             throw new NotImplementedException();
         }

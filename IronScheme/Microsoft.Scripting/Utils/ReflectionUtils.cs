@@ -293,5 +293,36 @@ namespace Microsoft.Scripting.Utils {
             }
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Like Type.GetInterfaces, but only returns the interfaces implemented by this type
+        /// and not its parents.
+        /// </summary>
+        public static List<Type> GetDeclaredInterfaces(Type type) {
+            IList<Type> baseInterfaces = (type.BaseType != null) ? type.BaseType.GetInterfaces() : Type.EmptyTypes;
+            List<Type> interfaces = new List<Type>();
+            foreach (Type iface in type.GetInterfaces()) {
+                if (!baseInterfaces.Contains(iface)) {
+                    interfaces.Add(iface);
+                }
+            }
+            return interfaces;
+        }
+
+        public static string GetNormalizedTypeName(Type type) {
+            string name = type.Name;
+            if (type.IsGenericType) {
+                return GetNormalizedTypeName(name);
+            }
+            return name;
+        }
+
+        public static string GetNormalizedTypeName(string typeName) {
+            Debug.Assert(typeName.IndexOf(Type.Delimiter) == -1); // This is the simple name, not the full name
+            int backtick = typeName.IndexOf(ReflectionUtils.GenericArityDelimiter);
+            if (backtick != -1) return typeName.Substring(0, backtick);
+            return typeName;
+        }
+
     }
 }

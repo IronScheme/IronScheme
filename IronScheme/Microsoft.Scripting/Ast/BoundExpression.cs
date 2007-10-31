@@ -20,13 +20,14 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class BoundExpression : Expression {
-        private readonly Variable _variable;
+        private readonly Variable /*!*/ _variable;
         private bool _defined;
 
         // Implementation detail
         private VariableReference _vr;
 
-        internal BoundExpression(Variable variable) {
+        internal BoundExpression(Variable /*!*/ variable)
+            : base(AstNodeType.BoundExpression) {
             _variable = variable;
         }
 
@@ -131,12 +132,6 @@ namespace Microsoft.Scripting.Ast {
             // Only emit CheckInitialized for variables of type object
             bool check = !_defined && !_variable.IsTemporary && _variable.Type == typeof(object);
             cg.EmitGet(_vr.Slot, Name, check);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-            }
-            walker.PostWalk(this);
         }
     }
 

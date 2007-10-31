@@ -27,9 +27,9 @@ namespace Microsoft.Scripting.Ast {
     /// For instance property/field, Expression must be != null.
     /// </summary>
     public class MemberAssignment : Expression {
-        private readonly MemberInfo _member;
+        private readonly MemberInfo /*!*/ _member;
         private readonly Expression _expression;
-        private readonly Expression _value;
+        private readonly Expression /*!*/ _value;
 
         public MemberInfo Member {
             get { return _member; }
@@ -49,7 +49,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        internal MemberAssignment(MemberInfo member, Expression expression, Expression value) {
+        internal MemberAssignment(MemberInfo /*!*/ member, Expression expression, Expression /*!*/ value)
+            : base(AstNodeType.MemberAssignment) {
             _member = member;
             _expression = expression;
             _value = value;
@@ -98,16 +99,6 @@ namespace Microsoft.Scripting.Ast {
                     Debug.Assert(false, "Invalid member type");
                     break;
             }
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                if (_expression != null) {
-                    _expression.Walk(walker);
-                }
-                _value.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

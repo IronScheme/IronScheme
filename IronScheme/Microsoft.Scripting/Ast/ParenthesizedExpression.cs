@@ -15,13 +15,15 @@
 
 using System;
 using System.Diagnostics;
+using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class ParenthesizedExpression : Expression {
-        private readonly Expression _expression;
+        private readonly Expression /*!*/ _expression;
 
-        internal ParenthesizedExpression(Expression expression) {
+        internal ParenthesizedExpression(Expression /*!*/ expression)
+            : base(AstNodeType.ParenthesizedExpression) {
             Debug.Assert(expression != null);
             _expression = expression;
         }
@@ -43,13 +45,6 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             _expression.Emit(cg);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _expression.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     /// <summary>
@@ -57,9 +52,7 @@ namespace Microsoft.Scripting.Ast {
     /// </summary>
     public static partial class Ast {
         public static ParenthesizedExpression Parenthesize(Expression expression) {
-            if (expression == null) {
-                throw new ArgumentNullException("expression");
-            }
+            Contract.RequiresNotNull(expression, "expression");
             return new ParenthesizedExpression(expression);
         }
     }

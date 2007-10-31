@@ -14,14 +14,15 @@
  * ***************************************************************************/
 
 using System;
-using System.Reflection.Emit;
+using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class DeleteUnboundExpression : Expression {
         private SymbolId _name;
 
-        internal DeleteUnboundExpression(SymbolId name) {
+        internal DeleteUnboundExpression(SymbolId name)
+            : base(AstNodeType.DeleteUnboundExpression) {
             _name = name;
         }
 
@@ -39,16 +40,11 @@ namespace Microsoft.Scripting.Ast {
         protected override object DoEvaluate(CodeContext context) {
             return RuntimeHelpers.RemoveName(context, _name);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
         public static DeleteUnboundExpression Delete(SymbolId name) {
+            Contract.Requires(!name.IsInvalid && !name.IsEmpty, "name");
             return new DeleteUnboundExpression(name);
         }
     }

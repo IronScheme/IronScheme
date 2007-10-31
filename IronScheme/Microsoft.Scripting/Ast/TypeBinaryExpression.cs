@@ -21,13 +21,11 @@ using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class TypeBinaryExpression : Expression {
-        private readonly Expression _expression;
-        private readonly Type _typeOperand;
+        private readonly Expression /*!*/ _expression;
+        private readonly Type /*!*/ _typeOperand;
 
-        internal TypeBinaryExpression(Expression expression, Type typeOperand) {
-            Debug.Assert(expression != null);
-            Debug.Assert(typeOperand != null);
-
+        internal TypeBinaryExpression(AstNodeType nodeType, Expression /*!*/ expression, Type /*!*/ typeOperand)
+            : base(nodeType) {
             _expression = expression;
             _typeOperand = typeOperand;
         }
@@ -71,13 +69,6 @@ namespace Microsoft.Scripting.Ast {
             return RuntimeHelpers.BooleanToObject(
                 _typeOperand.IsInstanceOfType(_expression.Evaluate(context)));
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _expression.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     /// <summary>
@@ -93,7 +84,7 @@ namespace Microsoft.Scripting.Ast {
                 throw new ArgumentException(String.Format(Resources.TypeMustBeVisible, type.FullName));
             }
 
-            return new TypeBinaryExpression(expression, type);
+            return new TypeBinaryExpression(AstNodeType.TypeIs, expression, type);
         }
     }
 }

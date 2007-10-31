@@ -53,14 +53,6 @@ namespace Microsoft.Scripting.Actions {
             _ruleCache.Clear();
         }
 
-        /// <summary>
-        /// Gets a rule for the provided action and arguments.
-        /// </summary>
-        /// <typeparam name="T">The type of the DynamicSite the rule is being produced for.</typeparam>
-        /// <param name="action">The Action the rule is being produced for.</param>
-        /// <param name="args">The arguments to the rule as provided from the call site at runtime.</param>
-        /// <param name="callerContext">The CodeContext that is requesting the rule and that should be used for conversions.</param>
-        /// <returns>The new rule.</returns>
         public StandardRule<T> GetRule<T>(CodeContext callerContext, DynamicAction action, object[] args) {
             Contract.RequiresNotNull(action, "action");
             //Debug.Assert(action.Kind != ActionKind.GetMember || ((GetMemberAction)action).Name != SymbolTable.StringToId("x"));
@@ -70,8 +62,8 @@ namespace Microsoft.Scripting.Actions {
                 return rule;
             }
 
-            PerfTrack.NoteEvent(PerfTrack.Categories.Rules, "MakeRule " + action.ToString() + " " + CompilerHelpers.GetType(args[0]).Name);
-             
+            NoteRuleCreation(action, args);
+
             IDynamicObject ndo = args[0] as IDynamicObject;
             if (ndo != null) {
                 rule = ndo.GetRule<T>(action, callerContext, args);
@@ -81,14 +73,81 @@ namespace Microsoft.Scripting.Actions {
             rule = rule ?? MakeRule<T>(callerContext, action, args);
             Debug.Assert(rule != null && rule.Target != null && rule.Test != null);
 #if DEBUG
-            AstWriter.DumpRule(rule);
-#endif
-
-            _ruleCache.AddRule(action, args, rule);
-
+            AstWriter.Dump(rule);
+#endif        
             return rule;
         }
 
+        internal object ExecuteRule<T>(CodeContext callerContext, DynamicAction action, object[] args) {
+            T target = default(T);
+            RuleSet<T> rules = null;
+            
+            return UpdateSiteAndExecute<T>(callerContext, action, args, null, ref target, ref rules);
+        }
+
+        /// <summary>
+        /// Gets a rule, updates the site that called, and then returns the result of executing the rule.
+        /// </summary>
+        /// <typeparam name="T">The type of the DynamicSite the rule is being produced for.</typeparam>
+        /// <param name="action">The Action the rule is being produced for.</param>
+        /// <param name="args">The arguments to the rule as provided from the call site at runtime.</param>
+        /// <param name="callerContext">The CodeContext that is requesting the rule and that should be used for conversions.</param>
+        /// <param name="rules"></param>
+        /// <param name="site"></param>
+        /// <param name="target"></param>
+        /// <returns>The result of executing the rule.</returns>
+        internal object UpdateSiteAndExecute<T>(CodeContext callerContext, DynamicAction action, object[] args, object site, ref T target, ref RuleSet<T> rules) {
+            Contract.RequiresNotNull(action, "action");
+            //Debug.Assert(action.Kind != ActionKind.GetMember || ((GetMemberAction)action).Name != SymbolTable.StringToId("x"));
+            object result;
+
+            StandardRule<T> rule = _ruleCache.ExecuteRuleAndUpdateSite<T>(callerContext, action, args, site, ref target, ref rules, out result);
+            if (rule != null) {
+                return result;
+            }
+
+            NoteRuleCreation(action, args);
+
+            for (; ; ) {
+                IDynamicObject ndo = args[0] as IDynamicObject;
+                if (ndo != null) {
+                    rule = ndo.GetRule<T>(action, callerContext, args);
+                    Debug.Assert(rule == null || rule.Target != null && rule.Test != null);
+                }
+
+                rule = rule ?? MakeRule<T>(callerContext, action, args);
+                Debug.Assert(rule != null && rule.Target != null && rule.Test != null);
+#if DEBUG
+                AstWriter.Dump(rule);
+#endif
+                object[] callArgs = args;
+                if (args.Length > 6) {
+                    // BigDynamicSite
+                    callArgs = new object[] { Tuple.MakeTuple(rule.ParamVariables[0].Type, args) };
+                }
+
+                CodeContext tmpCtx = callerContext.Scope.GetTemporaryVariableContext(callerContext, rule.ParamVariables, callArgs);
+                try {
+                    if ((bool)rule.Test.Evaluate(tmpCtx)) {
+                        if (site != null) {
+                            DynamicSiteHelpers.UpdateSite<T>(callerContext, site, ref target, ref rules, rule);
+                        }
+
+                        _ruleCache.AddRule(action, args, rule);
+
+                        return rule.Target.Execute(tmpCtx);
+                    }
+                } finally {
+                    tmpCtx.Scope.TemporaryStorage.Clear();
+                }
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private static void NoteRuleCreation(DynamicAction action, object[] args) {
+            PerfTrack.NoteEvent(PerfTrack.Categories.Rules, "MakeRule " + action.ToString() + " " + CompilerHelpers.GetType(args[0]).Name);
+        }
+        
         /// <summary>
         /// Gets a rule for the provided action and arguments and executes it without compiling.
         /// </summary>
@@ -112,7 +171,11 @@ namespace Microsoft.Scripting.Actions {
         /// <param name="args">The arguments to the action as provided from the call site at runtime.</param>
         /// <param name="callerContext">The CodeContext that is requesting the rule and should be use</param>
         /// <returns></returns>
-        protected virtual StandardRule<T> MakeRule<T>(CodeContext callerContext, DynamicAction action, object[] args) {
+        protected virtual StandardRule<T> MakeRule<T>(CodeContext/*!*/ callerContext, DynamicAction/*!*/ action, object[]/*!*/ args) {
+            Contract.RequiresNotNull(callerContext, "callerContext");
+            Contract.RequiresNotNull(action, "action");
+            Contract.RequiresNotNull(args, "args");
+
             switch (action.Kind) {
                 case DynamicActionKind.Call:
                     return new CallBinderHelper<T, CallAction>(callerContext, (CallAction)action, args).MakeRule();
@@ -128,6 +191,8 @@ namespace Microsoft.Scripting.Actions {
                     return new DeleteMemberBinderHelper<T>(callerContext, (DeleteMemberAction)action, args).MakeRule();
                 case DynamicActionKind.InvokeMember:
                     return new InvokeMemberBinderHelper<T>(callerContext, (InvokeMemberAction)action, args).MakeRule();
+                case DynamicActionKind.ConvertTo:
+                    return new ConvertToBinderHelper<T>(callerContext, (ConvertToAction)action, args).MakeRule();
                 default:
                     throw new NotImplementedException(action.ToString());
             }
@@ -136,12 +201,31 @@ namespace Microsoft.Scripting.Actions {
         /// <summary>
         /// Emits the code to convert an arbitrary object to the specified type.
         /// </summary>
-        public abstract void EmitConvertFromObject(CodeGen cg, Type paramType);
+        public virtual void EmitConvertFromObject(CodeGen cg, Type paramType) {
+            cg.EmitCast(typeof(object), paramType);
+        }
 
         /// <summary>
         /// Converts an object at runtime into the specified type.
         /// </summary>
-        public abstract object Convert(object obj, Type toType);
+        public virtual object Convert(object obj, Type toType) {
+            if (obj == null) {
+                if (!toType.IsValueType) {
+                    return null;
+                }
+            } else {
+                if (toType.IsValueType) {
+                    if (toType == obj.GetType()) {
+                        return obj;
+                    }
+                } else {
+                    if (toType.IsAssignableFrom(obj.GetType())) {
+                        return obj;
+                    }
+                }
+            }
+            throw new InvalidCastException(String.Format("Cannot convert {0} to {1}", obj != null ? obj.GetType().Name : "(null)", toType.Name));
+        }
 
         /// <summary>
         /// Determines if a conversion exists from fromType to toType at the specified narrowing level.
@@ -191,7 +275,9 @@ namespace Microsoft.Scripting.Actions {
         /// registered extension methods.
         /// </summary>
         public virtual MemberGroup GetMember(DynamicAction action, Type type, string name) {
-            MemberGroup members = new MemberGroup(type.GetMember(name));
+            MemberInfo[] foundMembers = type.GetMember(name);
+
+            MemberGroup members = new MemberGroup(FilterNonVisibleMembers(type, foundMembers));
 
             // check for generic types w/ arity...
             Type[] types = type.GetNestedTypes(BindingFlags.Public);
@@ -218,12 +304,111 @@ namespace Microsoft.Scripting.Actions {
                     members = GetExtensionMembers(type, name);
                 }
             }
+            
             return members;
         }
 
         /// <summary>
+        /// Non-public types can have public members that we find when calling type.GetMember(...).  This
+        /// filters out the non-visible members by attempting to resolve them to the correct visible type.
+        /// 
+        /// If no correct visible type can be found then the member is not visible and we won't call it.
+        /// </summary>
+        private static MemberInfo[] FilterNonVisibleMembers(Type type, MemberInfo[] foundMembers) {
+            if (!type.IsVisible && foundMembers.Length > 0 && !ScriptDomainManager.Options.PrivateBinding) {
+                // need to remove any members that we can't get through other means
+                List<MemberInfo> foundVisible = null;
+                MemberInfo visible;
+                MethodInfo mi;
+                for (int i = 0; i < foundMembers.Length; i++) {
+                    visible = null;
+                    switch(foundMembers[i].MemberType) {
+                        case MemberTypes.Method:
+                            visible = CompilerHelpers.TryGetCallableMethod((MethodInfo)foundMembers[i]);
+                            break;
+                        case MemberTypes.Property:
+                            PropertyInfo pi = (PropertyInfo)foundMembers[i];
+                            mi = pi.GetGetMethod() ?? pi.GetSetMethod();
+                            visible = CompilerHelpers.TryGetCallableMethod(mi);
+                            if (visible != null) {
+                                visible = visible.DeclaringType.GetProperty(pi.Name);
+                            }
+                            break;
+                        case MemberTypes.Event:
+                            EventInfo ei = (EventInfo)foundMembers[i];
+                            mi = ei.GetAddMethod() ?? ei.GetRemoveMethod() ?? ei.GetRaiseMethod();
+                            visible = CompilerHelpers.TryGetCallableMethod(mi);
+                            if (visible != null) {
+                                visible = visible.DeclaringType.GetEvent(ei.Name);
+                            }
+                            break;
+                        // all others can't be exposed out this way
+                    }
+                    if (visible != null) {
+                        if (foundVisible == null) foundVisible = new List<MemberInfo>();
+                        foundVisible.Add(visible);
+                    }
+                }
+
+                if (foundVisible != null) {
+                    foundMembers = foundVisible.ToArray();
+                } else {
+                    foundMembers = new MemberInfo[0];
+                }
+            }
+            return foundMembers;
+        }
+
+        #region Error Production
+
+        public virtual ErrorInfo MakeMissingMemberErrorInfo(Type type, string name) {
+            return ErrorInfo.FromException(
+                Ast.Ast.New(
+                    typeof(MissingMemberException).GetConstructor(new Type[] { typeof(string) }),
+                    Ast.Ast.Constant(name)
+                )
+            );
+        }
+
+        public virtual ErrorInfo MakeGenericAccessError(MemberTracker info) {
+            return ErrorInfo.FromException(
+                Ast.Ast.New(
+                    typeof(MemberAccessException).GetConstructor(new Type[] { typeof(string) }),
+                    Ast.Ast.Constant(info.Name)
+                )
+            );
+        }
+
+        public virtual ErrorInfo MakeInvalidParametersError(string name, int expectedParams, params Expression[] args) {            
+            return ErrorInfo.FromException(
+                Ast.Ast.Call(
+                    typeof(RuntimeHelpers).GetMethod("TypeErrorForIncorrectArgumentCount", new Type[] { typeof(string), typeof(int), typeof(int) }),
+                    Ast.Ast.Constant(name),
+                    Ast.Ast.Constant(args.Length),
+                    Ast.Ast.Constant(expectedParams)
+                )
+            );
+        }
+
+        public virtual ErrorInfo MakeConversionError(Type toType, Expression value) {            
+            return ErrorInfo.FromException(
+                Ast.Ast.Call(
+                    typeof(RuntimeHelpers).GetMethod("CannotConvertError"),
+                    Ast.Ast.RuntimeConstant(toType),
+                    value
+               )
+            );
+        }
+
+        #endregion
+
+        #region Deprecated Error production
+
+        /// <summary>
         /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
         /// doing this for the time being until we get a more robust error return mechanism.
+        /// 
+        /// Deprecated, use the non-generic version instead
         /// </summary>
         public virtual Statement MakeMissingMemberError<T>(StandardRule<T> rule, Type type, string name) {
             return rule.MakeError(
@@ -231,7 +416,18 @@ namespace Microsoft.Scripting.Actions {
                     typeof(MissingMemberException).GetConstructor(new Type[] { typeof(string) }),
                     Ast.Ast.Constant(name)
                 )
-            );           
+            );
+        }
+
+        /// <summary>
+        /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
+        /// doing this for the time being until we get a more robust error return mechanism.
+        /// </summary>
+        public virtual Expression MakeMissingMemberError(Type type, string name, Type returnType) {
+            return Ast.Ast.New(
+                typeof(MissingMemberException).GetConstructor(new Type[] { typeof(string) }),
+                Ast.Ast.Constant(name)
+            );
         }
 
         /// <summary>
@@ -255,7 +451,9 @@ namespace Microsoft.Scripting.Actions {
             return MakeReadOnlyMemberError<T>(rule, type, name);
         }
 
-        public virtual Statement MakeInvalidParametersError(MethodBinder binder, DynamicAction action, CallType callType, MethodBase[] targets, StandardRule rule, object []args) {
+        #endregion
+
+        public virtual Statement MakeInvalidParametersError(MethodBinder binder, DynamicAction action, CallType callType, IList<MethodBase> targets, StandardRule rule, object []args) {
             int minArgs = Int32.MaxValue;
             int maxArgs = Int32.MinValue;
             int maxDflt = Int32.MinValue;
@@ -374,7 +572,7 @@ namespace Microsoft.Scripting.Actions {
 
                 foreach (Type ext in extTypes) {
                     foreach (MemberInfo mi in ext.GetMember(name)) {
-                        members.Add(MemberTracker.FromMemberInfo(mi));
+                        members.Add(MemberTracker.FromMemberInfo(mi, true));
                     }
 
                     // TODO: Support indexed getters/setters w/ multiple methods
@@ -415,11 +613,7 @@ namespace Microsoft.Scripting.Actions {
 
         protected internal virtual IList<Type> GetExtensionTypes(Type t) {
             // consult globally registered types
-            return DynamicHelpers.GetExtensionTypes(t);
-        }
-
-        protected internal virtual bool AllowKeywordArgumentConstruction(Type t) {
-            return true;
+            return RuntimeHelpers.GetExtensionTypes(t);
         }
 
         /// <summary>
@@ -427,11 +621,62 @@ namespace Microsoft.Scripting.Actions {
         /// 
         /// Alternatlely a language can expose MemberInfo's directly.
         /// </summary>
-        /// <param name="memberTracker"></param>
+        /// <param name="memberTracker">The member which is being returned to the user.</param>
+        /// <param name="type">Tthe type which the memberTrack was accessed from</param>
         /// <returns></returns>
-        protected internal virtual Expression ReturnMemberTracker(MemberTracker memberTracker) {
+        protected internal virtual Expression ReturnMemberTracker(Type type, MemberTracker memberTracker) {
+            if (memberTracker.MemberType == TrackerTypes.Bound) {
+                BoundMemberTracker bmt = (BoundMemberTracker)memberTracker;
+                return Ast.Ast.New(
+                    typeof(BoundMemberTracker).GetConstructor(new Type[] { typeof(MemberTracker), typeof(object) }),
+                    Ast.Ast.RuntimeConstant(bmt.BoundTo),
+                    bmt.Instance);
+            }
+
             return Ast.Ast.RuntimeConstant(memberTracker);
         }
+
+        /// <summary>
+        /// Builds an expressoin for a call to the provided method using the given expressions.  If the
+        /// method is not static the first parameter is used for the instance.
+        /// 
+        /// Parameters are converted using the binder's conversion rules.
+        /// 
+        /// If an incorrect number of parameters is provided MakeCallExpression returns null.
+        /// </summary>
+        public Expression MakeCallExpression(MethodInfo method, params Expression[] parameters) {
+            ParameterInfo[] infos = method.GetParameters();
+            Expression callInst = null;
+            int parameter = 0, startArg = 0;
+            Expression[] callArgs = new Expression[infos.Length];
+
+            if (!method.IsStatic) {
+                callInst = Ast.Ast.ConvertHelper(parameters[0], method.DeclaringType);
+                parameter = 1;
+            }
+            if (infos.Length > 0 && infos[0].ParameterType == typeof(CodeContext)) {
+                startArg = 1;
+                callArgs[0] = Ast.Ast.CodeContext();
+            }
+
+            for (int arg = startArg; arg < infos.Length; arg++) {
+                if (parameter < parameters.Length) {
+                    callArgs[arg] = ConvertExpression(
+                        parameters[parameter++],
+                        infos[arg].ParameterType);
+                } else {
+                    return null;
+                }
+            }
+
+            // check that we used all parameters
+            if (parameter != parameters.Length) {
+                return null;
+            }
+
+            return Ast.Ast.SimpleCallHelper(callInst, method, callArgs);
+        }
+
     }
 }
 

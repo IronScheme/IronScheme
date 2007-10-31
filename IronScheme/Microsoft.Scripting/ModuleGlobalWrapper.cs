@@ -103,16 +103,8 @@ namespace Microsoft.Scripting {
         }
 
         private string GetStringDisplay(object val) {
-          try
-          {
-            return (string)DynamicHelpers.GetDynamicType(val).InvokeUnaryOperator(_context, Operators.ConvertToString, val);
-          }
-          catch (MissingMemberException)
-          {
-            return val == null ? "null" : val.ToString();
-          }
+            return val == null ? "(null)" : val.ToString();
         }
-        
 
         public override string ToString() {
             return String.Format("ModuleGlobal: {0} Value: {1} ({2})",

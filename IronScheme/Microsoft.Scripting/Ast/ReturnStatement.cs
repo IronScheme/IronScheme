@@ -20,7 +20,7 @@ namespace Microsoft.Scripting.Ast {
         private readonly Expression _expr;
 
         internal ReturnStatement(SourceSpan span, Expression expression)
-            : base(span) {
+            : base(AstNodeType.ReturnStatement, span) {
             _expr = expression;
         }
 
@@ -39,13 +39,6 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Start, End);
             cg.EmitReturn(_expr);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                if (_expr != null) _expr.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

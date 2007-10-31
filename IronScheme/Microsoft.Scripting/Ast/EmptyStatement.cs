@@ -18,7 +18,7 @@ using Microsoft.Scripting.Generation;
 namespace Microsoft.Scripting.Ast {
     public class EmptyStatement : Statement {
         internal EmptyStatement(SourceSpan span)
-            : base(span) {
+            : base(AstNodeType.EmptyStatement, span) {
         }
 
         protected override object DoExecute(CodeContext context) {
@@ -27,13 +27,6 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Start, End);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                ;
-            }
-            walker.PostWalk(this);
         }
     }
 

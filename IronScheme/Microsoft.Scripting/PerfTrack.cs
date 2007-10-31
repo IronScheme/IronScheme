@@ -44,7 +44,7 @@ namespace Microsoft.Scripting {
             Compiler,       // Methods compiled via the ReflectOptimizer
             DelegateCreate, // we've created a new method for delegates
             DictInvoke,     // Dictionary accesses
-            OperatorInvoke, // Invoking an operator against a DynamicType
+            OperatorInvoke, // Invoking an operator against a type
             OverAllocate,   // a spot where we have an un-ideal algorithm that needs to allocate more than necessary
             Rules,          // related to rules / actions.
             RuleEvaluation, // a rule was evaluated
@@ -67,17 +67,6 @@ namespace Microsoft.Scripting {
             return result;
         }
 
-#if !SILVERLIGHT // Stopwatch
-        public static void PerfTest(CodeContext context, FastCallable o, int count) {
-            Stopwatch s = new Stopwatch();
-            s.Start();
-            for (int i = 0; i < count; i++) {
-                o.Call(context);
-            }
-            s.Stop();
-            Console.WriteLine(s.Elapsed);
-        }
-#endif
         public static void DumpStats() {
             if (totalEvents == 0) return;
 

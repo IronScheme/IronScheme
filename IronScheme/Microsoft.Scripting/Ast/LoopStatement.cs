@@ -23,16 +23,14 @@ namespace Microsoft.Scripting.Ast {
         private readonly SourceLocation _header;
         private readonly Expression _test;
         private readonly Expression _increment;
-        private readonly Statement _body;
+        private readonly Statement /*!*/ _body;
         private readonly Statement _else;
 
         /// <summary>
         /// Null test means infinite loop.
         /// </summary>
-        internal LoopStatement(SourceSpan span, SourceLocation header, Expression test, Expression increment, Statement body, Statement @else)
-            : base(span) {
-            Contract.RequiresNotNull(body, "body");
-
+        internal LoopStatement(SourceSpan span, SourceLocation header, Expression test, Expression increment, Statement /*!*/ body, Statement @else)
+            : base(AstNodeType.LoopStatement, span) {
             _test = test;
             _increment = increment;
             _body = body;
@@ -62,7 +60,7 @@ namespace Microsoft.Scripting.Ast {
 
         protected override object DoExecute(CodeContext context) {
             object ret = NextStatement;
-            while (_test == null || context.LanguageContext.IsTrue(_test.Evaluate(context))) {
+            while (_test == null || (bool)_test.Evaluate(context)) {
                 ret = _body.Execute(context);
                 if (ret == Statement.Break) {
                     return NextStatement;
@@ -101,7 +99,7 @@ namespace Microsoft.Scripting.Ast {
             }
 
             if (_test != null) {
-                _test.EmitAs(cg, typeof(bool));
+                _test.Emit(cg);
                 cg.Emit(OpCodes.Brfalse, eol);
             }
 
@@ -119,16 +117,6 @@ namespace Microsoft.Scripting.Ast {
                 _else.Emit(cg);
             }
             cg.MarkLabel(breakTarget);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                if (_test != null) _test.Walk(walker);
-                if (_increment != null) _increment.Walk(walker);
-                _body.Walk(walker);
-                if (_else != null) _else.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 
@@ -157,6 +145,8 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static LoopStatement Loop(SourceSpan span, SourceLocation header, Expression test, Expression increment, Statement body, Statement @else) {
+            Contract.RequiresNotNull(body, "body");
+            Contract.Requires(test == null || test.Type == typeof(bool), "test");
             return new LoopStatement(span, header, test, increment, body, @else);
         }
     }

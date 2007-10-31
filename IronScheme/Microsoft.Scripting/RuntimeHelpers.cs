@@ -22,7 +22,6 @@ using System.Reflection;
 using System.Collections;
 
 using Microsoft.Scripting.Shell;
-using Microsoft.Scripting.Types;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Actions;
@@ -34,6 +33,7 @@ namespace Microsoft.Scripting {
     /// used primitive types so that they can be shared.  This is useful to most dynamic
     /// languages that use object as a universal type.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     public static partial class RuntimeHelpers {
         private const int MIN_CACHE = -100;
         private const int MAX_CACHE = 1000;
@@ -44,6 +44,11 @@ namespace Microsoft.Scripting {
         public static readonly object True = true;
         /// <summary> Singleton boxed instance of False  We should never box additional instances. </summary>
         public static readonly object False = false;
+        private static TopNamespaceTracker _topNamespace;
+
+        /// <summary> Table of dynamicly generated delegates which are shared based upon method signature. </summary>
+        private static Publisher<DelegateSignatureInfo, DelegateInfo> _dynamicDelegateCache = new Publisher<DelegateSignatureInfo, DelegateInfo>();
+        private static Dictionary<Type, List<Type>> _extensionTypes = new Dictionary<Type, List<Type>>();
 
         private static object[] MakeCache() {
             object[] result = new object[MAX_CACHE - MIN_CACHE];
@@ -80,28 +85,6 @@ namespace Microsoft.Scripting {
                 return cache[value - MIN_CACHE];
             }
             return (object)value;
-        }
-
-        /// <summary>
-        /// Helper method for DynamicSite rules that check the version of their dynamic object
-        /// TODO - Remove this method for more direct field accesses
-        /// </summary>
-        /// <param name="o"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static bool CheckTypeVersion(object o, int version) {
-            return ((ISuperDynamicObject)o).DynamicType.Version == version;
-        }
-
-        /// <summary>
-        /// Helper method for DynamicSite rules that check the version of their dynamic object
-        /// TODO - Remove this method for more direct field accesses
-        /// </summary>
-        /// <param name="o"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static bool CheckAlternateTypeVersion(object o, int version) {
-            return ((ISuperDynamicObject)o).DynamicType.AlternateVersion == version;
         }
 
         // formalNormalArgumentCount - does not include FuncDefFlags.ArgList and FuncDefFlags.KwDict
@@ -171,6 +154,10 @@ namespace Microsoft.Scripting {
             return new ArgumentTypeException(message);
         }
 
+        public static Exception CannotConvertError(Type toType, object value) {
+            return SimpleTypeError(String.Format("Cannot convert {0}({1}) to {2}", CompilerHelpers.GetType(value).Name, value, toType.Name));
+        }
+
         public static Exception SimpleAttributeError(string message) {
             return new MissingMemberException(message);
         }
@@ -236,13 +223,6 @@ namespace Microsoft.Scripting {
             context.LanguageContext.RemoveName(moduleScopedContext, name);
         }
 
-        /// <summary>
-        /// Called from the generated code, a helper to call a function with "this" and array of arguments.
-        /// </summary>
-        public static object CallWithThis(CodeContext context, object function, object instance, object[] args) {
-            return context.LanguageContext.CallWithThis(context, function, instance, args);
-        }
-
         public static void InitializeModuleField(CodeContext context, SymbolId name, ref ModuleGlobalWrapper wrapper) {
             ModuleGlobalCache mgc = context.LanguageContext.GetModuleCache(name);
 
@@ -253,24 +233,10 @@ namespace Microsoft.Scripting {
             return ((TupleDictionary<TupleType>)scope.Dict).TupleData;
         }
 
-        public static CodeContext CreateNestedCodeContext(CodeContext context, IAttributesCollection locals, bool visible) {
+        // The locals dictionary must be first so that we have the benefit of an emtpy stack when we emit the value
+        // in the ScopeExpression
+        public static CodeContext CreateNestedCodeContext(IAttributesCollection locals, CodeContext context, bool visible) {
             return new CodeContext(new Scope(context.Scope, locals, visible), context.LanguageContext, context.ModuleContext);
-        }
-
-        /// <summary>
-        /// Helper method to create an instance.  Work around for Silverlight where Activator.CreateInstance
-        /// is SecuritySafeCritical.
-        /// </summary>
-        public static T CreateInstance<T>() {
-            return default(T);
-        }
-
-        public static T[] CreateArray<T>(int args) {
-            return new T[args];
-        }
-
-        public static T CreateDelegate<T>(object callable) {
-            return (T)(object)DynamicHelpers.GetDelegate(callable, typeof(T), null);
         }
 
         #region Dynamic Sites Construction Helpers // TODO: generate this
@@ -313,6 +279,10 @@ namespace Microsoft.Scripting {
 
         public static FastDynamicSite<T0, T1, T2, T3, T4, R> CreateSimpleCallSite<T0, T1, T2, T3, T4, R>(CodeContext context) {
             return new FastDynamicSite<T0, T1, T2, T3, T4, R>(context, CallAction.Make(4));
+        }
+
+        public static FastDynamicSite<T0, T1, T2, T3, T4, T5, R> CreateSimpleCallSite<T0, T1, T2, T3, T4, T5, R>(CodeContext context) {
+            return new FastDynamicSite<T0, T1, T2, T3, T4, T5, R>(context, CallAction.Make(5));
         }
 
         public static DynamicSite<T0, R> CreateSimpleCallSite<T0, R>(ref DynamicSite<T0, R> site) {
@@ -403,76 +373,6 @@ namespace Microsoft.Scripting {
                 tuple.SetValue(i, Uninitialized.Instance);
             }
         }
-       
-        public static ReflectedEvent.BoundEvent MakeBoundEvent(ReflectedEvent eventObj, object instance, Type type) {
-            return new ReflectedEvent.BoundEvent(eventObj, instance, DynamicHelpers.GetDynamicTypeFromType(type));
-        }
-
-        /// <summary>
-        /// Helper function to combine an object array with a sequence of additional parameters that has been splatted for a function call.
-        /// </summary>
-        public static object[] GetCombinedParameters(object[] initialArgs, object additionalArgs) {
-            IList listArgs = additionalArgs as IList;
-            if (listArgs == null) {
-                IEnumerable ie = additionalArgs as IEnumerable;
-                if (ie == null) {
-                    throw new InvalidOperationException("args must be iterable");
-                }
-                listArgs = new List<object>();
-                foreach (object o in ie) {
-                    listArgs.Add(o);
-                }
-            }
-
-            object[] res = new object[initialArgs.Length + listArgs.Count];
-            Array.Copy(initialArgs, res, initialArgs.Length);
-            listArgs.CopyTo(res, initialArgs.Length);
-            return res;
-        }
-
-        public static object[] GetCombinedKeywordParameters(object[] initialArgs, IAttributesCollection additionalArgs, ref string[] extraNames) {
-            List<object> args = new List<object>(initialArgs);
-            List<string> newNames = extraNames == null ? new List<string>(additionalArgs.Count) : new List<string>(extraNames);
-            foreach(KeyValuePair<object, object> kvp in additionalArgs) {
-                if (kvp.Key is string) {
-                    newNames.Add((string)kvp.Key);
-                    args.Add(kvp.Value);
-                }
-            }
-            extraNames = newNames.ToArray();
-            return args.ToArray();
-        }
-
-        public static SymbolDictionary MakeSymbolDictionary(SymbolId[] names, object[] values) {
-            SymbolDictionary res = new SymbolDictionary();
-            for (int i = 0; i < names.Length; i++) {
-                ((IAttributesCollection)res)[names[i]] = values[i];
-            }
-            return res;
-        }
-
-        public static object IncorrectBoxType(Type expected, object received) {
-            throw new ArgumentTypeException(String.Format("Expected type {0}, got {1}", expected, CompilerHelpers.GetType(received)));
-        }
-
-        public static void UpdateBox<T>(StrongBox<T> box, T value) {
-            box.Value = value;
-        }
-
-        public static T GetBox<T>(StrongBox<T> box) {
-            return box.Value;
-        }
-
-        public static bool CheckDictionaryMembers(IDictionary dict, string[] names) {
-            if (dict.Count != names.Length) return false;
-
-            foreach (string name in names) {
-                if(!dict.Contains(name)) {
-                    return false;
-                }
-            }
-            return true;
-        }
 
         public static ArgumentTypeException BadArgumentsForOperation(Operators op, params object[] args) {
             StringBuilder message = new StringBuilder("unsupported operand type(s) for operation ");
@@ -491,6 +391,216 @@ namespace Microsoft.Scripting {
 
         public static object ReadOnlyAssignError(bool field, string fieldName) {
             throw SimpleAttributeError(String.Format("{0} {1} is read-only", field ? "Field" : "Property", fieldName));
+        }
+
+        public static DynamicStackFrame[] GetDynamicStackFrames(Exception e) {
+            return GetDynamicStackFrames(e, true);
+        }
+
+        public static DynamicStackFrame[] GetDynamicStackFrames(Exception e, bool filter) {
+            List<DynamicStackFrame> frames = Utils.ExceptionUtils.GetDataDictionary(e)[typeof(DynamicStackFrame)] as List<DynamicStackFrame>;
+
+            if (frames == null) {
+                // we may have missed a dynamic catch, and our host is looking
+                // for the exception...
+                frames = ExceptionHelpers.AssociateDynamicStackFrames(e);
+                ExceptionHelpers.ClearDynamicStackFrames();
+            }
+
+            if (frames == null) {
+                return new DynamicStackFrame[0];
+            }
+
+            if (!filter) return frames.ToArray();
+#if !SILVERLIGHT
+            frames = new List<DynamicStackFrame>(frames);
+            List<DynamicStackFrame> res = new List<DynamicStackFrame>();
+
+            // the list of _stackFrames we build up in RuntimeHelpers can have
+            // too many frames if exceptions are thrown from script code and
+            // caught outside w/o calling GetDynamicStackFrames.  Therefore we
+            // filter down to only script frames which we know are associated
+            // w/ the exception here.
+            try {
+                StackTrace outermostTrace = new StackTrace(e);
+                IList<StackTrace> otherTraces = ExceptionHelpers.GetExceptionStackTraces(e) ?? new List<StackTrace>();
+                List<StackFrame> clrFrames = new List<StackFrame>();
+                foreach (StackTrace trace in otherTraces) {
+                    clrFrames.AddRange(trace.GetFrames());
+                }
+                clrFrames.AddRange(outermostTrace.GetFrames());
+
+                int lastFound = 0;
+                foreach (StackFrame clrFrame in clrFrames) {
+                    MethodBase method = clrFrame.GetMethod();
+
+                    for (int j = lastFound; j < frames.Count; j++) {
+                        MethodBase other = frames[j].GetMethod();
+                        // method info's don't always compare equal, check based
+                        // upon name/module/declaring type which will always be a correct
+                        // check for dynamic methods.
+                        if (method.Module == other.Module &&
+                            method.DeclaringType == other.DeclaringType &&
+                            method.Name == other.Name) {
+                            res.Add(frames[j]);
+                            frames.RemoveAt(j);
+                            lastFound = j;
+                            break;
+                        }
+                    }
+                }
+            } catch (MemberAccessException) {
+                // can't access new StackTrace(e) due to security
+            }
+            return res.ToArray();
+#else 
+            return frames.ToArray();
+#endif
+        }
+        public static TopNamespaceTracker TopNamespace {
+            get {
+                if (_topNamespace == null)
+                    Interlocked.CompareExchange<TopNamespaceTracker>(ref _topNamespace, new TopNamespaceTracker(), null);
+
+                return _topNamespace;
+            }
+        }
+
+        /// <summary>
+        /// Creates a delegate with a given signature that could be used to invoke this object from non-dynamic code (w/o code context).
+        /// A stub is created that makes appropriate conversions/boxing and calls the object.
+        /// The stub should be executed within a context of this object's language.
+        /// </summary>
+        /// <returns>The delegate or a <c>null</c> reference if the object is not callable.</returns>
+        public static Delegate GetDelegate(object callableObject, Type delegateType) {
+            Contract.RequiresNotNull(delegateType, "delegateType");
+
+            Delegate result = callableObject as Delegate;
+            if (result != null) {
+                if (!delegateType.IsAssignableFrom(result.GetType())) {
+                    throw RuntimeHelpers.SimpleTypeError(String.Format("Cannot cast {0} to {1}.", result.GetType(), delegateType));
+                }
+
+                return result;
+            }
+
+            IDynamicObject dynamicObject = callableObject as IDynamicObject;
+            if (dynamicObject != null) {
+
+                MethodInfo invoke;
+
+                if (!typeof(Delegate).IsAssignableFrom(delegateType) || (invoke = delegateType.GetMethod("Invoke")) == null) {
+                    throw RuntimeHelpers.SimpleTypeError("A specific delegate type is required.");
+                }
+
+                // using IDynamicObject.LanguageContext for now, we need todo better
+                Debug.Assert(dynamicObject.LanguageContext != null, "Invalid implementation");
+
+                ParameterInfo[] parameters = invoke.GetParameters();
+
+                dynamicObject.LanguageContext.CheckCallable(dynamicObject, parameters.Length);
+
+                DelegateSignatureInfo signatureInfo = new DelegateSignatureInfo(
+                    dynamicObject.LanguageContext.Binder,
+                    invoke.ReturnType,
+                    parameters
+                );
+
+                DelegateInfo delegateInfo = _dynamicDelegateCache.GetOrCreateValue(signatureInfo,
+                    delegate() {
+                        // creation code
+                        return signatureInfo.GenerateDelegateStub();
+                    });
+
+
+                result = delegateInfo.CreateDelegate(delegateType, dynamicObject);
+                if (result != null) {
+                    return result;
+                }
+            }
+
+            throw RuntimeHelpers.SimpleTypeError("Object is not callable.");
+        }
+
+        /// <summary>
+        /// Registers a set of extension methods from the provided assemly.
+        /// </summary>
+        public static void RegisterAssembly(Assembly assembly) {
+            object[] attrs = assembly.GetCustomAttributes(typeof(ExtensionTypeAttribute), false);
+            foreach (ExtensionTypeAttribute et in attrs) {
+                RegisterOneExtension(et.Extends, et.Type);
+            }
+        }
+
+        private static void RegisterOneExtension(Type extending, Type extension) {
+            lock (_extensionTypes) {
+                List<Type> extensions;
+                if (!_extensionTypes.TryGetValue(extending, out extensions)) {
+                    _extensionTypes[extending] = extensions = new List<Type>();
+                }
+                extensions.Add(extension);
+            }
+
+            ExtensionTypeAttribute.RegisterType(extending, extension);
+
+            FireExtensionEvent(extending, extension);
+        }
+
+        private static void FireExtensionEvent(Type extending, Type extension) {
+            EventHandler<TypeExtendedEventArgs> ev = _extended;
+            if (ev != null) {
+                ev(null, new TypeExtendedEventArgs(extending, extension));
+            }
+        }
+
+        public class TypeExtendedEventArgs : EventArgs {
+            public TypeExtendedEventArgs(Type extending, Type extension) {
+                Extending = extending;
+                Extension = extension;
+            }
+
+            public Type Extending;
+            public Type Extension;
+        }
+
+        /// <summary>
+        /// Provides a notification when a language agnostic extension event has been registered.
+        /// 
+        /// Maybe just a work around until Python can pull out the extension types on-demand or 
+        /// if we require extension to be registered w/ an engine.
+        /// </summary>
+        public static event EventHandler<TypeExtendedEventArgs> TypeExtended {
+            add {
+                List<KeyValuePair<Type, Type>> existing = new List<KeyValuePair<Type, Type>>();
+                lock (_extensionTypes) {
+                    _extended += value;
+
+                    foreach (KeyValuePair<Type, List<Type>> kvp in _extensionTypes) {
+                        foreach (Type t in kvp.Value) {
+                            existing.Add(new KeyValuePair<Type, Type>(kvp.Key, t));
+                        }
+                    }
+                }
+                foreach (KeyValuePair<Type, Type> extended in existing) {
+                    FireExtensionEvent(extended.Key, extended.Value);
+                }
+            }
+            remove {
+                _extended -= value;
+            }
+        }
+
+        private static EventHandler<TypeExtendedEventArgs> _extended;
+
+        internal static Type[] GetExtensionTypes(Type t) {
+            lock (_extensionTypes) {
+                List<Type> res;
+                if (_extensionTypes.TryGetValue(t, out res)) {
+                    return res.ToArray();
+                }
+            }
+
+            return ArrayUtils.EmptyTypes;
         }
     }
 }

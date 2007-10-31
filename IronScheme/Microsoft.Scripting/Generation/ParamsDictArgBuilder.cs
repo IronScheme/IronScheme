@@ -45,9 +45,9 @@ namespace Microsoft.Scripting.Generation {
 
         internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters) {
             Expression res = Ast.Call(
-                typeof(RuntimeHelpers).GetMethod("MakeSymbolDictionary"),
+                typeof(BinderOps).GetMethod("MakeSymbolDictionary"),
                 Ast.NewArray(typeof(SymbolId[]), ConstantNames()),
-                Ast.NewArray(typeof(object[]), GetParameters(parameters))
+                Ast.NewArrayHelper(typeof(object[]), GetParameters(parameters))
             );
 
             return res;

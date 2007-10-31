@@ -84,16 +84,19 @@ namespace Microsoft.Scripting.Actions {
             return _field.ToString();
         }
 
-        public override Expression GetValue(ActionBinder binder) {
+        #region Public expression builders
+
+        public override Expression GetValue(ActionBinder binder, Type type) {
             if (Field.IsLiteral) {
                 return Ast.Constant(Field.GetValue(null));
-            } 
-            
+            }
+
+            if (!IsStatic) {
+                // return the field tracker...
+                return binder.ReturnMemberTracker(type, this);
+            }
+
             if (IsPublic && DeclaringType.IsPublic) {
-                if (!IsStatic) {
-                    // return the field tracker...
-                    return binder.ReturnMemberTracker(FieldTracker.FromMemberInfo(Field));
-                }
                 return Ast.ReadField(null, Field);
             }
 
@@ -104,11 +107,15 @@ namespace Microsoft.Scripting.Actions {
             );
         }
 
-        internal override Expression GetBoundValue(ActionBinder binder, Expression instance) {
+        #endregion
+
+        #region Internal expression builders
+
+        internal override Expression GetBoundValue(ActionBinder binder, Type type, Expression instance) {
             if (DeclaringType.IsGenericType && DeclaringType.GetGenericTypeDefinition() == typeof(StrongBox<>)) {
                 // work around a CLR bug where we can't access generic fields from dynamic methods.
                 return Ast.Call(
-                    typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(DeclaringType.GetGenericArguments()),
+                    typeof(BinderOps).GetMethod("GetBox").MakeGenericMethod(DeclaringType.GetGenericArguments()),
                     Ast.ConvertHelper(instance, DeclaringType)
                 );
             }
@@ -132,5 +139,7 @@ namespace Microsoft.Scripting.Actions {
 
             return new BoundMemberTracker(this, instance);
         }
+
+        #endregion
     }
 }

@@ -75,6 +75,45 @@ namespace Microsoft.Scripting.Math {
             else return string.Format(System.Globalization.CultureInfo.InvariantCulture.NumberFormat, "({0}+{1}j)", real, imag);
         }
 
+        public static implicit operator Complex64(int i) {
+            return MakeReal(i);
+        }
+
+        [CLSCompliant(false)]
+        public static implicit operator Complex64(uint i) {
+            return MakeReal(i);
+        }
+
+        public static implicit operator Complex64(short i) {
+            return MakeReal(i);
+        }
+        
+        [CLSCompliant(false)]
+        public static implicit operator Complex64(ushort i) {
+            return MakeReal(i);
+        }
+
+        public static implicit operator Complex64(long l) {
+            return MakeReal(l);
+        }
+        [CLSCompliant(false)]
+        public static implicit operator Complex64(ulong i) {
+            return MakeReal(i);
+        }
+
+        [CLSCompliant(false)]
+        public static implicit operator Complex64(sbyte i) {
+            return MakeReal(i);
+        }
+
+        public static implicit operator Complex64(byte i) {
+            return MakeReal(i);
+        }
+
+        public static implicit operator Complex64(float f) {
+            return MakeReal(f);
+        }
+
         public static implicit operator Complex64(double d) {
             return MakeReal(d);
         }

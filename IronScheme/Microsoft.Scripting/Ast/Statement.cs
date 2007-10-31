@@ -34,7 +34,8 @@ namespace Microsoft.Scripting.Ast {
         internal static readonly object Break = ControlFlow.Break;
         internal static readonly object Continue = ControlFlow.Continue;
 
-        protected Statement(SourceSpan span) {
+        protected Statement(AstNodeType nodeType, SourceSpan span)
+            : base(nodeType) {
             _start = span.Start;
             _end = span.End;
         }

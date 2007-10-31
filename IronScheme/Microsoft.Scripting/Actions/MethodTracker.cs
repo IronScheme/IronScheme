@@ -17,15 +17,27 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Ast;
 
 namespace Microsoft.Scripting.Actions {
+    using Ast = Microsoft.Scripting.Ast.Ast;
+
     public class MethodTracker : MemberTracker {
         private readonly MethodInfo _method;
+        private readonly bool _isStatic;
 
-        public MethodTracker(MethodInfo method) {
+        internal MethodTracker(MethodInfo method) {
             Contract.RequiresNotNull(method, "method");
             _method = method;
+            _isStatic = method.IsStatic;
+        }
+
+        internal MethodTracker(MethodInfo method, bool isStatic) {
+            Contract.RequiresNotNull(method, "method");
+            _method = method;
+            _isStatic = isStatic;
         }
 
         public override Type DeclaringType {
@@ -52,8 +64,54 @@ namespace Microsoft.Scripting.Actions {
             }
         }
 
+        public bool IsStatic {
+            get {
+                return _isStatic;
+            }
+        }
+
         public override string ToString() {
             return _method.ToString();
+        }
+
+        internal override MemberTracker BindToInstance(Expression instance) {
+            if (IsStatic) {
+                return this;
+            }
+
+            return new BoundMemberTracker(this, instance);
+        }
+
+        internal override Expression GetBoundValue(ActionBinder binder, Type type, Expression instance) {
+            return binder.ReturnMemberTracker(type, BindToInstance(instance));
+        }
+
+        public override Microsoft.Scripting.Ast.Expression Call(ActionBinder binder, params Expression[] arguments) {
+            if (Method.IsPublic && Method.DeclaringType.IsVisible) {
+                // TODO: Need to use MethodBinder in here to make this right.
+                return binder.MakeCallExpression(Method, arguments);
+            }
+
+            //methodInfo.Invoke(obj, object[] params)
+            if (Method.IsStatic) {
+                return Ast.Convert(
+                    Ast.Call(
+                        Ast.RuntimeConstant(Method),
+                        typeof(MethodInfo).GetMethod("Invoke", new Type[] { typeof(object), typeof(object[]) }),
+                        Ast.Null(),
+                        Ast.NewArrayHelper(typeof(object[]), arguments)),
+                    Method.ReturnType);
+            } 
+
+            if (arguments.Length == 0) throw new InvalidOperationException("no instance for call");
+
+            return Ast.Convert(
+                Ast.Call(
+                    Ast.RuntimeConstant(Method),
+                    typeof(MethodInfo).GetMethod("Invoke", new Type[] { typeof(object), typeof(object[]) }),
+                    arguments[0],
+                    Ast.NewArrayHelper(typeof(object[]), ArrayUtils.RemoveFirst(arguments))),
+                Method.ReturnType);                       
         }
     }
 }

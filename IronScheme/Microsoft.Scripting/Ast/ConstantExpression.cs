@@ -20,9 +20,10 @@ using Microsoft.Scripting.Generation;
 namespace Microsoft.Scripting.Ast {
     public class ConstantExpression : Expression {
         private readonly object _value;
-        private readonly Type _type;
+        private readonly Type /*!*/ _type;
 
-        internal ConstantExpression(object value, Type type) {
+        internal ConstantExpression(object value, Type /*!*/ type)
+            : base(AstNodeType.Constant) {
             _value = value;
             _type = type;
         }
@@ -39,7 +40,9 @@ namespace Microsoft.Scripting.Ast {
 
         protected override object DoEvaluate(CodeContext context) {
             CompilerConstant cc = _value as CompilerConstant;
-            if (cc != null) return cc.Create(); // TODO: Only create once?
+            if (cc != null) {
+                return cc.Create(); // TODO: Only create once?
+            }
 
             return _value;
         }
@@ -58,13 +61,6 @@ namespace Microsoft.Scripting.Ast {
             } else {
                 return value.Equals(_value);
             }
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                ;
-            }
-            walker.PostWalk(this);
         }
     }
 

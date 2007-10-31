@@ -22,12 +22,13 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class ConditionalExpression : Expression {
-        private readonly Expression _test;
-        private readonly Expression _true;
-        private readonly Expression _false;
-        private readonly Type _expressionType;
+        private readonly Expression/*!*/ _test;
+        private readonly Expression/*!*/ _true;
+        private readonly Expression/*!*/ _false;
+        private readonly Type/*!*/ _expressionType;
 
-        internal ConditionalExpression(Expression test, Expression ifTrue, Expression ifFalse, Type type) {
+        internal ConditionalExpression(Expression/*!*/ test, Expression/*!*/ ifTrue, Expression/*!*/ ifFalse, Type/*!*/ type)
+            : base(AstNodeType.Conditional) {
             _test = test;
             _true = ifTrue;
             _false = ifFalse;
@@ -38,11 +39,11 @@ namespace Microsoft.Scripting.Ast {
             get { return _test; }
         }
 
-        public Expression TrueExpression {
+        public Expression IfTrue {
             get { return _true; }
         }
 
-        public Expression FalseExpression {
+        public Expression IfFalse {
             get { return _false; }
         }
 
@@ -93,15 +94,6 @@ namespace Microsoft.Scripting.Ast {
             cg.MarkLabel(next);
             _false.EmitAddress(cg, asType);
             cg.MarkLabel(eoi);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _test.Walk(walker);
-                _true.Walk(walker);
-                _false.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

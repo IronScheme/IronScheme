@@ -22,38 +22,14 @@ using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
-    public enum BinaryOperators {
-        Equal,
-        NotEqual,
-        AndAlso,
-        OrElse,
-        GreaterThan,
-        LessThan,
-        GreaterThanEquals,
-        LessThanEquals,
-        Add,
-        Subtract,
-        Divide,
-        Modulo,
-        Multiply,
-        LeftShift,
-        RightShift,
-        BitwiseAnd,
-        BitwiseOr,
-        ExclusiveOr,
-    }
-
     public class BinaryExpression : Expression {
-        private readonly Expression _left, _right;
-        private readonly BinaryOperators _op;
+        private readonly Expression /*!*/ _left;
+        private readonly Expression /*!*/ _right;
 
-        internal BinaryExpression(BinaryOperators op, Expression left, Expression right) {
-            Debug.Assert(left != null);
-            Debug.Assert(right != null);
-
+        internal BinaryExpression(AstNodeType nodeType, Expression /*!*/ left, Expression /*!*/ right)
+            : base(nodeType) {
             _left = left;
             _right = right;
-            _op = op;
         }
 
         public Expression Right {
@@ -64,33 +40,34 @@ namespace Microsoft.Scripting.Ast {
             get { return _left; }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")] // TODO: Fix by holding onto the type directly
         public override Type Type {
             get {
-                switch (_op) {
-                    case BinaryOperators.Equal:
-                    case BinaryOperators.NotEqual:
-                    case BinaryOperators.GreaterThan:
-                    case BinaryOperators.LessThan:
-                    case BinaryOperators.LessThanEquals:
-                    case BinaryOperators.GreaterThanEquals:
-                    case BinaryOperators.AndAlso:
-                    case BinaryOperators.OrElse:
+                switch (NodeType) {
+                    case AstNodeType.Equal:
+                    case AstNodeType.NotEqual:
+                    case AstNodeType.GreaterThan:
+                    case AstNodeType.LessThan:
+                    case AstNodeType.LessThanOrEqual:
+                    case AstNodeType.GreaterThanOrEqual:
+                    case AstNodeType.AndAlso:
+                    case AstNodeType.OrElse:
                         return typeof(bool);
 
-                    case BinaryOperators.Add:
-                    case BinaryOperators.Multiply:
-                    case BinaryOperators.Subtract:
-                    case BinaryOperators.Modulo:
-                    case BinaryOperators.Divide:
-                    case BinaryOperators.BitwiseAnd:
-                    case BinaryOperators.BitwiseOr:
-                    case BinaryOperators.ExclusiveOr:
-                    case BinaryOperators.LeftShift:
-                    case BinaryOperators.RightShift:
+                    case AstNodeType.Add:
+                    case AstNodeType.Multiply:
+                    case AstNodeType.Subtract:
+                    case AstNodeType.Modulo:
+                    case AstNodeType.Divide:
+                    case AstNodeType.And:
+                    case AstNodeType.Or:
+                    case AstNodeType.ExclusiveOr:
+                    case AstNodeType.LeftShift:
+                    case AstNodeType.RightShift:
                         return _left.Type;
 
                     default:
-                        throw new NotImplementedException();
+                        throw new InvalidOperationException();
                 }
             }
         }
@@ -98,8 +75,8 @@ namespace Microsoft.Scripting.Ast {
         public override bool IsConstant(object value) {
             if (value == null) return false;
 
-            switch (_op) {
-                case BinaryOperators.AndAlso:
+            switch (NodeType) {
+                case AstNodeType.AndAlso:
                     if (value.Equals(true)) {
                         return _left.IsConstant(true) && _right.IsConstant(true);
                     }
@@ -108,7 +85,8 @@ namespace Microsoft.Scripting.Ast {
                         return _left.IsConstant(false);
                     }
                     break;
-                case BinaryOperators.OrElse:
+
+                case AstNodeType.OrElse:
                     if (value.Equals(true)) {
                         return _left.IsConstant(true);
                     }
@@ -120,13 +98,9 @@ namespace Microsoft.Scripting.Ast {
             return false;
         }
 
-        public BinaryOperators Operator {
-            get { return _op; }
-        }
-
-        private bool EmitBranchTrue(CodeGen cg, BinaryOperators op, Label label) {
-            switch (op) {
-                case BinaryOperators.Equal:
+        private bool EmitBranchTrue(CodeGen cg, AstNodeType nodeType, Label label) {
+            switch (nodeType) {
+                case AstNodeType.Equal:
                     if (_left.IsConstant(null)) {
                         _right.EmitAsObject(cg);
                         cg.Emit(OpCodes.Brfalse, label);
@@ -140,7 +114,7 @@ namespace Microsoft.Scripting.Ast {
                     }
                     return true;
 
-                case BinaryOperators.NotEqual:
+                case AstNodeType.NotEqual:
                     if (_left.IsConstant(null)) {
                         _right.EmitAsObject(cg);
                         cg.Emit(OpCodes.Brtrue, label);
@@ -155,7 +129,7 @@ namespace Microsoft.Scripting.Ast {
                     }
                     return true;
 
-                case BinaryOperators.AndAlso:
+                case AstNodeType.AndAlso:
                     // if (left AND right) branch label
 
                     // if (left) then 
@@ -167,7 +141,7 @@ namespace Microsoft.Scripting.Ast {
                     cg.MarkLabel(endif);
                     return true;
 
-                case BinaryOperators.OrElse:
+                case AstNodeType.OrElse:
                     // if (left OR right) branch label
 
                     // if (left) then branch label endif
@@ -185,16 +159,16 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void EmitBranchFalse(CodeGen cg, Label label) {
-            switch (_op) {
-                case BinaryOperators.Equal:
-                    EmitBranchTrue(cg, BinaryOperators.NotEqual, label);
+            switch (NodeType) {
+                case AstNodeType.Equal:
+                    EmitBranchTrue(cg, AstNodeType.NotEqual, label);
                     break;
 
-                case BinaryOperators.NotEqual:
-                    EmitBranchTrue(cg, BinaryOperators.Equal, label);
+                case AstNodeType.NotEqual:
+                    EmitBranchTrue(cg, AstNodeType.Equal, label);
                     break;
 
-                case BinaryOperators.AndAlso:
+                case AstNodeType.AndAlso:
                     // if NOT (left AND right) branch label
 
                     if (_left.IsConstant(false)) {
@@ -212,7 +186,7 @@ namespace Microsoft.Scripting.Ast {
                     }
                     break;
 
-                case BinaryOperators.OrElse:
+                case AstNodeType.OrElse:
                     // if NOT left AND NOT right branch label
 
                     if (!_left.IsConstant(true) && !_right.IsConstant(true)) {
@@ -240,84 +214,85 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void EmitBranchTrue(CodeGen cg, Label label) {
-            if (!EmitBranchTrue(cg, _op, label)) {
+            if (!EmitBranchTrue(cg, NodeType, label)) {
                 base.EmitBranchTrue(cg, label);
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public override void Emit(CodeGen cg) {
 
             // TODO: code gen will be suboptimal for chained AndAlsos and AndAlso inside If
-            if (_op == BinaryOperators.AndAlso || _op == BinaryOperators.OrElse) {
-                EmitBooleanOperator(cg, _op == BinaryOperators.AndAlso);
+            if (NodeType == AstNodeType.AndAlso || NodeType == AstNodeType.OrElse) {
+                EmitBooleanOperator(cg, NodeType == AstNodeType.AndAlso);
                 return;
             }
 
             _left.EmitAs(cg, GetEmitType());
             _right.EmitAs(cg, GetEmitType());
 
-            switch (_op) {
-                case BinaryOperators.Equal:
+            switch (NodeType) {
+                case AstNodeType.Equal:
                     cg.Emit(OpCodes.Ceq);
                     break;
 
-                case BinaryOperators.NotEqual:
+                case AstNodeType.NotEqual:
                     cg.Emit(OpCodes.Ceq);
                     cg.EmitInt(0);
                     cg.Emit(OpCodes.Ceq);
                     break;
 
-                case BinaryOperators.GreaterThan:
+                case AstNodeType.GreaterThan:
                     cg.Emit(OpCodes.Cgt);
                     break;
 
-                case BinaryOperators.LessThan:
+                case AstNodeType.LessThan:
                     cg.Emit(OpCodes.Clt);
                     break;
 
-                case BinaryOperators.GreaterThanEquals:
+                case AstNodeType.GreaterThanOrEqual:
                     cg.Emit(OpCodes.Clt);
                     cg.EmitInt(0);
                     cg.Emit(OpCodes.Ceq);
                     break;
 
-                case BinaryOperators.LessThanEquals:
+                case AstNodeType.LessThanOrEqual:
                     cg.Emit(OpCodes.Cgt);
                     cg.EmitInt(0);
                     cg.Emit(OpCodes.Ceq);
                     break;
-                case BinaryOperators.Multiply:
+                case AstNodeType.Multiply:
                     cg.Emit(OpCodes.Mul);
                     break;
-                case BinaryOperators.Modulo:
+                case AstNodeType.Modulo:
                     cg.Emit(OpCodes.Rem);
                     break;
-                case BinaryOperators.Add:
+                case AstNodeType.Add:
                     cg.Emit(OpCodes.Add);
                     break;
-                case BinaryOperators.Subtract:
+                case AstNodeType.Subtract:
                     cg.Emit(OpCodes.Sub);
                     break;
-                case BinaryOperators.Divide:
+                case AstNodeType.Divide:
                     cg.Emit(OpCodes.Div);
                     break;
-                case BinaryOperators.LeftShift:
+                case AstNodeType.LeftShift:
                     cg.Emit(OpCodes.Shl);
                     break;
-                case BinaryOperators.RightShift:
+                case AstNodeType.RightShift:
                     cg.Emit(OpCodes.Shr);
                     break;
-                case BinaryOperators.BitwiseAnd:
+                case AstNodeType.And:
                     cg.Emit(OpCodes.And);
                     break;
-                case BinaryOperators.BitwiseOr:
+                case AstNodeType.Or:
                     cg.Emit(OpCodes.Or);
                     break;
-                case BinaryOperators.ExclusiveOr:
+                case AstNodeType.ExclusiveOr:
                     cg.Emit(OpCodes.Xor);
                     break;
                 default:
-                    throw new InvalidOperationException(_op.ToString());
+                    throw new InvalidOperationException(NodeType.ToString());
             }
         }
 
@@ -350,44 +325,45 @@ namespace Microsoft.Scripting.Ast {
             return;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected override object DoEvaluate(CodeContext context) {
-            if (_op == BinaryOperators.AndAlso) {
+            if (NodeType == AstNodeType.AndAlso) {
                 object ret = _left.Evaluate(context);
-                object rr = ((bool)ret) ? _right.Evaluate(context) : ret;
-                return rr;
-            } else if (_op == BinaryOperators.OrElse) {
+                return ((bool)ret) ? _right.Evaluate(context) : ret;
+            } else if (NodeType == AstNodeType.OrElse) {
                 object ret = _left.Evaluate(context);
                 return ((bool)ret) ? ret : _right.Evaluate(context);
             }
 
             object l = _left.Evaluate(context);
             object r = _right.Evaluate(context);
-            switch (_op) {
-                case BinaryOperators.GreaterThan:
+
+            switch (NodeType) {
+                case AstNodeType.GreaterThan:
                     return RuntimeHelpers.BooleanToObject(((IComparable)l).CompareTo(r) > 0);
-                case BinaryOperators.LessThan:
+                case AstNodeType.LessThan:
                     return RuntimeHelpers.BooleanToObject(((IComparable)l).CompareTo(r) < 0);
-                case BinaryOperators.GreaterThanEquals:
+                case AstNodeType.GreaterThanOrEqual:
                     return RuntimeHelpers.BooleanToObject(((IComparable)l).CompareTo(r) >= 0);
-                case BinaryOperators.LessThanEquals:
+                case AstNodeType.LessThanOrEqual:
                     return RuntimeHelpers.BooleanToObject(((IComparable)l).CompareTo(r) <= 0);
-                case BinaryOperators.Equal:
+                case AstNodeType.Equal:
                     return RuntimeHelpers.BooleanToObject(TestEquals(l, r));
 
-                case BinaryOperators.NotEqual:
+                case AstNodeType.NotEqual:
                     return RuntimeHelpers.BooleanToObject(!TestEquals(l, r));
 
-                case BinaryOperators.Multiply: return EvalMultiply(l, r);
-                case BinaryOperators.Add: return EvalAdd(l, r);
-                case BinaryOperators.Subtract: return EvalSub(l, r);
-                case BinaryOperators.Divide: return EvalDiv(l, r);
-                case BinaryOperators.Modulo: return EvalMod(l, r);
-                case BinaryOperators.BitwiseAnd: return EvalAnd(l, r);
-                case BinaryOperators.BitwiseOr: return EvalOr(l, r);
-                case BinaryOperators.ExclusiveOr: return EvalXor(l, r);
+                case AstNodeType.Multiply: return EvalMultiply(l, r);
+                case AstNodeType.Add: return EvalAdd(l, r);
+                case AstNodeType.Subtract: return EvalSub(l, r);
+                case AstNodeType.Divide: return EvalDiv(l, r);
+                case AstNodeType.Modulo: return EvalMod(l, r);
+                case AstNodeType.And: return EvalAnd(l, r);
+                case AstNodeType.Or: return EvalOr(l, r);
+                case AstNodeType.ExclusiveOr: return EvalXor(l, r);
                 default:
-                    throw new NotImplementedException(_op.ToString());
+                    throw new NotImplementedException(NodeType.ToString());
             }
         }
 
@@ -487,14 +463,6 @@ namespace Microsoft.Scripting.Ast {
 
             return Object.Equals(l, r);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _left.Walk(walker);
-                _right.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
@@ -502,50 +470,50 @@ namespace Microsoft.Scripting.Ast {
             Contract.RequiresNotNull(left, "left");
             Contract.RequiresNotNull(right, "right");
 
-            return new BinaryExpression(BinaryOperators.Equal, left, right);
+            return new BinaryExpression(AstNodeType.Equal, left, right);
         }
 
         public static BinaryExpression NotEqual(Expression left, Expression right) {
             Contract.RequiresNotNull(left, "left");
             Contract.RequiresNotNull(right, "right");
 
-            return new BinaryExpression(BinaryOperators.NotEqual, left, right);
+            return new BinaryExpression(AstNodeType.NotEqual, left, right);
         }
 
         public static BinaryExpression GreaterThan(Expression left, Expression right) {
-            return MakeBinaryComparisonExpression(BinaryOperators.GreaterThan, left, right);
+            return MakeBinaryComparisonExpression(AstNodeType.GreaterThan, left, right);
         }
 
         public static BinaryExpression LessThan(Expression left, Expression right) {
-            return MakeBinaryComparisonExpression(BinaryOperators.LessThan, left, right);
+            return MakeBinaryComparisonExpression(AstNodeType.LessThan, left, right);
         }
 
         public static BinaryExpression GreaterThanEquals(Expression left, Expression right) {
-            return MakeBinaryComparisonExpression(BinaryOperators.GreaterThanEquals, left, right);
+            return MakeBinaryComparisonExpression(AstNodeType.GreaterThanOrEqual, left, right);
         }
 
         public static BinaryExpression LessThanEquals(Expression left, Expression right) {
-            return MakeBinaryComparisonExpression(BinaryOperators.LessThanEquals, left, right);
+            return MakeBinaryComparisonExpression(AstNodeType.LessThanOrEqual, left, right);
         }
 
         #region Boolean Expressions
 
         public static BinaryExpression AndAlso(Expression left, Expression right) {
-            return LogicalBinary(BinaryOperators.AndAlso, left, right);
+            return LogicalBinary(AstNodeType.AndAlso, left, right);
         }
 
         public static BinaryExpression OrElse(Expression left, Expression right) {
-            return LogicalBinary(BinaryOperators.OrElse, left, right);
+            return LogicalBinary(AstNodeType.OrElse, left, right);
         }
 
-        private static BinaryExpression LogicalBinary(BinaryOperators op, Expression left, Expression right) {
+        private static BinaryExpression LogicalBinary(AstNodeType nodeType, Expression left, Expression right) {
             Contract.RequiresNotNull(left, "left");
             Contract.RequiresNotNull(right, "right");
             Contract.Requires(TypeUtils.IsBool(left.Type), "left");
             Contract.Requires(TypeUtils.IsBool(right.Type), "right");
             Contract.Requires(left.Type == right.Type);
 
-            return new BinaryExpression(op, left, right);
+            return new BinaryExpression(nodeType, left, right);
         }
 
         #endregion
@@ -624,90 +592,90 @@ namespace Microsoft.Scripting.Ast {
         /// Adds two arithmetic values of the same type.
         /// </summary>
         public static BinaryExpression Add(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.Add, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.Add, left, right);
         }
 
         /// <summary>
         /// Subtracts two arithmetic values of the same type.
         /// </summary>
         public static BinaryExpression Subtract(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.Subtract, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.Subtract, left, right);
         }
 
         /// <summary>
         /// Divides two arithmetic values of the same type.
         /// </summary>
         public static BinaryExpression Divide(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.Divide, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.Divide, left, right);
         }
 
         /// <summary>
         /// Modulos two arithmetic values of the same type.
         /// </summary>
         public static BinaryExpression Modulo(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.Modulo, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.Modulo, left, right);
         }
 
         /// <summary>
         /// Multiples two arithmetic values of the same type.
         /// </summary>
         public static BinaryExpression Multiply(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.Multiply, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.Multiply, left, right);
         }
 
         /// <summary>
         /// Left shifts one arithmetic value by another aritmetic value of the same type.
         /// </summary>
         public static BinaryExpression LeftShift(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.LeftShift, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.LeftShift, left, right);
         }
 
         /// <summary>
         /// Right shifts one arithmetic value by another aritmetic value of the same type.
         /// </summary>
         public static BinaryExpression RightShift(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.RightShift, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.RightShift, left, right);
         }
 
         /// <summary>
         /// Performs bitwise and of two values of the same type.
         /// </summary>
         public static BinaryExpression And(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.BitwiseAnd, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.And, left, right);
         }
 
         /// <summary>
         /// Performs bitwise or of two values of the same type.
         /// </summary>
         public static BinaryExpression Or(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.BitwiseOr, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.Or, left, right);
         }
 
         /// <summary>
         /// Performs exclusive or of two values of the same type.
         /// </summary>
         public static BinaryExpression ExclusiveOr(Expression left, Expression right) {
-            return MakeBinaryArithmeticExpression(BinaryOperators.ExclusiveOr, left, right);
+            return MakeBinaryArithmeticExpression(AstNodeType.ExclusiveOr, left, right);
         }
 
-        private static BinaryExpression MakeBinaryArithmeticExpression(BinaryOperators op, Expression left, Expression right) {
+        private static BinaryExpression MakeBinaryArithmeticExpression(AstNodeType nodeType, Expression left, Expression right) {
             Contract.RequiresNotNull(left, "left");
             Contract.RequiresNotNull(left, "right");
             if (left.Type != right.Type || !TypeUtils.IsArithmetic(left.Type)) {
-                throw new NotSupportedException(String.Format("{0} only supports identical arithmetic types, got {1} {2}", op, left.Type.Name, right.Type.Name));
+                throw new NotSupportedException(String.Format("{0} only supports identical arithmetic types, got {1} {2}", nodeType, left.Type.Name, right.Type.Name));
             }
 
-            return new BinaryExpression(op, left, right);
+            return new BinaryExpression(nodeType, left, right);
         }
 
-        private static BinaryExpression MakeBinaryComparisonExpression(BinaryOperators op, Expression left, Expression right) {
+        private static BinaryExpression MakeBinaryComparisonExpression(AstNodeType nodeType, Expression left, Expression right) {
             Contract.RequiresNotNull(left, "left");
             Contract.RequiresNotNull(left, "right");
             if (left.Type != right.Type || !TypeUtils.IsNumeric(left.Type)) {
-                throw new NotSupportedException(String.Format("{0} only supports identical numeric types, got {1} {2}", op, left.Type.Name, right.Type.Name));
+                throw new NotSupportedException(String.Format("{0} only supports identical numeric types, got {1} {2}", nodeType, left.Type.Name, right.Type.Name));
             }
 
-            return new BinaryExpression(op, left, right);
+            return new BinaryExpression(nodeType, left, right);
         }
     }
 }

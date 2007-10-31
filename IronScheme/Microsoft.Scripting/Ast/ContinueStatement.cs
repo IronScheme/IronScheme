@@ -21,7 +21,7 @@ namespace Microsoft.Scripting.Ast {
         private Statement _statement;
 
         internal ContinueStatement(SourceSpan span, Statement statement)
-            : base(span) {
+            : base(AstNodeType.ContinueStatement, span) {
             _statement = statement;
         }
 
@@ -46,13 +46,6 @@ namespace Microsoft.Scripting.Ast {
 
         protected override object DoExecute(CodeContext context) {
             return Statement.Continue;
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                ;
-            }
-            walker.PostWalk(this);
         }
     }
 

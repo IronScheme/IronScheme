@@ -13,29 +13,28 @@
  *
  * ***************************************************************************/
 
+using Microsoft.Scripting.Utils;
+
 namespace Microsoft.Scripting.Ast {
-    public class SwitchCase {
+    public class SwitchCase : Node {
         private readonly SourceLocation _header;
-        private readonly Expression _value;
+        private readonly bool _default;
+        private readonly int _value;
         private readonly Statement _body;
 
-        // A default case is represented with a null value.
-
-        public SwitchCase(Expression value, Statement body)
-            : this(value, body, SourceLocation.None) {
-        }
-
-        public SwitchCase(Expression value, Statement body, SourceLocation header) {
+        internal SwitchCase(SourceLocation header, bool @default, int value, Statement body)
+            : base(AstNodeType.SwitchCase) {
+            _header = header;
+            _default = @default;
             _value = value;
             _body = body;
-            _header = header;
         }
 
         public bool IsDefault {
-            get { return _value == null; }
+            get { return _default; }
         }
 
-        public Expression Value {
+        public int Value {
             get { return _value; }
         }
 
@@ -45,6 +44,26 @@ namespace Microsoft.Scripting.Ast {
 
         public SourceLocation Header {
             get { return _header; }
+        }
+    }
+
+    public static partial class Ast {
+        public static SwitchCase DefaultCase(Statement body) {
+            return DefaultCase(SourceLocation.None, body);
+        }
+
+        public static SwitchCase DefaultCase(SourceLocation header, Statement body) {
+            Contract.RequiresNotNull(body, "body");
+            return new SwitchCase(header, true, 0, body);
+        }
+
+        public static SwitchCase SwitchCase(int value, Statement body) {
+            return SwitchCase(SourceLocation.None, value, body);
+        }
+
+        public static SwitchCase SwitchCase(SourceLocation header, int value, Statement body) {
+            Contract.RequiresNotNull(body, "body");
+            return new SwitchCase(header, false, value, body);
         }
     }
 }

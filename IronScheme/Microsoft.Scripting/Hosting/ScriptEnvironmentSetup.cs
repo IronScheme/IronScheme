@@ -137,15 +137,17 @@ namespace Microsoft.Scripting.Hosting {
             if (addWellKnownLanguages) {
                 _languageProviders = new LanguageProviderSetup[] {
 #if SIGNED
-                    new LanguageProviderSetup("IronPython.Hosting.PythonLanguageProvider", "IronPython, Version=2.0.0.400, Culture=neutral, PublicKeyToken=31bf3856ad364e35", ".py", "py", "python", "ironpython"),
+                    new LanguageProviderSetup("IronPython.Hosting.PythonLanguageProvider", "IronPython, Version=2.0.0.500, Culture=neutral, PublicKeyToken=31bf3856ad364e35", ".py", "py", "python", "ironpython"),
                     new LanguageProviderSetup("Microsoft.JScript.Compiler.Hosting.LanguageProvider", "Microsoft.JScript.Compiler, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", ".jsx", ".js", "managedjscript", "js", "jscript"),
-                    new LanguageProviderSetup("Ruby.Hosting.RubyLanguageProvider", "Ruby, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", ".rb", "rb", "ruby", "ironruby"),
+                    new LanguageProviderSetup("Ruby.Hosting.RubyLanguageProvider", "IronRuby, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", ".rb", "rb", "ruby", "ironruby"),
                     new LanguageProviderSetup("Microsoft.VisualBasic.Scripting.Hosting.VisualBasicLanguageProvider", "Microsoft.VisualBasic.Scripting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", ".vbx", "vbx"),
+                    new LanguageProviderSetup("ToyScript.ToyLanguageProvider", "ToyScript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35", ".ts", "ts", "toyscript", "toyscript"),
 #else
                     new LanguageProviderSetup("IronPython.Hosting.PythonLanguageProvider", "IronPython", ".py", "py", "python", "ironpython"),
                     new LanguageProviderSetup("Microsoft.JScript.Compiler.Hosting.LanguageProvider", "Microsoft.JScript.Compiler", ".jsx", ".js", "managedjscript", "js", "jscript"),
                     new LanguageProviderSetup("Microsoft.VisualBasic.Scripting.Hosting.VisualBasicLanguageProvider", "Microsoft.VisualBasic.Scripting", ".vbx", "vbx"),
-                    new LanguageProviderSetup("Ruby.Hosting.RubyLanguageProvider", "Ruby", ".rb", "rb", "ruby", "ironruby")
+                    new LanguageProviderSetup("Ruby.Hosting.RubyLanguageProvider", "IronRuby", ".rb", "rb", "ruby", "ironruby"),
+                    new LanguageProviderSetup("ToyScript.ToyLanguageProvider", "ToyScript", ".ts", "ts", "toyscript", "toyscript"),
 #endif
                 };
             } else {

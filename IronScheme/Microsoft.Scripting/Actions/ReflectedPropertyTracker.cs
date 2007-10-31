@@ -33,7 +33,19 @@ namespace Microsoft.Scripting.Actions {
         public override Type DeclaringType {
             get { return _propInfo.DeclaringType; }
         }
-       
+
+        public override bool IsStatic {
+            get {
+                MethodInfo mi = GetGetMethod(true) ?? GetSetMethod(true);
+
+                return mi.IsStatic;
+            }
+        }
+
+        public override Type PropertyType {
+            get { return _propInfo.PropertyType; }
+        }        
+
         public override MethodInfo GetGetMethod() {
             return _propInfo.GetGetMethod();
         }

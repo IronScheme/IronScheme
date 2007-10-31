@@ -32,7 +32,8 @@ namespace Microsoft.Scripting.Ast {
     /// Summary description for Expr.
     /// </summary>
     public abstract class Expression : Node {
-        protected Expression() {
+        protected Expression(AstNodeType nodeType)
+            : base(nodeType) {
         }
 
         public object Evaluate(CodeContext context) {
@@ -64,12 +65,6 @@ namespace Microsoft.Scripting.Ast {
         public void EmitAsObject(CodeGen cg) {
             this.Emit(cg);  // emit as Type
             cg.EmitBoxing(Type);
-        }
-
-        // TODO: Remove
-        internal void EmitCast(CodeGen cg, Type asType) {
-            this.Emit(cg);  // emit as Type
-            cg.EmitCast(Type, asType);
         }
 
         /// <summary>

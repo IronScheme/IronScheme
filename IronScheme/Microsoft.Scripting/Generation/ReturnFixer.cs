@@ -49,7 +49,7 @@ namespace Microsoft.Scripting.Generation {
         public void FixReturn(CodeGen cg) {
             _argSlot.EmitGet(cg);
             _refSlot.EmitGet(cg);
-            cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetBox").MakeGenericMethod(_argSlot.Type.GetElementType()));
+            cg.EmitCall(typeof(BinderOps).GetMethod("GetBox").MakeGenericMethod(_argSlot.Type.GetElementType()));
             cg.EmitStoreValueIndirect(_argSlot.Type.GetElementType());
         }
     }

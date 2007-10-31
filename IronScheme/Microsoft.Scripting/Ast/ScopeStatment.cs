@@ -14,20 +14,14 @@
  * ***************************************************************************/
 
 using System;
-using System.Text;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-
-using System.Diagnostics;
+using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class ScopeStatement : Statement {
-        private Expression _scope;
-        private Statement _body;
+        private readonly Expression/*!*/ _scope;
+        private readonly Statement/*!*/ _body;
 
         public Expression Scope {
             get {
@@ -41,15 +35,15 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        internal ScopeStatement(SourceSpan span, Expression scope, Statement body)
-            : base(span) {
+        internal ScopeStatement(SourceSpan span, Expression/*!*/ scope, Statement/*!*/ body)
+            : base(AstNodeType.ScopeStatement, span) {
             _scope = scope;
             _body = body;
         }
 
         protected override object DoExecute(CodeContext context) {
             IAttributesCollection scopeObject = _scope.Evaluate(context) as IAttributesCollection;
-            CodeContext scopeContext = RuntimeHelpers.CreateNestedCodeContext(context, scopeObject, true);
+            CodeContext scopeContext = RuntimeHelpers.CreateNestedCodeContext(scopeObject, context, true);
             _body.Execute(scopeContext);
             return NextStatement;
         }
@@ -57,10 +51,10 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             Slot tempContext = cg.ContextSlot;
             Slot newContext = cg.GetLocalTmp(typeof(CodeContext));
-            
-            cg.EmitCodeContext();   //CodeContext
-            _scope.EmitAs(cg, typeof(IAttributesCollection));        //Locals dictionary
-            cg.EmitInt(1);          //Visible = true
+
+            _scope.Emit(cg);            //Locals dictionary
+            cg.EmitCodeContext();       //CodeContext
+            cg.EmitBoolean(true);       //Visible = true
             cg.EmitCall(typeof(RuntimeHelpers), "CreateNestedCodeContext");
 
             newContext.EmitSet(cg);
@@ -68,14 +62,6 @@ namespace Microsoft.Scripting.Ast {
             cg.ContextSlot = newContext;
             _body.Emit(cg);
             cg.ContextSlot = tempContext;
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _scope.Walk(walker);
-                _body.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 
@@ -88,6 +74,10 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static ScopeStatement Scope(SourceSpan span, Expression scope, Statement body) {
+            Contract.RequiresNotNull(scope, "scope");
+            Contract.RequiresNotNull(body, "body");
+            Contract.Requires(TypeUtils.CanAssign(typeof(IAttributesCollection), scope.Type), "scope", "Scope must be IAttributesCollection");
+
             return new ScopeStatement(span, scope, body);
         }
     }

@@ -168,8 +168,6 @@ namespace Microsoft.Scripting.Hosting {
 
         protected virtual void ExecuteInternal() {
 
-            Debug.Assert(_options.LanguageProvider != null);
-
             if (_options.DisplayLogo) {
                 PrintLogo();
             }
@@ -186,6 +184,8 @@ namespace Microsoft.Scripting.Hosting {
                 _exitCode = ExecuteFile(_options.Files[_options.Files.Count - 1], _options.IgnoredArgs.ToArray());
                 return;
             }
+
+            Debug.Assert(_options.LanguageProvider != null);
             
             OptionsParser opt_parser = _options.LanguageProvider.GetOptionsParser();
                 
@@ -235,7 +235,7 @@ namespace Microsoft.Scripting.Hosting {
             foreach (string filePath in _options.Files) {
                 SourceUnit sourceUnit = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(engine, filePath, Encoding.Default);
                 if (sourceUnit == null) {
-                    throw new FileNotFoundException("Source file not found.");
+                    throw new FileNotFoundException(string.Format("Source file '{0}' not found.", filePath));
                 }
                 result = RunFile(engine, sourceUnit);
             }

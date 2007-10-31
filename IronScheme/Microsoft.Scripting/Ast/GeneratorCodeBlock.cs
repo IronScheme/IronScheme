@@ -55,12 +55,8 @@ namespace Microsoft.Scripting.Ast {
         // Interpreted mode: Cache for emitted delegate so that we only generate code once.
         private Delegate _delegate;
 
-        public GeneratorCodeBlock(SourceSpan span, string name, Type generator, Type next)
-            : base(span, name) {
-            Contract.RequiresNotNull(generator, "generator");
-            Contract.RequiresNotNull(next, "next");
-            if (!typeof(Generator).IsAssignableFrom(generator)) throw new ArgumentException("The generator type must inherit from Generator");
-
+        internal GeneratorCodeBlock(SourceSpan span, string name, Type generator, Type next)
+            : base(AstNodeType.GeneratorCodeBlock, span, name, typeof(object)) {
             _generator = generator;
             _next = next;
         }
@@ -86,13 +82,6 @@ namespace Microsoft.Scripting.Ast {
             CreateEnvironmentFactory(true);
             EmitGeneratorBody(cg);
             cg.EmitReturn();
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                Body.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
 
         /// <summary>
@@ -228,6 +217,17 @@ namespace Microsoft.Scripting.Ast {
             int temps;
             YieldLabelBuilder.BuildYieldTargets(this, out _topTargets, out temps);
             return temps;
+        }
+    }
+
+    public static partial class Ast {
+        public static CodeBlock Generator(SourceSpan span, string name, Type generator, Type next) {
+            Contract.RequiresNotNull(name, "name");
+            Contract.RequiresNotNull(generator, "generator");
+            Contract.RequiresNotNull(next, "next");
+            Contract.Requires(TypeUtils.CanAssign(typeof(Generator), generator), "generator", "The generator type must inherit from Generator");
+
+            return new GeneratorCodeBlock(span, name, generator, next);
         }
     }
 }

@@ -14,29 +14,30 @@
  * ***************************************************************************/
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class BlockStatement : Statement {
-        private readonly Statement[] _statements;
+        private readonly ReadOnlyCollection<Statement> /*!*/ _statements;
 
-        public IList<Statement> Statements {
+        public ReadOnlyCollection<Statement> /*!*/ Statements {
             get { return _statements; }
         }
 
-        internal BlockStatement(SourceSpan span, Statement[] statements)
-            : base(span) {
-            Assert.NotNullItems(statements); 
+        internal BlockStatement(SourceSpan span, ReadOnlyCollection<Statement> /*!*/ statements)
+            : base(AstNodeType.BlockStatement, span) {
             _statements = statements;
         }
 
         protected override object DoExecute(CodeContext context) {
             object ret = Statement.NextStatement;
             foreach (Statement stmt in _statements) {
-                //AstWriter.ForceDump(stmt, "executing", System.Console.Out);
                 ret = stmt.Execute(context);
-                if (ret != Statement.NextStatement) break;
+                if (ret != Statement.NextStatement) {
+                    break;
+                }
             }
             return ret;
         }
@@ -48,28 +49,26 @@ namespace Microsoft.Scripting.Ast {
                 stmt.Emit(cg);
             }
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                foreach (Statement stmt in _statements) stmt.Walk(walker);
-            }
-            walker.PostWalk(this);
-        }
     }
 
     public static partial class Ast {
         public static Statement Block(List<Statement> statements) {
+            Contract.RequiresNotNullItems(statements, "statements");
+
             if (statements.Count == 1) {
                 return statements[0];
             } else {
                 return Block(statements.ToArray());
             }
         }
+
         public static BlockStatement Block(params Statement[] statements) {
             return Block(SourceSpan.None, statements);
         }
+
         public static BlockStatement Block(SourceSpan span, params Statement[] statements) {
-            return new BlockStatement(span, statements);
+            Contract.RequiresNotNullItems(statements, "statements");
+            return new BlockStatement(span, CollectionUtils.ToReadOnlyCollection(statements));
         }
     }
 }

@@ -18,16 +18,16 @@ namespace Microsoft.Scripting.Ast {
     /// The walker will recurse into all statements/expressions,
     /// except for nested code blocks.
     /// </summary>
-    public class CodeBlockWalker : Walker {
-        public override bool Walk(CodeBlock node) {
+    class CodeBlockWalker : Walker {
+        protected internal override bool Walk(CodeBlock node) {
             // Do not recurse into nested code block
             return false;
         }
-        public override bool Walk(CodeBlockExpression node) {
+        protected internal override bool Walk(CodeBlockExpression node) {
             // Do not recurse into nested code block expression
             return false;
         }
-        public override bool Walk(GeneratorCodeBlock node) {
+        protected internal override bool Walk(GeneratorCodeBlock node) {
             // Do not recurse into nested generator code block
             return false;
         }

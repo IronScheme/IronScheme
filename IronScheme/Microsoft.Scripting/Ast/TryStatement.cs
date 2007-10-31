@@ -17,6 +17,8 @@ using System;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
 using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
@@ -42,7 +44,7 @@ namespace Microsoft.Scripting.Ast {
         
         private readonly SourceLocation _header;
         private readonly Statement _body;
-        private readonly CatchBlock[] _handlers;
+        private readonly ReadOnlyCollection<CatchBlock> _handlers;
         private readonly Statement _finally;
 
         private TargetLabel _target;    // The entry point into the try statement
@@ -85,13 +87,8 @@ namespace Microsoft.Scripting.Ast {
         /// The elseSuite runs if no exception is thrown.
         /// The finallySuite runs regardless of how control exits the body.
         /// </summary>
-        internal TryStatement(SourceSpan span, SourceLocation header, Statement body, CatchBlock[] handlers, Statement @finally)
-            : base(span) {
-
-            if (handlers == null && @finally == null) {
-                throw new ArgumentException("TryStatement requires at least one catch block or a finally");
-            }
-
+        internal TryStatement(SourceSpan span, SourceLocation header, Statement body, ReadOnlyCollection<CatchBlock> handlers, Statement @finally)
+            : base(AstNodeType.TryStatement, span) {
             _body = body;
             _handlers = handlers;
             _finally = @finally;
@@ -106,7 +103,7 @@ namespace Microsoft.Scripting.Ast {
             get { return _body; }
         }
 
-        public IList<CatchBlock> Handlers {
+        public ReadOnlyCollection<CatchBlock> Handlers {
             get { return _handlers; }
         }
 
@@ -363,7 +360,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private bool HaveHandlers() {
-            return _handlers != null && _handlers.Length > 0;
+            return _handlers != null && _handlers.Count > 0;
         }
 
         private void EmitSimpleTry(CodeGen cg, TryFlowResult flow) {
@@ -625,7 +622,7 @@ namespace Microsoft.Scripting.Ast {
             // another try block, in which case the direct jump is not possible
             // and code must route through the top target.
 
-            Debug.Assert(_handlers != null && handler < _handlers.Length);
+            Debug.Assert(_handlers != null && handler < _handlers.Count);
             CatchBlock cb = _handlers[handler];
 
             cb.Yield = true;
@@ -648,23 +645,6 @@ namespace Microsoft.Scripting.Ast {
 
         internal int GetGeneratorTempCount() {
             return _finally != null ? 1 : 0;
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _body.Walk(walker);
-
-                if (_handlers != null) {
-                    foreach (CatchBlock handler in _handlers) {
-                        handler.Walk(walker);
-                    }
-                }
-
-                if (_finally != null) {
-                    _finally.Walk(walker);
-                }
-            }
-            walker.PostWalk(this);
         }
     }
 }

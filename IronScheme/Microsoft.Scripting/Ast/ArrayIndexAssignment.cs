@@ -19,12 +19,13 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class ArrayIndexAssignment : Expression {
-        private readonly Expression _array;
-        private readonly Expression _index;
-        private readonly Expression _value;
-        private readonly Type _elementType;
+        private readonly Expression /*!*/ _array;
+        private readonly Expression /*!*/ _index;
+        private readonly Expression /*!*/ _value;
+        private readonly Type /*!*/ _elementType;
 
-        internal ArrayIndexAssignment(Expression array, Expression index, Expression value) {
+        internal ArrayIndexAssignment(Expression /*!*/ array, Expression /*!*/ index, Expression /*!*/ value)
+            : base(AstNodeType.ArrayIndexAssignment) {
             _array = array;
             _index = index;
             _value = value;
@@ -74,15 +75,6 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitStoreElement(_elementType);
             temp.EmitGet(cg);
             cg.FreeLocalTmp(temp);
-        }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-                _array.Walk(walker);
-                _index.Walk(walker);
-                _value.Walk(walker);
-            }
-            walker.PostWalk(this);
         }
     }
 

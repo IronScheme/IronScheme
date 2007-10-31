@@ -43,7 +43,7 @@ namespace Microsoft.Scripting {
         private Dictionary<int, Type> _typesByArity;
 
         private TypeGroup(Type t1, Type t2) {
-            Debug.Assert(GetNormalizedTypeName(t1) == GetNormalizedTypeName(t2));
+            Debug.Assert(ReflectionUtils.GetNormalizedTypeName(t1) == ReflectionUtils.GetNormalizedTypeName(t2));
             _typesByArity = new Dictionary<int, Type>();
 
             Debug.Assert(GetGenericArity(t1) != GetGenericArity(t2));
@@ -83,7 +83,7 @@ namespace Microsoft.Scripting {
 
         /// <param name="existingTypeEntity">The merged list so far. Could be null</param>
         /// <param name="newType">The new type(s) to add to the merged list</param>
-        /// <returns>The merged list. Could be a DynamicType or a TypeCollision</returns>
+        /// <returns>The merged list.  Could be a TypeTracker or TypeGroup</returns>
         public static TypeTracker UpdateTypeEntity(
             TypeTracker existingTypeEntity,
             TypeTracker newType) {
@@ -98,9 +98,9 @@ namespace Microsoft.Scripting {
             NestedTypeTracker existingType = existingTypeEntity as NestedTypeTracker;
             TypeGroup existingTypeCollision = existingTypeEntity as TypeGroup;
 #if DEBUG
-            string existingEntityNormalizedName = (existingType != null) ? GetNormalizedTypeName(existingType.Type)
+            string existingEntityNormalizedName = (existingType != null) ? ReflectionUtils.GetNormalizedTypeName(existingType.Type)
                                                                          : existingTypeCollision.NormalizedName;
-            string newEntityNormalizedName = GetNormalizedTypeName(newType.Type);
+            string newEntityNormalizedName = ReflectionUtils.GetNormalizedTypeName(newType.Type);
             Debug.Assert(existingEntityNormalizedName == newEntityNormalizedName);
 #endif
 
@@ -161,24 +161,10 @@ namespace Microsoft.Scripting {
 
         public string NormalizedName {
             get {
-                return GetNormalizedTypeName(SampleType);
+                return ReflectionUtils.GetNormalizedTypeName(SampleType);
             }
         }
 
-        internal static string GetNormalizedTypeName(Type type) {
-            string name = type.Name;
-            if (type.IsGenericType) {
-                return GetNormalizedTypeName(name);
-            }
-            return name;
-        }
-
-        internal static string GetNormalizedTypeName(string typeName) {
-            Debug.Assert(typeName.IndexOf(Type.Delimiter) == -1); // This is the simple name, not the full name
-            int backtick = typeName.IndexOf(ReflectionUtils.GenericArityDelimiter);
-            if (backtick != -1) return typeName.Substring(0, backtick);
-            return typeName;
-        }
 
         #region MemberTracker overrides
 
@@ -189,19 +175,26 @@ namespace Microsoft.Scripting {
         }
 
         /// <summary>
-        /// This will return the result only for the non-generic type if one exists, and will throw 
-        /// an exception if all types in the TypeGroup are generic
+        /// This returns the DeclaringType of all the types in the TypeGroup
         /// </summary>
         public override Type DeclaringType {
-            get { return NonGenericType.DeclaringType; }
+            get {
+                return AnyType().DeclaringType;
+            }
         }
 
         /// <summary>
-        /// This will return the result only for the non-generic type if one exists, and will throw 
-        /// an exception if all types in the TypeGroup are generic
+        /// This returns the base name of the TypeGroup (the name shared by all types minus arity)
         /// </summary>
         public override string Name {
-            get { return NonGenericType.Name; }
+            get { 
+                string name = AnyType().Name; 
+
+                if(name.IndexOf(ReflectionUtils.GenericArityDelimiter) != -1) {
+                    return name.Substring(0, name.LastIndexOf(ReflectionUtils.GenericArityDelimiter));
+                }
+                return name;
+            }
         }
 
         /// <summary>
@@ -223,6 +216,14 @@ namespace Microsoft.Scripting {
         public override bool IsPublic {
             get { return NonGenericType.IsPublic; }
         }
+
         #endregion
+
+        private Type AnyType() {
+            foreach (KeyValuePair<int, Type> kvp in _typesByArity) {
+                return kvp.Value;
+            }
+            throw new InvalidOperationException();
+        }
     }
 }

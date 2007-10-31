@@ -137,13 +137,19 @@ namespace Microsoft.Scripting.Generation {
 
             MethodInfo mi = Method as MethodInfo;
             Expression ret, call;
+            if (!Method.IsPublic || !Method.DeclaringType.IsVisible) {
+                if (mi != null) {
+                    mi = CompilerHelpers.GetCallableMethod(mi);
+                }
+            }
+
             if (Method.IsPublic && Method.DeclaringType.IsVisible) {
                 // public method
                 if (mi != null) {
                     Expression instance = mi.IsStatic ? null : _instanceBuilder.ToExpression(context, parameters);
                     call = Ast.SimpleCallHelper(instance, mi, args);
                 } else {
-                    call = Ast.New((ConstructorInfo)Method, args);
+                    call = Ast.SimpleNewHelper((ConstructorInfo)Method, args);
                 }
             } else {
                 // Private binding, invoke via reflection
@@ -153,13 +159,13 @@ namespace Microsoft.Scripting.Generation {
                         Ast.RuntimeConstant(mi),
                         typeof(MethodInfo).GetMethod("Invoke", new Type[] { typeof(object), typeof(object[]) }),
                         Ast.ConvertHelper(instance, typeof(object)),
-                        Ast.NewArray(typeof(object[]), args)
+                        Ast.NewArrayHelper(typeof(object[]), args)
                     );
                 } else {
                     call = Ast.Call(
                         Ast.RuntimeConstant((ConstructorInfo)Method),
                         typeof(ConstructorInfo).GetMethod("Invoke", new Type[] { typeof(object[]) }), 
-                        Ast.NewArray(typeof(object[]), args)
+                        Ast.NewArrayHelper(typeof(object[]), args)
                     ); 
                 }
             }
@@ -250,7 +256,7 @@ namespace Microsoft.Scripting.Generation {
                     Expression instance = mi.IsStatic ? null : _instanceBuilder.AbstractBuild(context, args).Expression;
                     callExpr = Ast.SimpleCallHelper(instance, mi, argExprs);
                 } else {
-                    callExpr = Ast.New((ConstructorInfo)Method, argExprs);
+                    callExpr = Ast.SimpleNewHelper((ConstructorInfo)Method, argExprs);
                 }
             }
 

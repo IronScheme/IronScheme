@@ -20,7 +20,8 @@ using Microsoft.Scripting.Generation;
 namespace Microsoft.Scripting.Ast {
     public class ParamsExpression : Expression {
 
-        internal ParamsExpression() {
+        internal ParamsExpression()
+            : base(AstNodeType.ParamsExpression) {
         }
 
         public override Type Type {
@@ -33,13 +34,8 @@ namespace Microsoft.Scripting.Ast {
             Debug.Assert(cg.ParamsSlot != null);
             cg.ParamsSlot.EmitGet(cg);
         }
-
-        public override void Walk(Walker walker) {
-            if (walker.Walk(this)) {
-            }
-            walker.PostWalk(this);
-        }
     }
+
     /// <summary>
     /// Factory methods.
     /// </summary>

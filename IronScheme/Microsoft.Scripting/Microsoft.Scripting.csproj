@@ -1,33 +1,40 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <Import Condition=" '$(BuildingTraversal)' == 'true' " Project="..\..\silverlight.settings.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.20831</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Scripting</RootNamespace>
     <AssemblyName>Microsoft.Scripting</AssemblyName>
-    <DocumentationFile>Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
+    <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
-    <SccProjectName>%24/IronScheme/IronScheme/Microsoft.Scripting</SccProjectName>
-    <SccLocalPath>.</SccLocalPath>
-    <SccAuxPath>https://tfs02.codeplex.com</SccAuxPath>
-    <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
     <OldToolsVersion>2.0</OldToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'FxCop|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>Bin\FxCop\</OutputPath>
+    <OutputPath>..\..\Bin\FxCop\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRules>-Microsoft.Usage#CA2209;-!Microsoft.Design#CA1012;-!Microsoft.Design#CA2210;-!Microsoft.Design#CA1040;-!Microsoft.Design#CA1005;-!Microsoft.Design#CA1020;-!Microsoft.Design#CA1021;-!Microsoft.Design#CA1010;-!Microsoft.Design#CA1011;-!Microsoft.Design#CA1009;-!Microsoft.Design#CA1050;-!Microsoft.Design#CA1026;-!Microsoft.Design#CA1019;-!Microsoft.Design#CA1031;-!Microsoft.Design#CA1047;-!Microsoft.Design#CA1000;-!Microsoft.Design#CA1048;-!Microsoft.Design#CA1051;-!Microsoft.Design#CA1002;-!Microsoft.Design#CA1061;-!Microsoft.Design#CA1006;-!Microsoft.Design#CA1046;-!Microsoft.Design#CA1045;-!Microsoft.Design#CA1065;-!Microsoft.Design#CA1038;-!Microsoft.Design#CA1008;-!Microsoft.Design#CA1028;-!Microsoft.Design#CA1064;-!Microsoft.Design#CA1004;-!Microsoft.Design#CA1035;-!Microsoft.Design#CA1063;-!Microsoft.Design#CA1032;-!Microsoft.Design#CA1023;-!Microsoft.Design#CA1033;-!Microsoft.Design#CA1039;-!Microsoft.Design#CA1016;-!Microsoft.Design#CA1014;-!Microsoft.Design#CA1017;-!Microsoft.Design#CA1018;-!Microsoft.Design#CA1027;-!Microsoft.Design#CA1059;-!Microsoft.Design#CA1060;-!Microsoft.Design#CA1034;-!Microsoft.Design#CA1013;-!Microsoft.Design#CA1036;-!Microsoft.Design#CA1044;-!Microsoft.Design#CA1041;-!Microsoft.Design#CA1025;-!Microsoft.Design#CA1052;-!Microsoft.Design#CA1053;-!Microsoft.Design#CA1057;-!Microsoft.Design#CA1058;-!Microsoft.Design#CA1001;-!Microsoft.Design#CA1049;-!Microsoft.Design#CA1054;-!Microsoft.Design#CA1056;-!Microsoft.Design#CA1055;-!Microsoft.Design#CA1030;-!Microsoft.Design#CA1003;-!Microsoft.Design#CA1007;-!Microsoft.Design#CA1043;-!Microsoft.Design#CA1024;+!Microsoft.Globalization#CA1301;+!Microsoft.Globalization#CA1302;-!Microsoft.Globalization#CA1308;+!Microsoft.Globalization#CA1306;+!Microsoft.Globalization#CA1304;-!Microsoft.Globalization#CA1305;+!Microsoft.Globalization#CA2101;+!Microsoft.Globalization#CA1300;-!Microsoft.Globalization#CA1307;+!Microsoft.Globalization#CA1309;+!Microsoft.Interoperability#CA1403;+!Microsoft.Interoperability#CA1406;+!Microsoft.Interoperability#CA1413;+!Microsoft.Interoperability#CA1402;+!Microsoft.Interoperability#CA1407;+!Microsoft.Interoperability#CA1404;+!Microsoft.Interoperability#CA1410;+!Microsoft.Interoperability#CA1411;+!Microsoft.Interoperability#CA1405;+!Microsoft.Interoperability#CA1409;+!Microsoft.Interoperability#CA1415;+!Microsoft.Interoperability#CA1408;+!Microsoft.Interoperability#CA1414;+!Microsoft.Interoperability#CA1412;+!Microsoft.Interoperability#CA1400;+!Microsoft.Interoperability#CA1401;+!Microsoft.Maintainability#CA1506;+!Microsoft.Maintainability#CA1502;+!Microsoft.Maintainability#CA1501;+!Microsoft.Maintainability#CA1505;+!Microsoft.Maintainability#CA1504;+!Microsoft.Maintainability#CA1500;+!Microsoft.Mobility#CA1600;+!Microsoft.Mobility#CA1601;-Microsoft.Naming#CA1702;-Microsoft.Naming#CA1700;-Microsoft.Naming#CA1712;-Microsoft.Naming#CA1713;-Microsoft.Naming#CA1714;-Microsoft.Naming#CA1709;-Microsoft.Naming#CA1704;-Microsoft.Naming#CA1708;-Microsoft.Naming#CA1715;-Microsoft.Naming#CA1710;-Microsoft.Naming#CA1720;-Microsoft.Naming#CA1707;-Microsoft.Naming#CA1722;-Microsoft.Naming#CA1711;-Microsoft.Naming#CA1716;-Microsoft.Naming#CA1717;-Microsoft.Naming#CA1725;-Microsoft.Naming#CA1719;-Microsoft.Naming#CA1721;-Microsoft.Naming#CA1701;-Microsoft.Naming#CA1703;-Microsoft.Naming#CA1724;-Microsoft.Naming#CA1726;+!Microsoft.Performance#CA1809;-!Microsoft.Performance#CA1811;+!Microsoft.Performance#CA1812;+!Microsoft.Performance#CA1813;+!Microsoft.Performance#CA1823;+!Microsoft.Performance#CA1800;-!Microsoft.Performance#CA1805;+!Microsoft.Performance#CA1810;+!Microsoft.Performance#CA1824;-!Microsoft.Performance#CA1822;+!Microsoft.Performance#CA1815;+!Microsoft.Performance#CA1814;+!Microsoft.Performance#CA1819;+!Microsoft.Performance#CA1821;+!Microsoft.Performance#CA1804;+!Microsoft.Performance#CA1820;+!Microsoft.Performance#CA1802;+!Microsoft.Portability#CA1901;+!Microsoft.Portability#CA1900;+!Microsoft.Reliability#CA2001;+!Microsoft.Reliability#CA2002;+!Microsoft.Reliability#CA2003;+!Microsoft.Reliability#CA2004;+!Microsoft.Reliability#CA2006;+!Microsoft.Security#CA2116;+!Microsoft.Security#CA2117;+!Microsoft.Security#CA2105;+!Microsoft.Security#CA2115;+!Microsoft.Security#CA2102;+!Microsoft.Security#CA2104;+!Microsoft.Security#CA2122;+!Microsoft.Security#CA2114;+!Microsoft.Security#CA2123;+!Microsoft.Security#CA2111;+!Microsoft.Security#CA2108;+!Microsoft.Security#CA2107;+!Microsoft.Security#CA2103;+!Microsoft.Security#CA2118;+!Microsoft.Security#CA2109;+!Microsoft.Security#CA2119;+!Microsoft.Security#CA2106;+!Microsoft.Security#CA2112;+!Microsoft.Security#CA2120;+!Microsoft.Security#CA2121;+!Microsoft.Security#CA2126;+!Microsoft.Security#CA2124;+!Microsoft.Security#CA2127;+!Microsoft.Security#CA2128;+!Microsoft.Security#CA2129;+!Microsoft.Usage#CA2243;+!Microsoft.Usage#CA2236;+!Microsoft.Usage#CA1816;+!Microsoft.Usage#CA2227;+!Microsoft.Usage#CA2213;+!Microsoft.Usage#CA2216;+!Microsoft.Usage#CA2214;+!Microsoft.Usage#CA2222;+!Microsoft.Usage#CA1806;+!Microsoft.Usage#CA2217;+!Microsoft.Usage#CA2212;+!Microsoft.Usage#CA2219;+!Microsoft.Usage#CA2201;+!Microsoft.Usage#CA2228;+!Microsoft.Usage#CA2221;+!Microsoft.Usage#CA2220;+!Microsoft.Usage#CA2240;+!Microsoft.Usage#CA2229;+!Microsoft.Usage#CA2238;+!Microsoft.Usage#CA2207;+!Microsoft.Usage#CA2208;+!Microsoft.Usage#CA2235;+!Microsoft.Usage#CA2237;+!Microsoft.Usage#CA2232;+!Microsoft.Usage#CA2223;+!Microsoft.Usage#CA2211;+!Microsoft.Usage#CA2233;+!Microsoft.Usage#CA2225;+!Microsoft.Usage#CA2226;+!Microsoft.Usage#CA2231;+!Microsoft.Usage#CA2224;+!Microsoft.Usage#CA2218;+!Microsoft.Usage#CA2234;+!Microsoft.Usage#CA2239;+!Microsoft.Usage#CA2200;+!Microsoft.Usage#CA1801;+!Microsoft.Usage#CA2242;+!Microsoft.Usage#CA2205;+!Microsoft.Usage#CA2230</CodeAnalysisRules>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'SpecSharp|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Bin\Debug\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591</NoWarn>
+    <SpecSharpVerify>true</SpecSharpVerify>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -92,8 +99,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SilverlightSdkPath)\System.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Hosts\Silverlight\SilverlightVersion.cs" Condition=" '$(SilverlightBuild)' == 'true' ">
@@ -103,14 +108,17 @@
     <Compile Include="Actions\AbstractObject.cs" />
     <Compile Include="Actions\ArgumentInfo.cs" />
     <Compile Include="Actions\CallSignature.cs" />
+    <Compile Include="Actions\ConvertToBinderHelper.cs" />
     <Compile Include="Actions\InvokeBinderHelper.cs" />
     <Compile Include="Actions\DynamicAction.cs" />
     <Compile Include="Actions\ActionBinder.cs" />
     <Compile Include="Actions\BoundMemberTracker.cs" />
     <Compile Include="Actions\ConstructorTracker.cs" />
+    <Compile Include="Actions\ErrorInfo.cs" />
     <Compile Include="Actions\EventTracker.cs" />
     <Compile Include="Actions\ExtensionPropertyTracker.cs" />
     <Compile Include="Actions\FieldTracker.cs" />
+    <Compile Include="Actions\MethodGroup.cs" />
     <Compile Include="Actions\MethodTracker.cs" />
     <Compile Include="Actions\NamespaceTracker.cs" />
     <Compile Include="Actions\NestedTypeTracker.cs" />
@@ -153,19 +161,27 @@
     <Compile Include="Ast\CatchBlock.cs" />
     <Compile Include="Ast\CodeBlockWalker.cs" />
     <Compile Include="Ast\ControlFlow.cs" />
+    <Compile Include="Ast\AstRewriter.cs" />
+    <Compile Include="Ast\ForestRewriter.cs" />
+    <Compile Include="Ast\Walker.cs" />
     <Compile Include="Ast\DynamicConversionExpression.cs" />
     <Compile Include="Ast\AbstractValue.cs" />
     <Compile Include="Ast\AbstractContext.cs" />
     <Compile Include="Ast\DeleteUnboundExpression.cs" />
     <Compile Include="Ast\DoStatementBuilder.cs" />
     <Compile Include="Ast\EvaluationAddress.cs" />
+    <Compile Include="Ast\ExpressionReturnException.cs" />
     <Compile Include="Ast\InterpretChecker.cs" />
     <Compile Include="Ast\IfStatementBuilder.cs" />
     <Compile Include="Ast\MemberAssignment.cs" />
+    <Compile Include="Ast\AstNodeType.cs" />
+    <Compile Include="Ast\SwitchStatementBuilder.cs" />
     <Compile Include="Ast\TypeUtils.cs" />
+    <Compile Include="BinderOps.cs" />
     <Compile Include="Cast.cs" />
     <Compile Include="Cast.Generated.cs" />
     <Compile Include="DefaultLanguageContext.cs" />
+    <Compile Include="CallType.cs" />
     <Compile Include="Generation\FrameStorageAllocator.cs" />
     <Compile Include="Generation\KeywordArgBuilder.cs" />
     <Compile Include="Generation\KeywordConstructorReturnBuilder.cs" />
@@ -179,7 +195,6 @@
     <Compile Include="Ast\TryStatementBuilder.cs" />
     <Compile Include="Ast\TypeBinaryExpression.cs" />
     <Compile Include="Ast\UnaryExpression.cs" />
-    <Compile Include="Ast\CallWithThisExpression.cs" />
     <Compile Include="Ast\ClosureBinder.cs" />
     <Compile Include="Ast\CodeBlock.cs" />
     <Compile Include="Ast\CodeBlockExpression.cs" />
@@ -187,7 +202,7 @@
     <Compile Include="Ast\FlowChecker.cs" />
     <Compile Include="Ast\GeneratorCodeBlock.cs" />
     <Compile Include="Ast\ActionExpression.cs" />
-    <Compile Include="Ast\Arg.cs" />
+    <Compile Include="Ast\ArgumentKind.cs" />
     <Compile Include="Ast\ArrayIndexAssignment.cs" />
     <Compile Include="Ast\ArrayIndexExpression.cs" />
     <Compile Include="Ast\BlockStatement.cs" />
@@ -220,7 +235,6 @@
     <Compile Include="Ast\ParenthesizedExpression.cs" />
     <Compile Include="Ast\ReturnStatement.cs" />
     <Compile Include="Ast\ScopeStatment.cs" />
-    <Compile Include="Ast\ShortCircuitExpression.cs" />
     <Compile Include="Ast\Statement.cs" />
     <Compile Include="Ast\SwitchCase.cs" />
     <Compile Include="Ast\SwitchStatement.cs" />
@@ -246,16 +260,12 @@
     <Compile Include="Hosting\SourceUnit.cs" />
     <Compile Include="Hosting\SourceUnitReader.cs" />
     <Compile Include="MissingParameter.cs" />
-    <Compile Include="Types\BuiltinFunction.cs" />
-    <Compile Include="Types\BuiltinFunction.Generated.cs" />
     <Compile Include="Generation\ByRefReturnBuilder.cs" />
     <Compile Include="Actions\CallBinderHelper.cs" />
     <Compile Include="CallTargets.cs" />
     <Compile Include="ArgumentTypeException.cs" />
     <Compile Include="ClrModule.cs" />
-    <Compile Include="Types\CoreReflectedTypeBuilder.cs" />
     <Compile Include="DelegateSignatureInfo.cs" />
-    <Compile Include="FunctionType.cs" />
     <Compile Include="Generation\FieldSlotFactory.cs" />
     <Compile Include="Generation\LocalSlotFactory.cs" />
     <Compile Include="Generation\ReturnFixer.cs" />
@@ -292,9 +302,8 @@
     <Compile Include="Generation\CompilerConstant.cs" />
     <Compile Include="CustomSymbolDictionary.cs" />
     <Compile Include="ExplicitConversionMethodAttribute.cs" />
-    <Compile Include="DynamicHelpers.cs" />
     <Compile Include="Extensible.cs" />
-    <Compile Include="Types\ExtensionTypeAttribute.cs" />
+    <Compile Include="ExtensionTypeAttribute.cs" />
     <Compile Include="ExtraKeyEnumerator.cs" />
     <Compile Include="FunctionEnvironmentDictionary.cs" />
     <Compile Include="Generation\ArgBuilder.cs" />
@@ -339,14 +348,6 @@
     <Compile Include="KwCallInfo.cs" />
     <Compile Include="LanguageContext.cs" />
     <Compile Include="MutableTypeAttribute.cs" />
-    <Compile Include="OperatorMapping.cs" />
-    <Compile Include="Types\ReflectedEvent.cs" />
-    <Compile Include="Types\ReflectedExtensionProperty.cs" />
-    <Compile Include="Types\ReflectedField.cs" />
-    <Compile Include="Types\ReflectedGetterSetter.cs" />
-    <Compile Include="Types\ReflectedIndexer.cs" />
-    <Compile Include="Types\ReflectedProperty.cs" />
-    <Compile Include="Types\ReflectedTypeBuilder.cs" />
     <Compile Include="ReflectionCache.cs" />
     <Compile Include="ScopeMemberAttributes.cs" />
     <Compile Include="ModuleChangeEventArgs.cs" />
@@ -359,8 +360,6 @@
     <Compile Include="PerfTrack.cs" />
     <Compile Include="NotNullAttribute.cs" />
     <Compile Include="ParamDictionaryAttribute.cs" />
-    <Compile Include="FastCallable.cs" />
-    <Compile Include="FastCallable.Generated.cs" />
     <Compile Include="Generation\ConstantPool.cs" />
     <Compile Include="Hosting\ErrorSink.cs" />
     <Compile Include="Hosting\LanguageProvider.Remote.cs" />
@@ -370,7 +369,6 @@
     <Compile Include="Hosting\ScriptEngine.Remote.cs" />
     <Compile Include="Hosting\SingletonEngineFactory.cs" />
     <Compile Include="ICallableWithCodeContext.cs" />
-    <Compile Include="Types\IContextAwareMember.cs" />
     <Compile Include="ICallableWithThis.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="ScriptDomainManager.cs" />
@@ -379,7 +377,6 @@
     <Compile Include="Generation\GlobalAllocator.cs" />
     <Compile Include="ScriptModuleKind.cs" />
     <Compile Include="ScriptNameAttribute.cs" />
-    <Compile Include="Types\ScriptTypeAttribute.cs" />
     <Compile Include="DynamicStackFrame.cs" />
     <Compile Include="StaticExtensionMethodAttribute.cs" />
     <Compile Include="StaticThisAttribute.cs" />
@@ -387,12 +384,7 @@
     <Compile Include="BaseSymbolDictionary.cs" />
     <Compile Include="SyntaxErrorException.cs" />
     <Compile Include="TransformDictEnumerator.cs" />
-    <Compile Include="Types\TransformedName.cs" />
     <Compile Include="TupleDictionary.cs" />
-    <Compile Include="Types\TypeCreatedEventArgs.cs" />
-    <Compile Include="Types\DynamicType.cs" />
-    <Compile Include="Types\DynamicTypeBuilder.cs" />
-    <Compile Include="Types\ExtensionPropertyInfo.cs" />
     <Compile Include="TokenizerBuffer.cs" />
     <Compile Include="UnboundNameException.cs" />
     <Compile Include="Generation\StorageAllocator.cs" />
@@ -413,7 +405,7 @@
     <Compile Include="Shell\BasicConsole.cs" />
     <Compile Include="Shell\SuperConsole.cs" />
     <Compile Include="Tuple.cs" />
-    <Compile Include="DynamicTypeChangedEventArgs.cs" />
+    <Compile Include="PythonTypeChangedEventArgs.cs" />
     <Compile Include="Generation\AssemblyGen.cs" />
     <Compile Include="Generation\AssemblyGenAttributes.cs" />
     <Compile Include="Generation\CodeGen.cs" />
@@ -428,7 +420,6 @@
     <Compile Include="IDynamicObject.cs" />
     <Compile Include="IFancyCallable.cs" />
     <Compile Include="ISlice.cs" />
-    <Compile Include="Types\ISuperDynamicObject.cs" />
     <Compile Include="ContextId.cs" />
     <Compile Include="PropertyMethodAttribute.cs" />
     <Compile Include="ScriptModule.cs" />
@@ -440,8 +431,6 @@
     <Compile Include="Shell\Style.cs" />
     <Compile Include="SourceLocation.cs" />
     <Compile Include="SourceSpan.cs" />
-    <Compile Include="Types\DynamicMixin.cs" />
-    <Compile Include="Types\DynamicMixinBuilder.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Utils\Action.cs" />
     <Compile Include="Utils\ArrayUtils.cs" />
@@ -483,8 +472,6 @@
     </Compile>
     <Compile Include="SymbolId.cs" />
     <Compile Include="SymbolTable.cs" />
-    <Compile Include="Types\DynamicTypeSlot.cs" />
-    <Compile Include="Types\DynamicTypeValueSlot.cs" />
     <Compile Include="Uninitialized.cs" />
     <Compile Include="SilverlightProxies.cs" />
   </ItemGroup>
@@ -504,4 +491,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" Condition=" '$(SilverlightTreeBuild)' != 'true' " />
   <Import Project="..\..\silverlight.build.targets" Condition=" '$(SilverlightTreeBuild)' == 'true' " />
+  <Target Name="AfterCompile" DependsOnTargets="Verify" Condition="'$(SpecSharpVerify)' == 'true'" />
 </Project>

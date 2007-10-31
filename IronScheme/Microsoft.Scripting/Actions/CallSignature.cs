@@ -23,7 +23,7 @@ using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Actions {
     public struct CallSignature : IEquatable<CallSignature> {
-        //^ invariant _infos != null ==> _argumentCount == _infos.Length
+        // TODO: invariant _infos != null ==> _argumentCount == _infos.Length
         
         private readonly ArgumentInfo[] _infos;
         private readonly int _argumentCount;
@@ -68,30 +68,6 @@ namespace Microsoft.Scripting.Actions {
             }
 
             _infos = (!simple) ? infos : null;
-        }
-
-        public CallSignature(params Arg[] args) {
-            bool simple = true;
-            if (args != null) {
-                _argumentCount = args.Length;
-                for (int i = 0; i < args.Length; i++) {
-                    if (args[i].Kind != ArgumentKind.Simple) {
-                        simple = false;
-                        break;
-                    }
-                }
-            } else {
-                _argumentCount = 0;
-            }
-
-            if (!simple) {
-                _infos = new ArgumentInfo[args.Length];
-                for (int i = 0; i < args.Length; i++) {
-                    _infos[i] = args[i].Info;
-                }
-            } else {
-                _infos = null;
-            }
         }
 
         public CallSignature(params ArgumentKind[] kinds) {

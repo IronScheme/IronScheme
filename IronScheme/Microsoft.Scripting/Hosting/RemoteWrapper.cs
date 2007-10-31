@@ -63,8 +63,8 @@ namespace Microsoft.Scripting.Hosting {
         public new Type GetType() {
             return LocalObject.GetType();
         }
-        
-        internal static T TryGetLocal<T>(object remotable) 
+
+        internal static T/*?*/ TryGetLocal<T>(object remotable) 
             where T : class, IRemotable {
 
             RemoteWrapper remote_wrapper = remotable as RemoteWrapper;
