@@ -21,7 +21,7 @@ public enum Tokens {
     REAL=17,CHARACTER=18};
 
 public struct ValueType
-#line 50 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 76 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{
   public Cons list;
   public object elem;
@@ -35,7 +35,7 @@ public abstract class ScanBase : IScanner<ValueType,LexLocation> {
 
 public class Parser: ShiftReduceParser<ValueType, LexLocation>
 {
-#line 15 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 15 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 
 
 public Cons parsed;
@@ -61,6 +61,32 @@ static Cons Append(Cons c, Cons t)
   }
   Last(c).Cdr = t;
   return c;
+}
+
+public static Dictionary<Cons,SourceSpan> sourcemap = new Dictionary<Cons,SourceSpan>();
+
+static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
+{
+  return new SourceSpan(
+    new SourceLocation(1, start.sLin, start.sCol + 1),
+    new SourceLocation(1, end.eLin, end.eCol + 1));
+}
+
+protected override SourceSpan GetLocation(gppg.LexLocation loc)
+{
+  return new SourceSpan(
+    new SourceLocation(1, loc.sLin, loc.sCol + 1),
+    new SourceLocation(1, loc.eLin, loc.eCol + 1));
+}
+
+static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
+{
+  if (o == null)
+  {
+    return null;
+  }
+  sourcemap[o] = GetLocation(start, end);
+  return o;
 }
 
 static readonly SymbolId quote = SymbolTable.StringToId("quote");
@@ -137,79 +163,79 @@ static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
     switch (action)
     {
       case 2: // file -> exprlist 
-#line 67 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 93 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ parsed = value_stack.array[value_stack.top-1].list; }
         break;
       case 3: // list -> LBRACE exprlist RBRACE 
-#line 71 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = value_stack.array[value_stack.top-2].list; }
+#line 97 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = SetLocation(value_stack.array[value_stack.top-2].list,location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
         break;
       case 4: // list -> LBRACK exprlist RBRACK 
-#line 72 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = value_stack.array[value_stack.top-2].list; }
+#line 98 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = SetLocation(value_stack.array[value_stack.top-2].list,location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
         break;
       case 5: // list -> LBRACE exprlist expr DOT expr RBRACE 
-#line 73 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = Append(value_stack.array[value_stack.top-5].list, new Cons(value_stack.array[value_stack.top-4].elem,value_stack.array[value_stack.top-2].elem)); }
+#line 99 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = SetLocation(Append(value_stack.array[value_stack.top-5].list, new Cons(value_stack.array[value_stack.top-4].elem,value_stack.array[value_stack.top-2].elem)),location_stack.array[location_stack.top-6],location_stack.array[location_stack.top-1]); }
         break;
       case 6: // list -> specexpr expr 
-#line 74 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 100 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.list = new Cons(value_stack.array[value_stack.top-2].elem, new Cons(value_stack.array[value_stack.top-1].elem)); }
         break;
       case 7: // exprlist -> 
-#line 78 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 104 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.list = null; }
         break;
       case 8: // exprlist -> exprlist expr 
-#line 79 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 105 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.list = Append(value_stack.array[value_stack.top-2].list,new Cons(value_stack.array[value_stack.top-1].elem)); }
         break;
       case 9: // expr -> list 
-#line 83 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 109 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = value_stack.array[value_stack.top-1].list;}
         break;
       case 10: // expr -> SYMBOL 
-#line 84 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 110 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = SymbolTable.StringToId(value_stack.array[value_stack.top-1].text); }
         break;
       case 11: // expr -> STRING 
-#line 85 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 111 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = value_stack.array[value_stack.top-1].text.Trim('"'); }
         break;
       case 12: // expr -> INTEGER 
-#line 86 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 112 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = Convert.ToInt32(value_stack.array[value_stack.top-1].text);}
         break;
       case 13: // expr -> LITERAL 
-#line 87 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 113 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = value_stack.array[value_stack.top-1].text == "#t" ? (object)true : (value_stack.array[value_stack.top-1].text == "#f" ? (object)false : null);}
         break;
       case 14: // expr -> REAL 
-#line 88 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 114 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = Convert.ToDouble(value_stack.array[value_stack.top-1].text);}
         break;
       case 15: // expr -> CHARACTER 
-#line 89 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 115 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = value_stack.array[value_stack.top-1].text[0];}
         break;
       case 16: // expr -> VECTORLBRACE exprlist RBRACE 
-#line 90 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = value_stack.array[value_stack.top-2].list;}
+#line 116 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Builtins.ListToVector(value_stack.array[value_stack.top-2].list);}
         break;
       case 17: // specexpr -> QUOTE 
-#line 94 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 120 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = quote;}
         break;
       case 18: // specexpr -> UNQUOTESPLICING 
-#line 95 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 121 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = unquote_splicing; }
         break;
       case 19: // specexpr -> QUASIQUOTE 
-#line 96 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 122 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = quasiquote; }
         break;
       case 20: // specexpr -> UNQUOTE 
-#line 97 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 123 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = unquote; }
         break;
     }
@@ -223,7 +249,7 @@ static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
       return CharToString((char)terminal);
   }
 
-#line 100 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 126 "C:\Documents and Settings\bps\My Documents\IronScheme\IronScheme\Compiler\IronScheme.y"
 
 
 
