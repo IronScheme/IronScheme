@@ -81,14 +81,12 @@ namespace IronScheme.Hosting
 
       protected override void Initialize()
       {
-        if (File.Exists("REPL.ast"))
+        if (File.Exists("unknown_ast.ast"))
         {
-          File.Delete("REPL.ast");
+          File.Delete("unknown_ast.ast");
         }
         base.Initialize();
       }
-
-      
 
       protected override void OnInteractiveLoopStart()
       {
