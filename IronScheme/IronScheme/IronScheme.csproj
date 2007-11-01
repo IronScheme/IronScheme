@@ -50,8 +50,6 @@
     <Compile Include="Compiler\Generator.Symbols.cs" />
     <Compile Include="Compiler\Generator.cs" />
     <Compile Include="Compiler\Generator.Methods.cs" />
-    <Compile Include="Compiler\IronScheme.lex.cs" />
-    <Compile Include="Compiler\IronScheme.y.cs" />
     <Compile Include="Compiler\SyntaxExpand.cs" />
     <Compile Include="gppg\IScanner.cs" />
     <Compile Include="gppg\ParserStack.cs" />
