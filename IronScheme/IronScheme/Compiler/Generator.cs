@@ -97,7 +97,7 @@ namespace IronScheme.Compiler
     }
 
 
-    static readonly Dictionary<BuiltinFunction, MethodBinder> methodbindercache = new Dictionary<BuiltinFunction, MethodBinder>();
+    static readonly Dictionary<MethodGroup, MethodBinder> methodbindercache = new Dictionary<MethodGroup, MethodBinder>();
 
     protected internal static Expression GetAst(object args, CodeBlock cb)
     {
@@ -145,14 +145,14 @@ namespace IronScheme.Compiler
               return gh(c.Cdr, cb);
             }
 
-            BuiltinFunction bf = m as BuiltinFunction;
+            MethodGroup bf = m as MethodGroup;
             if (bf != null)
             {
 
               MethodBinder mb;
               if (!methodbindercache.TryGetValue(bf, out mb))
               {
-                methodbindercache[bf] = mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.Targets, BinderType.Normal);
+                methodbindercache[bf] = mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.GetMethodBases(), BinderType.Normal);
               }
               Expression[] pars = GetAstList(c.Cdr as Cons, cb);
               Type[] types = GetExpressionTypes(pars);
@@ -312,8 +312,6 @@ namespace IronScheme.Compiler
 
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
-
-      cb.BindClosures();
 
       CodeBlockExpression cbe = Ast.CodeBlockExpression(cb, false);
 

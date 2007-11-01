@@ -39,6 +39,8 @@ namespace IronScheme.Compiler
       get { return cc; }
     }
 
+    internal static readonly ActionBinder BINDER = new IronScheme.Actions.IronSchemeActionBinder(null);
+    
     static BaseHelper()
     {
       se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
@@ -57,10 +59,10 @@ namespace IronScheme.Compiler
   {
 
 
-    readonly static Dictionary<SymbolId, BuiltinFunction> builtinmap =
-      new Dictionary<SymbolId, BuiltinFunction>();
+    readonly static Dictionary<SymbolId, MethodGroup> builtinmap =
+      new Dictionary<SymbolId, MethodGroup>();
 
-    public static Dictionary<SymbolId, BuiltinFunction> BuiltinFunctions
+    public static Dictionary<SymbolId, MethodGroup> MethodGroups
     {
       get { return Generator.builtinmap; }
     }
@@ -97,7 +99,7 @@ namespace IronScheme.Compiler
       foreach (string mn in all.Keys)
       {
         SymbolId s = SymbolTable.StringToId(mn);
-        Context.Scope.SetName(s, builtinmap[s] = BuiltinFunction.MakeMethod(mn, all[mn].ToArray(), FunctionType.Function));
+        Context.Scope.SetName(s, builtinmap[s] = ReflectionCache.GetMethodGroup(mn, all[mn].ToArray()));
       }
     }
 
@@ -318,14 +320,14 @@ namespace IronScheme.Compiler
         delegate(Expression e) { return e.Type; });
       if (listbinder == null)
       {
-        BuiltinFunction l = builtinmap[SymbolTable.StringToId("list")];
-        listbinder = MethodBinder.MakeBinder(BINDER, l.Name, l.Targets, BinderType.Normal);
+        MethodGroup l = builtinmap[SymbolTable.StringToId("list")];
+        listbinder = MethodBinder.MakeBinder(BINDER, l.Name, l.GetMethodBases(), BinderType.Normal);
       }
 
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
     }
 
-    internal static readonly Microsoft.Scripting.Actions.ActionBinder BINDER = new IronScheme.Actions.IronSchemeActionBinder(null);
+    
 
     static MethodBase[] GetMethods(Type type, string name)
     {
@@ -350,7 +352,6 @@ namespace IronScheme.Compiler
 
     static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
-      cb.BindClosures();
       if (varargs)
       {
         return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false),

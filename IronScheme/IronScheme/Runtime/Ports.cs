@@ -31,7 +31,7 @@ namespace IronScheme.Runtime
     [Builtin("with-input-from-file")]
     public static object WithInputFromFile(CodeContext cc, object filename, object thunk)
     {
-      FastCallable f = RequiresNotNull<FastCallable>(thunk);
+      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(thunk);
       string path = RequiresNotNull<string>(filename);
 
       TextReader old = Console.In;
@@ -41,7 +41,7 @@ namespace IronScheme.Runtime
         using (TextReader r = File.OpenText(path))
         {
           Console.SetIn(r);
-          return f.Call(cc);
+          return f.Call(cc, new object[] { });
         }
       }
       finally
@@ -54,7 +54,7 @@ namespace IronScheme.Runtime
     [Builtin("with-output-to-file")]
     public static object WithOutputToFile(CodeContext cc, object filename, object thunk)
     {
-      FastCallable f = RequiresNotNull<FastCallable>(thunk);
+      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(thunk);
       string path = RequiresNotNull<string>(filename);
 
       TextWriter old = Console.Out;
@@ -64,7 +64,7 @@ namespace IronScheme.Runtime
         using (TextWriter w = File.CreateText(path))
         {
           Console.SetOut(w);
-          return f.Call(cc);
+          return f.Call(cc, new object[] { });
         }
       }
       finally
@@ -315,9 +315,9 @@ namespace IronScheme.Runtime
       {
         return "<unspecified>";
       }
-      if (obj is BuiltinFunction)
+      if (obj is MethodGroup)
       {
-        return "builtin::" + ((BuiltinFunction)obj).Name;
+        return "builtin::" + ((MethodGroup)obj).Name;
       }
       if (obj is Closure)
       {
@@ -328,7 +328,7 @@ namespace IronScheme.Runtime
         return "macro::" + ((Macro)obj).Name;
       }
 
-      if (obj is FastCallable)
+      if (obj is ICallableWithCodeContext)
       {
         FieldInfo fi = obj.GetType().GetField("name", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
         if (fi != null)
@@ -374,7 +374,7 @@ namespace IronScheme.Runtime
                 return "Number";
               }
 #endif
-              if (typeof(FastCallable).IsAssignableFrom(t))
+              if (typeof(ICallableWithCodeContext).IsAssignableFrom(t))
               {
                 return "Procedure";
               }
@@ -493,9 +493,9 @@ namespace IronScheme.Runtime
         return "()";
       }
 
-      if (obj is BuiltinFunction)
+      if (obj is MethodGroup)
       {
-        return ((BuiltinFunction)obj).Name;
+        return ((MethodGroup)obj).Name;
       }
       if (obj is Closure)
       {
@@ -506,7 +506,7 @@ namespace IronScheme.Runtime
         return ((Macro)obj).Name;
       }
 
-      if (obj is FastCallable)
+      if (obj is ICallableWithCodeContext)
       {
         FieldInfo fi = obj.GetType().GetField("name", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
         if (fi != null)
@@ -601,24 +601,24 @@ namespace IronScheme.Runtime
     [Builtin("call-with-input-file")]
     public static object CallWithInputFile(CodeContext cc, object filename, object fc1)
     {
-      FastCallable f = RequiresNotNull<FastCallable>(fc1);
+      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(fc1);
       string path = RequiresNotNull<string>(filename);
 
       using (TextReader r = File.OpenText(path))
       {
-        return f.Call(cc, r);
+        return f.Call(cc, new object[] { r });
       }
     }
 
     [Builtin("call-with-output-file")]
     public static object CallWithOutputFile(CodeContext cc, object filename, object fc1)
     {
-      FastCallable f = RequiresNotNull<FastCallable>(fc1);
+      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(fc1);
       string path = RequiresNotNull<string>(filename);
 
       using (TextWriter w = File.CreateText(path))
       {
-        return f.Call(cc, w);
+        return f.Call(cc, new object[] { w });
       }
     }
 
