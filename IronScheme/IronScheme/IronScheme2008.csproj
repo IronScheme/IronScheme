@@ -1,0 +1,117 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.20706</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IronScheme</RootNamespace>
+    <AssemblyName>IronScheme</AssemblyName>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\IronScheme.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Actions\IronSchemeActionBinder.cs" />
+    <Compile Include="Compiler\Generator.Handlers.cs" />
+    <Compile Include="Compiler\Generator.Helpers.cs" />
+    <Compile Include="Compiler\Generator.Symbols.cs" />
+    <Compile Include="Compiler\Generator.cs" />
+    <Compile Include="Compiler\Generator.Methods.cs" />
+    <Compile Include="Compiler\IronScheme.lex.cs" />
+    <Compile Include="Compiler\IronScheme.y.cs" />
+    <Compile Include="Compiler\SyntaxExpand.cs" />
+    <Compile Include="gppg\IScanner.cs" />
+    <Compile Include="gppg\ParserStack.cs" />
+    <Compile Include="gppg\Rule.cs" />
+    <Compile Include="gppg\ShiftReduceParser.cs" />
+    <Compile Include="gppg\State.cs" />
+    <Compile Include="Hosting\IronSchemeConsoleHost.cs" />
+    <Compile Include="Hosting\IronSchemeLanguageProvider.cs" />
+    <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
+    <Compile Include="IronSchemeLanguageContext.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\Booleans.cs" />
+    <Compile Include="Runtime\Builtins.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Characters.cs" />
+    <Compile Include="Runtime\Closure.cs" />
+    <Compile Include="Runtime\Cons.cs" />
+    <Compile Include="Runtime\Control.cs" />
+    <Compile Include="Runtime\Environment.cs" />
+    <Compile Include="Runtime\Equality.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Extension.cs" />
+    <Compile Include="Runtime\Fraction.cs" />
+    <Compile Include="Runtime\Lists.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Macro.cs" />
+    <Compile Include="Runtime\MultiEnumerable.cs" />
+    <Compile Include="Runtime\Number.cs" />
+    <Compile Include="Runtime\Numbers.cs" />
+    <Compile Include="Runtime\Ports.cs" />
+    <Compile Include="Runtime\Promise.cs" />
+    <Compile Include="Runtime\Strings.cs" />
+    <Compile Include="Runtime\Symbols.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Vectors.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
+      <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
+      <Name>Microsoft.Scripting</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Compiler\IronScheme.lex" />
+    <None Include="Compiler\IronScheme.y" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\IronScheme.y" &gt; "$(ProjectDir)Compiler\IronScheme.y.cs"
+"$(SolutionDir)tools\gplex" /minimize /stack "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"</PreBuildEvent>
+  </PropertyGroup>
+</Project>
