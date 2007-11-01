@@ -143,7 +143,7 @@ namespace Microsoft.Scripting.Ast {
                 }
 #endif
             } else if (ScriptDomainManager.Options.DumpASTs) {
-                StreamWriter sw = new StreamWriter(GetFilePath(descr), true);
+              StreamWriter sw = new StreamWriter(GetFilePath(descr), descr == "unknown_ast");
                 using (sw) {
                     Dump(block, descr, sw);
                 }

@@ -155,6 +155,7 @@ namespace IronScheme.Compiler
                 methodbindercache[bf] = mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.GetMethodBases(), BinderType.Normal);
               }
               Expression[] pars = GetAstList(c.Cdr as Cons, cb);
+              //pars[0] = Ast.RuntimeConstant(bf);
               Type[] types = GetExpressionTypes(pars);
               MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
               if (mc == null)
@@ -166,6 +167,8 @@ namespace IronScheme.Compiler
                 pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
               }
               return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
+              // TODO: figure out how MethodGroup et al works
+              //return Ast.Action.Call(typeof(object), pars);
             }
           }
 
@@ -338,7 +341,6 @@ namespace IronScheme.Compiler
 
       //if (!isrest)
       //{
-      //  cb.BindClosures();
       //  return Ast.CodeBlockExpression(cb, false);
       //}
 
