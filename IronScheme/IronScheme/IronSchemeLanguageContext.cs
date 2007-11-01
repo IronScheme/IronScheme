@@ -27,6 +27,7 @@ using System.Diagnostics;
 using System.Collections;
 
 using Generator = IronScheme.Compiler.Generator;
+using Microsoft.Scripting.Actions;
 
 namespace IronScheme
 {
@@ -50,8 +51,8 @@ namespace IronScheme
       {
         return true;
       }
-      BuiltinFunction bif;
-      if (Generator.BuiltinFunctions.TryGetValue(name, out bif))
+      MethodGroup bif;
+      if (Generator.MethodGroups.TryGetValue(name, out bif))
       {
         value = bif;
         return true;

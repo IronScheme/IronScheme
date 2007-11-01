@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Collections;
 using Microsoft.Scripting;
+using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
@@ -33,35 +34,35 @@ namespace IronScheme.Runtime
     [Builtin("call-with-values")]
     public static object CallWithValues(CodeContext cc, object producer, object consumer)
     {
-      FastCallable pro = RequiresNotNull<FastCallable>(producer);
-      FastCallable con = RequiresNotNull<FastCallable>(consumer);
+      ICallableWithCodeContext pro = RequiresNotNull<ICallableWithCodeContext>(producer);
+      ICallableWithCodeContext con = RequiresNotNull<ICallableWithCodeContext>(consumer);
 
-      object r = pro.Call(cc);
+      object r = pro.Call(cc, null);
 
       if (r is object[])
       {
         return con.Call(cc, (object[])r);
       }
 
-      return con.Call(cc, r);
+      return con.Call(cc, new object[] { r });
     }
 
     [Builtin("dynamic-wind")]
     public static object DynamicWind(CodeContext cc, object infunc, object bodyfunc, object outfunc)
     {
-      FastCallable inf = RequiresNotNull<FastCallable>(infunc);
-      FastCallable bodyf = RequiresNotNull<FastCallable>(bodyfunc);
-      FastCallable outf = RequiresNotNull<FastCallable>(outfunc);
+      ICallableWithCodeContext inf = RequiresNotNull<ICallableWithCodeContext>(infunc);
+      ICallableWithCodeContext bodyf = RequiresNotNull<ICallableWithCodeContext>(bodyfunc);
+      ICallableWithCodeContext outf = RequiresNotNull<ICallableWithCodeContext>(outfunc);
 
-      inf.Call(cc);
+      inf.Call(cc, new object[] { });
 
       try
       {
-        return bodyf.Call(cc);
+        return bodyf.Call(cc,new object[] {});
       }
       finally
       {
-        outf.Call(cc);
+        outf.Call(cc, new object[] { });
       }
     }
 
@@ -88,12 +89,12 @@ namespace IronScheme.Runtime
     [Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(CodeContext cc, object fc1)
     {
-      FastCallable fc = RequiresNotNull<FastCallable>(fc1);
+      ICallableWithCodeContext fc = RequiresNotNull<ICallableWithCodeContext>(fc1);
       try
       {
         CallTarget1 exitproc = InvokeContinuation;
-        FastCallable fce = Closure.Make(cc, exitproc, "invoke-continuation");
-        return fc.Call(cc, fce);
+        ICallableWithCodeContext fce = Closure.Make(cc, exitproc, "invoke-continuation");
+        return fc.Call(cc, new object[] { fce });
       }
       catch (Continuation c)
       {
@@ -111,15 +112,15 @@ namespace IronScheme.Runtime
     [Builtin("procedure?")]
     public static bool IsProcedure(object obj)
     {
-      return obj is FastCallable; 
+      return obj is ICallableWithCodeContext; 
     }
 
     [Builtin]
     public static object Apply(CodeContext cc, object fn)
     {
-      if (fn is FastCallable)
+      if (fn is ICallableWithCodeContext)
       {
-        return ((FastCallable)fn).Call(cc);
+        return ((ICallableWithCodeContext)fn).Call(cc, new object[] { });
       }
       else if (fn is Delegate)
       {
@@ -128,11 +129,11 @@ namespace IronScheme.Runtime
       }
       else
       {
-        throw new ArgumentTypeException("fn must be FastCallable or a delegate");
+        throw new ArgumentTypeException("fn must be ICallableWithCodeContext or a delegate");
       }
     }
 
-    static object ApplyInternal(CodeContext cc, FastCallable fn, Cons args)
+    static object ApplyInternal(CodeContext cc, ICallableWithCodeContext fn, Cons args)
     {
       List<object> targs = new List<object>();
       while (args != null)
@@ -155,22 +156,47 @@ namespace IronScheme.Runtime
       return Apply(cc, fn, Append(List(head), last));
     }
 
+    class BuiltinMethod : ICallableWithCodeContext
+    {
+      MethodBinder meth;
+
+      public BuiltinMethod(MethodBinder mb)
+      {
+        meth = mb;
+      }
+
+      public object Call(CodeContext context, object[] args)
+      {
+        return meth.CallReflected(context, CallType.None, args);
+      }
+
+    }
+
     [Builtin]
     public static object Apply(CodeContext cc, object fn, object list)
     {
       Cons args = Requires<Runtime.Cons>(list);
-      if (fn is FastCallable)
+      if (fn is ICallableWithCodeContext)
       {
-        return ApplyInternal(cc, fn as FastCallable, args);
+        return ApplyInternal(cc, fn as ICallableWithCodeContext, args);
       }
       else if (fn is Delegate)
       {
         Delegate d = (Delegate)fn;
         return ApplyInternal(cc, Closure.Make(cc, d, d.Method.Name), args);
       }
+      else if (fn is MethodGroup)
+      {
+        MethodGroup mg = (MethodGroup) fn;
+        MethodBinder mb = MethodBinder.MakeBinder(BINDER, mg.Name, mg.GetMethodBases(), BinderType.Normal);
+        BuiltinMethod bim = new BuiltinMethod(mb);
+
+        return ApplyInternal(cc, bim, args);
+        //.
+      }
       else
       {
-        throw new ArgumentTypeException("fn must be FastCallable or a delegate");
+        throw new ArgumentTypeException("fn must be ICallableWithCodeContext or a delegate");
       }
     }
 

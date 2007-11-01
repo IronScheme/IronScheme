@@ -21,6 +21,7 @@ using Generator = IronScheme.Compiler.Generator;
 using System.IO;
 using System.Xml;
 using System.Reflection;
+using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
@@ -75,9 +76,9 @@ namespace IronScheme.Runtime
     {
       if (obj != null)
       {
-        if (obj is BuiltinFunction)
+        if (obj is MethodGroup)
         {
-          foreach (MethodBase m in ((BuiltinFunction)obj).Targets)
+          foreach (MethodBase m in ((MethodGroup)obj).GetMethodBases())
           {
             PrintMethodHelp(m);
           }

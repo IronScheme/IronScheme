@@ -52,7 +52,7 @@ namespace IronScheme.Actions
       //  }
       //  MethodBase targetmem = targettype.GetMethod(SymbolTable.IdToString(membername), BindingFlags.Public | sta | BindingFlags.IgnoreCase);
 
-      //  BuiltinFunction bif = BuiltinFunction.MakeMethod(SymbolTable.IdToString(membername), targetmem, sta == BindingFlags.Instance ? FunctionType.Method : FunctionType.Function);
+      //  MethodGroup bif = MethodGroup.MakeMethod(SymbolTable.IdToString(membername), targetmem, sta == BindingFlags.Instance ? FunctionType.Method : FunctionType.Function);
 
       //  args[0] = bif;
 
