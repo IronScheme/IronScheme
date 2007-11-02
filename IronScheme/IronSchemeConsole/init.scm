@@ -27,7 +27,7 @@
 
 
 
-
+;(define-macro (run-tests) `,(load "test.scm"))
 
 
 
