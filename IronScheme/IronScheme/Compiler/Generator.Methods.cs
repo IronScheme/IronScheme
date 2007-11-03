@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using IronScheme.Runtime;
+using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
@@ -34,6 +35,8 @@ namespace IronScheme.Compiler
 
     protected static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
     protected static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
+
+    static readonly MethodInfo ICallableWithCodeContext_Call = typeof(ICallableWithCodeContext).GetMethod("Call");
 
   }
 }

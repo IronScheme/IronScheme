@@ -22,6 +22,7 @@ using System.ComponentModel;
 using IronScheme.Compiler;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
+using IronScheme.Runtime;
 
 namespace IronScheme.Actions
 {
@@ -98,6 +99,12 @@ namespace IronScheme.Actions
       {
         return obj;
       }
+
+      if (obj is MethodGroup)
+      {
+        return BuiltinMethod.FromMethodGroup((MethodGroup)obj);
+      }
+
       TypeConverter tc = TypeDescriptor.GetConverter(obj);
       return tc.ConvertTo(obj, toType);
     }

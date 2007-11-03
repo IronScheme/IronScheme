@@ -151,8 +151,10 @@ namespace IronScheme.Hosting
         get
         {
           EngineOptions eo = new IronSchemeEngineOptions();
-          //eo.ClrDebuggingEnabled = true;
-          eo.ProfileDrivenCompilation = false;
+#if DEBUG
+          eo.ClrDebuggingEnabled = true;
+#endif
+          //eo.ProfileDrivenCompilation = false;
           return eo;
         }
         set

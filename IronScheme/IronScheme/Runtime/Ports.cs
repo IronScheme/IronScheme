@@ -88,13 +88,20 @@ namespace IronScheme.Runtime
     [Builtin("load")]
     public static object Load(CodeContext cc, object filename)
     {
-      if (cc.Scope.ModuleScope != Context.Scope.ModuleScope)
+      if (cc.Scope != Context.Scope && cc.Scope.ModuleScope != Context.Scope.ModuleScope)
       {
-        foreach (KeyValuePair<SymbolId, object> kv in Context.Scope.Items)
+        try
         {
-          cc.Scope.SetName(kv.Key, kv.Value);
+          foreach (KeyValuePair<SymbolId, object> kv in Context.Scope.Items)
+          {
+            cc.Scope.SetName(kv.Key, kv.Value);
+          }
+          IronScheme.Compiler.BaseHelper.cc = cc;
         }
-        IronScheme.Compiler.BaseHelper.cc = cc;
+        catch (InvalidOperationException ex)
+        {
+          ;
+        }
       }
 
       string path = filename as string;
@@ -102,7 +109,6 @@ namespace IronScheme.Runtime
       switch (Path.GetExtension(path))
       {
         case ".dll":
-        case ".exe":
           Assembly ext = Assembly.LoadFile(Path.GetFullPath(path));
           if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
           {
@@ -127,9 +133,53 @@ namespace IronScheme.Runtime
             // just reference.?
           }
           break;
+        case ".exe":
+          Assembly mod = Assembly.LoadFile(Path.GetFullPath(path));
+          MethodInfo entry = null;
+          foreach (Type t in mod.GetExportedTypes())
+          {
+            if (t.BaseType == typeof(CustomSymbolDictionary))
+            {
+              List<Type> ii = new List<Type>(t.GetInterfaces());
+              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
+              {
+                entry = t.GetMethod("Initialize");
+                if (entry != null)
+                {
+                  break;
+                }
+              }
+            }
+          }
+
+          if (entry == null)
+          {
+            // what now?
+            goto case ".dll";
+          }
+          else
+          {
+            IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
+              IModuleDictionaryInitialization;
+            init.InitializeModuleDictionary(cc);
+            entry.Invoke(null, new object[] { cc });
+          }
+          break;
         default:
+          // check for already compiled version
+          string cfn = Path.ChangeExtension(path, ".exe");
+          if (File.Exists(cfn))
+          {
+            if (File.GetLastWriteTime(cfn) > File.GetLastWriteTime(path))
+            {
+              //path = cfn;
+              //goto case ".exe";
+            }
+          }
+
           // this still bombs out too much
           //Compiler.Generator.CanAllowTailCall = true;
+
           try
           {
             SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);

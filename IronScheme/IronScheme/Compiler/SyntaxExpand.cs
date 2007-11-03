@@ -22,9 +22,7 @@ namespace IronScheme.Compiler
 {
   static class SyntaxExpander
   {
-
-
-    public static Cons Expand(Cons input)
+    static Cons Expand(Cons input)
     {
       Cons c = input;
       while (c != null)
@@ -72,7 +70,7 @@ namespace IronScheme.Compiler
             Cons l = Cons.FromArray(r.Car,
               Builtins.Append(Cons.FromArray(Generator.lambda, r.Cdr), Builtins.Cdr(t)));
             c.Cdr = l;
-            return Expand((object)c);
+            return Expand((object)c, expand1);
           }
 
           object value;
@@ -97,7 +95,7 @@ namespace IronScheme.Compiler
             }
           }
         }
-        return Expand(c);
+        return c;
       }
       return input;
     }

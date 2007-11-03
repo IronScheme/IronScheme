@@ -161,7 +161,7 @@ namespace IronScheme.Runtime
     {
       if (!condition)
       {
-        throw new Exception(message);
+        throw new SchemeException(message);
       }
     }
 
@@ -178,7 +178,7 @@ namespace IronScheme.Runtime
     {
       if (obj != null && !(obj is T))
       {
-        throw new ArgumentTypeException("Expected type '" + typeof(T).Name + "', but got '" + obj.GetType().Name + "'");
+        throw new ArgumentTypeException("Expected type '" + typeof(T).Name + "', but got '" + obj.GetType().Name + "': " + obj);
       }
       if (obj == null)
       {

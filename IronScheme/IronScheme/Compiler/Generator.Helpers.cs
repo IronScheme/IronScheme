@@ -28,6 +28,14 @@ namespace IronScheme.Compiler
   {
     static readonly IronSchemeScriptEngine se;
     internal static CodeContext cc;
+    internal static readonly ActionBinder binder;
+    static readonly LanguageProvider lp = ScriptDomainManager.CurrentManager.GetLanguageProvider(
+          typeof(Hosting.IronSchemeLanguageProvider));
+
+    protected static LanguageProvider LanguageProvider
+    {
+      get { return BaseHelper.lp; }
+    } 
 
     protected static ScriptEngine ScriptEngine
     {
@@ -39,19 +47,23 @@ namespace IronScheme.Compiler
       get { return cc; }
     }
 
-    internal static readonly ActionBinder BINDER = new IronScheme.Actions.IronSchemeActionBinder(null);
+    protected static ActionBinder Binder
+    {
+      get { return BaseHelper.binder; }
+    } 
+
     
     static BaseHelper()
     {
-      se = ScriptDomainManager.CurrentManager.GetLanguageProvider(
-          typeof(Hosting.IronSchemeLanguageProvider)).GetEngine() as IronSchemeScriptEngine;
+      se = lp.GetEngine() as IronSchemeScriptEngine;
 
       ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("CompileTime"));
 
       mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
 
-
       cc = se.CreateContext(mc);
+
+      binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
     }
   }
 
@@ -321,10 +333,41 @@ namespace IronScheme.Compiler
       if (listbinder == null)
       {
         MethodGroup l = builtinmap[SymbolTable.StringToId("list")];
-        listbinder = MethodBinder.MakeBinder(BINDER, l.Name, l.GetMethodBases(), BinderType.Normal);
+        listbinder = MethodBinder.MakeBinder(Binder, l.Name, l.GetMethodBases(), BinderType.Normal);
       }
 
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
+    }
+
+    static string GetLambdaName(CodeBlock cb)
+    {
+      string fn = GetFullname(NameHint, cb);
+
+      string[] tokens = fn.Split('|');
+
+      string c = null;
+      int j = 0;
+
+      for (int i = 0; i < tokens.Length; i++)
+      {
+        if (tokens[i] != c)
+        {
+          if (int.TryParse(tokens[i], out j))
+          {
+            j = i - j;
+          }
+          else
+          {
+            c = tokens[i];
+            j = i;
+          }
+        }
+        else
+        {
+          tokens[i] = (i - j).ToString();
+        }
+      }
+      return string.Join("|", tokens);
     }
 
     
@@ -372,11 +415,31 @@ namespace IronScheme.Compiler
     }
 
 
+    internal static void InitGlobal(Cons defcheck, CodeBlock cb, List<Statement> stmts)
+    {
+      while (defcheck != null)
+      {
+        Cons h = defcheck.Car as Cons;
+
+        defcheck.Car = SyntaxExpander.Expand1(defcheck.Car) as Cons;
+
+        h = defcheck.Car as Cons;
+
+        if (h != null && Builtins.IsEqual(h.Car, define))
+        {
+          Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
+          stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
+          h.Car = set;
+        }
+
+        defcheck = defcheck.Cdr as Cons;
+      }
+    }
 
     static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
       // declare all define at start of body, then change the define to 'set!'
-      // similar to letrec* behaviour; also expand the defines
+      // similar to letrec* behaviour; also expand1 the defines
       Cons defcheck = body;
       while (defcheck != null)
       {
@@ -387,7 +450,7 @@ namespace IronScheme.Compiler
           break;
         }
 
-        defcheck.Car = h = SyntaxExpander.Expand(defcheck.Car) as Cons;
+        defcheck.Car = h = SyntaxExpander.Expand1(defcheck.Car) as Cons;
 
         if (h != null && Builtins.IsEqual(h.Car, define))
         {
@@ -432,6 +495,10 @@ namespace IronScheme.Compiler
         {
           s.SetLoc(Parser.sourcemap[c.Car as Cons]);
         }
+        else
+        {
+          ;
+        }
 
         stmts.Add(s);
         c = c.Cdr as Cons;
@@ -462,7 +529,12 @@ namespace IronScheme.Compiler
         {
           throw new NotSupportedException("improper list cant be used as an expression");
         }
-        e.Add(GetAst(c.Car, cb));
+        Expression ex = GetAst(c.Car, cb);
+        if (ex.Type.IsValueType)
+        {
+          ex = Ast.DynamicConvert( ex, typeof(object));
+        }
+        e.Add(ex);
         c = c.Cdr as Cons;
       }
       return e.ToArray();
@@ -473,7 +545,12 @@ namespace IronScheme.Compiler
       List<Expression> e = new List<Expression>();
       foreach (object var in v)
       {
-        e.Add(GetCons(var, cb));
+        Expression ex = GetCons(var, cb);
+        if (ex.Type.IsValueType)
+        {
+          ex = Ast.DynamicConvert(ex, typeof(object));
+        }
+        e.Add(ex);
       }
       return Ast.NewArray(typeof(object[]), e.ToArray());
     }
@@ -549,7 +626,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        return parent.Name + "::" + SymbolTable.IdToString(id);
+        return parent.Name + "|" + SymbolTable.IdToString(id);
       }
     }
 

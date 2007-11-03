@@ -42,7 +42,7 @@ namespace IronScheme.Diagnostics
 
       return Ast.Comma(1, Ast.Assign(sw, Ast.Call(Stopwatch_StartNew)),
         Generator.GetAst(Builtins.Car(args), cb),
-        Ast.SimpleCallHelper(Builtins_Display, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
+        Ast.SimpleCallHelper(Console_WriteLine, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
     }
 
     // assert

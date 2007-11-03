@@ -96,7 +96,16 @@ namespace IronScheme.Runtime
 
     internal bool IsProper
     {
-      get { return cdr == null || (cdr is Cons && ((Cons)cdr).IsProper); }
+      get { return IsProperList(null); }
+    }
+
+    bool IsProperList(Cons root)
+    {
+      if (this == root)
+      {
+        return false;
+      }
+      return cdr == null || (cdr is Cons && ((Cons)cdr).IsProperList(root ?? this));
     }
 
     public override string ToString()

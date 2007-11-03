@@ -38,34 +38,26 @@
 (time
  (tak 18 12 6) )
 
-(newline)
-
 (display "taki: ")
 (time
  (taki 18 12 6) )
-
-(newline)
 
 (display "tak:  ")
 (time
- (tak 18 12 6) )
-
-(newline)
+ (tak 22 14 8) )
 
 (display "taki: ")
 (time
- (taki 18 12 6) )
-
-(newline)
+ (taki 22 14 8) )
 
 
 (define-syntax for
   (syntax-rules (in into)
     ((_ a in b f ...)
      (for-each (lambda (a) (begin f ...)) b))
-    ((_ a b f)
-     (for-each (lambda (a) f) b))
-    ((_ a into b f ...)
+    ((_ a t b f)
+     (for-each (lambda (k) ((lambda (a) f) (t k)))  b))
+    ((_ a into b f ... )
      (for-each (lambda (a) f ...) b))))
      
 (for c in (string->list "hello")
@@ -73,6 +65,15 @@
     (display (char-upcase c))))
 
 (newline)
+
+(for c into (string->list "hello")
+    (display c)
+    (newline))
+
+(for c char-upcase (string->list "hello") (display c))
+
+(newline)
+
 
 
 

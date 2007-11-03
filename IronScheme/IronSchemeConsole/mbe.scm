@@ -179,14 +179,14 @@
             (let ((rest (cdr x)))
               (if (or (not (pair? rest))
                       (not (null? (cdr rest))))
-                  (slib:error 'unquote 'takes-exactly-one-expression)
+                  (error 'unquote 'takes-exactly-one-expression)
                   (if (zero? level)
                       (list 'unquote (hyg:untag (car rest) al tmps))
                       (cons first (qq rest (sub1 level)))))))
            ((and (eq? first 'quasiquote) (list? x))
             (cons 'quasiquote (qq (cdr x) (add1 level))))
            ((and (eq? first 'unquote-splicing) (list? x))
-            (slib:error 'unquote-splicing 'invalid-context-within-quasiquote))
+            (error 'unquote-splicing 'invalid-context-within-quasiquote))
            ((pair? first)
             (let ((car-first (qq (car first) level)))
               (if (and (eq? car-first 'unquote-splicing)
@@ -194,7 +194,7 @@
                   (let ((rest (cdr first)))
                     (if (or (not (pair? rest))
                             (not (null? (cdr rest))))
-                        (slib:error 'unquote-splicing 
+                        (error 'unquote-splicing 
                                     'takes-exactly-one-expression)
                         (list (list 'unquote-splicing
                                     (if (zero? level)
@@ -436,7 +436,7 @@
       (let ((i (mbe:position (car p-tail) e)))
 	(if i (cons (butlast e (- (length e) i))
 		    (list-tail e i))
-	    (slib:error 'mbe:split-at-ellipsis 'bad-arg))))))
+	    (error 'mbe:split-at-ellipsis 'bad-arg))))))
 
 ;;; tests if x is an ellipsing pattern, i.e., of the form
 ;;; (blah ... . blah2)
