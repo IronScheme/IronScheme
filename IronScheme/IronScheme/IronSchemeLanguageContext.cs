@@ -49,6 +49,10 @@ namespace IronScheme
     {
       if (base.TryLookupName(context, name, out value))
       {
+        if (value is MethodGroup)
+        {
+          value = BuiltinMethod.FromMethodGroup((MethodGroup)value);
+        }
         return true;
       }
       MethodGroup bif;
@@ -176,6 +180,8 @@ namespace IronScheme
         cb.IsGlobal = true;
 
         List<Statement> stmts = new List<Statement>();
+
+        Compiler.Generator.InitGlobal(parsed, cb, stmts);
 
         while (parsed != null)
         {

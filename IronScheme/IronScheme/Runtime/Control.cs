@@ -23,6 +23,37 @@ using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
+
+  sealed class BuiltinMethod : ICallableWithCodeContext
+  {
+    MethodBinder meth;
+
+    public BuiltinMethod(MethodBinder mb)
+    {
+      meth = mb;
+    }
+
+    public static ICallableWithCodeContext FromMethodGroup(MethodGroup mg)
+    {
+      return new BuiltinMethod(MethodBinder.MakeBinder(IronScheme.Compiler.BaseHelper.binder, mg.Name, mg.GetMethodBases(), BinderType.Normal));
+    }
+
+    public object Call(CodeContext context, object[] args)
+    {
+      if (args == null)
+      {
+        args = new object[0];
+      }
+      return meth.CallReflected(context, CallType.None, args);
+    }
+
+    public override string ToString()
+    {
+      return meth.Name;
+    }
+
+  }
+
   public partial class Builtins
   {
     [Builtin]
@@ -150,27 +181,16 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Apply(CodeContext cc, object fn, params object[] args)
     {
+      if (args == null)
+      {
+        return Apply(cc, fn, (object) null);
+      }
       object[] head = ArrayUtils.RemoveLast(args);
       Cons last = Requires<Runtime.Cons>(args[args.Length - 1]);
 
       return Apply(cc, fn, Append(List(head), last));
     }
 
-    class BuiltinMethod : ICallableWithCodeContext
-    {
-      MethodBinder meth;
-
-      public BuiltinMethod(MethodBinder mb)
-      {
-        meth = mb;
-      }
-
-      public object Call(CodeContext context, object[] args)
-      {
-        return meth.CallReflected(context, CallType.None, args);
-      }
-
-    }
 
     [Builtin]
     public static object Apply(CodeContext cc, object fn, object list)
@@ -188,7 +208,7 @@ namespace IronScheme.Runtime
       else if (fn is MethodGroup)
       {
         MethodGroup mg = (MethodGroup) fn;
-        MethodBinder mb = MethodBinder.MakeBinder(BINDER, mg.Name, mg.GetMethodBases(), BinderType.Normal);
+        MethodBinder mb = MethodBinder.MakeBinder(Binder, mg.Name, mg.GetMethodBases(), BinderType.Normal);
         BuiltinMethod bim = new BuiltinMethod(mb);
 
         return ApplyInternal(cc, bim, args);

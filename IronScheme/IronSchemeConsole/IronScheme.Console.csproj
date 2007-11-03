@@ -80,6 +80,9 @@
     <None Include="mbe.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="r4rstest.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="test.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

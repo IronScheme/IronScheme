@@ -52,6 +52,10 @@ namespace IronScheme.Runtime
     [Builtin("string->symbol")]
     public static SymbolId StringToSymbol(object obj)
     {
+      if (obj is StringBuilder)
+      {
+        obj = obj.ToString();
+      }
       return SymbolTable.StringToId((string)obj);
     }
 

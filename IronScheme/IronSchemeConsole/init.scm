@@ -27,7 +27,8 @@
 
 
 
-;(define-macro (run-tests) `,(load "test.scm"))
+(define (run-tests) (load "test.scm"))
+(define (r4rs-tests) (load "r4rstest.scm"))
 
 
 

@@ -67,6 +67,13 @@ namespace IronScheme.Runtime
         if (firstrun)
         {
           firstrun = false;
+          foreach (object var in iters)
+          {
+            if (var == null)
+            {
+              return false;
+            }
+          }
           return iters.Length != 0;
         }
         for (int i = 0; i < iters.Length; i++)

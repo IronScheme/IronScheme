@@ -45,10 +45,12 @@ You must not remove this notice, or any other, from this software.
 
 ;; let* in terms of itself and let 
 (define-macro (let* args . body)
-  (if (null? (cdr args))
-      `(let ,args ,@body)
-      `(let (,(car args))
-         (let* ,(cdr args) ,@body))))
+  (if (null? args)
+    `(let () ,@body)
+    (if (null? (cdr args))
+        `(let ,args ,@body)
+        `(let (,(car args))
+           (let* ,(cdr args) ,@body)))))
 
          
 (define (void) (if #f #f))

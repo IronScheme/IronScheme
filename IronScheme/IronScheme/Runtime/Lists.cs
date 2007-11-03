@@ -566,6 +566,14 @@ namespace IronScheme.Runtime
         return args[0];
       }
 
+      if (args.Length == 2)
+      {
+        if (args[0] == null)
+        {
+          return args[1];
+        }
+      }
+
       bool proper = true;
  
       List<object> all = new List<object>();
@@ -587,7 +595,7 @@ namespace IronScheme.Runtime
             if (i == args.Length - 1 && ii.Cdr != null && !(ii.Cdr is Cons))
             {
               all.Add(ii.Cdr);
-
+              proper = false;
               break;
             }
             ii = ii.Cdr as Cons;

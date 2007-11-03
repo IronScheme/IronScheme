@@ -63,7 +63,8 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (nestinglevel == 1 && Builtins.IsEqual(c.Car, unquote))
+        if (nestinglevel == 1
+          && Builtins.IsEqual(c.Car, unquote))
         {
           nestinglevel--;
           try
@@ -73,6 +74,18 @@ namespace IronScheme.Compiler
           finally
           {
             nestinglevel++;
+          }
+        }
+        if (nestinglevel == 1 && Builtins.IsEqual(c.Car, quasiquote))
+        {
+          nestinglevel++;
+          try
+          {
+            return GetConsList(c, cb);
+          }
+          finally
+          {
+            nestinglevel--;
           }
         }
         return GetConsList(c, cb);
@@ -127,7 +140,7 @@ namespace IronScheme.Compiler
               {
                 Debug.WriteLine(Builtins.DisplayFormat(c), "macro::in ");
               }
-              object result = SyntaxExpander.Expand(macro.Invoke(Context, c.Cdr));
+              object result = macro.Invoke(Context, c.Cdr);
               if (macrotrace)
               {
                 Debug.WriteLine(Builtins.DisplayFormat(result), "macro::out");
@@ -152,7 +165,7 @@ namespace IronScheme.Compiler
               MethodBinder mb;
               if (!methodbindercache.TryGetValue(bf, out mb))
               {
-                methodbindercache[bf] = mb = MethodBinder.MakeBinder(BINDER, SymbolTable.IdToString(f), bf.GetMethodBases(), BinderType.Normal);
+                methodbindercache[bf] = mb = MethodBinder.MakeBinder(Binder, SymbolTable.IdToString(f), bf.GetMethodBases(), BinderType.Normal);
               }
               Expression[] pars = GetAstList(c.Cdr as Cons, cb);
               //pars[0] = Ast.RuntimeConstant(bf);
@@ -174,7 +187,11 @@ namespace IronScheme.Compiler
 
 
         }
-        return Ast.Action.Call(typeof(object), GetAstList(c, cb));
+        Expression ex = Ast.DynamicConvert(GetAst(c.Car, cb), typeof(ICallableWithCodeContext));
+        Expression[] pp = GetAstList(c.Cdr as Cons, cb);
+       
+        return Ast.Call(ex, ICallableWithCodeContext_Call, Ast.CodeContext(), Ast.NewArray(typeof(object[]), pp));
+        //return Ast.Action.Call(typeof(object), GetAstList(c, cb));
       }
       object[] v = args as object[];
       if (v != null)
@@ -256,7 +273,14 @@ namespace IronScheme.Compiler
         value = Ast.DynamicConvert(value, typeof(object));
       }
 
-      return Ast.Comma( Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
+      Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
+
+      if (cb.IsGlobal)
+      {
+        object o = r.Evaluate(Context);
+      }
+
+      return r;
     }
     
     // define
@@ -318,8 +342,12 @@ namespace IronScheme.Compiler
 
       CodeBlockExpression cbe = Ast.CodeBlockExpression(cb, false);
 
-      Expression ex = Ast.SimpleCallHelper(isrest ? Macro_MakeVarArgX : Macro_Make, Ast.CodeContext(), cbe, 
-        Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
+      Expression ex = Ast.SimpleCallHelper(
+        isrest ? Macro_MakeVarArgX : Macro_Make, 
+        Ast.CodeContext(), 
+        cbe, 
+        Ast.Constant(cb.Parameters.Count), 
+        Ast.Constant(cb.Name));
 
       return ex;
     }
@@ -328,7 +356,7 @@ namespace IronScheme.Compiler
     [Generator]
     public static Expression Lambda(object args, CodeBlock c)
     {
-      CodeBlock cb = Ast.CodeBlock(spanhint, GetFullname(NameHint, c));
+      CodeBlock cb = Ast.CodeBlock(spanhint, GetLambdaName(c));
       cb.Parent = c;
 
       object arg = Builtins.First(args);
@@ -339,13 +367,7 @@ namespace IronScheme.Compiler
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
 
-      //if (!isrest)
-      //{
-      //  return Ast.CodeBlockExpression(cb, false);
-      //}
-
       Expression ex = MakeClosure(cb, isrest);
-
       return ex;
     }
 

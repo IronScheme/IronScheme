@@ -23,6 +23,7 @@ using System.Collections;
 using IronScheme.Runtime;
 using System.Diagnostics;
 using Microsoft.Scripting.Shell;
+using System.Threading;
 
 namespace IronScheme.Hosting
 {
@@ -91,6 +92,10 @@ namespace IronScheme.Hosting
       {
         return "error: " + exception.Message;
       }
+      if (exception is ThreadAbortException)
+      {
+        return "evaluation aborted";
+      }
       return base.FormatException(exception);
     }
 
@@ -99,7 +104,7 @@ namespace IronScheme.Hosting
 
     public override ActionBinder DefaultBinder
     {
-      get { return Compiler.Generator.BINDER; }
+      get { return Compiler.Generator.binder; }
     }
 
     #endregion
@@ -131,8 +136,6 @@ namespace IronScheme.Hosting
       }
 
       return ll;
-       
-      //return base.Ops_GetAttrNames(context, obj);
     }
 
     public override string Copyright
