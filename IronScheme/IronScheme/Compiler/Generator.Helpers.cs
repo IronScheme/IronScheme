@@ -71,10 +71,10 @@ namespace IronScheme.Compiler
   {
 
 
-    readonly static Dictionary<SymbolId, MethodGroup> builtinmap =
-      new Dictionary<SymbolId, MethodGroup>();
+    readonly static Dictionary<SymbolId, BuiltinMethod> builtinmap =
+      new Dictionary<SymbolId, BuiltinMethod>();
 
-    public static Dictionary<SymbolId, MethodGroup> MethodGroups
+    internal static Dictionary<SymbolId, BuiltinMethod> MethodGroups
     {
       get { return Generator.builtinmap; }
     }
@@ -111,7 +111,7 @@ namespace IronScheme.Compiler
       foreach (string mn in all.Keys)
       {
         SymbolId s = SymbolTable.StringToId(mn);
-        Context.Scope.SetName(s, builtinmap[s] = ReflectionCache.GetMethodGroup(mn, all[mn].ToArray()));
+        Context.Scope.SetName(s, builtinmap[s] = new BuiltinMethod(mn, ReflectionCache.GetMethodGroup(mn, all[mn].ToArray())));
       }
     }
 
@@ -332,8 +332,8 @@ namespace IronScheme.Compiler
         delegate(Expression e) { return e.Type; });
       if (listbinder == null)
       {
-        MethodGroup l = builtinmap[SymbolTable.StringToId("list")];
-        listbinder = MethodBinder.MakeBinder(Binder, l.Name, l.GetMethodBases(), BinderType.Normal);
+        BuiltinMethod l = builtinmap[SymbolTable.StringToId("list")];
+        listbinder = l.Binder;
       }
 
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
@@ -421,7 +421,7 @@ namespace IronScheme.Compiler
       {
         Cons h = defcheck.Car as Cons;
 
-        defcheck.Car = SyntaxExpander.Expand1(defcheck.Car) as Cons;
+        defcheck.Car = SyntaxExpander.Expand1(defcheck.Car);
 
         h = defcheck.Car as Cons;
 
@@ -542,17 +542,62 @@ namespace IronScheme.Compiler
 
     static Expression GetConsVector(object[] v, CodeBlock cb)
     {
+      List<int> splices = new List<int>();
       List<Expression> e = new List<Expression>();
       foreach (object var in v)
       {
-        Expression ex = GetCons(var, cb);
-        if (ex.Type.IsValueType)
+        Cons c = var as Cons;
+        if (c != null && Builtins.IsEqual(c.Car, unquote_splicing))
         {
-          ex = Ast.DynamicConvert(ex, typeof(object));
+          nestinglevel--;
+          try
+          {
+            if (nestinglevel == 0)
+            {
+              Cons l = c.Cdr as Cons;
+              splices.Add(e.Count);
+              Expression uqse = GetAst(l.Car, cb);
+              // its a cons, so it needs to become a vector
+              uqse = Ast.SimpleCallHelper(Builtins_ListToVector, uqse);
+              e.Add(uqse);
+            }
+            else
+            {
+              e.Add(GetCons(c, cb));
+            }
+          }
+          finally
+          {
+            nestinglevel++;
+          }
         }
-        e.Add(ex);
+        else
+        {
+          e.Add(GetCons(var, cb));
+        }
       }
-      return Ast.NewArray(typeof(object[]), e.ToArray());
+      for (int i = 0; i < e.Count; i++)
+      {
+        if (e[i].Type.IsValueType)
+        {
+          e[i] = Ast.DynamicConvert(e[i], typeof(object));
+        }
+      }
+      if (splices.Count == 0)
+      {
+        return Ast.NewArray(typeof(object[]), e.ToArray());
+      }
+      else
+      {
+        for (int i = 0; i < e.Count; i++)
+        {
+          if (!splices.Contains(i))
+          {
+            e[i] = Ast.NewArray(typeof(object[]), e[i]);
+          }
+        }
+        return Ast.ComplexCallHelper(Builtins_VectorAppend, e.ToArray());
+      }
     }
 
     static Expression GetConsList(Cons c, CodeBlock cb)
@@ -563,14 +608,21 @@ namespace IronScheme.Compiler
 
       while (c != null)
       {
-        if (nestinglevel == 1 && c.Car is Cons && Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
+        if (c.Car is Cons && Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
         {
           nestinglevel--;
           try
           {
-            Cons l = Builtins.Cdar(c) as Cons;
-            splices.Add(e.Count);
-            e.Add(GetAst(l.Car, cb));
+            if (nestinglevel == 0)
+            {
+              Cons l = Builtins.Cdar(c) as Cons;
+              splices.Add(e.Count);
+              e.Add(GetAst(l.Car, cb));
+            }
+            else
+            {
+              e.Add(GetCons(c.Car, cb));
+            }
           }
           finally
           {
@@ -588,6 +640,31 @@ namespace IronScheme.Compiler
           break;
         }
         c = c.Cdr as Cons;
+        // check for possible unquote in dotted list
+        // TODO: find out is unquotesplicing is valid
+        if (c != null && Builtins.IsEqual(c.Car, unquote))
+        {
+          nestinglevel--;
+          try
+          {
+            if (nestinglevel == 0)
+            {
+              Cons l = Builtins.Second(c) as Cons;
+              e.Add(GetAst(l, cb));
+            }
+            else
+            {
+              e.Add(GetCons(c.Car, cb));
+            }
+          }
+          finally
+          {
+            nestinglevel++;
+          }
+
+          proper = false;
+          break;
+        }
       }
 
       Expression r = null;

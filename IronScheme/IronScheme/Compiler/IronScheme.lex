@@ -84,31 +84,57 @@ identifier             ({idinitial}({subsequent})*)|"+"|"..."|"-"
 
 
 
+digit2                 [01]
+digit8                 [0-8]
+digit10                {digit}
+digit16                {digit10}|[a-f]
 
+radix2                 "#b"
+radix8                 "#o"
+radix10                ("#d")?
+radix16                "#x"
 
+exactness              ("#i"|"#e")?
 
+sign                   ("-"|"+")?
 
-sign                   "-"|"+"
+exponentmarker         [esfdl]
 
-dec_digit              [0-9]
-hex_digit              [0-9A-Fa-f]
-int_suffix             [UuLl]|[Uu][Ll]|[Ll][Uu]
-dec_literal            ({dec_digit})+({int_suffix})?
-hex_literal            0[xX]({hex_digit})+({int_suffix})?
-integer_literal        ({sign})?({dec_literal}|{hex_literal})
+suffix                 ({exponentmarker}{sign}({digit10})+)?
 
-real_suffix            [FfDdMm]
-exponent_part          [eE]({sign})?({dec_digit})+
-whole_real1            ({dec_digit})+{exponent_part}({real_suffix})?
-whole_real2            ({dec_digit})+{real_suffix}
-part_real              ({dec_digit})*\.({dec_digit})+({exponent_part})?({real_suffix})?
-real_literal           {whole_real1}|{whole_real2}|{part_real}
+prefix2                ({radix2}{exactness})|({exactness}{radix2})
+prefix8                ({radix8}{exactness})|({exactness}{radix8})
+prefix10               ({radix10}{exactness})|({exactness}{radix10})
+prefix16               ({radix16}{exactness})|({exactness}{radix16})
 
+uinteger2              ({digit2})+("#")*
+uinteger8              ({digit8})+("#")*
+uinteger10             ({digit10})+("#")*
+uinteger16             ({digit16})+("#")*
 
+decimal10              ({uinteger10}{suffix})|("."({digit10})+("#")*{suffix})|(({digit10})+"."({digit10})*("#")*{suffix})|(({digit10})+("#")+"."("#")*{suffix})
 
+ureal2                 ({uinteger2})|({uinteger2}"/"{uinteger2})
+ureal8                 ({uinteger8})|({uinteger8}"/"{uinteger8})
+ureal10                ({uinteger10})|({uinteger10}"/"{uinteger10})|({decimal10})
+ureal16                ({uinteger16})|({uinteger16}"/"{uinteger16})
 
+real2                  ({sign}{ureal2})
+real8                  ({sign}{ureal8})
+real10                 ({sign}{ureal10})
+real16                 ({sign}{ureal16})
 
+complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{real2}"i")|({real2}"-"{real2}"i")|({real2}"+i")|({real2}"-i")|("+"{real2}"i")|("-"{real2}"i")|("+i")|("-i"))
+complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{real8}"i")|({real8}"-"{real8}"i")|({real8}"+i")|({real8}"-i")|("+"{real8}"i")|("-"{real8}"i")|("+i")|("-i"))
+complex10              ({real10}|({real10}"@"{real10})|({real10}"+"{real10}"i")|({real10}"-"{real10}"i")|({real10}"+i")|({real10}"-i")|("+"{real10}"i")|("-"{real10}"i")|("+i")|("-i"))
+complex16              ({real16}|({real16}"@"{real16})|({real16}"+"{real16}"i")|({real16}"-"{real16}"i")|({real16}"+i")|({real16}"-i")|("+"{real16}"i")|("-"{real16}"i")|("+i")|("-i"))
 
+num2                   ({prefix2}{complex2})
+num8                   ({prefix8}{complex8})
+num10                  ({prefix10}{complex10})
+num16                  ({prefix16}{complex16})
+
+number                 ({num2}|{num8}|{num10}|{num16})
 
 
 
@@ -141,9 +167,8 @@ atoms                  (#t|#f)
 {atoms}               { return Make(Tokens.LITERAL); } 
 
 {character_literal}   { return MakeChar(); }                      
-{integer_literal}     { return Make(Tokens.INTEGER); }
-{real_literal}        { return Make(Tokens.REAL); }
 {string_literal}      { return Make(Tokens.STRING); }
+{number}              { return Make(Tokens.NUMBER); }
 
 "["                   { return Make(Tokens.LBRACK); }                     
 "]"                   { return Make(Tokens.RBRACK); } 

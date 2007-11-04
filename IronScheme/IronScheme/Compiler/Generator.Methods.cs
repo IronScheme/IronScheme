@@ -25,7 +25,9 @@ namespace IronScheme.Compiler
     static readonly MethodInfo Builtins_Cons = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) });
     static readonly MethodInfo Builtins_Cons2 = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) , typeof(object)});
     static readonly MethodInfo Builtins_Append = typeof(Builtins).GetMethod("Append");
+    static readonly MethodInfo Builtins_VectorAppend = typeof(Builtins).GetMethod("VectorAppend");
     static readonly MethodInfo Builtins_ToImproper = typeof(Builtins).GetMethod("ToImproper");
+    static readonly MethodInfo Builtins_ListToVector = typeof(Builtins).GetMethod("ListToVector");
 
     readonly static MethodInfo Macro_MakeVarArgX = typeof(Runtime.Macro).GetMethod("MakeVarArgX");
     readonly static MethodInfo Macro_Make = typeof(Runtime.Macro).GetMethod("Make");

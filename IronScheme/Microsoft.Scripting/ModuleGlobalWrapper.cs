@@ -59,6 +59,7 @@ namespace Microsoft.Scripting {
                     throw _context.LanguageContext.MissingName(_name);
 
                 }
+                _context.Scope.SetName(_name, value);
                 _value = value;
             }
         }

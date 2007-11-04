@@ -161,21 +161,31 @@ namespace IronScheme.Runtime
           {
             IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
               IModuleDictionaryInitialization;
-            init.InitializeModuleDictionary(cc);
+            try
+            {
+              init.InitializeModuleDictionary(cc);
+            }
+            catch (InvalidOperationException)
+            {
+            }
             entry.Invoke(null, new object[] { cc });
           }
           break;
         default:
           // check for already compiled version
-          string cfn = Path.ChangeExtension(path, ".exe");
-          if (File.Exists(cfn))
-          {
-            if (File.GetLastWriteTime(cfn) > File.GetLastWriteTime(path))
-            {
-              //path = cfn;
-              //goto case ".exe";
-            }
-          }
+          //string cfn = Path.ChangeExtension(path, ".exe");
+          //if (File.Exists(cfn))
+          //{
+          //  DateTime ct = File.GetLastWriteTime(cfn);
+          //  if (ct > File.GetLastWriteTime(path))
+          //  {
+          //    if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct)
+          //    {
+          //      path = cfn;
+          //      goto case ".exe";
+          //    }
+          //  }
+          //}
 
           // this still bombs out too much
           //Compiler.Generator.CanAllowTailCall = true;
@@ -581,6 +591,27 @@ namespace IronScheme.Runtime
       {
         List<string> v = new List<string>();
         Cons s = obj as Cons;
+
+        object scar = s.Car;
+        if (IsSymbol(scar) && s.Cdr != null)
+        {
+          if (IsEqual(quote, scar))
+          {
+            return "'" + WriteFormat(Cadr(s));
+          }
+          if (IsEqual(quasiquote, scar))
+          {
+            return "`" + WriteFormat(Cadr(s));
+          }
+          if (IsEqual(unquote, scar))
+          {
+            return "," + WriteFormat(Cadr(s));
+          }
+          if (IsEqual(unquote_splicing, scar))
+          {
+            return ",@" + WriteFormat(Cadr(s));
+          }
+        }
 
         if (s.Car == null && s.Cdr == null)
         {

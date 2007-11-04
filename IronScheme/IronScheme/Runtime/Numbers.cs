@@ -25,24 +25,160 @@ namespace IronScheme.Runtime
     [Builtin("number->string")]
     public static string NumberToString(object obj)
     {
-      return NumberToString(obj, null);
+      return NumberToString(obj, 10);
     }
 
     [Builtin("number->string")]
     public static string NumberToString(object obj, object radix)
     {
+      string str = RequiresNotNull<string>(obj);
+      radix = radix ?? 10;
+      int r = (int)radix;
+
       throw new NotImplementedException();
     }
 
     [Builtin("string->number")]
     public static object StringToNumber(object obj)
     {
-      return StringToNumber(obj, null);
+      string str = RequiresNotNull<string>(obj);
+
+      if (str.Length == 0)
+      {
+        throw new ArgumentException("string cannot be empty");
+      }
+
+      switch (str[0])
+      {
+        case '#':
+          switch (str[1])
+          {
+            case 'b':
+              return StringToNumber(str.Substring(2), 2);
+            case 'o':
+              return StringToNumber(str.Substring(2), 8);
+            case 'd':
+              return StringToNumber(str.Substring(2), 10);
+            case 'x':
+              return StringToNumber(str.Substring(2), 16);
+            default:
+              throw new ArgumentException("unknown radix");
+          }
+        default:
+          return StringToNumber(obj, 10);
+      }
+    }
+
+    static object ParseBinary(string str)
+    {
+      if (str.Length <= 32)
+      {
+        int b = 1;
+        int n = 0;
+        for (int i = 0; i < str.Length; i++, b *= 2)
+        {
+          char c = str[str.Length - 1 - i];
+          n += b * (c - '0');
+        }
+        return n;
+      }
+      else
+      {
+        long b = 1;
+        long n = 0;
+        for (int i = 0; i < str.Length; i++, b *= 2)
+        {
+          char c = str[str.Length - 1 - i];
+          n += b * (c - '0');
+        }
+        return n;
+      }
+    }
+
+    static object ParseOctal(string str)
+    {
+      if (str.Length < 11) // not precise, bleh
+      {
+        int b = 1;
+        int n = 0;
+        for (int i = 0; i < str.Length; i++, b *= 8)
+        {
+          char c = str[str.Length - 1 - i];
+          n += b * (c - '0');
+        }
+        return n;
+      }
+      else
+      {
+        long b = 1;
+        long n = 0;
+        for (int i = 0; i < str.Length; i++, b *= 8)
+        {
+          char c = str[str.Length - 1 - i];
+          n += b * (c - '0');
+        }
+        return n;
+      }
     }
 
     [Builtin("string->number")]
     public static object StringToNumber(object obj, object radix)
     {
+      string str = RequiresNotNull<string>(obj);
+      radix = radix ?? 10;
+      int r = (int)radix;
+
+      if (str.Length == 0)
+      {
+        throw new ArgumentException("string cannot be empty");
+      }
+
+      switch (r)
+      {
+        case 2:
+          return ParseBinary(str);
+        case 8:
+          return ParseOctal(str);
+        case 10:
+          int n;
+          if (int.TryParse(str, out n))
+          {
+            return n;
+          }
+          long l;
+          if (long.TryParse(str, out l))
+          {
+            return l;
+          }
+          double d;
+          if (double.TryParse(str, out d))
+          {
+            return d;
+          }
+          decimal dec;
+          if (decimal.TryParse(str, out dec))
+          {
+            return dec;
+          }
+          break;
+        case 16:
+          if (str.Length > 16)
+          {
+            throw new NotSupportedException("big numbers not supported yet");
+          }
+          else
+          if (str.Length > 8)
+          {
+            return long.Parse(str, System.Globalization.NumberStyles.HexNumber);
+          }
+          else
+          {
+            return int.Parse(str, System.Globalization.NumberStyles.HexNumber);
+          }
+        default:
+          throw new ArgumentException("unknown radix");
+      }
+
       throw new NotImplementedException();
     }
 

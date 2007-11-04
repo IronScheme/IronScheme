@@ -100,11 +100,6 @@ namespace IronScheme.Actions
         return obj;
       }
 
-      if (obj is MethodGroup)
-      {
-        return BuiltinMethod.FromMethodGroup((MethodGroup)obj);
-      }
-
       TypeConverter tc = TypeDescriptor.GetConverter(obj);
       return tc.ConvertTo(obj, toType);
     }
