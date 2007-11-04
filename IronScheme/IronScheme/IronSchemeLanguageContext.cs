@@ -49,20 +49,20 @@ namespace IronScheme
     {
       if (base.TryLookupName(context, name, out value))
       {
-        if (value is MethodGroup)
-        {
-          value = BuiltinMethod.FromMethodGroup((MethodGroup)value);
-        }
         return true;
       }
-      MethodGroup bif;
-      if (Generator.MethodGroups.TryGetValue(name, out bif))
+      if (Compiler.Generator.cc.Scope.TryLookupName(name, out value))
       {
-        value = bif;
         return true;
       }
       value = name;
       return false;
+    }
+
+    protected override ModuleGlobalCache GetModuleCache(SymbolId name)
+    {
+      
+      return base.GetModuleCache(name);
     }
 
     public override CodeBlock ParseSourceCode(CompilerContext context)
@@ -208,6 +208,8 @@ namespace IronScheme
         }
 
         cb.Body = Ast.Block(stmts);
+
+        Parser.sourcemap.Clear();
 
         return cb;
       }

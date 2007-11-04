@@ -24,20 +24,15 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-#if DEBUG
+
       ScriptDomainManager.Options.AssemblyGenAttributes |=
-
-       Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-       Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies
-
-
- | Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies|
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies
-
-;
+#if DEBUG
+ Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies;
 #endif
-      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
+ logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version);
 
         Console.Title = logo;
@@ -57,13 +52,17 @@ namespace IronScheme.Hosting
     {
       ConsoleColor old = Console.ForegroundColor;
       Console.ForegroundColor = ConsoleColor.Green;
-      Console.WriteLine(logo);
+      Console.WriteLine(logo.Replace("©", "(c)"));
       Console.ForegroundColor = old;
     }
 
     protected override void UnhandledException(IScriptEngine engine, Exception e)
     {
       base.UnhandledException(engine, e);
+      ConsoleColor old = Console.ForegroundColor;
+      Console.ForegroundColor = ConsoleColor.Red;
+      Console.WriteLine(e.ToString());
+      Console.ForegroundColor = old;
       Console.ReadLine();
     }
   }

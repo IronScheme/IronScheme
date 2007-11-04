@@ -63,13 +63,19 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (nestinglevel == 1
-          && Builtins.IsEqual(c.Car, unquote))
+        if (Builtins.IsEqual(c.Car, unquote))
         {
           nestinglevel--;
           try
           {
-            return GetAst(Builtins.Second(c), cb);
+            if (nestinglevel == 0)
+            {
+              return GetAst(Builtins.Second(c), cb);
+            }
+            else
+            {
+              return GetConsList(c, cb);
+            }
           }
           finally
           {

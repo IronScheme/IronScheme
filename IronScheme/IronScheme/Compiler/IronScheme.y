@@ -80,7 +80,7 @@ static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
 }
 
 %token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT
-%token <text> SYMBOL LITERAL STRING INTEGER REAL CHARACTER 
+%token <text> SYMBOL LITERAL STRING NUMBER CHARACTER 
 
 %type <list> exprlist list file
 %type <elem> expr specexpr
@@ -109,9 +109,8 @@ expr
     : list                                        { $$ = $1;}
     | SYMBOL                                      { $$ = SymbolTable.StringToId($1); }
     | STRING                                      { $$ = $1.Trim('"'); }
-    | INTEGER                                     { $$ = Convert.ToInt32($1);}
+    | NUMBER                                      { $$ = Builtins.StringToNumber($1);}
     | LITERAL                                     { $$ = $1 == "#t" ? (object)true : ($1 == "#f" ? (object)false : null);}
-    | REAL                                        { $$ = Convert.ToDouble($1);}
     | CHARACTER                                   { $$ = $1[0];}
     | VECTORLBRACE exprlist RBRACE                { $$ = Builtins.ListToVector($2);}
     ; 

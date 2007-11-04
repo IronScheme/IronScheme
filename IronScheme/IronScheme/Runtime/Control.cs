@@ -26,16 +26,33 @@ namespace IronScheme.Runtime
 
   sealed class BuiltinMethod : ICallableWithCodeContext
   {
-    MethodBinder meth;
+    readonly MethodBinder meth;
+    readonly string name;
+    readonly MethodGroup methods;
 
-    public BuiltinMethod(MethodBinder mb)
+    public string Name
     {
-      meth = mb;
+      get { return name; }
+    } 
+
+
+    public MethodBinder Binder
+    {
+      get { return meth; }
     }
 
-    public static ICallableWithCodeContext FromMethodGroup(MethodGroup mg)
+    public MethodBase[] GetMethodBases()
     {
-      return new BuiltinMethod(MethodBinder.MakeBinder(IronScheme.Compiler.BaseHelper.binder, mg.Name, mg.GetMethodBases(), BinderType.Normal));
+      return methods.GetMethodBases();
+    }
+
+
+    public BuiltinMethod(string name, MethodGroup mg)
+    {
+      this.name = name;
+      this.methods = mg;
+      meth = MethodBinder.MakeBinder(IronScheme.Compiler.BaseHelper.binder, mg.Name, mg.GetMethodBases(), BinderType.Normal);
+
     }
 
     public object Call(CodeContext context, object[] args)
@@ -49,7 +66,7 @@ namespace IronScheme.Runtime
 
     public override string ToString()
     {
-      return meth.Name;
+      return name;
     }
 
   }
@@ -204,15 +221,6 @@ namespace IronScheme.Runtime
       {
         Delegate d = (Delegate)fn;
         return ApplyInternal(cc, Closure.Make(cc, d, d.Method.Name), args);
-      }
-      else if (fn is MethodGroup)
-      {
-        MethodGroup mg = (MethodGroup) fn;
-        MethodBinder mb = MethodBinder.MakeBinder(Binder, mg.Name, mg.GetMethodBases(), BinderType.Normal);
-        BuiltinMethod bim = new BuiltinMethod(mb);
-
-        return ApplyInternal(cc, bim, args);
-        //.
       }
       else
       {
