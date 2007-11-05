@@ -24,15 +24,15 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-
-      ScriptDomainManager.Options.AssemblyGenAttributes |=
 #if DEBUG
+      ScriptDomainManager.Options.AssemblyGenAttributes |=
+
  Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.VerifyAssemblies;
 #endif
- logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
+      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version);
 
         Console.Title = logo;

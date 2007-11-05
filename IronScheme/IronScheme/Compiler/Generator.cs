@@ -164,15 +164,11 @@ namespace IronScheme.Compiler
               return gh(c.Cdr, cb);
             }
 
-            MethodGroup bf = m as MethodGroup;
+            BuiltinMethod bf = m as BuiltinMethod;
             if (bf != null)
             {
 
-              MethodBinder mb;
-              if (!methodbindercache.TryGetValue(bf, out mb))
-              {
-                methodbindercache[bf] = mb = MethodBinder.MakeBinder(Binder, SymbolTable.IdToString(f), bf.GetMethodBases(), BinderType.Normal);
-              }
+              MethodBinder mb = bf.Binder;
               Expression[] pars = GetAstList(c.Cdr as Cons, cb);
               //pars[0] = Ast.RuntimeConstant(bf);
               Type[] types = GetExpressionTypes(pars);
@@ -467,6 +463,19 @@ namespace IronScheme.Compiler
       {
         nestinglevel--;
       }
+    }
+
+    [Generator]
+    public static Expression Delay(object args, CodeBlock cb)
+    {
+      CodeBlock c = Ast.CodeBlock(GetLambdaName(cb));
+      c.Parent = cb;
+
+      FillBody(c, new List<Statement>(), args as Cons, true);
+
+      return Ast.Call(null,
+        Promise_Make, Ast.CodeContext(), Ast.CodeBlockExpression(c, false, false));
+
     }
   }
 

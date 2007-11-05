@@ -23,19 +23,43 @@ namespace IronScheme.Runtime
   public partial class Builtins
   {
     [Builtin("number->string")]
-    public static string NumberToString(object obj)
+    public static object NumberToString(object obj)
     {
       return NumberToString(obj, 10);
     }
 
-    [Builtin("number->string")]
-    public static string NumberToString(object obj, object radix)
+    static object PrintBinary(object num)
     {
-      string str = RequiresNotNull<string>(obj);
+      return false;
+    }
+
+    static object PrintOctal(object num)
+    {
+      return false;
+    }
+
+
+    [Builtin("number->string")]
+    public static object NumberToString(object obj, object radix)
+    {
+      //string str = RequiresNotNull<string>(obj);
+
       radix = radix ?? 10;
       int r = (int)radix;
 
-      throw new NotImplementedException();
+      switch (r)
+      {
+        case 2:
+          return PrintBinary(obj);
+        case 8:
+          return PrintOctal(obj);
+        case 10:
+          return obj.ToString();
+        case 16:
+          return string.Format("{0:x}", obj);
+      }
+
+      return false;
     }
 
     [Builtin("string->number")]
@@ -45,7 +69,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        throw new ArgumentException("string cannot be empty");
+        return false;
       }
 
       switch (str[0])
@@ -62,7 +86,7 @@ namespace IronScheme.Runtime
             case 'x':
               return StringToNumber(str.Substring(2), 16);
             default:
-              throw new ArgumentException("unknown radix");
+              return false;
           }
         default:
           return StringToNumber(obj, 10);
@@ -130,7 +154,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        throw new ArgumentException("string cannot be empty");
+        return false;
       }
 
       switch (r)
@@ -164,7 +188,7 @@ namespace IronScheme.Runtime
         case 16:
           if (str.Length > 16)
           {
-            throw new NotSupportedException("big numbers not supported yet");
+            return false;
           }
           else
           if (str.Length > 8)
@@ -176,10 +200,10 @@ namespace IronScheme.Runtime
             return int.Parse(str, System.Globalization.NumberStyles.HexNumber);
           }
         default:
-          throw new ArgumentException("unknown radix");
+          return false;
       }
 
-      throw new NotImplementedException();
+      return false;
     }
 
 
@@ -1145,13 +1169,13 @@ provided all numbers involved in that computation are exact.
     [Builtin("numerator")]
     public static object Numerator(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("denominator")]
     public static object Denominator(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("floor")]
@@ -1181,7 +1205,7 @@ provided all numbers involved in that computation are exact.
     [Builtin("rationalize")]
     public static object Rationalize(object obj1, object obj2)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
 
@@ -1329,49 +1353,50 @@ provided all numbers involved in that computation are exact.
     [Builtin("make-rectangular")]
     public static object MakeRectangular(object obj1, object obj2)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("make-polar")]
     public static object MakePolar(object obj1, object obj2)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("real-part")]
     public static object RealPart(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("imag-part")]
     public static object ImagPart(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("magnitude")]
     public static object Magnitude(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("angle")]
     public static object Angle(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
     
 
     [Builtin("exact->inexact")]
     public static object ExactToInexact(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
+
     [Builtin("inexact->exact")]
     public static object InexactToExact(object obj)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
   }
