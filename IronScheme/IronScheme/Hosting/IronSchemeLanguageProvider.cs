@@ -134,6 +134,9 @@ namespace IronScheme.Hosting
           ConsoleOptions co = new IronSchemeConsoleOptions();
           co.TabCompletion = !notabcompletion;
           co.ColorfulConsole = true;
+#if DEBUG
+          //co.HandleExceptions = false;
+#endif
           return co;
         }
         set
@@ -151,6 +154,7 @@ namespace IronScheme.Hosting
         get
         {
           EngineOptions eo = new IronSchemeEngineOptions();
+          
 #if DEBUG
           eo.ClrDebuggingEnabled = true;
 #endif

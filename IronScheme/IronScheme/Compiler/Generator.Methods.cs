@@ -40,5 +40,7 @@ namespace IronScheme.Compiler
 
     static readonly MethodInfo ICallableWithCodeContext_Call = typeof(ICallableWithCodeContext).GetMethod("Call");
 
+    static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
+
   }
 }

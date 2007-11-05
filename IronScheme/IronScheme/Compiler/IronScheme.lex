@@ -25,7 +25,7 @@ public override void yyerror(string format, params object[] args)
 
 public int MakeChar()
 {
-  switch (yytext)
+  switch (yytext.ToLower())
   {
     case "#\\":
     case "#\\space":
@@ -139,7 +139,7 @@ number                 ({num2}|{num8}|{num10}|{num16})
 
 
 single_char            [^\n ]
-character              {single_char}|"newline"|"space"
+character              {single_char}|([Nn][Ee][Ww][Ll][Ii][Nn][Ee])|([Ss][Pp][Aa][Cc][Ee])
 character_literal      #\\({character})?
 
 single_string_char     [^\\\"\n]

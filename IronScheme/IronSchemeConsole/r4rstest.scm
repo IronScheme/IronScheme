@@ -41,7 +41,8 @@
 
 ;;; send corrections or additions to jaffer@ai.mit.edu
 
-(define cur-section '())(define errs '())
+(define cur-section '())
+(define errs '())
 (define SECTION (lambda args
 		  (display "SECTION") (write args) (newline)
 		  (set! cur-section args) #t))
@@ -281,9 +282,9 @@
 (test #f not (list))
 (test #f not 'nil)
 
-;(test #t boolean? #f)
-;(test #f boolean? 0)
-;(test #f boolean? '())
+(test #t boolean? #f)
+(test #f boolean? 0)
+(test #f boolean? '())
 (SECTION 6 2)
 (test #t eqv? 'a 'a)
 (test #f eqv? 'a 'b)
@@ -409,12 +410,12 @@
 (test '((a)) assoc (list 'a) '(((a)) ((b)) ((c))))
 (test '(5 7) assv 5 '((2 3) (5 7) (11 13)))
 (SECTION 6 4)
-;(test #t symbol? 'foo)
+(test #t symbol? 'foo)
 (test #t symbol? (car '(a b)))
-;(test #f symbol? "bar")
-;(test #t symbol? 'nil)
-;(test #f symbol? '())
-;(test #f symbol? #f)
+(test #f symbol? "bar")
+(test #t symbol? 'nil)
+(test #f symbol? '())
+(test #f symbol? #f)
 ;;; But first, what case are symbols in?  Determine the standard case:
 (define char-standard-case char-upcase)
 (if (string=? (symbol->string 'A) "a")
@@ -539,7 +540,7 @@
 (test 0 gcd)
 (test 288 lcm 32 -36)
 (test 1 lcm)
-#|
+
 ;;;;From: fred@sce.carleton.ca (Fred J Kaudel)
 ;;; Modified by jaffer.
 (define (test-inexact)
@@ -592,7 +593,7 @@
 	(y (string->number "3145727.0")))
     (test #t 'pentium-fdiv-bug (> f1.0 (- x (* (/ x y) y)))))
   (report-errs))
-
+#|
 (define (test-inexact-printing)
   (let ((f0.0 (string->number "0.0"))
 	(f0.5 (string->number "0.5"))
@@ -682,7 +683,7 @@
   (newline)
   (display ";testing bignums; ")
   (newline)
-  #|
+
   (SECTION 6 5 7)
   (test 0 modulo 33333333333333333333 3)
   (test 0 modulo 33333333333333333333 -3)
@@ -715,9 +716,9 @@
   (SECTION 6 5 8)
   (test 281474976710655325431 string->number "281474976710655325431")
   (test "281474976710655325431" number->string 281474976710655325431)
-  |#
+
   (report-errs))
-#|
+
 (SECTION 6 5 9)
 (test "0" number->string 0)
 (test "100" number->string 100)
@@ -738,14 +739,14 @@
 (test #f string->number "3.3I")
 (test #f string->number "-")
 (test #f string->number "+")
-|#
+
 (SECTION 6 6)
-;(test #t eqv? '#\  #\Space)
-;(test #t eqv? #\space '#\Space)
+(test #t eqv? '#\  #\Space)
+(test #t eqv? #\space '#\Space)
 (test #t char? #\a)
 (test #t char? #\()
-;(test #t char? #\ )
-;(test #t char? '#\newline)
+(test #t char? #\ )
+(test #t char? '#\newline)
 
 (test #f char=? #\A #\B)
 (test #f char=? #\a #\b)
@@ -818,7 +819,7 @@
 (test #t char-alphabetic? #\Z)
 (test #f char-alphabetic? #\0)
 (test #f char-alphabetic? #\9)
-;(test #f char-alphabetic? #\space)
+(test #f char-alphabetic? #\space)
 (test #f char-alphabetic? #\;)
 
 (test #f char-numeric? #\a)
@@ -827,7 +828,7 @@
 (test #f char-numeric? #\Z)
 (test #t char-numeric? #\0)
 (test #t char-numeric? #\9)
-;(test #f char-numeric? #\space)
+(test #f char-numeric? #\space)
 (test #f char-numeric? #\;)
 
 (test #f char-whitespace? #\a)
@@ -836,7 +837,7 @@
 (test #f char-whitespace? #\Z)
 (test #f char-whitespace? #\0)
 (test #f char-whitespace? #\9)
-;(test #t char-whitespace? #\space)
+(test #t char-whitespace? #\space)
 (test #f char-whitespace? #\;)
 
 (test #f char-upper-case? #\0)
@@ -846,7 +847,7 @@
 
 (test #f char-lower-case? #\0)
 (test #f char-lower-case? #\9)
-;(test #f char-lower-case? #\space)
+(test #f char-lower-case? #\space)
 (test #f char-lower-case? #\;)
 
 (test #\. integer->char (char->integer #\.))
@@ -858,7 +859,7 @@
 (test #\a char-downcase #\a)
 (SECTION 6 7)
 (test #t string? "The word \"recursion\\\" has many meanings.")
-;(test #t string? "")
+(test #t string? "")
 (define f (make-string 3 #\*))
 (test "?**" 'string-set! (begin (string-set! f 0 #\?) f))
 (test "abc" string #\a #\b #\c)
@@ -956,7 +957,7 @@
 (test #t string-ci>=? "A" "a")
 (SECTION 6 8)
 (test #t vector? '#(0 (2 2 2 2) "Anna"))
-;(test #t vector? '#())
+(test #t vector? '#())
 (test '#(a b c) vector 'a 'b 'c)
 (test '#() vector)
 (test 3 vector-length '#(0 (2 2 2 2) "Anna"))
@@ -971,7 +972,7 @@
 (test '#() make-vector 0 'a)
 (SECTION 6 9)
 (test #t procedure? car)
-;(test #f procedure? 'car)
+(test #f procedure? 'car)
 (test #t procedure? (lambda (x) (* x x)))
 (test #f procedure? '(lambda (x) (* x x)))
 (test #t call-with-current-continuation procedure?)
@@ -1087,7 +1088,7 @@
 (test #\; read-char this-file)
 (test '(define cur-section '()) read this-file)
 (test #\( peek-char this-file)
-;(test '(define errs '()) read this-file)
+(test '(define errs '()) read this-file)
 (close-input-port this-file)
 (close-input-port this-file)
 (define (check-test-file name)
@@ -1149,12 +1150,12 @@
   (report-errs))
 
 (report-errs)
-'(cond ((and (string->number "0.0") (inexact? (string->number "0.0")))
+(cond ((and (string->number "0.0") (inexact? (string->number "0.0")))
        (test-inexact)
 ; printing test disabled
        '(test-inexact-printing)))
 
-'(let ((n (string->number "281474976710655325431")))
+(let ((n (string->number "281474976710655325431")))
   (if (and n (exact? n))
       (test-bignum)))
 (newline)

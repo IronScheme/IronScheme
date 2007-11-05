@@ -17,6 +17,7 @@ You must not remove this notice, or any other, from this software.
 
 ;; let is first as we use it everywhere
 ;; note: you cant use let in the body, but it's ok in the output
+;; todo: fix lexical scoping on initial args
 (define let
   (macro (args . body)
          ;; check named let
