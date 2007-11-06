@@ -123,11 +123,9 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        object first = Builtins.First(args);
-        if (Builtins.IsSymbol(first))
+        if (Builtins.IsSymbol(c.Car))
         {
-          SymbolId f = (SymbolId)first;
-
+          SymbolId f = (SymbolId)c.Car;
 
           object m;
 
@@ -182,7 +180,7 @@ namespace IronScheme.Compiler
                 pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
               }
               return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
-              // TODO: figure out how MethodGroup et al works
+              // TODO: figure out how MethodGroup et al works, perhaps not
               //return Ast.Action.Call(typeof(object), pars);
             }
           }
