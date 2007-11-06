@@ -17,16 +17,18 @@ You must not remove this notice, or any other, from this software.
 
 ;; let is first as we use it everywhere
 ;; note: you cant use let in the body, but it's ok in the output
-;; todo: fix lexical scoping on initial args
+;; note: the reason the named let is so ugly is to have correct lexical scoping
 (define let
   (macro (args . body)
          ;; check named let
          (if (symbol? args)
              ((lambda (name args body)
-                `(let ((,name #f))
-                   (set! ,name (lambda ,(map first args) ,@body))
-                   (,name ,@(map second args))))
-              args (car body) (cdr body))
+                `((lambda ,(map first args)
+                  (let ((,name #f))
+                    (set! ,name (lambda ,(map first args) ,@body))
+                    (,name ,@(map first args))))
+                    ,@(map second args)))
+                args (car body) (cdr body))
              ;; normal let
              `((lambda ,(map first args) ,@body) ,@(map second args)))))
 
