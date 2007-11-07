@@ -50,6 +50,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
+          EmitLocation(cg);
             _value.EmitAsObject(cg);
             cg.EmitCodeContext();
             cg.EmitSymbolId(_name);

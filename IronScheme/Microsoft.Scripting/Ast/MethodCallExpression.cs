@@ -150,6 +150,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
+          EmitLocation(cg);
             // Emit instance, if calling an instance method
             if (!_method.IsStatic) {
                 Type type = _method.DeclaringType;

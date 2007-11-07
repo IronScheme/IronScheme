@@ -5,15 +5,15 @@
 (let ((b '(1 2 3)))
   (let* ((a b)
          (b (cons 0 a)))
-    (let bar ((a b))
+    (let b ((a b))
       (if (null? a)
           (begin
-            (display "eureka!")
+            (display "IronScheme!")
             (newline))
           (begin
             (display a)
             (newline)
-            (bar (cdr a)))))))
+            (b (cdr a)))))))
 
 ;; note how this will be slower, as it  refers to the global variable
 (define (tak x y z)
@@ -60,17 +60,20 @@
     ((_ a into b f ... )
      (for-each (lambda (a) f ...) b))))
      
-(for c in (string->list "hello")
+     
+(define IronScheme! (string->list "IronScheme!"))
+     
+(for c in IronScheme!
   (begin
     (display (char-upcase c))))
 
 (newline)
 
-(for c into (string->list "hello")
+(for c into IronScheme!
     (display c)
     (newline))
 
-(for c char-upcase (string->list "hello") (display c))
+(for c char-upcase IronScheme! (display c))
 
 (newline)
 

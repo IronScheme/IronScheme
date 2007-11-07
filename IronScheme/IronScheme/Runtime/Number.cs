@@ -18,7 +18,7 @@ using Microsoft.Scripting.Math;
 
 namespace IronScheme.Runtime
 {
-#if NEW_NUMBERS
+#if !NEW_NUMBERS
   
   public abstract class Number
   {
@@ -62,6 +62,11 @@ namespace IronScheme.Runtime
     public static Number operator /(Number a, Number b)
     {
       return a.Divide(b);
+    }
+
+    public static implicit operator Number(int n)
+    {
+      return new Integer(n);
     }
 
 

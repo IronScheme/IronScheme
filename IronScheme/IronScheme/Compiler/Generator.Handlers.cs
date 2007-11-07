@@ -20,6 +20,22 @@ using System.Reflection;
 
 namespace IronScheme.Compiler
 {
+  public interface IGenerator
+  {
+    object Expand(object args);
+    Expression Generate(object args, CodeBlock cb);
+  }
+
+  public abstract class SimpleGenerator : Generator, IGenerator
+  {
+    public object Expand(object expr)
+    {
+      return SyntaxExpander.Expand(expr);
+    }
+
+    public abstract Expression Generate(object args, CodeBlock cb);
+  }
+
   partial class Generator
   {
     public delegate Expression GeneratorHandler(object args, CodeBlock cb);
