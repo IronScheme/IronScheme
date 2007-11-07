@@ -114,10 +114,8 @@ namespace IronScheme.Runtime
           {
             foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
             {
-              if (ea.GeneratorType != null)
-              {
-                IronScheme.Compiler.Generator.AddGenerators(ext);
-              }
+              IronScheme.Compiler.Generator.AddGenerators(ext);
+
               if (ea.BuiltinsType != null)
               {
                 IronScheme.Compiler.Generator.AddBuiltins(ea.BuiltinsType);
