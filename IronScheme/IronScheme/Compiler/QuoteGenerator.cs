@@ -19,24 +19,21 @@ using IronScheme.Runtime;
 
 namespace IronScheme.Compiler
 {
-  [Generator("lambda")]
-  public class LambdaGenerator : SimpleGenerator
+  [Generator("quote")]
+  public class QuoteGenerator : SimpleGenerator
   {
-    public override Expression Generate(object args, CodeBlock c)
+    public override Expression Generate(object args, CodeBlock cb)
     {
-      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
-      cb.Parent = c;
-
-      object arg = Builtins.First(args);
-      Cons body = Builtins.Cdr(args) as Cons;
-
-      bool isrest = AssignParameters(cb, arg);
-
-      List<Statement> stmts = new List<Statement>();
-      FillBody(cb, stmts, body, true);
-
-      Expression ex = MakeClosure(cb, isrest);
-      return ex;
+      int t = NestingLevel;
+      NestingLevel = int.MaxValue / 2;
+      try
+      {
+        return GetCons(Builtins.Car(args), cb);
+      }
+      finally
+      {
+        NestingLevel = t;
+      }
     }
   }
 }

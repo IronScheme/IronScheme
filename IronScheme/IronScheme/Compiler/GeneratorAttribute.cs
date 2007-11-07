@@ -14,29 +14,22 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Scripting.Ast;
-using IronScheme.Runtime;
 
 namespace IronScheme.Compiler
 {
-  [Generator("lambda")]
-  public class LambdaGenerator : SimpleGenerator
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+  public sealed class GeneratorAttribute : Attribute
   {
-    public override Expression Generate(object args, CodeBlock c)
+    string name;
+
+    public string Name
     {
-      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
-      cb.Parent = c;
+      get { return name; }
+    }
 
-      object arg = Builtins.First(args);
-      Cons body = Builtins.Cdr(args) as Cons;
-
-      bool isrest = AssignParameters(cb, arg);
-
-      List<Statement> stmts = new List<Statement>();
-      FillBody(cb, stmts, body, true);
-
-      Expression ex = MakeClosure(cb, isrest);
-      return ex;
+    public GeneratorAttribute(string name)
+    {
+      this.name = name;
     }
   }
 }

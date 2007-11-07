@@ -23,17 +23,13 @@ using IronScheme.Compiler;
 
 using Generator = IronScheme.Compiler.Generator;
 
-[assembly: Extension(GeneratorType = typeof(IronScheme.Clr.ClrGenerator))]
+[assembly: Extension]
 
 namespace IronScheme.Clr
 {
   static class ClrGenerator
   {
-    [Generator]
-    public static Expression Call(object args, CodeBlock cb)
-    {
-      return null;
-    }
+
 
   }
 }

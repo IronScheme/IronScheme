@@ -23,14 +23,14 @@ namespace IronScheme.Compiler
   partial class Generator
   {
     static readonly MethodInfo Builtins_Cons = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) });
-    static readonly MethodInfo Builtins_Cons2 = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) , typeof(object)});
+    protected static readonly MethodInfo Builtins_Cons2 = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) , typeof(object)});
     static readonly MethodInfo Builtins_Append = typeof(Builtins).GetMethod("Append");
     static readonly MethodInfo Builtins_VectorAppend = typeof(Builtins).GetMethod("VectorAppend");
     static readonly MethodInfo Builtins_ToImproper = typeof(Builtins).GetMethod("ToImproper");
     static readonly MethodInfo Builtins_ListToVector = typeof(Builtins).GetMethod("ListToVector");
 
-    readonly static MethodInfo Macro_MakeVarArgX = typeof(Runtime.Macro).GetMethod("MakeVarArgX");
-    readonly static MethodInfo Macro_Make = typeof(Runtime.Macro).GetMethod("Make");
+    protected readonly static MethodInfo Macro_MakeVarArgX = typeof(Runtime.Macro).GetMethod("MakeVarArgX");
+    protected readonly static MethodInfo Macro_Make = typeof(Runtime.Macro).GetMethod("Make");
 
     static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Make");
     static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("MakeVarArgX");
@@ -40,7 +40,7 @@ namespace IronScheme.Compiler
 
     static readonly MethodInfo ICallableWithCodeContext_Call = typeof(ICallableWithCodeContext).GetMethod("Call");
 
-    static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
+    protected static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
 
   }
 }

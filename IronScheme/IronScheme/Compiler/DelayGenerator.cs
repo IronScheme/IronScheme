@@ -19,24 +19,18 @@ using IronScheme.Runtime;
 
 namespace IronScheme.Compiler
 {
-  [Generator("lambda")]
-  public class LambdaGenerator : SimpleGenerator
+  [Generator("delay")]
+  public class DelayGenerator : SimpleGenerator
   {
-    public override Expression Generate(object args, CodeBlock c)
+    public override Expression Generate(object args, CodeBlock cb)
     {
-      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
-      cb.Parent = c;
+      CodeBlock c = Ast.CodeBlock(GetLambdaName(cb));
+      c.Parent = cb;
 
-      object arg = Builtins.First(args);
-      Cons body = Builtins.Cdr(args) as Cons;
+      FillBody(c, new List<Statement>(), args as Cons, true);
 
-      bool isrest = AssignParameters(cb, arg);
-
-      List<Statement> stmts = new List<Statement>();
-      FillBody(cb, stmts, body, true);
-
-      Expression ex = MakeClosure(cb, isrest);
-      return ex;
+      return Ast.Call(null,
+        Promise_Make, Ast.CodeContext(), Ast.CodeBlockExpression(c, false, false));
     }
   }
 }

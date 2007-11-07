@@ -19,12 +19,12 @@ using IronScheme.Runtime;
 
 namespace IronScheme.Compiler
 {
-  [Generator("lambda")]
-  public class LambdaGenerator : SimpleGenerator
+  [Generator("macro")]
+  public class MacroGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock c)
     {
-      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
+      CodeBlock cb = Ast.CodeBlock(GetFullname(NameHint, c));
       cb.Parent = c;
 
       object arg = Builtins.First(args);
@@ -35,7 +35,15 @@ namespace IronScheme.Compiler
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
 
-      Expression ex = MakeClosure(cb, isrest);
+      CodeBlockExpression cbe = Ast.CodeBlockExpression(cb, false);
+
+      Expression ex = Ast.SimpleCallHelper(
+        isrest ? Macro_MakeVarArgX : Macro_Make,
+        Ast.CodeContext(),
+        cbe,
+        Ast.Constant(cb.Parameters.Count),
+        Ast.Constant(cb.Name));
+
       return ex;
     }
   }

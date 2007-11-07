@@ -16,27 +16,33 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
-  [Generator("lambda")]
-  public class LambdaGenerator : SimpleGenerator
+  [Generator("quasiquote")]
+  public class QuasiquoteGenerator : SimpleGenerator
   {
-    public override Expression Generate(object args, CodeBlock c)
+    public override Expression Generate(object args, CodeBlock cb)
     {
-      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
-      cb.Parent = c;
-
-      object arg = Builtins.First(args);
-      Cons body = Builtins.Cdr(args) as Cons;
-
-      bool isrest = AssignParameters(cb, arg);
-
-      List<Statement> stmts = new List<Statement>();
-      FillBody(cb, stmts, body, true);
-
-      Expression ex = MakeClosure(cb, isrest);
-      return ex;
+      NestingLevel++;
+      try
+      {
+        if (NestingLevel == 1)
+        {
+          return GetCons(Builtins.First(args), cb);
+        }
+        else
+        {
+          // does this ever get hit?
+          Debugger.Break();
+          return Ast.SimpleCallHelper(Builtins_Cons2, Ast.Constant(quasiquote), GetCons(args, cb));
+        }
+      }
+      finally
+      {
+        NestingLevel--;
+      }
     }
   }
 }
