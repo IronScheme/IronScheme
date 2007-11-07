@@ -16,7 +16,7 @@ using System.Globalization;
 
 namespace IronScheme.Runtime
 {
-#if NEW_NUMBERS
+#if !NEW_NUMBERS
 	/// <summary>
 	/// An implementation of rational (fractional) numbers.
 	/// Numeric range: -Int64.MaxValue/1 to Int64.MaxValue/1
@@ -153,8 +153,8 @@ namespace IronScheme.Runtime
 		/// <summary>
 		/// The classic GCD algorithm of Euclid
 		/// </summary>
-		/// <param name="first"></param>
-		/// <param name="second"></param>
+    /// <param name="smaller"></param>
+    /// <param name="larger"></param>
 		/// <returns></returns>
 		internal Int64 Gcd(Int64 smaller, Int64 larger)
 		{
@@ -197,7 +197,7 @@ namespace IronScheme.Runtime
 		/// we truncate the least significant part of these bits.
 		/// If the scale factor is too large we scale down the integer part at the expense of precision.
 		/// </summary>
-		/// <param name="val"></param>
+    /// <param name="convertedDecimal"></param>
 		/// <returns></returns>
 		/// <remarks>
 		/// Note the comments on precision issues when the number of digits used in the Decimal
@@ -275,8 +275,8 @@ namespace IronScheme.Runtime
 		/// Multiplication the schoolbook way, based on 32-bit steps.
 		/// This can be certainly optimized but it is ok for the moment.
 		/// </summary>
-		/// <param name="AB"></param>
-		/// <param name="CD"></param>
+    /// <param name="ab"></param>
+    /// <param name="cd"></param>
 		/// <returns></returns>
 		internal UInt32[] UMult128(UInt64 ab, UInt64 cd)
 		{
@@ -387,7 +387,7 @@ namespace IronScheme.Runtime
 		/// 64 bits for the nominator. In this case the least significant bits of the decimal are 
 		/// truncated.
 		/// </summary>
-		/// <param name="val"></param>
+    /// <param name="number"></param>
 		/// <returns></returns>
 		public static implicit operator Fraction(Decimal number)
 		{

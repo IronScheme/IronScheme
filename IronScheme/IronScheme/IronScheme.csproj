@@ -52,6 +52,7 @@
     <Compile Include="Compiler\Generator.Methods.cs" />
     <Compile Include="Compiler\ironscheme.lex.cs" />
     <Compile Include="Compiler\IronScheme.y.cs" />
+    <Compile Include="Compiler\LambdaGenerator.cs" />
     <Compile Include="Compiler\SyntaxExpand.cs" />
     <Compile Include="gppg\IScanner.cs" />
     <Compile Include="gppg\ParserStack.cs" />

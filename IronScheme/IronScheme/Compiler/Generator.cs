@@ -28,7 +28,7 @@ using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
-  [AttributeUsage(AttributeTargets.Method, AllowMultiple=true)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple=true)]
   public sealed class GeneratorAttribute : Attribute
   {
     string name;
@@ -142,14 +142,28 @@ namespace IronScheme.Compiler
             {
               if (macrotrace)
               {
-                Debug.WriteLine(Builtins.DisplayFormat(c), "macro::in ");
+                Debug.WriteLine(Builtins.WriteFormat(c), "macro::in ");
               }
               object result = macro.Invoke(Context, c.Cdr);
+              if (!Parser.sourcemap.TryGetValue(c, out spanhint))
+              {
+                spanhint = SourceSpan.None;
+              }
+              else if (result is Cons)
+              {
+                Parser.sourcemap[result as Cons] = spanhint;
+                Parser.sourcemap.Remove(c);
+              }
               if (macrotrace)
               {
-                Debug.WriteLine(Builtins.DisplayFormat(result), "macro::out");
+                Debug.WriteLine(Builtins.WriteFormat(result), "macro::out");
               }
-              return GetAst(result, cb);
+              Expression rr = GetAst(result, cb);
+              if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
+              {
+                rr.SetLoc(spanhint);
+              }
+              return rr;
             }
 
             GeneratorHandler gh = m as GeneratorHandler;
@@ -165,7 +179,6 @@ namespace IronScheme.Compiler
             BuiltinMethod bf = m as BuiltinMethod;
             if (bf != null)
             {
-
               MethodBinder mb = bf.Binder;
               Expression[] pars = GetAstList(c.Cdr as Cons, cb);
               //pars[0] = Ast.RuntimeConstant(bf);
@@ -184,13 +197,19 @@ namespace IronScheme.Compiler
               //return Ast.Action.Call(typeof(object), pars);
             }
           }
-
-
         }
         Expression ex = Ast.DynamicConvert(GetAst(c.Car, cb), typeof(ICallableWithCodeContext));
         Expression[] pp = GetAstList(c.Cdr as Cons, cb);
-       
-        return Ast.Call(ex, ICallableWithCodeContext_Call, Ast.CodeContext(), Ast.NewArray(typeof(object[]), pp));
+
+        Expression r = Ast.Call(ex, ICallableWithCodeContext_Call, Ast.CodeContext(), Ast.NewArray(typeof(object[]), pp));
+
+        if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
+        {
+          r.SetLoc(spanhint);
+        }
+
+        return r;
+
         //return Ast.Action.Call(typeof(object), GetAstList(c, cb));
       }
       object[] v = args as object[];
@@ -213,6 +232,12 @@ namespace IronScheme.Compiler
     }
 
     static SourceSpan spanhint;
+
+    protected static SourceSpan SpanHint
+    {
+      get { return Generator.spanhint; }
+      set { Generator.spanhint = value; }
+    }
 
     // macro-expand
     [Generator("macro-expand")]
@@ -279,6 +304,12 @@ namespace IronScheme.Compiler
       {
         object o = r.Evaluate(Context);
       }
+      if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
+      {
+        r.SetLoc(spanhint);
+      }
+
+
 
       return r;
     }
@@ -317,6 +348,10 @@ namespace IronScheme.Compiler
         if (cb.IsGlobal)
         {
           object o = r.Evaluate(Context);
+        }
+        if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
+        {
+          r.SetLoc(spanhint);
         }
         return r;
       }

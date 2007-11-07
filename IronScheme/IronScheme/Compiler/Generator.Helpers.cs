@@ -115,7 +115,21 @@ namespace IronScheme.Compiler
       }
     }
 
-
+    static CodeBlock GetTopLevel(CodeBlock cb)
+    {
+      while (cb.Parent != null)
+      {
+        cb = cb.Parent;
+      }
+      if (cb.IsGlobal)
+      {
+        return cb;
+      }
+      else
+      {
+        return null;
+      }
+    }
 
     static Expression Read(SymbolId name, CodeBlock cb, Type type)
     {
@@ -135,7 +149,9 @@ namespace IronScheme.Compiler
 
       if (v == null)
       {
-        return Ast.Read(sname);
+        CodeBlock tl = GetTopLevel(cb);
+        v = tl.CreateVariable(sname, Variable.VariableKind.Global, typeof(object), Ast.Read(sname));
+        return Ast.Read(v);
       }
 
       if (t.IsAssignableFrom(v.Type))
@@ -339,7 +355,7 @@ namespace IronScheme.Compiler
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
     }
 
-    static string GetLambdaName(CodeBlock cb)
+    protected static string GetLambdaName(CodeBlock cb)
     {
       string fn = GetFullname(NameHint, cb);
 
@@ -393,7 +409,7 @@ namespace IronScheme.Compiler
     }
 
 
-    static Expression MakeClosure(CodeBlock cb, bool varargs)
+    protected static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
       if (varargs)
       {
@@ -436,7 +452,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
+    protected static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
       // declare all define at start of body, then change the define to 'set!'
       // similar to letrec* behaviour; also expand1 the defines
@@ -708,7 +724,7 @@ namespace IronScheme.Compiler
     }
 
 
-    static bool AssignParameters(CodeBlock cb, object arg)
+    protected static bool AssignParameters(CodeBlock cb, object arg)
     {
       bool isrest = false;
       Cons cargs = arg as Cons;

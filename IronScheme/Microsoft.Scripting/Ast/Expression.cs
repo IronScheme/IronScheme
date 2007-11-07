@@ -49,6 +49,47 @@ namespace Microsoft.Scripting.Ast {
             throw new NotImplementedException();
         }
 
+        private SourceLocation _start;
+        private SourceLocation _end;
+
+
+        public SourceLocation Start
+        {
+          get { return _start; }
+        }
+
+        public SourceLocation End
+        {
+          get { return _end; }
+        }
+
+        public SourceSpan Span
+        {
+          get
+          {
+            return new SourceSpan(_start, _end);
+          }
+        }
+
+        public void SetLoc(SourceSpan span)
+        {
+          _start = span.Start;
+          _end = span.End;
+        }
+
+      bool IsValidLocation
+      {
+        get {return _start.IsValid && _end.IsValid;}
+      }
+
+      protected void EmitLocation(CodeGen cg)
+      {
+        if (IsValidLocation)
+        {
+          cg.EmitPosition(_start, _end);
+        }
+      }
+
         /// <summary>
         /// Generates code for this expression in a value position.
         /// This method will leave the value of the expression
