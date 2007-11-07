@@ -116,7 +116,7 @@ namespace IronScheme.Runtime
             {
               if (ea.GeneratorType != null)
               {
-                IronScheme.Compiler.Generator.AddGenerators(ea.GeneratorType);
+                IronScheme.Compiler.Generator.AddGenerators(ext);
               }
               if (ea.BuiltinsType != null)
               {
@@ -438,7 +438,7 @@ namespace IronScheme.Runtime
               {
                 return "Procedure";
               }
-              if (typeof(Macro).IsAssignableFrom(t) || typeof(Compiler.Generator.GeneratorHandler) == t)
+              if (typeof(Macro).IsAssignableFrom(t) || typeof(Compiler.IGenerator).IsAssignableFrom(t))
               {
                 return "Macro";
               }

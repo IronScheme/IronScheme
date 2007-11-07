@@ -86,7 +86,7 @@ namespace IronScheme.Compiler
     static void Initialize()
     {
       // builtin methods
-      AddGenerators(typeof(Generator));
+      AddGenerators(typeof(Generator).Assembly);
       AddBuiltins(typeof(Builtins));
     }
 
@@ -164,7 +164,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    static Variable Create(SymbolId sname, CodeBlock cb, Type type)
+    protected static Variable Create(SymbolId sname, CodeBlock cb, Type type)
     {
       if (cb.Name == "__toploop__")
       {
@@ -302,7 +302,7 @@ namespace IronScheme.Compiler
       return v ?? cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local, type ?? typeof(object));
     }
 
-    static Variable FindVar(CodeBlock cb, SymbolId name)
+    protected static Variable FindVar(CodeBlock cb, SymbolId name)
     {
       if (cb.Name == "__toploop__")
       {
@@ -711,7 +711,7 @@ namespace IronScheme.Compiler
       return r;
     }
 
-    static string GetFullname(SymbolId id, CodeBlock parent)
+    protected static string GetFullname(SymbolId id, CodeBlock parent)
     {
       if (parent == null || parent.IsGlobal)
       {

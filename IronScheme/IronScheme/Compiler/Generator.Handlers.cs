@@ -38,28 +38,27 @@ namespace IronScheme.Compiler
 
   partial class Generator
   {
+    [Obsolete]
     public delegate Expression GeneratorHandler(object args, CodeBlock cb);
 
-    readonly static Dictionary<SymbolId, GeneratorHandler> generators = new Dictionary<SymbolId, GeneratorHandler>();
-
-    static void Add(string name, GeneratorHandler handler)
+    static void Add(string name, IGenerator handler)
     {
       SymbolId s = SymbolTable.StringToId(name);
       Context.Scope.SetName(s, handler);
-      generators[s] = handler;
     }
 
-    public static void AddGenerators(Type generatortype)
+    public static void AddGenerators(Assembly assembly)
     {
-      foreach (MethodInfo mi in generatortype.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static))
+      foreach (Type t in assembly.GetExportedTypes())
       {
-        if (Attribute.IsDefined(mi, typeof(GeneratorAttribute)))
+        if (Attribute.IsDefined(t, typeof(GeneratorAttribute)))
         {
-          GeneratorHandler gh = Delegate.CreateDelegate(typeof(GeneratorHandler), mi) as GeneratorHandler;
-          foreach (GeneratorAttribute ga in mi.GetCustomAttributes(typeof(GeneratorAttribute), false))
+          IGenerator g = Activator.CreateInstance(t) as IGenerator;
+          
+          foreach (GeneratorAttribute ga in t.GetCustomAttributes(typeof(GeneratorAttribute), false))
           {
-            string name = ga.Name ?? mi.Name.ToLower();
-            Add(name, gh);
+            string name = ga.Name;
+            Add(name, g);
           }
         }
       }

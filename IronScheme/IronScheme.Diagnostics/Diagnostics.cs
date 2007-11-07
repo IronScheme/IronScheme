@@ -23,20 +23,18 @@ using IronScheme.Compiler;
 
 using Generator = IronScheme.Compiler.Generator;
 
-[assembly: Extension(GeneratorType = typeof(IronScheme.Diagnostics.DiagGenerator))]
+[assembly: Extension]
 
 namespace IronScheme.Diagnostics
 {
-  public class DiagGenerator : Generator
+  [Generator("time")]
+  public class TimeGenerator : SimpleGenerator
   {
     static readonly MethodInfo Stopwatch_StartNew = typeof(Stopwatch).GetMethod("StartNew");
     static readonly MethodInfo Stopwatch_Elapsed = typeof(Stopwatch).GetMethod("get_Elapsed");
-    static readonly MethodInfo Trace_Assert = typeof(Trace).GetMethod("Assert", new Type[] { typeof(bool), typeof(string) });
     static readonly MethodInfo Console_WriteLine = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(object) });
 
-    // trace timing
-    [Generator]
-    public static Expression Time(object args, CodeBlock cb)
+    public override Expression Generate(object args, CodeBlock cb)
     {
       Variable sw = cb.CreateTemporaryVariable(SymbolTable.StringToId("$timer"), typeof(Stopwatch));
 
@@ -44,16 +42,20 @@ namespace IronScheme.Diagnostics
         Generator.GetAst(Builtins.Car(args), cb),
         Ast.SimpleCallHelper(Console_WriteLine, Ast.SimpleCallHelper(Ast.Read(sw), Stopwatch_Elapsed)));
     }
+  }
 
-    // assert
-    [Generator]
-    public static Expression Assert(object args, CodeBlock cb)
+  [Generator("assert")]
+  public class AssertGenerator : SimpleGenerator
+  {
+    static readonly MethodInfo Trace_Assert = typeof(Trace).GetMethod("Assert", new Type[] { typeof(bool), typeof(string) });
+
+    public override Expression Generate(object args, CodeBlock cb)
     {
       object test = Builtins.First(args);
       string teststr = Builtins.DisplayFormat(test);
 
-      return Ast.Comma( Ast.SimpleCallHelper(Trace_Assert,
-        Ast.SimpleCallHelper(Builtins_IsTrue, Generator.GetAst(test, cb)), Ast.Constant(teststr)), 
+      return Ast.Comma(Ast.SimpleCallHelper(Trace_Assert,
+        Ast.SimpleCallHelper(Builtins_IsTrue, Generator.GetAst(test, cb)), Ast.Constant(teststr)),
         Ast.ReadField(null, Unspecified));
     }
   }
