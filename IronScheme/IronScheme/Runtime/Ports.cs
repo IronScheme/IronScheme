@@ -373,9 +373,9 @@ namespace IronScheme.Runtime
       {
         return "<unspecified>";
       }
-      if (obj is MethodGroup)
+      if (obj is BuiltinMethod)
       {
-        return "builtin::" + ((MethodGroup)obj).Name;
+        return "builtin::" + ((BuiltinMethod)obj).Name;
       }
       if (obj is Closure)
       {
@@ -384,20 +384,6 @@ namespace IronScheme.Runtime
       if (obj is Macro)
       {
         return "macro::" + ((Macro)obj).Name;
-      }
-
-      if (obj is ICallableWithCodeContext)
-      {
-        FieldInfo fi = obj.GetType().GetField("name", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-        if (fi != null)
-        {
-          return "closure::" + fi.GetValue(obj) as string;
-        }
-      }
-      MethodInfo mi = obj as MethodInfo;
-      if (mi != null)
-      {
-        return mi.ToString();
       }
 
       if (obj is Type)
@@ -551,9 +537,9 @@ namespace IronScheme.Runtime
         return "()";
       }
 
-      if (obj is MethodGroup)
+      if (obj is BuiltinMethod)
       {
-        return ((MethodGroup)obj).Name;
+        return ((BuiltinMethod)obj).Name;
       }
       if (obj is Closure)
       {
@@ -564,14 +550,6 @@ namespace IronScheme.Runtime
         return ((Macro)obj).Name;
       }
 
-      if (obj is ICallableWithCodeContext)
-      {
-        FieldInfo fi = obj.GetType().GetField("name", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-        if (fi != null)
-        {
-          return fi.GetValue(obj) as string;
-        }
-      }
       if (obj is bool)
       {
         return ((bool)obj) ? "#t" : "#f";
@@ -609,11 +587,6 @@ namespace IronScheme.Runtime
           {
             return ",@" + WriteFormat(Cadr(s));
           }
-        }
-
-        if (s.Car == null && s.Cdr == null)
-        {
-          return "()";
         }
 
         while (s != null)

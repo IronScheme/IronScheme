@@ -54,6 +54,22 @@ namespace IronScheme.Runtime
         case 8:
           return PrintOctal(obj);
         case 10:
+          if (obj is double)
+          {
+            double d = (double)obj;
+            if (Math.IEEERemainder(d, 1) == 0)
+            {
+              return string.Format("{0:f1}", obj);
+            }
+            else
+            {
+              if (d > 10e17 || d < -10e17)
+              {
+                return string.Format("{0:g}", new Decimal(d));
+              }
+              return string.Format("{0:r}", obj);
+            }
+          }
           return obj.ToString();
         case 16:
           return string.Format("{0:x}", obj);
@@ -477,7 +493,14 @@ namespace IronScheme.Runtime
     [Builtin("zero?")]
     public static bool IsZero(object obj)
     {
-      return IsEqualValue(obj, 0);
+      if (obj is int)
+      {
+        return IsEqualValue(obj, 0);
+      }
+      else
+      {
+        return IsEqualValue(obj, 0.0);
+      }
     }
 
     [Builtin("positive?")]
