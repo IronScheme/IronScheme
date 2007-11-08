@@ -39,12 +39,15 @@ You must not remove this notice, or any other, from this software.
                (args (cdr nargs)))
            `(define ,name (macro ,args ,@body)))))
 
+(define (void) (if #f #f))
+
 ;; most basic form
 (define-macro (begin . e)
-  ;; check for single term, no closure needed
-  (if (null? (cdr e))
-      (car e)
-      `((lambda () ,@e))))
+  (if (null? e) (void)
+    ;; check for single term, no closure needed
+    (if (null? (cdr e))
+        (car e)
+        `((lambda () ,@e)))))
 
 ;; let* in terms of itself and let 
 (define-macro (let* args . body)
@@ -55,15 +58,13 @@ You must not remove this notice, or any other, from this software.
         `(let (,(car args))
            (let* ,(cdr args) ,@body)))))
 
-         
-(define (void) (if #f #f))
 
 
 ;; beast #1: if .. elseif ... else
 (define-macro (cond . clauses)
   (if (null? clauses)
       ;; return unspecified
-      `(if #f #f)
+      (void)
       ;; look at first clause
       (let ((clause (car clauses))
             (rest (cdr clauses))
@@ -132,11 +133,11 @@ You must not remove this notice, or any other, from this software.
 ;; not as hairy as I thought, maybe I am just getting better :)
 (define-macro (do clauses test . cmds)
   ;; helper for inits
-  (define (getinit clause)
+  (define (get-init clause)
       (list (car clause) (second clause)))
 
   ;; helper for successive calls
-  (define (getnext clause)
+  (define (get-next clause)
       (let ((second (cdr clause)))
         (if (null? (cdr second))
             (car clause)
@@ -144,10 +145,10 @@ You must not remove this notice, or any other, from this software.
 
   ;; lets begin :)
   (let ((t (gensym)))
-    `(let ,t ,(map getinit clauses)
+    `(let ,t ,(map get-init clauses)
        (if ,(car test)
            (begin ,@(cdr test))
-           (begin ,@cmds (,t ,@(map getnext clauses)))))))
+           (begin ,@cmds (,t ,@(map get-next clauses)))))))
            
 ;; now its getting easy :)
 (define-macro (letrec args . body)
