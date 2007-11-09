@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.Scripting.Math;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
+using System.ComponentModel;
 
 namespace IronScheme.Runtime
 {
@@ -161,6 +162,68 @@ namespace IronScheme.Runtime
       }
     }
 
+
+    static bool BigIntegerTryParse(string number, out BigInteger result)
+    {
+      result = null;
+
+      if (number == null)
+        return false;
+
+
+      int i = 0, len = number.Length, sign = 1;
+
+      char c;
+      bool digits_seen = false;
+      BigInteger val = new BigInteger(0);
+      if (number[i] == '+')
+      {
+        i++;
+      }
+      else if (number[i] == '-')
+      {
+        sign = -1;
+        i++;
+      }
+      for (; i < len; i++)
+      {
+        c = number[i];
+        if (c == '\0')
+        {
+          i = len;
+          continue;
+        }
+        if (c >= '0' && c <= '9')
+        {
+          val = val * 10 + (c - '0');
+          digits_seen = true;
+        }
+        else
+        {
+          if (Char.IsWhiteSpace(c))
+          {
+            for (i++; i < len; i++)
+            {
+              if (!Char.IsWhiteSpace(number[i]))
+                return false;
+            }
+            break;
+          }
+          else
+            return false;
+        }
+      }
+      if (!digits_seen)
+        return false;
+
+      result = val * sign;
+
+      return true;
+    }
+
+
+
+
     [Builtin("string->number")]
     public static object StringToNumber(object obj, object radix)
     {
@@ -189,6 +252,11 @@ namespace IronScheme.Runtime
           if (long.TryParse(str, out l))
           {
             return l;
+          }
+          BigInteger bi;
+          if (BigIntegerTryParse(str, out bi))
+          {
+            return bi;
           }
           double d;
           if (double.TryParse(str, out d))
@@ -236,25 +304,25 @@ namespace IronScheme.Runtime
     [Builtin("complex?")]
     public static bool IsComplex(object obj)
     {
-      return obj is Complex64;
+      return IsReal(obj) || obj is Complex64;
     }
 
     [Builtin("real?")]
     public static bool IsReal(object obj)
     {
-      return obj is float || obj is double;
+      return IsRational(obj) || obj is float || obj is double || obj is decimal;
     }
 
     [Builtin("rational?")]
     public static bool IsRational(object obj)
     {
-      return false;
+      return IsInteger(obj) || obj is Fraction;
     }
 
     [Builtin("integer?")]
     public static bool IsInteger(object obj)
     {
-      return (obj is int || obj is long);
+      return (obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong);
     }
 
     [Builtin("exact?")]
@@ -266,7 +334,7 @@ namespace IronScheme.Runtime
     [Builtin("inexact?")]
     public static bool IsInexact(object obj)
     {
-      return IsReal(obj) || IsComplex(obj); 
+      return obj is Complex64 || obj is float || obj is double || obj is decimal;
     }
 
 
@@ -493,7 +561,7 @@ namespace IronScheme.Runtime
     [Builtin("zero?")]
     public static bool IsZero(object obj)
     {
-      if (obj is int)
+      if (IsInteger(obj))
       {
         return IsEqualValue(obj, 0);
       }
@@ -772,11 +840,27 @@ namespace IronScheme.Runtime
           ParameterInfo[] pis = mi.GetParameters();
           if (pis.Length == 2)
           {
-            if (pis[0].ParameterType.IsInstanceOfType(first)
-              && pis[1].ParameterType.IsInstanceOfType(second))
+            Type p1t = pis[0].ParameterType;
+            Type p2t = pis[1].ParameterType;
+            if (p1t.IsInstanceOfType(first)
+              && p2t.IsInstanceOfType(second))
             {
               value = mi.Invoke(null, new object[] { first, second });
               return true;
+            }
+            else if (second != null)
+            {
+              TypeConverter tc1 = TypeDescriptor.GetConverter(p1t);
+              TypeConverter tc2 = TypeDescriptor.GetConverter(p2t);
+
+              if (tc1.CanConvertFrom(first.GetType()) && tc2.CanConvertFrom(second.GetType()))
+              {
+                object afirst = tc1.ConvertFrom(first);
+                object asecond = tc2.ConvertFrom(second);
+
+                value = mi.Invoke(null, new object[] { afirst, asecond });
+                return true;
+              }
             }
           }
         }
@@ -788,11 +872,27 @@ namespace IronScheme.Runtime
           ParameterInfo[] pis = mi.GetParameters();
           if (pis.Length == 2)
           {
-            if (pis[0].ParameterType.IsInstanceOfType(first)
-              && pis[1].ParameterType.IsInstanceOfType(second))
+            Type p1t = pis[0].ParameterType;
+            Type p2t = pis[1].ParameterType;
+            if (p1t.IsInstanceOfType(first)
+              && p2t.IsInstanceOfType(second))
             {
               value = mi.Invoke(null, new object[] { first, second });
               return true;
+            }
+            else if (first != null)
+            {
+              TypeConverter tc1 = TypeDescriptor.GetConverter(p1t);
+              TypeConverter tc2 = TypeDescriptor.GetConverter(p2t);
+
+              if (tc1.CanConvertFrom(first.GetType()) && tc2.CanConvertFrom(second.GetType()))
+              {
+                object afirst = tc1.ConvertFrom(first);
+                object asecond = tc2.ConvertFrom(second);
+
+                value = mi.Invoke(null, new object[] { afirst, asecond });
+                return true;
+              }
             }
           }
         }
@@ -1119,7 +1219,34 @@ provided all numbers involved in that computation are exact.
     [Builtin("modulo")]
     public static object Modulo(object first, object second)
     {
-      return (int)first % (int)second;
+      if (first is int)
+      {
+        if (second is int)
+        {
+          return (int)first % (int)second;
+        }
+        else if (second is double)
+        {
+          return (int)first % (double)second;
+        }
+      }
+      if (first is double)
+      {
+        if (second is int)
+        {
+          return (double)first % (int)second;
+        }
+        else if (second is double)
+        {
+          return (double)first % (double)second;
+        }
+      }
+      object value;
+      if (OperatorHelper("op_Modulus", first, second, out value))
+      {
+        return value;
+      }
+      return false;
     }
 
   
@@ -1129,16 +1256,16 @@ provided all numbers involved in that computation are exact.
       {
         return null;
       }
-      Type type = car == null ? typeof(double) : car.GetType();
-      double result = Convert.ToDouble(car);
+      Type type = car == null ? typeof(decimal) : car.GetType();
+      decimal result = Convert.ToDecimal(car);
       foreach (object item in args)
       {
-        if (item is Double)
+        if (item is decimal)
           type = item.GetType();
 
-        result %= Convert.ToDouble(item);
+        result %= Convert.ToDecimal(item);
       }
-      return Convert.ChangeType(result, type);
+      return result;
     }
 
     /*
@@ -1167,7 +1294,8 @@ provided all numbers involved in that computation are exact.
             return Abs(GreatestCommonDivider(second, Remainder(first, second)));
           }
         default:
-          throw new NotImplementedException();
+          // TODO
+          return false;
       }
     }
 
@@ -1185,7 +1313,8 @@ provided all numbers involved in that computation are exact.
 
           return Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second));
         default:
-          throw new NotImplementedException();
+          // TODO
+          return false;
       }
     }
 

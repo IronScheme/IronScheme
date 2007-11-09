@@ -2,11 +2,11 @@
  *
  * Copyright (c) Microsoft Corporation. 
  *
- * This source code is subject to terms and conditions of the Microsoft Permissive License. A 
+ * This source code is subject to terms and conditions of the Microsoft Public License. A 
  * copy of the license can be found in the License.html file at the root of this distribution. If 
- * you cannot locate the  Microsoft Permissive License, please send an email to 
+ * you cannot locate the  Microsoft Public License, please send an email to 
  * dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
- * by the terms of the Microsoft Permissive License.
+ * by the terms of the Microsoft Public License.
  *
  * You must not remove this notice, or any other, from this software.
  *
@@ -143,15 +143,15 @@ namespace Microsoft.Scripting.Actions {
         /// Helper that checkes both types to see if either one defines the specified conversion
         /// method.
         /// </summary>
-        private bool TryOneConversion(Type toType, Type type, Type fromType, string methodName, bool filterExplicit) {
+        private bool TryOneConversion(Type toType, Type type, Type fromType, string methodName, bool isImplicit) {
             MemberGroup conversions = Binder.GetMember(Action, fromType, methodName);
-            if (TryUserDefinedConversion(toType, type, conversions, filterExplicit)) {
+            if (TryUserDefinedConversion(toType, type, conversions, isImplicit)) {
                 return true;
             }
 
             // then on the type we're trying to convert to
             conversions = Binder.GetMember(Action, toType, methodName);
-            if (TryUserDefinedConversion(toType, type, conversions, filterExplicit)) {
+            if (TryUserDefinedConversion(toType, type, conversions, isImplicit)) {
                 return true;
             }
             return false;
@@ -161,7 +161,7 @@ namespace Microsoft.Scripting.Actions {
         /// Checks if any of the members of the MemberGroup provide the applicable conversion and 
         /// if so uses it to build a conversion rule.
         /// </summary>
-        private bool TryUserDefinedConversion(Type toType, Type type, MemberGroup conversions, bool filterExplicit) {
+        private bool TryUserDefinedConversion(Type toType, Type type, MemberGroup conversions, bool isImplicit) {
             Type checkType = GetUnderlyingType(type);
 
             foreach (MemberTracker mt in conversions) {
@@ -169,7 +169,7 @@ namespace Microsoft.Scripting.Actions {
 
                 MethodTracker method = (MethodTracker)mt;
 
-                if (filterExplicit && method.Method.IsDefined(typeof(ExplicitConversionMethodAttribute), true)) {
+                if (isImplicit && method.Method.IsDefined(typeof(ExplicitConversionMethodAttribute), true)) {
                     continue;
                 }
 
@@ -179,9 +179,9 @@ namespace Microsoft.Scripting.Actions {
                     if (pis.Length == 1 && pis[0].ParameterType.IsAssignableFrom(checkType)) {
                         // we can use this method
                         if (type == checkType) {
-                            MakeConversionTarget(method, type);
+                            MakeConversionTarget(method, type, isImplicit);
                         } else {
-                            MakeExtensibleConversionTarget(method, type);
+                            MakeExtensibleConversionTarget(method, type, isImplicit);
                         }
                         return true;
                     }
@@ -297,25 +297,40 @@ namespace Microsoft.Scripting.Actions {
         /// <summary>
         /// Helper to produce a conversion rule by calling the helper method to do the convert
         /// </summary>
-        private void MakeConversionTarget(MethodTracker method, Type fromType) {
-            _rule.SetTarget(
-                _rule.MakeReturn(
-                    Binder,
-                    Binder.MakeCallExpression(method.Method, Ast.Convert(_rule.Parameters[0], fromType))
-                )
+        private void MakeConversionTarget(MethodTracker method, Type fromType, bool isImplicit) {
+            Statement ret = _rule.MakeReturn(
+                Binder,
+                Binder.MakeCallExpression(method.Method, Ast.Convert(_rule.Parameters[0], fromType))
             );
+
+            ret = WrapForThrowingTry(isImplicit, ret);
+
+            _rule.SetTarget(ret);
         }
         
         /// <summary>
         /// Helper to produce a conversion rule by calling the helper method to do the convert
         /// </summary>
-        private void MakeExtensibleConversionTarget(MethodTracker method, Type fromType) {
-            _rule.SetTarget(
-                _rule.MakeReturn(
-                    Binder,
-                    Binder.MakeCallExpression(method.Method, GetExtensibleValue(fromType))
-                )
+        private void MakeExtensibleConversionTarget(MethodTracker method, Type fromType, bool isImplicit) {
+            Statement ret = _rule.MakeReturn(
+                Binder,
+                Binder.MakeCallExpression(method.Method, GetExtensibleValue(fromType))
             );
+
+            ret = WrapForThrowingTry(isImplicit, ret);
+            
+            _rule.SetTarget(ret);
+        }
+
+        /// <summary>
+        /// Helper to wrap explicit conversion call into try/catch incase it throws an exception.  If
+        /// it throws the default value is returned.
+        /// </summary>
+        private Statement WrapForThrowingTry(bool isImplicit, Statement ret) {
+            if (!isImplicit && Action.ResultKind == ConversionResultKind.ExplicitTry) {
+                ret = Ast.Try(ret).Catch(typeof(Exception), CompilerHelpers.GetTryConvertReturnValue(Context, _rule));
+            }
+            return ret;
         }
 
         /// <summary>
@@ -391,18 +406,6 @@ namespace Microsoft.Scripting.Actions {
         }
 
         /// <summary>
-        /// Helper to make a target that always returns true (for ConversionResultKind == Checking)
-        /// </summary>
-        private void MakeTrueTarget() {
-            _rule.SetTarget(
-               _rule.MakeReturn(
-                   Binder,
-                   Ast.Constant(true)
-               )
-           );
-        }
-
-        /// <summary>
         /// Helper to extract the Value of an Extensible of T from the
         /// expression being converted.
         /// </summary>
@@ -432,7 +435,7 @@ namespace Microsoft.Scripting.Actions {
             } while (curType != null);
             return fromType;
         }
-
+        
         #endregion
     }
 }

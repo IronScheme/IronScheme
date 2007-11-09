@@ -228,18 +228,6 @@ namespace IronScheme.Compiler
       return v;
     }
 
-    static Variable GetParameter(SymbolId sname, CodeBlock cb)
-    {
-      foreach (Variable par in cb.Parameters)
-      {
-        if (par.Name.CaseInsensitiveEquals(sname))
-        {
-          return par;
-        }
-      }
-      return null;
-    }
-
     static Scope GetScope(CodeBlock key)
     {
       if (key.Name == "__toploop__")
@@ -266,40 +254,9 @@ namespace IronScheme.Compiler
       return cs;
     }
 
-    static Type GetVariableType(SymbolId sname, CodeBlock cb)
-    {
-      Variable par = GetParameter(sname, cb);
-      if (par != null)
-      {
-        return typeof(object);
-      }
-
-      Scope scope = GetScope(cb);
-
-      object cvalue;
-      if (scope.TryGetName(sname, out cvalue))
-      {
-        return cvalue as Type;
-      }
-
-      if (cb.Parent != null)
-      {
-        return GetVariableType(sname, cb.Parent);
-      }
-
-      return null;
-
-    }
-
     static Variable MakeVar(CodeBlock cb, SymbolId name, Type type)
     {
       return cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local, type ?? typeof(object));
-    }
-
-    static Variable FindOrMakeVar(CodeBlock cb, SymbolId name, Type type)
-    {
-      Variable v = FindVar(cb, name);
-      return v ?? cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local, type ?? typeof(object));
     }
 
     protected static Variable FindVar(CodeBlock cb, SymbolId name)
@@ -385,29 +342,6 @@ namespace IronScheme.Compiler
       }
       return string.Join("|", tokens);
     }
-
-    
-
-    static MethodBase[] GetMethods(Type type, string name)
-    {
-      List<MethodBase> meths = new List<MethodBase>();
-      foreach (MemberInfo memi in type.GetMember(name, BindingFlags.Public | BindingFlags.Static |
-        BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase))
-      {
-        if (memi is MethodInfo)
-        {
-          meths.Add(memi as MethodBase);
-        }
-      }
-
-      return meths.ToArray();
-    }
-
-    static MethodInfo GetMethod(Type type, string name)
-    {
-      return type.GetMethod(name, BindingFlags.Static | BindingFlags.Public);
-    }
-
 
     protected static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
@@ -536,7 +470,7 @@ namespace IronScheme.Compiler
     }
 
 
-    static Expression[] GetAstList(Cons c, CodeBlock cb)
+    protected static Expression[] GetAstList(Cons c, CodeBlock cb)
     {
       List<Expression> e = new List<Expression>();
       while (c != null)

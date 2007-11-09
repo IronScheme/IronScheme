@@ -495,5 +495,4 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" Condition=" '$(SilverlightTreeBuild)' != 'true' " />
   <Import Project="..\..\silverlight.build.targets" Condition=" '$(SilverlightTreeBuild)' == 'true' " />
-  <Target Name="AfterCompile" DependsOnTargets="Verify" Condition="'$(SpecSharpVerify)' == 'true'" />
 </Project>

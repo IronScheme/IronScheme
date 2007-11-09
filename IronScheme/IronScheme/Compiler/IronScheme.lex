@@ -142,7 +142,7 @@ single_char            [^\n ]
 character              {single_char}|([Nn][Ee][Ww][Ll][Ii][Nn][Ee])|([Ss][Pp][Aa][Cc][Ee])
 character_literal      #\\({character})?
 
-single_string_char     [^\\\"\n]
+single_string_char     [^\\\"]
 string_esc_seq         \\[\"\\abfnrtv]
 reg_string_char        {single_string_char}|{string_esc_seq}
 string_literal         \"({reg_string_char})*\"

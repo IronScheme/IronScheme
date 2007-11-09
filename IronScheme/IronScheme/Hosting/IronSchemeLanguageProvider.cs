@@ -158,7 +158,7 @@ namespace IronScheme.Hosting
 #if DEBUG
           eo.ClrDebuggingEnabled = true;
 #endif
-          //eo.ProfileDrivenCompilation = false;
+          eo.ProfileDrivenCompilation = false;
           return eo;
         }
         set

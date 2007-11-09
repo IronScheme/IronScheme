@@ -4,7 +4,7 @@ TODO
 
 - lexical scope for macro's
 
-- numbers
+- numbers (bignums)
 - strings
-- vectors
+
 

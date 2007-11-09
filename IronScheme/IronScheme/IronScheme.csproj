@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
+    <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\DelayGenerator.cs" />
     <Compile Include="Compiler\GeneratorAttribute.cs" />
     <Compile Include="Compiler\QuasiquoteGenerator.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
+    <Compile Include="Runtime\StringPorts.cs" />
     <Compile Include="Runtime\Strings.cs" />
     <Compile Include="Runtime\Symbols.cs">
       <SubType>Code</SubType>

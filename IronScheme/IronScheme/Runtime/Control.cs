@@ -85,7 +85,9 @@ namespace IronScheme.Runtime
       ICallableWithCodeContext pro = RequiresNotNull<ICallableWithCodeContext>(producer);
       ICallableWithCodeContext con = RequiresNotNull<ICallableWithCodeContext>(consumer);
 
-      object r = pro.Call(cc, null);
+      object[] empty = { };
+
+      object r = pro.Call(cc, empty);
 
       if (r is object[])
       {
