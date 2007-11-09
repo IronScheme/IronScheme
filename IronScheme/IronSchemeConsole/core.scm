@@ -38,16 +38,13 @@ You must not remove this notice, or any other, from this software.
          (let ((name (car nargs))
                (args (cdr nargs)))
            `(define ,name (macro ,args ,@body)))))
+           
 
 (define (void) (if #f #f))
 
-;; most basic form
-(define-macro (begin . e)
-  (if (null? e) (void)
-    ;; check for single term, no closure needed
-    (if (null? (cdr e))
-        (car e)
-        `((lambda () ,@e)))))
+(define-macro (syntax-error . args)
+  `,`(error ,@args))           
+
 
 ;; let* in terms of itself and let 
 (define-macro (let* args . body)

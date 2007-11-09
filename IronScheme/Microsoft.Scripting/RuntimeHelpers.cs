@@ -2,11 +2,11 @@
  *
  * Copyright (c) Microsoft Corporation. 
  *
- * This source code is subject to terms and conditions of the Microsoft Permissive License. A 
+ * This source code is subject to terms and conditions of the Microsoft Public License. A 
  * copy of the license can be found in the License.html file at the root of this distribution. If 
- * you cannot locate the  Microsoft Permissive License, please send an email to 
+ * you cannot locate the  Microsoft Public License, please send an email to 
  * dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
- * by the terms of the Microsoft Permissive License.
+ * by the terms of the Microsoft Public License.
  *
  * You must not remove this notice, or any other, from this software.
  *
@@ -398,7 +398,7 @@ namespace Microsoft.Scripting {
         }
 
         public static DynamicStackFrame[] GetDynamicStackFrames(Exception e, bool filter) {
-            List<DynamicStackFrame> frames = Utils.ExceptionUtils.GetDataDictionary(e)[typeof(DynamicStackFrame)] as List<DynamicStackFrame>;
+            List<DynamicStackFrame> frames = e.Data[typeof(DynamicStackFrame)] as List<DynamicStackFrame>;
 
             if (frames == null) {
                 // we may have missed a dynamic catch, and our host is looking

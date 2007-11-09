@@ -2,11 +2,11 @@
  *
  * Copyright (c) Microsoft Corporation. 
  *
- * This source code is subject to terms and conditions of the Microsoft Permissive License. A 
+ * This source code is subject to terms and conditions of the Microsoft Public License. A 
  * copy of the license can be found in the License.html file at the root of this distribution. If 
- * you cannot locate the  Microsoft Permissive License, please send an email to 
+ * you cannot locate the  Microsoft Public License, please send an email to 
  * dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
- * by the terms of the Microsoft Permissive License.
+ * by the terms of the Microsoft Public License.
  *
  * You must not remove this notice, or any other, from this software.
  *
@@ -26,7 +26,81 @@ namespace Microsoft.Scripting.Math {
     /// <summary>
     /// arbitrary precision integers
     /// </summary>
+    [System.ComponentModel.TypeConverter(typeof(BigInteger.TypeConvertor))]
     public class BigInteger : IFormattable, IComparable, IConvertible {
+
+      class TypeConvertor : System.ComponentModel.TypeConverter
+      {
+        public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext context, Type sourceType)
+        {
+          if (sourceType == typeof(BigInteger))
+          {
+            return true;
+          }
+          switch( Type.GetTypeCode(sourceType))
+          {
+            case TypeCode.Boolean:
+            case TypeCode.DateTime:
+            case TypeCode.DBNull:
+            case TypeCode.Empty:
+            case TypeCode.Object:
+              return false;
+            default:
+              return true;
+          }
+        }
+
+        public override object ConvertFrom(System.ComponentModel.ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+          if (value != null)
+          {
+            Type vt = value.GetType();
+            if (vt == typeof(BigInteger))
+            {
+              return value;
+            }
+            switch (Type.GetTypeCode(vt))
+            {
+              case TypeCode.Byte:
+                return BigInteger.Create((byte)value);
+              case TypeCode.Char:
+                return BigInteger.Create((char)value);
+              case TypeCode.Int16:
+                return BigInteger.Create((short)value);
+              case TypeCode.Int32:
+                return BigInteger.Create((int)value);
+              case TypeCode.Int64:
+                return BigInteger.Create((long)value);
+              case TypeCode.SByte:
+                return BigInteger.Create((sbyte)value);
+              case TypeCode.UInt16:
+                return BigInteger.Create((ushort)value);
+              case TypeCode.UInt32:
+                return BigInteger.Create((uint)value);
+              case TypeCode.UInt64:
+                return BigInteger.Create((ulong)value);
+              case TypeCode.Decimal:
+                return BigInteger.Create((decimal)value);
+              case TypeCode.Single:
+                return BigInteger.Create((float)value);
+              case TypeCode.Double:
+                return BigInteger.Create((double)value);
+            }
+          }
+          return base.ConvertFrom(context, culture, value);
+        }
+
+        public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext context, Type destinationType)
+        {
+          return base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertTo(System.ComponentModel.ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+          return base.ConvertTo(context, culture, value, destinationType);
+        }
+      }
+
         private const int BitsPerDigit = 32;
         private const ulong Base = 0x100000000;
 
@@ -234,6 +308,90 @@ namespace Microsoft.Scripting.Math {
             }
             return i.ToFloat64();
         }
+
+        public static explicit operator byte(BigInteger self) {
+            int tmp;
+            if (self.AsInt32(out tmp)) {
+                return checked((byte)tmp);
+            }
+            throw new OverflowException();
+        }
+
+        [CLSCompliant(false)]
+        public static explicit operator sbyte(BigInteger self) {
+            int tmp;
+            if (self.AsInt32(out tmp)) {
+                return checked((sbyte)tmp);
+            }
+            throw new OverflowException();
+        }
+
+        [CLSCompliant(false)]
+        public static explicit operator UInt16(BigInteger self) {
+            int tmp;
+            if (self.AsInt32(out tmp)) {
+                return checked((UInt16)tmp);
+            }
+            throw new OverflowException();
+        }
+
+        public static explicit operator Int16(BigInteger self) {
+            int tmp;
+            if (self.AsInt32(out tmp)) {
+                return checked((Int16)tmp);
+            }
+            throw new OverflowException();
+        }
+
+        [CLSCompliant(false)]
+        public static explicit operator UInt32(BigInteger self) {
+            uint tmp;
+            if (self.AsUInt32(out tmp)) {
+                return tmp;
+            }
+            throw new OverflowException();
+        }
+
+        public static explicit operator Int32(BigInteger self) {
+            int tmp;
+            if (self.AsInt32(out tmp)) {
+                return tmp;
+            }
+            throw new OverflowException();
+        }
+
+        public static explicit operator Int64(BigInteger self) {
+            long tmp;
+            if (self.AsInt64(out tmp)) {
+                return tmp;
+            }
+            throw new OverflowException();
+        }
+
+        [CLSCompliant(false)]
+        public static explicit operator UInt64(BigInteger self) {
+            ulong tmp;
+            if (self.AsUInt64(out tmp)) {
+                return tmp;
+            }
+            throw new OverflowException();
+        }
+        
+        public static explicit operator float(BigInteger self) {
+            if (object.ReferenceEquals(self, null)) {
+                throw new ArgumentNullException("self");
+            }
+            return checked((float)self.ToFloat64());
+        }
+
+        public static explicit operator decimal(BigInteger self) {
+            decimal res;
+            if (self.AsDecimal(out res)) {
+                return res;
+            }
+            throw new OverflowException();
+        }
+
         public BigInteger(BigInteger copy) {
             if (object.ReferenceEquals(copy, null)) {
                 throw new ArgumentNullException("copy");

@@ -98,7 +98,7 @@ namespace IronScheme.Runtime
           }
           IronScheme.Compiler.BaseHelper.cc = cc;
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
           ;
         }
@@ -112,10 +112,10 @@ namespace IronScheme.Runtime
           Assembly ext = Assembly.LoadFile(Path.GetFullPath(path));
           if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
           {
+            IronScheme.Compiler.Generator.AddGenerators(ext);
+
             foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
             {
-              IronScheme.Compiler.Generator.AddGenerators(ext);
-
               if (ea.BuiltinsType != null)
               {
                 IronScheme.Compiler.Generator.AddBuiltins(ea.BuiltinsType);

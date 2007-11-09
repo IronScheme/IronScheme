@@ -2,11 +2,11 @@
  *
  * Copyright (c) Microsoft Corporation. 
  *
- * This source code is subject to terms and conditions of the Microsoft Permissive License. A 
+ * This source code is subject to terms and conditions of the Microsoft Public License. A 
  * copy of the license can be found in the License.html file at the root of this distribution. If 
- * you cannot locate the  Microsoft Permissive License, please send an email to 
+ * you cannot locate the  Microsoft Public License, please send an email to 
  * dlr@microsoft.com. By using this source code in any fashion, you are agreeing to be bound 
- * by the terms of the Microsoft Permissive License.
+ * by the terms of the Microsoft Public License.
  *
  * You must not remove this notice, or any other, from this software.
  *
@@ -27,7 +27,7 @@ using System.Security;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Microsoft.Scripting")]
-[assembly: AssemblyCopyright("? Microsoft Corporation.  All rights reserved.")]
+[assembly: AssemblyCopyright("� Microsoft Corporation.  All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -58,7 +58,7 @@ using System.Security;
 
 #if !SILVERLIGHT
 [assembly: AssemblyVersion("1.0.0.500")]
-[assembly: AssemblyFileVersion("1.0.0.00")]
+[assembly: AssemblyFileVersion("2.0.11102.00")]
 [assembly: AssemblyInformationalVersion("1.0")]
 [assembly: AllowPartiallyTrustedCallers]
 #endif
