@@ -25,7 +25,7 @@ namespace IronScheme.Compiler
   {
     public override Expression Generate(object args, CodeBlock cb)
     {
-      int alen = Builtins.Length(args);
+      int alen = (int)Builtins.Length(args);
       if (alen < 2 || alen > 3)
       {
         throw new SyntaxErrorException("argument mismatch. expected: (if a b c?) got: " + new Cons("if", args));

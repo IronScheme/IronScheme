@@ -23,9 +23,9 @@ namespace IronScheme.Runtime
   public partial class Builtins
   {
     [Builtin("equal?")]
-    public static bool IsEquivalent(object first, object second)
+    public static object IsEquivalent(object first, object second)
     {
-      if (IsEqualValue(first, second))
+      if ((bool)IsEqualValue(first, second))
       {
         return true;
       }
@@ -40,29 +40,28 @@ namespace IronScheme.Runtime
 
       bool result = s1 == s2;
 
-      if (!result)
-      {
-        Debug.WriteLine(s1 + " != " + s2);
-      }
-
       return result;
     }
 
     [Builtin("eq?")]
-    public static bool IsEqual(object first, object second)
+    public static object IsEqual(object first, object second)
     {
       // one exception, symbols
       if (first is SymbolId && second is SymbolId)
       {
         return Equals(((SymbolId)first).CaseInsensisitveId, ((SymbolId)second).CaseInsensisitveId);
       }
+      if ((first != null && first.GetType().IsValueType) || (second != null && second.GetType().IsValueType))
+      {
+        return Equals(first, second);
+      }
       return ReferenceEquals(first, second);
     }
 
     [Builtin("eqv?")]
-    public static bool IsEqualValue(object first, object second)
+    public static object IsEqualValue(object first, object second)
     {
-      return IsEqual(first, second) || Equals(first, second);
+      return ((bool)IsEqual(first, second)) || Equals(first, second);
     }
 
   }

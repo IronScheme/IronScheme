@@ -41,13 +41,7 @@ namespace IronScheme.Compiler
     [Obsolete]
     public delegate Expression GeneratorHandler(object args, CodeBlock cb);
 
-    static void Add(string name, IGenerator handler)
-    {
-      SymbolId s = SymbolTable.StringToId(name);
-      Context.Scope.SetName(s, handler);
-    }
-
-    public static void AddGenerators(Assembly assembly)
+    public static void AddGenerators(CodeContext cc, Assembly assembly)
     {
       foreach (Type t in assembly.GetExportedTypes())
       {
@@ -58,7 +52,8 @@ namespace IronScheme.Compiler
           foreach (GeneratorAttribute ga in t.GetCustomAttributes(typeof(GeneratorAttribute), false))
           {
             string name = ga.Name;
-            Add(name, g);
+            SymbolId s = SymbolTable.StringToId(name);
+            cc.Scope.SetName(s, g);
           }
         }
       }

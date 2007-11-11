@@ -74,13 +74,13 @@ namespace IronScheme.Runtime
 #endif
 
     [Builtin("pair?")]
-    public static bool IsPair(object arg1)
+    public static object IsPair(object arg1)
     {
       return arg1 is Cons;
     }
 
     [Builtin("list?")]
-    public static bool IsList(object arg1)
+    public static object IsList(object arg1)
     {
       if (arg1 == null)
       {
@@ -98,7 +98,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("null?")]
-    public static bool IsNull(object arg1)
+    public static object IsNull(object arg1)
     {
       return arg1 == null;
     }
@@ -154,7 +154,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static int Length(object args)
+    public static object Length(object args)
     {
       Cons c = Requires<Runtime.Cons>(args);
       int length = 0;
@@ -202,7 +202,7 @@ namespace IronScheme.Runtime
       return c;
     }
     
-    delegate bool Pred(object a, object b);
+    delegate object Pred(object a, object b);
 
     static object AssocHelper(Pred pred, object obj, object list)
     {
@@ -215,7 +215,7 @@ namespace IronScheme.Runtime
         while (e != null)
         {
           Cons ass = e.Car as Cons;
-          if (pred(obj, ass.Car))
+          if ((bool)pred(obj, ass.Car))
           {
             return ass;
           }
@@ -251,10 +251,10 @@ namespace IronScheme.Runtime
       if (c != null)
       {
         // this does add some overhead
-        RequiresCondition(c.IsProper, "must be a properlist");
+        //RequiresCondition(c.IsProper, "must be a properlist");
         while (c != null)
         {
-          if (pred(c.Car, obj))
+          if ((bool)pred(c.Car, obj))
           {
             return c;
           }

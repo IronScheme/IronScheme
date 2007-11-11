@@ -163,13 +163,13 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string?")]
-    public static bool IsString(object obj)
+    public static object IsString(object obj)
     {
       return obj is string;
     }
 
     [Builtin("string=?")]
-    public static bool IsSameString(object obj1, object obj2)
+    public static object IsSameString(object obj1, object obj2)
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
@@ -177,7 +177,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string<?")]
-    public static bool IsLessThanString(object obj1, object obj2)
+    public static object IsLessThanString(object obj1, object obj2)
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
@@ -186,7 +186,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string>?")]
-    public static bool IsGreaterThanString(object obj1, object obj2)
+    public static object IsGreaterThanString(object obj1, object obj2)
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
@@ -195,7 +195,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string<=?")]
-    public static bool IsLessThanOrEqualString(object obj1, object obj2)
+    public static object IsLessThanOrEqualString(object obj1, object obj2)
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
@@ -204,7 +204,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string>=?")]
-    public static bool IsGreaterThanOrEqualString(object obj1, object obj2)
+    public static object IsGreaterThanOrEqualString(object obj1, object obj2)
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
@@ -219,7 +219,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-ci=?")]
-    public static bool IsSameStringCaseInsensitive(object obj1, object obj2)
+    public static object IsSameStringCaseInsensitive(object obj1, object obj2)
     {
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
@@ -228,7 +228,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-ci<?")]
-    public static bool IsLessThanStringCaseInsensitive(object obj1, object obj2)
+    public static object IsLessThanStringCaseInsensitive(object obj1, object obj2)
     {
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
@@ -237,7 +237,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-ci>?")]
-    public static bool IsGreaterThanStringCaseInsensitive(object obj1, object obj2)
+    public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2)
     {
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
@@ -246,7 +246,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-ci<=?")]
-    public static bool IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2)
+    public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2)
     {
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
@@ -255,7 +255,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-ci>=?")]
-    public static bool IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2)
+    public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2)
     {
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
@@ -273,6 +273,12 @@ namespace IronScheme.Runtime
 
     [Builtin("list->string")]
     public static string ListToString(object obj)
+    {
+      return new string(obj as char[]);
+    }
+
+    [Builtin("list->string")]
+    public static string ListToString(object obj, object sep)
     {
       return new string(obj as char[]);
     }

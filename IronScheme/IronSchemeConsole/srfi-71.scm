@@ -1,3 +1,60 @@
+; Reference implementation of SRFI-71 using R5RS, only
+; Sebastian.Egner@philips.com, 29-Apr-2005
+
+; define r5rs-let/*/rec in terms of lambda: from R5RS, Section 7.3.
+
+(define-syntax r5rs-let
+  (syntax-rules ()
+    ((r5rs-let ((name val) ...) body1 body2 ...)
+     ((lambda (name ...) body1 body2 ...)
+      val ...))
+    ((r5rs-let tag ((name val) ...) body1 body2 ...)
+     ((r5rs-letrec ((tag (lambda (name ...)
+                           body1 body2 ...)))
+                   tag)
+      val ...))))
+
+(define-syntax r5rs-let*
+  (syntax-rules ()
+    ((r5rs-let* () body1 body2 ...)
+     (r5rs-let () body1 body2 ...))
+    ((r5rs-let* ((name1 val1) (name2 val2) ...)
+                body1 body2 ...)
+     (r5rs-let ((name1 val1))
+               (r5rs-let* ((name2 val2) ...)
+                          body1 body2 ...)))))
+
+(define-syntax r5rs-letrec
+  (syntax-rules ()
+    ((r5rs-letrec ((var1 init1) ...) body ...)
+     (r5rs-letrec "generate_temp_names"
+                  (var1 ...)
+                  ()
+                  ((var1 init1) ...)
+                  body ...))
+    ((r5rs-letrec "generate_temp_names"
+                  ()
+                  (temp1 ...)
+                  ((var1 init1) ...)
+                  body ...)
+     (r5rs-let ((var1 'undefined) ...)
+               (r5rs-let ((temp1 init1) ...)
+                         (set! var1 temp1)
+                         ...
+                         body ...)))
+    ((r5rs-letrec "generate_temp_names"
+                  (x y ...)
+                  (temp ...)
+                  ((var1 init1) ...)
+                  body ...)
+     (r5rs-letrec "generate_temp_names"
+                  (y ...)
+                  (newtemp temp ...)
+                  ((var1 init1) ...)
+                  body ...))))
+
+; --- textual copy of 'letvalues.scm' starts here ---
+
 ; Reference implementation of SRFI-71 (generic part)
 ; Sebastian.Egner@philips.com, 20-May-2005, PLT 208
 ;

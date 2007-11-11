@@ -43,7 +43,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if the specified obj is boolean; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("boolean?")]
-    public static bool IsBoolean(object obj)
+    public static object IsBoolean(object obj)
     {
       return obj is bool; 
     }
@@ -55,7 +55,7 @@ namespace IronScheme.Runtime
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
     [Builtin("not")]
-    public static bool Not(object obj)
+    public static object Not(object obj)
     {
       if (obj is bool)
       {

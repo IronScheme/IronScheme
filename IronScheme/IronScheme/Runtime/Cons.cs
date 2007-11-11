@@ -110,7 +110,7 @@ namespace IronScheme.Runtime
 
     public override string ToString()
     {
-      return Builtins.DisplayFormat(this);
+      return Builtins.WriteFormat(this);
     }
   }
 }

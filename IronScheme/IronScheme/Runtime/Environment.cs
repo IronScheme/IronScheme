@@ -38,25 +38,26 @@ namespace IronScheme.Runtime
     [Builtin("interaction-environment")]
     public static object InteractionEnvironment()
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("null-environment")]
     public static object NullEnvironment(object version)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("scheme-report-environment")]
     public static object SchemeReportEnvironment(object version)
     {
-      throw new NotImplementedException();
+      return false;
     }
 
     [Builtin("error")]
-    public static object Error(params object[] errors)
+    public static object Error(object reason, params object[] errors)
     {
       string[] ll = Array.ConvertAll<object, string>(errors, delegate(object o) { return o.ToString(); });
+      ll = ArrayUtils.Insert<string>(reason.ToString(), ll);
       throw new SchemeException(string.Join(", ", ll));
     }
 
@@ -82,13 +83,13 @@ namespace IronScheme.Runtime
     static int symcount = 0;
 
     [Builtin]
-    public static SymbolId GenSym()
+    public static object GenSym()
     {
       return SymbolTable.StringToId("#g" + symcount++);
     }
 
     [Builtin]
-    public static SymbolId GenSym(object name)
+    public static object GenSym(object name)
     {
       string s = RequiresNotNull<string>(name);
       return SymbolTable.StringToId("#g:" + s + ":" + symcount++);

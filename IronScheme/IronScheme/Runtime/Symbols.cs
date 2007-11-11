@@ -36,29 +36,41 @@ namespace IronScheme.Runtime
 
 
     [Builtin("symbol?")]
-    public static bool IsSymbol(object obj)
+    public static object IsSymbol(object obj)
     {
       return obj is SymbolId;
     }
 
 
     [Builtin("symbol->string")]
-    public static string SymbolToString(object obj)
+    public static object SymbolToString(object obj)
     {
-      return SymbolTable.IdToString((SymbolId)obj); 
+      if (obj is SymbolId)
+      {
+        return SymbolTable.IdToString((SymbolId)obj);
+      }
+      else
+      {
+        return false;
+      }
     }
 
 
     [Builtin("string->symbol")]
-    public static SymbolId StringToSymbol(object obj)
+    public static object StringToSymbol(object obj)
     {
       if (obj is StringBuilder)
       {
         obj = obj.ToString();
       }
-      return SymbolTable.StringToId((string)obj);
+      if (obj is string)
+      {
+        return SymbolTable.StringToId((string)obj);
+      }
+      else
+      {
+        return false;
+      }
     }
-
-
   }
 }

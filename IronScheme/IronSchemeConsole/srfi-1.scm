@@ -209,6 +209,11 @@
 ;;; The SRFI discussion record contains more discussion on this topic.
 
 
+(define (check-arg pred val caller)
+    (let lp ((val val))
+      (if (pred val) val (lp (error "Bad argument" val pred caller)))))
+
+
 ;;; Constructors
 ;;;;;;;;;;;;;;;;
 
@@ -999,7 +1004,7 @@
 
 
 ;;; We extend MAP to handle arguments of unequal length.
-(define map map-in-order)	
+;(define map map-in-order)	
 
 
 ;;; filter, remove, partition

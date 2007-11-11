@@ -68,7 +68,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="genwrite.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="macros.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi-13.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="srfi-15.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="srfi-16.scm">
@@ -107,7 +116,13 @@
     <None Include="srfi-31.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="srfi-35.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi-37.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="srfi-38.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="srfi-39.scm">
@@ -116,10 +131,16 @@
     <None Include="srfi-41.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="srfi-46.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi-55.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="srfi-57.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="srfi-7.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="srfi-71.scm">

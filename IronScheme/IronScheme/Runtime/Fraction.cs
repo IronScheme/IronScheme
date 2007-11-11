@@ -50,8 +50,44 @@ namespace IronScheme.Runtime
 	/// - the denominator is always positive
 	/// - the fraction is always reduced by the gcd of the nominator and denominator
 	/// </remarks>
+  [System.ComponentModel.TypeConverter(typeof(Fraction.TypeConverter))]
 	public struct Fraction : IComparable, IConvertible, IFormattable
 	{
+    class TypeConverter : System.ComponentModel.TypeConverter
+    {
+      public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext context, Type sourceType)
+      {
+        if (sourceType == typeof(Fraction))
+        {
+          return true;
+        }
+        switch (Type.GetTypeCode(sourceType))
+        {
+          case TypeCode.Boolean:
+          case TypeCode.DateTime:
+          case TypeCode.DBNull:
+          case TypeCode.Empty:
+          case TypeCode.Object:
+            return false;
+          default:
+            return true;
+        }
+      }
+
+      public override object ConvertFrom(System.ComponentModel.ITypeDescriptorContext context, CultureInfo culture, object value)
+      {
+        if (value != null)
+        {
+          Type vt = value.GetType();
+          if (vt == typeof(Fraction))
+          {
+            return value;
+          }
+          return Fraction.ToFraction(Convert.ToDecimal(value));
+        }
+        return base.ConvertFrom(context, culture, value);
+      }
+    }
 		#region Declarations
 
 		private Int64 numerator;
@@ -105,45 +141,12 @@ namespace IronScheme.Runtime
 			}
 		}
 
-		public static Fraction Zero
-		{
-			get
-			{
-				return new Fraction(0,1);
-			}
-		}
+		public readonly static Fraction Zero = new Fraction(0,1);
+    public readonly static Fraction MinValue =new Fraction(-Int64.MaxValue, 1);
+    public readonly static Fraction MaxValue = new Fraction(Int64.MaxValue, 1);
+    public readonly static Fraction SmallestNegativeValue = new Fraction(-1, Int64.MaxValue);
+    public readonly static Fraction SmallestValue = new Fraction(1, Int64.MaxValue);
 
-		public static Fraction MinValue
-		{
-			get
-			{
-				return new Fraction(-Int64.MaxValue, 1);
-			}
-		}
-
-		public static Fraction MaxValue
-		{
-			get
-			{
-				return new Fraction(Int64.MaxValue, 1);
-			}
-		}
-
-		public static Fraction SmallestNegValue
-		{
-			get
-			{
-				return new Fraction(-1, Int64.MaxValue);
-			}
-		}
-
-		public static Fraction SmallestValue
-		{
-			get
-			{
-				return new Fraction(1, Int64.MaxValue);
-			}
-		}
 
 
 		#endregion
@@ -665,6 +668,16 @@ namespace IronScheme.Runtime
 
 		public override string ToString()
 		{
+      if (denominator == 1)
+      {
+        return numerator.ToString(CultureInfo.CurrentCulture);
+      }
+
+      if (numerator % denominator == 0)
+      {
+        return (numerator / denominator).ToString();
+      }
+
 			return numerator.ToString(CultureInfo.CurrentCulture) + "/" + denominator.ToString(CultureInfo.CurrentCulture);
 		}
 	}

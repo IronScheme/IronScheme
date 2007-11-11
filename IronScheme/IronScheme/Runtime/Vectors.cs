@@ -39,7 +39,7 @@ namespace IronScheme.Runtime
      */
 
     [Builtin("vector?")]
-    public static bool IsVector(object obj)
+    public static object IsVector(object obj)
     {
       return obj is object[];
     }

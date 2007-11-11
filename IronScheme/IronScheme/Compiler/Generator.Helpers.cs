@@ -86,11 +86,11 @@ namespace IronScheme.Compiler
     static void Initialize()
     {
       // builtin methods
-      AddGenerators(typeof(Generator).Assembly);
-      AddBuiltins(typeof(Builtins));
+      AddGenerators(Context, typeof(Generator).Assembly);
+      AddBuiltins(Context, typeof(Builtins));
     }
 
-    public static void AddBuiltins(Type builtinstype)
+    public static void AddBuiltins(CodeContext cc, Type builtinstype)
     {
       Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
 
@@ -111,11 +111,11 @@ namespace IronScheme.Compiler
       foreach (string mn in all.Keys)
       {
         SymbolId s = SymbolTable.StringToId(mn);
-        Context.Scope.SetName(s, builtinmap[s] = new BuiltinMethod(mn, ReflectionCache.GetMethodGroup(mn, all[mn].ToArray())));
+        cc.Scope.SetName(s, builtinmap[s] = new BuiltinMethod(mn, ReflectionCache.GetMethodGroup(mn, all[mn].ToArray())));
       }
     }
 
-    static CodeBlock GetTopLevel(CodeBlock cb)
+    protected static CodeBlock GetTopLevel(CodeBlock cb)
     {
       while (cb.Parent != null)
       {
@@ -316,7 +316,7 @@ namespace IronScheme.Compiler
     {
       string fn = GetFullname(NameHint, cb);
 
-      string[] tokens = fn.Split('|');
+      string[] tokens = fn.Split('.');
 
       string c = null;
       int j = 0;
@@ -340,7 +340,7 @@ namespace IronScheme.Compiler
           tokens[i] = (i - j).ToString();
         }
       }
-      return string.Join("|", tokens);
+      return string.Join(".", tokens);
     }
 
     protected static Expression MakeClosure(CodeBlock cb, bool varargs)
@@ -375,7 +375,7 @@ namespace IronScheme.Compiler
 
         h = defcheck.Car as Cons;
 
-        if (h != null && Builtins.IsEqual(h.Car, define))
+        if (h != null && (bool)Builtins.IsEqual(h.Car, define))
         {
           Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
           stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
@@ -402,7 +402,7 @@ namespace IronScheme.Compiler
 
         defcheck.Car = h = SyntaxExpander.Expand1(defcheck.Car) as Cons;
 
-        if (h != null && Builtins.IsEqual(h.Car, define))
+        if (h != null && (bool)Builtins.IsEqual(h.Car, define))
         {
           Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
           stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
@@ -454,6 +454,11 @@ namespace IronScheme.Compiler
         c = c.Cdr as Cons;
       }
 
+      if (stmts.Count == 0)
+      {
+        stmts.Add(Ast.Return(Ast.ReadField(null, Unspecified)));
+      }
+
 
 
       cb.Body = Ast.Block(stmts.ToArray());
@@ -497,7 +502,7 @@ namespace IronScheme.Compiler
       foreach (object var in v)
       {
         Cons c = var as Cons;
-        if (c != null && Builtins.IsEqual(c.Car, unquote_splicing))
+        if (c != null && (bool)Builtins.IsEqual(c.Car, unquote_splicing))
         {
           nestinglevel--;
           try
@@ -558,7 +563,7 @@ namespace IronScheme.Compiler
 
       while (c != null)
       {
-        if (c.Car is Cons && Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
+        if (c.Car is Cons && (bool)Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
         {
           nestinglevel--;
           try
@@ -592,7 +597,7 @@ namespace IronScheme.Compiler
         c = c.Cdr as Cons;
         // check for possible unquote in dotted list
         // TODO: find out is unquotesplicing is valid
-        if (c != null && Builtins.IsEqual(c.Car, unquote))
+        if (c != null && (bool)Builtins.IsEqual(c.Car, unquote))
         {
           nestinglevel--;
           try
@@ -653,7 +658,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        return parent.Name + "|" + SymbolTable.IdToString(id);
+        return parent.Name + "." + SymbolTable.IdToString(id);
       }
     }
 

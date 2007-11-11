@@ -53,7 +53,7 @@ namespace IronScheme.Compiler
       Cons c = input as Cons;
       if (c != null)
       {
-        if (Builtins.IsSymbol(c.Car))
+        if ((bool)Builtins.IsSymbol(c.Car))
         {
           SymbolId s = (SymbolId)c.Car;
 
@@ -63,7 +63,7 @@ namespace IronScheme.Compiler
           }
 
 
-          if (Builtins.IsEqual(s, Generator.define) && Builtins.IsPair(Builtins.Second(c)))
+          if ((bool)Builtins.IsEqual(s, Generator.define) && (bool)Builtins.IsPair(Builtins.Second(c)))
           {
             Cons t = (Cons)c.Cdr;
             Cons r = (Cons)t.Car;
