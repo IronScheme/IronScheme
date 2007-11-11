@@ -36,6 +36,7 @@
   (pload "genwrite.scm") ; pretty-print
   
   (pload "macros.scm")   ; commonly defined macro's
+  (pload "pregexp.scm")  ; regex
   
   ;; load some additional console helpers 
   (pload "IronScheme.Console.exe")
