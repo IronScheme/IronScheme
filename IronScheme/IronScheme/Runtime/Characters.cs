@@ -59,7 +59,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if the specified obj is char; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char?")]
-    public static bool IsChar(object obj)
+    public static object IsChar(object obj)
     {
       return obj is char;
     }
@@ -73,7 +73,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is same char] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char=?")]
-    public static bool IsSameChar(object obj1, object obj2)
+    public static object IsSameChar(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -90,7 +90,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is less than char] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char<?")]
-    public static bool IsLessThanChar(object obj1, object obj2)
+    public static object IsLessThanChar(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -107,7 +107,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is greater than char] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char>?")]
-    public static bool IsGreaterThanChar(object obj1, object obj2)
+    public static object IsGreaterThanChar(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -124,7 +124,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is less than or equal char] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char<=?")]
-    public static bool IsLessThanOrEqualChar(object obj1, object obj2)
+    public static object IsLessThanOrEqualChar(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -141,7 +141,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is greater than or equal char] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char>=?")]
-    public static bool IsGreaterThanOrEqualChar(object obj1, object obj2)
+    public static object IsGreaterThanOrEqualChar(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -158,7 +158,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is same char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-ci=?")]
-    public static bool IsSameCharCaseInsensitive(object obj1, object obj2)
+    public static object IsSameCharCaseInsensitive(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -175,7 +175,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is less than char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-ci<?")]
-    public static bool IsLessThanCharCaseInsensitive(object obj1, object obj2)
+    public static object IsLessThanCharCaseInsensitive(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -192,7 +192,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is greater than char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-ci>?")]
-    public static bool IsGreaterThanCharCaseInsensitive(object obj1, object obj2)
+    public static object IsGreaterThanCharCaseInsensitive(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2); 
@@ -209,7 +209,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is less than or equal char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-ci<=?")]
-    public static bool IsLessThanOrEqualCharCaseInsensitive(object obj1, object obj2)
+    public static object IsLessThanOrEqualCharCaseInsensitive(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -226,7 +226,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is greater than or equal char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-ci>=?")]
-    public static bool IsGreaterThanOrEqualCharCaseInsensitive(object obj1, object obj2)
+    public static object IsGreaterThanOrEqualCharCaseInsensitive(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
@@ -242,7 +242,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is alphabetic char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-alphabetic?")]
-    public static bool IsAlphabeticChar(object obj)
+    public static object IsAlphabeticChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return char.IsLetter(c);
@@ -256,7 +256,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is numeric char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-numeric?")]
-    public static bool IsNumericChar(object obj)
+    public static object IsNumericChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return char.IsDigit(c);
@@ -270,7 +270,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is whitespace char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-whitespace?")]
-    public static bool IsWhitespaceChar(object obj)
+    public static object IsWhitespaceChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return char.IsWhiteSpace(c);
@@ -284,7 +284,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is upper case char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-upper-case?")]
-    public static bool IsUpperCaseChar(object obj)
+    public static object IsUpperCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return char.IsUpper(c);
@@ -298,7 +298,7 @@ namespace IronScheme.Runtime
     /// 	<c>true</c> if [is lower case char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
     [Builtin("char-lower-case?")]
-    public static bool IsLowerCaseChar(object obj)
+    public static object IsLowerCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return char.IsLower(c);
@@ -310,7 +310,7 @@ namespace IronScheme.Runtime
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
     [Builtin("char->integer")]
-    public static int CharToInteger(object obj)
+    public static object CharToInteger(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return (int)c;
@@ -322,7 +322,7 @@ namespace IronScheme.Runtime
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
     [Builtin("integer->char")]
-    public static char IntegerToChar(object obj)
+    public static object IntegerToChar(object obj)
     {
       int i = RequiresNotNull<int>(obj);
       return (char)i;
@@ -334,7 +334,7 @@ namespace IronScheme.Runtime
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
     [Builtin("char-upcase")]
-    public static char ToUpperCaseChar(object obj)
+    public static object ToUpperCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return char.ToUpper(c);
@@ -346,7 +346,7 @@ namespace IronScheme.Runtime
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
     [Builtin("char-downcase")]
-    public static char ToLowerCaseChar(object obj)
+    public static object ToLowerCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
       return char.ToLower(c);

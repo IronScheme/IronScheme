@@ -15,7 +15,7 @@
             (newline)
             (b (cdr a)))))))
 
-;; note how this will be slower, as it  refers to the global variable
+;; note how this will be slower, as it  refers to the global variable, this got faster somehow
 (define (tak x y z)
   (if (not (< y x))
     z
@@ -49,6 +49,12 @@
 (display "taki: ")
 (time
  (taki 22 14 8) )
+ 
+ 
+(define (fact n)
+  (define (fact-aux n m)
+    (if (zero? n) m (fact-aux (- n 1) (* n m))))
+  (fact-aux n 1)) 
 
 
 (define-syntax for

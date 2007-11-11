@@ -69,7 +69,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (Builtins.IsEqual(c.Car, unquote))
+        if ((bool)Builtins.IsEqual(c.Car, unquote))
         {
           nestinglevel--;
           try
@@ -88,7 +88,7 @@ namespace IronScheme.Compiler
             nestinglevel++;
           }
         }
-        if (nestinglevel == 1 && Builtins.IsEqual(c.Car, quasiquote))
+        if (nestinglevel == 1 && (bool)Builtins.IsEqual(c.Car, quasiquote))
         {
           nestinglevel++;
           try
@@ -118,7 +118,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (Builtins.IsSymbol(c.Car))
+        if ((bool)Builtins.IsSymbol(c.Car))
         {
           SymbolId f = (SymbolId)c.Car;
 
@@ -126,7 +126,7 @@ namespace IronScheme.Compiler
 
           if (Context.Scope.TryLookupName(f, out m))
           {
-            if (Builtins.IsEqual(define, f) && Builtins.IsPair(Builtins.First(c.Cdr)))
+            if ((bool)Builtins.IsEqual(define, f) && (bool)Builtins.IsPair(Builtins.First(c.Cdr)))
             {
               Cons ii = c.Cdr as Cons;
               Cons jj = ii.Car as Cons;
@@ -181,7 +181,7 @@ namespace IronScheme.Compiler
               MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
               if (mc == null)
               {
-                throw new SyntaxErrorException("no match for " + f);
+                throw new SyntaxErrorException("no match for " + f + " near: " + Parser.sourcemap[c]);
               }
               if (mc.Target.NeedsContext)
               {
@@ -203,6 +203,7 @@ namespace IronScheme.Compiler
           r.SetLoc(spanhint);
         }
 
+
         return r;
 
         //return Ast.Action.Call(typeof(object), GetAstList(c, cb));
@@ -214,7 +215,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        if (Builtins.IsSymbol(args))
+        if ((bool)Builtins.IsSymbol(args))
         {
           return Read((SymbolId)args, cb, typeof(object));
         }
@@ -228,14 +229,7 @@ namespace IronScheme.Compiler
 
 
 
-    //// macro-expand
-    //[Generator("macro-expand")]
-    //public static Expression MacroExpand(object args, CodeBlock cb)
-    //{
-    //  args = Builtins.Car(args);
-    //  object result = SyntaxExpander.Expand(args);
-    //  return GetCons(result, cb);
-    //}
+
 
     //// macro-expand1
     //[Generator("macro-expand1")]

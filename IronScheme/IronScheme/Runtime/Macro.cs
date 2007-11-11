@@ -31,7 +31,12 @@ namespace IronScheme.Runtime
     public string Name
     {
       get { return name; }
-    } 
+    }
+
+    public override string ToString()
+    {
+      return name;
+    }
 
     readonly Delegate target;
     Macro(Delegate target, int paramcount, string name)

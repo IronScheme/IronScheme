@@ -42,6 +42,7 @@ public int MakeChar()
   return (int)Tokens.CHARACTER;
 }
 
+
 public int Make(Tokens token)
 {
   yylval.text = yytext;
@@ -194,8 +195,6 @@ atoms                  (#t|#f)
 
 .                     { Errors.Add(SourceUnit, string.Format("Bad input: '{0}'", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-
-
 <<EOF>>               { }
 %%
 

@@ -44,7 +44,7 @@
 ;;; vector->list                    reverse-vector->list
 ;;; list->vector                    reverse-list->vector
 
-
+
 
 ;;; --------------------
 ;;; Commentary on efficiency of the code
@@ -73,7 +73,6 @@
 ;;; Efficiency of the actual algorithms is a rather mundane point to
 ;;; mention; vector operations are rarely beyond being straightforward.
 
-
 
 ;;; --------------------
 ;;; Utilities
@@ -130,7 +129,6 @@
 (define (vectors-ref vectors i)
   (map (lambda (v) (vector-ref v i)) vectors))
 
-
 
 ;;; --------------------
 ;;; Error checking
@@ -247,8 +245,6 @@
                           callee))
           (else
            (values start end)))))
-
-
 
 ;;; --------------------
 ;;; Internal routines
@@ -434,7 +430,6 @@
     (lambda (f target vectors len)
       (loop f target vectors len))))
 
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;; ***** vector-lib ***** ;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -654,7 +649,6 @@
                (concatenate! vectors new-vector 0)
                new-vector))))))
 
-
 
 ;;; --------------------
 ;;; Predicates
@@ -721,7 +715,7 @@
           (and (= length-a length-b)
                (loop 0))))))
 
-
+
 
 ;;; --------------------
 ;;; Selectors
@@ -735,7 +729,7 @@
 ;;;   [R5RS] Return the length of VECTOR.
 (define vector-length vector-length)
 
-
+
 
 ;;; --------------------
 ;;; Iteration
@@ -895,7 +889,7 @@
                                           vector-count)
                         (cons vec vectors)))))
 
-
+
 
 ;;; --------------------
 ;;; Searching
@@ -1070,7 +1064,7 @@
                                          vector-every)))
               (loop2+ pred? (cons vec vectors) 0 len (- len 1))))))))
 
-
+
 
 ;;; --------------------
 ;;; Mutators
@@ -1198,7 +1192,7 @@
                         (start end)
     (%vector-reverse! vec start end)))
 
-
+
 
 ;;; --------------------
 ;;; Conversion

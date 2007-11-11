@@ -79,6 +79,20 @@ namespace IronScheme.Runtime
       return o.GetType();
     }
 
+    [Builtin(":optional")]
+    public static object Optional(object obj, object def)
+    {
+      return obj ?? def;
+    }
+
+    
+    [Builtin("macro-expand")]
+    public static object MacroExpand(CodeContext cc, object args)
+    {
+      object result = SyntaxExpander.Expand(args);
+      return result;
+    }
+
     #region console
 
 

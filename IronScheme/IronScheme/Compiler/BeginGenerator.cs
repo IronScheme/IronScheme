@@ -24,7 +24,7 @@ namespace IronScheme.Compiler
   {
     public override Expression Generate(object args, CodeBlock cb)
     {
-      if (Builtins.IsNull(args))
+      if ((bool)Builtins.IsNull(args))
       {
         return Ast.ReadField(null, Unspecified);
       }

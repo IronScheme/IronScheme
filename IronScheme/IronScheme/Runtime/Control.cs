@@ -24,17 +24,11 @@ using Microsoft.Scripting.Actions;
 namespace IronScheme.Runtime
 {
 
-  sealed class BuiltinMethod : ICallableWithCodeContext
+  sealed class BuiltinMethod : Closure
   {
     readonly MethodBinder meth;
-    readonly string name;
     readonly MethodGroup methods;
-
-    public string Name
-    {
-      get { return name; }
-    } 
-
+    readonly Dictionary<int, Delegate> cache = new Dictionary<int, Delegate>();
 
     public MethodBinder Binder
     {
@@ -45,30 +39,76 @@ namespace IronScheme.Runtime
     {
       return methods.GetMethodBases();
     }
-
-
-    public BuiltinMethod(string name, MethodGroup mg)
+    
+    public BuiltinMethod(string name, MethodGroup mg) : base(null, name)
     {
-      this.name = name;
       this.methods = mg;
       meth = MethodBinder.MakeBinder(IronScheme.Compiler.BaseHelper.binder, mg.Name, mg.GetMethodBases(), BinderType.Normal);
 
     }
 
-    public object Call(CodeContext context, object[] args)
+    protected override object RealCall(CodeContext context, object[] args)
     {
       if (args == null)
       {
         args = new object[0];
       }
+
+      //int nargs = args.Length;
+
+      //Delegate d;
+
+      //if (cache.TryGetValue(nargs, out d))
+      //{
+      //  return Closure.Make(context, d, Name).Call(context, args);
+      //}
+
+      //Type[] targs = Array.ConvertAll<object, Type>(args, delegate(object input)
+      //{
+      //  if (input == null)
+      //  {
+      //    return typeof(object);
+      //  }
+      //  else
+      //  {
+      //    return input.GetType();
+      //  }
+      //});
+
+      //MethodCandidate mc = meth.MakeBindingTarget(CallType.None, targs);
+      //if (mc != null)
+      //{
+      //  MethodBase mb = mc.Target.Method;
+
+      //  bool needContext = NeedContext(mb);
+        
+
+      //  Type dt = CallTargets.GetTargetType(needContext, nargs, false);
+      //  d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
+      //  if (d == null)
+      //  {
+      //    d = Delegate.CreateDelegate(needContext ? typeof(CallTargetWithContextN) : typeof(CallTargetN), mb as MethodInfo, false);
+      //  }
+
+      //  if (d != null)
+      //  {
+      //    cache[nargs] = d;
+      //    return Closure.Make(context, d, Name).Call(context, args);
+      //  }
+
+      //}
+      // fallback
       return meth.CallReflected(context, CallType.None, args);
     }
 
-    public override string ToString()
+    static bool NeedContext(MethodBase mb)
     {
-      return name;
+      foreach (ParameterInfo pi in mb.GetParameters())
+      {
+        return pi.ParameterType == typeof(CodeContext);
+      }
+      return false;
     }
-
   }
 
   public partial class Builtins
@@ -160,7 +200,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("procedure?")]
-    public static bool IsProcedure(object obj)
+    public static object IsProcedure(object obj)
     {
       return obj is ICallableWithCodeContext; 
     }

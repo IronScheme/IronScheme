@@ -22,11 +22,51 @@ namespace IronScheme.Runtime
   public abstract class Closure : IDynamicObject , ICallableWithCodeContext
   {
     readonly string name;
-    public abstract object Call(CodeContext context, params object[] args);
+
+    public object Call(CodeContext context, params object[] args)
+    {
+      try
+      {
+        if (trace)
+        {
+          Console.WriteLine(new string('|', tracedepth) + Builtins.WriteFormat(new Cons(SymbolTable.StringToId(name), Cons.FromArray(args))));
+        }
+        tracedepth++;
+
+        object result = RealCall(context, args);
+
+        if (trace)
+        {
+          Console.WriteLine(new string('|', tracedepth - 1) + Builtins.WriteFormat(result));
+        }
+
+        return result;
+      }
+      finally
+      {
+        tracedepth--;
+      }
+    }
+
+    public override string ToString()
+    {
+      return name;
+    }
+
+    protected abstract object RealCall(CodeContext context, object[] args);
 
     public string Name
     {
       get { return name; }
+    }
+
+    static int tracedepth = 1;
+    static bool trace = false;
+
+    public static bool Trace
+    {
+      get { return Closure.trace; }
+      set { Closure.trace = value; }
     }
 
     protected void CheckArgs(int expect, object[] args)
@@ -40,7 +80,7 @@ namespace IronScheme.Runtime
 
 
     readonly Delegate target;
-    Closure(Delegate target, string name)
+    internal Closure(Delegate target, string name)
     {
       
       this.name = name;
@@ -82,8 +122,9 @@ namespace IronScheme.Runtime
         this.cc = cc;
       }
 
-      public override object Call(CodeContext context, params object[] args)
+      protected override object RealCall(CodeContext context, object[] args)
       {
+
         if (targetN != null)
         {
           return targetN(cc, args);
@@ -133,11 +174,12 @@ namespace IronScheme.Runtime
 
       CallTargetN targetN { get { return target as CallTargetN; } }
 
-      public SimpleClosure(Delegate target, string name) : base(target, name)
+      public SimpleClosure(Delegate target, string name)
+        : base(target, name)
       {
       }
 
-      public override object Call(CodeContext context, params object[] args)
+      protected override object RealCall(CodeContext context, object[] args)
       {
         if (targetN != null)
         {
@@ -206,7 +248,7 @@ namespace IronScheme.Runtime
         realtarget = Make(cc, target, name);
       }
 
-      public override object Call(CodeContext context, params object[] args)
+      protected override object RealCall(CodeContext context, object[] args)
       {
         if (args.Length + 1 < paramcount)
         {

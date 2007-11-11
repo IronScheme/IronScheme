@@ -138,9 +138,8 @@
   (let* ((new-vars '()) (result (cons 'and '())) (growth-point result))
 
 			; We need a way to report a syntax error
-			; the following is how Gambit compiler does it...
-    (##define-macro (ct-error-syntax msg . args)
-      `(##signal '##signal.syntax-error #t ,msg ,@args))
+			; the following is how IronScheme compiler does it...
+    (define ct-error-syntax syntax-error)
 
     (define (andjoin! clause)
       (let ((prev-point growth-point) (clause-cell (cons clause '())))
@@ -174,7 +173,7 @@
       (andjoin! `(begin ,@body)))
     result))
 
-
+#|
 	; Validation tests
 (##include "myenv.scm")
 (##include "catch-error.scm")
@@ -256,3 +255,4 @@
   (eval a-definition)
   (pp bbb)
 )
+|#

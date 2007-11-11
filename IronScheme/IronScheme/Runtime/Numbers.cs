@@ -236,6 +236,17 @@ namespace IronScheme.Runtime
         return false;
       }
 
+      int fi = str.IndexOf('/');
+
+      if (fi > 0)
+      {
+        object n1 = StringToNumber( str.Substring(0, fi), radix);
+        object n2 = StringToNumber( str.Substring(fi + 1), radix);
+
+        return new Fraction(Convert.ToInt64(n1), Convert.ToInt64(n2));
+      }
+
+
       switch (r)
       {
         case 2:
@@ -292,47 +303,47 @@ namespace IronScheme.Runtime
 
 
     [Builtin("number?")]
-    public static bool IsNumber(object obj)
+    public static object IsNumber(object obj)
     {
-      return 
-        (  IsComplex(obj) 
-        || IsRational(obj)
-        || IsReal(obj) 
-        || IsInteger(obj));
+      return
+        ((bool)IsComplex(obj)
+        || (bool)IsRational(obj)
+        || (bool)IsReal(obj)
+        || (bool)IsInteger(obj));
     }
 
     [Builtin("complex?")]
-    public static bool IsComplex(object obj)
+    public static object IsComplex(object obj)
     {
-      return IsReal(obj) || obj is Complex64;
+      return (bool)IsReal(obj) || obj is Complex64;
     }
 
     [Builtin("real?")]
-    public static bool IsReal(object obj)
+    public static object IsReal(object obj)
     {
-      return IsRational(obj) || obj is float || obj is double || obj is decimal;
+      return (bool)IsRational(obj) || obj is float || obj is double || obj is decimal;
     }
 
     [Builtin("rational?")]
-    public static bool IsRational(object obj)
+    public static object IsRational(object obj)
     {
-      return IsInteger(obj) || obj is Fraction;
+      return (bool)IsInteger(obj) || obj is Fraction;
     }
 
     [Builtin("integer?")]
-    public static bool IsInteger(object obj)
+    public static object IsInteger(object obj)
     {
       return (obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong);
     }
 
     [Builtin("exact?")]
-    public static bool IsExact(object obj)
+    public static object IsExact(object obj)
     {
-      return IsInteger(obj) || IsRational(obj);
+      return (bool)IsInteger(obj) || (bool)IsRational(obj);
     }
 
     [Builtin("inexact?")]
-    public static bool IsInexact(object obj)
+    public static object IsInexact(object obj)
     {
       return obj is Complex64 || obj is float || obj is double || obj is decimal;
     }
@@ -341,13 +352,13 @@ namespace IronScheme.Runtime
     #region relations
 
     [Builtin("=")]
-    public static bool IsSame(object first, object second)
+    public static object IsSame(object first, object second)
     {
       return IsEqualValue(first, second);
     }
 
     [Builtin("=")]
-    public static bool IsSame(object first, params object[] rest)
+    public static object IsSame(object first, params object[] rest)
     {
       IComparable last = first as IComparable;
 
@@ -362,7 +373,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<")]
-    public static bool IsLessThan(object first, object second)
+    public static object IsLessThan(object first, object second)
     {
       if (first is int)
       {
@@ -395,7 +406,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<")]
-    public static bool IsLessThan(object first, params object[] rest)
+    public static object IsLessThan(object first, params object[] rest)
     {
       IComparable last = first as IComparable;
 
@@ -410,7 +421,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<=")]
-    public static bool IsLessThanOrEqual(object first, object second)
+    public static object IsLessThanOrEqual(object first, object second)
     {
       if (first is int)
       {
@@ -443,7 +454,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<=")]
-    public static bool IsLessThanOrEqual(object first, params object[] rest)
+    public static object IsLessThanOrEqual(object first, params object[] rest)
     {
       IComparable last = first as IComparable;
 
@@ -458,7 +469,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">")]
-    public static bool IsGreaterThan(object first, object second)
+    public static object IsGreaterThan(object first, object second)
     {
       if (first is int)
       {
@@ -491,7 +502,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">")]
-    public static bool IsGreaterThan(object first, params object[] rest)
+    public static object IsGreaterThan(object first, params object[] rest)
     {
       IComparable last = first as IComparable;
 
@@ -506,7 +517,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">=")]
-    public static bool IsGreaterThanOrEqual(object first, object second)
+    public static object IsGreaterThanOrEqual(object first, object second)
     {
       if (first is int)
       {
@@ -539,7 +550,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">=")]
-    public static bool IsGreaterThanOrEqual(object first, params object[] rest)
+    public static object IsGreaterThanOrEqual(object first, params object[] rest)
     {
       IComparable last = first as IComparable;
 
@@ -559,9 +570,9 @@ namespace IronScheme.Runtime
 
 
     [Builtin("zero?")]
-    public static bool IsZero(object obj)
+    public static object IsZero(object obj)
     {
-      if (IsInteger(obj))
+      if ((bool)IsInteger(obj))
       {
         return IsEqualValue(obj, 0);
       }
@@ -572,25 +583,25 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("positive?")]
-    public static bool IsPositive(object obj)
+    public static object IsPositive(object obj)
     {
       return IsGreaterThan(obj, 0);
     }
 
     [Builtin("negative?")]
-    public static bool IsNegative(object obj)
+    public static object IsNegative(object obj)
     {
       return IsLessThan(obj, 0);
     }
 
     [Builtin("odd?")]
-    public static bool IsOdd(object obj)
+    public static object IsOdd(object obj)
     {
-      return !IsEqualValue(Modulo(obj, 2), 0);
+      return !(bool)IsEqualValue(Modulo(obj, 2), 0);
     }
 
     [Builtin("even?")]
-    public static bool IsEven(object obj)
+    public static object IsEven(object obj)
     {
       return IsEqualValue(Modulo(obj, 2), 0);
     }
@@ -601,7 +612,7 @@ namespace IronScheme.Runtime
       object min = first;
       foreach (object var in rest)
       {
-        if (IsLessThan(var, min))
+        if ((bool)IsLessThan(var, min))
         {
           min = var;
         }
@@ -615,7 +626,7 @@ namespace IronScheme.Runtime
       object max = first;
       foreach (object var in rest)
       {
-        if (IsGreaterThan(var, max))
+        if ((bool)IsGreaterThan(var, max))
         {
           max = var;
         }
@@ -1282,10 +1293,12 @@ provided all numbers involved in that computation are exact.
       {
         case 0:
           return 0;
+        case 1:
+          return args[0];
         case 2:
           object first = args[0], second = args[1];
 
-          if (IsEqualValue(second, 0))
+          if ((bool)IsEqualValue(second, 0))
           {
             return Abs(first);
           }
@@ -1308,6 +1321,8 @@ provided all numbers involved in that computation are exact.
       {
         case 0:
           return 1;
+        case 1:
+          return args[0];
         case 2:
           object first = args[0], second = args[1];
 
@@ -1321,13 +1336,21 @@ provided all numbers involved in that computation are exact.
     [Builtin("numerator")]
     public static object Numerator(object obj)
     {
-      return false;
+      if (obj is Fraction)
+      {
+        return ((Fraction)obj).Numerator;
+      }
+      return obj;
     }
 
     [Builtin("denominator")]
     public static object Denominator(object obj)
     {
-      return false;
+      if (obj is Fraction)
+      {
+        return ((Fraction)obj).Denominator;
+      }
+      return 1;
     }
 
     [Builtin("floor")]
@@ -1542,13 +1565,25 @@ provided all numbers involved in that computation are exact.
     [Builtin("exact->inexact")]
     public static object ExactToInexact(object obj)
     {
-      return false;
+      if ((bool)IsExact(obj))
+      {
+        if (obj is Fraction)
+        {
+          return (decimal)((Fraction)obj);
+        }
+        return Convert.ToDecimal(obj);
+      }
+      return obj;
     }
 
     [Builtin("inexact->exact")]
     public static object InexactToExact(object obj)
     {
-      return false;
+      if ((bool)IsInexact(obj))
+      {
+        return Convert.ToInt64(obj);
+      }
+      return obj;
     }
 
   }

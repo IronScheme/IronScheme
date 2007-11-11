@@ -59,11 +59,11 @@
 ; This won't work if ENV is the interaction environment and someone has
 ; redefined LAMBDA there.
 
-(define eval
-  (let ((real-eval eval))
-    (lambda (exp env)
+(define real-eval eval)
+
+(define (eval exp env) 
       ((real-eval `(lambda (vector?) ,exp))
-       vector?))))
+       vector?))
 
 ; Definitions of the record procedures.
 

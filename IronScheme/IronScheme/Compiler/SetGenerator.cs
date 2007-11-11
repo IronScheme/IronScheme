@@ -37,7 +37,8 @@ namespace IronScheme.Compiler
 
       if (v == null)
       {
-        throw new MissingMemberException(string.Format("name '{0}' not defined", SymbolTable.IdToString(s)));
+        CodeBlock tl = GetTopLevel(cb);
+        v = tl.CreateVariable(s, Variable.VariableKind.Global, typeof(object), Ast.Read(s));
       }
 
       if (value.Type.IsValueType)

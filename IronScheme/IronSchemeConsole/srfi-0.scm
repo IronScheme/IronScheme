@@ -1,6 +1,6 @@
 
 (define-syntax cond-expand
-  (syntax-rules (and or not else srfi-0 srfi-5)
+  (syntax-rules (and or not else srfi-0 srfi-23 srfi-7)
     ((cond-expand) (syntax-error "Unfulfilled cond-expand"))
     ((cond-expand (else body ...))
      (begin body ...))
@@ -30,8 +30,10 @@
        (else body ...)))
     ((cond-expand (srfi-0 body ...) more-clauses ...)
        (begin body ...))
-    ;((cond-expand (srfi-5 body ...) more-clauses ...)
-    ;   (begin body ...))
+    ((cond-expand (srfi-7 body ...) more-clauses ...)
+       (begin body ...))
+    ((cond-expand (srfi-23 body ...) more-clauses ...)
+       (begin body ...))
     ((cond-expand (feature-id body ...) more-clauses ...)
        (cond-expand more-clauses ...))))
 

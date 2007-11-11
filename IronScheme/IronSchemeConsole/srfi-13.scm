@@ -111,7 +111,6 @@
 ;;; Enough introductory blather. On to the source code. (But see the end of
 ;;; the file for further notes on porting & performance tuning.)
 
-
 ;;; Support for START/END substring specs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; This macro parses optional start/end arguments from arg lists, defaulting
@@ -195,7 +194,6 @@
 ;(define (string . chars) (string-unfold null? car cdr chars))
 
 
-
 ;;; substring/shared S START [END] 
 ;;; string-copy      S [START END]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -527,7 +525,6 @@
     s))
 
 
-
 ;;; string-prefix-length[-ci] s1 s2 [start1 end1 start2 end2]
 ;;; string-suffix-length[-ci] s1 s2 [start1 end1 start2 end2]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -670,7 +667,6 @@
 	 (= len1 (%string-suffix-length-ci s1 start1 end1
 					   s2 start2 end2)))))
 
-
 ;;; string-compare    s1 s2 proc< proc= proc> [start1 end1 start2 end2]
 ;;; string-compare-ci s1 s2 proc< proc= proc> [start1 end1 start2 end2]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -859,7 +855,6 @@
 			    values
 			    values))))
 
-
 ;;; Hash
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Compute (c + 37 c + 37^2 c + ...) modulo BOUND, with sleaze thrown in
@@ -956,7 +951,6 @@
       (%string-titlecase! ans 0 (- end start))
       ans)))
 
-
 ;;; Cutting & pasting strings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; string-take string nchars
@@ -1052,7 +1046,6 @@
 	      ans))))))
 
 
-
 ;;; Filtering strings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; string-delete char/char-set/pred string [start end]
@@ -1123,7 +1116,6 @@
 		       0 s start end)
 	  ans))))
 
-
 ;;; String search
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; string-index       string char/char-set/pred [start end]
@@ -1245,7 +1237,6 @@
 		       string-count criterion)))))
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; string-fill! string char [start end]
 ;;; 
@@ -1279,7 +1270,6 @@
 	(string-set! to j (string-ref from i)))))
 
 
-
 ;;; Returns starting-position in STRING or #f if not true.
 ;;; This implementation is slow & simple. It is useful as a "spec" or for
 ;;; comparison testing with fancier implementations.
@@ -1471,7 +1461,7 @@
 			     (if (= vi -1) 0
 				 (lp2 vi)))))))))))))
 
-
+
 ;;; Misc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; (string-null? s)
@@ -1690,7 +1680,7 @@
 			 (else (cons (substring s start tend) ans))))))
 	      (else ans))))))
 
-
+
 ;;; xsubstring s from [to start end] -> string
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; S is a string; START and END are optional arguments that demarcate
@@ -1817,7 +1807,7 @@
 	(%string-copy! target i s start end))))); Copy a whole span.
 
 
-
+
 ;;; (string-join string-list [delimiter grammar]) => string
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Paste strings together using the delimiter string.
@@ -1867,7 +1857,7 @@
 
 	     (else "")))))		; Special-cased for infix grammar.
 
-
+
 ;;; Porting & performance-tuning notes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; See the section at the beginning of this file on external dependencies.
@@ -1944,7 +1934,7 @@
 ;;; save calling overhead and enable procedure integration -- but they
 ;;; are not appropriate for exported routines.
 
-
+
 ;;; Copyright details
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; The prefix/suffix and comparison routines in this code had (extremely

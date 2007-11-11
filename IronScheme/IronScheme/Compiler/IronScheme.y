@@ -65,6 +65,15 @@ static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
   return o;
 }
 
+
+static string CleanString(string input)
+{
+  input = input.Substring(1, input.Length - 2);
+  input = input.Replace("\\\\", "\\");
+  input = input.Replace("\\\"", "\"");
+  return input;
+}
+
 static readonly SymbolId quote = SymbolTable.StringToId("quote");
 static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
 static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
@@ -108,7 +117,7 @@ exprlist
 expr
     : list                                        { $$ = $1;}
     | SYMBOL                                      { $$ = SymbolTable.StringToId($1); }
-    | STRING                                      { $$ = $1.Trim('"'); }
+    | STRING                                      { $$ = CleanString($1); }
     | NUMBER                                      { $$ = Builtins.StringToNumber($1);}
     | LITERAL                                     { $$ = $1 == "#t" ? (object)true : ($1 == "#f" ? (object)false : null);}
     | CHARACTER                                   { $$ = $1[0];}

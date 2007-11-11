@@ -112,13 +112,13 @@ namespace IronScheme.Runtime
           Assembly ext = Assembly.LoadFile(Path.GetFullPath(path));
           if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
           {
-            IronScheme.Compiler.Generator.AddGenerators(ext);
+            IronScheme.Compiler.Generator.AddGenerators(cc, ext);
 
             foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
             {
               if (ea.BuiltinsType != null)
               {
-                IronScheme.Compiler.Generator.AddBuiltins(ea.BuiltinsType);
+                IronScheme.Compiler.Generator.AddBuiltins(cc, ea.BuiltinsType);
               }
               if (ea.ScriptResource != null)
               {
@@ -171,22 +171,22 @@ namespace IronScheme.Runtime
           break;
         default:
           // check for already compiled version
-          //string cfn = Path.ChangeExtension(path, ".exe");
-          //if (File.Exists(cfn))
-          //{
-          //  DateTime ct = File.GetLastWriteTime(cfn);
-          //  if (ct > File.GetLastWriteTime(path))
-          //  {
-          //    if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct)
-          //    {
-          //      path = cfn;
-          //      goto case ".exe";
-          //    }
-          //  }
-          //}
+          string cfn = Path.ChangeExtension(path, ".exe");
+          if (File.Exists(cfn))
+          {
+            DateTime ct = File.GetLastWriteTime(cfn);
+            if (ct > File.GetLastWriteTime(path))
+            {
+              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct)
+              {
+                path = cfn;
+                goto case ".exe";
+              }
+            }
+          }
 
           // this still bombs out too much
-          //Compiler.Generator.CanAllowTailCall = true;
+          Compiler.Generator.CanAllowTailCall = true;
 
           try
           {
@@ -235,19 +235,19 @@ namespace IronScheme.Runtime
     readonly static object EOF = new object();
 
     [Builtin("char-ready?")]
-    public static bool IsCharReady()
+    public static object IsCharReady()
     {
       return IsCharReady(CurrentInputPort());
     }
     
     [Builtin("char-ready?")]
-    public static bool IsCharReady(object port)
+    public static object IsCharReady(object port)
     {
       return PeekChar(port) != EOF;
     }
 
     [Builtin("eof-object?")]
-    public static bool IsEof(object obj)
+    public static object IsEof(object obj)
     {
       return obj == EOF;
     }
@@ -461,21 +461,21 @@ namespace IronScheme.Runtime
         if (s != null)
         {
           object scar = s.Car;
-          if (IsSymbol(scar) && s.Cdr != null)
+          if ((bool)IsSymbol(scar) && s.Cdr != null)
           {
-            if (IsEqual(quote, scar))
+            if ((bool)IsEqual(quote, scar))
             {
               return "'" + DisplayFormat(Cadr(s));
             }
-            if (IsEqual(quasiquote, scar))
+            if ((bool)IsEqual(quasiquote, scar))
             {
               return "`" + DisplayFormat(Cadr(s));
             }
-            if (IsEqual(unquote, scar))
+            if ((bool)IsEqual(unquote, scar))
             {
               return "," + DisplayFormat(Cadr(s));
             }
-            if (IsEqual(unquote_splicing, scar))
+            if ((bool)IsEqual(unquote_splicing, scar))
             {
               return ",@" + DisplayFormat(Cadr(s));
             }
@@ -569,21 +569,21 @@ namespace IronScheme.Runtime
         Cons s = obj as Cons;
 
         object scar = s.Car;
-        if (IsSymbol(scar) && s.Cdr != null)
+        if ((bool)IsSymbol(scar) && s.Cdr != null)
         {
-          if (IsEqual(quote, scar))
+          if ((bool)IsEqual(quote, scar))
           {
             return "'" + WriteFormat(Cadr(s));
           }
-          if (IsEqual(quasiquote, scar))
+          if ((bool)IsEqual(quasiquote, scar))
           {
             return "`" + WriteFormat(Cadr(s));
           }
-          if (IsEqual(unquote, scar))
+          if ((bool)IsEqual(unquote, scar))
           {
             return "," + WriteFormat(Cadr(s));
           }
-          if (IsEqual(unquote_splicing, scar))
+          if ((bool)IsEqual(unquote_splicing, scar))
           {
             return ",@" + WriteFormat(Cadr(s));
           }
@@ -639,13 +639,13 @@ namespace IronScheme.Runtime
 
 
     [Builtin("input-port?")]
-    public static bool IsInputPort(object obj)
+    public static object IsInputPort(object obj)
     {
       return obj is TextReader; 
     }
 
     [Builtin("output-port?")]
-    public static bool IsOutputPort(object obj)
+    public static object IsOutputPort(object obj)
     {
       return obj is TextWriter;
     }
