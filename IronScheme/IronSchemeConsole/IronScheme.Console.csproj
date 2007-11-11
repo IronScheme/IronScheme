@@ -74,6 +74,9 @@
     <None Include="macros.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="pregexp.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi-13.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
