@@ -112,9 +112,10 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string")]
-    public static StringBuilder String(params char[] args)
+    public static StringBuilder String(params object[] args)
     {
-      return new StringBuilder(new string(args));
+      char[] a = Array.ConvertAll<object, char>(args, delegate(object o) { return (char)o; });
+      return new StringBuilder(new string(a));
     }
 
     static string GetString(object str)

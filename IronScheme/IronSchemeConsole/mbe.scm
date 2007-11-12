@@ -31,6 +31,27 @@
 ;(require 'rev4-optional-procedures)	;list-tail
 ;(require 'defmacroexpand)
 
+
+(define (last lst n)
+  (nthcdr (- (length lst) n) lst))
+
+(define (butlast lst n)
+  (butnthcdr (- (length lst) n) lst))
+
+(define (nthcdr n lst)
+  (if (zero? n) lst (nthcdr (+ -1 n) (cdr lst))))
+
+(define (butnthcdr k lst)
+  (cond ((negative? k) lst)
+	((or (zero? k) (null? lst)) '())
+	(else (let ((ans (list (car lst))))
+		(do ((lst (cdr lst) (cdr lst))
+		     (tail ans (cdr tail))
+		     (k (+ -2 k) (+ -1 k)))
+		    ((or (negative? k) (null? lst)) ans)
+		  (set-cdr! tail (list (car lst))))))))
+		  
+
 (define reverse!
   (lambda (s)
     (let loop ((s s) (r '()))

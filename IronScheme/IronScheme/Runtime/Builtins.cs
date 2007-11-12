@@ -22,6 +22,7 @@ using Microsoft.Scripting.Hosting;
 using System.ComponentModel;
 using Microsoft.Scripting.Utils;
 using IronScheme.Compiler;
+using System.IO;
 
 namespace IronScheme.Runtime
 {
@@ -83,6 +84,35 @@ namespace IronScheme.Runtime
     public static object Optional(object obj, object def)
     {
       return obj ?? def;
+    }
+
+    [Builtin]
+    public static object Void()
+    {
+      return Unspecified;
+    }
+
+    [Builtin("file-exists?")]
+    public static object FileExists(object filename)
+    {
+      string s = RequiresNotNull<string>(filename);
+      return File.Exists(s);
+    }
+
+
+    [Builtin("symbol-value")]
+    public static object SymbolValue(CodeContext cc, object symbol)
+    {
+      SymbolId s = RequiresNotNull<SymbolId>(symbol);
+      return cc.Scope.ModuleScope.LookupName(s);
+    }
+
+    [Builtin("set-symbol-value!")]
+    public static object SetSymbolValue(CodeContext cc, object symbol, object value)
+    {
+      SymbolId s = RequiresNotNull<SymbolId>(symbol);
+      cc.Scope.ModuleScope.SetName(s, value);
+      return Unspecified;
     }
 
     
