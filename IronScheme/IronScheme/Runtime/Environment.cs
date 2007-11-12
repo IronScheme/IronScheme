@@ -85,14 +85,22 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object GenSym()
     {
-      return SymbolTable.StringToId("#g" + symcount++);
+      return SymbolTable.StringToId("g$" + symcount++);
     }
 
     [Builtin]
     public static object GenSym(object name)
     {
-      string s = RequiresNotNull<string>(name);
-      return SymbolTable.StringToId("#g:" + s + ":" + symcount++);
+      if (name is string)
+      {
+        string s = RequiresNotNull<string>(name);
+        return SymbolTable.StringToId("g$" + s + "$" + symcount++);
+      }
+      else
+      {
+        SymbolId s = RequiresNotNull<SymbolId>(name);
+        return SymbolTable.StringToId("g$" + s + "$" + symcount++);
+      }
     }
 
     [Builtin]

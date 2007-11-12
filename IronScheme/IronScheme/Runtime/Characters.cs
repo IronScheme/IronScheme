@@ -132,6 +132,16 @@ namespace IronScheme.Runtime
       return c1 <= c2;
     }
 
+    [Builtin("char<=?")]
+    public static object IsLessThanOrEqualChar(object obj1, object obj2, object obj3)
+    {
+      char c1 = RequiresNotNull<char>(obj1);
+      char c2 = RequiresNotNull<char>(obj2);
+      char c3 = RequiresNotNull<char>(obj3);
+
+      return c1 <= c2 && c2 <= c3;
+    }
+
     /// <summary>
     /// Determines whether [is greater than or equal char] [the specified obj1].
     /// </summary>

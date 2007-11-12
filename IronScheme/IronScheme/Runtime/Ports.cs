@@ -222,10 +222,17 @@ namespace IronScheme.Runtime
       while ((i = r.ReadLine()) != null)
       {
         input.AppendLine(i);
-        object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString(), Context.ModuleContext.CompilerContext);
-        if (result != null)
+        try
         {
-          return result;
+          object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString(), Context.ModuleContext.CompilerContext);
+          if (result != null)
+          {
+            return result;
+          }
+        }
+        catch (SyntaxErrorException)
+        {
+
         }
       }
 

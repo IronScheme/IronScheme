@@ -1,6 +1,7 @@
 ;; default init script for IronScheme
 (display "Loading init.scm .")
 
+(load "core.scm")
 
 ((lambda ()
   (define (pload file)
@@ -10,8 +11,8 @@
   ;(pload "srfi-23.scm") ; error - builtin
 
   ;; load core macros
-  (pload "core.scm")
-
+  ;(pload "core.scm")
+  
   ;; now load Macro by Example for define-syntax
   (pload "mbe.scm")
   
