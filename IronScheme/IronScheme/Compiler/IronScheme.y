@@ -71,6 +71,7 @@ static string CleanString(string input)
   input = input.Substring(1, input.Length - 2);
   input = input.Replace("\\\\", "\\");
   input = input.Replace("\\\"", "\"");
+  input = input.Replace("\\n", "\n");
   return input;
 }
 

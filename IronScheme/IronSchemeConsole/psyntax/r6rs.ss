@@ -18,28 +18,6 @@
 ;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ;;; DEALINGS IN THE SOFTWARE. 
 
-(define cons* 
-  (lambda (a . rest) 
-    (let f ((a a) (rest rest))
-      (if (null? rest) 
-          a
-          (cons a (f (car rest) (cdr rest))))))) 
-
-(define (eval-core x) (eval x))
-
-'(define char<=?
-  (let ((char<=? char<=?))
-    (lambda args
-      (or (null? args) 
-          (let f ((a (car args)) (d (cdr args)))
-            (or (null? d) 
-                (let ((b (car d)) (d (cdr d)))
-                  (and (char<=? a b) (f b d)))))))))
-                  
-(define (all-empty? ls)
-  (or (null? ls) 
-      (and (null? (car ls)) 
-           (all-empty? (cdr ls)))))
 
 (define (split ls)
   (cond
@@ -69,20 +47,6 @@
             (or (apply f cars)
                 (apply exists f cdrs)))))))
 
-(define make-eq-hashtable 
-  (lambda () (cons '() #f)))
-
-(define hashtable-ref 
-  (lambda (h x v) 
-    (cond
-      ((assq x (car h)) => cdr)
-      (else v))))
-
-(define hashtable-set! 
-  (lambda (h x v) 
-    (cond
-      ((assq x (car h)) => (lambda (p) (set-cdr! p v)))
-      (else (set-car! h (cons (cons x v) (car h)))))))
 
 (define (open-string-output-port)
   (let ((p (open-output-string)))
@@ -90,8 +54,6 @@
 
 (define command-line 
   (lambda () 
-    '("ironscheme" "hello-world.ss")))
+    (list "ironscheme" r6rs-input))) ; defined in init.scm
     
-(define (exit reason) (list 'exit reason))
-
 (load "psyntax.pp")
