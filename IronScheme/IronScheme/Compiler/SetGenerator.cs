@@ -46,7 +46,8 @@ namespace IronScheme.Compiler
         value = Ast.DynamicConvert(value, typeof(object));
       }
 
-      Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
+      //Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
+      Expression r = Ast.Assign(v, value);
 
       if (cb.IsGlobal)
       {

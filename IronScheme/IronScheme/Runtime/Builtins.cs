@@ -86,11 +86,71 @@ namespace IronScheme.Runtime
       return obj ?? def;
     }
 
+    [Builtin("eval-core")]
+    public static object EvalCore(CodeContext cc, object expr)
+    {
+      //IronScheme.Compiler.Generator.
+      return Eval(cc, expr);
+    }
+
+    [Builtin("make-eq-hashtable")]
+    public static object MakeEqHashtable()
+    {
+      return new Hashtable();
+    }
+
+    [Builtin("hashtable-ref")]
+    public static object HashtableRef(object hashtable, object key, object value)
+    {
+      Hashtable h = RequiresNotNull<Hashtable>(hashtable);
+      return h[key] ?? value;
+    }
+
+    [Builtin("hashtable-set!")]
+    public static object HashtableSet(object hashtable, object key, object value)
+    {
+      Hashtable h = RequiresNotNull<Hashtable>(hashtable);
+      h[key] = value;
+      return Unspecified;
+    }
+
+    [Builtin]
+    public static object Exit(object reason)
+    {
+      return Unspecified;
+    }
+
     [Builtin]
     public static object Void()
     {
       return Unspecified;
     }
+
+    [Builtin("all-empty?")]
+    public static object IsAllEmpty(object ls)
+    {
+      return ls == null || 
+        (Car(ls) == null && 
+        (bool)IsAllEmpty(Cdr(ls)));
+    }
+
+    static object ConsStarHelper(object a, object rest)
+    {
+      return (rest == null) ? a : new Cons(a, ConsStarHelper(Car(rest), Cdr(rest)));
+    }
+
+
+    [Builtin("cons*")]
+    public static object ConsStar(object a, params object[] rest)
+    {
+      return ConsStarHelper(a, Runtime.Cons.FromArray(rest));
+    }
+
+    //[Builtin]
+    //public static object Void()
+    //{
+    //  return Unspecified;
+    //}
 
     [Builtin("file-exists?")]
     public static object FileExists(object filename)

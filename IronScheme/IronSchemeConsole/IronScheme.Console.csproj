@@ -18,6 +18,7 @@
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +30,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\IronScheme.Console.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -77,11 +79,21 @@
     <None Include="pregexp.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\hello-world.ss" />
-    <None Include="psyntax\my-hello-world.ss" />
-    <None Include="psyntax\my-library.ss" />
-    <None Include="psyntax\psyntax.pp" />
-    <None Include="psyntax\r6rs.ss" />
+    <None Include="psyntax\hello-world.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\my-hello-world.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\my-library.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\psyntax.pp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\r6rs.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi-13.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -178,4 +190,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>call "C:\Program Files\Microsoft Visual Studio 8\VC\bin\vcvars32.bat"
+"C:\Program Files\Microsoft Visual Studio 8\VC\bin\editbin.exe" /nologo /stack:0x1000000,0x100000 $(TargetPath)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

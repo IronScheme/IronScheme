@@ -185,7 +185,7 @@ namespace IronScheme.Runtime
             }
           }
 
-          // this still bombs out too much
+          // this still bombs out too much, not anymore :) i have my doubts whether .net actually complies, it does, i dont :(
           Compiler.Generator.CanAllowTailCall = true;
 
           try

@@ -2,8 +2,9 @@
 (display "Loading init.scm .")
 
 (load "core.scm")
+(load "genwrite.scm") ; pretty-print
 
-((lambda ()
+'((lambda ()
   (define (pload file)
     (load file)
     (display "."))
@@ -34,7 +35,7 @@
   (pload "srfi-1.scm")   ; list library
   (pload "srfi-35.scm")  ; conditions
 
-  (pload "genwrite.scm") ; pretty-print
+  ;;(pload "genwrite.scm") ; pretty-print
   
   (pload "macros.scm")   ; commonly defined macro's
   (pload "pregexp.scm")  ; regex
@@ -53,6 +54,12 @@
 
 (define (run-tests) (load "test.scm"))
 (define (r4rs-tests) (load "r4rstest.scm"))
+
+(define r6rs-input #f)
+
+(define (load-r6rs fn)
+  (set! r6rs-input fn)
+  (load "psyntax/r6rs.ss"))
 
 
 
