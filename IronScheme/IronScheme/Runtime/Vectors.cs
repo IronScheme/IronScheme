@@ -45,14 +45,15 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("make-vector")]
-    public static object[] MakeVector(int k)
+    public static object[] MakeVector(object k)
     {
       return MakeVector(k, null);
     }
 
     [Builtin("make-vector")]
-    public static object[] MakeVector(int k, object fill)
+    public static object[] MakeVector(object K, object fill)
     {
+      int k = RequiresNotNull<int>(K);
       object[] vector = new object[k];
       if (fill != null)
       {
@@ -104,16 +105,18 @@ namespace IronScheme.Runtime
 
 
     [Builtin("vector-ref")]
-    public static object VectorRef(object vec, int k)
+    public static object VectorRef(object vec, object K)
     {
       object[] l = RequiresNotNull<object[]>(vec);
+      int k = RequiresNotNull<int>(K);
       return l[k];
     }
 
     [Builtin("vector-set!")]
-    public static object VectorSet(object vec, int k, object value)
+    public static object VectorSet(object vec, int K, object value)
     {
       object[] l = RequiresNotNull<object[]>(vec);
+      int k = RequiresNotNull<int>(K);
       l[k] = value;
       return Unspecified;
     }

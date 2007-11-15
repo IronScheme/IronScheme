@@ -60,10 +60,15 @@
 (define (load-r6rs fn)
   (set! r6rs-input fn)
   (load "psyntax/r6rs.ss"))
+  
 
+(define (psyntax-build)  
+  (load-r6rs "psyntax/psyntax-buildscript.ss"))
 
 
 (display " done.")
 (newline)
+
+'(psyntax-build)
 
 

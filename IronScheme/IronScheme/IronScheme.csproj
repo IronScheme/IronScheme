@@ -39,6 +39,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IronScheme.Closures, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\IronScheme.Closures.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -80,7 +84,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\Characters.cs" />
-    <Compile Include="Runtime\Closure.cs" />
     <Compile Include="Runtime\Cons.cs" />
     <Compile Include="Runtime\Control.cs" />
     <Compile Include="Runtime\Environment.cs" />

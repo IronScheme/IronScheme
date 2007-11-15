@@ -45,6 +45,9 @@ You must not remove this notice, or any other, from this software.
 (define-macro (syntax-error . args)
   `,`(error ,@args))           
 
+'(define-macro (begin . e)
+  (if (null? e) (void)
+    `((lambda () ,@e))))
 
 ;; let* in terms of itself and let 
 (define-macro (let* args . body)

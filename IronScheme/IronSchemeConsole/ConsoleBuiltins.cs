@@ -69,14 +69,14 @@ namespace IronScheme.Runtime
     [Builtin("enable-procedure-trace")]
     public static object EnableProcedureTrace()
     {
-      Closure.Trace = true;
+      //Closure.Trace = true;
       return Unspecified;
     }
 
     [Builtin("disable-procedure-trace")]
     public static object DisableProcedureTrace()
     {
-      Closure.Trace = false;
+      //Closure.Trace = false;
       return Unspecified;
     }
 

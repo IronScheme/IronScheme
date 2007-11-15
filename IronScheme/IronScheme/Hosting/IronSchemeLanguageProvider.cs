@@ -27,6 +27,7 @@ namespace IronScheme.Hosting
       : base(x)
     {
       x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".scm", ".ss", ".sch");
+      Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
     }
 
     public override string LanguageDisplayName

@@ -19,54 +19,24 @@ using Microsoft.Scripting.Actions;
 
 namespace IronScheme.Runtime
 {
-  public abstract class Closure : IDynamicObject , ICallableWithCodeContext
+  public delegate object ConsFromArrayHandler(object[] args);
+
+  public abstract class Closure : ICallableWithCodeContext
   {
     readonly string name;
 
-    public object Call(CodeContext context, params object[] args)
-    {
-      try
-      {
-        if (trace)
-        {
-          Console.WriteLine(new string('|', tracedepth) + Builtins.WriteFormat(new Cons(SymbolTable.StringToId(name), Cons.FromArray(args))));
-        }
-        tracedepth++;
-
-        object result = RealCall(context, args);
-
-        if (trace)
-        {
-          Console.WriteLine(new string('|', tracedepth - 1) + Builtins.WriteFormat(result));
-        }
-
-        return result;
-      }
-      finally
-      {
-        tracedepth--;
-      }
-    }
+    public static ConsFromArrayHandler ConsFromArray;
 
     public override string ToString()
     {
       return name;
     }
 
-    protected abstract object RealCall(CodeContext context, object[] args);
+    public abstract object Call(CodeContext context, object[] args);
 
     public string Name
     {
       get { return name; }
-    }
-
-    static int tracedepth = 1;
-    static bool trace = false;
-
-    public static bool Trace
-    {
-      get { return Closure.trace; }
-      set { Closure.trace = value; }
     }
 
     protected void CheckArgs(int expect, object[] args)
@@ -77,32 +47,13 @@ namespace IronScheme.Runtime
       }
     }
 
-
-
     readonly Delegate target;
-    internal Closure(Delegate target, string name)
+
+    Closure(Delegate target, string name)
     {
-      
       this.name = name;
       this.target = target;
     }
-
-
-    #region IDynamicObject Members
-
-    LanguageContext IDynamicObject.LanguageContext
-    {
-      get { return null; }
-    }
-
-
-    public StandardRule<T> GetRule<T>(DynamicAction action, CodeContext context, object[] args)
-    {
-      return new CallBinderHelper<T, CallAction>(context, action as CallAction, args).MakeRule();
-    }
-
-    #endregion
-
 
     sealed class ContextClosure : Closure
     {
@@ -117,12 +68,13 @@ namespace IronScheme.Runtime
 
       CallTargetWithContextN targetN { get { return target as CallTargetWithContextN; } }
 
-      public ContextClosure(CodeContext cc, Delegate target, string name) : base(target, name)
+      public ContextClosure(CodeContext cc, Delegate target, string name)
+        : base(target, name)
       {
         this.cc = cc;
       }
 
-      protected override object RealCall(CodeContext context, object[] args)
+      public override object Call(CodeContext context, object[] args)
       {
 
         if (targetN != null)
@@ -179,7 +131,7 @@ namespace IronScheme.Runtime
       {
       }
 
-      protected override object RealCall(CodeContext context, object[] args)
+      public override object Call(CodeContext context, object[] args)
       {
         if (targetN != null)
         {
@@ -219,7 +171,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static Closure Make(CodeContext cc, Delegate target, string name)
+    public static ICallableWithCodeContext Make(CodeContext cc, Delegate target, string name)
     {
       string targetname = target.GetType().Name;
       if (targetname.Contains("WithContext"))
@@ -232,7 +184,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static Closure MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
+    public static ICallableWithCodeContext MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
     {
       return new VarArgClosure(cc, target, paramcount, name);
     }
@@ -240,15 +192,16 @@ namespace IronScheme.Runtime
     sealed class VarArgClosure : Closure
     {
       int paramcount;
-      Closure realtarget;
+      ICallableWithCodeContext realtarget;
 
-      public VarArgClosure(CodeContext cc, Delegate target, int paramcount, string name) : base(target, name)
+      public VarArgClosure(CodeContext cc, Delegate target, int paramcount, string name)
+        : base(target, name)
       {
         this.paramcount = paramcount;
         realtarget = Make(cc, target, name);
       }
 
-      protected override object RealCall(CodeContext context, object[] args)
+      public override object Call(CodeContext context, object[] args)
       {
         if (args.Length + 1 < paramcount)
         {
@@ -258,7 +211,7 @@ namespace IronScheme.Runtime
         Array.Copy(args, newargs, paramcount - 1);
         object[] last = new object[args.Length - paramcount + 1];
         Array.Copy(args, paramcount - 1, last, 0, last.Length);
-        newargs[paramcount - 1] = Cons.FromArray(last);
+        newargs[paramcount - 1] = ConsFromArray(last);
         return realtarget.Call(context, newargs);
       }
     }

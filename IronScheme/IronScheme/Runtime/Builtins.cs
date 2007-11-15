@@ -23,6 +23,7 @@ using System.ComponentModel;
 using Microsoft.Scripting.Utils;
 using IronScheme.Compiler;
 using System.IO;
+using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
@@ -89,14 +90,35 @@ namespace IronScheme.Runtime
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {
-      //IronScheme.Compiler.Generator.
-      return Eval(cc, expr);
+      //Expression e = IronScheme.Compiler.Generator.GetAst(expr, IronScheme.Compiler.Generator.evalblock);
+      //return e.Evaluate(cc);
+      //using (TextWriter w = File.CreateText("temp.pp"))
+      //{
+      //  w.WriteLine(WriteFormat(expr));
+      //}
+
+      //return Load(cc, "temp.pp");
+      try
+      {
+        return Eval(cc, expr);
+      }
+      finally
+      {
+        Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
+      }
     }
 
     [Builtin("make-eq-hashtable")]
     public static object MakeEqHashtable()
     {
       return new Hashtable();
+    }
+
+    [Builtin("gc-collect")]
+    public static object GcCollect()
+    {
+      GC.Collect();
+      return Unspecified;
     }
 
     [Builtin("hashtable-ref")]
@@ -176,6 +198,14 @@ namespace IronScheme.Runtime
     {
       string s = RequiresNotNull<string>(filename);
       return File.Exists(s);
+    }
+
+    [Builtin("delete-file")]
+    public static object DeleteFile(object filename)
+    {
+      string s = RequiresNotNull<string>(filename);
+      File.Delete(s);
+      return Unspecified;
     }
 
 
@@ -279,7 +309,7 @@ namespace IronScheme.Runtime
 
     #endregion
 
-
+    [Conditional("DEBUG")]
     static void RequiresCondition(bool condition, string message)
     {
       if (!condition)
