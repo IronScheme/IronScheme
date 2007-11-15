@@ -297,17 +297,19 @@ namespace IronScheme.Compiler
       return null;
     }
 
-    static MethodBinder listbinder;
 
-    static MethodInfo MakeList(params Expression[] args)
+
+
+    readonly static SymbolId list = SymbolTable.StringToId("list");
+    readonly static SymbolId liststar = SymbolTable.StringToId("list*");
+
+
+    static MethodInfo MakeList(Expression[] args, bool proper)
     {
       Type[] types = Array.ConvertAll<Expression, Type>(args,
         delegate(Expression e) { return e.Type; });
-      if (listbinder == null)
-      {
-        BuiltinMethod l = builtinmap[SymbolTable.StringToId("list")];
-        listbinder = l.Binder;
-      }
+
+      MethodBinder listbinder = builtinmap[proper ? list : liststar].Binder;
 
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
     }
@@ -627,7 +629,7 @@ namespace IronScheme.Compiler
       if (splices.Count == 0)
       {
         Expression[] aa = e.ToArray();
-        MethodInfo lm = MakeList(aa);
+        MethodInfo lm = MakeList(aa, proper);
         r = Ast.ComplexCallHelper(lm, aa);
       }
       else
@@ -640,11 +642,10 @@ namespace IronScheme.Compiler
           }
         }
         r = Ast.ComplexCallHelper(Builtins_Append, e.ToArray());
-      }
-
-      if (!proper)
-      {
-        r = Ast.SimpleCallHelper(Builtins_ToImproper, r);
+        if (!proper)
+        {
+          r = Ast.SimpleCallHelper(Builtins_ToImproper, r);
+        }
       }
 
       return r;

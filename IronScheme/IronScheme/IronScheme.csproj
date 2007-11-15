@@ -47,7 +47,9 @@
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\DelayGenerator.cs" />
+    <Compile Include="Compiler\Generator.InlineEmitters.cs" />
     <Compile Include="Compiler\GeneratorAttribute.cs" />
+    <Compile Include="Compiler\InlineEmitter.cs" />
     <Compile Include="Compiler\QuasiquoteGenerator.cs" />
     <Compile Include="Compiler\QuoteGenerator.cs" />
     <Compile Include="Compiler\DefineGenerator.cs" />

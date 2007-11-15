@@ -171,7 +171,10 @@ namespace IronScheme.Hosting
       public override void Add(SourceUnit sourceUnit, string message, SourceSpan span, int errorCode, Severity severity)
       {
         base.Add(sourceUnit, message, span, errorCode, severity);
-        throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
+        if (sourceUnit.Kind != SourceCodeKind.Default)
+        {
+          throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
+        }
       }
     }
   }
