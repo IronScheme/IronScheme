@@ -22,6 +22,7 @@ using Microsoft.Scripting;
 using System.IO;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Actions;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -166,7 +167,15 @@ namespace IronScheme.Runtime
             catch (InvalidOperationException)
             {
             }
-            entry.Invoke(null, new object[] { cc });
+            try
+            {
+              entry.Invoke(null, new object[] { cc });
+            }
+            catch (TargetException tie)
+            {
+              Debugger.Break();
+              throw tie;
+            }
           }
           break;
         default:
@@ -222,6 +231,7 @@ namespace IronScheme.Runtime
       while ((i = r.ReadLine()) != null)
       {
         input.AppendLine(i);
+
         try
         {
           object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString(), Context.ModuleContext.CompilerContext);
@@ -235,6 +245,7 @@ namespace IronScheme.Runtime
 
         }
       }
+
 
       return EOF;
     }

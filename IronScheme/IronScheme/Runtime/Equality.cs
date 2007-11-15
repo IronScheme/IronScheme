@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       {
         return Equals(((SymbolId)first).CaseInsensisitveId, ((SymbolId)second).CaseInsensisitveId);
       }
-      if ((first != null && first.GetType().IsValueType) || (second != null && second.GetType().IsValueType))
+      if (first is ValueType && second is ValueType)
       {
         return Equals(first, second);
       }

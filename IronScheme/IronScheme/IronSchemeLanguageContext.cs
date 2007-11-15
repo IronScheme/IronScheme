@@ -156,6 +156,10 @@ namespace IronScheme
         Cons parsed = p.parsed;
         if (parsed != null)
         {
+          if (parsed.Cdr != null)
+          {
+            ;
+          }
           return parsed.Car;
         }
       }

@@ -140,11 +140,30 @@ namespace IronScheme.Runtime
     }
 
 
-    [Builtin("cons*")]
+    [Builtin("cons*"), Builtin("list*")]
     public static object ConsStar(object a, params object[] rest)
     {
       return ConsStarHelper(a, Runtime.Cons.FromArray(rest));
     }
+
+    [Builtin("cons*"), Builtin("list*")]
+    public static object ConsStar(object a, object b)
+    {
+      return Cons(a, b);
+    }
+
+    [Builtin("cons*"), Builtin("list*")]
+    public static object ConsStar(object a, object b, object c)
+    {
+      return Cons(a, Cons(b, c));
+    }
+
+    [Builtin("cons*"), Builtin("list*")]
+    public static object ConsStar(object a, object b, object c, object d)
+    {
+      return Cons(a, Cons(b, Cons(c , d)));
+    }
+
 
     //[Builtin]
     //public static object Void()
@@ -176,8 +195,8 @@ namespace IronScheme.Runtime
     }
 
     
-    [Builtin("macro-expand")]
-    public static object MacroExpand(CodeContext cc, object args)
+    [Builtin("macro-expand1")]
+    public static object MacroExpand1(CodeContext cc, object args)
     {
       object result = SyntaxExpander.Expand(args);
       return result;
