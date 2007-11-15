@@ -6,6 +6,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
 	ProjectSection(SolutionItems) = preProject
 		dlr.diff = dlr.diff
+		IronScheme.Closures.dll = IronScheme.Closures.dll
 		License.html = License.html
 		todo.txt = todo.txt
 	EndProjectSection
@@ -26,9 +27,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Diagnostics", "I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Clr", "IronScheme.Clr\IronScheme.Clr.csproj", "{5AD643C7-80C7-42A4-82B5-05ACF677FA83}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 7
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -47,6 +50,9 @@ Global
 		SccProjectUniqueName5 = IronSchemeConsole\\IronScheme.Console.csproj
 		SccProjectName5 = IronSchemeConsole
 		SccLocalPath5 = IronSchemeConsole
+		SccProjectUniqueName6 = IronScheme.Closures\\IronScheme.Closures.csproj
+		SccProjectName6 = IronScheme.Closures
+		SccLocalPath6 = IronScheme.Closures
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +112,14 @@ Global
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -20,11 +20,12 @@ using Microsoft.Scripting.Utils;
 using System.Collections;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
+using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
 
-  sealed class BuiltinMethod : Closure
+  sealed class BuiltinMethod : ICallableWithCodeContext
   {
     readonly MethodBinder meth;
     readonly MethodGroup methods;
@@ -35,69 +36,91 @@ namespace IronScheme.Runtime
       get { return meth; }
     }
 
+    readonly string name;
+
+    public string Name
+    {
+      get { return name; }
+    } 
+
+
     public MethodBase[] GetMethodBases()
     {
       return methods.GetMethodBases();
     }
     
-    public BuiltinMethod(string name, MethodGroup mg) : base(null, name)
+    public BuiltinMethod(string name, MethodGroup mg)
     {
+      this.name = name;
       this.methods = mg;
       meth = MethodBinder.MakeBinder(IronScheme.Compiler.BaseHelper.binder, mg.Name, mg.GetMethodBases(), BinderType.Normal);
 
     }
 
-    protected override object RealCall(CodeContext context, object[] args)
+    bool baked = false;
+
+    public object Call(CodeContext context, object[] args)
     {
       if (args == null)
       {
         args = new object[0];
       }
 
-      //int nargs = args.Length;
+      int nargs = args.Length;
 
-      //Delegate d;
+      Delegate d;
 
-      //if (cache.TryGetValue(nargs, out d))
-      //{
-      //  return Closure.Make(context, d, Name).Call(context, args);
-      //}
+      if (cache.TryGetValue(nargs, out d))
+      {
+        return Closure.Make(context, d, Name).Call(context, args);
+      }
 
-      //Type[] targs = Array.ConvertAll<object, Type>(args, delegate(object input)
-      //{
-      //  if (input == null)
-      //  {
-      //    return typeof(object);
-      //  }
-      //  else
-      //  {
-      //    return input.GetType();
-      //  }
-      //});
+      if (!baked)
+      {
+        try
+        {
+          Type[] targs = Array.ConvertAll<object, Type>(args, delegate(object input)
+          {
+            if (input == null)
+            {
+              return typeof(object);
+            }
+            else
+            {
+              return input.GetType();
+            }
+          });
 
-      //MethodCandidate mc = meth.MakeBindingTarget(CallType.None, targs);
-      //if (mc != null)
-      //{
-      //  MethodBase mb = mc.Target.Method;
+          MethodCandidate mc = meth.MakeBindingTarget(CallType.None, targs);
+          if (mc != null)
+          {
+            MethodBase mb = mc.Target.Method;
 
-      //  bool needContext = NeedContext(mb);
-        
+            bool needContext = NeedContext(mb);
 
-      //  Type dt = CallTargets.GetTargetType(needContext, nargs, false);
-      //  d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
-      //  if (d == null)
-      //  {
-      //    d = Delegate.CreateDelegate(needContext ? typeof(CallTargetWithContextN) : typeof(CallTargetN), mb as MethodInfo, false);
-      //  }
 
-      //  if (d != null)
-      //  {
-      //    cache[nargs] = d;
-      //    return Closure.Make(context, d, Name).Call(context, args);
-      //  }
+            Type dt = CallTargets.GetTargetType(needContext, nargs, false);
+            d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
+            if (d == null)
+            {
+              d = Delegate.CreateDelegate(needContext ? typeof(CallTargetWithContextN) : typeof(CallTargetN), mb as MethodInfo, false);
+            }
 
-      //}
+            if (d != null)
+            {
+              cache[nargs] = d;
+              return Closure.Make(context, d, Name).Call(context, args);
+            }
+
+          }
+        }
+        catch
+        {
+          ;
+        }
+      }
       // fallback
+      baked = true;
       return meth.CallReflected(context, CallType.None, args);
     }
 
@@ -125,9 +148,7 @@ namespace IronScheme.Runtime
       ICallableWithCodeContext pro = RequiresNotNull<ICallableWithCodeContext>(producer);
       ICallableWithCodeContext con = RequiresNotNull<ICallableWithCodeContext>(consumer);
 
-      object[] empty = { };
-
-      object r = pro.Call(cc, empty);
+      object r = pro.Call(cc, EMPTYARRAY);
 
       if (r is object[])
       {
@@ -144,15 +165,15 @@ namespace IronScheme.Runtime
       ICallableWithCodeContext bodyf = RequiresNotNull<ICallableWithCodeContext>(bodyfunc);
       ICallableWithCodeContext outf = RequiresNotNull<ICallableWithCodeContext>(outfunc);
 
-      inf.Call(cc, new object[] { });
+      inf.Call(cc, EMPTYARRAY);
 
       try
       {
-        return bodyf.Call(cc,new object[] {});
+        return bodyf.Call(cc, EMPTYARRAY);
       }
       finally
       {
-        outf.Call(cc, new object[] { });
+        outf.Call(cc, EMPTYARRAY);
       }
     }
 
@@ -205,33 +226,13 @@ namespace IronScheme.Runtime
       return obj is ICallableWithCodeContext; 
     }
 
+    readonly static object[] EMPTYARRAY = { };
+
     [Builtin]
     public static object Apply(CodeContext cc, object fn)
     {
-      if (fn is ICallableWithCodeContext)
-      {
-        return ((ICallableWithCodeContext)fn).Call(cc, new object[] { });
-      }
-      else if (fn is Delegate)
-      {
-        Delegate d = (Delegate) fn;
-        return Apply(cc, Closure.Make(cc, d, d.Method.Name));
-      }
-      else
-      {
-        throw new ArgumentTypeException("fn must be ICallableWithCodeContext or a delegate");
-      }
-    }
-
-    static object ApplyInternal(CodeContext cc, ICallableWithCodeContext fn, Cons args)
-    {
-      List<object> targs = new List<object>();
-      while (args != null)
-      {
-        targs.Add(args.Car);
-        args = args.Cdr as Cons;
-      }
-      return fn.Call(cc, targs.ToArray());
+      ICallableWithCodeContext c = RequiresNotNull<ICallableWithCodeContext>(fn);
+      return c.Call(cc, EMPTYARRAY);
     }
 
     //procedure:  (apply proc arg1 ... args) 
@@ -245,7 +246,7 @@ namespace IronScheme.Runtime
         return Apply(cc, fn, (object) null);
       }
       object[] head = ArrayUtils.RemoveLast(args);
-      Cons last = Requires<Runtime.Cons>(args[args.Length - 1]);
+      Cons last = args.Length > 0 ? Requires<Runtime.Cons>(args[args.Length - 1]) : null;
 
       return Apply(cc, fn, Append(List(head), last));
     }
@@ -255,19 +256,15 @@ namespace IronScheme.Runtime
     public static object Apply(CodeContext cc, object fn, object list)
     {
       Cons args = Requires<Runtime.Cons>(list);
-      if (fn is ICallableWithCodeContext)
+      ICallableWithCodeContext c = RequiresNotNull<ICallableWithCodeContext>(fn);
+
+      List<object> targs = new List<object>();
+      while (args != null)
       {
-        return ApplyInternal(cc, fn as ICallableWithCodeContext, args);
+        targs.Add(args.Car);
+        args = args.Cdr as Cons;
       }
-      else if (fn is Delegate)
-      {
-        Delegate d = (Delegate)fn;
-        return ApplyInternal(cc, Closure.Make(cc, d, d.Method.Name), args);
-      }
-      else
-      {
-        throw new ArgumentTypeException("fn must be ICallableWithCodeContext or a delegate");
-      }
+      return c.Call(cc, targs.ToArray());
     }
 
     [Builtin]

@@ -166,6 +166,35 @@ namespace IronScheme
       return null;
     }
 
+    internal static object ReadExpressions(string code, CompilerContext cc)
+    {
+      if (parser == null)
+      {
+        parser = new Parser();
+      }
+      Parser p = parser;
+      if (scanner == null)
+      {
+        scanner = new Scanner();
+      }
+      Scanner sc = scanner;
+      sc.SetSource(code, 0);
+      p.scanner = sc;
+
+      try
+      {
+        if (p.Parse())
+        {
+          return p.parsed;
+        }
+        return null;
+      }
+      finally
+      {
+        Parser.sourcemap.Clear();
+      }
+    }
+
 
     static CodeBlock Parse(Scanner sc, CompilerContext cc, bool clearresolver)
     {

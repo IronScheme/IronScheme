@@ -169,7 +169,7 @@ namespace IronScheme.Runtime
             }
             try
             {
-              entry.Invoke(null, new object[] { cc });
+              return entry.Invoke(null, new object[] { cc });
             }
             catch (TargetException tie)
             {
@@ -177,7 +177,7 @@ namespace IronScheme.Runtime
               throw tie;
             }
           }
-          break;
+          //break;
         default:
           // check for already compiled version
           string cfn = Path.ChangeExtension(path, ".exe");
@@ -203,12 +203,15 @@ namespace IronScheme.Runtime
             ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
 
             object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+            
+            return result;
           }
           finally
           {
+            Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
             Compiler.Generator.CanAllowTailCall = false;
           }
-          break;
+          //break;
       }
 
       return Unspecified;
@@ -220,34 +223,63 @@ namespace IronScheme.Runtime
       return Read(CurrentInputPort());
     }
 
+    static Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
+
     [Builtin("read")]
     public static object Read(object port)
     {
-      StringBuilder input = new StringBuilder();
-      TextReader r = RequiresNotNull<TextReader>(port);
+      return ReadNext(port);
+    }
 
-      string i = null;
-
-      while ((i = r.ReadLine()) != null)
+    static object ReadNext(object port)
+    {
+      Cons c;
+      if (readcache.TryGetValue(port, out c))
       {
-        input.AppendLine(i);
-
-        try
+        if (c.Cdr == null)
         {
-          object result = IronSchemeLanguageContext.ReadExpressionString(input.ToString(), Context.ModuleContext.CompilerContext);
-          if (result != null)
+          readcache.Remove(port);
+        }
+        else
+        {
+          readcache[port] = c.Cdr as Cons;
+        }
+        return c.Car;
+      }
+      else
+      {
+        StringBuilder input = new StringBuilder();
+        TextReader r = RequiresNotNull<TextReader>(port);
+
+        string i = null;
+
+        while ((i = r.ReadLine()) != null)
+        {
+          input.AppendLine(i);
+        }
+
+        if (input.Length > 0)
+        {
+          object result = IronSchemeLanguageContext.ReadExpressions(input.ToString(), Context.ModuleContext.CompilerContext);
+
+          if (result is Cons)
+          {
+            c = (Cons)result;
+            if (c.Cdr is Cons)
+            {
+              readcache[port] = c.Cdr as Cons;
+            }
+            return c.Car;
+          }
+          else if (result != null)
           {
             return result;
           }
         }
-        catch (SyntaxErrorException)
-        {
 
-        }
+        return EOF;
+        
       }
-
-
-      return EOF;
     }
 
     readonly static object EOF = new object();

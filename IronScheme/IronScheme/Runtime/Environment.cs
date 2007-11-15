@@ -69,14 +69,15 @@ namespace IronScheme.Runtime
     public static object EvalString(CodeContext cc, string expr)
     {
       ScriptCode sc;
-      if (!compilecache.TryGetValue(expr, out sc))
+      //if (!compilecache.TryGetValue(expr, out sc))
       {
-        SourceUnit su = SourceUnit.CreateSnippet(se, expr);
-        sc = cc.LanguageContext.CompileSourceCode(su, cc.ModuleContext.Module.GetCompilerOptions(se));
-        compilecache[expr] = sc;
+        SourceUnit su = SourceUnit.CreateSnippet(se, expr, SourceCodeKind.Expression);
+        sc = cc.LanguageContext.CompileSourceCode(su);
+        
+        //compilecache[expr] = sc;
       }
 
-      object result = sc.Run(cc.Scope, cc.ModuleContext, false);
+      object result = sc.Run(cc.Scope, cc.ModuleContext);
       return result;
     }
 

@@ -81,7 +81,7 @@ namespace IronScheme.Compiler
 
     readonly static Dictionary<CodeBlock, Scope> scopemap = new Dictionary<CodeBlock, Scope>();
 
-    static CodeBlock evalblock;
+    internal static CodeBlock evalblock;
 
     static void Initialize()
     {
