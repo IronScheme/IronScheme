@@ -26,15 +26,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008.Diagnostics"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008.Clr", "IronScheme.Clr\IronScheme2008.Clr.csproj", "{5AD643C7-80C7-42A4-82B5-05ACF677FA83}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008.Closures", "IronScheme.Closures\IronScheme2008.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 7
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
-		SccProjectUniqueName0 = Microsoft.Scripting\\Microsoft.Scripting.csproj
-		SccProjectName0 = Microsoft.Scripting
-		SccLocalPath0 = Microsoft.Scripting
-		SccLocalPath1 = .
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Microsoft.Scripting\\Microsoft.Scripting.csproj
+		SccProjectName1 = Microsoft.Scripting
+		SccLocalPath1 = Microsoft.Scripting
 		SccProjectUniqueName2 = IronScheme\\IronScheme2008.csproj
 		SccProjectName2 = IronScheme
 		SccLocalPath2 = IronScheme
@@ -47,6 +49,9 @@ Global
 		SccProjectUniqueName5 = IronScheme.Diagnostics\\IronScheme2008.Diagnostics.csproj
 		SccProjectName5 = IronScheme.Diagnostics
 		SccLocalPath5 = IronScheme.Diagnostics
+		SccProjectUniqueName6 = IronScheme.Closures\\IronScheme2008.Closures.csproj
+		SccProjectName6 = IronScheme.Closures
+		SccLocalPath6 = IronScheme.Closures
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +111,16 @@ Global
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

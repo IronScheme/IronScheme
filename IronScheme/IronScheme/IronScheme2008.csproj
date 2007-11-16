@@ -45,13 +45,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
+    <Compile Include="Compiler\BeginGenerator.cs" />
+    <Compile Include="Compiler\DefineGenerator.cs" />
+    <Compile Include="Compiler\DelayGenerator.cs" />
     <Compile Include="Compiler\Generator.Handlers.cs" />
     <Compile Include="Compiler\Generator.Helpers.cs" />
+    <Compile Include="Compiler\Generator.InlineEmitters.cs" />
     <Compile Include="Compiler\Generator.Symbols.cs" />
     <Compile Include="Compiler\Generator.cs" />
     <Compile Include="Compiler\Generator.Methods.cs" />
+    <Compile Include="Compiler\GeneratorAttribute.cs" />
+    <Compile Include="Compiler\IfGenerator.cs" />
+    <Compile Include="Compiler\InlineEmitter.cs" />
     <Compile Include="Compiler\IronScheme.lex.cs" />
     <Compile Include="Compiler\IronScheme.y.cs" />
+    <Compile Include="Compiler\LambdaGenerator.cs" />
+    <Compile Include="Compiler\MacroGenerator.cs" />
+    <Compile Include="Compiler\QuasiquoteGenerator.cs" />
+    <Compile Include="Compiler\QuoteGenerator.cs" />
+    <Compile Include="Compiler\SetGenerator.cs" />
     <Compile Include="Compiler\SyntaxExpand.cs" />
     <Compile Include="gppg\IScanner.cs" />
     <Compile Include="gppg\ParserStack.cs" />
@@ -68,7 +80,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\Characters.cs" />
-    <Compile Include="Runtime\Closure.cs" />
     <Compile Include="Runtime\Cons.cs" />
     <Compile Include="Runtime\Control.cs" />
     <Compile Include="Runtime\Environment.cs" />
@@ -86,6 +97,7 @@
     <Compile Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
+    <Compile Include="Runtime\StringPorts.cs" />
     <Compile Include="Runtime\Strings.cs" />
     <Compile Include="Runtime\Symbols.cs">
       <SubType>Code</SubType>
@@ -93,6 +105,10 @@
     <Compile Include="Runtime\Vectors.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IronScheme.Closures\IronScheme2008.Closures.csproj">
+      <Project>{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}</Project>
+      <Name>IronScheme2008.Closures</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
       <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
       <Name>Microsoft.Scripting</Name>
