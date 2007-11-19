@@ -38,7 +38,7 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
     protected static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
 
-    static readonly MethodInfo ICallableWithCodeContext_Call = typeof(ICallableWithCodeContext).GetMethod("Call");
+    static readonly MethodInfo ICallable_Call = typeof(ICallable).GetMethod("Call");
 
     protected static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
 

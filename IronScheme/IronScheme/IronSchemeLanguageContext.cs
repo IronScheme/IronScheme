@@ -31,7 +31,7 @@ using Microsoft.Scripting.Actions;
 
 namespace IronScheme
 {
-  class IronSchemeLanguageContext : LanguageContext
+  sealed class IronSchemeLanguageContext : LanguageContext
   {
     internal ScriptEngine se;
     
@@ -67,22 +67,32 @@ namespace IronScheme
 
     public override CodeBlock ParseSourceCode(CompilerContext context)
     {
-      switch (context.SourceUnit.Kind)
+      Stopwatch sw = Stopwatch.StartNew();
+
+      try
       {
-        case SourceCodeKind.InteractiveCode:
-          CodeBlock cb = ParseString(context.SourceUnit.GetCode(), context);
-          if (cb == null && context.SourceUnit.CodeProperties == null)
-          {
-            context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
-          }
-          return cb;
-        case SourceCodeKind.File:
-          using (Stream s = File.OpenRead(context.SourceUnit.Id))
-          {
-            return ParseStream(s, context);
-          }
-        default:
-          return ParseString(context.SourceUnit.GetCode(), context);
+
+        switch (context.SourceUnit.Kind)
+        {
+          case SourceCodeKind.InteractiveCode:
+            CodeBlock cb = ParseString(context.SourceUnit.GetCode(), context);
+            if (cb == null && context.SourceUnit.CodeProperties == null)
+            {
+              context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
+            }
+            return cb;
+          case SourceCodeKind.File:
+            using (Stream s = File.OpenRead(context.SourceUnit.Id))
+            {
+              return ParseStream(s, context);
+            }
+          default:
+            return ParseString(context.SourceUnit.GetCode(), context);
+        }
+      }
+      finally
+      {
+        Trace.WriteLine(sw.ElapsedMilliseconds, "Parse: " + context.SourceUnit);
       }
     }
 
@@ -205,6 +215,8 @@ namespace IronScheme
       Parser p = parser;
       p.scanner = sc;
 
+      Stopwatch sw = Stopwatch.StartNew();
+
       if (p.Parse())
       {
         Cons parsed = p.parsed;
@@ -243,7 +255,6 @@ namespace IronScheme
         cb.Body = Ast.Block(stmts);
 
         Parser.sourcemap.Clear();
-
         return cb;
       }
       return null;

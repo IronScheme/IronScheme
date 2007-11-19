@@ -21,6 +21,7 @@ using System.Collections;
 using Microsoft.Scripting;
 using System.IO;
 using Microsoft.Scripting.Hosting;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -73,7 +74,6 @@ namespace IronScheme.Runtime
       {
         SourceUnit su = SourceUnit.CreateSnippet(se, expr, SourceCodeKind.Expression);
         sc = cc.LanguageContext.CompileSourceCode(su);
-        
         //compilecache[expr] = sc;
       }
 

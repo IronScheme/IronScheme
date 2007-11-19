@@ -79,6 +79,10 @@ static readonly SymbolId quote = SymbolTable.StringToId("quote");
 static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
 static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
 static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
+static readonly SymbolId syntax = SymbolTable.StringToId("syntax");
+static readonly SymbolId unsyntax_splicing = SymbolTable.StringToId("unsyntax-splicing");
+static readonly SymbolId quasisyntax = SymbolTable.StringToId("quasisyntax");
+static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
 
 %} 
 
@@ -90,6 +94,7 @@ static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
 }
 
 %token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT
+%token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX
 %token <text> SYMBOL LITERAL STRING NUMBER CHARACTER 
 
 %type <list> exprlist list file
@@ -130,6 +135,11 @@ specexpr
     | UNQUOTESPLICING                             { $$ = unquote_splicing; }
     | QUASIQUOTE                                  { $$ = quasiquote; }
     | UNQUOTE                                     { $$ = unquote; }
+    | SYNTAX                                      { $$ = syntax;}
+    | UNSYNTAXSPLICING                            { $$ = unsyntax_splicing; }
+    | QUASISYNTAX                                 { $$ = quasisyntax; }
+    | UNSYNTAX                                    { $$ = unsyntax; }
+    
     ;    
 
 %%

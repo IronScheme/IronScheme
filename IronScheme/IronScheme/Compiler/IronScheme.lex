@@ -35,7 +35,14 @@ public int MakeChar()
       yylval.text = "\n";
       break;
     default:
-      yylval.text = yytext[2].ToString();
+      if (yytext[2] == 'x' && yytext.Length > 3)
+      {
+        //hex escape
+      }
+      else
+      {
+        yylval.text = yytext[2].ToString();
+      }
       break;
   }
   yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol);
@@ -88,18 +95,18 @@ identifier             ({idinitial}({subsequent})*)|"+"|"..."|"-"
 digit2                 [01]
 digit8                 [0-8]
 digit10                {digit}
-digit16                {digit10}|[a-f]
+digit16                {digit10}|[a-fA-F]
 
-radix2                 "#b"
-radix8                 "#o"
-radix10                ("#d")?
-radix16                "#x"
+radix2                 #[bB]
+radix8                 #[oO]
+radix10                (#[dD])?
+radix16                #[xX]
 
-exactness              ("#i"|"#e")?
+exactness              (#[iIeE])?
 
 sign                   ("-"|"+")?
 
-exponentmarker         [esfdl]
+exponentmarker         [eEsSfFdDlL]
 
 suffix                 ({exponentmarker}{sign}({digit10})+)?
 
@@ -108,12 +115,12 @@ prefix8                ({radix8}{exactness})|({exactness}{radix8})
 prefix10               ({radix10}{exactness})|({exactness}{radix10})
 prefix16               ({radix16}{exactness})|({exactness}{radix16})
 
-uinteger2              ({digit2})+("#")*
-uinteger8              ({digit8})+("#")*
-uinteger10             ({digit10})+("#")*
-uinteger16             ({digit16})+("#")*
+uinteger2              ({digit2})+
+uinteger8              ({digit8})+
+uinteger10             ({digit10})+
+uinteger16             ({digit16})+
 
-decimal10              ({uinteger10}{suffix})|("."({digit10})+("#")*{suffix})|(({digit10})+"."({digit10})*("#")*{suffix})|(({digit10})+("#")+"."("#")*{suffix})
+decimal10              ({uinteger10}{suffix})|("."({digit10})+{suffix})|(({digit10})+"."({digit10})*{suffix})|(({digit10})+"."{suffix})
 
 ureal2                 ({uinteger2})|({uinteger2}"/"{uinteger2})
 ureal8                 ({uinteger8})|({uinteger8}"/"{uinteger8})
@@ -145,10 +152,11 @@ character_literal      #\\({character})?
 
 single_string_char     [^\\\"]
 string_esc_seq         \\[\"\\abfnrtv]
+hex_esc_seq            \\x({digit16})+
 reg_string_char        {single_string_char}|{string_esc_seq}
 string_literal         \"({reg_string_char})*\"
 
-atoms                  (#t|#f)
+atoms                  (#[TtFf])
 
 %x ML_COMMENT
 
@@ -182,12 +190,12 @@ atoms                  (#t|#f)
 ",@"                  { return Make(Tokens.UNQUOTESPLICING); }
 ","                   { return Make(Tokens.UNQUOTE);}
 
-/*
+
 "#'"                  { return Make(Tokens.SYNTAX);}
 "#`"                  { return Make(Tokens.QUASISYNTAX);}
 "#,@"                 { return Make(Tokens.UNSYNTAXSPLICING);}
 "#,"                  { return Make(Tokens.UNSYNTAX);}
-*/
+
 
 {identifier}          { return Make(Tokens.SYMBOL); }
 

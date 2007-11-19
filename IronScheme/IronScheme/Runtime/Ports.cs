@@ -30,9 +30,9 @@ namespace IronScheme.Runtime
   {
 
     [Builtin("with-input-from-file")]
-    public static object WithInputFromFile(CodeContext cc, object filename, object thunk)
+    public static object WithInputFromFile(object filename, object thunk)
     {
-      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(thunk);
+      ICallable f = RequiresNotNull<ICallable>(thunk);
       string path = RequiresNotNull<string>(filename);
 
       TextReader old = Console.In;
@@ -42,7 +42,7 @@ namespace IronScheme.Runtime
         using (TextReader r = File.OpenText(path))
         {
           Console.SetIn(r);
-          return f.Call(cc, new object[] { });
+          return f.Call(new object[] { });
         }
       }
       finally
@@ -55,7 +55,7 @@ namespace IronScheme.Runtime
     [Builtin("with-output-to-file")]
     public static object WithOutputToFile(CodeContext cc, object filename, object thunk)
     {
-      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(thunk);
+      ICallable f = RequiresNotNull<ICallable>(thunk);
       string path = RequiresNotNull<string>(filename);
 
       TextWriter old = Console.Out;
@@ -65,7 +65,7 @@ namespace IronScheme.Runtime
         using (TextWriter w = File.CreateText(path))
         {
           Console.SetOut(w);
-          return f.Call(cc, new object[] { });
+          return f.Call(new object[] { });
         }
       }
       finally
@@ -167,15 +167,7 @@ namespace IronScheme.Runtime
             catch (InvalidOperationException)
             {
             }
-            try
-            {
-              return entry.Invoke(null, new object[] { cc });
-            }
-            catch (TargetException tie)
-            {
-              Debugger.Break();
-              throw tie;
-            }
+            return entry.Invoke(null, new object[] { cc });
           }
           //break;
         default:
@@ -200,15 +192,19 @@ namespace IronScheme.Runtime
           try
           {
             SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
-            ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
 
+            Stopwatch sw = Stopwatch.StartNew();
+            ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
+            Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
+            sw = Stopwatch.StartNew();
             object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+            Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
             
             return result;
           }
           finally
           {
-            Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
+            //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
             Compiler.Generator.CanAllowTailCall = false;
           }
           //break;
@@ -429,7 +425,7 @@ namespace IronScheme.Runtime
       }
       if (obj is Closure)
       {
-        return "closure::" + ((Closure)obj).Name;
+        return "closure::" + obj;
       }
       if (obj is Macro)
       {
@@ -468,7 +464,7 @@ namespace IronScheme.Runtime
                 return "Number";
               }
 #endif
-              if (typeof(ICallableWithCodeContext).IsAssignableFrom(t))
+              if (typeof(ICallable).IsAssignableFrom(t))
               {
                 return "Procedure";
               }
@@ -593,7 +589,7 @@ namespace IronScheme.Runtime
       }
       if (obj is Closure)
       {
-        return ((Closure)obj).Name;
+        return obj.ToString();
       }
       if (obj is Macro)
       {
@@ -619,7 +615,7 @@ namespace IronScheme.Runtime
         Cons s = obj as Cons;
 
         object scar = s.Car;
-        if ((bool)IsSymbol(scar) && s.Cdr != null)
+        if ((bool)IsSymbol(scar) && s.Cdr is Cons)
         {
           if ((bool)IsEqual(quote, scar))
           {
@@ -701,26 +697,26 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("call-with-input-file")]
-    public static object CallWithInputFile(CodeContext cc, object filename, object fc1)
+    public static object CallWithInputFile(object filename, object fc1)
     {
-      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(fc1);
+      ICallable f = RequiresNotNull<ICallable>(fc1);
       string path = RequiresNotNull<string>(filename);
 
       using (TextReader r = File.OpenText(path))
       {
-        return f.Call(cc, new object[] { r });
+        return f.Call(new object[] { r });
       }
     }
 
     [Builtin("call-with-output-file")]
     public static object CallWithOutputFile(CodeContext cc, object filename, object fc1)
     {
-      ICallableWithCodeContext f = RequiresNotNull<ICallableWithCodeContext>(fc1);
+      ICallable f = RequiresNotNull<ICallable>(fc1);
       string path = RequiresNotNull<string>(filename);
 
       using (TextWriter w = File.CreateText(path))
       {
-        return f.Call(cc, new object[] { w });
+        return f.Call(new object[] { w });
       }
     }
 

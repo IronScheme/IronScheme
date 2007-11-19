@@ -28,7 +28,7 @@ namespace IronScheme.Runtime
   public class ConsoleBuiltins : Builtins
   {
     [Builtin("all-defined")]
-    public static Cons Environment(CodeContext cc)
+    public static object Environment(CodeContext cc)
     {
       List<SymbolId> s = new List<SymbolId>(cc.Scope.Keys);
       s.Sort(delegate(SymbolId a, SymbolId b)
@@ -37,6 +37,34 @@ namespace IronScheme.Runtime
       });
       return Runtime.Cons.FromList(s);
     }
+
+    [Builtin("create-snapshot")]
+    public static object CreateSnapshot(CodeContext cc)
+    {
+      List<SymbolId> s = new List<SymbolId>();
+      s.AddRange(cc.Scope.ModuleScope.Keys);
+      return s;      
+    }
+
+    [Builtin("revert-snapshot")]
+    public static object RevertSnapshot(CodeContext cc, object ss)
+    {
+      List<SymbolId> s = RequiresNotNull<List<SymbolId>>(ss);
+      List<SymbolId> toremove = new List<SymbolId>();
+      foreach (SymbolId var in cc.Scope.ModuleScope.Keys)
+      {
+        if (!s.Contains(var))
+        {
+          toremove.Add(var);
+        }
+      }
+      foreach (SymbolId var in toremove)
+      {
+        cc.Scope.ModuleScope.RemoveName(var);
+      }
+      return Unspecified;
+    }
+
 
     [Builtin]
     public static object Describe(object obj)

@@ -52,22 +52,22 @@ namespace IronScheme.Runtime
     [Builtin("unfold")]
     public static object Unfold(CodeContext cc, object function, object init, object pred)
     {
-      ICallableWithCodeContext fc = function as ICallableWithCodeContext;
-      ICallableWithCodeContext p = pred as ICallableWithCodeContext;
+      ICallable fc = function as ICallable;
+      ICallable p = pred as ICallable;
       return (bool) p.Call(cc, init) ? Cons(init) : Cons(init, Unfold(cc, function, fc.Call(cc, init), pred));
     }
 
     [Builtin("foldl"), Builtin("reduce"), Builtin("fold")]
     public static object FoldLeft(CodeContext cc, object function, object accum, IEnumerable list)
     {
-      ICallableWithCodeContext fc = function as ICallableWithCodeContext;
+      ICallable fc = function as ICallable;
       return IsNull(list) ? accum : FoldLeft(cc, function, fc.Call(cc, accum, Car(list)), Cdr(list) as IEnumerable);
     }
 
     [Builtin("foldr")]
     public static object FoldRight(CodeContext cc, object function, object end, IEnumerable list)
     {
-      ICallableWithCodeContext fc = function as ICallableWithCodeContext;
+      ICallable fc = function as ICallable;
       return IsNull(list) ? end : fc.Call(cc, Car(list), FoldRight(cc, function, end, Cdr(list) as IEnumerable));
     }
 

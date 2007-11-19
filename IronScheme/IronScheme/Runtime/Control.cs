@@ -25,7 +25,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Runtime
 {
 
-  sealed class BuiltinMethod : ICallableWithCodeContext
+  sealed class BuiltinMethod : ICallable
   {
     readonly MethodBinder meth;
     readonly MethodGroup methods;
@@ -59,12 +59,14 @@ namespace IronScheme.Runtime
 
     bool baked = false;
 
-    public object Call(CodeContext context, object[] args)
+    public object Call(object[] args)
     {
       if (args == null)
       {
         args = new object[0];
       }
+
+      CodeContext context = Compiler.BaseHelper.cc;
 
       int nargs = args.Length;
 
@@ -72,7 +74,7 @@ namespace IronScheme.Runtime
 
       if (cache.TryGetValue(nargs, out d))
       {
-        return Closure.Make(context, d, Name).Call(context, args);
+        return Closure.Make(context, d, Name).Call(args);
       }
 
       if (!baked)
@@ -109,7 +111,7 @@ namespace IronScheme.Runtime
             if (d != null)
             {
               cache[nargs] = d;
-              return Closure.Make(context, d, Name).Call(context, args);
+              return Closure.Make(context, d, Name).Call(args);
             }
 
           }
@@ -142,40 +144,26 @@ namespace IronScheme.Runtime
       return values;
     }
 
-    [Builtin("call-with-values")]
-    public static object CallWithValues(CodeContext cc, object producer, object consumer)
-    {
-      ICallableWithCodeContext pro = RequiresNotNull<ICallableWithCodeContext>(producer);
-      ICallableWithCodeContext con = RequiresNotNull<ICallableWithCodeContext>(consumer);
-
-      object r = pro.Call(cc, EMPTYARRAY);
-
-      if (r is object[])
-      {
-        return con.Call(cc, (object[])r);
-      }
-
-      return con.Call(cc, new object[] { r });
-    }
 
     [Builtin("dynamic-wind")]
-    public static object DynamicWind(CodeContext cc, object infunc, object bodyfunc, object outfunc)
+    public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
     {
-      ICallableWithCodeContext inf = RequiresNotNull<ICallableWithCodeContext>(infunc);
-      ICallableWithCodeContext bodyf = RequiresNotNull<ICallableWithCodeContext>(bodyfunc);
-      ICallableWithCodeContext outf = RequiresNotNull<ICallableWithCodeContext>(outfunc);
+      ICallable inf = (ICallable)infunc;
+      ICallable bodyf = (ICallable)bodyfunc;
+      ICallable outf = (ICallable)outfunc;
 
-      inf.Call(cc, EMPTYARRAY);
+      inf.Call(EMPTYARRAY);
 
       try
       {
-        return bodyf.Call(cc, EMPTYARRAY);
+        return bodyf.Call(EMPTYARRAY);
       }
       finally
       {
-        outf.Call(cc, EMPTYARRAY);
+        outf.Call(EMPTYARRAY);
       }
     }
+
 
     internal class Continuation : Exception
     {
@@ -198,14 +186,14 @@ namespace IronScheme.Runtime
     }
     
     [Builtin("call-with-current-continuation"), Builtin("call/cc")]
-    public static object CallWithCurrentContinuation(CodeContext cc, object fc1)
+    public static object CallWithCurrentContinuation(object fc1)
     {
-      ICallableWithCodeContext fc = RequiresNotNull<ICallableWithCodeContext>(fc1);
+      ICallable fc = RequiresNotNull<ICallable>(fc1);
       try
       {
         CallTarget1 exitproc = InvokeContinuation;
-        ICallableWithCodeContext fce = Closure.Make(cc, exitproc, "invoke-continuation");
-        return fc.Call(cc, new object[] { fce });
+        ICallable fce = Closure.Make(cc, exitproc, "invoke-continuation");
+        return fc.Call( new object[] { fce });
       }
       catch (Continuation c)
       {
@@ -223,7 +211,7 @@ namespace IronScheme.Runtime
     [Builtin("procedure?")]
     public static object IsProcedure(object obj)
     {
-      return obj is ICallableWithCodeContext; 
+      return obj is ICallable; 
     }
 
     readonly static object[] EMPTYARRAY = { };
@@ -231,8 +219,8 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Apply(CodeContext cc, object fn)
     {
-      ICallableWithCodeContext c = RequiresNotNull<ICallableWithCodeContext>(fn);
-      return c.Call(cc, EMPTYARRAY);
+      ICallable c = RequiresNotNull<ICallable>(fn);
+      return c.Call(EMPTYARRAY);
     }
 
     //procedure:  (apply proc arg1 ... args) 
@@ -256,7 +244,7 @@ namespace IronScheme.Runtime
     public static object Apply(CodeContext cc, object fn, object list)
     {
       Cons args = Requires<Runtime.Cons>(list);
-      ICallableWithCodeContext c = RequiresNotNull<ICallableWithCodeContext>(fn);
+      ICallable c = RequiresNotNull<ICallable>(fn);
 
       List<object> targs = new List<object>();
       while (args != null)
@@ -264,7 +252,7 @@ namespace IronScheme.Runtime
         targs.Add(args.Car);
         args = args.Cdr as Cons;
       }
-      return c.Call(cc, targs.ToArray());
+      return c.Call(targs.ToArray());
     }
 
     [Builtin]

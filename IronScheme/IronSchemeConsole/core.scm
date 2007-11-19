@@ -24,9 +24,8 @@ You must not remove this notice, or any other, from this software.
          (if (symbol? args)
              ((lambda (name args body)
                 `((lambda ,(map first args)
-                  (let ((,name #f))
-                    (set! ,name (lambda ,(map first args) ,@body))
-                    (,name ,@(map first args))))
+                    (define (,name ,@(map first args)) ,@body)
+                    (,name ,@(map first args)))
                     ,@(map second args)))
                 args (car body) (cdr body))
              ;; normal let
