@@ -87,6 +87,11 @@ namespace IronScheme.Compiler
     {
       // builtin methods
       AddGenerators(Context, typeof(Generator).Assembly);
+      // HACK: clean up needed
+      SymbolId s = SymbolTable.StringToId("call-with-values");
+      cc.Scope.SetName(s, builtinmap[s] = new BuiltinMethod(s.ToString(), ReflectionCache.GetMethodGroup(typeof(OptimizedBuiltins), "CallWithValues")));
+
+
       AddBuiltins(Context, typeof(Builtins));
     }
 
@@ -424,17 +429,7 @@ namespace IronScheme.Compiler
         Statement s = null;
         if (c.Cdr == null)
         {
-          if (canallowtailcall && allowtailcall)
-          {
-            if (e is MethodCallExpression && e.Type != typeof(void))
-            {
-              ((MethodCallExpression)e).TailCall = true;
-            }
-            if (e is ActionExpression && e.Type != typeof(void))
-            {
-              ((ActionExpression)e).TailCall = true;
-            }
-          }
+          MakeTailCall(allowtailcall, e);
 
           s = Ast.Return(e);
         }
@@ -464,6 +459,27 @@ namespace IronScheme.Compiler
 
 
       cb.Body = Ast.Block(stmts.ToArray());
+    }
+
+    static void MakeTailCall(bool allowtailcall, Expression e)
+    {
+      if (canallowtailcall && allowtailcall)
+      {
+        if (e.Type != typeof(void))
+        {
+          if (e is MethodCallExpression)
+          {
+            ((MethodCallExpression)e).TailCall = true;
+          }
+          else if (e is ConditionalExpression)
+          {
+            ConditionalExpression ce = (ConditionalExpression)e;
+            //MakeTailCall(allowtailcall, ce.IfTrue);
+            MakeTailCall(allowtailcall, ce.IfFalse);
+          }
+        }
+        
+      }
     }
 
     static Expression[] GetAstVector(object[] v, CodeBlock cb)

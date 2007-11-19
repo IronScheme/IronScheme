@@ -39,6 +39,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Closure.cs" />
+    <Compile Include="ICallable.cs" />
+    <Compile Include="OptimizedBuiltins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

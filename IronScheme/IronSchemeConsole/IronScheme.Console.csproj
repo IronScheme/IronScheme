@@ -39,6 +39,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -192,6 +193,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>call "C:\Program Files\Microsoft Visual Studio 8\VC\bin\vcvars32.bat"
-"C:\Program Files\Microsoft Visual Studio 8\VC\bin\editbin.exe" /nologo /stack:0x1000000,0x100000 $(TargetPath)</PostBuildEvent>
+"C:\Program Files\Microsoft Visual Studio 8\VC\bin\editbin.exe" /nologo /stack:0x1000000 $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>

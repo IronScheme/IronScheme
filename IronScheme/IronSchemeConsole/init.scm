@@ -2,7 +2,8 @@
 (display "Loading init.scm .")
 
 (load "core.scm")
-(load "genwrite.scm") ; pretty-print
+(define pretty-print write)
+'(load "genwrite.scm") ; pretty-print
 
 '((lambda ()
   (define (pload file)
@@ -40,9 +41,10 @@
   (pload "macros.scm")   ; commonly defined macro's
   (pload "pregexp.scm")  ; regex
   
-  ;; load some additional console helpers 
-  (pload "IronScheme.Console.exe")
 ))
+
+;; load some additional console helpers 
+(load "IronScheme.Console.exe")
 
 
 ;; this wil call load immediately, use with care :p

@@ -21,9 +21,13 @@ namespace IronScheme.Runtime
 {
   public delegate object ConsFromArrayHandler(object[] args);
 
-  public abstract class Closure : ICallableWithCodeContext
+
+
+  public abstract class Closure : ICallable
   {
     readonly string name;
+
+    int paramcount = int.MaxValue;
 
     public static ConsFromArrayHandler ConsFromArray;
 
@@ -32,25 +36,17 @@ namespace IronScheme.Runtime
       return name;
     }
 
-    public abstract object Call(CodeContext context, object[] args);
-
-    public string Name
-    {
-      get { return name; }
-    }
-
-    protected void CheckArgs(int expect, object[] args)
-    {
-      if (args.Length != expect)
-      {
-        throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, expect, args.Length);
-      }
-    }
+    public abstract object Call(object[] args);
 
     readonly Delegate target;
 
-    Closure(Delegate target, string name)
+    Closure(Delegate target, string name, int paramcount)
     {
+      if (paramcount > 5 || paramcount < 0)
+      {
+        paramcount = -1;
+      }
+      this.paramcount = paramcount;
       this.name = name;
       this.target = target;
     }
@@ -59,160 +55,111 @@ namespace IronScheme.Runtime
     {
       CodeContext cc;
 
-      CallTargetWithContext0 target0 { get { return target as CallTargetWithContext0; } }
-      CallTargetWithContext1 target1 { get { return target as CallTargetWithContext1; } }
-      CallTargetWithContext2 target2 { get { return target as CallTargetWithContext2; } }
-      CallTargetWithContext3 target3 { get { return target as CallTargetWithContext3; } }
-      CallTargetWithContext4 target4 { get { return target as CallTargetWithContext4; } }
-      CallTargetWithContext5 target5 { get { return target as CallTargetWithContext5; } }
-
-      CallTargetWithContextN targetN { get { return target as CallTargetWithContextN; } }
-
-      public ContextClosure(CodeContext cc, Delegate target, string name)
-        : base(target, name)
+      public ContextClosure(CodeContext cc, Delegate target, string name, int paramcount)
+        : base(target, name, paramcount)
       {
         this.cc = cc;
       }
 
-      public override object Call(CodeContext context, object[] args)
+      public override object Call(object[] args)
       {
-
-        if (targetN != null)
+        switch (paramcount)
         {
-          return targetN(cc, args);
+          case -1:
+            return ((CallTargetWithContextN)target)(cc, args);
+          case 0:
+            return ((CallTargetWithContext0)target)(cc);
+          case 1:
+            return ((CallTargetWithContext1)target)(cc, args[0]);
+          case 2:
+            return ((CallTargetWithContext2)target)(cc, args[0], args[1]);
+          case 3:
+            return ((CallTargetWithContext3)target)(cc, args[0], args[1], args[2]);
+          case 4:
+            return ((CallTargetWithContext4)target)(cc, args[0], args[1], args[2], args[3]);
+          case 5:
+            return ((CallTargetWithContext5)target)(cc, args[0], args[1], args[2], args[3], args[4]);
+          default:
+            throw new NotSupportedException();
         }
-        if (target0 != null)
-        {
-          CheckArgs(0, args);
-          return target0(cc);
-        }
-        if (target1 != null)
-        {
-          CheckArgs(1, args);
-          return target1(cc, args[0]);
-        }
-        if (target2 != null)
-        {
-          CheckArgs(2, args);
-          return target2(cc, args[0], args[1]);
-        }
-        if (target3 != null)
-        {
-          CheckArgs(3, args);
-          return target3(cc, args[0], args[1], args[2]);
-        }
-        if (target4 != null)
-        {
-          CheckArgs(4, args);
-          return target4(cc, args[0], args[1], args[2], args[3]);
-        }
-        if (target5 != null)
-        {
-          CheckArgs(5, args);
-          return target5(cc, args[0], args[1], args[2], args[3], args[4]);
-        }
-        throw new Exception("The method or operation is not implemented.");
       }
     }
 
     sealed class SimpleClosure : Closure
     {
-      CallTarget0 target0 { get { return target as CallTarget0; } }
-      CallTarget1 target1 { get { return target as CallTarget1; } }
-      CallTarget2 target2 { get { return target as CallTarget2; } }
-      CallTarget3 target3 { get { return target as CallTarget3; } }
-      CallTarget4 target4 { get { return target as CallTarget4; } }
-      CallTarget5 target5 { get { return target as CallTarget5; } }
-
-      CallTargetN targetN { get { return target as CallTargetN; } }
-
-      public SimpleClosure(Delegate target, string name)
-        : base(target, name)
+      public SimpleClosure(Delegate target, string name, int paramcount)
+        : base(target, name, paramcount)
       {
       }
 
-      public override object Call(CodeContext context, object[] args)
+      public override object Call(object[] args)
       {
-        if (targetN != null)
+        switch (paramcount)
         {
-          return targetN(args);
+          case -1:
+            return ((CallTargetN)target)(args);
+          case 0:
+            return ((CallTarget0)target)();
+          case 1:
+            return ((CallTarget1)target)(args[0]);
+          case 2:
+            return ((CallTarget2)target)(args[0], args[1]);
+          case 3:
+            return ((CallTarget3)target)(args[0], args[1], args[2]);
+          case 4:
+            return ((CallTarget4)target)(args[0], args[1], args[2], args[3]);
+          case 5:
+            return ((CallTarget5)target)(args[0], args[1], args[2], args[3], args[4]);
+          default:
+            throw new NotSupportedException();
         }
-        if (target0 != null)
-        {
-          CheckArgs(0, args);
-          return target0();
-        }
-        if (target1 != null)
-        {
-          CheckArgs(1, args);
-          return target1(args[0]);
-        }
-        if (target2 != null)
-        {
-          CheckArgs(2, args);
-          return target2(args[0], args[1]);
-        }
-        if (target3 != null)
-        {
-          CheckArgs(3, args);
-          return target3(args[0], args[1], args[2]);
-        }
-        if (target4 != null)
-        {
-          CheckArgs(4, args);
-          return target4(args[0], args[1], args[2], args[3]);
-        }
-        if (target5 != null)
-        {
-          CheckArgs(5, args);
-          return target5(args[0], args[1], args[2], args[3], args[4]);
-        }
-        throw new Exception("The method or operation is not implemented.");
       }
     }
 
-    public static ICallableWithCodeContext Make(CodeContext cc, Delegate target, string name)
+    public static ICallable Make(CodeContext cc, Delegate target, string name)
     {
       string targetname = target.GetType().Name;
+      int paramcount = -1;
+      paramcount = targetname[targetname.Length - 1] - '0';
       if (targetname.Contains("WithContext"))
       {
-        return new ContextClosure(cc, target, name);
+        return new ContextClosure(cc, target, name, paramcount);
       }
       else
       {
-        return new SimpleClosure(target, name);
+        return new SimpleClosure(target, name, paramcount);
       }
     }
 
-    public static ICallableWithCodeContext MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
+    public static ICallable MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
     {
       return new VarArgClosure(cc, target, paramcount, name);
     }
 
     sealed class VarArgClosure : Closure
     {
-      int paramcount;
-      ICallableWithCodeContext realtarget;
+      ICallable realtarget;
+      int pcount = 0;
 
       public VarArgClosure(CodeContext cc, Delegate target, int paramcount, string name)
-        : base(target, name)
+        : base(target, name, -1)
       {
-        this.paramcount = paramcount;
+        pcount = paramcount;
         realtarget = Make(cc, target, name);
       }
 
-      public override object Call(CodeContext context, object[] args)
+      public override object Call(object[] args)
       {
-        if (args.Length + 1 < paramcount)
+        if (args.Length + 1 < pcount)
         {
-          throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, paramcount - 1, int.MaxValue, 0, args.Length, false, false);
+          throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, pcount - 1, int.MaxValue, 0, args.Length, false, false);
         }
-        object[] newargs = new object[paramcount];
-        Array.Copy(args, newargs, paramcount - 1);
-        object[] last = new object[args.Length - paramcount + 1];
-        Array.Copy(args, paramcount - 1, last, 0, last.Length);
-        newargs[paramcount - 1] = ConsFromArray(last);
-        return realtarget.Call(context, newargs);
+        object[] newargs = new object[pcount];
+        Array.Copy(args, newargs, pcount - 1);
+        object[] last = new object[args.Length - pcount + 1];
+        Array.Copy(args, pcount - 1, last, 0, last.Length);
+        newargs[pcount - 1] = ConsFromArray(last);
+        return realtarget.Call(newargs);
       }
     }
 

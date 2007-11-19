@@ -87,25 +87,41 @@ namespace IronScheme.Runtime
       return obj ?? def;
     }
 
+    static int evalcount = 1;
+
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {
       //Expression e = IronScheme.Compiler.Generator.GetAst(expr, IronScheme.Compiler.Generator.evalblock);
       //return e.Evaluate(cc);
-      //using (TextWriter w = File.CreateText("temp.pp"))
-      //{
-      //  w.WriteLine(WriteFormat(expr));
-      //}
+      string fn = string.Format("$eval${0:D3}.ss", evalcount++);// Path.GetRandomFileName();
+      Stopwatch sw = Stopwatch.StartNew();
+      ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
+      //
+      using (TextWriter w = File.CreateText(fn))
+      {
+        pp.Call(expr, w);
+      }
 
-      //return Load(cc, "temp.pp");
-      try
-      {
-        return Eval(cc, expr);
-      }
-      finally
-      {
-        Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
-      }
+      Trace.WriteLine(sw.ElapsedMilliseconds, "pretty-print: " + fn);
+       
+      object result = Load(cc, fn);
+
+      return result;
+
+      //ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print->string")) as ICallable;
+      //object pps = pp.Call(expr);
+      //Trace.WriteLine(pps, "EvalCore");
+
+      //Stopwatch sw = Stopwatch.StartNew();
+      //try
+      //{
+        //return Eval(cc, expr);
+      //}
+      //finally
+      //{
+      //  //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
+      //}
     }
 
     [Builtin("make-eq-hashtable")]
@@ -318,7 +334,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    static object RequiresNotNull(object obj)
+    protected static object RequiresNotNull(object obj)
     {
       if (obj == null)
       {
@@ -327,7 +343,7 @@ namespace IronScheme.Runtime
       return obj;
     }
 
-    static T Requires<T>(object obj)
+    protected static T Requires<T>(object obj)
     {
       if (obj != null && !(obj is T))
       {
@@ -340,7 +356,7 @@ namespace IronScheme.Runtime
       return (T)obj;
     }
 
-    static T RequiresNotNull<T>(object obj)
+    protected static T RequiresNotNull<T>(object obj)
     {
       RequiresNotNull(obj);
       return Requires<T>(obj);

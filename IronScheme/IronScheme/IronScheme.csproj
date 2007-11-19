@@ -39,10 +39,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronScheme.Closures, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\IronScheme.Closures.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -109,6 +105,10 @@
     <Compile Include="Runtime\Vectors.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
+      <Project>{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}</Project>
+      <Name>IronScheme.Closures</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
       <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
       <Name>Microsoft.Scripting</Name>

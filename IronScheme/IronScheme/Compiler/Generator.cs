@@ -193,10 +193,10 @@ namespace IronScheme.Compiler
             }
           }
         }
-        Expression ex = Ast.DynamicConvert(GetAst(c.Car, cb), typeof(ICallableWithCodeContext));
+        Expression ex = Ast.DynamicConvert(GetAst(c.Car, cb), typeof(ICallable));
         Expression[] pp = GetAstList(c.Cdr as Cons, cb);
 
-        Expression r = Ast.Call(ex, ICallableWithCodeContext_Call, Ast.CodeContext(), Ast.NewArray(typeof(object[]), pp));
+        Expression r = Ast.Call(ex, ICallable_Call, Ast.NewArray(typeof(object[]), pp));
 
         if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
         {
