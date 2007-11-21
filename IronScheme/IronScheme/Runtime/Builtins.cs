@@ -92,36 +92,43 @@ namespace IronScheme.Runtime
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {
-      //Expression e = IronScheme.Compiler.Generator.GetAst(expr, IronScheme.Compiler.Generator.evalblock);
-      //return e.Evaluate(cc);
-      string fn = string.Format("$eval${0:D3}.ss", evalcount++);// Path.GetRandomFileName();
-      Stopwatch sw = Stopwatch.StartNew();
-      ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
-      //
-      using (TextWriter w = File.CreateText(fn))
-      {
-        pp.Call(expr, w);
-      }
+      //string fn = string.Format("$eval${0:D3}.ss", evalcount++);// Path.GetRandomFileName();
+      //Stopwatch sw = Stopwatch.StartNew();
+      //ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
+      ////
+      //using (TextWriter w = File.CreateText(fn))
+      //{
+      //  pp.Call(expr, w);
+      //}
 
-      Trace.WriteLine(sw.ElapsedMilliseconds, "pretty-print: " + fn);
+      //Trace.WriteLine(sw.ElapsedMilliseconds, "pretty-print: " + fn);
        
-      object result = Load(cc, fn);
+      //object result = Load(cc, fn);
 
-      return result;
+      //return result;
 
       //ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print->string")) as ICallable;
       //object pps = pp.Call(expr);
       //Trace.WriteLine(pps, "EvalCore");
 
-      //Stopwatch sw = Stopwatch.StartNew();
-      //try
+      Stopwatch sw = Stopwatch.StartNew();
+      try
+      {
+        //Expression e = IronScheme.Compiler.Generator.GetAst(expr, IronScheme.Compiler.Generator.evalblock);
+        //return e.Evaluate(cc);
+
+        return Eval(cc, expr);
+      }
+      //catch
       //{
-        //return Eval(cc, expr);
+      //  // fallback?
+      //  return Eval(cc, expr);
       //}
-      //finally
-      //{
+      finally
+      {
+        Trace.WriteLine(sw.ElapsedMilliseconds, "EvalCore");
       //  //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
-      //}
+      }
     }
 
     [Builtin("make-eq-hashtable")]

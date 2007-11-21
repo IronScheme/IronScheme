@@ -33,11 +33,10 @@ namespace IronScheme.Compiler
 
         NameHint = s;
 
+        // create variable before so expr can have access to it
         Variable v = Create(s, cb, typeof(object));
 
-        object second = Builtins.Second(args);
-
-        Expression value = GetAst(second, cb);
+        Expression value = Builtins.Cdr(args) != null ? GetAst(Builtins.Second(args), cb) : Ast.ReadField(null, Unspecified);
 
         NameHint = SymbolId.Invalid;
 

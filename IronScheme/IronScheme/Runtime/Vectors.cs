@@ -113,7 +113,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector-set!")]
-    public static object VectorSet(object vec, int K, object value)
+    public static object VectorSet(object vec, object K, object value)
     {
       object[] l = RequiresNotNull<object[]>(vec);
       int k = RequiresNotNull<int>(K);
