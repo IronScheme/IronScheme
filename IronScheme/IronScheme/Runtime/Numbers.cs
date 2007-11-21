@@ -221,6 +221,36 @@ namespace IronScheme.Runtime
       return true;
     }
 
+    static object ParseDecimal(string str)
+    {
+      int n;
+      if (int.TryParse(str, out n))
+      {
+        return n;
+      }
+      long l;
+      if (long.TryParse(str, out l))
+      {
+        return l;
+      }
+      BigInteger bi;
+      if (BigIntegerTryParse(str, out bi))
+      {
+        return bi;
+      }
+      double d;
+      if (double.TryParse(str, out d))
+      {
+        return d;
+      }
+      decimal dec;
+      if (decimal.TryParse(str, out dec))
+      {
+        return dec;
+      }
+      return false;
+    }
+
 
 
 
@@ -254,32 +284,7 @@ namespace IronScheme.Runtime
         case 8:
           return ParseOctal(str);
         case 10:
-          int n;
-          if (int.TryParse(str, out n))
-          {
-            return n;
-          }
-          long l;
-          if (long.TryParse(str, out l))
-          {
-            return l;
-          }
-          BigInteger bi;
-          if (BigIntegerTryParse(str, out bi))
-          {
-            return bi;
-          }
-          double d;
-          if (double.TryParse(str, out d))
-          {
-            return d;
-          }
-          decimal dec;
-          if (decimal.TryParse(str, out dec))
-          {
-            return dec;
-          }
-          break;
+          return ParseDecimal(str);
         case 16:
           if (str.Length > 16)
           {
@@ -297,8 +302,6 @@ namespace IronScheme.Runtime
         default:
           return false;
       }
-
-      return false;
     }
 
 

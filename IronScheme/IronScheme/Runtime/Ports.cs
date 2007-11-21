@@ -458,12 +458,10 @@ namespace IronScheme.Runtime
               {
                 return "List";
               }
-#if NEW_NUMBERS
               if (t == typeof(Complex64) || t == typeof(Fraction))
               {
                 return "Number";
               }
-#endif
               if (typeof(ICallable).IsAssignableFrom(t))
               {
                 return "Procedure";

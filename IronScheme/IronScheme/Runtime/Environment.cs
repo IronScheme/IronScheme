@@ -62,20 +62,13 @@ namespace IronScheme.Runtime
       throw new SchemeException(string.Join(", ", ll));
     }
 
-    static ScriptEngine se = ScriptDomainManager.CurrentManager.GetLanguageProvider(typeof(Hosting.IronSchemeLanguageProvider)).GetEngine();
 
-    static Dictionary<string, ScriptCode> compilecache = new Dictionary<string, ScriptCode>();
 
     [Builtin("eval-string")]
     public static object EvalString(CodeContext cc, string expr)
     {
-      ScriptCode sc;
-      //if (!compilecache.TryGetValue(expr, out sc))
-      {
-        SourceUnit su = SourceUnit.CreateSnippet(se, expr, SourceCodeKind.Expression);
-        sc = cc.LanguageContext.CompileSourceCode(su);
-        //compilecache[expr] = sc;
-      }
+      SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, expr, SourceCodeKind.Expression);
+      ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
 
       object result = sc.Run(cc.Scope, cc.ModuleContext);
       return result;

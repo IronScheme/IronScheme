@@ -18,7 +18,7 @@ using Microsoft.Scripting.Math;
 
 namespace IronScheme.Runtime
 {
-#if !NEW_NUMBERS
+#if NEW_NUMBERS
   
   public abstract class Number
   {

@@ -1,15 +1,14 @@
 ;; default init script for IronScheme
-(display "Loading init.scm .")
 
 (load "core.scm")
 (define pretty-print write)
-'(load "genwrite.scm") ; pretty-print
 
-'((lambda ()
+(define (load-system)
   (define (pload file)
     (load file)
     (display "."))
 
+  (display "loading system .")
   ;(pload "srfi-23.scm") ; error - builtin
 
   ;; load core macros
@@ -36,16 +35,17 @@
   (pload "srfi-1.scm")   ; list library
   (pload "srfi-35.scm")  ; conditions
 
-  ;;(pload "genwrite.scm") ; pretty-print
+  (pload "genwrite.scm") ; pretty-print
   
   (pload "macros.scm")   ; commonly defined macro's
   (pload "pregexp.scm")  ; regex
   
-))
+  (display " done.")
+  (newline)
+)
 
 ;; load some additional console helpers 
 (load "IronScheme.Console.exe")
-
 
 ;; this wil call load immediately, use with care :p
 ;; this is usefull for loading references at compile-time
@@ -57,7 +57,7 @@
 (define (run-tests) (load "test.scm"))
 (define (r4rs-tests) (load "r4rstest.scm"))
 
-(define r6rs-input #f)
+(define r6rs-input "hello-world.ss")
 
 (define (load-r6rs fn)
   (set! r6rs-input fn)
@@ -67,9 +67,6 @@
 (define (psyntax-build)  
   (load-r6rs "psyntax/psyntax-buildscript.ss"))
 
-
-(display " done.")
-(newline)
 
 '(psyntax-build)
 

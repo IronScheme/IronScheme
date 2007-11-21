@@ -142,6 +142,7 @@ namespace IronScheme
         //  }
         //}
       }
+      Debug.Fail("Invalid");
       return null;
       
     }
@@ -168,7 +169,7 @@ namespace IronScheme
         {
           if (parsed.Cdr != null)
           {
-            ;
+            Debug.Fail("Invalid");
           }
           return parsed.Car;
         }
