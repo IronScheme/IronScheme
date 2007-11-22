@@ -74,25 +74,16 @@
     <None Include="genwrite.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="macros.scm">
+    <None Include="other\macros.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="pregexp.scm">
+    <None Include="other\pregexp.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\hello-world.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="psyntax.pp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\my-hello-world.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="psyntax\my-library.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="psyntax\psyntax.pp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="psyntax\r6rs.ss">
+    <None Include="r6rs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="rnrs\arithmetic\bitwise.ss">
@@ -146,13 +137,13 @@
     <None Include="rnrs\syntax-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-13.scm">
+    <None Include="srfi\13.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-15.scm">
+    <None Include="srfi\15.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-16.scm">
+    <None Include="srfi\16.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="core.scm">
@@ -161,80 +152,104 @@
     <None Include="init.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="mbe.scm">
+    <None Include="other\mbe.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="r4rstest.scm">
+    <None Include="tests\r4rstest.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-0.scm">
+    <None Include="srfi\0.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-1.scm">
+    <None Include="srfi\1.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-11.scm">
+    <None Include="srfi\11.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-2.scm">
+    <None Include="srfi\2.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-26.scm">
+    <None Include="srfi\26.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-28.scm">
+    <None Include="srfi\28.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-31.scm">
+    <None Include="srfi\31.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-35.scm">
+    <None Include="srfi\35.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-37.scm">
+    <None Include="srfi\37.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-38.scm">
+    <None Include="srfi\38.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-39.scm">
+    <None Include="srfi\39.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-41.scm">
+    <None Include="srfi\41.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-46.scm">
+    <None Include="srfi\46.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-55.scm">
+    <None Include="srfi\55.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-57.scm">
+    <None Include="srfi\57.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-7.scm">
+    <None Include="srfi\7.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-71.scm">
+    <None Include="srfi\71.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-8.scm">
+    <None Include="srfi\8.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-88.scm">
+    <None Include="srfi\88.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-89.scm">
+    <None Include="srfi\89.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\srfi-9.scm">
+    <None Include="srfi\9.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="test.scm">
+    <None Include="tests\test.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="psyntax\builders.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\compat.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\config.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\expander.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\internal.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\library-manager.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\main.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="psyntax\psyntax-buildscript.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="rnrs\base.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -242,6 +257,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="rnrs\control.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="rnrs\io\conditions.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="rnrs\lists.ss">

@@ -25,13 +25,13 @@ namespace IronScheme.Hosting
     public IronSchemeConsoleHost()
     {
 #if DEBUG
-      ScriptDomainManager.Options.AssemblyGenAttributes = 
+      ScriptDomainManager.Options.AssemblyGenAttributes = 0;
 
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateStaticMethods |
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
+      //  Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
 #endif
       logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version);

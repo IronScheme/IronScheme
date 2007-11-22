@@ -54,19 +54,23 @@
   (macro () `,(load "IronScheme.Diagnostics.dll")))
   
 
-(define (run-tests) (load "test.scm"))
-(define (r4rs-tests) (load "r4rstest.scm"))
+(define (run-tests) (load "tests/test.scm"))
+(define (r4rs-tests) (load "tests/r4rstest.scm"))
 
 (define r6rs-input "hello-world.ss")
 
 (define (load-r6rs fn)
   (set! r6rs-input fn)
-  (load "psyntax/r6rs.ss"))
+  (load "r6rs.ss"))
   
 
 (define (psyntax-build)  
   (load-r6rs "psyntax/psyntax-buildscript.ss"))
 
+(define eval-r6rs-top-level-hook #f)
+
+(define (init-r6rs)
+  (load "r6rs.ss"))
 
 '(psyntax-build)
 

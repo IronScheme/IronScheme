@@ -47,6 +47,10 @@ namespace IronScheme.Runtime
       }
       finally
       {
+        if (readcache.ContainsKey(Console.Out))
+        {
+          readcache.Remove(Console.Out);
+        }
         Console.SetIn(old);
       }
     }
@@ -278,7 +282,9 @@ namespace IronScheme.Runtime
       }
     }
 
-    readonly static object EOF = new object();
+    sealed class Eof { }
+
+    readonly static object EOF = new Eof();
 
     [Builtin("char-ready?")]
     public static object IsCharReady()
@@ -290,6 +296,12 @@ namespace IronScheme.Runtime
     public static object IsCharReady(object port)
     {
       return PeekChar(port) != EOF;
+    }
+
+    [Builtin("eof-object")]
+    public static object EofObject()
+    {
+      return EOF;
     }
 
     [Builtin("eof-object?")]
@@ -505,7 +517,7 @@ namespace IronScheme.Runtime
         if (s != null)
         {
           object scar = s.Car;
-          if ((bool)IsSymbol(scar) && s.Cdr != null)
+          if ((bool)IsSymbol(scar) && s.Cdr is Cons)
           {
             if ((bool)IsEqual(quote, scar))
             {
@@ -702,7 +714,14 @@ namespace IronScheme.Runtime
 
       using (TextReader r = File.OpenText(path))
       {
-        return f.Call(new object[] { r });
+        object result = f.Call(new object[] { r });
+
+        if (readcache.ContainsKey(r))
+        {
+          readcache.Remove(r);
+        }
+
+        return result;
       }
     }
 
@@ -747,6 +766,10 @@ namespace IronScheme.Runtime
     [Builtin("close-input-port")]
     public static object CloseInputPort(object port)
     {
+      if (readcache.ContainsKey(port))
+      {
+        readcache.Remove(port);
+      }
       RequiresNotNull<TextReader>(port).Close();
       return Unspecified;
     }

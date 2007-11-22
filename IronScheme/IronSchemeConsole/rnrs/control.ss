@@ -1,4 +1,9 @@
 (library (rnrs control (6))
-  (export)
+  (export
+    when
+    unless
+    do
+    case-lambda)
+    
   (import (rnrs))
 )

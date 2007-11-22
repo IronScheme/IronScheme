@@ -1,4 +1,11 @@
 (library (rnrs exceptions (6))
-  (export)
+  (export
+    with-exception-handler
+    =>
+    else
+    guard
+    raise
+    raise-continuable)
+    
   (import (rnrs))
 )

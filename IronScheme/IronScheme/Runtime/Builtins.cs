@@ -69,7 +69,9 @@ namespace IronScheme.Runtime
       return true;
     }
 
-    public static readonly object Unspecified = new object();
+    sealed class UnspecifiedObject { }
+
+    public static readonly object Unspecified = new UnspecifiedObject();
 
     [Builtin]
     public static Type Typeof(object o)
@@ -102,7 +104,7 @@ namespace IronScheme.Runtime
       //}
 
       //Trace.WriteLine(sw.ElapsedMilliseconds, "pretty-print: " + fn);
-       
+
       //object result = Load(cc, fn);
 
       //return result;
@@ -127,7 +129,7 @@ namespace IronScheme.Runtime
       finally
       {
         Trace.WriteLine(sw.ElapsedMilliseconds, "EvalCore");
-      //  //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
+        //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
       }
     }
 
@@ -184,6 +186,11 @@ namespace IronScheme.Runtime
       return (rest == null) ? a : new Cons(a, ConsStarHelper(Car(rest), Cdr(rest)));
     }
 
+    [Builtin("cons*")]
+    public static object ConsStar(object a)
+    {
+      return a;
+    }
 
     [Builtin("cons*"), Builtin("list*")]
     public static object ConsStar(object a, params object[] rest)
