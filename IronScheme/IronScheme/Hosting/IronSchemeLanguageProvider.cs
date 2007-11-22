@@ -155,8 +155,8 @@ namespace IronScheme.Hosting
         get
         {
           EngineOptions eo = new IronSchemeEngineOptions();
-          //eo.ProfileDrivenCompilation = false;
-          eo.InterpretedMode = true;
+          eo.ProfileDrivenCompilation = false;
+          //eo.InterpretedMode = true;
           return eo;
         }
         set
