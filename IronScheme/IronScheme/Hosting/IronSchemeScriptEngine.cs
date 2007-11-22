@@ -51,6 +51,10 @@ namespace IronScheme.Hosting
 
     public override string FormatException(Exception exception)
     {
+      while (exception is TargetInvocationException)
+      {
+        exception = exception.InnerException;
+      }
       Builtins.lastException = exception;
       if (exception is MissingMemberException)
       {
