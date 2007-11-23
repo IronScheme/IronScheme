@@ -48,7 +48,7 @@
   ;;; exported identifiers.  If the option is disabled, 
   ;;; then the global definitions are suppressed.
   
-  (define-option if-wants-case-lambda    #f)
+  (define-option if-wants-case-lambda    #t)
   ;;; Implementations that support case-lambda natively
   ;;; should have the next option enabled.  Disabling
   ;;; wants-case-lambda causes the expander to produce 

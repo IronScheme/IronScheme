@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\BeginGenerator.cs" />
+    <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\DelayGenerator.cs" />
     <Compile Include="Compiler\Generator.InlineEmitters.cs" />
     <Compile Include="Compiler\GeneratorAttribute.cs" />
