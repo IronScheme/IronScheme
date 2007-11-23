@@ -136,6 +136,11 @@ namespace IronScheme.Runtime
       return new VarArgClosure(cc, target, paramcount, name);
     }
 
+    public static ICallable MakeCase(CodeContext cc, string name, Delegate[] targets, int[] arities)
+    {
+      return new CaseClosure(cc, name, targets, arities);
+    }
+
     sealed class VarArgClosure : Closure
     {
       ICallable realtarget;
@@ -160,6 +165,46 @@ namespace IronScheme.Runtime
         Array.Copy(args, pcount - 1, last, 0, last.Length);
         newargs[pcount - 1] = ConsFromArray(last);
         return realtarget.Call(newargs);
+      }
+    }
+
+    sealed class CaseClosure : Closure
+    {
+      CodeContext cc;
+      Dictionary<int, ICallable> targets = new Dictionary<int, ICallable>();
+
+      public CaseClosure(CodeContext cc, string name, Delegate[] targets, int[] arities)
+        : base(null, name, -1)
+      {
+        this.cc = cc;
+
+        for (int i = 0; i < targets.Length; i++)
+        {
+          if (arities[i] == -1)
+          {
+            this.targets.Add(arities[i], MakeVarArgX(cc, targets[i], 1, name));
+          }
+          else
+          {
+            this.targets.Add(arities[i], Make(cc, targets[i], name));
+          }
+        }
+      }
+
+      public override object Call(object[] args)
+      {
+        int arglen = args.Length;
+
+        if (targets.ContainsKey(arglen))
+        {
+          return targets[arglen].Call(args);
+        }
+        else if (targets.ContainsKey(-1))
+        {
+          return targets[-1].Call(args);
+        }
+
+        throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, 0, int.MaxValue, 0, args.Length == -1 ? int.MaxValue : arglen, false, false);
       }
     }
 

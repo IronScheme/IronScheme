@@ -350,6 +350,21 @@ namespace IronScheme.Compiler
       return string.Join(".", tokens);
     }
 
+    protected static Expression MakeCaseClosure(string name, Dictionary<int, CodeBlockExpression> cases)
+    {
+      List<Expression> targets = new List<Expression>();
+      List<Expression> arities = new List<Expression>();
+
+      foreach (KeyValuePair<int,CodeBlockExpression> c in cases)
+      {
+        targets.Add(c.Value);
+        arities.Add(Ast.Constant(c.Key));
+      }
+      
+      return Ast.SimpleCallHelper(Closure_MakeCase, Ast.CodeContext(), Ast.Constant(name),
+        Ast.NewArrayHelper(typeof(Delegate[]), targets), Ast.NewArrayHelper(typeof(int[]), arities));
+    }
+
     protected static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
       if (varargs)
