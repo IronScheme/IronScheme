@@ -68,9 +68,12 @@ namespace IronScheme.Runtime
     public static object EvalString(CodeContext cc, string expr)
     {
       SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, expr, SourceCodeKind.Expression);
+      Stopwatch sw = Stopwatch.StartNew();
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
-
+      Trace.WriteLine(sw.ElapsedMilliseconds, "Compile - EvalString");
+      sw = Stopwatch.StartNew();
       object result = sc.Run(cc.Scope, cc.ModuleContext);
+      Trace.WriteLine(sw.ElapsedMilliseconds, "Run - EvalString");
       return result;
     }
 
