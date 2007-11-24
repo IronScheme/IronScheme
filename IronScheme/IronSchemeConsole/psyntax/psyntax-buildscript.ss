@@ -156,7 +156,7 @@
 (define library-legend
   ;; abbr.       name                             visible? required?
   '((interaction (ikarus interaction)                  #t    #f)
-    (is          (ironscheme)                          #t    #f)
+    (ironscheme  (ironscheme)                          #t    #f)
     (ne          (psyntax null-environment-5)          #t    #f)
     (se          (psyntax scheme-report-environment-5) #t    #f)
     (cm          (psyntax modules)                     #t    #f)
@@ -942,7 +942,7 @@
     (module                   cm)
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
-    (eval-r6rs-top-level-hook                   is)
+    (clr-call                                   ironscheme)
     ))
 
 

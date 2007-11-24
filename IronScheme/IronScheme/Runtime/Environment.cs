@@ -57,8 +57,8 @@ namespace IronScheme.Runtime
     [Builtin("error")]
     public static object Error(object reason, params object[] errors)
     {
-      string[] ll = Array.ConvertAll<object, string>(errors, delegate(object o) { return o.ToString(); });
-      ll = ArrayUtils.Insert<string>(reason.ToString(), ll);
+      string[] ll = Array.ConvertAll<object, string>(errors, delegate(object o) { return DisplayFormat(o); });
+      ll = ArrayUtils.Insert<string>(DisplayFormat(reason), ll);
       throw new SchemeException(string.Join(", ", ll));
     }
 

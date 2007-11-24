@@ -7,6 +7,7 @@
     if
     set!
     cond
+    ...
     =>
     else
     case
