@@ -49,7 +49,7 @@ namespace IronScheme.Compiler
       //Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
       Expression r = Ast.Assign(v, value);
 
-      if (cb.IsGlobal)
+      if (cb.IsGlobal && cb.Name != "__toploop__")
       {
         object o = r.Evaluate(Context);
       }

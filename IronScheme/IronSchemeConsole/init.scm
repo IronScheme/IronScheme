@@ -46,6 +46,7 @@
 
 ;; load some additional console helpers 
 (load "IronScheme.Console.exe")
+(load "IronScheme.Clr.dll")
 
 ;; this wil call load immediately, use with care :p
 ;; this is usefull for loading references at compile-time

@@ -16,40 +16,55 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
+using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
   [Generator("case-lambda")]
   public class CaseLambdaGenerator : SimpleGenerator
   {
+    LambdaGenerator lambdagen;
     public override Expression Generate(object args, CodeBlock c)
     {
       Cons lambdas = args as Cons;
 
-      Dictionary<int, CodeBlockExpression> cbs = new Dictionary<int, CodeBlockExpression>();
+      int arlen = (int)Builtins.Length(args);
 
-      string lambdaname = GetLambdaName(c);
-
-      while (lambdas != null)
+      if (arlen == 1)
       {
-        object actual = lambdas.Car;
-        CodeBlock cb = Ast.CodeBlock(SpanHint, lambdaname);
-        cb.Parent = c;
-
-        object arg = Builtins.First(actual);
-        Cons body = Builtins.Cdr(actual) as Cons;
-
-        bool isrest = AssignParameters(cb, arg);
-
-        List<Statement> stmts = new List<Statement>();
-        FillBody(cb, stmts, body, true);
-
-        cbs.Add(isrest ? -1 : cb.Parameters.Count, Ast.CodeBlockExpression(cb, false));
-
-        lambdas = lambdas.Cdr as Cons;
+        if (lambdagen == null)
+        {
+          lambdagen = Context.Scope.LookupName(SymbolTable.StringToId("lambda")) as LambdaGenerator;
+        }
+        return lambdagen.Generate(lambdas.Car, c);
       }
+      else
+      {
+        Dictionary<int, CodeBlockExpression> cbs = new Dictionary<int, CodeBlockExpression>();
 
-      return MakeCaseClosure(lambdaname, cbs);
+        string lambdaname = GetLambdaName(c);
+
+        while (lambdas != null)
+        {
+          object actual = lambdas.Car;
+          CodeBlock cb = Ast.CodeBlock(SpanHint, lambdaname);
+          cb.Parent = c;
+
+          object arg = Builtins.First(actual);
+          Cons body = Builtins.Cdr(actual) as Cons;
+
+          bool isrest = AssignParameters(cb, arg);
+
+          List<Statement> stmts = new List<Statement>();
+          FillBody(cb, stmts, body, true);
+
+          cbs.Add(isrest ? -1 : cb.Parameters.Count, Ast.CodeBlockExpression(cb, false));
+
+          lambdas = lambdas.Cdr as Cons;
+        }
+
+        return MakeCaseClosure(lambdaname, cbs);
+      }
     }
   }
 }
