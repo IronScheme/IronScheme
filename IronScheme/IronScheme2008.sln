@@ -16,17 +16,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9
 		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008", "IronScheme\IronScheme2008.csproj", "{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme", "IronScheme\IronScheme.csproj", "{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Scripting", "Microsoft.Scripting\Microsoft.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008.Console", "IronSchemeConsole\IronScheme2008.Console.csproj", "{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Console", "IronSchemeConsole\IronScheme.Console.csproj", "{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008.Diagnostics", "IronScheme.Diagnostics\IronScheme2008.Diagnostics.csproj", "{EC64AB10-2924-473F-BF1E-EC5E73C345CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Diagnostics", "IronScheme.Diagnostics\IronScheme.Diagnostics.csproj", "{EC64AB10-2924-473F-BF1E-EC5E73C345CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008.Clr", "IronScheme.Clr\IronScheme2008.Clr.csproj", "{5AD643C7-80C7-42A4-82B5-05ACF677FA83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Clr", "IronScheme.Clr\IronScheme.Clr.csproj", "{5AD643C7-80C7-42A4-82B5-05ACF677FA83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme2008.Closures", "IronScheme.Closures\IronScheme2008.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -34,22 +34,22 @@ Global
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
-		SccProjectUniqueName1 = Microsoft.Scripting\\Microsoft.Scripting.csproj
-		SccProjectName1 = Microsoft.Scripting
-		SccLocalPath1 = Microsoft.Scripting
-		SccProjectUniqueName2 = IronScheme\\IronScheme2008.csproj
-		SccProjectName2 = IronScheme
-		SccLocalPath2 = IronScheme
-		SccProjectUniqueName3 = IronScheme.Clr\\IronScheme2008.Clr.csproj
-		SccProjectName3 = IronScheme.Clr
-		SccLocalPath3 = IronScheme.Clr
-		SccProjectUniqueName4 = IronSchemeConsole\\IronScheme2008.Console.csproj
-		SccProjectName4 = IronSchemeConsole
-		SccLocalPath4 = IronSchemeConsole
-		SccProjectUniqueName5 = IronScheme.Diagnostics\\IronScheme2008.Diagnostics.csproj
-		SccProjectName5 = IronScheme.Diagnostics
-		SccLocalPath5 = IronScheme.Diagnostics
-		SccProjectUniqueName6 = IronScheme.Closures\\IronScheme2008.Closures.csproj
+		SccProjectUniqueName1 = IronScheme\\IronScheme.csproj
+		SccProjectName1 = IronScheme
+		SccLocalPath1 = IronScheme
+		SccProjectUniqueName2 = Microsoft.Scripting\\Microsoft.Scripting.csproj
+		SccProjectName2 = Microsoft.Scripting
+		SccLocalPath2 = Microsoft.Scripting
+		SccProjectUniqueName3 = IronScheme.Diagnostics\\IronScheme.Diagnostics.csproj
+		SccProjectName3 = IronScheme.Diagnostics
+		SccLocalPath3 = IronScheme.Diagnostics
+		SccProjectUniqueName4 = IronScheme.Clr\\IronScheme.Clr.csproj
+		SccProjectName4 = IronScheme.Clr
+		SccLocalPath4 = IronScheme.Clr
+		SccProjectUniqueName5 = IronSchemeConsole\\IronScheme.Console.csproj
+		SccProjectName5 = IronSchemeConsole
+		SccLocalPath5 = IronSchemeConsole
+		SccProjectUniqueName6 = IronScheme.Closures\\IronScheme.Closures.csproj
 		SccProjectName6 = IronScheme.Closures
 		SccLocalPath6 = IronScheme.Closures
 	EndGlobalSection
@@ -112,11 +112,9 @@ Global
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.Build.0 = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
