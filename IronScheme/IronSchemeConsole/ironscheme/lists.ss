@@ -1,10 +1,10 @@
 (library (ironscheme lists (6))
   (export
-    ;find
+    find
     
     for-all
     exists
-#|    
+    
     filter
     partition
     
@@ -27,10 +27,13 @@
     assq
     
     cons*
-|#
+
     )
     
-  (import (rnrs base))
+  (import 
+    (except (rnrs)
+      for-all 
+      exists))
   
   (define (all-empty? ls)
     (or (null? ls) 
