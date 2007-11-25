@@ -68,27 +68,11 @@ comment_end            "|#"
 white_space            [ \t]
 new_line               \n|\r\n
 
-
-/*
-Identifiers.  Identifiers may denote variables, keywords, or symbols, depending upon context. They are formed from sequences of letters, 
-digits, and special characters. With three exceptions, identifiers cannot begin with a character that can also begin a number, i.e., 
-they cannot begin with ., +, -, or a digit. The three exceptions are the identifiers ..., +, and -. Case is insignificant in identifiers 
-so that, for example, newspaper, NewsPaper, and NEWSPAPER all represent the same identifier. 
-
-<identifier>  <initial> <subsequent>* | + | - | ... 
-<initial>  <letter> | ! | $ | % | & | * | / | : | < | = | > | ? | ~ | _ | ^ 
-<subsequent>  <initial> | <digit> | . | + | - | @ 
-<letter>  a | b | ... | z 
-<digit>  0 | 1 | ... | 9  
-
-
-*/
-
 digit                  [0-9]
 letter                 [a-zA-Z]
 idinitial              {letter}|[!$%*/:<=>?~_^&]
 subsequent             {idinitial}|{digit}|[\.\+@]|"-"
-identifier             ({idinitial}({subsequent})*)|"+"|"..."|"-"
+identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 
 
 
@@ -184,6 +168,7 @@ atoms                  (#[TtFf])
 
 "("                   { return Make(Tokens.LBRACE); }                     
 "#("                  { return Make(Tokens.VECTORLBRACE); }                     
+"#vu8("               { return Make(Tokens.BYTEVECTORLBRACE); }                     
 ")"                   { return Make(Tokens.RBRACE); } 
 "`"                   { return Make(Tokens.QUASIQUOTE); }
 "'"                   { return Make(Tokens.QUOTE); }

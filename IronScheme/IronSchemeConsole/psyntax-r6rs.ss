@@ -47,7 +47,6 @@
             (or (apply f cars)
                 (apply exists f cdrs)))))))
 
-
 (define (open-string-output-port)
   (let ((p (open-output-string)))
     (values p (lambda () (get-output-string p))))) 

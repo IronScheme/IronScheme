@@ -33,13 +33,43 @@
 
 
 (define scheme-library-files
-  '("psyntax/compat.ss"
+  '(
+    "ironscheme/base.ss"
+    "ironscheme/clr.ss"
+    "ironscheme/hashtables.ss"
+    "ironscheme/files.ss"
+    "ironscheme/lists.ss"
+    "ironscheme/bytevectors.ss"
+    "ironscheme/conditions.ss"
+    "ironscheme/control.ss"
+    "ironscheme/enums.ss"
+    "ironscheme/eval.ss"
+    "ironscheme/exceptions.ss"
+    "ironscheme/mutable-pairs.ss"
+    "ironscheme/mutable-strings.ss"
+    "ironscheme/programs.ss"
+    "ironscheme/r5rs.ss"
+    "ironscheme/sorting.ss"
+    "ironscheme/syntax-case.ss"
+    "ironscheme/unicode.ss"
+    "ironscheme/arithmetic/bitwise.ss"
+    "ironscheme/arithmetic/fixnums.ss"
+    "ironscheme/arithmetic/flonums.ss"
+    ;"ironscheme/io/conditions.ss"
+    "ironscheme/io/ports.ss"
+    "ironscheme/io/simple.ss"
+    "ironscheme/records/inspection.ss"
+    "ironscheme/records/procedural.ss"
+    "ironscheme/records/syntactic.ss"
+
+    "psyntax/compat.ss"
     "psyntax/internal.ss"
     "psyntax/config.ss"
     "psyntax/library-manager.ss"
     "psyntax/builders.ss"
     "psyntax/expander.ss"
-    "psyntax/main.ss"))
+    "psyntax/main.ss"
+    ))
 
 
 (define psyntax-system-macros
@@ -156,6 +186,8 @@
 (define library-legend
   ;; abbr.       name                             visible? required?
   '((interaction (ikarus interaction)                  #t    #f)
+    (ironscheme  (ironscheme)                          #t    #f)
+    (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #t    #f)
     (se          (psyntax scheme-report-environment-5) #t    #f)
     (cm          (psyntax modules)                     #t    #f)
@@ -521,9 +553,11 @@
     (bytevector-ieee-double-native-ref          r bv)
     (bytevector-ieee-double-native-set!         r bv)
     (bytevector-ieee-double-ref                 r bv)
+    (bytevector-ieee-double-set!                r bv)
     (bytevector-ieee-single-native-ref          r bv)
     (bytevector-ieee-single-native-set!         r bv)
     (bytevector-ieee-single-ref                 r bv)
+    (bytevector-ieee-single-set!                r bv)    
     (bytevector-length                          r bv)
     (bytevector-s16-native-ref                  r bv)
     (bytevector-s16-native-set!                 r bv)
@@ -941,6 +975,8 @@
     (module                   cm)
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
+    (clr-new-internal                           is-clr-int)
+    (clr-call-internal                          is-clr-int)
     ))
 
 
@@ -1178,9 +1214,9 @@
         (cond
           ((assq x locs) => cdr)
           (else #f))))
-    (when (file-exists? "psyntax.pp")
-      (delete-file "psyntax.pp"))
-    (let ((p (open-output-file "psyntax.pp")))
+    (when (file-exists? "ironscheme.boot.pp")
+      (delete-file "ironscheme.boot.pp"))
+    (let ((p (open-output-file "ironscheme.boot.pp")))
       (display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
       (display ";;; automatically generated from psyntax sources" p) (newline p)
       (display ";;; for copyright details, see psyntax/main.ss" p) (newline p) (newline p)
@@ -1191,7 +1227,7 @@
         core*)
       (close-output-port p)))
 
-(display "Happy Happy Joy Joy\n")
+(display "IronScheme build completed.\n")
 
 
 ;;; vim:syntax=scheme

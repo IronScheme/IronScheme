@@ -552,6 +552,17 @@ namespace IronScheme.Runtime
         return string.Format("({0})", string.Join(" ", v.ToArray()));
       }
 
+      if (obj is byte[])
+      {
+        List<string> v = new List<string>();
+        foreach (object io in (IList)obj)
+        {
+          v.Add(DisplayFormat(io));
+        }
+
+        return string.Format("#vu8({0})", string.Join(" ", v.ToArray()));
+      }
+
       if (obj is object[])
       {
         List<string> v = new List<string>();
@@ -657,6 +668,17 @@ namespace IronScheme.Runtime
           s = s.Cdr as Cons;
         }
         return string.Format("({0})", string.Join(" ", v.ToArray()));
+      }
+
+      if (obj is byte[])
+      {
+        List<string> v = new List<string>();
+        foreach (object io in (IList)obj)
+        {
+          v.Add(WriteFormat(io));
+        }
+
+        return string.Format("#vu8({0})", string.Join(" ", v.ToArray()));
       }
 
       if (obj is object[])
