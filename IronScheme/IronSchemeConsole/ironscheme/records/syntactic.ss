@@ -1,4 +1,4 @@
-(library (rnrs records syntactic (6))
+(library (ironscheme records syntactic (6))
   (export
     define-record-type
     fields

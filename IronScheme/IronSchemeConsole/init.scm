@@ -68,11 +68,11 @@
 (define (psyntax-build)  
   (load-r6rs "psyntax/psyntax-buildscript.ss"))
 
-(define eval-r6rs-top-level-hook #f)
+(define eval-r6rs #f)
 
 (define (init-r6rs)
-  (load "r6rs.ss"))
-
+  (set! eval-r6rs (load-r6rs "r6rs-init.ss")))
+  
 '(psyntax-build)
 
 

@@ -91,6 +91,14 @@ namespace IronScheme.Runtime
 
     static int evalcount = 1;
 
+    //[Builtin("clr-call-internal")]
+    public static object ClrCallInternal(CodeContext cc, object targetmember, object instance, params object[] args)
+    {
+      return Unspecified;
+    }
+
+
+
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {

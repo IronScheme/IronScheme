@@ -1,4 +1,4 @@
-(library (rnrs exceptions (6))
+(library (ironscheme exceptions (6))
   (export
     with-exception-handler
     =>

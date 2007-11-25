@@ -1,4 +1,4 @@
-(library (rnrs io simple (6))
+(library (ironscheme io simple (6))
   (export
     eof-object
     eof-object?

@@ -1,4 +1,4 @@
-(library (rnrs records inspection (6))
+(library (ironscheme records inspection (6))
   (export
     
     record?

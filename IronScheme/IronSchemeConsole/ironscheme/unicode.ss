@@ -1,4 +1,4 @@
-(library (rnrs unicode (6))
+(library (ironscheme unicode (6))
   (export
     char-upcase
     char-downcase

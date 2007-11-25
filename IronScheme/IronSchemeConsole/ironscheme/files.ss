@@ -1,4 +1,4 @@
-(library (rnrs files (6))
+(library (ironscheme files (6))
   (export
     file-exists?
     delete-file)
