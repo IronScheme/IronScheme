@@ -1,4 +1,4 @@
-(library (rnrs bytevectors (6))
+(library (ironscheme bytevectors (6))
   (export
   
     endianness

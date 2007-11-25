@@ -1,4 +1,4 @@
-(library (rnrs arithmetic fixnums (6))
+(library (ironscheme arithmetic fixnums (6))
   (export
     fixnum?
     

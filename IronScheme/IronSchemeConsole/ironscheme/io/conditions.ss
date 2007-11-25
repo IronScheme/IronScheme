@@ -1,5 +1,5 @@
 
-(library (rnrs io conditions (6))
+(library (ironscheme io conditions (6))
   (export
     
     &i/o

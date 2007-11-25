@@ -1,4 +1,4 @@
-(library (rnrs r5rs (6))
+(library (ironscheme r5rs (6))
   (export
     exact->inexact
     inexact->exact
@@ -14,6 +14,6 @@
     scheme-report-environment
   )
   
-  (import (rnrs))
+  (import (rnrs r5rs))
   
 )

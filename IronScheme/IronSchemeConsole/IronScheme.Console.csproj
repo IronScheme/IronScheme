@@ -86,55 +86,55 @@
     <None Include="r6rs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\arithmetic\bitwise.ss">
+    <None Include="ironscheme\arithmetic\bitwise.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\arithmetic\fixnums.ss">
+    <None Include="ironscheme\arithmetic\fixnums.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\arithmetic\flonums.ss">
+    <None Include="ironscheme\arithmetic\flonums.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\conditions.ss">
+    <None Include="ironscheme\conditions.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\enums.ss">
+    <None Include="ironscheme\enums.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\eval.ss">
+    <None Include="ironscheme\eval.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\exceptions.ss">
+    <None Include="ironscheme\exceptions.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\files.ss">
+    <None Include="ironscheme\files.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\hashtables.ss">
+    <None Include="ironscheme\hashtables.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\io\ports.ss">
+    <None Include="ironscheme\io\ports.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\io\simple.ss">
+    <None Include="ironscheme\io\simple.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\mutable-pairs.ss">
+    <None Include="ironscheme\mutable-pairs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\mutable-strings.ss">
+    <None Include="ironscheme\mutable-strings.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\programs.ss">
+    <None Include="ironscheme\programs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\r5rs.ss">
+    <None Include="ironscheme\r5rs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\records\inspection.ss">
+    <None Include="ironscheme\records\inspection.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\syntax-case.ss">
+    <None Include="ironscheme\syntax-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="srfi\13.scm">
@@ -226,6 +226,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ironscheme\clr.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="psyntax\builders.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -253,31 +256,34 @@
     <None Include="r6rs-init.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\base.ss">
+    <None Include="ironscheme\base.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\bytevectors.ss">
+    <None Include="ironscheme\bytevectors.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\control.ss">
+    <None Include="ironscheme\control.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\io\conditions.ss">
+    <None Include="ironscheme\io\conditions.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\lists.ss">
+    <None Include="ironscheme\lists.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\records\procedural.ss">
+    <None Include="ironscheme\records\procedural.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\records\syntactic.ss">
+    <None Include="ironscheme\records\syntactic.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\sorting.ss">
+    <None Include="ironscheme\sorting.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="rnrs\unicode.ss">
+    <None Include="ironscheme\unicode.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="tests\hashtables.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

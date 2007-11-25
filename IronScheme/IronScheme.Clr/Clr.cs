@@ -28,13 +28,13 @@ using Microsoft.Scripting.Utils;
 
 namespace IronScheme.Clr
 {
-  [Generator("clr-call")]
-  public class ClrCallGenerator : SimpleGenerator
+  [Generator("clr-call-internal")]
+  public class ClrCallInternalGenerator : SimpleGenerator
   {
     // (clr-call type:member obj arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string typemember = SymbolTable.IdToString((SymbolId)Builtins.First(args));
+      string typemember = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
       string[] tokens = typemember.Split(':');
       Type t = GetType(tokens[0]);
       if (t == null)
@@ -118,6 +118,10 @@ namespace IronScheme.Clr
         {
           return Ast.Comma(r, Ast.ReadField(null, Unspecified));
         }
+        else if (((MethodInfo)mc.Target.Method).ReturnType.IsValueType)
+        {
+          return Ast.DynamicConvert(r, typeof(object));
+        }
         else
         {
           return r;
@@ -131,18 +135,138 @@ namespace IronScheme.Clr
     {
       foreach (Assembly  ass in AppDomain.CurrentDomain.GetAssemblies())
       {
-        foreach (Type t in ass.GetExportedTypes())
+        if (ass.ManifestModule.Name != "<In Memory Module>")
         {
-          string nsm = t.Namespace + "." + t.Name;
-          nsm = nsm.ToLower();
-
-          if (nsm == nsandname)
+          foreach (Type t in ass.GetExportedTypes())
           {
-            return t;
+            string nsm = t.Namespace + "." + t.Name;
+            nsm = nsm.ToLower();
+
+            if (nsm == nsandname)
+            {
+              return t;
+            }
           }
         }
       }
       return null;
     }
   }
+
+  [Generator("clr-new-internal")]
+  public class ClrNewInternalGenerator : SimpleGenerator
+  {
+    // (clr-new type arg1 ... )
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+      Type t = GetType(type);
+      if (t == null)
+      {
+        throw new NotSupportedException();
+      }
+
+      Expression[] arguments = GetAstList(Builtins.Cdr(args) as Cons, cb);
+
+      List<MethodBase> candidates = new List<MethodBase>();
+
+      foreach (ConstructorInfo c in t.GetConstructors())
+      {
+        candidates.Add(c);
+      }
+
+      Type[] types = new Type[arguments.Length];
+
+      for (int i = 0; i < types.Length; i++)
+      {
+        types[i] = arguments[i].Type;
+      }
+
+      CallType ct = CallType.None;
+
+      MethodBinder mb = MethodBinder.MakeBinder(Binder, "ctr", candidates, BinderType.Normal);
+
+      MethodCandidate mc = mb.MakeBindingTarget(ct, types);
+
+      if (mc == null)
+      {
+        types = new Type[arguments.Length];
+
+        for (int i = 0; i < types.Length; i++)
+        {
+          types[i] = typeof(object);
+        }
+
+        if (ct == CallType.ImplicitInstance)
+        {
+          types = ArrayUtils.Insert(t, types);
+        }
+
+        mc = mb.MakeBindingTarget(ct, types);
+      }
+
+      ConstructorInfo ci = null;
+
+      if (mc == null && candidates.Count > 0)
+      {
+        foreach (ConstructorInfo c in candidates)
+        {
+          if (c.GetParameters().Length == arguments.Length)
+          {
+            ci = c;
+            break; // tough luck for now
+          }
+        }
+      }
+      else
+      {
+        ci = mc.Target.Method as ConstructorInfo;
+      }
+
+      if (ci != null)
+      {
+        
+        ParameterInfo[] cipars = ci.GetParameters();
+
+        for (int i = 0; i < types.Length; i++)
+        {
+          while (arguments[i] is DynamicConversionExpression)
+          {
+            arguments[i] = ((DynamicConversionExpression)arguments[i]).Expression;
+          }
+          if (arguments[i].Type != cipars[i].ParameterType)
+          {
+            arguments[i] = Ast.DynamicConvert(arguments[i], cipars[i].ParameterType);
+          }
+        }
+
+        Expression r = Ast.New(ci, arguments);
+        return r;
+      }
+
+      throw new NotImplementedException();
+    }
+
+    Type GetType(string nsandname)
+    {
+      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        if (ass.ManifestModule.Name != "<In Memory Module>")
+        {
+          foreach (Type t in ass.GetExportedTypes())
+          {
+            string nsm = t.Namespace + "." + t.Name;
+            nsm = nsm.ToLower();
+
+            if (nsm == nsandname)
+            {
+              return t;
+            }
+          }
+        }
+      }
+      return null;
+    }
+  }
+
 }

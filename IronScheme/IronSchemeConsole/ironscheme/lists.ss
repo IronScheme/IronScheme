@@ -1,4 +1,4 @@
-(library (rnrs lists (6))
+(library (ironscheme lists (6))
   (export
     find
     

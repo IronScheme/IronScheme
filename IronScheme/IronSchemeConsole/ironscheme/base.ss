@@ -1,4 +1,4 @@
-(library (rnrs base (6))
+(library (ironscheme base (6))
   (export
     define
     define-syntax
