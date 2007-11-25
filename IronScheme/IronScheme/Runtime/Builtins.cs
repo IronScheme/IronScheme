@@ -89,6 +89,18 @@ namespace IronScheme.Runtime
       return obj ?? def;
     }
 
+    public static object ListToByteVector(object obj)
+    {
+      object[] bytes = ListToVector(obj);
+      byte[] buffer = new byte[bytes.Length];
+      for (int i = 0; i < buffer.Length; i++)
+      {
+        buffer[i] = Convert.ToByte(bytes[i]);
+      }
+
+      return buffer;
+    }
+
     static int evalcount = 1;
 
     //[Builtin("clr-call-internal")]

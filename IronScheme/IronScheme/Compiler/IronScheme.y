@@ -93,7 +93,7 @@ static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
   public string text;
 }
 
-%token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT
+%token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT BYTEVECTORLBRACE
 %token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX
 %token <text> SYMBOL LITERAL STRING NUMBER CHARACTER 
 
@@ -128,6 +128,7 @@ expr
     | LITERAL                                     { $$ = $1 == "#t" ? (object)true : ($1 == "#f" ? (object)false : null);}
     | CHARACTER                                   { $$ = $1[0];}
     | VECTORLBRACE exprlist RBRACE                { $$ = Builtins.ListToVector($2);}
+    | BYTEVECTORLBRACE exprlist RBRACE            { $$ = Builtins.ListToByteVector($2);}
     ; 
 
 specexpr

@@ -15,8 +15,8 @@
   (define-syntax clr-new
     (lambda (e)
       (syntax-case e ()
-        [(_ target:member args ...)
-         #'(clr-new-internal 'target:member args ...)])))
+        [(_ type args ...)
+         #'(clr-new-internal 'type args ...)])))
          
 )
     

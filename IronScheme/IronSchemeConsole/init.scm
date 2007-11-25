@@ -2,6 +2,7 @@
 
 (load "core.scm")
 (define pretty-print write)
+(load "genwrite.scm")
 
 (define (load-system)
   (define (pload file)
@@ -62,17 +63,19 @@
 
 (define (load-r6rs fn)
   (set! r6rs-input fn)
-  (load "r6rs.ss"))
-  
+  (load "ironscheme-r6rs.ss"))
 
 (define (psyntax-build)  
-  (load-r6rs "psyntax/psyntax-buildscript.ss"))
+  (set! r6rs-input "psyntax/psyntax-buildscript.ss")
+  (load "psyntax-r6rs.ss"))
+  
+(define (ironscheme-build)  
+  (set! r6rs-input "ironscheme-buildscript.ss")
+  (load "ironscheme-r6rs.ss"))
 
 (define eval-r6rs #f)
 
 (define (init-r6rs)
   (set! eval-r6rs (load-r6rs "r6rs-init.ss")))
   
-'(psyntax-build)
-
 
