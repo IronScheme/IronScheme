@@ -182,7 +182,7 @@ namespace IronScheme.Runtime
             DateTime ct = File.GetLastWriteTime(cfn);
             if (ct > File.GetLastWriteTime(path))
             {
-              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct)
+              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct || cfn.StartsWith("ironscheme.boot"))
               {
                 path = cfn;
                 goto case ".exe";
@@ -208,6 +208,7 @@ namespace IronScheme.Runtime
           }
           finally
           {
+            GC.GetTotalMemory(true);
             //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
             Compiler.Generator.CanAllowTailCall = false;
           }

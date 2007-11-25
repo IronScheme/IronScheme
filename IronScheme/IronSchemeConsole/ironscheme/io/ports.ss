@@ -98,7 +98,19 @@
     open-file-input/output-port
     
     make-custom-binary-input/output-port
-    make-custom-textual-input/output-port
-  )
-  (import (rnrs))
+    make-custom-textual-input/output-port)
+  
+  (import 
+    (ironscheme clr)
+    (except (rnrs) open-string-output-port ))
+    
+  (define (get-output-string port)
+    (clr-call system.io.stringwriter:tostring port))
+    
+  (define (open-output-string)
+    (clr-new system.io.stringwriter))
+  
+  (define (open-string-output-port)
+    (let ((p (open-output-string)))
+      (values p (lambda () (get-output-string p)))))       
 )
