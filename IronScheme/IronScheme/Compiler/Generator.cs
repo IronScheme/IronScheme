@@ -122,6 +122,13 @@ namespace IronScheme.Compiler
         {
           SymbolId f = (SymbolId)c.Car;
 
+          Variable var = FindVar(cb, f);
+
+          if (var != null)
+          {
+            ;
+          }
+
           object m;
 
           if (Context.Scope.TryLookupName(f, out m))
@@ -193,7 +200,7 @@ namespace IronScheme.Compiler
             }
           }
         }
-        Expression ex = Ast.DynamicConvert(GetAst(c.Car, cb), typeof(ICallable));
+        Expression ex = Ast.ConvertHelper(GetAst(c.Car, cb), typeof(ICallable));
         Expression[] pp = GetAstList(c.Cdr as Cons, cb);
 
         Expression r = Ast.Call(ex, ICallable_Call, Ast.NewArray(typeof(object[]), pp));

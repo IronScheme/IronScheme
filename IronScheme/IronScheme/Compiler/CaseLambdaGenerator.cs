@@ -40,7 +40,8 @@ namespace IronScheme.Compiler
       }
       else
       {
-        Dictionary<int, CodeBlockExpression> cbs = new Dictionary<int, CodeBlockExpression>();
+        List<CodeBlockDescriptor> cbs = new List<CodeBlockDescriptor>();
+        //Dictionary<int, CodeBlockExpression> cbs = new Dictionary<int, CodeBlockExpression>();
 
         string lambdaname = GetLambdaName(c);
 
@@ -58,7 +59,11 @@ namespace IronScheme.Compiler
           List<Statement> stmts = new List<Statement>();
           FillBody(cb, stmts, body, true);
 
-          cbs.Add(isrest ? -1 : cb.Parameters.Count, Ast.CodeBlockExpression(cb, false));
+          CodeBlockDescriptor cbd = new CodeBlockDescriptor();
+          cbd.arity = isrest ? -cb.Parameters.Count : cb.Parameters.Count;
+          cbd.codeblock = Ast.CodeBlockExpression(cb, false);
+
+          cbs.Add(cbd);
 
           lambdas = lambdas.Cdr as Cons;
         }

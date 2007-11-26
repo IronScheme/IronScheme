@@ -43,7 +43,7 @@ namespace IronScheme.Compiler
 
       if (value.Type.IsValueType)
       {
-        value = Ast.DynamicConvert(value, typeof(object));
+        value = Ast.ConvertHelper(value, typeof(object));
       }
 
       //Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));

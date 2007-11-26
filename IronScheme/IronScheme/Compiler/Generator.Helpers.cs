@@ -165,7 +165,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        return Ast.DynamicConvert(Ast.Read(v), t);
+        return Ast.ConvertHelper(Ast.Read(v), t);
       }
     }
 
@@ -350,15 +350,15 @@ namespace IronScheme.Compiler
       return string.Join(".", tokens);
     }
 
-    protected static Expression MakeCaseClosure(string name, Dictionary<int, CodeBlockExpression> cases)
+    protected static Expression MakeCaseClosure(string name, List<CodeBlockDescriptor> cases)
     {
       List<Expression> targets = new List<Expression>();
       List<Expression> arities = new List<Expression>();
 
-      foreach (KeyValuePair<int,CodeBlockExpression> c in cases)
+      foreach (CodeBlockDescriptor c in cases)
       {
-        targets.Add(c.Value);
-        arities.Add(Ast.Constant(c.Key));
+        targets.Add(c.codeblock);
+        arities.Add(Ast.Constant(c.arity));
       }
       
       return Ast.SimpleCallHelper(Closure_MakeCase, Ast.CodeContext(), Ast.Constant(name),
@@ -406,6 +406,12 @@ namespace IronScheme.Compiler
 
         defcheck = defcheck.Cdr as Cons;
       }
+    }
+
+    protected class CodeBlockDescriptor
+    {
+      public int arity;
+      public CodeBlockExpression codeblock;
     }
 
     protected static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
@@ -520,7 +526,7 @@ namespace IronScheme.Compiler
         Expression ex = GetAst(c.Car, cb);
         if (ex.Type.IsValueType)
         {
-          ex = Ast.DynamicConvert( ex, typeof(object));
+          ex = Ast.ConvertHelper(ex, typeof(object));
         }
         e.Add(ex);
         c = c.Cdr as Cons;
@@ -568,7 +574,7 @@ namespace IronScheme.Compiler
       {
         if (e[i].Type.IsValueType)
         {
-          e[i] = Ast.DynamicConvert(e[i], typeof(object));
+          e[i] = Ast.ConvertHelper(e[i], typeof(object));
         }
       }
       if (splices.Count == 0)
