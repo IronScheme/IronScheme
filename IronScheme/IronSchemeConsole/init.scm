@@ -71,7 +71,8 @@
   
 (define (ironscheme-build)  
   (set! r6rs-input "ironscheme-buildscript.ss")
-  (load "ironscheme-r6rs.ss"))
+  (load "ironscheme-r6rs.ss")
+  (if #f #f))
 
 (define eval-r6rs #f)
 

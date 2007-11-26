@@ -162,7 +162,7 @@ namespace IronScheme.Runtime
       if (c != null)
       {
         // this does add some overhead
-        RequiresCondition(c.IsProper, "must be a properlist");
+        //RequiresCondition(c.IsProper, "must be a properlist");
         while (c != null)
         {
           length++;
@@ -211,7 +211,7 @@ namespace IronScheme.Runtime
       if (e != null)
       {
         // this does add some overhead
-        RequiresCondition(e.IsProper, "must be a properlist");
+        //RequiresCondition(e.IsProper, "must be a properlist");
         while (e != null)
         {
           Cons ass = e.Car as Cons;
@@ -499,7 +499,7 @@ namespace IronScheme.Runtime
       if (c != null)
       {
         // this does add some overhead
-        RequiresCondition(c.IsProper, "must be a properlist");
+        //RequiresCondition(c.IsProper, "must be a properlist");
         while (c != null)
         {
           list = new Cons(c.Car, list);

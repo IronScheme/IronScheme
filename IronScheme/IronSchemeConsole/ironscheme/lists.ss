@@ -33,7 +33,8 @@
   (import 
     (except (rnrs)
       for-all 
-      exists))
+      exists
+      cons*))
   
   (define (all-empty? ls)
     (or (null? ls) 
@@ -67,5 +68,12 @@
             (lambda (cars cdrs)
               (or (apply f cars)
                   (apply exists f cdrs)))))))
+                  
+  (define cons* 
+    (lambda (a . rest) 
+      (let f ((a a) (rest rest))
+        (if (null? rest) 
+            a
+            (cons a (f (car rest) (cdr rest)))))))
 )
 

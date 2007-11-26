@@ -42,7 +42,7 @@ namespace IronScheme.Runtime
 
     Closure(Delegate target, string name, int paramcount)
     {
-      if (paramcount > 5 || paramcount < 0)
+      if (paramcount > 5 || paramcount < -5)
       {
         paramcount = -1;
       }
@@ -170,23 +170,22 @@ namespace IronScheme.Runtime
 
     sealed class CaseClosure : Closure
     {
-      CodeContext cc;
-      Dictionary<int, ICallable> targets = new Dictionary<int, ICallable>();
+      List<int> arities = new List<int>();
+      List<ICallable> targets = new List<ICallable>();
 
       public CaseClosure(CodeContext cc, string name, Delegate[] targets, int[] arities)
         : base(null, name, -1)
       {
-        this.cc = cc;
-
         for (int i = 0; i < targets.Length; i++)
         {
-          if (arities[i] == -1)
+          this.arities.Add(arities[i]);
+          if (arities[i] < 0)
           {
-            this.targets.Add(arities[i], MakeVarArgX(cc, targets[i], 1, name));
+            this.targets.Add(MakeVarArgX(cc, targets[i], -arities[i], name));
           }
           else
           {
-            this.targets.Add(arities[i], Make(cc, targets[i], name));
+            this.targets.Add(Make(cc, targets[i], name));
           }
         }
       }
@@ -195,13 +194,13 @@ namespace IronScheme.Runtime
       {
         int arglen = args.Length;
 
-        if (targets.ContainsKey(arglen))
+        for (int i = 0; i < arities.Count; i++)
         {
-          return targets[arglen].Call(args);
-        }
-        else if (targets.ContainsKey(-1))
-        {
-          return targets[-1].Call(args);
+          int a = arities[i];
+          if (a == arglen || (a < 0 && arglen >= -a - 1))
+          {
+            return targets[i].Call(args);
+          }
         }
 
         throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, 0, int.MaxValue, 0, args.Length == -1 ? int.MaxValue : arglen, false, false);

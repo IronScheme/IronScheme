@@ -67,14 +67,14 @@ namespace IronScheme.Compiler
 
       if (e.Type != typeof(object))
       {
-        e = Ast.DynamicConvert(e, typeof(object));
+        e = Ast.ConvertHelper(e, typeof(object));
       }
 
       Expression t = GetAst(trueexp, cb);
 
       if (t.Type != typeof(object))
       {
-        t = Ast.DynamicConvert(t, typeof(object));
+        t = Ast.ConvertHelper(t, typeof(object));
       }
 
       Expression testexp = GetAst(test, cb);

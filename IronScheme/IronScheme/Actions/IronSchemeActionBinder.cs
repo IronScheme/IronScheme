@@ -131,7 +131,7 @@ namespace IronScheme.Actions
       {
         return expr;
       }
-      return Ast.DynamicConvert(expr, toType);
+      return Ast.ConvertHelper(expr, toType);
       //throw new NotImplementedException("The method or operation is not implemented.");
     }
 

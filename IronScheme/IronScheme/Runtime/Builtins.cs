@@ -153,11 +153,11 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Builtin("make-eq-hashtable")]
-    public static object MakeEqHashtable()
-    {
-      return new Hashtable();
-    }
+    //[Builtin("make-eq-hashtable")]
+    //public static object MakeEqHashtable()
+    //{
+    //  return new Hashtable();
+    //}
 
     [Builtin("gc-collect")]
     public static object GcCollect()
@@ -166,20 +166,20 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-    [Builtin("hashtable-ref")]
-    public static object HashtableRef(object hashtable, object key, object value)
-    {
-      Hashtable h = RequiresNotNull<Hashtable>(hashtable);
-      return h[key] ?? value;
-    }
+    //[Builtin("hashtable-ref")]
+    //public static object HashtableRef(object hashtable, object key, object value)
+    //{
+    //  Hashtable h = RequiresNotNull<Hashtable>(hashtable);
+    //  return h[key] ?? value;
+    //}
 
-    [Builtin("hashtable-set!")]
-    public static object HashtableSet(object hashtable, object key, object value)
-    {
-      Hashtable h = RequiresNotNull<Hashtable>(hashtable);
-      h[key] = value;
-      return Unspecified;
-    }
+    //[Builtin("hashtable-set!")]
+    //public static object HashtableSet(object hashtable, object key, object value)
+    //{
+    //  Hashtable h = RequiresNotNull<Hashtable>(hashtable);
+    //  h[key] = value;
+    //  return Unspecified;
+    //}
 
     [Builtin]
     public static object Exit(object reason)
@@ -193,44 +193,44 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-    [Builtin("all-empty?")]
-    public static object IsAllEmpty(object ls)
-    {
-      return ls == null || 
-        (Car(ls) == null && 
-        (bool)IsAllEmpty(Cdr(ls)));
-    }
+    //[Builtin("all-empty?")]
+    //public static object IsAllEmpty(object ls)
+    //{
+    //  return ls == null || 
+    //    (Car(ls) == null && 
+    //    (bool)IsAllEmpty(Cdr(ls)));
+    //}
 
     static object ConsStarHelper(object a, object rest)
     {
       return (rest == null) ? a : new Cons(a, ConsStarHelper(Car(rest), Cdr(rest)));
     }
 
-    [Builtin("cons*")]
-    public static object ConsStar(object a)
-    {
-      return a;
-    }
+    //[Builtin("cons*")]
+    //public static object ConsStar(object a)
+    //{
+    //  return a;
+    //}
 
-    [Builtin("cons*"), Builtin("list*")]
+    [Builtin("list*")]
     public static object ConsStar(object a, params object[] rest)
     {
       return ConsStarHelper(a, Runtime.Cons.FromArray(rest));
     }
 
-    [Builtin("cons*"), Builtin("list*")]
+    [Builtin("list*")]
     public static object ConsStar(object a, object b)
     {
       return Cons(a, b);
     }
 
-    [Builtin("cons*"), Builtin("list*")]
+    [Builtin("list*")]
     public static object ConsStar(object a, object b, object c)
     {
       return Cons(a, Cons(b, c));
     }
 
-    [Builtin("cons*"), Builtin("list*")]
+    [Builtin("list*")]
     public static object ConsStar(object a, object b, object c, object d)
     {
       return Cons(a, Cons(b, Cons(c , d)));
@@ -243,20 +243,20 @@ namespace IronScheme.Runtime
     //  return Unspecified;
     //}
 
-    [Builtin("file-exists?")]
-    public static object FileExists(object filename)
-    {
-      string s = RequiresNotNull<string>(filename);
-      return File.Exists(s);
-    }
+    //[Builtin("file-exists?")]
+    //public static object FileExists(object filename)
+    //{
+    //  string s = RequiresNotNull<string>(filename);
+    //  return File.Exists(s);
+    //}
 
-    [Builtin("delete-file")]
-    public static object DeleteFile(object filename)
-    {
-      string s = RequiresNotNull<string>(filename);
-      File.Delete(s);
-      return Unspecified;
-    }
+    //[Builtin("delete-file")]
+    //public static object DeleteFile(object filename)
+    //{
+    //  string s = RequiresNotNull<string>(filename);
+    //  File.Delete(s);
+    //  return Unspecified;
+    //}
 
 
     [Builtin("symbol-value")]

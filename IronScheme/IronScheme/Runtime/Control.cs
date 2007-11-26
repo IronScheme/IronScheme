@@ -152,15 +152,15 @@ namespace IronScheme.Runtime
       ICallable bodyf = (ICallable)bodyfunc;
       ICallable outf = (ICallable)outfunc;
 
-      inf.Call(EMPTYARRAY);
+      inf.Call();
 
       try
       {
-        return bodyf.Call(EMPTYARRAY);
+        return bodyf.Call();
       }
       finally
       {
-        outf.Call(EMPTYARRAY);
+        outf.Call();
       }
     }
 
@@ -214,34 +214,33 @@ namespace IronScheme.Runtime
       return obj is ICallable; 
     }
 
-    readonly static object[] EMPTYARRAY = { };
 
     [Builtin]
-    public static object Apply(CodeContext cc, object fn)
+    public static object Apply(object fn)
     {
       ICallable c = RequiresNotNull<ICallable>(fn);
-      return c.Call(EMPTYARRAY);
+      return c.Call();
     }
 
     //procedure:  (apply proc arg1 ... args) 
     //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     
     [Builtin]
-    public static object Apply(CodeContext cc, object fn, params object[] args)
+    public static object Apply(object fn, params object[] args)
     {
       if (args == null)
       {
-        return Apply(cc, fn, (object) null);
+        return Apply(fn, (object) null);
       }
       object[] head = ArrayUtils.RemoveLast(args);
       Cons last = args.Length > 0 ? Requires<Runtime.Cons>(args[args.Length - 1]) : null;
 
-      return Apply(cc, fn, Append(List(head), last));
+      return Apply(fn, Append(List(head), last));
     }
 
 
     [Builtin]
-    public static object Apply(CodeContext cc, object fn, object list)
+    public static object Apply(object fn, object list)
     {
       Cons args = Requires<Runtime.Cons>(list);
       ICallable c = RequiresNotNull<ICallable>(fn);
@@ -256,20 +255,20 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static Cons Map(CodeContext cc, object fn, object lst)
+    public static Cons Map(object fn, object lst)
     {
       Cons list = Requires<Runtime.Cons>(lst);
       ArrayList returns = new ArrayList();
       while (list != null)
       {
-        returns.Add(Apply(cc, fn, new Cons(list.Car)));
+        returns.Add(Apply(fn, new Cons(list.Car)));
         list = list.Cdr as Cons;
       }
       return Runtime.Cons.FromList(returns);
     }
 
     [Builtin]
-    public static Cons Map(CodeContext cc, object fn, params object[] lists)
+    public static Cons Map(object fn, params object[] lists)
     {
       if (lists == null)
       {
@@ -278,31 +277,31 @@ namespace IronScheme.Runtime
       ArrayList returns = new ArrayList();
       foreach (Cons obj in new MultiEnumerable(lists))
       {
-        returns.Add(Apply(cc, fn, obj));
+        returns.Add(Apply(fn, obj));
       }
       return Runtime.Cons.FromList(returns);
     }
 
 
     [Builtin("for-each")]
-    public static object ForEach(CodeContext cc, object fn, object list)
+    public static object ForEach(object fn, object list)
     {
       Cons c = Requires<Runtime.Cons>(list);
 
       while (c != null)
       {
-        Apply(cc, fn, new Cons(c.Car));
+        Apply(fn, new Cons(c.Car));
         c = c.Cdr as Cons;
       }
       return Unspecified;
     }
 
     [Builtin("for-each")]
-    public static object ForEach(CodeContext cc, object fn, params object[] lists)
+    public static object ForEach(object fn, params object[] lists)
     {
       foreach (Cons obj in new MultiEnumerable(lists))
       {
-        Apply(cc, fn, obj);
+        Apply(fn, obj);
       }
       return Unspecified;
     }
