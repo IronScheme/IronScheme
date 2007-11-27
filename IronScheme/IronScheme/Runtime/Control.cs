@@ -29,7 +29,7 @@ namespace IronScheme.Runtime
   {
     readonly MethodBinder meth;
     readonly MethodGroup methods;
-    readonly Dictionary<int, Delegate> cache = new Dictionary<int, Delegate>();
+    readonly Dictionary<int, ICallable> cache = new Dictionary<int, ICallable>();
 
     public MethodBinder Binder
     {
@@ -70,11 +70,11 @@ namespace IronScheme.Runtime
 
       int nargs = args.Length;
 
-      Delegate d;
+      ICallable c;
 
-      if (cache.TryGetValue(nargs, out d))
+      if (cache.TryGetValue(nargs, out c))
       {
-        return Closure.Make(context, d, Name).Call(args);
+        return c.Call(args);
       }
 
       if (!baked)
@@ -102,7 +102,7 @@ namespace IronScheme.Runtime
 
 
             Type dt = CallTargets.GetTargetType(needContext, nargs, false);
-            d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
+            Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
             if (d == null)
             {
               d = Delegate.CreateDelegate(needContext ? typeof(CallTargetWithContextN) : typeof(CallTargetN), mb as MethodInfo, false);
@@ -110,8 +110,8 @@ namespace IronScheme.Runtime
 
             if (d != null)
             {
-              cache[nargs] = d;
-              return Closure.Make(context, d, Name).Call(args);
+              cache[nargs] = c = Closure.Make(context, d, Name);
+              return c.Call(args);
             }
 
           }
