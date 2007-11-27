@@ -25,6 +25,27 @@ namespace IronScheme.Runtime
 
   public abstract class Closure : ICallable
   {
+    readonly static Dictionary<Type, int> targetmap = new Dictionary<Type, int>();
+
+    static Closure()
+    {
+      targetmap.Add(typeof(CallTarget0), 0);
+      targetmap.Add(typeof(CallTarget1), 1);
+      targetmap.Add(typeof(CallTarget2), 2);
+      targetmap.Add(typeof(CallTarget3), 3);
+      targetmap.Add(typeof(CallTarget4), 4);
+      targetmap.Add(typeof(CallTarget5), 5);
+      targetmap.Add(typeof(CallTargetN), -1);
+
+      targetmap.Add(typeof(CallTargetWithContext0), 0 + 8);
+      targetmap.Add(typeof(CallTargetWithContext1), 1 + 8);
+      targetmap.Add(typeof(CallTargetWithContext2), 2 + 8);
+      targetmap.Add(typeof(CallTargetWithContext3), 3 + 8);
+      targetmap.Add(typeof(CallTargetWithContext4), 4 + 8);
+      targetmap.Add(typeof(CallTargetWithContext5), 5 + 8);
+      targetmap.Add(typeof(CallTargetWithContextN), -1 + 8);
+    }
+
     readonly string name;
 
     int paramcount = int.MaxValue;
@@ -42,10 +63,6 @@ namespace IronScheme.Runtime
 
     Closure(Delegate target, string name, int paramcount)
     {
-      if (paramcount > 5 || paramcount < -5)
-      {
-        paramcount = -1;
-      }
       this.paramcount = paramcount;
       this.name = name;
       this.target = target;
@@ -118,17 +135,20 @@ namespace IronScheme.Runtime
 
     public static ICallable Make(CodeContext cc, Delegate target, string name)
     {
-      string targetname = target.GetType().Name;
-      int paramcount = -1;
-      paramcount = targetname[targetname.Length - 1] - '0';
-      if (targetname.Contains("WithContext"))
+      int arity;
+      if (targetmap.TryGetValue(target.GetType(), out arity))
       {
-        return new ContextClosure(cc, target, name, paramcount);
+        if (arity < 6 && arity > -2) // no context
+        {
+          return new SimpleClosure(target, name, arity);
+        }
+        else
+        {
+          arity -= 8;
+          return new ContextClosure(cc, target, name, arity);
+        }
       }
-      else
-      {
-        return new SimpleClosure(target, name, paramcount);
-      }
+      throw new NotSupportedException();
     }
 
     public static ICallable MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
@@ -170,15 +190,15 @@ namespace IronScheme.Runtime
 
     sealed class CaseClosure : Closure
     {
-      List<int> arities = new List<int>();
+      int[] arities;
       List<ICallable> targets = new List<ICallable>();
 
       public CaseClosure(CodeContext cc, string name, Delegate[] targets, int[] arities)
         : base(null, name, -1)
       {
+        this.arities = arities;
         for (int i = 0; i < targets.Length; i++)
         {
-          this.arities.Add(arities[i]);
           if (arities[i] < 0)
           {
             this.targets.Add(MakeVarArgX(cc, targets[i], -arities[i], name));
@@ -194,7 +214,7 @@ namespace IronScheme.Runtime
       {
         int arglen = args.Length;
 
-        for (int i = 0; i < arities.Count; i++)
+        for (int i = 0; i < arities.Length; i++)
         {
           int a = arities[i];
           if (a == arglen || (a < 0 && arglen >= -a - 1))
