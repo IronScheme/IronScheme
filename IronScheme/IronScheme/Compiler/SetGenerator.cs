@@ -27,6 +27,8 @@ namespace IronScheme.Compiler
     {
       SymbolId s = (SymbolId)Builtins.First(args);
 
+      assigns[s] = true;
+
       NameHint = s;
 
       Expression value = GetAst(Builtins.Second(args), cb);
