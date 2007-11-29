@@ -48,30 +48,6 @@ namespace IronScheme.Runtime
 - assoc     
      */
 
-#if EXT_LIB
-    [Builtin("unfold")]
-    public static object Unfold(CodeContext cc, object function, object init, object pred)
-    {
-      ICallable fc = function as ICallable;
-      ICallable p = pred as ICallable;
-      return (bool) p.Call(cc, init) ? Cons(init) : Cons(init, Unfold(cc, function, fc.Call(cc, init), pred));
-    }
-
-    [Builtin("foldl"), Builtin("reduce"), Builtin("fold")]
-    public static object FoldLeft(CodeContext cc, object function, object accum, IEnumerable list)
-    {
-      ICallable fc = function as ICallable;
-      return IsNull(list) ? accum : FoldLeft(cc, function, fc.Call(cc, accum, Car(list)), Cdr(list) as IEnumerable);
-    }
-
-    [Builtin("foldr")]
-    public static object FoldRight(CodeContext cc, object function, object end, IEnumerable list)
-    {
-      ICallable fc = function as ICallable;
-      return IsNull(list) ? end : fc.Call(cc, Car(list), FoldRight(cc, function, end, Cdr(list) as IEnumerable));
-    }
-
-#endif
 
     [Builtin("pair?")]
     public static object IsPair(object arg1)
@@ -104,51 +80,51 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static Cons List(object arg1)
+    public static object List(object arg1)
     {
       return new Cons(arg1);
     }
 
     [Builtin]
-    public static Cons List(object arg1, object arg2)
+    public static object List(object arg1, object arg2)
     {
       return new Cons(arg1, new Cons(arg2));
     }
 
     [Builtin]
-    public static Cons List(object arg1, object arg2, object arg3)
+    public static object List(object arg1, object arg2, object arg3)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3)));
     }
 
     [Builtin]
-    public static Cons List(object arg1, object arg2, object arg3, object arg4)
+    public static object List(object arg1, object arg2, object arg3, object arg4)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4))));
     }
 
     [Builtin]
-    public static Cons List(object arg1, object arg2, object arg3, object arg4, object arg5)
+    public static object List(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4, new Cons(arg5)))));
     }
 
 
     [Builtin]
-    public static Cons List(params object[] args)
+    public static object List(params object[] args)
     {
       return Runtime.Cons.FromArray(args);
     }
 
     // overload
     [Builtin]
-    public static Cons Cons(object car)
+    public static object Cons(object car)
     {
       return new Cons(car);
     }
 
     [Builtin]
-    public static Cons Cons(object car, object cdr)
+    public static object Cons(object car, object cdr)
     {
       return new Cons(car, cdr);
     }
@@ -192,7 +168,7 @@ namespace IronScheme.Runtime
     }
     
     [Builtin]
-    public static Cons Last(object args)
+    public static object Last(object args)
     {
       Cons c = args as Cons;
       while (c.Cdr is Cons)
@@ -299,6 +275,8 @@ namespace IronScheme.Runtime
       c.Cdr = value;
       return Unspecified;
     }
+
+#if !R6RS
 
     [Builtin]
     public static object Caaaar(object lst)
@@ -468,11 +446,13 @@ namespace IronScheme.Runtime
       return Cdr(Cdr(args));
     }
 
+#endif
+
     [Builtin]
-    public static Runtime.Cons Rest(object args)
+    public static object Rest(object args)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(args);
-      return c.Cdr as Runtime.Cons;
+      return c.Cdr;
     }
 
 
@@ -491,7 +471,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static Cons Reverse(object lst)
+    public static object Reverse(object lst)
     {
       Cons c = Requires<Runtime.Cons>(lst);
       Cons list = null;

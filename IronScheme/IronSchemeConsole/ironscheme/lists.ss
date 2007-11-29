@@ -34,7 +34,9 @@
     (except (rnrs)
       for-all 
       exists
-      cons*))
+      cons*
+      fold-left
+      fold-right))
   
   (define (all-empty? ls)
     (or (null? ls) 
@@ -75,5 +77,32 @@
         (if (null? rest) 
             a
             (cons a (f (car rest) (cdr rest)))))))
+            
+  
+  (define (fold-left combine nil list1 . lists)
+	  (if (null? list1)
+		  nil
+		  (apply fold-left 
+			  (cons*
+				  combine 
+				  (apply combine (cons* nil (car list1) (map car lists))) 
+				  (cdr list1) 
+				  (map cdr lists)))))   
+				  
+				  
+  (define (fold-right combine nil list1 . lists)
+	  (if (null? list1)
+		  nil
+		  (apply combine 
+			  (append
+				  (list (car list1))
+				  (map car lists)
+				  (list 
+				    (apply fold-right
+					    (cons*
+						    combine
+						    nil
+						    (cdr list1) 
+						    (map cdr lists))))))))
 )
 

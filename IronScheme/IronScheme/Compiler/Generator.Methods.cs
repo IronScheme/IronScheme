@@ -27,7 +27,7 @@ namespace IronScheme.Compiler
     static readonly MethodInfo Builtins_Append = typeof(Builtins).GetMethod("Append");
     static readonly MethodInfo Builtins_VectorAppend = typeof(Builtins).GetMethod("VectorAppend");
     static readonly MethodInfo Builtins_ToImproper = typeof(Builtins).GetMethod("ToImproper");
-    static readonly MethodInfo Builtins_ListToVector = typeof(Builtins).GetMethod("ListToVector");
+    protected static readonly MethodInfo Builtins_ListToVector = typeof(Builtins).GetMethod("ListToVector");
 
     protected readonly static MethodInfo Macro_MakeVarArgX = typeof(Runtime.Macro).GetMethod("MakeVarArgX");
     protected readonly static MethodInfo Macro_Make = typeof(Runtime.Macro).GetMethod("Make");
@@ -39,9 +39,36 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
     protected static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
 
-    static readonly MethodInfo ICallable_Call = typeof(ICallable).GetMethod("Call");
+    protected static readonly MethodInfo ICallable_Call0 = typeof(ICallable).GetMethod("Call", new Type[] { });
+    protected static readonly MethodInfo ICallable_Call1 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), });
+    protected static readonly MethodInfo ICallable_Call2 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call3 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call4 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call5 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_CallN = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]), });
 
     protected static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
+
+    protected static MethodInfo GetCallable(int arity)
+    {
+      switch (arity)
+      {
+        case 0:
+          return ICallable_Call0;
+        case 1:
+          return ICallable_Call1;
+        case 2:
+          return ICallable_Call2;
+        case 3:
+          return ICallable_Call3;
+        case 4:
+          return ICallable_Call4;
+        case 5:
+          return ICallable_Call5;
+        default:
+          return ICallable_CallN;
+      }
+    }
 
   }
 }

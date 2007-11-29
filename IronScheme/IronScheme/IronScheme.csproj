@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.20706</ProductVersion>
+    <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -47,6 +47,7 @@
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
+    <Compile Include="Compiler\ApplyGenerator.cs" />
     <Compile Include="Compiler\DelayGenerator.cs" />
     <Compile Include="Compiler\Generator.InlineEmitters.cs" />
     <Compile Include="Compiler\GeneratorAttribute.cs" />

@@ -168,42 +168,47 @@ namespace IronScheme.Compiler
               return rr;
             }
 
-            IGenerator gh = m as IGenerator;
-            if (gh != null)
+            if (var == null)
             {
-              if (!Parser.sourcemap.TryGetValue(c, out spanhint))
+              IGenerator gh = m as IGenerator;
+              if (gh != null)
               {
-                spanhint = SourceSpan.None;
+                if (!Parser.sourcemap.TryGetValue(c, out spanhint))
+                {
+                  spanhint = SourceSpan.None;
+                }
+                return gh.Generate(c.Cdr, cb);
               }
-              return gh.Generate(c.Cdr, cb);
-            }
 
-            BuiltinMethod bf = m as BuiltinMethod;
-            if (bf != null)
-            {
-              MethodBinder mb = bf.Binder;
-              Expression[] pars = GetAstList(c.Cdr as Cons, cb);
-              //pars[0] = Ast.RuntimeConstant(bf);
-              Type[] types = GetExpressionTypes(pars);
-              MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-              if (mc == null)
+              BuiltinMethod bf = m as BuiltinMethod;
+              if (bf != null)
               {
-                throw new SyntaxErrorException("no match for " + f + " near: " + Parser.sourcemap[c]);
+                MethodBinder mb = bf.Binder;
+                Expression[] pars = GetAstList(c.Cdr as Cons, cb);
+                //pars[0] = Ast.RuntimeConstant(bf);
+                Type[] types = GetExpressionTypes(pars);
+                MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                if (mc == null)
+                {
+                  throw new SyntaxErrorException("no match for " + f + " near: " + Parser.sourcemap[c]);
+                }
+                if (mc.Target.NeedsContext)
+                {
+                  pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+                }
+                return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
               }
-              if (mc.Target.NeedsContext)
-              {
-                pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-              }
-              return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
-              // TODO: figure out how MethodGroup et al works, perhaps not
-              //return Ast.Action.Call(typeof(object), pars);
             }
           }
         }
         Expression ex = Ast.ConvertHelper(GetAst(c.Car, cb), typeof(ICallable));
         Expression[] pp = GetAstList(c.Cdr as Cons, cb);
 
-        Expression r = Ast.Call(ex, ICallable_Call, Ast.NewArray(typeof(object[]), pp));
+        MethodInfo call = GetCallable(pp.Length);
+
+        Expression r = pp.Length > 5 ?
+          Ast.Call(ex, call, Ast.NewArray(typeof(object[]), pp)) :
+          Ast.Call(ex, call, pp);
 
         if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
         {

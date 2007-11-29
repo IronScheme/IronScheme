@@ -110,7 +110,7 @@ namespace IronScheme.Runtime
 
             if (d != null)
             {
-              cache[nargs] = c = Closure.Make(context, d, Name);
+              cache[nargs] = c = Closure.Make(context, d);
               return c.Call(args);
             }
 
@@ -134,6 +134,41 @@ namespace IronScheme.Runtime
       }
       return false;
     }
+
+    #region ICallable Members
+
+    public  object Call()
+    {
+      return Call(new object[0]);
+    }
+
+    public  object Call(object arg1)
+    {
+      return Call(new object[] { arg1 });
+    }
+
+    public  object Call(object arg1, object arg2)
+    {
+      return Call(new object[] { arg1, arg2 });
+    }
+
+    public  object Call(object arg1, object arg2, object arg3)
+    {
+      return Call(new object[] { arg1, arg2, arg3 });
+    }
+
+    public  object Call(object arg1, object arg2, object arg3, object arg4)
+    {
+      return Call(new object[] { arg1, arg2, arg3, arg4 });
+    }
+
+    public  object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
+    {
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
+    }
+
+
+    #endregion
   }
 
   public partial class Builtins
@@ -192,7 +227,7 @@ namespace IronScheme.Runtime
       try
       {
         CallTarget1 exitproc = InvokeContinuation;
-        ICallable fce = Closure.Make(cc, exitproc, "invoke-continuation");
+        ICallable fce = Closure.Make(cc, exitproc);
         return fc.Call( new object[] { fce });
       }
       catch (Continuation c)
@@ -215,7 +250,7 @@ namespace IronScheme.Runtime
     }
 
 
-    [Builtin]
+    //[Builtin]
     public static object Apply(object fn)
     {
       ICallable c = RequiresNotNull<ICallable>(fn);
@@ -230,7 +265,7 @@ namespace IronScheme.Runtime
     {
       if (args == null)
       {
-        return Apply(fn, (object) null);
+        return Apply(fn, (object)null);
       }
       object[] head = ArrayUtils.RemoveLast(args);
       Cons last = args.Length > 0 ? Requires<Runtime.Cons>(args[args.Length - 1]) : null;
@@ -239,7 +274,7 @@ namespace IronScheme.Runtime
     }
 
 
-    [Builtin]
+    //[Builtin]
     public static object Apply(object fn, object list)
     {
       Cons args = Requires<Runtime.Cons>(list);
@@ -255,7 +290,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static Cons Map(object fn, object lst)
+    public static object Map(object fn, object lst)
     {
       Cons list = Requires<Runtime.Cons>(lst);
       ArrayList returns = new ArrayList();
@@ -268,7 +303,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static Cons Map(object fn, params object[] lists)
+    public static object Map(object fn, params object[] lists)
     {
       if (lists == null)
       {
