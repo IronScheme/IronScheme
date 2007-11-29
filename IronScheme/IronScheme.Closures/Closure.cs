@@ -46,25 +46,52 @@ namespace IronScheme.Runtime
       targetmap.Add(typeof(CallTargetWithContextN), -1 + 8);
     }
 
-    readonly string name;
-
     int paramcount = int.MaxValue;
 
     public static ConsFromArrayHandler ConsFromArray;
 
     public override string ToString()
     {
-      return name;
+      return target.Method.Name;
+    }
+
+    public virtual object Call()
+    {
+      return Call(new object[0]);
+    }
+
+    public virtual object Call(object arg1)
+    {
+      return Call(new object[] { arg1 });
+    }
+
+    public virtual object Call(object arg1, object arg2)
+    {
+      return Call(new object[] { arg1, arg2 });
+    }
+
+    public virtual object Call(object arg1, object arg2, object arg3)
+    {
+      return Call(new object[] { arg1 , arg2, arg3 });
+    }
+
+    public virtual object Call(object arg1, object arg2, object arg3, object arg4)
+    {
+      return Call(new object[] { arg1 , arg2, arg3, arg4 });
+    }
+
+    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
+    {
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
     }
 
     public abstract object Call(object[] args);
 
     readonly Delegate target;
 
-    Closure(Delegate target, string name, int paramcount)
+    Closure(Delegate target, int paramcount)
     {
       this.paramcount = paramcount;
-      this.name = name;
       this.target = target;
     }
 
@@ -72,8 +99,8 @@ namespace IronScheme.Runtime
     {
       CodeContext cc;
 
-      public ContextClosure(CodeContext cc, Delegate target, string name, int paramcount)
-        : base(target, name, paramcount)
+      public ContextClosure(CodeContext cc, Delegate target, int paramcount)
+        : base(target, paramcount)
       {
         this.cc = cc;
       }
@@ -100,12 +127,84 @@ namespace IronScheme.Runtime
             throw new NotSupportedException();
         }
       }
+
+      public override object Call()
+      {
+        if (paramcount == 0)
+        {
+          return ((CallTargetWithContext0)target)(cc);
+        }
+        else
+        {
+          return base.Call();
+        }
+      }
+
+      public override object Call(object arg1)
+      {
+        if (paramcount == 1)
+        {
+          return ((CallTargetWithContext1)target)(cc, arg1);
+        }
+        else
+        {
+          return base.Call(arg1);
+        }
+      }
+
+      public override object Call(object arg1, object arg2)
+      {
+        if (paramcount == 2)
+        {
+          return ((CallTargetWithContext2)target)(cc, arg1, arg2);
+        }
+        else
+        {
+          return base.Call(arg1, arg2);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3)
+      {
+        if (paramcount == 3)
+        {
+          return ((CallTargetWithContext3)target)(cc, arg1, arg2, arg3);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4)
+      {
+        if (paramcount == 4)
+        {
+          return ((CallTargetWithContext4)target)(cc, arg1, arg2, arg3, arg4);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
+      {
+        if (paramcount == 5)
+        {
+          return ((CallTargetWithContext5)target)(cc, arg1, arg2, arg3, arg4, arg5);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5);
+        }
+      }
     }
 
     sealed class SimpleClosure : Closure
     {
-      public SimpleClosure(Delegate target, string name, int paramcount)
-        : base(target, name, paramcount)
+      public SimpleClosure(Delegate target, int paramcount)
+        : base(target, paramcount)
       {
       }
 
@@ -131,34 +230,106 @@ namespace IronScheme.Runtime
             throw new NotSupportedException();
         }
       }
+
+      public override object Call()
+      {
+        if (paramcount == 0)
+        {
+          return ((CallTarget0)target)();
+        }
+        else
+        {
+          return base.Call();
+        }
+      }
+
+      public override object Call(object arg1)
+      {
+        if (paramcount == 1)
+        {
+          return ((CallTarget1)target)(arg1);
+        }
+        else
+        {
+          return base.Call(arg1);
+        }
+      }
+
+      public override object Call(object arg1, object arg2)
+      {
+        if (paramcount == 2)
+        {
+          return ((CallTarget2)target)(arg1, arg2);
+        }
+        else
+        {
+          return base.Call(arg1, arg2);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3)
+      {
+        if (paramcount == 3)
+        {
+          return ((CallTarget3)target)(arg1, arg2, arg3);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4)
+      {
+        if (paramcount == 4)
+        {
+          return ((CallTarget4)target)(arg1, arg2, arg3, arg4);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
+      {
+        if (paramcount == 5)
+        {
+          return ((CallTarget5)target)(arg1, arg2, arg3, arg4, arg5);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5);
+        }
+      }
     }
 
-    public static ICallable Make(CodeContext cc, Delegate target, string name)
+    public static ICallable Make(CodeContext cc, Delegate target)
     {
       int arity;
       if (targetmap.TryGetValue(target.GetType(), out arity))
       {
         if (arity < 6 && arity > -2) // no context
         {
-          return new SimpleClosure(target, name, arity);
+          return new SimpleClosure(target, arity);
         }
         else
         {
           arity -= 8;
-          return new ContextClosure(cc, target, name, arity);
+          return new ContextClosure(cc, target, arity);
         }
       }
       throw new NotSupportedException();
     }
 
-    public static ICallable MakeVarArgX(CodeContext cc, Delegate target, int paramcount, string name)
+    public static ICallable MakeVarArgX(CodeContext cc, Delegate target, int paramcount)
     {
-      return new VarArgClosure(cc, target, paramcount, name);
+      return new VarArgClosure(cc, target, paramcount);
     }
 
-    public static ICallable MakeCase(CodeContext cc, string name, Delegate[] targets, int[] arities)
+    public static ICallable MakeCase(CodeContext cc, Delegate[] targets, int[] arities)
     {
-      return new CaseClosure(cc, name, targets, arities);
+      return new CaseClosure(cc, targets, arities);
     }
 
     sealed class VarArgClosure : Closure
@@ -166,18 +337,18 @@ namespace IronScheme.Runtime
       ICallable realtarget;
       int pcount = 0;
 
-      public VarArgClosure(CodeContext cc, Delegate target, int paramcount, string name)
-        : base(target, name, -1)
+      public VarArgClosure(CodeContext cc, Delegate target, int paramcount)
+        : base(target, -1)
       {
         pcount = paramcount;
-        realtarget = Make(cc, target, name);
+        realtarget = Make(cc, target);
       }
 
       public override object Call(object[] args)
       {
         if (args.Length + 1 < pcount)
         {
-          throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, pcount - 1, int.MaxValue, 0, args.Length, false, false);
+          throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(ToString(), pcount - 1, int.MaxValue, 0, args.Length, false, false);
         }
         object[] newargs = new object[pcount];
         Array.Copy(args, newargs, pcount - 1);
@@ -193,19 +364,19 @@ namespace IronScheme.Runtime
       int[] arities;
       List<ICallable> targets = new List<ICallable>();
 
-      public CaseClosure(CodeContext cc, string name, Delegate[] targets, int[] arities)
-        : base(null, name, -1)
+      public CaseClosure(CodeContext cc, Delegate[] targets, int[] arities)
+        : base(null, -1)
       {
         this.arities = arities;
         for (int i = 0; i < targets.Length; i++)
         {
           if (arities[i] < 0)
           {
-            this.targets.Add(MakeVarArgX(cc, targets[i], -arities[i], name));
+            this.targets.Add(MakeVarArgX(cc, targets[i], -arities[i]));
           }
           else
           {
-            this.targets.Add(Make(cc, targets[i], name));
+            this.targets.Add(Make(cc, targets[i]));
           }
         }
       }
@@ -223,9 +394,10 @@ namespace IronScheme.Runtime
           }
         }
 
-        throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(name, 0, int.MaxValue, 0, args.Length == -1 ? int.MaxValue : arglen, false, false);
+        throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(ToString(), 0, int.MaxValue, 0, args.Length == -1 ? int.MaxValue : arglen, false, false);
       }
     }
+
 
   }
 }

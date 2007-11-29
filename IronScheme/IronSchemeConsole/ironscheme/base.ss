@@ -216,5 +216,68 @@
     identifier-syntax
     
     )
-  (import (rnrs))
+  (import 
+    (except (rnrs) 
+      caar
+      cadr
+      cdar
+      cddr
+      caaar
+      caadr
+      cadar
+      caddr
+      cdaar
+      cdadr
+      cddar
+      cdddr
+      caaaar
+      caaadr
+      caadar
+      caaddr
+      cadaar
+      cadadr
+      caddar
+      cadddr
+      cdaaar
+      cdaadr
+      cdadar
+      cdaddr
+      cddaar
+      cddadr
+      cdddar
+      cddddr
+     ))
+     
+    (define (caar   x) (car (car x)))
+    (define (cadr   x) (car (cdr x)))
+    (define (cdar   x) (cdr (car x)))
+    (define (cddr   x) (cdr (cdr x)))
+
+    (define (caaar  x) (caar (car x)))
+    (define (caadr  x) (caar (cdr x)))
+    (define (cadar  x) (cadr (car x)))
+    (define (caddr  x) (cadr (cdr x)))
+    (define (cdaar  x) (cdar (car x)))
+    (define (cdadr  x) (cdar (cdr x)))
+    (define (cddar  x) (cddr (car x)))
+    (define (cdddr  x) (cddr (cdr x)))
+
+    (define (caaaar x) (caaar (car x)))
+    (define (caaadr x) (caaar (cdr x)))
+    (define (caadar x) (caadr (car x)))
+    (define (caaddr x) (caadr (cdr x)))
+    (define (cadaar x) (cadar (car x)))
+    (define (cadadr x) (cadar (cdr x)))
+    (define (caddar x) (caddr (car x)))
+    (define (cadddr x) (caddr (cdr x)))
+    (define (cdaaar x) (cdaar (car x)))
+    (define (cdaadr x) (cdaar (cdr x)))
+    (define (cdadar x) (cdadr (car x)))
+    (define (cdaddr x) (cdadr (cdr x)))
+    (define (cddaar x) (cddar (car x)))
+    (define (cddadr x) (cddar (cdr x)))
+    (define (cdddar x) (cdddr (car x)))
+    (define (cddddr x) (cdddr (cdr x)))
+    
+    
 )

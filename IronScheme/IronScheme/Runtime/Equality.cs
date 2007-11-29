@@ -49,12 +49,9 @@ namespace IronScheme.Runtime
       // one exception, symbols
       if (first is SymbolId && second is SymbolId)
       {
-        return Equals(((SymbolId)first).CaseInsensisitveId, ((SymbolId)second).CaseInsensisitveId);
-      }
-      if (first is ValueType && second is ValueType)
-      {
         return Equals(first, second);
       }
+
       return ReferenceEquals(first, second);
     }
 

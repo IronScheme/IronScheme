@@ -281,7 +281,7 @@ namespace IronScheme.Compiler
       // variables take precidence
       foreach (Variable v in cb.Variables)
       {
-        if (v.Name.CaseInsensitiveEquals(name))
+        if (v.Name == name)
         {
           return v;
         }
@@ -289,7 +289,7 @@ namespace IronScheme.Compiler
 
       foreach (Variable v in cb.Parameters)
       {
-        if (v.Name.CaseInsensitiveEquals(name))
+        if (v.Name == name)
         {
           return v;
         }
@@ -309,7 +309,7 @@ namespace IronScheme.Compiler
     readonly static SymbolId liststar = SymbolTable.StringToId("list*");
 
 
-    static MethodInfo MakeList(Expression[] args, bool proper)
+    protected static MethodInfo MakeList(Expression[] args, bool proper)
     {
       Type[] types = Array.ConvertAll<Expression, Type>(args,
         delegate(Expression e) { return e.Type; });
@@ -323,7 +323,7 @@ namespace IronScheme.Compiler
     {
       string fn = GetFullname(NameHint, cb);
 
-      string[] tokens = fn.Split('.');
+      string[] tokens = fn.Split('#');
 
       string c = null;
       int j = 0;
@@ -347,7 +347,7 @@ namespace IronScheme.Compiler
           tokens[i] = (i - j).ToString();
         }
       }
-      return string.Join(".", tokens);
+      return string.Join("#", tokens);
     }
 
     protected static Expression MakeCaseClosure(string name, List<CodeBlockDescriptor> cases)
@@ -361,7 +361,7 @@ namespace IronScheme.Compiler
         arities.Add(Ast.Constant(c.arity));
       }
       
-      return Ast.SimpleCallHelper(Closure_MakeCase, Ast.CodeContext(), Ast.Constant(name),
+      return Ast.SimpleCallHelper(Closure_MakeCase, Ast.CodeContext(),
         Ast.NewArrayHelper(typeof(Delegate[]), targets), Ast.NewArrayHelper(typeof(int[]), arities));
     }
 
@@ -370,11 +370,11 @@ namespace IronScheme.Compiler
       if (varargs)
       {
         return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false),
-          Ast.Constant(cb.Parameters.Count), Ast.Constant(cb.Name));
+          Ast.Constant(cb.Parameters.Count));
       }
       else
       {
-        return Ast.SimpleCallHelper(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false), Ast.Constant(cb.Name));
+        return Ast.SimpleCallHelper(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false));
       }
     }
 
@@ -450,9 +450,7 @@ namespace IronScheme.Compiler
         Statement s = null;
         if (c.Cdr == null)
         {
-          MakeTailCall(allowtailcall, e);
-
-          s = Ast.Return(e);
+          s = MakeTailCallReturn(allowtailcall, e);
         }
         else
         {
@@ -482,25 +480,39 @@ namespace IronScheme.Compiler
       cb.Body = Ast.Block(stmts.ToArray());
     }
 
-    static void MakeTailCall(bool allowtailcall, Expression e)
+    static Statement MakeTailCallReturn(bool allowtailcall, Expression e)
     {
       if (canallowtailcall && allowtailcall)
       {
-        if (e.Type != typeof(void))
+        if (e is MethodCallExpression)
         {
-          if (e is MethodCallExpression)
+          ((MethodCallExpression)e).TailCall = true;
+        }
+        else if (e is ConditionalExpression)
+        {
+          ConditionalExpression ce = (ConditionalExpression)e;
+          Statement truestmt = MakeTailCallReturn(allowtailcall, ce.IfTrue);
+          Statement falsestmt = MakeTailCallReturn(allowtailcall, ce.IfFalse);
+
+          return Ast.IfThenElse(ce.Test, truestmt, falsestmt);
+        }
+        else if (e is CommaExpression)
+        {
+          CommaExpression ce = (CommaExpression)e;
+          if (ce.ValueIndex + 1 == ce.Expressions.Count)
           {
-            ((MethodCallExpression)e).TailCall = true;
-          }
-          else if (e is ConditionalExpression)
-          {
-            ConditionalExpression ce = (ConditionalExpression)e;
-            //MakeTailCall(allowtailcall, ce.IfTrue);
-            MakeTailCall(allowtailcall, ce.IfFalse);
+            List<Statement> ss = new List<Statement>();
+            for (int i = 0; i < ce.Expressions.Count - 1; i++)
+            {
+              ss.Add(Ast.Statement(ce.Expressions[i]));
+            }
+            ss.Add(MakeTailCallReturn(allowtailcall, ce.Expressions[ce.Expressions.Count - 1]));
+            return Ast.Block(ss);
           }
         }
-        
       }
+
+      return Ast.Return(e);
     }
 
     static Expression[] GetAstVector(object[] v, CodeBlock cb)
@@ -696,7 +708,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        return parent.Name + "." + SymbolTable.IdToString(id);
+        return parent.Name + "#" + SymbolTable.IdToString(id);
       }
     }
 

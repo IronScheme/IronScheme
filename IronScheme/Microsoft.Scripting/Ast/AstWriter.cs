@@ -691,7 +691,7 @@ namespace Microsoft.Scripting.Ast {
                 WalkNode(node.Instance);
                 Out(").");
             }
-            Out("(" + node.Method.ReflectedType.Name + "." + node.Method.Name + ")(");
+            Out("(" + (node.TailCall ? "*" : "")  + node.Method.ReflectedType.Name + "." + node.Method.Name + ")(");
             if (node.Arguments != null && node.Arguments.Count > 0) {
                 NewLine(); Indent();
                 foreach (Expression e in node.Arguments) {
