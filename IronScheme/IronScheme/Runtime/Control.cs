@@ -139,31 +139,61 @@ namespace IronScheme.Runtime
 
     public  object Call()
     {
+      ICallable c;
+      if (cache.TryGetValue(0, out c))
+      {
+        return c.Call();
+      }
       return Call(new object[0]);
     }
 
     public  object Call(object arg1)
     {
+      ICallable c;
+      if (cache.TryGetValue(1, out c))
+      {
+        return c.Call(arg1);
+      }
       return Call(new object[] { arg1 });
     }
 
     public  object Call(object arg1, object arg2)
     {
+      ICallable c;
+      if (cache.TryGetValue(2, out c))
+      {
+        return c.Call(arg1, arg2);
+      }
       return Call(new object[] { arg1, arg2 });
     }
 
     public  object Call(object arg1, object arg2, object arg3)
     {
+      ICallable c;
+      if (cache.TryGetValue(3, out c))
+      {
+        return c.Call(arg1, arg2, arg3);
+      }
       return Call(new object[] { arg1, arg2, arg3 });
     }
 
     public  object Call(object arg1, object arg2, object arg3, object arg4)
     {
+      ICallable c;
+      if (cache.TryGetValue(4, out c))
+      {
+        return c.Call(arg1, arg2, arg3, arg4);
+      }
       return Call(new object[] { arg1, arg2, arg3, arg4 });
     }
 
     public  object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
+      ICallable c;
+      if (cache.TryGetValue(5, out c))
+      {
+        return c.Call(arg1, arg2, arg3, arg4, arg5);
+      }
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
     }
 

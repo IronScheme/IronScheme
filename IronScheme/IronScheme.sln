@@ -28,9 +28,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Clr", "IronSchem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TailCallMaker", "TailCallMaker\TailCallMaker.csproj", "{36084D27-12DC-40FE-BE74-C830B7D0F620}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -52,6 +54,9 @@ Global
 		SccProjectUniqueName6 = IronScheme.Closures\\IronScheme.Closures.csproj
 		SccProjectName6 = IronScheme.Closures
 		SccLocalPath6 = IronScheme.Closures
+		SccProjectUniqueName7 = TailCallMaker\\TailCallMaker.csproj
+		SccProjectName7 = TailCallMaker
+		SccLocalPath7 = TailCallMaker
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,6 +117,7 @@ Global
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AD643C7-80C7-42A4-82B5-05ACF677FA83}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.FxCop|Any CPU.Build.0 = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -119,6 +125,16 @@ Global
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Silverlight Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Silverlight Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Silverlight Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Silverlight Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

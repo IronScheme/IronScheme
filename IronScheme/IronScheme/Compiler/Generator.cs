@@ -113,6 +113,8 @@ namespace IronScheme.Compiler
       }
     }
 
+    protected readonly static Dictionary<SymbolId, bool> assigns = new Dictionary<SymbolId, bool>();
+
     protected internal static Expression GetAst(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
@@ -124,9 +126,9 @@ namespace IronScheme.Compiler
 
           Variable var = FindVar(cb, f);
 
-          if (var != null)
+          if (var != null && !assigns.ContainsKey(f))
           {
-            ;
+            var = null;
           }
 
           object m;
