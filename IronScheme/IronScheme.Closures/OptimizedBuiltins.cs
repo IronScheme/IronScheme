@@ -7,8 +7,6 @@ namespace IronScheme.Runtime
 {
   public static class OptimizedBuiltins
   {
-    readonly static object[] EMPTYARRAY = { };
- 
     //[Builtin("call-with-values")]
     public static object CallWithValues(object producer, object consumer)
     {
