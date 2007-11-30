@@ -27,6 +27,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Clr", "IronScheme.Clr\IronScheme.Clr.csproj", "{5AD643C7-80C7-42A4-82B5-05ACF677FA83}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {36084D27-12DC-40FE-BE74-C830B7D0F620}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TailCallMaker", "TailCallMaker\TailCallMaker.csproj", "{36084D27-12DC-40FE-BE74-C830B7D0F620}"
 EndProject

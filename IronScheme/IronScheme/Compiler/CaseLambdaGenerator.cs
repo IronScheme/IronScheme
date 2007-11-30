@@ -36,7 +36,7 @@ namespace IronScheme.Compiler
         {
           lambdagen = Context.Scope.LookupName(SymbolTable.StringToId("lambda")) as LambdaGenerator;
         }
-        return lambdagen.Generate(lambdas.Car, c);
+        return lambdagen.Generate(lambdas.car, c);
       }
       else
       {
@@ -47,7 +47,7 @@ namespace IronScheme.Compiler
 
         while (lambdas != null)
         {
-          object actual = lambdas.Car;
+          object actual = lambdas.car;
           CodeBlock cb = Ast.CodeBlock(SpanHint, lambdaname);
           cb.Parent = c;
 
@@ -65,7 +65,7 @@ namespace IronScheme.Compiler
 
           cbs.Add(cbd);
 
-          lambdas = lambdas.Cdr as Cons;
+          lambdas = lambdas.cdr as Cons;
         }
 
         return MakeCaseClosure(lambdaname, cbs);

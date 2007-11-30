@@ -142,7 +142,7 @@ namespace IronScheme.Runtime
         while (c != null)
         {
           length++;
-          c = c.Cdr as Cons;
+          c = c.cdr as Cons;
         }
       }
 
@@ -171,9 +171,9 @@ namespace IronScheme.Runtime
     public static object Last(object args)
     {
       Cons c = args as Cons;
-      while (c.Cdr is Cons)
+      while (c.cdr is Cons)
       {
-        c = c.Cdr as Cons;
+        c = c.cdr as Cons;
       }
       return c;
     }
@@ -190,12 +190,12 @@ namespace IronScheme.Runtime
         //RequiresCondition(e.IsProper, "must be a properlist");
         while (e != null)
         {
-          Cons ass = e.Car as Cons;
-          if ((bool)pred(obj, ass.Car))
+          Cons ass = e.car as Cons;
+          if ((bool)pred(obj, ass.car))
           {
             return ass;
           }
-          e = e.Cdr as Cons;
+          e = e.cdr as Cons;
         }
       }
       return false;
@@ -230,11 +230,11 @@ namespace IronScheme.Runtime
         //RequiresCondition(c.IsProper, "must be a properlist");
         while (c != null)
         {
-          if ((bool)pred(c.Car, obj))
+          if ((bool)pred(c.car, obj))
           {
             return c;
           }
-          c = c.Cdr as Cons;
+          c = c.cdr as Cons;
         }
       }
       return false;
@@ -264,7 +264,7 @@ namespace IronScheme.Runtime
     public static object SetCar(object list, object value)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(list);
-      c.Car = value;
+      c.car = value;
       return Unspecified;
     }
 
@@ -272,7 +272,7 @@ namespace IronScheme.Runtime
     public static object SetCdr(object list, object value)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(list);
-      c.Cdr = value;
+      c.cdr = value;
       return Unspecified;
     }
 
@@ -452,7 +452,7 @@ namespace IronScheme.Runtime
     public static object Rest(object args)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(args);
-      return c.Cdr;
+      return c.cdr;
     }
 
 
@@ -460,14 +460,14 @@ namespace IronScheme.Runtime
     public static object Car(object args)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(args);
-      return c.Car;
+      return c.car;
     }
 
     [Builtin]
     public static object Cdr(object args)
     {
       Cons c = RequiresNotNull<Runtime.Cons>(args);
-      return c.Cdr;
+      return c.cdr;
     }
 
     [Builtin]
@@ -482,8 +482,8 @@ namespace IronScheme.Runtime
         //RequiresCondition(c.IsProper, "must be a properlist");
         while (c != null)
         {
-          list = new Cons(c.Car, list);
-          c = c.Cdr as Cons;
+          list = new Cons(c.car, list);
+          c = c.cdr as Cons;
         }
       }
       return list;
@@ -504,7 +504,7 @@ namespace IronScheme.Runtime
           return c;
         }
 
-        c = ((Cons) c).Cdr;
+        c = ((Cons) c).cdr;
       }
 
       throw new IndexOutOfRangeException();
@@ -523,9 +523,9 @@ namespace IronScheme.Runtime
       {
         if (i-- == 0)
         {
-          return list.Car;
+          return list.car;
         }
-        list = list.Cdr as Cons;
+        list = list.cdr as Cons;
       }
 
       throw new IndexOutOfRangeException();
@@ -571,14 +571,14 @@ namespace IronScheme.Runtime
         {
           while (ii != null)
           {
-            all.Add(ii.Car);
-            if (i == args.Length - 1 && ii.Cdr != null && !(ii.Cdr is Cons))
+            all.Add(ii.car);
+            if (i == args.Length - 1 && ii.cdr != null && !(ii.cdr is Cons))
             {
-              all.Add(ii.Cdr);
+              all.Add(ii.cdr);
               proper = false;
               break;
             }
-            ii = ii.Cdr as Cons;
+            ii = ii.cdr as Cons;
           }
         }
       }
@@ -595,17 +595,17 @@ namespace IronScheme.Runtime
       Cons i = c;
       Cons j = null;
 
-      while (i.Cdr != null)
+      while (i.cdr != null)
       {
         j = i;
-        i = i.Cdr as Cons;
+        i = i.cdr as Cons;
         if (i == null)
         {
           return c; // improper already
         }
       }
 
-      j.Cdr = i.Car;
+      j.cdr = i.car;
       return c;
     }
   }

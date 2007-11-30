@@ -19,22 +19,10 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  public class Cons
+  public sealed class Cons
   {
-    object car;
-    object cdr;
-
-    internal object Car
-    {
-      get { return car; }
-      set { car = value; }
-    }
-
-    internal object Cdr
-    {
-      get {return cdr;}
-      set { cdr = value; }
-    }
+    internal object car;
+    internal object cdr;
 
     Cons() : this(null)
     {

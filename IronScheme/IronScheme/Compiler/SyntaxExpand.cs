@@ -27,13 +27,13 @@ namespace IronScheme.Compiler
       Cons c = input;
       while (c != null)
       {
-        c.Car = Expand(c.Car);
-        if (c.Cdr != null && !(c.Cdr is Cons))
+        c.car = Expand(c.car);
+        if (c.cdr != null && !(c.cdr is Cons))
         {
-          c.Cdr = Expand(c.Cdr);
+          c.cdr = Expand(c.cdr);
           break;
         }
-        c = c.Cdr as Cons;
+        c = c.cdr as Cons;
       }
       return input;
     }
@@ -53,9 +53,9 @@ namespace IronScheme.Compiler
       Cons c = input as Cons;
       if (c != null)
       {
-        if ((bool)Builtins.IsSymbol(c.Car))
+        if ((bool)Builtins.IsSymbol(c.car))
         {
-          SymbolId s = (SymbolId)c.Car;
+          SymbolId s = (SymbolId)c.car;
 
           if (s == Generator.quote || s == Generator.quasiquote)
           {
@@ -65,11 +65,11 @@ namespace IronScheme.Compiler
 
           if ((bool)Builtins.IsEqual(s, Generator.define) && (bool)Builtins.IsPair(Builtins.Second(c)))
           {
-            Cons t = (Cons)c.Cdr;
-            Cons r = (Cons)t.Car;
-            Cons l = Cons.FromArray(r.Car,
-              Builtins.Append(Cons.FromArray(Generator.lambda, r.Cdr), Builtins.Cdr(t)));
-            c.Cdr = l;
+            Cons t = (Cons)c.cdr;
+            Cons r = (Cons)t.car;
+            Cons l = Cons.FromArray(r.car,
+              Builtins.Append(Cons.FromArray(Generator.lambda, r.cdr), Builtins.Cdr(t)));
+            c.cdr = l;
             return Expand((object)c, expand1);
           }
 
@@ -80,7 +80,7 @@ namespace IronScheme.Compiler
             {
               Runtime.Macro m = value as Runtime.Macro;
 
-              object result = m.Invoke(BaseHelper.cc, c.Cdr);
+              object result = m.Invoke(BaseHelper.cc, c.cdr);
               if (result is Cons && Parser.sourcemap.ContainsKey(c))
               {
                 Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];

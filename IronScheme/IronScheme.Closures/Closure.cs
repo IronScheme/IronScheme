@@ -396,6 +396,84 @@ namespace IronScheme.Runtime
 
         throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(ToString(), 0, int.MaxValue, 0, args.Length == -1 ? int.MaxValue : arglen, false, false);
       }
+
+      public override object Call()
+      {
+        int i = Array.IndexOf(arities, 0);
+        if (i >= 0)
+        {
+          return targets[i].Call();
+        }
+        else
+        {
+          return Call(new object[0]);
+        }
+      }
+
+      public override object Call(object arg1)
+      {
+        int i = Array.IndexOf(arities, 1);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1);
+        }
+        else
+        {
+          return Call(new object[] { arg1 });
+        }
+      }
+
+      public override object Call(object arg1, object arg2)
+      {
+        int i = Array.IndexOf(arities, 2);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1, arg2);
+        }
+        else
+        {
+          return Call(new object[] { arg1, arg2 });
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3)
+      {
+        int i = Array.IndexOf(arities, 3);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1, arg2, arg3);
+        }
+        else
+        {
+          return Call(new object[] { arg1, arg2, arg3 });
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4)
+      {
+        int i = Array.IndexOf(arities, 4);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1, arg2, arg3, arg4);
+        }
+        else
+        {
+          return Call(new object[] { arg1, arg2, arg3, arg4 });
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
+      {
+        int i = Array.IndexOf(arities, 5);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1, arg2, arg3, arg4, arg5);
+        }
+        else
+        {
+          return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
+        }
+      }
     }
 
 

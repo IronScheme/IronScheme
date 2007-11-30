@@ -167,11 +167,11 @@ namespace IronScheme
         Cons parsed = p.parsed;
         if (parsed != null)
         {
-          if (parsed.Cdr != null)
+          if (parsed.cdr != null)
           {
             Debug.Fail("Invalid");
           }
-          return parsed.Car;
+          return parsed.car;
         }
       }
       return null;
@@ -231,7 +231,7 @@ namespace IronScheme
 
         while (parsed != null)
         {
-          object exp = parsed.Car;
+          object exp = parsed.car;
           Expression e = Generator.GetAst(exp,cb);
           Statement s = Ast.Statement(e);
           if (exp is Cons && Parser.sourcemap.ContainsKey((Cons)exp))
@@ -239,7 +239,7 @@ namespace IronScheme
             s.SetLoc(Parser.sourcemap[(Cons)exp]);
           }
           stmts.Add(s);
-          parsed = parsed.Cdr as Cons;
+          parsed = parsed.cdr as Cons;
         }
 
         if (stmts.Count > 0)

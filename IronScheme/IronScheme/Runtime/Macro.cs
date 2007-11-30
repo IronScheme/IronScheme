@@ -195,13 +195,13 @@ namespace IronScheme.Runtime
           Cons c = arg0 as Cons;
           while (c != null)
           {
-            args[i++] = c.Car;
+            args[i++] = c.car;
             if (i == ParamCount - 1)
             {
-              args[i++] = c.Cdr;
+              args[i++] = c.cdr;
               break;
             }
-            c = c.Cdr as Cons;
+            c = c.cdr as Cons;
           }
 
           if (i != ParamCount)
@@ -226,8 +226,8 @@ namespace IronScheme.Runtime
       Cons c = arg0 as Cons;
       while (c != null && i < ParamCount)
       {
-        args[i++] = c.Car;
-        c = c.Cdr as Cons;
+        args[i++] = c.car;
+        c = c.cdr as Cons;
       }
 
       if (i != ParamCount || c != null)

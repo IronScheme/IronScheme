@@ -69,7 +69,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if ((bool)Builtins.IsEqual(c.Car, unquote))
+        if ((bool)Builtins.IsEqual(c.car, unquote))
         {
           nestinglevel--;
           try
@@ -88,7 +88,7 @@ namespace IronScheme.Compiler
             nestinglevel++;
           }
         }
-        if (nestinglevel == 1 && (bool)Builtins.IsEqual(c.Car, quasiquote))
+        if (nestinglevel == 1 && (bool)Builtins.IsEqual(c.car, quasiquote))
         {
           nestinglevel++;
           try
@@ -120,9 +120,9 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if ((bool)Builtins.IsSymbol(c.Car))
+        if ((bool)Builtins.IsSymbol(c.car))
         {
-          SymbolId f = (SymbolId)c.Car;
+          SymbolId f = (SymbolId)c.car;
 
           Variable var = FindVar(cb, f);
 
@@ -135,11 +135,11 @@ namespace IronScheme.Compiler
 
           if (Context.Scope.TryLookupName(f, out m))
           {
-            if ((bool)Builtins.IsEqual(define, f) && (bool)Builtins.IsPair(Builtins.First(c.Cdr)))
+            if ((bool)Builtins.IsEqual(define, f) && (bool)Builtins.IsPair(Builtins.First(c.cdr)))
             {
-              Cons ii = c.Cdr as Cons;
-              Cons jj = ii.Car as Cons;
-              c.Cdr = Builtins.List(jj.Car, Builtins.Append(Builtins.List(lambda, jj.Cdr), ii.Cdr));
+              Cons ii = c.cdr as Cons;
+              Cons jj = ii.car as Cons;
+              c.cdr = Builtins.List(jj.car, Builtins.Append(Builtins.List(lambda, jj.cdr), ii.cdr));
             }
             Runtime.Macro macro = m as Runtime.Macro;
             if (macro != null)
@@ -148,7 +148,7 @@ namespace IronScheme.Compiler
               {
                 Debug.WriteLine(Builtins.WriteFormat(c), "macro::in ");
               }
-              object result = macro.Invoke(Context, c.Cdr);
+              object result = macro.Invoke(Context, c.cdr);
               if (!Parser.sourcemap.TryGetValue(c, out spanhint))
               {
                 spanhint = SourceSpan.None;
@@ -179,14 +179,14 @@ namespace IronScheme.Compiler
                 {
                   spanhint = SourceSpan.None;
                 }
-                return gh.Generate(c.Cdr, cb);
+                return gh.Generate(c.cdr, cb);
               }
 
               BuiltinMethod bf = m as BuiltinMethod;
               if (bf != null)
               {
                 MethodBinder mb = bf.Binder;
-                Expression[] pars = GetAstList(c.Cdr as Cons, cb);
+                Expression[] pars = GetAstList(c.cdr as Cons, cb);
                 //pars[0] = Ast.RuntimeConstant(bf);
                 Type[] types = GetExpressionTypes(pars);
                 MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
@@ -203,8 +203,8 @@ namespace IronScheme.Compiler
             }
           }
         }
-        Expression ex = Ast.ConvertHelper(GetAst(c.Car, cb), typeof(ICallable));
-        Expression[] pp = GetAstList(c.Cdr as Cons, cb);
+        Expression ex = Ast.ConvertHelper(GetAst(c.car, cb), typeof(ICallable));
+        Expression[] pp = GetAstList(c.cdr as Cons, cb);
 
         MethodInfo call = GetCallable(pp.Length);
 
