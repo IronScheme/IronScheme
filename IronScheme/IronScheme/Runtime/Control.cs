@@ -41,8 +41,12 @@ namespace IronScheme.Runtime
     public string Name
     {
       get { return name; }
-    } 
+    }
 
+    public override string ToString()
+    {
+      return Name;
+    }
 
     public MethodBase[] GetMethodBases()
     {
@@ -280,13 +284,6 @@ namespace IronScheme.Runtime
     }
 
 
-    //[Builtin]
-    public static object Apply(object fn)
-    {
-      ICallable c = RequiresNotNull<ICallable>(fn);
-      return c.Call();
-    }
-
     //procedure:  (apply proc arg1 ... args) 
     //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     
@@ -304,7 +301,7 @@ namespace IronScheme.Runtime
     }
 
 
-    //[Builtin]
+    [Builtin]
     public static object Apply(object fn, object list)
     {
       Cons args = Requires<Runtime.Cons>(list);
@@ -313,9 +310,10 @@ namespace IronScheme.Runtime
       List<object> targs = new List<object>();
       while (args != null)
       {
-        targs.Add(args.Car);
-        args = args.Cdr as Cons;
+        targs.Add(args.car);
+        args = args.cdr as Cons;
       }
+
       return c.Call(targs.ToArray());
     }
 
@@ -326,8 +324,8 @@ namespace IronScheme.Runtime
       ArrayList returns = new ArrayList();
       while (list != null)
       {
-        returns.Add(Apply(fn, new Cons(list.Car)));
-        list = list.Cdr as Cons;
+        returns.Add(Apply(fn, new Cons(list.car)));
+        list = list.cdr as Cons;
       }
       return Runtime.Cons.FromList(returns);
     }
@@ -355,8 +353,8 @@ namespace IronScheme.Runtime
 
       while (c != null)
       {
-        Apply(fn, new Cons(c.Car));
-        c = c.Cdr as Cons;
+        Apply(fn, new Cons(c.car));
+        c = c.cdr as Cons;
       }
       return Unspecified;
     }

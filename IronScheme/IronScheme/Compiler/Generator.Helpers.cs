@@ -391,20 +391,20 @@ namespace IronScheme.Compiler
     {
       while (defcheck != null)
       {
-        Cons h = defcheck.Car as Cons;
+        Cons h = defcheck.car as Cons;
 
-        defcheck.Car = SyntaxExpander.Expand1(defcheck.Car);
+        defcheck.car = SyntaxExpander.Expand1(defcheck.car);
 
-        h = defcheck.Car as Cons;
+        h = defcheck.car as Cons;
 
-        if (h != null && (bool)Builtins.IsEqual(h.Car, define))
+        if (h != null && (bool)Builtins.IsEqual(h.car, define))
         {
           Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
           stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
-          h.Car = set;
+          h.car = set;
         }
 
-        defcheck = defcheck.Cdr as Cons;
+        defcheck = defcheck.cdr as Cons;
       }
     }
 
@@ -421,34 +421,34 @@ namespace IronScheme.Compiler
       Cons defcheck = body;
       while (defcheck != null)
       {
-        Cons h = defcheck.Car as Cons;
+        Cons h = defcheck.car as Cons;
 
         if (h == null)
         {
           break;
         }
 
-        defcheck.Car = h = SyntaxExpander.Expand1(defcheck.Car) as Cons;
+        defcheck.car = h = SyntaxExpander.Expand1(defcheck.car) as Cons;
 
-        if (h != null && (bool)Builtins.IsEqual(h.Car, define))
+        if (h != null && (bool)Builtins.IsEqual(h.car, define))
         {
           Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
           stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
-          h.Car = set;
+          h.car = set;
         }
         else
         {
           break;
         }
 
-        defcheck = defcheck.Cdr as Cons;
+        defcheck = defcheck.cdr as Cons;
       }
       Cons c = body;
       while (c != null)
       {
-        Expression e = GetAst(c.Car, cb);
+        Expression e = GetAst(c.car, cb);
         Statement s = null;
-        if (c.Cdr == null)
+        if (c.cdr == null)
         {
           s = MakeTailCallReturn(allowtailcall, e);
         }
@@ -457,9 +457,9 @@ namespace IronScheme.Compiler
           s = Ast.Statement(e);
         }
 
-        if (c.Car is Cons && Parser.sourcemap.ContainsKey(c.Car as Cons))
+        if (c.car is Cons && Parser.sourcemap.ContainsKey(c.car as Cons))
         {
-          s.SetLoc(Parser.sourcemap[c.Car as Cons]);
+          s.SetLoc(Parser.sourcemap[c.car as Cons]);
         }
         else
         {
@@ -467,7 +467,7 @@ namespace IronScheme.Compiler
         }
 
         stmts.Add(s);
-        c = c.Cdr as Cons;
+        c = c.cdr as Cons;
       }
 
       if (stmts.Count == 0)
@@ -531,17 +531,17 @@ namespace IronScheme.Compiler
       List<Expression> e = new List<Expression>();
       while (c != null)
       {
-        if (c.Cdr != null && !(c.Cdr is Cons))
+        if (c.cdr != null && !(c.cdr is Cons))
         {
           throw new NotSupportedException("improper list cant be used as an expression");
         }
-        Expression ex = GetAst(c.Car, cb);
+        Expression ex = GetAst(c.car, cb);
         if (ex.Type.IsValueType)
         {
           ex = Ast.ConvertHelper(ex, typeof(object));
         }
         e.Add(ex);
-        c = c.Cdr as Cons;
+        c = c.cdr as Cons;
       }
       return e.ToArray();
     }
@@ -553,16 +553,16 @@ namespace IronScheme.Compiler
       foreach (object var in v)
       {
         Cons c = var as Cons;
-        if (c != null && (bool)Builtins.IsEqual(c.Car, unquote_splicing))
+        if (c != null && (bool)Builtins.IsEqual(c.car, unquote_splicing))
         {
           nestinglevel--;
           try
           {
             if (nestinglevel == 0)
             {
-              Cons l = c.Cdr as Cons;
+              Cons l = c.cdr as Cons;
               splices.Add(e.Count);
-              Expression uqse = GetAst(l.Car, cb);
+              Expression uqse = GetAst(l.car, cb);
               // its a cons, so it needs to become a vector
               uqse = Ast.SimpleCallHelper(Builtins_ListToVector, uqse);
               e.Add(uqse);
@@ -614,7 +614,7 @@ namespace IronScheme.Compiler
 
       while (c != null)
       {
-        if (c.Car is Cons && (bool)Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
+        if (c.car is Cons && (bool)Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
         {
           nestinglevel--;
           try
@@ -623,11 +623,11 @@ namespace IronScheme.Compiler
             {
               Cons l = Builtins.Cdar(c) as Cons;
               splices.Add(e.Count);
-              e.Add(GetAst(l.Car, cb));
+              e.Add(GetAst(l.car, cb));
             }
             else
             {
-              e.Add(GetCons(c.Car, cb));
+              e.Add(GetCons(c.car, cb));
             }
           }
           finally
@@ -637,18 +637,18 @@ namespace IronScheme.Compiler
         }
         else
         {
-          e.Add(GetCons(c.Car, cb));
+          e.Add(GetCons(c.car, cb));
         }
-        if (c.Cdr != null && !(c.Cdr is Cons))
+        if (c.cdr != null && !(c.cdr is Cons))
         {
-          e.Add(GetCons(c.Cdr, cb));
+          e.Add(GetCons(c.cdr, cb));
           proper = false;
           break;
         }
-        c = c.Cdr as Cons;
+        c = c.cdr as Cons;
         // check for possible unquote in dotted list
         // TODO: find out is unquotesplicing is valid
-        if (c != null && (bool)Builtins.IsEqual(c.Car, unquote))
+        if (c != null && (bool)Builtins.IsEqual(c.car, unquote))
         {
           nestinglevel--;
           try
@@ -660,7 +660,7 @@ namespace IronScheme.Compiler
             }
             else
             {
-              e.Add(GetCons(c.Car, cb));
+              e.Add(GetCons(c.car, cb));
             }
           }
           finally
@@ -724,11 +724,11 @@ namespace IronScheme.Compiler
           SymbolId an = (SymbolId)Builtins.First(cargs);
           CreateParameter(an, cb, typeof(object));
 
-          Cons r = cargs.Cdr as Cons;
+          Cons r = cargs.cdr as Cons;
 
-          if (r == null && cargs.Cdr != null)
+          if (r == null && cargs.cdr != null)
           {
-            SymbolId ta = (SymbolId)cargs.Cdr;
+            SymbolId ta = (SymbolId)cargs.cdr;
             CreateParameter(ta, cb, typeof(object));
             isrest = true;
             break;

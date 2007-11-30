@@ -236,15 +236,15 @@ namespace IronScheme.Runtime
       Cons c;
       if (readcache.TryGetValue(port, out c))
       {
-        if (c.Cdr == null)
+        if (c.cdr == null)
         {
           readcache.Remove(port);
         }
         else
         {
-          readcache[port] = c.Cdr as Cons;
+          readcache[port] = c.cdr as Cons;
         }
-        return c.Car;
+        return c.car;
       }
       else
       {
@@ -265,11 +265,11 @@ namespace IronScheme.Runtime
           if (result is Cons)
           {
             c = (Cons)result;
-            if (c.Cdr is Cons)
+            if (c.cdr is Cons)
             {
-              readcache[port] = c.Cdr as Cons;
+              readcache[port] = c.cdr as Cons;
             }
-            return c.Car;
+            return c.car;
           }
           else if (result != null)
           {
@@ -516,8 +516,8 @@ namespace IronScheme.Runtime
 
         if (s != null)
         {
-          object scar = s.Car;
-          if ((bool)IsSymbol(scar) && s.Cdr is Cons)
+          object scar = s.car;
+          if ((bool)IsSymbol(scar) && s.cdr is Cons)
           {
             if ((bool)IsEqual(quote, scar))
             {
@@ -540,14 +540,14 @@ namespace IronScheme.Runtime
 
         while (s != null)
         {
-          v.Add(DisplayFormat(s.Car));
-          if (s.Cdr != null && !(s.Cdr is Cons))
+          v.Add(DisplayFormat(s.car));
+          if (s.cdr != null && !(s.cdr is Cons))
           {
             v.Add(".");
-            v.Add(DisplayFormat(s.Cdr));
+            v.Add(DisplayFormat(s.cdr));
             break;
           }
-          s = s.Cdr as Cons;
+          s = s.cdr as Cons;
         }
         return string.Format("({0})", string.Join(" ", v.ToArray()));
       }
@@ -635,8 +635,8 @@ namespace IronScheme.Runtime
         List<string> v = new List<string>();
         Cons s = obj as Cons;
 
-        object scar = s.Car;
-        if ((bool)IsSymbol(scar) && s.Cdr is Cons)
+        object scar = s.car;
+        if ((bool)IsSymbol(scar) && s.cdr is Cons)
         {
           if ((bool)IsEqual(quote, scar))
           {
@@ -658,14 +658,14 @@ namespace IronScheme.Runtime
 
         while (s != null)
         {
-          v.Add(WriteFormat(s.Car));
-          if (s.Cdr != null && !(s.Cdr is Cons))
+          v.Add(WriteFormat(s.car));
+          if (s.cdr != null && !(s.cdr is Cons))
           {
             v.Add(".");
-            v.Add(WriteFormat(s.Cdr));
+            v.Add(WriteFormat(s.cdr));
             break;
           }
-          s = s.Cdr as Cons;
+          s = s.cdr as Cons;
         }
         return string.Format("({0})", string.Join(" ", v.ToArray()));
       }

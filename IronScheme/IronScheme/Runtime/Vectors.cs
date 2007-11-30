@@ -139,8 +139,8 @@ namespace IronScheme.Runtime
         RequiresCondition(e.IsProper, "must be a properlist");
         while (e != null)
         {
-          v.Add(e.Car);
-          e = e.Cdr as Cons;
+          v.Add(e.car);
+          e = e.cdr as Cons;
         }
       }
       return v.ToArray();

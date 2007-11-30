@@ -18,9 +18,9 @@ public Cons parsed;
 
 static Cons Last(Cons c)
 {
-  while (c.Cdr != null)
+  while (c.cdr != null)
   {
-    c = c.Cdr as Cons;
+    c = c.cdr as Cons;
   }
   return c;
 }
@@ -35,7 +35,7 @@ static Cons Append(Cons c, Cons t)
   {
     return c;
   }
-  Last(c).Cdr = t;
+  Last(c).cdr = t;
   return c;
 }
 

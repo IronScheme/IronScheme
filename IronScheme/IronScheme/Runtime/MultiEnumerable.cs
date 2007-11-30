@@ -55,7 +55,7 @@ namespace IronScheme.Runtime
 
           for (int i = 0; i < iters.Length; i++)
           {
-            v[i] = iters[i].Car;
+            v[i] = iters[i].car;
           }
 
           return Cons.FromArray(v);
@@ -78,7 +78,7 @@ namespace IronScheme.Runtime
         }
         for (int i = 0; i < iters.Length; i++)
         {
-          iters[i] = iters[i].Cdr as Cons;
+          iters[i] = iters[i].cdr as Cons;
           if (iters[i] == null)
           {
             return false;
