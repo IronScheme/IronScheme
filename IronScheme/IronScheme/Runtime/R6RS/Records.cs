@@ -108,6 +108,12 @@ namespace IronScheme.Runtime.R6RS
 
   public class Records : Builtins
   {
+    [Builtin("record-type-descriptor?")]
+    public static object IsRecordTypeDescriptor(object obj)
+    {
+      return obj is RecordTypeDescriptor;
+    }
+
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
