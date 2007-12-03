@@ -82,14 +82,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IronScheme.Clr\IronScheme.Clr.csproj">
-      <Project>{5AD643C7-80C7-42A4-82B5-05ACF677FA83}</Project>
-      <Name>IronScheme.Clr</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IronScheme.Diagnostics\IronScheme.Diagnostics.csproj">
-      <Project>{EC64AB10-2924-473F-BF1E-EC5E73C345CB}</Project>
-      <Name>IronScheme.Diagnostics</Name>
-    </ProjectReference>
     <ProjectReference Include="..\IronScheme\IronScheme.csproj">
       <Project>{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}</Project>
       <Name>IronScheme</Name>

@@ -1,3 +1,17 @@
+#region License
+/* ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************/
+#endregion
+
+#if R6RS
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +28,8 @@ namespace IronScheme.Runtime.R6RS
     public Type type;
     public bool @sealed, opaque;
     public ICallable constructor;
+    public object uid;
+    public bool generative;
 
     public RecordTypeDescriptor parent;
 
@@ -42,18 +58,13 @@ namespace IronScheme.Runtime.R6RS
       if (type is TypeBuilder)
       {
         type = tg.FinishType();
+
+        Records.typedescriptors[type] = this;
+
         // this is just all wrong wrong wrong!!!
         Assembly genass = ag.DumpAndLoad();
 
-        foreach (Type t in genass.GetExportedTypes())
-        {
-          if (t.Name == type.Name)
-          {
-            type = t;
-            break;
-          }
-        }
-
+        // update fields
         foreach (FieldDescriptor fd in fields)
         {
           fd.field = type.GetField(fd.name);
@@ -101,27 +112,25 @@ namespace IronScheme.Runtime.R6RS
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
       string n = SymbolToString(name) as string;
-      string id = null;// SymbolToString(uid) as string;
+      string id = SymbolToString(uid) as string;
 
       string assname = n;
 
       if (id != null)
       {
-        assname += id;
+        assname = id;
       }
       else
       {
-        assname = assname + Guid.NewGuid();
+        assname = assname + "-" + Guid.NewGuid();
       }
 
-      AssemblyGen ag = new AssemblyGen(assname, ".", assname + ".dll", AssemblyGenAttributes.SaveAndReloadAssemblies);
+      AssemblyGen ag = new AssemblyGen(assname, ".", name + ".dll", AssemblyGenAttributes.SaveAndReloadAssemblies);
 
       bool @sealed = RequiresNotNull<bool>(issealed);
       bool opaque = RequiresNotNull<bool>(isopaque);
 
       RecordTypeDescriptor prtd = parent as RecordTypeDescriptor; // can be #f
-
-      //TODO: lookup for parent type
 
       Type parenttype = typeof(object);
 
@@ -137,6 +146,8 @@ namespace IronScheme.Runtime.R6RS
       rtd.opaque = opaque;
       rtd.ag = ag;
       rtd.parent = prtd;
+      rtd.uid = uid;
+      rtd.generative = id == null;
 
       if (@sealed)
       {
@@ -156,10 +167,11 @@ namespace IronScheme.Runtime.R6RS
         FieldDescriptor fd = new FieldDescriptor();
         fd.name = fname;
 
-        FieldAttributes fattrs = FieldAttributes.Public;
+        FieldAttributes fattrs = FieldAttributes.Public | FieldAttributes.InitOnly;
         if ((bool)IsEqual(c.car,SymbolTable.StringToId("mutable")))
         {
           fd.mutable = true;
+          fattrs &= ~FieldAttributes.InitOnly;
         }
         FieldSlot s = tg.AddField(typeof(object), fname, fattrs) as FieldSlot;
 
@@ -238,15 +250,13 @@ namespace IronScheme.Runtime.R6RS
 
       CallTarget1 p = delegate(object obj)
       {
-        // TODO: opaque handling
+        // TODO: opaque handling, non needed here
         if (obj == null)
         {
           return t.type == typeof(Cons);
         }
 
-        Type otype = obj.GetType();
-
-        return otype == t.type || t.type.IsSubclassOf(otype);
+        return t.type.IsInstanceOfType(obj);
       };
 
       return Closure.Make(Context, p);
@@ -275,36 +285,29 @@ namespace IronScheme.Runtime.R6RS
 
       ICallable pp = Closure.Make(Context, p);
 
-#if I_EVER_FIGURE_THIS_OUT
-      if (ci.type.parent != null && ci.protocol != null)
+      if (ci.parent != null && ci.protocol != null)
       {
         CallTargetN n = null;
-
-        if (ci.parent != null)
+        n = delegate(object[] parentargs)
         {
-          n = delegate(object[] args)
+          Type t = ci.type.Finish();
+
+          CallTargetN m = delegate(object[] args)
           {
-            Type t = ci.type.Finish();
-            int fc = ci.parent.type.fields.Count;
+            object[] allargs = new object[parentargs.Length + args.Length];
+            Array.Copy(parentargs, allargs, parentargs.Length);
+            Array.Copy(args, 0, allargs, parentargs.Length, args.Length);
 
-            object[] pargs = new object[fc];
-            Array.Copy(args, pargs, fc);
-
-            ci.type.parent.constructor.Call(pargs);
-
-            if (ci.protocol != null)
-            {
-              return ci.protocol.Call(pp);
-            }
-
-            return pp;
+            return pp.Call(allargs);
           };
 
-          return Closure.Make(Context, n);
-        }
-      }
-#endif
+          return Closure.Make(Context, m);
+        };
 
+        ICallable nn = Closure.Make(Context, n);
+
+        return ci.protocol.Call(nn);
+      }
 
       if (ci.protocol != null)
       {
@@ -347,5 +350,99 @@ namespace IronScheme.Runtime.R6RS
 
       return Closure.Make(Context, p);
     }
+
+    internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();
+
+    [Builtin("record?")]
+    public static object IsRecord(object obj)
+    {
+      if (obj != null)
+      {
+        RecordTypeDescriptor rtd;
+        if (typedescriptors.TryGetValue(obj.GetType(), out rtd) && !rtd.opaque)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    [Builtin("record-rtd")]
+    public static object RecordRtd(object obj)
+    {
+      if (obj != null)
+      {
+        RecordTypeDescriptor rtd;
+        if (typedescriptors.TryGetValue(obj.GetType(), out rtd) && !rtd.opaque)
+        {
+          return rtd;
+        }
+      }
+      return false;
+    }
+
+    [Builtin("record-type-name")]
+    public static object RecordTypeName(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      return r.type.Name;
+    }
+
+    [Builtin("record-type-parent")]
+    public static object RecordTypeParent(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      return r.parent ?? (object)false;
+    }
+
+    [Builtin("record-type-uid")]
+    public static object RecordTypeUid(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      return r.uid ?? (object) false;
+    }
+
+    [Builtin("record-type-generative?")]
+    public static object IsRecordTypeGenerative(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      return r.generative;
+    }
+
+    [Builtin("record-type-sealed?")]
+    public static object IsRecordTypeSealed(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      return r.type.IsSealed;
+    }
+
+    [Builtin("record-type-opaque?")]
+    public static object IsRecordTypeOpaque(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      return r.opaque;
+    }
+
+    [Builtin("record-type-field-names")]
+    public static object RecordTypeFieldNames(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      List<object> names = new List<object>();
+
+      foreach (FieldDescriptor fd in r.fields)
+      {
+        names.Add(SymbolTable.StringToId(fd.name));
+      }
+      return names.ToArray();
+    }
+
+    [Builtin("record-type-mutable?")]
+    public static object IsRecordFieldMutable(object rtd, object k)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      int i = RequiresNotNull<int>(k);
+      return r.fields[i].mutable;
+    }
   }
 }
+#endif

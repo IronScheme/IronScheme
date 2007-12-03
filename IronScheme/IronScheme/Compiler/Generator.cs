@@ -187,7 +187,7 @@ namespace IronScheme.Compiler
               {
                 MethodBinder mb = bf.Binder;
                 Expression[] pars = GetAstList(c.cdr as Cons, cb);
-                //pars[0] = Ast.RuntimeConstant(bf);
+
                 Type[] types = GetExpressionTypes(pars);
                 MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
                 if (mc == null)
@@ -217,10 +217,7 @@ namespace IronScheme.Compiler
           r.SetLoc(spanhint);
         }
 
-
         return r;
-
-        //return Ast.Action.Call(typeof(object), GetAstList(c, cb));
       }
       object[] v = args as object[];
       if (v != null)

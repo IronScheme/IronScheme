@@ -61,7 +61,9 @@
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ApplyGenerator.cs" />
+    <Compile Include="Compiler\ClrGenerators.cs" />
     <Compile Include="Compiler\DelayGenerator.cs" />
+    <Compile Include="Compiler\DiagnosticsGenerators.cs" />
     <Compile Include="Compiler\Generator.InlineEmitters.cs" />
     <Compile Include="Compiler\GeneratorAttribute.cs" />
     <Compile Include="Compiler\InlineEmitter.cs" />

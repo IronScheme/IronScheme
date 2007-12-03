@@ -1582,11 +1582,11 @@
                  [(_ uid) `',uid]
                  [_       #f])]
               [sealed?
-               (syntax-match (get-clause 'sealed? clause*) ()
+               (syntax-match (get-clause 'sealed clause*) ()
                  [(_ #t) #t]
                  [_      #f])]
               [opaque?
-               (syntax-match (get-clause 'opaque? clause*) ()
+               (syntax-match (get-clause 'opaque clause*) ()
                  [(_ #t) #t]
                  [_      #f])]
               [fields 
@@ -1626,7 +1626,7 @@
         (define (gen-name x) 
           (datum->syntax foo
             (string->symbol 
-              (string-append 
+              (string-append
                 (symbol->string (syntax->datum foo))
                 "-"
                 (symbol->string (syntax->datum x))
@@ -1693,9 +1693,34 @@
                    (lambda (set-foo-x! idx)
                      `(define ,set-foo-x! (record-mutator ,foo-rtd ,idx)))
                    set-foo-x!* set-foo-idx*)))))
+      (define (verify-clauses x cls*)
+        (define valid-kwds 
+          (map bless 
+            '(fields parent parent-rtd protocol sealed opaque nongenerative)))
+        (define (free-id-member? x ls) 
+          (and (pair? ls) 
+               (or (free-id=? x (car ls)) 
+                   (free-id-member? x (cdr ls)))))
+        (let f ([cls* cls*] [seen* '()])
+          (unless (null? cls*)
+            (syntax-match (car cls*) ()
+              [(kwd . rest)
+               (cond
+                 [(or (not (id? kwd)) 
+                      (not (free-id-member? kwd valid-kwds)))
+                  (stx-error kwd "not a valid define-record-type keyword")]
+                 [(bound-id-member? kwd seen*)
+                  (stx-error x 
+                    "duplicate use of keyword "
+                    (symbol->string (stx->datum kwd)))]
+                 [else (f (cdr cls*) (cons kwd seen*))])]
+              [cls
+               (stx-error cls "malformed define-record-type clause")]))))
       (syntax-match x ()
         [(_ namespec clause* ...)
-         (do-define-record namespec clause*)])))
+         (begin
+           (verify-clauses x clause*)
+           (do-define-record namespec clause*))])))
   
   (define define-condition-type-macro
     (lambda (x)
@@ -2525,8 +2550,9 @@
                          r mr '() '() '() '() rib #f)))
            (when (null? e*)
              (stx-error e* "no expression in body"))
-           (let ((rhs* (chi-rhs* rhs* r mr))
-                 (init* (chi-expr* (append (apply append (reverse mod**)) e*) r mr)))
+           (let* ((init* 
+                   (chi-expr* (append (apply append (reverse mod**)) e*) r mr))
+                  (rhs* (chi-rhs* rhs* r mr)))
              (build-letrec* no-source
                 (reverse lex*) (reverse rhs*)
                 (build-sequence no-source init*)))))))
@@ -3089,6 +3115,7 @@
         (values (append (apply append (reverse mod**)) e*)
            r mr (reverse lex*) (reverse rhs*)))))
   
+
   (define library-body-expander
     (lambda (exp* imp* b* top?)
       (define itc (make-collector))
@@ -3104,11 +3131,11 @@
                   (let-values (((init* r mr lex* rhs*)
                                 (chi-library-internal b* rib top?)))
                     (seal-rib! rib)
-                    (let ((rhs* (chi-rhs* rhs* r mr))
-                          (loc* (map gen-global lex*))
-                          (init* (chi-expr* init* r mr)))
+                    (let* ((init* (chi-expr* init* r mr))
+                           (rhs* (chi-rhs* rhs* r mr)))
                       (unseal-rib! rib)
-                      (let ((export-subst (make-export-subst exp-int* exp-ext* rib)))
+                      (let ((loc* (map gen-global lex*))
+                            (export-subst (make-export-subst exp-int* exp-ext* rib)))
                         (define errstr
                           "attempt to export mutated variable")
                         (let-values (((export-env global* macro*)
@@ -3124,11 +3151,11 @@
                                           (error 'export errstr name))))))))
                             export-subst)
                           (let (;(invoke-body
-                                 ;(build-library-letrec* no-source
-                                 ;  lex* loc* rhs*
-                                 ;  (if (null? init*) 
-                                 ;      (build-void)
-                                 ;      (build-sequence no-source init*))))
+                                ; (build-library-letrec* no-source
+                                ;   lex* loc* rhs*
+                                ;   (if (null? init*) 
+                                ;       (build-void)
+                                ;       (build-sequence no-source init*))))
                                 (invoke-body
                                  (build-letrec* no-source lex* rhs* 
                                     (build-exports global* init*)))
