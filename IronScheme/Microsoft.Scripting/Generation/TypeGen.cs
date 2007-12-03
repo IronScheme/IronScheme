@@ -123,10 +123,17 @@ namespace Microsoft.Scripting.Generation {
             _contextSlot = new StaticFieldSlot(contextField);
         }
 
-        public Slot AddField(Type fieldType, string name) {
-            FieldBuilder fb = _myType.DefineField(name, fieldType, FieldAttributes.Public);
-            return new FieldSlot(new ThisSlot(_myType), fb);
+      public Slot AddField(Type fieldType, string name)
+      {
+        return AddField(fieldType, name, FieldAttributes.Public);
+      }
+
+      public Slot AddField(Type fieldType, string name, FieldAttributes attributes)
+      {
+        FieldBuilder fb = _myType.DefineField(name, fieldType, attributes);
+          return new FieldSlot(new ThisSlot(_myType), fb);
         }
+
         public Slot AddStaticField(Type fieldType, string name) {
             FieldBuilder fb = _myType.DefineField(name, fieldType, FieldAttributes.Public | FieldAttributes.Static);
             return new StaticFieldSlot(fb);

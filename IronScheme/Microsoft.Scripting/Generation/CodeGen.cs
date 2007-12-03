@@ -816,6 +816,11 @@ namespace Microsoft.Scripting.Generation {
             if (builder != null) {
                 return builder.DefineParameter(position, attributes, strParamName);
             }
+            ConstructorBuilder cb = _methodInfo as ConstructorBuilder;
+            if (cb != null)
+            {
+              return cb.DefineParameter(position, attributes, strParamName);
+            }
             DynamicMethod dm = _methodInfo as DynamicMethod;
             if (dm != null) {
                 return dm.DefineParameter(position, attributes, strParamName);

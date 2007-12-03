@@ -83,6 +83,12 @@ namespace IronScheme.Runtime
       return o.GetType();
     }
 
+    [Builtin("bytevector?")]
+    public static object IsByteVector(object obj)
+    {
+      return obj is byte[];
+    }
+
     [Builtin(":optional")]
     public static object Optional(object obj, object def)
     {

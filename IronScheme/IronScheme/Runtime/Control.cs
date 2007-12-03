@@ -295,7 +295,7 @@ namespace IronScheme.Runtime
         return Apply(fn, (object)null);
       }
       object[] head = ArrayUtils.RemoveLast(args);
-      Cons last = args.Length > 0 ? Requires<Runtime.Cons>(args[args.Length - 1]) : null;
+      object last = args.Length > 0 ? args[args.Length - 1] : null;
 
       return Apply(fn, Append(List(head), last));
     }

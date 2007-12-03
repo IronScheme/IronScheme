@@ -158,13 +158,13 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Second(object args)
     {
-      return Cadr(args);
+      return Car(Cdr(args));
     }
 
     [Builtin]
     public static object Third(object args)
     {
-      return Caddr(args);
+      return Car(Cdr(Cdr(args)));
     }
     
     [Builtin]
@@ -276,7 +276,7 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-#if !R6RS
+#if !nR6RS // this isnt helping...
 
     [Builtin]
     public static object Caaaar(object lst)

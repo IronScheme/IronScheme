@@ -977,6 +977,7 @@
     (syntax-error    ) ; only goes to $all
     (clr-new-internal                           is-clr-int)
     (clr-call-internal                          is-clr-int)
+    (clr-cast-internal                          is-clr-int)
     (apply-internal                             ironscheme)
     ))
 

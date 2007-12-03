@@ -8,5 +8,6 @@
     record-accessor
     record-mutator)
     
-  (import (rnrs))
+  (import 
+    (rnrs))
 )

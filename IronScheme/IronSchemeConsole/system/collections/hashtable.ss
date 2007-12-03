@@ -12,21 +12,26 @@
     
   (import 
     (rnrs base)
-		(rnrs control)
+		(rnrs syntax-case)
     (ironscheme clr))
-  
-  (define (new) 
-    (clr-new system.collections.hashtable))
     
-  (define item
-    (case-lambda
-      [(ht key)         (clr-call system.collections.hashtable:get_item ht key)]
-      [(ht key value)   (clr-call system.collections.hashtable:set_item ht key value)] ))
+  ;; how to deal with typed overloads?
+  (define-syntax new
+		(syntax-rules ()
+    	[(_)                (clr-new system.collections.hashtable)]
+    	[(_ k)              (clr-new system.collections.hashtable (clr-cast system.int32 k))]))
+    
+  (define-syntax item
+    (syntax-rules ()
+      [(_ ht key)         (clr-call system.collections.hashtable:get_item ht key)]
+      [(_ ht key value)   (clr-call system.collections.hashtable:set_item ht key value)] ))
 
-  (define (count ht)
-    (clr-call system.collections.hashtable:get_count ht))
+  (define-syntax count
+		(syntax-rules ()
+    	[(_ ht)             (clr-call system.collections.hashtable:get_count ht)]))
 
-  (define (contains ht key)
-    (clr-call system.collections.hashtable:contains ht key))
+  (define-syntax contains
+		(syntax-rules ()
+			[(_  ht key)        (clr-call system.collections.hashtable:contains ht key)]))
       
 )

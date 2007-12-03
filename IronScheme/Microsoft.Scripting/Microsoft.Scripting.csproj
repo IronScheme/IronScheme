@@ -92,6 +92,20 @@
     <SilverlightBuild>true</SilverlightBuild>
     <SilverlightSdkPath>Utilities\Silverlight\x86ret\</SilverlightSdkPath>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\R6RS\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>Bin\Debug\Microsoft.Scripting.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>1591</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" Condition=" $(SilverlightBuild) != 'true' " />
     <Reference Include="System.configuration" Condition=" $(SilverlightBuild) != 'true' " />

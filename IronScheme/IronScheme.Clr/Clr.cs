@@ -28,8 +28,32 @@ using Microsoft.Scripting.Utils;
 
 namespace IronScheme.Clr
 {
+  public abstract class ClrGenerator : SimpleGenerator
+  {
+    protected static Type GetType(string nsandname)
+    {
+      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        if (ass.ManifestModule.Name != "<In Memory Module>")
+        {
+          foreach (Type t in ass.GetExportedTypes())
+          {
+            string nsm = t.Namespace + "." + t.Name;
+            nsm = nsm.ToLower();
+
+            if (nsm == nsandname)
+            {
+              return t;
+            }
+          }
+        }
+      }
+      return null;
+    }
+  }
+
   [Generator("clr-call-internal")]
-  public class ClrCallInternalGenerator : SimpleGenerator
+  public class ClrCallInternalGenerator : ClrGenerator
   {
     // (clr-call type:member obj arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
@@ -55,8 +79,7 @@ namespace IronScheme.Clr
         }
       }
 
-
-      Expression[] arguments = GetAstList(Builtins.Cddr(args) as Cons, cb);
+      Expression[] arguments = GetAstListNoCast(Builtins.Cdr(Builtins.Cdr(args)) as Cons, cb);
 
       List<MethodBase> candidates = new List<MethodBase>();
 
@@ -131,30 +154,29 @@ namespace IronScheme.Clr
       throw new NotImplementedException();
     }
 
-    Type GetType(string nsandname)
-    {
-      foreach (Assembly  ass in AppDomain.CurrentDomain.GetAssemblies())
-      {
-        if (ass.ManifestModule.Name != "<In Memory Module>")
-        {
-          foreach (Type t in ass.GetExportedTypes())
-          {
-            string nsm = t.Namespace + "." + t.Name;
-            nsm = nsm.ToLower();
+  }
 
-            if (nsm == nsandname)
-            {
-              return t;
-            }
-          }
-        }
+  [Generator("clr-cast-internal")]
+  public class ClrCastInternalGenerator : ClrGenerator
+  {
+    // (clr-cast type arg)
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+      Type t = GetType(type);
+      if (t == null)
+      {
+        throw new NotSupportedException();
       }
-      return null;
+
+      Expression obj = GetAst(Builtins.Second(args), cb);
+
+      return Ast.ConvertHelper(obj, t);
     }
   }
 
   [Generator("clr-new-internal")]
-  public class ClrNewInternalGenerator : SimpleGenerator
+  public class ClrNewInternalGenerator : ClrGenerator
   {
     // (clr-new type arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
@@ -166,7 +188,7 @@ namespace IronScheme.Clr
         throw new NotSupportedException();
       }
 
-      Expression[] arguments = GetAstList(Builtins.Cdr(args) as Cons, cb);
+      Expression[] arguments = GetAstListNoCast(Builtins.Cdr(args) as Cons, cb);
 
       List<MethodBase> candidates = new List<MethodBase>();
 
@@ -245,27 +267,6 @@ namespace IronScheme.Clr
       }
 
       throw new NotImplementedException();
-    }
-
-    Type GetType(string nsandname)
-    {
-      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
-      {
-        if (ass.ManifestModule.Name != "<In Memory Module>")
-        {
-          foreach (Type t in ass.GetExportedTypes())
-          {
-            string nsm = t.Namespace + "." + t.Name;
-            nsm = nsm.ToLower();
-
-            if (nsm == nsandname)
-            {
-              return t;
-            }
-          }
-        }
-      }
-      return null;
     }
   }
 

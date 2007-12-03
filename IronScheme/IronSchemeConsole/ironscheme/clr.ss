@@ -1,5 +1,6 @@
 (library (ironscheme clr)
   (export
+    clr-cast
     clr-call
     clr-new)
   (import 
@@ -17,6 +18,12 @@
       (syntax-case e ()
         [(_ type args ...)
          #'(clr-new-internal 'type args ...)])))
+         
+  (define-syntax clr-cast
+    (lambda (e)
+      (syntax-case e ()
+        [(_ type arg)
+         #'(clr-cast-internal 'type arg)])))         
          
 )
     
