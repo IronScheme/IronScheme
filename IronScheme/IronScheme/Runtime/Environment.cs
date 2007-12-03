@@ -67,12 +67,12 @@ namespace IronScheme.Runtime
     [Builtin("eval-string")]
     public static object EvalString(CodeContext cc, string expr)
     {
-      SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, expr, SourceCodeKind.Expression);
+      SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, expr);
       Stopwatch sw = Stopwatch.StartNew();
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
       Trace.WriteLine(sw.ElapsedMilliseconds, "Compile - EvalString");
       sw = Stopwatch.StartNew();
-      object result = sc.Run(cc.Scope, cc.ModuleContext);
+      object result = sc.Run(cc.Scope, cc.ModuleContext, false); // causes issues :(
       Trace.WriteLine(sw.ElapsedMilliseconds, "Run - EvalString");
       return result;
     }

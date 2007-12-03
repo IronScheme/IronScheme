@@ -65,6 +65,11 @@ namespace IronScheme
       return base.GetModuleCache(name);
     }
 
+    public override void UpdateSourceCodeProperties(CompilerContext context)
+    {
+      context.SourceUnit.CodeProperties = SourceCodeProperties.None;
+    }
+
     public override CodeBlock ParseSourceCode(CompilerContext context)
     {
       Stopwatch sw = Stopwatch.StartNew();
@@ -118,33 +123,6 @@ namespace IronScheme
       sc.Errors = cc.Errors;
       sc.SourceUnit = cc.SourceUnit;
       return Parse(sc, cc, true);
-    }
-
-    internal static object ParseExpressionString(string code, CompilerContext cc)
-    {
-      object expr = ReadExpressionString(code, cc);
-      if (expr != null)
-      {
-        //InitStage2();
-
-        //stage2scanner.SetSource(new ExpressionList(expr));
-
-        //if (stage2parser.Parse())
-        //{
-        //  if (stage2parser.parsed != null)
-        //  {
-        //    ExpressionList exprlist = stage2parser.parsed;
-
-        //    foreach (Syntax e in exprlist)
-        //    {
-        //      return e;
-        //    }
-        //  }
-        //}
-      }
-      Debug.Fail("Invalid");
-      return null;
-      
     }
 
     internal static object ReadExpressionString(string code, CompilerContext cc)

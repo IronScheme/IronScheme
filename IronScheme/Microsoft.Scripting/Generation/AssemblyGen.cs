@@ -198,12 +198,26 @@ namespace Microsoft.Scripting.Generation {
             string fullPath = Path.Combine(_outDir, _outFileName);
 
             try {
-                Dump();
+              Dump(Path.GetFileName(fullPath));
             } catch (IOException) {
                 return _myAssembly;
             }
 
-            return Assembly.LoadFile(fullPath);
+
+            byte[] ass = File.ReadAllBytes(fullPath);
+            string pdbfn = Path.ChangeExtension(fullPath, ".pdb");
+
+            if (File.Exists(pdbfn))
+            {
+              byte[] pdb = File.ReadAllBytes(pdbfn);
+
+              return Assembly.Load(ass, pdb);
+            }
+            else
+            {
+
+              return Assembly.Load(ass);
+            }
 #endif
         }
 
@@ -347,13 +361,16 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 #endif
+      public TypeGen DefinePublicType(string name, Type parent, TypeAttributes attrs)
+      {
+        if (BeforeFieldInit) attrs |= TypeAttributes.BeforeFieldInit;
+        TypeBuilder tb = _myModule.DefineType(name.Replace('+', '_'), attrs);
+        tb.SetParent(parent);
+        return new TypeGen(this, tb);
+      }
 
         public TypeGen DefinePublicType(string name, Type parent) {
-            TypeAttributes attrs = TypeAttributes.Public;
-            if (BeforeFieldInit) attrs |= TypeAttributes.BeforeFieldInit;
-            TypeBuilder tb = _myModule.DefineType(name.Replace('+', '_'), attrs);
-            tb.SetParent(parent);
-            return new TypeGen(this, tb);
+            return DefinePublicType(name, parent, TypeAttributes.Public);
         }
 
         // This overload is only available in CLR V2 SP1

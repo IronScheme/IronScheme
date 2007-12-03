@@ -135,9 +135,9 @@ character              {single_char}|([Nn][Ee][Ww][Ll][Ii][Nn][Ee])|([Ss][Pp][Aa
 character_literal      #\\({character})?
 
 single_string_char     [^\\\"]
-string_esc_seq         \\[\"\\abfnrtv]
-hex_esc_seq            \\x({digit16})+
-reg_string_char        {single_string_char}|{string_esc_seq}
+string_esc_seq         (\\[\"\\abfnrtv])
+hex_esc_seq            (\\x({digit16})+)
+reg_string_char        {single_string_char}|{string_esc_seq}|{hex_esc_seq}
 string_literal         \"({reg_string_char})*\"
 
 atoms                  (#[TtFf])

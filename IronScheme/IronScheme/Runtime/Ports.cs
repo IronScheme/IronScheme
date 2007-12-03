@@ -171,7 +171,8 @@ namespace IronScheme.Runtime
             catch (InvalidOperationException)
             {
             }
-            return entry.Invoke(null, new object[] { cc });
+            CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
+            return t(cc);
           }
           //break;
         default:
@@ -521,19 +522,19 @@ namespace IronScheme.Runtime
           {
             if ((bool)IsEqual(quote, scar))
             {
-              return "'" + DisplayFormat(Cadr(s));
+              return "'" + DisplayFormat(Second(s));
             }
             if ((bool)IsEqual(quasiquote, scar))
             {
-              return "`" + DisplayFormat(Cadr(s));
+              return "`" + DisplayFormat(Second(s));
             }
             if ((bool)IsEqual(unquote, scar))
             {
-              return "," + DisplayFormat(Cadr(s));
+              return "," + DisplayFormat(Second(s));
             }
             if ((bool)IsEqual(unquote_splicing, scar))
             {
-              return ",@" + DisplayFormat(Cadr(s));
+              return ",@" + DisplayFormat(Second(s));
             }
           }
         }
@@ -640,19 +641,19 @@ namespace IronScheme.Runtime
         {
           if ((bool)IsEqual(quote, scar))
           {
-            return "'" + WriteFormat(Cadr(s));
+            return "'" + WriteFormat(Second(s));
           }
           if ((bool)IsEqual(quasiquote, scar))
           {
-            return "`" + WriteFormat(Cadr(s));
+            return "`" + WriteFormat(Second(s));
           }
           if ((bool)IsEqual(unquote, scar))
           {
-            return "," + WriteFormat(Cadr(s));
+            return "," + WriteFormat(Second(s));
           }
           if ((bool)IsEqual(unquote_splicing, scar))
           {
-            return ",@" + WriteFormat(Cadr(s));
+            return ",@" + WriteFormat(Second(s));
           }
         }
 

@@ -93,6 +93,9 @@ namespace IronScheme.Compiler
 
 
       AddBuiltins(Context, typeof(Builtins));
+#if R6RS
+      AddBuiltins(Context, typeof(Runtime.R6RS.Records));
+#endif
     }
 
     public static void AddBuiltins(CodeContext cc, Type builtinstype)
@@ -435,6 +438,8 @@ namespace IronScheme.Compiler
           Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
           stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
           h.car = set;
+
+          assigns[v.Name] = true;
         }
         else
         {
@@ -525,8 +530,18 @@ namespace IronScheme.Compiler
       return e.ToArray();
     }
 
-
     protected static Expression[] GetAstList(Cons c, CodeBlock cb)
+    {
+      return GetAstList(c, cb, true);
+    }
+
+    protected static Expression[] GetAstListNoCast(Cons c, CodeBlock cb)
+    {
+      return GetAstList(c, cb, false);
+    }
+
+
+    protected static Expression[] GetAstList(Cons c, CodeBlock cb, bool castdown)
     {
       List<Expression> e = new List<Expression>();
       while (c != null)
@@ -536,7 +551,7 @@ namespace IronScheme.Compiler
           throw new NotSupportedException("improper list cant be used as an expression");
         }
         Expression ex = GetAst(c.car, cb);
-        if (ex.Type.IsValueType)
+        if (castdown && ex.Type.IsValueType)
         {
           ex = Ast.ConvertHelper(ex, typeof(object));
         }
@@ -614,14 +629,14 @@ namespace IronScheme.Compiler
 
       while (c != null)
       {
-        if (c.car is Cons && (bool)Builtins.IsEqual(Builtins.Caar(c), unquote_splicing))
+        if (c.car is Cons && (bool)Builtins.IsEqual(Builtins.Car(Builtins.Car(c)), unquote_splicing))
         {
           nestinglevel--;
           try
           {
             if (nestinglevel == 0)
             {
-              Cons l = Builtins.Cdar(c) as Cons;
+              Cons l = Builtins.Cdr(Builtins.Car(c)) as Cons;
               splices.Add(e.Count);
               e.Add(GetAst(l.car, cb));
             }

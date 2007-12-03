@@ -157,6 +157,8 @@ namespace IronScheme.Hosting
           EngineOptions eo = new IronSchemeEngineOptions();
           eo.ProfileDrivenCompilation = false;
           //eo.InterpretedMode = true;
+          // this will blow up visual studio with anything but small files
+          // eo.ClrDebuggingEnabled = true;
           return eo;
         }
         set

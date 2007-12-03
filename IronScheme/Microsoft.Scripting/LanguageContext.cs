@@ -159,7 +159,7 @@ namespace Microsoft.Scripting {
                 throw new SyntaxErrorException();
             }
 
-            DumpBlock(block, sourceUnit.Id);
+            //DumpBlock(block, sourceUnit.Id);
 
             AnalyzeBlock(block);
 

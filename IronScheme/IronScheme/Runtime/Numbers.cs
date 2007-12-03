@@ -308,11 +308,11 @@ namespace IronScheme.Runtime
     [Builtin("number?")]
     public static object IsNumber(object obj)
     {
-      return
-        ((bool)IsComplex(obj)
+      return !((bool)IsPair(obj)) && !((bool)IsVector(obj)) &&
+        (((bool)IsComplex(obj)
         || (bool)IsRational(obj)
         || (bool)IsReal(obj)
-        || (bool)IsInteger(obj));
+        || (bool)IsInteger(obj)));
     }
 
     [Builtin("complex?")]
@@ -659,7 +659,13 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          return (int)first + (int)second;
+          int f = (int)first, s = (int)second;
+          int r = f + s;
+          if (r < f || r < s)
+          {
+            return BigInteger.Add(f,s);
+          }
+          return r;
         }
         else if (second is double)
         {
@@ -676,6 +682,10 @@ namespace IronScheme.Runtime
         {
           return (double)first + (double)second;
         }
+      }
+      if (first is BigInteger && second is BigInteger)
+      {
+        return BigInteger.Add((BigInteger)first, (BigInteger)second);
       }
       object value;
       if (OperatorHelper("op_Addition", first, second, out value))

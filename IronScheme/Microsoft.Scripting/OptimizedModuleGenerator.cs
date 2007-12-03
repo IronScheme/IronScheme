@@ -371,8 +371,9 @@ namespace Microsoft.Scripting.Generation {
             cg.EmitNull();
             cg.Emit(OpCodes.Ceq);
             cg.Emit(OpCodes.Brtrue_S, ok);
-            cg.EmitNew(typeof(InvalidOperationException), ArrayUtils.EmptyTypes);
-            cg.Emit(OpCodes.Throw);
+            cg.EmitReturn();
+            //cg.EmitNew(typeof(InvalidOperationException), ArrayUtils.EmptyTypes);
+            //cg.Emit(OpCodes.Throw);
             cg.MarkLabel(ok);
 
             // MyModuleDictType.ContextSlot = arg0
