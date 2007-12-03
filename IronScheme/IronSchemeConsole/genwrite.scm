@@ -226,7 +226,7 @@
 
     (define max-call-head-width 5)
 
-    (define max-expr-width 50)
+    (define max-expr-width 120)
 
     (define (style head)
       (case head
