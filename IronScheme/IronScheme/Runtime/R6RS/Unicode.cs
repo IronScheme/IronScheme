@@ -11,157 +11,61 @@
  * ***************************************************************************/
 #endregion
 
+#if R6RS
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Scripting.Math;
+using Microsoft.Scripting.Generation;
+using Microsoft.Scripting;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
+using System.Reflection.Emit;
+using System.Collections;
 
-namespace IronScheme.Runtime
+namespace IronScheme.Runtime.R6RS
 {
-  public partial class Builtins
+  public class Unicode : Builtins
   {
-    /*
-
-     ; 6.3.4
-- char?
-- char=?
-- char<?
-- char>? 
-- char<=? 
-- char>=?
-
-- char-ci=? 
-- char-ci<? 
-- char-ci>? 
-- char-ci<=?
-- char-ci>=? 
-
-- char-alphabetic? 
-- char-numeric?
-- char-whitespace? 
-- char-upper-case? 
-- char-lower-case?
-
-- char->integer 
-- integer->char 
-
-- char-upcase
-- char-downcase
-
-     */
     /// <summary>
-    /// Determines whether the specified obj is char.
+    /// Toes the upper case char.
     /// </summary>
     /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if the specified obj is char; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char?")]
-    public static object IsChar(object obj)
+    /// <returns></returns>
+    [Builtin("char-upcase")]
+    public static object ToUpperCaseChar(object obj)
     {
-      return obj is char;
+      char c = RequiresNotNull<char>(obj);
+      return char.ToUpper(c);
     }
 
     /// <summary>
-    /// Determines whether [is same char] [the specified obj1].
+    /// Toes the lower case char.
     /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is same char] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char=?")]
-    public static object IsSameChar(object obj1, object obj2)
+    /// <param name="obj">The obj.</param>
+    /// <returns></returns>
+    [Builtin("char-downcase")]
+    public static object ToLowerCaseChar(object obj)
     {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return c1 == c2;
+      char c = RequiresNotNull<char>(obj);
+      return char.ToLower(c);
     }
 
-    /// <summary>
-    /// Determines whether [is less than char] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is less than char] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char<?")]
-    public static object IsLessThanChar(object obj1, object obj2)
+    [Builtin("char-titlecase")]
+    public static object ToTitleCaseChar(object obj)
     {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return c1 < c2;
+      //TODO
+      char c = RequiresNotNull<char>(obj);
+      return false;
     }
 
-    /// <summary>
-    /// Determines whether [is greater than char] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is greater than char] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char>?")]
-    public static object IsGreaterThanChar(object obj1, object obj2)
+    [Builtin("char-foldcase")]
+    public static object ToFoldCaseChar(object obj)
     {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return c1 > c2;
+      //TODO
+      char c = RequiresNotNull<char>(obj);
+      return false;
     }
 
-    /// <summary>
-    /// Determines whether [is less than or equal char] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is less than or equal char] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char<=?")]
-    public static object IsLessThanOrEqualChar(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return c1 <= c2;
-    }
-
-#if R6RS
-    [Builtin("char<=?")]
-    public static object IsLessThanOrEqualChar(object obj1, object obj2, object obj3)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-      char c3 = RequiresNotNull<char>(obj3);
-
-      return c1 <= c2 && c2 <= c3;
-    }
-#endif
-
-    /// <summary>
-    /// Determines whether [is greater than or equal char] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is greater than or equal char] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char>=?")]
-    public static object IsGreaterThanOrEqualChar(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return c1 >= c2;
-    }
-
-#if !R6RS
     /// <summary>
     /// Determines whether [is same char case insensitive] [the specified obj1].
     /// </summary>
@@ -208,8 +112,8 @@ namespace IronScheme.Runtime
     public static object IsGreaterThanCharCaseInsensitive(object obj1, object obj2)
     {
       char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2); 
-      
+      char c2 = RequiresNotNull<char>(obj2);
+
       return char.ToLower(c1) > char.ToLower(c2);
     }
 
@@ -246,7 +150,6 @@ namespace IronScheme.Runtime
 
       return char.ToLower(c1) >= char.ToLower(c2);
     }
-
 
     /// <summary>
     /// Determines whether [is alphabetic char] [the specified obj].
@@ -317,42 +220,75 @@ namespace IronScheme.Runtime
       char c = RequiresNotNull<char>(obj);
       return char.IsLower(c);
     }
-#endif
 
-    /// <summary>
-    /// Chars to integer.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns></returns>
-    [Builtin("char->integer")]
-    public static object CharToInteger(object obj)
+    [Builtin("char-title-case?")]
+    public static object IsTitleCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return (int)c;
+      //TODO
+      return false;
     }
 
-    /// <summary>
-    /// Integers to char.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns></returns>
-    [Builtin("integer->char")]
-    public static object IntegerToChar(object obj)
-    {
-      int i = RequiresNotNull<int>(obj);
-      return (char)i;
-    }
-#if !R6RS
-    /// <summary>
-    /// Toes the upper case char.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns></returns>
-    [Builtin("char-upcase")]
-    public static object ToUpperCaseChar(object obj)
+    [Builtin("char-general-catergory")]
+    public static object CharGeneralCategory(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return char.ToUpper(c);
+      //TODO
+      return false;
+    }
+
+    [Builtin("string-ci=?")]
+    public static object IsSameStringCaseInsensitive(object obj1, object obj2)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+
+      return s1 == s2;
+    }
+
+    [Builtin("string-ci<?")]
+    public static object IsLessThanStringCaseInsensitive(object obj1, object obj2)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+
+      return IsLessThan(s1, s2);
+    }
+
+    [Builtin("string-ci>?")]
+    public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+
+      return IsGreaterThan(s1, s2);
+    }
+
+    [Builtin("string-ci<=?")]
+    public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+
+      return IsLessThanOrEqual(s1, s2);
+    }
+
+    [Builtin("string-ci>=?")]
+    public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+
+      return IsGreaterThanOrEqual(s1, s2);
+    }
+
+
+
+    [Builtin("string-upcase")]
+    public static object ToUpperCaseString(object obj)
+    {
+      string s = GetString(obj);
+      return s.ToUpper();
     }
 
     /// <summary>
@@ -360,12 +296,61 @@ namespace IronScheme.Runtime
     /// </summary>
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
-    [Builtin("char-downcase")]
-    public static object ToLowerCaseChar(object obj)
+    [Builtin("string-downcase")]
+    public static object ToLowerCaseString(object obj)
     {
-      char c = RequiresNotNull<char>(obj);
-      return char.ToLower(c);
+      string s = GetString(obj);
+      return s.ToLower();
     }
-#endif
+
+    [Builtin("string-titlecase")]
+    public static object ToTitleCaseString(object obj)
+    {
+      //TODO
+      string s = GetString(obj);
+      return false;
+    }
+
+    [Builtin("string-foldcase")]
+    public static object ToFoldCaseString(object obj)
+    {
+      //TODO
+      string s = GetString(obj);
+      return false;
+    }
+
+    [Builtin("string-normalize-nfd")]
+    public static object StringNormalizeNFD(object obj)
+    {
+      //TODO
+      string s = GetString(obj);
+      return false;
+    }
+
+    [Builtin("string-normalize-nfkd")]
+    public static object StringNormalizeNFKD(object obj)
+    {
+      //TODO
+      string s = GetString(obj);
+      return false;
+    }
+    
+    [Builtin("string-normalize-nfc")]
+    public static object StringNormalizeNFC(object obj)
+    {
+      //TODO
+      string s = GetString(obj);
+      return false;
+    }
+
+
+    [Builtin("string-normalize-nfkc")]
+    public static object StringNormalizeNFKC(object obj)
+    {
+      //TODO
+      string s = GetString(obj);
+      return false;
+    }
   }
 }
+#endif

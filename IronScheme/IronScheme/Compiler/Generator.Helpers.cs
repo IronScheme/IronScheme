@@ -95,6 +95,10 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Builtins));
 #if R6RS
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Unicode));
+      AddBuiltins(Context, typeof(Runtime.R6RS.ByteVectors));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Sorting));
 #endif
     }
 
