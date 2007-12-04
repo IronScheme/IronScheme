@@ -73,6 +73,12 @@
     utf16->string
     utf32->string)
     
-  (import (rnrs))
+  (import 
+     (except (rnrs) native-endianness))
+     
+  (define (native-endianness) 
+    'little)
+    
+    
 )
 

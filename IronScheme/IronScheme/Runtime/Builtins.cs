@@ -83,18 +83,6 @@ namespace IronScheme.Runtime
       return o.GetType();
     }
 
-    [Builtin("bytevector?")]
-    public static object IsByteVector(object obj)
-    {
-      return obj is byte[];
-    }
-
-    [Builtin(":optional")]
-    public static object Optional(object obj, object def)
-    {
-      return obj ?? def;
-    }
-
     public static object ListToByteVector(object obj)
     {
       object[] bytes = ListToVector(obj);
@@ -105,6 +93,12 @@ namespace IronScheme.Runtime
       }
 
       return buffer;
+    }
+
+    [Builtin(":optional")]
+    public static object Optional(object obj, object def)
+    {
+      return obj ?? def;
     }
 
     static int evalcount = 1;

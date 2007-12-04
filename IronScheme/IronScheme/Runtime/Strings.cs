@@ -118,7 +118,7 @@ namespace IronScheme.Runtime
       return new StringBuilder(new string(a));
     }
 
-    static string GetString(object str)
+    protected static string GetString(object str)
     {
       if (str is StringBuilder)
       {
@@ -213,11 +213,13 @@ namespace IronScheme.Runtime
       return IsGreaterThanOrEqual(s1, s2);
     }
 
-    static string ToLower(string obj)
+    protected static string ToLower(string obj)
     {
       string s = GetString(obj);
       return s.ToLower();
     }
+
+#if !R6RS
 
     [Builtin("string-ci=?")]
     public static object IsSameStringCaseInsensitive(object obj1, object obj2)
@@ -263,6 +265,7 @@ namespace IronScheme.Runtime
 
       return IsGreaterThanOrEqual(s1, s2);
     }
+#endif
 
     [Builtin("string->list")]
     public static Cons StringToList(object obj)
