@@ -122,14 +122,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector->list")]
-    public static Cons VectorToList(object vec)
+    public static object VectorToList(object vec)
     {
       object[] l = Requires<object[]>(vec);
       return Runtime.Cons.FromArray(l);
     }
 
     [Builtin("list->vector")]
-    public static object[] ListToVector(object list)
+    public static object ListToVector(object list)
     {
       Cons e = Requires<Cons>(list);
       ArrayList v = new ArrayList();
@@ -145,5 +145,85 @@ namespace IronScheme.Runtime
       }
       return v.ToArray();
     }
+
+#if R6RS
+    [Builtin("vector-map")]
+    public static object VectorMap(object proc, params object[] lists)
+    {
+      int listcount = lists.Length;
+      ICallable c = RequiresNotNull<ICallable>(proc);
+
+      if (listcount > 0)
+      {
+        object f = lists[0];
+
+        if (f is object[])
+        {
+
+          object[] output = new object[((object[])lists[0]).Length];
+          for (int i = 0; i < output.Length; i++)
+          {
+            object[] args = new object[listcount];
+
+            for (int j = 0; j < listcount; j++)
+            {
+              args[j] = ((object[])lists[j])[i];
+            }
+
+            output[i] = c.Call(args);
+          }
+
+          return output;
+        }
+        else
+        {
+          for (int i = 0; i < lists.Length; i++)
+          {
+            lists[i] = c.Call(lists[i]);
+          }
+          return lists;
+        }
+      }
+      return false;
+    }
+
+    [Builtin("vector-for-each")]
+    public static object VectorForEach(object proc, params object[] lists)
+    {
+      int listcount = lists.Length;
+      ICallable c = RequiresNotNull<ICallable>(proc);
+
+      if (listcount > 0)
+      {
+        object f = lists[0];
+
+        if (f is object[])
+        {
+          int ol = ((object[])lists[0]).Length;
+          for (int i = 0; i < ol; i++)
+          {
+            object[] args = new object[listcount];
+
+            for (int j = 0; j < listcount; j++)
+            {
+              args[j] = ((object[])lists[j])[i];
+            }
+
+            c.Call(args);
+          }
+        }
+        else
+        {
+          foreach (object o in lists)
+          {
+            c.Call(o);
+          }
+        }
+      }
+      return Unspecified;
+    }
+
+#endif
+
   }
 }

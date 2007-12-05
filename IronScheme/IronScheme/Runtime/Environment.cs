@@ -27,9 +27,14 @@ namespace IronScheme.Runtime
 {
   public class SchemeException : Exception
   {
-    public SchemeException(string msg) : base(msg)
-    {
+    readonly string who, message;
+    readonly string[] irritants;
 
+    public SchemeException(string who, string message, string[] irritants) : base(who + ":" + message)
+    {
+      this.who = who;
+      this.message = message;
+      this.irritants = irritants;
     }
   }
 
@@ -54,14 +59,16 @@ namespace IronScheme.Runtime
       return false;
     }
 
+#if R6RS
+    [Builtin("assertion-violation")]
+#endif
     [Builtin("error")]
-    public static object Error(object reason, params object[] errors)
+    public static object Error(object who, object message, params object[] irritants)
     {
-      string[] ll = Array.ConvertAll<object, string>(errors, delegate(object o) { return DisplayFormat(o); });
-      ll = ArrayUtils.Insert<string>(DisplayFormat(reason), ll);
-      throw new SchemeException(string.Join(", ", ll));
+      string[] ll = Array.ConvertAll<object, string>(irritants, delegate(object o) { return WriteFormat(o); });
+      ll = ArrayUtils.Insert<string>(DisplayFormat(who), ll);
+      throw new SchemeException(DisplayFormat(who), DisplayFormat(message), ll);
     }
-
 
 
     [Builtin("eval-string")]
