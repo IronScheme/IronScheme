@@ -172,7 +172,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("u8-list->bytevector")]
     public static object U8ListToByteVector(object obj)
     {
-      object[] bytes = ListToVector(obj);
+      object[] bytes = ListToVector(obj) as object[];
       byte[] buffer = new byte[bytes.Length];
       for (int i = 0; i < buffer.Length; i++)
       {

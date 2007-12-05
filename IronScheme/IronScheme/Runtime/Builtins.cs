@@ -85,7 +85,7 @@ namespace IronScheme.Runtime
 
     public static object ListToByteVector(object obj)
     {
-      object[] bytes = ListToVector(obj);
+      object[] bytes = ListToVector(obj) as object[];
       byte[] buffer = new byte[bytes.Length];
       for (int i = 0; i < buffer.Length; i++)
       {
@@ -354,10 +354,7 @@ namespace IronScheme.Runtime
     [Conditional("DEBUG")]
     static void RequiresCondition(bool condition, string message)
     {
-      if (!condition)
-      {
-        throw new SchemeException(message);
-      }
+      Debug.Assert(condition, message);
     }
 
     protected static object RequiresNotNull(object obj)
