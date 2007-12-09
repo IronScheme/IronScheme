@@ -92,11 +92,61 @@ namespace Microsoft.Scripting.Math {
 
         public override bool CanConvertTo(System.ComponentModel.ITypeDescriptorContext context, Type destinationType)
         {
-          return base.CanConvertTo(context, destinationType);
+          if (destinationType == typeof(BigInteger))
+          {
+            return true;
+          }
+          switch (Type.GetTypeCode(destinationType))
+          {
+            case TypeCode.Boolean:
+            case TypeCode.DateTime:
+            case TypeCode.DBNull:
+            case TypeCode.Empty:
+            case TypeCode.Object:
+              return false;
+            default:
+              return true;
+          }
         }
 
         public override object ConvertTo(System.ComponentModel.ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
+          if (value != null)
+          {
+            BigInteger bi = (BigInteger)value;
+            Type vt = destinationType;
+            if (vt == typeof(BigInteger))
+            {
+              return value;
+            }
+            switch (Type.GetTypeCode(vt))
+            {
+              case TypeCode.Byte:
+                return bi.ToByte(null);
+              case TypeCode.Char:
+                return bi.ToChar(null);
+              case TypeCode.Int16:
+                return bi.ToInt16(null);
+              case TypeCode.Int32:
+                return bi.ToInt32(null);
+              case TypeCode.Int64:
+                return bi.ToInt64(null);
+              case TypeCode.SByte:
+                return bi.ToSByte(null);
+              case TypeCode.UInt16:
+                return bi.ToUInt16(null);
+              case TypeCode.UInt32:
+                return bi.ToUInt32(null);
+              case TypeCode.UInt64:
+                return bi.ToUInt64(null);
+              case TypeCode.Decimal:
+                return bi.ToDecimal(null);
+              case TypeCode.Single:
+                return bi.ToSingle(null);
+              case TypeCode.Double:
+                return bi.ToDouble(null);
+            }
+          }
           return base.ConvertTo(context, culture, value, destinationType);
         }
       }

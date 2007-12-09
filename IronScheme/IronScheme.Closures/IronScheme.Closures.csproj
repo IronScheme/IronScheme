@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS %28Debug%29|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\R6RS\</OutputPath>
     <Optimize>true</Optimize>
@@ -50,6 +50,18 @@
     <ErrorReport>prompt</ErrorReport>
     <DefineConstants>R6RS</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS %28Release%29|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>bin\R6RS-Release\</OutputPath>
+    <DefineConstants>R6RS</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -57,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Closure.cs" />
+    <Compile Include="BuiltinMethod.cs" />
     <Compile Include="ICallable.cs" />
     <Compile Include="OptimizedBuiltins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -78,7 +91,7 @@
   <PropertyGroup>
     <PostBuildEvent>"c:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\ildasm" /out:$(TargetName).il /NOBAR /LINENUM $(TargetPath)
 $(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe $(TargetName).il
-"c:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\ilasm" /dll /opt /NOLOGO /QUIET /DEBUG=OPT $(TargetName).il
+"c:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\ilasm" /dll /opt /NOLOGO /QUIET $(TargetName).il
 "c:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\peverify" /NOLOGO $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>

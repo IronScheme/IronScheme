@@ -72,17 +72,17 @@
   ;;;
   ;;; The following should be good for full R6RS implementations.
   ;;;
-  ;;;   (define-syntax define-record
-  ;;;     (syntax-rules ()
-  ;;;       [(_ name (field* ...) printer) 
-  ;;;        (define-record name (field* ...))]
-  ;;;       [(_ name (field* ...))
-  ;;;        (define-record-type name 
-  ;;;           (sealed #t)     ; for better performance
-  ;;;           (opaque #t)     ; for security
-  ;;;           (nongenerative) ; for sanity
-  ;;;           (fields field* ...))]))
-
+#|     (define-syntax define-record
+       (syntax-rules ()
+         [(_ name (field* ...) printer) 
+          (define-record name (field* ...))]
+         [(_ name (field* ...))
+          (define-record-type name 
+             (sealed #t)     ; for better performance
+             (opaque #t)     ; for security
+             (nongenerative) ; for sanity
+             (fields field* ...))]))
+|#
   (define-syntax define-record
     (lambda (stx)
       (define (iota i j)

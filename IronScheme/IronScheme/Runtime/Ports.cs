@@ -90,6 +90,28 @@ namespace IronScheme.Runtime
       throw new NotImplementedException();
     }
 
+    static Assembly AssemblyLoad(string path)
+    {
+      string fn = Path.GetFullPath(path);
+      if (File.Exists(fn))
+      {
+        byte[] ass = File.ReadAllBytes(fn);
+
+        fn = Path.ChangeExtension(fn, ".pdb");
+
+        if (File.Exists(fn))
+        {
+          byte[] pdb = File.ReadAllBytes(fn);
+          return Assembly.Load(ass, pdb);
+        }
+        else
+        {
+          return Assembly.Load(ass);
+        }
+      }
+      return null;
+    }
+
     [Builtin("load")]
     public static object Load(CodeContext cc, object filename)
     {
@@ -114,7 +136,7 @@ namespace IronScheme.Runtime
       switch (Path.GetExtension(path))
       {
         case ".dll":
-          Assembly ext = Assembly.LoadFile(Path.GetFullPath(path));
+          Assembly ext = AssemblyLoad(path);
           if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
           {
             IronScheme.Compiler.Generator.AddGenerators(cc, ext);
@@ -137,7 +159,7 @@ namespace IronScheme.Runtime
           }
           break;
         case ".exe":
-          Assembly mod = Assembly.LoadFile(Path.GetFullPath(path));
+          Assembly mod = AssemblyLoad(path);
           MethodInfo entry = null;
           foreach (Type t in mod.GetExportedTypes())
           {
@@ -164,13 +186,9 @@ namespace IronScheme.Runtime
           {
             IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
               IModuleDictionaryInitialization;
-            try
-            {
-              init.InitializeModuleDictionary(cc);
-            }
-            catch (InvalidOperationException)
-            {
-            }
+
+            init.InitializeModuleDictionary(cc);
+
             CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
             return t(cc);
           }
@@ -183,7 +201,8 @@ namespace IronScheme.Runtime
             DateTime ct = File.GetLastWriteTime(cfn);
             if (ct > File.GetLastWriteTime(path))
             {
-              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct || cfn.StartsWith("ironscheme.boot"))
+              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct || cfn.StartsWith("ironscheme.boot.exe") ||
+                cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe"))
               {
                 path = cfn;
                 goto case ".exe";
@@ -208,8 +227,7 @@ namespace IronScheme.Runtime
           }
           finally
           {
-            GC.GetTotalMemory(true);
-            //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
+            GC.Collect(3, GCCollectionMode.Forced);
             Compiler.Generator.CanAllowTailCall = false;
           }
           //break;

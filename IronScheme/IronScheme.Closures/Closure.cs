@@ -20,13 +20,13 @@ using Microsoft.Scripting.Actions;
 namespace IronScheme.Runtime
 {
   public delegate object ConsFromArrayHandler(object[] args);
-
+  public delegate object[] ArrayFromConsHandler(object args);
 
 
   public abstract class Closure : ICallable
   {
     readonly static Dictionary<Type, int> targetmap = new Dictionary<Type, int>();
-
+ 
     static Closure()
     {
       targetmap.Add(typeof(CallTarget0), 0);

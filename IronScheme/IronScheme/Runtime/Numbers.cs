@@ -659,13 +659,14 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          int f = (int)first, s = (int)second;
-          int r = f + s;
-          if (r < f || r < s)
+          try
           {
-            return BigInteger.Add(f,s);
+            return checked((int)first + (int)second);
           }
-          return r;
+          catch (OverflowException)
+          {
+            return (BigInteger)(int)first + (int)second;
+          }
         }
         else if (second is double)
         {
@@ -711,7 +712,7 @@ namespace IronScheme.Runtime
 
         result += Convert.ToDouble(item);
       }
-      return Convert.ChangeType(result, type);
+      return ConvertNumber(result, type);
     }
 
     [Builtin("*")]
@@ -734,7 +735,14 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          return (int)first * (int)second;
+          try
+          {
+            return checked((int)first * (int)second);
+          }
+          catch (OverflowException)
+          {
+            return (BigInteger)(int)first * (int)second;
+          }
         }
         else if (second is double)
         {
@@ -751,6 +759,10 @@ namespace IronScheme.Runtime
         {
           return (double)first * (double)second;
         }
+      }
+      if (first is BigInteger && second is BigInteger)
+      {
+        return BigInteger.Multiply((BigInteger)first, (BigInteger)second);
       }
       object value;
       if (OperatorHelper("op_Multiply", first, second, out value))
@@ -777,10 +789,33 @@ namespace IronScheme.Runtime
 
         result *= Convert.ToDouble(item);
       }
-      return Convert.ChangeType(result, type);
+      return ConvertNumber(result, type);
     }
 
+    static object ConvertNumber(object result, Type type)
+    {
+      try
+      {
+        return Convert.ChangeType(result, type);
+      }
+      catch (OverflowException)
+      {
+        if (type == typeof(int) || type == typeof(long))
+        {
+          return BigIntConverter.ConvertFrom(result);
+        }
+
+        throw;
+      }
+    }
+
+    static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
+
+#if R6RS
+    [Builtin("div")]
+#else
     [Builtin("/")]
+#endif
     public static object Divide(object first)
     {
       if (first is int)
@@ -796,7 +831,11 @@ namespace IronScheme.Runtime
     }
 
 
+#if R6RS
+    [Builtin("div")]
+#else
     [Builtin("/")]
+#endif
     public static object Divide(object first, object second)
     {
       if (first is int)
@@ -821,6 +860,10 @@ namespace IronScheme.Runtime
           return (double)first / (double)second;
         }
       }
+      if (first is BigInteger && second is BigInteger)
+      {
+        return BigInteger.Divide((BigInteger)first, (BigInteger)second);
+      }
       object value;
       if (OperatorHelper("op_Division", first, second, out value))
       {
@@ -829,7 +872,11 @@ namespace IronScheme.Runtime
       return Divide(first, new object[] { second });
     }
 
+#if R6RS
+    [Builtin("div")]
+#else
     [Builtin("/")]
+#endif
     public static object Divide(object car, params object[] args)
     {
       if (car is Missing)
@@ -851,7 +898,7 @@ namespace IronScheme.Runtime
 
           result /= Convert.ToDouble(item);
         }
-        return Convert.ChangeType(result, type);
+        return ConvertNumber(result, type);
       }
     }
 
@@ -948,7 +995,14 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          return (int)first - (int)second;
+          try
+          {
+            return checked((int)first - (int)second);
+          }
+          catch (OverflowException)
+          {
+            return (BigInteger)(int)first - (int)second;
+          }
         }
         else if (second is double)
         {
@@ -966,7 +1020,10 @@ namespace IronScheme.Runtime
           return (double)first - (double)second;
         }
       }
-
+      if (first is BigInteger && second is BigInteger)
+      {
+        return BigInteger.Subtract((BigInteger)first, (BigInteger)second);
+      }
       object value;
       if (OperatorHelper("op_Subtraction", first, second, out value))
       {
@@ -1000,146 +1057,9 @@ namespace IronScheme.Runtime
           result -= Convert.ToDouble(item);
         }
       }
-      return Convert.ChangeType(result, type);
+      return ConvertNumber(result, type);
     }
 
-#if EXT_LIB
-    //[Builtin("&")]
-    //public static object logand(object first, object second)
-    //{
-    //  return logand(first, new object[] { second });
-    //}
-
-    //[Builtin("&")]
-    //public static object logand(object first, params object[] rest)
-    //{
-    //  Type type = first.GetType();
-    //  object result = first;
-    //  foreach (object item in rest)
-    //  {
-    //    // The integral types dont define operator overload methods
-    //    // for performace reasons, so we have to implement this
-    //    // operator on each integral type
-
-    //    if (type == typeof(bool))
-    //      result = (bool)result & (bool)(item);
-    //    else if (type == typeof(sbyte))
-    //      result = (sbyte)result & (sbyte)(item);
-    //    else if (type == typeof(byte))
-    //      result = (byte)result & (byte)(item);
-    //    else if (type == typeof(char))
-    //      result = (char)result & (char)(item);
-    //    else if (type == typeof(short))
-    //      result = (short)result & (short)(item);
-    //    else if (type == typeof(ushort))
-    //      result = (ushort)result & (ushort)(item);
-    //    else if (type == typeof(int))
-    //      result = (int)result & (int)(item);
-    //    else if (type == typeof(uint))
-    //      result = (uint)result & (uint)(item);
-    //    else if (type == typeof(long))
-    //      result = (long)result & (long)(item);
-    //    else if (type == typeof(ulong))
-    //      result = (ulong)result & (ulong)(item);
-    //  }
-
-    //  return Convert.ChangeType(result, type);
-    //}
-
-    //[Builtin("|")]
-    //public static object logor(object first, object second)
-    //{
-    //  return logor(first, new object[] { second });
-    //}
-
-    //[Builtin("|")]
-    //public static object logor(object first, params object[] rest)
-    //{
-    //  Type type = first.GetType();
-    //  object result = first;
-    //  foreach (object item in rest)
-    //  {
-
-    //    // The integral types dont define operator overload methods
-    //    // for performace reasons, so we have to implement this
-    //    // operator on each integral type
-
-    //    if (type == typeof(bool))
-    //      result = (bool)result | (bool)(item);
-    //    else if (type == typeof(sbyte))
-    //      result = (sbyte)result | (sbyte)(item);
-    //    else if (type == typeof(byte))
-    //      result = (byte)result | (byte)(item);
-    //    else if (type == typeof(char))
-    //      result = (char)result | (char)(item);
-    //    else if (type == typeof(short))
-    //      result = (short)result | (short)(item);
-    //    else if (type == typeof(ushort))
-    //      result = (ushort)result | (ushort)(item);
-    //    else if (type == typeof(int))
-    //      result = (int)result | (int)(item);
-    //    else if (type == typeof(uint))
-    //      result = (uint)result | (uint)(item);
-    //    else if (type == typeof(long))
-    //      result = (long)result | (long)(item);
-    //    else if (type == typeof(ulong))
-    //      result = (ulong)result | (ulong)(item);
-    //  }
-
-    //  return Convert.ChangeType(result, type);
-    //}
-
-    //[Builtin("^")]
-    //public static object logxor(object first, object second)
-    //{
-    //  return logxor(first, new object[] { second });
-    //}
-
-    ///// <summary>
-    ///// (^ expression*)
-    ///// Performs a bitwise logical exclusive or operation on its arguments
-    ///// </summary>
-    ///// <param name="args"></param>
-    ///// <param name="environment"></param>
-    ///// <returns></returns>
-    //[Builtin("^")]
-    //public static object logxor(object first, params object[] rest)
-    //{
-    //  Type type = first.GetType();
-    //  object result = first;
-    //  foreach (object item in rest)
-    //  {
-
-    //    // The integral types dont define operator overload methods
-    //    // for performace reasons, so we have to implement this
-    //    // operator on each integral type
-    //    if (type == typeof(bool))
-    //      result = (bool)result ^ (bool)(item);
-    //    else if (type == typeof(sbyte))
-    //      result = (sbyte)result ^ (sbyte)(item);
-    //    else if (type == typeof(byte))
-    //      result = (byte)result ^ (byte)(item);
-    //    else if (type == typeof(char))
-    //      result = (char)result ^ (char)(item);
-    //    else if (type == typeof(short))
-    //      result = (short)result ^ (short)(item);
-    //    else if (type == typeof(ushort))
-    //      result = (ushort)result ^ (ushort)(item);
-    //    else if (type == typeof(int))
-    //      result = (int)result ^ (int)(item);
-    //    else if (type == typeof(uint))
-    //      result = (uint)result ^ (uint)(item);
-    //    else if (type == typeof(long))
-    //      result = (long)result ^ (long)(item);
-    //    else if (type == typeof(ulong))
-    //      result = (ulong)result ^ (ulong)(item);
-
-    //  }
-
-    //  return Convert.ChangeType(result, type);
-    //}
-
-#endif
     #endregion
 
     [Builtin("abs")]
@@ -1152,6 +1072,18 @@ namespace IronScheme.Runtime
       else if (obj is int)
       {
         return Math.Abs((int)obj);
+      }
+      else if (obj is BigInteger)
+      {
+        return ((BigInteger)obj).Abs();
+      }
+      else if (obj is decimal)
+      {
+        return Math.Abs((decimal)obj);
+      }
+      else if (obj is Complex64)
+      {
+        return ((Complex64)obj).Abs();
       }
       else
       {
@@ -1204,7 +1136,7 @@ provided all numbers involved in that computation are exact.
 (remainder -13 -4.0)            ===>  -1.0  ; inexact
 
      */
-
+#if !R6RS
     [Builtin("quotient")]
     public static object Quotient(object first, object second)
     {
@@ -1239,8 +1171,30 @@ provided all numbers involved in that computation are exact.
       return Remainder(first, new object[] { second });
     }
 
+    static object Remainder(object car, params object[] args)
+    {
+      if (car is Missing)
+      {
+        return null;
+      }
+      Type type = car == null ? typeof(decimal) : car.GetType();
+      decimal result = Convert.ToDecimal(car);
+      foreach (object item in args)
+      {
+        if (item is decimal)
+          type = item.GetType();
 
+        result %= Convert.ToDecimal(item);
+      }
+      return result;
+    }
+#endif
+
+#if R6RS
+    [Builtin("mod")]
+#else
     [Builtin("modulo")]
+#endif
     public static object Modulo(object first, object second)
     {
       if (first is int)
@@ -1273,25 +1227,6 @@ provided all numbers involved in that computation are exact.
       return false;
     }
 
-  
-    static object Remainder(object car, params object[] args)
-    {
-      if (car is Missing)
-      {
-        return null;
-      }
-      Type type = car == null ? typeof(decimal) : car.GetType();
-      decimal result = Convert.ToDecimal(car);
-      foreach (object item in args)
-      {
-        if (item is decimal)
-          type = item.GetType();
-
-        result %= Convert.ToDecimal(item);
-      }
-      return result;
-    }
-
     /*
 (= gcd (fn (a b)
   (if (eql b 0)
@@ -1317,7 +1252,7 @@ provided all numbers involved in that computation are exact.
           }
           else
           {
-            return Abs(GreatestCommonDivider(second, Remainder(first, second)));
+            return Abs(GreatestCommonDivider(second, Modulo(first, second)));
           }
         default:
           // TODO
@@ -1346,6 +1281,8 @@ provided all numbers involved in that computation are exact.
       }
     }
 
+    static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
+
     [Builtin("numerator")]
     public static object Numerator(object obj)
     {
@@ -1353,7 +1290,7 @@ provided all numbers involved in that computation are exact.
       {
         return ((Fraction)obj).Numerator;
       }
-      return obj;
+      return ((Fraction)FractionConverter.ConvertFrom(obj)).Numerator;
     }
 
     [Builtin("denominator")]
@@ -1363,7 +1300,7 @@ provided all numbers involved in that computation are exact.
       {
         return ((Fraction)obj).Denominator;
       }
-      return 1;
+      return ((Fraction)FractionConverter.ConvertFrom(obj)).Denominator;
     }
 
     [Builtin("floor")]

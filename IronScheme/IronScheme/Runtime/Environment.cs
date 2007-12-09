@@ -36,6 +36,20 @@ namespace IronScheme.Runtime
       this.message = message;
       this.irritants = irritants;
     }
+
+    public override string ToString()
+    {
+      List<string> ii = new List<string>();
+      for (int i = 0; i < irritants.Length; i++)
+			{ 
+			  ii.Add(string.Format("    [{0}]\t{1}", i, irritants[i]));
+			}
+      return string.Format(@"error!
+who:        {0}
+message:    {1}
+irritants:
+{2}", who, message, string.Join(Environment.NewLine, ii.ToArray()));
+    }
   }
 
   public partial class Builtins

@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS %28Debug%29|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\R6RS\</OutputPath>
     <DefineConstants>TRACE;DEBUG;R6RS</DefineConstants>
@@ -50,6 +50,20 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS %28Release%29|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>bin\R6RS-Release\</OutputPath>
+    <DefineConstants>TRACE;R6RS</DefineConstants>
+    <DocumentationFile>bin\Debug\IronScheme.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <DebugType>none</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -114,7 +128,11 @@
     <Compile Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
+    <Compile Include="Runtime\R6RS\Arithmetic\Bitwise.cs" />
+    <Compile Include="Runtime\R6RS\Arithmetic\Fixnums.cs" />
+    <Compile Include="Runtime\R6RS\Arithmetic\Flonums.cs" />
     <Compile Include="Runtime\R6RS\ByteVectors.cs" />
+    <Compile Include="Runtime\R6RS\Enums.cs" />
     <Compile Include="Runtime\R6RS\Sorting.cs" />
     <Compile Include="Runtime\R6RS\Unicode.cs" />
     <Compile Include="Runtime\R6RS\Hashtables.cs" />

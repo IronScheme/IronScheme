@@ -158,7 +158,8 @@ namespace IronScheme.Hosting
           eo.ProfileDrivenCompilation = false;
           //eo.InterpretedMode = true;
           // this will blow up visual studio with anything but small files
-          // eo.ClrDebuggingEnabled = true;
+          //eo.ClrDebuggingEnabled = true;
+          
           return eo;
         }
         set

@@ -28,6 +28,7 @@ namespace IronScheme.Runtime.R6RS
     public Type type;
     public bool @sealed, opaque;
     public ICallable constructor;
+    public MethodInfo predicate;
     public object uid;
     public bool generative;
 
@@ -65,9 +66,16 @@ namespace IronScheme.Runtime.R6RS
         Assembly genass = ag.DumpAndLoad();
 
         // update fields
+        predicate = type.GetMethod(predicate.Name);
+
         foreach (FieldDescriptor fd in fields)
         {
-          fd.field = type.GetField(fd.name);
+          fd.field = type.GetField(fd.field.Name);
+          fd.accessor = type.GetMethod(fd.accessor.Name);
+          if (fd.mutable)
+          {
+            fd.mutator = type.GetMethod(fd.mutator.Name);
+          }
         }
       }
 
@@ -86,6 +94,8 @@ namespace IronScheme.Runtime.R6RS
     public bool mutable;
 
     public FieldInfo field;
+    public MethodInfo accessor, mutator;
+
 
     public override string ToString()
     {
@@ -165,11 +175,29 @@ namespace IronScheme.Runtime.R6RS
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
 
+      // predicate
+
+      MethodBuilder pb = tg.TypeBuilder.DefineMethod(n + "?", MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { typeof(object) });
+
+      ILGenerator pgen = pb.GetILGenerator();
+      pgen.Emit(OpCodes.Ldarg_0);
+      pgen.Emit(OpCodes.Isinst, tg.TypeBuilder);
+      pgen.Emit(OpCodes.Ldnull);
+      pgen.Emit(OpCodes.Cgt_Un);
+      pgen.Emit(OpCodes.Box, typeof(bool));
+      pgen.Emit(OpCodes.Ret);
+
+      rtd.predicate = pb;
+
       object[] f = RequiresNotNull<object[]>(fields);
 
       foreach (Cons c in f)
       {
         string fname = SymbolToString(Second(c)) as string;
+        // we use standard names here, they will be mapped to the given names
+        string aname = n + "-" + fname;
+        string mname = n + "-" + fname + "-set!";
+
         FieldDescriptor fd = new FieldDescriptor();
         fd.name = fname;
 
@@ -182,6 +210,34 @@ namespace IronScheme.Runtime.R6RS
         FieldSlot s = tg.AddField(typeof(object), fname, fattrs) as FieldSlot;
 
         fd.field = s.Field;
+
+        // accesor 
+
+        MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { typeof(object)  });
+
+        ILGenerator agen = ab.GetILGenerator();
+        agen.Emit(OpCodes.Ldarg_0);
+        agen.Emit(OpCodes.Castclass, tg.TypeBuilder);
+        agen.Emit(OpCodes.Ldfld, fd.field);
+        agen.Emit(OpCodes.Ret);
+
+        fd.accessor = ab;
+
+        // mutator
+        if (fd.mutable)
+        {
+          MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { typeof(object), typeof(object) });
+
+          ILGenerator mgen = mb.GetILGenerator();
+          mgen.Emit(OpCodes.Ldarg_0);
+          mgen.Emit(OpCodes.Castclass, tg.TypeBuilder);
+          mgen.Emit(OpCodes.Ldarg_1);
+          mgen.Emit(OpCodes.Stfld, fd.field);
+          mgen.Emit(OpCodes.Ldsfld, Compiler.Generator.Unspecified);
+          mgen.Emit(OpCodes.Ret);
+
+          fd.mutator = mb;
+        }
 
         rtd.fields.Add(fd);
       }
@@ -245,6 +301,8 @@ namespace IronScheme.Runtime.R6RS
       rcd.type = t;
       rcd.protocol = protocol as ICallable;
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;
+
+      rcd.type.Finish();
       
       return rcd;
     }
@@ -253,25 +311,14 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordPredicate(object rtd)
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
-
-      CallTarget1 p = delegate(object obj)
-      {
-        // TODO: opaque handling, non needed here
-        if (obj == null)
-        {
-          return t.type == typeof(Cons);
-        }
-
-        return t.type.IsInstanceOfType(obj);
-      };
-
-      return Closure.Make(Context, p);
+      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
     }
 
     [Builtin("record-constructor")]
     public static object RecordConstructor(object cd)
     {
       RecordConstructorDescriptor ci = RequiresNotNull<RecordConstructorDescriptor>(cd);
+
 
       CallTargetN p = delegate(object[] args)
       {
@@ -330,14 +377,9 @@ namespace IronScheme.Runtime.R6RS
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
       int i = RequiresNotNull<int>(k);
 
-      CallTarget1 p = delegate(object obj)
-      {
-        //inside the closure :)
-        FieldInfo fi = t.fields[i].field;
-        return fi.GetValue(obj);
-      };
+      MethodInfo am = t.fields[i].accessor;
 
-      return Closure.Make(Context, p);
+      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), am));
     }
 
     [Builtin("record-mutator")]
@@ -346,15 +388,9 @@ namespace IronScheme.Runtime.R6RS
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
       int i = RequiresNotNull<int>(k);
 
-      CallTarget2 p = delegate(object obj, object value)
-      {
-        //inside the closure :)
-        FieldInfo fi = t.fields[i].field;
-        fi.SetValue(obj, value);
-        return Unspecified;
-      };
+      MethodInfo mm = t.fields[i].mutator;
 
-      return Closure.Make(Context, p);
+      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget2), mm));
     }
 
     internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();

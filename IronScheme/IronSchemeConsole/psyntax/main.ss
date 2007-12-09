@@ -48,6 +48,10 @@
     (let ((script-name (car args)) (args (cdr args)))
       (load-r6rs-top-level (car args))))
   (exit 0)
-  eval-r6rs-top-level
+  ; not so good...
+  '(lambda (e)
+    (eval e (environment '(rnrs))))
+  ; next!
+  eval-top-level
   )
 

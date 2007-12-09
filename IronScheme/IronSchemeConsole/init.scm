@@ -4,10 +4,15 @@
 ; for pretty-print
 (load "genwrite.scm")
 
+(define system-loaded #f)
+
 (define (load-system)
   (define (pload file)
     (load file)
     (display "."))
+    
+  (if (not system-loaded)
+  (begin
 
   (display "loading system .")
   ;(pload "srfi/23.scm") ; error - builtin
@@ -38,6 +43,8 @@
   
   (display " done.")
   (newline)
+  (set! system-loaded #t)
+  ))
 )
 
 ;; load some additional console helpers 
@@ -69,6 +76,12 @@
 (define eval-r6rs #f)
 
 (define (init-r6rs)
-  (set! eval-r6rs (load-r6rs "r6rs-init.ss")))
+  (set! eval-r6rs (load-r6rs "r6rs-init.ss"))
+  (if #f #f))
   
-
+  
+(define (wip)
+  (load-r6rs "wip.ss")
+  (if #f #f))
+  
+(init-r6rs)

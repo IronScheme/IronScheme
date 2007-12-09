@@ -3456,8 +3456,8 @@
            ((assq sym (library-subst lib)) => cdr)
            (else
             (let ((subst 
-                   (if (library-exists? '(ikarus))
-                       (library-subst (find-library-by-name '(ikarus)))
+                   (if (library-exists? '(rnrs))
+                       (library-subst (find-library-by-name '(rnrs)))
                        '())))
               (cond
                 ((assq sym subst) =>
@@ -3495,7 +3495,7 @@
                               (vis-collector vtc)
                               (imp-collector itc)
                               (interaction-library
-                               (find-library-by-name '(ikarus interaction))))
+                               (find-library-by-name '(rnrs))))
                  (chi-top* (list (mkstx x top-mark* '())) '()))))
           (for-each invoke-library (rtc))
           (unless (null? init*)

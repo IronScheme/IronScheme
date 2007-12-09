@@ -58,7 +58,7 @@ namespace IronScheme.Runtime
             v[i] = iters[i].car;
           }
 
-          return Cons.FromArray(v);
+          return v;
         }
       }
 

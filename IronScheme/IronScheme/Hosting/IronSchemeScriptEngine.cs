@@ -63,6 +63,10 @@ namespace IronScheme.Hosting
       if (exception is SyntaxErrorException)
       {
         SyntaxErrorException se = (SyntaxErrorException)exception;
+        if (se.Message == "Exception of type 'Microsoft.Scripting.SyntaxErrorException' was thrown.")
+        {
+          return "syntax error: incomplete expression";
+        }
         if (se.Column == 0 && se.Line == 0)
         {
           return string.Format("{0} error: {1}", se.ErrorCode == 2 ? "lexer" : "parser", se.Message);
@@ -94,7 +98,7 @@ namespace IronScheme.Hosting
       }
       if (exception is SchemeException)
       {
-        return "error: " + exception.Message;
+        return exception.ToString();
       }
       if (exception is ThreadAbortException)
       {
@@ -175,6 +179,11 @@ namespace IronScheme.Hosting
       public override void Add(SourceUnit sourceUnit, string message, SourceSpan span, int errorCode, Severity severity)
       {
         base.Add(sourceUnit, message, span, errorCode, severity);
+        if (sourceUnit.Kind == SourceCodeKind.InteractiveCode && message != "unexpected EOF")
+        {
+          throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
+        }
+        else
         if (sourceUnit.Kind != SourceCodeKind.Default && sourceUnit.Kind != SourceCodeKind.InteractiveCode)
         {
           throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);

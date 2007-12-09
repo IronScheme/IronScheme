@@ -185,6 +185,18 @@ namespace IronScheme.Compiler
               BuiltinMethod bf = m as BuiltinMethod;
               if (bf != null)
               {
+                // check for inline emitter
+                InlineEmitter ie;
+                if (inlineemitters.TryGetValue(f, out ie))
+                {
+                  Expression result = ie(GetAstList(c.cdr as Cons, cb));
+                  // if null is returned, the method cannot be inlined
+                  if (result != null)
+                  {
+                    return result;
+                  }
+                }
+
                 MethodBinder mb = bf.Binder;
                 Expression[] pars = GetAstList(c.cdr as Cons, cb);
 
@@ -203,9 +215,28 @@ namespace IronScheme.Compiler
             }
           }
         }
-        Expression ex = Ast.ConvertHelper(GetAst(c.car, cb), typeof(ICallable));
+
         Expression[] pp = GetAstList(c.cdr as Cons, cb);
 
+        Expression ex = GetAst(c.car, cb);
+        if (ex is MethodCallExpression)
+        {
+          MethodCallExpression mcexpr = (MethodCallExpression)ex;
+          if (mcexpr.Method == Closure_Make)
+          {
+            CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
+            cbe.Block.Update();
+            bool needscontext = true;
+            MethodInfo dc = GetDirectCallable(needscontext, pp.Length);
+            if (needscontext)
+            {
+              pp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pp);
+            }
+            return Ast.ComplexCallHelper(mcexpr.Arguments[1], dc, pp);
+          }
+        }
+        ex = Ast.ConvertHelper(ex, typeof(ICallable));
+        
         MethodInfo call = GetCallable(pp.Length);
 
         Expression r = pp.Length > 5 ?

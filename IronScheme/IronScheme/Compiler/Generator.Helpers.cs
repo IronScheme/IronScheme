@@ -99,11 +99,23 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Unicode));
       AddBuiltins(Context, typeof(Runtime.R6RS.ByteVectors));
       AddBuiltins(Context, typeof(Runtime.R6RS.Sorting));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Enums));
+
+      AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Flonums));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Fixnums));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Bitwise));
+
+      AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
+      AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
+      AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.Bitwise));
 #endif
     }
 
     public static void AddBuiltins(CodeContext cc, Type builtinstype)
     {
+      BuiltinMethod.binder = binder;
+      BuiltinMethod.context = cc;
+
       Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
 
       foreach (MethodInfo mi in builtinstype.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static))
