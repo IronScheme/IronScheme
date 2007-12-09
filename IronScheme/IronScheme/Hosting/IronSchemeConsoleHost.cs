@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting;
+using System.Diagnostics;
 
 namespace IronScheme.Hosting
 {
@@ -24,19 +25,45 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-#if DEBUG
-      ScriptDomainManager.Options.AssemblyGenAttributes = 
+#if !DEBUG
+      ScriptDomainManager.Options.DebugMode = false;
+      ScriptDomainManager.Options.EngineDebug = false;
+      ScriptDomainManager.Options.DebugCodeGeneration = false;
 
+#endif
+      ScriptDomainManager.Options.AssemblyGenAttributes = 
+#if DEBUG
+      
+      //Microsoft.Scripting.Generation.AssemblyGenAttributes.ILDebug |
       Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
       Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateStaticMethods |
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
 #endif
-      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007", 
-            typeof(IronSchemeConsoleHost).Assembly.GetName().Version);
+       Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
+      
+      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007 - {1} - {2}", 
+            typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
+#if R6RS
+            "R6RS mode"
+#else
+            "R5RS mode"
+#endif
+            ,
+#if DEBUG
+            "Debug build"
+#else
+            "Release build"
+#endif
+            );
 
         Console.Title = logo;
+
+        if (Debugger.IsAttached)
+        {
+          Console.Title += " - Debugger Attached";
+        }
+
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
     }

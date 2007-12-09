@@ -19,6 +19,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
+  // there arent many places this is viable, except where the types are known and IL can be generated more efficiently
   [AttributeUsage(AttributeTargets.Method, AllowMultiple=true)]
   public class InlineEmitterAttribute : Attribute
   {
@@ -39,5 +40,5 @@ namespace IronScheme.Compiler
     }
   }
 
-  public delegate Expression InlineEmitter(CodeContext cc, params Expression[] args);
+  public delegate Expression InlineEmitter(params Expression[] args);
 }

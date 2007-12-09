@@ -130,9 +130,9 @@ namespace Microsoft.Scripting.Ast {
         /// it contains additional closures or uses language features which require lifting all locals to
         /// an environment.
         /// </summary>
-        internal bool IsClosure {
+        public bool IsClosure {
             get { return _isClosure; }
-            set { _isClosure = value; }
+            internal set { _isClosure = value; }
         }
 
         /// <summary>
@@ -735,6 +735,11 @@ namespace Microsoft.Scripting.Ast {
             throw new InvalidOperationException(String.Format("failed to make delegate for type {0}", delegateType.FullName));
         }
 
+      public void Update()
+      {
+        FlowChecker.Check(this);
+      }
+
         protected Delegate GetCompiledDelegate(CompilerContext context, Type delegateType, bool forceWrapperMethod) {
 
             bool createWrapperMethod = _parameterArray ? false : forceWrapperMethod || NeedsWrapperMethod(false);
@@ -765,6 +770,77 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+      internal void EmitDirectCall(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType, bool tailcall)
+      {
+        FlowChecker.Check(this);
+
+        // TODO: explicit delegate type may be wrapped...
+        bool createWrapperMethod = _parameterArray ? false : (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
+
+        bool hasContextParameter = _explicitCodeContextExpression == null &&
+            (createWrapperMethod ||
+            IsClosure ||
+            !(cg.ContextSlot is StaticFieldSlot) ||
+            _parameterArray);
+
+        hasContextParameter = true;
+
+        bool hasThis = HasThis();
+
+        cg.EmitSequencePointNone();
+
+        // TODO: storing implementations on code gen doesn't allow blocks being referenced from different methods
+        // the implementations should be stored on some kind of Module when available
+        CodeGen impl = cg.ProvideCodeBlockImplementation(this, hasContextParameter, hasThis);
+
+        
+
+        //// if the method has more than our maximum # of args wrap
+        //// it in a method that takes an object[] instead.
+        if (createWrapperMethod)
+        {
+          CodeGen wrapper = MakeWrapperMethodN(cg, impl, hasThis);
+          wrapper.Finish();
+
+          //  if (delegateType == null)
+          //  {
+          //    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
+          //  }
+          cg.EmitCall(wrapper.MethodInfo, tailcall);
+        }
+        else
+        {
+          impl.Finish();
+          cg.EmitCall(impl.MethodInfo, tailcall);
+        }
+
+        //  cg.EmitDelegateConstruction(wrapper, delegateType);
+        //}
+        //else if (_parameterArray)
+        //{
+        //  if (delegateType == null)
+        //  {
+        //    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
+        //  }
+        //  cg.EmitDelegateConstruction(impl, delegateType);
+        //}
+        //else
+        //{
+        //  if (delegateType == null)
+        //  {
+        //    if (stronglyTyped)
+        //    {
+        //      delegateType = ReflectionUtils.GetDelegateType(GetParameterTypes(hasContextParameter), _returnType);
+        //    }
+        //    else
+        //    {
+        //      delegateType = CallTargets.GetTargetType(hasContextParameter, _parameters.Count - (hasThis ? 1 : 0), hasThis);
+        //    }
+        //  }
+        //  cg.EmitDelegateConstruction(impl, delegateType);
+        //}
+      }
+
         internal void EmitDelegateConstruction(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType) {
             FlowChecker.Check(this);
 
@@ -776,6 +852,8 @@ namespace Microsoft.Scripting.Ast {
                 IsClosure ||
                 !(cg.ContextSlot is StaticFieldSlot) ||
                 _parameterArray);
+
+            hasContextParameter = true;
 
             bool hasThis = HasThis();
 

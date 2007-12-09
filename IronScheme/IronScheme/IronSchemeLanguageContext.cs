@@ -67,7 +67,7 @@ namespace IronScheme
 
     public override void UpdateSourceCodeProperties(CompilerContext context)
     {
-      context.SourceUnit.CodeProperties = SourceCodeProperties.None;
+      base.UpdateSourceCodeProperties(context);
     }
 
     public override CodeBlock ParseSourceCode(CompilerContext context)
@@ -80,7 +80,14 @@ namespace IronScheme
         switch (context.SourceUnit.Kind)
         {
           case SourceCodeKind.InteractiveCode:
-            CodeBlock cb = ParseString(context.SourceUnit.GetCode(), context);
+            string code = context.SourceUnit.GetCode();
+#if R6RS
+            if (code.Trim().Length > 0)
+            {
+              code = string.Format("(eval-r6rs '{0})", code.Trim());
+            }
+#endif
+            CodeBlock cb = ParseString(code, context);
             if (cb == null && context.SourceUnit.CodeProperties == null)
             {
               context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;

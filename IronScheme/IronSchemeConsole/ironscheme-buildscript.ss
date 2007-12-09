@@ -187,6 +187,7 @@
   ;; abbr.       name                             visible? required?
   '((interaction (ikarus interaction)                  #t    #f)
     (ironscheme  (ironscheme)                          #t    #f)
+    (ii          (ironscheme interaction)              #t    #f)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #t    #f)
     (se          (psyntax scheme-report-environment-5) #t    #f)
@@ -979,6 +980,9 @@
     (clr-call-internal                          is-clr-int)
     (clr-cast-internal                          is-clr-int)
     (apply-internal                             ironscheme)
+    (defined?                                   ii)
+    (ironscheme-build                           r)
+    (stacktrace                                 r)
     ))
 
 

@@ -65,6 +65,51 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
+    sealed class HashComparer : IEqualityComparer
+    {
+      ICallable hash, equiv;
+
+      public HashComparer(ICallable hash, ICallable equiv)
+      {
+        this.hash = hash;
+        this.equiv = equiv;
+      }
+
+      bool IEqualityComparer.Equals(object x, object y)
+      {
+        return (bool)equiv.Call(x, y);  
+      }
+
+      int IEqualityComparer.GetHashCode(object obj)
+      {
+        return (int)hash.Call(obj);
+      }
+    }
+
+    [Builtin("make-hashtable")]
+    public static object MakeHashtable(object hashfun, object equivfun)
+    {
+      HashComparer hc = new HashComparer(hashfun as ICallable, equivfun as ICallable);
+      Hashtable ht = new Hashtable(hc);
+      return ht;
+    }
+
+    [Builtin("make-hashtable")]
+    public static object MakeHashtable(object hashfun, object equivfun, object k)
+    {
+      if (k == null)
+      {
+        return MakeHashtable(hashfun, equivfun);
+      }
+      else
+      {
+        HashComparer hc = new HashComparer(hashfun as ICallable, equivfun as ICallable);
+        Hashtable ht = new Hashtable((int) k, hc);
+        return ht;
+      }
+    }
+
+
     [Builtin("hashtable?")]
     public static object IsHashtable(object obj)
     {

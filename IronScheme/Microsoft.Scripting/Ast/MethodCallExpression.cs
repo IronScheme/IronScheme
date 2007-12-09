@@ -151,6 +151,33 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg) {
           EmitLocation(cg);
+          if (_instance != null && !cg.IsDynamicMethod) // damn DM! // go away!
+          {
+            if (_instance is UnaryExpression)
+            {
+              UnaryExpression ue = (UnaryExpression)_instance;
+              if (typeof(Delegate).IsAssignableFrom(ue.Type) && ue.Operand is CodeBlockExpression)
+              {
+                CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
+
+                if (cg.IsDynamicMethod)
+                {
+                  cg.EmitArray<object>(new object[] { });
+                }
+
+                Debug.Assert(_arguments.Count == _parameterInfos.Length);
+                for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                {
+                  Expression argument = _arguments[arg];
+                  Type type = _parameterInfos[arg].ParameterType;
+                  EmitArgument(cg, argument, type);
+                }
+
+                cbe.EmitDirect(cg, tailcall);
+                return;
+              }
+            }
+          }
             // Emit instance, if calling an instance method
             if (!_method.IsStatic) {
                 Type type = _method.DeclaringType;

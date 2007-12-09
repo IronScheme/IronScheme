@@ -21,10 +21,11 @@ using System.Collections;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Ast;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
-
+/*
   sealed class BuiltinMethod : ICallable
   {
     readonly MethodBinder meth;
@@ -115,14 +116,17 @@ namespace IronScheme.Runtime
             if (d != null)
             {
               cache[nargs] = c = Closure.Make(context, d);
-              return c.Call(args);
             }
-
           }
         }
         catch
         {
           ;
+        }
+
+        if (c != null)
+        {
+          return c.Call(args);
         }
       }
       // fallback
@@ -204,6 +208,7 @@ namespace IronScheme.Runtime
 
     #endregion
   }
+ */
 
   public partial class Builtins
   {
@@ -307,7 +312,13 @@ namespace IronScheme.Runtime
       Cons args = Requires<Runtime.Cons>(list);
       ICallable c = RequiresNotNull<ICallable>(fn);
 
+      if (args == null)
+      {
+        // verify this
+        return c.Call();
+      }
       List<object> targs = new List<object>();
+      
       while (args != null)
       {
         targs.Add(args.car);
@@ -321,10 +332,11 @@ namespace IronScheme.Runtime
     public static object Map(object fn, object lst)
     {
       Cons list = Requires<Runtime.Cons>(lst);
+      ICallable f = RequiresNotNull<ICallable>(fn);
       ArrayList returns = new ArrayList();
       while (list != null)
       {
-        returns.Add(Apply(fn, new Cons(list.car)));
+        returns.Add(f.Call(list.car));
         list = list.cdr as Cons;
       }
       return Runtime.Cons.FromList(returns);
@@ -337,10 +349,11 @@ namespace IronScheme.Runtime
       {
         return null;
       }
+      ICallable f = RequiresNotNull<ICallable>(fn);
       ArrayList returns = new ArrayList();
-      foreach (Cons obj in new MultiEnumerable(lists))
+      foreach (object[] obj in new MultiEnumerable(lists))
       {
-        returns.Add(Apply(fn, obj));
+        returns.Add(f.Call(obj));
       }
       return Runtime.Cons.FromList(returns);
     }
@@ -350,10 +363,10 @@ namespace IronScheme.Runtime
     public static object ForEach(object fn, object list)
     {
       Cons c = Requires<Runtime.Cons>(list);
-
+      ICallable f = RequiresNotNull<ICallable>(fn);
       while (c != null)
       {
-        Apply(fn, new Cons(c.car));
+        f.Call(c.car);
         c = c.cdr as Cons;
       }
       return Unspecified;
@@ -362,9 +375,10 @@ namespace IronScheme.Runtime
     [Builtin("for-each")]
     public static object ForEach(object fn, params object[] lists)
     {
-      foreach (Cons obj in new MultiEnumerable(lists))
+      ICallable f = RequiresNotNull<ICallable>(fn);
+      foreach (object[] obj in new MultiEnumerable(lists))
       {
-        Apply(fn, obj);
+        f.Call(obj);
       }
       return Unspecified;
     }

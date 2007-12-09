@@ -94,6 +94,11 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             _block.EmitDelegateConstruction(cg, _forceWrapperMethod, _stronglyTyped, _delegateType);
         }
+
+      public void EmitDirect(CodeGen cg, bool tailcall)
+      {
+        _block.EmitDirectCall(cg, _forceWrapperMethod, _stronglyTyped, _delegateType, tailcall);
+      }
     }
 
     public static partial class Ast {

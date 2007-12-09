@@ -47,6 +47,46 @@ namespace Microsoft.Scripting {
                 if (to.IsInstanceOfType(o) || to.IsAssignableFrom(type)) {
                     return o;
                 } else {
+                  // bad glue
+                  if (type == typeof(CallTargetWithContextN))
+                  {
+                    CallTargetWithContextN ct = o as CallTargetWithContextN;
+                    if (to == typeof(CallTargetWithContext0))
+                    {
+                      CallTargetWithContext0 t = delegate(CodeContext cc) { return ct(cc); };
+                      return t;
+                    }
+                    if (to == typeof(CallTargetWithContext1))
+                    {
+                      CallTargetWithContext1 t = delegate(CodeContext cc, object p0) { return ct(cc, p0); };
+                      return t;
+                    }
+
+                    if (to == typeof(CallTargetWithContext2))
+                    {
+                      CallTargetWithContext2 t = delegate(CodeContext cc, object p0, object p1) { return ct(cc,p0,p1); };
+                      return t;
+                    }
+
+                    if (to == typeof(CallTargetWithContext3))
+                    {
+                      CallTargetWithContext3 t = delegate(CodeContext cc, object p0, object p1, object p2) { return ct(cc,p0,p1,p2); };
+                      return t;
+                    }
+
+                    if (to == typeof(CallTargetWithContext4))
+                    {
+                      CallTargetWithContext4 t = delegate(CodeContext cc, object p0, object p1, object p2, object p3) { return ct(cc,p0,p1,p2,p3); };
+                      return t;
+                    }
+
+                    if (to == typeof(CallTargetWithContext5))
+                    {
+                      CallTargetWithContext5 t = delegate(CodeContext cc, object p0, object p1, object p2, object p3, object p4) { return ct(cc,p0,p1,p2,p3,p4); };
+                      return t;
+                    }
+
+                  }
                     throw new InvalidCastException(String.Format("Cannot cast {0} to {1}", type.Name, to.Name));
                 }
             }

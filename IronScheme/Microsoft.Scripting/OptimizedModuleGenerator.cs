@@ -297,7 +297,7 @@ namespace Microsoft.Scripting.Generation {
             //scriptCode.CompilerContext.Options
             AssemblyGenAttributes genAttrs = ScriptDomainManager.Options.AssemblyGenAttributes;
 
-            if (scriptCode.SourceUnit.IsVisibleToDebugger)
+            if (scriptCode.SourceUnit.IsVisibleToDebugger && ScriptDomainManager.Options.DebugMode)
                 genAttrs |= AssemblyGenAttributes.EmitDebugInfo;
             
             if (ScriptDomainManager.Options.DebugCodeGeneration)

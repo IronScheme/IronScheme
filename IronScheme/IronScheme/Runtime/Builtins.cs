@@ -101,49 +101,59 @@ namespace IronScheme.Runtime
       return obj ?? def;
     }
 
-    static int evalcount = 1;
+    [Builtin("defined?")]
+    public static object IsDefined(CodeContext cc, object sym)
+    {
+      SymbolId s = RequiresNotNull<SymbolId>(sym);
+      return cc.Scope.ContainsName(s);
+    }
+
+#if R6RS
+    static int evalcounter = 0;
 
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {
-      //string fn = string.Format("$eval${0:D3}.ss", evalcount++);// Path.GetRandomFileName();
-      //Stopwatch sw = Stopwatch.StartNew();
-      //ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
-      ////
-      //using (TextWriter w = File.CreateText(fn))
-      //{
-      //  pp.Call(expr, w);
-      //}
+      string exprstr = null;
+      int c = ++evalcounter;
+#if DEBUG
 
-      //Trace.WriteLine(sw.ElapsedMilliseconds, "pretty-print: " + fn);
+      ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
+      
+      StringWriter w = new StringWriter();
+      pp.Call(expr, w);
 
-      //object result = Load(cc, fn);
+      exprstr = w.ToString();
 
-      //return result;
+      if (!Directory.Exists("evaldump"))
+      {
+        Directory.CreateDirectory("evaldump");
+      }
+      
+      string fn = "evaldump/" + c + ".ss";
 
-      //ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print->string")) as ICallable;
-      //object pps = pp.Call(expr);
-      //Trace.WriteLine(pps, "EvalCore");
+      if (File.Exists(fn))
+      {
+        File.Delete(fn);
+      }
+      File.AppendAllText(fn, exprstr);
+
+#else
+      exprstr = WriteFormat(expr);
+#endif
 
       Stopwatch sw = Stopwatch.StartNew();
       try
       {
-        //Expression e = IronScheme.Compiler.Generator.GetAst(expr, IronScheme.Compiler.Generator.evalblock);
-        //return e.Evaluate(cc);
-
-        return Eval(cc, expr);
+        return EvalString(cc, exprstr);
       }
-      //catch
-      //{
-      //  // fallback?
-      //  return Eval(cc, expr);
-      //}
       finally
       {
-        Trace.WriteLine(sw.ElapsedMilliseconds, "EvalCore");
-        //Trace.WriteLine(GC.GetTotalMemory(true), "GC.Collect");
+        Trace.WriteLine(sw.ElapsedMilliseconds, "eval-core:(" + c + ")");
+        GC.Collect(1, GCCollectionMode.Optimized);
       }
     }
+#endif
 
 
     [Builtin("gc-collect")]
@@ -220,36 +230,35 @@ namespace IronScheme.Runtime
     }
 
 
-    static object ConsStarHelper(object a, object rest)
+    static object ListStarHelper(object a, object rest)
     {
-      return (rest == null) ? a : new Cons(a, ConsStarHelper(Car(rest), Cdr(rest)));
+      return (rest == null) ? a : new Cons(a, ListStarHelper(Car(rest), Cdr(rest)));
     }
 
 
     [Builtin("list*")]
-    public static object ConsStar(object a, params object[] rest)
+    public static object ListStar(object a, params object[] rest)
     {
-      return ConsStarHelper(a, Runtime.Cons.FromArray(rest));
+      return ListStarHelper(a, Runtime.Cons.FromArray(rest));
     }
 
     [Builtin("list*")]
-    public static object ConsStar(object a, object b)
+    public static object ListStar(object a, object b)
     {
-      return Cons(a, b);
+      return new Cons(a, b);
     }
 
     [Builtin("list*")]
-    public static object ConsStar(object a, object b, object c)
+    public static object ListStar(object a, object b, object c)
     {
-      return Cons(a, Cons(b, c));
+      return new Cons(a, new Cons(b, c));
     }
 
     [Builtin("list*")]
-    public static object ConsStar(object a, object b, object c, object d)
+    public static object ListStar(object a, object b, object c, object d)
     {
-      return Cons(a, Cons(b, Cons(c , d)));
+      return new Cons(a, new Cons(b, new Cons(c , d)));
     }
-
 
     [Builtin("symbol-value")]
     public static object SymbolValue(CodeContext cc, object symbol)

@@ -1,5 +1,5 @@
 
-(load-diags)
+;; this is all BS that has been superseded...
 
 ;; test mother
 (let ((b '(1 2 3)))
@@ -22,6 +22,13 @@
     (tak (tak (- x 1) y z)
          (tak (- y 1) z x)
          (tak (- z 1) x y) )))
+         
+(define (fxtak x y z)
+  (if (not (fx<? y x))
+    z
+    (fxtak (fxtak (fx- x 1) y z)
+         (fxtak (fx- y 1) z x)
+         (fxtak (fx- z 1) x y) )))         
 
 ;; this version is optimized a little, but makes a big difference
 (define taki
@@ -41,6 +48,10 @@
 (display "taki: ")
 (time
  (taki 18 12 6) )
+ 
+(display "fxtak:")
+(time
+ (fxtak 18 12 6) )
 
 (display "tak:  ")
 (time
@@ -49,6 +60,22 @@
 (display "taki: ")
 (time
  (taki 22 14 8) )
+
+(display "fxtak:")
+(time
+ (fxtak 22 14 8) )
+ 
+(display "tak:  ")
+(time
+ (tak 24 14 6) )
+
+(display "taki: ")
+(time
+ (taki 24 14 6) )
+
+(display "fxtak:")
+(time
+ (fxtak 24 14 6) ) 
  
  
 (define (fact n)

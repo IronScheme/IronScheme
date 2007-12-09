@@ -47,6 +47,22 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo ICallable_Call5 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
     protected static readonly MethodInfo ICallable_CallN = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]), });
 
+    protected static readonly MethodInfo CallTargetWithContext0_Invoke = typeof(CallTargetWithContext0).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext1_Invoke = typeof(CallTargetWithContext1).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext2_Invoke = typeof(CallTargetWithContext2).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext3_Invoke = typeof(CallTargetWithContext3).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext4_Invoke = typeof(CallTargetWithContext4).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext5_Invoke = typeof(CallTargetWithContext5).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContextN_Invoke = typeof(CallTargetWithContextN).GetMethod("Invoke");
+
+    protected static readonly MethodInfo CallTarget0_Invoke = typeof(CallTarget0).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget1_Invoke = typeof(CallTarget1).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget2_Invoke = typeof(CallTarget2).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget3_Invoke = typeof(CallTarget3).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget4_Invoke = typeof(CallTarget4).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget5_Invoke = typeof(CallTarget5).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetN_Invoke = typeof(CallTargetN).GetMethod("Invoke");
+
     protected static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
 
     protected static MethodInfo GetCallable(int arity)
@@ -67,6 +83,27 @@ namespace IronScheme.Compiler
           return ICallable_Call5;
         default:
           return ICallable_CallN;
+      }
+    }
+
+    protected static MethodInfo GetDirectCallable(bool needscontext, int arity)
+    {
+      switch (arity)
+      {
+        case 0:
+          return needscontext ? CallTargetWithContext0_Invoke : CallTarget0_Invoke;
+        case 1:
+          return needscontext ? CallTargetWithContext1_Invoke : CallTarget1_Invoke;
+        case 2:
+          return needscontext ? CallTargetWithContext2_Invoke : CallTarget2_Invoke;
+        case 3:
+          return needscontext ? CallTargetWithContext3_Invoke : CallTarget3_Invoke;
+        case 4:
+          return needscontext ? CallTargetWithContext4_Invoke : CallTarget4_Invoke;
+        case 5:
+          return needscontext ? CallTargetWithContext5_Invoke : CallTarget5_Invoke;
+        default:
+          return needscontext ? CallTargetWithContextN_Invoke : CallTargetN_Invoke;
       }
     }
 
