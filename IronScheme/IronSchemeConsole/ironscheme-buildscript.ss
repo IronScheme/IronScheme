@@ -965,7 +965,7 @@
     ;;;
     (char-ready?                                )
     (interaction-environment                    )
-    (load                                       )
+    (load                                       ii)
     ;;;
     (void                     $boot)
     (gensym                   $boot)
@@ -982,7 +982,8 @@
     (apply-internal                             ironscheme)
     (defined?                                   ii)
     (ironscheme-build                           r)
-    (stacktrace                                 r)
+    (stacktrace                                 ii)
+    (load-r5rs                                  ii)
     ))
 
 

@@ -82,7 +82,11 @@ namespace IronScheme
           case SourceCodeKind.InteractiveCode:
             string code = context.SourceUnit.GetCode();
 #if R6RS
-            if (code.Trim().Length > 0)
+            if (code.Length < 10)
+            {
+              code = code.Trim();
+            }
+            if (code.Length > 0)
             {
               code = string.Format("(eval-r6rs '{0})", code.Trim());
             }

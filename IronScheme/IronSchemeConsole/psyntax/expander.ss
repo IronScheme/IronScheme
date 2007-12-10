@@ -22,6 +22,7 @@
   (export identifier? syntax-dispatch environment environment?
           eval expand generate-temporaries free-identifier=?
           bound-identifier=? datum->syntax syntax-error
+          syntax-violation
           syntax->datum make-variable-transformer
           eval-r6rs-top-level boot-library-expand eval-top-level
           null-environment scheme-report-environment)
@@ -30,7 +31,7 @@
       environment environment? identifier?
       eval generate-temporaries free-identifier=?
       bound-identifier=? datum->syntax syntax-error
-      syntax->datum make-variable-transformer
+      syntax-violation syntax->datum make-variable-transformer
       null-environment scheme-report-environment)
     (rnrs base)
     (rnrs lists)
@@ -1016,8 +1017,7 @@
              (invalid-fmls-error stx lhs*)))
         ((_ f ((lhs* rhs*) ...) b b* ...) (id? f)
          (if (valid-bound-ids? lhs*)
-             (bless `(letrec ((,f (lambda ,lhs* ,b . ,b*)))
-                        (,f . ,rhs*)))
+             (bless `((letrec ((,f (lambda ,lhs* ,b . ,b*))) ,f) . ,rhs*))
              (invalid-fmls-error stx lhs*))))))
   
   (define trace-lambda-macro
@@ -1275,21 +1275,34 @@
                   ((e e* ...) `(if ,e (begin . ,e*) ,(f (car cls*) (cdr cls*))))
                   (_ (stx-error stx "invalid last clause")))))))))))
   
-  (define include-macro
-    (lambda (e)
-      (syntax-match e ()
-        ((id filename)
-         (let ((filename (stx->datum filename)))
-           (unless (string? filename) (stx-error e))
-           (with-input-from-file filename
-             (lambda ()
-               (let f ((ls '()))
-                 (let ((x (read)))
-                   (cond
-                     ((eof-object? x)
-                      (cons (bless 'begin)
-                        (datum->stx id (reverse ls))))
-                     (else (f (cons x ls)))))))))))))
+  (begin ; module (include-macro include-into-macro)
+         ; no module to keep portable! 
+         ; dump everything in top-level, sure.
+    (define (do-include stx id filename)
+      (let ((filename (stx->datum filename)))
+        (unless (and (string? filename) (id? id))
+          (stx-error stx))
+        (cons 
+          (bless 'begin)
+          (with-input-from-file filename
+            (lambda ()
+              (let f ((ls '()))
+                (let ((x (read)))
+                  (cond
+                    ((eof-object? x) (reverse ls))
+                    (else
+                     (f (cons (datum->stx id x) ls)))))))))))
+    (define include-macro
+      (lambda (e)
+        (syntax-match e ()
+          ((id filename)
+           (do-include e id filename)))))
+    (define include-into-macro
+      (lambda (e)
+        (syntax-match e ()
+          ((_ id filename)
+           (do-include e id filename))))))
+
   
   (define syntax-rules-macro
     (lambda (e)
@@ -2298,6 +2311,7 @@
            ((trace-lambda)          trace-lambda-macro)
            ((trace-define)          trace-define-macro)
            ((define-condition-type) define-condition-type-macro)
+           ((include-into)          include-into-macro)
            ((eol-style)
             (lambda (x) 
               (symbol-macro x '(none lf cr crlf nel crnel ls))))
@@ -3413,7 +3427,6 @@
         (error 'syntax-error "invalid argument" args))
       (raise 
         (condition 
-          ;(make-who-condition 'expander)
           (make-message-condition
             (if (null? args) 
                 "invalid syntax"
@@ -3421,6 +3434,34 @@
           (make-syntax-violation 
             (stx->datum x)
             'none)))))
+
+  (define syntax-violation
+    (case-lambda
+      [(who msg form) 
+       (syntax-violation who msg form #f)]
+      [(who msg form subform) 
+       (unless (string? msg) 
+         (error 'syntax-violation "message is not a string" msg))
+       (let ([who
+              (cond
+                [(or (string? who) (symbol? who)) who]
+                [(not who) 
+                 (syntax-match form ()
+                   [id (id? id) (syntax->datum id)]
+                   [(id . rest) (id? id) (syntax->datum id)]
+                   [_  #f])]
+                [else
+                 (error 'syntax-violation 
+                    "invalid who argument" who)])])
+         (raise 
+           (condition
+             (if who 
+                 (make-who-condition who)
+                 (condition))
+             (make-message-condition msg)
+             (make-syntax-violation 
+               (syntax->datum form)
+               (syntax->datum subform)))))]))
 
   (define identifier? (lambda (x) (id? x)))
   
@@ -3495,7 +3536,7 @@
                               (vis-collector vtc)
                               (imp-collector itc)
                               (interaction-library
-                               (find-library-by-name '(rnrs))))
+                               (find-library-by-name '(ironscheme interaction))))
                  (chi-top* (list (mkstx x top-mark* '())) '()))))
           (for-each invoke-library (rtc))
           (unless (null? init*)

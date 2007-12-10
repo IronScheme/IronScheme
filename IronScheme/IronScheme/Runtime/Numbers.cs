@@ -813,9 +813,8 @@ namespace IronScheme.Runtime
 
 #if R6RS
     [Builtin("div")]
-#else
-    [Builtin("/")]
 #endif
+    [Builtin("/")]
     public static object Divide(object first)
     {
       if (first is int)
@@ -833,9 +832,8 @@ namespace IronScheme.Runtime
 
 #if R6RS
     [Builtin("div")]
-#else
-    [Builtin("/")]
 #endif
+    [Builtin("/")]
     public static object Divide(object first, object second)
     {
       if (first is int)
@@ -874,9 +872,8 @@ namespace IronScheme.Runtime
 
 #if R6RS
     [Builtin("div")]
-#else
-    [Builtin("/")]
 #endif
+    [Builtin("/")]
     public static object Divide(object car, params object[] args)
     {
       if (car is Missing)

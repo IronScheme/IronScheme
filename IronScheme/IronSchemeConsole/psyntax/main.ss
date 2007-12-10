@@ -19,7 +19,8 @@
 ;;; DEALINGS IN THE SOFTWARE. 
 
 (library (psyntax main)
-  (export)
+  (export
+    (rename (load-r6rs-top-level load)))
   (import 
     (rnrs base)
     (rnrs control)
@@ -47,11 +48,7 @@
       (exit 17))
     (let ((script-name (car args)) (args (cdr args)))
       (load-r6rs-top-level (car args))))
-  (exit 0)
-  ; not so good...
-  '(lambda (e)
-    (eval e (environment '(rnrs))))
-  ; next!
+  ;; return 'hook'
   eval-top-level
   )
 

@@ -132,6 +132,7 @@
     <Compile Include="Runtime\R6RS\Arithmetic\Fixnums.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Flonums.cs" />
     <Compile Include="Runtime\R6RS\ByteVectors.cs" />
+    <Compile Include="Runtime\R6RS\IO.cs" />
     <Compile Include="Runtime\R6RS\Enums.cs" />
     <Compile Include="Runtime\R6RS\Sorting.cs" />
     <Compile Include="Runtime\R6RS\Unicode.cs" />

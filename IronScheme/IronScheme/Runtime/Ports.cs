@@ -109,10 +109,11 @@ namespace IronScheme.Runtime
           return Assembly.Load(ass);
         }
       }
-      return null;
+      throw new FileNotFoundException("404", path);
     }
 
-    [Builtin("load")]
+    [Builtin("load")] // this is patched in r6rs mode, but its needed to bootstrap
+    [Builtin("load-r5rs")]
     public static object Load(CodeContext cc, object filename)
     {
       if (cc.Scope != Context.Scope && cc.Scope.ModuleScope != Context.Scope.ModuleScope)
@@ -228,7 +229,7 @@ namespace IronScheme.Runtime
           finally
           {
             GC.Collect(3, GCCollectionMode.Forced);
-            Compiler.Generator.CanAllowTailCall = false;
+            //Compiler.Generator.CanAllowTailCall = false;
           }
           //break;
       }
