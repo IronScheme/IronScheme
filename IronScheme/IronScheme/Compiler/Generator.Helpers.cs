@@ -100,6 +100,7 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.ByteVectors));
       AddBuiltins(Context, typeof(Runtime.R6RS.Sorting));
       AddBuiltins(Context, typeof(Runtime.R6RS.Enums));
+      AddBuiltins(Context, typeof(Runtime.R6RS.IO));
 
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Flonums));
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Fixnums));
@@ -107,7 +108,7 @@ namespace IronScheme.Compiler
 
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
-      AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.Bitwise));
+      // AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.Bitwise));
 #endif
     }
 

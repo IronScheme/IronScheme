@@ -98,7 +98,7 @@ namespace IronScheme.Hosting
       }
       if (exception is SchemeException)
       {
-        return exception.ToString();
+        return exception.Message;
       }
       if (exception is ThreadAbortException)
       {

@@ -30,26 +30,30 @@ namespace IronScheme.Runtime
     readonly string who, message;
     readonly string[] irritants;
 
-    public SchemeException(string who, string message, string[] irritants) : base(who + ":" + message)
+    public SchemeException(string who, string message, string[] irritants) : base()
     {
       this.who = who;
       this.message = message;
       this.irritants = irritants;
     }
 
-    public override string ToString()
+    public override string Message
     {
-      List<string> ii = new List<string>();
-      for (int i = 0; i < irritants.Length; i++)
-			{ 
-			  ii.Add(string.Format("    [{0}]\t{1}", i, irritants[i]));
-			}
-      return string.Format(@"error!
+      get
+      {
+        List<string> ii = new List<string>();
+        for (int i = 0; i < irritants.Length; i++)
+        {
+          ii.Add(string.Format("    [{0}]\t{1}", i, irritants[i]));
+        }
+        return string.Format(@"error!
 who:        {0}
 message:    {1}
 irritants:
 {2}", who, message, string.Join(Environment.NewLine, ii.ToArray()));
+      }
     }
+
   }
 
   public partial class Builtins
