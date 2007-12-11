@@ -202,16 +202,14 @@ namespace IronScheme.Runtime
             DateTime ct = File.GetLastWriteTime(cfn);
             if (ct > File.GetLastWriteTime(path))
             {
-              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct || cfn.StartsWith("ironscheme.boot.exe") ||
-                cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe"))
+              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct || cfn.StartsWith("ironscheme.boot.exe") 
+                || cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe"))
               {
                 path = cfn;
                 goto case ".exe";
               }
             }
           }
-
-          Compiler.Generator.CanAllowTailCall = true;
 
           try
           {
@@ -229,7 +227,6 @@ namespace IronScheme.Runtime
           finally
           {
             GC.Collect(3, GCCollectionMode.Forced);
-            //Compiler.Generator.CanAllowTailCall = false;
           }
           //break;
       }
