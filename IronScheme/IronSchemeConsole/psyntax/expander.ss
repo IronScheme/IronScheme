@@ -787,33 +787,6 @@
          (add-lexicals (cdr lab*) (cdr lex*)
            (add-lexical (car lab*) (car lex*) r))))))
   ;;;
-  (define let-values-transformer ;;; go away
-    (lambda (e r mr)
-      (syntax-match e ()
-        ((_ (((fml** ...) rhs*) ...) b b* ...)
-         (let ((rhs* (chi-expr* rhs* r mr)))
-           (let ((lex** (map (lambda (ls) (map gen-lexical ls)) fml**))
-                 (lab** (map (lambda (ls) (map gen-label ls)) fml**)))
-             (let ((fml* (apply append fml**))
-                   (lab* (apply append lab**))
-                   (lex* (apply append lex**)))
-               (let f ((lex** lex**) (rhs* rhs*))
-                  (cond
-                    ((null? lex**)
-                     (chi-internal
-                       (add-subst
-                         (make-full-rib fml* lab*)
-                         (cons b b*))
-                       (add-lexicals lab* lex* r)
-                       mr))
-                    (else
-                     (build-application no-source
-                       (build-primref no-source 'call-with-values)
-                       (list
-                         (build-lambda no-source '() (car rhs*))
-                         (build-lambda no-source (car lex**)
-                           (f (cdr lex**) (cdr rhs*)))))))))))))))
-
   (define letrec-helper
     (lambda (e r mr build)
       (syntax-match e ()
@@ -1019,6 +992,90 @@
          (if (valid-bound-ids? lhs*)
              (bless `((letrec ((,f (lambda ,lhs* ,b . ,b*))) ,f) . ,rhs*))
              (invalid-fmls-error stx lhs*))))))
+  
+  (define let-values-macro
+    (lambda (stx)
+      (define (rename x old* new*)
+        (unless (id? x) 
+          (syntax-violation #f "not an indentifier" stx x))
+        (when (bound-id-member? x old*) 
+          (syntax-violation #f "duplicate binding" stx x))
+        (let ([y (gensym (syntax->datum x))])
+          (values y (cons x old*) (cons y new*))))
+      (define (rename* x* old* new*)
+        (cond
+          [(null? x*) (values '() old* new*)]
+          [else
+           (let*-values ([(x old* new*) (rename (car x*) old* new*)]
+                         [(x* old* new*) (rename* (cdr x*) old* new*)])
+             (values (cons x x*) old* new*))]))
+      (syntax-match stx ()
+        ((_ () b b* ...)
+         (cons* (bless 'let) '() b b*))
+        ((_ ((lhs* rhs*) ...) b b* ...) 
+         (bless 
+           (let f ([lhs* lhs*] [rhs* rhs*] [old* '()] [new* '()])
+             (cond
+               [(null? lhs*) 
+                `(let ,(map list old* new*) ,b . ,b*)]
+               [else
+                (syntax-match (car lhs*) ()
+                  [(x* ...) 
+                   (let-values ([(y* old* new*) (rename* x* old* new*)])
+                     `(call-with-values 
+                        (lambda () ,(car rhs*))
+                        (lambda ,y* 
+                          ,(f (cdr lhs*) (cdr rhs*) old* new*))))]
+                  [(x* ... . x)
+                   (let*-values ([(y old* new*) (rename x old* new*)]
+                                 [(y* old* new*) (rename* x* old* new*)])
+                     `(call-with-values 
+                        (lambda () ,(car rhs*))
+                        (lambda ,(append y* y)
+                          ,(f (cdr lhs*) (cdr rhs*)
+                              old* new*))))]
+                  [others
+                   (syntax-violation #f "malformed bindings"
+                      stx others)])])))))))
+
+  (define let*-values-macro
+    (lambda (stx)
+      (define (check x*) 
+        (unless (null? x*)
+          (let ([x (car x*)])
+            (unless (id? x)
+              (syntax-violation #f "not an identifier" stx x))
+            (check (cdr x*))
+            (when (bound-id-member? x (cdr x*))
+              (syntax-violation #f "duplicate identifier" stx x)))))
+      (syntax-match stx ()
+        ((_ () b b* ...)
+         (cons* (bless 'let) '() b b*))
+        ((_ ((lhs* rhs*) ...) b b* ...)
+         (bless 
+           (let f ([lhs* lhs*] [rhs* rhs*])
+             (cond
+               [(null? lhs*) 
+                `(begin ,b . ,b*)]
+               [else
+                (syntax-match (car lhs*) ()
+                  [(x* ...) 
+                   (begin
+                     (check x*)
+                     `(call-with-values 
+                        (lambda () ,(car rhs*))
+                        (lambda ,x*
+                          ,(f (cdr lhs*) (cdr rhs*)))))]
+                  [(x* ... . x)
+                   (begin
+                     (check (cons x x*))
+                     `(call-with-values 
+                        (lambda () ,(car rhs*))
+                        (lambda ,(append x* x)
+                          ,(f (cdr lhs*) (cdr rhs*)))))]
+                  [others
+                   (syntax-violation #f "malformed bindings"
+                      stx others)])])))))))
   
   (define trace-lambda-macro
     (lambda (stx)
@@ -2252,7 +2309,6 @@
         ((quote)                  quote-transformer)
         ((lambda)                 lambda-transformer)
         ((case-lambda)            case-lambda-transformer)
-        ((let-values)             let-values-transformer)
         ((letrec)                 letrec-transformer)
         ((letrec*)                letrec*-transformer)
         ((case)                   case-transformer)
@@ -2297,6 +2353,8 @@
            ((or)                    or-macro)
            ((and)                   and-macro)
            ((let*)                  let*-macro)
+           ((let-values)            let-values-macro)
+           ((let*-values)           let*-values-macro)
            ((syntax-rules)          syntax-rules-macro)
            ((quasiquote)            quasiquote-macro)
            ((quasisyntax)           quasisyntax-macro)

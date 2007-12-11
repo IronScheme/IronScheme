@@ -26,7 +26,7 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Enums : Builtins
   {
-    static int enumcounter = 1;
+    //static int enumcounter = 1;
 
     [Builtin("make-enumeration")]
     public static object MakeEnumeration(object symbols)

@@ -398,15 +398,6 @@ namespace IronScheme.Compiler
       }
     }
 
-    static bool canallowtailcall = false;
-
-    internal static bool CanAllowTailCall
-    {
-      get { return Generator.canallowtailcall; }
-      set { Generator.canallowtailcall = value; }
-    }
-
-
     internal static void InitGlobal(Cons defcheck, CodeBlock cb, List<Statement> stmts)
     {
       while (defcheck != null)
@@ -453,7 +444,7 @@ namespace IronScheme.Compiler
         if (h != null && (bool)Builtins.IsEqual(h.car, define))
         {
           Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
-          stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
+          //stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
           h.car = set;
 
           assigns[v.Name] = true;
@@ -504,7 +495,7 @@ namespace IronScheme.Compiler
 
     static Statement MakeTailCallReturn(bool allowtailcall, Expression e)
     {
-      if (canallowtailcall && allowtailcall)
+      if (allowtailcall)
       {
         if (e is MethodCallExpression)
         {
