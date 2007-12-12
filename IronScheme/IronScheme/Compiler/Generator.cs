@@ -170,8 +170,24 @@ namespace IronScheme.Compiler
               return rr;
             }
 
+            //terrible....
+            //CodeBlockExpression cbe = m as CodeBlockExpression;
+            //if (cbe != null)
+            //{
+            //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+
+            //  bool needscontext = true;
+            //  MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
+            //  if (needscontext)
+            //  {
+            //    ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
+            //  }
+            //  return Ast.ComplexCallHelper(cbe, dc, ppp);
+            //}
+
             if (var == null)
             {
+
               IGenerator gh = m as IGenerator;
               if (gh != null)
               {
@@ -225,7 +241,7 @@ namespace IronScheme.Compiler
           if (mcexpr.Method == Closure_Make)
           {
             CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
-            cbe.Block.Update();
+
             bool needscontext = true;
             MethodInfo dc = GetDirectCallable(needscontext, pp.Length);
             if (needscontext)
@@ -235,6 +251,9 @@ namespace IronScheme.Compiler
             return Ast.ComplexCallHelper(mcexpr.Arguments[1], dc, pp);
           }
         }
+
+
+
         ex = Ast.ConvertHelper(ex, typeof(ICallable));
         
         MethodInfo call = GetCallable(pp.Length);
