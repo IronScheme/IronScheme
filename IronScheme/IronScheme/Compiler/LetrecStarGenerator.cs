@@ -53,20 +53,20 @@ namespace IronScheme.Compiler
       {
         NameHint = vars[i].Name;
         Expression e = GetAst(defs[i], cb);
-        if (e is MethodCallExpression && level == 1)
-        {
-          MethodCallExpression mce = e as MethodCallExpression;
-          if (mce.Method == Closure_Make)
-          {
-            if (mce.Arguments.Count > 1 && mce.Arguments[1] is CodeBlockExpression)
-            {
-              CodeBlockExpression cbe = mce.Arguments[1] as CodeBlockExpression;
-              int pc = cbe.Block.Parameters.Count;
-              cbe = Ast.CodeBlockReference(cbe.Block, pc > 5 ? typeof(CallTargetWithContextN) : CallTargets.GetTargetType(true, pc, false));
-              Context.Scope.SetName(vars[i].Name, cbe);
-            }
-          }
-        }
+        //if (e is MethodCallExpression && level == 1)
+        //{
+        //  MethodCallExpression mce = e as MethodCallExpression;
+        //  if (mce.Method == Closure_Make)
+        //  {
+        //    if (mce.Arguments.Count > 1 && mce.Arguments[1] is CodeBlockExpression)
+        //    {
+        //      CodeBlockExpression cbe = mce.Arguments[1] as CodeBlockExpression;
+        //      int pc = cbe.Block.Parameters.Count;
+        //      cbe = Ast.CodeBlockReference(cbe.Block, pc > 5 ? typeof(CallTargetWithContextN) : CallTargets.GetTargetType(true, pc, false));
+        //      Context.Scope.SetName(vars[i].Name, cbe);
+        //    }
+        //  }
+        //}
         if (e.Type.IsValueType)
         {
           e = Ast.ConvertHelper(e, typeof(object));
