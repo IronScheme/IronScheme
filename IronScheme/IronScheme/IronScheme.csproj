@@ -169,7 +169,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\IronScheme.y" &gt; "$(ProjectDir)Compiler\IronScheme.y.cs"
-"$(SolutionDir)tools\gplex" /minimize /stack "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"</PreBuildEvent>
+    <PreBuildEvent>attrib -R "$(ProjectDir)Compiler\IronScheme.y.cs"
+attrib -R "$(ProjectDir)Compiler\IronScheme.lex.cs"
+"$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\IronScheme.y" &gt; "$(ProjectDir)Compiler\IronScheme.y.cs"
+"$(SolutionDir)tools\gplex" /stack /minimize "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"</PreBuildEvent>
   </PropertyGroup>
 </Project>
