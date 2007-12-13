@@ -101,6 +101,7 @@
     (let-values          (macro . let-values))
     (define-struct       (macro . define-struct))
     (include             (macro . include))
+    (include-into        (macro . include-into))
     (syntax-rules        (macro . syntax-rules))
     (quasiquote          (macro . quasiquote))
     (quasisyntax         (macro . quasisyntax))
