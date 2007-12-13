@@ -31,7 +31,7 @@
   
   (define (bitwise-if ei1 ei2 ei3)
     (bitwise-ior (bitwise-and ei1 ei2)
-      (bitwise-and (bitwise-not ei1) ei3))
+      (bitwise-and (bitwise-not ei1) ei3)))
       
   (define (bitwise-copy-bit ei1 ei2 ei3)
     (let* ((mask (bitwise-arithmetic-shift-left 1 ei2)))
