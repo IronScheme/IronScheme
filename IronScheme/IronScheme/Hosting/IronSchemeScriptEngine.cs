@@ -184,7 +184,7 @@ namespace IronScheme.Hosting
           throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
         }
         else
-        if (sourceUnit.Kind != SourceCodeKind.Default && sourceUnit.Kind != SourceCodeKind.InteractiveCode)
+        if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
         {
           throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
         }
