@@ -20,7 +20,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
-  // not working...
+
   [Generator("letrec*")]
   public class LetrecStarGenerator : SimpleGenerator
   {
@@ -31,7 +31,7 @@ namespace IronScheme.Compiler
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
       cb.Parent = c;
 
-      List<SymbolId> vars = new List<SymbolId>();
+      List<Variable> vars = new List<Variable>();
       List<object> defs = new List<object>();
 
       Cons a = (args as Cons).car as Cons;
@@ -40,7 +40,7 @@ namespace IronScheme.Compiler
       {
         Cons d = a.car as Cons;
 
-        vars.Add((SymbolId)d.car);
+        vars.Add(Create((SymbolId)d.car, cb, typeof(object)));
         defs.Add(((Cons)d.cdr).car);
 
         a = a.cdr as Cons;
@@ -50,7 +50,6 @@ namespace IronScheme.Compiler
 
       for (int i = 0; i < vars.Count; i++)
       {
-        Variable v = Create(vars[i], cb, typeof(object));
         Expression e = GetAst(defs[i], cb);
         //if (e is MethodCallExpression && level == 1)
         //{
@@ -59,7 +58,10 @@ namespace IronScheme.Compiler
         //  {
         //    if (mce.Arguments.Count > 1 && mce.Arguments[1] is CodeBlockExpression)
         //    {
-        //      Context.Scope.SetName(v.Name, mce.Arguments[1]);
+        //      CodeBlockExpression cbe = mce.Arguments[1] as CodeBlockExpression;
+        //      int pc = cbe.Block.Parameters.Count;
+        //      cbe = Ast.CodeBlockReference(cbe.Block, pc > 5 ? typeof(CallTargetWithContextN) : CallTargets.GetTargetType(true, pc, false));
+        //      Context.Scope.SetName(vars[i].Name, cbe);
         //    }
         //  }
         //}
@@ -67,16 +69,16 @@ namespace IronScheme.Compiler
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }
-        stmts.Add(Ast.Write(v, e));
+        stmts.Add(Ast.Write(vars[i], e));
       }
 
-      //for (int i = 0; i < vars.Count; i++)
-      //{
-      //  if (Context.Scope.ContainsName(vars[i]))
-      //  {
-      //    Context.Scope.RemoveName(vars[i]);
-      //  }
-      //}
+      for (int i = 0; i < vars.Count; i++)
+      {
+        if (Context.Scope.ContainsName(vars[i].Name))
+        {
+          Context.Scope.RemoveName(vars[i].Name);
+        }
+      }
 
       Cons body = Builtins.Cdr(args) as Cons;
 

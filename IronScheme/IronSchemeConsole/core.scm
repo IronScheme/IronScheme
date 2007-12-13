@@ -169,7 +169,7 @@ You must not remove this notice, or any other, from this software.
        ,@(map second args)))
      ,@(map false args)))         
 
-
+#|
 ;; now its getting easy :)
 (define-macro (letrec* args . body)
   ;; init to values inside body
@@ -187,3 +187,4 @@ You must not remove this notice, or any other, from this software.
 
 
 
+|#

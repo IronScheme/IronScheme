@@ -171,19 +171,20 @@ namespace IronScheme.Compiler
             }
 
             //terrible....
-            //CodeBlockExpression cbe = m as CodeBlockExpression;
-            //if (cbe != null)
-            //{
-            //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+            CodeBlockExpression cbe = m as CodeBlockExpression;
+            if (cbe != null)
+            {
+              Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            //  bool needscontext = true;
-            //  MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
-            //  if (needscontext)
-            //  {
-            //    ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
-            //  }
-            //  return Ast.ComplexCallHelper(cbe, dc, ppp);
-            //}
+              bool needscontext = true;
+              MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
+              if (needscontext)
+              {
+                ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
+              }
+              
+              return Ast.ComplexCallHelper(cbe, dc, ppp);
+            }
 
             if (var == null)
             {
