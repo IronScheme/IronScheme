@@ -65,7 +65,8 @@
     
     &undefined
     make-undefined-violation
-    undefined-violation?
+    undefined-violation?    
  )
-  (import (rnrs))
+  (import (rnrs)  
+  )
 )

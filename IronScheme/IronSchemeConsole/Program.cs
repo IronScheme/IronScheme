@@ -18,8 +18,7 @@ using IronScheme.Hosting;
 using Microsoft.Scripting;
 using IronScheme.Runtime;
 
-[assembly: Extension(GeneratorType = typeof(IronScheme.Runtime.ConsoleGenerator),
-  BuiltinsType=typeof(IronScheme.Runtime.ConsoleBuiltins))]
+[assembly: Extension(BuiltinsType=typeof(IronScheme.Runtime.ConsoleBuiltins))]
 
 namespace IronScheme.Runtime
 {

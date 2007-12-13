@@ -93,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleBuiltins.cs" />
-    <Compile Include="ConsoleGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -117,7 +116,7 @@
     <None Include="other\pregexp.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax.pp">
+    <None Include="psyntax\psyntax.pp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme-r6rs.ss">
@@ -275,7 +274,7 @@
     <None Include="ironscheme-buildscript.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax-r6rs.ss">
+    <None Include="psyntax\psyntax-r6rs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="psyntax\builders.ss">
