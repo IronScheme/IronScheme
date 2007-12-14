@@ -819,7 +819,6 @@
              (stx-error e "invalid type"))
            (build-data no-source (binding-value b)))))))
 
-
   (define record-type-descriptor-transformer
     (lambda (e r mr)
       (syntax-match e ()
@@ -1116,6 +1115,19 @@
                                 "not a procedure" v)))))
              (stx-error stx "invalid name"))))))
   
+  (define trace-define-syntax-macro
+    (lambda (stx)
+      (syntax-match stx ()
+        ((_ who expr)
+         (if (id? who)
+             (bless `(define-syntax ,who
+                       (let ((v ,expr))
+                         (if (procedure? v)
+                             (make-traced-procedure ',who v syntax->datum)
+                             (error 'trace-define-syntax
+                                "not a procedure" v)))))
+             (stx-error stx "invalid name"))))))
+
   (define guard-macro
     (lambda (x)
       (define (gen-clauses con outerk clause*) 
@@ -2368,6 +2380,7 @@
            ((define-enumeration)    define-enumeration-macro)
            ((trace-lambda)          trace-lambda-macro)
            ((trace-define)          trace-define-macro)
+           ((trace-define-syntax)   trace-define-syntax-macro)
            ((define-condition-type) define-condition-type-macro)
            ((include-into)          include-into-macro)
            ((eol-style)
@@ -2636,14 +2649,14 @@
          (begin
            (unless (for-all id? export*)
              (stx-error e "module exports must be identifiers"))
-           (values #f export* b*)))
+           (values #f (list->vector export*) b*)))
         ((_ name (export* ...) b* ...)
          (begin
            (unless (id? name)
              (stx-error e "module name must be an identifier"))
            (unless (for-all id? export*)
              (stx-error e "module exports must be identifiers"))
-           (values name export* b*))))))
+           (values name (list->vector export*) b*))))))
 
   (define chi-internal-module
     (lambda (e r mr lex* rhs* mod** kwd*)
@@ -2653,20 +2666,21 @@
           (let-values (((e* r mr lex* rhs* mod** kwd*)
                         (chi-body* e* r mr lex* rhs* mod** kwd* rib #f)))
               (let ((exp-lab*
-                     (map (lambda (x)
-                             (or (id->label 
-                                   (mkstx (id->sym x) (stx-mark* x)
-                                     (list rib)))
-                                 (stx-error x "cannot find module export")))
-                          exp-id*))
+                     (vector-map
+                       (lambda (x)
+                         (or (id->label 
+                               (mkstx (id->sym x) (stx-mark* x)
+                                 (list rib)))
+                             (stx-error x "cannot find module export")))
+                      exp-id*))
                     (mod** (cons e* mod**)))
                 (if (not name) ;;; explicit export
                     (values lex* rhs* exp-id* exp-lab* r mr mod** kwd*)
                     (let ((lab (gen-label 'module))
                           (iface (cons exp-id* exp-lab*)))
                       (values lex* rhs*
-                              (list name) ;;; FIXME: module cannot
-                              (list lab)  ;;;  export itself yet
+                              (vector name) ;;; FIXME: module cannot
+                              (vector lab)  ;;;  export itself yet
                               (cons (cons lab (cons '$module iface)) r)
                               (cons (cons lab (cons '$module iface)) mr)
                               mod** kwd*)))))))))
@@ -2740,7 +2754,7 @@
                  ((module)
                   (let-values (((lex* rhs* m-exp-id* m-exp-lab* r mr mod** kwd*)
                                 (chi-internal-module e r mr lex* rhs* mod** kwd*)))
-                    (for-each
+                    (vector-for-each
                       (lambda (id lab) (extend-rib! rib id lab))
                       m-exp-id* m-exp-lab*)
                     (chi-body* (cdr e*) r mr lex* rhs* mod** kwd* rib top?)))
@@ -2767,20 +2781,21 @@
                     (define (library-import e) 
                       (syntax-match e ()
                         [(ctxt imp* ...)
-                         (let ((subst (parse-import-spec* 
+                         (let-values (((subst-names subst-labels)
+                                       (parse-import-spec* 
                                         (syntax->datum imp*))))
                            (values 
-                             (map (lambda (x) 
-                                    (let ([name (car x)])
-                                      (datum->stx ctxt name)))
-                               subst)
-                             (map cdr subst)))]
+                             (vector-map 
+                               (lambda (name) 
+                                 (datum->stx ctxt name))
+                               subst-names)
+                             subst-labels))]
                         [_ (stx-error e "invalid import form")]))
                     (let-values (((id* lab*) 
                                   (if (module-import? e) 
                                       (module-import e r)
                                       (library-import e))))
-                      (for-each
+                      (vector-for-each
                         (lambda (id lab) (extend-rib! rib id lab))
                         id* lab*)))
                   (chi-body* (cdr e*) r mr lex* rhs* mod** kwd* rib top?))
@@ -2793,9 +2808,21 @@
                       (values e* r mr lex* rhs* mod** kwd*)))))))))))
 
   (define set-global-macro-binding!
-    (lambda (sym loc b)
-      (extend-library-subst! (interaction-library) sym loc)
-      (extend-library-env! (interaction-library) loc b)))
+    (lambda (id loc b)
+      (let ([type
+             (case (binding-type b)
+               [(local-macro) 'global-macro]
+               [(local-macro!) 'global-macro!]
+               [else
+                (error 'set-global-macro-binding!
+                  "BUG: invalid type" b)])]
+            [transformer (cadr b)]
+            [label (id->label id)]
+            [sym (id->sym id)])
+        (set-symbol-value! loc transformer)
+        (extend-library-subst! (interaction-library) sym label)
+        (extend-library-env! (interaction-library) label 
+          (cons* type (interaction-library) loc)))))
   
   (define gen-global-macro-binding
     (lambda (id ctxt) (gen-global-var-binding id ctxt)))
@@ -2805,7 +2832,7 @@
       (let ((label (id->label id)))
         (let ((b (imported-label->binding label)))
           (case (binding-type b)
-            ((global)
+            ((global global-macro global-macro!)
              (let ((x (binding-value b)))
                (let ((lib (car x)) (loc (cdr x)))
                  (cond
@@ -2814,14 +2841,6 @@
                    (else
                     (stx-error ctxt "cannot modify imported binding"))))))
             (else (stx-error ctxt "cannot modify binding in")))))))
-  
-  (define chi-top-set!
-    (lambda (e)
-      (syntax-match e ()
-        ((_ id rhs) (id? id)
-         (let ((loc (gen-global-var-binding id e)))
-           (let ((rhs (chi-expr rhs '() '())))
-             (values loc rhs)))))))
   
   (define chi-top*
     (lambda (e* init*)
@@ -2833,18 +2852,20 @@
              (case type
                ((define)
                 (let-values (((id rhs) (parse-define e)))
+                  (extend-library-subst! (interaction-library) 
+                     (id->sym id) (id->label id))
                   (let ((loc (gen-global-var-binding id e)))
+                    (extend-library-env! (interaction-library)
+                      (id->label id) 
+                      (cons* 'global (interaction-library) loc))
                     (let ((rhs (chi-rhs rhs '() '())))
                       (chi-top* (cdr e*) (cons (cons loc rhs) init*))))))
-               ((set!)
-                (let-values (((loc rhs) (chi-top-set! e)))
-                  (chi-top* (cdr e*) (cons (cons loc rhs) init*))))
                ((define-syntax)
                 (let-values (((id rhs) (parse-define-syntax e)))
                   (let ((loc (gen-global-macro-binding id e)))
                     (let ((expanded-rhs (expand-transformer rhs '())))
                       (let ((b (make-eval-transformer expanded-rhs)))
-                        (set-global-macro-binding! (id->sym id) loc b)
+                        (set-global-macro-binding! id loc b)
                         (chi-top* (cdr e*) init*))))))
                ((let-syntax letrec-syntax) 
                 (error 'chi-top* "not supported yet at top level" type))
@@ -2865,23 +2886,23 @@
                 (begin
                   (syntax-match e ()
                     [(ctxt imp* ...)
-                     (let ((subst (parse-import-spec* (syntax->datum imp*))))
+                     (let-values (((subst-names subst-labels)
+                                   (parse-import-spec* (syntax->datum imp*))))
                        (cond
                          ((interaction-library) =>
                           (lambda (lib)
-                            (for-each 
-                              (lambda (x) 
-                                (let ([sym (car x)] [label (cdr x)])
-                                  (cond
-                                    ((assq sym (library-subst lib)) =>
-                                     (lambda (p) 
-                                       (unless (eq? (cdr p) label)
-                                         (stx-error e 
-                                           "identifier conflict"
-                                           sym))))
-                                    (else 
-                                     (extend-library-subst! lib sym label)))))
-                              subst)))
+                            (vector-for-each 
+                              (lambda (sym label) 
+                                (cond
+                                  ((assq sym (library-subst lib)) =>
+                                   (lambda (p) 
+                                     (unless (eq? (cdr p) label)
+                                       (stx-error e 
+                                         "identifier conflict"
+                                         sym))))
+                                  (else 
+                                   (extend-library-subst! lib sym label))))
+                              subst-names subst-labels)))
                          (else (error 'import "BUG: cannot happen"))))])
                   (chi-top* (cdr e*) init*)))
                (else
@@ -2961,6 +2982,8 @@
   ;;; returns: ((z . z$label) (y . x$label) (q . q$label))
   ;;;     and  (#<library (foo)> #<library (bar)>)
   (define (parse-import-spec* imp*)
+    (define (dup-error name)
+      (error 'import "two imports with different bindings" name))
     (define (merge-substs s subst)
       (define (insert-to-subst a subst)
         (let ((name (car a)) (label (cdr a)))
@@ -2969,10 +2992,7 @@
              (lambda (x)
                (cond
                  ((eq? (cdr x) label) subst)
-                 (else
-                  (error 'import
-                     "two imports with different bindings"
-                     name)))))
+                 (else (dup-error name)))))
             (else
              (cons a subst)))))
       (cond
@@ -3075,8 +3095,11 @@
     (define (get-import spec)
       (syntax-match spec ()
         ((rename isp (old* new*) ...) 
-         (and (eq? rename 'rename) (for-all symbol? old*) (for-all symbol? new*))
+         (and (eq? rename 'rename) 
+              (for-all symbol? old*) 
+              (for-all symbol? new*))
          (let ((subst (get-import isp)))
+           ;;; rewrite this to eliminate find* and rem* and merge
            (let ((old-label* (find* old* subst)))
              (let ((subst (rem* old* subst)))
                ;;; FIXME: make sure map is valid
@@ -3124,11 +3147,26 @@
          (not (memq x '(rename except only prefix library)))
          (get-import `(library (,x . ,x*))))
         (spec (error 'import "invalid import spec" spec))))
-    (let f ((imp* imp*) (subst '()))
+    (define (add-imports! imp h)
+      (let ([subst (get-import imp)])
+        (for-each
+          (lambda (x) 
+            (let ([name (car x)] [label (cdr x)])
+              (cond
+                [(hashtable-ref h name #f) =>
+                 (lambda (l)
+                   (unless (eq? l label) 
+                     (dup-error name)))]
+                [else 
+                 (hashtable-set! h name label)])))
+          subst)))
+    (let f ((imp* imp*) (h (make-eq-hashtable)))
       (cond
-        ((null? imp*) subst)
+        ((null? imp*) 
+         (hashtable-entries h))
         (else
-         (f (cdr imp*) (merge-substs (get-import (car imp*)) subst))))))
+         (add-imports! (car imp*) h)
+         (f (cdr imp*) h)))))
 
   ;;; a top rib is constructed as follows:
   ;;; given a subst: name* -> label*,
@@ -3138,13 +3176,12 @@
   ;;;  - label* as the rib-label*
   ;;; so, a name in a top rib maps to its label if and only if
   ;;; its set of marks is top-mark*.
-  (define (make-top-rib subst)
+  (define (make-top-rib names labels)
     (let ((rib (make-empty-rib)))
-      (for-each
-        (lambda (x)
-          (let ((name (car x)) (label (cdr x)))
-            (extend-rib! rib (mkstx name top-mark* '()) label)))
-        subst)
+      (vector-for-each
+        (lambda (name label)
+          (extend-rib! rib (mkstx name top-mark* '()) label))
+        names labels)
       rib))
 
   (define (make-collector)
@@ -3193,8 +3230,9 @@
       (define itc (make-collector))
       (parameterize ((imp-collector itc))
         (let-values (((exp-int* exp-ext*) (parse-exports exp*)))
-          (let ((subst (parse-import-spec* imp*)))
-            (let ((rib (make-top-rib subst)))
+          (let-values (((subst-names subst-labels)
+                        (parse-import-spec* imp*)))
+            (let ((rib (make-top-rib subst-names subst-labels)))
               (let ((b* (map (lambda (x) (mkstx x top-mark* (list rib))) b*))
                     (rtc (make-collector))
                     (vtc (make-collector)))
@@ -3273,7 +3311,7 @@
 
   ;;; An env record encapsulates a substitution and a set of
   ;;; libraries.
-  (define-record env (subst itc)
+  (define-record env (names labels itc)
     (lambda (x p)
       (unless (env? x)
         (error 'record-type-printer "not an environment"))
@@ -3289,8 +3327,9 @@
     (lambda imp*
       (let ([itc (make-collector)])
         (parameterize ([imp-collector itc])
-          (let ((subst (parse-import-spec* imp*)))
-            (make-env subst itc))))))
+          (let-values (((subst-names subst-labels)
+                        (parse-import-spec* imp*)))
+            (make-env subst-names subst-labels itc))))))
   
   ;;; R6RS's null-environment and scheme-report-environment are
   ;;; constructed simply using the corresponding libraries.
@@ -3311,19 +3350,18 @@
     (lambda (x env)
       (unless (env? env)
         (error 'expand "not an environment" env))
-      (let ((subst (env-subst env)))
-        (let ((rib (make-top-rib subst)))
-          (let ((x (mkstx x top-mark* (list rib)))
-                (itc (env-itc env))
-                (rtc (make-collector))
-                (vtc (make-collector)))
-              (let ((x
-                     (parameterize ((inv-collector rtc)
-                                    (vis-collector vtc)
-                                    (imp-collector itc))
-                        (chi-expr x '() '()))))
-                (seal-rib! rib)
-                (values x (rtc))))))))
+      (let ((rib (make-top-rib (env-names env) (env-labels env))))
+        (let ((x (mkstx x top-mark* (list rib)))
+              (itc (env-itc env))
+              (rtc (make-collector))
+              (vtc (make-collector)))
+            (let ((x
+                   (parameterize ((inv-collector rtc)
+                                  (vis-collector vtc)
+                                  (imp-collector itc))
+                      (chi-expr x '() '()))))
+              (seal-rib! rib)
+              (values x (rtc)))))))
 
   ;;; This is R6RS's eval.  It takes an expression and an environment,
   ;;; expands the expression, invokes its invoke-required libraries and
