@@ -24,6 +24,7 @@ using Microsoft.Scripting.Utils;
 using IronScheme.Compiler;
 using System.IO;
 using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Generation;
 
 namespace IronScheme.Runtime
 {
@@ -142,14 +143,26 @@ namespace IronScheme.Runtime
       exprstr = WriteFormat(expr);
 #endif
 
-      Stopwatch sw = Stopwatch.StartNew();
       try
       {
-        return EvalString(cc, exprstr);
+        SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, exprstr);
+        AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
+        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
+        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
+        Stopwatch sw = Stopwatch.StartNew();
+        //ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule("eval-core", su);
+        ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
+        Trace.WriteLine(sw.ElapsedMilliseconds, "Compile - eval-core");
+        sw = Stopwatch.StartNew();
+        //object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext, false); // causes issues :(
+        object result = sc.Run(cc.Scope, cc.ModuleContext, false); // causes issues :(
+        Trace.WriteLine(sw.ElapsedMilliseconds, "Run - eval-core");
+        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+        return result;
+
       }
       finally
       {
-        Trace.WriteLine(sw.ElapsedMilliseconds, "eval-core:(" + c + ")");
         GC.Collect(1, GCCollectionMode.Optimized);
       }
     }

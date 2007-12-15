@@ -78,6 +78,7 @@ namespace IronScheme.Runtime
       }
     }
 
+#if !R6RS
     [Builtin("transcript-off")]
     public static object TranscriptOff()
     {
@@ -89,6 +90,7 @@ namespace IronScheme.Runtime
     {
       throw new NotImplementedException();
     }
+#endif
 
     static Assembly AssemblyLoad(string path)
     {
@@ -301,8 +303,9 @@ namespace IronScheme.Runtime
 
     sealed class Eof { }
 
-    readonly static object EOF = new Eof();
+    protected readonly static object EOF = new Eof();
 
+#if !R6RS
     [Builtin("char-ready?")]
     public static object IsCharReady()
     {
@@ -314,6 +317,7 @@ namespace IronScheme.Runtime
     {
       return PeekChar(port) != EOF;
     }
+#endif
 
     [Builtin("eof-object")]
     public static object EofObject()

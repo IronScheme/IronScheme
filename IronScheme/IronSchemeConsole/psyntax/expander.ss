@@ -3521,7 +3521,10 @@
     (lambda (x . args)
       (unless (for-all string? args)
         (error 'syntax-error "invalid argument" args))
-      (raise 
+      (error 'syntax-error (if (null? args) 
+                "invalid syntax"
+                (apply string-append args)) x )
+      '(raise 
         (condition 
           (make-message-condition
             (if (null? args) 
@@ -3549,7 +3552,8 @@
                 [else
                  (error 'syntax-violation 
                     "invalid who argument" who)])])
-         (raise 
+         (error who msg (syntax->datum form) (syntax->datum subform))
+         '(raise 
            (condition
              (if who 
                  (make-who-condition who)
@@ -3594,7 +3598,7 @@
            (else
             (let ((subst 
                    (if (library-exists? '(rnrs))
-                       (library-subst (find-library-by-name '(rnrs)))
+                       (library-subst (find-library-by-name '(ironscheme)))
                        '())))
               (cond
                 ((assq sym subst) =>
