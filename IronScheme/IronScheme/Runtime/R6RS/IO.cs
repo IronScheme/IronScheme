@@ -170,7 +170,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("port-transcoder")]
     public static object PortTranscoder(object port)
     {
-      return false;
+      throw new NotImplementedException();
     }
 
 
@@ -314,83 +314,632 @@ namespace IronScheme.Runtime.R6RS
     // input ports
 
     //(port-eof? input-port)
+    [Builtin("port-eof?")]
+    public static object PortIsEof(object inputport)
+    {
+      object eof = new object();
+      if (inputport is Stream)
+      {
+        eof = LookAheadU8(inputport);
+      }
+      else if (inputport is TextReader)
+      {
+        eof = LookAheadChar(inputport);
+      }
+
+      return eof == EOF;
+    }
+
+    static SymbolId fo_replace = SymbolTable.StringToId("replace");
+    
 
     //(open-file-input-port filename) 
     //(open-file-input-port filename file-options)
     //(open-file-input-port filename file-options buffer-mode)
     //(open-file-input-port filename file-options buffer-mode maybe-transcoder)
+    [Builtin("open-file-input-port")]
+    public static object OpenFileInputPort(object filename)
+    {
+      return OpenFileInputPort(filename, fo_replace);
+    }
+
+    [Builtin("open-file-input-port")]
+    public static object OpenFileInputPort(object filename, object fileoptions)
+    {
+      return OpenFileInputPort(filename, fileoptions, bm_block);
+    }
+
+    [Builtin("open-file-input-port")]
+    public static object OpenFileInputPort(object filename, object fileoptions, object buffermode)
+    {
+      return OpenFileInputPort(filename, fileoptions, bm_block, false);
+    }
+
+    [Builtin("open-file-input-port")]
+    public static object OpenFileInputPort(object filename, object fileoptions, object buffermode, object maybetranscoder)
+    {
+      string fn = RequiresNotNull<string>(filename);
+      Transcoder tc = maybetranscoder as Transcoder;
+      Stream s = File.OpenRead(fn);
+
+      if (tc == null)
+      {
+        return s;
+      }
+      else
+      {
+        return TranscodedPort(s, tc);
+      }
+    }
 
     //(open-bytevector-input-port bytevector) 
     //(open-bytevector-input-port bytevector maybe-transcoder)
+    [Builtin("open-bytevector-input-port")]
+    public static object OpenBytevectorInputPort(object bytevector)
+    {
+      return OpenBytevectorInputPort(bytevector, false);
+    }
+
+    [Builtin("open-bytevector-input-port")]
+    public static object OpenBytevectorInputPort(object bytevector, object maybetranscoder)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      Transcoder tc = maybetranscoder as Transcoder;
+
+      Stream s = new MemoryStream(b, false);
+
+      if (tc == null)
+      {
+        return s;
+      }
+      else
+      {
+        return TranscodedPort(s, tc);
+      }
+    }
 
     //(open-string-input-port string)
+    [Builtin("open-string-input-port")]
+    public static object OpenStringInputPort(object str)
+    {
+      string s = RequiresNotNull<string>(str);
+      return new StringReader(s);
+    }
+
     //(standard-input-port)
+    [Builtin("standard-input-port")]
+    public static object StandardInputPort()
+    {
+      return Console.OpenStandardInput();
+    }
+
 
     //(make-custom-binary-input-port id read! get-position set-position! close)
     //(make-custom-textual-input-port id read! get-position set-position! close)
 
     // binary input
     //(get-u8 binary-input-port)
+    [Builtin("get-u8")]
+    public static object GetU8(object binaryinputport)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryinputport);
+
+      int c = s.ReadByte();
+      if (c == -1)
+      {
+        return EOF;
+      }
+      return (byte)c;
+    }
+
     //(lookahead-u8 binary-input-port)
+    [Builtin("lookahead-u8")]
+    public static object LookAheadU8(object binaryinputport)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryinputport);
+      if (s.CanSeek)
+      {
+        int c = s.ReadByte();
+        s.Position--;
+        if (c == -1)
+        {
+          return EOF;
+        }
+        return (byte)c;
+      }
+      return false;
+    }
+
     //(get-bytevector-n binary-input-port count)
+    [Builtin("get-bytevector-n")]
+    public static object GetBytevectorN(object binaryinputport, object count)
+    {
+      int k = RequiresNotNull<int>(count);
+      Stream s = RequiresNotNull<Stream>(binaryinputport);
+
+      byte[] buffer = new byte[k];
+
+      int r = s.Read(buffer, 0, k);
+      
+      if (r == -1)
+      {
+        return EOF;
+      }
+
+      if (r != k)
+      {
+        byte[] nb = new byte[r];
+        Array.Copy(buffer, nb, r);
+        return nb;
+      }
+      return buffer;
+    }
+
     //(get-bytevector-n! binary-input-port bytevector start count)
+    [Builtin("get-bytevector-n!")]
+    public static object GetBytevectorNN(object binaryinputport, object bytevector, object start, object count)
+    {
+      int k = RequiresNotNull<int>(count);
+      int j = RequiresNotNull<int>(start);
+      Stream s = RequiresNotNull<Stream>(binaryinputport);
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+
+      int r = s.Read(b, j, k);
+
+      if (r == -1)
+      {
+        return EOF;
+      }
+
+      return r;
+    }
+
     //(get-bytevector-some binary-input-port)
+    [Builtin("get-bytevector-some")]
+    public static object GetBytevectorSome(object binaryinputport)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryinputport);
+
+      List<byte> some = new List<byte>();
+      
+      int c;
+      while ((c = s.ReadByte()) != -1)
+      {
+        some.Add((byte)c);
+      }
+
+      if (some.Count == 0)
+      {
+        return EOF;
+      }
+
+      return some.ToArray();
+    }
+
     //(get-bytevector-all binary-input-port)
+    [Builtin("get-bytevector-all")]
+    public static object GetBytevectorAll(object binaryinputport)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryinputport);
+
+      List<byte> all = new List<byte>();
+
+      int c;
+      while ((c = s.ReadByte()) != -1)
+      {
+        all.Add((byte)c);
+      }
+
+      if (all.Count == 0)
+      {
+        return EOF;
+      }
+
+      return all.ToArray();
+    }
 
     //text input
     //(get-char textual-input-port)
+    [Builtin("get-char")]
+    public static object GetChar(object textinputport)
+    {
+      TextReader r = RequiresNotNull<TextReader>(textinputport);
+
+      int c = r.Read();
+      if (c == -1)
+      {
+        return EOF;
+      }
+      return (char)c;
+    }
+
     //(lookahead-char textual-input-port)
+    [Builtin("lookahead-char")]
+    public static object LookAheadChar(object textinputport)
+    {
+      TextReader r = RequiresNotNull<TextReader>(textinputport);
+
+      int c = r.Peek();
+      if (c == -1)
+      {
+        return EOF;
+      }
+      return (char)c;
+    }
+
     //(get-string-n textual-input-port count)
+    [Builtin("get-string-n")]
+    public static object GetStringN(object textinputport, object count)
+    {
+      TextReader r = RequiresNotNull<TextReader>(textinputport);
+      int k = RequiresNotNull<int>(count);
+
+      char[] buffer = new char[k];
+
+      int c = r.Read(buffer, 0, k);
+      if (c == -1)
+      {
+        return EOF;
+      }
+      return new string(buffer, 0, c);
+    }
+
     //(get-string-n! textual-input-port string start count)
+    [Builtin("get-string-n!")]
+    public static object GetStringNN(object textinputport, object str, object start, object count)
+    {
+      TextReader r = RequiresNotNull<TextReader>(textinputport);
+      StringBuilder s = RequiresNotNull<StringBuilder>(str);
+      int j = RequiresNotNull<int>(start);
+      int k = RequiresNotNull<int>(count);
+
+      char[] buffer = new char[s.Length];
+      s.CopyTo(0, buffer, 0, s.Length);
+
+      int c = r.Read(buffer, j, k);
+      if (c == -1)
+      {
+        return EOF;
+      }
+      for (int i = 0; i < c; i++)
+      {
+        s[j + i] = buffer[j + i];
+      }
+      return c;
+    }
+
     //(get-string-all textual-input-port)
+    [Builtin("get-string-all")]
+    public static object GetStringAll(object textinputport)
+    {
+      TextReader r = RequiresNotNull<TextReader>(textinputport);
+
+      string c = r.ReadToEnd();
+      if (c == null)
+      {
+        return EOF;
+      }
+      return c;
+    }
+
     //(get-line textual-input-port)
+    [Builtin("get-line")]
+    public static object GetLine(object textinputport)
+    {
+      TextReader r = RequiresNotNull<TextReader>(textinputport);
+
+      string c = r.ReadLine();
+      if (c == null)
+      {
+        return EOF;
+      }
+      return c;
+    }
+
     //(get-datum textual-input-port)
+    [Builtin("get-datum")]
+    public static object GetDatum(object textinputport)
+    {
+      return Read(textinputport);
+    }
 
     //output ports
     //(flush-output-port output-port)
+    [Builtin("flush-output-port")]
+    public static object FlushOutputPort(object outputport)
+    {
+      if (outputport is Stream)
+      {
+        ((Stream)outputport).Flush();
+      }
+      if (outputport is TextWriter)
+      {
+        ((TextWriter)outputport).Flush();
+      }
+      return Unspecified;
+    }
+
     //(output-port-buffer-mode output-port)
+    [Builtin("output-port-buffer-mode")]
+    public static object OutputPortBufferMode(object outputport)
+    {
+      return bm_block;
+    }
 
     //(open-file-output-port filename) 
     //(open-file-output-port filename file-options)
     //(open-file-output-port filename file-options buffer-mode)
     //(open-file-output-port filename file-options buffer-mode maybe-transcoder)
+    [Builtin("open-file-output-port")]
+    public static object OpenFileOutputPort(object filename)
+    {
+      return OpenFileOutputPort(filename, fo_replace);
+    }
+
+    [Builtin("open-file-output-port")]
+    public static object OpenFileOutputPort(object filename, object fileoptions)
+    {
+      return OpenFileOutputPort(filename, fileoptions, bm_block);
+    }
+
+    [Builtin("open-file-output-port")]
+    public static object OpenFileOutputPort(object filename, object fileoptions, object buffermode)
+    {
+      return OpenFileOutputPort(filename, fileoptions, bm_block, false);
+    }
+
+    [Builtin("open-file-output-port")]
+    public static object OpenFileOutputPort(object filename, object fileoptions, object buffermode, object maybetranscoder)
+    {
+      string fn = RequiresNotNull<string>(filename);
+      Transcoder tc = maybetranscoder as Transcoder;
+      Stream s = File.Create(fn);
+
+      if (tc == null)
+      {
+        return s;
+      }
+      else
+      {
+        return TranscodedPort(s, tc);
+      }
+    }
 
     //(open-bytevector-output-port) 
     //(open-bytevector-output-port maybe-transcoder)
+    [Builtin("open-bytevector-output-port")]
+    public static object OpenBytevectorOutputPort(object bytevector)
+    {
+      return OpenBytevectorOutputPort(bytevector, false);
+    }
+
+    [Builtin("open-bytevector-output-port")]
+    public static object OpenBytevectorOutputPort(object bytevector, object maybetranscoder)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      Transcoder tc = maybetranscoder as Transcoder;
+
+      Stream s = new MemoryStream(b);
+
+      if (tc == null)
+      {
+        return s;
+      }
+      else
+      {
+        return TranscodedPort(s, tc);
+      }
+    }
 
     //(call-with-bytevector-output-port proc) 
     //(call-with-bytevector-output-port proc maybe-transcoder)
+    [Builtin("call-with-bytevector-output-port")]
+    public static object CallWithBytevectorOutputPort(object proc)
+    {
+      return CallWithBytevectorOutputPort(proc, false);
+    }
 
-    //(open-string-output-port)
+    [Builtin("call-with-bytevector-output-port")]
+    public static object CallWithBytevectorOutputPort(object proc, object maybetranscoder)
+    {
+      ICallable c = RequiresNotNull<ICallable>(proc);
+      Transcoder tc = maybetranscoder as Transcoder;
+
+      using (MemoryStream s = new MemoryStream())
+      {
+        c.Call(tc == null ? s : TranscodedPort(s, tc));
+        return s.ToArray();
+      }
+    }
+
+    //(open-string-output-port) ; in scheme lib
+
     //(call-with-string-output-port proc)
+    [Builtin("call-with-string-output-port")]
+    public static object CallWithStringOutputPort(object proc)
+    {
+      ICallable c = RequiresNotNull<ICallable>(proc);
+
+      using (StringWriter w = new StringWriter())
+      {
+        c.Call(w);
+        return w.ToString();
+      }
+    }
+
 
     //(standard-output-port)
+    [Builtin("standard-output-port")]
+    public static object StandardOutputPort()
+    {
+      return Console.OpenStandardOutput();
+    }
+
     //(standard-error-port)
+    [Builtin("standard-error-port")]
+    public static object StandardErrorPort()
+    {
+      return Console.OpenStandardError();
+    }
 
     //(make-custom-binary-output-port id write! get-position set-position! close)
     //(make-custom-textual-output-port id write! get-position set-position! close)
 
     //binary output
     //(put-u8 binary-output-port octet)
+    [Builtin("put-u8")]
+    public static object PutU8(object binaryoutputport, object octet)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryoutputport);
+      byte b = RequiresNotNull<byte>(octet);
+
+      s.WriteByte(b);
+      return Unspecified;
+    }
+
 
     //(put-bytevector binary-output-port bytevector)
     //(put-bytevector binary-output-port bytevector start)
     //(put-bytevector binary-output-port bytevector start count)
+    [Builtin("put-bytevector")]
+    public static object PutBytevector(object binaryoutputport, object bytevector)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryoutputport);
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int j = 0;
+      int k = b.Length;
+
+      s.Write(b, j, k);
+
+      return Unspecified;
+    }
+
+    [Builtin("put-bytevector")]
+    public static object PutBytevector(object binaryoutputport, object bytevector, object start)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryoutputport);
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int j = RequiresNotNull<int>(start);
+      int k = b.Length - j;
+
+      s.Write(b, j, k);
+
+      return Unspecified;
+    }
+
+    [Builtin("put-bytevector")]
+    public static object PutBytevector(object binaryoutputport, object bytevector, object start, object count)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryoutputport);
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int j = RequiresNotNull<int>(start);
+      int k = RequiresNotNull<int>(count);
+
+      s.Write(b, j, k);
+      
+      return Unspecified;
+    }
 
     //text output
     //(put-char textual-output-port char)
+    [Builtin("put-char")]
+    public static object PutChar(object textoutputport, object chr)
+    {
+      TextWriter s = RequiresNotNull<TextWriter>(textoutputport);
+      char c = RequiresNotNull<char>(chr);
+
+      s.Write(c);
+      return Unspecified;
+    }
 
     //(put-string textual-output-port string) 
     //(put-string textual-output-port string start) 
     //(put-string textual-output-port string start count)
+    [Builtin("put-string")]
+    public static object PutString(object textoutputport, object str)
+    {
+      TextWriter s = RequiresNotNull<TextWriter>(textoutputport);
+      string b = RequiresNotNull<string>(str);
+      int j = 0;
+      int k = b.Length;
+
+      s.Write(b.ToCharArray(), j, k);
+
+      return Unspecified;
+    }
+
+    [Builtin("put-string")]
+    public static object PutString(object textoutputport, object str, object start)
+    {
+      TextWriter s = RequiresNotNull<TextWriter>(textoutputport);
+      string b = RequiresNotNull<string>(str);
+      int j = RequiresNotNull<int>(start);
+      int k = b.Length - j;
+
+      s.Write(b.ToCharArray(), j, k);
+
+      return Unspecified;
+    }
+
+    [Builtin("put-string")]
+    public static object PutString(object textoutputport, object str, object start, object count)
+    {
+      TextWriter s = RequiresNotNull<TextWriter>(textoutputport);
+      string b = RequiresNotNull<string>(str);
+      int j = RequiresNotNull<int>(start);
+      int k = RequiresNotNull<int>(count);
+
+      s.Write(b.ToCharArray(), j, k);
+
+      return Unspecified;
+    }
 
     //(put-datum textual-output-port datum)
+    [Builtin("put-datum")]
+    public static object PutDatum(object textoutputport, object datum)
+    {
+      return Write(datum, textoutputport);
+    }
 
     // input/output ports
     //(open-file-input/output-port filename) 
     //(open-file-input/output-port filename file-options)
     //(open-file-input/output-port filename file-options buffer-mode)
     //(open-file-input/output-port filename file-options buffer-mode transcoder)
+    [Builtin("open-file-input/output-port")]
+    public static object OpenFileInputOutputPort(object filename)
+    {
+      return OpenFileInputOutputPort(filename, fo_replace);
+    }
+
+    [Builtin("open-file-input/output-port")]
+    public static object OpenFileInputOutputPort(object filename, object fileoptions)
+    {
+      return OpenFileInputOutputPort(filename, fileoptions, bm_block);
+    }
+
+    [Builtin("open-file-input/output-port")]
+    public static object OpenFileInputOutputPort(object filename, object fileoptions, object buffermode)
+    {
+      return OpenFileInputOutputPort(filename, fileoptions, bm_block, false);
+    }
+
+    [Builtin("open-file-input/output-port")]
+    public static object OpenFileInputOutputPort(object filename, object fileoptions, object buffermode, object maybetranscoder)
+    {
+      string fn = RequiresNotNull<string>(filename);
+      Transcoder tc = maybetranscoder as Transcoder;
+      Stream s = File.Create(fn);
+
+      if (tc == null)
+      {
+        return s;
+      }
+      else
+      {
+        return TranscodedPort(s, tc);
+      }
+    }
 
     //(make-custom-binary-input/output-port id read! write! get-position set-position! close)
     //(make-custom-textual-input/output-port id read! write! get-position set-position! close)

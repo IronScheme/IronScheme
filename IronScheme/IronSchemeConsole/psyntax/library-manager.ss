@@ -23,7 +23,7 @@
     visit-library library-name library-version library-exists?
     find-library-by-name install-library library-spec invoke-library 
     extend-library-subst! extend-library-env! current-library-expander
-    current-library-collection)
+    current-library-collection library-path)
   (import (rnrs) (psyntax compat) (rnrs r5rs))
 
   (define (make-collection)
@@ -76,7 +76,6 @@
       '(".")
       (lambda (x)
         (if (and (list? x) (for-all string? x))
-            ;(map values x)
             (map (lambda (x) x) x)
             (error 'library-path "not a list of strings" x)))))
   
@@ -117,12 +116,29 @@
     (make-parameter
       (lambda (x)
         (let ((str (library-name->file-name x)))
-          (let f ((ls (library-path)))
-            (and (pair? ls)
-                 (let ((name (string-append (car ls) str)))
-                   (if (file-exists? name)
-                       name
-                       (f (cdr ls))))))))
+          (let f ((ls (library-path)) (failed-list '()))
+            (cond
+              ((null? ls) 
+               (let ()
+                  (error 'expander "cannot locate library in library-path" x (reverse failed-list))))
+;                 (define-condition-type &library-resolution &condition
+;                    make-library-resolution-condition
+;                    library-resolution-condition?
+;                    (library condition-library)
+;                    (files condition-files))
+;                 (raise 
+;                   (condition 
+;                     (make-error)
+;                     (make-who-condition 'expander)
+;                     (make-message-condition
+;                       "cannot locate library in library-path")
+;                     (make-library-resolution-condition 
+;                      x (reverse failed-list))))))
+              (else
+               (let ((name (string-append (car ls) str)))
+                 (if (file-exists? name)
+                     name
+                     (f (cdr ls) (cons name failed-list)))))))))
       (lambda (f)
         (if (procedure? f)
             f
@@ -155,8 +171,7 @@
 
   (define (find-external-library name)
     (when (member name (external-pending-libraries))
-      (error #f "circular attempt to import library was detected"
-             name))
+      (error #f "circular attempt to import library was detected" name))
     (parameterize ((external-pending-libraries
                     (cons name (external-pending-libraries))))
       (let ((lib-expr ((library-locator) name)))
@@ -166,7 +181,7 @@
         (or (find-library-by
               (lambda (x) (equal? (library-name x) name)))
             (error #f
-              "handling external library did not yield the currect library"
+              "handling external library did not yield the correct library"
                name)))))
           
   (define (find-library-by-name name)
