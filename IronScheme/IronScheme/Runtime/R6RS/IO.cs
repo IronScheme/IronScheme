@@ -35,8 +35,12 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("buffer-mode?")]
     public static object IsBufferMode(object s)
     {
-      SymbolId bm = RequiresNotNull<SymbolId>(s);
-      return bm == bm_none || bm == bm_line || bm == bm_block;
+      if (s is SymbolId)
+      {
+        SymbolId bm = RequiresNotNull<SymbolId>(s);
+        return bm == bm_none || bm == bm_line || bm == bm_block;
+      }
+      return false;
     }
 
     class Transcoder
@@ -929,7 +933,7 @@ namespace IronScheme.Runtime.R6RS
     {
       string fn = RequiresNotNull<string>(filename);
       Transcoder tc = maybetranscoder as Transcoder;
-      Stream s = File.Create(fn);
+      Stream s = File.Open(fn, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
       if (tc == null)
       {
