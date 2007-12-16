@@ -43,8 +43,6 @@ namespace IronScheme.Runtime
     [Builtin("number->string")]
     public static object NumberToString(object obj, object radix)
     {
-      //string str = RequiresNotNull<string>(obj);
-
       radix = radix ?? 10;
       int r = (int)radix;
 

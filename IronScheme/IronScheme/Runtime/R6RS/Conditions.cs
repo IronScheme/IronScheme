@@ -24,19 +24,37 @@ using System.Collections;
 
 namespace IronScheme.Runtime.R6RS
 {
+  public abstract class Condition : Exception
+  {
+    public override string ToString()
+    {
+      return GetType().Name.Replace("$", "&");
+    }
+  }
+
   public class Conditions : Builtins
   {
-    class CompoundCondition : Exception
+    sealed class CompoundCondition : Condition
     {
       internal object[] conds;
       public CompoundCondition(object[] conds)
       {
         this.conds = conds;
       }
+
+      public override string ToString()
+      {
+        List<string> c = new List<string>();
+        foreach (object e in conds)
+        {
+          c.Add(e.ToString());
+        }
+        return string.Format("<condition {0}>", string.Join(" ", c.ToArray()));
+      }
     }
 
-    [Builtin("conditions")]
-    public static object MakeConditions(params object[] conds)
+    [Builtin("condition")]
+    public static object Condition(params object[] conds)
     {
       if (conds.Length == 1)
       {
@@ -65,14 +83,46 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("condition-predicate")]
     public static object ConditionPredicate(object rtd)
     {
-      return false;
+      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+
+      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
     }
 
     //(condition-accessor rtd proc)
     [Builtin("condition-accessor")]
     public static object ConditionAccessor(object rtd, object proc)
     {
-      return false;
+      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      ICallable c = RequiresNotNull<ICallable>(proc);
+
+      CallTarget1 p = delegate(object cond)
+      {
+        if (cond is CompoundCondition)
+        {
+          CompoundCondition cc = (CompoundCondition)cond;
+          if (cc.conds.Length == 0)
+          {
+            // error?
+            return false;
+          }
+          else
+          {
+            foreach (object e in cc.conds)
+            {
+              if (e.GetType() == t.type)
+              {
+                return c.Call(e);
+              }
+            }
+            return false;
+          }
+        }
+        else
+        {
+          return c.Call(cond);
+        }
+      };
+      return Closure.Make(Context, p);
     }
 
   }

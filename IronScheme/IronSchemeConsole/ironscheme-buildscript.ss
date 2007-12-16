@@ -40,11 +40,11 @@
     "ironscheme/files.ss"
     "ironscheme/lists.ss"
     "ironscheme/bytevectors.ss"
-    "ironscheme/conditions.ss"
     "ironscheme/control.ss"
     "ironscheme/enums.ss"
     "ironscheme/eval.ss"
     "ironscheme/exceptions.ss"
+    "ironscheme/conditions.ss"
     "ironscheme/mutable-pairs.ss"
     "ironscheme/mutable-strings.ss"
     "ironscheme/programs.ss"
@@ -61,7 +61,6 @@
     "ironscheme/records/inspection.ss"
     "ironscheme/records/procedural.ss"
     "ironscheme/records/syntactic.ss"
-
     "psyntax/compat.ss"
     "psyntax/internal.ss"
     "psyntax/config.ss"
@@ -162,10 +161,11 @@
     (&irritants                ($core-rtd . (&irritants-rtd &irritants-rcd)))
     (&who                      ($core-rtd . (&who-rtd &who-rcd)))
     (&non                      ($core-rtd . (&non-continuable-rtd &non-continuable-rcd)))
-    (&implementation           ($core-rtd . (&implementation-restriction-rtd &implementation-restriction-rcd)))
+    (&implementation-restriction  ($core-rtd . (&implementation-restriction-rtd &implementation-restriction-rcd)))
     (&lexical                  ($core-rtd . (&lexical-rtd &lexical-rcd)))
     (&syntax                   ($core-rtd . (&syntax-rtd &syntax-rcd)))
     (&undefined                ($core-rtd . (&undefined-rtd &undefined-rcd)))
+    (&non-continuable          ($core-rtd . (&non-continuable-rtd &non-continuable-rcd)))
     (&i/o                      ($core-rtd . (&i/o-rtd &i/o-rcd)))
     (&i/o-read                 ($core-rtd . (&i/o-read-rtd &i/o-read-rcd)))
     (&i/o-write                ($core-rtd . (&i/o-write-rtd &i/o-write-rcd)))
@@ -242,6 +242,8 @@
     (expand                                     i)
     (installed-libraries                        i)
     (library-path                               i)
+    (make-parameter                             i)
+    (parameterize                               i)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)
@@ -379,7 +381,7 @@
     (nan?                                       i r ba)
     (negative?                                  i r ba se)
     (not                                        i r ba se)
-    (null?                                      i r ba)
+    (null?                                      i r ba se)
     (number->string                             i r ba se)
     (number?                                    i r ba se)
     (numerator                                  i r ba se)
@@ -429,10 +431,10 @@
     (vector-set!                                i r ba se)
     (vector?                                    i r ba se)
     (zero?                                      i r ba se)
-    (...                                        i r ba sc)
-    (=>                                         i r ba ex)
-    (_                                          i r ba sc)
-    (else                                       i r ba ex)
+    (...                                        i r ba sc se)
+    (=>                                         i r ba ex se)
+    (_                                          i r ba sc se)
+    (else                                       i r ba ex se)
     ;;;
     (bitwise-arithmetic-shift                   i r bw)
     (bitwise-arithmetic-shift-left              i r bw)
@@ -844,9 +846,9 @@
     (output-port?                               i r is ip se)
     (current-input-port                         i r ip is se)
     (current-output-port                        i r ip is se)
-    (current-error-port                         i r ip is)
+    (current-error-port                         i r ip is se)
     (eof-object                                 i r ip is se)
-    (eof-object?                                i r ip is)
+    (eof-object?                                i r ip is se)
     (close-input-port                           i r is se)
     (close-output-port                          i r is se)
     (display                                    i r is se)
@@ -968,8 +970,8 @@
     (string-titlecase                           i r uc)
     (string-upcase                              i r uc)
     ;;;
-    (char-ready?                                )
-    (interaction-environment                    )
+    (char-ready?                                se)
+    (interaction-environment                    se)
     (load                                       ii)
     ;;;
     (void                     $boot)
@@ -985,10 +987,66 @@
     (clr-call-internal                          is-clr-int)
     (clr-cast-internal                          is-clr-int)
     (defined?                                   ii)
-    (ironscheme-build                           i r)
+    (ironscheme-build                           i)
     (stacktrace                                 ii)
     (load-r5rs                                  ii)
- 
+    ;;;
+    (&condition-rtd)
+    (&condition-rcd)
+    (&message-rtd)
+    (&message-rcd)
+    (&warning-rtd)
+    (&warning-rcd)
+    (&serious-rtd)
+    (&serious-rcd)
+    (&error-rtd)
+    (&error-rcd)
+    (&violation-rtd)
+    (&violation-rcd)
+    (&assertion-rtd)
+    (&assertion-rcd)
+    (&irritants-rtd)
+    (&irritants-rcd)
+    (&who-rtd)
+    (&who-rcd)
+    (&non-continuable-rtd)
+    (&non-continuable-rcd)
+    (&implementation-restriction-rtd)
+    (&implementation-restriction-rcd)
+    (&lexical-rtd)
+    (&lexical-rcd)
+    (&syntax-rtd)
+    (&syntax-rcd)
+    (&undefined-rtd)
+    (&undefined-rcd)
+    (&i/o-rtd)
+    (&i/o-rcd)
+    (&i/o-read-rtd)
+    (&i/o-read-rcd)
+    (&i/o-write-rtd)
+    (&i/o-write-rcd)
+    (&i/o-invalid-position-rtd)
+    (&i/o-invalid-position-rcd)
+    (&i/o-filename-rtd)
+    (&i/o-filename-rcd)
+    (&i/o-file-protection-rtd)
+    (&i/o-file-protection-rcd)
+    (&i/o-fie-is-read-only-rtd)
+    (&i/o-fie-is-read-only-rcd)
+    (&i/o-file-already-exists-rtd)
+    (&i/o-file-already-exists-rcd)
+    (&i/o-file-does-not-exist-rtd)
+    (&i/o-file-does-not-exist-rcd)
+    (&i/o-port-rtd)
+    (&i/o-port-rcd)
+    (&i/o-decoding-rtd)
+    (&i/o-decoding-rcd)
+    (&i/o-encoding-rtd)
+    (&i/o-encoding-rcd)
+    (&no-infinities-rtd)
+    (&no-infinities-rcd)
+    (&no-nans-rtd)
+    (&no-nans-rcd)
     ))
 
 
