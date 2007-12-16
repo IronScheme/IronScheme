@@ -101,6 +101,9 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Sorting));
       AddBuiltins(Context, typeof(Runtime.R6RS.Enums));
       AddBuiltins(Context, typeof(Runtime.R6RS.IO));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Lists));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Exceptions));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Conditions));
 
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Flonums));
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Fixnums));
@@ -490,7 +493,7 @@ namespace IronScheme.Compiler
 
 
 
-      cb.Body = Ast.Block(stmts.ToArray());
+      cb.Body = Ast.Block(stmts);
     }
 
     static Statement MakeTailCallReturn(bool allowtailcall, Expression e)

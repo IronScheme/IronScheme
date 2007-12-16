@@ -312,7 +312,16 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    /* TODO!!!!
+    /* TODO!!!! :(
+     * (bytevector-uint-ref bytevector k endianness size)procedure
+       (bytevector-sint-ref bytevector k endianness size)procedure
+       (bytevector-uint-set! bytevector k n endianness size)procedure
+     * (bytevector-sint-set! bytevector k n endianness size)procedure
+     * 
+     * (bytevector->uint-list bytevector endianness size)procedure
+(bytevector->sint-list bytevector endianness size)procedure
+(uint-list->bytevector list endianness size)procedure
+     * (sint-list->bytevector list endianness size)
      * 
      * (bytevector-u16-ref bytevector k endianness)    procedure 
 (bytevector-s16-ref bytevector k endianness)    procedure 

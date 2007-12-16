@@ -548,18 +548,136 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     //(fxif fx1 fx2 fx3)
-    //(fxbit-count fx)
-    //(fxlength fx)
-    //(fxfirst-bit-set fx)
-    //(fxbit-set? fx1 fx2)
     //(fxcopy-bit fx1 fx2 fx3)
     //(fxbit-field fx1 fx2 fx3)
     //(fxcopy-bit-field fx1 fx2 fx3 fx4)
-    //(fxarithmetic-shift fx1 fx2)
     //(fxarithmetic-shift-left fx1 fx2) 
     //(fxarithmetic-shift-right fx1 fx2) 
     //(fxrotate-bit-field fx1 fx2 fx3 fx4)
     //(fxreverse-bit-field fx1 fx2 fx3)
+
+    //(fxbit-count fx)
+    [Builtin("fxbit-count")]
+    public static object FxBitCount(object ei)
+    {
+      int bi = (int)ei;
+
+      if (bi <= 0)
+      {
+        return FxNot(FxBitCount(FxNot(ei)));
+      }
+      else
+      {
+        int count = 0;
+        while (bi > 0)
+        {
+          count += (int)(bi & 1);
+          bi >>= 1;
+        }
+        return count;
+      }
+    }
+
+    //(fxlength fx)
+    [Builtin("fxlength")]
+    public static object FxLength(object ei)
+    {
+      int bi = (int)ei;
+
+      if (bi <= 0)
+      {
+        return FxLength(FxNot(ei));
+      }
+      else
+      {
+        int count = 0;
+        while (bi > 0)
+        {
+          count++;
+          bi >>= 1;
+        }
+        return count;
+      }
+    }
+
+    //(fxfirst-bit-set fx)
+    [Builtin("fxfirst-bit-set")]
+    public static object FxFirstBitSet(object ei)
+    {
+      int bi = (int)ei;
+
+      if (bi == 0)
+      {
+        return -1;
+      }
+      else
+      {
+        int count = 0;
+        while (bi != 0)
+        {
+          if ((int)(bi & 1) == 1)
+          {
+            return count;
+          }
+          count++;
+          bi >>= 1;
+        }
+        return count;
+      }
+    }
+
+    //(fxbit-set? fx1 fx2)
+    [Builtin("fxbit-set?")]
+    public static object FxIsBitSet(object ei, object k)
+    {
+      int bi = (int)ei;
+      int ki = (int)k;
+
+      if (ki < 0)
+      {
+        throw new SchemeException("fx-bit-set?", "k is negative", new string[] { k.ToString() });
+      }
+
+      if (bi == 0)
+      {
+        return false;
+      }
+      else
+      {
+        int count = 0;
+        while (bi != 0)
+        {
+          if ((int)(bi & 1) == 1 && count == ki)
+          {
+            return true;
+          }
+          count++;
+          bi >>= 1;
+        }
+        return false;
+      }
+    }
+
+    //(fxarithmetic-shift fx1 fx2)
+    [Builtin("fxarithmetic-shift")]
+    public static object FxArithmeticShift(object ei, object k)
+    {
+      int bi = (int)ei;
+      int ki = (int)k;
+
+      if (ki == 0)
+      {
+        return ei;
+      }
+      if (ki < 0)
+      {
+        return bi >> ki;
+      }
+      else
+      {
+        return bi << ki;
+      }
+    }
 
 
 

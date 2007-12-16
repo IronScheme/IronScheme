@@ -119,21 +119,7 @@
           (let f ((ls (library-path)) (failed-list '()))
             (cond
               ((null? ls) 
-               (let ()
-                  (error 'expander "cannot locate library in library-path" x (reverse failed-list))))
-;                 (define-condition-type &library-resolution &condition
-;                    make-library-resolution-condition
-;                    library-resolution-condition?
-;                    (library condition-library)
-;                    (files condition-files))
-;                 (raise 
-;                   (condition 
-;                     (make-error)
-;                     (make-who-condition 'expander)
-;                     (make-message-condition
-;                       "cannot locate library in library-path")
-;                     (make-library-resolution-condition 
-;                      x (reverse failed-list))))))
+                (error 'expander "cannot locate library in library-path" x (reverse failed-list)))
               (else
                (let ((name (string-append (car ls) str)))
                  (if (file-exists? name)

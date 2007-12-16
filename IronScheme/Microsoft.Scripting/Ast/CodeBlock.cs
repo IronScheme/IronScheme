@@ -742,6 +742,10 @@ namespace Microsoft.Scripting.Ast {
 
         protected Delegate GetCompiledDelegate(CompilerContext context, Type delegateType, bool forceWrapperMethod) {
 
+          if (_compiled != null)
+          {
+            return _compiled;
+          }
             bool createWrapperMethod = _parameterArray ? false : forceWrapperMethod || NeedsWrapperMethod(false);
             bool hasThis = HasThis();
 
@@ -763,15 +767,23 @@ namespace Microsoft.Scripting.Ast {
                     //throw new NotImplementedException("Parameter arrays not implemented for code blocks in FastEval mode");
                 } else {
                     delegateType = CallTargets.GetTargetType(true, _parameters.Count - (HasThis() ? 1 : 0), HasThis());
-                    return cg.CreateDelegate(delegateType);
+                    return _compiled = cg.CreateDelegate(delegateType);
                 }
             } else {
-                return cg.CreateDelegate(delegateType);
+              return _compiled = cg.CreateDelegate(delegateType);
             }
         }
 
+      Delegate _compiled;
+      MethodInfo _impl;
+
       internal void EmitDirectCall(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType, bool tailcall)
       {
+        if (_impl != null)
+        {
+          cg.EmitCall(_impl, tailcall);
+          return;
+        }
         FlowChecker.Check(this);
 
         // TODO: explicit delegate type may be wrapped...
@@ -806,12 +818,12 @@ namespace Microsoft.Scripting.Ast {
           //  {
           //    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
           //  }
-          cg.EmitCall(wrapper.MethodInfo, tailcall);
+          cg.EmitCall(_impl = wrapper.MethodInfo, tailcall);
         }
         else
         {
           impl.Finish();
-          cg.EmitCall(impl.MethodInfo, tailcall);
+          cg.EmitCall(_impl = impl.MethodInfo, tailcall);
         }
 
         //  cg.EmitDelegateConstruction(wrapper, delegateType);

@@ -39,7 +39,7 @@ You must not remove this notice, or any other, from this software.
            `(define ,name (macro ,args ,@body)))))
            
 
-(define (void) (if #f #f))
+'(define (void) (if #f #f))
 
 (define-macro (syntax-error . args)
   `,`(error ,@args))           
