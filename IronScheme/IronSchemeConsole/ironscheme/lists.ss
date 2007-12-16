@@ -36,7 +36,10 @@
       exists
       cons*
       fold-left
-      fold-right))
+      fold-right
+      remove
+      remv
+      remq))
   
   (define (all-empty? ls)
     (or (null? ls) 
@@ -104,5 +107,15 @@
 						    nil
 						    (cdr list1) 
 						    (map cdr lists))))))))
+						    
+						    
+    (define (remove obj list)
+      (remp (lambda (x) (equal? obj x)) list))
+    
+    (define (remv obj list)
+      (remp (lambda (x) (eqv? obj x)) list))
+      
+    (define (remq obj list)
+      (remp (lambda (x) (eq? obj x)) list))
 )
 

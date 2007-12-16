@@ -74,13 +74,13 @@ namespace IronScheme.Compiler
         stmts.Add(Ast.Write(vars[i], e));
       }
 
-      for (int i = 0; i < vars.Count; i++)
-      {
-        if (Context.Scope.ContainsName(vars[i].Name))
-        {
-          Context.Scope.RemoveName(vars[i].Name);
-        }
-      }
+      //for (int i = 0; i < vars.Count; i++)
+      //{
+      //  if (Context.Scope.ContainsName(vars[i].Name))
+      //  {
+      //    Context.Scope.RemoveName(vars[i].Name);
+      //  }
+      //}
 
       Cons body = Builtins.Cdr(args) as Cons;
 

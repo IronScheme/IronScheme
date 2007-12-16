@@ -24,36 +24,38 @@ using System.Collections;
 
 namespace IronScheme.Runtime.R6RS
 {
-  public class Sorting : Builtins
+  public class Exceptions : Builtins
   {
-    [Builtin("list-sort")]
-    public static object ListSort(object proc, object lst)
+    //(with-exception-handler handler thunk)
+    [Builtin("with-exception-handler")]
+    public static object WithExceptionHandler(object handler, object thunk)
     {
-      // the slowest sort in the world
-      object v = ListToVector(lst);
-      VectorSortD(proc, v);
-      return VectorToList(v);
+      ICallable h = RequiresNotNull<ICallable>(handler);
+      ICallable t = RequiresNotNull<ICallable>(thunk);
+
+      try
+      {
+        return t.Call();
+      }
+      catch (Exception ex)
+      {
+        return h.Call(ex);
+      }
     }
 
-    [Builtin("vector-sort")]
-    public static object VectorSort(object proc, object vec)
+    [Builtin("raise")]
+    public static object Raise(object obj)
     {
-      object[] v = RequiresNotNull<object[]>(vec);
-      v = v.Clone() as object[];
-      VectorSortD(proc, v);
-      return v;
+      Exception ex = RequiresNotNull<Exception>(obj);
+      throw ex;
     }
-    
-    [Builtin("vector-sort!")]
-    public static object VectorSortD(object proc, object vec)
+
+    // erk??
+    [Builtin("raise-continuable")]
+    public static object RaiseContinueable(object obj)
     {
-      ICallable c = RequiresNotNull<ICallable>(proc);
-      object[] v = RequiresNotNull<object[]>(vec);
-      Array.Sort(v, delegate(object a, object b)
-      {
-        return IsTrue(c.Call(a, b)) ? -1 : 1;
-      });
-      return Unspecified;
+      Exception ex = RequiresNotNull<Exception>(obj);
+      throw ex;
     }
   }
 }

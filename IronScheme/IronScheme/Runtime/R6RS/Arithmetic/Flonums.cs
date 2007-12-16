@@ -304,6 +304,13 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
     }
 
+    [Builtin("real->flonum")]
+    public static object RealToFlonum(object n)
+    {
+      return Convert.ToDouble(n);
+    }
+
+
     [Builtin("fl=?")]
     public static object FlEqual(params object[] all)
     {
@@ -376,6 +383,12 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return true;
     }
 
+    [Builtin("flinteger?")]
+    public static object FlIsInteger(object a)
+    {
+      return (double)a%1.0 == 0;
+    }
+
     [Builtin("flzero?")]
     public static object FlIsZero(object a)
     {
@@ -405,6 +418,25 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     {
       return (double)a % 2 == 0;
     }
+
+    [Builtin("flfinite?")]
+    public static object FlIsFinite(object a)
+    {
+      return !double.IsInfinity( (double)a);
+    }
+
+    [Builtin("flinfinite?")]
+    public static object FlIsInfinite(object a)
+    {
+      return double.IsInfinity((double)a);
+    }
+
+    [Builtin("flnan?")]
+    public static object FlIsNan(object a)
+    {
+      return double.IsNaN((double)a);
+    }
+
 
     [Builtin("flmax")]
     public static object FlMax(params object[] args)
@@ -549,6 +581,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return result;
     }
 
+    [Builtin("flabs")]
+    public static object FlAbs(object a)
+    {
+      return Math.Abs((double)a);
+    }
 
     [Builtin("fldiv-and-mod")]
     public static object FlDivAndMod(object a, object b)
@@ -586,6 +623,128 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object FlMod0(object a, object b)
     {
       return (double)a % (double)b;
+    }
+
+    //(flnumerator fl) procedure
+    //(fldenominator fl)
+
+    //(flfloor fl) procedure
+    [Builtin("flfloor")]
+    public static object FlFloor(object a)
+    {
+      return Math.Floor((double)a);
+    }
+
+    //(flceiling fl) procedure
+    [Builtin("flceiling")]
+    public static object FlCeiling(object a)
+    {
+      return Math.Ceiling((double)a);
+    }
+
+    //(fltruncate fl) procedure
+    [Builtin("fltruncate")]
+    public static object FlTruncate(object a)
+    {
+      return Math.Truncate((double)a);
+    }
+
+    //(flround fl)
+    [Builtin("flround")]
+    public static object FlRound(object a)
+    {
+      return Math.Round((double)a);
+    }
+
+    //(flexp fl) procedure
+    [Builtin("flexp")]
+    public static object FlExp(object a)
+    {
+      return Math.Exp((double)a);
+    }
+
+    //(fllog fl) procedure
+    [Builtin("fllog")]
+    public static object FlLog(object a)
+    {
+      return Math.Log((double)a);
+    }
+
+    //(fllog fl1 fl2) procedure
+    [Builtin("fllog")]
+    public static object FlLog(object a, object b)
+    {
+      return Math.Log((double)a, (double)b);
+    }
+
+    //(flsin fl) procedure
+    [Builtin("flsin")]
+    public static object FlSin(object a)
+    {
+      return Math.Sin((double)a);
+    }
+
+    //(flcos fl) procedure
+    [Builtin("flcos")]
+    public static object FlCos(object a)
+    {
+      return Math.Cos((double)a);
+    }
+
+    //(fltan fl) procedure
+    [Builtin("fltan")]
+    public static object FlTan(object a)
+    {
+      return Math.Tan((double)a);
+    }
+
+    //(flasin fl) procedure
+    [Builtin("flasin")]
+    public static object FlAsin(object a)
+    {
+      return Math.Asin((double)a);
+    }
+
+    //(flacos fl) procedure
+    [Builtin("flacos")]
+    public static object FlAcos(object a)
+    {
+      return Math.Acos((double)a);
+    }
+
+    //(flatan fl) procedure
+    [Builtin("flatan")]
+    public static object FlAtan(object a)
+    {
+      return Math.Atan((double)a);
+    }
+
+    //(flatan fl1 fl2) procedure
+    [Builtin("flatan")]
+    public static object FlAtan(object a, object b)
+    {
+      return Math.Atan2((double)a, (double)b);
+    }
+
+    //(flsqrt fl)
+    [Builtin("flsqrt")]
+    public static object FlSqrt(object a)
+    {
+      return Math.Sqrt((double)a);
+    }
+
+    //(flexpt fl1 fl2)
+    [Builtin("flexpt")]
+    public static object FlExpt(object a, object b)
+    {
+      return Math.Pow((double)a, (double)b);
+    }
+
+    //(fixnum->flonum fx)
+    [Builtin("fixnum->flonum")]
+    public static object FixnumToFlonum(object a)
+    {
+      return (double)(int)a;
     }
   }
 }

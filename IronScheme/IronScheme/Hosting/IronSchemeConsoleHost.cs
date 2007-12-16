@@ -25,7 +25,7 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-#if !DEBUG
+#if !CRAZY
       ScriptDomainManager.Options.DebugMode = false;
       ScriptDomainManager.Options.EngineDebug = false;
       ScriptDomainManager.Options.DebugCodeGeneration = false;
@@ -35,8 +35,8 @@ namespace IronScheme.Hosting
 #if DEBUG
       
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.ILDebug |
-      Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-      Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
+      //Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
+      //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
       //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateStaticMethods |
 #endif

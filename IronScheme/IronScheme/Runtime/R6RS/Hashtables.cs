@@ -185,9 +185,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci-hash")]
     public static object StringCaseInsensitiveHash(object obj)
     {
-      //TODO: ci hash
       string r = RequiresNotNull<string>(obj);
-      return r.GetHashCode();
+      return StringComparer.CurrentCultureIgnoreCase.GetHashCode(r);
     }
 
     [Builtin("symbol-hash")]

@@ -178,9 +178,9 @@ namespace IronScheme.Runtime
       return c;
     }
     
-    delegate object Pred(object a, object b);
+    protected delegate object Pred(object a, object b);
 
-    static object AssocHelper(Pred pred, object obj, object list)
+    protected static object AssocHelper(Pred pred, object obj, object list)
     {
       Cons e = Requires<Runtime.Cons>(list);
 
@@ -219,7 +219,7 @@ namespace IronScheme.Runtime
       return AssocHelper(IsEqualValue, obj, list);
     }
 
-    static object MemberHelper(Pred pred, object obj, object list)
+    protected static object MemberHelper(Pred pred, object obj, object list)
     {
       // must be properlist
       Cons c = Requires<Runtime.Cons>(list);

@@ -117,7 +117,7 @@ namespace IronScheme.Runtime
     {
       string exprstr = null;
       int c = ++evalcounter;
-#if DEBUG
+#if DEBUG_EVAL
 
       ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
       
@@ -131,7 +131,7 @@ namespace IronScheme.Runtime
         Directory.CreateDirectory("evaldump");
       }
       
-      string fn = "evaldump/" + c + ".ss";
+      string fn = string.Format("evaldump/{0:D3}.ss", c);
 
       if (File.Exists(fn))
       {
@@ -147,16 +147,18 @@ namespace IronScheme.Runtime
       {
         SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, exprstr);
         AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
+
+        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
         ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
         ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
         Stopwatch sw = Stopwatch.StartNew();
         //ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule("eval-core", su);
         ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
-        Trace.WriteLine(sw.ElapsedMilliseconds, "Compile - eval-core");
+        Trace.WriteLine(sw.ElapsedMilliseconds, string.Format("Compile - eval-core({0:D3})", c));
         sw = Stopwatch.StartNew();
         //object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext, false); // causes issues :(
-        object result = sc.Run(cc.Scope, cc.ModuleContext, false); // causes issues :(
-        Trace.WriteLine(sw.ElapsedMilliseconds, "Run - eval-core");
+        object result = sc.Run(cc.ModuleContext.Module); // causes issues :(
+        Trace.WriteLine(sw.ElapsedMilliseconds, string.Format("Run     - eval-core({0:D3})", c));
         ScriptDomainManager.Options.AssemblyGenAttributes = aga;
         return result;
 
@@ -231,8 +233,20 @@ namespace IronScheme.Runtime
 #endif
 
     [Builtin]
+    public static object Exit()
+    {
+      return Exit(0);
+    }
+
+    [Builtin]
     public static object Exit(object reason)
     {
+      if (reason is bool && !(bool)reason)
+      {
+        Environment.Exit(1);
+      }
+      int r = RequiresNotNull<int>(reason);
+      Environment.Exit(r);
       return Unspecified;
     }
 

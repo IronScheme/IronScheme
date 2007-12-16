@@ -322,25 +322,22 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-normalize-nfd")]
     public static object StringNormalizeNFD(object obj)
     {
-      //TODO
       string s = GetString(obj);
-      return false;
+      return s.Normalize(NormalizationForm.FormD);
     }
 
     [Builtin("string-normalize-nfkd")]
     public static object StringNormalizeNFKD(object obj)
     {
-      //TODO
       string s = GetString(obj);
-      return false;
+      return s.Normalize(NormalizationForm.FormKD);
     }
     
     [Builtin("string-normalize-nfc")]
     public static object StringNormalizeNFC(object obj)
     {
-      //TODO
       string s = GetString(obj);
-      return false;
+      return s.Normalize(NormalizationForm.FormC);
     }
 
 
@@ -349,7 +346,7 @@ namespace IronScheme.Runtime.R6RS
     {
       //TODO
       string s = GetString(obj);
-      return false;
+      return s.Normalize(NormalizationForm.FormKC);
     }
   }
 }
