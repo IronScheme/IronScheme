@@ -142,6 +142,11 @@ namespace IronScheme.Runtime
 #else
       exprstr = WriteFormat(expr);
 #endif
+      //same speed :(
+      //if (exprstr.Length < 64)
+      //{
+      //  return Compiler.Generator.GetAst(expr, Compiler.Generator.evalblock).Evaluate(cc);
+      //}
 
       try
       {

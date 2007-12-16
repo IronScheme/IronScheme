@@ -364,7 +364,7 @@ namespace Microsoft.Scripting.Generation {
       public TypeGen DefinePublicType(string name, Type parent, TypeAttributes attrs)
       {
         if (BeforeFieldInit) attrs |= TypeAttributes.BeforeFieldInit;
-        TypeBuilder tb = _myModule.DefineType(name.Replace('+', '_'), attrs);
+        TypeBuilder tb = _myModule.DefineType(name.Replace('+', '_'), attrs); //& is also illegal here
         tb.SetParent(parent);
         return new TypeGen(this, tb);
       }

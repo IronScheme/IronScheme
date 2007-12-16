@@ -31,6 +31,7 @@ namespace IronScheme.Runtime.R6RS
     public MethodInfo predicate;
     public object uid;
     public bool generative;
+    public RecordConstructorDescriptor rcd;
 
     public RecordTypeDescriptor parent;
 
@@ -84,7 +85,7 @@ namespace IronScheme.Runtime.R6RS
 
     public override string ToString()
     {
-      return string.Format("rtd: {0}", type.Name);
+      return string.Format("rtd: {0}", type.Name.Replace("$", "&"));
     }
   }
 
@@ -112,12 +113,14 @@ namespace IronScheme.Runtime.R6RS
 
     public override string ToString()
     {
-      return string.Format("rcd: {0}", type.type.Name);
+      return string.Format("rcd: {0}", type.type.Name.Replace("$", "&"));
     }
   }
 
   public class Records : Builtins
   {
+    static Dictionary<string, RecordTypeDescriptor> nongenerative = new Dictionary<string, RecordTypeDescriptor>();
+
     [Builtin("record-type-descriptor?")]
     public static object IsRecordTypeDescriptor(object obj)
     {
@@ -130,6 +133,15 @@ namespace IronScheme.Runtime.R6RS
       string n = SymbolToString(name) as string;
       string id = SymbolToString(uid) as string;
 
+      if (id != null)
+      {
+      RecordTypeDescriptor ngrtd;
+      if (nongenerative.TryGetValue(n + id, out ngrtd))
+      {
+        return ngrtd;
+      }
+      }
+
       string assname = n;
 
       if (id != null)
@@ -141,7 +153,7 @@ namespace IronScheme.Runtime.R6RS
         assname = assname + "-" + Guid.NewGuid();
       }
 
-      AssemblyGen ag = new AssemblyGen(assname, ".", name + ".dll", AssemblyGenAttributes.SaveAndReloadAssemblies);
+      AssemblyGen ag = new AssemblyGen(n.Replace("/", "#"), ".", n.Replace("/", "#") + ".dll", AssemblyGenAttributes.None);
 
       bool @sealed = RequiresNotNull<bool>(issealed);
       bool opaque = RequiresNotNull<bool>(isopaque);
@@ -153,6 +165,10 @@ namespace IronScheme.Runtime.R6RS
       if (prtd != null)
       {
         parenttype = prtd.Finish();
+      }
+      else if (n == "&condition")
+      {
+        parenttype = typeof(Condition);
       }
 
       TypeAttributes attrs = TypeAttributes.Public;
@@ -170,7 +186,7 @@ namespace IronScheme.Runtime.R6RS
         attrs |= TypeAttributes.Sealed;
       }
 
-      TypeGen tg = ag.DefinePublicType(n, parenttype, attrs);
+      TypeGen tg = ag.DefinePublicType(n.Replace("&", "$"), parenttype, attrs);
 
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
@@ -242,6 +258,11 @@ namespace IronScheme.Runtime.R6RS
         rtd.fields.Add(fd);
       }
 
+      if (id != null)
+      {
+        nongenerative[n + id] = rtd;
+      }
+
       return rtd;
     }
 
@@ -249,6 +270,11 @@ namespace IronScheme.Runtime.R6RS
     public static object MakeRecordConstructorDescriptor(object rtd, object parent_constructor_descriptor, object protocol)
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+
+      if (!(t.type is TypeBuilder))
+      {
+        return t.rcd;
+      }
 
       List<Type> paramtypes = new List<Type>();
       List<FieldDescriptor> allfields = new List<FieldDescriptor>(t.GetAllFields());
@@ -303,6 +329,8 @@ namespace IronScheme.Runtime.R6RS
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;
 
       rcd.type.Finish();
+
+      t.rcd = rcd;
       
       return rcd;
     }

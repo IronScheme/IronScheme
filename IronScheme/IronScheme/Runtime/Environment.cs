@@ -37,6 +37,18 @@ namespace IronScheme.Runtime
       this.irritants = irritants;
     }
 
+    static string FormatMessage(string msg, params string[] args)
+    {
+      int s = 0, i = 0;
+      while ((s = msg.IndexOf("~s", s)) >= 0)
+      {
+        msg = msg.Substring(0, s) + args[i] + msg.Substring(s + 2);
+      }
+
+      return msg;
+
+    }
+
     public override string Message
     {
       get
@@ -50,7 +62,7 @@ namespace IronScheme.Runtime
 who:        {0}
 message:    {1}
 irritants:
-{2}", who, message, string.Join(Environment.NewLine, ii.ToArray()));
+{2}", who, FormatMessage(message, irritants), string.Join(Environment.NewLine, ii.ToArray()));
       }
     }
 
@@ -84,7 +96,6 @@ irritants:
     public static object Error(object who, object message, params object[] irritants)
     {
       string[] ll = Array.ConvertAll<object, string>(irritants, delegate(object o) { return WriteFormat(o); });
-      ll = ArrayUtils.Insert<string>(DisplayFormat(who), ll);
       throw new SchemeException(DisplayFormat(who), DisplayFormat(message), ll);
     }
 
