@@ -135,15 +135,10 @@ namespace IronScheme.Runtime
       Cons c = Requires<Runtime.Cons>(args);
       int length = 0;
 
-      if (c != null)
+      while (c != null)
       {
-        // this does add some overhead
-        //RequiresCondition(c.IsProper, "must be a properlist");
-        while (c != null)
-        {
-          length++;
-          c = c.cdr as Cons;
-        }
+        length++;
+        c = c.cdr as Cons;
       }
 
       return length;
@@ -184,19 +179,14 @@ namespace IronScheme.Runtime
     {
       Cons e = Requires<Runtime.Cons>(list);
 
-      if (e != null)
+      while (e != null)
       {
-        // this does add some overhead
-        //RequiresCondition(e.IsProper, "must be a properlist");
-        while (e != null)
+        Cons ass = e.car as Cons;
+        if ((bool)pred(obj, ass.car))
         {
-          Cons ass = e.car as Cons;
-          if ((bool)pred(obj, ass.car))
-          {
-            return ass;
-          }
-          e = e.cdr as Cons;
+          return ass;
         }
+        e = e.cdr as Cons;
       }
       return false;
     }
@@ -224,19 +214,15 @@ namespace IronScheme.Runtime
       // must be properlist
       Cons c = Requires<Runtime.Cons>(list);
 
-      if (c != null)
+      while (c != null)
       {
-        // this does add some overhead
-        //RequiresCondition(c.IsProper, "must be a properlist");
-        while (c != null)
+        if ((bool)pred(c.car, obj))
         {
-          if ((bool)pred(c.car, obj))
-          {
-            return c;
-          }
-          c = c.cdr as Cons;
+          return c;
         }
+        c = c.cdr as Cons;
       }
+
       return false;
     }
 
@@ -276,7 +262,7 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-#if !nR6RS // this isnt helping...
+#if !nR6RS // this isnt helping..., but they get patched anyways
 
     [Builtin]
     public static object Caaaar(object lst)
@@ -476,16 +462,13 @@ namespace IronScheme.Runtime
       Cons c = Requires<Runtime.Cons>(lst);
       Cons list = null;
 
-      if (c != null)
+
+      while (c != null)
       {
-        // this does add some overhead
-        //RequiresCondition(c.IsProper, "must be a properlist");
-        while (c != null)
-        {
-          list = new Cons(c.car, list);
-          c = c.cdr as Cons;
-        }
+        list = new Cons(c.car, list);
+        c = c.cdr as Cons;
       }
+
       return list;
     }
 

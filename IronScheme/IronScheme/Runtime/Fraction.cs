@@ -16,7 +16,6 @@ using System.Globalization;
 
 namespace IronScheme.Runtime
 {
-#if !NEW_NUMBERS
 	/// <summary>
 	/// An implementation of rational (fractional) numbers.
 	/// Numeric range: -Int64.MaxValue/1 to Int64.MaxValue/1
@@ -579,7 +578,11 @@ namespace IronScheme.Runtime
 
 		public override Boolean Equals(object fraction1)
 		{
-			return this.CompareTo((Fraction)fraction1) == 0;
+      if (fraction1 is Fraction)
+      {
+        return this.CompareTo((Fraction)fraction1) == 0;
+      }
+      return false;
 		}
 
 		public override Int32 GetHashCode()
@@ -681,5 +684,4 @@ namespace IronScheme.Runtime
 			return numerator.ToString(CultureInfo.CurrentCulture) + "/" + denominator.ToString(CultureInfo.CurrentCulture);
 		}
 	}
-#endif
 }

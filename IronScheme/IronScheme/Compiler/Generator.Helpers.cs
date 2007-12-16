@@ -104,6 +104,7 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Lists));
       AddBuiltins(Context, typeof(Runtime.R6RS.Exceptions));
       AddBuiltins(Context, typeof(Runtime.R6RS.Conditions));
+      AddBuiltins(Context, typeof(Runtime.R6RS.Programs));
 
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Flonums));
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Fixnums));

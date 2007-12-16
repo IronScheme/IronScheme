@@ -134,6 +134,7 @@
     <Compile Include="Runtime\R6RS\Arithmetic\Flonums.cs" />
     <Compile Include="Runtime\R6RS\ByteVectors.cs" />
     <Compile Include="Runtime\R6RS\Conditions.cs" />
+    <Compile Include="Runtime\R6RS\Programs.cs" />
     <Compile Include="Runtime\R6RS\Lists.cs" />
     <Compile Include="Runtime\R6RS\Exceptions.cs" />
     <Compile Include="Runtime\R6RS\IO.cs" />

@@ -117,7 +117,7 @@ namespace IronScheme.Runtime
     {
       string exprstr = null;
       int c = ++evalcounter;
-#if DEBUG_EVAL
+#if DEBUG
 
       ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
       
@@ -232,23 +232,6 @@ namespace IronScheme.Runtime
 
 #endif
 
-    [Builtin]
-    public static object Exit()
-    {
-      return Exit(0);
-    }
-
-    [Builtin]
-    public static object Exit(object reason)
-    {
-      if (reason is bool && !(bool)reason)
-      {
-        Environment.Exit(1);
-      }
-      int r = RequiresNotNull<int>(reason);
-      Environment.Exit(r);
-      return Unspecified;
-    }
 
     [Builtin]
     public static object Void()

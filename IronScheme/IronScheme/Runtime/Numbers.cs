@@ -248,6 +248,7 @@ namespace IronScheme.Runtime
       {
         return dec;
       }
+      // TODO parse complex
       return false;
     }
 
@@ -308,11 +309,7 @@ namespace IronScheme.Runtime
     [Builtin("number?")]
     public static object IsNumber(object obj)
     {
-      return !((bool)IsPair(obj)) && !((bool)IsVector(obj)) &&
-        (((bool)IsComplex(obj)
-        || (bool)IsRational(obj)
-        || (bool)IsReal(obj)
-        || (bool)IsInteger(obj)));
+      return IsComplex(obj);
     }
 
     [Builtin("complex?")]
@@ -336,8 +333,117 @@ namespace IronScheme.Runtime
     [Builtin("integer?")]
     public static object IsInteger(object obj)
     {
-      return (obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong);
+      return (obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong || obj is byte || obj is sbyte || obj is short || obj is ushort);
     }
+
+
+#if R6RS
+    //real-valued?, rational-valued?,integer-valued?
+
+    [Builtin("integer-valued?")]
+    public static object IsIntegerValued(object obj)
+    {
+      return IsZero(Modulo(obj, 1));
+    }
+
+    [Builtin("rational-valued?")]
+    public static object IsRationalValued(object obj)
+    {
+      if (obj is Fraction)
+      {
+        return true;
+      }
+
+      bool iv = (bool)IsIntegerValued(obj);
+      if (iv)
+      {
+        return true;
+      }
+
+      if ((bool)IsNumber(obj))
+      {
+        decimal d = Convert.ToDecimal(obj);
+        return d == (decimal)(Fraction)d;
+      }
+      return false;
+    }
+
+    [Builtin("real-valued?")]
+    public static object IsRealValued(object obj)
+    {
+      if (obj is Complex64)
+      {
+        Complex64 c = (Complex64)obj;
+        if (c.Imag != 0)
+        {
+          return false;
+        }
+      }
+      return IsNumber(obj);
+    }
+
+    [Builtin("finite?")]
+    public static object IsFinite(object obj)
+    {
+      return !(bool)IsInfinite(obj);
+    }
+
+    [Builtin("infinite?")]
+    public static object IsInfinite(object obj)
+    {
+      if (obj is double)
+      {
+        return double.IsInfinity((double)obj);
+      }
+      if (obj is float)
+      {
+        return float.IsInfinity((float)obj);
+      }
+
+      return false;
+    }
+
+    [Builtin("nan?")]
+    public static object IsNan(object obj)
+    {
+      if (obj is double)
+      {
+        return double.IsNaN((double)obj);
+      }
+      if (obj is float)
+      {
+        return float.IsNaN((float)obj);
+      }
+
+      return false;
+    }
+
+
+    [Builtin("inexact")]
+    public static object Inexact(object obj)
+    {
+      if ((bool)IsExact(obj))
+      {
+        if (obj is Fraction)
+        {
+          return (decimal)((Fraction)obj);
+        }
+        return Convert.ToDecimal(obj);
+      }
+      return obj;
+    }
+
+    [Builtin("exact")]
+    public static object Exact(object obj)
+    {
+      if ((bool)IsInexact(obj))
+      {
+        return Convert.ToInt64(obj);
+      }
+      return obj;
+    }
+
+#endif
 
     [Builtin("exact?")]
     public static object IsExact(object obj)
@@ -350,6 +456,8 @@ namespace IronScheme.Runtime
     {
       return obj is Complex64 || obj is float || obj is double || obj is decimal;
     }
+
+
 
 
     #region relations
