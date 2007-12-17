@@ -76,7 +76,7 @@
       (cond
         ((symbol? sym) (gensym sym))
         ((stx? sym) (gen-lexical (id->sym sym)))
-        (else (error 'gen-lexical "BUG: invalid arg" sym)))))
+        (else (assertion-violation 'gen-lexical "BUG: invalid arg" sym)))))
   
   ;;; gen-global is used to generate global names (e.g. locations
   ;;; for library exports).  We use gen-lexical since it works just 
@@ -117,7 +117,7 @@
                (car label*)
                (find sym mark* (cdr sym*) (cdr mark**) (cdr label*)))))
     (when (rib-sealed/freq rib)
-      (error 'extend-rib! "rib is sealed" rib))
+      (assertion-violation 'extend-rib! "rib is sealed" rib))
     (let ((sym (id->sym id))
           (mark* (stx-mark* id)))
       (let ((sym* (rib-sym* rib)))
@@ -127,7 +127,7 @@
            =>
            (lambda (label^) 
              (unless (eq? label label^)
-               ;;; signal an error if the identifier was already
+               ;;; signal an assertion-violation if the identifier was already
                ;;; in the rib.
                (stx-error id "cannot redefine")))]
           [else
@@ -347,7 +347,7 @@
                (m* (stx-mark* x)) (s* (stx-subst* x)))
            (map (lambda (x) (mkstx x m* s*)) ls)))
         ((vector? x) (vector->list x))
-        (else (error 'syntax-vector->list "not a syntax vector" x)))))
+        (else (assertion-violation 'syntax-vector->list "not a syntax vector" x)))))
   (define syntax-pair?
     (lambda (x) (syntax-kind? x pair?)))
   (define syntax-vector?
@@ -364,21 +364,21 @@
           (mkstx (syntax-car (stx-expr x)) (stx-mark* x) (stx-subst* x))
           (if (pair? x)
               (car x)
-              (error 'syntax-car "not a pair" x)))))
+              (assertion-violation 'syntax-car "not a pair" x)))))
   (define syntax->list
     (lambda (x)
       (if (syntax-pair? x)
           (cons (syntax-car x) (syntax->list (syntax-cdr x)))
           (if (syntax-null? x)
               '()
-              (error 'syntax->list "invalid argument" x)))))
+              (assertion-violation 'syntax->list "invalid argument" x)))))
   (define syntax-cdr
     (lambda (x)
       (if (stx? x)
           (mkstx (syntax-cdr (stx-expr x)) (stx-mark* x) (stx-subst* x))
           (if (pair? x)
               (cdr x)
-              (error 'syntax-cdr "not a pair" x)))))
+              (assertion-violation 'syntax-cdr "not a pair" x)))))
   (define id?
     (lambda (x) (syntax-kind? x symbol?)))
   
@@ -388,7 +388,7 @@
           (id->sym (stx-expr x))
           (if (symbol? x)
               x
-              (error 'id->sym "not an id" x)))))
+              (assertion-violation 'id->sym "not an id" x)))))
 
   ;;; Two lists of marks are considered the same if they have the 
   ;;; same length and the corresponding marks on each are eq?.
@@ -521,9 +521,13 @@
       (cond
         ((imported-label->binding x) =>
          (lambda (b) 
-           (if (and (pair? b) (eq? (car b) '$core-rtd)) 
-               (cons '$rtd (map bless (cdr b)))
-               b)))
+           (cond
+             [(and (pair? b) (eq? (car b) '$core-rtd))
+              (cons '$rtd (map bless (cdr b)))]
+             [(and (pair? b) (eq? (car b) 'global-rtd))
+              (let ([lib (cadr b)] [loc (cddr b)])
+                (cons '$rtd (symbol-value loc)))]
+             [else b])))
         ((assq x r) => cdr)
         (else '(displaced-lexical . #f)))))
 
@@ -578,9 +582,9 @@
     (lambda (x)
       (syntax-case x ()
         ((_ stx)
-         (syntax (error 'expander "invalid syntax" (stx->datum stx))))
+         (syntax (assertion-violation 'expander "invalid syntax" (stx->datum stx))))
         ((_ stx msg arg* ...)
-         (syntax (error 'expander msg (strip stx '()) arg* ...))))))
+         (syntax (assertion-violation 'expander msg (strip stx '()) arg* ...))))))
   
   ;;; when the rhs of a syntax definition is evaluated, it should be
   ;;; either a procedure, an identifier-syntax transformer or an
@@ -589,7 +593,7 @@
   ;;;   (lacal-macro . procedure)
   ;;;   (local-macro! . procedure)
   ;;;   ($rtd . $rtd)
-  ;;; and signals an error otherwise.
+  ;;; and signals an assertion-violation otherwise.
   (define sanitize-binding
     (lambda (x src)
       (cond
@@ -598,14 +602,14 @@
         ((and (pair? x) (eq? (car x) 'macro!) (procedure? (cdr x)))
          (cons* 'local-macro! (cdr x) src))
         ((and (pair? x) (eq? (car x) '$rtd)) x)
-        (else (error 'expand "invalid transformer" x)))))
+        (else (assertion-violation 'expand "invalid transformer" x)))))
   
   ;;; r6rs's make-variable-transformer:
   (define make-variable-transformer
     (lambda (x)
       (if (procedure? x)
           (cons 'macro! x)
-          (error 'make-variable-transformer
+          (assertion-violation 'make-variable-transformer
                  "not a procedure" x))))
 
   ;;; make-eval-transformer takes an expanded expression, 
@@ -816,7 +820,7 @@
                 (type (binding-type b)))
            (unless lab (stx-error e "unbound identifier"))
            (unless (and (eq? type '$rtd) (not (list? (binding-value b))))
-             (stx-error e "invalid type"))
+             (stx-error e "invalid type" b))
            (build-data no-source (binding-value b)))))))
 
   (define record-type-descriptor-transformer
@@ -828,7 +832,7 @@
                 (type (binding-type b)))
            (unless lab (stx-error e "unbound identifier"))
            (unless (and (eq? type '$rtd) (list? (binding-value b)))
-             (stx-error e "invalid type"))
+             (stx-error e "invalid type" b))
            (chi-expr (car (binding-value b)) r mr))))))
 
   (define record-constructor-descriptor-transformer
@@ -1111,7 +1115,7 @@
                        (let ((v ,expr))
                          (if (procedure? v)
                              (make-traced-procedure ',who v)
-                             (error 'trace-define
+                             (assertion-violation 'trace-define
                                 "not a procedure" v)))))
              (stx-error stx "invalid name"))))))
   
@@ -1124,7 +1128,7 @@
                        (let ((v ,expr))
                          (if (procedure? v)
                              (make-traced-procedure ',who v syntax->datum)
-                             (error 'trace-define-syntax
+                             (assertion-violation 'trace-define-syntax
                                 "not a procedure" v)))))
              (stx-error stx "invalid name"))))))
 
@@ -1233,7 +1237,7 @@
       (syntax-match stx ()
         ((_ expr)
          (bless `(unless ,expr
-                   (error 'assert "assertion failed" ',expr)))))))
+                   (assertion-violation 'assert "assertion failed" ',expr)))))))
   
   (define endianness-macro
     (lambda (stx)
@@ -1597,7 +1601,7 @@
                                (lambda (x)
                                  (if ($struct/rtd? x ',rtd)
                                      ($struct-ref x ,i)
-                                     (error ',getter
+                                     (assertion-violation ',getter
                                             "not a struct of required type"
                                             x ',rtd)))))
                          getters i*)
@@ -1606,7 +1610,7 @@
                                (lambda (x v)
                                  (if ($struct/rtd? x ',rtd)
                                      ($struct-set! x ,i v)
-                                     (error ',setter
+                                     (assertion-violation ',setter
                                             "not a struct of required type"
                                             x ',rtd)))))
                          setters i*)))))))
@@ -1624,7 +1628,7 @@
                      (cond
                        [(symbol? x) (symbol->string x)]
                        [(string? x) x]
-                       [else (error 'define-record-type "BUG")]))
+                       [else (assertion-violation 'define-record-type "BUG")]))
                    str*)))))
       (define (get-record-name spec)
         (syntax-match spec ()
@@ -2011,7 +2015,7 @@
                     (match-empty (vector-ref p 3) r))))
                ((free-id atom) r)
                ((vector) (match-empty (vector-ref p 1) r))
-               (else (error 'syntax-dispatch "invalid pattern" p)))))))
+               (else (assertion-violation 'syntax-dispatch "invalid pattern" p)))))))
       (define combine
         (lambda (r* r)
           (if (null? (car r*))
@@ -2051,7 +2055,7 @@
                ((vector)
                 (and (vector? e)
                      (match (vector->list e) (vector-ref p 1) m* s* r)))
-               (else (error 'syntax-dispatch "invalid pattern" p)))))))
+               (else (assertion-violation 'syntax-dispatch "invalid pattern" p)))))))
       (define match
         (lambda (e p m* s* r)
           (cond
@@ -2334,7 +2338,7 @@
         ((type-descriptor)        type-descriptor-transformer)
         ((record-type-descriptor) record-type-descriptor-transformer)
         ((record-constructor-descriptor) record-constructor-descriptor-transformer)
-        (else (error 'macro-transformer "cannot find transformer" name)))))
+        (else (assertion-violation 'macro-transformer "cannot find transformer" name)))))
   
   (define file-options-macro
     (lambda (x)
@@ -2398,8 +2402,8 @@
              fields mutable immutable parent protocol
              sealed opaque nongenerative parent-rtd)
             incorrect-usage-macro)
-           (else (error 'macro-transformer "invalid macro" x))))
-        (else (error 'core-macro-transformer "invalid macro" x)))))
+           (else (assertion-violation 'macro-transformer "invalid macro" x))))
+        (else (assertion-violation 'core-macro-transformer "invalid macro" x)))))
   
   (define (local-macro-transformer x)
     (car x))
@@ -2424,7 +2428,7 @@
         (let ((transformer
                (cond
                  ((procedure? x) x)
-                 (else (error 'chi-global-macro "not a procedure")))))
+                 (else (assertion-violation 'chi-global-macro "not a procedure")))))
           (let ((s (transformer (add-mark anti-mark e))))
             (add-mark (gen-mark) s))))))
   
@@ -2514,7 +2518,7 @@
            (stx-error e 
              "attempt to reference an unexportable variable"))
           (else
-           ;(error 'chi-expr "invalid type " type (strip e '()))
+           ;(assertion-violation 'chi-expr "invalid type " type (strip e '()))
            (stx-error e "invalid expression"))))))
 
   (define chi-set!
@@ -2600,7 +2604,7 @@
            (build-sequence no-source
              (list (chi-expr expr r mr)
                    (build-void)))))
-        (else (error 'chi-rhs "invalid rhs" rhs)))))
+        (else (assertion-violation 'chi-rhs "invalid rhs" rhs)))))
 
   (define chi-rhs*
     (lambda (rhs* r mr)
@@ -2809,21 +2813,28 @@
 
   (define set-global-macro-binding!
     (lambda (id loc b)
-      (let ([type
-             (case (binding-type b)
-               [(local-macro) 'global-macro]
-               [(local-macro!) 'global-macro!]
-               [else
-                (error 'set-global-macro-binding!
-                  "BUG: invalid type" b)])]
-            [transformer (cadr b)]
-            [label (id->label id)]
-            [sym (id->sym id)])
-        (set-symbol-value! loc transformer)
-        (extend-library-subst! (interaction-library) sym label)
-        (extend-library-env! (interaction-library) label 
-          (cons* type (interaction-library) loc)))))
-  
+      (define (extend-macro! id loc type transformer)
+        (let ([sym (id->sym id)]
+              [label (id->label id)])
+          (set-symbol-value! loc transformer)
+          (extend-library-subst! (interaction-library) sym label)
+          (extend-library-env! (interaction-library) label 
+            (cons* type (interaction-library) loc))))
+      (case (binding-type b)
+        [(local-macro) 
+         (extend-macro! id loc 'global-macro (cadr b))]
+        [(local-macro!)
+         (extend-macro! id loc 'global-macro! (cadr b))]
+        [($rtd) 
+         (extend-macro! id loc 'global-rtd (cdr b))]
+        ; (extend-library-subst! (interaction-library) 
+        ;    (id->sym id) (id->label id))
+        ; (extend-library-env! (interaction-library) 
+        ;    (id->label id) b)]
+        [else
+         (assertion-violation 'set-global-macro-binding!
+           "BUG: invalid type" b)])))
+
   (define gen-global-macro-binding
     (lambda (id ctxt) (gen-global-var-binding id ctxt)))
   
@@ -2832,7 +2843,7 @@
       (let ((label (id->label id)))
         (let ((b (imported-label->binding label)))
           (case (binding-type b)
-            ((global global-macro global-macro!)
+            ((global global-macro global-macro! global-rtd)
              (let ((x (binding-value b)))
                (let ((lib (car x)) (loc (cdr x)))
                  (cond
@@ -2868,7 +2879,7 @@
                         (set-global-macro-binding! id loc b)
                         (chi-top* (cdr e*) init*))))))
                ((let-syntax letrec-syntax) 
-                (error 'chi-top* "not supported yet at top level" type))
+                (assertion-violation 'chi-top* "not supported yet at top level" type))
                ((begin)
                 (syntax-match e ()
                   ((_ x* ...)
@@ -2903,7 +2914,7 @@
                                   (else 
                                    (extend-library-subst! lib sym label))))
                               subst-names subst-labels)))
-                         (else (error 'import "BUG: cannot happen"))))])
+                         (else (assertion-violation 'import "BUG: cannot happen"))))])
                   (chi-top* (cdr e*) init*)))
                (else
                 (chi-top* (cdr e*)
@@ -2930,7 +2941,7 @@
         ((null? exp*)
          (let ((id* (map (lambda (x) (mkstx x top-mark* '())) ext*)))
            (unless (valid-bound-ids? id*)
-             (error 'expander "invalid exports" (find-dups id*))))
+             (assertion-violation 'expander "invalid exports" (find-dups id*))))
          (values int* ext*))
         (else
          (syntax-match (car exp*) ()
@@ -2938,11 +2949,11 @@
             (begin
               (unless (and (eq? rename 'rename) (for-all symbol? i*)
                            (for-all symbol? e*))
-                (error 'expander "invalid export specifier" (car exp*)))
+                (assertion-violation 'expander "invalid export specifier" (car exp*)))
               (f (cdr exp*) (append i* int*) (append e* ext*))))
            (ie
             (begin
-              (unless (symbol? ie) (error 'expander "invalid export" ie))
+              (unless (symbol? ie) (assertion-violation 'expander "invalid export" ie))
               (f (cdr exp*) (cons ie int*) (cons ie ext*)))))))))
 
   ;;; given a library name, like (foo bar (1 2 3)), 
@@ -2983,7 +2994,7 @@
   ;;;     and  (#<library (foo)> #<library (bar)>)
   (define (parse-import-spec* imp*)
     (define (dup-error name)
-      (error 'import "two imports with different bindings" name))
+      (assertion-violation 'import "two imports with different bindings" name))
     (define (merge-substs s subst)
       (define (insert-to-subst a subst)
         (let ((name (car a)) (label (cdr a)))
@@ -3004,7 +3015,7 @@
       (define (exclude sym subst)
         (cond
           ((null? subst)
-           (error 'import "cannot rename unbound identifier" sym))
+           (assertion-violation 'import "cannot rename unbound identifier" sym))
           ((eq? sym (caar subst))
            (values (cdar subst) (cdr subst)))
           (else
@@ -3021,7 +3032,7 @@
       (map (lambda (x)
              (cond
                ((assq x subst) => cdr)
-               (else (error 'import "cannot find identifier" x))))
+               (else (assertion-violation 'import "cannot find identifier" x))))
            sym*))
     (define (rem* sym* subst)
       (let f ((subst subst))
@@ -3057,7 +3068,7 @@
            (lambda (x) (<= x n))]
           [(p? n) (and (eq? p? '>=) (subversion? n))
            (lambda (x) (>= x n))]
-          [_ (error 'import "invalid sub-version spec" x* spec)]))
+          [_ (assertion-violation 'import "invalid sub-version spec" x* spec)]))
       (define (version-pred x*)
         (syntax-match x* ()
           [() (lambda (x) #t)]
@@ -3082,7 +3093,7 @@
                    [else 
                     (and ((car p*) (car x)) 
                          (f (cdr p*) (cdr x*)))]))))]
-          [_ (error 'import "invalid version spec" x* spec)]))
+          [_ (assertion-violation 'import "invalid version spec" x* spec)]))
       (let f ([x spec])
         (syntax-match x ()
           [((version-spec* ...)) 
@@ -3130,14 +3141,14 @@
          ;;; FIXME: versioning stuff
          (let-values ([(name pred) (parse-library-name spec*)])
            (when (null? name) 
-             (error 'import "empty library name" spec*))
+             (assertion-violation 'import "empty library name" spec*))
            (let ((lib (find-library-by-name name)))
              (unless lib
-               (error 'import 
+               (assertion-violation 'import 
                   "cannot find library with required name"
                   name))
              (unless (pred (library-version lib))
-               (error 'import 
+               (assertion-violation 'import 
                   "library does not satisfy version specification"
                   lib
                   spec*))
@@ -3146,7 +3157,7 @@
         ((x x* ...)
          (not (memq x '(rename except only prefix library)))
          (get-import `(library (,x . ,x*))))
-        (spec (error 'import "invalid import spec" spec))))
+        (spec (assertion-violation 'import "invalid import spec" spec))))
     (define (add-imports! imp h)
       (let ([subst (get-import imp)])
         (for-each
@@ -3193,28 +3204,28 @@
   (define inv-collector
     (make-parameter
       (lambda args
-        (error 'inv-collector "not initialized"))
+        (assertion-violation 'inv-collector "not initialized"))
       (lambda (x)
         (unless (procedure? x)
-          (error 'inv-collector "not a procedure" x))
+          (assertion-violation 'inv-collector "not a procedure" x))
         x)))
   
   (define vis-collector
     (make-parameter
       (lambda args
-        (error 'vis-collector "not initialized"))
+        (assertion-violation 'vis-collector "not initialized"))
       (lambda (x)
         (unless (procedure? x)
-          (error 'vis-collector "not a procedure" x))
+          (assertion-violation 'vis-collector "not a procedure" x))
         x)))
   
   (define imp-collector
     (make-parameter
       (lambda args
-        (error 'imp-collector "not initialized"))
+        (assertion-violation 'imp-collector "not initialized"))
       (lambda (x)
         (unless (procedure? x)
-          (error 'imp-collector "not a procedure" x))
+          (assertion-violation 'imp-collector "not a procedure" x))
         x)))
 
   (define chi-library-internal
@@ -3258,7 +3269,7 @@
                                     (let ([b (cdr p)])
                                       (let ([type (car b)])
                                         (when (eq? type 'mutable)
-                                          (error 'export errstr name))))))))
+                                          (assertion-violation 'export errstr name))))))))
                             export-subst)
                           (let (;(invoke-body
                                 ; (build-library-letrec* no-source
@@ -3295,10 +3306,10 @@
       (((import imp* ...) b* ...) (eq? import 'import)
        (values imp* b*))
       (((import . x) . y) (eq? import 'import)
-       (error 'expander 
+       (assertion-violation 'expander 
          "invalid syntax of top-level program"))
       (_ 
-       (error 'expander 
+       (assertion-violation 'expander 
          "top-level program is missing an (import ---) clause"))))
 
   (define top-level-expander
@@ -3314,7 +3325,7 @@
   (define-record env (names labels itc)
     (lambda (x p)
       (unless (env? x)
-        (error 'record-type-printer "not an environment"))
+        (assertion-violation 'record-type-printer "not an environment"))
       (display "#<environment>" p)))
   
   (define environment?
@@ -3335,11 +3346,11 @@
   ;;; constructed simply using the corresponding libraries.
   (define (null-environment n)
     (unless (eqv? n 5)
-      (error 'null-environment "not 5" n))
+      (assertion-violation 'null-environment "not 5" n))
     (environment '(psyntax null-environment-5)))
   (define (scheme-report-environment n)
     (unless (eqv? n 5)
-      (error 'scheme-report-environment "not 5" n))
+      (assertion-violation 'scheme-report-environment "not 5" n))
     (environment '(psyntax scheme-report-environment-5)))
 
   ;;; The expand procedure is the interface to the internal expression
@@ -3349,7 +3360,7 @@
   (define expand
     (lambda (x env)
       (unless (env? env)
-        (error 'expand "not an environment" env))
+        (assertion-violation 'expand "not an environment" env))
       (let ((rib (make-top-rib (env-names env) (env-labels env))))
         (let ((x (mkstx x top-mark* (list rib)))
               (itc (env-itc env))
@@ -3369,7 +3380,7 @@
   (define eval
     (lambda (x env)
       (unless (env? env)
-        (error 'eval "not an environment" env))
+        (assertion-violation 'eval "not an environment" env))
       (let-values (((x invoke-req*) (expand x env)))
         (for-each invoke-library invoke-req*)
         (eval-core (expanded->core x)))))
@@ -3450,7 +3461,7 @@
            (if (eq? x (car lex*)) 
                (car loc*)
                (f x (cdr lex*) (cdr loc*)))]
-          [else (error 'lookup-make-export "BUG")])))
+          [else (assertion-violation 'lookup-make-export "BUG")])))
     (let f ((r r) (env '()) (global* '()) (macro* '()))
       (cond
         ((null? r) (values env global* macro*))
@@ -3482,7 +3493,7 @@
                      (cons (cons loc (binding-value b)) macro*))))
                (($rtd $module) (f (cdr r) (cons x env) global* macro*))
                (else
-                (error 'expander "BUG: do not know how to export"
+                (assertion-violation 'expander "BUG: do not know how to export"
                        (binding-type b) (binding-value b))))))))))
   
   (define generate-temporaries
@@ -3499,32 +3510,29 @@
                   top-mark* '()))
               ls))
         (_ 
-         (error 'generate-temporaries "not a list")))))
+         (assertion-violation 'generate-temporaries "not a list")))))
   
   (define free-identifier=?
     (lambda (x y)
       (if (id? x)
           (if (id? y)
               (free-id=? x y)
-              (error 'free-identifier=? "not an identifier" y))
-          (error 'free-identifier=? "not an identifier" x))))
+              (assertion-violation 'free-identifier=? "not an identifier" y))
+          (assertion-violation 'free-identifier=? "not an identifier" x))))
   
   (define bound-identifier=?
     (lambda (x y)
       (if (id? x)
           (if (id? y)
               (bound-id=? x y)
-              (error 'bound-identifier=? "not an identifier" y))
-          (error 'bound-identifier=? "not an identifier" x))))
+              (assertion-violation 'bound-identifier=? "not an identifier" y))
+          (assertion-violation 'bound-identifier=? "not an identifier" x))))
   
   (define syntax-error
     (lambda (x . args)
       (unless (for-all string? args)
-        (error 'syntax-error "invalid argument" args))
-      (error 'syntax-error (if (null? args) 
-                "invalid syntax"
-                (apply string-append args)) x )
-      '(raise 
+        (assertion-violation 'syntax-error "invalid argument" args))
+      (raise 
         (condition 
           (make-message-condition
             (if (null? args) 
@@ -3540,7 +3548,7 @@
        (syntax-violation who msg form #f)]
       [(who msg form subform) 
        (unless (string? msg) 
-         (error 'syntax-violation "message is not a string" msg))
+         (assertion-violation 'syntax-violation "message is not a string" msg))
        (let ([who
               (cond
                 [(or (string? who) (symbol? who)) who]
@@ -3550,10 +3558,9 @@
                    [(id . rest) (id? id) (syntax->datum id)]
                    [_  #f])]
                 [else
-                 (error 'syntax-violation 
+                 (assertion-violation 'syntax-violation 
                     "invalid who argument" who)])])
-         (error who msg (syntax->datum form) (syntax->datum subform))
-         '(raise 
+         (raise 
            (condition
              (if who 
                  (make-who-condition who)
@@ -3569,7 +3576,7 @@
     (lambda (id datum)
       (if (id? id)
           (datum->stx id datum)
-          (error 'datum->syntax "not an identifier" id))))
+          (assertion-violation 'datum->syntax "not an identifier" id))))
   
   (define syntax->datum
     (lambda (x) (stx->datum x)))
@@ -3597,7 +3604,7 @@
            ((assq sym (library-subst lib)) => cdr)
            (else
             (let ((subst 
-                   (if (library-exists? '(rnrs))
+                   (if (library-exists? '(ironscheme))
                        (library-subst (find-library-by-name '(ironscheme)))
                        '())))
               (cond

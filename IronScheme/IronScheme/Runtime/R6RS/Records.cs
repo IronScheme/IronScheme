@@ -26,6 +26,7 @@ namespace IronScheme.Runtime.R6RS
   class RecordTypeDescriptor
   {
     public Type type;
+    public string name;
     public bool @sealed, opaque;
     public ICallable constructor;
     public MethodInfo predicate;
@@ -85,7 +86,7 @@ namespace IronScheme.Runtime.R6RS
 
     public override string ToString()
     {
-      return string.Format("rtd: {0}", type.Name.Replace("$", "&"));
+      return string.Format("rtd: {0}", name);
     }
   }
 
@@ -113,7 +114,7 @@ namespace IronScheme.Runtime.R6RS
 
     public override string ToString()
     {
-      return string.Format("rcd: {0}", type.type.Name.Replace("$", "&"));
+      return string.Format("rcd: {0}", type.name);
     }
   }
 
@@ -171,9 +172,12 @@ namespace IronScheme.Runtime.R6RS
         parenttype = typeof(Condition);
       }
 
+
+
       TypeAttributes attrs = TypeAttributes.Public;
 
       RecordTypeDescriptor rtd = new RecordTypeDescriptor();
+      rtd.name = n;
       rtd.@sealed = @sealed;
       rtd.opaque = opaque;
       rtd.ag = ag;
@@ -263,6 +267,11 @@ namespace IronScheme.Runtime.R6RS
         nongenerative[n + id] = rtd;
       }
 
+      if (parenttype.IsSubclassOf(typeof(Exception)))
+      {
+        SetSymbolValue(Context, SymbolTable.StringToId(n + "-rtd"), rtd);
+      }
+
       return rtd;
     }
 
@@ -331,6 +340,12 @@ namespace IronScheme.Runtime.R6RS
       rcd.type.Finish();
 
       t.rcd = rcd;
+
+      if (t.type.IsSubclassOf(typeof(Exception)))
+      {
+        SetSymbolValue(Context, SymbolTable.StringToId(t.name + "-rcd"), rcd);
+      }
+
       
       return rcd;
     }

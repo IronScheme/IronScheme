@@ -163,14 +163,31 @@ namespace IronScheme.Runtime.R6RS
       Type t1 = enumset1.GetType();
       Type t2 = enumset2.GetType();
 
+      int v1 = (int)enumset1;
+      int v2 = (int)enumset2;
+
+      if (t1 == t2)
+      {
+        return (v1 & v2) == v1;
+      }
+
       foreach (string s in enumordermap[t1])
       {
-        if (!enummap[t2].ContainsKey(s))
+        if (enummap[t2].ContainsKey(s))
+        {
+          // all good, now check values
+          bool has1 = (enummap[t1][s] & v1) != 0;
+          bool has2 = (enummap[t2][s] & v2) != 0;
+          if (has1 & !has2)
+          {
+            return false;
+          }
+        }
+        else
         {
           return false;
         }
       }
-
       return true;
     }
 

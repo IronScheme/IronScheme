@@ -595,6 +595,41 @@ namespace IronScheme.Runtime
         return string.Format("#({0})", string.Join(" ", v.ToArray()));
       }
 
+      if (obj is Hashtable)
+      {
+        List<string> v = new List<string>();
+        foreach (DictionaryEntry de in (Hashtable)obj)
+        {
+          v.Add(string.Format("[{0,-60} => {1,-60}]",  DisplayFormat(de.Key), DisplayFormat(de.Value)));
+        }
+
+        return string.Join(Environment.NewLine, v.ToArray());
+      }
+
+      if (obj is R6RS.CompoundCondition)
+      {
+        R6RS.CompoundCondition cc = (R6RS.CompoundCondition)obj;
+
+        List<string> ll = new List<string>();
+
+        foreach (object o in cc.conds)
+        {
+          ll.Add(DisplayFormat(o));
+        }
+
+        return string.Format("<{0}>", string.Join(" ", ll.ToArray()));
+      }
+
+      if (obj is R6RS.Condition)
+      {
+        return obj.ToString();
+      }
+
+      if (obj is Exception)
+      {
+        return obj.GetType().Name.Replace("$", "&");
+      }
+
       if (obj is SymbolId)
       {
         return SymbolTable.IdToString((SymbolId)obj);

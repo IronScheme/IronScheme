@@ -22,23 +22,65 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
+    static bool EqualCons(Cons a, Cons b)
+    {
+      if (ReferenceEquals(a,b))
+      {
+        return true;
+      }
+      if (a == null || b == null)
+      {
+        return false;
+      }
+      return (bool)IsEquivalent(a.car, b.car) && EqualCons(a.cdr as Cons, b.cdr as Cons);
+    }
+
     [Builtin("equal?")]
     public static object IsEquivalent(object first, object second)
     {
+      bool s1 = first is SymbolId;
+      bool s2 = second is SymbolId;
+      // one exception, symbols
+      if (s1 && s2)
+      {
+        return Equals(first, second);
+      }
+
+      if (first == null ^ second == null)
+      {
+        return false;
+      }
+
+      bool c1 = first is Cons;
+      bool c2 = second is Cons;
+
+      if (c1 && c2)
+      {
+        return EqualCons((Cons)first, (Cons)second);
+      }
+
+      if (s1 && c2 || s2 && c1)
+      {
+        return false;
+      }
+
       if ((bool)IsEqualValue(first, second))
       {
         return true;
       }
 
-      if (first == null || second == null)
+      Type t1 = first.GetType();
+      Type t2 = second.GetType();
+
+      if (t1 == t2)
       {
-        return false;
+        return Equals(first, second);
       }
 
-      string s1 = WriteFormat(first);
-      string s2 = WriteFormat(second);
+      string w1 = WriteFormat(first);
+      string w2 = WriteFormat(second);
 
-      bool result = s1 == s2;
+      bool result = w1 == w2;
 
       return result;
     }

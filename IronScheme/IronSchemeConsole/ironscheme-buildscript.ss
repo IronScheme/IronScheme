@@ -974,13 +974,13 @@
     (interaction-environment                    se)
     (load                                       ii)
     ;;;
-    (void                     $boot)
-    (gensym                   $boot)
-    (symbol-value             $boot)
-    (set-symbol-value!        $boot)
-    (eval-core                $boot)
-    (pretty-print             $boot)
-    (module                   cm)
+    (void                                       $boot i)
+    (gensym                                     $boot i)
+    (symbol-value                               $boot)
+    (set-symbol-value!                          $boot)
+    (eval-core                                  $boot i)
+    (pretty-print                               $boot)
+    (module                                     cm)
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
     (clr-new-internal                           is-clr-int)

@@ -28,31 +28,49 @@ namespace IronScheme.Runtime.R6RS
   {
     public override string ToString()
     {
-      return GetType().Name.Replace("$", "&");
+      RecordTypeDescriptor rtd = Records.RecordRtd(this) as RecordTypeDescriptor;
+
+      string tail = "";
+
+      List<string> ii = new List<string>();
+      for (int i = 0; i < rtd.fields.Count; i++)
+      {
+        ICallable a = Records.RecordAccessor(rtd, i) as ICallable;
+        ii.Add(Builtins.DisplayFormat(a.Call(this)));
+      }
+
+      tail = string.Join(" ", ii.ToArray());
+
+      return string.Format("{0,-12}{1}", GetType().Name.Replace("$", "&") + (tail.Length > 0 ? ":" : ""), tail);
+    }
+
+    public override string Message
+    {
+      get { return ToString(); }
+    }
+  }
+
+  sealed class CompoundCondition : Condition
+  {
+    internal object[] conds;
+    public CompoundCondition(object[] conds)
+    {
+      this.conds = conds;
+    }
+
+    public override string ToString()
+    {
+      List<string> c = new List<string>();
+      foreach (object e in conds)
+      {
+        c.Add(e.ToString());
+      }
+      return string.Format("{0}", string.Join(Environment.NewLine, c.ToArray()));
     }
   }
 
   public class Conditions : Builtins
   {
-    sealed class CompoundCondition : Condition
-    {
-      internal object[] conds;
-      public CompoundCondition(object[] conds)
-      {
-        this.conds = conds;
-      }
-
-      public override string ToString()
-      {
-        List<string> c = new List<string>();
-        foreach (object e in conds)
-        {
-          c.Add(e.ToString());
-        }
-        return string.Format("<condition {0}>", string.Join(" ", c.ToArray()));
-      }
-    }
-
     [Builtin("condition")]
     public static object Condition(params object[] conds)
     {
@@ -85,7 +103,29 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
 
-      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
+      CallTarget1 p = delegate(object cond)
+      {
+        CallTarget1 recp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
+
+        if (cond is CompoundCondition)
+        {
+          CompoundCondition cc = (CompoundCondition)cond;
+          foreach (object ic in cc.conds)
+          {
+            if (IsTrue(recp(ic)))
+            {
+              return true;
+            }
+          }
+          return false;
+        }
+        else
+        {
+          return recp(cond);
+        }
+      };
+
+      return Closure.Make(Context, p);
     }
 
     //(condition-accessor rtd proc)
