@@ -29,6 +29,7 @@ namespace IronScheme.Hosting
       ScriptDomainManager.Options.DebugMode = false;
       ScriptDomainManager.Options.EngineDebug = false;
       ScriptDomainManager.Options.DebugCodeGeneration = false;
+      ScriptDomainManager.Options.OptimizeEnvironments = true;
 
 #endif
       ScriptDomainManager.Options.AssemblyGenAttributes = 

@@ -125,7 +125,7 @@ namespace Microsoft.Scripting {
             Console.WriteLine("Total Known Times: {0}", knownTimes);
         }
 
-        [Conditional("DEBUG")]
+        [Conditional("TRACEPERF")]
         public static void NoteEvent(Categories category, object key) {
             if (!ScriptDomainManager.Options.TrackPerformance) return;
 

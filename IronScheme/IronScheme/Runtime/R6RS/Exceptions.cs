@@ -26,6 +26,8 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Exceptions : Builtins
   {
+    static Dictionary<Exception, bool> continuablemap = new Dictionary<Exception, bool>();
+
     //(with-exception-handler handler thunk)
     [Builtin("with-exception-handler")]
     public static object WithExceptionHandler(object handler, object thunk)
@@ -39,7 +41,19 @@ namespace IronScheme.Runtime.R6RS
       }
       catch (Exception ex)
       {
-        return h.Call(ex);
+        object r = h.Call(ex);
+        
+        bool c;
+        if (continuablemap.TryGetValue(ex, out c))
+        {
+          continuablemap.Remove(ex);
+          if (c)
+          {
+            return r;
+          }
+          throw ex;
+        }
+        return r;
       }
     }
 
@@ -47,6 +61,7 @@ namespace IronScheme.Runtime.R6RS
     public static object Raise(object obj)
     {
       Exception ex = RequiresNotNull<Exception>(obj);
+      continuablemap[ex] = false;
       throw ex;
     }
 
@@ -55,6 +70,7 @@ namespace IronScheme.Runtime.R6RS
     public static object RaiseContinueable(object obj)
     {
       Exception ex = RequiresNotNull<Exception>(obj);
+      continuablemap[ex] = true;
       throw ex;
     }
   }

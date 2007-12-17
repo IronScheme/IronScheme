@@ -59,6 +59,12 @@ namespace IronScheme
       return false;
     }
 
+    protected override Exception MissingName(SymbolId name)
+    {
+      Builtins.UndefinedError(name);
+      return base.MissingName(name);
+    }
+
     protected override ModuleGlobalCache GetModuleCache(SymbolId name)
     {
       

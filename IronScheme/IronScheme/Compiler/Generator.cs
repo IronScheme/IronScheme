@@ -224,7 +224,7 @@ namespace IronScheme.Compiler
                 MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
                 if (mc == null)
                 {
-                  throw new SyntaxErrorException("no match for " + f + " near: " + Parser.sourcemap[c]);
+                  Builtins.SyntaxError(f, args);
                 }
                 if (mc.Target.NeedsContext)
                 {

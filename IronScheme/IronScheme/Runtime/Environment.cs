@@ -90,13 +90,87 @@ irritants:
     }
 
 #if R6RS
+
+    public static object UndefinedError(object sym)
+    {
+      ICallable u = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&undefined-rcd"))) as ICallable;
+      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+      R6RS.Exceptions.RaiseContinueable(
+        R6RS.Conditions.Condition(u.Call(), i.Call(List(sym))));
+
+      return Unspecified;
+    }
+
+    public static object LexicalError(string msg)
+    {
+      ICallable l = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&lexical-rcd"))) as ICallable;
+      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+
+      R6RS.Exceptions.RaiseContinueable(
+        R6RS.Conditions.Condition(l.Call(), m.Call(msg)));
+
+      return Unspecified;
+    }
+    
+    public static object SyntaxError(object form, object subform)
+    {
+      ICallable s = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
+
+      R6RS.Exceptions.RaiseContinueable( 
+        R6RS.Conditions.Condition(s.Call(form, subform)));
+
+      return Unspecified;
+    }
+
+
     [Builtin("assertion-violation")]
+    public static object AssertionViolation(object who, object message, params object[] irritants)
+    {
+      ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+      if (who is bool && !(bool)who)
+      {
+        R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+      }
+      else
+      {
+        R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+      }
+
+      return Unspecified;
+    }
 #endif
+
     [Builtin("error")]
     public static object Error(object who, object message, params object[] irritants)
     {
-      string[] ll = Array.ConvertAll<object, string>(irritants, delegate(object o) { return WriteFormat(o); });
-      throw new SchemeException(DisplayFormat(who), DisplayFormat(message), ll);
+#if R6RS
+      ICallable e = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&error-rcd"))) as ICallable;
+      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+      if (who is bool && !(bool)who)
+      {
+        R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+      }
+      else
+      {
+        R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(e.Call(), w.Call(who), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+      }
+
+      return Unspecified;
+#else
+      throw new SchemeException(DisplayFormat(who), DisplayFormat(message), Array.ConvertAll<object, string>(irritants, WriteFormat));
+#endif
     }
 
 

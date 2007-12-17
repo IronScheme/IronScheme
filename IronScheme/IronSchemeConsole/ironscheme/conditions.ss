@@ -66,6 +66,66 @@
     &undefined
     make-undefined-violation
     undefined-violation?    
+    
+    ;; internal :(
+    #|
+    &condition-rtd
+    &condition-rcd
+    &message-rtd
+    &message-rcd
+    &warning-rtd
+    &warning-rcd
+    &serious-rtd
+    &serious-rcd
+    &error-rtd
+    &error-rcd
+    &violation-rtd
+    &violation-rcd
+    &assertion-rtd
+    &assertion-rcd
+    &irritants-rtd
+    &irritants-rcd
+    &who-rtd
+    &who-rcd
+    &non-continuable-rtd
+    &non-continuable-rcd
+    &implementation-restriction-rtd
+    &implementation-restriction-rcd
+    &lexical-rtd
+    &lexical-rcd
+    &syntax-rtd
+    &syntax-rcd
+    &undefined-rtd
+    &undefined-rcd
+    &i/o-rtd
+    &i/o-rcd
+    &i/o-read-rtd
+    &i/o-read-rcd
+    &i/o-write-rtd
+    &i/o-write-rcd
+    &i/o-invalid-position-rtd
+    &i/o-invalid-position-rcd
+    &i/o-filename-rtd
+    &i/o-filename-rcd
+    &i/o-file-protection-rtd
+    &i/o-file-protection-rcd
+    &i/o-fie-is-read-only-rtd
+    &i/o-fie-is-read-only-rcd
+    &i/o-file-already-exists-rtd
+    &i/o-file-already-exists-rcd
+    &i/o-file-does-not-exist-rtd
+    &i/o-file-does-not-exist-rcd
+    &i/o-port-rtd
+    &i/o-port-rcd
+    &i/o-decoding-rtd
+    &i/o-decoding-rcd
+    &i/o-encoding-rtd
+    &i/o-encoding-rcd
+    &no-infinities-rtd
+    &no-infinities-rcd
+    &no-nans-rtd
+    &no-nans-rcd
+    |#
  )
   (import 
     (rnrs base)

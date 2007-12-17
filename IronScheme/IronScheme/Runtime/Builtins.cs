@@ -385,7 +385,7 @@ namespace IronScheme.Runtime
     {
       if (obj == null)
       {
-        throw new ArgumentNullException();
+        AssertionViolation(false, "argument cannot be null");
       }
       return obj;
     }
@@ -394,7 +394,7 @@ namespace IronScheme.Runtime
     {
       if (obj != null && !(obj is T))
       {
-        throw new ArgumentTypeException("Expected type '" + typeof(T).Name + "', but got '" + obj.GetType().Name + "': " + obj);
+        AssertionViolation(false, "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
       }
       if (obj == null)
       {
