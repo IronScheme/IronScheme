@@ -66,66 +66,7 @@
     &undefined
     make-undefined-violation
     undefined-violation?    
-    
-    ;; internal :(
-    #|
-    &condition-rtd
-    &condition-rcd
-    &message-rtd
-    &message-rcd
-    &warning-rtd
-    &warning-rcd
-    &serious-rtd
-    &serious-rcd
-    &error-rtd
-    &error-rcd
-    &violation-rtd
-    &violation-rcd
-    &assertion-rtd
-    &assertion-rcd
-    &irritants-rtd
-    &irritants-rcd
-    &who-rtd
-    &who-rcd
-    &non-continuable-rtd
-    &non-continuable-rcd
-    &implementation-restriction-rtd
-    &implementation-restriction-rcd
-    &lexical-rtd
-    &lexical-rcd
-    &syntax-rtd
-    &syntax-rcd
-    &undefined-rtd
-    &undefined-rcd
-    &i/o-rtd
-    &i/o-rcd
-    &i/o-read-rtd
-    &i/o-read-rcd
-    &i/o-write-rtd
-    &i/o-write-rcd
-    &i/o-invalid-position-rtd
-    &i/o-invalid-position-rcd
-    &i/o-filename-rtd
-    &i/o-filename-rcd
-    &i/o-file-protection-rtd
-    &i/o-file-protection-rcd
-    &i/o-fie-is-read-only-rtd
-    &i/o-fie-is-read-only-rcd
-    &i/o-file-already-exists-rtd
-    &i/o-file-already-exists-rcd
-    &i/o-file-does-not-exist-rtd
-    &i/o-file-does-not-exist-rcd
-    &i/o-port-rtd
-    &i/o-port-rcd
-    &i/o-decoding-rtd
-    &i/o-decoding-rcd
-    &i/o-encoding-rtd
-    &i/o-encoding-rcd
-    &no-infinities-rtd
-    &no-infinities-rcd
-    &no-nans-rtd
-    &no-nans-rcd
-    |#
+
  )
   (import 
     (rnrs base)
@@ -188,49 +129,4 @@
   (define-condition-type &undefined &violation
     make-undefined-violation undefined-violation?)
 
-  (define-condition-type &i/o &error 
-    make-i/o-error i/o-error?)
-
-  (define-condition-type &i/o-read &i/o
-    make-i/o-read-error i/o-read-error?)
-
-  (define-condition-type &i/o-write &i/o
-    make-i/o-write-error i/o-write-error?)
-
-  (define-condition-type &i/o-invalid-position &i/o
-    make-i/o-invalid-position-error i/o-invalid-position-error?
-    (position i/o-error-position))
-
-  (define-condition-type &i/o-filename &i/o
-    make-i/o-filename-error i/o-filename-error?
-    (filename i/o-error-filename))
-
-  (define-condition-type &i/o-file-protection &i/o
-    make-i/o-file-protection-error i/o-file-protection-error?)
-
-  (define-condition-type &i/o-file-is-read-only &i/o-file-protection
-    make-i/o-file-is-read-only-error i/o-file-is-read-only-error?)
-
-  (define-condition-type &i/o-file-already-exists &i/o-filename
-    make-i/o-file-already-exists-error i/o-file-already-exists-error?)
-
-  (define-condition-type &i/o-file-does-not-exist &i/o-filename
-    make-i/o-file-does-not-exist-error i/o-file-does-not-exist-error?)
-
-  (define-condition-type &i/o-port &i/o
-    make-i/o-port-error i/o-port-error?
-    (port i/o-error-port))
-
-  (define-condition-type &i/o-decoding &i/o-port
-    make-i/o-decoding-error i/o-decoding-error?)
-
-  (define-condition-type &i/o-encoding &i/o-port
-    make-i/o-encoding-error i/o-encoding-error?
-    (char i/o-encoding-error-char))
-
-  (define-condition-type &no-infinities &implementation-restriction
-    make-no-infinities-violation no-infinities-violation?)
-  
-  (define-condition-type &no-nans &implementation-restriction
-    make-no-nans-violation no-nans-violation?) 
 )

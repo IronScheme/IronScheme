@@ -55,7 +55,7 @@
     "ironscheme/arithmetic/bitwise.ss"
     "ironscheme/arithmetic/fixnums.ss"
     "ironscheme/arithmetic/flonums.ss"
-    ;"ironscheme/io/conditions.ss"
+    "ironscheme/io/conditions.ss"
     "ironscheme/io/ports.ss"
     "ironscheme/io/simple.ss"
     "ironscheme/records/inspection.ss"
@@ -433,7 +433,7 @@
     (zero?                                      i r ba se)
     (...                                        i r ba sc se)
     (=>                                         i r ba ex se)
-    (_                                          i r ba sc se)
+    (_                                          i r ba sc)
     (else                                       i r ba ex se)
     ;;;
     (bitwise-arithmetic-shift                   i r bw)
@@ -990,7 +990,7 @@
     (ironscheme-build                           i)
     (stacktrace                                 ii)
     (load-r5rs                                  ii)
-    ;;;
+    ;;; these should be assigned when creating the record types
     (&condition-rtd)
     (&condition-rcd)
     (&message-rtd)
