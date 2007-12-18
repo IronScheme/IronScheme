@@ -89,6 +89,7 @@ namespace IronScheme.Hosting
       ConsoleColor old = Console.ForegroundColor;
       Console.ForegroundColor = ConsoleColor.Red;
       Console.WriteLine(e.ToString());
+      Console.WriteLine(e.StackTrace);
       Console.ForegroundColor = old;
       Console.ReadLine();
     }

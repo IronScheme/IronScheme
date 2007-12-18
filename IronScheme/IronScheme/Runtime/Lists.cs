@@ -19,9 +19,28 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Collections;
 using Microsoft.Scripting;
+using IronScheme.Compiler;
+using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
+  public static partial class BuiltinEmitters
+  {
+
+    [InlineEmitter("null?")]
+    public static Expression IsNull(Expression[] values)
+    {
+      return Ast.Equal(values[0], Ast.Null());
+    }
+
+
+    [InlineEmitter("pair?")]
+    public static Expression IsPair(Expression[] values)
+    {
+      return Ast.TypeIs(values[0], typeof(Cons));
+    }
+  }
+
   public partial class Builtins
   {
     /*
