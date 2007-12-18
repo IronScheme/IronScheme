@@ -56,13 +56,30 @@
     flatan
     flsqrt
     flexpt
+    
     &no-infinities
     make-no-infinities-violation
     no-infinities-violation?
     &no-nans
     make-no-nans-violation
     no-nans-violation?
+    
     fixnum->flonum)
     
-  (import (rnrs))
+  (import 
+    (except (rnrs)
+    
+    &no-infinities
+    make-no-infinities-violation
+    no-infinities-violation?
+    &no-nans
+    make-no-nans-violation
+    no-nans-violation?))
+
+  (define-condition-type &no-infinities &implementation-restriction
+    make-no-infinities-violation no-infinities-violation?)
+  
+  (define-condition-type &no-nans &implementation-restriction
+    make-no-nans-violation no-nans-violation?) 
+    
 )
