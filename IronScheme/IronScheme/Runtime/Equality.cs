@@ -17,9 +17,33 @@ using System.Text;
 using System.ComponentModel;
 using Microsoft.Scripting;
 using System.Diagnostics;
+using IronScheme.Compiler;
+using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
+  public static partial class BuiltinEmitters
+  {
+    [InlineEmitter("symbol?")]
+    public static Expression IsSymbol(Expression[] obj)
+    {
+      return Ast.TypeIs(obj[0], typeof(SymbolId));
+    }
+
+    [InlineEmitter("boolean?")]
+    public static Expression IsBoolean(Expression[] obj)
+    {
+      return Ast.TypeIs(obj[0], typeof(bool));
+    }
+
+    [InlineEmitter("not")]
+    public static Expression Not(Expression[] obj)
+    {
+      return Ast.Condition(Ast.TypeIs(obj[0], typeof(bool)), Ast.Not(Ast.ConvertHelper(obj[0], typeof(bool))), Ast.False());
+    }
+
+  }
+
   public partial class Builtins
   {
     static bool EqualCons(Cons a, Cons b)
