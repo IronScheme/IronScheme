@@ -22,193 +22,46 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Ast;
 using System.Diagnostics;
+using IronScheme.Compiler;
 
 namespace IronScheme.Runtime
 {
-/*
-  sealed class BuiltinMethod : ICallable
+  public static partial class BuiltinEmitters
   {
-    readonly MethodBinder meth;
-    readonly MethodGroup methods;
-    readonly Dictionary<int, ICallable> cache = new Dictionary<int, ICallable>();
-
-    public MethodBinder Binder
-    {
-      get { return meth; }
-    }
-
-    readonly string name;
-
-    public string Name
-    {
-      get { return name; }
-    }
-
-    public override string ToString()
-    {
-      return Name;
-    }
-
-    public MethodBase[] GetMethodBases()
-    {
-      return methods.GetMethodBases();
-    }
+    static MethodInfo ICallable_Call = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]) });
+    static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector");
+    static MethodInfo List = typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) });
+    static MethodInfo Append = typeof(Builtins).GetMethod("Append");
     
-    public BuiltinMethod(string name, MethodGroup mg)
-    {
-      this.name = name;
-      this.methods = mg;
-      meth = MethodBinder.MakeBinder(IronScheme.Compiler.BaseHelper.binder, mg.Name, mg.GetMethodBases(), BinderType.Normal);
 
+    [InlineEmitter("apply")]
+    public static Expression Apply(Expression[] args)
+    {
+      Expression c = Ast.ConvertHelper(args[0], typeof(ICallable));
+      if (args.Length == 2)
+      {
+        return Ast.ComplexCallHelper(c, ICallable_Call, Ast.Call(ListToVector, args[1]));
+      }
+      else if (args.Length > 2)
+      {
+        Expression head = Ast.ComplexCallHelper(List, ArrayUtils.RemoveFirst(ArrayUtils.RemoveLast(args)));
+        Expression cargs = Ast.ComplexCallHelper(Append, head, args[args.Length - 1]);
+        
+        return Ast.ComplexCallHelper(c, ICallable_Call, Ast.Call(ListToVector, cargs));
+      }
+      else
+      {
+        Builtins.SyntaxError(SymbolTable.StringToId("apply"), null);
+        return null;
+      }
     }
 
-    bool baked = false;
-
-    public object Call(object[] args)
+    [InlineEmitter("values")]
+    public static Expression Values(Expression[] values)
     {
-      if (args == null)
-      {
-        args = new object[0];
-      }
-
-      CodeContext context = Compiler.BaseHelper.cc;
-
-      int nargs = args.Length;
-
-      ICallable c;
-
-      if (cache.TryGetValue(nargs, out c))
-      {
-        return c.Call(args);
-      }
-
-      if (!baked)
-      {
-        try
-        {
-          Type[] targs = Array.ConvertAll<object, Type>(args, delegate(object input)
-          {
-            if (input == null)
-            {
-              return typeof(object);
-            }
-            else
-            {
-              return input.GetType();
-            }
-          });
-
-          MethodCandidate mc = meth.MakeBindingTarget(CallType.None, targs);
-          if (mc != null)
-          {
-            MethodBase mb = mc.Target.Method;
-
-            bool needContext = NeedContext(mb);
-
-
-            Type dt = CallTargets.GetTargetType(needContext, nargs, false);
-            Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
-            if (d == null)
-            {
-              d = Delegate.CreateDelegate(needContext ? typeof(CallTargetWithContextN) : typeof(CallTargetN), mb as MethodInfo, false);
-            }
-
-            if (d != null)
-            {
-              cache[nargs] = c = Closure.Make(context, d);
-            }
-          }
-        }
-        catch
-        {
-          ;
-        }
-
-        if (c != null)
-        {
-          return c.Call(args);
-        }
-      }
-      // fallback
-      baked = true;
-      return meth.CallReflected(context, CallType.None, args);
+      return Ast.NewArray(typeof(object[]), values);
     }
-
-    static bool NeedContext(MethodBase mb)
-    {
-      foreach (ParameterInfo pi in mb.GetParameters())
-      {
-        return pi.ParameterType == typeof(CodeContext);
-      }
-      return false;
-    }
-
-    #region ICallable Members
-
-    public  object Call()
-    {
-      ICallable c;
-      if (cache.TryGetValue(0, out c))
-      {
-        return c.Call();
-      }
-      return Call(new object[0]);
-    }
-
-    public  object Call(object arg1)
-    {
-      ICallable c;
-      if (cache.TryGetValue(1, out c))
-      {
-        return c.Call(arg1);
-      }
-      return Call(new object[] { arg1 });
-    }
-
-    public  object Call(object arg1, object arg2)
-    {
-      ICallable c;
-      if (cache.TryGetValue(2, out c))
-      {
-        return c.Call(arg1, arg2);
-      }
-      return Call(new object[] { arg1, arg2 });
-    }
-
-    public  object Call(object arg1, object arg2, object arg3)
-    {
-      ICallable c;
-      if (cache.TryGetValue(3, out c))
-      {
-        return c.Call(arg1, arg2, arg3);
-      }
-      return Call(new object[] { arg1, arg2, arg3 });
-    }
-
-    public  object Call(object arg1, object arg2, object arg3, object arg4)
-    {
-      ICallable c;
-      if (cache.TryGetValue(4, out c))
-      {
-        return c.Call(arg1, arg2, arg3, arg4);
-      }
-      return Call(new object[] { arg1, arg2, arg3, arg4 });
-    }
-
-    public  object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
-    {
-      ICallable c;
-      if (cache.TryGetValue(5, out c))
-      {
-        return c.Call(arg1, arg2, arg3, arg4, arg5);
-      }
-      return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
-    }
-
-
-    #endregion
   }
- */
 
   public partial class Builtins
   {
@@ -314,7 +167,7 @@ namespace IronScheme.Runtime
 
       if (args == null)
       {
-        // verify this
+        // verify this, probably invalid
         return c.Call();
       }
       List<object> targs = new List<object>();

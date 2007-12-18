@@ -18,9 +18,38 @@ using Microsoft.Scripting.Math;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Collections;
+using IronScheme.Compiler;
+using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
+  public partial class BuiltinEmitters
+  {
+    [InlineEmitter("vector?")]
+    public static Expression IsVector(Expression[] values)
+    {
+      return Ast.TypeIs(values[0], typeof(object[]));
+    }
+
+    [InlineEmitter("vector")]
+    public static Expression Vector(Expression[] values)
+    {
+      return Ast.NewArray(typeof(object[]), values);
+    }
+
+    [Builtin("vector-ref")]
+    public static Expression VectorRef(Expression[] values)
+    {
+      return Ast.ArrayIndex(values[0], values[1]);
+    }
+
+    [Builtin("vector-set!")]
+    public static Expression VectorSet(Expression[] values)
+    {
+      return Ast.AssignArrayIndex(values[0], values[1], values[2]);
+    }
+  }
+
   public partial class Builtins
   {
     /*

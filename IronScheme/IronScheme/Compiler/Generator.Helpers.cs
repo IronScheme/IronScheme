@@ -93,6 +93,7 @@ namespace IronScheme.Compiler
 
 
       AddBuiltins(Context, typeof(Builtins));
+      AddInlineEmitters(typeof(BuiltinEmitters));
 #if R6RS
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
       AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));
@@ -431,7 +432,7 @@ namespace IronScheme.Compiler
 
     protected static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
-#if !R6RS
+
       // declare all define at start of body, then change the define to 'set!'
       // similar to letrec* behaviour; also expand1 the defines
       Cons defcheck = body;
@@ -461,7 +462,7 @@ namespace IronScheme.Compiler
 
         defcheck = defcheck.cdr as Cons;
       }
-#endif
+
       Cons c = body;
       while (c != null)
       {
