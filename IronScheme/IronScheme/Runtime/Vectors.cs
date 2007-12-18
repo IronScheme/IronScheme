@@ -23,7 +23,7 @@ using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
-  public partial class BuiltinEmitters
+  public static partial class BuiltinEmitters
   {
     [InlineEmitter("vector?")]
     public static Expression IsVector(Expression[] values)
@@ -37,17 +37,24 @@ namespace IronScheme.Runtime
       return Ast.NewArray(typeof(object[]), values);
     }
 
-    [Builtin("vector-ref")]
+    [InlineEmitter("vector-ref")]
     public static Expression VectorRef(Expression[] values)
     {
-      return Ast.ArrayIndex(values[0], values[1]);
+      return Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)));
     }
 
-    [Builtin("vector-set!")]
+    [InlineEmitter("vector-set!")]
     public static Expression VectorSet(Expression[] values)
     {
-      return Ast.AssignArrayIndex(values[0], values[1], values[2]);
+      return Ast.AssignArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)), values[2]);
     }
+
+    [InlineEmitter("vector-length")]
+    public static Expression VectorLength(Expression[] values)
+    {
+      return Ast.ReadProperty(Ast.ConvertHelper(values[0], typeof(object[])), typeof(object[]), "Length");
+    }
+
   }
 
   public partial class Builtins
