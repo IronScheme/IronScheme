@@ -805,20 +805,12 @@ namespace IronScheme.Runtime
     [Builtin("+")]
     public static object Add(object car, params object[] args)
     {
-      if (car is Missing)
-      {
-        return 0;
-      }
-      Type type = car == null ? typeof(double) : car.GetType();
-      double result = Convert.ToDouble(car);
-      foreach (object item in args)
-      {
-        if (item is Double)
-          type = item.GetType();
+      for (int i = 0; i < args.Length; i++)
+			{
+        car = Add(car, args[i]); 
+			}
 
-        result += Convert.ToDouble(item);
-      }
-      return ConvertNumber(result, type);
+      return car;
     }
 
     [Builtin("*")]

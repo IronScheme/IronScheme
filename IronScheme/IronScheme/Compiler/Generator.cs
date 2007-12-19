@@ -206,16 +206,16 @@ namespace IronScheme.Compiler
               if (bf != null)
               {
                 // check for inline emitter
-                InlineEmitter ie;
-                if (inlineemitters.TryGetValue(f, out ie))
-                {
-                  Expression result = ie(GetAstList(c.cdr as Cons, cb));
-                  // if null is returned, the method cannot be inlined
-                  if (result != null)
-                  {
-                    return result;
-                  }
-                }
+                //InlineEmitter ie;
+                //if (inlineemitters.TryGetValue(f, out ie))
+                //{
+                //  Expression result = ie(GetAstList(c.cdr as Cons, cb));
+                //  // if null is returned, the method cannot be inlined
+                //  if (result != null)
+                //  {
+                //    return result;
+                //  }
+                //}
 
                 MethodBinder mb = bf.Binder;
                 Expression[] pars = GetAstList(c.cdr as Cons, cb);
