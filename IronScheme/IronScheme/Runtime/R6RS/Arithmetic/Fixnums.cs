@@ -422,25 +422,57 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fx+")]
     public static object FxAdd(object a, object b)
     {
-      return (int)a + (int)b;
+      try
+      {
+        return checked((int)a + (int)b);
+      }
+      catch (OverflowException)
+      {
+        return Exceptions.RaiseContinueable(
+          AssertionViolation(SymbolTable.StringToId("fx+"), "overflow", a , b));
+      }
     }
 
     [Builtin("fx*")]
     public static object FxMultiply(object a, object b)
     {
-      return (int)a * (int)b;
+      try
+      {
+        return checked((int)a * (int)b);
+      }
+      catch (OverflowException)
+      {
+        return Exceptions.RaiseContinueable(
+          AssertionViolation(SymbolTable.StringToId("fx*"), "overflow", a , b));
+      }
     }
 
     [Builtin("fx-")]
     public static object FxMinus(object a)
     {
-      return -(int)a;
+      try
+      {
+        return checked(-(int)a);
+      }
+      catch (OverflowException)
+      {
+        return Exceptions.RaiseContinueable(
+          AssertionViolation(SymbolTable.StringToId("fx-"), "overflow", a));
+      }
     }
 
     [Builtin("fx-")]
     public static object FxMinus(object a, object b)
     {
-      return (int)a - (int)b;
+      try
+      {
+        return (int)a - (int)b;
+      }
+      catch (OverflowException)
+      {
+        return Exceptions.RaiseContinueable(
+          AssertionViolation(SymbolTable.StringToId("fx-"), "overflow", a, b));
+      }
     }
 
 
@@ -483,9 +515,51 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     //(fx+/carry fx1 fx2 fx3)
-    //(fx-/carry fx1 fx2 fx3)
-    //(fx*/carry fx1 fx2 fx3)
+    [Builtin("fx+/carry")]
+    public static object FxAddCarry(object fx1, object fx2, object fx3)
+    {
+      int i1 = RequiresNotNull<int>(fx1);
+      int i2 = RequiresNotNull<int>(fx2);
+      int i3 = RequiresNotNull<int>(fx3);
+
+      object s = Add(i1, i2, i3);
+
+      object s0 = Modulo(s, Add(GreatestFixnum(), 1));
+      object s1 = Divide(s, Add(GreatestFixnum(), 1));
+
+
+      return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
+    }
     
+    //(fx-/carry fx1 fx2 fx3)
+    [Builtin("fx-/carry")]
+    public static object FxSubtractCarry(object fx1, object fx2, object fx3)
+    {
+      int i1 = RequiresNotNull<int>(fx1);
+      int i2 = RequiresNotNull<int>(fx2);
+      int i3 = RequiresNotNull<int>(fx3);
+
+      object s = Subtract(i1, i2, i3);
+      object s0 = Modulo(s, Add(GreatestFixnum(), 1));
+      object s1 = Divide(s, Add(GreatestFixnum(), 1));
+
+      return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
+    }
+
+    //(fx*/carry fx1 fx2 fx3)
+    [Builtin("fx*/carry")]
+    public static object FxMultiplyCarry(object fx1, object fx2, object fx3)
+    {
+      int i1 = RequiresNotNull<int>(fx1);
+      int i2 = RequiresNotNull<int>(fx2);
+      int i3 = RequiresNotNull<int>(fx3);
+
+      object s = Add(Multiply(i1, i2), i3);
+      object s0 = Modulo(s, Add(GreatestFixnum(), 1));
+      object s1 = Divide(s, Add(GreatestFixnum(), 1));
+
+      return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
+    }
 
     [Builtin("fxnot")]
     public static object FxNot(object a)
@@ -518,7 +592,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       switch (arglen)
       {
         case 0:
-          return -1;
+          return 0;
         case 1:
           return args[0];
         case 2:
@@ -536,7 +610,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       switch (arglen)
       {
         case 0:
-          return -1;
+          return 0;
         case 1:
           return args[0];
         case 2:
@@ -547,14 +621,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
     }
 
-    //(fxif fx1 fx2 fx3)
-    //(fxcopy-bit fx1 fx2 fx3)
-    //(fxbit-field fx1 fx2 fx3)
-    //(fxcopy-bit-field fx1 fx2 fx3 fx4)
-    //(fxarithmetic-shift-left fx1 fx2) 
-    //(fxarithmetic-shift-right fx1 fx2) 
-    //(fxrotate-bit-field fx1 fx2 fx3 fx4)
-    //(fxreverse-bit-field fx1 fx2 fx3)
+
 
     //(fxbit-count fx)
     [Builtin("fxbit-count")]
@@ -679,7 +746,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
     }
 
-
+    //(fxreverse-bit-field fx1 fx2 fx3) ; TODO
 
   }
 }

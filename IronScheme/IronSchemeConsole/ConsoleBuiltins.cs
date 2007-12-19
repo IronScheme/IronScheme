@@ -203,7 +203,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       {
         ConsoleColor old = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(ex.ToString());
+        Console.WriteLine(ex.StackTrace);
         Console.ForegroundColor = old;
       }
       return Unspecified;
