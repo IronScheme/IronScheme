@@ -990,6 +990,8 @@
     (ironscheme-build                           i)
     (stacktrace                                 ii)
     (load-r5rs                                  ii)
+    (last-pair                                  i)
+    (make-list                                  i)
     ;;; these should be assigned when creating the record types
     (&condition-rtd)
     (&condition-rcd)

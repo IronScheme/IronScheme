@@ -191,6 +191,33 @@ namespace IronScheme.Runtime
       }
       return c;
     }
+
+    [Builtin("last-pair")]
+    public static object LastPair(object args)
+    {
+      Cons c = args as Cons;
+      while (c.cdr is Cons)
+      {
+        c = c.cdr as Cons;
+      }
+      return c;
+    }
+
+    [Builtin("make-list")]
+    public static object MakeList(object n)
+    {
+      return VectorToList(MakeVector(n));
+
+    }
+
+
+
+    [Builtin("make-list")]
+    public static object MakeList(object n, object fill)
+    {
+      return VectorToList(MakeVector(n, fill));
+    }
+
     
     protected delegate object Pred(object a, object b);
 

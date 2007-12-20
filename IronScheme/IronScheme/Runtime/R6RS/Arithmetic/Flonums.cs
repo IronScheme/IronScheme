@@ -590,39 +590,52 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fldiv-and-mod")]
     public static object FlDivAndMod(object a, object b)
     {
-      return Values(FlDiv(a, b), FlMod(a, b));
+      double x1 = RequiresNotNull<double>(a);
+      double x2 = RequiresNotNull<double>(b);
+
+      object[] r = (object[]) DivMod(x1, x2);
+      r[0] = Convert.ToDouble(r[0]);
+
+      return r;
     }
 
     [Builtin("fldiv")]
     public static object FlDiv(object a, object b)
     {
-      return (double)a / (double)b;
+      return ((object[])FlDivAndMod(a, b))[0];
     }
 
 
     [Builtin("flmod")]
     public static object FlMod(object a, object b)
     {
-      return (double)a % (double)b;
+      return ((object[])FlDivAndMod(a, b))[1];
     }
 
     [Builtin("fldiv0-and-mod0")]
     public static object FlDiv0AndMod0(object a, object b)
     {
-      return Values(FlDiv0(a, b), FlMod0(a, b));
+      double x1 = RequiresNotNull<double>(a);
+      double x2 = RequiresNotNull<double>(b);
+
+      object[] r = (object[])Div0Mod0(x1, x2);
+      r[0] = Convert.ToDouble(r[0]);
+
+      return r;
+
     }
 
     [Builtin("fldiv0")]
     public static object FlDiv0(object a, object b)
     {
-      return (double)a / (double)b;
+      return ((object[])FlDiv0AndMod0(a, b))[0];
     }
 
 
     [Builtin("flmod0")]
     public static object FlMod0(object a, object b)
     {
-      return (double)a % (double)b;
+      return ((object[])FlDiv0AndMod0(a, b))[1];
     }
 
     //(flnumerator fl) procedure

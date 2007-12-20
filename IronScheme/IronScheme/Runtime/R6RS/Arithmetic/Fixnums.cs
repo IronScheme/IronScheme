@@ -475,43 +475,87 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
     }
 
-
-    [Builtin("fxdiv-and-mod")]
-    public static object FxDivAndMod(object a, object b)
-    {
-      return Values(FxDiv(a,b), FxMod(a,b));
-    }
-
     [Builtin("fxdiv")]
     public static object FxDiv(object a, object b)
     {
-      return (int)a / (int)b;
+      return ((object[])FxDivMod(a, b))[0];
     }
-
 
     [Builtin("fxmod")]
     public static object FxMod(object a, object b)
     {
-      return (int)a % (int)b;
+      return ((object[])FxDivMod(a, b))[1];
     }
 
-    [Builtin("fxdiv0-and-mod0")]
-    public static object FxDiv0AndMod0(object a, object b)
+    [Builtin("fxdiv-and-mod")]
+    public static object FxDivMod(object x1, object x2)
     {
-      return Values(FxDiv0(a, b), FxMod0(a, b));
+      int a = RequiresNotNull<int>(x1);
+      int b = RequiresNotNull<int>(x2);
+
+      int div = a / b;
+      int mod = a % b;
+
+      if (mod < 0)
+      {
+        mod += (b * Math.Sign(b));
+        if ((a > 0 && b > 0) || (a < 0 && b < 0))
+        {
+          div++;
+        }
+      }
+      else if (mod > b)
+      {
+        if (!((a > 0 && b > 0) || (a < 0 && b < 0)))
+        {
+          div++;
+        }
+      }
+      return Values(div, mod);
     }
 
     [Builtin("fxdiv0")]
     public static object FxDiv0(object a, object b)
     {
-      return (int)a / (int)b;
+      return ((object[])FxDiv0Mod0(a, b))[0];
     }
-
 
     [Builtin("fxmod0")]
     public static object FxMod0(object a, object b)
     {
-      return (int)a % (int)b;
+      return ((object[])FxDiv0Mod0(a, b))[1];
+    }
+
+    [Builtin("fxdiv0-and-mod0")]
+    public static object FxDiv0Mod0(object x1, object x2)
+    {
+      int a = RequiresNotNull<int>(x1);
+      int b = RequiresNotNull<int>(x2);
+
+      object[] dv = (object[])FxDivMod(x1, x2);
+      int div = (int)dv[0];
+      int mod = (int)dv[1];
+      int h = b / 2;
+
+      if (mod > h && mod > -h)
+      {
+        mod -= (b * Math.Sign(b));
+        if ((a > 0 && b > 0) || (a < 0 && b < 0) && mod != -h)
+        {
+          div--;
+        }
+        else
+        {
+          div++;
+        }
+      }
+      else if (mod == h)
+      {
+        mod -= (b * Math.Sign(b));
+        div++;
+      }
+
+      return Values(div, mod);
     }
 
     //(fx+/carry fx1 fx2 fx3)
@@ -523,8 +567,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Add(i1, i2, i3);
-      object s0 = Mod0(s, Expt(2, FixnumWidth()));
-      object s1 = Div0(s, Expt(2, FixnumWidth()));
+      object s0 = Mod0(s, 4294967296L);
+      object s1 = Div0(s, 4294967296L);
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
@@ -538,8 +582,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Subtract(i1, i2, i3);
-      object s0 = Mod0(s, Expt(2, FixnumWidth()));
-      object s1 = Div0(s, Expt(2, FixnumWidth()));
+      object s0 = Mod0(s, 4294967296L);
+      object s1 = Div0(s, 4294967296L);
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
@@ -553,8 +597,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Add(Multiply(i1, i2), i3);
-      object s0 = Mod0(s, Expt(2, FixnumWidth()));
-      object s1 = Div0(s, Expt(2, FixnumWidth()));
+      object s0 = Mod0(s, 4294967296L);
+      object s1 = Div0(s, 4294967296L);
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
