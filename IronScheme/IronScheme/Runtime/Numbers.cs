@@ -909,9 +909,7 @@ namespace IronScheme.Runtime
 
     static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
-#if R6RS
-    [Builtin("div")]
-#endif
+
     [Builtin("/")]
     public static object Divide(object first)
     {
@@ -927,10 +925,6 @@ namespace IronScheme.Runtime
 
     }
 
-
-#if R6RS
-    [Builtin("div")]
-#endif
     [Builtin("/")]
     public static object Divide(object first, object second)
     {
@@ -968,9 +962,7 @@ namespace IronScheme.Runtime
       return Divide(first, new object[] { second });
     }
 
-#if R6RS
-    [Builtin("div")]
-#endif
+
     [Builtin("/")]
     public static object Divide(object car, params object[] args)
     {
@@ -1321,6 +1313,85 @@ provided all numbers involved in that computation are exact.
       }
       return false;
     }
+
+    [Builtin("div")]
+    public static object Div(object first, object second)
+    {
+      if (first is int)
+      {
+        if (second is int)
+        {
+          return (int)first / (int)second;
+        }
+        else if (second is double)
+        {
+          return (int)((int)first / (double)second);
+        }
+      }
+      if (first is double)
+      {
+        if (second is int)
+        {
+          return (int)((double)first / (int)second);
+        }
+        else if (second is double)
+        {
+          return (int)((double)first / (double)second);
+        }
+      }
+      return Convert.ToInt32(Divide(first, second));
+    }
+
+    [Builtin("div0")]
+    public static object Div0(object first, object second)
+    {
+      return ((object[])Div0AndMod0(first, second))[0];
+    }
+
+    [Builtin("mod0")]
+    public static object Mod0(object first, object second)
+    {
+      return ((object[])Div0AndMod0(first, second))[1];
+    }
+
+    [Builtin("div-and-mod")]
+    public static object DivAndMod(object first, object second)
+    {
+      if (first is int)
+      {
+        if (second is int)
+        {
+          int r;
+          return Values(Math.DivRem((int)first, (int)second, out r), r);
+        }
+      }
+      return Values(Div(first, second), Modulo(first, second));
+    }
+
+    [Builtin("div0-and-mod0")]
+    public static object Div0AndMod0(object first, object second)
+    {
+      object[] r = DivAndMod(first, second) as object[];
+      object div = r[0], mod = r[1];
+
+      object d2 = Div(second, 2);
+
+      if ((bool)IsGreaterThanOrEqual(mod, d2))
+      {
+        if ((bool)IsPositive(div))
+        {
+          r[0] = Subtract(div, 1);
+        }
+        else
+        {
+          r[0] = Add(div, 1);
+        }
+        r[1] = Subtract(mod, second);
+      }
+
+      return r;
+    }
+    
 
     /*
 (= gcd (fn (a b)
