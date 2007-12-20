@@ -341,7 +341,7 @@ namespace IronScheme.Runtime
     [Builtin("integer-valued?")]
     public static object IsIntegerValued(object obj)
     {
-      return IsZero(Modulo(obj, 1));
+      return IsZero(Mod(obj, 1));
     }
 
     [Builtin("rational-valued?")]
@@ -706,13 +706,13 @@ namespace IronScheme.Runtime
     [Builtin("odd?")]
     public static object IsOdd(object obj)
     {
-      return !(bool)IsEqualValue(Modulo(obj, 2), 0);
+      return !(bool)IsEqualValue(Mod(obj, 2), 0);
     }
 
     [Builtin("even?")]
     public static object IsEven(object obj)
     {
-      return IsEqualValue(Modulo(obj, 2), 0);
+      return IsEqualValue(Mod(obj, 2), 0);
     }
 
     [Builtin("min")]
@@ -1277,11 +1277,8 @@ provided all numbers involved in that computation are exact.
     }
 #endif
 
-#if R6RS
-    [Builtin("mod")]
-#else
+#if !R6RS
     [Builtin("modulo")]
-#endif
     public static object Modulo(object first, object second)
     {
       if (first is int)
@@ -1313,83 +1310,89 @@ provided all numbers involved in that computation are exact.
       }
       return false;
     }
+#endif
 
     [Builtin("div")]
-    public static object Div(object first, object second)
+    public static object Div(object a, object b)
     {
-      if (first is int)
-      {
-        if (second is int)
-        {
-          return (int)first / (int)second;
-        }
-        else if (second is double)
-        {
-          return (int)((int)first / (double)second);
-        }
-      }
-      if (first is double)
-      {
-        if (second is int)
-        {
-          return (int)((double)first / (int)second);
-        }
-        else if (second is double)
-        {
-          return (int)((double)first / (double)second);
-        }
-      }
-      return Convert.ToInt32(Divide(first, second));
+      return ((object[])DivMod(a, b))[0];
     }
 
-    [Builtin("div0")]
-    public static object Div0(object first, object second)
+    [Builtin("mod")]
+    public static object Mod(object a, object b)
     {
-      return ((object[])Div0AndMod0(first, second))[0];
-    }
-
-    [Builtin("mod0")]
-    public static object Mod0(object first, object second)
-    {
-      return ((object[])Div0AndMod0(first, second))[1];
+      return ((object[])DivMod(a, b))[1];
     }
 
     [Builtin("div-and-mod")]
-    public static object DivAndMod(object first, object second)
+    public static object DivMod(object x1, object x2)
     {
-      if (first is int)
+      double a = Convert.ToDouble(x1);
+      double b = Convert.ToDouble(x2);
+
+      double div = Math.Floor(a / b);
+      double mod = a % b;
+
+      if (mod < 0)
       {
-        if (second is int)
+        mod += (b * Math.Sign(b));
+        if ((a > 0 && b > 0) || (a < 0 && b < 0))
         {
-          int r;
-          return Values(Math.DivRem((int)first, (int)second, out r), r);
+          div++;
         }
       }
-      return Values(Div(first, second), Modulo(first, second));
+      else if (mod > b)
+      {
+        if (!((a > 0 && b > 0) || (a < 0 && b < 0)))
+        {
+          div++;
+        }
+      }
+      return Values(Convert.ToInt32(div), mod);
+    }
+
+    [Builtin("div0")]
+    public static object Div0(object a, object b)
+    {
+      return ((object[])Div0Mod0(a, b))[0];
+    }
+
+    [Builtin("mod0")]
+    public static object Mod0(object a, object b)
+    {
+      return ((object[])Div0Mod0(a, b))[1];
     }
 
     [Builtin("div0-and-mod0")]
-    public static object Div0AndMod0(object first, object second)
+    public static object Div0Mod0(object x1, object x2)
     {
-      object[] r = DivAndMod(first, second) as object[];
-      object div = r[0], mod = r[1];
+      double a = Convert.ToDouble(x1);
+      double b = Convert.ToDouble(x2);
 
-      object d2 = Div(second, 2);
+      object[] dv = (object[]) DivMod(a, b);
+      double div = Convert.ToDouble(dv[0]);
+      double mod = Convert.ToDouble(dv[1]);
+      double h = b / 2;
 
-      if ((bool)IsGreaterThanOrEqual(mod, d2))
+      if (mod > h && mod > -h)
       {
-        if ((bool)IsPositive(div))
+        mod -= (b * Math.Sign(b));
+        if ((a > 0 && b > 0) || (a < 0 && b < 0) && mod != -h)
         {
-          r[0] = Subtract(div, 1);
+          div--;
         }
         else
         {
-          r[0] = Add(div, 1);
+          div++;
         }
-        r[1] = Subtract(mod, second);
+      }
+      else if (mod == h)
+      {
+        mod -= (b * Math.Sign(b));
+        div++;
       }
 
-      return r;
+      return Values(Convert.ToInt32(div), mod);
     }
     
 
@@ -1418,7 +1421,7 @@ provided all numbers involved in that computation are exact.
           }
           else
           {
-            return Abs(GreatestCommonDivider(second, Modulo(first, second)));
+            return Abs(GreatestCommonDivider(second, Mod(first, second)));
           }
         default:
           // TODO

@@ -523,10 +523,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Add(i1, i2, i3);
-
-      object s0 = Modulo(s, Add(GreatestFixnum(), 1));
-      object s1 = Divide(s, Add(GreatestFixnum(), 1));
-
+      object s0 = Mod0(s, Expt(2, FixnumWidth()));
+      object s1 = Div0(s, Expt(2, FixnumWidth()));
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
@@ -540,8 +538,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Subtract(i1, i2, i3);
-      object s0 = Modulo(s, Add(GreatestFixnum(), 1));
-      object s1 = Divide(s, Add(GreatestFixnum(), 1));
+      object s0 = Mod0(s, Expt(2, FixnumWidth()));
+      object s1 = Div0(s, Expt(2, FixnumWidth()));
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
@@ -555,8 +553,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Add(Multiply(i1, i2), i3);
-      object s0 = Modulo(s, Add(GreatestFixnum(), 1));
-      object s1 = Divide(s, Add(GreatestFixnum(), 1));
+      object s0 = Mod0(s, Expt(2, FixnumWidth()));
+      object s1 = Div0(s, Expt(2, FixnumWidth()));
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
