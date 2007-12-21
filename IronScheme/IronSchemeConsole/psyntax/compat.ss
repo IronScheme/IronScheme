@@ -36,7 +36,7 @@
   ;;; - expression is a list/vector/id/whathaveyou that 
   ;;;   may contain further annotations.
        
-  (define read-annotated #f)
+  (define read-annotated read)
   (define (annotation? x) #f)
   (define annotation-expression #f)
   (define annotation-source #f)

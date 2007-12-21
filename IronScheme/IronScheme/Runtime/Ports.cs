@@ -42,7 +42,7 @@ namespace IronScheme.Runtime
         using (TextReader r = File.OpenText(path))
         {
           Console.SetIn(r);
-          return f.Call(new object[] { });
+          return f.Call();
         }
       }
       finally
@@ -69,7 +69,7 @@ namespace IronScheme.Runtime
         using (TextWriter w = File.CreateText(path))
         {
           Console.SetOut(w);
-          return f.Call(new object[] { });
+          return f.Call();
         }
       }
       finally
@@ -792,7 +792,7 @@ namespace IronScheme.Runtime
 
       using (TextReader r = File.OpenText(path))
       {
-        object result = f.Call(new object[] { r });
+        object result = f.Call(r);
 
         if (readcache.ContainsKey(r))
         {
@@ -811,7 +811,7 @@ namespace IronScheme.Runtime
 
       using (TextWriter w = File.CreateText(path))
       {
-        return f.Call(new object[] { w });
+        return f.Call(w);
       }
     }
 
