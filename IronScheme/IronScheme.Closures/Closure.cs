@@ -21,6 +21,7 @@ namespace IronScheme.Runtime
 {
   public delegate object ConsFromArrayHandler(object[] args);
   public delegate object[] ArrayFromConsHandler(object args);
+  public delegate object AssertHandler(object who, object msg, params object[] irritants);
 
 
   public abstract class Closure : ICallable
@@ -45,6 +46,8 @@ namespace IronScheme.Runtime
       targetmap.Add(typeof(CallTargetWithContext5), 5 + 8);
       targetmap.Add(typeof(CallTargetWithContextN), -1 + 8);
     }
+
+    public static AssertHandler AssertionViolation;
 
     int paramcount = int.MaxValue;
 
@@ -95,6 +98,11 @@ namespace IronScheme.Runtime
       this.target = target;
     }
 
+    protected object GetWho()
+    {
+      return SymbolTable.StringToId(target.Method.Name);
+    }
+
     sealed class ContextClosure : Closure
     {
       CodeContext cc;
@@ -107,6 +115,10 @@ namespace IronScheme.Runtime
 
       public override object Call(object[] args)
       {
+        if (paramcount >= 0 && paramcount != args.Length)
+        {
+          AssertionViolation(GetWho(), "invalid argument count", args);
+        }
         switch (paramcount)
         {
           case -1:
@@ -210,6 +222,10 @@ namespace IronScheme.Runtime
 
       public override object Call(object[] args)
       {
+        if (paramcount >= 0 && paramcount != args.Length)
+        {
+          AssertionViolation(GetWho(), "invalid argument count", args);
+        }
         switch (paramcount)
         {
           case -1:
@@ -348,7 +364,7 @@ namespace IronScheme.Runtime
       {
         if (args.Length + 1 < pcount)
         {
-          throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(ToString(), pcount - 1, int.MaxValue, 0, args.Length, false, false);
+          AssertionViolation(GetWho(), "invalid argument count", args);
         }
         object[] newargs = new object[pcount];
         Array.Copy(args, newargs, pcount - 1);
@@ -394,7 +410,7 @@ namespace IronScheme.Runtime
           }
         }
 
-        throw RuntimeHelpers.TypeErrorForIncorrectArgumentCount(ToString(), 0, int.MaxValue, 0, args.Length == -1 ? int.MaxValue : arglen, false, false);
+        return AssertionViolation(GetWho(), "invalid argument count", args);
       }
 
       public override object Call()

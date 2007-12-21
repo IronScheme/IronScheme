@@ -20,13 +20,20 @@
 
 (library (psyntax compat)
   (export make-parameter parameterize define-record pretty-print
-          gensym void eval-core symbol-value set-symbol-value!
-          file-options-spec)
+          gensym void eval-core symbol-value set-symbol-value! file-options-spec
+          read-annotated annotation? annotation-expression annotation-source
+          annotation-stripped)
   (import 
     (rnrs)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value 
           pretty-print))
+          
+  (define read-annotated #f)
+  (define (annotation? x) #f)
+  (define annotation-expression #f)
+  (define annotation-source #f)
+  (define annotation-stripped #f)
 
   (define make-parameter
     (case-lambda
