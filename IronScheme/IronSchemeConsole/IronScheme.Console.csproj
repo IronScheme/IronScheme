@@ -187,6 +187,15 @@
     <None Include="srfi\lists.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="srfi\streams.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="srfi\streams\derived.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="srfi\streams\primitive.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="system.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
