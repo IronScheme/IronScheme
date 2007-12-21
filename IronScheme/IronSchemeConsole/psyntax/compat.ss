@@ -28,7 +28,14 @@
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value 
           pretty-print))
-          
+  
+  ;;; this is reverse engineered from psyntax.ss
+  ;;; (define-struct annotation (expression source stripped))
+  ;;; - source is a pair of file-name x char-position
+  ;;; - stripped is an s-expression with no annotations
+  ;;; - expression is a list/vector/id/whathaveyou that 
+  ;;;   may contain further annotations.
+       
   (define read-annotated #f)
   (define (annotation? x) #f)
   (define annotation-expression #f)
