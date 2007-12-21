@@ -91,6 +91,7 @@ namespace IronScheme.Compiler
       SymbolId s = SymbolTable.StringToId("call-with-values");
       cc.Scope.SetName(s, builtinmap[s] = new BuiltinMethod(s.ToString(), ReflectionCache.GetMethodGroup(typeof(OptimizedBuiltins), "CallWithValues")));
 
+      Closure.AssertionViolation = Builtins.AssertionViolation;
 
       AddBuiltins(Context, typeof(Builtins));
       AddInlineEmitters(typeof(BuiltinEmitters));

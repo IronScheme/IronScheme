@@ -39,10 +39,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'R6RS %28Debug%29|AnyCPU' ">
-    <DebugSymbols>false</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\R6RS\</OutputPath>
     <Optimize>true</Optimize>
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
@@ -93,7 +93,7 @@
   <PropertyGroup>
     <PostBuildEvent>"c:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\ildasm" /out:$(TargetName).il /NOBAR /LINENUM $(TargetPath)
 $(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe $(TargetName).il
-"c:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\ilasm" /dll /opt /NOLOGO /QUIET $(TargetName).il
+"c:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\ilasm" /dll /opt /NOLOGO /QUIET /debug $(TargetName).il
 "c:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\peverify" /NOLOGO $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -155,6 +155,7 @@ namespace IronScheme.Runtime
 
         ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
         ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
+        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
         ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
         Stopwatch sw = Stopwatch.StartNew();
         //ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule("eval-core", su);
@@ -385,7 +386,7 @@ namespace IronScheme.Runtime
     {
       if (obj == null)
       {
-        AssertionViolation(false, "argument cannot be null");
+        AssertionViolation(GetCaller(), "argument cannot be null");
       }
       return obj;
     }
@@ -394,7 +395,7 @@ namespace IronScheme.Runtime
     {
       if (obj != null && !(obj is T))
       {
-        AssertionViolation(false, "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+        AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
       }
       if (obj == null)
       {
@@ -403,11 +404,33 @@ namespace IronScheme.Runtime
       return (T)obj;
     }
 
+    static SymbolId GetCaller()
+    {
+      StackTrace st = new StackTrace(2);
+      MethodBase m = st.GetFrame(0).GetMethod();
+      foreach (BuiltinAttribute ba in m.GetCustomAttributes(typeof(BuiltinAttribute), false))
+      {
+        return SymbolTable.StringToId(ba.Name ?? m.Name.ToLower());
+      }
+      return SymbolId.Invalid;
+    }
+
     protected static T RequiresNotNull<T>(object obj)
     {
-      RequiresNotNull(obj);
-      return Requires<T>(obj);
+      if (obj == null)
+      {
+        AssertionViolation(GetCaller(), "argument cannot be null");
+      }
+
+      if (obj != null && !(obj is T))
+      {
+        AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+      }
+
+      return (T)obj;
     }
+
+ 
 
  
 
