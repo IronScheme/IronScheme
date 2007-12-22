@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        Builtins.SyntaxError(SymbolTable.StringToId("apply"), null);
+        Builtins.SyntaxError(SymbolTable.StringToId("apply"), "too little arguments", SymbolTable.StringToId("apply"), false);
         return null;
       }
     }

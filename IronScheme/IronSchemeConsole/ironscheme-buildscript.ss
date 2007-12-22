@@ -189,6 +189,7 @@
   ;; abbr.       name                             visible? required?
   '((interaction (ikarus interaction)                  #t    #f)
     (i           (ironscheme)                          #t    #f)
+    (ir          (ironscheme reader)                   #t    #f)
     (ii          (ironscheme interaction)              #t    #f)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #t    #f)
@@ -992,6 +993,7 @@
     (load-r5rs                                  ii)
     (last-pair                                  i)
     (make-list                                  i)
+    
     ;;; these should be assigned when creating the record types
     (&condition-rtd)
     (&condition-rcd)

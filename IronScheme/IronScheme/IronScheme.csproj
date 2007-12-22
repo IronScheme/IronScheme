@@ -129,6 +129,7 @@
     <Compile Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
+    <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Bitwise.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Fixnums.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Flonums.cs" />
