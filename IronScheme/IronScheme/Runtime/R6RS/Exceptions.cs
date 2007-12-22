@@ -61,7 +61,7 @@ namespace IronScheme.Runtime.R6RS
     public static object Raise(object obj)
     {
       Exception ex = RequiresNotNull<Exception>(obj);
-      continuablemap[ex] = false;
+      continuablemap[ex] = true;
       throw ex;
     }
 

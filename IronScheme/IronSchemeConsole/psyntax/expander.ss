@@ -603,6 +603,8 @@
       (syntax-case x ()
         ((_ stx)
          (syntax (syntax-violation #f "invalid syntax" stx)))
+        ((_ stx "unbound identifier")
+         (syntax (raise (condition (make-undefined-violation) (make-irritants-condition (list (stx->datum stx)))))))
         ((_ stx msg)
          (syntax (syntax-violation #f msg stx))))))
   

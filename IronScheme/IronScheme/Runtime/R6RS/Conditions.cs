@@ -36,12 +36,17 @@ namespace IronScheme.Runtime.R6RS
       for (int i = 0; i < rtd.fields.Count; i++)
       {
         ICallable a = Records.RecordAccessor(rtd, i) as ICallable;
-        ii.Add(Builtins.DisplayFormat(a.Call(this)));
+        object r = a.Call(this);
+        if (r is bool && !(bool)r)
+        {
+          continue;
+        }
+        ii.Add(Builtins.DisplayFormat(r));
       }
 
       tail = string.Join(" ", ii.ToArray());
 
-      return string.Format("{0,-12}{1}", GetType().Name.Replace("$", "&") + (tail.Length > 0 ? ":" : ""), tail);
+      return string.Format("{0,-15}{1}", GetType().Name.Replace("$", "&") + (tail.Length > 0 ? ": " : ""), tail);
     }
 
     public override string Message
@@ -63,7 +68,11 @@ namespace IronScheme.Runtime.R6RS
       List<string> c = new List<string>();
       foreach (object e in conds)
       {
-        c.Add(e.ToString());
+        string r = e.ToString();
+        if (r.Trim().Length > 0)
+        {
+          c.Add(r);
+        }
       }
       return string.Format("{0}", string.Join(Environment.NewLine, c.ToArray()));
     }

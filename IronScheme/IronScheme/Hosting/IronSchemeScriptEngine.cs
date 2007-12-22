@@ -78,11 +78,14 @@ namespace IronScheme.Hosting
       }
       if (exception is Builtins.Continuation)
       {
-        return "not supported: continuations cannot be used in this way, sorry :(";
+        // cheat
+        return @"&implementation-restriction
+&message:      continuations cannot be used in this way, sorry :(";
       }
       if (exception is NotSupportedException)
       {
-        return "not supported: " + exception.Message;
+        return @"&implementation-restriction
+&message:      " + exception.Message;
       }
       if (exception is NotImplementedException)
       {
@@ -103,6 +106,11 @@ namespace IronScheme.Hosting
       if (exception is ThreadAbortException)
       {
         return "evaluation aborted";
+      }
+      if (exception is InvalidCastException)
+      {
+        return @"&assertion
+&message:      " + exception.Message;
       }
       return base.FormatException(exception);
     }

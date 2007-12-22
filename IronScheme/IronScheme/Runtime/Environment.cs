@@ -112,13 +112,23 @@ irritants:
 
       return Unspecified;
     }
-    
-    public static object SyntaxError(object form, object subform)
+
+    public static object SyntaxError(object who, object message, object form, object subform)
     {
       ICallable s = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
+      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
 
-      R6RS.Exceptions.RaiseContinueable( 
-        R6RS.Conditions.Condition(s.Call(form, subform)));
+      if (who is bool && !(bool)who)
+      {
+        R6RS.Exceptions.RaiseContinueable(
+          R6RS.Conditions.Condition( m.Call(message), s.Call(form, subform)));
+      }
+      else
+      {
+        R6RS.Exceptions.RaiseContinueable(
+          R6RS.Conditions.Condition(w.Call(who), m.Call(message), s.Call(form, subform)));
+      }
 
       return Unspecified;
     }

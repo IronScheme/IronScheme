@@ -96,6 +96,8 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Builtins));
       AddInlineEmitters(typeof(BuiltinEmitters));
 #if R6RS
+      AddBuiltins(Context, typeof(Runtime.psyntax.AnnotatedReader));
+
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
       AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));
       AddBuiltins(Context, typeof(Runtime.R6RS.Unicode));

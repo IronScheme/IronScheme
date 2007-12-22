@@ -224,7 +224,7 @@ namespace IronScheme.Compiler
                 MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
                 if (mc == null)
                 {
-                  Builtins.SyntaxError(f, args);
+                  Builtins.SyntaxError(SymbolTable.StringToId("generator"), "no match found", f, args);
                 }
                 if (mc.Target.NeedsContext)
                 {

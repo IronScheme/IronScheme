@@ -376,10 +376,12 @@ namespace IronScheme.Runtime
 
     #endregion
 
-    [Conditional("DEBUG")]
     static void RequiresCondition(bool condition, string message)
     {
-      Debug.Assert(condition, message);
+      if (!condition)
+      {
+        AssertionViolation(GetCaller(), message);
+      }
     }
 
     protected static object RequiresNotNull(object obj)
