@@ -27,6 +27,7 @@ namespace IronScheme.Runtime
   {
     static int Main(string[] args)
     {
+      System.Runtime.GCSettings.LatencyMode = GCLatencyMode.Interactive;
       return new IronSchemeConsoleHost().Run(args);
     }
   }

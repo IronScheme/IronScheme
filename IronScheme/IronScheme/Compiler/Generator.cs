@@ -100,11 +100,19 @@ namespace IronScheme.Compiler
             nestinglevel--;
           }
         }
+        if (c != null)
+        {
+          return Ast.Constant(new IronSchemeConstant(c));
+        }
         return GetConsList(c, cb);
       }
       object[] v = args as object[];
       if (v != null)
       {
+        if (v.Length > 0)
+        {
+          return Ast.Constant(new IronSchemeConstant(v));
+        }
         return GetConsVector(v, cb);
       }
       else

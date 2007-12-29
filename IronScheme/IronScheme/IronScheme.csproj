@@ -72,6 +72,7 @@
     <Compile Include="Compiler\ApplyGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
     <Compile Include="Compiler\Helper.cs" />
+    <Compile Include="Compiler\IronSchemeConstant.cs" />
     <Compile Include="Compiler\LetrecStarGenerator.cs" />
     <Compile Include="Compiler\DelayGenerator.cs" />
     <Compile Include="Compiler\DiagnosticsGenerators.cs" />
@@ -117,6 +118,7 @@
     </Compile>
     <Compile Include="Runtime\Extension.cs" />
     <Compile Include="Runtime\Fraction.cs" />
+    <Compile Include="Runtime\Helpers.cs" />
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -165,6 +167,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
