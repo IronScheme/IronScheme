@@ -19,6 +19,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
+  [Serializable]
   public sealed class Cons : IEnumerable, IEnumerable<object>
   {
     internal object car;

@@ -1170,8 +1170,49 @@ namespace Microsoft.Scripting.Ast {
 
             EmitEndPosition(cg);
 
+            // cheap check
+            //if (HasReturn(Body))
+            //{
+            //  return;
+            //}
+
             cg.EmitReturn(null); //TODO skip if Body is guaranteed to return
         }
+
+      bool HasReturn(Statement stmt)
+      {
+        if (stmt is ReturnStatement)
+        {
+          return true;
+        }
+        if (stmt is BlockStatement)
+        {
+
+          IList<Statement> stmts = ((BlockStatement)Body).Statements;
+          if (stmts.Count == 0)
+          {
+            return false;
+          }
+          return HasReturn(stmts[stmts.Count - 1]);
+        }
+        if (stmt is IfStatement)
+        {
+          // wierd bug here... causes infinite loop...
+          //IfStatement ist = (IfStatement)stmt;
+          //bool t = true;
+
+          //foreach (IfStatementTest st in ist.Tests)
+          //{
+          //  t &= HasReturn(st.Body);
+          //  if (!t)
+          //  {
+          //    return false;
+          //  }
+          //}
+          //return t & HasReturn(ist.ElseStatement);
+        }
+        return false;
+      }
 
         private void EmitStartPosition(CodeGen cg) {
             // ensure a break point exists at the top
