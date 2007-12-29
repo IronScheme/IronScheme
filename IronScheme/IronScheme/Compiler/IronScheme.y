@@ -125,7 +125,7 @@ list
     : LBRACE exprlist RBRACE                      { $$ = SetLocation($2,@1,@3); }
     | LBRACK exprlist RBRACK                      { $$ = SetLocation($2,@1,@3); }
     | LBRACE exprlist expr DOT expr RBRACE        { $$ = SetLocation(Append($2, new Cons($3,$5)),@1,@6); } 
-    | specexpr expr                               { $$ = new Cons($1, new Cons($2)); }
+    | specexpr expr                               { $$ = SetLocation(new Cons($1, new Cons($2)), @1, @1); }
     ;
 
 exprlist
