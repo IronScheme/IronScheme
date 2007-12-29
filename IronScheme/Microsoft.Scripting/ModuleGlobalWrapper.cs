@@ -72,11 +72,11 @@ namespace Microsoft.Scripting {
                 // HACK: Shouldn't look in the GlobalScope here, but need to until JSGlobalObject
                 // unifies w/ module dictionary.
                 if (_context.Scope.ModuleScope.TryGetName(_context.LanguageContext, _name, out value)) {
-                    return value;
+                  return _value = value;
                 }
 
                 if (_context.LanguageContext.TryLookupGlobal(_context, _name, out value)) {
-                    return value;
+                    return _value = value;
                 }
             }
 

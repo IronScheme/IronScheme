@@ -1,4 +1,4 @@
-(library (ironscheme r5rs (6))
+(library (ironscheme r5rs)
   (export
     exact->inexact
     inexact->exact
@@ -15,7 +15,7 @@
   )
   
   (import 
-    (rnrs)
+    (rnrs base)
     (except (rnrs r5rs) quotient remainder modulo))
     
   (define (sign n)

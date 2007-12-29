@@ -36,6 +36,13 @@ namespace IronScheme.Runtime
       return Ast.TypeIs(obj[0], typeof(bool));
     }
 
+    [InlineEmitter("procedure?")]
+    public static Expression IsProcedure(Expression[] obj)
+    {
+      return Ast.TypeIs(obj[0], typeof(ICallable));
+    }
+
+
     [InlineEmitter("not")]
     public static Expression Not(Expression[] obj)
     {

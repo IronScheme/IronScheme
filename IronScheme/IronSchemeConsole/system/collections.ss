@@ -2,6 +2,7 @@
   (export
     hashtable:count
     hashtable:contains
+    hashtable:containskey
     hashtable:item
     hashtable:new)
   (import

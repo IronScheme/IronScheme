@@ -1,4 +1,4 @@
-(library (ironscheme files (6))
+(library (ironscheme files)
   (export
     file-exists?
     delete-file)
@@ -8,9 +8,9 @@
     (ironscheme clr))
     
   (define (file-exists? fn)
-    (clr-call system.io.file:exists '() fn))
+    (clr-call system.io.file exists '() fn))
     
   (define (delete-file fn)
-    (clr-call system.io.file:delete '() fn))
+    (clr-call system.io.file delete '() fn))
     
 )

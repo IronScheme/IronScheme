@@ -21,11 +21,13 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Reflection.Emit;
 using System.Collections;
+using System.Globalization;
 
 namespace IronScheme.Runtime.R6RS
 {
   public class Unicode : Builtins
   {
+    static TextInfo textinfo = CultureInfo.InvariantCulture.TextInfo;
     /// <summary>
     /// Toes the upper case char.
     /// </summary>
@@ -53,9 +55,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("char-titlecase")]
     public static object ToTitleCaseChar(object obj)
     {
-      //TODO
       char c = RequiresNotNull<char>(obj);
-      return false;
+      return textinfo.ToTitleCase(c.ToString())[0];
     }
 
     [Builtin("char-foldcase")]
@@ -225,15 +226,46 @@ namespace IronScheme.Runtime.R6RS
     public static object IsTitleCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      //TODO
-      return false;
+      return IsEqualValue(obj, ToUpperCaseChar(obj));
     }
 
-    [Builtin("char-general-catergory")]
+    [Builtin("char-general-category")]
     public static object CharGeneralCategory(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      //TODO
+      switch (char.GetUnicodeCategory(c))
+      {
+        case UnicodeCategory.ClosePunctuation: return SymbolTable.StringToId("Pe");
+        case UnicodeCategory.ConnectorPunctuation: return SymbolTable.StringToId("Pc");
+        case UnicodeCategory.Control: return SymbolTable.StringToId("Cc");
+        case UnicodeCategory.CurrencySymbol: return SymbolTable.StringToId("Sc");
+        case UnicodeCategory.DashPunctuation: return SymbolTable.StringToId("Pd");
+        case UnicodeCategory.DecimalDigitNumber: return SymbolTable.StringToId("Nd");
+        case UnicodeCategory.EnclosingMark: return SymbolTable.StringToId("Me");
+        case UnicodeCategory.FinalQuotePunctuation: return SymbolTable.StringToId("Pf");
+        case UnicodeCategory.Format: return SymbolTable.StringToId("Cf");
+        case UnicodeCategory.InitialQuotePunctuation: return SymbolTable.StringToId("Pi");
+        case UnicodeCategory.LetterNumber: return SymbolTable.StringToId("Nl");
+        case UnicodeCategory.LineSeparator: return SymbolTable.StringToId("Zl");
+        case UnicodeCategory.LowercaseLetter: return SymbolTable.StringToId("Ll");
+        case UnicodeCategory.MathSymbol: return SymbolTable.StringToId("Sm");
+        case UnicodeCategory.ModifierLetter: return SymbolTable.StringToId("Lm");
+        case UnicodeCategory.ModifierSymbol: return SymbolTable.StringToId("Sk");
+        case UnicodeCategory.NonSpacingMark: return SymbolTable.StringToId("Mn");
+        case UnicodeCategory.OpenPunctuation: return SymbolTable.StringToId("Ps");
+        case UnicodeCategory.OtherLetter: return SymbolTable.StringToId("Lo");
+        case UnicodeCategory.OtherNotAssigned: return SymbolTable.StringToId("Cn");
+        case UnicodeCategory.OtherNumber: return SymbolTable.StringToId("No");
+        case UnicodeCategory.OtherPunctuation: return SymbolTable.StringToId("Po");
+        case UnicodeCategory.OtherSymbol: return SymbolTable.StringToId("So");
+        case UnicodeCategory.ParagraphSeparator: return SymbolTable.StringToId("Zp");
+        case UnicodeCategory.PrivateUse: return SymbolTable.StringToId("Co");
+        case UnicodeCategory.SpaceSeparator: return SymbolTable.StringToId("Zs");
+        case UnicodeCategory.SpacingCombiningMark: return SymbolTable.StringToId("Mc");
+        case UnicodeCategory.Surrogate: return SymbolTable.StringToId("Cs");
+        case UnicodeCategory.TitlecaseLetter: return SymbolTable.StringToId("Lt");
+        case UnicodeCategory.UppercaseLetter: return SymbolTable.StringToId("Lu");
+      }
       return false;
     }
 
@@ -306,9 +338,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-titlecase")]
     public static object ToTitleCaseString(object obj)
     {
-      //TODO
       string s = GetString(obj);
-      return false;
+      return textinfo.ToTitleCase(s);
     }
 
     [Builtin("string-foldcase")]
@@ -344,7 +375,6 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-normalize-nfkc")]
     public static object StringNormalizeNFKC(object obj)
     {
-      //TODO
       string s = GetString(obj);
       return s.Normalize(NormalizationForm.FormKC);
     }

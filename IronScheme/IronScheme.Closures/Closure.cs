@@ -55,6 +55,10 @@ namespace IronScheme.Runtime
 
     public override string ToString()
     {
+      if (target == null || target.Method == null)
+      {
+        return "unknown closure";
+      }
       return target.Method.Name;
     }
 
@@ -373,6 +377,11 @@ namespace IronScheme.Runtime
         newargs[pcount - 1] = ConsFromArray(last);
         return realtarget.Call(newargs);
       }
+
+      public override string ToString()
+      {
+        return realtarget.ToString();
+      }
     }
 
     sealed class CaseClosure : Closure
@@ -395,6 +404,15 @@ namespace IronScheme.Runtime
             this.targets.Add(Make(cc, targets[i]));
           }
         }
+      }
+
+      public override string ToString()
+      {
+        foreach (ICallable c in targets)
+        {
+          return c.ToString();
+        }
+        return "empty case-lambda";
       }
 
       public override object Call(object[] args)

@@ -1,4 +1,4 @@
-(library (ironscheme records syntactic (6))
+(library (ironscheme records syntactic)
   (export
     define-record-type
     fields
@@ -13,5 +13,5 @@
     record-type-descriptor
     record-constructor-descriptor)
     
-  (import (rnrs))
+  (import (rnrs records syntactic))
 )

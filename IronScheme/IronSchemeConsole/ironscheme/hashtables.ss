@@ -1,4 +1,4 @@
-(library (ironscheme hashtables (6))
+(library (ironscheme hashtables)
 
   (export
     make-eq-hashtable
@@ -32,23 +32,23 @@
       [(k)  (clr-new system.collections.hashtable (clr-cast system.int32 k))]))
   
   (define (hashtable-size ht)
-    (clr-call system.collections.hashtable:get_count ht))
+    (clr-call system.collections.hashtable get_count ht))
     
   (define (hashtable-ref ht key default)
-    (define r (clr-call system.collections.hashtable:get_item ht key))
+    (define r (clr-call system.collections.hashtable get_item ht key))
     
     (if (not (null? r)) 
       r
       default))
       
   (define (hashtable-set! ht key obj)
-    (clr-call system.collections.hashtable:set_item ht key obj))
+    (clr-call system.collections.hashtable set_item ht key obj))
 
   (define (hashtable-delete! ht key)
-    (clr-call system.collections.hashtable:remove ht key))
+    (clr-call system.collections.hashtable remove ht key))
   
   (define (hashtable-contains? ht key)
-    (clr-call system.collections.hashtable:containskey ht key))
+    (clr-call system.collections.hashtable containskey ht key))
     
   (define (hashtable-update! ht key proc default)
     (hashtable-set!
@@ -57,8 +57,8 @@
 
   (define hashtable-clear!
     (case-lambda 
-      ((ht)     (clr-call system.collections.hashtable:clear ht))
-      ((ht k)   (clr-call system.collections.hashtable:clear ht))))
+      ((ht)     (clr-call system.collections.hashtable clear ht))
+      ((ht k)   (clr-call system.collections.hashtable clear ht))))
     
   ;; TODO
   

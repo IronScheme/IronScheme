@@ -109,14 +109,201 @@ namespace IronScheme.Runtime
       return cc.Scope.ContainsName(s);
     }
 
+
+
 #if R6RS
+
+    [Builtin("time-it")]
+    public static object TimeIt(object who, object thunk)
+    {
+      ICallable c = RequiresNotNull<ICallable>(thunk);
+      long membefore = GC.GetTotalMemory(true);
+      int[] colcount = new int[3];
+      for (int i = 0; i < 3; i++)
+      {
+        colcount[i] = GC.CollectionCount(i);
+      }
+      Stopwatch sw = Stopwatch.StartNew();
+      try
+      {
+        return c.Call();
+      }
+      finally
+      {
+        sw.Stop();
+        long memafter = GC.GetTotalMemory(true);
+
+        int[] colcountafter = new int[3];
+        for (int i = 0; i < 3; i++)
+        {
+          colcountafter[i] = GC.CollectionCount(i);
+        }
+
+        Console.WriteLine(@"Statistics for '{0}':
+  Time:          {1}
+  Memory before: {2}
+  Memory after:  {3}
+  Memory diff:   {7}
+  Gen0 collect:  {4}
+  Gen1 collect:  {5}
+  Gen2 collect:  {6}", who, sw.Elapsed, membefore, memafter, 
+                     colcountafter[0] - colcount[0],
+                     colcountafter[1] - colcount[1],
+                     colcountafter[2] - colcount[1],
+                     memafter - membefore);
+      }
+    }
+
+
     static int evalcounter = 0;
+
+    static Dictionary<SymbolId, bool> GetComplexOps()
+    {
+      Dictionary<SymbolId, bool> ops = new Dictionary<SymbolId, bool>();
+      ops.Add(SymbolTable.StringToId("case-lambda"), true);
+      ops.Add(SymbolTable.StringToId("let"), true);
+      ops.Add(SymbolTable.StringToId("let*"), true);
+      ops.Add(SymbolTable.StringToId("letrec"), true);
+      ops.Add(SymbolTable.StringToId("letrec*"), true);
+
+      return ops;
+    }
+
+    readonly static Dictionary<SymbolId, bool> complexops = GetComplexOps();
+
+    static ICallable prettyprint;
+    
 
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {
-      string exprstr = null;
+      AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
+
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
+
       int c = ++evalcounter;
+
+    //  if (expr is Cons)
+    //  {
+    //    Cons e = (Cons)expr;
+
+    //    if (e.car is SymbolId)
+    //    {
+    //      SymbolId ecar = (SymbolId)e.car;
+
+    //      if (ecar == quote)
+    //      {
+    //        return ((Cons)e.cdr).car;
+    //      }
+
+    //      if (!complexops.ContainsKey(ecar))
+    //      {
+    //        object callable;
+    //        if (cc.Scope.TryLookupName(ecar, out callable) && callable is ICallable)
+    //        {
+    //          ICallable call = (ICallable)callable;
+
+    //          Cons args = e.cdr as Cons;
+
+    //          List<object> argarray = new List<object>();
+
+    //          while (args != null)
+    //          {
+    //            if (!(args.car is Cons))
+    //            {
+    //              if (args.car is SymbolId)
+    //              {
+    //                argarray.Add(cc.Scope.LookupName((SymbolId)args.car));
+    //              }
+    //              else
+    //              {
+    //                argarray.Add(args.car);
+    //              }
+    //            }
+    //            else
+    //            {
+    //              Cons i = (Cons)args.car;
+    //              if ((bool)IsEqual(i.car, quote))
+    //              {
+    //                argarray.Add(((Cons)i.cdr).car);
+    //              }
+    //              else
+    //              {
+    //                goto LONGWAY;
+    //              }
+    //            }
+    //            args = args.cdr as Cons;
+    //          }
+
+    //          return call.Call(argarray.ToArray());
+
+    //        }
+    //        else
+    //        {
+    //          ;
+    //        }
+    //      }
+    //    }
+
+    //  }
+
+    //LONGWAY:
+
+
+
+      Stopwatch sw = Stopwatch.StartNew();
+
+#if DEBUG
+      if (prettyprint == null)
+      {
+        prettyprint = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
+      }
+
+      if (!Directory.Exists("evaldump"))
+      {
+        Directory.CreateDirectory("evaldump");
+      }
+
+      string fn = string.Format("evaldump/{0:D3}.ss", c);
+
+      if (File.Exists(fn))
+      {
+        File.Delete(fn);
+      }
+
+      using (TextWriter w = File.CreateText(fn))
+      {
+        prettyprint.Call(expr, w);
+      }
+      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("pretty-p- eval-core({0:D3})", c));
+      sw = Stopwatch.StartNew();
+
+#endif
+
+      ScriptCode sc = cc.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.Compile(new Cons(expr))); //wrap
+
+      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
+      sw = Stopwatch.StartNew();
+
+      sc.EnsureCompiled();
+      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
+      sw = Stopwatch.StartNew();
+
+      // this compiles the file, i think
+      //ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
+
+      object cbr = sc.Run(cc.ModuleContext.Module); // try eval causes issues :(
+      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
+      ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+      return cbr;
+
+#if ARRRR
+
+      string exprstr = null;
+      
 #if DEBUG
 
       ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
@@ -151,14 +338,10 @@ namespace IronScheme.Runtime
       try
       {
         SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, exprstr);
-        AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
 
-        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
-        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
-        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
-        ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
         Stopwatch sw = Stopwatch.StartNew();
         //ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule("eval-core", su);
+
         ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
         Trace.WriteLine(sw.ElapsedMilliseconds, string.Format("Compile - eval-core({0:D3})", c));
         sw = Stopwatch.StartNew();
@@ -167,12 +350,16 @@ namespace IronScheme.Runtime
         Trace.WriteLine(sw.ElapsedMilliseconds, string.Format("Run     - eval-core({0:D3})", c));
         ScriptDomainManager.Options.AssemblyGenAttributes = aga;
         return result;
-
+      }
+      catch (ArgumentException ex)
+      {
+        return AssertionViolation(false, ex.Message, expr);
       }
       finally
       {
-        GC.Collect(1, GCCollectionMode.Optimized);
+        //GC.Collect(1, GCCollectionMode.Optimized);
       }
+#endif
     }
 #endif
 
@@ -276,18 +463,28 @@ namespace IronScheme.Runtime
       return new Cons(a, new Cons(b, new Cons(c , d)));
     }
 
+    static Scope ModuleScope;
+
     [Builtin("symbol-value")]
     public static object SymbolValue(CodeContext cc, object symbol)
     {
       SymbolId s = RequiresNotNull<SymbolId>(symbol);
-      return cc.Scope.ModuleScope.LookupName(s);
+      if (ModuleScope == null)
+      {
+        ModuleScope = cc.Scope.ModuleScope;
+      }
+      return ModuleScope.LookupName(s);
     }
 
     [Builtin("set-symbol-value!")]
     public static object SetSymbolValue(CodeContext cc, object symbol, object value)
     {
       SymbolId s = RequiresNotNull<SymbolId>(symbol);
-      cc.Scope.ModuleScope.SetName(s, value);
+      if (ModuleScope == null)
+      {
+        ModuleScope = cc.Scope.ModuleScope;
+      }
+      ModuleScope.SetName(s, value);
       return Unspecified;
     }
 
@@ -406,7 +603,7 @@ namespace IronScheme.Runtime
       return (T)obj;
     }
 
-    static SymbolId GetCaller()
+    protected static SymbolId GetCaller()
     {
       StackTrace st = new StackTrace(2);
       MethodBase m = st.GetFrame(0).GetMethod();

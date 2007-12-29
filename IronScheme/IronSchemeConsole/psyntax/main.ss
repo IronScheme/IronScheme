@@ -35,14 +35,13 @@
            (with-input-from-file filename
              (lambda ()
                (let f ()
-                 (let ((x (read)))
+                 (let ((x (read-annotated)))
                    (if (eof-object? x) 
                        '()
                        (cons x (f)))))))))
       (eval-r6rs-top-level x*)
       (if #f #f)))
 
-  ;(display "r6rs psyntax ready\n")
   (let ((args (command-line)))
     (unless (= (length args) 2)
       (display "provide a script name argument\n")

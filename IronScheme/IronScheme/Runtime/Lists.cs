@@ -581,61 +581,50 @@ namespace IronScheme.Runtime
         {
           return args[1];
         }
+        if (args[1] == null)
+        {
+          return args[0];
+        }
       }
 
-      bool proper = true;
- 
-      List<object> all = new List<object>();
+      Cons head = null, h = null;
 
-      for (int i = 0; i < args.Length; i++)
+      for (int i = 0; i < args.Length - 1; i++)
       {
         Cons ii = args[i] as Cons;
-
-        if (ii == null && i == args.Length - 1 && args[i] != null)
+        if (null == args[i])
         {
-          all.Add(args[i]);
-          proper = false;
+          //empty list, do nothing
         }
-        else
+        else if (ii != null)
         {
           while (ii != null)
           {
-            all.Add(ii.car);
-            if (i == args.Length - 1 && ii.cdr != null && !(ii.cdr is Cons))
+            Cons cc = new Cons(ii.car);
+            if (head == null)
             {
-              all.Add(ii.cdr);
-              proper = false;
-              break;
+              h = head = cc;
             }
+            else
+            {
+              h.cdr = cc;
+              h = cc;
+            }
+
             ii = ii.cdr as Cons;
           }
         }
-      }
-      Cons c = Runtime.Cons.FromList(all);
-      if (!proper)
-      {
-        c = ToImproper(c);
-      }
-      return c;
-    }
-
-    public static Cons ToImproper(Cons c)
-    {
-      Cons i = c;
-      Cons j = null;
-
-      while (i.cdr != null)
-      {
-        j = i;
-        i = i.cdr as Cons;
-        if (i == null)
+        else
         {
-          return c; // improper already
+          AssertionViolation(SymbolTable.StringToId("append"), "not a list", args[i]);
         }
+        
       }
 
-      j.cdr = i.car;
-      return c;
+      object tail = args[args.Length - 1];
+      h.cdr = tail;
+      return head;
     }
+
   }
 }

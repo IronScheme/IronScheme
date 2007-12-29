@@ -1,4 +1,4 @@
-(library (ironscheme mutable-strings (6))
+(library (ironscheme mutable-strings)
   (export
     string-set!
     string-fill!)

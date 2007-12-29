@@ -1,4 +1,4 @@
-(library (ironscheme arithmetic bitwise (6))
+(library (ironscheme arithmetic bitwise)
   (export
     bitwise-not
     

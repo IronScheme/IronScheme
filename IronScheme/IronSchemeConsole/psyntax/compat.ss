@@ -25,6 +25,7 @@
           annotation-stripped)
   (import 
     (rnrs)
+    (ironscheme reader)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value 
           pretty-print))
@@ -36,30 +37,13 @@
   ;;; - expression is a list/vector/id/whathaveyou that 
   ;;;   may contain further annotations.
   
+  #|
   (define read-annotated read)
   (define (annotation? x) #f)
   (define annotation-expression #f)
   (define annotation-source #f)
   (define annotation-stripped #f)
-    
-#| ; i give up for now
-  (define read-annotated
-    (case-lambda
-      [()  (clr-call ironscheme.runtime.psyntax.annotatedreader:readannotated '())]
-      [(p) (clr-call ironscheme.runtime.psyntax.annotatedreader:readannotated '() p)]))
-  
-  (define (annotation? x) 
-    (clr-call ironscheme.runtime.psyntax.annotatedreader:isannotation '() x))
-  
-  (define (annotation-expression x)
-    (clr-call ironscheme.runtime.psyntax.annotatedreader:annotationexpression '() x))
-  
-  (define (annotation-source x)
-    (clr-call ironscheme.runtime.psyntax.annotatedreader:annotationsource '() x))
-
-  (define (annotation-stripped x)
-    (clr-call ironscheme.runtime.psyntax.annotatedreader:annotationstripped '() x))
-|#  
+  |#
 
   (define make-parameter
     (case-lambda

@@ -1,11 +1,11 @@
-(library (ironscheme exceptions (6))
+(library (ironscheme exceptions)
   (export
     with-exception-handler
-    =>
-    else
     guard
     raise
+    else
+    =>
     raise-continuable)
     
-  (import (rnrs))
+  (import (rnrs exceptions))
 )

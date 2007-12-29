@@ -1,4 +1,4 @@
-(library (ironscheme arithmetic flonums (6))
+(library (ironscheme arithmetic flonums)
   (export
     flonum?
     real->flonum

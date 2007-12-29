@@ -1,6 +1,5 @@
-(library (ironscheme records inspection (6))
+(library (ironscheme records inspection)
   (export
-    
     record?
     record-rtd
     record-type-name
@@ -11,5 +10,5 @@
     record-type-opaque?
     record-type-field-names
     record-field-mutable?)
-  (import (rnrs))
+  (import (rnrs records inspection))
 )

@@ -142,32 +142,20 @@ namespace IronScheme
       return Parse(sc, cc, true);
     }
 
-    internal static object ReadExpressionString(string code, CompilerContext cc)
+
+    internal static object ReadExpressions(Stream code, CompilerContext cc)
     {
       if (parser == null)
       {
         parser = new Parser();
       }
       Parser p = parser;
-      if (scanner == null)
-      {
-        scanner = new Scanner();
-      }
-      Scanner sc = scanner;
-      sc.SetSource(code, 0);
+      Scanner sc = new Scanner(code);
       p.scanner = sc;
 
       if (p.Parse())
       {
-        Cons parsed = p.parsed;
-        if (parsed != null)
-        {
-          if (parsed.cdr != null)
-          {
-            Debug.Fail("Invalid");
-          }
-          return parsed.car;
-        }
+        return p.parsed;
       }
       return null;
     }
@@ -201,6 +189,47 @@ namespace IronScheme
       }
     }
 
+    internal static CodeBlock Compile(Cons expr)
+    {
+      Cons parsed = expr;
+
+      CodeBlock cb = Ast.CodeBlock("__script__");
+      cb.IsGlobal = true;
+
+      List<Statement> stmts = new List<Statement>();
+
+      Compiler.Generator.InitGlobal(parsed, cb, stmts);
+
+      while (parsed != null)
+      {
+        object exp = parsed.car;
+        Expression e = Generator.GetAst(exp, cb);
+        Statement s = Ast.Statement(e);
+        if (exp is Cons && Parser.sourcemap.ContainsKey(exp))
+        {
+          s.SetLoc(Parser.sourcemap[exp]);
+        }
+        stmts.Add(s);
+        parsed = parsed.cdr as Cons;
+      }
+
+      if (stmts.Count > 0)
+      {
+        SourceSpan ss = stmts[stmts.Count - 1].Span;
+        stmts[stmts.Count - 1] = Ast.Return(((ExpressionStatement)stmts[stmts.Count - 1]).Expression);
+        stmts[stmts.Count - 1].SetLoc(ss);
+      }
+      else
+      {
+        stmts.Add(Ast.Return(Ast.ReadField(null, Generator.Unspecified)));
+      }
+
+      cb.Body = Ast.Block(stmts);
+
+      Parser.sourcemap.Clear();
+      return cb;
+    }
+
 
     static CodeBlock Parse(Scanner sc, CompilerContext cc, bool clearresolver)
     {
@@ -229,9 +258,9 @@ namespace IronScheme
           object exp = parsed.car;
           Expression e = Generator.GetAst(exp,cb);
           Statement s = Ast.Statement(e);
-          if (exp is Cons && Parser.sourcemap.ContainsKey((Cons)exp))
+          if (exp is Cons && Parser.sourcemap.ContainsKey(exp))
           {
-            s.SetLoc(Parser.sourcemap[(Cons)exp]);
+            s.SetLoc(Parser.sourcemap[exp]);
           }
           stmts.Add(s);
           parsed = parsed.cdr as Cons;

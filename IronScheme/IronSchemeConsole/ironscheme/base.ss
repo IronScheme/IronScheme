@@ -1,4 +1,4 @@
-(library (ironscheme base (6))
+(library (ironscheme base)
   (export
     define
     define-syntax
@@ -217,7 +217,7 @@
     
     )
   (import 
-    (except (rnrs) 
+    (except (rnrs base) 
       caar
       cadr
       cdar

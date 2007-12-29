@@ -1,4 +1,4 @@
-(library (ironscheme lists (6))
+(library (ironscheme lists)
   (export
     find
     
@@ -109,13 +109,13 @@
 						    (map cdr lists))))))))
 						    
 						    
-    (define (remove obj list)
-      (remp (lambda (x) (equal? obj x)) list))
+   (define (remove obj list)
+     (remp (lambda (x) (equal? obj x)) list))
     
-    (define (remv obj list)
-      (remp (lambda (x) (eqv? obj x)) list))
+   (define (remv obj list)
+     (remp (lambda (x) (eqv? obj x)) list))
       
-    (define (remq obj list)
-      (remp (lambda (x) (eq? obj x)) list))
+   (define (remq obj list)
+     (remp (lambda (x) (eq? obj x)) list))
 )
 

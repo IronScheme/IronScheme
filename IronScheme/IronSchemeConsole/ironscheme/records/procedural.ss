@@ -1,4 +1,4 @@
-(library (ironscheme records procedural (6))
+(library (ironscheme records procedural)
   (export
     make-record-type-descriptor
     record-type-descriptor?
@@ -9,5 +9,5 @@
     record-mutator)
     
   (import 
-    (rnrs))
+    (rnrs records procedural))
 )

@@ -1,5 +1,5 @@
 
-(library (ironscheme io conditions (6))
+(library (ironscheme io conditions)
   (export
     
     &i/o

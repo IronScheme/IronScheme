@@ -65,11 +65,6 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Closure.cs" />
     <Compile Include="BuiltinMethod.cs" />
     <Compile Include="ICallable.cs" />
@@ -93,7 +88,7 @@
   <PropertyGroup>
     <PostBuildEvent>"c:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\ildasm" /out:$(TargetName).il /NOBAR /LINENUM $(TargetPath)
 $(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe $(TargetName).il
-"c:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\ilasm" /dll /opt /NOLOGO /QUIET /debug $(TargetName).il
+"c:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\ilasm" /dll /opt /NOLOGO /QUIET $(TargetName).il
 "c:\Program Files\Microsoft Visual Studio 8\SDK\v2.0\Bin\peverify" /NOLOGO $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>

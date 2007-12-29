@@ -1,4 +1,4 @@
-(library (ironscheme io simple (6))
+(library (ironscheme io simple)
   (export
     eof-object
     eof-object?
@@ -32,5 +32,5 @@
     display
     write)
     
-  (import (rnrs))
+  (import (rnrs io simple))
 )

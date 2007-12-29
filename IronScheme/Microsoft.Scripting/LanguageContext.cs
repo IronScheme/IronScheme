@@ -145,6 +145,13 @@ namespace Microsoft.Scripting {
             return CompileSourceCode(sourceUnit, options, null);
         }
 
+      public ScriptCode CompileSourceCode(CodeBlock block)
+      {
+        CompilerContext context = new CompilerContext(SourceUnit.CreateSnippet(Engine, string.Empty), GetCompilerOptions(), Engine.GetCompilerErrorSink());
+        AnalyzeBlock(block);
+        return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
+      }
+
         public ScriptCode CompileSourceCode(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink) {
             Contract.RequiresNotNull(sourceUnit, "sourceUnit");
 

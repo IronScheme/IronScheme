@@ -1,8 +1,8 @@
-(library (ironscheme sorting (6))
+(library (ironscheme sorting)
   (export
     list-sort
     vector-sort
     vector-sort!)
     
-  (import (rnrs))
+  (import (rnrs sorting))
 )

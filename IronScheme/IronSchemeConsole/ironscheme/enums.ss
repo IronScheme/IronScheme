@@ -1,5 +1,4 @@
-
-(library (ironscheme enums (6))
+(library (ironscheme enums)
   (export make-enumeration
           enum-set-universe
           enum-set-indexer
@@ -13,7 +12,5 @@
           enum-set-difference
           enum-set-complement
           enum-set-projection)
-  (import (rnrs))
-
-) 
+  (import (rnrs enums))) 
     

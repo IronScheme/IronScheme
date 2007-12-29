@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting;
+using System.IO;
 
 namespace IronScheme.Runtime.psyntax
 {
@@ -32,54 +33,58 @@ namespace IronScheme.Runtime.psyntax
       return ReadAnnotated(CurrentInputPort());
     }
 
+    static SourceSpan lastloc;
+
     static object Annotate(object obj)
     {
       if (obj is Cons)
       {
         Cons c = (Cons)obj;
-        Cons h = null, head = null;
-
-        while (c != null)
-        {
-          Cons a = new Cons(Annotate(c.car));
-          if (head == null)
-          {
-            head = h = a;
-          }
-          else
-          {
-            h.cdr = a;
-            h = a;
-          }
-          if (c.cdr == null || c.cdr is Cons)
-          {
-            c = c.cdr as Cons;
-          }
-          else
-          {
-            c.cdr = Annotate(c.cdr);
-            break;
-          }
-        }
 
         SourceSpan loc;
-        if (Compiler.Parser.sourcemap.TryGetValue((Cons)obj, out loc))
+        if (Compiler.Parser.sourcemap.TryGetValue(c, out loc) && loc.IsValid)
         {
-          return new Annotation(head, loc, obj);
+          lastloc = loc;
+          return new Annotation(new Cons(Annotate(c.car), Annotate(c.cdr)), new Cons(loc, filename), obj);
         }
         else
         {
-          return head;
+          return new Cons(Annotate(c.car), Annotate(c.cdr));
         }
+      }
+      else if (obj != null)
+      {
+        SourceSpan loc;
+        if (Compiler.Parser.sourcemap.TryGetValue(obj, out loc) && loc.IsValid)
+        {
+          lastloc = loc;
+          return new Annotation(obj, new Cons(loc, filename), obj);
+        }
+      }
+      if (obj is SymbolId && lastloc.IsValid)
+      {
+        return new Annotation(obj, new Cons(lastloc, filename), obj);
       }
       return obj;
     }
+
+    static string filename;
 
     [Builtin("read-annotated")]
     public static object ReadAnnotated(object port)
     {
       object expr = Read(port);
-      //expr = Annotate(expr);
+      if (port is StreamReader)
+      {
+        StreamReader r = (StreamReader)port;
+        if (r.BaseStream is FileStream)
+        {
+          FileStream fs = (FileStream)r.BaseStream;
+          filename =  fs.Name.Replace(Environment.CurrentDirectory + "\\", string.Empty);
+        }
+        expr = Annotate(expr);
+      }
+      
       return expr;
     }
 

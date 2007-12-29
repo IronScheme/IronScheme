@@ -27,11 +27,11 @@ static Cons Last(Cons c)
 
 static Cons Append(Cons c, Cons t)
 {
-  if (c == null)
+  if (c == null || c.car == Ignore)
   {
     return t;
   }
-  if (t == null)
+  if (t == null || t.car == Ignore)
   {
     return c;
   }
@@ -39,7 +39,7 @@ static Cons Append(Cons c, Cons t)
   return c;
 }
 
-public static Dictionary<Cons,SourceSpan> sourcemap = new Dictionary<Cons,SourceSpan>();
+public static Dictionary<object,SourceSpan> sourcemap = new Dictionary<object,SourceSpan>();
 
 static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
 {
@@ -53,6 +53,16 @@ protected override SourceSpan GetLocation(gppg.LexLocation loc)
   return new SourceSpan(
     new SourceLocation(1, loc.sLin, loc.sCol + 1),
     new SourceLocation(1, loc.eLin, loc.eCol + 1));
+}
+
+static object SetLocation(object o, gppg.LexLocation start, gppg.LexLocation end)
+{
+  if (o == null)
+  {
+    return null;
+  }
+  sourcemap[o] = GetLocation(start, end);
+  return o;
 }
 
 static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
@@ -77,6 +87,7 @@ static string CleanString(string input)
   return input;
 }
 
+static readonly object Ignore = new object();
 static readonly SymbolId quote = SymbolTable.StringToId("quote");
 static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
 static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
@@ -96,7 +107,7 @@ static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
 }
 
 %token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT BYTEVECTORLBRACE
-%token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX
+%token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX IGNOREDATUM
 %token <text> SYMBOL LITERAL STRING NUMBER CHARACTER 
 
 %type <list> exprlist list file
@@ -129,8 +140,9 @@ expr
     | NUMBER                                      { $$ = Builtins.StringToNumber($1);}
     | LITERAL                                     { $$ = $1 == "#t" ? (object)true : ($1 == "#f" ? (object)false : null);}
     | CHARACTER                                   { $$ = $1[0];}
-    | VECTORLBRACE exprlist RBRACE                { $$ = Builtins.ListToVector($2);}
-    | BYTEVECTORLBRACE exprlist RBRACE            { $$ = Builtins.ListToByteVector($2);}
+    | VECTORLBRACE exprlist RBRACE                { $$ = SetLocation(Builtins.ListToVector($2),@1,@3);}
+    | BYTEVECTORLBRACE exprlist RBRACE            { $$ = SetLocation(Builtins.ListToByteVector($2),@1,@3); }
+    | IGNOREDATUM expr                            { $$ = Ignore; }
     ; 
 
 specexpr

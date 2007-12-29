@@ -62,6 +62,19 @@ namespace IronScheme.Runtime
             }
             else
             {
+              if (double.IsNegativeInfinity(d))
+              {
+                return "-inf.0";
+              }
+              else if (double.IsPositiveInfinity(d))
+              {
+                return "+inf.0";
+              }
+              else if (double.IsNaN(d))
+              {
+                return "+nan.0";
+              }
+              else
               if (d > 10e17 || d < -10e17)
               {
                 return string.Format("{0:g}", new Decimal(d));
@@ -245,6 +258,16 @@ namespace IronScheme.Runtime
       if (decimal.TryParse(str, out dec))
       {
         return dec;
+      }
+      char sign = str[0];
+      string value = str.Substring(1);
+      if (value == "nan.0")
+      {
+        return double.NaN;
+      }
+      else if (value == "inf.0")
+      {
+        return sign == '-' ? double.NegativeInfinity : double.PositiveInfinity;
       }
       // TODO parse complex
       return false;
@@ -932,7 +955,7 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          return (int)first / (int)second;
+          return (int)first / (double)(int)second;
         }
         else if (second is double)
         {
@@ -1415,7 +1438,7 @@ provided all numbers involved in that computation are exact.
         case 2:
           object first = args[0], second = args[1];
 
-          if ((bool)IsEqualValue(second, 0))
+          if ((bool)IsZero(second))
           {
             return Abs(first);
           }
@@ -1424,8 +1447,12 @@ provided all numbers involved in that computation are exact.
             return Abs(GreatestCommonDivider(second, Mod(first, second)));
           }
         default:
-          // TODO
-          return false;
+          object gcd = GreatestCommonDivider(args[0],args[1]);
+          for (int i = 2; i < args.Length; i++)
+			    {
+			      gcd = GreatestCommonDivider(gcd, args[i]);
+			    }
+          return gcd;
       }
     }
 
@@ -1445,8 +1472,12 @@ provided all numbers involved in that computation are exact.
 
           return Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second));
         default:
-          // TODO
-          return false;
+          object lcm = LowestCommonMultiple(args[0], args[1]);
+          for (int i = 2; i < args.Length; i++)
+          {
+            lcm = LowestCommonMultiple(lcm, args[i]);
+          }
+          return lcm;
       }
     }
 
@@ -1641,6 +1672,11 @@ provided all numbers involved in that computation are exact.
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)
     {
+      if ((bool)IsInteger(obj1) && (bool)IsInteger(obj2))
+      {
+        return BigIntConverter.ConvertFrom(MathHelper(Math.Pow, obj1, obj2));
+      }
+
       return MathHelper(Math.Pow, obj1, obj2);
     }
 

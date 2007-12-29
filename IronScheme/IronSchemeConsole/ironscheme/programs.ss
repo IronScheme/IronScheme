@@ -1,7 +1,7 @@
-(library (ironscheme programs (6))
+(library (ironscheme programs)
   (export
     command-line
     exit)
     
-  (import (rnrs))
+  (import (rnrs programs))
 )

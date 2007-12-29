@@ -1,4 +1,4 @@
-(library (ironscheme mutable-pairs (6))
+(library (ironscheme mutable-pairs)
   (export
     set-car!
     set-cdr!)

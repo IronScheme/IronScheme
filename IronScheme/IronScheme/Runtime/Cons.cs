@@ -19,7 +19,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  public sealed class Cons
+  public sealed class Cons : IEnumerable, IEnumerable<object>
   {
     internal object car;
     internal object cdr;
@@ -100,5 +100,121 @@ namespace IronScheme.Runtime
     {
       return Builtins.WriteFormat(this);
     }
+
+    #region IEnumerable<object> Members
+
+    // this only works with proper lists
+    public IEnumerator<object> GetEnumerator()
+    {
+      Cons c = this;
+      while (c != null)
+      {
+        yield return c.car;
+        c = c.cdr as Cons;
+      }
+      yield break;
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    #endregion
+  }
+
+  class ConsCollectionWrapper : ICollection<object>
+  {
+    readonly Cons head;
+    Cons last;
+
+    public ConsCollectionWrapper(Cons head)
+    {
+      this.head = head;
+      last = head;
+    }
+
+    #region ICollection<object> Members
+
+    public void Add(object item)
+    {
+      Cons c = new Cons(item);
+      last.cdr = c;
+      last = c;
+    }
+
+    public void Clear()
+    {
+      head.car = head.cdr = null;
+      last = head;
+    }
+
+    public bool Contains(object item)
+    {
+      foreach (object o in head)
+      {
+        if (Equals(o, item))
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public void CopyTo(object[] array, int arrayIndex)
+    {
+      List<object> l = new List<object>(head);
+      l.CopyTo(array, arrayIndex);
+    }
+
+    public int Count
+    {
+      get 
+      {
+        int i = 0;
+        Cons c = head;
+
+        while (c != null)
+        {
+          i++;
+          c = c.cdr as Cons;
+        }
+        return i;
+      }
+    }
+
+    public bool IsReadOnly
+    {
+      get { return false; }
+    }
+
+    public bool Remove(object item)
+    {
+      throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region IEnumerable<object> Members
+
+    public IEnumerator<object> GetEnumerator()
+    {
+      return head.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IEnumerable Members
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return head.GetEnumerator();
+    }
+
+    #endregion
   }
 }

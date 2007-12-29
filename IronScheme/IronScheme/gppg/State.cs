@@ -11,9 +11,9 @@ namespace gppg
   public sealed class State
   {
     public int num;
-    public Dictionary<int, int> parser_table;  // Terminal -> ParseAction
-    public Dictionary<int, int> Goto;          // NonTerminal -> State;
-    public int defaultAction = 0;			   // ParseAction
+    public readonly Dictionary<int, int> parser_table;  // Terminal -> ParseAction
+    public readonly Dictionary<int, int> Goto;          // NonTerminal -> State;
+    public readonly int defaultAction = 0;			   // ParseAction
 
 
     public State(int[] actions, int[] gotos)

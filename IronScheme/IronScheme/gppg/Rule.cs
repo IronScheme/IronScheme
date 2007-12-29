@@ -6,7 +6,7 @@
 
 namespace gppg
 {
-  public class Rule
+  public sealed class Rule
   {
     public int lhs; // symbol
     public int[] rhs; // symbols

@@ -49,22 +49,67 @@ namespace IronScheme.Compiler
     }
   }
 
-  [Generator("clr-call-internal")]
-  public class ClrCallInternalGenerator : ClrGenerator
+  [Generator("clr-field-get-internal")]
+  public class ClrFieldGetGenerator : ClrGenerator
   {
-    // (clr-call type:member obj arg1 ... )
+    // (clr-field-get type field-name obj )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string typemember = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
-      string[] tokens = typemember.Split(':');
-      Type t = GetType(tokens[0]);
+      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+
+      Type t = GetType(type);
       if (t == null)
       {
         throw new NotSupportedException();
       }
-      string member = tokens[1];
+      string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
-      Expression instance = GetAst(Builtins.Second(args), cb);
+      Expression instance = GetAst(Builtins.Third(args), cb);
+
+      return Ast.ReadField(instance, t, member);
+    }
+  }
+
+  [Generator("clr-field-set!-internal")]
+  public class ClrFieldSetGenerator : ClrGenerator
+  {
+    // (clr-field-set! type field-name obj value)
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+
+      Type t = GetType(type);
+      if (t == null)
+      {
+        throw new NotSupportedException();
+      }
+      string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
+
+      Expression instance = GetAst(Builtins.Third(args), cb);
+
+      Expression value = GetAst(Builtins.Car(Builtins.LastPair(args)), cb);
+
+      return Ast.AssignField(instance, t, member, value);
+    }
+  }
+
+
+  [Generator("clr-call-internal")]
+  public class ClrCallInternalGenerator : ClrGenerator
+  {
+    // (clr-call type member obj arg1 ... )
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+      
+      Type t = GetType(type);
+      if (t == null)
+      {
+        throw new NotSupportedException();
+      }
+      string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
+
+      Expression instance = GetAst(Builtins.Third(args), cb);
 
       CallType ct = CallType.ImplicitInstance;
 
@@ -76,7 +121,7 @@ namespace IronScheme.Compiler
         }
       }
 
-      Expression[] arguments = GetAstListNoCast(Builtins.Cdr(Builtins.Cdr(args)) as Cons, cb);
+      Expression[] arguments = GetAstListNoCast(Builtins.Cdddr(args) as Cons, cb);
 
       List<MethodBase> candidates = new List<MethodBase>();
 
@@ -169,6 +214,29 @@ namespace IronScheme.Compiler
       Expression obj = GetAst(Builtins.Second(args), cb);
 
       return Ast.ConvertHelper(obj, t);
+    }
+  }
+
+  [Generator("clr-new-array-internal")]
+  public class ClrNewArrayInternalGenerator : ClrGenerator
+  {
+    // (clr-new-array type size )
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+      Type t = GetType(type);
+      if (t == null)
+      {
+        throw new NotSupportedException();
+      }
+
+      t = t.MakeArrayType();
+
+      Expression size = GetAst(Builtins.Second(args), cb);
+
+      ConstructorInfo ci = t.GetConstructor(new Type[] { typeof(int) });
+
+      return Ast.New(ci, size);
     }
   }
 
