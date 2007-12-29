@@ -22,12 +22,14 @@ namespace IronScheme.Compiler
       get { return value.GetType(); }
     }
 
+
+    static long totallength = 0;
+
     public override void EmitCreation(CodeGen cg)
     {
       if (cg.IsDynamicMethod)
       {
-        Slot s = cg.ConstantPool.AddData(value, Type);
-        s.EmitGet(cg);
+        throw new NotSupportedException("no can do");
       }
       else
       {
@@ -37,6 +39,7 @@ namespace IronScheme.Compiler
 
         bf.Serialize(s, value);
         s.Position = 0;
+        totallength += s.Length;
         mb.DefineManifestResource("s11n:" + constantcounter, s, System.Reflection.ResourceAttributes.Public);
 
         cg.EmitType(cg.TypeGen.TypeBuilder);

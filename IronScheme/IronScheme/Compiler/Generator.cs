@@ -100,7 +100,7 @@ namespace IronScheme.Compiler
             nestinglevel--;
           }
         }
-        if (c != null)
+        if (c != null && nestinglevel == 0)
         {
           return Ast.Constant(new IronSchemeConstant(c));
         }
@@ -109,7 +109,7 @@ namespace IronScheme.Compiler
       object[] v = args as object[];
       if (v != null)
       {
-        if (v.Length > 0)
+        if (v.Length > 0 && nestinglevel == 0)
         {
           return Ast.Constant(new IronSchemeConstant(v));
         }
