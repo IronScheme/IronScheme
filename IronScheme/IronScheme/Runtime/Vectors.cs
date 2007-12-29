@@ -49,12 +49,6 @@ namespace IronScheme.Runtime
       return Ast.AssignArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)), values[2]);
     }
 
-    [InlineEmitter("vector-length")]
-    public static Expression VectorLength(Expression[] values)
-    {
-      return Ast.ReadProperty(Ast.ConvertHelper(values[0], typeof(object[])), typeof(object[]), "Length");
-    }
-
   }
 
   public partial class Builtins
@@ -119,7 +113,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector-append")]
-    public static object[] VectorAppend(params object[] args)
+    public static object VectorAppend(params object[] args)
     {
       ArrayList all = new ArrayList();
       foreach (IEnumerable e in args)
@@ -133,7 +127,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector-length")]
-    public static int VectorLength(object vec)
+    public static object VectorLength(object vec)
     {
       object[] l = RequiresNotNull<object[]>(vec);
       return l.Length;

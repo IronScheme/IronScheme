@@ -35,46 +35,46 @@ namespace IronScheme.Runtime
       ICallable f = RequiresNotNull<ICallable>(thunk);
       string path = RequiresNotNull<string>(filename);
 
-      TextReader old = Console.In;
+      TextReader old = currentinputport;
 
       try
       {
         using (TextReader r = File.OpenText(path))
         {
-          Console.SetIn(r);
+          currentinputport = r;
           return f.Call();
         }
       }
       finally
       {
-        if (readcache.ContainsKey(Console.Out))
+        if (readcache.ContainsKey(currentinputport))
         {
-          readcache.Remove(Console.Out);
+          readcache.Remove(currentinputport);
         }
-        Console.SetIn(old);
+        currentinputport = old;
       }
     }
 
 
     [Builtin("with-output-to-file")]
-    public static object WithOutputToFile(CodeContext cc, object filename, object thunk)
+    public static object WithOutputToFile(object filename, object thunk)
     {
       ICallable f = RequiresNotNull<ICallable>(thunk);
       string path = RequiresNotNull<string>(filename);
 
-      TextWriter old = Console.Out;
+      TextWriter old = currentoutputport;
 
       try
       {
         using (TextWriter w = File.CreateText(path))
         {
-          Console.SetOut(w);
+          currentoutputport = w;
           return f.Call();
         }
       }
       finally
       {
-        Console.SetOut(old);
+        currentoutputport = old;
       }
     }
 
@@ -215,6 +215,12 @@ namespace IronScheme.Runtime
 
           try
           {
+            //HACK: but it helps
+            if (path.Contains("ironscheme.boot.pp"))
+            {
+              Compiler.Generator.variablelocation = Microsoft.Scripting.Ast.Variable.VariableKind.Global;
+            }
+
             SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
 
             Stopwatch sw = Stopwatch.StartNew();
@@ -228,7 +234,7 @@ namespace IronScheme.Runtime
           }
           finally
           {
-            GC.Collect(3, GCCollectionMode.Forced);
+            GC.Collect();
           }
           //break;
       }
@@ -267,33 +273,44 @@ namespace IronScheme.Runtime
       }
       else
       {
-        StringBuilder input = new StringBuilder();
         TextReader r = RequiresNotNull<TextReader>(port);
+        object result = null;
 
-        string i = null;
-
-        while ((i = r.ReadLine()) != null)
+        if (r is StreamReader)
         {
-          input.AppendLine(i);
+          StreamReader rr = (StreamReader)r;
+          Stream s = rr.BaseStream;
+          if (s.Length == s.Position && !rr.EndOfStream)
+          {
+            s.Position = 0;
+          }
+          if (!rr.EndOfStream)
+          {
+            result = IronSchemeLanguageContext.ReadExpressions(s, Context.ModuleContext.CompilerContext);
+            rr.ReadToEnd();
+          }
+        }
+        else
+        {
+          string input = r.ReadToEnd();
+          if (input.Length > 0)
+          {
+            result = IronSchemeLanguageContext.ReadExpressions(input, Context.ModuleContext.CompilerContext);
+          }
         }
 
-        if (input.Length > 0)
+        if (result is Cons)
         {
-          object result = IronSchemeLanguageContext.ReadExpressions(input.ToString(), Context.ModuleContext.CompilerContext);
-
-          if (result is Cons)
+          c = (Cons)result;
+          if (c.cdr is Cons)
           {
-            c = (Cons)result;
-            if (c.cdr is Cons)
-            {
-              readcache[port] = c.cdr as Cons;
-            }
-            return c.car;
+            readcache[port] = c.cdr as Cons;
           }
-          else if (result != null)
-          {
-            return result;
-          }
+          return c.car;
+        }
+        else if (result != null)
+        {
+          return result;
         }
 
         return EOF;
@@ -598,9 +615,22 @@ namespace IronScheme.Runtime
       if (obj is Hashtable)
       {
         List<string> v = new List<string>();
+        int llen = 0, rlen = 0;
         foreach (DictionaryEntry de in (Hashtable)obj)
         {
-          v.Add(string.Format("[{0,-60} => {1,-60}]",  DisplayFormat(de.Key), DisplayFormat(de.Value)));
+          llen = Math.Max(llen, DisplayFormat(de.Key).Length);
+          rlen = Math.Max(rlen, DisplayFormat(de.Value).Length);
+        }
+        string format = string.Format("[{{0,-{0}}} => {{1,-{1}}}]", llen, rlen);
+
+        foreach (DictionaryEntry de in (Hashtable)obj)
+        {
+          v.Add( string.Format(format,  DisplayFormat(de.Key), DisplayFormat(de.Value)));
+        }
+
+        if (v.Count == 0)
+        {
+          return "#[hashtable]";
         }
 
         return string.Join(Environment.NewLine, v.ToArray());
@@ -633,6 +663,11 @@ namespace IronScheme.Runtime
       if (obj is SymbolId)
       {
         return SymbolTable.IdToString((SymbolId)obj);
+      }
+
+      if ((bool)IsNumber(obj))
+      {
+        return NumberToString(obj) as string;
       }
 
       return obj.ToString();
@@ -753,6 +788,11 @@ namespace IronScheme.Runtime
         return SymbolTable.IdToString((SymbolId)obj);
       }
 
+      if ((bool)IsNumber(obj))
+      {
+        return NumberToString(obj) as string;
+      }
+
       return obj.ToString();
     }
 
@@ -804,7 +844,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("call-with-output-file")]
-    public static object CallWithOutputFile(CodeContext cc, object filename, object fc1)
+    public static object CallWithOutputFile(object filename, object fc1)
     {
       ICallable f = RequiresNotNull<ICallable>(fc1);
       string path = RequiresNotNull<string>(filename);
@@ -815,16 +855,19 @@ namespace IronScheme.Runtime
       }
     }
 
+    static TextReader currentinputport = Console.In;
+    static TextWriter currentoutputport = Console.Out;
+
     [Builtin("current-input-port")]
     public static TextReader CurrentInputPort()
     {
-      return Console.In;
+      return currentinputport;
     }
 
     [Builtin("current-output-port")]
     public static TextWriter CurrentOutputPort()
     {
-      return Console.Out;
+      return currentoutputport;
     }
     
     [Builtin("open-input-file")]

@@ -21,6 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Reflection.Emit;
 using System.Collections;
+using Microsoft.Scripting.Math;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -43,11 +44,10 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("make-bytevector")]
     public static object MakeByteVector(object k, object fill)
     {
-      int i = RequiresNotNull<int>(k);
       int c = RequiresNotNull<int>(fill);
-      byte[] b = new byte[i];
+      byte[] b = new byte[RequiresNotNull<int>(k)];
 
-      for (i = 0; i < b.Length; i++)
+      for (int i = 0; i < b.Length; i++)
       {
         b[i] = (byte)c;
       }
@@ -312,53 +312,271 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    /* TODO!!!! :(
-     * (bytevector-uint-ref bytevector k endianness size)procedure
-       (bytevector-sint-ref bytevector k endianness size)procedure
-       (bytevector-uint-set! bytevector k n endianness size)procedure
-     * (bytevector-sint-set! bytevector k n endianness size)procedure
-     * 
-     * (bytevector->uint-list bytevector endianness size)procedure
-(bytevector->sint-list bytevector endianness size)procedure
-(uint-list->bytevector list endianness size)procedure
-     * (sint-list->bytevector list endianness size)
-     * 
-     * (bytevector-u16-ref bytevector k endianness)    procedure 
-(bytevector-s16-ref bytevector k endianness)    procedure 
-(bytevector-u16-native-ref bytevector k)    procedure 
-(bytevector-s16-native-ref bytevector k)    procedure 
-(bytevector-u16-set! bytevector k n endianness)    procedure 
-(bytevector-s16-set! bytevector k n endianness)    procedure 
-(bytevector-u16-native-set! bytevector k n)    procedure 
-(bytevector-s16-native-set! bytevector k n)    procedure 
-     * 
-     * (bytevector-u32-ref bytevector k endianness)    procedure 
-(bytevector-s32-ref bytevector k endianness)    procedure 
-(bytevector-u32-native-ref bytevector k)    procedure 
-(bytevector-s32-native-ref bytevector k)    procedure 
-(bytevector-u32-set! bytevector k n endianness)    procedure 
-(bytevector-s32-set! bytevector k n endianness)    procedure 
-(bytevector-u32-native-set! bytevector k n)    procedure 
-(bytevector-s32-native-set! bytevector k n)    procedure 
-     * 
-     * (bytevector-u64-ref bytevector k endianness)    procedure 
-(bytevector-s64-ref bytevector k endianness)    procedure 
-(bytevector-u64-native-ref bytevector k)    procedure 
-(bytevector-s64-native-ref bytevector k)    procedure 
-(bytevector-u64-set! bytevector k n endianness)    procedure 
-(bytevector-s64-set! bytevector k n endianness)    procedure 
-(bytevector-u64-native-set! bytevector k n)    procedure 
-(bytevector-s64-native-set! bytevector k n)    procedure
-     * 
-     * (bytevector-ieee-single-native-ref bytevector k)    procedure 
-     * (bytevector-ieee-single-ref bytevector k endianness)    procedure 
-     * (bytevector-ieee-double-native-ref bytevector k)    procedure 
-(bytevector-ieee-double-ref bytevector k endianness)    procedure 
-    (bytevector-ieee-single-native-set! bytevector k x)    procedure 
-(bytevector-ieee-single-set! bytevector    procedure 
-     * (bytevector-ieee-double-native-set! bytevector k x)    procedure 
-(bytevector-ieee-double-set! bytevector    procedure
-     */
+    //(bytevector-uint-ref bytevector k endianness size)
+    [Builtin("bytevector-uint-ref")]
+    public static object BytevectorUintRef(object bytevector, object k, object endianess, object size)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+
+      switch (s)
+      {
+        case 1:
+          return b[0];
+        case 2:
+          return BitConverter.ToUInt16(b, i);
+        case 4:
+          return BitConverter.ToUInt32(b, i);
+        case 8:
+          return BitConverter.ToUInt64(b, i);
+        default:
+          byte[] data = new byte[s + 1];
+          Buffer.BlockCopy(b, i, data, 0, s);
+          BigInteger bi = BigInteger.Create(data);
+          return bi;
+      }
+    }
+
+    [Builtin("bytevector-sint-ref")]
+    public static object BytevectorSintRef(object bytevector, object k, object endianess, object size)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+
+      switch (s)
+      {
+        case 1:
+          return unchecked ((sbyte)b[0]);
+        case 2:
+          return BitConverter.ToInt16(b, i);
+        case 4:
+          return BitConverter.ToInt32(b, i);
+        case 8:
+          return BitConverter.ToInt64(b, i);
+        default:
+          byte[] data = new byte[s];
+          Buffer.BlockCopy(b, i, data, 0, s);
+          return BigInteger.Create(data);
+      }
+    }
+
+    //(bytevector-uint-set! bytevector k n endianness size)
+    [Builtin("bytevector-uint-set!")]
+    public static object BytevectorUintSet(object bytevector, object k, object n, object endianess, object size)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+      byte[] data = null;
+
+      switch (s)
+      {
+        case 1:
+          b[i] = Convert.ToByte(n);
+          break;
+        case 2:
+          data = BitConverter.GetBytes(Convert.ToUInt16(n));
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+        case 4:
+          data = BitConverter.GetBytes(Convert.ToUInt32(n));
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+        case 8:
+          data = BitConverter.GetBytes(Convert.ToUInt64(n));
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+        default:
+          BigInteger bi = (BigInteger)n;
+          data = bi.ToByteArray();
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+      }
+
+      return Unspecified;
+    }
+
+    //(bytevector-sint-set! bytevector k n endianness size)
+    [Builtin("bytevector-sint-set!")]
+    public static object BytevectorSintSet(object bytevector, object k, object n, object endianess, object size)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+      byte[] data = null;
+
+      switch (s)
+      {
+        case 1:
+          b[i] = unchecked((byte) Convert.ToSByte(n));
+          break;
+        case 2:
+          data = BitConverter.GetBytes(Convert.ToInt16(n));
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+        case 4:
+          data = BitConverter.GetBytes(Convert.ToInt32(n));
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+        case 8:
+          data = BitConverter.GetBytes(Convert.ToInt64(n));
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+        default:
+          BigInteger bi = (BigInteger)n;
+          data = bi.ToByteArray();
+          Buffer.BlockCopy(data, 0, b, i, s);
+          break;
+      }
+
+      return Unspecified;
+    }
+
+    //(bytevector->uint-list bytevector endianness size)
+    [Builtin("bytevector->uint-list")]
+    public static object BytevectorToUintList(object bytevector, object endianess, object size)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+
+      int l = b.Length;
+
+      List<object> list = new List<object>();
+
+      for (int i = 0; i < l; i += s)
+      {
+        list.Add(BytevectorUintRef(b, i, endianess, size));
+      }
+
+      return Runtime.Cons.FromList(list);
+    }
+
+    //(bytevector->sint-list bytevector endianness size)
+    [Builtin("bytevector->sint-list")]
+    public static object BytevectorToSintList(object bytevector, object endianess, object size)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+
+      int l = b.Length;
+
+      List<object> list = new List<object>();
+
+      for (int i = 0; i < l; i += s)
+      {
+        list.Add(BytevectorSintRef(b, i, endianess, size));
+      }
+
+      return Runtime.Cons.FromList(list);
+    }
+
+    //(uint-list->bytevector list endianness size)
+    [Builtin("uint-list->bytevector")]
+    public static object UintListToBytevector(object list, object endianess, object size)
+    {
+      Cons c = Requires<Cons>(list);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+
+      List<byte> blist = new List<byte>();
+
+      while (c != null)
+      {
+        byte[] data = new byte[s];
+        BytevectorUintSet(data, 0, c.car, endianess, size);
+        blist.AddRange(data);
+
+        c = c.cdr as Cons;
+      }
+
+      return blist.ToArray();
+    }
+
+    //(sint-list->bytevector list endianness size)
+    [Builtin("sint-list->bytevector")]
+    public static object SintListToBytevector(object list, object endianess, object size)
+    {
+      Cons c = Requires<Cons>(list);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      int s = RequiresNotNull<int>(size);
+
+      List<byte> blist = new List<byte>();
+
+      while (c != null)
+      {
+        byte[] data = new byte[s];
+        BytevectorSintSet(data, 0, c.car, endianess, size);
+        blist.AddRange(data);
+
+        c = c.cdr as Cons;
+      }
+
+      return blist.ToArray();
+    }
+
+    //(bytevector-ieee-single-ref bytevector k endianness)     
+    [Builtin("bytevector-ieee-single-ref ")]
+    public static object BytevectorIEEESingleRef(object bytevector, object k, object endianess)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+
+      return BitConverter.ToSingle(b, i);
+    }
+
+    //(bytevector-ieee-double-ref bytevector k endianness)   
+    [Builtin("bytevector-ieee-double-ref")]
+    public static object BytevectorIEEEDoubleRef(object bytevector, object k, object endianess)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+
+      return BitConverter.ToDouble(b, i);
+    }
+
+    //(bytevector-ieee-single-set! bytevector k x endianness)  
+    [Builtin("bytevector-ieee-single-set!")]
+    public static object BytevectorIEEESingleSet(object bytevector, object k, object x, object endianess)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+      float f = Convert.ToSingle(x);
+
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+
+      byte[] data = BitConverter.GetBytes(f);
+      Buffer.BlockCopy(data, 0, b, i, 4);
+
+      return Unspecified;
+    }
+
+    //(bytevector-ieee-double-set! bytevector k x endianness)  
+    [Builtin("bytevector-ieee-double-set!")]
+    public static object BytevectorIEEEDoubleSet(object bytevector, object k, object x, object endianess)
+    {
+      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      int i = RequiresNotNull<int>(k);
+      double f = Convert.ToDouble(x);
+
+      SymbolId end = RequiresNotNull<SymbolId>(endianess);
+
+      byte[] data = BitConverter.GetBytes(f);
+      Buffer.BlockCopy(data, 0, b, i, 8);
+
+      return Unspecified;
+    }
   }
 }
 #endif

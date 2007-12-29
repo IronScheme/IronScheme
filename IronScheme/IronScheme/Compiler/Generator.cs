@@ -206,16 +206,16 @@ namespace IronScheme.Compiler
               if (bf != null)
               {
                 // check for inline emitter
-                //InlineEmitter ie;
-                //if (inlineemitters.TryGetValue(f, out ie))
-                //{
-                //  Expression result = ie(GetAstList(c.cdr as Cons, cb));
-                //  // if null is returned, the method cannot be inlined
-                //  if (result != null)
-                //  {
-                //    return result;
-                //  }
-                //}
+                InlineEmitter ie;
+                if (inlineemitters.TryGetValue(f, out ie))
+                {
+                  Expression result = ie(GetAstList(c.cdr as Cons, cb));
+                  // if null is returned, the method cannot be inlined
+                  if (result != null)
+                  {
+                    return result;
+                  }
+                }
 
                 MethodBinder mb = bf.Binder;
                 Expression[] pars = GetAstList(c.cdr as Cons, cb);
@@ -238,7 +238,7 @@ namespace IronScheme.Compiler
 
         Expression[] pp = GetAstList(c.cdr as Cons, cb);
 
-        Expression ex = GetAst(c.car, cb);
+        Expression ex = Unwrap(GetAst(c.car, cb));
         if (ex is MethodCallExpression)
         {
           MethodCallExpression mcexpr = (MethodCallExpression)ex;
@@ -250,13 +250,16 @@ namespace IronScheme.Compiler
             MethodInfo dc = GetDirectCallable(needscontext, pp.Length);
             if (needscontext)
             {
-              pp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pp);
+              pp = ArrayUtils.Insert<Expression>(mcexpr.Arguments[0], pp);
             }
-            return Ast.ComplexCallHelper(mcexpr.Arguments[1], dc, pp);
+            return Ast.ComplexCallHelper(cbe, dc, pp);
           }
         }
 
-
+        if (ex is ConstantExpression)
+        {
+          Builtins.SyntaxError(SymbolTable.StringToId("generator"), "expecting a procedure", c.car, c);
+        }
 
         ex = Ast.ConvertHelper(ex, typeof(ICallable));
         
@@ -292,20 +295,15 @@ namespace IronScheme.Compiler
       }
     }
 
+    static Expression Unwrap(Expression ex)
+    {
+      while (ex is UnaryExpression && ((UnaryExpression)ex).NodeType == AstNodeType.Convert)
+      {
+        ex = ((UnaryExpression)ex).Operand;
+      }
 
-
-
-
-    //// macro-expand1
-    //[Generator("macro-expand1")]
-    //public static Expression MacroExpand1(object args, CodeBlock cb)
-    //{
-    //  args = Builtins.Car(args);
-    //  object result = SyntaxExpander.Expand1(args);
-    //  return GetCons(result, cb);
-    //}
-
-
+      return ex;
+    }
 
   }
 

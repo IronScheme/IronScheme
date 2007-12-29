@@ -102,13 +102,14 @@ irritants:
       return Unspecified;
     }
 
-    public static object LexicalError(string msg)
+    public static object LexicalError(string msg, object what)
     {
       ICallable l = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&lexical-rcd"))) as ICallable;
       ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
       R6RS.Exceptions.RaiseContinueable(
-        R6RS.Conditions.Condition(l.Call(), m.Call(msg)));
+        R6RS.Conditions.Condition(l.Call(), m.Call(msg), i.Call(List(what))));
 
       return Unspecified;
     }

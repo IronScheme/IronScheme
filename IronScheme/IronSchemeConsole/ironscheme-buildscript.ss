@@ -29,6 +29,7 @@
   (psyntax compat)
   (psyntax library-manager)
   (psyntax expander)
+  (only (ironscheme) time-it)
   )
 
 
@@ -61,6 +62,7 @@
     "ironscheme/records/inspection.ss"
     "ironscheme/records/procedural.ss"
     "ironscheme/records/syntactic.ss"
+    "ironscheme/build.ss"
     "psyntax/compat.ss"
     "psyntax/internal.ss"
     "psyntax/config.ss"
@@ -76,6 +78,7 @@
     (define-syntax       (define-syntax))
     (module              (module))
     (begin               (begin))
+    (library             (library))
     (import              (import))
     (set!                (set!))
     (let-syntax          (let-syntax))
@@ -126,6 +129,7 @@
     (unsyntax-splicing   (macro . unsyntax-splicing))
     (trace-lambda        (macro . trace-lambda))
     (trace-define        (macro . trace-define))
+    (trace-define-syntax (macro . trace-define-syntax))
     ;;; new
     (guard                 (macro . guard))
     (eol-style             (macro . eol-style))
@@ -189,8 +193,8 @@
   ;; abbr.       name                             visible? required?
   '((interaction (ikarus interaction)                  #t    #f)
     (i           (ironscheme)                          #t    #f)
-    (ir          (ironscheme reader)                   #t    #f)
-    (ii          (ironscheme interaction)              #t    #f)
+    (ir          (ironscheme reader)                   #t    #t)
+    (ii          (ironscheme interaction)              #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #t    #f)
     (se          (psyntax scheme-report-environment-5) #t    #f)
@@ -239,12 +243,20 @@
 (define identifier->library-map
   '(
     ;;;
-    (import                                     i)
+    (import                                     i r) ;non standard
+    (library                                    i r) ;non standard
+    (include                                    i)
+    (include-into                               i)
     (expand                                     i)
     (installed-libraries                        i)
+    (library-extensions                         i)
     (library-path                               i)
+    (library-locator                            i)
     (make-parameter                             i)
     (parameterize                               i)
+    (clr-library-locator                        i)
+    (time                                       i)
+    (time-it                                    i)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)
@@ -979,20 +991,31 @@
     (gensym                                     $boot i)
     (symbol-value                               $boot)
     (set-symbol-value!                          $boot)
-    (eval-core                                  $boot i)
-    (pretty-print                               $boot)
+    (eval-core                                  $boot)
+    (pretty-print                               $boot i)
     (module                                     cm)
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
+    
+    (clr-new-array-internal                     is-clr-int)
     (clr-new-internal                           is-clr-int)
     (clr-call-internal                          is-clr-int)
     (clr-cast-internal                          is-clr-int)
-    (defined?                                   ii)
+    (clr-field-get-internal                     is-clr-int)
+    (clr-field-set!-internal                    is-clr-int)
+    
     (ironscheme-build                           i)
     (stacktrace                                 ii)
+    (license                                    ii)
     (load-r5rs                                  ii)
     (last-pair                                  i)
     (make-list                                  i)
+    
+    (read-annotated                             ir)
+    (annotation?                                ir)
+    (annotation-expression                      ir)
+    (annotation-source                          ir)
+    (annotation-stripped                        ir)
     
     ;;; these should be assigned when creating the record types
     (&condition-rtd)
@@ -1059,7 +1082,7 @@
     (for-each
       (lambda (x)
         (unless (assq x library-legend)
-          (error 'verify "~s is not in the libraries list" x)))
+          (error 'verify "not in the libraries list" x)))
       (cdr x)))
   (for-each f identifier->library-map))
 
@@ -1087,7 +1110,7 @@
         (cond
           ((macro-identifier x) (values))
           ((assq x (export-subst))
-           (error who "ambiguous export of ~s" x))
+           (error who "ambiguous export" x))
           ((assq x subst) =>
            ;;; primitive defined (exported) within the compiled libraries
            (lambda (p)
@@ -1102,9 +1125,9 @@
                          (export-env   (cons label (cons 'core-prim x)))
                          (export-primlocs (cons x (cdr binding))))
                         (else
-                         (error #f "invalid binding ~s for ~s" p x))))))
+                         (error #f "invalid binding for identifier" p x))))))
                  (else
-                  (error #f "cannot find binding for ~s" x))))))
+                  (error #f "cannot find binding" x label))))))
           (else
            ;;; core primitive with no backing definition, assumed to
            ;;; be defined in other strata of the system
@@ -1176,6 +1199,8 @@
   (values '() '() '()))
 
 (define (expand-all files)
+  ;;; remove all re-exported identifiers (those with labels in
+  ;;; subst but not binding in env).
   (define (prune-subst subst env)
     (cond
       ((null? subst) '())
@@ -1185,7 +1210,7 @@
     (with-input-from-file file
        (lambda ()
          (let f ()
-           (let ((x (read)))
+           (let ((x (read-annotated)))
              (unless (eof-object? x) 
                (proc x)
                (f)))))))
@@ -1222,7 +1247,6 @@
 
 (verify-map)
 
-
 (let ((all-names (map car identifier->library-map))
       (all-labels (map (lambda (x) (gensym)) identifier->library-map))
       (all-bindings (map (lambda (x) 
@@ -1257,6 +1281,7 @@
                    subst env values values visible?)))))))
     (for-each build-library library-legend)))
 
+
 (let ()
   (define-syntax define-prims
     (syntax-rules ()
@@ -1277,30 +1302,33 @@
     open-string-output-port identifier? free-identifier=? exists
     values call-with-values for-all))
 
-
-
-
-(let-values (((core* locs)
-               (parameterize ((current-library-collection bootstrap-collection))
-                 (expand-all scheme-library-files))))
-    (current-primitive-locations
-      (lambda (x)
-        (cond
-          ((assq x locs) => cdr)
-          (else #f))))
-    (when (file-exists? "ironscheme.boot.pp")
-      (delete-file "ironscheme.boot.pp"))
-    (let ((p (open-output-file "ironscheme.boot.pp")))
-      (display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
-      (display ";;; Copyright (c) 2007 Llewellyn Pritchard" p) (newline p)
-      (display ";;; automatically generated from psyntax & ironscheme sources" p) (newline p)
-      (display ";;; for copyright details, see psyntax/main.ss" p) (newline p) (newline p)
-      (for-each
-        (lambda (x)
-          (compile-core-expr-to-port x p)
-          (newline p))
-        core*)
-      (close-output-port p)))
+(time-it "the entire bootstrap process"  
+  (lambda () 
+    (let-values (((core* locs)
+                   (time-it "macro expansion"  
+                     (lambda ()   
+                       (parameterize ((current-library-collection bootstrap-collection))
+                         (expand-all scheme-library-files))))))
+        (current-primitive-locations
+          (lambda (x)
+            (cond
+              ((assq x locs) => cdr)
+              (else #f))))
+        (when (file-exists? "ironscheme.boot.pp")
+          (delete-file "ironscheme.boot.pp"))
+        (let ((p (open-output-file "ironscheme.boot.pp")))
+          (display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
+          (display ";;; Copyright (c) 2007 Llewellyn Pritchard" p) (newline p)
+          (display ";;; automatically generated from psyntax & ironscheme sources" p) (newline p)
+          (display ";;; for copyright details, see psyntax/main.ss" p) (newline p) (newline p)
+          (time-it "code generation and pretty-print"  
+            (lambda ()  
+              (for-each
+                (lambda (x)
+                  (compile-core-expr-to-port x p)
+                  (newline p))
+                core*)))
+          (close-output-port p)))))
 
 (display "IronScheme build completed.\n")
 

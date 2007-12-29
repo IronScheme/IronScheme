@@ -27,7 +27,7 @@ using System.Threading;
 
 namespace IronScheme.Hosting
 {
-  class IronSchemeScriptEngine : ScriptEngine
+  sealed class IronSchemeScriptEngine : ScriptEngine
   {
     public IronSchemeScriptEngine(LanguageProvider lp, EngineOptions eo, LanguageContext lc)
       : base(lp, eo, lc)
@@ -56,26 +56,6 @@ namespace IronScheme.Hosting
         exception = exception.InnerException;
       }
       Builtins.lastException = exception;
-      if (exception is MissingMemberException)
-      {
-        return string.Format("error: {0}", exception.Message);
-      }
-      if (exception is SyntaxErrorException)
-      {
-        SyntaxErrorException se = (SyntaxErrorException)exception;
-        if (se.Message == "Exception of type 'Microsoft.Scripting.SyntaxErrorException' was thrown.")
-        {
-          return "syntax error: incomplete expression";
-        }
-        if (se.Column == 0 && se.Line == 0)
-        {
-          return string.Format("{0} error: {1}", se.ErrorCode == 2 ? "lexer" : "parser", se.Message);
-        }
-        else
-        {
-          return string.Format("{0} error: {1} at ({2}:{3})", se.ErrorCode == 2 ? "lexer" : "parser", se.Message, se.Line, se.Column);
-        }
-      }
       if (exception is Builtins.Continuation)
       {
         // cheat
@@ -87,21 +67,9 @@ namespace IronScheme.Hosting
         return @"&implementation-restriction
 &message:      " + exception.Message;
       }
-      if (exception is NotImplementedException)
-      {
-        return "not implemented: " + exception.Message;
-      }
       if (exception is ArgumentTypeException || exception is ArgumentNullException || exception is ArgumentException || exception is ArgumentOutOfRangeException)
       {
         return "argument error: " + exception.Message;
-      }
-      if (exception is ArgumentNullException)
-      {
-        //return "argument error: " + 
-      }
-      if (exception is SchemeException)
-      {
-        return exception.Message;
       }
       if (exception is ThreadAbortException)
       {
@@ -134,17 +102,23 @@ namespace IronScheme.Hosting
 
     protected override string[] FormatObjectMemberNames(IList<object> names)
     {
+
       string[] n = new string[names.Count];
       for (int i = 0; i < names.Count; i++)
       {
         n[i] = names[i] as string;
       }
+#if !R6RS
       Array.Sort(n);
+#endif
       return n;
     }
 
     protected override IList<object> Ops_GetAttrNames(CodeContext context, object obj)
     {
+#if R6RS
+      return Identifiers.GetR6RSIds();
+#else
       List<object> ll = new List<object>();
       foreach (SymbolId var in IronScheme.Compiler.BaseHelper.cc.Scope.Keys)
       {
@@ -152,6 +126,7 @@ namespace IronScheme.Hosting
       }
 
       return ll;
+#endif
     }
 
     public override string Copyright
@@ -189,13 +164,13 @@ namespace IronScheme.Hosting
         base.Add(sourceUnit, message, span, errorCode, severity);
         if (sourceUnit.Kind == SourceCodeKind.InteractiveCode && message != "unexpected EOF")
         {
-          Builtins.LexicalError(message);
+          Builtins.LexicalError(message, false);
           throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
         }
         else
         if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
         {
-          Builtins.LexicalError(message);
+          Builtins.LexicalError(message, false);
           throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
         }
       }

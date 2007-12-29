@@ -17,6 +17,7 @@ using System.Text;
 using IronScheme.Hosting;
 using Microsoft.Scripting;
 using IronScheme.Runtime;
+using System.Runtime;
 
 [assembly: Extension(BuiltinsType=typeof(IronScheme.Runtime.ConsoleBuiltins))]
 

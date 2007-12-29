@@ -82,17 +82,20 @@ namespace IronScheme.Runtime
     [Builtin("string-ref")]
     public static char StringRef(object obj, int k)
     {
-      StringBuilder sb = obj as StringBuilder;
-      if (sb != null)
-      {
-        return sb[k];
-      }
       string s = obj as string;
       if (s != null)
       {
         return s[k];
       }
-      throw new ArgumentTypeException("obj must be a StringBuilder or a String");
+
+      StringBuilder sb = obj as StringBuilder;
+      if (sb != null)
+      {
+        return sb[k];
+      }
+
+      AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", obj);
+      return (char)0;
     }
 
     [Builtin("make-string")]
@@ -121,19 +124,16 @@ namespace IronScheme.Runtime
 
     protected static string GetString(object str)
     {
-      if (str is StringBuilder)
-      {
-        return str.ToString();
-      }
       if (str is string)
       {
         return (string)str;
       }
-      if (str == null)
+      if (str is StringBuilder)
       {
-        return null;
+        return str.ToString();
       }
-      throw new ArgumentTypeException("obj must be a StringBuilder or a String");
+      AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", str);
+      return null;
     }
 
     [Builtin("substring")]

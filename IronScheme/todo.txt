@@ -1,10 +1,38 @@
 
-TODO
-====
+Notably lacking for R6RS:
 
-- lexical scope for macro's
+- Custom ports
+- Guard does not work as expected (due to inward continuations)
+- Unicode: title casing is kinda broken, fold casing not implemented
+- Complex numbers
+- Fractions only work in REPL
+- Some functionality lacking in ports (endianess, buffer-mode, file-options, eol options)
 
-- numbers (bignums)
-- strings
+Limitations:
 
+- Enumerations limited to 64 symbols
 
+Differences:
+
+- all raise's are continuable in the sense they can be caught
+- no tail calls in dynamic-wind
+
+Extras:
+
+- a generic load procedure for toplevel R6RS files
+- many extras procedures and macros in (ironscheme) library, mostly provided by psyntax
+
+Notes:
+
+- you can refer to variables defined in the REPL by importing the (ironscheme interaction) library
+- libraries defined in the REPL can be accessed from their given library name
+- values is represented as a vector
+
+Credits:
+
+- Abdulaziz Ghuloum and Kent Dybvig for psyntax (and friends)
+- Derick Eddington for making SRFI-1 R6RS compatible
+- Philip L. Bewig for SRFI-41
+- Marc Feeley for pretty-print
+
+And finally, it's slow compared to other implementations like Ikarus.

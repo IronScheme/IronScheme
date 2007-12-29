@@ -57,6 +57,7 @@
   (import 
     (except (rnrs) map member assoc)
     (rnrs mutable-pairs)
+    (srfi receive)
     (only (ironscheme) last-pair make-list))
 
 ;;; 
@@ -614,10 +615,10 @@
 ;		   lis)))
 ;      (list-tail lis k)))
 
-(define-syntax receive
-  (syntax-rules ()
-    [(_ (id* ...) expr body body* ...)
-     (let-values ([(id* ...) expr]) body body* ...)]))
+;(define-syntax receive
+;  (syntax-rules ()
+;    [(_ (id* ...) expr body body* ...)
+;     (let-values ([(id* ...) expr]) body body* ...)]))
 
 
 (define (split-at x k)

@@ -1,6 +1,6 @@
 //
 // gplexx.frame
-// Version 0.5.1 of 11 March 2007
+// Version 0.6.2 of 13-November-2007
 // Derived from gplex.frame version of 2-September-2006. 
 // Left and Right Anchored state support.
 // Start condition stack. Two generic params.
@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using Microsoft.Scripting;
+using System.Text;
 #if !STANDALONE
 using gppg;
 #endif
@@ -32,8 +33,7 @@ using gppg;
       EOF = 0, maxParseToken = int.MaxValue 
       // must have at least these two, values are almost arbitrary
     }
-    
-    [CLSCompliant(false)]
+
     public abstract class ScanBase
     {
         public abstract int yylex();
@@ -43,7 +43,10 @@ using gppg;
         // the end of each line for Visual Studio colorization.  
         // The default is to return CurrentSc.  You must override
         // this if you want more complicated behavior.
-        public virtual int EolState { get { return CurrentSc; set { CurrentSc = value; } }
+        public virtual int EolState { 
+            get { return CurrentSc; }
+            set { CurrentSc = value; } 
+        }
     }
     
     public interface IColorScan
@@ -57,17 +60,18 @@ using gppg;
 
     public abstract class ScanBuff
     {
-        public const char EOF = (char)256;
+        public const int EOF = -1;
         public abstract int Pos { get; set; }
         public abstract int Read();
         public abstract int Peek();
+        public abstract int ReadPos { get; }
         public abstract string GetString(int b, int e);
     }
     
     // If the compiler can't find ScanBase maybe you need to run
     // GPPG with the /gplex option, or GPLEX with /noparser
 #if BABEL
-    public sealed class Scanner : ScanBase, IColorScan
+    public sealed partial class Scanner : ScanBase, IColorScan
     {
         public ScanBuff buffer;
         int currentScOrd;  // start condition ordinal
@@ -84,7 +88,7 @@ using gppg;
                    currentStart = startState[value]; }
         }
 #else  // BABEL
-    public sealed class Scanner : ScanBase
+    public sealed partial class Scanner : ScanBase
     {
         public ScanBuff buffer;
         int currentScOrd;  // start condition ordinal
@@ -105,15 +109,16 @@ using gppg;
         int state;
         int currentStart = initial;
         int chr;           // last character read
-        int cPos;          // position of chr
+        int cNum = 0;      // ordinal number of chr
         int lNum = 0;      // current line number
-        int lineStart;     // start of line
-
+        int lineStartNum;  // ordinal number at start of line
         //
         // The following instance variables are used, among other
         // things, for constructing the yylloc location objects.
         //
         int tokPos;        // buffer position at start of token
+        int tokNum;        // ordinal number of first character
+        int tokLen;        // number of characters in token
         int tokCol;        // zero-based column number at start of token
         int tokLin;        // line number at start of token
         int tokEPos;       // buffer position at end of token
@@ -133,14 +138,15 @@ using gppg;
         internal class Context // class used for automaton backup.
         {
             public int bPos;
-            public int cPos;
+            public int cNum;
             public int state;
             public int cChr;
         }
 #endif // BACKUP
 
-
-        // ====================== Nested class ==========================
+        // ==============================================================
+        // ===== Nested classes for various ScanBuff derived classes ====
+        // ==============================================================
 
         public sealed class StringBuff : ScanBuff
         {
@@ -160,8 +166,10 @@ using gppg;
 #if BABEL
                 else if (bPos == sLen) { bPos++; return '\n'; }   // one strike, see newline
 #endif // BABEL
-                else return EOF;                                  // two strikes and you're out!
+                else { bPos++; return EOF; }                      // two strikes and you're out!
             }
+            
+            public override int ReadPos { get { return bPos - 1; } }
 
             public override int Peek()
             {
@@ -189,25 +197,155 @@ using gppg;
             }
         }
 
+       // ====================== Nested class ==========================
+       //  The LineBuff class contributed by Nigel Horspool, 
+       //  nigelh@cs.uvic.cs
+       // ==============================================================
+
+        public sealed class LineBuff : ScanBuff
+        {
+            IList<string> line;    // list of source lines from a file
+            int numLines;          // number of strings in line list
+            string curLine;        // current line in that list
+            int cLine;             // index of current line in the list
+            int curLen;            // length of current line
+            int curLineStart;      // position of line start in whole file
+            int curLineEnd;        // position of line end in whole file
+            int maxPos;            // max position ever visited in whole file
+            int cPos;              // ordinal number of chr in source
+
+            // Constructed from a list of strings, one per source line.
+            // The lines have had trailing '\n' characters removed.
+            public LineBuff(IList<string> lineList)
+            {
+                line = lineList;
+                numLines = line.Count;
+                cPos = curLineStart = 0;
+                curLine = numLines>0? line[0] : "";
+                maxPos = curLineEnd = curLen = curLine.Length;
+                cLine = 1;
+            }
+
+            public override int Read()
+            {
+                if (cPos < curLineEnd)
+                    return curLine[cPos++ - curLineStart];
+                if (cPos++ == curLineEnd)
+                    return '\n';
+                if (cLine >= numLines)
+                    return EOF;
+                curLine = line[cLine];
+                curLen = curLine.Length;
+                curLineStart = curLineEnd + 1;
+                curLineEnd = curLineStart + curLen;
+                if (curLineEnd>maxPos)
+                    maxPos = curLineEnd;
+                cLine++;
+                return curLen>0? curLine[0] : '\n';
+            }
+
+            public override int Peek()
+            {
+                return (cPos < curLineEnd)? curLine[cPos - curLineStart] : '\n';
+            }
+
+            // To speed up searches for the line containing a position
+            private int cachedPos = 0;
+            private int cachedIx = 0;
+            private int cachedLstart = 0;
+
+            // Given a position pos within the entire source, the results are
+            //   ix     -- the index of the containing line
+            //   lstart -- the position of the first character on that line
+            private void findIndex( int pos, out int ix, out int lstart )
+            {
+                if (pos >= cachedPos) {
+                    ix = cachedIx;  lstart = cachedLstart;
+                } else {
+                    ix = lstart = 0;
+                }
+                for( ; ; ) {
+                    int len = line[ix].Length + 1;
+                    if (pos < lstart+len) break;
+                    lstart += len;
+                    ix++;
+                }
+                cachedPos = pos;
+                cachedIx = ix;
+                cachedLstart = lstart;
+            }
+        
+            public override string GetString(int beg, int end)
+            {
+                if (beg >= maxPos || end <= beg) return "";
+                int endIx, begIx, endLineStart, begLineStart;
+                findIndex(beg, out begIx, out begLineStart);
+                int begCol = beg - begLineStart;
+                findIndex(end, out endIx, out endLineStart);
+                int endCol = end - endLineStart;
+                string s = line[begIx];
+                if (begIx == endIx) {
+                    // the usual case, substring all on one line
+                    return (endCol <= s.Length)?
+                        s.Substring(begCol, endCol-begCol)
+                        : s.Substring(begCol) + "\n";
+                }
+                // the string spans multiple lines, yuk!
+                StringBuilder sb = new StringBuilder();
+                if (begCol < s.Length)
+                    sb.Append(s.Substring(begCol));
+                for( ; ; ) {
+                    sb.Append("\n");
+                    s = line[++begIx];
+                    if (begIx >= endIx) break;
+                    sb.Append(s);
+                }
+                if (endCol <= s.Length) {
+                    sb.Append(s.Substring(0, endCol));
+                } else {
+                    sb.Append(s);
+                    sb.Append("\n");
+                }
+                return sb.ToString();
+            }
+
+            public override int Pos
+            {
+                get { return cPos; }
+                set {
+                    cPos = value;
+                    findIndex(cPos, out cLine, out curLineStart);
+                    curLine = line[cLine];
+                    curLineEnd = curLineStart+curLine.Length;
+                }
+            }
+            
+            public override int ReadPos { get { return cPos - 1; } }
+        }
+        
         // ====================== Nested class ==========================
 
         public sealed class StreamBuff : ScanBuff
         {
             BufferedStream bStrm;   // input buffer
+            int delta = 1;          // number of bytes in chr, could be 0 for EOF.
 
             public StreamBuff(Stream str) { this.bStrm = new BufferedStream(str); }
 
-            public override int Read()
-            {
-                int byt = bStrm.ReadByte();
-                if (byt == -1) return EOF;
-                else return byt;
+            public override int Read() {
+                int ch0 = bStrm.ReadByte();
+                delta = (ch0 == EOF ? 0 : 1);
+                return ch0; 
+            }
+            
+            public override int ReadPos {
+                get { return (int)bStrm.Position - delta; }
             }
 
             public override int Peek()
             {
-                int rslt = Read();
-                bStrm.Seek(-1, SeekOrigin.Current);
+                int rslt = bStrm.ReadByte();
+                bStrm.Seek(-delta, SeekOrigin.Current);
                 return rslt;
             }
 
@@ -218,11 +356,12 @@ using gppg;
                 char[] arr = new char[end - beg];
                 bStrm.Position = (long)beg;
                 for (int i = 0; i < (end - beg); i++)
-                    arr[i] = (char)Read();
+                    arr[i] = (char)bStrm.ReadByte();
                 bStrm.Position = savePos;
                 return new String(arr);
             }
 
+            // Pos is the position *after* reading chr!
             public override int Pos
             {
                 get { return (int)bStrm.Position; }
@@ -230,11 +369,187 @@ using gppg;
             }
         }
 
+        // ====================== Nested class ==========================
+
+        /// <summary>
+        /// This is the Buffer for UTF8 files.
+        /// It attempts to read the encoding preamble, which for 
+        /// this encoding should be unicode point \uFEFF which is 
+        /// encoded as EF BB BF
+        /// </summary>
+        public class TextBuff : ScanBuff
+        {
+            protected BufferedStream bStrm;   // input buffer
+            protected int delta = 1;          // length of chr, zero for EOF!
+            
+            private Exception BadUTF8()
+            { return new Exception(String.Format("BadUTF8 Character")); }
+
+            /// <summary>
+            /// TextBuff factory.  Reads the file preamble
+            /// and returns a TextBuff, LittleEndTextBuff or
+            /// BigEndTextBuff according to the result.
+            /// </summary>
+            /// <param name="strm">The underlying stream</param>
+            /// <returns></returns>
+            public static TextBuff NewTextBuff(Stream strm)
+            {
+                // First check if this is a UTF16 file
+                //
+                int b0 = strm.ReadByte();
+                int b1 = strm.ReadByte();
+
+                if (b0 == 0xfe && b1 == 0xff)
+                    return new BigEndTextBuff(strm);
+                if (b0 == 0xff && b1 == 0xfe)
+                    return new LittleEndTextBuff(strm);
+                
+                int b2 = strm.ReadByte();
+                if (b0 == 0xef && b1 == 0xbb && b2 == 0xbf)
+                    return new TextBuff(strm);
+                //
+                // There is no unicode preamble, so we
+                // must go back to the UTF8 default.
+                //
+                strm.Seek(0, SeekOrigin.Begin);
+                return new TextBuff(strm);
+            }
+
+            protected TextBuff(Stream str) { 
+                this.bStrm = new BufferedStream(str);
+            }
+
+            public override int Read()
+            {
+                int ch0 = bStrm.ReadByte();
+                int ch1;
+                int ch2;
+                if (ch0 < 0x7f)
+                {
+                    delta = (ch0 == EOF ? 0 : 1);
+                    return ch0;
+                }
+                else if ((ch0 & 0xe0) == 0xc0)
+                {
+                    delta = 2;
+                    ch1 = bStrm.ReadByte();
+                    if ((ch1 & 0xc0) == 0x80)
+                        return ((ch0 & 0x1f) << 6) + (ch1 & 0x3f);
+                    else
+                        throw BadUTF8();
+                }
+                else if ((ch0 & 0xf0) == 0xe0)
+                {
+                    delta = 3;
+                    ch1 = bStrm.ReadByte();
+                    ch2 = bStrm.ReadByte();
+                    if ((ch1 & ch2 & 0xc0) == 0x80)
+                        return ((ch0 & 0xf) << 12) + ((ch1 & 0x3f) << 6) + (ch2 & 0x3f);
+                    else
+                        throw BadUTF8();
+                }
+                else
+                    throw BadUTF8();
+            }
+
+            public sealed override int ReadPos
+            {
+                get { return (int)bStrm.Position - delta; }
+            }
+
+            public sealed override int Peek()
+            {
+                int rslt = Read();
+                bStrm.Seek(-delta, SeekOrigin.Current);
+                return rslt;
+            }
+
+            /// <summary>
+            /// Returns the string from the buffer between
+            /// the given file positions.  This needs to be
+            /// done carefully, as the number of characters
+            /// is, in general, not equal to (end - beg).
+            /// </summary>
+            /// <param name="beg">Begin filepos</param>
+            /// <param name="end">End filepos</param>
+            /// <returns></returns>
+            public sealed override string GetString(int beg, int end)
+            {
+                int i;
+                if (end - beg <= 0) return "";
+                long savePos = bStrm.Position;
+                char[] arr = new char[end - beg];
+                bStrm.Position = (long)beg;
+                for (i = 0; bStrm.Position < end; i++)
+                    arr[i] = (char)Read();
+                bStrm.Position = savePos;
+                return new String(arr, 0, i);
+            }
+
+            // Pos is the position *after* reading chr!
+            public sealed override int Pos
+            {
+                get { return (int)bStrm.Position; }
+                set { bStrm.Position = value; }
+            }
+        }
+
+        // ====================== Nested class ==========================
+        /// <summary>
+        /// This is the Buffer for Big-endian UTF16 files.
+        /// </summary>
+        public sealed class BigEndTextBuff : TextBuff
+        {
+            internal BigEndTextBuff(Stream str) : base(str) { } // 
+
+            public override int Read()
+            {
+                int ch0 = bStrm.ReadByte();
+                int ch1 = bStrm.ReadByte();
+                if (ch1 == EOF)
+                {
+                    // An EOF in either byte counts as an EOF
+                    delta = (ch0 == EOF ? 0 : 1);
+                    return -1;
+                }
+                else
+                {
+                    delta = 2;
+                    return (ch0 << 8) + ch1;
+                }
+            }
+        }
+        
+        // ====================== Nested class ==========================
+        /// <summary>
+        /// This is the Buffer for Little-endian UTF16 files.
+        /// </summary>
+        public sealed class LittleEndTextBuff : TextBuff
+        {
+            internal LittleEndTextBuff(Stream str) : base(str) { } // { this.bStrm = new BufferedStream(str); }
+
+            public override int Read()
+            {
+                int ch0 = bStrm.ReadByte();
+                int ch1 = bStrm.ReadByte();
+                if (ch1 == EOF)
+                {
+                    // An EOF in either byte counts as an EOF
+                    delta = (ch0 == EOF ? 0 : 1);
+                    return -1;
+                }
+                else
+                {
+                    delta = 2;
+                    return (ch1 << 8) + ch1;
+                }
+            }
+        }
         // =================== End Nested classes =======================
 
         public Scanner(Stream file) {
-            buffer = new StreamBuff(file);
-            this.cPos = -1;
+##-->bufferCtor
+            this.cNum = -1;
             this.chr = '\n'; // to initialize yyline, yycol and lineStart
             GetChr();
         }
@@ -243,37 +558,57 @@ using gppg;
 
         void GetChr()
         {
-            if (chr == '\n') { lineStart = buffer.Pos; lNum++; }
-            chr = buffer.Read(); cPos++;
+            if (chr == '\n') 
+            { 
+                lineStartNum = cNum + 1; 
+                lNum++; 
+            }
+            chr = buffer.Read();
+            cNum++;
         }
 
         void MarkToken()
         {
-            tokPos = cPos;
+            tokPos = buffer.ReadPos;
+            tokNum = cNum;
             tokLin = lNum;
-            tokCol = cPos - lineStart;
+            tokCol = cNum - lineStartNum;
         }
         
         void MarkEnd()
         {
             tokTxt = null;
-            tokEPos = cPos;
+            tokLen = cNum - tokNum;
+            tokEPos = buffer.ReadPos;
             tokELin = lNum;
-            tokECol = cPos - lineStart;
-
+            tokECol = cNum - lineStartNum;
         }
 
-        // ================ StringBuffer Initialization ===================
+        // ==============================================================
+        // =====    Initialization of string-based input buffers     ====
+        // ==============================================================
 
         public void SetSource(string source, int offset)
         {
             this.buffer = new StringBuff(source);
             this.buffer.Pos = offset;
-            this.cPos = offset - 1;
+            this.cNum = offset - 1;
             this.chr = '\n'; // to initialize yyline, yycol and lineStart
             GetChr();
         }
         
+        // ================ LineBuffer Initialization ===================
+
+        public void SetSource(IList<string> source)
+        {
+            this.buffer = new LineBuff(source);
+            this.chr = '\n'; // to initialize yyline, yycol and lineStart
+            this.cNum = -1;
+            GetChr();
+        }
+        
+        // ==============================================================
+
 #if BABEL
         //
         //  Get the next token for Visual Studio
@@ -283,6 +618,7 @@ using gppg;
         //  if the calls of EolState are costly set could be called once
         //  only per line, at the start; and get called only at the end
         //  of the line. This needs more infrastructure ...
+        //
         public int GetNext(ref int state, out int start, out int end)
         {
             Tokens next;
@@ -294,8 +630,6 @@ using gppg;
             e = state;       // state at end;
             start = tokPos;
             end = tokEPos - 1; // end is the index of last char.
-            // if (next > Tokens.maxParseToken)
-            //     Trace.WriteLine(String.Format("({0}-{1}) {2}->{3} {4}", start, end, s, e, next.ToString()));
             return (int)next;
         }        
 #endif // BABEL
@@ -312,7 +646,7 @@ using gppg;
             return next;
         }
         
-        int yyleng { get { return tokEPos - tokPos; } }
+        int yyleng { get { return tokLen; } }
         int yypos { get { return tokPos; } }
         int yyline { get { return tokLin; } }
         int yycol { get { return tokCol; } }
@@ -328,11 +662,11 @@ using gppg;
         }
 
         void yyless(int n) { 
-            int pos = tokPos + n;
-            buffer.Pos = pos;
-            cPos = pos - 1; 
-            GetChr(); 
-            MarkEnd(); 
+            buffer.Pos = tokPos;
+            // Must read at least one char, so set before start.
+            cNum = tokNum - 1;
+            for (int i = 0; i <= n; i++) GetChr();
+            MarkEnd();
         }
 
         // ============ methods available in actions ==============
@@ -358,19 +692,20 @@ using gppg;
 #if BACKUP
                     bool inAccept = false; // inAccept ==> current state is an accept state
                     Result rslt = Result.noMatch;
-                    // skip "idle" states
+                    // skip "idle" transitions
 #if LEFTANCHORS
-                    if (lineStart == cPos &&
-                        NextState(anchorState[currentScOrd]) != currentStart)
+                    if (lineStartNum == cNum && NextState(anchorState[currentScOrd]) != currentStart)
                         state = anchorState[currentScOrd];
                     else {
                         state = currentStart;
-                        while (NextState() == currentStart) {
+                        while (NextState() == state) {
                             GetChr();
-                            if (lineStart == cPos &&
-                                NextState(anchorState[currentScOrd]) != currentStart) {
-                                state = anchorState[currentScOrd];
-                                break;
+                            if (lineStartNum == cNum) {
+                                int anchor = anchorState[currentScOrd];
+                                if (NextState(anchor) != state) {
+                                    state = anchor; 
+                                    break;
+                                }
                             }
                         }
                     }
@@ -387,7 +722,6 @@ using gppg;
                             Context ctx = new Context();
                             rslt = Recurse2(ctx, next);
                             if (rslt == Result.noMatch) RestoreStateAndPos(ctx);
-                            // else if (rslt == Result.contextFound) RestorePos(ctx);
                             break;
                         }
                         else
@@ -398,17 +732,21 @@ using gppg;
                         }
 #else // !BACKUP
 #if LEFTANCHORS
-                    if (lineStart == cPos &&
-                        NextState(anchorState[currentScOrd]) != currentStart)
-                        state = anchorState[currentScOrd];
+                    if (lineStartNum == cNum) {
+                        int anchor = anchorState[currentScOrd];
+                        if (NextState(anchor) != currentStart)
+                            state = anchor;
+                    }
                     else {
                         state = currentStart;
-                        while (NextState() == currentStart) {
+                        while (NextState() == state) {
                             GetChr();
-                            if (lineStart == cPos &&
-                                NextState(anchorState[currentScOrd]) != currentStart) {
-                                state = anchorState[currentScOrd];
-                                break;
+                            if (lineStartNum == cNum) {
+                                int anchor = anchorState[currentScOrd];
+                                if (NextState(anchor) != state) {
+                                    state = anchor;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -426,15 +764,11 @@ using gppg;
                     }
 #endif // BACKUP
                     if (state > maxAccept) 
-                    {
                         state = currentStart;
-                    }
                     else
                     {
                         MarkEnd();
-#pragma warning disable 162												
 ##-->actionCases
-#pragma warning restore 162
                     }
                 }
 ##-->epilog
@@ -469,20 +803,20 @@ using gppg;
         void SaveStateAndPos(Context ctx)
         {
             ctx.bPos  = buffer.Pos;
-            ctx.cPos  = cPos;
+            ctx.cNum  = cNum;
             ctx.state = state;
-            ctx.cChr = chr;
+            ctx.cChr  = chr;
         }
 
         void RestoreStateAndPos(Context ctx)
         {
             buffer.Pos = ctx.bPos;
-            cPos = ctx.cPos;
+            cNum  = ctx.cNum;
             state = ctx.state;
-            chr = ctx.cChr;
+            chr   = ctx.cChr;
         }
 
-        void RestorePos(Context ctx) { buffer.Pos = ctx.bPos; cPos = ctx.cPos; }
+        void RestorePos(Context ctx) { buffer.Pos = ctx.bPos; cNum = ctx.cNum; }
 #endif // BACKUP
 
         // ============= End of the tokenizer code ================

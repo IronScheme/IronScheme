@@ -69,19 +69,14 @@
   
 (define (ironscheme-build)  
   (set! r6rs-input "ironscheme-buildscript.ss")
-  (time
-    (load "ironscheme-r6rs.ss")) ; go make coffee :)
+  (display "old version\n")
+  (load "ironscheme-r6rs.ss") ; go make coffee :)
   (if #f #f))
 
 (define eval-r6rs #f)
 
 (define (init-r6rs)
   (set! eval-r6rs (load-r6rs "r6rs-init.ss"))
-  (if #f #f))
-  
-  
-(define (wip)
-  (load-r6rs "wip.ss")
   (if #f #f))
   
 (init-r6rs)

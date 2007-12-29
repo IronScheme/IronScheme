@@ -69,16 +69,6 @@ namespace IronScheme.Compiler
 
   partial class Generator : BaseHelper
   {
-
-
-    readonly static Dictionary<SymbolId, BuiltinMethod> builtinmap =
-      new Dictionary<SymbolId, BuiltinMethod>();
-
-    internal static Dictionary<SymbolId, BuiltinMethod> MethodGroups
-    {
-      get { return Generator.builtinmap; }
-    }
-
     readonly static Dictionary<CodeBlock, Scope> scopemap = new Dictionary<CodeBlock, Scope>();
 
     internal static CodeBlock evalblock;
@@ -89,7 +79,7 @@ namespace IronScheme.Compiler
       AddGenerators(Context, typeof(Generator).Assembly);
       // HACK: clean up needed
       SymbolId s = SymbolTable.StringToId("call-with-values");
-      cc.Scope.SetName(s, builtinmap[s] = new BuiltinMethod(s.ToString(), ReflectionCache.GetMethodGroup(typeof(OptimizedBuiltins), "CallWithValues")));
+      cc.Scope.SetName(s, new BuiltinMethod(s.ToString(), ReflectionCache.GetMethodGroup(typeof(OptimizedBuiltins), "CallWithValues")));
 
       Closure.AssertionViolation = Builtins.AssertionViolation;
 
@@ -97,6 +87,7 @@ namespace IronScheme.Compiler
       AddInlineEmitters(typeof(BuiltinEmitters));
 #if R6RS
       AddBuiltins(Context, typeof(Runtime.psyntax.AnnotatedReader));
+      AddBuiltins(Context, typeof(Runtime.psyntax.LibraryManager));
 
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
       AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));
@@ -144,7 +135,7 @@ namespace IronScheme.Compiler
       foreach (string mn in all.Keys)
       {
         SymbolId s = SymbolTable.StringToId(mn);
-        cc.Scope.SetName(s, builtinmap[s] = new BuiltinMethod(mn, ReflectionCache.GetMethodGroup(mn, all[mn].ToArray())));
+        cc.Scope.SetName(s, new BuiltinMethod(mn, ReflectionCache.GetMethodGroup(mn, all[mn].ToArray())));
       }
     }
 
@@ -287,9 +278,15 @@ namespace IronScheme.Compiler
       return cs;
     }
 
+    internal static Variable.VariableKind variablelocation = Variable.VariableKind.Local;
+
     static Variable MakeVar(CodeBlock cb, SymbolId name, Type type)
     {
-      return cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local, type ?? typeof(object));
+      //using globals instead of locals does improve performance a lot, compiling is easier too
+      //unfortunately they dont play well
+      //should really investigate better closure structure
+      return cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : variablelocation
+        , type ?? typeof(object));
     }
 
     protected static Variable FindVar(CodeBlock cb, SymbolId name)
@@ -330,9 +327,6 @@ namespace IronScheme.Compiler
       return null;
     }
 
-
-
-
     readonly static SymbolId list = SymbolTable.StringToId("list");
     readonly static SymbolId liststar = SymbolTable.StringToId("list*");
 
@@ -342,7 +336,7 @@ namespace IronScheme.Compiler
       Type[] types = Array.ConvertAll<Expression, Type>(args,
         delegate(Expression e) { return e.Type; });
 
-      MethodBinder listbinder = builtinmap[proper ? list : liststar].Binder;
+      MethodBinder listbinder = ((BuiltinMethod) Context.Scope.LookupName(proper ? list : liststar)).Binder;
 
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
     }
@@ -480,9 +474,9 @@ namespace IronScheme.Compiler
           s = Ast.Statement(e);
         }
 
-        if (c.car is Cons && Parser.sourcemap.ContainsKey(c.car as Cons))
+        if (c.car is Cons && Parser.sourcemap.ContainsKey(c.car))
         {
-          s.SetLoc(Parser.sourcemap[c.car as Cons]);
+          s.SetLoc(Parser.sourcemap[c.car]);
         }
         else
         {

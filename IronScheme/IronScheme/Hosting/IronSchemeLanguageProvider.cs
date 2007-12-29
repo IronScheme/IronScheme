@@ -21,7 +21,7 @@ using System.IO;
 
 namespace IronScheme.Hosting
 {
-  class IronSchemeLanguageProvider : LanguageProvider
+  sealed class IronSchemeLanguageProvider : LanguageProvider
   {
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)

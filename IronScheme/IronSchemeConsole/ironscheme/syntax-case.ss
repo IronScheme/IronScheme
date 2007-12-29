@@ -1,4 +1,4 @@
-(library (ironscheme syntax-case (6))
+(library (ironscheme syntax-case)
   (export
     make-variable-transformer
     
@@ -22,5 +22,5 @@
     
     syntax-violation)
     
-  (import (rnrs))
+  (import (rnrs syntax-case))
 )

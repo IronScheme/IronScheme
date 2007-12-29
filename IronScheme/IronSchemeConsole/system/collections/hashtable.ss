@@ -8,6 +8,7 @@
     count
     ;; method
     contains
+    containskey
     )
     
   (import 
@@ -15,23 +16,47 @@
 		(rnrs syntax-case)
     (ironscheme clr))
     
+  (define-syntax clr-prop-get
+    (syntax-rules ()
+      [(_ type name) 
+        (define-syntax name
+          (lambda (e)
+            (syntax-case e ()
+    	        [(_ instance)  #`(clr-call #,type name instance)])))]))
+    	        
+  (define-syntax clr-method
+    (syntax-rules ()
+      [(_ type name args ...)
+        (define-syntax name
+          (syntax-rules ()
+    	      [(_ instance args ...)  (clr-call type name instance args ...)]))]))
+    
+  (define-syntax type (identifier-syntax 'system.collections.hashtable))
+    
   ;; how to deal with typed overloads?
   (define-syntax new
-		(syntax-rules ()
-    	[(_)                (clr-new system.collections.hashtable)]
-    	[(_ k)              (clr-new system.collections.hashtable (clr-cast system.int32 k))]))
+    (lambda (e)
+		  (syntax-case e ()
+      	[(_)              #`(clr-new #,type)]
+      	[(_ k)            #`(clr-new #,type (clr-cast system.int32 k))] )))
     
   (define-syntax item
-    (syntax-rules ()
-      [(_ ht key)         (clr-call system.collections.hashtable:get_item ht key)]
-      [(_ ht key value)   (clr-call system.collections.hashtable:set_item ht key value)] ))
+    (lambda (e)
+      (syntax-case e ()
+        [(_ ht key)       #`(clr-call #,type get_item ht key)]
+        [(_ ht key value) #`(clr-call #,type set_item ht key value)] )))
 
   (define-syntax count
-		(syntax-rules ()
-    	[(_ ht)             (clr-call system.collections.hashtable:get_count ht)]))
+    (lambda (e)
+      (syntax-case e ()
+    	  [(_ ht)           #`(clr-call #,type get_count ht)])))
 
   (define-syntax contains
-		(syntax-rules ()
-			[(_  ht key)        (clr-call system.collections.hashtable:contains ht key)]))
+    (lambda (e)
+      (syntax-case e ()
+			  [(_  ht key)      #`(clr-call #,type contains ht key)])))
+			  
+  
+   (clr-method system.collections.hashtable containskey key)		  
       
 )

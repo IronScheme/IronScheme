@@ -1,9 +1,9 @@
-(library (ironscheme control (6))
+(library (ironscheme control)
   (export
     when
     unless
     do
     case-lambda)
     
-  (import (rnrs))
+  (import (rnrs control))
 )

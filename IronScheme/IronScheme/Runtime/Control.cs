@@ -51,7 +51,6 @@ namespace IronScheme.Runtime
       }
       else
       {
-        Builtins.SyntaxError(SymbolTable.StringToId("apply"), "too little arguments", SymbolTable.StringToId("apply"), false);
         return null;
       }
     }
@@ -75,9 +74,9 @@ namespace IronScheme.Runtime
     [Builtin("dynamic-wind")]
     public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
     {
-      ICallable inf = (ICallable)infunc;
-      ICallable bodyf = (ICallable)bodyfunc;
-      ICallable outf = (ICallable)outfunc;
+      ICallable inf = RequiresNotNull<ICallable>(infunc);
+      ICallable bodyf = RequiresNotNull<ICallable>(bodyfunc);
+      ICallable outf = RequiresNotNull<ICallable>(outfunc);
 
       inf.Call();
 
@@ -120,7 +119,7 @@ namespace IronScheme.Runtime
       {
         CallTarget1 exitproc = InvokeContinuation;
         ICallable fce = Closure.Make(cc, exitproc);
-        return fc.Call( new object[] { fce });
+        return fc.Call(fce);
       }
       catch (Continuation c)
       {
@@ -186,13 +185,22 @@ namespace IronScheme.Runtime
     {
       Cons list = Requires<Runtime.Cons>(lst);
       ICallable f = RequiresNotNull<ICallable>(fn);
-      ArrayList returns = new ArrayList();
+      Cons h = null, head = null;
       while (list != null)
       {
-        returns.Add(f.Call(list.car));
+        Cons r = new Cons(f.Call(list.car));
+        if (head == null)
+        {
+          head = h = r;
+        }
+        else
+        {
+          h.cdr = r;
+          h = r;
+        }
         list = list.cdr as Cons;
       }
-      return Runtime.Cons.FromList(returns);
+      return head;
     }
 
     [Builtin]
@@ -203,12 +211,22 @@ namespace IronScheme.Runtime
         return null;
       }
       ICallable f = RequiresNotNull<ICallable>(fn);
-      ArrayList returns = new ArrayList();
+      Cons h = null, head = null;
+
       foreach (object[] obj in new MultiEnumerable(lists))
       {
-        returns.Add(f.Call(obj));
+        Cons r = new Cons(f.Call(obj));
+        if (head == null)
+        {
+          head = h = r;
+        }
+        else
+        {
+          h.cdr = r;
+          h = r;
+        }
       }
-      return Runtime.Cons.FromList(returns);
+      return head;
     }
 
 

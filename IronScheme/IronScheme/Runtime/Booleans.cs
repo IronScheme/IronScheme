@@ -33,8 +33,6 @@ namespace IronScheme.Runtime
 
      */
 
-
-
     /// <summary>
     /// Determines whether the specified obj is boolean.
     /// </summary>

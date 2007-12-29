@@ -35,6 +35,8 @@
           (char? x) 
           (symbol? x)
           (boolean? x)
+          (string? x)
+          (bytevector? x)
           (number? x)))
     (not (simple? x)))
 
@@ -89,15 +91,14 @@
         (else x)))
     f)
   
-  (define need-quote-hack?
-    (let ((x (cons 1 2)))
-      (not (eq? (eval-core `',x) (eval-core `',x)))))
+  (define need-quote-hack? #t)
+;    (let ((x (cons 1 2)))
+;      (not (eq? (eval-core `',x) (eval-core `',x)))))
 
   (define (expanded->core x)
     ((rewriter need-quote-hack?) x))
 
   (define (compile-core-expr-to-port x p)
-    (pretty-print ((rewriter #f) x) p)
-    (newline p)))
+    (pretty-print ((rewriter #f) x) p)))
 
 

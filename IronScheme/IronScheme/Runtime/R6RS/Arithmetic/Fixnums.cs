@@ -46,99 +46,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return Ast.Constant(int.MinValue);
     }
 
-    [InlineEmitter("fx=?")]
-    public static Expression FxEqual(params Expression[] args)
-    {
-      if (args.Length == 2)
-      {
-        return Ast.Equal(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-      }
-      else
-      {
-        if (IsConstant(UnwrapAndCast<int>(args)))
-        {
-          Expression[] rest = ArrayUtils.RemoveFirst(args);
-          return Ast.AndAlso(FxEqual(args[0], args[1]), FxEqual(rest));
-        }
-        return null;
-      }
-    }
-
-
-    [InlineEmitter("fx>?")]
-    public static Expression FxGreater(params Expression[] args)
-    {
-      if (args.Length == 2)
-      {
-        return Ast.GreaterThan(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-      }
-      else
-      {
-        if (IsConstant(UnwrapAndCast<int>(args)))
-        {
-          Expression[] rest = ArrayUtils.RemoveFirst(args);
-          return Ast.AndAlso(FxGreater(args[0], args[1]), FxGreater(rest));
-        }
-        return null;
-      }
-    }
-
-    [InlineEmitter("fx<?")]
-    public static Expression FxLess(params Expression[] args)
-    {
-      if (args.Length == 2)
-      {
-        return Ast.LessThan(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-      }
-      else
-      {
-        if (IsConstant(UnwrapAndCast<int>(args)))
-        {
-          Expression[] rest = ArrayUtils.RemoveFirst(args);
-          return Ast.AndAlso(FxLess(args[0], args[1]), FxLess(rest));
-        }
-        return null;
-      }
-    }
-
-
-    [InlineEmitter("fx>=?")]
-    public static Expression FxGreaterOrEqual(params Expression[] args)
-    {
-      if (args.Length == 2)
-      {
-        return Ast.GreaterThanEquals(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-      }
-      else
-      {
-        if (IsConstant(UnwrapAndCast<int>(args)))
-        {
-          Expression[] rest = ArrayUtils.RemoveFirst(args);
-          return Ast.AndAlso(FxGreaterOrEqual(args[0], args[1]), FxGreaterOrEqual(rest));
-        }
-        return null;
-      }
-    }
-
-    [InlineEmitter("fx<=?")]
-    public static Expression FxLessOrEqual(params Expression[] args)
-    {
-      if (args.Length == 2)
-      {
-        return Ast.LessThanEquals(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-      }
-      else
-      {
-        if (IsConstant(UnwrapAndCast<int>(args)))
-        {
-          Expression[] rest = ArrayUtils.RemoveFirst(args);
-          return Ast.AndAlso(FxLessOrEqual(args[0], args[1]), FxLessOrEqual(rest));
-        }
-
-        return null;
-      }
-    }
-
     [InlineEmitter("fx+")]
     public static Expression FxAdd(params Expression[] args)
     {
@@ -165,22 +72,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         Expect(args, 2);
         return Ast.Subtract(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
       }
-    }
-
-
-    [InlineEmitter("fxdiv")]
-    public static Expression FxDiv(params Expression[] args)
-    {
-      Expect(args, 2);
-      return Ast.Divide(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-    }
-
-
-    [InlineEmitter("fxmod")]
-    public static Expression FxMod(params Expression[] args)
-    {
-      Expect(args, 2);
-      return Ast.Modulo(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
     }
 
     [InlineEmitter("fxnot")]
@@ -278,7 +169,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     {
       if (args.Length < len)
       {
-        throw new ArgumentException("Expected at least " + len + " arguments, but got " + args.Length + ".");
+        AssertionViolation(GetCaller(), "Expected at least " + len + " arguments, but got " + args.Length + ".", args);
       }
     }
 
@@ -357,31 +248,36 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxzero?")]
     public static object FxIsZero(object a)
     {
-      return (int)a == 0;
+      int x1 = RequiresNotNull<int>(a);
+      return x1 == 0;
     }
 
     [Builtin("fxpositive?")]
     public static object FxIsPositive(object a)
     {
-      return (int)a > 0;
+      int x1 = RequiresNotNull<int>(a);
+      return x1 > 0;
     }
 
     [Builtin("fxnegative?")]
     public static object FxIsNegative(object a)
     {
-      return (int)a < 0;
+      int x1 = RequiresNotNull<int>(a);
+      return x1 < 0;
     }
 
     [Builtin("fxodd?")]
     public static object FxIsOdd(object a)
     {
-      return (int)a % 2 == 1;
+      int x1 = RequiresNotNull<int>(a);
+      return x1 % 2 == 1;
     }
 
     [Builtin("fxeven?")]
     public static object FxIsEven(object a)
     {
-      return (int)a % 2 == 0;
+      int x1 = RequiresNotNull<int>(a);
+      return x1 % 2 == 0;
     }
 
     [Builtin("fxmax")]
@@ -392,9 +288,9 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       switch (arglen)
       {
         case 1:
-          return args[0];
+          return RequiresNotNull<int>(args[0]);
         case 2:
-          return Math.Max((int)args[0],(int)args[1]);
+          return Math.Max(RequiresNotNull<int>(args[0]), RequiresNotNull<int>(args[1]));
         default:
           object[] head = ArrayUtils.RemoveLast(args);
           return FxMax(FxMax(head), args[arglen - 1]);
@@ -409,9 +305,9 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       switch (arglen)
       {
         case 1:
-          return args[0];
+          return RequiresNotNull<int>(args[0]);
         case 2:
-          return Math.Min((int)args[0], (int)args[1]);
+          return Math.Min(RequiresNotNull<int>(args[0]), RequiresNotNull<int>(args[1]));
         default:
           object[] head = ArrayUtils.RemoveLast(args);
           return FxMin(FxMin(head), args[arglen - 1]);
@@ -422,9 +318,12 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fx+")]
     public static object FxAdd(object a, object b)
     {
+      int x1 = RequiresNotNull<int>(a);
+      int x2 = RequiresNotNull<int>(b);
+
       try
       {
-        return checked((int)a + (int)b);
+        return checked(x1 + x2);
       }
       catch (OverflowException)
       {
@@ -436,9 +335,12 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fx*")]
     public static object FxMultiply(object a, object b)
     {
+      int x1 = RequiresNotNull<int>(a);
+      int x2 = RequiresNotNull<int>(b);
+
       try
       {
-        return checked((int)a * (int)b);
+        return checked(x1 * x2);
       }
       catch (OverflowException)
       {
@@ -450,9 +352,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fx-")]
     public static object FxMinus(object a)
     {
+      int x1 = RequiresNotNull<int>(a);
+
       try
       {
-        return checked(-(int)a);
+        return checked(-x1);
       }
       catch (OverflowException)
       {
@@ -464,9 +368,12 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fx-")]
     public static object FxMinus(object a, object b)
     {
+      int x1 = RequiresNotNull<int>(a);
+      int x2 = RequiresNotNull<int>(b);
+
       try
       {
-        return (int)a - (int)b;
+        return checked(x1 - x2);
       }
       catch (OverflowException)
       {
@@ -606,7 +513,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxnot")]
     public static object FxNot(object a)
     {
-      return ~(int)a;
+      return ~RequiresNotNull<int>(a);
     }
 
     [Builtin("fxand")]
@@ -618,9 +525,9 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         case 0:
           return -1;
         case 1:
-          return args[0];
+          return RequiresNotNull<int>(args[0]);
         case 2:
-          return (int)args[0] & (int)args[1];
+          return RequiresNotNull<int>(args[0]) & RequiresNotNull<int>(args[1]);
         default:
           object[] head = ArrayUtils.RemoveLast(args);
           return FxAnd(FxAnd(head), args[arglen - 1]);
@@ -636,9 +543,9 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         case 0:
           return 0;
         case 1:
-          return args[0];
+          return RequiresNotNull<int>(args[0]);
         case 2:
-          return (int)args[0] | (int)args[1];
+          return RequiresNotNull<int>(args[0]) | RequiresNotNull<int>(args[1]);
         default:
           object[] head = ArrayUtils.RemoveLast(args);
           return FxIor(FxIor(head), args[arglen - 1]);
@@ -654,9 +561,9 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         case 0:
           return 0;
         case 1:
-          return args[0];
+          return RequiresNotNull<int>(args[0]);
         case 2:
-          return (int)args[0] ^ (int)args[1];
+          return RequiresNotNull<int>(args[0]) ^ RequiresNotNull<int>(args[1]);
         default:
           object[] head = ArrayUtils.RemoveLast(args);
           return FxXor(FxXor(head), args[arglen - 1]);
@@ -669,7 +576,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxbit-count")]
     public static object FxBitCount(object ei)
     {
-      int bi = (int)ei;
+      int bi = RequiresNotNull<int>(ei);
 
       if (bi <= 0)
       {
@@ -691,9 +598,9 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxlength")]
     public static object FxLength(object ei)
     {
-      int bi = (int)ei;
+      int bi = RequiresNotNull<int>(ei);
 
-      if (bi <= 0)
+      if (bi < 0)
       {
         return FxLength(FxNot(ei));
       }
@@ -713,7 +620,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxfirst-bit-set")]
     public static object FxFirstBitSet(object ei)
     {
-      int bi = (int)ei;
+      int bi = RequiresNotNull<int>(ei);
 
       if (bi == 0)
       {
@@ -739,12 +646,12 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxbit-set?")]
     public static object FxIsBitSet(object ei, object k)
     {
-      int bi = (int)ei;
-      int ki = (int)k;
+      int bi = RequiresNotNull<int>(ei);
+      int ki = RequiresNotNull<int>(k);
 
       if (ki < 0)
       {
-        throw new SchemeException("fx-bit-set?", "k is negative", new string[] { k.ToString() });
+        AssertionViolation(SymbolTable.StringToId("fx-bit-set?"), "k is negative", k);
       }
 
       if (bi == 0)
@@ -771,8 +678,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxarithmetic-shift")]
     public static object FxArithmeticShift(object ei, object k)
     {
-      int bi = (int)ei;
-      int ki = (int)k;
+      int bi = RequiresNotNull<int>(ei);
+      int ki = RequiresNotNull<int>(k);
 
       if (ki == 0)
       {

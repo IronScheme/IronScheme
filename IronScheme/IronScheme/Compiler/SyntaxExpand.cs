@@ -83,7 +83,7 @@ namespace IronScheme.Compiler
               object result = m.Invoke(BaseHelper.cc, c.cdr);
               if (result is Cons && Parser.sourcemap.ContainsKey(c))
               {
-                Parser.sourcemap[(Cons)result] = Parser.sourcemap[c];
+                Parser.sourcemap[result] = Parser.sourcemap[c];
               }
               if (expand1)
               {

@@ -1,5 +1,4 @@
-
-(library (ironscheme conditions (6))
+(library (ironscheme conditions)
   (export
     
     &condition

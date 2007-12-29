@@ -362,7 +362,6 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordConstructorDescriptor ci = RequiresNotNull<RecordConstructorDescriptor>(cd);
 
-
       CallTargetN p = delegate(object[] args)
       {
         Type t = ci.type.Finish();

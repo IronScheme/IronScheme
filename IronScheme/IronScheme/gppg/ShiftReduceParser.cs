@@ -58,8 +58,6 @@ namespace gppg
 
       while (true)
       {
-        //if (Trace)
-        //  Console.Error.WriteLine("Entering state {0} ", current_state.num);
 
         int action = current_state.defaultAction;
 
@@ -75,9 +73,6 @@ namespace gppg
             lastL = scanner.yylloc;
             next = scanner.yylex();
           }
-
-          //if (Trace)
-          //  Console.Error.WriteLine("Next token is {0}", TerminalToString(next));
 
           int vnext;
           if (current_state.parser_table.TryGetValue(next, out vnext))
@@ -104,9 +99,6 @@ namespace gppg
 
     protected void Shift(int state_nr)
     {
-      //if (Trace)
-      //  Console.Error.Write("Shifting token {0}, ", TerminalToString(next));
-
       current_state = states[state_nr];
 
       value_stack.Push(scanner.yylval);
@@ -167,9 +159,6 @@ namespace gppg
         location_stack.Pop();
       }
 
-      //if (Trace)
-      //  DisplayStack();
-
       current_state = state_stack.Top();
 
       int vlhs;
@@ -226,8 +215,7 @@ namespace gppg
         }
       }
       scanner.Errors.Add(scanner.SourceUnit, errorMsg.ToString(), GetLocation(lastL), 1, Microsoft.Scripting.Hosting.Severity.Error);
-      //errorMsg.AppendFormat(" near {0}", lastL);
-      //scanner.yyerror(errorMsg.ToString());
+
       System.Diagnostics.Trace.WriteLine(errorMsg.ToString());
     }
 
@@ -238,16 +226,7 @@ namespace gppg
       int old_next = next;
       next = errToken;
 
-      //System.Diagnostics.Trace.WriteLine(
-      //    String.Format("Shifting error in state {0}", current_state.num));
-
       Shift(current_state.parser_table[next]);
-
-      //if (Trace)
-      //  Console.Error.WriteLine("Entering state {0} ", current_state.num);
-
-      //System.Diagnostics.Trace.WriteLine(
-      //    String.Format("Entering state {0}", current_state.num));
 
       next = old_next;
     }
@@ -265,12 +244,6 @@ namespace gppg
             return true;
         }
 
-        //if (Trace)
-        //  Console.Error.WriteLine("Error: popping state {0}", state_stack.Top().num);
-
-        //System.Diagnostics.Trace.WriteLine(
-        //    String.Format("Error: popping state {0}", state_stack.Top().num));
-
         state_stack.Pop();
         value_stack.Pop();
         location_stack.Pop();
@@ -280,9 +253,6 @@ namespace gppg
 
         if (state_stack.IsEmpty())
         {
-          //if (Trace)
-          //  Console.Error.Write("Aborting: didn't find a state that accepts error token");
-          //System.Diagnostics.Trace.WriteLine("Aborting: didn't find a state that accepts error token");
           return false;
         }
         else
@@ -345,8 +315,6 @@ namespace gppg
         //  the looping stops.  Another attack would be to always
         //  use the LALR(1) table if a production ends on "error"
         //
-        //if (Trace)
-        //  Console.Error.WriteLine("Error: panic discard of {0}", TerminalToString(next));
         next = 0;
         return true;
       }

@@ -29,7 +29,7 @@ namespace IronScheme.Runtime.R6RS
   {
     static int enumcounter = 1;
 
-    readonly static Dictionary<Type, Dictionary<string, int>> enummap = new Dictionary<Type, Dictionary<string, int>>();
+    readonly static Dictionary<Type, Dictionary<string, long>> enummap = new Dictionary<Type, Dictionary<string, long>>();
     readonly static Dictionary<Type, List<string>> enumordermap = new Dictionary<Type, List<string>>();
 
     [Builtin("make-enumeration")]
@@ -49,12 +49,12 @@ namespace IronScheme.Runtime.R6RS
       TypeGen tg = ag.DefinePublicType("enum" + enumcounter++, typeof(Enum), TypeAttributes.Public | TypeAttributes.Sealed);
       tg.TypeBuilder.SetCustomAttribute(new CustomAttributeBuilder(
         typeof(FlagsAttribute).GetConstructor(Type.EmptyTypes), new object[0]));
-      tg.TypeBuilder.DefineField("value__", typeof(int), FieldAttributes.Public | FieldAttributes.RTSpecialName | FieldAttributes.SpecialName);
+      tg.TypeBuilder.DefineField("value__", typeof(long), FieldAttributes.Public | FieldAttributes.RTSpecialName | FieldAttributes.SpecialName);
 
-      Dictionary<string, int> map = new Dictionary<string, int>();
+      Dictionary<string, long> map = new Dictionary<string, long>();
       List<string> order = new List<string>();
 
-      int mask = 1;
+      long mask = 1;
       foreach (string n in names)
       {
         order.Add(n);
@@ -68,14 +68,14 @@ namespace IronScheme.Runtime.R6RS
       enummap[t] = map;
       enumordermap[t] = order;
 
-      return Enum.ToObject(t, (1 << order.Count) - 1);
+      return Enum.ToObject(t, (1L << order.Count) - 1);
     }
 
     [Builtin("enum-set-universe")]
     public static object EnumSetUniverse(object enumset)
     {
       Type t = enumset.GetType();
-      return Enum.ToObject(t, (1 << enumordermap[t].Count) - 1);
+      return Enum.ToObject(t, (1L << enumordermap[t].Count) - 1);
     }
 
     [Builtin("enum-set-indexer")]
@@ -103,7 +103,7 @@ namespace IronScheme.Runtime.R6RS
 
       CallTarget1 p = delegate(object symlist)
       {
-        int v = 0;
+        long v = 0;
         Cons c = symlist as Cons;
 
         while (c != null)
@@ -125,7 +125,7 @@ namespace IronScheme.Runtime.R6RS
       Type t = enumset.GetType();
       
       Cons head = null, h = null;
-      int i = (int)enumset;
+      long i = (long)enumset;
 
       foreach (string s in enumordermap[t])
       {
@@ -152,7 +152,7 @@ namespace IronScheme.Runtime.R6RS
     {
       string s = SymbolToString(symbol) as string;
       Type t = enumset.GetType();
-      int v = (int)enumset;
+      long v = (long)enumset;
       return (enummap[t][s] & v) != 0;
     }
 
@@ -163,8 +163,8 @@ namespace IronScheme.Runtime.R6RS
       Type t1 = enumset1.GetType();
       Type t2 = enumset2.GetType();
 
-      int v1 = (int)enumset1;
-      int v2 = (int)enumset2;
+      long v1 = (long)enumset1;
+      long v2 = (long)enumset2;
 
       if (t1 == t2)
       {
@@ -211,7 +211,7 @@ namespace IronScheme.Runtime.R6RS
       {
         return false;
       }
-      return Enum.ToObject(t1, (int)enumset1 | (int)enumset2);
+      return Enum.ToObject(t1, (long)enumset1 | (long)enumset2);
     }
 
     // * (enum-set-intersection enum-set1 enum-set2)
@@ -227,7 +227,7 @@ namespace IronScheme.Runtime.R6RS
       {
         return false;
       }
-      return Enum.ToObject(t1, (int)enumset1 & (int)enumset2);
+      return Enum.ToObject(t1, (long)enumset1 & (long)enumset2);
     }
 
     // * (enum-set-difference enum-set1 enum-set2)
@@ -243,7 +243,7 @@ namespace IronScheme.Runtime.R6RS
       {
         return false;
       }
-      return Enum.ToObject(t1, (int)enumset1 ^ (int)enumset2);
+      return Enum.ToObject(t1, (long)enumset1 ^ (long)enumset2);
     }
 
     // * (enum-set-complement enum-set)
@@ -260,7 +260,7 @@ namespace IronScheme.Runtime.R6RS
       Type t1 = enumset1.GetType();
       Type t2 = enumset2.GetType();
 
-      int v = 0;
+      long v = 0;
 
       foreach (string s in enumordermap[t1])
       {

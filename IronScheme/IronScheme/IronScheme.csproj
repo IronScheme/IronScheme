@@ -66,16 +66,12 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ApplyGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
+    <Compile Include="Compiler\Helper.cs" />
     <Compile Include="Compiler\LetrecStarGenerator.cs" />
     <Compile Include="Compiler\DelayGenerator.cs" />
     <Compile Include="Compiler\DiagnosticsGenerators.cs" />
@@ -102,6 +98,7 @@
     <Compile Include="gppg\Rule.cs" />
     <Compile Include="gppg\ShiftReduceParser.cs" />
     <Compile Include="gppg\State.cs" />
+    <Compile Include="Hosting\Identifiers.cs" />
     <Compile Include="Hosting\IronSchemeConsoleHost.cs" />
     <Compile Include="Hosting\IronSchemeLanguageProvider.cs" />
     <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
@@ -130,6 +127,7 @@
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
     <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
+    <Compile Include="Runtime\psyntax\LibraryManager.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Bitwise.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Fixnums.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Flonums.cs" />
@@ -165,6 +163,9 @@
     <None Include="Compiler\IronScheme.lex" />
     <None Include="Compiler\IronScheme.y" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -177,6 +178,6 @@
     <PreBuildEvent>attrib -R "$(ProjectDir)Compiler\IronScheme.y.cs"
 attrib -R "$(ProjectDir)Compiler\IronScheme.lex.cs"
 "$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\IronScheme.y" &gt; "$(ProjectDir)Compiler\IronScheme.y.cs"
-"$(SolutionDir)tools\gplex" /stack /minimize "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"</PreBuildEvent>
+"$(SolutionDir)tools\gplex" /stack /unicode /classes "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"</PreBuildEvent>
   </PropertyGroup>
 </Project>

@@ -20,7 +20,7 @@ using System.Diagnostics;
 
 namespace IronScheme.Hosting
 {
-  public class IronSchemeConsoleHost : ConsoleHost
+  public sealed class IronSchemeConsoleHost : ConsoleHost
   {
     string logo;
     public IronSchemeConsoleHost()

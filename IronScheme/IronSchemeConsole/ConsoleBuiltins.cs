@@ -27,87 +27,6 @@ namespace IronScheme.Runtime
 {
   public class ConsoleBuiltins : Builtins
   {
-    [Builtin("all-defined")]
-    public static object Environment(CodeContext cc)
-    {
-      List<SymbolId> s = new List<SymbolId>(cc.Scope.Keys);
-      s.Sort(delegate(SymbolId a, SymbolId b)
-      {
-        return SymbolTable.IdToString(a).CompareTo(SymbolTable.IdToString(b));
-      });
-      return Runtime.Cons.FromList(s);
-    }
-
-    [Builtin("create-snapshot")]
-    public static object CreateSnapshot(CodeContext cc)
-    {
-      List<SymbolId> s = new List<SymbolId>();
-      s.AddRange(cc.Scope.ModuleScope.Keys);
-      return s;      
-    }
-
-    [Builtin("revert-snapshot")]
-    public static object RevertSnapshot(CodeContext cc, object ss)
-    {
-      List<SymbolId> s = RequiresNotNull<List<SymbolId>>(ss);
-      List<SymbolId> toremove = new List<SymbolId>();
-      foreach (SymbolId var in cc.Scope.ModuleScope.Keys)
-      {
-        if (!s.Contains(var))
-        {
-          toremove.Add(var);
-        }
-      }
-      foreach (SymbolId var in toremove)
-      {
-        cc.Scope.ModuleScope.RemoveName(var);
-      }
-      return Unspecified;
-    }
-
-
-    [Builtin]
-    public static object Describe(object obj)
-    {
-
-      return Unspecified;
-    }
-
-    [Builtin]
-    public static object Help()
-    {
-
-      return Unspecified;
-    }
-
-    [Builtin("enable-macro-trace")]
-    public static object EnableMacroTrace()
-    {
-      Generator.MacroTrace = true;
-      return Unspecified;
-    }
-
-    [Builtin("disable-macro-trace")]
-    public static object DisableMacroTrace()
-    {
-      Generator.MacroTrace = false;
-      return Unspecified;
-    }
-
-    [Builtin("enable-procedure-trace")]
-    public static object EnableProcedureTrace()
-    {
-      //Closure.Trace = true;
-      return Unspecified;
-    }
-
-    [Builtin("disable-procedure-trace")]
-    public static object DisableProcedureTrace()
-    {
-      //Closure.Trace = false;
-      return Unspecified;
-    }
-
     /// <summary>
     /// Displays help of an object.
     /// </summary>
@@ -124,10 +43,6 @@ namespace IronScheme.Runtime
           {
             PrintMethodHelp(m);
           }
-        }
-        else if (obj is Generator.GeneratorHandler)
-        {
-          PrintMethodHelp(((Generator.GeneratorHandler)obj).Method);
         }
       }
       return Unspecified;

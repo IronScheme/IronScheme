@@ -1,4 +1,4 @@
-(library (ironscheme unicode (6))
+(library (ironscheme unicode)
   (export
     char-upcase
     char-downcase
@@ -35,5 +35,5 @@
     string-normalize-nfc
     string-normalize-nfkc)
     
-  (import (rnrs))
+  (import (rnrs unicode))
 )

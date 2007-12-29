@@ -25,26 +25,7 @@ public override void yyerror(string format, params object[] args)
 
 public int MakeChar()
 {
-  switch (yytext.ToLower())
-  {
-    case "#\\":
-    case "#\\space":
-      yylval.text = " ";
-      break;
-    case "#\\newline":
-      yylval.text = "\n";
-      break;
-    default:
-      if (yytext[2] == 'x' && yytext.Length > 3)
-      {
-        //hex escape
-      }
-      else
-      {
-        yylval.text = yytext[2].ToString();
-      }
-      break;
-  }
+  yylval.text = Helper.ParseChar(yytext);
   yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol);
   return (int)Tokens.CHARACTER;
 }
@@ -60,13 +41,15 @@ public int Make(Tokens token)
 %}
 
 
-line_comment           ";"[^\n]*
+line_comment           (";"[^\n]*)|("#!r6rs"[^\n]*)
+
+ignore_datum           "#;"
 
 comment_start          "#|"
 comment_end            "|#"
 
 white_space            [ \t]
-new_line               \n|\r\n
+new_line               \n|\r\n|\r
 
 digit                  [0-9]
 letter                 [a-zA-Z]
@@ -111,15 +94,17 @@ ureal8                 ({uinteger8})|({uinteger8}"/"{uinteger8})
 ureal10                ({uinteger10})|({uinteger10}"/"{uinteger10})|({decimal10})
 ureal16                ({uinteger16})|({uinteger16}"/"{uinteger16})
 
-real2                  ({sign}{ureal2})
-real8                  ({sign}{ureal8})
-real10                 ({sign}{ureal10})
-real16                 ({sign}{ureal16})
+naninf                 ("nan.0"|"inf.0")
 
-complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{real2}"i")|({real2}"-"{real2}"i")|({real2}"+i")|({real2}"-i")|("+"{real2}"i")|("-"{real2}"i")|("+i")|("-i"))
-complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{real8}"i")|({real8}"-"{real8}"i")|({real8}"+i")|({real8}"-i")|("+"{real8}"i")|("-"{real8}"i")|("+i")|("-i"))
-complex10              ({real10}|({real10}"@"{real10})|({real10}"+"{real10}"i")|({real10}"-"{real10}"i")|({real10}"+i")|({real10}"-i")|("+"{real10}"i")|("-"{real10}"i")|("+i")|("-i"))
-complex16              ({real16}|({real16}"@"{real16})|({real16}"+"{real16}"i")|({real16}"-"{real16}"i")|({real16}"+i")|({real16}"-i")|("+"{real16}"i")|("-"{real16}"i")|("+i")|("-i"))
+real2                  ({sign}{ureal2}|"+"{naninf}|"-"{naninf})
+real8                  ({sign}{ureal8}|"+"{naninf}|"-"{naninf})
+real10                 ({sign}{ureal10}|"+"{naninf}|"-"{naninf})
+real16                 ({sign}{ureal16}|"+"{naninf}|"-"{naninf})
+
+complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{ureal2}"i")|({real2}"-"{ureal2}"i")|({real2}"+i")|({real2}"-i")|("+"{ureal2}"i")|("-"{ureal2}"i")|("+i")|("-i")|({real2}"+"{naninf}"i")|({real2}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
+complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{ureal8}"i")|({real8}"-"{ureal8}"i")|({real8}"+i")|({real8}"-i")|("+"{ureal8}"i")|("-"{ureal8}"i")|("+i")|("-i")|({real8}"+"{naninf}"i")|({real8}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
+complex10              ({real10}|({real10}"@"{real10})|({real10}"+"{ureal10}"i")|({real10}"-"{ureal10}"i")|({real10}"+i")|({real10}"-i")|("+"{ureal10}"i")|("-"{ureal10}"i")|("+i")|("-i")|({real10}"+"{naninf}"i")|({real10}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
+complex16              ({real16}|({real16}"@"{real16})|({real16}"+"{ureal16}"i")|({real16}"-"{ureal16}"i")|({real16}"+i")|({real16}"-i")|("+"{ureal16}"i")|("-"{ureal16}"i")|("+i")|("-i")|({real16}"+"{naninf}"i")|({real16}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
 
 num2                   ({prefix2}{complex2})
 num8                   ({prefix8}{complex8})
@@ -131,8 +116,10 @@ number                 ({num2}|{num8}|{num10}|{num16})
 
 
 single_char            [^\n ]
-character              {single_char}|([Nn][Ee][Ww][Ll][Ii][Nn][Ee])|([Ss][Pp][Aa][Cc][Ee])
-character_literal      #\\({character})?
+character              {single_char}
+char_hex_esc_seq       (#\\x({digit16})+)
+char_esc_seq           (#\\(nul|alarm|backspace|tab|linefeed|newline|vtab|page|return|esc|space|delete))
+character_literal      (#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}
 
 single_string_char     [^\\\"]
 string_esc_seq         (\\[\"\\abfnrtv])
@@ -156,6 +143,8 @@ atoms                  (#[TtFf])
 <ML_COMMENT>[^\n\|]+          { ; }
 <ML_COMMENT>{comment_end}     { yy_pop_state();  }
 <ML_COMMENT>"|"               { ; }
+
+{ignore_datum}        { return Make(Tokens.IGNOREDATUM); }
  
 {atoms}               { return Make(Tokens.LITERAL); } 
 
@@ -170,6 +159,7 @@ atoms                  (#[TtFf])
 "#("                  { return Make(Tokens.VECTORLBRACE); }                     
 "#vu8("               { return Make(Tokens.BYTEVECTORLBRACE); }                     
 ")"                   { return Make(Tokens.RBRACE); } 
+
 "`"                   { return Make(Tokens.QUASIQUOTE); }
 "'"                   { return Make(Tokens.QUOTE); }
 ",@"                  { return Make(Tokens.UNQUOTESPLICING); }
