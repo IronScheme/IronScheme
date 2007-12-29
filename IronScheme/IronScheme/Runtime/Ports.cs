@@ -205,7 +205,8 @@ namespace IronScheme.Runtime
             if (ct > File.GetLastWriteTime(path))
             {
               if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct || cfn.StartsWith("ironscheme.boot.exe") 
-                || cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe"))
+                //|| cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe")
+                )
               {
                 path = cfn;
                 goto case ".exe";

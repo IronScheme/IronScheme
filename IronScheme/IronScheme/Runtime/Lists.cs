@@ -626,5 +626,24 @@ namespace IronScheme.Runtime
       return head;
     }
 
+    public static Cons ToImproper(Cons c)
+    {
+      Cons i = c;
+      Cons j = null;
+
+      while (i.cdr != null)
+      {
+        j = i;
+        i = i.cdr as Cons;
+        if (i == null)
+        {
+          return c; // improper already
+        }
+      }
+
+      j.cdr = i.car;
+      return c;
+    }
+
   }
 }

@@ -179,6 +179,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\ironscheme.nsi">
+      <Link>ironscheme.nsi</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="examples\runge-kutta.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
