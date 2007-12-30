@@ -427,7 +427,7 @@ namespace IronScheme.Compiler
       public CodeBlockExpression codeblock;
     }
 
-    protected static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
+    protected internal static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
 
       // declare all define at start of body, then change the define to 'set!'

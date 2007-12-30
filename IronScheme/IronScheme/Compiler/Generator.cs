@@ -100,16 +100,23 @@ namespace IronScheme.Compiler
             nestinglevel--;
           }
         }
-        if (c != null && nestinglevel == 0)
+        if (c != null)
         {
-          return Ast.Constant(new IronSchemeConstant(c));
+          if (nestinglevel == 0 || nestinglevel == 1073741823)
+          {
+            return Ast.Constant(new IronSchemeConstant(c));
+          }
+          else
+          {
+            ;
+          }
         }
         return GetConsList(c, cb);
       }
       object[] v = args as object[];
       if (v != null)
       {
-        if (v.Length > 0 && nestinglevel == 0)
+        if (v.Length > 0 && (nestinglevel == 0 || nestinglevel == 1073741823))
         {
           return Ast.Constant(new IronSchemeConstant(v));
         }

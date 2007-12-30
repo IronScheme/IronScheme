@@ -152,6 +152,8 @@ namespace IronScheme
       Parser p = parser;
       Scanner sc = new Scanner(code);
       p.scanner = sc;
+      sc.SourceUnit = cc.SourceUnit;
+      sc.Errors = cc.Errors;
 
       if (p.Parse())
       {
@@ -172,6 +174,8 @@ namespace IronScheme
         scanner = new Scanner();
       }
       Scanner sc = scanner;
+      sc.SourceUnit = cc.SourceUnit;
+      sc.Errors = cc.Errors;
       sc.SetSource(code, 0);
       p.scanner = sc;
 
@@ -198,33 +202,7 @@ namespace IronScheme
 
       List<Statement> stmts = new List<Statement>();
 
-      Compiler.Generator.InitGlobal(parsed, cb, stmts);
-
-      while (parsed != null)
-      {
-        object exp = parsed.car;
-        Expression e = Generator.GetAst(exp, cb);
-        Statement s = Ast.Statement(e);
-        if (exp is Cons && Parser.sourcemap.ContainsKey(exp))
-        {
-          s.SetLoc(Parser.sourcemap[exp]);
-        }
-        stmts.Add(s);
-        parsed = parsed.cdr as Cons;
-      }
-
-      if (stmts.Count > 0)
-      {
-        SourceSpan ss = stmts[stmts.Count - 1].Span;
-        stmts[stmts.Count - 1] = Ast.Return(((ExpressionStatement)stmts[stmts.Count - 1]).Expression);
-        stmts[stmts.Count - 1].SetLoc(ss);
-      }
-      else
-      {
-        stmts.Add(Ast.Return(Ast.ReadField(null, Generator.Unspecified)));
-      }
-
-      cb.Body = Ast.Block(stmts);
+      Compiler.Generator.FillBody(cb, stmts, parsed, true);
 
       Parser.sourcemap.Clear();
       return cb;
@@ -240,47 +218,9 @@ namespace IronScheme
       Parser p = parser;
       p.scanner = sc;
 
-      Stopwatch sw = Stopwatch.StartNew();
-
       if (p.Parse())
       {
-        Cons parsed = p.parsed;
-
-        CodeBlock cb = Ast.CodeBlock(!clearresolver ? "__toploop__" : "__script__");
-        cb.IsGlobal = true;
-
-        List<Statement> stmts = new List<Statement>();
-
-        Compiler.Generator.InitGlobal(parsed, cb, stmts);
-
-        while (parsed != null)
-        {
-          object exp = parsed.car;
-          Expression e = Generator.GetAst(exp,cb);
-          Statement s = Ast.Statement(e);
-          if (exp is Cons && Parser.sourcemap.ContainsKey(exp))
-          {
-            s.SetLoc(Parser.sourcemap[exp]);
-          }
-          stmts.Add(s);
-          parsed = parsed.cdr as Cons;
-        }
-
-        if (stmts.Count > 0)
-        {
-          SourceSpan ss = stmts[stmts.Count - 1].Span;
-          stmts[stmts.Count - 1] = Ast.Return(((ExpressionStatement)stmts[stmts.Count - 1]).Expression);
-          stmts[stmts.Count - 1].SetLoc(ss);
-        }
-        else
-        {
-          stmts.Add(Ast.Return(Ast.ReadField(null, Generator.Unspecified)));
-        }
-
-        cb.Body = Ast.Block(stmts);
-
-        Parser.sourcemap.Clear();
-        return cb;
+        return Compile(p.parsed);
       }
       return null;
     }
