@@ -85,10 +85,13 @@ namespace IronScheme.Hosting
 
     protected override void PrintLogo()
     {
-      ConsoleColor old = Console.ForegroundColor;
-      Console.ForegroundColor = ConsoleColor.Green;
-      Console.WriteLine(logo.Replace("©", "(c)"));
-      Console.ForegroundColor = old;
+      if (Options.RunAction != ConsoleHostOptions.Action.RunFiles)
+      {
+        ConsoleColor old = Console.ForegroundColor;
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine(logo.Replace("©", "(c)"));
+        Console.ForegroundColor = old;
+      }
     }
 
     protected override void UnhandledException(IScriptEngine engine, Exception e)
