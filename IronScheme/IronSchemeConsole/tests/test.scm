@@ -23,7 +23,7 @@
          (tak (- y 1) z x)
          (tak (- z 1) x y) )))
          
-(define (fxtak x y z)
+'(define (fxtak x y z)
   (if (not (fx<? y x))
     z
     (fxtak (fxtak (fx- x 1) y z)
@@ -49,8 +49,8 @@
 (time
  (taki 18 12 6) )
  
-(display "fxtak:")
-(time
+'(display "fxtak:")
+'(time
  (fxtak 18 12 6) )
 
 (display "tak:  ")
@@ -61,8 +61,8 @@
 (time
  (taki 22 14 8) )
 
-(display "fxtak:")
-(time
+'(display "fxtak:")
+'(time
  (fxtak 22 14 8) )
  
 (display "tak:  ")
@@ -73,8 +73,8 @@
 (time
  (taki 24 14 6) )
 
-(display "fxtak:")
-(time
+'(display "fxtak:")
+'(time
  (fxtak 24 14 6) ) 
  
  

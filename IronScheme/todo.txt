@@ -2,7 +2,8 @@
 Notably lacking for R6RS:
 
 - Custom ports
-- Guard does not work as expected (due to inward continuations)
+- call/cc only supports outward continuations
+- Guard does not work as expected (due to above)
 - Unicode: title casing is kinda broken, fold casing not implemented
 - Complex numbers
 - Fractions only work in REPL
@@ -21,6 +22,7 @@ Extras:
 
 - a generic load procedure for toplevel R6RS files
 - many extras procedures and macros in (ironscheme) library, mostly provided by psyntax
+- CLR integration (unfortunately function/property references arent supported yet)
 
 Notes:
 

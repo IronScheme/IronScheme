@@ -27,6 +27,11 @@ namespace IronScheme.Compiler
 {
   public abstract class ClrGenerator : SimpleGenerator
   {
+    protected static MethodInfo Helpers_ConvertToDelegate = typeof(Helpers).GetMethod("ConvertToDelegate");
+
+    protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+
+    //this clearly wont scale well at all...
     protected static Type GetType(string nsandname)
     {
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
@@ -41,6 +46,13 @@ namespace IronScheme.Compiler
             if (nsm == nsandname)
             {
               return t;
+            }
+            else if (t.Name.ToLower() == nsandname)
+            {
+              if (namespaces.ContainsKey(t.Namespace))
+              {
+                return t;
+              }
             }
           }
         }
@@ -168,7 +180,29 @@ namespace IronScheme.Compiler
 
       if (mc != null)
       {
+        MethodInfo meth = (MethodInfo)mc.Target.Method;
+        // do implicit cast
+        ParameterInfo[] pars = meth.GetParameters();
+        for (int i = 0; i < arguments.Length; i++)
+        {
+          Type tt = pars[i].ParameterType;
+          if (tt == arguments[i].Type)
+          {
+            // do nothing
+          }
+          else
+          if (tt.BaseType == typeof(MulticastDelegate))
+          {
+            arguments[i] = Ast.Call(Helpers_ConvertToDelegate.MakeGenericMethod(tt), arguments[i]);
+          }
+          else
+          {
+            arguments[i] = Ast.ConvertHelper(arguments[i], tt);
+          }
+        }
+
         Expression r = null;
+
         // o god...
         if (ct == CallType.ImplicitInstance)
         {
@@ -179,7 +213,7 @@ namespace IronScheme.Compiler
           r = Ast.ComplexCallHelper((MethodInfo)mc.Target.Method, arguments);
         }
 
-        if (((MethodInfo)mc.Target.Method).ReturnType == typeof(void))
+        if ((meth).ReturnType == typeof(void))
         {
           return Ast.Comma(r, Ast.ReadField(null, Unspecified));
         }
@@ -198,6 +232,84 @@ namespace IronScheme.Compiler
 
   }
 
+  //hack for now
+  [Generator("clr-clear-usings-internal")]
+  public class ClrClearUsingsInternalGenerator : ClrGenerator
+  {
+    // (clr-clear-usings)
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      namespaces.Clear();
+      return Ast.ReadField(null, Unspecified);
+    }
+  }
+
+  [Generator("clr-using-internal")]
+  public class ClrUsingInternalGenerator : ClrGenerator
+  {
+    // (clr-using namespace)
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      object name = Builtins.Second(Builtins.First(args));
+      string assname = null;
+      if (name is SymbolId)
+      {
+        assname = SymbolTable.IdToString((SymbolId)name);
+        namespaces.Add(assname, assname);
+      }
+      else
+      {
+        throw new NotSupportedException();
+      }
+
+      return Ast.ReadField(null, Unspecified);
+    }
+  }
+
+  [Generator("clr-reference-internal")]
+  public class ClrReferenceInternalGenerator : ClrGenerator
+  {
+    // (clr-reference assname)
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      object name = Builtins.Second(Builtins.First(args));
+      string assname = null;
+      if (name is SymbolId)
+      {
+        assname = SymbolTable.IdToString((SymbolId)name);
+      }
+      else if (name is string)
+      {
+        assname = (string)name;
+      }
+      else
+      {
+        throw new NotSupportedException();
+      }
+
+      Assembly.LoadWithPartialName(assname);
+
+      return Ast.ReadField(null, Unspecified);
+    }
+  }
+
+  [Generator("clr-is-internal")]
+  public class ClrIsInternalGenerator : ClrGenerator
+  {
+    // (clr-is type arg)
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+      Type t = GetType(type);
+      if (t == null)
+      {
+        throw new NotSupportedException();
+      }
+
+      return Ast.TypeIs(GetAst(Builtins.Second(args), cb), t);
+    }
+  }
+
   [Generator("clr-cast-internal")]
   public class ClrCastInternalGenerator : ClrGenerator
   {
@@ -213,7 +325,14 @@ namespace IronScheme.Compiler
 
       Expression obj = GetAst(Builtins.Second(args), cb);
 
-      return Ast.ConvertHelper(obj, t);
+      if (t.BaseType == typeof(MulticastDelegate))
+      {
+        return Ast.Call( Helpers_ConvertToDelegate.MakeGenericMethod(t), obj);
+      }
+      else
+      {
+        return Ast.ConvertHelper(obj, t);
+      }
     }
   }
 
@@ -312,20 +431,26 @@ namespace IronScheme.Compiler
 
       if (ci != null)
       {
-        
-        ParameterInfo[] cipars = ci.GetParameters();
 
-        for (int i = 0; i < types.Length; i++)
+        ParameterInfo[] pars = ci.GetParameters();
+        for (int i = 0; i < arguments.Length; i++)
         {
-          while (arguments[i] is DynamicConversionExpression)
+          Type tt = pars[i].ParameterType;
+          if (tt == arguments[i].Type)
           {
-            arguments[i] = ((DynamicConversionExpression)arguments[i]).Expression;
+            // do nothing
           }
-          if (arguments[i].Type != cipars[i].ParameterType)
-          {
-            arguments[i] = Ast.DynamicConvert(arguments[i], cipars[i].ParameterType);
-          }
+          else
+            if (tt.BaseType == typeof(MulticastDelegate))
+            {
+              arguments[i] = Ast.Call(Helpers_ConvertToDelegate.MakeGenericMethod(tt), arguments[i]);
+            }
+            else
+            {
+              arguments[i] = Ast.ConvertHelper(arguments[i], tt);
+            }
         }
+
 
         Expression r = Ast.New(ci, arguments);
         return r;

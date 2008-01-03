@@ -1,5 +1,9 @@
 (library (ironscheme clr)
   (export
+    clr-clear-usings
+    clr-using
+    clr-reference
+    clr-is
     clr-foreach
     clr-cast
     clr-call
@@ -18,7 +22,32 @@
 		clr-new-array)
   (import 
     (rnrs)
+    (only (psyntax system $bootstrap) gensym)
     (ironscheme clr internal))
+    
+  (define-syntax clr-clear-usings
+    (lambda (e)
+      (syntax-case e ()
+        [(_)
+         #`(define #,(gensym 'clear-usings) (clr-clear-usings-internal))])))      
+    
+  (define-syntax clr-using
+    (lambda (e)
+      (syntax-case e ()
+        [(_ namespace)
+         #`(define #,(gensym 'using) (clr-using-internal 'namespace))])))      
+
+  (define-syntax clr-reference
+    (lambda (e)
+      (syntax-case e ()
+        [(_ assname)
+         #`(define #,(gensym 'reference) (clr-reference-internal 'assname))])))       
+    
+  (define-syntax clr-is
+    (lambda (e)
+      (syntax-case e ()
+        [(_ type arg)
+         #'(clr-is-internal 'type arg)])))    
   
   (define-syntax clr-call
     (lambda (e)

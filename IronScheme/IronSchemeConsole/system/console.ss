@@ -16,19 +16,19 @@
     
   (define-syntax out
     (syntax-rules ()
-      [(_)                (clr-call system.console get_out '())]))
+      [(_)                (clr-static-prop-get system.console out)]))
 
   (define-syntax in
     (syntax-rules ()
-      [(_)                (clr-call system.console get_in '())]))
+      [(_)                (clr-static-prop-get system.console in)]))
 
   (define-syntax error
     (syntax-rules ()
-      [(_)                (clr-call system.console get_error '())]))
+      [(_)                (clr-static-prop-get system.console error)]))
 
   (define-syntax write
 		(syntax-rules ()
-			[(_ obj)            (clr-call system.console write '() obj)]
-			[(_ obj args ...)   (clr-call system.console write '() (clr-cast system.string obj) args ... )]))
+			[(_ obj)            (clr-static-call system.console write obj)]
+			[(_ obj args ...)   (clr-static-call system.console write (clr-cast system.string obj) args ... )]))
       
 )

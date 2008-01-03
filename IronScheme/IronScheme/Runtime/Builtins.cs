@@ -117,7 +117,7 @@ namespace IronScheme.Runtime
     public static object TimeIt(object who, object thunk)
     {
       ICallable c = RequiresNotNull<ICallable>(thunk);
-      long membefore = GC.GetTotalMemory(true);
+      long membefore = GC.GetTotalMemory(false);
       int[] colcount = new int[3];
       for (int i = 0; i < 3; i++)
       {
@@ -131,7 +131,7 @@ namespace IronScheme.Runtime
       finally
       {
         sw.Stop();
-        long memafter = GC.GetTotalMemory(true);
+        long memafter = GC.GetTotalMemory(false);
 
         int[] colcountafter = new int[3];
         for (int i = 0; i < 3; i++)
@@ -149,7 +149,7 @@ namespace IronScheme.Runtime
   Gen2 collect:  {6}", who, sw.Elapsed, membefore, memafter, 
                      colcountafter[0] - colcount[0],
                      colcountafter[1] - colcount[1],
-                     colcountafter[2] - colcount[1],
+                     colcountafter[2] - colcount[2],
                      memafter - membefore);
       }
     }
@@ -251,37 +251,36 @@ namespace IronScheme.Runtime
     //  }
 
     //LONGWAY:
-
-
-
-      Stopwatch sw = Stopwatch.StartNew();
+      
 
 #if DEBUG
-      if (prettyprint == null)
-      {
-        prettyprint = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
-      }
 
-      if (!Directory.Exists("evaldump"))
+      System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
       {
-        Directory.CreateDirectory("evaldump");
-      }
+        // dont cache
+        prettyprint = SymbolValue(cc, SymbolTable.StringToId("pretty-print")) as ICallable;
 
-      string fn = string.Format("evaldump/{0:D3}.ss", c);
+        if (!Directory.Exists("evaldump"))
+        {
+          Directory.CreateDirectory("evaldump");
+        }
 
-      if (File.Exists(fn))
-      {
-        File.Delete(fn);
-      }
+        string fn = string.Format("evaldump/{0:D3}.ss", c);
 
-      using (TextWriter w = File.CreateText(fn))
-      {
-        prettyprint.Call(expr, w);
-      }
-      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("pretty-p- eval-core({0:D3})", c));
-      sw = Stopwatch.StartNew();
+        if (File.Exists(fn))
+        {
+          File.Delete(fn);
+        }
+
+        using (TextWriter w = File.CreateText(fn))
+        {
+          prettyprint.Call(expr, w);
+        }
+      });
 
 #endif
+
+      Stopwatch sw = Stopwatch.StartNew();
 
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.Compile(new Cons(expr))); //wrap
 

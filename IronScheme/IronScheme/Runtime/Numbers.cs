@@ -822,7 +822,7 @@ namespace IronScheme.Runtime
       {
         return value;
       }
-      return Add(first, new object[] { second });
+      throw new NotSupportedException("cant do that");
     }
 
     [Builtin("+")]
@@ -890,7 +890,7 @@ namespace IronScheme.Runtime
       {
         return value;
       }
-      return Multiply(first, new object[] { second });
+      throw new NotSupportedException("cant do that");
     }
 
 
@@ -982,7 +982,7 @@ namespace IronScheme.Runtime
       {
         return value;
       }
-      return Divide(first, new object[] { second });
+      throw new NotSupportedException("cant do that");
     }
 
 
@@ -1141,7 +1141,7 @@ namespace IronScheme.Runtime
       }
 
       //slow version
-      return Subtract(first, new object[] { second });
+      throw new NotSupportedException("cant do that");
     }
 
     [Builtin("-")]

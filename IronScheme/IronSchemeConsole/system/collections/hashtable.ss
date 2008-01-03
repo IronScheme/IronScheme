@@ -15,14 +15,6 @@
     (rnrs base)
 		(rnrs syntax-case)
     (ironscheme clr))
-    
-  (define-syntax clr-prop-get
-    (syntax-rules ()
-      [(_ type name) 
-        (define-syntax name
-          (lambda (e)
-            (syntax-case e ()
-    	        [(_ instance)  #`(clr-call #,type name instance)])))]))
     	        
   (define-syntax clr-method
     (syntax-rules ()

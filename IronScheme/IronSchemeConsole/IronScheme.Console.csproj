@@ -108,9 +108,6 @@
     <None Include="psyntax\psyntax.pp">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme-r6rs.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme\arithmetic\bitwise.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -184,6 +181,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="examples\forms.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="examples\runge-kutta.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -193,7 +193,13 @@
     <None Include="ironscheme\build.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\pretty-print.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\reader.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\threading.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\match.ss">
@@ -324,6 +330,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -336,6 +344,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>call "$(DevEnvDir)\..\..\VC\bin\vcvars32.bat"
-"%25VCINSTALLDIR%25\bin\editbin.exe" /nologo /stack:0x100000 "$(TargetPath)"</PostBuildEvent>
+"%25VCINSTALLDIR%25\bin\editbin.exe" /nologo /stack:0x200000 "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

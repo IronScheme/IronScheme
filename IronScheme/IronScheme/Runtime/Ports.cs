@@ -636,7 +636,7 @@ namespace IronScheme.Runtime
 
         return string.Join(Environment.NewLine, v.ToArray());
       }
-
+#if R6RS
       if (obj is R6RS.CompoundCondition)
       {
         R6RS.CompoundCondition cc = (R6RS.CompoundCondition)obj;
@@ -655,7 +655,7 @@ namespace IronScheme.Runtime
       {
         return obj.ToString();
       }
-
+#endif
       if (obj is Exception)
       {
         return obj.GetType().Name.Replace("$", "&");
