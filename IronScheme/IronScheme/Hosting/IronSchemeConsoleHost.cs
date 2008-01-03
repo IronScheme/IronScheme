@@ -69,6 +69,14 @@ namespace IronScheme.Hosting
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
     }
 
+    //slowest script runner in the world... :(
+    protected override int RunFile(IScriptEngine engine, SourceUnit sourceUnit)
+    {
+      engine.Execute("(load \"init.scm\")");
+      engine.Execute(string.Format("(eval-r6rs '(load \"{0}\"))", sourceUnit.ToString().Replace('\\','/')));
+      return 0;
+    }
+
     protected override void Initialize()
     {
       base.Initialize();

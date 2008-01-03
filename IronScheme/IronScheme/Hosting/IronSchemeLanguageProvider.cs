@@ -80,6 +80,16 @@ namespace IronScheme.Hosting
         get{ return ". ";}
       }
 
+      protected override int RunFile(string filename)
+      {
+        return base.RunFile(filename);
+      }
+
+      protected override int RunCommand(string command)
+      {
+        return base.RunCommand(command);
+      }
+
       protected override void Initialize()
       {
         if (File.Exists("unknown_ast.ast"))
