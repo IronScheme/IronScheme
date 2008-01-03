@@ -187,7 +187,6 @@ SectionIn 1 2 RO
 	File "genwrite.scm"
 	
 	File "ironscheme-buildscript.ss"
-	File "ironscheme-r6rs.ss"
 	File "r6rs-init.ss"
 	
 	File "system.ss"

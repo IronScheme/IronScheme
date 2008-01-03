@@ -63,6 +63,7 @@
     "ironscheme/records/procedural.ss"
     "ironscheme/records/syntactic.ss"
     "ironscheme/build.ss"
+    ;"ironscheme/pretty-print.ss"
     "psyntax/compat.ss"
     "psyntax/internal.ss"
     "psyntax/config.ss"
@@ -191,15 +192,12 @@
 
 (define library-legend
   ;; abbr.       name                             visible? required?
-  '((interaction (ikarus interaction)                  #t    #f)
-    (i           (ironscheme)                          #t    #f)
+  '((i           (ironscheme)                          #t    #f)
     (ir          (ironscheme reader)                   #t    #t)
     (ii          (ironscheme interaction)              #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #t    #f)
     (se          (psyntax scheme-report-environment-5) #t    #f)
-    (cm          (psyntax modules)                     #t    #f)
-    (parameters  (chez parameters)                     #t    #f)
     (r           (rnrs)                                #t    #t)
     (r5          (rnrs r5rs)                           #t    #t)
     (ct          (rnrs control)                        #t    #t)
@@ -992,11 +990,15 @@
     (symbol-value                               $boot)
     (set-symbol-value!                          $boot)
     (eval-core                                  $boot)
-    (pretty-print                               $boot i)
-    (module                                     cm)
+    (pretty-print                               $boot)
+    (module                                     i)
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
     
+    (clr-clear-usings-internal                  is-clr-int)
+    (clr-using-internal                         is-clr-int)
+    (clr-reference-internal                     is-clr-int)
+    (clr-is-internal                            is-clr-int)
     (clr-new-array-internal                     is-clr-int)
     (clr-new-internal                           is-clr-int)
     (clr-call-internal                          is-clr-int)

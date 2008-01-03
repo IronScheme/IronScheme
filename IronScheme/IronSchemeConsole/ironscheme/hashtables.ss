@@ -64,15 +64,5 @@
   
   (define hashtable-equivalence-function #f)
   (define hashtable-hash-function #f)
-  
-  ;(define make-hashtable  #f)    ; internal
-  ;(define hashtable?      #f)    ; internal
-  ;(define hashtable-copy    #f)  ; internal
-  ;(define hashtable-keys    #f)  ; internal
-  ;(define hashtable-entries #f)  ; internal
-  ;(define hashtable-mutable? #f) ; internal
-  ;(define equal-hash #f)         ; internal
-  ;(define string-hash #f)        ; internal
-  ;(define string-ci-hash #f)     ; internal
-  ;(define symbol-hash #f)        ; internal
+
 )

@@ -65,7 +65,7 @@ namespace IronScheme.Compiler
 
     protected static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
 
-    protected static MethodInfo GetCallable(int arity)
+    protected internal static MethodInfo GetCallable(int arity)
     {
       switch (arity)
       {

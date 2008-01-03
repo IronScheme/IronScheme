@@ -3,6 +3,10 @@
 ;; Author: Marc Feeley (feeley@iro.umontreal.ca)
 ;; Distribution restrictions: none
 
+(library (ironscheme pretty-print)
+  (export pretty-print)
+  (import (rnrs) (rnrs mutable-strings))
+
 (define genwrite:newline-str (make-string 1 #\newline))
 ;@
 (define (generic-write obj display? width output)
@@ -239,15 +243,13 @@
         ((begin)                     pp-BEGIN)
         ((do)                        pp-DO)
         (else                        #f)))
-
+        
     (pr obj col 0 pp-expr))
 
   (if width
       (out genwrite:newline-str (pp obj 0))
       (wr obj 0)))
 
-; (reverse-string-append l) = (apply string-append (reverse l))
-;@
 (define (reverse-string-append l)
 
   (define (rev-string-append l i)
@@ -264,15 +266,11 @@
         (make-string i)))
 
   (rev-string-append l 0))
-
-
+  
 (define (pretty-print obj . opt)
   (let ((port (if (pair? opt) (car opt) (current-output-port))))
     (generic-write obj #f 100
-                   (lambda (s) (display s port) #t)) ))
-;@
-(define (pretty-print->string obj . width)
-  (define result '())
-  (generic-write obj #f (if (null? width) 100 (car width))
-                 (lambda (str) (set! result (cons str result)) #t))
-  (reverse-string-append result))
+                   (lambda (s) (display s port) #t))))
+
+  
+)

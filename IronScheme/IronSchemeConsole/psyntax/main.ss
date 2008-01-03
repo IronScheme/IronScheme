@@ -40,7 +40,7 @@
                        '()
                        (cons x (f)))))))))
       (eval-r6rs-top-level x*)
-      (if #f #f)))
+      (void)))
 
   (let ((args (command-line)))
     (unless (= (length args) 2)

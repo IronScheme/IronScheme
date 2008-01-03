@@ -43,7 +43,7 @@ namespace IronScheme.Hosting
 #endif
        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
       
-      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie 2007 - {1} - {2}", 
+      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1} - {2}", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
 #if R6RS
             "R6RS mode"
