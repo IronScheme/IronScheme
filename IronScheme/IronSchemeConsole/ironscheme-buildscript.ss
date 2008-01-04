@@ -255,6 +255,7 @@
     (clr-library-locator                        i)
     (time                                       i)
     (time-it                                    i)
+    (pmap                                       i)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)

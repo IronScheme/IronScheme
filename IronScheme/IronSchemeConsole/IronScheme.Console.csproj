@@ -344,6 +344,6 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>call "$(DevEnvDir)\..\..\VC\bin\vcvars32.bat"
-"%25VCINSTALLDIR%25\bin\editbin.exe" /nologo /stack:0x200000 "$(TargetPath)"</PostBuildEvent>
+"%25VCINSTALLDIR%25\bin\editbin.exe" /nologo /stack:0x400000 "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

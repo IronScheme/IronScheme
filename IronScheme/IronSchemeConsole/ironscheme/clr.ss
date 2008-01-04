@@ -1,5 +1,9 @@
 (library (ironscheme clr)
   (export
+    clr-static-event-add!
+    clr-static-event-remove!
+    clr-event-add!
+    clr-event-remove!
     clr-clear-usings
     clr-using
     clr-reference
@@ -81,6 +85,33 @@
     (syntax-rules ()
       [(_ type member args ...)
         (clr-call type member '() args ...)]))
+        
+  (define-syntax clr-static-event-add!
+    (syntax-rules ()
+      [(_ type event handler)
+        (clr-event-add! type event '() handler)]))
+
+  (define-syntax clr-static-event-remove!
+    (syntax-rules ()
+      [(_ type event handler)
+        (clr-event-remove! type event '() handler)]))
+        
+        
+  (define-syntax clr-event-add!
+    (lambda (e)
+      (syntax-case e ()
+        [(_ type event-name instance handler)
+       		#`(clr-call-internal 'type 
+							'#,(string->symbol (string-append "add_" (symbol->string (syntax->datum #'event-name)))) 
+							 instance handler)])))
+		
+  (define-syntax clr-event-remove!
+    (lambda (e)
+      (syntax-case e ()
+        [(_ type event-name instance handler)
+       		#`(clr-call-internal 'type 
+						  '#,(string->symbol (string-append "remove_" (symbol->string (syntax->datum #'event-name)))) 
+						  instance handler)])))	        
 				
   (define-syntax clr-prop-get
     (lambda (e)

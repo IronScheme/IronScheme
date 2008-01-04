@@ -788,13 +788,14 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          try
+          long l = (long)(int)first + (int)second;
+          if (l > int.MaxValue || l < int.MinValue)
           {
-            return checked((int)first + (int)second);
+            return (BigInteger)l;
           }
-          catch (OverflowException)
+          else
           {
-            return (BigInteger)(int)first + (int)second;
+            return (int)l;
           }
         }
         else if (second is double)
@@ -812,6 +813,14 @@ namespace IronScheme.Runtime
         {
           return (double)first + (double)second;
         }
+      }
+      if (first is BigInteger && second is int)
+      {
+        return BigInteger.Add((BigInteger)first, (int)second);
+      }
+      if (first is int && second is BigInteger)
+      {
+        return BigInteger.Add((int)first, (BigInteger)second);
       }
       if (first is BigInteger && second is BigInteger)
       {
@@ -856,13 +865,14 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          try
+          long l = Math.BigMul((int)first,(int)second);
+          if (l > int.MaxValue || l < int.MinValue)
           {
-            return checked((int)first * (int)second);
+            return (BigInteger)l;
           }
-          catch (OverflowException)
+          else
           {
-            return (BigInteger)(int)first * (int)second;
+            return (int)l;
           }
         }
         else if (second is double)
@@ -1105,13 +1115,14 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          try
+          long l = unchecked((long)((int)first - (int)second));
+          if (l > int.MaxValue || l < int.MinValue)
           {
-            return checked((int)first - (int)second);
+            return (BigInteger)l;
           }
-          catch (OverflowException)
+          else
           {
-            return (BigInteger)(int)first - (int)second;
+            return (int)l;
           }
         }
         else if (second is double)
@@ -1672,6 +1683,10 @@ provided all numbers involved in that computation are exact.
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)
     {
+      if (obj1 is BigInteger)
+      {
+        return ((BigInteger)obj1).Power(Convert.ToInt32(obj2));
+      }
       if ((bool)IsInteger(obj1) && (bool)IsInteger(obj2))
       {
         return BigIntConverter.ConvertFrom(MathHelper(Math.Pow, obj1, obj2));

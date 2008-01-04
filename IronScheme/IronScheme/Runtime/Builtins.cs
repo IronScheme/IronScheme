@@ -117,12 +117,14 @@ namespace IronScheme.Runtime
     public static object TimeIt(object who, object thunk)
     {
       ICallable c = RequiresNotNull<ICallable>(thunk);
-      long membefore = GC.GetTotalMemory(false);
+
       int[] colcount = new int[3];
       for (int i = 0; i < 3; i++)
       {
         colcount[i] = GC.CollectionCount(i);
       }
+
+      long membefore = GC.GetTotalMemory(true);
       Stopwatch sw = Stopwatch.StartNew();
       try
       {
@@ -131,7 +133,7 @@ namespace IronScheme.Runtime
       finally
       {
         sw.Stop();
-        long memafter = GC.GetTotalMemory(false);
+        long memafter = GC.GetTotalMemory(true);
 
         int[] colcountafter = new int[3];
         for (int i = 0; i < 3; i++)
