@@ -23,7 +23,7 @@
     (clr-static-call application run (clr-cast form form)))
   
   (define (form-click-add! form proc)
-    (clr-call form add_click form proc))
+    (clr-event-add! form click form proc))
     
   (define (application-exit)
     (clr-static-call application exit))

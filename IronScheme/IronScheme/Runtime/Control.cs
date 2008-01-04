@@ -23,6 +23,7 @@ using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Ast;
 using System.Diagnostics;
 using IronScheme.Compiler;
+using System.Threading;
 
 namespace IronScheme.Runtime
 {
@@ -179,6 +180,45 @@ namespace IronScheme.Runtime
 
       return c.Call(targs.ToArray());
     }
+
+    [Builtin]
+    public static object PMap(object fn, params object[] lists)
+    {
+      if (lists == null)
+      {
+        return null;
+      }
+      ICallable f = RequiresNotNull<ICallable>(fn);
+
+      List<object[]> args = new List<object[]>();
+
+      foreach (object[] r in new MultiEnumerable(lists))
+      {
+        args.Add(r);
+      }
+
+      object[] results = new object[args.Count];
+      ManualResetEvent[] mre = new ManualResetEvent[results.Length];
+
+      for (int i = 0; i < results.Length; i++)
+      {
+        mre[i] = new ManualResetEvent(false);
+        ThreadPool.QueueUserWorkItem(delegate (object state) 
+        {
+          int index = (int)state;
+          results[index] = f.Call(args[index]);
+          mre[index].Set();
+        }, i);
+      }
+
+      foreach (ManualResetEvent mr in mre)
+      {
+        mr.WaitOne();
+      }
+
+      return Runtime.Cons.FromArray(results);
+    }
+
 
     [Builtin]
     public static object Map(object fn, object lst)

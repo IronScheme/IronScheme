@@ -149,6 +149,7 @@ namespace Microsoft.Scripting {
       {
         CompilerContext context = new CompilerContext(SourceUnit.CreateSnippet(Engine, string.Empty), GetCompilerOptions(), Engine.GetCompilerErrorSink());
         AnalyzeBlock(block);
+        DumpBlock(block, null);
         return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
       }
 

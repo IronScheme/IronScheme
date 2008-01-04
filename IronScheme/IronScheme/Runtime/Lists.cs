@@ -539,9 +539,6 @@ namespace IronScheme.Runtime
       throw new IndexOutOfRangeException();
     }
 
-
-
-
     [Builtin("list-ref")]
     public static object ListRef(object lst, object index)
     {
