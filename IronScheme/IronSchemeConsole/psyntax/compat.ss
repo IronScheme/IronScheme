@@ -89,17 +89,39 @@
   ;;;
   ;;; The following should be good for full R6RS implementations.
   ;;;
-#|     (define-syntax define-record
-       (syntax-rules ()
-         [(_ name (field* ...) printer) 
-          (define-record name (field* ...))]
-         [(_ name (field* ...))
-          (define-record-type name 
-             (sealed #t)     ; for better performance
-             (opaque #t)     ; for security
+                       
+(define-syntax define-record
+  (lambda (x)
+	  (define (syn->str s)
+		  (symbol->string
+			  (syntax->datum s)))
+    (define gen-getter
+      (lambda (id)
+        (lambda (fld)
+          (datum->syntax id
+            (string->symbol
+              (string-append (syn->str id) "-" (syn->str fld)))))))
+    (define gen-setter
+      (lambda (id)
+        (lambda (fld)
+          (datum->syntax id
+            (string->symbol
+              (string-append "set-" (syn->str id) "-" (syn->str fld) "!"))))))
+    (syntax-case x ()
+      [(_ name (field* ...) printer)
+       #'(define-record name (field* ...))]
+      [(_ name (field* ...))
+       (with-syntax ([(getter* ...)
+                      (map (gen-getter #'name) #'(field* ...))]
+                     [(setter* ...)
+                      (map (gen-setter #'name) #'(field* ...))])
+         #`(define-record-type name
+             (sealed #t) ; for better performance
+             (opaque #t) ; for security
              (nongenerative) ; for sanity
-             (fields field* ...))]))
-|#
+             (fields (mutable field* getter* setter*) ...)))])))                       
+#|
+
   (define-syntax define-record
     (lambda (stx)
       (define (iota i j)
@@ -174,6 +196,7 @@
                        (error 'mutator "~s is not of type ~s" x
                               'name))))
                ...)))))))
+|#    
 
   (define (file-options-spec x) 
     (error 'file-options-spec "not implemented"))

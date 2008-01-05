@@ -107,9 +107,16 @@ namespace IronScheme.Runtime
       }
     }
 
-    static object InvokeContinuation(object value)
+    static object InvokeContinuation(params object[] value)
     {
-      throw new Continuation(value);
+      if (value.Length == 1)
+      {
+        throw new Continuation(value[0]);
+      }
+      else
+      {
+        throw new Continuation(value);
+      }
     }
     
     [Builtin("call-with-current-continuation"), Builtin("call/cc")]
@@ -118,7 +125,7 @@ namespace IronScheme.Runtime
       ICallable fc = RequiresNotNull<ICallable>(fc1);
       try
       {
-        CallTarget1 exitproc = InvokeContinuation;
+        CallTargetN exitproc = InvokeContinuation;
         ICallable fce = Closure.Make(cc, exitproc);
         return fc.Call(fce);
       }
@@ -181,46 +188,46 @@ namespace IronScheme.Runtime
       return c.Call(targs.ToArray());
     }
 
-    [Builtin]
-    public static object PMap(object fn, params object[] lists)
-    {
-      if (lists == null)
-      {
-        return null;
-      }
-      ICallable f = RequiresNotNull<ICallable>(fn);
+    //[Builtin("pmap")]
+    //public static object PMap(object fn, params object[] lists)
+    //{
+    //  if (lists == null)
+    //  {
+    //    return null;
+    //  }
+    //  ICallable f = RequiresNotNull<ICallable>(fn);
 
-      List<object[]> args = new List<object[]>();
+    //  List<object[]> args = new List<object[]>();
 
-      foreach (object[] r in new MultiEnumerable(lists))
-      {
-        args.Add(r);
-      }
+    //  foreach (object[] r in new MultiEnumerable(lists))
+    //  {
+    //    args.Add(r);
+    //  }
 
-      object[] results = new object[args.Count];
-      ManualResetEvent[] mre = new ManualResetEvent[results.Length];
+    //  Leaf.Parallel.NResult<Leaf.Parallel.NVoid>[] mre = new Leaf.Parallel.NResult<Leaf.Parallel.NVoid>[args.Count];
 
-      for (int i = 0; i < results.Length; i++)
-      {
-        mre[i] = new ManualResetEvent(false);
-        ThreadPool.QueueUserWorkItem(delegate (object state) 
-        {
-          int index = (int)state;
-          results[index] = f.Call(args[index]);
-          mre[index].Set();
-        }, i);
-      }
+    //  object[] results = new object[args.Count];
+     
+    //  for (int i = 0; i < results.Length; i++)
+    //  {
+    //    int index = i;
+    //    mre[index] = Leaf.Parallel.NParallel.Execute(
+    //      delegate
+    //      {
+    //        results[index] = f.Call(args[index]);
+    //      });
+    //  }
 
-      foreach (ManualResetEvent mr in mre)
-      {
-        mr.WaitOne();
-      }
+    //  foreach (Leaf.Parallel.NResult<Leaf.Parallel.NVoid> re in mre)
+    //  {
+    //    re.Wait();
+    //  }
 
-      return Runtime.Cons.FromArray(results);
-    }
+    //  return Runtime.Cons.FromArray(results);
+    //}
 
 
-    [Builtin]
+    [Builtin("map")]
     public static object Map(object fn, object lst)
     {
       Cons list = Requires<Runtime.Cons>(lst);
@@ -243,7 +250,7 @@ namespace IronScheme.Runtime
       return head;
     }
 
-    [Builtin]
+    [Builtin("map")]
     public static object Map(object fn, params object[] lists)
     {
       if (lists == null)

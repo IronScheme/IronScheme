@@ -35,7 +35,7 @@ namespace IronScheme.Runtime.psyntax
 
     static SourceSpan lastloc;
 
-    static object Annotate(object obj)
+    internal static object Annotate(object obj)
     {
       if (obj is Cons)
       {

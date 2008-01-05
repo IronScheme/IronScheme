@@ -462,6 +462,34 @@ namespace IronScheme.Runtime
       {
         return "()";
       }
+      if (obj is string)
+      {
+        return (string)obj;
+      }
+      if (obj is StringBuilder)
+      {
+        return obj.ToString();
+      }
+
+      if (obj is bool)
+      {
+        return ((bool)obj) ? "#t" : "#f";
+      }
+      if (obj is char)
+      {
+        return string.Format("{0}", obj);
+      }
+
+      if (obj is SymbolId)
+      {
+        return SymbolTable.IdToString((SymbolId)obj);
+      }
+
+      if ((bool)IsNumber(obj))
+      {
+        return NumberToString(obj) as string;
+      }
+
       if (obj == EOF)
       {
         return "<eof>";
@@ -535,18 +563,6 @@ namespace IronScheme.Runtime
 
       }
 
-      if (obj is bool)
-      {
-        return ((bool)obj) ? "#t" : "#f";
-      }
-      if (obj is string)
-      {
-        return string.Format("{0}", obj);
-      }
-      if (obj is char)
-      {
-        return string.Format("{0}", obj);
-      }
 
       if (obj is Cons)
       {
@@ -661,15 +677,6 @@ namespace IronScheme.Runtime
         return obj.GetType().Name.Replace("$", "&");
       }
 
-      if (obj is SymbolId)
-      {
-        return SymbolTable.IdToString((SymbolId)obj);
-      }
-
-      if ((bool)IsNumber(obj))
-      {
-        return NumberToString(obj) as string;
-      }
 
       return obj.ToString();
     }

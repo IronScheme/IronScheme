@@ -22,12 +22,12 @@ You must not remove this notice, or any other, from this software.
   (macro (args . body)
          ;; check named let
          (if (symbol? args)
-             ((lambda (name args body)
-                `((lambda ,(map first args)
-                    (define (,name ,@(map first args)) ,@body)
-                    (,name ,@(map first args)))
-                    ,@(map second args)))
-                args (car body) (cdr body))
+             ((lambda (name firsts seconds body)
+                `((lambda ,firsts
+                    (define (,name ,@firsts) ,@body)
+                    (,name ,@firsts))
+                    ,@seconds))
+                args (map first (car body)) (map second (car body)) (cdr body))
              ;; normal let
              `((lambda ,(map first args) ,@body) ,@(map second args)))))
 
@@ -39,12 +39,12 @@ You must not remove this notice, or any other, from this software.
            `(define ,name (macro ,args ,@body)))))
            
 
-'(define (void) (if #f #f))
+#;(define (void) (if #f #f))
 
 (define-macro (syntax-error . args)
   `,`(error ,@args))           
 
-'(define-macro (begin . e)
+#;(define-macro (begin . e)
   (if (null? e) (void)
     `((lambda () ,@e))))
 
@@ -169,9 +169,9 @@ You must not remove this notice, or any other, from this software.
        ,@(map second args)))
      ,@(map false args)))         
 
-#|
+
 ;; now its getting easy :)
-(define-macro (letrec* args . body)
+#;(define-macro (letrec* args . body)
   ;; init to values inside body
   (define (init-helper args)
       `(set! ,(car args) ,(second args)))
@@ -186,5 +186,3 @@ You must not remove this notice, or any other, from this software.
 
 
 
-
-|#

@@ -2455,25 +2455,33 @@
              sealed opaque nongenerative parent-rtd)
             incorrect-usage-macro)
            (else 
-            (assertion-violation 'macro-transformer 
-               "BUG: invalid macro" x))))
+            (error 'macro-transformer "BUG: invalid macro" x))))
         (else 
-         (assertion-violation 'core-macro-transformer 
-            "BUG: invalid macro" x)))))
+         (error 'core-macro-transformer "BUG: invalid macro" x)))))
   
   (define (local-macro-transformer x)
     (car x))
 
+  (define (do-macro-call transformer expr)
+    (let ([out (transformer (add-mark anti-mark expr))])
+      (let f ([x out])
+        ;;; don't feed me cycles.
+        (unless (stx? x)
+          (cond
+            [(pair? x) (f (car x)) (f (cdr x))]
+            [(vector? x) (vector-for-each f x)]
+            [(symbol? x) 
+             (syntax-violation #f 
+               "raw symbol encountered in output of macro"
+               expr x)])))
+      (add-mark (gen-mark) out)))
+
   ;;; chi procedures
   (define chi-macro
-    (lambda (p e)
-      (let ((s ((macro-transformer p) (add-mark anti-mark e))))
-        (add-mark (gen-mark) s))))
+    (lambda (p e) (do-macro-call (macro-transformer p) e)))
   
   (define chi-local-macro
-    (lambda (p e)
-      (let ((s ((local-macro-transformer p) (add-mark anti-mark e))))
-        (add-mark (gen-mark) s))))
+    (lambda (p e) (do-macro-call (local-macro-transformer p) e)))
   
   (define (chi-global-macro p e)
     ;;; FIXME: does not handle macro!?
@@ -2486,8 +2494,7 @@
                  ((procedure? x) x)
                  (else (assertion-violation 'chi-global-macro
                           "BUG: not a procedure" x)))))
-          (let ((s (transformer (add-mark anti-mark e))))
-            (add-mark (gen-mark) s))))))
+          (do-macro-call transformer e)))))
   
   (define chi-expr*
     (lambda (e* r mr)

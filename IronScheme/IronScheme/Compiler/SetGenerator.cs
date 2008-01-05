@@ -48,7 +48,7 @@ namespace IronScheme.Compiler
         value = Ast.ConvertHelper(value, typeof(object));
       }
 
-      //Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
+  
       Expression r = Ast.Assign(v, value);
 
       if (cb.IsGlobal && cb.Name != "__toploop__")

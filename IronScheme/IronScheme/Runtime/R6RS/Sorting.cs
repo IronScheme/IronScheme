@@ -51,7 +51,7 @@ namespace IronScheme.Runtime.R6RS
       object[] v = RequiresNotNull<object[]>(vec);
       Array.Sort(v, delegate(object a, object b)
       {
-        return IsTrue(c.Call(a, b)) ? -1 : 1;
+        return ReferenceEquals(a,b) ? 0 : IsTrue(c.Call(a, b)) ? -1 : 1;
       });
       return Unspecified;
     }

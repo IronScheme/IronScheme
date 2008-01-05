@@ -41,7 +41,7 @@ public int Make(Tokens token)
 %}
 
 
-line_comment           (";"[^\n]*)|("#!r6rs"[^\n]*)
+line_comment           (";"[^\n]*)|("#!"[^\n]*)
 
 ignore_datum           "#;"
 

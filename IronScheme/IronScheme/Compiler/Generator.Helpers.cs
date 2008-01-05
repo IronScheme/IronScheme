@@ -400,27 +400,6 @@ namespace IronScheme.Compiler
       }
     }
 
-    internal static void InitGlobal(Cons defcheck, CodeBlock cb, List<Statement> stmts)
-    {
-      while (defcheck != null)
-      {
-        Cons h = defcheck.car as Cons;
-
-        defcheck.car = SyntaxExpander.Expand1(defcheck.car);
-
-        h = defcheck.car as Cons;
-
-        if (h != null && (bool)Builtins.IsEqual(h.car, define))
-        {
-          Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
-          stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
-          h.car = set;
-        }
-
-        defcheck = defcheck.cdr as Cons;
-      }
-    }
-
     protected class CodeBlockDescriptor
     {
       public int arity;
