@@ -286,8 +286,9 @@ namespace IronScheme.Compiler
       {
         throw new NotSupportedException();
       }
-
+#pragma warning disable 618
       Assembly.LoadWithPartialName(assname);
+#pragma warning restore 618
 
       return Ast.ReadField(null, Unspecified);
     }

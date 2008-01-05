@@ -17,6 +17,7 @@ namespace IronScheme.Compiler
     {
       this.value = value;
     }
+
     public override Type Type
     {
       get { return value.GetType(); }

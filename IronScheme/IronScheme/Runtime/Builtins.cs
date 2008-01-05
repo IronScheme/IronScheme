@@ -123,8 +123,6 @@ namespace IronScheme.Runtime
       {
         colcount[i] = GC.CollectionCount(i);
       }
-
-      long membefore = GC.GetTotalMemory(true);
       Stopwatch sw = Stopwatch.StartNew();
       try
       {
@@ -133,8 +131,6 @@ namespace IronScheme.Runtime
       finally
       {
         sw.Stop();
-        long memafter = GC.GetTotalMemory(true);
-
         int[] colcountafter = new int[3];
         for (int i = 0; i < 3; i++)
         {
@@ -142,39 +138,18 @@ namespace IronScheme.Runtime
         }
 
         Console.WriteLine(@"Statistics for '{0}':
-  Time:          {1}
-  Memory before: {2}
-  Memory after:  {3}
-  Memory diff:   {7}
-  Gen0 collect:  {4}
-  Gen1 collect:  {5}
-  Gen2 collect:  {6}", who, sw.Elapsed, membefore, memafter, 
+  Time:          {1}ms
+  Gen0 collect:  {2}
+  Gen1 collect:  {3}
+  Gen2 collect:  {4}", who, sw.ElapsedMilliseconds, 
                      colcountafter[0] - colcount[0],
                      colcountafter[1] - colcount[1],
-                     colcountafter[2] - colcount[2],
-                     memafter - membefore);
+                     colcountafter[2] - colcount[2]);
       }
     }
 
 
     static int evalcounter = 0;
-
-    static Dictionary<SymbolId, bool> GetComplexOps()
-    {
-      Dictionary<SymbolId, bool> ops = new Dictionary<SymbolId, bool>();
-      ops.Add(SymbolTable.StringToId("case-lambda"), true);
-      ops.Add(SymbolTable.StringToId("let"), true);
-      ops.Add(SymbolTable.StringToId("let*"), true);
-      ops.Add(SymbolTable.StringToId("letrec"), true);
-      ops.Add(SymbolTable.StringToId("letrec*"), true);
-
-      return ops;
-    }
-
-    readonly static Dictionary<SymbolId, bool> complexops = GetComplexOps();
-
-    static ICallable prettyprint;
-    
 
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
@@ -188,79 +163,11 @@ namespace IronScheme.Runtime
 
       int c = ++evalcounter;
 
-    //  if (expr is Cons)
-    //  {
-    //    Cons e = (Cons)expr;
-
-    //    if (e.car is SymbolId)
-    //    {
-    //      SymbolId ecar = (SymbolId)e.car;
-
-    //      if (ecar == quote)
-    //      {
-    //        return ((Cons)e.cdr).car;
-    //      }
-
-    //      if (!complexops.ContainsKey(ecar))
-    //      {
-    //        object callable;
-    //        if (cc.Scope.TryLookupName(ecar, out callable) && callable is ICallable)
-    //        {
-    //          ICallable call = (ICallable)callable;
-
-    //          Cons args = e.cdr as Cons;
-
-    //          List<object> argarray = new List<object>();
-
-    //          while (args != null)
-    //          {
-    //            if (!(args.car is Cons))
-    //            {
-    //              if (args.car is SymbolId)
-    //              {
-    //                argarray.Add(cc.Scope.LookupName((SymbolId)args.car));
-    //              }
-    //              else
-    //              {
-    //                argarray.Add(args.car);
-    //              }
-    //            }
-    //            else
-    //            {
-    //              Cons i = (Cons)args.car;
-    //              if ((bool)IsEqual(i.car, quote))
-    //              {
-    //                argarray.Add(((Cons)i.cdr).car);
-    //              }
-    //              else
-    //              {
-    //                goto LONGWAY;
-    //              }
-    //            }
-    //            args = args.cdr as Cons;
-    //          }
-
-    //          return call.Call(argarray.ToArray());
-
-    //        }
-    //        else
-    //        {
-    //          ;
-    //        }
-    //      }
-    //    }
-
-    //  }
-
-    //LONGWAY:
-      
-
 #if DEBUG
 
       System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
       {
-        // dont cache
-        prettyprint = SymbolValue(cc, SymbolTable.StringToId("pretty-print")) as ICallable;
+        ICallable prettyprint = SymbolValue(cc, SymbolTable.StringToId("pretty-print")) as ICallable;
 
         if (!Directory.Exists("evaldump"))
         {
@@ -301,66 +208,6 @@ namespace IronScheme.Runtime
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
       return cbr;
 
-#if ARRRR
-
-      string exprstr = null;
-      
-#if DEBUG
-
-      ICallable pp = cc.Scope.LookupName(SymbolTable.StringToId("pretty-print")) as ICallable;
-      
-      StringWriter w = new StringWriter();
-      pp.Call(expr, w);
-
-      exprstr = w.ToString();
-
-      if (!Directory.Exists("evaldump"))
-      {
-        Directory.CreateDirectory("evaldump");
-      }
-      
-      string fn = string.Format("evaldump/{0:D3}.ss", c);
-
-      if (File.Exists(fn))
-      {
-        File.Delete(fn);
-      }
-      File.AppendAllText(fn, exprstr);
-
-#else
-      exprstr = WriteFormat(expr);
-#endif
-      //same speed :(
-      //if (exprstr.Length < 64)
-      //{
-      //  return Compiler.Generator.GetAst(expr, Compiler.Generator.evalblock).Evaluate(cc);
-      //}
-
-      try
-      {
-        SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, exprstr);
-
-        Stopwatch sw = Stopwatch.StartNew();
-        //ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule("eval-core", su);
-
-        ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
-        Trace.WriteLine(sw.ElapsedMilliseconds, string.Format("Compile - eval-core({0:D3})", c));
-        sw = Stopwatch.StartNew();
-        //object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext, false); // causes issues :(
-        object result = sc.Run(cc.ModuleContext.Module); // causes issues :(
-        Trace.WriteLine(sw.ElapsedMilliseconds, string.Format("Run     - eval-core({0:D3})", c));
-        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-        return result;
-      }
-      catch (ArgumentException ex)
-      {
-        return AssertionViolation(false, ex.Message, expr);
-      }
-      finally
-      {
-        //GC.Collect(1, GCCollectionMode.Optimized);
-      }
-#endif
     }
 #endif
 

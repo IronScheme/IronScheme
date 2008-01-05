@@ -255,7 +255,6 @@
     (clr-library-locator                        i)
     (time                                       i)
     (time-it                                    i)
-    (pmap                                       i)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)
@@ -988,8 +987,8 @@
     ;;;
     (void                                       $boot i)
     (gensym                                     $boot i)
-    (symbol-value                               $boot)
-    (set-symbol-value!                          $boot)
+    (symbol-value                               $boot i)
+    (set-symbol-value!                          $boot i)
     (eval-core                                  $boot)
     (pretty-print                               $boot)
     (module                                     i)

@@ -132,6 +132,10 @@ irritants:
     public static object SyntaxError(object who, object message, object form, object subform)
     {
 #if R6RS
+      //ICallable synviol = SymbolValue(Context, SymbolTable.StringToId("syntax-violation")) as ICallable;
+      //form = psyntax.AnnotatedReader.Annotate(form);
+      //return synviol.Call(who, message, form, subform);
+
       ICallable s = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
       ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
       ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
@@ -139,7 +143,7 @@ irritants:
       if (who is bool && !(bool)who)
       {
         R6RS.Exceptions.RaiseContinueable(
-          R6RS.Conditions.Condition( m.Call(message), s.Call(form, subform)));
+          R6RS.Conditions.Condition(m.Call(message), s.Call(form, subform)));
       }
       else
       {
@@ -176,8 +180,8 @@ irritants:
 
       return Unspecified;
 #else
-#endif
       return Error(who, message, irritants);
+#endif
     }
 
     [Builtin("error")]

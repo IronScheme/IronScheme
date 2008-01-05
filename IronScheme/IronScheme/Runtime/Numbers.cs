@@ -891,6 +891,14 @@ namespace IronScheme.Runtime
           return (double)first * (double)second;
         }
       }
+      if (first is BigInteger && second is int)
+      {
+        return BigInteger.Multiply((BigInteger)first, (int)second);
+      }
+      if (first is int && second is BigInteger)
+      {
+        return BigInteger.Multiply((int)first, (BigInteger)second);
+      }
       if (first is BigInteger && second is BigInteger)
       {
         return BigInteger.Multiply((BigInteger)first, (BigInteger)second);
@@ -1547,6 +1555,18 @@ provided all numbers involved in that computation are exact.
 
     #region MathHelper
 
+    static double SafeConvert(object obj)
+    {
+      try
+      {
+        return Convert.ToDouble(obj);
+      }
+      catch (OverflowException)
+      {
+        return (bool)IsPositive(obj) ? double.PositiveInfinity : double.NegativeInfinity;
+      }
+    }
+
     static object MathHelper(Function<double,double> func, object obj)
     {
       if (obj is double)
@@ -1559,7 +1579,7 @@ provided all numbers involved in that computation are exact.
       }
       else
       {
-        double d = Convert.ToDouble(obj);
+        double d = SafeConvert(obj);
         return func(d);
       }
     }
@@ -1588,8 +1608,8 @@ provided all numbers involved in that computation are exact.
           return func((int)num1, (double)num2);
         }
       }
-      double d1 = Convert.ToDouble(num1);
-      double d2 = Convert.ToDouble(num2);
+      double d1 = SafeConvert(num1);
+      double d2 = SafeConvert(num2);
       return func(d1,d2);
     }
 
@@ -1741,7 +1761,8 @@ provided all numbers involved in that computation are exact.
         {
           return (decimal)((Fraction)obj);
         }
-        return Convert.ToDecimal(obj);
+        //BigInteger.ToDecimal is severly limited
+        return SafeConvert(obj);
       }
       return obj;
     }

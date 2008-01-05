@@ -72,7 +72,7 @@ namespace IronScheme.Runtime.R6RS
 
         foreach (FieldDescriptor fd in fields)
         {
-          fd.field = type.GetField(fd.field.Name);
+          fd.field = type.GetField(fd.field.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
           fd.accessor = type.GetMethod(fd.accessor.Name);
           if (fd.mutable)
           {

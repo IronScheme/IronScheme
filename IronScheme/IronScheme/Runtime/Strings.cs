@@ -152,9 +152,14 @@ namespace IronScheme.Runtime
     [Builtin("string-length")]
     public static int StringLength(object obj)
     {
-      string s = GetString(obj);
-      return s.Length;
-      
+      if (obj is string)
+      {
+        return ((string)obj).Length;
+      }
+      else
+      {
+        return RequiresNotNull<StringBuilder>(obj).Length;
+      }
     }
 
     [Builtin("string-copy")]

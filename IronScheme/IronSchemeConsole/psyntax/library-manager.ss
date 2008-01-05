@@ -25,7 +25,7 @@
     extend-library-subst! extend-library-env! current-library-expander
     library-locator
     current-library-collection library-path library-extensions)
-  (import (rnrs) (psyntax compat) (rnrs r5rs))
+  (import (except (rnrs) library) (psyntax compat) (rnrs r5rs))
 
   (define (make-collection)
     (let ((set '()))
