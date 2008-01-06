@@ -254,11 +254,6 @@ namespace IronScheme.Runtime
       {
         return d;
       }
-      decimal dec;
-      if (decimal.TryParse(str, out dec))
-      {
-        return dec;
-      }
       char sign = str[0];
       string value = str.Substring(1);
       if (value == "nan.0")
@@ -342,7 +337,7 @@ namespace IronScheme.Runtime
     [Builtin("real?")]
     public static object IsReal(object obj)
     {
-      return (bool)IsRational(obj) || obj is float || obj is double || obj is decimal;
+      return (bool)IsRational(obj) || obj is float || obj is double;
     }
 
     [Builtin("rational?")]
@@ -383,8 +378,8 @@ namespace IronScheme.Runtime
 
       if ((bool)IsNumber(obj))
       {
-        decimal d = Convert.ToDecimal(obj);
-        return d == (decimal)(Fraction)d;
+        double d = SafeConvert(obj);
+        return d == (double)(Fraction)d;
       }
       return false;
     }
@@ -445,11 +440,7 @@ namespace IronScheme.Runtime
     {
       if ((bool)IsExact(obj))
       {
-        if (obj is Fraction)
-        {
-          return (decimal)((Fraction)obj);
-        }
-        return Convert.ToDecimal(obj);
+        return SafeConvert(obj);
       }
       return obj;
     }
@@ -459,7 +450,13 @@ namespace IronScheme.Runtime
     {
       if ((bool)IsInexact(obj))
       {
-        return Convert.ToInt64(obj);
+        BigInteger r = (BigInteger) BigIntConverter.ConvertFrom(obj);
+        int ir;
+        if (r.AsInt32(out ir))
+        {
+          return ir;
+        }
+        return r;
       }
       return obj;
     }
@@ -469,16 +466,14 @@ namespace IronScheme.Runtime
     [Builtin("exact?")]
     public static object IsExact(object obj)
     {
-      return (bool)IsInteger(obj) || (bool)IsRational(obj);
+      return IsRational(obj);
     }
 
     [Builtin("inexact?")]
     public static object IsInexact(object obj)
     {
-      return obj is Complex64 || obj is float || obj is double || obj is decimal;
+      return !(bool)IsRational(obj);
     }
-
-
 
 
     #region relations
@@ -486,7 +481,7 @@ namespace IronScheme.Runtime
     [Builtin("=")]
     public static object IsSame(object first, object second)
     {
-      return IsEqualValue(first, second);
+      return Equals(first, second);
     }
 
     [Builtin("=")]
@@ -532,7 +527,7 @@ namespace IronScheme.Runtime
       object value;
       if (OperatorHelper("op_LessThan", first, second, out value))
       {
-        return (bool)value;
+        return value;
       }
       return IsLessThan(first, new object[] { second });
     }
@@ -580,7 +575,7 @@ namespace IronScheme.Runtime
       object value;
       if (OperatorHelper("op_LessThanOrEqual", first, second, out value))
       {
-        return (bool)value;
+        return value;
       }
       return IsLessThanOrEqual(first, new object[] { second });
     }
@@ -628,7 +623,7 @@ namespace IronScheme.Runtime
       object value;
       if (OperatorHelper("op_GreaterThan", first, second, out value))
       {
-        return (bool)value;
+        return value;
       }
       return IsGreaterThan(first, new object[] { second });
     }
@@ -676,7 +671,7 @@ namespace IronScheme.Runtime
       object value;
       if (OperatorHelper("op_GreaterThanOrEqual", first, second, out value))
       {
-        return (bool)value;
+        return value;
       }
       return IsGreaterThanOrEqual(first, new object[] { second });
     }
@@ -845,6 +840,88 @@ namespace IronScheme.Runtime
       return car;
     }
 
+    [Builtin("-")]
+    public static object Subtract(object first)
+    {
+      if (first is int)
+      {
+        return -(int)first;
+      }
+      if (first is double)
+      {
+        return -(double)first;
+      }
+      return Subtract(first, new object[0]);
+
+    }
+
+    [Builtin("-")]
+    public static object Subtract(object first, object second)
+    {
+      //optimized version
+      if (first is int)
+      {
+        if (second is int)
+        {
+          long l = (long)(int)first - (int)second;
+          if (l > int.MaxValue || l < int.MinValue)
+          {
+            return (BigInteger)l;
+          }
+          else
+          {
+            return (int)l;
+          }
+        }
+        else if (second is double)
+        {
+          return (int)first - (double)second;
+        }
+      }
+      if (first is double)
+      {
+        if (second is int)
+        {
+          return (double)first - (int)second;
+        }
+        else if (second is double)
+        {
+          return (double)first - (double)second;
+        }
+      }
+      if (first is BigInteger && second is int)
+      {
+        return BigInteger.Subtract((BigInteger)first, (int)second);
+      }
+      if (first is int && second is BigInteger)
+      {
+        return BigInteger.Subtract((int)first, (BigInteger)second);
+      }
+      if (first is BigInteger && second is BigInteger)
+      {
+        return BigInteger.Subtract((BigInteger)first, (BigInteger)second);
+      }
+      object value;
+      if (OperatorHelper("op_Subtraction", first, second, out value))
+      {
+        return value;
+      }
+
+      //slow version
+      throw new NotSupportedException("cant do that");
+    }
+
+    [Builtin("-")]
+    public static object Subtract(object car, params object[] args)
+    {
+      for (int i = 0; i < args.Length; i++)
+      {
+        car = Subtract(car, args[i]);
+      }
+
+      return car;
+    }
+
     [Builtin("*")]
     public static object Multiply()
     {
@@ -915,20 +992,12 @@ namespace IronScheme.Runtime
     [Builtin("*")]
     public static object Multiply(object car, params object[] args)
     {
-      if (car is Missing)
+      for (int i = 0; i < args.Length; i++)
       {
-        return 1;
+        car = Multiply(car, args[i]);
       }
-      Type type = car == null ? typeof(double) : car.GetType();
-      double result = Convert.ToDouble(car);
-      foreach (object item in args)
-      {
-        if (item is Double)
-          type = item.GetType();
 
-        result *= Convert.ToDouble(item);
-      }
-      return ConvertNumber(result, type);
+      return car;
     }
 
     static object ConvertNumber(object result, Type type)
@@ -962,6 +1031,10 @@ namespace IronScheme.Runtime
       {
         return 1.0 / (double)first;
       }
+      if (first is BigInteger)
+      {
+        return 1.0 / SafeConvert(first);
+      }
       return Divide(first, new object[0]);
 
     }
@@ -991,6 +1064,14 @@ namespace IronScheme.Runtime
           return (double)first / (double)second;
         }
       }
+      if (first is BigInteger && second is int)
+      {
+        return BigInteger.Divide((BigInteger)first, (int)second);
+      }
+      if (first is int && second is BigInteger)
+      {
+        return BigInteger.Divide((int)first, (BigInteger)second);
+      }
       if (first is BigInteger && second is BigInteger)
       {
         return BigInteger.Divide((BigInteger)first, (BigInteger)second);
@@ -1007,27 +1088,12 @@ namespace IronScheme.Runtime
     [Builtin("/")]
     public static object Divide(object car, params object[] args)
     {
-      if (car is Missing)
+      for (int i = 0; i < args.Length; i++)
       {
-        return null;
+        car = Divide(car, args[i]);
       }
-      Type type = car == null ? typeof(double) : car.GetType();
-      double result = Convert.ToDouble(car);
-      if (args.Length == 0)
-      {
-        return result = 1.0 / result;
-      }
-      else
-      {
-        foreach (object item in args)
-        {
-          if (item is Double)
-            type = item.GetType();
 
-          result /= Convert.ToDouble(item);
-        }
-        return ConvertNumber(result, type);
-      }
+      return car;
     }
 
     static bool OperatorHelper(string opname, object first, object second, out object value)
@@ -1100,94 +1166,7 @@ namespace IronScheme.Runtime
       return false;
     }
 
-    [Builtin("-")]
-    public static object Subtract(object first)
-    {
-      if (first is int)
-      {
-        return -(int)first;
-      }
-      if (first is double)
-      {
-        return -(double)first;
-      }
-      return Subtract(first, new object[0]);
 
-    }
-
-    [Builtin("-")]
-    public static object Subtract(object first, object second)
-    {
-      //optimized version
-      if (first is int)
-      {
-        if (second is int)
-        {
-          long l = unchecked((long)((int)first - (int)second));
-          if (l > int.MaxValue || l < int.MinValue)
-          {
-            return (BigInteger)l;
-          }
-          else
-          {
-            return (int)l;
-          }
-        }
-        else if (second is double)
-        {
-          return (int)first - (double)second;
-        }
-      }
-      if (first is double)
-      {
-        if (second is int)
-        {
-          return (double)first - (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first - (double)second;
-        }
-      }
-      if (first is BigInteger && second is BigInteger)
-      {
-        return BigInteger.Subtract((BigInteger)first, (BigInteger)second);
-      }
-      object value;
-      if (OperatorHelper("op_Subtraction", first, second, out value))
-      {
-        return value;
-      }
-
-      //slow version
-      throw new NotSupportedException("cant do that");
-    }
-
-    [Builtin("-")]
-    public static object Subtract(object car, params object[] args)
-    {
-      if (car is Missing)
-      {
-        return null;
-      }
-      Type type = car == null ? typeof(double) : car.GetType();
-      double result = Convert.ToDouble(car);
-      if (args.Length == 0)
-      {
-        result = -result;
-      }
-      else
-      {
-        foreach (object item in args)
-        {
-          if (item is Double)
-            type = item.GetType();
-
-          result -= Convert.ToDouble(item);
-        }
-      }
-      return ConvertNumber(result, type);
-    }
 
     #endregion
 
@@ -1206,17 +1185,13 @@ namespace IronScheme.Runtime
       {
         return ((BigInteger)obj).Abs();
       }
-      else if (obj is decimal)
-      {
-        return Math.Abs((decimal)obj);
-      }
       else if (obj is Complex64)
       {
         return ((Complex64)obj).Abs();
       }
       else
       {
-        double d = Convert.ToDouble(obj);
+        double d = SafeConvert(obj);
         return Math.Abs(d);
       }
     }
@@ -1694,22 +1669,55 @@ provided all numbers involved in that computation are exact.
     }
 #endif
 
+    //based on lsqrt()
+    static object SqrtBigInteger(BigInteger x)
+    {
+      BigInteger v0, q0, x1;
+
+      if (x <= 1)
+      {
+        return x;
+      }
+
+      v0 = x;
+      x = x / 2;
+      while (true)
+      {
+        q0 = v0 / x;
+        x1 = (x + q0) / 2;
+        if (q0 >= x)
+          break;
+        x = x1;
+      }
+      if (x1 * x1 != v0)
+      {
+        return MathHelper(Math.Sqrt, v0);
+      }
+      return x1;
+    }
+
     [Builtin("sqrt")]
     public static object Sqrt(object obj)
     {
+      if (obj is BigInteger)
+      {
+         return SqrtBigInteger((BigInteger)obj);
+      }
       return MathHelper(Math.Sqrt, obj);
     }
 
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)
     {
-      if (obj1 is BigInteger)
-      {
-        return ((BigInteger)obj1).Power(Convert.ToInt32(obj2));
-      }
       if ((bool)IsInteger(obj1) && (bool)IsInteger(obj2))
       {
-        return BigIntConverter.ConvertFrom(MathHelper(Math.Pow, obj1, obj2));
+        BigInteger a = (BigInteger)BigIntConverter.ConvertFrom(obj1);
+        BigInteger r = a.Power(Convert.ToInt32(obj2));
+        if (r < int.MaxValue && r > int.MinValue)
+        {
+          return r.ToInt32();
+        }
+        return r;
       }
 
       return MathHelper(Math.Pow, obj1, obj2);
@@ -1757,11 +1765,6 @@ provided all numbers involved in that computation are exact.
     {
       if ((bool)IsExact(obj))
       {
-        if (obj is Fraction)
-        {
-          return (decimal)((Fraction)obj);
-        }
-        //BigInteger.ToDecimal is severly limited
         return SafeConvert(obj);
       }
       return obj;
