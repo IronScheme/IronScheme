@@ -556,18 +556,29 @@ namespace Microsoft.Scripting.Math {
                 return true;
             }
 
+            BigInteger bi = this;
+
+            int scale = 0;
             int length = Length;
-            if (length > 3) {
-                ret = default(Decimal);
+            while (length > 3)
+            {
+              if (scale >= 28)
+              {
+                ret = default(decimal);
                 return false;
+              }
+              bi = bi / 10;
+              scale++;
+
+              length = bi.Length;
             }
 
             int lo = 0, mi = 0, hi = 0;
-            if (length > 2) hi = (Int32)data[2];
-            if (length > 1) mi = (Int32)data[1];
-            if (length > 0) lo = (Int32)data[0];
+            if (length > 2) hi = (Int32)bi.data[2];
+            if (length > 1) mi = (Int32)bi.data[1];
+            if (length > 0) lo = (Int32)bi.data[0];
 
-            ret = new Decimal(lo, mi, hi, sign < 0, 0);
+            ret = new Decimal(lo, mi, hi, sign < 0, (byte)scale);
             return true;
         }
 
