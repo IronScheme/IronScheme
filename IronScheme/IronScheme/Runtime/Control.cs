@@ -188,43 +188,105 @@ namespace IronScheme.Runtime
       return c.Call(targs.ToArray());
     }
 
-    //[Builtin("pmap")]
-    //public static object PMap(object fn, params object[] lists)
-    //{
-    //  if (lists == null)
-    //  {
-    //    return null;
-    //  }
-    //  ICallable f = RequiresNotNull<ICallable>(fn);
+    delegate void Thunk();
 
-    //  List<object[]> args = new List<object[]>();
+    readonly static Stack<object> executionstack = new Stack<object>();
 
-    //  foreach (object[] r in new MultiEnumerable(lists))
-    //  {
-    //    args.Add(r);
-    //  }
+    static void PExecute(IList<Thunk> thunks)
+    {
+      if (executionstack.Count == 0)
+      {
+        executionstack.Push(thunks);
 
-    //  Leaf.Parallel.NResult<Leaf.Parallel.NVoid>[] mre = new Leaf.Parallel.NResult<Leaf.Parallel.NVoid>[args.Count];
+        List<IAsyncResult> results = new List<IAsyncResult>();
 
-    //  object[] results = new object[args.Count];
-     
-    //  for (int i = 0; i < results.Length; i++)
-    //  {
-    //    int index = i;
-    //    mre[index] = Leaf.Parallel.NParallel.Execute(
-    //      delegate
-    //      {
-    //        results[index] = f.Call(args[index]);
-    //      });
-    //  }
+        foreach (Thunk t in thunks)
+        {
+          results.Add(t.BeginInvoke(null, null));
+        }
 
-    //  foreach (Leaf.Parallel.NResult<Leaf.Parallel.NVoid> re in mre)
-    //  {
-    //    re.Wait();
-    //  }
+        foreach (IAsyncResult ar in results)
+        {
+          ar.AsyncWaitHandle.WaitOne();
+        }
 
-    //  return Runtime.Cons.FromArray(results);
-    //}
+        executionstack.Pop();
+      }
+      else
+      {
+        foreach (Thunk t in thunks)
+        {
+          t();
+        }
+      }
+    }
+
+    [Builtin("pmap")]
+    public static object PMap(object fn, object lst)
+    {
+      Cons list = Requires<Runtime.Cons>(lst);
+      ICallable f = RequiresNotNull<ICallable>(fn);
+
+      object[] results = new object[(int)Length(lst)];
+
+      List<Thunk> thunks = new List<Thunk>();
+
+      int i = 0;
+
+      while (list != null)
+      {
+        int index = i;
+        object arg = list.car;
+        thunks.Add(
+         delegate
+         {
+           results[index] = f.Call(arg);
+         });
+        
+        list = list.cdr as Cons;
+        i++;
+      }
+      
+      PExecute(thunks);
+
+      return Runtime.Cons.FromArray(results);
+    }
+
+    [Builtin("pmap")]
+    public static object PMap(object fn, params object[] lists)
+    {
+      if (lists == null)
+      {
+        return null;
+      }
+
+      ICallable f = RequiresNotNull<ICallable>(fn);
+
+      List<object[]> args = new List<object[]>();
+
+      foreach (object[] r in new MultiEnumerable(lists))
+      {
+        args.Add(r);
+      }
+
+      object[] results = new object[args.Count];
+
+      List<Thunk> thunks = new List<Thunk>();
+
+      for (int i = 0; i < results.Length; i++)
+      {
+        int index = i;
+         thunks.Add(
+          delegate
+          {
+            results[index] = f.Call(args[index]);
+          });
+      }
+
+      PExecute(thunks);
+
+      return Runtime.Cons.FromArray(results);
+    }
 
 
     [Builtin("map")]
