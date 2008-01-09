@@ -221,6 +221,9 @@
     <None Include="srfi\lists.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="srfi\parameters.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi\receive.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

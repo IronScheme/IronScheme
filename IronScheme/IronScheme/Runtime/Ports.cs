@@ -197,6 +197,12 @@ namespace IronScheme.Runtime
           }
           //break;
         default:
+          //HACK: but it helps
+          if (path.Contains("ironscheme.boot.pp"))
+          {
+            Compiler.Generator.variablelocation = Microsoft.Scripting.Ast.Variable.VariableKind.Global;
+          }
+
           // check for already compiled version
           string cfn = Path.ChangeExtension(path, ".exe");
           if (File.Exists(cfn))
@@ -216,12 +222,6 @@ namespace IronScheme.Runtime
 
           try
           {
-            //HACK: but it helps
-            if (path.Contains("ironscheme.boot.pp"))
-            {
-              Compiler.Generator.variablelocation = Microsoft.Scripting.Ast.Variable.VariableKind.Global;
-            }
-
             SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
 
             Stopwatch sw = Stopwatch.StartNew();
