@@ -59,6 +59,15 @@ namespace IronScheme.Runtime
     [InlineEmitter("values")]
     public static Expression Values(Expression[] values)
     {
+      // this will cause issues will apply/call
+      //if (values.Length == 0)
+      //{
+      //  return Ast.ReadField(null, Compiler.Generator.Unspecified);
+      //}
+      if (values.Length == 1)
+      {
+        return values[0];
+      }
       return Ast.NewArray(typeof(object[]), values);
     }
   }
@@ -68,6 +77,15 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Values(params object[] values)
     {
+      // this will cause issues will apply/call
+      //if (values.Length == 0)
+      //{
+      //  return Unspecified;
+      //}
+      if (values.Length == 1)
+      {
+        return values[0];
+      }
       return values;
     }
 

@@ -1317,7 +1317,7 @@
            (((x* init* step*) ...)
             (if (valid-bound-ids? x*)
                 (bless
-                  `(letrec* ((loop
+                  `(letrec ((loop
                              (lambda ,x*
                                (if ,test
                                  (begin (if #f #f) ,@expr*)

@@ -71,6 +71,7 @@
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ApplyGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
+    <Compile Include="Compiler\LetrecGenerator.cs" />
     <Compile Include="Compiler\Helper.cs" />
     <Compile Include="Compiler\IronSchemeConstant.cs" />
     <Compile Include="Compiler\LetrecStarGenerator.cs" />
