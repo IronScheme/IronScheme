@@ -26,26 +26,26 @@
     clr-new-array)
   (import
     (rnrs)
-    (only (psyntax system $bootstrap) gensym)
+    (ironscheme clr helpers)
     (ironscheme clr internal))
 
   (define-syntax clr-clear-usings
     (lambda (e)
       (syntax-case e ()
-        [(_)
-         #`(define #,(gensym 'clear-usings) (clr-clear-usings-internal))])))
+        [(k)
+         #`(define #,(symbol->syntax #'k 'clear-usings) (clr-clear-usings-internal))])))
 
   (define-syntax clr-using
     (lambda (e)
       (syntax-case e ()
-        [(_ namespace)
-         #`(define #,(gensym 'using) (clr-using-internal 'namespace))])))
+        [(k namespace)
+         #`(define #,(symbol->syntax #'k 'using) (clr-using-internal 'namespace))])))
 
   (define-syntax clr-reference
     (lambda (e)
       (syntax-case e ()
-        [(_ assname)
-         #`(define #,(gensym 'reference) (clr-reference-internal 'assname))])))
+        [(k assname)
+         #`(define #,(symbol->syntax #'k 'reference) (clr-reference-internal 'assname))])))
 
   (define-syntax clr-is
     (lambda (e)
@@ -95,14 +95,14 @@
     (syntax-rules ()
       [(_ type event handler)
        (clr-event-remove! type event '() handler)]))
-
+       
   (define-syntax clr-event-add!
     (lambda (e)
       (syntax-case e ()
         [(_ type event-name instance handler)
          #`(clr-call-internal
             'type
-            '#,(string->symbol (string-append "add_" (symbol->string (syntax->datum #'event-name))))
+            '#,(prefix-syntax "add_" #'event-name)
             instance handler)])))
 
   (define-syntax clr-event-remove!
@@ -111,7 +111,7 @@
         [(_ type event-name instance handler)
          #`(clr-call-internal
             'type
-            '#,(string->symbol (string-append "remove_" (symbol->string (syntax->datum #'event-name))))
+            '#,(prefix-syntax "remove_" #'event-name)
             instance handler)])))
 
   (define-syntax clr-prop-get
@@ -120,7 +120,7 @@
         [(_ type prop-name instance args ...)
          #`(clr-call-internal
             'type
-            '#,(string->symbol (string-append "get_" (symbol->string (syntax->datum #'prop-name))))
+            '#,(prefix-syntax "get_" #'prop-name)
             instance args ...)])))
 
   (define-syntax clr-prop-set!
@@ -129,7 +129,7 @@
         [(_ type prop-name instance args ...)
          #`(clr-call-internal
             'type
-            '#,(string->symbol (string-append "set_" (symbol->string (syntax->datum #'prop-name))))
+            '#,(prefix-syntax "set_" #'prop-name)
             instance args ...)])))
 
   (define-syntax clr-indexer-get

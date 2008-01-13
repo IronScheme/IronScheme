@@ -36,6 +36,7 @@
 (define scheme-library-files
   '(
     "ironscheme/base.ss"
+    "ironscheme/clr/helpers.ss"
     "ironscheme/clr.ss"
     "ironscheme/hashtables.ss"
     "ironscheme/files.ss"
@@ -1006,6 +1007,7 @@
     (clr-cast-internal                          is-clr-int)
     (clr-field-get-internal                     is-clr-int)
     (clr-field-set!-internal                    is-clr-int)
+    (define-clr-class-internal                  is-clr-int)
     
     (ironscheme-build                           i)
     (stacktrace                                 ii)
@@ -1321,7 +1323,7 @@
           (delete-file "ironscheme.boot.pp"))
         (let ((p (open-output-file "ironscheme.boot.pp")))
           (display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
-          (display ";;; Copyright (c) 2007 Llewellyn Pritchard" p) (newline p)
+          (display ";;; Copyright (c) 2007, 2008 Llewellyn Pritchard" p) (newline p)
           (display ";;; automatically generated from psyntax & ironscheme sources" p) (newline p)
           (display ";;; for copyright details, see psyntax/main.ss" p) (newline p) (newline p)
           (time-it "code generation and pretty-print"  

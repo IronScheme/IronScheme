@@ -21,18 +21,19 @@ using Microsoft.Scripting;
 namespace IronScheme.Compiler
 {
 
-  [Generator("letrec*")]
-  public class LetrecStarGenerator : SimpleGenerator
+  [Generator("letrec")]
+  public class LetrecGenerator : SimpleGenerator
   {
     int level = 0;
     public override Expression Generate(object args, CodeBlock c)
     {
       level++;
-      NameHint = SymbolTable.StringToId("letrec*");
+      NameHint = SymbolTable.StringToId("letrec");
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
       cb.Parent = c;
 
       List<Variable> vars = new List<Variable>();
+      List<Variable> temps = new List<Variable>();
       List<object> defs = new List<object>();
 
       Cons a = (args as Cons).car as Cons;
@@ -41,6 +42,7 @@ namespace IronScheme.Compiler
       {
         Cons d = a.car as Cons;
 
+        temps.Add(cb.CreateTemporaryVariable((SymbolId)Builtins.GenSym(d.car), typeof(object)));
         vars.Add(Create((SymbolId)d.car, cb, typeof(object)));
         defs.Add(((Cons)d.cdr).car);
 
@@ -48,6 +50,7 @@ namespace IronScheme.Compiler
       }
 
       List<Statement> stmts = new List<Statement>();
+
 
       for (int i = 0; i < vars.Count; i++)
       {
@@ -58,8 +61,14 @@ namespace IronScheme.Compiler
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }
-        stmts.Add(Ast.Write(vars[i], e));
+        stmts.Add(Ast.Write(temps[i], e));
       }
+
+      for (int i = 0; i < vars.Count; i++)
+      {
+        stmts.Add(Ast.Write(vars[i], temps[i]));
+      }
+
 
       Cons body = Builtins.Cdr(args) as Cons;
 

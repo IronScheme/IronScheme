@@ -311,6 +311,16 @@ namespace IronScheme.Compiler
     }
   }
 
+  [Generator("define-clr-class-internal")]
+  public class DefineClrClassInternalGenerator : ClrGenerator
+  {
+    // (clr-is type arg)
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      return Ast.Null();
+    }
+  }
+
   [Generator("clr-cast-internal")]
   public class ClrCastInternalGenerator : ClrGenerator
   {
