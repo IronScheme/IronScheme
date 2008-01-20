@@ -35,6 +35,3 @@ using System;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-#if !R6RS
-#error "Please select a R6RS profile, this profile is not supported anymore"
-#endif

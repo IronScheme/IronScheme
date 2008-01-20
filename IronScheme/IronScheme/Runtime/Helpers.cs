@@ -33,6 +33,25 @@ namespace IronScheme.Runtime
       return c;
     }
 
+    public static object EnumToSymbol<T>(T value)
+    {
+      return Builtins.StringToSymbol(value.ToString().ToLower());
+    }
+
+    public static T SymbolToEnum<T>(object symbol)
+    {
+      string name = Builtins.SymbolToString(symbol) as string;
+      try
+      {
+        return (T)Enum.Parse(typeof(T), name, true);
+      }
+      catch (Exception ex)
+      {
+        Builtins.AssertionViolation("symbol-to-enum", ex.Message, symbol, typeof(T));
+        return default(T);
+      }
+    }
+
     static Helpers()
     {
       bf.AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;

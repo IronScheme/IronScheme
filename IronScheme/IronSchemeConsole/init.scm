@@ -1,6 +1,6 @@
 ;; default init script for IronScheme
 
-(load "core.scm") ; this could probably be excluded, but genwrite needs some
+(load "core.scm")
 ; for pretty-print
 (load "genwrite.scm")
 

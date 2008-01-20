@@ -45,11 +45,8 @@ namespace IronScheme.Hosting
       
       logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1} - {2}", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
-#if R6RS
+
             "R6RS mode"
-#else
-            "R5RS mode"
-#endif
             ,
 #if DEBUG
             "Debug build"

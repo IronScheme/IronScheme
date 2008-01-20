@@ -111,8 +111,6 @@ namespace IronScheme.Runtime
 
 
 
-#if R6RS
-
     [Builtin("time-it")]
     public static object TimeIt(object who, object thunk)
     {
@@ -209,7 +207,6 @@ namespace IronScheme.Runtime
       return cbr;
 
     }
-#endif
 
 
     [Builtin("gc-collect")]

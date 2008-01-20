@@ -73,11 +73,7 @@ irritants:
     [Builtin("r6rs-mode?")]
     public static object IsR6RSMode()
     {
-#if R6RS
       return true;
-#else
-      return false;
-#endif
     }
 
     [Builtin("interaction-environment")]
@@ -100,7 +96,6 @@ irritants:
 
     public static object UndefinedError(object sym)
     {
-#if R6RS
       ICallable u = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&undefined-rcd"))) as ICallable;
       ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
@@ -108,14 +103,10 @@ irritants:
         R6RS.Conditions.Condition(u.Call(), i.Call(List(sym))));
 
       return Unspecified;
-#else
-      throw new MissingMemberException(DisplayFormat(sym));
-#endif
     }
 
     public static object LexicalError(string msg, object what)
     {
-#if R6RS
       ICallable l = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&lexical-rcd"))) as ICallable;
       ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
       ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
@@ -124,18 +115,11 @@ irritants:
         R6RS.Conditions.Condition(l.Call(), m.Call(msg), i.Call(List(what))));
 
       return Unspecified;
-#else
-      throw new SyntaxErrorException(msg as string);
-#endif
+
     }
 
     public static object SyntaxError(object who, object message, object form, object subform)
     {
-#if R6RS
-      //ICallable synviol = SymbolValue(Context, SymbolTable.StringToId("syntax-violation")) as ICallable;
-      //form = psyntax.AnnotatedReader.Annotate(form);
-      //return synviol.Call(who, message, form, subform);
-
       ICallable s = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
       ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
       ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
@@ -152,16 +136,12 @@ irritants:
       }
 
       return Unspecified;
-#else
-      throw new SyntaxErrorException(message as string);
-#endif
     }
 
 
     [Builtin("assertion-violation")]
     public static object AssertionViolation(object who, object message, params object[] irritants)
     {
-#if R6RS
       ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
       ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
       ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
@@ -179,15 +159,11 @@ irritants:
       }
 
       return Unspecified;
-#else
-      return Error(who, message, irritants);
-#endif
     }
 
     [Builtin("error")]
     public static object Error(object who, object message, params object[] irritants)
     {
-#if R6RS
       ICallable e = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&error-rcd"))) as ICallable;
       ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
       ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
@@ -205,9 +181,6 @@ irritants:
       }
 
       return Unspecified;
-#else
-      throw new SchemeException(DisplayFormat(who), DisplayFormat(message), Array.ConvertAll<object, string>(irritants, WriteFormat));
-#endif
     }
 
 

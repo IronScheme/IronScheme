@@ -308,7 +308,7 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-#if !nR6RS // this isnt helping..., but they get patched anyways
+// this isnt helping..., but they get patched anyways
 
     [Builtin]
     public static object Caaaar(object lst)
@@ -477,8 +477,6 @@ namespace IronScheme.Runtime
     {
       return Cdr(Cdr(args));
     }
-
-#endif
 
     [Builtin]
     public static object Rest(object args)

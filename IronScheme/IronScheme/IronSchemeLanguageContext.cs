@@ -73,7 +73,14 @@ namespace IronScheme
 
     public override void UpdateSourceCodeProperties(CompilerContext context)
     {
-      base.UpdateSourceCodeProperties(context);
+      try
+      {
+        base.UpdateSourceCodeProperties(context);
+      }
+      catch (Runtime.R6RS.CompoundCondition)
+      {
+        context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
+      }
     }
 
     public override CodeBlock ParseSourceCode(CompilerContext context)
@@ -87,7 +94,7 @@ namespace IronScheme
         {
           case SourceCodeKind.InteractiveCode:
             string code = context.SourceUnit.GetCode();
-#if R6RS
+
             if (code.Length < 10)
             {
               code = code.Trim();
@@ -96,7 +103,7 @@ namespace IronScheme
             {
               code = string.Format("(eval-r6rs '{0})", code.Trim());
             }
-#endif
+
             CodeBlock cb = ParseString(code, context);
             if (cb == null && context.SourceUnit.CodeProperties == null)
             {
@@ -222,6 +229,7 @@ namespace IronScheme
       {
         return Compile(p.parsed);
       }
+      Builtins.SyntaxError("parser", "expression could not be parsed", cc.SourceUnit, false);
       return null;
     }
 

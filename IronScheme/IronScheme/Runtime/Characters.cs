@@ -81,6 +81,29 @@ namespace IronScheme.Runtime
       return c1 == c2;
     }
 
+    [Builtin("char=?")]
+    public static object IsSameChar(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = RequiresNotNull<char>(obj1);
+      char c2 = RequiresNotNull<char>(obj2);
+      char c3 = RequiresNotNull<char>(obj3);
+
+      bool head = c1 == c2 && c2 == c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          if (c1 != c)
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
+    }
+
     /// <summary>
     /// Determines whether [is less than char] [the specified obj1].
     /// </summary>
@@ -96,6 +119,33 @@ namespace IronScheme.Runtime
       char c2 = RequiresNotNull<char>(obj2);
 
       return c1 < c2;
+    }
+
+    [Builtin("char<?")]
+    public static object IsLessThanChar(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = RequiresNotNull<char>(obj1);
+      char c2 = RequiresNotNull<char>(obj2);
+      char c3 = RequiresNotNull<char>(obj3);
+
+      bool head = c1 < c2 && c2 < c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          if (c3 < c)
+          {
+            c3 = c;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
     }
 
     /// <summary>
@@ -115,6 +165,33 @@ namespace IronScheme.Runtime
       return c1 > c2;
     }
 
+    [Builtin("char>?")]
+    public static object IsGreaterThanChar(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = RequiresNotNull<char>(obj1);
+      char c2 = RequiresNotNull<char>(obj2);
+      char c3 = RequiresNotNull<char>(obj3);
+
+      bool head = c1 > c2 && c2 > c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          if (c3 > c)
+          {
+            c3 = c;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
+    }
+
     /// <summary>
     /// Determines whether [is less than or equal char] [the specified obj1].
     /// </summary>
@@ -132,17 +209,32 @@ namespace IronScheme.Runtime
       return c1 <= c2;
     }
 
-#if R6RS
     [Builtin("char<=?")]
-    public static object IsLessThanOrEqualChar(object obj1, object obj2, object obj3)
+    public static object IsLessThanOrEqualChar(object obj1, object obj2, object obj3, params object[] rest)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
       char c3 = RequiresNotNull<char>(obj3);
 
-      return c1 <= c2 && c2 <= c3;
+      bool head = c1 <= c2 && c2 <= c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          if (c3 <= c)
+          {
+            c3 = c;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
     }
-#endif
 
     /// <summary>
     /// Determines whether [is greater than or equal char] [the specified obj1].
@@ -161,163 +253,33 @@ namespace IronScheme.Runtime
       return c1 >= c2;
     }
 
-#if !R6RS
-    /// <summary>
-    /// Determines whether [is same char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is same char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci=?")]
-    public static object IsSameCharCaseInsensitive(object obj1, object obj2)
+    [Builtin("char>=?")]
+    public static object IsGreaterThanOrEqualChar(object obj1, object obj2, object obj3, params object[] rest)
     {
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
+      char c3 = RequiresNotNull<char>(obj3);
 
-      return char.ToLower(c1) == char.ToLower(c2);
+      bool head = c1 >= c2 && c2 >= c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          if (c3 >= c)
+          {
+            c3 = c;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
     }
 
-    /// <summary>
-    /// Determines whether [is less than char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is less than char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci<?")]
-    public static object IsLessThanCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return char.ToLower(c1) < char.ToLower(c2);
-    }
-
-    /// <summary>
-    /// Determines whether [is greater than char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is greater than char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci>?")]
-    public static object IsGreaterThanCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2); 
-      
-      return char.ToLower(c1) > char.ToLower(c2);
-    }
-
-    /// <summary>
-    /// Determines whether [is less than or equal char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is less than or equal char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci<=?")]
-    public static object IsLessThanOrEqualCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return char.ToLower(c1) <= char.ToLower(c2);
-    }
-
-    /// <summary>
-    /// Determines whether [is greater than or equal char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is greater than or equal char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci>=?")]
-    public static object IsGreaterThanOrEqualCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return char.ToLower(c1) >= char.ToLower(c2);
-    }
-
-
-    /// <summary>
-    /// Determines whether [is alphabetic char] [the specified obj].
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is alphabetic char] [the specified obj]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-alphabetic?")]
-    public static object IsAlphabeticChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.IsLetter(c);
-    }
-
-    /// <summary>
-    /// Determines whether [is numeric char] [the specified obj].
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is numeric char] [the specified obj]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-numeric?")]
-    public static object IsNumericChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.IsDigit(c);
-    }
-
-    /// <summary>
-    /// Determines whether [is whitespace char] [the specified obj].
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is whitespace char] [the specified obj]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-whitespace?")]
-    public static object IsWhitespaceChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.IsWhiteSpace(c);
-    }
-
-    /// <summary>
-    /// Determines whether [is upper case char] [the specified obj].
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is upper case char] [the specified obj]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-upper-case?")]
-    public static object IsUpperCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.IsUpper(c);
-    }
-
-    /// <summary>
-    /// Determines whether [is lower case char] [the specified obj].
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is lower case char] [the specified obj]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-lower-case?")]
-    public static object IsLowerCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.IsLower(c);
-    }
-#endif
 
     /// <summary>
     /// Chars to integer.
@@ -342,30 +304,6 @@ namespace IronScheme.Runtime
       int i = RequiresNotNull<int>(obj);
       return (char)i;
     }
-#if !R6RS
-    /// <summary>
-    /// Toes the upper case char.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns></returns>
-    [Builtin("char-upcase")]
-    public static object ToUpperCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.ToUpper(c);
-    }
 
-    /// <summary>
-    /// Toes the lower case char.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns></returns>
-    [Builtin("char-downcase")]
-    public static object ToLowerCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.ToLower(c);
-    }
-#endif
   }
 }

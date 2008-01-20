@@ -11,7 +11,7 @@
  * ***************************************************************************/
 #endregion
 
-#if R6RS
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -364,15 +364,22 @@ namespace IronScheme.Runtime.R6RS
     {
       string fn = RequiresNotNull<string>(filename);
       Transcoder tc = maybetranscoder as Transcoder;
-      Stream s = File.OpenRead(fn);
+      try
+      {
+        Stream s = File.OpenRead(fn);
 
-      if (tc == null)
-      {
-        return s;
+        if (tc == null)
+        {
+          return s;
+        }
+        else
+        {
+          return TranscodedPort(s, tc);
+        }
       }
-      else
+      catch (Exception ex)
       {
-        return TranscodedPort(s, tc);
+        return AssertionViolation("open-file-input-port", ex.Message, filename);
       }
     }
 
@@ -417,9 +424,158 @@ namespace IronScheme.Runtime.R6RS
       return Console.OpenStandardInput();
     }
 
+    class CustomBinaryInputStream : Stream
+    {
+      string id;
+      ICallable read, get_pos, set_pos, close;
+
+      public CustomBinaryInputStream(object id, object read, object get_pos, object set_pos, object close)
+      {
+        this.id = RequiresNotNull<string>(id);
+        this.read = RequiresNotNull<ICallable>(read);
+        // rest optional
+        this.get_pos = get_pos as ICallable;
+        this.set_pos = set_pos as ICallable;
+        this.close = close as ICallable;
+      }
+
+      public override bool CanRead
+      {
+        get { return true; }
+      }
+
+      public override bool CanSeek
+      {
+        get { return set_pos != null; }
+      }
+
+      public override bool CanWrite
+      {
+        get { return false; }
+      }
+
+      public override void Flush()
+      {
+
+      }
+
+      public override long Length
+      {
+        get { throw new Exception("The method or operation is not implemented."); }
+      }
+
+      public override long Position
+      {
+        get
+        {
+          if (get_pos != null)
+          {
+            return Convert.ToInt64(get_pos.Call());
+          }
+          AssertionViolation("get-position", "not supported");
+          return 0;
+        }
+        set
+        {
+          if (set_pos != null)
+          {
+            set_pos.Call(value);
+          }
+        }
+      }
+
+      public override int Read(byte[] buffer, int offset, int count)
+      {
+        return (int)read.Call(buffer, offset, count);
+      }
+
+      public override long Seek(long offset, SeekOrigin origin)
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+
+      public override void SetLength(long value)
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+
+      public override void Write(byte[] buffer, int offset, int count)
+      {
+        AssertionViolation("write", "cannot write to input port");
+      }
+
+      public override string ToString()
+      {
+        return string.Format("#<custom-binary-input-port id: {0}>", id);
+      }
+
+      public override void Close()
+      {
+        if (close != null)
+        {
+          close.Call();
+        }
+      }
+    }
 
     //(make-custom-binary-input-port id read! get-position set-position! close)
+    [Builtin("make-custom-binary-input-port")]
+    public static object MakeCustomBinaryInputPort(object id, object read, object get_pos, object set_pos, object close)
+    {
+      return new CustomBinaryInputStream(id, read, get_pos, set_pos, close);
+    }
+
+    class CustomTextReader : TextReader
+    {
+      string id;
+      ICallable read, get_pos, set_pos, close;
+
+      public CustomTextReader(object id, object read, object get_pos, object set_pos, object close)
+      {
+        this.id = RequiresNotNull<string>(id);
+        this.read = RequiresNotNull<ICallable>(read);
+        // rest optional
+        this.get_pos = get_pos as ICallable;
+        this.set_pos = set_pos as ICallable;
+        this.close = close as ICallable;
+      }
+
+      public override int Read(char[] buffer, int index, int count)
+      {
+        StringBuilder sb = new StringBuilder(new string(buffer));
+
+        int res = (int)read.Call(sb, index, count);
+
+        for (int i = 0; i < res; i++)
+        {
+          buffer[i] = sb[i];
+        }
+
+        return res;
+      }
+
+      public override string ToString()
+      {
+        return string.Format("#<custom-textual-input-port id: {0}>", id);
+      }
+
+      public override void Close()
+      {
+        if (close != null)
+        {
+          close.Call();
+        }
+      }
+
+    }
+
+
     //(make-custom-textual-input-port id read! get-position set-position! close)
+    [Builtin("make-custom-textual-input-port")]
+    public static object MakeCustomTextInputPort(object id, object read, object get_pos, object set_pos, object close)
+    {
+      return new CustomTextReader(id, read, get_pos, set_pos, close);
+    }
 
     // binary input
     //(get-u8 binary-input-port)
@@ -697,15 +853,22 @@ namespace IronScheme.Runtime.R6RS
     {
       string fn = RequiresNotNull<string>(filename);
       Transcoder tc = maybetranscoder as Transcoder;
-      Stream s = File.Create(fn);
+      try
+      {
+        Stream s = File.Create(fn);
 
-      if (tc == null)
-      {
-        return s;
+        if (tc == null)
+        {
+          return s;
+        }
+        else
+        {
+          return TranscodedPort(s, tc);
+        }
       }
-      else
+      catch (Exception ex)
       {
-        return TranscodedPort(s, tc);
+        return AssertionViolation("open-file-output-port", ex.Message, filename);
       }
     }
 
@@ -786,8 +949,163 @@ namespace IronScheme.Runtime.R6RS
       return Console.OpenStandardError();
     }
 
+    
+    class CustomBinaryOutputStream : Stream
+    {
+      string id;
+      ICallable write, get_pos, set_pos, close;
+
+      public CustomBinaryOutputStream(object id, object write, object get_pos, object set_pos, object close)
+      {
+        this.id = RequiresNotNull<string>(id);
+        this.write = RequiresNotNull<ICallable>(write);
+        // rest optional
+        this.get_pos = get_pos as ICallable;
+        this.set_pos = set_pos as ICallable;
+        this.close = close as ICallable;
+      }
+
+      public override bool CanRead
+      {
+        get { return false; }
+      }
+
+      public override bool CanSeek
+      {
+        get { return set_pos != null; }
+      }
+
+      public override bool CanWrite
+      {
+        get { return true; }
+      }
+
+      public override void Flush()
+      {
+
+      }
+
+      public override long Length
+      {
+        get { throw new Exception("The method or operation is not implemented."); }
+      }
+
+      public override long Position
+      {
+        get
+        {
+          if (get_pos != null)
+          {
+            return Convert.ToInt64(get_pos.Call());
+          }
+          AssertionViolation("get-position", "not supported");
+          return 0;
+        }
+        set
+        {
+          if (set_pos != null)
+          {
+            set_pos.Call(value);
+          }
+        }
+      }
+
+      public override int Read(byte[] buffer, int offset, int count)
+      {
+        AssertionViolation("read", "cannot read from output port");
+        return 0;
+      }
+
+      public override long Seek(long offset, SeekOrigin origin)
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+
+      public override void SetLength(long value)
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+
+      public override void Write(byte[] buffer, int offset, int count)
+      {
+        write.Call(buffer, offset, count);
+      }
+
+      public override string ToString()
+      {
+        return string.Format("#<custom-binary-output-port id: {0}>", id);
+      }
+
+      public override void Close()
+      {
+        if (close != null)
+        {
+          close.Call();
+        }
+      }
+    }
+
     //(make-custom-binary-output-port id write! get-position set-position! close)
-    //(make-custom-textual-output-port id write! get-position set-position! close)
+    [Builtin("make-custom-binary-output-port")]
+    public static object MakeCustomBinaryOutputPort(object id, object read, object get_pos, object set_pos, object close)
+    {
+      return new CustomBinaryOutputStream(id, read, get_pos, set_pos, close);
+    }
+
+    class CustomTextWriter : TextWriter
+    {
+      string id;
+      ICallable write, get_pos, set_pos, close;
+
+      public CustomTextWriter(object id, object write, object get_pos, object set_pos, object close)
+      {
+        this.id = RequiresNotNull<string>(id);
+        this.write = RequiresNotNull<ICallable>(write);
+        // rest optional
+        this.get_pos = get_pos as ICallable;
+        this.set_pos = set_pos as ICallable;
+        this.close = close as ICallable;
+      }
+
+      public override void Write(char[] buffer, int index, int count)
+      {
+        StringBuilder sb = new StringBuilder(new string(buffer));
+
+        write.Call(sb, index, count);
+
+        for (int i = 0; i < count; i++)
+        {
+          buffer[i] = sb[i];
+        }
+      }
+
+      public override string ToString()
+      {
+        return string.Format("#<custom-textual-output-port id: {0}>", id);
+      }
+
+      public override void Close()
+      {
+        if (close != null)
+        {
+          close.Call();
+        }
+      }
+
+
+      public override Encoding Encoding
+      {
+        get { return Encoding.Default; }
+      }
+    }
+
+
+    //(make-custom-textual-input-port id read! get-position set-position! close)
+    [Builtin("make-custom-textual-output-port")]
+    public static object MakeCustomTextOutputPort(object id, object read, object get_pos, object set_pos, object close)
+    {
+      return new CustomTextWriter(id, read, get_pos, set_pos, close);
+    }
 
     //binary output
     //(put-u8 binary-output-port octet)
@@ -933,20 +1251,131 @@ namespace IronScheme.Runtime.R6RS
     {
       string fn = RequiresNotNull<string>(filename);
       Transcoder tc = maybetranscoder as Transcoder;
-      Stream s = File.Open(fn, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+      try
+      {
+        Stream s = File.Open(fn, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-      if (tc == null)
-      {
-        return s;
+        if (tc == null)
+        {
+          return s;
+        }
+        else
+        {
+          return TranscodedPort(s, tc);
+        }
       }
-      else
+      catch (Exception ex)
       {
-        return TranscodedPort(s, tc);
+        return AssertionViolation("open-file-input/output-port", ex.Message, filename);
+      }
+    }
+
+    
+
+    class CustomBinaryInputOutputStream : Stream
+    {
+      string id;
+      ICallable read, write, get_pos, set_pos, close;
+
+      public CustomBinaryInputOutputStream(object id, object read, object write, object get_pos, object set_pos, object close)
+      {
+        this.id = RequiresNotNull<string>(id);
+        this.read = RequiresNotNull<ICallable>(read);
+        this.write = RequiresNotNull<ICallable>(write);
+        // rest optional
+        this.get_pos = get_pos as ICallable;
+        this.set_pos = set_pos as ICallable;
+        this.close = close as ICallable;
+      }
+
+      public override bool CanRead
+      {
+        get { return true; }
+      }
+
+      public override bool CanSeek
+      {
+        get { return set_pos != null; }
+      }
+
+      public override bool CanWrite
+      {
+        get { return true; }
+      }
+
+      public override void Flush()
+      {
+
+      }
+
+      public override long Length
+      {
+        get { throw new Exception("The method or operation is not implemented."); }
+      }
+
+      public override long Position
+      {
+        get
+        {
+          if (get_pos != null)
+          {
+            return Convert.ToInt64(get_pos.Call());
+          }
+          AssertionViolation("get-position", "not supported");
+          return 0;
+        }
+        set
+        {
+          if (set_pos != null)
+          {
+            set_pos.Call(value);
+          }
+        }
+      }
+
+      public override int Read(byte[] buffer, int offset, int count)
+      {
+        return (int)read.Call(buffer, offset, count);
+      }
+
+      public override long Seek(long offset, SeekOrigin origin)
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+
+      public override void SetLength(long value)
+      {
+        throw new Exception("The method or operation is not implemented.");
+      }
+
+      public override void Write(byte[] buffer, int offset, int count)
+      {
+        write.Call(buffer, offset, count);
+      }
+
+      public override string ToString()
+      {
+        return string.Format("#<custom-binary-input/output-port id: {0}>", id);
+      }
+
+      public override void Close()
+      {
+        if (close != null)
+        {
+          close.Call();
+        }
       }
     }
 
     //(make-custom-binary-input/output-port id read! write! get-position set-position! close)
+    [Builtin("make-custom-binary-input/output-port")]
+    public static object MakeCustomBinaryInputOutputPort(object id, object read, object write, object get_pos, object set_pos, object close)
+    {
+      return new CustomBinaryInputOutputStream(id, read, write, get_pos, set_pos, close);
+    }
+
+
     //(make-custom-textual-input/output-port id read! write! get-position set-position! close)
   }
 }
-#endif
+

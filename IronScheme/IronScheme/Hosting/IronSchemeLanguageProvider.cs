@@ -26,7 +26,7 @@ namespace IronScheme.Hosting
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
-      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".scm", ".ss", ".sch");
+      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".scm", ".ss", ".sch", ".sls");
       Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
     }
 
@@ -45,6 +45,11 @@ namespace IronScheme.Hosting
         se = new IronSchemeScriptEngine(this, options ?? GetOptionsParser().EngineOptions, lc);
       }
       return se;
+    }
+
+    public override IConsole GetConsole(CommandLine commandLine, IScriptEngine engine, ConsoleOptions options)
+    {
+      return base.GetConsole(commandLine, engine, options);
     }
 
     CommandLineX cl = new CommandLineX();
@@ -128,13 +133,18 @@ namespace IronScheme.Hosting
       {
       }
 
+      ConsoleOptions co;
+
       public override Microsoft.Scripting.Shell.ConsoleOptions ConsoleOptions
       {
         get
         {
-          ConsoleOptions co = new IronSchemeConsoleOptions();
-          co.TabCompletion = !notabcompletion;
-          co.ColorfulConsole = true;
+          if (co == null)
+          {
+            co = new IronSchemeConsoleOptions();
+            co.TabCompletion = !notabcompletion;
+            co.ColorfulConsole = !notabcompletion;
+          }
 #if DEBUG
           //co.HandleExceptions = false;
 #endif
