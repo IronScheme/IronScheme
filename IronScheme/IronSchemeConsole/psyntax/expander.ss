@@ -25,7 +25,7 @@
           syntax-violation
           syntax->datum make-variable-transformer
           eval-r6rs-top-level boot-library-expand eval-top-level
-          null-environment scheme-report-environment)
+          null-environment scheme-report-environment ellipsis-map)
   (import
     (except (rnrs) 
       environment environment? identifier?
@@ -831,7 +831,7 @@
       (syntax-match e ()
         ((_ ((lhs* rhs*) ...) b b* ...)
          (if (not (valid-bound-ids? lhs*))
-             (stx-error e "invalid identifiers")
+             (invalid-fmls-error e lhs*)
              (let ((lex* (map gen-lexical lhs*))
                    (lab* (map gen-label lhs*)))
                (let ((rib (make-full-rib lhs* lab*))
@@ -2224,6 +2224,22 @@
                  (build-application no-source
                    (build-lambda no-source (list x) body)
                    (list (chi-expr expr r mr)))))))))))
+
+  (define (ellipsis-map proc ls . ls*)
+    (define who '...)
+    (unless (list? ls) 
+      (assertion-violation who "not a list" ls))
+    (unless (null? ls*)
+      (let ([n (length ls)])
+        (for-each
+          (lambda (x) 
+            (unless (list? x) 
+              (assertion-violation who "not a list" x))
+            (unless (= (length x) n)
+              (assertion-violation who "length mismatch" ls x)))
+          ls*)))
+    (apply map proc ls ls*))
+
     (define syntax-transformer
       (let ()
         (define gen-syntax
@@ -2356,7 +2372,7 @@
               ((map)
                (let ((ls (map regen (cdr x))))
                  (build-application no-source
-                   (build-primref no-source 'map)
+                 (build-primref no-source 'ellipsis-map)
                    ls)))
               (else
                (build-application no-source

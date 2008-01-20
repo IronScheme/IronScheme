@@ -1079,6 +1079,7 @@
     (&no-infinities-rcd)
     (&no-nans-rtd)
     (&no-nans-rcd)
+    (ellipsis-map)
     ))
 
 
@@ -1305,7 +1306,7 @@
     generate-temporaries = + datum->syntax string->symbol
     string-append symbol->string syntax->datum gensym length 
     open-string-output-port identifier? free-identifier=? exists
-    values call-with-values for-all))
+    values call-with-values for-all ellipsis-map))
 
 (time-it "the entire bootstrap process"  
   (lambda () 

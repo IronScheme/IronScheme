@@ -11,7 +11,6 @@
  * ***************************************************************************/
 #endregion
 
-#if R6RS
 
 using System;
 using System.Collections.Generic;
@@ -624,4 +623,3 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
   }
 }
-#endif

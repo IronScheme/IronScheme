@@ -353,7 +353,6 @@ namespace IronScheme.Runtime
     }
 
 
-#if R6RS
     //real-valued?, rational-valued?,integer-valued?
 
     [Builtin("integer-valued?")]
@@ -461,7 +460,7 @@ namespace IronScheme.Runtime
       return obj;
     }
 
-#endif
+
 
     [Builtin("exact?")]
     public static object IsExact(object obj)
@@ -1195,139 +1194,6 @@ namespace IronScheme.Runtime
         return Math.Abs(d);
       }
     }
-
-    /*
-procedure:  (quotient n1 n2) 
-procedure:  (remainder n1 n2) 
-procedure:  (modulo n1 n2) 
-These procedures implement number-theoretic (integer) division. n2 should be non-zero. All three procedures return integers. If n1/n2 is an integer: 
-
-    (quotient n1 n2)           ===> n1/n2
-    (remainder n1 n2)          ===> 0
-    (modulo n1 n2)             ===> 0
-
-
-If n1/n2 is not an integer: 
-
-    (quotient n1 n2)           ===> nq
-    (remainder n1 n2)          ===> nr
-    (modulo n1 n2)             ===> nm
-
-
-where nq is n1/n2 rounded towards zero, 0 < |nr| < |n2|, 0 < |nm| < |n2|, nr and nm differ from n1 by a multiple of n2, nr has the same sign as n1, and nm has the same sign as n2.
-
-From this we can conclude that for integers n1 and n2 with n2 not equal to 0, 
-
-     (= n1 (+ (* n2 (quotient n1 n2))
-           (remainder n1 n2)))
-                                         ===>  #t
-
-provided all numbers involved in that computation are exact.
-
-
-(modulo 13 4)                   ===>  1
-(remainder 13 4)                ===>  1
-
-(modulo -13 4)                  ===>  3
-(remainder -13 4)               ===>  -1
-
-(modulo 13 -4)                  ===>  -3
-(remainder 13 -4)               ===>  1
-
-(modulo -13 -4)                 ===>  -1
-(remainder -13 -4)              ===>  -1
-
-(remainder -13 -4.0)            ===>  -1.0  ; inexact
-
-     */
-#if !R6RS
-    [Builtin("quotient")]
-    public static object Quotient(object first, object second)
-    {
-      return Divide(first, second);
-    }
-
-    [Builtin("remainder")]
-    public static object Remainder(object first, object second)
-    {
-      if (first is int)
-      {
-        if (second is int)
-        {
-          return (int)first % (int)second;
-        }
-        else if (second is double)
-        {
-          return (int)first % (double)second;
-        }
-      }
-      if (first is double)
-      {
-        if (second is int)
-        {
-          return (double)first % (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first % (double)second;
-        }
-      }
-      return Remainder(first, new object[] { second });
-    }
-
-    static object Remainder(object car, params object[] args)
-    {
-      if (car is Missing)
-      {
-        return null;
-      }
-      Type type = car == null ? typeof(decimal) : car.GetType();
-      decimal result = Convert.ToDecimal(car);
-      foreach (object item in args)
-      {
-        if (item is decimal)
-          type = item.GetType();
-
-        result %= Convert.ToDecimal(item);
-      }
-      return result;
-    }
-#endif
-
-#if !R6RS
-    [Builtin("modulo")]
-    public static object Modulo(object first, object second)
-    {
-      if (first is int)
-      {
-        if (second is int)
-        {
-          return (int)first % (int)second;
-        }
-        else if (second is double)
-        {
-          return (int)first % (double)second;
-        }
-      }
-      if (first is double)
-      {
-        if (second is int)
-        {
-          return (double)first % (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first % (double)second;
-        }
-      }
-      object value;
-      if (OperatorHelper("op_Modulus", first, second, out value))
-      {
-        return value;
-      }
-      return false;
-    }
-#endif
 
     [Builtin("div")]
     public static object Div(object a, object b)

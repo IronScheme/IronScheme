@@ -11,7 +11,6 @@
  * ***************************************************************************/
 #endregion
 
-#if R6RS
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -197,4 +196,4 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 }
-#endif
+

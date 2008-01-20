@@ -63,7 +63,7 @@ namespace IronScheme.Runtime
     }
 
 
-#if R6RS
+
     [Builtin("boolean=?")]
     public static object IsAllSameBoolean(object obj1, object obj2)
     {
@@ -88,7 +88,6 @@ namespace IronScheme.Runtime
     }
 
 
-#endif
 
 
   }

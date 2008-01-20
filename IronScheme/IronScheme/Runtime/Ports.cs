@@ -33,17 +33,21 @@ namespace IronScheme.Runtime
     public static object WithInputFromFile(object filename, object thunk)
     {
       ICallable f = RequiresNotNull<ICallable>(thunk);
-      string path = RequiresNotNull<string>(filename);
+      string fn = RequiresNotNull<string>(filename);
 
       TextReader old = currentinputport;
 
       try
       {
-        using (TextReader r = File.OpenText(path))
+        using (TextReader r = File.OpenText(GetPath(fn)))
         {
           currentinputport = r;
           return f.Call();
         }
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("with-input-from-file", ex.Message, filename);
       }
       finally
       {
@@ -60,37 +64,27 @@ namespace IronScheme.Runtime
     public static object WithOutputToFile(object filename, object thunk)
     {
       ICallable f = RequiresNotNull<ICallable>(thunk);
-      string path = RequiresNotNull<string>(filename);
+      string fn = RequiresNotNull<string>(filename);
 
       TextWriter old = currentoutputport;
 
       try
       {
-        using (TextWriter w = File.CreateText(path))
+        using (TextWriter w = File.CreateText(GetPath(fn)))
         {
           currentoutputport = w;
           return f.Call();
         }
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("with-output-from-file", ex.Message, filename);
       }
       finally
       {
         currentoutputport = old;
       }
     }
-
-#if !R6RS
-    [Builtin("transcript-off")]
-    public static object TranscriptOff()
-    {
-      throw new NotImplementedException();
-    }
-
-    [Builtin("transcript-on")]
-    public static object TranscriptOn(object filename)
-    {
-      throw new NotImplementedException();
-    }
-#endif
 
     static Assembly AssemblyLoad(string path)
     {
@@ -111,7 +105,8 @@ namespace IronScheme.Runtime
           return Assembly.Load(ass);
         }
       }
-      throw new FileNotFoundException("404", path);
+      AssertionViolation("AssemblyLoad", "File not found", path);
+      return null;
     }
 
     [Builtin("load")] // this is patched in r6rs mode, but its needed to bootstrap
@@ -134,7 +129,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      string path = filename as string;
+      string path = GetPath(filename as string);
 
       switch (Path.GetExtension(path))
       {
@@ -230,8 +225,12 @@ namespace IronScheme.Runtime
             sw = Stopwatch.StartNew();
             object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
             Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
-            
+
             return result;
+          }
+          catch (Exception ex)
+          {
+            return AssertionViolation("load", ex.Message, filename);
           }
           finally
           {
@@ -281,6 +280,10 @@ namespace IronScheme.Runtime
         {
           StreamReader rr = (StreamReader)r;
           Stream s = rr.BaseStream;
+          if (s == null)
+          {
+            AssertionViolation("read", "port has already been closed", r);
+          }
           if (s.Length == s.Position && !rr.EndOfStream)
           {
             s.Position = 0;
@@ -322,20 +325,6 @@ namespace IronScheme.Runtime
     sealed class Eof { }
 
     protected readonly static object EOF = new Eof();
-
-#if !R6RS
-    [Builtin("char-ready?")]
-    public static object IsCharReady()
-    {
-      return IsCharReady(CurrentInputPort());
-    }
-    
-    [Builtin("char-ready?")]
-    public static object IsCharReady(object port)
-    {
-      return PeekChar(port) != EOF;
-    }
-#endif
 
     [Builtin("eof-object")]
     public static object EofObject()
@@ -492,23 +481,19 @@ namespace IronScheme.Runtime
 
       if (obj == EOF)
       {
-        return "<eof>";
+        return "#<eof>";
       }
       if (obj == Builtins.Unspecified)
       {
-        return "<unspecified>";
+        return "#<unspecified>";
       }
-      if (obj is BuiltinMethod)
+      if (obj is ICallable)
       {
-        return "builtin::" + ((BuiltinMethod)obj).Name;
-      }
-      if (obj is Closure)
-      {
-        return "closure::" + obj;
+        return "#<procedure " + obj + ">";
       }
       if (obj is Macro)
       {
-        return "macro::" + ((Macro)obj).Name;
+        return "#<macro " + ((Macro)obj).Name + ">";
       }
 
       if (obj is Type)
@@ -647,12 +632,12 @@ namespace IronScheme.Runtime
 
         if (v.Count == 0)
         {
-          return "#[hashtable]";
+          return "#<hashtable>";
         }
 
         return string.Join(Environment.NewLine, v.ToArray());
       }
-#if R6RS
+
       if (obj is R6RS.CompoundCondition)
       {
         R6RS.CompoundCondition cc = (R6RS.CompoundCondition)obj;
@@ -671,7 +656,7 @@ namespace IronScheme.Runtime
       {
         return obj.ToString();
       }
-#endif
+
       if (obj is Exception)
       {
         return obj.GetType().Name.Replace("$", "&");
@@ -815,7 +800,14 @@ namespace IronScheme.Runtime
     {
       TextWriter w = RequiresNotNull<TextWriter>(port);
       string s = WriteFormat(obj);
-      w.Write(s);
+      try
+      {
+        w.Write(s);
+      }
+      catch (Exception ex)
+      {
+        AssertionViolation("write", ex.Message, obj, port);
+      }
       return Unspecified;
     }
 
@@ -836,18 +828,25 @@ namespace IronScheme.Runtime
     public static object CallWithInputFile(object filename, object fc1)
     {
       ICallable f = RequiresNotNull<ICallable>(fc1);
-      string path = RequiresNotNull<string>(filename);
+      string fn = RequiresNotNull<string>(filename);
 
-      using (TextReader r = File.OpenText(path))
+      try
       {
-        object result = f.Call(r);
-
-        if (readcache.ContainsKey(r))
+        using (TextReader r = File.OpenText(GetPath(fn)))
         {
-          readcache.Remove(r);
-        }
+          object result = f.Call(r);
 
-        return result;
+          if (readcache.ContainsKey(r))
+          {
+            readcache.Remove(r);
+          }
+
+          return result;
+        }
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("call-with-input-file", ex.Message, filename);
       }
     }
 
@@ -855,11 +854,18 @@ namespace IronScheme.Runtime
     public static object CallWithOutputFile(object filename, object fc1)
     {
       ICallable f = RequiresNotNull<ICallable>(fc1);
-      string path = RequiresNotNull<string>(filename);
+      string fn = RequiresNotNull<string>(filename);
 
-      using (TextWriter w = File.CreateText(path))
+      try
       {
-        return f.Call(w);
+        using (TextWriter w = File.CreateText(GetPath(fn)))
+        {
+          return f.Call(w);
+        }
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("call-with-output-file", ex.Message, filename);
       }
     }
 
@@ -867,29 +873,52 @@ namespace IronScheme.Runtime
     static TextWriter currentoutputport = Console.Out;
 
     [Builtin("current-input-port")]
-    public static TextReader CurrentInputPort()
+    public static object CurrentInputPort()
     {
       return currentinputport;
     }
 
     [Builtin("current-output-port")]
-    public static TextWriter CurrentOutputPort()
+    public static object CurrentOutputPort()
     {
       return currentoutputport;
     }
+
+    static string GetPath(string filename)
+    {
+      if (filename.StartsWith("~"))
+      {
+        return Path.Combine(Path.GetDirectoryName(typeof(Builtins).Assembly.Location), filename.Substring(2));
+      }
+      return filename;
+    }
     
     [Builtin("open-input-file")]
-    public static TextReader OpenInputFile(object filename)
+    public static object OpenInputFile(object filename)
     {
       string fn = RequiresNotNull<string>(filename);
-      return File.OpenText(fn);
+      try
+      {
+        return File.OpenText(GetPath(fn));
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("open-input-file", ex.Message, filename);
+      }
     }
 
     [Builtin("open-output-file")]
-    public static TextWriter OpenOutputFile(object filename)
+    public static object OpenOutputFile(object filename)
     {
       string fn = RequiresNotNull<string>(filename);
-      return File.CreateText(fn);
+      try
+      {
+        return File.CreateText(GetPath(fn));
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("open-input-file", ex.Message, filename);
+      }
     }
 
     [Builtin("close-input-port")]

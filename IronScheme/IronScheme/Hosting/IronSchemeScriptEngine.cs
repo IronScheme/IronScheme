@@ -108,32 +108,20 @@ namespace IronScheme.Hosting
       {
         n[i] = names[i] as string;
       }
-#if !R6RS
-      Array.Sort(n);
-#endif
+
       return n;
     }
 
     protected override IList<object> Ops_GetAttrNames(CodeContext context, object obj)
     {
-#if R6RS
       return Identifiers.GetR6RSIds();
-#else
-      List<object> ll = new List<object>();
-      foreach (SymbolId var in IronScheme.Compiler.BaseHelper.cc.Scope.Keys)
-      {
-        ll.Add(SymbolTable.IdToString(var));
-      }
-
-      return ll;
-#endif
     }
 
     public override string Copyright
     {
       get
       {
-        return "leppie (c) 2007";
+        return "leppie (c) 2008";
       }
     }
 

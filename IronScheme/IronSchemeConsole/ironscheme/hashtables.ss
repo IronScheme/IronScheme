@@ -20,35 +20,38 @@
     (rnrs base)
     (rnrs control)
     (ironscheme clr))
+    
+  (clr-using system)
+  (clr-using system.collections)
   
   (define make-eq-hashtable
     (case-lambda
-      [()   (clr-new system.collections.hashtable)]
-      [(k)  (clr-new system.collections.hashtable (clr-cast system.int32 k))]))
+      [()   (clr-new hashtable)]
+      [(k)  (clr-new hashtable (clr-cast int32 k))]))
     
   (define make-eqv-hashtable
     (case-lambda
-      [()   (clr-new system.collections.hashtable)]
-      [(k)  (clr-new system.collections.hashtable (clr-cast system.int32 k))]))
+      [()   (clr-new hashtable)]
+      [(k)  (clr-new hashtable (clr-cast int32 k))]))
   
   (define (hashtable-size ht)
-    (clr-call system.collections.hashtable get_count ht))
+    (clr-prop-get hashtable count ht))
     
   (define (hashtable-ref ht key default)
-    (define r (clr-call system.collections.hashtable get_item ht key))
+    (define r (clr-indexer-get hashtable ht key))
     
     (if (not (null? r)) 
       r
       default))
       
   (define (hashtable-set! ht key obj)
-    (clr-call system.collections.hashtable set_item ht key obj))
+    (clr-indexer-set! hashtable ht key obj))
 
   (define (hashtable-delete! ht key)
-    (clr-call system.collections.hashtable remove ht key))
+    (clr-call hashtable remove ht key))
   
   (define (hashtable-contains? ht key)
-    (clr-call system.collections.hashtable containskey ht key))
+    (clr-call hashtable containskey ht key))
     
   (define (hashtable-update! ht key proc default)
     (hashtable-set!
@@ -57,12 +60,14 @@
 
   (define hashtable-clear!
     (case-lambda 
-      ((ht)     (clr-call system.collections.hashtable clear ht))
-      ((ht k)   (clr-call system.collections.hashtable clear ht))))
+      ((ht)     (clr-call hashtable clear ht))
+      ((ht k)   (clr-call hashtable clear ht))))
     
   ;; TODO
   
   (define hashtable-equivalence-function #f)
   (define hashtable-hash-function #f)
+  
+  (clr-clear-usings)
 
 )

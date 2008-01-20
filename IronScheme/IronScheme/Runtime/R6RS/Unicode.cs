@@ -11,7 +11,6 @@
  * ***************************************************************************/
 #endregion
 
-#if R6RS
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -84,6 +83,34 @@ namespace IronScheme.Runtime.R6RS
       return char.ToLower(c1) == char.ToLower(c2);
     }
 
+    [Builtin("char-ci=?")]
+    public static object IsSameCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = char.ToLower(RequiresNotNull<char>(obj1));
+      char c2 = char.ToLower(RequiresNotNull<char>(obj2));
+      char c3 = char.ToLower(RequiresNotNull<char>(obj3));
+
+      bool head = c1 == c2 && c2 == c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          char ci = char.ToLower(c);
+          if (c3 == ci)
+          {
+            c3 = ci;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
+    }
+
     /// <summary>
     /// Determines whether [is less than char case insensitive] [the specified obj1].
     /// </summary>
@@ -99,6 +126,35 @@ namespace IronScheme.Runtime.R6RS
       char c2 = RequiresNotNull<char>(obj2);
 
       return char.ToLower(c1) < char.ToLower(c2);
+    }
+
+
+    [Builtin("char-ci<?")]
+    public static object IsLessThanCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = char.ToLower(RequiresNotNull<char>(obj1));
+      char c2 = char.ToLower(RequiresNotNull<char>(obj2));
+      char c3 = char.ToLower(RequiresNotNull<char>(obj3));
+
+      bool head = c1 < c2 && c2 < c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          char ci = char.ToLower(c);
+          if (c3 < ci)
+          {
+            c3 = ci;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
     }
 
     /// <summary>
@@ -118,6 +174,34 @@ namespace IronScheme.Runtime.R6RS
       return char.ToLower(c1) > char.ToLower(c2);
     }
 
+    [Builtin("char-ci>?")]
+    public static object IsGreaterThanCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = char.ToLower(RequiresNotNull<char>(obj1));
+      char c2 = char.ToLower(RequiresNotNull<char>(obj2));
+      char c3 = char.ToLower(RequiresNotNull<char>(obj3));
+
+      bool head = c1 > c2 && c2 > c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          char ci = char.ToLower(c);
+          if (c3 > ci)
+          {
+            c3 = ci;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
+    }
+
     /// <summary>
     /// Determines whether [is less than or equal char case insensitive] [the specified obj1].
     /// </summary>
@@ -135,6 +219,34 @@ namespace IronScheme.Runtime.R6RS
       return char.ToLower(c1) <= char.ToLower(c2);
     }
 
+    [Builtin("char-ci<=?")]
+    public static object IsLessThanOrEqualCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = char.ToLower(RequiresNotNull<char>(obj1));
+      char c2 = char.ToLower(RequiresNotNull<char>(obj2));
+      char c3 = char.ToLower(RequiresNotNull<char>(obj3));
+
+      bool head = c1 <= c2 && c2 <= c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          char ci = char.ToLower(c);
+          if (c3 <= ci)
+          {
+            c3 = ci;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
+    }
+
     /// <summary>
     /// Determines whether [is greater than or equal char case insensitive] [the specified obj1].
     /// </summary>
@@ -150,6 +262,34 @@ namespace IronScheme.Runtime.R6RS
       char c2 = RequiresNotNull<char>(obj2);
 
       return char.ToLower(c1) >= char.ToLower(c2);
+    }
+
+    [Builtin("char-ci>=?")]
+    public static object IsGreaterThanOrEqualCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      char c1 = char.ToLower(RequiresNotNull<char>(obj1));
+      char c2 = char.ToLower(RequiresNotNull<char>(obj2));
+      char c3 = char.ToLower(RequiresNotNull<char>(obj3));
+
+      bool head = c1 >= c2 && c2 >= c3;
+
+      if (head)
+      {
+        foreach (char c in rest)
+        {
+          char ci = char.ToLower(c);
+          if (c3 >= ci)
+          {
+            c3 = ci;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+
+      return head;
     }
 
     /// <summary>
@@ -278,6 +418,33 @@ namespace IronScheme.Runtime.R6RS
       return s1 == s2;
     }
 
+    [Builtin("string-ci=?")]
+    public static object IsSameStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+      string s3 = ToLower(GetString(obj3));
+
+      bool head = s1 == s2 && s2 == s3;
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = ToLower(GetString(s));
+          if (ss == s3)
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
+    }
+
     [Builtin("string-ci<?")]
     public static object IsLessThanStringCaseInsensitive(object obj1, object obj2)
     {
@@ -285,6 +452,34 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
 
       return IsLessThan(s1, s2);
+    }
+
+
+    [Builtin("string-ci<?")]
+    public static object IsLessThanStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+      string s3 = ToLower(GetString(obj3));
+
+      bool head = (bool)IsLessThan(s1, s2) && (bool)IsLessThan(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = ToLower(GetString(s));
+          if ((bool)IsLessThan(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
     }
 
     [Builtin("string-ci>?")]
@@ -296,6 +491,33 @@ namespace IronScheme.Runtime.R6RS
       return IsGreaterThan(s1, s2);
     }
 
+    [Builtin("string-ci>?")]
+    public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+      string s3 = ToLower(GetString(obj3));
+
+      bool head = (bool)IsGreaterThan(s1, s2) && (bool)IsGreaterThan(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = ToLower(GetString(s));
+          if ((bool)IsGreaterThan(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
+    }
+
     [Builtin("string-ci<=?")]
     public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2)
     {
@@ -305,6 +527,33 @@ namespace IronScheme.Runtime.R6RS
       return IsLessThanOrEqual(s1, s2);
     }
 
+    [Builtin("string-ci<=?")]
+    public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+      string s3 = ToLower(GetString(obj3));
+
+      bool head = (bool)IsLessThanOrEqual(s1, s2) && (bool)IsLessThanOrEqual(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = ToLower(GetString(s));
+          if ((bool)IsLessThanOrEqual(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
+    }
+
     [Builtin("string-ci>=?")]
     public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2)
     {
@@ -312,6 +561,33 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
 
       return IsGreaterThanOrEqual(s1, s2);
+    }
+
+    [Builtin("string-ci>=?")]
+    public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = ToLower(GetString(obj1));
+      string s2 = ToLower(GetString(obj2));
+      string s3 = ToLower(GetString(obj3));
+
+      bool head = (bool)IsGreaterThanOrEqual(s1, s2) && (bool)IsGreaterThanOrEqual(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = ToLower(GetString(s));
+          if ((bool)IsGreaterThanOrEqual(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
     }
 
 
@@ -380,4 +656,4 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 }
-#endif
+

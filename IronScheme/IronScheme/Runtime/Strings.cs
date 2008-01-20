@@ -35,16 +35,12 @@ namespace IronScheme.Runtime
 - string-ref
 - string-set! (todo)
 - string=? 
-- string-ci=? 
 
 - string<? 
 - string>? 
 - string<=? 
 - string>=? 
-- string-ci<? 
-- string-ci>? 
-- string-ci<=? 
-- string-ci>=? 
+
 
 - substring
 - string-append 
@@ -183,6 +179,33 @@ namespace IronScheme.Runtime
       return s1 == s2;
     }
 
+    [Builtin("string=?")]
+    public static object IsSameString(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = GetString(obj1);
+      string s2 = GetString(obj2);
+      string s3 = GetString(obj3);
+
+      bool head = s1 == s2 && s2 == s3;
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = GetString(s);
+          if (ss == s3)
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
+    }
+
     [Builtin("string<?")]
     public static object IsLessThanString(object obj1, object obj2)
     {
@@ -190,6 +213,33 @@ namespace IronScheme.Runtime
       string s2 = GetString(obj2);
 
       return IsLessThan(s1, s2);
+    }
+
+    [Builtin("string<?")]
+    public static object IsLessThanString(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = GetString(obj1);
+      string s2 = GetString(obj2);
+      string s3 = GetString(obj3);
+
+      bool head = (bool)IsLessThan(s1, s2) && (bool)IsLessThan(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = GetString(s);
+          if ((bool)IsLessThan(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
     }
 
     [Builtin("string>?")]
@@ -201,6 +251,33 @@ namespace IronScheme.Runtime
       return IsGreaterThan(s1, s2);
     }
 
+    [Builtin("string>?")]
+    public static object IsGreaterThanString(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = GetString(obj1);
+      string s2 = GetString(obj2);
+      string s3 = GetString(obj3);
+
+      bool head = (bool)IsGreaterThan(s1, s2) && (bool)IsGreaterThan(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = GetString(s);
+          if ((bool)IsGreaterThan(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
+    }
+
     [Builtin("string<=?")]
     public static object IsLessThanOrEqualString(object obj1, object obj2)
     {
@@ -208,6 +285,33 @@ namespace IronScheme.Runtime
       string s2 = GetString(obj2);
 
       return IsLessThanOrEqual(s1, s2);
+    }
+
+    [Builtin("string<=?")]
+    public static object IsLessThanOrEqualString(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = GetString(obj1);
+      string s2 = GetString(obj2);
+      string s3 = GetString(obj3);
+
+      bool head = (bool)IsLessThanOrEqual(s1, s2) && (bool)IsLessThanOrEqual(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = GetString(s);
+          if ((bool)IsLessThanOrEqual(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
     }
 
     [Builtin("string>=?")]
@@ -219,59 +323,38 @@ namespace IronScheme.Runtime
       return IsGreaterThanOrEqual(s1, s2);
     }
 
+    [Builtin("string>=?")]
+    public static object IsGreaterThanOrEqualString(object obj1, object obj2, object obj3, params object[] rest)
+    {
+      string s1 = GetString(obj1);
+      string s2 = GetString(obj2);
+      string s3 = GetString(obj3);
+
+      bool head = (bool)IsGreaterThanOrEqual(s1, s2) && (bool)IsGreaterThanOrEqual(s2, s3);
+
+      if (head)
+      {
+        foreach (object s in rest)
+        {
+          string ss = GetString(s);
+          if ((bool)IsGreaterThanOrEqual(ss, s3))
+          {
+            s3 = ss;
+          }
+          else
+          {
+            return false;
+          }
+        }
+      }
+      return head;
+    }
+
     protected static string ToLower(string obj)
     {
       string s = GetString(obj);
       return s.ToLower();
     }
-
-#if !R6RS
-
-    [Builtin("string-ci=?")]
-    public static object IsSameStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-
-      return s1 == s2;
-    }
-
-    [Builtin("string-ci<?")]
-    public static object IsLessThanStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-
-      return IsLessThan(s1, s2);
-    }
-
-    [Builtin("string-ci>?")]
-    public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-
-      return IsGreaterThan(s1,s2);
-    }
-
-    [Builtin("string-ci<=?")]
-    public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-
-      return IsLessThanOrEqual(s1, s2);
-    }
-
-    [Builtin("string-ci>=?")]
-    public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-
-      return IsGreaterThanOrEqual(s1, s2);
-    }
-#endif
 
     [Builtin("string->list")]
     public static Cons StringToList(object obj)
@@ -293,7 +376,6 @@ namespace IronScheme.Runtime
       return new string(obj as char[]);
     }
 
-#if R6RS
 
     [Builtin("string-for-each")]
     public static object StringForEach(object proc, params object[] lists)
@@ -331,7 +413,6 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-#endif
 
   }
 }

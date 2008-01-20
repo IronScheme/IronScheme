@@ -28,6 +28,8 @@ namespace IronScheme.Compiler
   public abstract class ClrGenerator : SimpleGenerator
   {
     protected static MethodInfo Helpers_ConvertToDelegate = typeof(Helpers).GetMethod("ConvertToDelegate");
+    protected static MethodInfo Helpers_SymbolToEnum = typeof(Helpers).GetMethod("SymbolToEnum");
+    protected static MethodInfo Helpers_EnumToSymbol = typeof(Helpers).GetMethod("EnumToSymbol");
 
     protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -58,6 +60,48 @@ namespace IronScheme.Compiler
         }
       }
       return null;
+    }
+
+    protected static Expression ConvertFromHelper(Type t, Expression e)
+    {
+      if (t == typeof(void))
+      {
+        return Ast.Comma(e, Ast.ReadField(null, Unspecified));
+      }
+      else if (t.BaseType == typeof(Enum))
+      {
+        return Ast.Call(Helpers_EnumToSymbol.MakeGenericMethod(t), e);
+      }
+      else if (t.IsValueType)
+      {
+        return Ast.DynamicConvert(e, typeof(object));
+      }
+      else
+      {
+        return e;
+      }
+    }
+
+    protected static Expression ConvertToHelper(Type t, Expression e)
+    {
+      if (t == e.Type)
+      {
+        return e;
+      }
+      else
+        if (t.BaseType == typeof(MulticastDelegate))
+        {
+          return Ast.Call(Helpers_ConvertToDelegate.MakeGenericMethod(t), e);
+        }
+        else
+          if (t.BaseType == typeof(Enum))
+          {
+            return Ast.Call(Helpers_SymbolToEnum.MakeGenericMethod(t), e);
+          }
+          else
+          {
+            return Ast.ConvertHelper(e, t);
+          }
     }
   }
 
@@ -186,19 +230,7 @@ namespace IronScheme.Compiler
         for (int i = 0; i < arguments.Length; i++)
         {
           Type tt = pars[i].ParameterType;
-          if (tt == arguments[i].Type)
-          {
-            // do nothing
-          }
-          else
-          if (tt.BaseType == typeof(MulticastDelegate))
-          {
-            arguments[i] = Ast.Call(Helpers_ConvertToDelegate.MakeGenericMethod(tt), arguments[i]);
-          }
-          else
-          {
-            arguments[i] = Ast.ConvertHelper(arguments[i], tt);
-          }
+          arguments[i] = ConvertToHelper(tt, arguments[i]);
         }
 
         Expression r = null;
@@ -213,24 +245,14 @@ namespace IronScheme.Compiler
           r = Ast.ComplexCallHelper((MethodInfo)mc.Target.Method, arguments);
         }
 
-        if ((meth).ReturnType == typeof(void))
-        {
-          return Ast.Comma(r, Ast.ReadField(null, Unspecified));
-        }
-        else if (((MethodInfo)mc.Target.Method).ReturnType.IsValueType)
-        {
-          return Ast.DynamicConvert(r, typeof(object));
-        }
-        else
-        {
-          return r;
-        }
+        return ConvertFromHelper(meth.ReturnType, r);
       }
 
       throw new NotImplementedException();
     }
-
   }
+
+
 
   //hack for now
   [Generator("clr-clear-usings-internal")]
@@ -447,22 +469,9 @@ namespace IronScheme.Compiler
         for (int i = 0; i < arguments.Length; i++)
         {
           Type tt = pars[i].ParameterType;
-          if (tt == arguments[i].Type)
-          {
-            // do nothing
-          }
-          else
-            if (tt.BaseType == typeof(MulticastDelegate))
-            {
-              arguments[i] = Ast.Call(Helpers_ConvertToDelegate.MakeGenericMethod(tt), arguments[i]);
-            }
-            else
-            {
-              arguments[i] = Ast.ConvertHelper(arguments[i], tt);
-            }
+          arguments[i] = ConvertToHelper(tt, arguments[i]);
         }
-
-
+        
         Expression r = Ast.New(ci, arguments);
         return r;
       }

@@ -176,7 +176,7 @@ namespace IronScheme.Runtime
       return v.ToArray();
     }
 
-#if R6RS
+
     [Builtin("vector-map")]
     public static object VectorMap(object proc, params object[] lists)
     {
@@ -253,7 +253,6 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-#endif
 
   }
 }

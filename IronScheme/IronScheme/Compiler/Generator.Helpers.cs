@@ -85,7 +85,7 @@ namespace IronScheme.Compiler
 
       AddBuiltins(Context, typeof(Builtins));
       AddInlineEmitters(typeof(BuiltinEmitters));
-#if R6RS
+
       AddBuiltins(Context, typeof(Runtime.psyntax.AnnotatedReader));
       AddBuiltins(Context, typeof(Runtime.psyntax.LibraryManager));
 
@@ -107,8 +107,7 @@ namespace IronScheme.Compiler
 
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
-      // AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.Bitwise));
-#endif
+
     }
 
     public static void AddBuiltins(CodeContext cc, Type builtinstype)

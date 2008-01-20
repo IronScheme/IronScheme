@@ -73,7 +73,7 @@ namespace IronScheme.Runtime
       }
     }
 
-#if R6RS
+
     [Builtin("symbol=?")]
     public static object IsAllSameSymbol(object obj1, object obj2)
     {
@@ -98,6 +98,5 @@ namespace IronScheme.Runtime
     }
 
 
-#endif
   }
 }
