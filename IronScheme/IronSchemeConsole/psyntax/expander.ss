@@ -785,7 +785,9 @@
         ((_ (id . fmls) b b* ...) (id? id)
          (values id (cons 'defun (cons fmls (cons b b*)))))
         ((_ id val) (id? id)
-         (values id (cons 'expr val))))))
+         (values id (cons 'expr val)))
+        ((_ id) (id? id) 
+         (values id (cons 'expr (bless '(void))))))))
 
   (define parse-define-syntax
     (lambda (x)
