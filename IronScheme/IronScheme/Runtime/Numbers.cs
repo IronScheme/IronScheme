@@ -723,13 +723,13 @@ namespace IronScheme.Runtime
     [Builtin("odd?")]
     public static object IsOdd(object obj)
     {
-      return !(bool)IsEqualValue(Mod(obj, 2), 0);
+      return !(bool)IsEven(obj);
     }
 
     [Builtin("even?")]
     public static object IsEven(object obj)
     {
-      return IsEqualValue(Mod(obj, 2), 0);
+      return IsZero(Mod(obj, 2));
     }
 
     [Builtin("min")]
