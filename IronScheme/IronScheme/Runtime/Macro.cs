@@ -18,6 +18,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
+  // this only needed for a few core macros
   public abstract class Macro
   {
     readonly string name;

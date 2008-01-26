@@ -96,6 +96,14 @@ namespace IronScheme.Runtime
       return buffer;
     }
 
+    public static string ApplicationDirectory
+    {
+      get
+      {
+        return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase).Replace("file:\\", "");
+      }
+    }
+
     [Builtin(":optional")]
     public static object Optional(object obj, object def)
     {
@@ -107,6 +115,21 @@ namespace IronScheme.Runtime
     {
       SymbolId s = RequiresNotNull<SymbolId>(sym);
       return cc.Scope.ContainsName(s);
+    }
+
+    [Builtin("make-traced-procedure")]
+    public static object MakeTraceProcedure(object name, object proc)
+    {
+      return MakeTraceProcedure(name, proc, false);
+    }
+
+    [Builtin("make-traced-procedure")]
+    public static object MakeTraceProcedure(object name, object proc, object filter)
+    {
+      ICallable p = RequiresNotNull<ICallable>(proc);
+      SymbolId n = RequiresNotNull<SymbolId>(name);
+      ICallable f = filter as ICallable;
+      return new TraceClosure(p, n, f);
     }
 
 

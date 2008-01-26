@@ -8,18 +8,22 @@
   (import 
     (rnrs)
     (ironscheme clr))
+    
+  (clr-using system.threading)
   
   (define (start-thread thread)
-    (clr-call system.threading.thread start thread))
+    (clr-call thread start thread))
       
   (define (thread? obj)
-    (clr-is system.threading.thread obj))
+    (clr-is thread obj))
     
   (define (make-thread proc)
-    (clr-new system.threading.thread (clr-cast system.threading.threadstart proc)))  
+    (clr-new thread proc))  
      
   (define queue-work-item
     (case-lambda 
       [(proc)       (queue-work-item proc #f)]
-      [(proc state) (clr-static-call system.threading.threadpool queueuserworkitem (clr-cast system.threading.waitcallback proc) state)]))
+      [(proc state) (clr-static-call threadpool queueuserworkitem proc state)]))
+      
+  (clr-clear-usings)      
 )

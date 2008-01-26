@@ -132,6 +132,7 @@
     <Compile Include="Runtime\Symbols.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Runtime\TraceClosure.cs" />
     <Compile Include="Runtime\Vectors.cs" />
   </ItemGroup>
   <ItemGroup>

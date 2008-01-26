@@ -96,6 +96,10 @@ namespace IronScheme.Runtime
 
     readonly Delegate target;
 
+    protected Closure() : this(null, -1)
+    {
+    }
+
     Closure(Delegate target, int paramcount)
     {
       this.paramcount = paramcount;
@@ -384,6 +388,8 @@ namespace IronScheme.Runtime
       }
     }
 
+
+
     sealed class CaseClosure : Closure
     {
       int[] arities;
@@ -512,4 +518,6 @@ namespace IronScheme.Runtime
 
 
   }
+
+
 }
