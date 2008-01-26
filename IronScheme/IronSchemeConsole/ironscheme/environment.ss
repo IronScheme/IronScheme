@@ -1,9 +1,9 @@
 (library (ironscheme environment)
   (export
-    get-working-directory
-    set-working-directory!
-    get-current-user
-    get-current-user-domain
+    application-directory
+    current-directory
+    current-user
+    current-user-domain
     get-hostname
     get-logical-drives
     get-environment-variables
@@ -16,17 +16,18 @@
 
   (clr-using system)
   
-  (define (get-working-directory)
-    (clr-static-prop-get environment currentdirectory))
+  (define (application-directory)
+    (clr-static-prop-get ironscheme.runtime.builtins applicationdirectory))
+  
+  (define current-directory
+    (case-lambda
+      [()       (clr-static-prop-get environment currentdirectory)]
+      [(path)   (clr-static-prop-set! environment currentdirectory path)]))
     
-  (define (set-working-directory! path)
-    (clr-static-prop-set! environment currentdirectory path))
-    
-
-  (define (get-current-user)
+  (define (current-user)
     (clr-static-prop-get environment username))
 
-  (define (get-current-user-domain)
+  (define (current-user-domain)
     (clr-static-prop-get environment userdomainname))
     
   (define (get-hostname)

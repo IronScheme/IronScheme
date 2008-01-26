@@ -257,6 +257,10 @@
     (time                                       i)
     (time-it                                    i)
     (pmap                                       i)
+    (trace-lambda                               i)
+    (trace-define                               i)
+    (trace-define-syntax                        i)    
+    (make-traced-procedure                      i)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)
@@ -1015,6 +1019,7 @@
     (load-r5rs                                  ii)
     (last-pair                                  i)
     (make-list                                  i)
+    (make-trace                                 i)
     
     (read-annotated                             ir)
     (annotation?                                ir)
