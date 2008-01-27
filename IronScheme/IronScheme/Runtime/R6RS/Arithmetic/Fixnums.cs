@@ -28,7 +28,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     {
       if (args.Length != count)
       {
-        throw new ArgumentException("Expected " + count + " arguments. Got " + args.Length + " arguments.");
+        Builtins.SyntaxError("expect", "expected " + count + " arguments. got " + args.Length + " arguments.", args, false);
       }
     }
 
@@ -116,7 +116,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       {
         return Ast.ConvertHelper(Unwrap(e), typeof(T));
       }
-      throw new ArgumentTypeException("Expected fixnum, but got " + e.Type.Name + ".");
+      Builtins.SyntaxError("UnwrapAndCast", "Expected fixnum, but got " + e.Type.Name + ".", e, false);
+      return null;
     }
 
     static Expression[] Unwrap(Expression[] ee)

@@ -153,13 +153,11 @@ namespace IronScheme.Hosting
         if (sourceUnit.Kind == SourceCodeKind.InteractiveCode && message != "unexpected EOF")
         {
           Builtins.LexicalError(message, false);
-          throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
         }
         else
         if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
         {
           Builtins.LexicalError(message, false);
-          throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
         }
       }
     }

@@ -64,7 +64,20 @@
     "ironscheme/records/procedural.ss"
     "ironscheme/records/syntactic.ss"
     "ironscheme/build.ss"
-    ;"ironscheme/pretty-print.ss"
+    "ironscheme/format.ss"
+    ;"ironscheme/pretty-print.ss" ; this does not work for some reason
+    
+    ; test compile libs
+    "ironscheme/environment.ss"
+    "ironscheme/regex.ss"
+    "ironscheme/registry.ss"
+    "ironscheme/threading.ss"
+    "ironscheme/conversions.ss"
+    "ironscheme/console.ss"
+    "ironscheme/random.ss"
+    "ironscheme/collections/stack.ss"
+    "ironscheme/collections/arraylist.ss"
+    
     "psyntax/compat.ss"
     "psyntax/internal.ss"
     "psyntax/config.ss"
@@ -197,8 +210,8 @@
     (ir          (ironscheme reader)                   #t    #t)
     (ii          (ironscheme interaction)              #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
-    (ne          (psyntax null-environment-5)          #t    #f)
-    (se          (psyntax scheme-report-environment-5) #t    #f)
+    (ne          (psyntax null-environment-5)          #f    #f)
+    (se          (psyntax scheme-report-environment-5) #f    #f)
     (r           (rnrs)                                #t    #t)
     (r5          (rnrs r5rs)                           #t    #t)
     (ct          (rnrs control)                        #t    #t)
@@ -261,6 +274,18 @@
     (trace-define                               i)
     (trace-define-syntax                        i)    
     (make-traced-procedure                      i)
+    (printf                                     i)
+    (fprintf                                    i)
+    (format                                     i)
+    (string-format                              i)
+    (file-copy                                  i)
+    (file-move                                  i)
+    (directory-exists?                          i)
+    (delete-directory                           i)
+    (directory-move                             i)
+    (create-directory                           i)
+    (get-files                                  i)
+    (get-directories                            i)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)

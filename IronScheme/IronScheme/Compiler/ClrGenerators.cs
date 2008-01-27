@@ -22,6 +22,7 @@ using IronScheme.Runtime;
 using IronScheme.Compiler;
 
 using Microsoft.Scripting.Utils;
+using System.Text.RegularExpressions;
 
 namespace IronScheme.Compiler
 {
@@ -33,26 +34,61 @@ namespace IronScheme.Compiler
 
     protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
+    protected static Regex typeparser = new Regex(@"(?<ns>([^\s.<]+\.)*)(?<type>[^\s.<]+)(?<args>(<[^>]+>)?)"); // last bit has to be greedy
+
     //this clearly wont scale well at all...
     protected static Type GetType(string nsandname)
     {
+      Match m = typeparser.Match(nsandname);
+      if (!m.Success)
+      {
+        return null;
+      }
+
+      string am = m.Groups["args"].Value;
+
+      string[] genargs = am.Length > 0 ? am.Substring(1, am.Length - 2).Split('&') : new string[0];
+
+      Type[] gentypes = Array.ConvertAll<string, Type>(genargs, GetType);
+
+      nsandname = m.Groups["ns"].Value + m.Groups["type"].Value;
+      
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
         if (ass.ManifestModule.Name != "<In Memory Module>")
         {
           foreach (Type t in ass.GetExportedTypes())
           {
-            string nsm = t.Namespace + "." + t.Name;
+            string tname = t.Name;
+            int genargsc = 0;
+
+            int geni = t.Name.IndexOf('`');
+
+            if (geni > 0)
+            {
+              genargsc = int.Parse(tname.Substring(geni + 1));
+              tname = tname.Substring(0, geni);
+            }
+
+            string nsm = t.Namespace + "." + tname;
             nsm = nsm.ToLower();
 
             if (nsm == nsandname)
             {
+              if (gentypes.Length == genargsc && gentypes.Length > 0)
+              {
+                return t.MakeGenericType(gentypes);
+              }
               return t;
             }
-            else if (t.Name.ToLower() == nsandname)
+            else if (tname.ToLower() == nsandname)
             {
               if (namespaces.ContainsKey(t.Namespace))
               {
+                if (gentypes.Length == genargsc && gentypes.Length > 0)
+                {
+                  return t.MakeGenericType(gentypes);
+                }
                 return t;
               }
             }
@@ -116,13 +152,20 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-field-get", "type not found", type, false);
       }
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
+      FieldInfo fi = t.GetField(member);
+
+      if (fi == null)
+      {
+        Builtins.SyntaxError("clr-field-get", "field not found on type: " + type, args, member);
+      }
+
       Expression instance = GetAst(Builtins.Third(args), cb);
 
-      return Ast.ReadField(instance, t, member);
+      return Ast.ReadField(instance, fi);
     }
   }
 
@@ -137,15 +180,22 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-field-set!", "type not found", type, false);
       }
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
+
+      FieldInfo fi = t.GetField(member);
+
+      if (fi == null)
+      {
+        Builtins.SyntaxError("clr-field-set!", "field not found on type: " + type, args, member);
+      }
 
       Expression instance = GetAst(Builtins.Third(args), cb);
 
       Expression value = GetAst(Builtins.Car(Builtins.LastPair(args)), cb);
 
-      return Ast.AssignField(instance, t, member, value);
+      return Ast.AssignField(instance,fi, value);
     }
   }
 
@@ -161,7 +211,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-call", "type not found", type, false);
       }
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
@@ -181,7 +231,9 @@ namespace IronScheme.Compiler
 
       List<MethodBase> candidates = new List<MethodBase>();
 
-      foreach (MemberInfo mi in t.GetMember(member, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance))
+      BindingFlags bf = BindingFlags.IgnoreCase | BindingFlags.Public | (ct == CallType.None ? BindingFlags.Static : BindingFlags.Instance);
+
+      foreach (MemberInfo mi in t.GetMember(member, bf))
       {
         if (mi is MethodInfo)
         {
@@ -248,7 +300,9 @@ namespace IronScheme.Compiler
         return ConvertFromHelper(meth.ReturnType, r);
       }
 
-      throw new NotImplementedException();
+      Builtins.SyntaxError("clr-call", "member could not be resolved on type: " + type, args, member);
+
+      return null;
     }
   }
 
@@ -281,7 +335,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-using", "namespace is not a symbol", name, false);
       }
 
       return Ast.ReadField(null, Unspecified);
@@ -306,7 +360,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-reference", "reference is not a symbol or a string", name, false);
       }
 #pragma warning disable 618
       Assembly.LoadWithPartialName(assname);
@@ -326,7 +380,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-is", "type not found", type, false);
       }
 
       return Ast.TypeIs(GetAst(Builtins.Second(args), cb), t);
@@ -353,7 +407,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-cast", "type not found", type, false);
       }
 
       Expression obj = GetAst(Builtins.Second(args), cb);
@@ -379,7 +433,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-new-array", "type not found", type, false);
       }
 
       t = t.MakeArrayType();
@@ -402,7 +456,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        throw new NotSupportedException();
+        Builtins.SyntaxError("clr-new", "type not found", type, false);
       }
 
       Expression[] arguments = GetAstListNoCast(Builtins.Cdr(args) as Cons, cb);
@@ -476,7 +530,9 @@ namespace IronScheme.Compiler
         return r;
       }
 
-      throw new NotImplementedException();
+      Builtins.SyntaxError("clr-new", "constructor could not be resolved on type: " + type, args, false);
+
+      return null;
     }
   }
 

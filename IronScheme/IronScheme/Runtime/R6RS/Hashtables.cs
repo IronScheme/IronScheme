@@ -38,17 +38,17 @@ namespace IronScheme.Runtime.R6RS
 
       public override void Clear()
       {
-        throw new NotSupportedException("Hashtable is read-only");
+        AssertionViolation("hashtable-clear!", "hashtable is readonly", this);
       }
 
       public override void Add(object key, object value)
       {
-        throw new NotSupportedException("Hashtable is read-only");
+        AssertionViolation("hashtable-add!", "hashtable is readonly", this);
       }
 
       public override void Remove(object key)
       {
-        throw new NotSupportedException("Hashtable is read-only");
+        AssertionViolation("hashtable-remove!", "hashtable is readonly", this);
       }
 
       public override object this[object key]
@@ -59,7 +59,7 @@ namespace IronScheme.Runtime.R6RS
         }
         set
         {
-          throw new NotSupportedException("Hashtable is read-only");
+          AssertionViolation("hashtable-set!", "hashtable is readonly", this);
         }
       }
     }

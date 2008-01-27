@@ -825,7 +825,7 @@ namespace IronScheme.Runtime
       {
         return value;
       }
-      throw new NotSupportedException("cant do that");
+      return AssertionViolation("+", "types are not compatible", first, second);
     }
 
     [Builtin("+")]
@@ -906,8 +906,7 @@ namespace IronScheme.Runtime
         return value;
       }
 
-      //slow version
-      throw new NotSupportedException("cant do that");
+      return AssertionViolation("-", "types are not compatible", first, second);
     }
 
     [Builtin("-")]
@@ -984,7 +983,7 @@ namespace IronScheme.Runtime
       {
         return value;
       }
-      throw new NotSupportedException("cant do that");
+      return AssertionViolation("*", "types are not compatible", first, second);
     }
 
 
@@ -1080,7 +1079,7 @@ namespace IronScheme.Runtime
       {
         return value;
       }
-      throw new NotSupportedException("cant do that");
+      return AssertionViolation("/", "types are not compatible", first, second);
     }
 
 

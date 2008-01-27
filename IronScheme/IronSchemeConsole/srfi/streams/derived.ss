@@ -26,20 +26,24 @@
 
 (library (srfi streams derived)
 
+
   (export stream-null stream-cons stream? stream-null? stream-pair? stream-car
           stream-cdr stream-lambda define-stream list->stream port->stream stream
           stream->list stream-append stream-concat stream-constant stream-drop
           stream-drop-while stream-filter stream-fold stream-for-each stream-from
-          stream-iterate stream-length stream-let stream-map stream-match
+          stream-iterate stream-length stream-let stream-map stream-match _
           stream-of stream-range stream-ref stream-reverse stream-scan stream-take
           stream-take-while stream-unfold stream-unfolds stream-zip)
 
+
   (import (rnrs) (srfi streams primitive))
+
 
   (define-syntax define-stream
     (syntax-rules ()
       ((define-stream (name . formal) body0 body1 ...)
         (define name (stream-lambda formal body0 body1 ...)))))
+
 
   (define (list->stream objs)
     (define list->stream
@@ -50,6 +54,7 @@
     (if (not (list? objs))
         (error 'list->stream "non-list argument")
         (list->stream objs)))
+
 
   (define (port->stream . port)
     (define port->stream
@@ -63,10 +68,12 @@
           (error 'port->stream "non-input-port argument")
           (port->stream p))))
 
+
   (define-syntax stream
     (syntax-rules ()
       ((stream) stream-null)
       ((stream x y ...) (stream-cons x (stream y ...)))))
+
 
   (define (stream->list . args)
     (let ((n (if (= 1 (length args)) #f (car args)))
@@ -79,6 +86,7 @@
                         '()
                         (cons (stream-car strm) (loop (- n 1) (stream-cdr strm)))))))))
 
+
   (define (stream-append . strms)
     (define stream-append
       (stream-lambda (strms)
@@ -90,6 +98,7 @@
           ((exists (lambda (x) (not (stream? x))) strms)
             (error 'stream-append "non-stream argument"))
           (else (stream-append strms))))
+
 
   (define (stream-concat strms)
     (define stream-concat
@@ -107,12 +116,14 @@
         (error 'stream-concat "non-stream argument")
         (stream-concat strms)))
 
+
   (define stream-constant
     (stream-lambda objs
       (cond ((null? objs) stream-null)
             ((null? (cdr objs)) (stream-cons (car objs) (stream-constant (car objs))))
             (else (stream-cons (car objs)
                                (apply stream-constant (append (cdr objs) (list (car objs)))))))))
+
 
   (define (stream-drop n strm)
     (define stream-drop
@@ -125,6 +136,7 @@
           ((not (stream? strm)) (error 'stream-drop "non-stream argument"))
           (else (stream-drop n strm))))
 
+
   (define (stream-drop-while pred? strm)
     (define stream-drop-while
       (stream-lambda (strm)
@@ -134,6 +146,7 @@
     (cond ((not (procedure? pred?)) (error 'stream-drop-while "non-procedural argument"))
           ((not (stream? strm)) (error 'stream-drop-while "non-stream argument"))
           (else (stream-drop-while strm))))
+
 
   (define (stream-filter pred? strm)
     (define stream-filter
@@ -146,6 +159,7 @@
           ((not (stream? strm)) (error 'stream-filter "non-stream argument"))
           (else (stream-filter strm))))
 
+
   (define (stream-fold proc base strm)
     (cond ((not (procedure? proc)) (error 'stream-fold "non-procedural argument"))
           ((not (stream? strm)) (error 'stream-fold "non-stream argument"))
@@ -153,6 +167,7 @@
                   (if (stream-null? strm)
                       base
                       (loop (proc base (stream-car strm)) (stream-cdr strm)))))))
+
 
   (define (stream-for-each proc . strms)
     (define (stream-for-each strms)
@@ -165,6 +180,7 @@
             (error 'stream-for-each "non-stream argument"))
           (else (stream-for-each strms))))
 
+
   (define (stream-from first . step)
     (define stream-from
       (stream-lambda (first delta)
@@ -174,6 +190,7 @@
             ((not (number? delta)) (error 'stream-from "non-numeric step size"))
             (else (stream-from first delta)))))
 
+
   (define (stream-iterate proc base)
     (define stream-iterate
       (stream-lambda (base)
@@ -181,6 +198,7 @@
     (if (not (procedure? proc))
         (error 'stream-iterate "non-procedural argument")
         (stream-iterate base)))
+
 
   (define (stream-length strm)
     (if (not (stream? strm))
@@ -190,10 +208,12 @@
               len
               (loop (+ len 1) (stream-cdr strm))))))
 
+
   (define-syntax stream-let
     (syntax-rules ()
       ((stream-let tag ((name val) ...) body1 body2 ...)
        ((letrec ((tag (stream-lambda (name ...) body1 body2 ...))) tag) val ...))))
+
 
   (define (stream-map proc . strms)
     (define stream-map
@@ -208,6 +228,7 @@
             (error 'stream-map "non-stream argument"))
           (else (stream-map strms))))
 
+
   (define-syntax stream-match
     (syntax-rules ()
       ((stream-match strm-expr clause ...)
@@ -217,12 +238,14 @@
             ((stream-match-test strm clause) => car) ...
             (else (error 'stream-match "pattern failure")))))))
 
+
   (define-syntax stream-match-test
     (syntax-rules ()
       ((stream-match-test strm (pattern fender expr))
         (stream-match-pattern strm pattern () (and fender (list expr))))
       ((stream-match-test strm (pattern expr))
         (stream-match-pattern strm pattern () (list expr)))))
+
 
   (define-syntax stream-match-pattern 
     (lambda (x)
@@ -247,10 +270,12 @@
         ((stream-match-pattern strm var (binding ...) body) 
           (syntax (let ((var strm) binding ...) body))))))
 
+
   (define-syntax stream-of
     (syntax-rules ()
       ((_ expr rest ...)
         (stream-of-aux expr stream-null rest ...))))
+
 
   (define-syntax stream-of-aux
     (syntax-rules (in is)
@@ -267,6 +292,7 @@
       ((stream-of-aux expr base pred? rest ...)
         (if pred? (stream-of-aux expr base rest ...) base))))
 
+
   (define (stream-range first past . step)
     (define stream-range
       (stream-lambda (first past delta lt?)
@@ -281,6 +307,7 @@
                       (let ((lt? (if (< 0 delta) < >)))
                         (stream-range first past delta lt?)))))))
 
+
   (define (stream-ref strm n)
     (cond ((not (stream? strm)) (error 'stream-ref "non-stream argument"))
           ((not (integer? n)) (error 'stream-ref "non-integer argument"))
@@ -289,6 +316,7 @@
                   (cond ((stream-null? strm) (error 'stream-ref "beyond end of stream"))
                         ((zero? n) (stream-car strm))
                         (else (loop (stream-cdr strm) (- n 1))))))))
+
 
   (define (stream-reverse strm)
     (define stream-reverse
@@ -300,6 +328,7 @@
         (error 'stream-reverse "non-stream argument")
         (stream-reverse strm stream-null)))
 
+
   (define (stream-scan proc base strm)
     (define stream-scan
       (stream-lambda (base strm)
@@ -309,6 +338,7 @@
     (cond ((not (procedure? proc)) (error 'stream-scan "non-procedural argument"))
           ((not (stream? strm)) (error 'stream-scan "non-stream argument"))
           (else (stream-scan base strm))))
+
 
   (define (stream-take n strm)
     (define stream-take
@@ -321,6 +351,7 @@
           ((negative? n) (error 'stream-take "negative argument"))
           (else (stream-take n strm))))
 
+
   (define (stream-take-while pred? strm)
     (define stream-take-while
       (stream-lambda (strm)
@@ -332,6 +363,7 @@
           ((not (procedure? pred?)) (error 'stream-take-while "non-procedural argument"))
           (else (stream-take-while strm))))
 
+
   (define (stream-unfold mapper pred? generator base)
     (define stream-unfold
       (stream-lambda (base)
@@ -342,6 +374,7 @@
           ((not (procedure? pred?)) (error 'stream-unfold "non-procedural pred?"))
           ((not (procedure? generator)) (error 'stream-unfold "non-procedural generator"))
           (else (stream-unfold base))))
+
 
   (define (stream-unfolds gen seed)
     (define (len-values gen seed)
@@ -373,6 +406,7 @@
     (if (not (procedure? gen))
         (error 'stream-unfolds "non-procedural argument")
         (result-stream->output-streams (unfold-result-stream gen seed))))
+
 
   (define (stream-zip . strms)
     (define stream-zip

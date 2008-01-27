@@ -5,6 +5,7 @@
     current-user
     current-user-domain
     get-hostname
+    get-netbiosname
     get-logical-drives
     get-environment-variables
     get-environment-variable
@@ -30,14 +31,18 @@
   (define (current-user-domain)
     (clr-static-prop-get environment userdomainname))
     
-  (define (get-hostname)
+  (define (get-netbiosname)
     (clr-static-prop-get environment machinename))
+    
+  (define (get-hostname)
+    (clr-static-call system.net.dns gethostname))
+    
     
   (define (get-logical-drives)
     (clr-static-call environment getlogicaldrives))    
 
   (define (get-environment-variables)
-    (clr-static-call environment getenvironmentvariables))    ; pray this returns a HT
+    (clr-static-call environment getenvironmentvariables))    ; returns a hashtable
 
   (define (get-environment-variable name)
     (clr-static-call environment getenvironmentvariable name))    

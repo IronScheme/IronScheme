@@ -20,7 +20,7 @@ using Microsoft.Scripting;
 namespace IronScheme.Runtime
 {
   [Serializable]
-  public sealed class Cons : IEnumerable, IEnumerable<object>
+  public sealed class Cons : ICollection, IEnumerable<object>
   {
     internal object car;
     internal object cdr;
@@ -126,8 +126,36 @@ namespace IronScheme.Runtime
     }
 
     #endregion
-  }
 
+    #region ICollection Members
+
+    void ICollection.CopyTo(Array array, int index)
+    {
+      int i = 0;
+      foreach (object var in this)
+      {
+        array.SetValue(var, index + i++);
+      }
+    }
+
+    int ICollection.Count
+    {
+      get { return (int)Builtins.Length(this); }
+    }
+
+    bool ICollection.IsSynchronized
+    {
+      get { return false; }
+    }
+
+    object ICollection.SyncRoot
+    {
+      get { return this; }
+    }
+
+    #endregion
+  }
+#if IDEA
   class ConsCollectionWrapper : ICollection<object>
   {
     readonly Cons head;
@@ -218,4 +246,5 @@ namespace IronScheme.Runtime
 
     #endregion
   }
+#endif
 }

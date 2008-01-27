@@ -79,6 +79,10 @@ namespace IronScheme.Actions
       {
         return true;
       }
+      if (fromType == typeof(object) && level == NarrowingLevel.All)
+      {
+        return true;
+      }
       return false;
     }
 

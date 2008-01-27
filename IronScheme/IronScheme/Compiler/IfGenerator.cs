@@ -28,7 +28,7 @@ namespace IronScheme.Compiler
       int alen = (int)Builtins.Length(args);
       if (alen < 2 || alen > 3)
       {
-        throw new SyntaxErrorException("argument mismatch. expected: (if a b c?) got: " + new Cons("if", args));
+        Builtins.SyntaxError("if", "argument mismatch. expected: (if a b c?) got: " + new Cons("if", args), args, false);
       }
       object test = Builtins.First(args);
       object trueexp = Builtins.Second(args);

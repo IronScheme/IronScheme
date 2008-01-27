@@ -534,7 +534,7 @@ namespace IronScheme.Runtime
         c = ((Cons) c).cdr;
       }
 
-      throw new IndexOutOfRangeException();
+      return AssertionViolation("list-tail", "index out of range", lst, index);
     }
 
     [Builtin("list-ref")]
@@ -552,7 +552,7 @@ namespace IronScheme.Runtime
         list = list.cdr as Cons;
       }
 
-      throw new IndexOutOfRangeException();
+      return AssertionViolation("list-ref", "index out of range", lst, index);
     }
 
     //The resulting list is always newly allocated, except that it shares structure with the last list argument. 
