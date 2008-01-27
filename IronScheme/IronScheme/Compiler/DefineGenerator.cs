@@ -46,7 +46,7 @@ namespace IronScheme.Compiler
         }
         //Expression r = Ast.Comma(Ast.Assign(v, value), Ast.ReadField(null, Unspecified));
         Expression r = Ast.Assign(v, value);
-        if (cb.IsGlobal && cb.Name != "__toploop__")
+        if (cb.IsGlobal && cb.Name != "__toploop__") // this is still needed for lowlevel macros
         {
           object o = r.Evaluate(Context);
         }

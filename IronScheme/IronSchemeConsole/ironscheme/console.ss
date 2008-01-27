@@ -35,12 +35,12 @@
   (define buffer-width
     (case-lambda
       [()           (clr-static-prop-get console bufferwidth)]
-      [(value)      (clr-static-prop-get! console bufferwidth value)]))
+      [(value)      (clr-static-prop-set! console bufferwidth value)]))
 
   (define buffer-height
     (case-lambda
       [()           (clr-static-prop-get console bufferheight)]
-      [(value)      (clr-static-prop-get! console bufferheight value)]))
+      [(value)      (clr-static-prop-set! console bufferheight value)]))
 
   (define (set-buffer-size! w h)
     (clr-static-call console setbuffersize w h))       
@@ -48,12 +48,12 @@
   (define window-width
     (case-lambda
       [()           (clr-static-prop-get console windowwidth)]
-      [(value)      (clr-static-prop-get! console windowwidth value)]))
+      [(value)      (clr-static-prop-set! console windowwidth value)]))
 
   (define window-height
     (case-lambda
       [()           (clr-static-prop-get console windowheight)]
-      [(value)      (clr-static-prop-get! console windowheight value)]))
+      [(value)      (clr-static-prop-set! console windowheight value)]))
 
   (define (set-window-size! w h)
     (clr-static-call console setwindowsize w h))   

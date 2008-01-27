@@ -538,7 +538,7 @@ namespace IronScheme.Compiler
       {
         if (c.cdr != null && !(c.cdr is Cons))
         {
-          throw new NotSupportedException("improper list cant be used as an expression");
+          Builtins.SyntaxError("GetAstList", "improper list cant be used as an expression", c, false);
         }
         Expression ex = GetAst(c.car, cb);
         if (castdown && ex.Type.IsValueType)

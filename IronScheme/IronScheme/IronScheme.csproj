@@ -52,7 +52,6 @@
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
-    <Compile Include="Compiler\ApplyGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
     <Compile Include="Compiler\LetrecGenerator.cs" />
     <Compile Include="Compiler\Helper.cs" />

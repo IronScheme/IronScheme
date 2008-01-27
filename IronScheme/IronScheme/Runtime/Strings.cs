@@ -66,7 +66,7 @@ namespace IronScheme.Runtime
         sb[k] = (char)value;
         return Unspecified;
       }
-      throw new NotImplementedException();
+      return AssertionViolation("string-set!", "not a mutable string", obj);
     }
 
     [Builtin("string-fill!")]
@@ -413,6 +413,13 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+
+    [Builtin("string-format")]
+    public static string StringFormat(object format, params object[] args)
+    {
+      string f = GetString(format);
+      return string.Format(f, args);
+    }
 
   }
 }

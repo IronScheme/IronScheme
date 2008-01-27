@@ -170,7 +170,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
       if (ki < 0)
       {
-        throw new SchemeException("bitwise-bit-set?", "k is negative", new string[] { k.ToString() });
+        AssertionViolation("bitwise-bit-set?", "k is negative", k);
       }
 
       if (bi == 0)
