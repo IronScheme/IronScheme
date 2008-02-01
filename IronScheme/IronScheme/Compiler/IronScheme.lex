@@ -54,7 +54,7 @@ new_line               \n|\r\n|\r
 digit                  [0-9]
 letter                 [a-zA-Z]
 idinitial              {letter}|[!$%*/:<=>?~_^&]
-subsequent             {idinitial}|{digit}|[\.\+@]|"-"
+subsequent             {idinitial}|{digit}|[\.\+@]|"-"|"[]"
 identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 
 
