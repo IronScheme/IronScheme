@@ -34,7 +34,8 @@ namespace IronScheme.Compiler
 
     protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
-    protected static Regex typeparser = new Regex(@"(?<ns>([^\s.<]+\.)*)(?<type>[^\s.<]+)(?<args>(<[^>]+>)?)"); // last bit has to be greedy
+    protected static Regex typeparser = new Regex(@"(?<ns>([^\s.<]+\.)*)(?<type>[^\s.<\[]+)(?<args>(<[^>]+>)?)(?<isarray>\[\])?",
+      RegexOptions.Compiled | RegexOptions.ExplicitCapture); // last bit has to be greedy, greedy wont help, need to figure out nesting constructs
 
     //this clearly wont scale well at all...
     protected static Type GetType(string nsandname)
@@ -46,6 +47,9 @@ namespace IronScheme.Compiler
       }
 
       string am = m.Groups["args"].Value;
+
+      bool isarray = m.Groups["isarray"].Success;
+
 
       string[] genargs = am.Length > 0 ? am.Substring(1, am.Length - 2).Split('&') : new string[0];
 
@@ -73,13 +77,19 @@ namespace IronScheme.Compiler
             string nsm = t.Namespace + "." + tname;
             nsm = nsm.ToLower();
 
+            Type tt = t;
+
             if (nsm == nsandname)
             {
               if (gentypes.Length == genargsc && gentypes.Length > 0)
               {
-                return t.MakeGenericType(gentypes);
+                tt = tt.MakeGenericType(gentypes);
               }
-              return t;
+              if (isarray)
+              {
+                tt = tt.MakeArrayType();
+              }
+              return tt;
             }
             else if (tname.ToLower() == nsandname)
             {
@@ -87,9 +97,13 @@ namespace IronScheme.Compiler
               {
                 if (gentypes.Length == genargsc && gentypes.Length > 0)
                 {
-                  return t.MakeGenericType(gentypes);
+                  tt = tt.MakeGenericType(gentypes);
                 }
-                return t;
+                if (isarray)
+                {
+                  tt = tt.MakeArrayType();
+                }
+                return tt;
               }
             }
           }
