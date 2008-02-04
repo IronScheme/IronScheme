@@ -372,7 +372,7 @@ namespace IronScheme.Runtime
       {
         if (args.Length + 1 < pcount)
         {
-          AssertionViolation(GetWho(), "invalid argument count", args);
+          AssertionViolation(realtarget.ToString(), "invalid argument count", args);
         }
         object[] newargs = new object[pcount];
         Array.Copy(args, newargs, pcount - 1);
@@ -434,7 +434,7 @@ namespace IronScheme.Runtime
           }
         }
 
-        return AssertionViolation(GetWho(), "invalid argument count", args);
+        return AssertionViolation(targets[0].ToString(), "invalid argument count", args);
       }
 
       public override object Call()

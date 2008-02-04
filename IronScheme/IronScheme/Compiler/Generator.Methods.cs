@@ -64,6 +64,7 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo CallTargetN_Invoke = typeof(CallTargetN).GetMethod("Invoke");
 
     protected static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
+    protected static readonly ConstructorInfo Fraction_New = typeof(Fraction).GetConstructor(new Type[] { typeof(long), typeof(long) });
 
     protected internal static MethodInfo GetCallable(int arity)
     {

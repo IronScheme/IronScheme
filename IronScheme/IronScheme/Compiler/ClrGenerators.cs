@@ -31,6 +31,8 @@ namespace IronScheme.Compiler
     protected static MethodInfo Helpers_ConvertToDelegate = typeof(Helpers).GetMethod("ConvertToDelegate");
     protected static MethodInfo Helpers_SymbolToEnum = typeof(Helpers).GetMethod("SymbolToEnum");
     protected static MethodInfo Helpers_EnumToSymbol = typeof(Helpers).GetMethod("EnumToSymbol");
+    protected static MethodInfo Helpers_Requires = typeof(Helpers).GetMethod("Requires");
+    protected static MethodInfo Helpers_RequiresNotNull = typeof(Helpers).GetMethod("RequiresNotNull");
 
     protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
@@ -150,7 +152,7 @@ namespace IronScheme.Compiler
           }
           else
           {
-            return Ast.ConvertHelper(e, t);
+            return Ast.Call(Helpers_Requires.MakeGenericMethod(t), e);
           }
     }
   }
@@ -233,12 +235,13 @@ namespace IronScheme.Compiler
 
       CallType ct = CallType.ImplicitInstance;
 
-      if (instance is ConstantExpression)
+      if (instance is ConstantExpression && ((ConstantExpression)instance).Value == null)
       {
-        if (((ConstantExpression)instance).Value == null)
-        {
-          ct = CallType.None;
-        }
+        ct = CallType.None;
+      }
+      else
+      {
+        instance = Ast.Call(Helpers_RequiresNotNull.MakeGenericMethod(t), instance);
       }
 
       Expression[] arguments = GetAstListNoCast(Builtins.Cdddr(args) as Cons, cb);
@@ -426,14 +429,7 @@ namespace IronScheme.Compiler
 
       Expression obj = GetAst(Builtins.Second(args), cb);
 
-      if (t.BaseType == typeof(MulticastDelegate))
-      {
-        return Ast.Call( Helpers_ConvertToDelegate.MakeGenericMethod(t), obj);
-      }
-      else
-      {
-        return Ast.ConvertHelper(obj, t);
-      }
+      return ConvertToHelper(t, obj);
     }
   }
 

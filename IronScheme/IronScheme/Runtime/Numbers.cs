@@ -18,6 +18,7 @@ using Microsoft.Scripting.Math;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime
 {
@@ -265,6 +266,8 @@ namespace IronScheme.Runtime
         return sign == '-' ? double.NegativeInfinity : double.PositiveInfinity;
       }
       // TODO parse complex
+      string[] tokens = Regex.Split(str, "[+-]");
+
       return false;
     }
 

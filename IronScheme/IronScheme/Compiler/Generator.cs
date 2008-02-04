@@ -122,6 +122,11 @@ namespace IronScheme.Compiler
         }
         return GetConsVector(v, cb);
       }
+      else if (args is Fraction)
+      {
+        Fraction f = (Fraction) args;
+        return Ast.New(Fraction_New, Ast.Constant(f.Numerator), Ast.Constant(f.Denominator));
+      }
       else
       {
         return Ast.Constant(args);
@@ -305,6 +310,11 @@ namespace IronScheme.Compiler
         if (args == Builtins.Unspecified)
         {
           return Ast.ReadField(null, Unspecified);
+        }
+        if (args is Fraction)
+        {
+          Fraction f = (Fraction)args;
+          return Ast.New(Fraction_New, Ast.Constant(f.Numerator), Ast.Constant(f.Denominator));
         }
         return Ast.Constant(args);
       }

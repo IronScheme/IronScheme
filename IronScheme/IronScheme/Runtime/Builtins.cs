@@ -104,11 +104,6 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Builtin(":optional")]
-    public static object Optional(object obj, object def)
-    {
-      return obj ?? def;
-    }
 
     [Builtin("defined?")]
     public static object IsDefined(CodeContext cc, object sym)
@@ -356,90 +351,6 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-    
-    [Builtin("macro-expand1")]
-    public static object MacroExpand1(CodeContext cc, object args)
-    {
-      object result = SyntaxExpander.Expand(args);
-      return result;
-    }
-
-    #region console
-
-
-    [Builtin]
-    public static object prl(object obj1)
-    {
-      return prl(new object[] { obj1 });
-    }
-
-    [Builtin]
-    public static object prl(object obj1, object obj2)
-    {
-      return prl(new object[] { obj1, obj2 });
-    }
-
-    [Builtin]
-    public static object prl(object obj1, object obj2, object obj3)
-    {
-      return prl(new object[] { obj1, obj2, obj3 });
-    }
-
-    [Builtin]
-    public static object prl(params object[] args)
-    {
-      Debug.Assert(args != null);
-      object o = null;
-      foreach (object arg in args)
-      {
-        string s = DisplayFormat(arg);
-        Console.WriteLine(s);
-        o = arg;
-      }
-      return o;
-    }
-
-    [Builtin]
-    public static object cwl(object str)
-    {
-      Console.WriteLine(str);
-      return str as string;
-    }
-
-    [Builtin]
-    public static object cwl(object format, object arg1)
-    {
-      string r = string.Format(format as string, arg1);
-      Console.WriteLine(r);
-      return r;
-    }
-
-    [Builtin]
-    public static object cwl(object format, object arg1, object arg2)
-    {
-      string r = string.Format(format as string, arg1, arg2);
-      Console.WriteLine(r);
-      return r;
-    }
-
-    [Builtin]
-    public static object cwl(object format, object arg1, object arg2, object arg3)
-    {
-      string r = string.Format(format as string, arg1, arg2, arg3);
-      Console.WriteLine(r);
-      return r;
-    }
-
-
-    [Builtin]
-    public static object cwl(object format, params object[] args)
-    {
-      string r = string.Format(format as string, args);
-      Console.WriteLine(r);
-      return r;
-    }
-
-    #endregion
 
     static void RequiresCondition(bool condition, string message)
     {

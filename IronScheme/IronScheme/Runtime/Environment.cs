@@ -25,48 +25,6 @@ using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
-  public class SchemeException : Exception
-  {
-    readonly string who, message;
-    readonly string[] irritants;
-
-    public SchemeException(string who, string message, string[] irritants) : base()
-    {
-      this.who = who;
-      this.message = message;
-      this.irritants = irritants;
-    }
-
-    static string FormatMessage(string msg, params string[] args)
-    {
-      int s = 0, i = 0;
-      while ((s = msg.IndexOf("~s", s)) >= 0)
-      {
-        msg = msg.Substring(0, s) + args[i] + msg.Substring(s + 2);
-      }
-
-      return msg;
-
-    }
-
-    public override string Message
-    {
-      get
-      {
-        List<string> ii = new List<string>();
-        for (int i = 0; i < irritants.Length; i++)
-        {
-          ii.Add(string.Format("    [{0}]\t{1}", i, irritants[i]));
-        }
-        return string.Format(@"error!
-who:        {0}
-message:    {1}
-irritants:
-{2}", who, FormatMessage(message, irritants), string.Join(Environment.NewLine, ii.ToArray()));
-      }
-    }
-
-  }
 
   public partial class Builtins
   {
@@ -74,24 +32,6 @@ irritants:
     public static object IsR6RSMode()
     {
       return true;
-    }
-
-    [Builtin("interaction-environment")]
-    public static object InteractionEnvironment()
-    {
-      return false;
-    }
-
-    [Builtin("null-environment")]
-    public static object NullEnvironment(object version)
-    {
-      return false;
-    }
-
-    [Builtin("scheme-report-environment")]
-    public static object SchemeReportEnvironment(object version)
-    {
-      return false;
     }
 
     public static object UndefinedError(object sym)
@@ -183,20 +123,6 @@ irritants:
       return Unspecified;
     }
 
-
-    [Builtin("eval-string")]
-    public static object EvalString(CodeContext cc, string expr)
-    {
-      SourceUnit su = SourceUnit.CreateSnippet(ScriptEngine, expr);
-      Stopwatch sw = Stopwatch.StartNew();
-      ScriptCode sc = cc.LanguageContext.CompileSourceCode(su);
-      Trace.WriteLine(sw.ElapsedMilliseconds, "Compile - EvalString");
-      sw = Stopwatch.StartNew();
-      object result = sc.Run(cc.Scope, cc.ModuleContext, false); // causes issues :(
-      Trace.WriteLine(sw.ElapsedMilliseconds, "Run - EvalString");
-      return result;
-    }
-
     static int symcount = 0;
 
     [Builtin]
@@ -219,24 +145,5 @@ irritants:
         return SymbolTable.StringToId("g$" + s + "$" + symcount++);
       }
     }
-
-    [Builtin]
-    public static object Eval(CodeContext cc, object expr)
-    {
-      Cons list = expr as Cons;
-      if (list != null)
-      {
-        // we could modify the parser to accept this cons perhaps? this is easy and cheap for now
-        string exprstr = WriteFormat(list);
-        return EvalString(cc, exprstr);
-      }
-      if (expr is SymbolId)
-      {
-        return cc.LanguageContext.LookupName(cc, (SymbolId)expr);
-      }
-
-      return expr;
-    }
-
   }
 }

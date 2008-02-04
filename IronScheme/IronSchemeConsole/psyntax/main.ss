@@ -48,7 +48,7 @@
       (exit 17))
     (let ((script-name (car args)) (args (cdr args)))
       (load-r6rs-top-level (car args))))
-  ;; return 'hook'
+  ;; return 'hook', we are cheap :)
   eval-top-level
   )
 
