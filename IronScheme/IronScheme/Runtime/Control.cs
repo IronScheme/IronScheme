@@ -70,6 +70,12 @@ namespace IronScheme.Runtime
       }
       return Ast.NewArray(typeof(object[]), values);
     }
+
+    [InlineEmitter("call-with-current-continuation"), InlineEmitter("call/cc")]
+    public static Expression CallCC(Expression[] args)
+    {
+      return null;
+    }
   }
 
   public partial class Builtins

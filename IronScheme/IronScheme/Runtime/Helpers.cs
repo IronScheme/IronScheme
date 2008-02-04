@@ -4,6 +4,8 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.Scripting;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -40,7 +42,7 @@ namespace IronScheme.Runtime
 
     public static T SymbolToEnum<T>(object symbol)
     {
-      string name = Builtins.SymbolToString(symbol) as string;
+      string name = SymbolTable.IdToString(RequiresNotNull<SymbolId>(symbol));
       try
       {
         return (T)Enum.Parse(typeof(T), name, true);
@@ -50,6 +52,45 @@ namespace IronScheme.Runtime
         Builtins.AssertionViolation("symbol-to-enum", ex.Message, symbol, typeof(T));
         return default(T);
       }
+    }
+
+    public static T Requires<T>(object obj)
+    {
+      if (obj != null && !(obj is T))
+      {
+        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+      }
+      if (obj == null && typeof(T).IsValueType)
+      {
+        Builtins.AssertionViolation(GetCaller(), "value type cannot be null", typeof(T).Name);
+      }
+      return (T)obj;
+    }
+
+    static SymbolId GetCaller()
+    {
+      StackTrace st = new StackTrace(2);
+      MethodBase m = st.GetFrame(0).GetMethod();
+      foreach (BuiltinAttribute ba in m.GetCustomAttributes(typeof(BuiltinAttribute), false))
+      {
+        return SymbolTable.StringToId(ba.Name ?? m.Name.ToLower());
+      }
+      return SymbolTable.StringToId(m.Name.ToLower());
+    }
+
+    public static T RequiresNotNull<T>(object obj)
+    {
+      if (obj == null)
+      {
+        Builtins.AssertionViolation(GetCaller(), "argument cannot be null");
+      }
+
+      if (obj != null && !(obj is T))
+      {
+        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+      }
+
+      return (T)obj;
     }
 
     static Helpers()

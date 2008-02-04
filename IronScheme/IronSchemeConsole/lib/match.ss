@@ -91,8 +91,14 @@
 
 
 (library (match)
-  (export match trace-match guard ... quasiquote unquote
-          unquote-splicing)
+  (export match 
+          trace-match 
+          ;match+ 
+          ;trace-match+ 
+          match-equality-test 
+          trace-match/lexical-context 
+          match/lexical-context 
+          guard ... quasiquote unquote unquote-splicing)
   (import (ironscheme))
 
 (define-syntax add1
@@ -130,6 +136,13 @@
       ((ctxt Exp Clause ...)
        #'(let f ((x Exp))
            (match-help ctxt f x () Clause ...))))))
+           
+(define-syntax match/lexical-context
+  (lambda (x)
+    (syntax-case x ()
+      ((_ ctxt Exp Clause ...)
+       #'(let f ((x Exp))
+           (match-help ctxt f x () Clause ...))))))           
 
 (define-syntax trace-match+
   (lambda (x)
@@ -146,6 +159,14 @@
        #'(letrec ((f (trace-lambda Name (x)
                        (match-help ctxt f x () Clause ...))))
            (f Exp))))))
+
+(define-syntax trace-match/lexical-context
+  (lambda (x)
+    (syntax-case x ()
+      ((_ ctxt Name Exp Clause ...)
+       #'(letrec ((f (trace-lambda Name (x)
+                       (match-help ctxt f x () Clause ...))))
+           (f Exp))))))             
 
 ;;; ------------------------------
 

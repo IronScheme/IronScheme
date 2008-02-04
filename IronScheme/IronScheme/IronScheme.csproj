@@ -93,6 +93,7 @@
     </Compile>
     <Compile Include="Runtime\Characters.cs" />
     <Compile Include="Runtime\Cons.cs" />
+    <Compile Include="Runtime\Continuation.cs" />
     <Compile Include="Runtime\Control.cs" />
     <Compile Include="Runtime\Environment.cs" />
     <Compile Include="Runtime\Equality.cs">

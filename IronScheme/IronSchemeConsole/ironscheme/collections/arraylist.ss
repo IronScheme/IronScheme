@@ -2,25 +2,29 @@
   (export
     make-arraylist
     arraylist?
-    arraylist-clear!
-    arraylist-contains?
-    arraylist-indexof
     arraylist-lastindexof
     arraylist-addrange!
-    arraylist-add!
-    arraylist-insert!
     arraylist-insertrange!
-    arraylist-removeat!
-    arraylist-remove!
     arraylist-removerange!
     arraylist-sort!
     arraylist->vector
-    arraylist-count
     arraylist-clone
-    arraylist-reverse!)
+    arraylist-reverse!
+    (rename 
+      (ilist-add! arraylist-add!)
+      (ilist-insert! arraylist-insert!)
+      (ilist-removeat! arraylist-removeat!)
+      (ilist-remove! arraylist-remove!)
+      (ilist-count arraylist-count)
+      (ilist-clear! arraylist-clear!)
+      (ilist-contains? arraylist-contains?)
+      (ilist-indexof arraylist-indexof)
+      (ilist-ref arraylist-ref)
+      (ilist-set! arraylist-set!)))
   (import 
     (rnrs)
-    (ironscheme clr))
+    (ironscheme clr)
+    (ironscheme collections ilist))
 
   (clr-using system.collections)
   
@@ -31,15 +35,6 @@
     
   (define (arraylist? o)
     (clr-is arraylist o))
-  
-  (define (arraylist-clear! s)
-    (clr-call arraylist clear s))
-  
-  (define (arraylist-contains? s o)
-    (clr-call arraylist contains s o))
-
-  (define (arraylist-indexof s o)
-    (clr-call arraylist indexof s o))
     
   (define (arraylist-lastindexof s o)
     (clr-call arraylist lastindexof s o))    
@@ -50,20 +45,8 @@
   (define (arraylist-insertrange! s n c)
     (clr-call arraylist insertrange s n c))
 
-  (define (arraylist-insert! s n o)
-    (clr-call arraylist insert s n o))
-
-  (define (arraylist-add! s o)
-    (clr-call arraylist add s o))
-    
   (define (arraylist-removerange! s start c)
     (clr-call arraylist removerange s start c))    
-  
-  (define (arraylist-remove! s o)
-    (clr-call arraylist remove s o))
-    
-  (define (arraylist-removeat! s n)
-    (clr-call arraylist removeat s n))    
   
   (define (arraylist-sort! s)
     (clr-call arraylist sort s))
@@ -73,9 +56,6 @@
     
   (define (arraylist-clone s)
     (clr-call arraylist clone s))
-    
-  (define (arraylist-count s)
-    (clr-prop-get arraylist count s))
   
   (define (arraylist-reverse! s)
     (clr-call arraylist reverse s))
