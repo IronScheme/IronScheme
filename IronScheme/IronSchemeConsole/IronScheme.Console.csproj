@@ -222,6 +222,9 @@
     <None Include="lib\pregexp.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\schelog.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\testing.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
