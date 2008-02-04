@@ -4,9 +4,10 @@
 ;An embedding of Prolog in Scheme
 ;Dorai Sitaram
 ;1989, revised Feb. 1993, Mar. 1997
-;2008 ported to R6RS - leppie
+; 2008 ported to R6RS - leppie
 ; does not work on IronScheme due to lack of proper continuations... :(
 ; works happily on Ikarus
+; http://www.ccs.neu.edu/home/dorai/schelog/schelog.html
 
 ;logic variables and their manipulation
 
