@@ -54,10 +54,63 @@ namespace IronScheme.Runtime
       }
     }
 
+    static object ConvertSchemeObject<T>(object o)
+    {
+      try
+      {
+        switch (Type.GetTypeCode(typeof(T)))
+        {
+          case TypeCode.Boolean:
+            return Convert.ToBoolean(o);
+          case TypeCode.Byte:
+            return Convert.ToByte(o);
+          case TypeCode.Char:
+            return Convert.ToChar(o);
+          case TypeCode.DateTime:
+            return Convert.ToDateTime(o);
+          case TypeCode.Decimal:
+            return Convert.ToDecimal(o);
+          case TypeCode.Double:
+            return Convert.ToDouble(o);
+          case TypeCode.Int16:
+            return Convert.ToInt16(o);
+          case TypeCode.Int32:
+            return Convert.ToInt32(o);
+          case TypeCode.Int64:
+            return Convert.ToInt64(o);
+          case TypeCode.SByte:
+            return Convert.ToSByte(o);
+          case TypeCode.Single:
+            return Convert.ToSingle(o);
+          case TypeCode.String:
+            return Convert.ToString(o);
+          case TypeCode.UInt16:
+            return Convert.ToUInt16(o);
+          case TypeCode.UInt32:
+            return Convert.ToUInt32(o);
+          case TypeCode.UInt64:
+            return Convert.ToUInt64(o);
+          default:
+            return null;
+        }
+      }
+      catch
+      {
+        // nothing i can do now :\
+        return null;
+      }
+    }
+
     public static T Requires<T>(object obj)
     {
       if (obj != null && !(obj is T))
       {
+        // no way pass a box op :(
+        object o = ConvertSchemeObject<T>(obj);
+        if (o != null)
+        {
+          return (T)o;
+        }
         Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
       }
       if (obj == null && typeof(T).IsValueType)
@@ -87,6 +140,12 @@ namespace IronScheme.Runtime
 
       if (obj != null && !(obj is T))
       {
+        // no way pass a box op :(
+        object o = ConvertSchemeObject<T>(obj);
+        if (o != null)
+        {
+          return (T)o;
+        }
         Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
       }
 

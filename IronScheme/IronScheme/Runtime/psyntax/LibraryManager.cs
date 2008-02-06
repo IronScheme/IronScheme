@@ -10,7 +10,7 @@ namespace IronScheme.Runtime.psyntax
     [Builtin("clr-library-locator")]
     public static object GetCLRLibrary(object libspec)
     {
-      return false;
+      return FALSE;
     }
   }
 }

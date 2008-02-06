@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return false;
+        return FALSE;
       }
     }
 
@@ -69,7 +69,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return false;
+        return FALSE;
       }
     }
 
@@ -90,7 +90,7 @@ namespace IronScheme.Runtime
         {
           if (!Equals(r, obj3))
           {
-            return false;
+            return FALSE;
           }
         }
       }

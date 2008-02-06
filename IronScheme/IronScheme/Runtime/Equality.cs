@@ -79,7 +79,7 @@ namespace IronScheme.Runtime
 
       if (first == null ^ second == null)
       {
-        return false;
+        return FALSE;
       }
 
       bool c1 = first is Cons;
@@ -92,12 +92,12 @@ namespace IronScheme.Runtime
 
       if (s1 && c2 || s2 && c1)
       {
-        return false;
+        return FALSE;
       }
 
       if ((bool)IsEqualValue(first, second))
       {
-        return true;
+        return TRUE;
       }
 
       Type t1 = first.GetType();
@@ -113,7 +113,7 @@ namespace IronScheme.Runtime
 
       bool result = w1 == w2;
 
-      return result;
+      return GetBool(result);
     }
 
     [Builtin("eq?")]
@@ -122,16 +122,16 @@ namespace IronScheme.Runtime
       // one exception, symbols
       if (first is SymbolId && second is SymbolId)
       {
-        return Equals(first, second);
+        return GetBool(Equals(first, second));
       }
 
-      return ReferenceEquals(first, second);
+      return GetBool(ReferenceEquals(first, second));
     }
 
     [Builtin("eqv?")]
     public static object IsEqualValue(object first, object second)
     {
-      return ((bool)IsEqual(first, second)) || Equals(first, second);
+      return GetBool(((bool)IsEqual(first, second)) || Equals(first, second));
     }
 
   }

@@ -43,7 +43,7 @@ namespace IronScheme.Runtime
     [Builtin("boolean?")]
     public static object IsBoolean(object obj)
     {
-      return obj is bool; 
+      return GetBool(obj is bool); 
     }
 
 
@@ -57,17 +57,20 @@ namespace IronScheme.Runtime
     {
       if (obj is bool)
       {
-        return !(bool)obj;
+        return GetBool(!(bool)obj);
       }
-      return !IsTrue(obj);
+      return GetBool(!IsTrue(obj));
     }
 
-
+    static object GetBool(bool v)
+    {
+      return v ? TRUE : FALSE;
+    }
 
     [Builtin("boolean=?")]
     public static object IsAllSameBoolean(object obj1, object obj2)
     {
-      return Equals(obj1, obj2);
+      return GetBool(Equals(obj1, obj2));
     }
 
     [Builtin("boolean=?")]
@@ -80,11 +83,11 @@ namespace IronScheme.Runtime
         {
           if (!Equals(r, obj3))
           {
-            return false;
+            return FALSE;
           }
         }
       }
-      return h;
+      return GetBool(h);
     }
 
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting;
-
+#if CCIDEA
 namespace IronScheme.Runtime
 {
   public class Continuation : Generator
@@ -17,3 +17,4 @@ namespace IronScheme.Runtime
     }
   }
 }
+#endif

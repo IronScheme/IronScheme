@@ -288,6 +288,7 @@
     (create-directory                           i)
     (get-files                                  i)
     (get-directories                            i)
+    (expand                                     i)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)

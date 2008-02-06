@@ -175,7 +175,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
       if (bi == 0)
       {
-        return false;
+        return FALSE;
       }
       else
       {
@@ -184,12 +184,12 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         {
           if ((int)(bi & 1) == 1 && count == ki)
           {
-            return true;
+            return TRUE;
           }
           count++;
           bi >>= 1;
         }
-        return false;
+        return FALSE;
       }
     }
     

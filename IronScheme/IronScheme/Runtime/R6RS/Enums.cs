@@ -87,7 +87,7 @@ namespace IronScheme.Runtime.R6RS
         int i = enumordermap[t].IndexOf(SymbolTable.IdToString((SymbolId)symbol));
         if (i < 0)
         {
-          return false;
+          return FALSE;
         }
         return i;
       };
@@ -180,15 +180,15 @@ namespace IronScheme.Runtime.R6RS
           bool has2 = (enummap[t2][s] & v2) != 0;
           if (has1 & !has2)
           {
-            return false;
+            return FALSE;
           }
         }
         else
         {
-          return false;
+          return FALSE;
         }
       }
-      return true;
+      return TRUE;
     }
 
     // * (enum-set=? enum-set1 enum-set2)
@@ -209,7 +209,7 @@ namespace IronScheme.Runtime.R6RS
       Type t2 = enumset2.GetType();
       if (t1 != t2)
       {
-        return false;
+        return FALSE;
       }
       return Enum.ToObject(t1, (long)enumset1 | (long)enumset2);
     }
@@ -225,7 +225,7 @@ namespace IronScheme.Runtime.R6RS
       Type t2 = enumset2.GetType();
       if (t1 != t2)
       {
-        return false;
+        return FALSE;
       }
       return Enum.ToObject(t1, (long)enumset1 & (long)enumset2);
     }
@@ -241,7 +241,7 @@ namespace IronScheme.Runtime.R6RS
       Type t2 = enumset2.GetType();
       if (t1 != t2)
       {
-        return false;
+        return FALSE;
       }
       return Enum.ToObject(t1, (long)enumset1 ^ (long)enumset2);
     }

@@ -45,6 +45,10 @@ namespace IronScheme.Runtime
           return f.Call();
         }
       }
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("with-input-from-file", ex.Message, filename);
+      }
       catch (Exception ex)
       {
         return AssertionViolation("with-input-from-file", ex.Message, filename);
@@ -76,6 +80,11 @@ namespace IronScheme.Runtime
           return f.Call();
         }
       }
+        //todo
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("with-output-file", ex.Message, filename);
+      }
       catch (Exception ex)
       {
         return AssertionViolation("with-output-from-file", ex.Message, filename);
@@ -105,7 +114,7 @@ namespace IronScheme.Runtime
           return Assembly.Load(ass);
         }
       }
-      AssertionViolation("AssemblyLoad", "File not found", path);
+      FileNotFoundViolation(FALSE, "file not found", path);
       return null;
     }
 
@@ -134,62 +143,63 @@ namespace IronScheme.Runtime
       switch (Path.GetExtension(path))
       {
         case ".dll":
-          Assembly ext = AssemblyLoad(path);
-          if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
-          {
-            IronScheme.Compiler.Generator.AddGenerators(cc, ext);
 
-            foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
+            Assembly ext = AssemblyLoad(path);
+            if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
             {
-              if (ea.BuiltinsType != null)
+              IronScheme.Compiler.Generator.AddGenerators(cc, ext);
+
+              foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
               {
-                IronScheme.Compiler.Generator.AddBuiltins(cc, ea.BuiltinsType);
-              }
-              if (ea.ScriptResource != null)
-              {
-                //TODO: ExtensionAttribute.ScriptResource
-              }
-            }
-          }
-          else
-          {
-            // just reference.?
-          }
-          break;
-        case ".exe":
-          Assembly mod = AssemblyLoad(path);
-          MethodInfo entry = null;
-          foreach (Type t in mod.GetExportedTypes())
-          {
-            if (t.BaseType == typeof(CustomSymbolDictionary))
-            {
-              List<Type> ii = new List<Type>(t.GetInterfaces());
-              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
-              {
-                entry = t.GetMethod("Initialize");
-                if (entry != null)
+                if (ea.BuiltinsType != null)
                 {
-                  break;
+                  IronScheme.Compiler.Generator.AddBuiltins(cc, ea.BuiltinsType);
+                }
+                if (ea.ScriptResource != null)
+                {
+                  //TODO: ExtensionAttribute.ScriptResource
                 }
               }
             }
-          }
+            else
+            {
+              // just reference.?
+            }
+          break;
+        case ".exe":
+            Assembly mod = AssemblyLoad(path);
+            MethodInfo entry = null;
+            foreach (Type t in mod.GetExportedTypes())
+            {
+              if (t.BaseType == typeof(CustomSymbolDictionary))
+              {
+                List<Type> ii = new List<Type>(t.GetInterfaces());
+                if (ii.Contains(typeof(IModuleDictionaryInitialization)))
+                {
+                  entry = t.GetMethod("Initialize");
+                  if (entry != null)
+                  {
+                    break;
+                  }
+                }
+              }
+            }
 
-          if (entry == null)
-          {
-            // what now?
-            goto case ".dll";
-          }
-          else
-          {
-            IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
-              IModuleDictionaryInitialization;
+            if (entry == null)
+            {
+              // what now?
+              goto case ".dll";
+            }
+            else
+            {
+              IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
+                IModuleDictionaryInitialization;
 
-            init.InitializeModuleDictionary(cc);
+              init.InitializeModuleDictionary(cc);
 
-            CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
-            return t(cc);
-          }
+              CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
+              return t(cc);
+            }
           //break;
         default:
           //HACK: but it helps
@@ -228,12 +238,21 @@ namespace IronScheme.Runtime
 
             return result;
           }
+          catch (FileNotFoundException ex)
+          {
+            return FileNotFoundViolation("load", ex.Message, filename);
+          }
           catch (Exception ex)
           {
             return AssertionViolation("load", ex.Message, filename);
           }
           finally
           {
+            // reset hack
+            if (path.Contains("ironscheme.boot.pp"))
+            {
+              Compiler.Generator.variablelocation = Microsoft.Scripting.Ast.Variable.VariableKind.Local;
+            }
             GC.Collect();
           }
           //break;
@@ -844,6 +863,10 @@ namespace IronScheme.Runtime
           return result;
         }
       }
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("call-with-input-file", ex.Message, filename);
+      }
       catch (Exception ex)
       {
         return AssertionViolation("call-with-input-file", ex.Message, filename);
@@ -862,6 +885,11 @@ namespace IronScheme.Runtime
         {
           return f.Call(w);
         }
+      }
+        // todo
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("call-with-output-file", ex.Message, filename);
       }
       catch (Exception ex)
       {
@@ -901,6 +929,10 @@ namespace IronScheme.Runtime
       {
         return File.OpenText(GetPath(fn));
       }
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("open-input-file", ex.Message, filename);
+      }
       catch (Exception ex)
       {
         return AssertionViolation("open-input-file", ex.Message, filename);
@@ -914,6 +946,11 @@ namespace IronScheme.Runtime
       try
       {
         return File.CreateText(GetPath(fn));
+      }
+        //todo
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("open-output-file", ex.Message, filename);
       }
       catch (Exception ex)
       {

@@ -74,14 +74,14 @@ namespace IronScheme.Runtime.R6RS
         {
           if (bv1[i] != bv2[i])
           {
-            return false;
+            return FALSE;
           }
         }
 
-        return true;
+        return TRUE;
       }
 
-      return false;
+      return FALSE;
     }
 
     [Builtin("bytevector-fill!")]

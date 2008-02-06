@@ -25,6 +25,22 @@ namespace IronScheme.Runtime.R6RS
 {
   public abstract class Condition : Exception
   {
+    static IEnumerable<FieldDescriptor> GetFields(RecordTypeDescriptor rtd)
+    {
+      if (rtd == null)
+      {
+        yield break;
+      }
+      foreach (FieldDescriptor fd in rtd.fields)
+      {
+        yield return fd;
+      }
+      foreach (FieldDescriptor fd in GetFields(rtd.parent))
+      {
+        yield return fd;
+      }
+    }
+
     public override string ToString()
     {
       RecordTypeDescriptor rtd = Records.RecordRtd(this) as RecordTypeDescriptor;
@@ -32,15 +48,16 @@ namespace IronScheme.Runtime.R6RS
       string tail = "";
 
       List<string> ii = new List<string>();
-      for (int i = 0; i < rtd.fields.Count; i++)
+
+      foreach (FieldDescriptor fd in GetFields(rtd))
       {
-        ICallable a = Records.RecordAccessor(rtd, i) as ICallable;
-        object r = a.Call(this);
+        object r = fd.accessor.Invoke(null, new object[] { this });
         if (r is bool && !(bool)r)
         {
           continue;
         }
         ii.Add(Builtins.DisplayFormat(r));
+
       }
 
       tail = string.Join(" ", ii.ToArray());
@@ -122,10 +139,10 @@ namespace IronScheme.Runtime.R6RS
           {
             if (IsTrue(recp(ic)))
             {
-              return true;
+              return TRUE;
             }
           }
-          return false;
+          return FALSE;
         }
         else
         {
@@ -151,7 +168,7 @@ namespace IronScheme.Runtime.R6RS
           if (cc.conds.Length == 0)
           {
             // error?
-            return false;
+            return FALSE;
           }
           else
           {
@@ -162,7 +179,7 @@ namespace IronScheme.Runtime.R6RS
                 return c.Call(e);
               }
             }
-            return false;
+            return FALSE;
           }
         }
         else
