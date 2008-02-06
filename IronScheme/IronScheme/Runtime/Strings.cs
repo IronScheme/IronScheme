@@ -199,7 +199,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -235,7 +235,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -271,7 +271,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -307,7 +307,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -343,7 +343,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }

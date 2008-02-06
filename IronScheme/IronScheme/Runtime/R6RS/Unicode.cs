@@ -63,7 +63,7 @@ namespace IronScheme.Runtime.R6RS
     {
       //TODO
       char c = RequiresNotNull<char>(obj);
-      return false;
+      return FALSE;
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -149,7 +149,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -194,7 +194,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -239,7 +239,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -284,7 +284,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -406,7 +406,7 @@ namespace IronScheme.Runtime.R6RS
         case UnicodeCategory.TitlecaseLetter: return SymbolTable.StringToId("Lt");
         case UnicodeCategory.UppercaseLetter: return SymbolTable.StringToId("Lu");
       }
-      return false;
+      return FALSE;
     }
 
     [Builtin("string-ci=?")]
@@ -438,7 +438,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -475,7 +475,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -511,7 +511,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -547,7 +547,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -583,7 +583,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return false;
+            return FALSE;
           }
         }
       }
@@ -623,7 +623,7 @@ namespace IronScheme.Runtime.R6RS
     {
       //TODO
       string s = GetString(obj);
-      return false;
+      return FALSE;
     }
 
     [Builtin("string-normalize-nfd")]

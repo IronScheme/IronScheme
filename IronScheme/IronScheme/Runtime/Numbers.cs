@@ -32,12 +32,12 @@ namespace IronScheme.Runtime
 
     static object PrintBinary(object num)
     {
-      return false;
+      return FALSE;
     }
 
     static object PrintOctal(object num)
     {
-      return false;
+      return FALSE;
     }
 
 
@@ -88,7 +88,7 @@ namespace IronScheme.Runtime
           return string.Format("{0:x}", obj);
       }
 
-      return false;
+      return FALSE;
     }
 
     [Builtin("string->number")]
@@ -98,7 +98,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        return false;
+        return FALSE;
       }
 
       switch (str[0])
@@ -115,7 +115,7 @@ namespace IronScheme.Runtime
             case 'x':
               return StringToNumber(str.Substring(2), 16);
             default:
-              return false;
+              return FALSE;
           }
         default:
           return StringToNumber(obj, 10);
@@ -268,7 +268,7 @@ namespace IronScheme.Runtime
       // TODO parse complex
       string[] tokens = Regex.Split(str, "[+-]");
 
-      return false;
+      return FALSE;
     }
 
 
@@ -283,7 +283,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        return false;
+        return FALSE;
       }
 
       int fi = str.IndexOf('/');
@@ -308,7 +308,7 @@ namespace IronScheme.Runtime
         case 16:
           if (str.Length > 16)
           {
-            return false;
+            return FALSE;
           }
           else
           if (str.Length > 8)
@@ -320,7 +320,7 @@ namespace IronScheme.Runtime
             return int.Parse(str, System.Globalization.NumberStyles.HexNumber);
           }
         default:
-          return false;
+          return FALSE;
       }
     }
 
@@ -369,13 +369,13 @@ namespace IronScheme.Runtime
     {
       if (obj is Fraction)
       {
-        return true;
+        return TRUE;
       }
 
       bool iv = (bool)IsIntegerValued(obj);
       if (iv)
       {
-        return true;
+        return TRUE;
       }
 
       if ((bool)IsNumber(obj))
@@ -383,7 +383,7 @@ namespace IronScheme.Runtime
         double d = SafeConvert(obj);
         return d == (double)(Fraction)d;
       }
-      return false;
+      return FALSE;
     }
 
     [Builtin("real-valued?")]
@@ -394,7 +394,7 @@ namespace IronScheme.Runtime
         Complex64 c = (Complex64)obj;
         if (c.Imag != 0)
         {
-          return false;
+          return FALSE;
         }
       }
       return IsNumber(obj);
@@ -418,7 +418,7 @@ namespace IronScheme.Runtime
         return float.IsInfinity((float)obj);
       }
 
-      return false;
+      return FALSE;
     }
 
     [Builtin("nan?")]
@@ -433,7 +433,7 @@ namespace IronScheme.Runtime
         return float.IsNaN((float)obj);
       }
 
-      return false;
+      return FALSE;
     }
 
 
@@ -498,7 +498,7 @@ namespace IronScheme.Runtime
         last = item;
       }
 
-      return true;
+      return TRUE;
     }
 
     [Builtin("<")]
@@ -542,11 +542,11 @@ namespace IronScheme.Runtime
       foreach (IComparable item in rest)
       {
         if (last.CompareTo(item) >= 0)
-          return false;
+          return FALSE;
         last = item;
       }
 
-      return true;
+      return TRUE;
     }
 
     [Builtin("<=")]
@@ -590,11 +590,11 @@ namespace IronScheme.Runtime
       foreach (IComparable item in rest)
       {
         if (last.CompareTo(item) > 0)
-          return false;
+          return FALSE;
         last = item;
       }
 
-      return true;
+      return TRUE;
     }
 
     [Builtin(">")]
@@ -638,11 +638,11 @@ namespace IronScheme.Runtime
       foreach (IComparable item in rest)
       {
         if (last.CompareTo(item) <= 0)
-          return false;
+          return FALSE;
         last = item;
       }
 
-      return true;
+      return TRUE;
     }
 
     [Builtin(">=")]
@@ -686,11 +686,11 @@ namespace IronScheme.Runtime
       foreach (IComparable item in rest)
       {
         if (last.CompareTo(item) < 0)
-          return false;
+          return FALSE;
         last = item;
       }
 
-      return true;
+      return TRUE;
     }
 
 
@@ -1392,7 +1392,7 @@ namespace IronScheme.Runtime
     [Builtin("rationalize")]
     public static object Rationalize(object obj1, object obj2)
     {
-      return false;
+      return FALSE;
     }
 
 
@@ -1594,37 +1594,37 @@ namespace IronScheme.Runtime
     [Builtin("make-rectangular")]
     public static object MakeRectangular(object obj1, object obj2)
     {
-      return false;
+      return FALSE;
     }
 
     [Builtin("make-polar")]
     public static object MakePolar(object obj1, object obj2)
     {
-      return false;
+      return FALSE;
     }
 
     [Builtin("real-part")]
     public static object RealPart(object obj)
     {
-      return false;
+      return FALSE;
     }
 
     [Builtin("imag-part")]
     public static object ImagPart(object obj)
     {
-      return false;
+      return FALSE;
     }
 
     [Builtin("magnitude")]
     public static object Magnitude(object obj)
     {
-      return false;
+      return FALSE;
     }
 
     [Builtin("angle")]
     public static object Angle(object obj)
     {
-      return false;
+      return FALSE;
     }
     
 

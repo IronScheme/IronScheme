@@ -31,7 +31,7 @@ namespace IronScheme.Runtime
     [Builtin("r6rs-mode?")]
     public static object IsR6RSMode()
     {
-      return true;
+      return TRUE;
     }
 
     public static object UndefinedError(object sym)
@@ -73,6 +73,27 @@ namespace IronScheme.Runtime
       {
         R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(w.Call(who), m.Call(message), s.Call(form, subform)));
+      }
+
+      return Unspecified;
+    }
+
+    public static object FileNotFoundViolation(object who, object message, object filename)
+    {
+      ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&i/o-file-does-not-exist-rcd"))) as ICallable;
+
+      if (who is bool && !(bool)who)
+      {
+        R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(filename)));
+      }
+      else
+      {
+        R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(filename)));
       }
 
       return Unspecified;

@@ -79,12 +79,12 @@ namespace IronScheme.Runtime
     {
       if (arg1 == null)
       {
-        return true;
+        return TRUE;
       }
       Cons c = arg1 as Cons;
       if (c == null)
       {
-        return false;
+        return FALSE;
       }
       else
       {
@@ -95,7 +95,7 @@ namespace IronScheme.Runtime
     [Builtin("null?")]
     public static object IsNull(object arg1)
     {
-      return arg1 == null;
+      return GetBool(arg1 == null);
     }
 
     [Builtin]
@@ -234,7 +234,7 @@ namespace IronScheme.Runtime
         }
         e = e.cdr as Cons;
       }
-      return false;
+      return FALSE;
     }
 
     [Builtin]
@@ -269,7 +269,7 @@ namespace IronScheme.Runtime
         c = c.cdr as Cons;
       }
 
-      return false;
+      return FALSE;
     }
 
 

@@ -52,6 +52,8 @@ namespace IronScheme.Runtime
 
   public partial class Builtins : BaseHelper
   {
+    protected readonly static object TRUE = true;
+    protected readonly static object FALSE = false;
 
     internal static Exception lastException = null;
 

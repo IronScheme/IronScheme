@@ -127,10 +127,10 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       {
         if (r != RequiresNotNull<double>(all[i + 1]))
         {
-          return false;
+          return FALSE;
         }
       }
-      return true;
+      return TRUE;
     }
 
     //TODO: overload
@@ -145,11 +145,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
         if (!(r > r2))
         {
-          return false;
+          return FALSE;
         }
         r = r2;
       }
-      return true;
+      return TRUE;
     }
 
     //TODO: overload
@@ -164,11 +164,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
         if (!(r < r2))
         {
-          return false;
+          return FALSE;
         }
         r = r2;
       }
-      return true;
+      return TRUE;
     }
 
     //TODO: overload
@@ -183,11 +183,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
         if (!(r >= r2))
         {
-          return false;
+          return FALSE;
         }
         r = r2;
       }
-      return true;
+      return TRUE;
     }
 
     //TODO: overload
@@ -202,11 +202,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
         if (!(r <= r2))
         {
-          return false;
+          return FALSE;
         }
         r = r2;
       }
-      return true;
+      return TRUE;
     }
 
     [Builtin("flinteger?")]

@@ -19,6 +19,7 @@ using Microsoft.Scripting;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Reflection.Emit;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -374,6 +375,8 @@ namespace IronScheme.Runtime.R6RS
 
         ConstructorInfo csi = t.GetConstructor(types.ToArray());
 
+        Debug.Assert(csi != null);
+
         return csi.Invoke(args);
       };
 
@@ -444,10 +447,10 @@ namespace IronScheme.Runtime.R6RS
         RecordTypeDescriptor rtd;
         if (typedescriptors.TryGetValue(obj.GetType(), out rtd) && !rtd.opaque)
         {
-          return true;
+          return TRUE;
         }
       }
-      return false;
+      return FALSE;
     }
 
     [Builtin("record-rtd")]
@@ -461,7 +464,7 @@ namespace IronScheme.Runtime.R6RS
           return rtd;
         }
       }
-      return false;
+      return FALSE;
     }
 
     [Builtin("record-type-name")]

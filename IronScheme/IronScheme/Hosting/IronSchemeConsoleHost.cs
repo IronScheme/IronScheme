@@ -43,11 +43,8 @@ namespace IronScheme.Hosting
 #endif
        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
       
-      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1} - {2}", 
+      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1}", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
-
-            "R6RS mode"
-            ,
 #if DEBUG
             "Debug build"
 #else
@@ -99,6 +96,7 @@ namespace IronScheme.Hosting
       Console.WriteLine(e.ToString());
       Console.WriteLine(e.StackTrace);
       Console.ForegroundColor = old;
+      Console.WriteLine("Press enter to exit.");
       Console.ReadLine();
     }
   }

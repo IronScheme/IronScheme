@@ -222,6 +222,9 @@
     <None Include="ironscheme\threading.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\draw-tree.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\match.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

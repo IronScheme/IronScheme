@@ -40,7 +40,7 @@ namespace IronScheme.Runtime.R6RS
         SymbolId bm = RequiresNotNull<SymbolId>(s);
         return bm == bm_none || bm == bm_line || bm == bm_block;
       }
-      return false;
+      return FALSE;
     }
 
     class Transcoder
@@ -206,7 +206,7 @@ namespace IronScheme.Runtime.R6RS
       {
         return new StreamWriter(s, tc.codec);
       }
-      return false;
+      return FALSE;
     }
 
 
@@ -216,13 +216,13 @@ namespace IronScheme.Runtime.R6RS
     {
       if (port is Stream)
       {
-        return true;
+        return TRUE;
       }
       if (port is StreamReader || port is StreamWriter)
       {
-        return true;
+        return TRUE;
       }
-      return false;
+      return FALSE;
     }
 
     //(port-position port)
@@ -261,7 +261,7 @@ namespace IronScheme.Runtime.R6RS
       {
         return ((StreamWriter)port).BaseStream.CanSeek;
       }
-      return false;
+      return FALSE;
     }
 
     //(set-port-position! port pos)
@@ -376,6 +376,10 @@ namespace IronScheme.Runtime.R6RS
         {
           return TranscodedPort(s, tc);
         }
+      }
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("open-file-input-port", ex.Message, filename);
       }
       catch (Exception ex)
       {
@@ -607,7 +611,7 @@ namespace IronScheme.Runtime.R6RS
         }
         return (byte)c;
       }
-      return false;
+      return FALSE;
     }
 
     //(get-bytevector-n binary-input-port count)
@@ -865,6 +869,10 @@ namespace IronScheme.Runtime.R6RS
         {
           return TranscodedPort(s, tc);
         }
+      }
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("open-file-output-port", ex.Message, filename);
       }
       catch (Exception ex)
       {
@@ -1263,6 +1271,10 @@ namespace IronScheme.Runtime.R6RS
         {
           return TranscodedPort(s, tc);
         }
+      }
+      catch (FileNotFoundException ex)
+      {
+        return FileNotFoundViolation("open-file-input/output-port", ex.Message, filename);
       }
       catch (Exception ex)
       {

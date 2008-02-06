@@ -41,7 +41,7 @@ namespace IronScheme.Runtime.R6RS
         c = c.cdr as Cons;
       }
 
-      return false;
+      return FALSE;
     }
 
     [Builtin("memp")]
@@ -59,7 +59,7 @@ namespace IronScheme.Runtime.R6RS
         c = c.cdr as Cons;
       }
 
-      return false;
+      return FALSE;
     }
 
     [Builtin("assp")]
@@ -77,7 +77,7 @@ namespace IronScheme.Runtime.R6RS
         }
         e = e.cdr as Cons;
       }
-      return false;
+      return FALSE;
     }
 
     [Builtin("remp")]
