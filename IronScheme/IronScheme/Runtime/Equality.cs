@@ -125,6 +125,12 @@ namespace IronScheme.Runtime
         return GetBool(Equals(first, second));
       }
 
+      // value types can never have the same reference (theoretically)
+      if (first is System.ValueType && second is System.ValueType)
+      {
+        return FALSE;
+      }
+
       return GetBool(ReferenceEquals(first, second));
     }
 
