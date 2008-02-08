@@ -237,6 +237,9 @@
     <None Include="lib\testing.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\tiny-talk.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi\and-let.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
