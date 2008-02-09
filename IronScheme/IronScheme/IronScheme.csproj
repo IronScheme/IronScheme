@@ -134,6 +134,7 @@
     </Compile>
     <Compile Include="Runtime\TraceClosure.cs" />
     <Compile Include="Runtime\Vectors.cs" />
+    <Compile Include="Web\Handler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
@@ -152,6 +153,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
