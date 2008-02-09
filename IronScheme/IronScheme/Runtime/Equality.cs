@@ -119,8 +119,9 @@ namespace IronScheme.Runtime
     [Builtin("eq?")]
     public static object IsEqual(object first, object second)
     {
-      // one exception, symbols
-      if (first is SymbolId && second is SymbolId)
+      // 2 exceptions, symbols and booleans (missed the last one somehow)
+      if ((first is SymbolId && second is SymbolId)
+        || (first is bool && second is bool))
       {
         return GetBool(Equals(first, second));
       }

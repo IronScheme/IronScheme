@@ -352,7 +352,7 @@ namespace IronScheme.Runtime
     [Builtin("integer?")]
     public static object IsInteger(object obj)
     {
-      return (obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong || obj is byte || obj is sbyte || obj is short || obj is ushort);
+      return GetBool(obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong || obj is byte || obj is sbyte || obj is short || obj is ushort);
     }
 
 
@@ -403,7 +403,7 @@ namespace IronScheme.Runtime
     [Builtin("finite?")]
     public static object IsFinite(object obj)
     {
-      return !(bool)IsInfinite(obj);
+      return GetBool(!(bool)IsInfinite(obj));
     }
 
     [Builtin("infinite?")]
@@ -411,11 +411,11 @@ namespace IronScheme.Runtime
     {
       if (obj is double)
       {
-        return double.IsInfinity((double)obj);
+        return GetBool(double.IsInfinity((double)obj));
       }
       if (obj is float)
       {
-        return float.IsInfinity((float)obj);
+        return GetBool(float.IsInfinity((float)obj));
       }
 
       return FALSE;
@@ -426,11 +426,11 @@ namespace IronScheme.Runtime
     {
       if (obj is double)
       {
-        return double.IsNaN((double)obj);
+        return GetBool(double.IsNaN((double)obj));
       }
       if (obj is float)
       {
-        return float.IsNaN((float)obj);
+        return GetBool(float.IsNaN((float)obj));
       }
 
       return FALSE;
@@ -474,7 +474,7 @@ namespace IronScheme.Runtime
     [Builtin("inexact?")]
     public static object IsInexact(object obj)
     {
-      return !(bool)IsRational(obj);
+      return Not(IsRational(obj));
     }
 
 
@@ -483,7 +483,7 @@ namespace IronScheme.Runtime
     [Builtin("=")]
     public static object IsSame(object first, object second)
     {
-      return Equals(first, second);
+      return GetBool(Equals(first, second));
     }
 
     [Builtin("=")]
@@ -494,7 +494,7 @@ namespace IronScheme.Runtime
       foreach (IComparable item in rest)
       {
         if (last.CompareTo(item) != 0)
-          return false;
+          return FALSE;
         last = item;
       }
 
@@ -726,7 +726,7 @@ namespace IronScheme.Runtime
     [Builtin("odd?")]
     public static object IsOdd(object obj)
     {
-      return !(bool)IsEven(obj);
+      return Not(IsEven(obj));
     }
 
     [Builtin("even?")]
