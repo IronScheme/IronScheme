@@ -901,6 +901,21 @@ namespace IronScheme.Runtime
     static TextWriter currentoutputport = Console.Out;
 
     [Builtin("current-input-port")]
+    public static object CurrentInputPort(object newport)
+    {
+      currentinputport = newport as TextReader;
+      return Unspecified;
+    }
+
+    [Builtin("current-output-port")]
+    public static object CurrentOutputPort(object newport)
+    {
+      currentoutputport = newport as TextWriter;
+      return Unspecified;
+    }
+
+
+    [Builtin("current-input-port")]
     public static object CurrentInputPort()
     {
       return currentinputport;
