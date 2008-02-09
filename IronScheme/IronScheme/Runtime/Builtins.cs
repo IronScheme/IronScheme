@@ -64,7 +64,15 @@ namespace IronScheme.Runtime
 
     public static bool IsTrue(object arg)
     {
-      if (arg is bool)
+      if (arg == TRUE)
+      {
+        return true;
+      }
+      else if (arg == FALSE)
+      {
+        return false;
+      }
+      else if (arg is bool)
       {
         return (bool)arg;
       }
@@ -183,27 +191,31 @@ namespace IronScheme.Runtime
 
 #if DEBUG
 
-      System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
+      // bad for ASP.NET
+      if (Assembly.GetEntryAssembly() != null)
       {
-        ICallable prettyprint = SymbolValue(cc, SymbolTable.StringToId("pretty-print")) as ICallable;
-
-        if (!Directory.Exists("evaldump"))
+        System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
         {
-          Directory.CreateDirectory("evaldump");
-        }
+          ICallable prettyprint = SymbolValue(cc, SymbolTable.StringToId("pretty-print")) as ICallable;
 
-        string fn = string.Format("evaldump/{0:D3}.ss", c);
+          if (!Directory.Exists("evaldump"))
+          {
+            Directory.CreateDirectory("evaldump");
+          }
 
-        if (File.Exists(fn))
-        {
-          File.Delete(fn);
-        }
+          string fn = string.Format("evaldump/{0:D3}.ss", c);
 
-        using (TextWriter w = File.CreateText(fn))
-        {
-          prettyprint.Call(expr, w);
-        }
-      });
+          if (File.Exists(fn))
+          {
+            File.Delete(fn);
+          }
+
+          using (TextWriter w = File.CreateText(fn))
+          {
+            prettyprint.Call(expr, w);
+          }
+        });
+      }
 
 #endif
 

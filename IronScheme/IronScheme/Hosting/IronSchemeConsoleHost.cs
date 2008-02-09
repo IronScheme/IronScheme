@@ -25,23 +25,7 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-#if !CRAZY
-      ScriptDomainManager.Options.DebugMode = false;
-      ScriptDomainManager.Options.EngineDebug = false;
-      ScriptDomainManager.Options.DebugCodeGeneration = false;
-      ScriptDomainManager.Options.OptimizeEnvironments = true;
 
-#endif
-      ScriptDomainManager.Options.AssemblyGenAttributes = 
-#if DEBUG
-      
-      //Microsoft.Scripting.Generation.AssemblyGenAttributes.ILDebug |
-      //Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-      //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
-      //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
-      //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateStaticMethods |
-#endif
-       Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
       
       logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1}", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
@@ -60,7 +44,7 @@ namespace IronScheme.Hosting
         }
 
 
-      ScriptDomainManager.Options.DynamicStackTraceSupport = false;
+      
     }
 
     //slowest script runner in the world... :(

@@ -21,11 +21,31 @@ using System.IO;
 
 namespace IronScheme.Hosting
 {
-  sealed class IronSchemeLanguageProvider : LanguageProvider
+  public sealed class IronSchemeLanguageProvider : LanguageProvider
   {
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
+#if !CRAZY
+      ScriptDomainManager.Options.DebugMode = false;
+      ScriptDomainManager.Options.EngineDebug = false;
+      ScriptDomainManager.Options.DebugCodeGeneration = false;
+      ScriptDomainManager.Options.OptimizeEnvironments = true;
+
+#endif
+      ScriptDomainManager.Options.AssemblyGenAttributes =
+#if DEBUG
+
+        //Microsoft.Scripting.Generation.AssemblyGenAttributes.ILDebug |
+        //Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
+        //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
+        //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
+        //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateStaticMethods |
+#endif
+       Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
+
+      ScriptDomainManager.Options.DynamicStackTraceSupport = false;
+
       x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".scm", ".ss", ".sch", ".sls");
       Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
     }
