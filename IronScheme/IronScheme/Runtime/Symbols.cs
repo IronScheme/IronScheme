@@ -38,7 +38,7 @@ namespace IronScheme.Runtime
     [Builtin("symbol?")]
     public static object IsSymbol(object obj)
     {
-      return obj is SymbolId;
+      return GetBool(obj is SymbolId);
     }
 
 

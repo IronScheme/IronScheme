@@ -61,7 +61,7 @@ namespace IronScheme.Runtime
     [Builtin("char?")]
     public static object IsChar(object obj)
     {
-      return obj is char;
+      return GetBool(obj is char);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ namespace IronScheme.Runtime
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return c1 == c2;
+      return GetBool(c1 == c2);
     }
 
     [Builtin("char=?")]
@@ -101,7 +101,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      return head;
+      return GetBool(head);
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ namespace IronScheme.Runtime
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return c1 < c2;
+      return GetBool(c1 < c2);
     }
 
     [Builtin("char<?")]
@@ -145,7 +145,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      return head;
+      return GetBool(head);
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ namespace IronScheme.Runtime
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return c1 > c2;
+      return GetBool(c1 > c2);
     }
 
     [Builtin("char>?")]
@@ -189,7 +189,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      return head;
+      return GetBool(head);
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      return head;
+      return GetBool(head);
     }
 
     /// <summary>
@@ -250,7 +250,7 @@ namespace IronScheme.Runtime
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return c1 >= c2;
+      return GetBool(c1 >= c2);
     }
 
     [Builtin("char>=?")]
@@ -277,7 +277,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      return head;
+      return GetBool(head);
     }
 
 

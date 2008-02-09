@@ -71,7 +71,7 @@ namespace IronScheme.Runtime
     [Builtin("pair?")]
     public static object IsPair(object arg1)
     {
-      return arg1 is Cons;
+      return GetBool(arg1 is Cons);
     }
 
     [Builtin("list?")]
@@ -88,7 +88,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return c.IsProper;
+        return GetBool(c.IsProper);
       }
     }
 

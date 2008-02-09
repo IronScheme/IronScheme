@@ -31,7 +31,6 @@ namespace IronScheme.Runtime.R6RS
       {
         foreach (DictionaryEntry de in content)
         {
-          // verify this
           base.Add(de.Key, de.Value);
         }
       }

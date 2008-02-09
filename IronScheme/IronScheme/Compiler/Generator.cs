@@ -242,15 +242,16 @@ namespace IronScheme.Compiler
 
                 Type[] types = GetExpressionTypes(pars);
                 MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-                if (mc == null)
+                if (mc != null)
                 {
-                  Builtins.SyntaxError(SymbolTable.StringToId("generator"), "no match found", args, f);
+                  //Builtins.SyntaxError(SymbolTable.StringToId("generator"), "no match found", args, f);
+                  //}
+                  if (mc.Target.NeedsContext)
+                  {
+                    pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+                  }
+                  return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
                 }
-                if (mc.Target.NeedsContext)
-                {
-                  pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-                }
-                return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
               }
             }
           }

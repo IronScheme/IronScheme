@@ -45,8 +45,6 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor rtd = Records.RecordRtd(this) as RecordTypeDescriptor;
 
-      string tail = "";
-
       List<string> ii = new List<string>();
 
       foreach (FieldDescriptor fd in GetFields(rtd))
@@ -60,9 +58,9 @@ namespace IronScheme.Runtime.R6RS
 
       }
 
-      tail = string.Join(" ", ii.ToArray());
+      string tail = string.Join(" ", ii.ToArray());
 
-      return string.Format("{0,-15}{1}", GetType().Name.Replace("$", "&") + (tail.Length > 0 ? ": " : ""), tail);
+      return string.Format("{0,-20}{1}", GetType().Name.Replace("$", "&") + (tail.Length > 0 ? ": " : ""), tail);
     }
 
     public override string Message

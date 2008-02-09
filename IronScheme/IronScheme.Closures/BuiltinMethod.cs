@@ -113,7 +113,15 @@ namespace IronScheme.Runtime
       }
       // fallback
       baked = true;
-      return meth.CallReflected(context, CallType.None, args);
+
+      try
+      {
+        return meth.CallReflected(context, CallType.None, args);
+      }
+      catch (ArgumentTypeException ex)
+      {
+        return Closure.AssertionViolation(meth.ToString(), ex.Message, args);
+      }
     }
 
     static bool NeedContext(MethodBase mb)
