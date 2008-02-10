@@ -21,7 +21,7 @@
   (set! r6rs-input "psyntax/psyntax-buildscript.ss")
   (load "psyntax/psyntax-r6rs.ss"))
   
-(define (ironscheme-build)  
+#;(define (ironscheme-build)  
   (set! r6rs-input "ironscheme-buildscript.ss")
   (display "old version\n")
   (load "ironscheme-r6rs.ss") ; go make coffee :)

@@ -805,7 +805,7 @@ namespace IronScheme.Runtime
         return NumberToString(obj) as string;
       }
 
-      return obj.ToString();
+      return DisplayFormat(obj);
     }
 
     [Builtin("write")]

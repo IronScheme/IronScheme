@@ -32,6 +32,7 @@ namespace IronScheme.Compiler
     protected static MethodInfo Helpers_SymbolToEnum = typeof(Helpers).GetMethod("SymbolToEnum");
     protected static MethodInfo Helpers_EnumToSymbol = typeof(Helpers).GetMethod("EnumToSymbol");
     protected static MethodInfo Helpers_Requires = typeof(Helpers).GetMethod("Requires");
+    protected static MethodInfo Helpers_RequiresArray = typeof(Helpers).GetMethod("RequiresArray");
     protected static MethodInfo Helpers_RequiresNotNull = typeof(Helpers).GetMethod("RequiresNotNull");
 
     protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
@@ -148,10 +149,18 @@ namespace IronScheme.Compiler
         else
           if (t.BaseType == typeof(Enum))
           {
+            if (e.Type.IsValueType)
+            {
+              e = Ast.ConvertHelper(e, typeof(object));
+            }
             return Ast.Call(Helpers_SymbolToEnum.MakeGenericMethod(t), e);
           }
           else
           {
+            if (t.IsArray)
+            {
+              return Ast.Call(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
+            }
             return Ast.Call(Helpers_Requires.MakeGenericMethod(t), e);
           }
     }
