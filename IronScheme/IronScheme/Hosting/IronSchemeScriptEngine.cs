@@ -44,7 +44,7 @@ namespace IronScheme.Hosting
     {
       if (obj != Builtins.Unspecified)
       {
-        string strv = Builtins.DisplayFormat(obj);
+        string strv = Builtins.WriteFormat(obj);
         IConsole.WriteLine(string.Format("{0}", strv), Style.Out);
       }
     }

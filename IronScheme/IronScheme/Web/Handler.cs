@@ -29,21 +29,29 @@ namespace IronScheme.Web
 
     public void ProcessRequest(HttpContext context)
     {
-      if (lp == null)
+      if (!File.Exists(context.Request.PhysicalPath))
       {
-        if (context.Application["lp"] == null)
+        context.Response.StatusCode = 404;
+        return;
+      }
+      lock (this)
+      {
+        if (lp == null)
         {
-          ScriptDomainManager sdm = ScriptDomainManager.CurrentManager;
-          Environment.CurrentDirectory = Builtins.ApplicationDirectory;
-          lp = new IronSchemeLanguageProvider(sdm);
-          lp.GetEngine().Execute("(load \"init.scm\")");
-          context.Application["lp"] = lp;
-        }
-        else
-        {
-          lp = context.Application["lp"] as IronSchemeLanguageProvider;
-        }
+          if (context.Application["lp"] == null)
+          {
+            ScriptDomainManager sdm = ScriptDomainManager.CurrentManager;
+            Environment.CurrentDirectory = Builtins.ApplicationDirectory;
+            lp = new IronSchemeLanguageProvider(sdm);
+            lp.GetEngine().Execute("(load \"init.scm\")");
+            context.Application["lp"] = lp;
+          }
+          else
+          {
+            lp = context.Application["lp"] as IronSchemeLanguageProvider;
+          }
 
+        }
       }
       
       object oldo = Builtins.CurrentOutputPort();

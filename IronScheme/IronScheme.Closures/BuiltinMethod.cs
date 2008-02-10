@@ -88,7 +88,7 @@ namespace IronScheme.Runtime
             bool needContext = NeedContext(mb);
 
 
-            Type dt = CallTargets.GetTargetType(needContext, nargs, false);
+            Type dt = nargs > 5 ? typeof(CallTargetN) : CallTargets.GetTargetType(needContext, nargs, false);
             Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
             if (d == null)
             {

@@ -219,6 +219,9 @@
     <None Include="ironscheme\reader.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\strings.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\threading.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

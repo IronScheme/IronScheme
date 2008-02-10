@@ -101,6 +101,29 @@ namespace IronScheme.Runtime
       }
     }
 
+    public static T[] RequiresArray<T>(object obj)
+    {
+      object[] arr = obj as object[];
+      if (arr == null)
+      {
+        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+      }
+
+      if (typeof(T) == typeof(object))
+      {
+        return (T[])obj;
+      }
+
+      T[] ret = new T[arr.Length];
+
+      for (int i = 0; i < arr.Length; i++)
+      {
+        ret[i] = Requires<T>(arr[i]);
+      }
+
+      return ret;
+    }
+
     public static T Requires<T>(object obj)
     {
       if (obj != null && !(obj is T))
