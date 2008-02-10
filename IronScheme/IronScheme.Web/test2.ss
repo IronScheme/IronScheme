@@ -9,21 +9,28 @@
     (cond
       [(string? html) (html-encode html)]
       [(null? html) ""]
-      [(attribute? html) 
-        (if (eq? #t (cdr html))
-          (format " ~a" (car html))
-          (format " ~a=~s" (car html) (html-encode (cdr html))))]
+      [(not (pair? html)) (format "~a" html)]
+      [(attribute? html)
+        (let ((name (car html))
+              (value (cdr html))) 
+          (if (boolean? value)
+            (if (eq? #t value)
+              (format " ~a" name)
+              "")
+            (format " ~a=~s" name (html-encode (format "~a" value)))))]
       [else
-        (let-values ([(attrs children) (partition attribute? (cdr html))])
-          (if (null? children)
-            (format "<~a~a/>\n" 
-              (car html)
-              (apply string-append (map ->html attrs)))
-            (format "<~a~a>\n~a\n</~a>\n" 
-              (car html)
-              (apply string-append (map ->html attrs)) 
-              (apply string-append (map ->html children))
-              (car html))))]))
+        (let ((tag (car html))
+              (body (cdr html)))
+          (let-values ([(attrs children) (partition attribute? body)])
+            (if (null? children)
+              (format "<~a~a/>\n" 
+                tag
+                (apply string-append (map ->html attrs)))
+              (format "<~a~a>\n~a\n</~a>\n" 
+                tag
+                (apply string-append (map ->html attrs)) 
+                (apply string-append (map ->html children))
+                tag))))]))
       
   (display (->html html)))
   
@@ -53,5 +60,6 @@
         (br)
         (input (type . "submit") (name . "foo") (value . "Click me!") )
         (br)
+        (p "bar = " ,(form "bar"))
         (p "<strong>hello</strong>")
     ))))
