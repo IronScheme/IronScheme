@@ -5,6 +5,8 @@
 (define (display-html html)
   (define (attribute? x)
     (and (pair? x) (not (or (null? (cdr x)) (pair? (cdr x))))))
+  (define (string-map f l)
+    (apply string-append (map f l)))    
   (define (->html html)
     (cond
       [(string? html) (html-encode html)]
@@ -25,13 +27,12 @@
             (if (null? children)
               (format "<~a~a/>\n" 
                 tag
-                (apply string-append (map ->html attrs)))
+                (string-map ->html attrs))
               (format "<~a~a>\n~a\n</~a>\n" 
                 tag
-                (apply string-append (map ->html attrs)) 
-                (apply string-append (map ->html children))
+                (string-map ->html attrs) 
+                (string-map ->html children)
                 tag))))]))
-      
   (display (->html html)))
   
 (define (method-post?)
@@ -54,7 +55,7 @@
       (form (id . "form1") (method . "post")
         (h1 ,title)
         (p "rabble rabble")
-				,(if (method-post?)
+				,(if (and (method-post?) (form "foo"))
 						'(input (type . "submit") (name . "bar") (value . "Now you can"))
         		'(input (type . "submit") (name . "bar") (value . "Can't click me") (disabled . #t)))
         (br)
@@ -62,4 +63,10 @@
         (br)
         (p "bar = " ,(form "bar"))
         (p "<strong>hello</strong>")
+        (p "baz = " ,(form "baz"))
+        (select (name . "baz") 
+          ,@(map (lambda (x) 
+                   `(option ,x (selected . ,(eqv? (form "baz") x))))
+              '("good" "bad" "ugly") ) 
+          (onchange . "submit()"))
     ))))
