@@ -60,33 +60,34 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return Ast.Constant(int.MinValue);
     }
 
-    [InlineEmitter("fx+")]
-    public static Expression FxAdd(params Expression[] args)
-    {
-      Expect(args, 2);
-      return Ast.Add(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-    }
+    // cant deal effectively with .NET exceptions :(
+    //[InlineEmitter("fx+")]
+    //public static Expression FxAdd(params Expression[] args)
+    //{
+    //  Expect(args, 2);
+    //  return Ast.AddChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    //}
 
-    [InlineEmitter("fx*")]
-    public static Expression FxMultiply(params Expression[] args)
-    {
-      Expect(args, 2);
-      return Ast.Multiply(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-    }
+    //[InlineEmitter("fx*")]
+    //public static Expression FxMultiply(params Expression[] args)
+    //{
+    //  Expect(args, 2);
+    //  return Ast.MultiplyChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    //}
 
-    [InlineEmitter("fx-")]
-    public static Expression FxMinus(params Expression[] args)
-    {
-      if (args.Length == 1)
-      {
-        return Ast.Negate(UnwrapAndCast<int>(args[0]));
-      }
-      else
-      {
-        Expect(args, 2);
-        return Ast.Subtract(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-      }
-    }
+    //[InlineEmitter("fx-")]
+    //public static Expression FxMinus(params Expression[] args)
+    //{
+    //  if (args.Length == 1)
+    //  {
+    //    return Ast.Negate(UnwrapAndCast<int>(args[0]));
+    //  }
+    //  else
+    //  {
+    //    Expect(args, 2);
+    //    return Ast.SubtractChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    //  }
+    //}
 
     [InlineEmitter("fxnot")]
     public static Expression FxNot(params Expression[] args)
@@ -343,7 +344,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       catch (OverflowException)
       {
         return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx+"), "overflow", a , b));
+          AssertionViolation(SymbolTable.StringToId("fx+"), "arithmetic overflow", a , b));
       }
     }
 
@@ -360,7 +361,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       catch (OverflowException)
       {
         return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx*"), "overflow", a , b));
+          AssertionViolation(SymbolTable.StringToId("fx*"), "arithmetic overflow", a, b));
       }
     }
 
@@ -369,6 +370,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     {
       int x1 = RequiresNotNull<int>(a);
 
+      // this try is dumb, only 1 case i think
       try
       {
         return checked(-x1);
@@ -376,7 +378,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       catch (OverflowException)
       {
         return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx-"), "overflow", a));
+          AssertionViolation(SymbolTable.StringToId("fx-"), "arithmetic overflow", a));
       }
     }
 
@@ -393,7 +395,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       catch (OverflowException)
       {
         return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx-"), "overflow", a, b));
+          AssertionViolation(SymbolTable.StringToId("fx-"), "arithmetic overflow", a, b));
       }
     }
 

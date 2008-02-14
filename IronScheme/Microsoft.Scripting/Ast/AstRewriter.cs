@@ -292,6 +292,7 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.OrElse:
                     return RewriteLogical((BinaryExpression)node);
                 case AstNodeType.Add:
+                case AstNodeType.AddChecked:
                 case AstNodeType.And:
                 case AstNodeType.Divide:
                 case AstNodeType.Equal:
@@ -303,10 +304,12 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.LessThanOrEqual:
                 case AstNodeType.Modulo:
                 case AstNodeType.Multiply:
+                case AstNodeType.MultiplyChecked:
                 case AstNodeType.NotEqual:
                 case AstNodeType.Or:
                 case AstNodeType.RightShift:
                 case AstNodeType.Subtract:
+                case AstNodeType.SubtractChecked:
                     return Rewrite((BinaryExpression)node);
 
                 case AstNodeType.Call:

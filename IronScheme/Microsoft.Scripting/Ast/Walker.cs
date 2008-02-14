@@ -26,6 +26,7 @@ namespace Microsoft.Scripting.Ast {
 
             switch (node.NodeType) {
                 case AstNodeType.Add:
+                case AstNodeType.AddChecked:
                 case AstNodeType.And:
                 case AstNodeType.AndAlso:
                 case AstNodeType.Divide:
@@ -38,11 +39,13 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.LessThanOrEqual:
                 case AstNodeType.Modulo:
                 case AstNodeType.Multiply:
+                case AstNodeType.MultiplyChecked:
                 case AstNodeType.NotEqual:
                 case AstNodeType.Or:
                 case AstNodeType.OrElse:
                 case AstNodeType.RightShift:
                 case AstNodeType.Subtract:
+                case AstNodeType.SubtractChecked:
                     DefaultWalk((BinaryExpression)node);
                     break;
                 case AstNodeType.Call:

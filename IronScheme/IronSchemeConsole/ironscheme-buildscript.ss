@@ -211,6 +211,7 @@
   ;; abbr.       name                             visible? required?
   '((i           (ironscheme)                          #t    #f)
     (ir          (ironscheme reader)                   #t    #t)
+    (irp         (ironscheme records printer)          #t    #t)
     (ii          (ironscheme interaction)              #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #f    #f)
@@ -292,6 +293,7 @@
     (open-input-string                          i)
     (open-output-string                         i)
     (get-output-string                          i) 
+    (make-record-printer                        irp)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)

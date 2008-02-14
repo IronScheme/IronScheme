@@ -55,8 +55,11 @@ namespace Microsoft.Scripting.Ast {
                         return typeof(bool);
 
                     case AstNodeType.Add:
+                    case AstNodeType.AddChecked:
                     case AstNodeType.Multiply:
+                    case AstNodeType.MultiplyChecked:
                     case AstNodeType.Subtract:
+                    case AstNodeType.SubtractChecked:
                     case AstNodeType.Modulo:
                     case AstNodeType.Divide:
                     case AstNodeType.And:
@@ -264,14 +267,23 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.Multiply:
                     cg.Emit(OpCodes.Mul);
                     break;
+                case AstNodeType.MultiplyChecked:
+                    cg.Emit(OpCodes.Mul_Ovf);
+                    break;
                 case AstNodeType.Modulo:
                     cg.Emit(OpCodes.Rem);
                     break;
                 case AstNodeType.Add:
                     cg.Emit(OpCodes.Add);
                     break;
+                case AstNodeType.AddChecked:
+                    cg.Emit(OpCodes.Add_Ovf);
+                    break;
                 case AstNodeType.Subtract:
                     cg.Emit(OpCodes.Sub);
+                    break;
+                case AstNodeType.SubtractChecked:
+                    cg.Emit(OpCodes.Sub_Ovf);
                     break;
                 case AstNodeType.Divide:
                     cg.Emit(OpCodes.Div);
@@ -354,8 +366,11 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.NotEqual:
                     return RuntimeHelpers.BooleanToObject(!TestEquals(l, r));
 
+                case AstNodeType.MultiplyChecked:
                 case AstNodeType.Multiply: return EvalMultiply(l, r);
+                case AstNodeType.AddChecked:
                 case AstNodeType.Add: return EvalAdd(l, r);
+                case AstNodeType.SubtractChecked:
                 case AstNodeType.Subtract: return EvalSub(l, r);
                 case AstNodeType.Divide: return EvalDiv(l, r);
                 case AstNodeType.Modulo: return EvalMod(l, r);
@@ -596,10 +611,27 @@ namespace Microsoft.Scripting.Ast {
         }
 
         /// <summary>
+        /// Adds two arithmetic values of the same type.
+        /// </summary>
+        public static BinaryExpression AddChecked(Expression left, Expression right)
+        {
+          return MakeBinaryArithmeticExpression(AstNodeType.AddChecked, left, right);
+        }
+
+        /// <summary>
         /// Subtracts two arithmetic values of the same type.
         /// </summary>
         public static BinaryExpression Subtract(Expression left, Expression right) {
             return MakeBinaryArithmeticExpression(AstNodeType.Subtract, left, right);
+        }
+
+
+        /// <summary>
+        /// Subtracts two arithmetic values of the same type.
+        /// </summary>
+        public static BinaryExpression SubtractChecked(Expression left, Expression right)
+        {
+          return MakeBinaryArithmeticExpression(AstNodeType.SubtractChecked, left, right);
         }
 
         /// <summary>
@@ -622,6 +654,15 @@ namespace Microsoft.Scripting.Ast {
         public static BinaryExpression Multiply(Expression left, Expression right) {
             return MakeBinaryArithmeticExpression(AstNodeType.Multiply, left, right);
         }
+
+        /// <summary>
+        /// Multiples two arithmetic values of the same type.
+        /// </summary>
+        public static BinaryExpression MultiplyChecked(Expression left, Expression right)
+        {
+          return MakeBinaryArithmeticExpression(AstNodeType.MultiplyChecked, left, right);
+        }
+
 
         /// <summary>
         /// Left shifts one arithmetic value by another aritmetic value of the same type.

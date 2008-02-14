@@ -122,6 +122,17 @@ namespace IronScheme.Runtime.R6RS
   {
     static Dictionary<string, RecordTypeDescriptor> nongenerative = new Dictionary<string, RecordTypeDescriptor>();
 
+    internal static Dictionary<string, ICallable> printers = new Dictionary<string, ICallable>();
+
+    [Builtin("make-record-printer")]
+    public static object MakeRecordPrinter(object typename, object proc)
+    {
+      string fn = SymbolTable.IdToString(RequiresNotNull<SymbolId>(typename));
+      printers[fn] = RequiresNotNull<ICallable>(proc);
+      return Unspecified;
+    }
+
+
     [Builtin("record-type-descriptor?")]
     public static object IsRecordTypeDescriptor(object obj)
     {

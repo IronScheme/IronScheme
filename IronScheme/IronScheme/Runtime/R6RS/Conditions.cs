@@ -54,7 +54,7 @@ namespace IronScheme.Runtime.R6RS
         {
           continue;
         }
-        ii.Add(Builtins.DisplayFormat(r));
+        ii.Add(Builtins.WriteFormat(r));
 
       }
 
