@@ -22,10 +22,11 @@
   (export make-parameter parameterize define-record pretty-print
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
-          annotation-stripped)
+          annotation-stripped make-record-printer)
   (import 
     (rnrs)
     (ironscheme reader)
+    (ironscheme records printer)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value 
           pretty-print))
@@ -109,7 +110,7 @@
               (string-append "set-" (syn->str id) "-" (syn->str fld) "!"))))))
     (syntax-case x ()
       [(_ name (field* ...) printer)
-       #'(define-record name (field* ...))]
+       #`(begin (define-record name (field* ...)) (define rp (make-record-printer 'name printer)))]
       [(_ name (field* ...))
        (with-syntax ([(getter* ...)
                       (map (gen-getter #'name) #'(field* ...))]

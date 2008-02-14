@@ -681,6 +681,14 @@ namespace IronScheme.Runtime
         return obj.GetType().Name.Replace("$", "&");
       }
 
+      //finally check if this is some constructed type
+      ICallable printer;
+      if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
+      {
+        StringWriter p = new StringWriter();
+        printer.Call(obj, p);
+        return p.ToString();
+      }
 
       return obj.ToString();
     }
@@ -726,7 +734,7 @@ namespace IronScheme.Runtime
       }
       if (obj is string || obj is StringBuilder)
       {
-        return string.Format("\"{0}\"", obj);
+        return string.Format("\"{0}\"", obj.ToString().Replace("\n","\\n").Replace("\r","\\r").Replace("\t","\\t"));
       }
       if (obj is char)
       {

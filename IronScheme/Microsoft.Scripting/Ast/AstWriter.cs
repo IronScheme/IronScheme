@@ -312,6 +312,7 @@ namespace Microsoft.Scripting.Ast {
 
             switch (node.NodeType) {
                 case AstNodeType.Add:
+                case AstNodeType.AddChecked:
                 case AstNodeType.And:
                 case AstNodeType.AndAlso:
                 case AstNodeType.Divide:
@@ -324,11 +325,13 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.LessThanOrEqual:
                 case AstNodeType.Modulo:
                 case AstNodeType.Multiply:
+                case AstNodeType.MultiplyChecked:
                 case AstNodeType.NotEqual:
                 case AstNodeType.Or:
                 case AstNodeType.OrElse:
                 case AstNodeType.RightShift:
                 case AstNodeType.Subtract:
+                case AstNodeType.SubtractChecked:
                     Dump((BinaryExpression)node);
                     break;
                 case AstNodeType.Call:
@@ -548,10 +551,13 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.LessThan: op = "<"; break;
                 case AstNodeType.GreaterThanOrEqual: op = ">="; break;
                 case AstNodeType.LessThanOrEqual: op = "<="; break;
+                case AstNodeType.AddChecked:
                 case AstNodeType.Add: op = "+"; break;
+                case AstNodeType.SubtractChecked:
                 case AstNodeType.Subtract: op = "-"; break;
                 case AstNodeType.Divide: op = "/"; break;
                 case AstNodeType.Modulo: op = "%"; break;
+                case AstNodeType.MultiplyChecked:
                 case AstNodeType.Multiply: op = "*"; break;
                 case AstNodeType.LeftShift: op = "<<"; break;
                 case AstNodeType.RightShift: op = ">>"; break;

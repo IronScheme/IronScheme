@@ -23,7 +23,7 @@ namespace IronScheme.Runtime.psyntax
 
       public override string ToString()
       {
-        return string.Format("#[annotation {0} {1} {2}]", expression, source, stripped);
+        return string.Format("#[annotation {0} {1} {2}]", WriteFormat(expression),WriteFormat(source), WriteFormat(stripped));
       }
     }
 
@@ -45,7 +45,7 @@ namespace IronScheme.Runtime.psyntax
         if (Compiler.Parser.sourcemap.TryGetValue(c, out loc) && loc.IsValid)
         {
           lastloc = loc;
-          return new Annotation(new Cons(Annotate(c.car), Annotate(c.cdr)), new Cons(loc, filename), obj);
+          return new Annotation(new Cons(Annotate(c.car), Annotate(c.cdr)), new Cons(filename, loc), obj);
         }
         else
         {
@@ -58,12 +58,12 @@ namespace IronScheme.Runtime.psyntax
         if (Compiler.Parser.sourcemap.TryGetValue(obj, out loc) && loc.IsValid)
         {
           lastloc = loc;
-          return new Annotation(obj, new Cons(loc, filename), obj);
+          return new Annotation(obj, new Cons(filename, loc), obj);
         }
       }
       if (obj is SymbolId && lastloc.IsValid)
       {
-        return new Annotation(obj, new Cons(lastloc, filename), obj);
+        return new Annotation(obj, new Cons(filename, lastloc), obj);
       }
       return obj;
     }

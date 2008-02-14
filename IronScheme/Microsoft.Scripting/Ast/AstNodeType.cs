@@ -16,7 +16,7 @@
 namespace Microsoft.Scripting.Ast {
     public enum AstNodeType {
         Add,
-        //    AddChecked,
+        AddChecked,
         And,
         AndAlso,
         //    ArrayLength,
@@ -42,7 +42,7 @@ namespace Microsoft.Scripting.Ast {
         //    MemberInit,
         Modulo,
         Multiply,
-        //    MultiplyChecked,
+        MultiplyChecked,
         Negate,
         //    UnaryPlus,
         //    NegateChecked,
@@ -58,7 +58,7 @@ namespace Microsoft.Scripting.Ast {
         //    Quote,
         RightShift,
         Subtract,
-        //    SubtractChecked,
+        SubtractChecked,
         //    TypeAs,
         TypeIs,
 
