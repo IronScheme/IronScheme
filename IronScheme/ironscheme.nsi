@@ -188,9 +188,7 @@ SectionIn 1 2 RO
 	
 	File "ironscheme-buildscript.ss"
 	File "r6rs-init.ss"
-	
-	File "system.ss"
-	
+
 	SetOutPath "$INSTDIR\examples"
 	File /r examples\*.*
 	
@@ -199,9 +197,6 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\lib"
 	File /r lib\*.*
-	
-	SetOutPath "$INSTDIR\other"
-	File /r other\*.*
 	
 	SetOutPath "$INSTDIR\psyntax"
 	File psyntax\builders.ss
@@ -215,8 +210,11 @@ SectionIn 1 2 RO
 	SetOutPath "$INSTDIR\srfi"
 	File /r srfi\*.*
 	
-	SetOutPath "$INSTDIR\system"
-	File /r system\*.*
+	SetOutPath "$INSTDIR\websample"
+	File ..\..\..\IronScheme.Web\test.ss
+	File ..\..\..\IronScheme.Web\test2.ss
+	File ..\..\..\IronScheme.Web\web.config
+	
 	
 	;File /r tests\*.*
 	

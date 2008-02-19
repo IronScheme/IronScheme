@@ -123,7 +123,7 @@ namespace Microsoft.Scripting.Generation {
 
             ILDebug = assemblyGen.ILDebug;
 
-            EmitLineInfo = ScriptDomainManager.Options.DynamicStackTraceSupport;
+            //EmitLineInfo = ScriptDomainManager.Options.DynamicStackTraceSupport;
             WriteSignature(mi, paramTypes);
 
             _codeBlockImplementations = new Dictionary<CodeBlock, CodeGen>();

@@ -17,22 +17,11 @@
   (set! r6rs-input fn)
   (load "ironscheme.boot.pp"))
 
-#;(define (psyntax-build)  
-  (set! r6rs-input "psyntax/psyntax-buildscript.ss")
-  (load "psyntax/psyntax-r6rs.ss"))
-  
-#;(define (ironscheme-build)  
-  (set! r6rs-input "ironscheme-buildscript.ss")
-  (display "old version\n")
-  (load "ironscheme-r6rs.ss") ; go make coffee :)
-  (if #f #f))
-
 (define eval-r6rs #f)
 
 (define (init-r6rs)
   (set! eval-r6rs (load-r6rs "r6rs-init.ss"))
   (if #f #f))
 
-(if (r6rs-mode?)  
-  (init-r6rs)
-  (load "other/mbe.scm"))
+(init-r6rs)
+ 

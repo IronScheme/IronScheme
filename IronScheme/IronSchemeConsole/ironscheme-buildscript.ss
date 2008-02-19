@@ -211,6 +211,7 @@
   ;; abbr.       name                             visible? required?
   '((i           (ironscheme)                          #t    #f)
     (ir          (ironscheme reader)                   #t    #t)
+    (is          (ironscheme serialization)            #t    #t)
     (irp         (ironscheme records printer)          #t    #t)
     (ii          (ironscheme interaction)              #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
@@ -1023,7 +1024,11 @@
     (char-ready?                                se)
     (interaction-environment                    se)
     (load                                       ii)
-    ;;;
+    (compile                                    ii)
+    (serialize-library                          is)
+    (compile-core-expr                          is)
+    (load-serialized-library                    is)
+		;;;
     (void                                       $boot i)
     (gensym                                     $boot i)
     (symbol-value                               $boot i)
@@ -1059,6 +1064,8 @@
     (annotation-expression                      ir)
     (annotation-source                          ir)
     (annotation-stripped                        ir)
+    
+    (library-letrec*)
     
     ;;; these should be assigned when creating the record types
     (&condition-rtd)
@@ -1219,7 +1226,7 @@
                             '()))))
           `(install-library
              ',id ',name ',version ',import-libs ',visit-libs ',invoke-libs
-             ',subst ',env values values ',visible?)))))
+             ',subst ',env values values '#f '#f ',visible? '#f)))))
   (let ((code `(library (psyntax primlocs)
                   (export) ;;; must be empty
                   (import
@@ -1322,7 +1329,7 @@
                               bootstrap-collection))
                 (install-library
                    id name version import-libs visit-libs invoke-libs
-                   subst env values values visible?)))))))
+                   subst env values values #f #f visible? #f)))))))
     (for-each build-library library-legend)))
 
 
@@ -1341,7 +1348,7 @@
                  (else (error #f "undefined prim ~s" x))))))))))
   (define-prims
     syntax-dispatch apply cons append map list syntax-error
-    generate-temporaries = + datum->syntax string->symbol
+    generate-temporaries = + datum->syntax string->symbol void
     string-append symbol->string syntax->datum gensym length 
     open-string-output-port identifier? free-identifier=? exists
     values call-with-values for-all ellipsis-map))

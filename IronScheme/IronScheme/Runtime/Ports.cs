@@ -100,19 +100,20 @@ namespace IronScheme.Runtime
       string fn = Path.GetFullPath(path);
       if (File.Exists(fn))
       {
-        byte[] ass = File.ReadAllBytes(fn);
+        return Assembly.LoadFrom(fn);
+        //byte[] ass = File.ReadAllBytes(fn);
 
-        fn = Path.ChangeExtension(fn, ".pdb");
+        //fn = Path.ChangeExtension(fn, ".pdb");
 
-        if (File.Exists(fn))
-        {
-          byte[] pdb = File.ReadAllBytes(fn);
-          return Assembly.Load(ass, pdb);
-        }
-        else
-        {
-          return Assembly.Load(ass);
-        }
+        //if (File.Exists(fn))
+        //{
+        //  byte[] pdb = File.ReadAllBytes(fn);
+        //  return Assembly.Load(ass, pdb);
+        //}
+        //else
+        //{
+        //  return Assembly.Load(ass);
+        //}
       }
       FileNotFoundViolation(FALSE, "file not found", path);
       return null;
@@ -576,7 +577,7 @@ namespace IronScheme.Runtime
         if (s != null)
         {
           object scar = s.car;
-          if ((bool)IsSymbol(scar) && s.cdr is Cons)
+          if ((bool)IsSymbol(scar) && s.cdr is Cons && (int)Length(s.cdr) == 1)
           {
             if ((bool)IsEqual(quote, scar))
             {
@@ -734,7 +735,7 @@ namespace IronScheme.Runtime
       }
       if (obj is string || obj is StringBuilder)
       {
-        return string.Format("\"{0}\"", obj.ToString().Replace("\n","\\n").Replace("\r","\\r").Replace("\t","\\t"));
+        return string.Format("\"{0}\"", obj.ToString().Replace("\n","\\n").Replace("\r","\\r").Replace("\t","\\t").Replace("\\", "\\\\"));
       }
       if (obj is char)
       {
@@ -747,7 +748,7 @@ namespace IronScheme.Runtime
         Cons s = obj as Cons;
 
         object scar = s.car;
-        if ((bool)IsSymbol(scar) && s.cdr is Cons)
+        if ((bool)IsSymbol(scar) && s.cdr is Cons && (int)Length(s.cdr) == 1)
         {
           if ((bool)IsEqual(quote, scar))
           {
@@ -813,7 +814,16 @@ namespace IronScheme.Runtime
         return NumberToString(obj) as string;
       }
 
-      return DisplayFormat(obj);
+      //finally check if this is some constructed type
+      ICallable printer;
+      if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
+      {
+        StringWriter p = new StringWriter();
+        printer.Call(obj, p);
+        return p.ToString();
+      }
+
+      return obj.ToString();
     }
 
     [Builtin("write")]

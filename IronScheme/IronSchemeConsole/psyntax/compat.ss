@@ -22,21 +22,18 @@
   (export make-parameter parameterize define-record pretty-print
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
-          annotation-stripped make-record-printer)
+          compile-core-expr load-serialized-library serialize-library
+          annotation-stripped make-record-printer load-precompiled-library)
   (import 
     (rnrs)
     (ironscheme reader)
     (ironscheme records printer)
+    (ironscheme serialization)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value 
           pretty-print))
   
-  ;;; this is reverse engineered from psyntax.ss
-  ;;; (define-struct annotation (expression source stripped))
-  ;;; - source is a pair of file-name x char-position
-  ;;; - stripped is an s-expression with no annotations
-  ;;; - expression is a list/vector/id/whathaveyou that 
-  ;;;   may contain further annotations.
+  (define (load-precompiled-library filename sk) #f) ; used?
   
   #|
   (define read-annotated read)
@@ -44,6 +41,10 @@
   (define annotation-expression #f)
   (define annotation-source #f)
   (define annotation-stripped #f)
+  
+  (define (compile-core-expr x) #f)
+  (define (load-serialized-library filename sk) #f)
+  (define (serialize-library filename contents) #f)
   |#
 
   (define make-parameter
@@ -96,21 +97,21 @@
 	  (define (syn->str s)
 		  (symbol->string
 			  (syntax->datum s)))
-    (define gen-getter
-      (lambda (id)
-        (lambda (fld)
-          (datum->syntax id
-            (string->symbol
-              (string-append (syn->str id) "-" (syn->str fld)))))))
-    (define gen-setter
-      (lambda (id)
-        (lambda (fld)
-          (datum->syntax id
-            (string->symbol
-              (string-append "set-" (syn->str id) "-" (syn->str fld) "!"))))))
+    (define (gen-getter id)
+      (lambda (fld)
+        (datum->syntax id
+          (string->symbol
+            (string-append (syn->str id) "-" (syn->str fld))))))
+    (define (gen-setter id)
+      (lambda (fld)
+        (datum->syntax id
+          (string->symbol
+            (string-append "set-" (syn->str id) "-" (syn->str fld) "!")))))
     (syntax-case x ()
       [(_ name (field* ...) printer)
-       #`(begin (define-record name (field* ...)) (define rp (make-record-printer 'name printer)))]
+       #`(begin 
+           (define-record name (field* ...)) 
+           (define rp (make-record-printer 'name printer)))]
       [(_ name (field* ...))
        (with-syntax ([(getter* ...)
                       (map (gen-getter #'name) #'(field* ...))]

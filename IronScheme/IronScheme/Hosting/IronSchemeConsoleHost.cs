@@ -25,8 +25,6 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-
-      
       logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1}", 
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
 #if DEBUG

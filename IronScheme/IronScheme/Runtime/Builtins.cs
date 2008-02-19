@@ -52,8 +52,8 @@ namespace IronScheme.Runtime
 
   public partial class Builtins : BaseHelper
   {
-    protected readonly static object TRUE = true;
-    protected readonly static object FALSE = false;
+    protected readonly static object TRUE = RuntimeHelpers.True;
+    protected readonly static object FALSE = RuntimeHelpers.False;
 
     internal static Exception lastException = null;
 
@@ -172,6 +172,14 @@ namespace IronScheme.Runtime
                      colcountafter[1] - colcount[1],
                      colcountafter[2] - colcount[2]);
       }
+    }
+
+    public static string PrettyFormat(object obj)
+    {
+      ICallable prettyprint = SymbolValue(Context, SymbolTable.StringToId("pretty-print")) as ICallable;
+      StringWriter p = new StringWriter();
+      prettyprint.Call(obj, p);
+      return p.ToString();
     }
 
 

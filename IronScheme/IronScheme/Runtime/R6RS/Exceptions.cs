@@ -41,19 +41,17 @@ namespace IronScheme.Runtime.R6RS
       }
       catch (Exception ex)
       {
-        object r = h.Call(ex);
-        
         bool c;
         if (continuablemap.TryGetValue(ex, out c))
         {
           continuablemap.Remove(ex);
           if (c)
           {
-            return r;
+            return h.Call(ex); 
           }
           throw ex;
         }
-        return r;
+        throw ex;
       }
     }
 
@@ -61,7 +59,7 @@ namespace IronScheme.Runtime.R6RS
     public static object Raise(object obj)
     {
       Exception ex = RequiresNotNull<Exception>(obj);
-      continuablemap[ex] = true;
+      continuablemap[ex] = false;
       throw ex;
     }
 
