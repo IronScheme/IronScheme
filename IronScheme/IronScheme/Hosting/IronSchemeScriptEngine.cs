@@ -24,6 +24,7 @@ using IronScheme.Runtime;
 using System.Diagnostics;
 using Microsoft.Scripting.Shell;
 using System.Threading;
+using System.IO;
 
 namespace IronScheme.Hosting
 {
@@ -60,17 +61,14 @@ namespace IronScheme.Hosting
       {
         // cheat
         return @"&implementation-restriction
-&message:      continuations cannot be used in this way, sorry :(";
+&message:             continuations cannot be used in this way, sorry :(";
       }
       if (exception is NotSupportedException)
       {
         return @"&implementation-restriction
-&message:      " + exception.Message;
+&message:             " + exception.Message;
       }
-      if (exception is ArgumentTypeException || exception is ArgumentNullException || exception is ArgumentException || exception is ArgumentOutOfRangeException)
-      {
-        return "argument error: " + exception.Message;
-      }
+
       if (exception is ThreadAbortException)
       {
         return "evaluation aborted";
@@ -78,9 +76,17 @@ namespace IronScheme.Hosting
       if (exception is InvalidCastException)
       {
         return @"&assertion
-&message:      " + exception.Message;
+&message:             " + exception.Message;
       }
-      return base.FormatException(exception);
+      if (exception is Runtime.R6RS.Condition)
+      {
+        return exception.ToString();
+      }
+      return string.Format(@"&clr
+&who:                 {2}
+&clr-type:            {0}
+&message:             {1}", exception.GetType(), exception.Message, exception.TargetSite.Name);
+      //return base.FormatException(exception);
     }
 
     #region Abstract

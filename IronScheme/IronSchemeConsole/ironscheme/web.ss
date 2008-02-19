@@ -13,8 +13,10 @@
     html-decode
     html-encode
     map-path
+    display-html
     )
-  (import (ironscheme)
+  (import 
+    (ironscheme)
     (ironscheme clr))
 
   (clr-reference system.web)
@@ -91,5 +93,39 @@
   
   
   (clr-clear-usings)
+  
+  
+  (define (display-html html)
+    (define (attribute? x)
+      (and (pair? x) (not (or (null? (cdr x)) (pair? (cdr x))))))
+    (define (string-map f l)
+      (apply string-append (map f l)))    
+    (define (->html html)
+      (cond
+        [(string? html) (html-encode html)]
+        [(null? html) ""]
+        [(not (pair? html)) (format "~a" html)]
+        [(attribute? html)
+          (let ((name (car html))
+                (value (cdr html))) 
+            (if (boolean? value)
+              (if (eq? #t value)
+                (format " ~a" name)
+                "")
+              (format " ~a=~s" name (html-encode (format "~a" value)))))]
+        [else
+          (let ((tag (car html))
+                (body (cdr html)))
+            (let-values ([(attrs children) (partition attribute? body)])
+              (if (null? children)
+                (format "<~a~a/>\n" 
+                  tag
+                  (string-map ->html attrs))
+                (format "<~a~a>\n~a\n</~a>\n" 
+                  tag
+                  (string-map ->html attrs) 
+                  (string-map ->html children)
+                  tag))))]))
+    (display (->html html)))
     
 )

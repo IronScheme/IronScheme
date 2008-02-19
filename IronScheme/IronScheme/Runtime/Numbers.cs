@@ -19,6 +19,7 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -452,6 +453,15 @@ namespace IronScheme.Runtime
     {
       if ((bool)IsInexact(obj))
       {
+        try
+        {
+          return (Fraction)Convert.ToDecimal(obj);
+        }
+        catch (Exception ex)
+        {
+          // find out what can happen here
+          Debugger.Break();
+        }
         BigInteger r = (BigInteger) BigIntConverter.ConvertFrom(obj);
         int ir;
         if (r.AsInt32(out ir))
@@ -1047,7 +1057,7 @@ namespace IronScheme.Runtime
       {
         if (second is int)
         {
-          return (int)first / (double)(int)second;
+          return new Fraction((int)first,(int)second);
         }
         else if (second is double)
         {

@@ -53,6 +53,7 @@
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
+    <Compile Include="Compiler\LibraryLetrecStarGenerator.cs" />
     <Compile Include="Compiler\LetrecGenerator.cs" />
     <Compile Include="Compiler\Helper.cs" />
     <Compile Include="Compiler\IronSchemeConstant.cs" />
@@ -112,7 +113,7 @@
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
     <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
-    <Compile Include="Runtime\psyntax\LibraryManager.cs" />
+    <Compile Include="Runtime\psyntax\Serialization.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Bitwise.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Fixnums.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Flonums.cs" />

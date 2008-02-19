@@ -22,6 +22,7 @@ using Microsoft.Scripting;
 using System.IO;
 using Microsoft.Scripting.Hosting;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime
 {
@@ -34,10 +35,23 @@ namespace IronScheme.Runtime
       return TRUE;
     }
 
+    static SymbolId UnGenSym(SymbolId sym)
+    {
+      string ss = SymbolTable.IdToString(sym);
+      Match m = Regex.Match(ss, @".*g\$(?<id>.*?)\$\d+.*");
+      if (m.Success)
+      {
+        return SymbolTable.StringToId(m.Groups["id"].Value);
+      }
+      return sym;
+    }
+
     public static object UndefinedError(object sym)
     {
       ICallable u = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&undefined-rcd"))) as ICallable;
       ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+      sym = UnGenSym(RequiresNotNull<SymbolId>(sym));
 
       R6RS.Exceptions.RaiseContinueable(
         R6RS.Conditions.Condition(u.Call(), i.Call(List(sym))));
@@ -99,27 +113,41 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    static bool IsR6RSLoaded()
+    {
+      return Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("&assertion-rcd"));
+    }
+
 
     [Builtin("assertion-violation")]
     public static object AssertionViolation(object who, object message, params object[] irritants)
     {
-      ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
-      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
-
-      if (who is bool && !(bool)who)
+      if (IsR6RSLoaded())
       {
-        R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+        if (who is bool && !(bool)who)
+        {
+          R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(VectorToList(irritants))));
+        }
+        else
+        {
+          R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
+        }
+
+
+        return Unspecified;
       }
       else
       {
-        R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+        throw new Exception(string.Format("{0} - {1}", who, message));
       }
-
-      return Unspecified;
+    
     }
 
     [Builtin("error")]
@@ -133,12 +161,12 @@ namespace IronScheme.Runtime
       if (who is bool && !(bool)who)
       {
         R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+         R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(VectorToList(irritants))));
       }
       else
       {
         R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(e.Call(), w.Call(who), m.Call(message), i.Call(WriteFormat(VectorToList(irritants)))));
+         R6RS.Conditions.Condition(e.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
       }
 
       return Unspecified;

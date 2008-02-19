@@ -20,17 +20,26 @@
 
 (library (psyntax main)
   (export
-    (rename (load-r6rs-top-level load)))
+    load
+    compile)
   (import 
     (rnrs base)
     (rnrs control)
     (rnrs io simple)
     (rnrs programs)
     (psyntax compat)
+    (psyntax internal)
     (psyntax library-manager)
     (psyntax expander))
+    
+  (define (load filename)
+    (load-r6rs-top-level filename 'load)
+    (void))
+    
+  (define (compile filename)
+    (load-r6rs-top-level filename 'compile))
   
-  (define (load-r6rs-top-level filename)
+  (define (load-r6rs-top-level filename how)
     (let ((x* 
            (with-input-from-file filename
              (lambda ()
@@ -39,15 +48,23 @@
                    (if (eof-object? x) 
                        '()
                        (cons x (f)))))))))
-      (eval-r6rs-top-level x*)
-      (void)))
+      (case how
+        ((load)      ((compile-r6rs-top-level x*)))
+        ((compile)   
+            (begin 
+					    (compile-r6rs-top-level x*) ; i assume this is needed
+					    (serialize-all serialize-library 
+					      (lambda (x) 
+					        (compile-core-expr (expanded->core x)))))))))
 
   (let ((args (command-line)))
     (unless (= (length args) 2)
       (display "provide a script name argument\n")
       (exit 17))
     (let ((script-name (car args)) (args (cdr args)))
-      (load-r6rs-top-level (car args))))
+      (load (car args))))
+      
+  (current-precompiled-library-loader load-serialized-library)      
   ;; return 'hook', we are cheap :)
   eval-top-level
   )

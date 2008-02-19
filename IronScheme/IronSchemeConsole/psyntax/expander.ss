@@ -24,7 +24,7 @@
           bound-identifier=? datum->syntax syntax-error
           syntax-violation
           syntax->datum make-variable-transformer
-          eval-r6rs-top-level boot-library-expand eval-top-level
+          compile-r6rs-top-level boot-library-expand eval-top-level
           null-environment scheme-report-environment ellipsis-map)
   (import
     (except (rnrs) 
@@ -1411,7 +1411,7 @@
           (with-input-from-file filename
             (lambda ()
               (let f ((ls '()))
-                (let ((x (read)))
+                (let ((x (read-annotated)))
                   (cond
                     ((eof-object? x) (reverse ls))
                     (else
@@ -1455,6 +1455,8 @@
   
   (define quasiquote-macro
     (let ()
+      (define (datum x)
+        (list (scheme-stx 'quote) (mkstx x '() '() '())))
       (define-syntax app
         (syntax-rules (quote)
           ((_ 'x arg* ...)
@@ -1517,7 +1519,7 @@
                 (if (= lev 0)
                     (quasicons* p (vquasi q lev))
                     (quasicons
-                      (quasicons (app 'quote 'unquote)
+                      (quasicons (datum 'unquote)
                                  (quasi p (- lev 1)))
                       (vquasi q lev))))
                ((unquote-splicing p ...)
@@ -1525,7 +1527,7 @@
                     (quasiappend p (vquasi q lev))
                     (quasicons
                       (quasicons
-                        (app 'quote 'unquote-splicing)
+                        (datum 'unquote-splicing)
                         (quasi p (- lev 1)))
                       (vquasi q lev))))
                (p (quasicons (quasi p lev) (vquasi q lev)))))
@@ -1536,23 +1538,24 @@
             ((unquote p)
              (if (= lev 0)
                  p
-                 (quasicons (app 'quote 'unquote) (quasi (list p) (- lev 1)))))
+                 (quasicons (datum 'unquote) (quasi (list p) (- lev 1)))))
             (((unquote p ...) . q)
              (if (= lev 0)
                  (quasicons* p (quasi q lev))
                  (quasicons
-                   (quasicons (app 'quote 'unquote) (quasi p (- lev 1)))
+                   (quasicons (datum 'unquote)
+                              (quasi p (- lev 1)))
                    (quasi q lev))))
             (((unquote-splicing p ...) . q)
              (if (= lev 0)
                  (quasiappend p (quasi q lev))
                  (quasicons
-                   (quasicons
-                     (app 'quote 'unquote-splicing)
+                   (quasicons (datum 'unquote-splicing)
                      (quasi p (- lev 1)))
                    (quasi q lev))))
             ((quasiquote p)
-             (quasicons (app 'quote 'quasiquote) (quasi (list p) (+ lev 1))))
+             (quasicons (datum 'quasiquote)
+                        (quasi (list p) (+ lev 1))))
             ((p . q) (quasicons (quasi p lev) (quasi q lev)))
             (#(x ...) (not (stx? x)) (quasivector (vquasi x lev)))
             (p (app 'quote p)))))
@@ -3519,7 +3522,9 @@
   ;;; Given a (library . _) s-expression, library-expander expands
   ;;; it to core-form, registers it with the library manager, and
   ;;; returns its invoke-code, visit-code, subst and env.
-  (define (library-expander x)
+  (define library-expander
+    (case-lambda 
+      [(x filename)
     (define (build-visit-code macro*)
       (if (null? macro*)
           (build-void)
@@ -3533,27 +3538,36 @@
                   (let ((loc (car x)) (proc (cadr x)))
                     (set-symbol-value! loc proc)))
                 macro*))
-    (let-values (((name ver imp* inv* vis* invoke-code macro* export-subst export-env)
+       (let-values (((name ver imp* inv* vis* 
+                      invoke-code macro* export-subst export-env)
                   (core-library-expander x)))
       (let ((id (gensym))
             (name name)
             (ver ver)
             (imp* (map library-spec imp*))
             (vis* (map library-spec vis*))
-            (inv* (map library-spec inv*)))
+               (inv* (map library-spec inv*))
+               (visit-proc (lambda () (visit! macro*)))
+               (invoke-proc 
+                (lambda () (eval-core (expanded->core invoke-code))))
+               (visit-code (build-visit-code macro*))
+               (invoke-code invoke-code))
         (install-library id name ver
            imp* vis* inv* export-subst export-env
-           (lambda () (visit! macro*))
-           (lambda () (eval-core (expanded->core invoke-code)))
-           #t)
-        (values invoke-code
-                (build-visit-code macro*)
-                export-subst export-env))))
+              visit-proc invoke-proc
+              visit-code invoke-code
+              #t filename)
+
+           (values id name ver imp* vis* inv* 
+                   invoke-code visit-code
+                   export-subst export-env)))]
+      [(x) (library-expander x #f)]))
 
   ;;; when bootstrapping the system, visit-code is not (and cannot
   ;;; be) be used in the "next" system.  So, we drop it.
   (define (boot-library-expand x)
-    (let-values (((invoke-code visit-code export-subst export-env)
+    (let-values (((id name ver imp* vis* inv* 
+                   invoke-code visit-code export-subst export-env)
                   (library-expander x)))
       (values invoke-code export-subst export-env)))
   
@@ -3749,11 +3763,12 @@
   (define syntax->datum
     (lambda (x) (stx->datum x)))
 
-  (define eval-r6rs-top-level
+  (define compile-r6rs-top-level
     (lambda (x*)
       (let-values (((lib* invoke-code) (top-level-expander x*)))
+        (lambda ()
         (for-each invoke-library lib*)
-        (eval-core (expanded->core invoke-code)))))
+          (eval-core (expanded->core invoke-code))))))
 
   ;;; The interaction-library is a parameter that is either #f 
   ;;; (the default, for r6rs scripts) or set to an extensible library

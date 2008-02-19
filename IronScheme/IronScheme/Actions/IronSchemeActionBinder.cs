@@ -34,37 +34,6 @@ namespace IronScheme.Actions
       
     }
 
-    protected override StandardRule<T> MakeRule<T>(CodeContext callerContext, DynamicAction action, object[] args)
-    {
-      //if (args.Length > 1 && args[0] is SymbolId)
-      //{
-      //  SymbolId membername = (SymbolId)args[0];
-      //  object target = args[1];
-      //  Type targettype = null;
-      //  BindingFlags sta = BindingFlags.Static;
-      //  if (target is SymbolId)
-      //  {
-      //    targettype = TypeResolver.GetType(SymbolTable.IdToString((SymbolId)target));
-      //  }
-      //  else
-      //  {
-      //    sta = BindingFlags.Instance;
-      //    targettype = target.GetType();
-      //  }
-      //  MethodBase targetmem = targettype.GetMethod(SymbolTable.IdToString(membername), BindingFlags.Public | sta | BindingFlags.IgnoreCase);
-
-      //  MethodGroup bif = MethodGroup.MakeMethod(SymbolTable.IdToString(membername), targetmem, sta == BindingFlags.Instance ? FunctionType.Method : FunctionType.Function);
-
-      //  args[0] = bif;
-
-      //  return base.MakeRule<T>(callerContext, action, args);
-      //}
-      //else
-      {
-        return base.MakeRule<T>(callerContext, action, args);
-      }
-    }
-
     public override bool CanConvertFrom(Type fromType, Type toType, NarrowingLevel level)
     {
       if (fromType == toType || toType.IsAssignableFrom(fromType))

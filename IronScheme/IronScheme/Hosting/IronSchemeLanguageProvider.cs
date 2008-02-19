@@ -26,7 +26,7 @@ namespace IronScheme.Hosting
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
-#if !CRAZY
+#if !DEBUG
       ScriptDomainManager.Options.DebugMode = false;
       ScriptDomainManager.Options.EngineDebug = false;
       ScriptDomainManager.Options.DebugCodeGeneration = false;
@@ -35,14 +35,11 @@ namespace IronScheme.Hosting
 #endif
       ScriptDomainManager.Options.AssemblyGenAttributes =
 #if DEBUG
-
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.ILDebug |
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
-        //Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateStaticMethods |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
 #endif
-       Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
+        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
 

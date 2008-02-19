@@ -87,7 +87,7 @@ namespace IronScheme.Compiler
       AddInlineEmitters(typeof(BuiltinEmitters));
 
       AddBuiltins(Context, typeof(Runtime.psyntax.AnnotatedReader));
-      AddBuiltins(Context, typeof(Runtime.psyntax.LibraryManager));
+      AddBuiltins(Context, typeof(Runtime.psyntax.Serialization));
 
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
       AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));
