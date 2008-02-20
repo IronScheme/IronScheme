@@ -29,7 +29,7 @@ namespace IronScheme.Compiler
 
       assigns[s] = true;
 
-      NameHint = s;
+      NameHint = Builtins.UnGenSym(s);
 
       Expression value = GetAst(Builtins.Second(args), cb);
 
