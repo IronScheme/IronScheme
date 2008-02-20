@@ -51,7 +51,7 @@ namespace IronScheme.Compiler
 
       for (int i = 0; i < vars.Count; i++)
       {
-        NameHint = vars[i].Name;
+        NameHint = Builtins.UnGenSym(vars[i].Name);
         Expression e = GetAst(defs[i], cb);
 
         if (e.Type.IsValueType)

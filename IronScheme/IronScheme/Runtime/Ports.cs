@@ -917,6 +917,7 @@ namespace IronScheme.Runtime
 
     static TextReader currentinputport = Console.In;
     static TextWriter currentoutputport = Console.Out;
+    static TextWriter currenterrorport = Console.Error;
 
     [Builtin("current-input-port")]
     public static object CurrentInputPort(object newport)
@@ -944,6 +945,22 @@ namespace IronScheme.Runtime
     {
       return currentoutputport;
     }
+
+    [Builtin("current-error-port")]
+    public static object CurrentErrorPort(object newport)
+    {
+      currenterrorport = newport as TextWriter;
+      return Unspecified;
+    }
+
+
+    [Builtin("current-error-port")]
+    public static object CurrentErrorPort()
+    {
+      return currenterrorport;
+    }
+
+
 
     static string GetPath(string filename)
     {

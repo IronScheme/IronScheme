@@ -16,7 +16,7 @@ namespace IronScheme.Runtime.psyntax
       string faslfn = Path.ChangeExtension(fn, ".fasl");
       if (File.Exists(faslfn))
       {
-        if (File.GetLastWriteTime(faslfn) >= File.GetLastWriteTime(fn))
+        if (!File.Exists(fn) || File.GetLastWriteTime(faslfn) >= File.GetLastWriteTime(fn))
         {
           using (Stream input = File.OpenRead(faslfn))
           {
