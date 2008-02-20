@@ -22,7 +22,7 @@
   (export make-parameter parameterize define-record pretty-print
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
-          compile-core-expr load-serialized-library serialize-library
+          load-serialized-library serialize-library
           annotation-stripped make-record-printer load-precompiled-library)
   (import 
     (rnrs)

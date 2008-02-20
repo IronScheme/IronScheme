@@ -35,10 +35,12 @@ namespace IronScheme.Runtime
       return TRUE;
     }
 
+    static readonly Regex UNGENSYM = new Regex(@".*g\$(?<id>.*?)\$\d+$\d+.*", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
     static SymbolId UnGenSym(SymbolId sym)
     {
       string ss = SymbolTable.IdToString(sym);
-      Match m = Regex.Match(ss, @".*g\$(?<id>.*?)\$\d+.*");
+      Match m = UNGENSYM.Match(ss);
       if (m.Success)
       {
         return SymbolTable.StringToId(m.Groups["id"].Value);
@@ -172,12 +174,13 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    static int anonsymcount = 0;
     static int symcount = 0;
 
     [Builtin]
     public static object GenSym()
     {
-      return SymbolTable.StringToId("g$" + symcount++);
+      return SymbolTable.StringToId("g$" + anonsymcount++ + "$" + (int)DateTime.Now.Ticks);
     }
 
     [Builtin]
@@ -186,12 +189,12 @@ namespace IronScheme.Runtime
       if (name is string)
       {
         string s = RequiresNotNull<string>(name);
-        return SymbolTable.StringToId("g$" + s + "$" + symcount++);
+        return SymbolTable.StringToId("g$" + s + "$" + symcount++ + "$" + (int)DateTime.Now.Ticks);
       }
       else
       {
-        SymbolId s = RequiresNotNull<SymbolId>(name);
-        return SymbolTable.StringToId("g$" + s + "$" + symcount++);
+        SymbolId s = UnGenSym(RequiresNotNull<SymbolId>(name));
+        return SymbolTable.StringToId("g$" + s + "$" + symcount++ + "$" + (int)DateTime.Now.Ticks);
       }
     }
   }
