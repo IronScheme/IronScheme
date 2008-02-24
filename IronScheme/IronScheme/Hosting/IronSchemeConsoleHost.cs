@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting;
 using System.Diagnostics;
+using System.IO;
 
 namespace IronScheme.Hosting
 {
@@ -40,9 +41,6 @@ namespace IronScheme.Hosting
       {
         Console.Title += " - Debugger Attached";
       }
-
-
-
     }
 
     protected override int ExecuteFile(string file, string[] args)
@@ -53,8 +51,17 @@ namespace IronScheme.Hosting
     //slowest script runner in the world... :(
     protected override int RunFile(IScriptEngine engine, SourceUnit sourceUnit)
     {
-      engine.Execute("(load \"init.scm\")");
-      engine.Execute(string.Format("(eval-r6rs '(load \"{0}\"))", sourceUnit.ToString().Replace('\\','/')));
+      string cwd = Environment.CurrentDirectory;
+      Environment.CurrentDirectory = Runtime.Builtins.ApplicationDirectory;
+      try
+      {
+        engine.Execute(string.Format("(load \"{0}\")", "init.scm"));
+      }
+      finally
+      {
+        Environment.CurrentDirectory = cwd;
+      }
+      engine.Execute(string.Format("(eval-r6rs '(load \"{0}\"))", sourceUnit.ToString().Replace('\\', '/')));
       return 0;
     }
 

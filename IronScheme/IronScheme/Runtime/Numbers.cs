@@ -439,6 +439,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("inexact")]
+    [Builtin("exact->inexact")]
     public static object Inexact(object obj)
     {
       if ((bool)IsExact(obj))
@@ -449,20 +450,32 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("exact")]
+    [Builtin("inexact->exact")]
     public static object Exact(object obj)
     {
       if ((bool)IsInexact(obj))
       {
         try
         {
-          return (Fraction)Convert.ToDecimal(obj);
+          Fraction f = (Fraction)Convert.ToDecimal(obj);
+          if (f.Denominator == 1)
+          {
+            if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
+            {
+              return (BigInteger)f.Numerator;
+            }
+            return (int)f.Numerator;
+          }
         }
-        catch (Exception ex)
+        catch (DivideByZeroException)
         {
-          // find out what can happen here
-          Debugger.Break();
+          // fall back to bigint
         }
-        BigInteger r = (BigInteger) BigIntConverter.ConvertFrom(obj);
+        catch (OverflowException)
+        {
+          // fall back to bigint
+        }
+        BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(obj);
         int ir;
         if (r.AsInt32(out ir))
         {
@@ -1580,7 +1593,12 @@ namespace IronScheme.Runtime
       {
          return SqrtBigInteger((BigInteger)obj);
       }
-      return MathHelper(Math.Sqrt, obj);
+      object res = MathHelper(Math.Sqrt, obj);
+      if (IsTrue(IsIntegerValued(res)))
+      {
+        return Exact(res);
+      }
+      return res;
     }
 
     [Builtin("expt")]
@@ -1597,7 +1615,12 @@ namespace IronScheme.Runtime
         return r;
       }
 
-      return MathHelper(Math.Pow, obj1, obj2);
+      object res = MathHelper(Math.Pow, obj1, obj2);
+      if (IsTrue(IsIntegerValued(res)))
+      {
+        return Exact(res);
+      }
+      return res;
     }
 
     [Builtin("make-rectangular")]
@@ -1635,27 +1658,5 @@ namespace IronScheme.Runtime
     {
       return FALSE;
     }
-    
-
-    [Builtin("exact->inexact")]
-    public static object ExactToInexact(object obj)
-    {
-      if ((bool)IsExact(obj))
-      {
-        return SafeConvert(obj);
-      }
-      return obj;
-    }
-
-    [Builtin("inexact->exact")]
-    public static object InexactToExact(object obj)
-    {
-      if ((bool)IsInexact(obj))
-      {
-        return Convert.ToInt64(obj);
-      }
-      return obj;
-    }
-
   }
 }

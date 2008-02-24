@@ -111,9 +111,34 @@ namespace IronScheme.Hosting
         base.Initialize();
       }
 
+      protected override int RunFile(string filename)
+      {
+        string cwd = System.Environment.CurrentDirectory;
+        System.Environment.CurrentDirectory = Runtime.Builtins.ApplicationDirectory;
+        try
+        {
+          Engine.Execute("(load \"init.scm\")", Module);
+        }
+        finally
+        {
+          System.Environment.CurrentDirectory = cwd;
+        }
+        Engine.Execute(string.Format("(eval-r6rs '(load \"{0}\"))", filename.Replace('\\', '/')));
+        return 0;
+      }
+
       protected override void OnInteractiveLoopStart()
       {
-        this.Engine.Execute("(load \"init.scm\")", Module);
+        string cwd = System.Environment.CurrentDirectory;
+        System.Environment.CurrentDirectory = Runtime.Builtins.ApplicationDirectory;
+        try
+        {
+          this.Engine.Execute("(load \"init.scm\")", Module);
+        }
+        finally
+        {
+          System.Environment.CurrentDirectory = cwd;
+        }
       }
     }
 

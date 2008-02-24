@@ -10,6 +10,7 @@
     get-environment-variables
     get-environment-variable
     set-environment-variable!
+    expand-environment-variables
     )
   (import 
     (rnrs)
@@ -37,7 +38,6 @@
   (define (get-hostname)
     (clr-static-call system.net.dns gethostname))
     
-    
   (define (get-logical-drives)
     (clr-static-call environment getlogicaldrives))    
 
@@ -51,6 +51,8 @@
     (clr-static-call environment setenvironmentvariable name value))    
 
     
+  (define (expand-environment-variables name)
+    (clr-static-call environment expandenvironmentvariables name))    
     
   
   
