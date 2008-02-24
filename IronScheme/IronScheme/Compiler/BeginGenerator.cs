@@ -30,7 +30,16 @@ namespace IronScheme.Compiler
       }
       else
       {
-        return Ast.Comma(GetAstList(args as Cons, cb));
+        bool glo = cb.IsGlobal;
+        cb.IsGlobal = false;
+        try
+        {
+          return Ast.Comma(GetAstList(args as Cons, cb));
+        }
+        finally
+        {
+          cb.IsGlobal = glo;
+        }
       }
     }
   }

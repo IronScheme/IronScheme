@@ -168,6 +168,9 @@ SectionEnd
 Section "IronScheme ${PRODUCT_VERSION}" SEC01
 SectionIn 1 2 RO
   SetOutPath "$INSTDIR"
+  
+  DetailPrint "Removing previous native images (if any)..."
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.exe"'
 
   CreateDirectory "$SMPROGRAMS\IronScheme"
 
@@ -226,6 +229,8 @@ Section -AdditionalIcons
 SectionEnd
 
 Section -Post
+  DetailPrint "Generating native images..."
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.exe"'
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\IronScheme.Console.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
@@ -301,6 +306,9 @@ Section Uninstall
   Call un.IsDotNETInstalled
   Pop $NETPATH
 
+  DetailPrint "Removing native images..."
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.exe"'
+  
   Delete "$DESKTOP\IronScheme.lnk"
 	
   RMDir /r "$SMPROGRAMS\IronScheme"

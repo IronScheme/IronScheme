@@ -47,10 +47,10 @@ namespace IronScheme.Compiler
       {
         value = Ast.ConvertHelper(value, typeof(object));
       }
-
-  
+        
       Expression r = Ast.Assign(v, value);
 
+      // sucky bootstrap support :(
       if (cb.IsGlobal && cb.Name != "__toploop__")
       {
         object o = r.Evaluate(Context);
@@ -59,8 +59,6 @@ namespace IronScheme.Compiler
       {
         r.SetLoc(SpanHint);
       }
-
-
 
       return r;
     }

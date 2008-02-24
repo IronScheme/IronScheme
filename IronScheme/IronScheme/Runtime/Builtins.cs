@@ -114,14 +114,6 @@ namespace IronScheme.Runtime
       }
     }
 
-
-    [Builtin("defined?")]
-    public static object IsDefined(CodeContext cc, object sym)
-    {
-      SymbolId s = RequiresNotNull<SymbolId>(sym);
-      return cc.Scope.ContainsName(s);
-    }
-
     [Builtin("make-traced-procedure")]
     public static object MakeTraceProcedure(object name, object proc)
     {
@@ -136,7 +128,6 @@ namespace IronScheme.Runtime
       ICallable f = filter as ICallable;
       return new TraceClosure(p, n, f);
     }
-
 
 
     [Builtin("time-it")]

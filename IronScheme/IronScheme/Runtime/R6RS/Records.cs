@@ -185,7 +185,7 @@ namespace IronScheme.Runtime.R6RS
 
 
 
-      TypeAttributes attrs = TypeAttributes.Public;
+      TypeAttributes attrs = TypeAttributes.Public | TypeAttributes.Serializable;
 
       RecordTypeDescriptor rtd = new RecordTypeDescriptor();
       rtd.name = n;

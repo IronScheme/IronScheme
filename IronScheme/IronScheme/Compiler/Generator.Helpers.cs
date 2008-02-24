@@ -144,14 +144,15 @@ namespace IronScheme.Compiler
       {
         cb = cb.Parent;
       }
-      if (cb.IsGlobal)
-      {
-        return cb;
-      }
-      else
-      {
-        return null;
-      }
+      return cb;
+      //if (cb.IsGlobal)
+      //{
+      //  return cb;
+      //}
+      //else
+      //{
+      //  return null;
+      //}
     }
 
     static Expression Read(SymbolId name, CodeBlock cb, Type type)
@@ -470,7 +471,49 @@ namespace IronScheme.Compiler
         stmts.Add(Ast.Return(Ast.ReadField(null, Unspecified)));
       }
 
+      if (cb.Body != null)
+      {
+        stmts.InsertRange(0, (cb.Body as BlockStatement).Statements);
+      }
 
+      cb.Body = Ast.Block(stmts);
+    }
+
+    protected static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, Variable result)
+    {
+
+      Cons c = body;
+      while (c != null)
+      {
+        Expression e = GetAst(c.car, cb);
+        Statement s = Ast.Statement(e);
+
+        if (c.car is Cons && Parser.sourcemap.ContainsKey(c.car))
+        {
+          s.SetLoc(Parser.sourcemap[c.car]);
+        }
+        else
+        {
+          ;
+        }
+
+        stmts.Add(s);
+        c = c.cdr as Cons;
+      }
+
+      if (stmts.Count == 0)
+      {
+        stmts.Add(Ast.Write(result, Ast.ReadField(null, Unspecified)));
+      }
+      else
+      {
+        stmts.Add(Ast.Write(result, Ast.ConvertHelper((stmts[stmts.Count - 1] as ExpressionStatement).Expression, typeof(object))));
+      }
+
+      if (cb.Body != null)
+      {
+        stmts.InsertRange(0, (cb.Body as BlockStatement).Statements);
+      }
 
       cb.Body = Ast.Block(stmts);
     }
@@ -695,7 +738,23 @@ namespace IronScheme.Compiler
             e[i] = Ast.SimpleCallHelper(Builtins_Cons, e[i]);
           }
         }
-        r = Ast.ComplexCallHelper(Builtins_Append, e.ToArray());
+        MethodInfo append = null;
+        switch (e.Count)
+        {
+          case 0:
+            append = Builtins_Append0;
+            break;
+          case 1:
+            append = Builtins_Append1;
+            break;
+          case 2:
+            append = Builtins_Append2;
+            break;
+          default:
+            append = Builtins_AppendX;
+            break;
+        }
+        r = Ast.ComplexCallHelper(append, e.ToArray());
         if (!proper)
         {
           r = Ast.SimpleCallHelper(Builtins_ToImproper, r);

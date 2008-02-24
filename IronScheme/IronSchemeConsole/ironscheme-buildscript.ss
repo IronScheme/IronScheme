@@ -1026,7 +1026,6 @@
     (load                                       ii)
     (compile                                    ii)
     (serialize-library                          is)
-    (compile-core-expr                          is)
     (load-serialized-library                    is)
 		;;;
     (void                                       $boot i)

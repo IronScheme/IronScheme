@@ -84,7 +84,40 @@ static string CleanString(string input)
   input = input.Replace("\\r", "\r");
   input = input.Replace("\\n", "\n");
   input = input.Replace("\\t", "\t");
-  return input;
+  input = input.Replace("\r", "");
+  // deal with string continuations
+  string[] lines = input.Split('\n');
+  
+  List<string> fixup = new List<string>();
+  
+  for (int i = 0; i < lines.Length; i++)
+  {
+    if (lines[i].EndsWith("\\") && lines.Length > 1)
+    {
+      string line = lines[i];
+      string tail = lines[i + 1];
+      
+      int index = 0;
+      for (int j = 0; j < tail.Length; j++)
+      {
+        if (!(tail[j] == ' ' || tail[j] == '\t'))
+        {
+          index = j;
+          break;
+        }
+      }
+      
+      string newline = line.Substring(0, line.Length - 1) + tail.Substring(index);
+      fixup.Add(newline);
+      i++;
+    }
+    else
+    {
+      fixup.Add(lines[i]);
+    }
+  }
+  
+  return string.Join("\n", fixup.ToArray());
 }
 
 static readonly object Ignore = new object();

@@ -215,6 +215,10 @@ namespace IronScheme.Runtime
 
     public static T ConvertToDelegate<T>(object proc)
     {
+      if (proc is bool && !Builtins.IsTrue(proc))
+      {
+        return default(T);
+      }
       MethodInfo meth = typeof(T).GetMethod("Invoke");
       ParameterInfo[] pars = meth.GetParameters();
       if (meth.ReturnType == typeof(void))
@@ -227,6 +231,68 @@ namespace IronScheme.Runtime
         return (T)(object)Delegate.CreateDelegate(typeof(T), proc, Compiler.Generator.GetCallable(pars.Length));
       }
       
+    }
+
+    public static bool StartProcess(Process p)
+    {
+      if (p.Start())
+      {
+        if (p.StartInfo.RedirectStandardOutput)
+        {
+          p.BeginOutputReadLine();
+        }
+        if (p.StartInfo.RedirectStandardError)
+        {
+          p.BeginErrorReadLine();
+        }
+        return true;
+      }
+      return false;
+    }
+
+    public static Process MakeProcess(string filename, string args, bool showwindow, object exit, object output, object error)
+    {
+      Process p = new Process();
+      p.StartInfo = new ProcessStartInfo(filename, args);
+      p.StartInfo.CreateNoWindow = showwindow;
+      ICallable exitp = exit as ICallable;
+      ICallable outp = output as ICallable;
+      ICallable errorp = error as ICallable;
+
+      if (exitp != null)
+      {
+        p.EnableRaisingEvents = true;
+        p.Exited += delegate
+        {
+          exitp.Call(p.ExitCode);
+        };
+      }
+      if (outp != null)
+      {
+        p.StartInfo.UseShellExecute = false;
+        p.StartInfo.RedirectStandardOutput = true;
+        p.OutputDataReceived += delegate(object sender, DataReceivedEventArgs e)
+        {
+          if (!string.IsNullOrEmpty(e.Data))
+          {
+            outp.Call(e.Data);
+          }
+        };
+      }
+      if (errorp != null)
+      {
+        p.StartInfo.UseShellExecute = false;
+        p.StartInfo.RedirectStandardError = true;
+        p.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs e)
+        {
+          if (!string.IsNullOrEmpty(e.Data))
+          {
+            errorp.Call(e.Data);
+          }
+        };
+      }
+
+      return p;
     }
   }
 }

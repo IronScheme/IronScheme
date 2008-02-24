@@ -8,6 +8,7 @@ namespace IronScheme.Runtime.psyntax
 {
   public class AnnotatedReader : Builtins
   {
+    [Serializable]
     sealed class Annotation
     {
       public readonly object expression;

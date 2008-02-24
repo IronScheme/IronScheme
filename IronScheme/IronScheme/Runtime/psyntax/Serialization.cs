@@ -4,6 +4,9 @@ using System.Text;
 using Microsoft.Scripting;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Runtime.Serialization.Formatters;
+using System.Runtime.Serialization;
+using System.Reflection;
 
 namespace IronScheme.Runtime.psyntax
 {
@@ -28,9 +31,26 @@ namespace IronScheme.Runtime.psyntax
               pivot = (Cons)pivot.cdr;
               i++;
             }
-            /*pivot.car = */EvalCore(Context, pivot.car);
+
+            object visit = pivot.car;
+
+            CallTarget0 visitproc = delegate
+            {
+              return EvalCore(Context, visit);
+            };
+
+            pivot.car = Closure.Make(Context, visitproc);
+
             pivot = (Cons)pivot.cdr;
-            /*pivot.car = */EvalCore(Context, pivot.car);
+
+            object invoke = pivot.car;
+
+            CallTarget0 invokeproc = delegate
+            {
+              return EvalCore(Context, invoke);
+            };
+
+            pivot.car = Closure.Make(Context, invokeproc);
 
             return Apply(sk, result);
           }
@@ -39,11 +59,30 @@ namespace IronScheme.Runtime.psyntax
       return FALSE;
     }
 
-    static readonly BinaryFormatter SERIALIZER = new BinaryFormatter();
+    static Serialization()
+    {
+      SERIALIZER.AssemblyFormat = FormatterAssemblyStyle.Simple;
+      AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+    }
+
+    static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+    {
+      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        if (ass.FullName == args.Name)
+        {
+          return ass;
+        }
+      }
+      return null;
+    }
+
+    internal static readonly BinaryFormatter SERIALIZER = new BinaryFormatter();
 
     [Builtin("serialize-library")]
     public static object SaveLibrary(object filename, object contents)
     {
+      Console.WriteLine("serializing {0}", filename);
       string fn = RequiresNotNull<string>(filename);
       // lets go cheap for now, just serialize, no compile
       using (Stream output = File.OpenWrite(Path.ChangeExtension(fn, ".fasl")))

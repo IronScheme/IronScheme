@@ -124,7 +124,8 @@ character_literal      (#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}
 single_string_char     [^\\\"]
 string_esc_seq         (\\[\"\\abfnrtv])
 hex_esc_seq            (\\x({digit16})+)
-reg_string_char        {single_string_char}|{string_esc_seq}|{hex_esc_seq}
+string_continuation    (\\{new_line})
+reg_string_char        {string_continuation}|{single_string_char}|{string_esc_seq}|{hex_esc_seq}
 string_literal         \"({reg_string_char})*\"
 
 atoms                  (#[TtFf])

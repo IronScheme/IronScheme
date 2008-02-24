@@ -42,7 +42,6 @@
   (define annotation-source #f)
   (define annotation-stripped #f)
   
-  (define (compile-core-expr x) #f)
   (define (load-serialized-library filename sk) #f)
   (define (serialize-library filename contents) #f)
   |#
