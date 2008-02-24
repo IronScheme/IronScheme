@@ -1,65 +1,65 @@
 (library (ironscheme conversions)
   (export
-    object->byte
-    object->sbyte
-    object->char
-    object->int16
-    object->uint16
-    object->int32
-    object->uint32
-    object->int64
-    object->uint64
-    object->single
-    object->double
-    object->decimal
-    object->boolean
-    object->datetime)
+    ->byte
+    ->sbyte
+    ->char
+    ->int16
+    ->uint16
+    ->int32
+    ->uint32
+    ->int64
+    ->uint64
+    ->single
+    ->double
+    ->decimal
+    ->boolean
+    ->datetime)
   (import 
     (rnrs)
     (ironscheme clr))
 
   (clr-using system)
 
-  (define (object->byte obj)
+  (define (->byte obj)
     (clr-static-call convert tobyte obj))
     
-  (define (object->sbyte obj)
+  (define (->sbyte obj)
     (clr-static-call convert tosbyte obj))
     
-  (define (object->char obj)
+  (define (->char obj)
     (clr-static-call convert tochar obj))
     
-  (define (object->int16 obj)
+  (define (->int16 obj)
     (clr-static-call convert toint16 obj))
     
-  (define (object->uint16 obj)
+  (define (->uint16 obj)
     (clr-static-call convert touint16 obj))
     
-  (define (object->int32 obj)
+  (define (->int32 obj)
     (clr-static-call convert toint32 obj))
     
-  (define (object->uint32 obj)
+  (define (->uint32 obj)
     (clr-static-call convert touint32 obj))
     
-  (define (object->int64 obj)
+  (define (->int64 obj)
     (clr-static-call convert toint64 obj))
     
-  (define (object->uint64 obj)
+  (define (->uint64 obj)
     (clr-static-call convert touint64 obj))
     
-  (define (object->single obj)
+  (define (->single obj)
     (clr-static-call convert tosingle obj))
     
-  (define (object->double obj)
+  (define (->double obj)
     (clr-static-call convert todouble obj))
     
-  (define (object->decimal obj)
+  (define (->decimal obj)
     (clr-static-call convert todecimal obj))
     
-  (define (object->boolean obj)
+  (define (->boolean obj)
     (clr-static-call convert toboolean obj))
   
-  (define (object->datetime obj)
+  (define (->datetime obj)
     (clr-static-call convert todatetime obj))
           
     

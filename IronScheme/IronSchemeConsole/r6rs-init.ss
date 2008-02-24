@@ -1,5 +1,5 @@
-(import (ironscheme))
+(import 
+  (ironscheme))
 
-(library-path '("." "./lib"))
-
-
+(library-path (get-library-paths))
+  

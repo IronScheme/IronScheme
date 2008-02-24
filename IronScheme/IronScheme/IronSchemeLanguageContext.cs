@@ -65,12 +65,6 @@ namespace IronScheme
       return base.MissingName(name);
     }
 
-    protected override ModuleGlobalCache GetModuleCache(SymbolId name)
-    {
-      
-      return base.GetModuleCache(name);
-    }
-
     public override void UpdateSourceCodeProperties(CompilerContext context)
     {
       try
@@ -138,7 +132,7 @@ namespace IronScheme
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;
       sc.SetSource(expr, 0);
-      return Parse(sc, cc, false);
+      return Parse(sc, cc);
     }
 
     static CodeBlock ParseStream(Stream s, CompilerContext cc)
@@ -146,7 +140,7 @@ namespace IronScheme
       Scanner sc = new Scanner(s);
       sc.Errors = cc.Errors;
       sc.SourceUnit = cc.SourceUnit;
-      return Parse(sc, cc, true);
+      return Parse(sc, cc);
     }
 
 
@@ -216,7 +210,7 @@ namespace IronScheme
     }
 
 
-    static CodeBlock Parse(Scanner sc, CompilerContext cc, bool clearresolver)
+    static CodeBlock Parse(Scanner sc, CompilerContext cc)
     {
       if (parser == null)
       {

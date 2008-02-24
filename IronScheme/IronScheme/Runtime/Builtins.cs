@@ -114,6 +114,24 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Builtin("get-library-paths")]
+    public static object GetLibraryPaths()
+    {
+      if (Environment.CurrentDirectory == ApplicationDirectory)
+      {
+        return List(
+          ApplicationDirectory,
+          Path.Combine(ApplicationDirectory, "lib"));
+      }
+      else
+      {
+        return List(
+          ".",
+          ApplicationDirectory,
+          Path.Combine(ApplicationDirectory, "lib"));
+      }
+    }
+
     [Builtin("make-traced-procedure")]
     public static object MakeTraceProcedure(object name, object proc)
     {
