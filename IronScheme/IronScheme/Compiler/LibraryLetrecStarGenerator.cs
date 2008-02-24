@@ -20,6 +20,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
+#if LIBRARY_LETREC
   //not being used yet, need to figure out the semantics involved.
   // see expander.ss:3406
   //`(library-letrec* ,(map list vars locs val-exps) ,body-exp))
@@ -78,4 +79,5 @@ namespace IronScheme.Compiler
       return r;
     }
   }
+#endif
 }

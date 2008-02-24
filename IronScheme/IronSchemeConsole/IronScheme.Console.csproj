@@ -189,6 +189,9 @@
     <None Include="ironscheme\conversions.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\process.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\datetime.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

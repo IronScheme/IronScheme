@@ -894,16 +894,14 @@ namespace IronScheme.Runtime.R6RS
       byte[] b = RequiresNotNull<byte[]>(bytevector);
       Transcoder tc = maybetranscoder as Transcoder;
 
-      Stream s = new MemoryStream(b);
+      MemoryStream s = new MemoryStream(b);
 
-      if (tc == null)
+      CallTarget0 extract = delegate
       {
-        return s;
-      }
-      else
-      {
-        return TranscodedPort(s, tc);
-      }
+        return s.ToArray();
+      };
+
+      return Values(tc == null ? s : TranscodedPort(s, tc), Closure.Make(Context, extract));
     }
 
     //(call-with-bytevector-output-port proc) 

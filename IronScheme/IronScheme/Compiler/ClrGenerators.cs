@@ -123,7 +123,7 @@ namespace IronScheme.Compiler
       }
       else if (t.BaseType == typeof(Enum))
       {
-        return Ast.Call(Helpers_EnumToSymbol.MakeGenericMethod(t), e);
+        return Ast.SimpleCallHelper(Helpers_EnumToSymbol.MakeGenericMethod(t), e);
       }
       else if (t.IsValueType)
       {
@@ -144,7 +144,7 @@ namespace IronScheme.Compiler
       else
         if (t.BaseType == typeof(MulticastDelegate))
         {
-          return Ast.Call(Helpers_ConvertToDelegate.MakeGenericMethod(t), e);
+          return Ast.SimpleCallHelper(Helpers_ConvertToDelegate.MakeGenericMethod(t), e);
         }
         else
           if (t.BaseType == typeof(Enum))
@@ -153,15 +153,15 @@ namespace IronScheme.Compiler
             {
               e = Ast.ConvertHelper(e, typeof(object));
             }
-            return Ast.Call(Helpers_SymbolToEnum.MakeGenericMethod(t), e);
+            return Ast.SimpleCallHelper(Helpers_SymbolToEnum.MakeGenericMethod(t), e);
           }
           else
           {
             if (t.IsArray)
             {
-              return Ast.Call(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
+              return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
-            return Ast.Call(Helpers_Requires.MakeGenericMethod(t), e);
+            return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
           }
     }
   }

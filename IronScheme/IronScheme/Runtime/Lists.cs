@@ -555,6 +555,32 @@ namespace IronScheme.Runtime
       return AssertionViolation("list-ref", "index out of range", lst, index);
     }
 
+    [Builtin]
+    public static object Append()
+    {
+      return null;
+    }
+
+    [Builtin]
+    public static object Append(object arg)
+    {
+      return arg;
+    }
+
+    [Builtin]
+    public static object Append(object arg1, object arg2)
+    {
+      if (arg1 == null)
+      {
+        return arg2;
+      }
+      if (arg2 == null)
+      {
+        return arg1;
+      }
+      return Append(new object[] { arg1, arg2 });
+    }
+
     //The resulting list is always newly allocated, except that it shares structure with the last list argument. 
     //The last argument may actually be any object; an improper list results if the last argument is not a proper list. 
     [Builtin]

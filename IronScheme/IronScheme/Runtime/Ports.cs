@@ -49,6 +49,10 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("with-input-from-file", ex.Message, filename);
       }
+      catch (R6RS.Condition)
+      {
+        throw;
+      }
       catch (Exception ex)
       {
         return AssertionViolation("with-input-from-file", ex.Message, filename);
@@ -80,14 +84,18 @@ namespace IronScheme.Runtime
           return f.Call();
         }
       }
-        //todo
+      //todo
       catch (FileNotFoundException ex)
       {
-        return FileNotFoundViolation("with-output-file", ex.Message, filename);
+        return FileNotFoundViolation("with-output-to-file", ex.Message, filename);
+      }
+      catch (R6RS.Condition)
+      {
+        throw;
       }
       catch (Exception ex)
       {
-        return AssertionViolation("with-output-from-file", ex.Message, filename);
+        return AssertionViolation("with-output-to-file", ex.Message, filename);
       }
       finally
       {
@@ -203,11 +211,6 @@ namespace IronScheme.Runtime
             }
           //break;
         default:
-          //HACK: but it helps
-          if (path.Contains("ironscheme.boot.pp"))
-          {
-            Compiler.Generator.variablelocation = Microsoft.Scripting.Ast.Variable.VariableKind.Global;
-          }
 
           // check for already compiled version
           string cfn = Path.ChangeExtension(path, ".exe");
@@ -243,18 +246,17 @@ namespace IronScheme.Runtime
           {
             return FileNotFoundViolation("load", ex.Message, filename);
           }
+          catch (R6RS.Condition)
+          {
+            throw;
+          }
           catch (Exception ex)
           {
             return AssertionViolation("load", ex.Message, filename);
           }
           finally
           {
-            // reset hack
-            if (path.Contains("ironscheme.boot.pp"))
-            {
-              Compiler.Generator.variablelocation = Microsoft.Scripting.Ast.Variable.VariableKind.Local;
-            }
-            GC.Collect();
+            //GC.Collect();
           }
           //break;
       }
@@ -885,6 +887,10 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("call-with-input-file", ex.Message, filename);
       }
+      catch (R6RS.Condition)
+      {
+        throw;
+      }
       catch (Exception ex)
       {
         return AssertionViolation("call-with-input-file", ex.Message, filename);
@@ -908,6 +914,10 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("call-with-output-file", ex.Message, filename);
+      }
+      catch (R6RS.Condition)
+      {
+        throw;
       }
       catch (Exception ex)
       {

@@ -32,7 +32,7 @@ namespace IronScheme.Runtime
     static MethodInfo ICallable_Call = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]) });
     static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector");
     static MethodInfo List = typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) });
-    static MethodInfo Append = typeof(Builtins).GetMethod("Append");
+    static MethodInfo Append = typeof(Builtins).GetMethod("Append", new Type[] { typeof(object), typeof(object) });
     
 
     [InlineEmitter("apply")]

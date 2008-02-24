@@ -97,7 +97,7 @@ namespace Microsoft.Scripting.Generation {
 
             // TODO: clean this up after clarifying dynamic site initialization logic
             for (int i = 0; i < _scriptCodes.Length; i++) {
-                Microsoft.Scripting.Actions.DynamicSiteHelpers.InitializeFields(_codeContexts[i], cgs[i].MethodInfo.DeclaringType);
+                //Microsoft.Scripting.Actions.DynamicSiteHelpers.InitializeFields(_codeContexts[i], cgs[i].MethodInfo.DeclaringType);
             }
 
             // everything succeeded, commit the results
@@ -492,12 +492,12 @@ namespace Microsoft.Scripting.Generation {
 
             int current = 0;
             foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
-                Debug.Assert(current < fields.Count);
-                init.Emit(OpCodes.Dup);
-                init.EmitInt(current++);
-                init.Emit(OpCodes.Ldelema, typeof(SymbolId));
-                init.EmitSymbolIdId(kv.Key);
-                init.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(int) }));
+              Debug.Assert(current < fields.Count);
+              init.Emit(OpCodes.Dup);
+              init.EmitInt(current++);
+              init.Emit(OpCodes.Ldelema, typeof(SymbolId));
+              init.EmitSymbolIdId(kv.Key);
+              init.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(int) }));
             }
 
             rawKeysCache.EmitSet(init);

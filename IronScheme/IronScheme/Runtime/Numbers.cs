@@ -335,19 +335,19 @@ namespace IronScheme.Runtime
     [Builtin("complex?")]
     public static object IsComplex(object obj)
     {
-      return (bool)IsReal(obj) || obj is Complex64;
+      return GetBool((bool)IsReal(obj) || obj is Complex64);
     }
 
     [Builtin("real?")]
     public static object IsReal(object obj)
     {
-      return (bool)IsRational(obj) || obj is float || obj is double;
+      return GetBool((bool)IsRational(obj) || obj is float || obj is double);
     }
 
     [Builtin("rational?")]
     public static object IsRational(object obj)
     {
-      return (bool)IsInteger(obj) || obj is Fraction;
+      return GetBool((bool)IsInteger(obj) || obj is Fraction);
     }
 
     [Builtin("integer?")]
@@ -863,8 +863,7 @@ namespace IronScheme.Runtime
       {
         return -(double)first;
       }
-      return Subtract(first, new object[0]);
-
+      return Subtract(0, first);
     }
 
     [Builtin("-")]
@@ -1243,7 +1242,7 @@ namespace IronScheme.Runtime
           div++;
         }
       }
-      return Values(Convert.ToInt32(div), mod);
+      return Values(Exact(div), mod);
     }
 
     [Builtin("div0")]
@@ -1287,7 +1286,7 @@ namespace IronScheme.Runtime
         div++;
       }
 
-      return Values(Convert.ToInt32(div), mod);
+      return Values(Exact(div), mod);
     }
     
 
@@ -1312,11 +1311,11 @@ namespace IronScheme.Runtime
 
           if ((bool)IsZero(second))
           {
-            return Abs(first);
+            return Exact(Abs(first));
           }
           else
           {
-            return Abs(GreatestCommonDivider(second, Mod(first, second)));
+            return Exact(Abs(GreatestCommonDivider(second, Mod(first, second))));
           }
         default:
           object gcd = GreatestCommonDivider(args[0],args[1]);
@@ -1342,7 +1341,7 @@ namespace IronScheme.Runtime
         case 2:
           object first = args[0], second = args[1];
 
-          return Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second));
+          return Exact(Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second)));
         default:
           object lcm = LowestCommonMultiple(args[0], args[1]);
           for (int i = 2; i < args.Length; i++)

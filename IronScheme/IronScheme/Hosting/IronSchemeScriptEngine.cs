@@ -83,9 +83,9 @@ namespace IronScheme.Hosting
         return exception.ToString();
       }
       return string.Format(@"&clr
-&who:                 {2}
+&who:                 {3}.{2}
 &clr-type:            {0}
-&message:             {1}", exception.GetType(), exception.Message, exception.TargetSite.Name);
+&message:             {1}", exception.GetType(), exception.Message, exception.TargetSite.Name, exception.TargetSite.DeclaringType.Name);
       //return base.FormatException(exception);
     }
 

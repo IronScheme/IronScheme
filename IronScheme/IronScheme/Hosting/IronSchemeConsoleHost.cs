@@ -25,24 +25,29 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1}", 
+      logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1}",
             typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
 #if DEBUG
-            "Debug build"
+ "Debug build"
 #else
             "Release build"
 #endif
-            );
+);
 
-        Console.Title = logo;
+      Console.Title = logo;
 
-        if (Debugger.IsAttached)
-        {
-          Console.Title += " - Debugger Attached";
-        }
+      if (Debugger.IsAttached)
+      {
+        Console.Title += " - Debugger Attached";
+      }
 
 
-      
+
+    }
+
+    protected override int ExecuteFile(string file, string[] args)
+    {
+      return base.ExecuteFile(file, args);
     }
 
     //slowest script runner in the world... :(

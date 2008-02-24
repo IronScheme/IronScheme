@@ -53,7 +53,7 @@
         ((compile)   
             (begin 
 					    (compile-r6rs-top-level x*) ; i assume this is needed
-					    (serialize-all serialize-library expanded->core))))))
+					    (serialize-all serialize-library compile-core-expr))))))
 
   (let ((args (command-line)))
     (unless (= (length args) 2)
