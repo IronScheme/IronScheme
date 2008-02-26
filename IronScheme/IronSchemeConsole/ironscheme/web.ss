@@ -17,6 +17,7 @@
     )
   (import 
     (ironscheme)
+    (ironscheme format)
     (ironscheme clr))
 
   (clr-reference system.web)
