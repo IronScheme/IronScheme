@@ -231,6 +231,9 @@
     <None Include="lib\draw-tree.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\G.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi\format.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
