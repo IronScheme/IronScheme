@@ -862,6 +862,24 @@
   (define letrec*-transformer
     (lambda (e r mr) (letrec-helper e r mr build-letrec*)))
 
+  (define fluid-let-syntax-transformer
+    (lambda (e r mr)
+      (define (lookup x)
+        (or (id->label x)
+            (syntax-violation #f "unbound identifier" e x)))
+      (syntax-match e ()
+        ((_ ((lhs* rhs*) ...) b b* ...)
+         (if (not (valid-bound-ids? lhs*))
+             (invalid-fmls-error e lhs*)
+             (let ([lab* (map lookup lhs*)]
+                   [rhs* (map (lambda (x)
+                                (make-eval-transformer
+                                  (expand-transformer x mr)))
+                               rhs*)])
+               (chi-internal (cons b b*)
+                 (append (map cons lab* rhs*) r)
+                 (append (map cons lab* rhs*) mr))))))))
+
   (define type-descriptor-transformer
     (lambda (e r mr)
       (syntax-match e ()
@@ -2422,6 +2440,7 @@
         ((type-descriptor)        type-descriptor-transformer)
         ((record-type-descriptor) record-type-descriptor-transformer)
         ((record-constructor-descriptor) record-constructor-descriptor-transformer)
+        ((fluid-let-syntax)       fluid-let-syntax-transformer)
         (else (assertion-violation 
                 'macro-transformer
                 "BUG: cannot find transformer"

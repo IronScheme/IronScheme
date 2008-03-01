@@ -123,7 +123,7 @@ namespace IronScheme.Hosting
         {
           System.Environment.CurrentDirectory = cwd;
         }
-        Engine.Execute(string.Format("(eval-r6rs '(load \"{0}\"))", filename.Replace('\\', '/')));
+        Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
         return 0;
       }
 

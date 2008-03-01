@@ -28,9 +28,9 @@ namespace IronScheme.Runtime
     static int Main(string[] args)
     {
       // dont use this and pass -notabcompletion at the cl to use with mono
-#if !MONO
-      System.Runtime.GCSettings.LatencyMode = GCLatencyMode.Interactive;
-#endif
+//#if !MONO
+//      System.Runtime.GCSettings.LatencyMode = GCLatencyMode.Interactive;
+//#endif
       return new IronSchemeConsoleHost().Run(args);
     }
   }

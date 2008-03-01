@@ -25,7 +25,7 @@ namespace IronScheme.Compiler
   // see expander.ss:3406
   //`(library-letrec* ,(map list vars locs val-exps) ,body-exp))
   [Generator("library-letrec*")]
-  public class LibraryLetrecStarGenerator : SimpleGenerator
+  public sealed class LibraryLetrecStarGenerator : SimpleGenerator
   {
     int level = 0;
     public override Expression Generate(object args, CodeBlock c)

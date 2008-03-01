@@ -20,7 +20,7 @@ using IronScheme.Runtime;
 namespace IronScheme.Compiler
 {
   [Generator("delay")]
-  public class DelayGenerator : SimpleGenerator
+  public sealed class DelayGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

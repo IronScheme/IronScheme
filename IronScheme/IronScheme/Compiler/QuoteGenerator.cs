@@ -20,7 +20,7 @@ using IronScheme.Runtime;
 namespace IronScheme.Compiler
 {
   [Generator("quote")]
-  public class QuoteGenerator : SimpleGenerator
+  public sealed class QuoteGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

@@ -21,7 +21,8 @@
 (library (psyntax main)
   (export
     load
-    compile)
+    compile
+    compile->closure)
   (import 
     (rnrs base)
     (rnrs control)
@@ -38,6 +39,9 @@
     
   (define (compile filename)
     (load-r6rs-top-level filename 'compile))
+    
+  (define (compile->closure filename)
+    (load-r6rs-top-level filename 'closure))    
   
   (define (load-r6rs-top-level filename how)
     (let ((x* 
@@ -49,6 +53,7 @@
                        '()
                        (cons x (f)))))))))
       (case how
+        ((closure)   (compile-r6rs-top-level x*))
         ((load)      ((compile-r6rs-top-level x*)))
         ((compile)   
             (begin 
@@ -62,7 +67,13 @@
     (let ((script-name (car args)) (args (cdr args)))
       (load (car args))))
       
-  (current-precompiled-library-loader load-serialized-library)      
+  (current-precompiled-library-loader load-serialized-library)  
+      
+  (set-symbol-value! 'load load)
+  (set-symbol-value! 'compile compile)
+  (set-symbol-value! 'compile->closure compile->closure)
+  
+  
   ;; return 'hook', we are cheap :)
   eval-top-level
   )

@@ -254,7 +254,7 @@ namespace IronScheme.Runtime
     {
       Process p = new Process();
       p.StartInfo = new ProcessStartInfo(filename, args);
-      p.StartInfo.CreateNoWindow = showwindow;
+      p.StartInfo.CreateNoWindow = !showwindow;
       ICallable exitp = exit as ICallable;
       ICallable outp = output as ICallable;
       ICallable errorp = error as ICallable;

@@ -169,7 +169,7 @@ namespace IronScheme.Runtime
     [Builtin("procedure?")]
     public static object IsProcedure(object obj)
     {
-      return obj is ICallable; 
+      return IsTrue(obj is ICallable); 
     }
 
 

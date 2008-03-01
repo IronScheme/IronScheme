@@ -21,7 +21,7 @@ using Microsoft.Scripting;
 namespace IronScheme.Compiler
 {
   [Generator("if")]
-  public class IfGenerator : SimpleGenerator
+  public sealed class IfGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

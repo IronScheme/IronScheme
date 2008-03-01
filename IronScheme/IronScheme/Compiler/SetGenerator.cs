@@ -21,7 +21,7 @@ using Microsoft.Scripting;
 namespace IronScheme.Compiler
 {
   [Generator("set!")]
-  public class SetGenerator : SimpleGenerator
+  public sealed class SetGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

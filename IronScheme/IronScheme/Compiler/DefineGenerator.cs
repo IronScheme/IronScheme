@@ -21,7 +21,7 @@ using Microsoft.Scripting;
 namespace IronScheme.Compiler
 {
   [Generator("define")]
-  public class DefineGenerator : SimpleGenerator
+  public sealed class DefineGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

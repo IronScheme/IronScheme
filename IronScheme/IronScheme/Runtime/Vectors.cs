@@ -176,6 +176,19 @@ namespace IronScheme.Runtime
       return v.ToArray();
     }
 
+    [Builtin("vector-map")]
+    public static object VectorMap(object proc, object vector)
+    {
+      ICallable p = RequiresNotNull<ICallable>(proc);
+      object[] v = Requires<object[]>(vector);
+      object[] r = new object[v.Length];
+      for (int i = 0; i < v.Length; i++)
+      {
+        r[i] = p.Call(v[i]);
+      }
+      return r;
+    }
+
 
     [Builtin("vector-map")]
     public static object VectorMap(object proc, params object[] lists)
@@ -215,6 +228,19 @@ namespace IronScheme.Runtime
         }
       }
       return FALSE;
+    }
+
+    [Builtin("vector-foreach")]
+    public static object VectorForEach(object proc, object vector)
+    {
+      ICallable p = RequiresNotNull<ICallable>(proc);
+      object[] v = Requires<object[]>(vector);
+      
+      for (int i = 0; i < v.Length; i++)
+      {
+        p.Call(v[i]);
+      }
+      return Unspecified;
     }
 
     [Builtin("vector-for-each")]

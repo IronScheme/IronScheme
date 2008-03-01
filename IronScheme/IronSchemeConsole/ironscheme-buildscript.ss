@@ -115,6 +115,7 @@
     (unless              (core-macro . unless))
     (parameterize        (core-macro . parameterize))
     (case                (core-macro . case))
+    (fluid-let-syntax    (core-macro . fluid-let-syntax))
     (record-type-descriptor (core-macro . record-type-descriptor))
     (record-constructor-descriptor (core-macro . record-constructor-descriptor))
     (let*-values         (macro . let*-values))
@@ -316,6 +317,7 @@
     (letrec                                     i r ba se ne)
     (letrec*                                    i r ba)
     (letrec-syntax                              i r ba se ne)
+    (fluid-let-syntax                           i)
     (or                                         i r ba se ne)
     (quasiquote                                 i r ba se ne)
     (quote                                      i r ba se ne)
@@ -1029,6 +1031,7 @@
     (interaction-environment                    se)
     (load                                       ii)
     (compile                                    ii)
+    (compile->closure                           ii)
     (serialize-library                          is)
     (load-serialized-library                    is)
 		;;;

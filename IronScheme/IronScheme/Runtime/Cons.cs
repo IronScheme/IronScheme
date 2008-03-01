@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections;
 using Microsoft.Scripting;
+using System.IO;
 
 namespace IronScheme.Runtime
 {
@@ -97,9 +98,26 @@ namespace IronScheme.Runtime
       return cdr == null || (cdr is Cons && ((Cons)cdr).IsProperList(root ?? this));
     }
 
+    static ICallable prettyprint;
+    static SymbolId pp = SymbolTable.StringToId("pretty-print");
+
     public override string ToString()
     {
-      return Builtins.WriteFormat(this);
+      if (prettyprint == null)
+      {
+        object ppo;
+        if (!Compiler.Generator.cc.Scope.TryLookupName(pp, out ppo))
+        {
+          return Builtins.WriteFormat(this);
+        }
+        else
+        {
+          prettyprint = ppo as ICallable;
+        }
+      }
+      StringWriter w = new StringWriter();
+      prettyprint.Call(this, w);
+      return w.ToString();
     }
 
     #region IEnumerable<object> Members

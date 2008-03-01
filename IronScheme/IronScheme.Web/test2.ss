@@ -11,7 +11,7 @@
   
 (define xhtml "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n")
 
-(define title "hello")
+(define title "hello world")
 
 (display xhtml)
 
@@ -36,4 +36,6 @@
                    `(option ,x (selected . ,(eqv? (form "baz") x))))
               '("good" "bad" "ugly") ) 
           (onchange . "submit()"))
+        (p (a (href . ,(string-format "test.ss?id={0}" (+ 1 (string->number (querystring "id"))))) "Go back"))
+        (p (a (href . ,(string-format "test.ss?id={0}" (+ 100 (string->number (querystring "id"))))) "Go forward"))
     ))))

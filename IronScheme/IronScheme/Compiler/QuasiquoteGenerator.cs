@@ -21,7 +21,7 @@ using System.Diagnostics;
 namespace IronScheme.Compiler
 {
   [Generator("quasiquote")]
-  public class QuasiquoteGenerator : SimpleGenerator
+  public sealed class QuasiquoteGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {
