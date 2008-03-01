@@ -69,10 +69,6 @@ namespace IronScheme.Compiler
 
   partial class Generator : BaseHelper
   {
-    readonly static Dictionary<CodeBlock, Scope> scopemap = new Dictionary<CodeBlock, Scope>();
-
-    internal static CodeBlock evalblock;
-
     static void Initialize()
     {
       // builtin methods
@@ -145,29 +141,11 @@ namespace IronScheme.Compiler
         cb = cb.Parent;
       }
       return cb;
-      //if (cb.IsGlobal)
-      //{
-      //  return cb;
-      //}
-      //else
-      //{
-      //  return null;
-      //}
     }
 
     static Expression Read(SymbolId name, CodeBlock cb, Type type)
     {
       SymbolId sname = name;
-
-      Scope scope = GetScope(cb);
-
-      object cvalue;
-      if (!scope.TryLookupName(sname, out cvalue))
-      {
-        scope.SetName(sname, cvalue = (type ?? typeof(object)));
-      }
-
-      Type t = cvalue as Type;
 
       Variable v = FindVar(cb, sname);
 
@@ -178,49 +156,11 @@ namespace IronScheme.Compiler
         return Ast.Read(v);
       }
 
-      if (t.IsAssignableFrom(v.Type))
-      {
-        return Ast.Read(v);
-      }
-      else
-      {
-        return Ast.ConvertHelper(Ast.Read(v), t);
-      }
+      return Ast.Read(v);
     }
 
     protected static Variable Create(SymbolId sname, CodeBlock cb, Type type)
     {
-      if (cb.Name == "__toploop__")
-      {
-        if (evalblock == null)
-        {
-          evalblock = cb;
-        }
-        else
-        {
-          cb = evalblock;
-        }
-      }
-
-      Scope scope = GetScope(cb);
-
-      object cvalue;
-      if (!scope.TryGetName(sname, out cvalue))
-      {
-        scope.SetName(sname, cvalue = (type ?? typeof(object)));
-      }
-
-      Type t = cvalue as Type;
-
-      if (t != type)
-      {
-        object ot;
-        if (scope.TryGetName(sname, out ot))
-        {
-          scope.SetName(sname, type);
-        }
-      }
-
       Variable v = MakeVar(cb, sname, typeof(object));
       return v;
     }
@@ -228,81 +168,22 @@ namespace IronScheme.Compiler
 
     static Variable CreateParameter(SymbolId sname, CodeBlock cb, Type type)
     {
-      Scope scope = GetScope(cb);
-
-      object cvalue;
-      if (!scope.TryGetName(sname, out cvalue))
-      {
-        scope.SetName(sname, cvalue = (type ?? typeof(object)));
-      }
-
-      Type t = cvalue as Type;
-
-      if (t != type)
-      {
-        object ot;
-        if (scope.TryGetName(sname, out ot))
-        {
-          scope.SetName(sname, type);
-        }
-      }
-
       Variable v = Variable.Parameter(cb, sname, typeof(object));
       cb.Parameters.Add(v);
       return v;
     }
-
-    static Scope GetScope(CodeBlock key)
-    {
-      if (key.Name == "__toploop__")
-      {
-        if (evalblock == null)
-        {
-          evalblock = key;
-        }
-        else
-        {
-          key = evalblock;
-        }
-      }
-      Scope cs = null;
-      if (!scopemap.TryGetValue(key, out cs))
-      {
-        Scope parent = null;
-        if (key.Parent != null)
-        {
-          parent = GetScope(key.Parent);
-        }
-        scopemap[key] = cs = new Scope(parent, null);
-      }
-      return cs;
-    }
-
-    internal static Variable.VariableKind variablelocation = Variable.VariableKind.Local;
 
     static Variable MakeVar(CodeBlock cb, SymbolId name, Type type)
     {
       //using globals instead of locals does improve performance a lot, compiling is easier too
       //unfortunately they dont play well
       //should really investigate better closure structure
-      return cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : variablelocation
+      return cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local
         , type ?? typeof(object));
     }
 
     protected static Variable FindVar(CodeBlock cb, SymbolId name)
     {
-      if (cb.Name == "__toploop__")
-      {
-        if (evalblock == null)
-        {
-          evalblock = cb;
-        }
-        else
-        {
-          cb = evalblock;
-        }
-      }
-
       // variables take precidence
       foreach (Variable v in cb.Variables)
       {
@@ -817,6 +698,7 @@ namespace IronScheme.Compiler
       return Array.ConvertAll<Expression, Type>(expr, delegate(Expression e) { return e.Type; });
     }
 
+    [ThreadStatic]
     static SymbolId namehint = SymbolId.Invalid;
 
     protected static SymbolId NameHint

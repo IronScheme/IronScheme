@@ -51,10 +51,6 @@ namespace IronScheme
       {
         return true;
       }
-      if (Compiler.Generator.cc.Scope.TryLookupName(name, out value))
-      {
-        return true;
-      }
       value = name;
       return false;
     }
@@ -209,6 +205,12 @@ namespace IronScheme
       return cb;
     }
 
+    internal static CodeBlock CompileExpr(Cons expr)
+    {
+      CodeBlock cb = Ast.CodeBlock("eval-core");
+      Compiler.Generator.FillBody(cb, new List<Statement>(), expr, true);
+      return cb;
+    }
 
     static CodeBlock Parse(Scanner sc, CompilerContext cc)
     {

@@ -21,7 +21,7 @@ using Microsoft.Scripting;
 namespace IronScheme.Compiler
 {
   [Generator("case-lambda")]
-  public class CaseLambdaGenerator : SimpleGenerator
+  public sealed class CaseLambdaGenerator : SimpleGenerator
   {
     LambdaGenerator lambdagen;
     public override Expression Generate(object args, CodeBlock c)
@@ -41,7 +41,6 @@ namespace IronScheme.Compiler
       else
       {
         List<CodeBlockDescriptor> cbs = new List<CodeBlockDescriptor>();
-        //Dictionary<int, CodeBlockExpression> cbs = new Dictionary<int, CodeBlockExpression>();
 
         string lambdaname = GetLambdaName(c);
 

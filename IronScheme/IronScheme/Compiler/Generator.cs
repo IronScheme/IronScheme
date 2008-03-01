@@ -36,6 +36,7 @@ namespace IronScheme.Compiler
       Initialize();
     }
 
+    [ThreadStatic]
     static SourceSpan spanhint;
 
     protected static SourceSpan SpanHint
@@ -44,6 +45,7 @@ namespace IronScheme.Compiler
       set { Generator.spanhint = value; }
     }
 
+    [ThreadStatic]
     static int nestinglevel = 0;
 
     protected static int NestingLevel
@@ -102,13 +104,9 @@ namespace IronScheme.Compiler
         }
         if (c != null)
         {
-          if (nestinglevel == 0 || nestinglevel == 1073741823)
+          if ((nestinglevel == 0 || nestinglevel == 1073741823) && !IsSimpleCons(c))
           {
             return Ast.Constant(new IronSchemeConstant(c));
-          }
-          else
-          {
-            ;
           }
         }
         return GetConsList(c, cb);
@@ -131,6 +129,11 @@ namespace IronScheme.Compiler
       {
         return Ast.Constant(args);
       }
+    }
+
+    static bool IsSimpleCons(Cons c)
+    {
+      return c.cdr == null && !(c.car is Cons);
     }
 
     protected readonly static Dictionary<SymbolId, bool> assigns = new Dictionary<SymbolId, bool>();
@@ -233,6 +236,10 @@ namespace IronScheme.Compiler
                   // if null is returned, the method cannot be inlined
                   if (result != null)
                   {
+                    if (result.Type.IsValueType)
+                    {
+                      result = Ast.Convert(result, typeof(object));
+                    }
                     return result;
                   }
                 }
@@ -244,8 +251,6 @@ namespace IronScheme.Compiler
                 MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
                 if (mc != null)
                 {
-                  //Builtins.SyntaxError(SymbolTable.StringToId("generator"), "no match found", args, f);
-                  //}
                   if (mc.Target.NeedsContext)
                   {
                     pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
@@ -274,6 +279,17 @@ namespace IronScheme.Compiler
               pp = ArrayUtils.Insert<Expression>(mcexpr.Arguments[0], pp);
             }
             return Ast.ComplexCallHelper(cbe, dc, pp);
+
+            //List<Expression> inits = new List<Expression>();
+            //CodeBlock b = cbe.Block;  
+            //int argcount = pp.Length;
+            //int parcount = b.Parameters.Count;
+
+            //for (int i = 0; i < parcount; i++)
+            //{
+            //  Variable p = Create(b.Parameters[i].Name, cb, typeof(object));
+            //  inits.Add(Ast.Assign(p, pp[i]));
+            //}
           }
         }
 

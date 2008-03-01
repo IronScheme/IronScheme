@@ -63,6 +63,8 @@ namespace Microsoft.Scripting.Generation {
 
             AssemblyGenAttributes result = options.AssemblyGenAttributes;
 
+            result &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
+
             if (debug) {
                 result |= AssemblyGenAttributes.EmitDebugInfo;
 

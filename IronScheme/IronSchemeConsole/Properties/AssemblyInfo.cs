@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("IronSchemeConsole")]
+[assembly: AssemblyTitle("IronScheme.Console")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("leppie")]
-[assembly: AssemblyProduct("IronSchemeConsole")]
-[assembly: AssemblyCopyright("Copyright © leppie 2007")]
+[assembly: AssemblyProduct("IronScheme.Console")]
+[assembly: AssemblyCopyright("Copyright © leppie 2008")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

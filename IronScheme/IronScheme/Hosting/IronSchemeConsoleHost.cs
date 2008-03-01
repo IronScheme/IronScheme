@@ -61,7 +61,7 @@ namespace IronScheme.Hosting
       {
         Environment.CurrentDirectory = cwd;
       }
-      engine.Execute(string.Format("(eval-r6rs '(load \"{0}\"))", sourceUnit.ToString().Replace('\\', '/')));
+      engine.Execute(string.Format("(load \"{0}\")", sourceUnit.ToString().Replace('\\', '/')));
       return 0;
     }
 

@@ -1,5 +1,6 @@
 (import 
   (rnrs)
+  (ironscheme format)
   (ironscheme web))
 
 (display "<h1>hello-world</h1>")
@@ -34,4 +35,4 @@
 (display "</form>")
 
 
-(display "<a href='test2.ss'>Next test</a>")
+(display (format "<a href='test2.ss?id=~a'>Next test</a>" (querystring "id")))

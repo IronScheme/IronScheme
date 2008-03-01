@@ -1,12 +1,11 @@
 (library (G)
-   (export local-declare-type)
+   (export local-declare-type local-declare-types)
    (import (rnrs) (only (ironscheme) gensym))
 
    (define-syntax identity
      (syntax-rules ()
        [(_ x) x]))
   
-
    (define-syntax local-declare-type
      (let ([mysecret (gensym)])
        (lambda (stx)
@@ -31,4 +30,14 @@
                                   (syntax-rules (var)
                                     [(_ var) (nocheck)]
                                     [(_ x)   (nocheck x)])])
-                      e e* ...))))])))))
+                      e e* ...))))]))))
+
+   (define-syntax local-declare-types
+      (syntax-rules ()
+        [(_ ((name1 expr1)) body1 body2 ...)
+          (local-declare-type (name1 expr1)
+            body1 body2 ...)]
+        [(_ ((name1 expr1) (name2 expr2) ...) body1 body2 ...)
+          (local-declare-type (name1 expr1)
+            (local-declare-types ((name2 expr2) ...)
+                body1 body2 ...))])))

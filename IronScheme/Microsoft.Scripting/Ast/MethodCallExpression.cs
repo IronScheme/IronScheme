@@ -160,11 +160,6 @@ namespace Microsoft.Scripting.Ast {
               {
                 CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
 
-                if (cg.IsDynamicMethod)
-                {
-                  cg.EmitArray<object>(new object[] { });
-                }
-
                 Debug.Assert(_arguments.Count == _parameterInfos.Length);
                 for (int arg = 0; arg < _parameterInfos.Length; arg++)
                 {

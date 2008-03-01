@@ -20,7 +20,7 @@ using IronScheme.Runtime;
 namespace IronScheme.Compiler
 {
   [Generator("lambda")]
-  public class LambdaGenerator : SimpleGenerator
+  public sealed class LambdaGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock c)
     {

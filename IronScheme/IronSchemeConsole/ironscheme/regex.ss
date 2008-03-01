@@ -1,7 +1,10 @@
 (library (ironscheme regex)
   (export
+    regex?
+    match-value
+    regex-match
+    regex-matches
     regex-match?
-    ;; regex-match ; do this some time
     regex-split
     regex-replace
     regex-escape
@@ -11,6 +14,21 @@
     (ironscheme clr))
     
   (clr-using system.text.regularexpressions)
+  
+  (define (regex? obj)
+    (clr-is regex obj))
+
+  (define (regex-match input pattern)
+    (clr-static-call regex match input pattern))
+
+  (define (regex-matches input pattern)
+    (clr-static-call regex matches input pattern))
+    
+  (define (match-value match)
+    (clr-prop-get match value match))
+    
+  (define (match-success? match)
+    (clr-prop-get match success match))    
   
   (define (regex-match? input pattern)
     (clr-static-call regex ismatch input pattern))

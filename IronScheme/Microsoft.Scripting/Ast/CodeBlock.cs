@@ -420,6 +420,7 @@ namespace Microsoft.Scripting.Ast {
                 allocator.AddClosureAccessSlot(this, cg.EnvironmentSlot);
             }
 
+          // this is the root of all evil...
             if (IsClosure) {
                 Slot scope = cg.GetLocalTmp(typeof(Scope));
                 cg.EmitCodeContext();

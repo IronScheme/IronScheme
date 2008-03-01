@@ -167,7 +167,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-field-get-internal")]
-  public class ClrFieldGetGenerator : ClrGenerator
+  public sealed class ClrFieldGetGenerator : ClrGenerator
   {
     // (clr-field-get type field-name obj )
     public override Expression Generate(object args, CodeBlock cb)
@@ -195,7 +195,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-field-set!-internal")]
-  public class ClrFieldSetGenerator : ClrGenerator
+  public sealed class ClrFieldSetGenerator : ClrGenerator
   {
     // (clr-field-set! type field-name obj value)
     public override Expression Generate(object args, CodeBlock cb)
@@ -226,7 +226,7 @@ namespace IronScheme.Compiler
 
 
   [Generator("clr-call-internal")]
-  public class ClrCallInternalGenerator : ClrGenerator
+  public sealed class ClrCallInternalGenerator : ClrGenerator
   {
     // (clr-call type member obj arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
@@ -336,7 +336,7 @@ namespace IronScheme.Compiler
 
   //hack for now
   [Generator("clr-clear-usings-internal")]
-  public class ClrClearUsingsInternalGenerator : ClrGenerator
+  public sealed class ClrClearUsingsInternalGenerator : ClrGenerator
   {
     // (clr-clear-usings)
     public override Expression Generate(object args, CodeBlock cb)
@@ -347,7 +347,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-using-internal")]
-  public class ClrUsingInternalGenerator : ClrGenerator
+  public sealed class ClrUsingInternalGenerator : ClrGenerator
   {
     // (clr-using namespace)
     public override Expression Generate(object args, CodeBlock cb)
@@ -369,7 +369,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-reference-internal")]
-  public class ClrReferenceInternalGenerator : ClrGenerator
+  public sealed class ClrReferenceInternalGenerator : ClrGenerator
   {
     // (clr-reference assname)
     public override Expression Generate(object args, CodeBlock cb)
@@ -397,7 +397,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-is-internal")]
-  public class ClrIsInternalGenerator : ClrGenerator
+  public sealed class ClrIsInternalGenerator : ClrGenerator
   {
     // (clr-is type arg)
     public override Expression Generate(object args, CodeBlock cb)
@@ -414,7 +414,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("define-clr-class-internal")]
-  public class DefineClrClassInternalGenerator : ClrGenerator
+  public sealed class DefineClrClassInternalGenerator : ClrGenerator
   {
     // (clr-is type arg)
     public override Expression Generate(object args, CodeBlock cb)
@@ -424,7 +424,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-cast-internal")]
-  public class ClrCastInternalGenerator : ClrGenerator
+  public sealed class ClrCastInternalGenerator : ClrGenerator
   {
     // (clr-cast type arg)
     public override Expression Generate(object args, CodeBlock cb)
@@ -443,7 +443,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-new-array-internal")]
-  public class ClrNewArrayInternalGenerator : ClrGenerator
+  public sealed class ClrNewArrayInternalGenerator : ClrGenerator
   {
     // (clr-new-array type size )
     public override Expression Generate(object args, CodeBlock cb)
@@ -466,7 +466,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("clr-new-internal")]
-  public class ClrNewInternalGenerator : ClrGenerator
+  public sealed class ClrNewInternalGenerator : ClrGenerator
   {
     // (clr-new type arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)

@@ -55,6 +55,7 @@ namespace IronScheme.Runtime
     protected readonly static object TRUE = RuntimeHelpers.True;
     protected readonly static object FALSE = RuntimeHelpers.False;
 
+    [ThreadStatic]
     internal static Exception lastException = null;
 
     protected static Exception LastException
@@ -238,7 +239,7 @@ namespace IronScheme.Runtime
 
       Stopwatch sw = Stopwatch.StartNew();
 
-      ScriptCode sc = cc.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.Compile(new Cons(expr))); //wrap
+      ScriptCode sc = cc.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.CompileExpr(new Cons(expr))); //wrap
 
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();

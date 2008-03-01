@@ -20,7 +20,7 @@ using IronScheme.Runtime;
 namespace IronScheme.Compiler
 {
   [Generator("begin")]
-  public class BeginGenerator : SimpleGenerator
+  public sealed class BeginGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

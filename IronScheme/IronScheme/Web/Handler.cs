@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Configuration;
 using System.Web;
@@ -16,12 +17,19 @@ using System.Web.SessionState;
 
 namespace IronScheme.Web
 {
-
-  public class Handler : IHttpHandler, IRequiresSessionState
+  public sealed class Handler : IHttpHandler, IRequiresSessionState
   {
     IronSchemeLanguageProvider lp;
+    IScriptEngine se;
 
+    class Compiled
+    {
+      public DateTime Time;
+      public ICallable Closure;
+    }
 
+    static Dictionary<string, Compiled> compiled = new Dictionary<string, Compiled>();
+    
     public bool IsReusable
     {
       get { return true; }
@@ -38,19 +46,45 @@ namespace IronScheme.Web
       {
         if (lp == null)
         {
-          if (context.Application["lp"] == null)
+          lp = context.Application["LanguageProvider"] as IronSchemeLanguageProvider;
+          if (lp == null)
           {
-            ScriptDomainManager sdm = ScriptDomainManager.CurrentManager;
-            Environment.CurrentDirectory = Builtins.ApplicationDirectory;
-            lp = new IronSchemeLanguageProvider(sdm);
-            lp.GetEngine().Execute("(load \"init.scm\")");
-            context.Application["lp"] = lp;
+            try
+            {
+              ScriptDomainManager sdm = ScriptDomainManager.CurrentManager;
+              sdm.GlobalOptions.AssemblyGenAttributes = Microsoft.Scripting.Generation.AssemblyGenAttributes.None;
+              lp = new IronSchemeLanguageProvider(sdm);
+              se = lp.GetEngine();
+              se.Execute("(load \"~/init.scm\")");
+              context.Application["LanguageProvider"] = lp;
+            }
+            catch
+            {
+              lp = null;
+              se = null;
+
+              throw;
+            }
           }
           else
           {
-            lp = context.Application["lp"] as IronSchemeLanguageProvider;
+            se = lp.GetEngine();
           }
+        }
+      }
 
+      Compiled cc;
+
+      lock (this)
+      {
+        if (!compiled.TryGetValue(context.Request.PhysicalPath, out cc) || cc.Time < File.GetLastWriteTime(context.Request.PhysicalPath))
+        {
+          ICallable ccc = se.Evaluate(string.Format("(compile->closure \"{0}\")", context.Request.PhysicalPath.Replace('\\', '/'))) as ICallable;
+          cc = new Compiled();
+          cc.Time = DateTime.Now;
+          cc.Closure = ccc;
+
+          compiled[context.Request.PhysicalPath] = cc;
         }
       }
       
@@ -58,7 +92,7 @@ namespace IronScheme.Web
       try
       {
         Builtins.CurrentOutputPort(context.Response.Output);
-        lp.GetEngine().Execute(string.Format("(eval-r6rs '(load \"{0}\"))", context.Request.PhysicalPath.Replace('\\', '/')));
+        cc.Closure.Call();
       }
       finally
       {

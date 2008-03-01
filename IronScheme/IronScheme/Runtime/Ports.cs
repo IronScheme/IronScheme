@@ -217,9 +217,9 @@ namespace IronScheme.Runtime
           if (File.Exists(cfn))
           {
             DateTime ct = File.GetLastWriteTime(cfn);
-            if (ct > File.GetLastWriteTime(path))
+            if (!File.Exists(path) || ct >= File.GetLastWriteTime(path))
             {
-              if (File.GetLastWriteTime(typeof(Builtins).Assembly.Location) < ct || cfn.StartsWith("ironscheme.boot.exe") 
+              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || cfn.EndsWith("ironscheme.boot.exe") 
                 //|| cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe")
                 )
               {
@@ -227,6 +227,11 @@ namespace IronScheme.Runtime
                 goto case ".exe";
               }
             }
+          }
+
+          if (!File.Exists(path))
+          {
+            return FileNotFoundViolation("load", "file not found", filename);
           }
 
           try
@@ -241,10 +246,6 @@ namespace IronScheme.Runtime
             Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
 
             return result;
-          }
-          catch (FileNotFoundException ex)
-          {
-            return FileNotFoundViolation("load", ex.Message, filename);
           }
           catch (R6RS.Condition)
           {
@@ -270,6 +271,7 @@ namespace IronScheme.Runtime
       return Read(CurrentInputPort());
     }
 
+    //[ThreadStatic]
     static Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
 
     [Builtin("read")]
@@ -718,17 +720,21 @@ namespace IronScheme.Runtime
         return "()";
       }
 
-      if (obj is BuiltinMethod)
+      if (obj == EOF)
       {
-        return ((BuiltinMethod)obj).Name;
+        return "#<eof>";
       }
-      if (obj is Closure)
+      if (obj == Builtins.Unspecified)
       {
-        return obj.ToString();
+        return "#<unspecified>";
+      }
+      if (obj is ICallable)
+      {
+        return "#<procedure " + obj + ">";
       }
       if (obj is Macro)
       {
-        return ((Macro)obj).Name;
+        return "#<macro " + ((Macro)obj).Name + ">";
       }
 
       if (obj is bool)
@@ -925,8 +931,12 @@ namespace IronScheme.Runtime
       }
     }
 
+    //probably a good idea to make these threadstatic
+    [ThreadStatic]
     static TextReader currentinputport = Console.In;
+    [ThreadStatic]
     static TextWriter currentoutputport = Console.Out;
+    [ThreadStatic]
     static TextWriter currenterrorport = Console.Error;
 
     [Builtin("current-input-port")]
@@ -976,7 +986,14 @@ namespace IronScheme.Runtime
     {
       if (filename.StartsWith("~"))
       {
-        return Path.Combine(Path.GetDirectoryName(typeof(Builtins).Assembly.Location), filename.Substring(2));
+        if (ApplicationDirectory != Environment.CurrentDirectory)
+        {
+          return Path.Combine(ApplicationDirectory, filename.Substring(2));
+        }
+        else
+        {
+          return filename.Substring(2);
+        }
       }
       return filename;
     }

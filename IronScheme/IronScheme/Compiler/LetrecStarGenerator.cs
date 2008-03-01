@@ -22,7 +22,7 @@ namespace IronScheme.Compiler
 {
 
   [Generator("letrec*")]
-  public class LetrecStarGenerator : SimpleGenerator
+  public sealed class LetrecStarGenerator : SimpleGenerator
   {
     int level = 0;
     public override Expression Generate(object args, CodeBlock c)

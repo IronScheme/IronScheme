@@ -22,7 +22,6 @@ using Microsoft.Scripting;
 using System.IO;
 using Microsoft.Scripting.Hosting;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime
 {
@@ -35,84 +34,118 @@ namespace IronScheme.Runtime
       return TRUE;
     }
 
-    static readonly Regex UNGENSYM = new Regex(@".*g\$(?<id>.*?)\$\d+\$\d+.*", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
-
     internal static SymbolId UnGenSym(SymbolId sym)
     {
       string ss = SymbolTable.IdToString(sym);
-      Match m = UNGENSYM.Match(ss);
-      if (m.Success)
+      //name is between 1st and 2nd $
+      int start = ss.IndexOf('$') + 1;
+      if (start > 0)
       {
-        return SymbolTable.StringToId(m.Groups["id"].Value);
+        int count = ss.IndexOf('$', start) - start;
+
+        if (count > 0)
+        {
+          ss = ss.Substring(start, count);
+          return SymbolTable.StringToId(ss);
+        }
       }
       return sym;
     }
 
     public static object UndefinedError(object sym)
     {
-      ICallable u = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&undefined-rcd"))) as ICallable;
-      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+      if (IsR6RSLoaded())
+      {
+        ICallable u = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&undefined-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
-      sym = UnGenSym(RequiresNotNull<SymbolId>(sym));
+        sym = UnGenSym(RequiresNotNull<SymbolId>(sym));
 
-      R6RS.Exceptions.RaiseContinueable(
-        R6RS.Conditions.Condition(u.Call(), i.Call(List(sym))));
+        R6RS.Exceptions.RaiseContinueable(
+          R6RS.Conditions.Condition(u.Call(), m.Call("attempted to use undefined symbol"), i.Call(List(sym))));
 
-      return Unspecified;
+        return Unspecified;
+      }
+      else
+      {
+        throw new Exception("undefined symbol: " + UnGenSym(RequiresNotNull<SymbolId>(sym)));
+      }
     }
 
     public static object LexicalError(string msg, object what)
     {
-      ICallable l = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&lexical-rcd"))) as ICallable;
-      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+      if (IsR6RSLoaded())
+      {
+        ICallable l = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&lexical-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
-      R6RS.Exceptions.RaiseContinueable(
-        R6RS.Conditions.Condition(l.Call(), m.Call(msg), i.Call(List(what))));
+        R6RS.Exceptions.RaiseContinueable(
+          R6RS.Conditions.Condition(l.Call(), m.Call(msg), i.Call(List(what))));
 
-      return Unspecified;
+        return Unspecified;
+      }
+      else
+      {
+        throw new Exception(string.Format("lexical error: {0} ({1})", msg, what));
+      }
 
     }
 
     public static object SyntaxError(object who, object message, object form, object subform)
     {
-      ICallable s = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
-      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-
-      if (who is bool && !(bool)who)
+      if (IsR6RSLoaded())
       {
-        R6RS.Exceptions.RaiseContinueable(
-          R6RS.Conditions.Condition(m.Call(message), s.Call(form, subform)));
+        ICallable s = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+
+        if (who is bool && !(bool)who)
+        {
+          R6RS.Exceptions.RaiseContinueable(
+            R6RS.Conditions.Condition(m.Call(message), s.Call(form, subform)));
+        }
+        else
+        {
+          R6RS.Exceptions.RaiseContinueable(
+            R6RS.Conditions.Condition(w.Call(who), m.Call(message), s.Call(form, subform)));
+        }
+
+        return Unspecified;
       }
       else
       {
-        R6RS.Exceptions.RaiseContinueable(
-          R6RS.Conditions.Condition(w.Call(who), m.Call(message), s.Call(form, subform)));
+        throw new Exception(string.Format("syntax error: {0} ({1})", message, form));
       }
-
-      return Unspecified;
     }
 
     public static object FileNotFoundViolation(object who, object message, object filename)
     {
-      ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
-      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&i/o-file-does-not-exist-rcd"))) as ICallable;
-
-      if (who is bool && !(bool)who)
+      if (IsR6RSLoaded())
       {
-        R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(filename)));
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&i/o-file-does-not-exist-rcd"))) as ICallable;
+
+        if (who is bool && !(bool)who)
+        {
+          R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(filename)));
+        }
+        else
+        {
+          R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(filename)));
+        }
+
+        return Unspecified;
       }
       else
       {
-        R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(filename)));
+        throw new FileNotFoundException(filename as string);
       }
-
-      return Unspecified;
     }
 
     static bool IsR6RSLoaded()
@@ -147,7 +180,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        throw new Exception(string.Format("{0} - {1}", who, message));
+        throw new Exception(string.Format("assertion-violation: {0}", message));
       }
     
     }
@@ -155,23 +188,30 @@ namespace IronScheme.Runtime
     [Builtin("error")]
     public static object Error(object who, object message, params object[] irritants)
     {
-      ICallable e = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&error-rcd"))) as ICallable;
-      ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-      ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-      ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
-
-      if (who is bool && !(bool)who)
+      if (IsR6RSLoaded())
       {
-        R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(VectorToList(irritants))));
+        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&error-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+        if (who is bool && !(bool)who)
+        {
+          R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(VectorToList(irritants))));
+        }
+        else
+        {
+          R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(e.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
+        }
+
+        return Unspecified;
       }
       else
       {
-        R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(e.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
+        throw new Exception(string.Format("error: {0}", message));
       }
-
-      return Unspecified;
     }
 
     static readonly int TICKS = (int)((DateTime.Now.Ticks >> 16) & 0xEFFFFFFF);
@@ -179,10 +219,37 @@ namespace IronScheme.Runtime
     static int anonsymcount = 0;
     static int symcount = 0;
 
+    static char[] symchars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@&".ToCharArray(); //64 for ease
+
+    static string PackInt(int i)
+    {
+      StringBuilder sb = new StringBuilder();
+      do
+      {
+        int r = i % 64;
+        sb.Append(symchars[r]);
+
+        i /= 64;
+      }
+      while (i > 0) ;
+
+      // need to reverse, not really needed, but lets be correct for now
+      char[] res = new char[sb.Length];
+
+      for (int j = 0; j < res.Length; j++)
+      {
+        res[res.Length - j - 1] = sb[j];
+      }
+
+      return new string(res);
+    }
+
+    static readonly string TICKSTRING = PackInt(TICKS);
+
     [Builtin]
     public static object GenSym()
     {
-      return SymbolTable.StringToId("g$" + anonsymcount++ + "$" + TICKS);
+      return SymbolTable.StringToId("g$" + anonsymcount++ + "$" + TICKSTRING);
     }
 
     [Builtin]
@@ -191,12 +258,12 @@ namespace IronScheme.Runtime
       if (name is string)
       {
         string s = RequiresNotNull<string>(name);
-        return SymbolTable.StringToId("g$" + s + "$" + symcount++ + "$" + TICKS);
+        return SymbolTable.StringToId("g$" + s + "$" + symcount++ + "$" + TICKSTRING);
       }
       else
       {
         SymbolId s = UnGenSym(RequiresNotNull<SymbolId>(name));
-        return SymbolTable.StringToId("g$" + s + "$" + symcount++ + "$" + TICKS);
+        return SymbolTable.StringToId("g$" + s + "$" + symcount++ + "$" + TICKSTRING);
       }
     }
   }
