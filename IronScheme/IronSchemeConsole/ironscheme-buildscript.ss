@@ -212,7 +212,7 @@
   ;; abbr.       name                             visible? required?
   '((i           (ironscheme)                          #t    #f)
     (ir          (ironscheme reader)                   #t    #t)
-    (is          (ironscheme serialization)            #t    #t)
+    (iser        (ironscheme serialization)            #t    #t)
     (irp         (ironscheme records printer)          #t    #t)
     (ii          (ironscheme interaction)              #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
@@ -1032,8 +1032,8 @@
     (load                                       ii)
     (compile                                    ii)
     (compile->closure                           ii)
-    (serialize-library                          is)
-    (load-serialized-library                    is)
+    (serialize-library                          iser)
+    (load-serialized-library                    iser)
 		;;;
     (void                                       $boot i)
     (gensym                                     $boot i)
