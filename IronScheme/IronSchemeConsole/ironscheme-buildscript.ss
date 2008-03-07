@@ -211,6 +211,7 @@
 (define library-legend
   ;; abbr.       name                             visible? required?
   '((i           (ironscheme)                          #t    #f)
+    (il          (ironscheme library)                  #t    #t)
     (ir          (ironscheme reader)                   #t    #t)
     (iser        (ironscheme serialization)            #t    #t)
     (irp         (ironscheme records printer)          #t    #t)
@@ -268,7 +269,7 @@
     (installed-libraries                        i)
     (library-extensions                         i)
     (library-path                               i)
-    (get-library-paths                          i)
+    (get-library-paths                          i il)
     (library-locator                            i)
     (make-parameter                             i)
     (parameterize                               i)

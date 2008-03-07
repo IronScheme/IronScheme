@@ -20,7 +20,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
-#if LIBRARY_LETREC
+#if !LIBRARY_LETREC
   //not being used yet, need to figure out the semantics involved.
   // see expander.ss:3406
   //`(library-letrec* ,(map list vars locs val-exps) ,body-exp))
@@ -33,9 +33,11 @@ namespace IronScheme.Compiler
       level++;
       NameHint = SymbolTable.StringToId("library-letrec*");
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
-      cb.Parent = c;
+      cb.IsGlobal = true;
 
       List<Variable> vars = new List<Variable>();
+      List<Variable> locals = new List<Variable>();
+
       List<object> defs = new List<object>();
 
       Cons a = (args as Cons).car as Cons;
@@ -44,7 +46,8 @@ namespace IronScheme.Compiler
       {
         Cons d = a.car as Cons;
 
-        vars.Add(Create((SymbolId)d.car, cb, typeof(object)));
+        vars.Add(Create((SymbolId)((Cons)d.cdr).car, cb, typeof(object)));
+        locals.Add(Create((SymbolId)d.car, cb, typeof(object)));
         defs.Add(((Cons)((Cons)d.cdr).cdr).car);
 
         a = a.cdr as Cons;
@@ -54,14 +57,14 @@ namespace IronScheme.Compiler
 
       for (int i = 0; i < vars.Count; i++)
       {
-        NameHint = vars[i].Name;
+        NameHint = Builtins.UnGenSym(vars[i].Name);
         Expression e = GetAst(defs[i], cb);
 
         if (e.Type.IsValueType)
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }
-        stmts.Add(Ast.Write(vars[i], e));
+        stmts.Add(Ast.Write(vars[i], Ast.Assign(locals[i], e)));
       }
 
       Cons body = Builtins.Cdr(args) as Cons;

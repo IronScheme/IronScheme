@@ -31,17 +31,25 @@
     (psyntax compat)
     (psyntax internal)
     (psyntax library-manager)
-    (psyntax expander))
+    (psyntax expander)
+    (ironscheme files)
+    (ironscheme library))
+    
+  (define (local-library-path filename)
+    (append (list (get-directory-name filename)) (library-path)))
     
   (define (load filename)
-    (load-r6rs-top-level filename 'load)
-    (void))
+    (parameterize ([library-path (local-library-path filename)])
+      (load-r6rs-top-level filename 'load)
+      (void)))
     
   (define (compile filename)
-    (load-r6rs-top-level filename 'compile))
+    (parameterize ([library-path (local-library-path filename)])
+      (load-r6rs-top-level filename 'compile)))
     
   (define (compile->closure filename)
-    (load-r6rs-top-level filename 'closure))    
+    (parameterize ([library-path (local-library-path filename)])
+      (load-r6rs-top-level filename 'closure)))
   
   (define (load-r6rs-top-level filename how)
     (let ((x* 
@@ -60,21 +68,14 @@
 					    (compile-r6rs-top-level x*) ; i assume this is needed
 					    (serialize-all serialize-library compile-core-expr))))))
 
-  (let ((args (command-line)))
-    (unless (= (length args) 2)
-      (display "provide a script name argument\n")
-      (exit 17))
-    (let ((script-name (car args)) (args (cdr args)))
-      (load (car args))))
-      
+ 
   (current-precompiled-library-loader load-serialized-library)  
       
   (set-symbol-value! 'load load)
   (set-symbol-value! 'compile compile)
   (set-symbol-value! 'compile->closure compile->closure)
+  (set-symbol-value! 'eval-r6rs eval-top-level)
   
-  
-  ;; return 'hook', we are cheap :)
-  eval-top-level
+  (library-path (get-library-paths))
   )
 

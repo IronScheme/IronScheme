@@ -182,7 +182,6 @@ namespace IronScheme.Runtime
       {
         throw new Exception(string.Format("assertion-violation: {0}", message));
       }
-    
     }
 
     [Builtin("error")]

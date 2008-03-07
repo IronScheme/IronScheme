@@ -315,9 +315,6 @@
     <None Include="psyntax\psyntax-buildscript.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="r6rs-init.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme\base.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
