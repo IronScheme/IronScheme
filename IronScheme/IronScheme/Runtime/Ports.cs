@@ -49,14 +49,6 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("with-input-from-file", ex.Message, filename);
       }
-      catch (R6RS.Condition)
-      {
-        throw;
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("with-input-from-file", ex.Message, filename);
-      }
       finally
       {
         if (readcache.ContainsKey(currentinputport))
@@ -88,14 +80,6 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("with-output-to-file", ex.Message, filename);
-      }
-      catch (R6RS.Condition)
-      {
-        throw;
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("with-output-to-file", ex.Message, filename);
       }
       finally
       {
@@ -153,63 +137,63 @@ namespace IronScheme.Runtime
       {
         case ".dll":
 
-            Assembly ext = AssemblyLoad(path);
-            if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
-            {
-              IronScheme.Compiler.Generator.AddGenerators(cc, ext);
+          Assembly ext = AssemblyLoad(path);
+          if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
+          {
+            IronScheme.Compiler.Generator.AddGenerators(cc, ext);
 
-              foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
+            foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
+            {
+              if (ea.BuiltinsType != null)
               {
-                if (ea.BuiltinsType != null)
-                {
-                  IronScheme.Compiler.Generator.AddBuiltins(cc, ea.BuiltinsType);
-                }
-                if (ea.ScriptResource != null)
-                {
-                  //TODO: ExtensionAttribute.ScriptResource
-                }
+                IronScheme.Compiler.Generator.AddBuiltins(cc, ea.BuiltinsType);
+              }
+              if (ea.ScriptResource != null)
+              {
+                //TODO: ExtensionAttribute.ScriptResource
               }
             }
-            else
-            {
-              // just reference.?
-            }
+          }
+          else
+          {
+            // just reference.?
+          }
           break;
         case ".exe":
-            Assembly mod = AssemblyLoad(path);
-            MethodInfo entry = null;
-            foreach (Type t in mod.GetExportedTypes())
+          Assembly mod = AssemblyLoad(path);
+          MethodInfo entry = null;
+          foreach (Type t in mod.GetExportedTypes())
+          {
+            if (t.BaseType == typeof(CustomSymbolDictionary))
             {
-              if (t.BaseType == typeof(CustomSymbolDictionary))
+              List<Type> ii = new List<Type>(t.GetInterfaces());
+              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
               {
-                List<Type> ii = new List<Type>(t.GetInterfaces());
-                if (ii.Contains(typeof(IModuleDictionaryInitialization)))
+                entry = t.GetMethod("Initialize");
+                if (entry != null)
                 {
-                  entry = t.GetMethod("Initialize");
-                  if (entry != null)
-                  {
-                    break;
-                  }
+                  break;
                 }
               }
             }
+          }
 
-            if (entry == null)
-            {
-              // what now?
-              goto case ".dll";
-            }
-            else
-            {
-              IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
-                IModuleDictionaryInitialization;
+          if (entry == null)
+          {
+            // what now?
+            goto case ".dll";
+          }
+          else
+          {
+            IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
+              IModuleDictionaryInitialization;
 
-              init.InitializeModuleDictionary(cc);
+            init.InitializeModuleDictionary(cc);
 
-              CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
-              return t(cc);
-            }
-          //break;
+            CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
+            return t(cc);
+          }
+        //break;
         default:
 
           // check for already compiled version
@@ -219,7 +203,7 @@ namespace IronScheme.Runtime
             DateTime ct = File.GetLastWriteTime(cfn);
             if (!File.Exists(path) || ct >= File.GetLastWriteTime(path))
             {
-              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || cfn.EndsWith("ironscheme.boot.exe") 
+              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || cfn.EndsWith("ironscheme.boot.exe")
                 //|| cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe")
                 )
               {
@@ -234,32 +218,17 @@ namespace IronScheme.Runtime
             return FileNotFoundViolation("load", "file not found", filename);
           }
 
-          try
-          {
-            SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
+          SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
 
-            Stopwatch sw = Stopwatch.StartNew();
-            ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
-            Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
-            sw = Stopwatch.StartNew();
-            object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
-            Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
+          Stopwatch sw = Stopwatch.StartNew();
+          ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
+          Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
+          sw = Stopwatch.StartNew();
+          object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+          Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
 
-            return result;
-          }
-          catch (R6RS.Condition)
-          {
-            throw;
-          }
-          catch (Exception ex)
-          {
-            return AssertionViolation("load", ex.Message, filename);
-          }
-          finally
-          {
-            //GC.Collect();
-          }
-          //break;
+          return result;
+
       }
 
       return Unspecified;
@@ -893,14 +862,6 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("call-with-input-file", ex.Message, filename);
       }
-      catch (R6RS.Condition)
-      {
-        throw;
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("call-with-input-file", ex.Message, filename);
-      }
     }
 
     [Builtin("call-with-output-file")]
@@ -920,14 +881,6 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("call-with-output-file", ex.Message, filename);
-      }
-      catch (R6RS.Condition)
-      {
-        throw;
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("call-with-output-file", ex.Message, filename);
       }
     }
 
@@ -1010,10 +963,6 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("open-input-file", ex.Message, filename);
       }
-      catch (Exception ex)
-      {
-        return AssertionViolation("open-input-file", ex.Message, filename);
-      }
     }
 
     [Builtin("open-output-file")]
@@ -1028,10 +977,6 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("open-output-file", ex.Message, filename);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("open-input-file", ex.Message, filename);
       }
     }
 

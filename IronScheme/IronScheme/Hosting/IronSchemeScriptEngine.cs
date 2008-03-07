@@ -82,11 +82,18 @@ namespace IronScheme.Hosting
       {
         return exception.ToString();
       }
-      return string.Format(@"&clr
+      try
+      {
+        return string.Format(@"&clr
 &who:                 {3}.{2}
 &clr-type:            {0}
 &message:             {1}", exception.GetType(), exception.Message, exception.TargetSite.Name, exception.TargetSite.DeclaringType.Name);
-      //return base.FormatException(exception);
+      }
+        //eek!
+      catch (NullReferenceException)
+      {
+        return base.FormatException(exception);
+      }
     }
 
     #region Abstract

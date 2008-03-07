@@ -57,6 +57,7 @@ namespace IronScheme.Web
               se = lp.GetEngine();
               se.Execute("(load \"~/init.scm\")");
               context.Application["LanguageProvider"] = lp;
+              compiled.Clear();
             }
             catch
             {
