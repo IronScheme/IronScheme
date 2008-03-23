@@ -172,6 +172,21 @@ namespace Microsoft.Scripting.Ast {
                 return;
               }
             }
+            if (_instance is CodeBlockExpression)
+            {
+              CodeBlockExpression cbe = (CodeBlockExpression)_instance;
+
+              Debug.Assert(_arguments.Count == _parameterInfos.Length);
+              for (int arg = 0; arg < _parameterInfos.Length; arg++)
+              {
+                Expression argument = _arguments[arg];
+                Type type = _parameterInfos[arg].ParameterType;
+                EmitArgument(cg, argument, type);
+              }
+
+              cbe.EmitDirect(cg, tailcall);
+              return;
+            }
           }
             // Emit instance, if calling an instance method
             if (!_method.IsStatic) {

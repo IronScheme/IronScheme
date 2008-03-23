@@ -810,19 +810,26 @@
   ;;; (psyntax system $all) library, it creates a fresh identifier
   ;;; that maps only the symbol to its label in that library.
   ;;; Symbols not in that library become fresh.
+  (define scheme-stx-hashtable (make-eq-hashtable))
   (define scheme-stx
     (lambda (sym)
-      (let ((subst
+      (or (hashtable-ref scheme-stx-hashtable sym #f) 
+          (let* ((subst
              (library-subst
-               (find-library-by-name '(psyntax system $all)))))
+                    (find-library-by-name '(psyntax system $all))))
+                 (stx (mkstx sym top-mark* '() '()))
+                 (stx
         (cond
           ((assq sym subst) =>
            (lambda (x)
              (let ((name (car x)) (label (cdr x)))
                (add-subst
-                 (make-rib (list name) (list top-mark*) (list label) #f)
-                 (mkstx sym top-mark* '() '())))))
-          (else (mkstx sym top-mark* '() '()))))))
+                           (make-rib (list name) 
+                             (list top-mark*) (list label) #f)
+                           stx))))
+                    (else stx))))
+            (hashtable-set! scheme-stx-hashtable sym stx)
+            stx))))
 
   ;;; macros
   (define lexical-var car)

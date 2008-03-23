@@ -176,7 +176,7 @@ SectionIn 1 2 RO
   SetOutPath "$INSTDIR"
   
   DetailPrint "Removing previous native images (if any)..."
-  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.exe"'
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'
 
   CreateDirectory "$SMPROGRAMS\IronScheme"
 
@@ -188,7 +188,7 @@ SectionIn 1 2 RO
 	
 	File "IronScheme.dll"
 	File "IronScheme.Closures.dll"
-	File "ironscheme.boot.exe"
+	File "ironscheme.boot.dll"
 	File "Microsoft.Scripting.dll"
 	
 	File "init.scm"
@@ -196,16 +196,18 @@ SectionIn 1 2 RO
 	File "genwrite.scm"
 	
 	File "ironscheme-buildscript.ss"
-	File "r6rs-init.ss"
 
 	SetOutPath "$INSTDIR\examples"
-	File /r examples\*.*
+	File /r examples\*.ss
+	
+	SetOutPath "$INSTDIR\docs"
+	File /r docs\*.ss	
 	
 	SetOutPath "$INSTDIR\ironscheme"
-	File /r ironscheme\*.*
+	File /r ironscheme\*.ss
 	
 	SetOutPath "$INSTDIR\lib"
-	File /r lib\*.*
+	File /r lib\*.ss
 	
 	SetOutPath "$INSTDIR\psyntax"
 	File psyntax\builders.ss
@@ -217,7 +219,7 @@ SectionIn 1 2 RO
 	File psyntax\main.ss
 	
 	SetOutPath "$INSTDIR\srfi"
-	File /r srfi\*.*
+	File /r srfi\*.ss
 	
 	SetOutPath "$INSTDIR\websample"
 	File ..\..\..\IronScheme.Web\test.ss
@@ -236,7 +238,7 @@ SectionEnd
 
 Section -Post
   DetailPrint "Generating native images..."
-  nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.exe"'
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.dll"'
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\IronScheme.Console.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
@@ -313,7 +315,7 @@ Section Uninstall
   Pop $NETPATH
 
   DetailPrint "Removing native images..."
-  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.exe"'
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'
   
   Delete "$DESKTOP\IronScheme.lnk"
 	

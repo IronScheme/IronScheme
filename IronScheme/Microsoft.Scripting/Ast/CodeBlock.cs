@@ -65,6 +65,7 @@ namespace Microsoft.Scripting.Ast {
         private bool _isGlobal;
         private bool _visibleScope = true;
         private bool _parameterArray;
+        internal bool Checked = false;
         
         // Interpreted mode: Cache for emitted delegate so that we only generate code once.
         private Delegate _delegate;
@@ -81,6 +82,11 @@ namespace Microsoft.Scripting.Ast {
         private bool _declarativeReferenceExists;
 
         private Expression _explicitCodeContextExpression;
+
+      public override string ToString()
+      {
+        return _name;
+      }
 
         internal CodeBlock(AstNodeType nodeType, SourceSpan span, string name, Type returnType)
             : base(nodeType) {
@@ -785,7 +791,7 @@ namespace Microsoft.Scripting.Ast {
           cg.EmitCall(_impl, tailcall);
           return;
         }
-        FlowChecker.Check(this);
+        //FlowChecker.Check(this);
 
         // TODO: explicit delegate type may be wrapped...
         bool createWrapperMethod = _parameterArray ? false : (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
@@ -806,19 +812,12 @@ namespace Microsoft.Scripting.Ast {
         // the implementations should be stored on some kind of Module when available
         CodeGen impl = cg.ProvideCodeBlockImplementation(this, hasContextParameter, hasThis);
 
-        
-
         //// if the method has more than our maximum # of args wrap
         //// it in a method that takes an object[] instead.
         if (createWrapperMethod)
         {
           CodeGen wrapper = MakeWrapperMethodN(cg, impl, hasThis);
           wrapper.Finish();
-
-          //  if (delegateType == null)
-          //  {
-          //    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
-          //  }
           cg.EmitCall(_impl = wrapper.MethodInfo, tailcall);
         }
         else
@@ -826,36 +825,10 @@ namespace Microsoft.Scripting.Ast {
           impl.Finish();
           cg.EmitCall(_impl = impl.MethodInfo, tailcall);
         }
-
-        //  cg.EmitDelegateConstruction(wrapper, delegateType);
-        //}
-        //else if (_parameterArray)
-        //{
-        //  if (delegateType == null)
-        //  {
-        //    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
-        //  }
-        //  cg.EmitDelegateConstruction(impl, delegateType);
-        //}
-        //else
-        //{
-        //  if (delegateType == null)
-        //  {
-        //    if (stronglyTyped)
-        //    {
-        //      delegateType = ReflectionUtils.GetDelegateType(GetParameterTypes(hasContextParameter), _returnType);
-        //    }
-        //    else
-        //    {
-        //      delegateType = CallTargets.GetTargetType(hasContextParameter, _parameters.Count - (hasThis ? 1 : 0), hasThis);
-        //    }
-        //  }
-        //  cg.EmitDelegateConstruction(impl, delegateType);
-        //}
       }
 
         internal void EmitDelegateConstruction(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType) {
-            FlowChecker.Check(this);
+            //FlowChecker.Check(this);
 
             // TODO: explicit delegate type may be wrapped...
             bool createWrapperMethod = _parameterArray ? false : (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
@@ -1278,8 +1251,9 @@ namespace Microsoft.Scripting.Ast {
             Type envType = typeof(FunctionEnvironmentDictionary<>).MakeGenericType(tupleType);
 
             return new PropertyEnvironmentFactory(tupleType, envType);
-        }       
-    }
+        }
+
+      }
 
     public static partial class Ast {
         public static CodeBlock CodeBlock(string name) {

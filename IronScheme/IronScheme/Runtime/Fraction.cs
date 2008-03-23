@@ -384,6 +384,63 @@ namespace IronScheme.Runtime
 			return new Fraction(number, 1);
 		}
 
+    //from: http://www.math.uic.edu/~burgiel/Mtht420.99/5/Rational.java - thanks Google
+    public static implicit operator Fraction(double x)
+    {
+      const double eps = double.Epsilon;
+      if (x == 0.0)
+      {
+        return Fraction.Zero;
+      }
+      if (Math.Abs(x) > long.MaxValue ||
+          Math.Abs(x) < 1 / (double)long.MaxValue)
+      {  // NaN
+        throw new OverflowException();
+      }
+      int sgn = 1;
+      if (x < 0.0)
+      {
+        sgn = -1;
+        x = -x;
+      }
+      long intPart = (long)x;
+      double z = x - intPart;
+      if (z != 0)
+      {
+        z = 1.0 / z;
+        long a = (long)z;
+        z = z - a;
+        long prevNum = 0;
+        long num = 1;
+        long prevDen = 1;
+        long den = a;
+        long tmp;
+        double approxAns = ((double)den * intPart + num) / den;
+        while (Math.Abs((x - approxAns) / x) >= eps)
+        {
+          z = 1.0 / z;
+          a = (long)z;
+          z = z - a;
+          // deal with too-big numbers:
+          if ((double)a * num + prevNum > long.MaxValue ||
+              (double)a * den + prevDen > long.MaxValue)
+            break;
+          tmp = a * num + prevNum;
+          prevNum = num;
+          num = tmp;
+          tmp = a * den + prevDen;
+          prevDen = den;
+          den = tmp;
+          approxAns = ((double)den * intPart + num) / den;
+        }
+        return new Fraction(sgn * (den * intPart + num), den);
+      }
+      else
+      {                    // is integer
+        return new Fraction(sgn * intPart, 1);
+      }
+    }
+
 		/// <summary>
 		/// This is a potentially lossy conversion since the decimal may use more than the available
 		/// 64 bits for the nominator. In this case the least significant bits of the decimal are 
@@ -671,15 +728,15 @@ namespace IronScheme.Runtime
 
 		public override string ToString()
 		{
-      if (denominator == 1)
-      {
-        return numerator.ToString(CultureInfo.CurrentCulture);
-      }
+      //if (denominator == 1)
+      //{
+      //  return numerator.ToString(CultureInfo.CurrentCulture);
+      //}
 
-      if (numerator % denominator == 0)
-      {
-        return (numerator / denominator).ToString();
-      }
+      //if (numerator % denominator == 0)
+      //{
+      //  return (numerator / denominator).ToString();
+      //}
 
 			return numerator.ToString(CultureInfo.CurrentCulture) + "/" + denominator.ToString(CultureInfo.CurrentCulture);
 		}

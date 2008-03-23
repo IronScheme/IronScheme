@@ -138,7 +138,7 @@ namespace IronScheme.Runtime
     [Builtin("eqv?")]
     public static object IsEqualValue(object first, object second)
     {
-      return GetBool(((bool)IsEqual(first, second)) || Equals(first, second));
+      return GetBool(Equals(first, second));
     }
 
   }

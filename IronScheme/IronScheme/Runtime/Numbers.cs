@@ -60,7 +60,15 @@ namespace IronScheme.Runtime
             double d = (double)obj;
             if (Math.IEEERemainder(d, 1) == 0)
             {
-              return string.Format("{0:f1}", obj);
+              string rr = string.Format("{0:r}", obj).ToLower();
+              if (rr.Contains("e"))
+              {
+                return rr;
+              }
+              else
+              {
+                return rr + ".0";
+              }
             }
             else
             {
@@ -77,11 +85,7 @@ namespace IronScheme.Runtime
                 return "+nan.0";
               }
               else
-              if (d > 10e17 || d < -10e17)
-              {
-                return string.Format("{0:g}", new Decimal(d));
-              }
-              return string.Format("{0:r}", obj);
+              return string.Format("{0:r}", obj).ToLower();
             }
           }
           return obj.ToString();
@@ -457,7 +461,7 @@ namespace IronScheme.Runtime
       {
         try
         {
-          Fraction f = (Fraction)Convert.ToDecimal(obj);
+          Fraction f = (Fraction)SafeConvert(obj);
           if (f.Denominator == 1)
           {
             if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
@@ -466,6 +470,7 @@ namespace IronScheme.Runtime
             }
             return (int)f.Numerator;
           }
+          return f;
         }
         catch (DivideByZeroException)
         {
@@ -475,6 +480,16 @@ namespace IronScheme.Runtime
         {
           // fall back to bigint
         }
+        BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(Round(obj));
+        int ir;
+        if (r.AsInt32(out ir))
+        {
+          return ir;
+        }
+        return r;
+      }
+      if (obj is long)
+      {
         BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(obj);
         int ir;
         if (r.AsInt32(out ir))
@@ -482,6 +497,19 @@ namespace IronScheme.Runtime
           return ir;
         }
         return r;
+      }
+      if (obj is Fraction)
+      {
+        Fraction f = (Fraction)obj;
+        if (f.Denominator == 1)
+        {
+          if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
+          {
+            return (BigInteger)f.Numerator;
+          }
+          return (int)f.Numerator;
+        }
+        return f;
       }
       return obj;
     }
@@ -1102,7 +1130,7 @@ namespace IronScheme.Runtime
       object value;
       if (OperatorHelper("op_Division", first, second, out value))
       {
-        return value;
+        return ExactIfPossible(value);
       }
       return AssertionViolation("/", "types are not compatible", first, second);
     }
@@ -1234,6 +1262,16 @@ namespace IronScheme.Runtime
     [Builtin("div-and-mod")]
     public static object DivMod(object x1, object x2)
     {
+      bool exactargs = IsTrue(IsExact(x1)) && IsTrue(IsExact(x2));
+      object scale = 1;
+
+      if (exactargs)
+      {
+        scale = Multiply(Denominator(x1), Denominator(x2));
+        x1 = Multiply(x1, scale);
+        x2 = Multiply(x2, scale);
+      }
+
       double a = Convert.ToDouble(x1);
       double b = Convert.ToDouble(x2);
 
@@ -1255,7 +1293,20 @@ namespace IronScheme.Runtime
           div++;
         }
       }
-      return Values(Exact(div), mod);
+
+      if (exactargs)
+      {
+        return Values(Exact(div), Exact(Divide(mod, scale)));
+      }
+
+      if (Math.IEEERemainder(mod, 1) == 0.0)
+      {
+        return Values(Exact(div), Exact(mod));
+      }
+      else
+      {
+        return Values(Exact(div), mod);
+      }
     }
 
     [Builtin("div0")]
@@ -1273,6 +1324,16 @@ namespace IronScheme.Runtime
     [Builtin("div0-and-mod0")]
     public static object Div0Mod0(object x1, object x2)
     {
+      bool exactargs = IsTrue(IsExact(x1)) && IsTrue(IsExact(x2));
+      object scale = 1;
+
+      if (exactargs)
+      {
+        scale = Multiply(Denominator(x1), Denominator(x2));
+        x1 = Multiply(x1, scale);
+        x2 = Multiply(x2, scale);
+      }
+
       double a = Convert.ToDouble(x1);
       double b = Convert.ToDouble(x2);
 
@@ -1299,7 +1360,19 @@ namespace IronScheme.Runtime
         div++;
       }
 
-      return Values(Exact(div), mod);
+      if (exactargs)
+      {
+        return Values(Exact(div), Exact(Divide(mod, scale)));
+      }
+
+      if (Math.IEEERemainder(mod, 1) == 0.0)
+      {
+        return Values(Exact(div), Exact(mod));
+      }
+      else
+      {
+        return Values(Exact(div), mod);
+      }
     }
     
 
@@ -1372,9 +1445,9 @@ namespace IronScheme.Runtime
     {
       if (obj is Fraction)
       {
-        return ((Fraction)obj).Numerator;
+        return Exact(((Fraction)obj).Numerator);
       }
-      return ((Fraction)FractionConverter.ConvertFrom(obj)).Numerator;
+      return obj;
     }
 
     [Builtin("denominator")]
@@ -1382,33 +1455,33 @@ namespace IronScheme.Runtime
     {
       if (obj is Fraction)
       {
-        return ((Fraction)obj).Denominator;
+        return Exact(((Fraction)obj).Denominator);
       }
-      return ((Fraction)FractionConverter.ConvertFrom(obj)).Denominator;
+      return 1;
     }
 
     [Builtin("floor")]
     public static object Floor(object obj)
     {
-      return MathHelper(Math.Floor, obj);
+      return ExactIfPossible(MathHelper(Math.Floor, obj));
     }
 
     [Builtin("ceiling")]
     public static object Ceiling(object obj)
     {
-      return MathHelper(Math.Ceiling, obj);
+      return ExactIfPossible(MathHelper(Math.Ceiling, obj));
     }
 
     [Builtin("truncate")]
     public static object Truncate(object obj)
     {
-      return MathHelper(Math.Truncate, obj);
+      return ExactIfPossible(MathHelper(Math.Truncate, obj));
     }
 
     [Builtin("round")]
     public static object Round(object obj)
     {
-      return MathHelper(Math.Round, obj);
+      return ExactIfPossible(MathHelper(Math.Round, obj));
     }
 
     [Builtin("rationalize")]
@@ -1594,11 +1667,7 @@ namespace IronScheme.Runtime
          return SqrtBigInteger((BigInteger)obj);
       }
       object res = MathHelper(Math.Sqrt, obj);
-      if (IsTrue(IsIntegerValued(res)))
-      {
-        return Exact(res);
-      }
-      return res;
+      return ExactIfPossible(res);
     }
 
     [Builtin("expt")]
@@ -1616,6 +1685,11 @@ namespace IronScheme.Runtime
       }
 
       object res = MathHelper(Math.Pow, obj1, obj2);
+      return ExactIfPossible(res);
+    }
+
+    static object ExactIfPossible(object res)
+    {
       if (IsTrue(IsIntegerValued(res)))
       {
         return Exact(res);
@@ -1626,7 +1700,7 @@ namespace IronScheme.Runtime
     [Builtin("make-rectangular")]
     public static object MakeRectangular(object obj1, object obj2)
     {
-      return FALSE;
+      return Complex64.Make(SafeConvert(obj1), SafeConvert(obj2));
     }
 
     [Builtin("make-polar")]
@@ -1638,24 +1712,62 @@ namespace IronScheme.Runtime
     [Builtin("real-part")]
     public static object RealPart(object obj)
     {
-      return FALSE;
+      if (obj is Complex64)
+      {
+        Complex64 c = RequiresNotNull<Complex64>(obj);
+        return c.Real;
+      }
+      else if (IsTrue(IsReal(obj)))
+      {
+        return obj;
+      }
+      return AssertionViolation("real-part", "not a number", obj);
     }
 
     [Builtin("imag-part")]
     public static object ImagPart(object obj)
     {
-      return FALSE;
+      if (obj is Complex64)
+      {
+        Complex64 c = RequiresNotNull<Complex64>(obj);
+        return c.Imag;
+      }
+      else if (IsTrue(IsReal(obj)))
+      {
+        return 0;
+      }
+      return AssertionViolation("imag-part", "not a number", obj);
     }
 
     [Builtin("magnitude")]
     public static object Magnitude(object obj)
     {
+      //if (obj is Complex64)
+      //{
+      //  Complex64 c = RequiresNotNull<Complex64>(obj);
+      //  return c.Imag;
+      //}
+      //else if (IsTrue(IsReal(obj)))
+      //{
+      //  return 0;
+      //}
+      //return AssertionViolation("magnitude", "not a number", obj);
       return FALSE;
     }
 
     [Builtin("angle")]
     public static object Angle(object obj)
     {
+      //if (obj is Complex64)
+      //{
+      //  Complex64 c = RequiresNotNull<Complex64>(obj);
+      //  return c.Conjugate.Imag;
+      //}
+      //else if (IsTrue(IsReal(obj)))
+      //{
+      //  return 0;
+      //}
+      //return AssertionViolation("angle", "not a number", obj);
       return FALSE;
     }
   }

@@ -62,7 +62,8 @@ namespace IronScheme.Compiler
       set { Generator.macrotrace = value; }
     }
 
-
+    // this is probably not very threadsafe....
+    protected static Dictionary<SymbolId, CodeBlockExpression> references = new Dictionary<SymbolId, CodeBlockExpression>();
 
     protected internal readonly static FieldInfo Unspecified = typeof(Builtins).GetField("Unspecified");
 
@@ -194,23 +195,20 @@ namespace IronScheme.Compiler
             }
 
             //terrible....
-            //CodeBlockExpression cbe = m as CodeBlockExpression;
-            //if (cbe != null)
-            //{
-            //  if (cb.Parent != null && cb.Parent.Parent != null && cb.Parent.Parent.Parent == null)
-            //  {
-            //    Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+            CodeBlockExpression cbe = m as CodeBlockExpression;
+            if (cbe != null)
+            {
+              Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            //    bool needscontext = true;
-            //    MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
-            //    if (needscontext)
-            //    {
-            //      ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
-            //    }
+              bool needscontext = true;
+              MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
+              if (needscontext)
+              {
+                ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
+              }
 
-            //    return Ast.ComplexCallHelper(cbe, dc, ppp);
-            //  }
-            //}
+              return Ast.ComplexCallHelper(cbe, dc, ppp);
+            }
 
             if (var == null)
             {
@@ -279,17 +277,18 @@ namespace IronScheme.Compiler
               pp = ArrayUtils.Insert<Expression>(mcexpr.Arguments[0], pp);
             }
             return Ast.ComplexCallHelper(cbe, dc, pp);
-
-            //List<Expression> inits = new List<Expression>();
-            //CodeBlock b = cbe.Block;  
-            //int argcount = pp.Length;
-            //int parcount = b.Parameters.Count;
-
-            //for (int i = 0; i < parcount; i++)
-            //{
-            //  Variable p = Create(b.Parameters[i].Name, cb, typeof(object));
-            //  inits.Add(Ast.Assign(p, pp[i]));
-            //}
+          }
+          if (mcexpr.Instance is MethodCallExpression && mcexpr.Method.Name == "Call")
+          {
+            MethodCallExpression mcei = mcexpr.Instance as MethodCallExpression;
+            if (mcei.Method == Closure_Make)
+            {
+              CodeBlockExpression cbe = mcei.Arguments[1] as CodeBlockExpression;
+              Debug.Assert(mcexpr.Arguments.Count == 0);
+              bool needscontext = true;
+              MethodInfo dc = GetDirectCallable(needscontext, 0);
+              ex = Ast.ComplexCallHelper(cbe, dc, mcei.Arguments[0]);
+            }
           }
         }
 
@@ -337,7 +336,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    static Expression Unwrap(Expression ex)
+    protected static Expression Unwrap(Expression ex)
     {
       while (ex is UnaryExpression && ((UnaryExpression)ex).NodeType == AstNodeType.Convert)
       {

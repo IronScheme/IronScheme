@@ -153,6 +153,18 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="docs\topic-printer.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="docs\templates.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="docs\topic-manager.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="docs\topic.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="editor\main.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -187,6 +199,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\conversions.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\web-utils.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\xml.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\process.ss">
@@ -226,6 +244,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\web.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="lib\docs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\draw-tree.ss">

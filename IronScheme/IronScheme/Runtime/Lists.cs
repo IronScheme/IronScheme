@@ -227,7 +227,7 @@ namespace IronScheme.Runtime
 
       while (e != null)
       {
-        Cons ass = e.car as Cons;
+        Cons ass = RequiresNotNull<Cons>(e.car);
         if ((bool)pred(obj, ass.car))
         {
           return ass;

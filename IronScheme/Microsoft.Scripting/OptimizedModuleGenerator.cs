@@ -307,7 +307,7 @@ namespace Microsoft.Scripting.Generation {
             GetCompiledSourceUnitAssemblyLocation(scriptCode.CompilerContext.SourceUnit, out outDir, out fileName);
 
             AssemblyGen ag;
-            string ext = ".exe";
+            string ext = ".dll";
             // Try to create a file called "filename.<cnt>.exe", ensuring that the filename does not clash with an existing file
             int cnt = 0;
             for (; ; ) {

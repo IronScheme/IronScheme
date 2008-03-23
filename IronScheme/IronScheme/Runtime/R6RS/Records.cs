@@ -313,6 +313,10 @@ namespace IronScheme.Runtime.R6RS
         parenttypes.Add(typeof(object));
       }
 
+      //CodeGen scg = t.tg.DefineStaticConstructor();
+
+
+
       CodeGen cg = t.tg.DefineConstructor(paramtypes.ToArray());
 
       for (int i = 0; i < allfields.Count; i++)

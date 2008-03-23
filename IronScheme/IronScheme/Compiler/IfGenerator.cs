@@ -77,7 +77,7 @@ namespace IronScheme.Compiler
         t = Ast.ConvertHelper(t, typeof(object));
       }
 
-      Expression testexp = GetAst(test, cb);
+      Expression testexp = Unwrap(GetAst(test, cb));
 
       if (testexp.Type != typeof(bool))
       {

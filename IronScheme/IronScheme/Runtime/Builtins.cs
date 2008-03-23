@@ -85,6 +85,13 @@ namespace IronScheme.Runtime
 
     public static readonly object Unspecified = new UnspecifiedObject();
 
+
+    [Builtin("unspecified?")]
+    public static object IsUnspecified(object o)
+    {
+      return GetBool(o == Unspecified);
+    }
+
     [Builtin]
     public static Type Typeof(object o)
     {
@@ -114,6 +121,13 @@ namespace IronScheme.Runtime
         return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase).Replace("file:\\", "");
       }
     }
+
+    [Builtin("make-guid")]
+    public static object MakeGuid()
+    {
+      return Guid.NewGuid();
+    }
+
 
     [Builtin("get-library-paths")]
     public static object GetLibraryPaths()
@@ -237,22 +251,27 @@ namespace IronScheme.Runtime
 
 #endif
 
+#if DEBUG
       Stopwatch sw = Stopwatch.StartNew();
-
+#endif
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.CompileExpr(new Cons(expr))); //wrap
-
+#if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
-
+#endif
       sc.EnsureCompiled();
+#if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
+#endif
 
       // this compiles the file, i think
       //ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
 
       object cbr = sc.Run(cc.ModuleContext.Module); // try eval causes issues :(
+#if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
+#endif
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
       return cbr;
 
