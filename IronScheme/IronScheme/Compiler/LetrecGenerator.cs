@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
+using System.Reflection;
 
 namespace IronScheme.Compiler
 {
@@ -74,15 +75,11 @@ namespace IronScheme.Compiler
 
       FillBody(cb, stmts, body, true);
 
-      Expression ex = MakeClosure(cb, false);
-
-      ex = Ast.ConvertHelper(ex, typeof(ICallable));
-
-      Expression r =
-        Ast.Call(ex, GetCallable(0));
+      MethodInfo dc = GetDirectCallable(true, 0);
+      Expression ex = Ast.ComplexCallHelper(Ast.CodeBlockExpression(cb, false), dc, Ast.CodeContext());
 
       level--;
-      return r;
+      return ex;
     }
   }
 }

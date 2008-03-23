@@ -45,16 +45,6 @@ namespace IronScheme
       return Builtins.IsTrue(arg);
     }
 
-    public override bool TryLookupName(CodeContext context, SymbolId name, out object value)
-    {
-      if (base.TryLookupName(context, name, out value))
-      {
-        return true;
-      }
-      value = name;
-      return false;
-    }
-
     protected override Exception MissingName(SymbolId name)
     {
       Builtins.UndefinedError(name);
@@ -75,11 +65,12 @@ namespace IronScheme
 
     public override CodeBlock ParseSourceCode(CompilerContext context)
     {
+#if DEBUG
       Stopwatch sw = Stopwatch.StartNew();
 
       try
       {
-
+#endif
         switch (context.SourceUnit.Kind)
         {
           case SourceCodeKind.InteractiveCode:
@@ -108,11 +99,13 @@ namespace IronScheme
           default:
             return ParseString(context.SourceUnit.GetCode(), context);
         }
+#if DEBUG
       }
       finally
       {
         Trace.WriteLine(sw.ElapsedMilliseconds, "Parse: " + context.SourceUnit);
       }
+#endif
     }
 
     static Parser parser;

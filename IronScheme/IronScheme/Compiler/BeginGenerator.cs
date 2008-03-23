@@ -34,7 +34,40 @@ namespace IronScheme.Compiler
         cb.IsGlobal = false;
         try
         {
-          return Ast.Comma(GetAstList(args as Cons, cb));
+          // discard effectfree
+          List<Expression> newargs = new List<Expression>();
+          Expression[] aa = GetAstList(args as Cons, cb);
+          if (aa.Length == 1)
+          {
+            return aa[0];
+          }
+          for (int i = 0; i < aa.Length - 1; i++)
+          {
+            Expression a = aa[i];
+            Expression uwa = Unwrap(a);
+            if (uwa is ConstantExpression)
+            {
+              continue;
+            }
+            if (uwa is MemberExpression)
+            {
+              MemberExpression me = uwa as MemberExpression;
+              if (me.Member == Unspecified)
+              {
+                continue;
+              }
+            }
+            newargs.Add(a);
+          }
+          if (newargs.Count == 0)
+          {
+            return aa[aa.Length - 1];
+          }
+          else
+          {
+            newargs.Add(aa[aa.Length - 1]);
+            return Ast.Comma(newargs);
+          }
         }
         finally
         {

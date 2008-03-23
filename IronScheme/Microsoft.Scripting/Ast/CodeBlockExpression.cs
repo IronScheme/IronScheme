@@ -38,7 +38,7 @@ namespace Microsoft.Scripting.Ast {
         private readonly bool _forceWrapperMethod;
         private readonly bool _stronglyTyped;
         private readonly Type _delegateType;
-        private readonly bool _isDeclarative;
+        private bool _isDeclarative;
         
 #if DEBUG
         internal bool ForceWrapperMethod {
@@ -118,7 +118,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public static CodeBlockExpression CodeBlockReference(CodeBlock block, Type delegateType) {
-            return new CodeBlockExpression(block, false, true, false, delegateType);
+            return new CodeBlockExpression(block, false, false, false, delegateType);
         }
     }
 }

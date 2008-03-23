@@ -347,6 +347,11 @@ namespace Microsoft.Scripting.Math {
         public static implicit operator BigInteger(long i) {
             return Create(i);
         }
+
+        public static explicit operator BigInteger(double i)
+        {
+          return Create(i);
+        }
         
         public static implicit operator BigInteger(decimal i) {
             return Create(i);

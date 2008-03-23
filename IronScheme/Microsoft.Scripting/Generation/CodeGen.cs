@@ -2327,6 +2327,7 @@ namespace Microsoft.Scripting.Generation {
 
             // emit the code block method if it has:
             if (!_codeBlockImplementations.TryGetValue(block, out impl)) {
+                FlowChecker.Check(block);
                 impl = block.CreateMethod(this, hasContextParameter, hasThis);
                 impl.Binder = _binder;
 

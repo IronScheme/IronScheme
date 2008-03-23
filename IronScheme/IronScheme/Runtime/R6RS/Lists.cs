@@ -167,6 +167,35 @@ namespace IronScheme.Runtime.R6RS
       return Values(head, head2);
     }
 
+    //extra, not R6RS
+    [Builtin("group-by")]
+    public static object GroupBy(object proc, object list)
+    {
+      ICallable p = RequiresNotNull<ICallable>(proc);
+      Cons e = Requires<Runtime.Cons>(list);
+      Hashtable result = new Hashtable();
+
+      while (e != null)
+      {
+        object key = p.Call(e.car);
+
+        object c = result[key];
+        result[key] = new Cons(e.car, c);
+
+        e = e.cdr as Cons;
+      }
+
+      Hashtable final = new Hashtable(result.Count);
+
+      //now reverse the values
+      foreach (DictionaryEntry de in result)
+      {
+        final[de.Key] = Reverse(de.Value);
+      }
+
+      return final;
+    }
+
 
   }
 }

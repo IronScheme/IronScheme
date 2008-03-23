@@ -1065,6 +1065,9 @@
     (last-pair                                  i)
     (make-list                                  i)
     (make-trace                                 i)
+    (unspecified?                               i)
+    (make-guid                                  i)
+    (group-by                                   i)
     
     (read-annotated                             ir)
     (annotation?                                ir)

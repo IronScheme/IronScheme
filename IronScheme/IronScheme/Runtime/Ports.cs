@@ -135,6 +135,7 @@ namespace IronScheme.Runtime
 
       switch (Path.GetExtension(path))
       {
+        case ".exe":
         case ".dll":
 
           Assembly ext = AssemblyLoad(path);
@@ -157,58 +158,54 @@ namespace IronScheme.Runtime
           else
           {
             // just reference.?
-          }
-          break;
-        case ".exe":
-          Assembly mod = AssemblyLoad(path);
-          MethodInfo entry = null;
-          foreach (Type t in mod.GetExportedTypes())
-          {
-            if (t.BaseType == typeof(CustomSymbolDictionary))
+            MethodInfo entry = null;
+            foreach (Type t in ext.GetExportedTypes())
             {
-              List<Type> ii = new List<Type>(t.GetInterfaces());
-              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
+              if (t.BaseType == typeof(CustomSymbolDictionary))
               {
-                entry = t.GetMethod("Initialize");
-                if (entry != null)
+                List<Type> ii = new List<Type>(t.GetInterfaces());
+                if (ii.Contains(typeof(IModuleDictionaryInitialization)))
                 {
-                  break;
+                  entry = t.GetMethod("Initialize");
+                  if (entry != null)
+                  {
+                    break;
+                  }
                 }
               }
             }
-          }
 
-          if (entry == null)
-          {
-            // what now?
-            goto case ".dll";
-          }
-          else
-          {
-            IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
-              IModuleDictionaryInitialization;
+            if (entry == null)
+            {
+              // what now?
+            }
+            else
+            {
+              IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
+                IModuleDictionaryInitialization;
 
-            init.InitializeModuleDictionary(cc);
+              init.InitializeModuleDictionary(cc);
 
-            CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
-            return t(cc);
+              CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
+              return t(cc);
+            }
           }
-        //break;
+          break;
         default:
 
           // check for already compiled version
-          string cfn = Path.ChangeExtension(path, ".exe");
+          string cfn = Path.ChangeExtension(path, ".dll");
           if (File.Exists(cfn))
           {
             DateTime ct = File.GetLastWriteTime(cfn);
             if (!File.Exists(path) || ct >= File.GetLastWriteTime(path))
             {
-              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || cfn.EndsWith("ironscheme.boot.exe")
+              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || cfn.EndsWith("ironscheme.boot.dll")
                 //|| cfn.StartsWith("core.exe") || cfn.StartsWith("genwrite.exe")
                 )
               {
                 path = cfn;
-                goto case ".exe";
+                goto case ".dll";
               }
             }
           }

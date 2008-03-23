@@ -75,7 +75,7 @@ namespace IronScheme.Runtime.R6RS
 
       bool IEqualityComparer.Equals(object x, object y)
       {
-        return (bool)equiv.Call(x, y);  
+        return IsTrue(equiv.Call(x, y));
       }
 
       int IEqualityComparer.GetHashCode(object obj)
@@ -169,6 +169,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("equal-hash")]
     public static object EqualHash(object obj)
     {
+      //very slow... :(
       string r = WriteFormat(obj);
       return r.GetHashCode();
     }
@@ -193,6 +194,10 @@ namespace IronScheme.Runtime.R6RS
       SymbolId s = RequiresNotNull<SymbolId>(obj);
       return s.GetHashCode();
     }
+
+
+
+
   }
 }
 

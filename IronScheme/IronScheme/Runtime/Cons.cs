@@ -117,7 +117,7 @@ namespace IronScheme.Runtime
       }
       StringWriter w = new StringWriter();
       prettyprint.Call(this, w);
-      return w.ToString();
+      return w.ToString().TrimEnd('\n');
     }
 
     #region IEnumerable<object> Members
