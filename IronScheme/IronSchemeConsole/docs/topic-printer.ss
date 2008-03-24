@@ -66,7 +66,7 @@
     (print-color 'green " ~a\n" (strip (format "~a" c))))
   
   (define (strip c)
-    (substring c 1 (- (string-length c) 1)))
+    (substring c 1 (fx- (string-length c) 1)))
 
   (define (print-example e)
     (if (string? (car e))

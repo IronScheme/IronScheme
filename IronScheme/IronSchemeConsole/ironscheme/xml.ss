@@ -19,10 +19,10 @@
 			    (map (lambda (x) i) l)))
 			 (string-map			
 			  (lambda (f l i) 
-			    (apply string-append (map f l (map1 (+ 1 i) l)))))
+			    (apply string-append (map f l (map1 (fx+ 1 i) l)))))
 			 (get-indent			
 			  (lambda (i)     
-			    (make-string (* 2 i) #\space)))
+			    (make-string (fx* 2 i) #\space)))
 			 (->xml           
 				(lambda (x i)
 		      (cond

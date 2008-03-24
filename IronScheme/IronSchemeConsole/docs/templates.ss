@@ -57,7 +57,7 @@
       
   (define (get-code c)
     (let ((cs (format "~a" c)))
-      (substring cs 1 (- (string-length cs) 1))))
+      (substring cs 1 (fx- (string-length cs) 1))))
       
   (define (example e)
     (if (string? (car e))

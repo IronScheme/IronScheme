@@ -221,7 +221,7 @@ namespace IronScheme.Runtime
 
       int c = ++evalcounter;
 
-#if DEBUG
+#if DEBUG_EXTRA
 
       // bad for ASP.NET
       if (Assembly.GetEntryAssembly() != null)

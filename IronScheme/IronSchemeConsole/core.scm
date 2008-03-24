@@ -37,16 +37,9 @@ You must not remove this notice, or any other, from this software.
          (let ((name (car nargs))
                (args (cdr nargs)))
            `(define ,name (macro ,args ,@body)))))
-           
-
-#;(define (void) (if #f #f))
 
 (define-macro (syntax-error . args)
   `,`(error ,@args))           
-
-#;(define-macro (begin . e)
-  (if (null? e) (void)
-    `((lambda () ,@e))))
 
 ;; let* in terms of itself and let 
 (define-macro (let* args . body)
@@ -149,40 +142,7 @@ You must not remove this notice, or any other, from this software.
            (begin ,@(cdr test))
            (begin ,@cmds (,t ,@(map get-next clauses)))))))
            
-;; now its getting easy :)
-#;(define-macro (letrec args . body)
-   ;; init to values inside body
-   (define (init-helper temp args)
-     `(set! ,(car args) ,temp))
 
-   ;; helper to init vars to false
-   (define (false a) (void))
-
-   ;; create temporaries
-   (define temps (map (lambda (a)(gensym)) args))
-
-   ;; lets begin
-   `((lambda ,(map car args)
-       ((lambda ,temps
-         ,@(map init-helper temps args)
-         ,@body)
-       ,@(map second args)))
-     ,@(map false args)))         
-
-
-;; now its getting easy :)
-#;(define-macro (letrec* args . body)
-  ;; init to values inside body
-  (define (init-helper args)
-      `(set! ,(car args) ,(second args)))
-  
-  ;; helper to init vars to false
-  (define (false a) (void))
-  
-  ;; lets begin
-  `((lambda ,(map car args)
-      ,@(map init-helper args)
-      ,@body) ,@(map false args)))
 
 
 
