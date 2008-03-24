@@ -366,6 +366,14 @@ namespace IronScheme.Runtime
     [Builtin("integer-valued?")]
     public static object IsIntegerValued(object obj)
     {
+      if (obj is int || obj is BigInteger)
+      {
+        return TRUE;
+      }
+      if (obj is Fraction)
+      {
+        return GetBool(((Fraction)obj).Denominator == 1);
+      }
       return IsZero(Mod(obj, 1));
     }
 
@@ -408,7 +416,7 @@ namespace IronScheme.Runtime
     [Builtin("finite?")]
     public static object IsFinite(object obj)
     {
-      return GetBool(!(bool)IsInfinite(obj));
+      return Not(IsInfinite(obj));
     }
 
     [Builtin("infinite?")]
@@ -534,19 +542,35 @@ namespace IronScheme.Runtime
     [Builtin("=")]
     public static object IsSame(object first, object second)
     {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation("=", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("=", "not a number", second);
+      }
+
       return GetBool(Equals(first, second));
     }
 
     [Builtin("=")]
     public static object IsSame(object first, params object[] rest)
     {
-      IComparable last = first as IComparable;
+      object o = first;
 
-      foreach (IComparable item in rest)
+      foreach (object item in rest)
       {
-        if (last.CompareTo(item) != 0)
+        if (!IsTrue(IsSame(o, item)))
+        {
           return FALSE;
-        last = item;
+        }
+        o = item;
       }
 
       return TRUE;
@@ -555,46 +579,57 @@ namespace IronScheme.Runtime
     [Builtin("<")]
     public static object IsLessThan(object first, object second)
     {
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (int)first < (int)second;
-        }
-        else if (second is double)
-        {
-          return (int)first < (double)second;
-        }
+        return AssertionViolation("<", "not a number", first);
       }
-      if (first is double)
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (double)first < (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first < (double)second;
-        }
+        return AssertionViolation("<", "not a number", second);
       }
-      object value;
-      if (OperatorHelper("op_LessThan", first, second, out value))
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
       {
-        return value;
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) < ConvertToInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) < ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) < ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          //result = ConvertToComplex(first) < ConvertToComplex(second);
+          break;
+        default:
+          return Error("<", "BUG");
       }
-      return IsLessThan(first, new object[] { second });
+
+      return GetBool(result);
     }
 
     [Builtin("<")]
     public static object IsLessThan(object first, params object[] rest)
     {
-      IComparable last = first as IComparable;
+      object o = first;
 
-      foreach (IComparable item in rest)
+      foreach (object item in rest)
       {
-        if (last.CompareTo(item) >= 0)
+        if (!IsTrue(IsLessThan(o, item)))
+        {
           return FALSE;
-        last = item;
+        }
+        o = item;
       }
 
       return TRUE;
@@ -603,46 +638,57 @@ namespace IronScheme.Runtime
     [Builtin("<=")]
     public static object IsLessThanOrEqual(object first, object second)
     {
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (int)first <= (int)second;
-        }
-        else if (second is double)
-        {
-          return (int)first <= (double)second;
-        }
+        return AssertionViolation("<=", "not a number", first);
       }
-      if (first is double)
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (double)first <= (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first <= (double)second;
-        }
+        return AssertionViolation("<=", "not a number", second);
       }
-      object value;
-      if (OperatorHelper("op_LessThanOrEqual", first, second, out value))
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
       {
-        return value;
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) <= ConvertToInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) <= ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) <= ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          //result = ConvertToComplex(first) <= ConvertToComplex(second);
+          break;
+        default:
+          return Error("<=", "BUG");
       }
-      return IsLessThanOrEqual(first, new object[] { second });
+
+      return GetBool(result);
     }
 
     [Builtin("<=")]
     public static object IsLessThanOrEqual(object first, params object[] rest)
     {
-      IComparable last = first as IComparable;
+      object o = first;
 
-      foreach (IComparable item in rest)
+      foreach (object item in rest)
       {
-        if (last.CompareTo(item) > 0)
+        if (!IsTrue(IsLessThanOrEqual(o, item)))
+        {
           return FALSE;
-        last = item;
+        }
+        o = item;
       }
 
       return TRUE;
@@ -651,46 +697,57 @@ namespace IronScheme.Runtime
     [Builtin(">")]
     public static object IsGreaterThan(object first, object second)
     {
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (int)first > (int)second;
-        }
-        else if (second is double)
-        {
-          return (int)first > (double)second;
-        }
+        return AssertionViolation(">", "not a number", first);
       }
-      if (first is double)
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (double)first > (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first > (double)second;
-        }
+        return AssertionViolation(">", "not a number", second);
       }
-      object value;
-      if (OperatorHelper("op_GreaterThan", first, second, out value))
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
       {
-        return value;
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) > ConvertToInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) > ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) > ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          //result = ConvertToComplex(first) > ConvertToComplex(second);
+          break;
+        default:
+          return Error(">", "BUG");
       }
-      return IsGreaterThan(first, new object[] { second });
+
+      return GetBool(result);
     }
 
     [Builtin(">")]
     public static object IsGreaterThan(object first, params object[] rest)
     {
-      IComparable last = first as IComparable;
+      object o = first;
 
-      foreach (IComparable item in rest)
+      foreach (object item in rest)
       {
-        if (last.CompareTo(item) <= 0)
+        if (!IsTrue(IsGreaterThan(o, item)))
+        {
           return FALSE;
-        last = item;
+        }
+        o = item;
       }
 
       return TRUE;
@@ -699,46 +756,57 @@ namespace IronScheme.Runtime
     [Builtin(">=")]
     public static object IsGreaterThanOrEqual(object first, object second)
     {
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (int)first >= (int)second;
-        }
-        else if (second is double)
-        {
-          return (int)first >= (double)second;
-        }
+        return AssertionViolation(">=", "not a number", first);
       }
-      if (first is double)
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (double)first >= (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first >= (double)second;
-        }
+        return AssertionViolation(">=", "not a number", second);
       }
-      object value;
-      if (OperatorHelper("op_GreaterThanOrEqual", first, second, out value))
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
       {
-        return value;
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) >= ConvertToInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) >= ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) >= ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          //result = ConvertToComplex(first) >= ConvertToComplex(second);
+          break;
+        default:
+          return Error(">=", "BUG");
       }
-      return IsGreaterThanOrEqual(first, new object[] { second });
+
+      return GetBool(result);
     }
 
     [Builtin(">=")]
     public static object IsGreaterThanOrEqual(object first, params object[] rest)
     {
-      IComparable last = first as IComparable;
+      object o = first;
 
-      foreach (IComparable item in rest)
+      foreach (object item in rest)
       {
-        if (last.CompareTo(item) < 0)
+        if (!IsTrue(IsGreaterThanOrEqual(o, item)))
+        {
           return FALSE;
-        last = item;
+        }
+        o = item;
       }
 
       return TRUE;
@@ -789,29 +857,62 @@ namespace IronScheme.Runtime
     [Builtin("min")]
     public static object Min(object first, params object[] rest)
     {
+      NumberClass e = GetNumberClass(first);
       object min = first;
       foreach (object var in rest)
       {
+        e &= GetNumberClass(var);
         if ((bool)IsLessThan(var, min))
         {
           min = var;
         }
       }
-      return min;
+      return GetNumber(e, min);
     }
 
     [Builtin("max")]
     public static object Max(object first, params object[] rest)
     {
+      NumberClass e = GetNumberClass(first);
+
       object max = first;
+
       foreach (object var in rest)
       {
+        e &= GetNumberClass(var);
         if ((bool)IsGreaterThan(var, max))
         {
           max = var;
         }
       }
-      return max;
+
+      return GetNumber(e, max);
+    }
+
+    static object GetNumber(NumberClass nc, object number)
+    {
+      switch (nc)
+      {
+        case NumberClass.Integer:
+          BigInteger r = ConvertToInteger(number);
+          if (r > int.MaxValue || r < int.MinValue)
+          {
+            return r;
+          }
+          else
+          {
+            return (int)r;
+          }
+        case NumberClass.Rational:
+          return ConvertToRational(number);
+        case NumberClass.Real:
+          return ConvertToReal(number);
+        case NumberClass.Complex:
+          return ConvertToComplex(number);
+
+      }
+
+      throw new Exception("BUG");
     }
 
     #region math
@@ -826,60 +927,128 @@ namespace IronScheme.Runtime
     [Builtin("+")]
     public static object Add(object first)
     {
-      return first;
+      if (IsTrue(IsNumber(first)))
+      {
+        return first;
+      }
+      else
+      {
+        return AssertionViolation("+", "not a number", first);
+      }
+    }
+
+    enum NumberClass
+    {
+      Complex = 1,
+      Real = 2 | Complex,
+      Rational = 4 | Real ,
+      Integer = 8 | Rational,
+      NotANumber = 0
+    }
+
+    static NumberClass GetNumberClass(object obj)
+    {
+      if (obj is int || obj is BigInteger)
+      {
+        return NumberClass.Integer;
+      }
+      else if (obj is Fraction)
+      {
+        return NumberClass.Rational;
+      }
+      else if (obj is double)
+      {
+        return NumberClass.Real;
+      }
+      else if (obj is Complex64)
+      {
+        return NumberClass.Complex;
+      }
+      else
+      {
+        return NumberClass.NotANumber;
+      }
+    }
+
+    static BigInteger ConvertToInteger(object o)
+    {
+      if (o is int)
+      {
+        return (int)o;
+      }
+      if (o is BigInteger)
+      {
+        return (BigInteger)o;
+      }
+      throw new Exception("BUG");
+    }
+
+    static Fraction ConvertToRational(object o)
+    {
+      if (o is Fraction)
+      {
+        return (Fraction)o;
+      }
+      return (Fraction)FractionConverter.ConvertFrom(o);
+    }
+
+    static double ConvertToReal(object o)
+    {
+      return SafeConvert(o);
+    }
+
+    static Complex64 ConvertToComplex(object o)
+    {
+      if (o is Complex64)
+      {
+        return (Complex64)o;
+      }
+      else
+      {
+        return Complex64.MakeReal(ConvertToReal(o));
+      }
     }
 
     [Builtin("+")]
     public static object Add(object first, object second)
     {
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          long l = (long)(int)first + (int)second;
-          if (l > int.MaxValue || l < int.MinValue)
+        return AssertionViolation("+", "not a number", first);
+      }
+      
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("+", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          BigInteger r = ConvertToInteger(first) + ConvertToInteger(second);
+          if (r > int.MaxValue || r < int.MinValue)
           {
-            return (BigInteger)l;
+            return r;
           }
           else
           {
-            return (int)l;
+            return (int)r;
           }
-        }
-        else if (second is double)
-        {
-          return (int)first + (double)second;
-        }
+        case NumberClass.Rational:
+          return IntegerIfPossible(ConvertToRational(first) + ConvertToRational(second));
+        case NumberClass.Real:
+          return ConvertToReal(first) + ConvertToReal(second);
+        case NumberClass.Complex:
+          return ConvertToComplex(first) + ConvertToComplex(second);
       }
-      if (first is double)
-      {
-        if (second is int)
-        {
-          return (double)first + (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first + (double)second;
-        }
-      }
-      if (first is BigInteger && second is int)
-      {
-        return BigInteger.Add((BigInteger)first, (int)second);
-      }
-      if (first is int && second is BigInteger)
-      {
-        return BigInteger.Add((int)first, (BigInteger)second);
-      }
-      if (first is BigInteger && second is BigInteger)
-      {
-        return BigInteger.Add((BigInteger)first, (BigInteger)second);
-      }
-      object value;
-      if (OperatorHelper("op_Addition", first, second, out value))
-      {
-        return value;
-      }
-      return AssertionViolation("+", "types are not compatible", first, second);
+
+      return Error("+", "BUG");
     }
 
     [Builtin("+")]
@@ -910,56 +1079,43 @@ namespace IronScheme.Runtime
     [Builtin("-")]
     public static object Subtract(object first, object second)
     {
-      //optimized version
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          long l = (long)(int)first - (int)second;
-          if (l > int.MaxValue || l < int.MinValue)
+        return AssertionViolation("-", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("-", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          BigInteger r = ConvertToInteger(first) - ConvertToInteger(second);
+          if (r > int.MaxValue || r < int.MinValue)
           {
-            return (BigInteger)l;
+            return r;
           }
           else
           {
-            return (int)l;
+            return (int)r;
           }
-        }
-        else if (second is double)
-        {
-          return (int)first - (double)second;
-        }
-      }
-      if (first is double)
-      {
-        if (second is int)
-        {
-          return (double)first - (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first - (double)second;
-        }
-      }
-      if (first is BigInteger && second is int)
-      {
-        return BigInteger.Subtract((BigInteger)first, (int)second);
-      }
-      if (first is int && second is BigInteger)
-      {
-        return BigInteger.Subtract((int)first, (BigInteger)second);
-      }
-      if (first is BigInteger && second is BigInteger)
-      {
-        return BigInteger.Subtract((BigInteger)first, (BigInteger)second);
-      }
-      object value;
-      if (OperatorHelper("op_Subtraction", first, second, out value))
-      {
-        return value;
+        case NumberClass.Rational:
+          return IntegerIfPossible(ConvertToRational(first) - ConvertToRational(second));
+        case NumberClass.Real:
+          return ConvertToReal(first) - ConvertToReal(second);
+        case NumberClass.Complex:
+          return ConvertToComplex(first) - ConvertToComplex(second);
       }
 
-      return AssertionViolation("-", "types are not compatible", first, second);
+      return Error("-", "BUG");
     }
 
     [Builtin("-")]
@@ -983,60 +1139,56 @@ namespace IronScheme.Runtime
     [Builtin("*")]
     public static object Multiply(object first)
     {
-      return first;
+      if (IsTrue(IsNumber(first)))
+      {
+        return first;
+      }
+      else
+      {
+        return AssertionViolation("*", "not a number", first);
+      }
     }
 
     [Builtin("*")]
     public static object Multiply(object first, object second)
     {
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          long l = Math.BigMul((int)first,(int)second);
-          if (l > int.MaxValue || l < int.MinValue)
+        return AssertionViolation("*", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("*", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          BigInteger r = ConvertToInteger(first) * ConvertToInteger(second);
+          if (r > int.MaxValue || r < int.MinValue)
           {
-            return (BigInteger)l;
+            return r;
           }
           else
           {
-            return (int)l;
+            return (int)r;
           }
-        }
-        else if (second is double)
-        {
-          return (int)first * (double)second;
-        }
+        case NumberClass.Rational:
+          return IntegerIfPossible(ConvertToRational(first) * ConvertToRational(second));
+        case NumberClass.Real:
+          return ConvertToReal(first) * ConvertToReal(second);
+        case NumberClass.Complex:
+          return ConvertToComplex(first) * ConvertToComplex(second);
       }
-      if (first is double)
-      {
-        if (second is int)
-        {
-          return (double)first * (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first * (double)second;
-        }
-      }
-      if (first is BigInteger && second is int)
-      {
-        return BigInteger.Multiply((BigInteger)first, (int)second);
-      }
-      if (first is int && second is BigInteger)
-      {
-        return BigInteger.Multiply((int)first, (BigInteger)second);
-      }
-      if (first is BigInteger && second is BigInteger)
-      {
-        return BigInteger.Multiply((BigInteger)first, (BigInteger)second);
-      }
-      object value;
-      if (OperatorHelper("op_Multiply", first, second, out value))
-      {
-        return value;
-      }
-      return AssertionViolation("*", "types are not compatible", first, second);
+
+      return Error("*", "BUG");
     }
 
 
@@ -1086,53 +1238,42 @@ namespace IronScheme.Runtime
       {
         return 1.0 / SafeConvert(first);
       }
-      return Divide(first, new object[0]);
+      return Divide(1, first);
 
     }
 
     [Builtin("/")]
     public static object Divide(object first, object second)
     {
-      if (first is int)
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return new Fraction((int)first,(int)second);
-        }
-        else if (second is double)
-        {
-          return (int)first / (double)second;
-        }
+        return AssertionViolation("/", "not a number", first);
       }
-      if (first is double)
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
       {
-        if (second is int)
-        {
-          return (double)first / (int)second;
-        }
-        else if (second is double)
-        {
-          return (double)first / (double)second;
-        }
+        return AssertionViolation("/", "not a number", second);
       }
-      if (first is BigInteger && second is int)
+
+      NumberClass effective = f & s;
+
+      switch (effective)
       {
-        return BigInteger.Divide((BigInteger)first, (int)second);
+        case NumberClass.Integer:
+          return IntegerIfPossible(new Fraction((long)ConvertToInteger(first),(long)ConvertToInteger(second)));
+        case NumberClass.Rational:
+          return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
+        case NumberClass.Real:
+          return ConvertToReal(first) / ConvertToReal(second);
+        case NumberClass.Complex:
+          return ConvertToComplex(first) / ConvertToComplex(second);
       }
-      if (first is int && second is BigInteger)
-      {
-        return BigInteger.Divide((int)first, (BigInteger)second);
-      }
-      if (first is BigInteger && second is BigInteger)
-      {
-        return BigInteger.Divide((BigInteger)first, (BigInteger)second);
-      }
-      object value;
-      if (OperatorHelper("op_Division", first, second, out value))
-      {
-        return ExactIfPossible(value);
-      }
-      return AssertionViolation("/", "types are not compatible", first, second);
+
+      return Error("/", "BUG");
     }
 
 
@@ -1240,6 +1381,15 @@ namespace IronScheme.Runtime
       {
         return ((Complex64)obj).Abs();
       }
+      else if (obj is Fraction)
+      {
+        Fraction f = (Fraction)obj;
+        if (f < 0)
+        {
+          return new Fraction(-f.Numerator, f.Denominator);
+        }
+        return obj;
+      }
       else
       {
         double d = SafeConvert(obj);
@@ -1299,14 +1449,7 @@ namespace IronScheme.Runtime
         return Values(Exact(div), Exact(Divide(mod, scale)));
       }
 
-      if (Math.IEEERemainder(mod, 1) == 0.0)
-      {
-        return Values(Exact(div), Exact(mod));
-      }
-      else
-      {
-        return Values(Exact(div), mod);
-      }
+      return Values(Exact(div), mod);
     }
 
     [Builtin("div0")]
@@ -1391,17 +1534,30 @@ namespace IronScheme.Runtime
         case 0:
           return 0;
         case 1:
+          if (!IsTrue(IsIntegerValued(args[0])))
+          {
+            return AssertionViolation("gcd", "not an integer", args[0]);
+          }
           return args[0];
         case 2:
           object first = args[0], second = args[1];
 
+          if (!IsTrue(IsIntegerValued(first)))
+          {
+            return AssertionViolation("gcd", "not an integer", first);
+          }
+          if (!IsTrue(IsIntegerValued(second)))
+          {
+            return AssertionViolation("gcd", "not an integer", second);
+          }
+
           if ((bool)IsZero(second))
           {
-            return Exact(Abs(first));
+            return Abs(first);
           }
           else
           {
-            return Exact(Abs(GreatestCommonDivider(second, Mod(first, second))));
+            return Abs(GreatestCommonDivider(second, Mod(first, second)));
           }
         default:
           object gcd = GreatestCommonDivider(args[0],args[1]);
@@ -1423,11 +1579,22 @@ namespace IronScheme.Runtime
         case 0:
           return 1;
         case 1:
+          if (!IsTrue(IsIntegerValued(args[0])))
+          {
+            return AssertionViolation("lcm", "not an integer", args[0]);
+          }
           return args[0];
         case 2:
           object first = args[0], second = args[1];
-
-          return Exact(Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second)));
+          if (!IsTrue(IsIntegerValued(first)))
+          {
+            return AssertionViolation("lcm", "not an integer", first);
+          }
+          if (!IsTrue(IsIntegerValued(second)))
+          {
+            return AssertionViolation("lcm", "not an integer", second);
+          }
+          return Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second));
         default:
           object lcm = LowestCommonMultiple(args[0], args[1]);
           for (int i = 2; i < args.Length; i++)
@@ -1447,7 +1614,16 @@ namespace IronScheme.Runtime
       {
         return Exact(((Fraction)obj).Numerator);
       }
-      return obj;
+      bool exact = IsTrue(IsExact(obj));
+      BigInteger r = ((Fraction)FractionConverter.ConvertFrom(obj)).Numerator;
+      if (exact)
+      {
+        return Exact(r);
+      }
+      else
+      {
+        return SafeConvert(r);
+      }
     }
 
     [Builtin("denominator")]
@@ -1457,37 +1633,72 @@ namespace IronScheme.Runtime
       {
         return Exact(((Fraction)obj).Denominator);
       }
-      return 1;
+      bool exact = IsTrue(IsExact(obj));
+      BigInteger r = ((Fraction)FractionConverter.ConvertFrom(obj)).Denominator;
+      if (exact)
+      {
+        return Exact(r);
+      }
+      else
+      {
+        return SafeConvert(r);
+      }
     }
 
     [Builtin("floor")]
     public static object Floor(object obj)
     {
-      return ExactIfPossible(MathHelper(Math.Floor, obj));
+      object res = MathHelper(Math.Floor, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
     }
 
     [Builtin("ceiling")]
     public static object Ceiling(object obj)
     {
-      return ExactIfPossible(MathHelper(Math.Ceiling, obj));
+      object res = MathHelper(Math.Ceiling, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
     }
 
     [Builtin("truncate")]
     public static object Truncate(object obj)
     {
-      return ExactIfPossible(MathHelper(Math.Truncate, obj));
+      object res = MathHelper(Math.Truncate, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
     }
 
     [Builtin("round")]
     public static object Round(object obj)
     {
-      return ExactIfPossible(MathHelper(Math.Round, obj));
-    }
-
-    [Builtin("rationalize")]
-    public static object Rationalize(object obj1, object obj2)
-    {
-      return FALSE;
+      object res = MathHelper(Math.Round, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
     }
 
 
@@ -1667,16 +1878,46 @@ namespace IronScheme.Runtime
          return SqrtBigInteger((BigInteger)obj);
       }
       object res = MathHelper(Math.Sqrt, obj);
-      return ExactIfPossible(res);
+      if (IsTrue(IsExact(obj)))
+      {
+        return IntegerIfPossible(res);
+      }
+      else
+      {
+        return res;
+      }
     }
+
+
+    [Builtin("exact-integer-sqrt")]
+    public static object ExactIntegerSqrt(object obj)
+    {
+      object r = Sqrt(obj);
+      object rf = Floor(r);
+      object rest = Subtract(obj, Multiply(rf, rf));
+
+      return Values(rf, rest);
+    }
+
 
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)
     {
+      bool isnegative = IsTrue(IsNegative(obj2));
+
+      if (isnegative)
+      {
+        obj2 = Abs(obj2);
+      }
+
       if ((bool)IsInteger(obj1) && (bool)IsInteger(obj2))
       {
         BigInteger a = (BigInteger)BigIntConverter.ConvertFrom(obj1);
         BigInteger r = a.Power(Convert.ToInt32(obj2));
+        if (isnegative)
+        {
+          return Divide(1, r);
+        }
         if (r < int.MaxValue && r > int.MinValue)
         {
           return r.ToInt32();
@@ -1685,10 +1926,18 @@ namespace IronScheme.Runtime
       }
 
       object res = MathHelper(Math.Pow, obj1, obj2);
-      return ExactIfPossible(res);
+      if (isnegative)
+      {
+        return Divide(1, IntegerIfPossible(res));
+      }
+      else
+      {
+        NumberClass e = GetNumberClass(obj1) & GetNumberClass(obj2);
+        return GetNumber(e, res);
+      }
     }
 
-    static object ExactIfPossible(object res)
+    static object IntegerIfPossible(object res)
     {
       if (IsTrue(IsIntegerValued(res)))
       {

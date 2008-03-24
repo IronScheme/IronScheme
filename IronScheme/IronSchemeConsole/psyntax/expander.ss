@@ -3256,8 +3256,26 @@
              (values (cons (id->sym x) name) pred))]
           [() (values '() (lambda (x) #t))]
           [_ (stx-error spec "invalid import spec")])))
+    (define (import-library spec*)
+      (let-values ([(name pred) (parse-library-name spec*)])
+        (when (null? name) 
+          (syntax-violation 'import "empty library name" spec*))
+        (let ((lib (find-library-by-name name)))
+          (unless lib
+            (syntax-violation 'import 
+               "cannot find library with required name"
+               name))
+          (unless (pred (library-version lib))
+            (syntax-violation 'import 
+               "library does not satisfy version specification"
+               spec* lib))
+          ((imp-collector) lib)
+          (library-subst lib))))
     (define (get-import spec)
       (syntax-match spec ()
+        ((x x* ...)
+         (not (memq (syntax->datum x) '(for rename except only prefix library)))
+         (import-library (cons x x*)))
         ((rename isp (old* new*) ...) 
          (and (eq? (syntax->datum rename) 'rename) 
               (for-all id? old*) 
@@ -3294,24 +3312,10 @@
                  (cdr x)))
              subst)))
         ((library (spec* ...)) (eq? (syntax->datum library) 'library)
-         ;;; FIXME: versioning stuff
-         (let-values ([(name pred) (parse-library-name spec*)])
-           (when (null? name) 
-             (syntax-violation 'import "empty library name" spec*))
-           (let ((lib (find-library-by-name name)))
-             (unless lib
-               (syntax-violation 'import 
-                  "cannot find library with required name"
-                  name))
-             (unless (pred (library-version lib))
-               (syntax-violation 'import 
-                  "library does not satisfy version specification"
-                  spec* lib))
-             ((imp-collector) lib)
-             (library-subst lib))))
-        ((x x* ...)
-         (not (memq (syntax->datum x) '(rename except only prefix library)))
-         (get-import `(library (,x . ,x*))))
+         (import-library spec*))
+        ((for isp . rest)
+         (eq? (syntax->datum for) 'for)
+         (get-import isp))
         (spec (syntax-violation 'import "invalid import spec" spec))))
     (define (add-imports! imp h)
       (let ([subst (get-import imp)])

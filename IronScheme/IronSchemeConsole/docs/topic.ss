@@ -38,11 +38,10 @@
 					(let ((rest (cdr n))
 								(filter1		
 									(lambda (s l) 
-										(let ((x (filter 
+										(map cdr (filter 
 										           (lambda (i) 
-											           (and (pair? i) (eq? (car i) s))) 
-											         l))) 
-											(map cdr x))))
+											           (and (pair? i) (eq? (car i) s)))
+										         l))))
 								(assq1			
 									(lambda (s l) 
 										(let ((x (assq s l))) 

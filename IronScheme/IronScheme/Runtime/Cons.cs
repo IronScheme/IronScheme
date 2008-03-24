@@ -103,21 +103,22 @@ namespace IronScheme.Runtime
 
     public override string ToString()
     {
-      if (prettyprint == null)
-      {
-        object ppo;
-        if (!Compiler.Generator.cc.Scope.TryLookupName(pp, out ppo))
-        {
-          return Builtins.WriteFormat(this);
-        }
-        else
-        {
-          prettyprint = ppo as ICallable;
-        }
-      }
-      StringWriter w = new StringWriter();
-      prettyprint.Call(this, w);
-      return w.ToString().TrimEnd('\n');
+      //if (prettyprint == null)
+      //{
+      //  object ppo;
+      //  if (!Compiler.Generator.cc.Scope.TryLookupName(pp, out ppo))
+      //  {
+      //    return Builtins.WriteFormat(this);
+      //  }
+      //  else
+      //  {
+      //    prettyprint = ppo as ICallable;
+      //  }
+      //}
+      //StringWriter w = new StringWriter();
+      //prettyprint.Call(this, w);
+      //return w.ToString().TrimEnd('\n');
+      return Builtins.WriteFormat(this);
     }
 
     #region IEnumerable<object> Members
