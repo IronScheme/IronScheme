@@ -245,11 +245,6 @@ namespace IronScheme.Runtime
       {
         return n;
       }
-      long l;
-      if (long.TryParse(str, out l))
-      {
-        return l;
-      }
       BigInteger bi;
       if (BigIntegerTryParse(str, out bi))
       {
@@ -298,7 +293,7 @@ namespace IronScheme.Runtime
         object n1 = StringToNumber( str.Substring(0, fi), radix);
         object n2 = StringToNumber( str.Substring(fi + 1), radix);
 
-        return new Fraction(Convert.ToInt64(n1), Convert.ToInt64(n2));
+        return new Fraction(ConvertToBigInteger(n1),ConvertToBigInteger(n2));
       }
 
 
@@ -1296,7 +1291,7 @@ namespace IronScheme.Runtime
       {
         case NumberClass.Integer:
         case NumberClass.BigInteger:
-          return IntegerIfPossible(new Fraction((long)ConvertToBigInteger(first),(long)ConvertToBigInteger(second)));
+          return IntegerIfPossible(new Fraction(ConvertToBigInteger(first),ConvertToBigInteger(second)));
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
         case NumberClass.Real:
