@@ -23,6 +23,7 @@ using System.Reflection;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using System.Diagnostics;
+using Microsoft.Scripting.Math;
 
 [assembly: Extension(GeneratorType=typeof(Generator), BuiltinsType=typeof(Builtins))]
 
@@ -128,6 +129,10 @@ namespace IronScheme.Compiler
       }
       else
       {
+        if (args is long)
+        {
+          args = (BigInteger)(long)args;
+        }
         return Ast.Constant(args);
       }
     }

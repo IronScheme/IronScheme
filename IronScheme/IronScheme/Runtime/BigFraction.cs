@@ -5,28 +5,30 @@
 
 // Version 1.1 Bugfix release
 // - new limit properties MaxValue etc.
-// - checked for these limits in the constructor (Int64.MinValue slipped through)
+// - checked for these limits in the constructor (BigInteger.MinValue slipped through)
 // - CompareTo: equality corrected (a case was missing)
 // - CompareTo: inqueality of very large fractions lead to OverflowExceptions
 // -			added 128bit comparison in these cases only
 
+#if BIGFRACTION
 using System;
 using System.Globalization;
+using Microsoft.Scripting.Math;
 
-#if !BIGFRACTION
+
 namespace IronScheme.Runtime
 {
 	/// <summary>
 	/// An implementation of rational (fractional) numbers.
-	/// Numeric range: -Int64.MaxValue/1 to Int64.MaxValue/1
-	/// Smallest positive number: 1/Int64.MaxValue
-	/// Smallest negative number: -1/Int64.MaxValue
+	/// Numeric range: -BigInteger.MaxValue/1 to BigInteger.MaxValue/1
+	/// Smallest positive number: 1/BigInteger.MaxValue
+	/// Smallest negative number: -1/BigInteger.MaxValue
 	/// Zero: 0/1
 	/// One: 1/1
 	/// 
-	/// Fractional numbers exhibit no rounding errors as long as they stay 
+	/// Fractional numbers exhibit no rounding errors as BigInteger as they stay 
 	/// in their numeric range. In other cases a System.OverflowException is
-	/// raised (coming from the underlying Int64 computation).
+	/// raised (coming from the underlying BigInteger computation).
 	/// Note that overflow exceptions can be raised even if the reduced result
 	/// fraction is inside the numeric range.
 	/// 
@@ -89,23 +91,19 @@ namespace IronScheme.Runtime
     }
 		#region Declarations
 
-		private Int64 numerator;
-		private Int64 denominator;
+		private BigInteger numerator;
+		private BigInteger denominator;
 
 		#endregion
 
 		#region Constructors
 
-		public Fraction(Int64 newNumerator, Int64 newDenominator)
+		public Fraction(BigInteger newNumerator, BigInteger newDenominator)
 		{
-			Int64 gcd;
+			BigInteger gcd;
 
 			if (newDenominator == 0)
 				throw new DivideByZeroException("Illegal fraction");
-			if (newNumerator == Int64.MinValue)
-				throw new OverflowException("Fraction nominator may not be Int64.MinValue");
-			if (newDenominator == Int64.MinValue)
-				throw new OverflowException("Fraction denominator may not be Int64.MinValue");
 
 			numerator = newNumerator;
 			denominator = newDenominator;
@@ -124,7 +122,7 @@ namespace IronScheme.Runtime
 
 		#region Properties
 
-		public Int64 Numerator
+		public BigInteger Numerator
 		{
 			get
 			{
@@ -132,7 +130,7 @@ namespace IronScheme.Runtime
 			}
 		}
 
-		public Int64 Denominator
+		public BigInteger Denominator
 		{
 			get
 			{
@@ -141,12 +139,6 @@ namespace IronScheme.Runtime
 		}
 
 		public readonly static Fraction Zero = new Fraction(0,1);
-    public readonly static Fraction MinValue =new Fraction(-Int64.MaxValue, 1);
-    public readonly static Fraction MaxValue = new Fraction(Int64.MaxValue, 1);
-    public readonly static Fraction SmallestNegativeValue = new Fraction(-1, Int64.MaxValue);
-    public readonly static Fraction SmallestValue = new Fraction(1, Int64.MaxValue);
-
-
 
 		#endregion
 
@@ -158,12 +150,12 @@ namespace IronScheme.Runtime
     /// <param name="smaller"></param>
     /// <param name="larger"></param>
 		/// <returns></returns>
-		internal Int64 Gcd(Int64 smaller, Int64 larger)
+		internal BigInteger Gcd(BigInteger smaller, BigInteger larger)
 		{
-			Int64 rest;
+			BigInteger rest;
 
-			smaller = Math.Abs(smaller);
-			larger = Math.Abs(larger);
+			smaller = smaller.Abs();
+			larger = larger.Abs();
 
 			if (smaller == 0)
 				return larger;
@@ -203,7 +195,7 @@ namespace IronScheme.Runtime
 		/// <returns></returns>
 		/// <remarks>
 		/// Note the comments on precision issues when the number of digits used in the Decimal
-		/// exceed the precision of Int64 significantly.
+		/// exceed the precision of BigInteger significantly.
 		/// </remarks>
 		private static Fraction ToFraction(Decimal convertedDecimal)
 		{
@@ -217,10 +209,10 @@ namespace IronScheme.Runtime
 				Boolean negative = scaleAndSign < 0;
 				Int32 scaleFactor = (Int32)(Math.Abs(scaleAndSign) >> 16);
 
-				Decimal scale = (Decimal)Math.Pow(10, (Double)scaleFactor);
+				BigInteger scale = (BigInteger) Math.Pow(10, (Double)scaleFactor);
 
-				// now we construct the scaled long integer
-				// if high32 is not zero then the overall number would be too large for the numeric range of long.
+				// now we construct the scaled BigInteger integer
+				// if high32 is not zero then the overall number would be too large for the numeric range of BigInteger.
 				// we determine how many significant bits of high32 need to be shifted down to the lower two ints
 				// and correct the scale accordingly. 
 				// this step will loose precision for two reason: bits are truncated in low32 and the scale value
@@ -237,10 +229,10 @@ namespace IronScheme.Runtime
 					high32 >>= 1;
 					scale /= 2;
 				}
-				UInt64 scaledInt = ((UInt64)middle32 << 32) + low32;
+				BigInteger scaledInt = ((BigInteger)middle32 << 32) + low32;
 
 				// bad things would happen if the highest bit of scaledInt is not zero. 
-				// Truncate the ulong integer to stay within the numeric range of long by
+				// Truncate the uBigInteger integer to stay within the numeric range of BigInteger by
 				// dividing it by two and correspondingly divide the scale by two as well.
 				// Again this step can loose precision by overflowing the precision of scale.
 				if ((scaledInt & 0x80000000) > 0)
@@ -257,12 +249,12 @@ namespace IronScheme.Runtime
 				Int32 realScaleFactor = (Int32)Math.Log10((Double)scale);
 				if (realScaleFactor > 18)
 				{
-					UInt64 scaleCorrection = (UInt64)Math.Pow(10, (Double)realScaleFactor - 18);
+          BigInteger scaleCorrection = (BigInteger)Math.Pow(10, (Double)realScaleFactor - 18);
 					scaledInt /= scaleCorrection;
 					scale /= scaleCorrection;
 				}
 			
-				return new Fraction((Int64)scaledInt * (negative ? -1 : 1), (Int64)scale);
+				return new Fraction((BigInteger)scaledInt * (negative ? -1 : 1), (BigInteger)scale);
 			}
 		}
 
@@ -280,19 +272,19 @@ namespace IronScheme.Runtime
     /// <param name="ab"></param>
     /// <param name="cd"></param>
 		/// <returns></returns>
-		internal UInt32[] UMult128(UInt64 ab, UInt64 cd)
+		internal UInt32[] UMult128(BigInteger ab, BigInteger cd)
 		{
-			UInt64 a = ab >> 32;
-			UInt64 b = ab & 0xFFFFFFFF;
-			UInt64 c = cd >> 32;
-			UInt64 d = cd & 0xFFFFFFFF;
+			BigInteger a = ab >> 32;
+			BigInteger b = ab & 0xFFFFFFFF;
+			BigInteger c = cd >> 32;
+			BigInteger d = cd & 0xFFFFFFFF;
 			UInt32[] result = {0, 0, 0, 0};
-			UInt64 tmp;
+			BigInteger tmp;
 			
-			UInt64 step1 = b*d;
-			UInt64 step2 = a*d;
-			UInt64 step3 = b*c;
-			UInt64 step4 = a*c;
+			BigInteger step1 = b*d;
+			BigInteger step2 = a*d;
+			BigInteger step3 = b*c;
+			BigInteger step4 = a*c;
 
 			result[3] = (UInt32)step1;
 			tmp = (step1 >> 32) + (step2 & 0xFFFFFFFF) + (step3 & 0xFFFFFFFF);
@@ -331,55 +323,65 @@ namespace IronScheme.Runtime
 			return (Decimal)fraction.numerator / (Decimal)fraction.denominator;
 		}
 
-		public static explicit operator Double(Fraction fraction)
+    public static explicit operator Double(Fraction fraction)
 		{
 			return (Double)fraction.numerator / (Double)fraction.denominator;
 		}
 
-		public static explicit operator Int64(Fraction fraction)
+    public static explicit operator BigInteger(Fraction fraction)
 		{
-			return (Int64)fraction.numerator / (Int64)fraction.denominator;
+			return (BigInteger)fraction.numerator / (BigInteger)fraction.denominator;
 		}
 
 		[method:CLSCompliant(false)]
-		public static explicit operator UInt64(Fraction fraction)
+    public static explicit operator UInt64(Fraction fraction)
 		{
-			return (UInt64)(Int64)fraction;
+			return (UInt64)(BigInteger)fraction;
 		}
 
-		public static explicit operator Int32(Fraction fraction)
-		{
-			return (Int32)(Int64)fraction;
-		}
+    public static explicit operator Int64(Fraction fraction)
+    {
+      return (Int64)(BigInteger)fraction;
+    }
 
-		[method:CLSCompliant(false)]
-		public static explicit operator UInt32(Fraction fraction)
+    public static explicit operator Int32(Fraction fraction)
 		{
-			return (UInt32)(Int64)fraction;
-		}
-
-		public static explicit operator Int16(Fraction fraction)
-		{
-			return (Int16)(Int64)fraction;
+			return (Int32)(BigInteger)fraction;
 		}
 
 		[method:CLSCompliant(false)]
-		public static explicit operator UInt16(Fraction fraction)
+    public static explicit operator UInt32(Fraction fraction)
 		{
-			return (UInt16)(Int64)fraction;
+			return (UInt32)(BigInteger)fraction;
 		}
 
-		public static explicit operator Byte(Fraction fraction)
+    public static explicit operator Int16(Fraction fraction)
 		{
-			return (Byte)(Int64)fraction;
+			return (Int16)(BigInteger)fraction;
 		}
 
-		public static explicit operator Single(Fraction fraction)
+		[method:CLSCompliant(false)]
+    public static explicit operator UInt16(Fraction fraction)
 		{
-			return (Single)(Int64)fraction;
+			return (UInt16)(BigInteger)fraction;
 		}
 
-		public static implicit operator Fraction(Int64 number)
+    public static explicit operator Byte(Fraction fraction)
+		{
+			return (Byte)(BigInteger)fraction;
+		}
+
+    public static explicit operator Single(Fraction fraction)
+		{
+			return (Single)(BigInteger)fraction;
+		}
+
+    public static implicit operator Fraction(int number)
+    {
+      return new Fraction(number, 1);
+    }
+
+    public static implicit operator Fraction(BigInteger number)
 		{
 			return new Fraction(number, 1);
 		}
@@ -392,46 +394,39 @@ namespace IronScheme.Runtime
       {
         return Fraction.Zero;
       }
-      if (Math.Abs(x) > long.MaxValue ||
-          Math.Abs(x) < 1 / (double)long.MaxValue)
-      {  // NaN
-        throw new OverflowException();
-      }
+
       int sgn = 1;
       if (x < 0.0)
       {
         sgn = -1;
         x = -x;
       }
-      long intPart = (long)x;
+      BigInteger intPart = (BigInteger) Math.Floor(x);
       double z = x - intPart;
       if (z != 0)
       {
         z = 1.0 / z;
-        long a = (long)z;
+        BigInteger a = (BigInteger) Math.Round(z);
         z = z - a;
-        long prevNum = 0;
-        long num = 1;
-        long prevDen = 1;
-        long den = a;
-        long tmp;
-        double approxAns = ((double)den * intPart + num) / den;
-        while (Math.Abs((x - approxAns) / x) >= eps)
+        BigInteger prevNum = 0;
+        BigInteger num = 1;
+        BigInteger prevDen = 1;
+        BigInteger den = a;
+        BigInteger tmp;
+        double approxAns = (double)(den * intPart + num) / den;
+        while (Math.Abs((x - approxAns)) != 0)
         {
           z = 1.0 / z;
-          a = (long)z;
+          a = (BigInteger) Math.Round(z);
           z = z - a;
-          // deal with too-big numbers:
-          if ((double)a * num + prevNum > long.MaxValue ||
-              (double)a * den + prevDen > long.MaxValue)
-            break;
+
           tmp = a * num + prevNum;
           prevNum = num;
           num = tmp;
           tmp = a * den + prevDen;
           prevDen = den;
           den = tmp;
-          approxAns = ((double)den * intPart + num) / den;
+          approxAns = (double)(den * intPart + num) / den;
         }
         return new Fraction(sgn * (den * intPart + num), den);
       }
@@ -448,9 +443,9 @@ namespace IronScheme.Runtime
 		/// </summary>
     /// <param name="number"></param>
 		/// <returns></returns>
-		public static implicit operator Fraction(Decimal number)
+    public static implicit operator Fraction(Decimal number)
 		{
-			return Fraction.ToFraction(number);
+      return Fraction.ToFraction(number);
 		}
 
 		#endregion
@@ -458,10 +453,15 @@ namespace IronScheme.Runtime
 		#region IConvertible Members
 
 		[method:CLSCompliant(false)]
-		public ulong ToUInt64(IFormatProvider provider)
+    public UInt64 ToUInt64(IFormatProvider provider)
 		{
 			return (UInt64)this;
 		}
+
+    public Int64 ToInt64(IFormatProvider provider)
+    {
+      return (Int64)this;
+    }
 
 		[method:CLSCompliant(false)]
 		public sbyte ToSByte(IFormatProvider provider)
@@ -520,11 +520,6 @@ namespace IronScheme.Runtime
 			throw new InvalidCastException("Cannot convert fraction value to Char");
 		}
 
-		public long ToInt64(IFormatProvider provider)
-		{
-			return (Int64)this;
-		}
-
 		public System.TypeCode GetTypeCode()
 		{
 			return TypeCode.Decimal;
@@ -538,7 +533,7 @@ namespace IronScheme.Runtime
 		public object ToType(Type conversionType, IFormatProvider provider)
 		{
 			if (this.denominator == 1)
-				return Convert.ChangeType((Int64)this, conversionType, provider);
+				return Convert.ChangeType((BigInteger)this, conversionType, provider);
 			else
 				return Convert.ChangeType((Decimal)this, conversionType, provider);
 		}
@@ -562,7 +557,7 @@ namespace IronScheme.Runtime
 		/// <returns></returns>
 		public Int32 CompareTo(object obj)
 		{
-			Fraction arg = (Fraction)obj;
+      Fraction arg = (Fraction)obj;
 
 			if ((this.numerator == arg.numerator) && (this.denominator == arg.denominator))
 				return 0;
@@ -590,8 +585,8 @@ namespace IronScheme.Runtime
 			catch (OverflowException)
 			{
 				// we need to resort to 128bit precision multiplication here
-				UInt32[] product1 = this.UMult128((ulong)Math.Abs(this.numerator), (ulong)Math.Abs(arg.denominator));
-				UInt32[] product2 = this.UMult128((ulong)Math.Abs(this.denominator), (ulong)Math.Abs(arg.numerator));
+				UInt32[] product1 = this.UMult128(numerator.Abs(), arg.denominator.Abs());
+				UInt32[] product2 = this.UMult128(denominator.Abs(), arg.numerator.Abs());
 				Boolean less = this.Less128(product1, product2);
 				if (thisNegative)
 					less = !less;
@@ -606,29 +601,29 @@ namespace IronScheme.Runtime
 
 		string System.IFormattable.ToString(string format, IFormatProvider formatProvider)
 		{
-			return this.numerator.ToString(format, formatProvider) + "/" + this.denominator.ToString(format, formatProvider);
+			return this.numerator.ToString() + "/" + this.denominator.ToString();
 		}
 
 		#endregion
 
 		#region Operators
 
-		public static Boolean operator < (Fraction fraction1, Fraction fraction2)
+    public static Boolean operator <(Fraction fraction1, Fraction fraction2)
 		{
 			return fraction1.CompareTo(fraction2) < 0;
 		}
 
-		public static Boolean operator > (Fraction fraction1, Fraction fraction2)
+    public static Boolean operator >(Fraction fraction1, Fraction fraction2)
 		{
 			return fraction1.CompareTo(fraction2) > 0;
 		}
 
-		public static Boolean operator == (Fraction fraction1, Fraction fraction2)
+    public static Boolean operator ==(Fraction fraction1, Fraction fraction2)
 		{
 			return fraction1.CompareTo(fraction2) == 0;
 		}
 
-		public static Boolean operator != (Fraction fraction1, Fraction fraction2)
+    public static Boolean operator !=(Fraction fraction1, Fraction fraction2)
 		{
 			return fraction1.CompareTo(fraction2) != 0;
 		}
@@ -647,52 +642,52 @@ namespace IronScheme.Runtime
 			return (Int32)this;
 		}
 
-		public static Boolean operator <= (Fraction fraction1, Fraction fraction2)
+    public static Boolean operator <=(Fraction fraction1, Fraction fraction2)
 		{
 			return fraction1.CompareTo(fraction2) <= 0;
 		}
 
-		public static Boolean operator >= (Fraction fraction1, Fraction fraction2)
+    public static Boolean operator >=(Fraction fraction1, Fraction fraction2)
 		{
 			return fraction1.CompareTo(fraction2) >= 0;
 		}
 
 		// **********************************************************************************
 
-		public static Fraction operator + (Fraction fraction1, Fraction fraction2)
+    public static Fraction operator +(Fraction fraction1, Fraction fraction2)
 		{
 			return new Fraction(
-				checked((fraction1.numerator * fraction2.denominator) + (fraction2.numerator * fraction1.denominator)), 
-				checked(fraction1.denominator * fraction2.denominator));
+				(fraction1.numerator * fraction2.denominator) + (fraction2.numerator * fraction1.denominator), 
+				fraction1.denominator * fraction2.denominator);
 		}
 
 		public static Fraction operator - (Fraction fraction1, Fraction fraction2)
 		{
 			return new Fraction(
-				checked((fraction1.numerator * fraction2.denominator) - (fraction2.numerator * fraction1.denominator)), 
-				checked(fraction1.denominator * fraction2.denominator));
+				(fraction1.numerator * fraction2.denominator) - (fraction2.numerator * fraction1.denominator), 
+				fraction1.denominator * fraction2.denominator);
 		}
 
 		public static Fraction operator / (Fraction fraction1, Fraction fraction2)
 		{
 			return new Fraction(
-				checked(fraction1.numerator * fraction2.denominator), 
-				checked(fraction1.denominator * fraction2.numerator));
+				fraction1.numerator * fraction2.denominator, 
+				fraction1.denominator * fraction2.numerator);
 		}
 
 		public static Fraction operator * (Fraction fraction1, Fraction fraction2)
 		{
 			return new Fraction(
-				checked(fraction1.numerator * fraction2.numerator), 
-				checked(fraction1.denominator * fraction2.denominator));
+				fraction1.numerator * fraction2.numerator, 
+				fraction1.denominator * fraction2.denominator);
 		}
 
 		public static Fraction operator % (Fraction fraction1, Fraction fraction2)
 		{
-			Int64 quo = (Int64)checked((fraction1 / fraction2));
+			BigInteger quo = (BigInteger)(fraction1 / fraction2);
 			return fraction1 - new Fraction(
-				checked(fraction2.numerator * quo), 
-				checked(fraction2.denominator));
+				fraction2.numerator * quo, 
+				fraction2.denominator);
 		}
 
 		#endregion
@@ -728,16 +723,6 @@ namespace IronScheme.Runtime
 
 		public override string ToString()
 		{
-      //if (denominator == 1)
-      //{
-      //  return numerator.ToString(CultureInfo.CurrentCulture);
-      //}
-
-      //if (numerator % denominator == 0)
-      //{
-      //  return (numerator / denominator).ToString();
-      //}
-
 			return numerator.ToString(CultureInfo.CurrentCulture) + "/" + denominator.ToString(CultureInfo.CurrentCulture);
 		}
 	}
