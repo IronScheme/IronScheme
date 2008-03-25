@@ -602,6 +602,9 @@ namespace IronScheme.Runtime
         case NumberClass.Integer:
           result = ConvertToInteger(first) < ConvertToInteger(second);
           break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) < ConvertToBigInteger(second);
+          break;
         case NumberClass.Rational:
           result = ConvertToRational(first) < ConvertToRational(second);
           break;
@@ -660,6 +663,9 @@ namespace IronScheme.Runtime
       {
         case NumberClass.Integer:
           result = ConvertToInteger(first) <= ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) <= ConvertToBigInteger(second);
           break;
         case NumberClass.Rational:
           result = ConvertToRational(first) <= ConvertToRational(second);
@@ -720,6 +726,9 @@ namespace IronScheme.Runtime
         case NumberClass.Integer:
           result = ConvertToInteger(first) > ConvertToInteger(second);
           break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) > ConvertToBigInteger(second);
+          break;
         case NumberClass.Rational:
           result = ConvertToRational(first) > ConvertToRational(second);
           break;
@@ -778,6 +787,9 @@ namespace IronScheme.Runtime
       {
         case NumberClass.Integer:
           result = ConvertToInteger(first) >= ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) >= ConvertToBigInteger(second);
           break;
         case NumberClass.Rational:
           result = ConvertToRational(first) >= ConvertToRational(second);
@@ -894,7 +906,8 @@ namespace IronScheme.Runtime
       switch (nc)
       {
         case NumberClass.Integer:
-          BigInteger r = ConvertToInteger(number);
+        case NumberClass.BigInteger:
+          BigInteger r = ConvertToBigInteger(number);
           if (r > int.MaxValue || r < int.MinValue)
           {
             return r;
@@ -942,15 +955,20 @@ namespace IronScheme.Runtime
       Complex = 1,
       Real = 2 | Complex,
       Rational = 4 | Real ,
-      Integer = 8 | Rational,
+      BigInteger = 8 | Rational,
+      Integer = 16 | BigInteger,
       NotANumber = 0
     }
 
     static NumberClass GetNumberClass(object obj)
     {
-      if (obj is int || obj is BigInteger)
+      if (obj is int)
       {
         return NumberClass.Integer;
+      }
+      else if (obj is BigInteger)
+      {
+        return NumberClass.BigInteger;
       }
       else if (obj is Fraction)
       {
@@ -970,7 +988,17 @@ namespace IronScheme.Runtime
       }
     }
 
-    static BigInteger ConvertToInteger(object o)
+    static int ConvertToInteger(object o)
+    {
+      if (o is int)
+      {
+        return (int)o;
+      }
+      throw new Exception("BUG");
+    }
+
+
+    static BigInteger ConvertToBigInteger(object o)
     {
       if (o is int)
       {
@@ -1031,15 +1059,16 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          BigInteger r = ConvertToInteger(first) + ConvertToInteger(second);
-          if (r > int.MaxValue || r < int.MinValue)
+          try
           {
-            return r;
+            return checked(ConvertToInteger(first) + ConvertToInteger(second));
           }
-          else
+          catch (OverflowException)
           {
-            return (int)r;
+            return ConvertToBigInteger(first) + ConvertToBigInteger(second);
           }
+        case NumberClass.BigInteger:
+          return ConvertToBigInteger(first) + ConvertToBigInteger(second);
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) + ConvertToRational(second));
         case NumberClass.Real:
@@ -1098,15 +1127,16 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          BigInteger r = ConvertToInteger(first) - ConvertToInteger(second);
-          if (r > int.MaxValue || r < int.MinValue)
+          try
           {
-            return r;
+            return checked(ConvertToInteger(first) - ConvertToInteger(second));
           }
-          else
+          catch (OverflowException)
           {
-            return (int)r;
+            return ConvertToBigInteger(first) - ConvertToBigInteger(second);
           }
+        case NumberClass.BigInteger:
+          return ConvertToBigInteger(first) - ConvertToBigInteger(second);
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) - ConvertToRational(second));
         case NumberClass.Real:
@@ -1171,15 +1201,16 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          BigInteger r = ConvertToInteger(first) * ConvertToInteger(second);
-          if (r > int.MaxValue || r < int.MinValue)
+          try
           {
-            return r;
+            return checked(ConvertToInteger(first) * ConvertToInteger(second));
           }
-          else
+          catch (OverflowException)
           {
-            return (int)r;
+            return ConvertToBigInteger(first) * ConvertToBigInteger(second);
           }
+        case NumberClass.BigInteger:
+          return ConvertToBigInteger(first) * ConvertToBigInteger(second);
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) * ConvertToRational(second));
         case NumberClass.Real:
@@ -1264,7 +1295,8 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          return IntegerIfPossible(new Fraction((long)ConvertToInteger(first),(long)ConvertToInteger(second)));
+        case NumberClass.BigInteger:
+          return IntegerIfPossible(new Fraction((long)ConvertToBigInteger(first),(long)ConvertToBigInteger(second)));
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
         case NumberClass.Real:
