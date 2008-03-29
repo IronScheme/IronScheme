@@ -192,8 +192,6 @@ SectionIn 1 2 RO
 	File "Microsoft.Scripting.dll"
 	
 	File "init.scm"
-	File "core.scm"
-	File "genwrite.scm"
 	
 	File "ironscheme-buildscript.ss"
 

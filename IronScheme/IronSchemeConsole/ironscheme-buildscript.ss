@@ -1041,7 +1041,6 @@
     (symbol-value                               $boot i)
     (set-symbol-value!                          $boot i)
     (eval-core                                  $boot)
-    (pretty-print                               $boot)
     (module                                     i)
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
@@ -1068,6 +1067,9 @@
     (unspecified?                               i)
     (make-guid                                  i)
     (group-by                                   i)
+    (sinh                                       i)
+    (cosh                                       i)
+    (tanh                                       i)
     
     (read-annotated                             ir)
     (annotation?                                ir)
