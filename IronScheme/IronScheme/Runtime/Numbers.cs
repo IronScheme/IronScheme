@@ -33,12 +33,72 @@ namespace IronScheme.Runtime
 
     static object PrintBinary(object num)
     {
-      return FALSE;
+      BigInteger n = ConvertToBigInteger(num);
+      bool positive = n >= 0;
+
+      n = n.Abs();
+
+      StringBuilder sb = new StringBuilder();
+
+      do
+      {
+        sb.Append(((n & 1) == 1) ? "1" : "0");
+        n >>= 1;
+      }
+      while (n != 0);
+
+      char[] output = new char[sb.Length];
+
+      for (int i = 0; i < sb.Length; i++)
+      {
+        output[output.Length - i - 1] = sb[i];
+      }
+
+      string ret = new string(output);
+
+      if (positive)
+      {
+        return ret;
+      }
+      else
+      {
+        return "-" + ret;
+      }
     }
 
     static object PrintOctal(object num)
     {
-      return FALSE;
+      BigInteger n = ConvertToBigInteger(num);
+      bool positive = n >= 0;
+
+      n = n.Abs();
+
+      StringBuilder sb = new StringBuilder();
+
+      do
+      {
+        sb.Append((char)((n & 7) + '0'));
+        n /= 8;
+      }
+      while (n != 0);
+
+      char[] output = new char[sb.Length];
+
+      for (int i = 0; i < sb.Length; i++)
+      {
+        output[output.Length - i - 1] = sb[i];
+      }
+
+      string ret = new string(output);
+
+      if (positive)
+      {
+        return ret;
+      }
+      else
+      {
+        return "-" + ret;
+      }
     }
 
 
@@ -90,7 +150,7 @@ namespace IronScheme.Runtime
           }
           return obj.ToString();
         case 16:
-          return string.Format("{0:x}", obj);
+          return string.Format("{0:X}", obj);
       }
 
       return FALSE;
@@ -103,7 +163,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        return FALSE;
+        return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
       }
 
       switch (str[0])
@@ -120,15 +180,103 @@ namespace IronScheme.Runtime
             case 'x':
               return StringToNumber(str.Substring(2), 16);
             default:
-              return FALSE;
+              return AssertionViolation("string->number", "unknown prefix", obj);
           }
         default:
           return StringToNumber(obj, 10);
       }
     }
 
+    static readonly Dictionary<char, int> charmap = GetCharMap();
+
+    static Dictionary<char, int> GetCharMap()
+    {
+      Dictionary<char, int> map = new Dictionary<char,int>();
+      map['0'] = 0;
+      map['1'] = 1;
+      map['2'] = 2;
+      map['3'] = 3;
+      map['4'] = 4;
+      map['5'] = 5;
+      map['6'] = 6;
+      map['7'] = 7;
+      map['8'] = 8;
+      map['9'] = 9;
+      map['a'] = 10;
+      map['b'] = 11;
+      map['c'] = 12;
+      map['d'] = 13;
+      map['e'] = 14;
+      map['f'] = 15;
+
+      return map;
+    }
+
+    static int GetNum(char c)
+    {
+      int i;
+      if (charmap.TryGetValue(c, out i))
+      {
+        return i;
+      }
+      return int.MaxValue;
+    }
+
+    static object ParseArb(string str, int radix)
+    {
+      bool negative = str.StartsWith("-");
+
+      if (negative)
+      {
+        str = str.Substring(1);
+      }
+
+      try
+      {
+        checked
+        {
+          int b = 1;
+          int n = 0;
+          for (int i = 0; i < str.Length; i++, b *= radix)
+          {
+            char c = str[str.Length - 1 - i];
+            int k = GetNum(c);
+            if (k >= radix)
+            {
+              return AssertionViolation("ParseArb", "not within expected range", str, radix);
+            }
+            n += b * k;
+          }
+          return negative ? -n : n;
+        }
+      }
+      catch (OverflowException)
+      {
+        BigInteger b = 1;
+        BigInteger n = 0;
+        for (int i = 0; i < str.Length; i++, b *= radix)
+        {
+          char c = str[str.Length - 1 - i];
+          int k = GetNum(c);
+          if (k >= radix)
+          {
+            return AssertionViolation("ParseArb", "not within expected range", str, radix);
+          }
+          n += b * k;
+        }
+        return negative ? -n : n;
+      }
+    }
+
     static object ParseBinary(string str)
     {
+      bool negative = str.StartsWith("-");
+
+      if (negative)
+      {
+        str = str.Substring(1);
+      }
+
       if (str.Length <= 32)
       {
         int b = 1;
@@ -138,23 +286,30 @@ namespace IronScheme.Runtime
           char c = str[str.Length - 1 - i];
           n += b * (c - '0');
         }
-        return n;
+        return negative ? -n : n;
       }
       else
       {
-        long b = 1;
-        long n = 0;
+        BigInteger b = 1;
+        BigInteger n = 0;
         for (int i = 0; i < str.Length; i++, b *= 2)
         {
           char c = str[str.Length - 1 - i];
           n += b * (c - '0');
         }
-        return n;
+        return negative ? -n : n;
       }
     }
 
     static object ParseOctal(string str)
     {
+      bool negative = str.StartsWith("-");
+
+      if (negative)
+      {
+        str = str.Substring(1);
+      }
+
       if (str.Length < 11) // not precise, bleh
       {
         int b = 1;
@@ -164,7 +319,7 @@ namespace IronScheme.Runtime
           char c = str[str.Length - 1 - i];
           n += b * (c - '0');
         }
-        return n;
+        return negative ? -n : n;
       }
       else
       {
@@ -175,7 +330,7 @@ namespace IronScheme.Runtime
           char c = str[str.Length - 1 - i];
           n += b * (c - '0');
         }
-        return n;
+        return negative ? -n : n;
       }
     }
 
@@ -283,7 +438,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        return FALSE;
+        return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
       }
 
       int fi = str.IndexOf('/');
@@ -296,31 +451,18 @@ namespace IronScheme.Runtime
         return new Fraction(ConvertToBigInteger(n1),ConvertToBigInteger(n2));
       }
 
-
       switch (r)
       {
         case 2:
-          return ParseBinary(str);
+          return ParseArb(str, 2);
         case 8:
-          return ParseOctal(str);
+          return ParseArb(str, 8);
         case 10:
           return ParseDecimal(str);
         case 16:
-          if (str.Length > 16)
-          {
-            return FALSE;
-          }
-          else
-          if (str.Length > 8)
-          {
-            return long.Parse(str, System.Globalization.NumberStyles.HexNumber);
-          }
-          else
-          {
-            return int.Parse(str, System.Globalization.NumberStyles.HexNumber);
-          }
+          return ParseArb(str, 16);
         default:
-          return FALSE;
+          return AssertionViolation("string->number", "unsupported radix", radix, obj);
       }
     }
 
@@ -1315,78 +1457,6 @@ namespace IronScheme.Runtime
       return car;
     }
 
-    static bool OperatorHelper(string opname, object first, object second, out object value)
-    {
-      if (first != null)
-      {
-        foreach (MethodInfo mi in first.GetType().GetMember(opname, BindingFlags.Static | BindingFlags.FlattenHierarchy | BindingFlags.Public))
-        {
-          ParameterInfo[] pis = mi.GetParameters();
-          if (pis.Length == 2)
-          {
-            Type p1t = pis[0].ParameterType;
-            Type p2t = pis[1].ParameterType;
-            if (p1t.IsInstanceOfType(first)
-              && p2t.IsInstanceOfType(second))
-            {
-              value = mi.Invoke(null, new object[] { first, second });
-              return true;
-            }
-            else if (second != null)
-            {
-              TypeConverter tc1 = TypeDescriptor.GetConverter(p1t);
-              TypeConverter tc2 = TypeDescriptor.GetConverter(p2t);
-
-              if (tc1.CanConvertFrom(first.GetType()) && tc2.CanConvertFrom(second.GetType()))
-              {
-                object afirst = tc1.ConvertFrom(first);
-                object asecond = tc2.ConvertFrom(second);
-
-                value = mi.Invoke(null, new object[] { afirst, asecond });
-                return true;
-              }
-            }
-          }
-        }
-      }
-      if (second != null)
-      {
-        foreach (MethodInfo mi in second.GetType().GetMember(opname, BindingFlags.Static | BindingFlags.FlattenHierarchy | BindingFlags.Public))
-        {
-          ParameterInfo[] pis = mi.GetParameters();
-          if (pis.Length == 2)
-          {
-            Type p1t = pis[0].ParameterType;
-            Type p2t = pis[1].ParameterType;
-            if (p1t.IsInstanceOfType(first)
-              && p2t.IsInstanceOfType(second))
-            {
-              value = mi.Invoke(null, new object[] { first, second });
-              return true;
-            }
-            else if (first != null)
-            {
-              TypeConverter tc1 = TypeDescriptor.GetConverter(p1t);
-              TypeConverter tc2 = TypeDescriptor.GetConverter(p2t);
-
-              if (tc1.CanConvertFrom(first.GetType()) && tc2.CanConvertFrom(second.GetType()))
-              {
-                object afirst = tc1.ConvertFrom(first);
-                object asecond = tc2.ConvertFrom(second);
-
-                value = mi.Invoke(null, new object[] { afirst, asecond });
-                return true;
-              }
-            }
-          }
-        }
-      }
-      value = null;
-      return false;
-    }
-
-
-
     #endregion
 
     [Builtin("abs")]
@@ -1816,13 +1886,11 @@ namespace IronScheme.Runtime
       return MathHelper(Math.Asin, obj);
     }
 
-#if EXT_LIB
     [Builtin("sinh")]
     public static object Sinh(object obj)
     {
       return MathHelper(Math.Sinh, obj);
     }
-#endif
 
     [Builtin("cos")]
     public static object Cos(object obj)
@@ -1836,13 +1904,11 @@ namespace IronScheme.Runtime
       return MathHelper(Math.Acos, obj);
     }
 
-#if EXT_LIB
     [Builtin("cosh")]
     public static object Cosh(object obj)
     {
       return MathHelper(Math.Cosh, obj);
     }
-#endif
 
     [Builtin("tan")]
     public static object Tan(object obj)
@@ -1862,13 +1928,11 @@ namespace IronScheme.Runtime
       return MathHelper(Math.Atan2, obj, obj2);
     }
 
-#if EXT_LIB
     [Builtin("tanh")]
     public static object Tanh(object obj)
     {
       return MathHelper(Math.Tanh, obj);
     }
-#endif
 
     //based on lsqrt()
     static object SqrtBigInteger(BigInteger x)
@@ -1920,7 +1984,7 @@ namespace IronScheme.Runtime
     public static object ExactIntegerSqrt(object obj)
     {
       object r = Sqrt(obj);
-      object rf = Floor(r);
+      object rf = Exact(Floor(r));
       object rest = Subtract(obj, Multiply(rf, rf));
 
       return Values(rf, rest);
@@ -1937,7 +2001,7 @@ namespace IronScheme.Runtime
         obj2 = Abs(obj2);
       }
 
-      if ((bool)IsInteger(obj1) && (bool)IsInteger(obj2))
+      if (IsTrue(IsInteger(obj1)) && IsTrue(IsInteger(obj2)))
       {
         BigInteger a = (BigInteger)BigIntConverter.ConvertFrom(obj1);
         BigInteger r = a.Power(Convert.ToInt32(obj2));
@@ -1950,6 +2014,12 @@ namespace IronScheme.Runtime
           return r.ToInt32();
         }
         return r;
+      }
+
+      if (IsTrue(IsRational(obj1)) && IsTrue(IsInteger(obj2)))
+      {
+        Fraction f = ConvertToRational(obj1);
+        return Divide(Expt(f.Numerator, obj2), Expt(f.Denominator, obj2));
       }
 
       object res = MathHelper(Math.Pow, obj1, obj2);
@@ -1982,7 +2052,7 @@ namespace IronScheme.Runtime
     [Builtin("make-polar")]
     public static object MakePolar(object obj1, object obj2)
     {
-      return FALSE;
+      return Multiply(obj1, MakeRectangular(Cos(obj2), Sin(obj2)));
     }
 
     [Builtin("real-part")]
@@ -2018,33 +2088,15 @@ namespace IronScheme.Runtime
     [Builtin("magnitude")]
     public static object Magnitude(object obj)
     {
-      //if (obj is Complex64)
-      //{
-      //  Complex64 c = RequiresNotNull<Complex64>(obj);
-      //  return c.Imag;
-      //}
-      //else if (IsTrue(IsReal(obj)))
-      //{
-      //  return 0;
-      //}
-      //return AssertionViolation("magnitude", "not a number", obj);
-      return FALSE;
+      Complex64 c = ConvertToComplex(obj);
+      return IntegerIfPossible(Math.Sqrt(c.Imag * c.Imag + c.Real * c.Real));
     }
 
     [Builtin("angle")]
     public static object Angle(object obj)
     {
-      //if (obj is Complex64)
-      //{
-      //  Complex64 c = RequiresNotNull<Complex64>(obj);
-      //  return c.Conjugate.Imag;
-      //}
-      //else if (IsTrue(IsReal(obj)))
-      //{
-      //  return 0;
-      //}
-      //return AssertionViolation("angle", "not a number", obj);
-      return FALSE;
+      Complex64 c = ConvertToComplex(obj);
+      return Atan(c.Imag, c.Real);
     }
   }
 }

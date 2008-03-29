@@ -52,7 +52,7 @@ namespace IronScheme.Runtime
 	/// - the fraction is always reduced by the gcd of the nominator and denominator
 	/// </remarks>
   [System.ComponentModel.TypeConverter(typeof(Fraction.TypeConverter))]
-	public struct Fraction : IComparable, IConvertible, IFormattable
+	public class Fraction : IComparable, IConvertible
 	{
     class TypeConverter : System.ComponentModel.TypeConverter
     {
@@ -84,7 +84,7 @@ namespace IronScheme.Runtime
           {
             return value;
           }
-          return Fraction.ToFraction(Convert.ToDecimal(value));
+          return (Fraction)Convert.ToDouble(value);
         }
         return base.ConvertFrom(context, culture, value);
       }
@@ -176,142 +176,10 @@ namespace IronScheme.Runtime
       
 			while((rest = larger%smaller) != 0)
 			{
-				larger = smaller; smaller = rest;
+				larger = smaller; 
+        smaller = rest;
 			}
 			return smaller;
-		}
-
-		#endregion
-
-		#region Decimal conversion
-
-		/// <summary>
-		/// A lossy conversion from decimal to fraction.
-		/// If the integer part of the decimal exceeds the available 64 bits (96 is possible)
-		/// we truncate the least significant part of these bits.
-		/// If the scale factor is too large we scale down the integer part at the expense of precision.
-		/// </summary>
-    /// <param name="convertedDecimal"></param>
-		/// <returns></returns>
-		/// <remarks>
-		/// Note the comments on precision issues when the number of digits used in the Decimal
-		/// exceed the precision of BigInteger significantly.
-		/// </remarks>
-		private static Fraction ToFraction(Decimal convertedDecimal)
-		{
-			unchecked
-			{
-				Int32[] bits = Decimal.GetBits(convertedDecimal);
-				UInt32 low32 = (UInt32)bits[0];
-				UInt32 middle32 = (UInt32)bits[1];
-				UInt32 high32 = (UInt32)bits[2];
-				Int32 scaleAndSign = bits[3];
-				Boolean negative = scaleAndSign < 0;
-				Int32 scaleFactor = (Int32)(Math.Abs(scaleAndSign) >> 16);
-
-				BigInteger scale = (BigInteger) Math.Pow(10, (Double)scaleFactor);
-
-				// now we construct the scaled BigInteger integer
-				// if high32 is not zero then the overall number would be too large for the numeric range of BigInteger.
-				// we determine how many significant bits of high32 need to be shifted down to the lower two ints
-				// and correct the scale accordingly. 
-				// this step will loose precision for two reason: bits are truncated in low32 and the scale value
-				// might overflow its precision by too many divisions by two. This second reason is aggravated
-				// significantly if the decimal is very much larger than 1. 
-				while (high32 > 0)
-				{
-					low32 >>= 1;
-					if ((middle32 & 1) > 0)
-						low32 |= 0x80000000;
-					middle32 >>= 1;
-					if ((high32 & 1) > 0)
-						middle32 |= 0x80000000;
-					high32 >>= 1;
-					scale /= 2;
-				}
-				BigInteger scaledInt = ((BigInteger)middle32 << 32) + low32;
-
-				// bad things would happen if the highest bit of scaledInt is not zero. 
-				// Truncate the uBigInteger integer to stay within the numeric range of BigInteger by
-				// dividing it by two and correspondingly divide the scale by two as well.
-				// Again this step can loose precision by overflowing the precision of scale.
-				if ((scaledInt & 0x80000000) > 0)
-				{
-					scaledInt >>= 1;
-					scale /= 2;
-				}
-
-				// the scale may be in the range 1- 10^28 which would throw us out of the valid
-				// numeric range for the denominator:  10^18
-				// Note: we could have done this step initially before computing scale and save us from
-				// computing the realScaleFactor (which would be equal to scale if done initially). However
-				// this would aggravate the precision problems of scale even further. 
-				Int32 realScaleFactor = (Int32)Math.Log10((Double)scale);
-				if (realScaleFactor > 18)
-				{
-          BigInteger scaleCorrection = (BigInteger)Math.Pow(10, (Double)realScaleFactor - 18);
-					scaledInt /= scaleCorrection;
-					scale /= scaleCorrection;
-				}
-			
-				return new Fraction((BigInteger)scaledInt * (negative ? -1 : 1), (BigInteger)scale);
-			}
-		}
-
-		#endregion
-
-		#region 128Bit Comparison
-		// this is a simple schoolbook algorithm for the comparison of the product
-		// of two 64bit integers
-		// replace its use in CompareTo as soon as you have better 128bit precision arithmetic at hand.
-
-		/// <summary>
-		/// Multiplication the schoolbook way, based on 32-bit steps.
-		/// This can be certainly optimized but it is ok for the moment.
-		/// </summary>
-    /// <param name="ab"></param>
-    /// <param name="cd"></param>
-		/// <returns></returns>
-		internal UInt32[] UMult128(BigInteger ab, BigInteger cd)
-		{
-			BigInteger a = ab >> 32;
-			BigInteger b = ab & 0xFFFFFFFF;
-			BigInteger c = cd >> 32;
-			BigInteger d = cd & 0xFFFFFFFF;
-			UInt32[] result = {0, 0, 0, 0};
-			BigInteger tmp;
-			
-			BigInteger step1 = b*d;
-			BigInteger step2 = a*d;
-			BigInteger step3 = b*c;
-			BigInteger step4 = a*c;
-
-			result[3] = (UInt32)step1;
-			tmp = (step1 >> 32) + (step2 & 0xFFFFFFFF) + (step3 & 0xFFFFFFFF);
-			result[2] = (UInt32)tmp;
-			tmp >>= 32;
-			tmp += (step2 >> 32) + (step3 >> 32) + (step4 & 0xFFFFFFFF);
-			result[1] = (UInt32)tmp;
-			result[0] = (UInt32)(tmp >>32) + (UInt32)(step4 >> 32);
-			return result;
-		}
-
-		/// <summary>
-		/// Simple &lt; comparison of the 128bit multiplication result
-		/// </summary>
-		/// <param name="first"></param>
-		/// <param name="second"></param>
-		/// <returns></returns>
-		internal Boolean Less128(UInt32[] first, UInt32[] second)
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				if (first[i] < second[i])
-					return true;
-				if (first[i] > second[i])
-					return false;
-			}
-			return false;
 		}
 
 		#endregion
@@ -389,7 +257,6 @@ namespace IronScheme.Runtime
     //from: http://www.math.uic.edu/~burgiel/Mtht420.99/5/Rational.java - thanks Google
     public static implicit operator Fraction(double x)
     {
-      const double eps = double.Epsilon;
       if (x == 0.0)
       {
         return Fraction.Zero;
@@ -401,23 +268,23 @@ namespace IronScheme.Runtime
         sgn = -1;
         x = -x;
       }
-      BigInteger intPart = (BigInteger) Math.Floor(x);
+      BigInteger intPart = (BigInteger) Math.Round(x);
       double z = x - intPart;
       if (z != 0)
       {
         z = 1.0 / z;
-        BigInteger a = (BigInteger) Math.Round(z);
+        BigInteger a = (BigInteger)Math.Round(z);
         z = z - a;
         BigInteger prevNum = 0;
         BigInteger num = 1;
         BigInteger prevDen = 1;
         BigInteger den = a;
         BigInteger tmp;
-        double approxAns = (double)(den * intPart + num) / den;
-        while (Math.Abs((x - approxAns)) != 0)
+        double approxAns = ((double)(den * intPart + num)) / den;
+        while (Math.Abs((x - approxAns)) > 0)
         {
           z = 1.0 / z;
-          a = (BigInteger) Math.Round(z);
+          a = (BigInteger)Math.Round(z);
           z = z - a;
 
           tmp = a * num + prevNum;
@@ -426,7 +293,7 @@ namespace IronScheme.Runtime
           tmp = a * den + prevDen;
           prevDen = den;
           den = tmp;
-          approxAns = (double)(den * intPart + num) / den;
+          approxAns = ((double)(den * intPart + num)) / den;
         }
         return new Fraction(sgn * (den * intPart + num), den);
       }
@@ -435,18 +302,6 @@ namespace IronScheme.Runtime
         return new Fraction(sgn * intPart, 1);
       }
     }
-
-		/// <summary>
-		/// This is a potentially lossy conversion since the decimal may use more than the available
-		/// 64 bits for the nominator. In this case the least significant bits of the decimal are 
-		/// truncated.
-		/// </summary>
-    /// <param name="number"></param>
-		/// <returns></returns>
-    public static implicit operator Fraction(Decimal number)
-		{
-      return Fraction.ToFraction(number);
-		}
 
 		#endregion
 
@@ -555,54 +410,28 @@ namespace IronScheme.Runtime
 		/// </summary>
 		/// <param name="obj"></param>
 		/// <returns></returns>
-		public Int32 CompareTo(object obj)
-		{
+    public Int32 CompareTo(object obj)
+    {
       Fraction arg = (Fraction)obj;
 
-			if ((this.numerator == arg.numerator) && (this.denominator == arg.denominator))
-				return 0;
+      if ((this.numerator == arg.numerator) && (this.denominator == arg.denominator))
+        return 0;
 
-			Boolean thisNegative = this.numerator < 0;
-			Boolean argNegative = arg.numerator < 0;
-			if (thisNegative != argNegative)
-			{
-				if (argNegative)
-					return 1;
-				else 
-					return -1;
-			}
+      Boolean thisNegative = this.numerator < 0;
+      Boolean argNegative = arg.numerator < 0;
+      if (thisNegative != argNegative)
+      {
+        if (argNegative)
+          return 1;
+        else
+          return -1;
+      }
 
-			try
-			{
-				checked
-				{
-					if (this.numerator * arg.denominator < this.denominator * arg.numerator)
-						return -1;
-					else
-						return 1;
-				}
-			} 
-			catch (OverflowException)
-			{
-				// we need to resort to 128bit precision multiplication here
-				UInt32[] product1 = this.UMult128(numerator.Abs(), arg.denominator.Abs());
-				UInt32[] product2 = this.UMult128(denominator.Abs(), arg.numerator.Abs());
-				Boolean less = this.Less128(product1, product2);
-				if (thisNegative)
-					less = !less;
-
-				return less ? -1 : 1;
-			}
-		}
-
-		#endregion
-
-		#region IFormattable Members
-
-		string System.IFormattable.ToString(string format, IFormatProvider formatProvider)
-		{
-			return this.numerator.ToString() + "/" + this.denominator.ToString();
-		}
+      if (this.numerator * arg.denominator < this.denominator * arg.numerator)
+        return -1;
+      else
+        return 1;
+    }
 
 		#endregion
 
@@ -723,7 +552,7 @@ namespace IronScheme.Runtime
 
 		public override string ToString()
 		{
-			return numerator.ToString(CultureInfo.CurrentCulture) + "/" + denominator.ToString(CultureInfo.CurrentCulture);
+			return numerator + "/" + denominator;
 		}
 	}
 }

@@ -1300,7 +1300,11 @@
     (lambda (stx)
       (syntax-match stx ()
         ((_ expr)
-         (bless `(time-it ',expr (lambda () ,expr)))))))
+         (let ([str 
+                (let-values ([(p e) (open-string-output-port)])
+                  (write (syntax->datum expr) p)
+                  (e))])
+           (bless `(time-it ,str (lambda () ,expr))))))))
   
   (define delay-macro
     (lambda (stx)
@@ -3731,7 +3735,8 @@
           (make-syntax-violation 
             (syntax->datum x)
             #f)
-          (extract-position-condition x)))))
+          (extract-position-condition x)
+          (extract-trace x)))))
 
   (define (extract-trace x)
     (define-condition-type &trace &condition

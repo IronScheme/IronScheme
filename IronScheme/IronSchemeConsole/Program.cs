@@ -19,8 +19,6 @@ using Microsoft.Scripting;
 using IronScheme.Runtime;
 using System.Runtime;
 
-[assembly: Extension(BuiltinsType=typeof(IronScheme.Runtime.ConsoleBuiltins))]
-
 namespace IronScheme.Runtime
 {
   class Program

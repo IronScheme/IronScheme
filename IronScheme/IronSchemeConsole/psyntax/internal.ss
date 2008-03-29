@@ -102,6 +102,6 @@
     ((rewriter #f) x))    
 
   (define (compile-core-expr-to-port x p)
-    (pretty-print ((rewriter #f) x) p)))
+    (write ((rewriter #f) x) p)))
 
 

@@ -19,7 +19,7 @@
 ;;; DEALINGS IN THE SOFTWARE. 
 
 (library (psyntax compat)
-  (export make-parameter parameterize define-record pretty-print
+  (export make-parameter parameterize define-record
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
           load-serialized-library serialize-library
@@ -30,8 +30,7 @@
     (ironscheme records printer)
     (ironscheme serialization)
     (only (psyntax system $bootstrap)
-          void gensym eval-core set-symbol-value! symbol-value 
-          pretty-print))
+          void gensym eval-core set-symbol-value! symbol-value))
   
   (define (load-precompiled-library filename sk) #f) ; used?
   
