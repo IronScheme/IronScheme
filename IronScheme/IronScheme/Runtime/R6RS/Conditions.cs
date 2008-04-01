@@ -117,7 +117,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("condition?")]
     public static object IsCondition(object cond)
     {
-      return cond is Exception;
+      return GetBool(cond is Exception);
     }
 
     //(condition-predicate rtd)

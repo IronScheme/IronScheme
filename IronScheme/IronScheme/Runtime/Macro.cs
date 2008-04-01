@@ -18,6 +18,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
+#if OBSOLETE
   // this only needed for a few core macros
   public abstract class Macro
   {
@@ -239,4 +240,5 @@ namespace IronScheme.Runtime
       return Call(context, args);
     }
   }
+#endif
 }

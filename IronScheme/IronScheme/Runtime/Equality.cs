@@ -87,7 +87,7 @@ namespace IronScheme.Runtime
 
       if (c1 && c2)
       {
-        return EqualCons((Cons)first, (Cons)second);
+        return GetBool(EqualCons((Cons)first, (Cons)second));
       }
 
       if (s1 && c2 || s2 && c1)
@@ -95,7 +95,7 @@ namespace IronScheme.Runtime
         return FALSE;
       }
 
-      if ((bool)IsEqualValue(first, second))
+      if (IsTrue(IsEqualValue(first, second)))
       {
         return TRUE;
       }

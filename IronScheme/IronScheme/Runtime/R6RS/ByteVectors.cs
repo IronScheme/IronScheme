@@ -31,7 +31,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("bytevector?")]
     public static object IsByteVector(object obj)
     {
-      return obj is byte[];
+      return GetBool(obj is byte[]);
     }
 
     [Builtin("make-bytevector")]
@@ -326,11 +326,11 @@ namespace IronScheme.Runtime.R6RS
         case 1:
           return b[0];
         case 2:
-          return BitConverter.ToUInt16(b, i);
+          return (int) BitConverter.ToUInt16(b, i);
         case 4:
-          return BitConverter.ToUInt32(b, i);
+          return (BigInteger) BitConverter.ToUInt32(b, i);
         case 8:
-          return BitConverter.ToUInt64(b, i);
+          return (BigInteger) BitConverter.ToUInt64(b, i);
         default:
           byte[] data = new byte[s + 1];
           Buffer.BlockCopy(b, i, data, 0, s);
@@ -350,13 +350,13 @@ namespace IronScheme.Runtime.R6RS
       switch (s)
       {
         case 1:
-          return unchecked ((sbyte)b[0]);
+          return (int) unchecked ((sbyte)b[0]);
         case 2:
-          return BitConverter.ToInt16(b, i);
+          return (int) BitConverter.ToInt16(b, i);
         case 4:
-          return BitConverter.ToInt32(b, i);
+          return (int) BitConverter.ToInt32(b, i);
         case 8:
-          return BitConverter.ToInt64(b, i);
+          return (BigInteger) BitConverter.ToInt64(b, i);
         default:
           byte[] data = new byte[s];
           Buffer.BlockCopy(b, i, data, 0, s);
@@ -532,7 +532,7 @@ namespace IronScheme.Runtime.R6RS
       int i = RequiresNotNull<int>(k);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
 
-      return BitConverter.ToSingle(b, i);
+      return (double) BitConverter.ToSingle(b, i);
     }
 
     //(bytevector-ieee-double-ref bytevector k endianness)   

@@ -50,11 +50,6 @@ namespace IronScheme.Compiler
         
       Expression r = Ast.Assign(v, value);
 
-      // sucky bootstrap support :(
-      if (cb.IsGlobal && cb.Name != "__toploop__")
-      {
-        object o = r.Evaluate(Context);
-      }
       if (SpanHint != SourceSpan.Invalid || SpanHint != SourceSpan.None)
       {
         r.SetLoc(SpanHint);

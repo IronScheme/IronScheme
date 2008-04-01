@@ -148,9 +148,9 @@ namespace IronScheme.Hosting
 
     #endregion
 
-    internal CodeContext CreateContext(ModuleContext mc)
+    internal LanguageContext GetLanguageContext()
     {
-      return new CodeContext(new Scope(), LanguageContext, mc);
+      return LanguageContext;
     }
 
     public override Microsoft.Scripting.Hosting.ErrorSink GetCompilerErrorSink()

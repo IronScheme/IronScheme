@@ -211,7 +211,7 @@ namespace Microsoft.Scripting.Shell {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         protected int RunInteractiveLoop() {
             if (_module == null) {
-                _module = ScriptDomainManager.CurrentManager.CreateModule("<stdin>");
+                _module = ScriptDomainManager.CurrentManager.Host.DefaultModule as ScriptModule;
             }
 
             OnInteractiveLoopStart();

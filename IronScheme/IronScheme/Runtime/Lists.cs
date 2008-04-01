@@ -228,7 +228,7 @@ namespace IronScheme.Runtime
       while (e != null)
       {
         Cons ass = RequiresNotNull<Cons>(e.car);
-        if ((bool)pred(obj, ass.car))
+        if (IsTrue(pred(obj, ass.car)))
         {
           return ass;
         }
@@ -262,7 +262,7 @@ namespace IronScheme.Runtime
 
       while (c != null)
       {
-        if ((bool)pred(c.car, obj))
+        if (IsTrue(pred(c.car, obj)))
         {
           return c;
         }

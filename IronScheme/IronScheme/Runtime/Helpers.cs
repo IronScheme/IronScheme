@@ -26,9 +26,7 @@ namespace IronScheme.Runtime
       if (!innerc.TryGetValue(id, out c))
       {
         Assembly ass = t.Assembly;
-
         Stream s = ass.GetManifestResourceStream(id);
-
         c = innerc[id] = bf.Deserialize(s);
       }
 

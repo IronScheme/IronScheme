@@ -98,26 +98,8 @@ namespace IronScheme.Runtime
       return cdr == null || (cdr is Cons && ((Cons)cdr).IsProperList(root ?? this));
     }
 
-    static ICallable prettyprint;
-    static SymbolId pp = SymbolTable.StringToId("pretty-print");
-
     public override string ToString()
     {
-      //if (prettyprint == null)
-      //{
-      //  object ppo;
-      //  if (!Compiler.Generator.cc.Scope.TryLookupName(pp, out ppo))
-      //  {
-      //    return Builtins.WriteFormat(this);
-      //  }
-      //  else
-      //  {
-      //    prettyprint = ppo as ICallable;
-      //  }
-      //}
-      //StringWriter w = new StringWriter();
-      //prettyprint.Call(this, w);
-      //return w.ToString().TrimEnd('\n');
       return Builtins.WriteFormat(this);
     }
 

@@ -24,7 +24,7 @@ namespace IronScheme.Runtime.psyntax
 
       public override string ToString()
       {
-        return string.Format("#[annotation {0} {1} {2}]", WriteFormat(expression),WriteFormat(source), WriteFormat(stripped));
+        return string.Format("#<annotation {0} {1} {2}>", WriteFormat(expression),WriteFormat(source), WriteFormat(stripped));
       }
     }
 
@@ -92,7 +92,7 @@ namespace IronScheme.Runtime.psyntax
     [Builtin("annotation?")]
     public static object IsAnnotation(object obj)
     {
-      return obj is Annotation;
+      return GetBool( obj is Annotation);
     }
 
     [Builtin("annotation-expression")]

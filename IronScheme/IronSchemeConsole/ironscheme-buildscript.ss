@@ -36,8 +36,6 @@
 (define scheme-library-files
   '(
     "ironscheme/base.ss"
-    ;"ironscheme/clr/helpers.ss"
-    ;"ironscheme/clr.ss"
     "ironscheme/hashtables.ss"
     "ironscheme/files.ss"
     "ironscheme/lists.ss"
@@ -65,21 +63,6 @@
     "ironscheme/records/syntactic.ss"
     
     "ironscheme/build.ss"
-    ;"ironscheme/format.ss"
-    ;"ironscheme/pretty-print.ss" ; this does not work for some reason
-    
-    ; test compile libs
-    ;"ironscheme/environment.ss"
-    ;"ironscheme/regex.ss"
-    ;"ironscheme/registry.ss"
-    ;"ironscheme/threading.ss"
-    ;"ironscheme/conversions.ss"
-    ;"ironscheme/console.ss"
-    ;"ironscheme/random.ss"
-    ;"ironscheme/collections/icollection.ss"
-    ;"ironscheme/collections/ilist.ss"
-    ;"ironscheme/collections/stack.ss"
-    ;"ironscheme/collections/arraylist.ss"
     
     "psyntax/compat.ss"
     "psyntax/internal.ss"
