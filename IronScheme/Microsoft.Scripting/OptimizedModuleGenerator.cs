@@ -113,13 +113,14 @@ namespace Microsoft.Scripting.Generation {
 
         private List<Scope> GenerateScriptScopes() {
             List<Scope> scopes = new List<Scope>(_scriptCodes.Length);
+            ScriptModule sm = ScriptDomainManager.CurrentManager.Host.DefaultModule as ScriptModule;
             for (int i = 0; i < _scriptCodes.Length; i++) {
                 ScriptCode scriptCode = _scriptCodes[i];
 
                 // Force creation of names used in other script codes into all optimized dictionaries
                 ScopeAllocator allocator = _allocators[scriptCode.LanguageContext];
                 IAttributesCollection iac = CreateLanguageDictionary(scriptCode.LanguageContext, allocator);
-                Scope scope = new Scope(iac);
+                Scope scope = new Scope(sm.Scope, iac);
 
                 // module context is filled later:
                 CodeContext codeContext = new CodeContext(scope, scriptCode.LanguageContext);

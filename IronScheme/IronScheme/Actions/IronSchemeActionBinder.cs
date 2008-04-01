@@ -109,7 +109,6 @@ namespace IronScheme.Actions
         return expr;
       }
       return Ast.ConvertHelper(expr, toType);
-      //throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     public override Expression CheckExpression(Expression expr, Type toType)

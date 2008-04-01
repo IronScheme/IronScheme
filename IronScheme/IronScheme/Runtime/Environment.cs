@@ -28,12 +28,6 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    [Builtin("r6rs-mode?")]
-    public static object IsR6RSMode()
-    {
-      return TRUE;
-    }
-
     internal static SymbolId UnGenSym(SymbolId sym)
     {
       string ss = SymbolTable.IdToString(sym);

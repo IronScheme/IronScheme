@@ -27,7 +27,8 @@ namespace IronScheme.Compiler
   public abstract class BaseHelper
   {
     static readonly IronSchemeScriptEngine se;
-    internal static CodeContext cc;
+    readonly internal static CodeContext cc;
+    readonly internal static ScriptModule scriptmodule;
     internal static readonly ActionBinder binder;
     static readonly LanguageProvider lp = ScriptDomainManager.CurrentManager.GetLanguageProvider(
           typeof(Hosting.IronSchemeLanguageProvider));
@@ -57,11 +58,13 @@ namespace IronScheme.Compiler
     {
       se = lp.GetEngine() as IronSchemeScriptEngine;
 
-      ModuleContext mc = new ModuleContext(ScriptDomainManager.CurrentManager.CreateModule("CompileTime"));
+      scriptmodule = ScriptDomainManager.CurrentManager.Host.DefaultModule as ScriptModule;
+
+      ModuleContext mc = new ModuleContext(scriptmodule);
 
       mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
 
-      cc = se.CreateContext(mc);
+      cc = new CodeContext(scriptmodule.Scope, se.GetLanguageContext(), mc);
 
       binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
     }
@@ -289,37 +292,6 @@ namespace IronScheme.Compiler
 
     protected internal static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)
     {
-
-      // declare all define at start of body, then change the define to 'set!'
-      // similar to letrec* behaviour; also expand1 the defines
-      Cons defcheck = body;
-      while (defcheck != null)
-      {
-        Cons h = defcheck.car as Cons;
-
-        if (h == null)
-        {
-          break;
-        }
-
-        defcheck.car = h = SyntaxExpander.Expand1(defcheck.car) as Cons;
-
-        if (h != null && (bool)Builtins.IsEqual(h.car, define))
-        {
-          Variable v = Create((SymbolId)Builtins.Second(h), cb, typeof(object));
-          //stmts.Add(Ast.Write(v, Ast.ReadField(null, Unspecified)));
-          h.car = set;
-
-          assigns[v.Name] = true;
-        }
-        else
-        {
-          break;
-        }
-
-        defcheck = defcheck.cdr as Cons;
-      }
-
       Cons c = body;
       while (c != null)
       {

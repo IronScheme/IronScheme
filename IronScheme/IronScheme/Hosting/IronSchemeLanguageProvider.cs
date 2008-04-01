@@ -133,7 +133,7 @@ namespace IronScheme.Hosting
         System.Environment.CurrentDirectory = Runtime.Builtins.ApplicationDirectory;
         try
         {
-          this.Engine.Execute("(load \"init.scm\")", Module);
+          this.Engine.Execute("(load \"init.scm\")", Compiler.BaseHelper.scriptmodule);
         }
         finally
         {

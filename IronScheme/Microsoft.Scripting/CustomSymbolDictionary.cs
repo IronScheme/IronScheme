@@ -396,7 +396,7 @@ namespace Microsoft.Scripting {
                 }
             }
             set {
-                if (TrySetExtraValue(name, value)) return;
+                //if (TrySetExtraValue(name, value)) return;
 
                 lock (this) {
                     if (_data == null) InitializeData();

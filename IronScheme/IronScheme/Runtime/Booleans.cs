@@ -62,7 +62,7 @@ namespace IronScheme.Runtime
       return GetBool(!IsTrue(obj));
     }
 
-    static object GetBool(bool v)
+    protected static object GetBool(bool v)
     {
       return v ? TRUE : FALSE;
     }

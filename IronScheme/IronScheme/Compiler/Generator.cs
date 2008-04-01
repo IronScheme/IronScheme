@@ -108,7 +108,9 @@ namespace IronScheme.Compiler
         {
           if ((nestinglevel == 0 || nestinglevel == 1073741823) && !IsSimpleCons(c))
           {
+#if DYNAMIC_METHOD
             return Ast.Constant(new IronSchemeConstant(c));
+#endif
           }
         }
         return GetConsList(c, cb);
@@ -118,7 +120,9 @@ namespace IronScheme.Compiler
       {
         if (v.Length > 0 && (nestinglevel == 0 || nestinglevel == 1073741823))
         {
+#if DYNAMIC_METHOD
           return Ast.Constant(new IronSchemeConstant(v));
+#endif
         }
         return GetConsVector(v, cb);
       }
@@ -164,41 +168,6 @@ namespace IronScheme.Compiler
 
           if (Context.Scope.TryLookupName(f, out m))
           {
-            if ((bool)Builtins.IsEqual(define, f) && (bool)Builtins.IsPair(Builtins.First(c.cdr)))
-            {
-              Cons ii = c.cdr as Cons;
-              Cons jj = ii.car as Cons;
-              c.cdr = Builtins.List(jj.car, Builtins.Append(Builtins.List(lambda, jj.cdr), ii.cdr));
-            }
-            Runtime.Macro macro = m as Runtime.Macro;
-            if (macro != null)
-            {
-              if (macrotrace)
-              {
-                Debug.WriteLine(Builtins.WriteFormat(c), "macro::in ");
-              }
-              object result = macro.Invoke(Context, c.cdr);
-              if (!Parser.sourcemap.TryGetValue(c, out spanhint))
-              {
-                spanhint = SourceSpan.None;
-              }
-              else if (result is Cons)
-              {
-                Parser.sourcemap[result as Cons] = spanhint;
-                Parser.sourcemap.Remove(c);
-              }
-              if (macrotrace)
-              {
-                Debug.WriteLine(Builtins.WriteFormat(result), "macro::out");
-              }
-              Expression rr = GetAst(result, cb);
-              if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
-              {
-                rr.SetLoc(spanhint);
-              }
-              return rr;
-            }
-
             //terrible....
             CodeBlockExpression cbe = m as CodeBlockExpression;
             if (cbe != null)

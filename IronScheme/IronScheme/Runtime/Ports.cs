@@ -113,23 +113,24 @@ namespace IronScheme.Runtime
 
     [Builtin("load")] // this is patched in r6rs mode, but its needed to bootstrap
     [Builtin("load-r5rs")]
-    public static object Load(CodeContext cc, object filename)
+    public static object Load(object filename)
     {
-      if (cc.Scope != Context.Scope && cc.Scope.ModuleScope != Context.Scope.ModuleScope)
-      {
-        try
-        {
-          foreach (KeyValuePair<SymbolId, object> kv in Context.Scope.Items)
-          {
-            cc.Scope.SetName(kv.Key, kv.Value);
-          }
-          IronScheme.Compiler.BaseHelper.cc = cc;
-        }
-        catch (InvalidOperationException)
-        {
-          ;
-        }
-      }
+      CodeContext cc = IronScheme.Compiler.BaseHelper.cc;
+      //if (cc.Scope != Context.Scope && cc.Scope.ModuleScope != Context.Scope.ModuleScope)
+      //{
+      //  try
+      //  {
+      //    foreach (KeyValuePair<SymbolId, object> kv in Context.Scope.Items)
+      //    {
+      //      cc.Scope.SetName(kv.Key, kv.Value);
+      //    }
+      //    IronScheme.Compiler.BaseHelper.cc = cc;
+      //  }
+      //  catch (InvalidOperationException)
+      //  {
+      //    ;
+      //  }
+      //}
 
       string path = GetPath(filename as string);
 
@@ -479,10 +480,6 @@ namespace IronScheme.Runtime
       {
         return "#<procedure " + obj + ">";
       }
-      if (obj is Macro)
-      {
-        return "#<macro " + ((Macro)obj).Name + ">";
-      }
 
       if (obj is Type)
       {
@@ -517,10 +514,6 @@ namespace IronScheme.Runtime
               if (typeof(ICallable).IsAssignableFrom(t))
               {
                 return "Procedure";
-              }
-              if (typeof(Macro).IsAssignableFrom(t) || typeof(Compiler.IGenerator).IsAssignableFrom(t))
-              {
-                return "Macro";
               }
               if (t == typeof(object[]))
               {
@@ -695,10 +688,6 @@ namespace IronScheme.Runtime
       if (obj is ICallable)
       {
         return "#<procedure " + obj + ">";
-      }
-      if (obj is Macro)
-      {
-        return "#<macro " + ((Macro)obj).Name + ">";
       }
 
       if (obj is bool)

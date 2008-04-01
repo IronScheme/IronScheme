@@ -299,6 +299,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       Stopwatch sw = Stopwatch.StartNew();
 #endif
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.CompileExpr(new Cons(expr))); //wrap
+      
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
@@ -309,10 +310,15 @@ A ""contributor"" is any person that distributes its contribution under this lic
       sw = Stopwatch.StartNew();
 #endif
 
+#if !DYNAMIC_METHOD
       // this compiles the file, i think
-      //ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
+      ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
 
+      object cbr = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+#else
       object cbr = sc.Run(cc.ModuleContext.Module); // try eval causes issues :(
+#endif
+
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
 #endif
@@ -429,7 +435,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       SymbolId s = RequiresNotNull<SymbolId>(symbol);
       if (ModuleScope == null)
       {
-        ModuleScope = cc.Scope.ModuleScope;
+        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
       return ModuleScope.LookupName(s);
     }
@@ -440,7 +446,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       SymbolId s = RequiresNotNull<SymbolId>(symbol);
       if (ModuleScope == null)
       {
-        ModuleScope = cc.Scope.ModuleScope;
+        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
       ModuleScope.SetName(s, value);
       return Unspecified;

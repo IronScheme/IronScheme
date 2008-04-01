@@ -22,7 +22,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;BIGFRACTION</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;BIGFRACTION;DYNAMIC_METHOD</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>1591</NoWarn>
@@ -36,7 +36,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;BIGFRACTION</DefineConstants>
+    <DefineConstants>TRACE;BIGFRACTION;DYNAMIC_METHOD</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>1591</NoWarn>
@@ -62,11 +62,8 @@
     <Compile Include="Compiler\Generator.InlineEmitters.cs" />
     <Compile Include="Compiler\GeneratorAttribute.cs" />
     <Compile Include="Compiler\InlineEmitter.cs" />
-    <Compile Include="Compiler\QuasiquoteGenerator.cs" />
     <Compile Include="Compiler\QuoteGenerator.cs" />
-    <Compile Include="Compiler\DefineGenerator.cs" />
     <Compile Include="Compiler\SetGenerator.cs" />
-    <Compile Include="Compiler\MacroGenerator.cs" />
     <Compile Include="Compiler\IfGenerator.cs" />
     <Compile Include="Compiler\Generator.Handlers.cs" />
     <Compile Include="Compiler\Generator.Helpers.cs" />
@@ -76,7 +73,6 @@
     <Compile Include="Compiler\ironscheme.lex.cs" />
     <Compile Include="Compiler\IronScheme.y.cs" />
     <Compile Include="Compiler\LambdaGenerator.cs" />
-    <Compile Include="Compiler\SyntaxExpand.cs" />
     <Compile Include="gppg\IScanner.cs" />
     <Compile Include="gppg\ParserStack.cs" />
     <Compile Include="gppg\Rule.cs" />
