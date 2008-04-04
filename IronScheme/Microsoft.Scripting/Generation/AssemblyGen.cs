@@ -373,10 +373,6 @@ namespace Microsoft.Scripting.Generation {
             return DefinePublicType(name, parent, TypeAttributes.Public);
         }
 
-        // This overload is only available in CLR V2 SP1
-        static readonly Type[] anonHostedDynamicMethodCtorSig = new Type[] { typeof(string), typeof(Type), typeof(Type[]) };
-        static readonly ConstructorInfo anonHostedDynamicMethodCtor = typeof(DynamicMethod).GetConstructor(anonHostedDynamicMethodCtorSig);
-
         public CodeGen DefineMethod(string methodName, Type returnType, IList<Type> paramTypes, ConstantPool constantPool) {
             CodeGen cg;
             if (GenerateStaticMethods) {
@@ -391,12 +387,7 @@ namespace Microsoft.Scripting.Generation {
 #if SILVERLIGHT // Module-hosted DynamicMethod is not available in SILVERLIGHT
                 target = new DynamicMethod(dynamicMethodName, returnType, parameterTypes);
 #else
-                if (anonHostedDynamicMethodCtor != null) {
-                    object[] parameters = new object[] { dynamicMethodName, returnType, parameterTypes };
-                    target = (DynamicMethod)anonHostedDynamicMethodCtor.Invoke(parameters);
-                } else {
-                    target = new DynamicMethod(dynamicMethodName, returnType, parameterTypes, _myModule);
-                }
+                target = new DynamicMethod(dynamicMethodName, returnType, parameterTypes, _myModule);
 #endif
                 cg = new CodeGen(null, this, target, target.GetILGenerator(), parameterTypes, constantPool);
             }
