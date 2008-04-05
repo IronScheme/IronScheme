@@ -1,4 +1,4 @@
-Release notes for IronScheme 1.0 alpha1
+Release notes for IronScheme 1.0 alpha3
 =======================================
 
 What is IronScheme?
