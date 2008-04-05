@@ -65,19 +65,31 @@ namespace IronScheme.Compiler
         e = Ast.ReadField(null, Unspecified);
       }
 
-      if (e.Type != typeof(object))
+      Expression t = GetAst(trueexp, cb);
+
+      if (e.Type != typeof(object) && e.Type != t.Type)
       {
         e = Ast.ConvertHelper(e, typeof(object));
       }
 
-      Expression t = GetAst(trueexp, cb);
-
-      if (t.Type != typeof(object))
+      if (t.Type != typeof(object) && e.Type != t.Type)
       {
         t = Ast.ConvertHelper(t, typeof(object));
       }
 
       Expression testexp = Unwrap(GetAst(test, cb));
+
+      if (testexp is ConstantExpression)
+      {
+        if (testexp.IsConstant(false))
+        {
+          return e;
+        }
+        else
+        {
+          return t;
+        }
+      }
 
       if (testexp.Type != typeof(bool))
       {

@@ -60,23 +60,35 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return Ast.Constant(int.MinValue);
     }
 
+    [InlineEmitter("fx=?")]
+    public static Expression FxEquals(params Expression[] args)
+    {
+      if (args.Length > 2)
+      {
+        return null;
+      }
+
+      Expect(args, 2);
+      return Ast.Equal(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    }
+
     // cant deal effectively with .NET exceptions :(
-    //[InlineEmitter("fx+")]
-    //public static Expression FxAdd(params Expression[] args)
+    //[InlineEmitter("fx+", Optimization=OptimizationLevel.Safe)]
+    //public static Expression FxAddChecked(params Expression[] args)
     //{
     //  Expect(args, 2);
     //  return Ast.AddChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
     //}
 
-    //[InlineEmitter("fx*")]
-    //public static Expression FxMultiply(params Expression[] args)
+    //[InlineEmitter("fx*", Optimization = OptimizationLevel.Safe)]
+    //public static Expression FxMultiplyChecked(params Expression[] args)
     //{
     //  Expect(args, 2);
     //  return Ast.MultiplyChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
     //}
 
-    //[InlineEmitter("fx-")]
-    //public static Expression FxMinus(params Expression[] args)
+    //[InlineEmitter("fx-", Optimization = OptimizationLevel.Safe)]
+    //public static Expression FxMinusChecked(params Expression[] args)
     //{
     //  if (args.Length == 1)
     //  {
@@ -89,7 +101,35 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     //  }
     //}
 
-    [InlineEmitter("fxnot")]
+    [InlineEmitter("fx+", Optimization = OptimizationLevel.Unchecked)]
+    public static Expression FxAdd(params Expression[] args)
+    {
+      Expect(args, 2);
+      return Ast.Add(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    }
+
+    [InlineEmitter("fx*", Optimization = OptimizationLevel.Unchecked)]
+    public static Expression FxMultiply(params Expression[] args)
+    {
+      Expect(args, 2);
+      return Ast.Multiply(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    }
+
+    [InlineEmitter("fx-", Optimization = OptimizationLevel.Unchecked)]
+    public static Expression FxMinus(params Expression[] args)
+    {
+      if (args.Length == 1)
+      {
+        return Ast.Negate(UnwrapAndCast<int>(args[0]));
+      }
+      else
+      {
+        Expect(args, 2);
+        return Ast.Subtract(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+    }
+
+    [InlineEmitter("fxnot", Optimization = OptimizationLevel.Unchecked)]
     public static Expression FxNot(params Expression[] args)
     {
       Expect(args, 1);
@@ -188,6 +228,13 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         AssertionViolation(GetCaller(), "Expected at least " + len + " arguments, but got " + args.Length + ".", args);
       }
     }
+
+    [Builtin("fx=?")]
+    public static object FxEqual(object first, object second)
+    {
+      return GetBool(RequiresNotNull<int>(first) == RequiresNotNull<int>(second));
+    }
+
 
     [Builtin("fx=?")]
     public static object FxEqual(params object[] all)

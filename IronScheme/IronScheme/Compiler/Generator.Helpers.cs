@@ -330,6 +330,7 @@ namespace IronScheme.Compiler
       }
 
       cb.Body = Ast.Block(stmts);
+      cb.Body = OptimizeBody(cb.Body);
     }
 
     protected static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, Variable result)
@@ -369,6 +370,68 @@ namespace IronScheme.Compiler
       }
 
       cb.Body = Ast.Block(stmts);
+
+      cb.Body = OptimizeBody(cb.Body);
+    }
+
+    static Statement OptimizeBody(Statement cbbody)
+    {
+      if (cbbody is BlockStatement)
+      {
+        BlockStatement bs = cbbody as BlockStatement;
+
+        List<Statement> newstmts = new List<Statement>();
+        
+        int i = 0;
+        
+        for (; i < bs.Statements.Count - 1; i++)
+        {
+          Statement s = bs.Statements[i];
+          if (s is ExpressionStatement)
+          {
+            Expression e = (s as ExpressionStatement).Expression;
+
+            if (e is ConstantExpression)
+            {
+              continue;
+            }
+
+            if (e is BoundExpression)
+            {
+              continue;
+            }
+
+            if (e is MethodCallExpression)
+            {
+              //remove methods without side effects
+            }
+
+            if (e is MemberExpression)
+            {
+              if (((MemberExpression)e).Member == Unspecified)
+              {
+                continue;
+              }
+            }
+
+          }
+
+          newstmts.Add(OptimizeBody(s));
+          
+        }
+
+        newstmts.Add(OptimizeBody(bs.Statements[i]));
+
+        if (newstmts.Count == 1)
+        {
+          cbbody = newstmts[0];
+        }
+        else
+        {
+          cbbody = Ast.Block(newstmts);
+        }
+      }
+      return cbbody;
     }
 
     static Statement MakeTailCallReturn(bool allowtailcall, Expression e)
@@ -382,8 +445,8 @@ namespace IronScheme.Compiler
         else if (e is ConditionalExpression)
         {
           ConditionalExpression ce = (ConditionalExpression)e;
-          Statement truestmt = MakeTailCallReturn(allowtailcall, ce.IfTrue);
-          Statement falsestmt = MakeTailCallReturn(allowtailcall, ce.IfFalse);
+          Statement truestmt = OptimizeBody(MakeTailCallReturn(allowtailcall, ce.IfTrue));
+          Statement falsestmt = OptimizeBody(MakeTailCallReturn(allowtailcall, ce.IfFalse));
 
           return Ast.IfThenElse(ce.Test, truestmt, falsestmt);
         }
@@ -398,7 +461,7 @@ namespace IronScheme.Compiler
               ss.Add(Ast.Statement(ce.Expressions[i]));
             }
             ss.Add(MakeTailCallReturn(allowtailcall, ce.Expressions[ce.Expressions.Count - 1]));
-            return Ast.Block(ss);
+            return OptimizeBody(Ast.Block(ss));
           }
         }
       }

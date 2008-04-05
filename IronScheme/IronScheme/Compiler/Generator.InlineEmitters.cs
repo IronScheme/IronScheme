@@ -10,6 +10,8 @@ namespace IronScheme.Compiler
   {
     readonly static Dictionary<SymbolId, InlineEmitter> inlineemitters = new Dictionary<SymbolId, InlineEmitter>();
 
+    public static OptimizationLevel Optimization = OptimizationLevel.Safe;
+
     public static void AddInlineEmitters(Type emittertype)
     {
       Dictionary<string, MethodBase> all = new Dictionary<string, MethodBase>();
@@ -18,8 +20,11 @@ namespace IronScheme.Compiler
       {
         foreach (InlineEmitterAttribute ba in mi.GetCustomAttributes(typeof(InlineEmitterAttribute), false))
         {
-          string name = ba.Name ?? mi.Name.ToLower();
-          all[name] = mi;
+          if (ba.Optimization <= Optimization)
+          {
+            string name = ba.Name ?? mi.Name.ToLower();
+            all[name] = mi;
+          }
         }
       }
 
