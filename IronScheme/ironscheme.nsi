@@ -185,6 +185,7 @@ SectionIn 1 2 RO
 
 	File "IronScheme.Console.exe"
 	File "IronScheme.Console.exe.config"
+	File "IronScheme.Console.Mono.exe"
 	
 	File "IronScheme.dll"
 	File "IronScheme.Closures.dll"

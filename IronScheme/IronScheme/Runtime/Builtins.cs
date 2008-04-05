@@ -81,7 +81,15 @@ namespace IronScheme.Runtime
       return true;
     }
 
-    sealed class UnspecifiedObject { }
+    sealed class UnspecifiedObject 
+    {
+      internal UnspecifiedObject() { }
+
+      public override string ToString()
+      {
+        return "#<unspecified>";
+      }
+    }
 
     public static readonly object Unspecified = new UnspecifiedObject();
 
