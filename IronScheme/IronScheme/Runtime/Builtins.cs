@@ -100,6 +100,13 @@ namespace IronScheme.Runtime
       return GetBool(o == Unspecified);
     }
 
+
+    [Builtin("command-line")]
+    public static object CommandLine()
+    {
+      return List(Environment.GetCommandLineArgs());
+    }
+
     [Builtin]
     public static Type Typeof(object o)
     {
