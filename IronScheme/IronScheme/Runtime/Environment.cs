@@ -147,6 +147,17 @@ namespace IronScheme.Runtime
       return Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("&assertion-rcd"));
     }
 
+    [Builtin("assertion-violation")]
+    public static object AssertionViolation(object who, object message, object irritant1)
+    {
+      return AssertionViolation(who, message, new object[] { irritant1 });
+    }
+
+    [Builtin("assertion-violation")]
+    public static object AssertionViolation(object who, object message, object irritant1, object irritant2)
+    {
+      return AssertionViolation(who, message, new object[] { irritant1, irritant2 });
+    }
 
     [Builtin("assertion-violation")]
     public static object AssertionViolation(object who, object message, params object[] irritants)

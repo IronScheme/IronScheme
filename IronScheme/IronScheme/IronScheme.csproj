@@ -103,7 +103,6 @@
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Runtime\Macro.cs" />
     <Compile Include="Runtime\MultiEnumerable.cs" />
     <Compile Include="Runtime\Number.cs" />
     <Compile Include="Runtime\Numbers.cs" />

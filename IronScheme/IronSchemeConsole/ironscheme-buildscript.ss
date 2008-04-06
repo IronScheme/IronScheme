@@ -63,6 +63,8 @@
     "ironscheme/records/syntactic.ss"
     
     "ironscheme/build.ss"
+    ;; this is needed for record printing, export?
+    "ironscheme/format.ss"
     
     "psyntax/compat.ss"
     "psyntax/internal.ss"
@@ -263,18 +265,7 @@
     (trace-define                               i)
     (trace-define-syntax                        i)    
     (make-traced-procedure                      i)
-;    (printf                                     i)
-;    (fprintf                                    i)
-;    (format                                     i)
     (string-format                              i)
-;    (file-copy                                  i)
-;    (file-move                                  i)
-;    (directory-exists?                          i)
-;    (delete-directory                           i)
-;    (directory-move                             i)
-;    (create-directory                           i)
-;    (get-files                                  i)
-;    (get-directories                            i)
     (open-input-string                          i)
     (open-output-string                         i)
     (get-output-string                          i)
@@ -1015,7 +1006,7 @@
     (interaction-environment                    se)
     (load                                       ii)
     (compile                                    ii)
-    (compile->closure                           ii)
+    (compile->closure                           i ii)
     (serialize-library                          iser)
     (load-serialized-library                    iser)
 		;;;

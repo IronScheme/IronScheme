@@ -184,7 +184,7 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Last(object args)
     {
-      Cons c = args as Cons;
+      Cons c = Requires<Runtime.Cons>(args);
       while (c.cdr is Cons)
       {
         c = c.cdr as Cons;
@@ -195,7 +195,7 @@ namespace IronScheme.Runtime
     [Builtin("last-pair")]
     public static object LastPair(object args)
     {
-      Cons c = args as Cons;
+      Cons c = Requires<Runtime.Cons>(args);
       while (c.cdr is Cons)
       {
         c = c.cdr as Cons;
@@ -207,17 +207,13 @@ namespace IronScheme.Runtime
     public static object MakeList(object n)
     {
       return VectorToList(MakeVector(n));
-
     }
-
-
 
     [Builtin("make-list")]
     public static object MakeList(object n, object fill)
     {
       return VectorToList(MakeVector(n, fill));
     }
-
     
     protected delegate object Pred(object a, object b);
 
@@ -308,176 +304,6 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-// this isnt helping..., but they get patched anyways
-
-    [Builtin]
-    public static object Caaaar(object lst)
-    {
-      return Car(Car(Car(Car(lst))));
-    }
-
-    [Builtin]
-    public static object Caaadr( object args)
-    {
-      return Car(Car(Car(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Caadar (object args)
-    {
-      return Car(Car(Cdr(Car(args))));
-    }
-
-    [Builtin]
-    public static object Caaddr (object args)
-    {
-      return Car(Car(Cdr(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Cadaar (object args)
-    {
-      return Car(Cdr(Car(Car(args))));
-    }
-
-    [Builtin]
-    public static object Cadadr (object args)
-    {
-      return Car(Cdr(Car(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Caddar (object args)
-    {
-      return Car(Cdr(Cdr(Car(args))));
-    }
-
-    [Builtin]
-    public static object Cadddr (object args)
-    {
-      return Car(Cdr(Cdr(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Cdaaar(object args)
-    {
-      return Cdr(Car(Car(Car(args))));
-    }
-
-    [Builtin]
-    public static object Cdaadr(object args)
-    {
-      return Cdr(Car(Car(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Cdadar(object args)
-    {
-      return Cdr(Car(Cdr(Car(args))));
-    }
-
-    [Builtin]
-    public static object Cdaddr(object args)
-    {
-      return Cdr(Car(Cdr(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Cddaar(object args)
-    {
-      return Cdr(Cdr(Car(Car(args))));
-    }
-
-    [Builtin]
-    public static object Cddadr(object args)
-    {
-      return Cdr(Cdr(Car(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Cdddar(object args)
-    {
-      return Cdr(Cdr(Cdr(Car(args))));
-    }
-
-    [Builtin]
-    public static object Cddddr(object args)
-    {
-      return Cdr(Cdr(Cdr(Cdr(args))));
-    }
-
-    [Builtin]
-    public static object Caaar(object args)
-    {
-      return Car(Car(Car(args)));
-    }
-
-    [Builtin]
-    public static object Caadr(object args)
-    {
-      return Car(Car(Cdr(args)));
-    }
-
-    [Builtin]
-    public static object Caar(object args)
-    {
-      return Car(Car(args));
-    }
-
-    [Builtin]
-    public static object Cadar(object args)
-    {
-      return Car(Cdr(Car(args)));
-    }
-
-    [Builtin]
-    public static object Caddr(object args)
-    {
-      return Car(Cdr(Cdr(args)));
-    }
-
-    [Builtin]
-    public static object Cadr(object args)
-    {
-      return Car(Cdr(args));
-    }
-
-    [Builtin]
-    public static object Cdaar(object args)
-    {
-      return Cdr(Car(Car(args)));
-    }
-
-    [Builtin]
-    public static object Cdadr(object args)
-    {
-      return Cdr(Car(Cdr(args)));
-    }
-
-    [Builtin]
-    public static object Cdar(object args)
-    {
-      return Cdr(Car(args));
-    }
-
-    [Builtin]
-    public static object Cddar(object args)
-    {
-      return Cdr(Cdr(Car(args)));
-    }
-
-    [Builtin]
-    public static object Cdddr(object args)
-    {
-      return Cdr(Cdr(Cdr(args)));
-    }
-
-    [Builtin]
-    public static object Cddr(object args)
-    {
-      return Cdr(Cdr(args));
-    }
-
     [Builtin]
     public static object Rest(object args)
     {
@@ -500,12 +326,12 @@ namespace IronScheme.Runtime
       return c.cdr;
     }
 
+
     [Builtin]
     public static object Reverse(object lst)
     {
       Cons c = Requires<Runtime.Cons>(lst);
       Cons list = null;
-
 
       while (c != null)
       {

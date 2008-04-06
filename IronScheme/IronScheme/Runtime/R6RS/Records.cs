@@ -136,7 +136,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("record-type-descriptor?")]
     public static object IsRecordTypeDescriptor(object obj)
     {
-      return obj is RecordTypeDescriptor;
+      return GetBool(obj is RecordTypeDescriptor);
     }
 
     [Builtin("make-record-type-descriptor")]
@@ -147,11 +147,11 @@ namespace IronScheme.Runtime.R6RS
 
       if (id != null)
       {
-      RecordTypeDescriptor ngrtd;
-      if (nongenerative.TryGetValue(n + id, out ngrtd))
-      {
-        return ngrtd;
-      }
+        RecordTypeDescriptor ngrtd;
+        if (nongenerative.TryGetValue(n + id, out ngrtd))
+        {
+          return ngrtd;
+        }
       }
 
       string assname = n;
@@ -182,8 +182,6 @@ namespace IronScheme.Runtime.R6RS
       {
         parenttype = typeof(Condition);
       }
-
-
 
       TypeAttributes attrs = TypeAttributes.Public | TypeAttributes.Serializable;
 
@@ -313,10 +311,6 @@ namespace IronScheme.Runtime.R6RS
         parenttypes.Add(typeof(object));
       }
 
-      //CodeGen scg = t.tg.DefineStaticConstructor();
-
-
-
       CodeGen cg = t.tg.DefineConstructor(paramtypes.ToArray());
 
       for (int i = 0; i < allfields.Count; i++)
@@ -360,7 +354,6 @@ namespace IronScheme.Runtime.R6RS
       {
         SetSymbolValue(Context, SymbolTable.StringToId(t.name + "-rcd"), rcd);
       }
-
       
       return rcd;
     }
@@ -423,7 +416,6 @@ namespace IronScheme.Runtime.R6RS
 
       if (ci.protocol != null)
       {
-        
         return ci.type.constructor = ci.protocol.Call(pp) as ICallable;
       }
 
@@ -507,21 +499,21 @@ namespace IronScheme.Runtime.R6RS
     public static object IsRecordTypeGenerative(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.generative;
+      return GetBool(r.generative);
     }
 
     [Builtin("record-type-sealed?")]
     public static object IsRecordTypeSealed(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.type.IsSealed;
+      return GetBool(r.type.IsSealed);
     }
 
     [Builtin("record-type-opaque?")]
     public static object IsRecordTypeOpaque(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.opaque;
+      return GetBool(r.opaque);
     }
 
     [Builtin("record-type-field-names")]
@@ -542,7 +534,7 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
       int i = RequiresNotNull<int>(k);
-      return r.fields[i].mutable;
+      return GetBool(r.fields[i].mutable);
     }
   }
 }
