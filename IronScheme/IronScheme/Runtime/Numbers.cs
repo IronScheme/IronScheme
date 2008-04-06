@@ -268,80 +268,12 @@ namespace IronScheme.Runtime
       }
     }
 
-    static object ParseBinary(string str)
-    {
-      bool negative = str.StartsWith("-");
-
-      if (negative)
-      {
-        str = str.Substring(1);
-      }
-
-      if (str.Length <= 32)
-      {
-        int b = 1;
-        int n = 0;
-        for (int i = 0; i < str.Length; i++, b *= 2)
-        {
-          char c = str[str.Length - 1 - i];
-          n += b * (c - '0');
-        }
-        return negative ? -n : n;
-      }
-      else
-      {
-        BigInteger b = 1;
-        BigInteger n = 0;
-        for (int i = 0; i < str.Length; i++, b *= 2)
-        {
-          char c = str[str.Length - 1 - i];
-          n += b * (c - '0');
-        }
-        return negative ? -n : n;
-      }
-    }
-
-    static object ParseOctal(string str)
-    {
-      bool negative = str.StartsWith("-");
-
-      if (negative)
-      {
-        str = str.Substring(1);
-      }
-
-      if (str.Length < 11) // not precise, bleh
-      {
-        int b = 1;
-        int n = 0;
-        for (int i = 0; i < str.Length; i++, b *= 8)
-        {
-          char c = str[str.Length - 1 - i];
-          n += b * (c - '0');
-        }
-        return negative ? -n : n;
-      }
-      else
-      {
-        long b = 1;
-        long n = 0;
-        for (int i = 0; i < str.Length; i++, b *= 8)
-        {
-          char c = str[str.Length - 1 - i];
-          n += b * (c - '0');
-        }
-        return negative ? -n : n;
-      }
-    }
-
-
     static bool BigIntegerTryParse(string number, out BigInteger result)
     {
       result = null;
 
       if (number == null)
         return false;
-
 
       int i = 0, len = number.Length, sign = 1;
 
@@ -476,19 +408,19 @@ namespace IronScheme.Runtime
     [Builtin("complex?")]
     public static object IsComplex(object obj)
     {
-      return GetBool((bool)IsReal(obj) || obj is Complex64);
+      return GetBool(IsTrue(IsReal(obj)) || obj is Complex64);
     }
 
     [Builtin("real?")]
     public static object IsReal(object obj)
     {
-      return GetBool((bool)IsRational(obj) || obj is float || obj is double);
+      return GetBool(IsTrue(IsRational(obj)) || obj is float || obj is double);
     }
 
     [Builtin("rational?")]
     public static object IsRational(object obj)
     {
-      return GetBool((bool)IsInteger(obj) || obj is Fraction);
+      return GetBool(IsTrue(IsInteger(obj)) || obj is Fraction);
     }
 
     [Builtin("integer?")]
@@ -531,7 +463,7 @@ namespace IronScheme.Runtime
       if ((bool)IsNumber(obj))
       {
         double d = SafeConvert(obj);
-        return d == (double)(Fraction)d;
+        return GetBool(d == (double)(Fraction)d);
       }
       return FALSE;
     }
@@ -658,8 +590,6 @@ namespace IronScheme.Runtime
       }
       return obj;
     }
-
-
 
     [Builtin("exact?")]
     public static object IsExact(object obj)

@@ -228,6 +228,11 @@ namespace IronScheme.Compiler
   [Generator("clr-call-internal")]
   public sealed class ClrCallInternalGenerator : ClrGenerator
   {
+    static object Cdddr(object lst)
+    {
+      return Builtins.Cdr(Builtins.Cdr(Builtins.Cdr(lst)));
+    }
+
     // (clr-call type member obj arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
     {
@@ -253,7 +258,7 @@ namespace IronScheme.Compiler
         instance = Ast.Call(Helpers_RequiresNotNull.MakeGenericMethod(t), instance);
       }
 
-      Expression[] arguments = GetAstListNoCast(Builtins.Cdddr(args) as Cons, cb);
+      Expression[] arguments = GetAstListNoCast(Cdddr(args) as Cons, cb);
 
       List<MethodBase> candidates = new List<MethodBase>();
 

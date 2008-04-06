@@ -80,7 +80,7 @@ namespace IronScheme.Runtime.R6RS
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return char.ToLower(c1) == char.ToLower(c2);
+      return GetBool( char.ToLower(c1) == char.ToLower(c2));
     }
 
     [Builtin("char-ci=?")]
@@ -108,7 +108,7 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      return head;
+      return GetBool( head);
     }
 
     /// <summary>
@@ -125,7 +125,7 @@ namespace IronScheme.Runtime.R6RS
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return char.ToLower(c1) < char.ToLower(c2);
+      return GetBool( char.ToLower(c1) < char.ToLower(c2));
     }
 
 
@@ -154,7 +154,7 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      return head;
+      return GetBool( head);
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ namespace IronScheme.Runtime.R6RS
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return char.ToLower(c1) > char.ToLower(c2);
+      return GetBool( char.ToLower(c1) > char.ToLower(c2));
     }
 
     [Builtin("char-ci>?")]
@@ -199,7 +199,7 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      return head;
+      return GetBool( head);
     }
 
     /// <summary>
@@ -216,7 +216,7 @@ namespace IronScheme.Runtime.R6RS
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return char.ToLower(c1) <= char.ToLower(c2);
+      return GetBool( char.ToLower(c1) <= char.ToLower(c2));
     }
 
     [Builtin("char-ci<=?")]
@@ -244,7 +244,7 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      return head;
+      return GetBool( head);
     }
 
     /// <summary>
@@ -261,7 +261,7 @@ namespace IronScheme.Runtime.R6RS
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return char.ToLower(c1) >= char.ToLower(c2);
+      return GetBool( char.ToLower(c1) >= char.ToLower(c2));
     }
 
     [Builtin("char-ci>=?")]
@@ -289,7 +289,7 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      return head;
+      return GetBool( head);
     }
 
     /// <summary>
@@ -303,7 +303,7 @@ namespace IronScheme.Runtime.R6RS
     public static object IsAlphabeticChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return char.IsLetter(c);
+      return GetBool( char.IsLetter(c));
     }
 
     /// <summary>
@@ -317,7 +317,7 @@ namespace IronScheme.Runtime.R6RS
     public static object IsNumericChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return char.IsDigit(c);
+      return GetBool( char.IsDigit(c));
     }
 
     /// <summary>
@@ -331,7 +331,7 @@ namespace IronScheme.Runtime.R6RS
     public static object IsWhitespaceChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return char.IsWhiteSpace(c);
+      return GetBool( char.IsWhiteSpace(c));
     }
 
     /// <summary>
@@ -345,7 +345,7 @@ namespace IronScheme.Runtime.R6RS
     public static object IsUpperCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return char.IsUpper(c);
+      return GetBool( char.IsUpper(c));
     }
 
     /// <summary>
@@ -359,7 +359,7 @@ namespace IronScheme.Runtime.R6RS
     public static object IsLowerCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return char.IsLower(c);
+      return GetBool( char.IsLower(c));
     }
 
     [Builtin("char-title-case?")]
@@ -375,36 +375,36 @@ namespace IronScheme.Runtime.R6RS
       char c = RequiresNotNull<char>(obj);
       switch (char.GetUnicodeCategory(c))
       {
-        case UnicodeCategory.ClosePunctuation: return SymbolTable.StringToId("Pe");
-        case UnicodeCategory.ConnectorPunctuation: return SymbolTable.StringToId("Pc");
-        case UnicodeCategory.Control: return SymbolTable.StringToId("Cc");
-        case UnicodeCategory.CurrencySymbol: return SymbolTable.StringToId("Sc");
-        case UnicodeCategory.DashPunctuation: return SymbolTable.StringToId("Pd");
-        case UnicodeCategory.DecimalDigitNumber: return SymbolTable.StringToId("Nd");
-        case UnicodeCategory.EnclosingMark: return SymbolTable.StringToId("Me");
-        case UnicodeCategory.FinalQuotePunctuation: return SymbolTable.StringToId("Pf");
-        case UnicodeCategory.Format: return SymbolTable.StringToId("Cf");
-        case UnicodeCategory.InitialQuotePunctuation: return SymbolTable.StringToId("Pi");
-        case UnicodeCategory.LetterNumber: return SymbolTable.StringToId("Nl");
-        case UnicodeCategory.LineSeparator: return SymbolTable.StringToId("Zl");
-        case UnicodeCategory.LowercaseLetter: return SymbolTable.StringToId("Ll");
-        case UnicodeCategory.MathSymbol: return SymbolTable.StringToId("Sm");
-        case UnicodeCategory.ModifierLetter: return SymbolTable.StringToId("Lm");
-        case UnicodeCategory.ModifierSymbol: return SymbolTable.StringToId("Sk");
-        case UnicodeCategory.NonSpacingMark: return SymbolTable.StringToId("Mn");
-        case UnicodeCategory.OpenPunctuation: return SymbolTable.StringToId("Ps");
-        case UnicodeCategory.OtherLetter: return SymbolTable.StringToId("Lo");
-        case UnicodeCategory.OtherNotAssigned: return SymbolTable.StringToId("Cn");
-        case UnicodeCategory.OtherNumber: return SymbolTable.StringToId("No");
-        case UnicodeCategory.OtherPunctuation: return SymbolTable.StringToId("Po");
-        case UnicodeCategory.OtherSymbol: return SymbolTable.StringToId("So");
-        case UnicodeCategory.ParagraphSeparator: return SymbolTable.StringToId("Zp");
-        case UnicodeCategory.PrivateUse: return SymbolTable.StringToId("Co");
-        case UnicodeCategory.SpaceSeparator: return SymbolTable.StringToId("Zs");
-        case UnicodeCategory.SpacingCombiningMark: return SymbolTable.StringToId("Mc");
-        case UnicodeCategory.Surrogate: return SymbolTable.StringToId("Cs");
-        case UnicodeCategory.TitlecaseLetter: return SymbolTable.StringToId("Lt");
-        case UnicodeCategory.UppercaseLetter: return SymbolTable.StringToId("Lu");
+        case UnicodeCategory.ClosePunctuation:          return SymbolTable.StringToId("Pe");
+        case UnicodeCategory.ConnectorPunctuation:      return SymbolTable.StringToId("Pc");
+        case UnicodeCategory.Control:                   return SymbolTable.StringToId("Cc");
+        case UnicodeCategory.CurrencySymbol:            return SymbolTable.StringToId("Sc");
+        case UnicodeCategory.DashPunctuation:           return SymbolTable.StringToId("Pd");
+        case UnicodeCategory.DecimalDigitNumber:        return SymbolTable.StringToId("Nd");
+        case UnicodeCategory.EnclosingMark:             return SymbolTable.StringToId("Me");
+        case UnicodeCategory.FinalQuotePunctuation:     return SymbolTable.StringToId("Pf");
+        case UnicodeCategory.Format:                    return SymbolTable.StringToId("Cf");
+        case UnicodeCategory.InitialQuotePunctuation:   return SymbolTable.StringToId("Pi");
+        case UnicodeCategory.LetterNumber:              return SymbolTable.StringToId("Nl");
+        case UnicodeCategory.LineSeparator:             return SymbolTable.StringToId("Zl");
+        case UnicodeCategory.LowercaseLetter:           return SymbolTable.StringToId("Ll");
+        case UnicodeCategory.MathSymbol:                return SymbolTable.StringToId("Sm");
+        case UnicodeCategory.ModifierLetter:            return SymbolTable.StringToId("Lm");
+        case UnicodeCategory.ModifierSymbol:            return SymbolTable.StringToId("Sk");
+        case UnicodeCategory.NonSpacingMark:            return SymbolTable.StringToId("Mn");
+        case UnicodeCategory.OpenPunctuation:           return SymbolTable.StringToId("Ps");
+        case UnicodeCategory.OtherLetter:               return SymbolTable.StringToId("Lo");
+        case UnicodeCategory.OtherNotAssigned:          return SymbolTable.StringToId("Cn");
+        case UnicodeCategory.OtherNumber:               return SymbolTable.StringToId("No");
+        case UnicodeCategory.OtherPunctuation:          return SymbolTable.StringToId("Po");
+        case UnicodeCategory.OtherSymbol:               return SymbolTable.StringToId("So");
+        case UnicodeCategory.ParagraphSeparator:        return SymbolTable.StringToId("Zp");
+        case UnicodeCategory.PrivateUse:                return SymbolTable.StringToId("Co");
+        case UnicodeCategory.SpaceSeparator:            return SymbolTable.StringToId("Zs");
+        case UnicodeCategory.SpacingCombiningMark:      return SymbolTable.StringToId("Mc");
+        case UnicodeCategory.Surrogate:                 return SymbolTable.StringToId("Cs");
+        case UnicodeCategory.TitlecaseLetter:           return SymbolTable.StringToId("Lt");
+        case UnicodeCategory.UppercaseLetter:           return SymbolTable.StringToId("Lu");
       }
       return FALSE;
     }
@@ -415,7 +415,7 @@ namespace IronScheme.Runtime.R6RS
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
 
-      return s1 == s2;
+      return GetBool( s1 == s2);
     }
 
     [Builtin("string-ci=?")]
@@ -442,7 +442,7 @@ namespace IronScheme.Runtime.R6RS
           }
         }
       }
-      return head;
+      return GetBool( head);
     }
 
     [Builtin("string-ci<?")]
@@ -462,14 +462,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = (bool)IsLessThan(s1, s2) && (bool)IsLessThan(s2, s3);
+      bool head = IsTrue(IsLessThan(s1, s2)) && IsTrue(IsLessThan(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if ((bool)IsLessThan(ss, s3))
+          if (IsTrue(IsLessThan(ss, s3)))
           {
             s3 = ss;
           }
@@ -479,7 +479,7 @@ namespace IronScheme.Runtime.R6RS
           }
         }
       }
-      return head;
+      return GetBool( head);
     }
 
     [Builtin("string-ci>?")]
@@ -498,14 +498,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = (bool)IsGreaterThan(s1, s2) && (bool)IsGreaterThan(s2, s3);
+      bool head = IsTrue(IsGreaterThan(s1, s2)) && IsTrue(IsGreaterThan(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if ((bool)IsGreaterThan(ss, s3))
+          if (IsTrue(IsGreaterThan(ss, s3)))
           {
             s3 = ss;
           }
@@ -515,7 +515,7 @@ namespace IronScheme.Runtime.R6RS
           }
         }
       }
-      return head;
+      return GetBool( head);
     }
 
     [Builtin("string-ci<=?")]
@@ -534,14 +534,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = (bool)IsLessThanOrEqual(s1, s2) && (bool)IsLessThanOrEqual(s2, s3);
+      bool head = IsTrue(IsLessThanOrEqual(s1, s2)) && IsTrue(IsLessThanOrEqual(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if ((bool)IsLessThanOrEqual(ss, s3))
+          if (IsTrue(IsLessThanOrEqual(ss, s3)))
           {
             s3 = ss;
           }
@@ -551,7 +551,7 @@ namespace IronScheme.Runtime.R6RS
           }
         }
       }
-      return head;
+      return GetBool( head);
     }
 
     [Builtin("string-ci>=?")]
@@ -570,14 +570,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = (bool)IsGreaterThanOrEqual(s1, s2) && (bool)IsGreaterThanOrEqual(s2, s3);
+      bool head = IsTrue(IsGreaterThanOrEqual(s1, s2)) && IsTrue(IsGreaterThanOrEqual(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if ((bool)IsGreaterThanOrEqual(ss, s3))
+          if (IsTrue(IsGreaterThanOrEqual(ss, s3)))
           {
             s3 = ss;
           }
@@ -587,7 +587,7 @@ namespace IronScheme.Runtime.R6RS
           }
         }
       }
-      return head;
+      return GetBool( head);
     }
 
 

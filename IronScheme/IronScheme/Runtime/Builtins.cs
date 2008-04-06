@@ -36,7 +36,7 @@ namespace IronScheme.Runtime
     public string Name
     {
       get { return name; }
-      set {name = value;}
+      set { name = value; }
     }
 
     public BuiltinAttribute()
@@ -421,7 +421,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     [Builtin("list*")]
     public static object ListStar(object a, params object[] rest)
     {
-      return ListStarHelper(a, Runtime.Cons.FromArray(rest));
+      return ListStarHelper(a, List(rest));
     }
 
     [Builtin("list*")]

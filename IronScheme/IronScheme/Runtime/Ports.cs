@@ -93,19 +93,7 @@ namespace IronScheme.Runtime
       if (File.Exists(fn))
       {
         return Assembly.LoadFrom(fn);
-        //byte[] ass = File.ReadAllBytes(fn);
 
-        //fn = Path.ChangeExtension(fn, ".pdb");
-
-        //if (File.Exists(fn))
-        //{
-        //  byte[] pdb = File.ReadAllBytes(fn);
-        //  return Assembly.Load(ass, pdb);
-        //}
-        //else
-        //{
-        //  return Assembly.Load(ass);
-        //}
       }
       FileNotFoundViolation(FALSE, "file not found", path);
       return null;
@@ -116,21 +104,6 @@ namespace IronScheme.Runtime
     public static object Load(object filename)
     {
       CodeContext cc = IronScheme.Compiler.BaseHelper.cc;
-      //if (cc.Scope != Context.Scope && cc.Scope.ModuleScope != Context.Scope.ModuleScope)
-      //{
-      //  try
-      //  {
-      //    foreach (KeyValuePair<SymbolId, object> kv in Context.Scope.Items)
-      //    {
-      //      cc.Scope.SetName(kv.Key, kv.Value);
-      //    }
-      //    IronScheme.Compiler.BaseHelper.cc = cc;
-      //  }
-      //  catch (InvalidOperationException)
-      //  {
-      //    ;
-      //  }
-      //}
 
       string path = GetPath(filename as string);
 
@@ -311,7 +284,13 @@ namespace IronScheme.Runtime
       }
     }
 
-    sealed class Eof { }
+    sealed class Eof 
+    {
+      public override string ToString()
+      {
+        return "#<eof>";
+      }
+    }
 
     protected readonly static object EOF = new Eof();
 
