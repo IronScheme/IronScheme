@@ -230,7 +230,7 @@ namespace IronScheme.Runtime
       return FALSE;
     }
 
-    [Builtin("vector-foreach")]
+    [Builtin("vector-for-each")]
     public static object VectorForEach(object proc, object vector)
     {
       ICallable p = RequiresNotNull<ICallable>(proc);

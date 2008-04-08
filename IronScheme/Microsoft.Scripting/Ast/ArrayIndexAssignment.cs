@@ -88,7 +88,7 @@ namespace Microsoft.Scripting.Ast {
             Type arrayType = array.Type;
             Contract.Requires(arrayType.IsArray, "array", "Array argument must be array.");
             Contract.Requires(arrayType.GetArrayRank() == 1, "index", "Incorrect number of indices.");
-            Contract.Requires(value.Type == arrayType.GetElementType(), "value", "Value type must match the array element type.");
+            //Contract.Requires(value.Type == arrayType.GetElementType(), "value", "Value type must match the array element type.");
 
             return new ArrayIndexAssignment(array, index, value);
         }

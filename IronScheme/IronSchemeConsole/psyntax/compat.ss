@@ -199,7 +199,7 @@
 |#    
 
   (define (file-options-spec x) 
-    (error 'file-options-spec "not implemented"))
+    x)
 
 )
 

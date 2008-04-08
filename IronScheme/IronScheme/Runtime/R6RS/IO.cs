@@ -209,6 +209,29 @@ namespace IronScheme.Runtime.R6RS
       return FALSE;
     }
 
+    
+    static object TranscodedOutputPort(object binaryport, object transcoder)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryport);
+      Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
+      if (s.CanWrite)
+      {
+        return new StreamWriter(s, tc.codec);
+      }
+      return FALSE;
+    }
+
+    static object TranscodedInputPort(object binaryport, object transcoder)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryport);
+      Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
+      if (s.CanRead)
+      {
+        return new StreamReader(s, tc.codec);
+      }
+      return FALSE;
+    }
+
 
     //(port-has-port-position? port) 
     [Builtin("port-has-port-position?")]
@@ -374,7 +397,7 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return TranscodedPort(s, tc);
+          return TranscodedInputPort(s, tc);
         }
       }
       catch (FileNotFoundException ex)
@@ -867,7 +890,7 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return TranscodedPort(s, tc);
+          return TranscodedOutputPort(s, tc);
         }
       }
       catch (FileNotFoundException ex)

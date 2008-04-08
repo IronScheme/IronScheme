@@ -178,8 +178,7 @@ namespace Microsoft.Scripting {
                 default:
                     ConsoleOptions.FileName = arg;
                     // The language-specific parsers may want to do something like this to pass arguments to the script
-                    //   PushArgBack();
-                    //   EngineOptions.Arguments = PopRemainingArgs();
+                    IgnoreRemainingArgs();
                     break;
             }
         }
