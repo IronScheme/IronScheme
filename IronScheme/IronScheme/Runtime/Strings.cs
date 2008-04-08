@@ -206,13 +206,15 @@ namespace IronScheme.Runtime
       return head;
     }
 
+    static readonly StringComparer sc = StringComparer.CurrentCulture;
+
     [Builtin("string<?")]
     public static object IsLessThanString(object obj1, object obj2)
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return IsLessThan(s1, s2);
+      return s1.CompareTo(s2) < 0;
     }
 
     [Builtin("string<?")]
@@ -222,14 +224,14 @@ namespace IronScheme.Runtime
       string s2 = GetString(obj2);
       string s3 = GetString(obj3);
 
-      bool head = (bool)IsLessThan(s1, s2) && (bool)IsLessThan(s2, s3);
+      bool head = IsTrue(IsLessThanString(s1, s2)) && IsTrue(IsLessThanString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = GetString(s);
-          if ((bool)IsLessThan(ss, s3))
+          if (IsTrue(IsLessThanString(ss, s3)))
           {
             s3 = ss;
           }
@@ -239,7 +241,7 @@ namespace IronScheme.Runtime
           }
         }
       }
-      return head;
+      return GetBool(head);
     }
 
     [Builtin("string>?")]
@@ -248,7 +250,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return IsGreaterThan(s1, s2);
+      return s1.CompareTo(s2) > 0;
     }
 
     [Builtin("string>?")]
@@ -258,14 +260,14 @@ namespace IronScheme.Runtime
       string s2 = GetString(obj2);
       string s3 = GetString(obj3);
 
-      bool head = (bool)IsGreaterThan(s1, s2) && (bool)IsGreaterThan(s2, s3);
+      bool head = IsTrue(IsGreaterThanString(s1, s2)) && IsTrue(IsGreaterThanString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = GetString(s);
-          if ((bool)IsGreaterThan(ss, s3))
+          if (IsTrue(IsGreaterThanString(ss, s3)))
           {
             s3 = ss;
           }
@@ -275,7 +277,7 @@ namespace IronScheme.Runtime
           }
         }
       }
-      return head;
+      return GetBool(head);
     }
 
     [Builtin("string<=?")]
@@ -284,7 +286,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return IsLessThanOrEqual(s1, s2);
+      return s1.CompareTo(s2) <= 0;
     }
 
     [Builtin("string<=?")]
@@ -294,14 +296,14 @@ namespace IronScheme.Runtime
       string s2 = GetString(obj2);
       string s3 = GetString(obj3);
 
-      bool head = (bool)IsLessThanOrEqual(s1, s2) && (bool)IsLessThanOrEqual(s2, s3);
+      bool head = IsTrue(IsLessThanOrEqualString(s1, s2)) && IsTrue(IsLessThanOrEqualString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = GetString(s);
-          if ((bool)IsLessThanOrEqual(ss, s3))
+          if (IsTrue(IsLessThanOrEqualString(ss, s3)))
           {
             s3 = ss;
           }
@@ -311,7 +313,7 @@ namespace IronScheme.Runtime
           }
         }
       }
-      return head;
+      return GetBool(head);
     }
 
     [Builtin("string>=?")]
@@ -320,7 +322,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return IsGreaterThanOrEqual(s1, s2);
+      return s1.CompareTo(s2) >= 0;
     }
 
     [Builtin("string>=?")]
@@ -330,14 +332,14 @@ namespace IronScheme.Runtime
       string s2 = GetString(obj2);
       string s3 = GetString(obj3);
 
-      bool head = (bool)IsGreaterThanOrEqual(s1, s2) && (bool)IsGreaterThanOrEqual(s2, s3);
+      bool head = IsTrue(IsGreaterThanOrEqualString(s1, s2)) && IsTrue(IsGreaterThanOrEqualString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = GetString(s);
-          if ((bool)IsGreaterThanOrEqual(ss, s3))
+          if (IsTrue(IsGreaterThanOrEqualString(ss, s3)))
           {
             s3 = ss;
           }
@@ -347,7 +349,7 @@ namespace IronScheme.Runtime
           }
         }
       }
-      return head;
+      return GetBool(head);
     }
 
     protected static string ToLower(string obj)

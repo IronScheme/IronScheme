@@ -113,7 +113,7 @@ namespace IronScheme.Hosting
 
       protected override int RunFile(string filename)
       {
-        Engine.Execute("(load \"~/init.scm\")", Module);
+        Engine.Execute("(load \"~/init.scm\")", Compiler.BaseHelper.scriptmodule);
         try
         {
           Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));

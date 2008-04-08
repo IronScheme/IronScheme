@@ -469,6 +469,11 @@ namespace IronScheme.Runtime
       }
 
       object tail = args[args.Length - 1];
+
+      if (h == null)
+      {
+        return tail;
+      }
       h.cdr = tail;
       return head;
     }

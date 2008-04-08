@@ -451,7 +451,7 @@ namespace IronScheme.Runtime.R6RS
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
 
-      return IsLessThan(s1, s2);
+      return IsLessThanString(s1, s2);
     }
 
 
@@ -462,14 +462,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = IsTrue(IsLessThan(s1, s2)) && IsTrue(IsLessThan(s2, s3));
+      bool head = IsTrue(IsLessThanString(s1, s2)) && IsTrue(IsLessThanString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if (IsTrue(IsLessThan(ss, s3)))
+          if (IsTrue(IsLessThanString(ss, s3)))
           {
             s3 = ss;
           }
@@ -488,7 +488,7 @@ namespace IronScheme.Runtime.R6RS
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
 
-      return IsGreaterThan(s1, s2);
+      return IsGreaterThanString(s1, s2);
     }
 
     [Builtin("string-ci>?")]
@@ -498,14 +498,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = IsTrue(IsGreaterThan(s1, s2)) && IsTrue(IsGreaterThan(s2, s3));
+      bool head = IsTrue(IsGreaterThanString(s1, s2)) && IsTrue(IsGreaterThanString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if (IsTrue(IsGreaterThan(ss, s3)))
+          if (IsTrue(IsGreaterThanString(ss, s3)))
           {
             s3 = ss;
           }
@@ -524,7 +524,7 @@ namespace IronScheme.Runtime.R6RS
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
 
-      return IsLessThanOrEqual(s1, s2);
+      return IsLessThanOrEqualString(s1, s2);
     }
 
     [Builtin("string-ci<=?")]
@@ -534,14 +534,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = IsTrue(IsLessThanOrEqual(s1, s2)) && IsTrue(IsLessThanOrEqual(s2, s3));
+      bool head = IsTrue(IsLessThanOrEqualString(s1, s2)) && IsTrue(IsLessThanOrEqualString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if (IsTrue(IsLessThanOrEqual(ss, s3)))
+          if (IsTrue(IsLessThanOrEqualString(ss, s3)))
           {
             s3 = ss;
           }
@@ -560,7 +560,7 @@ namespace IronScheme.Runtime.R6RS
       string s1 = ToLower(GetString(obj1));
       string s2 = ToLower(GetString(obj2));
 
-      return IsGreaterThanOrEqual(s1, s2);
+      return IsGreaterThanOrEqualString(s1, s2);
     }
 
     [Builtin("string-ci>=?")]
@@ -570,14 +570,14 @@ namespace IronScheme.Runtime.R6RS
       string s2 = ToLower(GetString(obj2));
       string s3 = ToLower(GetString(obj3));
 
-      bool head = IsTrue(IsGreaterThanOrEqual(s1, s2)) && IsTrue(IsGreaterThanOrEqual(s2, s3));
+      bool head = IsTrue(IsGreaterThanOrEqualString(s1, s2)) && IsTrue(IsGreaterThanOrEqualString(s2, s3));
 
       if (head)
       {
         foreach (object s in rest)
         {
           string ss = ToLower(GetString(s));
-          if (IsTrue(IsGreaterThanOrEqual(ss, s3)))
+          if (IsTrue(IsGreaterThanOrEqualString(ss, s3)))
           {
             s3 = ss;
           }
