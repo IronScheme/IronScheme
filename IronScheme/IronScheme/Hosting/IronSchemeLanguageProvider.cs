@@ -35,10 +35,10 @@ namespace IronScheme.Hosting
 #endif
       ScriptDomainManager.Options.AssemblyGenAttributes =
 #if DEBUG
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
+ Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
 #endif
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
+ Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
@@ -82,14 +82,14 @@ namespace IronScheme.Hosting
 
     public override CommandLine GetCommandLine()
     {
-      return cl; 
+      return cl;
     }
 
     class CommandLineX : CommandLine
     {
       protected override string Prompt
       {
-        get{ return "> ";}
+        get { return "> "; }
       }
 
       internal IConsole GetConsole()
@@ -99,7 +99,7 @@ namespace IronScheme.Hosting
 
       protected override string PromptContinuation
       {
-        get{ return ". ";}
+        get { return ". "; }
       }
 
       protected override void Initialize()
@@ -113,32 +113,22 @@ namespace IronScheme.Hosting
 
       protected override int RunFile(string filename)
       {
-        string cwd = System.Environment.CurrentDirectory;
-        System.Environment.CurrentDirectory = Runtime.Builtins.ApplicationDirectory;
+        Engine.Execute("(load \"~/init.scm\")", Module);
         try
         {
-          Engine.Execute("(load \"init.scm\")", Module);
+          Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
+          return 0;
         }
-        finally
+        catch (Exception ex)
         {
-          System.Environment.CurrentDirectory = cwd;
+          System.Console.Error.WriteLine(ex);
+          return 1;
         }
-        Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
-        return 0;
       }
 
       protected override void OnInteractiveLoopStart()
       {
-        string cwd = System.Environment.CurrentDirectory;
-        System.Environment.CurrentDirectory = Runtime.Builtins.ApplicationDirectory;
-        try
-        {
-          this.Engine.Execute("(load \"init.scm\")", Compiler.BaseHelper.scriptmodule);
-        }
-        finally
-        {
-          System.Environment.CurrentDirectory = cwd;
-        }
+        Engine.Execute("(load \"~/init.scm\")", Compiler.BaseHelper.scriptmodule);
       }
     }
 
@@ -211,7 +201,7 @@ namespace IronScheme.Hosting
           //eo.InterpretedMode = true;
           // this will blow up visual studio with anything but small files
           //eo.ClrDebuggingEnabled = true;
-          
+
           return eo;
         }
         set
