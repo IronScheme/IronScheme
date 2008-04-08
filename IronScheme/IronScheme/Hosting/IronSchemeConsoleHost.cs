@@ -48,21 +48,19 @@ namespace IronScheme.Hosting
       return base.ExecuteFile(file, args);
     }
 
-    //slowest script runner in the world... :(
     protected override int RunFile(IScriptEngine engine, SourceUnit sourceUnit)
     {
-      string cwd = Environment.CurrentDirectory;
-      Environment.CurrentDirectory = Runtime.Builtins.ApplicationDirectory;
+      engine.Execute("(load \"~/init.scm\")");
       try
       {
-        engine.Execute(string.Format("(load \"{0}\")", "init.scm"));
+        engine.Execute(string.Format("(load \"{0}\")", sourceUnit.ToString().Replace('\\', '/')));
+        return 0;
       }
-      finally
+      catch (Exception ex)
       {
-        Environment.CurrentDirectory = cwd;
+        Console.Error.WriteLine(ex);
+        return 1;
       }
-      engine.Execute(string.Format("(load \"{0}\")", sourceUnit.ToString().Replace('\\', '/')));
-      return 0;
     }
 
     protected override void Initialize()
