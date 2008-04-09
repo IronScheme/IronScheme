@@ -76,7 +76,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-ref")]
-    public static char StringRef(object obj, int k)
+    public static object StringRef(object obj, int k)
     {
       string s = obj as string;
       if (s != null)
@@ -90,8 +90,7 @@ namespace IronScheme.Runtime
         return sb[k];
       }
 
-      AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", obj);
-      return (char)0;
+      return AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", obj);
     }
 
     [Builtin("make-string")]
@@ -146,7 +145,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-length")]
-    public static int StringLength(object obj)
+    public static object StringLength(object obj)
     {
       if (obj is string)
       {
@@ -205,8 +204,6 @@ namespace IronScheme.Runtime
       }
       return head;
     }
-
-    static readonly StringComparer sc = StringComparer.CurrentCulture;
 
     [Builtin("string<?")]
     public static object IsLessThanString(object obj1, object obj2)
@@ -352,7 +349,7 @@ namespace IronScheme.Runtime
       return GetBool(head);
     }
 
-    protected static string ToLower(string obj)
+    protected static string ToLower(object obj)
     {
       string s = GetString(obj);
       return s.ToLower();
