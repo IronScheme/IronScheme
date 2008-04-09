@@ -412,8 +412,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci=?")]
     public static object IsSameStringCaseInsensitive(object obj1, object obj2)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
 
       return GetBool( s1 == s2);
     }
@@ -421,9 +421,9 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci=?")]
     public static object IsSameStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-      string s3 = ToLower(GetString(obj3));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
+      string s3 = ToLower(obj3);
 
       bool head = s1 == s2 && s2 == s3;
 
@@ -431,7 +431,7 @@ namespace IronScheme.Runtime.R6RS
       {
         foreach (object s in rest)
         {
-          string ss = ToLower(GetString(s));
+          string ss = ToLower(s);
           if (ss == s3)
           {
             s3 = ss;
@@ -448,8 +448,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci<?")]
     public static object IsLessThanStringCaseInsensitive(object obj1, object obj2)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
 
       return IsLessThanString(s1, s2);
     }
@@ -458,9 +458,9 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci<?")]
     public static object IsLessThanStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-      string s3 = ToLower(GetString(obj3));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
+      string s3 = ToLower(obj3);
 
       bool head = IsTrue(IsLessThanString(s1, s2)) && IsTrue(IsLessThanString(s2, s3));
 
@@ -468,7 +468,7 @@ namespace IronScheme.Runtime.R6RS
       {
         foreach (object s in rest)
         {
-          string ss = ToLower(GetString(s));
+          string ss = ToLower(s);
           if (IsTrue(IsLessThanString(ss, s3)))
           {
             s3 = ss;
@@ -485,8 +485,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci>?")]
     public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
 
       return IsGreaterThanString(s1, s2);
     }
@@ -494,9 +494,9 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci>?")]
     public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-      string s3 = ToLower(GetString(obj3));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
+      string s3 = ToLower(obj3);
 
       bool head = IsTrue(IsGreaterThanString(s1, s2)) && IsTrue(IsGreaterThanString(s2, s3));
 
@@ -504,7 +504,7 @@ namespace IronScheme.Runtime.R6RS
       {
         foreach (object s in rest)
         {
-          string ss = ToLower(GetString(s));
+          string ss = ToLower(s);
           if (IsTrue(IsGreaterThanString(ss, s3)))
           {
             s3 = ss;
@@ -521,8 +521,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci<=?")]
     public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
 
       return IsLessThanOrEqualString(s1, s2);
     }
@@ -530,9 +530,9 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci<=?")]
     public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-      string s3 = ToLower(GetString(obj3));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
+      string s3 = ToLower(obj3);
 
       bool head = IsTrue(IsLessThanOrEqualString(s1, s2)) && IsTrue(IsLessThanOrEqualString(s2, s3));
 
@@ -540,7 +540,7 @@ namespace IronScheme.Runtime.R6RS
       {
         foreach (object s in rest)
         {
-          string ss = ToLower(GetString(s));
+          string ss = ToLower(s);
           if (IsTrue(IsLessThanOrEqualString(ss, s3)))
           {
             s3 = ss;
@@ -557,8 +557,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci>=?")]
     public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
 
       return IsGreaterThanOrEqualString(s1, s2);
     }
@@ -566,9 +566,9 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci>=?")]
     public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
     {
-      string s1 = ToLower(GetString(obj1));
-      string s2 = ToLower(GetString(obj2));
-      string s3 = ToLower(GetString(obj3));
+      string s1 = ToLower(obj1);
+      string s2 = ToLower(obj2);
+      string s3 = ToLower(obj3);
 
       bool head = IsTrue(IsGreaterThanOrEqualString(s1, s2)) && IsTrue(IsGreaterThanOrEqualString(s2, s3));
 
@@ -576,7 +576,7 @@ namespace IronScheme.Runtime.R6RS
       {
         foreach (object s in rest)
         {
-          string ss = ToLower(GetString(s));
+          string ss = ToLower(s);
           if (IsTrue(IsGreaterThanOrEqualString(ss, s3)))
           {
             s3 = ss;
