@@ -325,14 +325,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       sw = Stopwatch.StartNew();
 #endif
 
-#if !DYNAMIC_METHOD
-      // this compiles the file, i think
-      ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
-
-      object cbr = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
-#else
       object cbr = sc.Run(cc.ModuleContext.Module); // try eval causes issues :(
-#endif
 
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
