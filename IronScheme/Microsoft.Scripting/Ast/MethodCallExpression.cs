@@ -159,7 +159,6 @@ namespace Microsoft.Scripting.Ast {
               if (typeof(Delegate).IsAssignableFrom(ue.Type) && ue.Operand is CodeBlockExpression)
               {
                 CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
-
                 Debug.Assert(_arguments.Count == _parameterInfos.Length);
                 for (int arg = 0; arg < _parameterInfos.Length; arg++)
                 {

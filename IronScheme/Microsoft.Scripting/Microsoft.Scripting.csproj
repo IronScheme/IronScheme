@@ -24,18 +24,19 @@
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug\</OutputPath>
     <DocumentationFile>Bin\Debug\Microsoft.Scripting.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG;DYNAMIC_METHOD</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release\</OutputPath>
-    <DocumentationFile>Bin\Release\Microsoft.Scripting.xml</DocumentationFile>
-    <DefineConstants>TRACE;DYNAMIC_METHOD</DefineConstants>
+    <DocumentationFile>Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

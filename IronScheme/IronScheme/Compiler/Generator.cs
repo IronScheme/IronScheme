@@ -108,9 +108,7 @@ namespace IronScheme.Compiler
         {
           if ((nestinglevel == 0 || nestinglevel == 1073741823) && !IsSimpleCons(c))
           {
-#if DYNAMIC_METHOD
             return Ast.Constant(new IronSchemeConstant(c));
-#endif
           }
         }
         return GetConsList(c, cb);
@@ -120,9 +118,7 @@ namespace IronScheme.Compiler
       {
         if (v.Length > 0 && (nestinglevel == 0 || nestinglevel == 1073741823))
         {
-#if DYNAMIC_METHOD
           return Ast.Constant(new IronSchemeConstant(v));
-#endif
         }
         return GetConsVector(v, cb);
       }
@@ -227,7 +223,17 @@ namespace IronScheme.Compiler
                   {
                     pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
                   }
-                  return Ast.ComplexCallHelper(mc.Target.Method as MethodInfo, pars);
+                  MethodBase meth = mc.Target.Method;
+
+                  //ParameterInfo[] pis = meth.GetParameters();
+
+                  //for (int i = 0; i < pis.Length; i++)
+                  //{
+                  //  Expression parex = pars[i];
+                  //  ;
+                  //}
+
+                  return Ast.ComplexCallHelper(meth as MethodInfo, pars);
                 }
               }
             }

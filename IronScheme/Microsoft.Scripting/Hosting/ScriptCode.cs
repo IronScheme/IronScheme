@@ -112,15 +112,6 @@ namespace Microsoft.Scripting {
                 return _optimizedTarget(new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext));
             }
 
-#if !DYNAMIC_METHOD
-            if (_optimizedTarget != null)
-            {
-              CodeContext cc = new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext);
-              object result = _optimizedTarget(cc);
-
-              return result;
-            }
-#endif
             EnsureCompiled();
             return _simpleTarget(codeContext);
         }
