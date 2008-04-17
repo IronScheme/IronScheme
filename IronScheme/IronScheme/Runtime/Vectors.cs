@@ -315,6 +315,23 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    [Builtin("vector-filter")]
+    public static object VectorFilter(object proc, object vector)
+    {
+      ICallable p = RequiresNotNull<ICallable>(proc);
+      object[] v = Requires<object[]>(vector);
+
+      List<object> output = new List<object>();
+      
+      for (int i = 0; i < v.Length; i++)
+      {
+        if (IsTrue(p.Call(v[i])))
+        {
+          output.Add(v[i]);
+        }
+      }
+      return output.ToArray();
+    }
 
   }
 }

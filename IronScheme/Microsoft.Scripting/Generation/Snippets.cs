@@ -65,14 +65,21 @@ namespace Microsoft.Scripting.Generation {
 
             result &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 
-            if (debug) {
-                result |= AssemblyGenAttributes.EmitDebugInfo;
+            if (debug)
+            {
+              result |= AssemblyGenAttributes.EmitDebugInfo;
 
-                
+
 #if !SILVERLIGHT
-                if (options.DebugCodeGeneration)
+              if (options.DebugCodeGeneration)
 #endif
-                    result |= AssemblyGenAttributes.DisableOptimizations;
+                result |= AssemblyGenAttributes.DisableOptimizations;
+            }
+            else
+            {
+              result &= ~AssemblyGenAttributes.EmitDebugInfo;
+              result &= ~AssemblyGenAttributes.DisableOptimizations;
+              result &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
             }
 
             return result;

@@ -33,10 +33,22 @@ namespace IronScheme.Runtime
       return c;
     }
 
+
+    public static object EnsureInitialized(object o, SymbolId sym)
+    {
+      if (o == Uninitialized.Instance)
+      {
+        return Builtins.UndefinedError(sym);
+      }
+      return o;
+    }
+
     public static object EnumToSymbol<T>(T value)
     {
       return Builtins.StringToSymbol(value.ToString().ToLower());
     }
+
+
 
     public static T SymbolToEnum<T>(object symbol)
     {

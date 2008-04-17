@@ -179,7 +179,9 @@ namespace Microsoft.Scripting.Ast {
                                 slot.EmitSet(cg);
                             } else if (_type == typeof(object)) {
                                 // Only set variables of type object to "Uninitialized"
-                                slot.EmitSetUninitialized(cg);
+                              throw new UnInitializedUsageException(this, "Attempted to use uninitialized variable");
+
+//                                slot.EmitSetUninitialized(cg);
                             }
                         }
                     }
@@ -208,6 +210,22 @@ namespace Microsoft.Scripting.Ast {
                     break;
             }
         }
+
+      public class UnInitializedUsageException : Exception
+      {
+        Variable v;
+
+        public Variable Variable
+        {
+          get { return v; }
+          set { v = value; }
+        }
+        public UnInitializedUsageException(Variable v, string message)
+          : base(message)
+        {
+          this.v = v;
+        }
+      }
 
         /// <summary>
         /// Will allocate the storage in the environment and return slot to access
@@ -346,5 +364,28 @@ namespace Microsoft.Scripting.Ast {
         }
 
         #endregion
+
+      internal static SymbolId UnGenSym(SymbolId sym)
+      {
+        string ss = SymbolTable.IdToString(sym);
+        //name is between 1st and 2nd $
+        int start = ss.IndexOf('$') + 1;
+        if (start > 0)
+        {
+          int count = ss.IndexOf('$', start) - start;
+
+          if (count > 0)
+          {
+            ss = ss.Substring(start, count);
+            return SymbolTable.StringToId(ss);
+          }
+        }
+        return sym;
+      }
+
+      public override string ToString()
+      {
+        return SymbolTable.IdToString(UnGenSym(Name));
+      }
     }
 }

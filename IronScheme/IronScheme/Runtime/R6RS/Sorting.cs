@@ -49,10 +49,17 @@ namespace IronScheme.Runtime.R6RS
     {
       ICallable c = RequiresNotNull<ICallable>(proc);
       object[] v = RequiresNotNull<object[]>(vec);
-      Array.Sort(v, delegate(object a, object b)
+      try
       {
-        return ReferenceEquals(a,b) ? 0 : IsTrue(c.Call(a, b)) ? -1 : 1;
-      });
+        Array.Sort(v, delegate(object a, object b)
+        {
+          return ReferenceEquals(a, b) ? 0 : IsTrue(c.Call(a, b)) ? -1 : 1;
+        });
+      }
+      catch (InvalidOperationException ex)
+      {
+        throw ex.GetBaseException();
+      }
       return Unspecified;
     }
   }

@@ -135,8 +135,7 @@ namespace IronScheme.Runtime
       return Runtime.Cons.FromArray(args);
     }
 
-    // overload
-    [Builtin]
+    // overload, no export, bad me!
     public static object Cons(object car)
     {
       return new Cons(car);
@@ -495,6 +494,21 @@ namespace IronScheme.Runtime
 
       j.cdr = i.car;
       return c;
+    }
+
+    [Builtin]
+    public static object Distinct(object lst)
+    {
+      Hashtable set = new Hashtable();
+      Cons c = Requires<Runtime.Cons>(lst);
+
+      while (c != null)
+      {
+        set[c.car] = true;
+        c = c.cdr as Cons;
+      }
+
+      return Runtime.Cons.FromList(set.Keys);
     }
 
   }
