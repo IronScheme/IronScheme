@@ -31,15 +31,15 @@
 
 (import (docs))
 
-(define-topic car                                                     ; name
-  (description "Gets the car element of a list")                      ; optional
-  (form (car list))                                                   ; required
-  (param list "a list")                                               ; zero or more
-  (return "the car of the list")                                      ; required
-  (exception &assertion "if list not a list")                         ; zero or more
-  (remark "remarks")                                                  ; optional
-  (example "description"  (car '(1 2)) => 1)                          ; zero or more examples
-  (library (rnrs) (rnrs base))                                        ; required
+(define-topic car                                 ; name
+  (description "Gets the car element of a list")  ; optional
+  (form (car list))                               ; required
+  (param list "a list")                           ; zero or more
+  (return "the car of the list")                  ; required
+  (exception &assertion "if list not a list")     ; zero or more
+  (remark "remarks")                              ; optional
+  (example "description"  (car '(1 2)) => 1)      ; zero or more examples
+  (library (rnrs) (rnrs base))                    ; required
   (related car cons))
   
 (define-topic cdr

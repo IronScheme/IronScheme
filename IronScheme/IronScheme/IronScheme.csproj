@@ -104,7 +104,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\MultiEnumerable.cs" />
-    <Compile Include="Runtime\Number.cs" />
+    <Compile Include="Types\Boolean.cs" />
+    <Compile Include="Types\ByteVector.cs" />
+    <Compile Include="Types\Character.cs" />
+    <Compile Include="Types\Pair.cs" />
+    <Compile Include="Types\Object.cs" />
+    <Compile Include="Types\Number.cs" />
     <Compile Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
@@ -131,6 +136,13 @@
     </Compile>
     <Compile Include="Runtime\TraceClosure.cs" />
     <Compile Include="Runtime\Vectors.cs" />
+    <Compile Include="Types\Other.cs" />
+    <Compile Include="Types\Ports.cs" />
+    <Compile Include="Types\Procedure.cs" />
+    <Compile Include="Types\String.cs" />
+    <Compile Include="Types\Symbol.cs" />
+    <Compile Include="Types\Vector.cs" />
+    <Compile Include="Types\Void.cs" />
     <Compile Include="Web\Handler.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +158,7 @@
   <ItemGroup>
     <None Include="Compiler\IronScheme.lex" />
     <None Include="Compiler\IronScheme.y" />
+    <None Include="Types\Types.cd" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

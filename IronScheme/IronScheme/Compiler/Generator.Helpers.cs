@@ -159,7 +159,7 @@ namespace IronScheme.Compiler
         return Ast.Read(v);
       }
 
-      return Ast.Read(v);
+      return Ast.ReadDefined(v);
     }
 
     protected static Variable Create(SymbolId sname, CodeBlock cb, Type type)

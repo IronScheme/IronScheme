@@ -15,12 +15,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Math;
+using IronScheme.Runtime;
 
-namespace IronScheme.Runtime
+namespace IronScheme.Types
 {
-#if NEW_NUMBERS
-  
-  public abstract class Number
+
+
+  public abstract class Number : Object
   {
     protected virtual Number Add(Number n)
     {
@@ -66,7 +67,7 @@ namespace IronScheme.Runtime
 
     public static implicit operator Number(int n)
     {
-      return new Integer(n);
+      return new Fixnum(n);
     }
 
 
@@ -98,6 +99,13 @@ namespace IronScheme.Runtime
     public static implicit operator T(Number<T> n)
     {
       return n.value;
+    }
+  }
+
+  public class Fixnum : Integer<int>
+  {
+    public Fixnum(int value) : base(value)
+    {
     }
   }
 
@@ -134,9 +142,17 @@ namespace IronScheme.Runtime
 
   }
 
-  public class Integer : Number<int>
+  public class BigInteger : Integer<BigInteger>
   {
-    public Integer(int value) : base(value)
+    public BigInteger(BigInteger value)
+      : base(value)
+    {
+    }
+  }
+
+  public class Integer<T> : Number<T>
+  {
+    public Integer(T value) : base(value)
     {
     }
 
@@ -231,5 +247,5 @@ namespace IronScheme.Runtime
       get { return false; }
     }
   }
-#endif
+
 }

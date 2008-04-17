@@ -366,13 +366,40 @@ namespace IronScheme.Runtime
     [Builtin("list->string")]
     public static string ListToString(object obj)
     {
-      return new string(obj as char[]);
+      StringBuilder sb = new StringBuilder();
+
+      Cons c = Requires<Runtime.Cons>(obj);
+
+      while (c != null)
+      {
+        char k = RequiresNotNull<char>(c.car);
+
+        sb.Append(k);
+
+        c = c.cdr as Cons;
+      }
+
+      return sb.ToString();
     }
 
     [Builtin("list->string")]
     public static string ListToString(object obj, object sep)
     {
-      return new string(obj as char[]);
+#warning todo: list->string with seperator
+      StringBuilder sb = new StringBuilder();
+
+      Cons c = Requires<Runtime.Cons>(obj);
+
+      while (c != null)
+      {
+        char k = RequiresNotNull<char>(c.car);
+
+        sb.Append(k);
+
+        c = c.cdr as Cons;
+      }
+
+      return sb.ToString();
     }
 
 

@@ -42,8 +42,8 @@ namespace IronScheme.Compiler
       while (a != null)
       {
         Cons d = a.car as Cons;
-
-        temps.Add(cb.CreateTemporaryVariable((SymbolId)Builtins.GenSym(d.car), typeof(object)));
+        Variable t = cb.CreateVariable((SymbolId)Builtins.GenSym(d.car), Variable.VariableKind.Temporary , typeof(object));//, Ast.ReadField(null, Unspecified));
+        temps.Add(t);
         vars.Add(Create((SymbolId)d.car, cb, typeof(object)));
         defs.Add(((Cons)d.cdr).car);
 
@@ -62,6 +62,8 @@ namespace IronScheme.Compiler
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }
+        //MethodInfo m = typeof(Helpers).GetMethod("EnsureInitialized");
+        //e = Ast.SimpleCallHelper(m,e, Ast.Constant(vars[i].Name));
         stmts.Add(Ast.Write(temps[i], e));
       }
 

@@ -100,7 +100,6 @@ namespace IronScheme.Runtime
       return GetBool(o == Unspecified);
     }
 
-
     [Builtin("command-line")]
     public static object CommandLine()
     {
@@ -319,7 +318,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
 #endif
-      sc.EnsureCompiled();
+      try
+      {
+        sc.EnsureCompiled();
+      }
+      catch (Variable.UnInitializedUsageException ex)
+      {
+        return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
+      }
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();

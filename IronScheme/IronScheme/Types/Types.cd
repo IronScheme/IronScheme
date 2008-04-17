@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Font Name="Segoe UI" Size="9" />
+  <Class Name="IronScheme.Types.Boolean" Collapsed="true">
+    <Position X="7" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Boolean.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.ByteVector" Collapsed="true">
+    <Position X="16" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\ByteVector.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Character" Collapsed="true">
+    <Position X="20.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Character.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Object" Collapsed="true">
+    <Position X="22.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Object.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Other" Collapsed="true">
+    <Position X="41" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Other.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Ports" Collapsed="true">
+    <Position X="42.75" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Ports.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Procedure" Collapsed="true">
+    <Position X="22.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Procedure.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.String" Collapsed="true">
+    <Position X="26" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\String.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Symbol" Collapsed="true">
+    <Position X="9.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Symbol.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Vector" Collapsed="true">
+    <Position X="13.75" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Vector.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Number" Collapsed="true">
+    <Position X="36.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAIAAAAAAQAAAggAYAUDECAAQAAAAAAAAAAAAQAgAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Number&lt;T&gt;" Collapsed="true">
+    <Position X="36.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAACAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Rational" Collapsed="true">
+    <Position X="38.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAgAAAAAECAAQAAAAAAAAAAAAQAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.BigInteger" Collapsed="true">
+    <Position X="31.75" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Complex" Collapsed="true">
+    <Position X="36.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAECAAQAAAAAAAAAAAAQAgAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Real" Collapsed="true">
+    <Position X="40.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAECAAQAAAAAAAAAAAAQAgAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Pair" Collapsed="true">
+    <Position X="18.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Pair.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.MutableString" Collapsed="true">
+    <Position X="25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\String.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.ImmutableString" Collapsed="true">
+    <Position X="27.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\String.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.GenericObject&lt;T&gt;" Collapsed="true">
+    <Position X="29.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Object.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Void" Collapsed="true">
+    <Position X="11.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Void.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Integer&lt;T&gt;" Collapsed="true">
+    <Position X="33" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAgAAAAAECAAQAAAAAAAAAAAAQAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IronScheme.Types.Fixnum" Collapsed="true">
+    <Position X="34" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <FileName>Types\Number.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+</ClassDiagram>
