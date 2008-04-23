@@ -623,12 +623,9 @@ namespace IronScheme.Runtime
       }
 
       //finally check if this is some constructed type
-      ICallable printer;
-      if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
+      if (R6RS.Records.IsRecordAny(obj))
       {
-        StringWriter p = new StringWriter();
-        printer.Call(obj, p);
-        return p.ToString();
+        return R6RS.Records.PrintRecord(obj);
       }
 
       return obj.ToString();
@@ -755,12 +752,9 @@ namespace IronScheme.Runtime
       }
 
       //finally check if this is some constructed type
-      ICallable printer;
-      if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
+      if (R6RS.Records.IsRecordAny(obj))
       {
-        StringWriter p = new StringWriter();
-        printer.Call(obj, p);
-        return p.ToString();
+        return R6RS.Records.PrintRecord(obj);
       }
 
       return obj.ToString();

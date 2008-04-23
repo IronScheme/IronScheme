@@ -446,6 +446,34 @@ namespace IronScheme.Runtime.R6RS
 
     internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();
 
+    internal static bool IsRecordAny(object obj)
+    {
+      if (obj != null)
+      {
+        RecordTypeDescriptor rtd;
+        if (typedescriptors.TryGetValue(obj.GetType(), out rtd))
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    internal static string PrintRecord(object rec)
+    {
+      RecordTypeDescriptor rtd;
+      if (typedescriptors.TryGetValue(rec.GetType(), out rtd))
+      {
+        List<string> fields = new List<string>();
+        foreach (FieldDescriptor fd in rtd.fields)
+        {
+          fields.Add(string.Format("{0}:{1}", fd.name, fd.accessor.Invoke(null, new object[] { rec })));
+        }
+        return string.Format("#[{0} {1}]", rtd.name, string.Join(" ", fields.ToArray()));
+      }
+      return "not a record!!";
+    }
+
     [Builtin("record?")]
     public static object IsRecord(object obj)
     {
