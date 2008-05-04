@@ -113,7 +113,7 @@ namespace IronScheme.Hosting
 
       protected override int RunFile(string filename)
       {
-        Engine.Execute("(load \"~/init.scm\")", Compiler.BaseHelper.scriptmodule);
+        Runtime.Builtins.Load("~/ironscheme.boot.pp");
         try
         {
           Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
@@ -128,7 +128,12 @@ namespace IronScheme.Hosting
 
       protected override void OnInteractiveLoopStart()
       {
-        Engine.Execute("(load \"~/init.scm\")", Compiler.BaseHelper.scriptmodule);
+        Runtime.Builtins.Load("~/ironscheme.boot.pp");
+        if (File.Exists("init.ss"))
+        {
+          Engine.Execute("(eval-r6rs '(include \"init.ss\"))", Compiler.BaseHelper.scriptmodule);
+        }
+
       }
     }
 

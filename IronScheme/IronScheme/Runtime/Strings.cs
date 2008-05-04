@@ -167,7 +167,7 @@ namespace IronScheme.Runtime
     [Builtin("string?")]
     public static object IsString(object obj)
     {
-      return obj is string;
+      return GetBool(obj is string);
     }
 
     [Builtin("string=?")]
@@ -175,7 +175,7 @@ namespace IronScheme.Runtime
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
-      return s1 == s2;
+      return GetBool(s1 == s2);
     }
 
     [Builtin("string=?")]
@@ -202,7 +202,7 @@ namespace IronScheme.Runtime
           }
         }
       }
-      return head;
+      return GetBool(head);
     }
 
     [Builtin("string<?")]
@@ -211,7 +211,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return s1.CompareTo(s2) < 0;
+      return GetBool(s1.CompareTo(s2) < 0);
     }
 
     [Builtin("string<?")]
@@ -247,7 +247,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return s1.CompareTo(s2) > 0;
+      return GetBool(s1.CompareTo(s2) > 0);
     }
 
     [Builtin("string>?")]
@@ -283,7 +283,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return s1.CompareTo(s2) <= 0;
+      return GetBool(s1.CompareTo(s2) <= 0);
     }
 
     [Builtin("string<=?")]
@@ -319,7 +319,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return s1.CompareTo(s2) >= 0;
+      return GetBool(s1.CompareTo(s2) >= 0);
     }
 
     [Builtin("string>=?")]

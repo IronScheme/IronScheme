@@ -125,7 +125,7 @@ namespace IronScheme.Runtime
       {
         if (paramcount >= 0 && paramcount != args.Length)
         {
-          AssertionViolation(GetWho(), "invalid argument count", args);
+          AssertionViolation(GetWho(), string.Format("invalid argument count, expected {0} got {1}", paramcount, args.Length), args);
         }
         switch (paramcount)
         {
@@ -232,7 +232,7 @@ namespace IronScheme.Runtime
       {
         if (paramcount >= 0 && paramcount != args.Length)
         {
-          AssertionViolation(GetWho(), "invalid argument count", args);
+          AssertionViolation(GetWho(), string.Format("invalid argument count, expected {0} got {1}", paramcount, args.Length), args);
         }
         switch (paramcount)
         {
@@ -372,7 +372,7 @@ namespace IronScheme.Runtime
       {
         if (args.Length + 1 < pcount)
         {
-          AssertionViolation(realtarget.ToString(), "invalid argument count", args);
+          AssertionViolation(realtarget.ToString(), string.Format("invalid argument count, expected at least {0} got {1}", pcount, args.Length), args);
         }
         object[] newargs = new object[pcount];
         Array.Copy(args, newargs, pcount - 1);
@@ -434,7 +434,7 @@ namespace IronScheme.Runtime
           }
         }
 
-        return AssertionViolation(targets[0].ToString(), "invalid argument count", args);
+        return AssertionViolation(targets[0].ToString(), "invalid argument count", args, arities);
       }
 
       public override object Call()

@@ -26,15 +26,6 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Sorting : Builtins
   {
-    [Builtin("list-sort")]
-    public static object ListSort(object proc, object lst)
-    {
-      // the slowest sort in the world
-      object v = ListToVector(lst);
-      VectorSortD(proc, v);
-      return VectorToList(v);
-    }
-
     [Builtin("vector-sort")]
     public static object VectorSort(object proc, object vec)
     {

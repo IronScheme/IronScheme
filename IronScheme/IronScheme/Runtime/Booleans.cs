@@ -55,10 +55,6 @@ namespace IronScheme.Runtime
     [Builtin("not")]
     public static object Not(object obj)
     {
-      if (obj is bool)
-      {
-        return GetBool(!(bool)obj);
-      }
       return GetBool(!IsTrue(obj));
     }
 

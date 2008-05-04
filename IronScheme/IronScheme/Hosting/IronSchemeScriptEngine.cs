@@ -113,7 +113,7 @@ namespace IronScheme.Hosting
       string[] n = new string[names.Count];
       for (int i = 0; i < names.Count; i++)
       {
-        n[i] = names[i] as string;
+        n[i] = string.Format("{0}", names[i]);
       }
 
       return n;
@@ -121,7 +121,14 @@ namespace IronScheme.Hosting
 
     protected override IList<object> Ops_GetAttrNames(CodeContext context, object obj)
     {
-      return Identifiers.GetR6RSIds();
+      ICallable c = context.Scope.LookupName(SymbolTable.StringToId("int-env-syms")) as ICallable;
+      Cons ids = c.Call() as Cons;
+
+      List<object> names = new List<object>(ids);
+
+      names.Sort(delegate(object o, object p) { return o.ToString().CompareTo(p.ToString()); });
+
+      return names;
     }
 
     public override string Copyright
@@ -159,10 +166,23 @@ namespace IronScheme.Hosting
         base.Add(sourceUnit, message, span, errorCode, severity);
         if (sourceUnit.Kind == SourceCodeKind.InteractiveCode && message != "unexpected EOF")
         {
-          Builtins.LexicalError(message, false);
+          LexicalError(message);
         }
         else
         if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
+        {
+          LexicalError(message);
+        }
+      }
+
+      static void LexicalError(string message)
+      {
+        string[] tokens = message.Split(':');
+        if (tokens.Length == 2)
+        {
+          Builtins.LexicalError(tokens[0], tokens[1]);
+        }
+        else
         {
           Builtins.LexicalError(message, false);
         }

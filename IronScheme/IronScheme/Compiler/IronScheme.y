@@ -43,9 +43,14 @@ public static Dictionary<object,SourceSpan> sourcemap = new Dictionary<object,So
 
 static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
 {
+  int ecol = end.eCol + 1;
+  if (ecol == 0)
+  {
+    ecol = 1;
+  }
   return new SourceSpan(
     new SourceLocation(1, start.sLin, start.sCol + 1),
-    new SourceLocation(1, end.eLin, end.eCol + 1));
+    new SourceLocation(1, end.eLin, ecol));
 }
 
 protected override SourceSpan GetLocation(gppg.LexLocation loc)
@@ -158,7 +163,7 @@ list
     : LBRACE exprlist RBRACE                      { $$ = SetLocation($2,@1,@3); }
     | LBRACK exprlist RBRACK                      { $$ = SetLocation($2,@1,@3); }
     | LBRACE exprlist expr DOT expr RBRACE        { $$ = SetLocation(Append($2, new Cons($3,$5)),@1,@6); } 
-    | specexpr expr                               { $$ = SetLocation(new Cons($1, new Cons($2)), @1, @1); }
+    | specexpr expr                               { $$ = SetLocation(new Cons($1, new Cons($2)), @1, @2); }
     ;
 
 exprlist
@@ -171,7 +176,7 @@ expr
     | SYMBOL                                      { $$ = SymbolTable.StringToId($1); }
     | STRING                                      { $$ = CleanString($1); }
     | NUMBER                                      { $$ = Builtins.StringToNumber($1);}
-    | LITERAL                                     { $$ = $1 == "#t" ? (object)true : ($1 == "#f" ? (object)false : null);}
+    | LITERAL                                     { $$ = $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null);}
     | CHARACTER                                   { $$ = $1[0];}
     | VECTORLBRACE exprlist RBRACE                { $$ = SetLocation(Builtins.ListToVector($2),@1,@3);}
     | BYTEVECTORLBRACE exprlist RBRACE            { $$ = SetLocation(Builtins.ListToByteVector($2),@1,@3); }

@@ -512,40 +512,14 @@ namespace IronScheme.Compiler
 
     static Expression GetConsVector(object[] v, CodeBlock cb)
     {
-      List<int> splices = new List<int>();
       List<Expression> e = new List<Expression>();
+
       foreach (object var in v)
       {
         Cons c = var as Cons;
-        if (c != null && (bool)Builtins.IsEqual(c.car, unquote_splicing))
-        {
-          nestinglevel--;
-          try
-          {
-            if (nestinglevel == 0)
-            {
-              Cons l = c.cdr as Cons;
-              splices.Add(e.Count);
-              Expression uqse = GetAst(l.car, cb);
-              // its a cons, so it needs to become a vector
-              uqse = Ast.SimpleCallHelper(Builtins_ListToVector, uqse);
-              e.Add(uqse);
-            }
-            else
-            {
-              e.Add(GetCons(c, cb));
-            }
-          }
-          finally
-          {
-            nestinglevel++;
-          }
-        }
-        else
-        {
-          e.Add(GetCons(var, cb));
-        }
+        e.Add(GetCons(var, cb));
       }
+
       for (int i = 0; i < e.Count; i++)
       {
         if (e[i].Type.IsValueType)
@@ -553,21 +527,8 @@ namespace IronScheme.Compiler
           e[i] = Ast.ConvertHelper(e[i], typeof(object));
         }
       }
-      if (splices.Count == 0)
-      {
-        return Ast.NewArray(typeof(object[]), e.ToArray());
-      }
-      else
-      {
-        for (int i = 0; i < e.Count; i++)
-        {
-          if (!splices.Contains(i))
-          {
-            e[i] = Ast.NewArray(typeof(object[]), e[i]);
-          }
-        }
-        return Ast.ComplexCallHelper(Builtins_VectorAppend, e.ToArray());
-      }
+
+      return Ast.NewArray(typeof(object[]), e.ToArray());
     }
 
     static Expression GetConsList(Cons c, CodeBlock cb)
@@ -578,31 +539,8 @@ namespace IronScheme.Compiler
 
       while (c != null)
       {
-        if (c.car is Cons && (bool)Builtins.IsEqual(Builtins.Car(Builtins.Car(c)), unquote_splicing))
-        {
-          nestinglevel--;
-          try
-          {
-            if (nestinglevel == 0)
-            {
-              Cons l = Builtins.Cdr(Builtins.Car(c)) as Cons;
-              splices.Add(e.Count);
-              e.Add(GetAst(l.car, cb));
-            }
-            else
-            {
-              e.Add(GetCons(c.car, cb));
-            }
-          }
-          finally
-          {
-            nestinglevel++;
-          }
-        }
-        else
-        {
-          e.Add(GetCons(c.car, cb));
-        }
+        e.Add(GetCons(c.car, cb));
+
         if (c.cdr != null && !(c.cdr is Cons))
         {
           e.Add(GetCons(c.cdr, cb));
@@ -610,72 +548,13 @@ namespace IronScheme.Compiler
           break;
         }
         c = c.cdr as Cons;
-        // check for possible unquote in dotted list
-        // TODO: find out is unquotesplicing is valid
-        if (c != null && (bool)Builtins.IsEqual(c.car, unquote))
-        {
-          nestinglevel--;
-          try
-          {
-            if (nestinglevel == 0)
-            {
-              Cons l = Builtins.Second(c) as Cons;
-              e.Add(GetAst(l, cb));
-            }
-            else
-            {
-              e.Add(GetCons(c.car, cb));
-            }
-          }
-          finally
-          {
-            nestinglevel++;
-          }
-
-          proper = false;
-          break;
-        }
       }
 
       Expression r = null;
 
-      if (splices.Count == 0)
-      {
-        Expression[] aa = e.ToArray();
-        MethodInfo lm = MakeList(aa, proper);
-        r = Ast.ComplexCallHelper(lm, aa);
-      }
-      else
-      {
-        for (int i = 0; i < e.Count; i++)
-        {
-          if (!splices.Contains(i))
-          {
-            e[i] = Ast.SimpleCallHelper(Builtins_Cons, e[i]);
-          }
-        }
-        MethodInfo append = null;
-        switch (e.Count)
-        {
-          case 0:
-            append = Builtins_Append0;
-            break;
-          case 1:
-            append = Builtins_Append1;
-            break;
-          case 2:
-            append = Builtins_Append2;
-            break;
-          default:
-            append = Builtins_AppendX;
-            break;
-        }
-        r = Ast.ComplexCallHelper(append, e.ToArray());
-        if (!proper)
-        {
-          r = Ast.SimpleCallHelper(Builtins_ToImproper, r);
-        }
-      }
+      Expression[] aa = e.ToArray();
+      MethodInfo lm = MakeList(aa, proper);
+      r = Ast.ComplexCallHelper(lm, aa);
 
       return r;
     }

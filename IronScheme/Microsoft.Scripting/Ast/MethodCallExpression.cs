@@ -153,25 +153,42 @@ namespace Microsoft.Scripting.Ast {
           EmitLocation(cg);
           if (_instance != null && !cg.IsDynamicMethod) // damn DM! // go away! // this dangerous too for now
           {
+
             if (_instance is UnaryExpression)
             {
               UnaryExpression ue = (UnaryExpression)_instance;
-              if (typeof(Delegate).IsAssignableFrom(ue.Type) && ue.Operand is CodeBlockExpression)
+              if (typeof(Delegate).IsAssignableFrom(ue.Type))
               {
-                CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
-                Debug.Assert(_arguments.Count == _parameterInfos.Length);
-                for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                if (ue.Operand is CodeBlockExpression)
                 {
-                  Expression argument = _arguments[arg];
-                  Type type = _parameterInfos[arg].ParameterType;
-                  EmitArgument(cg, argument, type);
-                }
+                  CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
+                  Debug.Assert(_arguments.Count == _parameterInfos.Length);
+                  for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                  {
+                    Expression argument = _arguments[arg];
+                    Type type = _parameterInfos[arg].ParameterType;
+                    EmitArgument(cg, argument, type);
+                  }
 
-                cbe.EmitDirect(cg, tailcall);
-                return;
+                  cbe.EmitDirect(cg, tailcall);
+                  return;
+                }
+                else
+                {
+                  ;
+                }
+              }
+              else if (ue.Operand is CodeBlockExpression)
+              {
+                ;
               }
             }
-            if (_instance is CodeBlockExpression)
+            else
+              if (typeof(Delegate).IsAssignableFrom(_instance.Type))
+              {
+                ;
+              }
+            else if (_instance is CodeBlockExpression)
             {
               CodeBlockExpression cbe = (CodeBlockExpression)_instance;
 
@@ -185,6 +202,10 @@ namespace Microsoft.Scripting.Ast {
 
               cbe.EmitDirect(cg, tailcall);
               return;
+            }
+            else
+            {
+              ;
             }
           }
             // Emit instance, if calling an instance method

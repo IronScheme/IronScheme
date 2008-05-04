@@ -10,7 +10,6 @@
 // - CompareTo: inqueality of very large fractions lead to OverflowExceptions
 // -			added 128bit comparison in these cases only
 
-#if BIGFRACTION
 using System;
 using System.Globalization;
 using Microsoft.Scripting.Math;
@@ -556,4 +555,3 @@ namespace IronScheme.Runtime
 		}
 	}
 }
-#endif

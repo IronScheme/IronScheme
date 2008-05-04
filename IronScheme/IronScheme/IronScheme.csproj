@@ -78,7 +78,6 @@
     <Compile Include="gppg\Rule.cs" />
     <Compile Include="gppg\ShiftReduceParser.cs" />
     <Compile Include="gppg\State.cs" />
-    <Compile Include="Hosting\Identifiers.cs" />
     <Compile Include="Hosting\IronSchemeConsoleHost.cs" />
     <Compile Include="Hosting\IronSchemeLanguageProvider.cs" />
     <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
@@ -98,7 +97,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\Extension.cs" />
-    <Compile Include="Runtime\Fraction.cs" />
     <Compile Include="Runtime\Helpers.cs" />
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>

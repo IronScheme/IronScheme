@@ -41,13 +41,13 @@ namespace IronScheme.Runtime
           {
             o = filter.Call(o);
           }
-          return Builtins.DisplayFormat(o);
+          return Builtins.WriteFormat(o);
         });
         string prefix = new string('|', depth);
         Console.WriteLine("{0}({1}{2})", prefix, SymbolTable.IdToString(name), args.Length == 0 ? "" : (" " + string.Join(" ", sargs)));
         object result = realtarget.Call(args);
 
-        Console.WriteLine("{0}{1}", prefix, Builtins.DisplayFormat(filter == null ? result : filter.Call(result)));
+        Console.WriteLine("{0}{1}", prefix, Builtins.WriteFormat(filter == null ? result : filter.Call(result)));
         return result;
       }
       finally

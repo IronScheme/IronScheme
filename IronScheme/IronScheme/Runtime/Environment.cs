@@ -28,6 +28,12 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
+    [Builtin]
+    public object UnGenSym(object symbol)
+    {
+      return UnGenSym(RequiresNotNull<SymbolId>(symbol));
+    }
+
     internal static SymbolId UnGenSym(SymbolId sym)
     {
       string ss = SymbolTable.IdToString(sym);

@@ -206,7 +206,7 @@ namespace IronScheme.Runtime
       char c1 = RequiresNotNull<char>(obj1);
       char c2 = RequiresNotNull<char>(obj2);
 
-      return c1 <= c2;
+      return GetBool(c1 <= c2);
     }
 
     [Builtin("char<=?")]

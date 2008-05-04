@@ -24,7 +24,7 @@
 ;;; CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ;;; SOFTWARE.
 
-(library (streams primitive)
+(library (srfi streams primitive)
 
 
   (export stream-null stream-cons stream? stream-null? stream-pair?

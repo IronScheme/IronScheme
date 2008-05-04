@@ -213,7 +213,7 @@ namespace IronScheme.Runtime.R6RS
       pgen.Emit(OpCodes.Isinst, tg.TypeBuilder);
       pgen.Emit(OpCodes.Ldnull);
       pgen.Emit(OpCodes.Cgt_Un);
-      pgen.Emit(OpCodes.Box, typeof(bool));
+      pgen.Emit(OpCodes.Call, typeof(RuntimeHelpers).GetMethod("BooleanToObject"));
       pgen.Emit(OpCodes.Ret);
 
       rtd.predicate = pb;
@@ -467,7 +467,7 @@ namespace IronScheme.Runtime.R6RS
         List<string> fields = new List<string>();
         foreach (FieldDescriptor fd in rtd.fields)
         {
-          fields.Add(string.Format("{0}:{1}", fd.name, fd.accessor.Invoke(null, new object[] { rec })));
+          fields.Add(string.Format("{0}:{1}", fd.name, WriteFormat(fd.accessor.Invoke(null, new object[] { rec }))));
         }
         return string.Format("#[{0} {1}]", rtd.name, string.Join(" ", fields.ToArray()));
       }
@@ -513,14 +513,14 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordTypeParent(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.parent ?? (object)false;
+      return r.parent ?? FALSE;
     }
 
     [Builtin("record-type-uid")]
     public static object RecordTypeUid(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.uid ?? (object) false;
+      return r.uid ?? FALSE;
     }
 
     [Builtin("record-type-generative?")]

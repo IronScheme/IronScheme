@@ -21,7 +21,9 @@
 (library (psyntax main)
   (export
     load
+    ironscheme-build
     compile
+    compile-system-libraries
     compile->closure)
   (import 
     (rnrs base)
@@ -36,37 +38,47 @@
     (ironscheme library))
     
   (define (local-library-path filename)
-    (append (list (get-directory-name filename)) (library-path)))
+    (cons (get-directory-name filename) (library-path)))
     
   (define (load filename)
-    (parameterize ([library-path (local-library-path filename)])
-      (load-r6rs-top-level filename 'load)
-      (void)))
+    (load-r6rs-top-level filename 'load)
+    (void))
+      
+  (define (ironscheme-build)
+    (load "ironscheme-buildscript.ss")) 
+    
+  (define (eval-top-level x)
+    (eval x (interaction-environment)))    
+    
+  (define (compile-system-libraries)
+    (eval-top-level 
+      `(begin
+         (include "system-libraries.ss")
+         (compile "system-libraries.ss"))))
     
   (define (compile filename)
-    (parameterize ([library-path (local-library-path filename)])
-      (load-r6rs-top-level filename 'compile)))
+    (load-r6rs-top-level filename 'compile))
     
   (define (compile->closure filename)
-    (parameterize ([library-path (local-library-path filename)])
-      (load-r6rs-top-level filename 'closure)))
+    (load-r6rs-top-level filename 'closure))
   
   (define (load-r6rs-top-level filename how)
-    (let ((x* 
-           (with-input-from-file filename
-             (lambda ()
-               (let f ()
-                 (let ((x (read-annotated)))
-                   (if (eof-object? x) 
-                       '()
-                       (cons x (f)))))))))
-      (case how
-        ((closure)   (compile-r6rs-top-level x*))
-        ((load)      ((compile-r6rs-top-level x*)))
-        ((compile)   
-            (begin 
-					    (compile-r6rs-top-level x*) ; i assume this is needed
-					    (serialize-all serialize-library compile-core-expr))))))
+    (parameterize ([library-path (local-library-path filename)])
+      (let ((x* 
+             (with-input-from-file filename
+               (lambda ()
+                 (let f ()
+                   (let ((x (read-annotated)))
+                     (if (eof-object? x) 
+                         '()
+                         (cons x (f)))))))))
+        (case how
+          ((closure)   (compile-r6rs-top-level x*))
+          ((load)      ((compile-r6rs-top-level x*)))
+          ((compile)   
+              (begin 
+					      (compile-r6rs-top-level x*) ; i assume this is needed
+					      (serialize-all serialize-library compile-core-expr)))))))
 
  
   (current-precompiled-library-loader load-serialized-library)  
@@ -75,6 +87,8 @@
   (set-symbol-value! 'compile compile)
   (set-symbol-value! 'compile->closure compile->closure)
   (set-symbol-value! 'eval-r6rs eval-top-level)
+  (set-symbol-value! 'int-env-syms interaction-environment-symbols)
+  
   
   (library-path (get-library-paths))
   )

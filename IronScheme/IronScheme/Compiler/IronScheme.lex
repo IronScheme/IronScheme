@@ -23,10 +23,43 @@ public override void yyerror(string format, params object[] args)
   }
 }
 
+public int MakeSymbol()
+{
+  string t = yytext;
+  t = t.Substring(0, t.Length - 1);
+  yylval.text = t;
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yyless(t.Length);
+  return (int)Tokens.SYMBOL;
+}
+
+public int MakeBoolean()
+{
+  string t = yytext;
+  t = t.Substring(0, t.Length - 1);
+  yylval.text = t;
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yyless(t.Length);
+  return (int)Tokens.LITERAL;
+}
+
+public int MakeNumber()
+{
+  string t = yytext;
+  t = t.Substring(0, t.Length - 1);
+  yylval.text = t;
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yyless(t.Length);
+  return (int)Tokens.NUMBER;
+}
+
 public int MakeChar()
 {
-  yylval.text = Helper.ParseChar(yytext);
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol);
+  string t = yytext;
+  t = t.Substring(0, t.Length - 1);
+  yylval.text = Helper.ParseChar(t);
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yyless(t.Length);
   return (int)Tokens.CHARACTER;
 }
 
@@ -41,6 +74,7 @@ public int Make(Tokens token)
 %}
 
 
+
 line_comment           (";"[^\n]*)|("#!"[^\n]*)
 
 ignore_datum           "#;"
@@ -51,12 +85,18 @@ comment_end            "|#"
 white_space            [ \t]
 new_line               \n|\r\n|\r
 
+delimiter              [\[\]\(\)\";#\r\n\t ]
+but_delimiter          [^\[\]\(\)\";#\r\n\t ]
+
+
 digit                  [0-9]
 letter                 [a-zA-Z]
-idinitial              {letter}|[!$%*/:<=>?~_^&]|"->"
-subsequent             {idinitial}|{digit}|[\.\+@]|"-"|"[]"
+idinitial              ("->"|({letter})|[!$%*/:<=>?~_^&])
+subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
 identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 
+good_id                {identifier}{delimiter}
+bad_id                 {identifier}{but_delimiter}
 
 
 digit2                 [01]
@@ -111,7 +151,11 @@ num8                   ({prefix8}{complex8})
 num10                  ({prefix10}{complex10})
 num16                  ({prefix16}{complex16})
 
-number                 ({num2}|{num8}|{num10}|{num16})
+number                 ({num2}|{num8}|{num10}|{num16}){delimiter}
+bad_number             ({num2}|{num8}|{num10}|{num16}){but_delimiter}+
+
+good_dot               "."{delimiter}
+bad_dot                "."{but_delimiter}+
 
 
 
@@ -119,7 +163,8 @@ single_char            [^\n ]
 character              {single_char}
 char_hex_esc_seq       (#\\x({digit16})+)
 char_esc_seq           (#\\(nul|alarm|backspace|tab|linefeed|newline|vtab|page|return|esc|space|delete))
-character_literal      (#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}
+character_literal      ((#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}){delimiter}
+bad_char               ((#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}){but_delimiter}+
 
 single_string_char     [^\\\"]
 string_esc_seq         (\\[\"\\abfnrtv])
@@ -129,6 +174,8 @@ reg_string_char        {string_continuation}|{single_string_char}|{string_esc_se
 string_literal         \"({reg_string_char})*\"
 
 atoms                  (#[TtFf])
+good_atoms             {atoms}{delimiter}
+bad_atoms              {atoms}{but_delimiter}+
 
 %x ML_COMMENT
 
@@ -147,11 +194,11 @@ atoms                  (#[TtFf])
 
 {ignore_datum}        { return Make(Tokens.IGNOREDATUM); }
  
-{atoms}               { return Make(Tokens.LITERAL); } 
+{good_atoms}          { return MakeBoolean(); } 
 
 {character_literal}   { return MakeChar(); }                      
 {string_literal}      { return Make(Tokens.STRING); }
-{number}              { return Make(Tokens.NUMBER); }
+{number}              { return MakeNumber(); }
 
 "["                   { return Make(Tokens.LBRACK); }                     
 "]"                   { return Make(Tokens.RBRACK); } 
@@ -173,11 +220,22 @@ atoms                  (#[TtFf])
 "#,"                  { return Make(Tokens.UNSYNTAX);}
 
 
-{identifier}          { return Make(Tokens.SYMBOL); }
+{good_id}          { return MakeSymbol(); }
 
-"."                   { return Make(Tokens.DOT); }
+{good_dot}           { yyless(1); return Make(Tokens.DOT); }
 
-.                     { Errors.Add(SourceUnit, string.Format("Bad input: '{0}'", yytext), 
+
+{bad_dot}             { Errors.Add(SourceUnit, string.Format("bad dot:{0}", yytext), 
+                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+{bad_id}             { Errors.Add(SourceUnit, string.Format("bad identifier:{0}", yytext), 
+                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+{bad_atoms}          { Errors.Add(SourceUnit, string.Format("bad boolean:{0}", yytext), 
+                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+{bad_number}          { Errors.Add(SourceUnit, string.Format("bad number:{0}", yytext), 
+                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+{bad_char}            { Errors.Add(SourceUnit, string.Format("bad char:{0}", yytext), 
+                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+.                     { Errors.Add(SourceUnit, string.Format("bad input:{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 <<EOF>>               { }
 %%
