@@ -255,13 +255,27 @@ A ""contributor"" is any person that distributes its contribution under this lic
                      colcountafter[2] - colcount[2]);
       }
     }
+   
 
-    public static string PrettyFormat(object obj)
+    static bool IsSimple(Cons c)
     {
-      ICallable prettyprint = SymbolValue(Context, SymbolTable.StringToId("pretty-print")) as ICallable;
-      StringWriter p = new StringWriter();
-      prettyprint.Call(obj, p);
-      return p.ToString();
+      if (IsTrue(IsAllSameSymbol(c.car, quote)))
+      {
+        return true;
+      }
+      foreach (object e in c)
+      {
+        
+        if (e is Cons)
+        {
+          Cons ce = e as Cons;
+          if (!IsTrue(IsAllSameSymbol(ce.car, quote)))
+          {
+            return false;
+          }
+        }
+      }
+      return true;
     }
 
 
@@ -279,14 +293,19 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       int c = ++evalcounter;
 
-#if DEBUG_EXTRA
+#if DEBUG
 
       // bad for ASP.NET
       if (Assembly.GetEntryAssembly() != null)
       {
         System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
         {
-          ICallable prettyprint = SymbolValue(cc, SymbolTable.StringToId("pretty-print")) as ICallable;
+          ICallable prettyprint = null;
+          SymbolId pp = SymbolTable.StringToId("pretty-print");
+          if (cc.Scope.ContainsName(pp))
+          {
+            prettyprint = SymbolValue(cc, pp) as ICallable;
+          }
 
           if (!Directory.Exists("evaldump"))
           {
@@ -302,12 +321,64 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
           using (TextWriter w = File.CreateText(fn))
           {
-            prettyprint.Call(expr, w);
+            if (prettyprint == null)
+            {
+              Write(expr, w);
+            }
+            else
+            {
+              prettyprint.Call(expr, w);
+            }
           }
         });
       }
 
 #endif
+
+      if (IsSimple(expr as Cons))
+      {
+#if DEBUG
+        Stopwatch esw = Stopwatch.StartNew();
+        try
+        {
+#endif
+          Cons e = expr as Cons;
+
+          if (IsTrue(IsAllSameSymbol(e.car, quote)))
+          {
+            return Car(e.cdr);
+          }
+
+          List<object> args = new List<object>();
+
+          ICallable proc = SymbolValue(cc, e.car) as ICallable;
+
+          e = e.cdr as Cons;
+          while (e != null)
+          {
+            object arg = e.car;
+            if (arg is Cons)
+            {
+              Cons cargs = arg as Cons;
+              args.Add(Car(cargs.cdr));
+            }
+            else
+            {
+              args.Add(SymbolValue(cc, arg));
+            }
+            e = e.cdr as Cons;
+          }
+
+          return proc.Call(args.ToArray());
+#if DEBUG
+        }
+        finally
+        {
+          Trace.WriteLine(esw.Elapsed.TotalMilliseconds, string.Format("eval    - eval-core({0:D3})", c));
+        }
+#endif
+      }
+
 
 #if DEBUG
       Stopwatch sw = Stopwatch.StartNew();

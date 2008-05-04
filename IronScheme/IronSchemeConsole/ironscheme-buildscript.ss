@@ -1335,7 +1335,7 @@
              (lambda (x) 
                (cond
                  ((assq x alist) => cdr)
-                 (else (error #f "undefined prim ~s" x))))))))))
+                 (else (error #f "undefined prim" x))))))))))
   (define-prims
     syntax-dispatch apply cons append map list syntax-error
     assertion-violation
