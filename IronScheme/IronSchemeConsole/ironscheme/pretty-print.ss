@@ -5,7 +5,7 @@
 
 (library (ironscheme pretty-print)
   (export pretty-print)
-  (import (rnrs) (rnrs mutable-strings))
+  (import (ironscheme) (rnrs mutable-strings))
 
 (define genwrite:newline-str (make-string 1 #\newline))
 ;@
@@ -217,6 +217,9 @@
 
     (define (pp-CASE expr col extra)
       (pp-general expr col extra #f pp-expr #f pp-expr-list))
+      
+    (define (pp-CASE-LAMBDA expr col extra)
+      (pp-general expr col extra #f #f #f pp-expr-list))      
 
     (define (pp-AND expr col extra)
       (pp-call expr col extra pp-expr))
@@ -246,6 +249,7 @@
         ((syntax-case)               pp-SYNTAX-CASE)
         ((if set!)                   pp-IF)
         ((cond)                      pp-COND)
+        ((case-lambda)               pp-CASE-LAMBDA)
         ((case)                      pp-CASE)
         ((and or import export)      pp-AND)
         ((let)                       pp-LET)
@@ -281,5 +285,5 @@
     (generic-write obj #f 80
                    (lambda (s) (display s port) #t))))
                    
-  
+(set-symbol-value! 'pretty-print pretty-print)  
 )

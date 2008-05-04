@@ -221,7 +221,7 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\srfi"
 	File /r srfi\*.ss
-	File /r ironscheme\*.fasl
+	File /r srfi\*.fasl
 	
 	SetOutPath "$INSTDIR\websample"
 	File ..\..\..\IronScheme.Web\test.ss
