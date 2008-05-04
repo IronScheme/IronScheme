@@ -50,7 +50,8 @@ namespace IronScheme.Hosting
 
     protected override int RunFile(IScriptEngine engine, SourceUnit sourceUnit)
     {
-      engine.Execute("(load \"~/init.scm\")");
+      Runtime.Builtins.Load("~/ironscheme.boot.pp");
+      //engine.Execute("(load \"~/ironscheme.boot.pp\")");
       try
       {
         engine.Execute(string.Format("(load \"{0}\")", sourceUnit.ToString().Replace('\\', '/')));

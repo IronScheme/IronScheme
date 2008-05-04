@@ -46,23 +46,6 @@ namespace IronScheme.Compiler
       set { Generator.spanhint = value; }
     }
 
-    [ThreadStatic]
-    static int nestinglevel = 0;
-
-    protected static int NestingLevel
-    {
-      get { return Generator.nestinglevel; }
-      set { Generator.nestinglevel = value; }
-    }
-
-    static bool macrotrace = false;
-
-    public static bool MacroTrace
-    {
-      get { return Generator.macrotrace; }
-      set { Generator.macrotrace = value; }
-    }
-
     // this is probably not very threadsafe....
     protected static Dictionary<SymbolId, CodeBlockExpression> references = new Dictionary<SymbolId, CodeBlockExpression>();
 
@@ -73,53 +56,15 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if ((bool)Builtins.IsEqual(c.car, unquote))
+        if (!IsSimpleCons(c))
         {
-          nestinglevel--;
-          try
-          {
-            if (nestinglevel == 0)
-            {
-              return GetAst(Builtins.Second(c), cb);
-            }
-            else
-            {
-              return GetConsList(c, cb);
-            }
-          }
-          finally
-          {
-            nestinglevel++;
-          }
-        }
-        if (nestinglevel == 1 && (bool)Builtins.IsEqual(c.car, quasiquote))
-        {
-          nestinglevel++;
-          try
-          {
-            return GetConsList(c, cb);
-          }
-          finally
-          {
-            nestinglevel--;
-          }
-        }
-        if (c != null)
-        {
-          if ((nestinglevel == 0 || nestinglevel == 1073741823) && !IsSimpleCons(c))
-          {
-            return Ast.Constant(new IronSchemeConstant(c));
-          }
+          //return Ast.Constant(new IronSchemeConstant(c));
         }
         return GetConsList(c, cb);
       }
       object[] v = args as object[];
       if (v != null)
       {
-        if (v.Length > 0 && (nestinglevel == 0 || nestinglevel == 1073741823))
-        {
-          return Ast.Constant(new IronSchemeConstant(v));
-        }
         return GetConsVector(v, cb);
       }
       else if (args is Fraction)
@@ -139,7 +84,11 @@ namespace IronScheme.Compiler
 
     static bool IsSimpleCons(Cons c)
     {
-      return c.cdr == null && !(c.car is Cons);
+      if (c == null)
+      {
+        return true;
+      }
+      return !(c.car is Cons) && (c.cdr == null || IsSimpleCons(c.cdr as Cons));
     }
 
     protected readonly static Dictionary<SymbolId, bool> assigns = new Dictionary<SymbolId, bool>();
@@ -225,14 +174,6 @@ namespace IronScheme.Compiler
                   }
                   MethodBase meth = mc.Target.Method;
 
-                  //ParameterInfo[] pis = meth.GetParameters();
-
-                  //for (int i = 0; i < pis.Length; i++)
-                  //{
-                  //  Expression parex = pars[i];
-                  //  ;
-                  //}
-
                   return Ast.ComplexCallHelper(meth as MethodInfo, pars);
                 }
               }
@@ -270,6 +211,10 @@ namespace IronScheme.Compiler
               ex = Ast.ComplexCallHelper(cbe, dc, mcei.Arguments[0]);
             }
           }
+        }
+        else if (!(ex is BoundExpression))
+        {
+          ;
         }
 
         if (ex is ConstantExpression)

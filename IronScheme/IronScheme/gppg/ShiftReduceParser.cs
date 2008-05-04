@@ -65,8 +65,6 @@ namespace gppg
         {
           if (next == 0)
           {
-            if (Trace)
-              Console.Error.Write("Reading a token: ");
             // We save the last token span, so that the location span
             // of production right hand sides that begin or end with a
             // nullable production will be correct.
@@ -121,9 +119,6 @@ namespace gppg
 
     protected void Reduce(int rule_nr)
     {
-      if (Trace)
-        DisplayRule(rule_nr);
-
       Rule rule = rules[rule_nr];
       //
       //  Default action "$$ = $1" for unit productions.
@@ -248,9 +243,6 @@ namespace gppg
         value_stack.Pop();
         location_stack.Pop();
 
-        if (Trace)
-          DisplayStack();
-
         if (state_stack.IsEmpty())
         {
           return false;
@@ -273,14 +265,8 @@ namespace gppg
         {
           if (next == 0)
           {
-            if (Trace)
-              Console.Error.Write("Reading a token: ");
-
             next = scanner.yylex();
           }
-
-          if (Trace)
-            Console.Error.WriteLine("Next token is {0}", TerminalToString(next));
 
           if (next == eofToken)
             return false;
@@ -293,8 +279,6 @@ namespace gppg
             return true;
           else
           {
-            if (Trace)
-              Console.Error.WriteLine("Error: Discarding {0}", TerminalToString(next));
             next = 0;
           }
         }

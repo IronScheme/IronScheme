@@ -415,31 +415,31 @@ namespace Microsoft.Scripting.Generation {
 
         private void MakeGetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
             CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod("TryGetExtraValue", BindingFlags.NonPublic | BindingFlags.Instance));
-            foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
-                SymbolId name = kv.Key;
-                Slot slot = kv.Value;
+            //foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
+            //    SymbolId name = kv.Key;
+            //    Slot slot = kv.Value;
 
-                cg.EmitSymbolId(name);
-                cg.EmitArgGet(0);
-                cg.EmitCall(typeof(SymbolId), "op_Equality");
+            //    cg.EmitSymbolId(name);
+            //    cg.EmitArgGet(0);
+            //    cg.EmitCall(typeof(SymbolId), "op_Equality");
 
-                Label next = cg.DefineLabel();
-                cg.Emit(OpCodes.Brfalse_S, next);
+            //    Label next = cg.DefineLabel();
+            //    cg.Emit(OpCodes.Brfalse_S, next);
 
-                cg.EmitArgGet(1);
+            //    cg.EmitArgGet(1);
 
-                ModuleGlobalSlot builtin = slot as ModuleGlobalSlot;
-                Debug.Assert(builtin != null);
-                builtin.EmitGetRaw(cg);
-                cg.Emit(OpCodes.Stind_Ref);
+            //    ModuleGlobalSlot builtin = slot as ModuleGlobalSlot;
+            //    Debug.Assert(builtin != null);
+            //    builtin.EmitGetRaw(cg);
+            //    cg.Emit(OpCodes.Stind_Ref);
 
-                builtin.EmitGetRaw(cg);
-                cg.EmitUninitialized();
-                cg.Emit(OpCodes.Ceq);
-                cg.Emit(OpCodes.Not);
-                cg.EmitReturn();
-                cg.MarkLabel(next);
-            }
+            //    builtin.EmitGetRaw(cg);
+            //    cg.EmitUninitialized();
+            //    cg.Emit(OpCodes.Ceq);
+            //    cg.Emit(OpCodes.Not);
+            //    cg.EmitReturn();
+            //    cg.MarkLabel(next);
+            //}
             cg.EmitInt(0);
             cg.EmitReturn();
             cg.Finish();
@@ -463,22 +463,22 @@ namespace Microsoft.Scripting.Generation {
         private void MakeSetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
             CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod("TrySetExtraValue", BindingFlags.NonPublic | BindingFlags.Instance));
             Slot valueSlot = cg.GetArgumentSlot(1);
-            foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
-                SymbolId name = kv.Key;
-                Slot slot = kv.Value;
+            //foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
+            //    SymbolId name = kv.Key;
+            //    Slot slot = kv.Value;
 
-                cg.EmitSymbolId(name);
-                cg.EmitArgGet(0);
-                cg.EmitCall(typeof(SymbolId), "op_Equality");
+            //    cg.EmitSymbolId(name);
+            //    cg.EmitArgGet(0);
+            //    cg.EmitCall(typeof(SymbolId), "op_Equality");
 
-                Label next = cg.DefineLabel();
-                cg.Emit(OpCodes.Brfalse_S, next);
+            //    Label next = cg.DefineLabel();
+            //    cg.Emit(OpCodes.Brfalse_S, next);
 
-                slot.EmitSet(cg, valueSlot);
-                cg.EmitInt(1);
-                cg.EmitReturn();
-                cg.MarkLabel(next);
-            }
+            //    slot.EmitSet(cg, valueSlot);
+            //    cg.EmitInt(1);
+            //    cg.EmitReturn();
+            //    cg.MarkLabel(next);
+            //}
             cg.EmitInt(0);
             cg.EmitReturn();
             cg.Finish();
@@ -491,15 +491,15 @@ namespace Microsoft.Scripting.Generation {
             init.EmitInt(fields.Count);
             init.Emit(OpCodes.Newarr, typeof(SymbolId));
 
-            int current = 0;
-            foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
-              Debug.Assert(current < fields.Count);
-              init.Emit(OpCodes.Dup);
-              init.EmitInt(current++);
-              init.Emit(OpCodes.Ldelema, typeof(SymbolId));
-              init.EmitSymbolIdId(kv.Key);
-              init.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(int) }));
-            }
+            //int current = 0;
+            //foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
+            //  Debug.Assert(current < fields.Count);
+            //  init.Emit(OpCodes.Dup);
+            //  init.EmitInt(current++);
+            //  init.Emit(OpCodes.Ldelema, typeof(SymbolId));
+            //  init.EmitSymbolIdId(kv.Key);
+            //  init.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(int) }));
+            //}
 
             rawKeysCache.EmitSet(init);
 

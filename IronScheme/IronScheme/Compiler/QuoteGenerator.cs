@@ -24,16 +24,7 @@ namespace IronScheme.Compiler
   {
     public override Expression Generate(object args, CodeBlock cb)
     {
-      int t = NestingLevel;
-      NestingLevel = int.MaxValue / 2;
-      try
-      {
-        return GetCons(Builtins.Car(args), cb);
-      }
-      finally
-      {
-        NestingLevel = t;
-      }
+      return GetCons(Builtins.Car(args), cb);
     }
   }
 }

@@ -139,6 +139,10 @@ namespace IronScheme.Runtime
 
     static object InvokeContinuation(params object[] value)
     {
+      if (value.Length == 0)
+      {
+        throw new Continuation(Unspecified);
+      }
       if (value.Length == 1)
       {
         throw new Continuation(value[0]);
@@ -204,7 +208,6 @@ namespace IronScheme.Runtime
 
       if (args == null)
       {
-        // verify this, probably invalid
         return c.Call();
       }
       List<object> targs = new List<object>();
@@ -340,6 +343,12 @@ namespace IronScheme.Runtime
         list = list.cdr as Cons;
       }
       return head;
+    }
+
+    [Builtin("map")]
+    public static object Map(object fn, object list1, object list2)
+    {
+      return Map(fn, new object[] { list1, list2 });
     }
 
     [Builtin("map")]

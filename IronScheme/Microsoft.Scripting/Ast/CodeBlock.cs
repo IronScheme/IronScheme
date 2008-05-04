@@ -1142,7 +1142,7 @@ namespace Microsoft.Scripting.Ast {
 
             Body.Emit(cg);
 
-            EmitEndPosition(cg);
+            //EmitEndPosition(cg);
 
             // cheap check
             //if (HasReturn(Body))
@@ -1150,7 +1150,7 @@ namespace Microsoft.Scripting.Ast {
             //  return;
             //}
 
-            cg.EmitReturn(null); //TODO skip if Body is guaranteed to return
+            //cg.EmitReturn(null); //TODO skip if Body is guaranteed to return
         }
 
       bool HasReturn(Statement stmt)

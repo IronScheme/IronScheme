@@ -32,9 +32,6 @@ namespace IronScheme.Compiler
 
   partial class Generator
   {
-    [Obsolete]
-    public delegate Expression GeneratorHandler(object args, CodeBlock cb);
-
     public static void AddGenerators(CodeContext cc, Assembly assembly)
     {
       foreach (Type t in assembly.GetExportedTypes())

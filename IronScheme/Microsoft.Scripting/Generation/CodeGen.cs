@@ -567,13 +567,13 @@ namespace Microsoft.Scripting.Generation {
         /// <param name="type"></param>
         public void EmitBoxing(Type type) {
             Contract.RequiresNotNull(type, "type");
-            Debug.Assert(typeof(void).IsValueType);
+
 
             if (type.IsValueType) {
                 if (type == typeof(void)) {
                     Emit(OpCodes.Ldnull);
-                } else if (type == typeof(int)) {
-                    EmitCall(typeof(RuntimeHelpers), "Int32ToObject");
+                //} else if (type == typeof(int)) {
+                //    EmitCall(typeof(RuntimeHelpers), "Int32ToObject");
                 } else if (type == typeof(bool)) {
                     EmitCall(typeof(RuntimeHelpers), "BooleanToObject");
                 } else {

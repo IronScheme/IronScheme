@@ -62,7 +62,6 @@
     "ironscheme/records/procedural.ss"
     "ironscheme/records/syntactic.ss"
     
-    "ironscheme/build.ss"
     ;; this is needed for record printing, export?
     "ironscheme/format.ss"
     
@@ -200,7 +199,6 @@
     (ir          (ironscheme reader)                   #t    #t)
     (iser        (ironscheme serialization)            #t    #t)
     (irp         (ironscheme records printer)          #t    #t)
-    (ii          (ironscheme interaction)              #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #f    #f)
     (se          (psyntax scheme-report-environment-5) #f    #f)
@@ -249,11 +247,14 @@
     ;;;
     (import                                     i r) ;non standard
     (library                                    i r) ;non standard
+    (expand                                     i) ; for debugging
     (include                                    i)
     (include-into                               i)
     (installed-libraries                        i)
     (library-extensions                         i)
     (library-path                               i)
+    (interaction-environment-symbols            i)
+    (environment-symbols                        i)
     (get-library-paths                          i il)
     (library-locator                            i)
     (make-parameter                             i)
@@ -1005,15 +1006,17 @@
     (string-upcase                              i r uc)
     ;;;
     (char-ready?                                se)
-    (interaction-environment                    se)
-    (load                                       ii)
-    (compile                                    ii)
-    (compile->closure                           i ii)
+    (interaction-environment                    i r5 se)
+    (load                                       i)
+    (compile                                    i)
+    (compile->closure                           i)
+    (compile-system-libraries                   i)
     (serialize-library                          iser)
     (load-serialized-library                    iser)
 		;;;
     (void                                       $boot i)
     (gensym                                     $boot i)
+    (ungensym                                   i)
     (symbol-value                               $boot i)
     (set-symbol-value!                          $boot i)
     (eval-core                                  $boot)
@@ -1034,16 +1037,14 @@
     (define-clr-class-internal                  is-clr-int)
     
     (ironscheme-build                           i)
-    (stacktrace                                 ii)
-    (license                                    ii)
-    (load-r5rs                                  ii)
+    (stacktrace                                 i)
+    (license                                    i)
+    (load-r5rs                                  i)
     (last-pair                                  i)
     (make-list                                  i)
     (make-trace                                 i)
     (unspecified?                               i)
     (make-guid                                  i)
-    (group-by                                   i)
-    (distinct                                   i)
     (sinh                                       i)
     (cosh                                       i)
     (tanh                                       i)
@@ -1337,6 +1338,7 @@
                  (else (error #f "undefined prim ~s" x))))))))))
   (define-prims
     syntax-dispatch apply cons append map list syntax-error
+    assertion-violation
     generate-temporaries = + datum->syntax string->symbol void
     string-append symbol->string syntax->datum gensym length 
     open-string-output-port identifier? free-identifier=? exists

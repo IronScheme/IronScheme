@@ -15,7 +15,8 @@
     (define (length1? l) (and (pair? l) (null? (cdr l))))
     (let ((head (car l)) (tail (cdr l)))
       (case head
-        ((quote quasiquote unquote unquote-splicing) (length1? tail))
+        ((quote quasiquote unquote unquote-splicing 
+          syntax quasisyntax unsyntax unsyntax-splicing) (length1? tail))
         (else                                        #f))))
 
   (define (read-macro-body l)
@@ -24,13 +25,17 @@
   (define (read-macro-prefix l)
     (let ((head (car l)) (tail (cdr l)))
       (case head
+        ((syntax)            "#'")
+        ((quasisyntax)       "#`")
+        ((unsyntax)          "#,")
+        ((unsyntax-splicing) "#,@")      
         ((quote)            "'")
         ((quasiquote)       "`")
         ((unquote)          ",")
         ((unquote-splicing) ",@"))))
 
   (define (out str col)
-    (and col (output str) (+ col (string-length str))))
+    (and col (output str) (fx+ col (string-length str))))
 
   (define (wr obj col)
 
@@ -60,16 +65,16 @@
           ((string? obj)      (if display?
                                   (out obj col)
                                   (let loop ((i 0) (j 0) (col (out "\"" col)))
-                                    (if (and col (< j (string-length obj)))
+                                    (if (and col (fx<? j (string-length obj)))
                                         (let ((c (string-ref obj j)))
                                           (if (or (char=? c #\\)
                                                   (char=? c #\"))
                                               (loop j
-                                                    (+ j 1)
+                                                    (fx+ j 1)
                                                     (out "\\"
                                                          (out (substring obj i j)
                                                               col)))
-                                              (loop i (+ j 1) col)))
+                                              (loop i (fx+ j 1) col)))
                                         (out "\""
                                              (out (substring obj i j) col))))))
           ((char? obj)        (if display?
@@ -87,28 +92,28 @@
   (define (pp obj col)
 
     (define (spaces n col)
-      (if (> n 0)
-          (if (> n 7)
-              (spaces (- n 8) (out "        " col))
+      (if (fx>? n 0)
+          (if (fx>? n 7)
+              (spaces (fx- n 8) (out "        " col))
               (out (substring "        " 0 n) col))
           col))
 
     (define (indent to col)
       (and col
-           (if (< to col)
+           (if (fx<? to col)
                (and (out genwrite:newline-str col) (spaces to 0))
-               (spaces (- to col) col))))
+               (spaces (fx- to col) col))))
 
     (define (pr obj col extra pp-pair)
       (if (or (pair? obj) (vector? obj)) ; may have to split on multiple lines
           (let ((result '())
-                (left (min (+ (- (- width col) extra) 1) max-expr-width)))
+                (left (min (fx+ (fx- (fx- width col) extra) 1) max-expr-width)))
             (generic-write obj display? #f
                            (lambda (str)
                              (set! result (cons str result))
-                             (set! left (- left (string-length str)))
-                             (> left 0)))
-            (if (> left 0) ; all can be printed on one line
+                             (set! left (fx- left (string-length str)))
+                             (fx>? left 0)))
+            (if (fx>? left 0) ; all can be printed on one line
                 (out (reverse-string-append result) col)
                 (if (pair? obj)
                     (pp-pair obj col extra)
@@ -126,7 +131,7 @@
                 (let ((proc (style head)))
                   (if proc
                       (proc expr col extra)
-                      (if (> (string-length (symbol->string head))
+                      (if (fx>? (string-length (symbol->string head))
                              max-call-head-width)
                           (pp-general expr col extra #f #f #f pp-expr)
                           (pp-call expr col extra pp-expr))))
@@ -138,7 +143,7 @@
     (define (pp-call expr col extra pp-item)
       (let ((col* (wr (car expr) (out "(" col))))
         (and col
-             (pp-down (cdr expr) col* (+ col* 1) extra pp-item))))
+             (pp-down (cdr expr) col* (fx+ col* 1) extra pp-item))))
 
     ; (item1
     ;  item2
@@ -152,7 +157,7 @@
         (and col
              (cond ((pair? l)
                     (let ((rest (cdr l)))
-                      (let ((extra (if (null? rest) (+ extra 1) 0)))
+                      (let ((extra (if (null? rest) (fx+ extra 1) 0)))
                         (loop rest
                               (pr (car l) (indent col2 col) extra pp-item)))))
                    ((null? l)
@@ -161,7 +166,7 @@
                     (out ")"
                          (pr l
                              (indent col2 (out "." (indent col2 col)))
-                             (+ extra 1)
+                             (fx+ extra 1)
                              pp-item)))))))
 
     (define (pp-general expr col extra named? pp-1 pp-2 pp-3)
@@ -170,7 +175,7 @@
         (if (and pp-1 (pair? rest))
             (let* ((val1 (car rest))
                    (rest (cdr rest))
-                   (extra (if (null? rest) (+ extra 1) 0)))
+                   (extra (if (null? rest) (fx+ extra 1) 0)))
               (tail2 rest col1 (pr val1 (indent col3 col2) extra pp-1) col3))
             (tail2 rest col1 col2 col3)))
 
@@ -178,7 +183,7 @@
         (if (and pp-2 (pair? rest))
             (let* ((val1 (car rest))
                    (rest (cdr rest))
-                   (extra (if (null? rest) (+ extra 1) 0)))
+                   (extra (if (null? rest) (fx+ extra 1) 0)))
               (tail3 rest col1 (pr val1 (indent col3 col2) extra pp-2)))
             (tail3 rest col1 col2)))
 
@@ -192,11 +197,14 @@
             (let* ((name (car rest))
                    (rest (cdr rest))
                    (col** (wr name (out " " col*))))
-              (tail1 rest (+ col indent-general) col** (+ col** 1)))
-            (tail1 rest (+ col indent-general) col* (+ col* 1)))))
+              (tail1 rest (fx+ col indent-general) col** (fx+ col** 1)))
+            (tail1 rest (fx+ col indent-general) col* (fx+ col* 1)))))
 
     (define (pp-expr-list l col extra)
       (pp-list l col extra pp-expr))
+      
+    (define (pp-SYNTAX-CASE expr col extra)
+      (pp-general expr col extra #t pp-expr-list #f pp-expr))      
 
     (define (pp-LAMBDA expr col extra)
       (pp-general expr col extra #f pp-expr-list #f pp-expr))
@@ -228,17 +236,18 @@
 
     (define indent-general 2)
 
-    (define max-call-head-width 5)
+    (define max-call-head-width 3)
 
-    (define max-expr-width 120)
+    (define max-expr-width 80)
 
     (define (style head)
       (case head
-        ((lambda let* letrec define define-syntax syntax-rules let-syntax letrec-syntax) pp-LAMBDA)
+        ((lambda let* letrec define define-syntax syntax-rules let-syntax letrec-syntax with-syntax library) pp-LAMBDA)
+        ((syntax-case)               pp-SYNTAX-CASE)
         ((if set!)                   pp-IF)
         ((cond)                      pp-COND)
         ((case)                      pp-CASE)
-        ((and or)                    pp-AND)
+        ((and or import export)      pp-AND)
         ((let)                       pp-LET)
         ((begin)                     pp-BEGIN)
         ((do)                        pp-DO)
@@ -256,12 +265,12 @@
     (if (pair? l)
         (let* ((str (car l))
                (len (string-length str))
-               (result (rev-string-append (cdr l) (+ i len))))
-          (let loop ((j 0) (k (- (- (string-length result) i) len)))
-            (if (< j len)
+               (result (rev-string-append (cdr l) (fx+ i len))))
+          (let loop ((j 0) (k (fx- (fx- (string-length result) i) len)))
+            (if (fx<? j len)
                 (begin
                   (string-set! result k (string-ref str j))
-                  (loop (+ j 1) (+ k 1)))
+                  (loop (fx+ j 1) (fx+ k 1)))
                 result)))
         (make-string i)))
 
@@ -269,8 +278,8 @@
   
 (define (pretty-print obj . opt)
   (let ((port (if (pair? opt) (car opt) (current-output-port))))
-    (generic-write obj #f 100
+    (generic-write obj #f 80
                    (lambda (s) (display s port) #t))))
-
+                   
   
 )

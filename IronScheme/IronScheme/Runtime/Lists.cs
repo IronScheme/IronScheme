@@ -39,6 +39,25 @@ namespace IronScheme.Runtime
     {
       return Ast.TypeIs(values[0], typeof(Cons));
     }
+
+    static readonly MethodInfo Builtins_List = typeof(Builtins).GetMethod("List", new Type[] { typeof(object) });
+    static readonly MethodInfo Builtins_IsEqualValue = typeof(Builtins).GetMethod("IsEqualValue");
+    static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
+
+    [InlineEmitter("memv")]
+    public static Expression Memv(Expression[] values)
+    {
+      if (values[1] is MethodCallExpression)
+      {
+        MethodCallExpression mce = values[1] as MethodCallExpression;
+
+        if (mce.Method == Builtins_List)
+        {
+          return Ast.Condition(Ast.Call(Builtins_IsTrue, Ast.Call(Builtins_IsEqualValue, values[0], mce.Arguments[0])), mce.Arguments[0], Ast.Convert(Ast.False(), typeof(object)));
+        }
+      }
+      return null;
+    }
   }
 
   public partial class Builtins

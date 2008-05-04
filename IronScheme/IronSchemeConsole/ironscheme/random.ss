@@ -1,7 +1,7 @@
 (library (ironscheme random)
   (export
     make-random
-    next
+    next-fixnum
     next-bytevector
     next-flonum 
     )
@@ -16,7 +16,7 @@
       [()       (clr-new random)]
       [(seed)   (clr-new random seed)]))
       
-  (define next
+  (define next-fixnum
     (case-lambda
       [(rg)         (clr-call random next rg)]
       [(rg max)     (clr-call random next rg max)]

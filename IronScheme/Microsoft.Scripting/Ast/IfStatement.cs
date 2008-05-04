@@ -51,6 +51,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
+            bool eoiused = false;
             Label eoi = cg.DefineLabel();
             foreach (IfStatementTest t in _tests) {
                 Label next = cg.DefineLabel();
@@ -59,15 +60,35 @@ namespace Microsoft.Scripting.Ast {
                 t.Test.EmitBranchFalse(cg, next);
 
                 t.Body.Emit(cg);
-                // optimize no else case                
-                cg.EmitSequencePointNone();     // hide compiler generated branch.
-                cg.Emit(OpCodes.Br, eoi);
+                // optimize no else case
+                if (t.Body is BlockStatement)
+                {
+                  BlockStatement bs = (BlockStatement)t.Body;
+                  if (!(bs.Statements[bs.Statements.Count - 1] is ReturnStatement))
+                  {
+                    eoiused |= true;
+                    cg.EmitSequencePointNone();     // hide compiler generated branch.
+                    cg.Emit(OpCodes.Br, eoi);
+                  }
+                }
+                else
+                {
+                  if (!(t.Body is ReturnStatement) && !(t.Body is IfStatement))
+                  {
+                    eoiused |= true;
+                    cg.EmitSequencePointNone();     // hide compiler generated branch.
+                    cg.Emit(OpCodes.Br, eoi);
+                  }
+                }
                 cg.MarkLabel(next);
             }
             if (_else != null) {
                 _else.Emit(cg);
             }
-            cg.MarkLabel(eoi);
+            if (eoiused)
+            {
+              cg.MarkLabel(eoi);
+            }
         }
     }
 }

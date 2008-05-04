@@ -192,7 +192,8 @@ SectionIn 1 2 RO
 	File "ironscheme.boot.dll"
 	File "Microsoft.Scripting.dll"
 	
-	File "init.scm"
+	File "system-libraries.ss"
+	File "init.ss"
 	
 	File "ironscheme-buildscript.ss"
 
@@ -204,6 +205,7 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\ironscheme"
 	File /r ironscheme\*.ss
+	File /r ironscheme\*.fasl
 	
 	SetOutPath "$INSTDIR\lib"
 	File /r lib\*.ss
@@ -219,6 +221,7 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\srfi"
 	File /r srfi\*.ss
+	File /r ironscheme\*.fasl
 	
 	SetOutPath "$INSTDIR\websample"
 	File ..\..\..\IronScheme.Web\test.ss

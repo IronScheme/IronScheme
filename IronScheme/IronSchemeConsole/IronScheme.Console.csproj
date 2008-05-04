@@ -140,9 +140,6 @@
     <None Include="ironscheme\syntax-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="init.scm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ironscheme.nsi">
@@ -150,6 +147,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="system-libraries.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="docs\topic-printer.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -174,7 +174,7 @@
     <None Include="examples\stack-balloon-party.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\build.ss">
+    <None Include="init.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\clr\helpers.ss">
@@ -399,7 +399,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>call "$(DevEnvDir)\..\..\VC\bin\vcvars32.bat"
-"%25VCINSTALLDIR%25\bin\editbin.exe" /nologo /release /stack:0x100000 "$(TargetPath)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

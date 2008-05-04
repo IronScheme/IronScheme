@@ -43,28 +43,28 @@ namespace Microsoft.Scripting {
             lock (_lockObj) {
                 // First, look up the identifier case-sensitively.
                 if (!_idDict.TryGetValue(field, out res)) {
-                    string invariantField = field.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+                    //string invariantField = field.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
 
                     // OK, didn't find it, so let's look up the case-insensitive
                     // identifier.
-                    if (_idDict.TryGetValue(invariantField, out res)) {
-                        // OK, this is a new casing of an existing identifier.
-                        Debug.Assert(res < 0, "Must have invariant bit set!");
+                    //if (_idDict.TryGetValue(invariantField, out res)) {
+                    //    // OK, this is a new casing of an existing identifier.
+                    //    Debug.Assert(res < 0, "Must have invariant bit set!");
 
-                        // Throw if we've exhausted the number of casings.
-                        if (unchecked(((uint)res & 0x00FFFFFF) == 0x00FFFFFF)) {
-                            throw new InvalidOperationException(String.Format(Resources.CantAddCasing, field));
-                        }
+                    //    // Throw if we've exhausted the number of casings.
+                    //    if (unchecked(((uint)res & 0x00FFFFFF) == 0x00FFFFFF)) {
+                    //        throw new InvalidOperationException(String.Format(Resources.CantAddCasing, field));
+                    //    }
 
-                        int invariantRes = res + 0x01000000;
+                    //    int invariantRes = res + 0x01000000;
 
-                        // Mask off the high bit.
-                        res = unchecked((int)((uint)res & 0x7FFFFFFF));
+                    //    // Mask off the high bit.
+                    //    res = unchecked((int)((uint)res & 0x7FFFFFFF));
 
-                        _idDict[field] = res;
-                        _idDict[invariantField] = invariantRes;
-                        _fieldDict[res] = field;
-                    } else {
+                    //    _idDict[field] = res;
+                    //    _idDict[invariantField] = invariantRes;
+                    //    _fieldDict[res] = field;
+                    //} else {
                         // This is a whole new identifier.
 
                         if (_nextCaseInsensitiveId == int.MaxValue) {
@@ -75,16 +75,16 @@ namespace Microsoft.Scripting {
                         res = _nextCaseInsensitiveId++;
                         // Console.WriteLine("Registering {0} as {1}", field, res);
 
-                        _fieldDict[res] = invariantField;
+                        //_fieldDict[res] = invariantField;
 
-                        if (field != invariantField) {
+                        //if (field != invariantField) {
                             res |= 0x01000000;
                             _idDict[field] = res;
                             _fieldDict[res] = field;
-                        }
+                        //}
 
-                        _idDict[invariantField] = unchecked((int)(((uint)res | 0x80000000) + 0x01000000));
-                    }
+                        //_idDict[invariantField] = unchecked((int)(((uint)res | 0x80000000) + 0x01000000));
+                    //}
                 } else {
                     // If this happens to be the invariant field, then we need to
                     // mask off the top byte, since that's just used to pick the next

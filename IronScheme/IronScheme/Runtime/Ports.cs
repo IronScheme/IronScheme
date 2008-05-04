@@ -303,7 +303,7 @@ namespace IronScheme.Runtime
     [Builtin("eof-object?")]
     public static object IsEof(object obj)
     {
-      return obj == EOF;
+      return GetBool(obj == EOF);
     }
 
     [Builtin("read-all")]
@@ -622,6 +622,14 @@ namespace IronScheme.Runtime
         return obj.GetType().Name.Replace("$", "&");
       }
 
+      ICallable printer;
+      if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
+      {
+        StringWriter p = new StringWriter();
+        printer.Call(obj, p);
+        return p.ToString();
+      }
+
       //finally check if this is some constructed type
       if (R6RS.Records.IsRecordAny(obj))
       {
@@ -749,6 +757,14 @@ namespace IronScheme.Runtime
       if ((bool)IsNumber(obj))
       {
         return NumberToString(obj) as string;
+      }
+
+      ICallable printer;
+      if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
+      {
+        StringWriter p = new StringWriter();
+        printer.Call(obj, p);
+        return p.ToString();
       }
 
       //finally check if this is some constructed type

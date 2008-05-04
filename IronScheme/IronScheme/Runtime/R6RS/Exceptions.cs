@@ -49,9 +49,9 @@ namespace IronScheme.Runtime.R6RS
           {
             return h.Call(ex); 
           }
-          throw ex;
+          throw;
         }
-        throw ex;
+        throw;
       }
     }
 

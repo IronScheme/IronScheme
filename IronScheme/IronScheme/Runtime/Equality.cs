@@ -63,18 +63,16 @@ namespace IronScheme.Runtime
       {
         return false;
       }
-      return (bool)IsEquivalent(a.car, b.car) && EqualCons(a.cdr as Cons, b.cdr as Cons);
+      return IsTrue(IsEquivalent(a.car, b.car)) && EqualCons(a.cdr as Cons, b.cdr as Cons);
     }
 
     [Builtin("equal?")]
     public static object IsEquivalent(object first, object second)
     {
-      bool s1 = first is SymbolId;
-      bool s2 = second is SymbolId;
-      // one exception, symbols
-      if (s1 && s2)
+
+      if (first == second)
       {
-        return Equals(first, second);
+        return TRUE;
       }
 
       if (first == null ^ second == null)
@@ -82,22 +80,20 @@ namespace IronScheme.Runtime
         return FALSE;
       }
 
+      bool s1 = first is SymbolId;
+      bool s2 = second is SymbolId;
+
       bool c1 = first is Cons;
       bool c2 = second is Cons;
-
-      if (c1 && c2)
-      {
-        return GetBool(EqualCons((Cons)first, (Cons)second));
-      }
 
       if (s1 && c2 || s2 && c1)
       {
         return FALSE;
       }
 
-      if (IsTrue(IsEqualValue(first, second)))
+      if (c1 && c2)
       {
-        return TRUE;
+        return GetBool(EqualCons((Cons)first, (Cons)second));
       }
 
       Type t1 = first.GetType();
@@ -105,7 +101,7 @@ namespace IronScheme.Runtime
 
       if (t1 == t2)
       {
-        return Equals(first, second);
+        return GetBool(Equals(first, second));
       }
 
       string w1 = WriteFormat(first);
@@ -120,16 +116,13 @@ namespace IronScheme.Runtime
     public static object IsEqual(object first, object second)
     {
       // 2 exceptions, symbols and booleans (missed the last one somehow)
-      if ((first is SymbolId && second is SymbolId)
-        || (first is bool && second is bool))
+      if (first is SymbolId && second is SymbolId)
       {
         return GetBool(Equals(first, second));
       }
-
-      // value types can never have the same reference (theoretically)
-      if (first is System.ValueType && second is System.ValueType)
+      else if (first is bool && second is bool)
       {
-        return FALSE;
+        return GetBool(Equals(first, second));
       }
 
       return GetBool(ReferenceEquals(first, second));

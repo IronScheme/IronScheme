@@ -52,8 +52,8 @@ namespace IronScheme.Runtime
 
   public partial class Builtins : BaseHelper
   {
-    protected readonly static object TRUE = RuntimeHelpers.True;
-    protected readonly static object FALSE = RuntimeHelpers.False;
+    protected internal readonly static object TRUE = RuntimeHelpers.True;
+    protected internal readonly static object FALSE = RuntimeHelpers.False;
 
     [ThreadStatic]
     internal static Exception lastException = null;
@@ -65,13 +65,13 @@ namespace IronScheme.Runtime
 
     public static bool IsTrue(object arg)
     {
-      if (arg == TRUE)
-      {
-        return true;
-      }
-      else if (arg == FALSE)
+      if (arg == FALSE)
       {
         return false;
+      }
+      else if (arg == TRUE)
+      {
+        return true;
       }
       else if (arg is bool)
       {
@@ -208,7 +208,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     [Builtin("make-traced-procedure")]
     public static object MakeTraceProcedure(object name, object proc)
     {
-      return MakeTraceProcedure(name, proc, false);
+      return MakeTraceProcedure(name, proc, FALSE);
     }
 
     [Builtin("make-traced-procedure")]
@@ -324,6 +324,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
       catch (Variable.UnInitializedUsageException ex)
       {
+        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
         return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
       }
 #if DEBUG
@@ -331,14 +332,18 @@ A ""contributor"" is any person that distributes its contribution under this lic
       sw = Stopwatch.StartNew();
 #endif
 
-      object cbr = sc.Run(cc.ModuleContext.Module); // try eval causes issues :(
+      try
+      {
+        return sc.Run(cc.ModuleContext.Module); // try eval causes issues :(
+      }
+      finally
+      {
 
 #if DEBUG
-      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
+        Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
 #endif
-      ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-      return cbr;
-
+        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+      }
     }
 
 
