@@ -6,8 +6,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
 	ProjectSection(SolutionItems) = preProject
 		dlr.diff = dlr.diff
+		header.bmp = header.bmp
+		ironscheme.ico = ironscheme.ico
 		License.html = License.html
+		logo-128.png = logo-128.png
+		logo-192.png = logo-192.png
 		todo.txt = todo.txt
+		welcome.bmp = welcome.bmp
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Scripting", "Microsoft.Scripting\Microsoft.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
