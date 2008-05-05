@@ -51,10 +51,10 @@ ShowUnInstDetails show
 ; MUI end ------
 
 !define BASE_URL http://download.microsoft.com/download
-!define URL_DOTNET "http://download.microsoft.com/download/5/6/7/567758a3-759e-473e-bf8f-52154438565a/dotnetfx.exe"
+!define URL_DOTNET "http://download.microsoft.com/download/0/8/c/08c19fa4-4c4f-4ffb-9d6c-150906578c9e/NetFx20SP1_x86.exe"
 
-LangString DESC_SHORTDOTNET ${LANG_ENGLISH} ".Net Framework 2.0"
-LangString DESC_LONGDOTNET ${LANG_ENGLISH} "Microsoft .Net Framework 2.0"
+LangString DESC_SHORTDOTNET ${LANG_ENGLISH} ".Net Framework 2.0 SP1"
+LangString DESC_LONGDOTNET ${LANG_ENGLISH} "Microsoft .Net Framework 2.0 SP1"
 LangString DESC_DOTNET_DECISION ${LANG_ENGLISH} "$(DESC_SHORTDOTNET) is required.$\nIt is strongly \
   advised that you install$\n$(DESC_SHORTDOTNET) before continuing.$\nIf you choose to continue, \
   you will need to connect$\nto the internet before proceeding.$\nWould you like to continue with \
@@ -160,12 +160,12 @@ MessageBox MB_ICONEXCLAMATION|MB_YESNO|MB_DEFBUTTON2 "$(DESC_DOTNET_DECISION)" /
 
 DownloadNET:
 
-nsisdl::download /TIMEOUT=60000 "${URL_DOTNET}" "$TEMP\dotnetfx.exe"
+nsisdl::download /TIMEOUT=60000 "${URL_DOTNET}" "$TEMP\NetFx20SP1_x86.exe"
 Pop $0
 StrCmp "$0" "success" InstallNET AbortInstall
 
 InstallNET:
-Exec '"$TEMP\dotnetfx.exe" /q:a /c:"install.exe /qb"'
+Exec '"$TEMP\NetFx20SP1_x86.exe" /q:a /c:"install.exe /qb"'
 
 Install:
 

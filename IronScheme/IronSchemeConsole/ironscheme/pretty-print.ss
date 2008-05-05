@@ -245,7 +245,9 @@
 
     (define (style head)
       (case head
-        ((lambda let* letrec define define-syntax syntax-rules let-syntax letrec-syntax with-syntax library) pp-LAMBDA)
+        ((lambda let* letrec letrec* define define-syntax 
+          syntax-rules let-syntax letrec-syntax with-syntax 
+          library library-letrec*) pp-LAMBDA)
         ((syntax-case)               pp-SYNTAX-CASE)
         ((if set!)                   pp-IF)
         ((cond)                      pp-COND)
