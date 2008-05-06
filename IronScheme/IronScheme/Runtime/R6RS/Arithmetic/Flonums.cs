@@ -80,7 +80,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("flonum?")]
     public static object IsFlonum(object o)
     {
-      return o is double;
+      return GetBool(o is double);
     }
 
     [Builtin("flonum-width")]
@@ -213,63 +213,63 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object FlIsInteger(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return x1 % 1.0 == 0.0;
+      return GetBool(x1 % 1.0 == 0.0);
     }
 
     [Builtin("flzero?")]
     public static object FlIsZero(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return x1 == 0.0;
+      return GetBool(x1 == 0.0);
     }
 
     [Builtin("flpositive?")]
     public static object FlIsPositive(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return x1 > 0;
+      return GetBool(x1 > 0);
     }
 
     [Builtin("flnegative?")]
     public static object FlIsNegative(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return x1 < 0;
+      return GetBool(x1 < 0);
     }
 
     [Builtin("flodd?")]
     public static object FlIsOdd(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return x1 % 2 == 1.0;
+      return GetBool(x1 % 2 == 1.0);
     }
 
     [Builtin("fleven?")]
     public static object FlIsEven(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return x1 % 2 == 0.0;
+      return GetBool(x1 % 2 == 0.0);
     }
 
     [Builtin("flfinite?")]
     public static object FlIsFinite(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return !double.IsInfinity(x1);
+      return GetBool(!double.IsInfinity(x1));
     }
 
     [Builtin("flinfinite?")]
     public static object FlIsInfinite(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return double.IsInfinity(x1);
+      return GetBool(double.IsInfinity(x1));
     }
 
     [Builtin("flnan?")]
     public static object FlIsNan(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return double.IsNaN(x1);
+      return GetBool(double.IsNaN(x1));
     }
 
 

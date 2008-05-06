@@ -157,7 +157,7 @@ namespace IronScheme.Runtime.R6RS
       string s = SymbolToString(symbol) as string;
       Type t = enumset.GetType();
       long v = (long)enumset;
-      return (enummap[t][s] & v) != 0;
+      return GetBool((enummap[t][s] & v) != 0);
     }
 
     // * (enum-set-subset? enum-set1 enum-set2)
@@ -199,7 +199,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("enum-set=?")]
     public static object EnumSetIsEqual(object enumset1, object enumset2)
     {
-      return (bool)EnumSetIsSubset(enumset1, enumset2) && (bool)EnumSetIsSubset(enumset2, enumset1);
+      return GetBool(IsTrue(EnumSetIsSubset(enumset1, enumset2)) && IsTrue(EnumSetIsSubset(enumset2, enumset1)));
     }
 
     // * (enum-set-union enum-set1 enum-set2)

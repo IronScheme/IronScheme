@@ -1,3 +1,4 @@
+#!r6rs
 #|
 
 LINQ for R6RS Scheme
@@ -8,7 +9,9 @@ See below code for examples and tests.
 To run on ikarus, modify the 'get-hashtable' procedure.
 To run on larceny the file needs to have a .sls extension.
 
-The following grammar is as per the C# spec [1].
+Runs on IronScheme and MzScheme 3.99.0.23 as well.
+
+The following grammar is as per the C# spec [1]. 
 
 Grammar notes:
 - The optional type token is not present and has been removed from the grammar.

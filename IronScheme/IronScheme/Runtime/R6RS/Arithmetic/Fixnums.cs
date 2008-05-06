@@ -200,7 +200,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fixnum?")]
     public static object IsFixnum(object o)
     {
-      return o is int;
+      return GetBool(o is int);
     }
 
     [Builtin("fixnum-width")]
@@ -312,35 +312,35 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object FxIsZero(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return x1 == 0;
+      return GetBool(x1 == 0);
     }
 
     [Builtin("fxpositive?")]
     public static object FxIsPositive(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return x1 > 0;
+      return GetBool(x1 > 0);
     }
 
     [Builtin("fxnegative?")]
     public static object FxIsNegative(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return x1 < 0;
+      return GetBool(x1 < 0);
     }
 
     [Builtin("fxodd?")]
     public static object FxIsOdd(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return x1 % 2 == 1;
+      return GetBool(x1 % 2 == 1);
     }
 
     [Builtin("fxeven?")]
     public static object FxIsEven(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return x1 % 2 == 0;
+      return GetBool(x1 % 2 == 0);
     }
 
     [Builtin("fxmax")]
