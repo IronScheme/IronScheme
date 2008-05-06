@@ -259,6 +259,16 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
     static bool IsSimple(Cons c)
     {
+      if (IsTrue(IsAllSameSymbol(c.car, SymbolTable.StringToId("set!"))))
+      {
+        return false;
+      }
+      if (IsTrue(IsAllSameSymbol(c.car, SymbolTable.StringToId("begin"))))
+      {
+        return false;
+      }
+
+
       if (IsTrue(IsAllSameSymbol(c.car, quote)))
       {
         return true;
@@ -334,49 +344,68 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
 
 #endif
-
-      if (IsSimple(expr as Cons))
+      if (expr is Cons)
       {
-#if DEBUG
-        Stopwatch esw = Stopwatch.StartNew();
-        try
+
+        if (IsSimple(expr as Cons))
         {
+#if DEBUG
+          Stopwatch esw = Stopwatch.StartNew();
+          try
+          {
 #endif
-          Cons e = expr as Cons;
+            Cons e = expr as Cons;
 
-          if (IsTrue(IsAllSameSymbol(e.car, quote)))
-          {
-            return Car(e.cdr);
-          }
-
-          List<object> args = new List<object>();
-
-          ICallable proc = SymbolValue(cc, e.car) as ICallable;
-
-          e = e.cdr as Cons;
-          while (e != null)
-          {
-            object arg = e.car;
-            if (arg is Cons)
+            if (IsTrue(IsAllSameSymbol(e.car, quote)))
             {
-              Cons cargs = arg as Cons;
-              args.Add(Car(cargs.cdr));
+              return Car(e.cdr);
             }
-            else
-            {
-              args.Add(SymbolValue(cc, arg));
-            }
+
+            List<object> args = new List<object>();
+
+            ICallable proc = SymbolValue(cc, e.car) as ICallable;
+
             e = e.cdr as Cons;
-          }
+            while (e != null)
+            {
+              object arg = e.car;
+              if (arg is Cons)
+              {
+                Cons cargs = arg as Cons;
+                args.Add(Car(cargs.cdr));
+              }
+              else
+              {
+                args.Add(SymbolValue(cc, arg));
+              }
+              e = e.cdr as Cons;
+            }
 
-          return proc.Call(args.ToArray());
+            return proc.Call(args.ToArray());
 #if DEBUG
-        }
-        finally
-        {
-          Trace.WriteLine(esw.Elapsed.TotalMilliseconds, string.Format("eval    - eval-core({0:D3})", c));
-        }
+          }
+          finally
+          {
+            Trace.WriteLine(esw.Elapsed.TotalMilliseconds, string.Format("eval    - eval-core({0:D3})", c));
+          }
 #endif
+        }
+      }
+      else if (expr is SymbolId)
+      {
+        object o;
+        if (cc.Scope.TryGetName((SymbolId)expr, out o))
+        {
+          return o;
+        }
+        else
+        {
+          return UndefinedError(expr);
+        }
+      }
+      else
+      {
+        return expr;
       }
 
 
