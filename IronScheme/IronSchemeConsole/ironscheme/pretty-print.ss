@@ -5,7 +5,7 @@
 
 (library (ironscheme pretty-print)
   (export pretty-print)
-  (import (ironscheme) (rnrs mutable-strings))
+  (import (rnrs) (rnrs mutable-strings))
 
 (define genwrite:newline-str (make-string 1 #\newline))
 ;@
@@ -287,5 +287,5 @@
     (generic-write obj #f 80
                    (lambda (s) (display s port) #t))))
                    
-(set-symbol-value! 'pretty-print pretty-print)  
+;(set-symbol-value! 'pretty-print pretty-print)  
 )

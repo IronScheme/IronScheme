@@ -20,7 +20,7 @@
 
 (library (psyntax internal)
   (export current-primitive-locations compile-core-expr-to-port expanded->core compile-core-expr)
-  (import (rnrs) (psyntax compat))
+  (import (rnrs) (psyntax compat) (ironscheme pretty-print))
   
   (define current-primitive-locations
     (make-parameter 
@@ -102,6 +102,6 @@
     ((rewriter #f) x))    
 
   (define (compile-core-expr-to-port x p)
-    (write ((rewriter #f) x) p)))
+    (pretty-print ((rewriter #f) x) p)))
 
 
