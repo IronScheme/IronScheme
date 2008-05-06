@@ -67,6 +67,10 @@ namespace IronScheme.Runtime.R6RS
         // this is just all wrong wrong wrong!!!
         Assembly genass = ag.DumpAndLoad();
 
+        MethodInfo ci = type.GetMethod("make");
+
+        constructor = Closure.Make(null, Delegate.CreateDelegate(typeof(CallTargetN), ci));
+
         // update fields
         predicate = type.GetMethod(predicate.Name);
 
@@ -206,7 +210,8 @@ namespace IronScheme.Runtime.R6RS
 
       // predicate
 
-      MethodBuilder pb = tg.TypeBuilder.DefineMethod(n + "?", MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { typeof(object) });
+      MethodBuilder pb = tg.TypeBuilder.DefineMethod(n + "?", MethodAttributes.Public | MethodAttributes.Static, 
+        typeof(object), new Type[] { typeof(object) });
 
       ILGenerator pgen = pb.GetILGenerator();
       pgen.Emit(OpCodes.Ldarg_0);
@@ -242,7 +247,8 @@ namespace IronScheme.Runtime.R6RS
 
         // accesor 
 
-        MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { typeof(object)  });
+        MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static, 
+          typeof(object), new Type[] { typeof(object)  });
 
         ILGenerator agen = ab.GetILGenerator();
         agen.Emit(OpCodes.Ldarg_0);
@@ -255,7 +261,8 @@ namespace IronScheme.Runtime.R6RS
         // mutator
         if (fd.mutable)
         {
-          MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static, typeof(object), new Type[] { typeof(object), typeof(object) });
+          MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static, 
+            typeof(object), new Type[] { typeof(object), typeof(object) });
 
           ILGenerator mgen = mb.GetILGenerator();
           mgen.Emit(OpCodes.Ldarg_0);
@@ -299,7 +306,7 @@ namespace IronScheme.Runtime.R6RS
 
       int diff = allfields.Count - t.fields.Count;
 
-      foreach (object var in allfields)
+      foreach (FieldDescriptor var in allfields)
 	    {
 	      paramtypes.Add(typeof(object));
       }
@@ -312,6 +319,8 @@ namespace IronScheme.Runtime.R6RS
       }
 
       CodeGen cg = t.tg.DefineConstructor(paramtypes.ToArray());
+      CodeGen mk = t.tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make", 
+        t.tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
 
       for (int i = 0; i < allfields.Count; i++)
 			{
@@ -325,6 +334,10 @@ namespace IronScheme.Runtime.R6RS
       for (fi = 0; fi < diff; fi++)
       {
         cg.EmitArgGet(fi);
+
+        mk.EmitArgGet(0);
+        mk.EmitConstant(fi);
+        mk.Emit(OpCodes.Ldelem, typeof(object));
       }
 
       cg.Emit(OpCodes.Call,  (t.parent == null ? typeof(object) : t.parent.type).GetConstructor(parenttypes.ToArray()));
@@ -335,9 +348,16 @@ namespace IronScheme.Runtime.R6RS
         cg.EmitThis();
         cg.EmitArgGet(fi);
         cg.EmitFieldSet(fd.field);
+
+        mk.EmitArgGet(0);
+        mk.EmitConstant(fi);
+        mk.Emit(OpCodes.Ldelem, typeof(object));
+
         fi++;
       }
 
+      mk.EmitNew(cg.MethodBase as ConstructorInfo);
+      mk.EmitReturn();
       cg.EmitReturn();
 
       RecordConstructorDescriptor rcd = new RecordConstructorDescriptor();
@@ -369,26 +389,9 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordConstructor(object cd)
     {
       RecordConstructorDescriptor ci = RequiresNotNull<RecordConstructorDescriptor>(cd);
+      Type tt = ci.type.Finish();
 
-      CallTargetN p = delegate(object[] args)
-      {
-        Type t = ci.type.Finish();
-
-        List<Type> types = new List<Type>();
-
-        foreach (object var in args)
-        {
-          types.Add(typeof(object));
-        }
-
-        ConstructorInfo csi = t.GetConstructor(types.ToArray());
-
-        Debug.Assert(csi != null);
-
-        return csi.Invoke(args);
-      };
-
-      ICallable pp = Closure.Make(Context, p);
+      ICallable pp = ci.type.constructor;
 
       if (ci.parent != null && ci.protocol != null)
       {
@@ -419,7 +422,7 @@ namespace IronScheme.Runtime.R6RS
         return ci.type.constructor = ci.protocol.Call(pp) as ICallable;
       }
 
-      return ci.type.constructor = pp;
+      return pp;
     }
 
     [Builtin("record-accessor")]
