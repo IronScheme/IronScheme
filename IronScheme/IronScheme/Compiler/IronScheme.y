@@ -44,7 +44,7 @@ public static Dictionary<object,SourceSpan> sourcemap = new Dictionary<object,So
 static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
 {
   int ecol = end.eCol + 1;
-  if (ecol == 0)
+  if (ecol <= 0)
   {
     ecol = 1;
   }

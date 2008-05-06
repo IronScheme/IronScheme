@@ -28,8 +28,8 @@ public int MakeSymbol()
   string t = yytext;
   t = t.Substring(0, t.Length - 1);
   yylval.text = t;
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   yyless(t.Length);
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   return (int)Tokens.SYMBOL;
 }
 
@@ -38,8 +38,8 @@ public int MakeBoolean()
   string t = yytext;
   t = t.Substring(0, t.Length - 1);
   yylval.text = t;
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   yyless(t.Length);
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   return (int)Tokens.LITERAL;
 }
 
@@ -48,8 +48,8 @@ public int MakeNumber()
   string t = yytext;
   t = t.Substring(0, t.Length - 1);
   yylval.text = t;
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   yyless(t.Length);
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   return (int)Tokens.NUMBER;
 }
 
@@ -58,8 +58,8 @@ public int MakeChar()
   string t = yytext;
   t = t.Substring(0, t.Length - 1);
   yylval.text = Helper.ParseChar(t);
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   yyless(t.Length);
+  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
   return (int)Tokens.CHARACTER;
 }
 

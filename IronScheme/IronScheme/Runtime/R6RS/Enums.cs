@@ -41,7 +41,11 @@ namespace IronScheme.Runtime.R6RS
 
       while (symlist != null)
       {
-        names.Add(SymbolToString(symlist.car) as string);
+        string name = SymbolToString(symlist.car) as string;
+        if (!names.Contains(name))
+        {
+          names.Add(name);
+        }
         symlist = symlist.cdr as Cons;
       }
 

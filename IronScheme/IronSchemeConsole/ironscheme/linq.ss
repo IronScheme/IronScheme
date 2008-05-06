@@ -154,8 +154,8 @@ References:
       [else        eqv?]))
 
   (define (get-hashtable e)
-    (make-hashtable equal-hash (get-eq e)))
-    ;(make-eq-hashtable)) ; for ikarus
+    ;(make-hashtable equal-hash (get-eq e)))
+    (make-eq-hashtable)) ; for ikarus
 
   (define (symbol<? a b)
     (string<? 
