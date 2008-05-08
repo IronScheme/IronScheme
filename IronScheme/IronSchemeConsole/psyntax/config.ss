@@ -20,7 +20,8 @@
 
 (library (psyntax config)
   (export if-wants-define-struct if-wants-case-lambda
-          if-wants-letrec* if-wants-global-defines)
+          if-wants-letrec* if-wants-global-defines
+          if-wants-library-letrec*)
   (import (rnrs))
   (define-syntax define-option
     (syntax-rules ()
@@ -61,4 +62,7 @@
   ;;; should be enabled.  Disabling the option expands
   ;;; (letrec* ([lhs* rhs*] ...) body) into
   ;;; (let ([lhs* #f] ...) (set! lhs* rhs*) ... body)
+  
+  
+  (define-option if-wants-library-letrec*  #t)
 )
