@@ -23,7 +23,7 @@
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
           load-serialized-library serialize-library
-          annotation-stripped make-record-printer load-precompiled-library)
+          annotation-stripped make-record-printer read-library-source-file)
   (import 
     (rnrs)
     (ironscheme reader)
@@ -31,8 +31,9 @@
     (ironscheme serialization)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value))
-  
-  (define (load-precompiled-library filename sk) #f) ; used?
+
+  (define (read-library-source-file file-name)
+		(with-input-from-file file-name read-annotated))
   
   #|
   (define read-annotated read)

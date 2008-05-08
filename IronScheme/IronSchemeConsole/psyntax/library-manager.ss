@@ -22,7 +22,7 @@
   (export imported-label->binding library-subst installed-libraries
     visit-library library-name library-version library-exists?
     find-library-by-name install-library library-spec invoke-library 
-    extend-library-subst! extend-library-env! current-library-expander
+    current-library-expander
     current-library-collection library-path library-extensions
     serialize-all current-precompiled-library-loader)
   (import (except (rnrs) library) (psyntax compat) (rnrs r5rs) (ironscheme format))
@@ -103,22 +103,22 @@
                   p))))
       (let f ((ls x))
         (unless (null? ls)
-           (display "/" p)
-           (for-each
-             (lambda (c)
-               (cond
-                 ((or (char<=? #\a c #\z)
-                      (char<=? #\A c #\Z)
-                      (char<=? #\0 c #\9)
-                      (memv c '(#\- #\. #\_ #\~)))
-                  (display c p))
-                 (else
-                  (display "%" p)
-                  (let ((n (char->integer c)))
-                    (display-hex (quotient n 16))
-                    (display-hex (remainder n 16))))))
-             (string->list 
-               (symbol->string (car ls))))
+          (display "/" p)
+          (for-each
+            (lambda (c)
+              (cond
+                ((or (char<=? #\a c #\z)
+                     (char<=? #\A c #\Z)
+                     (char<=? #\0 c #\9)
+                     (memv c '(#\- #\. #\_ #\~)))
+                 (display c p))
+                (else
+                 (display "%" p)
+                 (let ((n (char->integer c)))
+                   (display-hex (quotient n 16))
+                   (display-hex (remainder n 16))))))
+            (string->list 
+              (symbol->string (car ls))))
           (f (cdr ls))))
       (extract)))
 
@@ -130,7 +130,7 @@
                   (exts (library-extensions))
                   (failed-list '()))
             (cond
-              ((null? ls) 
+              ((null? ls)
                (let ()
                  (define-condition-type &library-resolution &condition
                     make-library-resolution-condition
@@ -207,7 +207,9 @@
                        (f (cdr deps))]
                       [else 
                        (fprintf (current-error-port)
-                          "WARNING: library ~s has an inconsistent dependency on library ~s; file ~s will be recompiled from source.\n"
+                          "WARNING: library ~s has an inconsistent dependency \
+                           on library ~s; file ~s will be recompiled from \
+                           source.\n"
                          name dname filename)
                        #f]))))]))]
         [others #f])))
@@ -222,7 +224,7 @@
             [(try-load-from-file file-name)]
             [else 
              ((current-library-expander)
-              (with-input-from-file file-name read-annotated)
+              (read-library-source-file file-name)
               file-name)])))
       (lambda (f)
         (if (procedure? f)
@@ -250,12 +252,12 @@
     (parameterize ((external-pending-libraries
                     (cons name (external-pending-libraries))))
       ((library-loader) name)
-        (or (find-library-by
-              (lambda (x) (equal? (library-name x) name)))
-            (assertion-violation #f
-              "handling external library did not yield the correct library"
+      (or (find-library-by
+            (lambda (x) (equal? (library-name x) name)))
+          (assertion-violation #f
+            "handling external library did not yield the correct library"
              name))))
-          
+        
   (define (find-library-by-name name)
     (or (find-library-by
           (lambda (x) (equal? (library-name x) name)))
@@ -298,30 +300,19 @@
       [(id name ver imp* vis* inv* exp-subst exp-env 
         visit-proc invoke-proc visit-code invoke-code 
         visible? source-file-name)
-    (let ((imp-lib* (map find-library-by-spec/die imp*))
-          (vis-lib* (map find-library-by-spec/die vis*))
-          (inv-lib* (map find-library-by-spec/die inv*)))
-      (unless (and (symbol? id) (list? name) (list? ver))
+       (let ((imp-lib* (map find-library-by-spec/die imp*))
+             (vis-lib* (map find-library-by-spec/die vis*))
+             (inv-lib* (map find-library-by-spec/die inv*)))
+         (unless (and (symbol? id) (list? name) (list? ver))
            (assertion-violation 'install-library 
              "invalid spec with id/name/ver" id name ver))
-      (when (library-exists? name)
+         (when (library-exists? name)
            (assertion-violation 'install-library 
              "library is already installed" name))
-      (let ((lib (make-library id name ver imp-lib* vis-lib* inv-lib* 
+         (let ((lib (make-library id name ver imp-lib* vis-lib* inv-lib* 
                        exp-subst exp-env visit-proc invoke-proc 
                        visit-code invoke-code visible? source-file-name)))
            (install-library-record lib)))]))
-
-  (define extend-library-subst!
-    (lambda (lib sym label)
-      (set-library-subst! lib 
-        (cons (cons sym label) (library-subst lib)))))
-
-  (define extend-library-env!
-    (lambda (lib label binding)
-      (set-library-env! lib
-        (cons (cons label binding) (library-env lib)))
-      (hashtable-set! label->binding-table label binding)))
 
   (define (imported-label->binding lab)
     (hashtable-ref label->binding-table lab #f))
