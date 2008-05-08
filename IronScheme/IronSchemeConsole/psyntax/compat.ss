@@ -35,17 +35,6 @@
   (define (read-library-source-file file-name)
 		(with-input-from-file file-name read-annotated))
   
-  #|
-  (define read-annotated read)
-  (define (annotation? x) #f)
-  (define annotation-expression #f)
-  (define annotation-source #f)
-  (define annotation-stripped #f)
-  
-  (define (load-serialized-library filename sk) #f)
-  (define (serialize-library filename contents) #f)
-  |#
-
   (define make-parameter
     (case-lambda
       ((x) (make-parameter x (lambda (x) x)))
@@ -75,21 +64,6 @@
                    swap
                    (lambda () b b* ...)
                    swap)))))))))
-
-  ;;; we represent records as vectors for portability but this is 
-  ;;; not nice.  If your system supports compile-time generative
-  ;;; records, replace the definition of define-record with your 
-  ;;; system supplied definition (which you should support in the 
-  ;;; expander first of course).
-  ;;; if your system allows associating printers with records, 
-  ;;; a printer procedure is provided (so you can use it in the 
-  ;;; output of the macro).  The printers provided take two 
-  ;;; arguments, a record instance and an output port.  They 
-  ;;; output something like #<stx (foo bar)> or #<library (rnrs)> 
-  ;;; to the port.
-  ;;;
-  ;;; The following should be good for full R6RS implementations.
-  ;;;
                        
 (define-syntax define-record
   (lambda (x)
@@ -121,87 +95,8 @@
              (opaque #t) ; for security
              (nongenerative) ; for sanity
              (fields (mutable field* getter* setter*) ...)))])))                       
-#|
 
-  (define-syntax define-record
-    (lambda (stx)
-      (define (iota i j)
-        (cond
-          ((= i j) '())
-          (else (cons i (iota (+ i 1) j)))))
-      (syntax-case stx ()
-        ((_ name (field* ...) printer) 
-         (syntax (define-record name (field* ...))))
-        ((_ name (field* ...))
-         (with-syntax ((constructor 
-                        (datum->syntax (syntax name)
-                          (string->symbol
-                            (string-append "make-"
-                              (symbol->string 
-                                (syntax->datum (syntax name)))))))
-                       (predicate 
-                        (datum->syntax (syntax name)
-                          (string->symbol
-                            (string-append 
-                              (symbol->string 
-                                (syntax->datum (syntax name)))
-                              "?")))) 
-                       (<rtd> 
-                        (datum->syntax (syntax name) (gensym)))
-                       ((accessor ...)
-                        (map 
-                          (lambda (x) 
-                            (datum->syntax (syntax name)
-                              (string->symbol 
-                                (string-append 
-                                  (symbol->string (syntax->datum
-                                                    (syntax name)))
-                                  "-"
-                                  (symbol->string (syntax->datum x))))))
-                          (syntax (field* ...)))) 
-                       ((mutator ...)
-                        (map 
-                          (lambda (x) 
-                            (datum->syntax (syntax name)
-                              (string->symbol 
-                                (string-append "set-" 
-                                  (symbol->string (syntax->datum
-                                                    (syntax name)))
-                                  "-"
-                                  (symbol->string (syntax->datum x))
-                                  "!"))))
-                          (syntax (field* ...))))
-                       ((idx ...)
-                        (iota 1 (+ 1 (length (syntax (field* ...)))))))
-           (syntax (begin
-               (define constructor
-                 (lambda (field* ...) 
-                   (vector '<rtd> field* ...)))
-               (define predicate
-                 (lambda (x) 
-                   (and (vector? x) 
-                        (= (vector-length x) 
-                           (+ 1 (length '(field* ...))))
-                        (eq? (vector-ref x 0) '<rtd>))))
-               (define accessor
-                 (lambda (x)
-                   (if (predicate x) 
-                       (vector-ref x idx)
-                       (error 'accessor "~s is not of type ~s" x
-                              'name))))
-               ...
-               (define mutator
-                 (lambda (x v)
-                   (if (predicate x) 
-                       (vector-set! x idx v)
-                       (error 'mutator "~s is not of type ~s" x
-                              'name))))
-               ...)))))))
-|#    
-
-  (define (file-options-spec x) 
-    x)
-
+  (define (file-options-spec x) x)
 )
 
 

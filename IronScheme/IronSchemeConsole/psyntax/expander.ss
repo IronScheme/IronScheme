@@ -3523,14 +3523,14 @@
                                             errstr name))))))))
                             export-subst)
                           (let ((invoke-body
-                                 (build-library-letrec* no-source
-                                   lex* loc* rhs*
-                                   (if (null? init*) 
-                                       (build-void)
-                                       (build-sequence no-source init*))))
-                                ;(invoke-body
-                                ; (build-letrec* no-source lex* rhs* 
-                                ;    (build-exports global* init*)))
+                                 (if-wants-library-letrec*
+                                   (build-library-letrec* no-source
+                                     lex* loc* rhs*
+                                     (if (null? init*) 
+                                         (build-void)
+                                         (build-sequence no-source init*)))
+                                   (build-letrec* no-source lex* rhs* 
+                                     (build-exports global* init*))))
                                 (invoke-definitions 
                                   (map build-global-define (map cdr global*))))
                             (values
