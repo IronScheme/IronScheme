@@ -224,7 +224,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    static readonly int TICKS = (int)((DateTime.Now.Ticks >> 16) & 0xEFFFFFFF);
+    static readonly int TICKS = (int)((DateTime.Now.Ticks >> 16) & 0x7FFFFFFF);
 
     static int anonsymcount = 0;
     static int symcount = 0;
