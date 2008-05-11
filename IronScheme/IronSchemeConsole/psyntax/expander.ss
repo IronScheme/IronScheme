@@ -265,7 +265,7 @@
         (when (annotation? expr) 
           (let ([src (annotation-source expr)])
             (when (pair? src)
-              (display " [char " p)
+              (display " [" p)
               (display (cdr src) p)
               (display " of " p)
               (display (car src) p)
@@ -1588,13 +1588,7 @@
         ((_ (lits ...)
             (pat* tmp*) ...)
          (begin
-           (unless (for-all
-                     (lambda (x)
-                       (and (id? x)
-                            (not (free-id=? x (scheme-stx '...)))
-                            (not (free-id=? x (scheme-stx '_)))))
-                     lits)
-             (stx-error e "invalid literals"))
+           (verify-literals lits e)
            (bless `(lambda (x)
                      (syntax-case x ,lits
                        ,@(map (lambda (pat tmp)
@@ -2295,6 +2289,17 @@
     (lambda (x)
       (and (id? x) (free-id=? x (scheme-stx '...)))))
 
+  (define underscore?
+    (lambda (x)
+      (and (id? x) (free-id=? x (scheme-stx '_)))))
+
+  (define (verify-literals lits expr)
+    (for-each
+      (lambda (x) 
+        (when (or (not (id? x)) (ellipsis? x) (underscore? x))
+          (syntax-violation #f "invalid literal" expr x)))
+      lits))
+
   (define syntax-case-transformer
     (let ()
       (define build-dispatch-call
@@ -2391,8 +2396,7 @@
         (syntax-match e ()
           ((_ expr (keys ...) clauses ...)
            (begin
-             (unless (for-all (lambda (x) (and (id? x) (not (ellipsis? x)))) keys)
-               (stx-error e "invalid literals"))
+             (verify-literals keys e)
              (let ((x (gen-lexical 'tmp)))
                (let ((body (gen-syntax-case x keys clauses r mr)))
                  (build-application no-source

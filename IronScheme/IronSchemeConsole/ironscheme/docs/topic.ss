@@ -1,4 +1,4 @@
-(library (docs topic)
+(library (ironscheme docs topic)
   (export 
     topic?
     topic-id

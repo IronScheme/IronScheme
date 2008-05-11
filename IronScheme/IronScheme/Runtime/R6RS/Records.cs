@@ -278,6 +278,15 @@ namespace IronScheme.Runtime.R6RS
         rtd.fields.Add(fd);
       }
 
+      if (parenttype != typeof(Condition) && !parenttype.IsSubclassOf(typeof(Condition)))
+      {
+        CodeGen ts = tg.DefineMethodOverride(parenttype.GetMethod("ToString", Type.EmptyTypes));
+
+        ts.EmitThis();
+        ts.EmitCall(typeof(Builtins).GetMethod("WriteFormat"));
+        ts.EmitReturn();
+      }
+
       if (id != null)
       {
         nongenerative[n + id] = rtd;
@@ -468,13 +477,22 @@ namespace IronScheme.Runtime.R6RS
       if (typedescriptors.TryGetValue(rec.GetType(), out rtd))
       {
         List<string> fields = new List<string>();
-        foreach (FieldDescriptor fd in rtd.fields)
-        {
-          fields.Add(string.Format("{0}:{1}", fd.name, WriteFormat(fd.accessor.Invoke(null, new object[] { rec }))));
-        }
-        return string.Format("#[{0} {1}]", rtd.name, string.Join(" ", fields.ToArray()));
+        GetFields(rec, rtd, fields);
+        return string.Format("#[{0}{1}]", rtd.name, string.Join("", fields.ToArray()));
       }
       return "not a record!!";
+    }
+
+    static void GetFields(object rec, RecordTypeDescriptor rtd, List<string> fields)
+    {
+      if (rtd.parent != null)
+      {
+        GetFields(rec, rtd.parent, fields);
+      }
+      foreach (FieldDescriptor fd in rtd.fields)
+      {
+        fields.Add(string.Format(" {0}:{1}", fd.name, WriteFormat(fd.accessor.Invoke(null, new object[] { rec }))));
+      }
     }
 
     [Builtin("record?")]

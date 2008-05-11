@@ -205,7 +205,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       if (ki < 0)
       {
-        return bi >> (int)ki;
+        return bi >> -(int)ki;
       }
       else
       {

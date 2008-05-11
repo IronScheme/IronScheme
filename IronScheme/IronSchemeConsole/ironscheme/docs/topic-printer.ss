@@ -1,11 +1,11 @@
-(library (docs topic-printer)
+(library (ironscheme docs topic-printer)
   (export 
     print-topic)
   (import
     (ironscheme)
     (ironscheme format)
     (ironscheme console)
-    (docs topic))
+    (ironscheme docs topic))
     
   (define (print-color color fmt . args)
     (let ((c (foreground-color)))

@@ -3,7 +3,8 @@
     make-thread
     thread?
     queue-work-item
-    start-thread)
+    start-thread
+    thread-sleep)
     
   (import 
     (rnrs)
@@ -24,6 +25,9 @@
     (case-lambda 
       [(proc)       (queue-work-item proc #f)]
       [(proc state) (clr-static-call threadpool queueuserworkitem proc state)]))
+      
+  (define (thread-sleep dur)
+    (clr-static-call thread sleep (clr-cast system.int32 dur)))      
       
   (clr-clear-usings)      
 )

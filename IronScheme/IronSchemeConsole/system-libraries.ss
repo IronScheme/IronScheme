@@ -17,6 +17,7 @@
 (import (ironscheme process))
 (import (ironscheme random))
 (import (ironscheme reader))
+(import (ironscheme record-case))
 (import (ironscheme regex))
 (import (ironscheme registry))
 (import (ironscheme strings))
@@ -25,6 +26,7 @@
 (import (ironscheme web))
 (import (ironscheme web-utils))
 (import (ironscheme xml))
+(import (ironscheme docs))
 
 (import (ironscheme collections arraylist))
 (import (ironscheme collections icollection))

@@ -1,12 +1,17 @@
-(library (docs)
-  (export help define-topic get-topic help-libraries topic->maml)
+(library (ironscheme docs)
+  (export 
+    help 
+    define-topic 
+    get-topic 
+    help-libraries 
+    topic->maml)
   (import 
     (ironscheme)
     (ironscheme format)
-    (docs topic)
-    (docs topic-manager)
-		(docs topic-printer)
-    (docs templates))
+    (ironscheme docs topic)
+    (ironscheme docs topic-manager)
+		(ironscheme docs topic-printer)
+    (ironscheme docs templates))
     
   (define (print-help t)
     (if (null? t)
@@ -29,7 +34,7 @@
 
 #|
 
-(import (docs))
+(import (ironscheme docs))
 
 (define-topic car                                 ; name
   (description "Gets the car element of a list")  ; optional

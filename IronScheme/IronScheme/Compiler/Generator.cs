@@ -212,10 +212,6 @@ namespace IronScheme.Compiler
             }
           }
         }
-        else if (!(ex is BoundExpression))
-        {
-          ;
-        }
 
         if (ex is ConstantExpression)
         {

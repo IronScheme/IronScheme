@@ -303,7 +303,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       int c = ++evalcounter;
 
-#if DEBUG
+#if DEBUG_EXTRA
 
       // bad for ASP.NET
       if (Assembly.GetEntryAssembly() != null)

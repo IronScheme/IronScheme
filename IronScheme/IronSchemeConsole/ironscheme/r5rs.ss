@@ -12,6 +12,7 @@
     
     null-environment
     scheme-report-environment
+    interaction-environment
   )
   
   (import 
