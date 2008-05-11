@@ -1,10 +1,10 @@
-(library (docs templates)
+(library (ironscheme docs templates)
   (export topic->maml)
   (import
     (ironscheme)
     (ironscheme format)
-    (docs topic)
-    (docs topic-manager)
+    (ironscheme docs topic)
+    (ironscheme docs topic-manager)
     (ironscheme xml))
 
   (define (flatten list)

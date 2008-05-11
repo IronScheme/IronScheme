@@ -15,6 +15,14 @@
 
 %{
 
+void FixLineNum(string text)
+{
+  if (text.EndsWith("\n") || text.EndsWith("\r"))
+  {
+    lNum--;
+  }
+}
+
 public override void yyerror(string format, params object[] args)
 {
   if (!format.Contains("EOF"))
@@ -26,40 +34,44 @@ public override void yyerror(string format, params object[] args)
 public int MakeSymbol()
 {
   string t = yytext;
+  FixLineNum(t);
   t = t.Substring(0, t.Length - 1);
   yylval.text = t;
   yyless(t.Length);
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.SYMBOL;
 }
 
 public int MakeBoolean()
 {
   string t = yytext;
+  FixLineNum(t);
   t = t.Substring(0, t.Length - 1);
   yylval.text = t;
   yyless(t.Length);
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.LITERAL;
 }
 
 public int MakeNumber()
 {
   string t = yytext;
+  FixLineNum(t);
   t = t.Substring(0, t.Length - 1);
   yylval.text = t;
   yyless(t.Length);
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.NUMBER;
 }
 
 public int MakeChar()
 {
   string t = yytext;
+  FixLineNum(t);
   t = t.Substring(0, t.Length - 1);
   yylval.text = Helper.ParseChar(t);
   yyless(t.Length);
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol - 1);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.CHARACTER;
 }
 
@@ -67,7 +79,7 @@ public int MakeChar()
 public int Make(Tokens token)
 {
   yylval.text = yytext;
-  yylloc = new LexLocation(tokLin,tokCol,tokELin,tokECol);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)token;
 }
 
@@ -83,9 +95,9 @@ comment_start          "#|"
 comment_end            "|#"
 
 white_space            [ \t]
-new_line               \n|\r\n|\r
+new_line               "\n\r"|\r|\n
 
-delimiter              [\[\]\(\)\";#\r\n\t ]
+delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
 but_delimiter          [^\[\]\(\)\";#\r\n\t ]
 
 

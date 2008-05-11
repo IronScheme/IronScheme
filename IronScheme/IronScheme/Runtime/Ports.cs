@@ -592,7 +592,7 @@ namespace IronScheme.Runtime
 
         if (v.Count == 0)
         {
-          return "#<hashtable>";
+          return "#[hashtable]";
         }
 
         return string.Join(Environment.NewLine, v.ToArray());
@@ -773,7 +773,7 @@ namespace IronScheme.Runtime
         return R6RS.Records.PrintRecord(obj);
       }
 
-      return obj.ToString();
+      return string.Format("#[{0}]", obj.GetType().Name);
     }
 
     [Builtin("write")]

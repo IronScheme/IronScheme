@@ -200,9 +200,6 @@ SectionIn 1 2 RO
 	SetOutPath "$INSTDIR\examples"
 	File /r examples\*.ss
 	
-	SetOutPath "$INSTDIR\docs"
-	File /r docs\*.ss	
-	
 	SetOutPath "$INSTDIR\ironscheme"
 	File /r ironscheme\*.ss
 	File /r ironscheme\*.fasl

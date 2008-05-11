@@ -1,4 +1,4 @@
-(library (docs topic-manager)
+(library (ironscheme docs topic-manager)
   (export
     define-topic
     install-topic
@@ -9,7 +9,7 @@
   (import 
     (ironscheme)
     (ironscheme format)
-    (docs topic))
+    (ironscheme docs topic))
     
   (define libraries (make-eqv-hashtable))  
   (define topics (make-eqv-hashtable))
