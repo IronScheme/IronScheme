@@ -394,13 +394,10 @@ A ""contributor"" is any person that distributes its contribution under this lic
       else if (expr is SymbolId)
       {
         object o;
+        // this could fail if the name is mangled
         if (cc.Scope.TryGetName((SymbolId)expr, out o))
         {
           return o;
-        }
-        else
-        {
-          return UndefinedError(expr);
         }
       }
       else
