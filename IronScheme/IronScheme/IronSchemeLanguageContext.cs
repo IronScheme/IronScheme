@@ -82,7 +82,7 @@ namespace IronScheme
             }
             if (code.Length > 0)
             {
-              code = string.Format("(eval-r6rs '{0})", code.Trim());
+              code = string.Format("(eval-r6rs '(begin {0}))", code.Trim());
             }
 
             CodeBlock cb = ParseString(code, context);

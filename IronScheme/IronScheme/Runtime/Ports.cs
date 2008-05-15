@@ -680,10 +680,25 @@ namespace IronScheme.Runtime
       }
       if (obj is string || obj is StringBuilder)
       {
-        return string.Format("\"{0}\"", obj.ToString().Replace("\n","\\n").Replace("\r","\\r").Replace("\t","\\t").Replace("\\", "\\\\"));
+        return string.Format("\"{0}\"", obj.ToString().Replace("\n","\\n").Replace("\r","\\r").
+          Replace("\t","\\t").Replace("\\", "\\\\").Replace("\"", "\\\""));
       }
       if (obj is char)
       {
+        switch ((char)obj)
+        {
+          case (char) 0: return "#\\nul";
+          case (char) 7: return "#\\alarm";
+          case (char) 8: return "#\\backspace";
+          case (char) 9: return "#\\tab";
+          case (char) 10: return "#\\newline";
+          case (char) 11: return "#\\vtab";
+          case (char) 12: return "#\\page";
+          case (char) 13: return "#\\return";
+          case (char) 27: return "#\\esc";
+          case (char) 127: return "#\\delete";
+        }
+
         return string.Format("#\\{0}", obj);
       }
 
