@@ -16,7 +16,7 @@
 using System;
 using System.Diagnostics;
 using System.CodeDom.Compiler;
-
+#if FULL
 namespace Microsoft.Scripting {
     /// <summary>
     /// Implements explicit casts supported by the runtime.
@@ -1679,3 +1679,4 @@ namespace Microsoft.Scripting {
         internal static readonly Type NullableType = typeof(Nullable<>);
     }
 }
+#endif
