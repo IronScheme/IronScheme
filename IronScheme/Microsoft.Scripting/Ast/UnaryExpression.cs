@@ -79,9 +79,10 @@ namespace Microsoft.Scripting.Ast {
         protected override object DoEvaluate(CodeContext context) {
             object x = _operand.Evaluate(context);
             switch (NodeType) {
+#if FULL
                 case AstNodeType.Convert:
                     return Cast.Explicit(x, _type);
-
+#endif
                 case AstNodeType.Not:
                     if (x is bool) return (bool)x ? RuntimeHelpers.False : RuntimeHelpers.True;
                     if (x is int) return (int)~(int)x;

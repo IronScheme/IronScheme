@@ -15,7 +15,7 @@
 
 using System;
 using System.Diagnostics;
-
+#if FULL
 namespace Microsoft.Scripting {
     /// <summary>
     /// Implements explicit casts supported by the runtime.
@@ -145,3 +145,4 @@ namespace Microsoft.Scripting {
         }
     }
 }
+#endif

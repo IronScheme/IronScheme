@@ -175,7 +175,9 @@ namespace Microsoft.Scripting.Actions {
             }
         }
 
-        protected void DiscoverAllTypes(Assembly assem) {
+        protected void DiscoverAllTypes(Assembly assem)
+        {
+#if FULL
             NamespaceTracker previousPackage = null;
             string previousFullNamespace = String.Empty; // Note that String.Empty is not a valid namespace
 
@@ -194,6 +196,7 @@ namespace Microsoft.Scripting.Actions {
 
                 package.AddTypeName(typeName.Name, assem);
             }
+#endif
         }
 
         /// <summary>

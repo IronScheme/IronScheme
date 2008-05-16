@@ -20,7 +20,7 @@ using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
 using Microsoft.Scripting.Actions;
-
+#if FULL
 namespace Microsoft.Scripting {
 
     internal struct TypeName {
@@ -4012,3 +4012,4 @@ namespace Microsoft.Scripting {
 #endif
     }
 }
+#endif
