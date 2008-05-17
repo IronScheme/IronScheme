@@ -37,7 +37,11 @@ namespace Microsoft.Scripting.Hosting {
         // well known services:
         IScriptEngine GetEngine();
         IScriptEngine GetEngine(EngineOptions options);
-        ITokenCategorizer GetTokenCategorizer();
+
+#if FULL
+        ITokenCategorizer GetTokenCategorizer(); 
+#endif
+
 
         // TODO:
         OptionsParser GetOptionsParser(); // TODO
@@ -95,9 +99,13 @@ namespace Microsoft.Scripting.Hosting {
             return this.GetEngine(options);
         }
 
+
+#if FULL
         ITokenCategorizer ILanguageProvider.GetTokenCategorizer() {
             return this.GetTokenCategorizer();
-        }
+        } 
+#endif
+
 
         #endregion
 
@@ -115,9 +123,13 @@ namespace Microsoft.Scripting.Hosting {
             throw new NotSupportedException(String.Format(Resources.MissingService_OptionsParser, LanguageDisplayName));
         }
 
+
+#if FULL
         public virtual TokenCategorizer GetTokenCategorizer() {
             throw new NotSupportedException(String.Format(Resources.MissingService_TokenCategorizer, LanguageDisplayName));
-        }
+        } 
+#endif
+
 
         #endregion
 
@@ -156,10 +168,14 @@ namespace Microsoft.Scripting.Hosting {
                 return (ServiceType)(object)GetEngine(GetArg<EngineOptions>(args, 0, true));
             }
 
+
+#if FULL
             if (service_type == typeof(ITokenCategorizer)) {
                 return (ServiceType)(object)GetTokenCategorizer();
-            }
-            
+            } 
+#endif
+
+
             if (service_type == typeof(IConsole)) {
                 return (ServiceType)GetConsole(GetArg<CommandLine>(args, 0, false), GetArg<ScriptEngine>(args, 1, false), GetArg<ConsoleOptions>(args, 2, false));
             }

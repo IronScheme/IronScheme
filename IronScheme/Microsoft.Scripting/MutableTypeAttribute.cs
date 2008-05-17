@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -24,3 +26,5 @@ namespace Microsoft.Scripting {
     public sealed class MutableTypeAttribute : Attribute {
     }
 }
+
+#endif	

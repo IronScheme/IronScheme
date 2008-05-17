@@ -1731,6 +1731,9 @@ namespace IronScheme.Runtime
 
     #region MathHelper
 
+    delegate R Function<T, R>(T t);
+    delegate R Function<T1, T2, R>(T1 t1, T2 t2);
+
     static double SafeConvert(object obj)
     {
       try

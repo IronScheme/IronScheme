@@ -30,7 +30,10 @@ namespace Microsoft.Scripting {
         #endregion
 
         public static Type GetTargetType(bool needsContext, int nargs, bool needsThis) {
-            if (needsThis) {
+            if (needsThis)
+            {
+
+#if FULL
                 if (needsContext) {
                     switch (nargs) {
                         case 0: return typeof(CallTargetWithContextAndThis0);
@@ -49,7 +52,9 @@ namespace Microsoft.Scripting {
                         case 4: return typeof(CallTargetWithThis4);
                         case 5: return typeof(CallTargetWithThis5);
                     }
-                }
+                } 
+#endif
+
             } else {
                 return GetTargetType(needsContext, nargs);
             }
@@ -83,8 +88,12 @@ namespace Microsoft.Scripting {
 
     public delegate object CallTargetN(params object[] args);
     public delegate object CallTargetWithContextN(CodeContext context, params object[] args);
+
+#if FULL
     public delegate object CallTargetWithThisN(object instance, params object[] args);
-    public delegate object CallTargetWithContextAndThisN(CodeContext context, object instance, params object[] args);
+    public delegate object CallTargetWithContextAndThisN(CodeContext context, object instance, params object[] args); 
+#endif
+
 
     #region Generated Contextless CallTargets
 
@@ -120,6 +129,8 @@ namespace Microsoft.Scripting {
 
     #endregion
 
+
+#if FULL
     #region Generated CallTargets WithThis
 
     // *** BEGIN GENERATED CODE ***
@@ -152,6 +163,8 @@ namespace Microsoft.Scripting {
 
     // *** END GENERATED CODE ***
 
-    #endregion
+    #endregion 
+#endif
 
-}
+
+  }

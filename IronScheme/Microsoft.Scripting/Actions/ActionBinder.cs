@@ -623,9 +623,13 @@ private readonly RuleCache _ruleCache = new RuleCache();
                         deleter = (MethodInfo)mi;
                     }
 
+
+#if FULL
                     if (getter != null || setter != null || deleter != null) {
                         members.Add(new ExtensionPropertyTracker(name, getter, setter, deleter, curType));
-                    }
+                    } 
+#endif
+
                 }
 
                 if (members.Count != 0) {

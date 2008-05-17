@@ -27,3 +27,7 @@ namespace Microsoft.Scripting {
         public OperatorSlotAttribute() { }
     }
 }
+
+#if FULL
+
+#endif

@@ -24,3 +24,7 @@ namespace Microsoft.Scripting {
         public PropertyMethodAttribute() { }
     }
 }
+
+#if FULL
+
+#endif

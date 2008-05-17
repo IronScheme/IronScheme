@@ -52,7 +52,11 @@ namespace Microsoft.Scripting.Generation {
             _index = index;
             _parameterType = parameterType;
             _isParams = CompilerHelpers.IsParamArray(paramInfo);
-            _isParamsDict = CompilerHelpers.IsParamDictionary(paramInfo);
+
+#if FULL
+            _isParamsDict = CompilerHelpers.IsParamDictionary(paramInfo); 
+#endif
+
         }
 
         public override int Priority {
