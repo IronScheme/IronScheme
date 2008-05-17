@@ -41,6 +41,8 @@ namespace Microsoft.Scripting.Ast {
             _statement.Emit(cg);
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object ret = _statement.Execute(context);
             // The interpreter is not able to deal with control flow inside of expressions
@@ -50,7 +52,9 @@ namespace Microsoft.Scripting.Ast {
             }
 
             return null;
-        }
+        } 
+#endif
+
     }
 
     /// <summary>

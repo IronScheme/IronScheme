@@ -99,13 +99,17 @@ namespace Microsoft.Scripting {
             codeContext.ModuleContext.CompilerContext =_compilerContext;
             _languageContext.ModuleContextEntering(codeContext.ModuleContext);
 
-            
+
+
+#if FULL
             bool doEvaluation = tryEvaluate || _languageContext.Engine.Options.InterpretedMode;
             if (_simpleTarget == null && _optimizedTarget == null
                 && doEvaluation
                 && Ast.InterpretChecker.CanEvaluate(CodeBlock, _languageContext.Engine.Options.ProfileDrivenCompilation)) {
                 return CodeBlock.TopLevelExecute(codeContext);
-            }
+            } 
+#endif
+
 
             if (codeContext.Scope == _optimizedScope) { // flag on scope - "IsOptimized"?
                 // TODO: why do we create a code context here?

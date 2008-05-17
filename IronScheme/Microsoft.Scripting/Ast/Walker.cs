@@ -69,9 +69,13 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.TypeIs:
                     DefaultWalk((TypeBinaryExpression)node);
                     break;
+
+#if FULL
                 case AstNodeType.ActionExpression:
                     DefaultWalk((ActionExpression)node);
-                    break;
+                    break; 
+#endif
+
                 case AstNodeType.ArrayIndexAssignment:
                     DefaultWalk((ArrayIndexAssignment)node);
                     break;
@@ -195,7 +199,9 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        // ActionExpression
+
+#if FULL
+       // ActionExpression
         private void DefaultWalk(ActionExpression node) {
             if (Walk(node)) {
                 foreach (Expression ex in node.Arguments) {
@@ -203,7 +209,9 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
             PostWalk(node);
-        }
+        } 
+#endif
+
 
         // ArrayIndexAssignment
         private void DefaultWalk(ArrayIndexAssignment node) {

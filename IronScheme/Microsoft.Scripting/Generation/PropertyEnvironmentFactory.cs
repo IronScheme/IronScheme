@@ -66,8 +66,8 @@ namespace Microsoft.Scripting.Generation {
 
         public override void EmitStorage(CodeGen cg) {
             cg.EmitNew(StorageType.GetConstructor(ArrayUtils.EmptyTypes));
-            cg.Emit(OpCodes.Dup);
-            EmitNestedTupleInit(cg, StorageType);
+            //cg.Emit(OpCodes.Dup);
+            //EmitNestedTupleInit(cg, StorageType);
         }
 
         private static void EmitNestedTupleInit(CodeGen cg, Type storageType) {

@@ -54,8 +54,10 @@ namespace Microsoft.Scripting.Ast {
             _member = member;
             _expression = expression;
             _value = value;
-        }
+            }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object target = _expression != null ? _expression.Evaluate(context) : null;
             object value = _value.Evaluate(context);
@@ -74,7 +76,9 @@ namespace Microsoft.Scripting.Ast {
                     break;
             }
             return null;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             // emit "this", if any

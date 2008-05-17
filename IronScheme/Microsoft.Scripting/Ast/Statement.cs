@@ -59,6 +59,8 @@ namespace Microsoft.Scripting.Ast {
             _end = span.End;
         }
 
+
+#if FULL
         public object Execute(CodeContext context) {
             context.Scope.SourceLocation = Start;
 
@@ -83,7 +85,9 @@ namespace Microsoft.Scripting.Ast {
 
         protected virtual object DoExecute(CodeContext context) {
             throw new NotImplementedException(String.Format(CultureInfo.CurrentCulture, Resources.NotImplemented_Execute, this));
-        }
+        } 
+#endif
+
 
         public abstract void Emit(CodeGen cg);
     }

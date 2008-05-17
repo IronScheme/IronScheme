@@ -58,6 +58,8 @@ namespace Microsoft.Scripting {
             return new MethodBinder(binder, name, mis, binderType, SymbolId.EmptySymbols);
         }
 
+
+#if FULL
         public AbstractValue AbstractCall(CallType callType, IList<AbstractValue> args) {
             TargetSet ts = this.GetTargetSet(args.Count);
             if (ts != null) {
@@ -65,7 +67,9 @@ namespace Microsoft.Scripting {
             } else {
                 return AbstractValue.TypeError(BadArgumentCount(callType, args.Count).Message);
             }
-        }
+        } 
+#endif
+
 
         public MethodCandidate MakeBindingTarget(CallType callType, Type[] types) {
             Type[] dummy;
@@ -513,6 +517,8 @@ namespace Microsoft.Scripting {
             return null;
         }
 
+#if FULL
+
         public AbstractValue AbstractCall(CallType callType, IList<AbstractValue> args) {
             Type[] types = AbstractValue.GetTypes(args);
             List<MethodCandidate> targets = SelectTargets(callType, types, SymbolId.EmptySymbols);
@@ -526,7 +532,9 @@ namespace Microsoft.Scripting {
                     return AbstractValue.TypeError(MultipleTargetsMessage(targets, callType, types));
                 }
             }
-        }
+        } 
+#endif
+
 
         public object CallReflected(CodeContext context, CallType callType, object[] args, SymbolId[] names) {
             List<MethodCandidate> targets = FindTarget(callType, args, names);

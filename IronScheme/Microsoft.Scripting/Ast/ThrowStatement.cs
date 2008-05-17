@@ -35,13 +35,17 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             if (_val == null) {
                 throw TryStatement.LastEvalException;
             } else {
                 throw (Exception)_val.Evaluate(context);
             }
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Start, End);

@@ -37,6 +37,8 @@ namespace Microsoft.Scripting.Ast {
             get { return _else; }
         }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             foreach (IfStatementTest t in _tests) {
                 object val = t.Test.Evaluate(context);
@@ -48,7 +50,9 @@ namespace Microsoft.Scripting.Ast {
                 return _else.Execute(context);
             }
             return NextStatement;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             bool eoiused = false;

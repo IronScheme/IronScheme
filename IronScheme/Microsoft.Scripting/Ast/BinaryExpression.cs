@@ -337,6 +337,8 @@ namespace Microsoft.Scripting.Ast {
             return;
         }
 
+
+#if FULL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected override object DoEvaluate(CodeContext context) {
@@ -470,7 +472,9 @@ namespace Microsoft.Scripting.Ast {
             if (l is long) return (long)l ^ (long)r;
             if (l is ulong) return (ulong)l ^ (ulong)r;
             throw new InvalidOperationException("xor: {0} " + CompilerHelpers.GetType(l).Name);
-        }
+        } 
+#endif
+
 
         private bool TestEquals(object l, object r) {
             // We don't need to go through the same type checks as the emit case,

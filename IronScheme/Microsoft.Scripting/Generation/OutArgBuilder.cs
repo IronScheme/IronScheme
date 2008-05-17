@@ -30,7 +30,7 @@ namespace Microsoft.Scripting.Generation {
     class OutArgBuilder : ArgBuilder {
         private Type _parameterType;
         private bool _isRef;
-        private Variable _tmp;
+        private Variable _tmp = null;
 
         public OutArgBuilder(ParameterInfo parameter) {
             _parameterType = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
@@ -41,15 +41,20 @@ namespace Microsoft.Scripting.Generation {
             get { return 5; }
         }
 
-        internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters) {
+        internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters)
+        {
+
+#if FULL
             if (_isRef) {
                 if (_tmp == null) {
                     _tmp = context.GetTemporary(_parameterType, "outParam");
                 }
                 return Ast.Read(_tmp);
-            }
+            } 
+#endif
 
-            return GetDefaultValue();
+
+          return GetDefaultValue();
         }
 
         internal override Expression CheckExpression(MethodBinderContext context, Expression[] parameters) {

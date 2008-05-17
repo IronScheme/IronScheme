@@ -87,9 +87,13 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             return _block.GetDelegateForInterpreter(context, _delegateType, _forceWrapperMethod);
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             _block.EmitDelegateConstruction(cg, _forceWrapperMethod, _stronglyTyped, _delegateType);

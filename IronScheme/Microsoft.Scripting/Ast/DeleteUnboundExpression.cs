@@ -37,9 +37,13 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitCall(typeof(RuntimeHelpers), "RemoveName");
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             return RuntimeHelpers.RemoveName(context, _name);
-        }
+        } 
+#endif
+
     }
 
     public static partial class Ast {

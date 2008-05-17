@@ -38,6 +38,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             CompilerConstant cc = _value as CompilerConstant;
             if (cc != null) {
@@ -45,11 +47,17 @@ namespace Microsoft.Scripting.Ast {
             }
 
             return _value;
-        }
+        } 
+#endif
 
+
+
+#if FULL
         public override AbstractValue AbstractEvaluate(AbstractContext context) {
             return AbstractValue.Constant(_value, this);
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             cg.EmitConstant(_value);

@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -34,3 +36,5 @@ namespace Microsoft.Scripting {
         public abstract StandardRule<T> GetRule<T>(CodeContext callerContext, object[] args);
     }
 }
+
+#endif	

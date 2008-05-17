@@ -43,11 +43,15 @@ namespace Microsoft.Scripting.Ast {
             get { return _value; }
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object value = _value.Evaluate(context);
             RuntimeHelpers.SetName(context, _name, value);
             return value;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
           EmitLocation(cg);

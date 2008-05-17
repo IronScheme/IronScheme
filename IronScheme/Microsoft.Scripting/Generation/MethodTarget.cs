@@ -114,7 +114,9 @@ namespace Microsoft.Scripting.Generation {
             return _returnBuilder.Build(context, callArgs, args, result);
         }
 
-        public Expression MakeExpression(ActionBinder binder, StandardRule rule, Expression[] parameters) {
+
+#if FULL
+public Expression MakeExpression(ActionBinder binder, StandardRule rule, Expression[] parameters) {
             MethodBinderContext context = new MethodBinderContext(binder, rule);
 
             Expression check = Ast.True();
@@ -194,7 +196,9 @@ namespace Microsoft.Scripting.Generation {
                 );
             }
             return ret;
-        }
+      } 
+#endif
+
 
         private static MethodCallExpression GetNotImplemented() {
             return Ast.Call(
@@ -208,6 +212,8 @@ namespace Microsoft.Scripting.Generation {
             );
         }
 
+
+#if FULL
         /// <summary>
         /// Creates a call to this MethodTarget with the specified parameters.  Casts are inserted to force
         /// the types to the provided known types.
@@ -230,7 +236,11 @@ namespace Microsoft.Scripting.Generation {
             }
 
             return MakeExpression(binder, rule, args);
-        }
+        } 
+#endif
+
+
+#if FULL
 
         public AbstractValue AbstractCall(AbstractContext context, IList<AbstractValue> args) {
             AbstractValue[] callArgs = new AbstractValue[_argBuilders.Count];
@@ -261,7 +271,9 @@ namespace Microsoft.Scripting.Generation {
             }
 
             return AbstractValue.LimitType(this.ReturnType, callExpr);
-        }
+        } 
+#endif
+
 
         private static int FindMaxPriority(IList<ArgBuilder> abs, int ceiling) {
             int max = 0;

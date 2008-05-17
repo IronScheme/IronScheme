@@ -58,6 +58,8 @@ namespace Microsoft.Scripting.Ast {
             get { return _else; }
         }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             object ret = NextStatement;
             while (_test == null || (bool)_test.Evaluate(context)) {
@@ -75,7 +77,9 @@ namespace Microsoft.Scripting.Ast {
                 return _else.Execute(context);
             }
             return NextStatement;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             Nullable<Label> firstTime = null;

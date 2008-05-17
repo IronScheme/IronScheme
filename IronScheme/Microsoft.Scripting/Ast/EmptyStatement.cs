@@ -19,11 +19,15 @@ namespace Microsoft.Scripting.Ast {
     public class EmptyStatement : Statement {
         internal EmptyStatement(SourceSpan span)
             : base(AstNodeType.EmptyStatement, span) {
-        }
+            }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             return NextStatement;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Start, End);

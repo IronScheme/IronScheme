@@ -52,15 +52,21 @@ namespace Microsoft.Scripting.Ast {
         private static int _Counter = 0;
         private static string[] _GeneratorSigNames = new string[] { "$gen", "$ret" };
 
+
+#if FULL
         // Interpreted mode: Cache for emitted delegate so that we only generate code once.
-        private Delegate _delegate;
+        private Delegate _delegate; 
+#endif
+
 
         internal GeneratorCodeBlock(SourceSpan span, string name, Type generator, Type next)
             : base(AstNodeType.GeneratorCodeBlock, span, name, typeof(object)) {
             _generator = generator;
             _next = next;
-        }
+            }
 
+
+#if FULL
         public override Delegate GetDelegateForInterpreter(CodeContext context, Type delegateType, bool forceWrapperMethod) {
             // For now, always return a compiled delegate (since yield is not implemented)
             lock (this) {
@@ -70,7 +76,9 @@ namespace Microsoft.Scripting.Ast {
                 }
                 return _delegate;
             }
-        }
+        } 
+#endif
+
 
         internal protected override void EmitBody(CodeGen cg) {
             if (!cg.HasAllocator) {

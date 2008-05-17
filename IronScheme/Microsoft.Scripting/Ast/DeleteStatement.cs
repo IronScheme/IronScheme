@@ -49,6 +49,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             switch (_var.Kind) {
                 case Variable.VariableKind.Temporary:
@@ -64,7 +66,9 @@ namespace Microsoft.Scripting.Ast {
             }
             
             return Statement.NextStatement;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Start, End);

@@ -112,6 +112,8 @@ namespace Microsoft.Scripting.Generation {
                 val = CompilerHelpers.GetMissingValue(_argumentType);
             }
 
+
+#if FULL
             if (_argumentType.IsByRef) {
                 Variable tmp = context.GetTemporary(_argumentType.GetElementType(), "optRef");
                 return Ast.Comma(
@@ -121,7 +123,9 @@ namespace Microsoft.Scripting.Generation {
                     ),
                     Ast.Read(tmp)
                 );
-            }
+            } 
+#endif
+
 
             return context.ConvertExpression(Ast.Constant(val), _argumentType);            
         }

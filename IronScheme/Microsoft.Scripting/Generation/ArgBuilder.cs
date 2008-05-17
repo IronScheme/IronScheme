@@ -29,9 +29,13 @@ namespace Microsoft.Scripting.Generation {
             get;
         }
 
+
+#if FULL
         public virtual AbstractValue AbstractBuild(AbstractContext context, IList<AbstractValue> parameters) {
             throw new NotImplementedException();
-        }
+        } 
+#endif
+
 
         /// <summary>
         /// Provides the Expression which provides the value to be passed to the argument.

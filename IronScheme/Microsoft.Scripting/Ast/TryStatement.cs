@@ -111,6 +111,8 @@ namespace Microsoft.Scripting.Ast {
             get { return _finally; }
         }
 
+
+#if FULL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2219:DoNotRaiseExceptionsInExceptionClauses")]
         protected override object DoExecute(CodeContext context) {
             bool rethrow = false;
@@ -152,7 +154,9 @@ namespace Microsoft.Scripting.Ast {
             }
 
             return ret;
-        }
+        } 
+#endif
+
 
         private static void PopEvalException() {
             _evalExceptions.RemoveAt(_evalExceptions.Count - 1);

@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -67,3 +69,5 @@ namespace Microsoft.Scripting.Actions {
         }
     }
 }
+
+#endif	

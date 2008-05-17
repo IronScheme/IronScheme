@@ -53,6 +53,8 @@ namespace Microsoft.Scripting.Ast {
             );
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             if (_type.GetElementType().IsValueType) {
                 // value arrays cannot be cast to object arrays
@@ -69,7 +71,9 @@ namespace Microsoft.Scripting.Ast {
                 }
                 return contents;
             }
-        }
+        } 
+#endif
+
     }
 
     /// <summary>

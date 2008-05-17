@@ -47,7 +47,11 @@ namespace Microsoft.Scripting {
         private static TopNamespaceTracker _topNamespace;
 
         /// <summary> Table of dynamicly generated delegates which are shared based upon method signature. </summary>
-        private static Publisher<DelegateSignatureInfo, DelegateInfo> _dynamicDelegateCache = new Publisher<DelegateSignatureInfo, DelegateInfo>();
+
+#if FULL
+        private static Publisher<DelegateSignatureInfo, DelegateInfo> _dynamicDelegateCache = new Publisher<DelegateSignatureInfo, DelegateInfo>(); 
+#endif
+
         private static Dictionary<Type, List<Type>> _extensionTypes = new Dictionary<Type, List<Type>>();
 
         private static object[] MakeCache() {
@@ -239,6 +243,8 @@ namespace Microsoft.Scripting {
             return new CodeContext(new Scope(context.Scope, locals, visible), context.LanguageContext, context.ModuleContext);
         }
 
+#if FULL
+
         #region Dynamic Sites Construction Helpers // TODO: generate this
 
         public static DynamicSite<T0, R> CreateSimpleCallSite<T0, R>() {
@@ -357,6 +363,8 @@ namespace Microsoft.Scripting {
 
         #endregion
 
+#endif
+
         public static IAttributesCollection GetLocalDictionary(CodeContext context) {
             return context.Scope.Dict;
         }
@@ -393,6 +401,8 @@ namespace Microsoft.Scripting {
             throw SimpleAttributeError(String.Format("{0} {1} is read-only", field ? "Field" : "Property", fieldName));
         }
 
+
+#if FULL
         public static DynamicStackFrame[] GetDynamicStackFrames(Exception e) {
             return GetDynamicStackFrames(e, true);
         }
@@ -456,7 +466,9 @@ namespace Microsoft.Scripting {
 #else 
             return frames.ToArray();
 #endif
-        }
+        } 
+#endif
+
         public static TopNamespaceTracker TopNamespace {
             get {
                 if (_topNamespace == null)
@@ -484,6 +496,8 @@ namespace Microsoft.Scripting {
                 return result;
             }
 
+
+#if FULL
             IDynamicObject dynamicObject = callableObject as IDynamicObject;
             if (dynamicObject != null) {
 
@@ -517,7 +531,9 @@ namespace Microsoft.Scripting {
                 if (result != null) {
                     return result;
                 }
-            }
+            } 
+#endif
+
 
             throw RuntimeHelpers.SimpleTypeError("Object is not callable.");
         }

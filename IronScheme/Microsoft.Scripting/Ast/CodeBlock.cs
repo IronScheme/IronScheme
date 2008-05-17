@@ -66,14 +66,22 @@ namespace Microsoft.Scripting.Ast {
         private bool _visibleScope = true;
         private bool _parameterArray;
         internal bool Checked = false;
-        
+
+
+#if FULL
         // Interpreted mode: Cache for emitted delegate so that we only generate code once.
-        private Delegate _delegate;
+        private Delegate _delegate; 
+#endif
+
 
         // Profile-driven compilation support
         private int _callCount = 0;
+
+#if FULL
         private CompilerContext _declaringContext;
-        private bool _forceWrapperMethod;
+        private bool _forceWrapperMethod; 
+#endif
+
         private const int _maxInterpretedCalls = 2;
         
         /// <summary>
@@ -493,6 +501,8 @@ namespace Microsoft.Scripting.Ast {
             _generatorTemps += count;
         }
 
+
+#if FULL
         private object DoExecute(CodeContext context) {
             object ret;
 
@@ -543,7 +553,9 @@ namespace Microsoft.Scripting.Ast {
                 //RuntimeHelpers.ClearDynamicStackFrames();
                 //throw; // ExceptionHelpers.UpdateForRethrow(e);
             }
-        }
+        } 
+#endif
+
 
         protected bool NeedsWrapperMethod(bool stronglyTyped) {
             return _parameters.Count > (stronglyTyped ? ReflectionUtils.MaxSignatureSize - 1 : CallTargets.MaximumCallArgs);
@@ -572,6 +584,8 @@ namespace Microsoft.Scripting.Ast {
             return _callCount++ > _maxInterpretedCalls;
         }
 
+
+#if FULL
         public class CodeBlockInvoker {
             private CodeBlock _block;
             private CodeContext _context;
@@ -740,9 +754,11 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
             throw new InvalidOperationException(String.Format("failed to make delegate for type {0}", delegateType.FullName));
-        }
+        } 
+#endif
 
-      public void Update()
+
+        public void Update()
       {
         FlowChecker.Check(this);
       }
@@ -1110,10 +1126,12 @@ namespace Microsoft.Scripting.Ast {
             return wrapper;
         }
 
-        internal void EmitFunctionImplementation(CodeGen impl) {
-            CompilerHelpers.EmitStackTraceTryBlockStart(impl);
-
-            // emit the actual body
+        internal void EmitFunctionImplementation(CodeGen impl)
+        {
+#if FULL
+            CompilerHelpers.EmitStackTraceTryBlockStart(impl); 
+#endif
+          // emit the actual body
             EmitBody(impl);
 
             string displayName;
@@ -1123,8 +1141,9 @@ namespace Microsoft.Scripting.Ast {
             } else {
                 displayName = _name;
             }
-
+#if FULL
             CompilerHelpers.EmitStackTraceFaultBlock(impl, _name, displayName);
+#endif
         }
 
         internal protected virtual void EmitBody(CodeGen cg) {
@@ -1138,55 +1157,9 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
 
-            EmitStartPosition(cg);
-
             Body.Emit(cg);
-
-            //EmitEndPosition(cg);
-
-            // cheap check
-            //if (HasReturn(Body))
-            //{
-            //  return;
-            //}
-
-            //cg.EmitReturn(null); //TODO skip if Body is guaranteed to return
         }
 
-      bool HasReturn(Statement stmt)
-      {
-        if (stmt is ReturnStatement)
-        {
-          return true;
-        }
-        if (stmt is BlockStatement)
-        {
-
-          IList<Statement> stmts = ((BlockStatement)Body).Statements;
-          if (stmts.Count == 0)
-          {
-            return false;
-          }
-          return HasReturn(stmts[stmts.Count - 1]);
-        }
-        if (stmt is IfStatement)
-        {
-          // wierd bug here... causes infinite loop...
-          //IfStatement ist = (IfStatement)stmt;
-          //bool t = true;
-
-          //foreach (IfStatementTest st in ist.Tests)
-          //{
-          //  t &= HasReturn(st.Body);
-          //  if (!t)
-          //  {
-          //    return false;
-          //  }
-          //}
-          //return t & HasReturn(ist.ElseStatement);
-        }
-        return false;
-      }
 
         private void EmitStartPosition(CodeGen cg) {
             // ensure a break point exists at the top

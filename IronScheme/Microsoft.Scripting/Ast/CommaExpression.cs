@@ -91,6 +91,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object result = null;
             for (int index = 0; index < _expressions.Count; index++) {
@@ -105,8 +107,12 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
             return result;
-        }
+        } 
+#endif
 
+
+
+#if FULL
         class CommaAddress : EvaluationAddress {
             private List<EvaluationAddress> _addrs;
 
@@ -141,8 +147,12 @@ namespace Microsoft.Scripting.Ast {
                     return ((CommaExpression)Expression)._valueIndex;
                 }
             }
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal override EvaluationAddress EvaluateAddress(CodeContext context) {
             List<EvaluationAddress> addresses = new List<EvaluationAddress>();
             foreach(Expression current in _expressions) {
@@ -153,7 +163,9 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
             return new CommaAddress(this, addresses);
-        }
+        } 
+#endif
+
 
         internal override void EmitAddress(CodeGen cg, Type asType) {
             for (int index = 0; index < _expressions.Count; index++) {

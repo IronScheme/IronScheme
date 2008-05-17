@@ -79,16 +79,26 @@ namespace Microsoft.Scripting.Ast {
             _vr.Slot.EmitSet(cg);
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object value = _value.Evaluate(context);
             EvaluateAssign(context, _variable, value);
             return value;
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal override object EvaluateAssign(CodeContext context, object value) {
             return EvaluateAssign(context, Variable, value);
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal static object EvaluateAssign(CodeContext context, Variable var, object value) {
             switch (var.Kind) {
                 case Variable.VariableKind.Temporary:
@@ -103,7 +113,9 @@ namespace Microsoft.Scripting.Ast {
                     break;
             }
             return value;
-        }
+        } 
+#endif
+
     }
 
     public static partial class Ast {

@@ -53,6 +53,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+#if FULL
+
         protected override object DoEvaluate(CodeContext context) {
             object ret = _test.Evaluate(context);
             if ((bool)ret) {
@@ -60,8 +62,12 @@ namespace Microsoft.Scripting.Ast {
             } else {
                 return _false.Evaluate(context);
             }
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal override EvaluationAddress EvaluateAddress(CodeContext context) {
             object ret = _test.Evaluate(context);
 
@@ -70,7 +76,9 @@ namespace Microsoft.Scripting.Ast {
             } else {
                 return _false.EvaluateAddress(context);
             }
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             Label eoi = cg.DefineLabel();
