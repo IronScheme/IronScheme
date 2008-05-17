@@ -127,7 +127,7 @@ namespace IronScheme.Compiler
       }
       else if (t.IsValueType)
       {
-        return Ast.DynamicConvert(e, typeof(object));
+        return Ast.Convert(e, typeof(object));
       }
       else
       {

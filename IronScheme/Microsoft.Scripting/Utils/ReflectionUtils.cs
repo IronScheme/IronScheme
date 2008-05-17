@@ -227,6 +227,8 @@ namespace Microsoft.Scripting.Utils {
             return result;
         }
 
+
+#if FULL
         public static Type GetDelegateType(Type[] arguments, Type returnType) {
             Assert.NotNull(arguments, returnType);
             Type result;
@@ -262,7 +264,9 @@ namespace Microsoft.Scripting.Utils {
             }
 
             return result.MakeGenericType(arguments);
-        }
+        } 
+#endif
+
 
         public const int MaxSignatureSize = 8;
 

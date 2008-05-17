@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -85,9 +87,13 @@ namespace Microsoft.Scripting.Actions {
             return new ParameterInfo[0];
         }
 
+
+#if FULL
         private bool IsStaticProperty(MethodInfo method) {            
             return method.IsDefined(typeof(StaticExtensionMethodAttribute), false);
-        }
+        } 
+#endif
+
 
         public override Type PropertyType {
             get {
@@ -99,3 +105,5 @@ namespace Microsoft.Scripting.Actions {
         }
     }
 }
+
+#endif	

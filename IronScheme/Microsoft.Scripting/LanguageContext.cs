@@ -184,9 +184,14 @@ namespace Microsoft.Scripting {
 #endif
         }
 
-        public static void AnalyzeBlock(CodeBlock block) {
-            ForestRewriter.Rewrite(block);
-            ClosureBinder.Bind(block);
+        public static void AnalyzeBlock(CodeBlock block)
+        {
+
+#if FULL
+            ForestRewriter.Rewrite(block); 
+#endif
+
+          ClosureBinder.Bind(block);
             FlowChecker.Check(block);
         }
 

@@ -64,7 +64,11 @@ namespace Microsoft.Scripting.Generation {
 
         public static bool IsParamsMethod(ParameterInfo[] pis) {
             foreach (ParameterInfo pi in pis) {
-                if (IsParamArray(pi) || IsParamDictionary(pi)) return true;
+              if (IsParamArray(pi)
+#if FULL
+|| IsParamDictionary(pi) 
+#endif
+) return true;
             }
             return false;
         }
@@ -73,9 +77,13 @@ namespace Microsoft.Scripting.Generation {
             return parameter.IsDefined(typeof(ParamArrayAttribute), false);
         }
 
+
+#if FULL
         public static bool IsParamDictionary(ParameterInfo parameter) {
             return parameter.IsDefined(typeof(ParamDictionaryAttribute), false);
-        }
+        } 
+#endif
+
 
         public static bool IsOutParameter(ParameterInfo pi) {
             // not using IsIn/IsOut properties as they are not available in Silverlight:

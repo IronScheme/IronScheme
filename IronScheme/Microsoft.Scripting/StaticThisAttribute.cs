@@ -24,3 +24,7 @@ namespace Microsoft.Scripting {
     public sealed class StaticThisAttribute : Attribute {
     }
 }
+
+#if FULL
+
+#endif

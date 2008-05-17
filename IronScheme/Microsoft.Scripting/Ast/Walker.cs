@@ -124,9 +124,13 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.DoStatement:
                     DefaultWalk((DoStatement)node);
                     break;
+
+#if FULL
                 case AstNodeType.DynamicConversionExpression:
                     DefaultWalk((DynamicConversionExpression)node);
-                    break;
+                    break; 
+#endif
+
                 case AstNodeType.EmptyStatement:
                     DefaultWalk((EmptyStatement)node);
                     break;
@@ -301,13 +305,17 @@ namespace Microsoft.Scripting.Ast {
             PostWalk(node);
         }
 
+
+#if FULL
         // DynamicConversionExpression
         private void DefaultWalk(DynamicConversionExpression node) {
             if (Walk(node)) {
                 WalkNode(node.Expression);
             }
             PostWalk(node);
-        }
+        } 
+#endif
+
 
         // EnvironmentExpression
         private void DefaultWalk(EnvironmentExpression node) {

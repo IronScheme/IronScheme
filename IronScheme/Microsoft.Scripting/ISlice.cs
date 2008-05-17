@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -33,4 +35,5 @@ namespace Microsoft.Scripting {
         /// </summary>
         object Step { get; }
     }
-}
+} 
+#endif	

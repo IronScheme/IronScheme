@@ -781,11 +781,19 @@ namespace Microsoft.Scripting.Ast {
                 if (createWrapperMethod) {
                     CodeGen wrapper = MakeWrapperMethodN(null, cg, hasThis);
                     wrapper.Finish();
-                    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
+                    delegateType =
+#if FULL
+hasThis ? typeof(CallTargetWithContextAndThisN) :  
+#endif
+ typeof(CallTargetWithContextN);
                     return wrapper.CreateDelegate(delegateType);
                     //throw new NotImplementedException("Wrapper methods not implemented for code blocks in FastEval mode");
                 } else if (_parameterArray) {
-                    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
+                  delegateType =
+#if FULL
+hasThis ? typeof(CallTargetWithContextAndThisN) : 
+#endif
+ typeof(CallTargetWithContextN);
                     return cg.CreateDelegate(delegateType);
                     //throw new NotImplementedException("Parameter arrays not implemented for code blocks in FastEval mode");
                 } else {
@@ -872,22 +880,38 @@ namespace Microsoft.Scripting.Ast {
                 wrapper.Finish();
                 
                 if (delegateType == null) {
-                    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
+                  delegateType =
+#if FULL
+hasThis ? typeof(CallTargetWithContextAndThisN) : 
+#endif
+ typeof(CallTargetWithContextN);
                 }
 
                 cg.EmitDelegateConstruction(wrapper, delegateType);
             } else if (_parameterArray) {
                 if (delegateType == null) {
-                    delegateType = hasThis ? typeof(CallTargetWithContextAndThisN) : typeof(CallTargetWithContextN);
+                  delegateType =
+#if FULL
+hasThis ? typeof(CallTargetWithContextAndThisN) : 
+#endif
+ typeof(CallTargetWithContextN);
                 }
                 cg.EmitDelegateConstruction(impl, delegateType);
             } else {
                 if (delegateType == null) {
+
+#if FULL
                     if (stronglyTyped) {
                         delegateType = ReflectionUtils.GetDelegateType(GetParameterTypes(hasContextParameter), _returnType);
-                    } else {
+                    } else { 
+#endif	
+
                         delegateType = CallTargets.GetTargetType(hasContextParameter, _parameters.Count - (hasThis ? 1 : 0), hasThis);
-                    }
+
+#if FULL
+                    } 
+#endif
+
                 }
                 cg.EmitDelegateConstruction(impl, delegateType);
             }

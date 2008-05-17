@@ -66,9 +66,13 @@ namespace Microsoft.Scripting.Hosting {
             return new RemoteScriptEngine(_provider.GetEngine(options));
         }
 
+
+#if FULL
         public ITokenCategorizer GetTokenCategorizer() {
             return new RemoteTokenCategorizer(_provider.GetTokenCategorizer());
-        }
+        } 
+#endif
+
 
         public OptionsParser GetOptionsParser() {
             throw new NotImplementedException("TODO");

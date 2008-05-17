@@ -46,13 +46,18 @@ namespace Microsoft.Scripting {
             get { return _target; }
         }
 
-        public bool IsApplicable(Type[] types, SymbolId[] names, NarrowingLevel allowNarrowing) {
+        public bool IsApplicable(Type[] types, SymbolId[] names, NarrowingLevel allowNarrowing)
+        {
+
+#if FULL
             foreach (ParameterWrapper pw in _parameters) {
                 // can't bind to methods that are params dictionaries, only to their extended forms.
                 if (pw.IsParamsDict) return false;
-            }
+            } 
+#endif
 
-            if (!TryGetNormalizedArguments(types, names, out types)) {
+
+          if (!TryGetNormalizedArguments(types, names, out types)) {
                 return false;
             }
 
@@ -165,9 +170,14 @@ namespace Microsoft.Scripting {
             for (int i = 0; i < _parameters.Count; i++) {
                 ParameterWrapper pw = _parameters[i];
 
+
+#if FULL
                 if (_parameters[i].IsParamsDict) {
                     kwIndex = i;
-                } else if (_parameters[i].IsParamsArray) {
+                } else  
+#endif
+                if (_parameters[i].IsParamsArray)
+                {
                     elementType = pw.Type.GetElementType();
                     index = i;
                 } else {

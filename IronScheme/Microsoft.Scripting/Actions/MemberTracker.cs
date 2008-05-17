@@ -80,12 +80,20 @@ namespace Microsoft.Scripting.Actions {
                     case MemberTypes.Field: res = new FieldTracker((FieldInfo)member); break;
                     case MemberTypes.Method:
                         MethodInfo mi = (MethodInfo)member;
+
+#if FULL
                         if (isExtension) {
                             res = new MethodTracker(mi, member.IsDefined(typeof(StaticExtensionMethodAttribute), false));
-                        } else {
+                        } else { 
+#endif	
+
                             res = new MethodTracker(mi);
-                        }
-                        break;
+
+#if FULL
+                        } 
+#endif
+
+                            break;
                     case MemberTypes.TypeInfo:
                     case MemberTypes.NestedType: res = new NestedTypeTracker((Type)member); break;
                     case MemberTypes.Property: res = new ReflectedPropertyTracker((PropertyInfo)member); break;

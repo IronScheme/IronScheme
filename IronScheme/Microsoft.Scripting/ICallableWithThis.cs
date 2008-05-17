@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -26,3 +28,5 @@ namespace Microsoft.Scripting {
         object Call(CodeContext context, object instance, object[] args);
     }
 }
+
+#endif	

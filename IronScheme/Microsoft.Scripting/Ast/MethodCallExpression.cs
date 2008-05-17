@@ -32,7 +32,11 @@ namespace Microsoft.Scripting.Ast {
         private readonly ReadOnlyCollection<Expression> _arguments;
         private readonly ParameterInfo[] _parameterInfos;
 
-        private ReflectedCaller _caller;
+
+#if FULL
+        private ReflectedCaller _caller; 
+#endif
+
 
         internal MethodCallExpression(MethodInfo /*!*/ method, Expression instance, ReadOnlyCollection<Expression> /*!*/ arguments, ParameterInfo[] /*!*/ parameters)
             : base(AstNodeType.Call) {
@@ -145,6 +149,8 @@ namespace Microsoft.Scripting.Ast {
             return !_parameterInfos[i].IsOut || (_parameterInfos[i].Attributes & ParameterAttributes.In) != 0;
         }
 
+
+#if FULL
         private object InvokeMethod(object instance, object[] parameters) {
             if (_caller == null) {
                 _caller = ReflectedCaller.Create(_method);
@@ -155,7 +161,9 @@ namespace Microsoft.Scripting.Ast {
                 return _caller.InvokeInstance(instance, parameters);
             }
 
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
           EmitLocation(cg);

@@ -67,7 +67,7 @@ namespace Microsoft.Scripting.Generation {
                     case MemberTypes.Field:
                         FieldInfo fi = (FieldInfo)_membersSet[i];
                         if (!fi.IsLiteral && !fi.IsInitOnly) {
-                            sets.Add(Ast.AssignField(Ast.Read(tmp), fi, Ast.DynamicConvert(value, fi.FieldType)));
+                            sets.Add(Ast.AssignField(Ast.Read(tmp), fi, Ast.ConvertHelper(value, fi.FieldType)));
                         } else {
                             // call a helper which throws the error but "returns object"
                             sets.Add(
@@ -85,7 +85,7 @@ namespace Microsoft.Scripting.Generation {
                     case MemberTypes.Property:
                         PropertyInfo pi = (PropertyInfo)_membersSet[i];
                         if (pi.GetSetMethod(ScriptDomainManager.Options.PrivateBinding) != null) {
-                            sets.Add(Ast.AssignProperty(Ast.Read(tmp), pi, Ast.DynamicConvert(value, pi.PropertyType)));
+                            sets.Add(Ast.AssignProperty(Ast.Read(tmp), pi, Ast.ConvertHelper(value, pi.PropertyType)));
                         } else {
                             // call a helper which throws the error but "returns object"
                             sets.Add(

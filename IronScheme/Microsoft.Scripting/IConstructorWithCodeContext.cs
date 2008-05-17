@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -21,4 +23,5 @@ namespace Microsoft.Scripting {
     public interface IConstructorWithCodeContext {
         object Construct(CodeContext context, params object[] args);
     }
-}
+} 
+#endif	

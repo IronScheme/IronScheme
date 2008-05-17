@@ -411,9 +411,13 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.DoStatement:
                     Dump((DoStatement)node);
                     break;
+
+#if FULL
                 case AstNodeType.DynamicConversionExpression:
                     Dump((DynamicConversionExpression)node);
-                    break;
+                    break; 
+#endif
+
                 case AstNodeType.EmptyStatement:
                     Dump((EmptyStatement)node);
                     break;
@@ -678,12 +682,16 @@ namespace Microsoft.Scripting.Ast {
             Out(String.Format(".delname({0})", SymbolTable.IdToString(node.Name)));
         }
 
+
+#if FULL
         // DynamicConversionExpression
         private void Dump(DynamicConversionExpression node) {
             Out(String.Format("(.convert.d {0})(", node.Type));
             WalkNode(node.Expression);
             Out(")");
-        }
+        } 
+#endif
+
 
         // EnvironmentExpression
         private void Dump(EnvironmentExpression node) {
