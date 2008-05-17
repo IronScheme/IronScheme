@@ -44,8 +44,10 @@ namespace Microsoft.Scripting.Ast {
 
         public Statement Body {
             get { return _body; }
-        }                
+        }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             object ret = NextStatement;
             
@@ -59,7 +61,9 @@ namespace Microsoft.Scripting.Ast {
             } while (context.LanguageContext.IsTrue(_test.Evaluate(context)));
 
             return NextStatement;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             Label startTarget = cg.DefineLabel();

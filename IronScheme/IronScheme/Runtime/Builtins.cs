@@ -220,17 +220,29 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return new TraceClosure(p, n, f);
     }
 
+    static Process selfprocess;
+
 
     [Builtin("time-it")]
     public static object TimeIt(object who, object thunk)
     {
       ICallable c = RequiresNotNull<ICallable>(thunk);
 
-      int[] colcount = new int[3];
+      int colcount = 0;
       for (int i = 0; i < 3; i++)
       {
-        colcount[i] = GC.CollectionCount(i);
+        colcount += GC.CollectionCount(i);
       }
+
+      if (selfprocess == null)
+      {
+        selfprocess = Process.GetCurrentProcess();
+      }
+
+      TimeSpan privts = selfprocess.PrivilegedProcessorTime,
+        totalts = selfprocess.TotalProcessorTime,
+        userts = selfprocess.UserProcessorTime;
+      
       Stopwatch sw = Stopwatch.StartNew();
       try
       {
@@ -238,21 +250,25 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
       finally
       {
-        sw.Stop();
-        int[] colcountafter = new int[3];
+        TimeSpan privts2 = selfprocess.PrivilegedProcessorTime,
+          totalts2 = selfprocess.TotalProcessorTime,
+          userts2 = selfprocess.UserProcessorTime;
+
+        int colcountafter = 0;
         for (int i = 0; i < 3; i++)
         {
-          colcountafter[i] = GC.CollectionCount(i);
+          colcountafter += GC.CollectionCount(i);
         }
 
         Console.WriteLine(@"Statistics for '{0}':
-  Time:          {1}ms
-  Gen0 collect:  {2}
-  Gen1 collect:  {3}
-  Gen2 collect:  {4}", who, sw.ElapsedMilliseconds, 
-                     colcountafter[0] - colcount[0],
-                     colcountafter[1] - colcount[1],
-                     colcountafter[2] - colcount[2]);
+  Priv Time:     {1:f0}ms
+  User Time:     {2:f0}ms
+  Total Time:    {3:f0}ms
+  Gen collect:   {4}", who, 
+                     (privts2 - privts).TotalMilliseconds, 
+                     (userts2 - userts).TotalMilliseconds,
+                     (totalts2 - totalts).TotalMilliseconds,
+                     colcountafter - colcount);
       }
     }
    

@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -30,3 +32,5 @@ namespace Microsoft.Scripting {
         StandardRule<T> GetRule<T>(DynamicAction action, CodeContext context, object[] args);
     }
 }
+
+#endif	

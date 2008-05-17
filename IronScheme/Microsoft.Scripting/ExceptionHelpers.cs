@@ -37,8 +37,12 @@ namespace Microsoft.Scripting {
         [ThreadStatic]
         private static List<Exception> _currentExceptions;
 
+
+#if FULL
         [ThreadStatic]
-        private static List<DynamicStackFrame> _stackFrames;
+        private static List<DynamicStackFrame> _stackFrames; 
+#endif
+
 
         /// <summary>
         /// Gets the list of exceptions that are currently being handled by the user. 
@@ -99,6 +103,8 @@ namespace Microsoft.Scripting {
             return TryGetAssociatedStackTraces(rethrow, out result) ? result : null;
         }
 
+
+#if FULL
         public static void UpdateStackTrace(CodeContext context, MethodBase method, string funcName, string filename, int line) {
             if (_stackFrames == null) _stackFrames = new List<DynamicStackFrame>();
 
@@ -116,7 +122,9 @@ namespace Microsoft.Scripting {
 
         public static void ClearDynamicStackFrames() {
             _stackFrames = null;
-        }
+        } 
+#endif
+
 
         public static void PushExceptionHandler(Exception clrException) {
             // _currentExceptions is thread static
@@ -125,7 +133,11 @@ namespace Microsoft.Scripting {
             }
             _currentExceptions.Add(clrException);
 
-            AssociateDynamicStackFrames(clrException);
+
+#if FULL
+            AssociateDynamicStackFrames(clrException); 
+#endif
+
         }
 
         public static void PopExceptionHandler() {

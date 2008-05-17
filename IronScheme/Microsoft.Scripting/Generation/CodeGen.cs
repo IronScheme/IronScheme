@@ -2283,6 +2283,8 @@ namespace Microsoft.Scripting.Generation {
             return true;
         }
 
+
+#if FULL
         public Slot CreateDynamicSite(DynamicAction action, Type[] siteTypes, out bool fast) {
             object site;
             if (fast = CanUseFastSite()) {
@@ -2295,7 +2297,9 @@ namespace Microsoft.Scripting.Generation {
             }
 
             return ConstantPool.AddData(site);
-        }
+        } 
+#endif
+
 
         internal Slot GetTemporarySlot(Type type) {
             Slot temp;

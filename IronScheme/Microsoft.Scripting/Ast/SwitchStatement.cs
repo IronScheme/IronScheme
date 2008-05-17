@@ -171,9 +171,13 @@ namespace Microsoft.Scripting.Ast {
             return true;
         }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             throw new NotImplementedException();
-        }
+        } 
+#endif
+
     }
 
     /// <summary>

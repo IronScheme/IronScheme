@@ -85,10 +85,14 @@ namespace Microsoft.Scripting.Generation {
             return context.CheckExpression(parameters[_index], _parameterType);
         }
 
+
+#if FULL
         public override AbstractValue AbstractBuild(AbstractContext context, IList<AbstractValue> parameters) {
             AbstractValue value = parameters[_index];
             return context.Binder.AbstractExecute(ConvertToAction.Make(_parameterType), new AbstractValue[] { value });
-        }
+        } 
+#endif
+
 
         public int Index {
             get {

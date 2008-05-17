@@ -150,6 +150,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         /// <summary>
         /// Write out the given rule's AST (only if ShowRules is enabled)
         /// </summary>
@@ -168,7 +170,9 @@ namespace Microsoft.Scripting.Ast {
                 }
 #endif
             }
-        }
+        } 
+#endif
+
 
         /// <summary>
         /// Write out the given AST
@@ -355,9 +359,13 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.TypeIs:
                     Dump((TypeBinaryExpression)node);
                     break;
+
+#if FULL
                 case AstNodeType.ActionExpression:
                     Dump((ActionExpression)node);
-                    break;
+                    break; 
+#endif
+
                 case AstNodeType.ArrayIndexAssignment:
                     Dump((ArrayIndexAssignment)node);
                     break;
@@ -480,6 +488,8 @@ namespace Microsoft.Scripting.Ast {
         }
 
 
+#if FULL
+
         // More proper would be to make this a virtual method on Action
         private static string FormatAction(DynamicAction action) {
             DoOperationAction doa;
@@ -519,7 +529,9 @@ namespace Microsoft.Scripting.Ast {
             }
             Dedent();
             Out(")");
-        }
+        } 
+#endif
+
 
         // ArrayIndexAssignment
         private void Dump(ArrayIndexAssignment node) {
@@ -633,9 +645,13 @@ namespace Microsoft.Scripting.Ast {
             CompilerConstant cc;
             if ((cc = value as CompilerConstant) != null) {
                 value = cc.Create();
+
+#if FULL
                 if (value is ITemplatedValue) {
                     return ".template (" + ((ITemplatedValue)value).ObjectValue.ToString() + ")";
-                }
+                } 
+#endif
+
             }
 
             Type t;

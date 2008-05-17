@@ -44,9 +44,13 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             return Statement.Continue;
-        }
+        } 
+#endif
+
     }
 
     public static partial class Ast {

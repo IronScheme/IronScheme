@@ -27,18 +27,23 @@ namespace Microsoft.Scripting.Generation {
     /// updated return value is returned as one of the resulting return values.
     /// </summary>
     class ReturnReferenceArgBuilder : SimpleArgBuilder {
-        Variable _tmp;
+        Variable _tmp = null;
 
         public ReturnReferenceArgBuilder(int index, Type type)
             : base(index, type) {
         }
 
-        internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters) {
+        internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters)
+        {
+
+#if FULL
             if (_tmp == null) {
                 _tmp = context.GetTemporary(Type, "outParam");
-            }
+            } 
+#endif
 
-            return Ast.Comma(Ast.Assign(_tmp, base.ToExpression(context, parameters)), Ast.Read(_tmp));
+
+          return Ast.Comma(Ast.Assign(_tmp, base.ToExpression(context, parameters)), Ast.Read(_tmp));
         }
 
         internal override Expression ToReturnExpression(MethodBinderContext context) {

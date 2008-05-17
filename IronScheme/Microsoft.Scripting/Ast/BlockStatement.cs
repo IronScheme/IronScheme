@@ -29,8 +29,10 @@ namespace Microsoft.Scripting.Ast {
         internal BlockStatement(SourceSpan span, ReadOnlyCollection<Statement> /*!*/ statements)
             : base(AstNodeType.BlockStatement, span) {
             _statements = statements;
-        }
+            }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             object ret = Statement.NextStatement;
             foreach (Statement stmt in _statements) {
@@ -40,7 +42,9 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
             return ret;
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Span.Start, Span.End);

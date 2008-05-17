@@ -218,6 +218,8 @@ namespace Microsoft.Scripting.Generation {
             return ret.ToArray();
         }
 
+
+#if FULL
         public static void EmitStackTraceTryBlockStart(CodeGen cg) {
             Contract.RequiresNotNull(cg, "cg");
 
@@ -226,9 +228,13 @@ namespace Microsoft.Scripting.Generation {
                 cg.PushTryBlock();
                 cg.BeginExceptionBlock();
             }
-        }
+        }   
+#endif
 
-        public static void EmitStackTraceFaultBlock(CodeGen cg, string name, string displayName) {
+
+
+#if FULL
+       public static void EmitStackTraceFaultBlock(CodeGen cg, string name, string displayName) {
             Contract.RequiresNotNull(cg, "cg");
             Contract.RequiresNotNull(name, "name");
             Contract.RequiresNotNull(displayName, "displayName");
@@ -260,7 +266,9 @@ namespace Microsoft.Scripting.Generation {
                 }
                 cg.EndExceptionBlock();
             }
-        }
+        } 
+#endif
+
 
         #region CodeGen Creation Support
 
@@ -583,6 +591,8 @@ namespace Microsoft.Scripting.Generation {
             return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(StrongBox<>);
         }
 
+
+#if FULL
         /// <summary>
         /// Returns a value which indicates failure when a ConvertToAction of ImplicitTry or
         /// ExplicitTry.
@@ -601,6 +611,8 @@ namespace Microsoft.Scripting.Generation {
             }
             rule.IsError = true;
             return failed;
-        }
+        } 
+#endif
+
     }
 }

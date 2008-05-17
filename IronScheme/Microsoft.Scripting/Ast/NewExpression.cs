@@ -56,6 +56,8 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitNew(_constructor);
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object[] args = new object[_arguments.Count];
             for (int i = 0; i < _arguments.Count; i++) {
@@ -66,7 +68,9 @@ namespace Microsoft.Scripting.Ast {
             } catch (TargetInvocationException e) {
                 throw ExceptionHelpers.UpdateForRethrow(e.InnerException);
             }
-        }
+        } 
+#endif
+
     }
 
     /// <summary>

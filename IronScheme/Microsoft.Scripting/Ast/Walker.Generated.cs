@@ -21,13 +21,17 @@ namespace Microsoft.Scripting.Ast {
 
         #region Generated DLR AST Walker
 
-        // *** BEGIN GENERATED CODE ***
+      // *** BEGIN GENERATED CODE ***
 
+
+#if FULL
         // ActionExpression
         protected internal virtual bool Walk(ActionExpression node) { return true; }
-        protected internal virtual void PostWalk(ActionExpression node) { }
+        protected internal virtual void PostWalk(ActionExpression node) { } 
+#endif
 
-        // ArrayIndexAssignment
+
+      // ArrayIndexAssignment
         protected internal virtual bool Walk(ArrayIndexAssignment node) { return true; }
         protected internal virtual void PostWalk(ArrayIndexAssignment node) { }
 

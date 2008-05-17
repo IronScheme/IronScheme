@@ -44,10 +44,14 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitConvert(_expression.Type, _conversion);
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object value = _expression.Evaluate(context);
             return context.LanguageContext.Binder.Convert(value, _conversion);
-        }
+        } 
+#endif
+
     }
 
     public static partial class Ast {

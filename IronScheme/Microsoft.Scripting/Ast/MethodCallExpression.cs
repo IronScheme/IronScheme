@@ -60,6 +60,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         private object EvaluateInstance(CodeContext context) {
             object res = _instance.Evaluate(context);
 
@@ -69,8 +71,12 @@ namespace Microsoft.Scripting.Ast {
                 res = System.Runtime.CompilerServices.RuntimeHelpers.GetObjectValue(res);
             }
             return res;
-        }
+        } 
+#endif
 
+
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object instance = null;
             // Evaluate the instance first (if the method is non-static)
@@ -131,7 +137,9 @@ namespace Microsoft.Scripting.Ast {
                 // Unwrap the real (inner) exception and raise it
                 throw ExceptionHelpers.UpdateForRethrow(e.InnerException);
             }
-        }
+        } 
+#endif
+
 
         private bool IsInputParameter(int i) {
             return !_parameterInfos[i].IsOut || (_parameterInfos[i].Attributes & ParameterAttributes.In) != 0;

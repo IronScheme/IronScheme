@@ -32,7 +32,11 @@ namespace Microsoft.Scripting.Actions {
     /// </summary>
     public abstract class ActionBinder {
         private CodeContext _context;
-        private readonly RuleCache _ruleCache = new RuleCache();
+
+#if FULL
+private readonly RuleCache _ruleCache = new RuleCache(); 
+#endif
+
 
         protected ActionBinder(CodeContext context) {
             _context = context;
@@ -48,6 +52,10 @@ namespace Microsoft.Scripting.Actions {
             }
         }
 
+
+
+#if FULL 
+      
         // TODO: internal and friendly UnitTests
         public void ClearRuleCache() {
             _ruleCache.Clear();
@@ -196,7 +204,9 @@ namespace Microsoft.Scripting.Actions {
                 default:
                     throw new NotImplementedException(action.ToString());
             }
-        }
+        } 
+#endif
+
 
         /// <summary>
         /// Emits the code to convert an arbitrary object to the specified type.
@@ -268,6 +278,8 @@ namespace Microsoft.Scripting.Actions {
             return args;
         }
 
+#if FULL
+
         /// <summary>
         /// Gets the members that are visible from the provided type of the specified name.
         /// 
@@ -306,7 +318,9 @@ namespace Microsoft.Scripting.Actions {
             }
             
             return members;
-        }
+        } 
+#endif
+
 
         /// <summary>
         /// Non-public types can have public members that we find when calling type.GetMember(...).  This
@@ -404,6 +418,8 @@ namespace Microsoft.Scripting.Actions {
 
         #region Deprecated Error production
 
+
+#if FULL
         /// <summary>
         /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
         /// doing this for the time being until we get a more robust error return mechanism.
@@ -417,7 +433,9 @@ namespace Microsoft.Scripting.Actions {
                     Ast.Ast.Constant(name)
                 )
             );
-        }
+        } 
+#endif
+
 
         /// <summary>
         /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
@@ -430,6 +448,8 @@ namespace Microsoft.Scripting.Actions {
             );
         }
 
+
+#if FULL
         /// <summary>
         /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
         /// doing this for the time being until we get a more robust error return mechanism.
@@ -441,7 +461,7 @@ namespace Microsoft.Scripting.Actions {
                     Ast.Ast.Constant(name)
                 )
             );
-        }
+        } 
 
         /// <summary>
         /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
@@ -450,8 +470,13 @@ namespace Microsoft.Scripting.Actions {
         public virtual Statement MakeUndeletableMemberError<T>(StandardRule<T> rule, Type type, string name) {
             return MakeReadOnlyMemberError<T>(rule, type, name);
         }
+#endif
+
+
 
         #endregion
+
+#if FULL
 
         public virtual Statement MakeInvalidParametersError(MethodBinder binder, DynamicAction action, CallType callType, IList<MethodBase> targets, StandardRule rule, object []args) {
             int minArgs = Int32.MaxValue;
@@ -562,7 +587,9 @@ namespace Microsoft.Scripting.Actions {
                 }
             }
             return paramsCount;
-        }
+        } 
+#endif
+
 
         public MemberGroup GetExtensionMembers(Type type, string name) {
             Type curType = type;

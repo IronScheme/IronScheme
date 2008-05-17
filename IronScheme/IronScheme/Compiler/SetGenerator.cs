@@ -55,7 +55,7 @@ namespace IronScheme.Compiler
         r.SetLoc(SpanHint);
       }
 
-      return r;
+      return Ast.Comma(r, Ast.ReadField(null, Unspecified));
     }
   }
 }

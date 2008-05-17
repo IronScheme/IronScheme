@@ -62,6 +62,8 @@ namespace Microsoft.Scripting.Ast {
             return "BoundExpression : " + SymbolTable.IdToString(Name);
         }
 
+#if FULL
+
         protected override object DoEvaluate(CodeContext context) {
             object ret;
             switch (_variable.Kind) {
@@ -91,8 +93,12 @@ namespace Microsoft.Scripting.Ast {
                         return ret;
                     }
             }
-        }
+        } 
+#endif
 
+
+
+#if FULL
         class VariableAddress : EvaluationAddress {
             public VariableAddress(Expression expr)
                 : base(expr) {
@@ -105,19 +111,33 @@ namespace Microsoft.Scripting.Ast {
 
                 return base.GetValue(context, outParam);
             }
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal override EvaluationAddress EvaluateAddress(CodeContext context) {
             return new VariableAddress(this);
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal override object EvaluateAssign(CodeContext context, object value) {
             return BoundAssignment.EvaluateAssign(context, Variable, value);
-        }
+        } 
+#endif
 
+
+
+#if FULL
         public override AbstractValue AbstractEvaluate(AbstractContext context) {
             return context.Lookup(_variable);
-        }
+        } 
+#endif
+
 
         internal override void EmitAddress(CodeGen cg, Type asType) {
             if (asType == Type) {

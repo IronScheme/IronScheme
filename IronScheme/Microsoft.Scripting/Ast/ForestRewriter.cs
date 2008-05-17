@@ -41,12 +41,16 @@ namespace Microsoft.Scripting.Ast {
             // Collect the blocks that need rewriting
             fr.WalkNode(block);
 
+
+#if FULL
             // If any do need rewriting, rewrite the blocks now
             if (fr._blocks != null) {
                 foreach (CodeBlock cb in fr._blocks) {
                     AstRewriter.RewriteBlock(cb);
                 }
-            }
+            } 
+#endif
+
         }
 
         #endregion

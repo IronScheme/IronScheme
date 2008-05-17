@@ -96,6 +96,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             object self = _expression != null ? _expression.Evaluate(context) : null;
             switch (_member.MemberType) {
@@ -111,8 +113,12 @@ namespace Microsoft.Scripting.Ast {
             }
 
             throw new InvalidOperationException();
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal override object EvaluateAssign(CodeContext context, object value) {
             object self = _expression != null ? _expression.Evaluate(context) : null;
             switch (_member.MemberType) {
@@ -130,7 +136,9 @@ namespace Microsoft.Scripting.Ast {
             }
 
             throw new InvalidOperationException();
-        }
+        } 
+#endif
+
     }
 
     /// <summary>

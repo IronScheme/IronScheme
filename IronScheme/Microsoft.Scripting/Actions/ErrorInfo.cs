@@ -63,6 +63,8 @@ namespace Microsoft.Scripting.Actions {
             return new ErrorInfo(null, resultValue);
         }
 
+
+#if FULL
         /// <summary>
         /// Internal helper to produce the actual expression used for the error when emitting
         /// the error into a rule.
@@ -74,6 +76,8 @@ namespace Microsoft.Scripting.Actions {
             }
 
             return rule.MakeError(_exception);
-        }
+        } 
+#endif
+
     }
 }

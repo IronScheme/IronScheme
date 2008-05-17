@@ -75,6 +75,8 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected override object DoEvaluate(CodeContext context) {
             object x = _operand.Evaluate(context);
@@ -106,7 +108,9 @@ namespace Microsoft.Scripting.Ast {
                 default:
                     throw new NotImplementedException();
             }
-        }
+        } 
+#endif
+
     }
 
     /// <summary>

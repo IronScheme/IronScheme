@@ -44,7 +44,12 @@ namespace Microsoft.Scripting.Actions {
     /// <summary>
     /// NamespaceTracker represent a CLS namespace.
     /// </summary>
-    public class NamespaceTracker : MemberTracker, IDynamicObject, IAttributesCollection, IMembersList {
+    public class NamespaceTracker : MemberTracker,
+#if FULL
+IDynamicObject, 
+#endif
+ IAttributesCollection, IMembersList
+    {
         // _dict contains all the currently loaded entries. However, there may be pending types that have
         // not yet been loaded in _typeNames
         internal Dictionary<string, MemberTracker> _dict = new Dictionary<string, MemberTracker>();
@@ -517,6 +522,8 @@ namespace Microsoft.Scripting.Actions {
             }
         }
 
+#if FULL
+
         #region IDynamicObject Members
 
         public LanguageContext LanguageContext {
@@ -558,6 +565,8 @@ namespace Microsoft.Scripting.Actions {
         }
 
         #endregion
+
+#endif
 
         public int Id {
             get {

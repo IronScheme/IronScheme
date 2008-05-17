@@ -36,6 +36,11 @@ namespace Microsoft.Scripting.Ast {
             : base(nodeType) {
         }
 
+
+
+
+
+#if FULL 
         public object Evaluate(CodeContext context) {
             return DoEvaluate(context);
         }
@@ -43,11 +48,11 @@ namespace Microsoft.Scripting.Ast {
         protected virtual object DoEvaluate(CodeContext context) {
             throw new NotImplementedException(String.Format(CultureInfo.CurrentCulture, Resources.NotImplemented_Evaluate, this));
         }
-
-
         public virtual AbstractValue AbstractEvaluate(AbstractContext context) {
             throw new NotImplementedException();
-        }
+        } 
+#endif
+
 
         private SourceLocation _start;
         private SourceLocation _end;
@@ -161,6 +166,8 @@ namespace Microsoft.Scripting.Ast {
             get { return typeof(object); }
         }
 
+
+#if FULL
         public static object[] Evaluate(IList<Expression> items, CodeContext context) {
             Contract.RequiresNotNullItems(items, "items");
             Contract.RequiresNotNull(context, "context");
@@ -170,14 +177,24 @@ namespace Microsoft.Scripting.Ast {
                 ret[i] = items[i].Evaluate(context);
             }
             return ret;
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal virtual EvaluationAddress EvaluateAddress(CodeContext context) {
             return new EvaluationAddress(this);
-        }
+        } 
+#endif
 
+
+
+#if FULL
         internal virtual object EvaluateAssign(CodeContext context, object value) {
             return value;
-        }
+        } 
+#endif
+
     }
 }

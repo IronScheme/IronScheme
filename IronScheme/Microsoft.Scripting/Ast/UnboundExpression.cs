@@ -36,9 +36,13 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             return RuntimeHelpers.LookupName(context, _name);
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             // RuntimeHelpers.LookupName(CodeContext, name)

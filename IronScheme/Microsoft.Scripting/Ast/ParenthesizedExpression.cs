@@ -38,9 +38,13 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+
+#if FULL
         protected override object DoEvaluate(CodeContext context) {
             return _expression.Evaluate(context);
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             _expression.Emit(cg);

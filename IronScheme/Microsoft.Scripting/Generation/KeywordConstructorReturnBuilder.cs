@@ -59,7 +59,7 @@ namespace Microsoft.Scripting.Generation {
         internal override Expression ToExpression(MethodBinderContext context, IList<ArgBuilder> args, IList<Expression> parameters, Expression ret) {
             List<Expression> sets = new List<Expression>();
 
-            Variable tmp = context.GetTemporary(ret.Type, "val");
+            Variable tmp = null;// context.GetTemporary(ret.Type, "val");
 
             for (int i = 0; i < _indexesUsed.Length; i++) {
                 Expression value = parameters[parameters.Count - _kwArgCount + _indexesUsed[i]];

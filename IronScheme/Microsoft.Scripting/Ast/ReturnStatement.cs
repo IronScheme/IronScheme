@@ -28,13 +28,17 @@ namespace Microsoft.Scripting.Ast {
             get { return _expr; }
         }
 
+
+#if FULL
         protected override object DoExecute(CodeContext context) {
             if (_expr != null) {
                 return _expr.Evaluate(context);
             } else {
                 return null;
             }
-        }
+        } 
+#endif
+
 
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Start, End);
