@@ -130,8 +130,12 @@ namespace Microsoft.Scripting.Generation {
 #if !DEBUG
         }
 #else
-            PerfTrack.NoteEvent(PerfTrack.Categories.Compiler, "CodeGen " + GetPerfTrackName(mi));
-        }
+
+#if FULL
+            PerfTrack.NoteEvent(PerfTrack.Categories.Compiler, "CodeGen " + GetPerfTrackName(mi)); 
+#endif
+
+            }
 
         private string GetPerfTrackName(MethodBase mi) {
             for (int i = 0; i < mi.Name.Length; i++) {                

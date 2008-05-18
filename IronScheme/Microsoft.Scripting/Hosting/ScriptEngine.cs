@@ -795,16 +795,23 @@ namespace Microsoft.Scripting.Hosting {
         public virtual void Shutdown() {
         }
 
-        public void DumpDebugInfo() {
+        public void DumpDebugInfo()
+        {
+
+#if FULL
             if (ScriptDomainManager.Options.EngineDebug) {
                 PerfTrack.DumpStats();
                 try {
                     ScriptDomainManager.CurrentManager.Snippets.Dump();
                 } catch (NotSupportedException) { } // usually not important info...
-            }
+            } 
+#endif
+
         }
 
-        #region // TODO: Microsoft.Scripting.Vestigial Workarounds (used from MSV instead of PythonEngine)
+
+
+      #region // TODO: Microsoft.Scripting.Vestigial Workarounds (used from MSV instead of PythonEngine)
 
         // Ops.GetAttrNames
         protected virtual IList<object> Ops_GetAttrNames(CodeContext context, object obj) {
@@ -826,10 +833,13 @@ namespace Microsoft.Scripting.Hosting {
             throw new NotSupportedException();
         }
 
-        #endregion
+      #endregion 
+
 
     }
 
+
+#if FULL
     // TODO: (dependency workaround, should be in Python's assembly): 
     [Flags]
     public enum ModuleOptions {
@@ -837,5 +847,7 @@ namespace Microsoft.Scripting.Hosting {
         PublishModule = 0x0001,
         TrueDivision = 0x0002,
         ShowClsMethods = 0x0004
-    }
-}
+    } 
+#endif
+
+  }

@@ -306,42 +306,6 @@ namespace IronScheme.Runtime
       return GetBool(obj == EOF);
     }
 
-    [Builtin("read-all")]
-    public static object ReadAll()
-    {
-      return ReadAll(CurrentInputPort());
-    }
-
-    [Builtin("read-all")]
-    public static object ReadAll(object port)
-    {
-      TextReader r = RequiresNotNull<TextReader>(port);
-      string c = r.ReadToEnd();
-      if (c == null)
-      {
-        return EOF;
-      }
-      return c;
-    }
-
-    [Builtin("read-line")]
-    public static object ReadLine()
-    {
-      return ReadLine(CurrentInputPort());
-    }
-
-    [Builtin("read-line")]
-    public static object ReadLine(object port)
-    {
-      TextReader r = RequiresNotNull<TextReader>(port);
-      string c = r.ReadLine();
-      if (c == null)
-      {
-        return EOF;
-      }
-      return c;
-    }
-
     [Builtin("read-char")]
     public static object ReadChar()
     {
@@ -788,7 +752,7 @@ namespace IronScheme.Runtime
         return R6RS.Records.PrintRecord(obj);
       }
 
-      return string.Format("#[{0}]", obj.GetType().Name);
+      return obj.ToString();
     }
 
     [Builtin("write")]

@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -601,3 +603,5 @@ IDynamicObject,
         }
     }
 }
+
+#endif	

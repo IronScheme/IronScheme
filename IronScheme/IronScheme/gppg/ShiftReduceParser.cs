@@ -325,39 +325,7 @@ namespace gppg
       state.num = statenr;
     }
 
-
-
-
-    private void DisplayStack()
-    {
-      Console.Error.Write("State now");
-      for (int i = 0; i < state_stack.top; i++)
-        Console.Error.Write(" {0}", state_stack.array[i].num);
-      Console.Error.WriteLine();
-    }
-
-
-    private void DisplayRule(int rule_nr)
-    {
-      Console.Error.Write("Reducing stack by rule {0}, ", rule_nr);
-      DisplayProduction(rules[rule_nr]);
-    }
-
-
-    private void DisplayProduction(Rule rule)
-    {
-      if (rule.rhs.Length == 0)
-        Console.Error.Write("/* empty */ ");
-      else
-        foreach (int symbol in rule.rhs)
-          Console.Error.Write("{0} ", SymbolToString(symbol));
-
-      Console.Error.WriteLine("-> {0}", SymbolToString(rule.lhs));
-    }
-
-
     protected abstract string TerminalToString(int terminal);
-
 
     private string SymbolToString(int symbol)
     {

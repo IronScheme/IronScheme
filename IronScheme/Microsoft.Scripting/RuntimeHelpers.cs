@@ -44,7 +44,11 @@ namespace Microsoft.Scripting {
         public static readonly object True = true;
         /// <summary> Singleton boxed instance of False  We should never box additional instances. </summary>
         public static readonly object False = false;
-        private static TopNamespaceTracker _topNamespace;
+
+#if FULL
+        private static TopNamespaceTracker _topNamespace; 
+#endif
+
 
         /// <summary> Table of dynamicly generated delegates which are shared based upon method signature. </summary>
 
@@ -469,6 +473,8 @@ namespace Microsoft.Scripting {
         } 
 #endif
 
+#if FULL
+
         public static TopNamespaceTracker TopNamespace {
             get {
                 if (_topNamespace == null)
@@ -477,6 +483,8 @@ namespace Microsoft.Scripting {
                 return _topNamespace;
             }
         }
+
+#endif
 
         /// <summary>
         /// Creates a delegate with a given signature that could be used to invoke this object from non-dynamic code (w/o code context).

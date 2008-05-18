@@ -1,5 +1,6 @@
-/* ****************************************************************************
- *
+
+#if FULL
+/*
  * Copyright (c) Microsoft Corporation. 
  *
  * This source code is subject to terms and conditions of the Microsoft Public License. A 
@@ -28,6 +29,5 @@ namespace Microsoft.Scripting {
     }
 }
 
-#if FULL
 
 #endif

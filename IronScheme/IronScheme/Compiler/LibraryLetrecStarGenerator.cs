@@ -59,6 +59,14 @@ namespace IronScheme.Compiler
         NameHint = Builtins.UnGenSym(vars[i].Name);
         Expression e = GetAst(defs[i], cb);
 
+        if (e is MethodCallExpression)
+        {
+          if (((MethodCallExpression)e).Method == Closure_Make)
+          {
+
+          }
+        }
+
         if (e.Type.IsValueType)
         {
           e = Ast.ConvertHelper(e, typeof(object));

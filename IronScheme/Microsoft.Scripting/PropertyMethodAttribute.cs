@@ -1,3 +1,4 @@
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -24,7 +25,4 @@ namespace Microsoft.Scripting {
         public PropertyMethodAttribute() { }
     }
 }
-
-#if FULL
-
 #endif

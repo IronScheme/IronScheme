@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -138,3 +140,5 @@ namespace Microsoft.Scripting.Actions {
         public event EventHandler<AssemblyLoadedEventArgs> AssemblyLoaded;
     }
 }
+
+#endif	

@@ -79,12 +79,17 @@ namespace Microsoft.Scripting.Generation {
         }
 
 
-        public object CallReflected(CodeContext context, object[] args) {
+        public object CallReflected(CodeContext context, object[] args)
+        {
+
+#if FULL
             if (ScriptDomainManager.Options.EngineDebug) {
                 PerfTrack.NoteEvent(PerfTrack.Categories.Methods, this);
-            }
+            } 
+#endif
 
-            object instance = _instanceBuilder.Build(context, args);
+
+          object instance = _instanceBuilder.Build(context, args);
             object[] callArgs = new object[_argBuilders.Count];
             for (int i = 0; i < callArgs.Length; i++) {
                 callArgs[i] = _argBuilders[i].Build(context, args);
