@@ -8,8 +8,8 @@ namespace gppg
 {
   public sealed class Rule
   {
-    public int lhs; // symbol
-    public int[] rhs; // symbols
+    public readonly int lhs; // symbol
+    public readonly int[] rhs; // symbols
 
     public Rule(int lhs, int[] rhs)
     {

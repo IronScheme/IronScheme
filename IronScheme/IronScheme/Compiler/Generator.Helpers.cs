@@ -72,13 +72,22 @@ namespace IronScheme.Compiler
 
   partial class Generator : BaseHelper
   {
+    protected static MethodBase[] GetMethods(Type t, string name)
+    {
+      MemberInfo[] m = t.GetMember(name, BindingFlags.Static | BindingFlags.Public);
+      MethodBase[] mb = new MethodBase[m.Length];
+      Array.Copy(m, mb, m.Length);
+
+      return mb;
+    }
+
     static void Initialize()
     {
       // builtin methods
       AddGenerators(Context, typeof(Generator).Assembly);
       // HACK: clean up needed
       SymbolId s = SymbolTable.StringToId("call-with-values");
-      cc.Scope.SetName(s, new BuiltinMethod(s.ToString(), ReflectionCache.GetMethodGroup(typeof(OptimizedBuiltins), "CallWithValues")));
+      cc.Scope.SetName(s, new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins),"CallWithValues")));
 
       Closure.AssertionViolation = Builtins.AssertionViolation;
 
@@ -133,7 +142,7 @@ namespace IronScheme.Compiler
       foreach (string mn in all.Keys)
       {
         SymbolId s = SymbolTable.StringToId(mn);
-        cc.Scope.SetName(s, new BuiltinMethod(mn, ReflectionCache.GetMethodGroup(mn, all[mn].ToArray())));
+        cc.Scope.SetName(s, new BuiltinMethod(mn, all[mn].ToArray()));
       }
     }
 

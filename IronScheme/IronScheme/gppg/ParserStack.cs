@@ -7,7 +7,7 @@ namespace gppg
 {
   public sealed class ParserStack<T>
   {
-    public T[] array = new T[1];
+    public T[] array = new T[128];
     public int top = 0;
 
 

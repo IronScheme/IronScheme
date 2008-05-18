@@ -39,7 +39,59 @@
       fold-right
       remove
       remv
-      remq))
+      remq
+      ;assq
+      assv
+      assp
+      assoc
+      ;memq
+      ;memv
+      member
+      memp))
+      
+  #;(define (assq obj lst)
+    (if (null? lst) #f
+      (let ((t (car lst)))
+        (if (eq? obj (car t)) t
+          (assq obj (cdr lst))))))
+            
+  (define (assv obj lst)
+    (if (null? lst) #f
+      (let ((c (car lst)))
+        (if (eqv? obj (car c)) c
+          (assv obj (cdr lst))))))      
+            
+  (define (assoc obj lst)
+    (if (null? lst) #f
+      (let ((c (car lst)))
+        (if (equal? obj (car c)) c
+          (assoc obj (cdr lst))))))
+            
+  (define (assp p? lst)
+    (if (null? lst) #f
+      (let ((c (car lst)))
+        (if (p? (car c)) c
+          (assp p? (cdr lst))))))
+      
+  #;(define (memq obj lst)
+    (if (null? lst) #f
+      (if (eq? obj (car lst)) lst
+        (memq obj (cdr lst)))))
+
+  #;(define (memv obj lst)
+    (if (null? lst) #f
+      (if (eqv? obj (car lst)) lst
+        (memv obj (cdr lst)))))
+
+  (define (member obj lst)
+    (if (null? lst) #f
+      (if (equal? obj (car lst)) lst
+        (member obj (cdr lst)))))
+
+  (define (memp p? lst)
+    (if (null? lst) #f
+      (if (p? (car lst)) lst
+        (memp p? (cdr lst)))))
   
   (define (all-empty? ls)
     (or (null? ls) 

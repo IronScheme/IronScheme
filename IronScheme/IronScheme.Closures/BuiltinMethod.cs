@@ -10,7 +10,7 @@ namespace IronScheme.Runtime
   public sealed class BuiltinMethod : ICallable
   {
     readonly MethodBinder meth;
-    readonly MethodGroup methods;
+    readonly MethodBase[] methods;
     readonly Dictionary<int, ICallable> cache = new Dictionary<int, ICallable>();
 
     public MethodBinder Binder
@@ -32,17 +32,17 @@ namespace IronScheme.Runtime
 
     public MethodBase[] GetMethodBases()
     {
-      return methods.GetMethodBases();
+      return methods;
     }
 
     public static ActionBinder binder;
     public static CodeContext context;
 
-    public BuiltinMethod(string name, MethodGroup mg)
+    public BuiltinMethod(string name, MethodBase[] mg)
     {
       this.name = name;
       this.methods = mg;
-      meth = MethodBinder.MakeBinder(binder, mg.Name, mg.GetMethodBases(), BinderType.Normal);
+      meth = MethodBinder.MakeBinder(binder, name, mg, BinderType.Normal);
 
     }
 

@@ -384,6 +384,8 @@ private readonly RuleCache _ruleCache = new RuleCache();
             );
         }
 
+
+#if FULL
         public virtual ErrorInfo MakeGenericAccessError(MemberTracker info) {
             return ErrorInfo.FromException(
                 Ast.Ast.New(
@@ -391,7 +393,9 @@ private readonly RuleCache _ruleCache = new RuleCache();
                     Ast.Ast.Constant(info.Name)
                 )
             );
-        }
+        } 
+#endif
+
 
         public virtual ErrorInfo MakeInvalidParametersError(string name, int expectedParams, params Expression[] args) {            
             return ErrorInfo.FromException(
@@ -591,6 +595,8 @@ private readonly RuleCache _ruleCache = new RuleCache();
 #endif
 
 
+
+#if FULL
         public MemberGroup GetExtensionMembers(Type type, string name) {
             Type curType = type;
             do {
@@ -640,12 +646,16 @@ private readonly RuleCache _ruleCache = new RuleCache();
             } while (curType != null);
 
             return MemberGroup.EmptyGroup;
-        }
+        } 
+#endif
+
 
         protected internal virtual IList<Type> GetExtensionTypes(Type t) {
             // consult globally registered types
             return RuntimeHelpers.GetExtensionTypes(t);
         }
+
+#if FULL
 
         /// <summary>
         /// Provides an opportunity for languages to replace all MemberInfo's with their own type.
@@ -665,7 +675,9 @@ private readonly RuleCache _ruleCache = new RuleCache();
             }
 
             return Ast.Ast.RuntimeConstant(memberTracker);
-        }
+        } 
+#endif
+
 
         /// <summary>
         /// Builds an expressoin for a call to the provided method using the given expressions.  If the

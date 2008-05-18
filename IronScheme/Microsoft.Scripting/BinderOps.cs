@@ -113,7 +113,9 @@ namespace Microsoft.Scripting {
             return true;
         }
 
-        #region Event support
+
+#if FULL
+      #region Event support
 
         public static void SetEvent(EventTracker eventTracker, object value) {
             EventTracker et = value as EventTracker;
@@ -173,6 +175,8 @@ namespace Microsoft.Scripting {
             throw new InvalidOperationException();
         }
         
-        #endregion
+      #endregion 
+#endif
+
     }
 }
