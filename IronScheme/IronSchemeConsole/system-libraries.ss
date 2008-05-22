@@ -28,6 +28,8 @@
 (import (ironscheme xml))
 (import (ironscheme docs))
 
+(import (ironscheme define-macro))
+
 (import (ironscheme collections arraylist))
 (import (ironscheme collections icollection))
 (import (ironscheme collections ilist))
