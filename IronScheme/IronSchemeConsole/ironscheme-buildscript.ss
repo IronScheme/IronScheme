@@ -1119,6 +1119,7 @@
 
 
 (define (verify-map)
+
   (define (f x)
     (for-each
       (lambda (x)

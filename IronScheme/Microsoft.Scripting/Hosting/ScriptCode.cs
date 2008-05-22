@@ -111,9 +111,16 @@ namespace Microsoft.Scripting {
 #endif
 
 
-            if (codeContext.Scope == _optimizedScope) { // flag on scope - "IsOptimized"?
-                // TODO: why do we create a code context here?
-                return _optimizedTarget(new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext));
+            if (_optimizedScope != null)
+            //if (codeContext.Scope == _optimizedScope)
+            { // flag on scope - "IsOptimized"?
+              // TODO: why do we create a code context here?
+              object result = _optimizedTarget(new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext));
+              foreach (KeyValuePair<SymbolId, object> kvp in _optimizedScope.Dict.SymbolAttributes)
+              {
+                codeContext.Scope.ModuleScope.SetName(kvp.Key, kvp.Value);
+              }
+              return result;
             }
 
             EnsureCompiled();

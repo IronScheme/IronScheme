@@ -426,6 +426,24 @@ namespace Microsoft.Scripting.Ast {
             CreateScopeAccessSlots(cg);
         }
 
+
+        int depth = -1;
+
+        int GetDepth()
+        {
+          if (depth == -1)
+          {
+            depth = 0;
+            CodeBlock parent = Parent;
+            while (parent != null)
+            {
+              depth++;
+              parent = parent.Parent;
+            }
+          }
+          return depth;
+        }
+
         private void CreateClosureAccessSlots(CodeGen cg) {
             ScopeAllocator allocator = cg.Allocator;
 
@@ -443,6 +461,25 @@ namespace Microsoft.Scripting.Ast {
                     cg.EmitPropertyGet(typeof(Scope), "Parent");
                 }
                 scope.EmitSet(cg);
+
+                int maxdepth = GetDepth();
+
+                foreach (VariableReference r in References)
+                {
+                  if (!r.Variable.Block.IsGlobal)
+                  {
+                    int d = r.Variable.Block.GetDepth();
+
+                    if (d < maxdepth)
+                    {
+                      maxdepth = d;
+                    }
+                  }
+                }
+
+                int diff = depth - maxdepth;
+
+                int i = 0;
 
                 CodeBlock current = this;
                 do {
@@ -462,7 +499,8 @@ namespace Microsoft.Scripting.Ast {
                     scope.EmitSet(cg);
 
                     current = parent;
-                } while (current != null && current.IsClosure);
+                    i++;
+                } while (i < diff && current != null && current.IsClosure);
 
                 cg.FreeLocalTmp(scope);
             }
