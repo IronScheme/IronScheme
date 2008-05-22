@@ -100,8 +100,7 @@ namespace IronScheme.Runtime
         return "-" + ret;
       }
     }
-
-
+    
     [Builtin("number->string")]
     public static object NumberToString(object obj, object radix)
     {
@@ -308,17 +307,23 @@ namespace IronScheme.Runtime
           {
             for (i++; i < len; i++)
             {
-              if (!Char.IsWhiteSpace(number[i]))
+              if (!char.IsWhiteSpace(number[i]))
+              {
                 return false;
+              }
             }
             break;
           }
           else
+          {
             return false;
+          }
         }
       }
       if (!digits_seen)
+      {
         return false;
+      }
 
       result = val * sign;
 
@@ -358,9 +363,6 @@ namespace IronScheme.Runtime
       return FALSE;
     }
 
-
-
-
     [Builtin("string->number")]
     public static object StringToNumber(object obj, object radix)
     {
@@ -397,8 +399,7 @@ namespace IronScheme.Runtime
           return AssertionViolation("string->number", "unsupported radix", radix, obj);
       }
     }
-
-
+    
     [Builtin("number?")]
     public static object IsNumber(object obj)
     {
@@ -426,12 +427,10 @@ namespace IronScheme.Runtime
     [Builtin("integer?")]
     public static object IsInteger(object obj)
     {
-      return GetBool(obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong || obj is byte || obj is sbyte || obj is short || obj is ushort);
+      return GetBool(obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong 
+        || obj is byte || obj is sbyte || obj is short || obj is ushort);
     }
-
-
-    //real-valued?, rational-valued?,integer-valued?
-
+    
     [Builtin("integer-valued?")]
     public static object IsIntegerValued(object obj)
     {
@@ -518,7 +517,6 @@ namespace IronScheme.Runtime
       return FALSE;
     }
 
-
     [Builtin("inexact")]
     [Builtin("exact->inexact")]
     public static object Inexact(object obj)
@@ -603,7 +601,6 @@ namespace IronScheme.Runtime
       return Not(IsRational(obj));
     }
 
-
     #region relations
 
     [Builtin("=")]
@@ -623,7 +620,32 @@ namespace IronScheme.Runtime
         return AssertionViolation("=", "not a number", second);
       }
 
-      return GetBool(Equals(first, second));
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) == ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) == ConvertToBigInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) == ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) == ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          result = ConvertToComplex(first) == ConvertToComplex(second);
+          break;
+        default:
+          return Error("=", "BUG");
+      }
+
+      return GetBool(result);
     }
 
     [Builtin("=")]
@@ -894,8 +916,6 @@ namespace IronScheme.Runtime
 
     #endregion
 
-
-
     [Builtin("zero?")]
     public static object IsZero(object obj)
     {
@@ -1003,7 +1023,6 @@ namespace IronScheme.Runtime
       return 0;
     }
 
-
     [Builtin("+")]
     public static object Add(object first)
     {
@@ -1063,7 +1082,6 @@ namespace IronScheme.Runtime
       }
       throw new Exception("BUG");
     }
-
 
     static BigInteger ConvertToBigInteger(object o)
     {
@@ -1232,7 +1250,6 @@ namespace IronScheme.Runtime
       return 1;
     }
 
-
     [Builtin("*")]
     public static object Multiply(object first)
     {
@@ -1289,7 +1306,6 @@ namespace IronScheme.Runtime
       return Error("*", "BUG");
     }
 
-
     [Builtin("*")]
     public static object Multiply(object car, params object[] args)
     {
@@ -1320,7 +1336,6 @@ namespace IronScheme.Runtime
 
     static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
-
     [Builtin("/")]
     public static object Divide(object first)
     {
@@ -1337,7 +1352,6 @@ namespace IronScheme.Runtime
         return 1.0 / SafeConvert(first);
       }
       return Divide(1, first);
-
     }
 
     [Builtin("/")]
@@ -1374,7 +1388,6 @@ namespace IronScheme.Runtime
 
       return Error("/", "BUG");
     }
-
 
     [Builtin("/")]
     public static object Divide(object car, params object[] args)
@@ -1424,18 +1437,21 @@ namespace IronScheme.Runtime
       }
     }
 
+#warning Will loose precision with big integers
     [Builtin("div")]
     public static object Div(object a, object b)
     {
       return ((object[])DivMod(a, b))[0];
     }
 
+#warning Will loose precision with big integers
     [Builtin("mod")]
     public static object Mod(object a, object b)
     {
       return ((object[])DivMod(a, b))[1];
     }
 
+#warning Will loose precision with big integers
     [Builtin("div-and-mod")]
     public static object DivMod(object x1, object x2)
     {
@@ -1479,18 +1495,21 @@ namespace IronScheme.Runtime
       return Values(Exact(div), mod);
     }
 
+#warning Will loose precision with big integers
     [Builtin("div0")]
     public static object Div0(object a, object b)
     {
       return ((object[])Div0Mod0(a, b))[0];
     }
 
+#warning Will loose precision with big integers
     [Builtin("mod0")]
     public static object Mod0(object a, object b)
     {
       return ((object[])Div0Mod0(a, b))[1];
     }
 
+#warning Will loose precision with big integers
     [Builtin("div0-and-mod0")]
     public static object Div0Mod0(object x1, object x2)
     {
@@ -1545,14 +1564,6 @@ namespace IronScheme.Runtime
       }
     }
     
-
-    /*
-(= gcd (fn (a b)
-  (if (eql b 0)
-      a
-      (gcd b (% a b)))))
-     */
-
     [Builtin("gcd")]
     public static object GreatestCommonDivider(params object[] args)
     {
@@ -1596,8 +1607,6 @@ namespace IronScheme.Runtime
       }
     }
 
-//    If you know gcd, then the lcm of two numbers is simply: 
-//    a / gcd(a, b) * b 
     [Builtin("lcm")]
     public static object LowestCommonMultiple(params object[] args)
     {
@@ -1672,6 +1681,7 @@ namespace IronScheme.Runtime
       }
     }
 
+#warning Will loose precision with big integers
     [Builtin("floor")]
     public static object Floor(object obj)
     {
@@ -1686,6 +1696,7 @@ namespace IronScheme.Runtime
       }
     }
 
+#warning Will loose precision with big integers
     [Builtin("ceiling")]
     public static object Ceiling(object obj)
     {
@@ -1700,6 +1711,7 @@ namespace IronScheme.Runtime
       }
     }
 
+#warning Will loose precision with big integers
     [Builtin("truncate")]
     public static object Truncate(object obj)
     {
@@ -1714,6 +1726,7 @@ namespace IronScheme.Runtime
       }
     }
 
+#warning Will loose precision with big integers
     [Builtin("round")]
     public static object Round(object obj)
     {
@@ -1727,7 +1740,6 @@ namespace IronScheme.Runtime
         return res;
       }
     }
-
 
     #region MathHelper
 
@@ -1806,7 +1818,6 @@ namespace IronScheme.Runtime
       return MathHelper(Math.Log, obj);
     }
     
-
     [Builtin("sin")]
     public static object Sin(object obj)
     {
@@ -1912,7 +1923,6 @@ namespace IronScheme.Runtime
       }
     }
 
-
     [Builtin("exact-integer-sqrt")]
     public static object ExactIntegerSqrt(object obj)
     {
@@ -1922,7 +1932,6 @@ namespace IronScheme.Runtime
 
       return Values(rf, rest);
     }
-
 
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)

@@ -32,7 +32,10 @@ namespace IronScheme.Runtime.psyntax
               i++;
             }
 
-            object visit = pivot.car;
+            // this is to insure runtime constants can be read, long story... see psyntax/internal.ss
+            ICallable e2c = SymbolValue(cc, SymbolTable.StringToId("expanded2core")) as ICallable;
+
+            object visit = e2c.Call(pivot.car);
 
             CallTarget0 visitproc = delegate
             {
@@ -43,7 +46,7 @@ namespace IronScheme.Runtime.psyntax
 
             pivot = (Cons)pivot.cdr;
 
-            object invoke = pivot.car;
+            object invoke = e2c.Call(pivot.car);
 
             CallTarget0 invokeproc = delegate
             {

@@ -88,7 +88,7 @@
   (set-symbol-value! 'compile->closure compile->closure)
   (set-symbol-value! 'eval-r6rs eval-top-level)
   (set-symbol-value! 'int-env-syms interaction-environment-symbols)
-  
+  (set-symbol-value! 'expanded2core expanded->core)
   
   (library-path (get-library-paths))
   )
