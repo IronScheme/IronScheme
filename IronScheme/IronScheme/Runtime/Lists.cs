@@ -40,6 +40,22 @@ namespace IronScheme.Runtime
       return Ast.TypeIs(values[0], typeof(Cons));
     }
 
+    static FieldInfo car = typeof(Cons).GetField("car");
+    static FieldInfo cdr = typeof(Cons).GetField("cdr");
+
+    [InlineEmitter("car")]
+    public static Expression Car(Expression[] values)
+    {
+      return Ast.ReadField(Ast.ConvertHelper(values[0], typeof(Cons)), car);
+    }
+
+    [InlineEmitter("cdr")]
+    public static Expression Cdr(Expression[] values)
+    {
+      return Ast.ReadField(Ast.ConvertHelper(values[0], typeof(Cons)), cdr);
+    }
+
+
     //static readonly MethodInfo Builtins_List = typeof(Builtins).GetMethod("List", new Type[] { typeof(object) });
     //static readonly MethodInfo Builtins_IsEqualValue = typeof(Builtins).GetMethod("IsEqualValue");
     //static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");

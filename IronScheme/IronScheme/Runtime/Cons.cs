@@ -23,8 +23,8 @@ namespace IronScheme.Runtime
   [Serializable]
   public sealed class Cons : ICollection, IEnumerable<object>
   {
-    internal object car;
-    internal object cdr;
+    public object car;
+    public object cdr;
 
     Cons() : this(null)
     {

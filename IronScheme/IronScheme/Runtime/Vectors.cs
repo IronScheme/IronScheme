@@ -198,34 +198,20 @@ namespace IronScheme.Runtime
 
       if (listcount > 0)
       {
-        object f = lists[0];
-
-        if (f is object[])
+        object[] output = new object[((object[])lists[0]).Length];
+        for (int i = 0; i < output.Length; i++)
         {
+          object[] args = new object[listcount];
 
-          object[] output = new object[((object[])lists[0]).Length];
-          for (int i = 0; i < output.Length; i++)
+          for (int j = 0; j < listcount; j++)
           {
-            object[] args = new object[listcount];
-
-            for (int j = 0; j < listcount; j++)
-            {
-              args[j] = ((object[])lists[j])[i];
-            }
-
-            output[i] = c.Call(args);
+            args[j] = ((object[])lists[j])[i];
           }
 
-          return output;
+          output[i] = c.Call(args);
         }
-        else
-        {
-          for (int i = 0; i < lists.Length; i++)
-          {
-            lists[i] = c.Call(lists[i]);
-          }
-          return lists;
-        }
+
+        return output;
       }
       return lists;
     }
@@ -251,29 +237,17 @@ namespace IronScheme.Runtime
 
       if (listcount > 0)
       {
-        object f = lists[0];
-
-        if (f is object[])
+        int ol = ((object[])lists[0]).Length;
+        for (int i = 0; i < ol; i++)
         {
-          int ol = ((object[])lists[0]).Length;
-          for (int i = 0; i < ol; i++)
-          {
-            object[] args = new object[listcount];
+          object[] args = new object[listcount];
 
-            for (int j = 0; j < listcount; j++)
-            {
-              args[j] = ((object[])lists[j])[i];
-            }
-
-            c.Call(args);
-          }
-        }
-        else
-        {
-          foreach (object o in lists)
+          for (int j = 0; j < listcount; j++)
           {
-            c.Call(o);
+            args[j] = ((object[])lists[j])[i];
           }
+
+          c.Call(args);
         }
       }
       return Unspecified;
