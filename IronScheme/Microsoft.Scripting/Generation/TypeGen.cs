@@ -82,7 +82,7 @@ namespace Microsoft.Scripting.Generation {
             foreach (TypeGen ntb in _nestedTypeGens) {
                 ntb.FinishType();
             }
-            //Console.WriteLine("finished: " + ret.FullName);
+
             return ret;
         }
 
@@ -119,7 +119,7 @@ namespace Microsoft.Scripting.Generation {
             FieldBuilder contextField = _myType.DefineField(CodeContext.ContextFieldName,
                     typeof(CodeContext),
                     FieldAttributes.Public | FieldAttributes.Static);
-            //contextField.SetCustomAttribute(new CustomAttributeBuilder(typeof(IronPython.Runtime.PythonHiddenFieldAttribute).GetConstructor(ArrayUtils.EmptyTypes), Runtime.Operations.ArrayUtils.EmptyObjects));
+            
             _contextSlot = new StaticFieldSlot(contextField);
         }
 

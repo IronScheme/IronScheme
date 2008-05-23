@@ -122,7 +122,8 @@ namespace Microsoft.Scripting.Generation {
                 this._debugSymbolWriter = typeGen.AssemblyGen.SymbolWriter;
 
             ILDebug = assemblyGen.ILDebug;
-            CacheConstants = true;
+            // this is a bit more tricky than i would think :|
+            //CacheConstants = true;
 
             //EmitLineInfo = ScriptDomainManager.Options.DynamicStackTraceSupport;
             WriteSignature(mi, paramTypes);

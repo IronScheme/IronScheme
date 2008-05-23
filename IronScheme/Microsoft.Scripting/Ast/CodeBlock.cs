@@ -434,11 +434,11 @@ namespace Microsoft.Scripting.Ast {
           if (depth == -1)
           {
             depth = 0;
-            CodeBlock parent = Parent;
+            CodeBlock parent = _parent;
             while (parent != null)
             {
               depth++;
-              parent = parent.Parent;
+              parent = parent._parent;
             }
           }
           return depth;
@@ -466,9 +466,10 @@ namespace Microsoft.Scripting.Ast {
 
                 foreach (VariableReference r in References)
                 {
-                  if (!r.Variable.Block.IsGlobal)
+                  CodeBlock cb = r.Variable.Block;
+                  if (!cb.IsGlobal)
                   {
-                    int d = r.Variable.Block.GetDepth();
+                    int d = cb.GetDepth();
 
                     if (d < maxdepth)
                     {

@@ -204,19 +204,26 @@
   ;;; every access.  If an identifier's frequency exceeds the
   ;;; preceeding one, the identifier's position is promoted to the
   ;;; top of its class (or the bottom of the previous class).
+  
+  (define (make-rib-map sym*)
+    (let ((ht (make-eq-hashtable)))
+      (let f ((i 0)(sym* sym*))
+        (if (null? sym*) ht
+          (begin
+            (hashtable-set! ht (car sym*) i)
+            (f (+ i 1) (cdr sym*)))))))
 
   (define (seal-rib! rib)
     (let ((sym* (rib-sym* rib)))
       (unless (null? sym*)
         ;;; only seal if rib is not empty.
-        (let ((sym* (list->vector sym*)))
-          (set-rib-sym*! rib sym*)
-          (set-rib-mark**! rib
-            (list->vector (rib-mark** rib)))
-          (set-rib-label*! rib
-            (list->vector (rib-label* rib)))
-          (set-rib-sealed/freq! rib
-            (make-vector (vector-length sym*) 0))))))
+        (set-rib-sym*! rib (list->vector sym*))
+        (set-rib-mark**! rib
+          (list->vector (rib-mark** rib)))
+        (set-rib-label*! rib
+          (list->vector (rib-label* rib)))
+        (set-rib-sealed/freq! rib
+          (make-rib-map sym*)))))
 
   (define (unseal-rib! rib)
     (when (rib-sealed/freq rib)
@@ -225,7 +232,7 @@
       (set-rib-mark**! rib (vector->list (rib-mark** rib)))
       (set-rib-label*! rib (vector->list (rib-label* rib)))))
 
-  (define (increment-rib-frequency! rib idx)
+  #;(define (increment-rib-frequency! rib idx)
     (let ((freq* (rib-sealed/freq rib)))
       (let ((freq (vector-ref freq* idx)))
         (let ((i
@@ -254,7 +261,9 @@
 
   (define make-full-rib ;;; it may be a good idea to seal this rib
     (lambda (id* label*)
-      (make-rib (map id->sym id*) (map stx-mark* id*) label* #f)))
+      (let ((r (make-rib (map id->sym id*) (map stx-mark* id*) label* #f)))
+        (seal-rib! r)
+        r)))
 
   ;;; Now to syntax objects which are records defined like:
   (define-record stx (expr mark* subst* ae*)
@@ -592,6 +601,7 @@
              ;;; fabricate binding
              (let ([rib (interaction-env-rib env)])
                (let-values ([(lab loc_) (gen-define-label+loc id rib)])
+                 (extend-rib! rib id lab)
                  lab)))]
           [else #f])))
           
@@ -609,18 +619,12 @@
             (else
              (let ((rib (car subst*)))
                (cond
-                 ((rib-sealed/freq rib)
-                  (let ((sym* (rib-sym* rib)))
-                    (let f ((i 0) (j (vector-length sym*)))
-                      (cond
-                        ((= i j) (search (cdr subst*) mark*))
-                        ((and (eq? (vector-ref sym* i) sym)
-                              (same-marks? mark*
-                                (vector-ref (rib-mark** rib) i)))
-                          (let ((label (vector-ref (rib-label* rib) i)))
-                            (increment-rib-frequency! rib i)
-                            label))
-                        (else (f (+ i 1) j))))))
+                 ((rib-sealed/freq rib) =>
+                  (lambda (ht)
+                    (let ((si (hashtable-ref ht sym #f)))
+                      (if (and si (same-marks? mark* (vector-ref (rib-mark** rib) si)))
+                        (vector-ref (rib-label* rib) si)
+                        (search (cdr subst*) mark*)))))
                  (else
                   (let f ((sym* (rib-sym* rib))
                           (mark** (rib-mark** rib))
