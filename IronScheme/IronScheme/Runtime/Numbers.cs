@@ -1437,21 +1437,86 @@ namespace IronScheme.Runtime
       }
     }
 
-#warning Will loose precision with big integers
+    
+    static object RemainderInternal(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation("RemainderInternal", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("RemainderInternal", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          try
+          {
+            return checked(ConvertToInteger(first) % ConvertToInteger(second));
+          }
+          catch (OverflowException)
+          {
+            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+          }
+        case NumberClass.BigInteger:
+          return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+        case NumberClass.Rational:
+          return IntegerIfPossible(ConvertToRational(first) % ConvertToRational(second));
+        case NumberClass.Real:
+          return ConvertToReal(first) % ConvertToReal(second);
+        case NumberClass.Complex:
+          return ConvertToComplex(first) % ConvertToComplex(second);
+      }
+
+      return Error("RemainderInternal", "BUG");
+    }
+
+    static object Sign(object o)
+    {
+      if (IsTrue(IsNegative(o)))
+      {
+        return -1;
+      }
+      else
+      {
+        return 1;
+      }
+    }
+
+    static bool BothPostiveOrNegative(object a, object b)
+    {
+      if ((IsTrue(IsPositive(a)) && IsTrue(IsPositive(b))) ||
+          (IsTrue(IsNegative(a)) && IsTrue(IsNegative(b))))
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+
     [Builtin("div")]
     public static object Div(object a, object b)
     {
       return ((object[])DivMod(a, b))[0];
     }
 
-#warning Will loose precision with big integers
     [Builtin("mod")]
     public static object Mod(object a, object b)
     {
       return ((object[])DivMod(a, b))[1];
     }
 
-#warning Will loose precision with big integers
     [Builtin("div-and-mod")]
     public static object DivMod(object x1, object x2)
     {
@@ -1465,25 +1530,26 @@ namespace IronScheme.Runtime
         x2 = Multiply(x2, scale);
       }
 
-      double a = Convert.ToDouble(x1);
-      double b = Convert.ToDouble(x2);
+      object a = x1;
+      object b = x2;
 
-      double div = Math.Floor(a / b);
-      double mod = a % b;
+      object div = Floor(Divide(a, b));
+      object mod = RemainderInternal(a , b);
 
-      if (mod < 0)
+      if (IsTrue(IsNegative(mod)))
       {
-        mod += (b * Math.Sign(b));
-        if ((a > 0 && b > 0) || (a < 0 && b < 0))
+        mod = Add(mod, Multiply(b , Sign(b)));
+
+        if (BothPostiveOrNegative(a,b))
         {
-          div++;
+          div = Add(div, 1);
         }
       }
-      else if (mod > b)
+      else if (IsTrue(IsGreaterThan(mod, b)))
       {
-        if (!((a > 0 && b > 0) || (a < 0 && b < 0)))
+        if (!BothPostiveOrNegative(a,b))
         {
-          div++;
+          div = Add(div, 1);
         }
       }
 
@@ -1495,21 +1561,18 @@ namespace IronScheme.Runtime
       return Values(Exact(div), mod);
     }
 
-#warning Will loose precision with big integers
     [Builtin("div0")]
     public static object Div0(object a, object b)
     {
       return ((object[])Div0Mod0(a, b))[0];
     }
 
-#warning Will loose precision with big integers
     [Builtin("mod0")]
     public static object Mod0(object a, object b)
     {
       return ((object[])Div0Mod0(a, b))[1];
     }
 
-#warning Will loose precision with big integers
     [Builtin("div0-and-mod0")]
     public static object Div0Mod0(object x1, object x2)
     {
@@ -1523,30 +1586,31 @@ namespace IronScheme.Runtime
         x2 = Multiply(x2, scale);
       }
 
-      double a = Convert.ToDouble(x1);
-      double b = Convert.ToDouble(x2);
+      object a = x1;
+      object b = x2;
 
       object[] dv = (object[]) DivMod(a, b);
-      double div = Convert.ToDouble(dv[0]);
-      double mod = Convert.ToDouble(dv[1]);
-      double h = b / 2;
+      object div = dv[0];
+      object mod = dv[1];
+      object h = Divide( b , 2);
 
-      if (mod > h && mod > -h)
+      if (IsTrue(IsGreaterThan(mod, h)) && IsTrue(IsGreaterThan(mod, Subtract(h))))
       {
-        mod -= (b * Math.Sign(b));
-        if ((a > 0 && b > 0) || (a < 0 && b < 0) && mod != -h)
+        mod = Subtract(mod, Multiply(b, Sign(b)));
+
+        if (BothPostiveOrNegative(a,b) && !IsTrue(IsSame(mod,Subtract(h))))
         {
-          div--;
+          div = Subtract(div, 1);
         }
         else
         {
-          div++;
+          div = Add(div, 1);
         }
       }
-      else if (mod == h)
+      else if (IsTrue(IsSame(mod,h)))
       {
-        mod -= (b * Math.Sign(b));
-        div++;
+        mod = Subtract(mod, Multiply(b, Sign(b)));
+        div = Add(div, 1);
       }
 
       if (exactargs)
@@ -1554,14 +1618,7 @@ namespace IronScheme.Runtime
         return Values(Exact(div), Exact(Divide(mod, scale)));
       }
 
-      if (Math.IEEERemainder(mod, 1) == 0.0)
-      {
-        return Values(Exact(div), Exact(mod));
-      }
-      else
-      {
-        return Values(Exact(div), mod);
-      }
+      return Values(Exact(div), mod);
     }
     
     [Builtin("gcd")]
@@ -1681,10 +1738,23 @@ namespace IronScheme.Runtime
       }
     }
 
-#warning Will loose precision with big integers
     [Builtin("floor")]
     public static object Floor(object obj)
     {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (IsTrue(IsRational(obj)))
+      {
+        Fraction f = ConvertToRational(obj);
+        BigInteger c = f.Numerator / f.Denominator;
+        if (c < 0)
+        {
+          c -= 1;
+        }
+        return c;
+      }
       object res = MathHelper(Math.Floor, obj);
       if (IsTrue(IsExact(obj)))
       {
@@ -1696,10 +1766,23 @@ namespace IronScheme.Runtime
       }
     }
 
-#warning Will loose precision with big integers
     [Builtin("ceiling")]
     public static object Ceiling(object obj)
     {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (IsTrue(IsRational(obj)))
+      {
+        Fraction f = ConvertToRational(obj);
+        BigInteger c = f.Numerator / f.Denominator;
+        if (c > 0)
+        {
+          c += 1;
+        }
+        return c;
+      }
       object res = MathHelper(Math.Ceiling, obj);
       if (IsTrue(IsExact(obj)))
       {
@@ -1711,10 +1794,19 @@ namespace IronScheme.Runtime
       }
     }
 
-#warning Will loose precision with big integers
     [Builtin("truncate")]
     public static object Truncate(object obj)
     {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (IsTrue(IsRational(obj)))
+      {
+        Fraction f = ConvertToRational(obj);
+        BigInteger c = f.Numerator / f.Denominator;
+        return c;
+      }
       object res = MathHelper(Math.Truncate, obj);
       if (IsTrue(IsExact(obj)))
       {
@@ -1726,10 +1818,38 @@ namespace IronScheme.Runtime
       }
     }
 
-#warning Will loose precision with big integers
     [Builtin("round")]
     public static object Round(object obj)
     {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (IsTrue(IsRational(obj)))
+      {
+        Fraction f = ConvertToRational(obj);
+        BigInteger c = f.Numerator / f.Denominator;
+        BigInteger d = f.Numerator % f.Denominator;
+        if (d > f.Denominator / 2)
+        {
+          return c + 1;
+        }
+        else if (d < f.Denominator / 2)
+        {
+          return c;
+        }
+        else
+        {
+          if (c % 2 == 0)
+          {
+            return c;
+          }
+          else
+          {
+            return c + 1;
+          }
+        }
+      }
       object res = MathHelper(Math.Round, obj);
       if (IsTrue(IsExact(obj)))
       {

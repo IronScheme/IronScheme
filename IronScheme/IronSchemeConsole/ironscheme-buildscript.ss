@@ -25,6 +25,7 @@
   (rnrs io ports)
   (rnrs lists)
   (rnrs files)
+  (rnrs hashtables)
   (psyntax internal)
   (psyntax compat)
   (psyntax library-manager)
@@ -1179,6 +1180,14 @@
       (map car identifier->library-map))
     (values (export-subst) (export-env) (export-primlocs))))
 
+(define identifier->library-map-hashtable
+  (let ((ht (make-eq-hashtable)))
+    (for-each 
+      (lambda (x)
+        (hashtable-set! ht (car x) x))
+      identifier->library-map)
+    ht))
+
 (define (get-export-subset key subst)
   (let f ((ls subst))
     (cond
@@ -1187,7 +1196,7 @@
        (let ((x (car ls)))
          (let ((name (car x)))
            (cond
-             ((assq name identifier->library-map)
+             ((hashtable-ref identifier->library-map-hashtable name #f)
               =>
               (lambda (q)
                 (cond

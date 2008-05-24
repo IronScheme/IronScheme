@@ -26,14 +26,12 @@ namespace IronScheme.Runtime
 {
   public static partial class BuiltinEmitters
   {
-
     [InlineEmitter("null?")]
     public static Expression IsNull(Expression[] values)
     {
       return Ast.Equal(values[0], Ast.Null());
     }
-
-
+    
     [InlineEmitter("pair?")]
     public static Expression IsPair(Expression[] values)
     {
@@ -55,25 +53,15 @@ namespace IronScheme.Runtime
       return Ast.ReadField(Ast.ConvertHelper(values[0], typeof(Cons)), cdr);
     }
 
+    static ConstructorInfo cons = typeof(Cons).GetConstructor(new Type[] { typeof(object), typeof(object) });
 
-    //static readonly MethodInfo Builtins_List = typeof(Builtins).GetMethod("List", new Type[] { typeof(object) });
-    //static readonly MethodInfo Builtins_IsEqualValue = typeof(Builtins).GetMethod("IsEqualValue");
-    //static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
+    [InlineEmitter("cons")]
+    public static Expression Cons(Expression[] values)
+    {
+      return Ast.New(cons, values[0], values[1]);
+    }
 
-    //[InlineEmitter("memv")]
-    //public static Expression Memv(Expression[] values)
-    //{
-    //  if (values[1] is MethodCallExpression)
-    //  {
-    //    MethodCallExpression mce = values[1] as MethodCallExpression;
 
-    //    if (mce.Method == Builtins_List)
-    //    {
-    //      return Ast.Condition(Ast.Call(Builtins_IsTrue, Ast.Call(Builtins_IsEqualValue, values[0], mce.Arguments[0])), mce.Arguments[0], Ast.Convert(Ast.False(), typeof(object)));
-    //    }
-    //  }
-    //  return null;
-    //}
   }
 
   public partial class Builtins
@@ -248,19 +236,16 @@ namespace IronScheme.Runtime
     {
       return VectorToList(MakeVector(n, fill));
     }
-    
-    protected delegate object Pred(object a, object b);
 
-    protected static object AssocHelper(Pred pred, object obj, object list)
+    [Builtin]
+    public static object Assq(object obj, object list)
     {
       Cons e = Requires<Runtime.Cons>(list);
-
-      //System.Diagnostics.Trace.WriteLine(Length(e), "ass");
 
       while (e != null)
       {
         Cons ass = RequiresNotNull<Cons>(e.car);
-        if (IsTrue(pred(obj, ass.car)))
+        if (IsTrue(IsEqual(obj, ass.car)))
         {
           return ass;
         }
@@ -270,34 +255,13 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static object Assoc(object obj, object list)
+    public static object Memq(object obj, object list)
     {
-      return AssocHelper(IsEquivalent, obj, list);
-    }
-
-    [Builtin]
-    public static object Assq(object obj, object list)
-    {
-      return AssocHelper(IsEqual, obj, list);
-    }
-
-    [Builtin]
-    public static object Assv(object obj, object list)
-    {
-      return AssocHelper(IsEqualValue, obj, list);
-    }
-
-    protected static object MemberHelper(Pred pred, object obj, object list)
-    {
-      // must be properlist
       Cons c = Requires<Runtime.Cons>(list);
-
-      //int len = (int) Length(c);
-      //System.Diagnostics.Trace.WriteLine(len, "mem");
 
       while (c != null)
       {
-        if (IsTrue(pred(c.car, obj)))
+        if (IsTrue(IsEqual(c.car, obj)))
         {
           return c;
         }
@@ -307,23 +271,21 @@ namespace IronScheme.Runtime
       return FALSE;
     }
 
-
-    [Builtin]
-    public static object Member(object obj, object list)
-    {
-      return MemberHelper(IsEquivalent, obj, list);
-    }
-
-    [Builtin]
-    public static object Memq(object obj, object list)
-    {
-      return MemberHelper(IsEqual, obj, list);
-    }
-
     [Builtin]
     public static object Memv(object obj, object list)
     {
-      return MemberHelper(IsEqualValue, obj, list);
+      Cons c = Requires<Runtime.Cons>(list);
+
+      while (c != null)
+      {
+        if (IsTrue(IsEqualValue(c.car, obj)))
+        {
+          return c;
+        }
+        c = c.cdr as Cons;
+      }
+
+      return FALSE;
     }
 
 

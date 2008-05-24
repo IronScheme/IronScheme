@@ -91,12 +91,12 @@
         (else x)))
     f)
   
-  (define need-quote-hack?
+  #;(define need-quote-hack?
     (let ((x (cons 1 2)))
       (not (eq? (eval-core `',x) (eval-core `',x)))))
 
   (define (expanded->core x)
-    ((rewriter need-quote-hack?) x))
+    ((rewriter #t) x))
     
   (define (compile-core-expr x)
     ((rewriter #f) x))    

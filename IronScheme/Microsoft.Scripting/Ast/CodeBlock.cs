@@ -444,67 +444,82 @@ namespace Microsoft.Scripting.Ast {
           return depth;
         }
 
-        private void CreateClosureAccessSlots(CodeGen cg) {
-            ScopeAllocator allocator = cg.Allocator;
+        private void CreateClosureAccessSlots(CodeGen cg)
+        {
+          ScopeAllocator allocator = cg.Allocator;
 
-            // Current context is accessed via environment slot, if any
-            if (HasEnvironment) {
-                allocator.AddClosureAccessSlot(this, cg.EnvironmentSlot);
-            }
+          // Current context is accessed via environment slot, if any
+          if (HasEnvironment)
+          {
+            allocator.AddClosureAccessSlot(this, cg.EnvironmentSlot);
+          }
 
           // this is the root of all evil...
-            if (IsClosure) {
-                Slot scope = cg.GetLocalTmp(typeof(Scope));
-                cg.EmitCodeContext();
-                cg.EmitPropertyGet(typeof(CodeContext), "Scope");
-                if (HasEnvironment) {
-                    cg.EmitPropertyGet(typeof(Scope), "Parent");
-                }
-                scope.EmitSet(cg);
+          if (IsClosure)
+          {
+            int maxdepth = GetDepth();
 
-                int maxdepth = GetDepth();
+            foreach (VariableReference r in References)
+            {
+              CodeBlock cb = r.Variable.Block;
+              if (!cb.IsGlobal)
+              {
+                int d = cb.GetDepth();
 
-                foreach (VariableReference r in References)
+                if (d < maxdepth)
                 {
-                  CodeBlock cb = r.Variable.Block;
-                  if (!cb.IsGlobal)
-                  {
-                    int d = cb.GetDepth();
+                  maxdepth = d;
+                }
+              }
+            }
 
-                    if (d < maxdepth)
-                    {
-                      maxdepth = d;
-                    }
-                  }
+            int diff = depth - maxdepth;
+
+            if (diff > 0)
+            {
+              Slot scope = cg.GetLocalTmp(typeof(Scope));
+              cg.EmitCodeContext();
+              cg.EmitPropertyGet(typeof(CodeContext), "Scope");
+              if (HasEnvironment)
+              {
+                cg.EmitPropertyGet(typeof(Scope), "Parent");
+              }
+              scope.EmitSet(cg);
+
+              int i = 0;
+              CodeBlock current = this;
+              do
+              {
+                CodeBlock parent = current._parent;
+                if (parent._environmentFactory != null)
+                {
+                  scope.EmitGet(cg);
+
+                  cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetTupleDictionaryData").MakeGenericMethod(parent._environmentFactory.StorageType));
+
+                  Slot storage = new LocalSlot(cg.DeclareLocal(parent._environmentFactory.StorageType), cg);
+                  storage.EmitSet(cg);
+                  allocator.AddClosureAccessSlot(parent, storage);
                 }
 
-                int diff = depth - maxdepth;
+                i++;
 
-                int i = 0;
+                if (i < diff)
+                {
+                  scope.EmitGet(cg);
+                  cg.EmitPropertyGet(typeof(Scope), "Parent");
+                  scope.EmitSet(cg);
+                }
 
-                CodeBlock current = this;
-                do {
-                    CodeBlock parent = current._parent;
-                    if (parent._environmentFactory != null) {
-                        scope.EmitGet(cg);
+                current = parent;
+                
+              } while (i < diff && current != null && current.IsClosure);
 
-                        cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetTupleDictionaryData").MakeGenericMethod(parent._environmentFactory.StorageType));
-
-                        Slot storage = new LocalSlot(cg.DeclareLocal(parent._environmentFactory.StorageType), cg);
-                        storage.EmitSet(cg);
-                        allocator.AddClosureAccessSlot(parent, storage);
-                    }
-
-                    scope.EmitGet(cg);
-                    cg.EmitPropertyGet(typeof(Scope), "Parent");
-                    scope.EmitSet(cg);
-
-                    current = parent;
-                    i++;
-                } while (i < diff && current != null && current.IsClosure);
-
-                cg.FreeLocalTmp(scope);
+              cg.FreeLocalTmp(scope);
             }
+
+
+          }
         }
 
         private void CreateScopeAccessSlots(CodeGen cg) {
