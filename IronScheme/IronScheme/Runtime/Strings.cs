@@ -54,8 +54,9 @@ namespace IronScheme.Runtime
      */
 
     [Builtin("string-set!")]
-    public static object StringSet(object obj, int k, object value)
+    public static object StringSet(object obj, object k, object value)
     {
+      int i = RequiresNotNull<int>(k);
       StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
       if (sb != null)
       {
@@ -63,7 +64,7 @@ namespace IronScheme.Runtime
         {
           value = (char)(int)value;
         }
-        sb[k] = (char)value;
+        sb[i] = (char)value;
         return Unspecified;
       }
       return AssertionViolation("string-set!", "not a mutable string", obj);
@@ -76,36 +77,38 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-ref")]
-    public static object StringRef(object obj, int k)
+    public static object StringRef(object obj, object k)
     {
+      int i = RequiresNotNull<int>(k);
       string s = obj as string;
       if (s != null)
       {
-        return s[k];
+        return s[i];
       }
 
       StringBuilder sb = obj as StringBuilder;
       if (sb != null)
       {
-        return sb[k];
+        return sb[i];
       }
 
       return AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", obj);
     }
 
     [Builtin("make-string")]
-    public static StringBuilder MakeString(int k)
+    public static StringBuilder MakeString(object k)
     {
       return MakeString(k, (char)0);
     }
 
     [Builtin("make-string")]
-    public static StringBuilder MakeString(int k, object fill)
+    public static StringBuilder MakeString(object k, object fill)
     {
-      StringBuilder sb = new StringBuilder(k);
-      for (int i = 0; i < k; i++)
+      int n = RequiresNotNull<int>(k);
+      StringBuilder sb = new StringBuilder(n);
+      for (int i = 0; i < n; i++)
       {
-        sb.Append((char)fill);
+        sb.Append(RequiresNotNull<char>(fill));
       }
       return sb;
     }
@@ -132,10 +135,12 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("substring")]
-    public static string SubString(object obj, int start, int end)
+    public static string SubString(object obj, object start, object end)
     {
+      int st = RequiresNotNull<int>(start);
+      int ed = RequiresNotNull<int>(end);
       string s = GetString(obj);
-      return s.Substring(start, end - start);
+      return s.Substring(st, ed - st);
     }
 
     [Builtin("string-append")]
@@ -360,7 +365,7 @@ namespace IronScheme.Runtime
     {
       string s = GetString(obj);
 
-      return Runtime.Cons.FromList(s.ToCharArray());
+      return Runtime.Cons.FromList(s);
     }
 
     [Builtin("list->string")]
@@ -381,27 +386,6 @@ namespace IronScheme.Runtime
 
       return sb.ToString();
     }
-
-    [Builtin("list->string")]
-    public static string ListToString(object obj, object sep)
-    {
-#warning todo: list->string with seperator
-      StringBuilder sb = new StringBuilder();
-
-      Cons c = Requires<Runtime.Cons>(obj);
-
-      while (c != null)
-      {
-        char k = RequiresNotNull<char>(c.car);
-
-        sb.Append(k);
-
-        c = c.cdr as Cons;
-      }
-
-      return sb.ToString();
-    }
-
 
     [Builtin("string-for-each")]
     public static object StringForEach(object proc, params object[] lists)

@@ -77,7 +77,7 @@ namespace IronScheme.Runtime
     [Builtin("make-vector")]
     public static object[] MakeVector(object k)
     {
-      return MakeVector(k, null);
+      return MakeVector(k, Unspecified);
     }
 
     [Builtin("make-vector")]
