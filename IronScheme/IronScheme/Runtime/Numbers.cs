@@ -1703,6 +1703,10 @@ namespace IronScheme.Runtime
     [Builtin("numerator")]
     public static object Numerator(object obj)
     {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
       if (obj is Fraction)
       {
         return Exact(((Fraction)obj).Numerator);
@@ -1722,6 +1726,10 @@ namespace IronScheme.Runtime
     [Builtin("denominator")]
     public static object Denominator(object obj)
     {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return 1;
+      }
       if (obj is Fraction)
       {
         return Exact(((Fraction)obj).Denominator);
