@@ -55,7 +55,7 @@ namespace IronScheme.Web
               sdm.GlobalOptions.AssemblyGenAttributes = Microsoft.Scripting.Generation.AssemblyGenAttributes.None;
               lp = new IronSchemeLanguageProvider(sdm);
               se = lp.GetEngine();
-              se.Execute("(load \"~/init.scm\")");
+              se.Execute("(load \"~/ironscheme.boot.pp\")");
               context.Application["LanguageProvider"] = lp;
               compiled.Clear();
             }

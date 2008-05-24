@@ -20,7 +20,7 @@
     (ironscheme web-utils)
     (ironscheme clr))
 
-  (clr-reference system.web)
+  (clr-reference "System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
   (clr-using system.web)
   (clr-using system.collections.specialized)
   (clr-using system.web.sessionstate)

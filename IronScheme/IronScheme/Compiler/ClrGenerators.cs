@@ -384,18 +384,20 @@ namespace IronScheme.Compiler
       if (name is SymbolId)
       {
         assname = SymbolTable.IdToString((SymbolId)name);
+#pragma warning disable 618
+        Assembly.LoadWithPartialName(assname);
+#pragma warning restore 618
       }
       else if (name is string)
       {
         assname = (string)name;
+        Assembly.Load(assname);
       }
       else
       {
         Builtins.SyntaxError("clr-reference", "reference is not a symbol or a string", name, false);
       }
-#pragma warning disable 618
-      Assembly.LoadWithPartialName(assname);
-#pragma warning restore 618
+
 
       return Ast.ReadField(null, Unspecified);
     }
