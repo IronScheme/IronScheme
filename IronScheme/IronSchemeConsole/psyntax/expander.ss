@@ -210,7 +210,8 @@
       (let f ((i 0)(sym* sym*))
         (if (null? sym*) ht
           (begin
-            (hashtable-set! ht (car sym*) i)
+            (hashtable-update! ht (car sym*) 
+              (lambda (x) (cons i x)) '())
             (f (+ i 1) (cdr sym*)))))))
 
   (define (seal-rib! rib)
@@ -589,6 +590,11 @@
   (define stx->datum
     (lambda (x)
       (strip x '())))
+      
+  (define (same-marks*? mark* mark** si)
+    (if (null? si) #f
+      (if (same-marks? mark* (vector-ref mark** (car si))) (car si)
+        (same-marks*? mark* mark** (cdr si)))))    
 
   ;;; id->label takes an id (that's a sym x marks x substs) and
   ;;; searches the substs for a label associated with the same sym
@@ -622,9 +628,12 @@
                  ((rib-sealed/freq rib) =>
                   (lambda (ht)
                     (let ((si (hashtable-ref ht sym #f)))
-                      (if (and si (same-marks? mark* (vector-ref (rib-mark** rib) si)))
-                        (vector-ref (rib-label* rib) si)
-                        (search (cdr subst*) mark*)))))
+                      (let ((i (and si 
+                            (same-marks*? mark* 
+                              (rib-mark** rib) (reverse si)))))
+                        (if i
+                          (vector-ref (rib-label* rib) i)
+                        (search (cdr subst*) mark*))))))
                  (else
                   (let f ((sym* (rib-sym* rib))
                           (mark** (rib-mark** rib))
@@ -1122,7 +1131,7 @@
             ((pair? x) (cons (f (car x)) (f (cdr x))))
             ((symbol? x) (scheme-stx x))
             ((vector? x)
-             (list->vector (map f (vector->list x))))
+             (vector-map f x))
             (else x)))
         '() '() '())))
   

@@ -281,6 +281,20 @@
     (define (cddddr x) (cdddr (cdr x)))
     
     
+;    (define (div-and-mod x1 x2)
+;      (let ((exact-args? (and (exact? x1) (exact? x2)))
+;            (scale 1))
+;         (when exact-args?
+;            (set! scale (* (denominator x1) (denominator x2)))
+;            (set! x1 (* scale x1))
+;            (set! x2 (* scale x2)))
+;         (let ((div (floor (/ x1 x2)))(mod (% x1 x2)))
+;           (if (negative? mod)
+;            (when (or (and (
+;        
+;      ))
+    
+    
     ;; from SLIB
     (define (rationalize x e) 
       (apply / (find-ratio x e)))
