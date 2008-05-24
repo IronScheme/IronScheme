@@ -68,10 +68,10 @@ namespace Microsoft.Scripting.Ast {
                 if (t.Body is BlockStatement)
                 {
                   BlockStatement bs = (BlockStatement)t.Body;
-                  if (!(bs.Statements[bs.Statements.Count - 1] is ReturnStatement))
+                  if (!(bs.Statements[bs.Statements.Count - 1] is ReturnStatement) && 
+                    !(bs.Statements[bs.Statements.Count - 1] is IfStatement))
                   {
                     eoiused |= true;
-                    cg.EmitSequencePointNone();     // hide compiler generated branch.
                     cg.Emit(OpCodes.Br, eoi);
                   }
                 }
@@ -80,7 +80,6 @@ namespace Microsoft.Scripting.Ast {
                   if (!(t.Body is ReturnStatement) && !(t.Body is IfStatement))
                   {
                     eoiused |= true;
-                    cg.EmitSequencePointNone();     // hide compiler generated branch.
                     cg.Emit(OpCodes.Br, eoi);
                   }
                 }

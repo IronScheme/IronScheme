@@ -57,7 +57,14 @@ namespace IronScheme.Compiler
                 continue;
               }
             }
-            newargs.Add(a);
+            if (uwa is CommaExpression)
+            {
+              newargs.AddRange(((CommaExpression)uwa).Expressions);
+            }
+            else
+            {
+              newargs.Add(a);
+            }
           }
           if (newargs.Count == 0)
           {
@@ -65,7 +72,16 @@ namespace IronScheme.Compiler
           }
           else
           {
-            newargs.Add(aa[aa.Length - 1]);
+            Expression uwa = aa[aa.Length - 1];
+            if (uwa is CommaExpression)
+            {
+              newargs.AddRange(((CommaExpression)uwa).Expressions);
+            }
+            else
+            {
+              newargs.Add(uwa);
+            }
+            
             return Ast.Comma(newargs);
           }
         }
