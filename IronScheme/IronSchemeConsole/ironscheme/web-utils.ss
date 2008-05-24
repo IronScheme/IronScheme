@@ -8,7 +8,7 @@
     (ironscheme)
     (ironscheme clr))
 
-  (clr-reference system.web)
+  (clr-reference "System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
   (clr-using system.web)
     
   (define (url-encode s)

@@ -34,5 +34,6 @@
 (display "<input type='submit' name='foo' value='Click me!'/>")
 (display "</form>")
 
+(define qid (or (querystring "id") 1))
 
-(display (format "<a href='test2.ss?id=~a'>Next test</a>" (querystring "id")))
+(display (format "<a href='test2.ss?id=~a'>Next test</a>" qid))
