@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return FALSE;
+        return AssertionViolation(GetCaller(), "not a symbol", obj);
       }
     }
 
@@ -69,7 +69,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return FALSE;
+        return AssertionViolation(GetCaller(), "not a string or stringbuilder", obj);
       }
     }
 

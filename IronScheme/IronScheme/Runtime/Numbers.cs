@@ -919,14 +919,7 @@ namespace IronScheme.Runtime
     [Builtin("zero?")]
     public static object IsZero(object obj)
     {
-      if ((bool)IsInteger(obj))
-      {
-        return IsEqualValue(obj, 0);
-      }
-      else
-      {
-        return IsEqualValue(obj, 0.0);
-      }
+      return IsSame(obj, 0);
     }
 
     [Builtin("positive?")]
@@ -961,7 +954,7 @@ namespace IronScheme.Runtime
       foreach (object var in rest)
       {
         e &= GetNumberClass(var);
-        if ((bool)IsLessThan(var, min))
+        if (IsTrue(IsLessThan(var, min)))
         {
           min = var;
         }
@@ -979,7 +972,7 @@ namespace IronScheme.Runtime
       foreach (object var in rest)
       {
         e &= GetNumberClass(var);
-        if ((bool)IsGreaterThan(var, max))
+        if (IsTrue(IsGreaterThan(var, max)))
         {
           max = var;
         }
@@ -1074,16 +1067,17 @@ namespace IronScheme.Runtime
       }
     }
 
-    static int ConvertToInteger(object o)
+    protected static int ConvertToInteger(object o)
     {
       if (o is int)
       {
         return (int)o;
       }
+      AssertionViolation("ConvertToInteger", "not an integer", o);
       throw new Exception("BUG");
     }
 
-    static BigInteger ConvertToBigInteger(object o)
+    protected static BigInteger ConvertToBigInteger(object o)
     {
       if (o is int)
       {
@@ -1093,6 +1087,7 @@ namespace IronScheme.Runtime
       {
         return (BigInteger)o;
       }
+      AssertionViolation("ConvertToBigInteger", "not a big integer", o);
       throw new Exception("BUG");
     }
 
@@ -1105,12 +1100,12 @@ namespace IronScheme.Runtime
       return (Fraction)FractionConverter.ConvertFrom(o);
     }
 
-    static double ConvertToReal(object o)
+    protected static double ConvertToReal(object o)
     {
       return SafeConvert(o);
     }
 
-    static Complex64 ConvertToComplex(object o)
+    protected static Complex64 ConvertToComplex(object o)
     {
       if (o is Complex64)
       {
@@ -1153,7 +1148,7 @@ namespace IronScheme.Runtime
             return ConvertToBigInteger(first) + ConvertToBigInteger(second);
           }
         case NumberClass.BigInteger:
-          return ConvertToBigInteger(first) + ConvertToBigInteger(second);
+          return ToIntegerIfPossible(ConvertToBigInteger(first) + ConvertToBigInteger(second));
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) + ConvertToRational(second));
         case NumberClass.Real:
@@ -1221,7 +1216,7 @@ namespace IronScheme.Runtime
             return ConvertToBigInteger(first) - ConvertToBigInteger(second);
           }
         case NumberClass.BigInteger:
-          return ConvertToBigInteger(first) - ConvertToBigInteger(second);
+          return ToIntegerIfPossible(ConvertToBigInteger(first) - ConvertToBigInteger(second));
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) - ConvertToRational(second));
         case NumberClass.Real:
@@ -1294,7 +1289,7 @@ namespace IronScheme.Runtime
             return ConvertToBigInteger(first) * ConvertToBigInteger(second);
           }
         case NumberClass.BigInteger:
-          return ConvertToBigInteger(first) * ConvertToBigInteger(second);
+          return ToIntegerIfPossible(ConvertToBigInteger(first) * ConvertToBigInteger(second));
         case NumberClass.Rational:
           return IntegerIfPossible(ConvertToRational(first) * ConvertToRational(second));
         case NumberClass.Real:
@@ -1304,6 +1299,18 @@ namespace IronScheme.Runtime
       }
 
       return Error("*", "BUG");
+    }
+
+    protected static object ToIntegerIfPossible(BigInteger i)
+    {
+      if (i <= int.MaxValue && i >= int.MinValue)
+      {
+        return (int)i;
+      }
+      else
+      {
+        return i;
+      }
     }
 
     [Builtin("*")]
