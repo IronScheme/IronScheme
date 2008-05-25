@@ -382,7 +382,14 @@ namespace IronScheme.Runtime
         object n1 = StringToNumber( str.Substring(0, fi), radix);
         object n2 = StringToNumber( str.Substring(fi + 1), radix);
 
-        return new Fraction(ConvertToBigInteger(n1),ConvertToBigInteger(n2));
+        try
+        {
+          return new Fraction(ConvertToBigInteger(n1),ConvertToBigInteger(n2));
+        }
+        catch
+        {
+          return FALSE;
+        }
       }
 
       switch (r)

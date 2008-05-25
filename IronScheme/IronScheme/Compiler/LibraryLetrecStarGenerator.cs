@@ -26,6 +26,8 @@ namespace IronScheme.Compiler
   [Generator("library-letrec*")]
   public sealed class LibraryLetrecStarGenerator : SimpleGenerator
   {
+    static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
+
     int level = 0;
     public override Expression Generate(object args, CodeBlock c)
     {
@@ -34,7 +36,7 @@ namespace IronScheme.Compiler
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
       cb.IsGlobal = true;
 
-      List<Variable> vars = new List<Variable>();
+      List<SymbolId> vars = new List<SymbolId>();
       List<Variable> locals = new List<Variable>();
 
       List<object> defs = new List<object>();
@@ -45,8 +47,10 @@ namespace IronScheme.Compiler
       {
         Cons d = a.car as Cons;
 
-        vars.Add(Create((SymbolId)((Cons)d.cdr).car, cb, typeof(object)));
-        locals.Add(Create((SymbolId)d.car, cb, typeof(object)));
+        SymbolId v = (SymbolId)d.car;
+        SymbolId l = (SymbolId)((Cons)d.cdr).car;
+        vars.Add(l);
+        locals.Add(Create(v, cb, typeof(object)));
         defs.Add(((Cons)((Cons)d.cdr).cdr).car);
 
         a = a.cdr as Cons;
@@ -56,25 +60,18 @@ namespace IronScheme.Compiler
 
       for (int i = 0; i < vars.Count; i++)
       {
-        NameHint = Builtins.UnGenSym(vars[i].Name);
+        NameHint = Builtins.UnGenSym(vars[i]);
         Expression e = GetAst(defs[i], cb);
-
-        if (e is MethodCallExpression)
-        {
-          if (((MethodCallExpression)e).Method == Closure_Make)
-          {
-
-          }
-        }
 
         if (e.Type.IsValueType)
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }
 
-        stmts.Add(Ast.Write(vars[i], Ast.Assign(locals[i], e)));
-        
+        stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.CodeContext(), Ast.Constant(vars[i]), Ast.Assign(locals[i], e))));
       }
+
+      NameHint = SymbolId.Invalid;
 
       Cons body = Builtins.Cdr(args) as Cons;
 

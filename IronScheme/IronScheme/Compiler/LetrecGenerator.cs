@@ -52,7 +52,6 @@ namespace IronScheme.Compiler
 
       List<Statement> stmts = new List<Statement>();
 
-
       for (int i = 0; i < vars.Count; i++)
       {
         NameHint = Builtins.UnGenSym(vars[i].Name);
@@ -69,6 +68,8 @@ namespace IronScheme.Compiler
       {
         stmts.Add(Ast.Write(vars[i], temps[i]));
       }
+
+      NameHint = SymbolId.Invalid;
 
 
       Cons body = Builtins.Cdr(args) as Cons;

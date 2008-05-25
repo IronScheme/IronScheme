@@ -17,12 +17,15 @@ using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
+using System.Reflection;
 
 namespace IronScheme.Compiler
 {
   [Generator("set!")]
   public sealed class SetGenerator : SimpleGenerator
   {
+    static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
+
     public override Expression Generate(object args, CodeBlock cb)
     {
       SymbolId s = (SymbolId)Builtins.First(args);
@@ -37,18 +40,21 @@ namespace IronScheme.Compiler
 
       Variable v = FindVar(cb, s);
 
-      if (v == null)
-      {
-        CodeBlock tl = GetTopLevel(cb);
-        v = tl.CreateVariable(s, Variable.VariableKind.Global, typeof(object), Ast.Read(s));
-      }
-
       if (value.Type.IsValueType)
       {
         value = Ast.ConvertHelper(value, typeof(object));
       }
-        
-      Expression r = Ast.Assign(v, value);
+
+      Expression r = null;
+
+      if (v == null)
+      {
+        r = Ast.SimpleCallHelper(SetSymbolValue, Ast.CodeContext(), Ast.Constant(s), value);
+      }
+      else
+      {
+        r = Ast.Assign(v, value);
+      }
 
       if (SpanHint != SourceSpan.Invalid || SpanHint != SourceSpan.None)
       {
