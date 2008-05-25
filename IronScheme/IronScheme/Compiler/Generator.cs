@@ -78,17 +78,6 @@ namespace IronScheme.Compiler
         {
           args = (BigInteger)(long)args;
         }
-        //if (args is bool)
-        //{
-        //  if ((bool)args)
-        //  {
-        //    return Ast.ReadField(null, typeof(RuntimeHelpers), "True");
-        //  }
-        //  else
-        //  {
-        //    return Ast.ReadField(null, typeof(RuntimeHelpers), "False");
-        //  }
-        //}
         return Ast.Constant(args);
       }
     }
@@ -259,17 +248,6 @@ namespace IronScheme.Compiler
         {
           return Ast.ReadField(null, Unspecified);
         }
-        //if (args is bool)
-        //{
-        //  if ((bool)args)
-        //  {
-        //    return Ast.ReadField(null, typeof(RuntimeHelpers), "True");
-        //  }
-        //  else
-        //  {
-        //    return Ast.ReadField(null, typeof(RuntimeHelpers), "False");
-        //  }
-        //}
         if (args is Fraction)
         {
           Fraction f = (Fraction)args;

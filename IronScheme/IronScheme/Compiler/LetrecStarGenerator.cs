@@ -62,6 +62,8 @@ namespace IronScheme.Compiler
         stmts.Add(Ast.Write(vars[i], e));
       }
 
+      NameHint = SymbolId.Invalid;
+
       Cons body = Builtins.Cdr(args) as Cons;
 
       FillBody(cb, stmts, body, true);

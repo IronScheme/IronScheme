@@ -158,10 +158,11 @@ namespace IronScheme.Runtime
               IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
                 IModuleDictionaryInitialization;
 
-              init.InitializeModuleDictionary(cc);
+              CodeContext ccc = new CodeContext(cc, init as IAttributesCollection);
+              init.InitializeModuleDictionary(ccc);
 
               CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
-              return t(cc);
+              return t(ccc);
             }
           }
           break;
@@ -193,7 +194,7 @@ namespace IronScheme.Runtime
           ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
           Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
           sw = Stopwatch.StartNew();
-          object result = sm.GetScripts()[0].Run(cc.Scope, cc.ModuleContext);
+          object result = sm.GetScripts()[0].Run(sm);
           Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
 
           return result;
@@ -644,8 +645,12 @@ namespace IronScheme.Runtime
       }
       if (obj is string || obj is StringBuilder)
       {
-        return string.Format("\"{0}\"", obj.ToString().Replace("\n","\\n").Replace("\r","\\r").
-          Replace("\t","\\t").Replace("\\", "\\\\").Replace("\"", "\\\""));
+        return string.Format("\"{0}\"", obj.ToString().
+          Replace("\\", "\\\\").
+          Replace("\"", "\\\"").
+          Replace("\n", "\\n").
+          Replace("\r", "\\r").
+          Replace("\t", "\\t"));
       }
       if (obj is char)
       {
