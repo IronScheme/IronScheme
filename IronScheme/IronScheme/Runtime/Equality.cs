@@ -120,6 +120,16 @@ namespace IronScheme.Runtime
       {
         return GetBool(Equals(first, second));
       }
+#if !STRICT
+      if (IsTrue(IsInteger(first)) && IsTrue(IsInteger(second)))
+      {
+        return GetBool(Equals(first, second));
+      }
+      if (first is char && second is char)
+      {
+        return GetBool(Equals(first, second));
+      }
+#endif
  
       return GetBool(ReferenceEquals(first, second));
     }
