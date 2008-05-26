@@ -239,8 +239,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
         selfprocess = Process.GetCurrentProcess();
       }
 
-      TimeSpan privts = selfprocess.PrivilegedProcessorTime,
-        totalts = selfprocess.TotalProcessorTime,
+      TimeSpan totalts = selfprocess.TotalProcessorTime,
         userts = selfprocess.UserProcessorTime;
       
       Stopwatch sw = Stopwatch.StartNew();
@@ -250,8 +249,8 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
       finally
       {
-        TimeSpan privts2 = selfprocess.PrivilegedProcessorTime,
-          totalts2 = selfprocess.TotalProcessorTime,
+        sw.Stop();
+        TimeSpan totalts2 = selfprocess.TotalProcessorTime,
           userts2 = selfprocess.UserProcessorTime;
 
         int colcountafter = 0;
@@ -261,11 +260,11 @@ A ""contributor"" is any person that distributes its contribution under this lic
         }
 
         Console.WriteLine(@"Statistics for '{0}':
-  Priv Time:     {1:f0}ms
-  User Time:     {2:f0}ms
-  Total Time:    {3:f0}ms
-  Gen collect:   {4}", who, 
-                     (privts2 - privts).TotalMilliseconds, 
+  Real Time:  {1:f0}ms
+  CPU Time:   {2:f0}ms
+  User Time:  {3:f0}ms
+  GC's:       {4}", who, 
+                     sw.Elapsed.TotalMilliseconds, 
                      (userts2 - userts).TotalMilliseconds,
                      (totalts2 - totalts).TotalMilliseconds,
                      colcountafter - colcount);
