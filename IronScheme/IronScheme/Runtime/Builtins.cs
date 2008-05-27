@@ -426,7 +426,6 @@ A ""contributor"" is any person that distributes its contribution under this lic
       Stopwatch sw = Stopwatch.StartNew();
 #endif
       CodeBlock cb = IronSchemeLanguageContext.CompileExpr(new Cons(expr));
-      cb.IsGlobal = true;
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); //wrap
 
       ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
@@ -437,7 +436,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 #endif
       try
       {
-        //sc.EnsureCompiled();
+        sc.EnsureCompiled();
       }
       catch (Variable.UnInitializedUsageException ex)
       {
@@ -451,7 +450,6 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       try
       {
-
         return sc.Run(cc.ModuleContext.Module);
       }
       finally
