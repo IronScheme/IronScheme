@@ -185,23 +185,27 @@ namespace IronScheme
 
     internal static CodeBlock Compile(Cons expr)
     {
-      Cons parsed = expr;
-
       CodeBlock cb = Ast.CodeBlock("__script__");
-      cb.IsGlobal = true;
 
-      List<Statement> stmts = new List<Statement>();
-
-      Compiler.Generator.FillBody(cb, stmts, parsed, true);
+      Compile(cb, expr);
 
       Parser.sourcemap.Clear();
       return cb;
     }
 
+    static void Compile(CodeBlock cb, Cons expr)
+    {
+      cb.IsGlobal = true;
+
+      Compiler.Generator.FillBody(cb, new List<Statement>(), expr, true);
+    }
+
     internal static CodeBlock CompileExpr(Cons expr)
     {
       CodeBlock cb = Ast.CodeBlock("eval-core");
-      Compiler.Generator.FillBody(cb, new List<Statement>(), expr, true);
+      
+      Compile(cb, expr);
+      
       return cb;
     }
 
