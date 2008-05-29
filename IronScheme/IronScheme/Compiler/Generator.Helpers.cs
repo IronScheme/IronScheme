@@ -163,9 +163,7 @@ namespace IronScheme.Compiler
 
       if (v == null)
       {
-        CodeBlock tl = GetTopLevel(cb);
-        v = tl.CreateVariable(sname, Variable.VariableKind.Global, typeof(object), Ast.Read(sname));
-        return Ast.Read(v);
+        return Ast.Read(name);
       }
 
       return Ast.ReadDefined(v);
