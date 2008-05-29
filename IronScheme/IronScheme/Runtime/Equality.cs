@@ -123,10 +123,12 @@ namespace IronScheme.Runtime
 #if !STRICT
       if (IsTrue(IsInteger(first)) && IsTrue(IsInteger(second)))
       {
+        Console.WriteLine(new System.Diagnostics.StackTrace(2).GetFrame(0).GetMethod());
         return GetBool(Equals(first, second));
       }
       if (first is char && second is char)
       {
+        Console.WriteLine(new System.Diagnostics.StackTrace(2).GetFrame(0).GetMethod());
         return GetBool(Equals(first, second));
       }
 #endif
