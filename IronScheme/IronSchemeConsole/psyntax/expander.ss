@@ -1065,9 +1065,14 @@
           (syntax-match cls ()
             (((d* ...) e e* ...)
              (build-conditional no-source
-               (build-application no-source
-                 (build-primref no-source 'memv)
-                 (list t (build-data no-source (stx->datum d*))))
+               (let ((data (stx->datum d*)))
+                 (if (= 1 (length data))
+                   (build-application no-source
+                     (build-primref no-source 'eqv?)
+                     (list t (build-data no-source (car data))))
+                   (build-application no-source
+                     (build-primref no-source 'memv)
+                     (list t (build-data no-source data)))))
                (build-sequence no-source
                  (chi-expr* (cons e e*) r mr))
                rest))

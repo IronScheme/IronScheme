@@ -197,7 +197,11 @@ namespace IronScheme
     {
       cb.IsGlobal = true;
 
+      expr = Compiler.SourceOptimizer.Optimize(expr);
+
       Compiler.Generator.FillBody(cb, new List<Statement>(), expr, true);
+
+      Compiler.Optimizer.Optimize(cb);
     }
 
     internal static CodeBlock CompileExpr(Cons expr)

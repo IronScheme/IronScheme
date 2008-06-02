@@ -159,7 +159,7 @@ namespace IronScheme.Compiler
     {
       SymbolId sname = name;
 
-      Variable v = FindVar(cb, sname);
+      Variable v = cb.Lookup(sname);
 
       if (v == null)
       {
@@ -188,7 +188,7 @@ namespace IronScheme.Compiler
     static Variable CreateParameter(SymbolId sname, CodeBlock cb, Type type)
     {
       Variable v = Variable.Parameter(cb, sname, typeof(object));
-      cb.Parameters.Add(v);
+      cb.AddParameter(v);
       return v;
     }
 
@@ -199,32 +199,6 @@ namespace IronScheme.Compiler
       //should really investigate better closure structure
       return cb.CreateVariable(name, cb.IsGlobal ? Variable.VariableKind.Global : Variable.VariableKind.Local
         , type ?? typeof(object));
-    }
-
-    protected static Variable FindVar(CodeBlock cb, SymbolId name)
-    {
-      // variables take precidence
-      foreach (Variable v in cb.Variables)
-      {
-        if (v.Name == name)
-        {
-          return v;
-        }
-      }
-
-      foreach (Variable v in cb.Parameters)
-      {
-        if (v.Name == name)
-        {
-          return v;
-        }
-      }
-
-      if (cb.Parent != null)
-      {
-        return FindVar(cb.Parent, name);
-      }
-      return null;
     }
 
     readonly static SymbolId list = SymbolTable.StringToId("list");
@@ -292,7 +266,7 @@ namespace IronScheme.Compiler
       if (varargs)
       {
         return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false),
-          Ast.Constant(cb.Parameters.Count));
+          Ast.Constant(cb.ParameterCount));
       }
       else
       {
@@ -349,46 +323,7 @@ namespace IronScheme.Compiler
       cb.Body = OptimizeBody(cb.Body);
     }
 
-    protected static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, Variable result)
-    {
 
-      Cons c = body;
-      while (c != null)
-      {
-        Expression e = GetAst(c.car, cb);
-        Statement s = Ast.Statement(e);
-
-        if (c.car is Cons && Parser.sourcemap.ContainsKey(c.car))
-        {
-          s.SetLoc(Parser.sourcemap[c.car]);
-        }
-        else
-        {
-          ;
-        }
-
-        stmts.Add(s);
-        c = c.cdr as Cons;
-      }
-
-      if (stmts.Count == 0)
-      {
-        stmts.Add(Ast.Write(result, Ast.ReadField(null, Unspecified)));
-      }
-      else
-      {
-        stmts.Add(Ast.Write(result, Ast.ConvertHelper((stmts[stmts.Count - 1] as ExpressionStatement).Expression, typeof(object))));
-      }
-
-      if (cb.Body != null)
-      {
-        stmts.InsertRange(0, (cb.Body as BlockStatement).Statements);
-      }
-
-      cb.Body = Ast.Block(stmts);
-
-      cb.Body = OptimizeBody(cb.Body);
-    }
 
     static Statement OptimizeBody(Statement cbbody)
     {

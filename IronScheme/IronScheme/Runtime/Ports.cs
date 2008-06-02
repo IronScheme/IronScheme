@@ -76,7 +76,6 @@ namespace IronScheme.Runtime
           return f.Call();
         }
       }
-      //todo
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("with-output-to-file", ex.Message, filename);
@@ -189,14 +188,18 @@ namespace IronScheme.Runtime
           }
 
           SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
-
+#if DEBUG
           Stopwatch sw = Stopwatch.StartNew();
+#endif
           ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
+#if DEBUG
           Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
           sw = Stopwatch.StartNew();
+#endif
           object result = sm.GetScripts()[0].Run(sm);
+#if DEBUG
           Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
-
+#endif
           return result;
 
       }
@@ -834,7 +837,6 @@ namespace IronScheme.Runtime
           return f.Call(w);
         }
       }
-        // todo
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("call-with-output-file", ex.Message, filename);
@@ -930,7 +932,6 @@ namespace IronScheme.Runtime
       {
         return File.CreateText(GetPath(fn));
       }
-        //todo
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("open-output-file", ex.Message, filename);

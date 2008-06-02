@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
+using System.Reflection;
 
 namespace IronScheme.Runtime
 {
@@ -27,7 +28,7 @@ namespace IronScheme.Runtime
   public abstract class Closure : ICallable
   {
     readonly static Dictionary<Type, int> targetmap = new Dictionary<Type, int>();
- 
+
     static Closure()
     {
       targetmap.Add(typeof(CallTarget0), 0);
@@ -95,6 +96,11 @@ namespace IronScheme.Runtime
     public abstract object Call(object[] args);
 
     readonly Delegate target;
+
+    public virtual MethodInfo Target
+    {
+      get { return target.Method; }
+    }
 
     protected Closure() : this(null, -1)
     {
@@ -361,6 +367,11 @@ namespace IronScheme.Runtime
       ICallable realtarget;
       int pcount = 0;
 
+      public override MethodInfo Target
+      {
+        get { return null; }
+      }
+
       public VarArgClosure(CodeContext cc, Delegate target, int paramcount)
         : base(target, -1)
       {
@@ -394,6 +405,11 @@ namespace IronScheme.Runtime
     {
       int[] arities;
       List<ICallable> targets = new List<ICallable>();
+
+      public override MethodInfo Target
+      {
+        get { return null; }
+      }
 
       public CaseClosure(CodeContext cc, Delegate[] targets, int[] arities)
         : base(null, -1)
