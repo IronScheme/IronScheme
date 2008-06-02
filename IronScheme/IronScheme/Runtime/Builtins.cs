@@ -271,39 +271,6 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
     }
    
-
-    static bool IsSimple(Cons c)
-    {
-      if (IsTrue(IsAllSameSymbol(c.car, SymbolTable.StringToId("set!"))))
-      {
-        return false;
-      }
-      if (IsTrue(IsAllSameSymbol(c.car, SymbolTable.StringToId("begin"))))
-      {
-        return false;
-      }
-
-
-      if (IsTrue(IsAllSameSymbol(c.car, quote)))
-      {
-        return true;
-      }
-      foreach (object e in c)
-      {
-        
-        if (e is Cons)
-        {
-          Cons ce = e as Cons;
-          if (!IsTrue(IsAllSameSymbol(ce.car, quote)))
-          {
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-
     static int evalcounter = 0;
 
     [Builtin("eval-core")]
@@ -359,73 +326,12 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
 
 #endif
-      // this has absolutely now gain what so ever...
-//      if (expr is Cons)
-//      {
-
-//        if (IsSimple(expr as Cons))
-//        {
-//#if DEBUG
-//          Stopwatch esw = Stopwatch.StartNew();
-//          try
-//          {
-//#endif
-//            Cons e = expr as Cons;
-
-//            if (IsTrue(IsAllSameSymbol(e.car, quote)))
-//            {
-//              return Car(e.cdr);
-//            }
-
-//            List<object> args = new List<object>();
-
-//            ICallable proc = SymbolValue(cc, e.car) as ICallable;
-
-//            e = e.cdr as Cons;
-//            while (e != null)
-//            {
-//              object arg = e.car;
-//              if (arg is Cons)
-//              {
-//                Cons cargs = arg as Cons;
-//                args.Add(Car(cargs.cdr));
-//              }
-//              else
-//              {
-//                args.Add(SymbolValue(cc, arg));
-//              }
-//              e = e.cdr as Cons;
-//            }
-
-//            return proc.Call(args.ToArray());
-//#if DEBUG
-//          }
-//          finally
-//          {
-//            Trace.WriteLine(esw.Elapsed.TotalMilliseconds, string.Format("eval    - eval-core({0:D3})", c));
-//          }
-//#endif
-//        }
-//      }
-//      else if (expr is SymbolId)
-//      {
-//        object o;
-//        // this could fail if the name is mangled
-//        if (cc.Scope.TryGetName((SymbolId)expr, out o))
-//        {
-//          return o;
-//        }
-//      }
-//      else
-//      {
-//        return expr;
-//      }
-
 
 #if DEBUG
       Stopwatch sw = Stopwatch.StartNew();
 #endif
       CodeBlock cb = IronSchemeLanguageContext.CompileExpr(new Cons(expr));
+
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); //wrap
 
       ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);

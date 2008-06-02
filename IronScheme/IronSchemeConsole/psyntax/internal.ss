@@ -72,6 +72,14 @@
                 (cons* 'letrec*
                        (map list lhs* (map f rhs*))
                        (map f body*)))))
+           ((library-letrec*) 
+            (let ((bindings (cadr x)) (body* (cddr x)))
+              (let ((lhs* (map car bindings)) 
+                    (lhs** (map cadr bindings)) 
+                    (rhs* (map caddr bindings)))
+                (cons* 'library-letrec*
+                       (map list lhs* lhs** (map f rhs*))
+                       (map f body*)))))                       
            ((begin) 
             (cons 'begin (map f (cdr x))))
            ((set!) 

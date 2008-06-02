@@ -59,7 +59,7 @@ namespace IronScheme.Compiler
           FillBody(cb, stmts, body, true);
 
           CodeBlockDescriptor cbd = new CodeBlockDescriptor();
-          cbd.arity = isrest ? -cb.Parameters.Count : cb.Parameters.Count;
+          cbd.arity = isrest ? -cb.ParameterCount : cb.ParameterCount;
           cbd.codeblock = Ast.CodeBlockExpression(cb, false);
 
           cbs.Add(cbd);

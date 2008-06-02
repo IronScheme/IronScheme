@@ -53,6 +53,9 @@ namespace Microsoft.Scripting.Ast {
 
         private readonly List<Variable> _parameters = new List<Variable>();
         private readonly List<Variable> _variables = new List<Variable>();
+        private readonly Dictionary<SymbolId, Variable> _parametersmap = new Dictionary<SymbolId, Variable>();
+        private readonly Dictionary<SymbolId, Variable> _variablesmap = new Dictionary<SymbolId, Variable>();
+
         private IList<VariableReference> _references;
 
         private EnvironmentFactory _environmentFactory;
@@ -124,7 +127,8 @@ namespace Microsoft.Scripting.Ast {
             get { return _returnType; }
         }
 
-        public List<Variable> Parameters {
+        public IEnumerable<Variable> Parameters
+        {
             get { return _parameters; }
         }
 
@@ -211,9 +215,32 @@ namespace Microsoft.Scripting.Ast {
             set { _references = value; }
         }
 
-        public List<Variable> Variables {
+        public IEnumerable<Variable> Variables {
             get { return _variables; }
         }
+
+        public Variable Lookup(SymbolId id)
+        {
+          Variable v = null;
+
+          if (_parametersmap.TryGetValue(id, out v))
+          {
+            return v;
+          }
+
+          if (_variablesmap.TryGetValue(id, out v))
+          {
+            return v;
+          }
+
+          if (_parent != null)
+          {
+            return _parent.Lookup(id);
+          }
+
+          return v;
+        }
+
 
         public Type EnvironmentType {
             get {
@@ -238,12 +265,14 @@ namespace Microsoft.Scripting.Ast {
         public Variable CreateParameter(SymbolId name, Type type) {
             Variable variable = Variable.Parameter(this, name, type);
             _parameters.Add(variable);
+            _parametersmap.Add(variable.Name, variable);
             return variable;
         }
 
         public Variable CreateParameter(SymbolId name, Type type, bool inParameterArray) {
             Variable variable = Variable.Parameter(this, name, type, inParameterArray);
             _parameters.Add(variable);
+            _parametersmap.Add(variable.Name, variable);
             return variable;
         }
 
@@ -256,24 +285,28 @@ namespace Microsoft.Scripting.Ast {
 
             Variable variable = Variable.Create(name, kind, this, type, defaultValue);
             _variables.Add(variable);
+            _variablesmap.Add(variable.Name, variable);
             return variable;
         }
 
         public Variable CreateLocalVariable(SymbolId name, Type type) {
             Variable variable = Variable.Local(name, this, type);
             _variables.Add(variable);
+            _variablesmap.Add(variable.Name, variable);
             return variable;
         }
 
         public Variable CreateTemporaryVariable(SymbolId name, Type type) {
             Variable variable = Variable.Temporary(name, this, type);
             _variables.Add(variable);
+            _variablesmap.Add(variable.Name, variable);
             return variable;
         }
 
         public Variable CreateGeneratorTempVariable(SymbolId name, Type type) {
             Variable variable = Variable.GeneratorTemp(name, this, type);
             _variables.Add(variable);
+            _variablesmap.Add(variable.Name, variable);
             return variable;
         }
 
@@ -1304,6 +1337,17 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             return new PropertyEnvironmentFactory(tupleType, envType);
         }
 
+        public void AddParameter(Variable par)
+        {
+          _parameters.Add(par);
+          _parametersmap.Add(par.Name, par);
+        }
+
+        public int ParameterCount
+        {
+          get { return _parameters.Count; }
+        }
+
       }
 
     public static partial class Ast {
@@ -1348,7 +1392,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
             CodeBlock result = Ast.CodeBlock(name, returnInfo.ParameterType);
             for (int i = 0; i < parameterInfos.Length; i++) {
-                result.Parameters.Add(Variable.Parameter(result, SymbolTable.StringToId("$" + i), parameterInfos[i].ParameterType));
+                result.AddParameter(Variable.Parameter(result, SymbolTable.StringToId("$" + i), parameterInfos[i].ParameterType));
             }
 
             return result;

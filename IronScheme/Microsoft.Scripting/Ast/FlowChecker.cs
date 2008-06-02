@@ -128,8 +128,8 @@ namespace Microsoft.Scripting.Ast {
         Dictionary<Variable, int> _indices = new Dictionary<Variable,int>();
 
         private FlowChecker(CodeBlock block) {
-            List<Variable> variables = block.Variables;
-            List<Variable> parameters = block.Parameters;
+            List<Variable> variables = new List<Variable>(block.Variables);
+            List<Variable> parameters = new List<Variable>( block.Parameters);
 
             _bits = new BitArray((variables.Count + parameters.Count) * 2);
             int index = 0;

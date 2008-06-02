@@ -38,7 +38,7 @@ namespace IronScheme.Compiler
 
       NameHint = SymbolId.Invalid;
 
-      Variable v = FindVar(cb, s);
+      Variable v = cb.Lookup(s);
 
       if (value.Type.IsValueType)
       {

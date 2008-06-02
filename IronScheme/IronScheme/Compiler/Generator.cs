@@ -102,7 +102,7 @@ namespace IronScheme.Compiler
         {
           SymbolId f = (SymbolId)c.car;
 
-          Variable var = FindVar(cb, f);
+          Variable var = cb.Lookup(f);
 
           if (var != null && !assigns.ContainsKey(f))
           {
@@ -175,6 +175,35 @@ namespace IronScheme.Compiler
                   MethodBase meth = mc.Target.Method;
 
                   return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                }
+              }
+              Closure clos = m as Closure;
+              if (clos != null)
+              {
+                MethodInfo mi = clos.Target;
+                if (mi != null)
+                {
+                  Expression[] pars = GetAstList(c.cdr as Cons, cb);
+                  ParameterInfo[] pis = mi.GetParameters();
+                  if (pis.Length > 0 && pis[0].ParameterType == typeof(CodeContext))
+                  {
+                    if (pis.Length > 1 && pis[1].ParameterType == typeof(object[]))
+                    {
+                      pars = new Expression[] { Ast.CodeContext(), Ast.NewArray(typeof(object[]), pars) };
+                    }
+                    else
+                    {
+                      pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+                    }
+                  }
+                  else
+                  {
+                    if (pis.Length > 0 && pis[0].ParameterType == typeof(object[]))
+                    {
+                      pars = new Expression[] { Ast.NewArray(typeof(object[]), pars) };
+                    }
+                  }
+                  return Ast.Call(mi, pars);
                 }
               }
             }
