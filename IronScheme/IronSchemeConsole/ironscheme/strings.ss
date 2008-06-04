@@ -8,7 +8,7 @@
     ;string-trim-start
     ;string-trim-end
     string-trim
-    
+    string-join
     )
   (import 
     (rnrs)
@@ -17,6 +17,9 @@
   (define (string-split str . del)
     (clr-call system.string split str (clr-cast system.string[] (list->vector del)) 'none))  
     
+  (define (string-join del strs)
+    (clr-static-call system.string join del (list->vector strs)))  
+          
   (define string-index-of
     (case-lambda
       [(str sub)    (clr-call system.string indexof str (clr-cast system.string sub))]
