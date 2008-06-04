@@ -106,6 +106,40 @@ namespace IronScheme.Runtime
       return List(Environment.GetCommandLineArgs());
     }
 
+    [Builtin("get-clr-type")]
+    public static object GetClrType(object name, params object[] typeargs)
+    {
+      SymbolId s = RequiresNotNull<SymbolId>(name);
+
+      Type t = Compiler.ClrGenerator.GetType(SymbolTable.IdToString(s));
+
+      if (t == null)
+      {
+        return FALSE;
+      }
+      
+      if (typeargs != null && typeargs.Length > 0)
+      {
+        Type[] ta = new Type[typeargs.Length];
+        for (int i = 0; i < ta.Length; i++)
+        {
+          ta[i] = typeargs[i] as Type;
+        }
+
+        try
+        {
+          return t.MakeGenericType(typeargs as Type[]);
+        }
+        catch
+        {
+          return FALSE;
+        }
+      }
+
+      return t;
+    }
+
+
     [Builtin]
     public static Type Typeof(object o)
     {

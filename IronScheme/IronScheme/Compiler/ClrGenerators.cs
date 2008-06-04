@@ -41,8 +41,9 @@ namespace IronScheme.Compiler
       RegexOptions.Compiled | RegexOptions.ExplicitCapture); // last bit has to be greedy, greedy wont help, need to figure out nesting constructs
 
     //this clearly wont scale well at all...
-    protected static Type GetType(string nsandname)
+    protected internal static Type GetType(string nsandname)
     {
+      nsandname = nsandname.ToLower();
       Match m = typeparser.Match(nsandname);
       if (!m.Success)
       {

@@ -278,6 +278,7 @@
     (vector-reverse!                            i) 
     (vector-filter                              i) 
     (vector-append                              i)
+    (get-clr-type                               i)
     (make-record-printer                        irp)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
