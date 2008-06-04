@@ -460,13 +460,13 @@ namespace IronScheme.Runtime
         return TRUE;
       }
 
-      bool iv = (bool)IsIntegerValued(obj);
+      bool iv = IsTrue(IsIntegerValued(obj));
       if (iv)
       {
         return TRUE;
       }
 
-      if ((bool)IsNumber(obj))
+      if (IsTrue(IsNumber(obj)))
       {
         double d = SafeConvert(obj);
         return GetBool(d == (double)(Fraction)d);
@@ -1775,7 +1775,7 @@ namespace IronScheme.Runtime
         {
           c -= 1;
         }
-        return c;
+        return ToIntegerIfPossible(c);
       }
       object res = MathHelper(Math.Floor, obj);
       if (IsTrue(IsExact(obj)))
@@ -1803,7 +1803,7 @@ namespace IronScheme.Runtime
         {
           c += 1;
         }
-        return c;
+        return ToIntegerIfPossible(c);
       }
       object res = MathHelper(Math.Ceiling, obj);
       if (IsTrue(IsExact(obj)))
@@ -1827,7 +1827,7 @@ namespace IronScheme.Runtime
       {
         Fraction f = ConvertToRational(obj);
         BigInteger c = f.Numerator / f.Denominator;
-        return c;
+        return ToIntegerIfPossible(c);
       }
       object res = MathHelper(Math.Truncate, obj);
       if (IsTrue(IsExact(obj)))
@@ -1854,21 +1854,21 @@ namespace IronScheme.Runtime
         BigInteger d = f.Numerator % f.Denominator;
         if (d > f.Denominator / 2)
         {
-          return c + 1;
+          return ToIntegerIfPossible(c + 1);
         }
         else if (d < f.Denominator / 2)
         {
-          return c;
+          return ToIntegerIfPossible(c);
         }
         else
         {
           if (c % 2 == 0)
           {
-            return c;
+            return ToIntegerIfPossible(c);
           }
           else
           {
-            return c + 1;
+            return ToIntegerIfPossible(c + 1);
           }
         }
       }
