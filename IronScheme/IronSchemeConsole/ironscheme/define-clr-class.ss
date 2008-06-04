@@ -11,6 +11,9 @@
 )
 
 #|
+(define (make-type type . typeargs))
+
+(define (make-typed-var name type))
 
 (class-options
   public
