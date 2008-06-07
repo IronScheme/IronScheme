@@ -111,32 +111,68 @@ namespace IronScheme.Runtime
     {
       SymbolId s = RequiresNotNull<SymbolId>(name);
 
-      Type t = Compiler.ClrGenerator.GetType(SymbolTable.IdToString(s));
+      string tn = SymbolTable.IdToString(s);
 
-      if (t == null)
+      List<Type> candidates = new List<Type>();
+
+      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
-        return FALSE;
-      }
-      
-      if (typeargs != null && typeargs.Length > 0)
-      {
-        Type[] ta = new Type[typeargs.Length];
-        for (int i = 0; i < ta.Length; i++)
+        if (ass.ManifestModule.Name != "<In Memory Module>")
         {
-          ta[i] = typeargs[i] as Type;
-        }
+          foreach (Type t in ass.GetExportedTypes())
+          {
+            string tnl = (t.Namespace + "." + t.Name);
 
-        try
-        {
-          return t.MakeGenericType(typeargs as Type[]);
-        }
-        catch
-        {
-          return FALSE;
+            if (t.IsGenericType)
+            {
+              tnl = tnl.Substring(0, tnl.Length - 2);
+            }
+
+            if (tnl == tn)
+            {
+              candidates.Add(t);
+
+              // we have right name and namespace, now for possible type args, confusing logic :|
+              if (typeargs != null && typeargs.Length > 0)
+              {
+                if (t.IsGenericType)
+                {
+                  Type[] ga = t.GetGenericArguments();
+                  if (typeargs.Length == ga.Length)
+                  {
+                    Type[] ta = new Type[typeargs.Length];
+                    for (int i = 0; i < ta.Length; i++)
+                    {
+                      ta[i] = typeargs[i] as Type;
+                      if (!ta[i].IsSubclassOf(ga[i].BaseType))
+                      {
+                        continue;
+                      }
+                    }
+
+                    try
+                    {
+                      return t.MakeGenericType(ta);
+                    }
+                    catch
+                    {
+                      continue;
+                    }
+                  }
+                }
+              }
+              else if (!t.IsGenericType)
+              {
+                return t;
+              }
+            }
+          }
         }
       }
 
-      return t;
+      return AssertionViolation("get-clr-type", "type not found",
+        Cons( name, List( typeargs)),
+        Runtime.Cons.FromList(candidates));
     }
 
 

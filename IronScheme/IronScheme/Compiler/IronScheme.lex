@@ -47,7 +47,7 @@ public int MakeBoolean()
   string t = yytext;
   FixLineNum(t);
   t = t.Substring(0, t.Length - 1);
-  yylval.text = t;
+  yylval.text = t.ToLower();
   yyless(t.Length);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.LITERAL;
