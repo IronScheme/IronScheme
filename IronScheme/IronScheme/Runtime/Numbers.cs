@@ -168,7 +168,7 @@ namespace IronScheme.Runtime
       switch (str[0])
       {
         case '#':
-          switch (str[1])
+          switch (char.ToLower(str[1]))
           {
             case 'b':
               return StringToNumber(str.Substring(2), 2);
@@ -178,6 +178,10 @@ namespace IronScheme.Runtime
               return StringToNumber(str.Substring(2), 10);
             case 'x':
               return StringToNumber(str.Substring(2), 16);
+            case 'e':
+              return Exact(StringToNumber(str.Substring(2)));
+            case 'i':
+              return Inexact(StringToNumber(str.Substring(2)));
             default:
               return AssertionViolation("string->number", "unknown prefix", obj);
           }
@@ -373,6 +377,20 @@ namespace IronScheme.Runtime
       if (str.Length == 0)
       {
         return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
+      }
+
+      if (str[0] == '#')
+      {
+        switch (char.ToLower(str[1]))
+        {
+          case 'e':
+            return Exact(StringToNumber(str.Substring(2), radix));
+          case 'i':
+            return Inexact(StringToNumber(str.Substring(2), radix));
+          default:
+            return AssertionViolation("string->number", "unknown exactness", obj);
+
+        }
       }
 
       int fi = str.IndexOf('/');
