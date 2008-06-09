@@ -181,7 +181,7 @@ namespace IronScheme.Compiler
               if (clos != null)
               {
                 MethodInfo mi = clos.Target;
-                if (mi != null)
+                if (mi != null && mi.IsStatic)
                 {
                   Expression[] pars = GetAstList(c.cdr as Cons, cb);
                   ParameterInfo[] pis = mi.GetParameters();
