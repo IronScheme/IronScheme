@@ -147,7 +147,7 @@ namespace IronScheme.Runtime.R6RS
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
       string n = SymbolToString(name) as string;
-      string id = SymbolToString(uid) as string;
+      string id = uid is SymbolId ? SymbolToString(uid) as string : null;
 
       if (id != null)
       {
@@ -402,28 +402,50 @@ namespace IronScheme.Runtime.R6RS
 
       ICallable pp = ci.type.constructor;
 
-      if (ci.parent != null && ci.protocol != null)
+      if (ci.parent != null)
       {
         CallTargetN n = null;
         n = delegate(object[] parentargs)
         {
           Type t = ci.type.Finish();
 
-          CallTargetN m = delegate(object[] args)
+          if (ci.protocol != null)
           {
-            object[] allargs = new object[parentargs.Length + args.Length];
-            Array.Copy(parentargs, allargs, parentargs.Length);
-            Array.Copy(args, 0, allargs, parentargs.Length, args.Length);
+            CallTargetN m = delegate(object[] args)
+            {
+              if (ci.parent.protocol != null)
+              {
+                ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(Context, SymbolTable.StringToId("vector"))) as ICallable;
+                parentargs = parent_protocol.Call(parentargs) as object[];
+              }
+              object[] allargs = new object[parentargs.Length + args.Length];
+              Array.Copy(parentargs, allargs, parentargs.Length);
+              Array.Copy(args, 0, allargs, parentargs.Length, args.Length);
 
-            return pp.Call(allargs);
-          };
+              return pp.Call(allargs);
+            };
 
-          return Closure.Make(Context, m);
+            return Closure.Make(Context, m);
+          }
+          else
+          {
+            if (ci.parent.protocol != null)
+            {
+              ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(Context, SymbolTable.StringToId("vector"))) as ICallable;
+              parentargs = parent_protocol.Call(parentargs) as object[];
+            }
+            return pp.Call(parentargs);
+          }
         };
 
         ICallable nn = Closure.Make(Context, n);
 
-        return ci.protocol.Call(nn);
+        if (ci.protocol != null)
+        {
+          return ci.type.constructor = ci.protocol.Call(nn) as ICallable;
+        }
+
+        return nn;
       }
 
       if (ci.protocol != null)

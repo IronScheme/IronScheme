@@ -225,7 +225,19 @@
             [else 
              ((current-library-expander)
               (read-library-source-file file-name)
-              file-name)])))
+              file-name
+              (lambda (name)
+                (unless (equal? name x)
+                  (assertion-violation 'import
+                    (let-values ([(p e) (open-string-output-port)])
+                      (display "expected to find library " p)
+                      (write x p)
+                      (display " in file " p)
+                      (display file-name p)
+                      (display ", found " p)
+                      (write name p)
+                      (display " instead" p)
+                      (e))))))])))
       (lambda (f)
         (if (procedure? f)
             f
