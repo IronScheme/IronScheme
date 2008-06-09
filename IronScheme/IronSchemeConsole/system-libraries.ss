@@ -28,6 +28,7 @@
 (import (ironscheme xml))
 (import (ironscheme docs))
 
+(import (ironscheme syntax-format))
 (import (ironscheme define-macro))
 
 (import (ironscheme collections arraylist))

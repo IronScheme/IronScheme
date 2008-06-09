@@ -99,8 +99,6 @@ namespace Microsoft.Scripting {
             codeContext.ModuleContext.CompilerContext =_compilerContext;
             _languageContext.ModuleContextEntering(codeContext.ModuleContext);
 
-
-
 #if FULL
             bool doEvaluation = tryEvaluate || _languageContext.Engine.Options.InterpretedMode;
             if (_simpleTarget == null && _optimizedTarget == null
@@ -109,24 +107,10 @@ namespace Microsoft.Scripting {
                 return CodeBlock.TopLevelExecute(codeContext);
             } 
 #endif
-
-
             if (_optimizedScope != null)
-            //if (codeContext.Scope == _optimizedScope)
             { // flag on scope - "IsOptimized"?
               // TODO: why do we create a code context here?
-              object result = _optimizedTarget(new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext));
-              //List<SymbolId> toremove = new List<SymbolId>();
-              //foreach (KeyValuePair<SymbolId, object> kvp in _optimizedScope.Dict.SymbolAttributes)
-              //{
-              //  toremove.Add(kvp.Key);
-              //  codeContext.Scope.ModuleScope.SetName(kvp.Key, kvp.Value);
-              //}
-              //foreach (SymbolId i in toremove)
-              //{
-              //  _optimizedScope.RemoveName(i);
-              //}
-              return result;
+              return _optimizedTarget(new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext));
             }
 
             EnsureCompiled();

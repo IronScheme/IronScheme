@@ -3563,15 +3563,17 @@
                               macro* export-subst export-env))))))))))))))
 
   (define core-library-expander
-    (lambda (e)
-      (let-values (((name* exp* imp* b*) (parse-library e)))
-        (let-values (((name ver) (parse-library-name name*)))
-          (let-values (((imp* invoke-req* visit-req* invoke-code
-                              visit-code export-subst export-env)
-                        (library-body-expander exp* imp* b* #f)))
-             (values name ver imp* invoke-req* visit-req* 
-                     invoke-code visit-code export-subst
-                     export-env))))))
+    (case-lambda
+      [(e verify-name)
+       (let-values (((name* exp* imp* b*) (parse-library e)))
+         (let-values (((name ver) (parse-library-name name*)))
+           (verify-name name)
+           (let-values (((imp* invoke-req* visit-req* invoke-code
+                               visit-code export-subst export-env)
+                         (library-body-expander exp* imp* b* #f)))
+              (values name ver imp* invoke-req* visit-req* 
+                      invoke-code visit-code export-subst
+                      export-env))))]))
   
   (define (parse-top-level-program e*)
     (syntax-match e* ()
@@ -3689,7 +3691,7 @@
   ;;; returns its invoke-code, visit-code, subst and env.
   (define library-expander
     (case-lambda 
-      [(x filename)
+      [(x filename verify-name)
        (define (build-visit-code macro*)
          (if (null? macro*)
              (build-void)
@@ -3705,7 +3707,7 @@
                    macro*))
        (let-values (((name ver imp* inv* vis* 
                       invoke-code macro* export-subst export-env)
-                     (core-library-expander x)))
+                     (core-library-expander x verify-name)))
          (let ((id (gensym))
                (name name)
                (ver ver)
@@ -3725,7 +3727,10 @@
            (values id name ver imp* vis* inv* 
                    invoke-code visit-code
                    export-subst export-env)))]
-      [(x) (library-expander x #f)]))
+      [(x filename)
+       (library-expander x filename (lambda (x) (values)))]
+      [(x)
+       (library-expander x #f (lambda (x) (values)))]))
 
   ;;; when bootstrapping the system, visit-code is not (and cannot
   ;;; be) be used in the "next" system.  So, we drop it.

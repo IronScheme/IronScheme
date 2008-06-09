@@ -404,15 +404,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); //wrap
 
-      ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
-      sc = sm.GetScripts()[0];
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
 #endif
       try
       {
-        sc.EnsureCompiled();
+        ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
+        sc = sm.GetScripts()[0];
       }
       catch (Variable.UnInitializedUsageException ex)
       {
