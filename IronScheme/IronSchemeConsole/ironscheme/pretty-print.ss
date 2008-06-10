@@ -5,7 +5,7 @@
 
 (library (ironscheme pretty-print)
   (export pretty-print)
-  (import (rnrs) (rnrs mutable-strings))
+  (import (rnrs) (rnrs mutable-strings) (ironscheme format))
 
 (define genwrite:newline-str (make-string 1 #\newline))
 ;@
@@ -87,7 +87,7 @@
           ((input-port? obj)  (out "#[input-port]" col))
           ((output-port? obj) (out "#[output-port]" col))
           ((eof-object? obj)  (out "#[eof-object]" col))
-          (else               (out "#[unknown]" col))))
+          (else               (out (format "~s" obj) col))))
 
   (define (pp obj col)
 
