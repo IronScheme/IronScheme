@@ -287,5 +287,5 @@
     (generic-write obj #f 80
                    (lambda (s) (display s port) #t))))
                    
-;(set-symbol-value! 'pretty-print pretty-print)  
+
 )

@@ -13,5 +13,7 @@ namespace IronScheme.Runtime
     object Call(object arg1, object arg2, object arg3, object arg4);
     object Call(object arg1, object arg2, object arg3, object arg4, object arg5);
     object Call(object[] args);
+
+    int Arity { get; }
   }
 }

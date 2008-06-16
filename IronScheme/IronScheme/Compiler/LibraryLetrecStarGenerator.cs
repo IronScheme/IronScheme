@@ -22,7 +22,7 @@ using System.Reflection;
 namespace IronScheme.Compiler
 {
   // see expander.ss:3406
-  //`(library-letrec* ,(map list vars locs val-exps) ,body-exp))
+  //`(library-letrec* name ,(map list vars locs val-exps) ,body-exp))
   [Generator("library-letrec*")]
   public sealed class LibraryLetrecStarGenerator : SimpleGenerator
   {
@@ -32,7 +32,14 @@ namespace IronScheme.Compiler
     public override Expression Generate(object args, CodeBlock c)
     {
       level++;
-      NameHint = SymbolTable.StringToId("library-letrec*");
+
+      Cons name = (args as Cons).car as Cons;
+
+      string[] fullname = Array.ConvertAll<object, string>(Builtins.ListToVector(name), Builtins.SymbolToString);
+
+      string n = string.Join(".", fullname);
+
+      NameHint = SymbolTable.StringToId(n);
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
       cb.IsGlobal = true;
 
@@ -40,6 +47,8 @@ namespace IronScheme.Compiler
       List<Variable> locals = new List<Variable>();
 
       List<object> defs = new List<object>();
+
+      args = (args as Cons).cdr;
 
       Cons a = (args as Cons).car as Cons;
 

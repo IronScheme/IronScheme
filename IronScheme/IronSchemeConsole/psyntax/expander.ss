@@ -2187,8 +2187,9 @@
                       (and rest (cons first rest))))))
             ((null? e) '())
             ((stx? e)
-             (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
-               (match-each (stx-expr e) p m* s* ae*)))
+             (and (not (top-marked? m*))
+               (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
+                 (match-each (stx-expr e) p m* s* ae*))))
             [(annotation? e)
              (match-each (annotation-expression e) p m* s* ae*)]
             (else #f))))
@@ -2210,8 +2211,10 @@
                            (match (car e) (car y-pat) m* s* ae* r)))
                      (values #f #f #f))))
               ((stx? e)
-               (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
-                 (f (stx-expr e) m* s* ae*)))
+               (if (top-marked? m*)
+                   (values '() y-pat (match e z-pat m* s* ae* r))
+                   (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
+                     (f (stx-expr e) m* s* ae*))))
               [(annotation? e) 
                (f (annotation-expression e) m* s* ae*)]
               (else (values '() y-pat (match e z-pat m* s* ae* r)))))))
@@ -2223,8 +2226,9 @@
                (and l (cons (stx^ (car e) m* s* ae*) l))))
             ((null? e) '())
             ((stx? e)
-             (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
-               (match-each-any (stx-expr e) m* s* ae*)))
+             (and (not (top-marked? m*))
+               (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
+                 (match-each-any (stx-expr e) m* s* ae*))))
             [(annotation? e) 
              (match-each-any (annotation-expression e) m* s* ae*)]
             (else #f))))
@@ -2296,8 +2300,9 @@
             ((eq? p '_) r)
             ((eq? p 'any) (cons (stx^ e m* s* ae*) r))
             ((stx? e)
-             (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
-               (match (stx-expr e) p m* s* ae* r)))
+             (and (not (top-marked? m*))
+               (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
+                 (match (stx-expr e) p m* s* ae* r))))
             [(annotation? e) 
              (match (annotation-expression e) p m* s* ae* r)]
             (else (match* e p m* s* ae* r)))))
@@ -3506,7 +3511,7 @@
              (values e r))))))
 
   (define library-body-expander
-    (lambda (exp* imp* b* top?)
+    (lambda (name exp* imp* b* top?)
       (define itc (make-collector))
       (parameterize ((imp-collector itc)
                      (top-level-context #f))
@@ -3547,7 +3552,7 @@
                           (let ((invoke-body
                                  (if-wants-library-letrec*
                                    (build-library-letrec* no-source
-                                     lex* loc* rhs*
+                                     name lex* loc* rhs*
                                      (if (null? init*) 
                                          (build-void)
                                          (build-sequence no-source init*)))
@@ -3570,7 +3575,7 @@
            (verify-name name)
            (let-values (((imp* invoke-req* visit-req* invoke-code
                                visit-code export-subst export-env)
-                         (library-body-expander exp* imp* b* #f)))
+                         (library-body-expander name exp* imp* b* #f)))
               (values name ver imp* invoke-req* visit-req* 
                       invoke-code visit-code export-subst
                       export-env))))]))
@@ -3593,7 +3598,7 @@
       (let-values (((imp* b*) (parse-top-level-program e*)))
           (let-values (((imp* invoke-req* visit-req* invoke-code
                          visit-code export-subst export-env)
-                        (library-body-expander '() imp* b* #t)))
+                        (library-body-expander '() '() imp* b* #t)))
             (values invoke-req* invoke-code)))))
 
   ;;; An env record encapsulates a substitution and a set of
@@ -3738,7 +3743,7 @@
     (let-values (((id name ver imp* vis* inv* 
                    invoke-code visit-code export-subst export-env)
                   (library-expander x)))
-      (values invoke-code export-subst export-env)))
+      (values name invoke-code export-subst export-env)))
   
   (define (rev-map-append f ls ac)
     (cond
