@@ -21,43 +21,52 @@ namespace IronScheme.Runtime.psyntax
       {
         if (!File.Exists(fn) || File.GetLastWriteTime(faslfn) >= File.GetLastWriteTime(fn))
         {
-          using (Stream input = File.OpenRead(faslfn))
+          try
           {
-            int i = 0;
-            object result = SERIALIZER.Deserialize(input);
-            Cons pivot = result as Cons;
-            while (i < 8)
+            using (Stream input = File.OpenRead(faslfn))
             {
+              int i = 0;
+              object result = SERIALIZER.Deserialize(input);
+              Cons pivot = result as Cons;
+              while (i < 8)
+              {
+                pivot = (Cons)pivot.cdr;
+                i++;
+              }
+
+              // this is to insure runtime constants can be read, long story... see psyntax/internal.ss
+              ICallable e2c = SymbolValue(cc, SymbolTable.StringToId("expanded2core")) as ICallable;
+
+              object visit = e2c.Call(pivot.car);
+
+              CallTarget0 visitproc = delegate
+              {
+                return EvalCore(Context, visit);
+              };
+
+              pivot.car = Closure.Make(Context, visitproc);
+
               pivot = (Cons)pivot.cdr;
-              i++;
+
+              object invoke = e2c.Call(pivot.car);
+
+              CallTarget0 invokeproc = delegate
+              {
+                return EvalCore(Context, invoke);
+              };
+
+              pivot.car = Closure.Make(Context, invokeproc);
+
+              return Apply(sk, result);
             }
-
-            // this is to insure runtime constants can be read, long story... see psyntax/internal.ss
-            ICallable e2c = SymbolValue(cc, SymbolTable.StringToId("expanded2core")) as ICallable;
-
-            object visit = e2c.Call(pivot.car);
-
-            CallTarget0 visitproc = delegate
-            {
-              return EvalCore(Context, visit);
-            };
-
-            pivot.car = Closure.Make(Context, visitproc);
-
-            pivot = (Cons)pivot.cdr;
-
-            object invoke = e2c.Call(pivot.car);
-
-            CallTarget0 invokeproc = delegate
-            {
-              return EvalCore(Context, invoke);
-            };
-
-            pivot.car = Closure.Make(Context, invokeproc);
-
-            return Apply(sk, result);
+          }
+          catch (Exception ex)
+          {
+            Console.Error.WriteLine("WARNING: precompiled library ({1}) could not load. Reason: {0}", ex.Message, Path.GetFileName(fn));
+            return FALSE;
           }
         }
+        Console.Error.WriteLine("WARNING: precompiled library ({0}) is out-of-date. Run (compile-system-libraries) to update.", Path.GetFileName(fn));
       }
       return FALSE;
     }

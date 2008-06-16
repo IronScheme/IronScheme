@@ -25,6 +25,27 @@ namespace IronScheme.Runtime
       get { return name; }
     }
 
+    int ICallable.Arity
+    {
+      get
+      {
+        int a = int.MaxValue;
+
+        foreach (MethodBase m in methods)
+        {
+          
+          ParameterInfo[] pis = m.GetParameters();
+          int pc = pis.Length;
+          if (pis.Length > 0 && pis[0].ParameterType == typeof(CodeContext))
+          {
+            pc--;
+          }
+          a = Math.Min(pc, a);
+        }
+        return a;
+      }
+    }
+
     public override string ToString()
     {
       return Name;

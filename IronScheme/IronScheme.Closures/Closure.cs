@@ -63,6 +63,11 @@ namespace IronScheme.Runtime
       return target.Method.Name;
     }
 
+    public virtual int Arity
+    {
+      get { return paramcount; }
+    }
+
     public virtual object Call()
     {
       return Call(new object[0]);
@@ -379,6 +384,11 @@ namespace IronScheme.Runtime
         realtarget = Make(cc, target);
       }
 
+      public override int Arity
+      {
+        get { return pcount - 1; }
+      }
+
       public override object Call(object[] args)
       {
         if (args.Length + 1 < pcount)
@@ -425,6 +435,19 @@ namespace IronScheme.Runtime
           {
             this.targets.Add(Make(cc, targets[i]));
           }
+        }
+      }
+
+      public override int Arity
+      {
+        get 
+        {
+          int a = int.MaxValue;
+          foreach (ICallable c in targets)
+          {
+            a = Math.Min(c.Arity, a);
+          }
+          return a;
         }
       }
 

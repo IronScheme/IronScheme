@@ -106,6 +106,13 @@ namespace IronScheme.Runtime
       return List(Environment.GetCommandLineArgs());
     }
 
+    [Builtin("clr-type?")]
+    public static object IsClrType(object o)
+    {
+      return GetBool(o is Type);
+    }
+
+
     [Builtin("get-clr-type")]
     public static object GetClrType(object name, params object[] typeargs)
     {
@@ -275,6 +282,13 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
     }
 
+    [Builtin("get-arity")]
+    public static object GetArity(object proc)
+    {
+      ICallable c = RequiresNotNull<ICallable>(proc);
+      return c.Arity;
+    }
+
     [Builtin("make-traced-procedure")]
     public static object MakeTraceProcedure(object name, object proc)
     {
@@ -355,7 +369,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       int c = ++evalcounter;
 
-#if DEBUG_EXTRA
+#if DEBUG
 
       // bad for ASP.NET
       if (Assembly.GetEntryAssembly() != null)

@@ -279,7 +279,9 @@
     (vector-filter                              i) 
     (vector-append                              i)
     (get-clr-type                               i)
+    (clr-type?                                  i)
     (gc-collect                                 i)
+    (get-arity                                  i)
     (make-record-printer                        irp)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
@@ -1244,7 +1246,7 @@
                         ((assq x ',primlocs) => cdr)
                         (else #f))))
                   ,@(map build-library library-legend))))
-    (let-values (((code empty-subst empty-env)
+    (let-values (((name code empty-subst empty-env)
                   (boot-library-expand code)))
        code)))
 
@@ -1275,7 +1277,7 @@
         (newline)
         (load file
           (lambda (x)
-            (let-values (((code export-subst export-env)
+            (let-values (((name code export-subst export-env)
                           (boot-library-expand x)))
                (set! code* (cons code code*))
                (set! subst (append export-subst subst))

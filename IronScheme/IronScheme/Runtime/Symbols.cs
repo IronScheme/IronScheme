@@ -43,7 +43,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("symbol->string")]
-    public static object SymbolToString(object obj)
+    public static string SymbolToString(object obj)
     {
       if (obj is SymbolId)
       {
@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return AssertionViolation(GetCaller(), "not a symbol", obj);
+        return AssertionViolation(GetCaller(), "not a symbol", obj) as string;
       }
     }
 
