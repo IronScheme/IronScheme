@@ -135,7 +135,7 @@ namespace IronScheme.Runtime.R6RS
       byte[] b1 = RequiresNotNull<byte[]>(v1);
       int i = RequiresNotNull<int>(k);
 
-      return (sbyte) b1[i];
+      return (int) (sbyte) b1[i];
     }
 
     [Builtin("bytevector-u8-set!")]
@@ -166,7 +166,7 @@ namespace IronScheme.Runtime.R6RS
     public static object ByteVectorToU8List(object v1)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
-      return Runtime.Cons.FromList(b1);
+      return Runtime.Cons.FromList(Array.ConvertAll<byte, int>(b1, delegate (byte b) {return (int) b;}));
     }
 
     [Builtin("u8-list->bytevector")]
@@ -324,7 +324,7 @@ namespace IronScheme.Runtime.R6RS
       switch (s)
       {
         case 1:
-          return b[0];
+          return (int) b[0];
         case 2:
           return (int) BitConverter.ToUInt16(b, i);
         case 4:

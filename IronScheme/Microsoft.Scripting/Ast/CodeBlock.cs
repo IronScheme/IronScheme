@@ -1000,6 +1000,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 #endif
 
                 }
+                _impl = impl.MethodInfo;
                 cg.EmitDelegateConstruction(impl, delegateType);
             }
         }

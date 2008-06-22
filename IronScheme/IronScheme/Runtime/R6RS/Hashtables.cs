@@ -111,7 +111,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("hashtable?")]
     public static object IsHashtable(object obj)
     {
-      return obj is Hashtable;
+      return  GetBool(obj is Hashtable);
     }
 
     [Builtin("hashtable-copy")]
@@ -163,7 +163,7 @@ namespace IronScheme.Runtime.R6RS
     public static object IsHashtableMutable(object obj)
     {
       RequiresNotNull<Hashtable>(obj);
-      return !(obj is ReadOnlyHashtable);
+      return GetBool(!(obj is ReadOnlyHashtable));
     }
 
     [Builtin("equal-hash")]

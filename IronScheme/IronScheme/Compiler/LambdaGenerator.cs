@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
+using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {

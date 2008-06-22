@@ -46,7 +46,22 @@ namespace IronScheme.Runtime
     [InlineEmitter("not")]
     public static Expression Not(Expression[] obj)
     {
+      Expression e = Unwrap(obj[0]);
+      if (e.Type == typeof(bool))
+      {
+        return Ast.Not(e);
+      }
       return Ast.Condition(Ast.TypeIs(obj[0], typeof(bool)), Ast.Not(Ast.ConvertHelper(obj[0], typeof(bool))), Ast.False());
+    }
+
+    static Expression Unwrap(Expression ex)
+    {
+      while (ex is UnaryExpression && ((UnaryExpression)ex).NodeType == AstNodeType.Convert)
+      {
+        ex = ((UnaryExpression)ex).Operand;
+      }
+
+      return ex;
     }
 
   }

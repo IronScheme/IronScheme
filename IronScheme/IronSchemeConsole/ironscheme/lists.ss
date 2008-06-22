@@ -32,6 +32,9 @@
     
   (import 
     (except (rnrs)
+      find
+      partition
+      filter
       for-all 
       exists
       cons*
@@ -40,6 +43,7 @@
       remove
       remv
       remq
+      remp
       ;assq
       assv
       assp
@@ -49,6 +53,42 @@
       member
       memp))
       
+  (define (find proc l)
+    (if (null? l)
+      #f
+      (let ((e (car l)))
+        (if (proc e) 
+          e
+          (find proc (cdr l))))))    
+          
+  (define (partition proc l)
+    (let f ((l l)(a '())(b '()))
+      (if (null? l)
+        (values (reverse a) (reverse b))
+        (let ((e (car l)))
+          (if (proc e)
+            (f (cdr l) (cons e a) b)
+            (f (cdr l) a (cons e b)))))))
+      
+  (define (remp proc l)
+    (let f ((l l)(a '()))
+      (if (null? l)
+        (reverse a)
+        (let ((e (car l)))
+          (if (proc e)
+            (f (cdr l) a)
+            (f (cdr l) (cons e a)))))))
+            
+  (define (filter proc l)
+    (let f ((l l)(a '()))
+      (if (null? l)
+        (reverse a)
+        (let ((e (car l)))
+          (if (proc e)
+            (f (cdr l) (cons e a))
+            (f (cdr l) a))))))            
+  
+  ;; excluded for performance reasons    
   #;(define (assq obj lst)
     (if (null? lst) #f
       (let ((t (car lst)))
@@ -72,12 +112,14 @@
       (let ((c (car lst)))
         (if (p? (car c)) c
           (assp p? (cdr lst))))))
-      
+  
+  ;; excluded for performance reasons    
   #;(define (memq obj lst)
     (if (null? lst) #f
       (if (eq? obj (car lst)) lst
         (memq obj (cdr lst)))))
 
+  ;; excluded for performance reasons
   #;(define (memv obj lst)
     (if (null? lst) #f
       (if (eqv? obj (car lst)) lst

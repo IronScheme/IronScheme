@@ -1,4 +1,4 @@
-(library (G)
+(library (declare-type)
    (export local-declare-type local-declare-types)
    (import (rnrs) (only (ironscheme) gensym))
 

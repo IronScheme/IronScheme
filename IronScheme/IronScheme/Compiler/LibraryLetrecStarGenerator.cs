@@ -18,6 +18,7 @@ using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using System.Reflection;
+using Microsoft.Scripting.Generation;
 
 namespace IronScheme.Compiler
 {
@@ -45,8 +46,10 @@ namespace IronScheme.Compiler
 
       List<SymbolId> vars = new List<SymbolId>();
       List<Variable> locals = new List<Variable>();
+      List<Expression> assignments = new List<Expression>();
 
       List<object> defs = new List<object>();
+      List<object> bodies = new List<object>();
 
       args = (args as Cons).cdr;
 
@@ -67,8 +70,34 @@ namespace IronScheme.Compiler
 
       List<Statement> stmts = new List<Statement>();
 
+      // pass 1
       for (int i = 0; i < vars.Count; i++)
       {
+        if (defs[i] is Cons && Builtins.IsTrue(Builtins.IsEqual(((Cons)defs[i]).car, SymbolTable.StringToId("case-lambda"))))
+        {
+          Cons cl = defs[i] as Cons;
+
+          object pars = ((Cons)((Cons)cl.cdr).car).car;
+
+          // cant handle varargs or overloads (case-lambda with 2 or more bodies)
+          if (((Cons)cl.cdr).cdr == null && pars is Cons && ((Cons)pars).IsProper)
+          {
+
+            Cons b = ((Cons)((Cons)cl.cdr).car).cdr as Cons;
+            ((Cons)((Cons)cl.cdr).car).cdr = new Cons(Builtins.FALSE);
+
+            bodies.Add(b);
+          }
+          else
+          {
+            bodies.Add(null);
+          }
+        }
+        else
+        {
+          bodies.Add(null);
+        }
+
         NameHint = Builtins.UnGenSym(vars[i]);
         Expression e = GetAst(defs[i], cb);
 
@@ -77,7 +106,45 @@ namespace IronScheme.Compiler
           e = Ast.ConvertHelper(e, typeof(object));
         }
 
+        assignments.Add(e);
+
+        if (e is MethodCallExpression)
+        {
+          MethodCallExpression mce = e as MethodCallExpression;
+          if (mce.Method == Closure_Make)
+          {
+            libraryglobals.Add(locals[i].Name, mce.Arguments[1] as CodeBlockExpression);
+            libraryglobals.Add(vars[i], mce.Arguments[1] as CodeBlockExpression);
+          }
+        }
+      }
+
+      // pass 2, expand lambda bodies
+      for (int i = 0; i < vars.Count; i++)
+      {
+        Expression e = assignments[i];
+        NameHint = Builtins.UnGenSym(vars[i]);
+
+        if (bodies[i] != null)
+        {
+          Cons b = bodies[i] as Cons;
+
+          CodeBlock cbody = libraryglobals[locals[i].Name].Block;
+          cbody.Body = null; 
+
+          FillBody(cbody, new List<Statement>(), b, true);
+        }
+
         stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.CodeContext(), Ast.Constant(vars[i]), Ast.Assign(locals[i], e))));
+      }
+
+      // pass 3, remove library locals
+      for (int i = 0; i < vars.Count; i++)
+      {
+        if (libraryglobals.ContainsKey(locals[i].Name))
+        {
+          libraryglobals.Remove(locals[i].Name);
+        }
       }
 
       NameHint = SymbolId.Invalid;
@@ -92,5 +159,7 @@ namespace IronScheme.Compiler
       level--;
       return ex;
     }
+
+
   }
 }

@@ -102,13 +102,20 @@ namespace IronScheme.Runtime
 
     readonly Delegate target;
 
-    public virtual MethodInfo Target
+    readonly static MethodInfo[] None = { };
+
+    public virtual MethodInfo[] Targets
     {
-      get { return target.Method; }
+      get { return None; }
     }
 
     protected Closure() : this(null, -1)
     {
+    }
+
+    protected static bool IsValid(MethodInfo mi)
+    {
+      return mi.IsStatic && !mi.Name.Contains("#");
     }
 
     Closure(Delegate target, int paramcount)
@@ -130,6 +137,11 @@ namespace IronScheme.Runtime
         : base(target, paramcount)
       {
         this.cc = cc;
+      }
+
+      public override MethodInfo[] Targets
+      {
+        get { return IsValid(target.Method) ? new MethodInfo[]{ target.Method } : None; }
       }
 
       public override object Call(object[] args)
@@ -237,6 +249,11 @@ namespace IronScheme.Runtime
       public SimpleClosure(Delegate target, int paramcount)
         : base(target, paramcount)
       {
+      }
+
+      public override MethodInfo[] Targets
+      {
+        get { return IsValid(target.Method) ? new MethodInfo[] { target.Method } : None; }
       }
 
       public override object Call(object[] args)
@@ -372,11 +389,6 @@ namespace IronScheme.Runtime
       ICallable realtarget;
       int pcount = 0;
 
-      public override MethodInfo Target
-      {
-        get { return null; }
-      }
-
       public VarArgClosure(CodeContext cc, Delegate target, int paramcount)
         : base(target, -1)
       {
@@ -391,9 +403,9 @@ namespace IronScheme.Runtime
 
       public override object Call(object[] args)
       {
-        if (args.Length + 1 < pcount)
+        if (args.Length < Arity)
         {
-          AssertionViolation(realtarget.ToString(), string.Format("invalid argument count, expected at least {0} got {1}", pcount, args.Length), args);
+          AssertionViolation(realtarget.ToString(), string.Format("invalid argument count, expected at least {0} got {1}", Arity, args.Length), args);
         }
         object[] newargs = new object[pcount];
         Array.Copy(args, newargs, pcount - 1);
@@ -416,9 +428,17 @@ namespace IronScheme.Runtime
       int[] arities;
       List<ICallable> targets = new List<ICallable>();
 
-      public override MethodInfo Target
+      public override MethodInfo[] Targets
       {
-        get { return null; }
+        get 
+        {
+          List<MethodInfo> mis = new List<MethodInfo>();
+          foreach (Closure c in targets)
+          {
+            mis.AddRange(c.Targets);
+          }
+          return mis.ToArray(); 
+        }
       }
 
       public CaseClosure(CodeContext cc, Delegate[] targets, int[] arities)

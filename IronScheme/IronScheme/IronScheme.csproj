@@ -104,12 +104,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\MultiEnumerable.cs" />
-    <Compile Include="Types\Boolean.cs" />
-    <Compile Include="Types\ByteVector.cs" />
-    <Compile Include="Types\Character.cs" />
-    <Compile Include="Types\Pair.cs" />
-    <Compile Include="Types\Object.cs" />
-    <Compile Include="Types\Number.cs" />
+    <None Include="Types\Boolean.cs" />
+    <None Include="Types\ByteVector.cs" />
+    <None Include="Types\Character.cs" />
+    <None Include="Types\Pair.cs" />
+    <None Include="Types\Object.cs" />
+    <None Include="Types\Number.cs" />
     <Compile Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\Promise.cs" />
@@ -121,7 +121,6 @@
     <Compile Include="Runtime\R6RS\ByteVectors.cs" />
     <Compile Include="Runtime\R6RS\Conditions.cs" />
     <Compile Include="Runtime\R6RS\Programs.cs" />
-    <Compile Include="Runtime\R6RS\Lists.cs" />
     <Compile Include="Runtime\R6RS\Exceptions.cs" />
     <Compile Include="Runtime\R6RS\IO.cs" />
     <Compile Include="Runtime\R6RS\Enums.cs" />
@@ -136,13 +135,13 @@
     </Compile>
     <Compile Include="Runtime\TraceClosure.cs" />
     <Compile Include="Runtime\Vectors.cs" />
-    <Compile Include="Types\Other.cs" />
-    <Compile Include="Types\Ports.cs" />
-    <Compile Include="Types\Procedure.cs" />
-    <Compile Include="Types\String.cs" />
-    <Compile Include="Types\Symbol.cs" />
-    <Compile Include="Types\Vector.cs" />
-    <Compile Include="Types\Void.cs" />
+    <None Include="Types\Other.cs" />
+    <None Include="Types\Ports.cs" />
+    <None Include="Types\Procedure.cs" />
+    <None Include="Types\String.cs" />
+    <None Include="Types\Symbol.cs" />
+    <None Include="Types\Vector.cs" />
+    <None Include="Types\Void.cs" />
     <Compile Include="Web\Handler.cs" />
   </ItemGroup>
   <ItemGroup>
