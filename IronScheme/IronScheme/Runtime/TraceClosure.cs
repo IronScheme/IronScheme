@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting;
+using System.IO;
 
 namespace IronScheme.Runtime
 {
@@ -34,20 +35,36 @@ namespace IronScheme.Runtime
     {
       try
       {
+        ICallable pp = Builtins.SymbolValue(Builtins.cc, SymbolTable.StringToId("pretty-print")) as ICallable ??
+          Make(Builtins.cc, new CallTarget2(Builtins.Write));
         depth++;
-        string[] sargs = Array.ConvertAll<object, string>(args, delegate(object o)
+
+        Cons c = Cons.FromArray(args), u = c;
+
+        if (filter != null)
         {
-          if (filter != null)
+          while (c != null)
           {
-            o = filter.Call(o);
+            c.car = filter.Call(c.car);
+            c = c.cdr as Cons;
           }
-          return Builtins.WriteFormat(o);
-        });
+        }
+
+        Cons a = new Cons(SymbolTable.IdToString(name), u);
+
+        StringWriter pre = new StringWriter();
+
+        pp.Call(a, pre);
+
         string prefix = new string('|', depth);
-        Console.WriteLine("{0}({1}{2})", prefix, SymbolTable.IdToString(name), args.Length == 0 ? "" : (" " + string.Join(" ", sargs)));
+        Console.WriteLine("{0} -> {1})", prefix, pre.ToString());
         object result = realtarget.Call(args);
 
-        Console.WriteLine("{0}{1}", prefix, Builtins.WriteFormat(filter == null ? result : filter.Call(result)));
+        StringWriter p = new StringWriter();
+
+        pp.Call(filter == null ? result : filter.Call(result), p);
+
+        Console.WriteLine("{0} <- {1}", prefix, p.ToString());
         return result;
       }
       finally

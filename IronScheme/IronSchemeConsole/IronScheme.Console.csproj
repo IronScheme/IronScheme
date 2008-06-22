@@ -153,6 +153,9 @@
     <None Include="ironscheme\record-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\datatype.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="system-libraries.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -255,7 +258,7 @@
     <None Include="lib\draw-tree.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\G.ss">
+    <None Include="lib\declare-type.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="srfi\format.ss">

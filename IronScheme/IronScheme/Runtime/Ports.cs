@@ -192,6 +192,8 @@ namespace IronScheme.Runtime
           Stopwatch sw = Stopwatch.StartNew();
 #endif
           ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
+
+          Compiler.SimpleGenerator.libraryglobals.Clear();
 #if DEBUG
           Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
           sw = Stopwatch.StartNew();

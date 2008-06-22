@@ -56,7 +56,7 @@ namespace Microsoft.Scripting.Generation {
         private List<Slot> _freeSlots = new List<Slot>();
         private IList<Label> _yieldLabels;
         private Nullable<ReturnBlock> _returnBlock;
-        private Dictionary<CodeBlock, CodeGen> _codeBlockImplementations;
+        private static Dictionary<CodeBlock, CodeGen> _codeBlockImplementations = new Dictionary<CodeBlock,CodeGen>();
 
         // Key slots
         private EnvironmentSlot _environmentSlot;   // reference to function's own environment
@@ -128,7 +128,7 @@ namespace Microsoft.Scripting.Generation {
             //EmitLineInfo = ScriptDomainManager.Options.DynamicStackTraceSupport;
             WriteSignature(mi, paramTypes);
 
-            _codeBlockImplementations = new Dictionary<CodeBlock, CodeGen>();
+            //_codeBlockImplementations = new Dictionary<CodeBlock, CodeGen>();
 #if !DEBUG
         }
 #else
@@ -2341,10 +2341,12 @@ namespace Microsoft.Scripting.Generation {
                 impl = block.CreateMethod(this, hasContextParameter, hasThis);
                 impl.Binder = _binder;
 
+                _codeBlockImplementations.Add(block, impl);
+
                 block.EmitFunctionImplementation(impl);
                 impl.Finish();
 
-                _codeBlockImplementations.Add(block, impl);
+                
             }
 
             return impl;

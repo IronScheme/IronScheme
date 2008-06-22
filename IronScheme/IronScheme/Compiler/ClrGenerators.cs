@@ -37,6 +37,12 @@ namespace IronScheme.Compiler
 
     protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
+    static ClrGenerator()
+    {
+      namespaces.Add("System", "System");
+      namespaces.Add("System.Collections", "System.Collections");
+    }
+
     protected static Regex typeparser = new Regex(@"(?<ns>([^\s.<]+\.)*)(?<type>[^\s.<\[]+)(?<args>(<[^>]+>)?)(?<isarray>\[\])?",
       RegexOptions.Compiled | RegexOptions.ExplicitCapture); // last bit has to be greedy, greedy wont help, need to figure out nesting constructs
 
@@ -347,7 +353,7 @@ namespace IronScheme.Compiler
     // (clr-clear-usings)
     public override Expression Generate(object args, CodeBlock cb)
     {
-      namespaces.Clear();
+      //namespaces.Clear();
       return Ast.ReadField(null, Unspecified);
     }
   }
@@ -363,7 +369,7 @@ namespace IronScheme.Compiler
       if (name is SymbolId)
       {
         assname = SymbolTable.IdToString((SymbolId)name);
-        namespaces.Add(assname, assname);
+        namespaces[assname] = assname;
       }
       else
       {

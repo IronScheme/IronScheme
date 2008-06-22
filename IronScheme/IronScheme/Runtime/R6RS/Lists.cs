@@ -44,41 +44,6 @@ namespace IronScheme.Runtime.R6RS
       return FALSE;
     }
 
-    [Builtin("memp")]
-    public static object Memp(object proc, object list)
-    {
-      ICallable p = RequiresNotNull<ICallable>(proc);
-      Cons c = Requires<Runtime.Cons>(list);
-
-      while (c != null)
-      {
-        if (IsTrue(p.Call(c.car)))
-        {
-          return c;
-        }
-        c = c.cdr as Cons;
-      }
-
-      return FALSE;
-    }
-
-    [Builtin("assp")]
-    public static object Assp(object proc, object alist)
-    {
-      ICallable p = RequiresNotNull<ICallable>(proc);
-      Cons e = Requires<Runtime.Cons>(alist);
-
-      while (e != null)
-      {
-        Cons ass = e.car as Cons;
-        if (IsTrue(p.Call(ass.car)))
-        {
-          return ass;
-        }
-        e = e.cdr as Cons;
-      }
-      return FALSE;
-    }
 
     [Builtin("remp")]
     public static object Remp(object proc, object list)

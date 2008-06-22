@@ -616,7 +616,7 @@ namespace IronScheme.Runtime.R6RS
       {
         return EOF;
       }
-      return (byte)c;
+      return c;
     }
 
     //(lookahead-u8 binary-input-port)
@@ -632,7 +632,7 @@ namespace IronScheme.Runtime.R6RS
         {
           return EOF;
         }
-        return (byte)c;
+        return c;
       }
       return FALSE;
     }
@@ -1142,7 +1142,7 @@ namespace IronScheme.Runtime.R6RS
     public static object PutU8(object binaryoutputport, object octet)
     {
       Stream s = RequiresNotNull<Stream>(binaryoutputport);
-      byte b = RequiresNotNull<byte>(octet);
+      byte b = (byte) RequiresNotNull<int>(octet);
 
       s.WriteByte(b);
       return Unspecified;

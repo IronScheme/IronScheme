@@ -28,6 +28,7 @@ namespace IronScheme.Compiler
   public abstract class SimpleGenerator : Generator, IGenerator
   {
     public abstract Expression Generate(object args, CodeBlock cb);
+    protected internal static readonly Dictionary<SymbolId, CodeBlockExpression> libraryglobals = new Dictionary<SymbolId, CodeBlockExpression>();
   }
 
   partial class Generator

@@ -215,6 +215,8 @@
             (f (+ i 1) (cdr sym*)))))))
 
   (define (seal-rib! rib)
+    (when (rib-sealed/freq rib)
+      (assertion-violation 'seal-rib! "rib is sealed already" rib))
     (let ((sym* (rib-sym* rib)))
       (unless (null? sym*)
         ;;; only seal if rib is not empty.
@@ -227,11 +229,13 @@
           (make-rib-map sym*)))))
 
   (define (unseal-rib! rib)
-    (when (rib-sealed/freq rib)
-      (set-rib-sealed/freq! rib #f)
-      (set-rib-sym*! rib (vector->list (rib-sym* rib)))
-      (set-rib-mark**! rib (vector->list (rib-mark** rib)))
-      (set-rib-label*! rib (vector->list (rib-label* rib)))))
+    (if (rib-sealed/freq rib)
+      (begin
+        (set-rib-sealed/freq! rib #f)
+        (set-rib-sym*! rib (vector->list (rib-sym* rib)))
+        (set-rib-mark**! rib (vector->list (rib-mark** rib)))
+        (set-rib-label*! rib (vector->list (rib-label* rib))))
+      (assertion-violation 'unseal-rib! "rib is not sealed" rib)))
 
   #;(define (increment-rib-frequency! rib idx)
     (let ((freq* (rib-sealed/freq rib)))

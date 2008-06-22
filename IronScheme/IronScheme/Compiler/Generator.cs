@@ -111,13 +111,14 @@ namespace IronScheme.Compiler
 
           object m;
 
-          if (Context.Scope.TryLookupName(f, out m))
+          if (SimpleGenerator.libraryglobals.ContainsKey(f))
           {
-            //terrible....
-            CodeBlockExpression cbe = m as CodeBlockExpression;
-            if (cbe != null)
+            CodeBlockExpression cbe = SimpleGenerator.libraryglobals[f];
+
+            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+
+            if (ppp.Length < 6)
             {
-              Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
               bool needscontext = true;
               MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
@@ -126,9 +127,15 @@ namespace IronScheme.Compiler
                 ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
               }
 
+              cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, ppp.Length - 1, false));
+
               return Ast.ComplexCallHelper(cbe, dc, ppp);
             }
+          }
 
+
+          if (Context.Scope.TryLookupName(f, out m))
+          {
             if (var == null)
             {
 
@@ -180,30 +187,23 @@ namespace IronScheme.Compiler
               Closure clos = m as Closure;
               if (clos != null)
               {
-                MethodInfo mi = clos.Target;
-                if (mi != null && mi.IsStatic)
+                MethodInfo[] mis = clos.Targets;
+
+                MethodBinder mb = MethodBinder.MakeBinder(binder, SymbolTable.IdToString(f), mis, BinderType.Normal);
+
+                Expression[] pars = GetAstList(c.cdr as Cons, cb);
+
+                Type[] types = GetExpressionTypes(pars);
+                MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                if (mc != null)
                 {
-                  Expression[] pars = GetAstList(c.cdr as Cons, cb);
-                  ParameterInfo[] pis = mi.GetParameters();
-                  if (pis.Length > 0 && pis[0].ParameterType == typeof(CodeContext))
+                  if (mc.Target.NeedsContext)
                   {
-                    if (pis.Length > 1 && pis[1].ParameterType == typeof(object[]))
-                    {
-                      pars = new Expression[] { Ast.CodeContext(), Ast.NewArray(typeof(object[]), pars) };
-                    }
-                    else
-                    {
-                      pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-                    }
+                    pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
                   }
-                  else
-                  {
-                    if (pis.Length > 0 && pis[0].ParameterType == typeof(object[]))
-                    {
-                      pars = new Expression[] { Ast.NewArray(typeof(object[]), pars) };
-                    }
-                  }
-                  return Ast.Call(mi, pars);
+                  MethodBase meth = mc.Target.Method;
+
+                  return Ast.ComplexCallHelper(meth as MethodInfo, pars);
                 }
               }
             }
