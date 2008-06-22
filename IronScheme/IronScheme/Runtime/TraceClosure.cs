@@ -35,8 +35,14 @@ namespace IronScheme.Runtime
     {
       try
       {
-        ICallable pp = Builtins.SymbolValue(Builtins.cc, SymbolTable.StringToId("pretty-print")) as ICallable ??
-          Make(Builtins.cc, new CallTarget2(Builtins.Write));
+        object ppo;
+
+        if (!Builtins.cc.Scope.TryLookupName(SymbolTable.StringToId("pretty-print"), out ppo))
+        {
+          ppo = Make(Builtins.cc, new CallTarget2(Builtins.Write));
+        }
+        ICallable pp = ppo as ICallable;
+
         depth++;
 
         Cons c = Cons.FromArray(args), u = c;
