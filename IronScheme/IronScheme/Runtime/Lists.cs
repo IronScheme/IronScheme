@@ -479,6 +479,26 @@ namespace IronScheme.Runtime
       return head;
     }
 
+    [Builtin("reverse!")]
+    public static Cons NReverse(Cons list)
+    {
+      Cons prev = null, next = null;
+
+      while (true)
+      {
+        next = list.cdr as Cons;
+        list.cdr = prev;
+
+        if (next == null)
+        {
+          return list;
+        }
+
+        prev = list;
+        list = next;
+      }
+    }
+
     public static Cons ToImproper(Cons c)
     {
       Cons i = c;

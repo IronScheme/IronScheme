@@ -383,8 +383,13 @@ public Expression MakeExpression(ActionBinder binder, StandardRule rule, Express
                 }
             }
 
-            if (kwIndex != -1) {
-                newArgBuilders.Insert(kwIndex, new ParamsDictArgBuilder(curArg, names, nameIndexes));
+            if (kwIndex != -1)
+            {
+
+#if FULL
+                newArgBuilders.Insert(kwIndex, new ParamsDictArgBuilder(curArg, names, nameIndexes)); 
+#endif
+
             }
 
             return new MethodTarget(_binder, Method, argCount, _instanceBuilder, newArgBuilders, _returnBuilder);

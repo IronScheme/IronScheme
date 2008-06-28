@@ -193,7 +193,7 @@ namespace IronScheme.Runtime
 #endif
           ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
 
-          Compiler.SimpleGenerator.libraryglobals.Clear();
+          Compiler.SimpleGenerator.ClearGlobals();
 #if DEBUG
           Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
           sw = Stopwatch.StartNew();

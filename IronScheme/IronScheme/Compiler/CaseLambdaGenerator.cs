@@ -61,6 +61,9 @@ namespace IronScheme.Compiler
           CodeBlockDescriptor cbd = new CodeBlockDescriptor();
           cbd.arity = isrest ? -cb.ParameterCount : cb.ParameterCount;
           cbd.codeblock = Ast.CodeBlockExpression(cb, false);
+          cbd.varargs = isrest;
+
+          descriptorshack.Add(cbd.codeblock, cbd);
 
           cbs.Add(cbd);
 

@@ -35,7 +35,11 @@ namespace Microsoft.Scripting {
     /// when exposed directly to user code).  When indexed by objects null is a valid value for the
     /// key.
     /// </summary>
-    public abstract class BaseSymbolDictionary : IValueEquality {
+  public abstract class BaseSymbolDictionary
+#if FULL
+: IValueEquality 
+#endif
+  {
         private static object _nullObject = new object();
         private const int ObjectKeysId = -2;
         internal static readonly SymbolId ObjectKeys = new SymbolId(ObjectKeysId);
@@ -69,6 +73,8 @@ namespace Microsoft.Scripting {
 
         #endregion        
         
+
+#if FULL
         #region IValueEquality Members
 
         public int GetValueHashCode() {
@@ -107,8 +113,10 @@ namespace Microsoft.Scripting {
             return !ValueEquals(other);
         }
 
-        #endregion          
-      
+        #endregion   
+#endif
+
+
         public static object NullToObj(object o) {
             if (o == null) return _nullObject;
             return o;

@@ -29,6 +29,18 @@ namespace IronScheme.Compiler
   {
     public abstract Expression Generate(object args, CodeBlock cb);
     protected internal static readonly Dictionary<SymbolId, CodeBlockExpression> libraryglobals = new Dictionary<SymbolId, CodeBlockExpression>();
+    protected internal static readonly Dictionary<SymbolId, CodeBlockDescriptor[]> libraryglobalsN = new Dictionary<SymbolId, CodeBlockDescriptor[]>();
+    protected internal static readonly Dictionary<SymbolId, CodeBlockExpression> libraryglobalsX = new Dictionary<SymbolId, CodeBlockExpression>();
+
+    protected internal static readonly Dictionary<CodeBlockExpression, CodeBlockDescriptor> descriptorshack = new Dictionary<CodeBlockExpression, CodeBlockDescriptor>();
+
+    internal static void ClearGlobals()
+    {
+      libraryglobals.Clear();
+      libraryglobalsN.Clear();
+      libraryglobalsX.Clear();
+      descriptorshack.Clear();
+    }
   }
 
   partial class Generator

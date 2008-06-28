@@ -10,7 +10,7 @@ namespace IronScheme.Compiler
   {
     readonly static Dictionary<SymbolId, InlineEmitter> inlineemitters = new Dictionary<SymbolId, InlineEmitter>();
 
-    public static OptimizationLevel Optimization = OptimizationLevel.Safe;
+    public static OptimizationLevel Optimization = OptimizationLevel.None;
 
     public static void AddInlineEmitters(Type emittertype)
     {

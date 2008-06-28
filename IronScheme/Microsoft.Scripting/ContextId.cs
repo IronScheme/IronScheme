@@ -25,6 +25,7 @@ namespace Microsoft.Scripting {
     /// member and operator lookup.
     /// </summary>
     [Serializable]
+    //[Obsolete("Not used")]
     public struct ContextId : IEquatable<ContextId> {
         private int _id;
         private static Dictionary<object, ContextId> _contexts = new Dictionary<object,ContextId>();

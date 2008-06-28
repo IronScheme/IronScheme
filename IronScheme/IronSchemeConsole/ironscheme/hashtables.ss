@@ -11,14 +11,19 @@
     hashtable-contains?
     hashtable-update!
     hashtable-clear!
-    
-    ;; todo
+
     hashtable-equivalence-function
     hashtable-hash-function)
     
   (import 
     (rnrs base)
     (rnrs control)
+    (only 
+      (rnrs hashtables) 
+      make-hashtable 
+      hashtable-equivalence-function 
+      hashtable-hash-function)
+    (ironscheme core)
     (ironscheme clr))
     
   (clr-using system)
@@ -31,15 +36,14 @@
     
   (define make-eqv-hashtable
     (case-lambda
-      [()   (clr-new hashtable)]
-      [(k)  (clr-new hashtable (clr-cast int32 k))]))
+      [()   (make-hashtable eqv-hash eqv?)]
+      [(k)  (make-hashtable eqv-hash eqv? k)]))
   
   (define (hashtable-size ht)
     (clr-prop-get hashtable count ht))
     
   (define (hashtable-ref ht key default)
     (define r (clr-indexer-get hashtable ht key))
-    
     (if (not (null? r)) 
       r
       default))
@@ -63,10 +67,6 @@
       ((ht)     (clr-call hashtable clear ht))
       ((ht k)   (clr-call hashtable clear ht))))
     
-  ;; TODO
-  
-  (define hashtable-equivalence-function #f)
-  (define hashtable-hash-function #f)
   
   (clr-clear-usings)
 

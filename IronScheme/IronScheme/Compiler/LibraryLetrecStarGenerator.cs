@@ -79,10 +79,9 @@ namespace IronScheme.Compiler
 
           object pars = ((Cons)((Cons)cl.cdr).car).car;
 
-          // cant handle varargs or overloads (case-lambda with 2 or more bodies)
-          if (((Cons)cl.cdr).cdr == null && pars is Cons && ((Cons)pars).IsProper)
+          // cant handle overloads (case-lambda with 2 or more bodies)
+          if (((Cons)cl.cdr).cdr == null && pars is Cons)
           {
-
             Cons b = ((Cons)((Cons)cl.cdr).car).cdr as Cons;
             ((Cons)((Cons)cl.cdr).car).cdr = new Cons(Builtins.FALSE);
 
@@ -90,6 +89,19 @@ namespace IronScheme.Compiler
           }
           else
           {
+            //List<Cons> cbs = new List<Cons>();
+
+            //Cons cc = cl.cdr as Cons;
+
+            //while (cc != null)
+            //{
+            //  Cons b = ((Cons)cc.car).cdr as Cons;
+            //  ((Cons)cc.car).cdr = new Cons(Builtins.FALSE);
+            //  cbs.Add(b);
+            //  cc = cc.cdr as Cons;
+            //}
+
+            //bodies.Add(cbs);
             bodies.Add(null);
           }
         }
@@ -116,6 +128,26 @@ namespace IronScheme.Compiler
             libraryglobals.Add(locals[i].Name, mce.Arguments[1] as CodeBlockExpression);
             libraryglobals.Add(vars[i], mce.Arguments[1] as CodeBlockExpression);
           }
+          if (mce.Method == Closure_MakeVarArgsX)
+          {
+            libraryglobalsX.Add(locals[i].Name, mce.Arguments[1] as CodeBlockExpression);
+            libraryglobalsX.Add(vars[i], mce.Arguments[1] as CodeBlockExpression);
+          }
+
+          if (mce.Method == Closure_MakeCase)
+          {
+            NewArrayExpression tcs = mce.Arguments[1] as NewArrayExpression;
+
+            List<CodeBlockDescriptor> cdbs = new List<CodeBlockDescriptor>();
+
+            foreach (CodeBlockExpression tc in tcs.Expressions)
+            {
+              cdbs.Add(descriptorshack[tc]);
+            }
+
+            libraryglobalsN.Add(locals[i].Name, cdbs.ToArray());
+            libraryglobalsN.Add(vars[i], cdbs.ToArray());
+          }
         }
       }
 
@@ -127,12 +159,37 @@ namespace IronScheme.Compiler
 
         if (bodies[i] != null)
         {
-          Cons b = bodies[i] as Cons;
+          CodeBlockDescriptor[] cbds;
+          CodeBlockExpression cbe;
 
-          CodeBlock cbody = libraryglobals[locals[i].Name].Block;
-          cbody.Body = null; 
+          if (libraryglobals.TryGetValue(locals[i].Name, out cbe))
+          {
+            Cons b = bodies[i] as Cons;
+            CodeBlock cbody = cbe.Block;
+            cbody.Body = null;
 
-          FillBody(cbody, new List<Statement>(), b, true);
+            FillBody(cbody, new List<Statement>(), b, true);
+          }
+          else if (libraryglobalsX.TryGetValue(locals[i].Name, out cbe))
+          {
+            Cons b = bodies[i] as Cons;
+            CodeBlock cbody = cbe.Block;
+            cbody.Body = null;
+
+            FillBody(cbody, new List<Statement>(), b, true);
+          }
+          //else if (libraryglobalsN.TryGetValue(locals[i].Name, out cbds))
+          //{
+          //  List<Cons> b = bodies[i] as List<Cons>;
+
+          //  for (int j = 0; j < b.Count; j++)
+          //  {
+          //    CodeBlock cbody = cbds[j].codeblock.Block;
+          //    cbody.Body = null;
+
+          //    FillBody(cbody, new List<Statement>(), b[j], true);
+          //  }
+          //}
         }
 
         stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.CodeContext(), Ast.Constant(vars[i]), Ast.Assign(locals[i], e))));
@@ -144,6 +201,14 @@ namespace IronScheme.Compiler
         if (libraryglobals.ContainsKey(locals[i].Name))
         {
           libraryglobals.Remove(locals[i].Name);
+        }
+        if (libraryglobalsX.ContainsKey(locals[i].Name))
+        {
+          libraryglobalsX.Remove(locals[i].Name);
+        }
+        if (libraryglobalsN.ContainsKey(locals[i].Name))
+        {
+          libraryglobalsN.Remove(locals[i].Name);
         }
       }
 
