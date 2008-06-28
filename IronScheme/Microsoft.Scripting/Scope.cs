@@ -48,14 +48,14 @@ namespace Microsoft.Scripting {
     /// 
     /// TODO: Thread safety
     /// </summary>
-    public class Scope {
+    public sealed class Scope {
         private Scope _parent;
         private IAttributesCollection _dict;
-        private ScopeAttributeDictionary _attrs;
-        private ContextSensitiveScope _contextScopes;
-        private IDictionary<Variable, object> _temps;
-        private bool _isVisible;
-        private SourceLocation _sourceLocation;
+        //private ScopeAttributeDictionary _attrs;
+        //private ContextSensitiveScope _contextScopes;
+        //private IDictionary<Variable, object> _temps;
+        //private bool _isVisible;
+        //private SourceLocation _sourceLocation;
 
         /// <summary>
         /// Creates a new top-level scope with a new empty dictionary.  The scope
@@ -88,8 +88,8 @@ namespace Microsoft.Scripting {
         public Scope(Scope parent, IAttributesCollection dictionary, bool isVisible) {
             _parent = parent;
             _dict = dictionary ?? new SymbolDictionary();
-            _isVisible = isVisible;
-            _temps = null;
+            //_isVisible = isVisible;
+            //_temps = null;
         }
 
         /// <summary>
@@ -107,10 +107,12 @@ namespace Microsoft.Scripting {
         /// </summary>
         public bool IsVisible {
             get {
-                return _isVisible;
+                return true;
             }
         }
 
+
+#if FULL
         public SourceLocation SourceLocation {
             get {
                 return _sourceLocation;
@@ -121,7 +123,11 @@ namespace Microsoft.Scripting {
                 }
             }
         }
-        
+
+#endif
+
+
+#if FULL
         /// <summary>
         /// Gets the current container for temporary variables. These might need to be nested in a manner
         /// different than the Scope objects, so separate functions exist for pushing and popping them relative
@@ -164,6 +170,8 @@ namespace Microsoft.Scripting {
             return s;
         }
 
+#endif
+
         /// <summary>
         /// Returns the list of keys which are available to all languages.  Keys marked with the
         /// DontEnumerate flag will not be returned.
@@ -171,7 +179,8 @@ namespace Microsoft.Scripting {
         public IEnumerable<SymbolId> Keys {
             get {
                 foreach (SymbolId si in _dict.SymbolAttributes.Keys) {
-                    if (_attrs == null || _attrs.CheckEnumerable(si)) yield return si;
+                    //if (_attrs == null || _attrs.CheckEnumerable(si)) 
+                      yield return si;
                 }
             }
         }
@@ -183,9 +192,9 @@ namespace Microsoft.Scripting {
         public IEnumerable<KeyValuePair<SymbolId, object>> Items {
             get {
                 foreach (KeyValuePair<SymbolId, object> kvp in _dict.SymbolAttributes) {
-                    if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) {
+                    //if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) {
                         yield return kvp;
-                    }
+                    //}
                 }
             }
         }
@@ -198,9 +207,12 @@ namespace Microsoft.Scripting {
         /// </summary>
         public IEnumerable<SymbolId> GetKeys(LanguageContext context) {
             foreach (SymbolId si in _dict.SymbolAttributes.Keys) {
-                if (_attrs == null || _attrs.CheckEnumerable(si)) yield return si;
+                //if (_attrs == null || _attrs.CheckEnumerable(si)) 
+                  yield return si;
             }
 
+
+#if FULL
             if (_contextScopes != null) {
                 foreach (KeyValuePair<object, object> kvp in _contextScopes.GetItems(context)) {
                     if (kvp.Key is SymbolId) {
@@ -210,6 +222,8 @@ namespace Microsoft.Scripting {
                     }
                 }
             }
+
+#endif
         }
 
         /// <summary>
@@ -223,14 +237,19 @@ namespace Microsoft.Scripting {
         /// Trys to lookup the provided name in the current scope.  Search includes
         /// names that are only visible to the provided LanguageContext.
         /// </summary>
-        public bool TryGetName(LanguageContext context, SymbolId name, out object value) {
+        public bool TryGetName(LanguageContext context, SymbolId name, out object value)
+        {
+
+#if FULL
             if (_contextScopes != null) {
                 if (_contextScopes.TryGetName(context, name, out value)) {
                     return true;
                 }
-            }
+            } 
+#endif
 
-            if (_dict.TryGetValue(name, out value)) return true;
+
+          if (_dict.TryGetValue(name, out value)) return true;
 
             value = null;
             return false;
@@ -240,14 +259,19 @@ namespace Microsoft.Scripting {
         /// Trys to lookup the provided name in the current scope's context specific dictionary.  
         /// Search includes names that are only visible to the provided LanguageContext.
         /// </summary>
-        public bool TryGetNameForContext(LanguageContext context, SymbolId name, out object value) {
+        public bool TryGetNameForContext(LanguageContext context, SymbolId name, out object value)
+        {
+
+#if FULL
             if (_contextScopes != null) {
                 if (_contextScopes.TryGetName(context, name, out value)) {
                     return true;
                 }
-            }
+            } 
+#endif
 
-            value = null;
+
+          value = null;
             return false;
         }
 
@@ -306,7 +330,7 @@ namespace Microsoft.Scripting {
         /// </summary>
         /// <exception cref="MemberAccessException">The name has already been published and marked as ReadOnly</exception>
         public void SetName(SymbolId name, object value) {
-            if (_attrs != null) _attrs.CheckWritable(name);
+            //if (_attrs != null) _attrs.CheckWritable(name);
 
             _dict[name] = value;
         }
@@ -317,16 +341,23 @@ namespace Microsoft.Scripting {
         /// Provides the ScopeMemberAttributes which should be set on the provided object.
         /// </summary>
         /// <exception cref="MemberAccessException">The name has already been published and marked as ReadOnly</exception>
-        public void SetName(SymbolId name, object value, ScopeMemberAttributes attributes) {
+        public void SetName(SymbolId name, object value, ScopeMemberAttributes attributes)
+        {
+
+#if FULL
             if (_attrs != null) _attrs.CheckWritable(name);
 
             if (_attrs == null) {
                 _attrs = new ScopeAttributeDictionary();
             }
-            _attrs.Set(name, attributes);
-            _dict[name] = value;
+            _attrs.Set(name, attributes);   
+#endif
+
+          _dict[name] = value;
         }
 
+
+#if FULL
         /// <summary>
         /// Sets a name that is only available in the specified context.
         /// </summary>
@@ -357,19 +388,21 @@ namespace Microsoft.Scripting {
                 if (_contextScopes == null) _contextScopes = new ContextSensitiveScope();
                 _contextScopes.SetName(context, name, value, attributes);
             }
-        }
+        } 
+#endif
+
 
         /// <summary>
         /// Removes all members from the dictionary and any context-sensitive dictionaries.
         /// </summary>
         public void Clear() {
-            if (_contextScopes != null) _contextScopes.Clear();
+            //if (_contextScopes != null) _contextScopes.Clear();
 
             List<object> ids = new List<object>(_dict.Keys);
             foreach (object name in ids) {
-                if (_attrs == null || _attrs.CheckDeletable(name)) {
+                //if (_attrs == null || _attrs.CheckDeletable(name)) {
                     _dict.RemoveObjectKey(name);
-                }
+                //}
             }
         }
 
@@ -431,12 +464,12 @@ namespace Microsoft.Scripting {
         public bool TryRemoveName(LanguageContext context, SymbolId name) {
             bool fRemoved = false;
 
-            if (_contextScopes != null) fRemoved = _contextScopes.TryRemoveName(context, name);
+            //if (_contextScopes != null) fRemoved = _contextScopes.TryRemoveName(context, name);
             
             // TODO: Ideally, we could do this without having to do two lookups.
             object removedObject;
-            if ((_attrs == null || _attrs.CheckDeletable(name))
-                && _dict.TryGetValue(name, out removedObject) && removedObject != Uninitialized.Instance) {
+            if (//(_attrs == null || _attrs.CheckDeletable(name)) && 
+              _dict.TryGetValue(name, out removedObject) && removedObject != Uninitialized.Instance) {
                 fRemoved = _dict.Remove(name) || fRemoved;
             }
 
@@ -447,9 +480,9 @@ namespace Microsoft.Scripting {
         /// Attemps to remove the provided name from this scope's context specific dictionary
         /// </summary>
         public bool TryRemoveForContext(LanguageContext context, SymbolId name) {
-            if (_contextScopes != null) {
-                return _contextScopes.TryRemoveName(context, name);
-            }
+            //if (_contextScopes != null) {
+            //    return _contextScopes.TryRemoveName(context, name);
+            //}
 
             return false;
         }
@@ -484,11 +517,11 @@ namespace Microsoft.Scripting {
         public bool TryRemoveObjectName(LanguageContext context, object name) {
             bool fRemoved = false;
 
-            if (_contextScopes != null) fRemoved = _contextScopes.TryRemoveObjectName(context, name);
+            //if (_contextScopes != null) fRemoved = _contextScopes.TryRemoveObjectName(context, name);
 
-            if (_attrs == null || _attrs.CheckDeletable(name)) {
+            //if (_attrs == null || _attrs.CheckDeletable(name)) {
                 fRemoved = _dict.RemoveObjectKey(name) || fRemoved;
-            }
+            //}
 
             return fRemoved;
         }
@@ -498,11 +531,11 @@ namespace Microsoft.Scripting {
         /// names that are only visible to the provided LanguageContext.
         /// </summary>
         public bool TryGetObjectName(LanguageContext context, object name, out object value) {
-            if (_contextScopes != null) {
-                if (_contextScopes.TryGetObjectName(context, name, out value)) {
-                    return true;
-                }
-            }
+            //if (_contextScopes != null) {
+            //    if (_contextScopes.TryGetObjectName(context, name, out value)) {
+            //        return true;
+            //    }
+            //}
 
             if (_dict.TryGetObjectValue(name, out value)) return true;
 
@@ -537,19 +570,19 @@ namespace Microsoft.Scripting {
         /// The name is an arbitrary object.
         /// </summary>
         public void SetObjectName(ContextId context, object name, object value, ScopeMemberAttributes attributes) {
-            int id = context.Id;
-            if (id == 0) {
-                if (_attrs != null) _attrs.CheckWritable(name);
+            //int id = context.Id;
+            //if (id == 0) {
+            //    if (_attrs != null) _attrs.CheckWritable(name);
 
                 _dict.AddObjectKey(name, value);
-                if (attributes != ScopeMemberAttributes.None) {
-                    if (_attrs == null) _attrs = new ScopeAttributeDictionary();
-                    _attrs.Set(name, attributes);
-                }
-            } else {
-                if (_contextScopes == null) _contextScopes = new ContextSensitiveScope();
-                _contextScopes.SetObjectName(context, name, value, attributes);
-            }
+            //    if (attributes != ScopeMemberAttributes.None) {
+            //        if (_attrs == null) _attrs = new ScopeAttributeDictionary();
+            //        _attrs.Set(name, attributes);
+            //    }
+            //} else {
+            //    if (_contextScopes == null) _contextScopes = new ContextSensitiveScope();
+            //    _contextScopes.SetObjectName(context, name, value, attributes);
+            //}
         }
 
         /// <summary>
@@ -560,16 +593,17 @@ namespace Microsoft.Scripting {
         /// </summary>
         public IEnumerable<object> GetAllKeys(LanguageContext context) {
             foreach (object key in _dict.Keys) {
-                if (_attrs == null || _attrs.CheckEnumerable(key)) yield return key;
+                //if (_attrs == null || _attrs.CheckEnumerable(key)) 
+                  yield return key;
             }
 
-            if (_contextScopes != null) {
-                foreach (KeyValuePair<object, object> kvp in _contextScopes.GetItems(context)) {
-                    if (_dict.ContainsObjectKey(kvp.Key)) continue;
+            //if (_contextScopes != null) {
+            //    foreach (KeyValuePair<object, object> kvp in _contextScopes.GetItems(context)) {
+            //        if (_dict.ContainsObjectKey(kvp.Key)) continue;
 
-                    if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) yield return kvp.Key;
-                }
-            }
+            //        if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) yield return kvp.Key;
+            //    }
+            //}
         }
 
         /// <summary>
@@ -580,21 +614,23 @@ namespace Microsoft.Scripting {
         /// </summary>
         public IEnumerable<KeyValuePair<object, object>> GetAllItems(LanguageContext context) {
             foreach (KeyValuePair<object, object> kvp in _dict) {
-                if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) {
+                //if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) {
                     yield return kvp;
-                }
+                //}
             }
 
-            if (_contextScopes != null) {
-                // TODO: Filter dups
-                foreach (KeyValuePair<object, object> kvp in _contextScopes.GetItems(context)) {
-                    if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) yield return kvp;
-                }
-            }
+            //if (_contextScopes != null) {
+            //    // TODO: Filter dups
+            //    foreach (KeyValuePair<object, object> kvp in _contextScopes.GetItems(context)) {
+            //        if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) yield return kvp;
+            //    }
+            //}
         }
 
         #endregion
 
+
+#if FULL
         /// <summary>
         /// Helper class to hold onto all the context-sensitive information for a Scope.
         /// </summary>
@@ -843,7 +879,9 @@ namespace Microsoft.Scripting {
                 }
                 return true;
             }
-        }
+        } 
+#endif
+
     }
 
 }

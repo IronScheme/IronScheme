@@ -63,9 +63,10 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
+    
     sealed class HashComparer : IEqualityComparer
     {
-      ICallable hash, equiv;
+      readonly internal ICallable hash, equiv;
 
       public HashComparer(ICallable hash, ICallable equiv)
       {
@@ -84,11 +85,42 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
+    sealed class HashtableEx : Hashtable
+    {
+      public HashtableEx(IEqualityComparer c)
+        : base(c)
+      {
+      }
+
+      public HashtableEx(int k, IEqualityComparer c)
+        : base(k, c)
+      {
+      }
+
+      internal ICallable HashFunction
+      {
+        get
+        {
+          return (EqualityComparer as HashComparer).hash;
+        }
+      }
+
+      internal ICallable EqualityFunction
+      {
+        get
+        {
+          return (EqualityComparer as HashComparer).equiv;
+        }
+      }
+    }
+
+
+
     [Builtin("make-hashtable")]
     public static object MakeHashtable(object hashfun, object equivfun)
     {
       HashComparer hc = new HashComparer(hashfun as ICallable, equivfun as ICallable);
-      Hashtable ht = new Hashtable(hc);
+      Hashtable ht = new HashtableEx(hc);
       return ht;
     }
 
@@ -102,7 +134,7 @@ namespace IronScheme.Runtime.R6RS
       else
       {
         HashComparer hc = new HashComparer(hashfun as ICallable, equivfun as ICallable);
-        Hashtable ht = new Hashtable((int) k, hc);
+        Hashtable ht = new HashtableEx((int) k, hc);
         return ht;
       }
     }
@@ -128,7 +160,7 @@ namespace IronScheme.Runtime.R6RS
       bool m = RequiresNotNull<bool>(mutable);
       if (m)
       {
-        return new Hashtable(ht);
+        return ht.Clone();
       }
       else
       {
@@ -196,7 +228,47 @@ namespace IronScheme.Runtime.R6RS
     }
 
 
+    [Builtin("eq-hash")]
+    public static object EqHash(object obj)
+    {
+      return obj.GetHashCode();
+    }
 
+    [Builtin("eqv-hash")]
+    public static object EqvHash(object obj)
+    {
+      return obj.GetHashCode();
+    }
+
+    [Builtin("hashtable-equivalence-function")]
+    public static object HashtableEquivalenceFunction(object obj)
+    {
+      Hashtable ht = RequiresNotNull<Hashtable>(obj);
+      HashtableEx htx = ht as HashtableEx;
+      if (htx != null)
+      {
+        return htx.EqualityFunction;
+      }
+      else
+      {
+        return SymbolValue(cc, SymbolTable.StringToId("eq?"));
+      }
+    }
+
+    [Builtin("hashtable-hash-function")]
+    public static object HashtableHashFunction(object obj)
+    {
+      Hashtable ht = RequiresNotNull<Hashtable>(obj);
+      HashtableEx htx = ht as HashtableEx;
+      if (htx != null)
+      {
+        return htx.HashFunction;
+      }
+      else
+      {
+        return SymbolValue(cc, SymbolTable.StringToId("eq-hash"));
+      }
+    }
 
   }
 }

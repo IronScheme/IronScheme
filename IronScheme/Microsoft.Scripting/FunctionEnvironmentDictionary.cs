@@ -22,25 +22,34 @@ using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
+
+#if FULL
     public interface IFunctionEnvironment {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays")] // TODO: fix
         SymbolId[] Names {
             get;
         }
-    }
+    } 
+#endif
 
-    /// <summary>
+
+  /// <summary>
     /// Base class for FunctionEnvironment's which use a Tuple for the underlying storage.
     /// </summary>
     /// <typeparam name="TupleType"></typeparam>
-    public sealed class FunctionEnvironmentDictionary<TupleType> : TupleDictionary<TupleType>, IFunctionEnvironment where TupleType : Tuple{
+  public sealed class FunctionEnvironmentDictionary<TupleType> : TupleDictionary<TupleType>
+#if FULL
+, IFunctionEnvironment 
+#endif
+ where TupleType : Tuple
+  {
         private Dictionary<SymbolId, int> _slotDict;
         private int _size;
 
         public FunctionEnvironmentDictionary(TupleType data, SymbolId[] names) :
-            base(data) {
-            Extra = names;
+            base(data, names) {
         }
 
         protected internal override bool TrySetExtraValue(SymbolId key, object value) {
@@ -96,13 +105,17 @@ namespace Microsoft.Scripting {
             for (int index = 0; index < Extra.Length; index++) {
                 slotDict[Extra[index]] = index + 1;
             }
-            _slotDict = slotDict;            
+            _slotDict = slotDict;
         }
 
+
+#if FULL
         SymbolId[] IFunctionEnvironment.Names {
             get {
                 return Extra;
             }
-        }
-    }
+        } 
+#endif
+
+  }
 }

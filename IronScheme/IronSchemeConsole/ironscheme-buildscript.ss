@@ -196,9 +196,10 @@
 (define library-legend
   ;; abbr.       name                             visible? required?
   '((i           (ironscheme)                          #t    #f)
-    (il          (ironscheme library)                  #t    #t)
-    (ir          (ironscheme reader)                   #t    #t)
-    (iser        (ironscheme serialization)            #t    #t)
+    (il          (ironscheme library)                  #f    #t)
+    (ir          (ironscheme reader)                   #f    #t)
+    (iser        (ironscheme serialization)            #f    #t)
+    (ic          (ironscheme core)                     #f    #t)
     (irp         (ironscheme records printer)          #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #f    #f)
@@ -282,6 +283,9 @@
     (clr-type?                                  i)
     (gc-collect                                 i)
     (get-arity                                  i)
+    (reverse!                                   ic)
+    (eq-hash                                    ic)
+    (eqv-hash                                   ic)
     (make-record-printer                        irp)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
@@ -1351,12 +1355,12 @@
                  ((assq x alist) => cdr)
                  (else (error #f "undefined prim" x))))))))))
   (define-prims
-    syntax-dispatch apply cons append map list syntax-error
-    assertion-violation
+    syntax-dispatch apply cons append map list syntax-error reverse
+    assertion-violation null? car cdr pair? bound-identifier=?
     generate-temporaries = + datum->syntax string->symbol void
     string-append symbol->string syntax->datum gensym length 
     open-string-output-port identifier? free-identifier=? exists
-    values call-with-values for-all ellipsis-map))
+    values call-with-values for-all ellipsis-map vector eq? eqv?))
 
 (time-it "the entire bootstrap process"  
   (lambda () 

@@ -31,6 +31,7 @@
     )
     
   (import 
+    (ironscheme core)
     (except (rnrs)
       find
       partition
@@ -64,7 +65,7 @@
   (define (partition proc l)
     (let f ((l l)(a '())(b '()))
       (if (null? l)
-        (values (reverse a) (reverse b))
+        (values (reverse! a) (reverse! b))
         (let ((e (car l)))
           (if (proc e)
             (f (cdr l) (cons e a) b)
@@ -73,7 +74,7 @@
   (define (remp proc l)
     (let f ((l l)(a '()))
       (if (null? l)
-        (reverse a)
+        (reverse! a)
         (let ((e (car l)))
           (if (proc e)
             (f (cdr l) a)
@@ -82,7 +83,7 @@
   (define (filter proc l)
     (let f ((l l)(a '()))
       (if (null? l)
-        (reverse a)
+        (reverse! a)
         (let ((e (car l)))
           (if (proc e)
             (f (cdr l) (cons e a))

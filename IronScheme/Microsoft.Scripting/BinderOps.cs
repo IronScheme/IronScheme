@@ -82,13 +82,17 @@ namespace Microsoft.Scripting {
             return args.ToArray();
         }
 
+
+#if FULL
         public static SymbolDictionary MakeSymbolDictionary(SymbolId[] names, object[] values) {
             SymbolDictionary res = new SymbolDictionary();
             for (int i = 0; i < names.Length; i++) {
                 ((IAttributesCollection)res)[names[i]] = values[i];
             }
             return res;
-        }
+        } 
+#endif
+
 
         public static object IncorrectBoxType(Type expected, object received) {
             throw new ArgumentTypeException(String.Format("Expected type {0}, got {1}", expected, CompilerHelpers.GetType(received)));

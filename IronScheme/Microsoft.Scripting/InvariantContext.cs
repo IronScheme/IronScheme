@@ -32,7 +32,7 @@ namespace Microsoft.Scripting {
             Instance = new InvariantContext();
             ModuleContext moduleContext = new ModuleContext(null);
             moduleContext.ShowCls = true;
-            CodeContext = new CodeContext(new Scope(new SymbolDictionary()), Instance, moduleContext);
+            CodeContext = new CodeContext(new Scope(null), Instance, moduleContext);
         }
         
         private InvariantContext()

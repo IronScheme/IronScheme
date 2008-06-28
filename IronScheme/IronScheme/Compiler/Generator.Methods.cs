@@ -23,6 +23,7 @@ namespace IronScheme.Compiler
 {
   partial class Generator
   {
+    protected static MethodInfo Builtins_List = typeof(Builtins).GetMethod("List", new Type[] { typeof(object[]) });
     static readonly MethodInfo Builtins_Cons = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) });
     protected static readonly MethodInfo Builtins_Cons2 = typeof(Builtins).GetMethod("Cons", new Type[] { typeof(object) , typeof(object)});
     static readonly MethodInfo Builtins_Append0 = typeof(Builtins).GetMethod("Append", new Type[] { });
@@ -34,8 +35,8 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo Builtins_ListToVector = typeof(Builtins).GetMethod("ListToVector");
 
     protected static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Make");
-    static readonly MethodInfo Closure_MakeCase = typeof(Closure).GetMethod("MakeCase");
-    static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("MakeVarArgX");
+    protected static readonly MethodInfo Closure_MakeCase = typeof(Closure).GetMethod("MakeCase");
+    protected static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("MakeVarArgX");
 
     protected static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
     protected static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });

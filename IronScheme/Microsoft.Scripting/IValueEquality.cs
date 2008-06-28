@@ -1,3 +1,5 @@
+
+#if FULL
 /* ****************************************************************************
  *
  * Copyright (c) Microsoft Corporation. 
@@ -21,6 +23,7 @@ namespace Microsoft.Scripting {
     /// <summary>
     /// Provides hashing and equality based upon the value of the object instead of the reference.
     /// </summary>
+
     public interface IValueEquality {
         /// <summary>
         /// Gets the hash code for the value of the instance.
@@ -42,3 +45,5 @@ namespace Microsoft.Scripting {
         bool ValueNotEquals(object other);
     }
 }
+
+#endif	

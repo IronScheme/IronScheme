@@ -273,10 +273,11 @@ namespace IronScheme.Compiler
       }
     }
 
-    protected class CodeBlockDescriptor
+    protected internal class CodeBlockDescriptor
     {
       public int arity;
       public CodeBlockExpression codeblock;
+      public bool varargs;
     }
 
     protected internal static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)

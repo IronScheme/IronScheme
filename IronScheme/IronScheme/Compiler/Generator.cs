@@ -56,7 +56,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (!IsSimpleCons(c))
+        //if (!IsSimpleCons(c))
         {
           //return Ast.Constant(new IronSchemeConstant(c));
         }
@@ -98,7 +98,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if ((bool)Builtins.IsSymbol(c.car))
+        if (Builtins.IsTrue(Builtins.IsSymbol(c.car)))
         {
           SymbolId f = (SymbolId)c.car;
 
@@ -110,35 +110,56 @@ namespace IronScheme.Compiler
           }
 
           object m;
+          CodeBlockExpression cbe;
 
-          if (SimpleGenerator.libraryglobals.ContainsKey(f))
+          // needs to do the same for overloads...
+          if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
           {
-            CodeBlockExpression cbe = SimpleGenerator.libraryglobals[f];
-
             Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
             if (ppp.Length < 6)
             {
-
-              bool needscontext = true;
-              MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
-              if (needscontext)
-              {
-                ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
-              }
-
-              cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, ppp.Length - 1, false));
-
-              return Ast.ComplexCallHelper(cbe, dc, ppp);
+              return CallNormal(cbe, ppp);
             }
           }
 
+          // varargs
+          if (SimpleGenerator.libraryglobalsX.TryGetValue(f, out cbe))
+          {
+            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+
+            if (ppp.Length < 6)
+            {
+              return CallVarArgs(cbe, ppp);
+            }
+          }
+
+          // overloads
+          CodeBlockDescriptor[] cbd;
+          if (SimpleGenerator.libraryglobalsN.TryGetValue(f, out cbd))
+          {
+            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+
+            foreach (CodeBlockDescriptor d in cbd)
+            {
+              if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
+              {
+                if (d.varargs)
+                {
+                  return CallVarArgs(d.codeblock, ppp);
+                }
+                else
+                {
+                  return CallNormal(d.codeblock, ppp);
+                }
+              }
+            }
+          }
 
           if (Context.Scope.TryLookupName(f, out m))
           {
             if (var == null)
             {
-
               IGenerator gh = m as IGenerator;
               if (gh != null)
               {
@@ -187,24 +208,29 @@ namespace IronScheme.Compiler
               Closure clos = m as Closure;
               if (clos != null)
               {
+                // no provision for varargs
                 MethodInfo[] mis = clos.Targets;
-
-                MethodBinder mb = MethodBinder.MakeBinder(binder, SymbolTable.IdToString(f), mis, BinderType.Normal);
-
-                Expression[] pars = GetAstList(c.cdr as Cons, cb);
-
-                Type[] types = GetExpressionTypes(pars);
-                MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-                if (mc != null)
+                if (mis.Length > 0)
                 {
-                  if (mc.Target.NeedsContext)
-                  {
-                    pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-                  }
-                  MethodBase meth = mc.Target.Method;
 
-                  return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                  MethodBinder mb = MethodBinder.MakeBinder(binder, SymbolTable.IdToString(f), mis, BinderType.Normal);
+
+                  Expression[] pars = GetAstList(c.cdr as Cons, cb);
+
+                  Type[] types = GetExpressionTypes(pars);
+                  MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                  if (mc != null)
+                  {
+                    if (mc.Target.NeedsContext)
+                    {
+                      pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+                    }
+                    MethodBase meth = mc.Target.Method;
+
+                    return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                  }
                 }
+                // check for overload thing
               }
             }
           }
@@ -269,7 +295,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        if ((bool)Builtins.IsSymbol(args))
+        if (args is SymbolId)
         {
           return Read((SymbolId)args, cb, typeof(object));
         }
@@ -284,6 +310,56 @@ namespace IronScheme.Compiler
         }
         return Ast.Constant(args);
       }
+    }
+
+    static Expression CallNormal(CodeBlockExpression cbe, Expression[] ppp)
+    {
+      bool needscontext = true;
+      MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
+      if (needscontext)
+      {
+        ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
+      }
+
+      cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, ppp.Length - 1, false));
+
+      return Ast.ComplexCallHelper(cbe, dc, ppp);
+    }
+
+    static Expression CallVarArgs(CodeBlockExpression cbe, Expression[] ppp)
+    {
+      bool needscontext = true;
+
+      int pc = cbe.Block.ParameterCount;
+
+      Expression[] tail = new Expression[ppp.Length - (pc - 1)];
+
+      Array.Copy(ppp, ppp.Length - tail.Length, tail, 0, tail.Length);
+
+      Expression[] nppp = new Expression[pc];
+
+      Array.Copy(ppp, nppp, ppp.Length - tail.Length);
+
+      if (tail.Length > 0)
+      {
+        nppp[nppp.Length - 1] = Ast.Call(MakeList(tail, true), tail);
+      }
+      else
+      {
+        nppp[nppp.Length - 1] = Ast.Null();
+      }
+
+      ppp = nppp;
+
+      MethodInfo dc = GetDirectCallable(needscontext, pc);
+      if (needscontext)
+      {
+        ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
+      }
+
+      cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, ppp.Length - 1, false));
+
+      return Ast.ComplexCallHelper(cbe, dc, ppp);
     }
 
     protected static Expression Unwrap(Expression ex)

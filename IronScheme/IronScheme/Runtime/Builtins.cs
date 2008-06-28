@@ -443,7 +443,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
       finally
       {
-        Compiler.SimpleGenerator.libraryglobals.Clear();
+        Compiler.SimpleGenerator.ClearGlobals();
 #if DEBUG
         Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
 #endif

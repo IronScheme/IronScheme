@@ -922,7 +922,7 @@
           (let* ((subst
                   (library-subst
                     (find-library-by-name '(psyntax system $all))))
-                 (stx (mkstx sym top-mark* '() '()))
+                 (stx (make-stx sym top-mark* '() '()))
                  (stx
                   (cond
                     ((assq sym subst) =>
@@ -2178,7 +2178,7 @@
     (lambda (e p)
       (define stx^
         (lambda (e m* s* ae*)
-          (if (and (null? m*) (null? s*))
+          (if (and (null? m*) (null? s*) (null? ae*))
               e
               (mkstx e m* s* ae*))))
       (define match-each
@@ -2254,6 +2254,7 @@
                     (reverse (vector-ref p 2))
                     (match-empty (vector-ref p 3) r))))
                ((free-id atom) r)
+               ((scheme-id atom) r)
                ((vector) (match-empty (vector-ref p 1) r))
                (else (assertion-violation 'syntax-dispatch "invalid pattern" p)))))))
       (define combine
@@ -2282,6 +2283,12 @@
                 (and (symbol? e)
                      (top-marked? m*)
                      (free-id=? (stx^ e m* s* ae*) (vector-ref p 1))
+                     r))
+               ((scheme-id)
+                (and (symbol? e)
+                     (top-marked? m*)
+                     (free-id=? (stx^ e m* s* ae*) 
+                                (scheme-stx (vector-ref p 1)))
                      r))
                ((each+)
                 (let-values (((xr* y-pat r)
@@ -3013,7 +3020,7 @@
                      (vector-map
                        (lambda (x)
                          (or (id->label 
-                               (mkstx (id->sym x) (stx-mark* x)
+                               (make-stx (id->sym x) (stx-mark* x)
                                  (list rib)
                                  '()))
                              (stx-error x "cannot find module export")))
@@ -3341,14 +3348,14 @@
              (lambda (x) (not (p x))))]
           [(sub* ...) 
            (let ([p* (map subversion-pred sub*)])
-             (lambda (x) 
+             (lambda (x)
                (let f ([p* p*] [x x])
                  (cond
                    [(null? p*) #t]
                    [(null? x) #f]
                    [else 
-                    (and ((car p*) (car x)) 
-                         (f (cdr p*) (cdr x*)))]))))]
+                    (and ((car p*) (car x))
+                         (f (cdr p*) (cdr x)))]))))]
           [_ (syntax-violation 'import "invalid version spec" spec x*)]))
       (let f ([x spec])
         (syntax-match x ()
@@ -3524,7 +3531,7 @@
                         (parse-import-spec* imp*)))
             (let ((rib (make-top-rib subst-names subst-labels)))
               (let ((b* (map (lambda (x) 
-                               (mkstx x top-mark* (list rib) '()))
+                               (make-stx x top-mark* (list rib) '()))
                              b*))
                     (rtc (make-collector))
                     (vtc (make-collector)))
@@ -3656,7 +3663,7 @@
       (cond
         [(env? env)
          (let ((rib (make-top-rib (env-names env) (env-labels env))))
-           (let ((x (mkstx x top-mark* (list rib) '()))
+           (let ((x (make-stx x top-mark* (list rib) '()))
                  (itc (env-itc env))
                  (rtc (make-collector))
                  (vtc (make-collector)))
@@ -3769,7 +3776,7 @@
   (define (make-export-subst int* ext* rib)
     (map
       (lambda (int ext)
-        (let* ((id (mkstx int top-mark* (list rib) '()))
+        (let* ((id (make-stx int top-mark* (list rib) '()))
                (label (id->label id)))
           (unless label
             (stx-error id "cannot export unbound identifier"))

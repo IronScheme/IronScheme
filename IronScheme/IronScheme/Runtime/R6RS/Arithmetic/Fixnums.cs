@@ -72,34 +72,34 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return Ast.Equal(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
     }
 
-    // cant deal effectively with .NET exceptions :(
-    //[InlineEmitter("fx+", Optimization=OptimizationLevel.Safe)]
-    //public static Expression FxAddChecked(params Expression[] args)
-    //{
-    //  Expect(args, 2);
-    //  return Ast.AddChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-    //}
+    // cant deal effectively with .NET exceptions :(, dont care...
+    [InlineEmitter("fx+", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxAddChecked(params Expression[] args)
+    {
+      Expect(args, 2);
+      return Ast.AddChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    }
 
-    //[InlineEmitter("fx*", Optimization = OptimizationLevel.Safe)]
-    //public static Expression FxMultiplyChecked(params Expression[] args)
-    //{
-    //  Expect(args, 2);
-    //  return Ast.MultiplyChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-    //}
+    [InlineEmitter("fx*", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxMultiplyChecked(params Expression[] args)
+    {
+      Expect(args, 2);
+      return Ast.MultiplyChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+    }
 
-    //[InlineEmitter("fx-", Optimization = OptimizationLevel.Safe)]
-    //public static Expression FxMinusChecked(params Expression[] args)
-    //{
-    //  if (args.Length == 1)
-    //  {
-    //    return Ast.Negate(UnwrapAndCast<int>(args[0]));
-    //  }
-    //  else
-    //  {
-    //    Expect(args, 2);
-    //    return Ast.SubtractChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-    //  }
-    //}
+    [InlineEmitter("fx-", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxMinusChecked(params Expression[] args)
+    {
+      if (args.Length == 1)
+      {
+        return Ast.Negate(UnwrapAndCast<int>(args[0]));
+      }
+      else
+      {
+        Expect(args, 2);
+        return Ast.SubtractChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+    }
 
     [InlineEmitter("fx+", Optimization = OptimizationLevel.Unchecked)]
     public static Expression FxAdd(params Expression[] args)

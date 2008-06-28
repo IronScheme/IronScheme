@@ -42,7 +42,6 @@ namespace IronScheme.Runtime
       return Ast.TypeIs(obj[0], typeof(ICallable));
     }
 
-
     [InlineEmitter("not")]
     public static Expression Not(Expression[] obj)
     {
