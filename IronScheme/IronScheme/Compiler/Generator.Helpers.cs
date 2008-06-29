@@ -207,7 +207,7 @@ namespace IronScheme.Compiler
     protected static MethodInfo MakeList(Expression[] args, bool proper)
     {
       Type[] types = Array.ConvertAll<Expression, Type>(args,
-        delegate(Expression e) { return e.Type; });
+        delegate(Expression e) { return e.Type.IsArray ? e.Type.GetElementType() : e.Type; });
 
       MethodBinder listbinder = ((BuiltinMethod) Context.Scope.LookupName(proper ? list : liststar)).Binder;
 
