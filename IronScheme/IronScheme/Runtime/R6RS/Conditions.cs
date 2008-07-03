@@ -104,8 +104,8 @@ namespace IronScheme.Runtime.R6RS
       return new CompoundCondition(conds);
     }
 
-    [Builtin("simple-condition")]
-    public static object SimpleCondition(object cond)
+    [Builtin("simple-conditions")]
+    public static object SimpleConditions(object cond)
     {
       if (cond is CompoundCondition)
       {

@@ -28,6 +28,21 @@ namespace IronScheme.Runtime.R6RS
   {
     static Dictionary<Exception, bool> continuablemap = new Dictionary<Exception, bool>();
 
+    static Stack<ICallable> handlerstack = new Stack<ICallable>();
+    static ICallable defaulthandler;
+
+    static ICallable CurrentHandler
+    {
+      get
+      {
+        if (handlerstack.Count > 0)
+        {
+          return handlerstack.Peek();
+        }
+        return null;
+      }
+    }
+
     //(with-exception-handler handler thunk)
     [Builtin("with-exception-handler")]
     public static object WithExceptionHandler(object handler, object thunk)
@@ -35,31 +50,52 @@ namespace IronScheme.Runtime.R6RS
       ICallable h = RequiresNotNull<ICallable>(handler);
       ICallable t = RequiresNotNull<ICallable>(thunk);
 
+      InitDefaultHandler();
+
+      handlerstack.Push(h);
+
       try
       {
         return t.Call();
       }
-      catch (Exception ex)
+      finally
       {
-        bool c;
-        if (continuablemap.TryGetValue(ex, out c))
-        {
-          continuablemap.Remove(ex);
-          if (c)
-          {
-            return h.Call(ex); 
-          }
-          throw;
-        }
-        throw;
+        handlerstack.Pop();
+      }
+    }
+
+
+    static void InitDefaultHandler()
+    {
+      if (defaulthandler == null)
+      {
+        defaulthandler = SymbolValue(cc, SymbolTable.StringToId("default-exception-handler")) as ICallable;
+        handlerstack.Push(defaulthandler);
       }
     }
 
     [Builtin("raise")]
     public static object Raise(object obj)
     {
+      InitDefaultHandler();
+
+      ICallable ch = CurrentHandler;
+      if (ch != null)
+      {
+        try
+        {
+          handlerstack.Pop();
+          return ch.Call(obj);
+        }
+        finally
+        {
+          handlerstack.Push(ch);
+        }
+      }
+
       Exception ex = RequiresNotNull<Exception>(obj);
       continuablemap[ex] = false;
+      
       throw ex;
     }
 
@@ -67,6 +103,22 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("raise-continuable")]
     public static object RaiseContinueable(object obj)
     {
+      InitDefaultHandler();
+
+      ICallable ch = CurrentHandler;
+      if (ch != null)
+      {
+        try
+        {
+          handlerstack.Pop();
+          return ch.Call(obj);
+        }
+        finally
+        {
+          handlerstack.Push(ch);
+        }
+      }
+
       Exception ex = RequiresNotNull<Exception>(obj);
       continuablemap[ex] = true;
       throw ex;
