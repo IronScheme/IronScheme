@@ -30,6 +30,9 @@
     (rnrs control)
     (rnrs io simple)
     (rnrs programs)
+    (rnrs lists)
+    (only (rnrs conditions) serious-condition?)
+    (only (rnrs exceptions) raise)
     (psyntax compat)
     (psyntax internal)
     (psyntax library-manager)
@@ -81,7 +84,15 @@
 					      (serialize-all serialize-library compile-core-expr)))))))
 
  
-  (current-precompiled-library-loader load-serialized-library)  
+  (current-precompiled-library-loader load-serialized-library)
+  
+  (set-symbol-value! 'default-exception-handler 
+    (lambda (ex)
+      (cond
+        [(serious-condition? ex) (raise ex)]
+        [else 
+          (display ex)
+          (newline)])))
       
   (set-symbol-value! 'load load)
   (set-symbol-value! 'compile compile)

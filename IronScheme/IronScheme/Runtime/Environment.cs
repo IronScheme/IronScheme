@@ -62,10 +62,8 @@ namespace IronScheme.Runtime
 
         sym = UnGenSym(RequiresNotNull<SymbolId>(sym));
 
-        R6RS.Exceptions.RaiseContinueable(
+        return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(u.Call(), m.Call("attempted to use undefined symbol"), i.Call(List(sym))));
-
-        return Unspecified;
       }
       else
       {
@@ -81,10 +79,8 @@ namespace IronScheme.Runtime
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
         ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
-        R6RS.Exceptions.RaiseContinueable(
+        return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(l.Call(), m.Call(msg), i.Call(List(what))));
-
-        return Unspecified;
       }
       else
       {
@@ -103,16 +99,14 @@ namespace IronScheme.Runtime
 
         if (who is bool && !(bool)who)
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
             R6RS.Conditions.Condition(m.Call(message), s.Call(form, subform)));
         }
         else
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
             R6RS.Conditions.Condition(w.Call(who), m.Call(message), s.Call(form, subform)));
         }
-
-        return Unspecified;
       }
       else
       {
@@ -131,16 +125,14 @@ namespace IronScheme.Runtime
 
         if (who is bool && !(bool)who)
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
            R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(filename)));
         }
         else
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
            R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(filename)));
         }
-
-        return Unspecified;
       }
       else
       {
@@ -177,17 +169,15 @@ namespace IronScheme.Runtime
 
         if (who is bool && !(bool)who)
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
            R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(VectorToList(irritants))));
         }
         else
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
            R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
         }
 
-
-        return Unspecified;
       }
       else
       {
@@ -207,16 +197,14 @@ namespace IronScheme.Runtime
 
         if (who is bool && !(bool)who)
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
            R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(VectorToList(irritants))));
         }
         else
         {
-          R6RS.Exceptions.RaiseContinueable(
+          return R6RS.Exceptions.RaiseContinueable(
            R6RS.Conditions.Condition(e.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
         }
-
-        return Unspecified;
       }
       else
       {

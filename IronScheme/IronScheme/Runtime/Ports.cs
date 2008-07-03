@@ -568,6 +568,11 @@ namespace IronScheme.Runtime
         return string.Join(Environment.NewLine, v.ToArray());
       }
 
+      if (obj is Exception)
+      {
+        return cc.LanguageContext.Engine.FormatException(obj as Exception);
+      }
+
       if (obj is R6RS.CompoundCondition)
       {
         R6RS.CompoundCondition cc = (R6RS.CompoundCondition)obj;

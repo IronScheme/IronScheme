@@ -1299,7 +1299,7 @@
 
   (define guard-macro
     (lambda (x)
-      (define (gen-clauses con outerk clause*) 
+      (define (gen-clauses con clause*) 
         (define (f x k) 
           (syntax-match x (=>) 
             [(e => p) 
@@ -1316,8 +1316,7 @@
         (define (f* x*)
           (syntax-match x* (else)
             [() 
-             (let ([g (gensym)])
-               (values `(,g (lambda () (raise ,con))) g))]
+             (values `(raise ,con) #f)]
             [([else e e* ...])
              (values `(begin ,e ,@e*) #f)]
             [(cls . cls*) 
@@ -1325,24 +1324,15 @@
                (values (f cls e) g))]
             [others (stx-error others "invalid guard clause")]))
         (let-values ([(code raisek) (f* clause*)])
-          (if raisek
-              `((call/cc
-                  (lambda (,raisek)
-                    (,outerk 
-                      (lambda () ,code)))))
-              `(,outerk (lambda () ,code)))))
+           code))
       (syntax-match x ()
         [(_ (con clause* ...) b b* ...)
          (id? con)
-         (let ([outerk (gensym)])
-           (bless
-             `((call/cc
-                 (lambda (,outerk)
-                   (lambda ()
-                     (with-exception-handler
-                       (lambda (,con)
-                         ,(gen-clauses con outerk clause*))
-                       (lambda () #f ,b ,@b*))))))))])))
+         (bless
+           `(with-exception-handler
+              (lambda (,con)
+                ,(gen-clauses con clause*))
+              (lambda () #f ,b ,@b*)))])))
 
   (define define-enumeration-macro
     (lambda (stx) 
