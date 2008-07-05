@@ -74,7 +74,19 @@ namespace IronScheme.Runtime.R6RS
     internal object[] conds;
     public CompoundCondition(object[] conds)
     {
-      this.conds = conds;
+      ArrayList inners = new ArrayList();
+      foreach (Condition c in conds)
+      {
+        if (c is CompoundCondition)
+        {
+          inners.AddRange(((CompoundCondition)c).conds);
+        }
+        else
+        {
+          inners.Add(c);
+        }
+      }
+      this.conds = inners.ToArray();
     }
 
     public override string ToString()
