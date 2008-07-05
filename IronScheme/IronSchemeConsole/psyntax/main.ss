@@ -76,7 +76,7 @@
                          '()
                          (cons x (f)))))))))
         (case how
-          ((closure)   (compile-r6rs-top-level x*))
+          ((closure)   (pre-compile-r6rs-top-level x*))
           ((load)      ((compile-r6rs-top-level x*)))
           ((compile)   
               (begin 

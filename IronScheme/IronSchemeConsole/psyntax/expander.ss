@@ -24,6 +24,7 @@
           bound-identifier=? datum->syntax syntax-error
           syntax-violation
           syntax->datum make-variable-transformer
+          pre-compile-r6rs-top-level
           compile-r6rs-top-level boot-library-expand 
           null-environment scheme-report-environment
           interaction-environment
@@ -3906,7 +3907,13 @@
         (lambda ()
           (for-each invoke-library lib*)
           (eval-core (expanded->core invoke-code))))))
-
+          
+  (define pre-compile-r6rs-top-level
+    (lambda (x*)
+      (let-values (((lib* invoke-code) (top-level-expander x*)))
+        (for-each invoke-library lib*)
+        (compile-core (expanded->core invoke-code)))))
+          
   (define interaction-environment
     (let ([the-env #f])
       (lambda ()

@@ -305,8 +305,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     }
 
     static Process selfprocess;
-
-
+    
     [Builtin("time-it")]
     public static object TimeIt(object who, object thunk)
     {
@@ -354,11 +353,11 @@ A ""contributor"" is any person that distributes its contribution under this lic
                      colcountafter - colcount);
       }
     }
-   
+
     static int evalcounter = 0;
 
-    [Builtin("eval-core")]
-    public static object EvalCore(CodeContext cc, object expr)
+    [Builtin("compile-core")]
+    public static object CompileCore(CodeContext cc, object expr)
     {
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
 
@@ -369,7 +368,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       int c = ++evalcounter;
 
-#if DEBUG
+#if DEBUG_FULL
 
       // bad for ASP.NET
       if (Assembly.GetEntryAssembly() != null)
@@ -434,21 +433,35 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
-      sw = Stopwatch.StartNew();
 #endif
-
-      try
+      CallTarget0 compiled = delegate
       {
-        return sc.Run(cc.ModuleContext.Module);
-      }
-      finally
-      {
-        Compiler.SimpleGenerator.ClearGlobals();
+        try
+        {
 #if DEBUG
-        Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
+          sw = Stopwatch.StartNew();
 #endif
-        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-      }
+          return sc.Run(cc.ModuleContext.Module);
+        }
+        finally
+        {
+#if DEBUG
+          Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
+#endif
+        }
+      };
+
+      ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+      Compiler.SimpleGenerator.ClearGlobals();
+
+      return Closure.Make(cc, compiled);
+    }
+
+    [Builtin("eval-core")]
+    public static object EvalCore(CodeContext cc, object expr)
+    {
+      ICallable compiled = CompileCore(cc, expr) as ICallable;
+      return compiled.Call();
     }
 
 

@@ -1029,6 +1029,7 @@
     (symbol-value                               $boot i)
     (set-symbol-value!                          $boot i)
     (eval-core                                  $boot)
+    (compile-core                               $boot)
     (module                                     i)
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all

@@ -23,7 +23,7 @@
     (body
       (form (id . "form1") (method . "post")
         (h1 ,title)
-        (p "rabble rabble")
+        (p "rabble rabbles")
 				,(if (and (method-post?) (form "foo"))
 						'(input (type . "submit") (name . "bar") (value . "Now you can"))
         		'(input (type . "submit") (name . "bar") (value . "Can't click me") (disabled . #t)))

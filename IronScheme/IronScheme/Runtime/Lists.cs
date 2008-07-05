@@ -482,6 +482,11 @@ namespace IronScheme.Runtime
     [Builtin("reverse!")]
     public static Cons NReverse(Cons list)
     {
+      if (list == null)
+      {
+        return list;
+      }
+
       Cons prev = null, next = null;
 
       while (true)
