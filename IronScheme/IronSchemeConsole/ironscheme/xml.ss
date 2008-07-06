@@ -44,7 +44,7 @@
 		                (indent-str (get-indent i)))
 		            (let-values ([(attrs children) (partition attribute? body)])
 		              (if (null? children)
-		                (format "<~a~a/>\n" 
+		                (format "<~a~a />\n" 
 		                  tag
 		                  (string-map ->xml attrs i))
 		                (if (complex? x) 

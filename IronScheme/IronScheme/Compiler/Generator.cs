@@ -67,6 +67,11 @@ namespace IronScheme.Compiler
       {
         return GetConsVector(v, cb);
       }
+      else if (args is byte[])
+      {
+        Expression[] ba = Array.ConvertAll<byte, Expression>(args as byte[], delegate(byte b) { return Ast.Constant(b); });
+        return Ast.NewArray(typeof(byte[]), ba);
+      }
       else if (args is Fraction)
       {
         Fraction f = (Fraction) args;
@@ -292,6 +297,11 @@ namespace IronScheme.Compiler
       if (v != null)
       {
         return GetConsVector(v, cb);
+      }
+      else if (args is byte[])
+      {
+        Expression[] ba = Array.ConvertAll<byte, Expression>(args as byte[], delegate (byte b) { return Ast.Constant(b);});
+        return Ast.NewArray(typeof(byte[]), ba);
       }
       else
       {
