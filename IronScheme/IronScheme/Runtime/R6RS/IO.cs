@@ -123,8 +123,8 @@ namespace IronScheme.Runtime.R6RS
       tc.handlingmode = (SymbolId)handlingmode;
       return tc;
     }
-    
-    
+
+
     //(native-transcoder)
     [Builtin("native-transcoder")]
     public static object NativeTranscoder()
@@ -138,7 +138,7 @@ namespace IronScheme.Runtime.R6RS
     {
       return RequiresNotNull<Transcoder>(tc).codec;
     }
-    
+
     //(transcoder-eol-style transcoder) 
     [Builtin("transcoder-eol-style")]
     public static object TranscoderEolStyle(object tc)
@@ -184,7 +184,7 @@ namespace IronScheme.Runtime.R6RS
     {
       return port is TextReader || port is TextWriter;
     }
-    
+
     //(binary-port? port)
     [Builtin("binary-port?")]
     public static object IsBinaryPort(object port)
@@ -209,7 +209,7 @@ namespace IronScheme.Runtime.R6RS
       return FALSE;
     }
 
-    
+
     static object TranscodedOutputPort(object binaryport, object transcoder)
     {
       Stream s = RequiresNotNull<Stream>(binaryport);
@@ -276,7 +276,7 @@ namespace IronScheme.Runtime.R6RS
       {
         return ((Stream)port).CanSeek;
       }
-      if (port is StreamReader )
+      if (port is StreamReader)
       {
         return ((StreamReader)port).BaseStream.CanSeek;
       }
@@ -326,7 +326,7 @@ namespace IronScheme.Runtime.R6RS
       }
       return Unspecified;
     }
-    
+
 
     //(call-with-port port proc)
     [Builtin("call-with-port")]
@@ -358,7 +358,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     static SymbolId fo_replace = SymbolTable.StringToId("replace");
-    
+
 
     //(open-file-input-port filename) 
     //(open-file-input-port filename file-options)
@@ -611,12 +611,21 @@ namespace IronScheme.Runtime.R6RS
     {
       Stream s = RequiresNotNull<Stream>(binaryinputport);
 
-      int c = s.ReadByte();
-      if (c == -1)
+      try
       {
-        return EOF;
+
+        int c = s.ReadByte();
+        if (c == -1)
+        {
+          return EOF;
+        }
+        return c;
       }
-      return c;
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-u8", ex.Message, binaryinputport);
+      }
+
     }
 
     //(lookahead-u8 binary-input-port)
@@ -624,17 +633,25 @@ namespace IronScheme.Runtime.R6RS
     public static object LookAheadU8(object binaryinputport)
     {
       Stream s = RequiresNotNull<Stream>(binaryinputport);
-      if (s.CanSeek)
+      try
       {
-        int c = s.ReadByte();
-        s.Position--;
-        if (c == -1)
+        if (s.CanSeek)
         {
-          return EOF;
+          int c = s.ReadByte();
+          s.Position--;
+          if (c == -1)
+          {
+            return EOF;
+          }
+          return c;
         }
-        return c;
+        return FALSE;
       }
-      return FALSE;
+      catch (Exception ex)
+      {
+        return AssertionViolation("lookahead-u8", ex.Message, binaryinputport);
+      }
+
     }
 
     //(get-bytevector-n binary-input-port count)
@@ -644,22 +661,31 @@ namespace IronScheme.Runtime.R6RS
       int k = RequiresNotNull<int>(count);
       Stream s = RequiresNotNull<Stream>(binaryinputport);
 
-      byte[] buffer = new byte[k];
-
-      int r = s.Read(buffer, 0, k);
-      
-      if (r == -1)
+      try
       {
-        return EOF;
+
+        byte[] buffer = new byte[k];
+
+        int r = s.Read(buffer, 0, k);
+
+        if (r == -1)
+        {
+          return EOF;
+        }
+
+        if (r != k)
+        {
+          byte[] nb = new byte[r];
+          Array.Copy(buffer, nb, r);
+          return nb;
+        }
+        return buffer;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-bytevector-n", ex.Message, binaryinputport, count);
       }
 
-      if (r != k)
-      {
-        byte[] nb = new byte[r];
-        Array.Copy(buffer, nb, r);
-        return nb;
-      }
-      return buffer;
     }
 
     //(get-bytevector-n! binary-input-port bytevector start count)
@@ -671,14 +697,23 @@ namespace IronScheme.Runtime.R6RS
       Stream s = RequiresNotNull<Stream>(binaryinputport);
       byte[] b = RequiresNotNull<byte[]>(bytevector);
 
-      int r = s.Read(b, j, k);
-
-      if (r == -1)
+      try
       {
-        return EOF;
+
+        int r = s.Read(b, j, k);
+
+        if (r == -1)
+        {
+          return EOF;
+        }
+
+        return r;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-bytevector-n!", ex.Message, binaryinputport, bytevector, start, count);
       }
 
-      return r;
     }
 
     //(get-bytevector-some binary-input-port)
@@ -687,20 +722,29 @@ namespace IronScheme.Runtime.R6RS
     {
       Stream s = RequiresNotNull<Stream>(binaryinputport);
 
-      List<byte> some = new List<byte>();
-      
-      int c;
-      while ((c = s.ReadByte()) != -1)
+      try
       {
-        some.Add((byte)c);
+
+        List<byte> some = new List<byte>();
+
+        int c;
+        while ((c = s.ReadByte()) != -1)
+        {
+          some.Add((byte)c);
+        }
+
+        if (some.Count == 0)
+        {
+          return EOF;
+        }
+
+        return some.ToArray();
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-bytevector-some", ex.Message, binaryinputport);
       }
 
-      if (some.Count == 0)
-      {
-        return EOF;
-      }
-
-      return some.ToArray();
     }
 
     //(get-bytevector-all binary-input-port)
@@ -709,20 +753,29 @@ namespace IronScheme.Runtime.R6RS
     {
       Stream s = RequiresNotNull<Stream>(binaryinputport);
 
-      List<byte> all = new List<byte>();
-
-      int c;
-      while ((c = s.ReadByte()) != -1)
+      try
       {
-        all.Add((byte)c);
+
+        List<byte> all = new List<byte>();
+
+        int c;
+        while ((c = s.ReadByte()) != -1)
+        {
+          all.Add((byte)c);
+        }
+
+        if (all.Count == 0)
+        {
+          return EOF;
+        }
+
+        return all.ToArray();
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-bytevector-all", ex.Message, binaryinputport);
       }
 
-      if (all.Count == 0)
-      {
-        return EOF;
-      }
-
-      return all.ToArray();
     }
 
     //text input
@@ -732,12 +785,20 @@ namespace IronScheme.Runtime.R6RS
     {
       TextReader r = RequiresNotNull<TextReader>(textinputport);
 
-      int c = r.Read();
-      if (c == -1)
+      try
       {
-        return EOF;
+
+        int c = r.Read();
+        if (c == -1)
+        {
+          return EOF;
+        }
+        return (char)c;
       }
-      return (char)c;
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-char", ex.Message, textinputport);
+      }
     }
 
     //(lookahead-char textual-input-port)
@@ -745,13 +806,20 @@ namespace IronScheme.Runtime.R6RS
     public static object LookAheadChar(object textinputport)
     {
       TextReader r = RequiresNotNull<TextReader>(textinputport);
-
-      int c = r.Peek();
-      if (c == -1)
+      try
       {
-        return EOF;
+
+        int c = r.Peek();
+        if (c == -1)
+        {
+          return EOF;
+        }
+        return (char)c;
       }
-      return (char)c;
+      catch (Exception ex)
+      {
+        return AssertionViolation("lookahead-char", ex.Message, textinputport);
+      }
     }
 
     //(get-string-n textual-input-port count)
@@ -761,14 +829,23 @@ namespace IronScheme.Runtime.R6RS
       TextReader r = RequiresNotNull<TextReader>(textinputport);
       int k = RequiresNotNull<int>(count);
 
-      char[] buffer = new char[k];
-
-      int c = r.Read(buffer, 0, k);
-      if (c == -1)
+      try
       {
-        return EOF;
+
+        char[] buffer = new char[k];
+
+        int c = r.Read(buffer, 0, k);
+        if (c == -1)
+        {
+          return EOF;
+        }
+        return new string(buffer, 0, c);
       }
-      return new string(buffer, 0, c);
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-string-n", ex.Message, textinputport, count);
+      }
+
     }
 
     //(get-string-n! textual-input-port string start count)
@@ -780,19 +857,28 @@ namespace IronScheme.Runtime.R6RS
       int j = RequiresNotNull<int>(start);
       int k = RequiresNotNull<int>(count);
 
-      char[] buffer = new char[s.Length];
-      s.CopyTo(0, buffer, 0, s.Length);
+      try
+      {
 
-      int c = r.Read(buffer, j, k);
-      if (c == -1)
-      {
-        return EOF;
+        char[] buffer = new char[s.Length];
+        s.CopyTo(0, buffer, 0, s.Length);
+
+        int c = r.Read(buffer, j, k);
+        if (c == -1)
+        {
+          return EOF;
+        }
+        for (int i = 0; i < c; i++)
+        {
+          s[j + i] = buffer[j + i];
+        }
+        return c;
       }
-      for (int i = 0; i < c; i++)
+      catch (Exception ex)
       {
-        s[j + i] = buffer[j + i];
+        return AssertionViolation("get-string-n!", ex.Message, textinputport, str, start, count);
       }
-      return c;
+
     }
 
     //(get-string-all textual-input-port)
@@ -800,13 +886,21 @@ namespace IronScheme.Runtime.R6RS
     public static object GetStringAll(object textinputport)
     {
       TextReader r = RequiresNotNull<TextReader>(textinputport);
-
-      string c = r.ReadToEnd();
-      if (c == null)
+      try
       {
-        return EOF;
+
+        string c = r.ReadToEnd();
+        if (c == null)
+        {
+          return EOF;
+        }
+        return c;
       }
-      return c;
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-string-all", ex.Message, textinputport);
+      }
+
     }
 
     //(get-line textual-input-port)
@@ -814,13 +908,21 @@ namespace IronScheme.Runtime.R6RS
     public static object GetLine(object textinputport)
     {
       TextReader r = RequiresNotNull<TextReader>(textinputport);
-
-      string c = r.ReadLine();
-      if (c == null)
+      try
       {
-        return EOF;
+
+        string c = r.ReadLine();
+        if (c == null)
+        {
+          return EOF;
+        }
+        return c;
       }
-      return c;
+      catch (Exception ex)
+      {
+        return AssertionViolation("get-line", ex.Message, textinputport);
+      }
+
     }
 
     //(get-datum textual-input-port)
@@ -978,7 +1080,7 @@ namespace IronScheme.Runtime.R6RS
       return Console.OpenStandardError();
     }
 
-    
+
     class CustomBinaryOutputStream : Stream
     {
       string id;
@@ -1142,10 +1244,19 @@ namespace IronScheme.Runtime.R6RS
     public static object PutU8(object binaryoutputport, object octet)
     {
       Stream s = RequiresNotNull<Stream>(binaryoutputport);
-      byte b = (byte) RequiresNotNull<int>(octet);
+      byte b = (byte)RequiresNotNull<int>(octet);
 
-      s.WriteByte(b);
-      return Unspecified;
+      try
+      {
+
+        s.WriteByte(b);
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-u8", ex.Message, binaryoutputport, octet);
+      }
+
     }
 
 
@@ -1160,9 +1271,18 @@ namespace IronScheme.Runtime.R6RS
       int j = 0;
       int k = b.Length;
 
-      s.Write(b, j, k);
+      try
+      {
 
-      return Unspecified;
+        s.Write(b, j, k);
+
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-bytevector", ex.Message, binaryoutputport, bytevector);
+      }
+
     }
 
     [Builtin("put-bytevector")]
@@ -1173,9 +1293,18 @@ namespace IronScheme.Runtime.R6RS
       int j = RequiresNotNull<int>(start);
       int k = b.Length - j;
 
-      s.Write(b, j, k);
+      try
+      {
 
-      return Unspecified;
+        s.Write(b, j, k);
+
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-bytevector", ex.Message, binaryoutputport, bytevector, start);
+      }
+
     }
 
     [Builtin("put-bytevector")]
@@ -1186,9 +1315,18 @@ namespace IronScheme.Runtime.R6RS
       int j = RequiresNotNull<int>(start);
       int k = RequiresNotNull<int>(count);
 
-      s.Write(b, j, k);
-      
-      return Unspecified;
+      try
+      {
+
+        s.Write(b, j, k);
+
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-bytevector", ex.Message, binaryoutputport, bytevector, start, count);
+      }
+
     }
 
     //text output
@@ -1199,8 +1337,17 @@ namespace IronScheme.Runtime.R6RS
       TextWriter s = RequiresNotNull<TextWriter>(textoutputport);
       char c = RequiresNotNull<char>(chr);
 
-      s.Write(c);
-      return Unspecified;
+      try
+      {
+
+        s.Write(c);
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-char", ex.Message, textoutputport, chr);
+      }
+
     }
 
     //(put-string textual-output-port string) 
@@ -1214,9 +1361,18 @@ namespace IronScheme.Runtime.R6RS
       int j = 0;
       int k = b.Length;
 
-      s.Write(b.ToCharArray(), j, k);
+      try
+      {
 
-      return Unspecified;
+        s.Write(b.ToCharArray(), j, k);
+
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-string", ex.Message, textoutputport, str);
+      }
+
     }
 
     [Builtin("put-string")]
@@ -1227,9 +1383,18 @@ namespace IronScheme.Runtime.R6RS
       int j = RequiresNotNull<int>(start);
       int k = b.Length - j;
 
-      s.Write(b.ToCharArray(), j, k);
+      try
+      {
 
-      return Unspecified;
+        s.Write(b.ToCharArray(), j, k);
+
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-string", ex.Message, textoutputport, str, start);
+      }
+
     }
 
     [Builtin("put-string")]
@@ -1240,9 +1405,18 @@ namespace IronScheme.Runtime.R6RS
       int j = RequiresNotNull<int>(start);
       int k = RequiresNotNull<int>(count);
 
-      s.Write(b.ToCharArray(), j, k);
+      try
+      {
 
-      return Unspecified;
+        s.Write(b.ToCharArray(), j, k);
+
+        return Unspecified;
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("put-string", ex.Message, textoutputport, str, start, count);
+      }
+
     }
 
     //(put-datum textual-output-port datum)
@@ -1303,7 +1477,7 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    
+
 
     class CustomBinaryInputOutputStream : Stream
     {
