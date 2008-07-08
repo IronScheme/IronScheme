@@ -182,14 +182,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("textual-port?")]
     public static object IsTextualPort(object port)
     {
-      return port is TextReader || port is TextWriter;
+      return IsTrue(port is TextReader || port is TextWriter);
     }
 
     //(binary-port? port)
     [Builtin("binary-port?")]
     public static object IsBinaryPort(object port)
     {
-      return port is Stream;
+      return IsTrue(port is Stream);
     }
 
     //(transcoded-port binary-port transcoder)
@@ -274,15 +274,15 @@ namespace IronScheme.Runtime.R6RS
     {
       if (port is Stream)
       {
-        return ((Stream)port).CanSeek;
+        return IsTrue(((Stream)port).CanSeek);
       }
       if (port is StreamReader)
       {
-        return ((StreamReader)port).BaseStream.CanSeek;
+        return IsTrue(((StreamReader)port).BaseStream.CanSeek);
       }
       if (port is StreamWriter)
       {
-        return ((StreamWriter)port).BaseStream.CanSeek;
+        return IsTrue(((StreamWriter)port).BaseStream.CanSeek);
       }
       return FALSE;
     }
@@ -333,9 +333,16 @@ namespace IronScheme.Runtime.R6RS
     public static object CallWithPort(object port, object proc)
     {
       ICallable p = RequiresNotNull<ICallable>(proc);
-      object result = p.Call(port);
-      ClosePort(port);
-      return result;
+      try
+      {
+        object result = p.Call(port);
+        ClosePort(port);
+        return result;
+      }
+      catch (IOException ex)
+      {
+        return IOPortViolation("call-with-port", ex.Message, port);
+      }
     }
 
     // input ports
@@ -621,10 +628,11 @@ namespace IronScheme.Runtime.R6RS
         }
         return c;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-u8", ex.Message, binaryinputport);
+        return IOPortViolation("get-u8", ex.Message, binaryinputport);
       }
+
 
     }
 
@@ -647,9 +655,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return FALSE;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("lookahead-u8", ex.Message, binaryinputport);
+        return IOPortViolation("lookahead-u8", ex.Message, binaryinputport);
       }
 
     }
@@ -681,9 +689,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return buffer;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-bytevector-n", ex.Message, binaryinputport, count);
+        return IOPortViolation("get-bytevector-n", ex.Message, binaryinputport);
       }
 
     }
@@ -709,9 +717,9 @@ namespace IronScheme.Runtime.R6RS
 
         return r;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-bytevector-n!", ex.Message, binaryinputport, bytevector, start, count);
+        return IOPortViolation("get-bytevector-n!", ex.Message, binaryinputport);
       }
 
     }
@@ -740,9 +748,9 @@ namespace IronScheme.Runtime.R6RS
 
         return some.ToArray();
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-bytevector-some", ex.Message, binaryinputport);
+        return IOPortViolation("get-bytevector-some", ex.Message, binaryinputport);
       }
 
     }
@@ -771,9 +779,9 @@ namespace IronScheme.Runtime.R6RS
 
         return all.ToArray();
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-bytevector-all", ex.Message, binaryinputport);
+        return IOPortViolation("get-bytevector-all", ex.Message, binaryinputport);
       }
 
     }
@@ -795,9 +803,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return (char)c;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-char", ex.Message, textinputport);
+        return IOPortViolation("get-char", ex.Message, textinputport);
       }
     }
 
@@ -816,9 +824,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return (char)c;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("lookahead-char", ex.Message, textinputport);
+        return IOPortViolation("lookahead-char", ex.Message, textinputport);
       }
     }
 
@@ -841,9 +849,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return new string(buffer, 0, c);
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-string-n", ex.Message, textinputport, count);
+        return IOPortViolation("get-string-n", ex.Message, textinputport);
       }
 
     }
@@ -874,9 +882,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return c;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-string-n!", ex.Message, textinputport, str, start, count);
+        return IOPortViolation("get-string-n!", ex.Message, textinputport);
       }
 
     }
@@ -896,9 +904,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return c;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-string-all", ex.Message, textinputport);
+        return IOPortViolation("get-string-all", ex.Message, textinputport);
       }
 
     }
@@ -918,9 +926,9 @@ namespace IronScheme.Runtime.R6RS
         }
         return c;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("get-line", ex.Message, textinputport);
+        return IOPortViolation("get-line", ex.Message, textinputport);
       }
 
     }
@@ -1278,9 +1286,9 @@ namespace IronScheme.Runtime.R6RS
 
         return Unspecified;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("put-bytevector", ex.Message, binaryoutputport, bytevector);
+        return IOPortViolation("put-bytevector", ex.Message, binaryoutputport);
       }
 
     }
@@ -1300,9 +1308,9 @@ namespace IronScheme.Runtime.R6RS
 
         return Unspecified;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("put-bytevector", ex.Message, binaryoutputport, bytevector, start);
+        return IOPortViolation("put-bytevector", ex.Message, binaryoutputport);
       }
 
     }
@@ -1322,9 +1330,9 @@ namespace IronScheme.Runtime.R6RS
 
         return Unspecified;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("put-bytevector", ex.Message, binaryoutputport, bytevector, start, count);
+        return IOPortViolation("put-bytevector", ex.Message, binaryoutputport);
       }
 
     }
@@ -1343,9 +1351,9 @@ namespace IronScheme.Runtime.R6RS
         s.Write(c);
         return Unspecified;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("put-char", ex.Message, textoutputport, chr);
+        return IOPortViolation("put-char", ex.Message, textoutputport);
       }
 
     }
@@ -1368,9 +1376,9 @@ namespace IronScheme.Runtime.R6RS
 
         return Unspecified;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("put-string", ex.Message, textoutputport, str);
+        return IOPortViolation("put-string", ex.Message, textoutputport);
       }
 
     }
@@ -1390,9 +1398,9 @@ namespace IronScheme.Runtime.R6RS
 
         return Unspecified;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("put-string", ex.Message, textoutputport, str, start);
+        return IOPortViolation("put-string", ex.Message, textoutputport);
       }
 
     }
@@ -1412,9 +1420,9 @@ namespace IronScheme.Runtime.R6RS
 
         return Unspecified;
       }
-      catch (Exception ex)
+      catch (IOException ex)
       {
-        return AssertionViolation("put-string", ex.Message, textoutputport, str, start, count);
+        return IOPortViolation("put-string", ex.Message, textoutputport);
       }
 
     }

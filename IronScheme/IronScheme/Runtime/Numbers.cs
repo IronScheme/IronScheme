@@ -1870,13 +1870,27 @@ namespace IronScheme.Runtime
         Fraction f = ConvertToRational(obj);
         BigInteger c = f.Numerator / f.Denominator;
         BigInteger d = f.Numerator % f.Denominator;
-        if (d > f.Denominator / 2)
+        if (d < 0)
         {
-          return ToIntegerIfPossible(c + 1);
+          if (-d > f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c - 1);
+          }
+          else if (-d < f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c);
+          }
         }
-        else if (d < f.Denominator / 2)
+        else if (d > 0)
         {
-          return ToIntegerIfPossible(c);
+          if (d > f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c + 1);
+          }
+          else if (d < f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c);
+          }
         }
         else
         {

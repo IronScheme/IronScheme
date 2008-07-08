@@ -210,6 +210,11 @@ namespace Microsoft.Scripting.Ast {
             set { _body = value; }
         }
 
+        public void Bind()
+        {
+          ClosureBinder.Bind(this);
+        }
+
         internal IList<VariableReference> References {
             get { return _references; }
             set { _references = value; }
@@ -445,7 +450,7 @@ namespace Microsoft.Scripting.Ast {
             foreach (Variable var in _variables) {
                 var.Allocate(cg);
             }
-            foreach (VariableReference r in _references) {
+            foreach (VariableReference r in References) {
                 r.CreateSlot(cg);
                 Debug.Assert(r.Slot != null);
             }
@@ -570,7 +575,7 @@ namespace Microsoft.Scripting.Ast {
 
             while (allocator != null) {
                 if (allocator.Block != null) {
-                    foreach (VariableReference reference in _references) {
+                    foreach (VariableReference reference in References) {
                         if (!reference.Variable.Lift && reference.Variable.Block == allocator.Block) {
                             Slot accessSlot = allocator.LocalAllocator.GetAccessSlot(cg, allocator.Block);
                             if (accessSlot != null) {

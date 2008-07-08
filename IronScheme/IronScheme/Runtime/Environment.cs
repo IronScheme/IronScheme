@@ -140,6 +140,32 @@ namespace IronScheme.Runtime
       }
     }
 
+    public static object IOPortViolation(object who, object message, object port)
+    {
+      if (IsR6RSLoaded())
+      {
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&i/o-port-rcd"))) as ICallable;
+
+        if (who is bool && !(bool)who)
+        {
+          return R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(port)));
+        }
+        else
+        {
+          return R6RS.Exceptions.RaiseContinueable(
+           R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(port)));
+        }
+      }
+      else
+      {
+        throw new IOException(message as string);
+      }
+    }
+
     static bool IsR6RSLoaded()
     {
       return Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("&assertion-rcd"));
