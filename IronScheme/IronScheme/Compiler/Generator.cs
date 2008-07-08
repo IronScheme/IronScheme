@@ -161,6 +161,49 @@ namespace IronScheme.Compiler
             }
           }
 
+          if (f == SymbolTable.StringToId("call-with-values"))
+          {
+            Expression[] ppp = GetAstListNoCast(c.cdr as Cons, cb);
+            if (ppp.Length == 2 && ppp[0] is MethodCallExpression && ppp[1] is MethodCallExpression)
+            {
+              MethodCallExpression producer = ppp[0] as MethodCallExpression;
+              MethodCallExpression consumer = ppp[1] as MethodCallExpression;
+
+              if (consumer.Method == Closure_Make && producer.Method == Closure_Make)
+              {
+                CodeBlockExpression ccbe = consumer.Arguments[1] as CodeBlockExpression;
+                CodeBlockExpression pcbe = producer.Arguments[1] as CodeBlockExpression;
+
+                pcbe.Block.Bind();
+                ccbe.Block.Bind();
+
+                if (ccbe.Block.ParameterCount == 0)
+                {
+                  return CallNormal(ccbe);
+                }
+                else if (ccbe.Block.ParameterCount == 1)
+                {
+                  return CallNormal(ccbe, CallNormal(pcbe));
+                }
+                else if (ccbe.Block.ParameterCount < 6)
+                {
+                  Variable values = cb.CreateTemporaryVariable((SymbolId) Builtins.GenSym("values") , typeof(object[]));
+
+                  Expression valuesarr = Ast.Read(values);
+
+                  Expression[] pppp = new Expression[ccbe.Block.ParameterCount];
+
+                  for (int i = 0; i < pppp.Length; i++)
+                  {
+                    pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
+                  }
+
+                  return Ast.Comma(Ast.Assign(values, Ast.ConvertHelper(CallNormal(pcbe), typeof(object[]))), CallNormal(ccbe, pppp));
+                }
+              }
+            }
+          }
+
           if (Context.Scope.TryLookupName(f, out m))
           {
             if (var == null)
@@ -322,7 +365,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    static Expression CallNormal(CodeBlockExpression cbe, Expression[] ppp)
+    static Expression CallNormal(CodeBlockExpression cbe, params Expression[] ppp)
     {
       bool needscontext = true;
       MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);

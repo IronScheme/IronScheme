@@ -25,7 +25,6 @@ namespace IronScheme.Runtime
   {
     static int Main(string[] args)
     {
-      //System.Console.ReadLine();
       return new IronSchemeConsoleHost().Run(args);
     }
   }

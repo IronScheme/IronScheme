@@ -49,6 +49,10 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("with-input-from-file", ex.Message, filename);
       }
+      catch (Exception ex)
+      {
+        return AssertionViolation("with-input-from-file", ex.Message, filename);
+      }
       finally
       {
         if (readcache.ContainsKey(currentinputport))
@@ -79,6 +83,10 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("with-output-to-file", ex.Message, filename);
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("with-input-from-file", ex.Message, filename);
       }
       finally
       {
@@ -242,51 +250,62 @@ namespace IronScheme.Runtime
       else
       {
         TextReader r = RequiresNotNull<TextReader>(port);
-        object result = null;
 
-        if (r is StreamReader)
+        try
         {
-          StreamReader rr = (StreamReader)r;
-          Stream s = rr.BaseStream;
-          if (s == null)
-          {
-            AssertionViolation("read", "port has already been closed", r);
-          }
-          if (s.Length == s.Position && !rr.EndOfStream)
-          {
-            s.Position = 0;
-          }
-          if (!rr.EndOfStream)
-          {
-            result = IronSchemeLanguageContext.ReadExpressions(s, Context.ModuleContext.CompilerContext);
-            rr.ReadToEnd();
-          }
-        }
-        else
-        {
-          string input = r.ReadToEnd();
-          if (input.Length > 0)
-          {
-            result = IronSchemeLanguageContext.ReadExpressions(input, Context.ModuleContext.CompilerContext);
-          }
-        }
+          object result = null;
 
-        if (result is Cons)
-        {
-          c = (Cons)result;
-          if (c.cdr is Cons)
+          if (r is StreamReader)
           {
-            readcache[port] = c.cdr as Cons;
+            StreamReader rr = (StreamReader)r;
+            Stream s = rr.BaseStream;
+            if (s == null)
+            {
+              return IOPortViolation("read", "port has already been closed", r);
+            }
+            if (s.Length == s.Position && !rr.EndOfStream)
+            {
+              s.Position = 0;
+            }
+            if (!rr.EndOfStream)
+            {
+              result = IronSchemeLanguageContext.ReadExpressions(s, Context.ModuleContext.CompilerContext);
+              rr.ReadToEnd();
+            }
           }
-          return c.car;
-        }
-        else if (result != null)
-        {
-          return result;
-        }
+          else
+          {
+            string input = r.ReadToEnd();
+            if (input.Length > 0)
+            {
+              result = IronSchemeLanguageContext.ReadExpressions(input, Context.ModuleContext.CompilerContext);
+            }
+          }
 
-        return EOF;
-        
+          if (result is Cons)
+          {
+            c = (Cons)result;
+            if (c.cdr is Cons)
+            {
+              readcache[port] = c.cdr as Cons;
+            }
+            return c.car;
+          }
+          else if (result != null)
+          {
+            return result;
+          }
+
+          return EOF;
+        }
+        catch (IOException ex)
+        {
+          return IOPortViolation("read", ex.Message, port);
+        }
+        catch (Exception ex)
+        {
+          return AssertionViolation("read", ex.Message, port);
+        }
       }
     }
 
@@ -322,12 +341,23 @@ namespace IronScheme.Runtime
     public static object ReadChar(object port)
     {
       TextReader r = RequiresNotNull<TextReader>(port);
-      int c = r.Read();
-      if (c == -1)
+      try
       {
-        return EOF;
+        int c = r.Read();
+        if (c == -1)
+        {
+          return EOF;
+        }
+        return (char)c;
       }
-      return (char)c;
+      catch (IOException ex)
+      {
+        return IOPortViolation("read-char", ex.Message, port);
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("read-char", ex.Message, port);
+      }
     }
 
     [Builtin("peek-char")]
@@ -340,12 +370,23 @@ namespace IronScheme.Runtime
     public static object PeekChar(object port)
     {
       TextReader r = RequiresNotNull<TextReader>(port);
-      int c = r.Peek();
-      if (c == -1)
+      try
       {
-        return EOF;
+        int c = r.Peek();
+        if (c == -1)
+        {
+          return EOF;
+        }
+        return (char)c;
       }
-      return (char)c;
+      catch (IOException ex)
+      {
+        return IOPortViolation("peek-char", ex.Message, port);
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("peek-char", ex.Message, port);
+      }
     }
 
     [Builtin("write-char")]
@@ -357,10 +398,21 @@ namespace IronScheme.Runtime
     [Builtin("write-char")]
     public static object WriteChar(object ch, object port)
     {
-      TextWriter w = RequiresNotNull<TextWriter>(port);
-      char c = RequiresNotNull<char>(ch);
-      w.Write(c);
-      return Unspecified;
+      try
+      {
+        TextWriter w = RequiresNotNull<TextWriter>(port);
+        char c = RequiresNotNull<char>(ch);
+        w.Write(c);
+        return Unspecified;
+      }
+      catch (IOException ex)
+      {
+        return IOPortViolation("write-char", ex.Message, port);
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("write-char", ex.Message, ch, port);
+      }
     }
 
 
@@ -374,8 +426,19 @@ namespace IronScheme.Runtime
     public static object Newline(object port)
     {
       TextWriter w = RequiresNotNull<TextWriter>(port);
-      w.WriteLine();
-      return Unspecified;
+      try
+      {
+        w.WriteLine();
+        return Unspecified;
+      }
+      catch (IOException ex)
+      {
+        return IOPortViolation("newline", ex.Message, port);
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("newline", ex.Message, port);
+      }
     }
 
     static readonly SymbolId quote = SymbolTable.StringToId("quote");
@@ -796,13 +859,13 @@ namespace IronScheme.Runtime
     [Builtin("input-port?")]
     public static object IsInputPort(object obj)
     {
-      return obj is TextReader; 
+      return IsTrue(obj is TextReader); 
     }
 
     [Builtin("output-port?")]
     public static object IsOutputPort(object obj)
     {
-      return obj is TextWriter;
+      return IsTrue(obj is TextWriter);
     }
 
     [Builtin("call-with-input-file")]
@@ -829,6 +892,11 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("call-with-input-file", ex.Message, filename);
       }
+      catch (Exception ex)
+      {
+        return AssertionViolation("call-with-input-filer", ex.Message, filename);
+      }
+
     }
 
     [Builtin("call-with-output-file")]
@@ -847,6 +915,10 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("call-with-output-file", ex.Message, filename);
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("call-with-output-file", ex.Message, filename);
       }
     }
 
@@ -929,6 +1001,10 @@ namespace IronScheme.Runtime
       {
         return FileNotFoundViolation("open-input-file", ex.Message, filename);
       }
+      catch (Exception ex)
+      {
+        return AssertionViolation("open-input-file", ex.Message, filename);
+      }      
     }
 
     [Builtin("open-output-file")]
@@ -942,6 +1018,10 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("open-output-file", ex.Message, filename);
+      }
+      catch (Exception ex)
+      {
+        return AssertionViolation("open-output-file", ex.Message, filename);
       }
     }
 
