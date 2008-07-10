@@ -118,48 +118,48 @@ namespace IronScheme.Compiler
           CodeBlockExpression cbe;
 
           //// needs to do the same for overloads...
-          //if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
-          //{
-          //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+          if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
+          {
+            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-          //  if (ppp.Length < 6)
-          //  {
-          //    return CallNormal(cbe, ppp);
-          //  }
-          //}
+            if (ppp.Length < 6)
+            {
+              return CallNormal(cbe, ppp);
+            }
+          }
 
-          //// varargs
-          //if (SimpleGenerator.libraryglobalsX.TryGetValue(f, out cbe))
-          //{
-          //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+          // varargs
+          if (SimpleGenerator.libraryglobalsX.TryGetValue(f, out cbe))
+          {
+            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-          //  if (ppp.Length < 6)
-          //  {
-          //    return CallVarArgs(cbe, ppp);
-          //  }
-          //}
+            if (ppp.Length < 6)
+            {
+              return CallVarArgs(cbe, ppp);
+            }
+          }
 
-          //// overloads
-          //CodeBlockDescriptor[] cbd;
-          //if (SimpleGenerator.libraryglobalsN.TryGetValue(f, out cbd))
-          //{
-          //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+          // overloads
+          CodeBlockDescriptor[] cbd;
+          if (SimpleGenerator.libraryglobalsN.TryGetValue(f, out cbd))
+          {
+            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-          //  foreach (CodeBlockDescriptor d in cbd)
-          //  {
-          //    if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
-          //    {
-          //      if (d.varargs)
-          //      {
-          //        return CallVarArgs(d.codeblock, ppp);
-          //      }
-          //      else
-          //      {
-          //        return CallNormal(d.codeblock, ppp);
-          //      }
-          //    }
-          //  }
-          //}
+            foreach (CodeBlockDescriptor d in cbd)
+            {
+              if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
+              {
+                if (d.varargs)
+                {
+                  return CallVarArgs(d.codeblock, ppp);
+                }
+                else
+                {
+                  return CallNormal(d.codeblock, ppp);
+                }
+              }
+            }
+          }
 
           if (f == SymbolTable.StringToId("call-with-values"))
           {
@@ -294,24 +294,9 @@ namespace IronScheme.Compiler
           {
             CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
 
-            bool needscontext = true;
-            MethodInfo dc = GetDirectCallable(needscontext, pp.Length);
-            if (needscontext)
+            if (pp.Length < 6)
             {
-              pp = ArrayUtils.Insert<Expression>(mcexpr.Arguments[0], pp);
-            }
-            return Ast.ComplexCallHelper(cbe, dc, pp);
-          }
-          if (mcexpr.Instance is MethodCallExpression && mcexpr.Method.Name == "Call")
-          {
-            MethodCallExpression mcei = mcexpr.Instance as MethodCallExpression;
-            if (mcei.Method == Closure_Make)
-            {
-              CodeBlockExpression cbe = mcei.Arguments[1] as CodeBlockExpression;
-              Debug.Assert(mcexpr.Arguments.Count == 0);
-              bool needscontext = true;
-              MethodInfo dc = GetDirectCallable(needscontext, 0);
-              ex = Ast.ComplexCallHelper(cbe, dc, mcei.Arguments[0]);
+              return CallNormal(cbe, pp);
             }
           }
         }
@@ -365,21 +350,24 @@ namespace IronScheme.Compiler
       }
     }
 
-    static Expression CallNormal(CodeBlockExpression cbe, params Expression[] ppp)
+    protected static Expression CallNormal(CodeBlockExpression cbe, params Expression[] ppp)
     {
       bool needscontext = true;
-      MethodInfo dc = GetDirectCallable(needscontext, ppp.Length);
+      int pc = ppp.Length;
+      MethodInfo dc = GetDirectCallable(needscontext, pc);
       if (needscontext)
       {
         ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
       }
 
-      cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, ppp.Length - 1, false));
+      cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, pc, false));
+
+      cbe.Block.Bind();
 
       return Ast.ComplexCallHelper(cbe, dc, ppp);
     }
 
-    static Expression CallVarArgs(CodeBlockExpression cbe, Expression[] ppp)
+    protected static Expression CallVarArgs(CodeBlockExpression cbe, Expression[] ppp)
     {
       bool needscontext = true;
 
@@ -410,7 +398,9 @@ namespace IronScheme.Compiler
         ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
       }
 
-      cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, ppp.Length - 1, false));
+      cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(true, pc, false));
+
+      cbe.Block.Bind();
 
       return Ast.ComplexCallHelper(cbe, dc, ppp);
     }
