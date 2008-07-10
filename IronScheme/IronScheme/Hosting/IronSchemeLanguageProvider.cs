@@ -18,6 +18,7 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Shell;
 using System.IO;
+using IronScheme.Runtime;
 
 namespace IronScheme.Hosting
 {
@@ -113,6 +114,7 @@ namespace IronScheme.Hosting
 
       protected override int RunFile(string filename)
       {
+        IronScheme.Runtime.Builtins.commandline = Options.RemainingArgs;
         Runtime.Builtins.Load("~/ironscheme.boot.pp");
         try
         {
