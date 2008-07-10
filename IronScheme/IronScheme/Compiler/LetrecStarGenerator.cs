@@ -68,8 +68,7 @@ namespace IronScheme.Compiler
 
       FillBody(cb, stmts, body, true);
 
-      MethodInfo dc = GetDirectCallable(true, 0);
-      Expression ex = Ast.ComplexCallHelper(Ast.CodeBlockExpression(cb, false), dc, Ast.CodeContext());
+      Expression ex = CallNormal(Ast.CodeBlockExpression(cb, false));
 
       level--;
       return ex;
