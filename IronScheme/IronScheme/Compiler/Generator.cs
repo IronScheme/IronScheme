@@ -117,49 +117,49 @@ namespace IronScheme.Compiler
           object m;
           CodeBlockExpression cbe;
 
-          // needs to do the same for overloads...
-          if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
-          {
-            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+          //// needs to do the same for overloads...
+          //if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
+          //{
+          //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            if (ppp.Length < 6)
-            {
-              return CallNormal(cbe, ppp);
-            }
-          }
+          //  if (ppp.Length < 6)
+          //  {
+          //    return CallNormal(cbe, ppp);
+          //  }
+          //}
 
-          // varargs
-          if (SimpleGenerator.libraryglobalsX.TryGetValue(f, out cbe))
-          {
-            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+          //// varargs
+          //if (SimpleGenerator.libraryglobalsX.TryGetValue(f, out cbe))
+          //{
+          //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            if (ppp.Length < 6)
-            {
-              return CallVarArgs(cbe, ppp);
-            }
-          }
+          //  if (ppp.Length < 6)
+          //  {
+          //    return CallVarArgs(cbe, ppp);
+          //  }
+          //}
 
-          // overloads
-          CodeBlockDescriptor[] cbd;
-          if (SimpleGenerator.libraryglobalsN.TryGetValue(f, out cbd))
-          {
-            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+          //// overloads
+          //CodeBlockDescriptor[] cbd;
+          //if (SimpleGenerator.libraryglobalsN.TryGetValue(f, out cbd))
+          //{
+          //  Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            foreach (CodeBlockDescriptor d in cbd)
-            {
-              if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
-              {
-                if (d.varargs)
-                {
-                  return CallVarArgs(d.codeblock, ppp);
-                }
-                else
-                {
-                  return CallNormal(d.codeblock, ppp);
-                }
-              }
-            }
-          }
+          //  foreach (CodeBlockDescriptor d in cbd)
+          //  {
+          //    if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
+          //    {
+          //      if (d.varargs)
+          //      {
+          //        return CallVarArgs(d.codeblock, ppp);
+          //      }
+          //      else
+          //      {
+          //        return CallNormal(d.codeblock, ppp);
+          //      }
+          //    }
+          //  }
+          //}
 
           if (f == SymbolTable.StringToId("call-with-values"))
           {
