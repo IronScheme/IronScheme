@@ -100,10 +100,12 @@ namespace IronScheme.Runtime
       return GetBool(o == Unspecified);
     }
 
+    internal static string[] commandline;
+
     [Builtin("command-line")]
     public static object CommandLine()
     {
-      return List(Environment.GetCommandLineArgs());
+      return List(commandline);
     }
 
     [Builtin("clr-type?")]

@@ -48,10 +48,10 @@ namespace IronScheme.Hosting
       return base.ExecuteFile(file, args);
     }
 
+    [Obsolete("?")]
     protected override int RunFile(IScriptEngine engine, SourceUnit sourceUnit)
     {
       Runtime.Builtins.Load("~/ironscheme.boot.pp");
-      //engine.Execute("(load \"~/ironscheme.boot.pp\")");
       try
       {
         engine.Execute(string.Format("(load \"{0}\")", sourceUnit.ToString().Replace('\\', '/')));

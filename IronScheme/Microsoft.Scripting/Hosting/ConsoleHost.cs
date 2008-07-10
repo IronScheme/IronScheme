@@ -310,6 +310,8 @@ namespace Microsoft.Scripting.Hosting {
 
             IConsole console = _options.LanguageProvider.GetConsole(command_line, engine, console_options);
 
+            console_options.RemainingArgs = _options.IgnoredArgs.ToArray();
+
             int result;
             if (console_options.HandleExceptions) {
                 try {
