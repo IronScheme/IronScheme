@@ -9,7 +9,7 @@
     (lambda (name x) 
       (cond 
         [(procedure? x)  
-         (make-traced-procedure name x)] 
+         (make-traced-procedure name x syntax->datum)] 
         [(variable-transformer? x) 
          (make-variable-transformer 
            (make-traced-procedure name  
