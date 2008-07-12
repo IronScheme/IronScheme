@@ -56,14 +56,14 @@ namespace IronScheme.Runtime
           }
         }
 
-        Cons a = new Cons(SymbolTable.IdToString(name), u);
+        object a = Builtins.Car(u);
 
         StringWriter pre = new StringWriter();
 
         pp.Call(a, pre);
 
         string prefix = new string('|', depth);
-        Console.WriteLine("{0} -> {1})", prefix, pre.ToString());
+        Console.WriteLine("{0} -> {1}", prefix, pre.ToString());
         object result = realtarget.Call(args);
 
         StringWriter p = new StringWriter();
