@@ -15,7 +15,6 @@
     make-topic)
   (import
     (ironscheme)
-    (ironscheme format)
     (ironscheme records printer))
   
   (define-record-type topic 

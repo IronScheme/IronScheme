@@ -122,50 +122,50 @@ namespace IronScheme.Runtime
     }
 
     [Builtin]
-    public static object List(object arg1)
+    public static Cons List(object arg1)
     {
       return new Cons(arg1);
     }
 
     [Builtin]
-    public static object List(object arg1, object arg2)
+    public static Cons List(object arg1, object arg2)
     {
       return new Cons(arg1, new Cons(arg2));
     }
 
     [Builtin]
-    public static object List(object arg1, object arg2, object arg3)
+    public static Cons List(object arg1, object arg2, object arg3)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3)));
     }
 
     [Builtin]
-    public static object List(object arg1, object arg2, object arg3, object arg4)
+    public static Cons List(object arg1, object arg2, object arg3, object arg4)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4))));
     }
 
     [Builtin]
-    public static object List(object arg1, object arg2, object arg3, object arg4, object arg5)
+    public static Cons List(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4, new Cons(arg5)))));
     }
 
 
     [Builtin]
-    public static object List(params object[] args)
+    public static Cons List(params object[] args)
     {
       return Runtime.Cons.FromArray(args);
     }
 
     // overload, no export, bad me!
-    public static object Cons(object car)
+    public static Cons Cons(object car)
     {
       return new Cons(car);
     }
 
     [Builtin]
-    public static object Cons(object car, object cdr)
+    public static Cons Cons(object car, object cdr)
     {
       return new Cons(car, cdr);
     }
@@ -215,7 +215,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("last-pair")]
-    public static object LastPair(object args)
+    public static Cons LastPair(object args)
     {
       Cons c = Requires<Runtime.Cons>(args);
       while (c.cdr is Cons)
@@ -226,13 +226,13 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("make-list")]
-    public static object MakeList(object n)
+    public static Cons MakeList(object n)
     {
       return VectorToList(MakeVector(n));
     }
 
     [Builtin("make-list")]
-    public static object MakeList(object n, object fill)
+    public static Cons MakeList(object n, object fill)
     {
       return VectorToList(MakeVector(n, fill));
     }
@@ -329,7 +329,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin]
-    public static object Reverse(object lst)
+    public static Cons Reverse(object lst)
     {
       Cons c = Requires<Runtime.Cons>(lst);
       Cons list = null;

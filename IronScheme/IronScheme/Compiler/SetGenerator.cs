@@ -49,7 +49,7 @@ namespace IronScheme.Compiler
 
       if (v == null)
       {
-        r = Ast.SimpleCallHelper(SetSymbolValue, Ast.CodeContext(), Ast.Constant(s), value);
+        r = Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(s), value);
       }
       else
       {

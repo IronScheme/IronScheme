@@ -267,7 +267,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
 
     [Builtin("get-library-paths")]
-    public static object GetLibraryPaths()
+    public static Cons GetLibraryPaths()
     {
       if (Environment.CurrentDirectory == ApplicationDirectory)
       {
@@ -292,13 +292,15 @@ A ""contributor"" is any person that distributes its contribution under this lic
     }
 
     [Builtin("make-traced-procedure")]
-    public static object MakeTraceProcedure(object name, object proc)
+    [CLSCompliant(false)]
+    public static ICallable MakeTraceProcedure(object name, object proc)
     {
       return MakeTraceProcedure(name, proc, FALSE);
     }
 
     [Builtin("make-traced-procedure")]
-    public static object MakeTraceProcedure(object name, object proc, object filter)
+    [CLSCompliant(false)]
+    public static ICallable MakeTraceProcedure(object name, object proc, object filter)
     {
       ICallable p = RequiresNotNull<ICallable>(proc);
       SymbolId n = RequiresNotNull<SymbolId>(name);
@@ -417,6 +419,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       Stopwatch sw = Stopwatch.StartNew();
 #endif
       CodeBlock cb = IronSchemeLanguageContext.CompileExpr(new Cons(expr));
+      cb.ExplicitCodeContextExpression = null;
 
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); //wrap
 
@@ -550,19 +553,19 @@ A ""contributor"" is any person that distributes its contribution under this lic
     }
 
     [Builtin("list*")]
-    public static object ListStar(object a, object b)
+    public static Cons ListStar(object a, object b)
     {
       return new Cons(a, b);
     }
 
     [Builtin("list*")]
-    public static object ListStar(object a, object b, object c)
+    public static Cons ListStar(object a, object b, object c)
     {
       return new Cons(a, new Cons(b, c));
     }
 
     [Builtin("list*")]
-    public static object ListStar(object a, object b, object c, object d)
+    public static Cons ListStar(object a, object b, object c, object d)
     {
       return new Cons(a, new Cons(b, new Cons(c , d)));
     }
@@ -570,25 +573,23 @@ A ""contributor"" is any person that distributes its contribution under this lic
     static Scope ModuleScope;
 
     [Builtin("symbol-value")]
-    public static object SymbolValue(CodeContext cc, object symbol)
+    public static object SymbolValue(SymbolId symbol)
     {
-      SymbolId s = RequiresNotNull<SymbolId>(symbol);
       if (ModuleScope == null)
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
-      return ModuleScope.LookupName(s);
+      return ModuleScope.LookupName(symbol);
     }
 
     [Builtin("set-symbol-value!")]
-    public static object SetSymbolValue(CodeContext cc, object symbol, object value)
+    public static object SetSymbolValue(SymbolId symbol, object value)
     {
-      SymbolId s = RequiresNotNull<SymbolId>(symbol);
       if (ModuleScope == null)
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
-      ModuleScope.SetName(s, value);
+      ModuleScope.SetName(symbol, value);
       return Unspecified;
     }
 

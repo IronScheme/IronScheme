@@ -5,7 +5,7 @@
 
 (library (ironscheme pretty-print)
   (export pretty-print)
-  (import (rnrs) (rnrs mutable-strings) (ironscheme format))
+  (import (rnrs) (rnrs mutable-strings) (only (ironscheme) format))
 
 (define genwrite:newline-str (make-string 1 #\newline))
 ;@

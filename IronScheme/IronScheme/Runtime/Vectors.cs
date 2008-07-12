@@ -152,7 +152,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector->list")]
-    public static object VectorToList(object vec)
+    public static Cons VectorToList(object vec)
     {
       object[] l = Requires<object[]>(vec);
       return Runtime.Cons.FromArray(l);

@@ -8,7 +8,6 @@
     )
   (import 
     (ironscheme)
-    (ironscheme format)
     (ironscheme docs topic))
     
   (define libraries (make-eqv-hashtable))  

@@ -141,6 +141,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="ironscheme\trace.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\syntax-format.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -3,8 +3,7 @@
     ->xml)
   (import 
     (ironscheme)
-    (ironscheme web-utils)
-    (ironscheme format))
+    (ironscheme web-utils))
 
 	(define ->xml
 		(letrec 

@@ -25,6 +25,8 @@
           syntax-violation
           syntax->datum make-variable-transformer
           pre-compile-r6rs-top-level
+          variable-transformer?
+          variable-transformer-procedure
           compile-r6rs-top-level boot-library-expand 
           null-environment scheme-report-environment
           interaction-environment
@@ -759,6 +761,17 @@
           (assertion-violation 'make-variable-transformer
                  "not a procedure" x))))
 
+  (define (variable-transformer? x)
+    (and (pair? x) (eq? (car x) 'macro!) (procedure? (cdr x))))
+
+  (define (variable-transformer-procedure x)
+    (if (variable-transformer? x)
+        (cdr x)
+        (assertion-violation 
+           'variable-transformer-procedure
+           "not a variable transformer" 
+           x)))
+
   ;;; make-eval-transformer takes an expanded expression, 
   ;;; evaluates it and returns a proper syntactic binding
   ;;; for the resulting object.
@@ -1290,14 +1303,29 @@
       (syntax-match stx ()
         ((_ who expr)
          (if (id? who)
-             (bless `(define-syntax ,who
-                       (let ((v ,expr))
-                         (if (procedure? v)
-                             (make-traced-procedure ',who v syntax->datum)
-                             (assertion-violation 'trace-define-syntax
-                                "not a procedure" v)))))
+             (bless 
+               `(define-syntax ,who
+                  (make-traced-macro ',who ,expr)))
              (stx-error stx "invalid name"))))))
 
+  (define trace-let/rec-syntax
+    (lambda (who)
+      (lambda (stx)
+        (syntax-match stx ()
+          ((_ ((lhs* rhs*) ...) b b* ...)
+           (if (valid-bound-ids? lhs*)
+               (let ([rhs* (map (lambda (lhs rhs) 
+                                  `(make-traced-macro ',lhs ,rhs))
+                                lhs* rhs*)])
+                 (bless `(,who ,(map list lhs* rhs*) ,b . ,b*)))
+               (invalid-fmls-error stx lhs*)))))))
+
+  (define trace-let-syntax-macro
+    (trace-let/rec-syntax 'let-syntax))
+
+  (define trace-letrec-syntax-macro
+    (trace-let/rec-syntax 'letrec-syntax))
+  
   (define guard-macro
     (lambda (x)
       (define (gen-clauses con clause*) 
@@ -2618,6 +2646,8 @@
            ((trace-lambda)          trace-lambda-macro)
            ((trace-define)          trace-define-macro)
            ((trace-define-syntax)   trace-define-syntax-macro)
+           ((trace-let-syntax)      trace-let-syntax-macro)
+           ((trace-letrec-syntax)   trace-letrec-syntax-macro)
            ((define-condition-type) define-condition-type-macro)
            ((include-into)          include-into-macro)
            ((eol-style)
