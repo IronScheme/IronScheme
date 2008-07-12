@@ -294,7 +294,7 @@ namespace IronScheme.Runtime.R6RS
 
       if (parenttype.IsSubclassOf(typeof(Exception)))
       {
-        SetSymbolValue(Context, SymbolTable.StringToId(n + "-rtd"), rtd);
+        SetSymbolValue(SymbolTable.StringToId(n + "-rtd"), rtd);
       }
 
       return rtd;
@@ -381,7 +381,7 @@ namespace IronScheme.Runtime.R6RS
 
       if (t.type.IsSubclassOf(typeof(Exception)))
       {
-        SetSymbolValue(Context, SymbolTable.StringToId(t.name + "-rcd"), rcd);
+        SetSymbolValue(SymbolTable.StringToId(t.name + "-rcd"), rcd);
       }
       
       return rcd;
@@ -415,7 +415,7 @@ namespace IronScheme.Runtime.R6RS
             {
               if (ci.parent.protocol != null)
               {
-                ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(Context, SymbolTable.StringToId("vector"))) as ICallable;
+                ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(SymbolTable.StringToId("vector"))) as ICallable;
                 parentargs = parent_protocol.Call(parentargs) as object[];
               }
               object[] allargs = new object[parentargs.Length + args.Length];
@@ -431,7 +431,7 @@ namespace IronScheme.Runtime.R6RS
           {
             if (ci.parent.protocol != null)
             {
-              ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(Context, SymbolTable.StringToId("vector"))) as ICallable;
+              ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(SymbolTable.StringToId("vector"))) as ICallable;
               parentargs = parent_protocol.Call(parentargs) as object[];
             }
             return pp.Call(parentargs);

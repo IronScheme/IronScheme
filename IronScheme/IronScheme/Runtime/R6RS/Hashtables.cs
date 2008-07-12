@@ -251,7 +251,7 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        return SymbolValue(cc, SymbolTable.StringToId("eq?"));
+        return SymbolValue(SymbolTable.StringToId("eq?"));
       }
     }
 
@@ -266,7 +266,7 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        return SymbolValue(cc, SymbolTable.StringToId("eq-hash"));
+        return SymbolValue(SymbolTable.StringToId("eq-hash"));
       }
     }
 

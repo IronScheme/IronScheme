@@ -7,7 +7,6 @@
     topic->maml)
   (import 
     (ironscheme)
-    (ironscheme format)
     (ironscheme docs topic)
     (ironscheme docs topic-manager)
 		(ironscheme docs topic-printer)

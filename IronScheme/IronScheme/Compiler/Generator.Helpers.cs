@@ -322,7 +322,7 @@ namespace IronScheme.Compiler
       cb.Body = Ast.Block(stmts);
       cb.Body = OptimizeBody(cb.Body);
 
-      if (cb.Parent != null && cb.Parent.IsGlobal)
+      if (cb.Parent == null || (cb.Parent.IsGlobal && cb.ParameterCount < 6))
       {
         cb.ExplicitCodeContextExpression = Ast.CodeContext();
       }

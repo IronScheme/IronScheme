@@ -66,6 +66,8 @@
     ;; this is needed for record printing, export?
     "ironscheme/format.ss"
     
+    "ironscheme/trace.ss"
+    
     "psyntax/compat.ss"
     "psyntax/internal.ss"
     "psyntax/config.ss"
@@ -134,6 +136,9 @@
     (trace-lambda        (macro . trace-lambda))
     (trace-define        (macro . trace-define))
     (trace-define-syntax (macro . trace-define-syntax))
+    (trace-let-syntax    (macro . trace-let-syntax))
+    (trace-letrec-syntax (macro . trace-letrec-syntax))
+
     ;;; new
     (guard                 (macro . guard))
     (eol-style             (macro . eol-style))
@@ -195,7 +200,7 @@
 
 (define library-legend
   ;; abbr.       name                             visible? required?
-  '((i           (ironscheme)                          #t    #f)
+  '((i           (ironscheme)                          #t    #t)
     (il          (ironscheme library)                  #f    #t)
     (ir          (ironscheme reader)                   #f    #t)
     (iser        (ironscheme serialization)            #f    #t)
@@ -266,8 +271,11 @@
     (pmap                                       i)
     (trace-lambda                               i)
     (trace-define                               i)
-    (trace-define-syntax                        i)    
-    (make-traced-procedure                      i)
+    (trace-define-syntax                        i) 
+    (trace-let-syntax                           i)
+    (trace-letrec-syntax                        i) 
+    (make-traced-macro                          i)
+    (make-traced-procedure                      i ic)
     (string-format                              i)
     (open-input-string                          i)
     (open-output-string                         i)
@@ -283,6 +291,9 @@
     (clr-type?                                  i)
     (gc-collect                                 i)
     (get-arity                                  i)
+    (format                                     i)
+    (fprintf                                    i)
+    (printf                                     i)
     (reverse!                                   ic)
     (eq-hash                                    ic)
     (eqv-hash                                   ic)
@@ -983,6 +994,9 @@
     (generate-temporaries                       i r sc)
     (identifier?                                i r sc)
     (make-variable-transformer                  i r sc)
+    (variable-transformer?                      i ic)
+    (variable-transformer-procedure             i ic) 
+
     ;;;
     (char-alphabetic?                           i r uc se)
     (char-ci<=?                                 i r uc se)

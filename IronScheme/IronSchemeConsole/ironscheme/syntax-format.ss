@@ -2,8 +2,7 @@
   (export
     syntax-format)
   (import 
-    (rnrs)
-    (ironscheme format))
+    (ironscheme))
   
   (define (syntax-format fmt loc . args)
     (datum->syntax loc 

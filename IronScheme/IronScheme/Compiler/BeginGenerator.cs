@@ -24,70 +24,61 @@ namespace IronScheme.Compiler
   {
     public override Expression Generate(object args, CodeBlock cb)
     {
-      if ((bool)Builtins.IsNull(args))
+      if (args == null)
       {
         return Ast.ReadField(null, Unspecified);
       }
       else
       {
-        bool glo = cb.IsGlobal;
-        cb.IsGlobal = false;
-        try
+        // discard effectfree
+        List<Expression> newargs = new List<Expression>();
+        Expression[] aa = GetAstList(args as Cons, cb);
+        if (aa.Length == 1)
         {
-          // discard effectfree
-          List<Expression> newargs = new List<Expression>();
-          Expression[] aa = GetAstList(args as Cons, cb);
-          if (aa.Length == 1)
+          return aa[0];
+        }
+        for (int i = 0; i < aa.Length - 1; i++)
+        {
+          Expression a = aa[i];
+          Expression uwa = Unwrap(a);
+          if (uwa is ConstantExpression)
           {
-            return aa[0];
+            continue;
           }
-          for (int i = 0; i < aa.Length - 1; i++)
+          if (uwa is MemberExpression)
           {
-            Expression a = aa[i];
-            Expression uwa = Unwrap(a);
-            if (uwa is ConstantExpression)
+            MemberExpression me = uwa as MemberExpression;
+            if (me.Member == Unspecified)
             {
               continue;
             }
-            if (uwa is MemberExpression)
-            {
-              MemberExpression me = uwa as MemberExpression;
-              if (me.Member == Unspecified)
-              {
-                continue;
-              }
-            }
-            if (uwa is CommaExpression)
-            {
-              newargs.AddRange(((CommaExpression)uwa).Expressions);
-            }
-            else
-            {
-              newargs.Add(a);
-            }
           }
-          if (newargs.Count == 0)
+          if (uwa is CommaExpression)
           {
-            return aa[aa.Length - 1];
+            newargs.AddRange(((CommaExpression)uwa).Expressions);
           }
           else
           {
-            Expression uwa = aa[aa.Length - 1];
-            if (uwa is CommaExpression)
-            {
-              newargs.AddRange(((CommaExpression)uwa).Expressions);
-            }
-            else
-            {
-              newargs.Add(uwa);
-            }
-            
-            return Ast.Comma(newargs);
+            newargs.Add(a);
           }
         }
-        finally
+        if (newargs.Count == 0)
         {
-          cb.IsGlobal = glo;
+          return aa[aa.Length - 1];
+        }
+        else
+        {
+          Expression uwa = aa[aa.Length - 1];
+          if (uwa is CommaExpression)
+          {
+            newargs.AddRange(((CommaExpression)uwa).Expressions);
+          }
+          else
+          {
+            newargs.Add(uwa);
+          }
+
+          return Ast.Comma(newargs);
         }
       }
     }

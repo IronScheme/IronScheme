@@ -3,7 +3,6 @@
     print-topic)
   (import
     (ironscheme)
-    (ironscheme format)
     (ironscheme console)
     (ironscheme docs topic))
     

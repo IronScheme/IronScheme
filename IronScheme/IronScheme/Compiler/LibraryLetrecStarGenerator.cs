@@ -192,7 +192,7 @@ namespace IronScheme.Compiler
           //}
         }
 
-        stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.CodeContext(), Ast.Constant(vars[i]), Ast.Assign(locals[i], e))));
+        stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(vars[i]), Ast.Assign(locals[i], e))));
       }
 
       // pass 3, remove library locals
@@ -217,6 +217,8 @@ namespace IronScheme.Compiler
       Cons body = Builtins.Cdr(args) as Cons;
 
       FillBody(cb, stmts, body, true);
+
+      cb.ExplicitCodeContextExpression = Ast.CodeContext();
 
       Expression ex = CallNormal(Ast.CodeBlockExpression(cb, false));
 

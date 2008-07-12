@@ -25,7 +25,7 @@
     current-library-expander
     current-library-collection library-path library-extensions
     serialize-all current-precompiled-library-loader)
-  (import (except (rnrs) library) (psyntax compat) (rnrs r5rs) (ironscheme format))
+  (import (except (rnrs) library) (psyntax compat) (rnrs r5rs) (only (ironscheme) format fprintf))
 
   (define (make-collection)
     (let ((set '()))

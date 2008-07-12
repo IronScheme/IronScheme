@@ -11,7 +11,6 @@
 (import (ironscheme conversions))
 (import (ironscheme datetime))
 (import (ironscheme environment))
-(import (ironscheme format))
 (import (ironscheme linq))
 (import (ironscheme pretty-print))
 (import (ironscheme process))

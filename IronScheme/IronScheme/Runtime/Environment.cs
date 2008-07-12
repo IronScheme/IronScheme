@@ -56,9 +56,9 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
-        ICallable u = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&undefined-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+        ICallable u = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&undefined-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
         sym = UnGenSym(RequiresNotNull<SymbolId>(sym));
 
@@ -75,9 +75,9 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
-        ICallable l = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&lexical-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+        ICallable l = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&lexical-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
         return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(l.Call(), m.Call(msg), i.Call(List(what))));
@@ -93,9 +93,9 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
-        ICallable s = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable s = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&syntax-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
 
         if (who is bool && !(bool)who)
         {
@@ -118,10 +118,10 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
-        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&i/o-file-does-not-exist-rcd"))) as ICallable;
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-file-does-not-exist-rcd"))) as ICallable;
 
         if (who is bool && !(bool)who)
         {
@@ -144,10 +144,10 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
-        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&i/o-port-rcd"))) as ICallable;
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-port-rcd"))) as ICallable;
 
         if (who is bool && !(bool)who)
         {
@@ -188,10 +188,10 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
-        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
         if (who is bool && !(bool)who)
         {
@@ -216,10 +216,10 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
-        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&error-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(Context, SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&error-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
         if (who is bool && !(bool)who)
         {

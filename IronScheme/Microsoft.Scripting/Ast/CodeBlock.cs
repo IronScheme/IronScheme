@@ -918,7 +918,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             !(cg.ContextSlot is StaticFieldSlot) ||
             _parameterArray);
 
-        hasContextParameter = true;
+        //hasContextParameter = true;
 
         bool hasThis = HasThis();
 
@@ -955,7 +955,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                 !(cg.ContextSlot is StaticFieldSlot) ||
                 _parameterArray);
 
-            hasContextParameter = true;
+            //hasContextParameter = true;
 
             bool hasThis = HasThis();
 

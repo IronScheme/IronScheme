@@ -35,7 +35,7 @@ namespace IronScheme.Runtime.psyntax
               }
 
               // this is to insure runtime constants can be read, long story... see psyntax/internal.ss
-              ICallable e2c = SymbolValue(cc, SymbolTable.StringToId("expanded2core")) as ICallable;
+              ICallable e2c = SymbolValue(SymbolTable.StringToId("expanded2core")) as ICallable;
 
               object visit = e2c.Call(pivot.car);
 
