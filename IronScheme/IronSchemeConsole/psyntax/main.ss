@@ -20,6 +20,7 @@
 
 (library (psyntax main)
   (export
+    trace-printer
     load
     ironscheme-build
     compile
@@ -39,6 +40,8 @@
     (psyntax expander)
     (ironscheme files)
     (ironscheme library))
+    
+  (define trace-printer (make-parameter write))    
     
   (define (local-library-path filename)
     (cons (get-directory-name filename) (library-path)))
@@ -100,6 +103,8 @@
   (set-symbol-value! 'eval-r6rs eval-top-level)
   (set-symbol-value! 'int-env-syms interaction-environment-symbols)
   (set-symbol-value! 'expanded2core expanded->core)
+  
+  (set-symbol-value! 'trace-printer trace-printer)
   
   (library-path (get-library-paths))
   )

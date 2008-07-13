@@ -4,8 +4,8 @@
 ;; Distribution restrictions: none
 
 (library (ironscheme pretty-print)
-  (export pretty-print)
-  (import (rnrs) (rnrs mutable-strings) (only (ironscheme) format))
+  (export pretty-print pretty-width)
+  (import (ironscheme) (rnrs mutable-strings))
 
 (define genwrite:newline-str (make-string 1 #\newline))
 ;@
@@ -107,7 +107,7 @@
     (define (pr obj col extra pp-pair)
       (if (or (pair? obj) (vector? obj)) ; may have to split on multiple lines
           (let ((result '())
-                (left (min (fx+ (fx- (fx- width col) extra) 1) max-expr-width)))
+                (left (min (fx+ (fx- (fx- width col) extra) 1) (pretty-width))))
             (generic-write obj display? #f
                            (lambda (str)
                              (set! result (cons str result))
@@ -241,8 +241,6 @@
 
     (define max-call-head-width 3)
 
-    (define max-expr-width 80)
-
     (define (style head)
       (case head
         ((lambda let* letrec letrec* define define-syntax 
@@ -264,6 +262,8 @@
   (if width
       (out genwrite:newline-str (pp obj 0))
       (wr obj 0)))
+      
+(define pretty-width (make-parameter 72))
 
 (define (reverse-string-append l)
 

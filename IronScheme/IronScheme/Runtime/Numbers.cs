@@ -218,7 +218,7 @@ namespace IronScheme.Runtime
     static int GetNum(char c)
     {
       int i;
-      if (charmap.TryGetValue(c, out i))
+      if (charmap.TryGetValue(char.ToLowerInvariant(c), out i))
       {
         return i;
       }

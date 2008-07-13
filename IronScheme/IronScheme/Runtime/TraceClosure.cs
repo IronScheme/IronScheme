@@ -37,7 +37,11 @@ namespace IronScheme.Runtime
       {
         object ppo;
 
-        if (!Builtins.cc.Scope.TryLookupName(SymbolTable.StringToId("pretty-print"), out ppo))
+        if (Builtins.cc.Scope.TryLookupName(SymbolTable.StringToId("trace-printer"), out ppo))
+        {
+          ppo = (ppo as ICallable).Call();
+        }
+        else
         {
           ppo = Make(Builtins.cc, new CallTarget2(Builtins.Write));
         }
@@ -63,14 +67,24 @@ namespace IronScheme.Runtime
         pp.Call(a, pre);
 
         string prefix = new string('|', depth);
-        Console.WriteLine("{0} -> {1}", prefix, pre.ToString());
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("{0} -> {1}", prefix, name);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(pre.ToString().TrimEnd(Environment.NewLine.ToCharArray()));
+        Console.ForegroundColor = ConsoleColor.Gray;
+
         object result = realtarget.Call(args);
 
         StringWriter p = new StringWriter();
 
         pp.Call(filter == null ? result : filter.Call(result), p);
 
-        Console.WriteLine("{0} <- {1}", prefix, p.ToString());
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("{0} <- {1}", prefix, name);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine(p.ToString().TrimEnd(Environment.NewLine.ToCharArray()));
+        Console.ForegroundColor = ConsoleColor.Gray;
         return result;
       }
       finally
