@@ -58,6 +58,22 @@ namespace IronScheme.Runtime.R6RS
       {
         return t.Call();
       }
+      catch (Continuation cc)
+      {
+        if (contstack.Count > 0)
+        {
+          Continuation c = contstack.Pop();
+          if (cc == c)
+          {
+            return c.Value;
+          }
+          else
+          {
+            throw;
+          }
+        }
+        throw;
+      }
       finally
       {
         handlerstack.Pop();
@@ -85,7 +101,7 @@ namespace IronScheme.Runtime.R6RS
         try
         {
           handlerstack.Pop();
-          return ch.Call(obj);
+          ch.Call(obj);
         }
         finally
         {
@@ -93,10 +109,38 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      Exception ex = RequiresNotNull<Exception>(obj);
-      continuablemap[ex] = false;
-      
-      throw ex;
+      if (handlerstack.Count == 0)
+      {
+
+        if (!(obj is Exception))
+        {
+          obj = new NonCondition(obj);
+        }
+
+        Exception ex = RequiresNotNull<Exception>(obj);
+        continuablemap[ex] = false;
+
+        throw ex;
+      }
+      else
+      {
+        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&error-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+        throw R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"), i.Call(obj));
+      }
+    }
+
+    class NonCondition : Condition
+    {
+      public object value;
+
+      public NonCondition(object value)
+      {
+        this.value = value;
+      }
     }
 
     // erk??
@@ -117,6 +161,11 @@ namespace IronScheme.Runtime.R6RS
         {
           handlerstack.Push(ch);
         }
+      }
+
+      if (!(obj is Exception))
+      {
+        obj = new NonCondition(obj);
       }
 
       Exception ex = RequiresNotNull<Exception>(obj);

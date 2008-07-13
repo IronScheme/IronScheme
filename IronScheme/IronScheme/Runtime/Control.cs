@@ -124,48 +124,69 @@ namespace IronScheme.Runtime
 
     internal class Continuation : Exception
     {
-      readonly object value;
+      object value;
 
       public object Value
       {
         get { return this.value; }
+        set { this.value = value; }
       } 
-
-      public Continuation(object value)
-      {
-        this.value = value;
-      }
     }
 
-    static object InvokeContinuation(params object[] value)
+    static CallTargetN MakeContinuation(Continuation cc)
     {
-      if (value.Length == 0)
+      CallTargetN ct = delegate(object[] value)
       {
-        throw new Continuation(Unspecified);
-      }
-      if (value.Length == 1)
-      {
-        throw new Continuation(value[0]);
-      }
-      else
-      {
-        throw new Continuation(value);
-      }
+        if (value.Length == 0)
+        {
+          cc.Value = Unspecified;
+          throw cc;
+        }
+        if (value.Length == 1)
+        {
+          cc.Value = value[0];
+          throw cc;
+        }
+        else
+        {
+          cc.Value = value;
+          throw cc;
+        }
+      };
+
+      return ct;
     }
+
+    internal static Stack<Continuation> contstack = new Stack<Continuation>();
     
     [Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object fc1)
     {
       ICallable fc = RequiresNotNull<ICallable>(fc1);
+      Continuation ccc = new Continuation();
+      contstack.Push(ccc);
       try
       {
-        CallTargetN exitproc = InvokeContinuation;
+        CallTargetN exitproc = MakeContinuation(ccc);
         ICallable fce = Closure.Make(cc, exitproc);
-        return fc.Call(fce);
+        object res = fc.Call(fce);
+        return res;
       }
       catch (Continuation c)
       {
-        return c.Value;
+        if (ccc == c)
+        {
+          contstack.Pop();
+          return c.Value;
+        }
+        else
+        {
+          throw;
+        }
+      }
+      finally
+      {
+        
       }
     }
 
@@ -238,9 +259,9 @@ namespace IronScheme.Runtime
           results.Add(t.BeginInvoke(null, null));
         }
 
-        foreach (IAsyncResult ar in results)
+        for (int i = 0; i < thunks.Count; i++)
         {
-          ar.AsyncWaitHandle.WaitOne();
+          thunks[i].EndInvoke(results[i]);
         }
 
         executionstack.Pop();

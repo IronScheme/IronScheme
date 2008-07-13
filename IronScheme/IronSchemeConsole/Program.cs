@@ -18,6 +18,7 @@ using IronScheme.Hosting;
 using Microsoft.Scripting;
 using IronScheme.Runtime;
 using System.Runtime;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -25,7 +26,50 @@ namespace IronScheme.Runtime
   {
     static int Main(string[] args)
     {
-      return new IronSchemeConsoleHost().Run(args);
+      if (args.Length > 0 && args[0] == "-profile")
+      {
+        const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";
+
+        ProcessStartInfo psi;
+
+        // create a process executor
+        psi = new ProcessStartInfo(typeof(Program).Assembly.Location);
+
+        // ----- SET THE CLR ENVIRONMENT VARIABLES -------------------
+
+        // set the COR_PROFILER env var. This indicates to the CLR which COM object to
+        // instantiate for profiling.
+        if (psi.EnvironmentVariables.ContainsKey("COR_PROFILER") == true)
+          psi.EnvironmentVariables["COR_PROFILER"] = PROFILER_GUID;
+        else
+          psi.EnvironmentVariables.Add("COR_PROFILER", PROFILER_GUID);
+
+        //// set the Cor_Enable_Profiling env var. This indicates to the CLR whether or
+        //// not we are using the profiler at all.  1 = yes, 0 = no.
+        if (psi.EnvironmentVariables.ContainsKey("COR_ENABLE_PROFILING") == true)
+          psi.EnvironmentVariables["COR_ENABLE_PROFILING"] = "1";
+        else
+          psi.EnvironmentVariables.Add("COR_ENABLE_PROFILING", "1");
+
+        // ----- RUN THE PROCESS -------------------
+
+
+        string[] argargs = new string[args.Length - 1];
+        Array.Copy(args, 1, argargs, 0, argargs.Length);
+
+        psi.Arguments = string.Join(" ", argargs);
+        psi.UseShellExecute = false;
+        Process p = Process.Start(psi);
+        //p.PriorityBoostEnabled = true;
+
+        p.WaitForExit();
+
+        return p.ExitCode;
+      }
+      else
+      {
+        return new IronSchemeConsoleHost().Run(args);
+      }
     }
   }
 }

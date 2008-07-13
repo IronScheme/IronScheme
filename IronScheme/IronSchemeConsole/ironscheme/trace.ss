@@ -2,8 +2,7 @@
   (export
     make-traced-macro)
   (import 
-    (rnrs)
-    (ironscheme core))
+    (except (ironscheme) make-traced-macro))
     
   (define make-traced-macro 
     (lambda (name x) 
@@ -15,6 +14,10 @@
            (make-traced-procedure name  
              (variable-transformer-procedure x) 
              syntax->datum))] 
-        [else x])))) 
+        [else x])))
+        
+)        
+        
+          
 
 

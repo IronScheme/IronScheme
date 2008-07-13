@@ -276,6 +276,7 @@
     (trace-letrec-syntax                        i) 
     (make-traced-macro                          i)
     (make-traced-procedure                      i ic)
+    (trace-printer                              i)
     (string-format                              i)
     (open-input-string                          i)
     (open-output-string                         i)

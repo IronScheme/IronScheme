@@ -484,7 +484,7 @@ namespace IronScheme.Runtime
     {
       if (list == null)
       {
-        return list;
+        return null;
       }
 
       Cons prev = null, next = null;
