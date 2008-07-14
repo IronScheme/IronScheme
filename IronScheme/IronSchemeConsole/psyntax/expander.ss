@@ -1865,7 +1865,7 @@
            (if (free-id=? (bless id) x)
                `(,x . ,rest)
                (get-clause id ls))]))
-      (define (foo-rtd-code name clause*) 
+      (define (foo-rtd-code name clause* parent-rtd-code) 
         (define (convert-field-spec* ls)
           (list->vector
             (map (lambda (x) 
@@ -1874,11 +1874,7 @@
                      [(immutable name . rest) `(immutable ,name)]
                      [name `(immutable ,name)]))
                ls)))
-        (let ([parent-rtd-code 
-               (syntax-match (get-clause 'parent clause*) ()
-                 [(_ name) `(record-type-descriptor ,name)]
-                 [_ '#f])]
-              [uid-code
+        (let ([uid-code
                (syntax-match (get-clause 'nongenerative clause*) ()
                  [(_)     `',(gensym)]
                  [(_ uid) `',uid]
@@ -1900,13 +1896,21 @@
             `(make-record-type-descriptor ',name
                ,parent-rtd-code 
                ,uid-code ,sealed? ,opaque? ,fields))))
-      (define (foo-rcd-code clause* foo-rtd protocol) 
-        (let ([parent-rcd-code 
-               (syntax-match (get-clause 'parent clause*) ()
-                 [(_ name) `(record-constructor-descriptor ,name)]
-                 [_ #f])])
-          `(make-record-constructor-descriptor ,foo-rtd
-               ,parent-rcd-code ,protocol)))
+      (define (parent-rtd-code clause*)
+        (syntax-match (get-clause 'parent clause*) ()
+          [(_ name) `(record-type-descriptor ,name)]
+          [#f (syntax-match (get-clause 'parent-rtd clause*) ()
+                [(_ rtd rcd) rtd]
+                [#f #f])]))
+      (define (parent-rcd-code clause*)
+        (syntax-match (get-clause 'parent clause*) ()
+          [(_ name) `(record-constructor-descriptor ,name)]
+          [#f (syntax-match (get-clause 'parent-rtd clause*) ()
+                [(_ rtd rcd) rcd]
+                [#f #f])]))
+      (define (foo-rcd-code clause* foo-rtd protocol parent-rcd-code)
+        `(make-record-constructor-descriptor ,foo-rtd
+           ,parent-rcd-code ,protocol))
       (define (get-protocol-code clause*)
         (syntax-match (get-clause 'protocol clause*) ()
           [(_ expr) expr]
@@ -1976,8 +1980,8 @@
                [set-foo-x!* (get-mutators foo fields)]
                [set-foo-idx* (get-mutator-indices fields)]
                [foo? (get-record-predicate-name namespec)]
-               [foo-rtd-code (foo-rtd-code foo clause*)]
-               [foo-rcd-code (foo-rcd-code clause* foo-rtd protocol)]
+               [foo-rtd-code (foo-rtd-code foo clause* (parent-rtd-code clause*))]
+               [foo-rcd-code (foo-rcd-code clause* foo-rtd protocol (parent-rcd-code clause*))]
                [protocol-code (get-protocol-code clause*)])
           (bless
             `(begin
