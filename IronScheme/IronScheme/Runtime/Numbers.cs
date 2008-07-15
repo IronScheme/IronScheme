@@ -147,6 +147,11 @@ namespace IronScheme.Runtime
               return string.Format("{0:r}", obj).ToLower();
             }
           }
+          if (obj is Complex64)
+          {
+            Complex64 c = (Complex64)obj;
+            return string.Format("{0}{2}{1}i", NumberToString(c.Real), NumberToString(c.Imag), c.Imag > 0 ? "+" : "-");
+          }
           return obj.ToString();
         case 16:
           return string.Format("{0:X}", obj);
