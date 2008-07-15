@@ -184,7 +184,7 @@ namespace IronScheme.Runtime.R6RS
           {
             foreach (object e in cc.conds)
             {
-              if (e.GetType() == t.type)
+              if (e.GetType().IsAssignableFrom(t.type))
               {
                 return c.Call(e);
               }
