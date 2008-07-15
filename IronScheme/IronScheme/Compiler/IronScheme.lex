@@ -99,6 +99,7 @@ new_line               "\n\r"|\r|\n
 
 delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
 but_delimiter          [^\[\]\(\)\";#\r\n\t ]
+numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
 
 
 digit                  [0-9]
@@ -112,7 +113,7 @@ bad_id                 {identifier}{but_delimiter}
 
 
 digit2                 [01]
-digit8                 [0-8]
+digit8                 [0-7]
 digit10                {digit}
 digit16                {digit10}|[a-fA-F]
 
@@ -139,12 +140,12 @@ uinteger8              ({digit8})+
 uinteger10             ({digit10})+
 uinteger16             ({digit16})+
 
-decimal10              ({uinteger10}{suffix})|("."({digit10})+{suffix})|(({digit10})+"."({digit10})*{suffix})|(({digit10})+"."{suffix})
+decimal10              (({uinteger10}{suffix})|("."({digit10})+{suffix})|(({digit10})+"."({digit10})*{suffix})|(({digit10})+"."{suffix}))
 
-ureal2                 ({uinteger2})|({uinteger2}"/"{uinteger2})
-ureal8                 ({uinteger8})|({uinteger8}"/"{uinteger8})
-ureal10                ({uinteger10})|({uinteger10}"/"{uinteger10})|({decimal10})
-ureal16                ({uinteger16})|({uinteger16}"/"{uinteger16})
+ureal2                 (({uinteger2})|({uinteger2}"/"{uinteger2}))
+ureal8                 (({uinteger8})|({uinteger8}"/"{uinteger8}))
+ureal10                (({decimal10})|({uinteger10}"/"{uinteger10}))
+ureal16                (({uinteger16})|({uinteger16}"/"{uinteger16}))
 
 naninf                 ("nan.0"|"inf.0")
 
@@ -164,7 +165,7 @@ num10                  ({prefix10}{complex10})
 num16                  ({prefix16}{complex16})
 
 number                 ({num2}|{num8}|{num10}|{num16}){delimiter}
-bad_number             ({num2}|{num8}|{num10}|{num16}){but_delimiter}+
+bad_number             ({num2}|{num8}|{num10}|{num16}){numbut_delimiter}+
 
 good_dot               "."{delimiter}
 bad_dot                "."{but_delimiter}+
