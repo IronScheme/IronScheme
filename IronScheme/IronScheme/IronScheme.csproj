@@ -155,6 +155,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Compiler\NumberLexer.lex" />
+    <None Include="Compiler\NumberParser.y" />
     <None Include="Compiler\IronScheme.lex" />
     <None Include="Compiler\IronScheme.y" />
     <None Include="Types\Types.cd" />
