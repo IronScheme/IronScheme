@@ -209,9 +209,12 @@ namespace gppg
           first = false;
         }
       }
-      scanner.Errors.Add(scanner.SourceUnit, errorMsg.ToString(), GetLocation(lastL), 1, Microsoft.Scripting.Hosting.Severity.Error);
 
-      System.Diagnostics.Trace.WriteLine(errorMsg.ToString());
+      if (scanner.Errors != null)
+      {
+        scanner.Errors.Add(scanner.SourceUnit, errorMsg.ToString(), GetLocation(lastL), 1, Microsoft.Scripting.Hosting.Severity.Error);
+        System.Diagnostics.Trace.WriteLine(errorMsg.ToString());
+      }
     }
 
     protected abstract SourceSpan GetLocation(YYLTYPE lastL);

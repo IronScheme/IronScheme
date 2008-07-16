@@ -14,6 +14,8 @@
 %using Microsoft.Scripting
 %{
 
+public bool skipnumbers = false;
+
 public Cons parsed;
 
 static Cons Last(Cons c)
@@ -176,7 +178,7 @@ expr
     : list                                        { $$ = $1;}
     | SYMBOL                                      { $$ = SymbolTable.StringToId($1); }
     | STRING                                      { $$ = CleanString($1); }
-    | NUMBER                                      { $$ = Builtins.StringToNumber($1);}
+    | NUMBER                                      { $$ = skipnumbers ? null : Builtins.StringToNumber($1);}
     | LITERAL                                     { $$ = $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null);}
     | CHARACTER                                   { $$ = $1[0];}
     | VECTORLBRACE exprlist RBRACE                { $$ = SetLocation(Builtins.ListToVector($2),@1,@3);}
