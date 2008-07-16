@@ -212,183 +212,6 @@ namespace IronScheme.Runtime
       }
     }
 
-    static readonly Dictionary<char, int> charmap = GetCharMap();
-
-    static Dictionary<char, int> GetCharMap()
-    {
-      Dictionary<char, int> map = new Dictionary<char,int>();
-      map['0'] = 0;
-      map['1'] = 1;
-      map['2'] = 2;
-      map['3'] = 3;
-      map['4'] = 4;
-      map['5'] = 5;
-      map['6'] = 6;
-      map['7'] = 7;
-      map['8'] = 8;
-      map['9'] = 9;
-      map['a'] = 10;
-      map['b'] = 11;
-      map['c'] = 12;
-      map['d'] = 13;
-      map['e'] = 14;
-      map['f'] = 15;
-
-      return map;
-    }
-
-    static int GetNum(char c)
-    {
-      int i;
-      if (charmap.TryGetValue(char.ToLowerInvariant(c), out i))
-      {
-        return i;
-      }
-      return int.MaxValue;
-    }
-
-    static object ParseArb(string str, int radix)
-    {
-      bool negative = str.StartsWith("-");
-
-      if (negative)
-      {
-        str = str.Substring(1);
-      }
-
-      try
-      {
-        checked
-        {
-          int b = 1;
-          int n = 0;
-          for (int i = 0; i < str.Length; i++, b *= radix)
-          {
-            char c = str[str.Length - 1 - i];
-            int k = GetNum(c);
-            if (k >= radix)
-            {
-              return AssertionViolation("ParseArb", "not within expected range", str, radix);
-            }
-            n += b * k;
-          }
-          return negative ? -n : n;
-        }
-      }
-      catch (OverflowException)
-      {
-        BigInteger b = 1;
-        BigInteger n = 0;
-        for (int i = 0; i < str.Length; i++, b *= radix)
-        {
-          char c = str[str.Length - 1 - i];
-          int k = GetNum(c);
-          if (k >= radix)
-          {
-            return AssertionViolation("ParseArb", "not within expected range", str, radix);
-          }
-          n += b * k;
-        }
-        return negative ? -n : n;
-      }
-    }
-
-    static bool BigIntegerTryParse(string number, out BigInteger result)
-    {
-      result = null;
-
-      if (number == null)
-        return false;
-
-      int i = 0, len = number.Length, sign = 1;
-
-      char c;
-      bool digits_seen = false;
-      BigInteger val = new BigInteger(0);
-      if (number[i] == '+')
-      {
-        i++;
-      }
-      else if (number[i] == '-')
-      {
-        sign = -1;
-        i++;
-      }
-      for (; i < len; i++)
-      {
-        c = number[i];
-        if (c == '\0')
-        {
-          i = len;
-          continue;
-        }
-        if (c >= '0' && c <= '9')
-        {
-          val = val * 10 + (c - '0');
-          digits_seen = true;
-        }
-        else
-        {
-          if (Char.IsWhiteSpace(c))
-          {
-            for (i++; i < len; i++)
-            {
-              if (!char.IsWhiteSpace(number[i]))
-              {
-                return false;
-              }
-            }
-            break;
-          }
-          else
-          {
-            return false;
-          }
-        }
-      }
-      if (!digits_seen)
-      {
-        return false;
-      }
-
-      result = val * sign;
-
-      return true;
-    }
-
-    static object ParseDecimal(string str)
-    {
-      int n;
-      if (int.TryParse(str, out n))
-      {
-        return n;
-      }
-      BigInteger bi;
-      if (BigIntegerTryParse(str, out bi))
-      {
-        return bi;
-      }
-      double d;
-      if (double.TryParse(str, out d))
-      {
-        return d;
-      }
-      char sign = str[0];
-      string value = str.Substring(1);
-      if (value == "nan.0")
-      {
-        return double.NaN;
-      }
-      else if (value == "inf.0")
-      {
-        return sign == '-' ? double.NegativeInfinity : double.PositiveInfinity;
-      }
-      // TODO parse complex
-      string[] tokens = Regex.Split(str, "[+-]");
-
-      return FALSE;
-    }
-
     [Builtin("string->number")]
     public static object StringToNumber(object obj, object radix)
     {
@@ -401,49 +224,19 @@ namespace IronScheme.Runtime
         return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
       }
 
-      if (str[0] == '#')
-      {
-        switch (char.ToLower(str[1]))
-        {
-          case 'e':
-            return Exact(StringToNumber(str.Substring(2), radix));
-          case 'i':
-            return Inexact(StringToNumber(str.Substring(2), radix));
-          default:
-            return AssertionViolation("string->number", "unknown exactness", obj);
-
-        }
-      }
-
-      int fi = str.IndexOf('/');
-
-      if (fi > 0)
-      {
-        object n1 = StringToNumber( str.Substring(0, fi), radix);
-        object n2 = StringToNumber( str.Substring(fi + 1), radix);
-
-        try
-        {
-          return new Fraction(ConvertToBigInteger(n1),ConvertToBigInteger(n2));
-        }
-        catch
-        {
-          return FALSE;
-        }
-      }
-
       switch (r)
       {
         case 2:
-          return ParseArb(str, 2);
+          return StringToNumber("#b" + str);
         case 8:
-          return ParseArb(str, 8);
+          return StringToNumber("#o" + str);
         case 10:
-          return ParseDecimal(str);
+          return StringToNumber(str);
         case 16:
-          return ParseArb(str, 16);
+          return StringToNumber("#x" + str);
         default:
-          return AssertionViolation("string->number", "unsupported radix", radix, obj);
+          return FALSE;
+
       }
     }
     

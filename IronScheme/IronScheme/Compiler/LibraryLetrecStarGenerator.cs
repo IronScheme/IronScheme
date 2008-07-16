@@ -110,7 +110,7 @@ namespace IronScheme.Compiler
           bodies.Add(null);
         }
 
-        NameHint = Builtins.UnGenSym(vars[i]);
+        NameHint = Builtins.UnGenSymInternal(vars[i]);
         Expression e = GetAst(defs[i], cb);
 
         if (e.Type.IsValueType)
@@ -155,7 +155,7 @@ namespace IronScheme.Compiler
       for (int i = 0; i < vars.Count; i++)
       {
         Expression e = assignments[i];
-        NameHint = Builtins.UnGenSym(vars[i]);
+        NameHint = Builtins.UnGenSymInternal(vars[i]);
 
         if (bodies[i] != null)
         {

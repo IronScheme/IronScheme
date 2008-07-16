@@ -21,7 +21,9 @@
 (library (psyntax main)
   (export
     trace-printer
+    command-line
     load
+    load/args
     ironscheme-build
     compile
     compile-system-libraries
@@ -30,7 +32,6 @@
     (rnrs base)
     (rnrs control)
     (rnrs io simple)
-    (rnrs programs)
     (rnrs lists)
     (only (rnrs conditions) serious-condition?)
     (only (rnrs exceptions) raise)
@@ -38,16 +39,23 @@
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
+    (only (ironscheme core) get-command-line format)
     (ironscheme files)
     (ironscheme library))
     
-  (define trace-printer (make-parameter write))    
+  (define trace-printer (make-parameter write))
+  
+  (define command-line (make-parameter (get-command-line)))  
     
   (define (local-library-path filename)
     (cons (get-directory-name filename) (library-path)))
-    
+
+  (define (load/args filename . args)
+    (apply load-r6rs-top-level filename 'load args)
+    (void))
+
   (define (load filename)
-    (load-r6rs-top-level filename 'load)
+    (apply load-r6rs-top-level filename 'load (command-line))
     (void))
       
   (define (ironscheme-build)
@@ -68,7 +76,7 @@
   (define (compile->closure filename)
     (load-r6rs-top-level filename 'closure))
   
-  (define (load-r6rs-top-level filename how)
+  (define (load-r6rs-top-level filename how . args)
     (parameterize ([library-path (local-library-path filename)])
       (let ((x* 
              (with-input-from-file filename
@@ -80,7 +88,9 @@
                          (cons x (f)))))))))
         (case how
           ((closure)   (pre-compile-r6rs-top-level x*))
-          ((load)      ((compile-r6rs-top-level x*)))
+          ((load)      
+            (parameterize ([command-line (cons filename (map (lambda (x) (format "~a" x)) args))])
+              ((compile-r6rs-top-level x*))))
           ((compile)   
               (begin 
 					      (compile-r6rs-top-level x*) ; i assume this is needed
