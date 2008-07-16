@@ -52,12 +52,14 @@ naninf                 ("nan.0"|"inf.0")
 
 %%
 
-{exponentmarker}({plus}|{minus})?({digits})+   { return Make(Tokens.EXPMARKER); }
+
 
 {digit2}               { return Make(Tokens.DIGIT2); }
 {digit8}               { return Make(Tokens.DIGIT8); }
 {digit10}              { return Make(Tokens.DIGIT10); }
 {digit16}              { return Make(Tokens.DIGIT16); }
+
+{exponentmarker}({plus}|{minus})?({digits})+   { return Make(Tokens.EXPMARKER); }
 
 {radix2}               { return Make(Tokens.RADIX2); }
 {radix8}               { return Make(Tokens.RADIX8); }
