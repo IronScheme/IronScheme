@@ -125,8 +125,8 @@ sign      : /* empty */     { $$ = 1; }
           | MINUS           { $$ = -1; }
           ;
 
-suffix    : /* empty */                   { $$ = string.Empty; }
-          | EXPMARKER sign uinteger10     { $$ = string.Format("{0}{1}{2}", $1, $2, $3); }
+suffix    : /* empty */                 { $$ = string.Empty; }
+          | EXPMARKER                   { $$ = $1.text; }
           ;
 
 prefix2   : RADIX2 exactness            { $$ = $2;}

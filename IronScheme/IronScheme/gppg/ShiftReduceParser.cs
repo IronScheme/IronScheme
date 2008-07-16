@@ -195,7 +195,7 @@ namespace gppg
       StringBuilder errorMsg = new StringBuilder();
       errorMsg.AppendFormat("unexpected {0}", TerminalToString(next));
 
-      if (current_state.parser_table.Count < 7)
+      if (current_state.parser_table.Count < 20)
       {
         bool first = true;
         foreach (int terminal in current_state.parser_table.Keys)
@@ -213,8 +213,8 @@ namespace gppg
       if (scanner.Errors != null)
       {
         scanner.Errors.Add(scanner.SourceUnit, errorMsg.ToString(), GetLocation(lastL), 1, Microsoft.Scripting.Hosting.Severity.Error);
-        System.Diagnostics.Trace.WriteLine(errorMsg.ToString());
       }
+      System.Diagnostics.Trace.WriteLine(errorMsg.ToString());
     }
 
     protected abstract SourceSpan GetLocation(YYLTYPE lastL);
