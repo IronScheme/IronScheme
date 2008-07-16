@@ -63,9 +63,7 @@
     "ironscheme/records/procedural.ss"
     "ironscheme/records/syntactic.ss"
     
-    ;; this is needed for record printing, export?
     "ironscheme/format.ss"
-    
     "ironscheme/trace.ss"
     
     "psyntax/compat.ss"

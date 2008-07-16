@@ -183,6 +183,6 @@ attrib -R "$(ProjectDir)Compiler\IronScheme.lex.cs"
 "$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\IronScheme.y" &gt; "$(ProjectDir)Compiler\IronScheme.y.cs"
 "$(SolutionDir)tools\gplex" /stack /unicode /classes "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"
 "$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\NumberParser.y" &gt; "$(ProjectDir)Compiler\NumberParser.y.cs"
-"$(SolutionDir)tools\gplex" /classes "/out:$(ProjectDir)Compiler\NumberLexer.lex.cs" "$(ProjectDir)Compiler\NumberLexer.lex"</PreBuildEvent>
+"$(SolutionDir)tools\gplex" "/out:$(ProjectDir)Compiler\NumberLexer.lex.cs" "$(ProjectDir)Compiler\NumberLexer.lex"</PreBuildEvent>
   </PropertyGroup>
 </Project>
