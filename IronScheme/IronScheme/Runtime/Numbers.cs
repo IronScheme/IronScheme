@@ -151,7 +151,19 @@ namespace IronScheme.Runtime
           if (obj is Complex64)
           {
             Complex64 c = (Complex64)obj;
-            return string.Format("{0}{2}{1}i", NumberToString(c.Real), NumberToString(c.Imag), c.Imag > 0 ? "+" : "-");
+            double a = (double)Angle(c);
+            object mag = Magnitude(c);
+
+            double m = mag is int ? (int)mag : (double)mag;
+            
+            if (IsTrue(IsIntegerValued(a)) || IsTrue(IsIntegerValued(m)))
+            {
+              return string.Format("{0}@{1}", NumberToString(m), NumberToString(a));
+            }
+            else
+            {
+              return string.Format("{0}{2}{1}i", NumberToString(c.Real), NumberToString(Abs(c.Imag)), c.Imag > 0 ? "+" : "-");
+            }
           }
           return obj.ToString();
         case 16:
