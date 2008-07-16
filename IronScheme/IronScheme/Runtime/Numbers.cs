@@ -198,31 +198,6 @@ namespace IronScheme.Runtime
       {
         return FALSE;
       }
-
-      //fallback for now...
-      switch (str[0])
-      {
-        case '#':
-          switch (char.ToLower(str[1]))
-          {
-            case 'b':
-              return StringToNumber(str.Substring(2), 2);
-            case 'o':
-              return StringToNumber(str.Substring(2), 8);
-            case 'd':
-              return StringToNumber(str.Substring(2), 10);
-            case 'x':
-              return StringToNumber(str.Substring(2), 16);
-            case 'e':
-              return Exact(StringToNumber(str.Substring(2)));
-            case 'i':
-              return Inexact(StringToNumber(str.Substring(2)));
-            default:
-              return AssertionViolation("string->number", "unknown prefix", obj);
-          }
-        default:
-          return StringToNumber(obj, 10);
-      }
     }
 
     static readonly Dictionary<char, int> charmap = GetCharMap();
