@@ -85,10 +85,10 @@ static object Fraction(object num, object den)
 
 %token DIGIT2 DIGIT8 DIGIT10 DIGIT16 RADIX2 RADIX8 RADIX10 RADIX16
 %token EXACT INEXACT EXPMARKER NANINF
-%token DOT PLUS MINUS SLASH IMAG AT
+%token DOT SLASH IMAG AT PLUS MINUS 
 
 %type <value> number uinteger2 uinteger8 uinteger10 uinteger16 decimal10 naninf
-%type <value> ureal2 ureal8 ureal10 ureal16 real2 real8 real10 real16 sign
+%type <value> ureal2 ureal8 ureal10 ureal16 real2 real8 real10 real16 sreal2 sreal8 sreal10 sreal16
 %type <value> complex2 complex8 complex10 complex16 num2 num8 num10 num16
 %type <text> digit2 digit8 digit10 digit16 digit10x suffix
 %type <exact> exactness prefix2 prefix8 prefix10 prefix16
@@ -118,11 +118,6 @@ naninf    : NANINF          { $$ = $1.text == "nan.0" ? double.NaN : double.Posi
 exactness : /* empty */     { $$ = null; }
           | EXACT           { $$ = true; }
           | INEXACT         { $$ = false; }
-          ;
-
-sign      : /* empty */     { $$ = 1; }
-          | PLUS            { $$ = 1; }
-          | MINUS           { $$ = -1; }
           ;
 
 suffix    : /* empty */                 { $$ = string.Empty; }
@@ -188,19 +183,40 @@ ureal16   : uinteger16
           | uinteger16 SLASH uinteger16   { $$ = Fraction($1,$3); }
           ;
 
-real2     : sign ureal2                   { $$ = Builtins.Multiply($1, $2); }
+real2     : sreal2                   
+          | ureal2
           ;
 
-real8     : sign ureal8                   { $$ = Builtins.Multiply($1, $2); }
+real8     : ureal8
+          | sreal8
           ;
 
-real10    : sign ureal10                  { $$ = Builtins.Multiply($1, $2); }
+real10    : ureal10                 
+          | sreal10
           | PLUS naninf                   { $$ = Builtins.Multiply(1, $2); }
           | MINUS naninf                  { $$ = Builtins.Multiply(-1, $2); }
           ;
 
-real16    : sign ureal16                  { $$ = Builtins.Multiply($1, $2); }
+real16    : ureal16
+          | sreal16
           ;
+
+sreal2    : PLUS ureal2                   { $$ = $2; }
+          | MINUS ureal2                  { $$ = Builtins.Multiply(-1, $2); }
+          ;   
+
+sreal8    : PLUS ureal8                   { $$ = $2; }
+          | MINUS ureal8                  { $$ = Builtins.Multiply(-1, $2); }
+          ;   
+
+sreal10   : PLUS decimal10                { $$ = $2; }
+          | MINUS decimal10               { $$ = Builtins.Multiply(-1, $2); }
+          ;   
+
+sreal16   : PLUS ureal16                  { $$ = $2; }
+          | MINUS ureal16                 { $$ = Builtins.Multiply(-1, $2); }
+          ;   
+
 
 complex2  : real2
           | real2 AT real2                { $$ = Builtins.MakePolar($1,$3); }
@@ -208,8 +224,7 @@ complex2  : real2
           | real2 MINUS ureal2 IMAG       { $$ = Builtins.MakeRectangular($1, Builtins.Multiply(-1, $3)); }
           | real2 PLUS IMAG               { $$ = Builtins.MakeRectangular($1,1); }
           | real2 MINUS IMAG              { $$ = Builtins.MakeRectangular($1,-1); }
-          | PLUS ureal2 IMAG              { $$ = Builtins.MakeRectangular(0,$2); }
-          | MINUS ureal2 IMAG             { $$ = Builtins.MakeRectangular(0, Builtins.Multiply(-1, $2)); }
+          | sreal2 IMAG                   { $$ = Builtins.MakeRectangular(0,$2); }
           | PLUS IMAG                     { $$ = Builtins.MakeRectangular(0,1); }
           | MINUS IMAG                    { $$ = Builtins.MakeRectangular(0,-1); }
           ;
