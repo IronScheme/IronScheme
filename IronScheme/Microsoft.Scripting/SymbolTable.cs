@@ -25,7 +25,7 @@ namespace Microsoft.Scripting {
 
         private static Dictionary<string, int> _idDict = new Dictionary<string, int>(InitialTableSize);
 
-        private const int InitialTableSize = 256;
+        private const int InitialTableSize = 2048;
         private static Dictionary<int, string> _fieldDict = new Dictionary<int, string>(InitialTableSize);
 
         private static int _nextCaseInsensitiveId = 1;

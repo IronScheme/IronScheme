@@ -103,6 +103,7 @@ namespace IronScheme.Runtime
     internal static string[] commandline;
 
     [Builtin("command-line")]
+    [Builtin("get-command-line")]
     public static object CommandLine()
     {
       return List(commandline);

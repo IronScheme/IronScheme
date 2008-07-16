@@ -29,12 +29,12 @@ namespace IronScheme.Runtime
   public partial class Builtins
   {
     [Builtin]
-    public object UnGenSym(object symbol)
+    public static object UnGenSym(object symbol)
     {
       return UnGenSym(RequiresNotNull<SymbolId>(symbol));
     }
 
-    internal static SymbolId UnGenSym(SymbolId sym)
+    internal static SymbolId UnGenSymInternal(SymbolId sym)
     {
       string ss = SymbolTable.IdToString(sym);
       //name is between 1st and 2nd $
@@ -52,6 +52,17 @@ namespace IronScheme.Runtime
       return sym;
     }
 
+    internal static object CleanWho(object who)
+    {
+      string name = who.ToString();
+      int i = name.LastIndexOf('$');
+      if (i < 0)
+      {
+        return name;
+      }
+      return name.Substring(0, i);
+    }
+
     public static object UndefinedError(object sym)
     {
       if (IsR6RSLoaded())
@@ -67,7 +78,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        throw new Exception("undefined symbol: " + UnGenSym(RequiresNotNull<SymbolId>(sym)));
+        throw new Exception("undefined symbol: " + UnGenSymInternal(RequiresNotNull<SymbolId>(sym)));
       }
     }
 
@@ -105,7 +116,7 @@ namespace IronScheme.Runtime
         else
         {
           return R6RS.Exceptions.RaiseContinueable(
-            R6RS.Conditions.Condition(w.Call(who), m.Call(message), s.Call(form, subform)));
+            R6RS.Conditions.Condition(w.Call(CleanWho(who)), m.Call(message), s.Call(form, subform)));
         }
       }
       else
@@ -131,7 +142,7 @@ namespace IronScheme.Runtime
         else
         {
           return R6RS.Exceptions.RaiseContinueable(
-           R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(filename)));
+           R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(filename)));
         }
       }
       else
@@ -157,7 +168,7 @@ namespace IronScheme.Runtime
         else
         {
           return R6RS.Exceptions.RaiseContinueable(
-           R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(port)));
+           R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(port)));
         }
       }
       else
@@ -201,7 +212,7 @@ namespace IronScheme.Runtime
         else
         {
           return R6RS.Exceptions.RaiseContinueable(
-           R6RS.Conditions.Condition(a.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
+           R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
         }
 
       }
@@ -229,7 +240,7 @@ namespace IronScheme.Runtime
         else
         {
           return R6RS.Exceptions.RaiseContinueable(
-           R6RS.Conditions.Condition(e.Call(), w.Call(who), m.Call(message), i.Call(VectorToList(irritants))));
+           R6RS.Conditions.Condition(e.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
         }
       }
       else
@@ -286,7 +297,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        SymbolId s = UnGenSym(RequiresNotNull<SymbolId>(name));
+        SymbolId s = UnGenSymInternal(RequiresNotNull<SymbolId>(name));
         return SymbolTable.StringToId("g$" + s + "$" + symcount++ + "$" + TICKSTRING);
       }
     }
