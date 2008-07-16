@@ -29,6 +29,8 @@ digit8                 [2-7]
 digit10                [89]
 digit16                [a-fA-F]
 
+digits                 {digit2}|{digit8}|{digit10}
+
 radix2                 #[bB]
 radix8                 #[oO]
 radix10                #[dD]
@@ -50,6 +52,8 @@ naninf                 ("nan.0"|"inf.0")
 
 %%
 
+{exponentmarker}({plus}|{minus})?({digits})+   { return Make(Tokens.EXPMARKER); }
+
 {digit2}               { return Make(Tokens.DIGIT2); }
 {digit8}               { return Make(Tokens.DIGIT8); }
 {digit10}              { return Make(Tokens.DIGIT10); }
@@ -62,8 +66,6 @@ naninf                 ("nan.0"|"inf.0")
 
 {exact}                { return Make(Tokens.EXACT); }
 {inexact}              { return Make(Tokens.INEXACT); }
-
-{exponentmarker}       { return Make(Tokens.EXPMARKER); }
 
 {dot}                  { return Make(Tokens.DOT); }
 {plus}                 { return Make(Tokens.PLUS); }
