@@ -126,7 +126,7 @@ sign      : /* empty */     { $$ = 1; }
           ;
 
 suffix    : /* empty */                 { $$ = string.Empty; }
-          | EXPMARKER                   { $$ = $1.text; }
+          | EXPMARKER                   { $$ = "e" + $1.text.Substring(1); /* always e */ }
           ;
 
 prefix2   : RADIX2 exactness            { $$ = $2;}
