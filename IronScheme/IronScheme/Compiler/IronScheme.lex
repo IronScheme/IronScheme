@@ -140,7 +140,7 @@ uinteger8              ({digit8})+
 uinteger10             ({digit10})+
 uinteger16             ({digit16})+
 
-decimal10              (({uinteger10}{suffix})|("."({digit10})+{suffix})|(({digit10})+"."({digit10})*{suffix})|(({digit10})+"."{suffix}))
+decimal10              (({uinteger10}{suffix})|("."({digit10})+{suffix})|(({digit10})+"."({digit10})*{suffix}))
 
 ureal2                 (({uinteger2})|({uinteger2}"/"{uinteger2}))
 ureal8                 (({uinteger8})|({uinteger8}"/"{uinteger8}))
@@ -149,15 +149,15 @@ ureal16                (({uinteger16})|({uinteger16}"/"{uinteger16}))
 
 naninf                 ("nan.0"|"inf.0")
 
-real2                  ({sign}{ureal2}|"+"{naninf}|"-"{naninf})
-real8                  ({sign}{ureal8}|"+"{naninf}|"-"{naninf})
+real2                  ({sign}{ureal2})
+real8                  ({sign}{ureal8})
 real10                 ({sign}{ureal10}|"+"{naninf}|"-"{naninf})
-real16                 ({sign}{ureal16}|"+"{naninf}|"-"{naninf})
+real16                 ({sign}{ureal16})
 
-complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{ureal2}"i")|({real2}"-"{ureal2}"i")|({real2}"+i")|({real2}"-i")|("+"{ureal2}"i")|("-"{ureal2}"i")|("+i")|("-i")|({real2}"+"{naninf}"i")|({real2}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
-complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{ureal8}"i")|({real8}"-"{ureal8}"i")|({real8}"+i")|({real8}"-i")|("+"{ureal8}"i")|("-"{ureal8}"i")|("+i")|("-i")|({real8}"+"{naninf}"i")|({real8}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
+complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{ureal2}"i")|({real2}"-"{ureal2}"i")|({real2}"+i")|({real2}"-i")|("+"{ureal2}"i")|("-"{ureal2}"i")|("+i")|("-i"))
+complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{ureal8}"i")|({real8}"-"{ureal8}"i")|({real8}"+i")|({real8}"-i")|("+"{ureal8}"i")|("-"{ureal8}"i")|("+i")|("-i"))
 complex10              ({real10}|({real10}"@"{real10})|({real10}"+"{ureal10}"i")|({real10}"-"{ureal10}"i")|({real10}"+i")|({real10}"-i")|("+"{ureal10}"i")|("-"{ureal10}"i")|("+i")|("-i")|({real10}"+"{naninf}"i")|({real10}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
-complex16              ({real16}|({real16}"@"{real16})|({real16}"+"{ureal16}"i")|({real16}"-"{ureal16}"i")|({real16}"+i")|({real16}"-i")|("+"{ureal16}"i")|("-"{ureal16}"i")|("+i")|("-i")|({real16}"+"{naninf}"i")|({real16}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
+complex16              ({real16}|({real16}"@"{real16})|({real16}"+"{ureal16}"i")|({real16}"-"{ureal16}"i")|({real16}"+i")|({real16}"-i")|("+"{ureal16}"i")|("-"{ureal16}"i")|("+i")|("-i"))
 
 num2                   ({prefix2}{complex2})
 num8                   ({prefix8}{complex8})
