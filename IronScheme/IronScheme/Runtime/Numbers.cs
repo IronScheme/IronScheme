@@ -20,6 +20,7 @@ using Microsoft.Scripting.Utils;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using IronScheme.Compiler.Numbers;
 
 namespace IronScheme.Runtime
 {
@@ -160,39 +161,40 @@ namespace IronScheme.Runtime
       return FALSE;
     }
 
+    static Parser number_parser;
+    static Scanner number_scanner;
+
+
     [Builtin("string->number")]
     public static object StringToNumber(object obj)
     {
       string str = RequiresNotNull<string>(obj);
-
+      
       if (str.Length == 0)
       {
         return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
       }
 
-      switch (str[0])
+      if (number_parser == null)
       {
-        case '#':
-          switch (char.ToLower(str[1]))
-          {
-            case 'b':
-              return StringToNumber(str.Substring(2), 2);
-            case 'o':
-              return StringToNumber(str.Substring(2), 8);
-            case 'd':
-              return StringToNumber(str.Substring(2), 10);
-            case 'x':
-              return StringToNumber(str.Substring(2), 16);
-            case 'e':
-              return Exact(StringToNumber(str.Substring(2)));
-            case 'i':
-              return Inexact(StringToNumber(str.Substring(2)));
-            default:
-              return AssertionViolation("string->number", "unknown prefix", obj);
-          }
-        default:
-          return StringToNumber(obj, 10);
+        number_parser = new Parser();
       }
+
+      if (number_scanner == null)
+      {
+        number_scanner = new Scanner();
+        number_parser.scanner = number_scanner;
+      }
+
+      number_scanner.SetSource(str,0);
+      number_parser.result = null;
+
+      if (number_parser.Parse())
+      {
+        Debug.Assert(number_parser.result != null);
+        return number_parser.result;
+      }
+      return FALSE;
     }
 
     static readonly Dictionary<char, int> charmap = GetCharMap();
@@ -1107,7 +1109,7 @@ namespace IronScheme.Runtime
       throw new Exception("BUG");
     }
 
-    protected static BigInteger ConvertToBigInteger(object o)
+    protected internal static BigInteger ConvertToBigInteger(object o)
     {
       if (o is int)
       {

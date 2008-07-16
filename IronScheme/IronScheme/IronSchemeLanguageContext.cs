@@ -53,6 +53,7 @@ namespace IronScheme
 
     public override void UpdateSourceCodeProperties(CompilerContext context)
     {
+      parser.skipnumbers = true;
       try
       {
         base.UpdateSourceCodeProperties(context);
@@ -60,6 +61,10 @@ namespace IronScheme
       catch (Runtime.R6RS.CompoundCondition)
       {
         context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
+      }
+      finally
+      {
+        parser.skipnumbers = false;
       }
     }
 
