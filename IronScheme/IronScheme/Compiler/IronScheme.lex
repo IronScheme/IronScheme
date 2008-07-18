@@ -13,6 +13,9 @@
 
 %namespace IronScheme.Compiler
 
+%option minimize, unicode
+
+
 %{
 
 void FixLineNum(string text)
@@ -101,10 +104,11 @@ delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
 but_delimiter          [^\[\]\(\)\";#\r\n\t ]
 numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
 
+unichar                [\x80-\xffff]
 
 digit                  [0-9]
 letter                 [a-zA-Z]
-idinitial              ("->"|({letter})|[!$%*/:<=>?~_^&])
+idinitial              ("->"|({letter})|({unichar})|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
 identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 
@@ -149,15 +153,15 @@ ureal16                (({uinteger16})|({uinteger16}"/"{uinteger16}))
 
 naninf                 ("nan.0"|"inf.0")
 
-real2                  ({sign}{ureal2})
-real8                  ({sign}{ureal8})
+real2                  ({sign}{ureal2}|"+"{naninf}|"-"{naninf})
+real8                  ({sign}{ureal8}|"+"{naninf}|"-"{naninf})
 real10                 ({sign}{ureal10}|"+"{naninf}|"-"{naninf})
-real16                 ({sign}{ureal16})
+real16                 ({sign}{ureal16}|"+"{naninf}|"-"{naninf})
 
-complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{ureal2}"i")|({real2}"-"{ureal2}"i")|({real2}"+i")|({real2}"-i")|("+"{ureal2}"i")|("-"{ureal2}"i")|("+i")|("-i"))
-complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{ureal8}"i")|({real8}"-"{ureal8}"i")|({real8}"+i")|({real8}"-i")|("+"{ureal8}"i")|("-"{ureal8}"i")|("+i")|("-i"))
+complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{ureal2}"i")|({real2}"-"{ureal2}"i")|({real2}"+i")|({real2}"-i")|("+"{ureal2}"i")|("-"{ureal2}"i")|("+i")|("-i")|({real2}"+"{naninf}"i")|({real2}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
+complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{ureal8}"i")|({real8}"-"{ureal8}"i")|({real8}"+i")|({real8}"-i")|("+"{ureal8}"i")|("-"{ureal8}"i")|("+i")|("-i")|({real8}"+"{naninf}"i")|({real8}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
 complex10              ({real10}|({real10}"@"{real10})|({real10}"+"{ureal10}"i")|({real10}"-"{ureal10}"i")|({real10}"+i")|({real10}"-i")|("+"{ureal10}"i")|("-"{ureal10}"i")|("+i")|("-i")|({real10}"+"{naninf}"i")|({real10}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
-complex16              ({real16}|({real16}"@"{real16})|({real16}"+"{ureal16}"i")|({real16}"-"{ureal16}"i")|({real16}"+i")|({real16}"-i")|("+"{ureal16}"i")|("-"{ureal16}"i")|("+i")|("-i"))
+complex16              ({real16}|({real16}"@"{real16})|({real16}"+"{ureal16}"i")|({real16}"-"{ureal16}"i")|({real16}"+i")|({real16}"-i")|("+"{ureal16}"i")|("-"{ureal16}"i")|("+i")|("-i")|({real16}"+"{naninf}"i")|({real16}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
 
 num2                   ({prefix2}{complex2})
 num8                   ({prefix8}{complex8})
@@ -181,7 +185,7 @@ bad_char               ((#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}){b
 
 single_string_char     [^\\\"]
 string_esc_seq         (\\[\"\\abfnrtv])
-hex_esc_seq            (\\x({digit16})+)
+hex_esc_seq            (\\x({digit16})+";")
 string_continuation    (\\{new_line})
 reg_string_char        {string_continuation}|{single_string_char}|{string_esc_seq}|{hex_esc_seq}
 string_literal         \"({reg_string_char})*\"

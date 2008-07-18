@@ -23,6 +23,7 @@ using System.IO;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Actions;
 using System.Diagnostics;
+using IronScheme.Runtime.R6RS;
 
 namespace IronScheme.Runtime
 {
@@ -48,6 +49,10 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("with-input-from-file", ex.Message, filename);
+      }
+      catch (Condition)
+      {
+        throw;
       }
       catch (Exception ex)
       {
@@ -83,6 +88,10 @@ namespace IronScheme.Runtime
       catch (FileNotFoundException ex)
       {
         return FileNotFoundViolation("with-output-to-file", ex.Message, filename);
+      }
+      catch (Condition)
+      {
+        throw;
       }
       catch (Exception ex)
       {
@@ -301,6 +310,10 @@ namespace IronScheme.Runtime
         catch (IOException ex)
         {
           return IOPortViolation("read", ex.Message, port);
+        }
+        catch (Condition)
+        {
+          throw;
         }
         catch (Exception ex)
         {
