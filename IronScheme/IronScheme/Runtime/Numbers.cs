@@ -156,7 +156,7 @@ namespace IronScheme.Runtime
 
             double m = mag is int ? (int)mag : (double)mag;
             
-            if (IsTrue(IsIntegerValued(a)) || IsTrue(IsIntegerValued(m)))
+            if (IsTrue(IsIntegerValued(a)) || IsTrue(IsIntegerValued(m)) && !IsTrue(IsIntegerValued(c.Real)) && !IsTrue(IsIntegerValued(c.Imag)))
             {
               return string.Format("{0}@{1}", NumberToString(m), NumberToString(a));
             }
@@ -200,6 +200,7 @@ namespace IronScheme.Runtime
 
       number_scanner.SetSource(str,0);
       number_parser.result = null;
+      number_scanner.yy_push_state(3);
 
       if (number_parser.Parse())
       {
@@ -361,7 +362,7 @@ namespace IronScheme.Runtime
     [Builtin("exact->inexact")]
     public static object Inexact(object obj)
     {
-      if ((bool)IsExact(obj))
+      if (IsTrue(IsExact(obj)))
       {
         return SafeConvert(obj);
       }
@@ -372,8 +373,17 @@ namespace IronScheme.Runtime
     [Builtin("inexact->exact")]
     public static object Exact(object obj)
     {
-      if ((bool)IsInexact(obj))
+      if (IsTrue(IsInexact(obj)))
       {
+        if (obj is double)
+        {
+          double d = (double)obj;
+
+          if (double.IsNaN(d) || double.IsInfinity(d))
+          {
+            return AssertionViolation("exact", "no exact equivalent", obj);
+          }
+        }
         try
         {
           Fraction f = (Fraction)SafeConvert(obj);
@@ -1739,11 +1749,23 @@ namespace IronScheme.Runtime
     {
       try
       {
+        if (obj is Complex64)
+        {
+          Complex64 c = (Complex64)obj;
+          if (c.Imag == 0.0)
+          {
+            return c.Real;
+          }
+          else
+          {
+            return (double)AssertionViolation("SafeConvert", "no conversion to real possible", obj);
+          }
+        }
         return Convert.ToDouble(obj);
       }
       catch (OverflowException)
       {
-        return (bool)IsPositive(obj) ? double.PositiveInfinity : double.NegativeInfinity;
+        return IsTrue(IsPositive(obj)) ? double.PositiveInfinity : double.NegativeInfinity;
       }
     }
 

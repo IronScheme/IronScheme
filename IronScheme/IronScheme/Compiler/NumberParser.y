@@ -186,10 +186,14 @@ ureal16   : uinteger16
 
 real2     : sreal2                   
           | ureal2
+          | PLUS naninf                   { $$ = Builtins.Multiply(1, $2); }
+          | MINUS naninf                  { $$ = Builtins.Multiply(-1, $2); }          
           ;
 
 real8     : ureal8
           | sreal8
+          | PLUS naninf                   { $$ = Builtins.Multiply(1, $2); }
+          | MINUS naninf                  { $$ = Builtins.Multiply(-1, $2); }          
           ;
 
 real10    : ureal10                 
@@ -200,6 +204,8 @@ real10    : ureal10
 
 real16    : ureal16
           | sreal16
+          | PLUS naninf                   { $$ = Builtins.Multiply(1, $2); }
+          | MINUS naninf                  { $$ = Builtins.Multiply(-1, $2); }          
           ;
 
 sreal2    : PLUS ureal2                   { $$ = $2; }
@@ -210,8 +216,8 @@ sreal8    : PLUS ureal8                   { $$ = $2; }
           | MINUS ureal8                  { $$ = Builtins.Multiply(-1, $2); }
           ;   
 
-sreal10   : PLUS decimal10                { $$ = $2; }
-          | MINUS decimal10               { $$ = Builtins.Multiply(-1, $2); }
+sreal10   : PLUS ureal10                  { $$ = $2; }
+          | MINUS ureal10                 { $$ = Builtins.Multiply(-1, $2); }
           ;   
 
 sreal16   : PLUS ureal16                  { $$ = $2; }
@@ -228,6 +234,10 @@ complex2  : real2
           | sreal2 IMAG                   { $$ = Builtins.MakeRectangular(0,$2); }
           | PLUS IMAG                     { $$ = Builtins.MakeRectangular(0,1); }
           | MINUS IMAG                    { $$ = Builtins.MakeRectangular(0,-1); }
+          | real2 PLUS naninf IMAG        { $$ = Builtins.MakeRectangular($1, $3); }
+          | real2 MINUS naninf IMAG       { $$ = Builtins.MakeRectangular($1, Builtins.Multiply(-1, $3)); }
+          | PLUS naninf IMAG              { $$ = Builtins.MakeRectangular(0, $2); }
+          | MINUS naninf IMAG             { $$ = Builtins.MakeRectangular(0, Builtins.Multiply(-1, $2)); }          
           ;
 
 complex8  : real8
@@ -240,6 +250,10 @@ complex8  : real8
           | MINUS ureal8 IMAG             { $$ = Builtins.MakeRectangular(0, Builtins.Multiply(-1, $2)); }
           | PLUS IMAG                     { $$ = Builtins.MakeRectangular(0,1); }
           | MINUS IMAG                    { $$ = Builtins.MakeRectangular(0,-1); }
+          | real8 PLUS naninf IMAG        { $$ = Builtins.MakeRectangular($1, $3); }
+          | real8 MINUS naninf IMAG       { $$ = Builtins.MakeRectangular($1, Builtins.Multiply(-1, $3)); }
+          | PLUS naninf IMAG              { $$ = Builtins.MakeRectangular(0, $2); }
+          | MINUS naninf IMAG             { $$ = Builtins.MakeRectangular(0, Builtins.Multiply(-1, $2)); }          
           ;
 
 complex10 : real10
@@ -268,6 +282,10 @@ complex16 : real16
           | MINUS ureal16 IMAG            { $$ = Builtins.MakeRectangular(0, Builtins.Multiply(-1, $2)); }
           | PLUS IMAG                     { $$ = Builtins.MakeRectangular(0,1); }
           | MINUS IMAG                    { $$ = Builtins.MakeRectangular(0,-1); }
+          | real16 PLUS naninf IMAG       { $$ = Builtins.MakeRectangular($1, $3); }
+          | real16 MINUS naninf IMAG      { $$ = Builtins.MakeRectangular($1, Builtins.Multiply(-1, $3)); }
+          | PLUS naninf IMAG              { $$ = Builtins.MakeRectangular(0, $2); }
+          | MINUS naninf IMAG             { $$ = Builtins.MakeRectangular(0, Builtins.Multiply(-1, $2)); }          
           ;
 
 num2      : prefix2 complex2    { $$ = ApplyExactness($1, $2); }

@@ -31,7 +31,7 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object UnGenSym(object symbol)
     {
-      return UnGenSym(RequiresNotNull<SymbolId>(symbol));
+      return UnGenSymInternal(RequiresNotNull<SymbolId>(symbol));
     }
 
     internal static SymbolId UnGenSymInternal(SymbolId sym)
