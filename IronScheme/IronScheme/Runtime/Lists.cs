@@ -58,6 +58,10 @@ namespace IronScheme.Runtime
     [InlineEmitter("cons")]
     public static Expression Cons(Expression[] values)
     {
+      if (values.Length != 2)
+      {
+        Builtins.SyntaxError("cons", "requires 2 arguments", values, false);
+      }
       return Ast.New(cons, values[0], values[1]);
     }
 
