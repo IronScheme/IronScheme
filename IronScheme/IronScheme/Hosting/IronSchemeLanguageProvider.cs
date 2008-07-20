@@ -130,6 +130,7 @@ namespace IronScheme.Hosting
 
       protected override void OnInteractiveLoopStart()
       {
+        IronScheme.Runtime.Builtins.commandline = new string[] { "interactive" };
         Runtime.Builtins.Load("~/ironscheme.boot.pp");
         if (File.Exists("init.ss"))
         {

@@ -42,7 +42,7 @@
     "ironscheme/lists.ss"
     "ironscheme/bytevectors.ss"
     "ironscheme/control.ss"
-    "ironscheme/enums.ss"
+    
     "ironscheme/eval.ss"
     "ironscheme/exceptions.ss"
     "ironscheme/conditions.ss"
@@ -62,6 +62,9 @@
     "ironscheme/records/inspection.ss"
     "ironscheme/records/procedural.ss"
     "ironscheme/records/syntactic.ss"
+    
+    ; depends on records - hashtables - bitwise
+    "ironscheme/enums.ss"
     
     "ironscheme/format.ss"
     "ironscheme/trace.ss"

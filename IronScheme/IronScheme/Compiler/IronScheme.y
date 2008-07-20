@@ -83,50 +83,6 @@ static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
 }
 
 
-static string CleanString(string input)
-{
-  input = input.Substring(1, input.Length - 2);
-  input = input.Replace("\\\\", "\\");
-  input = input.Replace("\\\"", "\"");
-  input = input.Replace("\\r", "\r");
-  input = input.Replace("\\n", "\n");
-  input = input.Replace("\\t", "\t");
-  input = input.Replace("\r", "");
-  // deal with string continuations
-  string[] lines = input.Split('\n');
-  
-  List<string> fixup = new List<string>();
-  
-  for (int i = 0; i < lines.Length; i++)
-  {
-    if (lines[i].EndsWith("\\") && lines.Length > 1)
-    {
-      string line = lines[i];
-      string tail = lines[i + 1];
-      
-      int index = 0;
-      for (int j = 0; j < tail.Length; j++)
-      {
-        if (!(tail[j] == ' ' || tail[j] == '\t'))
-        {
-          index = j;
-          break;
-        }
-      }
-      
-      string newline = line.Substring(0, line.Length - 1) + tail.Substring(index);
-      fixup.Add(newline);
-      i++;
-    }
-    else
-    {
-      fixup.Add(lines[i]);
-    }
-  }
-  
-  return string.Join("\n", fixup.ToArray());
-}
-
 static readonly object Ignore = new object();
 static readonly SymbolId quote = SymbolTable.StringToId("quote");
 static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
@@ -177,7 +133,7 @@ exprlist
 expr
     : list                                        { $$ = $1;}
     | SYMBOL                                      { $$ = SymbolTable.StringToId($1); }
-    | STRING                                      { $$ = CleanString($1); }
+    | STRING                                      { $$ = Helper.CleanString($1); }
     | NUMBER                                      { $$ = skipnumbers ? null : Builtins.StringToNumber($1);}
     | LITERAL                                     { $$ = $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null);}
     | CHARACTER                                   { $$ = $1[0];}

@@ -368,6 +368,7 @@ using gppg;
                 set { bStrm.Position = value; }
             }
         }
+        
 
         // ====================== Nested class ==========================
 

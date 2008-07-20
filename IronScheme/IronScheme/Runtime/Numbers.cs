@@ -155,8 +155,9 @@ namespace IronScheme.Runtime
             object mag = Magnitude(c);
 
             double m = mag is int ? (int)mag : (double)mag;
-            
-            if (IsTrue(IsIntegerValued(a)) || IsTrue(IsIntegerValued(m)) && !IsTrue(IsIntegerValued(c.Real)) && !IsTrue(IsIntegerValued(c.Imag)))
+
+            if (IsTrue(IsIntegerValued(a * 1000)) || IsTrue(IsIntegerValued(m * 1000)) 
+              && !IsTrue(IsIntegerValued(c.Real * 1000)) && !IsTrue(IsIntegerValued(c.Imag * 1000)))
             {
               return string.Format("{0}@{1}", NumberToString(m), NumberToString(a));
             }

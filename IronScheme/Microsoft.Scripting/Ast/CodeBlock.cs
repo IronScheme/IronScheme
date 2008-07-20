@@ -978,7 +978,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 #endif
  typeof(CallTargetWithContextN);
                 }
-
+                _impl = wrapper.MethodInfo;
                 cg.EmitDelegateConstruction(wrapper, delegateType);
             } else if (_parameterArray) {
                 if (delegateType == null) {
@@ -1238,7 +1238,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                 wrapper.Emit(OpCodes.Ldelem_Ref);
                 wrapper.EmitCast(typeof(object), _parameters[pi].Type);
             }
-            wrapper.EmitCall(impl.MethodInfo);
+            wrapper.EmitCall(impl.MethodInfo, true);
             wrapper.Emit(OpCodes.Ret);
             return wrapper;
         }

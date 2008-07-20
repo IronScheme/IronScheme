@@ -1,11 +1,68 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace IronScheme.Compiler
 {
   static class Helper
   {
+    static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    public static string CleanString(string input)
+    {
+      input = input.Substring(1, input.Length - 2);
+
+      input = unichar.Replace(input, delegate(Match m)
+      {
+        string s = m.Value;
+        s = s.Substring(2, s.Length - 3);
+        int iv = int.Parse(s, NumberStyles.HexNumber);
+        return ((char)iv).ToString();
+      });
+
+      input = input.Replace("\\\\", "\\");
+      input = input.Replace("\\\"", "\"");
+      input = input.Replace("\\r", "\r");
+      input = input.Replace("\\n", "\n");
+      input = input.Replace("\\t", "\t");
+      input = input.Replace("\r", "");
+      // deal with string continuations
+      string[] lines = input.Split('\n');
+
+      List<string> fixup = new List<string>();
+
+      for (int i = 0; i < lines.Length; i++)
+      {
+        if (lines[i].EndsWith("\\") && lines.Length > 1)
+        {
+          string line = lines[i];
+          string tail = lines[i + 1];
+
+          int index = 0;
+          for (int j = 0; j < tail.Length; j++)
+          {
+            if (!(tail[j] == ' ' || tail[j] == '\t'))
+            {
+              index = j;
+              break;
+            }
+          }
+
+          string newline = line.Substring(0, line.Length - 1) + tail.Substring(index);
+          fixup.Add(newline);
+          i++;
+        }
+        else
+        {
+          fixup.Add(lines[i]);
+        }
+      }
+
+      return string.Join("\n", fixup.ToArray());
+    }
+
     public static string ParseChar(string input)
     {
       string output = null;

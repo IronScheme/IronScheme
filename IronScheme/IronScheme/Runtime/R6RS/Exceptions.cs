@@ -26,8 +26,6 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Exceptions : Builtins
   {
-    static Dictionary<Exception, bool> continuablemap = new Dictionary<Exception, bool>();
-
     static Stack<ICallable> handlerstack = new Stack<ICallable>();
     static ICallable defaulthandler;
 
@@ -74,6 +72,14 @@ namespace IronScheme.Runtime.R6RS
         }
         throw;
       }
+      catch (Condition)
+      {
+        throw;
+      }
+      catch (Exception ex)
+      {
+        return h.Call(ex);
+      }
       finally
       {
         handlerstack.Pop();
@@ -118,13 +124,11 @@ namespace IronScheme.Runtime.R6RS
         }
 
         Exception ex = RequiresNotNull<Exception>(obj);
-        continuablemap[ex] = false;
-
         throw ex;
       }
       else
       {
-        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&error-rcd"))) as ICallable;
+        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&non-continuable-rcd"))) as ICallable;
         ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
         ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
@@ -169,7 +173,6 @@ namespace IronScheme.Runtime.R6RS
       }
 
       Exception ex = RequiresNotNull<Exception>(obj);
-      continuablemap[ex] = true;
       throw ex;
     }
   }

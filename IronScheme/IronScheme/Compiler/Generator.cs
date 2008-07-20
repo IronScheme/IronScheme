@@ -122,7 +122,7 @@ namespace IronScheme.Compiler
           {
             Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            if (ppp.Length < 6)
+            if (cbe.Block.ParameterCount < 6)
             {
               return CallNormal(cbe, ppp);
             }
@@ -133,7 +133,7 @@ namespace IronScheme.Compiler
           {
             Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            if (ppp.Length < 6)
+            if (cbe.Block.ParameterCount < 6)
             {
               return CallVarArgs(cbe, ppp);
             }
@@ -147,15 +147,18 @@ namespace IronScheme.Compiler
 
             foreach (CodeBlockDescriptor d in cbd)
             {
-              if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
+              if (d.codeblock.Block.ParameterCount < 6)
               {
-                if (d.varargs)
+                if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
                 {
-                  return CallVarArgs(d.codeblock, ppp);
-                }
-                else
-                {
-                  return CallNormal(d.codeblock, ppp);
+                  if (d.varargs)
+                  {
+                    return CallVarArgs(d.codeblock, ppp);
+                  }
+                  else
+                  {
+                    return CallNormal(d.codeblock, ppp);
+                  }
                 }
               }
             }

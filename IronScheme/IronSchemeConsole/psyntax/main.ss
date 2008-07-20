@@ -55,7 +55,7 @@
     (void))
 
   (define (load filename)
-    (apply load-r6rs-top-level filename 'load (command-line))
+    (apply load-r6rs-top-level filename 'load (cdr (command-line)))
     (void))
       
   (define (ironscheme-build)
