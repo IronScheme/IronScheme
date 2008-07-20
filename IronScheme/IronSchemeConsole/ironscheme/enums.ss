@@ -27,6 +27,7 @@
       enum-set-projection
       enum-set-subset?
       enum-set-union)
+      (ironscheme core)
       (ironscheme records printer)) 
  
   ; rtd -> hashtable(symbol -> int)
@@ -61,11 +62,28 @@
       
   (define (construct rtd value)
     ((record-constructor (hashtable-ref rcdmap rtd #f)) value))
+    
+  (define (assert-enum who enumset)
+    (unless (enum? enumset)
+      (assertion-violation who "not an enumeration" enumset)))
+      
+  (define (distinct symbols)
+    (let ((ht (make-eq-hashtable)))
+      (let f ((s symbols)(a '()))
+        (if (null? s)
+          (reverse! a)
+          (if (hashtable-contains? ht (car s))
+            (f (cdr s) a)
+            (begin 
+              (hashtable-set! ht (car s) #t)
+              (f (cdr s) (cons (car s) a))))))))
 
   (define (make-enumeration symbols)
+    (unless (for-all symbol? symbols) 
+      (assertion-violation 'make-enumeration "not a list of symbols" symbols))
     (call-with-values (make-enum-type)
       (lambda (rtd rcd)
-        (let ((s symbols)
+        (let ((s (distinct symbols))
               (mask 1)
               (intmap (make-eq-hashtable)))
           (hashtable-set! rcdmap rtd rcd)
@@ -80,12 +98,14 @@
             (- (bitwise-arithmetic-shift-left 1 (length s)) 1))))))
 
   (define (enum-set-universe enumset)
-    (define rtd (record-rtd enumset))
-    (define count (length (get-symbols rtd)))
-    (construct rtd 
-      (- (bitwise-arithmetic-shift-left 1 count) 1)))
+    (assert-enum 'enum-set-universe enumset)
+    (let* ((rtd (record-rtd enumset))
+           (count (length (get-symbols rtd))))
+      (construct rtd 
+        (- (bitwise-arithmetic-shift-left 1 count) 1))))
 
   (define (enum-set-indexer enumset)
+    (assert-enum 'enum-set-indexer enumset)
     (lambda (symbol)
       (let f ((s (get-symbols (record-rtd enumset)))
               (i 0))
@@ -96,7 +116,8 @@
             (f (cdr s) (+ i 1)))))))
           
   (define (enum-set-constructor enumset)
-    (let* ((rtd (record-rtd enumset)))
+    (assert-enum 'enum-set-constructor enumset)
+    (let ((rtd (record-rtd enumset)))
       (lambda (symbols)
         (let f ((v 0)(s symbols))
           (if (null? s)
@@ -106,21 +127,27 @@
                (cdr s)))))))
 
   (define (enum-set->list enumset)
+    (assert-enum 'enum-set->list enumset)
     (let ((rtd (record-rtd enumset))
           (value (enum-value enumset)))
       (let f ((s (get-symbols rtd))(l '()))
         (if (null? s)
-          (reverse l)
+          (reverse! l)
           (if (zero? (bitwise-and (get-value rtd (car s)) value))
             (f (cdr s) l)
             (f (cdr s) (cons (car s) l)))))))
 
   (define (enum-set-member? symbol enumset)
+    (unless (symbol? symbol)
+      (assertion-violation 'enum-set-member? "not a symbol" symbol))
+    (assert-enum 'enum-set-member? enumset)
     (not (zero? (bitwise-and 
                   (get-value (record-rtd enumset) symbol) 
                   (enum-value enumset)))))
                   
   (define (enum-set-subset? enumset1 enumset2)
+    (assert-enum 'enum-set-subset? enumset1)
+    (assert-enum 'enum-set-subset? enumset2)
     (let ((v1 (enum-value enumset1))
           (v2 (enum-value enumset2))
           (rtd1 (record-rtd enumset1))
@@ -141,11 +168,15 @@
                     #f)))))))
                     
   (define (enum-set=? enumset1 enumset2)
+    (assert-enum 'enum-set=? enumset1)
+    (assert-enum 'enum-set=? enumset2)
     (and 
       (enum-set-subset? enumset1 enumset2) 
       (enum-set-subset? enumset2 enumset1)))
       
   (define (enum-set-union enumset1 enumset2)
+    (assert-enum 'enum-set-union enumset1)
+    (assert-enum 'enum-set-union enumset2)
     (let ((v1 (enum-value enumset1))
           (v2 (enum-value enumset2))
           (rtd1 (record-rtd enumset1))
@@ -156,6 +187,8 @@
         #f)))
 
   (define (enum-set-intersection enumset1 enumset2)
+    (assert-enum 'enum-set-intersection enumset1)
+    (assert-enum 'enum-set-intersection enumset2)
     (let ((v1 (enum-value enumset1))
           (v2 (enum-value enumset2))
           (rtd1 (record-rtd enumset1))
@@ -166,6 +199,8 @@
         #f)))
         
   (define (enum-set-difference enumset1 enumset2)
+    (assert-enum 'enum-set-difference enumset1)
+    (assert-enum 'enum-set-difference enumset2)
     (let ((v1 (enum-value enumset1))
           (v2 (enum-value enumset2))
           (rtd1 (record-rtd enumset1))
@@ -176,9 +211,12 @@
         #f)))   
 
   (define (enum-set-complement enumset)
+    (assert-enum 'enum-set-complement enumset)
     (enum-set-difference enumset (enum-set-universe enumset)))
         
   (define (enum-set-projection enumset1 enumset2)
+    (assert-enum 'enum-set-projection enumset1)
+    (assert-enum 'enum-set-projection enumset2)
     (let ((v1 (enum-value enumset1))
           (rtd1 (record-rtd enumset1))
           (rtd2 (record-rtd enumset2)))
