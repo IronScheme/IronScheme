@@ -607,7 +607,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     {
       if (obj == null)
       {
-        AssertionViolation(GetCaller(), "argument cannot be null");
+        return AssertionViolation(GetCaller(), "argument cannot be null");
       }
       return obj;
     }
@@ -616,7 +616,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     {
       if (obj != null && !(obj is T))
       {
-        AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+        return (T) AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
       }
       if (obj == null)
       {
@@ -640,12 +640,12 @@ A ""contributor"" is any person that distributes its contribution under this lic
     {
       if (obj == null)
       {
-        AssertionViolation(GetCaller(), "argument cannot be null");
+        return (T) AssertionViolation(GetCaller(), "argument cannot be null");
       }
 
       if (obj != null && !(obj is T))
       {
-        AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+        return (T) AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
       }
 
       return (T)obj;

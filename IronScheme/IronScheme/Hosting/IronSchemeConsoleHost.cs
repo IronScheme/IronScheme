@@ -43,27 +43,6 @@ namespace IronScheme.Hosting
       }
     }
 
-    protected override int ExecuteFile(string file, string[] args)
-    {
-      return base.ExecuteFile(file, args);
-    }
-
-    [Obsolete("?")]
-    protected override int RunFile(IScriptEngine engine, SourceUnit sourceUnit)
-    {
-      Runtime.Builtins.Load("~/ironscheme.boot.pp");
-      try
-      {
-        engine.Execute(string.Format("(load \"{0}\")", sourceUnit.ToString().Replace('\\', '/')));
-        return 0;
-      }
-      catch (Exception ex)
-      {
-        Console.Error.WriteLine(ex);
-        return 1;
-      }
-    }
-
     protected override void Initialize()
     {
       base.Initialize();

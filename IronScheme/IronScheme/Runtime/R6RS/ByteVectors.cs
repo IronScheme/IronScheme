@@ -525,7 +525,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     //(bytevector-ieee-single-ref bytevector k endianness)     
-    [Builtin("bytevector-ieee-single-ref ")]
+    [Builtin("bytevector-ieee-single-ref")]
     public static object BytevectorIEEESingleRef(object bytevector, object k, object endianess)
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);

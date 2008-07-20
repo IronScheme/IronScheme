@@ -104,7 +104,7 @@ delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
 but_delimiter          [^\[\]\(\)\";#\r\n\t ]
 numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
 
-unichar                [\x80-\xffff]
+unichar                \x03bb
 
 digit                  [0-9]
 letter                 [a-zA-Z]
