@@ -1345,7 +1345,7 @@
         (define (f* x*)
           (syntax-match x* (else)
             [() 
-             (values `(raise ,con) #t)]
+             (values `(raise-continuable ,con) #t)]
             [([else e e* ...])
              (values `(begin ,e ,@e*) #f)]
             [(cls . cls*) 
