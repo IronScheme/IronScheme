@@ -29,6 +29,7 @@
 
 (import (ironscheme syntax-format))
 (import (ironscheme define-macro))
+(import (ironscheme typed))
 
 (import (ironscheme collections arraylist))
 (import (ironscheme collections icollection))
