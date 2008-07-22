@@ -633,7 +633,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       {
         return SymbolTable.StringToId(ba.Name ?? m.Name.ToLower());
       }
-      return SymbolId.Invalid;
+      return UnGenSymInternal(SymbolTable.StringToId(m.Name));
     }
 
     protected static T RequiresNotNull<T>(object obj)
