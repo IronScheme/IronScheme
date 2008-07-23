@@ -68,7 +68,6 @@ namespace IronScheme.Runtime.R6RS
         Assembly genass = ag.DumpAndLoad();
 
         MethodInfo ci = type.GetMethod("make");
-
         constructor = Closure.Make(null, Delegate.CreateDelegate(typeof(CallTargetN), ci));
 
         // update fields

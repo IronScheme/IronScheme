@@ -19,6 +19,7 @@ using Microsoft.Scripting.Ast;
 using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Math;
 
 namespace IronScheme.Runtime.R6RS.Arithmetic
 {
@@ -333,7 +334,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object FxIsOdd(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return GetBool(x1 % 2 == 1);
+      return GetBool(x1 % 2 != 0);
     }
 
     [Builtin("fxeven?")]
@@ -538,8 +539,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Add(i1, i2, i3);
-      object s0 = Mod0(s, 4294967296L);
-      object s1 = Div0(s, 4294967296L);
+      object s0 = Mod0(s, (BigInteger) 4294967296L);
+      object s1 = Div0(s, (BigInteger) 4294967296L);
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
@@ -553,8 +554,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Subtract(i1, i2, i3);
-      object s0 = Mod0(s, 4294967296L);
-      object s1 = Div0(s, 4294967296L);
+      object s0 = Mod0(s, (BigInteger) 4294967296L);
+      object s1 = Div0(s, (BigInteger) 4294967296L);
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
@@ -568,8 +569,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i3 = RequiresNotNull<int>(fx3);
 
       object s = Add(Multiply(i1, i2), i3);
-      object s0 = Mod0(s, 4294967296L);
-      object s1 = Div0(s, 4294967296L);
+      object s0 = Mod0(s, (BigInteger) 4294967296L);
+      object s1 = Div0(s, (BigInteger) 4294967296L);
 
       return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
     }
@@ -751,7 +752,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       if (ki < 0)
       {
-        return bi >> ki;
+        return bi >> -ki;
       }
       else
       {
