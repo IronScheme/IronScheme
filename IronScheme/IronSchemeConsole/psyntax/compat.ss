@@ -19,7 +19,7 @@
 ;;; DEALINGS IN THE SOFTWARE. 
 
 (library (psyntax compat)
-  (export make-parameter parameterize define-record compile-core
+  (export make-parameter parameterize define-record compile-core file-options-constructor
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
           load-serialized-library serialize-library
@@ -96,11 +96,9 @@
              (nongenerative) ; for sanity
              (fields (mutable field* getter* setter*) ...)))])))                       
   
-  ;(define fo (make-enumeration '(no-fail no-create no-truncate)))
+  (define file-options-constructor (make-parameter #f))
   
-  ;(define make-file-options (enum-set-constructor fo))
-  
-  (define (file-options-spec x) #;(make-file-options x) x)
+  (define (file-options-spec x) ((file-options-constructor) x))
 )
 
 

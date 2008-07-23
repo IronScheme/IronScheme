@@ -123,9 +123,13 @@
         (let f ((v 0)(s symbols))
           (if (null? s)
             (construct rtd v)
-            (f (bitwise-ior v 
-                (get-value rtd (car s)))
-               (cdr s)))))))
+            (let ((v* (get-value rtd (car s))))
+              (if v*
+                (f (bitwise-ior v v*) (cdr s))
+                (assertion-violation 
+                  'enum-set-constructor 
+                  "not a member of enum-set" 
+                  (car s)))))))))
 
   (define (enum-set->list enumset)
     (assert-enum 'enum-set->list enumset)

@@ -40,6 +40,7 @@
     (psyntax library-manager)
     (psyntax expander)
     (only (ironscheme core) get-command-line format)
+    (ironscheme enums)
     (ironscheme files)
     (ironscheme library))
     
@@ -96,6 +97,7 @@
 					      (compile-r6rs-top-level x*) ; i assume this is needed
 					      (serialize-all serialize-library compile-core-expr)))))))
 
+  (define fo (make-enumeration '(no-fail no-create no-truncate)))
  
   (current-precompiled-library-loader load-serialized-library)
   
@@ -115,6 +117,8 @@
   (set-symbol-value! 'expanded2core expanded->core)
   
   (set-symbol-value! 'trace-printer trace-printer)
+  
+  (file-options-constructor (enum-set-constructor fo))
   
   (library-path (get-library-paths))
   )
