@@ -149,8 +149,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("hashtable-copy")]
     public static object HashtableCopy(object obj)
     {
-      Hashtable ht = RequiresNotNull<Hashtable>(obj);
-      return new Hashtable(ht);
+      return HashtableCopy(obj, FALSE);
     }
 
     [Builtin("hashtable-copy")]
@@ -209,14 +208,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-hash")]
     public static object StringHash(object obj)
     {
-      string r = RequiresNotNull<string>(obj);
+      string r = GetString(obj);
       return r.GetHashCode();
     }
 
     [Builtin("string-ci-hash")]
     public static object StringCaseInsensitiveHash(object obj)
     {
-      string r = RequiresNotNull<string>(obj);
+      string r = GetString(obj);
       return StringComparer.CurrentCultureIgnoreCase.GetHashCode(r);
     }
 

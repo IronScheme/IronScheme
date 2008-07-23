@@ -21,35 +21,23 @@ namespace IronScheme.Runtime
   public sealed class Promise
   {
     static readonly object uninitialized = new object();
-    Delegate target;
-    CodeContext cc;
+
+    ICallable prom;
+
     object result = uninitialized;
-    Promise(CodeContext cc, Delegate target)
+    Promise(ICallable prom)
     {
-      this.cc = cc;
-      this.target = target;
+      this.prom = prom;
     }
 
-    public static Promise Make(CodeContext cc, Delegate target)
+    public static Promise Make(ICallable c)
     {
-      return new Promise(cc, target);
+      return new Promise(c);
     }
 
     public object Force()
     {
-      if (result == uninitialized)
-      {
-        if (target is CallTarget0)
-        {
-          result = ((CallTarget0)target)();
-        }
-        else
-        {
-          result = ((CallTargetWithContext0)target)(cc);
-        }
-      }
-      return result;
-
+      return prom.Call();
     }
   }
 }

@@ -110,6 +110,29 @@ namespace IronScheme.Runtime
         return GetBool(EqualCons((Cons)first, (Cons)second));
       }
 
+      if (first is object[] && second is object[])
+      {
+        object[] f = first as object[];
+        object[] s = second as object[];
+
+        if (f.Length != s.Length)
+        {
+          return FALSE;
+        }
+        else
+        {
+          for (int i = 0; i < f.Length; i++)
+          {
+            if (!Equals(f[i], s[i]))
+            {
+              return FALSE;
+            }
+          }
+
+          return TRUE;
+        }
+      }
+
       Type t1 = first.GetType();
       Type t2 = second.GetType();
 

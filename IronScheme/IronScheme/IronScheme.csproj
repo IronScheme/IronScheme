@@ -61,7 +61,6 @@
     <Compile Include="Compiler\Helper.cs" />
     <Compile Include="Compiler\IronSchemeConstant.cs" />
     <Compile Include="Compiler\LetrecStarGenerator.cs" />
-    <Compile Include="Compiler\DelayGenerator.cs" />
     <Compile Include="Compiler\Generator.InlineEmitters.cs" />
     <Compile Include="Compiler\GeneratorAttribute.cs" />
     <Compile Include="Compiler\InlineEmitter.cs" />
