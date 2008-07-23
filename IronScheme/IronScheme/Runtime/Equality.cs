@@ -159,7 +159,7 @@ namespace IronScheme.Runtime
         {
           for (int i = 0; i < f.Length; i++)
           {
-            if (!Equals(f[i], s[i]))
+            if (!IsTrue(IsEquivalent(f[i], s[i])))
             {
               return FALSE;
             }
