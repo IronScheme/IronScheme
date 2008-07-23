@@ -98,6 +98,20 @@ namespace IronScheme.Runtime
       return cdr == null || (cdr is Cons && ((Cons)cdr).IsProperList(root ?? this));
     }
 
+    internal bool IsCyclic
+    {
+      get { return IsCyclicList(null); }
+    }
+
+    bool IsCyclicList(Cons root)
+    {
+      if (this == root)
+      {
+        return true;
+      }
+      return cdr != null && (cdr is Cons && ((Cons)cdr).IsCyclicList(root ?? this));
+    }
+
     public override string ToString()
     {
       return Builtins.WriteFormat(this);

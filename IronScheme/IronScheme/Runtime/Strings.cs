@@ -216,7 +216,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s1.CompareTo(s2) < 0);
+      return GetBool(s2.CompareTo(s1) < 0);
     }
 
     [Builtin("string<?")]
@@ -252,7 +252,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s1.CompareTo(s2) > 0);
+      return GetBool(s2.CompareTo(s1) > 0);
     }
 
     [Builtin("string>?")]
@@ -288,7 +288,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s1.CompareTo(s2) <= 0);
+      return GetBool(s2.CompareTo(s1) <= 0);
     }
 
     [Builtin("string<=?")]
@@ -324,7 +324,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s1.CompareTo(s2) >= 0);
+      return GetBool(s2.CompareTo(s1) >= 0);
     }
 
     [Builtin("string>=?")]
@@ -397,16 +397,16 @@ namespace IronScheme.Runtime
       {
         object f = lists[0];
 
-        if (f is object[])
+        if (f is string)
         {
-          int ol = ((object[])lists[0]).Length;
+          int ol = ((string)lists[0]).Length;
           for (int i = 0; i < ol; i++)
           {
             object[] args = new object[listcount];
 
             for (int j = 0; j < listcount; j++)
             {
-              args[j] = ((object[])lists[j])[i];
+              args[j] = ((string)lists[j])[i];
             }
 
             c.Call(args);

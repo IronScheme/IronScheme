@@ -241,7 +241,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object FlIsOdd(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return GetBool(x1 % 2 == 1.0);
+      return GetBool(x1 % 2 != 0.0);
     }
 
     [Builtin("fleven?")]
@@ -493,6 +493,10 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("flnumerator")]
     public static object FlNumerator(object a)
     {
+      if (IsTrue(IsNan(a)) || IsTrue(IsInfinite(a)))
+      {
+        return a;
+      }
       return Convert.ToDouble((((Fraction)RequiresNotNull<double>(a)).Numerator));
     }
 
@@ -500,6 +504,10 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fldenominator")]
     public static object FlDenominator(object a)
     {
+      if (IsTrue(IsNan(a)) || IsTrue(IsInfinite(a)))
+      {
+        return 1.0;
+      }
       return Convert.ToDouble((((Fraction)RequiresNotNull<double>(a)).Denominator));
     }
 

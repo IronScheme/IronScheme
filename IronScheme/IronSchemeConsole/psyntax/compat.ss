@@ -95,8 +95,12 @@
              (opaque #t) ; for security
              (nongenerative) ; for sanity
              (fields (mutable field* getter* setter*) ...)))])))                       
-
-  (define (file-options-spec x) x)
+  
+  ;(define fo (make-enumeration '(no-fail no-create no-truncate)))
+  
+  ;(define make-file-options (enum-set-constructor fo))
+  
+  (define (file-options-spec x) #;(make-file-options x) x)
 )
 
 

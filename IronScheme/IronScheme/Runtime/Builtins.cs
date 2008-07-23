@@ -436,7 +436,12 @@ A ""contributor"" is any person that distributes its contribution under this lic
       catch (Variable.UnInitializedUsageException ex)
       {
         ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-        return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
+        CallTarget0 err = delegate
+        {
+          return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
+        };
+
+        return Closure.Make(cc, err);
       }
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
@@ -593,6 +598,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
       ModuleScope.SetName(symbol, value);
       return Unspecified;
     }
+
+
+    [Builtin("string-split")]
+    public static object[] StringSplit(object str, params object[] del)
+    {
+      return Requires<string>(str).Split(del as string[], StringSplitOptions.None);
+    }
+
 
 
     static void RequiresCondition(bool condition, string message)

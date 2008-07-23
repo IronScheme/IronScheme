@@ -12,7 +12,7 @@ namespace IronScheme.Runtime
     {
       string s = RequiresNotNull<string>(str);
 
-      return new StringReader(s);
+      return new StringReader(s + " ");
     }
     
     [Builtin("open-output-string")]

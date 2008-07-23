@@ -468,6 +468,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int div = a / b;
       int mod = a % b;
 
+      if (div < 0)
+      {
+        div--;
+      }
+
       if (mod < 0)
       {
         mod += (b * Math.Sign(b));
@@ -512,7 +517,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       if (mod > h && mod > -h)
       {
         mod -= (b * Math.Sign(b));
-        if ((a > 0 && b > 0) || (a < 0 && b < 0) && mod != -h)
+        if (((a > 0 && b > 0) || (a < 0 && b < 0)) && mod != -h)
         {
           div--;
         }

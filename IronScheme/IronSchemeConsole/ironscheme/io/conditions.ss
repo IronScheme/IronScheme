@@ -126,7 +126,7 @@
     make-i/o-filename-error i/o-filename-error?
     (filename i/o-error-filename))
 
-  (define-condition-type &i/o-file-protection &i/o
+  (define-condition-type &i/o-file-protection &i/o-filename
     make-i/o-file-protection-error i/o-file-protection-error?)
 
   (define-condition-type &i/o-file-is-read-only &i/o-file-protection

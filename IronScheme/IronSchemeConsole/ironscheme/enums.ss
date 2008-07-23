@@ -13,7 +13,7 @@
           enum-set-complement
           enum-set-projection)
   (import 
-    (except (ironscheme)
+    (except (rnrs)
       make-enumeration 
       enum-set-universe 
       enum-set=? 
@@ -27,6 +27,7 @@
       enum-set-projection
       enum-set-subset?
       enum-set-union)
+      (only (ironscheme) fprintf gensym)
       (ironscheme core)
       (ironscheme records printer)) 
  
@@ -141,9 +142,10 @@
     (unless (symbol? symbol)
       (assertion-violation 'enum-set-member? "not a symbol" symbol))
     (assert-enum 'enum-set-member? enumset)
-    (not (zero? (bitwise-and 
-                  (get-value (record-rtd enumset) symbol) 
-                  (enum-value enumset)))))
+    (let ((v (get-value (record-rtd enumset) symbol)))
+      (if v
+        (not (zero? (bitwise-and v (enum-value enumset))))
+        #f)))
                   
   (define (enum-set-subset? enumset1 enumset2)
     (assert-enum 'enum-set-subset? enumset1)
@@ -226,7 +228,7 @@
             (if (zero? (bitwise-and v1 (get-value rtd1 (car s))))
               (f (cdr s) v)
               (let ((v2 (get-value rtd2 (car s))))
-                (if (v2)
+                (if v2
                   (f (cdr s) (bitwise-ior v v2))
                   (f (cdr s) v))))))))
       

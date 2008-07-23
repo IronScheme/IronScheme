@@ -448,7 +448,7 @@ namespace IronScheme.Runtime.R6RS
     public static object OpenStringInputPort(object str)
     {
       string s = RequiresNotNull<string>(str);
-      return new StringReader(s);
+      return new StringReader(s + " ");
     }
 
     //(standard-input-port)
@@ -1009,7 +1009,28 @@ namespace IronScheme.Runtime.R6RS
       }
       catch (Exception ex)
       {
-        return AssertionViolation("open-file-output-port", ex.Message, filename);
+        if (fileoptions is Cons)
+        {
+          if (IsTrue(Memq(SymbolTable.StringToId("no-fail"), fileoptions)))
+          {
+            return FALSE;
+          }
+        }
+        if (fileoptions is SymbolId)
+        {
+          if ((SymbolId)fileoptions == SymbolTable.StringToId("no-fail"))
+          {
+            return FALSE;
+          }
+        }
+        if (ex.Message.StartsWith("The process cannot access the file"))
+        {
+          return FileInUseViolation("open-file-output-port", filename);
+        }
+        else
+        {
+          return AssertionViolation("open-file-output-port", ex.Message, filename);
+        }
       }
     }
 

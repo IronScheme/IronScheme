@@ -19,6 +19,7 @@ using Microsoft.Scripting;
 using System.Diagnostics;
 using IronScheme.Compiler;
 using Microsoft.Scripting.Ast;
+using System.Reflection;
 
 namespace IronScheme.Runtime
 {
@@ -50,8 +51,10 @@ namespace IronScheme.Runtime
       {
         return Ast.Not(e);
       }
-      return Ast.Condition(Ast.TypeIs(obj[0], typeof(bool)), Ast.Not(Ast.ConvertHelper(obj[0], typeof(bool))), Ast.False());
+      return Ast.Condition(Ast.TypeIs(obj[0], typeof(bool)), Ast.Not(Ast.Call(IsTrue, obj[0])), Ast.False());
     }
+
+    static MethodInfo IsTrue = typeof(Builtins).GetMethod("IsTrue");
 
     static Expression Unwrap(Expression ex)
     {
@@ -77,6 +80,14 @@ namespace IronScheme.Runtime
       {
         return false;
       }
+
+
+
+      if (a.IsCyclic || b.IsCyclic)
+      {
+        return false;
+      }
+
       return IsTrue(IsEquivalent(a.car, b.car)) && EqualCons(a.cdr as Cons, b.cdr as Cons);
     }
 
@@ -107,7 +118,32 @@ namespace IronScheme.Runtime
 
       if (c1 && c2)
       {
-        return GetBool(EqualCons((Cons)first, (Cons)second));
+        Cons cc1 = first as Cons;
+        Cons cc2 = second as Cons;
+        return GetBool(EqualCons(cc1, cc2));
+      }
+
+      if (first is byte[] && second is byte[])
+      {
+        byte[] f = first as byte[];
+        byte[] s = second as byte[];
+
+        if (f.Length != s.Length)
+        {
+          return FALSE;
+        }
+        else
+        {
+          for (int i = 0; i < f.Length; i++)
+          {
+            if (!Equals(f[i], s[i]))
+            {
+              return FALSE;
+            }
+          }
+
+          return TRUE;
+        }
       }
 
       if (first is object[] && second is object[])
@@ -139,6 +175,11 @@ namespace IronScheme.Runtime
       if (t1 == t2)
       {
         return GetBool(Equals(first, second));
+      }
+
+      if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)))
+      {
+        return IsSame(first, second);
       }
 
       string w1 = WriteFormat(first);
