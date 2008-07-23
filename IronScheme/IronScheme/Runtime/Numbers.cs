@@ -34,72 +34,96 @@ namespace IronScheme.Runtime
 
     static object PrintBinary(object num)
     {
-      BigInteger n = ConvertToBigInteger(num);
-      bool positive = n >= 0;
-
-      n = n.Abs();
-
-      StringBuilder sb = new StringBuilder();
-
-      do
+      if (num is Fraction)
       {
-        sb.Append(((n & 1) == 1) ? "1" : "0");
-        n >>= 1;
-      }
-      while (n != 0);
+        Fraction f = (Fraction)num;
 
-      char[] output = new char[sb.Length];
-
-      for (int i = 0; i < sb.Length; i++)
-      {
-        output[output.Length - i - 1] = sb[i];
-      }
-
-      string ret = new string(output);
-
-      if (positive)
-      {
-        return ret;
+        return string.Format("{0}/{1}", PrintBinary(f.Numerator), PrintBinary(f.Denominator));
       }
       else
       {
-        return "-" + ret;
+        BigInteger n = ConvertToBigInteger(num);
+        bool positive = n >= 0;
+
+        n = n.Abs();
+
+        StringBuilder sb = new StringBuilder();
+
+        do
+        {
+          sb.Append(((n & 1) == 1) ? "1" : "0");
+          n >>= 1;
+        }
+        while (n != 0);
+
+        char[] output = new char[sb.Length];
+
+        for (int i = 0; i < sb.Length; i++)
+        {
+          output[output.Length - i - 1] = sb[i];
+        }
+
+        string ret = new string(output);
+
+        if (positive)
+        {
+          return ret;
+        }
+        else
+        {
+          return "-" + ret;
+        }
       }
     }
 
     static object PrintOctal(object num)
     {
-      BigInteger n = ConvertToBigInteger(num);
-      bool positive = n >= 0;
-
-      n = n.Abs();
-
-      StringBuilder sb = new StringBuilder();
-
-      do
+      if (num is Fraction)
       {
-        sb.Append((char)((n & 7) + '0'));
-        n /= 8;
-      }
-      while (n != 0);
+        Fraction f = (Fraction)num;
 
-      char[] output = new char[sb.Length];
-
-      for (int i = 0; i < sb.Length; i++)
-      {
-        output[output.Length - i - 1] = sb[i];
-      }
-
-      string ret = new string(output);
-
-      if (positive)
-      {
-        return ret;
+        return string.Format("{0}/{1}", PrintOctal(f.Numerator), PrintOctal(f.Denominator));
       }
       else
       {
-        return "-" + ret;
+        BigInteger n = ConvertToBigInteger(num);
+        bool positive = n >= 0;
+
+        n = n.Abs();
+
+        StringBuilder sb = new StringBuilder();
+
+        do
+        {
+          sb.Append((char)((n & 7) + '0'));
+          n /= 8;
+        }
+        while (n != 0);
+
+        char[] output = new char[sb.Length];
+
+        for (int i = 0; i < sb.Length; i++)
+        {
+          output[output.Length - i - 1] = sb[i];
+        }
+
+        string ret = new string(output);
+
+        if (positive)
+        {
+          return ret;
+        }
+        else
+        {
+          return "-" + ret;
+        }
       }
+    }
+
+    [Builtin("number->string")]
+    public static object NumberToString(object obj, object radix, object precision)
+    {
+      return NumberToString(obj, radix);
     }
     
     [Builtin("number->string")]
@@ -924,8 +948,7 @@ namespace IronScheme.Runtime
       {
         return (int)o;
       }
-      AssertionViolation("ConvertToInteger", "not an integer", o);
-      throw new Exception("BUG");
+      return (int) AssertionViolation("ConvertToInteger", "not an integer", o);
     }
 
     protected internal static BigInteger ConvertToBigInteger(object o)
@@ -938,8 +961,7 @@ namespace IronScheme.Runtime
       {
         return (BigInteger)o;
       }
-      AssertionViolation("ConvertToBigInteger", "not a big integer", o);
-      throw new Exception("BUG");
+      return (BigInteger) AssertionViolation("ConvertToBigInteger", "not a big integer", o);
     }
 
     static Fraction ConvertToRational(object o)
@@ -1231,17 +1253,33 @@ namespace IronScheme.Runtime
 
       NumberClass effective = f & s;
 
-      switch (effective)
+      if (IsTrue(IsZero(first)) && IsTrue(IsZero(second)))
       {
-        case NumberClass.Integer:
-        case NumberClass.BigInteger:
-          return IntegerIfPossible(new Fraction(ConvertToBigInteger(first),ConvertToBigInteger(second)));
-        case NumberClass.Rational:
-          return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
-        case NumberClass.Real:
-          return ConvertToReal(first) / ConvertToReal(second);
-        case NumberClass.Complex:
-          return ConvertToComplex(first) / ConvertToComplex(second);
+        if (effective == NumberClass.BigInteger || effective == NumberClass.Integer)
+        {
+          return AssertionViolation("/", "divide by zero", first, second);
+        }
+        return double.NaN;
+      }
+
+      try
+      {
+        switch (effective)
+        {
+          case NumberClass.Integer:
+          case NumberClass.BigInteger:
+            return IntegerIfPossible(new Fraction(ConvertToBigInteger(first), ConvertToBigInteger(second)));
+          case NumberClass.Rational:
+            return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
+          case NumberClass.Real:
+            return ConvertToReal(first) / ConvertToReal(second);
+          case NumberClass.Complex:
+            return ConvertToComplex(first) / ConvertToComplex(second);
+        }
+      }
+      catch (DivideByZeroException)
+      {
+        return AssertionViolation("/", "divide by zero", first, second);
       }
 
       return Error("/", "BUG");
@@ -1269,7 +1307,15 @@ namespace IronScheme.Runtime
       }
       else if (obj is int)
       {
-        return Math.Abs((int)obj);
+        int i = (int)obj;
+        if (i == int.MinValue)
+        {
+          return ((BigInteger)i).Abs();
+        }
+        else
+        {
+          return Math.Abs(i);
+        }
       }
       else if (obj is BigInteger)
       {
@@ -1416,7 +1462,14 @@ namespace IronScheme.Runtime
         return Values(Exact(div), Exact(Divide(mod, scale)));
       }
 
-      return Values(Exact(div), mod);
+      if (IsTrue(IsNan(div)) || IsTrue(IsInfinite(div)))
+      {
+        return Values(div, mod);
+      }
+      else
+      {
+        return Values(Exact(div), mod);
+      }
     }
 
     [Builtin("div0")]
@@ -1476,7 +1529,14 @@ namespace IronScheme.Runtime
         return Values(Exact(div), Exact(Divide(mod, scale)));
       }
 
-      return Values(Exact(div), mod);
+      if (IsTrue(IsNan(div)) || IsTrue(IsInfinite(div)))
+      {
+        return Values(div, mod);
+      }
+      else
+      {
+        return Values(Exact(div), mod);
+      }
     }
     
     [Builtin("gcd")]

@@ -100,7 +100,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     {
       BigInteger bi = ConvertToBigInteger(ei);
 
-      if (bi <= 0)
+      if (bi < 0)
       {
         return BitWiseLength(BitWiseNot(ei));
       }

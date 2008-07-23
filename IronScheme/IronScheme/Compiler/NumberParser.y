@@ -71,7 +71,26 @@ static object ApplyExactness(bool? exact, object num)
 
 static object Fraction(object num, object den)
 {
-  return new Fraction(Builtins.ConvertToBigInteger(num),Builtins.ConvertToBigInteger(den));
+  try
+  {
+    return new Fraction(Builtins.ConvertToBigInteger(num),Builtins.ConvertToBigInteger(den));
+  }
+  catch (DivideByZeroException)
+  {
+    return Builtins.AssertionViolation("ParseFraction", "divide by zero", num, den);
+  }
+}
+
+static object ConvertToDouble(string s)
+{
+  try
+  {
+    return Convert.ToDouble(s);
+  }
+  catch (OverflowException)
+  {
+    return double.PositiveInfinity;
+  }
 }
 
 %} 
@@ -162,9 +181,9 @@ digit10x  : /* empty */                   { $$ = string.Empty; }
           | digit10x digit10              { $$ = $1 + $2; }
           ;
 
-decimal10 : uinteger10 suffix               { $$ = ($2.Length == 0) ? $1 : Convert.ToDouble($1 + $2); }
-          | DOT uinteger10 suffix           { $$ = Convert.ToDouble("." + $2 + $3); }
-          | uinteger10 DOT digit10x suffix  { $$ = Convert.ToDouble($1 + "." + $3 + $4); }
+decimal10 : uinteger10 suffix               { $$ = ($2.Length == 0) ? $1 : ConvertToDouble($1 + $2); }
+          | DOT uinteger10 suffix           { $$ = ConvertToDouble("." + $2 + $3); }
+          | uinteger10 DOT digit10x suffix  { $$ = ConvertToDouble($1 + "." + $3 + $4); }
           ;
 
 ureal2    : uinteger2

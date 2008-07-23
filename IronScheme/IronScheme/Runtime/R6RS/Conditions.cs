@@ -184,17 +184,25 @@ namespace IronScheme.Runtime.R6RS
           {
             foreach (object e in cc.conds)
             {
-              if (e.GetType().IsAssignableFrom(t.type))
+              if (t.type.IsInstanceOfType(e))
               {
                 return c.Call(e);
               }
             }
+            //System.Diagnostics.Debugger.Break();
             return FALSE;
           }
         }
         else
         {
-          return c.Call(cond);
+          if (t.type.IsInstanceOfType(cond))
+          {
+            return c.Call(cond);
+          }
+          else
+          {
+            return FALSE;
+          }
         }
       };
       return Closure.Make(Context, p);

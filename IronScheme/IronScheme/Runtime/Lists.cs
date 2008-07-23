@@ -41,13 +41,13 @@ namespace IronScheme.Runtime
     static FieldInfo car = typeof(Cons).GetField("car");
     static FieldInfo cdr = typeof(Cons).GetField("cdr");
 
-    [InlineEmitter("car")]
+    [InlineEmitter("car", Optimization=OptimizationLevel.Safe)]
     public static Expression Car(Expression[] values)
     {
       return Ast.ReadField(Ast.ConvertHelper(values[0], typeof(Cons)), car);
     }
 
-    [InlineEmitter("cdr")]
+    [InlineEmitter("cdr", Optimization = OptimizationLevel.Safe)]
     public static Expression Cdr(Expression[] values)
     {
       return Ast.ReadField(Ast.ConvertHelper(values[0], typeof(Cons)), cdr);
@@ -58,11 +58,11 @@ namespace IronScheme.Runtime
     [InlineEmitter("cons")]
     public static Expression Cons(Expression[] values)
     {
-      if (values.Length != 2)
+      if (values.Length == 2)
       {
-        Builtins.SyntaxError("cons", "requires 2 arguments", values, false);
+        return Ast.New(cons, values[0], values[1]);  
       }
-      return Ast.New(cons, values[0], values[1]);
+      return null;
     }
 
 

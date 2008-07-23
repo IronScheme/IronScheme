@@ -197,7 +197,7 @@ namespace Microsoft.Scripting.Math {
 
             if (y == 0) throw new DivideByZeroException();
 
-            throw new NotImplementedException();
+            return 0;
         }
 
         public static Complex64 Negate(Complex64 x) {

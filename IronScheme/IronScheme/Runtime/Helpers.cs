@@ -157,7 +157,7 @@ namespace IronScheme.Runtime
     {
       if (obj == null)
       {
-        Builtins.AssertionViolation(GetCaller(), "argument cannot be null");
+        return (T) Builtins.AssertionViolation(GetCaller(), "argument cannot be null");
       }
 
       if (obj != null && !(obj is T))
@@ -168,7 +168,7 @@ namespace IronScheme.Runtime
         {
           return (T)o;
         }
-        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+        return (T) Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
       }
 
       return (T)obj;

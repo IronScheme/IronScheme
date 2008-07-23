@@ -1345,7 +1345,7 @@
         (define (f* x*)
           (syntax-match x* (else)
             [() 
-             (values `(raise-continuable ,con) #t)]
+             (values `(raise ,con) #t)]
             [([else e e* ...])
              (values `(begin ,e ,@e*) #f)]
             [(cls . cls*) 
@@ -1450,7 +1450,7 @@
       (syntax-match stx ()
         ((_ expr)
          (bless `(unless ,expr
-                   (assertion-violation 'assert "assertion failed" ',expr)))))))
+                   (assertion-violation #f "assertion failed" ',expr)))))))
   
   (define endianness-macro
     (lambda (stx)

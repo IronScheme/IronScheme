@@ -630,10 +630,26 @@ namespace Microsoft.Scripting.Math {
         }
 
         public double ToFloat64() {
-            return double.Parse(
+          double d;
+          if (double.TryParse(
                 ToString(10),
+                NumberStyles.Float,
                 System.Globalization.CultureInfo.InvariantCulture.NumberFormat
-                );
+                , out d))
+          {
+            return d;
+          }
+          else
+          {
+            if (this < 0)
+            {
+              return double.NegativeInfinity;
+            }
+            else
+            {
+              return double.PositiveInfinity;
+            }
+          }
         }
 
         public int Length {

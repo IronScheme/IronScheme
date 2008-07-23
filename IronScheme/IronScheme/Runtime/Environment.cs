@@ -60,7 +60,7 @@ namespace IronScheme.Runtime
       {
         return name;
       }
-      return name.Substring(0, i);
+      return SymbolTable.StringToId(name.Substring(0, i));
     }
 
     public static object UndefinedError(object sym)
@@ -162,6 +162,26 @@ namespace IronScheme.Runtime
       else
       {
         throw new IOException(message as string);
+      }
+    }
+
+    public static object FileInUseViolation(object who, object filename)
+    {
+      if (IsR6RSLoaded())
+      {
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-file-protection-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+
+        if (!IsTrue(who))
+        {
+          who = GetCaller();
+        }
+        return R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(a.Call(filename), w.Call(CleanWho(who))));
+      }
+      else
+      {
+        throw new IOException(filename as string);
       }
     }
 
