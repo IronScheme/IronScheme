@@ -970,7 +970,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-output-port")]
     public static object OpenFileOutputPort(object filename)
     {
-      return OpenFileOutputPort(filename, fo_replace);
+      return OpenFileOutputPort(filename, null);
     }
 
     [Builtin("open-file-output-port")]
@@ -985,14 +985,54 @@ namespace IronScheme.Runtime.R6RS
       return OpenFileOutputPort(filename, fileoptions, bm_block, false);
     }
 
+    [Flags]
+    enum FileOptions
+    {
+      NoFail = 1, 
+      NoCreate = 2, 
+      NoTruncate = 4
+    }
+
+    static FieldInfo enum_value = null;
+
+    static FileOptions ToFileOptions(object fo)
+    {
+      if (fo == null)
+      {
+        return 0;
+      }
+      if (enum_value == null)
+      {
+        enum_value = fo.GetType().GetField("value", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+      }
+
+      return (FileOptions)(int)enum_value.GetValue(fo);
+    }
+
+    static FileMode GetMode(FileOptions fo)
+    {
+      if ((fo & FileOptions.NoCreate) != 0)
+      {
+        return FileMode.Open;
+      }
+      if ((fo & FileOptions.NoTruncate) != 0)
+      {
+        return FileMode.Append;
+      }
+
+      return FileMode.Create;
+    }
+
     [Builtin("open-file-output-port")]
     public static object OpenFileOutputPort(object filename, object fileoptions, object buffermode, object maybetranscoder)
     {
+      FileOptions fo = ToFileOptions(fileoptions);
+      FileMode fm =  GetMode(fo);
       string fn = RequiresNotNull<string>(filename);
       Transcoder tc = maybetranscoder as Transcoder;
       try
       {
-        Stream s = File.Create(fn);
+        Stream s = File.Open(fn, fm, FileAccess.Write);
 
         if (tc == null)
         {
@@ -1009,19 +1049,9 @@ namespace IronScheme.Runtime.R6RS
       }
       catch (Exception ex)
       {
-        if (fileoptions is Cons)
+        if ((fo & FileOptions.NoFail) != 0)
         {
-          if (IsTrue(Memq(SymbolTable.StringToId("no-fail"), fileoptions)))
-          {
-            return FALSE;
-          }
-        }
-        if (fileoptions is SymbolId)
-        {
-          if ((SymbolId)fileoptions == SymbolTable.StringToId("no-fail"))
-          {
-            return FALSE;
-          }
+          return FALSE;
         }
         if (ex.Message.StartsWith("The process cannot access the file"))
         {

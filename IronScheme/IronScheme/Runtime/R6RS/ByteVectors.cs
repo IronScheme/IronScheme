@@ -41,15 +41,27 @@ namespace IronScheme.Runtime.R6RS
       return new byte[i];
     }
 
+    static byte GetByteValue(object o)
+    {
+      int i = ConvertToInteger(o);
+
+      if (i < -128 || i > 255)
+      {
+        return (byte)AssertionViolation(GetCaller(), "too big or small for octet or byte", o);
+      }
+
+      return (byte)i;
+    }
+
     [Builtin("make-bytevector")]
     public static object MakeByteVector(object k, object fill)
     {
-      int c = RequiresNotNull<int>(fill);
+      byte c = GetByteValue(fill);
       byte[] b = new byte[RequiresNotNull<int>(k)];
 
       for (int i = 0; i < b.Length; i++)
       {
-        b[i] = (byte)c;
+        b[i] = c;
       }
       return b;
     }
@@ -87,12 +99,13 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("bytevector-fill!")]
     public static object ByteVectorFill(object v, object fill)
     {
+
       byte[] b = RequiresNotNull<byte[]>(v);
-      int c = RequiresNotNull<int>(fill);
+      byte c = GetByteValue(fill);
 
       for (int i = 0; i < b.Length; i++)
       {
-        b[i] = (byte)c;
+        b[i] = c;
       }
       return Unspecified;
     }
@@ -126,7 +139,7 @@ namespace IronScheme.Runtime.R6RS
       byte[] b1 = RequiresNotNull<byte[]>(v1);
       int i = RequiresNotNull<int>(k);
 
-      return b1[i];
+      return Convert.ToInt32(b1[i]);
     }
 
     [Builtin("bytevector-s8-ref")]
@@ -135,7 +148,7 @@ namespace IronScheme.Runtime.R6RS
       byte[] b1 = RequiresNotNull<byte[]>(v1);
       int i = RequiresNotNull<int>(k);
 
-      return (int) (sbyte) b1[i];
+      return Convert.ToInt32( (sbyte) b1[i]);
     }
 
     [Builtin("bytevector-u8-set!")]
@@ -143,9 +156,8 @@ namespace IronScheme.Runtime.R6RS
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
       int i = RequiresNotNull<int>(k);
-      int b = RequiresNotNull<int>(octet);
 
-      b1[i] = (byte)b;
+      b1[i] = Convert.ToByte(octet);
 
       return Unspecified;
     }
@@ -155,7 +167,7 @@ namespace IronScheme.Runtime.R6RS
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
       int i = RequiresNotNull<int>(k);
-      int b = RequiresNotNull<int>(@byte);
+      int b = Convert.ToInt32(@byte);
 
       b1[i] = (byte)~b;
 
@@ -176,7 +188,7 @@ namespace IronScheme.Runtime.R6RS
       byte[] buffer = new byte[bytes.Length];
       for (int i = 0; i < buffer.Length; i++)
       {
-        buffer[i] = Convert.ToByte(bytes[i]);
+        buffer[i] = GetByteValue(bytes[i]);
       }
 
       return buffer;

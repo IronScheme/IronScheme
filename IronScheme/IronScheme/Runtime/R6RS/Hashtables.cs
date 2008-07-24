@@ -27,6 +27,14 @@ namespace IronScheme.Runtime.R6RS
   {
     sealed class ReadOnlyHashtable : Hashtable
     {
+      public ReadOnlyHashtable(IDictionary content, IEqualityComparer c) : base (c)
+      {
+        foreach (DictionaryEntry de in content)
+        {
+          base.Add(de.Key, de.Value);
+        }
+      }
+
       public ReadOnlyHashtable(IDictionary content)
       {
         foreach (DictionaryEntry de in content)
@@ -112,6 +120,11 @@ namespace IronScheme.Runtime.R6RS
           return (EqualityComparer as HashComparer).equiv;
         }
       }
+
+      public Hashtable MakeReadOnly()
+      {
+        return new ReadOnlyHashtable(this, EqualityComparer);
+      }
     }
 
 
@@ -163,7 +176,14 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        return new ReadOnlyHashtable(ht);
+        if (ht is HashtableEx)
+        {
+          return ((HashtableEx)ht).MakeReadOnly();
+        }
+        else
+        {
+          return new ReadOnlyHashtable(ht);
+        }
       }
     }
 

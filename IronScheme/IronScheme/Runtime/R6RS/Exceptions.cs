@@ -78,7 +78,26 @@ namespace IronScheme.Runtime.R6RS
       }
       catch (Exception ex)
       {
-        return h.Call(ex);
+        try
+        {
+          return h.Call(ex);
+        }
+        catch (Continuation ccc)
+        {
+          if (contstack.Count > 0)
+          {
+            Continuation c = contstack.Pop();
+            if (ccc == c)
+            {
+              return c.Value;
+            }
+            else
+            {
+              throw;
+            }
+          }
+          throw;
+        }
       }
       finally
       {

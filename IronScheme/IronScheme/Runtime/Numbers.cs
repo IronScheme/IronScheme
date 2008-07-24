@@ -1449,6 +1449,9 @@ namespace IronScheme.Runtime
           div = Add(div, 1);
         }
       }
+      else if (IsTrue(IsZero(mod)))
+      {
+      }
       else if (IsTrue(IsGreaterThan(mod, b)))
       {
         if (!BothPostiveOrNegative(a,b))
@@ -1503,7 +1506,7 @@ namespace IronScheme.Runtime
       object[] dv = (object[]) DivMod(a, b);
       object div = dv[0];
       object mod = dv[1];
-      object h = Divide( b , 2);
+      object h = Floor(Divide( b , 2));
 
       if (IsTrue(IsGreaterThan(mod, h)) && IsTrue(IsGreaterThan(mod, Subtract(h))))
       {
