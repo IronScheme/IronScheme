@@ -216,7 +216,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s2.CompareTo(s1) < 0);
+      return GetBool(s1.CompareTo(s2) < 0);
     }
 
     [Builtin("string<?")]
@@ -252,7 +252,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s2.CompareTo(s1) > 0);
+      return GetBool(s1.CompareTo(s2) > 0);
     }
 
     [Builtin("string>?")]
@@ -288,7 +288,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s2.CompareTo(s1) <= 0);
+      return GetBool(s1.CompareTo(s2) <= 0);
     }
 
     [Builtin("string<=?")]
@@ -324,7 +324,7 @@ namespace IronScheme.Runtime
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool(s2.CompareTo(s1) >= 0);
+      return GetBool(s1.CompareTo(s2) >= 0);
     }
 
     [Builtin("string>=?")]

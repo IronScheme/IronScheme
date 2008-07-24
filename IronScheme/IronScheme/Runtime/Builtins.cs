@@ -374,7 +374,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       int c = ++evalcounter;
 
-#if DEBUG_FULL
+#if DEBUG
 
       // bad for ASP.NET
       if (Assembly.GetEntryAssembly() != null)
@@ -385,7 +385,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
           SymbolId pp = SymbolTable.StringToId("pretty-print");
           if (cc.Scope.ContainsName(pp))
           {
-            prettyprint = SymbolValue(cc, pp) as ICallable;
+            prettyprint = SymbolValue(pp) as ICallable;
           }
 
           if (!Directory.Exists("evaldump"))
