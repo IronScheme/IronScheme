@@ -28,7 +28,7 @@
       enum-set-subset?
       enum-set-union)
       (only (ironscheme) fprintf gensym)
-      (ironscheme core)
+      (only (ironscheme core) reverse!) ; for reverse!
       (ironscheme records printer)) 
  
   ; rtd -> hashtable(symbol -> int)
@@ -108,18 +108,19 @@
   (define (enum-set-indexer enumset)
     (assert-enum 'enum-set-indexer enumset)
     (lambda (symbol)
-      (let f ((s (get-symbols (record-rtd enumset)))
-              (i 0))
-        (if (null? s) 
-          #f
-          (if (eq? (car s) symbol) 
-            i
-            (f (cdr s) (+ i 1)))))))
+      (unless (symbol? symbol)
+        (assertion-violation 'enum-set-indexer "not a symbol" symbol))
+      (let ((v (get-value (record-rtd enumset) symbol)))
+        (if v
+          (- (bitwise-length v) 1)
+          #f))))
           
   (define (enum-set-constructor enumset)
     (assert-enum 'enum-set-constructor enumset)
     (let ((rtd (record-rtd enumset)))
       (lambda (symbols)
+        (unless (for-all symbol? symbols)
+          (assertion-violation 'enum-set-constructor "not a list of symbols" symbols))
         (let f ((v 0)(s symbols))
           (if (null? s)
             (construct rtd v)
@@ -213,12 +214,15 @@
           (rtd2 (record-rtd enumset2)))
       (if (eq? rtd1 rtd2)
         (construct rtd1
-          (bitwise-xor v1 v2))
+          (bitwise-xor v1 (bitwise-and v1 v2)))
         #f)))   
 
   (define (enum-set-complement enumset)
     (assert-enum 'enum-set-complement enumset)
-    (enum-set-difference enumset (enum-set-universe enumset)))
+    (let ((v (enum-value enumset))
+          (u (enum-value (enum-set-universe enumset))))
+      (construct (record-rtd enumset)
+        (bitwise-and (bitwise-not v) u))))
         
   (define (enum-set-projection enumset1 enumset2)
     (assert-enum 'enum-set-projection enumset1)
