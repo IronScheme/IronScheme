@@ -89,7 +89,6 @@ public int Make(Tokens token)
 %}
 
 
-
 line_comment           (";"[^\n]*)|("#!"[^\n]*)
 
 ignore_datum           "#;"
@@ -168,20 +167,23 @@ num8                   ({prefix8}{complex8})
 num10                  ({prefix10}{complex10})
 num16                  ({prefix16}{complex16})
 
-number                 ({num2}|{num8}|{num10}|{num16}){delimiter}
-bad_number             ({num2}|{num8}|{num10}|{num16}){numbut_delimiter}+
+number                 ({num2}|{num8}|{num10}|{num16})
 
-good_dot               "."{delimiter}
+good_number            {number}{delimiter}
+bad_number             {number}{numbut_delimiter}+
+
+good_dot               "."{delimiter}?
 bad_dot                "."{but_delimiter}+
-
 
 
 single_char            [^\n ]
 character              {single_char}
 char_hex_esc_seq       (#\\x({digit16})+)
-char_esc_seq           (#\\(nul|alarm|backspace|tab|linefeed|newline|vtab|page|return|esc|space|delete))
-character_literal      ((#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}){delimiter}
-bad_char               ((#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq}){but_delimiter}+
+char_esc_seq           (#\\("nul"|alarm|backspace|tab|linefeed|newline|vtab|page|return|esc|space|delete))
+character_literal      ((#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq})
+
+good_char              {character_literal}{delimiter}
+bad_char               {character_literal}{but_delimiter}+
 
 single_string_char     [^\\\"]
 string_esc_seq         (\\[\"\\abfnrtv])
@@ -193,6 +195,8 @@ string_literal         \"({reg_string_char})*\"
 atoms                  (#[TtFf])
 good_atoms             {atoms}{delimiter}
 bad_atoms              {atoms}{but_delimiter}+
+
+
 
 %x ML_COMMENT
 
@@ -213,9 +217,9 @@ bad_atoms              {atoms}{but_delimiter}+
  
 {good_atoms}          { return MakeBoolean(); } 
 
-{character_literal}   { return MakeChar(); }                      
+{good_char}           { return MakeChar(); }                      
 {string_literal}      { return Make(Tokens.STRING); }
-{number}              { return MakeNumber(); }
+{good_number}         { return MakeNumber(); }
 
 "["                   { return Make(Tokens.LBRACK); }                     
 "]"                   { return Make(Tokens.RBRACK); } 
@@ -252,6 +256,7 @@ bad_atoms              {atoms}{but_delimiter}+
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 {bad_char}            { Errors.Add(SourceUnit, string.Format("bad char:{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+
 .                     { Errors.Add(SourceUnit, string.Format("bad input:{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 <<EOF>>               { }

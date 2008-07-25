@@ -9,6 +9,7 @@ namespace IronScheme.Compiler
   static class Helper
   {
     static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    static Regex escapes = new Regex(@"\\[ntr\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static string CleanString(string input)
     {
@@ -22,12 +23,24 @@ namespace IronScheme.Compiler
         return ((char)iv).ToString();
       });
 
-      input = input.Replace("\\\\", "\\");
-      input = input.Replace("\\\"", "\"");
-      input = input.Replace("\\r", "\r");
-      input = input.Replace("\\n", "\n");
-      input = input.Replace("\\t", "\t");
-      input = input.Replace("\r", "");
+      input = escapes.Replace(input, delegate(Match m)
+      {
+        string s = m.Value;
+
+        switch (s[1])
+        {
+          case '\\':
+            return "\\";
+          case 'n':
+            return "\n";
+          case 't':
+            return "\t";
+          case 'r':
+            return "\r";
+        }
+        return s;
+      });
+
       // deal with string continuations
       string[] lines = input.Split('\n');
 
