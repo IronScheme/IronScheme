@@ -448,7 +448,7 @@ namespace IronScheme.Runtime.R6RS
     public static object OpenStringInputPort(object str)
     {
       string s = RequiresNotNull<string>(str);
-      return new StringReader(s + " ");
+      return new StringReader(s + " "); //lexer is broken...
     }
 
     //(standard-input-port)

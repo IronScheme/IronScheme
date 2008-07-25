@@ -182,16 +182,15 @@
       (let ((v1 (enum-value enumset1))
             (v2 (enum-value enumset2)))
         (make-enum
-          (bitwise-xor v1 (bitwise-and v1 v2))
+          (bitwise-and v1 (bitwise-not v2))
           (enum-info enumset1)))
       #f))
 
   (define (enum-set-complement enumset)
     (assert-enum 'enum-set-complement enumset)
-    (let ((v (enum-value enumset))
-          (u (enum-value (enum-set-universe enumset))))
+    (let ((v (enum-value enumset)))
       (make-enum
-        (bitwise-and (bitwise-not v) u)
+        (bitwise-not v)
         (enum-info enumset))))
 
   (define (enum-set-projection enumset1 enumset2)
