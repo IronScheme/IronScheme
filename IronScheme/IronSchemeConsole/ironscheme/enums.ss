@@ -27,17 +27,19 @@
       enum-set-projection
       enum-set-subset?
       enum-set-union)
-      (only (ironscheme) fprintf)
+      (only (ironscheme) fprintf gensym)
       (only (ironscheme core) reverse!) ; for reverse!
       (ironscheme records printer)) 
  
    ; type for enumerations
   (define-record-type enum (fields value info))
 
-  (define-record-type enum-universe (fields symbols mapping value))
+  (define-record-type enum-universe (fields id symbols mapping value))
 
   (define (enum-type=? enumset1 enumset2)
-    (eq? (enum-info enumset1) (enum-info enumset2)))
+    (eq? 
+      (enum-universe-id (enum-info enumset1))
+      (enum-universe-id (enum-info enumset2))))
 
   (define (get-symbols enumset)
     (enum-universe-symbols (enum-info enumset)))
@@ -50,31 +52,27 @@
     (unless (enum? enumset)
       (assertion-violation who "not an enumeration" enumset)))
 
-  (define (distinct symbols)
+  (define (make-info symbols)
     (let ((ht (make-eq-hashtable)))
-      (let f ((s symbols)(a '()))
+      (let f ((s symbols)(a '())(mask 1))
         (if (null? s)
-          (reverse! a)
-          (if (hashtable-contains? ht (car s))
-            (f (cdr s) a)
-            (begin
-              (hashtable-set! ht (car s) #t)
-              (f (cdr s) (cons (car s) a))))))))
+          (values (reverse! a) ht (- mask 1))
+          (let ((n (car s)))
+            (if (symbol? n)
+              (if (hashtable-contains? ht n)
+                (f (cdr s) a mask)
+                (begin
+                  (hashtable-set! ht n mask)
+                  (f 
+                    (cdr s) 
+                    (cons n a) 
+                    (bitwise-arithmetic-shift-left mask 1))))
+              (assertion-violation 'make-enumeration "not a symbol" n)))))))
 
   (define (make-enumeration symbols)
-    (unless (for-all symbol? symbols)
-      (assertion-violation 'make-enumeration "not a list of symbols" symbols))
-    (let ((s (distinct symbols))
-          (mask 1)
-          (intmap (make-eq-hashtable)))
-      (for-each
-        (lambda (e)
-          (hashtable-set! intmap e mask)
-          (set! mask (bitwise-arithmetic-shift-left mask 1)))
-        s)
-      (make-enum
-        (- mask 1)
-        (make-enum-universe s intmap (- mask 1)))))
+    (let-values (((s mapping mask) (make-info symbols)))
+      (make-enum mask
+        (make-enum-universe (gensym) s mapping mask))))
 
   (define (enum-set-universe enumset)
     (assert-enum 'enum-set-universe enumset)
@@ -94,18 +92,17 @@
   (define (enum-set-constructor enumset)
     (assert-enum 'enum-set-constructor enumset)
     (lambda (symbols)
-      (unless (for-all symbol? symbols)
-        (assertion-violation 'enum-set-constructor "not a list of symbols" symbols))
       (let f ((v 0)(s symbols))
         (if (null? s)
           (make-enum v (enum-info enumset))
-          (let ((v* (get-value enumset (car s))))
-            (if v*
-              (f (bitwise-ior v v*) (cdr s))
-              (assertion-violation
-                'enum-set-constructor
-                "not a member of enum-set"
-                (car s))))))))
+          (let ((n (car s)))
+            (if (symbol? n)
+              (let ((v* (get-value enumset n)))
+                (if v*
+                  (f (bitwise-ior v v*) (cdr s))
+                  (assertion-violation 'enum-set-constructor
+                    "not a member of enum-set" n)))
+              (assertion-violation 'enum-set-constructor "not a symbol" n)))))))
 
   (define (enum-set->list enumset)
     (assert-enum 'enum-set->list enumset)
@@ -157,41 +154,36 @@
     (assert-enum 'enum-set-union enumset1)
     (assert-enum 'enum-set-union enumset2)
     (if (enum-type=? enumset1 enumset2)
-      (let ((v1 (enum-value enumset1))
-            (v2 (enum-value enumset2)))
-        (make-enum
-          (bitwise-ior v1 v2)
-          (enum-info enumset1)))
+      (make-enum
+        (bitwise-ior (enum-value enumset1) (enum-value enumset2))
+        (enum-info enumset1))
       #f))
 
   (define (enum-set-intersection enumset1 enumset2)
     (assert-enum 'enum-set-intersection enumset1)
     (assert-enum 'enum-set-intersection enumset2)
     (if (enum-type=? enumset1 enumset2)
-      (let ((v1 (enum-value enumset1))
-            (v2 (enum-value enumset2)))
-        (make-enum
-          (bitwise-and v1 v2)
-          (enum-info enumset1)))
+      (make-enum
+        (bitwise-and (enum-value enumset1) (enum-value enumset2))
+        (enum-info enumset1))
       #f))
 
   (define (enum-set-difference enumset1 enumset2)
     (assert-enum 'enum-set-difference enumset1)
     (assert-enum 'enum-set-difference enumset2)
     (if (enum-type=? enumset1 enumset2)
-      (let ((v1 (enum-value enumset1))
-            (v2 (enum-value enumset2)))
         (make-enum
-          (bitwise-and v1 (bitwise-not v2))
-          (enum-info enumset1)))
+          (bitwise-and 
+            (enum-value enumset1) 
+            (bitwise-not (enum-value enumset2)))
+          (enum-info enumset1))
       #f))
 
   (define (enum-set-complement enumset)
     (assert-enum 'enum-set-complement enumset)
-    (let ((v (enum-value enumset)))
-      (make-enum
-        (bitwise-not v)
-        (enum-info enumset))))
+    (make-enum
+      (bitwise-not (enum-value enumset))
+      (enum-info enumset)))
 
   (define (enum-set-projection enumset1 enumset2)
     (assert-enum 'enum-set-projection enumset1)

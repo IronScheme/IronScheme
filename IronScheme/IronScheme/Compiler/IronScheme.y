@@ -82,6 +82,17 @@ static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
   return o;
 }
 
+static object MakeNumber(string input)
+{
+  object n = Builtins.StringToNumber(input);
+  if (!Builtins.IsTrue(n))
+  {
+    Builtins.LexicalError("number could not be parsed", input);
+  }
+  return n;
+}
+
+
 
 static readonly object Ignore = new object();
 static readonly SymbolId quote = SymbolTable.StringToId("quote");
@@ -134,7 +145,7 @@ expr
     : list                                        { $$ = $1;}
     | SYMBOL                                      { $$ = SymbolTable.StringToId($1); }
     | STRING                                      { $$ = Helper.CleanString($1); }
-    | NUMBER                                      { $$ = skipnumbers ? null : Builtins.StringToNumber($1);}
+    | NUMBER                                      { $$ = skipnumbers ? null : MakeNumber($1);}
     | LITERAL                                     { $$ = $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null);}
     | CHARACTER                                   { $$ = $1[0];}
     | VECTORLBRACE exprlist RBRACE                { $$ = SetLocation(Builtins.ListToVector($2),@1,@3);}

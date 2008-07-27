@@ -45,17 +45,15 @@ namespace IronScheme.Runtime.R6RS
 
     class Transcoder
     {
-      public Encoding codec;
-      public SymbolId eolstyle;
-      public SymbolId handlingmode;
+      public Encoding codec = Encoding.Default;
+      public SymbolId eolstyle = eol_crlf;
+      public SymbolId handlingmode = SymbolTable.StringToId("replace");
 
       public static readonly Transcoder native;
 
       static Transcoder()
       {
         native = new Transcoder();
-        native.codec = Encoding.Default;
-        native.eolstyle = eol_crlf;
       }
     }
 
@@ -64,10 +62,12 @@ namespace IronScheme.Runtime.R6RS
     //(utf-8-codec) 
     //(utf-16-codec)
 
+    static Encoding latin1 = Encoding.GetEncoding(858); 
+
     [Builtin("latin-1-codec")]
     public static object Latin1Codec()
     {
-      return Encoding.Default;
+      return latin1;
     }
 
     [Builtin("utf-8-codec")]
@@ -198,8 +198,15 @@ namespace IronScheme.Runtime.R6RS
     {
       Stream s = RequiresNotNull<Stream>(binaryport);
       Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
+      
       if (s.CanRead)
       {
+        if (s is MemoryStream && s.CanWrite)
+        {
+          StreamWriter w = new StreamWriter(s, tc.codec);
+          w.AutoFlush = true;
+          return w;
+        }
         return new StreamReader(s, tc.codec);
       }
       if (s.CanWrite)
@@ -216,7 +223,9 @@ namespace IronScheme.Runtime.R6RS
       Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
       if (s.CanWrite)
       {
-        return new StreamWriter(s, tc.codec);
+        StreamWriter w = new StreamWriter(s, tc.codec);
+        w.AutoFlush = true;
+        return w;
       }
       return FALSE;
     }
@@ -237,6 +246,10 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("port-has-port-position?")]
     public static object PortHasPortPosition(object port)
     {
+      if (port is CustomStream)
+      {
+        return GetBool(((CustomStream)port).HasPosition);
+      }
       if (port is Stream)
       {
         return TRUE;
@@ -254,15 +267,15 @@ namespace IronScheme.Runtime.R6RS
     {
       if (port is Stream)
       {
-        return ((Stream)port).Position;
+        return (int)((Stream)port).Position;
       }
       if (port is StreamReader)
       {
-        return ((StreamReader)port).BaseStream.Position;
+        return (int)((StreamReader)port).BaseStream.Position;
       }
       if (port is StreamWriter)
       {
-        return ((StreamWriter)port).BaseStream.Position;
+        return (int)((StreamWriter)port).BaseStream.Position;
       }
 
       return -1;
@@ -386,7 +399,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-input-port")]
     public static object OpenFileInputPort(object filename, object fileoptions, object buffermode)
     {
-      return OpenFileInputPort(filename, fileoptions, bm_block, false);
+      return OpenFileInputPort(filename, fileoptions, bm_block, FALSE);
     }
 
     [Builtin("open-file-input-port")]
@@ -422,7 +435,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-bytevector-input-port")]
     public static object OpenBytevectorInputPort(object bytevector)
     {
-      return OpenBytevectorInputPort(bytevector, false);
+      return OpenBytevectorInputPort(bytevector, FALSE);
     }
 
     [Builtin("open-bytevector-input-port")]
@@ -448,7 +461,7 @@ namespace IronScheme.Runtime.R6RS
     public static object OpenStringInputPort(object str)
     {
       string s = RequiresNotNull<string>(str);
-      return new StringReader(s + " "); //lexer is broken...
+      return new StringReader(s); //lexer is broken...
     }
 
     //(standard-input-port)
@@ -458,7 +471,12 @@ namespace IronScheme.Runtime.R6RS
       return Console.OpenStandardInput();
     }
 
-    class CustomBinaryInputStream : Stream
+    abstract class CustomStream : Stream
+    {
+      public abstract bool HasPosition { get ; }
+    }
+
+    class CustomBinaryInputStream : CustomStream
     {
       string id;
       ICallable read, get_pos, set_pos, close;
@@ -493,6 +511,11 @@ namespace IronScheme.Runtime.R6RS
 
       }
 
+      public override bool HasPosition
+      {
+        get { return get_pos != null; }
+      }
+
       public override long Length
       {
         get { throw new Exception("The method or operation is not implemented."); }
@@ -513,7 +536,7 @@ namespace IronScheme.Runtime.R6RS
         {
           if (set_pos != null)
           {
-            set_pos.Call(value);
+            set_pos.Call((int)value);
           }
         }
       }
@@ -1020,7 +1043,7 @@ namespace IronScheme.Runtime.R6RS
         return FileMode.Append;
       }
 
-      return FileMode.Create;
+      return FileMode.CreateNew;
     }
 
     [Builtin("open-file-output-port")]
@@ -1057,6 +1080,10 @@ namespace IronScheme.Runtime.R6RS
         {
           return FileInUseViolation("open-file-output-port", filename);
         }
+        if (ex.Message.EndsWith("already exists."))
+        {
+          return FileAlreadyExistsViolation("open-file-output-port", filename);
+        }
         else
         {
           return AssertionViolation("open-file-output-port", ex.Message, filename);
@@ -1067,18 +1094,17 @@ namespace IronScheme.Runtime.R6RS
     //(open-bytevector-output-port) 
     //(open-bytevector-output-port maybe-transcoder)
     [Builtin("open-bytevector-output-port")]
-    public static object OpenBytevectorOutputPort(object bytevector)
+    public static object OpenBytevectorOutputPort()
     {
-      return OpenBytevectorOutputPort(bytevector, false);
+      return OpenBytevectorOutputPort(false);
     }
 
     [Builtin("open-bytevector-output-port")]
-    public static object OpenBytevectorOutputPort(object bytevector, object maybetranscoder)
+    public static object OpenBytevectorOutputPort(object maybetranscoder)
     {
-      byte[] b = RequiresNotNull<byte[]>(bytevector);
       Transcoder tc = maybetranscoder as Transcoder;
 
-      MemoryStream s = new MemoryStream(b);
+      MemoryStream s = new MemoryStream();
 
       CallTarget0 extract = delegate
       {
@@ -1104,7 +1130,8 @@ namespace IronScheme.Runtime.R6RS
 
       using (MemoryStream s = new MemoryStream())
       {
-        c.Call(tc == null ? s : TranscodedPort(s, tc));
+        object p = tc == null ? s : TranscodedOutputPort(s, tc);
+        c.Call(p);
         return s.ToArray();
       }
     }
@@ -1140,7 +1167,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
 
-    class CustomBinaryOutputStream : Stream
+    class CustomBinaryOutputStream : CustomStream
     {
       string id;
       ICallable write, get_pos, set_pos, close;
@@ -1170,6 +1197,11 @@ namespace IronScheme.Runtime.R6RS
         get { return true; }
       }
 
+      public override bool HasPosition
+      {
+        get { return get_pos != null; }
+      }
+
       public override void Flush()
       {
 
@@ -1195,7 +1227,7 @@ namespace IronScheme.Runtime.R6RS
         {
           if (set_pos != null)
           {
-            set_pos.Call(value);
+            set_pos.Call((int)value);
           }
         }
       }
@@ -1307,7 +1339,6 @@ namespace IronScheme.Runtime.R6RS
 
       try
       {
-
         s.WriteByte(b);
         return Unspecified;
       }
@@ -1538,7 +1569,7 @@ namespace IronScheme.Runtime.R6RS
 
 
 
-    class CustomBinaryInputOutputStream : Stream
+    class CustomBinaryInputOutputStream : CustomStream
     {
       string id;
       ICallable read, write, get_pos, set_pos, close;
@@ -1574,6 +1605,11 @@ namespace IronScheme.Runtime.R6RS
 
       }
 
+      public override bool HasPosition
+      {
+        get { return get_pos != null; }
+      }
+
       public override long Length
       {
         get { throw new Exception("The method or operation is not implemented."); }
@@ -1594,7 +1630,7 @@ namespace IronScheme.Runtime.R6RS
         {
           if (set_pos != null)
           {
-            set_pos.Call(value);
+            set_pos.Call((int)value);
           }
         }
       }

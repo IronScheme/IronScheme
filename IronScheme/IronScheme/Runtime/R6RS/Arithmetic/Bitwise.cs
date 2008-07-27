@@ -176,7 +176,16 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object BitWiseArithmeticShift(object ei, object k)
     {
       BigInteger bi = ConvertToBigInteger(ei);
-      BigInteger ki = ConvertToBigInteger(k);
+      int ki = ConvertToInteger(k);
+      
+      int ii;
+      if (bi.AsInt32(out ii))
+      {
+        if (ki < 0)
+        {
+          return ii >> -ki;
+        }
+      }
 
       if (ki == 0)
       {
@@ -184,11 +193,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       if (ki < 0)
       {
-        return ToIntegerIfPossible(bi >> -(int)ki);
+        return ToIntegerIfPossible(bi >> -ki);
       }
       else
       {
-        return ToIntegerIfPossible(bi << (int)ki);
+        return ToIntegerIfPossible(bi << ki);
       }
     }
   }

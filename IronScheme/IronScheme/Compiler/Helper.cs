@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using IronScheme.Runtime;
 
 namespace IronScheme.Compiler
 {
   static class Helper
   {
     static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    static Regex escapes = new Regex(@"\\[ntr\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    static Regex escapes = new Regex(@"\\[ntr\\""]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static string CleanString(string input)
     {
@@ -36,44 +37,71 @@ namespace IronScheme.Compiler
           case 't':
             return "\t";
           case 'r':
-            return "\r";
+            return "";
+          case '"':
+            return "\"";
         }
         return s;
       });
 
+      input = input.Replace("\r", "");
+
+      return ProcessStringContinuations(input);
+    }
+
+    private static string ProcessStringContinuations(string input)
+    {
       // deal with string continuations
       string[] lines = input.Split('\n');
 
-      List<string> fixup = new List<string>();
-
-      for (int i = 0; i < lines.Length; i++)
+      if (lines.Length > 1)
       {
-        if (lines[i].EndsWith("\\") && lines.Length > 1)
+        List<string> fixup = new List<string>();
+
+        bool refix = false;
+
+        for (int i = 0; i < lines.Length; i++)
         {
-          string line = lines[i];
-          string tail = lines[i + 1];
-
-          int index = 0;
-          for (int j = 0; j < tail.Length; j++)
+          if (lines[i].EndsWith("\\"))
           {
-            if (!(tail[j] == ' ' || tail[j] == '\t'))
-            {
-              index = j;
-              break;
-            }
-          }
+            string line = lines[i];
+            string tail = lines[i + 1];
 
-          string newline = line.Substring(0, line.Length - 1) + tail.Substring(index);
-          fixup.Add(newline);
-          i++;
+            int index = 0;
+            for (int j = 0; j < tail.Length; j++)
+            {
+              if (!(tail[j] == ' ' || tail[j] == '\t'))
+              {
+                index = j;
+                break;
+              }
+            }
+
+            string newline = line.Substring(0, line.Length - 1) + tail.Substring(index);
+            fixup.Add(newline);
+            refix = true;
+            i++;
+          }
+          else
+          {
+            fixup.Add(lines[i]);
+          }
+        }
+
+        string c = string.Join("\n", fixup.ToArray());
+        if (refix)
+        {
+          return ProcessStringContinuations(c);
         }
         else
         {
-          fixup.Add(lines[i]);
+          return c;
         }
       }
-
-      return string.Join("\n", fixup.ToArray());
+      else
+      {
+        return lines[0];
+      }
     }
 
     public static string ParseChar(string input)
@@ -122,6 +150,10 @@ namespace IronScheme.Compiler
           }
           else
           {
+            if (input.Length != 3)
+            {
+              Builtins.LexicalError("unknown escape sequence", input);
+            }
             output = input[2].ToString();
           }
           break;

@@ -170,8 +170,19 @@ namespace Microsoft.Scripting {
             return new MissingMemberException(message);
         }
 
+        public delegate object AssertHandler(object who, object msg, params object[] irritants);
+
+        public static AssertHandler Assert;
+
         public static void ThrowUnboundLocalError(SymbolId name) {
+          if (Assert != null)
+          {
+            Assert(False, "variable not initialized", Ast.Variable.UnGenSym(name));
+          }
+          else
+          {
             throw new UnboundLocalException(string.Format("local variable '{0}' referenced before assignment", SymbolTable.IdToString(name)));
+          }
         }
 
         /// <summary>

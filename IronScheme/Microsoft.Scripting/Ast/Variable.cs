@@ -179,9 +179,9 @@ namespace Microsoft.Scripting.Ast {
                                 slot.EmitSet(cg);
                             } else if (_type == typeof(object)) {
                                 // Only set variables of type object to "Uninitialized"
-                              throw new UnInitializedUsageException(this, "Attempted to use uninitialized variable");
+                              //throw new UnInitializedUsageException(this, "Attempted to use uninitialized variable");
 
-//                                slot.EmitSetUninitialized(cg);
+                                slot.EmitSetUninitialized(cg);
                             }
                         }
                     }
@@ -386,6 +386,11 @@ namespace Microsoft.Scripting.Ast {
       public override string ToString()
       {
         return SymbolTable.IdToString(UnGenSym(Name));
+      }
+
+      public void SetUnInitialized()
+      {
+        _uninitialized = true;
       }
     }
 }

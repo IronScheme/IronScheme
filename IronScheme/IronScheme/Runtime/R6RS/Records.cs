@@ -403,19 +403,28 @@ namespace IronScheme.Runtime.R6RS
 
       if (ci.parent != null)
       {
-        CallTargetN n = null;
-        n = delegate(object[] parentargs)
+        CallTargetWithContextN n = null;
+        n = delegate(CodeContext cc, object[] parentargs)
         {
           Type t = ci.type.Finish();
 
           if (ci.protocol != null)
           {
-            CallTargetN m = delegate(object[] args)
+            CallTargetWithContextN m = delegate(CodeContext ccc, object[] args)
             {
               if (ci.parent.protocol != null)
               {
-                ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(SymbolTable.StringToId("vector"))) as ICallable;
+                List<object> wee = new List<object>();
+                ICallable wwww = null;
+                CallTargetN collector = delegate(object[] cargs)
+                {
+                  wee.AddRange(cargs);
+                  return wwww;
+                };
+                wwww = Closure.Make(ccc, collector);
+                ICallable parent_protocol = ci.parent.protocol.Call(wwww) as ICallable;
                 parentargs = parent_protocol.Call(parentargs) as object[];
+                parentargs = wee.ToArray();
               }
               object[] allargs = new object[parentargs.Length + args.Length];
               Array.Copy(parentargs, allargs, parentargs.Length);
@@ -430,8 +439,17 @@ namespace IronScheme.Runtime.R6RS
           {
             if (ci.parent.protocol != null)
             {
-              ICallable parent_protocol = ci.parent.protocol.Call(SymbolValue(SymbolTable.StringToId("vector"))) as ICallable;
+              List<object> wee = new List<object>();
+              ICallable wwww = null;
+              CallTargetN collector = delegate(object[] cargs)
+              {
+                wee.AddRange(cargs);
+                return wwww;
+              };
+              wwww = Closure.Make(cc, collector);
+              ICallable parent_protocol = ci.parent.protocol.Call(wwww) as ICallable;
               parentargs = parent_protocol.Call(parentargs) as object[];
+              parentargs = wee.ToArray();
             }
             return pp.Call(parentargs);
           }
@@ -548,7 +566,7 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordTypeName(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.type.Name;
+      return SymbolTable.StringToId(r.type.Name);
     }
 
     [Builtin("record-type-parent")]
@@ -599,7 +617,7 @@ namespace IronScheme.Runtime.R6RS
       return names.ToArray();
     }
 
-    [Builtin("record-type-mutable?")]
+    [Builtin("record-field-mutable?")]
     public static object IsRecordFieldMutable(object rtd, object k)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);

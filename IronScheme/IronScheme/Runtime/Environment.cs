@@ -58,7 +58,7 @@ namespace IronScheme.Runtime
       int i = name.LastIndexOf('$');
       if (i < 0)
       {
-        return name;
+        return who;
       }
       return SymbolTable.StringToId(name.Substring(0, i));
     }
@@ -165,6 +165,26 @@ namespace IronScheme.Runtime
       }
     }
 
+    public static object FileAlreadyExistsViolation(object who, object filename)
+    {
+      if (IsR6RSLoaded())
+      {
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-file-already-exists-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+
+        if (!IsTrue(who))
+        {
+          who = GetCaller();
+        }
+        return R6RS.Exceptions.RaiseContinueable(
+         R6RS.Conditions.Condition(a.Call(filename), w.Call(CleanWho(who))));
+      }
+      else
+      {
+        throw new IOException(filename as string);
+      }
+    }
+
     public static object FileInUseViolation(object who, object filename)
     {
       if (IsR6RSLoaded())
@@ -193,20 +213,12 @@ namespace IronScheme.Runtime
     [Builtin("assertion-violation")]
     public static object AssertionViolation(object who, object message, object irritant1)
     {
-      if (!IsTrue(who))
-      {
-        who = GetCaller();
-      }
       return AssertionViolation(who, message, new object[] { irritant1 });
     }
 
     [Builtin("assertion-violation")]
     public static object AssertionViolation(object who, object message, object irritant1, object irritant2)
     {
-      if (!IsTrue(who))
-      {
-        who = GetCaller();
-      }
       return AssertionViolation(who, message, new object[] { irritant1, irritant2 });
     }
 
@@ -220,17 +232,48 @@ namespace IronScheme.Runtime
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
         ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
-        if (!IsTrue(who))
+        if (IsTrue(who))
         {
-          who = GetCaller();
+          return R6RS.Exceptions.RaiseContinueable(
+             R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
+        }
+        else
+        {
+          return R6RS.Exceptions.RaiseContinueable(
+             R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(VectorToList(irritants))));
         }
 
-        return R6RS.Exceptions.RaiseContinueable(
-           R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
       }
       else
       {
         throw new Exception(string.Format("assertion-violation: {0}", message));
+      }
+    }
+
+    public static object ImplementationRestriction(object who, object message, params object[] irritants)
+    {
+      if (IsR6RSLoaded())
+      {
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&implementation-restriction-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
+        if (IsTrue(who))
+        {
+          return R6RS.Exceptions.RaiseContinueable(
+             R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
+        }
+        else
+        {
+          return R6RS.Exceptions.RaiseContinueable(
+             R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(VectorToList(irritants))));
+        }
+
+      }
+      else
+      {
+        throw new Exception(string.Format("implementation-restriction: {0}", message));
       }
     }
 
@@ -244,12 +287,16 @@ namespace IronScheme.Runtime
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
         ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
-        if (!IsTrue(who))
+        if (IsTrue(who))
         {
-          who = GetCaller();
+          return R6RS.Exceptions.RaiseContinueable(
+             R6RS.Conditions.Condition(e.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
         }
-        return R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(e.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
+        else
+        {
+          return R6RS.Exceptions.RaiseContinueable(
+             R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(VectorToList(irritants))));
+        }
       }
       else
       {

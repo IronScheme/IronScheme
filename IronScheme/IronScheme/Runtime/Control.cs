@@ -62,20 +62,20 @@ namespace IronScheme.Runtime
       return Ast.ReadField(null, Compiler.Generator.Unspecified);
     }
 
-    [InlineEmitter("values")]
-    public static Expression Values(Expression[] values)
-    {
-      // this will cause issues will apply/call
-      //if (values.Length == 0)
-      //{
-      //  return Ast.ReadField(null, Compiler.Generator.Unspecified);
-      //}
-      if (values.Length == 1)
-      {
-        return values[0];
-      }
-      return Ast.NewArray(typeof(object[]), values);
-    }
+    //[InlineEmitter("values")]
+    //public static Expression Values(Expression[] values)
+    //{
+    //  // this will cause issues will apply/call
+    //  //if (values.Length == 0)
+    //  //{
+    //  //  return Ast.ReadField(null, Compiler.Generator.Unspecified);
+    //  //}
+    //  if (values.Length == 1)
+    //  {
+    //    return values[0];
+    //  }
+    //  return Ast.NewArray(typeof(object[]), values);
+    //}
 
     //[InlineEmitter("call-with-current-continuation"), InlineEmitter("call/cc")]
     //public static Expression CallCC(Expression[] args)
@@ -98,7 +98,7 @@ namespace IronScheme.Runtime
       {
         return values[0];
       }
-      return values;
+      return new MultipleValues(values);
     }
 
 

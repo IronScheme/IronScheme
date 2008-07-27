@@ -63,7 +63,7 @@ namespace IronScheme.Runtime.R6RS
     {
       //TODO
       char c = RequiresNotNull<char>(obj);
-      return FALSE;
+      return char.ToLower(c, CultureInfo.InvariantCulture);
     }
 
     /// <summary>
@@ -366,7 +366,7 @@ namespace IronScheme.Runtime.R6RS
     public static object IsTitleCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
-      return IsEqualValue(obj, ToUpperCaseChar(obj));
+      return IsEqualValue(obj, ToTitleCaseChar(obj));
     }
 
     [Builtin("char-general-category")]
@@ -623,7 +623,7 @@ namespace IronScheme.Runtime.R6RS
     {
       //TODO
       string s = GetString(obj);
-      return FALSE;
+      return s.ToLower(CultureInfo.InvariantCulture);
     }
 
     [Builtin("string-normalize-nfd")]

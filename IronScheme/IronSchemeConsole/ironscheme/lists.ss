@@ -157,8 +157,10 @@
           #t
           (call-with-values (lambda () (split args))
             (lambda (cars cdrs)
-              (and (apply f cars) 
-                   (apply for-all f cdrs)))))))
+              (if (all-empty? cdrs)
+                (apply f cars)
+                (and (apply f cars) 
+                     (apply for-all f cdrs))))))))
 
   (define exists  ;;; almost
     (lambda (f . args)

@@ -441,7 +441,7 @@ namespace IronScheme.Runtime
       TextWriter w = RequiresNotNull<TextWriter>(port);
       try
       {
-        w.WriteLine();
+        w.Write('\n');
         return Unspecified;
       }
       catch (IOException ex)
@@ -687,6 +687,12 @@ namespace IronScheme.Runtime
         return R6RS.Records.PrintRecord(obj);
       }
 
+      if (obj is MultipleValues)
+      {
+        object[] values = ((MultipleValues)obj).ToArray();
+        return string.Join("\n", Array.ConvertAll<object, string>(values, DisplayFormat));
+      }
+
       return obj.ToString();
     }
 
@@ -751,6 +757,7 @@ namespace IronScheme.Runtime
           case (char) 12: return "#\\page";
           case (char) 13: return "#\\return";
           case (char) 27: return "#\\esc";
+          case (char) 32: return "#\\space";
           case (char) 127: return "#\\delete";
         }
 
@@ -841,6 +848,12 @@ namespace IronScheme.Runtime
       if (R6RS.Records.IsRecordAny(obj))
       {
         return R6RS.Records.PrintRecord(obj);
+      }
+
+      if (obj is MultipleValues)
+      {
+        object[] values = ((MultipleValues)obj).ToArray();
+        return string.Join("\n", Array.ConvertAll<object, string>(values, WriteFormat));
       }
 
       return obj.ToString();

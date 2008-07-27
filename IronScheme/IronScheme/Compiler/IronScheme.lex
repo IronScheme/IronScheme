@@ -103,11 +103,10 @@ delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
 but_delimiter          [^\[\]\(\)\";#\r\n\t ]
 numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
 
-unichar                \x03bb
 
-digit                  [0-9]
-letter                 [a-zA-Z]
-idinitial              ("->"|({letter})|({unichar})|[!$%*/:<=>?~_^&])
+digit                  [[:IsDigit:]]
+letter                 [[:IsLetter:]]
+idinitial              ("->"|({letter})|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
 identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 

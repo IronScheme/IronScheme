@@ -492,9 +492,9 @@
     (vector?                                    i r ba se)
     (zero?                                      i r ba se)
     (...                                        i r ba sc se)
-    (=>                                         i r ba ex se)
+    (=>                                         i r ba ex se ne)
     (_                                          i r ba sc)
-    (else                                       i r ba ex se)
+    (else                                       i r ba ex se ne)
     ;;;
     (bitwise-arithmetic-shift                   i r bw)
     (bitwise-arithmetic-shift-left              i r bw)
