@@ -25,6 +25,7 @@ namespace IronScheme.Compiler
   [Generator("letrec")]
   public sealed class LetrecGenerator : SimpleGenerator
   {
+    
     int level = 0;
     public override Expression Generate(object args, CodeBlock c)
     {
@@ -44,7 +45,9 @@ namespace IronScheme.Compiler
         Cons d = a.car as Cons;
         Variable t = cb.CreateVariable((SymbolId)Builtins.GenSym(d.car), Variable.VariableKind.Temporary , typeof(object));
         temps.Add(t);
-        vars.Add(Create((SymbolId)d.car, cb, typeof(object)));
+        Variable r = Create((SymbolId)d.car, cb, typeof(object));
+        r.SetUnInitialized();
+        vars.Add(r);
         defs.Add(((Cons)d.cdr).car);
 
         a = a.cdr as Cons;

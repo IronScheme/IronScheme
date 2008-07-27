@@ -203,7 +203,7 @@ namespace IronScheme.Compiler
                       pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
                     }
 
-                    return Ast.Comma(Ast.Assign(values, Ast.ConvertHelper(CallNormal(pcbe), typeof(object[]))), CallNormal(ccbe, pppp));
+                    return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(CallNormal(pcbe), typeof(MultipleValues).GetMethod("ToArray"))), CallNormal(ccbe, pppp));
                   }
                 }
               }
@@ -239,7 +239,7 @@ namespace IronScheme.Compiler
                     pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
                   }
 
-                  return Ast.Comma(Ast.Assign(values, Ast.ConvertHelper(Ast.Call(exx, callx), typeof(object[]))), CallNormal(ccbe, pppp));
+                  return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(Ast.Call(exx, callx), typeof(MultipleValues).GetMethod("ToArray"))), CallNormal(ccbe, pppp));
                 }
               }
             }
@@ -295,7 +295,7 @@ namespace IronScheme.Compiler
                 }
               }
               Closure clos = m as Closure;
-              if (clos != null)
+              if (clos != null && false)
               {
                 // no provision for varargs
                 MethodInfo[] mis = clos.Targets;

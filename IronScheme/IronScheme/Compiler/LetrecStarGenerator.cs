@@ -41,8 +41,9 @@ namespace IronScheme.Compiler
       while (a != null)
       {
         Cons d = a.car as Cons;
-
-        vars.Add(Create((SymbolId)d.car, cb, typeof(object)));
+        Variable r = Create((SymbolId)d.car, cb, typeof(object));
+        r.SetUnInitialized();
+        vars.Add(r);
         defs.Add(((Cons)d.cdr).car);
 
         a = a.cdr as Cons;

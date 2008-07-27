@@ -37,6 +37,15 @@ namespace IronScheme.Runtime
     {
       return Builtins.StringToSymbol(value.ToString().ToLower());
     }
+
+    public static object CheckInitialized(object value)
+    {
+      if (value == Microsoft.Scripting.Uninitialized.Instance)
+      {
+        return Builtins.AssertionViolation("letrec", "attempted to use uninitialized variable");
+      }
+      return value;
+    }
     
 
     public static T SymbolToEnum<T>(object symbol)

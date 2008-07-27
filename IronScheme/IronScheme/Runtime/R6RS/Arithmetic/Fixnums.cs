@@ -450,13 +450,13 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxdiv")]
     public static object FxDiv(object a, object b)
     {
-      return ((object[])FxDivMod(a, b))[0];
+      return ((MultipleValues)FxDivMod(a, b))[0];
     }
 
     [Builtin("fxmod")]
     public static object FxMod(object a, object b)
     {
-      return ((object[])FxDivMod(a, b))[1];
+      return ((MultipleValues)FxDivMod(a, b))[1];
     }
 
     [Builtin("fxdiv-and-mod")]
@@ -494,13 +494,13 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("fxdiv0")]
     public static object FxDiv0(object a, object b)
     {
-      return ((object[])FxDiv0Mod0(a, b))[0];
+      return ((MultipleValues)FxDiv0Mod0(a, b))[0];
     }
 
     [Builtin("fxmod0")]
     public static object FxMod0(object a, object b)
     {
-      return ((object[])FxDiv0Mod0(a, b))[1];
+      return ((MultipleValues)FxDiv0Mod0(a, b))[1];
     }
 
     [Builtin("fxdiv0-and-mod0")]
@@ -509,7 +509,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int a = RequiresNotNull<int>(x1);
       int b = RequiresNotNull<int>(x2);
 
-      object[] dv = (object[])FxDivMod(x1, x2);
+      MultipleValues dv = (MultipleValues)FxDivMod(x1, x2);
       int div = (int)dv[0];
       int mod = (int)dv[1];
       int h = b / 2;

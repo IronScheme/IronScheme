@@ -1378,6 +1378,7 @@ namespace Microsoft.Scripting.Math {
             return x >> shift;
         }
 
+      //broken, doesnt work for -1 1
         public static BigInteger operator >>(BigInteger x, int shift) {
             if (object.ReferenceEquals(x, null)) {
                 throw new ArgumentNullException("x");

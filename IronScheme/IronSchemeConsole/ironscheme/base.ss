@@ -297,7 +297,9 @@
     
     ;; from SLIB
     (define (rationalize x e) 
-      (apply / (find-ratio x e)))
+      (if (and (infinite? x) (infinite? e))
+        +nan.0
+        (apply / (find-ratio x e))))
 
     (define (find-ratio x e) 
       (find-ratio-between (- x e) (+ x e)))

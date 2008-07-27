@@ -125,16 +125,16 @@
     (bytevector-sint-ref bytevector k (native-endianness) 2))
     
   (define (bytevector-u16-set! bytevector k n endianness)     
-    (bytevector-uint-ref bytevector k endianness 2))
+    (bytevector-uint-set! bytevector k n endianness 2))
     
   (define (bytevector-s16-set! bytevector k n endianness)     
-    (bytevector-sint-ref bytevector k endianness 2))
+    (bytevector-sint-set! bytevector k n endianness 2))
     
   (define (bytevector-u16-native-set! bytevector k n)     
-    (bytevector-uint-ref bytevector k (native-endianness) 2))
+    (bytevector-uint-set! bytevector k n (native-endianness) 2))
     
   (define (bytevector-s16-native-set! bytevector k n)     
-    (bytevector-sint-ref bytevector k (native-endianness) 2))
+    (bytevector-sint-set! bytevector k n (native-endianness) 2))
      
   (define (bytevector-u32-ref bytevector k endianness)     
     (bytevector-uint-ref bytevector k endianness 4))
@@ -149,16 +149,16 @@
     (bytevector-sint-ref bytevector k (native-endianness) 4))
     
   (define (bytevector-u32-set! bytevector k n endianness)     
-    (bytevector-uint-ref bytevector k endianness 4))
+    (bytevector-uint-set! bytevector k n endianness 4))
     
   (define (bytevector-s32-set! bytevector k n endianness)     
-    (bytevector-sint-ref bytevector k endianness 4))
+    (bytevector-sint-set! bytevector k n endianness 4))
     
   (define (bytevector-u32-native-set! bytevector k n)       
-    (bytevector-uint-ref bytevector k (native-endianness) 4))
+    (bytevector-uint-set! bytevector k n (native-endianness) 4))
     
   (define (bytevector-s32-native-set! bytevector k n)     
-    (bytevector-sint-ref bytevector k (native-endianness) 4))
+    (bytevector-sint-set! bytevector k n (native-endianness) 4))
      
   (define (bytevector-u64-ref bytevector k endianness)     
     (bytevector-uint-ref bytevector k endianness 8))
@@ -173,27 +173,35 @@
     (bytevector-sint-ref bytevector k (native-endianness) 8))
     
   (define (bytevector-u64-set! bytevector k n endianness)     
-    (bytevector-uint-ref bytevector k endianness 8))
+    (bytevector-uint-set! bytevector k n endianness 8))
     
   (define (bytevector-s64-set! bytevector k n endianness)     
-    (bytevector-sint-ref bytevector k endianness 8))
+    (bytevector-sint-set! bytevector k n endianness 8))
     
   (define (bytevector-u64-native-set! bytevector k n)     
-    (bytevector-uint-ref bytevector k (native-endianness) 8))
+    (bytevector-uint-set! bytevector k n (native-endianness) 8))
     
   (define (bytevector-s64-native-set! bytevector k n)    
-    (bytevector-sint-ref bytevector k (native-endianness) 8))
+    (bytevector-sint-set! bytevector k n (native-endianness) 8))
     
   (define (bytevector-ieee-single-native-ref bytevector k)
-    (bytevector-ieee-single-ref bytevector k (native-endianness)))
+    (if (not (zero? (mod k 4)))
+      (assertion-violation 'bytevector-ieee-single-native-ref "must be multiple of 4" k)
+      (bytevector-ieee-single-ref bytevector k (native-endianness))))
     
   (define (bytevector-ieee-double-native-ref bytevector k)     
-    (bytevector-ieee-double-ref bytevector k (native-endianness)))
+    (if (not (zero? (mod k 8)))
+      (assertion-violation 'bytevector-ieee-double-native-ref "must be multiple of 8" k)
+      (bytevector-ieee-double-ref bytevector k (native-endianness))))
     
   (define (bytevector-ieee-single-native-set! bytevector k x)     
-    (bytevector-ieee-single-set! bytevector k x (native-endianness)))    
+    (if (not (zero? (mod k 4)))
+      (assertion-violation 'bytevector-ieee-single-native-set! "must be multiple of 4" k)
+      (bytevector-ieee-single-set! bytevector k x (native-endianness))))
     
   (define (bytevector-ieee-double-native-set! bytevector k x)     
-    (bytevector-ieee-double-set! bytevector k x (native-endianness))) 
+    (if (not (zero? (mod k 8)))
+      (assertion-violation 'bytevector-ieee-double-native-set! "must be multiple of 8" k)
+      (bytevector-ieee-double-set! bytevector k x (native-endianness))))
 )
 

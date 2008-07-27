@@ -53,6 +53,10 @@ namespace IronScheme
 
     public override void UpdateSourceCodeProperties(CompilerContext context)
     {
+      if (parser == null)
+      {
+        parser = new Parser();
+      }
       parser.skipnumbers = true;
       try
       {
@@ -168,11 +172,20 @@ namespace IronScheme
       {
         scanner = new Scanner();
       }
+      
+      // hack
+      if (!code.EndsWith(" "))
+      {
+        code += " ";
+      }
+
       Scanner sc = scanner;
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;
       sc.SetSource(code, 0);
       p.scanner = sc;
+
+
 
       try
       {

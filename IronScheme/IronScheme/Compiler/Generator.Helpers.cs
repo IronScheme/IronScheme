@@ -89,6 +89,7 @@ namespace IronScheme.Compiler
       SymbolId s = SymbolTable.StringToId("call-with-values");
       cc.Scope.SetName(s, new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins),"CallWithValues")));
 
+      RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
 
       AddBuiltins(Context, typeof(Builtins));

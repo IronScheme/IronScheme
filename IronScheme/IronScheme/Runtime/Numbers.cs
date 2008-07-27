@@ -192,7 +192,14 @@ namespace IronScheme.Runtime
           }
           return obj.ToString();
         case 16:
-          return string.Format("{0:X}", obj);
+          if (IsTrue(IsNegative(obj)))
+          {
+            return string.Format("-{0:X}", Abs(obj));
+          }
+          else
+          {
+            return string.Format("{0:X}", obj);
+          }
       }
 
       return FALSE;
@@ -227,12 +234,19 @@ namespace IronScheme.Runtime
       number_parser.result = null;
       number_scanner.yy_push_state(3);
 
-      if (number_parser.Parse())
+      try
       {
-        Debug.Assert(number_parser.result != null);
-        return number_parser.result;
+        if (number_parser.Parse())
+        {
+          Debug.Assert(number_parser.result != null);
+          return number_parser.result;
+        }
+        else
+        {
+          return FALSE;
+        }
       }
-      else
+      catch
       {
         return FALSE;
       }
@@ -1412,13 +1426,13 @@ namespace IronScheme.Runtime
     [Builtin("div")]
     public static object Div(object a, object b)
     {
-      return ((object[])DivMod(a, b))[0];
+      return ((MultipleValues)DivMod(a, b))[0];
     }
 
     [Builtin("mod")]
     public static object Mod(object a, object b)
     {
-      return ((object[])DivMod(a, b))[1];
+      return ((MultipleValues)DivMod(a, b))[1];
     }
 
     [Builtin("div-and-mod")]
@@ -1449,7 +1463,7 @@ namespace IronScheme.Runtime
           div = Add(div, 1);
         }
       }
-      else if (IsTrue(IsZero(mod)))
+      else if (IsTrue(IsZero(mod)) || IsTrue(IsZero(div)))
       {
       }
       else if (IsTrue(IsGreaterThan(mod, b)))
@@ -1478,13 +1492,13 @@ namespace IronScheme.Runtime
     [Builtin("div0")]
     public static object Div0(object a, object b)
     {
-      return ((object[])Div0Mod0(a, b))[0];
+      return ((MultipleValues)Div0Mod0(a, b))[0];
     }
 
     [Builtin("mod0")]
     public static object Mod0(object a, object b)
     {
-      return ((object[])Div0Mod0(a, b))[1];
+      return ((MultipleValues)Div0Mod0(a, b))[1];
     }
 
     [Builtin("div0-and-mod0")]
@@ -1503,28 +1517,20 @@ namespace IronScheme.Runtime
       object a = x1;
       object b = x2;
 
-      object[] dv = (object[]) DivMod(a, b);
+      MultipleValues dv = (MultipleValues)DivMod(a, b);
       object div = dv[0];
       object mod = dv[1];
-      object h = Floor(Divide( b , 2));
+      object h = Abs(Divide( b , 2));
 
-      if (IsTrue(IsGreaterThan(mod, h)) && IsTrue(IsGreaterThan(mod, Subtract(h))))
+      if (IsTrue(IsGreaterThan(mod, h)) && IsTrue(IsGreaterThanOrEqual(mod, Subtract(h))))
       {
         mod = Subtract(mod, Multiply(b, Sign(b)));
-
-        if (BothPostiveOrNegative(a,b) && !IsTrue(IsSame(mod,Subtract(h))))
-        {
-          div = Subtract(div, 1);
-        }
-        else
-        {
-          div = Add(div, 1);
-        }
+        div = Divide(Subtract(a, mod), b);
       }
-      else if (IsTrue(IsSame(mod,h)))
+      else if (IsTrue(IsSame(mod, h)))
       {
         mod = Subtract(mod, Multiply(b, Sign(b)));
-        div = Add(div, 1);
+        div = Add(div, Sign(b));
       }
 
       if (exactargs)
@@ -1890,6 +1896,17 @@ namespace IronScheme.Runtime
     [Builtin("log")]
     public static object Log(object obj)
     {
+      if (IsTrue(IsZero(obj)))
+      {
+        if (IsTrue(IsExact(obj)))
+        {
+          return AssertionViolation("log", "not possible", obj);
+        }
+        else
+        {
+          return double.NegativeInfinity;
+        }
+      }
       return MathHelper(Math.Log, obj);
     }
     
@@ -1987,6 +2004,7 @@ namespace IronScheme.Runtime
       {
          return SqrtBigInteger((BigInteger)obj);
       }
+
       object res = MathHelper(Math.Sqrt, obj);
       if (IsTrue(IsExact(obj)))
       {
@@ -2011,6 +2029,7 @@ namespace IronScheme.Runtime
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)
     {
+
       bool isnegative = IsTrue(IsNegative(obj2));
 
       if (isnegative)
@@ -2024,6 +2043,10 @@ namespace IronScheme.Runtime
         BigInteger r = a.Power(Convert.ToInt32(obj2));
         if (isnegative)
         {
+          if (r == 0)
+          {
+            return ImplementationRestriction("expt", "no supported", obj1, obj2);
+          }
           return Divide(1, r);
         }
         if (r < int.MaxValue && r > int.MinValue)
@@ -2039,16 +2062,26 @@ namespace IronScheme.Runtime
         return Divide(Expt(f.Numerator, obj2), Expt(f.Denominator, obj2));
       }
 
-      object res = MathHelper(Math.Pow, obj1, obj2);
-      if (isnegative)
+      if (IsTrue(IsReal(obj1)) && IsTrue(IsReal(obj2)))
       {
-        return Divide(1, IntegerIfPossible(res));
+        object res = MathHelper(Math.Pow, obj1, obj2);
+        if (isnegative)
+        {
+          return Divide(1, IntegerIfPossible(res));
+        }
+        else
+        {
+          NumberClass e = GetNumberClass(obj1) & GetNumberClass(obj2);
+          return GetNumber(e, res);
+        }
       }
-      else
+
+      if (IsTrue(IsZero(obj1)))
       {
-        NumberClass e = GetNumberClass(obj1) & GetNumberClass(obj2);
-        return GetNumber(e, res);
+        return 0;
       }
+
+      return ImplementationRestriction("expt", "no supported", obj1, obj2);
     }
 
     static object IntegerIfPossible(object res)

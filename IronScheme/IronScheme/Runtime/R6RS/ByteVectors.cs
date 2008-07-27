@@ -27,7 +27,6 @@ namespace IronScheme.Runtime.R6RS
 {
   public class ByteVectors : Builtins
   {
-
     [Builtin("bytevector?")]
     public static object IsByteVector(object obj)
     {
@@ -169,7 +168,7 @@ namespace IronScheme.Runtime.R6RS
       int i = RequiresNotNull<int>(k);
       int b = Convert.ToInt32(@byte);
 
-      b1[i] = (byte)~b;
+      b1[i] = (byte)b;
 
       return Unspecified;
     }
@@ -336,7 +335,7 @@ namespace IronScheme.Runtime.R6RS
       switch (s)
       {
         case 1:
-          return (int) b[0];
+          return (int) b[i];
         case 2:
           return (int) BitConverter.ToUInt16(b, i);
         case 4:
@@ -362,7 +361,7 @@ namespace IronScheme.Runtime.R6RS
       switch (s)
       {
         case 1:
-          return (int) unchecked ((sbyte)b[0]);
+          return (int) unchecked ((sbyte)b[i]);
         case 2:
           return (int) BitConverter.ToInt16(b, i);
         case 4:
