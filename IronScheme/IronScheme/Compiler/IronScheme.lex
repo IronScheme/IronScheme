@@ -104,7 +104,7 @@ but_delimiter          [^\[\]\(\)\";#\r\n\t ]
 numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
 
 
-digit                  [[:IsDigit:]]
+digit                  [0-9]
 letter                 [[:IsLetter:]]
 idinitial              ("->"|({letter})|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
