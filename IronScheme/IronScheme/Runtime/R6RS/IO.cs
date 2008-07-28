@@ -62,7 +62,7 @@ namespace IronScheme.Runtime.R6RS
     //(utf-8-codec) 
     //(utf-16-codec)
 
-    static Encoding latin1 = Encoding.GetEncoding(858); 
+    static Encoding latin1 = Encoding.GetEncoding("iso-8859-1"); 
 
     [Builtin("latin-1-codec")]
     public static object Latin1Codec()
@@ -246,6 +246,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("port-has-port-position?")]
     public static object PortHasPortPosition(object port)
     {
+      if (port is CustomTextWriter)
+      {
+        return GetBool(((CustomTextWriter)port).HasPosition);
+      }
+      if (port is CustomTextReader)
+      {
+        return GetBool(((CustomTextReader)port).HasPosition);
+      }
       if (port is CustomStream)
       {
         return GetBool(((CustomStream)port).HasPosition);
@@ -265,6 +273,37 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("port-position")]
     public static object PortPosition(object port)
     {
+      if (port is CustomTextWriter)
+      {
+        CustomTextWriter ctw = (CustomTextWriter)port;
+        if (ctw.HasPosition)
+        {
+          return ctw.Position;
+        }
+        else
+        {
+          return AssertionViolation("port-position", "not supplied to custom port", port);
+        }
+      }
+      if (port is CustomTextReader)
+      {
+        CustomTextReader ctr = (CustomTextReader)port;
+        if (ctr.HasPosition)
+        {
+          return ctr.Position;
+        }
+        else
+        {
+          return AssertionViolation("port-position", "not supplied to custom port", port);
+        }
+      }
+      if (port is CustomStream)
+      {
+        if (((CustomStream)port).HasPosition)
+        {
+          return AssertionViolation("port-position", "not supplied to custom port", port);
+        }
+      }
       if (port is Stream)
       {
         return (int)((Stream)port).Position;
@@ -278,24 +317,32 @@ namespace IronScheme.Runtime.R6RS
         return (int)((StreamWriter)port).BaseStream.Position;
       }
 
-      return -1;
+      return AssertionViolation("port-position", "not supported", port);
     }
 
     //(port-has-set-port-position!? port) 
     [Builtin("port-has-set-port-position!?")]
     public static object PortHasSetPortPosition(object port)
     {
+      if (port is CustomTextWriter)
+      {
+        return GetBool(((CustomTextWriter)port).HasSetPosition);
+      }
+      if (port is CustomTextReader)
+      {
+        return GetBool(((CustomTextReader)port).HasSetPosition);
+      }
       if (port is Stream)
       {
-        return IsTrue(((Stream)port).CanSeek);
+        return GetBool(((Stream)port).CanSeek);
       }
       if (port is StreamReader)
       {
-        return IsTrue(((StreamReader)port).BaseStream.CanSeek);
+        return GetBool(((StreamReader)port).BaseStream.CanSeek);
       }
       if (port is StreamWriter)
       {
-        return IsTrue(((StreamWriter)port).BaseStream.CanSeek);
+        return GetBool(((StreamWriter)port).BaseStream.CanSeek);
       }
       return FALSE;
     }
@@ -306,17 +353,45 @@ namespace IronScheme.Runtime.R6RS
     {
       int p = RequiresNotNull<int>(pos);
 
-      if (port is Stream)
+      if (port is CustomTextWriter)
+      {
+        CustomTextWriter ctw = (CustomTextWriter)port;
+        if (ctw.HasPosition)
+        {
+          ctw.Position = p;
+        }
+        else
+        {
+          return AssertionViolation("set-port-position!", "not supplied to custom port", port);
+        }
+      }
+      else if (port is CustomTextReader)
+      {
+        CustomTextReader ctr = (CustomTextReader)port;
+        if (ctr.HasPosition)
+        {
+          ctr.Position = p;
+        }
+        else
+        {
+          return AssertionViolation("set-port-position!", "not supplied to custom port", port);
+        }
+      }
+      else if (port is Stream)
       {
         ((Stream)port).Position = p;
       }
-      if (port is StreamReader)
+      else if (port is StreamReader)
       {
         ((StreamReader)port).BaseStream.Position = p;
       }
-      if (port is StreamWriter)
+      else if (port is StreamWriter)
       {
         ((StreamWriter)port).BaseStream.Position = p;
+      }
+      else
+      {
+        return AssertionViolation("set-port-position!", "not supported", port);
       }
       return Unspecified;
     }
@@ -377,9 +452,6 @@ namespace IronScheme.Runtime.R6RS
       return eof == EOF;
     }
 
-    static SymbolId fo_replace = SymbolTable.StringToId("replace");
-
-
     //(open-file-input-port filename) 
     //(open-file-input-port filename file-options)
     //(open-file-input-port filename file-options buffer-mode)
@@ -387,7 +459,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-input-port")]
     public static object OpenFileInputPort(object filename)
     {
-      return OpenFileInputPort(filename, fo_replace);
+      return OpenFileInputPort(filename, 0);
     }
 
     [Builtin("open-file-input-port")]
@@ -529,8 +601,7 @@ namespace IronScheme.Runtime.R6RS
           {
             return Convert.ToInt64(get_pos.Call());
           }
-          AssertionViolation("get-position", "not supported");
-          return 0;
+          return (int)AssertionViolation("port-position", "not supported");
         }
         set
         {
@@ -609,6 +680,35 @@ namespace IronScheme.Runtime.R6RS
         }
 
         return res;
+      }
+
+      public bool HasPosition
+      {
+        get { return get_pos != null; }
+      }
+
+      public bool HasSetPosition
+      {
+        get { return set_pos != null; }
+      }
+
+      public int Position
+      {
+        get
+        {
+          if (get_pos != null)
+          {
+            return Convert.ToInt32(get_pos.Call());
+          }
+          return (int)AssertionViolation("port-position", "not supported");
+        }
+        set
+        {
+          if (set_pos != null)
+          {
+            set_pos.Call(value);
+          }
+        }
       }
 
       public override string ToString()
@@ -1220,8 +1320,7 @@ namespace IronScheme.Runtime.R6RS
           {
             return Convert.ToInt64(get_pos.Call());
           }
-          AssertionViolation("get-position", "not supported");
-          return 0;
+          return (int)AssertionViolation("port-position", "not supported");
         }
         set
         {
@@ -1298,6 +1397,35 @@ namespace IronScheme.Runtime.R6RS
         for (int i = 0; i < count; i++)
         {
           buffer[i] = sb[i];
+        }
+      }
+
+      public bool HasPosition
+      {
+        get { return get_pos != null; }
+      }
+
+      public bool HasSetPosition
+      {
+        get { return set_pos != null; }
+      }
+
+      public int Position
+      {
+        get
+        {
+          if (get_pos != null)
+          {
+            return Convert.ToInt32(get_pos.Call());
+          }
+          return (int)AssertionViolation("port-position", "not supported");
+        }
+        set
+        {
+          if (set_pos != null)
+          {
+            set_pos.Call(value);
+          }
         }
       }
 
@@ -1524,7 +1652,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-input/output-port")]
     public static object OpenFileInputOutputPort(object filename)
     {
-      return OpenFileInputOutputPort(filename, fo_replace);
+      return OpenFileInputOutputPort(filename, 0);
     }
 
     [Builtin("open-file-input/output-port")]
