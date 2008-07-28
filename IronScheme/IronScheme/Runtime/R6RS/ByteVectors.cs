@@ -257,12 +257,37 @@ namespace IronScheme.Runtime.R6RS
       return Encoding.UTF8.GetString(b);
     }
 
+    static byte[] TrimFront(byte[] v, int k)
+    {
+      byte[] r = new byte[v.Length - k];
+      Buffer.BlockCopy(v, k, r, 0, r.Length);
+      return r;
+    }
+
 
     [Builtin("utf16->string")]
     public static object UTF16ToString(object v, object endianess, object isendianmandatory)
     {
       byte[] b = RequiresNotNull<byte[]>(v);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
+      bool endman = IsTrue(isendianmandatory);
+
+      if (!endman)
+      {
+        if (b[0] == 0xFF && b[1] == 0xFE)
+        {
+          
+          return UTF16ToString(TrimFront(b, 2), end_little, TRUE);
+        }
+        if (b[0] == 0xFE && b[1] == 0xFF)
+        {
+          return UTF16ToString(TrimFront(b, 2), end_big, TRUE);
+        }
+        else
+        {
+          return UTF16ToString(v, endianess, TRUE);
+        }
+      }
 
       if (end == SymbolTable.StringToId("big"))
       {
@@ -277,17 +302,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("utf16->string")]
     public static object UTF16ToString(object v, object endianess)
     {
-      byte[] b = RequiresNotNull<byte[]>(v);
-      SymbolId end = RequiresNotNull<SymbolId>(endianess);
-
-      if (end == SymbolTable.StringToId("big"))
-      {
-        return UTF16BE.GetString(b);
-      }
-      else
-      {
-        return UTF16LE.GetString(b);
-      }
+      return UTF16ToString(v, endianess, FALSE);
     }
 
 
@@ -296,6 +311,24 @@ namespace IronScheme.Runtime.R6RS
     {
       byte[] b = RequiresNotNull<byte[]>(v);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
+
+      bool endman = IsTrue(isendianmandatory);
+
+      if (!endman)
+      {
+        if (b[0] == 0xFF && b[1] == 0xFE && b[2] == 0 && b[3] == 0)
+        {
+          return UTF32ToString(TrimFront(b, 4), end_little, TRUE);
+        }
+        if (b[0] == 0 && b[1] == 0 && b[2] == 0xFE && b[3] == 0xFF)
+        {
+          return UTF32ToString(TrimFront(b, 4), end_big, TRUE);
+        }
+        else
+        {
+          return UTF32ToString(v, endianess, TRUE);
+        }
+      }
 
       if (end == SymbolTable.StringToId("big"))
       {
@@ -310,18 +343,11 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("utf32->string")]
     public static object UTF32ToString(object v, object endianess)
     {
-      byte[] b = RequiresNotNull<byte[]>(v);
-      SymbolId end = RequiresNotNull<SymbolId>(endianess);
-
-      if (end == SymbolTable.StringToId("big"))
-      {
-        return UTF32BE.GetString(b);
-      }
-      else
-      {
-        return UTF32LE.GetString(b);
-      }
+      return UTF32ToString(v, endianess, FALSE);
     }
+
+    static SymbolId end_big = SymbolTable.StringToId("big");
+    static SymbolId end_little = SymbolTable.StringToId("little");
 
     //(bytevector-uint-ref bytevector k endianness size)
     [Builtin("bytevector-uint-ref")]
@@ -332,19 +358,28 @@ namespace IronScheme.Runtime.R6RS
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
 
+      byte[] sb = new byte[s];
+
+      Buffer.BlockCopy(b, i, sb, 0, s);
+
+      if (end == end_big)
+      {
+        Array.Reverse(sb);
+      }
+
       switch (s)
       {
         case 1:
-          return (int) b[i];
+          return (int) sb[i];
         case 2:
-          return (int) BitConverter.ToUInt16(b, i);
+          return (int) BitConverter.ToUInt16(sb, 0);
         case 4:
-          return (BigInteger) BitConverter.ToUInt32(b, i);
+          return (BigInteger) BitConverter.ToUInt32(sb, 0);
         case 8:
-          return (BigInteger) BitConverter.ToUInt64(b, i);
+          return (BigInteger) BitConverter.ToUInt64(sb, 0);
         default:
           byte[] data = new byte[s + 1];
-          Buffer.BlockCopy(b, i, data, 0, s);
+          Buffer.BlockCopy(sb, 0, data, 0, s);
           BigInteger bi = BigInteger.Create(data);
           return bi;
       }
@@ -358,20 +393,27 @@ namespace IronScheme.Runtime.R6RS
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
 
+      byte[] sb = new byte[s];
+
+      Buffer.BlockCopy(b, i, sb, 0, s);
+
+      if (end == end_big)
+      {
+        Array.Reverse(sb);
+      }
+
       switch (s)
       {
         case 1:
-          return (int) unchecked ((sbyte)b[i]);
+          return (int) unchecked ((sbyte)sb[0]);
         case 2:
-          return (int) BitConverter.ToInt16(b, i);
+          return (int) BitConverter.ToInt16(sb, 0);
         case 4:
-          return (int) BitConverter.ToInt32(b, i);
+          return (int) BitConverter.ToInt32(sb, 0);
         case 8:
-          return (BigInteger) BitConverter.ToInt64(b, i);
+          return (BigInteger) BitConverter.ToInt64(sb, 0);
         default:
-          byte[] data = new byte[s];
-          Buffer.BlockCopy(b, i, data, 0, s);
-          return BigInteger.Create(data);
+          return BigInteger.Create(sb);
       }
     }
 
@@ -393,20 +435,36 @@ namespace IronScheme.Runtime.R6RS
           break;
         case 2:
           data = BitConverter.GetBytes(Convert.ToUInt16(n));
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
           Buffer.BlockCopy(data, 0, b, i, s);
           break;
         case 4:
           data = BitConverter.GetBytes(Convert.ToUInt32(n));
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
           Buffer.BlockCopy(data, 0, b, i, s);
           break;
         case 8:
           data = BitConverter.GetBytes(Convert.ToUInt64(n));
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
           Buffer.BlockCopy(data, 0, b, i, s);
           break;
         default:
           BigInteger bi = (BigInteger)n;
           data = bi.ToByteArray();
-          Buffer.BlockCopy(data, 0, b, i, s);
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
+          Buffer.BlockCopy(data, (end == end_big ? 1 : 0), b, i, s);
           break;
       }
 
@@ -431,19 +489,35 @@ namespace IronScheme.Runtime.R6RS
           break;
         case 2:
           data = BitConverter.GetBytes(Convert.ToInt16(n));
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
           Buffer.BlockCopy(data, 0, b, i, s);
           break;
         case 4:
           data = BitConverter.GetBytes(Convert.ToInt32(n));
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
           Buffer.BlockCopy(data, 0, b, i, s);
           break;
         case 8:
           data = BitConverter.GetBytes(Convert.ToInt64(n));
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
           Buffer.BlockCopy(data, 0, b, i, s);
           break;
         default:
           BigInteger bi = (BigInteger)n;
           data = bi.ToByteArray();
+          if (end == end_big)
+          {
+            Array.Reverse(data);
+          }
           Buffer.BlockCopy(data, 0, b, i, s);
           break;
       }
@@ -468,7 +542,8 @@ namespace IronScheme.Runtime.R6RS
         list.Add(BytevectorUintRef(b, i, endianess, size));
       }
 
-      return Runtime.Cons.FromList(list);
+      Cons c = Runtime.Cons.FromList(list);
+      return c;
     }
 
     //(bytevector->sint-list bytevector endianness size)
@@ -488,7 +563,8 @@ namespace IronScheme.Runtime.R6RS
         list.Add(BytevectorSintRef(b, i, endianess, size));
       }
 
-      return Runtime.Cons.FromList(list);
+      Cons c = Runtime.Cons.FromList(list);
+      return c;
     }
 
     //(uint-list->bytevector list endianness size)
@@ -510,7 +586,8 @@ namespace IronScheme.Runtime.R6RS
         c = c.cdr as Cons;
       }
 
-      return blist.ToArray();
+      byte[] b = blist.ToArray();
+      return b;
     }
 
     //(sint-list->bytevector list endianness size)
@@ -532,7 +609,8 @@ namespace IronScheme.Runtime.R6RS
         c = c.cdr as Cons;
       }
 
-      return blist.ToArray();
+      byte[] b = blist.ToArray();
+      return b;
     }
 
     //(bytevector-ieee-single-ref bytevector k endianness)     
@@ -543,7 +621,16 @@ namespace IronScheme.Runtime.R6RS
       int i = RequiresNotNull<int>(k);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
 
-      return (double) BitConverter.ToSingle(b, i);
+      byte[] sb = new byte[4];
+
+      Buffer.BlockCopy(b, i, sb, 0, 4);
+
+      if (end == end_big)
+      {
+        Array.Reverse(sb);
+      }
+
+      return (double) BitConverter.ToSingle(sb, 0);
     }
 
     //(bytevector-ieee-double-ref bytevector k endianness)   
@@ -554,7 +641,16 @@ namespace IronScheme.Runtime.R6RS
       int i = RequiresNotNull<int>(k);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
 
-      return BitConverter.ToDouble(b, i);
+      byte[] sb = new byte[8];
+
+      Buffer.BlockCopy(b, i, sb, 0, 8);
+
+      if (end == end_big)
+      {
+        Array.Reverse(sb);
+      }
+
+      return BitConverter.ToDouble(sb, 0);
     }
 
     //(bytevector-ieee-single-set! bytevector k x endianness)  
@@ -568,6 +664,12 @@ namespace IronScheme.Runtime.R6RS
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
 
       byte[] data = BitConverter.GetBytes(f);
+
+      if (end == end_big)
+      {
+        Array.Reverse(data);
+      }
+
       Buffer.BlockCopy(data, 0, b, i, 4);
 
       return Unspecified;
@@ -584,6 +686,12 @@ namespace IronScheme.Runtime.R6RS
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
 
       byte[] data = BitConverter.GetBytes(f);
+
+      if (end == end_big)
+      {
+        Array.Reverse(data);
+      }
+
       Buffer.BlockCopy(data, 0, b, i, 8);
 
       return Unspecified;

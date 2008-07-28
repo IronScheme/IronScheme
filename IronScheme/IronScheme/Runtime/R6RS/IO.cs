@@ -299,7 +299,7 @@ namespace IronScheme.Runtime.R6RS
       }
       if (port is CustomStream)
       {
-        if (((CustomStream)port).HasPosition)
+        if (!((CustomStream)port).HasPosition)
         {
           return AssertionViolation("port-position", "not supplied to custom port", port);
         }
@@ -356,7 +356,7 @@ namespace IronScheme.Runtime.R6RS
       if (port is CustomTextWriter)
       {
         CustomTextWriter ctw = (CustomTextWriter)port;
-        if (ctw.HasPosition)
+        if (ctw.HasSetPosition)
         {
           ctw.Position = p;
         }
@@ -368,7 +368,7 @@ namespace IronScheme.Runtime.R6RS
       else if (port is CustomTextReader)
       {
         CustomTextReader ctr = (CustomTextReader)port;
-        if (ctr.HasPosition)
+        if (ctr.HasSetPosition)
         {
           ctr.Position = p;
         }
@@ -799,9 +799,30 @@ namespace IronScheme.Runtime.R6RS
 
         int r = s.Read(buffer, 0, k);
 
-        if (r == -1)
+        if (r == 0)
         {
           return EOF;
+        }
+        else
+        {
+          while (r != k)
+          {
+            int rr = s.Read(buffer, r, k - r);
+
+            if (rr == 0 )
+            {
+              if (r != 0)
+              {
+                break;
+              }
+              else
+              {
+                return EOF;
+              }
+            }
+
+            r += rr;
+          }
         }
 
         if (r != k)
@@ -1576,13 +1597,10 @@ namespace IronScheme.Runtime.R6RS
     {
       TextWriter s = RequiresNotNull<TextWriter>(textoutputport);
       string b = RequiresNotNull<string>(str);
-      int j = 0;
-      int k = b.Length;
 
       try
       {
-
-        s.Write(b.ToCharArray(), j, k);
+        s.Write(b);
 
         return Unspecified;
       }
@@ -1599,12 +1617,11 @@ namespace IronScheme.Runtime.R6RS
       TextWriter s = RequiresNotNull<TextWriter>(textoutputport);
       string b = RequiresNotNull<string>(str);
       int j = RequiresNotNull<int>(start);
-      int k = b.Length - j;
 
       try
       {
 
-        s.Write(b.ToCharArray(), j, k);
+        s.Write(b.Substring(j));
 
         return Unspecified;
       }
@@ -1626,7 +1643,7 @@ namespace IronScheme.Runtime.R6RS
       try
       {
 
-        s.Write(b.ToCharArray(), j, k);
+        s.Write(b.Substring(j, k));
 
         return Unspecified;
       }

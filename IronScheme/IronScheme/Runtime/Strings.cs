@@ -354,10 +354,10 @@ namespace IronScheme.Runtime
       return GetBool(head);
     }
 
-    protected static string ToLower(object obj)
+    protected static string ToUpper(object obj)
     {
       string s = GetString(obj);
-      return s.ToLower();
+      return s.ToUpper();
     }
 
     [Builtin("string->list")]
