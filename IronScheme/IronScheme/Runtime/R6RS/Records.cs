@@ -33,6 +33,7 @@ namespace IronScheme.Runtime.R6RS
     public object uid;
     public bool generative;
     public RecordConstructorDescriptor rcd;
+    public CodeGen cg;
 
     public RecordTypeDescriptor parent;
 
@@ -179,7 +180,7 @@ namespace IronScheme.Runtime.R6RS
 
       if (prtd != null)
       {
-        parenttype = prtd.Finish();
+        parenttype = prtd.type;
       }
       else if (n == "&condition")
       {
@@ -209,7 +210,7 @@ namespace IronScheme.Runtime.R6RS
 
       // predicate
 
-      MethodBuilder pb = tg.TypeBuilder.DefineMethod(n + "?", MethodAttributes.Public | MethodAttributes.Static, 
+      MethodBuilder pb = tg.TypeBuilder.DefineMethod(n + "?", MethodAttributes.Public | MethodAttributes.Static,
         typeof(object), new Type[] { typeof(object) });
 
       ILGenerator pgen = pb.GetILGenerator();
@@ -235,7 +236,7 @@ namespace IronScheme.Runtime.R6RS
         fd.name = fname;
 
         FieldAttributes fattrs = FieldAttributes.Public | FieldAttributes.InitOnly;
-        if ((bool)IsEqual(c.car,SymbolTable.StringToId("mutable")))
+        if ((bool)IsEqual(c.car, SymbolTable.StringToId("mutable")))
         {
           fd.mutable = true;
           fattrs &= ~FieldAttributes.InitOnly;
@@ -246,8 +247,8 @@ namespace IronScheme.Runtime.R6RS
 
         // accesor 
 
-        MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static, 
-          typeof(object), new Type[] { typeof(object)  });
+        MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static,
+          typeof(object), new Type[] { typeof(object) });
 
         ILGenerator agen = ab.GetILGenerator();
         agen.Emit(OpCodes.Ldarg_0);
@@ -260,7 +261,7 @@ namespace IronScheme.Runtime.R6RS
         // mutator
         if (fd.mutable)
         {
-          MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static, 
+          MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static,
             typeof(object), new Type[] { typeof(object), typeof(object) });
 
           ILGenerator mgen = mb.GetILGenerator();
@@ -279,11 +280,62 @@ namespace IronScheme.Runtime.R6RS
 
       if (parenttype != typeof(Condition) && !parenttype.IsSubclassOf(typeof(Condition)))
       {
-        CodeGen ts = tg.DefineMethodOverride(parenttype.GetMethod("ToString", Type.EmptyTypes));
+        CodeGen ts = tg.DefineMethodOverride(typeof(object).GetMethod("ToString", Type.EmptyTypes));
 
         ts.EmitThis();
         ts.EmitCall(typeof(Builtins).GetMethod("WriteFormat"));
         ts.EmitReturn();
+      }
+
+      // constructor logic
+      {
+        List<Type> paramtypes = new List<Type>();
+        List<FieldDescriptor> allfields = new List<FieldDescriptor>(rtd.GetAllFields());
+
+        int diff = allfields.Count - rtd.fields.Count;
+
+        foreach (FieldDescriptor var in allfields)
+        {
+          paramtypes.Add(typeof(object));
+        }
+
+        List<Type> parenttypes = new List<Type>();
+
+        for (int i = 0; i < diff; i++)
+        {
+          parenttypes.Add(typeof(object));
+        }
+
+        CodeGen cg = tg.DefineConstructor(paramtypes.ToArray());
+
+        for (int i = 0; i < allfields.Count; i++)
+        {
+          cg.DefineParameter(i + 1, ParameterAttributes.None, allfields[i].name);
+        }
+
+        int fi = 0;
+
+        cg.EmitThis();
+
+        for (fi = 0; fi < diff; fi++)
+        {
+          cg.EmitArgGet(fi);
+        }
+
+        cg.Emit(OpCodes.Call, (rtd.parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.parent.cg.MethodBase as ConstructorInfo));
+
+        foreach (FieldDescriptor fd in rtd.fields)
+        {
+          cg.EmitThis();
+          cg.EmitArgGet(fi);
+          cg.EmitFieldSet(fd.field);
+
+          fi++;
+        }
+
+        cg.EmitReturn();
+
+        rtd.cg = cg;
       }
 
       if (id != null)
@@ -326,37 +378,20 @@ namespace IronScheme.Runtime.R6RS
         parenttypes.Add(typeof(object));
       }
 
-      CodeGen cg = t.tg.DefineConstructor(paramtypes.ToArray());
       CodeGen mk = t.tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make", 
         t.tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
 
-      for (int i = 0; i < allfields.Count; i++)
-			{
-        cg.DefineParameter(i + 1, ParameterAttributes.None, allfields[i].name); 
-			}
-
       int fi = 0;
-
-      cg.EmitThis();
 
       for (fi = 0; fi < diff; fi++)
       {
-        cg.EmitArgGet(fi);
-
         mk.EmitArgGet(0);
         mk.EmitConstant(fi);
         mk.Emit(OpCodes.Ldelem, typeof(object));
       }
 
-      cg.Emit(OpCodes.Call,  (t.parent == null ? typeof(object) : t.parent.type).GetConstructor(parenttypes.ToArray()));
-
-
       foreach (FieldDescriptor fd in t.fields)
       {
-        cg.EmitThis();
-        cg.EmitArgGet(fi);
-        cg.EmitFieldSet(fd.field);
-
         mk.EmitArgGet(0);
         mk.EmitConstant(fi);
         mk.Emit(OpCodes.Ldelem, typeof(object));
@@ -364,12 +399,11 @@ namespace IronScheme.Runtime.R6RS
         fi++;
       }
 
-      mk.EmitNew(cg.MethodBase as ConstructorInfo);
+      mk.EmitNew(t.cg.MethodBase as ConstructorInfo);
       mk.EmitReturn();
-      cg.EmitReturn();
 
       RecordConstructorDescriptor rcd = new RecordConstructorDescriptor();
-      rcd.cg = cg;
+      rcd.cg = t.cg;
       rcd.type = t;
       rcd.protocol = protocol as ICallable;
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;

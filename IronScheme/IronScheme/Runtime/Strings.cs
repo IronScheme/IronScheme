@@ -73,7 +73,7 @@ namespace IronScheme.Runtime
     [Builtin("string-fill!")]
     public static object StringFill(object obj, object fill)
     {
-      throw new NotImplementedException();
+      return ImplementationRestriction("string-fill!", "will not be supported, ever", obj, fill);
     }
 
     [Builtin("string-ref")]
@@ -130,8 +130,7 @@ namespace IronScheme.Runtime
       {
         return str.ToString();
       }
-      AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", str);
-      return null;
+      return (string)AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", str);
     }
 
     [Builtin("substring")]
@@ -172,7 +171,7 @@ namespace IronScheme.Runtime
     [Builtin("string?")]
     public static object IsString(object obj)
     {
-      return GetBool(obj is string);
+      return GetBool(obj is string || obj is StringBuilder);
     }
 
     [Builtin("string=?")]
