@@ -81,11 +81,9 @@ namespace IronScheme.Runtime
         return false;
       }
 
-
-
       if (a.IsCyclic || b.IsCyclic)
       {
-        return false;
+        return IsTrue(IsEquivalent(a.car, b.car)) && a.cdr == b.cdr;
       }
 
       return IsTrue(IsEquivalent(a.car, b.car)) && EqualCons(a.cdr as Cons, b.cdr as Cons);
