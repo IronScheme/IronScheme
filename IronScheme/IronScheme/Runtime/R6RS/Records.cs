@@ -356,6 +356,7 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
 
+      // this wont work....
       if (!(t.type is TypeBuilder))
       {
         return t.rcd;
@@ -433,7 +434,61 @@ namespace IronScheme.Runtime.R6RS
       RecordConstructorDescriptor ci = RequiresNotNull<RecordConstructorDescriptor>(cd);
       Type tt = ci.type.Finish();
 
+      // this is foo.make(params object[] args) calls constructor(s).
       ICallable pp = ci.type.constructor;
+
+      CallTargetN np = delegate(object[] args)
+      {
+        RecordConstructorDescriptor rcd = ci;
+
+        List<ICallable> init = new List<ICallable>();
+
+        while (rcd != null)
+        {
+          if (rcd.protocol != null)
+          {
+            init.Add(rcd.protocol);
+          }
+
+          rcd = rcd.parent;
+        }
+
+        object result = args;
+
+        if (init.Count == 0)
+        {
+          result = pp.Call(args);
+        }
+        else
+        {
+          init.Reverse();
+          ICallable ppp = pp;
+
+          List<object> allargs = new List<object>();
+
+          ICallable collector = null;
+          CallTargetN xxx = delegate(object[] margs)
+          {
+            allargs.AddRange(margs);
+            return collector;
+          };
+          ppp = collector = Closure.Make(Context, xxx);
+
+          foreach (ICallable ctr in init)
+          {
+            ppp = ctr.Call(ppp) as ICallable;
+          }
+
+          ppp.Call(args);
+
+          result = pp.Call(allargs.ToArray());
+        }
+
+        return result;
+
+      };
+
+      return Closure.Make(Context, np);
 
       if (ci.parent != null)
       {
