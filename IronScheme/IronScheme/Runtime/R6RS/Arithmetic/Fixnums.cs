@@ -20,6 +20,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Math;
+using System.Collections.Specialized;
 
 namespace IronScheme.Runtime.R6RS.Arithmetic
 {
@@ -765,7 +766,31 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
     }
 
-    //(fxreverse-bit-field fx1 fx2 fx3) ; TODO
+    //(fxreverse-bit-field fx1 fx2 fx3)
+    [Builtin("fxreverse-bit-field")]
+    public static object FxReverseBitField(object fx1, object fx2, object fx3)
+    {
+      int i1 = RequiresNotNull<int>(fx1);
+      int i2 = RequiresNotNull<int>(fx2);
+      int i3 = RequiresNotNull<int>(fx3);
+
+      // this stupid thing uses a 1 index...
+      BitVector32 bitvec = new BitVector32(i1);
+
+      int range = (i3 - i2);
+
+      for (int i = i2; i < (i3 - range/2); i++)
+      {
+        int m1 = BitVector32.CreateMask(i);
+        int m2 = BitVector32.CreateMask(i3 - (i - i2));
+        bool b1 = bitvec[m1];
+        bool b2 = bitvec[m2];
+        bitvec[m1] = b2;
+        bitvec[m2] = b1;
+      }
+
+      return bitvec.Data;
+    }
 
   }
 }

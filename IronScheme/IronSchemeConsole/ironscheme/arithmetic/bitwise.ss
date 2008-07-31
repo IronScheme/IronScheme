@@ -27,7 +27,7 @@
   (import 
     (except (rnrs) bitwise-if bitwise-copy-bit bitwise-bit-field bitwise-copy-bit-field
                    bitwise-arithmetic-shift-left bitwise-arithmetic-shift-right
-                   bitwise-rotate-bit-field bitwise-reverse-bit-field))
+                   bitwise-rotate-bit-field))
   
   (define (bitwise-if ei1 ei2 ei3)
     (bitwise-ior (bitwise-and ei1 ei2)
@@ -84,7 +84,4 @@
                  (field (bitwise-ior field1 field2)))
              (bitwise-copy-bit-field n start end field))
           n)))
-          
-     (define (bitwise-reverse-bit-field ei1 ei2 ei3)
-        'TODO)
 )
