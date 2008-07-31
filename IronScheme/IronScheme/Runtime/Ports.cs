@@ -831,7 +831,7 @@ namespace IronScheme.Runtime
         return SymbolTable.IdToString((SymbolId)obj);
       }
 
-      if ((bool)IsNumber(obj))
+      if (IsTrue(IsNumber(obj)))
       {
         return NumberToString(obj) as string;
       }
@@ -885,13 +885,21 @@ namespace IronScheme.Runtime
     [Builtin("input-port?")]
     public static object IsInputPort(object obj)
     {
-      return IsTrue(obj is TextReader); 
+      if (obj is Stream)
+      {
+        return GetBool(((Stream)obj).CanRead);
+      }
+      return GetBool(obj is TextReader || obj is R6RS.IO.CustomTextReaderWriter); 
     }
 
     [Builtin("output-port?")]
     public static object IsOutputPort(object obj)
     {
-      return IsTrue(obj is TextWriter);
+      if (obj is Stream)
+      {
+        return GetBool(((Stream)obj).CanWrite);
+      }
+      return GetBool(obj is TextWriter || obj is R6RS.IO.CustomTextReaderWriter);
     }
 
     [Builtin("call-with-input-file")]

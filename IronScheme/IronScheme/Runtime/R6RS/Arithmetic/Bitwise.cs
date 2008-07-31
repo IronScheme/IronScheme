@@ -157,6 +157,10 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       {
         return FALSE;
       }
+      else if (bi == -1)
+      {
+        return TRUE;
+      }
       else
       {
         int count = 0;

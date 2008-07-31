@@ -32,7 +32,6 @@ namespace IronScheme.Runtime.R6RS
     public MethodInfo predicate;
     public object uid;
     public bool generative;
-    public RecordConstructorDescriptor rcd;
     public CodeGen cg;
 
     public RecordTypeDescriptor parent;

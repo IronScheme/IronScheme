@@ -9,6 +9,7 @@
     
     delay
     force
+    make-promise
     
     null-environment
     scheme-report-environment
@@ -17,7 +18,7 @@
   
   (import 
     (rnrs base)
-    (except (rnrs r5rs) quotient remainder modulo))
+    (except (rnrs r5rs) quotient remainder modulo force))
     
   (define (sign n)
     (cond 
@@ -33,4 +34,22 @@
   
   (define (modulo n1 n2)
     (* (sign n2) (mod (* (sign n2) n1) (abs n2)))) 
+    
+  (define make-promise
+    (lambda (proc)
+      (let ((result-ready? #f)
+            (result #f))
+        (lambda ()
+          (if result-ready?
+              result
+              (let ((x (proc)))
+                (if result-ready?
+                    result
+                    (begin (set! result-ready? #t)
+                           (set! result x)
+                           result))))))))
+                           
+  (define force
+    (lambda (object)
+      (object)))                           
 )

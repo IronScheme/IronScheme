@@ -9,6 +9,27 @@ namespace IronScheme.Compiler
 {
   static class Helper
   {
+    static Regex expnum = new Regex(@"^(?<head>-?\d+)e(?<tail>-?\d+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
+    public static object ParseReal(string s)
+    {
+      Match m = expnum.Match(s);
+      if (m.Success)
+      {
+        string head = m.Groups["head"].Value;
+        string tail = m.Groups["tail"].Value;
+
+        object hnum = Builtins.StringToNumber(head);
+        object tnum = Builtins.StringToNumber(tail);
+
+        return Builtins.Multiply(hnum, Builtins.Expt(10, tnum));
+      }
+      else
+      {
+        return null;
+      }
+    }
+
     static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     static Regex escapes = new Regex(@"\\[ntr\\""]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 

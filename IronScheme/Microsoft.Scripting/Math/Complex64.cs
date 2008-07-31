@@ -127,12 +127,19 @@ namespace Microsoft.Scripting.Math {
             return MakeReal(i.ToFloat64());
         }
 
+        static bool DoubleEqual(double f1, double f2)
+        {
+          return f1 == f2 
+            || (double.IsNegativeInfinity(f1) && double.IsNegativeInfinity(f2))
+            || (double.IsPositiveInfinity(f1) && double.IsPositiveInfinity(f2));
+        }
+
         public static bool operator ==(Complex64 x, Complex64 y) {
-            return x.real == y.real && x.imag == y.imag;
+          return DoubleEqual(x.real, y.real) && DoubleEqual(x.imag, y.imag);
         }
 
         public static bool operator !=(Complex64 x, Complex64 y) {
-            return x.real != y.real || x.imag != y.imag;
+            return !(x == y);
         }
 
         public static Complex64 Add(Complex64 x, Complex64 y) {

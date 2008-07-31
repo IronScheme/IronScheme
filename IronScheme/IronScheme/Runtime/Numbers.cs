@@ -205,8 +205,7 @@ namespace IronScheme.Runtime
       return FALSE;
     }
 
-    static Parser number_parser;
-    static Scanner number_scanner;
+
 
 
     [Builtin("string->number")]
@@ -219,17 +218,10 @@ namespace IronScheme.Runtime
         return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
       }
 
-      if (number_parser == null)
-      {
-        number_parser = new Parser();
-      }
+      Parser number_parser = new Parser();
+      Scanner number_scanner = new Scanner();
 
-      if (number_scanner == null)
-      {
-        number_scanner = new Scanner();
-        number_parser.scanner = number_scanner;
-      }
-
+      number_parser.scanner = number_scanner;
       number_scanner.SetSource(str,0);
       number_parser.result = null;
       number_scanner.yy_push_state(3);
@@ -295,7 +287,7 @@ namespace IronScheme.Runtime
     [Builtin("real?")]
     public static object IsReal(object obj)
     {
-      return GetBool(IsTrue(IsRational(obj)) || obj is float || obj is double);
+      return GetBool(IsTrue(IsRational(obj)) || obj is double);
     }
 
     [Builtin("rational?")]
@@ -307,8 +299,7 @@ namespace IronScheme.Runtime
     [Builtin("integer?")]
     public static object IsInteger(object obj)
     {
-      return GetBool(obj is int || obj is long || obj is BigInteger || obj is uint || obj is ulong 
-        || obj is byte || obj is sbyte || obj is short || obj is ushort);
+      return GetBool(obj is int || obj is BigInteger);
     }
     
     [Builtin("integer-valued?")]
@@ -321,6 +312,10 @@ namespace IronScheme.Runtime
       if (obj is Fraction)
       {
         return GetBool(((Fraction)obj).Denominator == 1);
+      }
+      if (IsTrue(IsNan(obj)) || IsTrue(IsInfinite(obj)))
+      {
+        return FALSE;
       }
       return IsZero(Mod(obj, 1));
     }
@@ -525,7 +520,11 @@ namespace IronScheme.Runtime
           result = ConvertToRational(first) == ConvertToRational(second);
           break;
         case NumberClass.Real:
-          result = ConvertToReal(first) == ConvertToReal(second);
+          double f1 = ConvertToReal(first);
+          double f2 = ConvertToReal(second);
+          result = f1 == f2 
+            || (double.IsNegativeInfinity(f1) && double.IsNegativeInfinity(f2))
+            || (double.IsPositiveInfinity(f1) && double.IsPositiveInfinity(f2));
           break;
         case NumberClass.Complex:
           result = ConvertToComplex(first) == ConvertToComplex(second);
@@ -1438,6 +1437,19 @@ namespace IronScheme.Runtime
     [Builtin("div-and-mod")]
     public static object DivMod(object x1, object x2)
     {
+      if (IsTrue(IsZero(x2)))
+      {
+        return AssertionViolation("div-and-mod", "divide by zero", x1, x2);
+      }
+      if (IsTrue(IsInfinite(x1)))
+      {
+        return AssertionViolation("div-and-mod", "cannot be infinite", x1);
+      }
+      if (IsTrue(IsNan(x1)))
+      {
+        return AssertionViolation("div-and-mod", "cannot be nan", x1);
+      }
+
       bool exactargs = IsTrue(IsExact(x1)) && IsTrue(IsExact(x2));
       object scale = 1;
 
@@ -1461,6 +1473,10 @@ namespace IronScheme.Runtime
         if (BothPostiveOrNegative(a,b))
         {
           div = Add(div, 1);
+        }
+        else if (IsTrue(IsZero(div)))
+        {
+          div = Add(div, -1);
         }
       }
       else if (IsTrue(IsZero(mod)) || IsTrue(IsZero(div)))
@@ -1907,6 +1923,17 @@ namespace IronScheme.Runtime
           return double.NegativeInfinity;
         }
       }
+      if (IsTrue(IsInfinite(obj)))
+      {
+        if (IsTrue(IsNegative(obj)))
+        {
+          return MakeRectangular(Abs(obj), 0);
+        }
+        else
+        {
+          return obj;
+        }
+      }
       return MathHelper(Math.Log, obj);
     }
     
@@ -2000,9 +2027,18 @@ namespace IronScheme.Runtime
     [Builtin("sqrt")]
     public static object Sqrt(object obj)
     {
+      if (IsTrue(IsNegative(obj)))
+      {
+        return MakeRectangular(0, Sqrt(Abs(obj)));
+      }
       if (obj is BigInteger)
       {
          return SqrtBigInteger((BigInteger)obj);
+      }
+
+      if (IsTrue(IsInfinite(obj)))
+      {
+        return obj;
       }
 
       object res = MathHelper(Math.Sqrt, obj);
