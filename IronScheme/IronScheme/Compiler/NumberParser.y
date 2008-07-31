@@ -83,6 +83,11 @@ static object Fraction(object num, object den)
 
 static object ConvertToDouble(string s)
 {
+  object r = Helper.ParseReal(s);
+  if (r != null)
+  {
+    return r;
+  }
   try
   {
     return Convert.ToDouble(s);

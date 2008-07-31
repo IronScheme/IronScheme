@@ -656,6 +656,16 @@ A ""contributor"" is any person that distributes its contribution under this lic
         return (T) AssertionViolation(GetCaller(), "argument cannot be null");
       }
 
+      if (typeof(T) == typeof(TextWriter) && obj is R6RS.IO.CustomTextReaderWriter)
+      {
+        return (T)(object)((R6RS.IO.CustomTextReaderWriter)obj).output;
+      }
+
+      if (typeof(T) == typeof(TextReader) && obj is R6RS.IO.CustomTextReaderWriter)
+      {
+        return (T)(object)((R6RS.IO.CustomTextReaderWriter)obj).input;
+      }
+
       if (obj != null && !(obj is T))
       {
         return (T) AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);

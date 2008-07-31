@@ -260,7 +260,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("textual-port?")]
     public static object IsTextualPort(object port)
     {
-      return IsTrue(port is TextReader || port is TextWriter);
+      return IsTrue(port is TextReader || port is TextWriter || port is CustomTextReaderWriter);
     }
 
     //(binary-port? port)
@@ -351,7 +351,11 @@ namespace IronScheme.Runtime.R6RS
       {
         return PortHasPortPosition(((StreamWriter)port).BaseStream);
       }
-      return FALSE;
+      if (port is CustomTextReaderWriter)
+      {
+        return PortHasPortPosition(((CustomTextReaderWriter)port).input);
+      }
+      return AssertionViolation("port-has-port-position?", "not a port", port);
     }
 
     //(port-position port)
@@ -401,6 +405,10 @@ namespace IronScheme.Runtime.R6RS
       {
         return (int)((StreamWriter)port).BaseStream.Position;
       }
+      if (port is CustomTextReaderWriter)
+      {
+        return PortPosition(((CustomTextReaderWriter)port).input);
+      }
 
       return AssertionViolation("port-position", "not supported", port);
     }
@@ -429,7 +437,11 @@ namespace IronScheme.Runtime.R6RS
       {
         return PortHasSetPortPosition(((StreamWriter)port).BaseStream);
       }
-      return FALSE;
+      if (port is CustomTextReaderWriter)
+      {
+        return PortHasSetPortPosition(((CustomTextReaderWriter)port).input);
+      }
+      return AssertionViolation("port-has-set-port-position!?", "not a port", port); ;
     }
 
     //(set-port-position! port pos)
@@ -474,6 +486,10 @@ namespace IronScheme.Runtime.R6RS
       {
         ((StreamWriter)port).BaseStream.Position = p;
       }
+      else if (port is CustomTextReaderWriter)
+      {
+        return SetPortPosition(((CustomTextReaderWriter)port).input, pos);
+      }
       else
       {
         return AssertionViolation("set-port-position!", "not supported", port);
@@ -496,6 +512,10 @@ namespace IronScheme.Runtime.R6RS
       if (port is TextWriter)
       {
         ((TextWriter)port).Close();
+      }
+      if (port is CustomTextReaderWriter)
+      {
+        return ClosePort(((CustomTextReaderWriter)port).input);
       }
       return Unspecified;
     }
@@ -533,7 +553,10 @@ namespace IronScheme.Runtime.R6RS
       {
         eof = LookAheadChar(inputport);
       }
-
+      else if (inputport is CustomTextReaderWriter)
+      {
+        return PortIsEof(((CustomTextReaderWriter)inputport).input);
+      }
       return eof == EOF;
     }
 
@@ -761,7 +784,7 @@ namespace IronScheme.Runtime.R6RS
 
         for (int i = 0; i < res; i++)
         {
-          buffer[i] = sb[i];
+          buffer[i + index] = sb[i + index];
         }
 
         return res;
@@ -934,23 +957,44 @@ namespace IronScheme.Runtime.R6RS
       int k = RequiresNotNull<int>(count);
       int j = RequiresNotNull<int>(start);
       Stream s = RequiresNotNull<Stream>(binaryinputport);
-      byte[] b = RequiresNotNull<byte[]>(bytevector);
+      byte[] buffer = RequiresNotNull<byte[]>(bytevector);
 
       try
       {
 
-        int r = s.Read(b, j, k);
+        int r = s.Read(buffer, j, k);
 
-        if (r == -1)
+        if (r == 0)
         {
           return EOF;
+        }
+        else
+        {
+          while (r != k)
+          {
+            int rr = s.Read(buffer, j + r, k - r);
+
+            if (rr == 0)
+            {
+              if (r != 0)
+              {
+                break;
+              }
+              else
+              {
+                return EOF;
+              }
+            }
+
+            r += rr;
+          }
         }
 
         return r;
       }
       catch (IOException ex)
       {
-        return IOPortViolation("get-bytevector-n!", ex.Message, binaryinputport);
+        return IOPortViolation("get-bytevector-n", ex.Message, binaryinputport);
       }
 
     }
@@ -1074,9 +1118,21 @@ namespace IronScheme.Runtime.R6RS
         char[] buffer = new char[k];
 
         int c = r.Read(buffer, 0, k);
-        if (c == -1)
+        if (c == 0)
         {
           return EOF;
+        }
+        else
+        {
+          while (c < k)
+          {
+            int x = r.Read(buffer, c, k - c);
+            if (x == 0)
+            {
+              break;
+            }
+            c += x;
+          }
         }
         return new string(buffer, 0, c);
       }
@@ -1094,30 +1150,14 @@ namespace IronScheme.Runtime.R6RS
       TextReader r = RequiresNotNull<TextReader>(textinputport);
       StringBuilder s = RequiresNotNull<StringBuilder>(str);
       int j = RequiresNotNull<int>(start);
-      int k = RequiresNotNull<int>(count);
 
-      try
+      string ss = GetStringN(textinputport, count) as string;
+
+      for (int i = 0; i < ss.Length; i++)
       {
-
-        char[] buffer = new char[s.Length];
-        s.CopyTo(0, buffer, 0, s.Length);
-
-        int c = r.Read(buffer, j, k);
-        if (c == -1)
-        {
-          return EOF;
-        }
-        for (int i = 0; i < c; i++)
-        {
-          s[j + i] = buffer[j + i];
-        }
-        return c;
+        s[j + i] = ss[i];
       }
-      catch (IOException ex)
-      {
-        return IOPortViolation("get-string-n!", ex.Message, textinputport);
-      }
-
+      return ss.Length;
     }
 
     //(get-string-all textual-input-port)
@@ -1250,7 +1290,7 @@ namespace IronScheme.Runtime.R6RS
           {
             return (FileMode)FileNotFoundViolation("open-file-output-port", "file does not exist", filename);
           }
-          return FileMode.Append;
+          return FileMode.Open;
         }
         else
         {
@@ -1265,7 +1305,14 @@ namespace IronScheme.Runtime.R6RS
           {
             return (FileMode)FileAlreadyExistsViolation("open-file-output-port", filename);
           }
-          return FileMode.Append;
+          if ((fo & FileOptions.NoFail) != 0)
+          {
+            return FileMode.OpenOrCreate;
+          }
+          else
+          {
+            return FileMode.Append;
+          }
         }
         else
         {
@@ -1996,6 +2043,34 @@ namespace IronScheme.Runtime.R6RS
 
 
     //(make-custom-textual-input/output-port id read! write! get-position set-position! close)
+    [Builtin("make-custom-textual-input/output-port")]
+    public static object MakeCustomTextualInputOutputPort(object id, object read, object write, object get_pos, object set_pos, object close)
+    {
+      return new CustomTextReaderWriter(id, new CustomTextReader(id, read, get_pos, set_pos, close), new CustomTextWriter(id, write, get_pos, set_pos, close));
+    }
+
+    abstract class TextReaderWriter
+    {
+    }
+
+    internal class CustomTextReaderWriter
+    {
+      public object id;
+      public readonly TextWriter output;
+      public readonly TextReader input;
+
+      public CustomTextReaderWriter(object id, TextReader input, TextWriter output)
+      {
+        this.id = id;
+        this.input = input;
+        this.output = output;
+      }
+
+      public override string ToString()
+      {
+        return string.Format("#<custom-textual-input/output-port id: {0}>", id);
+      }
+    }
   }
 }
 

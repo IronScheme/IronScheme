@@ -65,7 +65,6 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo CallTarget5_Invoke = typeof(CallTarget5).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetN_Invoke = typeof(CallTargetN).GetMethod("Invoke");
 
-    protected static readonly MethodInfo Promise_Make = typeof(Promise).GetMethod("Make");
 
     protected static readonly ConstructorInfo Fraction_New = typeof(Fraction).GetConstructor(new Type[] { 
 #if BIGFRACTION

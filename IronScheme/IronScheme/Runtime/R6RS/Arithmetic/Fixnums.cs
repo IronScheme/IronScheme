@@ -392,8 +392,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       catch (OverflowException)
       {
-        return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx+"), "arithmetic overflow", a , b));
+        return ImplementationRestriction("fx+", "arithmetic overflow", a , b);
       }
     }
 
@@ -409,8 +408,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       catch (OverflowException)
       {
-        return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx*"), "arithmetic overflow", a, b));
+        return ImplementationRestriction("fx*", "arithmetic overflow", a, b);
       }
     }
 
@@ -426,8 +424,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       catch (OverflowException)
       {
-        return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx-"), "arithmetic overflow", a));
+        return ImplementationRestriction("fx-", "arithmetic overflow", a);
       }
     }
 
@@ -443,8 +440,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       catch (OverflowException)
       {
-        return Exceptions.RaiseContinueable(
-          AssertionViolation(SymbolTable.StringToId("fx-"), "arithmetic overflow", a, b));
+        return ImplementationRestriction("fx-", "arithmetic overflow", a, b);
       }
     }
 
@@ -465,6 +461,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     {
       int a = RequiresNotNull<int>(x1);
       int b = RequiresNotNull<int>(x2);
+
+      if (b == 0)
+      {
+        return AssertionViolation("fxdiv-and-mod", "divide by zero", x1, x2);
+      }
 
       int div = a / b;
       int mod = a % b;
@@ -722,7 +723,11 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
       if (ki < 0)
       {
-        AssertionViolation(SymbolTable.StringToId("fx-bit-set?"), "k is negative", k);
+        return AssertionViolation(SymbolTable.StringToId("fx-bit-set?"), "k is negative", k);
+      }
+      else if (ki >= 32)
+      {
+        return AssertionViolation(SymbolTable.StringToId("fx-bit-set?"), "k must be less than fixnum width", k);
       }
 
       if (bi == 0)
@@ -762,7 +767,12 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       else
       {
-        return bi << ki;
+        int i = bi << ki;
+        if (Math.Abs(bi) > Math.Abs(i))
+        {
+          return ImplementationRestriction("fxarithmetic-shift", "arithmetic overflow", ei, k);
+        }
+        return i;
       }
     }
 
@@ -774,10 +784,14 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       int i2 = RequiresNotNull<int>(fx2);
       int i3 = RequiresNotNull<int>(fx3);
 
-      // this stupid thing uses a 1 index...
+      if (i2 >= i3)
+      {
+        return AssertionViolation("fxreverse-bit-field", "start must be less than end", fx2, fx3);
+      }
+
       BitVector32 bitvec = new BitVector32(i1);
 
-      int range = (i3 - i2);
+      int range = i3 - i2 - 1;
 
       for (int i = i2; i < (i3 - range/2); i++)
       {

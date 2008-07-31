@@ -190,23 +190,10 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Builtin("make-promise")]
-    public static object MakePromise(object promise)
-    {
-      return Promise.Make(RequiresNotNull<ICallable>(promise));
-    }
-
-    [Builtin]
-    public static object Force(object promise)
-    {
-      Promise p = RequiresNotNull<Promise>(promise);
-      return p.Force();
-    }
-
     [Builtin("procedure?")]
     public static object IsProcedure(object obj)
     {
-      return IsTrue(obj is ICallable); 
+      return GetBool(obj is ICallable); 
     }
 
 
