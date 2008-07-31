@@ -307,6 +307,9 @@ namespace IronScheme.Runtime.R6RS
         }
 
         CodeGen cg = tg.DefineConstructor(paramtypes.ToArray());
+        CodeGen mk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make",
+         tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
+
 
         for (int i = 0; i < allfields.Count; i++)
         {
@@ -320,6 +323,10 @@ namespace IronScheme.Runtime.R6RS
         for (fi = 0; fi < diff; fi++)
         {
           cg.EmitArgGet(fi);
+
+          mk.EmitArgGet(0);
+          mk.EmitConstant(fi);
+          mk.Emit(OpCodes.Ldelem, typeof(object));
         }
 
         cg.Emit(OpCodes.Call, (rtd.parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.parent.cg.MethodBase as ConstructorInfo));
@@ -330,8 +337,15 @@ namespace IronScheme.Runtime.R6RS
           cg.EmitArgGet(fi);
           cg.EmitFieldSet(fd.field);
 
+          mk.EmitArgGet(0);
+          mk.EmitConstant(fi);
+          mk.Emit(OpCodes.Ldelem, typeof(object));
+
           fi++;
         }
+
+        mk.EmitNew(cg.MethodBase as ConstructorInfo);
+        mk.EmitReturn();
 
         cg.EmitReturn();
 
@@ -348,6 +362,8 @@ namespace IronScheme.Runtime.R6RS
         SetSymbolValue(SymbolTable.StringToId(n + "-rtd"), rtd);
       }
 
+      rtd.Finish();
+
       return rtd;
     }
 
@@ -356,62 +372,11 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
 
-      // this wont work....
-      if (!(t.type is TypeBuilder))
-      {
-        return t.rcd;
-      }
-
-      List<Type> paramtypes = new List<Type>();
-      List<FieldDescriptor> allfields = new List<FieldDescriptor>(t.GetAllFields());
-
-      int diff = allfields.Count - t.fields.Count;
-
-      foreach (FieldDescriptor var in allfields)
-	    {
-	      paramtypes.Add(typeof(object));
-      }
-
-      List<Type> parenttypes = new List<Type>();
-
-      for (int i = 0; i < diff; i++)
-      {
-        parenttypes.Add(typeof(object));
-      }
-
-      CodeGen mk = t.tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make", 
-        t.tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
-
-      int fi = 0;
-
-      for (fi = 0; fi < diff; fi++)
-      {
-        mk.EmitArgGet(0);
-        mk.EmitConstant(fi);
-        mk.Emit(OpCodes.Ldelem, typeof(object));
-      }
-
-      foreach (FieldDescriptor fd in t.fields)
-      {
-        mk.EmitArgGet(0);
-        mk.EmitConstant(fi);
-        mk.Emit(OpCodes.Ldelem, typeof(object));
-
-        fi++;
-      }
-
-      mk.EmitNew(t.cg.MethodBase as ConstructorInfo);
-      mk.EmitReturn();
-
       RecordConstructorDescriptor rcd = new RecordConstructorDescriptor();
       rcd.cg = t.cg;
       rcd.type = t;
       rcd.protocol = protocol as ICallable;
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;
-
-      rcd.type.Finish();
-
-      t.rcd = rcd;
 
       if (t.type.IsSubclassOf(typeof(Exception)))
       {
@@ -489,77 +454,6 @@ namespace IronScheme.Runtime.R6RS
       };
 
       return Closure.Make(Context, np);
-
-      if (ci.parent != null)
-      {
-        CallTargetWithContextN n = null;
-        n = delegate(CodeContext cc, object[] parentargs)
-        {
-          Type t = ci.type.Finish();
-
-          if (ci.protocol != null)
-          {
-            CallTargetWithContextN m = delegate(CodeContext ccc, object[] args)
-            {
-              if (ci.parent.protocol != null)
-              {
-                List<object> wee = new List<object>();
-                ICallable wwww = null;
-                CallTargetN collector = delegate(object[] cargs)
-                {
-                  wee.AddRange(cargs);
-                  return wwww;
-                };
-                wwww = Closure.Make(ccc, collector);
-                ICallable parent_protocol = ci.parent.protocol.Call(wwww) as ICallable;
-                parentargs = parent_protocol.Call(parentargs) as object[];
-                parentargs = wee.ToArray();
-              }
-              object[] allargs = new object[parentargs.Length + args.Length];
-              Array.Copy(parentargs, allargs, parentargs.Length);
-              Array.Copy(args, 0, allargs, parentargs.Length, args.Length);
-
-              return pp.Call(allargs);
-            };
-
-            return Closure.Make(Context, m);
-          }
-          else
-          {
-            if (ci.parent.protocol != null)
-            {
-              List<object> wee = new List<object>();
-              ICallable wwww = null;
-              CallTargetN collector = delegate(object[] cargs)
-              {
-                wee.AddRange(cargs);
-                return wwww;
-              };
-              wwww = Closure.Make(cc, collector);
-              ICallable parent_protocol = ci.parent.protocol.Call(wwww) as ICallable;
-              parentargs = parent_protocol.Call(parentargs) as object[];
-              parentargs = wee.ToArray();
-            }
-            return pp.Call(parentargs);
-          }
-        };
-
-        ICallable nn = Closure.Make(Context, n);
-
-        if (ci.protocol != null)
-        {
-          return ci.type.constructor = ci.protocol.Call(nn) as ICallable;
-        }
-
-        return nn;
-      }
-
-      if (ci.protocol != null)
-      {
-        return ci.type.constructor = ci.protocol.Call(pp) as ICallable;
-      }
-
-      return pp;
     }
 
     [Builtin("record-accessor")]
