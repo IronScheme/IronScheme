@@ -315,10 +315,6 @@ namespace IronScheme.Runtime
         {
           throw;
         }
-        catch (Exception ex)
-        {
-          return AssertionViolation("read", ex.Message, port);
-        }
       }
     }
 
