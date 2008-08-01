@@ -150,9 +150,8 @@ namespace IronScheme.Runtime.R6RS
         ICallable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&non-continuable-rcd"))) as ICallable;
         ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
-        throw R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"), i.Call(obj));
+        throw R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"));
       }
     }
 
