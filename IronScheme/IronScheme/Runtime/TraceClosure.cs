@@ -60,7 +60,8 @@ namespace IronScheme.Runtime
           }
         }
 
-        object a = Builtins.Car(u);
+
+        object a = args.Length == 1 ? Builtins.Car(u) : u;
 
         StringWriter pre = new StringWriter();
 

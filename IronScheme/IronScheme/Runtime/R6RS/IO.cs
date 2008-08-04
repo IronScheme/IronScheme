@@ -93,8 +93,8 @@ namespace IronScheme.Runtime.R6RS
     static SymbolId eol_ls = SymbolTable.StringToId("ls"); // 226 128 168
     static SymbolId eol_none = SymbolTable.StringToId("none");
 
-    static string nel = Encoding.UTF8.GetString( new byte[]{ 194, 133 });
-    static string ls = ((char)0x2028).ToString();
+    static string nel = "\u0085";
+    static string ls = "\u2028";
 
     static string GetNewline(SymbolId symbolId, string current)
     {
@@ -213,20 +213,19 @@ namespace IronScheme.Runtime.R6RS
     {
       byte[] b = RequiresNotNull<byte[]>(bv);
       Transcoder t = RequiresNotNull<Transcoder>(tc);
-
+      byte[] preamble = t.codec.GetPreamble();
       if ((b[0] == 0xFF && b[1] == 0xFE) || (b[0] == 0xFE && b[1] == 0xFF))
       {
         b = TrimFront(b, 2);
       }
 
       string value = t.codec.GetString(b);
-      if (t.eolstyle != eol_none)
+
+      value = eoltx.Replace(value, delegate(Match m)
       {
-        value = eoltx.Replace(value, delegate(Match m)
-        {
-          return GetNewline(t.eolstyle, m.Value);
-        });
-      }
+        return GetNewline(t.eolstyle, m.Value);
+      });
+
       return value;
     }
 
@@ -281,16 +280,14 @@ namespace IronScheme.Runtime.R6RS
       {
         if (s is MemoryStream && s.CanWrite)
         {
-          StreamWriter w = new TranscodedWriter(s, tc);
-          w.AutoFlush = true;
+          TextWriter w = new TranscodedWriter(s, tc);
           return w;
         }
         return new TranscodedReader(s, tc);
       }
       if (s.CanWrite)
       {
-        StreamWriter w = new TranscodedWriter(s, tc);
-        w.AutoFlush = true;
+        TextWriter w = new TranscodedWriter(s, tc);
         return w;
       }
       return FALSE;
@@ -303,8 +300,7 @@ namespace IronScheme.Runtime.R6RS
       Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
       if (s.CanWrite)
       {
-        StreamWriter w = new TranscodedWriter(s, tc);
-        w.AutoFlush = true;
+        TextWriter w = new TranscodedWriter(s, tc);
         return w;
       }
       return FALSE;
@@ -320,6 +316,13 @@ namespace IronScheme.Runtime.R6RS
         return new TranscodedReader(s, tc);
       }
       return FALSE;
+    }
+
+    static object TranscodedInputOutputPort(object binaryport, object transcoder)
+    {
+      Stream s = RequiresNotNull<Stream>(binaryport);
+      Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
+      return new CustomTextReaderWriter(SymbolTable.StringToId("textual/input-output-port"), new TranscodedReader(s, tc), new TranscodedWriter(s, tc));
     }
 
 
@@ -343,17 +346,13 @@ namespace IronScheme.Runtime.R6RS
       {
         return TRUE;
       }
-      if (port is StreamReader)
-      {
-        return PortHasPortPosition(((StreamReader)port).BaseStream);
-      }
-      if (port is StreamWriter)
-      {
-        return PortHasPortPosition(((StreamWriter)port).BaseStream);
-      }
       if (port is CustomTextReaderWriter)
       {
         return PortHasPortPosition(((CustomTextReaderWriter)port).input);
+      }
+      if (port is TextWriter)
+      {
+        return FALSE;
       }
       return AssertionViolation("port-has-port-position?", "not a port", port);
     }
@@ -397,14 +396,6 @@ namespace IronScheme.Runtime.R6RS
       {
         return (int)((Stream)port).Position;
       }
-      if (port is StreamReader)
-      {
-        return (int)((StreamReader)port).BaseStream.Position;
-      }
-      if (port is StreamWriter)
-      {
-        return (int)((StreamWriter)port).BaseStream.Position;
-      }
       if (port is CustomTextReaderWriter)
       {
         return PortPosition(((CustomTextReaderWriter)port).input);
@@ -428,14 +419,6 @@ namespace IronScheme.Runtime.R6RS
       if (port is Stream)
       {
         return GetBool(((Stream)port).CanSeek);
-      }
-      if (port is StreamReader)
-      {
-        return PortHasSetPortPosition(((StreamReader)port).BaseStream);
-      }
-      if (port is StreamWriter)
-      {
-        return PortHasSetPortPosition(((StreamWriter)port).BaseStream);
       }
       if (port is CustomTextReaderWriter)
       {
@@ -477,14 +460,6 @@ namespace IronScheme.Runtime.R6RS
       else if (port is Stream)
       {
         ((Stream)port).Position = p;
-      }
-      else if (port is StreamReader)
-      {
-        ((StreamReader)port).BaseStream.Position = p;
-      }
-      else if (port is StreamWriter)
-      {
-        ((StreamWriter)port).BaseStream.Position = p;
       }
       else if (port is CustomTextReaderWriter)
       {
@@ -597,7 +572,7 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return TranscodedInputPort(s, tc);
+          return TranscodedInputPort( new BufferedStream(s), tc);
         }
       }
       catch (FileNotFoundException ex)
@@ -1339,7 +1314,7 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return TranscodedOutputPort(s, tc);
+          return TranscodedOutputPort(new BufferedStream(s), tc);
         }
       }
       catch (Condition)
@@ -1749,14 +1724,22 @@ namespace IronScheme.Runtime.R6RS
     }
 
     static Regex eoltx = new Regex(string.Join("|", Array.ConvertAll<string,string>( new string[] { "\r\n", nel, "\r" + nel, ls, "\r", "\n", }, Regex.Escape)), RegexOptions.Compiled);
-
-    class TranscodedWriter : StreamWriter
+    
+    class TranscodedWriter : TextWriter, ITranscodedPort
     {
       Transcoder tc;
+      Stream port;
+
       public TranscodedWriter(Stream s, Transcoder tc)
-        : base(s, tc.codec)
       {
+        NewLine = "\n";
         this.tc = tc;
+        this.port = s;
+      }
+
+      public override Encoding Encoding
+      {
+        get { return tc.codec; }
       }
 
       public override void Write(string value)
@@ -1771,16 +1754,101 @@ namespace IronScheme.Runtime.R6RS
         base.Write(value);
       }
 
-    }
-
-    class TranscodedReader : StreamReader
-    {
-      Transcoder tc;
-      public TranscodedReader(Stream s, Transcoder tc) : base(s, tc.codec, true)
+      public override void Write(char value)
       {
-        this.tc = tc;
+        byte[] bytes = Encoding.GetBytes(new char[] { value });
+        port.Write(bytes, 0, bytes.Length);
       }
 
+      public override void Close()
+      {
+        port.Close();
+      }
+
+      public override void Flush()
+      {
+        port.Flush();
+      }
+
+
+      public Stream BinaryPort
+      {
+        get { return port; }
+      }
+    }
+
+    class TranscodedReader : TextReader, ITranscodedPort
+    {
+      Stream port;
+      Transcoder tc;
+      public TranscodedReader(Stream s, Transcoder tc)
+      {
+        this.tc = tc;
+        this.port = s;
+      }
+
+      public override void Close()
+      {
+        port.Close();
+      }
+
+      public override int Peek()
+      {
+        long p = port.Position;
+        int r = Read();
+        port.Position = p;
+        return r;
+      }
+
+      public override int Read()
+      {
+        if (port.Position == 0)
+        {
+          Encoding enc = ParsePreamble(port);
+        }
+        long p = port.Position;
+        int max = tc.codec.GetMaxByteCount(1);
+        byte[] buffer = new byte[max];
+        int i = port.Read(buffer, 0, buffer.Length);
+        if (i == 0)
+        {
+          return -1;
+        }
+        char[] chars = tc.codec.GetChars(buffer, 0, i);
+        int len = tc.codec.GetByteCount(chars, 0, 1);
+        port.Position = p + len;
+        return chars[0];
+      }
+
+      Encoding ParsePreamble(Stream port)
+      {
+        byte[] b = new byte[4];
+        int len = port.Read(b, 0, 4);
+
+        if (b[0] == 0xff && b[1] == 0xfe)
+        {
+          port.Position = 2;
+        }
+        else if (b[0] == 0xfe && b[1] == 0xff)
+        {
+          port.Position = 2;
+        }
+        else if (b[0] == 0xfe && b[1] == 0xff)
+        {
+          port.Position = 4;
+        }
+        else if (b[0] == 0xfe && b[1] == 0xff)
+        {
+          port.Position = 4;
+        }
+        else
+        {
+          port.Position = 0;
+        }
+
+        return null;
+      }
+      
       public override string ReadToEnd()
       {
         string value = base.ReadToEnd();
@@ -1792,6 +1860,11 @@ namespace IronScheme.Runtime.R6RS
           });
         }
         return value;
+      }
+
+      public override int Read(char[] buffer, int index, int count)
+      {
+        return base.Read(buffer, index, count);
       }
 
       public override string ReadLine()
@@ -1806,8 +1879,13 @@ namespace IronScheme.Runtime.R6RS
         }
         return value;
       }
+
+
+      public Stream BinaryPort
+      {
+        get { return port; }
+      }
     }
-      
 
     //(put-string textual-output-port string) 
     //(put-string textual-output-port string start) 
@@ -1919,7 +1997,7 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return TranscodedPort(s, tc);
+          return TranscodedInputOutputPort(new BufferedStream(s), tc);
         }
       }
       catch (FileNotFoundException ex)

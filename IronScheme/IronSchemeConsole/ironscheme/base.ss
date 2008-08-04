@@ -299,7 +299,10 @@
     (define (rationalize x e) 
       (if (and (infinite? x) (infinite? e))
         +nan.0
-        (apply / (find-ratio x e))))
+        (let ((r (apply / (find-ratio x e))))
+          (if (and (exact? x) (exact? e))
+            r
+            (inexact r)))))
 
     (define (find-ratio x e) 
       (find-ratio-between (- x e) (+ x e)))

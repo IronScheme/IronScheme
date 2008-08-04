@@ -401,40 +401,51 @@ namespace IronScheme.Runtime.R6RS
       // this is foo.make(params object[] args) calls constructor(s).
       ICallable pp = ci.type.constructor;
 
-      CallTargetN np = delegate(object[] args)
+      RecordConstructorDescriptor rcd = ci;
+
+      List<ICallable> init = new List<ICallable>();
+
+      while (rcd != null)
       {
-        RecordConstructorDescriptor rcd = ci;
-
-        List<ICallable> init = new List<ICallable>();
-
-        while (rcd != null)
+        if (rcd.protocol != null)
         {
-          if (rcd.protocol != null)
-          {
-            init.Add(rcd.protocol);
-          }
-
-          rcd = rcd.parent;
+          init.Add(rcd.protocol);
         }
 
-        object result = args;
+        rcd = rcd.parent;
+      }
 
-        if (init.Count == 0)
+      if (init.Count == 0)
+      {
+        CallTargetN np = delegate(object[] args)
         {
-          result = pp.Call(args);
-        }
-        else
+          return pp.Call(args);
+        };
+        return Closure.Make(Context, np);
+      }
+      else
+      {
+        init.Reverse();
+
+        CallTargetN np = delegate(object[] args)
         {
-          init.Reverse();
           ICallable ppp = pp;
 
           List<object> allargs = new List<object>();
-
+          int i = init.Count;
           ICallable collector = null;
           CallTargetN xxx = delegate(object[] margs)
           {
             allargs.AddRange(margs);
-            return collector;
+            if (i == 0)
+            {
+              return pp.Call(allargs.ToArray());
+            }
+            else
+            {
+              i--;
+              return collector;
+            }
           };
           ppp = collector = Closure.Make(Context, xxx);
 
@@ -443,16 +454,17 @@ namespace IronScheme.Runtime.R6RS
             ppp = ctr.Call(ppp) as ICallable;
           }
 
-          ppp.Call(args);
+          object result = ppp.Call(args);
 
-          result = pp.Call(allargs.ToArray());
-        }
+          if (result == collector)
+          {
+            result = collector.Call();
+          }
+          return result;
+        };
 
-        return result;
-
-      };
-
-      return Closure.Make(Context, np);
+        return Closure.Make(Context, np);
+      }
     }
 
     [Builtin("record-accessor")]
@@ -460,6 +472,11 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
       int i = RequiresNotNull<int>(k);
+
+      if (i >= t.fields.Count)
+      {
+        return AssertionViolation("record-accessor", "invalid field index", rtd, k);
+      }
 
       MethodInfo am = t.fields[i].accessor;
 
@@ -471,6 +488,11 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
       int i = RequiresNotNull<int>(k);
+
+      if (i >= t.fields.Count)
+      {
+        return AssertionViolation("record-mutator", "invalid field index", rtd, k);
+      }
 
       MethodInfo mm = t.fields[i].mutator;
 
@@ -604,6 +626,10 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
       int i = RequiresNotNull<int>(k);
+      if (i >= r.fields.Count)
+      {
+        return AssertionViolation("record-field-mutable?", "invalid field index", rtd, k);
+      }
       return GetBool(r.fields[i].mutable);
     }
   }

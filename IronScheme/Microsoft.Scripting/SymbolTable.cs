@@ -18,6 +18,7 @@ using System.Collections.Generic;
 
 using System.Diagnostics;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.Scripting {
     public static class SymbolTable {
@@ -34,10 +35,21 @@ namespace Microsoft.Scripting {
             _fieldDict[0] = null;   // initialize the null string
         }
 
+        static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
         public static SymbolId StringToId(string field) {
             if (field == null) {
                 throw new ArgumentNullException(Resources.NameMustBeString);
             }
+
+            // convert unicode escapes
+            field = unichar.Replace(field, delegate(Match m)
+            {
+              string s = m.Value;
+              s = s.Substring(2, s.Length - 3);
+              int iv = int.Parse(s, System.Globalization.NumberStyles.HexNumber);
+              return char.ConvertFromUtf32(iv);
+            });
 
             int res;
             lock (_lockObj) {
@@ -117,7 +129,8 @@ namespace Microsoft.Scripting {
         }
 
         public static string IdToString(SymbolId id) {
-            return _fieldDict[id.Id];
+            string s = _fieldDict[id.Id];
+            return s;
         }
 
         public static string[] IdsToStrings(IList<SymbolId> ids) {

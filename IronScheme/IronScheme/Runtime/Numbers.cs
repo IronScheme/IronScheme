@@ -1232,18 +1232,6 @@ namespace IronScheme.Runtime
     [Builtin("/")]
     public static object Divide(object first)
     {
-      if (first is int)
-      {
-        return 1.0 / (int)first;
-      }
-      if (first is double)
-      {
-        return 1.0 / (double)first;
-      }
-      if (first is BigInteger)
-      {
-        return 1.0 / SafeConvert(first);
-      }
       return Divide(1, first);
     }
 

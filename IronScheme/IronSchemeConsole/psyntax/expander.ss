@@ -23,7 +23,8 @@
           eval expand generate-temporaries free-identifier=?
           bound-identifier=? datum->syntax syntax-error
           syntax-violation
-          syntax->datum make-variable-transformer
+          syntax->datum 
+          make-variable-transformer
           pre-compile-r6rs-top-level
           variable-transformer?
           variable-transformer-procedure
@@ -31,9 +32,9 @@
           null-environment scheme-report-environment
           interaction-environment
           interaction-environment-symbols environment-symbols
-          ellipsis-map)
+          ellipsis-map assertion-error)
   (import
-    (except (rnrs) 
+    (except (rnrs)
       environment environment? identifier?
       eval generate-temporaries free-identifier=?
       bound-identifier=? datum->syntax syntax-error
@@ -1003,26 +1004,18 @@
              (stx-error e "invalid type"))
            (chi-expr (cadr (binding-value b)) r mr))))))
 
-  (define when-transformer ;;; go away
-    (lambda (e r mr)
+  (define when-macro
+    (lambda (e)
       (syntax-match e ()
-        ((_ test e e* ...)
-         (build-conditional no-source
-           (chi-expr test r mr)
-           (build-sequence no-source
-             (chi-expr* (cons e e*) r mr))
-           (build-void))))))
+        [(_ test e e* ...)
+         (bless `(if ,test (begin ,e . ,e*)))])))
 
-  (define unless-transformer ;;; go away
-    (lambda (e r mr)
+  (define unless-macro
+    (lambda (e)
       (syntax-match e ()
-        ((_ test e e* ...)
-         (build-conditional no-source
-           (chi-expr test r mr)
-           (build-void)
-           (build-sequence no-source
-             (chi-expr* (cons e e*) r mr)))))))
-  
+        [(_ test e e* ...)
+         (bless `(if (not ,test) (begin ,e . ,e*)))])))
+
   (define if-transformer
     (lambda (e r mr)
       (syntax-match e ()
@@ -1037,51 +1030,27 @@
            (chi-expr e1 r mr)
            (build-void))))))
  
-  (define case-transformer ;;; go away
-    (lambda (e r mr)
-      (define build-one
-        (lambda (t cls rest)
-          (syntax-match cls ()
-            (((d* ...) e e* ...)
-             (build-conditional no-source
-               (let ((data (stx->datum d*)))
-                 (if (= 1 (length data))
-                   (build-application no-source
-                     (build-primref no-source 'eqv?)
-                     (list t (build-data no-source (car data))))
-                   (build-application no-source
-                     (build-primref no-source 'memv)
-                     (list t (build-data no-source data)))))
-               (build-sequence no-source
-                 (chi-expr* (cons e e*) r mr))
-               rest))
-            (else (stx-error e)))))
-      (define build-last
-        (lambda (t cls)
-          (syntax-match cls ()
-            (((d* ...) e e* ...)
-             (build-one t cls (build-void)))
-            ((else-kwd x x* ...)
-             (if (and (id? else-kwd)
-                      (free-id=? else-kwd (scheme-stx 'else)))
-                 (build-sequence no-source
-                   (chi-expr* (cons x x*) r mr))
-                 (stx-error e)))
-            (else (stx-error e)))))
+  (define case-macro
+    (lambda (e)
+      (define (build-last cls)
+        (syntax-match cls (else)
+          [(else e e* ...) `(begin ,e . ,e*)]
+          [_ (build-one cls '(if #f #f))]))
+      (define (build-one cls k)
+        (syntax-match cls ()
+          [((d* ...) e e* ...) 
+           `(if (memv t ',d*) (begin ,e . ,e*) ,k)]))
       (syntax-match e ()
         ((_ expr)
-         (build-sequence no-source
-           (list (chi-expr expr r mr) (build-void))))
+         (bless `(let ([t ,expr]) (if #f #f))))
         ((_ expr cls cls* ...)
-         (let ((t (gen-lexical 't)))
-           (build-let no-source
-              (list t) (list (chi-expr expr r mr))
-              (let f ((cls cls) (cls* cls*))
-                (cond
-                  ((null? cls*) (build-last t cls))
-                  (else
-                   (build-one t cls
-                     (f (car cls*) (cdr cls*))))))))))))
+         (bless 
+           `(let ([t ,expr])
+              ,(let f ([cls cls] [cls* cls*])
+                 (if (null? cls*) 
+                     (build-last cls)
+                     (build-one cls (f (car cls*) (cdr cls*)))))))))))
+
   
   (define quote-transformer
     (lambda (e r mr)
@@ -1449,8 +1418,10 @@
     (lambda (stx)
       (syntax-match stx ()
         ((_ expr)
-         (bless `(unless ,expr
-                   (assertion-violation #f "assertion failed" ',expr)))))))
+         (let ([pos (or (expression-position stx)
+                        (expression-position expr))])
+           (bless 
+             `(unless ,expr (assertion-error ',expr ',pos))))))))
   
   (define endianness-macro
     (lambda (stx)
@@ -2078,42 +2049,28 @@
   (define incorrect-usage-macro
     (lambda (e) (stx-error e "incorrect usage of auxiliary keyword")))
   
-  (define parameterize-transformer ;;; go away
-    (lambda (e r mr)
+  (define parameterize-macro
+    (lambda (e)
       (syntax-match e ()
-        ((_ () b b* ...)
-         (chi-internal (cons b b*) r mr))
+        ((_ () b b* ...) 
+         (bless `(begin ,b . ,b*)))
         ((_ ((olhs* orhs*) ...) b b* ...)
-         (let ((lhs* (map (lambda (x) (gen-lexical 'lhs)) olhs*))
-               (rhs* (map (lambda (x) (gen-lexical 'rhs)) olhs*))
-               (t*   (map (lambda (x) (gen-lexical 't)) olhs*))
-               (swap (gen-lexical 'swap)))
-           (build-let no-source
-             (append lhs* rhs*)
-             (append (chi-expr* olhs* r mr) (chi-expr* orhs* r mr))
-             (build-let no-source
-               (list swap)
-               (list (build-lambda no-source '()
-                       (build-sequence no-source
-                         (map (lambda (t lhs rhs)
-                                (build-let no-source
-                                  (list t)
-                                  (list (build-application no-source
-                                          (build-lexical-reference no-source lhs)
-                                          '()))
-                                  (build-sequence no-source
-                                    (list (build-application no-source
-                                            (build-lexical-reference no-source lhs)
-                                            (list (build-lexical-reference no-source rhs)))
-                                          (build-lexical-assignment no-source rhs
-                                            (build-lexical-reference no-source t))))))
-                              t* lhs* rhs*))))
-               (build-application no-source
-                 (build-primref no-source 'dynamic-wind)
-                 (list (build-lexical-reference no-source swap)
-                       (build-lambda no-source '()
-                         (chi-internal (cons b b*) r mr))
-                       (build-lexical-reference no-source swap))))))))))
+         (let ((lhs* (generate-temporaries olhs*))
+               (rhs* (generate-temporaries orhs*)))
+           (bless
+             `((lambda ,(append lhs* rhs*)
+                 (let ([swap (lambda () 
+                               ,@(map (lambda (lhs rhs)
+                                        `(let ([t (,lhs)])
+                                           (,lhs ,rhs)
+                                           (set! ,rhs t)))
+                                      lhs* rhs*))])
+                   (dynamic-wind 
+                     swap
+                     (lambda () ,b . ,b*)
+                     swap)))
+               ,@(append olhs* orhs*))))))))
+
   
   (define foreign-call-transformer
     (lambda (e r mr)
@@ -2606,11 +2563,7 @@
         ((case-lambda)            case-lambda-transformer)
         ((letrec)                 letrec-transformer)
         ((letrec*)                letrec*-transformer)
-        ((case)                   case-transformer)
         ((if)                     if-transformer)
-        ((when)                   when-transformer)
-        ((unless)                 unless-transformer)
-        ((parameterize)           parameterize-transformer)
         ((foreign-call)           foreign-call-transformer)
         ((syntax-case)            syntax-case-transformer)
         ((syntax)                 syntax-transformer)
@@ -2658,6 +2611,9 @@
            ((quasiquote)            quasiquote-macro)
            ((quasisyntax)           quasisyntax-macro)
            ((with-syntax)           with-syntax-macro)
+           ((when)                  when-macro)
+           ((unless)                unless-macro)
+           ((case)                  case-macro)
            ((identifier-syntax)     identifier-syntax-macro)
            ((time)                  time-macro)
            ((delay)                 delay-macro)
@@ -2671,6 +2627,7 @@
            ((trace-let-syntax)      trace-let-syntax-macro)
            ((trace-letrec-syntax)   trace-letrec-syntax-macro)
            ((define-condition-type) define-condition-type-macro)
+           ((parameterize)          parameterize-macro)
            ((include-into)          include-into-macro)
            ((eol-style)
             (lambda (x) 
@@ -3862,20 +3819,32 @@
               (assertion-violation 'bound-identifier=? "not an identifier" y))
           (assertion-violation 'bound-identifier=? "not an identifier" x))))
   
-  (define (extract-position-condition x)
+  (define (make-source-condition x)
     (define-condition-type &source-information &condition
       make-source-condition source-condition?
       (file-name source-filename)
       (character source-character))
-    (if (stx? x) 
-        (let ([x (stx-expr x)])
-          (if (annotation? x)
-              (let ([src (annotation-source x)])
-                (if (pair? src) 
-                    (make-source-condition (car src) (cdr src))
-                    (condition)))
-              (condition)))
+    (if (pair? x)
+        (make-source-condition (car x) (cdr x))
         (condition)))
+
+  (define (extract-position-condition x)
+    (make-source-condition (expression-position x)))
+
+  (define (expression-position x)
+    (and (stx? x)
+         (let ([x (stx-expr x)])
+           (and (annotation? x)
+                (annotation-source x)))))
+
+  (define (assertion-error expr pos)
+    (raise
+      (condition
+        (make-assertion-violation)
+        (make-who-condition 'assert)
+        (make-message-condition "assertion failed")
+        (make-irritants-condition (list expr))
+        (make-source-condition pos))))
 
   (define syntax-error
     (lambda (x . args)

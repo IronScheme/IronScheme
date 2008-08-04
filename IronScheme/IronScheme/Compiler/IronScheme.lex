@@ -88,6 +88,9 @@ public int Make(Tokens token)
 
 %}
 
+delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
+but_delimiter          [^\[\]\(\)\";#\r\n\t ]
+numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
 
 line_comment           (";"[^\n]*)|("#!"[^\n]*)
 
@@ -99,14 +102,15 @@ comment_end            "|#"
 white_space            [ \t]
 new_line               "\n\r"|\r|\n
 
-delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
-but_delimiter          [^\[\]\(\)\";#\r\n\t ]
-numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
-
-
 digit                  [0-9]
+digit2                 [01]
+digit8                 [0-7]
+digit10                {digit}
+digit16                {digit10}|[a-fA-F]
+
 letter                 [[:IsLetter:]]
-idinitial              ("->"|({letter})|[!$%*/:<=>?~_^&])
+idescape               ("\\x"{digit16}+";")
+idinitial              ("->"|({letter})|{idescape}|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
 identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 
@@ -114,10 +118,7 @@ good_id                {identifier}{delimiter}
 bad_id                 {identifier}{but_delimiter}
 
 
-digit2                 [01]
-digit8                 [0-7]
-digit10                {digit}
-digit16                {digit10}|[a-fA-F]
+
 
 radix2                 #[bB]
 radix8                 #[oO]
@@ -258,7 +259,7 @@ bad_atoms              {atoms}{but_delimiter}+
 
 .                     { Errors.Add(SourceUnit, string.Format("bad input:{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-<<EOF>>               { }
+
 %%
 
 

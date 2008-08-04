@@ -46,7 +46,7 @@ namespace IronScheme.Runtime.psyntax
         if (Compiler.Parser.sourcemap.TryGetValue(c, out loc) && loc.IsValid)
         {
           lastloc = loc;
-          return new Annotation(new Cons(Annotate(c.car), Annotate(c.cdr)), new Cons(filename, loc), obj);
+          return new Annotation(new Cons(Annotate(c.car), Annotate(c.cdr)), new Cons(filename, loc.ToString()), obj);
         }
         else
         {
@@ -59,12 +59,12 @@ namespace IronScheme.Runtime.psyntax
         if (Compiler.Parser.sourcemap.TryGetValue(obj, out loc) && loc.IsValid)
         {
           lastloc = loc;
-          return new Annotation(obj, new Cons(filename, loc), obj);
+          return new Annotation(obj, new Cons(filename, loc.ToString()), obj);
         }
       }
       if (obj is SymbolId && lastloc.IsValid)
       {
-        return new Annotation(obj, new Cons(filename, lastloc), obj);
+        return new Annotation(obj, new Cons(filename, lastloc.ToString()), obj);
       }
       return obj;
     }

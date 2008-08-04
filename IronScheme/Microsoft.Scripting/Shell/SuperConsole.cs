@@ -323,15 +323,24 @@ namespace Microsoft.Scripting.Shell {
 
         private void Insert(ConsoleKeyInfo key) {
             char c;
-            if (key.Key == ConsoleKey.F6) {
-                Debug.Assert(FinalLineText.Length == 1);
-
-                c = FinalLineText[0];
-            } else {
-                c = key.KeyChar;
+            if (key.Key == ConsoleKey.F6)
+            {
+              Debug.Assert(FinalLineText.Length == 1);
+              
+              c = FinalLineText[0];
+            }
+            else if (key.Modifiers == ConsoleModifiers.Alt && (key.Key >= ConsoleKey.NumPad0 && key.Key <= ConsoleKey.NumPad9))
+            {
+              c = '?';
+            }
+            else
+            {
+              c = key.KeyChar;
             }
             Insert(c);
         }
+
+        //string buffer;
 
         private void Insert(char c) {
             if (_current == _input.Length) {
