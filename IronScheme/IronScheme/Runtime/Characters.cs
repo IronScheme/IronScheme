@@ -302,7 +302,13 @@ namespace IronScheme.Runtime
     public static object IntegerToChar(object obj)
     {
       int i = RequiresNotNull<int>(obj);
-      return (char)i;
+      
+      if (i < 0 || i > 0x10ffff || (i > 0xd7ff && i < 0xe000))
+      {
+        return AssertionViolation("interger->char", "not a valid unicode value", obj);
+      }
+      char c = char.ConvertFromUtf32(i)[0];
+      return c;
     }
 
   }

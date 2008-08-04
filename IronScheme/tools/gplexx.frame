@@ -542,7 +542,7 @@ using gppg;
                 else
                 {
                     delta = 2;
-                    return (ch1 << 8) + ch1;
+                    return (ch1 << 8) + ch0;
                 }
             }
         }

@@ -24,6 +24,7 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Actions;
 using System.Diagnostics;
 using IronScheme.Runtime.R6RS;
+using System.Globalization;
 
 namespace IronScheme.Runtime
 {
@@ -241,6 +242,11 @@ namespace IronScheme.Runtime
       return ReadNext(port);
     }
 
+    protected interface ITranscodedPort
+    {
+      Stream BinaryPort { get; }
+    }
+
     static object ReadNext(object port)
     {
       Cons c;
@@ -272,16 +278,24 @@ namespace IronScheme.Runtime
             {
               return IOPortViolation("read", "port has already been closed", r);
             }
-            if (s.Length == s.Position && !rr.EndOfStream)
-            {
-              s.Position = 0;
-            }
-            if (!rr.EndOfStream)
+            // check if stream has been read by reader
+            if (s.Position == 0)
             {
               result = IronSchemeLanguageContext.ReadExpressions(s, Context.ModuleContext.CompilerContext);
-              rr.ReadToEnd();
+            }
+            else
+            {
+              string input = r.ReadToEnd();
+              if (input.Length > 0)
+              {
+                result = IronSchemeLanguageContext.ReadExpressions(input, Context.ModuleContext.CompilerContext);
+              }
             }
           }
+          //else if (r is ITranscodedPort)
+          //{
+          //  result = IronSchemeLanguageContext.ReadExpressions(((ITranscodedPort)r).BinaryPort, Context.ModuleContext.CompilerContext);
+          //}
           else
           {
             string input = r.ReadToEnd();
@@ -824,7 +838,23 @@ namespace IronScheme.Runtime
 
       if (obj is SymbolId)
       {
-        return SymbolTable.IdToString((SymbolId)obj);
+        string s = SymbolTable.IdToString((SymbolId)obj);
+        StringBuilder sb = new StringBuilder();
+
+        foreach (char c in s)
+        {
+          UnicodeCategory cat = char.GetUnicodeCategory(c);
+          if (cat == UnicodeCategory.OtherNotAssigned || char.IsWhiteSpace(c))
+          {
+            sb.AppendFormat(@"\x{0:X};", (int)c);
+          }
+          else
+          {
+            sb.Append(c);
+          }
+        }
+
+        return sb.ToString();
       }
 
       if (IsTrue(IsNumber(obj)))

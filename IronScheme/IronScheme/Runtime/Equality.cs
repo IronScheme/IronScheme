@@ -175,7 +175,7 @@ namespace IronScheme.Runtime
         return GetBool(Equals(first, second));
       }
 
-      if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)))
+      if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
       {
         return IsSame(first, second);
       }
@@ -203,7 +203,7 @@ namespace IronScheme.Runtime
     [Builtin("eqv?")]
     public static object IsEqualValue(object first, object second)
     {
-      if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)))
+      if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
       {
         return IsSame(first, second);
       }
