@@ -30,80 +30,6 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-
-    [Builtin("with-input-from-file")]
-    public static object WithInputFromFile(object filename, object thunk)
-    {
-      ICallable f = RequiresNotNull<ICallable>(thunk);
-      string fn = RequiresNotNull<string>(filename);
-
-      TextReader old = currentinputport;
-
-      try
-      {
-        using (TextReader r = File.OpenText(GetPath(fn)))
-        {
-          currentinputport = r;
-          return f.Call();
-        }
-      }
-      catch (FileNotFoundException ex)
-      {
-        return FileNotFoundViolation("with-input-from-file", ex.Message, filename);
-      }
-      catch (Condition)
-      {
-        throw;
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("with-input-from-file", ex.Message, filename);
-      }
-      finally
-      {
-        if (readcache.ContainsKey(currentinputport))
-        {
-          readcache.Remove(currentinputport);
-        }
-        currentinputport = old;
-      }
-    }
-
-
-    [Builtin("with-output-to-file")]
-    public static object WithOutputToFile(object filename, object thunk)
-    {
-      ICallable f = RequiresNotNull<ICallable>(thunk);
-      string fn = RequiresNotNull<string>(filename);
-
-      TextWriter old = currentoutputport;
-
-      try
-      {
-        using (TextWriter w = File.CreateText(GetPath(fn)))
-        {
-          currentoutputport = w;
-          return f.Call();
-        }
-      }
-      catch (FileNotFoundException ex)
-      {
-        return FileNotFoundViolation("with-output-to-file", ex.Message, filename);
-      }
-      catch (Condition)
-      {
-        throw;
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("with-input-from-file", ex.Message, filename);
-      }
-      finally
-      {
-        currentoutputport = old;
-      }
-    }
-
     static Assembly AssemblyLoad(string path)
     {
       string fn = Path.GetFullPath(path);
@@ -292,10 +218,10 @@ namespace IronScheme.Runtime
               }
             }
           }
-          //else if (r is ITranscodedPort)
-          //{
-          //  result = IronSchemeLanguageContext.ReadExpressions(((ITranscodedPort)r).BinaryPort, Context.ModuleContext.CompilerContext);
-          //}
+          else if (r is ITranscodedPort)
+          {
+            result = IronSchemeLanguageContext.ReadExpressions(((ITranscodedPort)r).BinaryPort, Context.ModuleContext.CompilerContext);
+          }
           else
           {
             string input = r.ReadToEnd();
@@ -926,60 +852,6 @@ namespace IronScheme.Runtime
         return GetBool(((Stream)obj).CanWrite);
       }
       return GetBool(obj is TextWriter || obj is R6RS.IO.CustomTextReaderWriter);
-    }
-
-    [Builtin("call-with-input-file")]
-    public static object CallWithInputFile(object filename, object fc1)
-    {
-      ICallable f = RequiresNotNull<ICallable>(fc1);
-      string fn = RequiresNotNull<string>(filename);
-
-      try
-      {
-        using (TextReader r = File.OpenText(GetPath(fn)))
-        {
-          object result = f.Call(r);
-
-          if (readcache.ContainsKey(r))
-          {
-            readcache.Remove(r);
-          }
-
-          return result;
-        }
-      }
-      catch (FileNotFoundException ex)
-      {
-        return FileNotFoundViolation("call-with-input-file", ex.Message, filename);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("call-with-input-filer", ex.Message, filename);
-      }
-
-    }
-
-    [Builtin("call-with-output-file")]
-    public static object CallWithOutputFile(object filename, object fc1)
-    {
-      ICallable f = RequiresNotNull<ICallable>(fc1);
-      string fn = RequiresNotNull<string>(filename);
-
-      try
-      {
-        using (TextWriter w = File.CreateText(GetPath(fn)))
-        {
-          return f.Call(w);
-        }
-      }
-      catch (FileNotFoundException ex)
-      {
-        return FileNotFoundViolation("call-with-output-file", ex.Message, filename);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("call-with-output-file", ex.Message, filename);
-      }
     }
 
     //probably a good idea to make these threadstatic

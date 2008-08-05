@@ -173,12 +173,6 @@ namespace IronScheme
         scanner = new Scanner();
       }
       
-      // hack
-      if (!code.EndsWith(" "))
-      {
-        code += " ";
-      }
-
       Scanner sc = scanner;
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;

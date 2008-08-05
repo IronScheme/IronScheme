@@ -34,11 +34,16 @@ public override void yyerror(string format, params object[] args)
   }
 }
 
+int diff()
+{
+  return chr == -1 ? 0 : -1;
+}
+
 public int MakeSymbol()
 {
   string t = yytext;
   FixLineNum(t);
-  t = t.Substring(0, t.Length - 1);
+  t = t.Substring(0, t.Length + diff());
   yylval.text = t;
   yyless(t.Length);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
@@ -49,7 +54,7 @@ public int MakeBoolean()
 {
   string t = yytext;
   FixLineNum(t);
-  t = t.Substring(0, t.Length - 1);
+  t = t.Substring(0, t.Length + diff());
   yylval.text = t.ToLower();
   yyless(t.Length);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
@@ -60,7 +65,7 @@ public int MakeNumber()
 {
   string t = yytext;
   FixLineNum(t);
-  t = t.Substring(0, t.Length - 1);
+  t = t.Substring(0, t.Length + diff());
   yylval.text = t;
   yyless(t.Length);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
@@ -71,7 +76,7 @@ public int MakeChar()
 {
   string t = yytext;
   FixLineNum(t);
-  t = t.Substring(0, t.Length - 1);
+  t = t.Substring(0, t.Length + diff());
   yylval.text = Helper.ParseChar(t);
   yyless(t.Length);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
@@ -259,6 +264,8 @@ bad_atoms              {atoms}{but_delimiter}+
 
 .                     { Errors.Add(SourceUnit, string.Format("bad input:{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+
+
 
 %%
 
