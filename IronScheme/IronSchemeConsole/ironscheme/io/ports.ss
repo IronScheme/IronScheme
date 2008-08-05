@@ -113,7 +113,12 @@
   
   (define (open-string-output-port)
     (let ((p (open-output-string)))
-      (values p (lambda () (get-output-string p)))))
+      (values p (lambda ()
+                  (if p 
+                    (let ((r (get-output-string p)))
+                      (set! p #f)
+                      r)
+                     "")))))
       
   (define (port? obj)
     (or (textual-port? obj) (binary-port? obj)))
