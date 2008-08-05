@@ -235,13 +235,12 @@ namespace IronScheme.Runtime.R6RS
     {
       Transcoder t = RequiresNotNull<Transcoder>(tc);
       string value = RequiresNotNull<string>(s);
-      if (t.eolstyle != eol_none)
+
+      value = eoltx.Replace(value, delegate(Match m)
       {
-        value = eoltx.Replace(value, delegate(Match m)
-        {
-          return GetNewline(t.eolstyle, m.Value);
-        });
-      }
+        return GetNewline(t.eolstyle, m.Value);
+      });
+
       return t.codec.GetBytes(value);
     }
 
@@ -763,6 +762,25 @@ namespace IronScheme.Runtime.R6RS
         }
 
         return res;
+      }
+
+      public override int Peek()
+      {
+        int p = Position;
+        int i = Read();
+        Position = p;
+        return i;
+      }
+
+      public override int Read()
+      {
+        char[] c = new char[1];
+        int i = Read(c, 0, 1);
+        if (i == 0)
+        {
+          return -1;
+        }
+        return c[0];
       }
 
       public bool HasPosition
@@ -1363,7 +1381,14 @@ namespace IronScheme.Runtime.R6RS
 
       CallTarget0 extract = delegate
       {
-        return s.ToArray();
+        if (s == null)
+        {
+          return new byte[0];
+        }
+        byte[] r = s.ToArray();
+        s.Close();
+        s = null;
+        return r;
       };
 
       return Values(tc == null ? s : TranscodedPort(s, tc), Closure.Make(Context, extract));
@@ -1553,6 +1578,11 @@ namespace IronScheme.Runtime.R6RS
         {
           buffer[i] = sb[i];
         }
+      }
+
+      public override void Write(char value)
+      {
+        Write(new char[] { value }, 0, 1);
       }
 
       public bool HasPosition

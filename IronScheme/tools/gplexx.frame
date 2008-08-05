@@ -557,6 +557,8 @@ using gppg;
 
         public Scanner() { }
 
+        bool eofseen = false;
+
         void GetChr()
         {
             if (chr == '\n') 
@@ -565,9 +567,18 @@ using gppg;
                 lNum++; 
             }
             chr = buffer.Read();
+            if (chr == -1 && !eofseen)
+            {
+              chr = ' ';
+              eofseen = true;
+            }
+            else 
+            {
+              eofseen = false;
+            }
             cNum++;
         }
-
+        
         void MarkToken()
         {
             tokPos = buffer.ReadPos;
@@ -595,6 +606,7 @@ using gppg;
             this.buffer.Pos = offset;
             this.cNum = offset - 1;
             this.chr = '\n'; // to initialize yyline, yycol and lineStart
+            this.eofseen = false;
             GetChr();
         }
         
@@ -605,6 +617,7 @@ using gppg;
             this.buffer = new LineBuff(source);
             this.chr = '\n'; // to initialize yyline, yycol and lineStart
             this.cNum = -1;
+            this.eofseen = false;
             GetChr();
         }
         
