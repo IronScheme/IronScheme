@@ -28,6 +28,17 @@ using System.Globalization;
 
 namespace IronScheme.Runtime
 {
+  public sealed class StringWriter : System.IO.StringWriter
+  {
+    public string GetBuffer()
+    {
+      StringBuilder sb = GetStringBuilder();
+      string r = sb.ToString();
+      sb.Length = 0;
+      return r;
+    }
+  }
+
   public partial class Builtins
   {
     static Assembly AssemblyLoad(string path)

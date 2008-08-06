@@ -106,19 +106,14 @@
     (except (rnrs) open-string-output-port port?))
     
   (define (get-output-string port)
-    (clr-call system.io.stringwriter tostring port))
+    (clr-call ironscheme.runtime.stringwriter getbuffer port))
     
   (define (open-output-string)
-    (clr-new system.io.stringwriter))
+    (clr-new ironscheme.runtime.stringwriter))
   
   (define (open-string-output-port)
     (let ((p (open-output-string)))
-      (values p (lambda ()
-                  (if p 
-                    (let ((r (get-output-string p)))
-                      (set! p #f)
-                      r)
-                     "")))))
+      (values p (lambda () (get-output-string p)))))
       
   (define (port? obj)
     (or (textual-port? obj) (binary-port? obj)))

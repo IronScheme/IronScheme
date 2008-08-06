@@ -1246,7 +1246,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-output-port")]
     public static object OpenFileOutputPort(object filename, object fileoptions, object buffermode)
     {
-      return OpenFileOutputPort(filename, fileoptions, bm_block, false);
+      return OpenFileOutputPort(filename, fileoptions, bm_block, FALSE);
     }
 
     [Flags]
@@ -1369,7 +1369,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-bytevector-output-port")]
     public static object OpenBytevectorOutputPort()
     {
-      return OpenBytevectorOutputPort(false);
+      return OpenBytevectorOutputPort(FALSE);
     }
 
     [Builtin("open-bytevector-output-port")]
@@ -1381,13 +1381,8 @@ namespace IronScheme.Runtime.R6RS
 
       CallTarget0 extract = delegate
       {
-        if (s == null)
-        {
-          return new byte[0];
-        }
         byte[] r = s.ToArray();
-        s.Close();
-        s = null;
+        s.SetLength(0);
         return r;
       };
 
@@ -1399,7 +1394,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("call-with-bytevector-output-port")]
     public static object CallWithBytevectorOutputPort(object proc)
     {
-      return CallWithBytevectorOutputPort(proc, false);
+      return CallWithBytevectorOutputPort(proc, FALSE);
     }
 
     [Builtin("call-with-bytevector-output-port")]
@@ -1886,7 +1881,7 @@ namespace IronScheme.Runtime.R6RS
         {
           value = eoltx.Replace(value, delegate(Match m)
           {
-            return GetNewline(tc.eolstyle, m.Value);
+            return GetNewline(tc.eolstyle, "\n");
           });
         }
         return value;
@@ -1904,7 +1899,7 @@ namespace IronScheme.Runtime.R6RS
         {
           value = eoltx.Replace(value, delegate(Match m)
           {
-            return GetNewline(tc.eolstyle, m.Value);
+            return GetNewline(tc.eolstyle, "\n");
           });
         }
         return value;
