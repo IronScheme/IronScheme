@@ -229,10 +229,10 @@ namespace IronScheme.Runtime
               }
             }
           }
-          else if (r is ITranscodedPort)
-          {
-            result = IronSchemeLanguageContext.ReadExpressions(((ITranscodedPort)r).BinaryPort, Context.ModuleContext.CompilerContext);
-          }
+          //else if (r is ITranscodedPort)
+          //{
+          //  result = IronSchemeLanguageContext.ReadExpressions(((ITranscodedPort)r).BinaryPort, Context.ModuleContext.CompilerContext);
+          //}
           else
           {
             string input = r.ReadToEnd();

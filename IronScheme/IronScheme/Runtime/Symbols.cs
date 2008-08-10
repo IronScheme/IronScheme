@@ -73,30 +73,5 @@ namespace IronScheme.Runtime
       }
     }
 
-
-    [Builtin("symbol=?")]
-    public static object IsAllSameSymbol(object obj1, object obj2)
-    {
-      return Equals(obj1, obj2);
-    }
-
-    [Builtin("symbol=?")]
-    public static object IsAllSameSymbol(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      bool h = Equals(obj1, obj2) && Equals(obj2, obj3);
-      if (h)
-      {
-        foreach (object r in rest)
-        {
-          if (!Equals(r, obj3))
-          {
-            return FALSE;
-          }
-        }
-      }
-      return h;
-    }
-
-
   }
 }

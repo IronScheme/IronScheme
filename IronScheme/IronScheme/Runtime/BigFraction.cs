@@ -280,7 +280,7 @@ namespace IronScheme.Runtime
         BigInteger den = a;
         BigInteger tmp;
         double approxAns = ((double)(den * intPart + num)) / den;
-        while (Math.Abs((x - approxAns)) > 0)
+        while (Math.Abs((x - approxAns)) > 0.0)
         {
           z = 1.0 / z;
           a = (BigInteger)Math.Round(z);

@@ -108,6 +108,7 @@
     
     not
     boolean?
+    boolean=?
     
     pair?
     cons
@@ -217,7 +218,7 @@
     
     )
   (import 
-    (except (rnrs base) 
+    (except (ironscheme) 
       caar
       cadr
       cdar
@@ -246,6 +247,18 @@
       cddadr
       cdddar
       cddddr
+      char=?
+      char<?
+      char>?
+      char<=?
+      char>=?
+      string=?
+      string<?
+      string>?
+      string<=?
+      string>=?
+      symbol=?
+      boolean=?     
       rationalize
      ))
      
@@ -293,7 +306,77 @@
 ;            (when (or (and (
 ;        
 ;      ))
+
+
+    (define-syntax make-string-compare
+      (syntax-rules ()
+        [(_ cmp k)
+          (lambda (a b . rest)
+            (unless (string? a) (assertion-violation 'k "not a string" a))
+            (unless (string? b) (assertion-violation 'k "not a string" b))  
+            (for-each (lambda (x)
+                        (unless (string? x) (assertion-violation 'k "not a string" x)))
+                      rest)  
+            (let f ((a a)(b b)(rest rest))                    
+              (if (null? rest)
+                (cmp (string-compare a b) 0)
+                (and 
+                  (cmp (string-compare a b) 0)
+                  (f b (car rest) (cdr rest))))))]))
+
+    (define string=? (make-string-compare = string=?))
+    (define string<? (make-string-compare < string<?))
+    (define string>? (make-string-compare > string>?))
+    (define string<=? (make-string-compare <= string<=?))
+    (define string>=? (make-string-compare >= string>=?))
+
+    (define (symbol=? a b . rest)
+      (unless (symbol? a) (assertion-violation 'symbol=? "not a symbol" a))
+      (unless (symbol? b) (assertion-violation 'symbol=? "not a symbol" b))
+      (for-each (lambda (x)
+                  (unless (symbol? x) (assertion-violation 'symbol=? "not a symbol" x)))
+                rest) 
+      (let f ((a a)(b b)(rest rest))                      
+        (if (null? rest)
+          (eq? a b)
+          (and 
+            (eq? a b)
+            (f b (car rest) (cdr rest))))))
+
+    (define (boolean=? a b . rest)
+      (unless (boolean? a) (assertion-violation 'boolean=? "not a boolean" a))
+      (unless (boolean? b) (assertion-violation 'boolean=? "not a boolean" b))
+      (for-each (lambda (x)
+                  (unless (boolean? x) (assertion-violation 'boolean=? "not a boolean" x)))
+                rest)       
+      (let f ((a a)(b b)(rest rest))                      
+        (if (null? rest)
+          (eq? a b)
+          (and 
+            (eq? a b)
+            (f b (car rest) (cdr rest))))))
+      
+    (define-syntax char-compare
+      (syntax-rules ()
+        [(_ cmp k)
+          (lambda (a b . rest)
+            (unless (char? a) (assertion-violation 'k "not a char" a))
+            (unless (char? b) (assertion-violation 'k "not a char" b))  
+            (for-each (lambda (x)
+                        (unless (char? x) (assertion-violation 'k "not a char" x)))
+                      rest)  
+            (let f ((a a)(b b)(rest rest))                    
+              (if (null? rest)
+                (cmp (char->integer a) (char->integer b))
+                (and 
+                  (cmp (char->integer a) (char->integer b))
+                  (f b (car rest) (cdr rest))))))]))
     
+    (define char=? (char-compare = char=?))
+    (define char<? (char-compare < char<?))
+    (define char>? (char-compare > char>?))
+    (define char<=? (char-compare <= char<=?))
+    (define char>=? (char-compare >= char>=?))
     
     ;; from SLIB
     (define (rationalize x e) 

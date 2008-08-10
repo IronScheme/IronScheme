@@ -79,6 +79,11 @@ namespace IronScheme.Runtime.R6RS
       byte[] bv1 = RequiresNotNull<byte[]>(v1);
       byte[] bv2 = RequiresNotNull<byte[]>(v2);
 
+      if (v1 == v2)
+      {
+        return TRUE;
+      }
+
       if (bv1.Length == bv2.Length)
       {
         for (int i = 0; i < bv1.Length; i++)

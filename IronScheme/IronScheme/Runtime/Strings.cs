@@ -19,6 +19,8 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Collections;
 using Microsoft.Scripting;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace IronScheme.Runtime
 {
@@ -174,189 +176,13 @@ namespace IronScheme.Runtime
       return GetBool(obj is string || obj is StringBuilder);
     }
 
-    [Builtin("string=?")]
-    public static object IsSameString(object obj1, object obj2)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-      return GetBool(s1 == s2);
-    }
-
-    [Builtin("string=?")]
-    public static object IsSameString(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-      string s3 = GetString(obj3);
-
-      bool head = s1 == s2 && s2 == s3;
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = GetString(s);
-          if (ss == s3)
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool(head);
-    }
-
-    [Builtin("string<?")]
-    public static object IsLessThanString(object obj1, object obj2)
+    [Builtin("string-compare")]
+    public static object StringCompare(object obj1, object obj2)
     {
       string s1 = GetString(obj1);
       string s2 = GetString(obj2);
 
-      return GetBool( string.Compare(s1,s2, StringComparison.Ordinal) < 0);
-    }
-
-    [Builtin("string<?")]
-    public static object IsLessThanString(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-      string s3 = GetString(obj3);
-
-      bool head = IsTrue(IsLessThanString(s1, s2)) && IsTrue(IsLessThanString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = GetString(s);
-          if (IsTrue(IsLessThanString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool(head);
-    }
-
-    [Builtin("string>?")]
-    public static object IsGreaterThanString(object obj1, object obj2)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-
-      return GetBool(string.Compare(s1, s2, StringComparison.Ordinal) > 0);
-    }
-
-    [Builtin("string>?")]
-    public static object IsGreaterThanString(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-      string s3 = GetString(obj3);
-
-      bool head = IsTrue(IsGreaterThanString(s1, s2)) && IsTrue(IsGreaterThanString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = GetString(s);
-          if (IsTrue(IsGreaterThanString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool(head);
-    }
-
-    [Builtin("string<=?")]
-    public static object IsLessThanOrEqualString(object obj1, object obj2)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-
-      return GetBool(string.Compare(s1, s2, StringComparison.Ordinal) <= 0);
-    }
-
-    [Builtin("string<=?")]
-    public static object IsLessThanOrEqualString(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-      string s3 = GetString(obj3);
-
-      bool head = IsTrue(IsLessThanOrEqualString(s1, s2)) && IsTrue(IsLessThanOrEqualString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = GetString(s);
-          if (IsTrue(IsLessThanOrEqualString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool(head);
-    }
-
-    [Builtin("string>=?")]
-    public static object IsGreaterThanOrEqualString(object obj1, object obj2)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-
-      return GetBool(string.Compare(s1, s2, StringComparison.Ordinal) >= 0);
-    }
-
-    [Builtin("string>=?")]
-    public static object IsGreaterThanOrEqualString(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
-      string s3 = GetString(obj3);
-
-      bool head = IsTrue(IsGreaterThanOrEqualString(s1, s2)) && IsTrue(IsGreaterThanOrEqualString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = GetString(s);
-          if (IsTrue(IsGreaterThanOrEqualString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool(head);
-    }
-
-    protected static string ToUpper(object obj)
-    {
-      string s = GetString(obj);
-      return s.ToUpper();
+      return string.Compare(s1, s2, StringComparison.Ordinal);
     }
 
     [Builtin("string->list")]

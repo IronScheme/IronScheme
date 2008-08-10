@@ -170,9 +170,9 @@ namespace IronScheme.Runtime
       Type t1 = first.GetType();
       Type t2 = second.GetType();
 
-      if (t1 == t2)
+      if (t1.IsAssignableFrom(t2) || t2.IsAssignableFrom(t1))
       {
-        return GetBool(Equals(first, second));
+        return IsEqualValue(first, second);
       }
 
       if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
@@ -206,6 +206,10 @@ namespace IronScheme.Runtime
       if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
       {
         return IsSame(first, second);
+      }
+      if (first is Encoding && second is Encoding)
+      {
+        return ((Encoding)first).WebName == ((Encoding)second).WebName;
       }
       return GetBool(Equals(first, second));
     }

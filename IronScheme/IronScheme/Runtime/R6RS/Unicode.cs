@@ -61,235 +61,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("char-foldcase")]
     public static object ToFoldCaseChar(object obj)
     {
-      //TODO
       char c = RequiresNotNull<char>(obj);
-      return char.ToLower(c, CultureInfo.InvariantCulture);
-    }
-
-    /// <summary>
-    /// Determines whether [is same char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is same char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci=?")]
-    public static object IsSameCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return GetBool(char.ToUpper(c1) == char.ToUpper(c2));
-    }
-
-    [Builtin("char-ci=?")]
-    public static object IsSameCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      char c1 = char.ToUpper(RequiresNotNull<char>(obj1));
-      char c2 = char.ToUpper(RequiresNotNull<char>(obj2));
-      char c3 = char.ToUpper(RequiresNotNull<char>(obj3));
-
-      bool head = c1 == c2 && c2 == c3;
-
-      if (head)
-      {
-        foreach (char c in rest)
-        {
-          char ci = char.ToUpper(c);
-          if (c3 == ci)
-          {
-            c3 = ci;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-
-      return GetBool( head);
-    }
-
-    /// <summary>
-    /// Determines whether [is less than char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is less than char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci<?")]
-    public static object IsLessThanCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return GetBool(char.ToUpper(c1) < char.ToUpper(c2));
-    }
-
-
-    [Builtin("char-ci<?")]
-    public static object IsLessThanCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      char c1 = char.ToUpper(RequiresNotNull<char>(obj1));
-      char c2 = char.ToUpper(RequiresNotNull<char>(obj2));
-      char c3 = char.ToUpper(RequiresNotNull<char>(obj3));
-
-      bool head = c1 < c2 && c2 < c3;
-
-      if (head)
-      {
-        foreach (char c in rest)
-        {
-          char ci = char.ToUpper(c);
-          if (c3 < ci)
-          {
-            c3 = ci;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-
-      return GetBool( head);
-    }
-
-    /// <summary>
-    /// Determines whether [is greater than char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is greater than char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci>?")]
-    public static object IsGreaterThanCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return GetBool(char.ToUpper(c1) > char.ToUpper(c2));
-    }
-
-    [Builtin("char-ci>?")]
-    public static object IsGreaterThanCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      char c1 = char.ToUpper(RequiresNotNull<char>(obj1));
-      char c2 = char.ToUpper(RequiresNotNull<char>(obj2));
-      char c3 = char.ToUpper(RequiresNotNull<char>(obj3));
-
-      bool head = c1 > c2 && c2 > c3;
-
-      if (head)
-      {
-        foreach (char c in rest)
-        {
-          char ci = char.ToUpper(c);
-          if (c3 > ci)
-          {
-            c3 = ci;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-
-      return GetBool( head);
-    }
-
-    /// <summary>
-    /// Determines whether [is less than or equal char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is less than or equal char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci<=?")]
-    public static object IsLessThanOrEqualCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return GetBool(char.ToUpper(c1) <= char.ToUpper(c2));
-    }
-
-    [Builtin("char-ci<=?")]
-    public static object IsLessThanOrEqualCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      char c1 = char.ToUpper(RequiresNotNull<char>(obj1));
-      char c2 = char.ToUpper(RequiresNotNull<char>(obj2));
-      char c3 = char.ToUpper(RequiresNotNull<char>(obj3));
-
-      bool head = c1 <= c2 && c2 <= c3;
-
-      if (head)
-      {
-        foreach (char c in rest)
-        {
-          char ci = char.ToUpper(c);
-          if (c3 <= ci)
-          {
-            c3 = ci;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-
-      return GetBool( head);
-    }
-
-    /// <summary>
-    /// Determines whether [is greater than or equal char case insensitive] [the specified obj1].
-    /// </summary>
-    /// <param name="obj1">The obj1.</param>
-    /// <param name="obj2">The obj2.</param>
-    /// <returns>
-    /// 	<c>true</c> if [is greater than or equal char case insensitive] [the specified obj1]; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char-ci>=?")]
-    public static object IsGreaterThanOrEqualCharCaseInsensitive(object obj1, object obj2)
-    {
-      char c1 = RequiresNotNull<char>(obj1);
-      char c2 = RequiresNotNull<char>(obj2);
-
-      return GetBool(char.ToUpper(c1) >= char.ToUpper(c2));
-    }
-
-    [Builtin("char-ci>=?")]
-    public static object IsGreaterThanOrEqualCharCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      char c1 = char.ToUpper(RequiresNotNull<char>(obj1));
-      char c2 = char.ToUpper(RequiresNotNull<char>(obj2));
-      char c3 = char.ToUpper(RequiresNotNull<char>(obj3));
-
-      bool head = c1 >= c2 && c2 >= c3;
-
-      if (head)
-      {
-        foreach (char c in rest)
-        {
-          char ci = char.ToUpper(c);
-          if (c3 >= ci)
-          {
-            c3 = ci;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-
-      return GetBool( head);
+      return char.ToLowerInvariant(char.ToUpperInvariant(c));
     }
 
     /// <summary>
@@ -409,194 +182,22 @@ namespace IronScheme.Runtime.R6RS
       return FALSE;
     }
 
-    [Builtin("string-ci=?")]
-    public static object IsSameStringCaseInsensitive(object obj1, object obj2)
+    static readonly CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
+
+    [Builtin("string-ci-compare")]
+    public static object StringCaseInsensitiveCompare(object obj1, object obj2)
     {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
+      string s1 = GetString(obj1);
+      string s2 = GetString(obj2);
 
-      return GetBool( s1 == s2);
+      return compare.Compare(s1, s2, CompareOptions.IgnoreCase);
     }
-
-    [Builtin("string-ci=?")]
-    public static object IsSameStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-      string s3 = ToUpper(obj3);
-
-      bool head = s1 == s2 && s2 == s3;
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = ToUpper(s);
-          if (ss == s3)
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool( head);
-    }
-
-    [Builtin("string-ci<?")]
-    public static object IsLessThanStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-
-      return IsLessThanString(s1, s2);
-    }
-
-
-    [Builtin("string-ci<?")]
-    public static object IsLessThanStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-      string s3 = ToUpper(obj3);
-
-      bool head = IsTrue(IsLessThanString(s1, s2)) && IsTrue(IsLessThanString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = ToUpper(s);
-          if (IsTrue(IsLessThanString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool( head);
-    }
-
-    [Builtin("string-ci>?")]
-    public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-
-      return IsGreaterThanString(s1, s2);
-    }
-
-    [Builtin("string-ci>?")]
-    public static object IsGreaterThanStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-      string s3 = ToUpper(obj3);
-
-      bool head = IsTrue(IsGreaterThanString(s1, s2)) && IsTrue(IsGreaterThanString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = ToUpper(s);
-          if (IsTrue(IsGreaterThanString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool( head);
-    }
-
-    [Builtin("string-ci<=?")]
-    public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-
-      return IsLessThanOrEqualString(s1, s2);
-    }
-
-    [Builtin("string-ci<=?")]
-    public static object IsLessThanOrEqualStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-      string s3 = ToUpper(obj3);
-
-      bool head = IsTrue(IsLessThanOrEqualString(s1, s2)) && IsTrue(IsLessThanOrEqualString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = ToUpper(s);
-          if (IsTrue(IsLessThanOrEqualString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool( head);
-    }
-
-    [Builtin("string-ci>=?")]
-    public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-
-      return IsGreaterThanOrEqualString(s1, s2);
-    }
-
-    [Builtin("string-ci>=?")]
-    public static object IsGreaterThanOrEqualStringCaseInsensitive(object obj1, object obj2, object obj3, params object[] rest)
-    {
-      string s1 = ToUpper(obj1);
-      string s2 = ToUpper(obj2);
-      string s3 = ToUpper(obj3);
-
-      bool head = IsTrue(IsGreaterThanOrEqualString(s1, s2)) && IsTrue(IsGreaterThanOrEqualString(s2, s3));
-
-      if (head)
-      {
-        foreach (object s in rest)
-        {
-          string ss = ToUpper(s);
-          if (IsTrue(IsGreaterThanOrEqualString(ss, s3)))
-          {
-            s3 = ss;
-          }
-          else
-          {
-            return FALSE;
-          }
-        }
-      }
-      return GetBool( head);
-    }
-
-
 
     [Builtin("string-upcase")]
     public static object ToUpperCaseString(object obj)
     {
       string s = GetString(obj);
-      return s.ToUpper();
+      return s.ToUpper().Replace("ß", "SS");
     }
 
     /// <summary>
@@ -608,7 +209,25 @@ namespace IronScheme.Runtime.R6RS
     public static object ToLowerCaseString(object obj)
     {
       string s = GetString(obj);
-      return s.ToLower();
+      StringBuilder sb = new StringBuilder(s.ToLower());
+      for (int i = 0; i < sb.Length; i++)
+      {
+        if (sb[i] == '\x03C3')
+        {
+          if (i == sb.Length - 1)
+          {
+            if (i != 0 && !char.IsSeparator(sb[i - 1]))
+            {
+              sb[i] = '\x03C2';
+            }
+          }
+          else if (char.IsSeparator(sb[i + 1]))
+          {
+            sb[i] = '\x03C2';
+          }
+        }
+      }
+      return sb.ToString();
     }
 
     [Builtin("string-titlecase")]
@@ -621,9 +240,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-foldcase")]
     public static object ToFoldCaseString(object obj)
     {
-      //TODO
-      string s = GetString(obj);
-      return s.ToLower(CultureInfo.InvariantCulture);
+      string s = ToUpperCaseString(obj) as string;
+      return s.ToLowerInvariant();
     }
 
     [Builtin("string-normalize-nfd")]

@@ -146,20 +146,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("make-transcoder")]
     public static object MakeTranscoder(object codec)
     {
-      Transcoder tc = new Transcoder();
-      tc.codec = codec as Encoding;
-      return tc;
+      return MakeTranscoder(codec, NativeEolStyle(), SymbolTable.StringToId("replace"));
     }
 
     [Builtin("make-transcoder")]
     public static object MakeTranscoder(object codec, object eolstyle)
     {
-      Transcoder tc = new Transcoder();
-      tc.codec = codec as Encoding;
-      tc.eolstyle = (SymbolId)eolstyle;
-      return tc;
+      return MakeTranscoder(codec, eolstyle, SymbolTable.StringToId("replace"));
     }
-
 
     [Builtin("make-transcoder")]
     public static object MakeTranscoder(object codec, object eolstyle, object handlingmode)
@@ -168,7 +162,55 @@ namespace IronScheme.Runtime.R6RS
       tc.codec = codec as Encoding;
       tc.eolstyle = (SymbolId)eolstyle;
       tc.handlingmode = (SymbolId)handlingmode;
+
+      if (tc.handlingmode == SymbolTable.StringToId("raise"))
+      {
+        tc.codec = Encoding.GetEncoding(tc.codec.WebName, new EncCB(tc), new DecCB(tc));
+      }
+
       return tc;
+    }
+
+    class EncCB : EncoderFallback
+    {
+      Transcoder enc;
+
+      public EncCB(Transcoder enc)
+      {
+        this.enc = enc;
+      }
+
+      public override EncoderFallbackBuffer CreateFallbackBuffer()
+      {
+        IOEncodingError();
+        return null;
+      }
+
+      public override int MaxCharCount
+      {
+        get { return 1; }
+      }
+    }
+
+    class DecCB : DecoderFallback
+    {
+      Transcoder enc;
+
+      public DecCB(Transcoder enc)
+      {
+        this.enc = enc;
+      }
+
+      public override DecoderFallbackBuffer CreateFallbackBuffer()
+      {
+        IODecodingError();
+        return null;
+      }
+
+      public override int MaxCharCount
+      {
+        get { return 1; }
+      }
     }
 
 
@@ -221,10 +263,21 @@ namespace IronScheme.Runtime.R6RS
 
       string value = t.codec.GetString(b);
 
-      value = eoltx.Replace(value, delegate(Match m)
+      // ???????????????????
+      if (t.eolstyle == eol_none)
       {
-        return GetNewline(t.eolstyle, m.Value);
-      });
+        value = lftx.Replace(value, delegate(Match m)
+        {
+          return GetNewline(t.eolstyle, "\n");
+        });
+      }
+      else
+      {
+        value = eoltx.Replace(value, delegate(Match m)
+        {
+          return GetNewline(t.eolstyle, m.Value);
+        });
+      }
 
       return value;
     }
@@ -236,7 +289,7 @@ namespace IronScheme.Runtime.R6RS
       Transcoder t = RequiresNotNull<Transcoder>(tc);
       string value = RequiresNotNull<string>(s);
 
-      value = eoltx.Replace(value, delegate(Match m)
+      value = lftx.Replace(value, delegate(Match m)
       {
         return GetNewline(t.eolstyle, m.Value);
       });
@@ -1749,6 +1802,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     static Regex eoltx = new Regex(string.Join("|", Array.ConvertAll<string,string>( new string[] { "\r\n", nel, "\r" + nel, ls, "\r", "\n", }, Regex.Escape)), RegexOptions.Compiled);
+    static Regex lftx = new Regex("\\n", RegexOptions.Compiled);
     
     class TranscodedWriter : TextWriter, ITranscodedPort
     {
@@ -1771,7 +1825,7 @@ namespace IronScheme.Runtime.R6RS
       {
         if (tc.eolstyle != eol_none)
         {
-          value = eoltx.Replace(value, delegate(Match m)
+          value = lftx.Replace(value, delegate(Match m)
           {
             return GetNewline(tc.eolstyle, m.Value);
           });
@@ -2004,7 +2058,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-input/output-port")]
     public static object OpenFileInputOutputPort(object filename, object fileoptions, object buffermode)
     {
-      return OpenFileInputOutputPort(filename, fileoptions, bm_block, false);
+      return OpenFileInputOutputPort(filename, fileoptions, bm_block, FALSE);
     }
 
     [Builtin("open-file-input/output-port")]
