@@ -1924,6 +1924,12 @@ namespace IronScheme.Runtime
       }
       return MathHelper(Math.Log, obj);
     }
+
+    [Builtin("log")]
+    public static object Log(object obj, object bas)
+    {
+      return Divide(Log(obj), Log(bas));
+    }
     
     [Builtin("sin")]
     public static object Sin(object obj)

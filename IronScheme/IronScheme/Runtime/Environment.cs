@@ -63,6 +63,37 @@ namespace IronScheme.Runtime
       return SymbolTable.StringToId(name.Substring(0, i));
     }
 
+
+    public static object IODecodingError()
+    {
+      if (IsR6RSLoaded())
+      {
+        ICallable u = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-decoding-rcd"))) as ICallable;
+        
+        return R6RS.Exceptions.RaiseContinueable(
+          R6RS.Conditions.Condition(u.Call(FALSE)));
+      }
+      else
+      {
+        throw new Exception("i/o decoding");
+      }
+    }
+
+    public static object IOEncodingError()
+    {
+      if (IsR6RSLoaded())
+      {
+        ICallable u = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-encoding-rcd"))) as ICallable;
+
+        return R6RS.Exceptions.RaiseContinueable(
+          R6RS.Conditions.Condition(u.Call(FALSE, FALSE)));
+      }
+      else
+      {
+        throw new Exception("i/o encoding");
+      }
+    }
+
     public static object UndefinedError(object sym)
     {
       if (IsR6RSLoaded())

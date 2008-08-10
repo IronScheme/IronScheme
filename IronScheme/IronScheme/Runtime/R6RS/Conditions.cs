@@ -189,7 +189,6 @@ namespace IronScheme.Runtime.R6RS
                 return c.Call(e);
               }
             }
-            //System.Diagnostics.Debugger.Break();
             return FALSE;
           }
         }

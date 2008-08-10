@@ -246,9 +246,6 @@
     <None Include="ironscheme\pretty-print.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\reader.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme\strings.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

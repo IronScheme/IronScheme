@@ -4,5 +4,3 @@
   (ironscheme)
   (ironscheme linq)
   (ironscheme pretty-print))
-  
-;(set-symbol-value! 'pretty-print pretty-print)

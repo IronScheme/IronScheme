@@ -145,9 +145,7 @@ References:
       (map proc (get-list lst))))
 
   (define (filter* proc lst)
-    (if (eq? proc identity) 
-      (get-list lst)
-      (filter proc (get-list lst))))
+    (filter proc (get-list lst)))
 
   (define (get-eq a)
     (cond

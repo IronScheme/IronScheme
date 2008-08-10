@@ -229,14 +229,14 @@ namespace IronScheme.Runtime.R6RS
     public static object StringHash(object obj)
     {
       string r = GetString(obj);
-      return r.GetHashCode();
+      return StringComparer.Ordinal.GetHashCode(r);
     }
 
     [Builtin("string-ci-hash")]
     public static object StringCaseInsensitiveHash(object obj)
     {
       string r = GetString(obj);
-      return StringComparer.CurrentCultureIgnoreCase.GetHashCode(r);
+      return StringComparer.InvariantCultureIgnoreCase.GetHashCode(r);
     }
 
     [Builtin("symbol-hash")]

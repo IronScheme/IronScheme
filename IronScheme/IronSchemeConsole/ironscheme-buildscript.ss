@@ -280,6 +280,8 @@
     (make-traced-procedure                      i ic)
     (trace-printer                              i)
     (string-format                              i)
+    (string-compare                             i)
+    (string-ci-compare                          i)
     (open-input-string                          i)
     (open-output-string                         i)
     (get-output-string                          i)

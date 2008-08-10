@@ -36,6 +36,8 @@ namespace IronScheme.Compiler
       {
         ModuleBuilder mb = cg.TypeGen.TypeBuilder.Module as ModuleBuilder;
 
+        //FieldSlot s = cg.TypeGen.AddStaticField(typeof(object), "s11n:" + constantcounter) as FieldSlot;
+
         MemoryStream s = new MemoryStream();
 
         bf.Serialize(s, value);
