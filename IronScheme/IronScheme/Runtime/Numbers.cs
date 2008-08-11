@@ -2097,12 +2097,13 @@ namespace IronScheme.Runtime
         object res = MathHelper(Math.Pow, obj1, obj2);
         if (isnegative)
         {
-          return Divide(1, IntegerIfPossible(res));
+          return Divide(1, res);
         }
         else
         {
-          NumberClass e = GetNumberClass(obj1) & GetNumberClass(obj2);
-          return GetNumber(e, res);
+          //NumberClass e = GetNumberClass(obj1) & GetNumberClass(obj2);
+          //return GetNumber(e, res);
+          return res;
         }
       }
 
