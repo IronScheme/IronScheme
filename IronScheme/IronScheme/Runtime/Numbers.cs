@@ -129,6 +129,10 @@ namespace IronScheme.Runtime
     [Builtin("number->string")]
     public static object NumberToString(object obj, object radix)
     {
+      if (!IsTrue(IsNumber(obj)))
+      {
+        return AssertionViolation("number->string", "not a number", obj);
+      }
       radix = radix ?? 10;
       int r = (int)radix;
 
@@ -396,6 +400,11 @@ namespace IronScheme.Runtime
     [Builtin("exact->inexact")]
     public static object Inexact(object obj)
     {
+      if (!IsTrue(IsNumber(obj)))
+      {
+        return AssertionViolation("inexact", "not a number", obj);
+      }
+
       if (IsTrue(IsExact(obj)))
       {
         return SafeConvert(obj);
@@ -407,6 +416,10 @@ namespace IronScheme.Runtime
     [Builtin("inexact->exact")]
     public static object Exact(object obj)
     {
+      if (!IsTrue(IsNumber(obj)))
+      {
+        return AssertionViolation("exact", "not a number", obj);
+      }
       if (IsTrue(IsInexact(obj)))
       {
         if (obj is double)
@@ -476,13 +489,21 @@ namespace IronScheme.Runtime
     [Builtin("exact?")]
     public static object IsExact(object obj)
     {
-      return IsRational(obj);
+      if (IsTrue(IsNumber(obj)))
+      {
+        return IsRational(obj);
+      }
+      return AssertionViolation("exact?", "not a number", obj);
     }
 
     [Builtin("inexact?")]
     public static object IsInexact(object obj)
     {
-      return Not(IsRational(obj));
+      if (IsTrue(IsNumber(obj)))
+      {
+        return Not(IsRational(obj));
+      }
+      return AssertionViolation("inexact?", "not a number", obj);
     }
 
     #region relations
@@ -813,13 +834,22 @@ namespace IronScheme.Runtime
     [Builtin("positive?")]
     public static object IsPositive(object obj)
     {
-      return IsGreaterThan(obj, 0);
+      if (IsTrue(IsRealValued(obj)))
+      {
+        return IsGreaterThan(obj, 0);
+      }
+      return AssertionViolation("positive?", "not a real", obj);
+
     }
 
     [Builtin("negative?")]
     public static object IsNegative(object obj)
     {
-      return IsLessThan(obj, 0);
+      if (IsTrue(IsRealValued(obj)))
+      {
+        return IsLessThan(obj, 0);
+      }
+      return AssertionViolation("negative?", "not a real", obj);
     }
 
     [Builtin("odd?")]
@@ -838,6 +868,10 @@ namespace IronScheme.Runtime
     public static object Min(object first, params object[] rest)
     {
       NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation("min", "not a real", first);
+      }
       object min = first;
       foreach (object var in rest)
       {
@@ -854,6 +888,11 @@ namespace IronScheme.Runtime
     public static object Max(object first, params object[] rest)
     {
       NumberClass e = GetNumberClass(first);
+
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation("max", "not a real", first);
+      }
 
       object max = first;
 
@@ -1324,7 +1363,7 @@ namespace IronScheme.Runtime
       }
       else if (obj is Complex64)
       {
-        return ((Complex64)obj).Abs();
+        return AssertionViolation("abs", "not a real", obj);
       }
       else if (obj is Fraction)
       {
@@ -1564,7 +1603,7 @@ namespace IronScheme.Runtime
           {
             return AssertionViolation("gcd", "not an integer", args[0]);
           }
-          return args[0];
+          return Abs(args[0]);
         case 2:
           object first = args[0], second = args[1];
 
@@ -1607,7 +1646,7 @@ namespace IronScheme.Runtime
           {
             return AssertionViolation("lcm", "not an integer", args[0]);
           }
-          return args[0];
+          return Abs(args[0]);
         case 2:
           object first = args[0], second = args[1];
           if (!IsTrue(IsIntegerValued(first)))
@@ -1617,6 +1656,10 @@ namespace IronScheme.Runtime
           if (!IsTrue(IsIntegerValued(second)))
           {
             return AssertionViolation("lcm", "not an integer", second);
+          }
+          if (IsTrue(IsZero(first)) || IsTrue(IsZero(second)))
+          {
+            return 0;
           }
           return Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second));
         default:
@@ -1894,12 +1937,20 @@ namespace IronScheme.Runtime
     [Builtin("exp")]
     public static object Exp(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Exp((Complex64)obj);
+      }
       return MathHelper(Math.Exp, obj);
     }
 
     [Builtin("log")]
     public static object Log(object obj)
     {
+      if (obj is Complex64 || IsTrue(IsNegative(obj)))
+      {
+        return Complex64.Log(ConvertToComplex(obj));
+      }
       if (IsTrue(IsZero(obj)))
       {
         if (IsTrue(IsExact(obj)))
@@ -1934,60 +1985,100 @@ namespace IronScheme.Runtime
     [Builtin("sin")]
     public static object Sin(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Sin((Complex64)obj);
+      }
+
       return MathHelper(Math.Sin, obj);
     }
 
     [Builtin("asin")]
     public static object Asin(object obj)
     {
-      return MathHelper(Math.Asin, obj);
+      return Complex64.Asin(ConvertToComplex(obj));
     }
 
     [Builtin("sinh")]
     public static object Sinh(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Sinh((Complex64)obj);
+      }
+
       return MathHelper(Math.Sinh, obj);
     }
 
     [Builtin("cos")]
     public static object Cos(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Cos((Complex64)obj);
+      }
+
       return MathHelper(Math.Cos, obj);
     }
 
     [Builtin("acos")]
     public static object Acos(object obj)
     {
-      return MathHelper(Math.Acos, obj);
+      return Complex64.Acos(ConvertToComplex(obj));
     }
 
     [Builtin("cosh")]
     public static object Cosh(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Cosh((Complex64)obj);
+      }
+
       return MathHelper(Math.Cosh, obj);
     }
 
     [Builtin("tan")]
     public static object Tan(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Tan((Complex64)obj);
+      }
+
       return MathHelper(Math.Tan, obj);
     }
 
     [Builtin("atan")]
     public static object Atan(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Atan((Complex64)obj);
+      }
+
       return MathHelper(Math.Atan, obj);
     }
 
     [Builtin("atan")]
     public static object Atan(object obj, object obj2)
     {
+      //if (obj1 is Complex64)
+      //{
+      //  return Complex64.Atan2((Complex64)obj2, (Complex64)obj2);
+      //}
+
       return MathHelper(Math.Atan2, obj, obj2);
     }
 
     [Builtin("tanh")]
     public static object Tanh(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Tanh((Complex64)obj);
+      }
+
       return MathHelper(Math.Tanh, obj);
     }
 
@@ -2021,9 +2112,14 @@ namespace IronScheme.Runtime
     [Builtin("sqrt")]
     public static object Sqrt(object obj)
     {
+      if (obj is Complex64)
+      {
+        return Complex64.Sqrt((Complex64)obj);
+      }
+
       if (IsTrue(IsNegative(obj)))
       {
-        return MakeRectangular(0, Sqrt(Abs(obj)));
+        return MakeRectangular(0, Sqrt(Subtract(obj)));
       }
       if (obj is BigInteger)
       {
@@ -2059,6 +2155,10 @@ namespace IronScheme.Runtime
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)
     {
+      if (obj1 is Complex64)
+      {
+        return Complex64.Pow((Complex64)obj1, (Complex64)obj2);
+      }
 
       bool isnegative = IsTrue(IsNegative(obj2));
 

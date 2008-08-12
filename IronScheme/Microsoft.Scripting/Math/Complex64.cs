@@ -289,5 +289,142 @@ namespace Microsoft.Scripting.Math {
             if (!(obj is Complex64)) return false;
             return this == ((Complex64)obj);
         }
+
+        [DebuggerStepThrough()]
+        public static Complex64 Polar(double modulus, double argument)
+        {
+          return new Complex64(
+                modulus * System.Math.Cos(argument),
+                modulus * System.Math.Sin(argument));
+        }
+
+        public static Complex64 Cos(Complex64 z)
+        {
+          Complex64 z1 = Exp(new Complex64(-z.Imag, z.Real));
+          Complex64 z2 = Exp(new Complex64(z.Imag, -z.Real));
+
+          return new Complex64(0.5 * (z1.Real + z2.Real), 0.5 * (z1.Imag + z2.Imag));
+        }
+
+        public static Complex64 Cosh(Complex64 z)
+        {
+          Complex64 z1 = Exp(z);
+          Complex64 z2 = Exp(new Complex64(-z.Real, -z.Imag));
+
+          return new Complex64(0.5 * (z1.Real + z2.Real), 0.5 * (z1.Imag + z2.Imag));
+        }
+
+        public static Complex64 Sin(Complex64 z)
+        {
+          Complex64 z1 = Exp(new Complex64(-z.Imag, z.Real));
+          Complex64 z2 = Exp(new Complex64(z.Imag, -z.Real));
+
+          return new Complex64(0.5 * (z1.Imag - z2.Imag), 0.5 * (z2.Real - z1.Real));
+        }
+
+        public static Complex64 Sinh(Complex64 z)
+        {
+          Complex64 z1 = Exp(z);
+          Complex64 z2 = Exp(new Complex64(-z.Real, -z.Imag));
+
+          return new Complex64(0.5 * (z1.Real - z2.Real), 0.5 * (z1.Imag - z2.Imag));
+        }
+
+        public static Complex64 Tan(Complex64 z)
+        {
+          return Sin(z) / Cos(z);
+        }
+
+        public static Complex64 Tanh(Complex64 z)
+        {
+          return Sinh(z) / Cosh(z);
+        }
+
+        public static Complex64 Exp(Complex64 z)
+        {
+          double value = System.Math.Exp(z.Real);
+
+          return new Complex64(
+                value * System.Math.Cos(z.Imag),
+                value * System.Math.Sin(z.Imag));
+        }
+
+        public static Complex64 Log(Complex64 z)
+        {
+          return new Complex64(System.Math.Log(z.Modulus), z.Argument);
+        }
+
+        public static Complex64 Pow(Complex64 baseNumber, Complex64 index)
+        {
+          return Exp(index * Log(baseNumber));
+        }
+
+        public static Complex64 Sqrt(Complex64 z)
+        {
+          return Polar(System.Math.Sqrt(z.Modulus), z.Argument * 0.5);
+        }
+
+        [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
+        public double Modulus
+        {
+          [DebuggerStepThrough()]
+          get { return System.Math.Sqrt(Real * Real + Imag * Imag); }
+        }
+
+        [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
+        public double Argument
+        {
+          [DebuggerStepThrough()]
+          get { return System.Math.Atan2(Imag, Real); }
+        }
+
+      /*
+arcsin(z) = -i ln(iz +)
+
+arccos(z) = -i ln(z +)
+
+arctan(z) = (ln(1 - iz) - (ln(1 + iz))
+
+arccot(z) = (ln(1 - ) - (ln(1 + ))
+
+arccsc(z) = -i ln(+ )
+
+arcsec(z) = -i ln(+ )        
+       */
+
+        readonly static Complex64 I = new Complex64(0, 1);
+
+        public static Complex64 Acos(Complex64 z)
+        {
+          return -(I * Log(z + Sqrt(z * z - 1)));
+        }
+
+        public static Complex64 Acosh(Complex64 z)
+        {
+          throw new NotImplementedException();
+        }
+
+        public static Complex64 Asin(Complex64 z)
+        {
+          return -(I * Log(z * I + Sqrt(1 - z * z)));
+        }
+
+        public static Complex64 Asinh(Complex64 z)
+        {
+          throw new NotImplementedException();
+        }
+
+        public static Complex64 Atan(Complex64 z)
+        {
+          Complex64 iz = z * I;
+          return I/2 * (Log(1 - iz) - Log(1 + iz));
+        }
+
+        public static Complex64 Atanh(Complex64 z)
+        {
+          throw new NotImplementedException();
+        }
+
+
     }
 }
