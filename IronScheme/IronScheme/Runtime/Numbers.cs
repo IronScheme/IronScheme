@@ -1677,6 +1677,10 @@ namespace IronScheme.Runtime
     [Builtin("numerator")]
     public static object Numerator(object obj)
     {
+      if (obj is Complex64)
+      {
+        return AssertionViolation("numerator", "not a real", obj);
+      }
       if (IsTrue(IsInteger(obj)))
       {
         return obj;
@@ -1700,6 +1704,10 @@ namespace IronScheme.Runtime
     [Builtin("denominator")]
     public static object Denominator(object obj)
     {
+      if (obj is Complex64)
+      {
+        return AssertionViolation("denominator", "not a real", obj);
+      }
       if (IsTrue(IsInteger(obj)))
       {
         return 1;
@@ -1875,7 +1883,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            return (double)AssertionViolation("SafeConvert", "no conversion to real possible", obj);
+            return (double)AssertionViolation(GetCaller(), "no conversion to real possible", obj);
           }
         }
         return Convert.ToDouble(obj);
@@ -2155,6 +2163,27 @@ namespace IronScheme.Runtime
         return Complex64.Pow(ConvertToComplex(obj1), ConvertToComplex(obj2));
       }
 
+      if (IsTrue(IsZero(obj1)))
+      {
+        return 0;
+      }
+
+      if (IsTrue(IsZero(obj2)))
+      {
+        return 1;
+      }
+
+      if (IsTrue(IsSame(obj1, 1)))
+      {
+        return 1;
+      }
+
+      if (IsTrue(IsSame(obj2, 1)))
+      {
+        return obj1;
+      }
+
+
       bool isnegative = IsTrue(IsNegative(obj2));
 
       if (isnegative)
@@ -2213,10 +2242,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      if (IsTrue(IsZero(obj1)))
-      {
-        return 0;
-      }
+
 
       return ImplementationRestriction("expt", "no supported", obj1, obj2);
     }
@@ -2275,8 +2301,20 @@ namespace IronScheme.Runtime
     [Builtin("magnitude")]
     public static object Magnitude(object obj)
     {
-      Complex64 c = ConvertToComplex(obj);
-      return IntegerIfPossible(Math.Sqrt(c.Imag * c.Imag + c.Real * c.Real));
+      if (obj is Complex64)
+      {
+        Complex64 c = ConvertToComplex(obj);
+        double m = Math.Sqrt(c.Imag * c.Imag + c.Real * c.Real);
+        return m;
+      }
+      else if (IsTrue(IsNumber(obj)))
+      {
+        return Abs(obj);
+      }
+      else
+      {
+        return AssertionViolation("magnitude", "not a number", obj);
+      }
     }
 
     [Builtin("angle")]
