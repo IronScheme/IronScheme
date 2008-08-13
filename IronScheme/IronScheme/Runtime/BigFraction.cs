@@ -192,7 +192,9 @@ namespace IronScheme.Runtime
 
     public static explicit operator Double(Fraction fraction)
 		{
-			return (Double)fraction.numerator / (Double)fraction.denominator;
+      BigInteger n = fraction.Numerator, d = fraction.Denominator;
+      double r = (double)n / (double)d;
+      return r;
 		}
 
     public static explicit operator BigInteger(Fraction fraction)
@@ -285,7 +287,10 @@ namespace IronScheme.Runtime
           z = 1.0 / z;
           a = (BigInteger)Math.Round(z);
           z = z - a;
-
+          if (double.IsNaN(z))
+          {
+            break;
+          }
           tmp = a * num + prevNum;
           prevNum = num;
           num = tmp;

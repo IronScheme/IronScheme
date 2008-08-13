@@ -107,13 +107,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       else
       {
-        int count = 0;
-        while (bi > 0)
-        {
-          count++;
-          bi >>= 1;
-        }
-        return count;
+        return bi.BitLength;
       }
     }
 

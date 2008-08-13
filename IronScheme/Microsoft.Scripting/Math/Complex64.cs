@@ -361,7 +361,7 @@ namespace Microsoft.Scripting.Math {
 
         public static Complex64 Sqrt(Complex64 z)
         {
-          return Polar(System.Math.Sqrt(z.Modulus), z.Argument * 0.5);
+          return Polar(System.Math.Sqrt(z.Modulus), z.Argument / 2);
         }
 
         [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
@@ -374,29 +374,18 @@ namespace Microsoft.Scripting.Math {
         [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
         public double Argument
         {
-          [DebuggerStepThrough()]
-          get { return System.Math.Atan2(Imag, Real); }
+          get 
+          { 
+            double d = System.Math.Atan2(Imag, Real);
+            return d;
+          }
         }
 
-      /*
-arcsin(z) = -i ln(iz +)
-
-arccos(z) = -i ln(z +)
-
-arctan(z) = (ln(1 - iz) - (ln(1 + iz))
-
-arccot(z) = (ln(1 - ) - (ln(1 + ))
-
-arccsc(z) = -i ln(+ )
-
-arcsec(z) = -i ln(+ )        
-       */
-
-        readonly static Complex64 I = new Complex64(0, 1);
+        readonly static Complex64 i = new Complex64(0, 1);
 
         public static Complex64 Acos(Complex64 z)
         {
-          return -(I * Log(z + Sqrt(z * z - 1)));
+          return -i * Log(z + i * Sqrt(1 - Pow(z, 2)));
         }
 
         public static Complex64 Acosh(Complex64 z)
@@ -406,7 +395,7 @@ arcsec(z) = -i ln(+ )
 
         public static Complex64 Asin(Complex64 z)
         {
-          return -(I * Log(z * I + Sqrt(1 - z * z)));
+          return -i * Log(z * i + Sqrt(1 - Pow(z, 2)));
         }
 
         public static Complex64 Asinh(Complex64 z)
@@ -416,8 +405,7 @@ arcsec(z) = -i ln(+ )
 
         public static Complex64 Atan(Complex64 z)
         {
-          Complex64 iz = z * I;
-          return I/2 * (Log(1 - iz) - Log(1 + iz));
+          return i/2 * Log((i + z)/(i - z));
         }
 
         public static Complex64 Atanh(Complex64 z)

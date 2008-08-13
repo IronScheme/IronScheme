@@ -652,6 +652,27 @@ namespace Microsoft.Scripting.Math {
           }
         }
 
+        public int BitLength
+        {
+          get
+          {
+            int bc = 0;
+            int l = Length - 1;
+
+            if (l < 0)
+            {
+              return 0;
+            }
+            uint i = data[l];
+            while (i > 0)
+            {
+              bc++;
+              i >>= 1;
+            }
+            return l * 32 + bc;
+          }
+        }
+
         public int Length {
             get {
                 return GetLength(data);
