@@ -1000,7 +1000,7 @@ namespace IronScheme.Runtime
       {
         return (int)o;
       }
-      return (int) AssertionViolation("ConvertToInteger", "not an integer", o);
+      return (int)AssertionViolation(GetCaller(), "not an integer", o);
     }
 
     protected internal static BigInteger ConvertToBigInteger(object o)
@@ -1013,7 +1013,7 @@ namespace IronScheme.Runtime
       {
         return (BigInteger)o;
       }
-      return (BigInteger) AssertionViolation("ConvertToBigInteger", "not a big integer", o);
+      return (BigInteger) AssertionViolation(GetCaller(), "not a big integer", o);
     }
 
     static Fraction ConvertToRational(object o)
@@ -2063,11 +2063,6 @@ namespace IronScheme.Runtime
     [Builtin("atan")]
     public static object Atan(object obj, object obj2)
     {
-      //if (obj1 is Complex64)
-      //{
-      //  return Complex64.Atan2((Complex64)obj2, (Complex64)obj2);
-      //}
-
       return MathHelper(Math.Atan2, obj, obj2);
     }
 
@@ -2155,9 +2150,9 @@ namespace IronScheme.Runtime
     [Builtin("expt")]
     public static object Expt(object obj1, object obj2)
     {
-      if (obj1 is Complex64)
+      if (obj1 is Complex64 || IsTrue(IsNegative(obj1)))
       {
-        return Complex64.Pow((Complex64)obj1, (Complex64)obj2);
+        return Complex64.Pow(ConvertToComplex(obj1), ConvertToComplex(obj2));
       }
 
       bool isnegative = IsTrue(IsNegative(obj2));
@@ -2186,10 +2181,21 @@ namespace IronScheme.Runtime
         return r;
       }
 
-      if (IsTrue(IsRational(obj1)) && IsTrue(IsInteger(obj2)))
+      if (IsTrue(IsRational(obj1)) && IsTrue(IsIntegerValued(obj2)))
       {
         Fraction f = ConvertToRational(obj1);
-        return Divide(Expt(f.Numerator, obj2), Expt(f.Denominator, obj2));
+        if (obj2 is Fraction)
+        {
+          obj2 = Divide(obj2, 1);
+        }
+        if (isnegative)
+        {
+          return Divide(Expt(f.Denominator, obj2), Expt(f.Numerator, obj2));
+        }
+        else
+        {
+          return Divide(Expt(f.Numerator, obj2), Expt(f.Denominator, obj2));
+        }
       }
 
       if (IsTrue(IsReal(obj1)) && IsTrue(IsReal(obj2)))
