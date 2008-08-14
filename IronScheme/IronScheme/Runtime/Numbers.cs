@@ -313,6 +313,10 @@ namespace IronScheme.Runtime
       {
         return TRUE;
       }
+      if (obj is Complex64)
+      {
+        return GetBool(((Complex64)obj).Imag == 0);
+      }
       if (obj is Fraction)
       {
         return GetBool(((Fraction)obj).Denominator == 1);
@@ -336,6 +340,11 @@ namespace IronScheme.Runtime
       if (iv)
       {
         return TRUE;
+      }
+
+      if (obj is Complex64)
+      {
+        return FALSE;
       }
 
       if (IsTrue(IsNumber(obj)))
@@ -2199,19 +2208,19 @@ namespace IronScheme.Runtime
 
       bool exact = IsTrue(IsExact(obj1)) && IsTrue(IsExact(obj2));
 
-      if (IsTrue(IsZero(obj1)))
+      if (IsTrue(IsZero(obj1)) && !IsTrue(IsZero(obj2)))
       {
-        return exact ? 0 : 0.0;
+        return exact ? 0 : (object)0.0;
       }
 
       if (IsTrue(IsZero(obj2)))
       {
-        return exact ? 1 : 1.0;
+        return exact ? 1 : (object)1.0;
       }
 
       if (IsTrue(IsSame(obj1, 1)))
       {
-        return exact ? 1 : 1.0;
+        return exact ? 1 : (object)1.0;
       }
 
       if (IsTrue(IsSame(obj2, 1)))
