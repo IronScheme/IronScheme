@@ -19,6 +19,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Shell;
 using System.IO;
 using IronScheme.Runtime;
+using System.Threading;
 
 namespace IronScheme.Hosting
 {
@@ -116,16 +117,42 @@ namespace IronScheme.Hosting
       {
         IronScheme.Runtime.Builtins.commandline = Options.RemainingArgs;
         Runtime.Builtins.Load("~/ironscheme.boot.pp");
-        try
+        int ev = 0;
+        AutoResetEvent e = new AutoResetEvent(false);
+        Thread t = new Thread(delegate ()
+          {
+            try
+            {
+              Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
+              ev = 0;
+            }
+            catch (ThreadAbortException)
+            {
+              System.Console.Error.WriteLine("Execution interupted");
+              ev = 2;
+            }
+            catch (Exception ex)
+            {
+              System.Console.Error.WriteLine(ex);
+              ev = 1;
+            }
+            finally
+            {
+              e.Set();
+            }
+            //good for now
+          }, 1500000);
+
+        t.Start();
+
+        System.Console.CancelKeyPress += delegate
         {
-          Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
-          return 0;
-        }
-        catch (Exception ex)
-        {
-          System.Console.Error.WriteLine(ex);
-          return 1;
-        }
+          t.Abort();
+        };
+
+        e.WaitOne();
+
+        return ev;
       }
 
       protected override void OnInteractiveLoopStart()

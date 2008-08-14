@@ -17,7 +17,7 @@
   )
   
   (import 
-    (rnrs base)
+    (rnrs)
     (except (rnrs r5rs) quotient remainder modulo force))
     
   (define (sign n)
@@ -27,12 +27,24 @@
       (else 0)))
  
   (define (quotient n1 n2)
+    (unless (integer? n1)
+      (assertion-violation 'quotient "not an integer" n1))
+    (unless (integer? n2)
+      (assertion-violation 'quotient "not an integer" n2))
     (* (sign n1) (sign n2) (div (abs n1) (abs n2))))
   
   (define (remainder n1 n2)
+    (unless (integer? n1)
+      (assertion-violation 'remainder "not an integer" n1))
+    (unless (integer? n2)
+      (assertion-violation 'remainder "not an integer" n2))
     (* (sign n1) (mod (abs n1) (abs n2))))
   
   (define (modulo n1 n2)
+    (unless (integer? n1)
+      (assertion-violation 'modulo "not an integer" n1))
+    (unless (integer? n2)
+      (assertion-violation 'modulo "not an integer" n2))
     (* (sign n2) (mod (* (sign n2) n1) (abs n2)))) 
     
   (define make-promise

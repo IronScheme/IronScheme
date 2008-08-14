@@ -866,11 +866,11 @@ namespace IronScheme.Runtime
     }
 
     //probably a good idea to make these threadstatic
-    [ThreadStatic]
+    //[ThreadStatic]
     static TextReader currentinputport = Console.In;
-    [ThreadStatic]
+    //[ThreadStatic]
     static TextWriter currentoutputport = Console.Out;
-    [ThreadStatic]
+    //[ThreadStatic]
     static TextWriter currenterrorport = Console.Error;
 
     [Builtin("current-input-port")]

@@ -191,7 +191,7 @@ digit10x  : /* empty */                   { $$ = string.Empty; }
           ;
 
 decimal10 : uinteger10 suffix               { $$ = ($2.Length == 0) ? $1 : ConvertToDouble($1 + $2); }
-          | DOT uinteger10 suffix           { $$ = ConvertToDouble("." + $2 + $3); }
+          | DOT digit10 digit10x suffix     { $$ = ConvertToDouble("." + $2 + $3 + $4); }
           | uinteger10 DOT digit10x suffix  { $$ = ConvertToDouble($1 + "." + $3 + $4); }
           ;
 
