@@ -21,6 +21,7 @@ namespace IronScheme.Web
   {
     IronSchemeLanguageProvider lp;
     IScriptEngine se;
+    static readonly object outlock = new object();
 
     class Compiled
     {
@@ -88,16 +89,20 @@ namespace IronScheme.Web
           compiled[context.Request.PhysicalPath] = cc;
         }
       }
-      
-      object oldo = Builtins.CurrentOutputPort();
-      try
+
+      // need to rewrite this to use parameters
+      lock (outlock)
       {
-        Builtins.CurrentOutputPort(context.Response.Output);
-        cc.Closure.Call();
-      }
-      finally
-      {
-        Builtins.CurrentOutputPort(oldo);
+        object oldo = Builtins.CurrentOutputPort();
+        try
+        {
+          Builtins.CurrentOutputPort(context.Response.Output);
+          cc.Closure.Call();
+        }
+        finally
+        {
+          Builtins.CurrentOutputPort(oldo);
+        }
       }
     }
 
