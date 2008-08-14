@@ -302,6 +302,7 @@
     (printf                                     i)
     (load/args                                  i)
     (make-promise                               i)
+    (enum-set?                                  i)
     (reverse!                                   ic)
     (eq-hash                                    ic)
     (eqv-hash                                   ic)

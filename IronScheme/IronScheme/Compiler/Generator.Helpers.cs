@@ -568,7 +568,7 @@ namespace IronScheme.Compiler
       return Array.ConvertAll<Expression, Type>(expr, delegate(Expression e) { return e.Type; });
     }
 
-    [ThreadStatic]
+    //[ThreadStatic]
     static SymbolId namehint = SymbolId.Invalid;
 
     protected static SymbolId NameHint

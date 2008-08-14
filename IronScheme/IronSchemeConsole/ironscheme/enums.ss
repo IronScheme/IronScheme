@@ -7,6 +7,7 @@
           enum-set-member?
           enum-set-subset?
           enum-set=?
+          (rename (enum? enum-set?))
           enum-set-union
           enum-set-intersection
           enum-set-difference

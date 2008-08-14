@@ -4,3 +4,5 @@
   (ironscheme)
   (ironscheme linq)
   (ironscheme pretty-print))
+  
+(compile "init.ss")

@@ -403,7 +403,7 @@
   ;;; shifts cancel properly.
   (define mkstx ;;; QUEUE
     (lambda (e m* s* ae*)
-      (if (stx? e)
+      (if (and (stx? e) (not (top-marked? m*)))
           (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
             (make-stx (stx-expr e) m* s* ae*))
           (make-stx e m* s* ae*))))

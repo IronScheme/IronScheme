@@ -551,7 +551,7 @@ namespace IronScheme.Runtime
           result = ConvertToComplex(first) == ConvertToComplex(second);
           break;
         default:
-          return Error("=", "BUG");
+          return AssertionViolation("=", "not a number", first, second);
       }
 
       return GetBool(result);
@@ -560,6 +560,12 @@ namespace IronScheme.Runtime
     [Builtin("=")]
     public static object IsSame(object first, params object[] rest)
     {
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.NotANumber)
+      {
+        AssertionViolation("=", "not a number", first);
+      }
+
       object o = first;
 
       foreach (object item in rest)
@@ -610,8 +616,7 @@ namespace IronScheme.Runtime
           result = ConvertToReal(first) < ConvertToReal(second);
           break;
         case NumberClass.Complex:
-          //result = ConvertToComplex(first) < ConvertToComplex(second);
-          break;
+          return AssertionViolation("<", "not real", first, second);
         default:
           return Error("<", "BUG");
       }
@@ -622,6 +627,12 @@ namespace IronScheme.Runtime
     [Builtin("<")]
     public static object IsLessThan(object first, params object[] rest)
     {
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation("<", "not a real", first);
+      }
+
       object o = first;
 
       foreach (object item in rest)
@@ -672,8 +683,7 @@ namespace IronScheme.Runtime
           result = ConvertToReal(first) <= ConvertToReal(second);
           break;
         case NumberClass.Complex:
-          //result = ConvertToComplex(first) <= ConvertToComplex(second);
-          break;
+          return AssertionViolation("<=", "not real", first, second);
         default:
           return Error("<=", "BUG");
       }
@@ -684,6 +694,12 @@ namespace IronScheme.Runtime
     [Builtin("<=")]
     public static object IsLessThanOrEqual(object first, params object[] rest)
     {
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation("<=", "not a real", first);
+      }
+
       object o = first;
 
       foreach (object item in rest)
@@ -734,8 +750,7 @@ namespace IronScheme.Runtime
           result = ConvertToReal(first) > ConvertToReal(second);
           break;
         case NumberClass.Complex:
-          //result = ConvertToComplex(first) > ConvertToComplex(second);
-          break;
+          return AssertionViolation(">", "not real", first, second);
         default:
           return Error(">", "BUG");
       }
@@ -746,6 +761,12 @@ namespace IronScheme.Runtime
     [Builtin(">")]
     public static object IsGreaterThan(object first, params object[] rest)
     {
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation(">", "not a real", first);
+      }
+
       object o = first;
 
       foreach (object item in rest)
@@ -796,8 +817,7 @@ namespace IronScheme.Runtime
           result = ConvertToReal(first) >= ConvertToReal(second);
           break;
         case NumberClass.Complex:
-          //result = ConvertToComplex(first) >= ConvertToComplex(second);
-          break;
+          return AssertionViolation(">=", "not real", first, second);
         default:
           return Error(">=", "BUG");
       }
@@ -808,6 +828,12 @@ namespace IronScheme.Runtime
     [Builtin(">=")]
     public static object IsGreaterThanOrEqual(object first, params object[] rest)
     {
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation(">=", "not a real", first);
+      }
+
       object o = first;
 
       foreach (object item in rest)
@@ -855,13 +881,21 @@ namespace IronScheme.Runtime
     [Builtin("odd?")]
     public static object IsOdd(object obj)
     {
-      return Not(IsEven(obj));
+      if (IsTrue(IsIntegerValued(obj)))
+      {
+        return Not(IsEven(obj));
+      }
+      return AssertionViolation("odd?", "not an integer", obj);
     }
 
     [Builtin("even?")]
     public static object IsEven(object obj)
     {
-      return IsZero(Mod(obj, 2));
+      if (IsTrue(IsIntegerValued(obj)))
+      {
+        return IsZero(Mod(obj, 2));
+      }
+      return AssertionViolation("odd?", "not an integer", obj);
     }
 
     [Builtin("min")]
@@ -2163,24 +2197,26 @@ namespace IronScheme.Runtime
         return Complex64.Pow(ConvertToComplex(obj1), ConvertToComplex(obj2));
       }
 
+      bool exact = IsTrue(IsExact(obj1)) && IsTrue(IsExact(obj2));
+
       if (IsTrue(IsZero(obj1)))
       {
-        return 0;
+        return exact ? 0 : 0.0;
       }
 
       if (IsTrue(IsZero(obj2)))
       {
-        return 1;
+        return exact ? 1 : 1.0;
       }
 
       if (IsTrue(IsSame(obj1, 1)))
       {
-        return 1;
+        return exact ? 1 : 1.0;
       }
 
       if (IsTrue(IsSame(obj2, 1)))
       {
-        return obj1;
+        return exact ? Exact(obj1) : Inexact(obj1);
       }
 
 
@@ -2265,6 +2301,15 @@ namespace IronScheme.Runtime
     [Builtin("make-polar")]
     public static object MakePolar(object obj1, object obj2)
     {
+      if (!IsTrue(IsReal(obj1)))
+      {
+        return AssertionViolation("make-polar", "not a real", obj1);
+      }
+      if (!IsTrue(IsReal(obj2)))
+      {
+        return AssertionViolation("make-polar", "not a real", obj2);
+      }
+
       return Multiply(obj1, MakeRectangular(Cos(obj2), Sin(obj2)));
     }
 
