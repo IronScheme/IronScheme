@@ -91,18 +91,9 @@ namespace IronScheme.Web
       }
 
       // need to rewrite this to use parameters
-      lock (outlock)
+      //lock (outlock)
       {
-        object oldo = Builtins.CurrentOutputPort();
-        try
-        {
-          Builtins.CurrentOutputPort(context.Response.Output);
-          cc.Closure.Call();
-        }
-        finally
-        {
-          Builtins.CurrentOutputPort(oldo);
-        }
+        cc.Closure.Call();
       }
     }
 

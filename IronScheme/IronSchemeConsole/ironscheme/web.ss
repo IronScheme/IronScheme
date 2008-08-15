@@ -5,6 +5,7 @@
     form
     header
     request
+    response
     session
     session-set!
     user-agent
@@ -13,6 +14,7 @@
     html-decode
     html-encode
     map-path
+    http-output-port
     display-html)
   (import 
     (ironscheme)
@@ -30,6 +32,9 @@
     
   (define (request)
     (clr-prop-get httpcontext request (current-context)))    
+    
+  (define (response)
+    (clr-prop-get httpcontext response (current-context)))     
   
   (define (method)
     (clr-prop-get httprequest httpmethod (request)))    
@@ -78,10 +83,13 @@
     
   (define (map-path p)
     (clr-call httpserverutility mappath (server-util) p))   
+    
+  (define (http-output-port)
+    (clr-prop-get httpresponse output (response)))
   
   (clr-clear-usings)
   
   (define (display-html html)
-    (display (->xml html)))
+    (display (->xml html) (http-output-port)))
     
 )
