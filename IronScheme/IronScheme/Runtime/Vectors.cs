@@ -75,13 +75,13 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("make-vector")]
-    public static object[] MakeVector(object k)
+    public static object MakeVector(object k)
     {
       return MakeVector(k, Unspecified);
     }
 
     [Builtin("make-vector")]
-    public static object[] MakeVector(object K, object fill)
+    public static object MakeVector(object K, object fill)
     {
       int k = RequiresNotNull<int>(K);
       object[] vector = new object[k];
@@ -107,13 +107,13 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector")]
-    public static object[] Vector(params object[] args)
+    public static object Vector(params object[] args)
     {
       return args;
     }
 
     [Builtin("vector-append")]
-    public static object[] VectorAppend(params object[] args)
+    public static object VectorAppend(params object[] args)
     {
       ArrayList all = new ArrayList();
       foreach (IEnumerable e in args)
@@ -159,7 +159,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("list->vector")]
-    public static object[] ListToVector(object list)
+    public static object ListToVector(object list)
     {
       Cons e = Requires<Cons>(list);
       ArrayList v = new ArrayList();
@@ -177,7 +177,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector-map")]
-    public static object[] VectorMap(object proc, object vector)
+    public static object VectorMap(object proc, object vector)
     {
       ICallable p = RequiresNotNull<ICallable>(proc);
       object[] v = Requires<object[]>(vector);
@@ -191,7 +191,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("vector-map")]
-    public static object[] VectorMap(object proc, params object[] lists)
+    public static object VectorMap(object proc, params object[] lists)
     {
       int listcount = lists.Length;
       ICallable c = RequiresNotNull<ICallable>(proc);
