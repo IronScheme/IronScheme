@@ -1,0 +1,48 @@
+﻿body
+{
+  font-family: Verdana;
+  font-size: x-small;
+  background-color:#CCC08F;
+}
+
+label 
+{
+  width: 100px;
+}
+
+.blog-entry
+{
+  background-color: #968C69;
+  margin: 3px;
+  padding: 3px;
+  padding-top: 1px;
+}
+
+.blog-entry div
+{
+  margin-top:1px;
+  margin-bottom:0px;
+  padding-left:3px;
+  font-variant:small-caps;
+  font-size:small;
+}
+
+.blog-entry div a
+{
+  text-decoration: none;
+  color: #F8F8F8;
+}
+
+.blog-entry p
+{
+  margin:3px;
+  padding:5px;
+  background-color: #E6E1CF;
+}
+
+.blog-entry span
+{
+  font-size: xx-small;
+  padding-left: 3px;
+  color: #C3C3C3;
+}
