@@ -36,7 +36,7 @@ namespace IronScheme.Compiler
 
       Cons name = (args as Cons).car as Cons;
 
-      string[] fullname = Array.ConvertAll<object, string>(Builtins.ListToVector(name), Builtins.SymbolToString);
+      string[] fullname = Array.ConvertAll<object, string>((object[])Builtins.ListToVector(name), Builtins.SymbolToString);
 
       string n = string.Join(".", fullname);
 

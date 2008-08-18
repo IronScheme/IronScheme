@@ -303,6 +303,8 @@
     (load/args                                  i)
     (make-promise                               i)
     (enum-set?                                  i)
+    (serialize-port                             i)
+    (deserialize-port                           i)
     (reverse!                                   ic)
     (eq-hash                                    ic)
     (eqv-hash                                   ic)

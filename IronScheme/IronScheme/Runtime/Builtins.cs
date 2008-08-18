@@ -91,6 +91,24 @@ namespace IronScheme.Runtime
       }
     }
 
+    
+
+    [Builtin("serialize-port")]
+    public static object Serialize(object o, object binaryport)
+    {
+      Stream s = Requires<Stream>(binaryport);
+      psyntax.Serialization.SERIALIZER.Serialize(s, o);
+      return Unspecified;
+    }
+
+    [Builtin("deserialize-port")]
+    public static object DeserializePort(object binaryport)
+    {
+      Stream s = Requires<Stream>(binaryport);
+      return psyntax.Serialization.SERIALIZER.Deserialize(s);
+    }
+
+
     public static readonly object Unspecified = new UnspecifiedObject();
 
 
@@ -100,7 +118,7 @@ namespace IronScheme.Runtime
       return GetBool(o == Unspecified);
     }
 
-    internal static string[] commandline;
+    internal static string[] commandline = { "not set" };
 
     [Builtin("command-line")]
     [Builtin("get-command-line")]

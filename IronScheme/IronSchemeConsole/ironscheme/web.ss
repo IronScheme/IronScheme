@@ -1,11 +1,20 @@
 (library (ironscheme web)
   (export
+    context
     method
     querystring
+    querystring-keys
     form
+    form-keys
     header
     request
     response
+    redirect
+    rewrite-path
+    application-item
+    application-item-set!
+    context-item
+    context-item-set!
     session
     session-set!
     user-agent
@@ -14,6 +23,7 @@
     html-decode
     html-encode
     map-path
+    request-raw-url
     http-output-port
     display-html)
   (import 
@@ -27,14 +37,14 @@
   (clr-using system.collections.specialized)
   (clr-using system.web.sessionstate)
   
-  (define (current-context)
+  (define (context)
     (clr-static-prop-get httpcontext current))
     
   (define (request)
-    (clr-prop-get httpcontext request (current-context)))    
+    (clr-prop-get httpcontext request (context)))    
     
   (define (response)
-    (clr-prop-get httpcontext response (current-context)))     
+    (clr-prop-get httpcontext response (context)))     
   
   (define (method)
     (clr-prop-get httprequest httpmethod (request)))    
@@ -57,14 +67,23 @@
   (define (querystring key)
     (nv-helper (get-querystring) key))
 
+  (define (querystring-keys)
+    (clr-prop-get namevaluecollection allkeys (get-querystring)))    
+
   (define (form key)
     (nv-helper (get-form) key))
+    
+  (define (form-keys)
+    (clr-prop-get namevaluecollection allkeys (get-form)))    
     
   (define (header key)
     (nv-helper (get-headers) key))
     
   (define (get-session)
-    (clr-prop-get httpcontext session (current-context)))    
+    (clr-prop-get httpcontext session (context)))  
+    
+  (define (get-app)
+    (clr-prop-get httpcontext application (context)))       
 
   (define (session key)
     (define k (clr-indexer-get httpsessionstate (get-session) (clr-cast system.string key)))
@@ -75,17 +94,45 @@
     (clr-indexer-set! httpsessionstate (get-session) (clr-cast system.string key) value)
     (void))
     
+    
+  (define (application-item key)
+    (define k (clr-indexer-get httpapplicationstate (get-app) (clr-cast system.string key)))
+    (if (null? k) #f
+        k))       
+  
+  (define (application-item-set! key value)
+    (clr-indexer-set! httpapplicationstate (get-app) (clr-cast system.string key) value)
+    (void))    
+    
+  (define (items)
+    (clr-prop-get httpcontext items (context)))       
+    
+  (define (context-item key)
+    (hashtable-ref (items) key #f))
+  
+  (define (context-item-set! key value)
+    (hashtable-set! (items) key value))
+    
   (define (user-agent)
     (clr-prop-get httprequest useragent (request)))
     
   (define (server-util)
-    (clr-prop-get httpcontext server (current-context)))
+    (clr-prop-get httpcontext server (context)))
     
   (define (map-path p)
     (clr-call httpserverutility mappath (server-util) p))   
     
   (define (http-output-port)
     (clr-prop-get httpresponse output (response)))
+    
+  (define (rewrite-path path)
+    (clr-call httpcontext rewritepath (context) path))    
+    
+  (define (redirect path)
+    (clr-call httpresponse redirect (response) path))    
+    
+  (define (request-raw-url)
+    (clr-prop-get httprequest rawurl (request)))        
   
   (clr-clear-usings)
   

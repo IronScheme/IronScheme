@@ -159,6 +159,9 @@
     <None Include="ironscheme\record-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\web\controllers.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\datatype.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
