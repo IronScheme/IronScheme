@@ -12,6 +12,8 @@
     (load-controller/action controller "index")]
   [(controller action)
     #t
+    (when (zero? (string-length action))
+      (set! action "index"))
     (context-item-set! 'controller controller)
     (context-item-set! 'action action)
     (load-controller/action controller action)]

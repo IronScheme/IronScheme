@@ -40,7 +40,7 @@
   (let ((ca (lookup c a)))
     (if ca
       (ca)
-      (redirect "test.ss"))))
+      (display-html (format "No controller/action for ~a:~a" c a)))))
       
 (define-syntax include-routes
   (lambda (x)
