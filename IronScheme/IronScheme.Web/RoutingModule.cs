@@ -9,7 +9,6 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Xml.Linq;
-using System.Web.Routing;
 using System.IO;
 
 namespace IronScheme.Web
@@ -23,7 +22,6 @@ namespace IronScheme.Web
     public void Init(HttpApplication app)
     {
       app.PostResolveRequestCache += new EventHandler(app_PostResolveRequestCache);
-      app.PostMapRequestHandler += new EventHandler(app_PostMapRequestHandler);
     }
 
     void app_PostResolveRequestCache(object sender, EventArgs e)
@@ -34,11 +32,5 @@ namespace IronScheme.Web
         app.Context.RewritePath("~/router.ss");
       }
     }
-
-    void app_PostMapRequestHandler(object sender, EventArgs e)
-    {
-      
-    }
   }
-
 }
