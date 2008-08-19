@@ -4,12 +4,8 @@
   (ironscheme web))
   
 (define (parse-url)
-  (let* ((t (string-split (request-raw-url) "/"))
-         (l (vector-length t))
-         (lt (vector-ref t (- l 1)))
-         (i (string-index-of lt "?")))
-    (when (>= i 0)
-      (vector-set! t (- l 1) (substring lt 0 i)))
+  (let* ((f (vector-ref (string-split (request-raw-url) "?") 0))
+         (t (string-split f "/")))
     (cdr (vector->list t))))
 
 (define-syntax match

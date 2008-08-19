@@ -74,6 +74,7 @@
   <ItemGroup>
     <None Include="controllers\blog.sls" />
     <None Include="controllers\calender.sls" />
+    <None Include="controllers\auth.sls" />
     <None Include="models\blog.sls" />
     <None Include="router.ss" />
     <None Include="routing.sls" />
@@ -81,6 +82,7 @@
     </None>
     <None Include="test.ss">
     </None>
+    <None Include="views\auth.sls" />
     <None Include="views\blog.sls" />
     <None Include="views\calender.sls" />
   </ItemGroup>
