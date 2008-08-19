@@ -39,7 +39,7 @@
   (define (make-label/input id label type value)
     `(p (label (for . ,id) ,label) 
       ,(case type
-         (("text") `(input (type . ,type) (name . ,id) (value . ,value)))
+         (("text" "password") `(input (type . ,type) (name . ,id) (value . ,value)))
          (("textarea") `(textarea (name . ,id) ,value)))))
     
   (define (add)

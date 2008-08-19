@@ -23,6 +23,8 @@
     html-decode
     html-encode
     map-path
+    forms-authentication-logout
+    forms-authentication-login
     request-raw-url
     http-output-port
     display-html)
@@ -132,7 +134,13 @@
     (clr-call httpresponse redirect (response) path))    
     
   (define (request-raw-url)
-    (clr-prop-get httprequest rawurl (request)))        
+    (clr-prop-get httprequest rawurl (request)))       
+    
+  (define (forms-authentication-logout)
+    (clr-static-call system.web.security.formsauthentication SignOut))
+    
+  (define (forms-authentication-login user)
+    (clr-static-call system.web.security.formsauthentication SetAuthCookie user #f))      
   
   (clr-clear-usings)
   
