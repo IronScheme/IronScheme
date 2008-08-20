@@ -8,14 +8,34 @@ using System.Security.Principal;
 
 namespace IronScheme.Web
 {
-  public class RoutingModule : IHttpModule
+  public sealed class RoutingModule : IHttpModule
   {
     public void Dispose()
     {
     }
 
+    class TraceWriter : TextWriter
+    {
+      public override void Write(string value)
+      {
+        System.Diagnostics.Trace.Write(value);
+      }
+
+      public override void Write(char value)
+      {
+        System.Diagnostics.Trace.Write(value);
+      }
+
+
+      public override System.Text.Encoding Encoding
+      {
+        get { throw new NotImplementedException(); }
+      }
+    }
+
     public void Init(HttpApplication app)
     {
+      Console.SetOut(new TraceWriter());
       app.PostResolveRequestCache += new EventHandler(app_PostResolveRequestCache);
       app.AuthorizeRequest += new EventHandler(app_AuthorizeRequest);
     }
@@ -32,7 +52,7 @@ namespace IronScheme.Web
     {
       HttpApplication app = sender as HttpApplication;
 
-      Configuration c = WebConfigurationManager.OpenWebConfiguration("/");
+      Configuration c = WebConfigurationManager.OpenWebConfiguration("~/");
 
       var s = app.Request.AppRelativeCurrentExecutionFilePath;
 
@@ -64,7 +84,7 @@ namespace IronScheme.Web
     void app_PostResolveRequestCache(object sender, EventArgs e)
     {
       HttpApplication app = sender as HttpApplication;
-      if (!File.Exists(app.Request.PhysicalPath))
+      if (!File.Exists(app.Request.PhysicalPath) && Path.GetExtension(app.Request.PhysicalPath).Length <= 1)
       {
         app.Context.RewritePath("~/router.ss");
       }

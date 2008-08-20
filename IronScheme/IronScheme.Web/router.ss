@@ -27,8 +27,9 @@
       (or 
         ca
         (parameterize ((library-path (cons (map-path "~") (library-path))))
-          (guard (e (#t #f))
+          (guard (e (#t (begin (printf "~s\n" e) #f)))
             (let ((ac (eval (string->symbol a) (environment (list 'controllers (string->symbol c))))))
+              (printf "controller/action ~a/~a\n" c a)
               (hashtable-set! r (string-append c ":" a) ac)
               ac)))))))
         

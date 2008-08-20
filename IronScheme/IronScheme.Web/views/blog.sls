@@ -10,7 +10,7 @@
     (ironscheme web))
     
   (define (display-entry e)
-    `(div (class . "blog-entry")
+    `(v:roundrect (arcsize . ".1") (fillcolor . "#968C69") (strokecolor . "#968C69") (class . "blog-entry")
         (div (a (href . ,(string-append "/blog/entry/" (blog-entry-id e))) 
           ,(blog-entry-subject e)))
         (p ,(blog-entry-body e))
@@ -22,14 +22,21 @@
              (onclick . "return confirm('Are you sure?')") "delete" )
           )))
           
+  (define (render-doctype)
+    (display "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\
+                    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" (http-output-port)))          
+          
   (define (page-template . body)
-    `(html
+    `(html (xmlns . "http://www.w3.org/1999/xhtml")
         (head
           (title "Blog in IronScheme")
           (link (rel . "stylesheet") (type . "text/css") (href . "/blog.css")))
-        (body . ,body)))
+        (body
+          (xml:namespace (ns . "urn:schemas-microsoft-com:vml") (prefix . "v"))
+          . ,body)))
     
   (define (index blogdata)
+    (render-doctype)
     (display-html 
       (page-template
         '(h2 "Blog in 100% IronScheme")
@@ -37,12 +44,13 @@
         '(a (href . "/blog/add") "Add entry"))))
     
   (define (make-label/input id label type value)
-    `(p (label (for . ,id) ,label) 
+    `(div (label (for . ,id) ,label) 
       ,(case type
          (("text" "password") `(input (type . ,type) (name . ,id) (value . ,value)))
          (("textarea") `(textarea (name . ,id) ,value)))))
     
   (define (add)
+    (render-doctype)
     (display-html 
       (page-template
         '(h2 "Add entry")
@@ -53,12 +61,14 @@
           (input (type . "submit"))))))
     
   (define (entry e)
+    (render-doctype)
     (display-html 
       (page-template
         '(h2 "Blog in 100% IronScheme")
         (display-entry e))))
           
   (define (edit e)
+    (render-doctype)
     (display-html 
       (page-template
         '(h2 "Edit entry")
