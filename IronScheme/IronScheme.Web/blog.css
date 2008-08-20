@@ -1,7 +1,6 @@
 ﻿body
 {
   font-family: Verdana;
-  background-color:#CCC08F;
   font-size:small;
 }
 
@@ -33,26 +32,26 @@ label
 .blog-entry div a
 {
   text-decoration: none;
-  color: #F8F8F8;
+  color: #0000CC;
 }
 
 .blog-entry p
 {
   margin:3px;
   padding:5px;
-  background-color: #E6E1CF;
+  background-color: #eee;
 }
 
 .blog-entry span
 {
   font-size:smaller;
   padding-left: 3px;
-  color: #C3C3C3;
+  color: #111;
 }
 
 v\:roundrect {
 	display:block;
-	background-color:#968C69;
+	background-color:#C3D9FF;
 	-moz-border-radius:5px;
 	-webkit-border-radius: 5px;
 	}

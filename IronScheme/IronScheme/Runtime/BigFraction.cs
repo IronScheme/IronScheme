@@ -472,7 +472,7 @@ namespace IronScheme.Runtime
 
 		public override Int32 GetHashCode()
 		{
-			return (Int32)this;
+			return (Int32)(double)this;
 		}
 
     public static Boolean operator <=(Fraction fraction1, Fraction fraction2)
