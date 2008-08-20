@@ -1,21 +1,24 @@
 ﻿body
 {
   font-family: Verdana;
-  font-size: x-small;
   background-color:#CCC08F;
+  font-size:small;
 }
 
 label 
 {
   width: 100px;
+  float:left;
+  display:block;
 }
 
 .blog-entry
 {
-  background-color: #968C69;
   margin: 3px;
   padding: 3px;
-  padding-top: 1px;
+  padding-top: 2px;
+  height:100%;
+  margin-bottom: 10px;
 }
 
 .blog-entry div
@@ -24,7 +27,7 @@ label
   margin-bottom:0px;
   padding-left:3px;
   font-variant:small-caps;
-  font-size:small;
+  font-size:larger;
 }
 
 .blog-entry div a
@@ -42,7 +45,19 @@ label
 
 .blog-entry span
 {
-  font-size: xx-small;
+  font-size:smaller;
   padding-left: 3px;
   color: #C3C3C3;
 }
+
+v\:roundrect {
+	display:block;
+	background-color:#968C69;
+	-moz-border-radius:5px;
+	-webkit-border-radius: 5px;
+	}
+/* ie specific */
+v\:roundrect  {
+	behavior:url(#default#VML);
+	/background-color:transparent;
+	}
