@@ -48,7 +48,7 @@ label
   background-color: #def;
 }
 
-.blog-entry span
+.blog-entry .blog-footer
 {
   font-size:smaller;
   padding-left: 3px;

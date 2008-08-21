@@ -28,6 +28,9 @@
     forms-authentication-login
     request-raw-url
     http-output-port
+    user-name
+    user-in-role?
+    user-authenticated?
     display-html)
   (import 
     (ironscheme)
@@ -60,6 +63,22 @@
     
   (define (get-headers)
     (clr-prop-get httprequest headers (request)))
+
+  (define (get-user)
+    (clr-prop-get httpcontext user (context)))    
+    
+  (define (user-identity)
+    (clr-prop-get System.Security.Principal.IPrincipal Identity (get-user)))
+    
+  (define (user-name)
+    (clr-prop-get System.Security.Principal.IIdentity Name (user-identity)))  
+    
+  (define (user-in-role? role)
+    (clr-call System.Security.Principal.IPrincipal IsInRole (get-user) role))
+
+  (define (user-authenticated?)
+    (clr-prop-get System.Security.Principal.IIdentity IsAuthenticated (user-identity)))  
+    
     
   (define (resolve-url vpath)
     (clr-call httpresponse ApplyAppPathModifier (response) vpath))    

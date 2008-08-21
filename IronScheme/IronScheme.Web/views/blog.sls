@@ -7,32 +7,8 @@
   (import
     (ironscheme)
     (models blog)
-    (ironscheme web))
-          
-  (define (render-doctype)
-    (display "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \
-                    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" (http-output-port)))  
-                    
-  (define (css-link href)
-    `(link (rel . "stylesheet") (type . "text/css") (href . ,(resolve-url href)))) 
-    
-  (define (make-action-url action)
-    (resolve-url (string-append "~/" (context-item 'controller) "/" action)))
-    
-  (define (make-action/id-url action id)
-    (string-append (make-action-url action) "/" id))    
-    
-  (define (action-link name action . args)
-    `(a (href . ,(make-action-url action)) ,@args ,name))
-    
-  (define (action-link/id name action id . args)
-    `(a (href . ,(make-action/id-url action id)) ,@args ,name))    
-    
-  (define (make-label/input id label type value)
-    `(div (label (for . ,id) ,label) 
-      ,(case type
-         ((text password) `(input (type . ,type) (name . ,id) (value . ,value)))
-         ((textarea) `(textarea (name . ,id) ,value)))))    
+    (ironscheme web)
+    (ironscheme web views))
           
   (define (page-template . body)
     `(html (xmlns . "http://www.w3.org/1999/xhtml")
@@ -46,11 +22,14 @@
     `(v:roundrect (arcsize . ".1") (fillcolor . "#C3D9FF") (strokecolor . "#C3D9FF") (class . "blog-entry")
         (div ,(action-link/id (blog-entry-subject e) "entry" (blog-entry-id e)))
         (p ,(blog-entry-body e))
-        (span 
+        (span (class . "blog-footer")
           "posted by " ,(blog-entry-author e) 
           " on " ,(blog-entry-date e)
-          ,(action-link/id "edit" "edit" (blog-entry-id e))
-          ,(action-link/id "delete" "delete" (blog-entry-id e) '(onclick . "return confirm('Are you sure?')") )
+          ,(when (string=? (user-name) "admin")
+            `(span
+              ,(action-link/id "edit" "edit" (blog-entry-id e))
+              ,(action-link/id "delete" "delete" (blog-entry-id e) 
+                '(onclick . "return confirm('Are you sure?')") )))
           )))        
     
   (define (index blogdata)
@@ -59,7 +38,9 @@
       (page-template
         '(h2 "Blog in 100% IronScheme")
         `(div ,@(map display-entry blogdata))
-        (action-link "Add entry" "add"))))
+        (if (string=? (user-name) "admin")
+          (action-link "Add entry" "add")
+          `(a (href . "/auth/login") "Login") ))))
     
   (define (add)
     (render-doctype)

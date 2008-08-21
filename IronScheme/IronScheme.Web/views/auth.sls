@@ -4,28 +4,26 @@
   (import
     (ironscheme)
     (ironscheme web)
-    (ironscheme web controllers))
+    (ironscheme web views))
     
   (define (page-template . body)
-    `(html
-        (head
+    `(html (xmlns . "http://www.w3.org/1999/xhtml")
+        (head 
           (title "Blog in IronScheme")
-          (link (rel . "stylesheet") (type . "text/css") (href . "/blog.css")))
+          ,(css-link "~/blog.css"))
         (body . ,body)))    
     
-  (define (make-label/input id label type value)
-    `(p (label (for . ,id) ,label) 
-      ,(case type
-         (("text" "password") `(input (type . ,type) (name . ,id) (value . ,value)))
-         (("textarea") `(textarea (name . ,id) ,value)))))    
-    
   (define (login)
-    (display-html 
-      (page-template
-        '(h2 "Login")
-        `(form (action . ,(string-append "/auth/dologin?returnUrl=" (querystring "returnUrl"))) (method . "post")
-          ,(make-label/input "username" "Username" "text" "")
-          ,(make-label/input "password" "Password" "password" "")
-          (br)
-          (input (type . "submit") (value . "Login"))))))
+    (render-doctype)
+    (let ((ru (querystring "returnUrl")))
+      (display-html 
+        (page-template
+          '(h2 "Login")
+          `(form (action . ,(string-append "/auth/dologin" 
+                              (if ru (string-append "?returnUrl=" ru) "" ))) 
+                 (method . "post")
+            ,(make-label/input "username" "Username" "text" "")
+            ,(make-label/input "password" "Password" "password" "")
+            (br)
+            (input (type . "submit") (value . "Login")))))))
 )
