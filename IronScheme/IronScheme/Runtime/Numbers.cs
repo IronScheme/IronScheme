@@ -1371,12 +1371,13 @@ namespace IronScheme.Runtime
     [Builtin("/")]
     public static object Divide(object car, params object[] args)
     {
+      object result = 1;
       for (int i = 0; i < args.Length; i++)
       {
-        car = Divide(car, args[i]);
+        result = Multiply(result, args[i]);
       }
 
-      return car;
+      return Divide(car, result);
     }
 
     #endregion

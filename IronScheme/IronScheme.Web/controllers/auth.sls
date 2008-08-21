@@ -14,7 +14,10 @@
     
   (define-action (dologin username password)
     (forms-authentication-login username)
-    (redirect (querystring "returnUrl")))
+    (let ((ru (querystring "returnUrl")))
+      (if ru
+        (redirect ru)
+        (redirect "blog"))))
     
   (define-action (logout)
     (forms-authentication-logout)

@@ -22,16 +22,18 @@
       (mutable body)))
   
   (define (load-entries)  
-    (let ((fn (map-path "blog.data")))
+    (let ((fn (map-path "~/blog.data")))
       (if (file-exists? fn)
         (call-with-port (open-file-input-port fn)
           (lambda (p)
             (guard (e (#t (begin (delete-file fn) '())))
               (deserialize-port p))))
-        '())))
+        (list (make-blog-entry 1 (now) 
+                'leppie "Welcome to the IronScheme blog" 
+                "Use the username: admin and the password: admin to login") ))))
         
   (define (save-entries)
-    (let ((fn (map-path "blog.data")))
+    (let ((fn (map-path "~/blog.data")))
       (when (file-exists? fn) 
         (delete-file fn))
       (call-with-port (open-file-output-port fn)
@@ -47,7 +49,7 @@
   
   (define (add-entry subject body)
     (let ((e (make-blog-entry (get-next-id) (now) 
-                'leppie subject body)))
+                (user-name) subject body)))
       (set! entries (cons e entries))
       (save-entries)))
  
