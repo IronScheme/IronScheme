@@ -22,6 +22,7 @@ namespace IronScheme.Web
     IronSchemeLanguageProvider lp;
     IScriptEngine se;
     static readonly object outlock = new object();
+    ICallable process_routes;
 
     class Compiled
     {
@@ -38,41 +39,31 @@ namespace IronScheme.Web
 
     public void ProcessRequest(HttpContext context)
     {
+      if (lp == null)
+      {
+        lp = Helpers.Provider as IronSchemeLanguageProvider;
+        se = lp.GetEngine();
+        compiled.Clear();
+      }
+
       if (!File.Exists(context.Request.PhysicalPath))
       {
-        context.Response.StatusCode = 404;
-        return;
-      }
-      lock (this)
-      {
-        if (lp == null)
+        if (context.Request.AppRelativeCurrentExecutionFilePath == "~/process-routes.ss")
         {
-          lp = context.Application["LanguageProvider"] as IronSchemeLanguageProvider;
-          if (lp == null)
+          if (process_routes == null)
           {
-            try
-            {
-              ScriptDomainManager sdm = ScriptDomainManager.CurrentManager;
-              sdm.GlobalOptions.AssemblyGenAttributes = Microsoft.Scripting.Generation.AssemblyGenAttributes.None;
-              lp = new IronSchemeLanguageProvider(sdm);
-              se = lp.GetEngine();
-              se.Execute("(load \"~/ironscheme.boot.pp\")");
-              context.Application["LanguageProvider"] = lp;
-              compiled.Clear();
-            }
-            catch
-            {
-              lp = null;
-              se = null;
+            ICallable eval = Builtins.SymbolValue(SymbolTable.StringToId("eval-r6rs")) as ICallable;
+            StringReader r = new StringReader("(eval 'process-request (environment '(ironscheme web routing)))");
 
-              throw;
-            }
+            process_routes = eval.Call(Builtins.Read(r)) as ICallable;
           }
-          else
-          {
-            se = lp.GetEngine();
-          }
+          process_routes.Call();
         }
+        else
+        {
+          context.Response.StatusCode = 404;
+        }
+        return;
       }
 
       Compiled cc;
@@ -90,11 +81,7 @@ namespace IronScheme.Web
         }
       }
 
-      // need to rewrite this to use parameters
-      //lock (outlock)
-      {
-        cc.Closure.Call();
-      }
+      cc.Closure.Call();
     }
 
     

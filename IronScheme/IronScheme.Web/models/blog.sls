@@ -26,7 +26,7 @@
       (if (file-exists? fn)
         (call-with-port (open-file-input-port fn)
           (lambda (p)
-            (guard (e (#t (begin (delete-file fn)'())))
+            (guard (e (#t (begin (delete-file fn) '())))
               (deserialize-port p))))
         '())))
         
