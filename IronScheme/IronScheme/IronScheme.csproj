@@ -142,6 +142,8 @@
     <None Include="Types\Vector.cs" />
     <None Include="Types\Void.cs" />
     <Compile Include="Web\Handler.cs" />
+    <Compile Include="Web\Helpers.cs" />
+    <Compile Include="Web\RoutingModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
@@ -162,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />

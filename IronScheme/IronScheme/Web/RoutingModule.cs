@@ -86,7 +86,7 @@ namespace IronScheme.Web
       HttpApplication app = sender as HttpApplication;
       if (!File.Exists(app.Request.PhysicalPath) && Path.GetExtension(app.Request.PhysicalPath).Length <= 1)
       {
-        app.Context.RewritePath("~/router.ss");
+        app.Context.RewritePath("~/process-routes.ss");
       }
     }
   }

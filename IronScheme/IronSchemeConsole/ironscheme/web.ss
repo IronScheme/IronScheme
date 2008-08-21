@@ -23,6 +23,7 @@
     html-decode
     html-encode
     map-path
+    resolve-url
     forms-authentication-logout
     forms-authentication-login
     request-raw-url
@@ -60,6 +61,8 @@
   (define (get-headers)
     (clr-prop-get httprequest headers (request)))
     
+  (define (resolve-url vpath)
+    (clr-call httpresponse ApplyAppPathModifier (response) vpath))    
     
   (define (nv-helper instance key)
     (define k (clr-indexer-get namevaluecollection instance (clr-cast system.string key)))

@@ -55,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RoutingModule.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronSchemeConsole\IronScheme.Console.csproj">
@@ -76,8 +75,7 @@
     <None Include="controllers\calender.sls" />
     <None Include="controllers\auth.sls" />
     <None Include="models\blog.sls" />
-    <None Include="router.ss" />
-    <None Include="routing.sls" />
+    <None Include="web.routes" />
     <None Include="test2.ss">
     </None>
     <None Include="test.ss">
