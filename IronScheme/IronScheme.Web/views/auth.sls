@@ -21,9 +21,9 @@
           '(h2 "Login")
           `(form (action . ,(string-append "/auth/dologin" 
                               (if ru (string-append "?returnUrl=" ru) "" ))) 
-                 (method . "post")
+                 (method . post)
             ,(make-label/input "username" "Username" "text" "")
             ,(make-label/input "password" "Password" "password" "")
             (br)
-            (input (type . "submit") (value . "Login")))))))
+            (input (type . submit) (value . Login)))))))
 )
