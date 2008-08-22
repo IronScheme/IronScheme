@@ -31,6 +31,8 @@
     `(a (href . ,(make-action/id-url action id)) ,@args ,name))    
     
   (define (make-label/input id label type value)
+    (unless value
+      (set! value ""))
     `(div (label (for . ,id) ,label) 
       ,(case type
          ((textarea) `(textarea (name . ,id) ,value))

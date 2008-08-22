@@ -45,6 +45,10 @@
           (action-link/id "<<" "previous" (- pageindex 1)))
         (if (not (null? blogdata))
           (action-link/id ">>" "previous" (+ pageindex 1)))
+        '(br)
+        `(form (action . "/blog/search") (method . post)
+          (input (type . text) (name . searchterm))
+          (input (type . submit) (value . Search)))
         )))
     
   (define (add)

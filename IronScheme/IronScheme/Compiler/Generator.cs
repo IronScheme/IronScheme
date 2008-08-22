@@ -424,7 +424,7 @@ namespace IronScheme.Compiler
 
       if (tail.Length > 0)
       {
-        nppp[nppp.Length - 1] = Ast.Call(MakeList(tail, true), tail);
+        nppp[nppp.Length - 1] = Ast.ComplexCallHelper(MakeList(tail, true), tail);
       }
       else
       {

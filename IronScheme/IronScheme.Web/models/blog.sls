@@ -1,5 +1,6 @@
 ﻿(library (models blog)
   (export
+    search-data
     add-entry
     edit-entry!
     delete-entry!
@@ -14,6 +15,7 @@
     (ironscheme)
     (ironscheme datetime)
     (ironscheme web)
+    (ironscheme strings)
     (ironscheme linq))
     
   (define-record-type blog-entry 
@@ -52,6 +54,13 @@
                 (user-name) subject body)))
       (set! entries (cons e entries))
       (save-entries)))
+      
+  (define (search-data t)
+    (let ((t (string-downcase t)))      
+      (from e in entries
+       where (or (string-contains? (string-downcase (blog-entry-subject e)) t)
+                 (string-contains? (string-downcase (blog-entry-body e)) t))
+       select e)))
  
   (define (get-data page pagesize) 
     (let ((s (* page pagesize)))
