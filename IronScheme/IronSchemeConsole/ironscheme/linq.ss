@@ -109,11 +109,29 @@ References:
     get-list  ; returns the values of a grouping or just returns the list
     foreach   ; C# like syntactic sugar, supports 'break' exit proc
     key       ; gets the key of a grouping
+    take
+    skip
     from)
   (import 
     (rnrs))
 
   (define-record-type grouping (fields key values))
+  
+  (define (take lst n)
+    (let ((lst (get-list lst)))
+      (let f ((i 0)(lst lst)(a '()))
+        (if (or (null? lst) (>= i n))
+          (reverse a)
+          (f (+ i 1) (cdr lst) (cons (car lst) a))))))
+          
+  (define (skip lst n)
+    (let ((lst (get-list lst)))
+      (let f ((i 0)(lst lst))
+        (if (or (null? lst) (>= i n))
+          lst
+          (f (+ i 1) (cdr lst))))))
+          
+          
 
   (define (get-list obj)
     (cond

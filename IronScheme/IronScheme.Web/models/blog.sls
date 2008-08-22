@@ -53,7 +53,9 @@
       (set! entries (cons e entries))
       (save-entries)))
  
-  (define (get-data) entries)  
+  (define (get-data page pagesize) 
+    (let ((s (* page pagesize)))
+      (take (skip entries s) pagesize)))
     
   (define (delete-entry! id)
     (let ((e (get-entry-id id)))
