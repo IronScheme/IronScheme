@@ -35,6 +35,7 @@ namespace IronScheme.Web
 
     public void Init(HttpApplication app)
     {
+      System.Diagnostics.Trace.AutoFlush = true;//???
       Console.SetOut(new TraceWriter());
       app.PostResolveRequestCache += new EventHandler(app_PostResolveRequestCache);
       app.AuthorizeRequest += new EventHandler(app_AuthorizeRequest);

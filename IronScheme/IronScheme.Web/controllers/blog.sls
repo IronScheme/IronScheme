@@ -7,6 +7,7 @@
     modify
     entry
     delete
+    search
     save)
   (import
     (ironscheme)
@@ -26,6 +27,9 @@
     
   (define-action (add)
     (view-add))
+    
+  (define-action (search searchterm)
+    (view-index (search-data searchterm) 0))    
 
   (define-action (edit id)
     (view-edit (get-entry-id (string->number id))))
