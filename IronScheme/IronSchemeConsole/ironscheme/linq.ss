@@ -109,13 +109,54 @@ References:
     get-list  ; returns the values of a grouping or just returns the list
     foreach   ; C# like syntactic sugar, supports 'break' exit proc
     key       ; gets the key of a grouping
+    ; auxiliary keywords
+    in
+    select
+    orderby
+    where
+    join
+    group
+    by
+    equals
+    on
+    ascending
+    descending
+    let
+    =
+    then
+    ; helper procs from LINQ
     take
     skip
+    first
+    first/default
+    single
+    single/default
+    ; main macro
     from)
   (import 
     (rnrs))
 
   (define-record-type grouping (fields key values))
+  
+  (define-syntax define-aux
+    (syntax-rules ()
+      [(_ id)
+        (define-syntax id
+          (lambda (x)
+            (syntax-violation #f "invalid use of auxiliary keyword" x 'id)))]))
+            
+  (define-aux select)
+  (define-aux in)
+  (define-aux orderby)
+  (define-aux where)
+  (define-aux join)
+  (define-aux group)
+  (define-aux by)
+  (define-aux equals)
+  (define-aux on)
+  (define-aux ascending)
+  (define-aux descending)
+  (define-aux then)
   
   (define (take lst n)
     (let ((lst (get-list lst)))
@@ -131,7 +172,31 @@ References:
           lst
           (f (+ i 1) (cdr lst))))))
           
+  (define (single lst)
+    (let ((lst (get-list lst)))
+      (if (= (length lst) 1)
+        (car lst)
+        (assertion-violation 'single "list does not contain 1 element" lst))))
+
+  (define (single/default lst default)
+    (let ((lst (get-list lst)))
+      (case (length lst)
+        [(0)  default]
+        [(1)  (car lst)]
+        [else
+          (assertion-violation 'single/default "list contains more than 1 element" lst)])))
           
+  (define (first lst)
+    (let ((lst (get-list lst)))
+      (if (null? lst)
+        (assertion-violation 'first "list is empty" lst)
+        (car lst))))
+
+  (define (first/default lst default)
+    (let ((lst (get-list lst)))
+      (if (null? lst)
+        default
+        (car lst))))
 
   (define (get-list obj)
     (cond

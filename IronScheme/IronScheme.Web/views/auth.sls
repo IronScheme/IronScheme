@@ -13,17 +13,15 @@
           ,(css-link "~/blog.css"))
         (body . ,body)))    
     
-  (define (login)
-    (render-doctype)
+  (define-view (login)
     (let ((ru (querystring "returnUrl")))
-      (display-html 
-        (page-template
-          '(h2 "Login")
-          `(form (action . ,(string-append "/auth/dologin" 
-                              (if ru (string-append "?returnUrl=" ru) "" ))) 
-                 (method . post)
-            ,(make-label/input "username" "Username" "text" "")
-            ,(make-label/input "password" "Password" "password" "")
-            (br)
-            (input (type . submit) (value . Login)))))))
+      (page-template
+        '(h2 "Login")
+        `(form (action . ,(string-append "/auth/dologin" 
+                            (if ru (string-append "?returnUrl=" ru) "" ))) 
+               (method . post)
+          ,(make-label/input "username" "Username" "text" "")
+          ,(make-label/input "password" "Password" "password" "")
+          (br)
+          (input (type . submit) (value . Login))))))
 )

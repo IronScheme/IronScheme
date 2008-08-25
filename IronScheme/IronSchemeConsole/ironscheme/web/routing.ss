@@ -7,7 +7,7 @@
     (ironscheme web))
     
   (define (parse-url)
-    (let* ((f (vector-ref (string-split (request-raw-url) "?") 0))
+    (let* ((f (vector-ref (string-split (url-decode (request-raw-url)) "?") 0))
            (t (string-split f "/")))
       (cdr (vector->list t))))
 

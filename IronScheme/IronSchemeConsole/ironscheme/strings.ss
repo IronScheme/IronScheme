@@ -5,6 +5,9 @@
     string-contains?
     string-starts-with?
     string-ends-with?
+    string-ci-contains?
+    string-ci-starts-with?
+    string-ci-ends-with?    
     ;string-trim-start
     ;string-trim-end
     string-trim
@@ -27,12 +30,21 @@
     
   (define (string-contains? str sub)
     (clr-call system.string contains str sub))
+    
+  (define (string-ci-contains? str sub)
+    (clr-call system.string contains (string-upcase str) (string-upcase sub)))
 
   (define (string-starts-with? str sub)
     (clr-call system.string startswith str sub))
 
+  (define (string-ci-starts-with? str sub)
+    (clr-call system.string startswith (string-upcase str) (string-upcase sub)))
+
   (define (string-ends-with? str sub)
     (clr-call system.string endswith str sub))
+
+  (define (string-ci-ends-with? str sub)
+    (clr-call system.string endswith (string-upcase str) (string-upcase sub)))
 
   (define (string-trim str)
     (clr-call system.string trim str))
