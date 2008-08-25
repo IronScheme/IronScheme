@@ -53,14 +53,14 @@
     (let ((e (make-blog-entry (get-next-id) (now) 
                 (user-name) subject body)))
       (set! entries (cons e entries))
-      (save-entries)))
+      (save-entries)
+      e))
       
   (define (search-data t)
-    (let ((t (string-downcase t)))      
-      (from e in entries
-       where (or (string-contains? (string-downcase (blog-entry-subject e)) t)
-                 (string-contains? (string-downcase (blog-entry-body e)) t))
-       select e)))
+    (from e in entries
+     where (or (string-ci-contains? (blog-entry-subject e) t)
+               (string-ci-contains? (blog-entry-body e) t))
+     select e))
  
   (define (get-data page pagesize) 
     (let ((s (* page pagesize)))
@@ -78,12 +78,10 @@
       (save-entries)))   
 
   (define (get-entry-id id)
-    (let ((q (from be in entries
-              where (= (blog-entry-id be) id)
-              select be)))
-      (if (null? q)
-        #f
-        (car q))))
-       
+    (single/default 
+      (from be in entries
+       where (= (blog-entry-id be) id)
+       select be)
+      #f))
         
 )

@@ -42,12 +42,12 @@
     (view-entry (get-entry-id (string->number id))))
     
   (define-action (save subject body)
-    (add-entry subject body)
-    (redirect "~/blog"))    
+    (let ((e (add-entry subject body)))
+      (redirect (string-append "~/blog/entry/" (blog-entry-id e)))))    
 
   (define-action (modify id subject body)
     (edit-entry! (string->number id) subject body) 
-    (redirect "~/blog"))
+    (redirect (string-append "~/blog/entry/" id)))
     
 )        
         

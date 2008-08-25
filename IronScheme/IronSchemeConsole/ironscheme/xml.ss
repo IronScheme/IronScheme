@@ -28,7 +28,7 @@
 		        [(string? x) (html-encode x)]
 		        [(null? x) ""]
 		        [(unspecified? x) ""]
-		        [(not (pair? x)) (format "~a" x)]
+		        [(not (pair? x)) (html-encode (format "~a" x))]
 		        [(attribute? x)
 		          (let ((name (car x))
 		                (value (cdr x))) 
@@ -41,27 +41,29 @@
 		          (let ((tag (car x))
 		                (body (cdr x))
 		                (indent-str (get-indent i)))
-		            (let-values ([(attrs children) (partition attribute? body)])
-		              (if (null? children)
-		                (format "<~a~a />\n" 
-		                  tag
-		                  (string-map ->xml attrs i))
-		                (if (complex? x) 
-		                  (format
-		                    "~a<~a~a>\n~a~a</~a>\n"
-		                    indent-str
+		            (if (eq? tag 'no-escape)
+		              (car body)
+		              (let-values ([(attrs children) (partition attribute? body)])
+		                (if (null? children)
+		                  (format "<~a~a />\n" 
 		                    tag
-		                    (string-map ->xml attrs i) 
-		                    (string-map ->xml children i)
-		                    indent-str
-		                    tag)                    
-		                  (format
-		                    "~a<~a~a>~a</~a>\n"
-		                    indent-str
-		                    tag
-		                    (string-map ->xml attrs i) 
-		                    (string-map ->xml children i)
-		                    tag)))))]))))
+		                    (string-map ->xml attrs i))
+		                  (if (complex? x) 
+		                    (format
+		                      "~a<~a~a>\n~a~a</~a>\n"
+		                      indent-str
+		                      tag
+		                      (string-map ->xml attrs i) 
+		                      (string-map ->xml children i)
+		                      indent-str
+		                      tag)                    
+		                    (format
+		                      "~a<~a~a>~a</~a>\n"
+		                      indent-str
+		                      tag
+		                      (string-map ->xml attrs i) 
+		                      (string-map ->xml children i)
+		                      tag))))))]))))
 				(lambda (x)
 					(->xml x 0))))								
   
