@@ -11,8 +11,8 @@
     
   
   (define (get-symbols lib)
-    (from i in (environment-symbols (environment lib))
-     orderby i
+    (from i in (environment-bindings (environment lib))
+     orderby (car i)
      select i))
 
 )    

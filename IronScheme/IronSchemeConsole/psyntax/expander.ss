@@ -31,7 +31,7 @@
           compile-r6rs-top-level boot-library-expand 
           null-environment scheme-report-environment
           interaction-environment
-          interaction-environment-symbols environment-symbols
+          interaction-environment-symbols environment-symbols environment-bindings
           ellipsis-map assertion-error)
   (import
     (except (rnrs)
@@ -3593,7 +3593,23 @@
       (rib-sym* (interaction-env-rib (interaction-environment)))))
     
   (define (environment-symbols e)
-    (vector->list (env-names e)))    
+    (vector->list (env-names e))) 
+    
+  (define (environment-bindings e)
+    (vector->list
+      (vector-map
+        (lambda (name label)
+          (parse-binding (cons name (imported-label->binding label))))
+        (env-names e)
+        (env-labels e))))
+            
+  (define (parse-binding b)
+    (cons (car b) 
+      (case (cadr b) 
+        [(core-prim global) 'procedure]
+        [(core-macro macro global-macro) 'syntax]
+        [($core-rtd) 'record]
+        [else (if (eq? (car b) (cadr b)) 'syntax 'unknown)])))            
   
   (define environment?
     (lambda (x) (or (env? x) (interaction-env? x))))

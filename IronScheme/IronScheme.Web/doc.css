@@ -10,4 +10,27 @@ a
   color: #0000cc;
 }
 
+h1
+{
+  font-size:2em;
+}
+
+h2
+{
+  font-size:1.5em;
+}
+
+h3
+{
+  font-size:1.17em;
+}
+
+.id-table
+{
+}
+
+.id-table tr td
+{
+  width:300px;
+}
 

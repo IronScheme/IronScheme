@@ -263,6 +263,7 @@
     (library-path                               i)
     (interaction-environment-symbols            i)
     (environment-symbols                        i)
+    (environment-bindings                       i)
     (get-library-paths                          i il)
     (library-locator                            i)
     (make-parameter                             i)
