@@ -10,7 +10,7 @@
     (ironscheme web controllers))
  
   (define-action (index)
-    (view-index))   
+    (view-index (get-libraries)))   
     
   (define-action (doc:library id)
     (let ((lib (call-with-port (open-string-input-port id) read)))
