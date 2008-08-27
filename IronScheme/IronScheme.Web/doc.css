@@ -22,15 +22,41 @@ h2
 
 h3
 {
+  font-size:1.33em;
+}
+
+h4
+{
+  margin-top:5px;
+  margin-bottom:5px;
+  font-weight:bold;
   font-size:1.17em;
 }
 
 .id-table
 {
+  font-family:Consolas, Lucida Console, Courier New, Monospace;
 }
 
 .id-table tr td
 {
   width:300px;
 }
+
+.id-table .syntax
+{
+  color:Blue;
+}
+
+.id-table .procedure
+{
+  color:Teal;
+}
+
+
+.id-table .record
+{
+  color:Purple;
+}
+
 
