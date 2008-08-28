@@ -114,7 +114,7 @@ namespace IronScheme.Runtime
       object[] arr = obj as object[];
       if (arr == null)
       {
-        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
       }
 
       if (typeof(T) == typeof(object))
@@ -142,7 +142,7 @@ namespace IronScheme.Runtime
         {
           return (T)o;
         }
-        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+        Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
       }
       if (obj == null && typeof(T).IsValueType)
       {
@@ -177,7 +177,7 @@ namespace IronScheme.Runtime
         {
           return (T)o;
         }
-        return (T) Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj.GetType().Name, obj);
+        return (T) Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
       }
 
       return (T)obj;

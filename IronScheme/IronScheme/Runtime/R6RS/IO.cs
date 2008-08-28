@@ -266,10 +266,7 @@ namespace IronScheme.Runtime.R6RS
       // ???????????????????
       if (t.eolstyle == eol_none)
       {
-        value = lftx.Replace(value, delegate(Match m)
-        {
-          return GetNewline(t.eolstyle, "\n");
-        });
+        value = value.Replace("\r", "");
       }
       else
       {
@@ -1938,6 +1935,10 @@ namespace IronScheme.Runtime.R6RS
             return GetNewline(tc.eolstyle, "\n");
           });
         }
+        else
+        {
+          value = value.Replace("\r", "");
+        }
         return value;
       }
 
@@ -1955,6 +1956,10 @@ namespace IronScheme.Runtime.R6RS
           {
             return GetNewline(tc.eolstyle, "\n");
           });
+        }
+        else
+        {
+          value = value.Replace("\r", "");
         }
         return value;
       }
