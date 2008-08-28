@@ -342,9 +342,9 @@ namespace IronScheme.Runtime
     [Builtin("map")]
     public static object Map(object fn, params object[] lists)
     {
-      if (lists == null)
+      if (lists == null || lists.Length == 0)
       {
-        return null;
+        return AssertionViolation("map", "expected at least 1 list", null);
       }
       ICallable f = RequiresNotNull<ICallable>(fn);
       Cons h = null, head = null;

@@ -233,7 +233,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-titlecase")]
     public static object ToTitleCaseString(object obj)
     {
-      string s = GetString(obj);
+      string s = ToLowerCaseString(obj) as string;
       return textinfo.ToTitleCase(s);
     }
 

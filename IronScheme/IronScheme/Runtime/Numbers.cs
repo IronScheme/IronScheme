@@ -1269,7 +1269,7 @@ namespace IronScheme.Runtime
       return Error("*", "BUG");
     }
 
-    protected static object ToIntegerIfPossible(BigInteger i)
+    protected internal static object ToIntegerIfPossible(BigInteger i)
     {
       if (i <= int.MaxValue && i >= int.MinValue)
       {
@@ -2305,6 +2305,20 @@ namespace IronScheme.Runtime
     [Builtin("make-rectangular")]
     public static object MakeRectangular(object obj1, object obj2)
     {
+      if (!IsTrue(IsReal(obj1)))
+      {
+        return AssertionViolation("make-rectangular", "not a real", obj1);
+      }
+      if (!IsTrue(IsReal(obj2)))
+      {
+        return AssertionViolation("make-rectangular", "not a real", obj2);
+      }
+
+      if (IsTrue(IsExact(obj2)) && IsTrue(IsZero(obj2)))
+      {
+        return obj1;
+      }
+
       return Complex64.Make(SafeConvert(obj1), SafeConvert(obj2));
     }
 
@@ -2318,6 +2332,11 @@ namespace IronScheme.Runtime
       if (!IsTrue(IsReal(obj2)))
       {
         return AssertionViolation("make-polar", "not a real", obj2);
+      }
+
+      if (IsTrue(IsExact(obj2)) && IsTrue(IsZero(obj2)))
+      {
+        return obj1;
       }
 
       return Multiply(obj1, MakeRectangular(Cos(obj2), Sin(obj2)));

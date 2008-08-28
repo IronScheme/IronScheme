@@ -73,7 +73,12 @@ static object Fraction(object num, object den)
 {
   try
   {
-    return new Fraction(Builtins.ConvertToBigInteger(num),Builtins.ConvertToBigInteger(den));
+    Fraction f = new Fraction(Builtins.ConvertToBigInteger(num),Builtins.ConvertToBigInteger(den));
+    if (f.Denominator == 1)
+    {
+      return Builtins.ToIntegerIfPossible(f.Numerator);
+    }
+    return f;
   }
   catch (DivideByZeroException)
   {

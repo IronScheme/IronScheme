@@ -7,9 +7,14 @@
     (ironscheme strings)
     (ironscheme linq))
  
-  (define (get-symbols lib)
+  (define (get-symbols lib sort)
     (from i in (environment-bindings (environment lib))
-     orderby (car i)
+     orderby (case sort
+               [(type) (cdr i)]
+               [else (car i)])
+     then (car i)
+     ; the above scenario looks strange, but as the input is unique,
+     ; the second call to (car i) never happens
      select i))
      
   (define (get-libraries) 
