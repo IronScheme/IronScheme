@@ -12,10 +12,9 @@
           
   (define (page-template . body)
     `(html (xmlns . http://www.w3.org/1999/xhtml)
-           (xmlns:v . urn:schemas-microsoft-com:vml)
         (head
           (title "Blog in IronScheme")
-          ,(css-link "~/blog.css"))
+          ,(css-link "~/styles/blog.css"))
         (body
           ,(display-menu)
           . ,body)))
@@ -35,7 +34,7 @@
       body))
         
   (define (display-menu)
-    `(ol (class . menu)
+    `(ul (class . menu)
       (li ,(action-link "Home" ""))
       ,(if (string=? (user-name) "admin")
         `(li ,(action-link "Add entry" "add")))

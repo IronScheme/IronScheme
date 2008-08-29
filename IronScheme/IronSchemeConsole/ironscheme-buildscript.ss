@@ -253,13 +253,13 @@
 (define identifier->library-map
   '(
     ;;;
-    (import                                     i r) ;non standard
-    (library                                    i r) ;non standard
-    (expand                                     i) ; for debugging
+    (import                                     i) 
+    (library                                    i) 
+    ;(expand                                     i) ; for debugging
     (include                                    i)
     (include-into                               i)
-    (installed-libraries                        i)
-    (library-extensions                         i)
+    ;(installed-libraries                        i)
+    ;(library-extensions                         i)
     (library-path                               i)
     (interaction-environment-symbols            i)
     (environment-symbols                        i)

@@ -16,8 +16,9 @@
     (let ((head (car l)) (tail (cdr l)))
       (case head
         ((quote quasiquote unquote unquote-splicing 
-          syntax quasisyntax unsyntax unsyntax-splicing) (length1? tail))
-        (else                                        #f))))
+          syntax quasisyntax unsyntax unsyntax-splicing) 
+          (length1? tail))
+        (else #f))))
 
   (define (read-macro-body l)
     (cadr l))
@@ -61,7 +62,6 @@
           ((boolean? obj)     (out (if obj "#t" "#f") col))
           ((number? obj)      (out (number->string obj) col))
           ((symbol? obj)      (out (symbol->string obj) col))
-          ((procedure? obj)   (out "#[procedure]" col))
           ((string? obj)      (if display?
                                   (out obj col)
                                   (let loop ((i 0) (j 0) (col (out "\"" col)))
@@ -77,17 +77,7 @@
                                               (loop i (fx+ j 1) col)))
                                         (out "\""
                                              (out (substring obj i j) col))))))
-          ((char? obj)        (if display?
-                                  (out (make-string 1 obj) col)
-                                  (out (case obj
-                                         ((#\space)   "space")
-                                         ((#\newline) "newline")
-                                         (else        (make-string 1 obj)))
-                                       (out "#\\" col))))
-          ((input-port? obj)  (out "#[input-port]" col))
-          ((output-port? obj) (out "#[output-port]" col))
-          ((eof-object? obj)  (out "#[eof-object]" col))
-          (else               (out (format "~s" obj) col))))
+          (else               (out (format (if display? "~a" "~s") obj) col))))
 
   (define (pp obj col)
 
