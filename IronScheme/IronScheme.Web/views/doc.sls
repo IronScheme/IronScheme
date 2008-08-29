@@ -12,7 +12,7 @@
     `(html (xmlns . "http://www.w3.org/1999/xhtml")
         (head 
           (title "Documentation for IronScheme")
-          ,(css-link "~/doc.css"))
+          ,(css-link "~/styles/doc.css"))
         (body
           (h1 "Documentation for IronScheme")
           . ,body)))    

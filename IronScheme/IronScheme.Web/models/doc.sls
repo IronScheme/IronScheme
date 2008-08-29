@@ -6,6 +6,10 @@
     (ironscheme)
     (ironscheme strings)
     (ironscheme linq))
+
+  (define-enumeration identifier-type (variable procedure parameter syntax aux-syntax record-type) id-type)    
+  (define-record-type library-doc (fields name description))
+  (define-record-type identifier-doc (fields name type description parameters))
  
   (define (get-symbols lib sort)
     (from i in (environment-bindings (environment lib))

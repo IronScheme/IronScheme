@@ -50,8 +50,8 @@
     <Reference Include="System.Web.Mobile" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="blog.css" />
-    <Content Include="doc.css" />
+    <Content Include="styles\blog.css" />
+    <Content Include="styles\doc.css" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

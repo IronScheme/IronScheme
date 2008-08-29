@@ -28,7 +28,7 @@
       enum-set-projection
       enum-set-subset?
       enum-set-union)
-      (only (ironscheme) fprintf gensym)
+      (only (ironscheme) fprintf gensym format)
       (only (ironscheme core) reverse!) ; for reverse!
       (ironscheme records printer)) 
  
@@ -69,11 +69,14 @@
                     (cons n a) 
                     (bitwise-arithmetic-shift-left mask 1))))
               (assertion-violation 'make-enumeration "not a symbol" n)))))))
+              
+  (define (make-name symbols)
+    (string->symbol (format "~a" symbols)))
 
   (define (make-enumeration symbols)
     (let-values (((s mapping mask) (make-info symbols)))
       (make-enum mask
-        (make-enum-universe (gensym) s mapping mask))))
+        (make-enum-universe (make-name s) s mapping mask))))
 
   (define (enum-set-universe enumset)
     (assert-enum 'enum-set-universe enumset)
