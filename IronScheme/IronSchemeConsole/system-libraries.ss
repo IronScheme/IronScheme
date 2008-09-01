@@ -4,7 +4,7 @@
 ; > (compile "compile.ss")
 ; Thats it, you are done :)
 
-(import (rnrs))
+(import (ironscheme))
 
 (let () 
   (import (ironscheme clr))

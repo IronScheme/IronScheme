@@ -29,7 +29,7 @@ namespace IronScheme.Web
 
       public override System.Text.Encoding Encoding
       {
-        get { throw new NotImplementedException(); }
+        get { return System.Text.Encoding.Default; }
       }
     }
 

@@ -88,6 +88,9 @@
     <None Include="views\blog.sls" />
     <None Include="views\calender.sls" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="data\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\WebApplications\Microsoft.WebApplication.targets" Condition="" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -105,7 +108,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>60411</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/IronScheme.Web</IISUrl>
+          <IISUrl>http://localhost/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>

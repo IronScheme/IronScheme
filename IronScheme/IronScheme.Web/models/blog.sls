@@ -24,7 +24,7 @@
       (mutable body)))
   
   (define (load-entries)  
-    (let ((fn (map-path "~/blog.data")))
+    (let ((fn (map-path "~/data/blog.data")))
       (if (file-exists? fn)
         (call-with-port (open-file-input-port fn)
           (lambda (p)
@@ -35,7 +35,7 @@
                 "Use the username: admin and the password: admin to login") ))))
         
   (define (save-entries)
-    (let ((fn (map-path "~/blog.data")))
+    (let ((fn (map-path "~/data/blog.data")))
       (when (file-exists? fn) 
         (delete-file fn))
       (call-with-port (open-file-output-port fn)
