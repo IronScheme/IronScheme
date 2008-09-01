@@ -43,18 +43,23 @@ h4
   width:300px;
 }
 
-.id-table .syntax
+.id-table tr th
+{
+  text-align:left;
+}
+
+.id-table .syntax a 
 {
   color:Blue;
 }
 
-.id-table .procedure
+.id-table .procedure a 
 {
   color:Teal;
 }
 
 
-.id-table .record
+.id-table .record a
 {
   color:Purple;
 }

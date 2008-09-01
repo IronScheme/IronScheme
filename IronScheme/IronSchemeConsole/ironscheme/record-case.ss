@@ -1,6 +1,7 @@
 #!r6rs
 (library (ironscheme record-case)
   (export
+    else
     record-case)
   (import 
     (rnrs))
@@ -39,8 +40,8 @@
                   (lambda (f ...) e e* ...) 
                   (get-fields r* (record-type-descriptor r?) 'f ...) )] ...
                 [else ee]))]
-        [(_ r [r? (f ...) e] ... )
-          #'(record-case r [r? (f ...) e] ... [else #f])]
+        [(_ r [r? (f ...) e  e* ...] ... )
+          #'(record-case r [r? (f ...) e e* ...] ... [else #f])]
           )))    
 )
     

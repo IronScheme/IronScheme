@@ -10,7 +10,7 @@
     `(html (xmlns . "http://www.w3.org/1999/xhtml")
         (head 
           (title "Blog in IronScheme")
-          ,(css-link "~/blog.css"))
+          ,(css-link "~/styles/blog.css"))
         (body . ,body)))    
     
   (define-view (login)

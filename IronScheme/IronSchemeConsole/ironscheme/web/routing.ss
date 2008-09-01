@@ -7,7 +7,7 @@
     (ironscheme web))
     
   (define (parse-url)
-    (let* ((f (vector-ref (string-split (url-decode (request-raw-url)) "?") 0))
+    (let* ((f (vector-ref (string-split (request-raw-url) "?") 0))
            (t (string-split f "/")))
       (cdr (vector->list t))))
 
@@ -30,7 +30,7 @@
         (or 
           ca
           (parameterize ((library-path (cons (map-path "~") (library-path))))
-            (guard (e (#t (begin (printf "~s\n" e) #f)))
+            (guard (e (#t (begin (error-add! e) (printf "~s\n" e) #f)))
               (let ((ac (eval (string->symbol a) (environment (list 'controllers (string->symbol c))))))
                 (printf "controller/action ~a/~a\n" c a)
                 (hashtable-set! r (string-append c ":" a) ac)
@@ -77,7 +77,7 @@
                 (load-controller/action controller action)]
               [(controller action id)
                 #t
-                (context-item-set! 'id id)
+                (context-item-set! 'id (url-decode id))
                 (context-item-set! 'controller controller)
                 (context-item-set! 'action action)
                 (load-controller/action controller action)]))])))            

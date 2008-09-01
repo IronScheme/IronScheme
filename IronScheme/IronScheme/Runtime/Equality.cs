@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       {
         return Ast.Not(e);
       }
-      return Ast.Condition(Ast.TypeIs(obj[0], typeof(bool)), Ast.Not(Ast.Call(IsTrue, obj[0])), Ast.False());
+      return Ast.Not(Ast.Call(IsTrue, obj[0]));
     }
 
     static MethodInfo IsTrue = typeof(Builtins).GetMethod("IsTrue");

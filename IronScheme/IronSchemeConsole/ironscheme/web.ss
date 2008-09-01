@@ -28,6 +28,8 @@
     forms-authentication-login
     request-raw-url
     http-output-port
+    error-add!
+    error-clear!
     user-name
     user-in-role?
     user-authenticated?
@@ -63,6 +65,12 @@
     
   (define (get-headers)
     (clr-prop-get httprequest headers (request)))
+    
+  (define (error-add! e)
+    (clr-call httpcontext AddError (context) e))    
+    
+  (define (error-clear!)
+    (clr-call httpcontext ClearError (context)))    
 
   (define (get-user)
     (clr-prop-get httpcontext user (context)))    
@@ -78,7 +86,6 @@
 
   (define (user-authenticated?)
     (clr-prop-get System.Security.Principal.IIdentity IsAuthenticated (user-identity)))  
-    
     
   (define (resolve-url vpath)
     (clr-call httpresponse ApplyAppPathModifier (response) vpath))    
