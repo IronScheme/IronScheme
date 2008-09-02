@@ -5,6 +5,7 @@ using Microsoft.Scripting;
 using IronScheme.Hosting;
 using Microsoft.Scripting.Hosting;
 using System.Web;
+using System.Threading;
 
 namespace IronScheme.Web
 {
@@ -40,7 +41,19 @@ namespace IronScheme.Web
       sdm.GlobalOptions.AssemblyGenAttributes = Microsoft.Scripting.Generation.AssemblyGenAttributes.None;
       IronSchemeLanguageProvider lp = new IronSchemeLanguageProvider(sdm);
       ScriptEngine se = lp.GetEngine();
-      se.Execute("(load \"~/ironscheme.boot.pp\")");
+
+      AutoResetEvent e = new AutoResetEvent(false);
+
+      Thread t = new Thread(delegate ()
+        {
+          se.Execute("(load \"~/ironscheme.boot.pp\")");
+          e.Set();
+        }, 1500000);
+
+      t.Start();
+
+      e.WaitOne();
+
       return lp;
     }
   }

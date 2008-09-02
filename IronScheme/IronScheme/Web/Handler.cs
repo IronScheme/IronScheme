@@ -14,6 +14,7 @@ using IronScheme.Hosting;
 using IronScheme.Runtime;
 using System.IO;
 using System.Web.SessionState;
+using System.Security.Principal;
 
 namespace IronScheme.Web
 {
@@ -44,6 +45,11 @@ namespace IronScheme.Web
         lp = Helpers.Provider as IronSchemeLanguageProvider;
         se = lp.GetEngine();
         compiled.Clear();
+      }
+
+      if (context.User == null)
+      {
+        context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
       }
 
       if (!File.Exists(context.Request.PhysicalPath))
