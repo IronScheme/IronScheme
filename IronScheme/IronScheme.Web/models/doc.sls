@@ -127,7 +127,8 @@
             id 
             lib 
             (get-id-type id lib)
-            "No description")))
+            "No description"
+            #f)))
       #f))          
     
   (define (get-library lib)
