@@ -261,6 +261,7 @@
     ;(installed-libraries                        i)
     ;(library-extensions                         i)
     (library-path                               i)
+    (optimization-level                         i)
     (interaction-environment-symbols            i)
     (environment-symbols                        i)
     (environment-bindings                       i)

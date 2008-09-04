@@ -223,7 +223,19 @@ SectionIn 1 2 RO
 	File ..\..\..\IronScheme.Web\test.ss
 	File ..\..\..\IronScheme.Web\test2.ss
 	File ..\..\..\IronScheme.Web\web.config
+	File ..\..\..\IronScheme.Web\web.routes
 	
+	SetOutPath "$INSTDIR\websample\controllers"
+	File /r ..\..\..\IronScheme.Web\controllers\*.sls
+	
+	SetOutPath "$INSTDIR\websample\views"
+	File /r ..\..\..\IronScheme.Web\views\*.sls
+	
+	SetOutPath "$INSTDIR\websample\models"
+	File /r ..\..\..\IronScheme.Web\models\*.sls
+	
+	SetOutPath "$INSTDIR\websample\styles"
+	File /r ..\..\..\IronScheme.Web\styles\*.css
 	
 	;File /r tests\*.*
 	

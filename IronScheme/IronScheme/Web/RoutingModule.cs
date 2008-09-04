@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Web.Configuration;
 using System.Reflection;
 using System.Security.Principal;
+using System.Web.Security;
 
 namespace IronScheme.Web
 {
@@ -35,12 +36,44 @@ namespace IronScheme.Web
 
     public void Init(HttpApplication app)
     {
-      System.Diagnostics.Trace.AutoFlush = true;//???
+      System.Diagnostics.Trace.AutoFlush = true;
       Console.SetOut(new TraceWriter());
       app.PostResolveRequestCache += new EventHandler(app_PostResolveRequestCache);
       app.AuthorizeRequest += new EventHandler(app_AuthorizeRequest);
+      app.AuthenticateRequest += new EventHandler(app_AuthenticateRequest);
     }
-    
+
+    #region Fix FormsAuthentication that does not appear to be working in IIS 7.0 Integrated Pipepline mode
+
+    void app_AuthenticateRequest(object sender, EventArgs e)
+    {
+      HttpApplication app = sender as HttpApplication;
+
+      HttpContext context = app.Context;
+
+      if (context.User == null)
+      {
+        HttpCookie authc = context.Request.Cookies[FormsAuthentication.FormsCookieName];
+        if (authc != null)
+        {
+          FormsAuthenticationTicket fat = FormsAuthentication.Decrypt(authc.Value);
+
+          context.User = new GenericPrincipal(new GenericIdentity(fat.Expired ? "" : fat.Name), new string[0]);
+
+          if (!fat.Expired)
+          {
+            fat = FormsAuthentication.RenewTicketIfOld(fat);
+          }
+        }
+        else
+        {
+          context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
+        }
+      }
+    }
+
+    #endregion
+
     #region Fix authorization that does not appear to work on non-existing directories
 
     static PropertyInfo everyoneallowed = typeof(AuthorizationSection).GetProperty("EveryoneAllowed", 
@@ -49,13 +82,32 @@ namespace IronScheme.Web
     static MethodInfo checkuser = typeof(AuthorizationSection).GetMethod("IsUserAllowed",
       BindingFlags.Instance | BindingFlags.NonPublic);
 
+    readonly static string[] DISALLOWED = 
+    { 
+      "~/web.routes", 
+      "~/controllers", 
+      "~/views", 
+      "~/models", 
+      "~/data" 
+    };
+
     void app_AuthorizeRequest(object sender, EventArgs e)
     {
       HttpApplication app = sender as HttpApplication;
 
-      Configuration c = WebConfigurationManager.OpenWebConfiguration("~/");
+      string s = app.Request.AppRelativeCurrentExecutionFilePath;
 
-      var s = app.Request.AppRelativeCurrentExecutionFilePath;
+      foreach (string disp in DISALLOWED)
+      {
+        if (s.StartsWith(disp))
+        {
+          app.Context.Response.StatusCode = 403;
+          app.CompleteRequest();
+          return;
+        }
+      }
+
+      Configuration c = WebConfigurationManager.OpenWebConfiguration("~/");
 
       foreach (ConfigurationLocation loc in c.Locations)
       {
@@ -71,8 +123,9 @@ namespace IronScheme.Web
               bool ok = (bool)checkuser.Invoke(ac, new object[] { app.User, app.Request.HttpMethod });
               if (!ok)
               {
-                app.Context.Response.StatusCode = 0x191;
+                app.Context.Response.StatusCode = 401;
                 app.CompleteRequest();
+                return;
               }
             }
           }

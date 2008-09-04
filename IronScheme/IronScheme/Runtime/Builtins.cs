@@ -91,6 +91,18 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Builtin("optimization-level")]
+    public static object OptLevel()
+    {
+      return Helpers.EnumToSymbol<OptimizationLevel>(IronScheme.Compiler.Generator.Optimization);
+    }
+
+    [Builtin("optimization-level")]
+    public static object OptLevel(object level)
+    {
+      IronScheme.Compiler.Generator.Optimization = Helpers.SymbolToEnum<OptimizationLevel>(level);
+      return Unspecified;
+    }
     
 
     [Builtin("serialize-port")]

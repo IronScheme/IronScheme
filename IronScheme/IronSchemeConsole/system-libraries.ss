@@ -23,6 +23,8 @@
   (import (ironscheme threading))
   (import (ironscheme web))
   (import (ironscheme web-utils))
+  (import (ironscheme web controllers))
+  (import (ironscheme web views))
   (import (ironscheme xml))
   (import (ironscheme docs))
 
