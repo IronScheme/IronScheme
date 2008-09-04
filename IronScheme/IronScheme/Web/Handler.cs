@@ -1,20 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Configuration;
+using System.IO;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using Microsoft.Scripting;
-using Microsoft.Scripting.Hosting;
+using System.Web.SessionState;
 using IronScheme.Hosting;
 using IronScheme.Runtime;
-using System.IO;
-using System.Web.SessionState;
-using System.Security.Principal;
+using Microsoft.Scripting;
+using Microsoft.Scripting.Hosting;
 
 namespace IronScheme.Web
 {
@@ -22,8 +14,8 @@ namespace IronScheme.Web
   {
     IronSchemeLanguageProvider lp;
     IScriptEngine se;
-    static readonly object outlock = new object();
     ICallable process_routes;
+    Dictionary<string, Compiled> compiled = new Dictionary<string, Compiled>();
 
     class Compiled
     {
@@ -31,8 +23,6 @@ namespace IronScheme.Web
       public ICallable Closure;
     }
 
-    static Dictionary<string, Compiled> compiled = new Dictionary<string, Compiled>();
-    
     public bool IsReusable
     {
       get { return true; }
@@ -46,12 +36,7 @@ namespace IronScheme.Web
         se = lp.GetEngine();
         compiled.Clear();
       }
-
-      if (context.User == null)
-      {
-        context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
-      }
-
+      
       if (!File.Exists(context.Request.PhysicalPath))
       {
         if (context.Request.AppRelativeCurrentExecutionFilePath == "~/process-routes.ss")
@@ -89,7 +74,5 @@ namespace IronScheme.Web
 
       cc.Closure.Call();
     }
-
-    
   }
 }

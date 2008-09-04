@@ -1,3 +1,4 @@
+;; DO NOT PRECOMPILE THIS LIBRARY, IT HAS TO RUN IN A WEB CONTEXT
 (library (ironscheme web routing)
   (export
     process-request)

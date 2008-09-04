@@ -159,8 +159,10 @@
   (define (rewrite-path path)
     (clr-call httpcontext rewritepath (context) path))    
     
-  (define (redirect path)
-    (clr-call httpresponse redirect (response) path))    
+  (define redirect 
+    (case-lambda 
+      [(path)               (clr-call httpresponse redirect (response) path)]    
+      [(path endresponse?)  (clr-call httpresponse redirect (response) path endresponse?)]))
     
   (define (request-raw-url)
     (clr-prop-get httprequest rawurl (request)))       
