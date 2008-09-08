@@ -1,32 +1,22 @@
 ﻿
 ; this is the only needed route for now, the rest are defaults
 
-[(calender year month)
-  (string-ci=? "calender" calender)
-  (context-item-set! 'year year)
-  (context-item-set! 'month month)
-  (load-controller/action "calender" "show")]
+[("calender" (year "\\d{4}") (month "[12]?\\d"))
+  (begin
+    (context-item-set! 'year year)
+    (context-item-set! 'month month)
+    (load-controller/action "calender" "show"))]
   
 #|
 ; defaults
 [(controller)
-  #t
-  (context-item-set! 'controller controller)
-  (context-item-set! 'action "index")
   (load-controller/action controller "index")]
 [(controller action)
-  #t
-  (when (zero? (string-length action))
-    (set! action "index"))
-  (context-item-set! 'controller controller)
-  (context-item-set! 'action action)
-  (load-controller/action controller action)]
+  (load-controller/action controller (if (zero? (string-length action)) "index" action))]
 [(controller action id)
-  #t
-  (context-item-set! 'id id)
-  (context-item-set! 'controller controller)
-  (context-item-set! 'action action)
-  (load-controller/action controller action)]
+  (begin
+    (context-item-set! 'id (url-decode id))
+    (load-controller/action controller action))]
 
 |#  
     

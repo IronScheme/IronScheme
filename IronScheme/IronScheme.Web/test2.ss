@@ -4,10 +4,10 @@
 
   
 (define (method-post?)
-  (eqv? (method) "POST"))  
+  (eq? (http-method) 'post))  
   
 (define (method-get?)
-  (eqv? (method) "GET"))  
+  (eq? (http-method) 'get))  
   
 (define counter (string->number (or (querystring "id") "1")))
   

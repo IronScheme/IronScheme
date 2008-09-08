@@ -3,7 +3,6 @@
     index
     identifier
     library-edit
-    library-save
     (rename (doc:library library)))
   (import
     (ironscheme)
@@ -12,32 +11,35 @@
     (models doc)
     (prefix (views doc) view-)
     (ironscheme web controllers))
+    
+  (define (parse-lib id)
+    (call-with-port (open-string-input-port id) read))        
  
   (define-action (index)
     (view-index (get-libraries)))   
     
   (define-action (doc:library id sort)
-    (let ((lib (call-with-port (open-string-input-port id) read)))
+    (let ((lib (parse-lib id)))
       (view-library 
         lib 
         (get-symbols lib (and sort (string->symbol sort)))
         (library-doc-description (get-library lib)))))
         
   (define-action (identifier id lib)
-    (let ((lib (call-with-port (open-string-input-port lib) read))
+    (let ((lib (parse-lib lib))
           (id (string->symbol id)))
       (view-identifier 
         id
         lib 
         (get-identifier id lib))))
         
-  (define-action (library-edit id)
-    (let ((lib (call-with-port (open-string-input-port id) read)))
-      (view-library-edit lib (library-doc-description (get-library lib)))))        
+  (define-action library-edit
+    [(get id)
+      (let ((lib (parse-lib id)))
+        (view-library-edit lib (library-doc-description (get-library lib))))]
+    [(post id desc)                
+      (let ((lib (parse-lib id)))
+        (save-library-description lib desc)
+        (redirect (action/id-url "library" lib)))])
 
-  (define-action (library-save id desc)
-    (let ((lib (call-with-port (open-string-input-port id) read)))
-      (save-library-description lib desc)
-      (redirect (action/id-url "library" lib))))
-      
 )    

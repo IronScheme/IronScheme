@@ -17,7 +17,7 @@
     (let ((ru (querystring "returnUrl")))
       (page-template
         '(h2 "Login")
-        `(form (action . ,(string-append "/auth/dologin" 
+        `(form (action . ,(string-append "/auth/login" 
                             (if ru (string-append "?returnUrl=" ru) "" ))) 
                (method . post)
           ,(make-label/input "username" "Username" "text" "")
