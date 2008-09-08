@@ -140,23 +140,25 @@ References:
   
   (define-syntax define-aux
     (syntax-rules ()
-      [(_ id)
-        (define-syntax id
-          (lambda (x)
-            (syntax-violation #f "invalid use of auxiliary keyword" x 'id)))]))
+      [(_ id ...)
+        (begin
+          (define-syntax id
+            (lambda (x)
+              (syntax-violation #f "invalid use of auxiliary keyword" x 'id))) ...)]))
             
-  (define-aux select)
-  (define-aux in)
-  (define-aux orderby)
-  (define-aux where)
-  (define-aux join)
-  (define-aux group)
-  (define-aux by)
-  (define-aux equals)
-  (define-aux on)
-  (define-aux ascending)
-  (define-aux descending)
-  (define-aux then)
+  (define-aux 
+    select
+    in
+    orderby
+    where
+    join
+    group
+    by
+    equals
+    on
+    ascending
+    descending
+    then)
   
   (define (take lst n)
     (let ((lst (get-list lst)))

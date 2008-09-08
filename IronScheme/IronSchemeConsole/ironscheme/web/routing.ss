@@ -5,23 +5,14 @@
   (import 
     (ironscheme)
     (ironscheme strings)
-    (ironscheme web))
+    (ironscheme web)
+    (ironscheme web routing-helper))
     
   (define (parse-url)
     (let* ((f (vector-ref (string-split (request-raw-url) "?") 0))
            (t (string-split f "/")))
       (cdr (vector->list t))))
-
-  (define-syntax match
-    (lambda (x)
-      (syntax-case x ()
-        [(_ e ((m ...) f c c* ...) ...)
-          #'(syntax-case e ()
-              [(m ...)
-                (apply (lambda (m ...) f) e)
-                (apply (lambda (m ...) c c* ...) e)] ...
-              [_ #f])])))
-              
+             
   (define (lookup c a)
     (let ((r (application-item 'routes)))
       (unless r
@@ -40,7 +31,10 @@
   (define (load-controller/action c a)
     (let ((ca (lookup c a)))
       (if ca
-        (ca)
+        (begin
+          (context-item-set! 'controller c)
+          (context-item-set! 'action a)
+          (ca))
         (display-html (format "No controller/action for ~a:~a" c a)))))
         
   (define-syntax include-routes
@@ -65,23 +59,13 @@
           #'(match url 
               r ...
               [(controller)
-                #t
-                (context-item-set! 'controller controller)
-                (context-item-set! 'action "index")
                 (load-controller/action controller "index")]
               [(controller action)
-                #t
-                (when (zero? (string-length action))
-                  (set! action "index"))
-                (context-item-set! 'controller controller)
-                (context-item-set! 'action action)
-                (load-controller/action controller action)]
+                (load-controller/action controller (if (zero? (string-length action)) "index" action))]
               [(controller action id)
-                #t
-                (context-item-set! 'id (url-decode id))
-                (context-item-set! 'controller controller)
-                (context-item-set! 'action action)
-                (load-controller/action controller action)]))])))            
+                (begin
+                  (context-item-set! 'id (url-decode id))
+                  (load-controller/action controller action))]))])))            
         
   (define (match-url url)
     (include-routes "web.routes"))           

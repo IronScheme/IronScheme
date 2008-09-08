@@ -79,7 +79,7 @@
   (define-view (add)
     (edit-page-template
       '(h2 "Add entry")
-      `(form (action . ,(action-url "save")) (method . post)
+      `(form (action . ,(action-url "add")) (method . post)
         ,(make-label/input "subject" "Subject" 'text "")
         (textarea (style . "width:500px;height:200px") (name . body) (id . body) "")
         (br)
@@ -93,7 +93,7 @@
   (define-view (edit e)
     (edit-page-template
       '(h2 "Edit entry")
-      `(form (action . ,(action/id-url "modify" (blog-entry-id e))) (method . post)
+      `(form (action . ,(action/id-url "edit" (blog-entry-id e))) (method . post)
         ,(make-label/input "subject" "Subject" 'text (blog-entry-subject e))
         (textarea (style . "width:500px;height:200px") (name . body) (id . body) ,(blog-entry-body e))
         (br)

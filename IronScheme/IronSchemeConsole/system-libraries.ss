@@ -1,7 +1,6 @@
 ; this is the compile file for libraries
 ; the utilize this feature, do the following at the console
-; > (include "compile.ss")
-; > (compile "compile.ss")
+; > (compile-system-libraries)
 ; Thats it, you are done :)
 
 (import (ironscheme))
@@ -13,6 +12,7 @@
   (import (ironscheme datetime))
   (import (ironscheme environment))
   (import (ironscheme linq))
+  (import (ironscheme files))
   (import (ironscheme pretty-print))
   (import (ironscheme process))
   (import (ironscheme random))
@@ -23,6 +23,7 @@
   (import (ironscheme threading))
   (import (ironscheme web))
   (import (ironscheme web-utils))
+  (import (ironscheme web routing-helper))
   (import (ironscheme web controllers))
   (import (ironscheme web views))
   (import (ironscheme xml))

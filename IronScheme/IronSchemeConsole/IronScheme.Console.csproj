@@ -162,6 +162,9 @@
     <None Include="ironscheme\web\controllers.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\web\routing-helper.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\web\routing.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

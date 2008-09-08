@@ -58,11 +58,13 @@ namespace IronScheme.Web
         {
           FormsAuthenticationTicket fat = FormsAuthentication.Decrypt(authc.Value);
 
-          context.User = new GenericPrincipal(new GenericIdentity(fat.Expired ? "" : fat.Name), new string[0]);
-
-          if (!fat.Expired)
+          if (fat.Expired)
           {
-            fat = FormsAuthentication.RenewTicketIfOld(fat);
+            context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
+          }
+          else
+          {
+            context.User = new GenericPrincipal(new FormsIdentity(FormsAuthentication.RenewTicketIfOld(fat)), new string[0]);
           }
         }
         else
@@ -109,28 +111,43 @@ namespace IronScheme.Web
 
       Configuration c = WebConfigurationManager.OpenWebConfiguration("~/");
 
+      if (!CheckAuth(app, c))
+      {
+        return;
+      }
+
       foreach (ConfigurationLocation loc in c.Locations)
       {
         if (s.StartsWith(loc.Path))
         {
           Configuration sc = loc.OpenConfiguration();
-          AuthorizationSection ac = sc.GetSection("system.web/authorization") as AuthorizationSection;
-
-          if (ac != null)
+          if (!CheckAuth(app, sc))
           {
-            if (!(bool)everyoneallowed.GetValue(ac, null))
-            {
-              bool ok = (bool)checkuser.Invoke(ac, new object[] { app.User, app.Request.HttpMethod });
-              if (!ok)
-              {
-                app.Context.Response.StatusCode = 401;
-                app.CompleteRequest();
-                return;
-              }
-            }
+            return;
           }
         }
       }
+    }
+
+    static bool CheckAuth(HttpApplication app, Configuration sc)
+    {
+      AuthorizationSection ac = sc.GetSection("system.web/authorization") as AuthorizationSection;
+
+      if (ac != null)
+      {
+        if (!(bool)everyoneallowed.GetValue(ac, null))
+        {
+          bool ok = (bool)checkuser.Invoke(ac, new object[] { app.User, app.Request.HttpMethod });
+          if (!ok)
+          {
+            app.Context.Response.StatusCode = 401;
+            app.CompleteRequest();
+            return false;
+          }
+        }
+      }
+
+      return true;
     }
 
     #endregion

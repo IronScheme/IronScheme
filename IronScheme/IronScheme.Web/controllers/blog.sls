@@ -4,14 +4,13 @@
     previous
     add
     edit
-    modify
     entry
     delete
-    search
-    save)
+    search)
   (import
     (ironscheme)
     (ironscheme web)
+    (ironscheme web views)
     (models blog)
     (prefix (views blog) view-)
     (ironscheme web controllers))
@@ -25,29 +24,29 @@
     (let ((index (string->number id)))
       (view-index (get-data index page-size) index)))
     
-  (define-action (add)
-    (view-add))
+  (define-action add
+    [(get) 
+      (view-add)]
+    [(post subject body)
+      (let ((e (add-entry subject body)))
+        (redirect (action/id-url "entry" (blog-entry-id e))))])
     
   (define-action (search searchterm)
     (view-index (search-data searchterm) 0))    
 
-  (define-action (edit id)
-    (view-edit (get-entry-id (string->number id))))
+  (define-action edit
+    [(get id) 
+      (view-edit (get-entry-id (string->number id)))]
+    [(post id subject body)
+      (edit-entry! (string->number id) subject body) 
+      (redirect (action/id-url "entry" id))])
 
   (define-action (delete id)
     (delete-entry! (string->number id))
-    (redirect "~/blog"))
+    (redirect (action-url "index")))
     
   (define-action (entry id)
     (view-entry (get-entry-id (string->number id))))
-    
-  (define-action (save subject body)
-    (let ((e (add-entry subject body)))
-      (redirect (string-append "~/blog/entry/" (blog-entry-id e)))))    
-
-  (define-action (modify id subject body)
-    (edit-entry! (string->number id) subject body) 
-    (redirect (string-append "~/blog/entry/" id)))
     
 )        
         

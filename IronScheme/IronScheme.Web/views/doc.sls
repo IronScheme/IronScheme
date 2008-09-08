@@ -48,7 +48,7 @@
   (define-view (library-edit id desc)
     (page-template
       `(h2 (no-escape ,id))
-      `(form (action . ,(action/id-url "library-save" id)) (method . post)
+      `(form (action . ,(action/id-url "library-edit" id)) (method . post)
          (textarea (style . "width:500px;height:200px") (id . desc) (name . desc) ,desc)
          (br)
          (input (type . submit) (value . Save)))))

@@ -1,3 +1,4 @@
+;; FIXME: this is kinda double compiled...
 (library (ironscheme files)
   (export
     file-exists?

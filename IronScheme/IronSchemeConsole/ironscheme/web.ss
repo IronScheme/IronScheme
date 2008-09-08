@@ -1,7 +1,7 @@
 (library (ironscheme web)
   (export
     context
-    method
+    http-method
     querystring
     querystring-keys
     form
@@ -54,8 +54,8 @@
   (define (response)
     (clr-prop-get httpcontext response (context)))     
   
-  (define (method)
-    (clr-prop-get httprequest httpmethod (request)))    
+  (define (http-method)
+    (string->symbol (string-downcase (clr-prop-get httprequest httpmethod (request)))))    
   
   (define (get-querystring)
     (clr-prop-get httprequest querystring (request)))
