@@ -293,36 +293,18 @@
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
     
-    
-;    (define (div-and-mod x1 x2)
-;      (let ((exact-args? (and (exact? x1) (exact? x2)))
-;            (scale 1))
-;         (when exact-args?
-;            (set! scale (* (denominator x1) (denominator x2)))
-;            (set! x1 (* scale x1))
-;            (set! x2 (* scale x2)))
-;         (let ((div (floor (/ x1 x2)))(mod (% x1 x2)))
-;           (if (negative? mod)
-;            (when (or (and (
-;        
-;      ))
-
-
     (define-syntax make-string-compare
       (syntax-rules ()
         [(_ cmp k)
           (lambda (a b . rest)
             (unless (string? a) (assertion-violation 'k "not a string" a))
-            (unless (string? b) (assertion-violation 'k "not a string" b))  
-            (for-each (lambda (x)
-                        (unless (string? x) (assertion-violation 'k "not a string" x)))
-                      rest)  
-            (let f ((a a)(b b)(rest rest))                    
-              (if (null? rest)
-                (cmp (string-compare a b) 0)
-                (and 
-                  (cmp (string-compare a b) 0)
-                  (f b (car rest) (cdr rest))))))]))
+            (for-all
+              (lambda (x)
+                (unless (string? x) (assertion-violation 'k "not a string" x))  
+                (let ((r (cmp (string-compare a x) 0)))
+                  (set! a x)
+                  r))
+              (cons b rest)))]))
 
     (define string=? (make-string-compare = string=?))
     (define string<? (make-string-compare < string<?))
@@ -332,45 +314,32 @@
 
     (define (symbol=? a b . rest)
       (unless (symbol? a) (assertion-violation 'symbol=? "not a symbol" a))
-      (unless (symbol? b) (assertion-violation 'symbol=? "not a symbol" b))
-      (for-each (lambda (x)
-                  (unless (symbol? x) (assertion-violation 'symbol=? "not a symbol" x)))
-                rest) 
-      (let f ((a a)(b b)(rest rest))                      
-        (if (null? rest)
-          (eq? a b)
-          (and 
-            (eq? a b)
-            (f b (car rest) (cdr rest))))))
+      (for-all 
+        (lambda (x) 
+          (unless (symbol? x) (assertion-violation 'symbol=? "not a symbol" x))
+          (eq? a x)) 
+        (cons b rest)))
 
     (define (boolean=? a b . rest)
       (unless (boolean? a) (assertion-violation 'boolean=? "not a boolean" a))
-      (unless (boolean? b) (assertion-violation 'boolean=? "not a boolean" b))
-      (for-each (lambda (x)
-                  (unless (boolean? x) (assertion-violation 'boolean=? "not a boolean" x)))
-                rest)       
-      (let f ((a a)(b b)(rest rest))                      
-        (if (null? rest)
-          (eq? a b)
-          (and 
-            (eq? a b)
-            (f b (car rest) (cdr rest))))))
-      
+      (for-all 
+        (lambda (x) 
+          (unless (boolean? x) (assertion-violation 'boolean=? "not a boolean" x))
+          (eq? a x)) 
+        (cons b rest)))
+        
     (define-syntax char-compare
       (syntax-rules ()
         [(_ cmp k)
           (lambda (a b . rest)
             (unless (char? a) (assertion-violation 'k "not a char" a))
-            (unless (char? b) (assertion-violation 'k "not a char" b))  
-            (for-each (lambda (x)
-                        (unless (char? x) (assertion-violation 'k "not a char" x)))
-                      rest)  
-            (let f ((a a)(b b)(rest rest))                    
-              (if (null? rest)
-                (cmp (char->integer a) (char->integer b))
-                (and 
-                  (cmp (char->integer a) (char->integer b))
-                  (f b (car rest) (cdr rest))))))]))
+            (for-all
+              (lambda (x)
+                (unless (char? x) (assertion-violation 'k "not a char" x))  
+                (let ((r (cmp (char->integer a) (char->integer x))))
+                  (set! a x)
+                  r))
+              (cons b rest)))]))        
     
     (define char=? (char-compare = char=?))
     (define char<? (char-compare < char<?))

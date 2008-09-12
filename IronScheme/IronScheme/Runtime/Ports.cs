@@ -218,14 +218,15 @@ namespace IronScheme.Runtime
             // check if stream has been read by reader
             if (s.Position == 0)
             {
-              result = IronSchemeLanguageContext.ReadExpressions(s, Context.ModuleContext.CompilerContext);
+
+              result = IronSchemeLanguageContext.ReadExpressions(s, GetContext(s, Context.ModuleContext.CompilerContext));
             }
             else
             {
               string input = r.ReadToEnd();
               if (input.Length > 0)
               {
-                result = IronSchemeLanguageContext.ReadExpressions(input, Context.ModuleContext.CompilerContext);
+                result = IronSchemeLanguageContext.ReadExpressions(input, GetContext(s, Context.ModuleContext.CompilerContext));
               }
             }
           }
@@ -268,6 +269,16 @@ namespace IronScheme.Runtime
         }
       }
     }
+
+    static CompilerContext GetContext(Stream s, CompilerContext old)
+    {
+      if (s is FileStream)
+      {
+        return new CompilerContext(SourceUnit.CreateFileUnit(ScriptEngine, ((FileStream)s).Name), old.Options, old.Errors, old.ParserSink);
+      }
+      return old;
+    }
+
 
     sealed class Eof 
     {

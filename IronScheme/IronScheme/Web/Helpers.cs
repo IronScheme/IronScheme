@@ -13,10 +13,6 @@ namespace IronScheme.Web
   {
     readonly static object initlock = new object();
 
-    static Helpers()
-    {
-    }
-
     public static LanguageProvider Provider
     {
       get

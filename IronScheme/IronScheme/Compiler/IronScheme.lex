@@ -251,18 +251,18 @@ bad_atoms              {atoms}{but_delimiter}+
 {good_dot}           { yyless(1); return Make(Tokens.DOT); }
 
 
-{bad_dot}             { Errors.Add(SourceUnit, string.Format("bad dot:{0}", yytext), 
+{bad_dot}             { Errors.Add(SourceUnit, string.Format("bad dot|{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_id}             { Errors.Add(SourceUnit, string.Format("bad identifier:{0}", yytext), 
+{bad_id}             { Errors.Add(SourceUnit, string.Format("bad identifier|{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_atoms}          { Errors.Add(SourceUnit, string.Format("bad boolean:{0}", yytext), 
+{bad_atoms}          { Errors.Add(SourceUnit, string.Format("bad boolean|{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_number}          { Errors.Add(SourceUnit, string.Format("bad number:{0}", yytext), 
+{bad_number}          { Errors.Add(SourceUnit, string.Format("bad number|{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_char}            { Errors.Add(SourceUnit, string.Format("bad char:{0}", yytext), 
+{bad_char}            { Errors.Add(SourceUnit, string.Format("bad char|{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 
-.                     { Errors.Add(SourceUnit, string.Format("bad input:{0}", yytext), 
+.                     { Errors.Add(SourceUnit, string.Format("bad input|{0}", yytext), 
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 
 
