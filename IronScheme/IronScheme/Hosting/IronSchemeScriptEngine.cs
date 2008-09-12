@@ -171,13 +171,13 @@ namespace IronScheme.Hosting
         else
         if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
         {
-          LexicalError(message);
+          LexicalError(message + "|" + sourceUnit.ToString());
         }
       }
 
       static void LexicalError(string message)
       {
-        string[] tokens = message.Split(':');
+        string[] tokens = message.Split('|');
         if (tokens.Length == 2)
         {
           Builtins.LexicalError(tokens[0], tokens[1]);

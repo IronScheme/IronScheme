@@ -45,7 +45,8 @@
 		              (car body)
 		              (let-values ([(attrs children) (partition attribute? body)])
 		                (if (null? children)
-		                  (format "<~a~a />\n" 
+		                  (format "~a<~a~a />\n"
+		                    indent-str 
 		                    tag
 		                    (string-map ->xml attrs i))
 		                  (if (complex? x) 

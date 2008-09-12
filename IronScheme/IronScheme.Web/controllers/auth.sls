@@ -12,6 +12,7 @@
     [(get) 
       (view-login)]
     [(post username password)
+      ; no auth check yet  ;P
       (forms-authentication-login username)
       (redirect (or (querystring "returnUrl") "blog"))])
     
