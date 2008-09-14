@@ -315,11 +315,32 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
     }
 
-    [Builtin("get-arity")]
-    public static object GetArity(object proc)
+    [Builtin("procedure-arity")]
+    public static object ProcArity(object proc)
     {
       ICallable c = RequiresNotNull<ICallable>(proc);
       return c.Arity;
+    }
+
+    [Builtin("procedure-form")]
+    public static object ProcForm(object proc)
+    {
+      ICallable c = RequiresNotNull<ICallable>(proc);
+      return FALSE;
+    }
+
+    [Builtin("procedure-name")]
+    public static object ProcName(object proc)
+    {
+      ICallable c = RequiresNotNull<ICallable>(proc);
+      return SymbolTable.StringToId(c.ToString());
+    }
+
+    [Builtin("procedure-environment")]
+    public static object ProcEnv(object proc)
+    {
+      ICallable c = RequiresNotNull<ICallable>(proc);
+      return FALSE;
     }
 
     [Builtin("make-traced-procedure")]

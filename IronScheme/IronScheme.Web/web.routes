@@ -1,7 +1,7 @@
 ﻿
 ; this is the only needed route for now, the rest are defaults
 
-[("calender" (year "\\d{4}") (month "[12]?\\d"))
+[("calender" (year "\\d{4}") (month "[01]?\\d"))
   (begin
     (context-item-set! 'year year)
     (context-item-set! 'month month)

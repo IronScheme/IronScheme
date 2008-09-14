@@ -32,42 +32,41 @@
   (psyntax expander)
   (only (ironscheme) time-it)
   )
-
-
+  
 (define scheme-library-files
   '(
-    "ironscheme/base.ss"
-    "ironscheme/hashtables.ss"
-    "ironscheme/files.ss"
-    "ironscheme/lists.ss"
-    "ironscheme/bytevectors.ss"
-    "ironscheme/control.ss"
+    "build/lists.ss"
+    "build/base.ss"
+    "build/hashtables.ss"
+    "build/files.ss"
+    "build/bytevectors.ss"
+    "build/control.ss"
     
-    "ironscheme/eval.ss"
-    "ironscheme/exceptions.ss"
-    "ironscheme/conditions.ss"
-    "ironscheme/mutable-pairs.ss"
-    "ironscheme/mutable-strings.ss"
-    "ironscheme/programs.ss"
-    "ironscheme/r5rs.ss"
-    "ironscheme/sorting.ss"
-    "ironscheme/syntax-case.ss"
-    "ironscheme/unicode.ss"
-    "ironscheme/arithmetic/bitwise.ss"
-    "ironscheme/arithmetic/fixnums.ss"
-    "ironscheme/arithmetic/flonums.ss"
-    "ironscheme/io/conditions.ss"
-    "ironscheme/io/ports.ss"
-    "ironscheme/io/simple.ss"
-    "ironscheme/records/inspection.ss"
-    "ironscheme/records/procedural.ss"
-    "ironscheme/records/syntactic.ss"
+    "build/eval.ss"
+    "build/exceptions.ss"
+    "build/conditions.ss"
+    "build/mutable-pairs.ss"
+    "build/mutable-strings.ss"
+    "build/programs.ss"
+    "build/r5rs.ss"
+    "build/sorting.ss"
+    "build/syntax-case.ss"
+    "build/unicode.ss"
+    "build/arithmetic/bitwise.ss"
+    "build/arithmetic/fixnums.ss"
+    "build/arithmetic/flonums.ss"
+    "build/io/conditions.ss"
+    "build/io/ports.ss"
+    "build/io/simple.ss"
+    "build/records/inspection.ss"
+    "build/records/procedural.ss"
+    "build/records/syntactic.ss"
     
     ; depends on records - hashtables - bitwise
-    "ironscheme/enums.ss"
+    "build/enums.ss"
     
-    "ironscheme/format.ss"
-    "ironscheme/trace.ss"
+    "build/format.ss"
+    "build/trace.ss"
     
     "psyntax/compat.ss"
     "psyntax/internal.ss"
@@ -255,11 +254,8 @@
     ;;;
     (import                                     i) 
     (library                                    i) 
-    ;(expand                                     i) ; for debugging
     (include                                    i)
     (include-into                               i)
-    ;(installed-libraries                        i)
-    ;(library-extensions                         i)
     (library-path                               i)
     (optimization-level                         i)
     (interaction-environment-symbols            i)
@@ -298,7 +294,10 @@
     (get-clr-type                               i)
     (clr-type?                                  i)
     (gc-collect                                 i)
-    (get-arity                                  i)
+    (procedure-arity                            i)
+    (procedure-name                             i)
+    (procedure-environment                      i)
+    (procedure-form                             i)
     (format                                     i ic)
     (fprintf                                    i)
     (printf                                     i)

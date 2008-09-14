@@ -24,40 +24,50 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 {
   static class FlonumsInlineEmitters
   {
-    static void Expect(Expression[] args, int count)
+    static bool Expect(Expression[] args, int count)
     {
-      if (args.Length != count)
-      {
-        Builtins.SyntaxError(SymbolTable.StringToId("generator"), "Expected " + count + " arguments. Got " + args.Length + " arguments.", false, false);
-      }
+      return args.Length == count &&
+        Array.TrueForAll(args, delegate(Expression e) { return e.Type == typeof(object) || e.Type == typeof(double); });
     }
 
     [InlineEmitter("flonum?")]
     public static Expression IsFlonum(params Expression[] args)
     {
-      Expect(args, 1);
-      return Ast.TypeIs(Unwrap(args[0]), typeof(double));
+      if (Expect(args, 1))
+      {
+        return Ast.TypeIs(Unwrap(args[0]), typeof(double));
+      }
+      return null;
     }
 
     [InlineEmitter("flonum-width")]
     public static Expression FlonumWidth(params Expression[] args)
     {
-      Expect(args, 0);
-      return Ast.Constant(64);
+      if (Expect(args, 0))
+      {
+        return Ast.Constant(64);
+      }
+      return null;
     }
 
     [InlineEmitter("greatest-flonum")]
     public static Expression GreatestFlonum(params Expression[] args)
     {
-      Expect(args, 0);
-      return Ast.Constant(double.MaxValue);
+      if (Expect(args, 0))
+      {
+        return Ast.Constant(double.MaxValue);
+      }
+      return null;
     }
 
     [InlineEmitter("least-flonum")]
     public static Expression LeastFlonum(params Expression[] args)
     {
-      Expect(args, 0);
-      return Ast.Constant(double.MinValue);
+      if (Expect(args, 0))
+      {
+        return Ast.Constant(double.MinValue);
+      }
+      return null;
     }
 
  
@@ -241,7 +251,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object FlIsOdd(object a)
     {
       double x1 = RequiresNotNull<double>(a);
-      return GetBool(x1 % 2 != 0.0);
+      return GetBool(Math.Abs(x1 % 2) == 1.0);
     }
 
     [Builtin("fleven?")]
