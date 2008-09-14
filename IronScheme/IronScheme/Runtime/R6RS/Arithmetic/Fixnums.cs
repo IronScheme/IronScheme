@@ -26,40 +26,50 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 {
   static class FixnumsInlineEmitters
   {
-    static void Expect(Expression[] args, int count)
+    static bool Expect(Expression[] args, int count)
     {
-      if (args.Length != count)
-      {
-        Builtins.SyntaxError("expect", "expected " + count + " arguments. got " + args.Length + " arguments.", args, false);
-      }
+      return args.Length == count &&
+        Array.TrueForAll(args, delegate(Expression e) { return e.Type == typeof(object) || e.Type == typeof(int); });
     }
 
     [InlineEmitter("fixnum?")]
     public static Expression IsFixnum(params Expression[] args)
     {
-      Expect(args, 1);
-      return Ast.TypeIs(Unwrap(args[0]), typeof(int));
+      if (Expect(args, 1))
+      {
+        return Ast.TypeIs(Unwrap(args[0]), typeof(int));
+      }
+      return null;
     }
 
     [InlineEmitter("fixnum-width")]
     public static Expression FixnumWidth(params Expression[] args)
     {
-      Expect(args, 0);
-      return Ast.Constant(32);
+      if (Expect(args, 0))
+      {
+        return Ast.Constant(32);
+      }
+      return null;
     }
 
     [InlineEmitter("greatest-fixnum")]
     public static Expression GreatestFixnum(params Expression[] args)
     {
-      Expect(args, 0);
-      return Ast.Constant(int.MaxValue);
+      if (Expect(args, 0))
+      {
+        return Ast.Constant(int.MaxValue);
+      }
+      return null;
     }
 
     [InlineEmitter("least-fixnum")]
     public static Expression LeastFixnum(params Expression[] args)
     {
-      Expect(args, 0);
-      return Ast.Constant(int.MinValue);
+      if (Expect(args, 0))
+      {
+        return Ast.Constant(int.MinValue);
+      }
+      return null;
     }
 
     [InlineEmitter("fx=?")]
@@ -70,23 +80,32 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         return null;
       }
 
-      Expect(args, 2);
-      return Ast.Equal(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      if (Expect(args, 2))
+      {
+        return Ast.Equal(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
     }
 
     // cant deal effectively with .NET exceptions :(, dont care...
     [InlineEmitter("fx+", Optimization = OptimizationLevel.Safe)]
     public static Expression FxAddChecked(params Expression[] args)
     {
-      Expect(args, 2);
-      return Ast.AddChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      if (Expect(args, 2))
+      {
+        return Ast.AddChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
     }
 
     [InlineEmitter("fx*", Optimization = OptimizationLevel.Safe)]
     public static Expression FxMultiplyChecked(params Expression[] args)
     {
-      Expect(args, 2);
-      return Ast.MultiplyChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      if (Expect(args, 2))
+      {
+        return Ast.MultiplyChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
     }
 
     [InlineEmitter("fx-", Optimization = OptimizationLevel.Safe)]
@@ -98,23 +117,32 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       else
       {
-        Expect(args, 2);
-        return Ast.SubtractChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        if (Expect(args, 2))
+        {
+          return Ast.SubtractChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        }
+        return null;
       }
     }
 
     [InlineEmitter("fx+", Optimization = OptimizationLevel.Unchecked)]
     public static Expression FxAdd(params Expression[] args)
     {
-      Expect(args, 2);
-      return Ast.Add(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      if (Expect(args, 2))
+      {
+        return Ast.Add(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
     }
 
     [InlineEmitter("fx*", Optimization = OptimizationLevel.Unchecked)]
     public static Expression FxMultiply(params Expression[] args)
     {
-      Expect(args, 2);
-      return Ast.Multiply(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      if (Expect(args, 2))
+      {
+        return Ast.Multiply(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
     }
 
     [InlineEmitter("fx-", Optimization = OptimizationLevel.Unchecked)]
@@ -126,16 +154,22 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       else
       {
-        Expect(args, 2);
-        return Ast.Subtract(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        if (Expect(args, 2))
+        {
+          return Ast.Subtract(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        }
+        return null;
       }
     }
 
     [InlineEmitter("fxnot", Optimization = OptimizationLevel.Unchecked)]
     public static Expression FxNot(params Expression[] args)
     {
-      Expect(args, 1);
-      return Ast.Not(UnwrapAndCast<int>(args[0]));
+      if (Expect(args, 1))
+      {
+        return Ast.Not(UnwrapAndCast<int>(args[0]));
+      }
+      return null;
     }
 
 

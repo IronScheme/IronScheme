@@ -193,6 +193,7 @@ SectionIn 1 2 RO
 	
 	File "system-libraries.ss"
 	File "init.ss"
+	File "run-tests.bat"
 	
 	File "ironscheme-buildscript.ss"
 
@@ -206,14 +207,11 @@ SectionIn 1 2 RO
 	SetOutPath "$INSTDIR\lib"
 	File /r lib\*.ss
 	
+	SetOutPath "$INSTDIR\build"
+	File /r build\*.ss
+	
 	SetOutPath "$INSTDIR\psyntax"
-	File psyntax\builders.ss
-	File psyntax\compat.ss
-	File psyntax\config.ss
-	File psyntax\expander.ss
-	File psyntax\internal.ss
-	File psyntax\library-manager.ss
-	File psyntax\main.ss
+	File psyntax\*.ss
 	
 	SetOutPath "$INSTDIR\srfi"
 	File /r srfi\*.ss
@@ -237,7 +235,8 @@ SectionIn 1 2 RO
 	SetOutPath "$INSTDIR\websample\styles"
 	File /r ..\..\..\IronScheme.Web\styles\*.css
 	
-	;File /r tests\*.*
+	SetOutPath "$INSTDIR\tests"
+	File /r tests\*.*
 	
 SectionEnd
 

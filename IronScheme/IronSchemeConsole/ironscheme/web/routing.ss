@@ -34,8 +34,7 @@
         (begin
           (context-item-set! 'controller c)
           (context-item-set! 'action a)
-          (ca))
-        (display-html (format "No controller/action for ~a:~a" c a)))))
+          (ca)))))
         
   (define-syntax include-routes
     (lambda (x)

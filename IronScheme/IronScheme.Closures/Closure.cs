@@ -69,7 +69,7 @@ namespace IronScheme.Runtime
       return name.Substring(0, i);
     }
 
-    public virtual int Arity
+    public virtual object Arity
     {
       get { return paramcount; }
     }
@@ -119,9 +119,21 @@ namespace IronScheme.Runtime
     {
     }
 
+    static bool IsValidParams(MethodInfo mi)
+    {
+      foreach (ParameterInfo pi in mi.GetParameters())
+      {
+        if (pi.ParameterType.IsArray && !pi.IsDefined(typeof(ParamArrayAttribute), false))
+        {
+          return false;
+        }
+      }
+      return true;
+    }
+
     protected static bool IsValid(MethodInfo mi)
     {
-      return mi.IsStatic && !mi.Name.Contains("#");
+      return mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi);
     }
 
     Closure(Delegate target, int paramcount)
@@ -402,14 +414,14 @@ namespace IronScheme.Runtime
         realtarget = Make(cc, target);
       }
 
-      public override int Arity
+      public override object Arity
       {
-        get { return pcount - 1; }
+        get { return (double)( pcount - 1); }
       }
 
       public override object Call(object[] args)
       {
-        if (args.Length < Arity)
+        if (args.Length < (double)Arity)
         {
           AssertionViolation(realtarget.ToString(), string.Format("invalid argument count, expected at least {0} got {1}", Arity, args.Length), args);
         }
@@ -464,16 +476,16 @@ namespace IronScheme.Runtime
         }
       }
 
-      public override int Arity
+      public override object Arity
       {
         get 
         {
-          int a = int.MaxValue;
+          List<object> arities = new List<object>();
           foreach (ICallable c in targets)
           {
-            a = Math.Min(c.Arity, a);
+            arities.Add(c.Arity);
           }
-          return a;
+          return ConsFromArray(arities.ToArray());
         }
       }
 

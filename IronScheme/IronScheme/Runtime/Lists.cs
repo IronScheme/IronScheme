@@ -29,12 +29,20 @@ namespace IronScheme.Runtime
     [InlineEmitter("null?")]
     public static Expression IsNull(Expression[] values)
     {
+      if (values.Length != 1)
+      {
+        return null;
+      }
       return Ast.Equal(values[0], Ast.Null());
     }
     
     [InlineEmitter("pair?")]
     public static Expression IsPair(Expression[] values)
     {
+      if (values.Length != 1)
+      {
+        return null;
+      }
       return Ast.TypeIs(values[0], typeof(Cons));
     }
 
@@ -44,13 +52,33 @@ namespace IronScheme.Runtime
     [InlineEmitter("car", Optimization=OptimizationLevel.Safe)]
     public static Expression Car(Expression[] values)
     {
-      return Ast.ReadField(Ast.ConvertHelper(values[0], typeof(Cons)), car);
+      return ConsAccessor(values, car);
     }
 
     [InlineEmitter("cdr", Optimization = OptimizationLevel.Safe)]
     public static Expression Cdr(Expression[] values)
     {
-      return Ast.ReadField(Ast.ConvertHelper(values[0], typeof(Cons)), cdr);
+      return ConsAccessor(values, cdr);
+    }
+
+    static Expression ConsAccessor(Expression[] values, FieldInfo field)
+    {
+      if (values.Length != 1)
+      {
+        return null;
+      }
+      Expression e = values[0];
+      ConstantExpression c = e as ConstantExpression;
+      if (c != null && c.Value == null)
+      {
+        return null;
+      }
+
+      if (e.Type != typeof(object) && e.Type != typeof(Cons))
+      {
+        return null;
+      }
+      return Ast.ReadField(Ast.ConvertHelper(e, typeof(Cons)), field);
     }
 
     static ConstructorInfo cons = typeof(Cons).GetConstructor(new Type[] { typeof(object), typeof(object) });
@@ -86,12 +114,7 @@ namespace IronScheme.Runtime
 - reverse
 - list-tail
 - list-ref
-- memq
-- memv
-- member
-- assq
-- assv
-- assoc     
+     
      */
 
 
@@ -241,58 +264,6 @@ namespace IronScheme.Runtime
       return VectorToList(MakeVector(n, fill));
     }
 
-    [Builtin]
-    public static object Assq(object obj, object list)
-    {
-      Cons e = Requires<Runtime.Cons>(list);
-
-      while (e != null)
-      {
-        Cons ass = RequiresNotNull<Cons>(e.car);
-        if (IsTrue(IsEqual(obj, ass.car)))
-        {
-          return ass;
-        }
-        e = e.cdr as Cons;
-      }
-      return FALSE;
-    }
-
-    [Builtin]
-    public static object Memq(object obj, object list)
-    {
-      Cons c = Requires<Runtime.Cons>(list);
-
-      while (c != null)
-      {
-        if (IsTrue(IsEqual(c.car, obj)))
-        {
-          return c;
-        }
-        c = c.cdr as Cons;
-      }
-
-      return FALSE;
-    }
-
-    [Builtin]
-    public static object Memv(object obj, object list)
-    {
-      Cons c = Requires<Runtime.Cons>(list);
-
-      while (c != null)
-      {
-        if (IsTrue(IsEqualValue(c.car, obj)))
-        {
-          return c;
-        }
-        c = c.cdr as Cons;
-      }
-
-      return FALSE;
-    }
-
-
     [Builtin("set-car!")]
     public static object SetCar(object list, object value)
     {
@@ -315,7 +286,6 @@ namespace IronScheme.Runtime
       Cons c = RequiresNotNull<Runtime.Cons>(args);
       return c.cdr;
     }
-
 
     [Builtin]
     public static object Car(object args)

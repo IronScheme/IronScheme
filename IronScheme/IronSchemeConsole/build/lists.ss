@@ -45,12 +45,12 @@
       remv
       remq
       remp
-      ;assq
+      assq
       assv
       assp
       assoc
-      ;memq
-      ;memv
+      memq
+      memv
       member
       memp))
       
@@ -89,12 +89,15 @@
             (f (cdr l) (cons e a))
             (f (cdr l) a))))))            
   
-  ;; excluded for performance reasons    
-  #;(define (assq obj lst)
-    (if (null? lst) #f
-      (let ((t (car lst)))
-        (if (eq? obj (car t)) t
-          (assq obj (cdr lst))))))
+  (define (assq obj lst)
+    (if (null? lst) 
+      #f
+      (let ((obj obj)
+            (t (car lst)) 
+            (r (cdr lst)))
+        (if (eq? obj (car t)) 
+          t
+          (assq obj r)))))
             
   (define (assv obj lst)
     (if (null? lst) #f
@@ -114,16 +117,18 @@
         (if (p? (car c)) c
           (assp p? (cdr lst))))))
   
-  ;; excluded for performance reasons    
-  #;(define (memq obj lst)
-    (if (null? lst) #f
-      (if (eq? obj (car lst)) lst
+  (define (memq obj lst)
+    (if (null? lst) 
+      #f
+      (if (eq? obj (car lst)) 
+        lst
         (memq obj (cdr lst)))))
 
-  ;; excluded for performance reasons
-  #;(define (memv obj lst)
-    (if (null? lst) #f
-      (if (eqv? obj (car lst)) lst
+  (define (memv obj lst)
+    (if (null? lst) 
+      #f
+      (if (eqv? obj (car lst)) 
+        lst
         (memv obj (cdr lst)))))
 
   (define (member obj lst)

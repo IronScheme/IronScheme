@@ -141,7 +141,7 @@ namespace IronScheme.Hosting
               e.Set();
             }
             //good for now
-          }, 1500000);
+          }, 5000000);
 
         t.Start();
 

@@ -264,7 +264,7 @@ namespace IronScheme.Compiler
               {
                 // check for inline emitter
                 InlineEmitter ie;
-                if (inlineemitters.TryGetValue(f, out ie))
+                if (TryGetInlineEmitter(f, out ie))
                 {
                   Expression result = ie(GetAstList(c.cdr as Cons, cb));
                   // if null is returned, the method cannot be inlined
@@ -295,7 +295,7 @@ namespace IronScheme.Compiler
                 }
               }
               Closure clos = m as Closure;
-              if (clos != null && false)
+              if (clos != null)
               {
                 // no provision for varargs
                 MethodInfo[] mis = clos.Targets;
@@ -389,6 +389,21 @@ namespace IronScheme.Compiler
         }
         return Ast.Constant(args);
       }
+    }
+
+    static bool TryGetInlineEmitter(SymbolId f, out InlineEmitter ie)
+    {
+      ie = null;
+      OptimizationLevel o = Optimization;
+      while (o >= 0)
+      {
+        if (inlineemitters[o].TryGetValue(f, out ie))
+        {
+          return true;
+        }
+        o--;
+      }
+      return false;
     }
 
     protected static Expression CallNormal(CodeBlockExpression cbe, params Expression[] ppp)

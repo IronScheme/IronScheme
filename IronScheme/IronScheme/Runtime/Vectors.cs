@@ -28,7 +28,11 @@ namespace IronScheme.Runtime
     [InlineEmitter("vector?")]
     public static Expression IsVector(Expression[] values)
     {
-      return Ast.TypeIs(values[0], typeof(object[]));
+      if (values.Length == 1)
+      {
+        return Ast.TypeIs(values[0], typeof(object[]));
+      }
+      return null;
     }
 
     [InlineEmitter("vector")]
@@ -40,13 +44,21 @@ namespace IronScheme.Runtime
     [InlineEmitter("vector-ref")]
     public static Expression VectorRef(Expression[] values)
     {
-      return Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)));
+      if (values.Length == 2)
+      {
+        return Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)));
+      }
+      return null;
     }
 
     [InlineEmitter("vector-set!")]
     public static Expression VectorSet(Expression[] values)
     {
-      return Ast.AssignArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)), values[2]);
+      if (values.Length == 3)
+      {
+        return Ast.AssignArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)), values[2]);
+      }
+      return null;
     }
 
   }
@@ -275,7 +287,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector-copy")]
-    public static object[] VectorCopy(object vector)
+    public static object VectorCopy(object vector)
     {
       Array v = RequiresNotNull<Array>(vector);
       return v.Clone() as object[];
@@ -290,7 +302,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector-filter")]
-    public static object[] VectorFilter(object proc, object vector)
+    public static object VectorFilter(object proc, object vector)
     {
       ICallable p = RequiresNotNull<ICallable>(proc);
       object[] v = Requires<object[]>(vector);

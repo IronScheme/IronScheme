@@ -25,24 +25,37 @@ namespace IronScheme.Runtime
       get { return name; }
     }
 
-    int ICallable.Arity
+    object ICallable.Arity
     {
       get
       {
-        int a = int.MaxValue;
+        List<object> arities = new List<object>();
 
         foreach (MethodBase m in methods)
         {
-          
           ParameterInfo[] pis = m.GetParameters();
           int pc = pis.Length;
           if (pis.Length > 0 && pis[0].ParameterType == typeof(CodeContext))
           {
             pc--;
           }
-          a = Math.Min(pc, a);
+          if (pis.Length > 0 && pis[pis.Length - 1].IsDefined(typeof(ParamArrayAttribute), false))
+          {
+            arities.Add((double)(pc - 1));
+          }
+          else
+          {
+            arities.Add(pc);
+          }
         }
-        return a;
+        if (arities.Count == 1)
+        {
+          return arities[0];
+        }
+        else
+        {
+          return Closure.ConsFromArray(arities.ToArray());
+        }
       }
     }
 
