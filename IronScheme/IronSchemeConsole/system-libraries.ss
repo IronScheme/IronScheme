@@ -53,5 +53,8 @@
   #f)
 
 
-
+(let () 
+  (import 
+    (ikarus))
+  #f)
 
