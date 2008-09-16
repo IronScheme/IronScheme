@@ -85,6 +85,7 @@
     (begin               (begin))
     (library             (library))
     (import              (import))
+    (export              (export))
     (set!                (set!))
     (let-syntax          (let-syntax))
     (letrec-syntax       (letrec-syntax))
@@ -253,6 +254,8 @@
   '(
     ;;;
     (import                                     i) 
+    (export                                     i)
+    ;(rename                                     i)
     (library                                    i) 
     (include                                    i)
     (include-into                               i)

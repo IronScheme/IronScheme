@@ -141,6 +141,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="ikarus.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\files.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
