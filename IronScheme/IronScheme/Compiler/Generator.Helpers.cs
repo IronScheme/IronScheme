@@ -487,7 +487,7 @@ namespace IronScheme.Compiler
       return Ast.NewArray(typeof(object[]), e.ToArray());
     }
 
-    static Expression GetConsList(Cons c, CodeBlock cb)
+    public static Expression GetConsList(Cons c, CodeBlock cb)
     {
       List<int> splices = new List<int>();
       List<Expression> e = new List<Expression>();

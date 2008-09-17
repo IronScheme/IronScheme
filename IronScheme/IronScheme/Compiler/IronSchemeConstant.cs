@@ -5,26 +5,27 @@ using Microsoft.Scripting.Generation;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection.Emit;
 using System.IO;
+using Microsoft.Scripting.Ast;
+using IronScheme.Runtime;
 
 namespace IronScheme.Compiler
 {
   sealed class IronSchemeConstant : CompilerConstant
   {
     readonly object value;
+    readonly CodeBlock cb;
     static int constantcounter = 0;
 
-    public IronSchemeConstant(object value)
+    public IronSchemeConstant(object value, CodeBlock cb)
     {
       this.value = value;
+      this.cb = cb;
     }
 
     public override Type Type
     {
       get { return value.GetType(); }
     }
-
-
-    static long totallength = 0;
 
     public override void EmitCreation(CodeGen cg)
     {
@@ -35,19 +36,15 @@ namespace IronScheme.Compiler
       else
       {
         ModuleBuilder mb = cg.TypeGen.TypeBuilder.Module as ModuleBuilder;
+        CodeGen init = cg.TypeGen.TypeInitializer;
 
-        //FieldSlot s = cg.TypeGen.AddStaticField(typeof(object), "s11n:" + constantcounter) as FieldSlot;
+        Slot s = cg.TypeGen.AddStaticField(typeof(object), "s11n:" + constantcounter);
+        
+        Expression e = Generator.GetConsList(value as Cons, cb);
+        e.Emit(init);
+        s.EmitSet(init);
 
-        MemoryStream s = new MemoryStream();
-
-        bf.Serialize(s, value);
-        s.Position = 0;
-        totallength += s.Length;
-        mb.DefineManifestResource("s11n:" + constantcounter, s, System.Reflection.ResourceAttributes.Public);
-
-        cg.EmitType(cg.TypeGen.TypeBuilder);
-        cg.EmitString("s11n:" + constantcounter);
-        cg.EmitCall(typeof(Runtime.Helpers).GetMethod("GetConstant"));
+        s.EmitGet(cg);
 
         constantcounter++;
       }
