@@ -1,5 +1,4 @@
 (library (ironscheme hashtables)
-
   (export
     make-eq-hashtable
     make-eqv-hashtable

@@ -1,4 +1,4 @@
-(library (ironscheme eval (6))
+(library (ironscheme eval)
   (export
     eval
     environment)
