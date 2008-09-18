@@ -38,7 +38,7 @@ namespace IronScheme.Compiler
         ModuleBuilder mb = cg.TypeGen.TypeBuilder.Module as ModuleBuilder;
         CodeGen init = cg.TypeGen.TypeInitializer;
 
-        Slot s = cg.TypeGen.AddStaticField(typeof(object), "s11n:" + constantcounter);
+        Slot s = cg.TypeGen.AddStaticField(typeof(object), string.Format("$c${0:X4}", constantcounter++));
         
         Expression e = Generator.GetConsList(value as Cons, cb);
         e.Emit(init);
@@ -46,7 +46,7 @@ namespace IronScheme.Compiler
 
         s.EmitGet(cg);
 
-        constantcounter++;
+
       }
     }
 
