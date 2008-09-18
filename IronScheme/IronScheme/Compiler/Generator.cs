@@ -56,11 +56,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-        if (!IsSimpleCons(c))
-        {
-          return Ast.Constant(new IronSchemeConstant(c, cb));
-        }
-        return GetConsList(c, cb);
+        return Ast.Constant(new IronSchemeConstant(c, cb));
       }
       object[] v = args as object[];
       if (v != null)
