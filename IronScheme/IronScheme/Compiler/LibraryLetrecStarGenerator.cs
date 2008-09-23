@@ -80,7 +80,7 @@ namespace IronScheme.Compiler
           object pars = ((Cons)((Cons)cl.cdr).car).car;
 
           // cant handle overloads (case-lambda with 2 or more bodies)
-          if (((Cons)cl.cdr).cdr == null && pars is Cons)
+          if (((Cons)cl.cdr).cdr == null)
           {
             Cons b = ((Cons)((Cons)cl.cdr).car).cdr as Cons;
             ((Cons)((Cons)cl.cdr).car).cdr = new Cons(Builtins.FALSE);
@@ -89,20 +89,20 @@ namespace IronScheme.Compiler
           }
           else
           {
-            //List<Cons> cbs = new List<Cons>();
+            List<Cons> cbs = new List<Cons>();
 
-            //Cons cc = cl.cdr as Cons;
+            Cons cc = cl.cdr as Cons;
 
-            //while (cc != null)
-            //{
-            //  Cons b = ((Cons)cc.car).cdr as Cons;
-            //  ((Cons)cc.car).cdr = new Cons(Builtins.FALSE);
-            //  cbs.Add(b);
-            //  cc = cc.cdr as Cons;
-            //}
+            while (cc != null)
+            {
+              Cons b = ((Cons)cc.car).cdr as Cons;
+              ((Cons)cc.car).cdr = new Cons(Builtins.FALSE);
+              cbs.Add(b);
+              cc = cc.cdr as Cons;
+            }
 
-            //bodies.Add(cbs);
-            bodies.Add(null);
+            bodies.Add(cbs);
+            //bodies.Add(null);
           }
         }
         else
@@ -178,18 +178,18 @@ namespace IronScheme.Compiler
 
             FillBody(cbody, new List<Statement>(), b, true);
           }
-          //else if (libraryglobalsN.TryGetValue(locals[i].Name, out cbds))
-          //{
-          //  List<Cons> b = bodies[i] as List<Cons>;
+          else if (libraryglobalsN.TryGetValue(locals[i].Name, out cbds))
+          {
+            List<Cons> b = bodies[i] as List<Cons>;
 
-          //  for (int j = 0; j < b.Count; j++)
-          //  {
-          //    CodeBlock cbody = cbds[j].codeblock.Block;
-          //    cbody.Body = null;
+            for (int j = 0; j < b.Count; j++)
+            {
+              CodeBlock cbody = cbds[j].codeblock.Block;
+              cbody.Body = null;
 
-          //    FillBody(cbody, new List<Statement>(), b[j], true);
-          //  }
-          //}
+              FillBody(cbody, new List<Statement>(), b[j], true);
+            }
+          }
         }
 
         stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(vars[i]), Ast.Assign(locals[i], e))));
