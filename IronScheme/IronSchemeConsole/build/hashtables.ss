@@ -30,12 +30,12 @@
   
   (define make-eq-hashtable
     (case-lambda
-      [()   (clr-new hashtable)]
+      [()   (make-eq-hashtable 32)]
       [(k)  (clr-new hashtable (clr-cast int32 k))]))
     
   (define make-eqv-hashtable
     (case-lambda
-      [()   (make-hashtable eqv-hash eqv?)]
+      [()   (make-eqv-hashtable 32)]
       [(k)  (make-hashtable eqv-hash eqv? k)]))
   
   (define (hashtable-size ht)
@@ -63,7 +63,7 @@
 
   (define hashtable-clear!
     (case-lambda 
-      ((ht)     (clr-call hashtable clear ht))
+      ((ht)     (hashtable-clear! ht 32))
       ((ht k)   (clr-call hashtable clear ht))))
     
   
