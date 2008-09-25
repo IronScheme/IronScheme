@@ -44,6 +44,7 @@
   (import 
     (srfi lists)
     (srfi streams)
+    (srfi system)
     (srfi land)
     (srfi and-let)
     (srfi string-ports)

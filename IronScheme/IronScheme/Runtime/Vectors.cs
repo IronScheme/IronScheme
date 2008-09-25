@@ -41,7 +41,7 @@ namespace IronScheme.Runtime
       return Ast.NewArray(typeof(object[]), values);
     }
 
-    [InlineEmitter("vector-ref")]
+    [InlineEmitter("vector-ref", Optimization=OptimizationLevel.Safe)]
     public static Expression VectorRef(Expression[] values)
     {
       if (values.Length == 2)
@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       return null;
     }
 
-    [InlineEmitter("vector-set!")]
+    [InlineEmitter("vector-set!", Optimization = OptimizationLevel.Safe)]
     public static Expression VectorSet(Expression[] values)
     {
       if (values.Length == 3)
@@ -178,10 +178,13 @@ namespace IronScheme.Runtime
 
       if (e != null)
       {
-        RequiresCondition(e.IsProper, "must be a properlist");
         while (e != null)
         {
           v.Add(e.car);
+          if (e.cdr != null && !(e.cdr is Cons))
+          {
+            return AssertionViolation("list->vector", "not a proper list", list);
+          }
           e = e.cdr as Cons;
         }
       }

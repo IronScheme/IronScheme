@@ -139,7 +139,7 @@ namespace IronScheme.Runtime
 
           if (!File.Exists(path))
           {
-            return FileNotFoundViolation("load", "file not found", filename);
+            return FileNotFoundViolation("load", "file not found", path);
           }
 
           SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
@@ -924,23 +924,21 @@ namespace IronScheme.Runtime
     {
       return currenterrorport;
     }
-
-
-
+    
     static string GetPath(string filename)
     {
       if (filename.StartsWith("~"))
       {
         if (ApplicationDirectory != Environment.CurrentDirectory)
         {
-          return Path.Combine(ApplicationDirectory, filename.Substring(2));
+          filename = Path.Combine(ApplicationDirectory, filename.Substring(2));
         }
         else
         {
-          return filename.Substring(2);
+          filename = filename.Substring(2);
         }
       }
-      return filename;
+      return filename.Replace("file:", "");
     }
     
     [Builtin("open-input-file")]

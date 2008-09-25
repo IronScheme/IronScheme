@@ -1,9 +1,12 @@
 (library (ironscheme xml)
   (export
-    ->xml)
+    ->xml
+    string->xml)
   (import 
     (ironscheme)
     (ironscheme web-utils))
+    
+  (define string->xml (symbol-value 'string->xml))    
 
 	(define ->xml
 		(letrec 

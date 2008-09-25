@@ -29,11 +29,8 @@ namespace IronScheme.Compiler
   {
     static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
 
-    int level = 0;
     public override Expression Generate(object args, CodeBlock c)
     {
-      level++;
-
       Cons name = (args as Cons).car as Cons;
 
       string[] fullname = Array.ConvertAll<object, string>((object[])Builtins.ListToVector(name), Builtins.SymbolToString);
@@ -77,32 +74,36 @@ namespace IronScheme.Compiler
         {
           Cons cl = defs[i] as Cons;
 
-          object pars = ((Cons)((Cons)cl.cdr).car).car;
-
-          // cant handle overloads (case-lambda with 2 or more bodies)
-          if (((Cons)cl.cdr).cdr == null)
+          if (cl.cdr != null)
           {
-            Cons b = ((Cons)((Cons)cl.cdr).car).cdr as Cons;
-            ((Cons)((Cons)cl.cdr).car).cdr = new Cons(Builtins.FALSE);
+            // cant handle overloads (case-lambda with 2 or more bodies)
+            if (((Cons)cl.cdr).cdr == null)
+            {
+              Cons b = ((Cons)((Cons)cl.cdr).car).cdr as Cons;
+              ((Cons)((Cons)cl.cdr).car).cdr = new Cons(Builtins.FALSE);
 
-            bodies.Add(b);
+              bodies.Add(b);
+            }
+            else
+            {
+              List<Cons> cbs = new List<Cons>();
+
+              Cons cc = cl.cdr as Cons;
+
+              while (cc != null)
+              {
+                Cons b = ((Cons)cc.car).cdr as Cons;
+                ((Cons)cc.car).cdr = new Cons(Builtins.FALSE);
+                cbs.Add(b);
+                cc = cc.cdr as Cons;
+              }
+
+              bodies.Add(cbs);
+            }
           }
           else
           {
-            List<Cons> cbs = new List<Cons>();
-
-            Cons cc = cl.cdr as Cons;
-
-            while (cc != null)
-            {
-              Cons b = ((Cons)cc.car).cdr as Cons;
-              ((Cons)cc.car).cdr = new Cons(Builtins.FALSE);
-              cbs.Add(b);
-              cc = cc.cdr as Cons;
-            }
-
-            bodies.Add(cbs);
-            //bodies.Add(null);
+            bodies.Add(null);
           }
         }
         else
@@ -221,8 +222,6 @@ namespace IronScheme.Compiler
       cb.ExplicitCodeContextExpression = Ast.CodeContext();
 
       Expression ex = CallNormal(Ast.CodeBlockExpression(cb, false));
-
-      level--;
       return ex;
     }
 

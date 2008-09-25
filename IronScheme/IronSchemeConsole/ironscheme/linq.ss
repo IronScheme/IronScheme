@@ -203,7 +203,7 @@ References:
   (define (get-list obj)
     (cond
       [(null? obj)     '()]
-      [(list? obj)     obj]
+      [(pair? obj)     obj]
       [(grouping? obj) (grouping-values obj)]
       [else
         (assertion-violation 'get-list "not supported" obj)]))
@@ -564,12 +564,13 @@ select d
       (f (- e 1) (cons e o)))))
         
         
-(define pe1 ( from x in (range 0 1000)
-              where (or (= (mod x 5) 0) (= (mod x 3) 0))
-              select x))
+(define pe1 (delay 
+             ( from x in (range 0 100000)
+               where (or (= (mod x 5) 0) (= (mod x 3) 0))
+               select x)))
               
 (write
-  (apply + pe1))
+  (apply + (force pe1)))
 (newline)  
 
 (define (fib-seq till)

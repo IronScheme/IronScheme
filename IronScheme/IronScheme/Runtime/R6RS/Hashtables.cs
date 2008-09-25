@@ -246,13 +246,6 @@ namespace IronScheme.Runtime.R6RS
       return s.GetHashCode();
     }
 
-
-    [Builtin("eq-hash")]
-    public static object EqHash(object obj)
-    {
-      return obj.GetHashCode();
-    }
-
     [Builtin("eqv-hash")]
     public static object EqvHash(object obj)
     {
@@ -270,7 +263,7 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        return SymbolValue(SymbolTable.StringToId("eq?"));
+        return FALSE;
       }
     }
 
@@ -285,7 +278,7 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        return SymbolValue(SymbolTable.StringToId("eq-hash"));
+        return FALSE;
       }
     }
 

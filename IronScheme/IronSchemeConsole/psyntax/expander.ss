@@ -154,11 +154,23 @@
   ;;; symbols, consing the identifier's list of marks to the rib's
   ;;; mark**, and consing the label to the rib's labels.
 
-  (define-record rib (sym* mark** label* sealed/freq))
+  (define-record rib (sym* mark** label* sealed/freq cache))
  
   (define make-empty-rib
     (lambda ()
-      (make-rib '() '() '() #f)))
+      (make-rib '() '() '() #f #f)))
+      
+  (define make-cache-rib
+    (lambda ()
+      (make-rib '() '() '() #f (make-eq-hashtable)))) 
+      
+  (define (find-label rib sym mark*)
+    (let ((ht (rib-cache rib)))
+      (and ht
+        (let ((cv (hashtable-ref ht sym #f)))
+          (cond
+            [(and cv (assp (lambda (m) (same-marks? mark* m)) cv)) => cdr]
+            (else #f))))))
   
   ;;; For example, when processing a lambda's internal define, a new rib
   ;;; is created and is added to the body of the lambda expression.
@@ -173,29 +185,56 @@
            (if (and (eq? sym (car sym*)) (same-marks? mark* (car mark**)))
                label*
                (find sym mark* (cdr sym*) (cdr mark**) (cdr label*)))))
+
+    ;(display "top-rib-size ")
+    ;(display (and (rib-cache rib) (hashtable-size (rib-cache rib))))
+    ;(newline)
     (when (rib-sealed/freq rib)
       (assertion-violation 'extend-rib! "BUG: rib is sealed" rib))
     (let ((sym (id->sym id))
           (mark* (stx-mark* id)))
       (let ((sym* (rib-sym* rib)))
         (cond
+          [(find-label rib sym mark*)
+           =>
+           (lambda (p)
+              (unless (eq? label p)
+                (stx-error id "multiple definitions of identifier")))]
           [(and (memq sym (rib-sym* rib))
                 (find sym mark* sym* (rib-mark** rib) (rib-label* rib)))
            =>
-           (lambda (p) 
+           (lambda (p)
              (unless (eq? label (car p))
                (cond
                  [(top-level-context)
-                  ;;; override label
+                  ;;; XXX override label
                   (set-car! p label)]
                  [else
                   ;;; signal an error if the identifier was already
                   ;;; in the rib.
-                  (stx-error id "cannot redefine")])))]
+                  (stx-error id "multiple definitions of identifier")])))]
           [else
+           (when (rib-cache rib)
+              (hashtable-update! (rib-cache rib) sym 
+                (lambda (e)
+                  (cons (cons mark* label) e))
+                '()))
            (set-rib-sym*! rib (cons sym sym*))
            (set-rib-mark**! rib (cons mark* (rib-mark** rib)))
            (set-rib-label*! rib (cons label (rib-label* rib)))]))))
+          
+  (define (extend-rib/nc! rib id label)
+    (let ((sym (id->sym id))
+          (mark* (stx-mark* id)))
+      (let ((sym* (rib-sym* rib)))
+       (when (rib-cache rib)
+          (hashtable-update! (rib-cache rib) sym 
+            (lambda (e)
+              (cons (cons mark* label) e))
+            '()))      
+       (set-rib-sym*! rib (cons sym sym*))
+       (set-rib-mark**! rib (cons mark* (rib-mark** rib)))
+       (set-rib-label*! rib (cons label (rib-label* rib))))))          
 
 
   ;;; A rib can be sealed once all bindings are inserted.  To seal
@@ -212,7 +251,8 @@
   (define (make-rib-map sym*)
     (let ((ht (make-eq-hashtable)))
       (let f ((i 0)(sym* sym*))
-        (if (null? sym*) ht
+        (if (null? sym*) 
+          ht
           (begin
             (hashtable-update! ht (car sym*) 
               (lambda (x) (cons i x)) '())
@@ -266,7 +306,7 @@
 
   (define make-full-rib ;;; it may be a good idea to seal this rib
     (lambda (id* label*)
-      (let ((r (make-rib (map id->sym id*) (map stx-mark* id*) label* #f)))
+      (let ((r (make-rib (map id->sym id*) (map stx-mark* id*) label* #f #f)))
         (seal-rib! r)
         r)))
 
@@ -596,8 +636,10 @@
       (strip x '())))
       
   (define (same-marks*? mark* mark** si)
-    (if (null? si) #f
-      (if (same-marks? mark* (vector-ref mark** (car si))) (car si)
+    (if (null? si) 
+      #f
+      (if (same-marks? mark* (vector-ref mark** (car si))) 
+        (car si)
         (same-marks*? mark* mark** (cdr si)))))    
 
   ;;; id->label takes an id (that's a sym x marks x substs) and
@@ -629,7 +671,7 @@
             (else
              (let ((rib (car subst*)))
                (cond
-                 ((rib-sealed/freq rib) =>
+                 [(rib-sealed/freq rib) =>
                   (lambda (ht)
                     (let ((si (hashtable-ref ht sym #f)))
                       (let ((i (and si 
@@ -637,7 +679,8 @@
                               (rib-mark** rib) (reverse si)))))
                         (if i
                           (vector-ref (rib-label* rib) i)
-                        (search (cdr subst*) mark*))))))
+                        (search (cdr subst*) mark*)))))]
+                 [(find-label rib sym mark*)]
                  (else
                   (let f ((sym* (rib-sym* rib))
                           (mark** (rib-mark** rib))
@@ -906,7 +949,7 @@
                        (let ((name (car x)) (label (cdr x)))
                          (add-subst
                            (make-rib (list name) 
-                             (list top-mark*) (list label) #f)
+                             (list top-mark*) (list label) #f #f)
                            stx))))
                     (else stx))))
             (hashtable-set! scheme-stx-hashtable sym stx)
@@ -3131,8 +3174,8 @@
                                       (library-import e))))
                       (vector-for-each
                         (lambda (id lab) (extend-rib! rib id lab))
-                        id* lab*)))
-                  (chi-body* (cdr e*) r mr lex* rhs* mod** kwd* exp* rib top?))
+                        id* lab*))
+                    (chi-body* (cdr e*) r mr lex* rhs* mod** kwd* exp* rib top?)))
                  (else
                   (if top?
                       (chi-body* (cdr e*) r mr
@@ -3427,12 +3470,12 @@
   ;;; so, a name in a top rib maps to its label if and only if
   ;;; its set of marks is top-mark*.
   (define (make-top-rib names labels)
-    (let ((rib (make-empty-rib)))
+    (let ((rib (make-cache-rib)))
       (vector-for-each
         (lambda (name label)
           (unless (symbol? name) 
             (error 'make-top-rib "BUG: not a symbol" name))
-          (extend-rib! rib (make-stx name top-mark* '() '()) label))
+          (extend-rib/nc! rib (make-stx name top-mark* '() '()) label))
         names labels)
       rib))
 
@@ -3660,7 +3703,8 @@
                  (rtc (make-collector))
                  (vtc (make-collector)))
                (let ((x
-                      (parameterize ((inv-collector rtc)
+                      (parameterize ((top-level-context #f)
+                                     (inv-collector rtc)
                                      (vis-collector vtc)
                                      (imp-collector itc))
                          (chi-expr x '() '()))))
@@ -3970,7 +4014,7 @@
       (lambda ()
         (or the-env 
             (let ([lib (find-library-by-name '(ironscheme))]
-                  [rib (make-empty-rib)])
+                  [rib (make-cache-rib)])
               (let ([subst (library-subst lib)]) 
                 (set-rib-sym*! rib (map car subst))
                 (set-rib-mark**! rib 

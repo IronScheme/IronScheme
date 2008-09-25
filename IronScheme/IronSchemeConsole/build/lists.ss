@@ -110,12 +110,16 @@
       (let ((c (car lst)))
         (if (equal? obj (car c)) c
           (assoc obj (cdr lst))))))
-            
+
   (define (assp p? lst)
-    (if (null? lst) #f
-      (let ((c (car lst)))
-        (if (p? (car c)) c
-          (assp p? (cdr lst))))))
+    (if (null? lst) 
+      #f
+      (let ((p? p?)
+            (t (car lst)) 
+            (r (cdr lst)))
+        (if (p? (car t)) 
+          t
+          (assp p? r)))))
   
   (define (memq obj lst)
     (if (null? lst) 

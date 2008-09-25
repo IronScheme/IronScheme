@@ -1455,6 +1455,10 @@ namespace IronScheme.Runtime
           {
             return ConvertToBigInteger(first) % ConvertToBigInteger(second);
           }
+          catch (ArithmeticException) // mono dodo
+          {
+            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+          }
         case NumberClass.BigInteger:
           return ConvertToBigInteger(first) % ConvertToBigInteger(second);
         case NumberClass.Rational:

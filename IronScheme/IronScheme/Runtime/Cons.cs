@@ -86,7 +86,14 @@ namespace IronScheme.Runtime
 
     internal bool IsProper
     {
-      get { return IsProperList(null); }
+      get 
+      {
+        if (((ICollection)this).Count > 25000)
+        {
+          return true;
+        }
+        return IsProperList(null); 
+      }
     }
 
     bool IsProperList(Cons root)
