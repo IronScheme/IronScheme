@@ -45,17 +45,14 @@
     (clr-static-call environment getenvironmentvariables))    ; returns a hashtable
 
   (define (get-environment-variable name)
-    (clr-static-call environment getenvironmentvariable name))    
+    (let ((v (clr-static-call environment getenvironmentvariable name)))
+      (if (null? v) #f v)))
 
   (define (set-environment-variable! name value)
     (clr-static-call environment setenvironmentvariable name value))    
-
     
   (define (expand-environment-variables name)
     (clr-static-call environment expandenvironmentvariables name))    
-    
-  
-  
   
   (clr-clear-usings)
 )

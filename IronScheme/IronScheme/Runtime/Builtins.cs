@@ -25,6 +25,8 @@ using IronScheme.Compiler;
 using System.IO;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
+using System.Xml;
+using System.Net;
 
 namespace IronScheme.Runtime
 {
@@ -535,73 +537,16 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return Unspecified;
     }
 
-#if BOOTSTRAP
-    [Builtin("make-eq-hashtable")]
-    public static object MakeEqHashtable()
-    {
-      return new Hashtable();
-    }
-
-
-    [Builtin("hashtable-ref")]
-    public static object HashtableRef(object hashtable, object key, object value)
-    {
-      Hashtable h = RequiresNotNull<Hashtable>(hashtable);
-      return h[key] ?? value;
-    }
-
-    [Builtin("hashtable-set!")]
-    public static object HashtableSet(object hashtable, object key, object value)
-    {
-      Hashtable h = RequiresNotNull<Hashtable>(hashtable);
-      h[key] = value;
-      return Unspecified;
-    }
-
-    [Builtin("all-empty?")]
-    public static object IsAllEmpty(object ls)
-    {
-      return ls == null || 
-        (Car(ls) == null && 
-        (bool)IsAllEmpty(Cdr(ls)));
-    }
-
-    [Builtin("file-exists?")]
-    public static object FileExists(object filename)
-    {
-      string s = RequiresNotNull<string>(filename);
-      return File.Exists(s);
-    }
-
-    [Builtin("delete-file")]
-    public static object DeleteFile(object filename)
-    {
-      string s = RequiresNotNull<string>(filename);
-      File.Delete(s);
-      return Unspecified;
-    }
-
-    [Builtin("cons*")]
-    public static object ConsStar(object a)
-    {
-      return a;
-    }
-
-#endif
-
-
     [Builtin]
     public static object Void()
     {
       return Unspecified;
     }
 
-
     static object ListStarHelper(object a, object rest)
     {
       return (rest == null) ? a : new Cons(a, ListStarHelper(Car(rest), Cdr(rest)));
     }
-
 
     [Builtin("list*")]
     public static object ListStar(object a, params object[] rest)
@@ -652,12 +597,66 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
 
     [Builtin("string-split")]
-    public static object[] StringSplit(object str, params object[] del)
+    public static object StringSplit(object str, params object[] del)
     {
       return Requires<string>(str).Split(del as string[], StringSplitOptions.None);
     }
 
+    [Builtin("string->xml")]
+    public static object StringToXml(object str)
+    {
+      string s = Requires<string>(str);
+      XmlDocument doc = new XmlDocument();
+      doc.LoadXml(s);
 
+      Cons c = ReadElement(doc.DocumentElement);
+
+      return c;
+    }
+
+
+
+    static Cons ReadElement(XmlElement e)
+    {
+      List<object> all = new List<object>();
+      all.Add(SymbolTable.StringToId(e.Name));
+
+      foreach (XmlAttribute a in e.Attributes)
+      {
+        all.Add(ReadAttribute(a));    
+      }
+
+      foreach (XmlNode n in e.ChildNodes)
+      {
+        if (n.NodeType == XmlNodeType.Text)
+        {
+          all.Add(n.InnerText);
+        }
+        else
+        {
+          all.Add(ReadElement(n as XmlElement));
+        }
+      }
+
+      return List(all.ToArray());
+    }
+
+
+    static Cons ReadAttribute(XmlAttribute a)
+    {
+      return Cons(SymbolTable.StringToId(a.Name), a.Value);
+    }
+
+    [Builtin("download-string")]
+    public static object DownloadString(object str)
+    {
+      string s = Requires<string>(str);
+      using (WebClient wc = new WebClient())
+      {
+        return wc.DownloadString(s);
+      }
+    }
+    
 
     static void RequiresCondition(bool condition, string message)
     {

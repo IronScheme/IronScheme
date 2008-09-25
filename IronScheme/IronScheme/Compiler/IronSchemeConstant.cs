@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.IO;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
+using System.Reflection;
 
 namespace IronScheme.Compiler
 {
@@ -38,19 +39,16 @@ namespace IronScheme.Compiler
         ModuleBuilder mb = cg.TypeGen.TypeBuilder.Module as ModuleBuilder;
         CodeGen init = cg.TypeGen.TypeInitializer;
 
-        Slot s = cg.TypeGen.AddStaticField(typeof(object), string.Format("$c${0:X4}", constantcounter++));
+        Slot s = cg.TypeGen.AddStaticField(typeof(object),FieldAttributes.InitOnly | FieldAttributes.Private , string.Format("$c${0:X4}", constantcounter++));
         
         Expression e = Generator.GetConsList(value as Cons, cb);
+
         e.Emit(init);
         s.EmitSet(init);
 
         s.EmitGet(cg);
-
-
       }
     }
-
-    static BinaryFormatter bf = Runtime.Helpers.bf;
 
     public override object Create()
     {

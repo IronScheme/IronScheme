@@ -511,7 +511,7 @@ namespace IronScheme.Runtime
           }
         }
 
-        return AssertionViolation(targets[0].ToString(), "invalid argument count", args, arities);
+        return AssertionViolation(ToString(), "invalid argument count", args, arities);
       }
 
       public override object Call()

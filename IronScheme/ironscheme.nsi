@@ -193,6 +193,7 @@ SectionIn 1 2 RO
 	
 	File "system-libraries.ss"
 	File "init.ss"
+	File "compile-system-libraries.ss"
 	File "run-tests.bat"
 	
 	File "ironscheme-buildscript.ss"
@@ -202,7 +203,7 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\ironscheme"
 	File /r ironscheme\*.ss
-	File /r ironscheme\*.fasl
+	;File /r ironscheme\*.fasl
 	
 	SetOutPath "$INSTDIR\lib"
 	File /r lib\*.ss
@@ -215,7 +216,7 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\srfi"
 	File /r srfi\*.ss
-	File /r srfi\*.fasl
+	;File /r srfi\*.fasl
 	
 	SetOutPath "$INSTDIR\websample"
 	File ..\..\..\IronScheme.Web\test.ss
@@ -246,8 +247,11 @@ Section -AdditionalIcons
 SectionEnd
 
 Section -Post
+  SetOutPath "$INSTDIR"
   DetailPrint "Generating native images..."
   nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.dll"'
+  DetailPrint "Compiling system libraries..."
+  nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.ss"'
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\IronScheme.Console.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"

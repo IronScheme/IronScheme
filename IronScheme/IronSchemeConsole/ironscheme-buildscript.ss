@@ -310,8 +310,7 @@
     (serialize-port                             i)
     (deserialize-port                           i)
     (reverse!                                   ic)
-    (eq-hash                                    ic)
-    (eqv-hash                                   ic)
+    (eqv-hash                                   ic) ; TODO: remove
     (make-record-printer                        irp)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)

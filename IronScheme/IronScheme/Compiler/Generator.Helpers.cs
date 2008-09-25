@@ -328,6 +328,18 @@ namespace IronScheme.Compiler
       }
     }
 
+    static bool IsUnspecified(Expression e)
+    {
+      if (e is MemberExpression)
+      {
+        if (((MemberExpression)e).Member == Unspecified)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
 
 
     static Statement OptimizeBody(Statement cbbody)
@@ -362,12 +374,25 @@ namespace IronScheme.Compiler
               //remove methods without side effects
             }
 
-            if (e is MemberExpression)
+            if (IsUnspecified(e))
             {
-              if (((MemberExpression)e).Member == Unspecified)
+              continue;
+            }
+
+            if (e is ConditionalExpression)
+            {
+              ConditionalExpression ce = e as ConditionalExpression;
+
+              if (IsUnspecified(ce.IfFalse))
               {
-                continue;
+                newstmts.Add(Ast.If(ce.Test, Ast.Statement(ce.IfTrue)));
               }
+              else
+              {
+                newstmts.Add(Ast.If(ce.Test, Ast.Statement(ce.IfTrue)).Else(Ast.Statement(ce.IfFalse)));
+              }
+
+              continue;
             }
 
           }
