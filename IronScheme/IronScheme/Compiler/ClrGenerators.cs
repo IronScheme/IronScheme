@@ -71,39 +71,27 @@ namespace IronScheme.Compiler
       {
         if (ass.ManifestModule.Name != "<In Memory Module>")
         {
-          foreach (Type t in ass.GetExportedTypes())
+          try
           {
-            string tname = t.Name;
-            int genargsc = 0;
-
-            int geni = t.Name.IndexOf('`');
-
-            if (geni > 0)
+            foreach (Type t in ass.GetExportedTypes())
             {
-              genargsc = int.Parse(tname.Substring(geni + 1));
-              tname = tname.Substring(0, geni);
-            }
+              string tname = t.Name;
+              int genargsc = 0;
 
-            string nsm = t.Namespace + "." + tname;
-            nsm = nsm.ToLower();
+              int geni = t.Name.IndexOf('`');
 
-            Type tt = t;
-
-            if (nsm == nsandname)
-            {
-              if (gentypes.Length == genargsc && gentypes.Length > 0)
+              if (geni > 0)
               {
-                tt = tt.MakeGenericType(gentypes);
+                genargsc = int.Parse(tname.Substring(geni + 1));
+                tname = tname.Substring(0, geni);
               }
-              if (isarray)
-              {
-                tt = tt.MakeArrayType();
-              }
-              return tt;
-            }
-            else if (tname.ToLower() == nsandname)
-            {
-              if (namespaces.ContainsKey(t.Namespace))
+
+              string nsm = t.Namespace + "." + tname;
+              nsm = nsm.ToLower();
+
+              Type tt = t;
+
+              if (nsm == nsandname)
               {
                 if (gentypes.Length == genargsc && gentypes.Length > 0)
                 {
@@ -115,7 +103,25 @@ namespace IronScheme.Compiler
                 }
                 return tt;
               }
+              else if (tname.ToLower() == nsandname)
+              {
+                if (namespaces.ContainsKey(t.Namespace))
+                {
+                  if (gentypes.Length == genargsc && gentypes.Length > 0)
+                  {
+                    tt = tt.MakeGenericType(gentypes);
+                  }
+                  if (isarray)
+                  {
+                    tt = tt.MakeArrayType();
+                  }
+                  return tt;
+                }
+              }
             }
+          }
+          catch (Exception) //mono
+          {
           }
         }
       }

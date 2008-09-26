@@ -74,6 +74,7 @@ namespace IronScheme.Runtime.psyntax
     static Serialization()
     {
       SERIALIZER.AssemblyFormat = FormatterAssemblyStyle.Simple;
+      SERIALIZER.Binder = new TypeCorrector();
       AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
     }
 
@@ -87,6 +88,30 @@ namespace IronScheme.Runtime.psyntax
         }
       }
       return null;
+    }
+
+    sealed class TypeCorrector : SerializationBinder
+    {
+      public override Type BindToType(string assemblyName, string typeName)
+      {
+        try
+        {
+          Assembly a = Assembly.Load(assemblyName);
+          return a.GetType(typeName);
+        }
+        catch (Exception)
+        {
+          foreach (Type t in R6RS.Records.typedescriptors.Keys)
+          {
+            if (t.Name == typeName)
+            {
+              return t;
+            }
+          }
+          return AssertionViolation(FALSE, "could not find type to deserialize", assemblyName, typeName) as Type;
+        }
+
+      }
     }
 
     internal static readonly BinaryFormatter SERIALIZER = new BinaryFormatter();

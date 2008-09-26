@@ -263,7 +263,6 @@ namespace IronScheme.Runtime.R6RS
 
       string value = t.codec.GetString(b);
 
-      // ???????????????????
       if (t.eolstyle == eol_none)
       {
         value = value.Replace("\r", "");
