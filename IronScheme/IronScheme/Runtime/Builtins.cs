@@ -244,7 +244,7 @@ namespace IronScheme.Runtime
     {
       get
       {
-        return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase).Replace("file:\\", "");
+        return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase).Replace("file:\\", "").Replace("file:", "");
       }
     }
 
