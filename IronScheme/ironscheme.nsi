@@ -194,12 +194,14 @@ SectionIn 1 2 RO
 	File "system-libraries.ss"
 	File "init.ss"
 	File "compile-system-libraries.ss"
-	File "run-tests.bat"
 	
 	File "ironscheme-buildscript.ss"
 
 	SetOutPath "$INSTDIR\examples"
 	File /r examples\*.ss
+	
+	SetOutPath "$INSTDIR\docs"
+	File /r docs\*.txt
 	
 	SetOutPath "$INSTDIR\ironscheme"
 	File /r ironscheme\*.ss

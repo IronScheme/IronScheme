@@ -1,0 +1,7 @@
+﻿Unsupported
+===========
+
+call/cc
+
+- Delimited/re-entry continuations are not supported.
+

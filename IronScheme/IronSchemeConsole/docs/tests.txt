@@ -1,0 +1,22 @@
+﻿Tests
+=====
+
+Note: must be run from installation directory.
+
+A. R6RS Conformance tests
+
+- Run 'IronScheme.Console tests\r6rs\run.sps'
+- Currently fails 16 tests on Windows
+- Currently fails 30 tests on Mono 1.9
+
+B. Numeric test suite
+
+- Run 'IronScheme.Console tests\trigtest.sps'
+- Currently fails 80 tests
+
+Note: this test can take some time.
+
+C. CLISP number tests
+
+- Run 'IronScheme.Console tests\clisp-number-tests.sps'
+- Currently fails 4 tests (3 are bogus though)

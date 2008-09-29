@@ -159,56 +159,63 @@ namespace IronScheme.Runtime
 
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
-        if (ass.ManifestModule.Name != "<In Memory Module>")
+        try
         {
-          foreach (Type t in ass.GetExportedTypes())
+          if (ass.ManifestModule.Name != "<In Memory Module>")
           {
-            string tnl = (t.Namespace + "." + t.Name);
-
-            if (t.IsGenericType)
+            foreach (Type t in ass.GetExportedTypes())
             {
-              tnl = tnl.Substring(0, tnl.Length - 2);
-            }
+              string tnl = (t.Namespace + "." + t.Name);
 
-            if (tnl == tn)
-            {
-              candidates.Add(t);
-
-              // we have right name and namespace, now for possible type args, confusing logic :|
-              if (typeargs != null && typeargs.Length > 0)
+              if (t.IsGenericType)
               {
-                if (t.IsGenericType)
+                tnl = tnl.Substring(0, tnl.Length - 2);
+              }
+
+              if (tnl == tn)
+              {
+                candidates.Add(t);
+
+                // we have right name and namespace, now for possible type args, confusing logic :|
+                if (typeargs != null && typeargs.Length > 0)
                 {
-                  Type[] ga = t.GetGenericArguments();
-                  if (typeargs.Length == ga.Length)
+                  if (t.IsGenericType)
                   {
-                    Type[] ta = new Type[typeargs.Length];
-                    for (int i = 0; i < ta.Length; i++)
+                    Type[] ga = t.GetGenericArguments();
+                    if (typeargs.Length == ga.Length)
                     {
-                      ta[i] = typeargs[i] as Type;
-                      if (!ta[i].IsSubclassOf(ga[i].BaseType))
+                      Type[] ta = new Type[typeargs.Length];
+                      for (int i = 0; i < ta.Length; i++)
+                      {
+                        ta[i] = typeargs[i] as Type;
+                        if (!ta[i].IsSubclassOf(ga[i].BaseType))
+                        {
+                          continue;
+                        }
+                      }
+
+                      try
+                      {
+                        return t.MakeGenericType(ta);
+                      }
+                      catch
                       {
                         continue;
                       }
                     }
-
-                    try
-                    {
-                      return t.MakeGenericType(ta);
-                    }
-                    catch
-                    {
-                      continue;
-                    }
                   }
                 }
-              }
-              else if (!t.IsGenericType)
-              {
-                return t;
+                else if (!t.IsGenericType)
+                {
+                  return t;
+                }
               }
             }
           }
+        }
+        catch (Exception)
+        {
+          //mono?
         }
       }
 
