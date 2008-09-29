@@ -65,7 +65,6 @@ namespace IronScheme.Runtime
 
       return ex;
     }
-
   }
 
   public partial class Builtins
@@ -203,16 +202,24 @@ namespace IronScheme.Runtime
     [Builtin("eqv?")]
     public static object IsEqualValue(object first, object second)
     {
-      if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
-      {
-        return IsSame(first, second);
-      }
-      if (first is Encoding && second is Encoding)
-      {
-        return ((Encoding)first).WebName == ((Encoding)second).WebName;
-      }
-      return GetBool(Equals(first, second));
-    }
+      object eq = IsEqual(first, second);
 
+      if (IsTrue(eq))
+      {
+        return eq;
+      }
+      else
+      {
+        if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
+        {
+          return IsSame(first, second);
+        }
+        if (first is Encoding && second is Encoding)
+        {
+          return ((Encoding)first).WebName == ((Encoding)second).WebName;
+        }
+        return GetBool(Equals(first, second));
+      }
+    }
   }
 }

@@ -49,7 +49,7 @@ namespace IronScheme.Runtime.R6RS
       }
       catch (InvalidOperationException ex)
       {
-        throw ex.GetBaseException();
+        return AssertionViolation("vector-sort!", ex.Message, proc);
       }
       return Unspecified;
     }

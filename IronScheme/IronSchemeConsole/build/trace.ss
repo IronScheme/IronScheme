@@ -2,7 +2,8 @@
   (export
     make-traced-macro)
   (import 
-    (except (ironscheme) make-traced-macro))
+    (ironscheme)
+    (except (ironscheme core) make-traced-macro))
     
   (define make-traced-macro 
     (lambda (name x) 

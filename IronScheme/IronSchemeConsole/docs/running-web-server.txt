@@ -1,0 +1,29 @@
+﻿Running a web server
+====================
+
+Note: Only supported on Windows.
+
+Supported platforms:
+
+- Visual Studio 2008 Development Server
+- IIS 7.0 (Integrated Pipeline Mode)
+- Cassini Web Server for VS 2008 (free)
+
+Installation:
+
+- Create a virtual application & directory.
+- Create a 'bin' directory within this root directory.
+- Copy all the dll files from the IronScheme installation directory to the 'bin' directory.
+- Copy the 'ironscheme' directory from the IronScheme installation directory to the 'bin' directory.
+- Optionally copy the 'srfi' & 'lib' directories from the IronScheme installation directory to the 'bin' directory, if needed.
+- Copy the entire contents of the 'websample' directory from the IronScheme installation directory to the root directory of the created virtual directory.
+
+Test pages:
+
+- test.ss
+- test2.ss
+
+Samples:
+
+- /blog - simple blog
+- /doc - work in progress, documentation site

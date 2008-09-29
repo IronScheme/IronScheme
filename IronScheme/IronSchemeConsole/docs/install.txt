@@ -1,0 +1,31 @@
+﻿Install
+=======
+
+A. Installer
+
+- Simply run the installer.
+- Start IronScheme from the shortcut on the Desktop.
+- No file associations are made during the install process.
+
+B. Zip on Windows
+
+- Ensure .NET 2.0 SP1 is installed.
+- Extract to directory of choice.
+- Run (optional): 'ngen install ironscheme.boot.dll' to compile to native code.
+- Run (optional): 'IronScheme.Console compile-system-libraries.ss' to 'pre-compile' some commonly used libraries.
+
+C. Zip on Mono
+
+- Ensure Mono 1.9 is installed. Mono 1.2.6 can run programs, but have issues with the REPL.
+- Extract to directory of choice.
+- Run (optional): 'mono IronScheme.Console.exe compile-system-libraries.ss' to 'pre-compile' some commonly used libraries.
+
+D. Source (Visual Studio 2008)
+
+- Download latest source code from http://www.codeplex.com/IronScheme/SourceControl/ListDownloadableCommits.aspx .
+- Compile solution and run/debug the IronScheme.Console project.
+
+E. Source (Mono)
+
+- To do: figure out how compile on Mono ;p
+

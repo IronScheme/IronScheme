@@ -4,9 +4,9 @@
     open-output-string
     get-output-string)
   (import
-    (only (ironscheme) 
-      open-input-string
-      open-output-string
-      get-output-string))
+    (ironscheme))
 
+  (define open-input-string)
+  (define open-output-string)
+  (define get-output-string)
 )

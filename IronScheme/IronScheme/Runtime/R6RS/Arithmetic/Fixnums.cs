@@ -75,11 +75,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [InlineEmitter("fx=?")]
     public static Expression FxEquals(params Expression[] args)
     {
-      if (args.Length > 2)
-      {
-        return null;
-      }
-
       if (Expect(args, 2))
       {
         return Ast.Equal(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));

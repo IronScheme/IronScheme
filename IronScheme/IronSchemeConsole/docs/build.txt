@@ -1,0 +1,30 @@
+﻿Build
+=====
+
+This file is for information regarding rebuilding the IronScheme bootfile.
+
+A. Rebuild from command line in Windows
+
+- Run 'Ironscheme.Console ironscheme-buildscript.ss'.
+- The generated file will be compiled to a binary (dll) the next time IronScheme is run.
+
+B. Rebuild from command line for Mono
+
+- Run 'mono Ironscheme.Console.exe ironscheme-buildscript.ss'.
+- The generated file will be compiled to a binary (dll) the next time IronScheme is run.
+
+C. Rebuild from the REPL
+
+- Run '(ironscheme-build)'.
+- Restart IronScheme.
+
+Optionally you can then run (compile-system-libraries) from the REPL or as described in install.txt to recompile commonly usage libraries.
+
+You can modify which libraries gets compiled by editing the system-libraries.ss file.
+
+Notes:
+
+- only files in the build and psyntax directory are compiled into the bootfile.
+- the above mentioned makes up mostly of R6RS and a few extra IronScheme-specific procedures.
+- take care when making changes to the build system as this can break your IronScheme installation.
+- if screwed, delete ironscheme.boot.pp and ironscheme.boot.dll and replace with the original installation file(s).
