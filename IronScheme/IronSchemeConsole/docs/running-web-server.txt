@@ -13,9 +13,9 @@ Installation:
 
 - Create a virtual application & directory.
 - Create a 'bin' directory within this root directory.
-- Copy all the dll files from the IronScheme installation directory to the 'bin' directory.
-- Copy the 'ironscheme' directory from the IronScheme installation directory to the 'bin' directory.
-- Optionally copy the 'srfi' & 'lib' directories from the IronScheme installation directory to the 'bin' directory, if needed.
+- Copy all the dll files from the IronScheme installation directory to the 'bin' directory. Or make symlinks with mklink.
+- Copy the 'ironscheme' directory from the IronScheme installation directory to the 'bin' directory. Or make symlinks with mklink.
+- Optionally copy the 'srfi' & 'lib' directories from the IronScheme installation directory to the 'bin' directory, if needed. Or make symlinks with mklink.
 - Copy the entire contents of the 'websample' directory from the IronScheme installation directory to the root directory of the created virtual directory.
 
 Test pages:

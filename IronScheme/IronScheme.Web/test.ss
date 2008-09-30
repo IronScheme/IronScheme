@@ -1,6 +1,5 @@
 (import 
   (rnrs)
-  (ironscheme format)
   (ironscheme web))
   
 (define (render obj)
