@@ -22,15 +22,7 @@
   (define (edit-page-template . body)
     (apply 
       page-template
-      (javascript-include "~/scripts/wysiwyg.js")
-      (javascript-include "~/scripts/wysiwyg-settings.js")
-      (javascript "
-      var e = new WYSIWYG.Settings();  
-      e.ImagesDir = '/' + e.ImagesDir;
-      e.CSSFile = '/' + e.CSSFile;
-      e.PopupsDir = '/' + e.PopupsDir;
-      WYSIWYG.attach('all', e);        
-      ")
+      (javascript-include "~/wmd/wmd.js")
       body))
         
   (define (display-menu)
