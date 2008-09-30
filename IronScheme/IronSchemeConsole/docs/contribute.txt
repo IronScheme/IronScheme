@@ -1,0 +1,13 @@
+﻿Contribute
+==========
+
+Contact me via the CodePlex contact page.
+
+Where can you help?
+
+- Compiler optimization (currently I do no source optimization!)
+- Better CLR integration (think auto-generated R6RS libraries)
+- A proper Scheme type system (example for numbers/ports)
+- Rewriting/refactoring a lot of the C# runtime code back into Scheme 
+- A better editor... (I have a sad fasination with them, see xacc.ide) or VisualStudio shell integration like the one for IronPython
+- Possible proper call/cc support (not sure if this will ever be worth the effort)

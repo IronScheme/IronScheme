@@ -258,6 +258,7 @@
     ;(rename                                     i)
     (library                                    i) 
     (include                                    i)
+    (expand                                     i)
     (include-into                               i)
     (library-path                               i ic)
     (optimization-level                         i)
