@@ -37,6 +37,11 @@ namespace IronScheme.Runtime
       sb.Length = 0;
       return r;
     }
+
+    public override string ToString()
+    {
+      return string.Format("#<string-output-port {0}>", Builtins.WriteFormat(base.ToString()));
+    }
   }
 
   public partial class Builtins

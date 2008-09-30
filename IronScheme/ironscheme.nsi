@@ -254,6 +254,17 @@ Section -Post
   nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.dll"'
   DetailPrint "Compiling system libraries..."
   nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.ss"'
+  DetailPrint "Creating symbolic links..."
+  SetOutPath "$INSTDIR\websample"
+  ExecWait 'mkdir bin'
+  SetOutPath "$INSTDIR\websample\bin"
+  ExecWait 'mklink IronScheme.dll "$INSTDIR\IronScheme.dll"'
+  ExecWait 'mklink IronScheme.Closures.dll "$INSTDIR\IronScheme.Closures.dll"'
+  ExecWait 'mklink ironscheme.boot.dll "$INSTDIR\ironscheme.boot.dll"'
+  ExecWait 'mklink Microsoft.Scripting.dll "$INSTDIR\Microsoft.Scripting.dll"'
+  ExecWait 'mklink /d ironscheme "$INSTDIR\ironscheme"'
+  ExecWait 'mklink /d srfi "$INSTDIR\srfi"'
+  ExecWait 'mklink /d lib "$INSTDIR\lib"'
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\IronScheme.Console.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"

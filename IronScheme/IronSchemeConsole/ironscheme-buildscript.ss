@@ -259,7 +259,7 @@
     (library                                    i) 
     (include                                    i)
     (include-into                               i)
-    (library-path                               ic)
+    (library-path                               i ic)
     (optimization-level                         i)
     (interaction-environment-symbols            i)
     (environment-symbols                        i)
