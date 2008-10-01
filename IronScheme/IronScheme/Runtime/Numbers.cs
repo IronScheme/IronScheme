@@ -2160,6 +2160,35 @@ namespace IronScheme.Runtime
       return x1;
     }
 
+    static object ExactSqrtBigInteger(BigInteger x)
+    {
+      BigInteger v0, q0, x1;
+
+      if (x <= 1)
+      {
+        return x;
+      }
+
+      v0 = x;
+      x = x / 2;
+      while (true)
+      {
+        q0 = v0 / x;
+        x1 = (x + q0) / 2;
+        if (q0 >= x)
+          break;
+        x = x1;
+      }
+      q0 = x1 * x1;
+
+      if (q0 > v0)
+      {
+        x1 = x1 - 1;
+        q0 = x1 * x1;
+      }
+      return Values(x1, v0 - q0);
+    }
+
     [Builtin("sqrt")]
     public static object Sqrt(object obj)
     {
@@ -2196,11 +2225,18 @@ namespace IronScheme.Runtime
     [Builtin("exact-integer-sqrt")]
     public static object ExactIntegerSqrt(object obj)
     {
-      object r = Sqrt(obj);
-      object rf = Exact(Floor(r));
-      object rest = Subtract(obj, Multiply(rf, rf));
+      if (obj is BigInteger)
+      {
+        return ExactSqrtBigInteger(ConvertToBigInteger(obj));
+      }
+      else
+      {
+        object r = Sqrt(obj);
+        object rf = Exact(Floor(r));
+        object rest = Subtract(obj, Multiply(rf, rf));
 
-      return Values(rf, rest);
+        return Values(rf, rest);
+      }
     }
 
     [Builtin("expt")]
