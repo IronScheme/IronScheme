@@ -256,15 +256,15 @@ Section -Post
   nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.ss"'
   DetailPrint "Creating symbolic links..."
   SetOutPath "$INSTDIR\websample"
-  ExecWait 'mkdir bin'
+  nsExec::ExecToStack 'cmd /c mkdir bin'
   SetOutPath "$INSTDIR\websample\bin"
-  ExecWait 'mklink IronScheme.dll "$INSTDIR\IronScheme.dll"'
-  ExecWait 'mklink IronScheme.Closures.dll "$INSTDIR\IronScheme.Closures.dll"'
-  ExecWait 'mklink ironscheme.boot.dll "$INSTDIR\ironscheme.boot.dll"'
-  ExecWait 'mklink Microsoft.Scripting.dll "$INSTDIR\Microsoft.Scripting.dll"'
-  ExecWait 'mklink /d ironscheme "$INSTDIR\ironscheme"'
-  ExecWait 'mklink /d srfi "$INSTDIR\srfi"'
-  ExecWait 'mklink /d lib "$INSTDIR\lib"'
+  nsExec::ExecToStack 'cmd /c mklink IronScheme.dll "$INSTDIR\IronScheme.dll"'
+  nsExec::ExecToStack 'cmd /c mklink IronScheme.Closures.dll "$INSTDIR\IronScheme.Closures.dll"'
+  nsExec::ExecToStack 'cmd /c mklink ironscheme.boot.dll "$INSTDIR\ironscheme.boot.dll"'
+  nsExec::ExecToStack 'cmd /c mklink Microsoft.Scripting.dll "$INSTDIR\Microsoft.Scripting.dll"'
+  nsExec::ExecToStack 'cmd /c mklink /d ironscheme "$INSTDIR\ironscheme"'
+  nsExec::ExecToStack 'cmd /c mklink /d srfi "$INSTDIR\srfi"'
+  nsExec::ExecToStack 'cmd /c mklink /d lib "$INSTDIR\lib"'
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\IronScheme.Console.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"

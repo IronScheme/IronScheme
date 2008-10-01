@@ -119,11 +119,15 @@ namespace IronScheme.Runtime
         if (value.Length == 1)
         {
           cc.Value = value[0];
+          if (cc.Value is MultipleValues)
+          {
+            return AssertionViolation("call/cc", "cannot return multiple values");
+          }
           throw cc;
         }
         else
         {
-          cc.Value = value;
+          cc.Value = Values(value);
           throw cc;
         }
       };
