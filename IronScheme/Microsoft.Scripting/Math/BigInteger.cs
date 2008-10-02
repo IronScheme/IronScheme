@@ -1459,20 +1459,62 @@ namespace Microsoft.Scripting.Math {
             else return this;
         }
 
+        static uint[] pow2lu = GenTable();
+
+        static uint[] GenTable()
+        {
+          uint[] lu = new uint[31];
+
+          for (int i = 0; i < 31; i++)
+          {
+            lu[i] = 2u << (i - 1);
+          }
+          return lu;
+        }
+
+        static bool IsPowerOf2(BigInteger n)
+        {
+          int i = n.data.Length - 1;
+          if (n.data[i] != 1)
+          {
+            if (Array.BinarySearch<uint>(pow2lu, n.data[i]) < 0)
+            {
+              return false;
+            }
+          }
+
+          for (i--; i >= 0; i--)
+          {
+            if (n.data[i] != 0)
+            {
+              return false;
+            }
+          }
+          return true;
+        }
+
         public BigInteger Power(int exp) {
             if (exp == 0) return One;
             if (exp < 0) {
                 throw new ArgumentOutOfRangeException(MathResources.NonNegativePower);
             }
-            BigInteger factor = this;
-            BigInteger result = One;
-            while (exp != 0) {
+            if (IsPowerOf2(this))
+            {
+              return BigInteger.One << (exp * (BitLength - 1));
+            }
+            else
+            {
+              BigInteger factor = this;
+              BigInteger result = One;
+              while (exp != 0)
+              {
                 if ((exp & 1) != 0) result = result * factor;
                 if (exp == 1) break;  // avoid costly factor.square()
                 factor = factor.Square();
                 exp >>= 1;
+              }
+              return result;
             }
-            return result;
         }
 
         public BigInteger ModPow(int power, BigInteger mod) {
@@ -1573,6 +1615,56 @@ namespace Microsoft.Scripting.Math {
                 AppendRadix((uint)digitGroups[digitIndex--], radix, tmpDigits, ret, true);
             }
             return ret.ToString();
+        }
+
+        public void Write(System.IO.TextWriter w)
+        {
+          const int radix = 10;
+          int len = Length;
+          if (len == 0)
+          {
+            w.Write("0");
+            return;
+          }
+
+          List<uint> digitGroups = new List<uint>();
+
+          uint[] d = copy(data);
+          int dl = Length;
+
+          uint groupRadix = groupRadixValues[radix];
+          while (dl > 0)
+          {
+            uint rem = div(d, ref dl, groupRadix);
+            digitGroups.Add(rem);
+          }
+
+          if (sign == -1) w.Write("-");
+          int digitIndex = digitGroups.Count - 1;
+
+          char[] tmpDigits = new char[maxCharsPerDigit[radix]];
+
+          AppendRadix2(digitGroups[digitIndex--], radix, tmpDigits, w, false);
+          while (digitIndex >= 0)
+          {
+            AppendRadix2(digitGroups[digitIndex--], radix, tmpDigits, w, true);
+          }
+        }
+
+        private static void AppendRadix2(uint rem, uint radix, char[] tmp, System.IO.TextWriter buf, bool leadingZeros)
+        {
+          const string symbols = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+          int digits = tmp.Length;
+          int i = digits;
+          while (i > 0 && (leadingZeros || rem != 0))
+          {
+            uint digit = rem % radix;
+            rem /= radix;
+            tmp[--i] = symbols[(int)digit];
+          }
+          if (leadingZeros) buf.Write(tmp);
+          else buf.Write(tmp, i, digits - i);
         }
 
         private static void AppendRadix(uint rem, uint radix, char[] tmp, StringBuilder buf, bool leadingZeros) {

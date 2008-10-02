@@ -2279,7 +2279,7 @@ namespace IronScheme.Runtime
 
       if (IsTrue(IsInteger(obj1)) && IsTrue(IsInteger(obj2)))
       {
-        BigInteger a = (BigInteger)BigIntConverter.ConvertFrom(obj1);
+        BigInteger a = ConvertToBigInteger(obj1);
         BigInteger r = a.Power(Convert.ToInt32(obj2));
         if (isnegative)
         {
