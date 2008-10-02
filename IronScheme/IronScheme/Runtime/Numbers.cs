@@ -136,6 +136,13 @@ namespace IronScheme.Runtime
       radix = radix ?? 10;
       int r = (int)radix;
 
+      if (obj is Fraction)
+      {
+        Fraction f = (Fraction)obj;
+        return string.Format("{0}/{1}", NumberToString(f.Numerator, radix), 
+          NumberToString(f.Denominator, radix));
+      }
+
       switch (r)
       {
         case 2:
