@@ -59,7 +59,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("load")] // this is patched in r6rs mode, but its needed to bootstrap
-    [Builtin("load-r5rs")]
+    [Builtin("load-r5rs")] // is this used anywhere?
     public static object Load(object filename)
     {
       CodeContext cc = IronScheme.Compiler.BaseHelper.cc;
@@ -451,7 +451,7 @@ namespace IronScheme.Runtime
         return SymbolTable.IdToString((SymbolId)obj);
       }
 
-      if ((bool)IsNumber(obj))
+      if (IsTrue(IsNumber(obj)))
       {
         return NumberToString(obj) as string;
       }
@@ -669,8 +669,15 @@ namespace IronScheme.Runtime
     public static object Display(object obj, object port)
     {
       TextWriter w = RequiresNotNull<TextWriter>(port);
-      string s = DisplayFormat(obj);
-      w.Write(s);
+      if (obj is BigInteger)
+      {
+        ((BigInteger)obj).Write(w);
+      }
+      else
+      {
+        string s = DisplayFormat(obj);
+        w.Write(s);
+      }
       return Unspecified;
     }
 
@@ -848,14 +855,21 @@ namespace IronScheme.Runtime
     public static object Write(object obj, object port)
     {
       TextWriter w = RequiresNotNull<TextWriter>(port);
-      string s = WriteFormat(obj);
-      try
+      if (obj is BigInteger)
       {
-        w.Write(s);
+        ((BigInteger)obj).Write(w);
       }
-      catch (Exception ex)
+      else
       {
-        AssertionViolation("write", ex.Message, obj, port);
+        string s = WriteFormat(obj);
+        try
+        {
+          w.Write(s);
+        }
+        catch (Exception ex)
+        {
+          AssertionViolation("write", ex.Message, obj, port);
+        }
       }
       return Unspecified;
     }
