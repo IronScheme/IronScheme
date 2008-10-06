@@ -11,6 +11,7 @@
 
 %namespace IronScheme.Compiler
 %using IronScheme.Runtime
+%using IronScheme.Runtime.psyntax
 %using Microsoft.Scripting
 %{
 

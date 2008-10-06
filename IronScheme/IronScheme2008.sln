@@ -26,6 +26,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9
 		tools\gplex.exe = tools\gplex.exe
 		tools\gplexx.frame = tools\gplexx.frame
 		tools\gppg.exe = tools\gppg.exe
+		tools\IronScheme.VisualStudio.dll = tools\IronScheme.VisualStudio.dll
+		tools\RegPkg.exe = tools\RegPkg.exe
+		tools\RegPkg.exe.config = tools\RegPkg.exe.config
 		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
 	EndProjectSection
 EndProject

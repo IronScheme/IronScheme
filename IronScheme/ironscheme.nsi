@@ -195,6 +195,10 @@ SectionIn 1 2 RO
 	File "init.ss"
 	File "compile-system-libraries.ss"
 	
+	File ..\..\..\tools\IronScheme.VisualStudio.dll
+	File ..\..\..\tools\RegPkg.exe
+	File ..\..\..\tools\RegPkg.exe.config
+	
 	File "ironscheme-buildscript.ss"
 
 	SetOutPath "$INSTDIR\examples"
@@ -258,6 +262,7 @@ Section -Post
   SetOutPath "$INSTDIR\websample"
   nsExec::ExecToStack 'cmd /c mkdir bin'
   SetOutPath "$INSTDIR\websample\bin"
+  ; this will probably fail on non-Vista
   nsExec::ExecToStack 'cmd /c mklink IronScheme.dll "$INSTDIR\IronScheme.dll"'
   nsExec::ExecToStack 'cmd /c mklink IronScheme.Closures.dll "$INSTDIR\IronScheme.Closures.dll"'
   nsExec::ExecToStack 'cmd /c mklink ironscheme.boot.dll "$INSTDIR\ironscheme.boot.dll"'

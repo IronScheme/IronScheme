@@ -393,10 +393,13 @@ namespace IronScheme.Runtime
     [Builtin("for-each")]
     public static object ForEach(object fn, params object[] lists)
     {
-      ICallable f = RequiresNotNull<ICallable>(fn);
-      foreach (object[] obj in new MultiEnumerable(lists))
+      if (lists != null)
       {
-        f.Call(obj);
+        ICallable f = RequiresNotNull<ICallable>(fn);
+        foreach (object[] obj in new MultiEnumerable(lists))
+        {
+          f.Call(obj);
+        }
       }
       return Unspecified;
     }

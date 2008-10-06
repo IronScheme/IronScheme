@@ -103,7 +103,9 @@
   
   (import 
     (ironscheme clr)
-    (except (rnrs) open-string-output-port port?))
+    (except (rnrs) 
+      open-string-output-port port? 
+      call-with-string-output-port))
     
   (define (get-output-string port)
     (clr-call ironscheme.runtime.stringwriter getbuffer port))
@@ -117,4 +119,10 @@
       
   (define (port? obj)
     (or (textual-port? obj) (binary-port? obj)))
+    
+  (define (call-with-string-output-port proc)
+    (let ((p (open-output-string)))
+      (call-with-port p proc)
+      (get-output-string p)))
+
 )

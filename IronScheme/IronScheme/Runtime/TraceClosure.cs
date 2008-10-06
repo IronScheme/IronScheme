@@ -72,7 +72,7 @@ namespace IronScheme.Runtime
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.WriteLine("{0} -> {1}", prefix, name);
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(pre.ToString().TrimEnd(Environment.NewLine.ToCharArray()));
+        Console.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
         Console.ForegroundColor = ConsoleColor.Gray;
 
         object result = realtarget.Call(args);
@@ -84,7 +84,7 @@ namespace IronScheme.Runtime
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("{0} <- {1}", prefix, name);
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(p.ToString().TrimEnd(Environment.NewLine.ToCharArray()));
+        Console.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
         Console.ForegroundColor = ConsoleColor.Gray;
         return result;
       }

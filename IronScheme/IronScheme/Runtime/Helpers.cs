@@ -11,42 +11,10 @@ namespace IronScheme.Runtime
 {
   public static class Helpers
   {
-    static Dictionary<Type, Dictionary<string, object>> cache = new Dictionary<Type, Dictionary<string, object>>();
-
-    public static object GetConstant(Type t, string id)
-    {
-      Dictionary<string, object> innerc;
-
-      if (!cache.TryGetValue(t, out innerc))
-      {
-        cache[t] = innerc = new Dictionary<string, object>();
-      }
-
-      object c;
-      if (!innerc.TryGetValue(id, out c))
-      {
-        Assembly ass = t.Assembly;
-        Stream s = ass.GetManifestResourceStream(id);
-        c = innerc[id] = bf.Deserialize(s);
-      }
-
-      return c;
-    }
-
     public static object EnumToSymbol<T>(T value)
     {
       return Builtins.StringToSymbol(value.ToString().ToLower());
     }
-
-    public static object CheckInitialized(object value)
-    {
-      if (value == Microsoft.Scripting.Uninitialized.Instance)
-      {
-        return Builtins.AssertionViolation("letrec", "attempted to use uninitialized variable");
-      }
-      return value;
-    }
-    
 
     public static T SymbolToEnum<T>(object symbol)
     {

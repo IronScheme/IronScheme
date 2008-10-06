@@ -98,26 +98,6 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    /*
-; 6.3.2
-- pair? (todo)
-- cons
-- car
-- cdr
-- set-car! (need to rename)
-- set-cdr! (need to rename)
-- null?
-- list?
-- list
-- length
-- append
-- reverse
-- list-tail
-- list-ref
-     
-     */
-
-
     [Builtin("pair?")]
     public static object IsPair(object arg1)
     {

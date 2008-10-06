@@ -623,6 +623,9 @@
     <Content Include="docs\usage.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="docs\visual-studio.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="editor\readme.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

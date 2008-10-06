@@ -641,7 +641,7 @@ namespace IronScheme.Runtime
       {
         StringWriter p = new StringWriter();
         printer.Call(obj, p);
-        return p.ToString();
+        return p.GetBuffer();
       }
 
       //finally check if this is some constructed type
@@ -827,7 +827,7 @@ namespace IronScheme.Runtime
       {
         StringWriter p = new StringWriter();
         printer.Call(obj, p);
-        return p.ToString();
+        return p.GetBuffer();
       }
 
       //finally check if this is some constructed type
@@ -957,7 +957,7 @@ namespace IronScheme.Runtime
           filename = filename.Substring(2);
         }
       }
-      return filename.Replace("file:", "");
+      return filename;
     }
     
     [Builtin("open-input-file")]
