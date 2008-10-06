@@ -25,14 +25,6 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-    /*
-
-; 6.3.1
-- not
-- boolean?
-
-     */
-
     /// <summary>
     /// Determines whether the specified obj is boolean.
     /// </summary>

@@ -28,30 +28,46 @@ namespace IronScheme.Runtime
     [InlineEmitter("symbol?")]
     public static Expression IsSymbol(Expression[] obj)
     {
-      return Ast.TypeIs(obj[0], typeof(SymbolId));
+      if (obj.Length == 1)
+      {
+        return Ast.TypeIs(obj[0], typeof(SymbolId));
+      }
+      return null;
     }
 
     [InlineEmitter("boolean?")]
     public static Expression IsBoolean(Expression[] obj)
     {
-      return Ast.TypeIs(obj[0], typeof(bool));
+      if (obj.Length == 1)
+      {
+        return Ast.TypeIs(obj[0], typeof(bool));
+      }
+      return null;
     }
 
     [InlineEmitter("procedure?")]
     public static Expression IsProcedure(Expression[] obj)
     {
-      return Ast.TypeIs(obj[0], typeof(ICallable));
+      if (obj.Length == 1)
+      {
+        return Ast.TypeIs(obj[0], typeof(ICallable));
+      }
+      return null;
     }
 
     [InlineEmitter("not")]
     public static Expression Not(Expression[] obj)
     {
-      Expression e = Unwrap(obj[0]);
-      if (e.Type == typeof(bool))
+      if (obj.Length == 1)
       {
-        return Ast.Not(e);
+        Expression e = Unwrap(obj[0]);
+        if (e.Type == typeof(bool))
+        {
+          return Ast.Not(e);
+        }
+        return Ast.Not(Ast.Call(IsTrue, obj[0]));
       }
-      return Ast.Not(Ast.Call(IsTrue, obj[0]));
+      return null;
     }
 
     static MethodInfo IsTrue = typeof(Builtins).GetMethod("IsTrue");

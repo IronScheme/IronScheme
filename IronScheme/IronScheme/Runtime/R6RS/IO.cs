@@ -39,7 +39,7 @@ namespace IronScheme.Runtime.R6RS
       if (s is SymbolId)
       {
         SymbolId bm = RequiresNotNull<SymbolId>(s);
-        return bm == bm_none || bm == bm_line || bm == bm_block;
+        return GetBool(bm == bm_none || bm == bm_line || bm == bm_block);
       }
       return FALSE;
     }
@@ -307,14 +307,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("textual-port?")]
     public static object IsTextualPort(object port)
     {
-      return IsTrue(port is TextReader || port is TextWriter || port is CustomTextReaderWriter);
+      return GetBool(port is TextReader || port is TextWriter || port is CustomTextReaderWriter);
     }
 
     //(binary-port? port)
     [Builtin("binary-port?")]
     public static object IsBinaryPort(object port)
     {
-      return IsTrue(port is Stream);
+      return GetBool(port is Stream);
     }
 
     //(transcoded-port binary-port transcoder)
@@ -1459,22 +1459,6 @@ namespace IronScheme.Runtime.R6RS
         return s.ToArray();
       }
     }
-
-    //(open-string-output-port) ; in scheme lib
-
-    //(call-with-string-output-port proc)
-    [Builtin("call-with-string-output-port")]
-    public static object CallWithStringOutputPort(object proc)
-    {
-      ICallable c = RequiresNotNull<ICallable>(proc);
-
-      using (StringWriter w = new StringWriter())
-      {
-        c.Call(w);
-        return w.ToString();
-      }
-    }
-
 
     //(standard-output-port)
     [Builtin("standard-output-port")]

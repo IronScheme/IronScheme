@@ -22,35 +22,6 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-    /*
-
-     ; 6.3.4
-- char?
-- char=?
-- char<?
-- char>? 
-- char<=? 
-- char>=?
-
-- char-ci=? 
-- char-ci<? 
-- char-ci>? 
-- char-ci<=?
-- char-ci>=? 
-
-- char-alphabetic? 
-- char-numeric?
-- char-whitespace? 
-- char-upper-case? 
-- char-lower-case?
-
-- char->integer 
-- integer->char 
-
-- char-upcase
-- char-downcase
-
-     */
     /// <summary>
     /// Determines whether the specified obj is char.
     /// </summary>

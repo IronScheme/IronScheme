@@ -174,7 +174,6 @@
     (&assertion                ($core-rtd . (&assertion-rtd &assertion-rcd)))
     (&irritants                ($core-rtd . (&irritants-rtd &irritants-rcd)))
     (&who                      ($core-rtd . (&who-rtd &who-rcd)))
-    (&non                      ($core-rtd . (&non-continuable-rtd &non-continuable-rcd)))
     (&implementation-restriction  ($core-rtd . (&implementation-restriction-rtd &implementation-restriction-rcd)))
     (&lexical                  ($core-rtd . (&lexical-rtd &lexical-rcd)))
     (&syntax                   ($core-rtd . (&syntax-rtd &syntax-rcd)))
