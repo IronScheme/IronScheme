@@ -25,9 +25,11 @@ Requirements:
 Installation:
 
 - Run from the command line: 
-  * RegPkg /ranu /codebase <absolute path of IronScheme.VisualStudio.dll>
+  * If admin: RegPkg /codebase <absolute path of IronScheme.VisualStudio.dll>
+  * If not admin: RegPkg /ranu /codebase <absolute path of IronScheme.VisualStudio.dll>
   * devenv /nosetupvstemplates
 
+- I am not sure about the installation yet.
 - You can exit Visual Studio now. The IronScheme editor will open for .ss, .sls, .sps files.
 
 Uninstallation:
