@@ -189,6 +189,9 @@
     <Content Include="run-tests.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="lib\list-match.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi\system.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
