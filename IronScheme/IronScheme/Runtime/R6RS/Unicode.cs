@@ -187,8 +187,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-ci-compare")]
     public static object StringCaseInsensitiveCompare(object obj1, object obj2)
     {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
+      string s1 = RequiresNotNull<string>(obj1);
+      string s2 = RequiresNotNull<string>(obj2);
 
       return compare.Compare(s1, s2, CompareOptions.IgnoreCase);
     }
@@ -196,7 +196,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-upcase")]
     public static object ToUpperCaseString(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       return s.ToUpper().Replace("ß", "SS");
     }
 
@@ -208,7 +208,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-downcase")]
     public static object ToLowerCaseString(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       StringBuilder sb = new StringBuilder(s.ToLower());
       for (int i = 0; i < sb.Length; i++)
       {
@@ -247,21 +247,21 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-normalize-nfd")]
     public static object StringNormalizeNFD(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       return s.Normalize(NormalizationForm.FormD);
     }
 
     [Builtin("string-normalize-nfkd")]
     public static object StringNormalizeNFKD(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       return s.Normalize(NormalizationForm.FormKD);
     }
     
     [Builtin("string-normalize-nfc")]
     public static object StringNormalizeNFC(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       return s.Normalize(NormalizationForm.FormC);
     }
 
@@ -269,7 +269,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-normalize-nfkc")]
     public static object StringNormalizeNFKC(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       return s.Normalize(NormalizationForm.FormKC);
     }
   }

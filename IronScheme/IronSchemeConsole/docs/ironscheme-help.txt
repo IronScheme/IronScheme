@@ -1,7 +1,7 @@
 ﻿IronScheme Help
 ===============
 
-Procedures provided in the (ironscheme) library, beyond those provided in the R6RS specification.
+Procedures/forms provided in the (ironscheme) library, beyond those provided in the R6RS specification.
 
 compile
 Compiles a toplevel program's dependent libraries.

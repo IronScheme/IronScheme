@@ -7,13 +7,13 @@
     (ironscheme) 
     (ironscheme strings))
     
-   (define-syntax lambda/type  
+  (define-syntax lambda/type  
     (lambda (x)
       (define (get-name/type name)
         (let ((tokens (string-split 
                         (symbol->string (syntax->datum name)) 
                         ":")))
-          (if (zero? (string-length (vector-ref tokens 0)))
+          (when (zero? (string-length (vector-ref tokens 0)))
             (syntax-violation 'get-name/type "length of argument > 0" name))
           (if (= 1 (vector-length tokens))
             (cons 
@@ -47,7 +47,7 @@
                           ((g ...) (map make-guard (filter cdr ai)))) 
               #'(lambda (a ...)
                   g ...
-                  (let () body body* ...))))]
+                  (let ((a a) ...) body body* ...))))]
         [(_ (a a* ... . rest) body body* ...)                
           (and (for-all identifier? #'(a a* ...)) (identifier? #'rest))
           (let ((ai (map get-name/type #'(a a* ...)))
@@ -59,7 +59,7 @@
               #'(lambda (a ... . rest)
                   g ...
                   h
-                  (let () body body* ...))))]
+                  (let ((a a) ... (rest rest)) body body* ...))))]
         [(_ formals body body* ...)
           (identifier? #'formals)                
           (let ((ri (get-name/type #'formals)))
@@ -67,7 +67,7 @@
                           (h (if (cdr ri) (make-list-guard ri) #'#f))) 
               #'(lambda formals
                   h
-                  (let () body body* ...))))]
+                  (let ((formals formals)) body body* ...))))]
                   )))
                   
   (define-syntax define/type
@@ -83,7 +83,7 @@
         [(_ ((n v) ...) body body* ...)
           #'((lambda/type (n ...) body body* ...) v ...)]
         [(_ f ((n v) ...) body body* ...)
-          (identifier? #'name)
+          (identifier? #'f)
           #'(letrec ((f (lambda/type (n ...) body body* ...))) (f v ...))]        
           )))        
       

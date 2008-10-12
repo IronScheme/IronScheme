@@ -201,7 +201,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string->utf8")]
     public static object StringToUTF8(object str)
     {
-      string s = GetString(str);
+      string s = RequiresNotNull<string>(str);
       return Encoding.UTF8.GetBytes(s);
     }
 
@@ -211,14 +211,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string->utf16")]
     public static object StringToUTF16(object str)
     {
-      string s = GetString(str);
+      string s = RequiresNotNull<string>(str);
       return UTF16BE.GetBytes(s);
     }
 
     [Builtin("string->utf16")]
     public static object StringToUTF16(object str, object endianess)
     {
-      string s = GetString(str);
+      string s = RequiresNotNull<string>(str);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       if (end == SymbolTable.StringToId("big"))
       {
@@ -236,14 +236,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string->utf32")]
     public static object StringToUTF32(object str)
     {
-      string s = GetString(str);
+      string s = RequiresNotNull<string>(str);
       return UTF32BE.GetBytes(s);
     }
 
     [Builtin("string->utf32")]
     public static object StringToUTF32(object str, object endianess)
     {
-      string s = GetString(str);
+      string s = RequiresNotNull<string>(str);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       if (end == SymbolTable.StringToId("big"))
       {

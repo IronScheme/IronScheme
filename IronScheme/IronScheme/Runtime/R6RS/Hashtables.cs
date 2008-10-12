@@ -228,14 +228,14 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("string-hash")]
     public static object StringHash(object obj)
     {
-      string r = GetString(obj);
+      string r = RequiresNotNull<string>(obj);
       return StringComparer.Ordinal.GetHashCode(r);
     }
 
     [Builtin("string-ci-hash")]
     public static object StringCaseInsensitiveHash(object obj)
     {
-      string r = GetString(obj);
+      string r = RequiresNotNull<string>(obj);
       return StringComparer.InvariantCultureIgnoreCase.GetHashCode(r);
     }
 

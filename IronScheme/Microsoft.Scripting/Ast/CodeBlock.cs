@@ -328,10 +328,13 @@ namespace Microsoft.Scripting.Ast {
                 Debug.Assert(cg.TypeGen != null);
 
                 CodeGen cctor = cg.TypeGen.TypeInitializer;
+#if DEBUG
                 EmitEnvironmentIdArray(cctor, size);
                 Slot fields = cg.TypeGen.AddStaticField(typeof(SymbolId[]), "__symbolIds$" + _name + "$" + Interlocked.Increment(ref _Counter));
                 fields.EmitSet(cctor);
                 fields.EmitGet(cg);
+#endif
+
             } else {
                 EmitEnvironmentIdArray(cg, size);
             }
@@ -405,7 +408,10 @@ namespace Microsoft.Scripting.Ast {
             environmentSlot.EmitSet(cg);
 
             // Emit the names array for the environment constructor
+#if DEBUG
             EmitEnvironmentIDs(cg);
+#endif
+
             // Emit code to generate the new instance of the environment
 
             _environmentFactory.EmitNewEnvironment(cg);
@@ -1100,7 +1106,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             if (_explicitCodeContextExpression != null) {
                 Slot localContextSlot = impl.GetLocalTmp(typeof(CodeContext));
                 
-                // cannot access code context slot during emit:
+                //cannot access code context slot during emit:
                 _explicitCodeContextExpression.Emit(impl);
 
                 localContextSlot.EmitSet(impl);

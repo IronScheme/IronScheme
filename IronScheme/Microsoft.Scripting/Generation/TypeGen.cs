@@ -207,6 +207,11 @@ namespace Microsoft.Scripting.Generation {
 
             Type[] parameterTypes = CompilerHelpers.MakeParamTypeArray(paramTypes, constantPool);
 
+            //if (parameterTypes.Length > 0 && parameterTypes[0] == typeof(CodeContext))
+            //{
+            //  attrs = MethodAttributes.Static | MethodAttributes.Assembly;
+            //}
+
             MethodBuilder mb = _myType.DefineMethod(name, attrs, retType, parameterTypes);
             CodeGen res = CreateCodeGen(mb, mb.GetILGenerator(), parameterTypes, constantPool);
 

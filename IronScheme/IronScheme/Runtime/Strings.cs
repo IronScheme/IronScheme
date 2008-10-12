@@ -122,25 +122,12 @@ namespace IronScheme.Runtime
       return new StringBuilder(new string(a));
     }
 
-    protected static string GetString(object str)
-    {
-      if (str is string)
-      {
-        return (string)str;
-      }
-      if (str is StringBuilder)
-      {
-        return str.ToString();
-      }
-      return (string)AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", str);
-    }
-
     [Builtin("substring")]
     public static string SubString(object obj, object start, object end)
     {
       int st = RequiresNotNull<int>(start);
       int ed = RequiresNotNull<int>(end);
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       return s.Substring(st, ed - st);
     }
 
@@ -166,7 +153,7 @@ namespace IronScheme.Runtime
     [Builtin("string-copy")]
     public static string StringCopy(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
       return s.Clone() as string;
     }
 
@@ -179,8 +166,8 @@ namespace IronScheme.Runtime
     [Builtin("string-compare")]
     public static object StringCompare(object obj1, object obj2)
     {
-      string s1 = GetString(obj1);
-      string s2 = GetString(obj2);
+      string s1 = RequiresNotNull<string>(obj1);
+      string s2 = RequiresNotNull<string>(obj2);
 
       return string.Compare(s1, s2, StringComparison.Ordinal);
     }
@@ -188,7 +175,7 @@ namespace IronScheme.Runtime
     [Builtin("string->list")]
     public static Cons StringToList(object obj)
     {
-      string s = GetString(obj);
+      string s = RequiresNotNull<string>(obj);
 
       return Runtime.Cons.FromList(s);
     }
@@ -252,7 +239,7 @@ namespace IronScheme.Runtime
     [Builtin("string-format")]
     public static string StringFormat(object format, params object[] args)
     {
-      string f = GetString(format);
+      string f = RequiresNotNull<string>(format);
       return string.Format(f, args);
     }
 

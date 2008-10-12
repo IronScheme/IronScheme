@@ -31,7 +31,7 @@
   (define-syntax record-case
     (lambda (x)
       (syntax-case x (else)
-        [(_ r [r? (f ...) e e* ...] ... [else ee])
+        [(_ r [(r? f ...) e e* ...] ... [else ee])
           (for-all identifier? #'(r? ...))
           #'(let ((r* r))
               (cond
@@ -40,8 +40,8 @@
                   (lambda (f ...) e e* ...) 
                   (get-fields r* (record-type-descriptor r?) 'f ...) )] ...
                 [else ee]))]
-        [(_ r [r? (f ...) e  e* ...] ... )
-          #'(record-case r [r? (f ...) e e* ...] ... [else #f])]
+        [(_ r [(r? f ...) e  e* ...] ... )
+          #'(record-case r [(r? f ...) e e* ...] ... [else #f])]
           )))    
 )
     
