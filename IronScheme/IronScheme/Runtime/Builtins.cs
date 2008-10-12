@@ -434,48 +434,6 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
       int c = ++evalcounter;
 
-#if DEBUG_FULL
-
-      // bad for ASP.NET
-      if (Assembly.GetEntryAssembly() != null)
-      {
-        System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
-        {
-          ICallable prettyprint = null;
-          SymbolId pp = SymbolTable.StringToId("pretty-print");
-          if (cc.Scope.ContainsName(pp))
-          {
-            prettyprint = SymbolValue(pp) as ICallable;
-          }
-
-          if (!Directory.Exists("evaldump"))
-          {
-            Directory.CreateDirectory("evaldump");
-          }
-
-          string fn = string.Format("evaldump/{0:D3}.ss", c);
-
-          if (File.Exists(fn))
-          {
-            File.Delete(fn);
-          }
-
-          using (TextWriter w = File.CreateText(fn))
-          {
-            if (prettyprint == null)
-            {
-              Write(expr, w);
-            }
-            else
-            {
-              prettyprint.Call(expr, w);
-            }
-          }
-        });
-      }
-
-#endif
-
 #if DEBUG
       Stopwatch sw = Stopwatch.StartNew();
 #endif

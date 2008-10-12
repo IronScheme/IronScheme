@@ -109,8 +109,10 @@ namespace Microsoft.Scripting.Generation {
             ConstructorInfo ctor = EnvironmentType.GetConstructor(
                 new Type[] {
                     StorageType,
+#if DEBUG
                     typeof(SymbolId[]),
-                });
+#endif
+                    });
 
             // emit: dict.Tuple[.Item000...].Item000 = dict, and then leave dict on the stack
 

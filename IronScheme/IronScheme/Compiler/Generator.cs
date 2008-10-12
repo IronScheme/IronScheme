@@ -50,13 +50,21 @@ namespace IronScheme.Compiler
     protected static Dictionary<SymbolId, CodeBlockExpression> references = new Dictionary<SymbolId, CodeBlockExpression>();
 
     protected internal readonly static FieldInfo Unspecified = typeof(Builtins).GetField("Unspecified");
+    internal static bool inconstant = false;
 
     protected static Expression GetCons(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
       if (c != null)
       {
-        return Ast.Constant(new IronSchemeConstant(c, cb));
+        if (inconstant)
+        {
+          return GetConsList(c, cb);
+        }
+        else
+        {
+          return Ast.Constant(new IronSchemeConstant(c, cb));
+        }
       }
       object[] v = args as object[];
       if (v != null)

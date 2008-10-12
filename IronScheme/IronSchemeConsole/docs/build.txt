@@ -18,7 +18,7 @@ C. Rebuild from the REPL
 - Run '(ironscheme-build)'.
 - Restart IronScheme.
 
-Optionally you can then run (compile-system-libraries) from the REPL or as described in install.txt to recompile commonly usage libraries.
+Optionally you can then run (compile-system-libraries) from the REPL or as described in install.txt to recompile commonly used libraries.
 
 You can modify which libraries gets compiled by editing the system-libraries.ss file.
 

@@ -40,13 +40,22 @@ namespace IronScheme.Compiler
         CodeGen init = cg.TypeGen.TypeInitializer;
 
         Slot s = cg.TypeGen.AddStaticField(typeof(object),FieldAttributes.InitOnly | FieldAttributes.Private , string.Format("$c${0:X4}", constantcounter++));
-        
-        Expression e = Generator.GetConsList(value as Cons, cb);
 
-        e.Emit(init);
+        try
+        {
+          Generator.inconstant = true;
+          Expression e = Generator.GetConsList(value as Cons, cb);
+
+          e.Emit(init);
+        }
+        finally
+        {
+          Generator.inconstant = false;
+        }
+
         s.EmitSet(init);
-
         s.EmitGet(cg);
+
       }
     }
 

@@ -57,10 +57,12 @@
   (define (find proc l)
     (if (null? l)
       #f
-      (let ((e (car l)))
+      (let ((e (car l))
+            (r (cdr l))
+            (proc proc))
         (if (proc e) 
           e
-          (find proc (cdr l))))))    
+          (find proc r)))))    
           
   (define (partition proc l)
     (let f ((l l)(a '())(b '()))
@@ -98,19 +100,27 @@
         (if (eq? obj (car t)) 
           t
           (assq obj r)))))
-            
+          
   (define (assv obj lst)
-    (if (null? lst) #f
-      (let ((c (car lst)))
-        (if (eqv? obj (car c)) c
-          (assv obj (cdr lst))))))      
-            
-  (define (assoc obj lst)
-    (if (null? lst) #f
-      (let ((c (car lst)))
-        (if (equal? obj (car c)) c
-          (assoc obj (cdr lst))))))
+    (if (null? lst) 
+      #f
+      (let ((obj obj)
+            (t (car lst)) 
+            (r (cdr lst)))
+        (if (eqv? obj (car t)) 
+          t
+          (assv obj r)))))          
 
+  (define (assoc obj lst)
+    (if (null? lst) 
+      #f
+      (let ((obj obj)
+            (t (car lst)) 
+            (r (cdr lst)))
+        (if (equal? obj (car t)) 
+          t
+          (assoc obj r)))))          
+            
   (define (assp p? lst)
     (if (null? lst) 
       #f
@@ -136,13 +146,17 @@
         (memv obj (cdr lst)))))
 
   (define (member obj lst)
-    (if (null? lst) #f
-      (if (equal? obj (car lst)) lst
+    (if (null? lst) 
+      #f
+      (if (equal? obj (car lst)) 
+        lst
         (member obj (cdr lst)))))
 
   (define (memp p? lst)
-    (if (null? lst) #f
-      (if (p? (car lst)) lst
+    (if (null? lst) 
+      #f
+      (if (p? (car lst)) 
+        lst
         (memp p? (cdr lst)))))
   
   (define (all-empty? ls)
@@ -198,7 +212,6 @@
 				  (cdr list1) 
 				  (map cdr lists)))))   
 				  
-				  
   (define (fold-right combine nil list1 . lists)
 	  (if (null? list1)
 		  nil
@@ -213,8 +226,7 @@
 						    nil
 						    (cdr list1) 
 						    (map cdr lists))))))))
-						    
-						    
+					    
    (define (remove obj list)
      (remp (lambda (x) (equal? obj x)) list))
     

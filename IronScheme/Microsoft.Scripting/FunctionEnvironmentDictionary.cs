@@ -48,8 +48,13 @@ namespace Microsoft.Scripting
         private Dictionary<SymbolId, int> _slotDict;
         private int _size;
 
+        public FunctionEnvironmentDictionary(TupleType data) :
+            base(data) {
+        }
+
         public FunctionEnvironmentDictionary(TupleType data, SymbolId[] names) :
-            base(data, names) {
+          base(data, names)
+        {
         }
 
         protected internal override bool TrySetExtraValue(SymbolId key, object value) {

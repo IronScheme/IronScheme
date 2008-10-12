@@ -1,0 +1,23 @@
+﻿Interop
+=======
+
+From Scheme to .NET:
+
+There are 2 options:
+
+1. Create a .NET method and add the [Builtin] attribute to it. The procedure is now available via (symbol-value name).
+   This approach is handy when extending the 'base' libraries.
+   Note: the return type must be of type object, else tail calls will fail. Object parameters also preferred.
+   
+2. Use the (ironscheme clr) library.
+   There are various syntactic constructs that emits .NET method calls, property get/set, etc directly.
+   Note: Parameters will be automatically casted to the target type.
+   
+From .NET to Scheme:
+
+1. Eval a string and get a returned object. TODO: make an easy interface for this.
+
+2. Use a scheme procedure passed as an argument to a .NET method. 
+   Scheme procedures are of type ICallable, and capture their environment.
+
+

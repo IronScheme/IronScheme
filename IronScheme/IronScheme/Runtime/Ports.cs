@@ -703,7 +703,7 @@ namespace IronScheme.Runtime
 
       if (obj is bool)
       {
-        return ((bool)obj) ? "#t" : "#f";
+        return IsTrue(obj) ? "#t" : "#f";
       }
       if (obj is string || obj is StringBuilder)
       {
