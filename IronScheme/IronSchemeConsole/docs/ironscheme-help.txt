@@ -103,16 +103,16 @@ pmap
 A parallel version of map.
 
 procedure-arity
-Returns the arity of a procedure. See Larceny docs.
+Returns multiple values for the procedure arities. 
 
 procedure-environment
 Does nothing currently.
 
 procedure-form
-Does nothing currently.
+Returns multiple values for the procedure signature.
 
 procedure-name
-Returns the nume of a procedure.
+Returns the name of a procedure.
 
 serialize-port
 Uses the .NET binary serializer to serialize an object to a port.
@@ -184,7 +184,7 @@ vector-copy
 Makes a copy of the specified vector.
 
 vector-filter
-Analoguos to filter.
+Analogous to filter.
 
 vector-index-of
 Returns the index of the specified obejct if found.

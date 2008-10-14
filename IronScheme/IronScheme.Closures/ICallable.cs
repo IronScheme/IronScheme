@@ -15,5 +15,6 @@ namespace IronScheme.Runtime
     object Call(object[] args);
 
     object Arity { get; }
+    object Form { get; }
   }
 }
