@@ -48,13 +48,64 @@ namespace IronScheme.Runtime
             arities.Add(pc);
           }
         }
-        if (arities.Count == 1)
+        if (arities.Count == 0)
+        {
+          return Closure.Unspecified;
+        }
+        else if (arities.Count == 1)
         {
           return arities[0];
         }
         else
         {
-          return Closure.ConsFromArray(arities.ToArray());
+          return new MultipleValues(arities.ToArray());
+        }
+      }
+    }
+
+    object ICallable.Form
+    {
+      get 
+      {
+        List<object> forms = new List<object>();
+        bool improper = false;
+        foreach (MethodBase m in methods)
+        {
+          List<object> form = new List<object>();
+          form.Add(SymbolTable.StringToId(ToString()));
+
+          ParameterInfo[] pis = m.GetParameters();
+
+          foreach (ParameterInfo pi in pis)
+          {
+            if (pi.ParameterType != typeof(CodeContext))
+            {
+              form.Add(SymbolTable.StringToId(pi.Name));
+            }
+          }
+
+          if (pis.Length > 0 && pis[pis.Length - 1].IsDefined(typeof(ParamArrayAttribute), false))
+          {
+            improper = true;
+          }
+
+          if (improper)
+          {
+            forms.Add(Closure.ConsStarFromArray(form.ToArray()));
+          }
+          else
+          {
+            forms.Add(Closure.ConsFromArray(form.ToArray()));
+          }
+        }
+        switch (forms.Count)
+        {
+          case 0:
+            return Closure.Unspecified;
+          case 1:
+            return forms[0];
+          default:
+            return new MultipleValues(forms.ToArray());
         }
       }
     }
@@ -231,6 +282,9 @@ namespace IronScheme.Runtime
 
 
     #endregion
+
+
+
   }
 
 }

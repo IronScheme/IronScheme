@@ -53,6 +53,8 @@ namespace IronScheme.Runtime
     int paramcount = int.MaxValue;
 
     public static ConsFromArrayHandler ConsFromArray;
+    public static ConsFromArrayHandler ConsStarFromArray;
+    public static object Unspecified;
 
     public override string ToString()
     {
@@ -72,6 +74,35 @@ namespace IronScheme.Runtime
     public virtual object Arity
     {
       get { return paramcount; }
+    }
+
+    public virtual object Form
+    {
+      get 
+      {
+        if (target == null || target.Method == null)
+        {
+          return Unspecified;
+        }
+
+        MethodInfo mi = target.Method;
+
+        List<object> form = new List<object>();
+
+        ParameterInfo[] pis = mi.GetParameters();
+
+        form.Add( SymbolTable.StringToId(ToString()));
+
+        foreach (ParameterInfo pi in pis)
+        {
+          if (pi.ParameterType != typeof(CodeContext))
+          {
+            form.Add(SymbolTable.StringToId(pi.Name));
+          }
+        }
+
+        return ConsFromArray(form.ToArray());
+      }
     }
 
     public virtual object Call()
@@ -419,6 +450,35 @@ namespace IronScheme.Runtime
         get { return (double)( pcount - 1); }
       }
 
+      public override object Form
+      {
+        get
+        {
+          if (target == null || target.Method == null)
+          {
+            return Unspecified;
+          }
+
+          MethodInfo mi = target.Method;
+
+          List<object> form = new List<object>();
+
+          ParameterInfo[] pis = mi.GetParameters();
+
+          form.Add(SymbolTable.StringToId(ToString()));
+
+          foreach (ParameterInfo pi in pis)
+          {
+            if (pi.ParameterType != typeof(CodeContext))
+            {
+              form.Add(SymbolTable.StringToId(pi.Name));
+            }
+          }
+
+          return ConsStarFromArray(form.ToArray());
+        }
+      }
+
       public override object Call(object[] args)
       {
         if (args.Length < (double)Arity)
@@ -483,9 +543,44 @@ namespace IronScheme.Runtime
           List<object> arities = new List<object>();
           foreach (ICallable c in targets)
           {
-            arities.Add(c.Arity);
+            if (c.Arity != Unspecified)
+            {
+              arities.Add(c.Arity);
+            }
           }
-          return ConsFromArray(arities.ToArray());
+          switch (arities.Count)
+          {
+            case 0:
+              return Unspecified;
+            case 1:
+              return arities[0];
+            default:
+              return new MultipleValues(arities.ToArray());
+          }
+        }
+      }
+
+      public override object Form
+      {
+        get
+        {
+          List<object> forms = new List<object>();
+          foreach (ICallable c in targets)
+          {
+            if (c.Form != Unspecified)
+            {
+              forms.Add(c.Form);
+            }
+          }
+          switch (forms.Count)
+          {
+            case 0:
+              return Unspecified;
+            case 1:
+              return arities[0];
+            default:
+              return new MultipleValues(forms.ToArray());
+          }
         }
       }
 
@@ -592,7 +687,6 @@ namespace IronScheme.Runtime
         }
       }
     }
-
 
   }
 

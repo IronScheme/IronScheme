@@ -335,7 +335,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     public static object ProcForm(object proc)
     {
       ICallable c = RequiresNotNull<ICallable>(proc);
-      return FALSE;
+      return c.Form;
     }
 
     [Builtin("procedure-name")]
