@@ -63,12 +63,13 @@ namespace IronScheme.Runtime
         return "unknown closure";
       }
       string name = target.Method.Name;
-      int i = name.LastIndexOf('$');
+
+      int i = name.IndexOf("::");
       if (i < 0)
       {
         return name;
       }
-      return name.Substring(0, i);
+      return name.Substring(i + 2);
     }
 
     public virtual object Arity

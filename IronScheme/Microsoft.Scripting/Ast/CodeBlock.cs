@@ -1060,7 +1060,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             } else {
                 foreach (Variable p in _parameters) {
                     paramTypes.Add(p.Type);
-                    paramNames.Add(p.Name);
+                    paramNames.Add(Variable.UnGenSym(p.Name));
                     p.ParameterIndex = parameterIndex++;
                 }
             }
@@ -1084,7 +1084,14 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
         }
 
         private string GetGeneratedName() {
+          if (_name == "anon" || string.IsNullOrEmpty(_name))
+          {
             return _name + "$" + Interlocked.Increment(ref _Counter);
+          }
+          else
+          {
+            return _name;
+          }
         }
 
         /// <summary>

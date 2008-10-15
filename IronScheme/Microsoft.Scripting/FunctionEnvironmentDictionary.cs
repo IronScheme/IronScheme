@@ -58,47 +58,47 @@ namespace Microsoft.Scripting
         }
 
         protected internal override bool TrySetExtraValue(SymbolId key, object value) {
-            if (_slotDict == null) MakeSlotDict();
+            //if (_slotDict == null) MakeSlotDict();
 
-            int val;
-            if (_slotDict.TryGetValue(key, out val)) {
-                if (_size < Tuple.MaxSize) {
-                    // fast path
-                    TupleData.SetValue(val, value);
-                } else {
-                    // slow path
-                    object res = TupleData;
-                    int lastAccess = -1;
-                    foreach (int i in Tuple.GetAccessPath(_size, val)) {
-                        if (lastAccess != -1) {
-                            res = ((Tuple)res).GetValue(lastAccess);
-                        }
-                        lastAccess = i;
-                    }
-                    ((Tuple)res).SetValue(lastAccess, value);
-                }
-                return true;
-            }
+            //int val;
+            //if (_slotDict.TryGetValue(key, out val)) {
+            //    if (_size < Tuple.MaxSize) {
+            //        // fast path
+            //        TupleData.SetValue(val, value);
+            //    } else {
+            //        // slow path
+            //        object res = TupleData;
+            //        int lastAccess = -1;
+            //        foreach (int i in Tuple.GetAccessPath(_size, val)) {
+            //            if (lastAccess != -1) {
+            //                res = ((Tuple)res).GetValue(lastAccess);
+            //            }
+            //            lastAccess = i;
+            //        }
+            //        ((Tuple)res).SetValue(lastAccess, value);
+            //    }
+            //    return true;
+            //}
 
             return false;
         }
 
         protected internal override bool TryGetExtraValue(SymbolId key, out object value) {
-            if (_slotDict == null) MakeSlotDict();
+            //if (_slotDict == null) MakeSlotDict();
 
-            int val;
-            if (_slotDict.TryGetValue(key, out val)) {
-                if (_size < Tuple.MaxSize) {
-                    value = TupleData.GetValue(val);
-                } else {
-                    object res = TupleData;
-                    foreach (int i in Tuple.GetAccessPath(_size, val)) {
-                        res = ((Tuple)res).GetValue(i);
-                    }
-                    value = res;
-                }                
-                return true;
-            }
+            //int val;
+            //if (_slotDict.TryGetValue(key, out val)) {
+            //    if (_size < Tuple.MaxSize) {
+            //        value = TupleData.GetValue(val);
+            //    } else {
+            //        object res = TupleData;
+            //        foreach (int i in Tuple.GetAccessPath(_size, val)) {
+            //            res = ((Tuple)res).GetValue(i);
+            //        }
+            //        value = res;
+            //    }                
+            //    return true;
+            //}
             value = null;
             return false;
         }

@@ -31,8 +31,9 @@
           compile-r6rs-top-level boot-library-expand 
           null-environment scheme-report-environment
           interaction-environment
-          interaction-environment-symbols environment-symbols environment-bindings
-          ellipsis-map assertion-error environment environment?)
+          interaction-environment-symbols environment-bindings
+          ellipsis-map assertion-error 
+		  environment environment? environment-symbols)
   (import
     (except (rnrs)
       environment environment? identifier?
@@ -107,44 +108,44 @@
           (mark* (stx-mark* id)))
       (let ((sym* (rib-sym* rib)))
         (cond
-          [(and (memq sym (rib-sym* rib))
+          ((and (memq sym (rib-sym* rib))
                 (find sym mark* sym* (rib-mark** rib) (rib-label* rib)))
            =>
            (lambda (label)
              (cond
-               [(imported-label->binding label) 
+               ((imported-label->binding label) 
                 ;;; create new label to shadow imported binding
-                (gensym)]
-               [else
+                (gensym))
+               (else
                 ;;; recycle old label
-                label]))]
-          [else 
+                label))))
+          (else 
            ;;; create new label for new binding
-           (gensym)]))))
+           (gensym))))))
 
 
   (define (gen-define-label+loc id rib)
     (cond
-      [(top-level-context) =>
+      ((top-level-context) =>
        (lambda (env)
-         (let ([label (gen-top-level-label id rib)]
-               [locs (interaction-env-locs env)])
+         (let ((label (gen-top-level-label id rib))
+               (locs (interaction-env-locs env)))
            (values label
              (cond
-               [(assq label locs) => cdr]
-               [else 
-                (let ([loc (gen-lexical id)])
+               ((assq label locs) => cdr)
+               (else 
+                (let ((loc (gen-lexical id)))
                   (set-interaction-env-locs! env
                     (cons (cons label loc) locs))
-                  loc)]))))]
-      [else (values (gensym) (gen-lexical id))]))
+                  loc)))))))
+      (else (values (gensym) (gen-lexical id)))))
 
 
   (define (gen-define-label id rib)
     (cond
-      [(top-level-context)
-       (gen-top-level-label id rib)]
-      [else (gensym)]))
+      ((top-level-context)
+       (gen-top-level-label id rib))
+      (else (gensym))))
 
 
   ;;; A rib is a record constructed at every lexical contour in the
@@ -169,7 +170,7 @@
       (and ht
         (let ((cv (hashtable-ref ht sym #f)))
           (cond
-            [(and cv (assp (lambda (m) (same-marks? mark* m)) cv)) => cdr]
+            ((and cv (assp (lambda (m) (same-marks? mark* m)) cv)) => cdr)
             (else #f))))))
   
   ;;; For example, when processing a lambda's internal define, a new rib
@@ -185,35 +186,31 @@
            (if (and (eq? sym (car sym*)) (same-marks? mark* (car mark**)))
                label*
                (find sym mark* (cdr sym*) (cdr mark**) (cdr label*)))))
-
-    ;(display "top-rib-size ")
-    ;(display (and (rib-cache rib) (hashtable-size (rib-cache rib))))
-    ;(newline)
     (when (rib-sealed/freq rib)
       (assertion-violation 'extend-rib! "BUG: rib is sealed" rib))
     (let ((sym (id->sym id))
           (mark* (stx-mark* id)))
       (let ((sym* (rib-sym* rib)))
         (cond
-          [(find-label rib sym mark*)
+          ((find-label rib sym mark*)
            =>
            (lambda (p)
               (unless (eq? label p)
-                (stx-error id "multiple definitions of identifier")))]
-          [(and (memq sym (rib-sym* rib))
+                (stx-error id "multiple definitions of identifier"))))
+          ((and (memq sym (rib-sym* rib))
                 (find sym mark* sym* (rib-mark** rib) (rib-label* rib)))
            =>
            (lambda (p)
              (unless (eq? label (car p))
                (cond
-                 [(top-level-context)
+                 ((top-level-context)
                   ;;; XXX override label
-                  (set-car! p label)]
-                 [else
+                  (set-car! p label))
+                 (else
                   ;;; signal an error if the identifier was already
                   ;;; in the rib.
-                  (stx-error id "multiple definitions of identifier")])))]
-          [else
+    			(stx-error id "multiple definitions of identifier"))))))
+          (else
            (when (rib-cache rib)
               (hashtable-update! (rib-cache rib) sym 
                 (lambda (e)
@@ -221,7 +218,7 @@
                 '()))
            (set-rib-sym*! rib (cons sym sym*))
            (set-rib-mark**! rib (cons mark* (rib-mark** rib)))
-           (set-rib-label*! rib (cons label (rib-label* rib)))]))))
+      	   (set-rib-label*! rib (cons label (rib-label* rib))))))))
           
   (define (extend-rib/nc! rib id label)
     (let ((sym (id->sym id))
@@ -315,15 +312,15 @@
     (lambda (x p)
       (display "#<syntax " p)
       (write (stx->datum x) p)
-      (let ([expr (stx-expr x)])
+      (let ((expr (stx-expr x)))
         (when (annotation? expr) 
-          (let ([src (annotation-source expr)])
+          (let ((src (annotation-source expr)))
             (when (pair? src)
-              (display " [" p)
+              (display " (" p)
               (display (cdr src) p)
               (display " of " p)
               (display (car src) p)
-              (display "]" p)))))
+              (display ")" p)))))
       (display ">" p)))
 
   ;;; First, let's look at identifiers, since they're the real 
@@ -461,10 +458,10 @@
   (define syntax-kind?
     (lambda (x p?)
       (cond
-        [(stx? x) (syntax-kind? (stx-expr x) p?)]
-        [(annotation? x) 
-         (syntax-kind? (annotation-expression x) p?)]
-        [else (p? x)])))
+        ((stx? x) (syntax-kind? (stx-expr x) p?))
+        ((annotation? x) 
+         (syntax-kind? (annotation-expression x) p?))
+        (else (p? x)))))
 
   (define syntax-vector->list
     (lambda (x)
@@ -475,8 +472,8 @@
                (s* (stx-subst* x))
                (ae* (stx-ae* x)))
            (map (lambda (x) (mkstx x m* s* ae*)) ls)))
-        [(annotation? x) 
-         (syntax-vector->list (annotation-expression x))]
+        ((annotation? x) 
+         (syntax-vector->list (annotation-expression x)))
         ((vector? x) (vector->list x))
         (else (assertion-violation 'syntax-vector->list "BUG: not a syntax vector" x)))))
   (define syntax-pair?
@@ -492,27 +489,27 @@
   (define syntax-car
     (lambda (x)
       (cond
-        [(stx? x)
+        ((stx? x)
          (mkstx (syntax-car (stx-expr x)) 
                 (stx-mark* x) 
                 (stx-subst* x)
-                (stx-ae* x))]
-        [(annotation? x) 
-         (syntax-car (annotation-expression x))]
-        [(pair? x) (car x)]
-        [else (assertion-violation 'syntax-car "BUG: not a pair" x)])))
+                (stx-ae* x)))
+        ((annotation? x) 
+         (syntax-car (annotation-expression x)))
+        ((pair? x) (car x))
+        (else (assertion-violation 'syntax-car "BUG: not a pair" x)))))
   (define syntax-cdr
     (lambda (x)
       (cond
-        [(stx? x)
+        ((stx? x)
          (mkstx (syntax-cdr (stx-expr x)) 
                 (stx-mark* x)
                 (stx-subst* x)
-                (stx-ae* x))]
-        [(annotation? x) 
-         (syntax-cdr (annotation-expression x))]
-        [(pair? x) (cdr x)]
-        [else (assertion-violation 'syntax-cdr "BUG: not a pair" x)])))
+                (stx-ae* x)))
+        ((annotation? x) 
+         (syntax-cdr (annotation-expression x)))
+        ((pair? x) (cdr x))
+        (else (assertion-violation 'syntax-cdr "BUG: not a pair" x)))))
   (define syntax->list
     (lambda (x)
       (if (syntax-pair? x)
@@ -524,7 +521,7 @@
   (define id?
     (lambda (x) 
       (and (stx? x) 
-        (let ([expr (stx-expr x)])
+        (let ((expr (stx-expr x)))
           (symbol? (if (annotation? expr)
                        (annotation-stripped expr)
                        expr))))))
@@ -533,10 +530,10 @@
     (lambda (x)
       (unless (stx? x)
         (error 'id->sym "BUG in ikarus: not an id" x))
-      (let ([expr (stx-expr x)])
-        (let ([sym (if (annotation? expr) 
+      (let ((expr (stx-expr x)))
+        (let ((sym (if (annotation? expr) 
                        (annotation-stripped expr)
-                       expr)])
+                       expr)))
           (if (symbol? sym) 
               sym
               (error 'id->sym "BUG in ikarus: not an id" x))))))
@@ -596,12 +593,12 @@
 
   (define (strip-annotations x)
     (cond
-      [(pair? x) 
+      ((pair? x) 
        (cons (strip-annotations (car x))
-             (strip-annotations (cdr x)))]
-      [(vector? x) (vector-map strip-annotations x)]
-      [(annotation? x) (annotation-stripped x)]
-      [else x]))
+             (strip-annotations (cdr x))))
+      ((vector? x) (vector-map strip-annotations x))
+      ((annotation? x) (annotation-stripped x))
+      (else x)))
 
   (define strip
     (lambda (x m*)
@@ -617,7 +614,7 @@
           (let f ((x x))
             (cond
               ((stx? x) (strip (stx-expr x) (stx-mark* x)))
-              [(annotation? x) (annotation-stripped x)]
+              ((annotation? x) (annotation-stripped x))
               ((pair? x)
                (let ((a (f (car x))) (d (f (cdr x))))
                  (if (and (eq? a (car x)) (eq? d (cdr x)))
@@ -648,14 +645,14 @@
   (define (id->label id)
     (or (id->real-label id)
         (cond
-          [(top-level-context) =>
+          ((top-level-context) =>
            (lambda (env)
              ;;; fabricate binding
-             (let ([rib (interaction-env-rib env)])
-               (let-values ([(lab loc_) (gen-define-label+loc id rib)])
+             (let ((rib (interaction-env-rib env)))
+               (let-values (((lab loc_) (gen-define-label+loc id rib)))
                  (extend-rib! rib id lab)
-                 lab)))]
-          [else #f])))
+                 lab))))
+          (else #f))))
           
   (define id->real-label
     (lambda (id)
@@ -671,7 +668,7 @@
             (else
              (let ((rib (car subst*)))
                (cond
-                 [(rib-sealed/freq rib) =>
+                 ((rib-sealed/freq rib) =>
                   (lambda (ht)
                     (let ((si (hashtable-ref ht sym #f)))
                       (let ((i (and si 
@@ -679,8 +676,8 @@
                               (rib-mark** rib) (reverse si)))))
                         (if i
                           (vector-ref (rib-label* rib) i)
-                        (search (cdr subst*) mark*)))))]
-                 [(find-label rib sym mark*)]
+                        (search (cdr subst*) mark*))))))
+                 ((find-label rib sym mark*))
                  (else
                   (let f ((sym* (rib-sym* rib))
                           (mark** (rib-mark** rib))
@@ -705,20 +702,20 @@
         ((imported-label->binding x) =>
          (lambda (b) 
            (cond
-             [(and (pair? b) (eq? (car b) '$core-rtd))
-              (cons '$rtd (map bless (cdr b)))]
-             [(and (pair? b) (eq? (car b) 'global-rtd))
-              (let ([lib (cadr b)] [loc (cddr b)])
-                (cons '$rtd (symbol-value loc)))]
-             [else b])))
+             ((and (pair? b) (eq? (car b) '$core-rtd))
+              (cons '$rtd (map bless (cdr b))))
+             ((and (pair? b) (eq? (car b) 'global-rtd))
+              (let ((lib (cadr b)) (loc (cddr b)))
+                (cons '$rtd (symbol-value loc))))
+             (else b))))
         ((assq x r) => cdr)
-        [(top-level-context) =>
+        ((top-level-context) =>
          (lambda (env)
            (cond
-             [(assq x (interaction-env-locs env)) =>
+             ((assq x (interaction-env-locs env)) =>
               (lambda (p)  ;;; fabricate
-                (cons* 'lexical (cdr p) #f))]
-             [else '(displaced-lexical . #f)]))]
+                (cons* 'lexical (cdr p) #f)))
+             (else '(displaced-lexical . #f)))))
         (else '(displaced-lexical . #f)))))
 
   (define make-binding cons)
@@ -858,59 +855,63 @@
             (define cvt
               (lambda (p n ids)
                 (syntax-case p ()
-                  (id (sys.identifier? #'id)
+                  (id (sys.identifier? (syntax id))
                    (cond
                      ((bound-id-member? p keys)
                       (values `#(scheme-id ,(sys.syntax->datum p)) ids))
-                     ((sys.free-identifier=? p #'_)
+                     ((sys.free-identifier=? p (syntax _))
                       (values '_ ids))
                      (else (values 'any (cons (cons p n) ids)))))
-                  ((p dots) (ellipsis? #'dots)
-                   (let-values (((p ids) (cvt #'p (+ n 1) ids)))
+                  ((p dots) (ellipsis? (syntax dots))
+                   (let-values (((p ids) (cvt (syntax p) (+ n 1) ids)))
                      (values
                        (if (eq? p 'any) 'each-any `#(each ,p))
                        ids)))
-                  ((x dots ys ... . z) (ellipsis? #'dots)
-                   (let-values (((z ids) (cvt #'z n ids)))
-                     (let-values (((ys ids) (cvt* #'(ys ...) n ids)))
-                       (let-values (((x ids) (cvt #'x (+ n 1) ids)))
+                  ((x dots ys ... . z) (ellipsis? (syntax dots))
+                   (let-values (((z ids) (cvt (syntax z) n ids)))
+                     (let-values (((ys ids) (cvt* (syntax (ys ...)) n ids)))
+                       (let-values (((x ids) (cvt (syntax x) (+ n 1) ids)))
                          (values `#(each+ ,x ,(reverse ys) ,z) ids)))))
                   ((x . y)
-                   (let-values (((y ids) (cvt #'y n ids)))
-                     (let-values (((x ids) (cvt #'x n ids)))
+                   (let-values (((y ids) (cvt (syntax y) n ids)))
+                     (let-values (((x ids) (cvt (syntax x) n ids)))
                        (values (cons x y) ids))))
                   (() (values '() ids))
                   (#(p ...)
-                   (let-values (((p ids) (cvt #'(p ...) n ids)))
+                   (let-values (((p ids) (cvt (syntax (p ...)) n ids)))
                      (values `#(vector ,p) ids)))
                   (datum
-                   (values `#(atom ,(sys.syntax->datum #'datum)) ids)))))
+                   (values `#(atom ,(sys.syntax->datum (syntax datum))) ids)))))
             (cvt pattern 0 '())))
       (syntax-case ctx ()
         ((_ expr (lits ...)) (for-all sys.identifier? (syntax (lits ...)))
          (syntax (stx-error expr "invalid syntax")))
-        ((_ expr (lits ...) [pat fender body] cls* ...)
+        ((_ expr (lits ...) (pat fender body) cls* ...)
          (for-all sys.identifier? (syntax (lits ...)))
-         (let-values ([(pattern ids/levels) (convert-pattern #'pat #'(lits ...))])
-           (with-syntax ([pattern (sys.datum->syntax #'here pattern)]
-                         [([ids . levels] ...) ids/levels])
-             #'(let ([t expr])
-                 (let ([ls/false (syntax-dispatch t 'pattern)])
+         (let-values (((pattern ids/levels)
+                       (convert-pattern (syntax pat) (syntax (lits ...)))))
+           (with-syntax ((pattern (sys.datum->syntax (syntax here) pattern))
+                         (((ids . levels) ...) ids/levels))
+             (syntax
+               (let ((t expr))
+                 (let ((ls/false (syntax-dispatch t 'pattern)))
                    (if (and ls/false (apply (lambda (ids ...) fender) ls/false))
                        (apply (lambda (ids ...) body) ls/false)
-                       (syntax-match t (lits ...) cls* ...)))))))
-        ((_ expr (lits ...) [pat body] cls* ...)
+                       (syntax-match t (lits ...) cls* ...))))))))
+        ((_ expr (lits ...) (pat body) cls* ...)
          (for-all sys.identifier? (syntax (lits ...)))
-         (let-values ([(pattern ids/levels) (convert-pattern #'pat #'(lits ...))])
-           (with-syntax ([pattern (sys.datum->syntax #'here pattern)]
-                         [([ids . levels] ...) ids/levels])
-             #'(let ([t expr])
-                 (let ([ls/false (syntax-dispatch t 'pattern)])
+         (let-values (((pattern ids/levels)
+                       (convert-pattern (syntax pat) (syntax (lits ...)))))
+           (with-syntax ((pattern (sys.datum->syntax (syntax here) pattern))
+                         (((ids . levels) ...) ids/levels))
+             (syntax
+               (let ((t expr))
+                 (let ((ls/false (syntax-dispatch t 'pattern)))
                    (if ls/false
                        (apply (lambda (ids ...) body) ls/false)
-                       (syntax-match t (lits ...) cls* ...)))))))
-        ((_ expr (lits ...) [pat body] cls* ...)
-         #'(syntax-match expr (lits ...) [pat #t body] cls* ...)))))
+                       (syntax-match t (lits ...) cls* ...))))))))
+        ((_ expr (lits ...) (pat body) cls* ...)
+         (syntax (syntax-match expr (lits ...) (pat #t body) cls* ...))))))
 
     
   (define parse-define
@@ -1002,11 +1003,11 @@
         ((_ ((lhs* rhs*) ...) b b* ...)
          (if (not (valid-bound-ids? lhs*))
              (invalid-fmls-error e lhs*)
-             (let ([lab* (map lookup lhs*)]
-                   [rhs* (map (lambda (x)
+             (let ((lab* (map lookup lhs*))
+                   (rhs* (map (lambda (x)
                                 (make-eval-transformer
                                   (expand-transformer x mr)))
-                               rhs*)])
+                               rhs*)))
                (chi-internal (cons b b*)
                  (append (map cons lab* rhs*) r)
                  (append (map cons lab* rhs*) mr))))))))
@@ -1050,14 +1051,14 @@
   (define when-macro
     (lambda (e)
       (syntax-match e ()
-        [(_ test e e* ...)
-         (bless `(if ,test (begin ,e . ,e*)))])))
+        ((_ test e e* ...)
+         (bless `(if ,test (begin ,e . ,e*)))))))
 
   (define unless-macro
     (lambda (e)
       (syntax-match e ()
-        [(_ test e e* ...)
-         (bless `(if (not ,test) (begin ,e . ,e*)))])))
+        ((_ test e e* ...)
+         (bless `(if (not ,test) (begin ,e . ,e*)))))))
 
   (define if-transformer
     (lambda (e r mr)
@@ -1077,19 +1078,19 @@
     (lambda (e)
       (define (build-last cls)
         (syntax-match cls (else)
-          [(else e e* ...) `(begin ,e . ,e*)]
-          [_ (build-one cls '(if #f #f))]))
+          ((else e e* ...) `(begin ,e . ,e*))
+          (_ (build-one cls '(if #f #f)))))
       (define (build-one cls k)
         (syntax-match cls ()
-          [((d* ...) e e* ...) 
-           `(if (memv t ',d*) (begin ,e . ,e*) ,k)]))
+          (((d* ...) e e* ...) 
+           `(if (memv t ',d*) (begin ,e . ,e*) ,k))))
       (syntax-match e ()
         ((_ expr)
-         (bless `(let ([t ,expr]) (if #f #f))))
+         (bless `(let ((t ,expr)) (if #f #f))))
         ((_ expr cls cls* ...)
          (bless 
-           `(let ([t ,expr])
-              ,(let f ([cls cls] [cls* cls*])
+           `(let ((t ,expr))
+              ,(let f ((cls cls) (cls* cls*))
                  (if (null? cls*) 
                      (build-last cls)
                      (build-one cls (f (car cls*) (cdr cls*)))))))))))
@@ -1135,45 +1136,45 @@
     (lambda (e)
       (syntax-match e ()
         ((_ ((pat* expr*) ...) b b* ...)
-         (let ([idn*
-                (let f ([pat* pat*])
+         (let ((idn*
+                (let f ((pat* pat*))
                   (cond
-                    [(null? pat*) '()]
-                    [else
-                     (let-values ([(pat idn*) (convert-pattern (car pat*) '())])
-                       (append idn* (f (cdr pat*))))]))])
+                    ((null? pat*) '())
+                    (else
+                     (let-values (((pat idn*) (convert-pattern (car pat*) '())))
+                       (append idn* (f (cdr pat*)))))))))
            (verify-formals (map car idn*) e)
-           (let ([t* (generate-temporaries expr*)])
+           (let ((t* (generate-temporaries expr*)))
              (bless 
                `(let ,(map list t* expr*)
-                  ,(let f ([pat* pat*] [t* t*])
+                  ,(let f ((pat* pat*) (t* t*))
                      (cond
-                       [(null? pat*) `(begin #f ,b . ,b*)]
-                       [else
+                       ((null? pat*) `(begin #f ,b . ,b*))
+                       (else
                         `(syntax-case ,(car t*) ()
-                           [,(car pat*) ,(f (cdr pat*) (cdr t*))]
-                           [_ (assertion-violation 'with-syntax
+                           (,(car pat*) ,(f (cdr pat*) (cdr t*)))
+                           (_ (assertion-violation 'with-syntax
                                 "pattern does not match value"
                                 ',(car pat*)
-                                ,(car t*))])]))))))))))
+                                ,(car t*)))))))))))))))
 
   (define (invalid-fmls-error stx fmls)
     (syntax-match fmls ()
-      [(id* ... . last) 
-       (let f ([id* (cond
-                      [(id? last) (cons last id*)]
-                      [(syntax-null? last) id*]
-                      [else 
-                       (syntax-violation #f "not an identifier" stx last)])])
+      ((id* ... . last) 
+       (let f ((id* (cond
+                      ((id? last) (cons last id*))
+                      ((syntax-null? last) id*)
+                      (else 
+                       (syntax-violation #f "not an identifier" stx last)))))
          (cond
-           [(null? id*) (values)]
-           [(not (id? (car id*)))
-            (syntax-violation #f "not an identifier" stx (car id*))]
-           [else 
+           ((null? id*) (values))
+           ((not (id? (car id*)))
+            (syntax-violation #f "not an identifier" stx (car id*)))
+           (else 
             (f (cdr id*))
             (when (bound-id-member? (car id*) (cdr id*))
-              (syntax-violation #f "duplicate binding" stx (car id*)))]))]
-      [_ (syntax-violation #f "malformed binding form" stx fmls)]))
+              (syntax-violation #f "duplicate binding" stx (car id*)))))))
+      (_ (syntax-violation #f "malformed binding form" stx fmls))))
   
   (define let-macro
     (lambda (stx)
@@ -1194,49 +1195,49 @@
           (syntax-violation #f "not an indentifier" stx x))
         (when (bound-id-member? x old*) 
           (syntax-violation #f "duplicate binding" stx x))
-        (let ([y (gensym (syntax->datum x))])
+        (let ((y (gensym (syntax->datum x))))
           (values y (cons x old*) (cons y new*))))
       (define (rename* x* old* new*)
         (cond
-          [(null? x*) (values '() old* new*)]
-          [else
-           (let*-values ([(x old* new*) (rename (car x*) old* new*)]
-                         [(x* old* new*) (rename* (cdr x*) old* new*)])
-             (values (cons x x*) old* new*))]))
+          ((null? x*) (values '() old* new*))
+          (else
+           (let*-values (((x old* new*) (rename (car x*) old* new*))
+                         ((x* old* new*) (rename* (cdr x*) old* new*)))
+             (values (cons x x*) old* new*)))))
       (syntax-match stx ()
         ((_ () b b* ...)
          (cons* (bless 'let) '() b b*))
         ((_ ((lhs* rhs*) ...) b b* ...) 
          (bless 
-           (let f ([lhs* lhs*] [rhs* rhs*] [old* '()] [new* '()])
+           (let f ((lhs* lhs*) (rhs* rhs*) (old* '()) (new* '()))
              (cond
-               [(null? lhs*) 
-                `(let ,(map list old* new*) ,b . ,b*)]
-               [else
+               ((null? lhs*) 
+                `(let ,(map list old* new*) ,b . ,b*))
+               (else
                 (syntax-match (car lhs*) ()
-                  [(x* ...) 
-                   (let-values ([(y* old* new*) (rename* x* old* new*)])
+                  ((x* ...) 
+                   (let-values (((y* old* new*) (rename* x* old* new*)))
                      `(call-with-values 
                         (lambda () ,(car rhs*))
                         (lambda ,y* 
-                          ,(f (cdr lhs*) (cdr rhs*) old* new*))))]
-                  [(x* ... . x)
-                   (let*-values ([(y old* new*) (rename x old* new*)]
-                                 [(y* old* new*) (rename* x* old* new*)])
+                          ,(f (cdr lhs*) (cdr rhs*) old* new*)))))
+                  ((x* ... . x)
+                   (let*-values (((y old* new*) (rename x old* new*))
+                                 ((y* old* new*) (rename* x* old* new*)))
                      `(call-with-values 
                         (lambda () ,(car rhs*))
                         (lambda ,(append y* y)
                           ,(f (cdr lhs*) (cdr rhs*)
-                              old* new*))))]
-                  [others
+                              old* new*)))))
+                  (others
                    (syntax-violation #f "malformed bindings"
-                      stx others)])])))))))
+                      stx others)))))))))))
 
   (define let*-values-macro
     (lambda (stx)
       (define (check x*) 
         (unless (null? x*)
-          (let ([x (car x*)])
+          (let ((x (car x*)))
             (unless (id? x)
               (syntax-violation #f "not an identifier" stx x))
             (check (cdr x*))
@@ -1247,29 +1248,29 @@
          (cons* (bless 'let) '() b b*))
         ((_ ((lhs* rhs*) ...) b b* ...)
          (bless 
-           (let f ([lhs* lhs*] [rhs* rhs*])
+           (let f ((lhs* lhs*) (rhs* rhs*))
              (cond
-               [(null? lhs*) 
-                `(begin ,b . ,b*)]
-               [else
+               ((null? lhs*) 
+                `(begin ,b . ,b*))
+               (else
                 (syntax-match (car lhs*) ()
-                  [(x* ...) 
+                  ((x* ...) 
                    (begin
                      (check x*)
                      `(call-with-values 
                         (lambda () ,(car rhs*))
                         (lambda ,x*
-                          ,(f (cdr lhs*) (cdr rhs*)))))]
-                  [(x* ... . x)
+                          ,(f (cdr lhs*) (cdr rhs*))))))
+                  ((x* ... . x)
                    (begin
                      (check (cons x x*))
                      `(call-with-values 
                         (lambda () ,(car rhs*))
                         (lambda ,(append x* x)
-                          ,(f (cdr lhs*) (cdr rhs*)))))]
-                  [others
+                          ,(f (cdr lhs*) (cdr rhs*))))))
+                  (others
                    (syntax-violation #f "malformed bindings"
-                      stx others)])])))))))
+                      stx others)))))))))))
   
   (define trace-lambda-macro
     (lambda (stx)
@@ -1326,9 +1327,9 @@
         (syntax-match stx ()
           ((_ ((lhs* rhs*) ...) b b* ...)
            (if (valid-bound-ids? lhs*)
-               (let ([rhs* (map (lambda (lhs rhs) 
+               (let ((rhs* (map (lambda (lhs rhs) 
                                   `(make-traced-macro ',lhs ,rhs))
-                                lhs* rhs*)])
+                                lhs* rhs*)))
                  (bless `(,who ,(map list lhs* rhs*) ,b . ,b*)))
                (invalid-fmls-error stx lhs*)))))))
 
@@ -1343,35 +1344,35 @@
       (define (gen-clauses con outerk clause*) 
         (define (f x k) 
           (syntax-match x (=>) 
-            [(e => p) 
-             (let ([t (gensym)])
-               `(let ([,t ,e]) 
-                  (if ,t (,p ,t) ,k)))]
-            [(e) 
-             (let ([t (gensym)])
-               `(let ([,t ,e])
-                  (if ,t ,t ,k)))]
-            [(e v v* ...) 
-             `(if ,e (begin ,v ,@v*) ,k)]
-            [_ (stx-error x "invalid guard clause")]))
+            ((e => p) 
+             (let ((t (gensym)))
+               `(let ((,t ,e)) 
+                  (if ,t (,p ,t) ,k))))
+            ((e) 
+             (let ((t (gensym)))
+               `(let ((,t ,e))
+                  (if ,t ,t ,k))))
+            ((e v v* ...) 
+             `(if ,e (begin ,v ,@v*) ,k))
+            (_ (stx-error x "invalid guard clause"))))
         (define (f* x*)
           (syntax-match x* (else)
-            [() 
-             (values `(raise ,con) #t)]
-            [([else e e* ...])
-             (values `(begin ,e ,@e*) #f)]
-            [(cls . cls*) 
-             (let-values ([(e g) (f* cls*)])
-               (values (f cls e) g))]
-            [others (stx-error others "invalid guard clause")]))
-        (let-values ([(code raisek) (f* clause*)])
+            (() 
+             (values `(raise ,con) #t))
+            (((else e e* ...))
+             (values `(begin ,e ,@e*) #f))
+            ((cls . cls*) 
+             (let-values (((e g) (f* cls*)))
+               (values (f cls e) g)))
+            (others (stx-error others "invalid guard clause"))))
+        (let-values (((code raisek) (f* clause*)))
           (if raisek
              `(,outerk ,code)
              code)))
       (syntax-match x ()
-        [(_ (con clause* ...) b b* ...)
+        ((_ (con clause* ...) b b* ...)
          (id? con)
-         (let ([outerk (gensym)])
+         (let ((outerk (gensym)))
            (bless
              `((call/cc
                  (lambda (,outerk)
@@ -1379,7 +1380,7 @@
                      (with-exception-handler
                        (lambda (,con)
                          ,(gen-clauses con outerk clause*))
-                       (lambda () #f ,b ,@b*))))))))])))
+                       (lambda () #f ,b ,@b*))))))))))))
 
   (define define-enumeration-macro
     (lambda (stx) 
@@ -1389,14 +1390,14 @@
                  (set? (cdr x)))))
       (define (remove-dups ls)
         (cond
-          [(null? ls) '()]
-          [else 
+          ((null? ls) '())
+          (else 
            (cons (car ls) 
-              (remove-dups (remq (car ls) (cdr ls))))]))
+              (remove-dups (remq (car ls) (cdr ls)))))))
       (syntax-match stx ()
-        [(_ name (id* ...) maker) 
+        ((_ name (id* ...) maker) 
          (and (id? name) (id? maker) (for-all id? id*))
-         (let ([name* (remove-dups (syntax->datum id*))] [mk (gensym)]) 
+         (let ((name* (remove-dups (syntax->datum id*))) (mk (gensym))) 
            (bless 
              `(begin
                 ;;; can be constructed at compile time
@@ -1412,17 +1413,17 @@
                 (define-syntax ,name 
                   (lambda (x) 
                     (syntax-case x () 
-                      [(_ n)
-                       (identifier? #'n)
-                       (if (memq (syntax->datum #'n) ',name*) 
-                           #''n
+                      ((_ n)
+                       (identifier? (syntax n))
+                       (if (memq (syntax->datum (syntax n)) ',name*) 
+                           (syntax 'n)
                            (syntax-violation ',name
                               "not a member of set"
-                              x #'n))])))
+                              x (syntax n)))))))
                 (define-syntax ,maker
                   (lambda (x)
                     (syntax-case x ()
-                      [(_ n* ...)
+                      ((_ n* ...)
                        (begin
                          (for-each
                            (lambda (n) 
@@ -1438,17 +1439,17 @@
                                   "not a member of set"
                                   x
                                   n)))
-                           #'(n* ...))
-                         #'(,mk '(n* ...)))]))))))])))
+                           (syntax (n* ...)))
+                         (syntax (,mk '(n* ...)))))))))))))))
 
   (define time-macro
     (lambda (stx)
       (syntax-match stx ()
         ((_ expr)
-         (let ([str 
-                (let-values ([(p e) (open-string-output-port)])
+         (let ((str 
+                (let-values (((p e) (open-string-output-port)))
                   (write (syntax->datum expr) p)
-                  (e))])
+                  (e))))
            (bless `(time-it ,str (lambda () ,expr))))))))
   
   (define delay-macro
@@ -1461,8 +1462,8 @@
     (lambda (stx)
       (syntax-match stx ()
         ((_ expr)
-         (let ([pos (or (expression-position stx)
-                        (expression-position expr))])
+         (let ((pos (or (expression-position stx)
+                        (expression-position expr))))
            (bless 
              `(unless ,expr (assertion-error ',expr ',pos))))))))
   
@@ -1615,12 +1616,12 @@
                      (syntax-case x ,lits
                        ,@(map (lambda (pat tmp)
                                 (syntax-match pat ()
-                                  [(_ . rest) 
-                                   `((g . ,rest) (syntax ,tmp))]
-                                  [_ 
+                                  ((_ . rest) 
+                                   `((g . ,rest) (syntax ,tmp)))
+                                  (_ 
                                    (syntax-violation #f
                                       "invalid syntax-rules pattern" 
-                                      e pat)]))
+                                      e pat))))
                               pat* tmp*)))))))))
   
   (define quasiquote-macro
@@ -1868,92 +1869,92 @@
             (apply string-append 
               (map (lambda (x) 
                      (cond
-                       [(symbol? x) (symbol->string x)]
-                       [(string? x) x]
-                       [else (assertion-violation 'define-record-type "BUG")]))
+                       ((symbol? x) (symbol->string x))
+                       ((string? x) x)
+                       (else (assertion-violation 'define-record-type "BUG"))))
                    str*)))))
       (define (get-record-name spec)
         (syntax-match spec ()
-          [(foo make-foo foo?) foo]
-          [foo foo]))
+          ((foo make-foo foo?) foo)
+          (foo foo)))
       (define (get-record-constructor-name spec)
         (syntax-match spec ()
-          [(foo make-foo foo?) make-foo]
-          [foo (id? foo) (id foo "make-" (stx->datum foo))]))
+          ((foo make-foo foo?) make-foo)
+          (foo (id? foo) (id foo "make-" (stx->datum foo)))))
       (define (get-record-predicate-name spec)
         (syntax-match spec ()
-          [(foo make-foo foo?) foo?]
-          [foo (id? foo) (id foo (stx->datum foo) "?")]))
+          ((foo make-foo foo?) foo?)
+          (foo (id? foo) (id foo (stx->datum foo) "?"))))
       (define (get-clause id ls)
         (syntax-match ls ()
-          [() #f]
-          [((x . rest) . ls)
+          (() #f)
+          (((x . rest) . ls)
            (if (free-id=? (bless id) x)
                `(,x . ,rest)
-               (get-clause id ls))]))
+               (get-clause id ls)))))
       (define (foo-rtd-code name clause* parent-rtd-code) 
         (define (convert-field-spec* ls)
           (list->vector
             (map (lambda (x) 
                    (syntax-match x (mutable immutable)
-                     [(mutable name . rest) `(mutable ,name)]
-                     [(immutable name . rest) `(immutable ,name)]
-                     [name `(immutable ,name)]))
+                     ((mutable name . rest) `(mutable ,name))
+                     ((immutable name . rest) `(immutable ,name))
+                     (name `(immutable ,name))))
                ls)))
-        (let ([uid-code
+        (let ((uid-code
                (syntax-match (get-clause 'nongenerative clause*) ()
-                 [(_)     `',(gensym)]
-                 [(_ uid) `',uid]
-                 [_       #f])]
-              [sealed?
+                 ((_)     `',(gensym))
+                 ((_ uid) `',uid)
+                 (_       #f)))
+              (sealed?
                (syntax-match (get-clause 'sealed clause*) ()
-                 [(_ #t) #t]
-                 [_      #f])]
-              [opaque?
+                 ((_ #t) #t)
+                 (_      #f)))
+              (opaque?
                (syntax-match (get-clause 'opaque clause*) ()
-                 [(_ #t) #t]
-                 [_      #f])]
-              [fields 
+                 ((_ #t) #t)
+                 (_      #f)))
+              (fields 
                (syntax-match (get-clause 'fields clause*) ()
-                 [(_ field-spec* ...)
-                  `(quote ,(convert-field-spec* field-spec*))]
-                 [_ ''#()])])
+                 ((_ field-spec* ...)
+                  `(quote ,(convert-field-spec* field-spec*)))
+                 (_ ''#()))))
           (bless
             `(make-record-type-descriptor ',name
                ,parent-rtd-code 
                ,uid-code ,sealed? ,opaque? ,fields))))
       (define (parent-rtd-code clause*)
         (syntax-match (get-clause 'parent clause*) ()
-          [(_ name) `(record-type-descriptor ,name)]
-          [#f (syntax-match (get-clause 'parent-rtd clause*) ()
-                [(_ rtd rcd) rtd]
-                [#f #f])]))
+          ((_ name) `(record-type-descriptor ,name))
+          (#f (syntax-match (get-clause 'parent-rtd clause*) ()
+                ((_ rtd rcd) rtd)
+                (#f #f)))))
       (define (parent-rcd-code clause*)
         (syntax-match (get-clause 'parent clause*) ()
-          [(_ name) `(record-constructor-descriptor ,name)]
-          [#f (syntax-match (get-clause 'parent-rtd clause*) ()
-                [(_ rtd rcd) rcd]
-                [#f #f])]))
+          ((_ name) `(record-constructor-descriptor ,name))
+          (#f (syntax-match (get-clause 'parent-rtd clause*) ()
+                ((_ rtd rcd) rcd)
+                (#f #f)))))
       (define (foo-rcd-code clause* foo-rtd protocol parent-rcd-code)
         `(make-record-constructor-descriptor ,foo-rtd
            ,parent-rcd-code ,protocol))
       (define (get-protocol-code clause*)
         (syntax-match (get-clause 'protocol clause*) ()
-          [(_ expr) expr]
-          [_        #f]))
+          ((_ expr) expr)
+          (_        #f)))
       (define (get-fields clause*)
         (syntax-match clause* (fields)
-          [() '()]
-          [((fields f* ...) . _) f*]
-          [(_ . rest) (get-fields rest)]))
+          (() '())
+          (((fields f* ...) . _) f*)
+          ((_ . rest) (get-fields rest))))
       (define (get-mutator-indices fields)
-        (let f ([fields fields] [i 0])
+        (let f ((fields fields) (i 0))
           (syntax-match fields (mutable)
-            [() '()]
-            [((mutable . _) . rest)
-             (cons i (f rest (+ i 1)))]
-            [(_ . rest)
-             (f rest (+ i 1))])))
+            (() '())
+            (((mutable . _) . rest)
+             (cons i (f rest (+ i 1))))
+            ((_ . rest)
+             (f rest (+ i 1))))))
       (define (get-mutators foo fields)
         (define (gen-name x) 
           (datum->syntax foo
@@ -1963,14 +1964,14 @@
                 "-"
                 (symbol->string (syntax->datum x))
                 "-set!"))))
-        (let f ([fields fields])
+        (let f ((fields fields))
           (syntax-match fields (mutable)
-            [() '()]
-            [((mutable name accessor mutator) . rest) 
-             (cons mutator (f rest))]
-            [((mutable name) . rest)
-             (cons (gen-name name) (f rest))]
-            [(_ . rest) (f rest)])))
+            (() '())
+            (((mutable name accessor mutator) . rest) 
+             (cons mutator (f rest)))
+            (((mutable name) . rest)
+             (cons (gen-name name) (f rest)))
+            ((_ . rest) (f rest)))))
       (define (get-accessors foo fields)
         (define (gen-name x) 
           (datum->syntax foo
@@ -1982,39 +1983,40 @@
         (map 
           (lambda (field)
             (syntax-match field (mutable immutable)
-              [(mutable name accessor mutator) (id? accessor) accessor]
-              [(immutable name accessor)       (id? accessor) accessor]
-              [(mutable name)                  (id? name) (gen-name name)]
-              [(immutable name)                (id? name) (gen-name name)]
-              [name                            (id? name) (gen-name name)]
-              [others (stx-error field "invalid field spec")]))
+              ((mutable name accessor mutator) (id? accessor) accessor)
+              ((immutable name accessor)       (id? accessor) accessor)
+              ((mutable name)                  (id? name) (gen-name name))
+              ((immutable name)                (id? name) (gen-name name))
+              (name                            (id? name) (gen-name name))
+              (others (stx-error field "invalid field spec"))))
           fields))
       (define (enumerate ls)
-        (let f ([ls ls] [i 0])
+        (let f ((ls ls) (i 0))
           (cond
-            [(null? ls) '()]
-            [else (cons i (f (cdr ls) (+ i 1)))])))
+            ((null? ls) '())
+            (else (cons i (f (cdr ls) (+ i 1)))))))
       (define (do-define-record namespec clause*)
-        (let* ([foo (get-record-name namespec)]
-               [foo-rtd (gensym)]
-               [foo-rcd (gensym)]
-               [protocol (gensym)]
-               [make-foo (get-record-constructor-name namespec)]
-               [fields (get-fields clause*)]
-               [idx* (enumerate fields)]
-               [foo-x* (get-accessors foo fields)]
-               [set-foo-x!* (get-mutators foo fields)]
-               [set-foo-idx* (get-mutator-indices fields)]
-               [foo? (get-record-predicate-name namespec)]
-               [foo-rtd-code (foo-rtd-code foo clause* (parent-rtd-code clause*))]
-               [foo-rcd-code (foo-rcd-code clause* foo-rtd protocol (parent-rcd-code clause*))]
-               [protocol-code (get-protocol-code clause*)])
+        (let* ((foo (get-record-name namespec))
+               (foo-rtd (gensym))
+               (foo-rcd (gensym))
+               (protocol (gensym))
+               (make-foo (get-record-constructor-name namespec))
+               (fields (get-fields clause*))
+               (idx* (enumerate fields))
+               (foo-x* (get-accessors foo fields))
+               (set-foo-x!* (get-mutators foo fields))
+               (set-foo-idx* (get-mutator-indices fields))
+               (foo? (get-record-predicate-name namespec))
+               (foo-rtd-code (foo-rtd-code foo clause* (parent-rtd-code clause*)))
+               (foo-rcd-code (foo-rcd-code clause* foo-rtd protocol (parent-rcd-code clause*)))
+               (protocol-code (get-protocol-code clause*)))
           (bless
             `(begin
                (define ,foo-rtd ,foo-rtd-code)
                (define ,protocol ,protocol-code)
                (define ,foo-rcd ,foo-rcd-code)
-               (define-syntax ,foo (list '$rtd #',foo-rtd #',foo-rcd))
+               (define-syntax ,foo 
+                 (list '$rtd (syntax ,foo-rtd) (syntax ,foo-rcd)))
                (define ,foo? (record-predicate ,foo-rtd))
                (define ,make-foo (record-constructor ,foo-rcd))
                ,@(map 
@@ -2033,26 +2035,26 @@
           (and (pair? ls) 
                (or (free-id=? x (car ls)) 
                    (free-id-member? x (cdr ls)))))
-        (let f ([cls* cls*] [seen* '()])
+        (let f ((cls* cls*) (seen* '()))
           (unless (null? cls*)
             (syntax-match (car cls*) ()
-              [(kwd . rest)
+              ((kwd . rest)
                (cond
-                 [(or (not (id? kwd)) 
+                 ((or (not (id? kwd)) 
                       (not (free-id-member? kwd valid-kwds)))
-                  (stx-error kwd "not a valid define-record-type keyword")]
-                 [(bound-id-member? kwd seen*)
+                  (stx-error kwd "not a valid define-record-type keyword"))
+                 ((bound-id-member? kwd seen*)
                   (syntax-violation #f  
                      "duplicate use of keyword "
-                     x kwd)]
-                 [else (f (cdr cls*) (cons kwd seen*))])]
-              [cls
-               (stx-error cls "malformed define-record-type clause")]))))
+                     x kwd))
+                 (else (f (cdr cls*) (cons kwd seen*)))))
+              (cls
+               (stx-error cls "malformed define-record-type clause"))))))
       (syntax-match x ()
-        [(_ namespec clause* ...)
+        ((_ namespec clause* ...)
          (begin
            (verify-clauses x clause*)
-           (do-define-record namespec clause*))])))
+           (do-define-record namespec clause*))))))
   
   (define define-condition-type-macro
     (lambda (x)
@@ -2063,14 +2065,14 @@
                (symbol->string (syntax->datum name))
                suffix))))
       (syntax-match x ()
-        [(ctxt name super constructor predicate (field* accessor*) ...)
+        ((ctxt name super constructor predicate (field* accessor*) ...)
          (and (id? name) 
               (id? super)
               (id? constructor)
               (id? predicate)
               (for-all id? field*)
               (for-all id? accessor*))
-         (let ([aux-accessor* (map (lambda (x) (gensym)) accessor*)])
+         (let ((aux-accessor* (map (lambda (x) (gensym)) accessor*)))
            (bless
               `(begin
                  (define-record-type (,name ,constructor ,(gensym))
@@ -2087,7 +2089,7 @@
                         `(define ,accessor 
                            (condition-accessor
                              (record-type-descriptor ,name) ,aux)))
-                     accessor* aux-accessor*))))])))
+                     accessor* aux-accessor*))))))))
   
   (define incorrect-usage-macro
     (lambda (e) (stx-error e "incorrect usage of auxiliary keyword")))
@@ -2102,12 +2104,12 @@
                (rhs* (generate-temporaries orhs*)))
            (bless
              `((lambda ,(append lhs* rhs*)
-                 (let ([swap (lambda () 
+                 (let ((swap (lambda () 
                                ,@(map (lambda (lhs rhs)
-                                        `(let ([t (,lhs)])
+                                        `(let ((t (,lhs)))
                                            (,lhs ,rhs)
                                            (set! ,rhs t)))
-                                      lhs* rhs*))])
+                                      lhs* rhs*))))
                    (dynamic-wind 
                      swap
                      (lambda () ,b . ,b*)
@@ -2196,8 +2198,8 @@
              (and (not (top-marked? m*))
                (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
                  (match-each (stx-expr e) p m* s* ae*))))
-            [(annotation? e)
-             (match-each (annotation-expression e) p m* s* ae*)]
+            ((annotation? e)
+             (match-each (annotation-expression e) p m* s* ae*))
             (else #f))))
       (define match-each+
         (lambda (e x-pat y-pat z-pat m* s* ae* r)
@@ -2221,8 +2223,8 @@
                    (values '() y-pat (match e z-pat m* s* ae* r))
                    (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
                      (f (stx-expr e) m* s* ae*))))
-              [(annotation? e) 
-               (f (annotation-expression e) m* s* ae*)]
+              ((annotation? e) 
+               (f (annotation-expression e) m* s* ae*))
               (else (values '() y-pat (match e z-pat m* s* ae* r)))))))
       (define match-each-any
         (lambda (e m* s* ae*)
@@ -2235,8 +2237,8 @@
              (and (not (top-marked? m*))
                (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
                  (match-each-any (stx-expr e) m* s* ae*))))
-            [(annotation? e) 
-             (match-each-any (annotation-expression e) m* s* ae*)]
+            ((annotation? e) 
+             (match-each-any (annotation-expression e) m* s* ae*))
             (else #f))))
       (define match-empty
         (lambda (p r)
@@ -2316,8 +2318,8 @@
              (and (not (top-marked? m*))
                (let-values (((m* s* ae*) (join-wraps m* s* ae* e)))
                  (match (stx-expr e) p m* s* ae* r))))
-            [(annotation? e) 
-             (match (annotation-expression e) p m* s* ae* r)]
+            ((annotation? e) 
+             (match (annotation-expression e) p m* s* ae* r))
             (else (match* e p m* s* ae* r)))))
       (lambda (e p)            
         (match e p '() '() '() '()))))
@@ -2445,7 +2447,7 @@
     (unless (list? ls) 
       (assertion-violation who "not a list" ls))
     (unless (null? ls*)
-      (let ([n (length ls)])
+      (let ((n (length ls)))
         (for-each
           (lambda (x) 
             (unless (list? x) 
@@ -2700,17 +2702,17 @@
     (car x))
 
   (define (do-macro-call transformer expr)
-    (let ([out (transformer (add-mark anti-mark expr #f))])
-      (let f ([x out])
+    (let ((out (transformer (add-mark anti-mark expr #f))))
+      (let f ((x out))
         ;;; don't feed me cycles.
         (unless (stx? x)
           (cond
-            [(pair? x) (f (car x)) (f (cdr x))]
-            [(vector? x) (vector-for-each f x)]
-            [(symbol? x) 
+            ((pair? x) (f (car x)) (f (cdr x)))
+            ((vector? x) (vector-for-each f x))
+            ((symbol? x) 
              (syntax-violation #f 
                "raw symbol encountered in output of macro"
-               expr x)])))
+               expr x)))))
       (add-mark (gen-mark) out expr)))
 
   ;;; chi procedures
@@ -2920,27 +2922,27 @@
         (else (assertion-violation 'chi-rhs "BUG: invalid rhs" rhs)))))
 
   (define (expand-interaction-rhs*/init* lhs* rhs* init* r mr)
-    (let f ([lhs* lhs*] [rhs* rhs*])
+    (let f ((lhs* lhs*) (rhs* rhs*))
       (cond
-        [(null? lhs*)
-         (map (lambda (x) (chi-expr x r mr)) init*)]
-        [else
-         (let ([lhs (car lhs*)] [rhs (car rhs*)])
+        ((null? lhs*)
+         (map (lambda (x) (chi-expr x r mr)) init*))
+        (else
+         (let ((lhs (car lhs*)) (rhs (car rhs*)))
            (case (car rhs)
-             [(defun) 
-              (let ([rhs (chi-defun (cdr rhs) r mr)])
+             ((defun) 
+              (let ((rhs (chi-defun (cdr rhs) r mr)))
                 (cons
                   (build-global-assignment no-source lhs rhs)
-                  (f (cdr lhs*) (cdr rhs*))))]
-             [(expr) 
-              (let ([rhs (chi-expr (cdr rhs) r mr)])
+                  (f (cdr lhs*) (cdr rhs*)))))
+             ((expr) 
+              (let ((rhs (chi-expr (cdr rhs) r mr)))
                 (cons
                   (build-global-assignment no-source lhs rhs)
-                  (f (cdr lhs*) (cdr rhs*))))]
-             [(top-expr) 
-              (let ([e (chi-expr (cdr rhs) r mr)])
-                (cons e (f (cdr lhs*) (cdr rhs*))))]
-             [else (error 'expand-interaction "invallid" rhs)]))])))
+                  (f (cdr lhs*) (cdr rhs*)))))
+             ((top-expr) 
+              (let ((e (chi-expr (cdr rhs) r mr)))
+                (cons e (f (cdr lhs*) (cdr rhs*)))))
+             (else (error 'expand-interaction "invallid" rhs))))))))
 
   (define chi-rhs*
     (lambda (rhs* r mr)
@@ -3003,13 +3005,13 @@
   (define (module-interface-exp-id* iface id)
     (define (diff-marks ls x) 
       (when (null? ls) (error 'diff-marks "BUG: should not happen"))
-      (let ([a (car ls)])
+      (let ((a (car ls)))
         (if (eq? a x)
             '()
             (cons a (diff-marks (cdr ls) x)))))
-    (let ([diff
-           (diff-marks (stx-mark* id) (module-interface-first-mark iface))]
-          [id-vec (module-interface-exp-id-vec iface)])
+    (let ((diff
+           (diff-marks (stx-mark* id) (module-interface-first-mark iface)))
+          (id-vec (module-interface-exp-id-vec iface)))
       (if (null? diff)
           id-vec
           (vector-map
@@ -3066,7 +3068,7 @@
                   (let-values (((id rhs) (parse-define e)))
                     (when (bound-id-member? id kwd*)
                       (stx-error e "cannot redefine keyword"))
-                    (let-values ([(lab lex) (gen-define-label+loc id rib)])
+                    (let-values (((lab lex) (gen-define-label+loc id rib)))
                       (extend-rib! rib id lab)
                       (chi-body* (cdr e*)
                          (add-lexical lab lex r) mr
@@ -3142,9 +3144,9 @@
                   (let ()
                     (define (module-import? e)
                       (syntax-match e ()
-                        [(_ id) (id? id) #t]
-                        [(_ imp* ...) #f]
-                        [_ (stx-error e "malformed import form")]))
+                        ((_ id) (id? id) #t)
+                        ((_ imp* ...) #f)
+                        (_ (stx-error e "malformed import form"))))
                     (define (module-import e r)
                       (syntax-match e ()
                         ((_ id) (id? id)
@@ -3158,7 +3160,7 @@
                              (else (stx-error e "invalid import")))))))
                     (define (library-import e) 
                       (syntax-match e ()
-                        [(ctxt imp* ...)
+                        ((ctxt imp* ...)
                          (let-values (((subst-names subst-labels)
                                        (parse-import-spec* 
                                         (syntax->datum imp*))))
@@ -3167,8 +3169,8 @@
                                (lambda (name) 
                                  (datum->stx ctxt name))
                                subst-names)
-                             subst-labels))]
-                        [_ (stx-error e "invalid import form")]))
+                             subst-labels)))
+                        (_ (stx-error e "invalid import form"))))
                     (let-values (((id* lab*) 
                                   (if (module-import? e) 
                                       (module-import e r)
@@ -3228,18 +3230,18 @@
   (define (parse-library-name spec)
     (define (parse x)
       (syntax-match x ()
-        [((v* ...)) 
+        (((v* ...)) 
          (for-all 
            (lambda (x) 
-             (let ([x (syntax->datum x)])
+             (let ((x (syntax->datum x)))
                (and (integer? x) (exact? x))))
            v*)
-         (values '() (map syntax->datum v*))]
-        [(x . rest) (symbol? (syntax->datum x))
-         (let-values ([(x* v*) (parse rest)])
-           (values (cons (syntax->datum x) x*) v*))]
-        [() (values '() '())]
-        [_ (stx-error spec "invalid library name")]))
+         (values '() (map syntax->datum v*)))
+        ((x . rest) (symbol? (syntax->datum x))
+         (let-values (((x* v*) (parse rest)))
+           (values (cons (syntax->datum x) x*) v*)))
+        (() (values '() '()))
+        (_ (stx-error spec "invalid library name"))))
     (let-values (((name* ver*) (parse spec)))
       (when (null? name*) (stx-error spec "empty library name"))
       (values name* ver*)))
@@ -3322,67 +3324,67 @@
           (else (cons (car ls) (remove-dups (cdr ls))))))
       (define (parse-library-name spec)
         (define (subversion? x) 
-          (let ([x (syntax->datum x)])
+          (let ((x (syntax->datum x)))
             (and (integer? x) (exact? x) (>= x 0))))
         (define (subversion-pred x*) 
           (syntax-match x* ()
-            [n (subversion? n)
-             (lambda (x) (= x (syntax->datum n)))]
-            [(p? sub* ...) (eq? (syntax->datum p?) 'and)
-             (let ([p* (map subversion-pred sub*)])
+            (n (subversion? n)
+             (lambda (x) (= x (syntax->datum n))))
+            ((p? sub* ...) (eq? (syntax->datum p?) 'and)
+             (let ((p* (map subversion-pred sub*)))
                (lambda (x) 
-                 (for-all (lambda (p) (p x)) p*)))]
-            [(p? sub* ...) (eq? (syntax->datum p?) 'or)
-             (let ([p* (map subversion-pred sub*)])
+                 (for-all (lambda (p) (p x)) p*))))
+            ((p? sub* ...) (eq? (syntax->datum p?) 'or)
+             (let ((p* (map subversion-pred sub*)))
                (lambda (x) 
-                 (exists (lambda (p) (p x)) p*)))]
-            [(p? sub) (eq? (syntax->datum p?) 'not)
-             (let ([p (subversion-pred sub)])
+                 (exists (lambda (p) (p x)) p*))))
+            ((p? sub) (eq? (syntax->datum p?) 'not)
+             (let ((p (subversion-pred sub)))
                (lambda (x) 
-                 (not (p x))))]
-            [(p? n) 
+                 (not (p x)))))
+            ((p? n) 
              (and (eq? (syntax->datum p?) '<=) (subversion? n))
-             (lambda (x) (<= x (syntax->datum n)))]
-            [(p? n) 
+             (lambda (x) (<= x (syntax->datum n))))
+            ((p? n) 
              (and (eq? (syntax->datum p?) '>=) (subversion? n))
-             (lambda (x) (>= x (syntax->datum n)))]
-            [_ (syntax-violation 'import "invalid sub-version spec" spec x*)]))
+             (lambda (x) (>= x (syntax->datum n))))
+            (_ (syntax-violation 'import "invalid sub-version spec" spec x*))))
         (define (version-pred x*)
           (syntax-match x* ()
-            [() (lambda (x) #t)]
-            [(c ver* ...) (eq? (syntax->datum c) 'and)
-             (let ([p* (map version-pred ver*)])
+            (() (lambda (x) #t))
+            ((c ver* ...) (eq? (syntax->datum c) 'and)
+             (let ((p* (map version-pred ver*)))
                (lambda (x) 
-                 (for-all (lambda (p) (p x)) p*)))]
-            [(c ver* ...) (eq? (syntax->datum c) 'or)
-             (let ([p* (map version-pred ver*)])
+                 (for-all (lambda (p) (p x)) p*))))
+            ((c ver* ...) (eq? (syntax->datum c) 'or)
+             (let ((p* (map version-pred ver*)))
                (lambda (x) 
-                 (exists (lambda (p) (p x)) p*)))]
-            [(c ver) (eq? (syntax->datum c) 'not)
-             (let ([p (version-pred ver)])
-               (lambda (x) (not (p x))))]
-            [(sub* ...) 
-             (let ([p* (map subversion-pred sub*)])
+                 (exists (lambda (p) (p x)) p*))))
+            ((c ver) (eq? (syntax->datum c) 'not)
+             (let ((p (version-pred ver)))
+               (lambda (x) (not (p x)))))
+            ((sub* ...) 
+             (let ((p* (map subversion-pred sub*)))
                (lambda (x)
-                 (let f ([p* p*] [x x])
+                 (let f ((p* p*) (x x))
                    (cond
-                     [(null? p*) #t]
-                     [(null? x) #f]
-                     [else 
+                     ((null? p*) #t)
+                     ((null? x) #f)
+                     (else 
                       (and ((car p*) (car x))
-                           (f (cdr p*) (cdr x)))]))))]
-            [_ (syntax-violation 'import "invalid version spec" spec x*)]))
-        (let f ([x spec])
+                           (f (cdr p*) (cdr x)))))))))
+            (_ (syntax-violation 'import "invalid version spec" spec x*))))
+        (let f ((x spec))
           (syntax-match x ()
-            [((version-spec* ...)) 
-             (values '() (version-pred version-spec*))]
-            [(x . x*) (idsyn? x)
-             (let-values ([(name pred) (f x*)])
-               (values (cons (syntax->datum x) name) pred))]
-            [() (values '() (lambda (x) #t))]
-            [_ (stx-error spec "invalid import spec")])))
+            (((version-spec* ...)) 
+             (values '() (version-pred version-spec*)))
+            ((x . x*) (idsyn? x)
+             (let-values (((name pred) (f x*)))
+               (values (cons (syntax->datum x) name) pred)))
+            (() (values '() (lambda (x) #t)))
+            (_ (stx-error spec "invalid import spec")))))
       (define (import-library spec*)
-        (let-values ([(name pred) (parse-library-name spec*)])
+        (let-values (((name pred) (parse-library-name spec*)))
           (when (null? name) 
             (syntax-violation 'import "empty library name" spec*))
           (let ((lib (find-library-by-name name)))
@@ -3406,8 +3408,8 @@
                 (for-all idsyn? old*) 
                 (for-all idsyn? new*))
            (let ((subst (get-import isp))
-                 [old* (map syntax->datum old*)]
-                 [new* (map syntax->datum new*)])
+                 (old* (map syntax->datum old*))
+                 (new* (map syntax->datum new*)))
              ;;; rewrite this to eliminate find* and rem* and merge
              (let ((old-label* (find* old* subst)))
                (let ((subst (rem* old* subst)))
@@ -3420,7 +3422,7 @@
           ((only isp sym* ...)
            (and (eq? (syntax->datum only) 'only) (for-all idsyn? sym*))
            (let ((subst (get-import isp))
-                 [sym* (map syntax->datum sym*)])
+                 (sym* (map syntax->datum sym*)))
              (let ((sym* (remove-dups sym*)))
                (let ((lab* (find* sym* subst)))
                  (map cons sym* lab*)))))
@@ -3443,17 +3445,17 @@
            (get-import isp))
           (spec (syntax-violation 'import "invalid import spec" spec))))
       (define (add-imports! imp h)
-        (let ([subst (get-import imp)])
+        (let ((subst (get-import imp)))
           (for-each
             (lambda (x) 
-              (let ([name (car x)] [label (cdr x)])
+              (let ((name (car x)) (label (cdr x)))
                 (cond
-                  [(hashtable-ref h name #f) =>
+                  ((hashtable-ref h name #f) =>
                    (lambda (l)
                      (unless (eq? l label) 
-                       (dup-error name)))]
-                  [else 
-                   (hashtable-set! h name label)])))
+                       (dup-error name))))
+                  (else 
+                   (hashtable-set! h name label)))))
             subst)))
       (lambda (imp*)          
         (let f ((imp* imp*) (h (make-eq-hashtable)))
@@ -3527,14 +3529,14 @@
     (lambda (e rib r)
       (let-values (((e* r mr lex* rhs* mod** _kwd* _exp*)
                     (chi-body* (list e) r r '() '() '() '() '() rib #t)))
-        (let ([e* (expand-interaction-rhs*/init* 
+        (let ((e* (expand-interaction-rhs*/init* 
                     (reverse lex*) (reverse rhs*) 
                     (append (apply append (reverse mod**)) e*)
-                    r mr)])
-          (let ([e (cond
-                     [(null? e*) (build-void)]
-                     [(null? (cdr e*)) (car e*)]
-                     [else (build-sequence no-source e*)])])
+                    r mr)))
+          (let ((e (cond
+                     ((null? e*) (build-void))
+                     ((null? (cdr e*)) (car e*))
+                     (else (build-sequence no-source e*)))))
              (values e r))))))
 
   (define library-body-expander
@@ -3568,11 +3570,11 @@
                                       (make-export-env/macros lex* loc* r)))
                           (for-each
                             (lambda (s) 
-                              (let ([name (car s)] [label (cdr s)])
-                                (let ([p (assq label export-env)])
+                              (let ((name (car s)) (label (cdr s)))
+                                (let ((p (assq label export-env)))
                                   (when p
-                                    (let ([b (cdr p)])
-                                      (let ([type (car b)])
+                                    (let ((b (cdr p)))
+                                      (let ((type (car b)))
                                         (when (eq? type 'mutable)
                                           (syntax-violation 'export
                                             errstr name))))))))
@@ -3597,7 +3599,7 @@
 
   (define core-library-expander
     (case-lambda
-      [(e verify-name)
+      ((e verify-name)
        (let-values (((name* exp* imp* b*) (parse-library e)))
          (let-values (((name ver) (parse-library-name name*)))
            (verify-name name)
@@ -3606,7 +3608,7 @@
                          (library-body-expander name exp* imp* b* #f)))
               (values name ver imp* invoke-req* visit-req* 
                       invoke-code visit-code export-subst
-                      export-env))))]))
+                      export-env)))))))
   
   (define (parse-top-level-program e*)
     (syntax-match e* ()
@@ -3654,29 +3656,29 @@
   (define (parse-binding b)
     (cons (car b) 
       (case (cadr b) 
-        [(core-prim global) 'procedure]
-        [(core-macro macro global-macro) 'syntax]
-        [($core-rtd) 'record]
-        [else (if (eq? (car b) (cadr b)) 'syntax 'unknown)])))            
+        ((core-prim global) 'procedure)
+        ((core-macro macro global-macro) 'syntax)
+        (($core-rtd) 'record)
+        (else (if (eq? (car b) (cadr b)) 'syntax 'unknown)))))            
   
   (define environment?
     (lambda (x) (or (env? x) (interaction-env? x))))
   
   (define (environment-symbols x)
     (cond
-      [(env? x) (vector->list (env-names x))]
-      [(interaction-env? x) 
-       (map values (rib-sym* (interaction-env-rib x)))]
-      [else
-       (assertion-violation 'environment-symbols "not an environment" x)]))
+      ((env? x) (vector->list (env-names x)))
+      ((interaction-env? x) 
+       (map values (rib-sym* (interaction-env-rib x))))
+      (else
+       (assertion-violation 'environment-symbols "not an environment" x))))
 
   ;;; This is R6RS's environment.  It parses the import specs 
   ;;; and constructs an env record that can be used later by 
   ;;; eval and/or expand.
   (define environment
     (lambda imp*
-      (let ([itc (make-collector)])
-        (parameterize ([imp-collector itc])
+      (let ((itc (make-collector)))
+        (parameterize ((imp-collector itc))
           (let-values (((subst-names subst-labels)
                         (parse-import-spec* imp*)))
             (make-env subst-names subst-labels itc))))))
@@ -3699,7 +3701,7 @@
   (define expand
     (lambda (x env)
       (cond
-        [(env? env)
+        ((env? env)
          (let ((rib (make-top-rib (env-names env) (env-labels env))))
            (let ((x (make-stx x top-mark* (list rib) '()))
                  (itc (env-itc env))
@@ -3712,22 +3714,22 @@
                                      (imp-collector itc))
                          (chi-expr x '() '()))))
                  (seal-rib! rib)
-                 (values x (rtc)))))]
-        [(interaction-env? env)
-         (let ([rib (interaction-env-rib env)]
-               [r (interaction-env-r env)]
-               [rtc (make-collector)])
-           (let ([x (make-stx x top-mark* (list rib) '())])
-             (let-values ([(e r^) 
-                           (parameterize ([top-level-context env]
-                                          [inv-collector rtc]
-                                          [vis-collector (make-collector)]
-                                          [imp-collector (make-collector)])
-                             (chi-interaction-expr x rib r))])
+                 (values x (rtc))))))
+        ((interaction-env? env)
+         (let ((rib (interaction-env-rib env))
+               (r (interaction-env-r env))
+               (rtc (make-collector)))
+           (let ((x (make-stx x top-mark* (list rib) '())))
+             (let-values (((e r^) 
+                           (parameterize ((top-level-context env)
+                                          (inv-collector rtc)
+                                          (vis-collector (make-collector))
+                                          (imp-collector (make-collector)))
+                             (chi-interaction-expr x rib r))))
                (set-interaction-env-r! env r^)
-               (values e (rtc)))))]
-        [else
-         (assertion-violation 'expand "not an environment" env)])))
+               (values e (rtc))))))
+        (else
+         (assertion-violation 'expand "not an environment" env)))))
 
   ;;; This is R6RS's eval.  It takes an expression and an environment,
   ;;; expands the expression, invokes its invoke-required libraries and
@@ -3746,7 +3748,7 @@
   ;;; returns its invoke-code, visit-code, subst and env.
   (define library-expander
     (case-lambda 
-      [(x filename verify-name)
+      ((x filename verify-name)
        (define (build-visit-code macro*)
          (if (null? macro*)
              (build-void)
@@ -3781,11 +3783,11 @@
               #t filename)
            (values id name ver imp* vis* inv* 
                    invoke-code visit-code
-                   export-subst export-env)))]
-      [(x filename)
-       (library-expander x filename (lambda (x) (values)))]
-      [(x)
-       (library-expander x #f (lambda (x) (values)))]))
+                   export-subst export-env))))
+      ((x filename)
+       (library-expander x filename (lambda (x) (values))))
+      ((x)
+       (library-expander x #f (lambda (x) (values))))))
 
   ;;; when bootstrapping the system, visit-code is not (and cannot
   ;;; be) be used in the "next" system.  So, we drop it.
@@ -3823,13 +3825,13 @@
   
   (define (make-export-env/macros lex* loc* r)
     (define (lookup x)
-      (let f ([x x] [lex* lex*] [loc* loc*])
+      (let f ((x x) (lex* lex*) (loc* loc*))
         (cond
-          [(pair? lex*) 
+          ((pair? lex*) 
            (if (eq? x (car lex*)) 
                (car loc*)
-               (f x (cdr lex*) (cdr loc*)))]
-          [else (assertion-violation 'lookup-make-export "BUG")])))
+               (f x (cdr lex*) (cdr loc*))))
+          (else (assertion-violation 'lookup-make-export "BUG")))))
     (let f ((r r) (env '()) (global* '()) (macro* '()))
       (cond
         ((null? r) (values env global* macro*))
@@ -3838,7 +3840,7 @@
            (let ((label (car x)) (b (cdr x)))
              (case (binding-type b)
                ((lexical)
-                (let ([v (binding-value b)])
+                (let ((v (binding-value b)))
                   (let ((loc (lookup (lexical-var v)))
                         (type (if (lexical-mutable? v) 
                                   'mutable
@@ -3870,11 +3872,11 @@
         ((ls ...)
          (map (lambda (x)
                 (make-stx 
-                  (let ([x (syntax->datum x)])
+                  (let ((x (syntax->datum x)))
                     (cond
-                      [(or (symbol? x) (string? x)) 
-                       (gensym x)]
-                      [else (gensym 't)]))
+                      ((or (symbol? x) (string? x)) 
+                       (gensym x))
+                      (else (gensym 't))))
                   top-mark* '() '()))
               ls))
         (_ 
@@ -3910,7 +3912,7 @@
 
   (define (expression-position x)
     (and (stx? x)
-         (let ([x (stx-expr x)])
+         (let ((x (stx-expr x)))
            (and (annotation? x)
                 (annotation-source x)))))
 
@@ -3943,32 +3945,32 @@
     (define-condition-type &trace &condition
       make-trace trace?
       (form trace-form))
-    (let f ([x x])
+    (let f ((x x))
       (cond
-        [(stx? x)
+        ((stx? x)
          (apply condition 
             (make-trace x)
-            (map f (stx-ae* x)))]
-        [(annotation? x)
-         (make-trace (make-stx x '() '() '()))]
-        [else (condition)])))
+            (map f (stx-ae* x))))
+        ((annotation? x)
+         (make-trace (make-stx x '() '() '())))
+        (else (condition)))))
 
     
   (define syntax-violation* 
     (lambda (who msg form condition-object)
        (unless (string? msg) 
          (assertion-violation 'syntax-violation "message is not a string" msg))
-       (let ([who
+       (let ((who
               (cond
-                [(or (string? who) (symbol? who)) who]
-                [(not who) 
+                ((or (string? who) (symbol? who)) who)
+                ((not who) 
                  (syntax-match form ()
-                   [id (id? id) (syntax->datum id)]
-                   [(id . rest) (id? id) (syntax->datum id)]
-                   [_  #f])]
-                [else
+                   (id (id? id) (syntax->datum id))
+                   ((id . rest) (id? id) (syntax->datum id))
+                   (_  #f)))
+                (else
                  (assertion-violation 'syntax-violation 
-                    "invalid who argument" who)])])
+                    "invalid who argument" who)))))
          (raise 
            (condition
              (if who 
@@ -3981,12 +3983,12 @@
 
   (define syntax-violation
     (case-lambda
-      [(who msg form) (syntax-violation who msg form #f)]
-      [(who msg form subform) 
+      ((who msg form) (syntax-violation who msg form #f))
+      ((who msg form subform) 
        (syntax-violation* who msg form 
           (make-syntax-violation 
             (syntax->datum form)
-            (syntax->datum subform)))]))
+            (syntax->datum subform))))))
 
   (define identifier? (lambda (x) (id? x)))
   
@@ -4013,17 +4015,17 @@
         (compile-core (expanded->core invoke-code)))))
           
   (define interaction-environment
-    (let ([the-env #f])
+    (let ((the-env #f))
       (lambda ()
         (or the-env 
-            (let ([lib (find-library-by-name '(ironscheme))]
-                  [rib (make-cache-rib)])
-              (let ([subst (library-subst lib)]) 
+            (let ((lib (find-library-by-name '(ironscheme)))
+                  (rib (make-cache-rib)))
+              (let ((subst (library-subst lib))) 
                 (set-rib-sym*! rib (map car subst))
                 (set-rib-mark**! rib 
                   (map (lambda (x) top-mark*) subst))
                 (set-rib-label*! rib (map cdr subst)))
-              (let ([env (make-interaction-env rib '() '())])
+              (let ((env (make-interaction-env rib '() '())))
                 (set! the-env env)
                 env))))))
 

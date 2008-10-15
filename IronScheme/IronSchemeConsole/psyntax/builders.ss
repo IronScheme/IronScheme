@@ -27,7 +27,6 @@
     build-global-define build-library-letrec*)
   (import (rnrs) (psyntax compat) (psyntax config))
   
-  
   (define (build-global-define x)
     (if-wants-global-defines
       `(define ,x '#f)
