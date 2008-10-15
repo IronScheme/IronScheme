@@ -25,7 +25,7 @@
     current-library-expander
     current-library-collection library-path library-extensions
     serialize-all current-precompiled-library-loader)
-  (import (except (rnrs) library) (psyntax compat) (rnrs r5rs) (only (ironscheme) format fprintf))
+  (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format))
 
   (define (make-collection)
     (let ((set '()))
@@ -131,20 +131,7 @@
                   (failed-list '()))
             (cond
               ((null? ls)
-               (let ()
-                 (define-condition-type &library-resolution &condition
-                    make-library-resolution-condition
-                    library-resolution-condition?
-                    (library condition-library)
-                    (files condition-files))
-                 (raise 
-                   (condition 
-                     (make-error)
-                     (make-who-condition 'expander)
-                     (make-message-condition
-                       "cannot locate library in library-path")
-                     (make-library-resolution-condition 
-                       x (reverse failed-list))))))
+               (file-locator-resolution-error x (reverse failed-list)))
               ((null? exts) 
                (f (cdr ls) (library-extensions) failed-list))
               (else
@@ -185,51 +172,47 @@
     ((current-precompiled-library-loader)
       filename
       (case-lambda
-        [(id name ver imp* vis* inv* exp-subst exp-env
+        ((id name ver imp* vis* inv* exp-subst exp-env
           visit-proc invoke-proc visible?)
          ;;; make sure all dependencies are met
          ;;; if all is ok, install the library
          ;;; otherwise, return #f so that the
          ;;; library gets recompiled.
-         (let f ([deps (append imp* vis* inv*)])
+         (let f ((deps (append imp* vis* inv*)))
            (cond
-             [(null? deps)
+             ((null? deps)
               (install-library id name ver imp* vis* inv* 
                 exp-subst exp-env visit-proc invoke-proc 
                 #f #f visible? #f)
-              #t]
-             [else
-              (let ([d (car deps)]) 
-                (let ([label (car d)] [dname (cadr d)]) 
-                  (let ([l (find-library-by-name dname)]) 
+              #t)
+             (else
+              (let ((d (car deps))) 
+                (let ((label (car d)) (dname (cadr d))) 
+                  (let ((l (find-library-by-name dname))) 
                     (cond
-                      [(and (library? l) (eq? label (library-id l)))
-                       (f (cdr deps))]
-                      [else 
-                       (fprintf (current-error-port)
-                          "WARNING: library ~s has an inconsistent dependency \
-                           on library ~s; file ~s will be recompiled from \
-                           source.\n"
-                         name dname filename)
-                       #f]))))]))]
-        [others #f])))
+                      ((and (library? l) (eq? label (library-id l)))
+                       (f (cdr deps)))
+                      (else 
+                       (library-version-mismatch-warning name dname filename)
+                       #f)))))))))
+        (others #f))))
 
   (define library-loader
     (make-parameter
       (lambda (x)
         (let ((file-name ((file-locator) x)))
           (cond
-            [(not file-name) 
-             (assertion-violation #f "cannot file library" x)]
-            [(try-load-from-file file-name)]
-            [else 
+            ((not file-name) 
+             (assertion-violation #f "cannot file library" x))
+            ((try-load-from-file file-name))
+            (else 
              ((current-library-expander)
               (read-library-source-file file-name)
               file-name
               (lambda (name)
                 (unless (equal? name x)
                   (assertion-violation 'import
-                    (let-values ([(p e) (open-string-output-port)])
+                    (let-values (((p e) (open-string-output-port)))
                       (display "expected to find library " p)
                       (write x p)
                       (display " in file " p)
@@ -237,7 +220,7 @@
                       (display ", found " p)
                       (write name p)
                       (display " instead" p)
-                      (e))))))])))
+                      (e))))))))))
       (lambda (f)
         (if (procedure? f)
             f
@@ -309,7 +292,7 @@
 
   (define install-library 
     (case-lambda
-      [(id name ver imp* vis* inv* exp-subst exp-env 
+      ((id name ver imp* vis* inv* exp-subst exp-env 
         visit-proc invoke-proc visit-code invoke-code 
         visible? source-file-name)
        (let ((imp-lib* (map find-library-by-spec/die imp*))
@@ -324,7 +307,7 @@
          (let ((lib (make-library id name ver imp-lib* vis-lib* inv-lib* 
                        exp-subst exp-env visit-proc invoke-proc 
                        visit-code invoke-code visible? source-file-name)))
-           (install-library-record lib)))]))
+           (install-library-record lib))))))
 
   (define (imported-label->binding lab)
     (hashtable-ref label->binding-table lab #f))

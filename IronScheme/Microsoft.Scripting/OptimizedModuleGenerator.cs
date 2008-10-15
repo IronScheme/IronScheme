@@ -228,7 +228,7 @@ namespace Microsoft.Scripting.Generation {
     }
 
     class StaticFieldModuleGenerator : OptimizedModuleGenerator {
-        private static int _Counter;
+        //private static int _Counter;
         private Dictionary<LanguageContext, LanguageInfo> _languages = new Dictionary<LanguageContext, LanguageInfo>();
 
         private class LanguageInfo {
@@ -349,7 +349,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         private TypeGen GenerateModuleGlobalsType(AssemblyGen ag) {
-            TypeGen tg = ag.DefinePublicType(ModuleName + "$mod_" + Interlocked.Increment(ref _Counter).ToString(), typeof(CustomSymbolDictionary));
+            TypeGen tg = ag.DefinePublicType(ModuleName, typeof(CustomSymbolDictionary));
             tg.AddCodeContextField();
             tg.DefaultConstructor = tg.TypeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
 

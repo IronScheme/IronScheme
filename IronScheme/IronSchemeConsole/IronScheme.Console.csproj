@@ -147,6 +147,7 @@
     <None Include="ironscheme\syntax-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\syntax-utils.ss" />
     <None Include="lib\ikarus.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

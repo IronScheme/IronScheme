@@ -23,14 +23,41 @@
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
           load-serialized-library serialize-library
-          annotation-stripped make-record-printer read-library-source-file)
+          annotation-stripped make-record-printer
+		      read-library-source-file
+          library-version-mismatch-warning
+          file-locator-resolution-error)
   (import 
     (rnrs)
     (ironscheme reader)
     (ironscheme records printer)
     (ironscheme serialization)
+    (only (ironscheme) fprintf)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value compile-core))
+
+
+ (define (library-version-mismatch-warning name depname filename)
+    (fprintf (current-error-port)
+        "WARNING: library ~s has an inconsistent dependency \
+         on library ~s; file ~s will be recompiled from \
+         source.\n"
+       name depname filename))
+
+    (define (file-locator-resolution-error libname failed-list)
+      (define-condition-type &library-resolution &condition
+         make-library-resolution-condition
+         library-resolution-condition?
+         (library condition-library)
+         (files condition-files))
+      (raise 
+        (condition 
+          (make-error)
+          (make-who-condition 'expander)
+          (make-message-condition
+            "cannot locate library in library-path")
+          (make-library-resolution-condition 
+            libname failed-list))))
 
   (define (read-library-source-file file-name)
 		(with-input-from-file file-name read-annotated))

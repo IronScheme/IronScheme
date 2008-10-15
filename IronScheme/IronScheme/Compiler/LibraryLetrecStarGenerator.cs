@@ -111,7 +111,7 @@ namespace IronScheme.Compiler
           bodies.Add(null);
         }
 
-        NameHint = Builtins.UnGenSymInternal(vars[i]);
+        NameHint = SymbolTable.StringToId(n + "::" + Builtins.UnGenSymInternal(vars[i]));
         Expression e = GetAst(defs[i], cb);
 
         if (e.Type.IsValueType)
@@ -156,7 +156,7 @@ namespace IronScheme.Compiler
       for (int i = 0; i < vars.Count; i++)
       {
         Expression e = assignments[i];
-        NameHint = Builtins.UnGenSymInternal(vars[i]);
+        NameHint = SymbolTable.StringToId(n + "::" + Builtins.UnGenSymInternal(vars[i]));
 
         if (bodies[i] != null)
         {
@@ -213,15 +213,12 @@ namespace IronScheme.Compiler
         }
       }
 
-      NameHint = SymbolId.Invalid;
-
       Cons body = Builtins.Cdr(args) as Cons;
-
       FillBody(cb, stmts, body, true);
-
       cb.ExplicitCodeContextExpression = Ast.CodeContext();
 
       Expression ex = CallNormal(Ast.CodeBlockExpression(cb, false));
+      NameHint = SymbolId.Invalid;
       return ex;
     }
 
