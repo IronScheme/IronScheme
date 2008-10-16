@@ -573,9 +573,19 @@ namespace IronScheme.Runtime
       return GetBool(result);
     }
 
+    static void CheckArgs(string who, object[] args)
+    {
+      if (args == null || args.Length == 0)
+      {
+        AssertionViolation(who, "expects 2 or more arguments");
+      }
+    }
+
     [Builtin("=")]
     public static object IsSame(object first, params object[] rest)
     {
+      CheckArgs("=", rest);
+
       NumberClass e = GetNumberClass(first);
       if (e == NumberClass.NotANumber)
       {
@@ -643,6 +653,8 @@ namespace IronScheme.Runtime
     [Builtin("<")]
     public static object IsLessThan(object first, params object[] rest)
     {
+      CheckArgs("<", rest);
+
       NumberClass e = GetNumberClass(first);
       if (e == NumberClass.Complex)
       {
@@ -710,6 +722,8 @@ namespace IronScheme.Runtime
     [Builtin("<=")]
     public static object IsLessThanOrEqual(object first, params object[] rest)
     {
+      CheckArgs("<=", rest);
+
       NumberClass e = GetNumberClass(first);
       if (e == NumberClass.Complex)
       {
@@ -777,6 +791,8 @@ namespace IronScheme.Runtime
     [Builtin(">")]
     public static object IsGreaterThan(object first, params object[] rest)
     {
+      CheckArgs(">", rest);
+
       NumberClass e = GetNumberClass(first);
       if (e == NumberClass.Complex)
       {
@@ -844,6 +860,8 @@ namespace IronScheme.Runtime
     [Builtin(">=")]
     public static object IsGreaterThanOrEqual(object first, params object[] rest)
     {
+      CheckArgs(">=", rest);
+
       NumberClass e = GetNumberClass(first);
       if (e == NumberClass.Complex)
       {
@@ -863,8 +881,7 @@ namespace IronScheme.Runtime
 
       return TRUE;
     }
-
-
+    
     #endregion
 
     [Builtin("zero?")]
