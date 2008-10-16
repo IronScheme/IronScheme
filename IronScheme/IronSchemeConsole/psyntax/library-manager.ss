@@ -52,7 +52,7 @@
     (id name version imp* vis* inv* subst env visit-state
         invoke-state visit-code invoke-code visible?
         source-file-name)
-    (lambda (x p)
+    (lambda (x p wr)
       (unless (library? x)
         (assertion-violation 'record-type-printer "not a library"))
       (display 

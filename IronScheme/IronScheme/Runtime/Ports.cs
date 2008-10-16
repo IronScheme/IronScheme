@@ -422,6 +422,11 @@ namespace IronScheme.Runtime
     static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
     static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
 
+    static readonly SymbolId syntax = SymbolTable.StringToId("syntax");
+    static readonly SymbolId unsyntax_splicing = SymbolTable.StringToId("unsyntax-splicing");
+    static readonly SymbolId quasisyntax = SymbolTable.StringToId("quasisyntax");
+    static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
+    
     public static string DisplayFormat(object obj)
     {
       if (obj == null)
@@ -544,6 +549,22 @@ namespace IronScheme.Runtime
             {
               return ",@" + DisplayFormat(Second(s));
             }
+            if ((bool)IsEqual(syntax, scar))
+            {
+              return "#'" + DisplayFormat(Second(s));
+            }
+            if ((bool)IsEqual(quasisyntax, scar))
+            {
+              return "#`" + DisplayFormat(Second(s));
+            }
+            if ((bool)IsEqual(unsyntax, scar))
+            {
+              return "#," + DisplayFormat(Second(s));
+            }
+            if ((bool)IsEqual(unsyntax_splicing, scar))
+            {
+              return "#,@" + DisplayFormat(Second(s));
+            }
           }
         }
 
@@ -640,7 +661,7 @@ namespace IronScheme.Runtime
       if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
       {
         StringWriter p = new StringWriter();
-        printer.Call(obj, p);
+        printer.Call(obj, p, TRUE);
         return p.GetBuffer();
       }
 
@@ -758,6 +779,22 @@ namespace IronScheme.Runtime
           {
             return ",@" + WriteFormat(Second(s));
           }
+          if ((bool)IsEqual(syntax, scar))
+          {
+            return "#'" + WriteFormat(Second(s));
+          }
+          if ((bool)IsEqual(quasisyntax, scar))
+          {
+            return "#`" + WriteFormat(Second(s));
+          }
+          if ((bool)IsEqual(unsyntax, scar))
+          {
+            return "#," + WriteFormat(Second(s));
+          }
+          if ((bool)IsEqual(unsyntax_splicing, scar))
+          {
+            return "#,@" + WriteFormat(Second(s));
+          }
         }
 
         while (s != null)
@@ -826,7 +863,7 @@ namespace IronScheme.Runtime
       if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
       {
         StringWriter p = new StringWriter();
-        printer.Call(obj, p);
+        printer.Call(obj, p, TRUE);
         return p.GetBuffer();
       }
 

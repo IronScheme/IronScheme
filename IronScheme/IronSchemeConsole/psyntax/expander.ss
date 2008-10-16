@@ -309,7 +309,7 @@
 
   ;;; Now to syntax objects which are records defined like:
   (define-record stx (expr mark* subst* ae*)
-    (lambda (x p)
+    (lambda (x p wr)
       (display "#<syntax " p)
       (write (stx->datum x) p)
       (let ((expr (stx-expr x)))
@@ -3634,11 +3634,11 @@
   ;;; An env record encapsulates a substitution and a set of
   ;;; libraries.
   (define-record env (names labels itc)
-    (lambda (x p)
+    (lambda (x p wr)
       (display "#<environment>" p)))
 
   (define-record interaction-env (rib r locs)
-    (lambda (x p)
+    (lambda (x p wr)
       (display "#<environment>" p)))
       
   (define (interaction-environment-symbols)
