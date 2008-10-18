@@ -204,7 +204,7 @@
                   (f (cdr s) v))))))))
 
    (make-record-printer 'enum 
-     (lambda (x p)
+     (lambda (x p wr)
        (fprintf p "#[enum-set ~a]" (enum-set->list x))))  
 )      
     
