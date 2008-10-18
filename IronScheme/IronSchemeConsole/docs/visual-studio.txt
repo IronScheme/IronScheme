@@ -8,11 +8,14 @@ Features:
 - It has proper Scheme lexing and parsing (it just a copy of what I have in IronScheme itself)
 - Syntax highlighting
 - Brace matching (with an interesting but somehow useful 'bug')
-- Code completion
+- Code completion (dumb Intellisense)
 - Navigation Bar
 
-To do:
+To do (no order):
 
+- Outlining (aka collapsable regions)
+- 'Snippets' support
+- Auto expansion support
 - Member info
 - REPL
 - Quickinfo (tooltip)

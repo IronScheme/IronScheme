@@ -49,7 +49,7 @@
   (define-record-type proc-id-doc  
     (parent identifier-doc)
     (fields
-      (mutable parameters)))
+      (mutable forms)))
 
   (define-record-type record-id-doc (parent identifier-doc))
   (define-record-type condition-id-doc (parent identifier-doc))
@@ -123,13 +123,23 @@
       (lambda (e) 
         (or 
           e 
-          (make-identifier-doc 
-            id 
-            lib 
-            (get-id-type id lib)
-            "No description"
-            #f)))
-      #f))          
+          (match-type id lib)))
+      #f))
+      
+  (define (proc-forms id lib)
+    (let ((proc (eval id (environment `(only ,lib ,id)))))
+    (call-with-values 
+      (lambda ()
+        (procedure-form proc))
+      list)))
+      
+  (define (match-type id lib)
+    (let ((t (get-id-type id lib)))
+      (cond 
+        [(enum-set=? t (make-id-type '(procedure)))
+          (make-proc-id-doc id lib t "No description" #f (proc-forms id lib))]
+        [else              
+          (make-identifier-doc id lib t "No description" #f)])))
     
   (define (get-library lib)
     (update! 
@@ -196,6 +206,7 @@
       (ironscheme web views)
       (ironscheme web routing)
       (ironscheme web routing-helper)
+      (ironscheme records printer)
       (ironscheme collections arraylist)
       (ironscheme collections icollection)
       (ironscheme collections ilist)

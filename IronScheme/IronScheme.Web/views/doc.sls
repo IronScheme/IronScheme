@@ -20,7 +20,8 @@
           . ,body)))    
           
   (define (make-lib-link lib)
-    (action/id-link (format "~a" lib) "library" (format "~a" lib)))
+    (let ((lib (format "~a" lib)))
+      (action/id-link lib "library" lib)))
     
   (define (flatten lst)
     (apply append lst))  

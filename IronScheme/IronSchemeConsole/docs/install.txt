@@ -23,6 +23,7 @@ C. Zip on Mono
 D. Source (Visual Studio 2008)
 
 - Download latest source code from http://www.codeplex.com/IronScheme/SourceControl/ListDownloadableCommits.aspx .
+- Open the IronScheme2008 solution (IronScheme2008.sln).
 - Compile solution and run/debug the IronScheme.Console project.
 
 E. Source (Mono)
