@@ -44,7 +44,7 @@ namespace IronScheme.Runtime.R6RS
       return FALSE;
     }
 
-    class Transcoder
+    internal class Transcoder
     {
       public Encoding codec = Encoding.Default;
       public SymbolId eolstyle = eol_crlf;
@@ -1265,6 +1265,10 @@ namespace IronScheme.Runtime.R6RS
       if (outputport is TextWriter)
       {
         ((TextWriter)outputport).Flush();
+      }
+      if (outputport is CustomTextReaderWriter)
+      {
+        return FlushOutputPort(((CustomTextReaderWriter)outputport).output);
       }
       return Unspecified;
     }

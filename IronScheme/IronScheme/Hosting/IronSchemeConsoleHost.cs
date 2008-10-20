@@ -27,7 +27,8 @@ namespace IronScheme.Hosting
     public IronSchemeConsoleHost()
     {
       logo = string.Format("IronScheme {0} http://www.codeplex.com/IronScheme Copyright © leppie - {1}",
-            typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
+          "1.0 beta 1",
+            //typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
 #if DEBUG
  "Debug build"
 #else

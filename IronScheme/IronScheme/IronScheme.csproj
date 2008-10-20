@@ -108,7 +108,7 @@
     <None Include="Types\Boolean.cs" />
     <None Include="Types\ByteVector.cs" />
     <None Include="Types\Character.cs" />
-    <None Include="Types\Pair.cs" />
+    <None Include="Types\Cons.cs" />
     <None Include="Types\Object.cs" />
     <None Include="Types\Number.cs" />
     <Compile Include="Runtime\Numbers.cs" />
