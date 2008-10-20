@@ -135,6 +135,7 @@ namespace IronScheme.Runtime
       return ct;
     }
 
+    //this needs to be better controlled, and perhaps use weak references
     internal static Stack<Continuation> contstack = new Stack<Continuation>();
     
     [Builtin("call-with-current-continuation"), Builtin("call/cc")]

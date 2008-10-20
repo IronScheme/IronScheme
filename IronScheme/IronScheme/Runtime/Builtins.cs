@@ -27,6 +27,7 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
 using System.Xml;
 using System.Net;
+using System.Net.Sockets;
 
 namespace IronScheme.Runtime
 {
@@ -619,6 +620,27 @@ A ""contributor"" is any person that distributes its contribution under this lic
       using (WebClient wc = new WebClient())
       {
         return wc.DownloadString(s);
+      }
+    }
+
+    [Builtin("open-tcp-input/output-port")]
+    public static object OpenTcpInputOutputPort(object host, object port, object maybetranscoder)
+    {
+      TcpClient tcp = new TcpClient();
+      tcp.Connect(RequiresNotNull<string>(host), RequiresNotNull<int>(port));
+
+      NetworkStream ns = tcp.GetStream();
+
+      if (maybetranscoder is R6RS.IO.Transcoder)
+      {
+        R6RS.IO.Transcoder tc = maybetranscoder as R6RS.IO.Transcoder;
+        return new R6RS.IO.CustomTextReaderWriter(
+          SymbolTable.StringToId(string.Format("#<tcp-input/output-port {0}:{1}>", host, port)),
+          new StreamReader(ns, tc.codec), new StreamWriter(ns, tc.codec));
+      }
+      else
+      {
+        return ns;
       }
     }
     
