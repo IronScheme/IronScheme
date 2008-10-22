@@ -65,21 +65,6 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    /*
-; 6.3.6
-- vector?
-- make-vector
-- vector
-- vector-length 
-- vector-ref
-- vector-set!
-
-- vector->list 
-- list->vector
-
-- vector-fill! 
-     */
-
     [Builtin("vector?")]
     public static object IsVector(object obj)
     {

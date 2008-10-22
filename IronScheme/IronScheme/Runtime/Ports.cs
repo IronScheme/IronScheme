@@ -427,6 +427,47 @@ namespace IronScheme.Runtime
     static readonly SymbolId unsyntax_splicing = SymbolTable.StringToId("unsyntax-splicing");
     static readonly SymbolId quasisyntax = SymbolTable.StringToId("quasisyntax");
     static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
+
+    static string ReaderFormat(Cons s, Function<object, string> Format)
+    {
+      object scar = s.car;
+      if (IsTrue(IsSymbol(scar)) && s.cdr is Cons && (int)Length(s.cdr) == 1)
+      {
+        if (IsTrue(IsEqual(quote, scar)))
+        {
+          return "'" + Format(Second(s));
+        }
+        if (IsTrue(IsEqual(quasiquote, scar)))
+        {
+          return "`" + Format(Second(s));
+        }
+        if (IsTrue(IsEqual(unquote, scar)))
+        {
+          return "," + Format(Second(s));
+        }
+        if (IsTrue(IsEqual(unquote_splicing, scar)))
+        {
+          return ",@" + Format(Second(s));
+        }
+        if (IsTrue(IsEqual(syntax, scar)))
+        {
+          return "#'" + Format(Second(s));
+        }
+        if (IsTrue(IsEqual(quasisyntax, scar)))
+        {
+          return "#`" + Format(Second(s));
+        }
+        if (IsTrue(IsEqual(unsyntax, scar)))
+        {
+          return "#," + Format(Second(s));
+        }
+        if (IsTrue(IsEqual(unsyntax_splicing, scar)))
+        {
+          return "#,@" + Format(Second(s));
+        }
+      }
+      return null;
+    }
     
     public static string DisplayFormat(object obj)
     {
@@ -445,7 +486,7 @@ namespace IronScheme.Runtime
 
       if (obj is bool)
       {
-        return ((bool)obj) ? "#t" : "#f";
+        return IsTrue(obj) ? "#t" : "#f";
       }
       if (obj is char)
       {
@@ -531,41 +572,10 @@ namespace IronScheme.Runtime
 
         if (s != null)
         {
-          object scar = s.car;
-          if ((bool)IsSymbol(scar) && s.cdr is Cons && (int)Length(s.cdr) == 1)
+          string val = ReaderFormat(s, DisplayFormat);
+          if (val != null)
           {
-            if ((bool)IsEqual(quote, scar))
-            {
-              return "'" + DisplayFormat(Second(s));
-            }
-            if ((bool)IsEqual(quasiquote, scar))
-            {
-              return "`" + DisplayFormat(Second(s));
-            }
-            if ((bool)IsEqual(unquote, scar))
-            {
-              return "," + DisplayFormat(Second(s));
-            }
-            if ((bool)IsEqual(unquote_splicing, scar))
-            {
-              return ",@" + DisplayFormat(Second(s));
-            }
-            if ((bool)IsEqual(syntax, scar))
-            {
-              return "#'" + DisplayFormat(Second(s));
-            }
-            if ((bool)IsEqual(quasisyntax, scar))
-            {
-              return "#`" + DisplayFormat(Second(s));
-            }
-            if ((bool)IsEqual(unsyntax, scar))
-            {
-              return "#," + DisplayFormat(Second(s));
-            }
-            if ((bool)IsEqual(unsyntax_splicing, scar))
-            {
-              return "#,@" + DisplayFormat(Second(s));
-            }
+            return val;
           }
         }
 
@@ -766,40 +776,12 @@ namespace IronScheme.Runtime
         List<string> v = new List<string>();
         Cons s = obj as Cons;
 
-        object scar = s.car;
-        if ((bool)IsSymbol(scar) && s.cdr is Cons && (int)Length(s.cdr) == 1)
+        if (s != null)
         {
-          if ((bool)IsEqual(quote, scar))
+          string val = ReaderFormat(s, WriteFormat);
+          if (val != null)
           {
-            return "'" + WriteFormat(Second(s));
-          }
-          if ((bool)IsEqual(quasiquote, scar))
-          {
-            return "`" + WriteFormat(Second(s));
-          }
-          if ((bool)IsEqual(unquote, scar))
-          {
-            return "," + WriteFormat(Second(s));
-          }
-          if ((bool)IsEqual(unquote_splicing, scar))
-          {
-            return ",@" + WriteFormat(Second(s));
-          }
-          if ((bool)IsEqual(syntax, scar))
-          {
-            return "#'" + WriteFormat(Second(s));
-          }
-          if ((bool)IsEqual(quasisyntax, scar))
-          {
-            return "#`" + WriteFormat(Second(s));
-          }
-          if ((bool)IsEqual(unsyntax, scar))
-          {
-            return "#," + WriteFormat(Second(s));
-          }
-          if ((bool)IsEqual(unsyntax_splicing, scar))
-          {
-            return "#,@" + WriteFormat(Second(s));
+            return val;
           }
         }
 

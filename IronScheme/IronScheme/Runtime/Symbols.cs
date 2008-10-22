@@ -25,52 +25,24 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-    /*
-
-; 6.3.3
-- symbol?
-- string->symbol
-- symbol->string
-
-     */
-
-
     [Builtin("symbol?")]
     public static object IsSymbol(object obj)
     {
       return GetBool(obj is SymbolId);
     }
 
-
     [Builtin("symbol->string")]
     public static string SymbolToString(object obj)
     {
-      if (obj is SymbolId)
-      {
-        return SymbolTable.IdToString((SymbolId)obj);
-      }
-      else
-      {
-        return AssertionViolation(GetCaller(), "not a symbol", obj) as string;
-      }
+      SymbolId s = RequiresNotNull<SymbolId>(obj);
+      return SymbolTable.IdToString(s);
     }
-
 
     [Builtin("string->symbol")]
     public static object StringToSymbol(object obj)
     {
-      if (obj is StringBuilder)
-      {
-        obj = obj.ToString();
-      }
-      if (obj is string)
-      {
-        return SymbolTable.StringToId((string)obj);
-      }
-      else
-      {
-        return AssertionViolation(GetCaller(), "not a string or stringbuilder", obj);
-      }
+      string s = RequiresNotNull<string>(obj);
+      return SymbolTable.StringToId(s);
     }
 
   }
