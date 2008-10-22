@@ -25,6 +25,7 @@ using Microsoft.Scripting.Actions;
 using System.Diagnostics;
 using IronScheme.Runtime.R6RS;
 using System.Globalization;
+using System.Net.Sockets;
 
 namespace IronScheme.Runtime
 {
@@ -628,6 +629,11 @@ namespace IronScheme.Runtime
         return string.Join(Environment.NewLine, v.ToArray());
       }
 
+      if (obj is NetworkStream)
+      {
+        return string.Format("#<tcp-binary-input/output-port>");
+      }
+
       if (obj is Exception)
       {
         return cc.LanguageContext.Engine.FormatException(obj as Exception);
@@ -852,6 +858,11 @@ namespace IronScheme.Runtime
         }
 
         return sb.ToString();
+      }
+
+      if (obj is NetworkStream)
+      {
+        return string.Format("#<tcp-binary-input/output-port>");
       }
 
       if (IsTrue(IsNumber(obj)))

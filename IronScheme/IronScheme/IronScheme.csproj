@@ -104,7 +104,6 @@
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Runtime\MultiEnumerable.cs" />
     <None Include="Types\Boolean.cs" />
     <None Include="Types\ByteVector.cs" />
     <None Include="Types\Character.cs" />

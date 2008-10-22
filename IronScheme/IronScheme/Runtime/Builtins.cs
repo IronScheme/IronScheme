@@ -635,7 +635,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       {
         R6RS.IO.Transcoder tc = maybetranscoder as R6RS.IO.Transcoder;
         return new R6RS.IO.CustomTextReaderWriter(
-          SymbolTable.StringToId(string.Format("#<tcp-input/output-port {0}:{1}>", host, port)),
+          SymbolTable.StringToId(string.Format("#<tcp-textual-input/output-port {0}:{1}>", host, port)),
           new StreamReader(ns, tc.codec), new StreamWriter(ns, tc.codec));
       }
       else
