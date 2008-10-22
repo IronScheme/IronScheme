@@ -34,54 +34,39 @@
       (bitwise-and (bitwise-not ei1) ei3)))
       
   (define (bitwise-copy-bit ei1 ei2 ei3)
-    (let* ((mask (bitwise-arithmetic-shift-left 1 ei2)))
-      (bitwise-if mask
-       (bitwise-arithmetic-shift-left ei3 ei2)
-        ei1)))
+    (bitwise-if 
+      (bitwise-arithmetic-shift-left 1 ei2)
+      (bitwise-arithmetic-shift-left ei3 ei2)
+      ei1))
         
   (define (bitwise-bit-field ei1 ei2 ei3)
-     (let ((mask
-            (bitwise-not
-              (bitwise-arithmetic-shift-left -1 ei3))))
-        (bitwise-arithmetic-shift-right
-          (bitwise-and ei1 mask)
-          ei2)))
+    (bitwise-arithmetic-shift-right
+      (bitwise-and ei1 (bitwise-not (bitwise-arithmetic-shift-left -1 ei3)))
+      ei2))
   
-   (define (bitwise-copy-bit-field ei1 ei2 ei3 ei4)
-      (let* ((to ei1)
-             (start ei2)
-             (end ei3)
-             (from ei4)
-             (mask1
-                (bitwise-arithmetic-shift-left -1 start))
-             (mask2
-                (bitwise-not
-                  (bitwise-arithmetic-shift-left -1 end)))
-             (mask (bitwise-and mask1 mask2)))
-                (bitwise-if mask
-                  (bitwise-arithmetic-shift-left from
-                    start)
-                  to)))
+  (define (bitwise-copy-bit-field to start end from)
+    (bitwise-if 
+      (bitwise-and 
+        (bitwise-arithmetic-shift-left -1 start) 
+        (bitwise-not (bitwise-arithmetic-shift-left -1 end)))
+      (bitwise-arithmetic-shift-left from start)
+      to))
                   
-    (define (bitwise-arithmetic-shift-left ei1 ei2)
-      (bitwise-arithmetic-shift ei1 ei2))            
-      
-    (define (bitwise-arithmetic-shift-right ei1 ei2)
-      (bitwise-arithmetic-shift ei1 (- ei2)))            
-      
-      
-    (define (bitwise-rotate-bit-field ei1 ei2 ei3 ei4)
-      (let* ((n ei1)
-             (start ei2)
-             (end ei3)
-             (count ei4)
-             (width (- end start)))
-        (if (positive? width)
-          (let* ((count (mod count width))
-                 (field0 (bitwise-bit-field n start end))
-                 (field1 (bitwise-arithmetic-shift-left field0 count))
-                 (field2 (bitwise-arithmetic-shift-right field0 (- width count)))
-                 (field (bitwise-ior field1 field2)))
-             (bitwise-copy-bit-field n start end field))
-          n)))
+  (define (bitwise-arithmetic-shift-left ei1 ei2)
+    (bitwise-arithmetic-shift ei1 ei2))            
+    
+  (define (bitwise-arithmetic-shift-right ei1 ei2)
+    (bitwise-arithmetic-shift ei1 (- ei2)))            
+    
+    
+  (define (bitwise-rotate-bit-field n start end count)
+    (let ((width (- end start)))
+      (if (positive? width)
+        (let ((count (mod count width))
+              (field (bitwise-bit-field n start end)))
+           (bitwise-copy-bit-field n start end 
+            (bitwise-ior 
+              (bitwise-arithmetic-shift-left field count) 
+              (bitwise-arithmetic-shift-right field (- width count))))))
+        n))
 )

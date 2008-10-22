@@ -167,6 +167,57 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return null;
     }
 
+    [InlineEmitter("fxzero?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsZero(params Expression[] args)
+    {
+      if (Expect(args, 1))
+      {
+        return Ast.Equal(Ast.Constant(0), (UnwrapAndCast<int>(args[0])));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fxpositive?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsPositive(params Expression[] args)
+    {
+      if (Expect(args, 1))
+      {
+        return Ast.LessThan(Ast.Constant(0), (UnwrapAndCast<int>(args[0])));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fxnegative?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsNegative(params Expression[] args)
+    {
+      if (Expect(args, 1))
+      {
+        return Ast.GreaterThan(Ast.Constant(0), (UnwrapAndCast<int>(args[0])));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fxeven?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsEven(params Expression[] args)
+    {
+      if (Expect(args, 1))
+      {
+        return Ast.Equal(Ast.Constant(0), Ast.And(Ast.Constant(1), (UnwrapAndCast<int>(args[0]))));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fxodd?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsOdd(params Expression[] args)
+    {
+      if (Expect(args, 1))
+      {
+        return Ast.Not(Ast.Equal(Ast.Constant(0), Ast.And(Ast.Constant(1), (UnwrapAndCast<int>(args[0])))));
+      }
+      return null;
+    }
+
+
 
     static Expression Unwrap(Expression e)
     {
@@ -364,14 +415,14 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     public static object FxIsOdd(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return GetBool(x1 % 2 != 0);
+      return GetBool((x1 & 1) != 0);
     }
 
     [Builtin("fxeven?")]
     public static object FxIsEven(object a)
     {
       int x1 = RequiresNotNull<int>(a);
-      return GetBool(x1 % 2 == 0);
+      return GetBool((x1 & 1) == 0);
     }
 
     [Builtin("fxmax")]
@@ -566,50 +617,50 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return Values(div, mod);
     }
 
-    //(fx+/carry fx1 fx2 fx3)
-    [Builtin("fx+/carry")]
-    public static object FxAddCarry(object fx1, object fx2, object fx3)
-    {
-      int i1 = RequiresNotNull<int>(fx1);
-      int i2 = RequiresNotNull<int>(fx2);
-      int i3 = RequiresNotNull<int>(fx3);
+    ////(fx+/carry fx1 fx2 fx3)
+    //[Builtin("fx+/carry")]
+    //public static object FxAddCarry(object fx1, object fx2, object fx3)
+    //{
+    //  int i1 = RequiresNotNull<int>(fx1);
+    //  int i2 = RequiresNotNull<int>(fx2);
+    //  int i3 = RequiresNotNull<int>(fx3);
 
-      object s = Add(i1, i2, i3);
-      object s0 = Mod0(s, (BigInteger) 4294967296L);
-      object s1 = Div0(s, (BigInteger) 4294967296L);
+    //  object s = Add(i1, i2, i3);
+    //  object s0 = Mod0(s, (BigInteger) 4294967296L);
+    //  object s1 = Div0(s, (BigInteger) 4294967296L);
 
-      return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
-    }
+    //  return Values(s0, s1);
+    //}
     
-    //(fx-/carry fx1 fx2 fx3)
-    [Builtin("fx-/carry")]
-    public static object FxSubtractCarry(object fx1, object fx2, object fx3)
-    {
-      int i1 = RequiresNotNull<int>(fx1);
-      int i2 = RequiresNotNull<int>(fx2);
-      int i3 = RequiresNotNull<int>(fx3);
+    ////(fx-/carry fx1 fx2 fx3)
+    //[Builtin("fx-/carry")]
+    //public static object FxSubtractCarry(object fx1, object fx2, object fx3)
+    //{
+    //  int i1 = RequiresNotNull<int>(fx1);
+    //  int i2 = RequiresNotNull<int>(fx2);
+    //  int i3 = RequiresNotNull<int>(fx3);
 
-      object s = Subtract(i1, i2, i3);
-      object s0 = Mod0(s, (BigInteger) 4294967296L);
-      object s1 = Div0(s, (BigInteger) 4294967296L);
+    //  object s = Subtract(i1, i2, i3);
+    //  object s0 = Mod0(s, (BigInteger) 4294967296L);
+    //  object s1 = Div0(s, (BigInteger) 4294967296L);
 
-      return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
-    }
+    //  return Values(s0, s1);
+    //}
 
-    //(fx*/carry fx1 fx2 fx3)
-    [Builtin("fx*/carry")]
-    public static object FxMultiplyCarry(object fx1, object fx2, object fx3)
-    {
-      int i1 = RequiresNotNull<int>(fx1);
-      int i2 = RequiresNotNull<int>(fx2);
-      int i3 = RequiresNotNull<int>(fx3);
+    ////(fx*/carry fx1 fx2 fx3)
+    //[Builtin("fx*/carry")]
+    //public static object FxMultiplyCarry(object fx1, object fx2, object fx3)
+    //{
+    //  int i1 = RequiresNotNull<int>(fx1);
+    //  int i2 = RequiresNotNull<int>(fx2);
+    //  int i3 = RequiresNotNull<int>(fx3);
 
-      object s = Add(Multiply(i1, i2), i3);
-      object s0 = Mod0(s, (BigInteger) 4294967296L);
-      object s1 = Div0(s, (BigInteger) 4294967296L);
+    //  object s = Add(Multiply(i1, i2), i3);
+    //  object s0 = Mod0(s, (BigInteger) 4294967296L);
+    //  object s1 = Div0(s, (BigInteger) 4294967296L);
 
-      return Values(Convert.ToInt32(s0), Convert.ToInt32(s1));
-    }
+    //  return Values(s0, s1);
+    //}
 
     [Builtin("fxnot")]
     public static object FxNot(object a)

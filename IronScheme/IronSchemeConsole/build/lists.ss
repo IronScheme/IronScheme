@@ -27,7 +27,12 @@
     assq
     
     cons*
-
+    map
+    for-each
+    make-list
+    last-pair
+    list-tail
+    list-ref
     )
     
   (import 
@@ -52,7 +57,34 @@
       memq
       memv
       member
-      memp))
+      memp
+      map
+      for-each
+      list-tail
+      list-ref))
+      
+  (define (list-tail lst index)
+    (cond
+      [(or (null? lst) (negative? index))
+        (assertion-violation 'list-tail "index out of range" lst index)]
+      [(zero? index) lst]
+      [else
+        (list-tail (cdr lst) (- index 1))]))      
+        
+  (define (list-ref lst index)
+    (car (list-tail lst index)))
+
+  (define (last-pair lst)
+    (cond 
+      [(null? lst) lst]
+      [(null? (cdr lst)) lst]
+      [else
+        (last-pair (cdr lst))]))       
+      
+  (define make-list
+    (case-lambda
+      [(n)      (list->vector (make-vector n))]
+      [(n fill) (list->vector (make-vector n fill))]))
       
   (define (find proc l)
     (if (null? l)
@@ -193,6 +225,23 @@
             (lambda (cars cdrs)
               (or (apply f cars)
                   (apply exists f cdrs)))))))
+                  
+  (define map
+    (lambda (proc . lists)
+      (let f ((lists lists)(a '()))
+        (if (all-empty? lists)
+          (reverse! a)
+          (call-with-values (lambda () (split lists))
+            (lambda (cars cdrs)
+              (f cdrs (cons (apply proc cars) a))))))))
+  
+  (define for-each
+    (lambda (f . args)
+      (if (not (all-empty? args))
+          (call-with-values (lambda () (split args))
+            (lambda (cars cdrs)
+              (apply f cars)
+              (apply for-each f cdrs))))))
                   
   (define cons* 
     (lambda (a . rest) 

@@ -270,7 +270,6 @@
     (parameterize                               i)
     (time                                       i)
     (time-it                                    i)
-    (pmap                                       i)
     (assertion-error                            ic)
     (trace-lambda                               i)
     (trace-define                               i)

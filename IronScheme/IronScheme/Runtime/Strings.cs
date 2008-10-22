@@ -27,34 +27,6 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    /*
-
-; 6.3.5
-- string?
-- make-string (todo)
-- string 
-- string-length
-- string-ref
-- string-set! (todo)
-- string=? 
-
-- string<? 
-- string>? 
-- string<=? 
-- string>=? 
-
-
-- substring
-- string-append 
-
-- string->list 
-- list->string 
-
-- string-copy 
-- string-fill! (todo)
-
-     */
-
     [Builtin("string-set!")]
     public static object StringSet(object obj, object k, object value)
     {
@@ -75,7 +47,12 @@ namespace IronScheme.Runtime
     [Builtin("string-fill!")]
     public static object StringFill(object obj, object fill)
     {
-      return ImplementationRestriction("string-fill!", "will not be supported, ever", obj, fill);
+      StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
+      for (int i = 0; i < sb.Length; i++)
+      {
+        sb[i] = (char)fill;
+      }
+      return Unspecified;
     }
 
     [Builtin("string-ref")]
@@ -94,7 +71,7 @@ namespace IronScheme.Runtime
         return sb[i];
       }
 
-      return AssertionViolation(GetCaller(), "obj must be a StringBuilder or a String", obj);
+      return AssertionViolation(GetCaller(), "not a string", obj);
     }
 
     [Builtin("make-string")]
