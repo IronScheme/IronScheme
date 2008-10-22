@@ -92,8 +92,6 @@ namespace IronScheme.Runtime
       }
       return null;
     }
-
-
   }
 
   public partial class Builtins
@@ -192,37 +190,22 @@ namespace IronScheme.Runtime
       return length;
     }
     
-    [Builtin]
-    public static object First(object args)
+    internal static object First(object args)
     {
       return Car(args);
     }
 
-    [Builtin]
-    public static object Second(object args)
+    internal static object Second(object args)
     {
       return Car(Cdr(args));
     }
 
-    [Builtin]
-    public static object Third(object args)
+    internal static object Third(object args)
     {
       return Car(Cdr(Cdr(args)));
     }
-    
-    //[Builtin]
-    //public static object Last(object args)
-    //{
-    //  Cons c = Requires<Runtime.Cons>(args);
-    //  while (c.cdr is Cons)
-    //  {
-    //    c = c.cdr as Cons;
-    //  }
-    //  return c;
-    //}
 
-    //[Builtin("last-pair")]
-    public static Cons LastPair(object args)
+    internal static Cons LastPair(object args)
     {
       Cons c = Requires<Runtime.Cons>(args);
       while (c.cdr is Cons)
@@ -231,19 +214,7 @@ namespace IronScheme.Runtime
       }
       return c;
     }
-
-    //[Builtin("make-list")]
-    //public static Cons MakeList(object n)
-    //{
-    //  return VectorToList(MakeVector(n));
-    //}
-
-    //[Builtin("make-list")]
-    //public static Cons MakeList(object n, object fill)
-    //{
-    //  return VectorToList(MakeVector(n, fill));
-    //}
-
+    
     [Builtin("set-car!")]
     public static object SetCar(object list, object value)
     {
@@ -259,14 +230,7 @@ namespace IronScheme.Runtime
       c.cdr = value;
       return Unspecified;
     }
-
-    //[Builtin]
-    //public static object Rest(object args)
-    //{
-    //  Cons c = RequiresNotNull<Runtime.Cons>(args);
-    //  return c.cdr;
-    //}
-
+    
     [Builtin]
     public static object Car(object args)
     {
@@ -280,8 +244,7 @@ namespace IronScheme.Runtime
       Cons c = RequiresNotNull<Runtime.Cons>(args);
       return c.cdr;
     }
-
-
+    
     [Builtin]
     public static Cons Reverse(object lst)
     {
@@ -296,46 +259,7 @@ namespace IronScheme.Runtime
 
       return list;
     }
-
-
-    //[Builtin("list-tail")]
-    //public static object ListTail(object lst, object index)
-    //{
-    //  Cons list = RequiresNotNull<Runtime.Cons>(lst);
-    //  int i = RequiresNotNull<int>(index);
-    //  object c = list;
-
-    //  while (c != null)
-    //  {
-    //    if (i-- == 0)
-    //    {
-    //      return c;
-    //    }
-
-    //    c = ((Cons) c).cdr;
-    //  }
-
-    //  return AssertionViolation("list-tail", "index out of range", lst, index);
-    //}
-
-    //[Builtin("list-ref")]
-    //public static object ListRef(object lst, object index)
-    //{
-    //  Cons list = RequiresNotNull<Runtime.Cons>(lst);
-    //  int i = RequiresNotNull<int>(index);
-
-    //  while (list != null)
-    //  {
-    //    if (i-- == 0)
-    //    {
-    //      return list.car;
-    //    }
-    //    list = list.cdr as Cons;
-    //  }
-
-    //  return AssertionViolation("list-ref", "index out of range", lst, index);
-    //}
-
+    
     [Builtin]
     public static object Append()
     {
@@ -476,21 +400,6 @@ namespace IronScheme.Runtime
       j.cdr = i.car;
       return c;
     }
-
-    //[Builtin]
-    //public static object Distinct(object lst)
-    //{
-    //  Hashtable set = new Hashtable();
-    //  Cons c = Requires<Runtime.Cons>(lst);
-
-    //  while (c != null)
-    //  {
-    //    set[c.car] = true;
-    //    c = c.cdr as Cons;
-    //  }
-
-    //  return Runtime.Cons.FromList(set.Keys);
-    //}
 
   }
 }

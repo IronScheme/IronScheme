@@ -18,6 +18,7 @@ using System.Text;
 namespace IronScheme.Runtime
 {
   [AttributeUsage(AttributeTargets.Assembly, AllowMultiple=true)]
+  [Obsolete("still if ever used?")]
   public sealed class ExtensionAttribute : Attribute
   {
     Type generatortype, builtinstype;

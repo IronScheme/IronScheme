@@ -217,7 +217,85 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return null;
     }
 
+    [InlineEmitter("fx=?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsEqual(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.Equal(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
 
+    [InlineEmitter("fx<?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsLessThan(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.LessThan(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fx<=?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsLessThanOrEqual(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.LessThanEquals(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fx>?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsGreater(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.GreaterThan(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fx>=?", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIsGreaterOrEqual(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.GreaterThanEquals(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fxand", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxAnd(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.Add(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fxior", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxIor(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.Or(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
+
+    [InlineEmitter("fxxor", Optimization = OptimizationLevel.Safe)]
+    public static Expression FxXor(params Expression[] args)
+    {
+      if (Expect(args, 2))
+      {
+        return Ast.ExclusiveOr(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+      }
+      return null;
+    }
 
     static Expression Unwrap(Expression e)
     {
@@ -616,51 +694,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
       return Values(div, mod);
     }
-
-    ////(fx+/carry fx1 fx2 fx3)
-    //[Builtin("fx+/carry")]
-    //public static object FxAddCarry(object fx1, object fx2, object fx3)
-    //{
-    //  int i1 = RequiresNotNull<int>(fx1);
-    //  int i2 = RequiresNotNull<int>(fx2);
-    //  int i3 = RequiresNotNull<int>(fx3);
-
-    //  object s = Add(i1, i2, i3);
-    //  object s0 = Mod0(s, (BigInteger) 4294967296L);
-    //  object s1 = Div0(s, (BigInteger) 4294967296L);
-
-    //  return Values(s0, s1);
-    //}
-    
-    ////(fx-/carry fx1 fx2 fx3)
-    //[Builtin("fx-/carry")]
-    //public static object FxSubtractCarry(object fx1, object fx2, object fx3)
-    //{
-    //  int i1 = RequiresNotNull<int>(fx1);
-    //  int i2 = RequiresNotNull<int>(fx2);
-    //  int i3 = RequiresNotNull<int>(fx3);
-
-    //  object s = Subtract(i1, i2, i3);
-    //  object s0 = Mod0(s, (BigInteger) 4294967296L);
-    //  object s1 = Div0(s, (BigInteger) 4294967296L);
-
-    //  return Values(s0, s1);
-    //}
-
-    ////(fx*/carry fx1 fx2 fx3)
-    //[Builtin("fx*/carry")]
-    //public static object FxMultiplyCarry(object fx1, object fx2, object fx3)
-    //{
-    //  int i1 = RequiresNotNull<int>(fx1);
-    //  int i2 = RequiresNotNull<int>(fx2);
-    //  int i3 = RequiresNotNull<int>(fx3);
-
-    //  object s = Add(Multiply(i1, i2), i3);
-    //  object s0 = Mod0(s, (BigInteger) 4294967296L);
-    //  object s1 = Div0(s, (BigInteger) 4294967296L);
-
-    //  return Values(s0, s1);
-    //}
 
     [Builtin("fxnot")]
     public static object FxNot(object a)
