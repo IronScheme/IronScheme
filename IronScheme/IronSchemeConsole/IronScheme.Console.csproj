@@ -624,6 +624,9 @@
     <Content Include="docs\tests.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="docs\tutorial.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="docs\unsupported.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

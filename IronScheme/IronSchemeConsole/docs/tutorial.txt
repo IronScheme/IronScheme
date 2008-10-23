@@ -1,0 +1,101 @@
+﻿Tutorial
+========
+
+R6RS Scheme is slighty different to previous Scheme with respect to how programs are structured.
+R6RS Scheme makes a distinction between programs and libraries.
+
+Your first program
+==================
+
+Copy the 3 lines below into a file called 'helloworld.ss':
+
+  (import (rnrs))
+
+  (display "Hello World")
+  (newline)
+
+Now run this program from the command line as:
+IronScheme.Console helloworld.ss
+
+Hello World will be printed and the program will exit.
+
+Alternatively, you can simply load the file from the REPL as:
+
+  (load "helloworld.ss")
+
+Again Hello World will be printed, and you will be returned to the REPL.
+
+
+Using libraries
+===============
+
+To use an exisiting library, one simply has to import it as:
+
+  (import 
+    (rnrs)
+    (ironscheme pretty-print))
+
+  ; you can now use any construct defined in (ironscheme pretty-print)
+  (pretty-print '(a b c d e f))
+
+This will simple print the supplied argument, in a pretty format (probably nothing pretty in this case).  
+
+
+Creating libraries
+==================
+
+The form for a library is slightly different. 
+To define you own libary, create a file called 'mylib.ss', and copy the following lines to it:
+
+  (library (mylib)
+    (export myfunc)
+    (import (rnrs))
+    
+    (define (myfunc x) x))
+  
+Save this file in the current directory. 
+NOTE: the filename/location is related to the library name.
+
+To use this library, do the following:
+
+  (import 
+    (rnrs) 
+    (mylib))  
+    
+  (display (myfunc "hello world"))
+  (newline)
+  
+hello world will print.  
+
+
+Library resolution
+==================
+
+For libraries to be found, it will search in various locations, 
+depending on the library name.
+
+Example 1:
+
+  (import (mylib))
+
+Will look for a file called 'mylib.(ss|sls)' in the current directory, 
+as well as the IronScheme installation directory, if different.
+
+Example 2:
+
+  (import (ironscheme pretty-print))
+
+Will look for 'ironscheme/pretty-print.(ss|sls)' (note the directory prefix) 
+in the current directory, as well as the IronScheme installation directory, if different.
+
+Other differences
+=================
+
+While a program can be loaded repeatedly in the REPL, libraries will only be loaded 
+once they are used and will be loaded only once, even if the library gets modified.
+
+Keep this in mind when developing libraries, or make a habit to test programs from
+the console, forcing an exit on the next invocation.
+
+
+
