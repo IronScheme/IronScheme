@@ -30,8 +30,10 @@
   (psyntax compat)
   (psyntax library-manager)
   (psyntax expander)
-  (only (ironscheme) time-it)
+  (only (ironscheme) time-it optimization-level)
   )
+  
+(optimization-level 'unchecked)  ; this does not affect the expanded file
   
 (define scheme-library-files
   '(
@@ -1059,7 +1061,6 @@
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
     
-    (clr-clear-usings-internal                  is-clr-int)
     (clr-using-internal                         is-clr-int)
     (clr-reference-internal                     is-clr-int)
     (clr-is-internal                            is-clr-int)

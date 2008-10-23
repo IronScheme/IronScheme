@@ -4,7 +4,6 @@
     clr-static-event-remove!
     clr-event-add!
     clr-event-remove!
-    clr-clear-usings
     clr-using
     clr-reference
     clr-is
@@ -28,12 +27,6 @@
     (rnrs)
     (ironscheme clr helpers)
     (ironscheme clr internal))
-
-  (define-syntax clr-clear-usings
-    (lambda (e)
-      (syntax-case e ()
-        [(k)
-         #`(define #,(symbol->syntax #'k 'clear-usings) (clr-clear-usings-internal))])))
 
   (define-syntax clr-using
     (lambda (e)

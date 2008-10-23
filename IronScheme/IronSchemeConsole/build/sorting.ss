@@ -28,7 +28,7 @@
 
   (define list-sort 
     (lambda (precedes? ls)
-      (let* ((merge
+      (let ((merge
                (lambda (list-1 list-2)
                  (let loop 
                       ((source-1 list-1)
