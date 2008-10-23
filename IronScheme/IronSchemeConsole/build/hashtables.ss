@@ -65,8 +65,5 @@
     (case-lambda 
       ((ht)     (hashtable-clear! ht 32))
       ((ht k)   (clr-call hashtable clear ht))))
-    
-  
-  (clr-clear-usings)
 
 )

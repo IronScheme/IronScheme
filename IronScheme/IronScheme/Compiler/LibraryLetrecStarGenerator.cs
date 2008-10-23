@@ -219,6 +219,7 @@ namespace IronScheme.Compiler
 
       Expression ex = CallNormal(Ast.CodeBlockExpression(cb, false));
       NameHint = SymbolId.Invalid;
+      ClrGenerator.ResetReferences();
       return ex;
     }
 

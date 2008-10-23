@@ -39,6 +39,12 @@ namespace IronScheme.Compiler
 
     static ClrGenerator()
     {
+      ResetReferences();
+    }
+
+    public static void ResetReferences()
+    {
+      namespaces.Clear();
       namespaces.Add("System", "System");
       namespaces.Add("System.Collections", "System.Collections");
     }
@@ -347,20 +353,6 @@ namespace IronScheme.Compiler
       Builtins.SyntaxError("clr-call", "member could not be resolved on type: " + type, args, member);
 
       return null;
-    }
-  }
-
-
-
-  //hack for now
-  [Generator("clr-clear-usings-internal")]
-  public sealed class ClrClearUsingsInternalGenerator : ClrGenerator
-  {
-    // (clr-clear-usings)
-    public override Expression Generate(object args, CodeBlock cb)
-    {
-      //namespaces.Clear();
-      return Ast.ReadField(null, Unspecified);
     }
   }
 
