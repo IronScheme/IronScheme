@@ -29,5 +29,5 @@
   (define (thread-sleep dur)
     (clr-static-call thread sleep (clr-cast system.int32 dur)))      
       
-  (clr-clear-usings)      
+   
 )

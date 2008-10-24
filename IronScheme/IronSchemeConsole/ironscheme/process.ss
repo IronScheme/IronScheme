@@ -166,6 +166,5 @@
       [(filename args show?)        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? #f #f #f)]
       [(filename args show? exit)   (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit #f #f)]
       [(filename args show? exit out err)   (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit out err)]))
-      
-  (clr-clear-usings)      
+     
 )

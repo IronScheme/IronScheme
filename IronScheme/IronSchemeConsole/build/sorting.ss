@@ -22,41 +22,42 @@
   (define (reverse-it head tail)
     (if (null? head)
         tail
-        (let ((hd (car head))
-              (tl (cdr head)))
-         (reverse-it tl (cons hd tail)))))
+        (reverse-it 
+          (cdr head) 
+          (cons (car head) tail))))
+         
+  (define (merge list-1 list-2 precedes?)
+     (let loop 
+          ((source-1 list-1)
+           (source-2 list-2)
+           (so-far '()))
+       (cond 
+        ((null? source-1)
+          (reverse-it so-far source-2))
+        ((null? source-2)
+           (reverse-it so-far source-1))
+        (else
+          (let ((car-1 (car source-1))
+                (car-2 (car source-2)))
+            (if (precedes? car-2 car-1)
+              (loop source-1
+                (cdr source-2)
+                (cons car-2 so-far))
+              (loop source-2
+                (cdr source-1)
+                (cons car-1 so-far))))))))         
 
   (define list-sort 
     (lambda (precedes? ls)
-      (let ((merge
-               (lambda (list-1 list-2)
-                 (let loop 
-                      ((source-1 list-1)
-                       (source-2 list-2)
-                       (so-far '()))
-                   (cond 
-                    ((null? source-1)
-                      (reverse-it so-far source-2))
-                    ((null? source-2)
-                       (reverse-it so-far source-1))
-                    (else
-                      (let ((car-1 (car source-1))
-                            (car-2 (car source-2)))
-                        (if (precedes? car-2 car-1)
-                          (loop source-1
-                            (cdr source-2)
-                            (cons car-2 so-far))
-                          (loop source-2
-                            (cdr source-1)
-                            (cons car-1 so-far))))))))))
-         (if (null? ls)
-           '()
-            (let helper ((piece ls))
-             (if (null? (cdr piece))
-                piece
-                (let ((parts (split piece)))
-                  (merge (helper (car parts))
-                         (helper (cdr parts))))))))))
+     (if (null? ls)
+       '()
+        (let helper ((piece ls))
+         (if (null? (cdr piece))
+            piece
+            (let ((parts (split piece)))
+              (merge (helper (car parts))
+                     (helper (cdr parts)) 
+                     precedes?)))))))
 
                      
 

@@ -53,6 +53,5 @@
     
   (define (expand-environment-variables name)
     (clr-static-call environment expandenvironmentvariables name))    
-  
-  (clr-clear-usings)
+
 )

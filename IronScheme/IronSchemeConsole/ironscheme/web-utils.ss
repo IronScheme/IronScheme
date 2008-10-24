@@ -22,8 +22,7 @@
     
   (define (html-decode s)
     (clr-static-call httputility htmldecode s))    
-    
-  (clr-clear-usings)
+
   
     
 )

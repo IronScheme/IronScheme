@@ -27,6 +27,5 @@
           
   (define (next-flonum rg)
     (clr-call random nextdouble rg))
-    
-  (clr-clear-usings)
+
 )

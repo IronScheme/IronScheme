@@ -70,8 +70,5 @@
 
   (define (reset-color)
     (clr-static-call console resetcolor))     
-    
-    
-    
-  (clr-clear-usings)
+
 )

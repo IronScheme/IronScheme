@@ -173,8 +173,6 @@
   (define (forms-authentication-login user)
     (clr-static-call system.web.security.formsauthentication SetAuthCookie user #f))      
   
-  (clr-clear-usings)
-  
   (define (display-html html)
     (display (->xml html) (http-output-port)))
     

@@ -16,6 +16,5 @@
     (clr-static-call registry setvalue key name value))    
     
  ;; todo: registry keys
-  
-  (clr-clear-usings)
+
 )

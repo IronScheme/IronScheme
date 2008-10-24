@@ -305,8 +305,9 @@ namespace IronScheme.Compiler
                 }
               }
               Closure clos = m as Closure;
-              if (clos != null)
+              if (clos != null && !SetGenerator.IsAssigned(f))
               {
+
                 // no provision for varargs
                 MethodInfo[] mis = clos.Targets;
                 if (mis.Length > 0)

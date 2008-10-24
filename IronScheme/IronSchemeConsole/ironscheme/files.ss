@@ -1,9 +1,5 @@
-;; FIXME: this is kinda double compiled...
 (library (ironscheme files)
   (export
-    file-exists?
-    delete-file
-    
     file-copy
     file-move
     file-create-time
@@ -33,16 +29,10 @@
     )
     
   (import 
-    (except (rnrs) file-exists? delete-file)
+    (rnrs)
     (ironscheme clr))
     
   (clr-using system.io)
-    
-  (define (file-exists? fn)
-    (clr-static-call file exists fn))
-    
-  (define (delete-file fn)
-    (clr-static-call file delete fn))
     
   (define file-copy
     (case-lambda
@@ -124,7 +114,5 @@
   (define (path-has-extension? path)
     (clr-static-call path hasextension path))    
 
-    
-  (clr-clear-usings)
     
 )

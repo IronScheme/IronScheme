@@ -59,6 +59,5 @@
   
   (define (arraylist-reverse! s)
     (clr-call arraylist reverse s))
-    
-  (clr-clear-usings)
+
 )

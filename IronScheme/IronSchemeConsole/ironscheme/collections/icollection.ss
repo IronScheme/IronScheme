@@ -14,6 +14,4 @@
   (define (icollection-count s)
     (clr-prop-get icollection count s))
 
-    
-  (clr-clear-usings)
 )

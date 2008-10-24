@@ -47,6 +47,5 @@
 
   (define (ilist-set! s index value)
     (clr-indexer-set! ilist s index value))
-    
-  (clr-clear-usings)
+
 )

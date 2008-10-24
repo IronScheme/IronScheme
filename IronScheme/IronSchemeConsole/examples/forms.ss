@@ -28,7 +28,7 @@
   (define (application-exit)
     (clr-static-call application exit))
     
-  (clr-clear-usings) ; :(
+
 )
 
 #| run with
