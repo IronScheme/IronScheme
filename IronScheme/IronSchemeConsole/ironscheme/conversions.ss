@@ -62,6 +62,5 @@
   (define (->datetime obj)
     (clr-static-call convert todatetime obj))
           
-    
-  (clr-clear-usings)
+
 )

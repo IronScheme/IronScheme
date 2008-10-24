@@ -127,7 +127,5 @@
 
   (define (total-milliseconds timespan)
     (clr-prop-get timespan totalmilliseconds timespan))
-    
 
-  (clr-clear-usings)
 )

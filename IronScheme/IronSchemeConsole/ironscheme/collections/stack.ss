@@ -49,6 +49,5 @@
   
   (define (stack-isempty? s)
     (= (stack-count s) 0))    
-    
-  (clr-clear-usings)
+
 )

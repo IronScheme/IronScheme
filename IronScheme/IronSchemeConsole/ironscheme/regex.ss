@@ -44,8 +44,6 @@
 
   (define (regex-unescape input)
     (clr-static-call regex unescape input))
-    
-    
-  (clr-clear-usings)    
+ 
 )
     

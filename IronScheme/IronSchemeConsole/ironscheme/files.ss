@@ -115,6 +115,4 @@
     (clr-static-call path hasextension path))    
 
     
-  (clr-clear-usings)
-    
 )

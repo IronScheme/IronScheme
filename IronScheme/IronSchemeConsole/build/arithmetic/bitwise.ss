@@ -10,6 +10,7 @@
     
     bitwise-bit-count
     bitwise-length
+    bitwise-bit-field
     
     bitwise-first-bit-set
     bitwise-bit-set?
@@ -58,7 +59,6 @@
   (define (bitwise-arithmetic-shift-right ei1 ei2)
     (bitwise-arithmetic-shift ei1 (- ei2)))            
     
-    
   (define (bitwise-rotate-bit-field n start end count)
     (let ((width (- end start)))
       (if (positive? width)
@@ -67,6 +67,6 @@
            (bitwise-copy-bit-field n start end 
             (bitwise-ior 
               (bitwise-arithmetic-shift-left field count) 
-              (bitwise-arithmetic-shift-right field (- width count))))))
-        n))
+              (bitwise-arithmetic-shift-right field (- width count)))))
+        n)))
 )

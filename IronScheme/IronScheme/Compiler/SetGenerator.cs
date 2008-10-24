@@ -25,6 +25,12 @@ namespace IronScheme.Compiler
   public sealed class SetGenerator : SimpleGenerator
   {
     static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
+    readonly static Stack<SymbolId> setstack = new Stack<SymbolId>();
+
+    public static bool IsAssigned(SymbolId s)
+    {
+      return setstack.Contains(s);
+    }
 
     public override Expression Generate(object args, CodeBlock cb)
     {
@@ -32,9 +38,13 @@ namespace IronScheme.Compiler
 
       assigns[s] = true;
 
+      setstack.Push(s);
+
       NameHint = Builtins.UnGenSymInternal(s);
 
       Expression value = GetAst(Builtins.Second(args), cb);
+
+      setstack.Pop();
 
       NameHint = SymbolId.Invalid;
 
