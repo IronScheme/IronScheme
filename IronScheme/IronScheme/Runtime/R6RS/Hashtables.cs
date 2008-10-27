@@ -282,6 +282,38 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
+    [Builtin("hashtable-map")]
+    public static object HashtableMap(object ht, object proc)
+    {
+      Hashtable h = RequiresNotNull<Hashtable>(ht);
+      ICallable c = RequiresNotNull<ICallable>(proc);
+
+      object[] result = new object[h.Count];
+
+      int i = 0;
+
+      foreach (DictionaryEntry de in h)
+      {
+        result[i++] = c.Call(de.Key, de.Value);
+      }
+
+      return List(result);
+    }
+
+    [Builtin("hashtable-for-each")]
+    public static object HashtableForEach(object ht, object proc)
+    {
+      Hashtable h = RequiresNotNull<Hashtable>(ht);
+      ICallable c = RequiresNotNull<ICallable>(proc);
+
+      foreach (DictionaryEntry de in h)
+      {
+        c.Call(de.Key, de.Value);
+      }
+
+      return Unspecified;
+    }
+
   }
 }
 

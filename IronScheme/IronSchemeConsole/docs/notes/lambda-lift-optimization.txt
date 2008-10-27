@@ -1,0 +1,29 @@
+﻿lambda lift optimization
+========================
+
+The normal transform for let* is as such:
+
+(let* ((a 1)(b (+ a 1))(c (+ b 1))) c)
+
+=>
+
+(let ((a 1)) (let ((b (+ a 1))) (let ((c (+ b 1))) c)))
+
+=> 
+
+((lambda (a) 
+  ((lambda (b) 
+    ((lambda (c) c) ; !1!
+      (+ b 1))) 
+    (+ a 1))) 
+  1) 
+      
+As can be seen 'a' and 'b' occurs free @ !1!. 
+This is not neccessary if 'a' or 'b' does not get set!.      
+
+Now to see if this is still necessary when set! is being used.
+
+(let* ((a 1)(b (begin (set! a 0) (+ a 1)))(c (+ b 1))) c)
+
+
+Another question remains, does this get done via a source transform, or in the compiler?

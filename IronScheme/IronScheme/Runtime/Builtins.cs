@@ -425,6 +425,16 @@ A ""contributor"" is any person that distributes its contribution under this lic
     [Builtin("compile-core")]
     public static object CompileCore(CodeContext cc, object expr)
     {
+      // fast path for really simple stuff
+      if (expr is SymbolId)
+      {
+        CallTarget0 n = delegate
+        {
+          return SymbolValue((SymbolId)expr);
+        };
+        return Closure.Make(null, n);
+      }
+
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
 
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;

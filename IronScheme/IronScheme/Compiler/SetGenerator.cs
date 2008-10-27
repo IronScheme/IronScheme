@@ -57,7 +57,7 @@ namespace IronScheme.Compiler
 
       Expression r = null;
 
-      if (v == null)
+      if (v == null || cb.Parent == null)
       {
         r = Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(s), value);
       }

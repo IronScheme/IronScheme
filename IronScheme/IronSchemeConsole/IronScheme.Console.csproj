@@ -615,6 +615,7 @@
     <Content Include="docs\license.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="docs\notes\lambda-lift-optimization.txt" />
     <Content Include="docs\running-web-server.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

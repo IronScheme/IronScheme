@@ -99,8 +99,6 @@ Alters the binding temporarily of a parameter.
 optimization-level
 Gets or sets the current optimization level. Accepts 'none , 'safe or 'unchecked .
 
-pmap
-A parallel version of map.
 
 procedure-arity
 Returns multiple values for the procedure arities. 

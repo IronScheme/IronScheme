@@ -8,7 +8,9 @@
     (ironscheme)
     (ironscheme linq)
     (ironscheme web)
-    (ironscheme web views))
+    (ironscheme web views)
+    (ironscheme record-case)
+    (models doc))
     
   (define (page-template . body)
     `(html (xmlns . "http://www.w3.org/1999/xhtml")
@@ -24,13 +26,23 @@
       (action/id-link lib "library" lib)))
     
   (define (flatten lst)
-    (apply append lst))  
+    (apply append lst))
+    
+  (define (render-form name)
+    (lambda (form)
+    `(p ,(format "~a" (cons name (cdr form))))))    
+    
+  (define (render-doc doc)
+    (record-case doc
+      [(proc-id-doc name forms) `(div ,@(map (render-form name) forms))]
+      [(identifier-doc) doc]
+      [else doc]))      
     
   (define-view (identifier id lib doc)
     (page-template
       `(h2 ,(make-lib-link lib))
       `(h3 ,id)
-      doc))       
+      (render-doc doc)))       
     
   (define-view (index libs)
     (apply 
