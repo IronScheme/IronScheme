@@ -98,7 +98,15 @@ namespace IronScheme.Runtime
         {
           if (pi.ParameterType != typeof(CodeContext))
           {
-            form.Add(SymbolTable.StringToId(pi.Name));
+            if (pi.ParameterType.IsArray)
+            {
+              form.Add(SymbolTable.StringToId(pi.Name));
+              return ConsStarFromArray(form.ToArray());
+            }
+            else
+            {
+              form.Add(SymbolTable.StringToId(pi.Name));
+            }
           }
         }
 

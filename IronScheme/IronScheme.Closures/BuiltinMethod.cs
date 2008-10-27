@@ -88,7 +88,6 @@ namespace IronScheme.Runtime
           {
             improper = true;
           }
-
           if (improper)
           {
             forms.Add(Closure.ConsStarFromArray(form.ToArray()));

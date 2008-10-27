@@ -51,8 +51,6 @@ namespace IronScheme.Compiler
 
         switch (s[1])
         {
-          case '\\':
-            return "\\";
           case 'n':
             return "\n";
           case 't':
@@ -67,7 +65,21 @@ namespace IronScheme.Compiler
 
       input = input.Replace("\r", "");
 
-      return ProcessStringContinuations(input);
+      input = ProcessStringContinuations(input);
+
+      input = escapes.Replace(input, delegate(Match m)
+      {
+        string s = m.Value;
+
+        switch (s[1])
+        {
+          case '\\':
+            return "\\";
+        }
+        return s;
+      });
+
+      return input;
     }
 
     private static string ProcessStringContinuations(string input)
@@ -83,7 +95,7 @@ namespace IronScheme.Compiler
 
         for (int i = 0; i < lines.Length; i++)
         {
-          if (lines[i].EndsWith("\\"))
+          if (lines[i].EndsWith("\\") && !lines[i].EndsWith("\\\\"))
           {
             string line = lines[i];
             string tail = lines[i + 1];

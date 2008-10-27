@@ -28,7 +28,7 @@
       enum-set-projection
       enum-set-subset?
       enum-set-union)
-      (only (ironscheme) fprintf gensym format)
+      (only (ironscheme) fprintf format)
       (only (ironscheme core) reverse!) ; for reverse!
       (ironscheme records printer)) 
  

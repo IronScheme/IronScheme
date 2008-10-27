@@ -85,10 +85,6 @@ namespace IronScheme.Compiler
       }
       else
       {
-        if (args is bool)
-        {
-          return Ast.ReadField(null, Builtins.IsTrue(args) ? True : False);
-        }
         if (args is long)
         {
           args = (BigInteger)(long)args;
@@ -397,10 +393,6 @@ namespace IronScheme.Compiler
         {
           Fraction f = (Fraction)args;
           return Ast.New(Fraction_New, Ast.Constant(f.Numerator), Ast.Constant(f.Denominator));
-        }
-        if (args is bool)
-        {
-          return Ast.ReadField(null, Builtins.IsTrue(args) ? True : False);
         }
         return Ast.Constant(args);
       }

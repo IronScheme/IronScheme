@@ -43,6 +43,7 @@ namespace IronScheme.Web
       app.AuthenticateRequest += new EventHandler(app_AuthenticateRequest);
     }
 
+
     #region Fix FormsAuthentication that does not appear to be working in IIS 7.0 Integrated Pipepline mode
 
     void app_AuthenticateRequest(object sender, EventArgs e)
@@ -151,6 +152,7 @@ namespace IronScheme.Web
     }
 
     #endregion
+
 
     void app_PostResolveRequestCache(object sender, EventArgs e)
     {

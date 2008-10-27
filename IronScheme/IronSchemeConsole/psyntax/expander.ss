@@ -1528,6 +1528,7 @@
            (let f ((x* (map list lhs* rhs*)))
              (cond
                ((null? x*) `(let () ,b . ,b*))
+               ((null? (cdr x*)) `(let (,(car x*)) ,b . ,b*))
                (else `(let (,(car x*)) ,(f (cdr x*)))))))))))
                  
   (define or-macro

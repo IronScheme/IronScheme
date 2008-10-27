@@ -5,7 +5,10 @@
     save-library-description
     library-doc-description
     get-libraries
-    get-symbols)
+    get-symbols
+    
+    proc-id-doc
+    identifier-doc)
   (import
     (ironscheme)
     (ironscheme web)
