@@ -209,7 +209,7 @@
                  (else
                   ;;; signal an error if the identifier was already
                   ;;; in the rib.
-    			(stx-error id "multiple definitions of identifier"))))))
+     			        (stx-error id "multiple definitions of identifier"))))))
           (else
            (when (rib-cache rib)
               (hashtable-update! (rib-cache rib) sym 
@@ -4020,7 +4020,7 @@
       (lambda ()
         (or the-env 
             (let ((lib (find-library-by-name '(ironscheme)))
-                  (rib (make-cache-rib)))
+                  (rib (make-empty-rib)))
               (let ((subst (library-subst lib))) 
                 (set-rib-sym*! rib (map car subst))
                 (set-rib-mark**! rib 
