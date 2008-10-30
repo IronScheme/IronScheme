@@ -109,6 +109,7 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
+
         if (Builtins.IsTrue(Builtins.IsSymbol(c.car)))
         {
           SymbolId f = (SymbolId)c.car;
@@ -121,6 +122,9 @@ namespace IronScheme.Compiler
           }
 
           object m;
+
+#if OPTIMIZATIONS
+
           CodeBlockExpression cbe;
 
           //// needs to do the same for overloads...
@@ -251,6 +255,8 @@ namespace IronScheme.Compiler
             }
           }
 
+#endif
+
           if (Context.Scope.TryLookupName(f, out m))
           {
             if (var == null)
@@ -265,9 +271,12 @@ namespace IronScheme.Compiler
                 return gh.Generate(c.cdr, cb);
               }
 
+
+
               BuiltinMethod bf = m as BuiltinMethod;
               if (bf != null)
               {
+#if OPTIMIZATIONS
                 // check for inline emitter
                 InlineEmitter ie;
                 if (TryGetInlineEmitter(f, out ie))
@@ -283,7 +292,7 @@ namespace IronScheme.Compiler
                     return result;
                   }
                 }
-
+#endif
                 MethodBinder mb = bf.Binder;
                 Expression[] pars = GetAstList(c.cdr as Cons, cb);
 
@@ -300,6 +309,8 @@ namespace IronScheme.Compiler
                   return Ast.ComplexCallHelper(meth as MethodInfo, pars);
                 }
               }
+
+#if OPTIMIZATIONS
               Closure clos = m as Closure;
               if (clos != null && !SetGenerator.IsAssigned(f))
               {
@@ -328,13 +339,14 @@ namespace IronScheme.Compiler
                 }
                 // check for overload thing
               }
+#endif
             }
           }
         }
 
         Expression[] pp = GetAstList(c.cdr as Cons, cb);
-
         Expression ex = Unwrap(GetAst(c.car, cb));
+#if OPTIMIZATIONS
         if (ex is MethodCallExpression)
         {
           MethodCallExpression mcexpr = (MethodCallExpression)ex;
@@ -348,6 +360,8 @@ namespace IronScheme.Compiler
             }
           }
         }
+
+#endif
 
         if (ex is ConstantExpression)
         {
@@ -398,6 +412,7 @@ namespace IronScheme.Compiler
       }
     }
 
+#if OPTIMIZATIONS
     static bool TryGetInlineEmitter(SymbolId f, out InlineEmitter ie)
     {
       ie = null;
@@ -467,6 +482,8 @@ namespace IronScheme.Compiler
 
       return Ast.ComplexCallHelper(cbe, dc, ppp);
     }
+
+#endif
 
     protected static Expression Unwrap(Expression ex)
     {

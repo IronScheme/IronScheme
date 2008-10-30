@@ -110,10 +110,10 @@
   (clr-using ironscheme.runtime)     
     
   (define (get-output-string port)
-    (clr-call stringwriter getbuffer port))
+    (clr-call ironscheme.runtime.stringwriter getbuffer port))
     
   (define (open-output-string)
-    (clr-new stringwriter))
+    (clr-new ironscheme.runtime.stringwriter))
   
   (define (open-string-output-port)
     (let ((p (open-output-string)))
