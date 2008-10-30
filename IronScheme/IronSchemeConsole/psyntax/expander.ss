@@ -31,6 +31,7 @@
           compile-r6rs-top-level boot-library-expand 
           null-environment scheme-report-environment
           interaction-environment
+          expand->core
           interaction-environment-symbols environment-bindings
           ellipsis-map assertion-error 
 		  environment environment? environment-symbols)
@@ -3742,6 +3743,14 @@
       (let-values (((x invoke-req*) (expand x env)))
         (for-each invoke-library invoke-req*)
         (eval-core (expanded->core x)))))
+        
+  (define expand->core
+    (lambda (x env)
+      (unless (environment? env)
+        (error 'eval "not an environment" env))
+      (let-values (((x invoke-req*) (expand x env)))
+        (for-each invoke-library invoke-req*)
+        (expanded->core x))))        
 
 
   ;;; Given a (library . _) s-expression, library-expander expands

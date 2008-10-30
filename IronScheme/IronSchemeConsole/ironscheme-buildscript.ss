@@ -260,6 +260,7 @@
     (library                                    i) 
     (include                                    i)
     (expand                                     i)
+    (expand->core                               i)
     (include-into                               i)
     (library-path                               i ic)
     (optimization-level                         i)
