@@ -438,6 +438,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
 #if CPS
       ICallable cps = SymbolValue(SymbolTable.StringToId("convert->cps")) as ICallable;
       expr = cps.Call(Closure.Values, expr);
+
+      // errr????  but it works
+      while (expr is MultipleValues)
+      {
+        object[] v = ((MultipleValues)expr).ToArray();
+        ICallable t = v[0] as ICallable;
+        expr = t.Call(v[1]);
+      }
 #endif
 
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
