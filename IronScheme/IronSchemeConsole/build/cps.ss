@@ -69,9 +69,11 @@
 ;;; of what to do next in the program; see below for details.
 
 (library (ironscheme cps)
-  (export convert->cps)
+  (export 
+    parse->cps
+    convert->cps)
   (import 
-    (ironscheme)
+    (except (ironscheme) parse->cps convert->cps)
     (ironscheme clr))
 
 (define (cps/generate-reference variable)
@@ -560,8 +562,11 @@
     (if (and (symbol? e) (not (memq e special)) (primitive? e))
       `(case-lambda [(k . args) (k (apply ,e args))])
       e)))
-
+      
+(define (parse->cps e)      
+  ((parse e) (variable-continuator 'values)))
+  
 (define (convert->cps e)
-  (fix-primitives ((parse e) (variable-continuator 'values))))
+  (fix-primitives (parse->cps e)))
 
 )

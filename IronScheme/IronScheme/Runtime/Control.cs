@@ -116,7 +116,7 @@ namespace IronScheme.Runtime
 
       CallTarget2 esc = delegate(object ignore, object arg)
       {
-        return OptimizedBuiltins.Call(e, arg);
+        return e.Call(arg);
       };
 
       if (fc is BuiltinMethod)
