@@ -42,6 +42,7 @@
     (only (ironscheme core) get-command-line format)
     (ironscheme enums)
     (ironscheme files)
+    (ironscheme cps)
     (ironscheme library))
     
   (define trace-printer (make-parameter write))
@@ -117,6 +118,7 @@
   (set-symbol-value! 'expanded2core expanded->core)
   
   (set-symbol-value! 'trace-printer trace-printer)
+  (set-symbol-value! 'convert->cps convert->cps)
   
   (file-options-constructor (enum-set-constructor fo))
   

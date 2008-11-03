@@ -70,6 +70,8 @@
     "build/format.ss"
     "build/trace.ss"
     
+    "build/cps.ss"
+    
     "psyntax/compat.ss"
     "psyntax/internal.ss"
     "psyntax/config.ss"
@@ -1082,7 +1084,6 @@
     (load-r5rs                                  i)
     (last-pair                                  i)
     (make-list                                  i)
-    (make-trace                                 i)
     (unspecified?                               i)
     (make-guid                                  i)
     (sinh                                       i)

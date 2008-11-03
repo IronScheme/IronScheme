@@ -104,6 +104,7 @@
   (import 
     (ironscheme clr)
     (except (rnrs) 
+      call-with-port
       open-string-output-port port? 
       call-with-string-output-port))
       
@@ -120,11 +121,17 @@
       (values p (lambda () (get-output-string p)))))
       
   (define (port? obj)
-    (or (textual-port? obj) (binary-port? obj)))
+    (or (textual-port? obj) 
+        (binary-port? obj)))
     
   (define (call-with-string-output-port proc)
     (let ((p (open-output-string)))
       (call-with-port p proc)
       (get-output-string p)))
+      
+  (define (call-with-port port proc)
+    (let ((r (proc port)))
+      (close-port port)
+      r))      
 
 )

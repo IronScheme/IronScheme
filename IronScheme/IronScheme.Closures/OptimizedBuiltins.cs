@@ -38,11 +38,37 @@ namespace IronScheme.Runtime
 
   public static class OptimizedBuiltins
   {
+    internal static object Call(ICallable c, params object[] args)
+    {
+      if (c is BuiltinMethod)
+      {
+        return c.Call(args);
+      }
+      else
+      {
+        List<object> newargs = new List<object>();
+        newargs.Add(Closure.Values);
+        newargs.AddRange(args);
+        return c.Call(newargs.ToArray());
+      }
+    }
+
     //[Builtin("call-with-values")]
     public static object CallWithValues(object producer, object consumer)
     {
       ICallable pro = (ICallable)producer;
       ICallable con = (ICallable)consumer;
+
+#if CPS
+      object r = Call(pro);
+
+      if (r is MultipleValues)
+      {
+        return Call(con, ((MultipleValues)r).ToArray());
+      }
+
+      return Call(con, r);
+#else
 
       object r = pro.Call();
 
@@ -52,6 +78,7 @@ namespace IronScheme.Runtime
       }
 
       return con.Call(r);
+#endif
     }
 
 

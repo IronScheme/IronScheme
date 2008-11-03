@@ -413,7 +413,6 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("inexact")]
-    [Builtin("exact->inexact")]
     public static object Inexact(object obj)
     {
       if (!IsTrue(IsNumber(obj)))
@@ -429,7 +428,6 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("exact")]
-    [Builtin("inexact->exact")]
     public static object Exact(object obj)
     {
       if (!IsTrue(IsNumber(obj)))
@@ -884,95 +882,27 @@ namespace IronScheme.Runtime
     
     #endregion
 
-    [Builtin("zero?")]
-    public static object IsZero(object obj)
+    static object IsZero(object obj)
     {
       return IsSame(obj, 0);
     }
 
-    [Builtin("positive?")]
-    public static object IsPositive(object obj)
+    static object IsPositive(object obj)
     {
       if (IsTrue(IsRealValued(obj)))
       {
         return IsGreaterThan(obj, 0);
       }
       return AssertionViolation("positive?", "not a real", obj);
-
     }
 
-    [Builtin("negative?")]
-    public static object IsNegative(object obj)
+    static object IsNegative(object obj)
     {
       if (IsTrue(IsRealValued(obj)))
       {
         return IsLessThan(obj, 0);
       }
       return AssertionViolation("negative?", "not a real", obj);
-    }
-
-    [Builtin("odd?")]
-    public static object IsOdd(object obj)
-    {
-      if (IsTrue(IsIntegerValued(obj)))
-      {
-        return Not(IsEven(obj));
-      }
-      return AssertionViolation("odd?", "not an integer", obj);
-    }
-
-    [Builtin("even?")]
-    public static object IsEven(object obj)
-    {
-      if (IsTrue(IsIntegerValued(obj)))
-      {
-        return IsZero(Mod(obj, 2));
-      }
-      return AssertionViolation("odd?", "not an integer", obj);
-    }
-
-    [Builtin("min")]
-    public static object Min(object first, params object[] rest)
-    {
-      NumberClass e = GetNumberClass(first);
-      if (e == NumberClass.Complex)
-      {
-        AssertionViolation("min", "not a real", first);
-      }
-      object min = first;
-      foreach (object var in rest)
-      {
-        e &= GetNumberClass(var);
-        if (IsTrue(IsLessThan(var, min)))
-        {
-          min = var;
-        }
-      }
-      return GetNumber(e, min);
-    }
-
-    [Builtin("max")]
-    public static object Max(object first, params object[] rest)
-    {
-      NumberClass e = GetNumberClass(first);
-
-      if (e == NumberClass.Complex)
-      {
-        AssertionViolation("max", "not a real", first);
-      }
-
-      object max = first;
-
-      foreach (object var in rest)
-      {
-        e &= GetNumberClass(var);
-        if (IsTrue(IsGreaterThan(var, max)))
-        {
-          max = var;
-        }
-      }
-
-      return GetNumber(e, max);
     }
 
     static object GetNumber(NumberClass nc, object number)
@@ -1663,87 +1593,6 @@ namespace IronScheme.Runtime
       }
     }
     
-    [Builtin("gcd")]
-    public static object GreatestCommonDivider(params object[] args)
-    {
-      switch (args.Length)
-      {
-        case 0:
-          return 0;
-        case 1:
-          if (!IsTrue(IsIntegerValued(args[0])))
-          {
-            return AssertionViolation("gcd", "not an integer", args[0]);
-          }
-          return Abs(args[0]);
-        case 2:
-          object first = args[0], second = args[1];
-
-          if (!IsTrue(IsIntegerValued(first)))
-          {
-            return AssertionViolation("gcd", "not an integer", first);
-          }
-          if (!IsTrue(IsIntegerValued(second)))
-          {
-            return AssertionViolation("gcd", "not an integer", second);
-          }
-
-          if ((bool)IsZero(second))
-          {
-            return Abs(first);
-          }
-          else
-          {
-            return Abs(GreatestCommonDivider(second, Mod(first, second)));
-          }
-        default:
-          object gcd = GreatestCommonDivider(args[0],args[1]);
-          for (int i = 2; i < args.Length; i++)
-			    {
-			      gcd = GreatestCommonDivider(gcd, args[i]);
-			    }
-          return gcd;
-      }
-    }
-
-    [Builtin("lcm")]
-    public static object LowestCommonMultiple(params object[] args)
-    {
-      switch (args.Length)
-      {
-        case 0:
-          return 1;
-        case 1:
-          if (!IsTrue(IsIntegerValued(args[0])))
-          {
-            return AssertionViolation("lcm", "not an integer", args[0]);
-          }
-          return Abs(args[0]);
-        case 2:
-          object first = args[0], second = args[1];
-          if (!IsTrue(IsIntegerValued(first)))
-          {
-            return AssertionViolation("lcm", "not an integer", first);
-          }
-          if (!IsTrue(IsIntegerValued(second)))
-          {
-            return AssertionViolation("lcm", "not an integer", second);
-          }
-          if (IsTrue(IsZero(first)) || IsTrue(IsZero(second)))
-          {
-            return 0;
-          }
-          return Abs(Multiply(Divide(first, GreatestCommonDivider(first, second)), second));
-        default:
-          object lcm = LowestCommonMultiple(args[0], args[1]);
-          for (int i = 2; i < args.Length; i++)
-          {
-            lcm = LowestCommonMultiple(lcm, args[i]);
-          }
-          return lcm;
-      }
-    }
-
     static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
 
     [Builtin("numerator")]

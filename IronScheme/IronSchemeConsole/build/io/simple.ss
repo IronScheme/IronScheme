@@ -33,11 +33,31 @@
     write)
     
   (import 
-    (except (ironscheme) 
+    (except (ironscheme)
+        peek-char 
+        write-char
+        read-char
+        newline
         with-input-from-file
         with-output-to-file
         call-with-input-file
         call-with-output-file))
+        
+  (define peek-char
+    (case-lambda
+      [()       (peek-char (current-input-port))]
+      [(port)   (lookahead-char port)]))            
+        
+  (define read-char
+    (case-lambda
+      [()       (read-char (current-input-port))]
+      [(port)   (get-char port)]))        
+      
+  (define write-char
+    (case-lambda
+      [(chr)       (write-char chr (current-output-port))]
+      [(chr port)  (put-char port chr)]))        
+      
          
   (define-syntax try
     (syntax-rules (finally)
@@ -65,5 +85,10 @@
   (define (call-with-output-file filename proc)
     (let ((p (open-output-file filename)))
       (try (proc p)
-        finally (close-output-port p))))             
+        finally (close-output-port p))))     
+        
+  (define newline
+    (case-lambda
+      [()       (newline (current-output-port))]
+      [(port)   (display "\n" port)]))                
 )

@@ -160,10 +160,18 @@ namespace IronScheme.Hosting
       protected override void OnInteractiveLoopStart()
       {
         IronScheme.Runtime.Builtins.commandline = new string[] { "interactive" };
+#if CPS
+        Runtime.Builtins.Load("~/ironscheme.boot.cps");
+#else
         Runtime.Builtins.Load("~/ironscheme.boot.pp");
+#endif
         if (File.Exists("init.ss"))
         {
+#if CPS
+          Engine.Execute("(eval-r6rs values '(include \"init.ss\"))", Compiler.BaseHelper.scriptmodule);
+#else
           Engine.Execute("(eval-r6rs '(include \"init.ss\"))", Compiler.BaseHelper.scriptmodule);
+#endif
         }
 
       }

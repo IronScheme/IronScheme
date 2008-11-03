@@ -260,6 +260,15 @@
       symbol=?
       boolean=?     
       rationalize
+      max
+      min
+      positive?
+      negative?
+      zero?
+      even?
+      odd?
+      gcd
+      lcm
      ))
      
     (define (caar   x) (car (car x)))
@@ -292,6 +301,91 @@
     (define (cddadr x) (cddar (cdr x)))
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
+    
+    (define (positive? r)
+      (unless (real-valued? r)
+        (assertion-violation 'positive? "not a real" r))
+      (< 0 r))
+      
+    (define (negative? r)
+      (unless (real-valued? r)
+        (assertion-violation 'negative? "not a real" r))
+      (> 0 r))   
+      
+    (define (zero? r)
+      (unless (real-valued? r)
+        (assertion-violation 'zero? "not a real" r))
+      (= 0 r))           
+      
+    (define (even? n)
+      (unless (integer-valued? n)
+        (assertion-violation 'even? "not a integer" n))
+      (= 0 (mod n 2)))           
+
+    (define (odd? n)
+      (unless (integer-valued? n)
+        (assertion-violation 'odd? "not a integer" n))
+      (= 1 (mod n 2)))      
+    
+    (define (max a . rest)
+      (fold-left 
+        (lambda (a b) 
+          (let ((r (if (< a b) b a)))
+            (if (or (inexact? a) (inexact? b))
+              (inexact r)
+              r)))
+        a 
+        rest))
+      
+    (define (min a . rest)
+      (fold-left 
+        (lambda (a b) 
+          (let ((r (if (> a b) b a)))
+            (if (or (inexact? a) (inexact? b))
+              (inexact r)
+              r)))
+        a 
+        rest))   
+      
+    (define (gcd . nums)
+      (case (length nums)
+        [(0) 0]
+        [(1)
+          (let ((n (car nums)))
+            (unless (integer-valued? n)
+              (assertion-violation 'gcd "not an integer" n))
+            (abs n))]
+        [(2)
+          (let ((a (car nums))(b (cadr nums)))
+            (unless (integer-valued? a)
+              (assertion-violation 'gcd "not an integer" a))
+            (unless (integer-valued? b)
+              (assertion-violation 'gcd "not an integer" b))
+            (if (zero? b)
+              (abs a)
+              (abs (gcd b (mod a b)))))]
+        [else
+          (fold-left gcd (abs (car nums)) (cdr nums))]))              
+            
+    (define (lcm . nums)
+      (case (length nums)
+        [(0) 1]
+        [(1)
+          (let ((n (car nums)))
+            (unless (integer-valued? n)
+              (assertion-violation 'lcm "not an integer" n))
+            (abs n))]
+        [(2)
+          (let ((a (car nums))(b (cadr nums)))
+            (unless (integer-valued? a)
+              (assertion-violation 'lcm "not an integer" a))
+            (unless (integer-valued? b)
+              (assertion-violation 'lcm "not an integer" b))
+            (if (or (zero? a)(zero? b))
+              0
+              (abs (* (/ a (gcd a b)) b))))]
+        [else
+          (fold-left lcm (abs (car nums)) (cdr nums))]))           
     
     (define-syntax make-string-compare
       (syntax-rules ()

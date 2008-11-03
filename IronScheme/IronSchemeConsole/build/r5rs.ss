@@ -18,7 +18,10 @@
   
   (import 
     (rnrs)
-    (except (rnrs r5rs) quotient remainder modulo force))
+    (except (rnrs r5rs) quotient remainder modulo force  exact->inexact inexact->exact))
+    
+  (define inexact->exact exact)    
+  (define exact->inexact inexact)
     
   (define (sign n)
     (cond 

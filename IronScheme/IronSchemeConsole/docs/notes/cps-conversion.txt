@@ -1,0 +1,26 @@
+﻿CPS conversion
+==============
+
+Convert subset of Scheme to CPS via CPS generator.
+
+Assumed limitations:
+- inits of letrec, letrec*, library-letrec*
+
+Questions:
+
+1. How to deal with primitive/builtin procedures/forms?
+
+Convert all or handle 'special' ?
+
+2. How to deal with higher-order procedures?
+
+For Scheme, no issue, for builtins, problems.
+
+3. Other procedures that need special handling?
+
+- call-with-values
+- values
+- apply
+
+Verified:
+- call/cc
