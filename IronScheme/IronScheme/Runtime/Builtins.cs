@@ -435,6 +435,11 @@ A ""contributor"" is any person that distributes its contribution under this lic
         return Closure.Make(null, n);
       }
 
+#if CPS
+      ICallable cps = SymbolValue(SymbolTable.StringToId("convert->cps")) as ICallable;
+      expr = cps.Call(Closure.Values, expr);
+#endif
+
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
 
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
@@ -475,6 +480,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
 #endif
+
       CallTarget0 compiled = delegate
       {
         try
@@ -557,7 +563,15 @@ A ""contributor"" is any person that distributes its contribution under this lic
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
-      return ModuleScope.LookupName(symbol);
+      object value;
+      if (ModuleScope.TryLookupName(symbol, out value))
+      {
+        return value;
+      }
+      else
+      {
+        return UndefinedError(symbol);
+      }
     }
 
     [Builtin("set-symbol-value!")]

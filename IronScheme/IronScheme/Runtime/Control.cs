@@ -75,7 +75,6 @@ namespace IronScheme.Runtime
       return new MultipleValues(values);
     }
 
-
     [Builtin("dynamic-wind")]
     public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
     {
@@ -83,6 +82,18 @@ namespace IronScheme.Runtime
       ICallable bodyf = RequiresNotNull<ICallable>(bodyfunc);
       ICallable outf = RequiresNotNull<ICallable>(outfunc);
 
+#if CPS
+      OptimizedBuiltins.Call(inf);
+
+      try
+      {
+        return OptimizedBuiltins.Call(bodyf);
+      }
+      finally
+      {
+        OptimizedBuiltins.Call(outf);
+      }
+#else
       inf.Call();
 
       try
@@ -93,9 +104,32 @@ namespace IronScheme.Runtime
       {
         outf.Call();
       }
+#endif
     }
 
+#if CPS
+    [Builtin("call-with-current-continuation"), Builtin("call/cc")]
+    public static object CallWithCurrentContinuation(object k, object fc1)
+    {
+      ICallable fc = RequiresNotNull<ICallable>(fc1);
+      ICallable e = RequiresNotNull<ICallable>(k);
 
+      CallTarget2 esc = delegate(object ignore, object arg)
+      {
+        return OptimizedBuiltins.Call(e, arg);
+      };
+
+      if (fc is BuiltinMethod)
+      {
+        return e.Call(fc.Call(Closure.Make(null, esc)));
+      }
+      else
+      {
+        return fc.Call(k, Closure.Make(null, esc));
+      }
+    }
+
+#else
     internal class Continuation : Exception
     {
       object value;
@@ -168,6 +202,7 @@ namespace IronScheme.Runtime
         ;
       }
     }
+#endif
 
     [Builtin("procedure?")]
     public static object IsProcedure(object obj)
@@ -201,6 +236,12 @@ namespace IronScheme.Runtime
 
       if (args == null)
       {
+#if CPS
+        if (!(fn is BuiltinMethod))
+        {
+          return c.Call(SymbolValue(SymbolTable.StringToId("values")));
+        }
+#endif
         return c.Call();
       }
       List<object> targs = new List<object>();
@@ -210,6 +251,13 @@ namespace IronScheme.Runtime
         targs.Add(args.car);
         args = args.cdr as Cons;
       }
+
+#if CPS
+      if (!(fn is BuiltinMethod))
+      {
+        targs.Insert(0, SymbolValue(SymbolTable.StringToId("values")));
+      }
+#endif
 
       return c.Call(targs.ToArray());
     }

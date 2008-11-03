@@ -184,7 +184,11 @@ namespace IronScheme.Runtime
       object[] r = new object[v.Length];
       for (int i = 0; i < v.Length; i++)
       {
+#if CPS
+        r[i] = OptimizedBuiltins.Call(p, v[i]);
+#else
         r[i] = p.Call(v[i]);
+#endif
       }
       return r;
     }
@@ -207,8 +211,11 @@ namespace IronScheme.Runtime
           {
             args[j] = ((object[])lists[j])[i];
           }
-
+#if CPS
+          output[i] = OptimizedBuiltins.Call(c, args);
+#else
           output[i] = c.Call(args);
+#endif
         }
 
         return output;
@@ -224,7 +231,11 @@ namespace IronScheme.Runtime
       
       for (int i = 0; i < v.Length; i++)
       {
+#if CPS
+        OptimizedBuiltins.Call(p, v[i]);
+#else
         p.Call(v[i]);
+#endif
       }
       return Unspecified;
     }
@@ -246,8 +257,11 @@ namespace IronScheme.Runtime
           {
             args[j] = ((object[])lists[j])[i];
           }
-
+#if CPS
+          OptimizedBuiltins.Call(c, args);
+#else
           c.Call(args);
+#endif
         }
       }
       return Unspecified;

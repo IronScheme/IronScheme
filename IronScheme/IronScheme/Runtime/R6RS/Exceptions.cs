@@ -54,8 +54,13 @@ namespace IronScheme.Runtime.R6RS
 
       try
       {
+#if CPS
+        return OptimizedBuiltins.Call(t);
+#else
         return t.Call();
+#endif
       }
+#if !CPS
       catch (Continuation cc)
       {
         if (contstack.Count > 0)
@@ -72,6 +77,7 @@ namespace IronScheme.Runtime.R6RS
         }
         throw;
       }
+#endif
       catch (Condition)
       {
         throw;
@@ -80,8 +86,13 @@ namespace IronScheme.Runtime.R6RS
       {
         try
         {
+#if CPS
+          return OptimizedBuiltins.Call(h, ex);
+#else
           return h.Call(ex);
+#endif
         }
+#if !CPS
         catch (Continuation ccc)
         {
           if (contstack.Count > 0)
@@ -98,7 +109,9 @@ namespace IronScheme.Runtime.R6RS
           }
           throw;
         }
-      }
+#endif
+        finally { }
+      }      
       finally
       {
         handlerstack.Pop();
@@ -126,7 +139,11 @@ namespace IronScheme.Runtime.R6RS
         try
         {
           handlerstack.Pop();
+#if CPS
+          OptimizedBuiltins.Call(ch, obj);
+#else
           ch.Call(obj);
+#endif
         }
         finally
         {
@@ -177,7 +194,11 @@ namespace IronScheme.Runtime.R6RS
         try
         {
           handlerstack.Pop();
+#if CPS
+          return OptimizedBuiltins.Call(ch, obj);
+#else
           return ch.Call(obj);
+#endif
         }
         finally
         {

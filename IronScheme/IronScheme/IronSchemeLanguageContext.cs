@@ -91,7 +91,11 @@ namespace IronScheme
             }
             if (code.Length > 0)
             {
+#if CPS
+              code = string.Format("(eval-r6rs values '(begin {0}))", code.Trim());
+#else
               code = string.Format("(eval-r6rs '(begin {0}))", code.Trim());
+#endif
             }
 
             CodeBlock cb = ParseString(code, context);

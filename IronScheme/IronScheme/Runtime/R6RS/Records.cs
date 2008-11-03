@@ -389,7 +389,16 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordPredicate(object rtd)
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+#if CPS
+      CallTarget1 rp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
+      CallTarget2 cps = delegate (object k, object o)
+      {
+        return ((ICallable) k).Call(rp(o));
+      };
+      return Closure.Make(Context, cps);
+#else
       return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
+#endif
     }
 
     [Builtin("record-constructor")]
@@ -419,7 +428,15 @@ namespace IronScheme.Runtime.R6RS
       {
         CallTargetN np = delegate(object[] args)
         {
+#if CPS
+          Cons c = List(args);
+          ICallable k = c.car as ICallable;
+          args = ListToVector(c.cdr) as object[];
+
+          return k.Call(pp.Call(args));
+#else
           return pp.Call(args);
+#endif
         };
         return Closure.Make(Context, np);
       }
@@ -480,7 +497,16 @@ namespace IronScheme.Runtime.R6RS
 
       MethodInfo am = t.fields[i].accessor;
 
+#if CPS
+      CallTarget1 rp = Delegate.CreateDelegate(typeof(CallTarget1), am) as CallTarget1;
+      CallTarget2 cps = delegate(object kk, object o)
+      {
+        return ((ICallable)kk).Call(rp(o));
+      };
+      return Closure.Make(Context, cps);
+#else
       return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), am));
+#endif
     }
 
     [Builtin("record-mutator")]
@@ -496,7 +522,16 @@ namespace IronScheme.Runtime.R6RS
 
       MethodInfo mm = t.fields[i].mutator;
 
+#if CPS
+      CallTarget2 rp = Delegate.CreateDelegate(typeof(CallTarget2), mm) as CallTarget2;
+      CallTarget3 cps = delegate(object kk, object o, object p)
+      {
+        return ((ICallable)kk).Call(rp(o, p));
+      };
+      return Closure.Make(Context, cps);
+#else
       return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget2), mm));
+#endif
     }
 
     internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();

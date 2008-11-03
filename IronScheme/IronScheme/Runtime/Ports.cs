@@ -63,7 +63,7 @@ namespace IronScheme.Runtime
     [Builtin("load-r5rs")] // is this used anywhere?
     public static object Load(object filename)
     {
-      CodeContext cc = IronScheme.Compiler.BaseHelper.cc;
+      CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
 
       string path = GetPath(filename as string);
 
@@ -306,116 +306,6 @@ namespace IronScheme.Runtime
     public static object IsEof(object obj)
     {
       return GetBool(obj == EOF);
-    }
-
-    [Builtin("read-char")]
-    public static object ReadChar()
-    {
-      return ReadChar(CurrentInputPort());
-    }
-
-    [Builtin("read-char")]
-    public static object ReadChar(object port)
-    {
-      TextReader r = RequiresNotNull<TextReader>(port);
-      try
-      {
-        int c = r.Read();
-        if (c == -1)
-        {
-          return EOF;
-        }
-        return (char)c;
-      }
-      catch (IOException ex)
-      {
-        return IOPortViolation("read-char", ex.Message, port);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("read-char", ex.Message, port);
-      }
-    }
-
-    [Builtin("peek-char")]
-    public static object PeekChar()
-    {
-      return PeekChar(CurrentInputPort());
-    }
-
-    [Builtin("peek-char")]
-    public static object PeekChar(object port)
-    {
-      TextReader r = RequiresNotNull<TextReader>(port);
-      try
-      {
-        int c = r.Peek();
-        if (c == -1)
-        {
-          return EOF;
-        }
-        return (char)c;
-      }
-      catch (IOException ex)
-      {
-        return IOPortViolation("peek-char", ex.Message, port);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("peek-char", ex.Message, port);
-      }
-    }
-
-    [Builtin("write-char")]
-    public static object WriteChar(object ch)
-    {
-      return WriteChar(ch, CurrentOutputPort());
-    }
-
-    [Builtin("write-char")]
-    public static object WriteChar(object ch, object port)
-    {
-      try
-      {
-        TextWriter w = RequiresNotNull<TextWriter>(port);
-        char c = RequiresNotNull<char>(ch);
-        w.Write(c);
-        return Unspecified;
-      }
-      catch (IOException ex)
-      {
-        return IOPortViolation("write-char", ex.Message, port);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("write-char", ex.Message, ch, port);
-      }
-    }
-
-
-    [Builtin]
-    public static object Newline()
-    {
-      return Newline(CurrentOutputPort());
-    }
-
-    [Builtin]
-    public static object Newline(object port)
-    {
-      TextWriter w = RequiresNotNull<TextWriter>(port);
-      try
-      {
-        w.Write('\n');
-        return Unspecified;
-      }
-      catch (IOException ex)
-      {
-        return IOPortViolation("newline", ex.Message, port);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("newline", ex.Message, port);
-      }
     }
 
     static readonly SymbolId quote = SymbolTable.StringToId("quote");

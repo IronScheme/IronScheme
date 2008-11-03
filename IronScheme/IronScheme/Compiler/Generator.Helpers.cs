@@ -67,6 +67,8 @@ namespace IronScheme.Compiler
       cc = new CodeContext(scriptmodule.Scope, se.GetLanguageContext(), mc);
 
       binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
+
+      Generator.initme = true;
     }
   }
 
@@ -80,6 +82,8 @@ namespace IronScheme.Compiler
 
       return mb;
     }
+
+    internal static bool initme;
 
     static void Initialize()
     {
@@ -114,6 +118,8 @@ namespace IronScheme.Compiler
 
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
+
+      Closure.Values = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
 
     }
 

@@ -57,12 +57,14 @@ namespace IronScheme.Hosting
         exception = exception.InnerException;
       }
       Builtins.lastException = exception;
+#if !CPS
       if (exception is Builtins.Continuation)
       {
         // cheat
         return @"&implementation-restriction
 &message:             continuations cannot be used in this way, sorry :(";
       }
+#endif
       if (exception is NotSupportedException)
       {
         return @"&implementation-restriction
@@ -122,7 +124,11 @@ namespace IronScheme.Hosting
     protected override IList<object> Ops_GetAttrNames(CodeContext context, object obj)
     {
       ICallable c = context.Scope.LookupName(SymbolTable.StringToId("int-env-syms")) as ICallable;
+#if CPS
+      Cons ids = c.Call(Closure.Values) as Cons;
+#else
       Cons ids = c.Call() as Cons;
+#endif
 
       List<object> names = new List<object>(ids);
 

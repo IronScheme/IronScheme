@@ -1,0 +1,458 @@
+﻿Builtins
+========
+
+A list of builtin procedures.
+
+(rnrs base):
+
+*
++
+-
+/
+<
+<=
+=
+>
+>=
+abs
+acos
+angle
+append
+apply [1]
+asin
+assertion-violation [2]
+atan
+boolean?
+call-with-current-continuation [1]
+call-with-values [1]
+call/cc [1]
+car
+cdr
+ceiling
+char->integer
+char?
+complex?
+cons
+cos
+denominator
+div
+div-and-mod
+div0
+div0-and-mod0
+dynamic-wind [1]
+eq?
+equal?
+eqv?
+error [2]
+exact
+exact-integer-sqrt
+exact?
+exp
+expt
+finite?
+floor
+imag-part
+inexact
+inexact?
+infinite?
+integer->char
+integer-valued?
+integer?
+length
+list
+list->string
+list->vector
+list?
+log
+magnitude
+make-polar
+make-rectangular
+make-string
+make-vector
+mod
+mod0
+nan?
+not
+null?
+number->string
+number?
+numerator
+pair?
+procedure?
+rational-valued?
+rational?
+real-part
+real-valued?
+real?
+reverse
+round
+sin
+sqrt
+string
+string->list
+string->number
+string->symbol
+string-append
+string-copy
+string-for-each [1]
+string-length
+string-ref
+string?
+substring
+symbol->string
+symbol?
+tan
+truncate
+values
+vector
+vector->list
+vector-fill!
+vector-for-each [1]
+vector-length
+vector-map [1]
+vector-ref
+vector-set!
+vector?
+
+(rnrs r5rs):
+
+
+(rnrs control):
+
+
+(rnrs eval):
+
+
+(rnrs mutable-pairs):
+
+set-car!
+set-cdr!
+
+(rnrs mutable-strings):
+
+string-fill!
+string-set!
+
+(rnrs programs):
+
+exit
+
+(rnrs syntax-case):
+
+
+(rnrs files):
+
+
+(rnrs sorting):
+
+vector-sort
+vector-sort!
+
+(rnrs lists):
+
+
+(rnrs io simple):
+
+close-input-port
+close-output-port
+current-error-port
+current-input-port
+current-output-port
+display
+eof-object
+eof-object?
+input-port?
+open-input-file
+open-output-file
+output-port?
+read
+write
+
+
+(rnrs bytevectors):
+
+bytevector->sint-list
+bytevector->u8-list
+bytevector->uint-list
+bytevector-copy
+bytevector-copy!
+bytevector-fill!
+bytevector-ieee-double-ref
+bytevector-ieee-double-set!
+bytevector-ieee-single-ref
+bytevector-ieee-single-set!
+bytevector-length
+bytevector-s8-ref
+bytevector-s8-set!
+bytevector-sint-ref
+bytevector-sint-set!
+bytevector-u8-ref
+bytevector-u8-set!
+bytevector-uint-ref
+bytevector-uint-set!
+bytevector=?
+bytevector?
+make-bytevector
+sint-list->bytevector
+string->utf16
+string->utf32
+string->utf8
+u8-list->bytevector
+uint-list->bytevector
+utf16->string
+utf32->string
+utf8->string
+
+(rnrs unicode):
+
+char-alphabetic?
+char-downcase
+char-foldcase
+char-general-category
+char-lower-case?
+char-numeric?
+char-title-case?
+char-titlecase
+char-upcase
+char-upper-case?
+char-whitespace?
+string-downcase
+string-foldcase
+string-normalize-nfc
+string-normalize-nfd
+string-normalize-nfkc
+string-normalize-nfkd
+string-titlecase
+string-upcase
+
+(rnrs exceptions):
+
+raise
+raise-continuable
+with-exception-handler [1]
+
+(rnrs arithmetic bitwise):
+
+bitwise-and
+bitwise-arithmetic-shift
+bitwise-bit-count
+bitwise-bit-set?
+bitwise-first-bit-set
+bitwise-ior
+bitwise-length
+bitwise-not
+bitwise-reverse-bit-field
+bitwise-xor
+
+(rnrs arithmetic fixnums):
+
+fixnum-width
+fixnum?
+fx*
+fx+
+fx-
+fx<=?
+fx<?
+fx=?
+fx>=?
+fx>?
+fxand
+fxarithmetic-shift
+fxbit-count
+fxbit-set?
+fxdiv
+fxdiv-and-mod
+fxdiv0
+fxdiv0-and-mod0
+fxeven?
+fxfirst-bit-set
+fxior
+fxlength
+fxmax
+fxmin
+fxmod
+fxmod0
+fxnegative?
+fxnot
+fxodd?
+fxpositive?
+fxreverse-bit-field
+fxxor
+fxzero?
+greatest-fixnum
+least-fixnum
+
+(rnrs arithmetic flonums):
+
+fixnum->flonum
+fl*
+fl+
+fl-
+fl/
+fl<=?
+fl<?
+fl=?
+fl>=?
+fl>?
+flabs
+flacos
+flasin
+flatan
+flceiling
+flcos
+fldenominator
+fldiv
+fldiv-and-mod
+fldiv0
+fldiv0-and-mod0
+fleven?
+flexp
+flexpt
+flfinite?
+flfloor
+flinfinite?
+flinteger?
+fllog
+flmax
+flmin
+flmod
+flmod0
+flnan?
+flnegative?
+flnumerator
+flodd?
+flonum?
+flpositive?
+flround
+flsin
+flsqrt
+fltan
+fltruncate
+flzero?
+real->flonum
+
+(rnrs hashtables):
+
+equal-hash [3] 
+hashtable-copy
+hashtable-entries
+hashtable-equivalence-function [3]
+hashtable-hash-function [3]
+hashtable-keys
+hashtable-mutable?
+hashtable?
+make-hashtable [1]
+string-ci-hash [3]
+string-hash [3]
+symbol-hash [3]
+
+(rnrs io ports):
+
+binary-port?
+buffer-mode?
+bytevector->string
+call-with-bytevector-output-port [1]
+close-port
+current-error-port
+current-input-port
+current-output-port
+eof-object
+eof-object?
+flush-output-port
+get-bytevector-all
+get-bytevector-n
+get-bytevector-n!
+get-bytevector-some
+get-char
+get-datum
+get-line
+get-string-all
+get-string-n
+get-string-n!
+get-u8
+input-port?
+latin-1-codec
+lookahead-char
+lookahead-u8
+make-custom-binary-input-port [1]
+make-custom-binary-input/output-port [1]
+make-custom-binary-output-port [1]
+make-custom-textual-input-port [1]
+make-custom-textual-input/output-port [1]
+make-custom-textual-output-port [1]
+make-transcoder
+native-eol-style
+native-transcoder
+open-bytevector-input-port
+open-bytevector-output-port
+open-file-input-port
+open-file-input/output-port
+open-file-output-port
+open-string-input-port
+output-port-buffer-mode
+output-port?
+port-eof?
+port-has-port-position?
+port-has-set-port-position!?
+port-position
+port-transcoder
+put-bytevector
+put-char
+put-datum
+put-string
+put-u8
+set-port-position!
+standard-error-port
+standard-input-port
+standard-output-port
+string->bytevector
+textual-port?
+transcoded-port
+transcoder-codec
+transcoder-eol-style
+transcoder-error-handling-mode
+utf-16-codec
+utf-8-codec
+
+(rnrs enums):
+
+
+(rnrs conditions):
+
+condition
+condition-accessor [3]
+condition-predicate [3]
+condition?
+simple-conditions
+
+(rnrs records inspection):
+
+record-field-mutable?
+record-rtd
+record-type-field-names
+record-type-generative?
+record-type-name
+record-type-opaque?
+record-type-parent
+record-type-sealed?
+record-type-uid
+record?
+
+(rnrs records procedural):
+
+make-record-constructor-descriptor
+make-record-type-descriptor
+record-accessor [3]
+record-constructor [3]
+record-mutator [3]
+record-predicate [3]
+record-type-descriptor?
+
+(rnrs records syntactic):
+
+
+Notes:
+
+[1] accepts a procedure as an argument, meant to be called
+[2] calls a scheme procedure internally
+[3] returns a scheme procedure

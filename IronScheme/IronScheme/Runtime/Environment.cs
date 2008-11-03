@@ -143,8 +143,14 @@ namespace IronScheme.Runtime
         {
           who = GetCaller();
         }
+#if CPS
+        return R6RS.Exceptions.RaiseContinueable(
+  R6RS.Conditions.Condition(OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(s, form, subform)));
+
+#else
         return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(w.Call(CleanWho(who)), m.Call(message), s.Call(form, subform)));
+#endif
       }
       else
       {

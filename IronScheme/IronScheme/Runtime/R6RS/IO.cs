@@ -543,24 +543,6 @@ namespace IronScheme.Runtime.R6RS
       return Unspecified;
     }
 
-
-    //(call-with-port port proc)
-    [Builtin("call-with-port")]
-    public static object CallWithPort(object port, object proc)
-    {
-      ICallable p = RequiresNotNull<ICallable>(proc);
-      try
-      {
-        object result = p.Call(port);
-        ClosePort(port);
-        return result;
-      }
-      catch (IOException ex)
-      {
-        return IOPortViolation("call-with-port", ex.Message, port);
-      }
-    }
-
     // input ports
 
     //(port-eof? input-port)
