@@ -55,6 +55,7 @@ namespace IronScheme.Runtime
     public static ConsFromArrayHandler ConsFromArray;
     public static ConsFromArrayHandler ConsStarFromArray;
     public static BuiltinMethod Values;
+    public static BuiltinMethod CWCC;
     public static object Unspecified;
 
     public override string ToString()

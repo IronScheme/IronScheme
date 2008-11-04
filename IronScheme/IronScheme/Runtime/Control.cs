@@ -66,6 +66,7 @@ namespace IronScheme.Runtime
   public partial class Builtins
   {
     [Builtin]
+    [Builtin("identity-for-cps")]
     public static object Values(params object[] values)
     {
       if (values.Length == 1)
@@ -108,26 +109,6 @@ namespace IronScheme.Runtime
     }
 
 #if CPS
-    [Builtin("call-with-current-continuation"), Builtin("call/cc")]
-    public static object CallWithCurrentContinuation(object k, object fc1)
-    {
-      ICallable fc = RequiresNotNull<ICallable>(fc1);
-      ICallable e = RequiresNotNull<ICallable>(k);
-
-      CallTarget2 esc = delegate(object ignore, object arg)
-      {
-        return e.Call(arg);
-      };
-
-      if (fc is BuiltinMethod)
-      {
-        return e.Call(fc.Call(Closure.Make(null, esc)));
-      }
-      else
-      {
-        return fc.Call(k, Closure.Make(null, esc));
-      }
-    }
 
 #else
     internal class Continuation : Exception
