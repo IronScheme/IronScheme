@@ -394,7 +394,11 @@ A ""contributor"" is any person that distributes its contribution under this lic
       Stopwatch sw = Stopwatch.StartNew();
       try
       {
+#if CPS
+        return OptimizedBuiltins.Call(c);
+#else
         return c.Call();
+#endif
       }
       finally
       {
@@ -440,12 +444,12 @@ A ""contributor"" is any person that distributes its contribution under this lic
       expr = cps.Call(Closure.Values, expr);
 
       // errr????  but it works
-      while (expr is MultipleValues)
-      {
-        object[] v = ((MultipleValues)expr).ToArray();
-        ICallable t = v[0] as ICallable;
-        expr = t.Call(v[1]);
-      }
+      //while (expr is MultipleValues)
+      //{
+      //  object[] v = ((MultipleValues)expr).ToArray();
+      //  ICallable t = v[0] as ICallable;
+      //  expr = t.Call(v[1]);
+      //}
 #endif
 
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
@@ -579,6 +583,24 @@ A ""contributor"" is any person that distributes its contribution under this lic
       else
       {
         return UndefinedError(symbol);
+      }
+    }
+
+    [Builtin("symbol-value?")]
+    public static object HasSymbolValue(SymbolId symbol)
+    {
+      if (ModuleScope == null)
+      {
+        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
+      }
+      object value;
+      if (ModuleScope.TryLookupName(symbol, out value))
+      {
+        return value;
+      }
+      else
+      {
+        return FALSE;
       }
     }
 

@@ -413,14 +413,14 @@
   ;;                      (make-user-abstraction '() constructor))
   ;;                    constructors)))))
   `(letrec ,(map (lambda (variable constructor)
-                   `(,variable (,(make-user-abstraction '() constructor) values)))
+                   `(,variable (,(make-user-abstraction '() constructor) identity-for-cps)))
                  variables
                  constructors)
      ,body))
      
 (define (make-recursive*-bind variables constructors body)
   `(letrec* ,(map (lambda (variable constructor)
-                   `(,variable (,(make-user-abstraction '() constructor) values)))
+                   `(,variable (,(make-user-abstraction '() constructor) identity-for-cps)))
                  variables
                  constructors)
      ,body))     
@@ -428,7 +428,7 @@
 (define (make-recursive*-library-bind name variables variables* constructors body)
   `(library-letrec* ,name 
                  ,(map (lambda (variable variable* constructor)
-                         `(,variable ,variable* (,(make-user-abstraction '() constructor) values)))
+                         `(,variable ,variable* (,(make-user-abstraction '() constructor) identity-for-cps)))
                    variables
                    variables*
                    constructors)
@@ -526,15 +526,14 @@
 (define (starts-with? str sub)
   (clr-call system.string startswith str sub))
   
-(define special '(values void call/cc call-with-current-continuation))    
-(define special2 '(call/cc call-with-current-continuation))
+(define special '(identity-for-cps call/cc call-with-current-continuation))    
   
 (define (primitive? o)  
-  (if (and (symbol? o) (not (memq o special2)))
+  (if (and (symbol? o) (not (memq o special)))
     (with-exception-handler 
       (lambda (e) #f)
       (lambda ()
-        (let ((b (symbol-value o)))
+        (let ((b (symbol-value? o)))
           (or (clr-is ironscheme.runtime.builtinmethod b)
               (starts-with? (symbol->string o) "clr-")))))
     #f))
@@ -555,16 +554,18 @@
                    `(library-letrec* ,name 
                       ,(map list lhs* lhs** (map fix-primitives rhs*))
                       . ,(map fix-primitives body*)))))]
-          [(and (primitive? o) (pair? (cdr e)))
-            (list (fix-primitives (cadr e)) (cons o (map fix-primitives (cddr e))))]
+          [(and (primitive? o))
+            (if (pair? (cdr e))
+              (list (fix-primitives (cadr e)) (cons o (map fix-primitives (cddr e))))
+              e)]
           [else
             (cons (fix-primitives o) (map fix-primitives (cdr e)))])))
-    (if (and (symbol? e) (not (memq e special)) (primitive? e))
+    (if (primitive? e)
       `(case-lambda [(k . args) (k (apply ,e args))])
       e)))
       
 (define (parse->cps e)      
-  ((parse e) (variable-continuator 'values)))
+  ((parse e) (variable-continuator 'identity-for-cps)))
   
 (define (convert->cps e)
   (fix-primitives (parse->cps e)))

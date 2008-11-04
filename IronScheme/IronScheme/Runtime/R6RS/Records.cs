@@ -391,11 +391,8 @@ namespace IronScheme.Runtime.R6RS
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
 #if CPS
       CallTarget1 rp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
-      CallTarget2 cps = delegate (object k, object o)
-      {
-        return ((ICallable) k).Call(rp(o));
-      };
-      return Closure.Make(Context, cps);
+      
+      return Closure.Make(Context, OptimizedBuiltins.MakeCPS(rp));
 #else
       return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
 #endif
@@ -499,11 +496,7 @@ namespace IronScheme.Runtime.R6RS
 
 #if CPS
       CallTarget1 rp = Delegate.CreateDelegate(typeof(CallTarget1), am) as CallTarget1;
-      CallTarget2 cps = delegate(object kk, object o)
-      {
-        return ((ICallable)kk).Call(rp(o));
-      };
-      return Closure.Make(Context, cps);
+      return Closure.Make(Context, OptimizedBuiltins.MakeCPS(rp));
 #else
       return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), am));
 #endif
@@ -524,11 +517,8 @@ namespace IronScheme.Runtime.R6RS
 
 #if CPS
       CallTarget2 rp = Delegate.CreateDelegate(typeof(CallTarget2), mm) as CallTarget2;
-      CallTarget3 cps = delegate(object kk, object o, object p)
-      {
-        return ((ICallable)kk).Call(rp(o, p));
-      };
-      return Closure.Make(Context, cps);
+
+      return Closure.Make(Context, OptimizedBuiltins.MakeCPS(rp));
 #else
       return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget2), mm));
 #endif

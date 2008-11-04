@@ -53,6 +53,43 @@ namespace IronScheme.Runtime
       }
     }
 
+    internal static CallTarget2 MakeCPS(CallTarget1 prim)
+    {
+      return delegate(object k, object a1)
+      {
+        return ((ICallable)k).Call(prim(a1));
+      };
+    }
+
+    internal static CallTarget3 MakeCPS(CallTarget2 prim)
+    {
+      return delegate(object k, object a1, object a2)
+      {
+        return ((ICallable)k).Call(prim(a1,a2));
+      };
+    }
+
+    //[Builtin("call-with-current-continuation"), Builtin("call/cc")]
+    public static object CallWithCurrentContinuation(object k, object fc1)
+    {
+      ICallable fc = (ICallable)(fc1);
+      ICallable e = (ICallable)(k);
+
+      CallTarget2 esc = delegate(object ignore, object arg)
+      {
+        return e.Call(arg);
+      };
+
+      if (fc is BuiltinMethod && fc != Closure.CWCC)
+      {
+        return e.Call(fc.Call(Closure.Make(null, esc)));
+      }
+      else
+      {
+        return fc.Call(k, Closure.Make(null, esc));
+      }
+    }
+
     //[Builtin("call-with-values")]
     public static object CallWithValues(object producer, object consumer)
     {

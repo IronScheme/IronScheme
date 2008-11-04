@@ -93,6 +93,12 @@ namespace IronScheme.Compiler
       SymbolId s = SymbolTable.StringToId("call-with-values");
       cc.Scope.SetName(s, new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins),"CallWithValues")));
 
+#if CPS
+      BuiltinMethod cwcc = new BuiltinMethod("call/cc", GetMethods(typeof(OptimizedBuiltins), "CallWithCurrentContinuation"));
+      cc.Scope.SetName(SymbolTable.StringToId("call/cc"), cwcc);
+      cc.Scope.SetName(SymbolTable.StringToId("call-with-current-continuation"), cwcc);
+#endif
+
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
 
@@ -120,6 +126,7 @@ namespace IronScheme.Compiler
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
 
       Closure.Values = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
+      
 
     }
 

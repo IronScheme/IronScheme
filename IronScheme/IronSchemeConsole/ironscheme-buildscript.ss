@@ -1061,6 +1061,7 @@
     (void                                       $boot i)
     (gensym                                     $boot i)
     (ungensym                                   i)
+    (symbol-value?                              i)
     (symbol-value                               $boot i)
     (set-symbol-value!                          $boot i)
     (eval-core                                  $boot)
