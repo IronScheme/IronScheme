@@ -38,6 +38,7 @@ namespace IronScheme.Runtime
 
   public static class OptimizedBuiltins
   {
+#if CPS
     internal static object Call(ICallable c, params object[] args)
     {
       if (c is BuiltinMethod)
@@ -47,11 +48,27 @@ namespace IronScheme.Runtime
       else
       {
         List<object> newargs = new List<object>();
-        newargs.Add(Closure.Values);
+        newargs.Add(Closure.IdentityForCPS);
         newargs.AddRange(args);
         return c.Call(newargs.ToArray());
       }
     }
+
+    internal static object CallWithK(ICallable c, ICallable K, params object[] args)
+    {
+      if (c is BuiltinMethod)
+      {
+        return K.Call(c.Call(args));
+      }
+      else
+      {
+        List<object> newargs = new List<object>();
+        newargs.Add(K);
+        newargs.AddRange(args);
+        return c.Call(newargs.ToArray());
+      }
+    }
+
 
     internal static CallTarget2 MakeCPS(CallTarget1 prim)
     {
@@ -80,32 +97,60 @@ namespace IronScheme.Runtime
         return e.Call(arg);
       };
 
-      if (fc is BuiltinMethod && fc != Closure.CWCC)
+      if (fc is BuiltinMethod && fc != Closure.CWCC && fc != Closure.CallWithValues)
       {
         return e.Call(fc.Call(Closure.Make(null, esc)));
       }
       else
       {
-        return fc.Call(k, Closure.Make(null, esc));
+        return fc.Call(e, Closure.Make(null, esc));
       }
     }
 
+
+
+    /*
+  (case-lambda
+    ((g$C$9$cVeVB . things)
+     (call-with-current-continuation
+       g$C$9$cVeVB
+       (case-lambda ((g$C$8$cVeVB cont) (g$C$8$cVeVB (apply cont things))))))))
+ */
+
+    //public static object Values(object k, params object[] args)
+    //{
+    //  CallTarget2 ct = delegate (object kk, object fc)
+    //  {
+    //    return CallWithK(fc as ICallable, kk as ICallable, new MultipleValues(args));
+    //  };
+    //  return CallWithCurrentContinuation(k, Closure.Make(null, ct));
+    //}
+
+    //[Builtin("call-with-values")]
+    public static object CallWithValues(object k, object producer, object consumer)
+    {
+      ICallable pro = (ICallable)producer;
+      ICallable con = (ICallable)consumer;
+      ICallable K = (ICallable)k;
+
+      CallTarget1 ct = delegate(object arg)
+      {
+        if (arg is MultipleValues)
+        {
+          return CallWithK(con, K, ((MultipleValues)arg).ToArray());
+        }
+        return CallWithK(con, K, arg);
+      };
+
+      return CallWithK(pro, Closure.Make(null, ct));
+    }
+
+#else
     //[Builtin("call-with-values")]
     public static object CallWithValues(object producer, object consumer)
     {
       ICallable pro = (ICallable)producer;
       ICallable con = (ICallable)consumer;
-
-#if CPS
-      object r = Call(pro);
-
-      if (r is MultipleValues)
-      {
-        return Call(con, ((MultipleValues)r).ToArray());
-      }
-
-      return Call(con, r);
-#else
 
       object r = pro.Call();
 
@@ -115,8 +160,8 @@ namespace IronScheme.Runtime
       }
 
       return con.Call(r);
-#endif
     }
+#endif
 
 
   }

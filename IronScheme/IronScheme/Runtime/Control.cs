@@ -65,7 +65,9 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
+#if !iCPS
     [Builtin]
+#endif
     [Builtin("identity-for-cps")]
     public static object Values(params object[] values)
     {

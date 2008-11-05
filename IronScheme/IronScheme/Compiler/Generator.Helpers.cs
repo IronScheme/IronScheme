@@ -85,18 +85,28 @@ namespace IronScheme.Compiler
 
     internal static bool initme;
 
+
     static void Initialize()
     {
       // builtin methods
       AddGenerators(Context, typeof(Generator).Assembly);
       // HACK: clean up needed
       SymbolId s = SymbolTable.StringToId("call-with-values");
-      cc.Scope.SetName(s, new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins),"CallWithValues")));
+      BuiltinMethod cwv = new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins), "CallWithValues"));
+      cc.Scope.SetName(s, cwv);
+      Closure.CallWithValues = cwv;
 
 #if CPS
       BuiltinMethod cwcc = new BuiltinMethod("call/cc", GetMethods(typeof(OptimizedBuiltins), "CallWithCurrentContinuation"));
       cc.Scope.SetName(SymbolTable.StringToId("call/cc"), cwcc);
       cc.Scope.SetName(SymbolTable.StringToId("call-with-current-continuation"), cwcc);
+
+      Closure.CWCC = cwcc;
+
+      //BuiltinMethod values = new BuiltinMethod("values", GetMethods(typeof(OptimizedBuiltins), "Values"));
+      //cc.Scope.SetName(SymbolTable.StringToId("values"), values);
+
+      //Closure.Values = values;
 #endif
 
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
@@ -125,7 +135,11 @@ namespace IronScheme.Compiler
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
 
-      Closure.Values = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
+#if iCPS
+      Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("identity-for-cps")) as BuiltinMethod;
+#else
+      Closure.IdentityForCPS = Closure.Values = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
+#endif
       
 
     }

@@ -12,15 +12,20 @@ Questions:
 
 Convert all or handle 'special' ?
 
+Handle special. Each primitive is converted from (proc k .args) => (k (proc . args)).
+
 2. How to deal with higher-order procedures?
 
 For Scheme, no issue, for builtins, problems.
 
+Apply a transform on higher order primitives. Each primitive reference is converted from proc => (lambda (k . args) (k (apply proc args)))
+
+
 3. Other procedures that need special handling?
 
-- call-with-values
-- values
 - apply
 
 Verified:
 - call/cc
+- call-with-values
+- values
