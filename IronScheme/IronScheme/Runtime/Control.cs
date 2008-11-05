@@ -112,23 +112,6 @@ namespace IronScheme.Runtime
 
 #if CPS
 
-    //public static object Values(object k, object list)
-    //{
-    //  ICallable K = (ICallable)k;
-    //  object[] args = Closure.ArrayFromCons(list);
-    //  CallTarget2 ct = delegate(object kk, object fc)
-    //  {
-    //    if (args.Length == 1)
-    //    {
-    //      return OptimizedBuiltins.CallWithK(fc as ICallable, kk as ICallable, args[0]);
-    //    }
-    //    else
-    //    {
-    //      return OptimizedBuiltins.CallWithK(fc as ICallable, kk as ICallable, new MultipleValues(args));
-    //    }
-    //  };
-    //  return OptimizedBuiltins.CallWithCurrentContinuation(k, Closure.Make(null, ct));
-    //}
 #else
     internal class Continuation : Exception
     {

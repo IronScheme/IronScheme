@@ -41,8 +41,7 @@ namespace IronScheme.Runtime
 #if CPS
     internal static object Call(ICallable c, params object[] args)
     {
-      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues
-        && c != Closure.Values && c != Closure.Apply)
+      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues)
       {
         return c.Call(args);
       }
@@ -57,8 +56,7 @@ namespace IronScheme.Runtime
 
     internal static object CallWithK(ICallable c, ICallable K, params object[] args)
     {
-      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues
-        && c != Closure.Values && c != Closure.Apply)
+      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues)
       {
         return K.Call(c.Call(args));
       }
@@ -99,8 +97,7 @@ namespace IronScheme.Runtime
         return e.Call(arg);
       };
 
-      if (fc is BuiltinMethod && fc != Closure.CWCC && fc != Closure.CallWithValues 
-        && fc != Closure.Values && fc != Closure.Apply)
+      if (fc is BuiltinMethod && fc != Closure.CWCC && fc != Closure.CallWithValues)
       {
         return e.Call(fc.Call(Closure.Make(null, esc)));
       }
