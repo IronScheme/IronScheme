@@ -526,7 +526,7 @@
 (define (starts-with? str sub)
   (clr-call system.string startswith str sub))
   
-(define special '(identity-for-cps call/cc call-with-current-continuation))    
+(define special '(identity-for-cps call-with-values call/cc call-with-current-continuation))    
   
 (define (primitive? o)  
   (if (and (symbol? o) (not (memq o special)))

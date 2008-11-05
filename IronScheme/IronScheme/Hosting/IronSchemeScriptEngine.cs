@@ -125,7 +125,7 @@ namespace IronScheme.Hosting
     {
       ICallable c = context.Scope.LookupName(SymbolTable.StringToId("int-env-syms")) as ICallable;
 #if CPS
-      Cons ids = c.Call(Closure.Values) as Cons;
+      Cons ids = c.Call(Closure.IdentityForCPS) as Cons;
 #else
       Cons ids = c.Call() as Cons;
 #endif
