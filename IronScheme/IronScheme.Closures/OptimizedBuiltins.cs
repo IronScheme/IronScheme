@@ -41,7 +41,8 @@ namespace IronScheme.Runtime
 #if CPS
     internal static object Call(ICallable c, params object[] args)
     {
-      if (c is BuiltinMethod)
+      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues
+        && c != Closure.Values && c != Closure.Apply)
       {
         return c.Call(args);
       }
@@ -56,7 +57,8 @@ namespace IronScheme.Runtime
 
     internal static object CallWithK(ICallable c, ICallable K, params object[] args)
     {
-      if (c is BuiltinMethod)
+      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues
+        && c != Closure.Values && c != Closure.Apply)
       {
         return K.Call(c.Call(args));
       }
@@ -97,7 +99,8 @@ namespace IronScheme.Runtime
         return e.Call(arg);
       };
 
-      if (fc is BuiltinMethod && fc != Closure.CWCC && fc != Closure.CallWithValues)
+      if (fc is BuiltinMethod && fc != Closure.CWCC && fc != Closure.CallWithValues 
+        && fc != Closure.Values && fc != Closure.Apply)
       {
         return e.Call(fc.Call(Closure.Make(null, esc)));
       }
@@ -106,6 +109,23 @@ namespace IronScheme.Runtime
         return fc.Call(e, Closure.Make(null, esc));
       }
     }
+    
+    //public static object Apply(object k, object fn, object arg1, object argrest)
+    //{
+    //  List<object> newargs = new List<object>();
+    //  newargs.Add(arg1);
+    //  newargs.AddRange(Closure.ArrayFromCons(argrest));
+
+    //  return Apply(k, fn, Closure.ConsFromArray(newargs.ToArray()));
+    //}
+    
+    //public static object Apply(object k, object fn, object list)
+    //{
+    //  ICallable c = (ICallable)(fn);
+    //  object[] targs = Closure.ArrayFromCons(list);
+
+    //  return OptimizedBuiltins.CallWithK(c, k as ICallable, targs);
+    //}
 
 
 
@@ -117,14 +137,19 @@ namespace IronScheme.Runtime
        (case-lambda ((g$C$8$cVeVB cont) (g$C$8$cVeVB (apply cont things))))))))
  */
 
-    //public static object Values(object k, params object[] args)
-    //{
-    //  CallTarget2 ct = delegate (object kk, object fc)
-    //  {
-    //    return CallWithK(fc as ICallable, kk as ICallable, new MultipleValues(args));
-    //  };
-    //  return CallWithCurrentContinuation(k, Closure.Make(null, ct));
-    //}
+    public static object Values(object k, object list)
+    {
+      ICallable K = (ICallable)k;
+      object[] args = Closure.ArrayFromCons(list);
+      if (args.Length == 1)
+      {
+        return K.Call(args[0]);
+      }
+      else
+      {
+        return K.Call(new MultipleValues(args));
+      }
+    }
 
     //[Builtin("call-with-values")]
     public static object CallWithValues(object k, object producer, object consumer)

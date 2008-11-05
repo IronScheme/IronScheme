@@ -57,7 +57,7 @@ namespace IronScheme.Runtime.psyntax
 
               pivot.car = Closure.Make(Context, invokeproc);
 
-              return Apply(sk, result);
+              return Apply(Closure.IdentityForCPS, sk, result);
             }
           }
           catch (Exception ex)
