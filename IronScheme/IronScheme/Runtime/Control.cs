@@ -65,7 +65,7 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-#if !iCPS
+#if !CPS
     [Builtin]
 #endif
     [Builtin("identity-for-cps")]
@@ -112,6 +112,23 @@ namespace IronScheme.Runtime
 
 #if CPS
 
+    //public static object Values(object k, object list)
+    //{
+    //  ICallable K = (ICallable)k;
+    //  object[] args = Closure.ArrayFromCons(list);
+    //  CallTarget2 ct = delegate(object kk, object fc)
+    //  {
+    //    if (args.Length == 1)
+    //    {
+    //      return OptimizedBuiltins.CallWithK(fc as ICallable, kk as ICallable, args[0]);
+    //    }
+    //    else
+    //    {
+    //      return OptimizedBuiltins.CallWithK(fc as ICallable, kk as ICallable, new MultipleValues(args));
+    //    }
+    //  };
+    //  return OptimizedBuiltins.CallWithCurrentContinuation(k, Closure.Make(null, ct));
+    //}
 #else
     internal class Continuation : Exception
     {
@@ -197,6 +214,47 @@ namespace IronScheme.Runtime
     //procedure:  (apply proc arg1 ... args) 
     //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     
+#if CPS
+    [Builtin]
+    public static object Apply(object k, object fn, params object[] args)
+    {
+      if (args == null)
+      {
+        return Apply(k, fn, (object)null);
+      }
+      object[] head = ArrayUtils.RemoveLast(args);
+      object last = args.Length > 0 ? args[args.Length - 1] : null;
+
+      if (last != null && !(last is Cons))
+      {
+        AssertionViolation("apply", "not a list", last);
+      }
+
+      return Apply(k, fn, Append(List(head), last));
+    }
+
+
+    [Builtin]
+    public static object Apply(object k, object fn, object list)
+    {
+      Cons args = Requires<Runtime.Cons>(list);
+      ICallable c = RequiresNotNull<ICallable>(fn);
+
+      if (args == null)
+      {
+        return OptimizedBuiltins.CallWithK(c, k as ICallable);
+      }
+      List<object> targs = new List<object>();
+      
+      while (args != null)
+      {
+        targs.Add(args.car);
+        args = args.cdr as Cons;
+      }
+
+      return OptimizedBuiltins.CallWithK(c, k as ICallable, targs.ToArray());
+    }
+#else
     [Builtin]
     public static object Apply(object fn, params object[] args)
     {
@@ -219,12 +277,6 @@ namespace IronScheme.Runtime
 
       if (args == null)
       {
-#if CPS
-        if (!(fn is BuiltinMethod))
-        {
-          return c.Call(SymbolValue(SymbolTable.StringToId("values")));
-        }
-#endif
         return c.Call();
       }
       List<object> targs = new List<object>();
@@ -235,14 +287,8 @@ namespace IronScheme.Runtime
         args = args.cdr as Cons;
       }
 
-#if CPS
-      if (!(fn is BuiltinMethod))
-      {
-        targs.Insert(0, SymbolValue(SymbolTable.StringToId("values")));
-      }
-#endif
-
       return c.Call(targs.ToArray());
     }
+#endif
   }
 }

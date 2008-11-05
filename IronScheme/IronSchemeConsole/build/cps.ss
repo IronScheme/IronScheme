@@ -526,7 +526,7 @@
 (define (starts-with? str sub)
   (clr-call system.string startswith str sub))
   
-(define special '(identity-for-cps call-with-values call/cc call-with-current-continuation))    
+(define special '(identity-for-cps values apply call-with-values call/cc call-with-current-continuation))    
   
 (define (primitive? o)  
   (if (and (symbol? o) (not (memq o special)))
@@ -561,7 +561,7 @@
           [else
             (cons (fix-primitives o) (map fix-primitives (cdr e)))])))
     (if (primitive? e)
-      `(case-lambda [(k . args) (k (apply ,e args))])
+      `(case-lambda [(k . args) (apply k ,e args)])
       e)))
       
 (define (parse->cps e)      
@@ -571,3 +571,4 @@
   (fix-primitives (parse->cps e)))
 
 )
+

@@ -103,10 +103,10 @@ namespace IronScheme.Compiler
 
       Closure.CWCC = cwcc;
 
-      //BuiltinMethod values = new BuiltinMethod("values", GetMethods(typeof(OptimizedBuiltins), "Values"));
-      //cc.Scope.SetName(SymbolTable.StringToId("values"), values);
+      ICallable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
+      cc.Scope.SetName(SymbolTable.StringToId("values"), values);
 
-      //Closure.Values = values;
+      Closure.Values = values;
 #endif
 
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
@@ -135,8 +135,14 @@ namespace IronScheme.Compiler
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
 
-#if iCPS
+#if CPS
       Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("identity-for-cps")) as BuiltinMethod;
+      Closure.Apply = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("apply")) as BuiltinMethod;
+      //Delegate[] targets = { (CallTarget3) OptimizedBuiltins.Apply, (CallTarget4) OptimizedBuiltins.Apply };
+      //int[] arts = { 3,4 };
+      //Closure.Apply = Closure.MakeCase(null, targets, arts);
+      //cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.Apply);
+
 #else
       Closure.IdentityForCPS = Closure.Values = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
 #endif

@@ -346,7 +346,7 @@ namespace IronScheme.Compiler
 
         Expression[] pp = GetAstList(c.cdr as Cons, cb);
         Expression ex = Unwrap(GetAst(c.car, cb));
-#if OPTIMIZATIONS
+//#if OPTIMIZATIONS
         if (ex is MethodCallExpression)
         {
           MethodCallExpression mcexpr = (MethodCallExpression)ex;
@@ -361,7 +361,7 @@ namespace IronScheme.Compiler
           }
         }
 
-#endif
+//#endif
 
         if (ex is ConstantExpression)
         {
@@ -412,7 +412,8 @@ namespace IronScheme.Compiler
       }
     }
 
-#if OPTIMIZATIONS
+    #region Optimized calls
+
     static bool TryGetInlineEmitter(SymbolId f, out InlineEmitter ie)
     {
       ie = null;
@@ -483,7 +484,7 @@ namespace IronScheme.Compiler
       return Ast.ComplexCallHelper(cbe, dc, ppp);
     }
 
-#endif
+    #endregion
 
     protected static Expression Unwrap(Expression ex)
     {
