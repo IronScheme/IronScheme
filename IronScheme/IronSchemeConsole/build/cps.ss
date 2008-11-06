@@ -413,14 +413,14 @@
   ;;                      (make-user-abstraction '() constructor))
   ;;                    constructors)))))
   `(letrec ,(map (lambda (variable constructor)
-                   `(,variable (,(make-user-abstraction '() constructor) identity-for-cps)))
+                   `(,variable (,(make-user-abstraction '() constructor) (letrec-identity ',variable))))
                  variables
                  constructors)
      ,body))
      
 (define (make-recursive*-bind variables constructors body)
   `(letrec* ,(map (lambda (variable constructor)
-                   `(,variable (,(make-user-abstraction '() constructor) identity-for-cps)))
+                   `(,variable (,(make-user-abstraction '() constructor) (letrec-identity ',variable))))
                  variables
                  constructors)
      ,body))     
@@ -428,7 +428,7 @@
 (define (make-recursive*-library-bind name variables variables* constructors body)
   `(library-letrec* ,name 
                  ,(map (lambda (variable variable* constructor)
-                         `(,variable ,variable* (,(make-user-abstraction '() constructor) identity-for-cps)))
+                         `(,variable ,variable* (,(make-user-abstraction '() constructor) (letrec-identity ',variable))))
                    variables
                    variables*
                    constructors)
@@ -526,7 +526,7 @@
 (define (starts-with? str sub)
   (clr-call system.string startswith str sub))
   
-(define special '(identity-for-cps values apply call-with-values call/cc call-with-current-continuation))    
+(define special '(identity-for-cps letrec-identity values apply call-with-values call/cc call-with-current-continuation))    
   
 (define (primitive? o)  
   (if (and (symbol? o) (not (memq o special)))

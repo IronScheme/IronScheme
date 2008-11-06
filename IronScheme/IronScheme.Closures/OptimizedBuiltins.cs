@@ -69,6 +69,13 @@ namespace IronScheme.Runtime
       }
     }
 
+    internal static CallTarget1 MakeCPS(CallTarget0 prim)
+    {
+      return delegate(object k)
+      {
+        return ((ICallable)k).Call(prim());
+      };
+    }
 
     internal static CallTarget2 MakeCPS(CallTarget1 prim)
     {
@@ -106,23 +113,26 @@ namespace IronScheme.Runtime
         return fc.Call(e, Closure.Make(null, esc));
       }
     }
-    
-    //public static object Apply(object k, object fn, object arg1, object argrest)
-    //{
-    //  List<object> newargs = new List<object>();
-    //  newargs.Add(arg1);
-    //  newargs.AddRange(Closure.ArrayFromCons(argrest));
 
-    //  return Apply(k, fn, Closure.ConsFromArray(newargs.ToArray()));
-    //}
-    
-    //public static object Apply(object k, object fn, object list)
-    //{
-    //  ICallable c = (ICallable)(fn);
-    //  object[] targs = Closure.ArrayFromCons(list);
+    //last arg must be a list
+    public static object Apply(object k, object fn, object args)
+    {
+      ICallable c = (ICallable)(fn);
+      object[] targs = Closure.ArrayFromCons(args);
 
-    //  return OptimizedBuiltins.CallWithK(c, k as ICallable, targs);
-    //}
+      List<object> allargs = new List<object>();
+
+      int i = 0;
+
+      for (; i < targs.Length - 1; i++)
+      {
+        allargs.Add(targs[i]);
+      }
+
+      allargs.AddRange(Closure.ArrayFromCons(targs[i]));
+
+      return OptimizedBuiltins.CallWithK(c, k as ICallable, allargs.ToArray());
+    }
 
 
 

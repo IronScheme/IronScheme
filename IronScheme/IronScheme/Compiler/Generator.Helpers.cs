@@ -139,8 +139,8 @@ namespace IronScheme.Compiler
       //Runtime.Builtins.SymbolValue(SymbolTable.StringToId("apply")) as BuiltinMethod;
       //Delegate[] targets = { (CallTarget3) OptimizedBuiltins.Apply, (CallTarget4) OptimizedBuiltins.Apply };
       //int[] arts = { 3,4 };
-      //Closure.Apply = Closure.MakeCase(null, targets, arts);
-      //cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.Apply);
+      //Closure.Apply = ;
+      cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.MakeVarArgX(null, (CallTarget3) OptimizedBuiltins.Apply, 3));
 
 #else
       Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
