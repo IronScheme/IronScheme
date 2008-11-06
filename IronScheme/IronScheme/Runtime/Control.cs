@@ -198,45 +198,63 @@ namespace IronScheme.Runtime
     //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     
 #if CPS
-    [Builtin]
-    public static object Apply(object k, object fn, params object[] args)
+    [Builtin("letrec-identity")]
+    public static object LetrecIdentity(object var)
     {
-      if (args == null)
+      bool init = false;
+      CallTarget1 id = delegate(object V)
       {
-        return Apply(k, fn, (object)null);
-      }
-      object[] head = ArrayUtils.RemoveLast(args);
-      object last = args.Length > 0 ? args[args.Length - 1] : null;
+        if (init)
+        {
+          AssertionViolation("letrec", "initialization continuation invoked more than once", UnGenSym(var));
+        }
+        init = true;
+        return V;
+      };
 
-      if (last != null && !(last is Cons))
-      {
-        AssertionViolation("apply", "not a list", last);
-      }
-
-      return Apply(k, fn, Append(List(head), last));
+      return Closure.Make(null, id);
     }
 
 
-    [Builtin]
-    public static object Apply(object k, object fn, object list)
-    {
-      Cons args = Requires<Runtime.Cons>(list);
-      ICallable c = RequiresNotNull<ICallable>(fn);
+    //[Builtin]
+    //public static object Apply(object k, object fn, params object[] args)
+    //{
+    //  if (args == null)
+    //  {
+    //    return Apply(k, fn, (object)null);
+    //  }
+    //  object[] head = ArrayUtils.RemoveLast(args);
+    //  object last = args.Length > 0 ? args[args.Length - 1] : null;
 
-      if (args == null)
-      {
-        return OptimizedBuiltins.CallWithK(c, k as ICallable);
-      }
-      List<object> targs = new List<object>();
+    //  if (last != null && !(last is Cons))
+    //  {
+    //    AssertionViolation("apply", "not a list", last);
+    //  }
+
+    //  return Apply(k, fn, Append(List(head), last));
+    //}
+
+
+    //[Builtin]
+    //public static object Apply(object k, object fn, object list)
+    //{
+    //  Cons args = Requires<Runtime.Cons>(list);
+    //  ICallable c = RequiresNotNull<ICallable>(fn);
+
+    //  if (args == null)
+    //  {
+    //    return OptimizedBuiltins.CallWithK(c, k as ICallable);
+    //  }
+    //  List<object> targs = new List<object>();
       
-      while (args != null)
-      {
-        targs.Add(args.car);
-        args = args.cdr as Cons;
-      }
+    //  while (args != null)
+    //  {
+    //    targs.Add(args.car);
+    //    args = args.cdr as Cons;
+    //  }
 
-      return OptimizedBuiltins.CallWithK(c, k as ICallable, targs.ToArray());
-    }
+    //  return OptimizedBuiltins.CallWithK(c, k as ICallable, targs.ToArray());
+    //}
 #else
     [Builtin]
     public static object Apply(object fn, params object[] args)

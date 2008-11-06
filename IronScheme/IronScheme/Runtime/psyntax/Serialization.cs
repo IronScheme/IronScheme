@@ -37,6 +37,30 @@ namespace IronScheme.Runtime.psyntax
               // this is to insure runtime constants can be read, long story... see psyntax/internal.ss
               ICallable e2c = SymbolValue(SymbolTable.StringToId("expanded2core")) as ICallable;
 
+#if CPS
+              return FALSE;
+              //object visit = OptimizedBuiltins.Call(e2c, pivot.car);
+
+              //CallTarget0 visitproc = delegate
+              //{
+              //  return EvalCore(Context, visit);
+              //};
+
+              //pivot.car = Closure.Make(Context, OptimizedBuiltins.MakeCPS(visitproc));
+
+              //pivot = (Cons)pivot.cdr;
+
+              //object invoke = OptimizedBuiltins.Call(e2c, pivot.car);
+
+              //CallTarget0 invokeproc = delegate
+              //{
+              //  return EvalCore(Context, invoke);
+              //};
+
+              //pivot.car = Closure.Make(Context, OptimizedBuiltins.MakeCPS(invokeproc));
+
+              //return OptimizedBuiltins.Apply(Closure.IdentityForCPS, sk, result);
+#else
               object visit = e2c.Call(pivot.car);
 
               CallTarget0 visitproc = delegate
@@ -56,9 +80,6 @@ namespace IronScheme.Runtime.psyntax
               };
 
               pivot.car = Closure.Make(Context, invokeproc);
-#if CPS
-              return Apply(Closure.IdentityForCPS, sk, result);
-#else
               return Apply(sk, result);
 #endif
             }
@@ -122,6 +143,7 @@ namespace IronScheme.Runtime.psyntax
     [Builtin("serialize-library")]
     public static object SaveLibrary(object filename, object contents)
     {
+#if !CPS
       Console.WriteLine("serializing {0}", filename);
       string fn = RequiresNotNull<string>(filename);
       // lets go cheap for now, just serialize, no compile
@@ -129,7 +151,9 @@ namespace IronScheme.Runtime.psyntax
       {
         SERIALIZER.Serialize(output, contents);
       }
+#endif
       return Unspecified;
+
     }
   }
 }
