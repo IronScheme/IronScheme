@@ -215,6 +215,39 @@ namespace IronScheme.Runtime
       return Closure.Make(null, id);
     }
 
+    [Builtin("letrec*-identity")]
+    public static object LetrecStarIdentity(object var)
+    {
+      bool init = false;
+      CallTarget1 id = delegate(object V)
+      {
+        if (init)
+        {
+          AssertionViolation("letrec*-identity", "initialization continuation invoked more than once", UnGenSym(var));
+        }
+        init = true;
+        return V;
+      };
+
+      return Closure.Make(null, id);
+    }
+
+    [Builtin("library-letrec*-identity")]
+    public static object LibraryLetrecIdentity(object var)
+    {
+      bool init = false;
+      CallTarget1 id = delegate(object V)
+      {
+        if (init)
+        {
+          AssertionViolation("library-letrec*-identity", "initialization continuation invoked more than once", UnGenSym(var));
+        }
+        init = true;
+        return V;
+      };
+
+      return Closure.Make(null, id);
+    }
 
     //[Builtin]
     //public static object Apply(object k, object fn, params object[] args)

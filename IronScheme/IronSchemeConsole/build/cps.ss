@@ -413,14 +413,16 @@
   ;;                      (make-user-abstraction '() constructor))
   ;;                    constructors)))))
   `(letrec ,(map (lambda (variable constructor)
-                   `(,variable (,(make-user-abstraction '() constructor) (letrec-identity ',variable))))
+                   `(,variable (,(make-user-abstraction '() constructor) 
+                      (letrec-identity ',variable))))
                  variables
                  constructors)
      ,body))
      
 (define (make-recursive*-bind variables constructors body)
   `(letrec* ,(map (lambda (variable constructor)
-                   `(,variable (,(make-user-abstraction '() constructor) (letrec-identity ',variable))))
+                   `(,variable (,(make-user-abstraction '() constructor) 
+                      (letrec*-identity ',variable))))
                  variables
                  constructors)
      ,body))     
@@ -428,7 +430,8 @@
 (define (make-recursive*-library-bind name variables variables* constructors body)
   `(library-letrec* ,name 
                  ,(map (lambda (variable variable* constructor)
-                         `(,variable ,variable* (,(make-user-abstraction '() constructor) (letrec-identity ',variable))))
+                         `(,variable ,variable* (,(make-user-abstraction '() constructor) 
+                            (library-letrec*-identity ',variable))))
                    variables
                    variables*
                    constructors)
@@ -526,16 +529,22 @@
 (define (starts-with? str sub)
   (clr-call system.string startswith str sub))
   
-(define special '(identity-for-cps letrec-identity values apply call-with-values call/cc call-with-current-continuation))    
+(define special 
+  '(identity-for-cps 
+    letrec-identity 
+    library-letrec*-identity 
+    letrec*-identity 
+    cps-prim
+    values 
+    apply 
+    call-with-values 
+    call/cc call-with-current-continuation))    
   
 (define (primitive? o)  
   (if (and (symbol? o) (not (memq o special)))
-    (with-exception-handler 
-      (lambda (e) #f)
-      (lambda ()
-        (let ((b (symbol-value? o)))
-          (or (clr-is ironscheme.runtime.builtinmethod b)
-              (starts-with? (symbol->string o) "clr-")))))
+    (let ((b (symbol-value? o)))
+      (or (clr-is ironscheme.runtime.builtinmethod b)
+          (starts-with? (symbol->string o) "clr-")))
     #f))
     
 

@@ -426,6 +426,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
     static int evalcounter = 0;
 
+   
     [Builtin("compile-core")]
     public static object CompileCore(CodeContext cc, object expr)
     {
@@ -440,7 +441,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
 
 #if CPS
-      // this would like a ton sweeter on C# 4.0 :)
+      // this would look a ton sweeter on C# 4.0 :)
       ICallable cps = SymbolValue(SymbolTable.StringToId("convert->cps")) as ICallable;
       expr = cps.Call(Closure.IdentityForCPS, expr);
 #endif
