@@ -70,10 +70,10 @@
 
 (library (ironscheme cps)
   (export 
-    parse->cps
+    expand-boot-cps
     convert->cps)
   (import 
-    (except (ironscheme) parse->cps convert->cps)
+    (except (ironscheme) expand-boot-cps convert->cps)
     (ironscheme clr))
 
 (define (cps/generate-reference variable)
@@ -546,7 +546,6 @@
       (or (clr-is ironscheme.runtime.builtinmethod b)
           (starts-with? (symbol->string o) "clr-")))
     #f))
-    
 
 (define (fix-primitives e)
   (if (and (pair? e)(list? e))
@@ -570,7 +569,7 @@
           [else
             (cons (fix-primitives o) (map fix-primitives (cdr e)))])))
     (if (primitive? e)
-      `(case-lambda [(k . args) (apply k ,e args)])
+      `(cps-prim ,e)
       e)))
       
 (define (parse->cps e)      
@@ -578,6 +577,28 @@
   
 (define (convert->cps e)
   (fix-primitives (parse->cps e)))
+  
+(define bootfile "ironscheme.boot.pp")
+(define bootfile-cps "ironscheme.boot-cps.pp")
+
+(define (expand-boot-cps pretty-print)
+  (define (read-file port)
+    (let f ((e (read port))(a '()))
+      (if (eof-object? e)
+        (reverse a)
+        (let ((r (convert->cps e)))
+          (f (read port) (cons r a))))))
+  (when (file-exists? bootfile-cps)
+    (delete-file bootfile-cps))
+  (call-with-input-file bootfile    
+    (lambda (in)
+      (call-with-output-file bootfile-cps
+        (lambda (out)      
+          (for-each 
+            (lambda (e)
+              (pretty-print e out))
+            (read-file in)))))))
+  
 
 )
 

@@ -258,11 +258,10 @@
     ;;;
     (import                                     i) 
     (export                                     i)
-    ;(rename                                     i)
     (library                                    i) 
     (include                                    i)
-    (parse->cps                                 i)
     (convert->cps                               i)
+    (expand-boot-cps                            i)
     (expand                                     i)
     (expand->core                               i)
     (include-into                               i)

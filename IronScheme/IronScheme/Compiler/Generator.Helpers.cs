@@ -106,6 +106,9 @@ namespace IronScheme.Compiler
       ICallable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
       cc.Scope.SetName(SymbolTable.StringToId("values"), values);
 
+      BuiltinMethod cpsprim = new BuiltinMethod("cps-prim", GetMethods(typeof(OptimizedBuiltins), "MakeCPSCallable"));
+      cc.Scope.SetName(SymbolTable.StringToId("cps-prim"), cpsprim);
+
 #endif
 
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
@@ -136,10 +139,6 @@ namespace IronScheme.Compiler
 
 #if CPS
       Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("identity-for-cps")) as BuiltinMethod;
-      //Runtime.Builtins.SymbolValue(SymbolTable.StringToId("apply")) as BuiltinMethod;
-      //Delegate[] targets = { (CallTarget3) OptimizedBuiltins.Apply, (CallTarget4) OptimizedBuiltins.Apply };
-      //int[] arts = { 3,4 };
-      //Closure.Apply = ;
       cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.MakeVarArgX(null, (CallTarget3) OptimizedBuiltins.Apply, 3));
 
 #else
