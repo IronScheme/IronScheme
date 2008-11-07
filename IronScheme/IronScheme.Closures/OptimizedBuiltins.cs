@@ -93,6 +93,16 @@ namespace IronScheme.Runtime
       };
     }
 
+    public static object MakeCPSCallable(object prim)
+    {
+      CallTarget2 cps = delegate(object k, object args)
+      {
+        object[] aargs = Closure.ArrayFromCons(args);
+        return CallWithK(prim as ICallable, k as ICallable, aargs);
+      };
+      return Closure.MakeVarArgX(null, cps, 2);
+    }
+
     //[Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object k, object fc1)
     {
@@ -133,16 +143,6 @@ namespace IronScheme.Runtime
 
       return OptimizedBuiltins.CallWithK(c, k as ICallable, allargs.ToArray());
     }
-
-
-
-    /*
-  (case-lambda
-    ((g$C$9$cVeVB . things)
-     (call-with-current-continuation
-       g$C$9$cVeVB
-       (case-lambda ((g$C$8$cVeVB cont) (g$C$8$cVeVB (apply cont things))))))))
- */
 
     public static object Values(object k, object list)
     {
