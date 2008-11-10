@@ -90,24 +90,32 @@ namespace IronScheme.Compiler
     {
       // builtin methods
       AddGenerators(Context, typeof(Generator).Assembly);
+#if !CPS
       // HACK: clean up needed
       SymbolId s = SymbolTable.StringToId("call-with-values");
       BuiltinMethod cwv = new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins), "CallWithValues"));
       cc.Scope.SetName(s, cwv);
       Closure.CallWithValues = cwv;
-
-#if CPS
-      BuiltinMethod cwcc = new BuiltinMethod("call/cc", GetMethods(typeof(OptimizedBuiltins), "CallWithCurrentContinuation"));
-      cc.Scope.SetName(SymbolTable.StringToId("call/cc"), cwcc);
-      cc.Scope.SetName(SymbolTable.StringToId("call-with-current-continuation"), cwcc);
-
-      Closure.CWCC = cwcc;
+#else
 
       ICallable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
       cc.Scope.SetName(SymbolTable.StringToId("values"), values);
 
       BuiltinMethod cpsprim = new BuiltinMethod("cps-prim", GetMethods(typeof(OptimizedBuiltins), "MakeCPSCallable"));
       cc.Scope.SetName(SymbolTable.StringToId("cps-prim"), cpsprim);
+
+      Closure.CPSPrim = cpsprim;
+
+      ICallable cwv = Closure.Make(null, (CallTarget3)OptimizedBuiltins.CallWithValues);
+      cc.Scope.SetName(SymbolTable.StringToId("call-with-values"), cwv);
+
+      ICallable dw = Closure.Make(null, (CallTarget4)OptimizedBuiltins.DynamicWind);
+      cc.Scope.SetName(SymbolTable.StringToId("dynamic-wind"), dw);
+
+      ICallable cwcc = Closure.Make(null, (CallTarget2)OptimizedBuiltins.CallWithCurrentContinuation);
+      cc.Scope.SetName(SymbolTable.StringToId("call-with-current-continuation"), cwcc);
+      cc.Scope.SetName(SymbolTable.StringToId("call/cc"), cwcc);
+
 
 #endif
 

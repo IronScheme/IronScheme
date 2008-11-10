@@ -425,17 +425,13 @@ namespace IronScheme.Runtime.R6RS
       {
         CallTargetN np = delegate(object[] args)
         {
-#if CPS
-          Cons c = List(args);
-          ICallable k = c.car as ICallable;
-          args = ListToVector(c.cdr) as object[];
-
-          return k.Call(pp.Call(args));
-#else
           return pp.Call(args);
-#endif
         };
+#if CPS
+        return Closure.Make(Context, OptimizedBuiltins.MakeCPS(np));
+#else
         return Closure.Make(Context, np);
+#endif
       }
       else
       {

@@ -5,7 +5,7 @@
 ;Dorai Sitaram
 ;1989, revised Feb. 1993, Mar. 1997
 ; 2008 ported to R6RS - leppie
-; does not work on IronScheme due to lack of proper continuations... :(
+; does not work on IronScheme due to lack of proper continuations... :( works in CPS mode
 ; works happily on Ikarus
 ; http://www.ccs.neu.edu/home/dorai/schelog/schelog.html
 

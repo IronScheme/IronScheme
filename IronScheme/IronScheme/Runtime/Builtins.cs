@@ -435,7 +435,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       {
         CallTarget0 n = delegate
         {
-          return SymbolValue((SymbolId)expr);
+          return SymbolValue(expr);
         };
         return Closure.Make(null, n);
       }
@@ -563,14 +563,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
     static Scope ModuleScope;
 
     [Builtin("symbol-value")]
-    public static object SymbolValue(SymbolId symbol)
+    public static object SymbolValue(object symbol)
     {
       if (ModuleScope == null)
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
       object value;
-      if (ModuleScope.TryLookupName(symbol, out value))
+      if (ModuleScope.TryLookupName((SymbolId)symbol, out value))
       {
         return value;
       }
@@ -581,14 +581,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
     }
 
     [Builtin("symbol-value?")]
-    public static object HasSymbolValue(SymbolId symbol)
+    public static object HasSymbolValue(object symbol)
     {
       if (ModuleScope == null)
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
       object value;
-      if (ModuleScope.TryLookupName(symbol, out value))
+      if (ModuleScope.TryLookupName((SymbolId)symbol, out value))
       {
         return value;
       }
@@ -599,13 +599,13 @@ A ""contributor"" is any person that distributes its contribution under this lic
     }
 
     [Builtin("set-symbol-value!")]
-    public static object SetSymbolValue(SymbolId symbol, object value)
+    public static object SetSymbolValue(object symbol, object value)
     {
       if (ModuleScope == null)
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
-      ModuleScope.SetName(symbol, value);
+      ModuleScope.SetName((SymbolId)symbol, value);
       return Unspecified;
     }
 

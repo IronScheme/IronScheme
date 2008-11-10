@@ -30,7 +30,11 @@ namespace IronScheme.Hosting
           "1.0 beta 1",
             //typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
 #if DEBUG
- "Debug build"
+#if CPS
+            "Debug - CPS build"
+#else
+            "Debug build"
+#endif
 #else
             "Release build"
 #endif

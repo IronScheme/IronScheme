@@ -419,6 +419,7 @@
     <None Include="srfi\string-ports.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="tests\windtests.sps" />
     <Content Include="tests\clisp-number-tests.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
