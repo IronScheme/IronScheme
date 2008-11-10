@@ -95,7 +95,6 @@ namespace IronScheme.Compiler
       SymbolId s = SymbolTable.StringToId("call-with-values");
       BuiltinMethod cwv = new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins), "CallWithValues"));
       cc.Scope.SetName(s, cwv);
-      Closure.CallWithValues = cwv;
 #else
 
       ICallable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
