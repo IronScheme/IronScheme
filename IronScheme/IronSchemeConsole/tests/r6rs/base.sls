@@ -1405,7 +1405,7 @@
                (dynamic-wind
                    (lambda ()
                      (set! n (+ n 1))
-                     (k))
+                     (k #f))
                    (lambda ()
                      (set! n (+ n 2)))
                    (lambda ()
@@ -1423,10 +1423,10 @@
                          values
                          (lambda ()
                            (set! n (+ n 1))
-                           (k))
+                           (k #f))
                          (lambda ()
                            (set! n (+ n 2))
-                           (k))))
+                           (k #f))))
                    (lambda ()
                      (set! n (+ n 4))))))
             n) 

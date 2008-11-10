@@ -78,6 +78,16 @@ namespace IronScheme.Runtime
       return new MultipleValues(values);
     }
 
+
+
+
+
+#if CPS
+
+
+
+#else
+
     [Builtin("dynamic-wind")]
     public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
     {
@@ -85,18 +95,6 @@ namespace IronScheme.Runtime
       ICallable bodyf = RequiresNotNull<ICallable>(bodyfunc);
       ICallable outf = RequiresNotNull<ICallable>(outfunc);
 
-#if CPS
-      OptimizedBuiltins.Call(inf);
-
-      try
-      {
-        return OptimizedBuiltins.Call(bodyf);
-      }
-      finally
-      {
-        OptimizedBuiltins.Call(outf);
-      }
-#else
       inf.Call();
 
       try
@@ -107,12 +105,8 @@ namespace IronScheme.Runtime
       {
         outf.Call();
       }
-#endif
     }
 
-#if CPS
-
-#else
     internal class Continuation : Exception
     {
       object value;
@@ -249,45 +243,6 @@ namespace IronScheme.Runtime
       return Closure.Make(null, id);
     }
 
-    //[Builtin]
-    //public static object Apply(object k, object fn, params object[] args)
-    //{
-    //  if (args == null)
-    //  {
-    //    return Apply(k, fn, (object)null);
-    //  }
-    //  object[] head = ArrayUtils.RemoveLast(args);
-    //  object last = args.Length > 0 ? args[args.Length - 1] : null;
-
-    //  if (last != null && !(last is Cons))
-    //  {
-    //    AssertionViolation("apply", "not a list", last);
-    //  }
-
-    //  return Apply(k, fn, Append(List(head), last));
-    //}
-
-
-    //[Builtin]
-    //public static object Apply(object k, object fn, object list)
-    //{
-    //  Cons args = Requires<Runtime.Cons>(list);
-    //  ICallable c = RequiresNotNull<ICallable>(fn);
-
-    //  if (args == null)
-    //  {
-    //    return OptimizedBuiltins.CallWithK(c, k as ICallable);
-    //  }
-    //  List<object> targs = new List<object>();
-      
-    //  while (args != null)
-    //  {
-    //    targs.Add(args.car);
-    //    args = args.cdr as Cons;
-    //  }
-
-    //  return OptimizedBuiltins.CallWithK(c, k as ICallable, targs.ToArray());
-    //}
 #else
     [Builtin]
     public static object Apply(object fn, params object[] args)

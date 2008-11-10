@@ -28,7 +28,7 @@ namespace IronScheme.Hosting
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
-#if !DEBUG
+#if !DEBUG || CPS
       ScriptDomainManager.Options.DebugMode = false;
       ScriptDomainManager.Options.EngineDebug = false;
       ScriptDomainManager.Options.DebugCodeGeneration = false;
@@ -36,7 +36,7 @@ namespace IronScheme.Hosting
 
 #endif
       ScriptDomainManager.Options.AssemblyGenAttributes =
-#if DEBUG
+#if DEBUG && !CPS
  Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
 #endif
@@ -126,7 +126,11 @@ namespace IronScheme.Hosting
           {
             try
             {
+#if CPS
+              Engine.Execute(string.Format("(load identity-for-cps \"{0}\")", filename.Replace('\\', '/')));
+#else
               Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
+#endif
               ev = 0;
             }
             catch (ThreadAbortException)

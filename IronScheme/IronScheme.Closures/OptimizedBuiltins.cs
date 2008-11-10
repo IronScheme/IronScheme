@@ -41,7 +41,7 @@ namespace IronScheme.Runtime
 #if CPS
     internal static object Call(ICallable c, params object[] args)
     {
-      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues)
+      if (c is BuiltinMethod && c != Closure.CPSPrim)
       {
         return c.Call(args);
       }
@@ -56,7 +56,7 @@ namespace IronScheme.Runtime
 
     internal static object CallWithK(ICallable c, ICallable K, params object[] args)
     {
-      if (c is BuiltinMethod && c != Closure.CWCC && c != Closure.CallWithValues)
+      if (c is BuiltinMethod && c != Closure.CPSPrim)
       {
         return K.Call(c.Call(args));
       }
@@ -93,6 +93,17 @@ namespace IronScheme.Runtime
       };
     }
 
+    internal static CallTargetN MakeCPS(CallTargetN prim)
+    {
+      return delegate(object[] args)
+      {
+        ICallable k = args[0] as ICallable;
+        List<object> nargs = new List<object>(args);
+        nargs.RemoveAt(0);
+        return ((ICallable)k).Call(prim(nargs.ToArray()));
+      };
+    }
+
     public static object MakeCPSCallable(object prim)
     {
       CallTarget2 cps = delegate(object k, object args)
@@ -103,24 +114,149 @@ namespace IronScheme.Runtime
       return Closure.MakeVarArgX(null, cps, 2);
     }
 
+    class Winder
+    {
+      public ICallable In;
+      public ICallable Out;
+    }
+
+    static Stack<Winder> windstack = new Stack<Winder>();
+
+    public static object DynamicWind(object k, object infunc, object bodyfunc, object outfunc)
+    {
+      ICallable inf = (ICallable)(infunc);
+      ICallable bodyf = (ICallable)(bodyfunc);
+      ICallable outf = (ICallable)(outfunc);
+      ICallable K = (ICallable)(k);
+
+      CallTarget1 k1 = delegate(object V)
+      {
+        windstack.Pop();
+
+        CallTarget1 k0 = delegate(object IGNORE)
+        {
+          object[] args = Closure.ArrayFromCons(V);
+          return K.Call(args);
+        };
+
+        return CallWithK(outf, Closure.MakeVarArgX(null, k0, 1));
+      };
+
+      CallTarget1 k2 = delegate(object IGNORE)
+      {
+        windstack.Push(new Winder { In = inf, Out = outf });
+        return CallWithK(bodyf, Closure.MakeVarArgX(null, k1, 1));
+      };
+
+      return CallWithK(inf, Closure.MakeVarArgX(null, k2, 1));
+
+    }
+
+    static T Top<T>(Stack<T> s)
+    {
+      if (s.Count == 0)
+      {
+        return default(T);
+      }
+      else
+      {
+        return s.Peek();
+      }
+    }
+
+    static void GetWinders(Stack<Winder> now, Stack<Winder> saved, out List<Winder> rewind, out List<Winder> unwind)
+    {
+      List<Winder> nowl = new List<Winder>(now);
+      List<Winder> savedl = new List<Winder>(saved);
+
+      nowl.Reverse();
+      savedl.Reverse();
+
+      int i = 0;
+
+      for (; i < nowl.Count && i < savedl.Count; i++)
+      {
+        if (nowl[i] != savedl[i])
+        {
+          break;
+        }
+      }
+
+      unwind = nowl.GetRange(i, nowl.Count - i);
+      rewind = savedl.GetRange(i, savedl.Count - i);
+
+      rewind.Reverse();
+    }
+
     //[Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object k, object fc1)
     {
       ICallable fc = (ICallable)(fc1);
       ICallable e = (ICallable)(k);
 
-      CallTarget2 esc = delegate(object ignore, object arg)
+      List<Winder> err = new List<Winder>(windstack);
+      err.Reverse();
+      Stack<Winder> winders = new Stack<Winder>(err);
+
+      CallTarget2 esc = delegate(object ignore, object values)
       {
-        return e.Call(arg);
+        object[] args = Closure.ArrayFromCons(values);
+        List<Winder> unwind, rewind;
+
+        GetWinders(windstack, winders, out rewind, out unwind);
+
+        ICallable FK = null;
+
+        CallTarget1 fk = delegate(object IGNORE)
+        {
+          return e.Call(args);
+        };
+
+        FK = Closure.Make(null, fk);
+
+        foreach (Winder w in rewind)
+        {
+          ICallable IFK = FK;
+          Winder tw = w;
+
+          CallTarget1 tempk = delegate(object IGNORE)
+          {
+            windstack.Push(tw);
+            return IFK.Call("IGNORE");
+          };
+
+          CallTarget1 rk = delegate(object IGNORE)
+          {
+            return CallWithK(tw.In, Closure.Make(null, tempk));
+          };
+
+          FK = Closure.Make(null, rk);
+        }
+
+        foreach (Winder w in unwind)
+        {
+          ICallable IFK = FK;
+          Winder tw = w;
+
+          CallTarget1 uk = delegate(object IGNORE)
+          {
+            windstack.Pop();
+            return CallWithK(tw.Out, IFK);
+          };
+
+          FK = Closure.Make(null, uk);
+        }
+
+        return FK.Call("IGNORE");
       };
 
-      if (fc is BuiltinMethod && fc != Closure.CWCC && fc != Closure.CallWithValues)
+      if (fc is BuiltinMethod)
       {
-        return e.Call(fc.Call(Closure.Make(null, esc)));
+        return e.Call(fc.Call(Closure.MakeVarArgX(null, esc, 2)));
       }
       else
       {
-        return fc.Call(e, Closure.Make(null, esc));
+        return fc.Call(e, Closure.MakeVarArgX(null, esc, 2));
       }
     }
 
@@ -148,6 +284,7 @@ namespace IronScheme.Runtime
     {
       ICallable K = (ICallable)k;
       object[] args = Closure.ArrayFromCons(list);
+
       if (args.Length == 1)
       {
         return K.Call(args[0]);
@@ -156,6 +293,7 @@ namespace IronScheme.Runtime
       {
         return K.Call(new MultipleValues(args));
       }
+      //return K.Call(args);
     }
 
     //[Builtin("call-with-values")]
@@ -167,6 +305,7 @@ namespace IronScheme.Runtime
 
       CallTarget1 ct = delegate(object arg)
       {
+        //object[] args = Closure.ArrayFromCons(list);
         if (arg is MultipleValues)
         {
           return CallWithK(con, K, ((MultipleValues)arg).ToArray());

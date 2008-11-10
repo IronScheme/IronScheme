@@ -23,9 +23,8 @@ asin
 assertion-violation [2]
 atan
 boolean?
-call-with-current-continuation [1]
+call-with-current-continuation/call/cc [1]
 call-with-values [1]
-call/cc [1]
 car
 cdr
 ceiling

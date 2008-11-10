@@ -59,16 +59,8 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" Condition=" $(SilverlightBuild) != 'true' " />
+    <Reference Include="System" />
     <Reference Include="System.configuration" Condition=" $(SilverlightBuild) != 'true' " />
-    <Reference Include="mscorlib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Condition=" '$(SilverlightBuild)' == 'true' ">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SilverlightSdkPath)\mscorlib.dll</HintPath>
-    </Reference>
-    <Reference Include="System, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Condition=" '$(SilverlightBuild)' == 'true' ">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SilverlightSdkPath)\System.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Hosts\Silverlight\SilverlightVersion.cs" Condition=" '$(SilverlightBuild)' == 'true' ">

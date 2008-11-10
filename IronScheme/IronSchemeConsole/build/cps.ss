@@ -535,6 +535,7 @@
     library-letrec*-identity 
     letrec*-identity 
     cps-prim
+    dynamic-wind
     values 
     apply 
     call-with-values 
@@ -581,7 +582,7 @@
 (define bootfile "ironscheme.boot.pp")
 (define bootfile-cps "ironscheme.boot-cps.pp")
 
-(define (expand-boot-cps pretty-print)
+(define (expand-boot-cps write)
   (define (read-file port)
     (let f ((e (read port))(a '()))
       (if (eof-object? e)
@@ -596,7 +597,7 @@
         (lambda (out)      
           (for-each 
             (lambda (e)
-              (pretty-print e out))
+              (write e out))
             (read-file in)))))))
   
 
