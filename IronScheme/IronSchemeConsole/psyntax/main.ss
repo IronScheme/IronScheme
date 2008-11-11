@@ -30,6 +30,7 @@
     compile->closure)
   (import 
     (rnrs base)
+    (rnrs exceptions)
     (rnrs control)
     (rnrs io simple)
     (rnrs lists)
@@ -64,7 +65,16 @@
     (load "ironscheme-buildscript.ss")) 
     
   (define (eval-top-level x)
-    (eval x (interaction-environment)))    
+    (call/cc
+      (lambda (k)
+        (with-exception-handler
+          (lambda (e)
+            (display "Unhandled exception:\n")
+            (display e)
+            (newline)
+            (k))
+          (lambda ()
+            (eval x (interaction-environment)))))))    
     
   (define (compile-system-libraries)
     (eval-top-level 

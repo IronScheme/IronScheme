@@ -168,7 +168,14 @@ namespace IronScheme.Runtime.R6RS
         ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
 
+#if CPS
+        throw R6RS.Conditions.Condition(
+          OptimizedBuiltins.Call(e), 
+          OptimizedBuiltins.Call(w, "raise"), 
+          OptimizedBuiltins.Call(m, "handler returned"));
+#else
         throw R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"));
+#endif
       }
     }
 

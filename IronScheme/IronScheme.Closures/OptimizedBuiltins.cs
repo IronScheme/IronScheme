@@ -104,20 +104,41 @@ namespace IronScheme.Runtime
       };
     }
 
+    static Dictionary<ICallable, ICallable> cps_cache = new Dictionary<ICallable, ICallable>();
+
     public static object MakeCPSCallable(object prim)
     {
-      CallTarget2 cps = delegate(object k, object args)
+      ICallable p = prim as ICallable;
+      ICallable cpsc;
+      if (cps_cache.TryGetValue(p, out cpsc))
       {
-        object[] aargs = Closure.ArrayFromCons(args);
-        return CallWithK(prim as ICallable, k as ICallable, aargs);
-      };
-      return Closure.MakeVarArgX(null, cps, 2);
+        return cpsc;
+      }
+      else
+      {
+        CallTarget2 cps = delegate(object k, object args)
+        {
+          object[] aargs = Closure.ArrayFromCons(args);
+          return CallWithK(p, k as ICallable, aargs);
+        };
+        return cps_cache[p] = Closure.MakeVarArgX(null, cps, 2);
+      }
+    }
+
+    public static object DefaultExceptionHandler(object k, object ex)
+    {
+      throw ex as Exception;
     }
 
     class Winder
     {
       public ICallable In;
       public ICallable Out;
+
+      public override string ToString()
+      {
+        return string.Format("In: {0} Out: {1}", In, Out);
+      }
     }
 
     static Stack<Winder> windstack = new Stack<Winder>();
@@ -150,18 +171,6 @@ namespace IronScheme.Runtime
 
       return CallWithK(inf, Closure.MakeVarArgX(null, k2, 1));
 
-    }
-
-    static T Top<T>(Stack<T> s)
-    {
-      if (s.Count == 0)
-      {
-        return default(T);
-      }
-      else
-      {
-        return s.Peek();
-      }
     }
 
     static void GetWinders(Stack<Winder> now, Stack<Winder> saved, out List<Winder> rewind, out List<Winder> unwind)
