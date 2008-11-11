@@ -148,7 +148,14 @@ namespace IronScheme.Hosting
               e.Set();
             }
             //good for now
-          }, 5000000);
+
+          }, 
+#if CPS //to compile...
+          10000000
+#else
+          5000000
+#endif
+          );
 
         t.Start();
 

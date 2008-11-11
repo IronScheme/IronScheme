@@ -746,7 +746,11 @@ namespace IronScheme.Runtime
       if (R6RS.Records.printers.TryGetValue(obj.GetType().FullName, out printer))
       {
         StringWriter p = new StringWriter();
+#if CPS
+        OptimizedBuiltins.Call(printer, obj, p, TRUE);
+#else
         printer.Call(obj, p, TRUE);
+#endif
         return p.GetBuffer();
       }
 

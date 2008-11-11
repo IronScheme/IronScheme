@@ -87,7 +87,7 @@ namespace IronScheme.Runtime.R6RS
         try
         {
 #if CPS
-          return OptimizedBuiltins.Call(h, ex);
+          return ex;
 #else
           return h.Call(ex);
 #endif
