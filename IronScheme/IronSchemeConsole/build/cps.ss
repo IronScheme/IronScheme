@@ -580,25 +580,28 @@
   (fix-primitives (parse->cps e)))
   
 (define bootfile "ironscheme.boot.pp")
-(define bootfile-cps "ironscheme.boot-cps.pp")
+(define bootfile-cps "ironscheme.boot.cps")
 
-(define (expand-boot-cps write)
-  (define (read-file port)
-    (let f ((e (read port))(a '()))
-      (if (eof-object? e)
-        (reverse a)
-        (let ((r (convert->cps e)))
-          (f (read port) (cons r a))))))
-  (when (file-exists? bootfile-cps)
-    (delete-file bootfile-cps))
-  (call-with-input-file bootfile    
-    (lambda (in)
-      (call-with-output-file bootfile-cps
-        (lambda (out)      
-          (for-each 
-            (lambda (e)
-              (write e out))
-            (read-file in)))))))
+(define expand-boot-cps
+  (case-lambda
+    [()       (expand-boot-cps write)]
+    [(write)
+      (define (read-file port)
+        (let f ((e (read port))(a '()))
+          (if (eof-object? e)
+            (reverse a)
+            (let ((r (convert->cps e)))
+              (f (read port) (cons r a))))))
+      (when (file-exists? bootfile-cps)
+        (delete-file bootfile-cps))
+      (call-with-input-file bootfile    
+        (lambda (in)
+          (call-with-output-file bootfile-cps
+            (lambda (out)      
+              (for-each 
+                (lambda (e)
+                  (write e out))
+                (read-file in))))))]))
   
 
 )
