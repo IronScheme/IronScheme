@@ -18,13 +18,13 @@ abs
 acos
 angle
 append
-apply [1]
+apply [1][5]
 asin
-assertion-violation [2]
+assertion-violation [2][4]
 atan
 boolean?
-call-with-current-continuation/call/cc [1]
-call-with-values [1]
+call-with-current-continuation/call/cc [1][5]
+call-with-values [1][5]
 car
 cdr
 ceiling
@@ -38,11 +38,11 @@ div
 div-and-mod
 div0
 div0-and-mod0
-dynamic-wind [1]
+dynamic-wind [1][5]
 eq?
 equal?
 eqv?
-error [2]
+error [2][4]
 exact
 exact-integer-sqrt
 exact?
@@ -93,7 +93,6 @@ string->number
 string->symbol
 string-append
 string-copy
-string-for-each [1]
 string-length
 string-ref
 string?
@@ -106,9 +105,7 @@ values
 vector
 vector->list
 vector-fill!
-vector-for-each [1]
 vector-length
-vector-map [1]
 vector-ref
 vector-set!
 vector?
@@ -226,9 +223,9 @@ string-upcase
 
 (rnrs exceptions):
 
-raise
-raise-continuable
-with-exception-handler [1]
+raise [4]
+raise-continuable [4]
+with-exception-handler [1] [4]
 
 (rnrs arithmetic bitwise):
 
@@ -455,3 +452,5 @@ Notes:
 [1] accepts a procedure as an argument, meant to be called
 [2] calls a scheme procedure internally
 [3] returns a scheme procedure
+[4] implemented in Scheme in CPS mode
+[5] special CPS primitive

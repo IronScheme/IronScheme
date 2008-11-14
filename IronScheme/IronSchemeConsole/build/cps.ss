@@ -535,6 +535,7 @@
     library-letrec*-identity 
     letrec*-identity 
     cps-prim
+    eval-core
     dynamic-wind
     values 
     apply 
@@ -543,10 +544,13 @@
   
 (define (primitive? o)  
   (if (and (symbol? o) (not (memq o special)))
-    (let ((b (symbol-value? o)))
+    (let ((b (and (symbol-bound? o) (symbol-value o))))
       (or (clr-is ironscheme.runtime.builtinmethod b)
-          (starts-with? (symbol->string o) "clr-")))
+          (clr-generator? o)))
     #f))
+
+(define (clr-generator? o)
+  (and (symbol? o) (starts-with? (symbol->string o) "clr-")))       
 
 (define (fix-primitives e)
   (if (and (pair? e)(list? e))
@@ -563,21 +567,23 @@
                    `(library-letrec* ,name 
                       ,(map list lhs* lhs** (map fix-primitives rhs*))
                       . ,(map fix-primitives body*)))))]
-          [(and (primitive? o))
+          [(and (clr-generator? o))
             (if (pair? (cdr e))
               (list (fix-primitives (cadr e)) (cons o (map fix-primitives (cddr e))))
               e)]
+          [(and (eq? o 'void) (null? (cdr e))) 
+            e]
           [else
             (cons (fix-primitives o) (map fix-primitives (cdr e)))])))
     (if (primitive? e)
       `(cps-prim ,e)
       e)))
       
-(define (parse->cps e)      
-  ((parse e) (variable-continuator 'identity-for-cps)))
+(define (parse->cps e var)      
+  ((parse e) (variable-continuator var)))
   
-(define (convert->cps e)
-  (fix-primitives (parse->cps e)))
+(define (convert->cps e var)
+  (fix-primitives (parse->cps e var)))
   
 (define bootfile "ironscheme.boot.pp")
 (define bootfile-cps "ironscheme.boot.cps")
@@ -590,7 +596,7 @@
         (let f ((e (read port))(a '()))
           (if (eof-object? e)
             (reverse a)
-            (let ((r (convert->cps e)))
+            (let ((r (convert->cps e 'identity-for-cps)))
               (f (read port) (cons r a))))))
       (when (file-exists? bootfile-cps)
         (delete-file bootfile-cps))

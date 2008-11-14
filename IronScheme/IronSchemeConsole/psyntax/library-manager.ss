@@ -22,7 +22,7 @@
   (export imported-label->binding library-subst installed-libraries
     visit-library library-name library-version library-exists?
     find-library-by-name install-library library-spec invoke-library 
-    current-library-expander
+    current-library-expander uninstall-library
     current-library-collection library-path library-extensions
     serialize-all current-precompiled-library-loader)
   (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format))
@@ -35,7 +35,11 @@
           (else (cons x ls))))
       (case-lambda
         (() set)
-        ((x) (set! set (set-cons x set))))))
+        ((x) (set! set (set-cons x set)))
+        ((x del?)
+         (if del?
+             (set! set (remq x set))
+             (set! set (set-cons x set)))))))
 
   (define current-library-collection
     ;;; this works now because make-collection is a lambda
@@ -258,6 +262,21 @@
           (lambda (x) (equal? (library-name x) name)))
         (find-external-library name)))
 
+  (define uninstall-library
+    (case-lambda
+      [(name err?)
+       (define who 'uninstall-library)
+       ;;; FIXME: check that no other import is in progress
+       ;;; FIXME: need to unintern labels and locations of
+       ;;;        library bindings
+       (let ([lib 
+              (find-library-by
+                (lambda (x) (equal? (library-name x) name)))])
+         (when (and err? (not lib))
+           (assertion-violation who "library not installed" name))
+         ((current-library-collection) lib #t))]
+      [(name) (uninstall-library name #t)]))
+
   (define (library-exists? name)
     (and (find-library-by
            (lambda (x) (equal? (library-name x) name)))
@@ -270,7 +289,6 @@
           (assertion-violation #f 
             "cannot find library with required spec" spec))))
 
-  (define label->binding-table (make-eq-hashtable))
 
   (define (install-library-record lib)
     (let ((exp-env (library-env lib)))
@@ -286,7 +304,7 @@
                      ((global-macro!)
                       (cons 'global-macro! (cons lib (cdr binding))))
                      (else binding))))
-              (hashtable-set! label->binding-table label binding))))
+              (set-label-binding! label binding))))
         exp-env))
     ((current-library-collection) lib))
 
@@ -310,7 +328,7 @@
            (install-library-record lib))))))
 
   (define (imported-label->binding lab)
-    (hashtable-ref label->binding-table lab #f))
+    (label-binding lab))
 
   (define (invoke-library lib)
     (let ((invoke (library-invoke-state lib)))
@@ -348,7 +366,7 @@
          (cond
            ((null? ls) '())
            ((or all? (library-visible? (car ls)))
-            (cons (car ls) (f (cdr ls))))
+            (cons (library-name (car ls)) (f (cdr ls))))
            (else (f (cdr ls))))))
       (() (installed-libraries #f))))
 

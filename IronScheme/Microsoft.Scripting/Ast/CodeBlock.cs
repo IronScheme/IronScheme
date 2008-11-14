@@ -548,7 +548,8 @@ namespace Microsoft.Scripting.Ast {
 
                 i++;
 
-                if (i < diff)
+                
+                if (i < diff && parent.HasEnvironment)
                 {
                   scope.EmitGet(cg);
                   cg.EmitPropertyGet(typeof(Scope), "Parent");

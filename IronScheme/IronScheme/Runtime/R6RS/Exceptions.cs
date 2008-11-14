@@ -26,6 +26,7 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Exceptions : Builtins
   {
+#if !CPS
     static Stack<ICallable> handlerstack = new Stack<ICallable>();
     static ICallable defaulthandler;
 
@@ -54,13 +55,9 @@ namespace IronScheme.Runtime.R6RS
 
       try
       {
-#if CPS
-        return OptimizedBuiltins.Call(t);
-#else
         return t.Call();
-#endif
       }
-#if !CPS
+
       catch (Continuation cc)
       {
         if (contstack.Count > 0)
@@ -77,7 +74,7 @@ namespace IronScheme.Runtime.R6RS
         }
         throw;
       }
-#endif
+
       catch (Condition)
       {
         throw;
@@ -86,13 +83,8 @@ namespace IronScheme.Runtime.R6RS
       {
         try
         {
-#if CPS
-          return ex;
-#else
           return h.Call(ex);
-#endif
         }
-#if !CPS
         catch (Continuation ccc)
         {
           if (contstack.Count > 0)
@@ -109,7 +101,6 @@ namespace IronScheme.Runtime.R6RS
           }
           throw;
         }
-#endif
         finally { }
       }      
       finally
@@ -139,11 +130,7 @@ namespace IronScheme.Runtime.R6RS
         try
         {
           handlerstack.Pop();
-#if CPS
-          OptimizedBuiltins.Call(ch, obj);
-#else
           ch.Call(obj);
-#endif
         }
         finally
         {
@@ -168,14 +155,7 @@ namespace IronScheme.Runtime.R6RS
         ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
 
-#if CPS
-        throw R6RS.Conditions.Condition(
-          OptimizedBuiltins.Call(e), 
-          OptimizedBuiltins.Call(w, "raise"), 
-          OptimizedBuiltins.Call(m, "handler returned"));
-#else
         throw R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"));
-#endif
       }
     }
 
@@ -201,11 +181,7 @@ namespace IronScheme.Runtime.R6RS
         try
         {
           handlerstack.Pop();
-#if CPS
-          return OptimizedBuiltins.Call(ch, obj);
-#else
           return ch.Call(obj);
-#endif
         }
         finally
         {
@@ -221,6 +197,10 @@ namespace IronScheme.Runtime.R6RS
       Exception ex = RequiresNotNull<Exception>(obj);
       throw ex;
     }
+
+#endif
   }
+
+
 }
 

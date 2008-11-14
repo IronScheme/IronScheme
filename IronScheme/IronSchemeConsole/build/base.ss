@@ -269,7 +269,13 @@
       odd?
       gcd
       lcm
+      vector-map
+      vector-for-each
+      string-for-each
      ))
+     
+     
+
      
     (define (caar   x) (car (car x)))
     (define (cadr   x) (car (cdr x)))
@@ -387,24 +393,25 @@
         [else
           (fold-left lcm (abs (car nums)) (cdr nums))]))           
     
-    (define-syntax make-string-compare
+    (define-syntax define-string-compare
       (syntax-rules ()
-        [(_ cmp k)
-          (lambda (a b . rest)
-            (unless (string? a) (assertion-violation 'k "not a string" a))
-            (for-all
-              (lambda (x)
-                (unless (string? x) (assertion-violation 'k "not a string" x))  
-                (let ((r (cmp (string-compare a x) 0)))
-                  (set! a x)
-                  r))
-              (cons b rest)))]))
+        [(_ name cmp)
+          (define name
+            (lambda (a b . rest)
+              (unless (string? a) (assertion-violation 'name "not a string" a))
+              (for-all
+                (lambda (x)
+                  (unless (string? x) (assertion-violation 'name "not a string" x))  
+                  (let ((r (cmp (string-compare a x) 0)))
+                    (set! a x)
+                    r))
+                (cons b rest))))]))
 
-    (define string=? (make-string-compare = string=?))
-    (define string<? (make-string-compare < string<?))
-    (define string>? (make-string-compare > string>?))
-    (define string<=? (make-string-compare <= string<=?))
-    (define string>=? (make-string-compare >= string>=?))
+    (define-string-compare string=? fx=?)
+    (define-string-compare string<? fx<?)
+    (define-string-compare string>? fx>?)
+    (define-string-compare string<=? fx<=?)
+    (define-string-compare string>=? fx>=?)
 
     (define (symbol=? a b . rest)
       (unless (symbol? a) (assertion-violation 'symbol=? "not a symbol" a))
@@ -422,24 +429,25 @@
           (eq? a x)) 
         (cons b rest)))
         
-    (define-syntax char-compare
+    (define-syntax define-char-compare
       (syntax-rules ()
-        [(_ cmp k)
-          (lambda (a b . rest)
-            (unless (char? a) (assertion-violation 'k "not a char" a))
-            (for-all
-              (lambda (x)
-                (unless (char? x) (assertion-violation 'k "not a char" x))  
-                (let ((r (cmp (char->integer a) (char->integer x))))
-                  (set! a x)
-                  r))
-              (cons b rest)))]))        
+        [(_ name cmp)
+          (define name
+            (lambda (a b . rest)
+              (unless (char? a) (assertion-violation 'name "not a char" a))
+              (for-all
+                (lambda (x)
+                  (unless (char? x) (assertion-violation 'name "not a char" x))  
+                  (let ((r (cmp (char->integer a) (char->integer x))))
+                    (set! a x)
+                    r))
+                (cons b rest))))]))        
     
-    (define char=? (char-compare = char=?))
-    (define char<? (char-compare < char<?))
-    (define char>? (char-compare > char>?))
-    (define char<=? (char-compare <= char<=?))
-    (define char>=? (char-compare >= char>=?))
+    (define-char-compare char=? fx=?)
+    (define-char-compare char<? fx<?)
+    (define-char-compare char>? fx>?)
+    (define-char-compare char<=? fx<=?)
+    (define-char-compare char>=? fx>=?)
     
     ;; from SLIB
     (define (rationalize x e) 
@@ -469,5 +477,43 @@
         ((negative? y) (let ((rat (sr (- y) (- x))))
 		                     (list (- (car rat)) (cadr rat))))
         (else '(0 1))))
+        
+    (define (vector-map p vec1 . vecs)
+      (let* ((len (vector-length vec1))
+             (res (make-vector len)))
+        (do ((i 0 (fx+ i 1)))
+            ((fx=? i len) res)
+          (vector-set! res i            
+            (call-with-values 
+              (lambda ()
+                (apply values
+                  (map (lambda (x) 
+                         (vector-ref x i)) 
+                       (cons vec1 vecs))))
+              p)))))
+          
+    (define (vector-for-each p vec1 . vecs)
+      (let ((len (vector-length vec1)))
+        (do ((i 0 (fx+ i 1)))
+            ((fx=? i len))
+          (call-with-values 
+            (lambda ()
+              (apply values
+                (map (lambda (x) 
+                       (vector-ref x i)) 
+                     (cons vec1 vecs))))
+            p))))
+            
+    (define (string-for-each p str1 . strs)
+      (let ((len (string-length str1)))
+        (do ((i 0 (fx+ i 1)))
+            ((fx=? i len))
+          (call-with-values 
+            (lambda ()
+              (apply values
+                (map (lambda (x) 
+                       (string-ref x i)) 
+                     (cons str1 strs))))
+            p))))                  
 
 )

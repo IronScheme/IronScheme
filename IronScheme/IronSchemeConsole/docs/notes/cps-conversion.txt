@@ -29,3 +29,21 @@ Verified:
 - call/cc
 - call-with-values
 - values
+
+
+
+
+Problems:
+
+(let ((a 1)(b 2))
+  (display a)
+  (display b)
+  (display a)
+  (display b)
+  (display a)
+  (display b)
+  (display a)
+  (display b)
+  (display a)
+  (display b))
+  

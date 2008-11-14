@@ -215,7 +215,7 @@ namespace IronScheme.Runtime.R6RS
             {
               if (t.type.IsInstanceOfType(e))
               {
-                return kk.Call(c.Call(e));
+                return OptimizedBuiltins.CallWithK(c, kk, e);
               }
             }
             return kk.Call(FALSE);
@@ -225,7 +225,7 @@ namespace IronScheme.Runtime.R6RS
         {
           if (t.type.IsInstanceOfType(cond))
           {
-            return kk.Call(c.Call(cond));
+            return OptimizedBuiltins.CallWithK(c, kk, cond);
           }
           else
           {

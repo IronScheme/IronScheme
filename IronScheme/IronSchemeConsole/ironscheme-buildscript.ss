@@ -31,6 +31,7 @@
   (psyntax library-manager)
   (psyntax expander)
   (only (ironscheme) time-it optimization-level)
+  ;(ironscheme cps)
   )
   
 (optimization-level 'unchecked)  ; this does not affect the expanded file
@@ -260,6 +261,8 @@
     (export                                     i)
     (library                                    i) 
     (include                                    i)
+    (uninstall-library                          i)
+    (installed-libraries                        i)
     (convert->cps                               i)
     (expand-boot-cps                            i)
     (expand                                     i)
@@ -1060,7 +1063,7 @@
     (void                                       $boot i)
     (gensym                                     $boot i)
     (ungensym                                   i)
-    (symbol-value?                              i)
+    (symbol-bound?                              i)
     (symbol-value                               $boot i)
     (set-symbol-value!                          $boot i)
     (eval-core                                  $boot)
@@ -1422,7 +1425,8 @@
                   (compile-core-expr-to-port x p)
                   (newline p))
                 core*)))
-          (close-output-port p)))))
+          (close-output-port p))
+        #;(time-it "cps conversion" expand-boot-cps))))
 
 (display "IronScheme build completed.\n")
 

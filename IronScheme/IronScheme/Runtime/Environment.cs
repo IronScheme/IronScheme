@@ -69,9 +69,12 @@ namespace IronScheme.Runtime
       if (IsR6RSLoaded())
       {
         ICallable u = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-decoding-rcd"))) as ICallable;
-        
+#if CPS
+        throw R6RS.Conditions.Condition(OptimizedBuiltins.Call(u,FALSE));
+#else
         return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(u.Call(FALSE)));
+#endif
       }
       else
       {
@@ -85,8 +88,12 @@ namespace IronScheme.Runtime
       {
         ICallable u = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&i/o-encoding-rcd"))) as ICallable;
 
+#if CPS
+        throw R6RS.Conditions.Condition(OptimizedBuiltins.Call(u, FALSE, FALSE));
+#else
         return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(u.Call(FALSE, FALSE)));
+#endif
       }
       else
       {
@@ -104,8 +111,18 @@ namespace IronScheme.Runtime
 
         sym = UnGenSym(RequiresNotNull<SymbolId>(sym));
 
+#if CPS
+        throw
+          R6RS.Conditions.Condition(
+            OptimizedBuiltins.Call(u), 
+            OptimizedBuiltins.Call(m, "attempted to use undefined symbol"), 
+            OptimizedBuiltins.Call(i, List(sym)));
+
+#else
+
         return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(u.Call(), m.Call("attempted to use undefined symbol"), i.Call(List(sym))));
+#endif
       }
       else
       {
@@ -121,8 +138,14 @@ namespace IronScheme.Runtime
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
         ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
+#if CPS
+        throw R6RS.Conditions.Condition(OptimizedBuiltins.Call(l), 
+          OptimizedBuiltins.Call(m,msg), 
+          OptimizedBuiltins.Call(i, List(what)));
+#else
         return R6RS.Exceptions.RaiseContinueable(
           R6RS.Conditions.Condition(l.Call(), m.Call(msg), i.Call(List(what))));
+#endif
       }
       else
       {
@@ -144,8 +167,8 @@ namespace IronScheme.Runtime
           who = GetCaller();
         }
 #if CPS
-        return R6RS.Exceptions.RaiseContinueable(
-  R6RS.Conditions.Condition(OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(s, form, subform)));
+        throw
+  R6RS.Conditions.Condition(OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(s, form, subform));
 
 #else
         return R6RS.Exceptions.RaiseContinueable(
@@ -171,8 +194,18 @@ namespace IronScheme.Runtime
         {
           who = GetCaller();
         }
+#if CPS
+        throw
+          R6RS.Conditions.Condition(
+            OptimizedBuiltins.Call(a), 
+            OptimizedBuiltins.Call(w, CleanWho(who)), 
+            OptimizedBuiltins.Call(m, message), 
+            OptimizedBuiltins.Call(i,filename));
+
+#else
         return R6RS.Exceptions.RaiseContinueable(
          R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(filename)));
+#endif
       }
       else
       {
@@ -193,8 +226,21 @@ namespace IronScheme.Runtime
         {
           who = GetCaller();
         }
+#if CPS
+        throw
+           R6RS.Conditions.Condition(
+           OptimizedBuiltins.Call(a),
+           OptimizedBuiltins.Call(w,CleanWho(who)),
+           OptimizedBuiltins.Call(m,message),
+           OptimizedBuiltins.Call(i,port));
+#else
         return R6RS.Exceptions.RaiseContinueable(
-         R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(port)));
+           R6RS.Conditions.Condition(
+           a.Call(), 
+           w.Call(CleanWho(who)), 
+           m.Call(message), 
+           i.Call(port)));
+#endif
       }
       else
       {
@@ -213,8 +259,14 @@ namespace IronScheme.Runtime
         {
           who = GetCaller();
         }
+#if CPS
+        throw R6RS.Conditions.Condition(
+          OptimizedBuiltins.Call(a,filename),
+          OptimizedBuiltins.Call(w,CleanWho(who)));
+#else
         return R6RS.Exceptions.RaiseContinueable(
          R6RS.Conditions.Condition(a.Call(filename), w.Call(CleanWho(who))));
+#endif
       }
       else
       {
@@ -233,8 +285,15 @@ namespace IronScheme.Runtime
         {
           who = GetCaller();
         }
+#if CPS
+        throw
+          R6RS.Conditions.Condition(
+            OptimizedBuiltins.Call(a,filename),
+            OptimizedBuiltins.Call(w, CleanWho(who)));
+#else
         return R6RS.Exceptions.RaiseContinueable(
          R6RS.Conditions.Condition(a.Call(filename), w.Call(CleanWho(who))));
+#endif
       }
       else
       {
@@ -264,23 +323,29 @@ namespace IronScheme.Runtime
     {
       if (IsR6RSLoaded())
       {
+
+#if CPS
         ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
         ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
         ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
 
-#if CPS
         if (IsTrue(who))
         {
-          return R6RS.Exceptions.Raise(
-             R6RS.Conditions.Condition(OptimizedBuiltins.Call(a), OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i,VectorToList(irritants))));
+          throw 
+             R6RS.Conditions.Condition(OptimizedBuiltins.Call(a), OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants)));
         }
         else
         {
-          return R6RS.Exceptions.Raise(
-             R6RS.Conditions.Condition(OptimizedBuiltins.Call(a), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants))));
+          throw 
+             R6RS.Conditions.Condition(OptimizedBuiltins.Call(a), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants)));
         }
 #else
+        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&assertion-rcd"))) as ICallable;
+        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
+        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
+        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+
         if (IsTrue(who))
         {
           return R6RS.Exceptions.RaiseContinueable(
@@ -307,6 +372,25 @@ namespace IronScheme.Runtime
         ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&who-rcd"))) as ICallable;
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&message-rcd"))) as ICallable;
         ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToId("&irritants-rcd"))) as ICallable;
+#if CPS
+        if (IsTrue(who))
+        {
+          throw
+             R6RS.Conditions.Condition(
+             OptimizedBuiltins.Call(a), 
+             OptimizedBuiltins.Call(w,CleanWho(who)), 
+             OptimizedBuiltins.Call(m,message), 
+             OptimizedBuiltins.Call(i, VectorToList(irritants)));
+        }
+        else
+        {
+          throw
+             R6RS.Conditions.Condition(
+             OptimizedBuiltins.Call(a), 
+             OptimizedBuiltins.Call(m,message), 
+             OptimizedBuiltins.Call(i, VectorToList(irritants)));
+        }
+#else
 
         if (IsTrue(who))
         {
@@ -318,7 +402,7 @@ namespace IronScheme.Runtime
           return R6RS.Exceptions.RaiseContinueable(
              R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(VectorToList(irritants))));
         }
-
+#endif
       }
       else
       {
@@ -339,13 +423,13 @@ namespace IronScheme.Runtime
 #if CPS
         if (IsTrue(who))
         {
-          return R6RS.Exceptions.Raise(
-             R6RS.Conditions.Condition(OptimizedBuiltins.Call(e), OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants))));
+          throw 
+             R6RS.Conditions.Condition(OptimizedBuiltins.Call(e), OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants)));
         }
         else
         {
-          return R6RS.Exceptions.Raise(
-             R6RS.Conditions.Condition(OptimizedBuiltins.Call(e), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants))));
+          throw
+             R6RS.Conditions.Condition(OptimizedBuiltins.Call(e), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants)));
         }
 #else
         if (IsTrue(who))

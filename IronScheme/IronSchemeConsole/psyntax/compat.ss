@@ -26,13 +26,14 @@
           annotation-stripped make-record-printer
 		      read-library-source-file
           library-version-mismatch-warning
-          file-locator-resolution-error)
+          file-locator-resolution-error
+          label-binding set-label-binding!)
   (import 
     (rnrs)
     (ironscheme reader)
     (ironscheme records printer)
     (ironscheme serialization)
-    (only (ironscheme) fprintf)
+    (only (ironscheme) fprintf symbol-bound?)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value compile-core))
 
@@ -126,9 +127,9 @@
   (define file-options-constructor (make-parameter #f))
   
   (define (file-options-spec x) ((file-options-constructor) x))
-)
 
-
-
-
+  (define (set-label-binding! label binding)
+    (set-symbol-value! label binding))
+  (define (label-binding label)
+    (and (symbol-bound? label) (symbol-value label))))
 

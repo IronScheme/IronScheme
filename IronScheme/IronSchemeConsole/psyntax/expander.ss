@@ -696,6 +696,7 @@
   (define label->binding
     (lambda (x r)
       (cond
+        ((not x) '(displaced-lexical))
         ((imported-label->binding x) =>
          (lambda (b) 
            (cond
@@ -1355,8 +1356,7 @@
         (define (f* x*)
           (syntax-match x* (else)
             (() 
-             (let ((g (gensym)))
-               (values `(,g (lambda () (raise-continuable ,con))) g)))
+             (values `(raise ,con) #t))
             (((else e e* ...))
              (values `(begin ,e ,@e*) #f))
             ((cls . cls*) 
@@ -1365,11 +1365,8 @@
             (others (stx-error others "invalid guard clause"))))
         (let-values (((code raisek) (f* clause*)))
           (if raisek
-              `((call/cc
-                  (lambda (,raisek)
-                    (,outerk 
-                      (lambda () ,code)))))
-              `(,outerk (lambda () ,code)))))
+             `(,outerk ,code)
+             code)))
       (syntax-match x ()
         ((_ (con clause* ...) b b* ...)
          (id? con)
