@@ -5,9 +5,12 @@
     raise
     else
     =>
+    assertion-violation
+    error
     raise-continuable)
-    
-  (import (except (rnrs) with-exception-handler raise raise-continuable))
+  (import (rnrs))    
+#|  
+  (import (except (rnrs) with-exception-handler raise raise-continuable assertion-violation error))
 
   (define *current-exception-handlers*
     (list 
@@ -44,5 +47,22 @@
       (with-exception-handlers (cdr handlers)
         (lambda ()
           ((car handlers) obj)))))
-  
+          
+  (define (assertion-violation who msg . irritants)
+    (raise
+      (condition
+        (make-assertion-violation)
+        (if who (make-who-condition who) (condition))
+        (make-message-condition msg)
+        (make-irritants-condition irritants))))
+
+  (define (error who msg . irritants)
+    (raise
+      (condition
+        (make-error)
+        (if who (make-who-condition who) (condition))
+        (make-message-condition msg)
+        (make-irritants-condition irritants))))        
+|#  
+
 )

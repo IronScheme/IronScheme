@@ -148,6 +148,8 @@ namespace IronScheme.Compiler
       Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("identity-for-cps")) as BuiltinMethod;
       cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.MakeVarArgX(null, (CallTarget3) OptimizedBuiltins.Apply, 3));
 
+      OptimizedBuiltins.SymbolValue = Builtins.SymbolValue;
+
 #else
       Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
 #endif

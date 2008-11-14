@@ -129,6 +129,8 @@
   
   (set-symbol-value! 'trace-printer trace-printer)
   (set-symbol-value! 'convert->cps convert->cps)
+  (set-symbol-value! 'assertion-violation assertion-violation)
+  (set-symbol-value! 'raise raise)
   
   (file-options-constructor (enum-set-constructor fo))
   

@@ -43,6 +43,7 @@ namespace IronScheme.Runtime
     {
       if (c is BuiltinMethod && c != Closure.CPSPrim)
       {
+        currentcc = Closure.IdentityForCPS;
         return c.Call(args);
       }
       else
@@ -54,11 +55,36 @@ namespace IronScheme.Runtime
       }
     }
 
+    internal static CallTarget1 SymbolValue;
+
     internal static object CallWithK(ICallable c, ICallable K, params object[] args)
     {
       if (c is BuiltinMethod && c != Closure.CPSPrim)
       {
-        return K.Call(c.Call(args));
+        object r = null, except = null;
+        currentcc = K;
+        try
+        {
+          r = c.Call(args);
+        }
+        catch (Exception ex)
+        {
+          except = ex;
+        }
+        finally
+        {
+          currentcc = null;
+        }
+
+        if (except == null)
+        {
+          return K.Call(r);
+        }
+        else
+        {
+          ICallable raise = SymbolValue(SymbolTable.StringToId("raise")) as ICallable; 
+          return CallWithK(raise, K, except);
+        }
       }
       else
       {
@@ -105,6 +131,21 @@ namespace IronScheme.Runtime
     }
 
     static Dictionary<ICallable, ICallable> cps_cache = new Dictionary<ICallable, ICallable>();
+    static Stack<ICallable> current_continuation = new Stack<ICallable>();
+    internal static ICallable currentcc;
+
+    internal static ICallable CurrentContinuation
+    {
+      get
+      {
+        return currentcc;
+        //if (current_continuation.Count == 0)
+        //{
+        //  return null;
+        //}
+        //return current_continuation.Peek();
+      }
+    }
 
     public static object MakeCPSCallable(object prim)
     {
@@ -118,8 +159,39 @@ namespace IronScheme.Runtime
       {
         CallTarget2 cps = delegate(object k, object args)
         {
-          object[] aargs = Closure.ArrayFromCons(args);
-          return CallWithK(p, k as ICallable, aargs);
+          //CallTarget2 cc = delegate(object kk, object ek)
+          //{
+          //  CallTarget1 before = delegate(object ik)
+          //  {
+          //    return ((ICallable)ik).Call(Closure.Unspecified);
+          //  };
+
+          //  CallTarget1 body = delegate(object ik)
+          //  {
+          //    current_continuation.Push(ek as ICallable);
+          //    object[] aargs = Closure.ArrayFromCons(args);
+          //    return CallWithK(p, (ICallable)ik, aargs);
+          //  };
+
+          //  CallTarget1 after = delegate(object ik)
+          //  {
+          //    if (CurrentContinuation != null)
+          //    {
+          //      current_continuation.Pop();
+          //    }
+          //    return ((ICallable)ik).Call(Closure.Unspecified);
+          //  };
+
+          //  return DynamicWind(k,
+          //    Closure.Make(null, before),
+          //    Closure.Make(null, body),
+          //    Closure.Make(null, after));
+            
+          //};
+
+          //return CallWithCurrentContinuation(k, Closure.Make(null, cc));
+          return CallWithK(p, (ICallable)k, Closure.ArrayFromCons(args));
+
         };
         return cps_cache[p] = Closure.MakeVarArgX(null, cps, 2);
       }
@@ -152,6 +224,10 @@ namespace IronScheme.Runtime
 
       CallTarget1 k1 = delegate(object V)
       {
+        if (windstack.Count == 0)
+        {
+          Console.WriteLine();
+        }
         windstack.Pop();
 
         CallTarget1 k0 = delegate(object IGNORE)

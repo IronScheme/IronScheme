@@ -242,7 +242,14 @@ namespace IronScheme.Runtime
       byte[] buffer = new byte[bytes.Length];
       for (int i = 0; i < buffer.Length; i++)
       {
-        buffer[i] = Convert.ToByte(bytes[i]);
+        try
+        {
+          buffer[i] = Convert.ToByte(bytes[i]);
+        }
+        catch (Exception ex)
+        {
+          return LexicalError(ex.Message, bytes[i]);
+        }
       }
 
       return buffer;
@@ -426,10 +433,15 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
     static int evalcounter = 0;
 
-   
+#if CPS
+    [Builtin("compile-core")]
+    public static object CompileCore(object expr, object sk)
+#else
     [Builtin("compile-core")]
     public static object CompileCore(CodeContext cc, object expr)
+#endif
     {
+#if !CPS
       // fast path for really simple stuff
       if (expr is SymbolId)
       {
@@ -439,11 +451,11 @@ A ""contributor"" is any person that distributes its contribution under this lic
         };
         return Closure.Make(null, n);
       }
-
+#endif
 #if CPS
       // this would look a ton sweeter on C# 4.0 :)
       ICallable cps = SymbolValue(SymbolTable.StringToId("convert->cps")) as ICallable;
-      expr = cps.Call(Closure.IdentityForCPS, expr);
+      expr = cps.Call(Closure.IdentityForCPS, expr, sk);
 #endif
 
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
@@ -496,6 +508,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
 #endif
           return sc.Run(cc.ModuleContext.Module);
         }
+#if CPS
+        catch (Exception ex)
+        {
+          ICallable raise = SymbolValue(SymbolTable.StringToId("raise")) as ICallable;
+          ICallable k = SymbolValue(sk) as ICallable;
+          return OptimizedBuiltins.CallWithK(raise, k, ex);
+        }
+#endif
         finally
         {
 #if DEBUG
@@ -510,12 +530,24 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return Closure.Make(cc, compiled);
     }
 
+#if CPS
+    [Builtin("eval-core")]
+    public static object EvalCore(object k, object expr)
+    {
+      object sk = GenSym(SymbolTable.StringToId("eval-core-k"));
+      SetSymbolValue(sk, k);
+      ICallable compiled = CompileCore(expr, sk) as ICallable;
+      return compiled.Call();
+    }
+#else
+
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {
       ICallable compiled = CompileCore(cc, expr) as ICallable;
       return compiled.Call();
     }
+#endif
 
 
     [Builtin("gc-collect")]
@@ -580,22 +612,15 @@ A ""contributor"" is any person that distributes its contribution under this lic
       }
     }
 
-    [Builtin("symbol-value?")]
-    public static object HasSymbolValue(object symbol)
+    [Builtin("symbol-bound?")]
+    public static object IsSymbolBound(object symbol)
     {
       if (ModuleScope == null)
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
-      object value;
-      if (ModuleScope.TryLookupName((SymbolId)symbol, out value))
-      {
-        return value;
-      }
-      else
-      {
-        return FALSE;
-      }
+
+      return GetBool(ModuleScope.ContainsName((SymbolId)symbol));
     }
 
     [Builtin("set-symbol-value!")]

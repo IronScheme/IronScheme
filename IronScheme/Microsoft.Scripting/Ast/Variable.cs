@@ -140,6 +140,7 @@ namespace Microsoft.Scripting.Ast {
                 case VariableKind.Local:
                 case VariableKind.Parameter:
                     _lift = true;
+                    Block.HasEnvironment = true;
                     break;
                 default:
                     throw new InvalidOperationException(String.Format("Cannot lift variable of kind {0} to a closure ('{1}')", _kind, _name));

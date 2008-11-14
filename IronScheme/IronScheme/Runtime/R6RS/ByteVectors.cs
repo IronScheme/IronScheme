@@ -40,7 +40,7 @@ namespace IronScheme.Runtime.R6RS
       return new byte[i];
     }
 
-    static byte GetByteValue(object o)
+    internal static byte GetByteValue(object o)
     {
       int i = ConvertToInteger(o);
 

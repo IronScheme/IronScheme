@@ -239,7 +239,7 @@ namespace Microsoft.Scripting.Ast {
                         );
                     }
 
-                    parent.HasEnvironment = true;
+                    //parent.HasEnvironment = true;
                     current = parent;
                 } while (current != r.Variable.Block);
             }

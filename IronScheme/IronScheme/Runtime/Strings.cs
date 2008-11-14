@@ -176,41 +176,7 @@ namespace IronScheme.Runtime
       return sb.ToString();
     }
 
-    [Builtin("string-for-each")]
-    public static object StringForEach(object proc, params object[] lists)
-    {
-      int listcount = lists.Length;
-      ICallable c = RequiresNotNull<ICallable>(proc);
-
-      if (listcount > 0)
-      {
-        object f = lists[0];
-
-        if (f is string)
-        {
-          int ol = ((string)lists[0]).Length;
-          for (int i = 0; i < ol; i++)
-          {
-            object[] args = new object[listcount];
-
-            for (int j = 0; j < listcount; j++)
-            {
-              args[j] = ((string)lists[j])[i];
-            }
-
-            c.Call(args);
-          }
-        }
-        else
-        {
-          foreach (object o in lists)
-          {
-            c.Call(o);
-          }
-        }
-      }
-      return Unspecified;
-    }
+ 
 
 
     [Builtin("string-format")]
