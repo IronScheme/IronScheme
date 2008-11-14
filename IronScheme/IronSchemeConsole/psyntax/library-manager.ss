@@ -136,7 +136,7 @@
             (cond
               ((null? ls)
                (file-locator-resolution-error x (reverse failed-list)))
-              ((null? exts) 
+              ((null? exts)
                (f (cdr ls) (library-extensions) failed-list))
               (else
                (let ((name (string-append (car ls) str (car exts))))
@@ -303,6 +303,8 @@
                       (cons 'global-macro (cons lib (cdr binding))))
                      ((global-macro!)
                       (cons 'global-macro! (cons lib (cdr binding))))
+                     ((global-ctv)
+                      (cons 'global-ctv (cons lib (cdr binding))))
                      (else binding))))
               (set-label-binding! label binding))))
         exp-env))

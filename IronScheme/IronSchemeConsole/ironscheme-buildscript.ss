@@ -268,6 +268,7 @@
     (expand                                     i)
     (expand->core                               i)
     (include-into                               i)
+    (make-compile-time-value                    i)
     (library-path                               i ic)
     (optimization-level                         i)
     (interaction-environment-symbols            i)
