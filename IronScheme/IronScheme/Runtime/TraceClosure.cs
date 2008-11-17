@@ -49,7 +49,7 @@ namespace IronScheme.Runtime
 
         depth++;
 
-        Cons c = Cons.FromArray(args), u = c;
+        Cons c = Runtime.Cons.FromArray(args), u = c;
 
         if (filter != null)
         {

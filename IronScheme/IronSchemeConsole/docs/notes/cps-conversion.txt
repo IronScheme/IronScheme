@@ -13,22 +13,31 @@ Questions:
 Convert all or handle 'special' ?
 
 Handle special. Each primitive is converted from (proc k .args) => (k (proc . args)).
+No, let all primitives be converted via same mechanism, as in #2. 
+This will allow them to be emitted in a CPS form, and hence no conversion will be needed.
 
 2. How to deal with higher-order procedures?
 
 For Scheme, no issue, for builtins, problems.
 
 Apply a transform on higher order primitives. Each primitive reference is converted from proc => (lambda (k . args) (k (apply proc args)))
+See #1. Deal with this currently with cps-prim conversion routine. This captures the continuation for usage in exception handling.
 
 
 3. Other procedures that need special handling?
 
-- apply
+These are all special CPS primitives.
 
-Verified:
 - call/cc
 - call-with-values
 - values
+- apply
+- dynamic-wind
+
+Note:
+
+values technically does not need the compound MultipleValues class, but is needed for usage with builtins. 
+Once no builtins return multiple values, this can be removed in CPS mode.
 
 
 
@@ -46,4 +55,10 @@ Problems:
   (display b)
   (display a)
   (display b))
+  
+1. Unnecessary closure creation - sorted/fixed/resolved
+2. Possible optimization is to use labels and a custom continuation class. This will require a fair amount of work.
+   Each function with more than 1 expression will need some form of preamble.
+   
+   Another approach is use a letrec*, one benefit is (possibly) hardcoding the known 'labels/continuations'.
   

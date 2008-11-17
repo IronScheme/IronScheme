@@ -32,7 +32,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release\</OutputPath>
     <DocumentationFile>Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
@@ -43,6 +43,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <BaseAddress>1929379840</BaseAddress>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug - CPS|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

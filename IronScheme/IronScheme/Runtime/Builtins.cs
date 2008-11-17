@@ -35,6 +35,13 @@ namespace IronScheme.Runtime
   public sealed class BuiltinAttribute : Attribute
   {
     string name;
+    bool allowcps = true;
+
+    public bool AllowCPS
+    {
+      get { return allowcps; }
+      set { allowcps = value; }
+    }
 
     public string Name
     {
@@ -51,6 +58,8 @@ namespace IronScheme.Runtime
     {
       this.name = name;
     }
+
+    
   }
 
   public partial class Builtins : BaseHelper
@@ -531,7 +540,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     }
 
 #if CPS
-    [Builtin("eval-core")]
+    [Builtin("eval-core", AllowCPS=false)]
     public static object EvalCore(object k, object expr)
     {
       object sk = GenSym(SymbolTable.StringToId("eval-core-k"));
@@ -568,25 +577,25 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return (rest == null) ? a : new Cons(a, ListStarHelper(Car(rest), Cdr(rest)));
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", AllowCPS=false)]
     public static object ListStar(object a, params object[] rest)
     {
       return ListStarHelper(a, List(rest));
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", AllowCPS = false)]
     public static Cons ListStar(object a, object b)
     {
       return new Cons(a, b);
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", AllowCPS = false)]
     public static Cons ListStar(object a, object b, object c)
     {
       return new Cons(a, new Cons(b, c));
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", AllowCPS = false)]
     public static Cons ListStar(object a, object b, object c, object d)
     {
       return new Cons(a, new Cons(b, new Cons(c , d)));

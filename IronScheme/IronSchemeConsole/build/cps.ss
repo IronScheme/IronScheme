@@ -70,10 +70,9 @@
 
 (library (ironscheme cps)
   (export 
-    expand-boot-cps
     convert->cps)
   (import 
-    (except (ironscheme) expand-boot-cps convert->cps)
+    (except (ironscheme) convert->cps)
     (ironscheme clr))
 
 (define (cps/generate-reference variable)
@@ -181,18 +180,8 @@
         (lambda (operand) 
           (make-assignment location 
                            operand 
-                           (continue-with-operand continuator '(void))))))))    
+                           (continue-with-operand continuator '(cps-void))))))))    
                            
-(define (cps/generate-primitive operator operand-generators) 
-  (lambda (continuator) 
-    (continue-with-operand continuator 
-      (cons operator 
-            (map
-              (lambda (generator)
-                (lambda (continuation-variable)
-                  (generator 
-                    (variable-continuator continuation-variable))))
-              operand-generators)))))
                            
 ;;;; Subproblems and Combinations
 
@@ -529,28 +518,16 @@
 (define (starts-with? str sub)
   (clr-call system.string startswith str sub))
   
-(define special 
-  '(identity-for-cps 
-    letrec-identity 
-    library-letrec*-identity 
-    letrec*-identity 
-    cps-prim
-    eval-core
-    dynamic-wind
-    values 
-    apply 
-    call-with-values 
-    call/cc call-with-current-continuation))    
-  
-(define (primitive? o)  
-  (if (and (symbol? o) (not (memq o special)))
-    (let ((b (and (symbol-bound? o) (symbol-value o))))
-      (or (clr-is ironscheme.runtime.builtinmethod b)
-          (clr-generator? o)))
-    #f))
+(define (ends-with? str sub)
+  (clr-call system.string endswith str sub))  
+
 
 (define (clr-generator? o)
-  (and (symbol? o) (starts-with? (symbol->string o) "clr-")))       
+  (and (symbol? o) 
+    (let ((o (symbol->string o)))
+      (and 
+        (starts-with? o "clr-")
+        (ends-with? o "-internal")))))       
 
 (define (fix-primitives e)
   (if (and (pair? e)(list? e))
@@ -558,57 +535,19 @@
       (if (eq? o 'quote)
         e
         (cond
-          [(eq? o 'library-letrec*)
-            (let ((name (cadr e))(e (cdr e)))
-              (let ((bindings (cadr e)) (body* (cddr e)))
-                (let ((lhs* (map car bindings)) 
-                      (lhs** (map cadr bindings)) 
-                      (rhs* (map caddr bindings)))
-                   `(library-letrec* ,name 
-                      ,(map list lhs* lhs** (map fix-primitives rhs*))
-                      . ,(map fix-primitives body*)))))]
           [(and (clr-generator? o))
             (if (pair? (cdr e))
               (list (fix-primitives (cadr e)) (cons o (map fix-primitives (cddr e))))
               e)]
-          [(and (eq? o 'void) (null? (cdr e))) 
-            e]
           [else
             (cons (fix-primitives o) (map fix-primitives (cdr e)))])))
-    (if (primitive? e)
-      `(cps-prim ,e)
-      e)))
+    e))
       
 (define (parse->cps e var)      
   ((parse e) (variable-continuator var)))
   
 (define (convert->cps e var)
   (fix-primitives (parse->cps e var)))
-  
-(define bootfile "ironscheme.boot.pp")
-(define bootfile-cps "ironscheme.boot.cps")
-
-(define expand-boot-cps
-  (case-lambda
-    [()       (expand-boot-cps write)]
-    [(write)
-      (define (read-file port)
-        (let f ((e (read port))(a '()))
-          (if (eof-object? e)
-            (reverse a)
-            (let ((r (convert->cps e 'identity-for-cps)))
-              (f (read port) (cons r a))))))
-      (when (file-exists? bootfile-cps)
-        (delete-file bootfile-cps))
-      (call-with-input-file bootfile    
-        (lambda (in)
-          (call-with-output-file bootfile-cps
-            (lambda (out)      
-              (for-each 
-                (lambda (e)
-                  (write e out))
-                (read-file in))))))]))
-  
 
 )
 

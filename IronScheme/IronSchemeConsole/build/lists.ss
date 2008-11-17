@@ -83,8 +83,8 @@
       
   (define make-list
     (case-lambda
-      [(n)      (list->vector (make-vector n))]
-      [(n fill) (list->vector (make-vector n fill))]))
+      [(n)      (vector->list (make-vector n))]
+      [(n fill) (vector->list (make-vector n fill))]))
       
   (define (find proc l)
     (if (null? l)

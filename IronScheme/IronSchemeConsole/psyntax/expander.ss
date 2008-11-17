@@ -1365,6 +1365,8 @@
           (syntax-match x* (else)
             (() 
              (values `(raise ,con) #t))
+;             (let ((g (gensym)))
+;               (values `(,g (lambda () (raise-continuable ,con))) g)))
             (((else e e* ...))
              (values `(begin ,e ,@e*) #f))
             ((cls . cls*) 
@@ -1375,6 +1377,11 @@
           (if raisek
              `(,outerk ,code)
              code)))
+;              `((call/cc
+;                  (lambda (,raisek)
+;                    (,outerk 
+;                      (lambda () ,code)))))
+;              `(,outerk (lambda () ,code)))))
       (syntax-match x ()
         ((_ (con clause* ...) b b* ...)
          (id? con)
