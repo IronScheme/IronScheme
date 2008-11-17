@@ -1,4 +1,5 @@
 ;;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig
+;;; Copyright (c) 2007, 2008 Llewellyn Pritchard
 ;;; 
 ;;; Permission is hereby granted, free of charge, to any person obtaining a
 ;;; copy of this software and associated documentation files (the "Software"),
@@ -30,8 +31,7 @@
   (psyntax compat)
   (psyntax library-manager)
   (psyntax expander)
-  (only (ironscheme) time-it optimization-level)
-  ;(ironscheme cps)
+  (only (ironscheme) time-it optimization-level include import library)
   )
   
 (optimization-level 'unchecked)  ; this does not affect the expanded file
@@ -264,7 +264,7 @@
     (uninstall-library                          i)
     (installed-libraries                        i)
     (convert->cps                               i)
-    (expand-boot-cps                            i)
+    ;(expand-boot-cps                            i)
     (expand                                     i)
     (expand->core                               i)
     (include-into                               i)
@@ -732,7 +732,7 @@
     (serious-condition?                         i r co)
     (simple-conditions                          i r co)
     (&syntax                                    i r co)
-    (syntax-violation                           i r co sc)
+    (syntax-violation                           i r sc)
     (syntax-violation-form                      i r co)
     (syntax-violation-subform                   i r co)
     (syntax-violation?                          i r co)
@@ -926,7 +926,7 @@
     (current-input-port                         i r ip is se)
     (current-output-port                        i r ip is se)
     (current-error-port                         i r ip is se)
-    (eof-object                                 i r ip is se)
+    (eof-object                                 i r ip is)
     (eof-object?                                i r ip is se)
     (close-input-port                           i r is se)
     (close-output-port                          i r is se)
@@ -1053,7 +1053,7 @@
     (string-upcase                              i r uc)
     ;;;
     (char-ready?                                se)
-    (interaction-environment                    i r5 se)
+    (interaction-environment                    i)
     (load                                       i)
     (compile                                    i)
     (compile->closure                           i)
@@ -1332,6 +1332,35 @@
           (reverse (cons* (car code*) code (cdr code*)))
           export-locs)))))
 
+(define do-cps-conversion
+  (let ()
+    (include "build/cps.ss")
+    (import (ironscheme cps))
+    (define expand-boot-cps
+      (case-lambda
+        [()       (expand-boot-cps write)]
+        [(write)
+          (define (read-file port)
+            (let f ((e (read port))(a '()))
+              (if (eof-object? e)
+                (reverse a)
+                (let ((r (convert->cps e 'identity-for-cps)))
+                  (f (read port) (cons r a))))))
+          (when (file-exists? bootfile-cps)
+            (delete-file bootfile-cps))
+          (call-with-input-file bootfile    
+            (lambda (in)
+              (call-with-output-file bootfile-cps
+                (lambda (out)      
+                  (for-each 
+                    (lambda (e)
+                      (write e out))
+                    (read-file in))))))]))    
+    expand-boot-cps))
+    
+(define bootfile "ironscheme.boot.pp")
+(define bootfile-cps "ironscheme.boot.cps")
+
 
 
 (define bootstrap-collection
@@ -1412,9 +1441,9 @@
             (cond
               ((assq x locs) => cdr)
               (else #f))))
-        (when (file-exists? "ironscheme.boot.pp")
-          (delete-file "ironscheme.boot.pp"))
-        (let ((p (open-output-file "ironscheme.boot.pp")))
+        (when (file-exists? bootfile)
+          (delete-file bootfile))
+        (let ((p (open-output-file bootfile)))
           (display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
           (display ";;; Copyright (c) 2007, 2008 Llewellyn Pritchard" p) (newline p)
           (display ";;; automatically generated from psyntax & ironscheme sources" p) (newline p)
@@ -1427,7 +1456,7 @@
                   (newline p))
                 core*)))
           (close-output-port p))
-        #;(time-it "cps conversion" expand-boot-cps))))
+        (time-it "cps conversion" do-cps-conversion))))
 
 (display "IronScheme build completed.\n")
 

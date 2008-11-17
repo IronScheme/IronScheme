@@ -13,12 +13,14 @@
     
     null-environment
     scheme-report-environment
-    interaction-environment
   )
   
   (import 
     (rnrs)
-    (except (rnrs r5rs) quotient remainder modulo force  exact->inexact inexact->exact))
+    (only (rnrs r5rs) 
+      delay    
+      null-environment
+      scheme-report-environment))
     
   (define inexact->exact exact)    
   (define exact->inexact inexact)

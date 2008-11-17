@@ -68,7 +68,6 @@ namespace IronScheme.Runtime
 #if !CPS
     [Builtin]
 #endif
-    [Builtin("identity-for-cps")]
     public static object Values(params object[] values)
     {
       if (values.Length == 1)
@@ -77,10 +76,6 @@ namespace IronScheme.Runtime
       }
       return new MultipleValues(values);
     }
-
-
-
-
 
 #if CPS
 
@@ -192,7 +187,7 @@ namespace IronScheme.Runtime
     //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     
 #if CPS
-    [Builtin("letrec-identity")]
+
     public static object LetrecIdentity(object var)
     {
       bool init = false;
@@ -209,7 +204,7 @@ namespace IronScheme.Runtime
       return Closure.Make(null, id);
     }
 
-    [Builtin("letrec*-identity")]
+
     public static object LetrecStarIdentity(object var)
     {
       bool init = false;
@@ -226,7 +221,6 @@ namespace IronScheme.Runtime
       return Closure.Make(null, id);
     }
 
-    [Builtin("library-letrec*-identity")]
     public static object LibraryLetrecIdentity(object var)
     {
       bool init = false;

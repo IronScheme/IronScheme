@@ -44,6 +44,7 @@
     (ironscheme enums)
     (ironscheme files)
     (ironscheme cps)
+    (ironscheme clr)
     (ironscheme library))
     
   (define trace-printer (make-parameter write))
@@ -64,14 +65,20 @@
   (define (ironscheme-build)
     (load "ironscheme-buildscript.ss")) 
     
+  (define foreground-color
+    (case-lambda
+      [()           (clr-static-prop-get console foregroundcolor)]
+      [(color)      (clr-static-prop-set! console foregroundcolor color)]))    
+    
   (define (eval-top-level x)
     (call/cc
       (lambda (k)
         (with-exception-handler
           (lambda (e)
-            (display "Unhandled exception:\n")
-            (display e)
-            (newline)
+            (parameterize ((foreground-color 'red))
+              (display "Unhandled exception:\n")
+              (display e)
+              (newline))
             (k))
           (lambda ()
             (eval x (interaction-environment)))))))    

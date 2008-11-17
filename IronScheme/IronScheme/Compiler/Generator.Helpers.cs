@@ -100,10 +100,8 @@ namespace IronScheme.Compiler
       ICallable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
       cc.Scope.SetName(SymbolTable.StringToId("values"), values);
 
-      BuiltinMethod cpsprim = new BuiltinMethod("cps-prim", GetMethods(typeof(OptimizedBuiltins), "MakeCPSCallable"));
-      cc.Scope.SetName(SymbolTable.StringToId("cps-prim"), cpsprim);
-
-      Closure.CPSPrim = cpsprim;
+      ICallable cpsvoid = Closure.Make(null, (CallTarget0) Builtins.Void);
+      cc.Scope.SetName(SymbolTable.StringToId("cps-void"), cpsvoid);
 
       ICallable cwv = Closure.Make(null, (CallTarget3)OptimizedBuiltins.CallWithValues);
       cc.Scope.SetName(SymbolTable.StringToId("call-with-values"), cwv);
@@ -115,11 +113,21 @@ namespace IronScheme.Compiler
       cc.Scope.SetName(SymbolTable.StringToId("call-with-current-continuation"), cwcc);
       cc.Scope.SetName(SymbolTable.StringToId("call/cc"), cwcc);
 
+      ICallable id4cps = Closure.Make(null, (CallTargetN)Builtins.Values);
+      cc.Scope.SetName(SymbolTable.StringToId("identity-for-cps"), id4cps);
+
+      Closure.IdentityForCPS = id4cps;
+
+      cc.Scope.SetName(SymbolTable.StringToId("letrec-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecIdentity));
+      cc.Scope.SetName(SymbolTable.StringToId("letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecStarIdentity));
+      cc.Scope.SetName(SymbolTable.StringToId("library-letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LibraryLetrecIdentity));
+
 
 #endif
 
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
+      Closure.Cons = Builtins.Cons;
 
       AddBuiltins(Context, typeof(Builtins));
       AddInlineEmitters(typeof(BuiltinEmitters));
@@ -145,8 +153,8 @@ namespace IronScheme.Compiler
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
 
 #if CPS
-      Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("identity-for-cps")) as BuiltinMethod;
-      cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.MakeVarArgX(null, (CallTarget3) OptimizedBuiltins.Apply, 3));
+      
+      cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.MakeVarArgX(null, (CallTarget4) OptimizedBuiltins.Apply, 4));
 
       OptimizedBuiltins.SymbolValue = Builtins.SymbolValue;
 
@@ -163,6 +171,7 @@ namespace IronScheme.Compiler
       BuiltinMethod.context = cc;
 
       Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
+      Dictionary<string, List<MethodBase>> cpsfree = new Dictionary<string, List<MethodBase>>();
 
       foreach (MethodInfo mi in builtinstype.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static))
       {
@@ -170,19 +179,42 @@ namespace IronScheme.Compiler
         {
           string name = ba.Name ?? mi.Name.ToLower();
           List<MethodBase> meths;
-          if (!all.TryGetValue(name, out meths))
+
+          if (ba.AllowCPS)
           {
-            all[name] = meths = new List<MethodBase>();
+            if (!all.TryGetValue(name, out meths))
+            {
+              all[name] = meths = new List<MethodBase>();
+            }
+            meths.Add(mi);
           }
-          meths.Add(mi);
+          else
+          {
+            if (!cpsfree.TryGetValue(name, out meths))
+            {
+              cpsfree[name] = meths = new List<MethodBase>();
+            }
+            meths.Add(mi);
+          }
         }
       }
 
       foreach (string mn in all.Keys)
       {
         SymbolId s = SymbolTable.StringToId(mn);
-        cc.Scope.SetName(s, new BuiltinMethod(mn, all[mn].ToArray()));
+#if CPS
+        cc.Scope.SetName(s, OptimizedBuiltins.MakeCPSCallable(new BuiltinMethod(mn, all[mn].ToArray())));
+#else
+        cc.Scope.SetName(s,  new BuiltinMethod(mn, all[mn].ToArray()));
+#endif
       }
+
+      foreach (string mn in cpsfree.Keys)
+      {
+        SymbolId s = SymbolTable.StringToId(mn);
+        cc.Scope.SetName(s, new BuiltinMethod(mn, cpsfree[mn].ToArray()));
+      }
+
     }
 
     protected static CodeBlock GetTopLevel(CodeBlock cb)
@@ -240,9 +272,8 @@ namespace IronScheme.Compiler
         , type ?? typeof(object));
     }
 
-    readonly static SymbolId list = SymbolTable.StringToId("list");
+    readonly static SymbolId list = SymbolTable.StringToId("list-prim");
     readonly static SymbolId liststar = SymbolTable.StringToId("list*");
-
 
     protected static MethodInfo MakeList(Expression[] args, bool proper)
     {
@@ -510,6 +541,7 @@ namespace IronScheme.Compiler
       return GetAstList(c, cb, false);
     }
 
+    static bool iscontinuation = false;
 
     protected static Expression[] GetAstList(Cons c, CodeBlock cb, bool castdown)
     {
@@ -520,7 +552,10 @@ namespace IronScheme.Compiler
         {
           Builtins.SyntaxError("GetAstList", "improper list cant be used as an expression", c, false);
         }
+        iscontinuation = e.Count == 0;
         Expression ex = GetAst(c.car, cb);
+        iscontinuation = false;
+
         if (castdown && ex.Type.IsValueType)
         {
           ex = Ast.ConvertHelper(ex, typeof(object));

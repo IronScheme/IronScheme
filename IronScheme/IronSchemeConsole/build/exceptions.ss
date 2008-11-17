@@ -15,9 +15,10 @@
   (define *current-exception-handlers*
     (list 
       (lambda (condition)
-        (display "Unhandled exception\n")
+        (display "Unhandled exception:\n")
         (display condition)
-        (newline))))
+        (newline)
+        (exit -1))))
 
   (define (with-exception-handler handler thunk)
     (with-exception-handlers (cons handler *current-exception-handlers*)

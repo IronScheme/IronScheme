@@ -272,16 +272,18 @@ namespace IronScheme.Compiler
               }
 
 
-
-              BuiltinMethod bf = m as BuiltinMethod;
-              if (bf != null)
-              {
+                // this can be enabled once builtins are auto CPS'd.
+                // ok I tried, but there are issues still, not sure what
 #if OPTIMIZATIONS
                 // check for inline emitter
                 InlineEmitter ie;
                 if (TryGetInlineEmitter(f, out ie))
                 {
+#if CPS
+                  Expression result = ie(GetAstList((c.cdr as Cons).cdr as Cons, cb));
+#else
                   Expression result = ie(GetAstList(c.cdr as Cons, cb));
+#endif
                   // if null is returned, the method cannot be inlined
                   if (result != null)
                   {
@@ -289,26 +291,34 @@ namespace IronScheme.Compiler
                     {
                       result = Ast.Convert(result, typeof(object));
                     }
+#if CPS
+                    Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(ICallable));
+                    return Ast.Call(k, GetCallable(1), result);
+#else
                     return result;
+#endif
                   }
                 }
 #endif
-                MethodBinder mb = bf.Binder;
-                Expression[] pars = GetAstList(c.cdr as Cons, cb);
-
-                Type[] types = GetExpressionTypes(pars);
-                MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-                if (mc != null)
+                BuiltinMethod bf = m as BuiltinMethod;
+                if (bf != null)
                 {
-                  if (mc.Target.NeedsContext)
-                  {
-                    pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-                  }
-                  MethodBase meth = mc.Target.Method;
+                  MethodBinder mb = bf.Binder;
+                  Expression[] pars = GetAstList(c.cdr as Cons, cb);
 
-                  return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                  Type[] types = GetExpressionTypes(pars);
+                  MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                  if (mc != null)
+                  {
+                    if (mc.Target.NeedsContext)
+                    {
+                      pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+                    }
+                    MethodBase meth = mc.Target.Method;
+
+                    return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                  }
                 }
-              }
 
 #if OPTIMIZATIONS
               Closure clos = m as Closure;
@@ -346,7 +356,7 @@ namespace IronScheme.Compiler
 
         Expression[] pp = GetAstList(c.cdr as Cons, cb);
         Expression ex = Unwrap(GetAst(c.car, cb));
-//#if OPTIMIZATIONS
+
         if (ex is MethodCallExpression)
         {
           MethodCallExpression mcexpr = (MethodCallExpression)ex;
@@ -359,9 +369,17 @@ namespace IronScheme.Compiler
               return CallNormal(cbe, pp);
             }
           }
-        }
+          // cater for varargs more efficiently, this does not seem to hit, probably needed somewhere else
+          if (mcexpr.Method == Closure_MakeVarArgsX)
+          {
+            CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
 
-//#endif
+            if (pp.Length < 6 && cbe.Block.ParameterCount <= pp.Length)
+            {
+              return CallVarArgs(cbe, pp);
+            }
+          }
+        }
 
         if (ex is ConstantExpression)
         {
