@@ -28,6 +28,7 @@
   (rnrs files)
   (rnrs hashtables)
   (psyntax internal)
+  (psyntax config)
   (psyntax compat)
   (psyntax library-manager)
   (psyntax expander)
@@ -38,6 +39,8 @@
   
 (define scheme-library-files
   '(
+    "psyntax/config.ss"
+    
     "build/lists.ss"
     "build/base.ss"
     "build/hashtables.ss"
@@ -75,7 +78,7 @@
     
     "psyntax/compat.ss"
     "psyntax/internal.ss"
-    "psyntax/config.ss"
+
     "psyntax/library-manager.ss"
     "psyntax/builders.ss"
     "psyntax/expander.ss"
@@ -1333,35 +1336,39 @@
           export-locs)))))
 
 (define do-cps-conversion
-  (let ()
-    (include "build/cps.ss")
-    (import (ironscheme cps))
-    (define expand-boot-cps
-      (case-lambda
-        [()       (expand-boot-cps write)]
-        [(write)
-          (define (read-file port)
-            (let f ((e (read port))(a '()))
-              (if (eof-object? e)
-                (reverse a)
-                (let ((r (convert->cps e 'identity-for-cps)))
-                  (f (read port) (cons r a))))))
-          (when (file-exists? bootfile-cps)
-            (delete-file bootfile-cps))
-          (call-with-input-file bootfile    
-            (lambda (in)
-              (call-with-output-file bootfile-cps
-                (lambda (out)      
-                  (for-each 
-                    (lambda (e)
-                      (write e out))
-                    (read-file in))))))]))    
-    expand-boot-cps))
-    
-(define bootfile "ironscheme.boot.pp")
+  (cps-mode
+    (let ()
+      (include "build/cps.ss")
+      (import (ironscheme cps))
+      (define expand-boot-cps
+        (case-lambda
+          [()       (expand-boot-cps write)]
+          [(write)
+            (define (read-file port)
+              (let f ((e (read port))(a '()))
+                (if (eof-object? e)
+                  (reverse a)
+                  (let ((r (convert->cps e 'identity-for-cps)))
+                    (f (read port) (cons r a))))))
+            (when (file-exists? bootfile-cps)
+              (delete-file bootfile-cps))
+            (call-with-input-file bootfile    
+              (lambda (in)
+                (call-with-output-file bootfile-cps
+                  (lambda (out)      
+                    (for-each 
+                      (lambda (e)
+                        (write e out))
+                      (read-file in))))))
+            (delete-file bootfile)]))    
+      expand-boot-cps)
+      #f))
+
+(define bootfile 
+  (cps-mode "ironscheme.boot.temp" 
+            "ironscheme.boot.pp"))
+            
 (define bootfile-cps "ironscheme.boot.cps")
-
-
 
 (define bootstrap-collection
   (let ((ls '()))
@@ -1456,7 +1463,9 @@
                   (newline p))
                 core*)))
           (close-output-port p))
-        (time-it "cps conversion" do-cps-conversion))))
+        (cps-mode          
+          (time-it "cps conversion" do-cps-conversion)
+          #f))))
 
 (display "IronScheme build completed.\n")
 

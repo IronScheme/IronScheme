@@ -62,8 +62,15 @@
     (apply load-r6rs-top-level filename 'load (cdr (command-line)))
     (void))
       
-  (define (ironscheme-build)
-    (load "ironscheme-buildscript.ss")) 
+  (define ironscheme-build
+    (case-lambda
+      [()      (ironscheme-build #f)]
+      [(cps?)  
+        (call-with-output-file "build-options.ss"
+          (lambda (p)
+            (write `(define-option cps-mode ,cps?) p)
+            (newline p)))
+        (load "ironscheme-buildscript.ss")]))
     
   (define foreground-color
     (case-lambda
@@ -76,7 +83,7 @@
         (with-exception-handler
           (lambda (e)
             (parameterize ((foreground-color 'red))
-              (display "Unhandled exception:\n")
+              (display "Unhandled exception during evaluation:\n")
               (display e)
               (newline))
             (k))

@@ -2,6 +2,8 @@
   (export
     regex?
     match-value
+    match-group
+    match-success?
     regex-match
     regex-matches
     regex-match?
@@ -25,10 +27,17 @@
     (clr-static-call regex matches input pattern))
     
   (define (match-value match)
-    (clr-prop-get match value match))
+    (and 
+      (match-success? match)
+      (clr-prop-get group value match)))
     
   (define (match-success? match)
-    (clr-prop-get match success match))    
+    (clr-prop-get group success match))    
+
+  (define (match-group match group-name)
+    (clr-indexer-get groupcollection 
+      (clr-prop-get match groups match) 
+      (clr-cast system.string group-name)))
   
   (define (regex-match? input pattern)
     (clr-static-call regex ismatch input pattern))
