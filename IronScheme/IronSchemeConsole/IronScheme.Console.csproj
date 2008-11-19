@@ -154,6 +154,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="build-options.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="build\cps.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

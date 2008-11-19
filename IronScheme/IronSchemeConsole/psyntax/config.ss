@@ -21,8 +21,9 @@
 (library (psyntax config)
   (export if-wants-define-struct if-wants-case-lambda
           if-wants-letrec* if-wants-global-defines
-          if-wants-library-letrec*)
-  (import (rnrs))
+          if-wants-library-letrec*
+          cps-mode)
+  (import (ironscheme))
   (define-syntax define-option
     (syntax-rules ()
       ((_ name #t) 
@@ -65,4 +66,6 @@
   
   
   (define-option if-wants-library-letrec*  #t)
+  
+  (include "build-options.ss")
 )

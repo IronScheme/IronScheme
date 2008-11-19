@@ -207,28 +207,30 @@
                      (cons (cdr a) cdrs))))))))
 
   (define for-all ;;; almost
-    (lambda (f . args)
-      (if (all-empty? args) 
-          #t
-          (call-with-values (lambda () (split args))
-            (lambda (cars cdrs)
-              (if (all-empty? cdrs)
-                (apply f cars)
-                (and (apply f cars) 
-                     (apply for-all f cdrs))))))))
+    (lambda (f arg1 . args)
+      (let ((args (cons arg1 args)))
+        (if (all-empty? args) 
+            #t
+            (call-with-values (lambda () (split args))
+              (lambda (cars cdrs)
+                (if (all-empty? cdrs)
+                  (apply f cars)
+                  (and (apply f cars) 
+                       (apply for-all f cdrs)))))))))
 
   (define exists  ;;; almost
-    (lambda (f . args)
-      (if (all-empty? args) 
-          #f
-          (call-with-values (lambda () (split args))
-            (lambda (cars cdrs)
-              (or (apply f cars)
-                  (apply exists f cdrs)))))))
+    (lambda (f arg1 . args)
+      (let ((args (cons arg1 args)))
+        (if (all-empty? args) 
+            #f
+            (call-with-values (lambda () (split args))
+              (lambda (cars cdrs)
+                (or (apply f cars)
+                    (apply exists f cdrs))))))))
                   
   (define map
-    (lambda (proc . lists)
-      (let f ((lists lists)(a '()))
+    (lambda (proc list1 . lists)
+      (let f ((lists (cons list1 lists))(a '()))
         (if (all-empty? lists)
           (reverse! a)
           (call-with-values (lambda () (split lists))
@@ -236,12 +238,13 @@
               (f cdrs (cons (apply proc cars) a))))))))
   
   (define for-each
-    (lambda (f . args)
-      (if (not (all-empty? args))
-          (call-with-values (lambda () (split args))
-            (lambda (cars cdrs)
-              (apply f cars)
-              (apply for-each f cdrs))))))
+    (lambda (f arg1 . args)
+      (let ((args (cons arg1 args)))
+        (if (not (all-empty? args))
+            (call-with-values (lambda () (split args))
+              (lambda (cars cdrs)
+                (apply f cars)
+                (apply for-each f cdrs)))))))
                   
   (define cons* 
     (lambda (a . rest) 

@@ -1363,10 +1363,11 @@
             (_ (stx-error x "invalid guard clause"))))
         (define (f* x*)
           (syntax-match x* (else)
-            (() 
-             (values `(raise ,con) #t))
-;             (let ((g (gensym)))
-;               (values `(,g (lambda () (raise-continuable ,con))) g)))
+            (()
+             (cps-mode 
+              (let ((g (gensym)))
+                (values `(,g (lambda () (raise-continuable ,con))) g))             
+              (values `(raise ,con) #t)))
             (((else e e* ...))
              (values `(begin ,e ,@e*) #f))
             ((cls . cls*) 
@@ -1374,14 +1375,16 @@
                (values (f cls e) g)))
             (others (stx-error others "invalid guard clause"))))
         (let-values (((code raisek) (f* clause*)))
-          (if raisek
+          (cps-mode
+            (if raisek
+              `((call/cc
+                  (lambda (,raisek)
+                    (,outerk 
+                      (lambda () ,code)))))
+              `(,outerk (lambda () ,code)))
+            (if raisek              
              `(,outerk ,code)
-             code)))
-;              `((call/cc
-;                  (lambda (,raisek)
-;                    (,outerk 
-;                      (lambda () ,code)))))
-;              `(,outerk (lambda () ,code)))))
+             code))))
       (syntax-match x ()
         ((_ (con clause* ...) b b* ...)
          (id? con)
