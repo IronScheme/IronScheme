@@ -32,16 +32,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         Array.TrueForAll(args, delegate(Expression e) { return e.Type == typeof(object) || e.Type == typeof(int); });
     }
 
-    [InlineEmitter("fixnum?")]
-    public static Expression IsFixnum(params Expression[] args)
-    {
-      if (Expect(args, 1))
-      {
-        return Ast.TypeIs(Unwrap(args[0]), typeof(int));
-      }
-      return null;
-    }
-
     [InlineEmitter("fixnum-width")]
     public static Expression FixnumWidth(params Expression[] args)
     {
@@ -163,56 +153,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       if (Expect(args, 1))
       {
         return Ast.Not(UnwrapAndCast<int>(args[0]));
-      }
-      return null;
-    }
-
-    [InlineEmitter("fxzero?", Optimization = OptimizationLevel.Safe)]
-    public static Expression FxIsZero(params Expression[] args)
-    {
-      if (Expect(args, 1))
-      {
-        return Ast.Equal(Ast.Constant(0), (UnwrapAndCast<int>(args[0])));
-      }
-      return null;
-    }
-
-    [InlineEmitter("fxpositive?", Optimization = OptimizationLevel.Safe)]
-    public static Expression FxIsPositive(params Expression[] args)
-    {
-      if (Expect(args, 1))
-      {
-        return Ast.LessThan(Ast.Constant(0), (UnwrapAndCast<int>(args[0])));
-      }
-      return null;
-    }
-
-    [InlineEmitter("fxnegative?", Optimization = OptimizationLevel.Safe)]
-    public static Expression FxIsNegative(params Expression[] args)
-    {
-      if (Expect(args, 1))
-      {
-        return Ast.GreaterThan(Ast.Constant(0), (UnwrapAndCast<int>(args[0])));
-      }
-      return null;
-    }
-
-    [InlineEmitter("fxeven?", Optimization = OptimizationLevel.Safe)]
-    public static Expression FxIsEven(params Expression[] args)
-    {
-      if (Expect(args, 1))
-      {
-        return Ast.Equal(Ast.Constant(0), Ast.And(Ast.Constant(1), (UnwrapAndCast<int>(args[0]))));
-      }
-      return null;
-    }
-
-    [InlineEmitter("fxodd?", Optimization = OptimizationLevel.Safe)]
-    public static Expression FxIsOdd(params Expression[] args)
-    {
-      if (Expect(args, 1))
-      {
-        return Ast.Not(Ast.Equal(Ast.Constant(0), Ast.And(Ast.Constant(1), (UnwrapAndCast<int>(args[0])))));
       }
       return null;
     }
@@ -357,18 +297,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
   public class Fixnums : Builtins
   {
-    [Builtin("fixnum?")]
-    public static object IsFixnum(object o)
-    {
-      return GetBool(o is int);
-    }
-
-    [Builtin("fixnum-width")]
-    public static object FixnumWidth()
-    {
-      return 32;
-    }
-
     [Builtin("greatest-fixnum")]
     public static object GreatestFixnum()
     {
@@ -453,7 +381,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return TRUE;
     }
 
-
     [Builtin("fx<=?")]
     public static object FxLessOrEqual(params object[] all)
     {
@@ -467,76 +394,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       return TRUE;
     }
-
-    [Builtin("fxzero?")]
-    public static object FxIsZero(object a)
-    {
-      int x1 = RequiresNotNull<int>(a);
-      return GetBool(x1 == 0);
-    }
-
-    [Builtin("fxpositive?")]
-    public static object FxIsPositive(object a)
-    {
-      int x1 = RequiresNotNull<int>(a);
-      return GetBool(x1 > 0);
-    }
-
-    [Builtin("fxnegative?")]
-    public static object FxIsNegative(object a)
-    {
-      int x1 = RequiresNotNull<int>(a);
-      return GetBool(x1 < 0);
-    }
-
-    [Builtin("fxodd?")]
-    public static object FxIsOdd(object a)
-    {
-      int x1 = RequiresNotNull<int>(a);
-      return GetBool((x1 & 1) != 0);
-    }
-
-    [Builtin("fxeven?")]
-    public static object FxIsEven(object a)
-    {
-      int x1 = RequiresNotNull<int>(a);
-      return GetBool((x1 & 1) == 0);
-    }
-
-    [Builtin("fxmax")]
-    public static object FxMax(params object[] args)
-    {
-      ExpectAtLeast(args, 1);
-      int arglen = args.Length;
-      switch (arglen)
-      {
-        case 1:
-          return RequiresNotNull<int>(args[0]);
-        case 2:
-          return Math.Max(RequiresNotNull<int>(args[0]), RequiresNotNull<int>(args[1]));
-        default:
-          object[] head = ArrayUtils.RemoveLast(args);
-          return FxMax(FxMax(head), args[arglen - 1]);
-      }
-    }
-
-    [Builtin("fxmin")]
-    public static object FxMin(params object[] args)
-    {
-      ExpectAtLeast(args, 1);
-      int arglen = args.Length;
-      switch (arglen)
-      {
-        case 1:
-          return RequiresNotNull<int>(args[0]);
-        case 2:
-          return Math.Min(RequiresNotNull<int>(args[0]), RequiresNotNull<int>(args[1]));
-        default:
-          object[] head = ArrayUtils.RemoveLast(args);
-          return FxMin(FxMin(head), args[arglen - 1]);
-      }
-    }
-
 
     [Builtin("fx+")]
     public static object FxAdd(object a, object b)
@@ -602,18 +459,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
     }
 
-    [Builtin("fxdiv")]
-    public static object FxDiv(object a, object b)
-    {
-      return ((MultipleValues)FxDivMod(a, b))[0];
-    }
-
-    [Builtin("fxmod")]
-    public static object FxMod(object a, object b)
-    {
-      return ((MultipleValues)FxDivMod(a, b))[1];
-    }
-
     [Builtin("fxdiv-and-mod")]
     public static object FxDivMod(object x1, object x2)
     {
@@ -649,18 +494,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
         }
       }
       return Values(div, mod);
-    }
-
-    [Builtin("fxdiv0")]
-    public static object FxDiv0(object a, object b)
-    {
-      return ((MultipleValues)FxDiv0Mod0(a, b))[0];
-    }
-
-    [Builtin("fxmod0")]
-    public static object FxMod0(object a, object b)
-    {
-      return ((MultipleValues)FxDiv0Mod0(a, b))[1];
     }
 
     [Builtin("fxdiv0-and-mod0")]

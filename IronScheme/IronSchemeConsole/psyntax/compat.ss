@@ -78,9 +78,9 @@
       (syntax-case x ()
         ((_ () b b* ...) (syntax (let () b b* ...)))
         ((_ ((olhs* orhs*) ...) b b* ...)
-         (with-syntax (((lhs* ...) (generate-temporaries (syntax (olhs* ...))))
-                       ((rhs* ...) (generate-temporaries (syntax (olhs* ...)))))
-           (syntax (let ((lhs* olhs*) ...
+         (with-syntax (((lhs* ...) (generate-temporaries #'(olhs* ...)))
+                       ((rhs* ...) (generate-temporaries #'(olhs* ...))))
+           #'(let ((lhs* olhs*) ...
                    (rhs* orhs*) ...)
                (let ((swap 
                       (lambda () 
@@ -91,7 +91,7 @@
                  (dynamic-wind 
                    swap
                    (lambda () b b* ...)
-                   swap)))))))))
+                   swap))))))))
                        
 (define-syntax define-record
   (lambda (x)

@@ -182,6 +182,15 @@
                            operand 
                            (continue-with-operand continuator '(cps-void))))))))    
                            
+(define (cps/generate-declaration location expression-generator) 
+  (lambda (continuator) 
+    (expression-generator 
+      (operand-continuator 
+        (lambda (operand) 
+          (make-declaration location 
+                            operand 
+                            (continue-with-operand continuator '(cps-void))))))))                             
+                           
                            
 ;;;; Subproblems and Combinations
 
@@ -446,6 +455,9 @@
   
 (define (make-assignment location operand expression)
   `(begin (set! ,location ,operand) ,expression))
+  
+(define (make-declaration location operand expression)
+  `(begin (define ,location ,operand) ,expression))  
 
 (define (make-truth-test operand)
   operand)
@@ -477,14 +489,18 @@
        [(letrec) 
         (let ((bindings (cadr x)) (body* (cddr x)))
           (let ((lhs* (map car bindings)) (rhs* (map cadr bindings)))
-            (cps/generate-recursive-bind 
-              lhs* 
-              (map parse rhs*)
-              (parse (cons 'begin body*)))))]
+            (let ((t*   (map gensym lhs*))
+                  (tmps (map (lambda (x) 'uninitialized) lhs*)))
+              (let ((s* (map (lambda (i t) `(set! ,i ,t)) lhs* t*)))
+                (parse `((case-lambda [,lhs* ((case-lambda [,t* ,@s* . ,body*]) . ,rhs*)]) . ,tmps))))))]
+            ;(cps/generate-recursive-bind 
+              ;lhs* 
+              ;(map parse rhs*)
+              ;(parse (cons 'begin body*)))))]
        [(letrec*) 
         (let ((bindings (cadr x)) (body* (cddr x)))
           (let ((lhs* (map car bindings)) (rhs* (map cadr bindings)))
-          (cps/generate-recursive*-bind 
+            (cps/generate-recursive*-bind 
               lhs* 
               (map parse rhs*)
               (parse (cons 'begin body*)))))]
@@ -504,6 +520,8 @@
         (cps/generate-sequence (map parse (cdr x)))]
        [(set!) 
         (cps/generate-assignment (cadr x) (parse (caddr x)))]
+       [(define) 
+        (cps/generate-declaration (cadr x) (parse (caddr x)))]        
        [else 
         (if (list? x)
             (cps/generate-combination (parse (car x))

@@ -18,14 +18,32 @@ namespace IronScheme.Runtime
 
     public static T SymbolToEnum<T>(object symbol)
     {
-      string name = SymbolTable.IdToString(RequiresNotNull<SymbolId>(symbol));
-      try
+      if (symbol is SymbolId)
       {
-        return (T)Enum.Parse(typeof(T), name, true);
+        string name = SymbolTable.IdToString(RequiresNotNull<SymbolId>(symbol));
+        try
+        {
+          return (T)Enum.Parse(typeof(T), name, true);
+        }
+        catch (Exception ex)
+        {
+          Builtins.AssertionViolation("symbol-to-enum", ex.Message, symbol, typeof(T));
+          return default(T);
+        }
       }
-      catch (Exception ex)
+      else if (symbol is Cons)
       {
-        Builtins.AssertionViolation("symbol-to-enum", ex.Message, symbol, typeof(T));
+        int v = 0;
+        foreach (object n in symbol as Cons)
+        {
+          v |= (int)(object)SymbolToEnum<T>(n); 
+        }
+
+        return (T)(object)v;
+      }
+      else
+      {
+        Builtins.AssertionViolation("symbol-to-enum", "Not a valid type", symbol, typeof(T));
         return default(T);
       }
     }
@@ -67,7 +85,7 @@ namespace IronScheme.Runtime
           case TypeCode.UInt64:
             return Convert.ToUInt64(o);
           default:
-            return null;
+            return (T)o;
         }
       }
       catch

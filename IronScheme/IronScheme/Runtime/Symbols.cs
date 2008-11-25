@@ -25,10 +25,9 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-    [Builtin("symbol?")]
-    public static object IsSymbol(object obj)
+    internal static bool IsSymbol(object obj)
     {
-      return GetBool(obj is SymbolId);
+      return obj is SymbolId;
     }
 
     [Builtin("symbol->string")]

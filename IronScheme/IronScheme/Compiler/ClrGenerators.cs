@@ -262,7 +262,23 @@ namespace IronScheme.Compiler
       {
         Builtins.SyntaxError("clr-call", "type not found", type, false);
       }
-      string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
+      object memobj = Builtins.Second(Builtins.Second(args));
+
+      string member = memobj is SymbolId ? SymbolTable.IdToString((SymbolId)memobj) : "";
+
+      if (memobj is string)
+      {
+        string mems = memobj as string;
+        int bi = mems.IndexOf('(');
+        if (bi < 0)
+        {
+          member = mems;
+        }
+        else
+        {
+          member = mems.Substring(0, bi);
+        }
+      }
 
       Expression instance = GetAst(Builtins.Third(args), cb);
 
@@ -297,6 +313,28 @@ namespace IronScheme.Compiler
 			{
 			 types[i] = arguments[i].Type;
 			}
+
+      if (memobj is string)
+      {
+        string mems = memobj as string;
+        int bi = mems.IndexOf('(');
+        if (bi < 0)
+        {
+          // do notthig
+        }
+        else
+        {
+          string[] typeargs = mems.Substring(bi + 1).TrimEnd(')').Split(',');
+
+          for (int i = 0; i < types.Length; i++)
+          {
+            if (typeargs[i].Length > 0)
+            {
+              types[i] = GetType(typeargs[i]);
+            }
+          }
+        }
+      }
 
       if (ct == CallType.ImplicitInstance)
       {

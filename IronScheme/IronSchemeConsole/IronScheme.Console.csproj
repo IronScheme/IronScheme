@@ -163,6 +163,12 @@
     <None Include="compile-system-libraries.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme.boot.cps">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\clr\reflection.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\syntax-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -212,6 +218,8 @@
     <None Include="lib\list-match.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="playground\grid.ss" />
+    <None Include="playground\import-clr-class.ss" />
     <None Include="srfi\system.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

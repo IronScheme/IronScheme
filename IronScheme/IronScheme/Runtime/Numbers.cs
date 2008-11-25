@@ -1450,15 +1450,8 @@ namespace IronScheme.Runtime
         return false;
       }
     }
-
-    [Builtin("div")]
-    public static object Div(object a, object b)
-    {
-      return ((MultipleValues)DivMod(a, b))[0];
-    }
-
-    [Builtin("mod")]
-    public static object Mod(object a, object b)
+    
+    static object Mod(object a, object b)
     {
       return ((MultipleValues)DivMod(a, b))[1];
     }
@@ -1532,18 +1525,6 @@ namespace IronScheme.Runtime
       {
         return Values(Exact(div), mod);
       }
-    }
-
-    [Builtin("div0")]
-    public static object Div0(object a, object b)
-    {
-      return ((MultipleValues)Div0Mod0(a, b))[0];
-    }
-
-    [Builtin("mod0")]
-    public static object Mod0(object a, object b)
-    {
-      return ((MultipleValues)Div0Mod0(a, b))[1];
     }
 
     [Builtin("div0-and-mod0")]

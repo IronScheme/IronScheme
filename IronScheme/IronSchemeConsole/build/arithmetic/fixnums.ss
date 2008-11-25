@@ -63,7 +63,80 @@
       fx*/carry
       fx-/carry
       fx+/carry
+      
+      fxdiv
+      fxmod
+      fxdiv0
+      fxmod0
+      
+      fxzero?
+      fxpositive?
+      fxnegative?
+      fxodd?
+      fxeven?
+      
+      fxmax
+      fxmin
       ))
+      
+  (define (fxdiv fx1 fx2)
+    (let-values (((n d) (fxdiv-and-mod fx1 fx2)))
+      n))       
+
+  (define (fxdiv0 fx1 fx2)
+    (let-values (((n d) (fxdiv0-and-mod0 fx1 fx2)))
+      n))       
+
+  (define (fxmod fx1 fx2)
+    (let-values (((n d) (fxdiv-and-mod fx1 fx2)))
+      d))       
+
+  (define (fxmod0 fx1 fx2)
+    (let-values (((n d) (fxdiv0-and-mod0 fx1 fx2)))
+      d)) 
+      
+  (define (fxpositive? r)
+    (unless (fixnum? r)
+      (assertion-violation 'fxpositive? "not a fixnum" r))
+    (fx<? 0 r))
+    
+  (define (fxnegative? r)
+    (unless (fixnum? r)
+      (assertion-violation 'fxnegative? "not a fixnum" r))
+    (fx>? 0 r))   
+    
+  (define (fxzero? r)
+    (unless (fixnum? r)
+      (assertion-violation 'fxzero? "not a fixnum" r))
+    (fx=? 0 r))           
+    
+  (define (fxeven? n)
+    (unless (fixnum? n)
+      (assertion-violation 'fxeven? "not a fixnum" n))
+    (fx=? 0 (fxmod n 2)))           
+
+  (define (fxodd? n)
+    (unless (fixnum? n)
+      (assertion-violation 'fxodd? "not a fixnum" n))
+    (fx=? 1 (fxmod n 2)))      
+  
+  (define (fxmax a . rest)
+    (unless (fixnum? a)
+      (assertion-violation 'fxmax "not a fixnum" a))
+    (fold-left 
+      (lambda (a b) 
+        (if (fx<? a b) b a))
+      a 
+      rest))
+    
+  (define (fxmin a . rest)
+    (unless (fixnum? a)
+      (assertion-violation 'fxmin "not a fixnum" a))
+    (fold-left 
+      (lambda (a b) 
+        (if (fx>? a b) b a))
+      a 
+      rest))                 
       
   (define (fx*/carry fx1 fx2 fx3)
     (let ((s (+ (* fx1 fx2) fx3))

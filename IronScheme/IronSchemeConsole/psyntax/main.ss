@@ -69,6 +69,7 @@
         (call-with-output-file "build-options.ss"
           (lambda (p)
             (write `(define-option cps-mode ,cps?) p)
+            (write `(define-option if-wants-letrec* ,(not cps?)) p)
             (newline p)))
         (load "ironscheme-buildscript.ss")]))
     
@@ -82,7 +83,7 @@
       (lambda (k)
         (with-exception-handler
           (lambda (e)
-            (parameterize ((foreground-color 'red))
+            (parameterize ((foreground-color 'red)(current-output-port (current-error-port)))
               (display "Unhandled exception during evaluation:\n")
               (display e)
               (newline))

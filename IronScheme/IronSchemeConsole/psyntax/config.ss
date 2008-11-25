@@ -34,7 +34,7 @@
        (define-syntax name 
          (syntax-rules ()
            ((_ sk fk) fk))))))
-  
+   
   (define-option if-wants-define-struct  #f)
   ;;; define-record is an ikarus-specific extension.
   ;;; should be disabled for all other implementations
@@ -57,7 +57,7 @@
   ;;; ugly, inefficient, but correct code by expanding
   ;;; case-lambda into explicit dispatch code.
 
-  (define-option if-wants-letrec*        #t)
+  ;(define-option if-wants-letrec*        #t)
   ;;; If the implementation has built-in support for
   ;;; efficient letrec* (ikarus, chez), then this option
   ;;; should be enabled.  Disabling the option expands

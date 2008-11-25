@@ -1228,13 +1228,6 @@ namespace IronScheme.Runtime.R6RS
 
     }
 
-    //(get-datum textual-input-port)
-    [Builtin("get-datum")]
-    public static object GetDatum(object textinputport)
-    {
-      return Read(textinputport);
-    }
-
     //output ports
     //(flush-output-port output-port)
     [Builtin("flush-output-port")]
@@ -2003,13 +1996,6 @@ namespace IronScheme.Runtime.R6RS
         return IOPortViolation("put-string", ex.Message, textoutputport);
       }
 
-    }
-
-    //(put-datum textual-output-port datum)
-    [Builtin("put-datum")]
-    public static object PutDatum(object textoutputport, object datum)
-    {
-      return Write(datum, textoutputport);
     }
 
     // input/output ports

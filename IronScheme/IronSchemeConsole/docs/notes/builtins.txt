@@ -22,29 +22,25 @@ apply [1][5]
 asin
 assertion-violation [2][4]
 atan
-boolean?
 call-with-current-continuation/call/cc [1][5]
 call-with-values [1][5]
 car
 cdr
 ceiling
 char->integer
-char?
 complex?
 cons
 cos
 denominator
-div
-div-and-mod
-div0
-div0-and-mod0
+div-and-mod [6]
+div0-and-mod0 [6]
 dynamic-wind [1][5]
 eq?
 equal?
 eqv?
 error [2][4]
 exact
-exact-integer-sqrt
+exact-integer-sqrt [6]
 exact?
 exp
 expt
@@ -59,8 +55,6 @@ integer-valued?
 integer?
 length
 list
-list->string
-list->vector
 list?
 log
 magnitude
@@ -68,8 +62,6 @@ make-polar
 make-rectangular
 make-string
 make-vector
-mod
-mod0
 nan?
 not
 null?
@@ -77,13 +69,11 @@ number->string
 number?
 numerator
 pair?
-procedure?
 rational-valued?
 rational?
 real-part
 real-valued?
 real?
-reverse
 round
 sin
 sqrt
@@ -98,17 +88,15 @@ string-ref
 string?
 substring
 symbol->string
-symbol?
 tan
 truncate
-values
+values [5] [6]
 vector
 vector->list
-vector-fill!
 vector-length
 vector-ref
 vector-set!
-vector?
+
 
 (rnrs r5rs):
 
@@ -187,7 +175,6 @@ bytevector-u8-set!
 bytevector-uint-ref
 bytevector-uint-set!
 bytevector=?
-bytevector?
 make-bytevector
 sint-list->bytevector
 string->utf16
@@ -214,10 +201,6 @@ char-upper-case?
 char-whitespace?
 string-downcase
 string-foldcase
-string-normalize-nfc
-string-normalize-nfd
-string-normalize-nfkc
-string-normalize-nfkd
 string-titlecase
 string-upcase
 
@@ -242,8 +225,6 @@ bitwise-xor
 
 (rnrs arithmetic fixnums):
 
-fixnum-width
-fixnum?
 fx*
 fx+
 fx-
@@ -256,25 +237,14 @@ fxand
 fxarithmetic-shift
 fxbit-count
 fxbit-set?
-fxdiv
-fxdiv-and-mod
-fxdiv0
-fxdiv0-and-mod0
-fxeven?
+fxdiv-and-mod [6]
+fxdiv0-and-mod0 [6]
 fxfirst-bit-set
 fxior
 fxlength
-fxmax
-fxmin
-fxmod
-fxmod0
-fxnegative?
 fxnot
-fxodd?
-fxpositive?
 fxreverse-bit-field
 fxxor
-fxzero?
 greatest-fixnum
 least-fixnum
 
@@ -290,48 +260,15 @@ fl<?
 fl=?
 fl>=?
 fl>?
-flabs
-flacos
-flasin
-flatan
-flceiling
-flcos
 fldenominator
-fldiv
-fldiv-and-mod
-fldiv0
-fldiv0-and-mod0
-fleven?
-flexp
-flexpt
-flfinite?
-flfloor
-flinfinite?
-flinteger?
-fllog
-flmax
-flmin
-flmod
-flmod0
-flnan?
-flnegative?
 flnumerator
-flodd?
-flonum?
-flpositive?
-flround
-flsin
-flsqrt
-fltan
-fltruncate
-flzero?
 real->flonum
 
 (rnrs hashtables):
 
 equal-hash [3] 
 hashtable-copy
-hashtable-entries
+hashtable-entries [6]
 hashtable-equivalence-function [3]
 hashtable-hash-function [3]
 hashtable-keys
@@ -360,7 +297,6 @@ get-bytevector-n
 get-bytevector-n!
 get-bytevector-some
 get-char
-get-datum
 get-line
 get-string-all
 get-string-n
@@ -394,7 +330,6 @@ port-position
 port-transcoder
 put-bytevector
 put-char
-put-datum
 put-string
 put-u8
 set-port-position!
@@ -454,3 +389,4 @@ Notes:
 [3] returns a scheme procedure
 [4] implemented in Scheme in CPS mode
 [5] special CPS primitive
+[6] returns multiple values

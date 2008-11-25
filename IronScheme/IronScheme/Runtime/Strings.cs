@@ -157,28 +157,6 @@ namespace IronScheme.Runtime
       return Runtime.Cons.FromList(s);
     }
 
-    [Builtin("list->string")]
-    public static string ListToString(object obj)
-    {
-      StringBuilder sb = new StringBuilder();
-
-      Cons c = Requires<Runtime.Cons>(obj);
-
-      while (c != null)
-      {
-        char k = RequiresNotNull<char>(c.car);
-
-        sb.Append(k);
-
-        c = c.cdr as Cons;
-      }
-
-      return sb.ToString();
-    }
-
- 
-
-
     [Builtin("string-format")]
     public static string StringFormat(object format, params object[] args)
     {
