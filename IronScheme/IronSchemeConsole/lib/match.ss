@@ -93,8 +93,8 @@
 (library (match)
   (export match 
           trace-match 
-          ;match+ 
-          ;trace-match+ 
+          match+ 
+          trace-match+ 
           match-equality-test 
           trace-match/lexical-context 
           match/lexical-context 
@@ -287,7 +287,7 @@
     (define (f syn vars guards cdecls depth)
       (define (andmap f ls)
         (cond
-          ((null? ls) #f)
+          ((null? ls) #t)
           ((null? (cdr ls)) (f (car ls)))
           (else (and (f (car ls)) (andmap f (cdr ls))))))
       (syntax-case syn (unquote)
@@ -741,15 +741,15 @@
 ;; 
 ;; ;;; the grammar for this one is just if-exprs and everything else
 ;; 
-;; (define collect-leaves
-;;   (lambda (exp acc)
-;;     (match+ (acc) exp
-;;       ((if ,() ,() ,())
-;;        acc)
-;;       ((,() ,() ...)
-;;        acc)
-;;       (,x
-;;         (cons x acc)))))
+; (define collect-leaves
+;   (lambda (exp acc)
+;     (match+ (acc) exp
+;       ((if ,() ,() ,())
+;        acc)
+;       ((,() ,() ...)
+;        acc)
+;       (,x
+;         (cons x acc)))))
 ;; 
 ;; ;; here's something that takes apart quoted stuff. 
 ;; 
