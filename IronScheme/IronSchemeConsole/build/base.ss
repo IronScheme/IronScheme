@@ -206,6 +206,7 @@
     values
     call-with-values
     dynamic-wind
+    procedure?
     
     quasiquote
     unquote
@@ -215,7 +216,12 @@
     letrec-syntax
     syntax-rules
     identifier-syntax
-    
+
+    fixnum?
+    flonum?
+    fixnum-width
+    bytevector?
+  
     )
   (import 
     (except (ironscheme) 
@@ -272,10 +278,88 @@
       vector-map
       vector-for-each
       string-for-each
-     ))
-     
-     
+      reverse
+      vector-fill!
+      char?
+      vector?
+      bytevector?
+      symbol?
+      boolean?      
+      procedure?
 
+      fixnum?
+      flonum?
+      fixnum-width
+      
+      div
+      mod
+      div0
+      mod0   
+      
+      list->vector
+      list->string   
+     )
+    (ironscheme clr))
+    
+    (define (div x1 x2)
+      (let-values (((n d) (div-and-mod x1 x2)))
+        n))
+
+    (define (div0 x1 x2)
+      (let-values (((n d) (div0-and-mod0 x1 x2)))
+        n))
+
+    (define (mod x1 x2)
+      (let-values (((n d) (div-and-mod x1 x2)))
+        d))
+
+    (define (mod0 x1 x2)
+      (let-values (((n d) (div0-and-mod0 x1 x2)))
+        d))
+        
+    (define (list->vector lst)
+      (apply vector lst))        
+      
+    (define (list->string lst)
+      (apply string lst))        
+    
+    (define (char? obj)
+      (clr-is system.char obj))
+      
+    (define (vector? obj)
+      (clr-is system.object[] obj))
+
+    (define (bytevector? obj)
+      (clr-is system.byte[] obj))
+
+    (define (symbol? obj)
+      (clr-is microsoft.scripting.symbolid obj))
+      
+    (define (boolean? obj)
+      (clr-is system.boolean obj))
+     
+    (define (procedure? obj)
+      (clr-is ironscheme.runtime.icallable obj))  
+      
+    (define (fixnum? obj)
+      (clr-is system.int32 obj))        
+
+    (define (flonum? obj)
+      (clr-is system.double obj))   
+      
+    (define (fixnum-width) 32)
+    
+    (define (vector-fill! vec val)
+      (let ((len (vector-length vec)))
+        (do ((i 0 (fx+ i 1)))
+            ((fx=? i len))
+          (vector-set! vec i val))))     
+     
+    (define (reverse lst)
+      (fold-left 
+        (lambda (x y) (cons y x))
+        '()
+        lst))
      
     (define (caar   x) (car (car x)))
     (define (cadr   x) (car (cdr x)))

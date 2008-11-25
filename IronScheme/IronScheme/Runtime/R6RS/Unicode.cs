@@ -244,33 +244,12 @@ namespace IronScheme.Runtime.R6RS
       return s.ToLowerInvariant();
     }
 
-    [Builtin("string-normalize-nfd")]
-    public static object StringNormalizeNFD(object obj)
+    [Builtin("string-normalize")]
+    public static object StringNormalizeNFD(object obj, object form)
     {
       string s = RequiresNotNull<string>(obj);
-      return s.Normalize(NormalizationForm.FormD);
-    }
-
-    [Builtin("string-normalize-nfkd")]
-    public static object StringNormalizeNFKD(object obj)
-    {
-      string s = RequiresNotNull<string>(obj);
-      return s.Normalize(NormalizationForm.FormKD);
-    }
-    
-    [Builtin("string-normalize-nfc")]
-    public static object StringNormalizeNFC(object obj)
-    {
-      string s = RequiresNotNull<string>(obj);
-      return s.Normalize(NormalizationForm.FormC);
-    }
-
-
-    [Builtin("string-normalize-nfkc")]
-    public static object StringNormalizeNFKC(object obj)
-    {
-      string s = RequiresNotNull<string>(obj);
-      return s.Normalize(NormalizationForm.FormKC);
+      NormalizationForm nf = Helpers.SymbolToEnum<NormalizationForm>(form);
+      return s.Normalize(nf);
     }
   }
 }

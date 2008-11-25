@@ -110,7 +110,7 @@ namespace IronScheme.Compiler
       if (c != null)
       {
 
-        if (Builtins.IsTrue(Builtins.IsSymbol(c.car)))
+        if (Builtins.IsSymbol(c.car))
         {
           SymbolId f = (SymbolId)c.car;
 
@@ -415,7 +415,15 @@ namespace IronScheme.Compiler
       {
         if (args is SymbolId)
         {
-          return Read((SymbolId)args, cb, typeof(object));
+          SymbolId sym = (SymbolId)args;
+          if (sym == SymbolTable.StringToId("uninitialized"))
+          {
+            return Ast.ReadField(null, typeof(Uninitialized), "Instance");
+          }
+          else
+          {
+            return Read(sym, cb, typeof(object));
+          }
         }
         if (args == Builtins.Unspecified)
         {
@@ -452,6 +460,17 @@ namespace IronScheme.Compiler
       bool needscontext = cbe.Block.IsClosure || cbe.Block.ExplicitCodeContextExpression == null; // true;
       int pc = ppp.Length;
       MethodInfo dc = GetDirectCallable(needscontext, pc);
+
+      List<Variable> paruninit = new List<Variable>(cbe.Block.Parameters);
+
+      for (int i = 0; i < ppp.Length; i++)
+      {
+        if (ppp[i].Type == typeof(Uninitialized))
+        {
+          paruninit[i].SetUnInitialized();
+        }
+      }
+
       if (needscontext)
       {
         ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);

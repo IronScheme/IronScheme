@@ -46,7 +46,12 @@
     string-ci>?
     string-ci<=?
     string-ci>=?
-    ))
+    string-normalize-nfd
+    string-normalize-nfkd
+    string-normalize-nfc
+    string-normalize-nfkc    
+    )
+    (only (ironscheme core) string-normalize))
 
   (define-syntax make-string-ci-compare
     (syntax-rules ()
@@ -85,5 +90,17 @@
   (define char-ci>? (char-ci-compare > char-ci>?))
   (define char-ci<=? (char-ci-compare <= char-ci<=?))
   (define char-ci>=? (char-ci-compare >= char-ci>=?))
+  
+  (define (string-normalize-nfc s)
+    (string-normalize s 'formc))
+
+  (define (string-normalize-nfd s)
+    (string-normalize s 'formd))
+
+  (define (string-normalize-nfkc s)
+    (string-normalize s 'formkc))
+
+  (define (string-normalize-nfkd s)
+    (string-normalize s 'formkd))
                 
 )

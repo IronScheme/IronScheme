@@ -29,7 +29,7 @@
   
   (define (build-global-define x)
     (if-wants-global-defines
-      `(define ,x '#f)
+      `(define ,x uninitialized)
       (build-void)))
   (define-syntax build-application
     (syntax-rules ()
@@ -133,7 +133,7 @@
         (else
          (if-wants-letrec*
           `(letrec* ,(map list vars val-exps) ,body-exp)
-          (build-let ae vars (map (lambda (x) (build-data ae #f)) vars)
+          (build-let ae vars (map (lambda (x) (build-lexical-reference ae 'uninitialized)) vars)
             (build-sequence ae
               (append
                 (map (lambda (lhs rhs) 

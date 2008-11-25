@@ -321,7 +321,7 @@ namespace IronScheme.Runtime
     static string ReaderFormat(Cons s, Function<object, string> Format)
     {
       object scar = s.car;
-      if (IsTrue(IsSymbol(scar)) && s.cdr is Cons && (int)Length(s.cdr) == 1)
+      if (IsSymbol(scar) && s.cdr is Cons && (int)Length(s.cdr) == 1)
       {
         if (IsTrue(IsEqual(quote, scar)))
         {

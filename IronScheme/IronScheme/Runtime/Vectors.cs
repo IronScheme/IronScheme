@@ -25,16 +25,6 @@ namespace IronScheme.Runtime
 {
   public static partial class BuiltinEmitters
   {
-    [InlineEmitter("vector?")]
-    public static Expression IsVector(Expression[] values)
-    {
-      if (values.Length == 1)
-      {
-        return Ast.TypeIs(values[0], typeof(object[]));
-      }
-      return null;
-    }
-
     [InlineEmitter("vector")]
     public static Expression Vector(Expression[] values)
     {
@@ -65,12 +55,6 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    [Builtin("vector?")]
-    public static object IsVector(object obj)
-    {
-      return GetBool(obj is object[]);
-    }
-
     [Builtin("make-vector")]
     public static object MakeVector(object k)
     {
@@ -92,17 +76,6 @@ namespace IronScheme.Runtime
       return vector;
     }
 
-    [Builtin("vector-fill!")]
-    public static object VectorFill(object vec, object fill)
-    {
-      object[] vector = RequiresNotNull<object[]>(vec);
-      for (int i = 0; i < vector.Length; i++)
-      {
-        vector[i] = fill;
-      }
-      return Unspecified;
-    }
-
     [Builtin("vector")]
     public static object Vector(params object[] args)
     {
@@ -113,12 +86,9 @@ namespace IronScheme.Runtime
     public static object VectorAppend(params object[] args)
     {
       ArrayList all = new ArrayList();
-      foreach (IEnumerable e in args)
+      foreach (object[] e in args)
       {
-        foreach (object var in e)
-        {
-          all.Add(var);
-        }
+        all.AddRange(e);
       }
       return all.ToArray();
     }
@@ -155,7 +125,6 @@ namespace IronScheme.Runtime
       return Runtime.Cons.FromArray(l);
     }
 
-    [Builtin("list->vector")]
     public static object ListToVector(object list)
     {
       Cons e = Requires<Cons>(list);

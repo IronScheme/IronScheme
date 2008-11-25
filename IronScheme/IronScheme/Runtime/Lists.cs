@@ -252,21 +252,6 @@ namespace IronScheme.Runtime
     }
     
     [Builtin]
-    public static Cons Reverse(object lst)
-    {
-      Cons c = Requires<Runtime.Cons>(lst);
-      Cons list = null;
-
-      while (c != null)
-      {
-        list = new Cons(c.car, list);
-        c = c.cdr as Cons;
-      }
-
-      return list;
-    }
-    
-    [Builtin]
     public static object Append()
     {
       return null;

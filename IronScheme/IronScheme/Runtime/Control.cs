@@ -176,15 +176,6 @@ namespace IronScheme.Runtime
     }
 #endif
 
-    [Builtin("procedure?")]
-    public static object IsProcedure(object obj)
-    {
-      return GetBool(obj is ICallable); 
-    }
-
-
-    //procedure:  (apply proc arg1 ... args) 
-    //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     
 #if CPS
 
@@ -238,6 +229,8 @@ namespace IronScheme.Runtime
     }
 
 #else
+    //procedure:  (apply proc arg1 ... args) 
+    //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     [Builtin]
     public static object Apply(object fn, params object[] args)
     {

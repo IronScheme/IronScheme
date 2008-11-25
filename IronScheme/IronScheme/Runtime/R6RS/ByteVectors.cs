@@ -27,12 +27,6 @@ namespace IronScheme.Runtime.R6RS
 {
   public class ByteVectors : Builtins
   {
-    [Builtin("bytevector?")]
-    public static object IsByteVector(object obj)
-    {
-      return GetBool(obj is byte[]);
-    }
-
     [Builtin("make-bytevector")]
     public static object MakeByteVector(object k)
     {

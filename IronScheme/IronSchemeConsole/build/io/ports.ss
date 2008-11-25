@@ -106,9 +106,16 @@
     (except (rnrs) 
       call-with-port
       open-string-output-port port? 
-      call-with-string-output-port))
+      call-with-string-output-port
+      put-datum
+      get-datum))
       
   (clr-using ironscheme.runtime)     
+
+  (define (put-datum p datum) 
+    (write datum p))
+  
+  (define get-datum read)
     
   (define (get-output-string port)
     (clr-call ironscheme.runtime.stringwriter getbuffer port))

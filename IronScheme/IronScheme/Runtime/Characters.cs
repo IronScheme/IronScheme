@@ -23,19 +23,6 @@ namespace IronScheme.Runtime
   public partial class Builtins
   {
     /// <summary>
-    /// Determines whether the specified obj is char.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if the specified obj is char; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("char?")]
-    public static object IsChar(object obj)
-    {
-      return GetBool(obj is char);
-    }
-
-    /// <summary>
     /// Chars to integer.
     /// </summary>
     /// <param name="obj">The obj.</param>

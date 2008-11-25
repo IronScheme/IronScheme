@@ -26,20 +26,6 @@ namespace IronScheme.Runtime
   public partial class Builtins
   {
     /// <summary>
-    /// Determines whether the specified obj is boolean.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns>
-    /// 	<c>true</c> if the specified obj is boolean; otherwise, <c>false</c>.
-    /// </returns>
-    [Builtin("boolean?")]
-    public static object IsBoolean(object obj)
-    {
-      return GetBool(obj is bool); 
-    }
-
-
-    /// <summary>
     /// Nots the specified obj.
     /// </summary>
     /// <param name="obj">The obj.</param>

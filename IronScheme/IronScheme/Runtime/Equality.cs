@@ -25,36 +25,6 @@ namespace IronScheme.Runtime
 {
   public static partial class BuiltinEmitters
   {
-    [InlineEmitter("symbol?")]
-    public static Expression IsSymbol(Expression[] obj)
-    {
-      if (obj.Length == 1)
-      {
-        return Ast.TypeIs(obj[0], typeof(SymbolId));
-      }
-      return null;
-    }
-
-    [InlineEmitter("boolean?")]
-    public static Expression IsBoolean(Expression[] obj)
-    {
-      if (obj.Length == 1)
-      {
-        return Ast.TypeIs(obj[0], typeof(bool));
-      }
-      return null;
-    }
-
-    [InlineEmitter("procedure?")]
-    public static Expression IsProcedure(Expression[] obj)
-    {
-      if (obj.Length == 1)
-      {
-        return Ast.TypeIs(obj[0], typeof(ICallable));
-      }
-      return null;
-    }
-
     [InlineEmitter("not")]
     public static Expression Not(Expression[] obj)
     {

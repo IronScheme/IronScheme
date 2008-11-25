@@ -74,4 +74,32 @@ namespace IronScheme.Compiler
       return Ast.Comma(r, Ast.ReadField(null, Unspecified));
     }
   }
+
+  [Generator("define")]
+  public sealed class DefineGenerator : SimpleGenerator
+  {
+    static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
+
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      SymbolId s = (SymbolId)Builtins.First(args);
+
+      assigns[s] = true;
+
+      NameHint = Builtins.UnGenSymInternal(s);
+
+      Expression value = GetAst(Builtins.Second(args), cb);
+
+      NameHint = SymbolId.Invalid;
+
+      if (value.Type.IsValueType)
+      {
+        value = Ast.ConvertHelper(value, typeof(object));
+      }
+
+      Expression r = Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(s), value);
+
+      return Ast.Comma(r, Ast.ReadField(null, Unspecified));
+    }
+  }
 }

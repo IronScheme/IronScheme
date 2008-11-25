@@ -1057,6 +1057,7 @@
     ;;;
     (char-ready?                                se)
     (interaction-environment                    i)
+    (string-normalize                           ic)
     (load                                       i)
     (compile                                    i)
     (compile->closure                           i)

@@ -124,7 +124,7 @@ namespace IronScheme.Compiler
 
 
 #endif
-
+      
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
       Closure.Cons = Builtins.Cons;
@@ -151,6 +151,8 @@ namespace IronScheme.Compiler
 
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
+
+      cc.Scope.SetName(SymbolTable.StringToId("uninitialized"), Uninitialized.Instance);
 
 #if CPS
       
