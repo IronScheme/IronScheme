@@ -409,9 +409,6 @@
     <None Include="build\control.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\io\conditions.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="build\lists.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -61,7 +61,6 @@
     "build/arithmetic/bitwise.ss"
     "build/arithmetic/fixnums.ss"
     "build/arithmetic/flonums.ss"
-    "build/io/conditions.ss"
     "build/io/ports.ss"
     "build/io/simple.ss"
     "build/records/inspection.ss"
