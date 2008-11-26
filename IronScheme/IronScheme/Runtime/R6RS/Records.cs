@@ -356,6 +356,7 @@ namespace IronScheme.Runtime.R6RS
         nongenerative[n + id] = rtd;
       }
 
+      // should be internal somehow
       if (parenttype.IsSubclassOf(typeof(Exception)))
       {
         SetSymbolValue(SymbolTable.StringToId(n + "-rtd"), rtd);
@@ -377,6 +378,7 @@ namespace IronScheme.Runtime.R6RS
       rcd.protocol = protocol as ICallable;
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;
 
+      // should be internal somehow
       if (t.type.IsSubclassOf(typeof(Exception)))
       {
         SetSymbolValue(SymbolTable.StringToId(t.name + "-rcd"), rcd);

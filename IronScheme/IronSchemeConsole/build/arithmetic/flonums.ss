@@ -56,14 +56,7 @@
     flatan
     flsqrt
     flexpt
-    
-    &no-infinities
-    make-no-infinities-violation
-    no-infinities-violation?
-    &no-nans
-    make-no-nans-violation
-    no-nans-violation?
-    
+
     fixnum->flonum)
     
   (import 
@@ -108,14 +101,7 @@
     flacos
     flatan
     flsqrt
-    flexpt
-    
-    &no-infinities
-    make-no-infinities-violation
-    no-infinities-violation?
-    &no-nans
-    make-no-nans-violation
-    no-nans-violation?))
+    flexpt))
     
   ;; slow!  
   (define (fldiv-and-mod fl1 fl2)
@@ -281,11 +267,6 @@
         (if (fl>? a b) b a))
       a 
       rest))     
-    
-  (define-condition-type &no-infinities &implementation-restriction
-    make-no-infinities-violation no-infinities-violation?)
-  
-  (define-condition-type &no-nans &implementation-restriction
-    make-no-nans-violation no-nans-violation?) 
+
     
 )
