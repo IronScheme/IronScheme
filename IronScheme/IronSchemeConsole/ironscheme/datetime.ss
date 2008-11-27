@@ -30,6 +30,7 @@
     )
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
 
   (clr-using system)
@@ -61,35 +62,35 @@
   (define (today)
     (clr-static-prop-get datetime today))   
 
-  (define (time-of-day date)
-    (clr-prop-get datetime timeofday date))
+  (define/contract (time-of-day dt:datetime)
+    (clr-prop-get datetime timeofday dt))
 
-  (define (day-of-year date)
-    (clr-prop-get datetime dayofyear date))
+  (define/contract (day-of-year dt:datetime)
+    (clr-prop-get datetime dayofyear dt))
 
-  (define (day-of-week date)
-    (clr-prop-get datetime dayofweek date))
+  (define/contract (day-of-week dt:datetime)
+    (clr-prop-get datetime dayofweek dt))
   
-  (define (year date)
-    (clr-prop-get datetime year date))
+  (define/contract (year dt:datetime)
+    (clr-prop-get datetime year dt))
 
-  (define (month date)
-    (clr-prop-get datetime month date))
+  (define/contract (month dt:datetime)
+    (clr-prop-get datetime month dt))
 
-  (define (day date)
-    (clr-prop-get datetime day date))
+  (define/contract (day dt:datetime)
+    (clr-prop-get datetime day dt))
 
-  (define (hour date)
-    (clr-prop-get datetime hour date))
+  (define/contract (hour dt:datetime)
+    (clr-prop-get datetime hour dt))
 
-  (define (minute date)
-    (clr-prop-get datetime minute date))
+  (define/contract (minute dt:datetime)
+    (clr-prop-get datetime minute dt))
 
-  (define (second date)
-    (clr-prop-get datetime second date))
+  (define/contract (second dt:datetime)
+    (clr-prop-get datetime second dt))
 
-  (define (millisecond date)
-    (clr-prop-get datetime millisecond date))
+  (define/contract (millisecond dt:datetime)
+    (clr-prop-get datetime millisecond dt))
 
   (define (ticks date/timespan)
     (cond
@@ -98,34 +99,34 @@
       (else
         (assertion-violation 'ticks "not a datetime or timespan" date/timespan))))
     
-  (define (days timespan)
-    (clr-prop-get timespan days timespan))
+  (define/contract (days ts:timespan)
+    (clr-prop-get timespan days ts))
 
-  (define (hours timespan)
-    (clr-prop-get timespan hours timespan))
+  (define/contract (hours ts:timespan)
+    (clr-prop-get timespan hours ts))
 
-  (define (minutes timespan)
-    (clr-prop-get timespan minutes timespan))
+  (define/contract (minutes ts:timespan)
+    (clr-prop-get timespan minutes ts))
 
-  (define (seconds timespan)
-    (clr-prop-get timespan seconds timespan))
+  (define/contract (seconds ts:timespan)
+    (clr-prop-get timespan seconds ts))
 
-  (define (milliseconds timespan)
-    (clr-prop-get timespan milliseconds timespan))
+  (define/contract (milliseconds ts:timespan)
+    (clr-prop-get timespan milliseconds ts))
 
-  (define (total-days timespan)
-    (clr-prop-get timespan totaldays timespan))
+  (define/contract (total-days ts:timespan)
+    (clr-prop-get timespan totaldays ts))
 
-  (define (total-hours timespan)
-    (clr-prop-get timespan totalhours timespan))
+  (define/contract (total-hours ts:timespan)
+    (clr-prop-get timespan totalhours ts))
 
-  (define (total-minutes timespan)
-    (clr-prop-get timespan totalminutes timespan))
+  (define/contract (total-minutes ts:timespan)
+    (clr-prop-get timespan totalminutes ts))
 
-  (define (total-seconds timespan)
-    (clr-prop-get timespan totalseconds timespan))
+  (define/contract (total-seconds ts:timespan)
+    (clr-prop-get timespan totalseconds ts))
 
-  (define (total-milliseconds timespan)
-    (clr-prop-get timespan totalmilliseconds timespan))
+  (define/contract (total-milliseconds ts:timespan)
+    (clr-prop-get timespan totalmilliseconds ts))
 
 )
