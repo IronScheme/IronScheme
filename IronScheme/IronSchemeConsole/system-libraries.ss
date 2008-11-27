@@ -29,10 +29,12 @@
     (ironscheme web views)
     (ironscheme xml)
     (ironscheme docs)
+    
+    (ironscheme clr reflection)
 
     (ironscheme syntax-format)
     (ironscheme define-macro)
-    (ironscheme typed)
+    (ironscheme contracts)
 
     (ironscheme collections arraylist)
     (ironscheme collections icollection)

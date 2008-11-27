@@ -16,7 +16,7 @@
     (symbol? obj)
     (and (list? obj) (for-all symbol? obj))))
       
-(trace-define-syntax import-clr-method
+(define-syntax import-clr-method
   (lambda (x)
     (define (get-params meth)
       (let ((p (method-params meth)))
@@ -40,7 +40,7 @@
                       (meth (string-append 
                               (member-name meth)
                               "("
-                              (string-join "," (map cdr (if static? params (cdr params))))
+                              (string-join "," (map type-fullname (map cdr (if static? params (cdr params)))))
                               ")")))
           #'(call type meth . p))))
     (define (get-choices type meths)
@@ -105,6 +105,9 @@
 ;(newline)
 
 
+(time-it "calls" 
+
+(lambda()
 
 (display (dt-parse "12:00:00" '() 'assumelocal)) ; null is '()
 (newline)
@@ -116,6 +119,6 @@
 (newline)
 
 (display (str-cmp "hello" 1 "worEL" 3 2 'ordinalignorecase))
-(newline)
+(newline)))
 
 

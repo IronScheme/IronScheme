@@ -138,6 +138,11 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
 
+      if (!t.type.IsSubclassOf(typeof(Exception)))
+      {
+        return AssertionViolation("condition-predicate", "not a valid condition", rtd);
+      }
+
 #if CPS
       CallTarget2 p = delegate(object k, object cond)
       {
@@ -163,6 +168,7 @@ namespace IronScheme.Runtime.R6RS
         }
       };
 #else
+
       CallTarget1 p = delegate(object cond)
       {
         CallTarget1 recp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
@@ -194,6 +200,12 @@ namespace IronScheme.Runtime.R6RS
     public static object ConditionAccessor(object rtd, object proc)
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+
+      if (!t.type.IsSubclassOf(typeof(Exception)))
+      {
+        return AssertionViolation("condition-accessor", "not a valid condition", rtd);
+      }
+
       ICallable c = RequiresNotNull<ICallable>(proc);
 
 #if CPS

@@ -65,11 +65,11 @@
                   (let ((id1 (string->symbol (vector-ref t 0)))
                         (id2 (string->symbol (vector-ref t 1))))
                     (and (var? id1) (var? id2)))))))))
-      (define (get-range-ids from to)
-        (let ((from (get-coord from))
-              (to   (get-coord to)))
-          (cond
-            [(
+      ;(define (get-range-ids from to)
+        ;(let ((from (get-coord from))
+              ;(to   (get-coord to)))
+          ;(cond
+            ;[(
       (define (range-ids id)
         (let ((s (syntax->datum id)))
           (let ((t (string-split (symbol->string s) ":")))

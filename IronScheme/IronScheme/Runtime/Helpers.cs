@@ -52,40 +52,50 @@ namespace IronScheme.Runtime
     {
       try
       {
-        switch (Type.GetTypeCode(typeof(T)))
+        switch (Type.GetTypeCode(o.GetType()))
         {
           case TypeCode.Boolean:
-            return Convert.ToBoolean(o);
-          case TypeCode.Byte:
-            return Convert.ToByte(o);
           case TypeCode.Char:
-            return Convert.ToChar(o);
           case TypeCode.DateTime:
-            return Convert.ToDateTime(o);
-          case TypeCode.Decimal:
-            return Convert.ToDecimal(o);
-          case TypeCode.Double:
-            return Convert.ToDouble(o);
-          case TypeCode.Int16:
-            return Convert.ToInt16(o);
-          case TypeCode.Int32:
-            return Convert.ToInt32(o);
-          case TypeCode.Int64:
-            return Convert.ToInt64(o);
-          case TypeCode.SByte:
-            return Convert.ToSByte(o);
-          case TypeCode.Single:
-            return Convert.ToSingle(o);
-          case TypeCode.String:
-            return Convert.ToString(o);
-          case TypeCode.UInt16:
-            return Convert.ToUInt16(o);
-          case TypeCode.UInt32:
-            return Convert.ToUInt32(o);
-          case TypeCode.UInt64:
-            return Convert.ToUInt64(o);
-          default:
+          case TypeCode.DBNull:
+          case TypeCode.Object:
             return (T)o;
+          default:
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+              case TypeCode.Boolean:
+                return Builtins.IsTrue(o);
+              case TypeCode.Byte:
+                return Convert.ToByte(o);
+              case TypeCode.Char:
+                return Convert.ToChar(o);
+              case TypeCode.DateTime:
+                return Convert.ToDateTime(o);
+              case TypeCode.Decimal:
+                return Convert.ToDecimal(o);
+              case TypeCode.Double:
+                return Convert.ToDouble(o);
+              case TypeCode.Int16:
+                return Convert.ToInt16(o);
+              case TypeCode.Int32:
+                return Convert.ToInt32(o);
+              case TypeCode.Int64:
+                return Convert.ToInt64(o);
+              case TypeCode.SByte:
+                return Convert.ToSByte(o);
+              case TypeCode.Single:
+                return Convert.ToSingle(o);
+              case TypeCode.String:
+                return Convert.ToString(o);
+              case TypeCode.UInt16:
+                return Convert.ToUInt16(o);
+              case TypeCode.UInt32:
+                return Convert.ToUInt32(o);
+              case TypeCode.UInt64:
+                return Convert.ToUInt64(o);
+              default:
+                return (T)o;
+            }
         }
       }
       catch
