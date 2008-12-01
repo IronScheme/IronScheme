@@ -207,7 +207,7 @@
         (let ((file-name ((file-locator) x)))
           (cond
             ((not file-name) 
-             (assertion-violation #f "cannot file library" x))
+             (assertion-violation #f "cannot find library" x))
             ((try-load-from-file file-name))
             (else 
              ((current-library-expander)
@@ -274,7 +274,15 @@
                 (lambda (x) (equal? (library-name x) name)))])
          (when (and err? (not lib))
            (assertion-violation who "library not installed" name))
-         ((current-library-collection) lib #t))]
+         ((current-library-collection) lib #t)
+         (for-each
+           (lambda (x) 
+             (let ((label (car x)) (binding (cdr x)))
+               (remove-location label)
+               (when (memq (car binding) 
+                        '(global global-macro global-macro! global-ctv))
+                  (remove-location (cdr binding)))))
+           (library-env lib)))]
       [(name) (uninstall-library name #t)]))
 
   (define (library-exists? name)
@@ -377,5 +385,6 @@
       (unless (library? x)
         (assertion-violation 'library-spec "not a library" x))
       (list (library-id x) (library-name x) (library-version x)))) 
+      
   )
 

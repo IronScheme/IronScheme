@@ -238,6 +238,10 @@ namespace IronScheme.Runtime
       {
         return Apply(fn, (object)null);
       }
+      if (args.Length == 0)
+      {
+        return AssertionViolation("apply", "Expected at least 2 args", fn);
+      }
       object[] head = ArrayUtils.RemoveLast(args);
       object last = args.Length > 0 ? args[args.Length - 1] : null;
 

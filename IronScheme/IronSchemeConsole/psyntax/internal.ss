@@ -48,7 +48,7 @@
            ((quote) 
             (cond
               ((and quote-hack? (mutable? (cadr x)))
-               (let ((g (gensym)))
+               (let ((g (gensym 'weak-temp)))
                  (set-symbol-value! g (cadr x))
                  g))
               (else x)))

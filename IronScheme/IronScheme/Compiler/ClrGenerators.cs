@@ -200,14 +200,22 @@ namespace IronScheme.Compiler
       }
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
-      FieldInfo fi = t.GetField(member);
+      BindingFlags bf = BindingFlags.Instance;
+
+      Expression instance = GetAst(Builtins.Third(args), cb);
+
+      if (instance is ConstantExpression && ((ConstantExpression)instance).Value == null)
+      {
+        bf = BindingFlags.Static;
+        instance = null;
+      }
+
+      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
 
       if (fi == null)
       {
         Builtins.SyntaxError("clr-field-get", "field not found on type: " + type, args, member);
       }
-
-      Expression instance = GetAst(Builtins.Third(args), cb);
 
       return Ast.ReadField(instance, fi);
     }
@@ -228,14 +236,22 @@ namespace IronScheme.Compiler
       }
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
-      FieldInfo fi = t.GetField(member);
+      BindingFlags bf = BindingFlags.Instance;
+
+      Expression instance = GetAst(Builtins.Third(args), cb);
+
+      if (instance is ConstantExpression && ((ConstantExpression)instance).Value == null)
+      {
+        bf = BindingFlags.Static;
+        instance = null;
+      }
+
+      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
 
       if (fi == null)
       {
         Builtins.SyntaxError("clr-field-set!", "field not found on type: " + type, args, member);
       }
-
-      Expression instance = GetAst(Builtins.Third(args), cb);
 
       Expression value = GetAst(Builtins.Car(Builtins.LastPair(args)), cb);
 

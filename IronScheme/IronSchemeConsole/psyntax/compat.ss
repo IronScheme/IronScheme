@@ -27,13 +27,13 @@
 		      read-library-source-file
           library-version-mismatch-warning
           file-locator-resolution-error
-          label-binding set-label-binding!)
+          label-binding set-label-binding! remove-location)
   (import 
     (rnrs)
     (ironscheme reader)
     (ironscheme records printer)
     (ironscheme serialization)
-    (only (ironscheme) fprintf symbol-bound?)
+    (only (ironscheme) fprintf symbol-bound? remove-location)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value compile-core))
 
@@ -128,6 +128,8 @@
   
   (define (file-options-spec x) ((file-options-constructor) x))
 
+  
+  
   (define (set-label-binding! label binding)
     (set-symbol-value! label binding))
   (define (label-binding label)
