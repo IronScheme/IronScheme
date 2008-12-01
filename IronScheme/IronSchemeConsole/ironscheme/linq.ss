@@ -241,7 +241,7 @@ References:
 
   (define (get-hashtable e)
     ;(make-hashtable equal-hash (get-eq e)))
-    (make-eq-hashtable)) ; for ikarus
+    (make-eqv-hashtable)) ; for ikarus
 
   (define (symbol<? a b)
     (string<? 

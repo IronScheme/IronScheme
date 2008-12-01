@@ -602,6 +602,17 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return new Cons(a, new Cons(b, new Cons(c , d)));
     }
 
+    [Builtin("remove-location")]
+    public static object RemoveLocation(object symbol)
+    {
+      if (ModuleScope == null)
+      {
+        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
+      }
+      ModuleScope.RemoveName((SymbolId)symbol);
+      return Unspecified;
+    }
+
     static Scope ModuleScope;
 
     [Builtin("symbol-value")]

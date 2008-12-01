@@ -12,6 +12,7 @@
     ;string-trim-end
     string-trim
     string-join
+    string-replace
     )
   (import 
     (rnrs)
@@ -30,6 +31,16 @@
     (unless (for-all string? strs)
       (assertion-violation 'string-join "not a list of strings" strs))  
     (clr-static-call system.string join del (list->vector strs)))  
+    
+  (define (string-replace str old new)
+    (unless (string? str)
+      (assertion-violation 'string-replace "not a string" str))
+    (unless (string? old)
+      (assertion-violation 'string-replace "not a string" old))
+    (unless (string? new)
+      (assertion-violation 'string-replace "not a string" new))
+    (clr-call system.string replace str (clr-cast system.string old) (clr-cast system.string new)))  
+    
           
   (define string-index-of
     (case-lambda

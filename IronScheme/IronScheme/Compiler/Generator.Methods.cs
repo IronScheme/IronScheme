@@ -34,7 +34,7 @@ namespace IronScheme.Compiler
     static readonly MethodInfo Builtins_ToImproper = typeof(Builtins).GetMethod("ToImproper");
     protected static readonly MethodInfo Builtins_ListToVector = typeof(Builtins).GetMethod("ListToVector");
 
-    protected static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Make");
+    protected static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Make", new Type[] { typeof(CodeContext), typeof(Delegate)});
     protected static readonly MethodInfo Closure_MakeCase = typeof(Closure).GetMethod("MakeCase");
     protected static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("MakeVarArgX");
 

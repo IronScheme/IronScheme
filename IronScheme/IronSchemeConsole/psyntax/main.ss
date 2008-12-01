@@ -24,6 +24,7 @@
     command-line
     load
     load/args
+    load/unload
     ironscheme-build
     compile
     compile-system-libraries
@@ -57,6 +58,15 @@
   (define (load/args filename . args)
     (apply load-r6rs-top-level filename 'load args)
     (void))
+    
+  (define (load/unload filename)
+    (let ((libs (installed-libraries)))
+      (load filename)
+      (for-each
+        (lambda (lib)
+          (unless (memq lib libs)
+            (uninstall-library lib)))
+        (installed-libraries))))
 
   (define (load filename)
     (apply load-r6rs-top-level filename 'load (cdr (command-line)))

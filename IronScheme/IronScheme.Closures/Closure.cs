@@ -176,7 +176,7 @@ namespace IronScheme.Runtime
 
     protected static bool IsValid(MethodInfo mi)
     {
-      return mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi);
+      return mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi) && mi.Module.Name != "<In Memory Module>";
     }
 
     Closure(Delegate target, int paramcount)
@@ -415,6 +415,11 @@ namespace IronScheme.Runtime
           return base.Call(arg1, arg2, arg3, arg4, arg5);
         }
       }
+    }
+
+    public static ICallable MakeStatic(Delegate target)
+    {
+      return Make(null, target);
     }
 
     public static ICallable Make(CodeContext cc, Delegate target)
