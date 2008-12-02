@@ -37,7 +37,7 @@ namespace Microsoft.Scripting {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly ScriptCode[] EmptyArray = new ScriptCode[0];
 
-        private readonly CodeBlock _code;
+        private CodeBlock _code;
         private readonly LanguageContext _languageContext;
         private readonly CompilerContext _compilerContext;
 
@@ -110,10 +110,13 @@ namespace Microsoft.Scripting {
             if (_optimizedScope != null)
             { // flag on scope - "IsOptimized"?
               // TODO: why do we create a code context here?
+              // get rid of block?
+              _code = null;
               return _optimizedTarget(new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext));
             }
 
             EnsureCompiled();
+            _code = null;
             return _simpleTarget(codeContext);
         }
 

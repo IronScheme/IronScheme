@@ -63,23 +63,23 @@ namespace IronScheme.Runtime.psyntax
 #else
               object visit = e2c.Call(pivot.car);
 
-              CallTarget0 visitproc = delegate
-              {
-                return EvalCore(Context, visit);
-              };
+              //CallTarget0 visitproc = delegate
+              //{
+              //  return EvalCore(Context, visit);
+              //};
 
-              pivot.car = Closure.Make(Context, visitproc);
+              pivot.car = CompileCore(cc, visit);// Closure.Make(Context, visitproc);
 
               pivot = (Cons)pivot.cdr;
 
               object invoke = e2c.Call(pivot.car);
 
-              CallTarget0 invokeproc = delegate
-              {
-                return EvalCore(Context, invoke);
-              };
+              //CallTarget0 invokeproc = delegate
+              //{
+              //  return EvalCore(Context, invoke);
+              //};
 
-              pivot.car = Closure.Make(Context, invokeproc);
+              pivot.car = CompileCore(cc, invoke); // Closure.Make(Context, invokeproc);
               return Apply(sk, result);
 #endif
             }
