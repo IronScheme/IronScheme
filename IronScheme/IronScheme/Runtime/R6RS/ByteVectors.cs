@@ -22,6 +22,7 @@ using Microsoft.Scripting.Utils;
 using System.Reflection.Emit;
 using System.Collections;
 using Microsoft.Scripting.Math;
+using System.Globalization;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -680,7 +681,7 @@ namespace IronScheme.Runtime.R6RS
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);
       int i = RequiresNotNull<int>(k);
-      double f = Convert.ToDouble(x);
+      double f = Convert.ToDouble(x, CultureInfo.InvariantCulture);
 
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
 

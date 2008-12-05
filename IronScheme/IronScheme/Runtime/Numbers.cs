@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using IronScheme.Compiler.Numbers;
+using System.Globalization;
 
 namespace IronScheme.Runtime
 {
@@ -155,7 +156,7 @@ namespace IronScheme.Runtime
             double d = (double)obj;
             if (Math.IEEERemainder(d, 1) == 0)
             {
-              string rr = string.Format("{0:r}", obj).ToLower();
+              string rr = string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
               if (rr.Contains("e"))
               {
                 return rr;
@@ -180,7 +181,7 @@ namespace IronScheme.Runtime
                 return "+nan.0";
               }
               else
-              return string.Format("{0:r}", obj).ToLower();
+                return string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
             }
           }
           if (obj is Complex64)
@@ -205,11 +206,11 @@ namespace IronScheme.Runtime
         case 16:
           if (IsTrue(IsNegative(obj)))
           {
-            return string.Format("-{0:X}", Abs(obj));
+            return string.Format(CultureInfo.InvariantCulture, "-{0:X}", Abs(obj));
           }
           else
           {
-            return string.Format("{0:X}", obj);
+            return string.Format(CultureInfo.InvariantCulture, "{0:X}", obj);
           }
       }
 
@@ -1788,7 +1789,7 @@ namespace IronScheme.Runtime
             return (double)AssertionViolation(GetCaller(), "no conversion to real possible", obj);
           }
         }
-        return Convert.ToDouble(obj);
+        return Convert.ToDouble(obj, CultureInfo.InvariantCulture);
       }
       catch (OverflowException)
       {

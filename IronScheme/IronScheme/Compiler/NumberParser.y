@@ -100,7 +100,7 @@ object ConvertToDouble(string s)
   }
   try
   {
-    return Convert.ToDouble(s);
+    return Convert.ToDouble(s, System.Globalization.CultureInfo.InvariantCulture);
   }
   catch (OverflowException)
   {
