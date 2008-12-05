@@ -19,6 +19,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting;
+using System.Globalization;
 
 namespace IronScheme.Runtime.R6RS.Arithmetic
 {
@@ -107,7 +108,8 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     [Builtin("real->flonum")]
     public static object RealToFlonum(object n)
     {
-      return Convert.ToDouble(n);
+      // must be number? fixme
+      return Convert.ToDouble(n, CultureInfo.InvariantCulture);
     }
 
     //TODO: overload

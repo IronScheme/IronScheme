@@ -83,7 +83,7 @@ namespace IronScheme.Runtime
           {
             return value;
           }
-          return (Fraction)Convert.ToDouble(value);
+          return (Fraction)Convert.ToDouble(value, CultureInfo.InvariantCulture);
         }
         return base.ConvertFrom(context, culture, value);
       }
