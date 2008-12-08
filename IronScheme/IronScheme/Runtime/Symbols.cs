@@ -31,7 +31,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("symbol->string")]
-    public static string SymbolToString(object obj)
+    public static object SymbolToString(object obj)
     {
       SymbolId s = RequiresNotNull<SymbolId>(obj);
       return SymbolTable.IdToString(s);

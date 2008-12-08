@@ -202,7 +202,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
     //(bitwise-reverse-bit-field fx1 fx2 fx3)
     [Builtin("bitwise-reverse-bit-field")]
-    public static object FxReverseBitField(object e1, object e2, object e3)
+    public static object BitwiseReverseBitField(object e1, object e2, object e3)
     {
       BigInteger i1 = ConvertToBigInteger(e1);
       BigInteger i2 = ConvertToBigInteger(e2);

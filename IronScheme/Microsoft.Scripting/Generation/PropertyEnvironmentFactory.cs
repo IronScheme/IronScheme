@@ -70,46 +70,55 @@ namespace Microsoft.Scripting.Generation {
             //EmitNestedTupleInit(cg, StorageType);
         }
 
-        private static void EmitNestedTupleInit(CodeGen cg, Type storageType) {
-            if (Tuple.GetSize(storageType) > Tuple.MaxSize) {
-                Slot tmp = cg.GetLocalTmp(storageType);
-                tmp.EmitSet(cg);
+        private static void EmitNestedTupleInit(CodeGen cg, Type storageType)
+        {
+          if (Tuple.GetSize(storageType) > Tuple.MaxSize)
+          {
+            
+            Slot tmp = cg.GetLocalTmp(storageType);
+            tmp.EmitSet(cg);
 
-                Type[] nestedTuples = storageType.GetGenericArguments();
-                for (int i = 0; i < nestedTuples.Length; i++) {
-                    Type t = nestedTuples[i];
-                    if (t.IsSubclassOf(typeof(Tuple))) {
-                        tmp.EmitGet(cg);
+            Type[] nestedTuples = storageType.GetGenericArguments();
+            for (int i = 0; i < nestedTuples.Length; i++)
+            {
+              Type t = nestedTuples[i];
+              if (t.IsSubclassOf(typeof(Tuple)))
+              {
+                tmp.EmitGet(cg);
 
-                        cg.EmitNew(t.GetConstructor(ArrayUtils.EmptyTypes));
-                        cg.EmitPropertySet(storageType, String.Format("Item{0:D3}", i));
+                cg.EmitNew(t.GetConstructor(ArrayUtils.EmptyTypes));
+                cg.EmitPropertySet(storageType, String.Format("Item{0:D3}", i));
 
-                        tmp.EmitGet(cg);
-                        cg.EmitPropertyGet(storageType, String.Format("Item{0:D3}", i));
+                tmp.EmitGet(cg);
+                cg.EmitPropertyGet(storageType, String.Format("Item{0:D3}", i));
 
-                        EmitNestedTupleInit(cg, t);
-                    }
-                }
-
-                cg.FreeLocalTmp(tmp);
-            } else {
-                int capacity = 0;
-                foreach (Type t in storageType.GetGenericArguments()) {
-                    if (t == typeof(None)) {
-                        break;
-                    }
-                    capacity++;
-                }
-                cg.EmitInt(capacity);
-                cg.EmitCall(typeof(RuntimeHelpers), "UninitializeEnvironmentTuple");
+                EmitNestedTupleInit(cg, t);
+              }
             }
+
+            cg.FreeLocalTmp(tmp);
+          }
+          else
+          {
+            int capacity = 0;
+            foreach (Type t in storageType.GetGenericArguments())
+            {
+              if (t == typeof(None))
+              {
+                break;
+              }
+              capacity++;
+            }
+            cg.EmitInt(capacity);
+            cg.EmitCall(typeof(RuntimeHelpers), "UninitializeEnvironmentTuple");
+          }
         }
 
         public override void EmitNewEnvironment(CodeGen cg) {
             ConstructorInfo ctor = EnvironmentType.GetConstructor(
                 new Type[] {
                     StorageType,
-#if DEBUG
+#if FULL
                     typeof(SymbolId[]),
 #endif
                     });
@@ -158,4 +167,53 @@ namespace Microsoft.Scripting.Generation {
         }
 
     }
+
+  class ClassEnvironmentFactory : EnvironmentFactory
+  {
+    private Type _type;
+    private Type _envType;
+
+    public ClassEnvironmentFactory(Type type, Type envType)
+    {
+      _type = type;
+      _envType = envType;
+    }
+
+    public override Type EnvironmentType
+    {
+      get { return _envType; }
+    }
+
+    public override Type StorageType
+    {
+      get { return _type; }
+    }
+
+    public override Storage MakeEnvironmentReference(SymbolId name, Type type)
+    {
+      return new ClassEnvironmentReference(_type, name, type);
+    }
+
+    public override void EmitNewEnvironment(CodeGen cg)
+    {
+      throw new NotImplementedException();
+    }
+
+    public override void EmitStorage(CodeGen cg)
+    {
+      cg.EmitNew(StorageType.GetConstructor(ArrayUtils.EmptyTypes));
+    }
+
+    public override void EmitGetStorageFromContext(CodeGen cg)
+    {
+      cg.EmitCodeContext();
+      cg.EmitPropertyGet(typeof(CodeContext), "Scope");
+      cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetTupleDictionaryData").MakeGenericMethod(StorageType));
+    }
+
+    public override EnvironmentSlot CreateEnvironmentSlot(CodeGen cg)
+    {
+      return new ClassEnvironmentSlot(cg.GetNamedLocal(StorageType, "$environment"), StorageType);
+    }
+  }
 }

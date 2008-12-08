@@ -314,7 +314,7 @@ namespace Microsoft.Scripting.Ast {
             _variablesmap.Add(variable.Name, variable);
             return variable;
         }
-
+#if FULL
         private void EmitEnvironmentIDs(CodeGen cg) {
             int size = 0;
             foreach (Variable prm in _parameters) {
@@ -328,17 +328,17 @@ namespace Microsoft.Scripting.Ast {
                 Debug.Assert(cg.TypeGen != null);
 
                 CodeGen cctor = cg.TypeGen.TypeInitializer;
-#if DEBUG
+
                 EmitEnvironmentIdArray(cctor, size);
                 Slot fields = cg.TypeGen.AddStaticField(typeof(SymbolId[]), "__symbolIds$" + _name + "$" + Interlocked.Increment(ref _Counter));
                 fields.EmitSet(cctor);
                 fields.EmitGet(cg);
-#endif
 
             } else {
                 EmitEnvironmentIdArray(cg, size);
             }
         }
+
 
         private void EmitEnvironmentIdArray(CodeGen cg, int size) {
             // Create the array for the names
@@ -361,6 +361,7 @@ namespace Microsoft.Scripting.Ast {
             }
             //cg.EmitDebugMarker("--- End Environment IDs ---");
         }
+#endif
 
         private static void EmitSetVariableName(CodeGen cg, int index, SymbolId name) {
             cg.Emit(OpCodes.Dup);
@@ -385,16 +386,35 @@ namespace Microsoft.Scripting.Ast {
                     }
                 }
 
+                List<Variable> lifted = new List<Variable>();
+
                 foreach (Variable parm in _parameters) {
-                    if (parm.Lift) size++;
+                  if (parm.Lift)
+                  {
+                    lifted.Add(parm);
+                    size++;
+                  }
                 }
                 foreach (Variable var in _variables) {
-                    if (var.Lift) size++;
+                  if (var.Lift)
+                  {
+                    lifted.Add(var);
+                    size++;
+                  }
                 }
                 // Find the right environment factory for the size of elements to store
-                _environmentFactory = CreateEnvironmentFactory(size);
+                if (useclass)
+                {
+                  _environmentFactory = CreateEnvironmentFactory(lifted);
+                }
+                else
+                {
+                  _environmentFactory = CreateEnvironmentFactory(size);
+                }
             }
         }
+
+        static bool useclass = false;
 
         internal EnvironmentSlot EmitEnvironmentAllocation(CodeGen cg) {
             Debug.Assert(_environmentFactory != null);
@@ -408,7 +428,7 @@ namespace Microsoft.Scripting.Ast {
             environmentSlot.EmitSet(cg);
 
             // Emit the names array for the environment constructor
-#if DEBUG
+#if FULL
             EmitEnvironmentIDs(cg);
 #endif
 
@@ -1355,6 +1375,11 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             Type envType = typeof(FunctionEnvironmentDictionary<>).MakeGenericType(tupleType);
 
             return new PropertyEnvironmentFactory(tupleType, envType);
+        }
+
+        internal static EnvironmentFactory CreateEnvironmentFactory(List<Variable> vars)
+        {
+          return null;
         }
 
         public void AddParameter(Variable par)

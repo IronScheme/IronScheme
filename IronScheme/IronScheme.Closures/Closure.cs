@@ -24,7 +24,7 @@ namespace IronScheme.Runtime
   public delegate object[] ArrayFromConsHandler(object args);
   public delegate object AssertHandler(object who, object msg, params object[] irritants);
 
-
+  [Serializable]
   public abstract class Closure : ICallable
   {
     readonly static Dictionary<Type, int> targetmap = new Dictionary<Type, int>();
@@ -190,6 +190,7 @@ namespace IronScheme.Runtime
       return SymbolTable.StringToId(target.Method.Name);
     }
 
+    [Serializable]
     sealed class ContextClosure : Closure
     {
       CodeContext cc;
@@ -305,6 +306,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Serializable]
     sealed class SimpleClosure : Closure
     {
       public SimpleClosure(Delegate target, int paramcount)
@@ -450,6 +452,7 @@ namespace IronScheme.Runtime
       return new CaseClosure(cc, targets, arities);
     }
 
+    [Serializable]
     sealed class VarArgClosure : Closure
     {
       ICallable realtarget;
@@ -517,7 +520,7 @@ namespace IronScheme.Runtime
     }
 
 
-
+    [Serializable]
     sealed class CaseClosure : Closure
     {
       int[] arities;

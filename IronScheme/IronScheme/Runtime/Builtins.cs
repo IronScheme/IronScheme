@@ -62,6 +62,7 @@ namespace IronScheme.Runtime
     
   }
 
+
   public partial class Builtins : BaseHelper
   {
     protected internal readonly static object TRUE = RuntimeHelpers.True;
@@ -236,7 +237,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin]
-    public static Type Typeof(object o)
+    public static object Typeof(object o)
     {
       if (o == null)
       {
@@ -324,7 +325,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
 
     [Builtin("get-library-paths")]
-    public static Cons GetLibraryPaths()
+    public static object GetLibraryPaths()
     {
       if (Environment.CurrentDirectory == ApplicationDirectory)
       {
@@ -371,14 +372,14 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
     [Builtin("make-traced-procedure")]
     [CLSCompliant(false)]
-    public static ICallable MakeTraceProcedure(object name, object proc)
+    public static object MakeTraceProcedure(object name, object proc)
     {
       return MakeTraceProcedure(name, proc, FALSE);
     }
 
     [Builtin("make-traced-procedure")]
     [CLSCompliant(false)]
-    public static ICallable MakeTraceProcedure(object name, object proc, object filter)
+    public static object MakeTraceProcedure(object name, object proc, object filter)
     {
       ICallable p = RequiresNotNull<ICallable>(proc);
       SymbolId n = RequiresNotNull<SymbolId>(name);
@@ -585,19 +586,19 @@ A ""contributor"" is any person that distributes its contribution under this lic
     }
 
     [Builtin("list*", AllowCPS = false)]
-    public static Cons ListStar(object a, object b)
+    public static object ListStar(object a, object b)
     {
       return new Cons(a, b);
     }
 
     [Builtin("list*", AllowCPS = false)]
-    public static Cons ListStar(object a, object b, object c)
+    public static object ListStar(object a, object b, object c)
     {
       return new Cons(a, new Cons(b, c));
     }
 
     [Builtin("list*", AllowCPS = false)]
-    public static Cons ListStar(object a, object b, object c, object d)
+    public static object ListStar(object a, object b, object c, object d)
     {
       return new Cons(a, new Cons(b, new Cons(c , d)));
     }
@@ -609,7 +610,10 @@ A ""contributor"" is any person that distributes its contribution under this lic
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
-      ModuleScope.RemoveName((SymbolId)symbol);
+      if (ModuleScope.ContainsName((SymbolId)symbol))
+      {
+        ModuleScope.RemoveName((SymbolId)symbol);
+      }
       return Unspecified;
     }
 
@@ -698,13 +702,13 @@ A ""contributor"" is any person that distributes its contribution under this lic
         }
       }
 
-      return List(all.ToArray());
+      return Runtime.Cons.FromList(all);
     }
 
 
     static Cons ReadAttribute(XmlAttribute a)
     {
-      return Cons(SymbolTable.StringToId(a.Name), a.Value);
+      return new Cons(SymbolTable.StringToId(a.Name), a.Value);
     }
 
     [Builtin("download-string")]

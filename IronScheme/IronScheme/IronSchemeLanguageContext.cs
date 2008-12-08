@@ -82,6 +82,7 @@ namespace IronScheme
 #endif
         switch (context.SourceUnit.Kind)
         {
+          default:
           case SourceCodeKind.InteractiveCode:
             string code = context.SourceUnit.GetCode();
 
@@ -109,8 +110,8 @@ namespace IronScheme
             {
               return ParseStream(s, context);
             }
-          default:
-            return ParseString(context.SourceUnit.GetCode(), context);
+          //default:
+            //return ParseString(context.SourceUnit.GetCode(), context);
         }
 #if DEBUG
       }

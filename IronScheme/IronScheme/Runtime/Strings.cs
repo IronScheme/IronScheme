@@ -75,13 +75,13 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("make-string")]
-    public static StringBuilder MakeString(object k)
+    public static object MakeString(object k)
     {
       return MakeString(k, (char)0);
     }
 
     [Builtin("make-string")]
-    public static StringBuilder MakeString(object k, object fill)
+    public static object MakeString(object k, object fill)
     {
       int n = RequiresNotNull<int>(k);
       StringBuilder sb = new StringBuilder(n);
@@ -93,14 +93,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string")]
-    public static StringBuilder String(params object[] args)
+    public static object String(params object[] args)
     {
       char[] a = Array.ConvertAll<object, char>(args, delegate(object o) { return (char)o; });
       return new StringBuilder(new string(a));
     }
 
     [Builtin("substring")]
-    public static string SubString(object obj, object start, object end)
+    public static object SubString(object obj, object start, object end)
     {
       int st = RequiresNotNull<int>(start);
       int ed = RequiresNotNull<int>(end);
@@ -109,7 +109,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-append")]
-    public static string StringAppend(params object[] args)
+    public static object StringAppend(params object[] args)
     {
       return string.Concat(args);
     }
@@ -128,7 +128,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-copy")]
-    public static string StringCopy(object obj)
+    public static object StringCopy(object obj)
     {
       string s = RequiresNotNull<string>(obj);
       return s.Clone() as string;
@@ -150,7 +150,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string->list")]
-    public static Cons StringToList(object obj)
+    public static object StringToList(object obj)
     {
       string s = RequiresNotNull<string>(obj);
 
@@ -158,7 +158,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string-format")]
-    public static string StringFormat(object format, params object[] args)
+    public static object StringFormat(object format, params object[] args)
     {
       string f = RequiresNotNull<string>(format);
       return string.Format(f, args);

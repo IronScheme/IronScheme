@@ -4,6 +4,7 @@
           format)
   (import (rnrs))
 
+  
   ;; dofmt does all of the work.  It loops through the control string
   ;; recognizing format directives and printing all other characters
   ;; without interpretation.  A tilde at the end of a control string is
@@ -43,7 +44,7 @@
                        (loop (fx+ n 1) a)))
                     (begin
                       (write-char c p)
-                      (loop (fx+ n 1) a))))))))) 
+                      (loop (fx+ n 1) a)))))))))
 
   ;; printf and fprintf differ only in that fprintf passes its
   ;; port argument to dofmt while printf passes the current output
@@ -59,5 +60,7 @@
       (lambda (p c)
         (dofmt p control args)
         (c))))
+        
+          
 ) 
     

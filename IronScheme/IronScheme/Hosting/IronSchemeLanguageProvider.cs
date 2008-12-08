@@ -39,9 +39,9 @@ namespace IronScheme.Hosting
 #if DEBUG && !CPS
  Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
         Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
-#endif
  Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
+#endif
+       Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
 
@@ -180,9 +180,9 @@ namespace IronScheme.Hosting
         if (File.Exists("init.ss"))
         {
 #if CPS
-          Engine.Execute("(eval-r6rs identity-for-cps '(include \"init.ss\"))", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
 #else
-          Engine.Execute("(eval-r6rs '(include \"init.ss\"))", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
 #endif
         }
 

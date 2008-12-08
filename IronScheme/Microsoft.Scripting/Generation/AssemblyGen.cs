@@ -70,7 +70,7 @@ namespace Microsoft.Scripting.Generation {
 
             AssemblyName asmname = new AssemblyName();
 
-            AppDomain domain = System.Threading.Thread.GetDomain();
+            AppDomain domain = AppDomain.CurrentDomain; //System.Threading.Thread.GetDomain();
 
             _machine = machine;
             _peKind = peKind;
