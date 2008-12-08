@@ -21,6 +21,5 @@
              #'(impspec* ...)))]))) 
 
   (import-and-reexport-all-from 
-    (ironscheme)
-    (ironscheme pretty-print)))
+    (ironscheme)))
     
