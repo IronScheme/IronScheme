@@ -33,7 +33,7 @@
 (library (srfi format)
   (export format)
   (import (rnrs)
-          (only (ironscheme pretty-print) pretty-print)
+          (only (ironscheme) pretty-print)
           (srfi string-ports)
           (srfi parameters)
 	)

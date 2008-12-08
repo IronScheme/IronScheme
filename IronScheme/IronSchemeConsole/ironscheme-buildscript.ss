@@ -73,11 +73,12 @@
     "build/format.ss"
     "build/trace.ss"
     
+    "psyntax/compat.ss"
+    "build/pretty-print.ss" ;; needs make-parameter
+    
     "build/cps.ss"
     
-    "psyntax/compat.ss"
     "psyntax/internal.ss"
-
     "psyntax/library-manager.ss"
     "psyntax/builders.ss"
     "psyntax/expander.ss"
@@ -263,6 +264,8 @@
     (export                                     i)
     (library                                    i) 
     (include                                    i)
+    (pretty-print                               i)
+    (pretty-width                               i)
     (uninstall-library                          i)
     (installed-libraries                        i)
     (convert->cps                               i)

@@ -33,9 +33,9 @@ To use an exisiting library, one simply has to import it as:
 
   (import 
     (rnrs)
-    (ironscheme pretty-print))
+    (ironscheme))
 
-  ; you can now use any construct defined in (ironscheme pretty-print)
+  ; you can now use any construct defined in (ironscheme)
   (pretty-print '(a b c d e f))
 
 This will simple print the supplied argument, in a pretty format (probably nothing pretty in this case).  

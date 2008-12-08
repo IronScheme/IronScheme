@@ -14,7 +14,6 @@
     (ironscheme environment)
     (ironscheme linq)
     (ironscheme files)
-    (ironscheme pretty-print)
     (ironscheme process)
     (ironscheme random)
     (ironscheme record-case)

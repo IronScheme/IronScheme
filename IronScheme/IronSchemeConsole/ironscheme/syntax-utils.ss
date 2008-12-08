@@ -1,8 +1,7 @@
 ﻿(library (ironscheme syntax-utils)
   (export unexpand expand* syntax-trace)
   (import 
-    (ironscheme)
-    (ironscheme pretty-print))
+    (ironscheme))
     
   (define (self-evaluating? o)
     (or (boolean? o)

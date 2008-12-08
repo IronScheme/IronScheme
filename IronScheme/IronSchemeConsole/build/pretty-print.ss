@@ -5,7 +5,9 @@
 
 (library (ironscheme pretty-print)
   (export pretty-print pretty-width)
-  (import (ironscheme) (rnrs mutable-strings))
+  (import 
+    (except (ironscheme) pretty-print pretty-width) 
+    (rnrs mutable-strings))
 
 (define genwrite:newline-str (make-string 1 #\newline))
 ;@
@@ -274,7 +276,7 @@
   
 (define (pretty-print obj . opt)
   (let ((port (if (pair? opt) (car opt) (current-output-port))))
-    (generic-write obj #f 80
+    (generic-write obj #f (pretty-width)
                    (lambda (s) (display s port) #t))))
                    
 
