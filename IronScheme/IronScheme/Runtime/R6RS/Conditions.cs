@@ -107,7 +107,7 @@ namespace IronScheme.Runtime.R6RS
   public class Conditions : Builtins
   {
     [Builtin("condition")]
-    public static Exception Condition(params object[] conds)
+    public static object Condition(params object[] conds)
     {
       if (conds.Length == 1)
       {

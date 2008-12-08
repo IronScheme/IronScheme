@@ -28,6 +28,39 @@ namespace IronScheme.Compiler
       get { return value.GetType(); }
     }
 
+    //static Dictionary<CodeGen, Dictionary<Slot, object>> cache = new Dictionary<CodeGen, Dictionary<Slot, object>>();
+
+    //static Dictionary<Slot, object> GetCache(CodeGen cg)
+    //{
+    //  Dictionary<Slot, object> r;
+    //  if (cache.TryGetValue(cg, out r))
+    //  {
+    //    return r;
+    //  }
+    //  return cache[cg] = new Dictionary<Slot, object>();
+    //}
+
+    //static Slot GetSlot(CodeGen cg, object value)
+    //{
+    //  Dictionary<Slot, object> c = GetCache(cg);
+
+    //  foreach (KeyValuePair<Slot, object> kvp in c)
+    //  {
+    //    if (Builtins.IsTrue(Builtins.IsEquivalent(kvp.Value, value)))
+    //    {
+    //      return kvp.Key;
+    //    }
+    //  }
+
+    //  return null;
+    //}
+
+    //static void AddSlot(CodeGen cg, Slot slot, object value)
+    //{
+    //  GetCache(cg)[slot] = value;
+    //}
+
+
     public override void EmitCreation(CodeGen cg)
     {
       if (cg.IsDynamicMethod)
@@ -39,23 +72,33 @@ namespace IronScheme.Compiler
         ModuleBuilder mb = cg.TypeGen.TypeBuilder.Module as ModuleBuilder;
         CodeGen init = cg.TypeGen.TypeInitializer;
 
-        Slot s = cg.TypeGen.AddStaticField(typeof(object),FieldAttributes.InitOnly | FieldAttributes.Private , string.Format("$c${0:X4}", constantcounter++));
+        //Slot cs = GetSlot(init, value);
 
-        try
-        {
-          Generator.inconstant = true;
-          Expression e = Generator.GetConsList(value as Cons, cb);
+        //if (cs == null)
+        //{
+          Slot s = cg.TypeGen.AddStaticField(typeof(object), FieldAttributes.InitOnly | FieldAttributes.Private, string.Format("$c${0:X4}", constantcounter++));
 
-          e.Emit(init);
-        }
-        finally
-        {
-          Generator.inconstant = false;
-        }
+          try
+          {
+            Generator.inconstant = true;
+            Expression e = Generator.GetConsList(value as Cons, cb);
 
-        s.EmitSet(init);
-        s.EmitGet(cg);
+            e.Emit(init);
+          }
+          finally
+          {
+            Generator.inconstant = false;
+          }
 
+          s.EmitSet(init);
+          s.EmitGet(cg);
+
+        //  AddSlot(init, s, value);
+        //}
+        //else
+        //{
+        //  cs.EmitGet(cg);
+        //}
       }
     }
 

@@ -81,6 +81,8 @@ namespace Microsoft.Scripting {
 
         internal CallTargetWithContext0 OptimizedTarget {
             set {
+                CodeGen._codeBlockImplementations.Clear();
+                _code = null;
                 _optimizedTarget = value;
             }
         }
@@ -111,11 +113,11 @@ namespace Microsoft.Scripting {
             { // flag on scope - "IsOptimized"?
               // TODO: why do we create a code context here?
               // get rid of block?
-              _code = null;
               return _optimizedTarget(new CodeContext(_optimizedScope, _languageContext, codeContext.ModuleContext));
             }
 
             EnsureCompiled();
+            CodeGen._codeBlockImplementations.Clear();
             _code = null;
             return _simpleTarget(codeContext);
         }

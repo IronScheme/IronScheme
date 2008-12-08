@@ -83,6 +83,36 @@ namespace IronScheme.Runtime
 
 #else
 
+    [Builtin]
+    public static object Values()
+    {
+      return new MultipleValues();
+    }
+
+    [Builtin]
+    public static object Values(object arg1)
+    {
+      return arg1;
+    }
+
+    [Builtin]
+    public static object Values(object arg1, object arg2)
+    {
+      return new MultipleValues(arg1, arg2);
+    }
+
+    [Builtin]
+    public static object Values(object arg1, object arg2, object arg3)
+    {
+      return new MultipleValues(arg1, arg2, arg3);
+    }
+
+    [Builtin]
+    public static object Values(object arg1, object arg2, object arg3, object arg4)
+    {
+      return new MultipleValues(arg1, arg2, arg3, arg4);
+    }
+
     [Builtin("dynamic-wind")]
     public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
     {

@@ -119,7 +119,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector->list")]
-    public static Cons VectorToList(object vec)
+    public static object VectorToList(object vec)
     {
       object[] l = RequiresNotNull<object[]>(vec);
       return Runtime.Cons.FromArray(l);

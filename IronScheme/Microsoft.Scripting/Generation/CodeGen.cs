@@ -56,7 +56,7 @@ namespace Microsoft.Scripting.Generation {
         private List<Slot> _freeSlots = new List<Slot>();
         private IList<Label> _yieldLabels;
         private Nullable<ReturnBlock> _returnBlock;
-        private static Dictionary<CodeBlock, CodeGen> _codeBlockImplementations = new Dictionary<CodeBlock,CodeGen>();
+        internal static Dictionary<CodeBlock, CodeGen> _codeBlockImplementations = new Dictionary<CodeBlock,CodeGen>();
 
         // Key slots
         private EnvironmentSlot _environmentSlot;   // reference to function's own environment

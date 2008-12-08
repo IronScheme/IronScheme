@@ -167,6 +167,19 @@ namespace IronScheme.Compiler
 
     }
 
+    static bool CheckParams(MethodInfo mi)
+    {
+#if DEBUG
+      return mi.ReturnType == typeof(object)
+        && Array.TrueForAll(mi.GetParameters(), 
+        pi => (pi.Position == 0 && pi.ParameterType == typeof(CodeContext)) || 
+          pi.ParameterType == typeof(object) ||
+          (pi.ParameterType == typeof(object[]) && pi.IsDefined(typeof(ParamArrayAttribute), false)));
+#else
+      return true;
+#endif
+    }
+
     public static void AddBuiltins(CodeContext cc, Type builtinstype)
     {
       BuiltinMethod.binder = binder;
@@ -179,24 +192,31 @@ namespace IronScheme.Compiler
       {
         foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
         {
-          string name = ba.Name ?? mi.Name.ToLower();
-          List<MethodBase> meths;
-
-          if (ba.AllowCPS)
+          if (CheckParams(mi))
           {
-            if (!all.TryGetValue(name, out meths))
+            string name = ba.Name ?? mi.Name.ToLower();
+            List<MethodBase> meths;
+
+            if (ba.AllowCPS)
             {
-              all[name] = meths = new List<MethodBase>();
+              if (!all.TryGetValue(name, out meths))
+              {
+                all[name] = meths = new List<MethodBase>();
+              }
+              meths.Add(mi);
             }
-            meths.Add(mi);
+            else
+            {
+              if (!cpsfree.TryGetValue(name, out meths))
+              {
+                cpsfree[name] = meths = new List<MethodBase>();
+              }
+              meths.Add(mi);
+            }
           }
           else
           {
-            if (!cpsfree.TryGetValue(name, out meths))
-            {
-              cpsfree[name] = meths = new List<MethodBase>();
-            }
-            meths.Add(mi);
+            throw new NotSupportedException("all arguments must be of type object, method: " + mi);
           }
         }
       }
@@ -518,6 +538,19 @@ namespace IronScheme.Compiler
             return OptimizeBody(Ast.Block(ss));
           }
         }
+        else if (e is NewExpression || e is BoundExpression || e is ConstantExpression || e is MemberExpression)
+        {
+          // ignore
+        }
+        else if (e is UnaryExpression)
+        {
+          ;
+        }
+        else
+        {
+          ;
+        }
+      
       }
 
       return Ast.Return(e);

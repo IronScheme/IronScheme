@@ -120,7 +120,7 @@ namespace IronScheme.Runtime
         ICallable k = args[0] as ICallable;
         List<object> nargs = new List<object>(args);
         nargs.RemoveAt(0);
-        return ((ICallable)k).Call(prim(nargs.ToArray()));
+        return k.Call(prim(nargs.ToArray()));
       };
     }
 

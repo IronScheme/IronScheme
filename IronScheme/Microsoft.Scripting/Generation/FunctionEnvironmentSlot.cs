@@ -33,4 +33,20 @@ namespace Microsoft.Scripting.Generation {
             }
         }        
     }
+
+    public class ClassEnvironmentSlot : EnvironmentSlot
+    {
+      private Type _storageType;
+
+      public ClassEnvironmentSlot(Slot storage, Type storageType)
+        : base(storage)
+      {
+        _storageType = storageType;
+      }
+
+      public override void EmitGetDictionary(CodeGen cg)
+      {
+        EmitGet(cg);
+      }
+    }
 }

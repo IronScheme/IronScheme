@@ -29,11 +29,16 @@ namespace IronScheme.Compiler
   {
     static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
 
+    static string SymbolToString(object sym)
+    {
+      return SymbolTable.IdToString((SymbolId)sym);
+    }
+
     public override Expression Generate(object args, CodeBlock c)
     {
       Cons name = (args as Cons).car as Cons;
 
-      string[] fullname = Array.ConvertAll<object, string>((object[])Builtins.ListToVector(name), Builtins.SymbolToString);
+      string[] fullname = Array.ConvertAll<object, string>((object[])Builtins.ListToVector(name), SymbolToString);
 
       string n = string.Join(".", fullname);
 

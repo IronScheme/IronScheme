@@ -402,10 +402,10 @@
         (assertion-violation 'negative? "not a real" r))
       (> 0 r))   
       
-    (define (zero? r)
-      (unless (real-valued? r)
-        (assertion-violation 'zero? "not a real" r))
-      (= 0 r))           
+    (define (zero? z)
+      (unless (number? z)
+        (assertion-violation 'zero? "not a number" z))
+      (= 0 z))           
       
     (define (even? n)
       (unless (integer-valued? n)
@@ -418,6 +418,8 @@
       (= 1 (mod n 2)))      
     
     (define (max a . rest)
+      (unless (real-valued? a)
+        (assertion-violation 'max "not a real" a))    
       (fold-left 
         (lambda (a b) 
           (let ((r (if (< a b) b a)))
@@ -428,6 +430,8 @@
         rest))
       
     (define (min a . rest)
+      (unless (real-valued? a)
+        (assertion-violation 'min "not a real" a))    
       (fold-left 
         (lambda (a b) 
           (let ((r (if (> a b) b a)))
