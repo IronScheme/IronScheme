@@ -2198,7 +2198,7 @@
       (cvt pattern 0 '())))
 
   (define syntax-dispatch
-    (let ()
+    (lambda (e p)
       (define stx^
         (lambda (e m* s* ae*)
           (if (and (null? m*) (null? s*) (null? ae*))
@@ -2340,8 +2340,7 @@
             ((annotation? e) 
              (match (annotation-expression e) p m* s* ae* r))
             (else (match* e p m* s* ae* r)))))
-      (lambda (e p)            
-        (match e p '() '() '() '()))))
+      (match e p '() '() '() '())))
   
   (define ellipsis?
     (lambda (x)
@@ -2359,7 +2358,7 @@
       lits))
 
   (define syntax-case-transformer
-    (let ()
+    (lambda (e r mr)
       (define build-dispatch-call
         (lambda (pvars expr y r mr)
           (let ((ids (map car pvars))
@@ -2450,7 +2449,6 @@
                      (gen-clause x keys (cdr clauses) r mr pat #t expr)))
                 ((pat fender expr)
                  (gen-clause x keys (cdr clauses) r mr pat fender expr))))))
-      (lambda (e r mr)
         (syntax-match e ()
           ((_ expr (keys ...) clauses ...)
            (begin
@@ -2459,7 +2457,7 @@
                (let ((body (gen-syntax-case x keys clauses r mr)))
                  (build-application no-source
                    (build-lambda no-source (list x) body)
-                   (list (chi-expr expr r mr)))))))))))
+                   (list (chi-expr expr r mr))))))))))
 
   (define (ellipsis-map proc ls . ls*)
     (define who '...)
@@ -2477,7 +2475,7 @@
     (apply map proc ls ls*))
 
   (define syntax-transformer
-    (let ()
+    (lambda (e r mr)
       (define gen-syntax
         (lambda (src e r maps ellipsis? vec?)
           (syntax-match e ()
@@ -2601,10 +2599,10 @@
       (define regen
         (lambda (x)
           (case (car x)
-            ((ref) (build-lexical-reference no-source (cadr x)))
-            ((primitive) (build-primref no-source (cadr x)))
-            ((quote) (build-data no-source (cadr x)))
-            ((lambda) (build-lambda no-source (cadr x) (regen (caddr x))))
+            ((ref)        (build-lexical-reference no-source (cadr x)))
+            ((primitive)  (build-primref no-source (cadr x)))
+            ((quote)      (build-data no-source (cadr x)))
+            ((lambda)     (build-lambda no-source (cadr x) (regen (caddr x))))
             ((map)
              (let ((ls (map regen (cdr x))))
                (build-application no-source
@@ -2614,11 +2612,10 @@
              (build-application no-source
                (build-primref no-source (car x))
                (map regen (cdr x)))))))
-      (lambda (e r mr)
-        (syntax-match e ()
-          ((_ x)
-           (let-values (((e maps) (gen-syntax e x r '() ellipsis? #f)))
-             (regen e)))))))
+      (syntax-match e ()
+        ((_ x)
+         (let-values (((e maps) (gen-syntax e x r '() ellipsis? #f)))
+           (regen e))))))
   
   (define core-macro-transformer
     (lambda (name)
