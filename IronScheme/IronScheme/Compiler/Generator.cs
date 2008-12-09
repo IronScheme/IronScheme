@@ -89,6 +89,10 @@ namespace IronScheme.Compiler
         {
           args = (BigInteger)(long)args;
         }
+        if (args != null && args.GetType().Name == "stx")
+        {
+          args = new SerializedConstant(args);
+        }
         return Ast.Constant(args);
       }
     }
@@ -433,6 +437,10 @@ namespace IronScheme.Compiler
         {
           Fraction f = (Fraction)args;
           return Ast.New(Fraction_New, Ast.Constant(f.Numerator), Ast.Constant(f.Denominator));
+        }
+        if (args != null && args.GetType().Name == "stx")
+        {
+          args = new SerializedConstant(args);
         }
         return Ast.Constant(args);
       }

@@ -56,7 +56,7 @@ namespace Microsoft.Scripting.Generation {
             Contract.RequiresNotNull(moduleName, "moduleName");
             Contract.RequiresNotEmpty(scriptCodes, "scriptCodes");
             
-            if (scriptCodes.Length != 1) throw new NotSupportedException("Only one ScriptCode currently supported");
+            //if (scriptCodes.Length != 1) throw new NotSupportedException("Only one ScriptCode currently supported");
 
             // Silverlight: can't access SecurityPermission
             if (!ScriptDomainManager.Options.GenerateModulesAsSnippets) {

@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Utils;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Microsoft.Scripting.Generation {
     public sealed class RuntimeConstant : CompilerConstant {
@@ -32,7 +34,14 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public override void EmitCreation(CodeGen cg) {
-            throw new InvalidOperationException();
+          MemoryStream ms = new MemoryStream();
+          BinaryFormatter bf = new BinaryFormatter();
+          bf.Serialize(ms, _value);
+
+          Console.WriteLine("{0} : {1}", _value, ms.Length);
+
+          //throw new InvalidOperationException();
+            ;
         }
 
         public override object Create() {
