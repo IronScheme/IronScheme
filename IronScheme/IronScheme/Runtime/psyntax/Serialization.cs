@@ -7,6 +7,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization;
 using System.Reflection;
+using Microsoft.Scripting.Generation;
 
 namespace IronScheme.Runtime.psyntax
 {
@@ -63,23 +64,13 @@ namespace IronScheme.Runtime.psyntax
 #else
               object visit = e2c.Call(pivot.car);
 
-              //CallTarget0 visitproc = delegate
-              //{
-              //  return EvalCore(Context, visit);
-              //};
-
-              pivot.car = CompileCore(cc, visit);// Closure.Make(Context, visitproc);
+              pivot.car = CompileCore(cc, visit);
 
               pivot = (Cons)pivot.cdr;
 
               object invoke = e2c.Call(pivot.car);
 
-              //CallTarget0 invokeproc = delegate
-              //{
-              //  return EvalCore(Context, invoke);
-              //};
-
-              pivot.car = CompileCore(cc, invoke); // Closure.Make(Context, invokeproc);
+              pivot.car = CompileCore(cc, invoke); 
               return Apply(sk, result);
 #endif
             }
@@ -146,6 +137,22 @@ namespace IronScheme.Runtime.psyntax
 #if !CPS
       Console.WriteLine("serializing {0}", filename);
       string fn = RequiresNotNull<string>(filename);
+
+      //object[] args = ListToVector(contents) as object[];
+
+      //ReceiveContent(
+      //  args[0],
+      //  args[1],
+      //  args[2],
+      //  args[3],
+      //  args[4],
+      //  args[5],
+      //  args[6],
+      //  args[7],
+      //  args[8],
+      //  args[9],
+      //  args[10]);
+
       // lets go cheap for now, just serialize, no compile
       using (Stream output = File.OpenWrite(Path.ChangeExtension(fn, ".fasl")))
       {
@@ -154,6 +161,32 @@ namespace IronScheme.Runtime.psyntax
 #endif
       return Unspecified;
 
+
+
+
+
+    }
+
+    static void ReceiveContent(object id, object name, object ver, object imp, object vis, object inv, object exp_subst, object exp_env, object
+          visit_proc, object invoke_proc, object visible)
+    {
+      ScriptCode visit, invoke;
+      ScriptModule lib;
+
+      AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
+
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
+      
+      ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
+
+      visit = Context.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.CompileExpr(new Cons(visit_proc)));
+      invoke = Context.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.CompileExpr(new Cons(invoke_proc)));
+
+      lib = ScriptDomainManager.CurrentManager.CreateModule(string.Format("{0}", name), visit, invoke);
+
+      ScriptDomainManager.Options.AssemblyGenAttributes = aga;
     }
   }
 }

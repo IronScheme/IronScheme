@@ -783,7 +783,7 @@ namespace Microsoft.Scripting {
             OptimizedModuleGenerator generator = null;
 
             if (scope == null) {
-                if (scriptCodes.Length == 1) {
+                if (scriptCodes.Length > 0) {
                     if (scriptCodes[0].LanguageContext.Engine.Options.InterpretedMode) {
                         scope = new Scope();
                     } else {
