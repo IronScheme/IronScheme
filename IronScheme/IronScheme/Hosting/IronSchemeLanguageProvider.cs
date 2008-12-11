@@ -45,7 +45,7 @@ namespace IronScheme.Hosting
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
 
-      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".scm", ".ss", ".sch", ".sls");
+      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".sps", ".ss", ".sls");
       Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
       Runtime.Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
       Runtime.Closure.Unspecified = Builtins.Unspecified;
@@ -179,11 +179,7 @@ namespace IronScheme.Hosting
 #endif
         if (File.Exists("init.ss"))
         {
-#if CPS
           Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
-#else
-          Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
-#endif
         }
 
       }
