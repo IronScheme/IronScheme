@@ -94,13 +94,19 @@ namespace Microsoft.Scripting.Shell {
         protected void WriteColor(TextWriter output, string str, ConsoleColor c) {
 #if !SILVERLIGHT // Console.ForegroundColor
             ConsoleColor origColor = Console.ForegroundColor;
-            Console.ForegroundColor = c;
+            try
+            {
+              Console.ForegroundColor = c;
 #endif
-            output.Write(str);
-            output.Flush();
+              output.Write(str);
+              output.Flush();
 
 #if !SILVERLIGHT // Console.ForegroundColor
-            Console.ForegroundColor = origColor;
+            }
+            finally
+            {
+              Console.ForegroundColor = origColor;
+            }
 #endif
         }
 
