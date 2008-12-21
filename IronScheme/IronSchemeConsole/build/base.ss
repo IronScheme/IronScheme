@@ -291,31 +291,29 @@
       flonum?
       fixnum-width
       
-      div
       mod
-      div0
       mod0   
+      div-and-mod
+      div0-and-mod0
       
       list->vector
       list->string   
      )
     (ironscheme clr))
-    
-    (define (div x1 x2)
-      (let-values (((n d) (div-and-mod x1 x2)))
-        n))
-
-    (define (div0 x1 x2)
-      (let-values (((n d) (div0-and-mod0 x1 x2)))
-        n))
 
     (define (mod x1 x2)
-      (let-values (((n d) (div-and-mod x1 x2)))
-        d))
+      (- x1 (* (div x1 x2) x2)))
 
     (define (mod0 x1 x2)
-      (let-values (((n d) (div0-and-mod0 x1 x2)))
-        d))
+      (- x1 (* (div0 x1 x2) x2)))
+      
+    (define (div-and-mod x1 x2)
+      (let ((d (div x1 x2)))
+        (values d (- x1 (* d x2)))))             
+
+    (define (div0-and-mod0 x1 x2)
+      (let ((d (div0 x1 x2)))
+        (values d (- x1 (* d x2)))))             
         
     (define (list->vector lst)
       (apply vector lst))        

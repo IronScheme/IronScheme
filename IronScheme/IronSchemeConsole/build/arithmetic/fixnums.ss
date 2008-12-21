@@ -64,10 +64,10 @@
       fx-/carry
       fx+/carry
       
-      fxdiv
       fxmod
-      fxdiv0
       fxmod0
+      fxdiv-and-mod
+      fxdiv0-and-mod0
       
       fxzero?
       fxpositive?
@@ -79,21 +79,19 @@
       fxmin
       ))
       
-  (define (fxdiv fx1 fx2)
-    (let-values (((n d) (fxdiv-and-mod fx1 fx2)))
-      n))       
+  (define (fxmod x1 x2)
+    (fx- x1 (fx* (fxdiv x1 x2) x2)))
 
-  (define (fxdiv0 fx1 fx2)
-    (let-values (((n d) (fxdiv0-and-mod0 fx1 fx2)))
-      n))       
+  (define (fxmod0 x1 x2)
+    (fx- x1 (fx* (fxdiv0 x1 x2) x2)))
+    
+  (define (fxdiv-and-mod x1 x2)
+    (let ((d (fxdiv x1 x2)))
+      (values d (fx- x1 (fx* d x2)))))             
 
-  (define (fxmod fx1 fx2)
-    (let-values (((n d) (fxdiv-and-mod fx1 fx2)))
-      d))       
-
-  (define (fxmod0 fx1 fx2)
-    (let-values (((n d) (fxdiv0-and-mod0 fx1 fx2)))
-      d)) 
+  (define (fxdiv0-and-mod0 x1 x2)
+    (let ((d (fxdiv0 x1 x2)))
+      (values d (fx- x1 (fx* d x2))))) 
       
   (define (fxpositive? r)
     (unless (fixnum? r)
@@ -113,12 +111,16 @@
   (define (fxeven? n)
     (unless (fixnum? n)
       (assertion-violation 'fxeven? "not a fixnum" n))
-    (fx=? 0 (fxmod n 2)))           
+    (if (fx=? n (least-fixnum))
+      #t      
+      (fx=? 0 (fxmod n 2))))
 
   (define (fxodd? n)
     (unless (fixnum? n)
       (assertion-violation 'fxodd? "not a fixnum" n))
-    (fx=? 1 (fxmod n 2)))      
+    (if (fx=? n (least-fixnum))
+      #f      
+      (fx=? 1 (fxmod n 2))))      
   
   (define (fxmax a . rest)
     (unless (fixnum? a)

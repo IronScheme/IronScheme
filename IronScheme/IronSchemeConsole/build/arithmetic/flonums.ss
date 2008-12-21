@@ -80,10 +80,8 @@
     flabs
     
     fldiv-and-mod
-    fldiv
     flmod
     fldiv0-and-mod0
-    fldiv0
     flmod0    
     
     flfloor
@@ -103,31 +101,19 @@
     flsqrt
     flexpt))
     
-  ;; slow!  
-  (define (fldiv-and-mod fl1 fl2)
-    (let-values (((n d) (div-and-mod fl1 fl2)))
-      (values (real->flonum n) d)))    
-      
-  ;; slow!
-  (define (fldiv0-and-mod0 fl1 fl2)
-    (let-values (((n d) (div0-and-mod0 fl1 fl2)))
-      (values (real->flonum n) d)))   
-      
-  (define (fldiv fl1 fl2)
-    (let-values (((n d) (fldiv-and-mod fl1 fl2)))
-      n))       
+  (define (flmod x1 x2)
+    (fl- x1 (fl* (fldiv x1 x2) x2)))
 
-  (define (fldiv0 fl1 fl2)
-    (let-values (((n d) (fldiv0-and-mod0 fl1 fl2)))
-      n))       
+  (define (flmod0 x1 x2)
+    (fl- x1 (fl* (fldiv0 x1 x2) x2)))
+    
+  (define (fldiv-and-mod x1 x2)
+    (let ((d (fldiv x1 x2)))
+      (values d (fl- x1 (fl* d x2)))))             
 
-  (define (flmod fl1 fl2)
-    (let-values (((n d) (fldiv-and-mod fl1 fl2)))
-      d))       
-
-  (define (flmod0 fl1 fl2)
-    (let-values (((n d) (fldiv0-and-mod0 fl1 fl2)))
-      d))       
+  (define (fldiv0-and-mod0 x1 x2)
+    (let ((d (fldiv0 x1 x2)))
+      (values d (fl- x1 (fl* d x2)))))       
    
   (define (flinteger? fl)
     (unless (flonum? fl)

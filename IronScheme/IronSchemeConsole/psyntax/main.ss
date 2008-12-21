@@ -1,4 +1,5 @@
 ;;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig
+;;; Copyright (c) 2008 Llewellyn Pritchard
 ;;; 
 ;;; Permission is hereby granted, free of charge, to any person obtaining a
 ;;; copy of this software and associated documentation files (the "Software"),
@@ -46,9 +47,10 @@
     (ironscheme files)
     (ironscheme cps)
     (ironscheme clr)
-    (ironscheme library))
+    (ironscheme library)
+    (only (ironscheme) pretty-print))
     
-  (define trace-printer (make-parameter write))
+  (define trace-printer (make-parameter pretty-print))
   
   (define command-line (make-parameter (get-command-line)))  
     
@@ -86,20 +88,27 @@
   (define foreground-color
     (case-lambda
       [()           (clr-static-prop-get console foregroundcolor)]
-      [(color)      (clr-static-prop-set! console foregroundcolor color)]))    
+      [(color)      (clr-static-prop-set! console foregroundcolor color)])) 
+      
+  (define (system-exception? e)
+    (clr-is SystemException e))         
     
   (define (eval-top-level x)
     (call/cc
       (lambda (k)
         (with-exception-handler
           (lambda (e)
-            (parameterize ((foreground-color 'red)(current-output-port (current-error-port)))
-              (display "Unhandled exception during evaluation:\n")
-              (display e)
-              (newline))
-            (k))
+            (let ((serious? (or (serious-condition? e) (system-exception? e))))
+              (parameterize ((foreground-color (if serious? 'red 'yellow))
+                             (current-output-port (current-error-port)))
+                (when serious?
+                  (display "Unhandled exception during evaluation:\n"))
+                (display e)
+                (newline))
+              (if serious?
+                (k))))
           (lambda ()
-            (eval x (interaction-environment)))))))    
+            (eval x (interaction-environment))))))) 
     
   (define (compile-system-libraries)
     (eval-top-level 
@@ -160,5 +169,7 @@
   (file-options-constructor (enum-set-constructor fo))
   
   (library-path (get-library-paths))
+  
+  (library-extensions (cons ".ironscheme.sls" (library-extensions)))
   )
 

@@ -459,6 +459,58 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
     }
 
+    [Builtin("fxdiv")]
+    public static object FxDiv(object x1, object x2)
+    {
+      int a = RequiresNotNull<int>(x1);
+      int b = RequiresNotNull<int>(x2);
+
+      if (b == 0)
+      {
+        return AssertionViolation("fxdiv", "divide by zero", x1, x2);
+      }
+
+      int div;
+
+      if (a == 0)
+      {
+        div = 0;
+      }
+      else if (a > 0)
+      {
+        div = a / b;
+      }
+      else if (b > 0)
+      {
+        div = (a - b + 1) / b;
+      }
+      else
+      {
+        div = (a + b + 1) / b;
+      }
+
+      return div;
+    }
+
+    [Builtin("fxdiv0")]
+    public static object FxDiv0(object x1, object x2)
+    {
+      object div = FxDiv(x1, x2);
+      object mod = Subtract(x1, Multiply(div, x2));
+
+      if (IsTrue(IsLessThan(mod, Magnitude(Divide(x2, 2)))))
+      {
+        return div;
+      }
+      if (IsTrue(IsPositive(x2)))
+      {
+        return FxAdd(div, 1);
+      }
+      return FxMinus(div, 1);
+    }
+
+
+
     [Builtin("fxdiv-and-mod")]
     public static object FxDivMod(object x1, object x2)
     {
@@ -469,6 +521,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       {
         return AssertionViolation("fxdiv-and-mod", "divide by zero", x1, x2);
       }
+
 
       int div = a / b;
       int mod = a % b;

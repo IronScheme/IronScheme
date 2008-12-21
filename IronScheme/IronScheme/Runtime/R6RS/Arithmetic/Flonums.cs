@@ -357,5 +357,31 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     {
       return (double)RequiresNotNull<int>(a);
     }
+
+    [Builtin("fldiv")]
+    public static object FlDiv(object x1, object x2)
+    {
+      double a = RequiresNotNull<double>(x1);
+      double b = RequiresNotNull<double>(x2);
+
+      return b > 0.0 ? Math.Floor(a / b) : -Math.Floor(a / -b);
+    }
+
+    [Builtin("fldiv0")]
+    public static object FlDiv0(object x1, object x2)
+    {
+      object div = FlDiv(x1, x2);
+      object mod = Subtract(x1, Multiply(div, x2));
+
+      if (IsTrue(IsLessThan(mod, Magnitude(Divide(x2, 2)))))
+      {
+        return div;
+      }
+      if (IsTrue(IsPositive(x2)))
+      {
+        return FlAdd(div, 1.0);
+      }
+      return FlMinus(div, 1.0);
+    }
   }
 }

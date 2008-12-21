@@ -333,7 +333,7 @@ namespace IronScheme.Runtime
       {
         return FALSE;
       }
-      return IsZero(Mod(obj, 1));
+      return IsZero(RemainderInternal(obj, 1));
     }
 
     [Builtin("rational-valued?")]
@@ -888,7 +888,7 @@ namespace IronScheme.Runtime
       return IsSame(obj, 0);
     }
 
-    static object IsPositive(object obj)
+    protected static object IsPositive(object obj)
     {
       if (IsTrue(IsRealValued(obj)))
       {
@@ -1099,7 +1099,15 @@ namespace IronScheme.Runtime
     {
       if (first is int)
       {
-        return -(int)first;
+        int fi = (int)first;
+        if (fi == int.MinValue)
+        {
+          return - (BigInteger)fi;
+        }
+        else
+        {
+          return -fi;
+        }
       }
       if (first is double)
       {
@@ -1426,51 +1434,32 @@ namespace IronScheme.Runtime
 
       return Error("RemainderInternal", "BUG");
     }
+   
 
-    static object Sign(object o)
+    [Builtin("div")]
+    public static object Div(object x1, object x2)
     {
-      if (IsTrue(IsNegative(o)))
+      if (x1 is int && x2 is int)
       {
-        return -1;
+        return R6RS.Arithmetic.Fixnums.FxDiv(x1, x2);
       }
-      else
-      {
-        return 1;
-      }
-    }
 
-    static bool BothPostiveOrNegative(object a, object b)
-    {
-      if ((IsTrue(IsPositive(a)) && IsTrue(IsPositive(b))) ||
-          (IsTrue(IsNegative(a)) && IsTrue(IsNegative(b))))
+      if (x1 is double && x2 is double)
       {
-        return true;
+        return R6RS.Arithmetic.Flonums.FlDiv(x1, x2);
       }
-      else
-      {
-        return false;
-      }
-    }
-    
-    static object Mod(object a, object b)
-    {
-      return ((MultipleValues)DivMod(a, b))[1];
-    }
 
-    [Builtin("div-and-mod")]
-    public static object DivMod(object x1, object x2)
-    {
       if (IsTrue(IsZero(x2)))
       {
-        return AssertionViolation("div-and-mod", "divide by zero", x1, x2);
+        return AssertionViolation("div", "divide by zero", x1, x2);
       }
       if (IsTrue(IsInfinite(x1)))
       {
-        return AssertionViolation("div-and-mod", "cannot be infinite", x1);
+        return AssertionViolation("div", "cannot be infinite", x1);
       }
       if (IsTrue(IsNan(x1)))
       {
-        return AssertionViolation("div-and-mod", "cannot be nan", x1);
+        return AssertionViolation("div", "cannot be nan", x1);
       }
 
       bool exactargs = IsTrue(IsExact(x1)) && IsTrue(IsExact(x2));
@@ -1486,93 +1475,42 @@ namespace IronScheme.Runtime
       object a = x1;
       object b = x2;
 
-      object div = Floor(Divide(a, b));
-      object mod = RemainderInternal(a , b);
+      object div = null;
 
-      if (IsTrue(IsNegative(mod)))
+      if (IsTrue(IsPositive(b)))
       {
-        mod = Add(mod, Multiply(b , Sign(b)));
-
-        if (BothPostiveOrNegative(a,b))
-        {
-          div = Add(div, 1);
-        }
-        else if (IsTrue(IsZero(div)))
-        {
-          div = Add(div, -1);
-        }
-      }
-      else if (IsTrue(IsZero(mod)) || IsTrue(IsZero(div)))
-      {
-      }
-      else if (IsTrue(IsGreaterThan(mod, b)))
-      {
-        if (!BothPostiveOrNegative(a,b))
-        {
-          div = Add(div, 1);
-        }
-      }
-
-      if (exactargs)
-      {
-        return Values(Exact(div), Exact(Divide(mod, scale)));
-      }
-
-      if (IsTrue(IsNan(div)) || IsTrue(IsInfinite(div)))
-      {
-        return Values(div, mod);
+        div = Floor(Divide(a, b));
       }
       else
       {
-        return Values(Exact(div), mod);
+        div = Subtract(Floor(Divide(a, Subtract(b))));
+      }
+
+      if (!exactargs && IsTrue(IsNan(div)) || IsTrue(IsInfinite(div)))
+      {
+        return div;
+      }
+      else
+      {
+        return Exact(div);
       }
     }
 
-    [Builtin("div0-and-mod0")]
-    public static object Div0Mod0(object x1, object x2)
+    [Builtin("div0")]
+    public static object Div0(object x1, object x2)
     {
-      bool exactargs = IsTrue(IsExact(x1)) && IsTrue(IsExact(x2));
-      object scale = 1;
+      object div = Div(x1, x2);
+      object mod = Subtract(x1, Multiply(div, x2));
 
-      if (exactargs)
+      if (IsTrue(IsLessThan(mod, Magnitude(Divide(x2, 2)))))
       {
-        scale = Multiply(Denominator(x1), Denominator(x2));
-        x1 = Multiply(x1, scale);
-        x2 = Multiply(x2, scale);
+        return div;
       }
-
-      object a = x1;
-      object b = x2;
-
-      MultipleValues dv = (MultipleValues)DivMod(a, b);
-      object div = dv[0];
-      object mod = dv[1];
-      object h = Abs(Divide( b , 2));
-
-      if (IsTrue(IsGreaterThan(mod, h)) && IsTrue(IsGreaterThanOrEqual(mod, Subtract(h))))
+      if (IsTrue(IsPositive(x2)))
       {
-        mod = Subtract(mod, Multiply(b, Sign(b)));
-        div = Divide(Subtract(a, mod), b);
+        return Add(div, 1);
       }
-      else if (IsTrue(IsSame(mod, h)))
-      {
-        mod = Subtract(mod, Multiply(b, Sign(b)));
-        div = Add(div, Sign(b));
-      }
-
-      if (exactargs)
-      {
-        return Values(Exact(div), Exact(Divide(mod, scale)));
-      }
-
-      if (IsTrue(IsNan(div)) || IsTrue(IsInfinite(div)))
-      {
-        return Values(div, mod);
-      }
-      else
-      {
-        return Values(Exact(div), mod);
-      }
+      return Subtract(div, 1);
     }
     
     static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
@@ -1642,7 +1580,7 @@ namespace IronScheme.Runtime
       {
         Fraction f = ConvertToRational(obj);
         BigInteger c = f.Numerator / f.Denominator;
-        if (c < 0)
+        if (IsTrue(IsNegative(f)))
         {
           c -= 1;
         }

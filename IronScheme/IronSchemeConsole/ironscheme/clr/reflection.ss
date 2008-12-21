@@ -1,5 +1,6 @@
 (library (ironscheme clr reflection)
   (export
+    constructor?
     method-params
     param-name
     param-type
@@ -9,6 +10,7 @@
     type-fullname
     type-valuetype?
     type-enum?
+    type-member
     type-members)
   (import 
     (ironscheme)
@@ -16,13 +18,16 @@
     (ironscheme clr))
     
   (define (method? obj)
-    (clr-is System.Reflection.MethodInfo obj))  
+    (clr-is System.Reflection.MethodBase obj))  
     
   (define (param? obj)
     (clr-is System.Reflection.ParameterInfo obj))  
      
   (define (member? obj)
     (clr-is System.Reflection.MemberInfo obj))  
+    
+  (define (constructor? obj)
+    (clr-is System.Reflection.ConstructorInfo obj))     
     
   (define (symbol/symbol-list? obj)
     (or 
@@ -56,17 +61,23 @@
   (define/contract (type-enum? type:clr-type)
     (clr-prop-get System.Type IsEnum type)) 
 
-  (define type-members  
+  (define type-member
     (case/contract
       [(type name) 
-        (type-members type name 'all)]
+        (type-member type name 'all)]
       [(type name member-types)
-        (type-members type name member-types 'default)]
+        (type-member type name member-types '(public static instance))]
       [(type:clr-type name:string member-types:symbol/symbol-list binding-flags:symbol/symbol-list)
         (vector->list
           (clr-call System.Type GetMember type name member-types binding-flags))]))
   
+  (define type-members
+    (case/contract
+      [(type) 
+        (type-members type '(public static instance))]
+      [(type:clr-type binding-flags:symbol/symbol-list)
+         (vector->list
+          (clr-call System.Type GetMembers type binding-flags))]))
+          
+)          
 
-  
-  
-)

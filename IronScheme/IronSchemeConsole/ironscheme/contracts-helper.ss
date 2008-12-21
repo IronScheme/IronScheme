@@ -68,26 +68,7 @@
                 ))
  
 )   
-
-#|
-      
-(define/type (a f:boolean . a:integer) 
-  (define/type (b x:boolean) x)
-  (b f))
-
-(define foo (let/type f ((a:integer 10)(b:list '()))
-              (if (zero? a)
-                b
-                (f (- a 1)(cons a b)))))
-                
-(printf "~a\n" foo)                
-        
-(printf "~a\n" ((lambda/type (a:integer-valued b:boolean) (cons a b)) 1 '#f))
-
-(printf "~a\n" ((lambda/type a:integer a) 1 2 3))
-
-(printf "~a\n" (a #f 1 3 4))
-|#      
+   
         
           
 

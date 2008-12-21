@@ -95,7 +95,7 @@ namespace IronScheme.Runtime
     [Builtin("string")]
     public static object String(params object[] args)
     {
-      char[] a = Array.ConvertAll<object, char>(args, delegate(object o) { return (char)o; });
+      char[] a = Array.ConvertAll<object, char>(args, delegate(object o) { return RequiresNotNull<char>(o); });
       return new StringBuilder(new string(a));
     }
 

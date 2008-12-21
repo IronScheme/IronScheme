@@ -18,7 +18,9 @@
   (define-aux get post)                
 
   (define (get-value key)
-    (or (context-item key) (form key) (querystring key)))
+    (if (symbol? key)
+      (get-value (symbol->string key))
+      (or (context-item key) (form key) (querystring key))))
     
   (define-syntax define-action
     (lambda (x)
