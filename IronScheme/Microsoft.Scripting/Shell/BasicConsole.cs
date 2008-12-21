@@ -98,6 +98,33 @@ namespace Microsoft.Scripting.Shell {
             {
               Console.ForegroundColor = c;
 #endif
+            TRYAGAIN:
+              int space = Console.BufferWidth - Console.CursorLeft;
+              if (!string.IsNullOrEmpty(str) && str.Length > space)
+              {
+                // now find the 'line break'
+                int i = space - 1;
+                for (; i >= 0; i--)
+                {
+                  if (char.IsSeparator(str[i]))
+                  {
+                    break;
+                  }
+                }
+
+                if (i > 0)
+                {
+                  output.WriteLine(str.Substring(0, i));
+                  str = str.Substring(i);
+                  goto TRYAGAIN;
+                }
+                else
+                {
+                  output.Write(str.Substring(0, space));
+                  str = str.Substring(space);
+                  goto TRYAGAIN;
+                }
+              }
               output.Write(str);
               output.Flush();
 

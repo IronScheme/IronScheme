@@ -12,7 +12,7 @@
     (ironscheme conversions)
     (ironscheme datetime)
     (ironscheme environment)
-    (ironscheme linq)
+    (ironscheme linq2)
     (ironscheme files)
     (ironscheme process)
     (ironscheme random)
@@ -60,3 +60,7 @@
     (ikarus))
   #f)
   
+(let () 
+  (import 
+    (ironscheme linq))
+  #f)

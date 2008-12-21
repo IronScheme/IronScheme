@@ -568,6 +568,8 @@ select d
              ( from x in (range 0 100000)
                where (or (= (mod x 5) 0) (= (mod x 3) 0))
                select x)))
+               
+             
               
 (write
   (apply + (force pe1)))

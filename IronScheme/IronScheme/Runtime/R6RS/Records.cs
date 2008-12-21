@@ -542,9 +542,16 @@ namespace IronScheme.Runtime.R6RS
       RecordTypeDescriptor rtd;
       if (typedescriptors.TryGetValue(rec.GetType(), out rtd))
       {
-        List<string> fields = new List<string>();
-        GetFields(rec, rtd, fields);
-        return string.Format("#[{0}{1}]", rtd.name, string.Join("", fields.ToArray()));
+        if (rtd.opaque)
+        {
+          return string.Format("#[{0}]", rtd.name);
+        }
+        else
+        {
+          List<string> fields = new List<string>();
+          GetFields(rec, rtd, fields);
+          return string.Format("#[{0}{1}]", rtd.name, string.Join("", fields.ToArray()));
+        }
       }
       return "not a record!!";
     }

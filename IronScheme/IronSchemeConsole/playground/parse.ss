@@ -1,3 +1,5 @@
+;; this program just reads a file and collects statistics on word frequency
+
 (import 
   (ironscheme)
   (ironscheme linq)
@@ -7,11 +9,13 @@
 
 (define p (open-input-file "test.log"))
 
+(define re (make-regex "\\s+"))
+
 (define (fxadd1 n) (fx+ 1 n))
 
 (let loop ((line (get-line p)))
   (unless (eof-object? line)  
-    (let ((tokens (regex-split line "\\s+")))
+    (let ((tokens (regex-split line re)))
       (vector-for-each
         (lambda (t)
           (hashtable-update! ht t fxadd1 0))
@@ -27,3 +31,4 @@
    orderby (cdr x) descending
    select (cons (cdr x) (car x))))          
           
+

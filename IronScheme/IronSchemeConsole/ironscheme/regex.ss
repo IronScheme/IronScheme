@@ -1,6 +1,7 @@
 (library (ironscheme regex)
   (export
     regex?
+    make-regex
     match-value
     match-group
     match-success?
@@ -19,7 +20,10 @@
   
   (define (regex? obj)
     (clr-is regex obj))
-
+    
+  (define (make-regex pattern)
+    (clr-new regex pattern 'compiled))   
+    
   (define (regex-match input pattern)
     (clr-static-call regex match input pattern))
 
@@ -42,8 +46,10 @@
   (define (regex-match? input pattern)
     (clr-static-call regex ismatch input pattern))
 
-  (define (regex-split input pattern)
-    (clr-static-call regex split input pattern))
+  (define (regex-split input pattern/re)
+    (if (regex? pattern/re)
+      (clr-call regex split pattern/re input)
+      (clr-static-call regex split input pattern/re)))
     
   (define (regex-replace input pattern replacement)
     (clr-static-call regex replace input pattern (clr-cast system.string replacement))) ; need cast to deal with overload

@@ -36,13 +36,12 @@ namespace IronScheme.Web
       ScriptDomainManager sdm = ScriptDomainManager.CurrentManager;
       sdm.GlobalOptions.AssemblyGenAttributes = Microsoft.Scripting.Generation.AssemblyGenAttributes.None;
       IronSchemeLanguageProvider lp = new IronSchemeLanguageProvider(sdm);
-      ScriptEngine se = lp.GetEngine();
 
       AutoResetEvent e = new AutoResetEvent(false);
 
       Thread t = new Thread(delegate ()
         {
-          se.Execute("(load \"~/ironscheme.boot.pp\")");
+          Runtime.Builtins.Load("~/ironscheme.boot.pp");
           e.Set();
         }, 1500000);
 

@@ -102,13 +102,13 @@
     (clr-prop-get namevaluecollection allkeys (get-querystring)))    
 
   (define (form key)
-    (nv-helper (get-form) key))
+    (nv-helper (get-form) (->string key)))
     
   (define (form-keys)
     (clr-prop-get namevaluecollection allkeys (get-form)))    
     
   (define (header key)
-    (nv-helper (get-headers) key))
+    (nv-helper (get-headers) (->string key)))
     
   (define (get-session)
     (clr-prop-get httpcontext session (context)))  
@@ -117,32 +117,37 @@
     (clr-prop-get httpcontext application (context)))       
 
   (define (session key)
-    (define k (clr-indexer-get httpsessionstate (get-session) (clr-cast system.string key)))
+    (define k (clr-indexer-get httpsessionstate (get-session) (clr-cast system.string (->string key))))
     (if (null? k) #f
         k))       
   
   (define (session-set! key value)
-    (clr-indexer-set! httpsessionstate (get-session) (clr-cast system.string key) value)
+    (clr-indexer-set! httpsessionstate (get-session) (clr-cast system.string (->string key)) value)
     (void))
     
     
   (define (application-item key)
-    (define k (clr-indexer-get httpapplicationstate (get-app) (clr-cast system.string key)))
+    (define k (clr-indexer-get httpapplicationstate (get-app) (clr-cast system.string (->string key))))
     (if (null? k) #f
         k))       
   
   (define (application-item-set! key value)
-    (clr-indexer-set! httpapplicationstate (get-app) (clr-cast system.string key) value)
+    (clr-indexer-set! httpapplicationstate (get-app) (clr-cast system.string (->string key)) value)
     (void))    
     
   (define (items)
     (clr-prop-get httpcontext items (context)))       
     
+  (define (->string s)
+    (if (symbol? s)
+      (symbol->string s)
+      s))    
+    
   (define (context-item key)
-    (hashtable-ref (items) key #f))
+    (hashtable-ref (items) (->string key) #f))
   
   (define (context-item-set! key value)
-    (hashtable-set! (items) key value))
+    (hashtable-set! (items) (->string key) value))
     
   (define (user-agent)
     (clr-prop-get httprequest useragent (request)))
