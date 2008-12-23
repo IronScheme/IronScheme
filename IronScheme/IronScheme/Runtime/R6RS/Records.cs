@@ -212,6 +212,8 @@ namespace IronScheme.Runtime.R6RS
       MethodBuilder pb = tg.TypeBuilder.DefineMethod(n + "?", MethodAttributes.Public | MethodAttributes.Static,
         typeof(object), new Type[] { typeof(object) });
 
+      pb.DefineParameter(1, ParameterAttributes.None, "obj");
+
       ILGenerator pgen = pb.GetILGenerator();
       pgen.Emit(OpCodes.Ldarg_0);
       pgen.Emit(OpCodes.Isinst, tg.TypeBuilder);
@@ -249,6 +251,8 @@ namespace IronScheme.Runtime.R6RS
         MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static,
           typeof(object), new Type[] { typeof(object) });
 
+        ab.DefineParameter(1, ParameterAttributes.None, n);
+
         ILGenerator agen = ab.GetILGenerator();
         agen.Emit(OpCodes.Ldarg_0);
         agen.Emit(OpCodes.Castclass, tg.TypeBuilder);
@@ -262,6 +266,8 @@ namespace IronScheme.Runtime.R6RS
         {
           MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static,
             typeof(object), new Type[] { typeof(object), typeof(object) });
+
+          mb.DefineParameter(1, ParameterAttributes.None, n);
 
           ILGenerator mgen = mb.GetILGenerator();
           mgen.Emit(OpCodes.Ldarg_0);
