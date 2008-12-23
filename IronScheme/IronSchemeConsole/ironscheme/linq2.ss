@@ -1,4 +1,5 @@
-﻿(library (ironscheme linq2)
+﻿#!r6rs
+(library (ironscheme linq2)
   (export
     ; iterator procs
     iterator?
@@ -29,6 +30,7 @@
     all?
     contains?
     empty
+    empty?
     repeat
     average
     maximum
@@ -135,8 +137,8 @@
       (lambda (p)
         (lambda (asc? sel)
           (p asc? sel #f #f)))))
-
-  (define (sort-iterator iter . sorters)
+          
+  (define (sort iter sorters)
     (let ((l (iterator->list iter)))
       (if (null? l) 
         (empty)
@@ -160,9 +162,14 @@
                         (if ((sorter-eq s) a b)
                           (f (cdr sorters))
                           ((sorter-cmp s) a b))))))
-              l)))))))
+                l)))))))
+              
+  (define (order-by-iterator iter . sorters)
+    (make-delayed-iterator 
+      (lambda ()
+        (sort iter sorters))))
 
-  (define (group-by-iterator iter sel proc)
+  (define (get-group iter sel proc)
     (let ((l (iterator->list iter)))
       (if (null? l) 
         (empty)
@@ -181,17 +188,38 @@
                 (make-grouping key (list-iterator (reverse (hashtable-ref ht key '())))))
               (hashtable-keys ht)))))))
 
-  (define (empty-iterator? iter)
-    (reset iter) ; needed?
-    (let ((r (not (move-next iter))))
-      (reset iter)
-      r))
+  (define (group-by-iterator iter sel proc)
+    (make-delayed-iterator 
+      (lambda ()
+        (get-group iter sel proc))))
+            
+  (define (make-delayed-iterator init)
+    (let ((iter #f))
+      (make-iterator
+        (lambda ()
+          (unless iter
+            (set! iter (init)))
+          (move-next iter))
+        (lambda ()
+          (current iter))
+        (lambda ()
+          (when iter
+            (reset iter))))))
+
+  (define (empty? iter)
+    (let ((iter (get-iterator iter)))
+      (reset iter) ; needed?
+      (let ((r (not (move-next iter))))
+        (reset iter) ; or this one? i really need to decide
+        r)))
               
   ; this is a bit daft, but conforms with the output on LINQ in .NET
   (define (group-if-needed key vals)
-    (if (empty-iterator? vals) 
+    (if (empty? vals) 
       (empty)
       (make-grouping key vals)))
+      
+  (define (identity x) x)      
 
   (define-syntax bind*
     (syntax-rules ()
@@ -206,11 +234,17 @@
             K))]))
             
   (define-syntax bind
-    (syntax-rules ()
-      [(bind (var) body)
-        (bind* (var) K body)]
-      [(bind (vars ...) body)
-        (bind* (vars ...) K body)]))
+    (lambda (x)
+      (syntax-case x ()
+        [(bind (var) body)
+          (and 
+            (identifier? #'body)
+            (bound-identifier=? #'var #'body))
+          #'identity]
+        [(bind (var) body)
+          #'(bind* (var) K body)]
+        [(bind (vars ...) body)
+          #'(bind* (vars ...) K body)])))
 
   (define-syntax from
     (lambda (x)
@@ -279,7 +313,7 @@
                         (or (free-identifier=? #'dir #'asc)
                             (free-identifier=? #'dir #'desc))
                         (recur vars
-                          #`(sort-iterator #,l
+                          #`(order-by-iterator #,l
                               #,@(reverse se)
                               (make-sorter
                                 #,(free-identifier=? #'dir #'asc)
@@ -288,6 +322,7 @@
                       [(p rest ...)
                         (f #'(p asc rest ...) se)])))]
               [(join e* in l* on a equals b into f rest ...)
+                (identifier? #'f)
                 (if (valid-id? #'e* vars)
                   (if (valid-id? #'f* vars)
                     (with-syntax (((a* eq) (generate-temporaries '(a* eq))))
@@ -410,27 +445,29 @@
         ei)))
           
   (define (map-iterator iter proc)
-    (let* ((init (list #f))
-           (end (list #t))
-           (cur init))
-      (make-iterator
-        (lambda ()
-          (if (move-next iter)
-            (begin
-              (set! cur (proc (current iter)))
-              #t)
-            (begin
-              (set! cur end)
-              #f)))
-        (lambda ()
-          (when (eq? cur init)
-            (assertion-violation 'current "move-next not called" iter))
-          (when (eq? cur end)
-            (assertion-violation 'current "moved passed end of iterator" iter))
-          cur)
-        (lambda ()
-          (set! cur init)
-          (reset iter)))))
+    (if (eq? proc identity)
+      iter
+      (let* ((init (list #f))
+             (end (list #t))
+             (cur init))
+        (make-iterator
+          (lambda ()
+            (if (move-next iter)
+              (begin
+                (set! cur (proc (current iter)))
+                #t)
+              (begin
+                (set! cur end)
+                #f)))
+          (lambda ()
+            (when (eq? cur init)
+              (assertion-violation 'current "move-next not called" iter))
+            (when (eq? cur end)
+              (assertion-violation 'current "moved passed end of iterator" iter))
+            cur)
+          (lambda ()
+            (set! cur init)
+            (reset iter))))))
         
   (define (filter-iterator iter proc)
     (make-iterator
@@ -768,7 +805,7 @@
   (define (maximum iter)
     (let ((iter (get-iterator iter))
           (r -inf.0))
-      (when (empty-iterator? iter)
+      (when (empty? iter)
         (assertion-violation 'maximum "empty iterator"))
       (foreach e in iter
         (when (< r e)
@@ -778,7 +815,7 @@
   (define (minimum iter)
     (let ((iter (get-iterator iter))
           (r +inf.0))
-      (when (empty-iterator? iter)
+      (when (empty? iter)
         (assertion-violation 'minimum "empty iterator"))
       (foreach e in iter
         (when (> r e)
@@ -895,10 +932,488 @@
 
 ;; examples
 
+#|
+(import (ironscheme linq2))
+
 ;; euler 1
+(sum 
+  (from x in (range 0 100000) 
+   where (or (zero? (mod x 5)) (zero? (mod x 3))) 
+   orderby x
+   select x))
+
+(define env (environment '(ironscheme linq2)))
+
+;; extract proc forms
+(foreach f in (from eb in (environment-bindings env)
+               let s = (car eb)
+               where (eq? 'procedure (cdr eb))
+               orderby s
+               let b = (eval s env)
+               let forms = (call-with-values 
+                             (lambda () (procedure-form b)) 
+                             list)
+               from f in forms
+               select (cons s (cdr f)))
+  (printf "~a\n" f))
+|#  
+
+;; docs
 
 #|
-(time (sum (from x in (range 0 100000) where (or (zero? (mod x 5)) (zero? (mod x 3))) select x)))
 
-|#  
+LINQ for R6RS Scheme
+====================
+
+See below code for examples and tests.
+
+
+The following grammar is as per the C# spec [1]. 
+
+Grammar notes:
+- The optional type token is not present and has been removed from the grammar.
+- IDENTIFIER is any Scheme identifier.
+- Other uppercased or single quoted 'tokens' are translated to lowercased Scheme syntax, with exceptions.
+- expression is any Scheme expression.
+- boolean_expression is Scheme expression returning a boolean value.
+- * denotes 0 or more.
+- ? denotes optional.
+- Differences in C++ style comments.
+- Starts with query_expression.
+
+query_expression
+  : from_clause query_body
+  ;
+  
+from_clause
+  : FROM IDENTIFIER IN expression
+  ;
+  
+query_body
+  : query_body_clause* select_or_group_clause query_continuation?
+  ;
+  
+query_body_clause
+  : from_clause
+  | let_clause
+  | where_clause
+  | join_clause
+  | join_into_clause
+  | orderby_clause
+  ;
+  
+let_clause
+  : LET IDENTIFIER '=' expression
+  ;
+  
+where_clause
+  : WHERE boolean_expression
+  ;
+  
+join_clause
+  : JOIN IDENTIFIER IN expression ON expression EQUALS expression 
+  ;
+  
+join_into_clause
+  : JOIN IDENTIFIER IN expression ON expression EQUALS expression INTO IDENTIFIER
+  ;
+  
+orderby_clause
+  : ORDERBY orderings
+  ;
+
+// ',' is replaced by THEN  
+orderings
+  : ordering
+  | orderings ',' ordering
+  ;
+  
+ordering
+  : expression ordering_direction?
+  ;
+
+ordering_direction
+  : ASCENDING
+  | DESCENDING
+  ;
+  
+select_or_group_clause
+  : select_clause
+  | group_clause
+  ;
+  
+select_clause
+  : SELECT expression
+  ;
+  
+group_clause
+  : GROUP expression BY expression
+  ;
+
+query_continuation
+  : INTO IDENTIFIER query_body 
+  ;
+  
+
+
+Procedures:
+
+(aggregate iter init proc)
+
+  Aka fold-left. proc takes 2 args (accumalator and element) and returns a single value. 
+
+(all? iter pred)
+
+  Aka for-all. 
+  
+(any? iter pred)
+
+  Aka exists.
+  
+(average iter)
+
+  Gets the average of a iterable of numbers.
+
+(concat iter1 iter2)
+
+  Return an iterator for the concatenation of both iterators.
+  
+(contains? iter obj)
+
+  Tests for the existence of an object in a list.
+
+(contains? iter obj equals?)
+
+  Tests for the existence of an object in a list. equals? is the predicate.
+  
+(count iter)
+
+  Returns the number of elements in the iterator.
+  
+(distinct iter)
+
+  Returns an iterator of dictict elements of iter.
+  
+(element-at iter index)
+
+  Gets the element at a specified index. Asserts when index is out of bounds.
+  
+(element-at/default iter index default)
+
+  Gets the element at a specified index. Returns default when index is out of bounds.
+
+(empty)
+
+  Returns an empty iterator (singleton).
+  
+(empty? iter)
+
+  Tests if an iterator is empty (contains no elements).  
+  
+(except iter1 iter2)
+
+  Returns an iterator that contains the set difference of the elements of two iterators. 
+  
+(first iter)
+
+  Gets the first element of an iterator. Asserts when iterator is empty.
+  
+(first/default iter default)
+
+  Gets the first element of an iterator. Returns default when iterator is empty.
+  
+(get-iterator obj)
+
+  Gets an iterator from an iterable object, eg list, vector, string, etc.
+  
+(grouping? obj)
+
+  Tests whether an object is a grouping.
+  
+(intersect iter1 iter2)
+
+  Returns an iterator that contains the elements that form the set intersection of two iterators.
+
+(iterator->hashtable iter sel)
+
+  Converts an iterator to a hashtable. sel accepts 1 value, and returns 2 values for the key and value. The hashtable is based on the first element in the list.
+  
+(iterator->list iter)
+
+  Converts an iterator to a list. 
+  
+(iterator->string iter)
+
+  Converts an iterator to a string. All elements must be characters.
+  
+(iterator->vector iter)
+
+  Converts an iterator to a vector. 
+  
+(iterator-current iter)
+
+  Gets the current value of an iterator.
+  
+(iterator-move-next iter)
+
+  Moves an iterator to the next element. Returns #f if no more elements. Must be called before calling iterator-current.
+  
+(iterator-reset iter)
+
+  Resets an iterator to it's initial state.
+  
+(iterator=? iter1 iter2)
+
+  Determines whether two iterators are equal by comparing the elements.
+  
+(iterator=? iter1 iter2 equals?)
+
+  Determines whether two iterators are equal by comparing the elements. Uses equals? for predicate.
+  
+(iterator? obj)
+
+  Tests if an object is an iterator.
+  
+(key grouping)
+
+  Gets the key of a grouping.
+  
+(last iter)
+
+  Gets the last element of an iterator. Asserts when iterator is empty.
+  
+(last/default iter default)
+
+  Gets the last element of an iterator. Returns default when iterator is empty.
+  
+(make-iterator move-next current reset)
+
+  Returns a primitive iterator. 
+
+(maximum iter)
+
+  Returns the maximum element of an iterator. Must be number.
+  
+(minimum iter)
+
+  Returns the minimum element of an iterator. Must be number.
+  
+(range end)
+
+  Returns an iterator of numbers starting with 0, incrementing 1, up to, but excluding 'end'. 
+  
+(range start end)
+
+  Returns an iterator of numbers starting with 'start', incrementing 1, up to, but excluding 'end'. 
+  
+(range start end skip)
+
+  Returns an iterator of numbers starting with 'start', incrementing 'skip', up to, but excluding 'end'. 
+  
+(repeat obj count)
+
+  Returns an iterator that contains one repeated value, for count number of times.
+  
+(single iter)
+
+  Gets the first and only element of an iterator. Asserts when iterator is empty or more than 1 element.
+    
+(single/default iter default)
+
+  Gets the first and only element of an iterator. Returns default when iterator is empty. Asserts when more than 1 element in iterator.
+  
+(skip count iter)
+
+  Returns an iterator that skips count number of elements of an iterator. Returns empty iterator if count is smaller that the count of the iterator.
+  
+(sum iter)
+
+  Gets the sum of a iterable of numbers.
+  
+(take count iter)
+  
+  Returns an iterator that take count number of elements of an iterator. Returns empty iterator if count is smaller that the count of the iterator.
+  
+(union iter1 iter2)
+
+  Returns an iterator that contains the elements from both iterators, excluding duplicates. 
+  
+References:
+
+1. http://download.microsoft.com/download/3/8/8/388e7205-bc10-4226-b2a8-75351c669b09/CSharp%20Language%20Specification.doc , 7.15 Query expressions  
+
+Tests:
+======
+
+(import (ironscheme linq2))
+
+;; conformance to C# tests
+;; simply permutations of the grammar and matched to the output of C#
+(define (print-list lst)
+  (foreach x in lst
+    (printf "~a, " x))
+  (printf "\n"))
+
+(define selectdata  '(1 5 3 4 2))
+(define groupdata   '(2 5 2 4 2))
+(define nestdata    '((2 5)(2 4)(3 5)(3 1)(1 1)))
+
+
+(define a ( from x in selectdata
+            select x))
+
+(print-list a)
+
+(define a2 (from x in (from y in selectdata
+                       select (+ y 1))
+            select (- x 1)))
+
+(print-list a2)
+
+(define b ( from x in selectdata
+            where (even? x)
+            select x))
+
+(print-list b)
+
+(define c ( from x in selectdata
+            orderby x
+            select x))
+
+(print-list c)
+
+(define d ( from x in selectdata
+            orderby x descending
+            select x))
+
+(print-list d)
+
+(define e ( from x in selectdata
+            where (odd? x)
+            orderby x
+            select x))
+
+(print-list e)
+
+(define f ( from x in selectdata
+            let y = (* x x)
+            select y))
+
+(print-list f)
+
+(define f2 (from x in selectdata
+            let y = (* x x)
+            where (odd? y)
+            orderby y descending
+            select y))
+
+(print-list f2)
+
+(define g ( from x in selectdata
+            select x into z
+            select z))
+
+(print-list g)
+
+(define h ( from x in nestdata
+            from y in x
+            select y))
+
+(print-list h)
+
+(define i ( from x in nestdata
+            where (= (car x) 2)
+            from y in x
+            select y))
+
+(print-list i)
+
+(define j ( from x in nestdata
+            orderby (car x)
+            from y in x
+            select y))
+
+(print-list j)
+
+(define k ( from x in nestdata
+            from y in x
+            orderby y
+            select y))
+
+(print-list k)
+
+(define l ( from x in nestdata
+            select x into y
+            from z in y
+            select z))
+
+(print-list l)
+
+(define m ( from x in nestdata
+            group (car x) by (cadr x)))
+
+(print-list m)
+
+(define n ( from x in nestdata
+            group (cadr x) by (car x)))
+
+(print-list n)
+
+(define o ( from x in nestdata
+            group (cadr x) by (car x) into z
+            select z))
+
+(print-list o)
+
+(define p ( from x in nestdata
+            group (cadr x) by (car x) into z
+            orderby (key z) descending
+            select z))
+
+(print-list p)
+
+(define q ( from x in selectdata
+            join y in groupdata on x equals y into z
+            from w in z
+            select w))
+
+(print-list q)
+
+(define r ( from x in selectdata
+            join y in groupdata on x equals y
+            select (cons x y)))
+
+(print-list r)
+
+(define s ( from x in selectdata
+            from y in groupdata
+            where (and (= x 4) (= y 2))
+            select (cons x y)))
+
+(print-list s)
+
+(define t ( from x in selectdata
+            join y in groupdata on x equals y into z
+            orderby x
+            select z))
+
+(print-list t)
+
+(define u ( from x in selectdata
+            join y in groupdata on x equals y into z
+            orderby x
+            select (cons x z)))
+
+(print-list u)
+
+(define v ( from x in selectdata
+            from y in groupdata select y into z
+            where (even? z)
+            select z))
+
+(print-list v)
+
+
+|#
+
 

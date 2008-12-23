@@ -27,10 +27,10 @@
           (cons (car head) tail))))
          
   (define (merge list-1 list-2 precedes?)
-     (let loop 
-          ((source-1 list-1)
-           (source-2 list-2)
-           (so-far '()))
+    (let loop 
+        ((source-1 list-1)
+         (source-2 list-2)
+         (so-far '()))
        (cond 
         ((null? source-1)
           (reverse-it so-far source-2))

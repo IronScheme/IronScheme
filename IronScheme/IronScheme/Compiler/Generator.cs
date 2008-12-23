@@ -257,6 +257,10 @@ namespace IronScheme.Compiler
                 }
               }
             }
+            else
+            {
+              ;
+            }
           }
 
 #endif
