@@ -38,12 +38,22 @@ namespace IronScheme.Compiler
       {
         base.PostWalk(node);
       }
+
+      protected override bool Walk(MethodCallExpression node)
+      {
+        return base.Walk(node);
+      }
+
+      protected override void PostWalk(MethodCallExpression node)
+      {
+        base.PostWalk(node);
+      }
     }
 
     public static void Optimize(CodeBlock cb)
     {
-      //Pass1 p1 = new Pass1();
-      //p1.WalkNode(cb);
+      Pass1 p1 = new Pass1();
+      p1.WalkNode(cb);
     }
   }
 }

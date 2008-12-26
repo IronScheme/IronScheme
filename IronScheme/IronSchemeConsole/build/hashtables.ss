@@ -43,7 +43,7 @@
     
   (define (hashtable-ref ht key default)
     (define r (clr-indexer-get hashtable ht key))
-    (if (not (null? r)) 
+    (if (or (not (null? r)) (hashtable-contains? ht key))
       r
       default))
       

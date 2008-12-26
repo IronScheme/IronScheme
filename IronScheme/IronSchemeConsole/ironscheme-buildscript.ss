@@ -269,6 +269,7 @@
     (uninstall-library                          i)
     (installed-libraries                        i)
     (convert->cps                               i)
+    (syntax-transpose                           i)
     ;(expand-boot-cps                            i)
     (expand                                     i)
     (expand->core                               i)

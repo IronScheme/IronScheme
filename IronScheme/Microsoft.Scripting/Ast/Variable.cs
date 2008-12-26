@@ -45,9 +45,9 @@ namespace Microsoft.Scripting.Ast {
         private readonly SymbolId _name;
 
         // TODO: Maybe we don't need this!
-        private readonly CodeBlock _block;
+        private CodeBlock _block;
 
-        private readonly VariableKind _kind;
+        private VariableKind _kind;
         private readonly Type _type;
         private readonly Expression _defaultValue;
 
@@ -86,10 +86,22 @@ namespace Microsoft.Scripting.Ast {
 
         public CodeBlock Block {
             get { return _block; }
+          // for rewriting... :(
+           set 
+           {
+             Debug.Assert(_storage == null);
+             _block = value;
+           }
         }
 
         public VariableKind Kind {
             get { return _kind; }
+          // for rewriting... :(
+           set 
+           {
+             Debug.Assert(_storage == null);
+             _kind = value; 
+           }
         }
 
         public Type Type {
@@ -117,6 +129,11 @@ namespace Microsoft.Scripting.Ast {
 
         public bool Lift {
             get { return _lift; }
+          set
+          {
+            Debug.Assert(!_lift);
+            _lift = value;
+          }
         }
 
         internal bool Unassigned {

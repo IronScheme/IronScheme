@@ -5,6 +5,7 @@
     iterator?
     make-iterator
     get-iterator
+    trace-iterator
     iterator->list
     iterator->vector
     iterator->string
@@ -242,9 +243,10 @@
             (bound-identifier=? #'var #'body))
           #'identity]
         [(bind (var) body)
-          #'(bind* (var) K body)]
+          #'(lambda (var) body)]
         [(bind (vars ...) body)
-          #'(bind* (vars ...) K body)])))
+          #'(bind* (vars ...) K body)]
+          )))
 
   (define-syntax from
     (lambda (x)
@@ -926,6 +928,21 @@
 
   (define (union iter1 iter2)
     (distinct (concat iter1 iter2)))
+    
+  (define (trace-iterator name iter)
+    (let ((iter (get-iterator iter)))
+      (make-iterator
+        (lambda ()
+          (move-next iter))
+        (lambda ()
+          (let ((cur (current iter)))
+            (display name)
+            (display " -> ")
+            (write cur)
+            (newline)
+            cur))
+        (lambda ()
+          (reset iter)))))    
       
 )     
 
@@ -935,12 +952,23 @@
 #|
 (import (ironscheme linq2))
 
-;; euler 1
+;; euler 1 (bit bigger to test for proper tail calls)
+
 (sum 
-  (from x in (range 0 100000) 
+  (from x in (range 1000000) 
    where (or (zero? (mod x 5)) (zero? (mod x 3))) 
-   orderby x
    select x))
+   
+VS
+
+(let ((x 1000000))
+  (let s ((cur-value 1) (sum 0))
+    (cond
+      ((>= cur-value x) sum)
+      ((or (zero? (mod cur-value 3)) (zero? (mod cur-value 5)))
+        (s (+ cur-value 1) (+ sum cur-value)))
+      (else (s (+ cur-value 1) sum)))))
+  
 
 (define env (environment '(ironscheme linq2)))
 
@@ -1053,7 +1081,15 @@ group_clause
 query_continuation
   : INTO IDENTIFIER query_body 
   ;
-  
+
+Iterator design:
+
+http://csharpindepth.com/Articles/Chapter6/IteratorBlockImplementation.aspx
+http://csharpindepth.com/Articles/Chapter11/StreamingAndIterators.aspx  
+
+Transform process:
+
+http://bartdesmet.net/blogs/bart/archive/2008/08/30/c-3-0-query-expression-translation-cheat-sheet.aspx
 
 
 Procedures:

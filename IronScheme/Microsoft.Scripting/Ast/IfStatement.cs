@@ -65,23 +65,10 @@ namespace Microsoft.Scripting.Ast {
 
                 t.Body.Emit(cg);
                 // optimize no else case
-                if (t.Body is BlockStatement)
+                if (IsNotIfOrReturn(t.Body))
                 {
-                  BlockStatement bs = (BlockStatement)t.Body;
-                  if (!(bs.Statements[bs.Statements.Count - 1] is ReturnStatement) && 
-                    !(bs.Statements[bs.Statements.Count - 1] is IfStatement))
-                  {
-                    eoiused |= true;
-                    cg.Emit(OpCodes.Br, eoi);
-                  }
-                }
-                else
-                {
-                  if (!(t.Body is ReturnStatement) && !(t.Body is IfStatement))
-                  {
-                    eoiused |= true;
-                    cg.Emit(OpCodes.Br, eoi);
-                  }
+                  eoiused |= true;
+                  cg.Emit(OpCodes.Br, eoi);
                 }
                 cg.MarkLabel(next);
             }
@@ -92,6 +79,23 @@ namespace Microsoft.Scripting.Ast {
             {
               cg.MarkLabel(eoi);
             }
+        }
+
+        static bool IsNotIfOrReturn(Statement s)
+        {
+          if (s is BlockStatement)
+          {
+            BlockStatement bs = (BlockStatement)s;
+            return IsNotIfOrReturn(bs.Statements[bs.Statements.Count - 1]);
+          }
+          else
+          {
+            if (!(s is ReturnStatement) && !(s is IfStatement))
+            {
+              return true;
+            }
+          }
+          return false;
         }
     }
 }

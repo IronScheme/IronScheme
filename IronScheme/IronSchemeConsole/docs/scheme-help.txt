@@ -8,3 +8,4 @@
 - How to Design Programs/2e                               http://www.ccs.neu.edu/home/matthias/HtDP/Prologue/book.html
 - Teach Yourself Scheme in Fixnum Days                    http://www.ccs.neu.edu/home/dorai/t-y-scheme/t-y-scheme-Z-H-1.html
 - Programming Languages: Application and Interpretation   http://www.cs.brown.edu/~sk/Publications/Books/ProgLangs/
+- Functional Programming in Scheme                        http://www.cs.aau.dk/~normark/prog3-03/html/notes/theme-index.html

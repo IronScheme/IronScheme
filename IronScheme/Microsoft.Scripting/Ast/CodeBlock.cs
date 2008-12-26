@@ -69,6 +69,14 @@ namespace Microsoft.Scripting.Ast {
         private bool _visibleScope = true;
         private bool _parameterArray;
         internal bool Checked = false;
+        bool inlined = false;
+
+        public bool Inlined
+        {
+          get { return inlined; }
+          set { inlined = value; }
+        }
+
 
 
 #if FULL
@@ -166,7 +174,7 @@ namespace Microsoft.Scripting.Ast {
         /// The environment is provided as the Locals of a CodeContext or in the case of a Generator 
         /// as the parentEnvironment field.
         /// </summary>
-        internal bool HasEnvironment {
+        public bool HasEnvironment {
             get { return _hasEnvironment; }
             set { _hasEnvironment = value; }
         }
@@ -197,7 +205,14 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public CodeBlock Parent {
-            get { return _parent; }
+            get 
+            {
+              if (_parent != null && _parent.Inlined)
+              {
+                return _parent.Parent;
+              }
+              return _parent; 
+            }
             set { _parent = value; }
         }
 
@@ -238,9 +253,9 @@ namespace Microsoft.Scripting.Ast {
             return v;
           }
 
-          if (_parent != null)
+          if (Parent != null)
           {
-            return _parent.Lookup(id);
+            return Parent.Lookup(id);
           }
 
           return v;
@@ -498,11 +513,11 @@ namespace Microsoft.Scripting.Ast {
           if (depth == -1)
           {
             depth = 0;
-            CodeBlock parent = _parent;
+            CodeBlock parent = Parent;
             while (parent != null)
             {
               depth++;
-              parent = parent._parent;
+              parent = parent.Parent;
             }
           }
           return depth;
@@ -554,7 +569,7 @@ namespace Microsoft.Scripting.Ast {
               CodeBlock current = this;
               do
               {
-                CodeBlock parent = current._parent;
+                CodeBlock parent = current.Parent;
                 if (parent._environmentFactory != null)
                 {
                   scope.EmitGet(cg);
@@ -1386,6 +1401,13 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
         {
           _parameters.Add(par);
           _parametersmap.Add(par.Name, par);
+        }
+
+      // for rewriting
+        public void AddVariable(Variable par)
+        {
+          _variables.Add(par);
+          _variablesmap.Add(par.Name, par);
         }
 
         public int ParameterCount

@@ -378,7 +378,7 @@ namespace IronScheme.Compiler
       Cons c = body;
       while (c != null)
       {
-        Expression e = GetAst(c.car, cb);
+        Expression e = GetAst(c.car, cb, c.cdr == null);
         Statement s = null;
         if (c.cdr == null)
         {

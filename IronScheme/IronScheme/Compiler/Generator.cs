@@ -110,6 +110,11 @@ namespace IronScheme.Compiler
 
     protected internal static Expression GetAst(object args, CodeBlock cb)
     {
+      return GetAst(args, cb, false);
+    }
+
+    protected internal static Expression GetAst(object args, CodeBlock cb, bool istailposition)
+    {
       Cons c = args as Cons;
       if (c != null)
       {
@@ -138,6 +143,7 @@ namespace IronScheme.Compiler
 
             if (cbe.Block.ParameterCount < 6 && cbe.Block.ParameterCount == ppp.Length)
             {
+              //inline here?
               return CallNormal(cbe, ppp);
             }
           }
@@ -149,6 +155,7 @@ namespace IronScheme.Compiler
 
             if (cbe.Block.ParameterCount < 6 && cbe.Block.ParameterCount - 1 <= ppp.Length)
             {
+              //inline here?
               return CallVarArgs(cbe, ppp);
             }
           }
@@ -167,10 +174,12 @@ namespace IronScheme.Compiler
                 {
                   if (d.varargs)
                   {
+                    //inline here?
                     return CallVarArgs(d.codeblock, ppp);
                   }
                   else
                   {
+                    //inline here?
                     return CallNormal(d.codeblock, ppp);
                   }
                 }
@@ -198,11 +207,11 @@ namespace IronScheme.Compiler
 
                   if (ccbe.Block.ParameterCount == 0)
                   {
-                    return CallNormal(ccbe);
+                    return InlineCall(cb, ccbe);
                   }
                   else if (ccbe.Block.ParameterCount == 1)
                   {
-                    return CallNormal(ccbe, CallNormal(pcbe));
+                    return InlineCall(cb, ccbe, InlineCall(cb, pcbe));
                   }
                   else if (ccbe.Block.ParameterCount < 6)
                   {
@@ -217,7 +226,7 @@ namespace IronScheme.Compiler
                       pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
                     }
 
-                    return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(CallNormal(pcbe), typeof(MultipleValues).GetMethod("ToArray"))), CallNormal(ccbe, pppp));
+                    return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(InlineCall(cb, pcbe), typeof(MultipleValues).GetMethod("ToArray"))), InlineCall(cb, ccbe, pppp));
                   }
                 }
               }
@@ -234,11 +243,11 @@ namespace IronScheme.Compiler
 
                 if (ccbe.Block.ParameterCount == 0)
                 {
-                  return CallNormal(ccbe);
+                  return InlineCall(cb, ccbe);
                 }
                 else if (ccbe.Block.ParameterCount == 1)
                 {
-                  return CallNormal(ccbe, Ast.Call(exx, callx));
+                  return InlineCall(cb, ccbe, Ast.Call(exx, callx));
                 }
                 else if (ccbe.Block.ParameterCount < 6)
                 {
@@ -253,7 +262,7 @@ namespace IronScheme.Compiler
                     pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
                   }
 
-                  return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(Ast.Call(exx, callx), typeof(MultipleValues).GetMethod("ToArray"))), CallNormal(ccbe, pppp));
+                  return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(Ast.Call(exx, callx), typeof(MultipleValues).GetMethod("ToArray"))), InlineCall(cb, ccbe, pppp));
                 }
               }
             }
@@ -374,7 +383,7 @@ namespace IronScheme.Compiler
 
             if (pp.Length < 6 && cbe.Block.ParameterCount == pp.Length)
             {
-              return CallNormal(cbe, pp);
+              return InlineCall(cb, cbe, istailposition, pp);
             }
           }
           // cater for varargs more efficiently, this does not seem to hit, probably needed somewhere else
@@ -448,6 +457,133 @@ namespace IronScheme.Compiler
         }
         return Ast.Constant(args);
       }
+    }
+
+    protected static Expression InlineCall(CodeBlock parent, CodeBlockExpression cbe, params Expression[] pp)
+    {
+      return InlineCall(parent, cbe, false, pp);
+    }
+
+    protected static Expression InlineCall(CodeBlock parent, CodeBlockExpression cbe, bool istailpostion, params Expression[] pp)
+    {
+      // all var names are unique.
+      CodeBlock cb = cbe.Block;
+
+      if (parent.IsGlobal) 
+      {
+        return CallNormal(cbe, pp);
+      }
+
+      List<Expression> assigns = new List<Expression>();
+      int i = 0;
+
+      cb.Inlined = true;
+
+      foreach (Variable p in cb.Parameters)
+      {
+        p.Block = parent;
+        p.Kind = Variable.VariableKind.Local;
+        parent.AddVariable(p);
+        assigns.Add(Ast.Assign(p, pp[i]));
+        if (p.Lift)
+        {
+          parent.HasEnvironment = true;
+        }
+        i++;
+      }
+
+      foreach (Variable l in cb.Variables)
+      {
+        l.Block = parent;
+        parent.AddVariable(l);
+        if (l.Lift)
+        {
+          parent.HasEnvironment = true;
+        }
+      }
+
+      Expression body = RewriteReturn(cb.Body);
+      assigns.Add(body);
+      Expression result = Ast.Comma(assigns);
+      return result;
+    }
+
+    static Statement FlattenStatement(Statement s)
+    {
+      if (s is BlockStatement)
+      {
+        BlockStatement bs = (BlockStatement)s;
+        if (bs.Statements.Count == 1)
+        {
+          return bs.Statements[0];
+        }
+      }
+      return s;
+    }
+
+    static Expression RewriteReturn(Statement statement)
+    {
+      if (statement is BlockStatement)
+      {
+        BlockStatement bs = (BlockStatement)statement;
+        List<Statement> newbody = new List<Statement>(bs.Statements);
+        Statement last = newbody[newbody.Count - 1];
+        
+        newbody.RemoveAt(newbody.Count - 1);
+
+        Statement fb = FlattenStatement(Ast.Block(newbody));
+
+        Expression eb = Ast.Void(fb);
+
+        if (fb is ExpressionStatement)
+        {
+          eb = ((ExpressionStatement)fb).Expression;
+        }
+
+        return Ast.Comma(eb, RewriteReturn(last));
+      }
+
+      if (statement is ReturnStatement)
+      {
+        Expression e = ((ReturnStatement)statement).Expression;
+        if (e is MethodCallExpression)
+        {
+          ((MethodCallExpression)e).TailCall = false;
+        }
+        return e;
+      }
+
+      if (statement is IfStatement)
+      {
+        IfStatement ifs = (IfStatement)statement;
+
+        Debug.Assert(ifs.Tests.Count == 1);
+
+        return Ast.Condition(ifs.Tests[0].Test, RewriteReturn(ifs.Tests[0].Body), RewriteReturn(ifs.ElseStatement));
+      }
+
+      throw new ArgumentException("Unexpected");
+    }
+
+    static bool HasConditionals(Statement statement)
+    {
+      if (statement is BlockStatement)
+      {
+        foreach (Statement s in ((BlockStatement)statement).Statements)
+        {
+          if (HasConditionals(s))
+          {
+            return true;
+          }
+        }
+      }
+
+      if (statement is IfStatement)
+      {
+        return true;
+      }
+
+      return false;
     }
 
     #region Optimized calls

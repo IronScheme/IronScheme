@@ -224,6 +224,9 @@
     <None Include="lib\list-match.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\foof-loop.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="playground\grid.ss" />
     <None Include="playground\il-assembler.ss" />
     <None Include="lib\clr.ss">
@@ -234,6 +237,9 @@
     </None>
     <None Include="playground\parse.ss" />
     <None Include="playground\random-stuff.ss" />
+    <None Include="lib\syn-param.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="srfi\system.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
