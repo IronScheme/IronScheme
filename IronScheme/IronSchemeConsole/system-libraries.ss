@@ -57,10 +57,15 @@
 
 (let () 
   (import 
-    (ikarus))
+    (ikarus)
+    (syn-param)
+    (foof-loop)
+    (list-match)
+    (as-match))
   #f)
   
 (let () 
   (import 
-    (ironscheme linq))
+    (ironscheme linq)
+    (match)) ; seperate
   #f)

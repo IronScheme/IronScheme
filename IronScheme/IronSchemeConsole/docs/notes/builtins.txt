@@ -32,8 +32,8 @@ complex?
 cons
 cos
 denominator
-div-and-mod [6]
-div0-and-mod0 [6]
+div
+div0
 dynamic-wind [1][5]
 eq?
 equal?
@@ -237,8 +237,8 @@ fxand
 fxarithmetic-shift
 fxbit-count
 fxbit-set?
-fxdiv-and-mod [6]
-fxdiv0-and-mod0 [6]
+fxdiv
+fxdiv0
 fxfirst-bit-set
 fxior
 fxlength
@@ -260,6 +260,8 @@ fl<?
 fl=?
 fl>=?
 fl>?
+fldiv
+fldiv0
 fldenominator
 flnumerator
 real->flonum

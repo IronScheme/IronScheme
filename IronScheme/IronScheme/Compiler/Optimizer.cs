@@ -52,8 +52,8 @@ namespace IronScheme.Compiler
 
     public static void Optimize(CodeBlock cb)
     {
-      Pass1 p1 = new Pass1();
-      p1.WalkNode(cb);
+      //Pass1 p1 = new Pass1();
+      //p1.WalkNode(cb);
     }
   }
 }
