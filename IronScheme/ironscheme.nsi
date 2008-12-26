@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "IronScheme"
-!define PRODUCT_VERSION "1.0-beta1"
+!define PRODUCT_VERSION "1.0-beta2"
 !define PRODUCT_PUBLISHER "leppie"
 !define PRODUCT_WEB_SITE "http://www.codeplex.com/IronScheme/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\IronScheme.Console.exe"
@@ -191,6 +191,7 @@ SectionIn 1 2 RO
 	File "ironscheme.boot.dll"
 	File "Microsoft.Scripting.dll"
 	
+	File "build-options.ss"
 	File "system-libraries.ss"
 	File "init.ss"
 	File "compile-system-libraries.ss"
@@ -213,6 +214,7 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\lib"
 	File /r lib\*.ss
+	File /r lib\*.sls
 	
 	SetOutPath "$INSTDIR\build"
 	File /r build\*.ss

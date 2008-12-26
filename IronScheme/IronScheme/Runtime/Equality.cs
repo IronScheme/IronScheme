@@ -31,6 +31,19 @@ namespace IronScheme.Runtime
       if (obj.Length == 1)
       {
         Expression e = Unwrap(obj[0]);
+        if (e is UnaryExpression)
+        {
+          UnaryExpression ue = (UnaryExpression)e;
+          if (ue.NodeType == AstNodeType.Not)
+          {
+            return ue.Operand;
+          }
+        }
+        if (e is ConditionalExpression)
+        {
+          ConditionalExpression ce = (ConditionalExpression)e;
+          return Ast.Condition(ce.Test, ce.IfFalse, ce.IfTrue);
+        }
         if (e.Type == typeof(bool))
         {
           return Ast.Not(e);

@@ -155,7 +155,7 @@
     </None>
     <None Include="App.config" />
     <None Include="build-options.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="build\cps.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -179,6 +179,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\syntax-utils.ss" />
+    <None Include="lib\as-match.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\ikarus.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
