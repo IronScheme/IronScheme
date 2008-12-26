@@ -1439,7 +1439,7 @@ namespace IronScheme.Runtime
     [Builtin("div")]
     public static object Div(object x1, object x2)
     {
-      if (x1 is int && x2 is int)
+      if (x1 is int && x2 is int && (int)x1 != int.MinValue && (int)x2 != int.MinValue)
       {
         return R6RS.Arithmetic.Fixnums.FxDiv(x1, x2);
       }

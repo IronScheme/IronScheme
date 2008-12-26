@@ -223,7 +223,7 @@ namespace IronScheme.Compiler
       cb.ExplicitCodeContextExpression = Ast.CodeContext();
       
 #if OPTIMIZATIONS
-      Expression ex = CallNormal(Ast.CodeBlockExpression(cb, false));
+      Expression ex = InlineCall(c, Ast.CodeBlockExpression(cb, false));
 #else
       Expression ex = Ast.SimpleCallHelper(MakeClosure(cb, false), GetCallable(0));
 #endif

@@ -70,7 +70,7 @@ namespace IronScheme.Compiler
       FillBody(cb, stmts, body, true);
 
 #if OPTIMIZATIONS
-      Expression ex = CallNormal(Ast.CodeBlockExpression(cb, false));
+      Expression ex = InlineCall(c, Ast.CodeBlockExpression(cb, false));
 #else
       Expression ex = Ast.SimpleCallHelper(MakeClosure(cb, false), GetCallable(0));
 #endif

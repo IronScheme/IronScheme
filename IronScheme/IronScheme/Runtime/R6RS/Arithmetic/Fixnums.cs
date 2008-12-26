@@ -486,7 +486,15 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       }
       else
       {
-        div = (a + b + 1) / b;
+        try
+        {
+          div = (a + b + 1) / b;
+        }
+        catch (OverflowException)
+        {
+          return AssertionViolation("fxdiv", "result outside fixnum range", x1, x2);
+        }
+
       }
 
       return div;

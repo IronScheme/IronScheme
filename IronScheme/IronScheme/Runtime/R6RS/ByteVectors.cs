@@ -358,6 +358,11 @@ namespace IronScheme.Runtime.R6RS
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
 
+      if (s < 0)
+      {
+        return AssertionViolation("bytevector-uint-ref", "invalid size", size);
+      }
+
       byte[] sb = new byte[s];
 
       Buffer.BlockCopy(b, i, sb, 0, s);
@@ -374,7 +379,7 @@ namespace IronScheme.Runtime.R6RS
         case 2:
           return (int) BitConverter.ToUInt16(sb, 0);
         case 4:
-          return (BigInteger) BitConverter.ToUInt32(sb, 0);
+          return ToIntegerIfPossible((BigInteger) BitConverter.ToUInt32(sb, 0));
         case 8:
           return (BigInteger) BitConverter.ToUInt64(sb, 0);
         default:
@@ -392,6 +397,11 @@ namespace IronScheme.Runtime.R6RS
       int i = RequiresNotNull<int>(k);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
+
+      if (s < 0)
+      {
+        return AssertionViolation("bytevector-sint-ref", "invalid size", size);
+      }
 
       byte[] sb = new byte[s];
 
@@ -426,6 +436,12 @@ namespace IronScheme.Runtime.R6RS
 
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
+
+      if (s < 0)
+      {
+        return AssertionViolation("bytevector-uint-set!", "invalid size", size);
+      }
+
       byte[] data = null;
 
       switch (s)
@@ -480,6 +496,12 @@ namespace IronScheme.Runtime.R6RS
 
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
+
+      if (s < 0)
+      {
+        return AssertionViolation("bytevector-sint-set!", "invalid size", size);
+      }
+
       byte[] data = null;
 
       switch (s)
@@ -533,6 +555,11 @@ namespace IronScheme.Runtime.R6RS
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
 
+      if (s < 0)
+      {
+        return AssertionViolation("bytevector->uint-list", "invalid size", size);
+      }
+
       int l = b.Length;
 
       List<object> list = new List<object>();
@@ -554,6 +581,11 @@ namespace IronScheme.Runtime.R6RS
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
 
+      if (s < 0)
+      {
+        return AssertionViolation("bytevector->sint-list", "invalid size", size);
+      }
+
       int l = b.Length;
 
       List<object> list = new List<object>();
@@ -574,6 +606,11 @@ namespace IronScheme.Runtime.R6RS
       Cons c = Requires<Cons>(list);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
+
+      if (s < 0)
+      {
+        return AssertionViolation("uint-list->bytevector", "invalid size", size);
+      }
 
       List<byte> blist = new List<byte>();
 
@@ -597,6 +634,11 @@ namespace IronScheme.Runtime.R6RS
       Cons c = Requires<Cons>(list);
       SymbolId end = RequiresNotNull<SymbolId>(endianess);
       int s = RequiresNotNull<int>(size);
+
+      if (s < 0)
+      {
+        return AssertionViolation("sint-list->bytevector", "invalid size", size);
+      }
 
       List<byte> blist = new List<byte>();
 
