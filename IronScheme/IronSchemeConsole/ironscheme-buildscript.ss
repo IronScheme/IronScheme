@@ -35,8 +35,6 @@
   (only (ironscheme) time-it optimization-level include import library)
   )
   
-(optimization-level 'unchecked)  ; this does not affect the expanded file
-  
 (define scheme-library-files
   '(
     "psyntax/config.ss"
@@ -338,6 +336,8 @@
     ($fx=?                                      iu)
     ($fx+                                       iu)
     ($fx*                                       iu)
+    ($fxdiv0                                    iu)
+    ($fxmod0                                    iu)
     ($fx-                                       iu)
     ($fx<?                                      iu)
     ($fx<=?                                     iu)
@@ -346,10 +346,12 @@
     ($fxand                                     iu)
     ($fxior                                     iu)
     ($fxxor                                     iu)
+    ($fxnot                                     iu)
     ($$fx+                                      iu)
     ($$fx*                                      iu)
     ($$fx-                                      iu)
-    ($$fxnot                                    iu)
+    ($fxarithmetic-shift-left                   iu)
+    ($fxarithmetic-shift-right                  iu)
     (lambda                                     i r ba se ne)
     (and                                        i r ba se ne)
     (begin                                      i r ba se ne)

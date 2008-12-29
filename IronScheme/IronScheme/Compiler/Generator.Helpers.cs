@@ -152,7 +152,6 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Bitwise));
 
       AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FlonumsInlineEmitters));
-      AddInlineEmitters(typeof(Runtime.R6RS.Arithmetic.FixnumsInlineEmitters));
 
       cc.Scope.SetName(SymbolTable.StringToId("uninitialized"), Uninitialized.Instance);
 
