@@ -61,7 +61,6 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return null;
     }
 
- 
     static Expression Unwrap(Expression e)
     {
       if (e is UnaryExpression)

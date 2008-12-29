@@ -2032,7 +2032,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Builtin("expt")]
+    [Builtin("expt", AllowConstantFold=true)]
     public static object Expt(object obj1, object obj2)
     {
       if (obj1 is Complex64 || IsTrue(IsNegative(obj1)))

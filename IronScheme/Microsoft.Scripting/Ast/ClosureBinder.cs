@@ -99,6 +99,12 @@ namespace Microsoft.Scripting.Ast {
             return true;
         }
 
+        protected internal override bool Walk(WriteStatement node)
+        {
+          node.Ref = Reference(node.Variable);
+          return true;
+        }
+
         protected internal override bool Walk(BoundExpression node) {
             node.Ref = Reference(node.Variable);
             return true;
@@ -171,7 +177,7 @@ namespace Microsoft.Scripting.Ast {
             for (int i = 0; i < _blocks.Count; i++) {
                 CodeBlock block = _blocks[i];
                 if (!block.IsGlobal) {
-                    BindCodeBlock((CodeBlock)block);
+                    BindCodeBlock(block);
                 }
             }
         }

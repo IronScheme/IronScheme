@@ -351,13 +351,13 @@
       (let ((len (vector-length vec)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))
-          (vector-set! vec i val))))     
+          (vector-set! vec i val))))   
+          
+    (define (xcons x y)
+      (cons y x))            
      
     (define (reverse lst)
-      (fold-left 
-        (lambda (x y) (cons y x))
-        '()
-        lst))
+      (fold-left xcons '() lst))
      
     (define (caar   x) (car (car x)))
     (define (cadr   x) (car (cdr x)))

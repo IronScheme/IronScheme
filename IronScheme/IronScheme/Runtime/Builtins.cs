@@ -36,6 +36,13 @@ namespace IronScheme.Runtime
   {
     string name;
     bool allowcps = true;
+    bool allowconstantfold = false;
+
+    public bool AllowConstantFold
+    {
+      get { return allowconstantfold; }
+      set { allowconstantfold = value; }
+    }
 
     public bool AllowCPS
     {

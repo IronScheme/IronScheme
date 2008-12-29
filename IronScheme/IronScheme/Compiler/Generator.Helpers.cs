@@ -131,6 +131,8 @@ namespace IronScheme.Compiler
 
       AddBuiltins(Context, typeof(Builtins));
       AddInlineEmitters(typeof(BuiltinEmitters));
+      AddInlineEmitters(typeof(BuiltinEmitters.Unsafe));
+      AddInlineEmitters(typeof(BuiltinEmitters.Unchecked));
 
       AddBuiltins(Context, typeof(Runtime.psyntax.AnnotatedReader));
       AddBuiltins(Context, typeof(Runtime.psyntax.Serialization));
@@ -187,6 +189,7 @@ namespace IronScheme.Compiler
 
       Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
       Dictionary<string, List<MethodBase>> cpsfree = new Dictionary<string, List<MethodBase>>();
+      Dictionary<string, bool> foldable = new Dictionary<string, bool>();
 
       foreach (MethodInfo mi in builtinstype.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static))
       {
@@ -196,6 +199,8 @@ namespace IronScheme.Compiler
           {
             string name = ba.Name ?? mi.Name.ToLower();
             List<MethodBase> meths;
+
+            foldable[name] = ba.AllowConstantFold;
 
             if (ba.AllowCPS)
             {
@@ -227,7 +232,7 @@ namespace IronScheme.Compiler
 #if CPS
         cc.Scope.SetName(s, OptimizedBuiltins.MakeCPSCallable(new BuiltinMethod(mn, all[mn].ToArray())));
 #else
-        cc.Scope.SetName(s,  new BuiltinMethod(mn, all[mn].ToArray()));
+        cc.Scope.SetName(s, new BuiltinMethod(mn, all[mn].ToArray(), foldable[mn]));
 #endif
       }
 
@@ -658,6 +663,15 @@ namespace IronScheme.Compiler
       }
       else
       {
+        while (parent.Inlined)
+        {
+          parent = parent.Parent;
+        }
+        if (parent.IsGlobal)
+        {
+          return SymbolTable.IdToString(id);
+        }
+
         return parent.Name + "#" + SymbolTable.IdToString(id);
       }
     }

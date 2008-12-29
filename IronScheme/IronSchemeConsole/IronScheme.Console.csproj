@@ -175,6 +175,9 @@
     <None Include="ironscheme\contracts-helper.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\integrable.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\syntax-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

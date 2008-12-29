@@ -1146,7 +1146,8 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             impl = outer.DefineMethod(implName, _returnType,
                 paramTypes, SymbolTable.IdsToStrings(paramNames), GetStaticDataForBody(outer));
 
-            if (_explicitCodeContextExpression != null) {
+            if (_explicitCodeContextExpression != null && HasEnvironment)
+              {
                 Slot localContextSlot = impl.GetLocalTmp(typeof(CodeContext));
                 
                 //cannot access code context slot during emit:
@@ -1156,7 +1157,10 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                 impl.ContextSlot = localContextSlot;
 
             } else {
+              if (Parent == null || !Parent.IsGlobal)
+              {
                 impl.ContextSlot = hasContextParameter ? impl.GetArgumentSlot(0) : outer.ContextSlot;
+              }
             }
             
             if (_parameterArray) {

@@ -198,7 +198,9 @@ namespace IronScheme.Compiler
           }
         }
 
-        stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(vars[i]), Ast.Assign(locals[i], e))));
+        stmts.Add(Ast.Write(locals[i], e));
+
+        stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(vars[i]), Ast.Read(locals[i]))));
       }
 
       // pass 3, remove library locals

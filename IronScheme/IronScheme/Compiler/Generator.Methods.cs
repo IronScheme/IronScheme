@@ -47,6 +47,9 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo ICallable_Call3 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), });
     protected static readonly MethodInfo ICallable_Call4 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), });
     protected static readonly MethodInfo ICallable_Call5 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call6 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call7 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call8 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
     protected static readonly MethodInfo ICallable_CallN = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]), });
 
     protected static readonly MethodInfo CallTargetWithContext0_Invoke = typeof(CallTargetWithContext0).GetMethod("Invoke");
@@ -55,6 +58,9 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo CallTargetWithContext3_Invoke = typeof(CallTargetWithContext3).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContext4_Invoke = typeof(CallTargetWithContext4).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContext5_Invoke = typeof(CallTargetWithContext5).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext6_Invoke = typeof(CallTargetWithContext6).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext7_Invoke = typeof(CallTargetWithContext7).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTargetWithContext8_Invoke = typeof(CallTargetWithContext8).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContextN_Invoke = typeof(CallTargetWithContextN).GetMethod("Invoke");
 
     protected static readonly MethodInfo CallTarget0_Invoke = typeof(CallTarget0).GetMethod("Invoke");
@@ -63,6 +69,9 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo CallTarget3_Invoke = typeof(CallTarget3).GetMethod("Invoke");
     protected static readonly MethodInfo CallTarget4_Invoke = typeof(CallTarget4).GetMethod("Invoke");
     protected static readonly MethodInfo CallTarget5_Invoke = typeof(CallTarget5).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget6_Invoke = typeof(CallTarget6).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget7_Invoke = typeof(CallTarget7).GetMethod("Invoke");
+    protected static readonly MethodInfo CallTarget8_Invoke = typeof(CallTarget8).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetN_Invoke = typeof(CallTargetN).GetMethod("Invoke");
 
 
@@ -90,6 +99,12 @@ namespace IronScheme.Compiler
           return ICallable_Call4;
         case 5:
           return ICallable_Call5;
+        case 6:
+          return ICallable_Call6;
+        case 7:
+          return ICallable_Call7;
+        case 8:
+          return ICallable_Call8;
         default:
           return ICallable_CallN;
       }
@@ -111,6 +126,12 @@ namespace IronScheme.Compiler
           return needscontext ? CallTargetWithContext4_Invoke : CallTarget4_Invoke;
         case 5:
           return needscontext ? CallTargetWithContext5_Invoke : CallTarget5_Invoke;
+        case 6:
+          return needscontext ? CallTargetWithContext6_Invoke : CallTarget6_Invoke;
+        case 7:
+          return needscontext ? CallTargetWithContext7_Invoke : CallTarget7_Invoke;
+        case 8:
+          return needscontext ? CallTargetWithContext8_Invoke : CallTarget8_Invoke;
         default:
           return needscontext ? CallTargetWithContextN_Invoke : CallTargetN_Invoke;
       }

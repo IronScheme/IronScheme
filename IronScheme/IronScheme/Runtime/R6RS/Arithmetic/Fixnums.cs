@@ -62,7 +62,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
       return null;
     }
 
-    [InlineEmitter("fx=?")]
+    [InlineEmitter("fx=?", Optimization = OptimizationLevel.Safe)]
     public static Expression FxEquals(params Expression[] args)
     {
       if (Expect(args, 2))

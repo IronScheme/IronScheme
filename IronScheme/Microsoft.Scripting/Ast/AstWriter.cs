@@ -378,6 +378,9 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.BoundAssignment:
                     Dump((BoundAssignment)node);
                     break;
+                case AstNodeType.WriteStatement:
+                    Dump((WriteStatement)node);
+                    break;
                 case AstNodeType.BoundExpression:
                     Dump((BoundExpression)node);
                     break;
@@ -591,6 +594,14 @@ namespace Microsoft.Scripting.Ast {
         private void Dump(BoundAssignment node) {
             Out("(.bound " + SymbolTable.IdToString(node.Variable.Name) + ") = ");
             WalkNode(node.Value);
+        }
+
+        // WriteStatement
+        private void Dump(WriteStatement node)
+        {
+          Out("(.bound " + SymbolTable.IdToString(node.Variable.Name) + ") = ");
+          WalkNode(node.Value);
+          Out(";");
         }
 
         // BoundExpression

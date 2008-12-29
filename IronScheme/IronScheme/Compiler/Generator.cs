@@ -81,7 +81,7 @@ namespace IronScheme.Compiler
       else if (args is Fraction)
       {
         Fraction f = (Fraction) args;
-        return Ast.New(Fraction_New, Ast.Constant(f.Numerator), Ast.Constant(f.Denominator));
+        return Ast.Constant(new FractionConstant(f));
       }
       else
       {
@@ -113,6 +113,148 @@ namespace IronScheme.Compiler
       return GetAst(args, cb, false);
     }
 
+    static bool IsSimpleExpression(Expression e)
+    {
+      if (e is MethodCallExpression)
+      {
+        return IsSimpleCall((MethodCallExpression)e);
+      }
+
+      if (e is UnaryExpression)
+      {
+        UnaryExpression ue = (UnaryExpression)e;
+        if (ue.NodeType == AstNodeType.Convert)
+        {
+          return IsSimpleExpression(ue.Operand);
+        }
+        return false;
+      }
+
+      if (e is BinaryExpression)
+      {
+        return IsSimpleExpression(((BinaryExpression)e).Left) &&
+          IsSimpleExpression(((BinaryExpression)e).Right);
+      }
+
+      if (e is TypeBinaryExpression)
+      {
+        return IsSimpleExpression(((TypeBinaryExpression)e).Expression);
+      }
+
+      if (e is ConstantExpression)
+      {
+        ConstantExpression ce = (ConstantExpression)e;
+        return Builtins.IsTrue(ce.Value);
+      }
+
+      if (e is BoundExpression)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    static bool IsSimpleCall(MethodCallExpression mce)
+    {
+      if (mce.Instance != null && !IsSimpleExpression(mce.Instance))
+      {
+        return false;
+      }
+
+      foreach (var arg in mce.Arguments)
+      {
+        if (arg is MethodCallExpression)
+        {
+          MethodCallExpression imce = (MethodCallExpression)arg;
+
+          if (!IsSimpleCall(imce))
+          {
+            return false;
+          }
+        }
+
+        if (!IsSimpleExpression(arg))
+        {
+          return false;
+        }
+
+      }
+
+      return true;
+    }
+
+    static CodeBlock RewriteBody(CodeBlock cb)
+    {
+      CodeBlock ncb = Ast.CodeBlock("temp-inline:" + cb.Name);
+      ncb.Parent = cb.Parent;
+
+      foreach (var item in cb.Parameters)
+      {
+        Variable newvar = ncb.CreateParameter(item.Name, typeof(object));
+        newvar.Lift = item.Lift;
+      }
+
+      foreach (var item in cb.Variables)
+      {
+        Variable newvar = ncb.CreateLocalVariable(item.Name, typeof(object));
+        newvar.Lift = item.Lift;
+      }
+
+      Expression body = ((ReturnStatement)cb.Body).Expression;
+
+      body = RewriteExpression(ncb, body);
+
+      ncb.Body = Ast.Return(body);
+
+      return ncb;
+    }
+
+    static Expression RewriteExpression(CodeBlock cb, Expression e)
+    {
+      if (e is MethodCallExpression)
+      {
+        MethodCallExpression mce = (MethodCallExpression)e;
+        List<Expression> args = new List<Expression>();
+        foreach (var arg in mce.Arguments)
+        {
+          args.Add(RewriteExpression(cb, arg));
+        }
+
+        return Ast.Call(RewriteExpression(cb, mce.Instance), mce.Method, args.ToArray());
+      }
+      if (e is BoundExpression)
+      {
+        BoundExpression be = (BoundExpression)e;
+        return Ast.Read(cb.Lookup(be.Variable.Name));
+      }
+
+      if (e is BinaryExpression)
+      {
+        BinaryExpression be = (BinaryExpression)e;
+        return new BinaryExpression(be.NodeType, RewriteExpression(cb, be.Left), RewriteExpression(cb, be.Right));
+      }
+
+      if (e is UnaryExpression)
+      {
+        UnaryExpression ue = (UnaryExpression)e;
+        if (ue.NodeType == AstNodeType.Convert)
+        {
+          return Ast.ConvertHelper(RewriteExpression(cb, ue.Operand), ue.Type);
+        }
+        return null;
+      }
+
+      if (e is TypeBinaryExpression)
+      {
+        TypeBinaryExpression tbe = (TypeBinaryExpression)e;
+        return Ast.TypeIs(RewriteExpression(cb, tbe.Expression), tbe.TypeOperand);
+      }
+      return e;
+    }
+
     protected internal static Expression GetAst(object args, CodeBlock cb, bool istailposition)
     {
       Cons c = args as Cons;
@@ -141,9 +283,21 @@ namespace IronScheme.Compiler
           {
             Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            if (cbe.Block.ParameterCount < 6 && cbe.Block.ParameterCount == ppp.Length)
+            if (cbe.Block.ParameterCount < 9 && cbe.Block.ParameterCount == ppp.Length)
             {
-              //inline here?
+              //inline here? we could for simple bodies, but we need to copy the entire structure
+              if (!(cbe.Block.HasEnvironment || cbe.Block.IsClosure))
+              {
+                if (cbe.Block.Body is ReturnStatement)
+                {
+                  ReturnStatement rs = (ReturnStatement)cbe.Block.Body;
+
+                  if (IsSimpleExpression(rs.Expression))
+                  {
+                    return InlineCall(cb, Ast.CodeBlockExpression(RewriteBody(cbe.Block), false), ppp);
+                  }
+                }
+              }
               return CallNormal(cbe, ppp);
             }
           }
@@ -153,7 +307,7 @@ namespace IronScheme.Compiler
           {
             Expression[] ppp = GetAstList(c.cdr as Cons, cb);
 
-            if (cbe.Block.ParameterCount < 6 && cbe.Block.ParameterCount - 1 <= ppp.Length)
+            if (cbe.Block.ParameterCount < 9 && cbe.Block.ParameterCount - 1 <= ppp.Length)
             {
               //inline here?
               return CallVarArgs(cbe, ppp);
@@ -168,7 +322,7 @@ namespace IronScheme.Compiler
 
             foreach (CodeBlockDescriptor d in cbd)
             {
-              if (d.codeblock.Block.ParameterCount < 6)
+              if (d.codeblock.Block.ParameterCount < 9)
               {
                 if (ppp.Length == d.arity || (d.varargs && ppp.Length > d.arity))
                 {
@@ -213,7 +367,7 @@ namespace IronScheme.Compiler
                   {
                     return InlineCall(cb, ccbe, InlineCall(cb, pcbe));
                   }
-                  else if (ccbe.Block.ParameterCount < 6)
+                  else
                   {
                     Variable values = cb.CreateTemporaryVariable((SymbolId)Builtins.GenSym("values"), typeof(object[]));
 
@@ -223,10 +377,10 @@ namespace IronScheme.Compiler
 
                     for (int i = 0; i < pppp.Length; i++)
                     {
-                      pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
+                      pppp[i] = Ast.ArrayIndex(Ast.Read(values), Ast.Constant(i));
                     }
 
-                    return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(InlineCall(cb, pcbe), typeof(MultipleValues).GetMethod("ToArray"))), InlineCall(cb, ccbe, pppp));
+                    return Ast.Comma(Ast.Void(Ast.Write(values, Ast.ComplexCallHelper(InlineCall(cb, pcbe), typeof(MultipleValues).GetMethod("ToArray")))), InlineCall(cb, ccbe, pppp));
                   }
                 }
               }
@@ -249,7 +403,7 @@ namespace IronScheme.Compiler
                 {
                   return InlineCall(cb, ccbe, Ast.Call(exx, callx));
                 }
-                else if (ccbe.Block.ParameterCount < 6)
+                else
                 {
                   Variable values = cb.CreateTemporaryVariable((SymbolId)Builtins.GenSym("values"), typeof(object[]));
 
@@ -259,10 +413,10 @@ namespace IronScheme.Compiler
 
                   for (int i = 0; i < pppp.Length; i++)
                   {
-                    pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
+                    pppp[i] = Ast.ArrayIndex(Ast.Read(values), Ast.Constant(i));
                   }
 
-                  return Ast.Comma(Ast.Assign(values, Ast.ComplexCallHelper(Ast.Call(exx, callx), typeof(MultipleValues).GetMethod("ToArray"))), InlineCall(cb, ccbe, pppp));
+                  return Ast.Comma(Ast.Void(Ast.Write(values, Ast.ComplexCallHelper(Ast.Call(exx, callx), typeof(MultipleValues).GetMethod("ToArray")))), InlineCall(cb, ccbe, pppp));
                 }
               }
             }
@@ -272,6 +426,34 @@ namespace IronScheme.Compiler
             }
           }
 
+#endif
+          // this can be enabled once builtins are auto CPS'd.
+          // ok I tried, but there are issues still, not sure what
+#if OPTIMIZATIONS
+          // check for inline emitter
+          InlineEmitter ie;
+          if (TryGetInlineEmitter(f, out ie))
+          {
+#if CPS
+            Expression result = ie(GetAstList((c.cdr as Cons).cdr as Cons, cb));
+#else
+            Expression result = ie(GetAstList(c.cdr as Cons, cb));
+#endif
+            // if null is returned, the method cannot be inlined
+            if (result != null)
+            {
+              if (result.Type.IsValueType)
+              {
+                result = Ast.Convert(result, typeof(object));
+              }
+#if CPS
+              Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(ICallable));
+              return Ast.Call(k, GetCallable(1), result);
+#else
+              return result;
+#endif
+            }
+          }
 #endif
 
           if (Context.Scope.TryLookupName(f, out m))
@@ -288,54 +470,43 @@ namespace IronScheme.Compiler
                 return gh.Generate(c.cdr, cb);
               }
 
+              BuiltinMethod bf = m as BuiltinMethod;
+              if (bf != null)
+              {
+                MethodBinder mb = bf.Binder;
+                Expression[] pars = Array.ConvertAll(GetAstList(c.cdr as Cons, cb), e => Unwrap(e));
 
-                // this can be enabled once builtins are auto CPS'd.
-                // ok I tried, but there are issues still, not sure what
-#if OPTIMIZATIONS
-                // check for inline emitter
-                InlineEmitter ie;
-                if (TryGetInlineEmitter(f, out ie))
+                if (bf.AllowConstantFold)
                 {
-#if CPS
-                  Expression result = ie(GetAstList((c.cdr as Cons).cdr as Cons, cb));
-#else
-                  Expression result = ie(GetAstList(c.cdr as Cons, cb));
-#endif
-                  // if null is returned, the method cannot be inlined
-                  if (result != null)
+                  bool constant = Array.TrueForAll(pars, e => e is ConstantExpression);
+
+                  if (constant)
                   {
-                    if (result.Type.IsValueType)
+                    object[] cargs = Array.ConvertAll(pars, e => ((ConstantExpression)e).Value);
+                    try
                     {
-                      result = Ast.Convert(result, typeof(object));
+                      return GetCons(bf.Call(cargs), cb);
                     }
-#if CPS
-                    Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(ICallable));
-                    return Ast.Call(k, GetCallable(1), result);
-#else
-                    return result;
-#endif
+                    catch
+                    {
+                      // nothing we can do...
+                    }
                   }
                 }
-#endif
-                BuiltinMethod bf = m as BuiltinMethod;
-                if (bf != null)
+
+                Type[] types = GetExpressionTypes(pars);
+                MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                if (mc != null)
                 {
-                  MethodBinder mb = bf.Binder;
-                  Expression[] pars = GetAstList(c.cdr as Cons, cb);
-
-                  Type[] types = GetExpressionTypes(pars);
-                  MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-                  if (mc != null)
+                  if (mc.Target.NeedsContext)
                   {
-                    if (mc.Target.NeedsContext)
-                    {
-                      pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-                    }
-                    MethodBase meth = mc.Target.Method;
-
-                    return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                    pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
                   }
+                  MethodBase meth = mc.Target.Method;
+
+                  return Ast.ComplexCallHelper(meth as MethodInfo, pars);
                 }
+              }
 
 #if OPTIMIZATIONS
               Closure clos = m as Closure;
@@ -346,10 +517,27 @@ namespace IronScheme.Compiler
                 MethodInfo[] mis = clos.Targets;
                 if (mis.Length > 0)
                 {
-
                   MethodBinder mb = MethodBinder.MakeBinder(binder, SymbolTable.IdToString(f), mis, BinderType.Normal);
 
-                  Expression[] pars = GetAstList(c.cdr as Cons, cb);
+                  Expression[] pars = Array.ConvertAll(GetAstList(c.cdr as Cons, cb), e => Unwrap(e));
+
+                  if (clos.AllowConstantFold)
+                  {
+                    bool constant = Array.TrueForAll(pars, e => e is ConstantExpression);
+
+                    if (constant)
+                    {
+                      object[] cargs = Array.ConvertAll(pars, e => ((ConstantExpression)e).Value);
+                      try
+                      {
+                        return Ast.Constant(clos.Call(cargs));
+                      }
+                      catch
+                      {
+                        // nothing we can do...
+                      }
+                    }
+                  }
 
                   Type[] types = GetExpressionTypes(pars);
                   MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
@@ -374,6 +562,7 @@ namespace IronScheme.Compiler
         Expression[] pp = GetAstList(c.cdr as Cons, cb);
         Expression ex = Unwrap(GetAst(c.car, cb));
 
+        // a 'let'
         if (ex is MethodCallExpression)
         {
           MethodCallExpression mcexpr = (MethodCallExpression)ex;
@@ -381,7 +570,7 @@ namespace IronScheme.Compiler
           {
             CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
 
-            if (pp.Length < 6 && cbe.Block.ParameterCount == pp.Length)
+            if (cbe.Block.ParameterCount == pp.Length)
             {
               return InlineCall(cb, cbe, istailposition, pp);
             }
@@ -391,7 +580,7 @@ namespace IronScheme.Compiler
           {
             CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
 
-            if (pp.Length < 6 && cbe.Block.ParameterCount <= pp.Length)
+            if (pp.Length < 9 && cbe.Block.ParameterCount <= pp.Length)
             {
               return CallVarArgs(cbe, pp);
             }
@@ -407,7 +596,7 @@ namespace IronScheme.Compiler
         
         MethodInfo call = GetCallable(pp.Length);
 
-        Expression r = pp.Length > 5 ?
+        Expression r = pp.Length > 8 ?
           Ast.Call(ex, call, Ast.NewArray(typeof(object[]), pp)) :
           Ast.Call(ex, call, pp);
 
@@ -449,7 +638,7 @@ namespace IronScheme.Compiler
         if (args is Fraction)
         {
           Fraction f = (Fraction)args;
-          return Ast.New(Fraction_New, Ast.Constant(f.Numerator), Ast.Constant(f.Denominator));
+          return Ast.Constant( new FractionConstant(f));
         }
         if (args != null && args.GetType().Name == "stx")
         {
@@ -474,17 +663,18 @@ namespace IronScheme.Compiler
         return CallNormal(cbe, pp);
       }
 
-      List<Expression> assigns = new List<Expression>();
+      List<Statement> assigns = new List<Statement>();
       int i = 0;
 
       cb.Inlined = true;
 
       foreach (Variable p in cb.Parameters)
       {
+        p.Name = (SymbolId) Builtins.GenSym(p.Name);
         p.Block = parent;
         p.Kind = Variable.VariableKind.Local;
         parent.AddVariable(p);
-        assigns.Add(Ast.Assign(p, pp[i]));
+        assigns.Add(Ast.Write(p, pp[i]));
         if (p.Lift)
         {
           parent.HasEnvironment = true;
@@ -494,6 +684,7 @@ namespace IronScheme.Compiler
 
       foreach (Variable l in cb.Variables)
       {
+        l.Name = (SymbolId) Builtins.GenSym(l.Name);
         l.Block = parent;
         parent.AddVariable(l);
         if (l.Lift)
@@ -503,9 +694,15 @@ namespace IronScheme.Compiler
       }
 
       Expression body = RewriteReturn(cb.Body);
-      assigns.Add(body);
-      Expression result = Ast.Comma(assigns);
-      return result;
+
+      if (assigns.Count > 0)
+      {
+        return Ast.Comma(Ast.Void(Ast.Block(assigns)), body);
+      }
+      else
+      {
+        return body;
+      }
     }
 
     static Statement FlattenStatement(Statement s)
@@ -565,26 +762,6 @@ namespace IronScheme.Compiler
       throw new ArgumentException("Unexpected");
     }
 
-    static bool HasConditionals(Statement statement)
-    {
-      if (statement is BlockStatement)
-      {
-        foreach (Statement s in ((BlockStatement)statement).Statements)
-        {
-          if (HasConditionals(s))
-          {
-            return true;
-          }
-        }
-      }
-
-      if (statement is IfStatement)
-      {
-        return true;
-      }
-
-      return false;
-    }
 
     #region Optimized calls
 
@@ -603,9 +780,11 @@ namespace IronScheme.Compiler
       return false;
     }
 
+
+
     protected static Expression CallNormal(CodeBlockExpression cbe, params Expression[] ppp)
     {
-      bool needscontext = cbe.Block.IsClosure || cbe.Block.ExplicitCodeContextExpression == null; // true;
+      bool needscontext = NeedsContext(cbe); // true;
       int pc = ppp.Length;
       MethodInfo dc = GetDirectCallable(needscontext, pc);
 
@@ -631,9 +810,16 @@ namespace IronScheme.Compiler
       return Ast.ComplexCallHelper(cbe, dc, ppp);
     }
 
+    static bool NeedsContext(CodeBlockExpression cbe)
+    {
+      return cbe.Block.IsClosure || 
+        cbe.Block.ExplicitCodeContextExpression == null && 
+        (cbe.Block.Parent != null && !cbe.Block.Parent.IsGlobal);
+    }
+
     protected static Expression CallVarArgs(CodeBlockExpression cbe, Expression[] ppp)
     {
-      bool needscontext = cbe.Block.IsClosure || cbe.Block.ExplicitCodeContextExpression == null;//true;
+      bool needscontext = NeedsContext(cbe); //true;
 
       int pc = cbe.Block.ParameterCount;
 

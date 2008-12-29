@@ -42,7 +42,7 @@ namespace Microsoft.Scripting.Ast {
             GeneratorTemporary
         };
 
-        private readonly SymbolId _name;
+        private SymbolId _name;
 
         // TODO: Maybe we don't need this!
         private CodeBlock _block;
@@ -82,6 +82,7 @@ namespace Microsoft.Scripting.Ast {
 
         public SymbolId Name {
             get { return _name; }
+          set { _name = value; }
         }
 
         public CodeBlock Block {
@@ -409,6 +410,11 @@ namespace Microsoft.Scripting.Ast {
       public void SetUnInitialized()
       {
         _uninitialized = true;
+      }
+
+      public void SetInitialized()
+      {
+        _uninitialized = false;
       }
     }
 }

@@ -88,6 +88,9 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.BoundAssignment:
                     DefaultWalk((BoundAssignment)node);
                     break;
+                case AstNodeType.WriteStatement:
+                    DefaultWalk((WriteStatement)node);
+                    break;
                 case AstNodeType.BoundExpression:
                     DefaultWalk((BoundExpression)node);
                     break;
@@ -251,6 +254,16 @@ namespace Microsoft.Scripting.Ast {
                 WalkNode(node.Value);
             }
             PostWalk(node);
+        }
+
+        // WriteStatement
+        private void DefaultWalk(WriteStatement node)
+        {
+          if (Walk(node))
+          {
+            WalkNode(node.Value);
+          }
+          PostWalk(node);
         }
 
         // BoundExpression

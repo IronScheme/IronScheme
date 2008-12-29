@@ -107,6 +107,7 @@ namespace Microsoft.Scripting.Ast {
         UnboundAssignment,
         UnboundExpression,
         VoidExpression,
-        YieldStatement
+        YieldStatement,
+        WriteStatement
     }
 }

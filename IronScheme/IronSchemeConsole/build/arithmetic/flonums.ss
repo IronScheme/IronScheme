@@ -227,11 +227,15 @@
     (fl=? 0.0 r))           
     
   (define (fleven? n)
+    (unless (flonum? n)
+      (assertion-violation 'fleven? "not a flonum" n))  
     (unless (integer-valued? n)
       (assertion-violation 'fleven? "not integer valued" n))
     (fl=? 0.0 (flmod n 2.0)))           
 
   (define (flodd? n)
+    (unless (flonum? n)
+      (assertion-violation 'flodd? "not a flonum" n))  
     (unless (integer-valued? n)
       (assertion-violation 'flodd? "not integer valued" n))
     (fl=? 1.0 (flmod n 2.0)))      
