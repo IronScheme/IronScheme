@@ -139,7 +139,7 @@ namespace IronScheme.Runtime
       {
         if (args.Length == 1)
         {
-          return Ast.Negate(UnwrapAndCast<int>(args[0]));
+          return Ast.SubtractChecked(Ast.Zero(), UnwrapAndCast<int>(args[0]));
         }
         else
         {
@@ -221,6 +221,57 @@ namespace IronScheme.Runtime
         return null;
       }
 
+      [InlineEmitter("$fxnot")]
+      public static Expression FxNot(params Expression[] args)
+      {
+        if (Expect(args, 1))
+        {
+          return Ast.Not(UnwrapAndCast<int>(args[0]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxdiv0")]
+      public static Expression FxDiv0(params Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
+          return Ast.Divide(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxmod0")]
+      public static Expression FxMod0(params Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
+          return Ast.Modulo(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxarithmetic-shift-left")]
+      public static Expression FxArithmeticShiftLeft(params Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
+          return Ast.LeftShift(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxarithmetic-shift-right")]
+      public static Expression FxArithmeticShiftRight(params Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
+          return Ast.RightShift(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+        }
+        return null;
+      }
+
+
       #endregion
 
     }
@@ -278,16 +329,6 @@ namespace IronScheme.Runtime
           }
           return null;
         }
-      }
-
-      [InlineEmitter("$$fxnot")]
-      public static Expression FxNot(params Expression[] args)
-      {
-        if (Expect(args, 1))
-        {
-          return Ast.Not(UnwrapAndCast<int>(args[0]));
-        }
-        return null;
       }
     }
 
