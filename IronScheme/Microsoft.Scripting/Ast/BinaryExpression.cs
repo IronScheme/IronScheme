@@ -26,7 +26,7 @@ namespace Microsoft.Scripting.Ast {
         private readonly Expression /*!*/ _left;
         private readonly Expression /*!*/ _right;
 
-        internal BinaryExpression(AstNodeType nodeType, Expression /*!*/ left, Expression /*!*/ right)
+        public BinaryExpression(AstNodeType nodeType, Expression /*!*/ left, Expression /*!*/ right)
             : base(nodeType) {
             _left = left;
             _right = right;

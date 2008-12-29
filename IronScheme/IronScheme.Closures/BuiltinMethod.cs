@@ -24,6 +24,11 @@ namespace IronScheme.Runtime
     {
       get { return name; }
     }
+    
+    public bool AllowConstantFold
+    {
+      get { return foldable; }
+    }
 
     object ICallable.Arity
     {
@@ -122,11 +127,19 @@ namespace IronScheme.Runtime
     public static ActionBinder binder;
     public static CodeContext context;
 
+    readonly bool foldable;
+
     public BuiltinMethod(string name, MethodBase[] mg)
+      : this(name, mg, false)
+    {
+    }
+
+    public BuiltinMethod(string name, MethodBase[] mg, bool foldable)
     {
       this.name = name;
       this.methods = mg;
       meth = MethodBinder.MakeBinder(binder, name, mg, BinderType.Normal);
+      this.foldable = foldable;
 
     }
 
@@ -283,6 +296,36 @@ namespace IronScheme.Runtime
         return c.Call(arg1, arg2, arg3, arg4, arg5);
       }
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
+    }
+
+    public object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+    {
+      ICallable c;
+      if (cache.TryGetValue(6, out c))
+      {
+        return c.Call(arg1, arg2, arg3, arg4, arg5, arg6);
+      }
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6 });
+    }
+
+    public object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+    {
+      ICallable c;
+      if (cache.TryGetValue(7, out c))
+      {
+        return c.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+      }
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
+    }
+
+    public object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
+    {
+      ICallable c;
+      if (cache.TryGetValue(8, out c))
+      {
+        return c.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+      }
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
     }
 
 

@@ -37,15 +37,26 @@ namespace IronScheme.Runtime
       targetmap.Add(typeof(CallTarget3), 3);
       targetmap.Add(typeof(CallTarget4), 4);
       targetmap.Add(typeof(CallTarget5), 5);
+      targetmap.Add(typeof(CallTarget6), 6);
+      targetmap.Add(typeof(CallTarget7), 7);
+      targetmap.Add(typeof(CallTarget8), 8);
       targetmap.Add(typeof(CallTargetN), -1);
 
-      targetmap.Add(typeof(CallTargetWithContext0), 0 + 8);
-      targetmap.Add(typeof(CallTargetWithContext1), 1 + 8);
-      targetmap.Add(typeof(CallTargetWithContext2), 2 + 8);
-      targetmap.Add(typeof(CallTargetWithContext3), 3 + 8);
-      targetmap.Add(typeof(CallTargetWithContext4), 4 + 8);
-      targetmap.Add(typeof(CallTargetWithContext5), 5 + 8);
-      targetmap.Add(typeof(CallTargetWithContextN), -1 + 8);
+      targetmap.Add(typeof(CallTargetWithContext0), 0 + 16);
+      targetmap.Add(typeof(CallTargetWithContext1), 1 + 16);
+      targetmap.Add(typeof(CallTargetWithContext2), 2 + 16);
+      targetmap.Add(typeof(CallTargetWithContext3), 3 + 16);
+      targetmap.Add(typeof(CallTargetWithContext4), 4 + 16);
+      targetmap.Add(typeof(CallTargetWithContext5), 5 + 16);
+      targetmap.Add(typeof(CallTargetWithContext6), 6 + 16);
+      targetmap.Add(typeof(CallTargetWithContext7), 7 + 16);
+      targetmap.Add(typeof(CallTargetWithContext8), 8 + 16);
+      targetmap.Add(typeof(CallTargetWithContextN), -1 + 16);
+    }
+
+    public bool AllowConstantFold
+    {
+      get { return false; }
     }
 
     public static AssertHandler AssertionViolation;
@@ -147,6 +158,22 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
     }
 
+    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+    {
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6 });
+    }
+
+    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+    {
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
+    }
+
+    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
+    {
+      return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
+    }
+
+
     public abstract object Call(object[] args);
 
     readonly Delegate target;
@@ -176,7 +203,11 @@ namespace IronScheme.Runtime
 
     protected static bool IsValid(MethodInfo mi)
     {
-      return mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi) && mi.Module.Name != "<In Memory Module>";
+      return mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi) 
+#if DEBUG
+        && mi.Module.Name != "<In Memory Module>"
+#endif
+        ;
     }
 
     Closure(Delegate target, int paramcount)
@@ -228,6 +259,12 @@ namespace IronScheme.Runtime
             return ((CallTargetWithContext4)target)(cc, args[0], args[1], args[2], args[3]);
           case 5:
             return ((CallTargetWithContext5)target)(cc, args[0], args[1], args[2], args[3], args[4]);
+          case 6:
+            return ((CallTargetWithContext6)target)(cc, args[0], args[1], args[2], args[3], args[4], args[5]);
+          case 7:
+            return ((CallTargetWithContext7)target)(cc, args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+          case 8:
+            return ((CallTargetWithContext8)target)(cc, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
           default:
             throw new NotSupportedException();
         }
@@ -304,6 +341,42 @@ namespace IronScheme.Runtime
           return base.Call(arg1, arg2, arg3, arg4, arg5);
         }
       }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+      {
+        if (paramcount == 6)
+        {
+          return ((CallTargetWithContext6)target)(cc, arg1, arg2, arg3, arg4, arg5, arg6);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+      {
+        if (paramcount == 7)
+        {
+          return ((CallTargetWithContext7)target)(cc, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
+      {
+        if (paramcount == 8)
+        {
+          return ((CallTargetWithContext8)target)(cc, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+        }
+      }
     }
 
     [Serializable]
@@ -341,6 +414,12 @@ namespace IronScheme.Runtime
             return ((CallTarget4)target)(args[0], args[1], args[2], args[3]);
           case 5:
             return ((CallTarget5)target)(args[0], args[1], args[2], args[3], args[4]);
+          case 6:
+            return ((CallTarget6)target)(args[0], args[1], args[2], args[3], args[4], args[5]);
+          case 7:
+            return ((CallTarget7)target)(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+          case 8:
+            return ((CallTarget8)target)(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
           default:
             throw new NotSupportedException();
         }
@@ -417,6 +496,43 @@ namespace IronScheme.Runtime
           return base.Call(arg1, arg2, arg3, arg4, arg5);
         }
       }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+      {
+        if (paramcount == 6)
+        {
+          return ((CallTarget6)target)(arg1, arg2, arg3, arg4, arg5, arg6);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+      {
+        if (paramcount == 7)
+        {
+          return ((CallTarget7)target)(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
+      {
+        if (paramcount == 8)
+        {
+          return ((CallTarget8)target)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+        }
+        else
+        {
+          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+        }
+      }
+
     }
 
     public static ICallable MakeStatic(Delegate target)
@@ -429,13 +545,13 @@ namespace IronScheme.Runtime
       int arity;
       if (targetmap.TryGetValue(target.GetType(), out arity))
       {
-        if (arity < 6 && arity > -2) // no context
+        if (arity < 15 && arity > -2) // no context
         {
           return new SimpleClosure(target, arity);
         }
         else
         {
-          arity -= 8;
+          arity -= 16;
           return new ContextClosure(cc, target, arity);
         }
       }
@@ -706,6 +822,46 @@ namespace IronScheme.Runtime
           return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
         }
       }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+      {
+        int i = Array.IndexOf(arities, 6);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1, arg2, arg3, arg4, arg5, arg6);
+        }
+        else
+        {
+          return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6 });
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+      {
+        int i = Array.IndexOf(arities, 7);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+        }
+        else
+        {
+          return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
+        }
+      }
+
+      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
+      {
+        int i = Array.IndexOf(arities, 8);
+        if (i >= 0)
+        {
+          return targets[i].Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+        }
+        else
+        {
+          return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
+        }
+      }
+
     }
 
 #if CPS

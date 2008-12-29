@@ -143,6 +143,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\TraceClosure.cs" />
+    <Compile Include="Runtime\Unsafe.cs" />
     <Compile Include="Runtime\Vectors.cs" />
     <None Include="Types\Other.cs" />
     <None Include="Types\Ports.cs" />

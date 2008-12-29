@@ -4,44 +4,57 @@
 ;; Distribution restrictions: none
 
 (library (ironscheme pretty-print)
-  (export pretty-print pretty-width)
+  (export 
+    pretty-print 
+    pretty-width
+    pretty-gensyms)
   (import 
-    (except (ironscheme) pretty-print pretty-width) 
+    (rename 
+      (except (ironscheme) 
+        pretty-gensyms
+        pretty-print 
+        pretty-width) 
+      (symbol->string rnrs:symbol->string))
     (rnrs mutable-strings))
 
 (define genwrite:newline-str (make-string 1 #\newline))
-;@
+
+(define (symbol->string s)
+  (rnrs:symbol->string
+    (if (pretty-gensyms)
+      (ungensym s)
+      s)))
+
+(define (read-macro-body l)
+  (cadr l))
+
+(define (read-macro-prefix l)
+  (let ((head (car l)) (tail (cdr l)))
+    (case head
+      ((syntax)            "#'")
+      ((quasisyntax)       "#`")
+      ((unsyntax)          "#,")
+      ((unsyntax-splicing) "#,@")      
+      ((quote)            "'")
+      ((quasiquote)       "`")
+      ((unquote)          ",")
+      ((unquote-splicing) ",@"))))
+        
+(define (length1? l) (and (pair? l) (null? (cdr l))))        
+
+(define (read-macro? l)
+  (let ((head (car l)) (tail (cdr l)))
+    (case head
+      ((quote quasiquote unquote unquote-splicing 
+        syntax quasisyntax unsyntax unsyntax-splicing) 
+        (length1? tail))
+      (else #f))))
+
 (define (generic-write obj display? width output)
-
-  (define (read-macro? l)
-    (define (length1? l) (and (pair? l) (null? (cdr l))))
-    (let ((head (car l)) (tail (cdr l)))
-      (case head
-        ((quote quasiquote unquote unquote-splicing 
-          syntax quasisyntax unsyntax unsyntax-splicing) 
-          (length1? tail))
-        (else #f))))
-
-  (define (read-macro-body l)
-    (cadr l))
-
-  (define (read-macro-prefix l)
-    (let ((head (car l)) (tail (cdr l)))
-      (case head
-        ((syntax)            "#'")
-        ((quasisyntax)       "#`")
-        ((unsyntax)          "#,")
-        ((unsyntax-splicing) "#,@")      
-        ((quote)            "'")
-        ((quasiquote)       "`")
-        ((unquote)          ",")
-        ((unquote-splicing) ",@"))))
-
   (define (out str col)
     (and col (output str) (fx+ col (string-length str))))
 
   (define (wr obj col)
-
     (define (wr-expr expr col)
       (if (read-macro? expr)
           (wr (read-macro-body expr) (out (read-macro-prefix expr) col))
@@ -82,7 +95,6 @@
           (else               (out (format (if display? "~a" "~s") obj) col))))
 
   (define (pp obj col)
-
     (define (spaces n col)
       (if (fx>? n 0)
           (if (fx>? n 7)
@@ -124,7 +136,7 @@
                   (if proc
                       (proc expr col extra)
                       (if (fx>? (string-length (symbol->string head))
-                             max-call-head-width)
+                             (max-call-head-width))
                           (pp-general expr col extra #f #f #f pp-expr)
                           (pp-call expr col extra pp-expr))))
                 (pp-list expr col extra pp-expr)))))
@@ -162,7 +174,6 @@
                              pp-item)))))))
 
     (define (pp-general expr col extra named? pp-1 pp-2 pp-3)
-
       (define (tail1 rest col1 col2 col3)
         (if (and pp-1 (pair? rest))
             (let* ((val1 (car rest))
@@ -170,7 +181,6 @@
                    (extra (if (null? rest) (fx+ extra 1) 0)))
               (tail2 rest col1 (pr val1 (indent col3 col2) extra pp-1) col3))
             (tail2 rest col1 col2 col3)))
-
       (define (tail2 rest col1 col2 col3)
         (if (and pp-2 (pair? rest))
             (let* ((val1 (car rest))
@@ -178,10 +188,8 @@
                    (extra (if (null? rest) (fx+ extra 1) 0)))
               (tail3 rest col1 (pr val1 (indent col3 col2) extra pp-2)))
             (tail3 rest col1 col2)))
-
       (define (tail3 rest col1 col2)
         (pp-down rest col2 col1 extra pp-3))
-
       (let* ((head (car expr))
              (rest (cdr expr))
              (col* (wr head (out "(" col))))
@@ -189,8 +197,8 @@
             (let* ((name (car rest))
                    (rest (cdr rest))
                    (col** (wr name (out " " col*))))
-              (tail1 rest (fx+ col indent-general) col** (fx+ col** 1)))
-            (tail1 rest (fx+ col indent-general) col* (fx+ col* 1)))))
+              (tail1 rest (fx+ col (indent-general)) col** (fx+ col** 1)))
+            (tail1 rest (fx+ col (indent-general)) col* (fx+ col* 1)))))
 
     (define (pp-expr-list l col extra)
       (pp-list l col extra pp-expr))
@@ -227,12 +235,6 @@
     (define (pp-DO expr col extra)
       (pp-general expr col extra #f pp-expr-list pp-expr-list pp-expr))
 
-    ; define formatting style (change these to suit your style)
-
-    (define indent-general 2)
-
-    (define max-call-head-width 3)
-
     (define (style head)
       (case head
         ((lambda let* letrec letrec* define define-syntax 
@@ -254,11 +256,15 @@
   (if width
       (out genwrite:newline-str (pp obj 0))
       (wr obj 0)))
+
+; define formatting style (change these to suit your style)
       
 (define pretty-width (make-parameter 72))
+(define indent-general (make-parameter 2))
+(define max-call-head-width (make-parameter 3))
+(define pretty-gensyms (make-parameter #f))
 
 (define (reverse-string-append l)
-
   (define (rev-string-append l i)
     (if (pair? l)
         (let* ((str (car l))
@@ -271,7 +277,6 @@
                   (loop (fx+ j 1) (fx+ k 1)))
                 result)))
         (make-string i)))
-
   (rev-string-append l 0))
   
 (define (pretty-print obj . opt)

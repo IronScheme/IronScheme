@@ -22,6 +22,53 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
+  
+  public class WriteStatement : Statement
+  {
+    private readonly Variable /*!*/ _variable;
+
+    public Variable Variable
+    {
+      get { return _variable; }
+    } 
+
+    private readonly Expression /*!*/ _value;
+
+    public Expression Value
+    {
+      get { return _value; }
+    } 
+
+
+    // implementation detail.
+    private VariableReference _vr;
+
+    internal WriteStatement(Variable var, Expression value) : base(AstNodeType.WriteStatement, SourceSpan.None)
+    {
+      _value = value;
+      _variable = var;
+    }
+
+    internal VariableReference Ref
+    {
+      get { return _vr; }
+      set
+      {
+        Debug.Assert(value != null);
+        Debug.Assert(value.Variable == _variable);
+        Debug.Assert(_vr == null || _vr.Equals(value));
+        _vr = value;
+      }
+    }
+
+    public override void Emit(CodeGen cg)
+    {
+      _value.Emit(cg);
+      _vr.Slot.EmitSet(cg);
+      _vr.Variable.SetInitialized();
+    }
+  }
+
     public class BoundAssignment : Expression {
         private readonly Variable /*!*/ _variable;
         private readonly Expression /*!*/ _value;
@@ -123,14 +170,16 @@ namespace Microsoft.Scripting.Ast {
         /// Performs an assignment variable = value
         /// </summary>
         public static Statement Write(Variable variable, Variable value) {
-            return Statement(Assign(variable, Ast.Read(value)));
+          //return Statement(Assign(variable, Ast.Read(value)));  
+          return new WriteStatement(variable, Ast.Read(value));
         }
 
         /// <summary>
         /// Performs an assignment variable = value
         /// </summary>
         public static Statement Write(Variable variable, Expression value) {
-            return Statement(Assign(variable, value));
+          //return Statement(Assign(variable, value));  
+            return new WriteStatement(variable, value);
         }
 
         /// <summary>

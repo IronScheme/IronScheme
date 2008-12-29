@@ -8,9 +8,37 @@ using System.IO;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using System.Reflection;
+using Microsoft.Scripting.Math;
 
 namespace IronScheme.Compiler
 {
+  sealed class FractionConstant : CompilerConstant
+  {
+    Fraction value;
+    
+    public FractionConstant(Fraction f)
+    {
+      value = f;
+    }
+
+    public override Type Type
+    {
+      get { return typeof(Fraction); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      cg.EmitConstant(value.Numerator);
+      cg.EmitConstant(value.Denominator);
+      cg.EmitNew(typeof(Fraction), new Type[] { typeof(BigInteger), typeof(BigInteger) });
+    }
+
+    public override object Create()
+    {
+      return value;  
+    }
+  }
+
   sealed class IronSchemeConstant : CompilerConstant
   {
     readonly object value;

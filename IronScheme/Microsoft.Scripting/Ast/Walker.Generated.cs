@@ -47,6 +47,10 @@ namespace Microsoft.Scripting.Ast {
         protected internal virtual bool Walk(BoundAssignment node) { return true; }
         protected internal virtual void PostWalk(BoundAssignment node) { }
 
+        // WriteStatement
+        protected internal virtual bool Walk(WriteStatement node) { return true; }
+        protected internal virtual void PostWalk(WriteStatement node) { }
+
         // BoundExpression
         protected internal virtual bool Walk(BoundExpression node) { return true; }
         protected internal virtual void PostWalk(BoundExpression node) { }

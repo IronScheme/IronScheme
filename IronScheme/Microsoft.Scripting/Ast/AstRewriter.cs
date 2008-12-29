@@ -114,7 +114,7 @@ namespace Microsoft.Scripting.Ast {
                 return _block.CreateTemporaryVariable(SymbolTable.StringToId(name), type);
             }
         }
-
+#if FULL
         private class RuleTempMaker : TempMaker {
             /// <summary>
             /// Rule which is being rewritten
@@ -130,6 +130,7 @@ namespace Microsoft.Scripting.Ast {
                 return _rule.GetTemporary(type, name);
             }
         }
+#endif
 
         /// <summary>
         /// The source of temporary variables, either BlockTempMaker or RuleTempMaker
@@ -160,10 +161,12 @@ namespace Microsoft.Scripting.Ast {
             ar.Rewrite(block);
         }
 
+#if FULL
         public static void RewriteRule(StandardRule rule) {
             AstRewriter ar = new AstRewriter(new RuleTempMaker(rule));
             ar.Rewrite(rule);
         }
+#endif
 
         #endregion
 
@@ -183,7 +186,7 @@ namespace Microsoft.Scripting.Ast {
                 block.Body = body;
             }
         }
-
+#if FULL
         private void Rewrite(StandardRule rule) {
             VerifyTemps();
 
@@ -204,6 +207,7 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
         }
+#endif
 
         #region Temps
 
@@ -334,10 +338,10 @@ namespace Microsoft.Scripting.Ast {
 
                 case AstNodeType.TypeIs:
                     return Rewrite((TypeBinaryExpression)node);
-
+#if FULL
                 case AstNodeType.ActionExpression:
                     return Rewrite((ActionExpression)node);
-
+#endif
                 case AstNodeType.ArrayIndexAssignment:
                     return Rewrite((ArrayIndexAssignment)node);
 
@@ -361,10 +365,10 @@ namespace Microsoft.Scripting.Ast {
 
                 case AstNodeType.DeleteUnboundExpression:
                     return Rewrite((DeleteUnboundExpression)node);
-
+#if FULL
                 case AstNodeType.DynamicConversionExpression:
                     return Rewrite((DynamicConversionExpression)node);
-
+#endif
                 case AstNodeType.EnvironmentExpression:
                     return Rewrite((EnvironmentExpression)node);
 
@@ -404,6 +408,7 @@ namespace Microsoft.Scripting.Ast {
             return expression;
         }
 
+#if FULL
         // ActionExpression
         private Expression Rewrite(ActionExpression node) {
             Expression[] clone, comma;
@@ -415,6 +420,7 @@ namespace Microsoft.Scripting.Ast {
                 return node;
             }
         }
+#endif
 
         // ArrayIndexAssignment
         private Expression Rewrite(ArrayIndexAssignment node) {
@@ -609,11 +615,13 @@ namespace Microsoft.Scripting.Ast {
             return node;
         }
 
+#if FULL
         // DynamicConversionExpression
         private Expression Rewrite(DynamicConversionExpression node) {
             // No action necessary
             return node;
         }
+#endif
 
         // EnvironmentExpression
         private Expression Rewrite(EnvironmentExpression node) {

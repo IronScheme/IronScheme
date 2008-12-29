@@ -23,7 +23,7 @@ namespace Microsoft.Scripting {
 
         // *** BEGIN GENERATED CODE ***
 
-        public const int MaximumCallArgs = 5;
+        public const int MaximumCallArgs = 8;
 
         // *** END GENERATED CODE ***
 
@@ -70,6 +70,9 @@ namespace Microsoft.Scripting {
                     case 3: return typeof(CallTargetWithContext3);
                     case 4: return typeof(CallTargetWithContext4);
                     case 5: return typeof(CallTargetWithContext5);
+                    case 6: return typeof(CallTargetWithContext6);
+                    case 7: return typeof(CallTargetWithContext7);
+                    case 8: return typeof(CallTargetWithContext8);
                 }
             } else {
                 switch (nargs) {
@@ -79,6 +82,9 @@ namespace Microsoft.Scripting {
                     case 3: return typeof(CallTarget3);
                     case 4: return typeof(CallTarget4);
                     case 5: return typeof(CallTarget5);
+                    case 6: return typeof(CallTarget6);
+                    case 7: return typeof(CallTarget7);
+                    case 8: return typeof(CallTarget8);
                 }
             }
             throw new NotImplementedException();
@@ -106,6 +112,9 @@ namespace Microsoft.Scripting {
     public delegate object CallTarget3(object arg0, object arg1, object arg2);
     public delegate object CallTarget4(object arg0, object arg1, object arg2, object arg3);
     public delegate object CallTarget5(object arg0, object arg1, object arg2, object arg3, object arg4);
+    public delegate object CallTarget6(object arg0, object arg1, object arg2, object arg3, object arg4, object arg5);
+    public delegate object CallTarget7(object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6);
+    public delegate object CallTarget8(object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7);
 
 
     // *** END GENERATED CODE ***
@@ -123,6 +132,9 @@ namespace Microsoft.Scripting {
     public delegate object CallTargetWithContext3(CodeContext context, object arg0, object arg1, object arg2);
     public delegate object CallTargetWithContext4(CodeContext context, object arg0, object arg1, object arg2, object arg3);
     public delegate object CallTargetWithContext5(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4);
+    public delegate object CallTargetWithContext6(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5);
+    public delegate object CallTargetWithContext7(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6);
+    public delegate object CallTargetWithContext8(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7);
 
 
     // *** END GENERATED CODE ***

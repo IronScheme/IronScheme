@@ -175,14 +175,15 @@ namespace Microsoft.Scripting.Ast {
             int index;
             if (TryGetIndex(variable, out index)) {
                 Debug.Assert(index < _bits.Count);
-                defined = _bits.Get(index);
-                if (!defined) {
-                    variable.UninitializedUse();
-                }
-                if (!_bits.Get(index + 1)) {
-                    // Found an unbound use of the name => need to initialize to Uninitialized.instance
-                    variable.UnassignedUse();
-                }
+                //defined = _bits.Get(index);
+                //if (!defined) {
+                //    variable.UninitializedUse();
+                //}
+                //if (!_bits.Get(index + 1)) {
+                //    // Found an unbound use of the name => need to initialize to Uninitialized.instance
+                //    variable.UnassignedUse();
+                //}
+                defined = true;
                 return true;
             } else {
                 // TODO: Report unbound name - error
@@ -262,6 +263,14 @@ namespace Microsoft.Scripting.Ast {
             WalkNode(node.Value);
             Define(node.Variable);
             return false;
+        }
+
+        // WriteStatement
+        protected internal override bool Walk(WriteStatement node)
+        {
+          WalkNode(node.Value);
+          Define(node.Variable);
+          return false;
         }
 
 

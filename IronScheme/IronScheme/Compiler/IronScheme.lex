@@ -93,9 +93,9 @@ public int Make(Tokens token)
 
 %}
 
-delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t ]
-but_delimiter          [^\[\]\(\)\";#\r\n\t ]
-numbut_delimiter       [^\[\]\(\)\";#\r\n\t i]
+delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t\u000c ]
+but_delimiter          [^\[\]\(\)\";#\r\n\t\u000c ]
+numbut_delimiter       [^\[\]\(\)\";#\r\n\t\u000c i]
 
 line_comment           (";"[^\n]*)|("#!"[^\n]*)
 
@@ -104,7 +104,7 @@ ignore_datum           "#;"
 comment_start          "#|"
 comment_end            "|#"
 
-white_space            [ \t]
+white_space            [ \t\u000c]
 new_line               "\n\r"|\r|\n
 
 digit                  [0-9]
