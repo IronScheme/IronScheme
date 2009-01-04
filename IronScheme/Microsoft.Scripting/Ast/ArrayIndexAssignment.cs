@@ -77,7 +77,7 @@ namespace Microsoft.Scripting.Ast {
             temp.EmitGet(cg);
             // Store it in the array
             cg.EmitStoreElement(_elementType);
-            temp.EmitGet(cg);
+            temp.EmitGet(cg); //DO NOT WANT!!!
             cg.FreeLocalTmp(temp);
         }
     }

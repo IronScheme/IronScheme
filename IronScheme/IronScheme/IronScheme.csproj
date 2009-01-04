@@ -18,6 +18,9 @@
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -127,7 +130,6 @@
     <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
     <Compile Include="Runtime\psyntax\Serialization.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Bitwise.cs" />
-    <Compile Include="Runtime\R6RS\Arithmetic\Fixnums.cs" />
     <Compile Include="Runtime\R6RS\Arithmetic\Flonums.cs" />
     <Compile Include="Runtime\R6RS\ByteVectors.cs" />
     <Compile Include="Runtime\R6RS\Conditions.cs" />

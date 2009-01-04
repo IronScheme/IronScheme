@@ -605,10 +605,16 @@ namespace Microsoft.Scripting.Generation {
                     EmitReturnFromObject();
                 } else {
                     expr.EmitAs(this, CompilerHelpers.GetReturnType(_methodInfo));
-                    EmitReturn();
+                    if (!skipreturn)
+                    {
+                      EmitReturn();
+                    }
+                    skipreturn = false;
                 }
             }
         }
+
+        internal bool skipreturn = false;
 
         public void EmitReturnFromObject() {
             EmitConvertFromObject(CompilerHelpers.GetReturnType(_methodInfo));
@@ -1821,6 +1827,11 @@ namespace Microsoft.Scripting.Generation {
             if (_context != null) res.Context = _context;
             res.InterpretedMode = _interpretedMode;
             return res;
+        }
+
+        public int Size
+        {
+          get { return (int)_ilg.GetType().GetField("m_length", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ilg); }
         }
 
         #region ILGenerator methods

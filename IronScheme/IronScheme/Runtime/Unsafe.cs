@@ -37,6 +37,16 @@ namespace IronScheme.Runtime
         }
       }
 
+      [InlineEmitter("$try")]
+      public static Expression Try(Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
+          return Ast.Void(Ast.Try(Ast.Return(args[0])).Catch(typeof(OverflowException), Ast.Return(args[1])));
+        }
+        return null;
+      }
+
       #region car + cdr
 
       static FieldInfo car = typeof(Cons).GetField("car");
@@ -270,6 +280,123 @@ namespace IronScheme.Runtime
         }
         return null;
       }
+
+
+      #endregion
+
+      #region flonums
+
+      static bool Expect2(Expression[] args, int count)
+      {
+        if (args.Length == count &&
+          Array.TrueForAll(args, delegate(Expression e) { return e.Type == typeof(object) || e.Type == typeof(double); }))
+        {
+          return true;
+        }
+        else
+        {
+          Builtins.SyntaxError(false, string.Format("expected {0} arguments", count), args, false);
+          return false;
+        }
+      }
+
+      [InlineEmitter("$fl=?")]
+      public static Expression FlEquals(params Expression[] args)
+      {
+        if (Expect2(args, 2))
+        {
+          return Ast.Equal(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fl+")]
+      public static Expression FlAdd(params Expression[] args)
+      {
+        if (Expect2(args, 2))
+        {
+          return Ast.Add(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fl*")]
+      public static Expression FlMultiply(params Expression[] args)
+      {
+        if (Expect2(args, 2))
+        {
+          return Ast.Multiply(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fl-")]
+      public static Expression FlMinus(params Expression[] args)
+      {
+        if (args.Length == 1)
+        {
+          return Ast.Negate(UnwrapAndCast<double>(args[0]));
+        }
+        else
+        {
+          if (Expect2(args, 2))
+          {
+            return Ast.Subtract(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+          }
+          return null;
+        }
+      }
+
+      [InlineEmitter("$fl<?")]
+      public static Expression FlIsLessThan(params Expression[] args)
+      {
+        if (Expect2(args, 2))
+        {
+          return Ast.LessThan(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fl<=?")]
+      public static Expression FlIsLessThanOrEqual(params Expression[] args)
+      {
+        if (Expect2(args, 2))
+        {
+          return Ast.LessThanEquals(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fl>?")]
+      public static Expression FlIsGreater(params Expression[] args)
+      {
+        if (Expect2(args, 2))
+        {
+          return Ast.GreaterThan(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fl>=?")]
+      public static Expression FlIsGreaterOrEqual(params Expression[] args)
+      {
+        if (Expect2(args, 2))
+        {
+          return Ast.GreaterThanEquals(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fl/")]
+      public static Expression FlQuotient(params Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
+          return Ast.Divide(UnwrapAndCast<double>(args[0]), UnwrapAndCast<double>(args[1]));
+        }
+        return null;
+      }
+
 
 
       #endregion

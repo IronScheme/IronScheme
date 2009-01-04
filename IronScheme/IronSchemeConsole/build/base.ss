@@ -297,30 +297,14 @@
       div0-and-mod0
       
       list->vector
-      list->string   
+      list->string 
+      
+      vector-ref
+      vector-set!  
      )
-    (ironscheme clr))
+    (ironscheme clr)
+    (ironscheme unsafe))
 
-    (define (mod x1 x2)
-      (- x1 (* (div x1 x2) x2)))
-
-    (define (mod0 x1 x2)
-      (- x1 (* (div0 x1 x2) x2)))
-      
-    (define (div-and-mod x1 x2)
-      (let ((d (div x1 x2)))
-        (values d (- x1 (* d x2)))))             
-
-    (define (div0-and-mod0 x1 x2)
-      (let ((d (div0 x1 x2)))
-        (values d (- x1 (* d x2)))))             
-        
-    (define (list->vector lst)
-      (apply vector lst))        
-      
-    (define (list->string lst)
-      (apply string lst))        
-    
     (define (char? obj)
       (clr-is system.char obj))
       
@@ -346,6 +330,45 @@
       (clr-is system.double obj))   
       
     (define (fixnum-width) 32)
+    
+    (define (mod x1 x2)
+      (- x1 (* (div x1 x2) x2)))
+
+    (define (mod0 x1 x2)
+      (- x1 (* (div0 x1 x2) x2)))
+      
+    (define (div-and-mod x1 x2)
+      (let ((d (div x1 x2)))
+        (values d (- x1 (* d x2)))))             
+
+    (define (div0-and-mod0 x1 x2)
+      (let ((d (div0 x1 x2)))
+        (values d (- x1 (* d x2)))))             
+        
+    (define (list->vector lst)
+      (apply vector lst))        
+      
+    (define (list->string lst)
+      (apply string lst))
+      
+    (define (vector-ref x n)
+      (unless (vector? x)
+        (assertion-violation 'vector-ref "not a vector" x))
+      (unless (integer? n)
+        (assertion-violation 'vector-ref "not an integer" n))
+      (when (negative? n)
+        (assertion-violation 'vector-ref "negative index" n))
+      ($vector-ref x n))
+      
+    (define (vector-set! x n value)
+      (unless (vector? x)
+        (assertion-violation 'vector-set! "not a vector" x))
+      (unless (integer? n)
+        (assertion-violation 'vector-set! "not an integer" n))
+      (when (negative? n)
+        (assertion-violation 'vector-set! "negative index" n))
+      ($vector-set! x n value)
+      (void))      
     
     (define (vector-fill! vec val)
       (let ((len (vector-length vec)))
@@ -566,10 +589,26 @@
         
     (define (vector-map p vec1 . vecs)
       (let* ((len (vector-length vec1))
-             (res (make-vector len)))
+             (res (make-vector len '())))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len) res)
-          (vector-set! res i            
+          (vector-set! res i
+            (if (null? vecs)
+              (p (vector-ref vec1 i))            
+              (call-with-values 
+                (lambda ()
+                  (apply values
+                    (map (lambda (x) 
+                           (vector-ref x i)) 
+                         (cons vec1 vecs))))
+                p))))))
+          
+    (define (vector-for-each p vec1 . vecs)
+      (let ((len (vector-length vec1)))
+        (do ((i 0 (fx+ i 1)))
+            ((fx=? i len))
+          (if (null? vecs)
+            (p (vector-ref vec1 i))
             (call-with-values 
               (lambda ()
                 (apply values
@@ -577,29 +616,19 @@
                          (vector-ref x i)) 
                        (cons vec1 vecs))))
               p)))))
-          
-    (define (vector-for-each p vec1 . vecs)
-      (let ((len (vector-length vec1)))
-        (do ((i 0 (fx+ i 1)))
-            ((fx=? i len))
-          (call-with-values 
-            (lambda ()
-              (apply values
-                (map (lambda (x) 
-                       (vector-ref x i)) 
-                     (cons vec1 vecs))))
-            p))))
             
     (define (string-for-each p str1 . strs)
       (let ((len (string-length str1)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))
-          (call-with-values 
-            (lambda ()
-              (apply values
-                (map (lambda (x) 
-                       (string-ref x i)) 
-                     (cons str1 strs))))
-            p))))                  
+          (if (null? strs)
+            (p (string-ref str1 i))            
+            (call-with-values 
+              (lambda ()
+                (apply values
+                  (map (lambda (x) 
+                         (string-ref x i)) 
+                       (cons str1 strs))))
+              p)))))
 
 )

@@ -1439,11 +1439,6 @@ namespace IronScheme.Runtime
     [Builtin("div")]
     public static object Div(object x1, object x2)
     {
-      if (x1 is double && x2 is double)
-      {
-        return R6RS.Arithmetic.Flonums.FlDiv(x1, x2);
-      }
-
       if (IsTrue(IsZero(x2)))
       {
         return AssertionViolation("div", "divide by zero", x1, x2);

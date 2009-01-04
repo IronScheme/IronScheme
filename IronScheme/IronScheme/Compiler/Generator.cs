@@ -483,13 +483,17 @@ namespace IronScheme.Compiler
                   if (constant)
                   {
                     object[] cargs = Array.ConvertAll(pars, e => ((ConstantExpression)e).Value);
-                    try
+                    CallTarget0 disp = delegate
                     {
-                      return GetCons(bf.Call(cargs), cb);
-                    }
-                    catch
+                      return bf.Call(cargs);
+                    };
+                    object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
+                      Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")),
+                      Closure.Make(null, disp));
+
+                    if (!(result is Exception))
                     {
-                      // nothing we can do...
+                      return GetCons(result, cb);
                     }
                   }
                 }

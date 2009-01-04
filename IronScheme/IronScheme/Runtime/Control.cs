@@ -80,7 +80,7 @@ namespace IronScheme.Runtime
 
 #if CPS
 
-
+#error CPS mode is currently broken, use revision 23730 or earlier
 
 #else
 
@@ -207,7 +207,7 @@ namespace IronScheme.Runtime
     }
 #endif
 
-    
+
 #if CPS
 
     public static object LetrecIdentity(object var)

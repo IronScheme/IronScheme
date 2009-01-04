@@ -180,6 +180,7 @@ namespace IronScheme.Compiler
             {
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
+            //return Ast.ConvertHelper(e, t);
             return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
           }
     }
