@@ -1398,7 +1398,7 @@
                      (with-exception-handler
                        (lambda (,con)
                          ,(gen-clauses con outerk clause*))
-                       (lambda () #f ,b ,@b*))))))))))))
+                       (lambda () ,b ,@b*))))))))))))
 
   (define define-enumeration-macro
     (lambda (stx) 

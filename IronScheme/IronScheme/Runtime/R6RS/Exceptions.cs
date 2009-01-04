@@ -114,8 +114,12 @@ namespace IronScheme.Runtime.R6RS
     {
       if (defaulthandler == null)
       {
-        defaulthandler = SymbolValue(SymbolTable.StringToId("default-exception-handler")) as ICallable;
-        handlerstack.Push(defaulthandler);
+        SymbolId dh = SymbolTable.StringToId("default-exception-handler");
+        if (cc.Scope.ContainsName(dh))
+        {
+          defaulthandler = SymbolValue(dh) as ICallable;
+          handlerstack.Push(defaulthandler);
+        }
       }
     }
 

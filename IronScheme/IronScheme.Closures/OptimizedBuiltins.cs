@@ -39,6 +39,7 @@ namespace IronScheme.Runtime
   public static class OptimizedBuiltins
   {
 #if CPS
+#error CPS mode is currently broken, use revision 23730 or earlier
     internal static object Call(ICallable c, params object[] args)
     {
       if (c is BuiltinMethod)

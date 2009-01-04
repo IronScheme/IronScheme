@@ -206,45 +206,70 @@
              (values (cons (car a) cars)
                      (cons (cdr a) cdrs))))))))
 
-  (define for-all ;;; almost
-    (lambda (f arg1 . args)
-      (let ((args (cons arg1 args)))
-        (if (all-empty? args) 
-            #t
-            (call-with-values (lambda () (split args))
-              (lambda (cars cdrs)
-                (if (all-empty? cdrs)
-                  (apply f cars)
-                  (and (apply f cars) 
-                       (apply for-all f cdrs)))))))))
+  (define for-all 
+    (case-lambda 
+      [(f arg1)
+        (if (null? arg1)
+          #t
+          (if (null? (cdr arg1))
+            (f (car arg1))
+            (and (f (car arg1)) 
+               (for-all f (cdr arg1)))))]
+      [(f arg1 . args)               
+        (let ((args (cons arg1 args)))
+          (if (all-empty? args) 
+              #t
+              (call-with-values (lambda () (split args))
+                (lambda (cars cdrs)
+                  (if (all-empty? cdrs)
+                    (apply f cars)
+                    (and (apply f cars) 
+                         (apply for-all f cdrs)))))))]))
 
-  (define exists  ;;; almost
-    (lambda (f arg1 . args)
-      (let ((args (cons arg1 args)))
-        (if (all-empty? args) 
-            #f
-            (call-with-values (lambda () (split args))
-              (lambda (cars cdrs)
-                (or (apply f cars)
-                    (apply exists f cdrs))))))))
+  (define exists 
+    (case-lambda 
+      [(f arg1)
+        (if (null? arg1)
+          #f
+          (or (f (car arg1)) 
+               (exists f (cdr arg1))))]
+      [(f arg1 . args)
+        (let ((args (cons arg1 args)))
+          (if (all-empty? args) 
+              #f
+              (call-with-values (lambda () (split args))
+                (lambda (cars cdrs)
+                  (or (apply f cars)
+                      (apply exists f cdrs))))))]))
                   
   (define map
-    (lambda (proc list1 . lists)
-      (let f ((lists (cons list1 lists))(a '()))
-        (if (all-empty? lists)
-          (reverse! a)
-          (call-with-values (lambda () (split lists))
-            (lambda (cars cdrs)
-              (f cdrs (cons (apply proc cars) a))))))))
+    (case-lambda 
+      [(proc list1)
+        (let f ((lst list1)(a '()))
+          (if (null? lst)
+            (reverse! a)
+            (f (cdr lst) (cons (proc (car lst)) a))))]
+      [(proc list1 . lists)            
+        (let f ((lists (cons list1 lists))(a '()))
+          (if (all-empty? lists)
+            (reverse! a)
+            (call-with-values (lambda () (split lists))
+              (lambda (cars cdrs)
+                (f cdrs (cons (apply proc cars) a))))))]))
   
   (define for-each
-    (lambda (f arg1 . args)
-      (let ((args (cons arg1 args)))
-        (if (not (all-empty? args))
-            (call-with-values (lambda () (split args))
-              (lambda (cars cdrs)
-                (apply f cars)
-                (apply for-each f cdrs)))))))
+    (case-lambda 
+      [(f arg1)
+        (unless (null? arg1)
+          (f (car arg1))
+          (for-each f (cdr arg1)))]
+      [(f arg1 . args)
+        (let ((args (cons arg1 args)))
+          (if (not (all-empty? args))
+              (call-with-values (lambda () (split args))
+                (lambda (cars cdrs)
+                  (apply f cars)
+                  (apply for-each f cdrs)))))]))
                   
   (define cons* 
     (lambda (a . rest) 
@@ -255,29 +280,35 @@
             
   
   (define (fold-left combine nil list1 . lists)
-	  (if (null? list1)
-		  nil
-		  (apply fold-left 
-			  (cons*
-				  combine 
-				  (apply combine (cons* nil (car list1) (map car lists))) 
-				  (cdr list1) 
-				  (map cdr lists)))))   
+	  (cond 
+	    [(null? list1) nil]
+	    [(null? lists)
+	      (fold-left combine (combine nil (car list1)) (cdr list1))]
+	    [else
+		    (apply fold-left 
+			    (cons*
+				    combine 
+				    (apply combine (cons* nil (car list1) (map car lists))) 
+				    (cdr list1) 
+				    (map cdr lists)))]))   
 				  
   (define (fold-right combine nil list1 . lists)
-	  (if (null? list1)
-		  nil
-		  (apply combine 
-			  (append
-				  (list (car list1))
-				  (map car lists)
-				  (list 
-				    (apply fold-right
-					    (cons*
-						    combine
-						    nil
-						    (cdr list1) 
-						    (map cdr lists))))))))
+	  (cond
+	    [(null? list1) nil]
+	    [(null? lists)
+	      (combine (car list1) (fold-right combine nil (cdr list1)))]
+		  [else
+		    (apply combine 
+			    (append
+				    (list (car list1))
+				    (map car lists)
+				    (list 
+				      (apply fold-right
+					      (cons*
+						      combine
+						      nil
+						      (cdr list1) 
+						      (map cdr lists))))))]))
 					    
    (define (remove obj list)
      (remp (lambda (x) (equal? obj x)) list))

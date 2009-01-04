@@ -177,8 +177,36 @@ namespace Microsoft.Scripting.Ast {
               {
                 if (ue.Operand is CodeBlockExpression)
                 {
+                  
                   CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
                   Debug.Assert(_arguments.Count == _parameterInfos.Length);
+
+                  CodeGen rcg;
+
+                  if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
+                  {
+                    if (rcg == cg)
+                    {
+                      for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                      {
+                        Expression argument = _arguments[arg];
+                        Type type = _parameterInfos[arg].ParameterType;
+                        EmitArgument(cg, argument, type);
+                      }
+
+                      for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                      {
+                        cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg - 1);
+                      }
+                      //HACK: eeek! but it works :)
+                      int offset = - (cg.Size + 5);
+                      cg.Emit(OpCodes.Br, offset);
+                      
+                      cg.skipreturn = true;
+                      return;
+                    }
+                  }
+
                   for (int arg = 0; arg < _parameterInfos.Length; arg++)
                   {
                     Expression argument = _arguments[arg];
@@ -216,6 +244,7 @@ namespace Microsoft.Scripting.Ast {
                 EmitArgument(cg, argument, type);
               }
 
+              //ever hit????
               cbe.EmitDirect(cg, tailcall);
               return;
             }

@@ -52,6 +52,7 @@
     fxreverse-bit-field
   )
   (import 
+    (ironscheme clr)
     (ironscheme unsafe)
     (except (rnrs) 
       fxif
@@ -102,8 +103,21 @@
       
       fxmax
       fxmin
+      
+      fx-
+      fx+
+      fx*
+      fxreverse-bit-field
       ))
       
+  (define (greatest-fixnum)  #x7fffffff)
+  (define (least-fixnum)    #x-80000000)      
+      
+  (define-syntax checked
+    (syntax-rules ()
+      [(_ expr)
+        ($try expr (overflow-error #f))]))
+            
   (define-syntax define-fx
     (lambda (x)
       (syntax-case x ()
@@ -117,10 +131,40 @@
             #'(define (name formals ...)
                 checks ...
                 (let ()
-                  body body* ...)))])))
+                  body body* ...)))])))  
                   
-  (define (greatest-fixnum)  #x7fffffff)
-  (define (least-fixnum)    #x-80000000)
+  (define-syntax fxabs
+    (syntax-rules ()
+      [(_ e) (clr-static-call System.Math "abs(int32)" e)]))                            
+            
+  (define-fx (fx+ x1 x2)
+    (checked ($fx+ x1 x2)))            
+    
+  (define-fx (fx* x1 x2)
+    (checked ($fx* x1 x2)))            
+      
+  (define fx-
+    (case-lambda
+      [(x1)
+        (unless (fixnum? x1)
+          (assertion-violation 'fx- "not a fixnum" x1))
+        (when ($fx=? (least-fixnum) x1)
+          (overflow-error 'fx- x1))
+        ($$fx- x1)]
+      [(x1 x2)
+        (unless (fixnum? x1)
+          (assertion-violation 'fx- "not a fixnum" x1))
+        (unless (fixnum? x2)
+          (assertion-violation 'fx- "not a fixnum" x2))
+        (checked ($fx- x1 x2))]))
+  
+  (define (overflow-error name . irritants)
+    (raise
+      (condition
+        (make-implementation-restriction-violation)
+        (make-who-condition name)
+        (make-message-condition "arithmetic overflow")
+        (make-irritants-condition irritants))))
                   
   (define-fx (fxarithmetic-shift x k)
     (cond
@@ -129,13 +173,8 @@
         ($fxarithmetic-shift-right x ($$fx- k))]
       [else
         (let ((i ($fxarithmetic-shift-left x k)))
-          (when ($fx>? (abs x) (abs i))
-            (raise
-              (condition
-                (make-implementation-restriction-violation)
-                (make-who-condition 'fxarithmetic-shift)
-                (make-message-condition "arithmetic overflow")
-                (make-irritants-condition x k))))
+          (when ($fx>? (fxabs x) (fxabs i))
+            (overflow-error 'fxarithmetic-shift x k))
           i)]))
           
   (define-fx (fxbit-count x)
@@ -239,7 +278,6 @@
   (define-fx-bitop fxand -1)
   (define-fx-bitop fxior 0)
   (define-fx-bitop fxxor 0)
-                      
                   
   (define-fx (fxdiv x1 x2)
     (when ($fx=? 0 x2)
@@ -363,4 +401,18 @@
               (fxarithmetic-shift-left field count) 
               (fxarithmetic-shift-right field ($$fx- width count)))))
         n)))
+
+  ;; from larceny        
+  (define-fx (fxreverse-bit-field x1 start end)
+    (unless ($fx<=? start end)
+        (assertion-violation 'fxreverse-bit-field "start must be less than end" start end))
+    (do ((width ($$fx- end start) ($$fx- width 1))
+         (bits  (fxbit-field x1 start end)
+                ($fxarithmetic-shift-right bits 1))
+         (rbits 0
+                ($fxior ($fxarithmetic-shift-left rbits 1)
+                       ($fxand bits 1))))
+        (($fx=? width 0)
+         (fxcopy-bit-field x1 start end rbits))))
+
 )

@@ -94,9 +94,6 @@ values [5] [6]
 vector
 vector->list
 vector-length
-vector-ref
-vector-set!
-
 
 (rnrs r5rs):
 
@@ -225,43 +222,9 @@ bitwise-xor
 
 (rnrs arithmetic fixnums):
 
-fx*
-fx+
-fx-
-fx<=?
-fx<?
-fx=?
-fx>=?
-fx>?
-fxand
-fxarithmetic-shift
-fxbit-count
-fxbit-set?
-fxdiv
-fxdiv0
-fxfirst-bit-set
-fxior
-fxlength
-fxnot
-fxreverse-bit-field
-fxxor
-greatest-fixnum
-least-fixnum
-
 (rnrs arithmetic flonums):
 
 fixnum->flonum
-fl*
-fl+
-fl-
-fl/
-fl<=?
-fl<?
-fl=?
-fl>=?
-fl>?
-fldiv
-fldiv0
 fldenominator
 flnumerator
 real->flonum
