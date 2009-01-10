@@ -1,4 +1,4 @@
-﻿;;; -*- Mode: Scheme -*-
+;;; -*- Mode: Scheme -*-
 
 ;;;; Extensible Looping Macros, version 8
 
