@@ -1,3 +1,5 @@
+#!r6rs
+
 ;;; -*- Mode: Scheme -*-
 
 ;;;; Extensible Looping Macros, version 8
@@ -58,6 +60,7 @@
     )
   (import 
     (rnrs)
+    (only (rnrs mutable-pairs) set-cdr!)
     (syn-param))
     
   (define-syntax define-aux
