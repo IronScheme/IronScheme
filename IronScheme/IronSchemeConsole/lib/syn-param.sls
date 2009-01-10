@@ -1,4 +1,4 @@
-﻿;;;; Operators with Extended Parameter Syntax, Version 2
+;;;; Operators with Extended Parameter Syntax, Version 2
 
 ;;; This code is written by Taylor R. Campbell and placed in the Public
 ;;; Domain.  All warranties are disclaimed.
