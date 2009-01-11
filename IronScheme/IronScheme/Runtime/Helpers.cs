@@ -169,15 +169,15 @@ namespace IronScheme.Runtime
       return (T)obj;
     }
 
-    static SymbolId GetCaller()
+    static object GetCaller()
     {
       StackTrace st = new StackTrace(2);
       MethodBase m = st.GetFrame(0).GetMethod();
       foreach (BuiltinAttribute ba in m.GetCustomAttributes(typeof(BuiltinAttribute), false))
       {
-        return SymbolTable.StringToId(ba.Name ?? m.Name.ToLower());
+        return SymbolTable.StringToObject(ba.Name ?? m.Name.ToLower());
       }
-      return SymbolTable.StringToId(m.Name.ToLower());
+      return SymbolTable.StringToObject(m.Name.ToLower());
     }
 
     public static T RequiresNotNull<T>(object obj)

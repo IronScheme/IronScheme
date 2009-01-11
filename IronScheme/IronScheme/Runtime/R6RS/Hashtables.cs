@@ -263,7 +263,7 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        return SymbolValue(SymbolTable.StringToId("eq?"));
+        return SymbolValue(SymbolTable.StringToObject("eq?"));
       }
     }
 

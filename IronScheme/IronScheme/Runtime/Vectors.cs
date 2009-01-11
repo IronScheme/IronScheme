@@ -101,22 +101,7 @@ namespace IronScheme.Runtime
     }
 
 
-    [Builtin("vector-ref")]
-    public static object VectorRef(object vec, object K)
-    {
-      object[] l = RequiresNotNull<object[]>(vec);
-      int k = RequiresNotNull<int>(K);
-      return l[k];
-    }
 
-    [Builtin("vector-set!")]
-    public static object VectorSet(object vec, object K, object value)
-    {
-      object[] l = RequiresNotNull<object[]>(vec);
-      int k = RequiresNotNull<int>(K);
-      l[k] = value;
-      return Unspecified;
-    }
 
     [Builtin("vector->list")]
     public static object VectorToList(object vec)

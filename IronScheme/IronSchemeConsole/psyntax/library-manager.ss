@@ -135,7 +135,12 @@
                   (failed-list '()))
             (cond
               ((null? ls)
-               (file-locator-resolution-error x (reverse failed-list)))
+               (file-locator-resolution-error x 
+                  (reverse failed-list)
+                  (let ([ls (external-pending-libraries)])
+                    (if (null? ls) 
+                        (error 'library-manager "BUG")
+                        (cdr ls)))))
               ((null? exts)
                (f (cdr ls) (library-extensions) failed-list))
               (else

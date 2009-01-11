@@ -32,6 +32,7 @@
   (psyntax compat)
   (psyntax library-manager)
   (psyntax expander)
+  (ironscheme unsafe)
   (only (ironscheme) time-it optimization-level include import library)
   )
   

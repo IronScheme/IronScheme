@@ -222,10 +222,6 @@ namespace Microsoft.Scripting.Ast {
                   ;
                 }
               }
-              else if (ue.Operand is CodeBlockExpression)
-              {
-                ;
-              }
             }
             else
               if (typeof(Delegate).IsAssignableFrom(_instance.Type))
@@ -252,6 +248,10 @@ namespace Microsoft.Scripting.Ast {
             {
               ;
             }
+          }
+          if (_instance is BoundExpression)
+          {
+            ;
           }
             // Emit instance, if calling an instance method
             if (!_method.IsStatic) {
@@ -285,6 +285,11 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private static void EmitArgument(CodeGen cg, Expression argument, Type type) {
+          if (argument.Type != type && argument.Type.IsValueType)
+          {
+            argument = Ast.Convert(argument, type);
+          }
+
             if (type.IsByRef) {
                 argument.EmitAddress(cg, type.GetElementType());
             } else {

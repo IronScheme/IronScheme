@@ -315,22 +315,20 @@ namespace Microsoft.Scripting.Generation {
             if (!_indirectSymbolIds.TryGetValue(id, out value)) {
                 // create field, emit fix-up...
 
-                value = AddStaticField(typeof(int), FieldAttributes.Private, "symbol_" + SymbolTable.IdToString(id));
+                value = AddStaticField(typeof(object), FieldAttributes.Private, "symbol_" + SymbolTable.IdToString(id));
                 CodeGen init = TypeInitializer;
-                Slot localTmp = init.GetLocalTmp(typeof(SymbolId));
-                init.EmitString((string)SymbolTable.IdToString(id));
-                init.EmitCall(typeof(SymbolTable), "StringToId");
-                localTmp.EmitSet(init);
-                localTmp.EmitGetAddr(init);
-                init.EmitPropertyGet(typeof(SymbolId), "Id");
+                //Slot localTmp = init.GetLocalTmp(typeof(SymbolId));
+                init.EmitString(SymbolTable.IdToString(id));
+                init.EmitCall(typeof(SymbolTable), "StringToObject");
+                //localTmp.EmitSet(init);
+                //init.EmitBoxing(typeof(object));
                 value.EmitSet(init);
 
-                init.FreeLocalTmp(localTmp);
+                //init.FreeLocalTmp(localTmp);
                 _indirectSymbolIds[id] = value;
             }
 
             value.EmitGet(cg);
-            cg.EmitNew(typeof(SymbolId), SymbolIdIntCtorSig);
         }
 
 

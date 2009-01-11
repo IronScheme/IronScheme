@@ -367,7 +367,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     public static object ProcName(object proc)
     {
       ICallable c = RequiresNotNull<ICallable>(proc);
-      return SymbolTable.StringToId(c.ToString());
+      return SymbolTable.StringToObject(c.ToString());
     }
 
     [Builtin("procedure-environment")]
@@ -471,15 +471,16 @@ A ""contributor"" is any person that distributes its contribution under this lic
 #endif
 #if CPS
       // this would look a ton sweeter on C# 4.0 :)
-      ICallable cps = SymbolValue(SymbolTable.StringToId("convert->cps")) as ICallable;
+      ICallable cps = SymbolValue(SymbolTable.StringToObject("convert->cps")) as ICallable;
       expr = cps.Call(Closure.IdentityForCPS, expr, sk);
 #endif
 
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
-
-      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
+#if !DEBUG
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
+#endif
       // if you ever want to inspect the emitted dll's comment this out, use with care
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 
@@ -528,7 +529,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 #if CPS
         catch (Exception ex)
         {
-          ICallable raise = SymbolValue(SymbolTable.StringToId("raise")) as ICallable;
+          ICallable raise = SymbolValue(SymbolTable.StringToObject("raise")) as ICallable;
           ICallable k = SymbolValue(sk) as ICallable;
           return OptimizedBuiltins.CallWithK(raise, k, ex);
         }
@@ -551,7 +552,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     [Builtin("eval-core", AllowCPS=false)]
     public static object EvalCore(object k, object expr)
     {
-      object sk = GenSym(SymbolTable.StringToId("eval-core-k"));
+      object sk = GenSym(SymbolTable.StringToObject("eval-core-k"));
       SetSymbolValue(sk, k);
       ICallable compiled = CompileCore(expr, sk) as ICallable;
       return compiled.Call();
@@ -690,7 +691,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
     static Cons ReadElement(XmlElement e)
     {
       List<object> all = new List<object>();
-      all.Add(SymbolTable.StringToId(e.Name));
+      all.Add(SymbolTable.StringToObject(e.Name));
 
       foreach (XmlAttribute a in e.Attributes)
       {
@@ -715,7 +716,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
     static Cons ReadAttribute(XmlAttribute a)
     {
-      return new Cons(SymbolTable.StringToId(a.Name), a.Value);
+      return new Cons(SymbolTable.StringToObject(a.Name), a.Value);
     }
 
     [Builtin("download-string")]
@@ -740,7 +741,7 @@ A ""contributor"" is any person that distributes its contribution under this lic
       {
         R6RS.IO.Transcoder tc = maybetranscoder as R6RS.IO.Transcoder;
         return new R6RS.IO.CustomTextReaderWriter(
-          SymbolTable.StringToId(string.Format("#<tcp-textual-input/output-port {0}:{1}>", host, port)),
+          SymbolTable.StringToObject(string.Format("#<tcp-textual-input/output-port {0}:{1}>", host, port)),
           new StreamReader(ns, tc.codec), new StreamWriter(ns, tc.codec));
       }
       else
@@ -780,13 +781,13 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return (T)obj;
     }
 
-    protected static SymbolId GetCaller()
+    protected static object GetCaller()
     {
       StackTrace st = new StackTrace(2);
       MethodBase m = st.GetFrame(0).GetMethod();
       foreach (BuiltinAttribute ba in m.GetCustomAttributes(typeof(BuiltinAttribute), false))
       {
-        return SymbolTable.StringToId(ba.Name ?? m.Name.ToLower());
+        return SymbolTable.StringToObject(ba.Name ?? m.Name.ToLower());
       }
       return UnGenSymInternal(SymbolTable.StringToId(m.Name));
     }

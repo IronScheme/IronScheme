@@ -64,6 +64,10 @@ namespace Microsoft.Scripting.Ast {
     public override void Emit(CodeGen cg)
     {
       _value.Emit(cg);
+      if (_vr.Variable.Type == typeof(object) && _value.Type.IsValueType)
+      {
+        cg.EmitBoxing(_value.Type);
+      }
       _vr.Slot.EmitSet(cg);
       _vr.Variable.SetInitialized();
     }

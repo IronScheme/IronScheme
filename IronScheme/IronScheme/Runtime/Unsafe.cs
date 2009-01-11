@@ -88,6 +88,17 @@ namespace IronScheme.Runtime
 
       #region vector-ref + vector-set!
 
+      //[InlineEmitter("$vector-length")]
+      //public static Expression VectorLength(Expression[] values)
+      //{
+      //  if (values.Length == 1)
+      //  {
+      //    return Ast.ArrayL(Ast.ConvertHelper(values[0], typeof(object[])));
+      //  }
+      //  Builtins.SyntaxError("$vector-length", "expected 1 argument", values, false);
+      //  return null;
+      //}
+
       [InlineEmitter("$vector-ref")]
       public static Expression VectorRef(Expression[] values)
       {

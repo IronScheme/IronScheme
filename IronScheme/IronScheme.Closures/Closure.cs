@@ -106,7 +106,7 @@ namespace IronScheme.Runtime
 
         ParameterInfo[] pis = mi.GetParameters();
 
-        form.Add( SymbolTable.StringToId(ToString()));
+        form.Add( SymbolTable.StringToObject(ToString()));
 
         foreach (ParameterInfo pi in pis)
         {
@@ -114,12 +114,12 @@ namespace IronScheme.Runtime
           {
             if (pi.ParameterType.IsArray)
             {
-              form.Add(SymbolTable.StringToId(pi.Name));
+              form.Add(SymbolTable.StringToObject(pi.Name));
               return ConsStarFromArray(form.ToArray());
             }
             else
             {
-              form.Add(SymbolTable.StringToId(pi.Name));
+              form.Add(SymbolTable.StringToObject(pi.Name));
             }
           }
         }
@@ -218,7 +218,7 @@ namespace IronScheme.Runtime
 
     protected object GetWho()
     {
-      return SymbolTable.StringToId(target.Method.Name);
+      return SymbolTable.StringToObject(target.Method.Name);
     }
 
     [Serializable]
@@ -601,13 +601,13 @@ namespace IronScheme.Runtime
 
           ParameterInfo[] pis = mi.GetParameters();
 
-          form.Add(SymbolTable.StringToId(ToString()));
+          form.Add(SymbolTable.StringToObject(ToString()));
 
           foreach (ParameterInfo pi in pis)
           {
             if (pi.ParameterType != typeof(CodeContext))
             {
-              form.Add(SymbolTable.StringToId(pi.Name));
+              form.Add(SymbolTable.StringToObject(pi.Name));
             }
           }
 
@@ -902,7 +902,7 @@ namespace IronScheme.Runtime
         }
         else
         {
-          ICallable raise = OptimizedBuiltins.SymbolValue(SymbolTable.StringToId("raise")) as ICallable;
+          ICallable raise = OptimizedBuiltins.SymbolValue(SymbolTable.StringToObject("raise")) as ICallable;
           return OptimizedBuiltins.CallWithK(raise, K, except);
         }
       }

@@ -26,8 +26,10 @@ namespace Microsoft.Scripting {
 
         private static Dictionary<string, int> _idDict = new Dictionary<string, int>(InitialTableSize);
 
-        private const int InitialTableSize = 2048;
+        private const int InitialTableSize = 8192;
         private static Dictionary<int, string> _fieldDict = new Dictionary<int, string>(InitialTableSize);
+
+        private static Dictionary<SymbolId, object> _boxDict = new Dictionary<SymbolId, object>(InitialTableSize);
 
         private static int _nextCaseInsensitiveId = 1;
 
@@ -36,6 +38,26 @@ namespace Microsoft.Scripting {
         }
 
         static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public static object GetSymbol(int id)
+        {
+          object value;
+          SymbolId sid = new SymbolId(id);
+          if (_boxDict.TryGetValue(sid, out value))
+          {
+            return value;
+          }
+          else
+          {
+            return _boxDict[sid] = sid;
+          }
+        }
+
+        public static object StringToObject(string name)
+        {
+          SymbolId id = StringToId(name);
+          return GetSymbol(id.Id);
+        }
 
         public static SymbolId StringToId(string field) {
             if (field == null) {

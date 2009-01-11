@@ -17,16 +17,19 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Microsoft.Scripting.Utils {
     public static class Contract {
 
+        [Conditional("DEBUG")]
         public static void Requires(bool precondition) {
             if (!precondition) {
                 throw new ArgumentException("Method precondition violated");
             }
         }
 
+        [Conditional("DEBUG")]
         public static void Requires(bool precondition, string paramName) {
             Assert.NotEmpty(paramName);
 
@@ -35,6 +38,7 @@ namespace Microsoft.Scripting.Utils {
             }
         }
 
+        [Conditional("DEBUG")]
         public static void Requires(bool precondition, string paramName, string message) {
             Assert.NotEmpty(paramName);
 
@@ -43,6 +47,7 @@ namespace Microsoft.Scripting.Utils {
             }
         }
 
+        [Conditional("DEBUG")]
         public static void RequiresNotNull(object value, string paramName) {
             Assert.NotEmpty(paramName);
 
@@ -51,6 +56,7 @@ namespace Microsoft.Scripting.Utils {
             }
         }
 
+        [Conditional("DEBUG")]
         public static void RequiresNotEmpty(string str, string paramName) {
             RequiresNotNull(str, paramName);
             if (str.Length == 0) {
@@ -58,6 +64,7 @@ namespace Microsoft.Scripting.Utils {
             }
         }
 
+        [Conditional("DEBUG")]
         public static void RequiresNotEmpty<T>(ICollection<T> collection, string paramName) {
             RequiresNotNull(collection, paramName);
             if (collection.Count == 0) {
@@ -70,6 +77,7 @@ namespace Microsoft.Scripting.Utils {
         /// </summary>
         /// <exception cref="ArgumentNullException">Array is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Index is outside the array.</exception>
+        [Conditional("DEBUG")]
         public static void RequiresArrayIndex<T>(IList<T> array, int index, string indexName) {
             Assert.NotEmpty(indexName);
             Assert.NotNull(array);
@@ -82,6 +90,7 @@ namespace Microsoft.Scripting.Utils {
         /// </summary>
         /// <exception cref="ArgumentNullException">Array is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Index is outside the array.</exception>
+        [Conditional("DEBUG")]
         public static void RequiresArrayInsertIndex<T>(IList<T> array, int index, string indexName) {
             Assert.NotEmpty(indexName);
             Assert.NotNull(array);
@@ -94,6 +103,7 @@ namespace Microsoft.Scripting.Utils {
         /// </summary>
         /// <exception cref="ArgumentNullException">Array is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset or count are out of range.</exception>
+        [Conditional("DEBUG")]
         public static void RequiresArrayRange<T>(IList<T> array, int offset, int count, string offsetName, string countName) {
             Assert.NotEmpty(offsetName);
             Assert.NotEmpty(countName);
@@ -108,6 +118,7 @@ namespace Microsoft.Scripting.Utils {
         /// </summary>
         /// <exception cref="ArgumentNullException">String is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset or count are out of range.</exception>
+        [Conditional("DEBUG")]
         public static void RequiresArrayRange(string str, int offset, int count, string offsetName, string countName) {
             Assert.NotEmpty(offsetName);
             Assert.NotEmpty(countName);
@@ -120,6 +131,7 @@ namespace Microsoft.Scripting.Utils {
         /// <summary>
         /// Requires the array and all its items to be non-null.
         /// </summary>
+        [Conditional("DEBUG")]
         public static void RequiresNotNullItems<T>(IList<T> array, string arrayName) {
             Assert.NotNull(arrayName);
             RequiresNotNull(array, arrayName);

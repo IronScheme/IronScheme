@@ -48,6 +48,7 @@ namespace Microsoft.Scripting.Ast {
             // RuntimeHelpers.LookupName(CodeContext, name)
             cg.EmitCodeContext();
             cg.EmitSymbolId(_name);
+            cg.EmitUnbox(typeof(SymbolId));
             cg.EmitCall(typeof(RuntimeHelpers), "LookupName");
         }
     }

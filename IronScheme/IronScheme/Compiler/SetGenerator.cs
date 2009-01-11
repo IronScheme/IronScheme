@@ -55,15 +55,15 @@ namespace IronScheme.Compiler
         value = Ast.ConvertHelper(value, typeof(object));
       }
 
-      Expression r = null;
+      Statement r = null;
 
       if (v == null || cb.Parent == null)
       {
-        r = Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(s), value);
+        r = Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(s), value));
       }
       else
       {
-        r = Ast.Assign(v, value);
+        r = Ast.Write(v, value);
       }
 
       if (SpanHint != SourceSpan.Invalid || SpanHint != SourceSpan.None)
@@ -71,10 +71,10 @@ namespace IronScheme.Compiler
         r.SetLoc(SpanHint);
       }
 
-      return Ast.Comma(r, Ast.ReadField(null, Unspecified));
+      return Ast.Void(r);
     }
   }
-
+#if CPS
   [Generator("define")]
   public sealed class DefineGenerator : SimpleGenerator
   {
@@ -102,4 +102,5 @@ namespace IronScheme.Compiler
       return Ast.Comma(r, Ast.ReadField(null, Unspecified));
     }
   }
+#endif
 }

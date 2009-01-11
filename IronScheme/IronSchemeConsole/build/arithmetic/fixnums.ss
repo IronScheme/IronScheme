@@ -54,6 +54,7 @@
   (import 
     (ironscheme clr)
     (ironscheme unsafe)
+    (ironscheme integrable)
     (except (rnrs) 
       fxif
       fxcopy-bit
@@ -131,7 +132,21 @@
             #'(define (name formals ...)
                 checks ...
                 (let ()
-                  body body* ...)))])))  
+                  body body* ...)))]))) 
+                  
+  (define-syntax define-fx*
+    (lambda (x)
+      (syntax-case x ()
+        [(_ (name formals ...) body body* ...)
+          (with-syntax ((uname 
+            (datum->syntax #'name
+              (string->symbol
+                (string-append 
+                  (symbol->string (syntax->datum #'name))
+                  "*")))))
+            #'(begin
+                (define-integrable (uname formals ...) body body* ...)
+                (define-fx (name formals ...) (uname formals ...))))])))                   
                   
   (define-syntax fxabs
     (syntax-rules ()
@@ -166,7 +181,7 @@
         (make-message-condition "arithmetic overflow")
         (make-irritants-condition irritants))))
                   
-  (define-fx (fxarithmetic-shift x k)
+  (define-fx* (fxarithmetic-shift x k)
     (cond
       [($fx=? k 0) x]
       [($fx<? k 0)
@@ -177,18 +192,18 @@
             (overflow-error 'fxarithmetic-shift x k))
           i)]))
           
-  (define-fx (fxbit-count x)
+  (define-fx* (fxbit-count x)
     (if ($fx<=? x 0)
-      ($fxnot (fxbit-count ($fxnot x)))
+      ($fxnot (fxbit-count* ($fxnot x)))
       (let f ((count 0)(x x))
         (if ($fx<? 0 x)
           (f ($$fx+ count ($fxand x 1))
              ($fxarithmetic-shift-right x 1))
           count))))          
           
-  (define-fx (fxlength x)
+  (define-fx* (fxlength x)
     (if ($fx<? x 0)
-      (fxlength ($fxnot x))
+      (fxlength* ($fxnot x))
       (let f ((count 0)(x x))
         (if ($fx<? 0 x)
           (f ($$fx+ count 1) ($fxarithmetic-shift-right x 1))
@@ -278,59 +293,62 @@
   (define-fx-bitop fxand -1)
   (define-fx-bitop fxior 0)
   (define-fx-bitop fxxor 0)
-                  
-  (define-fx (fxdiv x1 x2)
+
+  (define-fx* (fxdiv x1 x2)
     (when ($fx=? 0 x2)
       (assertion-violation 'fxdiv "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (assertion-violation 'fxdiv "integer overflow" x1 x2))
+      (overflow-error 'fxdiv x1 x2))
     (cond
       [($fx=? 0 x1) 0]
-      [($fx<? 0 x1) ($fxdiv0 x1 x2)]
-      [($fx<? 0 x2) ($fxdiv0 ($$fx- x1 ($$fx- x2 1)) x2)]
+      [($fx<? 0 x1) (%%fxdiv0 x1 x2)]
+      [($fx<? 0 x2) (%%fxdiv0 ($$fx- x1 ($$fx- x2 1)) x2)]
       [else
-        ($fxdiv0 ($$fx+ x1 ($$fx+ x2 1)) x2)]))
+        (%%fxdiv0 ($$fx+ x1 ($$fx+ x2 1)) x2)]))
       
-  (define-fx (fxmod x1 x2)
-    ($$fx- x1 ($$fx* (fxdiv x1 x2) x2)))
+  (define-fx* (fxmod x1 x2)
+    ($$fx- x1 ($$fx* (fxdiv* x1 x2) x2)))
 
   (define-fx (fxmod0 x1 x2)
     (when ($fx=? 0 x2)
       (assertion-violation 'fxmod0 "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (assertion-violation 'fxmod0 "integer overflow" x1 x2))
+      (overflow-error 'fxmod0 x1 x2))
     ($fxmod0 x1 x2))
     
   (define-fx (fxdiv-and-mod x1 x2)
-    (let ((d (fxdiv x1 x2)))
+    (let ((d (fxdiv* x1 x2)))
       (values d ($$fx- x1 ($$fx* d x2))))) 
       
-  (define-fx (fxdiv0 x1 x2)
+  (define-fx* (fxdiv0 x1 x2)
     (when ($fx=? 0 x2)
       (assertion-violation 'fxdiv0 "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (assertion-violation 'fxdiv0 "integer overflow" x1 x2))
-    ($fxdiv0 x1 x2))                  
+      (overflow-error 'fxdiv0 x1 x2))
+    (%%fxdiv0 x1 x2))   
+    
+  (define-integrable (%%fxdiv0 x1 x2)
+    ($fxdiv0 x1 x2))                    
 
   (define-fx (fxdiv0-and-mod0 x1 x2)
-    (let ((d (fxdiv0 x1 x2)))
+    (let ((d (fxdiv0* x1 x2)))
       (values d ($$fx- x1 ($$fx* d x2))))) 
-      
-  (define-fx (fxpositive? r)
+
+  (define-fx* (fxpositive? r)
     ($fx<? 0 r))
     
-  (define-fx (fxnegative? r)
+  (define-fx* (fxnegative? r)
     ($fx>? 0 r))   
     
-  (define-fx (fxzero? r)
+  (define-fx* (fxzero? r)
     ($fx=? 0 r))           
-    
-  (define-fx (fxeven? n)
+
+  (define-fx* (fxeven? n)
     ($fx=? 0 ($fxand n 1)))
 
-  (define-fx (fxodd? n)
+  (define-fx* (fxodd? n)
     ($fx=? 1 ($fxand n 1)))   
-  
+
   (define (fxmax a . rest)
     (unless (fixnum? a)
       (assertion-violation 'fxmax "not a fixnum" a))
@@ -364,42 +382,43 @@
           (e (expt 2 (fixnum-width))))
       (values (mod0 s e) (div0 s e))))
   
-  (define-fx (fxif fx1 fx2 fx3)
+
+  (define-fx* (fxif fx1 fx2 fx3)
     ($fxior ($fxand fx1 fx2)
       ($fxand ($fxnot fx1) fx3)))
-     
-  (define-fx (fxcopy-bit fx1 fx2 fx3)      
-    (fxif (fxarithmetic-shift-left 1 fx2)
-      (fxarithmetic-shift-left fx3 fx2) fx1))
-        
-  (define-fx (fxbit-field fx1 fx2 fx3)
-    (fxarithmetic-shift-right 
-      ($fxand fx1 (fxnot (fxarithmetic-shift-left -1 fx3)))
+  
+  (define-fx* (fxcopy-bit fx1 fx2 fx3)      
+    (fxif* ($fxarithmetic-shift-left 1 fx2)
+      ($fxarithmetic-shift-left fx3 fx2) fx1))
+  
+  (define-fx* (fxbit-field fx1 fx2 fx3)
+    ($fxarithmetic-shift-right 
+      ($fxand fx1 ($fxnot ($fxarithmetic-shift-left -1 fx3)))
       fx2))
         
-  (define-fx (fxcopy-bit-field to start end from)
-    (fxif 
+  (define-fx* (fxcopy-bit-field to start end from)
+    (fxif* 
       ($fxand 
-        (fxarithmetic-shift-left -1 start) 
-        ($fxnot (fxarithmetic-shift-left -1 end)))
-      (fxarithmetic-shift-left from start)
+        ($fxarithmetic-shift-left -1 start) 
+        ($fxnot ($fxarithmetic-shift-left -1 end)))
+      ($fxarithmetic-shift-left from start)
       to))
-              
+        
   (define-fx (fxarithmetic-shift-left fx1 fx2)
-    (fxarithmetic-shift fx1 fx2))            
+    (fxarithmetic-shift* fx1 fx2))            
     
   (define-fx (fxarithmetic-shift-right fx1 fx2)
-    (fxarithmetic-shift fx1 ($$fx- fx2)))            
+    (fxarithmetic-shift* fx1 ($$fx- fx2)))            
           
   (define-fx (fxrotate-bit-field n start end count)
     (let ((width ($$fx- end start)))
-      (if (fxpositive? width)
-        (let ((count (fxmod count width))
-              (field (fxbit-field n start end)))
-           (fxcopy-bit-field n start end 
+      (if (fxpositive?* width)
+        (let ((count (fxmod* count width))
+              (field (fxbit-field* n start end)))
+           (fxcopy-bit-field* n start end 
             ($fxior 
-              (fxarithmetic-shift-left field count) 
-              (fxarithmetic-shift-right field ($$fx- width count)))))
+              ($fxarithmetic-shift-left field count) 
+              ($fxarithmetic-shift-right field ($$fx- width count)))))
         n)))
 
   ;; from larceny        
@@ -407,12 +426,12 @@
     (unless ($fx<=? start end)
         (assertion-violation 'fxreverse-bit-field "start must be less than end" start end))
     (do ((width ($$fx- end start) ($$fx- width 1))
-         (bits  (fxbit-field x1 start end)
+         (bits  (fxbit-field* x1 start end)
                 ($fxarithmetic-shift-right bits 1))
          (rbits 0
                 ($fxior ($fxarithmetic-shift-left rbits 1)
                        ($fxand bits 1))))
         (($fx=? width 0)
-         (fxcopy-bit-field x1 start end rbits))))
+         (fxcopy-bit-field* x1 start end rbits))))
 
 )

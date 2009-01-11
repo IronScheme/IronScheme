@@ -56,8 +56,8 @@ namespace IronScheme.Compiler
           foreach (GeneratorAttribute ga in t.GetCustomAttributes(typeof(GeneratorAttribute), false))
           {
             string name = ga.Name;
-            SymbolId s = SymbolTable.StringToId(name);
-            cc.Scope.SetName(s, g);
+            object s = SymbolTable.StringToObject(name);
+            cc.Scope.SetName((SymbolId)s, g);
           }
         }
       }

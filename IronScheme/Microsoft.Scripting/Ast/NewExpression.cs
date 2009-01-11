@@ -52,6 +52,11 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             for (int i = 0; i < _parameterInfos.Length; i++) {
                 _arguments[i].Emit(cg);
+                if (_arguments[i].Type != _parameterInfos[i].ParameterType && _arguments[i].Type.IsValueType && typeof(SymbolId) != _arguments[i].Type)
+                {
+                  cg.EmitBoxing(_arguments[i].Type);
+                }
+
             }
             cg.EmitNew(_constructor);
         }

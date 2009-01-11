@@ -104,9 +104,10 @@ namespace IronScheme.Actions
       {
         return expr;
       }
-      if (expr.Type == toType)
+      Expression expr2 = IronScheme.Compiler.Generator.Unwrap(expr);
+      if (expr2.Type == toType)
       {
-        return expr;
+        return expr2;
       }
       return Ast.ConvertHelper(expr, toType);
     }
