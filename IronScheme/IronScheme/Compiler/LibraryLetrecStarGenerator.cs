@@ -75,7 +75,7 @@ namespace IronScheme.Compiler
       // pass 1
       for (int i = 0; i < vars.Count; i++)
       {
-        if (defs[i] is Cons && Builtins.IsTrue(Builtins.IsEqual(((Cons)defs[i]).car, SymbolTable.StringToId("case-lambda"))))
+        if (defs[i] is Cons && ((Cons)defs[i]).car == SymbolTable.StringToObject("case-lambda"))
         {
           Cons cl = defs[i] as Cons;
 
@@ -148,6 +148,7 @@ namespace IronScheme.Compiler
 
             foreach (CodeBlockExpression tc in tcs.Expressions)
             {
+              //where do we clean this up??
               cdbs.Add(descriptorshack[tc]);
             }
 

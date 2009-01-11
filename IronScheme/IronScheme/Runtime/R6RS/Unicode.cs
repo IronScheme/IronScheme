@@ -139,6 +139,10 @@ namespace IronScheme.Runtime.R6RS
     public static object IsTitleCaseChar(object obj)
     {
       char c = RequiresNotNull<char>(obj);
+      if (c == 'I' || c == 'A')
+      {
+        return FALSE;
+      }
       return IsEqualValue(obj, ToTitleCaseChar(obj));
     }
 
@@ -148,36 +152,36 @@ namespace IronScheme.Runtime.R6RS
       char c = RequiresNotNull<char>(obj);
       switch (char.GetUnicodeCategory(c))
       {
-        case UnicodeCategory.ClosePunctuation:          return SymbolTable.StringToId("Pe");
-        case UnicodeCategory.ConnectorPunctuation:      return SymbolTable.StringToId("Pc");
-        case UnicodeCategory.Control:                   return SymbolTable.StringToId("Cc");
-        case UnicodeCategory.CurrencySymbol:            return SymbolTable.StringToId("Sc");
-        case UnicodeCategory.DashPunctuation:           return SymbolTable.StringToId("Pd");
-        case UnicodeCategory.DecimalDigitNumber:        return SymbolTable.StringToId("Nd");
-        case UnicodeCategory.EnclosingMark:             return SymbolTable.StringToId("Me");
-        case UnicodeCategory.FinalQuotePunctuation:     return SymbolTable.StringToId("Pf");
-        case UnicodeCategory.Format:                    return SymbolTable.StringToId("Cf");
-        case UnicodeCategory.InitialQuotePunctuation:   return SymbolTable.StringToId("Pi");
-        case UnicodeCategory.LetterNumber:              return SymbolTable.StringToId("Nl");
-        case UnicodeCategory.LineSeparator:             return SymbolTable.StringToId("Zl");
-        case UnicodeCategory.LowercaseLetter:           return SymbolTable.StringToId("Ll");
-        case UnicodeCategory.MathSymbol:                return SymbolTable.StringToId("Sm");
-        case UnicodeCategory.ModifierLetter:            return SymbolTable.StringToId("Lm");
-        case UnicodeCategory.ModifierSymbol:            return SymbolTable.StringToId("Sk");
-        case UnicodeCategory.NonSpacingMark:            return SymbolTable.StringToId("Mn");
-        case UnicodeCategory.OpenPunctuation:           return SymbolTable.StringToId("Ps");
-        case UnicodeCategory.OtherLetter:               return SymbolTable.StringToId("Lo");
-        case UnicodeCategory.OtherNotAssigned:          return SymbolTable.StringToId("Cn");
-        case UnicodeCategory.OtherNumber:               return SymbolTable.StringToId("No");
-        case UnicodeCategory.OtherPunctuation:          return SymbolTable.StringToId("Po");
-        case UnicodeCategory.OtherSymbol:               return SymbolTable.StringToId("So");
-        case UnicodeCategory.ParagraphSeparator:        return SymbolTable.StringToId("Zp");
-        case UnicodeCategory.PrivateUse:                return SymbolTable.StringToId("Co");
-        case UnicodeCategory.SpaceSeparator:            return SymbolTable.StringToId("Zs");
-        case UnicodeCategory.SpacingCombiningMark:      return SymbolTable.StringToId("Mc");
-        case UnicodeCategory.Surrogate:                 return SymbolTable.StringToId("Cs");
-        case UnicodeCategory.TitlecaseLetter:           return SymbolTable.StringToId("Lt");
-        case UnicodeCategory.UppercaseLetter:           return SymbolTable.StringToId("Lu");
+        case UnicodeCategory.ClosePunctuation:          return SymbolTable.StringToObject("Pe");
+        case UnicodeCategory.ConnectorPunctuation:      return SymbolTable.StringToObject("Pc");
+        case UnicodeCategory.Control:                   return SymbolTable.StringToObject("Cc");
+        case UnicodeCategory.CurrencySymbol:            return SymbolTable.StringToObject("Sc");
+        case UnicodeCategory.DashPunctuation:           return SymbolTable.StringToObject("Pd");
+        case UnicodeCategory.DecimalDigitNumber:        return SymbolTable.StringToObject("Nd");
+        case UnicodeCategory.EnclosingMark:             return SymbolTable.StringToObject("Me");
+        case UnicodeCategory.FinalQuotePunctuation:     return SymbolTable.StringToObject("Pf");
+        case UnicodeCategory.Format:                    return SymbolTable.StringToObject("Cf");
+        case UnicodeCategory.InitialQuotePunctuation:   return SymbolTable.StringToObject("Pi");
+        case UnicodeCategory.LetterNumber:              return SymbolTable.StringToObject("Nl");
+        case UnicodeCategory.LineSeparator:             return SymbolTable.StringToObject("Zl");
+        case UnicodeCategory.LowercaseLetter:           return SymbolTable.StringToObject("Ll");
+        case UnicodeCategory.MathSymbol:                return SymbolTable.StringToObject("Sm");
+        case UnicodeCategory.ModifierLetter:            return SymbolTable.StringToObject("Lm");
+        case UnicodeCategory.ModifierSymbol:            return SymbolTable.StringToObject("Sk");
+        case UnicodeCategory.NonSpacingMark:            return SymbolTable.StringToObject("Mn");
+        case UnicodeCategory.OpenPunctuation:           return SymbolTable.StringToObject("Ps");
+        case UnicodeCategory.OtherLetter:               return SymbolTable.StringToObject("Lo");
+        case UnicodeCategory.OtherNotAssigned:          return SymbolTable.StringToObject("Cn");
+        case UnicodeCategory.OtherNumber:               return SymbolTable.StringToObject("No");
+        case UnicodeCategory.OtherPunctuation:          return SymbolTable.StringToObject("Po");
+        case UnicodeCategory.OtherSymbol:               return SymbolTable.StringToObject("So");
+        case UnicodeCategory.ParagraphSeparator:        return SymbolTable.StringToObject("Zp");
+        case UnicodeCategory.PrivateUse:                return SymbolTable.StringToObject("Co");
+        case UnicodeCategory.SpaceSeparator:            return SymbolTable.StringToObject("Zs");
+        case UnicodeCategory.SpacingCombiningMark:      return SymbolTable.StringToObject("Mc");
+        case UnicodeCategory.Surrogate:                 return SymbolTable.StringToObject("Cs");
+        case UnicodeCategory.TitlecaseLetter:           return SymbolTable.StringToObject("Lt");
+        case UnicodeCategory.UppercaseLetter:           return SymbolTable.StringToObject("Lu");
       }
       return FALSE;
     }

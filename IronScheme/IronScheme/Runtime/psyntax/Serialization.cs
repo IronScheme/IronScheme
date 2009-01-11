@@ -36,7 +36,7 @@ namespace IronScheme.Runtime.psyntax
               }
 
               // this is to insure runtime constants can be read, long story... see psyntax/internal.ss
-              ICallable e2c = SymbolValue(SymbolTable.StringToId("expanded2core")) as ICallable;
+              ICallable e2c = SymbolValue(SymbolTable.StringToObject("expanded2core")) as ICallable;
 
 #if CPS
               return FALSE;
@@ -90,6 +90,7 @@ namespace IronScheme.Runtime.psyntax
     {
       SERIALIZER.AssemblyFormat = FormatterAssemblyStyle.Simple;
       SERIALIZER.Binder = new TypeCorrector();
+      SERIALIZER.SurrogateSelector = new Selector();
       AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
     }
 
@@ -104,6 +105,59 @@ namespace IronScheme.Runtime.psyntax
       }
       return null;
     }
+
+    sealed class Selector : SurrogateSelector
+    {
+      public override ISerializationSurrogate GetSurrogate(Type type, StreamingContext context, out ISurrogateSelector selector)
+      {
+        if (type == typeof(SymbolId))
+        {
+          selector = this;
+          return surrogate;
+        }
+        if (type == typeof(bool))
+        {
+          selector = this;
+          return surrogate2;
+        }
+        return base.GetSurrogate(type, context, out selector);
+      }
+
+      static ISerializationSurrogate surrogate = new SymbolSurrogate();
+      static ISerializationSurrogate surrogate2 = new BooleanSurrogate();
+    }
+
+    sealed class SymbolSurrogate : ISerializationSurrogate
+    {
+      public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+      {
+        SymbolId s = (SymbolId)obj;
+        info.AddValue("symbolName", SymbolTable.IdToString(s));
+      }
+
+      public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+      {
+        string value = info.GetString("symbolName");
+        int id = SymbolTable.StringToId(value).Id;
+        return SymbolTable.GetSymbol(id);
+      }
+    }
+
+    sealed class BooleanSurrogate : ISerializationSurrogate
+    {
+      public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+      {
+        bool s = (bool)obj;
+        info.AddValue("value", s);
+      }
+
+      public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+      {
+        bool value = info.GetBoolean("value");
+        return GetBool(value);
+      }
+    }
+
 
     sealed class TypeCorrector : SerializationBinder
     {
@@ -182,9 +236,11 @@ namespace IronScheme.Runtime.psyntax
       ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       visit = Context.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.CompileExpr(new Cons(visit_proc)));
+      visit.SourceUnit.Id = "visit";
       invoke = Context.LanguageContext.CompileSourceCode(IronSchemeLanguageContext.CompileExpr(new Cons(invoke_proc)));
+      invoke.SourceUnit.Id = string.Format("{0}", name);
 
-      lib = ScriptDomainManager.CurrentManager.CreateModule(string.Format("{0}", name), visit, invoke);
+      lib = ScriptDomainManager.CurrentManager.CreateModule(string.Format("{0}", name), invoke, visit);
 
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
     }

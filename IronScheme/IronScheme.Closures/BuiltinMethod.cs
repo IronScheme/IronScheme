@@ -77,7 +77,7 @@ namespace IronScheme.Runtime
         foreach (MethodBase m in methods)
         {
           List<object> form = new List<object>();
-          form.Add(SymbolTable.StringToId(ToString()));
+          form.Add(SymbolTable.StringToObject(ToString()));
 
           ParameterInfo[] pis = m.GetParameters();
 
@@ -85,7 +85,7 @@ namespace IronScheme.Runtime
           {
             if (pi.ParameterType != typeof(CodeContext))
             {
-              form.Add(SymbolTable.StringToId(pi.Name));
+              form.Add(SymbolTable.StringToObject(pi.Name));
             }
           }
 

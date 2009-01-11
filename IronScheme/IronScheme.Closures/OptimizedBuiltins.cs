@@ -77,7 +77,7 @@ namespace IronScheme.Runtime
         }
         else
         {
-          ICallable raise = SymbolValue(SymbolTable.StringToId("raise")) as ICallable; 
+          ICallable raise = SymbolValue(SymbolTable.StringToObject("raise")) as ICallable; 
           return CallWithK(raise, K, except);
         }
       }

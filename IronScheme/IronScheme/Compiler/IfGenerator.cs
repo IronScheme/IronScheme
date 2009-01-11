@@ -58,14 +58,14 @@ namespace IronScheme.Compiler
       Expression e = null;
       if (falseexp != null)
       {
-        e = GetAst(falseexp, cb);
+        e = Unwrap(GetAst(falseexp, cb));
       }
       else
       {
         e = Ast.ReadField(null, Unspecified);
       }
 
-      Expression t = GetAst(trueexp, cb);
+      Expression t = Unwrap(GetAst(trueexp, cb));
 
       if (e.Type != typeof(object) && e.Type != t.Type)
       {

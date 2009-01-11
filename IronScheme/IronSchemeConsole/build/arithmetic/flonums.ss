@@ -60,6 +60,7 @@
     fixnum->flonum)
     
   (import
+    (ironscheme integrable)
     (ironscheme unsafe) 
     (ironscheme clr)
     (except (rnrs)
@@ -129,7 +130,21 @@
             #'(define (name formals ...)
                 checks ...
                 (let ()
-                  body body* ...)))])))    
+                  body body* ...)))])))
+                  
+  (define-syntax define-fl*
+    (lambda (x)
+      (syntax-case x ()
+        [(_ (name formals ...) body body* ...)
+          (with-syntax ((uname 
+            (datum->syntax #'name
+              (string->symbol
+                (string-append 
+                  (symbol->string (syntax->datum #'name))
+                  "*")))))
+            #'(begin
+                (define-integrable (uname formals ...) body body* ...)
+                (define-fl (name formals ...) (uname formals ...))))])))                        
                   
   (define-syntax define-fl-comparer 
     (lambda (x)
@@ -195,8 +210,6 @@
       [(x1 x2 . rest)
         (unless (flonum? x1)
           (assertion-violation 'fl- "not a flonum" x1))                      
-        (unless (flonum? x1)
-          (assertion-violation 'fl- "not a flonum" x1))                      
         (fold-left fl- x1 (cons x2 rest))]))
         
   (define fl/
@@ -214,8 +227,6 @@
       [(x1 x2 . rest)
         (unless (flonum? x1)
           (assertion-violation 'fl/ "not a flonum" x1))                      
-        (unless (flonum? x1)
-          (assertion-violation 'fl/ "not a flonum" x1))                      
         (fold-left fl/ x1 (cons x2 rest))]))        
                                 
   (define-fl-comparer fl=?)
@@ -224,40 +235,40 @@
   (define-fl-comparer fl>?)
   (define-fl-comparer fl>=?) 
   
-  (define-fl (fldiv0 x1 x2)
-    (let* ((d (fldiv x1 x2))
+  (define-fl* (fldiv0 x1 x2)
+    (let* ((d (fldiv* x1 x2))
            (m ($fl- x1 ($fl* d x2))))
       (cond 
         [($fl<? m (magnitude ($fl/ x2 2.0))) d]
         [($fl<? 0.0 x2) ($fl+ d 1.0)]
         [else ($fl- d 1.0)])))
       
-  (define-fl (flmod x1 x2)
-    ($fl- x1 ($fl* (fldiv x1 x2) x2)))
+  (define-fl* (flmod x1 x2)
+    ($fl- x1 ($fl* (fldiv* x1 x2) x2)))
 
   (define-fl (flmod0 x1 x2)
-    ($fl- x1 ($fl* (fldiv0 x1 x2) x2)))
+    ($fl- x1 ($fl* (fldiv0* x1 x2) x2)))
     
   (define-fl (fldiv-and-mod x1 x2)
-    (let ((d (fldiv x1 x2)))
+    (let ((d (fldiv* x1 x2)))
       (values d ($fl- x1 ($fl* d x2))))) 
       
-  (define-fl (fldiv x1 x2)
+  (define-fl* (fldiv x1 x2)
     (if ($fl<? 0.0 x2)
-      (flfloor ($fl/ x1 x2))
-      ($fl- (flfloor ($fl/ x1 ($fl- x2))))))
+      (flfloor* ($fl/ x1 x2))
+      ($fl- (flfloor* ($fl/ x1 ($fl- x2))))))
 
   (define-fl (fldiv0-and-mod0 x1 x2)
-    (let ((d (fldiv0 x1 x2)))
+    (let ((d (fldiv0* x1 x2)))
       (values d ($fl- x1 ($fl* d x2)))))                                            
     
   (define-fl (flinteger? fl)
-    ($fl=? 0.0 (flmod fl 1.0))) 
+    ($fl=? 0.0 (flmod* fl 1.0))) 
     
   (define-fl (flfinite? fl)
-    (not (flinfinite? fl)))
+    (not (flinfinite?* fl)))
     
-  (define-fl (flinfinite? fl)
+  (define-fl* (flinfinite? fl)
     (clr-static-call system.double isinfinity fl))
     
   (define-fl (flnan? fl)
@@ -316,7 +327,7 @@
   (define-fl (flceiling fl)
     (clr-static-call system.math "ceiling(double)" fl))    
 
-  (define-fl (flfloor fl)
+  (define-fl* (flfloor fl)
     (clr-static-call system.math "floor(double)" fl))    
 
   (define-fl (fltruncate fl)
@@ -340,12 +351,12 @@
   (define-fl (fleven? n)
     (unless (integer-valued? n)
       (assertion-violation 'fleven? "not integer valued" n))
-    ($fl=? 0.0 (flmod n 2.0)))           
+    ($fl=? 0.0 (flmod* n 2.0)))           
 
   (define-fl (flodd? n)
     (unless (integer-valued? n)
       (assertion-violation 'flodd? "not integer valued" n))
-    ($fl=? 1.0 (flmod n 2.0)))      
+    ($fl=? 1.0 (flmod* n 2.0)))      
   
   (define (flmax a . rest)
     (unless (flonum? a)

@@ -103,11 +103,13 @@ namespace Microsoft.Scripting.Generation {
             cg.Emit(OpCodes.Bne_Un_S, endCheck);
             if (_local) {
                 cg.EmitSymbolId(name);
+                cg.EmitUnbox(typeof(SymbolId));
                 cg.EmitCall(typeof(RuntimeHelpers), "ThrowUnboundLocalError");
             } else {
                 cg.Emit(OpCodes.Pop);
                 cg.EmitCodeContext();
                 cg.EmitSymbolId(name);
+                cg.EmitUnbox(typeof(SymbolId));
                 cg.EmitCall(typeof(RuntimeHelpers), "LookupName");
             }
             cg.MarkLabel(endCheck);

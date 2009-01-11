@@ -31,14 +31,11 @@ namespace IronScheme.Runtime
     public static object StringSet(object obj, object k, object value)
     {
       int i = RequiresNotNull<int>(k);
+      char c = RequiresNotNull<char>(value);
       StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
       if (sb != null)
       {
-        if (value is int)
-        {
-          value = (char)(int)value;
-        }
-        sb[i] = (char)value;
+        sb[i] = c;
         return Unspecified;
       }
       return AssertionViolation("string-set!", "not a mutable string", obj);
@@ -47,10 +44,11 @@ namespace IronScheme.Runtime
     [Builtin("string-fill!")]
     public static object StringFill(object obj, object fill)
     {
+      char c = RequiresNotNull<char>(fill);
       StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
       for (int i = 0; i < sb.Length; i++)
       {
-        sb[i] = (char)fill;
+        sb[i] = c;
       }
       return Unspecified;
     }
@@ -84,10 +82,11 @@ namespace IronScheme.Runtime
     public static object MakeString(object k, object fill)
     {
       int n = RequiresNotNull<int>(k);
+      char c = RequiresNotNull<char>(fill);
       StringBuilder sb = new StringBuilder(n);
       for (int i = 0; i < n; i++)
       {
-        sb.Append(RequiresNotNull<char>(fill));
+        sb.Append(c);
       }
       return sb;
     }
@@ -95,7 +94,7 @@ namespace IronScheme.Runtime
     [Builtin("string")]
     public static object String(params object[] args)
     {
-      char[] a = Array.ConvertAll<object, char>(args, delegate(object o) { return RequiresNotNull<char>(o); });
+      char[] a = Array.ConvertAll<object, char>(args, RequiresNotNull<char>);
       return new StringBuilder(new string(a));
     }
 
@@ -131,7 +130,8 @@ namespace IronScheme.Runtime
     public static object StringCopy(object obj)
     {
       string s = RequiresNotNull<string>(obj);
-      return s.Clone() as string;
+      object ns = new string(s.ToCharArray());
+      return ns;
     }
 
     [Builtin("string?")]

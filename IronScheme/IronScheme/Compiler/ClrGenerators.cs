@@ -146,7 +146,7 @@ namespace IronScheme.Compiler
       }
       else if (t.IsValueType)
       {
-        return Ast.Convert(e, typeof(object));
+        return Ast.ConvertHelper(e, typeof(object));
       }
       else
       {
@@ -180,8 +180,15 @@ namespace IronScheme.Compiler
             {
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
-            //return Ast.ConvertHelper(e, t);
-            return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
+            if (t == typeof(double) || t == typeof(int) || t == typeof(char) || 
+              t == typeof(bool) || t == typeof(string) || t == typeof(System.IO.Stream))
+            {
+              return Ast.ConvertHelper(e, t);
+            }
+            else
+            {
+              return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
+            }
           }
     }
   }

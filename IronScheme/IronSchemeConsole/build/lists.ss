@@ -37,6 +37,7 @@
     
   (import 
     (ironscheme core)
+    (ironscheme integrable)
     (except (rnrs)
       find
       partition
@@ -62,6 +63,7 @@
       for-each
       list-tail
       list-ref))
+
       
   (define (list-tail lst index)
     (cond

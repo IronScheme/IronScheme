@@ -20,15 +20,15 @@ namespace IronScheme.Compiler
 {
   partial class Generator
   {
-    internal static readonly SymbolId quote = SymbolTable.StringToId("quote");
-    static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
-    internal static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
-    internal static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
+    internal static readonly object quote = SymbolTable.StringToObject("quote");
+    static readonly object unquote_splicing = SymbolTable.StringToObject("unquote-splicing");
+    internal static readonly object quasiquote = SymbolTable.StringToObject("quasiquote");
+    internal static readonly object unquote = SymbolTable.StringToObject("unquote");
 
     readonly static SymbolId Anonymous = SymbolTable.StringToId("anon");
 
-    internal static SymbolId define = SymbolTable.StringToId("define");
-    internal static SymbolId lambda = SymbolTable.StringToId("lambda");
-    internal static SymbolId set = SymbolTable.StringToId("set!");
+    internal static object define = SymbolTable.StringToObject("define");
+    internal static object lambda = SymbolTable.StringToObject("lambda");
+    internal static object set = SymbolTable.StringToObject("set!");
   }
 }

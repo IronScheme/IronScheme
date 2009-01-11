@@ -106,7 +106,7 @@ namespace IronScheme.Compiler
       return !(c.car is Cons) && (c.cdr == null || IsSimpleCons(c.cdr as Cons));
     }
 
-    protected readonly static Dictionary<SymbolId, bool> assigns = new Dictionary<SymbolId, bool>();
+    protected internal readonly static Dictionary<SymbolId, bool> assigns = new Dictionary<SymbolId, bool>();
 
     protected internal static Expression GetAst(object args, CodeBlock cb)
     {
@@ -444,7 +444,7 @@ namespace IronScheme.Compiler
             {
               if (result.Type.IsValueType)
               {
-                result = Ast.Convert(result, typeof(object));
+                result = Ast.ConvertHelper(result, typeof(object));
               }
 #if CPS
               Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(ICallable));
@@ -488,7 +488,7 @@ namespace IronScheme.Compiler
                       return bf.Call(cargs);
                     };
                     object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
-                      Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")),
+                      Runtime.Builtins.SymbolValue(SymbolTable.StringToObject("values")),
                       Closure.Make(null, disp));
 
                     if (!(result is Exception))
@@ -507,6 +507,11 @@ namespace IronScheme.Compiler
                     pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
                   }
                   MethodBase meth = mc.Target.Method;
+
+                  if (Array.Exists(pars, e => e.Type != typeof(object)))
+                  {
+                    ;
+                  }
 
                   return Ast.ComplexCallHelper(meth as MethodInfo, pars);
                 }
@@ -593,7 +598,7 @@ namespace IronScheme.Compiler
 
         if (ex is ConstantExpression)
         {
-          Builtins.SyntaxError(SymbolTable.StringToId("generator"), "expecting a procedure", c.car, c);
+          Builtins.SyntaxError(SymbolTable.StringToObject("generator"), "expecting a procedure", c.car, c);
         }
 
         ex = Ast.ConvertHelper(ex, typeof(ICallable));
@@ -674,11 +679,22 @@ namespace IronScheme.Compiler
 
       foreach (Variable p in cb.Parameters)
       {
+        SymbolId origname = p.Name;
         p.Name = (SymbolId) Builtins.GenSym(p.Name);
         p.Block = parent;
         p.Kind = Variable.VariableKind.Local;
         parent.AddVariable(p);
-        assigns.Add(Ast.Write(p, pp[i]));
+        Expression val = Unwrap(pp[i]);
+        if (val.Type != typeof(Boolean) && val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
+        {
+          p.Type = val.Type;
+          assigns.Add(Ast.Write(p, val));
+        }
+        else
+        {
+          assigns.Add(Ast.Write(p, pp[i]));
+        }
+          
         if (p.Lift)
         {
           parent.HasEnvironment = true;
@@ -714,12 +730,34 @@ namespace IronScheme.Compiler
       if (s is BlockStatement)
       {
         BlockStatement bs = (BlockStatement)s;
-        if (bs.Statements.Count == 1)
-        {
-          return bs.Statements[0];
-        }
+        return FlattenStatements(bs.Statements);
       }
       return s;
+    }
+
+    static Statement FlattenStatements(IEnumerable<Statement> bs)
+    {
+      List<Statement> stmts = new List<Statement>();
+      foreach (Statement o in bs)
+      {
+        if (o != null)
+        {
+          stmts.Add(o);
+        }
+      }
+
+      if (stmts.Count == 0)
+      {
+        return null;
+      }
+      else if (stmts.Count == 1)
+      {
+        return stmts[0];
+      }
+      else
+      {
+        return Ast.Block(stmts);
+      }
     }
 
     static Expression RewriteReturn(Statement statement)
@@ -741,7 +779,7 @@ namespace IronScheme.Compiler
           eb = ((ExpressionStatement)fb).Expression;
         }
 
-        return Ast.Comma(eb, RewriteReturn(last));
+        return Ast.Comma(eb, Unwrap(RewriteReturn(last)));
       }
 
       if (statement is ReturnStatement)
@@ -751,7 +789,7 @@ namespace IronScheme.Compiler
         {
           ((MethodCallExpression)e).TailCall = false;
         }
-        return e;
+        return Unwrap(e);
       }
 
       if (statement is IfStatement)
@@ -759,8 +797,14 @@ namespace IronScheme.Compiler
         IfStatement ifs = (IfStatement)statement;
 
         Debug.Assert(ifs.Tests.Count == 1);
-
-        return Ast.Condition(ifs.Tests[0].Test, RewriteReturn(ifs.Tests[0].Body), RewriteReturn(ifs.ElseStatement));
+        var a = Unwrap(RewriteReturn(ifs.Tests[0].Body));
+        var b = Unwrap(RewriteReturn(ifs.ElseStatement));
+        if (a.Type != b.Type)
+        {
+          a = Ast.ConvertHelper(a, typeof(object));
+          b = Ast.ConvertHelper(b, typeof(object));
+        }
+        return Ast.Condition(ifs.Tests[0].Test, a, b);
       }
 
       throw new ArgumentException("Unexpected");
@@ -861,7 +905,7 @@ namespace IronScheme.Compiler
 
     #endregion
 
-    protected static Expression Unwrap(Expression ex)
+    protected internal static Expression Unwrap(Expression ex)
     {
       while (ex is UnaryExpression && ((UnaryExpression)ex).NodeType == AstNodeType.Convert)
       {

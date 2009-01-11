@@ -445,6 +445,10 @@ namespace Microsoft.Scripting.Generation {
             Contract.RequiresNotNull(toType, "toType");
 
             if (fromType == toType) {
+              if (fromType == typeof(SymbolId))
+              {
+                EmitUnbox(typeof(SymbolId));
+              }
                 return true;
             }
 
@@ -463,7 +467,10 @@ namespace Microsoft.Scripting.Generation {
                 // Value -> object/interface (boxing)
                 if (fromType.IsValueType) {
                     if (toType == typeof(object)) {
+                      if (fromType != typeof(SymbolId))
+                      {
                         EmitBoxing(fromType);
+                      }
                         return true;
                     }
 
@@ -480,7 +487,8 @@ namespace Microsoft.Scripting.Generation {
                         Emit(OpCodes.Box, fromType);
                         return true;
                     }
-
+                    
+                    
                     // TODO: any other cases where we need to box?
                 }
 
@@ -578,8 +586,8 @@ namespace Microsoft.Scripting.Generation {
             if (type.IsValueType) {
                 if (type == typeof(void)) {
                     Emit(OpCodes.Ldnull);
-                //} else if (type == typeof(int)) {
-                //    EmitCall(typeof(RuntimeHelpers), "Int32ToObject");
+                } else if (type == typeof(int)) {
+                    EmitCall(typeof(RuntimeHelpers), "Int32ToObject");
                 } else if (type == typeof(bool)) {
                     EmitCall(typeof(RuntimeHelpers), "BooleanToObject");
                 } else {
@@ -1186,7 +1194,7 @@ namespace Microsoft.Scripting.Generation {
         public void EmitCall(MethodInfo mi) {
             Contract.RequiresNotNull(mi, "mi");
 
-            if (mi.IsVirtual && !mi.DeclaringType.IsValueType) {
+            if (mi.IsVirtual && !mi.DeclaringType.IsValueType && !mi.DeclaringType.IsInterface) {
                 Emit(OpCodes.Callvirt, mi);
             } else {
                 Emit(OpCodes.Call, mi);

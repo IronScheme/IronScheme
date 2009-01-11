@@ -34,6 +34,10 @@ namespace Microsoft.Scripting.Ast {
 
         public override Type Type {
             get {
+              if (_value is CompilerConstant)
+              {
+                return ((CompilerConstant)_value).Type;
+              }
                 return _type;
             }
         }

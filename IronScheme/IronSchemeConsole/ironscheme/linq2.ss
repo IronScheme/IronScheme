@@ -956,7 +956,7 @@
 
 (sum 
   (from x in (range 1000000) 
-   where (or (zero? (mod x 5)) (zero? (mod x 3))) 
+   where (or (fxzero? (fxmod x 5)) (fxzero? (fxmod x 3))) 
    select x))
    
 VS
@@ -964,10 +964,10 @@ VS
 (let ((x 1000000))
   (let s ((cur-value 1) (sum 0))
     (cond
-      ((>= cur-value x) sum)
-      ((or (zero? (mod cur-value 3)) (zero? (mod cur-value 5)))
-        (s (+ cur-value 1) (+ sum cur-value)))
-      (else (s (+ cur-value 1) sum)))))
+      ((fx>=? cur-value x) sum)
+      ((or (fxzero? (fxmod cur-value 3)) (fxzero? (fxmod cur-value 5)))
+        (s (fx+ cur-value 1) (+ sum cur-value)))
+      (else (s (fx+ cur-value 1) sum)))))
   
 
 (define env (environment '(ironscheme linq2)))

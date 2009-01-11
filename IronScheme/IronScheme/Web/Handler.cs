@@ -43,7 +43,7 @@ namespace IronScheme.Web
         {
           if (process_routes == null)
           {
-            ICallable eval = Builtins.SymbolValue(SymbolTable.StringToId("eval-r6rs")) as ICallable;
+            ICallable eval = Builtins.SymbolValue(SymbolTable.StringToObject("eval-r6rs")) as ICallable;
             StringReader r = new StringReader("(eval 'process-request (environment '(ironscheme web routing)))");
 
             process_routes = eval.Call(Builtins.Read(r)) as ICallable;

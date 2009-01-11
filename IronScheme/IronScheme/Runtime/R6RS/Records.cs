@@ -237,7 +237,7 @@ namespace IronScheme.Runtime.R6RS
         fd.name = fname;
 
         FieldAttributes fattrs = FieldAttributes.Public | FieldAttributes.InitOnly;
-        if ((bool)IsEqual(c.car, SymbolTable.StringToId("mutable")))
+        if (c.car == SymbolTable.StringToObject("mutable"))
         {
           fd.mutable = true;
           fattrs &= ~FieldAttributes.InitOnly;
@@ -365,7 +365,7 @@ namespace IronScheme.Runtime.R6RS
       // should be internal somehow
       if (parenttype.IsSubclassOf(typeof(Exception)))
       {
-        SetSymbolValue(SymbolTable.StringToId(n + "-rtd"), rtd);
+        SetSymbolValue(SymbolTable.StringToObject(n + "-rtd"), rtd);
       }
 
       rtd.Finish();
@@ -387,7 +387,7 @@ namespace IronScheme.Runtime.R6RS
       // should be internal somehow
       if (t.type.IsSubclassOf(typeof(Exception)))
       {
-        SetSymbolValue(SymbolTable.StringToId(t.name + "-rcd"), rcd);
+        SetSymbolValue(SymbolTable.StringToObject(t.name + "-rcd"), rcd);
       }
       
       return rcd;
@@ -606,7 +606,7 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordTypeName(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return SymbolTable.StringToId(r.type.Name);
+      return SymbolTable.StringToObject(r.type.Name);
     }
 
     [Builtin("record-type-parent")]
@@ -652,7 +652,7 @@ namespace IronScheme.Runtime.R6RS
 
       foreach (FieldDescriptor fd in r.fields)
       {
-        names.Add(SymbolTable.StringToId(fd.name));
+        names.Add(SymbolTable.StringToObject(fd.name));
       }
       return names.ToArray();
     }

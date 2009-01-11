@@ -308,15 +308,15 @@ namespace IronScheme.Runtime
       return GetBool(obj == EOF);
     }
 
-    static readonly SymbolId quote = SymbolTable.StringToId("quote");
-    static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
-    static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
-    static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
+    static readonly object quote = SymbolTable.StringToObject("quote");
+    static readonly object unquote_splicing = SymbolTable.StringToObject("unquote-splicing");
+    static readonly object quasiquote = SymbolTable.StringToObject("quasiquote");
+    static readonly object unquote = SymbolTable.StringToObject("unquote");
 
-    static readonly SymbolId syntax = SymbolTable.StringToId("syntax");
-    static readonly SymbolId unsyntax_splicing = SymbolTable.StringToId("unsyntax-splicing");
-    static readonly SymbolId quasisyntax = SymbolTable.StringToId("quasisyntax");
-    static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
+    static readonly object syntax = SymbolTable.StringToObject("syntax");
+    static readonly object unsyntax_splicing = SymbolTable.StringToObject("unsyntax-splicing");
+    static readonly object quasisyntax = SymbolTable.StringToObject("quasisyntax");
+    static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 
     static string ReaderFormat(Cons s, Function<object, string> Format)
     {

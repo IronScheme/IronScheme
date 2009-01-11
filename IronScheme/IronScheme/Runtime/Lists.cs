@@ -240,14 +240,22 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object Car(object args)
     {
-      Cons c = RequiresNotNull<Runtime.Cons>(args);
+      Cons c = args as Cons;
+      if (c == null)
+      {
+        AssertionViolation("car", "not a pair", args);        
+      }
       return c.car;
     }
 
     [Builtin]
     public static object Cdr(object args)
     {
-      Cons c = RequiresNotNull<Runtime.Cons>(args);
+      Cons c = args as Cons;
+      if (c == null)
+      {
+        AssertionViolation("cdr", "not a pair", args);
+      }
       return c.cdr;
     }
     
@@ -333,7 +341,7 @@ namespace IronScheme.Runtime
         }
         else
         {
-          AssertionViolation(SymbolTable.StringToId("append"), "not a list", args[i]);
+          AssertionViolation(SymbolTable.StringToObject("append"), "not a list", args[i]);
         }
         
       }

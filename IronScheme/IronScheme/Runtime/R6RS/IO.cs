@@ -28,9 +28,9 @@ namespace IronScheme.Runtime.R6RS
 {
   public class IO : Builtins
   {
-    static SymbolId bm_none = SymbolTable.StringToId("none");
-    static SymbolId bm_line = SymbolTable.StringToId("line");
-    static SymbolId bm_block = SymbolTable.StringToId("block");
+    static object bm_none = SymbolTable.StringToObject("none");
+    static object bm_line = SymbolTable.StringToObject("line");
+    static object bm_block = SymbolTable.StringToObject("block");
 
     //(buffer-mode? obj )
     [Builtin("buffer-mode?")]
@@ -39,7 +39,7 @@ namespace IronScheme.Runtime.R6RS
       if (s is SymbolId)
       {
         SymbolId bm = RequiresNotNull<SymbolId>(s);
-        return GetBool(bm == bm_none || bm == bm_line || bm == bm_block);
+        return GetBool(s == bm_none || s == bm_line || s == bm_block);
       }
       return FALSE;
     }
@@ -47,8 +47,8 @@ namespace IronScheme.Runtime.R6RS
     internal class Transcoder
     {
       public Encoding codec = Encoding.Default;
-      public SymbolId eolstyle = eol_crlf;
-      public SymbolId handlingmode = SymbolTable.StringToId("replace");
+      public object eolstyle = eol_crlf;
+      public object handlingmode = SymbolTable.StringToObject("replace");
 
       public static readonly Transcoder native;
 
@@ -85,18 +85,18 @@ namespace IronScheme.Runtime.R6RS
       return utf16;
     }
 
-    static SymbolId eol_lf = SymbolTable.StringToId("lf"); //10
-    static SymbolId eol_cr = SymbolTable.StringToId("cr"); //13
-    static SymbolId eol_crlf = SymbolTable.StringToId("crlf");
-    static SymbolId eol_nel = SymbolTable.StringToId("nel");
-    static SymbolId eol_crnel = SymbolTable.StringToId("crnel"); //194 133
-    static SymbolId eol_ls = SymbolTable.StringToId("ls"); // 226 128 168
-    static SymbolId eol_none = SymbolTable.StringToId("none");
+    static object eol_lf = SymbolTable.StringToObject("lf"); //10
+    static object eol_cr = SymbolTable.StringToObject("cr"); //13
+    static object eol_crlf = SymbolTable.StringToObject("crlf");
+    static object eol_nel = SymbolTable.StringToObject("nel");
+    static object eol_crnel = SymbolTable.StringToObject("crnel"); //194 133
+    static object eol_ls = SymbolTable.StringToObject("ls"); // 226 128 168
+    static object eol_none = SymbolTable.StringToObject("none");
 
     static string nel = "\u0085";
     static string ls = "\u2028";
 
-    static string GetNewline(SymbolId symbolId, string current)
+    static string GetNewline(object symbolId, string current)
     {
       if (symbolId == eol_none)
       {
@@ -146,13 +146,13 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("make-transcoder")]
     public static object MakeTranscoder(object codec)
     {
-      return MakeTranscoder(codec, NativeEolStyle(), SymbolTable.StringToId("replace"));
+      return MakeTranscoder(codec, NativeEolStyle(), SymbolTable.StringToObject("replace"));
     }
 
     [Builtin("make-transcoder")]
     public static object MakeTranscoder(object codec, object eolstyle)
     {
-      return MakeTranscoder(codec, eolstyle, SymbolTable.StringToId("replace"));
+      return MakeTranscoder(codec, eolstyle, SymbolTable.StringToObject("replace"));
     }
 
     [Builtin("make-transcoder")]
@@ -160,10 +160,12 @@ namespace IronScheme.Runtime.R6RS
     {
       Transcoder tc = new Transcoder();
       tc.codec = codec as Encoding;
-      tc.eolstyle = (SymbolId)eolstyle;
-      tc.handlingmode = (SymbolId)handlingmode;
+      RequiresNotNull<SymbolId>(eolstyle);
+      RequiresNotNull<SymbolId>(handlingmode);
+      tc.eolstyle = eolstyle;
+      tc.handlingmode = handlingmode;
 
-      if (tc.handlingmode == SymbolTable.StringToId("raise"))
+      if (tc.handlingmode == SymbolTable.StringToObject("raise"))
       {
         tc.codec = Encoding.GetEncoding(tc.codec.WebName, new EncCB(tc), new DecCB(tc));
       }
@@ -370,7 +372,7 @@ namespace IronScheme.Runtime.R6RS
     {
       Stream s = RequiresNotNull<Stream>(binaryport);
       Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
-      return new CustomTextReaderWriter(SymbolTable.StringToId("textual/input-output-port"), new TranscodedReader(s, tc), new TranscodedWriter(s, tc));
+      return new CustomTextReaderWriter(SymbolTable.StringToObject("textual/input-output-port"), new TranscodedReader(s, tc), new TranscodedWriter(s, tc));
     }
 
 
@@ -1337,7 +1339,14 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return FileMode.CreateNew;
+          if (File.Exists(filename) && (fo & FileOptions.NoFail) != 0)
+          {
+            return FileMode.Truncate;
+          }
+          else
+          {
+            return FileMode.CreateNew;
+          }
         }
       }
     }

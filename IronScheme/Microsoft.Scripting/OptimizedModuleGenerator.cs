@@ -389,6 +389,7 @@ namespace Microsoft.Scripting.Generation {
 
                 cg.EmitCodeContext();
                 cg.EmitSymbolId(kv.Key);
+                cg.EmitUnbox(typeof(SymbolId));
                 builtin.EmitWrapperAddr(cg);
                 cg.EmitCall(typeof(RuntimeHelpers), "InitializeModuleField");
             }

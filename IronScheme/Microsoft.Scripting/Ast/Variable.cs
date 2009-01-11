@@ -43,12 +43,20 @@ namespace Microsoft.Scripting.Ast {
         };
 
         private SymbolId _name;
+        private Expression assumedValue;
+
+        public Expression AssumedValue
+        {
+          get { return assumedValue; }
+          set { assumedValue = value; }
+        }
 
         // TODO: Maybe we don't need this!
         private CodeBlock _block;
 
         private VariableKind _kind;
-        private readonly Type _type;
+       // tough...
+        private Type _type;
         private readonly Expression _defaultValue;
 
         private int _parameter;                     // parameter index
@@ -107,6 +115,7 @@ namespace Microsoft.Scripting.Ast {
 
         public Type Type {
             get { return _type; }
+          set { _type = value; }
         }
 
         public Expression DefaultValue {

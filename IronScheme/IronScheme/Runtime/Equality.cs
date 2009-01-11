@@ -64,6 +64,38 @@ namespace IronScheme.Runtime
 
       return ex;
     }
+
+    [InlineEmitter("eq?")]
+    public static Expression Eq(Expression[] obj)
+    {
+      if (obj.Length == 2)
+      {
+        return Ast.Equal(obj[0], obj[1]);
+      }
+      return null;
+    }
+
+    delegate R Func<R>();
+    delegate R Func<T, R>(T t);
+
+    [InlineEmitter("eqv?")]
+    public static Expression Eqv(Expression[] obj)
+    {
+      if (obj.Length == 2)
+      {
+        Func<Type, bool> p = t => Unwrap(obj[0]).Type == t || Unwrap(obj[1]).Type == t;
+        bool vt = !(Unwrap(obj[0]).Type.IsValueType || Unwrap(obj[1]).Type.IsValueType);
+
+        if (p(typeof(SymbolId))
+          || p(typeof(bool))
+          || (vt && !p(typeof(object)))
+          )
+        {
+          return Ast.Equal(obj[0], obj[1]);
+        }
+      }
+      return null;
+    }
   }
 
   public partial class Builtins
@@ -90,100 +122,107 @@ namespace IronScheme.Runtime
     [Builtin("equal?")]
     public static object IsEquivalent(object first, object second)
     {
-
-      if (first == second)
+      try
       {
-        return TRUE;
-      }
 
-      if (first == null ^ second == null)
-      {
-        return FALSE;
-      }
+        if (first == second)
+        {
+          return TRUE;
+        }
 
-      bool s1 = first is SymbolId;
-      bool s2 = second is SymbolId;
-
-      bool c1 = first is Cons;
-      bool c2 = second is Cons;
-
-      if (s1 && c2 || s2 && c1)
-      {
-        return FALSE;
-      }
-
-      if (c1 && c2)
-      {
-        Cons cc1 = first as Cons;
-        Cons cc2 = second as Cons;
-        return GetBool(EqualCons(cc1, cc2));
-      }
-
-      if (first is byte[] && second is byte[])
-      {
-        byte[] f = first as byte[];
-        byte[] s = second as byte[];
-
-        if (f.Length != s.Length)
+        if (first == null ^ second == null)
         {
           return FALSE;
         }
-        else
-        {
-          for (int i = 0; i < f.Length; i++)
-          {
-            if (!Equals(f[i], s[i]))
-            {
-              return FALSE;
-            }
-          }
 
-          return TRUE;
-        }
-      }
+        bool s1 = first is SymbolId;
+        bool s2 = second is SymbolId;
 
-      if (first is object[] && second is object[])
-      {
-        object[] f = first as object[];
-        object[] s = second as object[];
+        bool c1 = first is Cons;
+        bool c2 = second is Cons;
 
-        if (f.Length != s.Length)
+        if (s1 && c2 || s2 && c1)
         {
           return FALSE;
         }
-        else
+
+        if (c1 && c2)
         {
-          for (int i = 0; i < f.Length; i++)
-          {
-            if (!IsTrue(IsEquivalent(f[i], s[i])))
-            {
-              return FALSE;
-            }
-          }
-
-          return TRUE;
+          Cons cc1 = first as Cons;
+          Cons cc2 = second as Cons;
+          return GetBool(EqualCons(cc1, cc2));
         }
+
+        if (first is byte[] && second is byte[])
+        {
+          byte[] f = first as byte[];
+          byte[] s = second as byte[];
+
+          if (f.Length != s.Length)
+          {
+            return FALSE;
+          }
+          else
+          {
+            for (int i = 0; i < f.Length; i++)
+            {
+              if (!Equals(f[i], s[i]))
+              {
+                return FALSE;
+              }
+            }
+
+            return TRUE;
+          }
+        }
+
+        if (first is object[] && second is object[])
+        {
+          object[] f = first as object[];
+          object[] s = second as object[];
+
+          if (f.Length != s.Length)
+          {
+            return FALSE;
+          }
+          else
+          {
+            for (int i = 0; i < f.Length; i++)
+            {
+              if (!IsTrue(IsEquivalent(f[i], s[i])))
+              {
+                return FALSE;
+              }
+            }
+
+            return TRUE;
+          }
+        }
+
+        Type t1 = first.GetType();
+        Type t2 = second.GetType();
+
+        if (t1.IsAssignableFrom(t2) || t2.IsAssignableFrom(t1))
+        {
+          return IsEqualValue(first, second);
+        }
+
+        if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
+        {
+          return IsSame(first, second);
+        }
+
+        string w1 = WriteFormat(first);
+        string w2 = WriteFormat(second);
+
+        bool result = w1 == w2;
+
+        return GetBool(result);
       }
-
-      Type t1 = first.GetType();
-      Type t2 = second.GetType();
-
-      if (t1.IsAssignableFrom(t2) || t2.IsAssignableFrom(t1))
+      catch (NullReferenceException)
       {
-        return IsEqualValue(first, second);
+        return FALSE;
       }
-
-      if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
-      {
-        return IsSame(first, second);
-      }
-
-      string w1 = WriteFormat(first);
-      string w2 = WriteFormat(second);
-
-      bool result = w1 == w2;
-
-      return GetBool(result);
     }
 
     [Builtin("eq?")]
@@ -194,7 +233,7 @@ namespace IronScheme.Runtime
       {
         return GetBool(Equals(first, second));
       }
- 
+
       return GetBool(ReferenceEquals(first, second));
     }
 

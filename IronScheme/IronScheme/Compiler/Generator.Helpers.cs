@@ -92,35 +92,35 @@ namespace IronScheme.Compiler
       AddGenerators(Context, typeof(Generator).Assembly);
 #if !CPS
       // HACK: clean up needed
-      SymbolId s = SymbolTable.StringToId("call-with-values");
+      object s = SymbolTable.StringToObject("call-with-values");
       BuiltinMethod cwv = new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins), "CallWithValues"));
-      cc.Scope.SetName(s, cwv);
+      cc.Scope.SetName((SymbolId)s, cwv);
 #else
 
       ICallable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
-      cc.Scope.SetName(SymbolTable.StringToId("values"), values);
+      cc.Scope.SetName(SymbolTable.StringToObject("values"), values);
 
       ICallable cpsvoid = Closure.Make(null, (CallTarget0) Builtins.Void);
-      cc.Scope.SetName(SymbolTable.StringToId("cps-void"), cpsvoid);
+      cc.Scope.SetName(SymbolTable.StringToObject("cps-void"), cpsvoid);
 
       ICallable cwv = Closure.Make(null, (CallTarget3)OptimizedBuiltins.CallWithValues);
-      cc.Scope.SetName(SymbolTable.StringToId("call-with-values"), cwv);
+      cc.Scope.SetName(SymbolTable.StringToObject("call-with-values"), cwv);
 
       ICallable dw = Closure.Make(null, (CallTarget4)OptimizedBuiltins.DynamicWind);
-      cc.Scope.SetName(SymbolTable.StringToId("dynamic-wind"), dw);
+      cc.Scope.SetName(SymbolTable.StringToObject("dynamic-wind"), dw);
 
       ICallable cwcc = Closure.Make(null, (CallTarget2)OptimizedBuiltins.CallWithCurrentContinuation);
-      cc.Scope.SetName(SymbolTable.StringToId("call-with-current-continuation"), cwcc);
-      cc.Scope.SetName(SymbolTable.StringToId("call/cc"), cwcc);
+      cc.Scope.SetName(SymbolTable.StringToObject("call-with-current-continuation"), cwcc);
+      cc.Scope.SetName(SymbolTable.StringToObject("call/cc"), cwcc);
 
       ICallable id4cps = Closure.Make(null, (CallTargetN)Builtins.Values);
-      cc.Scope.SetName(SymbolTable.StringToId("identity-for-cps"), id4cps);
+      cc.Scope.SetName(SymbolTable.StringToObject("identity-for-cps"), id4cps);
 
       Closure.IdentityForCPS = id4cps;
 
-      cc.Scope.SetName(SymbolTable.StringToId("letrec-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecIdentity));
-      cc.Scope.SetName(SymbolTable.StringToId("letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecStarIdentity));
-      cc.Scope.SetName(SymbolTable.StringToId("library-letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LibraryLetrecIdentity));
+      cc.Scope.SetName(SymbolTable.StringToObject("letrec-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecIdentity));
+      cc.Scope.SetName(SymbolTable.StringToObject("letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecStarIdentity));
+      cc.Scope.SetName(SymbolTable.StringToObject("library-letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LibraryLetrecIdentity));
 
 
 #endif
@@ -150,16 +150,16 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Flonums));
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Bitwise));
 
-      cc.Scope.SetName(SymbolTable.StringToId("uninitialized"), Uninitialized.Instance);
+      cc.Scope.SetName((SymbolId)SymbolTable.StringToObject("uninitialized"), Uninitialized.Instance);
 
 #if CPS
       
-      cc.Scope.SetName(SymbolTable.StringToId("apply"), Closure.MakeVarArgX(null, (CallTarget4) OptimizedBuiltins.Apply, 4));
+      cc.Scope.SetName(SymbolTable.StringToObject("apply"), Closure.MakeVarArgX(null, (CallTarget4) OptimizedBuiltins.Apply, 4));
 
       OptimizedBuiltins.SymbolValue = Builtins.SymbolValue;
 
 #else
-      Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToId("values")) as BuiltinMethod;
+      Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToObject("values")) as BuiltinMethod;
 #endif
       
 
@@ -224,18 +224,18 @@ namespace IronScheme.Compiler
 
       foreach (string mn in all.Keys)
       {
-        SymbolId s = SymbolTable.StringToId(mn);
+        object s = SymbolTable.StringToObject(mn);
 #if CPS
         cc.Scope.SetName(s, OptimizedBuiltins.MakeCPSCallable(new BuiltinMethod(mn, all[mn].ToArray())));
 #else
-        cc.Scope.SetName(s, new BuiltinMethod(mn, all[mn].ToArray(), foldable[mn]));
+        cc.Scope.SetName((SymbolId)s, new BuiltinMethod(mn, all[mn].ToArray(), foldable[mn]));
 #endif
       }
 
       foreach (string mn in cpsfree.Keys)
       {
-        SymbolId s = SymbolTable.StringToId(mn);
-        cc.Scope.SetName(s, new BuiltinMethod(mn, cpsfree[mn].ToArray()));
+        object s = SymbolTable.StringToObject(mn);
+        cc.Scope.SetName((SymbolId)s, new BuiltinMethod(mn, cpsfree[mn].ToArray()));
       }
 
     }
@@ -295,15 +295,15 @@ namespace IronScheme.Compiler
         , type ?? typeof(object));
     }
 
-    readonly static SymbolId list = SymbolTable.StringToId("list-prim");
-    readonly static SymbolId liststar = SymbolTable.StringToId("list*");
+    readonly static object list = SymbolTable.StringToObject("list-prim");
+    readonly static object liststar = SymbolTable.StringToObject("list*");
 
     protected static MethodInfo MakeList(Expression[] args, bool proper)
     {
       Type[] types = Array.ConvertAll<Expression, Type>(args,
         delegate(Expression e) { return e.Type.IsArray ? e.Type.GetElementType() : e.Type; });
 
-      MethodBinder listbinder = ((BuiltinMethod) Context.Scope.LookupName(proper ? list : liststar)).Binder;
+      MethodBinder listbinder = ((BuiltinMethod) Context.Scope.LookupName(((SymbolId) (proper ? list : liststar)))).Binder;
 
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
     }
@@ -416,7 +416,7 @@ namespace IronScheme.Compiler
       cb.Body = Ast.Block(stmts);
       cb.Body = OptimizeBody(cb.Body);
 
-      if (cb.Parent == null || (cb.Parent.IsGlobal && cb.ParameterCount < 6))
+      if (cb.Parent == null || (cb.Parent.IsGlobal && cb.ParameterCount < 9))
       {
         cb.ExplicitCodeContextExpression = Ast.CodeContext();
       }
@@ -432,6 +432,48 @@ namespace IronScheme.Compiler
         }
       }
       return false;
+    }
+
+    // interesting flow control... :S
+    static Expression OptimizeExpression(Expression e, List<Statement> stmts)
+    {
+      if (e is ConstantExpression)
+      {
+        return null;
+      }
+
+      if (e is BoundExpression)
+      {
+        return null;
+      }
+
+      if (e is MethodCallExpression)
+      {
+        //remove methods without side effects
+      }
+
+      if (IsUnspecified(e))
+      {
+        return null;
+      }
+
+      if (e is ConditionalExpression)
+      {
+        ConditionalExpression ce = e as ConditionalExpression;
+
+        if (IsUnspecified(ce.IfFalse))
+        {
+          stmts.Add(Ast.If(ce.Test, OptimizeBody(Ast.Statement(ce.IfTrue))));
+        }
+        else
+        {
+          stmts.Add(Ast.If(ce.Test, OptimizeBody(Ast.Statement(ce.IfTrue))).Else(OptimizeBody(Ast.Statement(ce.IfFalse))));
+        }
+
+        return null;
+      }
+
+      return e;
     }
 
 
@@ -452,60 +494,25 @@ namespace IronScheme.Compiler
           if (s is ExpressionStatement)
           {
             Expression e = (s as ExpressionStatement).Expression;
+            e = OptimizeExpression(e, newstmts);
 
-            if (e is ConstantExpression)
+            if (e == null)
             {
               continue;
             }
-
-            if (e is BoundExpression)
-            {
-              continue;
-            }
-
-            if (e is MethodCallExpression)
-            {
-              //remove methods without side effects
-            }
-
-            if (IsUnspecified(e))
-            {
-              continue;
-            }
-
-            if (e is ConditionalExpression)
-            {
-              ConditionalExpression ce = e as ConditionalExpression;
-
-              if (IsUnspecified(ce.IfFalse))
-              {
-                newstmts.Add(Ast.If(ce.Test, Ast.Statement(ce.IfTrue)));
-              }
-              else
-              {
-                newstmts.Add(Ast.If(ce.Test, Ast.Statement(ce.IfTrue)).Else(Ast.Statement(ce.IfFalse)));
-              }
-
-              continue;
-            }
-
           }
-
-          newstmts.Add(OptimizeBody(s));
-          
+          if (s != null)
+          {
+            newstmts.Add(OptimizeBody(s));
+          }
         }
 
         newstmts.Add(OptimizeBody(bs.Statements[i]));
 
-        if (newstmts.Count == 1)
-        {
-          cbbody = newstmts[0];
-        }
-        else
-        {
-          cbbody = Ast.Block(newstmts);
-        }
+        cbbody = FlattenStatements(newstmts);
       }
+
+      // NB!!! NEVER OPTIMIZE THE TAIL CALL WITH THIS
       return cbbody;
     }
 
@@ -515,7 +522,8 @@ namespace IronScheme.Compiler
       {
         if (e is MethodCallExpression)
         {
-          ((MethodCallExpression)e).TailCall = true;
+          MethodCallExpression mce = ((MethodCallExpression)e);
+          mce.TailCall = !mce.Method.ReturnType.IsValueType;
         }
         else if (e is ConditionalExpression)
         {

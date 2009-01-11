@@ -41,7 +41,7 @@ namespace IronScheme.Runtime
     public static object StringToSymbol(object obj)
     {
       string s = RequiresNotNull<string>(obj);
-      return SymbolTable.StringToId(s);
+      return SymbolTable.StringToObject(s);
     }
 
   }

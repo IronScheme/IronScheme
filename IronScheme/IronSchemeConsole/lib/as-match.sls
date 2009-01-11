@@ -1,3 +1,5 @@
+#!r6rs
+
 ;;;; match.scm -- portable hygienic pattern matcher
 ;;
 ;; This code is written by Alex Shinn and placed in the
@@ -41,7 +43,9 @@
 
 (library (as-match)
   (export match)
-  (import (rnrs))
+  (import 
+    (rnrs)
+    (rnrs mutable-pairs))
 
 (define-syntax match-syntax-error
   (syntax-rules ()

@@ -121,7 +121,7 @@ namespace Microsoft.Scripting.Ast {
         /// <param name="asType">The type to leave on top of the stack.</param>
         internal void EmitAs(CodeGen cg, Type asType) {
             this.Emit(cg);  // emit as Type
-            if (asType.IsValueType || !IsConstant(null)) {
+            if (asType.IsValueType || !IsConstant(null) && Type != typeof(SymbolId)) {
                 cg.EmitConvert(Type, asType);
             }
         }
@@ -164,6 +164,14 @@ namespace Microsoft.Scripting.Ast {
 
         public virtual Type Type {
             get { return typeof(object); }
+        }
+
+        Type inferredtype = typeof(object);
+
+        public virtual Type InferredType
+        {
+          get { return inferredtype; }
+          set { inferredtype = value; }
         }
 
 

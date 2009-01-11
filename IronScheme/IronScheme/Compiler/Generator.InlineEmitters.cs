@@ -26,9 +26,9 @@ namespace IronScheme.Compiler
           }
 
           string name = ba.Name ?? mi.Name.ToLower();
-          SymbolId s = SymbolTable.StringToId(name);
+          object s = SymbolTable.StringToObject(name);
 
-          inlineemitters[ba.Optimization][s] = Delegate.CreateDelegate(typeof(InlineEmitter), mi) as InlineEmitter;
+          inlineemitters[ba.Optimization][(SymbolId)s] = Delegate.CreateDelegate(typeof(InlineEmitter), mi) as InlineEmitter;
         }
       }
     }

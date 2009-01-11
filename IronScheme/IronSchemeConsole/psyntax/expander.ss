@@ -42,10 +42,6 @@
       bound-identifier=? datum->syntax syntax-error
       syntax-violation syntax->datum make-variable-transformer
       null-environment scheme-report-environment)
-    (rnrs base)
-    (rnrs lists)
-    (rnrs control)
-    (rnrs io simple)
     (rnrs mutable-pairs)
     (psyntax library-manager)
     (psyntax builders)
@@ -673,7 +669,7 @@
                               (rib-mark** rib) (reverse si)))))
                         (if i
                           (vector-ref (rib-label* rib) i)
-                        (search (cdr subst*) mark*))))))
+                          (search (cdr subst*) mark*))))))
                  ((find-label rib sym mark*))
                  (else
                   (let f ((sym* (rib-sym* rib))

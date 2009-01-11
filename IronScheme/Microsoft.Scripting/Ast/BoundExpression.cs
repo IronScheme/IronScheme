@@ -20,7 +20,7 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class BoundExpression : Expression {
-        private readonly Variable /*!*/ _variable;
+        private Variable /*!*/ _variable;
         private bool _defined;
 
         // Implementation detail
@@ -33,6 +33,11 @@ namespace Microsoft.Scripting.Ast {
 
         public Variable Variable {
             get { return _variable; }
+          set 
+          { 
+            _variable = value;
+            _vr = null;
+          }
         }
 
         internal VariableReference Ref {

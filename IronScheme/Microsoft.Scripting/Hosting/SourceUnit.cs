@@ -29,7 +29,7 @@ namespace Microsoft.Scripting.Hosting {
     public sealed class SourceUnit {
 
         private readonly SourceCodeKind _kind;
-        private readonly string _id;
+        private string _id;
         private readonly IScriptEngine _engine;
 
         private SourceContentProvider _contentProvider;
@@ -51,6 +51,7 @@ namespace Microsoft.Scripting.Hosting {
         /// </summary>
         public string Id {
             get { return _id; }
+          set { _id = value; }
         }
 
         public SourceCodeKind Kind {
