@@ -141,7 +141,7 @@ namespace Microsoft.Scripting.Ast {
             get { return _lift; }
           set
           {
-            Debug.Assert(!_lift);
+//            Debug.Assert(!_lift);
             _lift = value;
           }
         }
@@ -169,6 +169,9 @@ namespace Microsoft.Scripting.Ast {
                     _lift = true;
                     Block.HasEnvironment = true;
                     break;
+              case VariableKind.Temporary:
+                    _kind = VariableKind.Local;
+                    goto case VariableKind.Local;
                 default:
                     throw new InvalidOperationException(String.Format("Cannot lift variable of kind {0} to a closure ('{1}')", _kind, _name));
             }

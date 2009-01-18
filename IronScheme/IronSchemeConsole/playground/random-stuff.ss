@@ -68,6 +68,18 @@
 (bench (let ((a 10000)(b 100)) (fx* a b)))
 
 
+(let ()
+  (let* ((a (+ 1 2))
+         (b 3)
+         (c a)
+         (d (- c b)))
+    (let* ((a c)
+           (b 2)
+           (c a)
+           (d (- c b)))
+      (* a b c d))))
+
+
 
 
 

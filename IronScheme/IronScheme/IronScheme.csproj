@@ -68,6 +68,7 @@
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
+    <Compile Include="Compiler\FFICallGenerator.cs" />
     <Compile Include="Compiler\SerializedConstant.cs" />
     <Compile Include="Compiler\numberlexer.lex.cs" />
     <Compile Include="Compiler\NumberParser.y.cs" />

@@ -35,10 +35,14 @@ namespace Microsoft.Scripting.Ast {
 
         public Statement Statement {
             get { return _statement; }
+          set { _statement = value; }
         }
 
         public override void Emit(CodeGen cg) {
+          if (_statement != null)
+          {
             _statement.Emit(cg);
+          }
         }
 
 

@@ -1837,6 +1837,8 @@ namespace Microsoft.Scripting.Generation {
             return res;
         }
 
+        public static bool IsMono = typeof(ILGenerator).GetField("m_length", BindingFlags.NonPublic | BindingFlags.Instance) == null;
+
         public int Size
         {
           get { return (int)_ilg.GetType().GetField("m_length", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ilg); }

@@ -274,7 +274,7 @@ namespace IronScheme.Compiler
 
     protected static Variable Create(SymbolId sname, CodeBlock cb, Type type)
     {
-      Variable v = MakeVar(cb, sname, typeof(object));
+      Variable v = MakeVar(cb, sname, type);
       return v;
     }
 
@@ -555,9 +555,13 @@ namespace IronScheme.Compiler
         {
           ;
         }
+        else if (e is VoidExpression)
+        {
+          return Ast.Return(Ast.Comma(e, Ast.ReadField(null, Unspecified)));
+        }
         else
         {
-          ;
+
         }
       
       }

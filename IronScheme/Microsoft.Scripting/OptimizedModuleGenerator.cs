@@ -247,9 +247,24 @@ namespace Microsoft.Scripting.Generation {
         }
 
         #region Abstract overrides
+#if !DEBUG
+        static AssemblyGen runtimemethods;
+#endif
 
         protected override SlotFactory CreateSlotFactory(ScriptCode scriptCode) {
-            AssemblyGen ag = CreateModuleAssembly(scriptCode);
+            AssemblyGen ag = null;
+#if !DEBUG
+            if (scriptCode.SourceUnit.Kind == SourceCodeKind.Default)
+            {
+              if (runtimemethods == null)
+              {
+                runtimemethods = ScriptDomainManager.CurrentManager.Snippets.Assembly;
+              }
+              ag = runtimemethods;
+            }
+            else
+#endif
+              ag = CreateModuleAssembly(scriptCode);
 
             TypeGen tg = GenerateModuleGlobalsType(ag);
             StaticFieldSlotFactory factory = new StaticFieldSlotFactory(tg);

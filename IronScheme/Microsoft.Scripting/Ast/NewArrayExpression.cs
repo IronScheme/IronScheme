@@ -44,11 +44,17 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
+          var et = _type.GetElementType(); 
             cg.EmitArray(
-                _type.GetElementType(),
+                et,
                 _expressions.Count,
                 delegate(int index) {
-                    _expressions[index].Emit(cg);
+                  var ex = _expressions[index];
+                  ex.Emit(cg);
+                  if (ex.Type != et && ex.Type.IsValueType)
+                  {
+                    cg.EmitBoxing(ex.Type);
+                  }
                 }
             );
         }

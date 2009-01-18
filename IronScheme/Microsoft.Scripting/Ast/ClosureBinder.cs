@@ -124,7 +124,10 @@ namespace Microsoft.Scripting.Ast {
         }
 
         protected internal override bool Walk(CodeBlock node) {
-            Push(node);
+          node.ResetBindings();
+  
+          Push(node);
+          
             return true;
         }
         protected internal override void PostWalk(CodeBlock node) {

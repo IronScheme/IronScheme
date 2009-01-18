@@ -1419,7 +1419,30 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
           get { return _parameters.Count; }
         }
 
-      }
+
+        public void RemoveVariables(List<Variable> toremove)
+        {
+          foreach (var v in toremove)
+          {
+            _variables.Remove(v);
+            _variablesmap.Remove(v.Name);
+          }
+        }
+
+
+        internal void ResetBindings()
+        {
+          foreach (var v in Parameters)
+          {
+            v.Lift = false;
+          }
+          foreach (var v in Variables)
+          {
+            v.Lift = false;
+          }
+          HasEnvironment = false;
+        }
+    }
 
     public static partial class Ast {
         public static CodeBlock CodeBlock(string name) {
