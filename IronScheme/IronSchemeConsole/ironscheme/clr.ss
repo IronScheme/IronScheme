@@ -22,11 +22,21 @@
     clr-indexer-get
     clr-indexer-set!
     clr-new
-    clr-new-array)
+    clr-new-array
+    ffi-callout)
   (import
     (rnrs)
     (ironscheme clr helpers)
     (ironscheme clr internal))
+    
+  (define-syntax ffi-callout
+    (lambda (x)
+      (define (->string id) 
+        (symbol->string (syntax->datum id)))
+      (syntax-case x ()
+        [(_ lib name ret (args ...))
+          (with-syntax (((args ...) (map ->string #'(lib name ret args ...))))
+            #'(ffi-call-internal args ...))])))
 
   (define-syntax clr-using
     (lambda (e)

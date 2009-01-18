@@ -377,7 +377,7 @@ namespace IronScheme.Compiler
 
                     for (int i = 0; i < pppp.Length; i++)
                     {
-                      pppp[i] = Ast.ArrayIndex(Ast.Read(values), Ast.Constant(i));
+                      pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
                     }
 
                     return Ast.Comma(Ast.Void(Ast.Write(values, Ast.ComplexCallHelper(InlineCall(cb, pcbe), typeof(MultipleValues).GetMethod("ToArray")))), InlineCall(cb, ccbe, pppp));
@@ -413,7 +413,7 @@ namespace IronScheme.Compiler
 
                   for (int i = 0; i < pppp.Length; i++)
                   {
-                    pppp[i] = Ast.ArrayIndex(Ast.Read(values), Ast.Constant(i));
+                    pppp[i] = Ast.ArrayIndex(valuesarr, Ast.Constant(i));
                   }
 
                   return Ast.Comma(Ast.Void(Ast.Write(values, Ast.ComplexCallHelper(Ast.Call(exx, callx), typeof(MultipleValues).GetMethod("ToArray")))), InlineCall(cb, ccbe, pppp));

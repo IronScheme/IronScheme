@@ -21,7 +21,7 @@ namespace Microsoft.Scripting.Ast {
 
     public class IfStatement : Statement {
         private readonly ReadOnlyCollection<IfStatementTest> _tests;
-        private readonly Statement _else;
+        private Statement _else;
 
         internal IfStatement(SourceSpan span, ReadOnlyCollection<IfStatementTest> /*!*/ tests, Statement @else)
             : base(AstNodeType.IfStatement, span) {
@@ -35,6 +35,7 @@ namespace Microsoft.Scripting.Ast {
 
         public Statement ElseStatement {
             get { return _else; }
+          set { _else = value; }
         }
 
 

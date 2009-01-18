@@ -64,9 +64,10 @@ namespace IronScheme.Runtime.R6RS
 
         Records.typedescriptors[type] = this;
 
+#if DEBUG
         // this is just all wrong wrong wrong!!!
         Assembly genass = ag.DumpAndLoad();
-
+#endif
         MethodInfo ci = type.GetMethod("make");
         constructor = Closure.Make(null, Delegate.CreateDelegate(typeof(CallTargetN), ci));
 
@@ -168,7 +169,9 @@ namespace IronScheme.Runtime.R6RS
         assname = assname + "-" + Guid.NewGuid();
       }
 
-      AssemblyGen ag = new AssemblyGen(n.Replace("/", "#"), ".", n.Replace("/", "#") + ".dll", AssemblyGenAttributes.None);
+      AssemblyGen ag =
+        new AssemblyGen(n.Replace("/", "#"), ".", n.Replace("/", "#") + ".dll", AssemblyGenAttributes.None);
+
 
       bool @sealed = RequiresNotNull<bool>(issealed);
       bool opaque = RequiresNotNull<bool>(isopaque);

@@ -1127,6 +1127,7 @@
     (clr-field-get-internal                     is-clr-int)
     (clr-field-set!-internal                    is-clr-int)
     (define-clr-class-internal                  is-clr-int)
+    (ffi-call-internal                          is-clr-int)
     
     (ironscheme-build                           i)
     (stacktrace                                 i)
@@ -1471,7 +1472,7 @@
                  (else (error #f "undefined prim" x))))))))))
   (define-prims
     syntax-dispatch apply cons append map list syntax-error reverse
-    assertion-violation null? car cdr pair? bound-identifier=?
+    assertion-violation null? car cdr pair? bound-identifier=? list->vector
     generate-temporaries = + datum->syntax string->symbol void
     string-append symbol->string syntax->datum gensym length 
     open-string-output-port identifier? free-identifier=? exists
