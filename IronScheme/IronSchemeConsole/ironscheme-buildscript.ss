@@ -260,6 +260,7 @@
 (define identifier->library-map
   '(
     ;;;
+    (pointer+                                   i)
     (import                                     i) 
     (export                                     i)
     (library                                    i) 
@@ -1127,7 +1128,9 @@
     (clr-field-get-internal                     is-clr-int)
     (clr-field-set!-internal                    is-clr-int)
     (define-clr-class-internal                  is-clr-int)
-    (ffi-call-internal                          is-clr-int)
+    (ffi-callout-internal                       is-clr-int)
+    (ffi-callback-internal                      is-clr-int)
+    (pinvoke-call-internal                      is-clr-int)
     
     (ironscheme-build                           i)
     (stacktrace                                 i)

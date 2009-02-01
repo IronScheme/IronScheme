@@ -311,6 +311,11 @@ namespace IronScheme.Runtime
     [Builtin("integer?")]
     public static object IsInteger(object obj)
     {
+      //if (obj is double)
+      //{
+      //  double d = (double)obj;
+      //  return GetBool(d == Math.Round(d));
+      //}
       return GetBool(obj is int || obj is BigInteger);
     }
     
@@ -323,7 +328,7 @@ namespace IronScheme.Runtime
       }
       if (obj is Complex64)
       {
-        return GetBool(((Complex64)obj).Imag == 0);
+        return GetBool(((Complex64)obj).Imag == 0 && IsTrue(IsIntegerValued(((Complex64)obj).Real)));
       }
       if (obj is Fraction)
       {
@@ -352,6 +357,11 @@ namespace IronScheme.Runtime
 
       if (obj is Complex64)
       {
+        Complex64 c = (Complex64)obj;
+        if (c.Imag == 0)
+        {
+          return IsRationalValued(c.Real);
+        }
         return FALSE;
       }
 

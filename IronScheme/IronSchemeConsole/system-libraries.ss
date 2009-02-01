@@ -30,6 +30,8 @@
     (ironscheme docs)
     
     (ironscheme clr reflection)
+    
+    (ironscheme ffi)
 
     (ironscheme syntax-format)
     (ironscheme define-macro)

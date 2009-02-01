@@ -23,39 +23,36 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
-  [Generator("ffi-call-internal")]
-  public sealed class FFICallGenerator : SimpleGenerator
+  public abstract class FFIGenerator : SimpleGenerator
   {
-    static string Unquote(object o)
+    protected static string Unquote(object o)
     {
       Cons c = o as Cons;
       c = c.cdr as Cons;
       return c.car as string;
     }
 
-    //(import (ironscheme clr))
-    //(define malloc (ffi-callout msvcrt malloc void* (uint32)))
-    public override Expression Generate(object args, CodeBlock cb)
+    protected static MethodInfo ConvertTo = typeof(Helpers).GetMethod("FFIConvertTo");
+    protected static MethodInfo ConvertFrom = typeof(Helpers).GetMethod("FFIConvertFrom");
+    protected static MethodInfo FFIDelegate = typeof(Helpers).GetMethod("FFIDelegate");
+    protected static MethodInfo FFIFunctionPointer = typeof(Helpers).GetMethod("FFIFunctionPointer");
+
+    protected static Expression MakeConvertTo(Expression expr, Type t)
     {
-      Cons c = args as Cons;
-      string lib = Unquote(c.car);
-      c = c.cdr as Cons;
-      string proc = Unquote(c.car);
-      c = c.cdr as Cons;
-      Type returntype = GetFFIType(Unquote(c.car));
-      c = c.cdr as Cons;
+      return Ast.Call(ConvertTo.MakeGenericMethod(t), expr);
+    }
 
-      List<Type> paramtypes = new List<Type>();
+    protected static Expression MakeConvertFrom(Expression expr, Type t)
+    {
+      return Ast.Call(ConvertFrom.MakeGenericMethod(t), expr);
+    }
 
-      while (c != null)
-      {
-        paramtypes.Add(GetFFIType(Unquote(c.car)));
-        c = c.cdr as Cons;
-      }
+    protected delegate Expression PInvokeHandler(Expression[] args);
 
-      MethodInfo m = MakePInvokeStub(lib, proc,  returntype, paramtypes.ToArray());
-
+    protected static CodeBlock GenerateInvoke(string proc, PInvokeHandler pinvokecall, Type returntype, List<Type> paramtypes, CodeBlock cb)
+    {
       CodeBlock call = Ast.CodeBlock(proc);
+      call.Parent = cb;
 
       int count = 0;
 
@@ -87,7 +84,7 @@ namespace IronScheme.Compiler
 
       for (int i = 0; i < count; i++)
       {
-        var s = Ast.Write(vars[i], Ast.ConvertHelper(Ast.Read(pars[i]), paramtypes[i]));
+        var s = Ast.Write(vars[i], MakeConvertTo(Ast.Read(pars[i]), paramtypes[i]));
         stmts.Add(s);
       }
 
@@ -98,7 +95,7 @@ namespace IronScheme.Compiler
         arguments[i] = Ast.Read(vars[i]);
       }
 
-      var fficall = Ast.Call(m, arguments);
+      var fficall = pinvokecall(arguments);
 
       if (ret == null)
       {
@@ -108,15 +105,61 @@ namespace IronScheme.Compiler
       else
       {
         stmts.Add(Ast.Write(ret, fficall));
-        stmts.Add(Ast.Return(Ast.ConvertHelper(Ast.Read(ret), typeof(object))));
+        stmts.Add(Ast.Return(MakeConvertFrom(Ast.Read(ret), returntype)));
       }
 
       call.Body = Ast.Block(stmts);
 
-      return Ast.Call(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(call, false));
+      return call;
     }
 
-    private Type GetFFIType(string p)
+    protected static CodeBlock GenerateCallback(string proc, PInvokeHandler pinvokecall, Type returntype, List<Type> paramtypes, CodeBlock cb)
+    {
+      CodeBlock call = Ast.CodeBlock(proc, returntype);
+      call.Parent = cb;
+
+      int count = 0;
+
+      List<Variable> pars = new List<Variable>();
+
+      foreach (Type t in paramtypes)
+      {
+        var name = SymbolTable.StringToId("arg" + count++);
+        Variable var = Variable.Parameter(call, name, t);
+        call.AddParameter(var);
+
+        pars.Add(var);
+      }
+
+      Variable ret = returntype == typeof(void) ? null : Create(SymbolTable.StringToId("ret"), call, typeof(object));
+
+      List<Statement> stmts = new List<Statement>();
+
+      Expression[] arguments = new Expression[pars.Count];
+
+      for (int i = 0; i < pars.Count; i++)
+      {
+        arguments[i] = MakeConvertFrom(Ast.Read(pars[i]), paramtypes[i]);
+      }
+
+      var fficall = pinvokecall(arguments);
+
+      if (ret == null)
+      {
+        stmts.Add(Ast.Statement(fficall));
+      }
+      else
+      {
+        stmts.Add(Ast.Write(ret, fficall));
+        stmts.Add(Ast.Return(MakeConvertTo(Ast.Read(ret), returntype)));
+      }
+
+      call.Body = Ast.Block(stmts);
+
+      return call;
+    }
+
+    protected Type GetFFIType(string p)
     {
       switch (p)
       {
@@ -147,12 +190,181 @@ namespace IronScheme.Compiler
           return typeof(float);
         case "float64":
           return typeof(double);
+        case "string":
+        case "char*":
+          return typeof(string);
         default:
           Builtins.SyntaxError("GetFFIType", "unknown ffi type", p, p);
           return typeof(void);
       }
     }
 
+    protected static Type MakeDelegateType(Type returntype, List<Type> paramtypes)
+    {
+      AssemblyName asmName = new AssemblyName("delegate-maker");
+      AssemblyBuilder dynamicAsm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave);
+      ModuleBuilder dynamicMod = dynamicAsm.DefineDynamicModule("delegate-maker", "delegate-maker.dll" );
+
+      TypeBuilder tb = dynamicMod.DefineType("delegate-maker", TypeAttributes.Public | TypeAttributes.Sealed, typeof(MulticastDelegate));
+
+      tb.DefineConstructor(MethodAttributes.RTSpecialName | MethodAttributes.SpecialName | MethodAttributes.Public | MethodAttributes.HideBySig, CallingConventions.Standard,
+        new Type[] { typeof(object), typeof(IntPtr) }).SetImplementationFlags(MethodImplAttributes.Runtime);
+
+      var inv = tb.DefineMethod("Invoke", MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.NewSlot | MethodAttributes.HideBySig
+       , CallingConventions.Standard ,returntype,null, new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl)}, paramtypes.ToArray(), null, null);
+
+      inv.SetImplementationFlags(MethodImplAttributes.Runtime);
+      
+      //inv.SetCustomAttribute(new CustomAttributeBuilder(typeof(UnmanagedFunctionPointerAttribute).GetConstructors()[0], new object[] { CallingConvention.Cdecl }));
+      var t = tb.CreateType();
+
+      dynamicAsm.Save("delegate-maker.dll");
+
+      return t;
+
+    }
+  }
+
+  [Generator("ffi-callback-internal")]
+  public sealed class FFICallbackGenerator : FFIGenerator
+  {
+    //(import (ironscheme clr))
+    //(define f (ffi-callback int32 (void* uint16)))
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      Cons c = args as Cons;
+      Type returntype = GetFFIType(Unquote(c.car));
+      c = c.cdr as Cons;
+
+      List<Type> paramtypes = new List<Type>();
+
+      while (c != null)
+      {
+        paramtypes.Add(GetFFIType(Unquote(c.car)));
+        c = c.cdr as Cons;
+      }
+
+      CodeBlock outer = Ast.CodeBlock("outer");
+      outer.Parent = cb;
+
+      Variable proc = Variable.Parameter(outer, SymbolTable.StringToId("proc"), typeof(object));
+      outer.AddParameter(proc);
+
+      Type sig = MakeDelegateType(returntype, paramtypes);
+
+      CodeBlock inner = GenerateCallback("ffi-callback",
+        a => MakeCallBack(proc, a),
+        returntype,
+        paramtypes,
+        outer);
+
+      var del = Ast.CodeBlockReference(inner, sig);
+
+      outer.Body = Ast.Block(
+        Ast.Statement(MakeClosure(inner, false)),
+        Ast.Return(Ast.Call(FFIFunctionPointer, Ast.Constant(sig), del, Ast.CodeContext())));
+
+      return MakeClosure(outer, false);
+    }
+
+    static Expression MakeCallBack(Variable proc, Expression[] a)
+    {
+      var procr = Ast.ConvertHelper(Ast.Read(proc), typeof(ICallable));
+      MethodInfo call = GetCallable(a.Length);
+      var expr = Ast.Call(procr, call, a);
+      return expr;
+    }
+
+
+  }
+
+  [Generator("ffi-callout-internal")]
+  public sealed class FFICalloutGenerator : FFIGenerator
+  {
+    //(import (ironscheme clr))
+    //(define f (ffi-callout int32 (void* uint16)))
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      Cons c = args as Cons;
+      Type returntype = GetFFIType(Unquote(c.car));
+      c = c.cdr as Cons;
+
+      List<Type> paramtypes = new List<Type>();
+
+      while (c != null)
+      {
+        paramtypes.Add(GetFFIType(Unquote(c.car)));
+        c = c.cdr as Cons;
+      }
+
+      CodeBlock outer = Ast.CodeBlock("outer");
+      outer.Parent = cb;
+
+      Variable ptr = Variable.Parameter(outer, SymbolTable.StringToId("ptr"), typeof(object));
+      outer.AddParameter(ptr);
+
+      CodeBlock inner = GenerateInvoke("ffi-callout",
+        a => MakePointerCall(ptr, returntype, paramtypes, a),
+        returntype,
+        paramtypes,
+        outer);
+
+      outer.Body = Ast.Return(MakeClosure(inner, false));
+
+      return MakeClosure(outer, false);
+    }
+
+    static Expression MakePointerCall(Variable ptr, Type returntype, List<Type> paramtypes, Expression[] a)
+    {
+      Type sig = MakeDelegateType(returntype, paramtypes);
+      var gm = FFIDelegate.MakeGenericMethod(sig);
+      var expr = Ast.Call(gm, MakeConvertTo(Ast.Read(ptr), typeof(IntPtr)));
+      return Ast.Call(expr, sig.GetMethod("Invoke"), a);
+    }
+  }
+
+  [Generator("pinvoke-call-internal")]
+  public sealed class PInvokeCallGenerator : FFIGenerator
+  {
+    //(import (ironscheme clr))
+    //(define malloc (ffi-callout msvcrt malloc void* (uint32)))
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      Cons c = args as Cons;
+      string lib = Unquote(c.car);
+      c = c.cdr as Cons;
+      string proc = Unquote(c.car);
+      c = c.cdr as Cons;
+      Type returntype = GetFFIType(Unquote(c.car));
+      c = c.cdr as Cons;
+
+      List<Type> paramtypes = new List<Type>();
+
+      while (c != null)
+      {
+        paramtypes.Add(GetFFIType(Unquote(c.car)));
+        c = c.cdr as Cons;
+      }
+
+      CodeBlock call = GenerateInvoke(proc,
+        a => PInvokeCall(lib, proc, returntype, paramtypes, a), 
+        returntype, 
+        paramtypes, 
+        cb);
+
+      return Ast.Call(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(call, false));
+  
+    }
+
+    static MethodCallExpression PInvokeCall(string lib, string proc, Type returntype, List<Type> paramtypes, Expression[] arguments)
+    {
+      MethodInfo m = MakePInvokeStub(lib, proc, returntype, paramtypes.ToArray());
+
+      var fficall = Ast.Call(m, arguments);
+      return fficall;
+    }
+
+ 
     public static MethodInfo MakePInvokeStub(string DllPath, string EntryPoint, Type returnType, Type[] parameterTypes)
     {
       AssemblyName asmName = new AssemblyName(DllPath + "-" + EntryPoint);
@@ -173,6 +385,14 @@ namespace IronScheme.Compiler
       //dynamicAsm.Save(DllPath + "-" + EntryPoint + ".dll", PortableExecutableKinds.ILOnly, ImageFileMachine.I386);
 
       MethodInfo mi = t.GetMethod(EntryPoint);
+      try
+      {
+        Marshal.Prelink(mi);
+      }
+      catch (Exception ex)
+      {
+        Builtins.AssertionViolation("MakePInvokeStub", ex.Message, DllPath, EntryPoint);
+      }
       return mi;
     }
   }

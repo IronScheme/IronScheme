@@ -210,7 +210,6 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\ironscheme"
 	File /r ironscheme\*.ss
-	;File /r ironscheme\*.fasl
 	
 	SetOutPath "$INSTDIR\lib"
 	File /r lib\*.ss
