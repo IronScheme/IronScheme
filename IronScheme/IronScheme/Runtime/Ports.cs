@@ -583,6 +583,12 @@ namespace IronScheme.Runtime
         return string.Join("\n", Array.ConvertAll<object, string>(values, DisplayFormat));
       }
 
+      if (obj is IntPtr)
+      {
+        IntPtr p = (IntPtr)obj;
+        return string.Format("#<pointer #x{0:X8}>", p.ToInt32());
+      }
+
       return obj.ToString();
     }
 
@@ -764,6 +770,12 @@ namespace IronScheme.Runtime
       {
         object[] values = ((MultipleValues)obj).ToArray();
         return string.Join("\n", Array.ConvertAll<object, string>(values, WriteFormat));
+      }
+
+      if (obj is IntPtr)
+      {
+        IntPtr p = (IntPtr)obj;
+        return string.Format("#<pointer #x{0:X8}>", p.ToInt32());
       }
 
       return obj.ToString();

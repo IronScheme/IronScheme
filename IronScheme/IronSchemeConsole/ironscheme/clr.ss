@@ -23,7 +23,9 @@
     clr-indexer-set!
     clr-new
     clr-new-array
-    ffi-callout)
+    ffi-callout
+    ffi-callback
+    pinvoke-call)
   (import
     (rnrs)
     (ironscheme clr helpers)
@@ -34,9 +36,28 @@
       (define (->string id) 
         (symbol->string (syntax->datum id)))
       (syntax-case x ()
-        [(_ lib name ret (args ...))
-          (with-syntax (((args ...) (map ->string #'(lib name ret args ...))))
-            #'(ffi-call-internal args ...))])))
+        [(_ ret (args ...))
+          (with-syntax (((args ...) (map ->string #'(ret args ...))))
+            #'(ffi-callout-internal args ...))])))
+            
+  (define-syntax ffi-callback
+    (lambda (x)
+      (define (->string id) 
+        (symbol->string (syntax->datum id)))
+      (syntax-case x ()
+        [(_ ret (args ...))
+          (with-syntax (((args ...) (map ->string #'(ret args ...))))
+            #'(ffi-callback-internal args ...))])))            
+            
+  (define-syntax pinvoke-call
+    (lambda (x)
+      (define (->string id) 
+        (symbol->string (syntax->datum id)))
+      (syntax-case x ()
+        [(_ lib proc ret (args ...))
+          (with-syntax (((args ...) (map ->string #'(lib proc ret args ...))))
+            #'(pinvoke-call-internal args ...))])))
+            
 
   (define-syntax clr-using
     (lambda (e)

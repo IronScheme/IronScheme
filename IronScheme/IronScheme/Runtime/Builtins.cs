@@ -611,6 +611,15 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return new Cons(a, new Cons(b, new Cons(c , d)));
     }
 
+    [Builtin("pointer+")]
+    public static object PointerAdd(object ptr, object ofs)
+    {
+      IntPtr p = RequiresNotNull<IntPtr>(ptr);
+      int o = RequiresNotNull<int>(ofs);
+
+      return (IntPtr)((long)p + o);
+    }
+
     [Builtin("remove-location")]
     public static object RemoveLocation(object symbol)
     {

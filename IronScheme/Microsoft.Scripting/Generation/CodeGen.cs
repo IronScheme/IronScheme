@@ -1265,7 +1265,14 @@ namespace Microsoft.Scripting.Generation {
             if (delegateFunction.MethodInfo is DynamicMethod || delegateFunction.ConstantPool.IsBound) {
                 Delegate d = delegateFunction.CreateDelegate(delegateType);
                 this.ConstantPool.AddData(d).EmitGet(this);
-            } else {
+            }
+            //else if (delegateFunction.HasContext)
+            //{
+                
+            //    Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
+            //    Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
+            //} 
+            else {
                 EmitNull();
                 Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
                 Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));

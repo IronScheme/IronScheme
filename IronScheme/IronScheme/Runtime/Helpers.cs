@@ -6,6 +6,8 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Scripting;
 using System.Diagnostics;
+using Microsoft.Scripting.Math;
+using System.Runtime.InteropServices;
 
 namespace IronScheme.Runtime
 {
@@ -31,6 +33,117 @@ namespace IronScheme.Runtime
       }
 
       return c;
+    }
+
+    public static T FFIConvertTo<T>(object obj)
+    {
+      var objtype = obj == null ? typeof(IntPtr) : obj.GetType();
+
+      if (objtype == typeof(T))
+      {
+        if (obj == null)
+        {
+          return (T)(object)IntPtr.Zero;
+        }
+        return (T)obj;
+      }
+
+      var tc = Type.GetTypeCode(typeof(T));
+
+      switch (tc)
+      {
+        case TypeCode.Int32:
+          return (T)(object)Convert.ToInt32(obj);
+        case TypeCode.UInt32:
+          return (T)(object)Convert.ToUInt32(obj);
+        case TypeCode.Int64:
+          return (T)(object)Convert.ToInt64(obj);
+        case TypeCode.UInt64:
+          return (T)(object)Convert.ToUInt64(obj);
+        case TypeCode.Int16:
+          return (T)(object)Convert.ToInt16(obj);
+        case TypeCode.UInt16:
+          return (T)(object)Convert.ToUInt16(obj);
+        case TypeCode.Byte:
+          return (T)(object)Convert.ToByte(obj);
+        case TypeCode.SByte:
+          return (T)(object)Convert.ToSByte(obj);
+        case TypeCode.Single:
+          return (T)(object)Convert.ToSingle(obj);
+        case TypeCode.Double:
+          return (T)(object)Convert.ToDouble(obj);
+        default:
+          if (typeof(T) == typeof(IntPtr))
+          {
+            return (T)(object) new IntPtr(Convert.ToInt32(obj));
+          }
+          return (T)Builtins.AssertionViolation("FFIConvertTo", "not a known ffi type", obj, objtype);
+      }
+    }
+
+    static BigInteger GetValue(object v)
+    {
+      if (v is uint)
+      {
+        return (uint)v;
+      }
+      if (v is long)
+      {
+        return (long)v;
+      }
+      else
+      {
+        return (ulong)v;
+      }
+    }
+
+    public static object FFIConvertFrom<T>(T value)
+    {
+      var tc = Type.GetTypeCode(typeof(T));
+
+      switch (tc)
+      {
+        case TypeCode.Int32:
+        case TypeCode.Double:
+          return value;
+        case TypeCode.UInt32:
+        case TypeCode.Int64:
+        case TypeCode.UInt64:
+          return Builtins.ToIntegerIfPossible(GetValue(value));
+        case TypeCode.Int16:
+        case TypeCode.UInt16:
+        case TypeCode.Byte:
+        case TypeCode.SByte:
+          return Convert.ToInt32(value);
+        case TypeCode.Single:
+          return Convert.ToDouble(value);
+        case TypeCode.String:
+          return Convert.ToString(value);
+
+        default:
+          if (typeof(T) == typeof(IntPtr) ||
+            typeof(T) == typeof(UIntPtr))
+          {
+            return value;
+          }
+          return Builtins.AssertionViolation("FFIConvertTo", "not a known ffi type", value, typeof(T));
+      }
+    }
+
+    public static T FFIDelegate<T>(IntPtr ptr) where T : class
+    {
+      if (ptr == IntPtr.Zero)
+      {
+        Builtins.AssertionViolation("FFIDelegate", "pointer cannot be null", ptr);
+      }
+      var del = Marshal.GetDelegateForFunctionPointer(ptr, typeof(T));
+      return (T)(object)del;
+    }
+
+    public static IntPtr FFIFunctionPointer(Type sig, Delegate del, CodeContext context)
+    {
+      del = Delegate.CreateDelegate(sig, context, del.Method);
+      return Marshal.GetFunctionPointerForDelegate(del);
     }
 
     public static object EnumToSymbol<T>(T value)

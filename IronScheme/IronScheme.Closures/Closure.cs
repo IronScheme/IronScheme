@@ -193,6 +193,10 @@ namespace IronScheme.Runtime
     {
       foreach (ParameterInfo pi in mi.GetParameters())
       {
+        if (pi.ParameterType == typeof(CodeContext))
+        {
+          return false;
+        }
         if (pi.ParameterType.IsArray && !pi.IsDefined(typeof(ParamArrayAttribute), false))
         {
           return false;
@@ -203,7 +207,7 @@ namespace IronScheme.Runtime
 
     protected static bool IsValid(MethodInfo mi)
     {
-      return mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi) 
+      return mi.IsPublic && mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi) 
 #if DEBUG
         && mi.Module.Name != "<In Memory Module>"
 #endif
