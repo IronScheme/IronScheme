@@ -305,18 +305,76 @@ namespace IronScheme.Runtime
     [Builtin("rational?")]
     public static object IsRational(object obj)
     {
-      return GetBool(IsTrue(IsInteger(obj)) || obj is Fraction);
+      if (IsTrue(IsInteger(obj)) || obj is Fraction)
+      {
+        return TRUE;
+      }
+
+      if (obj is double)
+      {
+        return IsRational(RealToExact(obj));
+      }
+
+      return FALSE;
     }
 
     [Builtin("integer?")]
     public static object IsInteger(object obj)
     {
-      //if (obj is double)
-      //{
-      //  double d = (double)obj;
-      //  return GetBool(d == Math.Round(d));
-      //}
-      return GetBool(obj is int || obj is BigInteger);
+      if (obj is int || obj is BigInteger)
+      {
+        return TRUE;
+      }
+
+      if (obj is Fraction)
+      {
+        return GetBool(((Fraction)obj).Denominator == 1);
+      }
+
+      if (obj is double)
+      {
+        return IsInteger(RealToExact(obj));
+      }
+
+      return FALSE;
+    }
+
+    static object RealToExact(object obj)
+    {
+      double d = (double)obj;
+
+      if (double.IsNaN(d) || double.IsInfinity(d))
+      {
+        return FALSE;
+      }
+      try
+      {
+        Fraction f = (Fraction)d;
+        if (f.Denominator == 1)
+        {
+          if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
+          {
+            return (BigInteger)f.Numerator;
+          }
+          return (int)f.Numerator;
+        }
+        return f;
+      }
+      catch (DivideByZeroException)
+      {
+        // fall back to bigint
+      }
+      catch (OverflowException)
+      {
+        // fall back to bigint
+      }
+      BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(Round(obj));
+      int ir;
+      if (r.AsInt32(out ir))
+      {
+        return ir;
+      }
+      return r;
     }
     
     [Builtin("integer-valued?")]
@@ -368,6 +426,10 @@ namespace IronScheme.Runtime
       if (IsTrue(IsNumber(obj)))
       {
         double d = SafeConvert(obj);
+        if (double.IsNaN(d) || double.IsInfinity(d))
+        {
+          return FALSE;
+        }
         return GetBool(d == (double)(Fraction)d);
       }
       return FALSE;
@@ -516,7 +578,7 @@ namespace IronScheme.Runtime
     {
       if (IsTrue(IsNumber(obj)))
       {
-        return IsRational(obj);
+        return GetBool(obj is int || obj is BigInteger || obj is Fraction);
       }
       return AssertionViolation("exact?", "not a number", obj);
     }
@@ -526,7 +588,7 @@ namespace IronScheme.Runtime
     {
       if (IsTrue(IsNumber(obj)))
       {
-        return Not(IsRational(obj));
+        return GetBool(!(obj is int || obj is BigInteger || obj is Fraction));
       }
       return AssertionViolation("inexact?", "not a number", obj);
     }
@@ -1029,6 +1091,10 @@ namespace IronScheme.Runtime
       if (o is Fraction)
       {
         return (Fraction)o;
+      }
+      if (o is BigInteger)
+      {
+        return new Fraction((BigInteger)o, 1);
       }
       return (Fraction)FractionConverter.ConvertFrom(o);
     }
@@ -1576,7 +1642,7 @@ namespace IronScheme.Runtime
       {
         return obj;
       }
-      if (IsTrue(IsRational(obj)))
+      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
       {
         Fraction f = ConvertToRational(obj);
         BigInteger c = f.Numerator / f.Denominator;
@@ -1604,7 +1670,7 @@ namespace IronScheme.Runtime
       {
         return obj;
       }
-      if (IsTrue(IsRational(obj)))
+      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
       {
         Fraction f = ConvertToRational(obj);
         BigInteger c = f.Numerator / f.Denominator;
@@ -1632,12 +1698,6 @@ namespace IronScheme.Runtime
       {
         return obj;
       }
-      if (IsTrue(IsRational(obj)))
-      {
-        Fraction f = ConvertToRational(obj);
-        BigInteger c = f.Numerator / f.Denominator;
-        return ToIntegerIfPossible(c);
-      }
       object res = MathHelper(Math.Truncate, obj);
       if (IsTrue(IsExact(obj)))
       {
@@ -1656,7 +1716,7 @@ namespace IronScheme.Runtime
       {
         return obj;
       }
-      if (IsTrue(IsRational(obj)))
+      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
       {
         Fraction f = ConvertToRational(obj);
         BigInteger c = f.Numerator / f.Denominator;

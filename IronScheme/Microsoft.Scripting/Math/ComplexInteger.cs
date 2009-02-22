@@ -22,6 +22,7 @@ namespace Microsoft.Scripting.Math {
     /// <summary>
     /// Implementation of the complex number data type.
     /// </summary>
+  [Serializable]
     public struct ComplexInteger {
         private readonly int real, imag;
 
