@@ -14,9 +14,115 @@ using System;
 using System.Globalization;
 using Microsoft.Scripting.Math;
 
+namespace System.Runtime.CompilerServices
+{
+  public class ExtensionAttribute : Attribute
+  {
+  }
+}
+
 
 namespace IronScheme.Runtime
 {
+  static class DoubleExtensions
+  {
+    const long MANTISSA_MASK = (long)(ulong.MaxValue >> (64 - 52));
+    const long EXPONENT_MASK = (long)(ulong.MaxValue >> (64 - 11));
+    const long SIGN_MASK = 0x1;
+
+    public static long GetMantissa(this double d)
+    {
+      var r = BitConverter.DoubleToInt64Bits(d);
+      return GetMantissa(r);
+    }
+
+    static long GetMantissa(long r)
+    {
+      return r & MANTISSA_MASK;
+    }
+
+    public static int GetExponent(this double d)
+    {
+      var r = BitConverter.DoubleToInt64Bits(d);
+      return GetExponent(r);
+    }
+
+    static int GetExponent(long r)
+    {
+      r >>= 52;
+      return (int)(r & EXPONENT_MASK);
+    }
+
+    public static int GetSign(this double d)
+    {
+      var r = BitConverter.DoubleToInt64Bits(d);
+      return GetSign(r);
+    }
+
+    static int GetSign(long r)
+    {
+      r >>= 63;
+      return (int)(r & SIGN_MASK);
+    }
+
+    readonly static BigInteger MANTISSA = (ulong.MaxValue >> (64 - 52)) + 1;
+
+    public static bool GetComponents(this double d, out BigInteger numerator, out BigInteger denominator)
+    {
+      if (double.IsNaN(d))
+      {
+        numerator = denominator = 0;
+        return false;
+      }
+
+      if (double.IsNegativeInfinity(d))
+      {
+        numerator = -1;
+        denominator = 0;
+        return false;
+      }
+
+      if (double.IsPositiveInfinity(d))
+      {
+        numerator = 1;
+        denominator = 0;
+        return false;
+      }
+
+      if (d == 0.0)
+      {
+        numerator = 0;
+        denominator = 1;
+        return true;
+      }
+
+      var r = BitConverter.DoubleToInt64Bits(d);
+
+      var m = GetMantissa(r);
+      var e = GetExponent(r);
+      var s = GetSign(r) == 0 ? 1 : -1;
+
+      const int BIAS = 1023;
+      var re = e - BIAS;
+
+      var exp = (((BigInteger)1) << Math.Abs(re));
+
+      if (re < 0)
+      {
+        denominator = MANTISSA * s * exp;
+        numerator = (MANTISSA + m);
+      }
+      else
+      {
+        denominator = MANTISSA * s;
+        numerator = exp * (MANTISSA + m);
+      }
+      
+
+      return true;
+    }
+
+  }
 	/// <summary>
 	/// An implementation of rational (fractional) numbers.
 	/// Numeric range: -BigInteger.MaxValue/1 to BigInteger.MaxValue/1
@@ -50,6 +156,7 @@ namespace IronScheme.Runtime
 	/// - the denominator is always positive
 	/// - the fraction is always reduced by the gcd of the nominator and denominator
 	/// </remarks>
+  [Serializable]
   [System.ComponentModel.TypeConverter(typeof(Fraction.TypeConverter))]
 	public class Fraction : IComparable, IConvertible
 	{
@@ -255,7 +362,6 @@ namespace IronScheme.Runtime
 			return new Fraction(number, 1);
 		}
 
-    //from: http://www.math.uic.edu/~burgiel/Mtht420.99/5/Rational.java - thanks Google
     public static implicit operator Fraction(double x)
     {
       if (x == 0.0)
@@ -263,48 +369,9 @@ namespace IronScheme.Runtime
         return Fraction.Zero;
       }
 
-      int sgn = 1;
-      if (x < 0.0)
-      {
-        sgn = -1;
-        x = -x;
-      }
-      BigInteger intPart = (BigInteger) Math.Round(x);
-      double z = x - intPart;
-      if (z != 0)
-      {
-        z = 1.0 / z;
-        BigInteger a = (BigInteger)Math.Round(z);
-        z = z - a;
-        BigInteger prevNum = 0;
-        BigInteger num = 1;
-        BigInteger prevDen = 1;
-        BigInteger den = a;
-        BigInteger tmp;
-        double approxAns = ((double)(den * intPart + num)) / den;
-        while (Math.Abs((x - approxAns)) > 0.0)
-        {
-          z = 1.0 / z;
-          a = (BigInteger)Math.Round(z);
-          z = z - a;
-          if (double.IsNaN(z))
-          {
-            break;
-          }
-          tmp = a * num + prevNum;
-          prevNum = num;
-          num = tmp;
-          tmp = a * den + prevDen;
-          prevDen = den;
-          den = tmp;
-          approxAns = ((double)(den * intPart + num)) / den;
-        }
-        return new Fraction(sgn * (den * intPart + num), den);
-      }
-      else
-      {                    // is integer
-        return new Fraction(sgn * intPart, 1);
-      }
+      BigInteger num, den;
+      x.GetComponents(out num, out den);
+      return new Fraction(num, den);
     }
 
 		#endregion

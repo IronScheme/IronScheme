@@ -26,6 +26,8 @@ namespace Microsoft.Scripting.Math {
     /// <summary>
     /// arbitrary precision integers
     /// </summary>
+    /// 
+    [Serializable]
     [System.ComponentModel.TypeConverter(typeof(BigInteger.TypeConvertor))]
     public class BigInteger : IFormattable, IComparable, IConvertible {
 
