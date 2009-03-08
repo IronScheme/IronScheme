@@ -330,22 +330,33 @@ A ""contributor"" is any person that distributes its contribution under this lic
       return Guid.NewGuid();
     }
 
+    internal readonly static List<string> includepaths = new List<string>();
+
 
     [Builtin("get-library-paths")]
     public static object GetLibraryPaths()
     {
       if (Environment.CurrentDirectory == ApplicationDirectory)
       {
-        return List(
-          ApplicationDirectory,
-          Path.Combine(ApplicationDirectory, "lib"));
+        List<string> paths = new List<string>();
+        
+        paths.AddRange(includepaths);
+        paths.Add(ApplicationDirectory);
+        paths.Add(Path.Combine(ApplicationDirectory, "lib"));
+
+        return List(paths.ToArray());
       }
       else
       {
-        return List(
-          ".",
-          ApplicationDirectory,
-          Path.Combine(ApplicationDirectory, "lib"));
+        List<string> paths = new List<string>();
+
+        paths.Add(".");
+
+        paths.AddRange(includepaths);
+        paths.Add(ApplicationDirectory);
+        paths.Add(Path.Combine(ApplicationDirectory, "lib"));
+
+        return List(paths.ToArray());
       }
     }
 

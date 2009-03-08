@@ -216,9 +216,7 @@ namespace IronScheme.Runtime
 
       return FALSE;
     }
-
-
-
+    
 
     [Builtin("string->number")]
     public static object StringToNumber(object obj)
@@ -227,7 +225,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
+        return FALSE;
       }
 
       Parser number_parser = new Parser();
@@ -265,7 +263,7 @@ namespace IronScheme.Runtime
 
       if (str.Length == 0)
       {
-        return AssertionViolation("string->number", "cannot convert empty string to a number", obj);
+        return FALSE;
       }
 
       switch (r)
@@ -285,24 +283,28 @@ namespace IronScheme.Runtime
     }
     
     [Builtin("number?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsNumber(object obj)
     {
       return IsComplex(obj);
     }
 
     [Builtin("complex?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsComplex(object obj)
     {
       return GetBool(IsTrue(IsReal(obj)) || obj is Complex64);
     }
 
     [Builtin("real?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsReal(object obj)
     {
       return GetBool(IsTrue(IsRational(obj)) || obj is double);
     }
 
     [Builtin("rational?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsRational(object obj)
     {
       if (IsTrue(IsInteger(obj)) || obj is Fraction)
@@ -319,6 +321,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("integer?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsInteger(object obj)
     {
       if (obj is int || obj is BigInteger)
@@ -378,6 +381,7 @@ namespace IronScheme.Runtime
     }
     
     [Builtin("integer-valued?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsIntegerValued(object obj)
     {
       if (obj is int || obj is BigInteger)
@@ -400,6 +404,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("rational-valued?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsRationalValued(object obj)
     {
       if (obj is Fraction)
@@ -436,6 +441,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("real-valued?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsRealValued(object obj)
     {
       if (obj is Complex64)
@@ -450,12 +456,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("finite?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsFinite(object obj)
     {
       return Not(IsInfinite(obj));
     }
 
     [Builtin("infinite?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsInfinite(object obj)
     {
       if (obj is double)
@@ -471,6 +479,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("nan?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsNan(object obj)
     {
       if (obj is double)
@@ -507,45 +516,27 @@ namespace IronScheme.Runtime
       {
         return AssertionViolation("exact", "not a number", obj);
       }
-      if (IsTrue(IsInexact(obj)))
+      if (obj is double)
       {
-        if (obj is double)
-        {
-          double d = (double)obj;
+        double d = (double)obj;
 
-          if (double.IsNaN(d) || double.IsInfinity(d))
-          {
-            return AssertionViolation("exact", "no exact equivalent", obj);
-          }
-        }
-        try
+        if (double.IsNaN(d) || double.IsInfinity(d))
         {
-          Fraction f = (Fraction)SafeConvert(obj);
-          if (f.Denominator == 1)
-          {
-            if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
-            {
-              return (BigInteger)f.Numerator;
-            }
-            return (int)f.Numerator;
-          }
-          return f;
+          return AssertionViolation("exact", "no exact equivalent", obj);
         }
-        catch (DivideByZeroException)
+        return Exact((Fraction)d);
+      }
+      if (obj is Complex64)
+      {
+        Complex64 c = (Complex64)obj;
+        if (c.Imag == 0.0)
         {
-          // fall back to bigint
+          return Exact(c.Real);
         }
-        catch (OverflowException)
+        else
         {
-          // fall back to bigint
+          return AssertionViolation("exact", "no exact equivalent", obj);
         }
-        BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(Round(obj));
-        int ir;
-        if (r.AsInt32(out ir))
-        {
-          return ir;
-        }
-        return r;
       }
       if (obj is long)
       {
@@ -573,7 +564,53 @@ namespace IronScheme.Runtime
       return obj;
     }
 
+    [Builtin("inexact=?")]
+    public static object InexactEqual(object a, object b)
+    {
+      return GetBool(ConvertToComplex(a) == ConvertToComplex(b));
+    }
+
+    [Builtin("exact-compare")]
+    public static object ExactCompare(object a, object b)
+    {
+      NumberClass f = GetNumberClass(a);
+      NumberClass s = GetNumberClass(b);
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          return ((int)a).CompareTo((int)b);
+        case NumberClass.BigInteger:
+          return ConvertToBigInteger(a).CompareTo(ConvertToBigInteger(b));
+        case NumberClass.Rational:
+          return ConvertToRational(a).CompareTo(ConvertToRational(b));
+        default:
+          return AssertionViolation("exact-compare", "not exact", a, b);
+      }
+    }
+
+    [Builtin("inexact-compare")]
+    public static object InexactCompare(object a, object b)
+    {
+      NumberClass f = GetNumberClass(a);
+      NumberClass s = GetNumberClass(b);
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Real:
+          return ((double)a).CompareTo(b);
+        default:
+          return AssertionViolation("inexact-compare", "not a real", a, b);
+      }
+    }
+
+
     [Builtin("exact?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsExact(object obj)
     {
       if (IsTrue(IsNumber(obj)))
@@ -584,6 +621,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("inexact?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsInexact(object obj)
     {
       if (IsTrue(IsNumber(obj)))
@@ -596,6 +634,7 @@ namespace IronScheme.Runtime
     #region relations
 
     [Builtin("=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsSame(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -653,6 +692,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsSame(object first, params object[] rest)
     {
       CheckArgs("=", rest);
@@ -678,6 +718,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsLessThan(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -722,6 +763,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsLessThan(object first, params object[] rest)
     {
       CheckArgs("<", rest);
@@ -747,6 +789,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsLessThanOrEqual(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -791,6 +834,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("<=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsLessThanOrEqual(object first, params object[] rest)
     {
       CheckArgs("<=", rest);
@@ -816,6 +860,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsGreaterThan(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -860,6 +905,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsGreaterThan(object first, params object[] rest)
     {
       CheckArgs(">", rest);
@@ -885,6 +931,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsGreaterThanOrEqual(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -929,6 +976,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin(">=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsGreaterThanOrEqual(object first, params object[] rest)
     {
       CheckArgs(">=", rest);
@@ -955,11 +1003,13 @@ namespace IronScheme.Runtime
     
     #endregion
 
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     static object IsZero(object obj)
     {
       return IsSame(obj, 0);
     }
 
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     protected static object IsPositive(object obj)
     {
       if (IsTrue(IsRealValued(obj)))
@@ -969,6 +1019,7 @@ namespace IronScheme.Runtime
       return AssertionViolation("positive?", "not a real", obj);
     }
 
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     static object IsNegative(object obj)
     {
       if (IsTrue(IsRealValued(obj)))
@@ -1095,6 +1146,10 @@ namespace IronScheme.Runtime
       if (o is BigInteger)
       {
         return new Fraction((BigInteger)o, 1);
+      }
+      if (o is double)
+      {
+        return (Fraction)(double)o;
       }
       return (Fraction)FractionConverter.ConvertFrom(o);
     }
@@ -1563,6 +1618,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("div0")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Div0(object x1, object x2)
     {
       object div = Div(x1, x2);
@@ -1582,6 +1638,7 @@ namespace IronScheme.Runtime
     static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
 
     [Builtin("numerator")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Numerator(object obj)
     {
       if (obj is Complex64)
@@ -1609,6 +1666,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("denominator")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Denominator(object obj)
     {
       if (obj is Complex64)
@@ -1844,6 +1902,7 @@ namespace IronScheme.Runtime
     #endregion
 
     [Builtin("exp")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Exp(object obj)
     {
       if (obj is Complex64)
@@ -1854,6 +1913,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("log")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Log(object obj)
     {
       if (obj is Complex64 || IsTrue(IsNegative(obj)))
@@ -1886,12 +1946,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("log")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Log(object obj, object bas)
     {
       return Divide(Log(obj), Log(bas));
     }
     
     [Builtin("sin")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Sin(object obj)
     {
       if (obj is Complex64)
@@ -1903,12 +1965,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("asin")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Asin(object obj)
     {
       return Complex64.Asin(ConvertToComplex(obj));
     }
 
     [Builtin("sinh")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Sinh(object obj)
     {
       if (obj is Complex64)
@@ -1920,6 +1984,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("cos")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Cos(object obj)
     {
       if (obj is Complex64)
@@ -1931,12 +1996,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("acos")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Acos(object obj)
     {
       return Complex64.Acos(ConvertToComplex(obj));
     }
 
     [Builtin("cosh")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Cosh(object obj)
     {
       if (obj is Complex64)
@@ -1948,6 +2015,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("tan")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Tan(object obj)
     {
       if (obj is Complex64)
@@ -1959,6 +2027,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("atan")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Atan(object obj)
     {
       if (obj is Complex64)
@@ -1970,12 +2039,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("atan")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Atan(object obj, object obj2)
     {
       return MathHelper(Math.Atan2, obj, obj2);
     }
 
     [Builtin("tanh")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Tanh(object obj)
     {
       if (obj is Complex64)
@@ -2196,6 +2267,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("make-rectangular")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object MakeRectangular(object obj1, object obj2)
     {
       if (!IsTrue(IsReal(obj1)))
@@ -2216,6 +2288,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("make-polar")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object MakePolar(object obj1, object obj2)
     {
       if (!IsTrue(IsReal(obj1)))
@@ -2236,6 +2309,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("real-part")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object RealPart(object obj)
     {
       if (obj is Complex64)
@@ -2251,6 +2325,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("imag-part")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ImagPart(object obj)
     {
       if (obj is Complex64)
@@ -2266,6 +2341,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("magnitude")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Magnitude(object obj)
     {
       if (obj is Complex64)
@@ -2285,6 +2361,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("angle")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Angle(object obj)
     {
       Complex64 c = ConvertToComplex(obj);

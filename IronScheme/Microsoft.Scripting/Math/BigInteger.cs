@@ -1461,38 +1461,10 @@ namespace Microsoft.Scripting.Math {
             else return this;
         }
 
-        static uint[] pow2lu = GenTable();
-
-        static uint[] GenTable()
-        {
-          uint[] lu = new uint[31];
-
-          for (int i = 0; i < 31; i++)
-          {
-            lu[i] = 2u << (i - 1);
-          }
-          return lu;
-        }
-
+        // http://stackoverflow.com/questions/600293/how-to-check-if-a-number-is-a-power-of-2
         static bool IsPowerOf2(BigInteger n)
         {
-          int i = n.data.Length - 1;
-          if (n.data[i] != 1)
-          {
-            if (Array.BinarySearch<uint>(pow2lu, n.data[i]) < 0)
-            {
-              return false;
-            }
-          }
-
-          for (i--; i >= 0; i--)
-          {
-            if (n.data[i] != 0)
-            {
-              return false;
-            }
-          }
-          return true;
+          return n > 0 && ((n & (n - 1)) == 0);
         }
 
         public BigInteger Power(int exp) {

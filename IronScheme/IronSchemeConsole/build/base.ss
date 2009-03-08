@@ -25,29 +25,29 @@
     eq?
     equal?
     
-    number?
-    complex?
-    real?
-    rational?
-    integer?
+    ;number?
+    ;complex?
+    ;real?
+    ;rational?
+    ;integer?
     real-valued?
     rational-valued?
     integer-valued?
     
-    exact?
-    inexact?
+    ;exact?
+    ;inexact?
     inexact
     exact
     
-    =
-    <
-    >
-    <=
-    >=
-    
-    zero?
-    positive?
-    negative?
+    ;=
+    ;<
+    ;>
+    ;<=
+    ;>=
+    ;
+    ;zero?
+    ;positive?
+    ;negative?
     odd?
     even?
     finite?
@@ -268,9 +268,9 @@
       rationalize
       max
       min
-      positive?
-      negative?
-      zero?
+      ;positive?
+      ;negative?
+      ;zero?
       even?
       odd?
       gcd
@@ -295,6 +295,7 @@
       mod0   
       div-and-mod
       div0-and-mod0
+      div0
       
       list->vector
       list->string 
@@ -330,6 +331,14 @@
       (clr-is system.double obj))   
       
     (define (fixnum-width) 32)
+    
+    (define (div0 x1 x2)
+      (let* ((d (div x1 x2))
+             (m (- x1 (* d x2))))
+        (cond 
+          [(< m (magnitude (/ x2 2))) d]
+          [(positive? x2) (+ d 1)]
+          [else (- d 1)])))
     
     (define (mod x1 x2)
       (- x1 (* (div x1 x2) x2)))
@@ -413,20 +422,20 @@
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
     
-    (define (positive? r)
-      (unless (real-valued? r)
-        (assertion-violation 'positive? "not a real" r))
-      (< 0 r))
-      
-    (define (negative? r)
-      (unless (real-valued? r)
-        (assertion-violation 'negative? "not a real" r))
-      (> 0 r))   
-      
-    (define (zero? z)
-      (unless (number? z)
-        (assertion-violation 'zero? "not a number" z))
-      (= 0 z))           
+    ;(define (positive? r)
+      ;(unless (real-valued? r)
+        ;(assertion-violation 'positive? "not a real" r))
+      ;(< 0 r))
+      ;
+    ;(define (negative? r)
+      ;(unless (real-valued? r)
+        ;(assertion-violation 'negative? "not a real" r))
+      ;(> 0 r))   
+      ;
+    ;(define (zero? z)
+      ;(unless (number? z)
+        ;(assertion-violation 'zero? "not a number" z))
+      ;(= 0 z))           
       
     (define (even? n)
       (unless (integer-valued? n)

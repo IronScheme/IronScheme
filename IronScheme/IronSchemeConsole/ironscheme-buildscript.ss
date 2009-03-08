@@ -47,6 +47,8 @@
     "build/bytevectors.ss"
     "build/control.ss"
     
+    "build/numbers.ss"
+    
     "build/eval.ss"
     "build/exceptions.ss"
     "build/conditions.ss"
@@ -270,6 +272,9 @@
     (pretty-gensyms                             i)
     (uninstall-library                          i)
     (installed-libraries                        i)
+    (exact-compare                              i)
+    (inexact-compare                            i)
+    (inexact=?                                  i)
     (convert->cps                               i)
     (syntax-transpose                           i)
     ;(expand-boot-cps                            i)
