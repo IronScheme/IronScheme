@@ -184,6 +184,9 @@
     <None Include="ironscheme\integrable.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="build\numbers.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\syntax-case.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

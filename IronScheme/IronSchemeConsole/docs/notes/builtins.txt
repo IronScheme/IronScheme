@@ -9,31 +9,18 @@ A list of builtin procedures.
 +
 -
 /
-<
-<=
-=
->
->=
 abs
-acos
-angle
 append
 apply [1][5]
-asin
 assertion-violation [2][4]
-atan
 call-with-current-continuation/call/cc [1][5]
 call-with-values [1][5]
 car
 cdr
 ceiling
 char->integer
-complex?
 cons
-cos
-denominator
 div
-div0
 dynamic-wind [1][5]
 eq?
 equal?
@@ -41,41 +28,20 @@ eqv?
 error [2][4]
 exact
 exact-integer-sqrt [6]
-exact?
-exp
 expt
-finite?
 floor
-imag-part
 inexact
-inexact?
-infinite?
 integer->char
-integer-valued?
-integer?
 length
 list
 list?
-log
-magnitude
-make-polar
-make-rectangular
 make-string
 make-vector
-nan?
 not
 null?
 number->string
-number?
-numerator
 pair?
-rational-valued?
-rational?
-real-part
-real-valued?
-real?
 round
-sin
 sqrt
 string
 string->list
@@ -88,7 +54,6 @@ string-ref
 string?
 substring
 symbol->string
-tan
 truncate
 values [5] [6]
 vector

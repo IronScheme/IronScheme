@@ -51,7 +51,7 @@ namespace IronScheme
       return base.MissingName(name);
     }
 
-    static SourceCodeProperties props = SourceCodeProperties.None;
+    //static SourceCodeProperties props = SourceCodeProperties.None;
 
     public override void UpdateSourceCodeProperties(CompilerContext context)
     {

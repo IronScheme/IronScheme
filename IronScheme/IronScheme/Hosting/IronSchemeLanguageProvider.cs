@@ -208,6 +208,11 @@ namespace IronScheme.Hosting
         {
           notabcompletion = true;
         }
+        else if (arg == "-I")
+        {
+          var includepath = PopNextArg();
+          Builtins.includepaths.Add(includepath);
+        }
         else
         {
           base.ParseArgument(arg);
