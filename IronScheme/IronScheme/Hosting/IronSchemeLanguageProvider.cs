@@ -204,7 +204,7 @@ namespace IronScheme.Hosting
 
       protected override void ParseArgument(string arg)
       {
-        if (arg == "-notabcompletion")
+        if (arg == "-notabcompletion" || arg == "-emacs")
         {
           notabcompletion = true;
         }
