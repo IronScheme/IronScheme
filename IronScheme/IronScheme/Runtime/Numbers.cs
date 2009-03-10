@@ -281,218 +281,8 @@ namespace IronScheme.Runtime
 
       }
     }
-    
-    [Builtin("number?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsNumber(object obj)
-    {
-      return IsComplex(obj);
-    }
 
-    [Builtin("complex?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsComplex(object obj)
-    {
-      return GetBool(IsTrue(IsReal(obj)) || obj is Complex64);
-    }
 
-    [Builtin("real?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsReal(object obj)
-    {
-      return GetBool(IsTrue(IsRational(obj)) || obj is double);
-    }
-
-    [Builtin("rational?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsRational(object obj)
-    {
-      if (IsTrue(IsInteger(obj)) || obj is Fraction)
-      {
-        return TRUE;
-      }
-
-      if (obj is double)
-      {
-        return IsRational(RealToExact(obj));
-      }
-
-      return FALSE;
-    }
-
-    [Builtin("integer?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsInteger(object obj)
-    {
-      if (obj is int || obj is BigInteger)
-      {
-        return TRUE;
-      }
-
-      if (obj is Fraction)
-      {
-        return GetBool(((Fraction)obj).Denominator == 1);
-      }
-
-      if (obj is double)
-      {
-        return IsInteger(RealToExact(obj));
-      }
-
-      return FALSE;
-    }
-
-    static object RealToExact(object obj)
-    {
-      double d = (double)obj;
-
-      if (double.IsNaN(d) || double.IsInfinity(d))
-      {
-        return FALSE;
-      }
-      try
-      {
-        Fraction f = (Fraction)d;
-        if (f.Denominator == 1)
-        {
-          if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
-          {
-            return (BigInteger)f.Numerator;
-          }
-          return (int)f.Numerator;
-        }
-        return f;
-      }
-      catch (DivideByZeroException)
-      {
-        // fall back to bigint
-      }
-      catch (OverflowException)
-      {
-        // fall back to bigint
-      }
-      BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(Round(obj));
-      int ir;
-      if (r.AsInt32(out ir))
-      {
-        return ir;
-      }
-      return r;
-    }
-    
-    [Builtin("integer-valued?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsIntegerValued(object obj)
-    {
-      if (obj is int || obj is BigInteger)
-      {
-        return TRUE;
-      }
-      if (obj is Complex64)
-      {
-        return GetBool(((Complex64)obj).Imag == 0 && IsTrue(IsIntegerValued(((Complex64)obj).Real)));
-      }
-      if (obj is Fraction)
-      {
-        return GetBool(((Fraction)obj).Denominator == 1);
-      }
-      if (IsTrue(IsNan(obj)) || IsTrue(IsInfinite(obj)))
-      {
-        return FALSE;
-      }
-      return IsZero(RemainderInternal(obj, 1));
-    }
-
-    [Builtin("rational-valued?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsRationalValued(object obj)
-    {
-      if (obj is Fraction)
-      {
-        return TRUE;
-      }
-
-      bool iv = IsTrue(IsIntegerValued(obj));
-      if (iv)
-      {
-        return TRUE;
-      }
-
-      if (obj is Complex64)
-      {
-        Complex64 c = (Complex64)obj;
-        if (c.Imag == 0)
-        {
-          return IsRationalValued(c.Real);
-        }
-        return FALSE;
-      }
-
-      if (IsTrue(IsNumber(obj)))
-      {
-        double d = SafeConvert(obj);
-        if (double.IsNaN(d) || double.IsInfinity(d))
-        {
-          return FALSE;
-        }
-        return GetBool(d == (double)(Fraction)d);
-      }
-      return FALSE;
-    }
-
-    [Builtin("real-valued?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsRealValued(object obj)
-    {
-      if (obj is Complex64)
-      {
-        Complex64 c = (Complex64)obj;
-        if (c.Imag != 0)
-        {
-          return FALSE;
-        }
-      }
-      return IsNumber(obj);
-    }
-
-    [Builtin("finite?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsFinite(object obj)
-    {
-      return Not(IsInfinite(obj));
-    }
-
-    [Builtin("infinite?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsInfinite(object obj)
-    {
-      if (obj is double)
-      {
-        return GetBool(double.IsInfinity((double)obj));
-      }
-      if (obj is float)
-      {
-        return GetBool(float.IsInfinity((float)obj));
-      }
-
-      return FALSE;
-    }
-
-    [Builtin("nan?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsNan(object obj)
-    {
-      if (obj is double)
-      {
-        return GetBool(double.IsNaN((double)obj));
-      }
-      if (obj is float)
-      {
-        return GetBool(float.IsNaN((float)obj));
-      }
-
-      return FALSE;
-    }
 
     [Builtin("inexact")]
     public static object Inexact(object obj)
@@ -609,452 +399,6 @@ namespace IronScheme.Runtime
     }
 
 
-    [Builtin("exact?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsExact(object obj)
-    {
-      if (IsTrue(IsNumber(obj)))
-      {
-        return GetBool(obj is int || obj is BigInteger || obj is Fraction);
-      }
-      return AssertionViolation("exact?", "not a number", obj);
-    }
-
-    [Builtin("inexact?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsInexact(object obj)
-    {
-      if (IsTrue(IsNumber(obj)))
-      {
-        return GetBool(!(obj is int || obj is BigInteger || obj is Fraction));
-      }
-      return AssertionViolation("inexact?", "not a number", obj);
-    }
-
-    #region relations
-
-    [Builtin("=")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsSame(object first, object second)
-    {
-      NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        return AssertionViolation("=", "not a number", first);
-      }
-
-      NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        return AssertionViolation("=", "not a number", second);
-      }
-
-      NumberClass effective = f & s;
-
-      bool result = false;
-
-      switch (effective)
-      {
-        case NumberClass.Integer:
-          result = ConvertToInteger(first) == ConvertToInteger(second);
-          break;
-        case NumberClass.BigInteger:
-          result = ConvertToBigInteger(first) == ConvertToBigInteger(second);
-          break;
-        case NumberClass.Rational:
-          result = ConvertToRational(first) == ConvertToRational(second);
-          break;
-        case NumberClass.Real:
-          double f1 = ConvertToReal(first);
-          double f2 = ConvertToReal(second);
-          result = f1 == f2 
-            || (double.IsNegativeInfinity(f1) && double.IsNegativeInfinity(f2))
-            || (double.IsPositiveInfinity(f1) && double.IsPositiveInfinity(f2));
-          break;
-        case NumberClass.Complex:
-          result = ConvertToComplex(first) == ConvertToComplex(second);
-          break;
-        default:
-          return AssertionViolation("=", "not a number", first, second);
-      }
-
-      return GetBool(result);
-    }
-
-    static void CheckArgs(string who, object[] args)
-    {
-      if (args == null || args.Length == 0)
-      {
-        AssertionViolation(who, "expects 2 or more arguments");
-      }
-    }
-
-    [Builtin("=")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsSame(object first, params object[] rest)
-    {
-      CheckArgs("=", rest);
-
-      NumberClass e = GetNumberClass(first);
-      if (e == NumberClass.NotANumber)
-      {
-        AssertionViolation("=", "not a number", first);
-      }
-
-      object o = first;
-
-      foreach (object item in rest)
-      {
-        if (!IsTrue(IsSame(o, item)))
-        {
-          return FALSE;
-        }
-        o = item;
-      }
-
-      return TRUE;
-    }
-
-    [Builtin("<")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsLessThan(object first, object second)
-    {
-      NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        return AssertionViolation("<", "not a number", first);
-      }
-
-      NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        return AssertionViolation("<", "not a number", second);
-      }
-
-      NumberClass effective = f & s;
-
-      bool result = false;
-
-      switch (effective)
-      {
-        case NumberClass.Integer:
-          result = ConvertToInteger(first) < ConvertToInteger(second);
-          break;
-        case NumberClass.BigInteger:
-          result = ConvertToBigInteger(first) < ConvertToBigInteger(second);
-          break;
-        case NumberClass.Rational:
-          result = ConvertToRational(first) < ConvertToRational(second);
-          break;
-        case NumberClass.Real:
-          result = ConvertToReal(first) < ConvertToReal(second);
-          break;
-        case NumberClass.Complex:
-          return AssertionViolation("<", "not real", first, second);
-        default:
-          return Error("<", "BUG");
-      }
-
-      return GetBool(result);
-    }
-
-    [Builtin("<")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsLessThan(object first, params object[] rest)
-    {
-      CheckArgs("<", rest);
-
-      NumberClass e = GetNumberClass(first);
-      if (e == NumberClass.Complex)
-      {
-        AssertionViolation("<", "not a real", first);
-      }
-
-      object o = first;
-
-      foreach (object item in rest)
-      {
-        if (!IsTrue(IsLessThan(o, item)))
-        {
-          return FALSE;
-        }
-        o = item;
-      }
-
-      return TRUE;
-    }
-
-    [Builtin("<=")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsLessThanOrEqual(object first, object second)
-    {
-      NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        return AssertionViolation("<=", "not a number", first);
-      }
-
-      NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        return AssertionViolation("<=", "not a number", second);
-      }
-
-      NumberClass effective = f & s;
-
-      bool result = false;
-
-      switch (effective)
-      {
-        case NumberClass.Integer:
-          result = ConvertToInteger(first) <= ConvertToInteger(second);
-          break;
-        case NumberClass.BigInteger:
-          result = ConvertToBigInteger(first) <= ConvertToBigInteger(second);
-          break;
-        case NumberClass.Rational:
-          result = ConvertToRational(first) <= ConvertToRational(second);
-          break;
-        case NumberClass.Real:
-          result = ConvertToReal(first) <= ConvertToReal(second);
-          break;
-        case NumberClass.Complex:
-          return AssertionViolation("<=", "not real", first, second);
-        default:
-          return Error("<=", "BUG");
-      }
-
-      return GetBool(result);
-    }
-
-    [Builtin("<=")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsLessThanOrEqual(object first, params object[] rest)
-    {
-      CheckArgs("<=", rest);
-
-      NumberClass e = GetNumberClass(first);
-      if (e == NumberClass.Complex)
-      {
-        AssertionViolation("<=", "not a real", first);
-      }
-
-      object o = first;
-
-      foreach (object item in rest)
-      {
-        if (!IsTrue(IsLessThanOrEqual(o, item)))
-        {
-          return FALSE;
-        }
-        o = item;
-      }
-
-      return TRUE;
-    }
-
-    [Builtin(">")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsGreaterThan(object first, object second)
-    {
-      NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        return AssertionViolation(">", "not a number", first);
-      }
-
-      NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        return AssertionViolation(">", "not a number", second);
-      }
-
-      NumberClass effective = f & s;
-
-      bool result = false;
-
-      switch (effective)
-      {
-        case NumberClass.Integer:
-          result = ConvertToInteger(first) > ConvertToInteger(second);
-          break;
-        case NumberClass.BigInteger:
-          result = ConvertToBigInteger(first) > ConvertToBigInteger(second);
-          break;
-        case NumberClass.Rational:
-          result = ConvertToRational(first) > ConvertToRational(second);
-          break;
-        case NumberClass.Real:
-          result = ConvertToReal(first) > ConvertToReal(second);
-          break;
-        case NumberClass.Complex:
-          return AssertionViolation(">", "not real", first, second);
-        default:
-          return Error(">", "BUG");
-      }
-
-      return GetBool(result);
-    }
-
-    [Builtin(">")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsGreaterThan(object first, params object[] rest)
-    {
-      CheckArgs(">", rest);
-
-      NumberClass e = GetNumberClass(first);
-      if (e == NumberClass.Complex)
-      {
-        AssertionViolation(">", "not a real", first);
-      }
-
-      object o = first;
-
-      foreach (object item in rest)
-      {
-        if (!IsTrue(IsGreaterThan(o, item)))
-        {
-          return FALSE;
-        }
-        o = item;
-      }
-
-      return TRUE;
-    }
-
-    [Builtin(">=")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsGreaterThanOrEqual(object first, object second)
-    {
-      NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        return AssertionViolation(">=", "not a number", first);
-      }
-
-      NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        return AssertionViolation(">=", "not a number", second);
-      }
-
-      NumberClass effective = f & s;
-
-      bool result = false;
-
-      switch (effective)
-      {
-        case NumberClass.Integer:
-          result = ConvertToInteger(first) >= ConvertToInteger(second);
-          break;
-        case NumberClass.BigInteger:
-          result = ConvertToBigInteger(first) >= ConvertToBigInteger(second);
-          break;
-        case NumberClass.Rational:
-          result = ConvertToRational(first) >= ConvertToRational(second);
-          break;
-        case NumberClass.Real:
-          result = ConvertToReal(first) >= ConvertToReal(second);
-          break;
-        case NumberClass.Complex:
-          return AssertionViolation(">=", "not real", first, second);
-        default:
-          return Error(">=", "BUG");
-      }
-
-      return GetBool(result);
-    }
-
-    [Builtin(">=")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsGreaterThanOrEqual(object first, params object[] rest)
-    {
-      CheckArgs(">=", rest);
-
-      NumberClass e = GetNumberClass(first);
-      if (e == NumberClass.Complex)
-      {
-        AssertionViolation(">=", "not a real", first);
-      }
-
-      object o = first;
-
-      foreach (object item in rest)
-      {
-        if (!IsTrue(IsGreaterThanOrEqual(o, item)))
-        {
-          return FALSE;
-        }
-        o = item;
-      }
-
-      return TRUE;
-    }
-    
-    #endregion
-
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    static object IsZero(object obj)
-    {
-      return IsSame(obj, 0);
-    }
-
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    protected static object IsPositive(object obj)
-    {
-      if (IsTrue(IsRealValued(obj)))
-      {
-        return IsGreaterThan(obj, 0);
-      }
-      return AssertionViolation("positive?", "not a real", obj);
-    }
-
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    static object IsNegative(object obj)
-    {
-      if (IsTrue(IsRealValued(obj)))
-      {
-        return IsLessThan(obj, 0);
-      }
-      return AssertionViolation("negative?", "not a real", obj);
-    }
-
-    static object GetNumber(NumberClass nc, object number)
-    {
-      switch (nc)
-      {
-        case NumberClass.Integer:
-        case NumberClass.BigInteger:
-          BigInteger r = ConvertToBigInteger(number);
-          if (r > int.MaxValue || r < int.MinValue)
-          {
-            return r;
-          }
-          else
-          {
-            return (int)r;
-          }
-        case NumberClass.Rational:
-          return ConvertToRational(number);
-        case NumberClass.Real:
-          return ConvertToReal(number);
-        case NumberClass.Complex:
-          return ConvertToComplex(number);
-
-      }
-
-      throw new Exception("BUG");
-    }
 
     #region math
 
@@ -1476,353 +820,13 @@ namespace IronScheme.Runtime
 
     #endregion
 
-    [Builtin("abs")]
-    public static object Abs(object obj)
-    {
-      if (obj is double)
-      {
-        return Math.Abs((double)obj);
-      }
-      else if (obj is int)
-      {
-        int i = (int)obj;
-        if (i == int.MinValue)
-        {
-          return ((BigInteger)i).Abs();
-        }
-        else
-        {
-          return Math.Abs(i);
-        }
-      }
-      else if (obj is BigInteger)
-      {
-        return ((BigInteger)obj).Abs();
-      }
-      else if (obj is Complex64)
-      {
-        return AssertionViolation("abs", "not a real", obj);
-      }
-      else if (obj is Fraction)
-      {
-        Fraction f = (Fraction)obj;
-        if (f < 0)
-        {
-          return new Fraction(-f.Numerator, f.Denominator);
-        }
-        return obj;
-      }
-      else
-      {
-        double d = SafeConvert(obj);
-        return Math.Abs(d);
-      }
-    }
 
-    
-    static object RemainderInternal(object first, object second)
-    {
-      NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        return AssertionViolation("RemainderInternal", "not a number", first);
-      }
-
-      NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        return AssertionViolation("RemainderInternal", "not a number", second);
-      }
-
-      NumberClass effective = f & s;
-
-      switch (effective)
-      {
-        case NumberClass.Integer:
-          try
-          {
-            return checked(ConvertToInteger(first) % ConvertToInteger(second));
-          }
-          catch (OverflowException)
-          {
-            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
-          }
-          catch (ArithmeticException) // mono dodo
-          {
-            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
-          }
-        case NumberClass.BigInteger:
-          return ConvertToBigInteger(first) % ConvertToBigInteger(second);
-        case NumberClass.Rational:
-          return IntegerIfPossible(ConvertToRational(first) % ConvertToRational(second));
-        case NumberClass.Real:
-          return ConvertToReal(first) % ConvertToReal(second);
-        case NumberClass.Complex:
-          return ConvertToComplex(first) % ConvertToComplex(second);
-      }
-
-      return Error("RemainderInternal", "BUG");
-    }
    
 
-    [Builtin("div")]
-    public static object Div(object x1, object x2)
-    {
-      if (IsTrue(IsZero(x2)))
-      {
-        return AssertionViolation("div", "divide by zero", x1, x2);
-      }
-      if (IsTrue(IsInfinite(x1)))
-      {
-        return AssertionViolation("div", "cannot be infinite", x1);
-      }
-      if (IsTrue(IsNan(x1)))
-      {
-        return AssertionViolation("div", "cannot be nan", x1);
-      }
 
-      bool exactargs = IsTrue(IsExact(x1)) && IsTrue(IsExact(x2));
-      object scale = 1;
+ 
 
-      if (exactargs)
-      {
-        scale = Multiply(Denominator(x1), Denominator(x2));
-        x1 = Multiply(x1, scale);
-        x2 = Multiply(x2, scale);
-      }
 
-      object a = x1;
-      object b = x2;
-
-      object div = null;
-
-      if (IsTrue(IsPositive(b)))
-      {
-        div = Floor(Divide(a, b));
-      }
-      else
-      {
-        div = Subtract(Floor(Divide(a, Subtract(b))));
-      }
-
-      if (!exactargs && IsTrue(IsNan(div)) || IsTrue(IsInfinite(div)))
-      {
-        return div;
-      }
-      else
-      {
-        return Exact(div);
-      }
-    }
-
-    [Builtin("div0")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Div0(object x1, object x2)
-    {
-      object div = Div(x1, x2);
-      object mod = Subtract(x1, Multiply(div, x2));
-
-      if (IsTrue(IsLessThan(mod, Magnitude(Divide(x2, 2)))))
-      {
-        return div;
-      }
-      if (IsTrue(IsPositive(x2)))
-      {
-        return Add(div, 1);
-      }
-      return Subtract(div, 1);
-    }
-    
-    static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
-
-    [Builtin("numerator")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Numerator(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return AssertionViolation("numerator", "not a real", obj);
-      }
-      if (IsTrue(IsInteger(obj)))
-      {
-        return obj;
-      }
-      if (obj is Fraction)
-      {
-        return Exact(((Fraction)obj).Numerator);
-      }
-      bool exact = IsTrue(IsExact(obj));
-      BigInteger r = ((Fraction)FractionConverter.ConvertFrom(obj)).Numerator;
-      if (exact)
-      {
-        return Exact(r);
-      }
-      else
-      {
-        return SafeConvert(r);
-      }
-    }
-
-    [Builtin("denominator")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Denominator(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return AssertionViolation("denominator", "not a real", obj);
-      }
-      if (IsTrue(IsInteger(obj)))
-      {
-        return 1;
-      }
-      if (obj is Fraction)
-      {
-        return Exact(((Fraction)obj).Denominator);
-      }
-      bool exact = IsTrue(IsExact(obj));
-      BigInteger r = ((Fraction)FractionConverter.ConvertFrom(obj)).Denominator;
-      if (exact)
-      {
-        return Exact(r);
-      }
-      else
-      {
-        return SafeConvert(r);
-      }
-    }
-
-    [Builtin("floor")]
-    public static object Floor(object obj)
-    {
-      if (IsTrue(IsInteger(obj)))
-      {
-        return obj;
-      }
-      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
-      {
-        Fraction f = ConvertToRational(obj);
-        BigInteger c = f.Numerator / f.Denominator;
-        if (IsTrue(IsNegative(f)))
-        {
-          c -= 1;
-        }
-        return ToIntegerIfPossible(c);
-      }
-      object res = MathHelper(Math.Floor, obj);
-      if (IsTrue(IsExact(obj)))
-      {
-        return Exact(res);
-      }
-      else
-      {
-        return res;
-      }
-    }
-
-    [Builtin("ceiling")]
-    public static object Ceiling(object obj)
-    {
-      if (IsTrue(IsInteger(obj)))
-      {
-        return obj;
-      }
-      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
-      {
-        Fraction f = ConvertToRational(obj);
-        BigInteger c = f.Numerator / f.Denominator;
-        if (c > 0)
-        {
-          c += 1;
-        }
-        return ToIntegerIfPossible(c);
-      }
-      object res = MathHelper(Math.Ceiling, obj);
-      if (IsTrue(IsExact(obj)))
-      {
-        return Exact(res);
-      }
-      else
-      {
-        return res;
-      }
-    }
-
-    [Builtin("truncate")]
-    public static object Truncate(object obj)
-    {
-      if (IsTrue(IsInteger(obj)))
-      {
-        return obj;
-      }
-      object res = MathHelper(Math.Truncate, obj);
-      if (IsTrue(IsExact(obj)))
-      {
-        return Exact(res);
-      }
-      else
-      {
-        return res;
-      }
-    }
-
-    [Builtin("round")]
-    public static object Round(object obj)
-    {
-      if (IsTrue(IsInteger(obj)))
-      {
-        return obj;
-      }
-      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
-      {
-        Fraction f = ConvertToRational(obj);
-        BigInteger c = f.Numerator / f.Denominator;
-        BigInteger d = f.Numerator % f.Denominator;
-        if (d < 0)
-        {
-          if (-d > f.Denominator / 2)
-          {
-            return ToIntegerIfPossible(c - 1);
-          }
-          else if (-d < f.Denominator / 2)
-          {
-            return ToIntegerIfPossible(c);
-          }
-        }
-        else if (d > 0)
-        {
-          if (d > f.Denominator / 2)
-          {
-            return ToIntegerIfPossible(c + 1);
-          }
-          else if (d < f.Denominator / 2)
-          {
-            return ToIntegerIfPossible(c);
-          }
-        }
-        else
-        {
-          if (c % 2 == 0)
-          {
-            return ToIntegerIfPossible(c);
-          }
-          else
-          {
-            return ToIntegerIfPossible(c + 1);
-          }
-        }
-      }
-      object res = MathHelper(Math.Round, obj);
-      if (IsTrue(IsExact(obj)))
-      {
-        return Exact(res);
-      }
-      else
-      {
-        return res;
-      }
-    }
 
     #region MathHelper
 
@@ -1901,161 +905,6 @@ namespace IronScheme.Runtime
 
     #endregion
 
-    [Builtin("exp")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Exp(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Exp((Complex64)obj);
-      }
-      return MathHelper(Math.Exp, obj);
-    }
-
-    [Builtin("log")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Log(object obj)
-    {
-      if (obj is Complex64 || IsTrue(IsNegative(obj)))
-      {
-        return Complex64.Log(ConvertToComplex(obj));
-      }
-      if (IsTrue(IsZero(obj)))
-      {
-        if (IsTrue(IsExact(obj)))
-        {
-          return AssertionViolation("log", "not possible", obj);
-        }
-        else
-        {
-          return double.NegativeInfinity;
-        }
-      }
-      if (IsTrue(IsInfinite(obj)))
-      {
-        if (IsTrue(IsNegative(obj)))
-        {
-          return MakeRectangular(Abs(obj), 0);
-        }
-        else
-        {
-          return obj;
-        }
-      }
-      return MathHelper(Math.Log, obj);
-    }
-
-    [Builtin("log")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Log(object obj, object bas)
-    {
-      return Divide(Log(obj), Log(bas));
-    }
-    
-    [Builtin("sin")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Sin(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Sin((Complex64)obj);
-      }
-
-      return MathHelper(Math.Sin, obj);
-    }
-
-    [Builtin("asin")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Asin(object obj)
-    {
-      return Complex64.Asin(ConvertToComplex(obj));
-    }
-
-    [Builtin("sinh")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Sinh(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Sinh((Complex64)obj);
-      }
-
-      return MathHelper(Math.Sinh, obj);
-    }
-
-    [Builtin("cos")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Cos(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Cos((Complex64)obj);
-      }
-
-      return MathHelper(Math.Cos, obj);
-    }
-
-    [Builtin("acos")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Acos(object obj)
-    {
-      return Complex64.Acos(ConvertToComplex(obj));
-    }
-
-    [Builtin("cosh")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Cosh(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Cosh((Complex64)obj);
-      }
-
-      return MathHelper(Math.Cosh, obj);
-    }
-
-    [Builtin("tan")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Tan(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Tan((Complex64)obj);
-      }
-
-      return MathHelper(Math.Tan, obj);
-    }
-
-    [Builtin("atan")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Atan(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Atan((Complex64)obj);
-      }
-
-      return MathHelper(Math.Atan, obj);
-    }
-
-    [Builtin("atan")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Atan(object obj, object obj2)
-    {
-      return MathHelper(Math.Atan2, obj, obj2);
-    }
-
-    [Builtin("tanh")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object Tanh(object obj)
-    {
-      if (obj is Complex64)
-      {
-        return Complex64.Tanh((Complex64)obj);
-      }
-
-      return MathHelper(Math.Tanh, obj);
-    }
 
     //based on lsqrt()
     static object SqrtBigInteger(BigInteger x)
@@ -2252,10 +1101,11 @@ namespace IronScheme.Runtime
         }
       }
 
-
-
       return ImplementationRestriction("expt", "no supported", obj1, obj2);
     }
+
+    static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
+
 
     static object IntegerIfPossible(object res)
     {
@@ -2265,6 +1115,316 @@ namespace IronScheme.Runtime
       }
       return res;
     }
+
+
+    [Obsolete]
+    static object RemainderInternal(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation("RemainderInternal", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("RemainderInternal", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          try
+          {
+            return checked(ConvertToInteger(first) % ConvertToInteger(second));
+          }
+          catch (OverflowException)
+          {
+            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+          }
+          catch (ArithmeticException) // mono dodo
+          {
+            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+          }
+        case NumberClass.BigInteger:
+          return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+        case NumberClass.Rational:
+          return IntegerIfPossible(ConvertToRational(first) % ConvertToRational(second));
+        case NumberClass.Real:
+          return ConvertToReal(first) % ConvertToReal(second);
+        case NumberClass.Complex:
+          return ConvertToComplex(first) % ConvertToComplex(second);
+      }
+
+      return Error("RemainderInternal", "BUG");
+    }
+    
+    [Obsolete]
+    static object GetNumber(NumberClass nc, object number)
+    {
+      switch (nc)
+      {
+        case NumberClass.Integer:
+        case NumberClass.BigInteger:
+          BigInteger r = ConvertToBigInteger(number);
+          if (r > int.MaxValue || r < int.MinValue)
+          {
+            return r;
+          }
+          else
+          {
+            return (int)r;
+          }
+        case NumberClass.Rational:
+          return ConvertToRational(number);
+        case NumberClass.Real:
+          return ConvertToReal(number);
+        case NumberClass.Complex:
+          return ConvertToComplex(number);
+
+      }
+
+      throw new Exception("BUG");
+    }
+
+    #region Obsolete
+
+    [Builtin("round")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Round(object obj)
+    {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
+      {
+        Fraction f = ConvertToRational(obj);
+        BigInteger c = f.Numerator / f.Denominator;
+        BigInteger d = f.Numerator % f.Denominator;
+        if (d < 0)
+        {
+          if (-d > f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c - 1);
+          }
+          else if (-d < f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c);
+          }
+        }
+        else if (d > 0)
+        {
+          if (d > f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c + 1);
+          }
+          else if (d < f.Denominator / 2)
+          {
+            return ToIntegerIfPossible(c);
+          }
+        }
+        else
+        {
+          if (c % 2 == 0)
+          {
+            return ToIntegerIfPossible(c);
+          }
+          else
+          {
+            return ToIntegerIfPossible(c + 1);
+          }
+        }
+      }
+      object res = MathHelper(Math.Round, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
+    }
+
+    [Builtin("floor")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Floor(object obj)
+    {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
+      {
+        Fraction f = ConvertToRational(obj);
+        BigInteger c = f.Numerator / f.Denominator;
+        if (IsTrue(IsNegative(f)))
+        {
+          c -= 1;
+        }
+        return ToIntegerIfPossible(c);
+      }
+      object res = MathHelper(Math.Floor, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
+    }
+
+    [Builtin("ceiling")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Ceiling(object obj)
+    {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (IsTrue(IsExact(obj)) && IsTrue(IsRational(obj)))
+      {
+        Fraction f = ConvertToRational(obj);
+        BigInteger c = f.Numerator / f.Denominator;
+        if (c > 0)
+        {
+          c += 1;
+        }
+        return ToIntegerIfPossible(c);
+      }
+      object res = MathHelper(Math.Ceiling, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
+    }
+
+    [Builtin("truncate")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Truncate(object obj)
+    {
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      object res = MathHelper(Math.Truncate, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return Exact(res);
+      }
+      else
+      {
+        return res;
+      }
+    }
+
+    [Builtin("abs")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Abs(object obj)
+    {
+      if (obj is double)
+      {
+        return Math.Abs((double)obj);
+      }
+      else if (obj is int)
+      {
+        int i = (int)obj;
+        if (i == int.MinValue)
+        {
+          return ((BigInteger)i).Abs();
+        }
+        else
+        {
+          return Math.Abs(i);
+        }
+      }
+      else if (obj is BigInteger)
+      {
+        return ((BigInteger)obj).Abs();
+      }
+      else if (obj is Complex64)
+      {
+        return AssertionViolation("abs", "not a real", obj);
+      }
+      else if (obj is Fraction)
+      {
+        Fraction f = (Fraction)obj;
+        if (f < 0)
+        {
+          return new Fraction(-f.Numerator, f.Denominator);
+        }
+        return obj;
+      }
+      else
+      {
+        double d = SafeConvert(obj);
+        return Math.Abs(d);
+      }
+    }
+
+
+    [Builtin("div")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Div(object x1, object x2)
+    {
+      if (IsTrue(IsZero(x2)))
+      {
+        return AssertionViolation("div", "divide by zero", x1, x2);
+      }
+      if (IsTrue(IsInfinite(x1)))
+      {
+        return AssertionViolation("div", "cannot be infinite", x1);
+      }
+      if (IsTrue(IsNan(x1)))
+      {
+        return AssertionViolation("div", "cannot be nan", x1);
+      }
+
+      bool exactargs = IsTrue(IsExact(x1)) && IsTrue(IsExact(x2));
+      object scale = 1;
+
+      if (exactargs)
+      {
+        scale = Multiply(Denominator(x1), Denominator(x2));
+        x1 = Multiply(x1, scale);
+        x2 = Multiply(x2, scale);
+      }
+
+      object a = x1;
+      object b = x2;
+
+      object div = null;
+
+      if (IsTrue(IsPositive(b)))
+      {
+        div = Floor(Divide(a, b));
+      }
+      else
+      {
+        div = Subtract(Floor(Divide(a, Subtract(b))));
+      }
+
+      if (!exactargs && IsTrue(IsNan(div)) || IsTrue(IsInfinite(div)))
+      {
+        return div;
+      }
+      else
+      {
+        return Exact(div);
+      }
+    }
+
 
     [Builtin("make-rectangular")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible")]
@@ -2367,5 +1527,868 @@ namespace IronScheme.Runtime
       Complex64 c = ConvertToComplex(obj);
       return Atan(c.Imag, c.Real);
     }
+
+    [Builtin("exp")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Exp(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Exp((Complex64)obj);
+      }
+      return MathHelper(Math.Exp, obj);
+    }
+
+    [Builtin("log")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Log(object obj)
+    {
+      if (obj is Complex64 || IsTrue(IsNegative(obj)))
+      {
+        return Complex64.Log(ConvertToComplex(obj));
+      }
+      if (IsTrue(IsZero(obj)))
+      {
+        if (IsTrue(IsExact(obj)))
+        {
+          return AssertionViolation("log", "not possible", obj);
+        }
+        else
+        {
+          return double.NegativeInfinity;
+        }
+      }
+      if (IsTrue(IsInfinite(obj)))
+      {
+        if (IsTrue(IsNegative(obj)))
+        {
+          return MakeRectangular(Abs(obj), 0);
+        }
+        else
+        {
+          return obj;
+        }
+      }
+      return MathHelper(Math.Log, obj);
+    }
+
+    [Builtin("log")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Log(object obj, object bas)
+    {
+      return Divide(Log(obj), Log(bas));
+    }
+
+    [Builtin("sin")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Sin(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Sin((Complex64)obj);
+      }
+
+      return MathHelper(Math.Sin, obj);
+    }
+
+    [Builtin("asin")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Asin(object obj)
+    {
+      return Complex64.Asin(ConvertToComplex(obj));
+    }
+
+    [Builtin("sinh")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Sinh(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Sinh((Complex64)obj);
+      }
+
+      return MathHelper(Math.Sinh, obj);
+    }
+
+    [Builtin("cos")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Cos(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Cos((Complex64)obj);
+      }
+
+      return MathHelper(Math.Cos, obj);
+    }
+
+    [Builtin("acos")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Acos(object obj)
+    {
+      return Complex64.Acos(ConvertToComplex(obj));
+    }
+
+    [Builtin("cosh")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Cosh(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Cosh((Complex64)obj);
+      }
+
+      return MathHelper(Math.Cosh, obj);
+    }
+
+    [Builtin("tan")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Tan(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Tan((Complex64)obj);
+      }
+
+      return MathHelper(Math.Tan, obj);
+    }
+
+    [Builtin("atan")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Atan(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Atan((Complex64)obj);
+      }
+
+      return MathHelper(Math.Atan, obj);
+    }
+
+    [Builtin("atan")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Atan(object obj, object obj2)
+    {
+      return MathHelper(Math.Atan2, obj, obj2);
+    }
+
+    [Builtin("tanh")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Tanh(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return Complex64.Tanh((Complex64)obj);
+      }
+
+      return MathHelper(Math.Tanh, obj);
+    }
+
+    [Builtin("div0")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Div0(object x1, object x2)
+    {
+      object div = Div(x1, x2);
+      object mod = Subtract(x1, Multiply(div, x2));
+
+      if (IsTrue(IsLessThan(mod, Magnitude(Divide(x2, 2)))))
+      {
+        return div;
+      }
+      if (IsTrue(IsPositive(x2)))
+      {
+        return Add(div, 1);
+      }
+      return Subtract(div, 1);
+    }
+
+ 
+    [Builtin("numerator")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Numerator(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return AssertionViolation("numerator", "not a real", obj);
+      }
+      if (IsTrue(IsInteger(obj)))
+      {
+        return obj;
+      }
+      if (obj is Fraction)
+      {
+        return Exact(((Fraction)obj).Numerator);
+      }
+      bool exact = IsTrue(IsExact(obj));
+      BigInteger r = ((Fraction)FractionConverter.ConvertFrom(obj)).Numerator;
+      if (exact)
+      {
+        return Exact(r);
+      }
+      else
+      {
+        return SafeConvert(r);
+      }
+    }
+
+    [Builtin("denominator")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Denominator(object obj)
+    {
+      if (obj is Complex64)
+      {
+        return AssertionViolation("denominator", "not a real", obj);
+      }
+      if (IsTrue(IsInteger(obj)))
+      {
+        return 1;
+      }
+      if (obj is Fraction)
+      {
+        return Exact(((Fraction)obj).Denominator);
+      }
+      bool exact = IsTrue(IsExact(obj));
+      BigInteger r = ((Fraction)FractionConverter.ConvertFrom(obj)).Denominator;
+      if (exact)
+      {
+        return Exact(r);
+      }
+      else
+      {
+        return SafeConvert(r);
+      }
+    }
+
+    [Builtin("exact?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsExact(object obj)
+    {
+      if (IsTrue(IsNumber(obj)))
+      {
+        return GetBool(obj is int || obj is BigInteger || obj is Fraction);
+      }
+      return AssertionViolation("exact?", "not a number", obj);
+    }
+
+    [Builtin("inexact?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsInexact(object obj)
+    {
+      if (IsTrue(IsNumber(obj)))
+      {
+        return GetBool(!(obj is int || obj is BigInteger || obj is Fraction));
+      }
+      return AssertionViolation("inexact?", "not a number", obj);
+    }
+
+    [Builtin("=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsSame(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation("=", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("=", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) == ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) == ConvertToBigInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) == ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          double f1 = ConvertToReal(first);
+          double f2 = ConvertToReal(second);
+          result = f1 == f2
+            || (double.IsNegativeInfinity(f1) && double.IsNegativeInfinity(f2))
+            || (double.IsPositiveInfinity(f1) && double.IsPositiveInfinity(f2));
+          break;
+        case NumberClass.Complex:
+          result = ConvertToComplex(first) == ConvertToComplex(second);
+          break;
+        default:
+          return AssertionViolation("=", "not a number", first, second);
+      }
+
+      return GetBool(result);
+    }
+
+    static void CheckArgs(string who, object[] args)
+    {
+      if (args == null || args.Length == 0)
+      {
+        AssertionViolation(who, "expects 2 or more arguments");
+      }
+    }
+
+    [Builtin("=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsSame(object first, params object[] rest)
+    {
+      CheckArgs("=", rest);
+
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.NotANumber)
+      {
+        AssertionViolation("=", "not a number", first);
+      }
+
+      object o = first;
+
+      foreach (object item in rest)
+      {
+        if (!IsTrue(IsSame(o, item)))
+        {
+          return FALSE;
+        }
+        o = item;
+      }
+
+      return TRUE;
+    }
+
+    [Builtin("<")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsLessThan(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation("<", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("<", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) < ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) < ConvertToBigInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) < ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) < ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          return AssertionViolation("<", "not real", first, second);
+        default:
+          return Error("<", "BUG");
+      }
+
+      return GetBool(result);
+    }
+
+    [Builtin("<")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsLessThan(object first, params object[] rest)
+    {
+      CheckArgs("<", rest);
+
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation("<", "not a real", first);
+      }
+
+      object o = first;
+
+      foreach (object item in rest)
+      {
+        if (!IsTrue(IsLessThan(o, item)))
+        {
+          return FALSE;
+        }
+        o = item;
+      }
+
+      return TRUE;
+    }
+
+    [Builtin("<=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsLessThanOrEqual(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation("<=", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("<=", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) <= ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) <= ConvertToBigInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) <= ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) <= ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          return AssertionViolation("<=", "not real", first, second);
+        default:
+          return Error("<=", "BUG");
+      }
+
+      return GetBool(result);
+    }
+
+    [Builtin("<=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsLessThanOrEqual(object first, params object[] rest)
+    {
+      CheckArgs("<=", rest);
+
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation("<=", "not a real", first);
+      }
+
+      object o = first;
+
+      foreach (object item in rest)
+      {
+        if (!IsTrue(IsLessThanOrEqual(o, item)))
+        {
+          return FALSE;
+        }
+        o = item;
+      }
+
+      return TRUE;
+    }
+
+    [Builtin(">")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsGreaterThan(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation(">", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation(">", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) > ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) > ConvertToBigInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) > ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) > ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          return AssertionViolation(">", "not real", first, second);
+        default:
+          return Error(">", "BUG");
+      }
+
+      return GetBool(result);
+    }
+
+    [Builtin(">")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsGreaterThan(object first, params object[] rest)
+    {
+      CheckArgs(">", rest);
+
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation(">", "not a real", first);
+      }
+
+      object o = first;
+
+      foreach (object item in rest)
+      {
+        if (!IsTrue(IsGreaterThan(o, item)))
+        {
+          return FALSE;
+        }
+        o = item;
+      }
+
+      return TRUE;
+    }
+
+    [Builtin(">=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsGreaterThanOrEqual(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation(">=", "not a number", first);
+      }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation(">=", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      bool result = false;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          result = ConvertToInteger(first) >= ConvertToInteger(second);
+          break;
+        case NumberClass.BigInteger:
+          result = ConvertToBigInteger(first) >= ConvertToBigInteger(second);
+          break;
+        case NumberClass.Rational:
+          result = ConvertToRational(first) >= ConvertToRational(second);
+          break;
+        case NumberClass.Real:
+          result = ConvertToReal(first) >= ConvertToReal(second);
+          break;
+        case NumberClass.Complex:
+          return AssertionViolation(">=", "not real", first, second);
+        default:
+          return Error(">=", "BUG");
+      }
+
+      return GetBool(result);
+    }
+
+    [Builtin(">=")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsGreaterThanOrEqual(object first, params object[] rest)
+    {
+      CheckArgs(">=", rest);
+
+      NumberClass e = GetNumberClass(first);
+      if (e == NumberClass.Complex)
+      {
+        AssertionViolation(">=", "not a real", first);
+      }
+
+      object o = first;
+
+      foreach (object item in rest)
+      {
+        if (!IsTrue(IsGreaterThanOrEqual(o, item)))
+        {
+          return FALSE;
+        }
+        o = item;
+      }
+
+      return TRUE;
+    }
+
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    static object IsZero(object obj)
+    {
+      return IsSame(obj, 0);
+    }
+
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    protected static object IsPositive(object obj)
+    {
+      if (IsTrue(IsRealValued(obj)))
+      {
+        return IsGreaterThan(obj, 0);
+      }
+      return AssertionViolation("positive?", "not a real", obj);
+    }
+
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    static object IsNegative(object obj)
+    {
+      if (IsTrue(IsRealValued(obj)))
+      {
+        return IsLessThan(obj, 0);
+      }
+      return AssertionViolation("negative?", "not a real", obj);
+    }
+
+
+    [Builtin("number?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsNumber(object obj)
+    {
+      return IsComplex(obj);
+    }
+
+    [Builtin("complex?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsComplex(object obj)
+    {
+      return GetBool(IsTrue(IsReal(obj)) || obj is Complex64);
+    }
+
+    [Builtin("real?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsReal(object obj)
+    {
+      return GetBool(IsTrue(IsRational(obj)) || obj is double);
+    }
+
+    [Builtin("rational?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsRational(object obj)
+    {
+      if (IsTrue(IsInteger(obj)) || obj is Fraction)
+      {
+        return TRUE;
+      }
+
+      if (obj is double)
+      {
+        return IsRational(RealToExact(obj));
+      }
+
+      return FALSE;
+    }
+
+    [Builtin("integer?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsInteger(object obj)
+    {
+      if (obj is int || obj is BigInteger)
+      {
+        return TRUE;
+      }
+
+      if (obj is Fraction)
+      {
+        return GetBool(((Fraction)obj).Denominator == 1);
+      }
+
+      if (obj is double)
+      {
+        return IsInteger(RealToExact(obj));
+      }
+
+      return FALSE;
+    }
+
+    [Obsolete]
+    static object RealToExact(object obj)
+    {
+      double d = (double)obj;
+
+      if (double.IsNaN(d) || double.IsInfinity(d))
+      {
+        return FALSE;
+      }
+      try
+      {
+        Fraction f = (Fraction)d;
+        if (f.Denominator == 1)
+        {
+          if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
+          {
+            return (BigInteger)f.Numerator;
+          }
+          return (int)f.Numerator;
+        }
+        return f;
+      }
+      catch (DivideByZeroException)
+      {
+        // fall back to bigint
+      }
+      catch (OverflowException)
+      {
+        // fall back to bigint
+      }
+      BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(Round(obj));
+      int ir;
+      if (r.AsInt32(out ir))
+      {
+        return ir;
+      }
+      return r;
+    }
+
+    [Builtin("integer-valued?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsIntegerValued(object obj)
+    {
+      if (obj is int || obj is BigInteger)
+      {
+        return TRUE;
+      }
+      if (obj is Complex64)
+      {
+        return GetBool(((Complex64)obj).Imag == 0 && IsTrue(IsIntegerValued(((Complex64)obj).Real)));
+      }
+      if (obj is Fraction)
+      {
+        return GetBool(((Fraction)obj).Denominator == 1);
+      }
+      if (IsTrue(IsNan(obj)) || IsTrue(IsInfinite(obj)))
+      {
+        return FALSE;
+      }
+      return IsZero(RemainderInternal(obj, 1));
+    }
+
+    [Builtin("rational-valued?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsRationalValued(object obj)
+    {
+      if (obj is Fraction)
+      {
+        return TRUE;
+      }
+
+      bool iv = IsTrue(IsIntegerValued(obj));
+      if (iv)
+      {
+        return TRUE;
+      }
+
+      if (obj is Complex64)
+      {
+        Complex64 c = (Complex64)obj;
+        if (c.Imag == 0)
+        {
+          return IsRationalValued(c.Real);
+        }
+        return FALSE;
+      }
+
+      if (IsTrue(IsNumber(obj)))
+      {
+        double d = SafeConvert(obj);
+        if (double.IsNaN(d) || double.IsInfinity(d))
+        {
+          return FALSE;
+        }
+        return GetBool(d == (double)(Fraction)d);
+      }
+      return FALSE;
+    }
+
+    [Builtin("real-valued?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsRealValued(object obj)
+    {
+      if (obj is Complex64)
+      {
+        Complex64 c = (Complex64)obj;
+        if (c.Imag != 0)
+        {
+          return FALSE;
+        }
+      }
+      return IsNumber(obj);
+    }
+
+    [Builtin("finite?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsFinite(object obj)
+    {
+      return Not(IsInfinite(obj));
+    }
+
+    [Builtin("infinite?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsInfinite(object obj)
+    {
+      if (obj is double)
+      {
+        return GetBool(double.IsInfinity((double)obj));
+      }
+      if (obj is float)
+      {
+        return GetBool(float.IsInfinity((float)obj));
+      }
+
+      return FALSE;
+    }
+
+    [Builtin("nan?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object IsNan(object obj)
+    {
+      if (obj is double)
+      {
+        return GetBool(double.IsNaN((double)obj));
+      }
+      if (obj is float)
+      {
+        return GetBool(float.IsNaN((float)obj));
+      }
+
+      return FALSE;
+    }
+
+    #endregion
   }
 }

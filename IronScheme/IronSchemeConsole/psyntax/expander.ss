@@ -1080,7 +1080,7 @@
     (lambda (e)
       (define (build-last cls)
         (syntax-match cls (else)
-          ((else e e* ...) `(begin ,e . ,e*))
+          ((else e e* ...) `(begin #f ,e . ,e*))
           (_ (build-one cls '(if #f #f)))))
       (define (build-one cls k)
         (syntax-match cls ()
@@ -1153,7 +1153,7 @@
                `(let ,(map list t* expr*)
                   ,(let f ((pat* pat*) (t* t*))
                      (cond
-                       ((null? pat*) `(begin #f ,b . ,b*))
+                       ((null? pat*) `(begin ,b . ,b*))
                        (else
                         `(syntax-case ,(car t*) ()
                            (,(car pat*) ,(f (cdr pat*) (cdr t*)))
@@ -1578,7 +1578,7 @@
              (cond
                ((null? cls*)
                 (syntax-match cls (else =>)
-                  ((else e e* ...) `(begin ,e . ,e*))
+                  ((else e e* ...) `(begin #f ,e . ,e*))
                   ((e => p) `(let ((t ,e)) (if t (,p t))))
                   ((e) `(or ,e (if #f #f)))
                   ((e e* ...) `(if ,e (begin . ,e*)))
