@@ -40,7 +40,13 @@
     tan
     tanh
     log
-    atan)
+    atan
+    div
+    abs
+    floor
+    ceiling
+    truncate
+    round)
   (import 
     (except 
       (ironscheme)
@@ -83,7 +89,13 @@
       tan
       tanh
       log
-      atan)
+      atan
+      div
+      abs
+      floor
+      ceiling
+      truncate
+      round)
     (ironscheme unsafe)
     (ironscheme clr))
 
@@ -502,6 +514,117 @@
             (clr-static-call System.Math Log (inexact num))])]
       [(num1 num2)
         (/ (log num1) (log num2))]))
+        
+        
+  (define (div x1 x2)
+    (unless (real? x1)
+      (assertion-violation 'div "not a real" x1))
+    (unless (real? x2)
+      (assertion-violation 'div "not a real" x2))
+    (when (zero? x2)
+      (assertion-violation 'div "divide by zero" x1 x2))
+    (when (or (nan? x1) (infinite? x1))
+      (assertion-violation 'div "cannot be nan or infinite" x1 x2))
+    (let-values (((x1 x2 exact-args?) 
+                  (if (and (exact? x1) (exact? x2))
+                      (let ((scale (* (denominator x1)
+                                      (denominator x2))))
+                        (values (* x1 scale)
+                                (* x2 scale)
+                                #t))
+                      (values x1 x2 #f))))
+       (let ((d (if (positive? x2)
+                    (floor (/ x1 x2))
+                    (- (floor (/ x1 (- x2)))))))
+         (if (and exact-args? (rational-valued? d))
+             (exact d)
+             d))))
+             
+  (define (abs x1)
+    (unless (real? x1)
+      (assertion-violation 'abs "not a real" x1))
+    (if (negative? x1)
+        (- x1)
+        x1))
+        
+  (define (bignum/ a b)
+    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Division a b))    
+    
+  (define (bignum% a b)
+    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Modulus a b))
+    
+  (define (bignum->fixnum b)
+    (clr-call Microsoft.Scripting.Math.BigInteger ToInt32 b))
+    
+  (define (flonum->ratnum f)
+    (clr-static-call IronScheme.Runtime.Fraction "op_Implicit(System.Double)" f))
+
+  (define (ratnum->flonum r)
+    (clr-call IronScheme.Runtime.Fraction ToDouble r '()))
+    
+  (define (fixnum->bignum f)
+    (clr-static-call Microsoft.Scripting.Math.BigInteger "Create(System.Int32)" f))
+        
+  (define (floor x)
+    (unless (real? x)
+      (assertion-violation 'floor "not a real" x))
+    (cond
+      [(exact-integer? x) x]
+      [(ratnum? x)
+        (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
+          (exact (if (negative? x) (- r 1) r)))]
+      [else
+        (clr-static-call System.Math "Floor(System.Double)" (inexact x))]))
+             
+  (define (ceiling x)
+    (unless (real? x)
+      (assertion-violation 'ceiling "not a real" x))
+    (cond
+      [(exact-integer? x) x]
+      [(ratnum? x)
+        (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
+          (exact (if (positive? r) (+ r 1) r)))]
+      [else
+        (clr-static-call System.Math "Ceiling(System.Double)" (inexact x))]))
+
+  (define (truncate x)
+    (unless (real? x)
+      (assertion-violation 'truncate "not a real" x))
+    (cond
+      [(exact-integer? x) x]
+      [else
+        (let ((r (clr-static-call System.Math "Truncate(System.Double)" (inexact x))))
+          (if (exact? x)
+              (exact r)
+              r))]))
+            
+  (define (round x)
+    (unless (real? x)
+      (assertion-violation 'round "not a real" x))
+    (cond
+      [(exact-integer? x) x]
+      [(ratnum? x)
+        (let* ((num (ratnum-numerator x))
+               (den (ratnum-denominator x))
+               (d (bignum/ num den))
+               (r (bignum% num den))
+               (hd (div d 2)))
+          (cond
+            [(negative? r)
+              (exact (cond 
+                       [(> (- r) hd) (- d 1)]
+                       [(< (- r) hd) d]
+                       [(even? d) d]
+                       [else (+ d 1)]))]
+            [(positive? r)
+              (exact (cond 
+                       [(> r hd) (+ d 1)]
+                       [(< r hd) d]
+                       [(even? d) d]
+                       [else (+ d 1)]))]
+            [else d]))]
+      [else
+        (clr-static-call System.Math "Round(System.Double)" (inexact x))]))
 )
   
   
