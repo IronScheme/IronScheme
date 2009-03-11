@@ -28,6 +28,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
   public class Flonums : Builtins
   {
     [Builtin("real->flonum")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object RealToFlonum(object n)
     {
       // must be number? fixme
@@ -36,6 +37,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
     //(flnumerator fl) procedure
     [Builtin("flnumerator")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object FlNumerator(object a)
     {
       if (IsTrue(IsNan(a)) || IsTrue(IsInfinite(a)))
@@ -47,6 +49,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
     //(fldenominator fl)
     [Builtin("fldenominator")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object FlDenominator(object a)
     {
       if (IsTrue(IsNan(a)) || IsTrue(IsInfinite(a)))
@@ -59,6 +62,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
     //(fixnum->flonum fx)
     [Builtin("fixnum->flonum")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object FixnumToFlonum(object a)
     {
       return (double)RequiresNotNull<int>(a);

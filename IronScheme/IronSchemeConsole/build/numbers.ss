@@ -46,7 +46,14 @@
     floor
     ceiling
     truncate
-    round)
+    round
+    fixnum->flonum
+    real->flonum
+    inexact
+    exact
+    sqrt
+    exact-integer-sqrt
+    expt)
   (import 
     (except 
       (ironscheme)
@@ -95,7 +102,15 @@
       floor
       ceiling
       truncate
-      round)
+      round
+      fixnum->flonum
+      real->flonum
+      inexact
+      exact
+      sqrt
+      exact-integer-sqrt
+      expt)
+    (ironscheme core)
     (ironscheme unsafe)
     (ironscheme clr))
 
@@ -110,7 +125,6 @@
     
   (define (ratnum-numerator rat)
     (clr-prop-get IronScheme.Runtime.Fraction Numerator rat))  
-    
   
   (define (complexnum? obj)
     (clr-is Microsoft.Scripting.Math.Complex64 obj))
@@ -123,7 +137,59 @@
     
   (define (complexnum-real-part c)
     (clr-prop-get Microsoft.Scripting.Math.Complex64 Real c))
-   
+    
+  (define (bignum/ a b)
+    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Division a b))    
+    
+  (define (bignum% a b)
+    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Modulus a b))
+    
+  (define (bignum->fixnum b)
+    (clr-call Microsoft.Scripting.Math.BigInteger ToInt32 b))
+    
+  (define (flonum->ratnum f)
+    (clr-static-call IronScheme.Runtime.Fraction "op_Implicit(System.Double)" f))
+
+  (define (ratnum->flonum r)
+    (clr-call IronScheme.Runtime.Fraction ToDouble r '()))
+    
+  (define (fixnum->bignum f)
+    (clr-static-call Microsoft.Scripting.Math.BigInteger "Create(System.Int32)" f))   
+    
+  (define (real->complexnum num)
+    (if (complexnum? num)
+        num
+        (make-complexnum (inexact num) 0.0)))
+        
+  (define (->fixnum num)
+    (if (fixnum? num)
+        num
+        (clr-static-call System.Convert "ToInt32(Object)" num)))
+    
+  (define (->ratnum num)
+    (cond 
+      [(ratnum? num) num]
+      [(real? num)
+        (flonum->ratnum (real->flonum num))]
+      [else
+        (assertion-violation '->ratnum "not a real" num)]))
+        
+  (define (->bignum num)
+    (cond 
+      [(bignum? num) num]
+      [(fixnum? num) (fixnum->bignum num)]
+      [else
+        (assertion-violation '->bignum "not an integer" num)]))     
+
+  (define (real->flonum x)
+    (unless (real? x)
+      (assertion-violation 'real->flonum "not a real" x))
+    (clr-static-call System.Convert "ToDouble(System.Object)" x))
+    
+  (define (fixnum->flonum x)
+    (unless (fixnum? x)
+      (assertion-violation 'fixnum->flonum "not a fixnum" x))
+    (clr-cast System.Double (clr-cast System.Int32 x)))
     
   (define (number? obj)
     (or (fixnum? obj)
@@ -287,13 +353,51 @@
       [else #f]))                
 
   (define (zero? num)
+    (unless (number? num)
+      (assertion-violation 'zero? "not a number" num))    
     (= num 0))
     
   (define (positive? num)
+    (unless (number? num)
+      (assertion-violation 'positive? "not a number" num))    
     (> num 0))
       
   (define (negative? num)
+    (unless (number? num)
+      (assertion-violation 'negative? "not a number" num))    
     (< num 0))
+    
+  (define (inexact num)
+    (cond
+      [(or (complexnum? num) 
+           (flonum? num)) 
+         num]
+      [(or (exact-integer? num)
+           (ratnum? num))
+         (real->flonum num)]
+      [else
+        (assertion-violation 'inexact "not a number" num)]))
+        
+  (define (exact num)
+    (cond
+      [(complexnum? num)
+        (if (zero? (complexnum-imag-part num))
+            (exact (complexnum-real-part num))
+            (assertion-violation 'exact "no exact equivalent" num))]
+      [(flonum? num)
+        (if (or (flnan? num) (flinfinite? num))
+            (assertion-violation 'exact "no exact equivalent" num)
+            (flonum->ratnum num))]
+      [(bignum? num)
+        (if (fx<=? (fixnum-width) (bitwise-length num))
+            num
+            (bignum->fixnum num))]
+      [(or (fixnum? num)
+           (ratnum? num))
+         num]
+      [else
+        (assertion-violation 'exact "not a number" num)]))        
+    
 
   (define-syntax define-comparer 
     (lambda (x)
@@ -547,23 +651,7 @@
         (- x1)
         x1))
         
-  (define (bignum/ a b)
-    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Division a b))    
-    
-  (define (bignum% a b)
-    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Modulus a b))
-    
-  (define (bignum->fixnum b)
-    (clr-call Microsoft.Scripting.Math.BigInteger ToInt32 b))
-    
-  (define (flonum->ratnum f)
-    (clr-static-call IronScheme.Runtime.Fraction "op_Implicit(System.Double)" f))
 
-  (define (ratnum->flonum r)
-    (clr-call IronScheme.Runtime.Fraction ToDouble r '()))
-    
-  (define (fixnum->bignum f)
-    (clr-static-call Microsoft.Scripting.Math.BigInteger "Create(System.Int32)" f))
         
   (define (floor x)
     (unless (real? x)
@@ -625,6 +713,89 @@
             [else d]))]
       [else
         (clr-static-call System.Math "Round(System.Double)" (inexact x))]))
+        
+        
+  (define (sqrt num)
+    (cond
+      [(complexnum? num)
+        (clr-static-call Microsoft.Scripting.Math.Complex64 Sqrt num)]
+      [(negative? num)
+        (make-rectangular 0 (sqrt (- num)))]
+      [(bignum? num)
+        (bignum-sqrt num)]
+      [(infinite? num) num]
+      [else
+        (let ((r (clr-static-call System.Math Sqrt (inexact num))))
+          (if (exact? num)
+              (exact r)
+              r))]))
+                
+  (define (exact-integer-sqrt num)
+    (if (bignum? num)
+        (bignum-sqrt-exact num)
+        (let* ((r (sqrt num))
+               (rf (exact (floor r)))
+               (rest (- num (* rf rf))))
+          (values rf rest))))
+          
+
+        
+          
+  (define (expt obj1 obj2)
+    (define (make-restriction-violation)
+      (condition
+        (make-implementation-restriction-violation)
+        (make-who-condition 'expt)
+        (make-message-condition "not supported")
+        (make-irritants-condition obj1 obj2)))
+    (cond
+      [(or (complexnum? obj1) (negative? obj1))
+        (clr-static-call Microsoft.Scripting.Math.Complex64 
+                         Pow 
+                         (real->complexnum obj1)
+                         (real->complexnum obj2))]
+      [else
+        (let ((e (and (exact? obj1) (exact? obj2)))
+              (z1 (zero? obj1))
+              (z2 (zero? obj2)))
+          (cond
+            [(and z1 (not z2))
+              (if e 0 0.0)]
+            [(or z2 (= obj1 1))
+              (if e 1 1.0)]
+            [(= obj2 1)
+              (if e obj1 (inexact obj1))]
+            [else
+              (let* ((neg? (negative? obj2))
+                     (obj2 (if neg? (abs obj2) obj2)))
+                (cond
+                  [(and (integer? obj1) (integer? obj2))
+                    (let* ((a (->bignum obj1))
+                           (r (clr-call Microsoft.Scripting.Math.BigInteger
+                                        Power
+                                        a
+                                        (->fixnum obj2))))
+                       (if neg? 
+                           (if (zero? r)
+                               (raise (make-restriction-violation))
+                               (/ 1 r))
+                           (exact r)))]
+                  [(and (rational? obj1) (integer? obj2))
+                    (let* ((f (->ratnum obj1)))
+                       (if neg?
+                           (/ (expt (denominator f) obj2) (expt (numerator f) obj2))
+                           (/ (expt (numerator f) obj2) (expt (denominator f) obj2))))]
+                  [(and (real? obj1) (real? obj2))
+                    (let ((r (clr-static-call System.Math Pow (inexact obj1) (inexact obj2))))
+                      (if neg? 
+                          (/ 1 r)
+                          r))]
+                  [else 
+                    (raise (make-restriction-violation))]))]))]))
+                  
+                                                 
+          
+   
 )
   
   

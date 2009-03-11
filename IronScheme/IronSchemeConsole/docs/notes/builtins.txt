@@ -1,7 +1,7 @@
 ﻿Builtins
 ========
 
-A list of builtin procedures.
+A list of builtin procedures still written in C#.
 
 (rnrs base):
 
@@ -9,7 +9,6 @@ A list of builtin procedures.
 +
 -
 /
-abs
 append
 apply [1][5]
 assertion-violation [2][4]
@@ -17,20 +16,13 @@ call-with-current-continuation/call/cc [1][5]
 call-with-values [1][5]
 car
 cdr
-ceiling
 char->integer
 cons
-div
 dynamic-wind [1][5]
 eq?
 equal?
 eqv?
 error [2][4]
-exact
-exact-integer-sqrt [6]
-expt
-floor
-inexact
 integer->char
 length
 list
@@ -41,8 +33,6 @@ not
 null?
 number->string
 pair?
-round
-sqrt
 string
 string->list
 string->number
@@ -54,7 +44,6 @@ string-ref
 string?
 substring
 symbol->string
-truncate
 values [5] [6]
 vector
 vector->list
@@ -188,11 +177,6 @@ bitwise-xor
 (rnrs arithmetic fixnums):
 
 (rnrs arithmetic flonums):
-
-fixnum->flonum
-fldenominator
-flnumerator
-real->flonum
 
 (rnrs hashtables):
 

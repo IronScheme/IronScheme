@@ -1,7 +1,6 @@
 (library (ironscheme arithmetic flonums)
   (export
     flonum?
-    real->flonum
     
     fl=?
     fl<?
@@ -55,9 +54,7 @@
     flacos
     flatan
     flsqrt
-    flexpt
-
-    fixnum->flonum)
+    flexpt)
     
   (import
     (ironscheme integrable)
@@ -115,7 +112,10 @@
     fl-
     fl*
     fl/
+    flnumerator
+    fldenominator
     ))
+    
     
   (define-syntax define-fl
     (lambda (x)
@@ -194,6 +194,16 @@
                     
   (define-fl-binop0 fl+ 0.0)                    
   (define-fl-binop0 fl* 1.0)
+  
+  (define-fl (fldenominator fl)
+    (if (or (flnan? fl) (flinfinite? fl))
+        1.0
+        (real->flonum (denominator fl))))
+      
+  (define-fl (flnumerator fl)
+    (if (or (flnan? fl) (flinfinite? fl))
+        fl
+        (real->flonum (numerator fl))))
   
   (define fl-
     (case-lambda
