@@ -284,75 +284,7 @@ namespace IronScheme.Runtime
 
 
 
-    [Builtin("inexact")]
-    public static object Inexact(object obj)
-    {
-      if (!IsTrue(IsNumber(obj)))
-      {
-        return AssertionViolation("inexact", "not a number", obj);
-      }
 
-      if (IsTrue(IsExact(obj)))
-      {
-        return SafeConvert(obj);
-      }
-      return obj;
-    }
-
-    [Builtin("exact")]
-    public static object Exact(object obj)
-    {
-      if (!IsTrue(IsNumber(obj)))
-      {
-        return AssertionViolation("exact", "not a number", obj);
-      }
-      if (obj is double)
-      {
-        double d = (double)obj;
-
-        if (double.IsNaN(d) || double.IsInfinity(d))
-        {
-          return AssertionViolation("exact", "no exact equivalent", obj);
-        }
-        return Exact((Fraction)d);
-      }
-      if (obj is Complex64)
-      {
-        Complex64 c = (Complex64)obj;
-        if (c.Imag == 0.0)
-        {
-          return Exact(c.Real);
-        }
-        else
-        {
-          return AssertionViolation("exact", "no exact equivalent", obj);
-        }
-      }
-      if (obj is long)
-      {
-        BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(obj);
-        int ir;
-        if (r.AsInt32(out ir))
-        {
-          return ir;
-        }
-        return r;
-      }
-      if (obj is Fraction)
-      {
-        Fraction f = (Fraction)obj;
-        if (f.Denominator == 1)
-        {
-          if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
-          {
-            return (BigInteger)f.Numerator;
-          }
-          return (int)f.Numerator;
-        }
-        return f;
-      }
-      return obj;
-    }
 
     [Builtin("inexact=?")]
     public static object InexactEqual(object a, object b)
@@ -857,6 +789,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete]
     static object MathHelper(Function<double,double> func, object obj)
     {
       if (obj is double)
@@ -874,6 +807,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete]
     static object MathHelper(Function<double, double, double> func, object num1, object num2)
     {
       if (num1 is double)
@@ -907,8 +841,10 @@ namespace IronScheme.Runtime
 
 
     //based on lsqrt()
-    static object SqrtBigInteger(BigInteger x)
+    [Builtin("bignum-sqrt")]
+    public static object SqrtBigInteger(object num)
     {
+      BigInteger x = (BigInteger)num;
       BigInteger v0, q0, x1;
 
       if (x <= 1)
@@ -928,13 +864,15 @@ namespace IronScheme.Runtime
       }
       if (x1 * x1 != v0)
       {
-        return MathHelper(Math.Sqrt, v0);
+        return Math.Sqrt(v0);
       }
       return x1;
     }
 
-    static object ExactSqrtBigInteger(BigInteger x)
+    [Builtin("bignum-sqrt-exact")]
+    public static object ExactSqrtBigInteger(object num)
     {
+      BigInteger x = (BigInteger)num;
       BigInteger v0, q0, x1;
 
       if (x <= 1)
@@ -962,57 +900,101 @@ namespace IronScheme.Runtime
       return Values(x1, v0 - q0);
     }
 
-    [Builtin("sqrt")]
-    public static object Sqrt(object obj)
+
+    static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
+
+
+    static object IntegerIfPossible(object res)
     {
-      if (obj is Complex64)
+      if (IsTrue(IsIntegerValued(res)))
       {
-        return Complex64.Sqrt((Complex64)obj);
+        return Exact(res);
       }
-
-      if (IsTrue(IsNegative(obj)))
-      {
-        return MakeRectangular(0, Sqrt(Subtract(obj)));
-      }
-      if (obj is BigInteger)
-      {
-         return SqrtBigInteger((BigInteger)obj);
-      }
-
-      if (IsTrue(IsInfinite(obj)))
-      {
-        return obj;
-      }
-
-      object res = MathHelper(Math.Sqrt, obj);
-      if (IsTrue(IsExact(obj)))
-      {
-        return IntegerIfPossible(res);
-      }
-      else
-      {
-        return res;
-      }
+      return res;
     }
 
-    [Builtin("exact-integer-sqrt")]
-    public static object ExactIntegerSqrt(object obj)
-    {
-      if (obj is BigInteger)
-      {
-        return ExactSqrtBigInteger(ConvertToBigInteger(obj));
-      }
-      else
-      {
-        object r = Sqrt(obj);
-        object rf = Exact(Floor(r));
-        object rest = Subtract(obj, Multiply(rf, rf));
 
-        return Values(rf, rest);
+    [Obsolete]
+    static object RemainderInternal(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+
+      if (f == NumberClass.NotANumber)
+      {
+        return AssertionViolation("RemainderInternal", "not a number", first);
       }
+
+      NumberClass s = GetNumberClass(second);
+
+      if (s == NumberClass.NotANumber)
+      {
+        return AssertionViolation("RemainderInternal", "not a number", second);
+      }
+
+      NumberClass effective = f & s;
+
+      switch (effective)
+      {
+        case NumberClass.Integer:
+          try
+          {
+            return checked(ConvertToInteger(first) % ConvertToInteger(second));
+          }
+          catch (OverflowException)
+          {
+            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+          }
+          catch (ArithmeticException) // mono dodo
+          {
+            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+          }
+        case NumberClass.BigInteger:
+          return ConvertToBigInteger(first) % ConvertToBigInteger(second);
+        case NumberClass.Rational:
+          return IntegerIfPossible(ConvertToRational(first) % ConvertToRational(second));
+        case NumberClass.Real:
+          return ConvertToReal(first) % ConvertToReal(second);
+        case NumberClass.Complex:
+          return ConvertToComplex(first) % ConvertToComplex(second);
+      }
+
+      return Error("RemainderInternal", "BUG");
+    }
+    
+    [Obsolete]
+    static object GetNumber(NumberClass nc, object number)
+    {
+      switch (nc)
+      {
+        case NumberClass.Integer:
+        case NumberClass.BigInteger:
+          BigInteger r = ConvertToBigInteger(number);
+          if (r > int.MaxValue || r < int.MinValue)
+          {
+            return r;
+          }
+          else
+          {
+            return (int)r;
+          }
+        case NumberClass.Rational:
+          return ConvertToRational(number);
+        case NumberClass.Real:
+          return ConvertToReal(number);
+        case NumberClass.Complex:
+          return ConvertToComplex(number);
+
+      }
+
+      throw new Exception("BUG");
     }
 
-    [Builtin("expt", AllowConstantFold=true)]
+    #region Obsolete
+
+
+
+    [Builtin("expt", AllowConstantFold = true)]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object Expt(object obj1, object obj2)
     {
       if (obj1 is Complex64 || IsTrue(IsNegative(obj1)))
@@ -1104,95 +1086,130 @@ namespace IronScheme.Runtime
       return ImplementationRestriction("expt", "no supported", obj1, obj2);
     }
 
-    static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
 
-
-    static object IntegerIfPossible(object res)
+    [Builtin("sqrt")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Sqrt(object obj)
     {
-      if (IsTrue(IsIntegerValued(res)))
+      if (obj is Complex64)
       {
-        return Exact(res);
+        return Complex64.Sqrt((Complex64)obj);
       }
-      return res;
+
+      if (IsTrue(IsNegative(obj)))
+      {
+        return MakeRectangular(0, Sqrt(Subtract(obj)));
+      }
+      if (obj is BigInteger)
+      {
+        return SqrtBigInteger((BigInteger)obj);
+      }
+
+      if (IsTrue(IsInfinite(obj)))
+      {
+        return obj;
+      }
+
+      object res = MathHelper(Math.Sqrt, obj);
+      if (IsTrue(IsExact(obj)))
+      {
+        return IntegerIfPossible(res);
+      }
+      else
+      {
+        return res;
+      }
     }
 
-
-    [Obsolete]
-    static object RemainderInternal(object first, object second)
+    [Builtin("exact-integer-sqrt")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object ExactIntegerSqrt(object obj)
     {
-      NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
+      if (obj is BigInteger)
       {
-        return AssertionViolation("RemainderInternal", "not a number", first);
+        return ExactSqrtBigInteger(ConvertToBigInteger(obj));
       }
-
-      NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
+      else
       {
-        return AssertionViolation("RemainderInternal", "not a number", second);
+        object r = Sqrt(obj);
+        object rf = Exact(Floor(r));
+        object rest = Subtract(obj, Multiply(rf, rf));
+
+        return Values(rf, rest);
       }
-
-      NumberClass effective = f & s;
-
-      switch (effective)
-      {
-        case NumberClass.Integer:
-          try
-          {
-            return checked(ConvertToInteger(first) % ConvertToInteger(second));
-          }
-          catch (OverflowException)
-          {
-            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
-          }
-          catch (ArithmeticException) // mono dodo
-          {
-            return ConvertToBigInteger(first) % ConvertToBigInteger(second);
-          }
-        case NumberClass.BigInteger:
-          return ConvertToBigInteger(first) % ConvertToBigInteger(second);
-        case NumberClass.Rational:
-          return IntegerIfPossible(ConvertToRational(first) % ConvertToRational(second));
-        case NumberClass.Real:
-          return ConvertToReal(first) % ConvertToReal(second);
-        case NumberClass.Complex:
-          return ConvertToComplex(first) % ConvertToComplex(second);
-      }
-
-      return Error("RemainderInternal", "BUG");
-    }
-    
-    [Obsolete]
-    static object GetNumber(NumberClass nc, object number)
-    {
-      switch (nc)
-      {
-        case NumberClass.Integer:
-        case NumberClass.BigInteger:
-          BigInteger r = ConvertToBigInteger(number);
-          if (r > int.MaxValue || r < int.MinValue)
-          {
-            return r;
-          }
-          else
-          {
-            return (int)r;
-          }
-        case NumberClass.Rational:
-          return ConvertToRational(number);
-        case NumberClass.Real:
-          return ConvertToReal(number);
-        case NumberClass.Complex:
-          return ConvertToComplex(number);
-
-      }
-
-      throw new Exception("BUG");
     }
 
-    #region Obsolete
+    [Builtin("inexact")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Inexact(object obj)
+    {
+      if (!IsTrue(IsNumber(obj)))
+      {
+        return AssertionViolation("inexact", "not a number", obj);
+      }
+
+      if (IsTrue(IsExact(obj)))
+      {
+        return SafeConvert(obj);
+      }
+      return obj;
+    }
+
+    [Builtin("exact")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object Exact(object obj)
+    {
+      if (!IsTrue(IsNumber(obj)))
+      {
+        return AssertionViolation("exact", "not a number", obj);
+      }
+      if (obj is double)
+      {
+        double d = (double)obj;
+
+        if (double.IsNaN(d) || double.IsInfinity(d))
+        {
+          return AssertionViolation("exact", "no exact equivalent", obj);
+        }
+        return Exact((Fraction)d);
+      }
+      if (obj is Complex64)
+      {
+        Complex64 c = (Complex64)obj;
+        if (c.Imag == 0.0)
+        {
+          return Exact(c.Real);
+        }
+        else
+        {
+          return AssertionViolation("exact", "no exact equivalent", obj);
+        }
+      }
+      if (obj is long)
+      {
+        BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(obj);
+        int ir;
+        if (r.AsInt32(out ir))
+        {
+          return ir;
+        }
+        return r;
+      }
+      if (obj is Fraction)
+      {
+        Fraction f = (Fraction)obj;
+        if (f.Denominator == 1)
+        {
+          if (f.Numerator > int.MaxValue || f.Numerator < int.MinValue)
+          {
+            return (BigInteger)f.Numerator;
+          }
+          return (int)f.Numerator;
+        }
+        return f;
+      }
+      return obj;
+    }
 
     [Builtin("round")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible")]
