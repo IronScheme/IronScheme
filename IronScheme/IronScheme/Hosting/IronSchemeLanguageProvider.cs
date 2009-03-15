@@ -120,6 +120,10 @@ namespace IronScheme.Hosting
       {
         IronScheme.Runtime.Builtins.commandline = Options.RemainingArgs;
         Runtime.Builtins.Load("~/ironscheme.boot.pp");
+        if (!Options.TabCompletion)
+        {
+          Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
+        }
         int ev = 0;
         AutoResetEvent e = new AutoResetEvent(false);
         Thread t = new Thread(delegate ()
@@ -177,6 +181,11 @@ namespace IronScheme.Hosting
 #else
         Runtime.Builtins.Load("~/ironscheme.boot.pp");
 #endif
+        if (!Options.TabCompletion)
+        {
+          Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
+        }
+
         if (File.Exists("init.ss"))
         {
           Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);

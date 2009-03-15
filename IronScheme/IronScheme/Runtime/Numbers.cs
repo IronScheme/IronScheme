@@ -789,53 +789,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Obsolete]
-    static object MathHelper(Function<double,double> func, object obj)
-    {
-      if (obj is double)
-      {
-        return func((double)obj);
-      }
-      else if (obj is int)
-      {
-        return func((int)obj);
-      }
-      else
-      {
-        double d = SafeConvert(obj);
-        return func(d);
-      }
-    }
 
-    [Obsolete]
-    static object MathHelper(Function<double, double, double> func, object num1, object num2)
-    {
-      if (num1 is double)
-      {
-        if (num2 is double)
-        {
-          return func((double)num1, (double)num2);
-        }
-        else if (num2 is int)
-        {
-          return func((double)num1, (int)num2);
-        }
-      }
-      if (num1 is int)
-      {
-        if (num2 is int)
-        {
-          return func((int)num1, (int)num2);
-        }
-        else if (num2 is double)
-        {
-          return func((int)num1, (double)num2);
-        }
-      }
-      double d1 = SafeConvert(num1);
-      double d2 = SafeConvert(num2);
-      return func(d1,d2);
-    }
 
     #endregion
 
@@ -911,6 +865,54 @@ namespace IronScheme.Runtime
         return Exact(res);
       }
       return res;
+    }
+
+    [Obsolete]
+    static object MathHelper(Function<double, double> func, object obj)
+    {
+      if (obj is double)
+      {
+        return func((double)obj);
+      }
+      else if (obj is int)
+      {
+        return func((int)obj);
+      }
+      else
+      {
+        double d = SafeConvert(obj);
+        return func(d);
+      }
+    }
+
+    [Obsolete]
+    static object MathHelper(Function<double, double, double> func, object num1, object num2)
+    {
+      if (num1 is double)
+      {
+        if (num2 is double)
+        {
+          return func((double)num1, (double)num2);
+        }
+        else if (num2 is int)
+        {
+          return func((double)num1, (int)num2);
+        }
+      }
+      if (num1 is int)
+      {
+        if (num2 is int)
+        {
+          return func((int)num1, (int)num2);
+        }
+        else if (num2 is double)
+        {
+          return func((int)num1, (double)num2);
+        }
+      }
+      double d1 = SafeConvert(num1);
+      double d2 = SafeConvert(num2);
+      return func(d1, d2);
     }
 
 

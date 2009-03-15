@@ -19,8 +19,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Scripting", "Microsoft.Scripting\Microsoft.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Console", "IronSchemeConsole\IronScheme.Console.csproj", "{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9-2424-489F-8F3B-F1F7165E5A44}"
 	ProjectSection(SolutionItems) = preProject
 		tools\gplex.exe = tools\gplex.exe
@@ -41,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TailCallMaker", "TailCallMa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Web", "IronScheme.Web\IronScheme.Web.csproj", "{7BABDF0D-A9D2-4089-9ED6-27DFC6F3D498}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Console", "IronScheme.Console\IronScheme.Console.csproj", "{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 7
@@ -53,19 +53,19 @@ Global
 		SccProjectUniqueName2 = Microsoft.Scripting\\Microsoft.Scripting.csproj
 		SccProjectName2 = Microsoft.Scripting
 		SccLocalPath2 = Microsoft.Scripting
-		SccProjectUniqueName3 = IronSchemeConsole\\IronScheme.Console.csproj
-		SccProjectName3 = IronSchemeConsole
-		SccLocalPath3 = IronSchemeConsole
-		SccProjectUniqueName4 = IronScheme.Closures\\IronScheme.Closures.csproj
-		SccProjectName4 = IronScheme.Closures
-		SccLocalPath4 = IronScheme.Closures
-		SccProjectUniqueName5 = TailCallMaker\\TailCallMaker.csproj
-		SccProjectTopLevelParentUniqueName5 = IronScheme2008.sln
-		SccProjectName5 = TailCallMaker
-		SccLocalPath5 = TailCallMaker
-		SccProjectUniqueName6 = IronScheme.Web\\IronScheme.Web.csproj
-		SccProjectName6 = IronScheme.Web
-		SccLocalPath6 = IronScheme.Web
+		SccProjectUniqueName3 = IronScheme.Closures\\IronScheme.Closures.csproj
+		SccProjectName3 = IronScheme.Closures
+		SccLocalPath3 = IronScheme.Closures
+		SccProjectUniqueName4 = TailCallMaker\\TailCallMaker.csproj
+		SccProjectTopLevelParentUniqueName4 = IronScheme2008.sln
+		SccProjectName4 = TailCallMaker
+		SccLocalPath4 = TailCallMaker
+		SccProjectUniqueName5 = IronScheme.Web\\IronScheme.Web.csproj
+		SccProjectName5 = IronScheme.Web
+		SccLocalPath5 = IronScheme.Web
+		SccProjectUniqueName6 = IronScheme.Console\\IronScheme.Console.csproj
+		SccProjectName6 = IronScheme.Console
+		SccLocalPath6 = IronScheme.Console
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - CPS|Any CPU = Debug - CPS|Any CPU
@@ -85,12 +85,6 @@ Global
 		{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug - CPS|Any CPU.ActiveCfg = Debug - CPS|Any CPU
-		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug - CPS|Any CPU.Build.0 = Debug - CPS|Any CPU
-		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug - CPS|Any CPU.ActiveCfg = Debug - CPS|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug - CPS|Any CPU.Build.0 = Debug - CPS|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -109,6 +103,12 @@ Global
 		{7BABDF0D-A9D2-4089-9ED6-27DFC6F3D498}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BABDF0D-A9D2-4089-9ED6-27DFC6F3D498}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BABDF0D-A9D2-4089-9ED6-27DFC6F3D498}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug - CPS|Any CPU.ActiveCfg = Debug - CPS|Any CPU
+		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug - CPS|Any CPU.Build.0 = Debug - CPS|Any CPU
+		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

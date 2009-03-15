@@ -803,13 +803,28 @@ A ""contributor"" is any person that distributes its contribution under this lic
 
     protected static object GetCaller()
     {
-      StackTrace st = new StackTrace(2);
-      MethodBase m = st.GetFrame(0).GetMethod();
-      foreach (BuiltinAttribute ba in m.GetCustomAttributes(typeof(BuiltinAttribute), false))
+      StackTrace st = new StackTrace(1);
+      MethodBase v = st.GetFrame(0).GetMethod();
+
+      for (int i = 1; i < st.FrameCount; i++)
       {
-        return SymbolTable.StringToObject(ba.Name ?? m.Name.ToLower());
+        var nv = st.GetFrame(i).GetMethod();
+        if (v.Name == nv.Name)
+        {
+          v = nv;
+        }
+        else
+        {
+          v = nv;
+          break;
+        }
       }
-      return UnGenSymInternal(SymbolTable.StringToId(m.Name));
+
+      foreach (BuiltinAttribute ba in v.GetCustomAttributes(typeof(BuiltinAttribute), false))
+      {
+        return SymbolTable.StringToObject(ba.Name ?? v.Name.ToLower());
+      }
+      return UnGenSymInternal(SymbolTable.StringToId(v.Name));
     }
 
     protected static T RequiresNotNull<T>(object obj)

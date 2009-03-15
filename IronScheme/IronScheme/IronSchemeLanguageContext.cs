@@ -188,9 +188,7 @@ namespace IronScheme
       sc.Errors = cc.Errors;
       sc.SetSource(code, 0);
       p.scanner = sc;
-
-
-
+      
       try
       {
         if (p.Parse())

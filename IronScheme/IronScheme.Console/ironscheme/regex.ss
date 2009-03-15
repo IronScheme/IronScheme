@@ -28,7 +28,8 @@
     (clr-static-call regex match input pattern))
 
   (define (regex-matches input pattern)
-    (clr-static-call regex matches input pattern))
+    (clr-static-call IronScheme.Runtime.Cons FromList
+      (clr-static-call regex matches input pattern)))
     
   (define (match-value match)
     (and 

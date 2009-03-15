@@ -181,6 +181,7 @@ namespace IronScheme.Compiler
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
             if (t == typeof(double) || t == typeof(int) || t == typeof(char) || 
+              t == typeof(byte) || t == typeof(sbyte) || t == typeof(float) ||
               t == typeof(bool) || t == typeof(string) || t == typeof(System.IO.Stream))
             {
               return Ast.ConvertHelper(e, t);

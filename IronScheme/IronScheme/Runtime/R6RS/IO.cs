@@ -34,6 +34,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(buffer-mode? obj )
     [Builtin("buffer-mode?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsBufferMode(object s)
     {
       if (s is SymbolId)
@@ -134,6 +135,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(native-eol-style)
     [Builtin("native-eol-style")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object NativeEolStyle()
     {
       return eol_crlf;
@@ -653,6 +655,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(standard-input-port)
     [Builtin("standard-input-port")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StandardInputPort()
     {
       return Console.OpenStandardInput();
@@ -1450,6 +1453,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(standard-output-port)
     [Builtin("standard-output-port")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StandardOutputPort()
     {
       return Console.OpenStandardOutput();
@@ -1457,6 +1461,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(standard-error-port)
     [Builtin("standard-error-port")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StandardErrorPort()
     {
       return Console.OpenStandardError();

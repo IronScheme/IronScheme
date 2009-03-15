@@ -242,7 +242,13 @@ namespace IronScheme.Runtime
 
     public static T[] RequiresArray<T>(object obj)
     {
+      if (obj is byte[] && typeof(T) == typeof(byte))
+      {
+        return obj as T[];
+      }
+
       object[] arr = obj as object[];
+
       if (arr == null)
       {
         Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);

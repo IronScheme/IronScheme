@@ -32,6 +32,7 @@
           null-environment scheme-report-environment
           interaction-environment
           expand->core
+          new-interaction-environment
           interaction-environment-symbols environment-bindings
           ellipsis-map assertion-error syntax-transpose
 		      environment environment? environment-symbols)
@@ -4106,22 +4107,20 @@
         (for-each invoke-library lib*)
         (compile-core (expanded->core invoke-code)))))
 
-  (define (new-interaction-environment)
-    (let ((lib (find-library-by-name 
-				  '(ironscheme)))
-          (rib (make-empty-rib)))
-      (let ((subst (library-subst lib))) 
-        (set-rib-sym*! rib (map car subst))
-        (set-rib-mark**! rib 
-          (map (lambda (x) top-mark*) subst))
-        (set-rib-label*! rib (map cdr subst)))
-      (make-interaction-env rib '() '())))
+  (define new-interaction-environment
+    (case-lambda 
+      [() (new-interaction-environment '(ironscheme))]    
+      [(libname)
+        (let ((lib (find-library-by-name libname))
+              (rib (make-empty-rib)))
+          (let ((subst (library-subst lib))) 
+            (set-rib-sym*! rib (map car subst))
+            (set-rib-mark**! rib 
+              (map (lambda (x) top-mark*) subst))
+            (set-rib-label*! rib (map cdr subst)))
+          (make-interaction-env rib '() '()))]))
 
-  (define interaction-environment
-    (let ((e #f))
-      (lambda ()
-        (or e (begin (set! e (new-interaction-environment)) e)))))
-
+  (define interaction-environment (make-parameter #f))
   (define top-level-context (make-parameter #f))
 
   ;;; register the expander with the library manager

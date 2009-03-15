@@ -126,6 +126,14 @@
     make-no-nans-violation
     no-nans-violation?    
     
+    &where
+    make-where-condition
+    where-condition?
+    
+    &stacktrace
+    make-stacktrace-condition
+    stacktrace-condition?
+    
     &condition-rtd &condition-rcd &message-rtd &message-rcd
     &warning-rtd &warning-rcd &serious-rtd &serious-rcd
     &error-rtd &error-rcd &violation-rtd &violation-rcd
@@ -145,7 +153,13 @@
     &i/o-file-does-not-exist-rcd &i/o-port-rtd &i/o-port-rcd
     &i/o-decoding-rtd &i/o-decoding-rcd &i/o-encoding-rtd
     &i/o-encoding-rcd &no-infinities-rtd &no-infinities-rcd
-    &no-nans-rtd &no-nans-rcd )
+    &no-nans-rtd &no-nans-rcd 
+    
+    &where-rtd &where-rcd
+    &stacktrace-rtd &stacktrace-rcd
+    
+    
+    )
   (import 
     (except (rnrs)
       &condition
@@ -331,6 +345,14 @@
   (define-condition-type &who &condition 
     make-who-condition who-condition?
     (who condition-who))
+    
+  (define-condition-type &where &condition 
+    make-where-condition where-condition?
+    (where condition-where))   
+    
+  (define-condition-type &stacktrace &condition 
+    make-stacktrace-condition stacktrace-condition?
+    (stacktrace condition-stacktrace))       
 
   (define-condition-type &non-continuable &violation
     make-non-continuable-violation non-continuable-violation?)
