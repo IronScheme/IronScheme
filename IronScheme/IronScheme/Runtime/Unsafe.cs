@@ -123,6 +123,32 @@ namespace IronScheme.Runtime
 
       #endregion
 
+      #region bytevector-ref + bytevector-set!
+
+      [InlineEmitter("$bytevector-ref")]
+      public static Expression ByteVectorRef(Expression[] values)
+      {
+        if (values.Length == 2)
+        {
+          return Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(byte[])), Ast.ConvertHelper(values[1], typeof(int)));
+        }
+        Builtins.SyntaxError("$bytevector-ref", "expected 2 arguments", values, false);
+        return null;
+      }
+
+      [InlineEmitter("$bytevector-set!")]
+      public static Expression ByteVectorSet(Expression[] values)
+      {
+        if (values.Length == 3)
+        {
+          return Ast.AssignArrayIndex(Ast.ConvertHelper(values[0], typeof(byte[])), Ast.ConvertHelper(values[1], typeof(int)), Ast.ConvertHelper(values[2], typeof(byte)));
+        }
+        Builtins.SyntaxError("$bytevector-set!", "expected 3 arguments", values, false);
+        return null;
+      }
+
+      #endregion
+
       #region fixnums
 
       [InlineEmitter("$fx=?")]

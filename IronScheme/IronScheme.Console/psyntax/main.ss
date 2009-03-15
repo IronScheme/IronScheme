@@ -27,6 +27,8 @@
     load/args
     load/unload
     ironscheme-build
+    ironscheme-test
+    emacs-mode?
     compile
     compile-system-libraries
     compile->closure)
@@ -52,7 +54,9 @@
     
   (define trace-printer (make-parameter pretty-print))
   
-  (define command-line (make-parameter (get-command-line)))  
+  (define command-line (make-parameter (get-command-line))) 
+   
+  (define emacs-mode? (make-parameter #f))
     
   (define (local-library-path filename)
     (cons (get-directory-name filename) (library-path)))
@@ -73,6 +77,9 @@
   (define (load filename)
     (apply load-r6rs-top-level filename 'load (cdr (command-line)))
     (void))
+    
+  (define (ironscheme-test)
+    (load "tests/r6rs/run.sps"))    
       
   (define ironscheme-build
     (case-lambda
@@ -87,8 +94,8 @@
     
   (define foreground-color
     (case-lambda
-      [()           (clr-static-prop-get console foregroundcolor)]
-      [(color)      (clr-static-prop-set! console foregroundcolor color)])) 
+      [()           (and (not (emacs-mode?)) (clr-static-prop-get console foregroundcolor))]
+      [(color)      (and (not (emacs-mode?)) (clr-static-prop-set! console foregroundcolor color))])) 
       
   (define (system-exception? e)
     (clr-is SystemException e))         
@@ -165,11 +172,14 @@
   (set-symbol-value! 'convert->cps convert->cps)
   (set-symbol-value! 'assertion-violation assertion-violation)
   (set-symbol-value! 'raise raise)
+  (set-symbol-value! 'emacs-mode? emacs-mode?)
   
   (file-options-constructor (enum-set-constructor fo))
   
   (library-path (get-library-paths))
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))
+  
+  (interaction-environment (new-interaction-environment))
   )
 

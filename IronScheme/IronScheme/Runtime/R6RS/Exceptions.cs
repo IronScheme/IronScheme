@@ -21,6 +21,7 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Reflection.Emit;
 using System.Collections;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -128,6 +129,10 @@ namespace IronScheme.Runtime.R6RS
     {
       InitDefaultHandler();
 
+      //var sf = new StackTrace(1);
+      //ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
+      //obj = Conditions.Condition(obj, st.Call((object)sf.ToString().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)));
+
       ICallable ch = CurrentHandler;
       if (ch != null)
       {
@@ -178,6 +183,10 @@ namespace IronScheme.Runtime.R6RS
     public static object RaiseContinueable(object obj)
     {
       InitDefaultHandler();
+      
+      var sf = new StackTrace(1);
+      ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
+      obj = Conditions.Condition(obj, st.Call((object) sf.ToString().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)));
 
       ICallable ch = CurrentHandler;
       if (ch != null)

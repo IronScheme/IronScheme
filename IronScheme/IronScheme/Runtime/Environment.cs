@@ -353,8 +353,9 @@ namespace IronScheme.Runtime
         }
         else
         {
+          ICallable wh = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&where-rcd"))) as ICallable;
           return R6RS.Exceptions.RaiseContinueable(
-             R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(VectorToList(irritants))));
+             R6RS.Conditions.Condition(a.Call(), wh.Call(GetCaller()), m.Call(message), i.Call(VectorToList(irritants))));
         }
 #endif
       }

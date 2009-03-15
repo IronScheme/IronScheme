@@ -12,6 +12,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
     [Builtin("bitwise-not")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseNot(object ei)
     {
       return ToIntegerIfPossible(~ConvertToBigInteger(ei));
@@ -19,6 +20,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
     //http://www.mcs.vuw.ac.nz/cgi-bin/info2www?(elisp)Bitwise+Operations
     [Builtin("bitwise-and")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseAnd(params object[] eis)
     {
       if (eis.Length == 0)
@@ -38,6 +40,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     [Builtin("bitwise-ior")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseIor(params object[] eis)
     {
       if (eis.Length == 0)
@@ -57,6 +60,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     [Builtin("bitwise-xor")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseXor(params object[] eis)
     {
       if (eis.Length == 0)
@@ -76,6 +80,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     [Builtin("bitwise-bit-count")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseBitCount(object ei)
     {
       BigInteger bi = ConvertToBigInteger(ei);
@@ -97,6 +102,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     [Builtin("bitwise-length")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseLength(object ei)
     {
       BigInteger bi = ConvertToBigInteger(ei);
@@ -112,6 +118,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     [Builtin("bitwise-first-bit-set")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseFirstBitSet(object ei)
     {
       BigInteger bi = ConvertToBigInteger(ei);
@@ -137,6 +144,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     [Builtin("bitwise-bit-set?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BitWiseIsBitSet(object ei, object k)
     {
       BigInteger bi = ConvertToBigInteger(ei);

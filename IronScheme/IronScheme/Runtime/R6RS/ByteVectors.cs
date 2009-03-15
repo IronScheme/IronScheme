@@ -29,6 +29,7 @@ namespace IronScheme.Runtime.R6RS
   public class ByteVectors : Builtins
   {
     [Builtin("make-bytevector")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object MakeByteVector(object k)
     {
       int i = RequiresNotNull<int>(k);
@@ -48,6 +49,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("make-bytevector")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object MakeByteVector(object k, object fill)
     {
       byte c = GetByteValue(fill);
@@ -62,6 +64,7 @@ namespace IronScheme.Runtime.R6RS
 
 
     [Builtin("bytevector-length")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorLength(object obj)
     {
       byte[] v = RequiresNotNull<byte[]>(obj);
@@ -69,6 +72,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector=?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsByteVectorEqual(object v1, object v2)
     {
       byte[] bv1 = RequiresNotNull<byte[]>(v1);
@@ -96,6 +100,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector-fill!")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorFill(object v, object fill)
     {
 
@@ -110,6 +115,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector-copy!")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorCopy(object v1, object start1, object v2, object start2, object k)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
@@ -125,6 +131,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector-copy")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorCopy(object v1)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
@@ -133,6 +140,7 @@ namespace IronScheme.Runtime.R6RS
 
 
     [Builtin("bytevector-u8-ref")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorU8Ref(object v1, object k)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
@@ -142,6 +150,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector-s8-ref")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorS8Ref(object v1, object k)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
@@ -151,6 +160,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector-u8-set!")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorU8Set(object v1, object k, object octet)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
@@ -162,6 +172,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector-s8-set!")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorS8Set(object v1, object k, object @byte)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
@@ -174,6 +185,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("bytevector->u8-list")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object ByteVectorToU8List(object v1)
     {
       byte[] b1 = RequiresNotNull<byte[]>(v1);
@@ -181,6 +193,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("u8-list->bytevector")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object U8ListToByteVector(object obj)
     {
       object[] bytes = ListToVector(obj) as object[];
@@ -194,6 +207,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("string->utf8")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StringToUTF8(object str)
     {
       string s = RequiresNotNull<string>(str);
@@ -204,6 +218,7 @@ namespace IronScheme.Runtime.R6RS
     static Encoding UTF16LE = new UnicodeEncoding(false, false);
 
     [Builtin("string->utf16")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StringToUTF16(object str)
     {
       string s = RequiresNotNull<string>(str);
@@ -211,6 +226,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("string->utf16")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StringToUTF16(object str, object endianess)
     {
       string s = RequiresNotNull<string>(str);
@@ -229,6 +245,7 @@ namespace IronScheme.Runtime.R6RS
     static Encoding UTF32LE = new UTF32Encoding(false, false);
 
     [Builtin("string->utf32")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StringToUTF32(object str)
     {
       string s = RequiresNotNull<string>(str);
@@ -236,6 +253,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("string->utf32")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StringToUTF32(object str, object endianess)
     {
       string s = RequiresNotNull<string>(str);
@@ -251,6 +269,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("utf8->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object UTF8ToString(object v)
     {
       byte[] b = RequiresNotNull<byte[]>(v);
@@ -266,6 +285,7 @@ namespace IronScheme.Runtime.R6RS
 
 
     [Builtin("utf16->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object UTF16ToString(object v, object endianess, object isendianmandatory)
     {
       byte[] b = RequiresNotNull<byte[]>(v);
@@ -300,6 +320,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("utf16->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object UTF16ToString(object v, object endianess)
     {
       return UTF16ToString(v, endianess, FALSE);
@@ -307,6 +328,7 @@ namespace IronScheme.Runtime.R6RS
 
 
     [Builtin("utf32->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object UTF32ToString(object v, object endianess, object isendianmandatory)
     {
       byte[] b = RequiresNotNull<byte[]>(v);
@@ -341,6 +363,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("utf32->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object UTF32ToString(object v, object endianess)
     {
       return UTF32ToString(v, endianess, FALSE);
@@ -549,6 +572,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(bytevector->uint-list bytevector endianness size)
     [Builtin("bytevector->uint-list")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BytevectorToUintList(object bytevector, object endianess, object size)
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);
@@ -575,6 +599,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(bytevector->sint-list bytevector endianness size)
     [Builtin("bytevector->sint-list")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BytevectorToSintList(object bytevector, object endianess, object size)
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);
@@ -601,6 +626,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(uint-list->bytevector list endianness size)
     [Builtin("uint-list->bytevector")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object UintListToBytevector(object list, object endianess, object size)
     {
       Cons c = Requires<Cons>(list);
@@ -629,6 +655,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(sint-list->bytevector list endianness size)
     [Builtin("sint-list->bytevector")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object SintListToBytevector(object list, object endianess, object size)
     {
       Cons c = Requires<Cons>(list);
@@ -657,6 +684,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(bytevector-ieee-single-ref bytevector k endianness)     
     [Builtin("bytevector-ieee-single-ref")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BytevectorIEEESingleRef(object bytevector, object k, object endianess)
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);
@@ -677,6 +705,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(bytevector-ieee-double-ref bytevector k endianness)   
     [Builtin("bytevector-ieee-double-ref")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BytevectorIEEEDoubleRef(object bytevector, object k, object endianess)
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);
@@ -697,6 +726,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(bytevector-ieee-single-set! bytevector k x endianness)  
     [Builtin("bytevector-ieee-single-set!")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BytevectorIEEESingleSet(object bytevector, object k, object x, object endianess)
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);
@@ -719,6 +749,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(bytevector-ieee-double-set! bytevector k x endianness)  
     [Builtin("bytevector-ieee-double-set!")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object BytevectorIEEEDoubleSet(object bytevector, object k, object x, object endianess)
     {
       byte[] b = RequiresNotNull<byte[]>(bytevector);

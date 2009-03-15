@@ -105,12 +105,35 @@
     (ironscheme clr)
     (except (rnrs) 
       call-with-port
-      open-string-output-port port? 
+      open-string-output-port 
+      port? 
       call-with-string-output-port
       put-datum
-      get-datum))
+      get-datum
+      buffer-mode?
+      native-eol-style
+      standard-error-port
+      standard-input-port
+      standard-output-port))
       
-  (clr-using ironscheme.runtime)     
+  (clr-using ironscheme.runtime)  
+  
+  (define (standard-error-port)
+    (clr-static-call System.Console OpenStandardError))
+    
+  (define (standard-input-port)
+    (clr-static-call System.Console OpenStandardInput))
+
+  (define (standard-output-port)
+    (clr-static-call System.Console OpenStandardOutput))
+    
+  
+  (define (native-eol-style) 'crlf)
+  
+  (define (buffer-mode? obj)
+    (and (symbol? obj) 
+         (memq obj '(none line block)) 
+         #t))
 
   (define (put-datum p datum) 
     (write datum p))

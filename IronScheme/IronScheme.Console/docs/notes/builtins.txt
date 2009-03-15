@@ -10,32 +10,32 @@ A list of builtin procedures still written in C#.
 -
 /
 append
-apply [1][5]
+apply [1][5][7]
 assertion-violation [2][4]
 call-with-current-continuation/call/cc [1][5]
-call-with-values [1][5]
-car
-cdr
+call-with-values [1][5][7]
+car [7]
+cdr [7]
 char->integer
-cons
+cons [7]
 dynamic-wind [1][5]
-eq?
+eq? [7]
 equal?
 eqv?
 error [2][4]
 integer->char
 length
-list
+list [7]
 list?
 make-string
 make-vector
-not
-null?
+not [7]
+null? [7]
 number->string
-pair?
-string
+pair? [7]
+string [7]
 string->list
-string->number
+string->number 
 string->symbol
 string-append
 string-copy
@@ -44,8 +44,8 @@ string-ref
 string?
 substring
 symbol->string
-values [5] [6]
-vector
+values [5][6][7]
+vector [7]
 vector->list
 vector-length
 
@@ -80,8 +80,8 @@ exit
 
 (rnrs sorting):
 
-vector-sort
-vector-sort!
+vector-sort [7]
+vector-sort! [7]
 
 (rnrs lists):
 
@@ -93,49 +93,23 @@ close-output-port
 current-error-port
 current-input-port
 current-output-port
-display
+display [7]
 eof-object
 eof-object?
 input-port?
 open-input-file
 open-output-file
 output-port?
-read
-write
+read [7]
+write [7]
 
 
 (rnrs bytevectors):
 
-bytevector->sint-list
-bytevector->u8-list
-bytevector->uint-list
-bytevector-copy
-bytevector-copy!
-bytevector-fill!
-bytevector-ieee-double-ref
-bytevector-ieee-double-set!
-bytevector-ieee-single-ref
-bytevector-ieee-single-set!
-bytevector-length
-bytevector-s8-ref
-bytevector-s8-set!
 bytevector-sint-ref
 bytevector-sint-set!
-bytevector-u8-ref
-bytevector-u8-set!
 bytevector-uint-ref
 bytevector-uint-set!
-bytevector=?
-make-bytevector
-sint-list->bytevector
-string->utf16
-string->utf32
-string->utf8
-u8-list->bytevector
-uint-list->bytevector
-utf16->string
-utf32->string
-utf8->string
 
 (rnrs unicode):
 
@@ -159,20 +133,12 @@ string-upcase
 
 raise [4]
 raise-continuable [4]
-with-exception-handler [1] [4]
+with-exception-handler [1][4]
 
 (rnrs arithmetic bitwise):
 
-bitwise-and
 bitwise-arithmetic-shift
-bitwise-bit-count
-bitwise-bit-set?
-bitwise-first-bit-set
-bitwise-ior
-bitwise-length
-bitwise-not
 bitwise-reverse-bit-field
-bitwise-xor
 
 (rnrs arithmetic fixnums):
 
@@ -196,7 +162,6 @@ symbol-hash [3]
 (rnrs io ports):
 
 binary-port?
-buffer-mode?
 bytevector->string
 call-with-bytevector-output-port [1]
 close-port
@@ -227,7 +192,6 @@ make-custom-textual-input-port [1]
 make-custom-textual-input/output-port [1]
 make-custom-textual-output-port [1]
 make-transcoder
-native-eol-style
 native-transcoder
 open-bytevector-input-port
 open-bytevector-output-port
@@ -247,9 +211,6 @@ put-char
 put-string
 put-u8
 set-port-position!
-standard-error-port
-standard-input-port
-standard-output-port
 string->bytevector
 textual-port?
 transcoded-port
@@ -304,3 +265,4 @@ Notes:
 [4] implemented in Scheme in CPS mode
 [5] special CPS primitive
 [6] returns multiple values
+[7] optimized builtin

@@ -68,7 +68,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IronSchemeConsole\IronScheme.Console.csproj">
+    <ProjectReference Include="..\IronScheme.Console\IronScheme.Console.csproj">
       <Project>{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}</Project>
       <Name>IronScheme.Console</Name>
     </ProjectReference>

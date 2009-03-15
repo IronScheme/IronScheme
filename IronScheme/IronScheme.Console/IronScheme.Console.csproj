@@ -250,6 +250,7 @@
     <None Include="ironscheme\linq2.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="playground\irc.ss" />
     <None Include="playground\parse.ss" />
     <None Include="playground\random-stuff.ss" />
     <None Include="lib\syn-param.sls">
