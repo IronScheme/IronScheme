@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using IronScheme.Runtime;
+using Microsoft.Scripting.Math;
 
 namespace IronScheme.Compiler
 {
@@ -193,6 +194,74 @@ namespace IronScheme.Compiler
       }
 
       return output;
+    }
+
+    static bool IsExact(object obj)
+    {
+      return obj is int || obj is BigInteger || obj is Fraction || obj is ComplexFraction;
+    }
+
+    static Fraction GetFraction(object o)
+    {
+      if (o is int)
+      {
+        return (int)o;
+      }
+      if (o is BigInteger)
+      {
+        return (BigInteger)o;
+      }
+      if (o is Fraction)
+      {
+        return (Fraction)o;
+      }
+      return null;
+    }
+
+    public static object MakeRectangular(object obj1, object obj2)
+    {
+      if (IsExact(obj1) && IsExact(obj2))
+      {
+        var f = GetFraction(obj2);
+        if (f == 0)
+        {
+          return obj1;
+        }
+        return ComplexFraction.Make(GetFraction(obj1), f);
+      }
+      else
+      {
+        double o2 = SafeConvert(obj2);
+        if (o2 == 0.0 && !(obj2 is double))
+        {
+          return obj1;
+        }
+        return Complex64.Make(SafeConvert(obj1), o2);
+      }
+    }
+
+    static double SafeConvert(object obj1)
+    {
+      return Convert.ToDouble(obj1);
+    }
+
+    public static object MakePolar(object obj1, object obj2)
+    {
+      double o2 = SafeConvert(obj2);
+      if (o2 == 0.0 && !(obj2 is double))
+      {
+        return obj1;
+      }
+      object r = MakeRectangular(Math.Cos(o2), Math.Sin(o2));
+      if (r is double)
+      {
+        return SafeConvert(obj1) * (double)r;
+      }
+      else
+      {
+        var c = SafeConvert(obj1) * (Complex64)r;
+        return c;
+      }
     }
   }
 }

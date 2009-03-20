@@ -39,6 +39,33 @@ namespace IronScheme.Compiler
     }
   }
 
+  sealed class ComplexFractionConstant : CompilerConstant
+  {
+    ComplexFraction value;
+
+    public ComplexFractionConstant(ComplexFraction f)
+    {
+      value = f;
+    }
+
+    public override Type Type
+    {
+      get { return typeof(Fraction); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      cg.EmitConstant(new FractionConstant(value.Real));
+      cg.EmitConstant(new FractionConstant(value.Imag));
+      cg.EmitNew(typeof(ComplexFraction), new Type[] { typeof(Fraction), typeof(Fraction) });
+    }
+
+    public override object Create()
+    {
+      return value;
+    }
+  }
+
   sealed class IronSchemeConstant : CompilerConstant
   {
     readonly object value;

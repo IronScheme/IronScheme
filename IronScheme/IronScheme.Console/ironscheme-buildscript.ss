@@ -282,6 +282,7 @@
     (condition-stacktrace                       i)
     (exact-compare                              ic)
     (inexact-compare                            ic)
+    (flonum->string                             ic)
     (bignum-sqrt                                ic)
     (bignum-sqrt-exact                          ic)
     (inexact=?                                  ic)

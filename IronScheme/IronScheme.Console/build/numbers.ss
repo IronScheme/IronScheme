@@ -53,7 +53,9 @@
     exact
     sqrt
     exact-integer-sqrt
-    expt)
+    expt
+    number->string
+    )
   (import 
     (except 
       (ironscheme)
@@ -109,13 +111,26 @@
       exact
       sqrt
       exact-integer-sqrt
-      expt)
+      expt
+      number->string)
     (ironscheme core)
     (ironscheme unsafe)
     (ironscheme clr))
 
   (define (bignum? obj)
     (clr-is Microsoft.Scripting.Math.BigInteger obj))
+    
+  (define (rectnum? obj)
+    (clr-is IronScheme.Runtime.ComplexFraction obj))    
+    
+  (define (make-rectnum r1 r2)
+    (clr-static-call IronScheme.Runtime.ComplexFraction Make r1 r2))
+    
+  (define (rectnum-imag-part c)
+    (clr-prop-get IronScheme.Runtime.ComplexFraction Imag c))
+    
+  (define (rectnum-real-part c)
+    (clr-prop-get IronScheme.Runtime.ComplexFraction Real c))    
   
   (define (ratnum? obj)
     (clr-is IronScheme.Runtime.Fraction obj))
@@ -161,6 +176,12 @@
         num
         (make-complexnum (inexact num) 0.0)))
         
+  (define (complexnum->rectnum num)
+    (clr-static-call IronScheme.Runtime.ComplexFraction "op_Implicit(Microsoft.Scripting.Math.Complex64)" num))     
+    
+  (define (rectnum->complexnum num)
+    (clr-call IronScheme.Runtime.ComplexFraction ToComplex64 num))               
+        
   (define (->fixnum num)
     (if (fixnum? num)
         num
@@ -196,13 +217,15 @@
         (flonum? obj)
         (bignum? obj)
         (ratnum? obj)
-        (complexnum? obj)))
+        (complexnum? obj)
+        (rectnum? obj)))
         
   (define (nan? num)
     (cond
       [(or (fixnum? num)
            (bignum? num)
-           (ratnum? num))
+           (ratnum? num)
+           (rectnum? num))
         #f]
       [(flonum? num)
         (flnan? num)]
@@ -216,7 +239,8 @@
     (cond
       [(or (fixnum? num)
            (bignum? num)
-           (ratnum? num))
+           (ratnum? num)
+           (rectnum? num))
         #t]
       [(flonum? num)
         (flfinite? num)]
@@ -230,7 +254,8 @@
     (cond
       [(or (fixnum? num)
            (bignum? num)
-           (ratnum? num))
+           (ratnum? num)
+           (rectnum? num))
         #f]
       [(flonum? num)
         (flinfinite? num)]
@@ -244,7 +269,8 @@
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
-           (ratnum? obj))
+           (ratnum? obj)
+           (rectnum? obj))
        #t]
       [(or (flonum? obj)
            (complexnum? obj))
@@ -256,7 +282,8 @@
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
-           (ratnum? obj))
+           (ratnum? obj)
+           (rectnum? obj))
        #f]
       [(or (flonum? obj)
            (complexnum? obj))
@@ -274,7 +301,7 @@
            (ratnum? obj)
            (flonum? obj))
        #t]
-      [(complexnum? obj)
+      [(or (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
          (and (zero? i)
               (exact? i)))]
@@ -287,6 +314,7 @@
            (ratnum? obj))
        #t]
       [(and (or (complexnum? obj) 
+                (rectnum? obj)
                 (flonum? obj)) 
             (finite? obj) 
             (not (nan? obj)))
@@ -302,6 +330,7 @@
        #t]
       [(and (or (ratnum? obj) 
                 (complexnum? obj) 
+                (rectnum? obj)
                 (flonum? obj))
             (finite? obj) 
             (not (nan? obj)))            
@@ -318,7 +347,7 @@
            (ratnum? obj)
            (flonum? obj))
        #t]
-      [(complexnum? obj)
+      [(or (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
           (zero? i))]
       [else #f])) 
@@ -330,6 +359,7 @@
            (ratnum? obj))
        #t]
       [(and (or (complexnum? obj) 
+                (rectnum? obj)
                 (flonum? obj)) 
             (finite? obj) 
             (not (nan? obj)))
@@ -344,6 +374,7 @@
        #t]
       [(and (or (ratnum? obj) 
                 (complexnum? obj) 
+                (rectnum? obj)
                 (flonum? obj))
             (finite? obj) 
             (not (nan? obj)))            
@@ -375,15 +406,24 @@
       [(or (exact-integer? num)
            (ratnum? num))
          (real->flonum num)]
+      [(rectnum? num)
+        (rectnum->complexnum num)]
       [else
         (assertion-violation 'inexact "not a number" num)]))
         
   (define (exact num)
     (cond
       [(complexnum? num)
-        (if (zero? (complexnum-imag-part num))
-            (exact (complexnum-real-part num))
-            (assertion-violation 'exact "no exact equivalent" num))]
+        (cond 
+          [(zero? (complexnum-imag-part num))
+            (exact (complexnum-real-part num))]
+          [(let ((i (complexnum-imag-part num))
+                 (r (complexnum-real-part num)))
+              (and (rational? r) 
+                   (rational? i)
+                   (make-rectnum (flonum->ratnum r) (flonum->ratnum i))))]
+          [else            
+            (assertion-violation 'exact "no exact equivalent" num)])]
       [(flonum? num)
         (if (or (flnan? num) (flinfinite? num))
             (assertion-violation 'exact "no exact equivalent" num)
@@ -392,11 +432,87 @@
         (if (fx<=? (fixnum-width) (bitwise-length num))
             num
             (bignum->fixnum num))]
-      [(or (fixnum? num)
-           (ratnum? num))
+      [(ratnum? num)
+        (if (= (ratnum-denominator num) 1)
+            (exact (ratnum-numerator num))
+            num)]
+      [(rectnum? num)
+        (if (zero? (rectnum-imag-part num))
+            (exact (rectnum-real-part num))
+            num)]
+      [(fixnum? num)
          num]
       [else
-        (assertion-violation 'exact "not a number" num)]))        
+        (assertion-violation 'exact "not a number" num)])) 
+        
+  (define (hex-char num)
+    (integer->char (+ num (char->integer (if (fx<? num 10) #\0 #\W)))))
+        
+  (define (fixnum->string num radix)
+    (if (fxnegative? num)
+        (string-append "-" (number->string (abs num) radix))
+        (clr-static-call System.Convert "ToString(Int32,Int32)" num radix)))
+     
+  (define (bignum->string num radix)
+    (let* ((neg? (negative? num))
+           (num  (abs num))
+           (out  (let f ((num num)(a '()))
+                   (if (zero? num)
+                       (apply string a)
+                       (f (div num radix)
+                          (cons (hex-char (mod num radix)) a))))))
+       (if neg?
+           (string-append "-" out)
+           out)))
+        
+  (define number->string
+    (case-lambda
+      [(num)
+        (number->string num 10)]
+      [(num radix prec)
+        (number->string num radix)]
+      [(num radix)
+        (cond
+          [(fixnum? num)
+            (fixnum->string num radix)]
+          [(flonum? num)
+            (unless (= radix 10)
+              (assertion-violation 'number->string "invalid radix" radix))
+            (flonum->string num)]
+          [(ratnum? num)
+            (string-append (if (negative? num) "-" "") 
+                           (number->string (abs (ratnum-numerator num)) radix)
+                           "/"
+                           (number->string (abs (ratnum-denominator num)) radix))]
+          [(bignum? num)
+            (bignum->string num radix)]
+          [(complexnum? num)
+            (unless (= radix 10)
+              (assertion-violation 'number->string "invalid radix" radix))
+            (string-append (if (zero? (real-part num)) 
+                               "" 
+                               (number->string (real-part num) radix))
+                           (if (let ((i (imag-part num)))
+                                 (or (negative? i)
+                                     (nan? i)
+                                     (infinite? i)))
+                               "" 
+                               "+")
+                           (if (= 1.0 (imag-part num))
+                               ""
+                               (number->string (imag-part num) radix))
+                           "i")]
+          [(rectnum? num)
+            (string-append (if (zero? (real-part num)) 
+                               "" 
+                               (number->string (real-part num) radix))
+                           (if (negative? (imag-part num)) "" "+")
+                           (if (= 1 (imag-part num))
+                               ""
+                               (number->string (imag-part num) radix))
+                           "i")]
+          [else
+            (assertion-violation 'number->string "not a number" num)])]))                           
     
 
   (define-syntax define-comparer 
@@ -414,7 +530,7 @@
                 (case-lambda
                   [(a b)
                     (cond 
-                      [(and (real? a) 
+                      [(and (real? a)
                             (real? b)
                             (finite? a)
                             (finite? b)
@@ -481,9 +597,12 @@
       (assertion-violation 'make-rectangular "not a real" r1))
     (unless (real? r2)
       (assertion-violation 'make-rectangular "not a real" r2))
-    (if (and (exact? r2) (zero? r2))
-      r1
-      (make-complexnum (inexact r1) (inexact r2))))
+    (cond 
+      [(and (exact? r1) (exact? r2))
+        (make-rectnum (->ratnum r1) (->ratnum r2))]
+      [(and (exact? r2) (zero? r2)) r1]
+      [else 
+        (make-complexnum (inexact r1) (inexact r2))]))
       
   (define (make-polar r1 r2)
     (unless (real? r1)
@@ -497,11 +616,15 @@
   (define (angle num)
     (unless (number? num)
       (assertion-violation 'angle "not a number" num))
-    (atan (imag-part num)
-          (real-part num)))
+    (if (rectnum? num)
+        (angle (inexact num))      
+        (atan (imag-part num)
+              (real-part num))))
           
   (define (magnitude num)
     (cond
+      [(rectnum? num)
+        (magnitude (inexact num))]
       [(complexnum? num)
         (let ((i (imag-part num))
               (r (real-part num)))
@@ -543,6 +666,8 @@
     (cond
       [(complexnum? num)
         (complexnum-real-part num)]
+      [(rectnum? num)
+        (exact (rectnum-real-part num))]
       [(real? num) num]
       [else 
         (assertion-violation 'real-part "not a number" num)]))
@@ -551,6 +676,8 @@
     (cond
       [(complexnum? num)
         (complexnum-imag-part num)]
+      [(rectnum? num)
+        (exact (rectnum-imag-part num))]
       [(real? num) 0]
       [else 
         (assertion-violation 'imag-part "not a number" num)]))
@@ -560,6 +687,8 @@
       [(_ name)
         (define (name num)
           (cond
+            [(rectnum? num)
+              (name (rectnum->complexnum num))]
             [(complexnum? num)
               (clr-static-call Microsoft.Scripting.Math.Complex64 name num)]
             [(real? num)
@@ -581,6 +710,8 @@
     (case-lambda
       [(num)
         (cond
+          [(rectnum? num)
+              (atan (rectnum->complexnum num))]
           [(complexnum? num)
             (clr-static-call Microsoft.Scripting.Math.Complex64 Atan num)]
           [(real? num)
@@ -600,6 +731,8 @@
         (unless (number? num)
           (assertion-violation 'atan "not a number" num))
         (cond
+          [(rectnum? num)
+              (log (rectnum->complexnum num))]
           [(complexnum? num) 
             (clr-static-call Microsoft.Scripting.Math.Complex64 Log num)]
           [(negative? num) 
@@ -717,6 +850,8 @@
         
   (define (sqrt num)
     (cond
+      [(rectnum? num)
+        (sqrt (rectnum->complexnum num))]
       [(complexnum? num)
         (clr-static-call Microsoft.Scripting.Math.Complex64 Sqrt num)]
       [(negative? num)
@@ -749,6 +884,8 @@
         (make-message-condition "not supported")
         (make-irritants-condition obj1 obj2)))
     (cond
+      [(rectnum? obj1)
+        (expt (rectnum->complexnum obj1) obj2)]
       [(or (complexnum? obj1) (negative? obj1))
         (clr-static-call Microsoft.Scripting.Math.Complex64 
                          Pow 

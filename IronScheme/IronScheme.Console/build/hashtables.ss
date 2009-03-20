@@ -2,6 +2,7 @@
   (export
     make-eq-hashtable
     make-eqv-hashtable
+    hashtable?
     
     hashtable-size
     hashtable-ref
@@ -10,6 +11,10 @@
     hashtable-contains?
     hashtable-update!
     hashtable-clear!
+    
+    string-hash
+    string-ci-hash
+    symbol-hash
 
     hashtable-equivalence-function
     hashtable-hash-function)
@@ -28,6 +33,9 @@
   (clr-using system)
   (clr-using system.collections)
   
+  (define (hashtable? obj)
+    (clr-is Hashtable obj))
+  
   (define make-eq-hashtable
     (case-lambda
       [()   (make-eq-hashtable 32)]
@@ -42,10 +50,10 @@
     (clr-prop-get hashtable count ht))
     
   (define (hashtable-ref ht key default)
-    (define r (clr-indexer-get hashtable ht key))
-    (if (or (not (null? r)) (hashtable-contains? ht key))
-      r
-      default))
+    (let ((r (clr-indexer-get hashtable ht key)))
+      (if (or (not (null? r)) (hashtable-contains? ht key))
+        r
+        default)))
       
   (define (hashtable-set! ht key obj)
     (clr-indexer-set! hashtable ht key obj))
@@ -65,5 +73,26 @@
     (case-lambda 
       ((ht)     (hashtable-clear! ht 32))
       ((ht k)   (clr-call hashtable clear ht))))
+      
+  (define (string-hash str)
+    (unless (string? str)
+      (assertion-violation 'string-hash "not a string" str))
+    (clr-call StringComparer "GetHashCode(String)"
+        (clr-static-prop-get StringComparer Ordinal) 
+        (clr-call Object ToString str)))
 
+  (define (string-ci-hash str)
+    (unless (string? str)
+      (assertion-violation 'string-ci-hash "not a string" str))
+    (clr-call StringComparer "GetHashCode(String)"
+        (clr-static-prop-get StringComparer InvariantCultureIgnoreCase) 
+        (clr-call Object ToString str)))
+        
+  (define (symbol-hash sym)
+    (unless (symbol? sym)
+      (assertion-violation 'symbol-hash "not a symbol" sym))        
+    (clr-call Object GetHashCode sym))
+   
+
+    
 )
