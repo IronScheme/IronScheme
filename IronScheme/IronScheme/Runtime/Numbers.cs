@@ -27,196 +27,41 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-    [Builtin("number->string")]
-    public static object NumberToString(object obj)
+    [Builtin("flonum->string")]
+    public static object FlonumToString(object obj)
     {
-      return NumberToString(obj, 10);
-    }
-
-    static object PrintBinary(object num)
-    {
-      if (num is Fraction)
+      double d = (double)obj;
+      if (Math.IEEERemainder(d, 1) == 0)
       {
-        Fraction f = (Fraction)num;
-
-        return string.Format("{0}/{1}", PrintBinary(f.Numerator), PrintBinary(f.Denominator));
-      }
-      else
-      {
-        BigInteger n = ConvertToBigInteger(num);
-        bool positive = n >= 0;
-
-        n = n.Abs();
-
-        StringBuilder sb = new StringBuilder();
-
-        do
+        string rr = string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
+        if (rr.Contains("e"))
         {
-          sb.Append(((n & 1) == 1) ? "1" : "0");
-          n >>= 1;
-        }
-        while (n != 0);
-
-        char[] output = new char[sb.Length];
-
-        for (int i = 0; i < sb.Length; i++)
-        {
-          output[output.Length - i - 1] = sb[i];
-        }
-
-        string ret = new string(output);
-
-        if (positive)
-        {
-          return ret;
+          return rr;
         }
         else
         {
-          return "-" + ret;
+          return rr + ".0";
         }
-      }
-    }
-
-    static object PrintOctal(object num)
-    {
-      if (num is Fraction)
-      {
-        Fraction f = (Fraction)num;
-
-        return string.Format("{0}/{1}", PrintOctal(f.Numerator), PrintOctal(f.Denominator));
       }
       else
       {
-        BigInteger n = ConvertToBigInteger(num);
-        bool positive = n >= 0;
-
-        n = n.Abs();
-
-        StringBuilder sb = new StringBuilder();
-
-        do
+        if (double.IsNegativeInfinity(d))
         {
-          sb.Append((char)((n & 7) + '0'));
-          n /= 8;
+          return "-inf.0";
         }
-        while (n != 0);
-
-        char[] output = new char[sb.Length];
-
-        for (int i = 0; i < sb.Length; i++)
+        else if (double.IsPositiveInfinity(d))
         {
-          output[output.Length - i - 1] = sb[i];
+          return "+inf.0";
         }
-
-        string ret = new string(output);
-
-        if (positive)
+        else if (double.IsNaN(d))
         {
-          return ret;
+          return "+nan.0";
         }
         else
-        {
-          return "-" + ret;
-        }
+          return string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
       }
     }
 
-    [Builtin("number->string")]
-    public static object NumberToString(object obj, object radix, object precision)
-    {
-      return NumberToString(obj, radix);
-    }
-    
-    [Builtin("number->string")]
-    public static object NumberToString(object obj, object radix)
-    {
-      if (!IsTrue(IsNumber(obj)))
-      {
-        return AssertionViolation("number->string", "not a number", obj);
-      }
-      radix = radix ?? 10;
-      int r = (int)radix;
-
-      if (obj is Fraction)
-      {
-        Fraction f = (Fraction)obj;
-        return string.Format("{0}/{1}", NumberToString(f.Numerator, radix), 
-          NumberToString(f.Denominator, radix));
-      }
-
-      switch (r)
-      {
-        case 2:
-          return PrintBinary(obj);
-        case 8:
-          return PrintOctal(obj);
-        case 10:
-          if (obj is double)
-          {
-            double d = (double)obj;
-            if (Math.IEEERemainder(d, 1) == 0)
-            {
-              string rr = string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
-              if (rr.Contains("e"))
-              {
-                return rr;
-              }
-              else
-              {
-                return rr + ".0";
-              }
-            }
-            else
-            {
-              if (double.IsNegativeInfinity(d))
-              {
-                return "-inf.0";
-              }
-              else if (double.IsPositiveInfinity(d))
-              {
-                return "+inf.0";
-              }
-              else if (double.IsNaN(d))
-              {
-                return "+nan.0";
-              }
-              else
-                return string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
-            }
-          }
-          if (obj is Complex64)
-          {
-            Complex64 c = (Complex64)obj;
-            double a = (double)Angle(c);
-            object mag = Magnitude(c);
-
-            double m = mag is int ? (int)mag : (double)mag;
-
-            if (IsTrue(IsIntegerValued(a * 1000)) || IsTrue(IsIntegerValued(m * 1000)) 
-              && !IsTrue(IsIntegerValued(c.Real * 1000)) && !IsTrue(IsIntegerValued(c.Imag * 1000)))
-            {
-              return string.Format("{0}@{1}", NumberToString(m), NumberToString(a));
-            }
-            else
-            {
-              return string.Format("{0}{2}{1}i", NumberToString(c.Real), NumberToString(Abs(c.Imag)), c.Imag > 0 ? "+" : "-");
-            }
-          }
-          return obj.ToString();
-        case 16:
-          if (IsTrue(IsNegative(obj)))
-          {
-            return string.Format(CultureInfo.InvariantCulture, "-{0:X}", Abs(obj));
-          }
-          else
-          {
-            return string.Format(CultureInfo.InvariantCulture, "{0:X}", obj);
-          }
-      }
-
-      return FALSE;
-    }
-    
 
     [Builtin("string->number")]
     public static object StringToNumber(object obj)
@@ -308,6 +153,7 @@ namespace IronScheme.Runtime
           return ConvertToBigInteger(a).CompareTo(ConvertToBigInteger(b));
         case NumberClass.Rational:
           return ConvertToRational(a).CompareTo(ConvertToRational(b));
+
         default:
           return AssertionViolation("exact-compare", "not exact", a, b);
       }
@@ -440,6 +286,10 @@ namespace IronScheme.Runtime
       if (o is Complex64)
       {
         return (Complex64)o;
+      }
+      else if (o is ComplexFraction)
+      {
+        return (ComplexFraction)o;
       }
       else
       {
@@ -752,16 +602,6 @@ namespace IronScheme.Runtime
 
     #endregion
 
-
-   
-
-
- 
-
-
-
-    #region MathHelper
-
     delegate R Function<T, R>(T t);
     delegate R Function<T1, T2, R>(T1 t1, T2 t2);
 
@@ -788,11 +628,6 @@ namespace IronScheme.Runtime
         return IsTrue(IsPositive(obj)) ? double.PositiveInfinity : double.NegativeInfinity;
       }
     }
-
-
-
-    #endregion
-
 
     //based on lsqrt()
     [Builtin("bignum-sqrt")]
@@ -865,6 +700,97 @@ namespace IronScheme.Runtime
         return Exact(res);
       }
       return res;
+    }
+
+
+    [Obsolete]
+    static object PrintBinary(object num)
+    {
+      if (num is Fraction)
+      {
+        Fraction f = (Fraction)num;
+
+        return string.Format("{0}/{1}", PrintBinary(f.Numerator), PrintBinary(f.Denominator));
+      }
+      else
+      {
+        BigInteger n = ConvertToBigInteger(num);
+        bool positive = n >= 0;
+
+        n = n.Abs();
+
+        StringBuilder sb = new StringBuilder();
+
+        do
+        {
+          sb.Append(((n & 1) == 1) ? "1" : "0");
+          n >>= 1;
+        }
+        while (n != 0);
+
+        char[] output = new char[sb.Length];
+
+        for (int i = 0; i < sb.Length; i++)
+        {
+          output[output.Length - i - 1] = sb[i];
+        }
+
+        string ret = new string(output);
+
+        if (positive)
+        {
+          return ret;
+        }
+        else
+        {
+          return "-" + ret;
+        }
+      }
+    }
+
+    [Obsolete]
+    static object PrintOctal(object num)
+    {
+      if (num is Fraction)
+      {
+        Fraction f = (Fraction)num;
+
+        return string.Format("{0}/{1}", PrintOctal(f.Numerator), PrintOctal(f.Denominator));
+      }
+      else
+      {
+        BigInteger n = ConvertToBigInteger(num);
+        bool positive = n >= 0;
+
+        n = n.Abs();
+
+        StringBuilder sb = new StringBuilder();
+
+        do
+        {
+          sb.Append((char)((n & 7) + '0'));
+          n /= 8;
+        }
+        while (n != 0);
+
+        char[] output = new char[sb.Length];
+
+        for (int i = 0; i < sb.Length; i++)
+        {
+          output[output.Length - i - 1] = sb[i];
+        }
+
+        string ret = new string(output);
+
+        if (positive)
+        {
+          return ret;
+        }
+        else
+        {
+          return "-" + ret;
+        }
+      }
     }
 
     [Obsolete]
@@ -993,7 +919,117 @@ namespace IronScheme.Runtime
 
     #region Obsolete
 
+    [Builtin("number->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object NumberToString(object obj)
+    {
+      return NumberToString(obj, 10);
+    }
 
+
+    [Builtin("number->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object NumberToString(object obj, object radix, object precision)
+    {
+      return NumberToString(obj, radix);
+    }
+
+    [Builtin("number->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    public static object NumberToString(object obj, object radix)
+    {
+      if (!IsTrue(IsNumber(obj)))
+      {
+        return AssertionViolation("number->string", "not a number", obj);
+      }
+      radix = radix ?? 10;
+      int r = (int)radix;
+
+      if (obj is Fraction)
+      {
+        Fraction f = (Fraction)obj;
+        return string.Format("{0}/{1}", NumberToString(f.Numerator, radix),
+          NumberToString(f.Denominator, radix));
+      }
+
+      switch (r)
+      {
+        case 2:
+          return PrintBinary(obj);
+        case 8:
+          return PrintOctal(obj);
+        case 10:
+          if (obj is double)
+          {
+            double d = (double)obj;
+            if (Math.IEEERemainder(d, 1) == 0)
+            {
+              string rr = string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
+              if (rr.Contains("e"))
+              {
+                return rr;
+              }
+              else
+              {
+                return rr + ".0";
+              }
+            }
+            else
+            {
+              if (double.IsNegativeInfinity(d))
+              {
+                return "-inf.0";
+              }
+              else if (double.IsPositiveInfinity(d))
+              {
+                return "+inf.0";
+              }
+              else if (double.IsNaN(d))
+              {
+                return "+nan.0";
+              }
+              else
+                return string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
+            }
+          }
+          if (obj is Complex64)
+          {
+            Complex64 c = (Complex64)obj;
+            double a = (double)Angle(c);
+            object mag = Magnitude(c);
+
+            double m = mag is int ? (int)mag : (double)mag;
+
+            if (IsTrue(IsIntegerValued(a * 1000)) || IsTrue(IsIntegerValued(m * 1000))
+              && !IsTrue(IsIntegerValued(c.Real * 1000)) && !IsTrue(IsIntegerValued(c.Imag * 1000)))
+            {
+              return string.Format("{0}@{1}", NumberToString(m), NumberToString(a));
+            }
+            else
+            {
+              return string.Format("{0}{2}{1}i", NumberToString(c.Real), NumberToString(Abs(c.Imag)), c.Imag > 0 ? "+" : "-");
+            }
+          }
+          if (obj is ComplexFraction)
+          {
+            ComplexFraction c = (ComplexFraction)obj;
+            return string.Format("{0}{2}{1}i", NumberToString(c.Real), NumberToString(Abs(c.Imag)), c.Imag > 0 ? "+" : "-");
+          }
+          return obj.ToString();
+        case 16:
+          if (IsTrue(IsNegative(obj)))
+          {
+            return string.Format(CultureInfo.InvariantCulture, "-{0:X}", Abs(obj));
+          }
+          else
+          {
+            return string.Format(CultureInfo.InvariantCulture, "{0:X}", obj);
+          }
+      }
+
+      return FALSE;
+    }
+    
 
     [Builtin("expt", AllowConstantFold = true)]
     [Obsolete("Implemented in Scheme, do not use, remove if possible")]
@@ -1178,13 +1214,14 @@ namespace IronScheme.Runtime
       if (obj is Complex64)
       {
         Complex64 c = (Complex64)obj;
-        if (c.Imag == 0.0)
+        if (double.IsNaN(c.Real) || double.IsNaN(c.Imag) ||
+            double.IsInfinity(c.Real) || double.IsInfinity(c.Imag))
         {
-          return Exact(c.Real);
+          return AssertionViolation("exact", "no exact equivalent", obj);
         }
         else
         {
-          return AssertionViolation("exact", "no exact equivalent", obj);
+          return new ComplexFraction((Fraction)c.Real, (Fraction)c.Imag);
         }
       }
       if (obj is long)
@@ -2206,7 +2243,7 @@ namespace IronScheme.Runtime
     [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsComplex(object obj)
     {
-      return GetBool(IsTrue(IsReal(obj)) || obj is Complex64);
+      return GetBool(IsTrue(IsReal(obj)) || obj is Complex64 || obj is ComplexFraction);
     }
 
     [Builtin("real?")]

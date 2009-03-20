@@ -621,6 +621,18 @@ namespace IronScheme.Runtime
 
 		#endregion
 
+    public Fraction Abs()
+    {
+      if (this < 0)
+      {
+        return 0 - this;
+      }
+      else
+      {
+        return this;
+      }
+    }
+
 		public override string ToString()
 		{
 			return numerator + "/" + denominator;

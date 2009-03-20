@@ -154,6 +154,7 @@ namespace IronScheme.Runtime.R6RS
 
 
     [Builtin("hashtable?")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object IsHashtable(object obj)
     {
       return  GetBool(obj is Hashtable);
@@ -226,6 +227,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("string-hash")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StringHash(object obj)
     {
       string r = RequiresNotNull<string>(obj);
@@ -233,6 +235,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("string-ci-hash")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object StringCaseInsensitiveHash(object obj)
     {
       string r = RequiresNotNull<string>(obj);
@@ -240,6 +243,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("symbol-hash")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object SymbolHash(object obj)
     {
       SymbolId s = RequiresNotNull<SymbolId>(obj);
@@ -247,6 +251,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("eqv-hash")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
     public static object EqvHash(object obj)
     {
       return obj.GetHashCode();

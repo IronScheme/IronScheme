@@ -109,6 +109,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Runtime\Characters.cs" />
+    <Compile Include="Runtime\ComplexFraction.cs" />
     <Compile Include="Runtime\Cons.cs" />
     <Compile Include="Runtime\Control.cs" />
     <Compile Include="Runtime\Environment.cs" />

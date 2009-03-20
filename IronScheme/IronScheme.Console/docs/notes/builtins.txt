@@ -31,7 +31,6 @@ make-string
 make-vector
 not [7]
 null? [7]
-number->string
 pair? [7]
 string [7]
 string->list
@@ -153,11 +152,7 @@ hashtable-equivalence-function [3]
 hashtable-hash-function [3]
 hashtable-keys
 hashtable-mutable?
-hashtable?
 make-hashtable [1]
-string-ci-hash [3]
-string-hash [3]
-symbol-hash [3]
 
 (rnrs io ports):
 

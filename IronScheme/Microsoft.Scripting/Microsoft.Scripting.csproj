@@ -225,7 +225,6 @@
     <Compile Include="Hosting\SourceStringContentProvider.cs" />
     <Compile Include="Hosting\SourceUnit.cs" />
     <Compile Include="Hosting\SourceUnitReader.cs" />
-    <Compile Include="Math\ComplexInteger.cs" />
     <Compile Include="MissingParameter.cs" />
     <Compile Include="Generation\ByRefReturnBuilder.cs" />
     <Compile Include="Actions\CallBinderHelper.cs" />

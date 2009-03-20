@@ -83,6 +83,11 @@ namespace IronScheme.Compiler
         Fraction f = (Fraction) args;
         return Ast.Constant(new FractionConstant(f));
       }
+      else if (args is ComplexFraction)
+      {
+        ComplexFraction cf = (ComplexFraction)args;
+        return Ast.Constant(new ComplexFractionConstant(cf));
+      }
       else
       {
         if (args is long)
@@ -648,6 +653,11 @@ namespace IronScheme.Compiler
         {
           Fraction f = (Fraction)args;
           return Ast.Constant( new FractionConstant(f));
+        }
+        if (args is ComplexFraction)
+        {
+          ComplexFraction f = (ComplexFraction)args;
+          return Ast.Constant(new ComplexFractionConstant(f));
         }
         if (args != null && args.GetType().Name == "stx")
         {

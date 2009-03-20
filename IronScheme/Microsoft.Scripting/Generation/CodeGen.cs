@@ -1527,28 +1527,6 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        private void EmitComplex(ComplexInteger value)
-        {
-          if (value.Real != 0)
-          {
-            Emit(OpCodes.Ldc_I4, value.Real);
-            if (value.Imag != 0)
-            {
-              Emit(OpCodes.Ldc_I4, value.Imag);
-              EmitCall(typeof(ComplexInteger), "Make");
-            }
-            else
-            {
-              EmitCall(typeof(ComplexInteger), "MakeReal");
-            }
-          }
-          else
-          {
-            Emit(OpCodes.Ldc_I4, value.Imag);
-            EmitCall(typeof(ComplexInteger), "MakeImaginary");
-          }
-        }
-
         private void EmitBigInteger(BigInteger value) {
             int ival;
             if (value.AsInt32(out ival)) {
@@ -1631,8 +1609,6 @@ namespace Microsoft.Scripting.Generation {
                 EmitLong((long)value);
             } else if (value is Complex64) {
                 EmitComplex((Complex64)value);
-            } else if (value is ComplexInteger) {
-                EmitComplex((ComplexInteger)value);
             } else if (!Object.ReferenceEquals((bi = value as BigInteger), null)) {
                 EmitBigInteger(bi);
             } else if ((strVal = value as string) != null) {
