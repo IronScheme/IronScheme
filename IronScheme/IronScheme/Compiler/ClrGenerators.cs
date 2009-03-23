@@ -23,6 +23,8 @@ using IronScheme.Compiler;
 
 using Microsoft.Scripting.Utils;
 using System.Text.RegularExpressions;
+using Microsoft.Scripting.Math;
+using System.Collections;
 
 namespace IronScheme.Compiler
 {
@@ -176,18 +178,23 @@ namespace IronScheme.Compiler
           }
           else
           {
-            if (t.IsArray)
+            if (t.IsArray && t != typeof(byte[]))
             {
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
-            if (t == typeof(double) || t == typeof(int) || t == typeof(char) || 
-              t == typeof(byte) || t == typeof(sbyte) || t == typeof(float) ||
-              t == typeof(bool) || t == typeof(string) || t == typeof(System.IO.Stream))
+            if (t == typeof(double) || t == typeof(int) || t == typeof(char) || t == typeof(BigInteger) || t == typeof(Complex64) ||
+              t == typeof(byte) || t == typeof(sbyte) || t == typeof(float) || t == typeof(ComplexFraction) || t == typeof(Fraction) ||
+              t == typeof(bool) || t == typeof(string) || t == typeof(System.IO.Stream) || t == typeof(Encoding) || t == typeof(Hashtable) ||
+                t == typeof(Array) || t == typeof(byte[]) || t == typeof(ICallable))
             {
               return Ast.ConvertHelper(e, t);
             }
             else
             {
+              if (e is ConstantExpression && ((ConstantExpression)e).Value == null)
+              {
+                return e;
+              }
               return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
             }
           }
@@ -315,7 +322,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        instance = Ast.Call(Helpers_RequiresNotNull.MakeGenericMethod(t), instance);
+        instance = ConvertToHelper(t, instance);
       }
 
       Expression[] arguments = GetAstListNoCast(Cdddr(args) as Cons, cb);

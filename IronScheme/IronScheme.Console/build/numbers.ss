@@ -537,7 +537,8 @@
                             (not (nan? a))
                             (not (nan? b)))
                         (uname (exact-compare (exact a) (exact b)) 0)]
-                      [(or (nan? a) (nan? b)) #f]
+                      [(or (and (real? a) (nan? a)) 
+                           (and (real? b) (nan? b))) #f]
                       [(and (number? a) (number? b))
                         (inexact=? (inexact a) (inexact b))]
                       [else
@@ -572,7 +573,8 @@
                             (not (nan? a))
                             (not (nan? b)))
                         (uname (exact-compare (exact a) (exact b)) 0)]
-                      [(or (nan? a) (nan? b)) #f]
+                      [(or (and (real? a) (nan? a)) 
+                           (and (real? b) (nan? b))) #f]
                       [(and (real? a)
                             (real? b))
                         (uname (inexact-compare (inexact a) (inexact b)) 0)]                                                

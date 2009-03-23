@@ -124,6 +124,18 @@ namespace IronScheme.Runtime
       return Builtins.WriteFormat(this);
     }
 
+    public string PrettyPrint
+    {
+      get { return ToPrettyString(); }
+    }
+
+    public string ToPrettyString()
+    {
+      StringWriter w = new StringWriter();
+      ((ICallable)Builtins.SymbolValue(SymbolTable.StringToObject("pretty-print"))).Call(this, w);
+      return w.GetBuffer();
+    }
+
     #region IEnumerable<object> Members
 
     // this only works with proper lists

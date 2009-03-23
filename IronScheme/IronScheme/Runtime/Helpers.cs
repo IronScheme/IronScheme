@@ -183,7 +183,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    static object ConvertSchemeObject<T>(object o)
+    static object ConvertFromSchemeObject<T>(object o)
     {
       try
       {
@@ -274,7 +274,7 @@ namespace IronScheme.Runtime
       if (obj != null && !(obj is T))
       {
         // no way pass a box op :(
-        object o = ConvertSchemeObject<T>(obj);
+        object o = ConvertFromSchemeObject<T>(obj);
         if (o != null)
         {
           return (T)o;
@@ -309,7 +309,7 @@ namespace IronScheme.Runtime
       if (obj != null && !(obj is T))
       {
         // no way pass a box op :(
-        object o = ConvertSchemeObject<T>(obj);
+        object o = ConvertFromSchemeObject<T>(obj);
         if (o != null)
         {
           return (T)o;

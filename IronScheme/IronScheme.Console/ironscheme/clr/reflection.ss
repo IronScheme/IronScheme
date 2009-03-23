@@ -9,6 +9,7 @@
     member-name
     type-fullname
     type-valuetype?
+    type-array?
     type-enum?
     type-member
     type-members)
@@ -57,6 +58,9 @@
     
   (define/contract (type-valuetype? type:clr-type)
     (clr-prop-get System.Type IsValueType type))  
+    
+  (define/contract (type-array? type:clr-type)
+    (clr-prop-get System.Type IsArray type))     
 
   (define/contract (type-enum? type:clr-type)
     (clr-prop-get System.Type IsEnum type)) 

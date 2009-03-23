@@ -352,7 +352,7 @@
     
   (define-condition-type &stacktrace &condition 
     make-stacktrace-condition stacktrace-condition?
-    (stacktrace condition-stacktrace))       
+    (stacktrace condition-stacktrace))  
 
   (define-condition-type &non-continuable &violation
     make-non-continuable-violation non-continuable-violation?)

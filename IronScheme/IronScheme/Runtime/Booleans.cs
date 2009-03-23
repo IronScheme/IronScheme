@@ -30,7 +30,7 @@ namespace IronScheme.Runtime
     /// </summary>
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
-    [Builtin("not")]
+    [Builtin("not", AllowConstantFold=true)]
     public static object Not(object obj)
     {
       return GetBool(!IsTrue(obj));
