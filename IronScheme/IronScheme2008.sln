@@ -41,9 +41,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Web", "IronSchem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Console", "IronScheme.Console\IronScheme.Console.csproj", "{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingConsole", "Samples\EmbeddingConsole\EmbeddingConsole.csproj", "{1D7426EB-2FF1-46C8-8458-442067E66D24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{0F075144-4F66-4BA2-9EA4-F7A9A68D0128}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
+		SccNumberOfProjects = 8
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -66,6 +70,10 @@ Global
 		SccProjectUniqueName6 = IronScheme.Console\\IronScheme.Console.csproj
 		SccProjectName6 = IronScheme.Console
 		SccLocalPath6 = IronScheme.Console
+		SccProjectUniqueName7 = Samples\\EmbeddingConsole\\EmbeddingConsole.csproj
+		SccProjectTopLevelParentUniqueName7 = IronScheme2008.sln
+		SccProjectName7 = Samples/EmbeddingConsole
+		SccLocalPath7 = Samples\\EmbeddingConsole
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - CPS|Any CPU = Debug - CPS|Any CPU
@@ -109,11 +117,18 @@ Global
 		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D7426EB-2FF1-46C8-8458-442067E66D24}.Debug - CPS|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D7426EB-2FF1-46C8-8458-442067E66D24}.Debug - CPS|Any CPU.Build.0 = Debug|Any CPU
+		{1D7426EB-2FF1-46C8-8458-442067E66D24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D7426EB-2FF1-46C8-8458-442067E66D24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D7426EB-2FF1-46C8-8458-442067E66D24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D7426EB-2FF1-46C8-8458-442067E66D24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {06F93FA9-2424-489F-8F3B-F1F7165E5A44}
+		{1D7426EB-2FF1-46C8-8458-442067E66D24} = {0F075144-4F66-4BA2-9EA4-F7A9A68D0128}
 	EndGlobalSection
 EndGlobal

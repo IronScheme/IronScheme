@@ -11,173 +11,173 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
   {
     static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
-    [Builtin("bitwise-not")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseNot(object ei)
-    {
-      return ToIntegerIfPossible(~ConvertToBigInteger(ei));
-    }
+    //[Builtin("bitwise-not")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseNot(object ei)
+    //{
+    //  return ToIntegerIfPossible(~ConvertToBigInteger(ei));
+    //}
 
     //http://www.mcs.vuw.ac.nz/cgi-bin/info2www?(elisp)Bitwise+Operations
-    [Builtin("bitwise-and")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseAnd(params object[] eis)
-    {
-      if (eis.Length == 0)
-      {
-        return -1;
-      }
+    //[Builtin("bitwise-and")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseAnd(params object[] eis)
+    //{
+    //  if (eis.Length == 0)
+    //  {
+    //    return -1;
+    //  }
 
-      BigInteger bi = ConvertToBigInteger(eis[0]);
+    //  BigInteger bi = ConvertToBigInteger(eis[0]);
 
-      for (int i = 1; i < eis.Length; i++)
-      {
-        bi &= ConvertToBigInteger(eis[i]);
-      }
+    //  for (int i = 1; i < eis.Length; i++)
+    //  {
+    //    bi &= ConvertToBigInteger(eis[i]);
+    //  }
 
-      return ToIntegerIfPossible(bi);
+    //  return ToIntegerIfPossible(bi);
       
-    }
+    //}
 
-    [Builtin("bitwise-ior")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseIor(params object[] eis)
-    {
-      if (eis.Length == 0)
-      {
-        return 0;
-      }
+    //[Builtin("bitwise-ior")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseIor(params object[] eis)
+    //{
+    //  if (eis.Length == 0)
+    //  {
+    //    return 0;
+    //  }
 
-      BigInteger bi = ConvertToBigInteger(eis[0]);
+    //  BigInteger bi = ConvertToBigInteger(eis[0]);
 
-      for (int i = 1; i < eis.Length; i++)
-      {
-        bi |= ConvertToBigInteger(eis[i]);
-      }
+    //  for (int i = 1; i < eis.Length; i++)
+    //  {
+    //    bi |= ConvertToBigInteger(eis[i]);
+    //  }
 
-      return ToIntegerIfPossible(bi);
+    //  return ToIntegerIfPossible(bi);
 
-    }
+    //}
 
-    [Builtin("bitwise-xor")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseXor(params object[] eis)
-    {
-      if (eis.Length == 0)
-      {
-        return 0;
-      }
+    //[Builtin("bitwise-xor")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseXor(params object[] eis)
+    //{
+    //  if (eis.Length == 0)
+    //  {
+    //    return 0;
+    //  }
 
-      BigInteger bi = ConvertToBigInteger(eis[0]);
+    //  BigInteger bi = ConvertToBigInteger(eis[0]);
 
-      for (int i = 1; i < eis.Length; i++)
-      {
-        bi ^= ConvertToBigInteger(eis[i]);
-      }
+    //  for (int i = 1; i < eis.Length; i++)
+    //  {
+    //    bi ^= ConvertToBigInteger(eis[i]);
+    //  }
 
-      return ToIntegerIfPossible(bi);
+    //  return ToIntegerIfPossible(bi);
 
-    }
+    //}
 
-    [Builtin("bitwise-bit-count")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseBitCount(object ei)
-    {
-      BigInteger bi = ConvertToBigInteger(ei);
+    //[Builtin("bitwise-bit-count")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseBitCount(object ei)
+    //{
+    //  BigInteger bi = ConvertToBigInteger(ei);
 
-      if (bi <= 0)
-      {
-        return BitWiseNot(BitWiseBitCount(BitWiseNot(ei)));
-      }
-      else
-      {
-        int count = 0;
-        while (bi > 0)
-        {
-          count += (int)(bi & 1);
-          bi >>= 1;
-        }
-        return count;
-      }
-    }
+    //  if (bi <= 0)
+    //  {
+    //    return BitWiseNot(BitWiseBitCount(BitWiseNot(ei)));
+    //  }
+    //  else
+    //  {
+    //    int count = 0;
+    //    while (bi > 0)
+    //    {
+    //      count += (int)(bi & 1);
+    //      bi >>= 1;
+    //    }
+    //    return count;
+    //  }
+    //}
 
-    [Builtin("bitwise-length")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseLength(object ei)
-    {
-      BigInteger bi = ConvertToBigInteger(ei);
+    //[Builtin("bitwise-length")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseLength(object ei)
+    //{
+    //  BigInteger bi = ConvertToBigInteger(ei);
 
-      if (bi < 0)
-      {
-        return BitWiseLength(BitWiseNot(ei));
-      }
-      else
-      {
-        return bi.BitLength;
-      }
-    }
+    //  if (bi < 0)
+    //  {
+    //    return BitWiseLength(BitWiseNot(ei));
+    //  }
+    //  else
+    //  {
+    //    return bi.BitLength;
+    //  }
+    //}
 
-    [Builtin("bitwise-first-bit-set")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseFirstBitSet(object ei)
-    {
-      BigInteger bi = ConvertToBigInteger(ei);
+    //[Builtin("bitwise-first-bit-set")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseFirstBitSet(object ei)
+    //{
+    //  BigInteger bi = ConvertToBigInteger(ei);
 
-      if (bi == 0)
-      {
-        return -1;
-      }
-      else
-      {
-        int count = 0;
-        while (bi != 0)
-        {
-          if ((int)(bi & 1) == 1)
-          {
-            return count;
-          }
-          count++;
-          bi >>= 1;
-        }
-        return count;
-      }
-    }
+    //  if (bi == 0)
+    //  {
+    //    return -1;
+    //  }
+    //  else
+    //  {
+    //    int count = 0;
+    //    while (bi != 0)
+    //    {
+    //      if ((int)(bi & 1) == 1)
+    //      {
+    //        return count;
+    //      }
+    //      count++;
+    //      bi >>= 1;
+    //    }
+    //    return count;
+    //  }
+    //}
 
-    [Builtin("bitwise-bit-set?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object BitWiseIsBitSet(object ei, object k)
-    {
-      BigInteger bi = ConvertToBigInteger(ei);
-      BigInteger ki = ConvertToBigInteger(k);
+    //[Builtin("bitwise-bit-set?")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object BitWiseIsBitSet(object ei, object k)
+    //{
+    //  BigInteger bi = ConvertToBigInteger(ei);
+    //  BigInteger ki = ConvertToBigInteger(k);
 
-      if (ki < 0)
-      {
-        AssertionViolation("bitwise-bit-set?", "k is negative", k);
-      }
+    //  if (ki < 0)
+    //  {
+    //    AssertionViolation("bitwise-bit-set?", "k is negative", k);
+    //  }
 
-      if (bi == 0)
-      {
-        return FALSE;
-      }
-      else if (bi == -1)
-      {
-        return TRUE;
-      }
-      else
-      {
-        int count = 0;
-        while (bi != 0)
-        {
-          if ((int)(bi & 1) == 1 && count == ki)
-          {
-            return TRUE;
-          }
-          count++;
-          bi >>= 1;
-        }
-        return FALSE;
-      }
-    }
+    //  if (bi == 0)
+    //  {
+    //    return FALSE;
+    //  }
+    //  else if (bi == -1)
+    //  {
+    //    return TRUE;
+    //  }
+    //  else
+    //  {
+    //    int count = 0;
+    //    while (bi != 0)
+    //    {
+    //      if ((int)(bi & 1) == 1 && count == ki)
+    //      {
+    //        return TRUE;
+    //      }
+    //      count++;
+    //      bi >>= 1;
+    //    }
+    //    return FALSE;
+    //  }
+    //}
     
     [Builtin("bitwise-arithmetic-shift")]
     public static object BitWiseArithmeticShift(object ei, object k)

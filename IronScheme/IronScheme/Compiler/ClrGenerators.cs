@@ -539,7 +539,7 @@ namespace IronScheme.Compiler
 
       t = t.MakeArrayType();
 
-      Expression size = GetAst(Builtins.Second(args), cb);
+      Expression size = ConvertToHelper(typeof(int), GetAst(Builtins.Second(args), cb));
 
       ConstructorInfo ci = t.GetConstructor(new Type[] { typeof(int) });
 

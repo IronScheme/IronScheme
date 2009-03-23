@@ -31,6 +31,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("symbol->string")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     public static object SymbolToString(object obj)
     {
       SymbolId s = RequiresNotNull<SymbolId>(obj);
@@ -38,6 +39,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("string->symbol")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     public static object StringToSymbol(object obj)
     {
       string s = RequiresNotNull<string>(obj);

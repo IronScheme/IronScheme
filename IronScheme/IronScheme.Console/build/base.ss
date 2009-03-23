@@ -302,6 +302,12 @@
       
       vector-ref
       vector-set!  
+
+      symbol->string
+      string->symbol 
+      
+      make-vector
+      vector-length     
      )
     (ironscheme clr)
     (ironscheme unsafe))
@@ -331,6 +337,17 @@
       (clr-is system.double obj))   
       
     (define (fixnum-width) 32)
+    
+    (define (symbol->string sym)
+      (unless (symbol? sym)
+        (assertion-violation 'symbol->string "not a symbol" sym))
+      (clr-static-call Microsoft.Scripting.SymbolTable IdToString sym))
+      
+    (define (string->symbol str)
+      (unless (string? str)
+        (assertion-violation 'string->symbol "not a string" str))
+      (clr-static-call Microsoft.Scripting.SymbolTable StringToObject str))
+      
     
     (define (div0 x1 x2)
       (let* ((d (div x1 x2))
@@ -377,7 +394,25 @@
       (when (negative? n)
         (assertion-violation 'vector-set! "negative index" n))
       ($vector-set! x n value)
-      (void))      
+      (void))   
+      
+    (define make-vector         
+      (case-lambda
+        [(k)
+          (unless (fixnum? k)
+            (assertion-violation 'make-vector "not a fixnum" k))
+          (when (negative? k)
+            (assertion-violation 'make-vector "cannot be negative" k))
+          (clr-new-array System.Object k)]
+        [(k fill)
+          (let ((vec (make-vector k)))
+            (vector-fill! vec fill)
+            vec)]))
+            
+    (define (vector-length vec)
+      (unless (vector? vec)
+        (assertion-violation 'vector-length "not a vector" vec))
+      (clr-prop-get System.Array Length vec))            
     
     (define (vector-fill! vec val)
       (let ((len (vector-length vec)))
