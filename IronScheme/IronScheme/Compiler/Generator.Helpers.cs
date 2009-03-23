@@ -147,7 +147,6 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Conditions));
       AddBuiltins(Context, typeof(Runtime.R6RS.Programs));
 
-      AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Flonums));
       AddBuiltins(Context, typeof(Runtime.R6RS.Arithmetic.Bitwise));
 
       cc.Scope.SetName((SymbolId)SymbolTable.StringToObject("uninitialized"), Uninitialized.Instance);

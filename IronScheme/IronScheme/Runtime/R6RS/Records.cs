@@ -249,6 +249,8 @@ namespace IronScheme.Runtime.R6RS
 
         fd.field = s.Field;
 
+        PropertyBuilder pi = tg.TypeBuilder.DefineProperty(fname, PropertyAttributes.None, typeof(object), new Type[0]);
+
         // accesor 
 
         MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static,
@@ -263,6 +265,7 @@ namespace IronScheme.Runtime.R6RS
         agen.Emit(OpCodes.Ret);
 
         fd.accessor = ab;
+        pi.SetGetMethod(ab);
 
         // mutator
         if (fd.mutable)
@@ -281,6 +284,7 @@ namespace IronScheme.Runtime.R6RS
           mgen.Emit(OpCodes.Ret);
 
           fd.mutator = mb;
+          pi.SetSetMethod(mb);
         }
 
         rtd.fields.Add(fd);

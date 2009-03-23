@@ -37,7 +37,17 @@ namespace Microsoft.Scripting.Ast {
     public Expression Value
     {
       get { return _value; }
-    } 
+    }
+
+    static Expression GetReference(Expression expr)
+    {
+      if (expr is BoundExpression)
+      {
+        var be = expr as BoundExpression;
+        return be.Variable.AssumedValue ?? expr;
+      }
+      return expr;
+    }
 
 
     // implementation detail.
@@ -47,6 +57,7 @@ namespace Microsoft.Scripting.Ast {
     {
       _value = value;
       _variable = var;
+      _variable.AssumedValue = _variable.AssumedValue == null ? GetReference(value) : null;
     }
 
     internal VariableReference Ref
@@ -81,10 +92,21 @@ namespace Microsoft.Scripting.Ast {
         // implementation detail.
         private VariableReference _vr;
 
+        static Expression GetReference(Expression expr)
+        {
+          if (expr is BoundExpression)
+          {
+            var be = expr as BoundExpression;
+            return be.Variable.AssumedValue ?? expr;
+          }
+          return expr;
+        }
+
         internal BoundAssignment(Variable /*!*/ variable, Expression /*!*/ value)
             : base(AstNodeType.BoundAssignment) {
             _variable = variable;
             _value = value;
+            _variable.AssumedValue = _variable.AssumedValue == null ? GetReference(value) : null;
         }
 
         public Variable Variable {

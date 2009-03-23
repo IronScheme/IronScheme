@@ -20,6 +20,6 @@ namespace IronScheme.Runtime
 
     object Arity { get; }
     object Form { get; }
-    bool AllowConstantFold { get; }
+    bool AllowConstantFold { get; set; }
   }
 }

@@ -29,6 +29,7 @@
     ironscheme-build
     ironscheme-test
     emacs-mode?
+    stacktrace-enable?
     compile
     compile-system-libraries
     compile->closure)
@@ -49,10 +50,13 @@
     (ironscheme files)
     (ironscheme cps)
     (ironscheme clr)
+    (ironscheme constant-fold)
     (ironscheme library)
     (only (ironscheme) pretty-print))
     
   (define trace-printer (make-parameter pretty-print))
+      
+  (define stacktrace-enable? (make-parameter #t))
   
   (define command-line (make-parameter (get-command-line))) 
    
@@ -169,16 +173,24 @@
   (set-symbol-value! 'expanded2core expanded->core)
   
   (set-symbol-value! 'trace-printer trace-printer)
+  (set-symbol-value! 'pretty-print pretty-print)
   (set-symbol-value! 'convert->cps convert->cps)
   (set-symbol-value! 'assertion-violation assertion-violation)
   (set-symbol-value! 'raise raise)
   (set-symbol-value! 'emacs-mode? emacs-mode?)
+  (set-symbol-value! 'stacktrace-enable? stacktrace-enable?)
   
   (file-options-constructor (enum-set-constructor fo))
   
   (library-path (get-library-paths))
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))
+  
+  (enable-constant-fold/env 
+    '(only (rnrs) = < > <= >= negative? positive? zero? exp expt div mod div0 mod0)
+    '(except (rnrs arithmetic fixnums) fx*/carry fx-/carry fx+/carry fxdiv0-and-mod0 fxdiv-and-mod)
+    '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod)
+    '(rnrs arithmetic bitwise))
   
   (interaction-environment (new-interaction-environment))
   )

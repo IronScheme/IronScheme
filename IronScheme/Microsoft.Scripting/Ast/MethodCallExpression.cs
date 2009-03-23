@@ -163,11 +163,19 @@ namespace Microsoft.Scripting.Ast {
 
         } 
 #endif
+        static Expression UnwindBoundExpression(BoundExpression be)
+        {
+          if (be.Variable.AssumedValue != null && be.Variable.AssumedValue is BoundExpression)
+          {
+            return UnwindBoundExpression(be.Variable.AssumedValue as BoundExpression);
+          }
+          return be.Variable.AssumedValue ?? be;
+        }
 
 
         public override void Emit(CodeGen cg) {
           EmitLocation(cg);
-          if (_instance != null && !cg.IsDynamicMethod) // damn DM! // go away! // this dangerous too for now
+          if (_instance != null && !cg.IsDynamicMethod && !IsParamsMethod()) // damn DM! // go away! // this dangerous too for now
           {
 
             if (_instance is UnaryExpression)
@@ -177,7 +185,7 @@ namespace Microsoft.Scripting.Ast {
               {
                 if (ue.Operand is CodeBlockExpression)
                 {
-                  
+
                   CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
                   Debug.Assert(_arguments.Count == _parameterInfos.Length);
 
@@ -189,16 +197,29 @@ namespace Microsoft.Scripting.Ast {
                     {
                       if (rcg == cg)
                       {
+                        List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
                         for (int arg = 0; arg < _parameterInfos.Length; arg++)
                         {
                           Expression argument = _arguments[arg];
+                          if (argument is BoundExpression)
+                          {
+                            var abe = argument as BoundExpression;
+                            if (abe.Variable == pars[arg])
+                            {
+                              pars[arg] = null;
+                              continue;
+                            }
+                          }
                           Type type = _parameterInfos[arg].ParameterType;
                           EmitArgument(cg, argument, type);
                         }
 
                         for (int arg = 0; arg < _parameterInfos.Length; arg++)
                         {
-                          cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg - 1);
+                          if (pars[_parameterInfos.Length - arg - 1] != null)
+                          {
+                            cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg - 1);
+                          }
                         }
                         //HACK: eeek! but it works :)
                         int offset = -(cg.Size + 5);
@@ -224,6 +245,81 @@ namespace Microsoft.Scripting.Ast {
                 {
                   ;
                 }
+              }
+              else if (ue.Operand is BoundExpression)
+              {
+                BoundExpression be = ue.Operand as BoundExpression;
+                var v = UnwindBoundExpression(be);
+                if (v is MethodCallExpression)
+                {
+                  var mce = v as MethodCallExpression;
+                  if (mce.Arguments.Count == 2)
+                  {
+                    var cbe = mce.Arguments[1] as CodeBlockExpression;
+                    if (cbe != null)
+                    {
+                      CodeGen rcg = null;
+
+                      if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
+                      {
+                        if (rcg == cg)
+                        {
+                          List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
+                          for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                          {
+                            Expression argument = _arguments[arg];
+                            if (argument is BoundExpression)
+                            {
+                              var abe = argument as BoundExpression;
+                              if (abe.Variable == pars[arg])
+                              {
+                                pars[arg] = null;
+                                continue;
+                              }
+                            }
+                            Type type = _parameterInfos[arg].ParameterType;
+                            EmitArgument(cg, argument, type);
+                          }
+
+                          for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                          {
+                            if (pars[_parameterInfos.Length - arg - 1] != null)
+                            {
+                              cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg);
+                            }
+                          }
+                          //HACK: eeek! but it works :)
+                          int offset = -(cg.Size + 5);
+                          cg.Emit(OpCodes.Br, offset);
+
+                          cg.skipreturn = true;
+                          return;
+                        }
+                      }
+
+                      if (rcg != null)
+                      {
+                        //this wont work, need to look for another way
+                        //rcg.ContextSlot.EmitGet(cg);
+
+                        //for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                        //{
+                        //  Expression argument = _arguments[arg];
+                        //  Type type = _parameterInfos[arg].ParameterType;
+                        //  EmitArgument(cg, argument, type);
+                        //}
+
+                        //cbe.EmitDirect(cg, tailcall);
+                        //return;
+                      }
+                    }
+
+                  }
+                }
+              }
+              else
+              {
+                ;
               }
             }
             else
@@ -277,6 +373,11 @@ namespace Microsoft.Scripting.Ast {
 
             // Emit the actual call
             cg.EmitCall(_method, tailcall);
+        }
+
+        bool IsParamsMethod()
+        {
+          return _parameterInfos.Length == 1 && _parameterInfos[0].ParameterType.IsArray;
         }
 
         bool tailcall = false;

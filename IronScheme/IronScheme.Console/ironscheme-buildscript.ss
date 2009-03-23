@@ -79,6 +79,8 @@
     
     "build/cps.ss"
     
+    "build/constant-fold.ss"
+    
     "psyntax/internal.ss"
     "psyntax/library-manager.ss"
     "psyntax/builders.ss"
@@ -278,6 +280,7 @@
     (where-condition?                           i)
     (condition-where                            i)
     (make-stacktrace-condition                  i)
+    (stacktrace-enable?                         i)
     (stacktrace-condition?                      i)
     (condition-stacktrace                       i)
     (exact-compare                              ic)

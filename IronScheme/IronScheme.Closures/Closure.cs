@@ -54,10 +54,7 @@ namespace IronScheme.Runtime
       targetmap.Add(typeof(CallTargetWithContextN), -1 + 16);
     }
 
-    public bool AllowConstantFold
-    {
-      get { return false; }
-    }
+    public bool AllowConstantFold {get;set;}
 
     public static AssertHandler AssertionViolation;
 

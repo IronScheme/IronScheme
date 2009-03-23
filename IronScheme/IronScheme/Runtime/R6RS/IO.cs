@@ -135,7 +135,7 @@ namespace IronScheme.Runtime.R6RS
 
     //(native-eol-style)
     [Builtin("native-eol-style")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     public static object NativeEolStyle()
     {
       return eol_crlf;

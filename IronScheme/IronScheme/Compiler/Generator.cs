@@ -487,18 +487,25 @@ namespace IronScheme.Compiler
 
                   if (constant)
                   {
-                    object[] cargs = Array.ConvertAll(pars, e => ((ConstantExpression)e).Value);
+                    object[] cargs = Array.ConvertAll(pars, e => GetRuntimeConstant((ConstantExpression)e));
                     CallTarget0 disp = delegate
                     {
                       return bf.Call(cargs);
                     };
-                    object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
-                      Runtime.Builtins.SymbolValue(SymbolTable.StringToObject("values")),
-                      Closure.Make(null, disp));
-
-                    if (!(result is Exception))
+                    CallTarget1 handler = delegate(object e)
                     {
+                      throw (Exception)e;
+                    };
+
+                    try
+                    {
+                      object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
+                        Closure.Make(null, handler),
+                        Closure.Make(null, disp));
                       return GetCons(result, cb);
+                    }
+                    catch
+                    {
                     }
                   }
                 }
@@ -541,14 +548,28 @@ namespace IronScheme.Compiler
 
                     if (constant)
                     {
-                      object[] cargs = Array.ConvertAll(pars, e => ((ConstantExpression)e).Value);
+                      object[] cargs = Array.ConvertAll(pars, e => GetRuntimeConstant((ConstantExpression)e));
+
+                      CallTarget0 disp = delegate
+                      {
+                        var rrrr = clos.Call(cargs);
+                        return rrrr;
+                      };
+
+                      CallTarget1 handler = delegate (object e)
+                      {
+                        throw (Exception)e;
+                      };
+
                       try
                       {
-                        return Ast.Constant(clos.Call(cargs));
+                        object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
+                          Closure.Make(null, handler),
+                          Closure.Make(null, disp));
+                        return GetCons(result, cb);
                       }
                       catch
                       {
-                        // nothing we can do...
                       }
                     }
                   }
@@ -665,6 +686,16 @@ namespace IronScheme.Compiler
         }
         return Ast.Constant(args);
       }
+    }
+
+    static object GetRuntimeConstant(ConstantExpression ce)
+    {
+      if (ce.Value is Microsoft.Scripting.Generation.CompilerConstant)
+      {
+        var cc = (Microsoft.Scripting.Generation.CompilerConstant)ce.Value;
+        return cc.Create();
+      }
+      return ce.Value;
     }
 
     protected static Expression InlineCall(CodeBlock parent, CodeBlockExpression cbe, params Expression[] pp)

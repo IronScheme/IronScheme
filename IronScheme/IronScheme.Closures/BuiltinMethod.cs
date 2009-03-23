@@ -28,6 +28,7 @@ namespace IronScheme.Runtime
     public bool AllowConstantFold
     {
       get { return foldable; }
+      set { foldable = value; }
     }
 
     object ICallable.Arity
@@ -127,7 +128,7 @@ namespace IronScheme.Runtime
     public static ActionBinder binder;
     public static CodeContext context;
 
-    readonly bool foldable;
+    bool foldable;
 
     public BuiltinMethod(string name, MethodBase[] mg)
       : this(name, mg, false)

@@ -227,13 +227,7 @@
       (assertion-violation 'fxbit-set? "cannot be larger than 31" k))
     (if ($fx=? 0 x)
       #f
-      (let f ((count 0)(x x))
-        (if (not ($fx=? 0 x))
-          (if (and ($fx=? count k) ($fx=? 1 ($fxand 1 x)))
-            #t
-            (f ($$fx+ count 1)
-               ($fxarithmetic-shift-right x 1)))
-          #f))))
+      ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))))
                   
   (define-fx (fxnot x1)
     ($fxnot x1))
