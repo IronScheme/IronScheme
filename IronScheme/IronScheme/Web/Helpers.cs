@@ -34,22 +34,7 @@ namespace IronScheme.Web
     static LanguageProvider GetLanguageProvider()
     {
       ScriptDomainManager sdm = ScriptDomainManager.CurrentManager;
-      sdm.GlobalOptions.AssemblyGenAttributes = Microsoft.Scripting.Generation.AssemblyGenAttributes.None;
-      IronSchemeLanguageProvider lp = new IronSchemeLanguageProvider(sdm);
-
-      AutoResetEvent e = new AutoResetEvent(false);
-
-      Thread t = new Thread(delegate ()
-        {
-          Runtime.Builtins.Load("~/ironscheme.boot.pp");
-          e.Set();
-        }, 1500000);
-
-      t.Start();
-
-      e.WaitOne();
-
-      return lp;
+      return sdm.GetLanguageProvider(typeof(IronSchemeLanguageProvider));
     }
   }
 }

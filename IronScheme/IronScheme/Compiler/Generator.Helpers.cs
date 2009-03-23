@@ -26,12 +26,11 @@ namespace IronScheme.Compiler
 {
   public abstract class BaseHelper
   {
-    static readonly IronSchemeScriptEngine se;
-    readonly internal static CodeContext cc;
-    readonly internal static ScriptModule scriptmodule;
-    internal static readonly ActionBinder binder;
-    static readonly LanguageProvider lp = ScriptDomainManager.CurrentManager.GetLanguageProvider(
-          typeof(Hosting.IronSchemeLanguageProvider));
+    static IronSchemeScriptEngine se;
+    internal static CodeContext cc;
+    internal static ScriptModule scriptmodule;
+    internal static ActionBinder binder;
+    static LanguageProvider lp;
 
     protected static LanguageProvider LanguageProvider
     {
@@ -56,6 +55,12 @@ namespace IronScheme.Compiler
     
     static BaseHelper()
     {
+
+    }
+
+    internal static void Initialize(IronSchemeLanguageProvider ironSchemeLanguageProvider)
+    {
+      lp = ironSchemeLanguageProvider;
       se = lp.GetEngine() as IronSchemeScriptEngine;
 
       scriptmodule = ScriptDomainManager.CurrentManager.Host.DefaultModule as ScriptModule;

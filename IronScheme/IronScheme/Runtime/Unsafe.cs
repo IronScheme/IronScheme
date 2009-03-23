@@ -457,7 +457,7 @@ namespace IronScheme.Runtime
       }
 
       #region fixnums
-
+      
       [InlineEmitter("$$fx+")]
       public static Expression FxAdd(params Expression[] args)
       {
@@ -494,10 +494,7 @@ namespace IronScheme.Runtime
           return null;
         }
       }
-    }
-
       #endregion
-
-
+    }
   }
 }

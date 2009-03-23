@@ -25,6 +25,10 @@ namespace IronScheme.Hosting
 {
   public sealed class IronSchemeLanguageProvider : LanguageProvider
   {
+    public IronSchemeLanguageProvider() : this (ScriptDomainManager.CurrentManager)
+    {
+    }
+
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
@@ -44,18 +48,41 @@ namespace IronScheme.Hosting
        Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
-
-      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".sps", ".ss", ".sls");
+      
       Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
       Runtime.Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
       Runtime.Closure.Unspecified = Builtins.Unspecified;
       Runtime.Closure.ArrayFromCons = l => (object[])Builtins.ListToVector(l);
+
+      Initialize();
+
+      // only register when done
+      x.RegisterLanguageProvider("IronScheme", "IronScheme.Hosting.IronSchemeLanguageProvider", ".sps", ".ss", ".sls");
+    }
+
+    void Initialize()
+    {
+      IronScheme.Compiler.BaseHelper.Initialize(this);
+
+      AutoResetEvent e = new AutoResetEvent(false);
+
+      Thread t = new Thread(delegate()
+      {
+        Runtime.Builtins.Load("~/ironscheme.boot.pp");
+        e.Set();
+      }, 1500000);
+
+      t.Start();
+
+      e.WaitOne();
     }
 
     public override string LanguageDisplayName
     {
       get { return "IronScheme"; }
     }
+
+    
 
     IronSchemeScriptEngine se;
 
@@ -119,7 +146,7 @@ namespace IronScheme.Hosting
       protected override int RunFile(string filename)
       {
         IronScheme.Runtime.Builtins.commandline = Options.RemainingArgs;
-        Runtime.Builtins.Load("~/ironscheme.boot.pp");
+        //Runtime.Builtins.Load("~/ironscheme.boot.pp");
         if (!Options.TabCompletion)
         {
           Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
@@ -179,7 +206,7 @@ namespace IronScheme.Hosting
 #if CPS
         Runtime.Builtins.Load("~/ironscheme.boot.cps");
 #else
-        Runtime.Builtins.Load("~/ironscheme.boot.pp");
+        //Runtime.Builtins.Load("~/ironscheme.boot.pp");
 #endif
         if (!Options.TabCompletion)
         {
