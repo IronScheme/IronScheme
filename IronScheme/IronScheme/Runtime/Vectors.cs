@@ -105,6 +105,7 @@ namespace IronScheme.Runtime
     
 
     [Builtin("vector->list")]
+    [Obsolete]
     public static object VectorToList(object vec)
     {
       object[] l = RequiresNotNull<object[]>(vec);

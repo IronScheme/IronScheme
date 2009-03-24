@@ -27,30 +27,32 @@ namespace IronScheme.Runtime
     /// </summary>
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
-    [Builtin("char->integer")]
-    public static object CharToInteger(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return (int)c;
-    }
+    //[Builtin("char->integer")]
+    //[Obsolete]
+    //public static object CharToInteger(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return (int)c;
+    //}
 
     /// <summary>
     /// Integers to char.
     /// </summary>
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
-    [Builtin("integer->char")]
-    public static object IntegerToChar(object obj)
-    {
-      int i = RequiresNotNull<int>(obj);
+    //[Builtin("integer->char")]
+    //[Obsolete]
+    //public static object IntegerToChar(object obj)
+    //{
+    //  int i = RequiresNotNull<int>(obj);
       
-      if (i < 0 || i > 0x10ffff || (i > 0xd7ff && i < 0xe000))
-      {
-        return AssertionViolation("interger->char", "not a valid unicode value", obj);
-      }
-      char c = char.ConvertFromUtf32(i)[0];
-      return c;
-    }
+    //  if (i < 0 || i > 0x10ffff || (i > 0xd7ff && i < 0xe000))
+    //  {
+    //    return AssertionViolation("interger->char", "not a valid unicode value", obj);
+    //  }
+    //  char c = char.ConvertFromUtf32(i)[0];
+    //  return c;
+    //}
 
   }
 }

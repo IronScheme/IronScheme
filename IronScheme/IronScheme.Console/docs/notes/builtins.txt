@@ -16,37 +16,21 @@ call-with-current-continuation/call/cc [1][5]
 call-with-values [1][5][7]
 car [7]
 cdr [7]
-char->integer
 cons [7]
 dynamic-wind [1][5]
 eq? [7]
 equal?
 eqv?
 error [2][4]
-integer->char
 length
 list [7]
 list?
-make-string
-make-vector
 not [7]
 null? [7]
 pair? [7]
-string [7]
-string->list
 string->number 
-string->symbol
-string-append
-string-copy
-string-length
-string-ref
-string?
-substring
-symbol->string
 values [5][6][7]
 vector [7]
-vector->list
-vector-length
 
 (rnrs r5rs):
 
@@ -64,8 +48,6 @@ set-cdr!
 
 (rnrs mutable-strings):
 
-string-fill!
-string-set!
 
 (rnrs programs):
 
@@ -101,7 +83,6 @@ open-output-file
 output-port?
 read [7]
 write [7]
-
 
 (rnrs bytevectors):
 
@@ -141,7 +122,9 @@ bitwise-reverse-bit-field
 
 (rnrs arithmetic fixnums):
 
+
 (rnrs arithmetic flonums):
+
 
 (rnrs hashtables):
 

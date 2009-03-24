@@ -180,7 +180,7 @@ namespace IronScheme.Compiler
               Runtime.Builtins.LexicalError("not a valid Unicode value", utf32);
             }
 
-            output = Builtins.IntegerToChar(utf32).ToString();
+            output = char.ConvertFromUtf32(utf32);
           }
           else
           {
