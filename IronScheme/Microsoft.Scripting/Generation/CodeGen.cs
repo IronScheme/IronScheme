@@ -487,6 +487,8 @@ namespace Microsoft.Scripting.Generation {
                         Emit(OpCodes.Box, fromType);
                         return true;
                     }
+
+
                     
                     
                     // TODO: any other cases where we need to box?
@@ -506,6 +508,11 @@ namespace Microsoft.Scripting.Generation {
                 if (implicitOnly) return false;
                 Emit(OpCodes.Unbox_Any, toType);
                 return true;
+            }
+
+            if (fromType == typeof(char) && toType == typeof(int))
+            {
+              return true;
             }
 
             if (toType.IsValueType != fromType.IsValueType) {

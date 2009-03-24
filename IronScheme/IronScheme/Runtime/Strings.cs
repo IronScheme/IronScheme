@@ -27,142 +27,152 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    [Builtin("string-set!")]
-    public static object StringSet(object obj, object k, object value)
-    {
-      int i = RequiresNotNull<int>(k);
-      char c = RequiresNotNull<char>(value);
-      StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
-      if (sb != null)
-      {
-        sb[i] = c;
-        return Unspecified;
-      }
-      return AssertionViolation("string-set!", "not a mutable string", obj);
-    }
+    //[Builtin("string-set!")]
+    //[Obsolete]
+    //public static object StringSet(object obj, object k, object value)
+    //{
+    //  int i = RequiresNotNull<int>(k);
+    //  char c = RequiresNotNull<char>(value);
+    //  StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
 
-    [Builtin("string-fill!")]
-    public static object StringFill(object obj, object fill)
-    {
-      char c = RequiresNotNull<char>(fill);
-      StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
-      for (int i = 0; i < sb.Length; i++)
-      {
-        sb[i] = c;
-      }
-      return Unspecified;
-    }
+    //  sb[i] = c;
+    //  return Unspecified;
+    //}
 
-    [Builtin("string-ref")]
-    public static object StringRef(object obj, object k)
-    {
-      int i = RequiresNotNull<int>(k);
-      string s = obj as string;
-      if (s != null)
-      {
-        return s[i];
-      }
+    //[Builtin("string-fill!")]
+    //[Obsolete]
+    //public static object StringFill(object obj, object fill)
+    //{
+    //  char c = RequiresNotNull<char>(fill);
+    //  StringBuilder sb = RequiresNotNull<StringBuilder>(obj);
+    //  for (int i = 0; i < sb.Length; i++)
+    //  {
+    //    sb[i] = c;
+    //  }
+    //  return Unspecified;
+    //}
 
-      StringBuilder sb = obj as StringBuilder;
-      if (sb != null)
-      {
-        return sb[i];
-      }
+    //[Builtin("string-ref")]
+    //[Obsolete]
+    //public static object StringRef(object obj, object k)
+    //{
+    //  int i = RequiresNotNull<int>(k);
+    //  string s = obj as string;
+    //  if (s != null)
+    //  {
+    //    return s[i];
+    //  }
 
-      return AssertionViolation(GetCaller(), "not a string", obj);
-    }
+    //  StringBuilder sb = obj as StringBuilder;
+    //  if (sb != null)
+    //  {
+    //    return sb[i];
+    //  }
 
-    [Builtin("make-string")]
-    public static object MakeString(object k)
-    {
-      return MakeString(k, (char)0);
-    }
+    //  return AssertionViolation(GetCaller(), "not a string", obj);
+    //}
 
-    [Builtin("make-string")]
-    public static object MakeString(object k, object fill)
-    {
-      int n = RequiresNotNull<int>(k);
-      char c = RequiresNotNull<char>(fill);
-      StringBuilder sb = new StringBuilder(n);
-      for (int i = 0; i < n; i++)
-      {
-        sb.Append(c);
-      }
-      return sb;
-    }
+    //[Builtin("make-string")]
+    //[Obsolete]
+    //public static object MakeString(object k)
+    //{
+    //  return MakeString(k, (char)0);
+    //}
 
-    [Builtin("string")]
-    public static object String(params object[] args)
-    {
-      char[] a = Array.ConvertAll<object, char>(args, RequiresNotNull<char>);
-      return new StringBuilder(new string(a));
-    }
+    //[Builtin("make-string")]
+    //[Obsolete]
+    //public static object MakeString(object k, object fill)
+    //{
+    //  int n = RequiresNotNull<int>(k);
+    //  char c = RequiresNotNull<char>(fill);
+    //  StringBuilder sb = new StringBuilder(n);
+    //  for (int i = 0; i < n; i++)
+    //  {
+    //    sb.Append(c);
+    //  }
+    //  return sb;
+    //}
 
-    [Builtin("substring")]
-    public static object SubString(object obj, object start, object end)
-    {
-      int st = RequiresNotNull<int>(start);
-      int ed = RequiresNotNull<int>(end);
-      string s = RequiresNotNull<string>(obj);
-      return s.Substring(st, ed - st);
-    }
+    //[Builtin("string")]
+    //[Obsolete]
+    //public static object String(params object[] args)
+    //{
+    //  char[] a = Array.ConvertAll<object, char>(args, RequiresNotNull<char>);
+    //  return new StringBuilder(new string(a));
+    //}
 
-    [Builtin("string-append")]
-    public static object StringAppend(params object[] args)
-    {
-      return string.Concat(args);
-    }
+    //[Builtin("substring")]
+    //[Obsolete]
+    //public static object SubString(object obj, object start, object end)
+    //{
+    //  int st = RequiresNotNull<int>(start);
+    //  int ed = RequiresNotNull<int>(end);
+    //  string s = RequiresNotNull<string>(obj);
+    //  return s.Substring(st, ed - st);
+    //}
 
-    [Builtin("string-length")]
-    public static object StringLength(object obj)
-    {
-      if (obj is string)
-      {
-        return ((string)obj).Length;
-      }
-      else
-      {
-        return RequiresNotNull<StringBuilder>(obj).Length;
-      }
-    }
+    //[Builtin("string-append")]
+    //[Obsolete]
+    //public static object StringAppend(params object[] args)
+    //{
+    //  return string.Concat(args);
+    //}
 
-    [Builtin("string-copy")]
-    public static object StringCopy(object obj)
-    {
-      string s = RequiresNotNull<string>(obj);
-      object ns = new string(s.ToCharArray());
-      return ns;
-    }
+    //[Builtin("string-length")]
+    //[Obsolete]
+    //public static object StringLength(object obj)
+    //{
+    //  if (obj is string)
+    //  {
+    //    return ((string)obj).Length;
+    //  }
+    //  else
+    //  {
+    //    return RequiresNotNull<StringBuilder>(obj).Length;
+    //  }
+    //}
 
-    [Builtin("string?")]
-    public static object IsString(object obj)
-    {
-      return GetBool(obj is string || obj is StringBuilder);
-    }
+    //[Builtin("string-copy")]
+    //[Obsolete]
+    //public static object StringCopy(object obj)
+    //{
+    //  string s = RequiresNotNull<string>(obj);
+    //  object ns = new string(s.ToCharArray());
+    //  return ns;
+    //}
 
-    [Builtin("string-compare")]
-    public static object StringCompare(object obj1, object obj2)
-    {
-      string s1 = RequiresNotNull<string>(obj1);
-      string s2 = RequiresNotNull<string>(obj2);
+    //[Builtin("string?")]
+    //[Obsolete]
+    //public static object IsString(object obj)
+    //{
+    //  return GetBool(obj is string || obj is StringBuilder);
+    //}
 
-      return string.Compare(s1, s2, StringComparison.Ordinal);
-    }
+    //[Builtin("string-compare")]
+    //[Obsolete]
+    //public static object StringCompare(object obj1, object obj2)
+    //{
+    //  string s1 = RequiresNotNull<string>(obj1);
+    //  string s2 = RequiresNotNull<string>(obj2);
 
-    [Builtin("string->list")]
-    public static object StringToList(object obj)
-    {
-      string s = RequiresNotNull<string>(obj);
+    //  return string.Compare(s1, s2, StringComparison.Ordinal);
+    //}
 
-      return Runtime.Cons.FromList(s);
-    }
+    //[Builtin("string->list")]
+    //[Obsolete]
+    //public static object StringToList(object obj)
+    //{
+    //  string s = RequiresNotNull<string>(obj);
 
-    [Builtin("string-format")]
-    public static object StringFormat(object format, params object[] args)
-    {
-      string f = RequiresNotNull<string>(format);
-      return string.Format(f, args);
-    }
+    //  return Runtime.Cons.FromList(s);
+    //}
+
+    //[Builtin("string-format")]
+    //public static object StringFormat(object format, params object[] args)
+    //{
+    //  string f = RequiresNotNull<string>(format);
+    //  return string.Format(f, args);
+    //}
 
   }
 }

@@ -221,6 +221,9 @@
     flonum?
     fixnum-width
     bytevector?
+    
+    string-set!
+    string-fill!
   
     )
   (import 
@@ -268,9 +271,6 @@
       rationalize
       max
       min
-      ;positive?
-      ;negative?
-      ;zero?
       even?
       odd?
       gcd
@@ -307,10 +307,40 @@
       string->symbol 
       
       make-vector
-      vector-length     
+      vector-length  
+      
+      string? 
+      make-string  
+      string-ref
+      string-set!
+      string-fill!
+      string-length
+      string-copy
+      substring
+      string-append
+      string->list
+      string
+      
+      string-format
+      string-compare
+      
+      vector->list
+      char->integer
+      integer->char
+      
      )
     (ironscheme clr)
     (ironscheme unsafe))
+    
+    (define (clr-string? obj)
+      (clr-is System.String obj))
+
+    (define (stringbuilder? obj)
+      (clr-is System.Text.StringBuilder obj))
+      
+    (define (string? obj)
+      (or (clr-string? obj) 
+          (stringbuilder? obj)))
   
     (define (char? obj)
       (clr-is system.char obj))
@@ -337,6 +367,133 @@
       (clr-is system.double obj))   
       
     (define (fixnum-width) 32)
+    
+    (define (char->integer chr)
+      (unless (char? chr)
+        (assertion-violation 'char->integer "not a character" chr))
+      (clr-cast System.Int32 (clr-cast System.Char chr)))
+      
+    (define (integer->char num)
+      (unless (fixnum? num)
+        (assertion-violation 'integer->char "not a integer" num))
+      (when (or (fxnegative? num)      
+                (fx>? num #x10ffff)
+                (and (fx>? num #xd7ff)
+                     (fx<? num #xe000)))
+        (assertion-violation 'integer->char "not a valid unicode value" num))
+      (string-ref (clr-static-call System.Char ConvertFromUtf32 num) 0))
+    
+    (define make-string
+      (case-lambda
+        [(k)
+          (make-string k #\nul)]
+        [(k fill)
+          (unless (fixnum? k)
+            (assertion-violation 'make-string "not a fixnum" k))
+          (when (negative? k)
+            (assertion-violation 'make-string "cannot be negative" k))        
+          (unless (char? fill)
+            (assertion-violation 'make-string "not a character" fill))
+          (let ((str (clr-new System.Text.StringBuilder (clr-cast System.Int32 k))))
+            (let f ((i 0))
+              (if (fx=? i k)
+                  str
+                  (begin
+                    (clr-call System.Text.StringBuilder "Append(Char)" str fill)
+                    (f (fx+ i 1))))))]))
+
+    (define (string-ref str k)
+      (unless (and (fixnum? k) (fx>=? k 0))
+        (assertion-violation 'string-ref "not a non-negative integer" k))        
+      (cond
+        [(clr-string? str) 
+          (clr-prop-get System.String Chars str k)]
+        [(stringbuilder? str) 
+          (clr-prop-get System.Text.StringBuilder Chars str k)]
+        [else
+          (assertion-violation 'string-set! "not a string" str)]))
+            
+    (define (string-set! str k val)
+      (unless (stringbuilder? str)
+        (assertion-violation 'string-set! "not a mutable string" str))
+      (unless (and (fixnum? k) (fx>=? k 0))
+        (assertion-violation 'string-set! "not a non-negative integer" k))        
+      (clr-prop-set! System.Text.StringBuilder Chars str k val))
+      
+    (define (string-fill! str k fill)
+      (unless (stringbuilder? str)
+        (assertion-violation 'string-fill! "not a mutable string" str))
+      (unless (and (fixnum? k) (fx>=? k 0))
+        (assertion-violation 'string-fill! "not a non-negative integer" k))        
+      (unless (char? fill)
+        (assertion-violation 'string-fill! "not a character" fill))
+      (let f ((i 0))
+        (unless (fx=? i k)
+          (clr-prop-set! System.Text.StringBuilder Chars str i fill)
+          (f (fx+ i 1)))))
+            
+    (define (string-length str)
+      (cond
+        [(clr-string? str) 
+          (clr-prop-get System.String Length str)]
+        [(stringbuilder? str) 
+          (clr-prop-get System.Text.StringBuilder Length str)]
+        [else
+          (assertion-violation 'string-length "not a string" str)]))
+          
+    (define (->string str)
+      (if (clr-string? str)
+          str
+          (clr-call Object ToString str)))
+          
+    (define (string . args)
+      (unless (for-all char? args)
+        (assertion-violation 'string "not all char" args))
+      (let ((str (clr-new System.Text.StringBuilder)))
+        (let f ((args args))
+          (if (null? args)
+              str
+              (begin
+                (clr-call System.Text.StringBuilder "Append(Char)" str (car args))
+                (f (cdr args)))))))
+          
+    (define (string->list str)
+      (unless (string? str)
+        (assertion-violation 'string->list "not a string" str))
+      (clr-static-call IronScheme.Runtime.Cons FromList (->string str)))
+          
+    (define (string-copy str)
+      (cond
+        [(clr-string? str)
+          (clr-static-call System.String Copy str)]
+        [(stringbuilder? str)
+          (clr-call System.Text.StringBuilder ToString str)]
+        [else
+          (assertion-violation 'string-copy "not a string" str)]))
+
+    (define (substring str start end)
+      (unless (and (fixnum? start) (fx>=? start 0))
+        (assertion-violation 'substring "not a non-negative integer" start)) 
+      (unless (and (fixnum? end) (fx>=? end 0))
+        (assertion-violation 'substring "not a non-negative integer" end))             
+      (cond
+        [(clr-string? str)
+          (clr-call System.String Substring str start (fx- end start))]
+        [(stringbuilder? str)
+          (clr-call System.Text.StringBuilder ToString str start (fx- end start))]
+        [else
+          (assertion-violation 'substring "not a string" str)]))
+      
+    ; probably need to be made faster  
+    (define (string-append . args)
+      (unless (for-all string? args)
+        (assertion-violation 'string-append "not strings" args))
+      (clr-static-call System.String 
+                       "Concat(String[])"
+                       (list->vector (map ->string args))))
+                       
+    (define (string-format fmt . args)
+      (clr-static-call System.String "Format(String,Object[])" fmt (list->vector args)))                       
     
     (define (symbol->string sym)
       (unless (symbol? sym)
@@ -418,7 +575,12 @@
       (let ((len (vector-length vec)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))
-          (vector-set! vec i val))))   
+          (vector-set! vec i val))))  
+          
+    (define (vector->list vec)
+      (unless (vector? vec)
+        (assertion-violation 'vector->list "not a vector" vec))
+      (clr-static-call IronScheme.Runtime.Cons FromList vec))         
           
     (define (xcons x y)
       (cons y x))            
@@ -457,20 +619,7 @@
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
     
-    ;(define (positive? r)
-      ;(unless (real-valued? r)
-        ;(assertion-violation 'positive? "not a real" r))
-      ;(< 0 r))
-      ;
-    ;(define (negative? r)
-      ;(unless (real-valued? r)
-        ;(assertion-violation 'negative? "not a real" r))
-      ;(> 0 r))   
-      ;
-    ;(define (zero? z)
-      ;(unless (number? z)
-        ;(assertion-violation 'zero? "not a number" z))
-      ;(= 0 z))           
+       
       
     (define (even? n)
       (unless (integer-valued? n)
@@ -544,8 +693,13 @@
               0
               (abs (* (/ a (gcd a b)) b))))]
         [else
-          (fold-left lcm (abs (car nums)) (cdr nums))]))           
-    
+          (fold-left lcm (abs (car nums)) (cdr nums))])) 
+          
+    (define (string-compare a b)
+      (clr-static-call System.String 
+                       "Compare(String,String,StringComparison)"
+                       a b 'ordinal))
+          
     (define-syntax define-string-compare
       (syntax-rules ()
         [(_ name cmp)
@@ -555,7 +709,9 @@
               (for-all
                 (lambda (x)
                   (unless (string? x) (assertion-violation 'name "not a string" x))  
-                  (let ((r (cmp (string-compare a x) 0)))
+                  (let ((r (cmp (clr-static-call System.String 
+                                                 "Compare(String,String,StringComparison)"
+                                                 a x 'ordinal) 0)))
                     (set! a x)
                     r))
                 (cons b rest))))]))
