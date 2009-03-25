@@ -221,21 +221,21 @@ namespace IronScheme.Runtime
       return c;
     }
     
-    [Builtin("set-car!")]
-    public static object SetCar(object list, object value)
-    {
-      Cons c = RequiresNotNull<Runtime.Cons>(list);
-      c.car = value;
-      return Unspecified;
-    }
+    //[Builtin("set-car!")]
+    //public static object SetCar(object list, object value)
+    //{
+    //  Cons c = RequiresNotNull<Runtime.Cons>(list);
+    //  c.car = value;
+    //  return Unspecified;
+    //}
 
-    [Builtin("set-cdr!")]
-    public static object SetCdr(object list, object value)
-    {
-      Cons c = RequiresNotNull<Runtime.Cons>(list);
-      c.cdr = value;
-      return Unspecified;
-    }
+    //[Builtin("set-cdr!")]
+    //public static object SetCdr(object list, object value)
+    //{
+    //  Cons c = RequiresNotNull<Runtime.Cons>(list);
+    //  c.cdr = value;
+    //  return Unspecified;
+    //}
     
     [Builtin]
     public static object Car(object args)

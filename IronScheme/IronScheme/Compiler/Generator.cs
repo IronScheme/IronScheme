@@ -266,7 +266,7 @@ namespace IronScheme.Compiler
       if (c != null)
       {
 
-        if (Builtins.IsSymbol(c.car))
+        if (c.car is SymbolId)
         {
           SymbolId f = (SymbolId)c.car;
 

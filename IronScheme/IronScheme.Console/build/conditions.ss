@@ -129,10 +129,12 @@
     &where
     make-where-condition
     where-condition?
+    condition-where
     
     &stacktrace
     make-stacktrace-condition
     stacktrace-condition?
+    condition-stacktrace
     
     &condition-rtd &condition-rcd &message-rtd &message-rcd
     &warning-rtd &warning-rcd &serious-rtd &serious-rcd

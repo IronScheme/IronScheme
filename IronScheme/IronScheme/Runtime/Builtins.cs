@@ -336,28 +336,18 @@ A ""contributor"" is any person that distributes its contribution under this lic
     [Builtin("get-library-paths")]
     public static object GetLibraryPaths()
     {
-      if (Environment.CurrentDirectory == ApplicationDirectory)
-      {
-        List<string> paths = new List<string>();
-        
-        paths.AddRange(includepaths);
-        paths.Add(ApplicationDirectory);
-        paths.Add(Path.Combine(ApplicationDirectory, "lib"));
+      List<string> paths = new List<string>();
 
-        return List(paths.ToArray());
-      }
-      else
+      if (Environment.CurrentDirectory != ApplicationDirectory)
       {
-        List<string> paths = new List<string>();
-
         paths.Add(".");
-
-        paths.AddRange(includepaths);
-        paths.Add(ApplicationDirectory);
-        paths.Add(Path.Combine(ApplicationDirectory, "lib"));
-
-        return List(paths.ToArray());
       }
+
+      paths.AddRange(includepaths);
+      paths.Add(ApplicationDirectory);
+      paths.Add(Path.Combine(ApplicationDirectory, "lib"));
+
+      return List(paths.ToArray());
     }
 
     [Builtin("procedure-arity")]
