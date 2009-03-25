@@ -25,29 +25,13 @@
     eq?
     equal?
     
-    ;number?
-    ;complex?
-    ;real?
-    ;rational?
-    ;integer?
     real-valued?
     rational-valued?
     integer-valued?
     
-    ;exact?
-    ;inexact?
     inexact
     exact
     
-    ;=
-    ;<
-    ;>
-    ;<=
-    ;>=
-    ;
-    ;zero?
-    ;positive?
-    ;negative?
     odd?
     even?
     finite?
@@ -327,6 +311,10 @@
       vector->list
       char->integer
       integer->char
+      
+      current-input-port
+      current-output-port
+      current-error-port
       
      )
     (ironscheme clr)
@@ -619,6 +607,33 @@
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
     
+    
+    (define current-input-port
+      (case-lambda
+        [()
+          (clr-static-prop-get System.Console In)]
+        [(port)
+          (unless (and (textual-port? port) (input-port? port))
+            (assertion-violation 'current-input-port "not a textual input port" port))
+          (clr-static-call System.Console SetIn port)]))
+    
+    (define current-output-port
+      (case-lambda
+        [()
+          (clr-static-prop-get System.Console Out)]
+        [(port)
+          (unless (and (textual-port? port) (output-port? port))
+            (assertion-violation 'current-output-port "not a textual output port" port))
+          (clr-static-call System.Console SetOut port)]))
+
+    (define current-error-port
+      (case-lambda
+        [()
+          (clr-static-prop-get System.Console Error)]
+        [(port)
+          (unless (and (textual-port? port) (output-port? port))
+            (assertion-violation 'current-error-port "not a textual output port" port))
+          (clr-static-call System.Console SetError port)]))
        
       
     (define (even? n)

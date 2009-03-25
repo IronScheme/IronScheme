@@ -209,32 +209,32 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     }
 
     //(bitwise-reverse-bit-field fx1 fx2 fx3)
-    [Builtin("bitwise-reverse-bit-field")]
-    public static object BitwiseReverseBitField(object e1, object e2, object e3)
-    {
-      BigInteger i1 = ConvertToBigInteger(e1);
-      BigInteger i2 = ConvertToBigInteger(e2);
-      BigInteger i3 = ConvertToBigInteger(e3);
+    //[Builtin("bitwise-reverse-bit-field")]
+    //public static object BitwiseReverseBitField(object e1, object e2, object e3)
+    //{
+    //  BigInteger i1 = ConvertToBigInteger(e1);
+    //  BigInteger i2 = ConvertToBigInteger(e2);
+    //  BigInteger i3 = ConvertToBigInteger(e3);
 
-      BitArray ba = new BitArray(i1.ToByteArray());
+    //  BitArray ba = new BitArray(i1.ToByteArray());
 
-      BigInteger range = (i3 - i2);
+    //  BigInteger range = (i3 - i2);
 
-      for (BigInteger i = i2; i < (i3 - range / 2); i += 1)
-      {
-        int m1 = (int) (i);
-        int m2 = (int) (i3 - (i - i2 + 1));
-        bool b1 = ba[m1];
-        bool b2 = ba[m2];
-        ba[m1] = b2;
-        ba[m2] = b1;
-      }
+    //  for (BigInteger i = i2; i < (i3 - range / 2); i += 1)
+    //  {
+    //    int m1 = (int) (i);
+    //    int m2 = (int) (i3 - (i - i2 + 1));
+    //    bool b1 = ba[m1];
+    //    bool b2 = ba[m2];
+    //    ba[m1] = b2;
+    //    ba[m2] = b1;
+    //  }
 
-      int[] result = new int[ba.Length/32 + 1];
+    //  int[] result = new int[ba.Length/32 + 1];
 
-      ba.CopyTo(result, 0);
+    //  ba.CopyTo(result, 0);
 
-      return ToIntegerIfPossible(new BigInteger(1, Array.ConvertAll<int, uint>(result, delegate(int i) { return (uint)i; })));
-    }
+    //  return ToIntegerIfPossible(new BigInteger(1, Array.ConvertAll<int, uint>(result, delegate(int i) { return (uint)i; })));
+    //}
   }
 }

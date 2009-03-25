@@ -43,6 +43,7 @@
       bitwise-length
       bitwise-first-bit-set
       bitwise-bit-set?
+      bitwise-reverse-bit-field
       ))
       
   (define (bignum? obj)
@@ -176,4 +177,16 @@
               (bitwise-arithmetic-shift-left field count) 
               (bitwise-arithmetic-shift-right field (- width count)))))
         n)))
+        
+  (define (bitwise-reverse-bit-field x1 start end)
+    (unless (< start end)
+       (assertion-violation 'bitwise-reverse-bit-field "start must be less than end" start end))
+    (do ((width (- end start) (- width 1))
+         (bits  (bitwise-bit-field x1 start end)
+                (bitwise-arithmetic-shift-right bits 1))
+         (rbits 0
+                (bitwise-ior (bitwise-arithmetic-shift-left rbits 1)
+                             (bitwise-and bits 1))))
+        ((= width 0)
+         (bitwise-copy-bit-field x1 start end rbits))))
 )

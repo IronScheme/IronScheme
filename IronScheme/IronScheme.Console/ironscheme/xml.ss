@@ -4,9 +4,13 @@
     string->xml)
   (import 
     (ironscheme)
+    (ironscheme clr)
     (ironscheme web-utils))
     
   (define string->xml (symbol-value 'string->xml))    
+  
+  (define (string-concat . args)
+    (clr-static-call System.String "Concat(Object[])" (list->vector args)))
 
 	(define ->xml
 		(letrec 
@@ -21,7 +25,7 @@
 			    (map (lambda (x) i) l)))
 			 (string-map			
 			  (lambda (f l i) 
-			    (apply string-append (map f l (map1 (fx+ 1 i) l)))))
+			    (apply string-concat (map f l (map1 (fx+ 1 i) l)))))
 			 (get-indent			
 			  (lambda (i)     
 			    (make-string (fx* 2 i) #\space)))

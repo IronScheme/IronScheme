@@ -26,44 +26,48 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Unicode : Builtins
   {
-    static TextInfo textinfo = CultureInfo.InvariantCulture.TextInfo;
+    //static TextInfo textinfo = CultureInfo.InvariantCulture.TextInfo;
     /// <summary>
     /// Toes the upper case char.
     /// </summary>
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
-    [Builtin("char-upcase")]
-    public static object ToUpperCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.ToUpper(c);
-    }
+    //[Builtin("char-upcase")]
+    //[Obsolete]
+    //public static object ToUpperCaseChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return char.ToUpper(c);
+    //}
 
     /// <summary>
     /// Toes the lower case char.
     /// </summary>
     /// <param name="obj">The obj.</param>
     /// <returns></returns>
-    [Builtin("char-downcase")]
-    public static object ToLowerCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.ToLower(c);
-    }
+    //[Builtin("char-downcase")]
+    //[Obsolete]
+    //public static object ToLowerCaseChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return char.ToLower(c);
+    //}
 
-    [Builtin("char-titlecase")]
-    public static object ToTitleCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return textinfo.ToTitleCase(c.ToString())[0];
-    }
+    //[Builtin("char-titlecase")]
+    //[Obsolete]
+    //public static object ToTitleCaseChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return textinfo.ToTitleCase(c.ToString())[0];
+    //}
 
-    [Builtin("char-foldcase")]
-    public static object ToFoldCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return char.ToLowerInvariant(char.ToUpperInvariant(c));
-    }
+    //[Builtin("char-foldcase")]
+    //[Obsolete]
+    //public static object ToFoldCaseChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return char.ToLowerInvariant(char.ToUpperInvariant(c));
+    //}
 
     /// <summary>
     /// Determines whether [is alphabetic char] [the specified obj].
@@ -72,12 +76,13 @@ namespace IronScheme.Runtime.R6RS
     /// <returns>
     /// 	<c>true</c> if [is alphabetic char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
-    [Builtin("char-alphabetic?")]
-    public static object IsAlphabeticChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return GetBool( char.IsLetter(c));
-    }
+    //[Builtin("char-alphabetic?")]
+    //[Obsolete]
+    //public static object IsAlphabeticChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return GetBool( char.IsLetter(c));
+    //}
 
     /// <summary>
     /// Determines whether [is numeric char] [the specified obj].
@@ -86,12 +91,13 @@ namespace IronScheme.Runtime.R6RS
     /// <returns>
     /// 	<c>true</c> if [is numeric char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
-    [Builtin("char-numeric?")]
-    public static object IsNumericChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return GetBool( char.IsDigit(c));
-    }
+    //[Builtin("char-numeric?")]
+    //[Obsolete]
+    //public static object IsNumericChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return GetBool( char.IsDigit(c));
+    //}
 
     /// <summary>
     /// Determines whether [is whitespace char] [the specified obj].
@@ -100,12 +106,13 @@ namespace IronScheme.Runtime.R6RS
     /// <returns>
     /// 	<c>true</c> if [is whitespace char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
-    [Builtin("char-whitespace?")]
-    public static object IsWhitespaceChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return GetBool( char.IsWhiteSpace(c));
-    }
+    //[Builtin("char-whitespace?")]
+    //[Obsolete]
+    //public static object IsWhitespaceChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return GetBool( char.IsWhiteSpace(c));
+    //}
 
     /// <summary>
     /// Determines whether [is upper case char] [the specified obj].
@@ -114,12 +121,13 @@ namespace IronScheme.Runtime.R6RS
     /// <returns>
     /// 	<c>true</c> if [is upper case char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
-    [Builtin("char-upper-case?")]
-    public static object IsUpperCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return GetBool( char.IsUpper(c));
-    }
+    //[Builtin("char-upper-case?")]
+    //[Obsolete]
+    //public static object IsUpperCaseChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return GetBool( char.IsUpper(c));
+    //}
 
     /// <summary>
     /// Determines whether [is lower case char] [the specified obj].
@@ -128,74 +136,78 @@ namespace IronScheme.Runtime.R6RS
     /// <returns>
     /// 	<c>true</c> if [is lower case char] [the specified obj]; otherwise, <c>false</c>.
     /// </returns>
-    [Builtin("char-lower-case?")]
-    public static object IsLowerCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      return GetBool( char.IsLower(c));
-    }
+    //[Builtin("char-lower-case?")]
+    //[Obsolete]
+    //public static object IsLowerCaseChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  return GetBool( char.IsLower(c));
+    //}
 
-    [Builtin("char-title-case?")]
-    public static object IsTitleCaseChar(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      if (c == 'I' || c == 'A')
-      {
-        return FALSE;
-      }
-      return IsEqualValue(obj, ToTitleCaseChar(obj));
-    }
+    //[Builtin("char-title-case?")]
+    //[Obsolete]
+    //public static object IsTitleCaseChar(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  if (c == 'I' || c == 'A')
+    //  {
+    //    return FALSE;
+    //  }
+    //  return IsEqualValue(obj, ToTitleCaseChar(obj));
+    //}
 
-    [Builtin("char-general-category")]
-    public static object CharGeneralCategory(object obj)
-    {
-      char c = RequiresNotNull<char>(obj);
-      switch (char.GetUnicodeCategory(c))
-      {
-        case UnicodeCategory.ClosePunctuation:          return SymbolTable.StringToObject("Pe");
-        case UnicodeCategory.ConnectorPunctuation:      return SymbolTable.StringToObject("Pc");
-        case UnicodeCategory.Control:                   return SymbolTable.StringToObject("Cc");
-        case UnicodeCategory.CurrencySymbol:            return SymbolTable.StringToObject("Sc");
-        case UnicodeCategory.DashPunctuation:           return SymbolTable.StringToObject("Pd");
-        case UnicodeCategory.DecimalDigitNumber:        return SymbolTable.StringToObject("Nd");
-        case UnicodeCategory.EnclosingMark:             return SymbolTable.StringToObject("Me");
-        case UnicodeCategory.FinalQuotePunctuation:     return SymbolTable.StringToObject("Pf");
-        case UnicodeCategory.Format:                    return SymbolTable.StringToObject("Cf");
-        case UnicodeCategory.InitialQuotePunctuation:   return SymbolTable.StringToObject("Pi");
-        case UnicodeCategory.LetterNumber:              return SymbolTable.StringToObject("Nl");
-        case UnicodeCategory.LineSeparator:             return SymbolTable.StringToObject("Zl");
-        case UnicodeCategory.LowercaseLetter:           return SymbolTable.StringToObject("Ll");
-        case UnicodeCategory.MathSymbol:                return SymbolTable.StringToObject("Sm");
-        case UnicodeCategory.ModifierLetter:            return SymbolTable.StringToObject("Lm");
-        case UnicodeCategory.ModifierSymbol:            return SymbolTable.StringToObject("Sk");
-        case UnicodeCategory.NonSpacingMark:            return SymbolTable.StringToObject("Mn");
-        case UnicodeCategory.OpenPunctuation:           return SymbolTable.StringToObject("Ps");
-        case UnicodeCategory.OtherLetter:               return SymbolTable.StringToObject("Lo");
-        case UnicodeCategory.OtherNotAssigned:          return SymbolTable.StringToObject("Cn");
-        case UnicodeCategory.OtherNumber:               return SymbolTable.StringToObject("No");
-        case UnicodeCategory.OtherPunctuation:          return SymbolTable.StringToObject("Po");
-        case UnicodeCategory.OtherSymbol:               return SymbolTable.StringToObject("So");
-        case UnicodeCategory.ParagraphSeparator:        return SymbolTable.StringToObject("Zp");
-        case UnicodeCategory.PrivateUse:                return SymbolTable.StringToObject("Co");
-        case UnicodeCategory.SpaceSeparator:            return SymbolTable.StringToObject("Zs");
-        case UnicodeCategory.SpacingCombiningMark:      return SymbolTable.StringToObject("Mc");
-        case UnicodeCategory.Surrogate:                 return SymbolTable.StringToObject("Cs");
-        case UnicodeCategory.TitlecaseLetter:           return SymbolTable.StringToObject("Lt");
-        case UnicodeCategory.UppercaseLetter:           return SymbolTable.StringToObject("Lu");
-      }
-      return FALSE;
-    }
+    //[Builtin("char-general-category")]
+    //[Obsolete]
+    //public static object CharGeneralCategory(object obj)
+    //{
+    //  char c = RequiresNotNull<char>(obj);
+    //  switch (char.GetUnicodeCategory(c))
+    //  {
+    //    case UnicodeCategory.ClosePunctuation:          return SymbolTable.StringToObject("Pe");
+    //    case UnicodeCategory.ConnectorPunctuation:      return SymbolTable.StringToObject("Pc");
+    //    case UnicodeCategory.Control:                   return SymbolTable.StringToObject("Cc");
+    //    case UnicodeCategory.CurrencySymbol:            return SymbolTable.StringToObject("Sc");
+    //    case UnicodeCategory.DashPunctuation:           return SymbolTable.StringToObject("Pd");
+    //    case UnicodeCategory.DecimalDigitNumber:        return SymbolTable.StringToObject("Nd");
+    //    case UnicodeCategory.EnclosingMark:             return SymbolTable.StringToObject("Me");
+    //    case UnicodeCategory.FinalQuotePunctuation:     return SymbolTable.StringToObject("Pf");
+    //    case UnicodeCategory.Format:                    return SymbolTable.StringToObject("Cf");
+    //    case UnicodeCategory.InitialQuotePunctuation:   return SymbolTable.StringToObject("Pi");
+    //    case UnicodeCategory.LetterNumber:              return SymbolTable.StringToObject("Nl");
+    //    case UnicodeCategory.LineSeparator:             return SymbolTable.StringToObject("Zl");
+    //    case UnicodeCategory.LowercaseLetter:           return SymbolTable.StringToObject("Ll");
+    //    case UnicodeCategory.MathSymbol:                return SymbolTable.StringToObject("Sm");
+    //    case UnicodeCategory.ModifierLetter:            return SymbolTable.StringToObject("Lm");
+    //    case UnicodeCategory.ModifierSymbol:            return SymbolTable.StringToObject("Sk");
+    //    case UnicodeCategory.NonSpacingMark:            return SymbolTable.StringToObject("Mn");
+    //    case UnicodeCategory.OpenPunctuation:           return SymbolTable.StringToObject("Ps");
+    //    case UnicodeCategory.OtherLetter:               return SymbolTable.StringToObject("Lo");
+    //    case UnicodeCategory.OtherNotAssigned:          return SymbolTable.StringToObject("Cn");
+    //    case UnicodeCategory.OtherNumber:               return SymbolTable.StringToObject("No");
+    //    case UnicodeCategory.OtherPunctuation:          return SymbolTable.StringToObject("Po");
+    //    case UnicodeCategory.OtherSymbol:               return SymbolTable.StringToObject("So");
+    //    case UnicodeCategory.ParagraphSeparator:        return SymbolTable.StringToObject("Zp");
+    //    case UnicodeCategory.PrivateUse:                return SymbolTable.StringToObject("Co");
+    //    case UnicodeCategory.SpaceSeparator:            return SymbolTable.StringToObject("Zs");
+    //    case UnicodeCategory.SpacingCombiningMark:      return SymbolTable.StringToObject("Mc");
+    //    case UnicodeCategory.Surrogate:                 return SymbolTable.StringToObject("Cs");
+    //    case UnicodeCategory.TitlecaseLetter:           return SymbolTable.StringToObject("Lt");
+    //    case UnicodeCategory.UppercaseLetter:           return SymbolTable.StringToObject("Lu");
+    //  }
+    //  return FALSE;
+    //}
 
-    static readonly CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
+    //static readonly CompareInfo compare = CultureInfo.InvariantCulture.CompareInfo;
 
-    [Builtin("string-ci-compare")]
-    public static object StringCaseInsensitiveCompare(object obj1, object obj2)
-    {
-      string s1 = RequiresNotNull<string>(obj1);
-      string s2 = RequiresNotNull<string>(obj2);
+    //[Builtin("string-ci-compare")]
+    //[Obsolete]
+    //public static object StringCaseInsensitiveCompare(object obj1, object obj2)
+    //{
+    //  string s1 = RequiresNotNull<string>(obj1);
+    //  string s2 = RequiresNotNull<string>(obj2);
 
-      return compare.Compare(s1, s2, CompareOptions.IgnoreCase);
-    }
+    //  return compare.Compare(s1, s2, CompareOptions.IgnoreCase);
+    //}
 
     [Builtin("string-upcase")]
     public static object ToUpperCaseString(object obj)
@@ -234,27 +246,30 @@ namespace IronScheme.Runtime.R6RS
       return sb.ToString();
     }
 
-    [Builtin("string-titlecase")]
-    public static object ToTitleCaseString(object obj)
-    {
-      string s = ToLowerCaseString(obj) as string;
-      return textinfo.ToTitleCase(s);
-    }
+    //[Builtin("string-titlecase")]
+    //[Obsolete]
+    //public static object ToTitleCaseString(object obj)
+    //{
+    //  string s = ToLowerCaseString(obj) as string;
+    //  return textinfo.ToTitleCase(s);
+    //}
 
-    [Builtin("string-foldcase")]
-    public static object ToFoldCaseString(object obj)
-    {
-      string s = ToUpperCaseString(obj) as string;
-      return s.ToLowerInvariant();
-    }
+    //[Builtin("string-foldcase")]
+    //[Obsolete]
+    //public static object ToFoldCaseString(object obj)
+    //{
+    //  string s = ToUpperCaseString(obj) as string;
+    //  return s.ToLowerInvariant();
+    //}
 
-    [Builtin("string-normalize")]
-    public static object StringNormalizeNFD(object obj, object form)
-    {
-      string s = RequiresNotNull<string>(obj);
-      NormalizationForm nf = Helpers.SymbolToEnum<NormalizationForm>(form);
-      return s.Normalize(nf);
-    }
+    //[Builtin("string-normalize")]
+    //[Obsolete]
+    //public static object StringNormalizeNFD(object obj, object form)
+    //{
+    //  string s = RequiresNotNull<string>(obj);
+    //  NormalizationForm nf = Helpers.SymbolToEnum<NormalizationForm>(form);
+    //  return s.Normalize(nf);
+    //}
   }
 }
 

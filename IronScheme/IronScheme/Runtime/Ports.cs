@@ -180,6 +180,7 @@ namespace IronScheme.Runtime
     static Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
 
     [Builtin("read")]
+    [Builtin("get-datum")]
     public static object Read(object port)
     {
       return ReadNext(port);
@@ -781,6 +782,12 @@ namespace IronScheme.Runtime
       return obj.ToString();
     }
 
+    [Builtin("put-datum")]
+    public static object PutDatum(object port, object datum)
+    {
+      return Write(datum, port);
+    }
+
     [Builtin("write")]
     public static object Write(object obj)
     {
@@ -840,6 +847,7 @@ namespace IronScheme.Runtime
     static TextWriter currenterrorport = Console.Error;
 
     [Builtin("current-input-port")]
+    [Obsolete]
     public static object CurrentInputPort(object newport)
     {
       currentinputport = newport as TextReader;
@@ -847,6 +855,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("current-output-port")]
+    [Obsolete]
     public static object CurrentOutputPort(object newport)
     {
       currentoutputport = newport as TextWriter;
@@ -855,18 +864,21 @@ namespace IronScheme.Runtime
 
 
     [Builtin("current-input-port")]
+    [Obsolete]
     public static object CurrentInputPort()
     {
       return currentinputport;
     }
 
     [Builtin("current-output-port")]
+    [Obsolete]
     public static object CurrentOutputPort()
     {
       return currentoutputport;
     }
 
     [Builtin("current-error-port")]
+    [Obsolete]
     public static object CurrentErrorPort(object newport)
     {
       currenterrorport = newport as TextWriter;
@@ -875,6 +887,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("current-error-port")]
+    [Obsolete]
     public static object CurrentErrorPort()
     {
       return currenterrorport;

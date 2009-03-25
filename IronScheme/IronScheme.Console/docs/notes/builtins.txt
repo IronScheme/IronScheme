@@ -28,7 +28,7 @@ list?
 not [7]
 null? [7]
 pair? [7]
-string->number 
+string->number [7]
 values [5][6][7]
 vector [7]
 
@@ -43,8 +43,6 @@ vector [7]
 
 (rnrs mutable-pairs):
 
-set-car!
-set-cdr!
 
 (rnrs mutable-strings):
 
@@ -71,9 +69,6 @@ vector-sort! [7]
 
 close-input-port
 close-output-port
-current-error-port
-current-input-port
-current-output-port
 display [7]
 eof-object
 eof-object?
@@ -93,20 +88,7 @@ bytevector-uint-set!
 
 (rnrs unicode):
 
-char-alphabetic?
-char-downcase
-char-foldcase
-char-general-category
-char-lower-case?
-char-numeric?
-char-title-case?
-char-titlecase
-char-upcase
-char-upper-case?
-char-whitespace?
 string-downcase
-string-foldcase
-string-titlecase
 string-upcase
 
 (rnrs exceptions):
@@ -118,7 +100,6 @@ with-exception-handler [1][4]
 (rnrs arithmetic bitwise):
 
 bitwise-arithmetic-shift
-bitwise-reverse-bit-field
 
 (rnrs arithmetic fixnums):
 
@@ -143,9 +124,6 @@ binary-port?
 bytevector->string
 call-with-bytevector-output-port [1]
 close-port
-current-error-port
-current-input-port
-current-output-port
 eof-object
 eof-object?
 flush-output-port

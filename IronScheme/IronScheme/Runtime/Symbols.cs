@@ -38,13 +38,13 @@ namespace IronScheme.Runtime
       return SymbolTable.IdToString(s);
     }
 
-    [Builtin("string->symbol")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object StringToSymbol(object obj)
-    {
-      string s = RequiresNotNull<string>(obj);
-      return SymbolTable.StringToObject(s);
-    }
+    //[Builtin("string->symbol")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
+    //public static object StringToSymbol(object obj)
+    //{
+    //  string s = RequiresNotNull<string>(obj);
+    //  return SymbolTable.StringToObject(s);
+    //}
 
   }
 }
