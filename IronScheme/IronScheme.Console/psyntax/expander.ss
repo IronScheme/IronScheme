@@ -923,7 +923,7 @@
         ((_ (id . fmls) b b* ...) (id? id)
          (begin
            (verify-formals fmls x)
-           (values id (cons 'defun (cons fmls (cons b b*))))))
+           (values id (cons 'defun x))))
         ((_ id val) (id? id)
          (values id (cons 'expr val)))
         ((_ id) (id? id)
@@ -1113,7 +1113,7 @@
          (let-values (((fmls* body*)
                        (chi-lambda-clause* e fmls*
                          (map cons b* b**) r mr)))
-           (build-case-lambda no-source fmls* body*))))))
+           (build-case-lambda (syntax-annotation e) fmls* body*))))))
   
   (define lambda-transformer
     (lambda (e r mr)
@@ -1122,7 +1122,7 @@
          (let-values (((fmls body)
                        (chi-lambda-clause e fmls
                           (cons b b*) r mr)))
-           (build-lambda no-source fmls body))))))
+           (build-lambda (syntax-annotation e) fmls body))))))
   
   (define bless
     (lambda (x)
@@ -2934,10 +2934,11 @@
              (values (cons a a*) (cons b b*))))))))
 
   (define (chi-defun x r mr)
-    (let ((fmls (car x)) (body* (cdr x)))
+    (syntax-match x ()
+      [(_ (_ . fmls) . body*)
       (let-values (((fmls body)
                     (chi-lambda-clause fmls fmls body* r mr)))
-        (build-lambda no-source fmls body))))
+         (build-lambda (syntax-annotation x) fmls body))]))
 
   (define chi-rhs
     (lambda (rhs r mr)
@@ -4008,6 +4009,9 @@
          (let ((x (stx-expr x)))
            (and (annotation? x)
                 (annotation-source x)))))
+
+  (define (syntax-annotation x)
+    (if (stx? x) (stx-expr x) x))
 
   (define (assertion-error expr pos)
     (raise

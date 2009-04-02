@@ -282,7 +282,20 @@ namespace IronScheme.Runtime
       {
         return arg1;
       }
-      return Append(new object[] { arg1, arg2 });
+      Cons c = arg1 as Cons;
+      do
+      {
+        if (c.cdr == null)
+        {
+          break;
+        }
+        c = c.cdr as Cons;
+      }
+      while (true);
+
+      c.cdr = arg2;
+
+      return arg1;
     }
 
     //The resulting list is always newly allocated, except that it shares structure with the last list argument. 

@@ -73,6 +73,7 @@
     
     "build/format.ss"
     "build/trace.ss"
+    "build/equal.ss"
     
     "psyntax/compat.ss"
     "build/pretty-print.ss" ;; needs make-parameter

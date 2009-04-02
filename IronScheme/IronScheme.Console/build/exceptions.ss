@@ -11,7 +11,12 @@
   (import 
     (psyntax config) 
     (only (ironscheme) import)
-    (except (rnrs) with-exception-handler raise raise-continuable assertion-violation error))
+    (except (rnrs) 
+      with-exception-handler 
+      raise 
+      raise-continuable 
+      assertion-violation 
+      error))
     
   (cps-mode    
     (begin

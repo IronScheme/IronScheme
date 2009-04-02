@@ -133,13 +133,13 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    //(native-eol-style)
-    [Builtin("native-eol-style")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object NativeEolStyle()
-    {
-      return eol_crlf;
-    }
+    ////(native-eol-style)
+    //[Builtin("native-eol-style")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
+    //public static object NativeEolStyle()
+    //{
+    //  return eol_crlf;
+    //}
 
     //(make-transcoder codec) 
     //(make-transcoder codec eol-style) 
@@ -148,7 +148,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("make-transcoder")]
     public static object MakeTranscoder(object codec)
     {
-      return MakeTranscoder(codec, NativeEolStyle(), SymbolTable.StringToObject("replace"));
+      return MakeTranscoder(codec, eol_crlf, SymbolTable.StringToObject("replace"));
     }
 
     [Builtin("make-transcoder")]

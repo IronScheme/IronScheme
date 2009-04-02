@@ -33,10 +33,14 @@
     last-pair
     list-tail
     list-ref
+    append
     )
     
   (import 
     (ironscheme core)
+    (ironscheme clr)
+    (ironscheme unsafe)
+    (only (rnrs mutable-pairs) set-cdr!) 
     (ironscheme integrable)
     (except (rnrs)
       find
@@ -62,7 +66,12 @@
       map
       for-each
       list-tail
-      list-ref))
+      list-ref
+      append))
+      
+   
+    
+        
 
       
   (define (list-tail lst index)
@@ -280,6 +289,45 @@
             a
             (cons a (f (car rest) (cdr rest)))))))
             
+  (define (append-fast! a b)
+    (let ((c ($cdr a)))
+      (if (null? c)
+          (clr-field-set! IronScheme.Runtime.Cons cdr a b)
+          (append-fast! c b))))
+            
+  (define (append! a b)
+    (cond
+      [(null? a) b]
+      [(null? b) a]
+      [else
+        (append-fast! a b)
+        a]))
+            
+  (define append
+    (case-lambda
+      [()   '()] ;; hack to make varargs work :(
+      [(obj) obj]
+      [(obj1 obj2)
+        (unless (list? obj1)
+          (assertion-violation 'append "not a list" obj1))
+        (append! (map values obj1) obj2)]
+      [(obj i1 . il)
+        (unless (list? obj)
+          (assertion-violation 'append "not a list" obj))
+        (letrec-syntax ((obj* (identifier-syntax (clr-static-call IronScheme.Runtime.Cons 
+                                                                  FromList 
+                                                                  obj))))
+          (cond 
+            [(null? i1)
+              (if (null? il)
+                  obj*
+                  (apply append (cons obj il)))]
+            [(pair? i1)
+              (if (null? il)
+                  (append! obj* i1)
+                  (append! obj* (apply append (cons i1 il))))]
+            [else
+              (append! obj* i1)]))]))
   
   (define (fold-left combine nil list1 . lists)
 	  (cond 

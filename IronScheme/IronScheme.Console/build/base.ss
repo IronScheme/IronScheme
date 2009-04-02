@@ -312,9 +312,9 @@
       char->integer
       integer->char
       
-      current-input-port
-      current-output-port
-      current-error-port
+      ;current-input-port
+      ;current-output-port
+      ;current-error-port
       
      )
     (ironscheme clr)
@@ -607,47 +607,27 @@
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
     
-    
-    (define current-input-port
-      (case-lambda
-        [()
-          (clr-static-prop-get System.Console In)]
-        [(port)
-          (unless (and (textual-port? port) (input-port? port))
-            (assertion-violation 'current-input-port "not a textual input port" port))
-          (clr-static-call System.Console SetIn port)]))
-    
-    (define current-output-port
-      (case-lambda
-        [()
-          (clr-static-prop-get System.Console Out)]
-        [(port)
-          (unless (and (textual-port? port) (output-port? port))
-            (assertion-violation 'current-output-port "not a textual output port" port))
-          (clr-static-call System.Console SetOut port)]))
-
-    (define current-error-port
-      (case-lambda
-        [()
-          (clr-static-prop-get System.Console Error)]
-        [(port)
-          (unless (and (textual-port? port) (output-port? port))
-            (assertion-violation 'current-error-port "not a textual output port" port))
-          (clr-static-call System.Console SetError port)]))
-       
+    ;(define current-input-port
+      ;(make-parameter (clr-static-prop-get System.Console In)))
+    ;
+    ;(define current-output-port
+      ;(make-parameter (clr-static-prop-get System.Console Out)))
+;
+    ;(define current-error-port
+      ;(make-parameter (clr-static-prop-get System.Console Error)))
       
     (define (even? n)
-      (unless (integer-valued? n)
+      (unless (integer? n)
         (assertion-violation 'even? "not a integer" n))
       (= 0 (mod n 2)))           
 
     (define (odd? n)
-      (unless (integer-valued? n)
+      (unless (integer? n)
         (assertion-violation 'odd? "not a integer" n))
       (= 1 (mod n 2)))      
     
     (define (max a . rest)
-      (unless (real-valued? a)
+      (unless (real? a)
         (assertion-violation 'max "not a real" a))    
       (fold-left 
         (lambda (a b) 
@@ -659,7 +639,7 @@
         rest))
       
     (define (min a . rest)
-      (unless (real-valued? a)
+      (unless (real? a)
         (assertion-violation 'min "not a real" a))    
       (fold-left 
         (lambda (a b) 
@@ -675,14 +655,14 @@
         [(0) 0]
         [(1)
           (let ((n (car nums)))
-            (unless (integer-valued? n)
+            (unless (integer? n)
               (assertion-violation 'gcd "not an integer" n))
             (abs n))]
         [(2)
           (let ((a (car nums))(b (cadr nums)))
-            (unless (integer-valued? a)
+            (unless (integer? a)
               (assertion-violation 'gcd "not an integer" a))
-            (unless (integer-valued? b)
+            (unless (integer? b)
               (assertion-violation 'gcd "not an integer" b))
             (if (zero? b)
               (abs a)
@@ -695,14 +675,14 @@
         [(0) 1]
         [(1)
           (let ((n (car nums)))
-            (unless (integer-valued? n)
+            (unless (integer? n)
               (assertion-violation 'lcm "not an integer" n))
             (abs n))]
         [(2)
           (let ((a (car nums))(b (cadr nums)))
-            (unless (integer-valued? a)
+            (unless (integer? a)
               (assertion-violation 'lcm "not an integer" a))
-            (unless (integer-valued? b)
+            (unless (integer? b)
               (assertion-violation 'lcm "not an integer" b))
             (if (or (zero? a)(zero? b))
               0
@@ -713,7 +693,9 @@
     (define (string-compare a b)
       (clr-static-call System.String 
                        "Compare(String,String,StringComparison)"
-                       a b 'ordinal))
+                       (->string a) 
+                       (->string b) 
+                       'ordinal))
           
     (define-syntax define-string-compare
       (syntax-rules ()
@@ -726,7 +708,9 @@
                   (unless (string? x) (assertion-violation 'name "not a string" x))  
                   (let ((r (cmp (clr-static-call System.String 
                                                  "Compare(String,String,StringComparison)"
-                                                 a x 'ordinal) 0)))
+                                                 (->string a)
+                                                 (->string x) 
+                                                 'ordinal) 0)))
                     (set! a x)
                     r))
                 (cons b rest))))]))
@@ -809,41 +793,26 @@
             ((fx=? i len) res)
           (vector-set! res i
             (if (null? vecs)
-              (p (vector-ref vec1 i))            
-              (call-with-values 
-                (lambda ()
-                  (apply values
-                    (map (lambda (x) 
-                           (vector-ref x i)) 
-                         (cons vec1 vecs))))
-                p))))))
+                (p (vector-ref vec1 i))
+                (apply p (map (lambda (x) (vector-ref x i)) 
+                              (cons vec1 vecs))))))))
           
     (define (vector-for-each p vec1 . vecs)
       (let ((len (vector-length vec1)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))
           (if (null? vecs)
-            (p (vector-ref vec1 i))
-            (call-with-values 
-              (lambda ()
-                (apply values
-                  (map (lambda (x) 
-                         (vector-ref x i)) 
-                       (cons vec1 vecs))))
-              p)))))
+              (p (vector-ref vec1 i))
+              (apply p (map (lambda (x) (vector-ref x i)) 
+                            (cons vec1 vecs)))))))
             
     (define (string-for-each p str1 . strs)
       (let ((len (string-length str1)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))
           (if (null? strs)
-            (p (string-ref str1 i))            
-            (call-with-values 
-              (lambda ()
-                (apply values
-                  (map (lambda (x) 
-                         (string-ref x i)) 
-                       (cons str1 strs))))
-              p)))))
+              (p (string-ref str1 i))
+              (apply p (map (lambda (x) (string-ref x i)) 
+                            (cons str1 strs)))))))
 
 )
