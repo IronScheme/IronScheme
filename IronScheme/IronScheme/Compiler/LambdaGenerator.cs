@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
+using IronScheme.Runtime.psyntax;
 
 namespace IronScheme.Compiler
 {
@@ -29,6 +30,7 @@ namespace IronScheme.Compiler
       cb.Parent = c;
 
       object arg = Builtins.First(args);
+
       Cons body = Builtins.Cdr(args) as Cons;
 
       bool isrest = AssignParameters(cb, arg);

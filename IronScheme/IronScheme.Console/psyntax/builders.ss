@@ -57,12 +57,16 @@
   (define build-lambda
     (lambda (ae vars exp) 
       (if-wants-case-lambda
-          `(case-lambda (,vars ,exp))
+          (if ae
+              `(case-lambda (,vars ,exp))
+              `(case-lambda (,vars ,exp)))
           `(lambda ,vars ,exp))))
   (define build-case-lambda
     (if-wants-case-lambda
       (lambda (ae vars* exp*)
-        `(case-lambda . ,(map list vars* exp*)))
+        (if ae
+          `(case-lambda . ,(map list vars* exp*))
+          `(case-lambda . ,(map list vars* exp*))))
       (lambda (ae vars* exp*)
         (define (build-error ae)
           (build-application ae 

@@ -169,6 +169,9 @@
     <None Include="build\cps.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="build\equal.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="build\pretty-print.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

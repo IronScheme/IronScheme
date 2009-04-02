@@ -1,6 +1,5 @@
 (library (ironscheme mutable-pairs)
   (export
-    append!
     set-car!
     set-cdr!)
     
@@ -18,7 +17,7 @@
       (assertion-violation 'set-cdr! "not a pair" val))
     (clr-field-set! IronScheme.Runtime.Cons cdr lst val))      
   
-  (define (append! a . b)
+  (define (append! a b)
     (cond
       [(null? a) b]
       [(null? b) a]
@@ -29,4 +28,6 @@
               (set-cdr! a b)
               (f n))))
         a]))
+                 
+  
 )

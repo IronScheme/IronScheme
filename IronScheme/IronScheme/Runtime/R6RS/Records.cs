@@ -23,6 +23,42 @@ using System.Diagnostics;
 
 namespace IronScheme.Runtime.R6RS
 {
+  //public abstract class Record
+  //{
+  //  public override bool Equals(object obj)
+  //  {
+  //    if (eqv_handler != null)
+  //    {
+  //      return Builtins.IsTrue(eqv_handler.Call(this, obj));
+  //    }
+  //    return base.Equals(obj);
+  //  }
+
+  //  public override int GetHashCode()
+  //  {
+  //    if (hashcode_handler != null)
+  //    {
+  //      return Convert.ToInt32(hashcode_handler.Call(this));
+  //    }
+  //    return base.GetHashCode();
+  //  }
+
+  //  public override string ToString()
+  //  {
+  //    if (printer_handler != null)
+  //    {
+  //      StringWriter sw = new StringWriter();
+  //      printer_handler.Call(this, sw, Builtins.FALSE);
+  //      return sw.GetBuffer();
+  //    }
+  //    return base.ToString();
+  //  }
+
+  //  public static ICallable eqv_handler;
+  //  public static ICallable hashcode_handler;
+  //  public static ICallable printer_handler;
+  //}
+
   class RecordTypeDescriptor
   {
     public Type type;
@@ -146,8 +182,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
-      string n = SymbolToString(name) as string;
-      string id = uid is SymbolId ? SymbolToString(uid) as string : null;
+      string n = SymbolTable.IdToString(RequiresNotNull<SymbolId>(name));
+      string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)): null;
 
       if (id != null)
       {
@@ -231,7 +267,7 @@ namespace IronScheme.Runtime.R6RS
 
       foreach (Cons c in f)
       {
-        string fname = SymbolToString(Second(c)) as string;
+        string fname = SymbolTable.IdToString(RequiresNotNull<SymbolId>(Second(c)));
         // we use standard names here, they will be mapped to the given names
         string aname = n + "-" + fname;
         string mname = n + "-" + fname + "-set!";

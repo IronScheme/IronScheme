@@ -736,6 +736,13 @@ namespace IronScheme.Runtime
           }
         }
 
+        var first = sb[0];
+
+        if (char.IsDigit(first))
+        {
+          return string.Format(@"\x{0:X};{1}", (int) first, sb.ToString(1, sb.Length - 1));
+        }
+
         return sb.ToString();
       }
 
@@ -840,10 +847,13 @@ namespace IronScheme.Runtime
 
     //probably a good idea to make these threadstatic
     //[ThreadStatic]
+    [Obsolete]
     static TextReader currentinputport = Console.In;
     //[ThreadStatic]
+    [Obsolete]
     static TextWriter currentoutputport = Console.Out;
     //[ThreadStatic]
+    [Obsolete]
     static TextWriter currenterrorport = Console.Error;
 
     [Builtin("current-input-port")]

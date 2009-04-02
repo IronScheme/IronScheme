@@ -9,7 +9,7 @@ namespace IronScheme.Runtime.psyntax
   public class AnnotatedReader : Builtins
   {
     [Serializable]
-    sealed class Annotation
+    internal sealed class Annotation
     {
       public readonly object expression;
       public readonly object source;
@@ -31,7 +31,7 @@ namespace IronScheme.Runtime.psyntax
     [Builtin("read-annotated")]
     public static object ReadAnnotated()
     {
-      return ReadAnnotated(CurrentInputPort());
+      return ReadAnnotated(Builtins.CurrentInputPort());
     }
 
     static SourceSpan lastloc;

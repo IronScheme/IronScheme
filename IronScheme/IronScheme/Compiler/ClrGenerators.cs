@@ -182,8 +182,9 @@ namespace IronScheme.Compiler
             {
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
-            if (t == typeof(double) || t == typeof(int) || t == typeof(char) || t == typeof(BigInteger) || t == typeof(Complex64) ||
+            if (t == typeof(double) || t == typeof(int) || t == typeof(char) || t == typeof(BigInteger) || t == typeof(Complex64) || t == typeof(Cons) ||
               t == typeof(byte) || t == typeof(sbyte) || t == typeof(float) || t == typeof(ComplexFraction) || t == typeof(Fraction) ||
+              t == typeof(IEnumerable) ||
               t == typeof(bool) || t == typeof(string) || t == typeof(System.IO.Stream) || t == typeof(Encoding) || t == typeof(Hashtable) ||
                 t == typeof(Array) || t == typeof(byte[]) || t == typeof(ICallable) || t == typeof(StringBuilder))
             {
@@ -261,6 +262,10 @@ namespace IronScheme.Compiler
         bf = BindingFlags.Static;
         instance = null;
       }
+      else
+      {
+        instance = ConvertToHelper(t, instance);
+      }
 
       FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
 
@@ -271,7 +276,7 @@ namespace IronScheme.Compiler
 
       Expression value = GetAst(Builtins.Car(Builtins.LastPair(args)), cb);
 
-      return Ast.AssignField(instance,fi, value);
+      return Ast.Comma(Ast.AssignField(instance,fi, value), Ast.ReadField(null, Unspecified));
     }
   }
 

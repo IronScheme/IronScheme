@@ -43,6 +43,16 @@
         call-with-input-file
         call-with-output-file))
         
+  ;(define (printer obj port caller)
+    ;)
+        ;
+  ;(define display
+    ;(case-lambda
+      ;[(obj)
+        ;(display obj (current-output-port))]
+      ;[(obj port)
+        ;(        
+        
   (define peek-char
     (case-lambda
       [()       (peek-char (current-input-port))]

@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
+using IronScheme.Runtime.psyntax;
 
 namespace IronScheme.Compiler
 {

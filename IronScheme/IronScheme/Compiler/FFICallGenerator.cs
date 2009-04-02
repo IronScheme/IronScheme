@@ -202,8 +202,8 @@ namespace IronScheme.Compiler
     protected static Type MakeDelegateType(Type returntype, List<Type> paramtypes)
     {
       AssemblyName asmName = new AssemblyName("delegate-maker");
-      AssemblyBuilder dynamicAsm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave);
-      ModuleBuilder dynamicMod = dynamicAsm.DefineDynamicModule("delegate-maker", "delegate-maker.dll" );
+      AssemblyBuilder dynamicAsm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.Run);
+      ModuleBuilder dynamicMod = dynamicAsm.DefineDynamicModule("delegate-maker");
 
       TypeBuilder tb = dynamicMod.DefineType("delegate-maker", TypeAttributes.Public | TypeAttributes.Sealed, typeof(MulticastDelegate));
 
@@ -217,8 +217,6 @@ namespace IronScheme.Compiler
       
       //inv.SetCustomAttribute(new CustomAttributeBuilder(typeof(UnmanagedFunctionPointerAttribute).GetConstructors()[0], new object[] { CallingConvention.Cdecl }));
       var t = tb.CreateType();
-
-      dynamicAsm.Save("delegate-maker.dll");
 
       return t;
 
@@ -382,8 +380,6 @@ namespace IronScheme.Compiler
       
       var t = tb.CreateType();
       
-      //dynamicAsm.Save(DllPath + "-" + EntryPoint + ".dll", PortableExecutableKinds.ILOnly, ImageFileMachine.I386);
-
       MethodInfo mi = t.GetMethod(EntryPoint);
       try
       {

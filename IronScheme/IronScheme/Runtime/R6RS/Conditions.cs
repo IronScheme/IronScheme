@@ -80,6 +80,7 @@ namespace IronScheme.Runtime.R6RS
     {
       get { return ToString(); }
     }
+
   }
 
   sealed class CompoundCondition : Condition
@@ -134,7 +135,7 @@ namespace IronScheme.Runtime.R6RS
     {
       if (cond is CompoundCondition)
       {
-        return VectorToList(((CompoundCondition)cond).conds);
+        return Runtime.Cons.FromArray(((CompoundCondition)cond).conds);
       }
       return List(cond);
     }
