@@ -9,7 +9,7 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 {
   public class Bitwise : Builtins
   {
-    static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
+    //static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
     //[Builtin("bitwise-not")]
     //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
@@ -179,34 +179,34 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
     //  }
     //}
     
-    [Builtin("bitwise-arithmetic-shift")]
-    public static object BitWiseArithmeticShift(object ei, object k)
-    {
-      BigInteger bi = ConvertToBigInteger(ei);
-      int ki = ConvertToInteger(k);
+    //[Builtin("bitwise-arithmetic-shift")]
+    //public static object BitWiseArithmeticShift(object ei, object k)
+    //{
+    //  BigInteger bi = ConvertToBigInteger(ei);
+    //  int ki = ConvertToInteger(k);
       
-      int ii;
-      if (bi.AsInt32(out ii))
-      {
-        if (ki < 0)
-        {
-          return ii >> -ki;
-        }
-      }
+    //  int ii;
+    //  if (bi.AsInt32(out ii))
+    //  {
+    //    if (ki < 0)
+    //    {
+    //      return ii >> -ki;
+    //    }
+    //  }
 
-      if (ki == 0)
-      {
-        return ei;
-      }
-      if (ki < 0)
-      {
-        return ToIntegerIfPossible(bi >> -ki);
-      }
-      else
-      {
-        return ToIntegerIfPossible(bi << ki);
-      }
-    }
+    //  if (ki == 0)
+    //  {
+    //    return ei;
+    //  }
+    //  if (ki < 0)
+    //  {
+    //    return ToIntegerIfPossible(bi >> -ki);
+    //  }
+    //  else
+    //  {
+    //    return ToIntegerIfPossible(bi << ki);
+    //  }
+    //}
 
     //(bitwise-reverse-bit-field fx1 fx2 fx3)
     //[Builtin("bitwise-reverse-bit-field")]

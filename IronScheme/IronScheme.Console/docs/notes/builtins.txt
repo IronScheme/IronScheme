@@ -9,9 +9,7 @@ A list of builtin procedures still written in C#.
 +
 -
 /
-append
 apply [1][5][7]
-assertion-violation [2][4]
 call-with-current-continuation/call/cc [1][5]
 call-with-values [1][5][7]
 car [7]
@@ -19,12 +17,8 @@ cdr [7]
 cons [7]
 dynamic-wind [1][5]
 eq? [7]
-equal?
-eqv?
-error [2][4]
-length
+eqv? [7]
 list [7]
-list?
 not [7]
 null? [7]
 pair? [7]
@@ -59,7 +53,6 @@ exit
 
 (rnrs sorting):
 
-vector-sort [7]
 vector-sort! [7]
 
 (rnrs lists):
@@ -81,15 +74,10 @@ write [7]
 
 (rnrs bytevectors):
 
-bytevector-sint-ref
-bytevector-sint-set!
-bytevector-uint-ref
-bytevector-uint-set!
 
 (rnrs unicode):
 
 string-downcase
-string-upcase
 
 (rnrs exceptions):
 
@@ -99,7 +87,6 @@ with-exception-handler [1][4]
 
 (rnrs arithmetic bitwise):
 
-bitwise-arithmetic-shift
 
 (rnrs arithmetic fixnums):
 

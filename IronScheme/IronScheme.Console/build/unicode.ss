@@ -1,4 +1,4 @@
-(library (ironscheme unicode)
+﻿(library (ironscheme unicode)
   (export
     char-upcase
     char-downcase
@@ -65,7 +65,7 @@
     char-general-category
     
     string-ci-compare
-    ;string-upcase
+    string-upcase
     ;string-downcase
     string-titlecase
     string-foldcase
@@ -254,8 +254,14 @@
   (define char-ci<=? (char-ci-compare fx<=? char-ci<=?))
   (define char-ci>=? (char-ci-compare fx>=? char-ci>=?))
   
+  (define (string-upcase str)
+    (if (string? str)
+        (clr-call System.String Replace 
+          (clr-call System.String ToUpper (->string str))
+          "ß" 
+          "SS")
+        (assertion-violation 'string-upcase "not a string" str)))
 
-          
   (define-syntax string-normalize
     (syntax-rules ()
       [(_ str form)

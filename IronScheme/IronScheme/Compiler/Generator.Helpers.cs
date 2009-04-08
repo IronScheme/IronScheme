@@ -193,6 +193,12 @@ namespace IronScheme.Compiler
 
       foreach (MethodInfo mi in builtinstype.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static))
       {
+        ObsoleteAttribute obs = Attribute.GetCustomAttribute(mi, typeof(ObsoleteAttribute)) as ObsoleteAttribute;
+        if (obs != null && obs.IsError)
+        {
+          continue;
+        }
+
         foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
         {
           if (CheckParams(mi))

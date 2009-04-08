@@ -1201,7 +1201,7 @@ namespace Microsoft.Scripting.Generation {
         public void EmitCall(MethodInfo mi) {
             Contract.RequiresNotNull(mi, "mi");
 
-            if (mi.IsVirtual && !mi.DeclaringType.IsValueType && !mi.DeclaringType.IsInterface) {
+            if (mi.IsVirtual && !mi.DeclaringType.IsValueType /*&& !mi.DeclaringType.IsInterface*/) {
                 Emit(OpCodes.Callvirt, mi);
             } else {
                 Emit(OpCodes.Call, mi);

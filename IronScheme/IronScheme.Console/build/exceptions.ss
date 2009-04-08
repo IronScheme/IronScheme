@@ -72,6 +72,25 @@
             (if who (make-who-condition who) (condition))
             (make-message-condition msg)
             (make-irritants-condition irritants)))))
-    (import (rnrs)))        
+    (begin 
+      (import (except (rnrs)      
+                assertion-violation 
+                error))
+      
+      (define (assertion-violation who msg . irritants)
+        (raise-continuable ;; hack :\
+          (condition
+            (make-assertion-violation)
+            (if who (make-who-condition who) (condition))
+            (make-message-condition msg)
+            (make-irritants-condition irritants))))
+
+      (define (error who msg . irritants)
+        (raise ;; hack :\
+          (condition
+            (make-error)
+            (if who (make-who-condition who) (condition))
+            (make-message-condition msg)
+            (make-irritants-condition irritants))))))        
 
 )

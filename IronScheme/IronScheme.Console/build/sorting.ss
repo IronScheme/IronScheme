@@ -4,7 +4,9 @@
     vector-sort
     vector-sort!)
     
-  (import (except (rnrs) list-sort))
+  (import 
+    (except (rnrs) list-sort vector-sort)
+    (ironscheme clr))
   
   (define (split ls)
     (let loop 
@@ -58,6 +60,13 @@
               (merge (helper (car parts))
                      (helper (cdr parts)) 
                      precedes?)))))))
+
+  (define (vector-sort pred? vec)
+    (unless (vector? vec)
+      (assertion-violation 'vector-sort "not a vector" vec))
+    (let ((vec (clr-call System.Array Clone vec)))
+      (vector-sort! pred? vec)
+      vec))
 
                      
 

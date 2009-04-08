@@ -17,17 +17,5 @@
       (assertion-violation 'set-cdr! "not a pair" val))
     (clr-field-set! IronScheme.Runtime.Cons cdr lst val))      
   
-  (define (append! a b)
-    (cond
-      [(null? a) b]
-      [(null? b) a]
-      [else
-        (let f ((a a))
-          (let ((n (cdr a)))
-            (if (null? n)
-              (set-cdr! a b)
-              (f n))))
-        a]))
-                 
-  
 )
+

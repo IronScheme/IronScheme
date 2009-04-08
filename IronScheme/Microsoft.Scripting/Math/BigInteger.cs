@@ -1368,6 +1368,11 @@ namespace Microsoft.Scripting.Math {
             if (object.ReferenceEquals(x, null)) {
                 throw new ArgumentNullException("x");
             }
+            int ii;
+            if (shift < 0 && x.AsInt32(out ii))
+            {
+              return ii >> -shift;
+            }
             if (shift == 0) return x;
             else if (shift < 0) return x >> -shift;
 

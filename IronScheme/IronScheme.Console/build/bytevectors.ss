@@ -77,7 +77,7 @@
     (ironscheme integrable)
     (ironscheme unsafe)
     (ironscheme clr)
-     (except (rnrs) 
+     (except (ironscheme) 
       bytevector-u16-ref
       bytevector-s16-ref
       bytevector-u16-native-ref
@@ -138,6 +138,12 @@
       sint-list->bytevector
       bytevector->uint-list
       bytevector->sint-list
+      
+      bytevector-uint-ref
+      bytevector-sint-ref
+      bytevector-uint-set!
+      bytevector-sint-set!
+      
       ))
      
   (define (native-endianness) 'little)
@@ -148,6 +154,17 @@
   (define utf32le (clr-new System.Text.UTF32Encoding #f #f))
   (define utf32be (clr-new System.Text.UTF32Encoding #t #f))
   
+  (define (bignum? obj)
+    (clr-is Microsoft.Scripting.Math.BigInteger obj))      
+    
+  (define (->bignum ei)
+    (cond
+      [(bignum? ei) ei]
+      [(fixnum? ei) 
+        (clr-static-call Microsoft.Scripting.Math.BigInteger "Create(System.Int32)" ei)]
+      [else
+        (assertion-violation #f "not a exact integer" ei)]))
+  
   (define (get-bytes enc str)
     (clr-call System.Text.Encoding "GetBytes(String)" enc str))
 
@@ -155,7 +172,10 @@
     (clr-call System.Text.Encoding "GetString(Byte[])" enc bv))
   
   (define (byte->sbyte b)
-    (clr-cast System.SByte (clr-cast System.Byte b)))
+    (let ((b (->fixnum b)))
+      (if (fx>? b 127)
+          (fx- b 256)
+          b)))
   
   (define (->byte k)
     (unless (fixnum? k)
@@ -164,8 +184,8 @@
       (assertion-violation #f "too big or small for octect or byte" k))
     (clr-cast System.Byte (clr-cast System.Int32 k)))
     
-  (define-integrable (->fixnum b)
-    (clr-cast System.Int32 (clr-cast System.Byte b)))          
+  (define (->fixnum b)
+    (clr-static-call System.Convert "ToInt32(Object)" b))      
   
   (define make-bytevector
     (case-lambda
@@ -235,8 +255,7 @@
   (define (bytevector-s8-ref bv k)
     (unless (bytevector? bv)
       (assertion-violation 'bytevector-s8-ref "not a bytevector" bv)) 
-    (clr-static-call System.Convert "ToInt32(SByte)" 
-      (byte->sbyte ($bytevector-ref bv k))))
+    (byte->sbyte ($bytevector-ref bv k)))
       
   (define (bytevector-s8-set! bv k value)
     (unless (bytevector? bv)
@@ -263,6 +282,185 @@
             (begin
               (bytevector-u8-set! bv i (car lst))
               (f (+ i 1) (cdr lst)))))))
+              
+  (define (bytevector-uint-ref bv k end size)
+    (unless (bytevector? bv)
+      (assertion-violation 'bytevector-uint-ref "not a bytevector" bv))
+    (unless (and (integer? k) (exact? k) (not (negative? k)))
+      (assertion-violation 'bytevector-uint-ref "not a non-negative exact integer" k))
+    (unless (and (integer? size) (exact? size) (not (negative? size)))
+      (assertion-violation 'bytevector-uint-ref "not a non-negative exact integer" size))
+    (unless (symbol? end)
+      (assertion-violation 'bytevector-uint-ref "not a symbol" end))
+    (let ((sb (make-bytevector size)))
+      (bytevector-copy! bv k sb 0 size)
+      (when (eq? end 'big)
+        (clr-static-call System.Array Reverse sb))
+      (case size
+        [(1)
+          (->fixnum ($bytevector-ref sb k))]
+        [(2)
+          (->fixnum 
+            (clr-static-call System.BitConverter 
+                             "ToUInt16(Byte[],Int32)"
+                             sb
+                             0))]
+        [(4)
+          (exact (clr-static-call Microsoft.Scripting.Math.BigInteger
+                                  "op_Implicit(UInt32)"
+                                  (clr-static-call System.BitConverter
+                                                   "ToUInt32(Byte[],Int32)"
+                                                   sb
+                                                   0)))]
+        [(8)
+          (clr-static-call Microsoft.Scripting.Math.BigInteger
+                           "op_Implicit(UInt64)"
+                           (clr-static-call System.BitConverter
+                                            "ToUInt64(Byte[],Int32)"
+                                            sb
+                                            0))]
+        [else
+          (let ((data (make-bytevector (+ size 1))))
+            (bytevector-copy! sb 0 data 0 size)
+            (clr-static-call Microsoft.Scripting.Math.BigInteger
+                             "Create(Byte[])"
+                             data))])))
+                                                   
+  (define (bytevector-sint-ref bv k end size)
+    (unless (bytevector? bv)
+      (assertion-violation 'bytevector-sint-ref "not a bytevector" bv))
+    (unless (and (integer? k) (exact? k) (not (negative? k)))
+      (assertion-violation 'bytevector-sint-ref "not a non-negative exact integer" k))
+    (unless (and (integer? size) (exact? size) (not (negative? size)))
+      (assertion-violation 'bytevector-sint-ref "not a non-negative exact integer" size))
+    (unless (symbol? end)
+      (assertion-violation 'bytevector-sint-ref "not a symbol" end))
+    (let ((sb (make-bytevector size)))
+      (bytevector-copy! bv k sb 0 size)
+      (when (eq? end 'big)
+        (clr-static-call System.Array Reverse sb))
+      (case size
+        [(1)
+          (byte->sbyte ($bytevector-ref sb k))]
+        [(2)
+          (->fixnum 
+            (clr-static-call System.BitConverter 
+                             "ToInt16(Byte[],Int32)"
+                             sb
+                             0))]
+        [(4)
+          (clr-static-call System.BitConverter
+                           "ToInt32(Byte[],Int32)"
+                           sb
+                           0)]
+        [(8)
+          (clr-static-call Microsoft.Scripting.Math.BigInteger
+                           "op_Implicit(Int64)"
+                           (clr-static-call System.BitConverter
+                                            "ToInt64(Byte[],Int32)"
+                                            sb
+                                            0))]
+        [else
+          (clr-static-call Microsoft.Scripting.Math.BigInteger
+                           "Create(Byte[])"
+                           sb)])))
+                           
+  (define (bytevector-uint-set! bv k n end size)                           
+    (unless (bytevector? bv)
+      (assertion-violation 'bytevector-uint-set! "not a bytevector" bv))
+    (unless (and (integer? k) (exact? k) (not (negative? k)))
+      (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" k))
+    (unless (and (integer? size) (exact? size) (not (negative? size)))
+      (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" size))
+    (unless (symbol? end)
+      (assertion-violation 'bytevector-uint-set! "not a symbol" end))                 
+    (case size
+      [(1)
+        ($bytevector-set! bv k (->byte n))]
+      [(2)
+        (let ((data (clr-static-call System.BitConverter
+                                     "GetBytes(UInt16)"
+                                     (clr-static-call System.Convert
+                                                      "ToUInt16(Object)"
+                                                      n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data 0 bv k size))]
+      [(4)
+        (let ((data (clr-static-call System.BitConverter
+                                     "GetBytes(UInt32)"
+                                     (clr-static-call System.Convert
+                                                      "ToUInt32(Object)"
+                                                      n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data 0 bv k size))]
+      [(8)
+        (let ((data (clr-static-call System.BitConverter
+                                     "GetBytes(UInt64)"
+                                     (clr-static-call System.Convert
+                                                      "ToUInt64(Object)"
+                                                      n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data 0 bv k size))]
+      [else
+        (let ((data (clr-call Microsoft.Scripting.Math.BigInteger
+                              ToByteArray
+                              (->bignum n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data (if (eq? end 'big) 1 0) bv k size))])
+    (void))
+          
+  (define (bytevector-sint-set! bv k n end size)                           
+    (unless (bytevector? bv)
+      (assertion-violation 'bytevector-sint-set! "not a bytevector" bv))
+    (unless (and (integer? k) (exact? k) (not (negative? k)))
+      (assertion-violation 'bytevector-sint-set! "not a non-negative exact integer" k))
+    (unless (and (integer? size) (exact? size) (not (negative? size)))
+      (assertion-violation 'bytevector-sint-set! "not a non-negative exact integer" size))
+    (unless (symbol? end)
+      (assertion-violation 'bytevector-sint-set! "not a symbol" end))                 
+    (case size
+      [(1)
+        ($bytevector-set! bv k (->byte n))]
+      [(2)
+        (let ((data (clr-static-call System.BitConverter
+                                     "GetBytes(Int16)"
+                                     (clr-static-call System.Convert
+                                                      "ToInt16(Object)"
+                                                      n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data 0 bv k size))]
+      [(4)
+        (let ((data (clr-static-call System.BitConverter
+                                     "GetBytes(Int32)"
+                                     (clr-static-call System.Convert
+                                                      "ToInt32(Object)"
+                                                      n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data 0 bv k size))]
+      [(8)
+        (let ((data (clr-static-call System.BitConverter
+                                     "GetBytes(Int64)"
+                                     (clr-static-call System.Convert
+                                                      "ToInt64(Object)"
+                                                      n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data 0 bv k size))]
+      [else
+        (let ((data (clr-call Microsoft.Scripting.Math.BigInteger
+                              ToByteArray
+                              (->bignum n))))
+          (when (eq? end 'big)
+            (clr-static-call System.Array Reverse data))
+          (bytevector-copy! data 0 bv k size))])
+    (void))          
+      
               
   (define (string->utf8 s)
     (unless (string? s)

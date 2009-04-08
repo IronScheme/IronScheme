@@ -44,6 +44,7 @@
       bitwise-first-bit-set
       bitwise-bit-set?
       bitwise-reverse-bit-field
+      bitwise-arithmetic-shift
       ))
       
   (define (bignum? obj)
@@ -160,6 +161,13 @@
         (bitwise-not (bitwise-arithmetic-shift-left -1 end)))
       (bitwise-arithmetic-shift-left from start)
       to))
+      
+  (define (bitwise-arithmetic-shift ei k)
+    (exact 
+      (clr-static-call Microsoft.Scripting.Math.BigInteger 
+                       LeftShift 
+                       (->bignum ei) 
+                       k)))
                   
   (define (bitwise-arithmetic-shift-left ei1 ei2)
     (bitwise-arithmetic-shift ei1 ei2))            

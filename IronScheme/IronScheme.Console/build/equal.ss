@@ -12,6 +12,9 @@
   (import 
     (except (ironscheme) equal?)
     (ironscheme clr))
+    
+  (define k0 400)
+  (define kb -40)    
 
   (module UNSAFE 
     (< <= > >= = + - vector-ref car cdr)
@@ -156,9 +159,7 @@
             [else (and (eqv? x y) k)])))
       (and (e? x y k) #t)))
 
-  (define k0 400)
-  
-  (define kb -40)
+
   
   (define (interleave-equal? x y)
     (interleave? x y k0))

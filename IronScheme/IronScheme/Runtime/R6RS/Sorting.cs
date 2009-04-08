@@ -26,14 +26,14 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Sorting : Builtins
   {
-    [Builtin("vector-sort")]
-    public static object VectorSort(object proc, object vec)
-    {
-      object[] v = RequiresNotNull<object[]>(vec);
-      v = v.Clone() as object[];
-      VectorSortD(proc, v);
-      return v;
-    }
+    //[Builtin("vector-sort")]
+    //public static object VectorSort(object proc, object vec)
+    //{
+    //  object[] v = RequiresNotNull<object[]>(vec);
+    //  v = v.Clone() as object[];
+    //  VectorSortD(proc, v);
+    //  return v;
+    //}
     
     [Builtin("vector-sort!")]
     public static object VectorSortD(object proc, object vec)

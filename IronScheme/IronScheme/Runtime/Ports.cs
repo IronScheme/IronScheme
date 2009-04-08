@@ -59,9 +59,9 @@ namespace IronScheme.Runtime
       return null;
     }
 
-    [Builtin("load")] // this is patched in r6rs mode, but its needed to bootstrap
-    [Builtin("load-r5rs")] // is this used anywhere?
-    public static object Load(object filename)
+    //[Builtin("load")] // this is patched in r6rs mode, but its needed to bootstrap
+    //[Builtin("load-r5rs")] // is this used anywhere?
+    internal static object Load(object filename)
     {
       CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
 
@@ -180,7 +180,7 @@ namespace IronScheme.Runtime
     static Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
 
     [Builtin("read")]
-    [Builtin("get-datum")]
+    //[Builtin("get-datum")]
     public static object Read(object port)
     {
       return ReadNext(port);
@@ -789,11 +789,11 @@ namespace IronScheme.Runtime
       return obj.ToString();
     }
 
-    [Builtin("put-datum")]
-    public static object PutDatum(object port, object datum)
-    {
-      return Write(datum, port);
-    }
+    //[Builtin("put-datum")]
+    //public static object PutDatum(object port, object datum)
+    //{
+    //  return Write(datum, port);
+    //}
 
     [Builtin("write")]
     public static object Write(object obj)
@@ -847,17 +847,17 @@ namespace IronScheme.Runtime
 
     //probably a good idea to make these threadstatic
     //[ThreadStatic]
-    [Obsolete]
+    //[Obsolete]
     static TextReader currentinputport = Console.In;
     //[ThreadStatic]
-    [Obsolete]
+    //[Obsolete]
     static TextWriter currentoutputport = Console.Out;
     //[ThreadStatic]
-    [Obsolete]
+    //[Obsolete]
     static TextWriter currenterrorport = Console.Error;
 
     [Builtin("current-input-port")]
-    [Obsolete]
+    //[Obsolete]
     public static object CurrentInputPort(object newport)
     {
       currentinputport = newport as TextReader;
@@ -865,7 +865,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("current-output-port")]
-    [Obsolete]
+    //[Obsolete]
     public static object CurrentOutputPort(object newport)
     {
       currentoutputport = newport as TextWriter;
@@ -874,21 +874,21 @@ namespace IronScheme.Runtime
 
 
     [Builtin("current-input-port")]
-    [Obsolete]
+    //[Obsolete]
     public static object CurrentInputPort()
     {
       return currentinputport;
     }
 
     [Builtin("current-output-port")]
-    [Obsolete]
+    //[Obsolete]
     public static object CurrentOutputPort()
     {
       return currentoutputport;
     }
 
     [Builtin("current-error-port")]
-    [Obsolete]
+    //[Obsolete]
     public static object CurrentErrorPort(object newport)
     {
       currenterrorport = newport as TextWriter;
@@ -897,7 +897,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("current-error-port")]
-    [Obsolete]
+    //[Obsolete]
     public static object CurrentErrorPort()
     {
       return currenterrorport;
