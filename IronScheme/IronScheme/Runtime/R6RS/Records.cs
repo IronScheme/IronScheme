@@ -23,7 +23,7 @@ using System.Diagnostics;
 
 namespace IronScheme.Runtime.R6RS
 {
-  //public abstract class Record
+  //public abstract class Record<R>
   //{
   //  public override bool Equals(object obj)
   //  {

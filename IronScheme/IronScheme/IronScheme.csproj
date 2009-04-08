@@ -103,6 +103,7 @@
     <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
     <Compile Include="IronSchemeLanguageContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RuntimeExtensions.cs" />
     <Compile Include="Runtime\BigFraction.cs" />
     <Compile Include="Runtime\Booleans.cs" />
     <Compile Include="Runtime\Builtins.cs">

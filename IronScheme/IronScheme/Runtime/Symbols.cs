@@ -32,7 +32,7 @@ namespace IronScheme.Runtime
 
     [Builtin("symbol->string")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object SymbolToString(object obj)
+    internal static object SymbolToString(object obj)
     {
       SymbolId s = RequiresNotNull<SymbolId>(obj);
       return SymbolTable.IdToString(s);

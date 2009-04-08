@@ -102,23 +102,23 @@ namespace IronScheme.Runtime
       return GetBool(arg1 is Cons);
     }
 
-    [Builtin("list?")]
-    public static object IsList(object arg1)
-    {
-      if (arg1 == null)
-      {
-        return TRUE;
-      }
-      Cons c = arg1 as Cons;
-      if (c == null)
-      {
-        return FALSE;
-      }
-      else
-      {
-        return GetBool(c.IsProper);
-      }
-    }
+    //[Builtin("list?")]
+    //public static object IsList(object arg1)
+    //{
+    //  if (arg1 == null)
+    //  {
+    //    return TRUE;
+    //  }
+    //  Cons c = arg1 as Cons;
+    //  if (c == null)
+    //  {
+    //    return FALSE;
+    //  }
+    //  else
+    //  {
+    //    return GetBool(c.IsProper);
+    //  }
+    //}
 
     [Builtin("null?")]
     public static object IsNull(object arg1)
@@ -181,8 +181,9 @@ namespace IronScheme.Runtime
       return new Cons(car, cdr);
     }
 
-    [Builtin]
-    public static object Length(object args)
+    //[Builtin]
+    [Obsolete("Implemented in Scheme")]
+    internal static object Length(object args)
     {
       Cons c = Requires<Runtime.Cons>(args);
       int length = 0;
@@ -258,20 +259,7 @@ namespace IronScheme.Runtime
       }
       return c.cdr;
     }
-    
-    [Builtin]
-    public static object Append()
-    {
-      return null;
-    }
 
-    [Builtin]
-    public static object Append(object arg)
-    {
-      return arg;
-    }
-
-    [Builtin]
     public static object Append(object arg1, object arg2)
     {
       if (arg1 == null)
@@ -296,77 +284,6 @@ namespace IronScheme.Runtime
       c.cdr = arg2;
 
       return arg1;
-    }
-
-    //The resulting list is always newly allocated, except that it shares structure with the last list argument. 
-    //The last argument may actually be any object; an improper list results if the last argument is not a proper list. 
-    [Builtin]
-    public static object Append(params object[] args)
-    {
-      if (args.Length == 0)
-      {
-        return null;
-      }
-      // some fast rules
-      if (args.Length == 1)
-      {
-        return args[0];
-      }
-
-      if (args.Length == 2)
-      {
-        if (args[0] == null)
-        {
-          return args[1];
-        }
-        if (args[1] == null)
-        {
-          return args[0];
-        }
-      }
-
-      Cons head = null, h = null;
-
-      for (int i = 0; i < args.Length - 1; i++)
-      {
-        Cons ii = args[i] as Cons;
-        if (null == args[i])
-        {
-          //empty list, do nothing
-        }
-        else if (ii != null)
-        {
-          while (ii != null)
-          {
-            Cons cc = new Cons(ii.car);
-            if (head == null)
-            {
-              h = head = cc;
-            }
-            else
-            {
-              h.cdr = cc;
-              h = cc;
-            }
-
-            ii = ii.cdr as Cons;
-          }
-        }
-        else
-        {
-          AssertionViolation(SymbolTable.StringToObject("append"), "not a list", args[i]);
-        }
-        
-      }
-
-      object tail = args[args.Length - 1];
-
-      if (h == null)
-      {
-        return tail;
-      }
-      h.cdr = tail;
-      return head;
     }
 
     [Builtin("reverse!")]
@@ -396,7 +313,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static Cons ToImproper(Cons c)
+    internal static Cons ToImproper(Cons c)
     {
       Cons i = c;
       Cons j = null;

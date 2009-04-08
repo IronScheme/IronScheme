@@ -34,6 +34,8 @@
     list-tail
     list-ref
     append
+    list?
+    length
     )
     
   (import 
@@ -67,7 +69,9 @@
       for-each
       list-tail
       list-ref
-      append))
+      append
+      list?
+      length))
       
    
     
@@ -216,6 +220,35 @@
            (let ((a (car ls)))
              (values (cons (car a) cars)
                      (cons (cdr a) cdrs))))))))
+                     
+  (define (list/check? head tail)
+    (if (pair? head)
+        (let ((head ($cdr head)))
+           (if (pair? head)
+               (and (not (eq? head tail))
+                    (list/check? ($cdr head) ($cdr tail)))
+               (null? head)))
+        (null? head)))
+                     
+  (define (list? obj)
+    (list/check? obj obj))
+
+  (define (length/check head tail i)
+    (if (pair? head)
+        (let ((head ($cdr head)))
+           (if (pair? head)
+               (if (not (eq? head tail))
+                   (length/check ($cdr head) ($cdr tail) ($$fx+ i 2))
+                   (assertion-violation 'length "not a proper list"))
+               (if (null? head)
+                   ($$fx+ i 1)
+                   (assertion-violation 'length "not a proper list"))))
+        (if (null? head)
+            i
+            (assertion-violation 'length "not a proper list"))))
+          
+  (define (length lst)
+    (length/check lst lst 0))
 
   (define for-all 
     (case-lambda 
@@ -289,6 +322,12 @@
             a
             (cons a (f (car rest) (cdr rest)))))))
             
+  (define (list-copy lst)
+    (clr-static-call IronScheme.Runtime.Cons 
+                     FromList 
+                     lst))
+                      
+            
   (define (append-fast! a b)
     (let ((c ($cdr a)))
       (if (null? c)
@@ -302,7 +341,7 @@
       [else
         (append-fast! a b)
         a]))
-            
+        
   (define append
     (case-lambda
       [()   '()] ;; hack to make varargs work :(
@@ -310,13 +349,11 @@
       [(obj1 obj2)
         (unless (list? obj1)
           (assertion-violation 'append "not a list" obj1))
-        (append! (map values obj1) obj2)]
+        (append! (list-copy obj1) obj2)]
       [(obj i1 . il)
         (unless (list? obj)
           (assertion-violation 'append "not a list" obj))
-        (letrec-syntax ((obj* (identifier-syntax (clr-static-call IronScheme.Runtime.Cons 
-                                                                  FromList 
-                                                                  obj))))
+        (letrec-syntax ((obj* (identifier-syntax (list-copy obj))))
           (cond 
             [(null? i1)
               (if (null? il)

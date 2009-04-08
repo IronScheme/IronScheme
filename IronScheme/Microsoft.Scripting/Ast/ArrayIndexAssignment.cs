@@ -46,7 +46,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override Type Type {
             get {
-                return _elementType;
+                return typeof(void);
             }
         }
 
@@ -63,22 +63,24 @@ namespace Microsoft.Scripting.Ast {
 
 
         public override void Emit(CodeGen cg) {
-            _value.Emit(cg);
+            //_value.Emit(cg);
 
             // Save the expression value - order of evaluation is different than that of the Stelem* instruction
-            Slot temp = cg.GetLocalTmp(_elementType);
-            temp.EmitSet(cg);
+            //Slot temp = cg.GetLocalTmp(_elementType);
+            //temp.EmitSet(cg);
 
             // Emit the array reference
             _array.Emit(cg);
             // Emit the index (as integer)
             _index.Emit(cg);
             // Emit the value
-            temp.EmitGet(cg);
+            _value.Emit(cg);
+            //temp.EmitGet(cg);
             // Store it in the array
             cg.EmitStoreElement(_elementType);
-            temp.EmitGet(cg); //DO NOT WANT!!!
-            cg.FreeLocalTmp(temp);
+            
+            //temp.EmitGet(cg); //DO NOT WANT!!!
+            //cg.FreeLocalTmp(temp);
         }
     }
 

@@ -369,206 +369,206 @@ namespace IronScheme.Runtime.R6RS
     //  return UTF32ToString(v, endianess, FALSE);
     //}
 
-    static object end_big = SymbolTable.StringToObject("big");
-    static object end_little = SymbolTable.StringToObject("little");
+    //static object end_big = SymbolTable.StringToObject("big");
+    //static object end_little = SymbolTable.StringToObject("little");
 
-    //(bytevector-uint-ref bytevector k endianness size)
-    [Builtin("bytevector-uint-ref")]
-    public static object BytevectorUintRef(object bytevector, object k, object endianess, object size)
-    {
-      byte[] b = RequiresNotNull<byte[]>(bytevector);
-      int i = RequiresNotNull<int>(k);
-      SymbolId end = RequiresNotNull<SymbolId>(endianess);
-      int s = RequiresNotNull<int>(size);
+    ////(bytevector-uint-ref bytevector k endianness size)
+    //[Builtin("bytevector-uint-ref")]
+    //public static object BytevectorUintRef(object bytevector, object k, object endianess, object size)
+    //{
+    //  byte[] b = RequiresNotNull<byte[]>(bytevector);
+    //  int i = RequiresNotNull<int>(k);
+    //  SymbolId end = RequiresNotNull<SymbolId>(endianess);
+    //  int s = RequiresNotNull<int>(size);
 
-      if (s < 0)
-      {
-        return AssertionViolation("bytevector-uint-ref", "invalid size", size);
-      }
+    //  if (s < 0)
+    //  {
+    //    return AssertionViolation("bytevector-uint-ref", "invalid size", size);
+    //  }
 
-      byte[] sb = new byte[s];
+    //  byte[] sb = new byte[s];
 
-      Buffer.BlockCopy(b, i, sb, 0, s);
+    //  Buffer.BlockCopy(b, i, sb, 0, s);
 
-      if (endianess == end_big)
-      {
-        Array.Reverse(sb);
-      }
+    //  if (endianess == end_big)
+    //  {
+    //    Array.Reverse(sb);
+    //  }
 
-      switch (s)
-      {
-        case 1:
-          return (int) sb[i];
-        case 2:
-          return (int) BitConverter.ToUInt16(sb, 0);
-        case 4:
-          return ToIntegerIfPossible((BigInteger) BitConverter.ToUInt32(sb, 0));
-        case 8:
-          return (BigInteger) BitConverter.ToUInt64(sb, 0);
-        default:
-          byte[] data = new byte[s + 1];
-          Buffer.BlockCopy(sb, 0, data, 0, s);
-          BigInteger bi = BigInteger.Create(data);
-          return bi;
-      }
-    }
+    //  switch (s)
+    //  {
+    //    case 1:
+    //      return (int) sb[i];
+    //    case 2:
+    //      return (int) BitConverter.ToUInt16(sb, 0);
+    //    case 4:
+    //      return ToIntegerIfPossible((BigInteger) BitConverter.ToUInt32(sb, 0));
+    //    case 8:
+    //      return (BigInteger) BitConverter.ToUInt64(sb, 0);
+    //    default:
+    //      byte[] data = new byte[s + 1];
+    //      Buffer.BlockCopy(sb, 0, data, 0, s);
+    //      BigInteger bi = BigInteger.Create(data);
+    //      return bi;
+    //  }
+    //}
 
-    [Builtin("bytevector-sint-ref")]
-    public static object BytevectorSintRef(object bytevector, object k, object endianess, object size)
-    {
-      byte[] b = RequiresNotNull<byte[]>(bytevector);
-      int i = RequiresNotNull<int>(k);
-      SymbolId end = RequiresNotNull<SymbolId>(endianess);
-      int s = RequiresNotNull<int>(size);
+    //[Builtin("bytevector-sint-ref")]
+    //public static object BytevectorSintRef(object bytevector, object k, object endianess, object size)
+    //{
+    //  byte[] b = RequiresNotNull<byte[]>(bytevector);
+    //  int i = RequiresNotNull<int>(k);
+    //  SymbolId end = RequiresNotNull<SymbolId>(endianess);
+    //  int s = RequiresNotNull<int>(size);
 
-      if (s < 0)
-      {
-        return AssertionViolation("bytevector-sint-ref", "invalid size", size);
-      }
+    //  if (s < 0)
+    //  {
+    //    return AssertionViolation("bytevector-sint-ref", "invalid size", size);
+    //  }
 
-      byte[] sb = new byte[s];
+    //  byte[] sb = new byte[s];
 
-      Buffer.BlockCopy(b, i, sb, 0, s);
+    //  Buffer.BlockCopy(b, i, sb, 0, s);
 
-      if (endianess == end_big)
-      {
-        Array.Reverse(sb);
-      }
+    //  if (endianess == end_big)
+    //  {
+    //    Array.Reverse(sb);
+    //  }
 
-      switch (s)
-      {
-        case 1:
-          return (int) unchecked ((sbyte)sb[0]);
-        case 2:
-          return (int) BitConverter.ToInt16(sb, 0);
-        case 4:
-          return (int) BitConverter.ToInt32(sb, 0);
-        case 8:
-          return (BigInteger) BitConverter.ToInt64(sb, 0);
-        default:
-          return BigInteger.Create(sb);
-      }
-    }
+    //  switch (s)
+    //  {
+    //    case 1:
+    //      return (int) unchecked ((sbyte)sb[0]);
+    //    case 2:
+    //      return (int) BitConverter.ToInt16(sb, 0);
+    //    case 4:
+    //      return (int) BitConverter.ToInt32(sb, 0);
+    //    case 8:
+    //      return (BigInteger) BitConverter.ToInt64(sb, 0);
+    //    default:
+    //      return BigInteger.Create(sb);
+    //  }
+    //}
 
-    //(bytevector-uint-set! bytevector k n endianness size)
-    [Builtin("bytevector-uint-set!")]
-    public static object BytevectorUintSet(object bytevector, object k, object n, object endianess, object size)
-    {
-      byte[] b = RequiresNotNull<byte[]>(bytevector);
-      int i = RequiresNotNull<int>(k);
+    ////(bytevector-uint-set! bytevector k n endianness size)
+    //[Builtin("bytevector-uint-set!")]
+    //public static object BytevectorUintSet(object bytevector, object k, object n, object endianess, object size)
+    //{
+    //  byte[] b = RequiresNotNull<byte[]>(bytevector);
+    //  int i = RequiresNotNull<int>(k);
 
-      SymbolId end = RequiresNotNull<SymbolId>(endianess);
-      int s = RequiresNotNull<int>(size);
+    //  SymbolId end = RequiresNotNull<SymbolId>(endianess);
+    //  int s = RequiresNotNull<int>(size);
 
-      if (s < 0)
-      {
-        return AssertionViolation("bytevector-uint-set!", "invalid size", size);
-      }
+    //  if (s < 0)
+    //  {
+    //    return AssertionViolation("bytevector-uint-set!", "invalid size", size);
+    //  }
 
-      byte[] data = null;
+    //  byte[] data = null;
 
-      switch (s)
-      {
-        case 1:
-          b[i] = Convert.ToByte(n);
-          break;
-        case 2:
-          data = BitConverter.GetBytes(Convert.ToUInt16(n));
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, 0, b, i, s);
-          break;
-        case 4:
-          data = BitConverter.GetBytes(Convert.ToUInt32(n));
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, 0, b, i, s);
-          break;
-        case 8:
-          data = BitConverter.GetBytes(Convert.ToUInt64(n));
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, 0, b, i, s);
-          break;
-        default:
-          BigInteger bi = (BigInteger)n;
-          data = bi.ToByteArray();
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, (endianess == end_big ? 1 : 0), b, i, s);
-          break;
-      }
+    //  switch (s)
+    //  {
+    //    case 1:
+    //      b[i] = Convert.ToByte(n);
+    //      break;
+    //    case 2:
+    //      data = BitConverter.GetBytes(Convert.ToUInt16(n));
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, 0, b, i, s);
+    //      break;
+    //    case 4:
+    //      data = BitConverter.GetBytes(Convert.ToUInt32(n));
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, 0, b, i, s);
+    //      break;
+    //    case 8:
+    //      data = BitConverter.GetBytes(Convert.ToUInt64(n));
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, 0, b, i, s);
+    //      break;
+    //    default:
+    //      BigInteger bi = (BigInteger)n;
+    //      data = bi.ToByteArray();
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, (endianess == end_big ? 1 : 0), b, i, s);
+    //      break;
+    //  }
 
-      return Unspecified;
-    }
+    //  return Unspecified;
+    //}
 
     //(bytevector-sint-set! bytevector k n endianness size)
-    [Builtin("bytevector-sint-set!")]
-    public static object BytevectorSintSet(object bytevector, object k, object n, object endianess, object size)
-    {
-      byte[] b = RequiresNotNull<byte[]>(bytevector);
-      int i = RequiresNotNull<int>(k);
+    //[Builtin("bytevector-sint-set!")]
+    //public static object BytevectorSintSet(object bytevector, object k, object n, object endianess, object size)
+    //{
+    //  byte[] b = RequiresNotNull<byte[]>(bytevector);
+    //  int i = RequiresNotNull<int>(k);
 
-      SymbolId end = RequiresNotNull<SymbolId>(endianess);
-      int s = RequiresNotNull<int>(size);
+    //  SymbolId end = RequiresNotNull<SymbolId>(endianess);
+    //  int s = RequiresNotNull<int>(size);
 
-      if (s < 0)
-      {
-        return AssertionViolation("bytevector-sint-set!", "invalid size", size);
-      }
+    //  if (s < 0)
+    //  {
+    //    return AssertionViolation("bytevector-sint-set!", "invalid size", size);
+    //  }
 
-      byte[] data = null;
+    //  byte[] data = null;
 
-      switch (s)
-      {
-        case 1:
-          b[i] = unchecked((byte) Convert.ToSByte(n));
-          break;
-        case 2:
-          data = BitConverter.GetBytes(Convert.ToInt16(n));
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, 0, b, i, s);
-          break;
-        case 4:
-          data = BitConverter.GetBytes(Convert.ToInt32(n));
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, 0, b, i, s);
-          break;
-        case 8:
-          data = BitConverter.GetBytes(Convert.ToInt64(n));
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, 0, b, i, s);
-          break;
-        default:
-          BigInteger bi = (BigInteger)n;
-          data = bi.ToByteArray();
-          if (endianess == end_big)
-          {
-            Array.Reverse(data);
-          }
-          Buffer.BlockCopy(data, 0, b, i, s);
-          break;
-      }
+    //  switch (s)
+    //  {
+    //    case 1:
+    //      b[i] = unchecked((byte) Convert.ToSByte(n));
+    //      break;
+    //    case 2:
+    //      data = BitConverter.GetBytes(Convert.ToInt16(n));
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, 0, b, i, s);
+    //      break;
+    //    case 4:
+    //      data = BitConverter.GetBytes(Convert.ToInt32(n));
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, 0, b, i, s);
+    //      break;
+    //    case 8:
+    //      data = BitConverter.GetBytes(Convert.ToInt64(n));
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, 0, b, i, s);
+    //      break;
+    //    default:
+    //      BigInteger bi = (BigInteger)n;
+    //      data = bi.ToByteArray();
+    //      if (endianess == end_big)
+    //      {
+    //        Array.Reverse(data);
+    //      }
+    //      Buffer.BlockCopy(data, 0, b, i, s);
+    //      break;
+    //  }
 
-      return Unspecified;
-    }
+    //  return Unspecified;
+    //}
 
     //(bytevector->uint-list bytevector endianness size)
     //[Builtin("bytevector->uint-list")]

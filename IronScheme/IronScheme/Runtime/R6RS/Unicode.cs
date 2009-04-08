@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 /* ****************************************************************************
  * Copyright (c) Llewellyn Pritchard. 
  *
@@ -209,12 +209,12 @@ namespace IronScheme.Runtime.R6RS
     //  return compare.Compare(s1, s2, CompareOptions.IgnoreCase);
     //}
 
-    [Builtin("string-upcase")]
-    public static object ToUpperCaseString(object obj)
-    {
-      string s = RequiresNotNull<string>(obj);
-      return s.ToUpper().Replace("�", "SS");
-    }
+    //[Builtin("string-upcase")]
+    //public static object ToUpperCaseString(object obj)
+    //{
+    //  string s = RequiresNotNull<string>(obj);
+    //  return s.ToUpper().Replace("ß", "SS");
+    //}
 
     /// <summary>
     /// Toes the lower case char.

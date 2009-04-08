@@ -927,7 +927,7 @@ namespace IronScheme.Runtime
 
     [Builtin("number->string")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object NumberToString(object obj)
+    internal static object NumberToString(object obj)
     {
       return NumberToString(obj, 10);
     }
@@ -942,7 +942,7 @@ namespace IronScheme.Runtime
 
     [Builtin("number->string")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object NumberToString(object obj, object radix)
+    internal static object NumberToString(object obj, object radix)
     {
       if (!IsTrue(IsNumber(obj)))
       {
@@ -1037,9 +1037,9 @@ namespace IronScheme.Runtime
     }
     
 
-    [Builtin("expt", AllowConstantFold = true)]
+    //[Builtin("expt", AllowConstantFold = true)]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object Expt(object obj1, object obj2)
+    internal static object Expt(object obj1, object obj2)
     {
       if (obj1 is Complex64 || IsTrue(IsNegative(obj1)))
       {
@@ -1185,7 +1185,7 @@ namespace IronScheme.Runtime
 
     [Builtin("inexact")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object Inexact(object obj)
+    internal static object Inexact(object obj)
     {
       if (!IsTrue(IsNumber(obj)))
       {
@@ -1201,7 +1201,7 @@ namespace IronScheme.Runtime
 
     [Builtin("exact")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object Exact(object obj)
+    internal static object Exact(object obj)
     {
       if (!IsTrue(IsNumber(obj)))
       {
@@ -1258,7 +1258,7 @@ namespace IronScheme.Runtime
 
     [Builtin("round")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object Round(object obj)
+    internal static object Round(object obj)
     {
       if (IsTrue(IsInteger(obj)))
       {
@@ -1393,7 +1393,7 @@ namespace IronScheme.Runtime
 
     [Builtin("abs")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object Abs(object obj)
+    internal static object Abs(object obj)
     {
       if (obj is double)
       {
@@ -1564,7 +1564,7 @@ namespace IronScheme.Runtime
 
     [Builtin("magnitude")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object Magnitude(object obj)
+    internal static object Magnitude(object obj)
     {
       if (obj is Complex64)
       {
@@ -1584,7 +1584,7 @@ namespace IronScheme.Runtime
 
     [Builtin("angle")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object Angle(object obj)
+    internal static object Angle(object obj)
     {
       Complex64 c = ConvertToComplex(obj);
       return Atan(c.Imag, c.Real);
@@ -1729,7 +1729,7 @@ namespace IronScheme.Runtime
 
     [Builtin("atan")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object Atan(object obj, object obj2)
+    internal static object Atan(object obj, object obj2)
     {
       return MathHelper(Math.Atan2, obj, obj2);
     }
@@ -1823,7 +1823,7 @@ namespace IronScheme.Runtime
 
     [Builtin("exact?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object IsExact(object obj)
+    internal static object IsExact(object obj)
     {
       if (IsTrue(IsNumber(obj)))
       {
@@ -1845,7 +1845,7 @@ namespace IronScheme.Runtime
 
     [Builtin("=")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object IsSame(object first, object second)
+    internal static object IsSame(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
 
@@ -1929,7 +1929,7 @@ namespace IronScheme.Runtime
 
     [Builtin("<")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsLessThan(object first, object second)
+    internal static object IsLessThan(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
 
@@ -2071,7 +2071,7 @@ namespace IronScheme.Runtime
 
     [Builtin(">")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsGreaterThan(object first, object second)
+    internal static object IsGreaterThan(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
 
@@ -2218,7 +2218,7 @@ namespace IronScheme.Runtime
     }
 
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    protected static object IsPositive(object obj)
+    static object IsPositive(object obj)
     {
       if (IsTrue(IsRealValued(obj)))
       {
@@ -2240,28 +2240,28 @@ namespace IronScheme.Runtime
 
     [Builtin("number?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    public static object IsNumber(object obj)
+    internal static object IsNumber(object obj)
     {
       return IsComplex(obj);
     }
 
     [Builtin("complex?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsComplex(object obj)
+    internal static object IsComplex(object obj)
     {
       return GetBool(IsTrue(IsReal(obj)) || obj is Complex64 || obj is ComplexFraction);
     }
 
     [Builtin("real?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsReal(object obj)
+    internal static object IsReal(object obj)
     {
       return GetBool(IsTrue(IsRational(obj)) || obj is double);
     }
 
     [Builtin("rational?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsRational(object obj)
+    internal static object IsRational(object obj)
     {
       if (IsTrue(IsInteger(obj)) || obj is Fraction)
       {
@@ -2278,7 +2278,7 @@ namespace IronScheme.Runtime
 
     [Builtin("integer?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsInteger(object obj)
+    internal static object IsInteger(object obj)
     {
       if (obj is int || obj is BigInteger)
       {
@@ -2339,7 +2339,7 @@ namespace IronScheme.Runtime
 
     [Builtin("integer-valued?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsIntegerValued(object obj)
+    internal static object IsIntegerValued(object obj)
     {
       if (obj is int || obj is BigInteger)
       {
@@ -2362,7 +2362,7 @@ namespace IronScheme.Runtime
 
     [Builtin("rational-valued?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsRationalValued(object obj)
+    internal static object IsRationalValued(object obj)
     {
       if (obj is Fraction)
       {
@@ -2399,7 +2399,7 @@ namespace IronScheme.Runtime
 
     [Builtin("real-valued?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsRealValued(object obj)
+    internal static object IsRealValued(object obj)
     {
       if (obj is Complex64)
       {
@@ -2421,7 +2421,7 @@ namespace IronScheme.Runtime
 
     [Builtin("infinite?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsInfinite(object obj)
+    internal static object IsInfinite(object obj)
     {
       if (obj is double)
       {
@@ -2433,7 +2433,7 @@ namespace IronScheme.Runtime
 
     [Builtin("nan?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    public static object IsNan(object obj)
+    internal static object IsNan(object obj)
     {
       if (obj is double)
       {

@@ -21,16 +21,18 @@ using System.IO;
 namespace IronScheme.Runtime
 {
   [Serializable]
-  public sealed class Cons : ICollection, IEnumerable<object>
+  public sealed class Cons : IEnumerable<object>
   {
     public object car;
     public object cdr;
 
-    Cons() : this(null)
+    Cons()
+      : this(null)
     {
     }
 
-    public Cons(object car) : this(car, null)
+    public Cons(object car)
+      : this(car, null)
     {
     }
 
@@ -84,41 +86,6 @@ namespace IronScheme.Runtime
       }
     }
 
-    internal bool IsProper
-    {
-      get 
-      {
-        if (((ICollection)this).Count > 25000)
-        {
-          return true;
-        }
-        return IsProperList(null); 
-      }
-    }
-
-    bool IsProperList(Cons root)
-    {
-      if (this == root)
-      {
-        return false;
-      }
-      return cdr == null || (cdr is Cons && ((Cons)cdr).IsProperList(root ?? this));
-    }
-
-    internal bool IsCyclic
-    {
-      get { return IsCyclicList(null); }
-    }
-
-    bool IsCyclicList(Cons root)
-    {
-      if (this == root)
-      {
-        return true;
-      }
-      return cdr != null && (cdr is Cons && ((Cons)cdr).IsCyclicList(root ?? this));
-    }
-
     public override string ToString()
     {
       return Builtins.WriteFormat(this);
@@ -160,125 +127,5 @@ namespace IronScheme.Runtime
     }
 
     #endregion
-
-    #region ICollection Members
-
-    void ICollection.CopyTo(Array array, int index)
-    {
-      int i = 0;
-      foreach (object var in this)
-      {
-        array.SetValue(var, index + i++);
-      }
-    }
-
-    int ICollection.Count
-    {
-      get { return (int)Builtins.Length(this); }
-    }
-
-    bool ICollection.IsSynchronized
-    {
-      get { return false; }
-    }
-
-    object ICollection.SyncRoot
-    {
-      get { return this; }
-    }
-
-    #endregion
   }
-#if IDEA
-  class ConsCollectionWrapper : ICollection<object>
-  {
-    readonly Cons head;
-    Cons last;
-
-    public ConsCollectionWrapper(Cons head)
-    {
-      this.head = head;
-      last = head;
-    }
-
-    #region ICollection<object> Members
-
-    public void Add(object item)
-    {
-      Cons c = new Cons(item);
-      last.cdr = c;
-      last = c;
-    }
-
-    public void Clear()
-    {
-      head.car = head.cdr = null;
-      last = head;
-    }
-
-    public bool Contains(object item)
-    {
-      foreach (object o in head)
-      {
-        if (Equals(o, item))
-        {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    public void CopyTo(object[] array, int arrayIndex)
-    {
-      List<object> l = new List<object>(head);
-      l.CopyTo(array, arrayIndex);
-    }
-
-    public int Count
-    {
-      get 
-      {
-        int i = 0;
-        Cons c = head;
-
-        while (c != null)
-        {
-          i++;
-          c = c.cdr as Cons;
-        }
-        return i;
-      }
-    }
-
-    public bool IsReadOnly
-    {
-      get { return false; }
-    }
-
-    public bool Remove(object item)
-    {
-      throw new NotImplementedException();
-    }
-
-    #endregion
-
-    #region IEnumerable<object> Members
-
-    public IEnumerator<object> GetEnumerator()
-    {
-      return head.GetEnumerator();
-    }
-
-    #endregion
-
-    #region IEnumerable Members
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return head.GetEnumerator();
-    }
-
-    #endregion
-  }
-#endif
 }

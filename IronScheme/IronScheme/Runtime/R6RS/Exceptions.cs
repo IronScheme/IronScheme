@@ -59,7 +59,16 @@ namespace IronScheme.Runtime.R6RS
         var result = t.Call();
         return result;
       }
-
+      catch (NonContinuation cc)
+      {
+        if (contstack.Count > 0)
+        {
+          Continuation c = contstack.Peek();
+          c.Value = cc.Value;
+          throw c;
+        }
+        throw (Exception)cc.Value;
+      }
       catch (Continuation cc)
       {
         if (contstack.Count > 0)
@@ -165,7 +174,8 @@ namespace IronScheme.Runtime.R6RS
         ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&who-rcd"))) as ICallable;
         ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&message-rcd"))) as ICallable;
 
-        throw (Exception) R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"));
+        var result = R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"));
+        throw new NonContinuation { Value = result };
       }
     }
 

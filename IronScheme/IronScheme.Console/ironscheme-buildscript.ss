@@ -39,7 +39,9 @@
 (define scheme-library-files
   '(
     "psyntax/config.ss"
-    
+    "build/conditions.ss"
+    "build/exceptions.ss"
+    "build/arithmetic/fixnums.ss"
     "build/lists.ss"
     "build/base.ss"
     "build/hashtables.ss"
@@ -50,8 +52,6 @@
     "build/numbers.ss"
     
     "build/eval.ss"
-    "build/exceptions.ss"
-    "build/conditions.ss"
     "build/mutable-pairs.ss"
     "build/mutable-strings.ss"
     "build/programs.ss"
@@ -60,7 +60,6 @@
     "build/syntax-case.ss"
     "build/unicode.ss"
     "build/arithmetic/bitwise.ss"
-    "build/arithmetic/fixnums.ss"
     "build/arithmetic/flonums.ss"
     "build/io/ports.ss"
     "build/io/simple.ss"

@@ -1081,7 +1081,7 @@
     (lambda (e)
       (define (build-last cls)
         (syntax-match cls (else)
-          ((else e e* ...) `(begin #f ,e . ,e*))
+          ((else e e* ...) `(let () #f ,e . ,e*))
           (_ (build-one cls '(if #f #f)))))
       (define (build-one cls k)
         (syntax-match cls ()
@@ -1154,7 +1154,7 @@
                `(let ,(map list t* expr*)
                   ,(let f ((pat* pat*) (t* t*))
                      (cond
-                       ((null? pat*) `(begin ,b . ,b*))
+                       ((null? pat*) `(let () ,b . ,b*))
                        (else
                         `(syntax-case ,(car t*) ()
                            (,(car pat*) ,(f (cdr pat*) (cdr t*)))
@@ -1312,8 +1312,7 @@
                        (let ((v ,expr))
                          (if (procedure? v)
                              (make-traced-procedure ',who v)
-                             (assertion-violation 'trace-define
-                                "not a procedure" v)))))
+                             v))))
              (stx-error stx "invalid name"))))))
   
   (define trace-define-syntax-macro
@@ -1579,7 +1578,7 @@
              (cond
                ((null? cls*)
                 (syntax-match cls (else =>)
-                  ((else e e* ...) `(begin #f ,e . ,e*))
+                  ((else e e* ...) `(let () #f ,e . ,e*))
                   ((e => p) `(let ((t ,e)) (if t (,p t))))
                   ((e) `(or ,e (if #f #f)))
                   ((e e* ...) `(if ,e (begin . ,e*)))

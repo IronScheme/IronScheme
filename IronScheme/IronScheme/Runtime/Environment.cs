@@ -64,7 +64,7 @@ namespace IronScheme.Runtime
     }
 
 
-    public static object IODecodingError()
+    internal static object IODecodingError()
     {
       if (IsR6RSLoaded())
       {
@@ -82,7 +82,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object IOEncodingError()
+    internal static object IOEncodingError()
     {
       if (IsR6RSLoaded())
       {
@@ -101,7 +101,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object UndefinedError(object sym)
+    internal static object UndefinedError(object sym)
     {
       if (IsR6RSLoaded())
       {
@@ -130,7 +130,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object LexicalError(string msg, object what)
+    internal static object LexicalError(string msg, object what)
     {
       if (IsR6RSLoaded())
       {
@@ -154,7 +154,7 @@ namespace IronScheme.Runtime
 
     }
 
-    public static object SyntaxError(object who, object message, object form, object subform)
+    internal static object SyntaxError(object who, object message, object form, object subform)
     {
       if (IsR6RSLoaded())
       {
@@ -181,7 +181,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object FileNotFoundViolation(object who, object message, object filename)
+    internal static object FileNotFoundViolation(object who, object message, object filename)
     {
       if (IsR6RSLoaded())
       {
@@ -213,7 +213,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object IOPortViolation(object who, object message, object port)
+    internal static object IOPortViolation(object who, object message, object port)
     {
       if (IsR6RSLoaded())
       {
@@ -248,7 +248,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object FileAlreadyExistsViolation(object who, object filename)
+    internal static object FileAlreadyExistsViolation(object who, object filename)
     {
       if (IsR6RSLoaded())
       {
@@ -274,7 +274,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object FileInUseViolation(object who, object filename)
+    internal static object FileInUseViolation(object who, object filename)
     {
       if (IsR6RSLoaded())
       {
@@ -306,20 +306,17 @@ namespace IronScheme.Runtime
       return Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("&assertion-rcd"));
     }
 
-    [Builtin("assertion-violation")]
-    public static object AssertionViolation(object who, object message, object irritant1)
+    internal static object AssertionViolation(object who, object message, object irritant1)
     {
       return AssertionViolation(who, message, new object[] { irritant1 });
     }
 
-    [Builtin("assertion-violation")]
-    public static object AssertionViolation(object who, object message, object irritant1, object irritant2)
+    internal static object AssertionViolation(object who, object message, object irritant1, object irritant2)
     {
       return AssertionViolation(who, message, new object[] { irritant1, irritant2 });
     }
 
-    [Builtin("assertion-violation")]
-    public static object AssertionViolation(object who, object message, params object[] irritants)
+    internal static object AssertionViolation(object who, object message, params object[] irritants)
     {
       if (IsR6RSLoaded())
       {
@@ -365,7 +362,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public static object ImplementationRestriction(object who, object message, params object[] irritants)
+    internal static object ImplementationRestriction(object who, object message, params object[] irritants)
     {
       if (IsR6RSLoaded())
       {
@@ -411,8 +408,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Builtin("error")]
-    public static object Error(object who, object message, params object[] irritants)
+    internal static object Error(object who, object message, params object[] irritants)
     {
       if (IsR6RSLoaded())
       {

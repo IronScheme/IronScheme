@@ -106,13 +106,13 @@ namespace IronScheme.Runtime
 
     [Builtin("vector->list")]
     [Obsolete]
-    public static object VectorToList(object vec)
+    internal static object VectorToList(object vec)
     {
       object[] l = RequiresNotNull<object[]>(vec);
       return Runtime.Cons.FromArray(l);
     }
 
-    public static object ListToVector(object list)
+    public static object[] ListToVector(object list)
     {
       Cons e = Requires<Cons>(list);
       ArrayList v = new ArrayList();
@@ -124,7 +124,7 @@ namespace IronScheme.Runtime
           v.Add(e.car);
           if (e.cdr != null && !(e.cdr is Cons))
           {
-            return AssertionViolation("list->vector", "not a proper list", list);
+            AssertionViolation("list->vector", "not a proper list", list);
           }
           e = e.cdr as Cons;
         }

@@ -144,6 +144,10 @@ namespace IronScheme.Runtime
       } 
     }
 
+    internal class NonContinuation : Continuation
+    {
+    }
+
     static CallTargetN MakeContinuation(Continuation cc)
     {
       CallTargetN ct = delegate(object[] value)
