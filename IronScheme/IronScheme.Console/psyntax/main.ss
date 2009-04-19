@@ -120,6 +120,9 @@
                 (k))))
           (lambda ()
             (eval x (interaction-environment))))))) 
+            
+  (define (eval-embedded x)
+    (eval x (interaction-environment)))            
     
   (define (compile-system-libraries)
     (eval-top-level 
@@ -169,6 +172,7 @@
   (set-symbol-value! 'compile compile)
   (set-symbol-value! 'compile->closure compile->closure)
   (set-symbol-value! 'eval-r6rs eval-top-level)
+  (set-symbol-value! 'eval-embedded eval-embedded)
   (set-symbol-value! 'int-env-syms interaction-environment-symbols)
   (set-symbol-value! 'expanded2core expanded->core)
   

@@ -77,6 +77,8 @@ namespace IronScheme
       }
     }
 
+    static ICallable evalproc;
+
     public override CodeBlock ParseSourceCode(CompilerContext context)
     {
 #if DEBUG
@@ -87,36 +89,50 @@ namespace IronScheme
 #endif
         switch (context.SourceUnit.Kind)
         {
-          default:
-          case SourceCodeKind.InteractiveCode:
-            string code = context.SourceUnit.GetCode();
 
-            if (code.Length < 10)
+          case SourceCodeKind.InteractiveCode:
             {
-              code = code.Trim();
-            }
-            if (code.Length > 0)
-            {
+              string code = context.SourceUnit.GetCode();
+
+              if (code.Length < 10)
+              {
+                code = code.Trim();
+              }
+              if (code.Length > 0)
+              {
 #if CPS
               code = string.Format("(eval-r6rs identity-for-cps '(begin {0}))", code.Trim());
 #else
-              code = string.Format("(eval-r6rs '(begin {0}))", code.Trim());
+                code = string.Format("(eval-r6rs '(begin {0}))", code.Trim());
 #endif
-            }
+              }
 
-            CodeBlock cb = ParseString(code, context);
-            if (cb == null && context.SourceUnit.CodeProperties == null)
-            {
-              context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
+              CodeBlock cb = ParseString(code, context);
+              if (cb == null && context.SourceUnit.CodeProperties == null)
+              {
+                context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
+              }
+              return cb;
             }
-            return cb;
           case SourceCodeKind.File:
             using (Stream s = File.OpenRead(context.SourceUnit.Id))
             {
               return ParseStream(s, context);
             }
-          //default:
-            //return ParseString(context.SourceUnit.GetCode(), context);
+          default:
+            {
+              string code = context.SourceUnit.GetCode();
+              if (code.Length < 10)
+              {
+                code = code.Trim();
+              }
+              if (code.Length > 0)
+              {
+                code = string.Format("(eval-embedded '(begin {0}))", code.Trim());
+              }
+              CodeBlock cb = ParseString(code, context);
+              return cb;
+            }
         }
 #if DEBUG
       }

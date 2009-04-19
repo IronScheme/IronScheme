@@ -135,7 +135,8 @@ namespace IronScheme.Runtime
             DateTime ct = File.GetLastWriteTime(cfn);
             if (!File.Exists(path) || ct >= File.GetLastWriteTime(path))
             {
-              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || cfn.EndsWith("ironscheme.boot.dll"))
+              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || 
+                cfn.EndsWith("ironscheme.boot.dll"))
               {
                 path = cfn;
                 goto case ".dll";
