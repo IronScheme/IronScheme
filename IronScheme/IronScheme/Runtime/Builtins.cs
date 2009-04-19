@@ -316,10 +316,17 @@ A ""contributor"" is any person that distributes its contribution under this lic
       Exception ex = LastException;
       if (ex != null)
       {
-        ConsoleColor old = Console.ForegroundColor;
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(ex.StackTrace);
-        Console.ForegroundColor = old;
+        if ((Console.LargestWindowWidth | Console.LargestWindowHeight) == 0)
+        {
+          Console.WriteLine(ex.StackTrace);
+        }
+        else
+        {
+          ConsoleColor old = Console.ForegroundColor;
+          Console.ForegroundColor = ConsoleColor.Red;
+          Console.WriteLine(ex.StackTrace);
+          Console.ForegroundColor = old;
+        }
       }
       return Unspecified;
     }

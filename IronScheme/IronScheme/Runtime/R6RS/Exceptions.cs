@@ -138,10 +138,15 @@ namespace IronScheme.Runtime.R6RS
     public static object Raise(object obj)
     {
       InitDefaultHandler();
-
-      //var sf = new StackTrace(1);
-      //ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
-      //obj = Conditions.Condition(obj, st.Call((object)sf.ToString().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)));
+      if (obj is CompoundCondition)
+      {
+        var sf = new StackTrace(1);
+        ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
+        var values = new ArrayList(((CompoundCondition)obj).conds);
+        values.Add(st.Call((object)sf.ToString().
+          Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)));
+        ((CompoundCondition)obj).conds = values.ToArray();
+      }
 
       ICallable ch = CurrentHandler;
       if (ch != null)

@@ -6,6 +6,7 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting;
 using IronScheme;
 using IronScheme.Runtime;
+using System.Diagnostics;
 
 namespace EmbeddingConsole
 {
@@ -13,6 +14,15 @@ namespace EmbeddingConsole
   {
     static void Main(string[] args)
     {
+      try
+      {
+        var r = "foo".EvalInScheme();
+        Debug.Fail("Cannot get here");
+      }
+      catch
+      {
+        // testing exceptions, must be thrown back here
+      }
 @"
 (define (foo x) 
   (let ((x (string-append x ""\n"")))

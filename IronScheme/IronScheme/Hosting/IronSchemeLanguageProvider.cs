@@ -228,6 +228,11 @@ namespace IronScheme.Hosting
 
     class IronSchemeOptionsParser : OptionsParser
     {
+      public IronSchemeOptionsParser() : base()
+      {
+        notabcompletion = IsNotConsole();
+      }
+
       public override void GetHelp(out string commandLine, out string[,] options, out string[,] environmentVariables, out string comments)
       {
         commandLine = null;
@@ -237,6 +242,11 @@ namespace IronScheme.Hosting
       }
 
       bool notabcompletion = false;
+
+      static bool IsNotConsole()
+      {
+        return System.Console.LargestWindowHeight == 0 && System.Console.LargestWindowWidth == 0;
+      }
 
       protected override void ParseArgument(string arg)
       {

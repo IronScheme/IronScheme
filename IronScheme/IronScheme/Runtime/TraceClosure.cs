@@ -69,24 +69,43 @@ namespace IronScheme.Runtime
 
         string prefix = new string('|', depth);
 
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine("{0} -> {1}", prefix, name);
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
-        Console.ForegroundColor = ConsoleColor.Gray;
+        if ((Console.LargestWindowWidth | Console.LargestWindowHeight) == 0)
+        {
+          Console.WriteLine("{0} -> {1}", prefix, name);
+          Console.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
 
-        object result = realtarget.Call(args);
+          object result = realtarget.Call(args);
 
-        StringWriter p = new StringWriter();
+          StringWriter p = new StringWriter();
 
-        pp.Call(filter == null ? result : filter.Call(result), p);
+          pp.Call(filter == null ? result : filter.Call(result), p);
 
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("{0} <- {1}", prefix, name);
-        Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
-        Console.ForegroundColor = ConsoleColor.Gray;
-        return result;
+          Console.WriteLine("{0} <- {1}", prefix, name);
+          Console.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          return result;
+        }
+        else
+        {
+
+          Console.ForegroundColor = ConsoleColor.Yellow;
+          Console.WriteLine("{0} -> {1}", prefix, name);
+          Console.ForegroundColor = ConsoleColor.White;
+          Console.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          Console.ForegroundColor = ConsoleColor.Gray;
+
+          object result = realtarget.Call(args);
+
+          StringWriter p = new StringWriter();
+
+          pp.Call(filter == null ? result : filter.Call(result), p);
+
+          Console.ForegroundColor = ConsoleColor.Cyan;
+          Console.WriteLine("{0} <- {1}", prefix, name);
+          Console.ForegroundColor = ConsoleColor.White;
+          Console.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          Console.ForegroundColor = ConsoleColor.Gray;
+          return result;
+        }
       }
       finally
       {

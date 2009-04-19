@@ -18,6 +18,8 @@ namespace IronScheme
       get { return provider; }
     }
 
+    static ICallable evalproc;
+
     public static object EvalInScheme(this string expr)
     {
       return provider.GetEngine().Evaluate(expr);

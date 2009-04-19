@@ -20,6 +20,7 @@ using System.Threading;
 using System.IO;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
+using System.Diagnostics;
 
 namespace Microsoft.Scripting.Shell {
 
@@ -86,7 +87,7 @@ namespace Microsoft.Scripting.Shell {
                 _warningColor = ConsoleColor.Yellow;
             } else {
 #if !SILVERLIGHT
-                _promptColor = _outColor = _errorColor = _warningColor = Console.ForegroundColor;
+              _promptColor = _outColor = _errorColor = _warningColor = ConsoleColor.Gray;
 #endif
             }
         }
@@ -94,6 +95,10 @@ namespace Microsoft.Scripting.Shell {
         protected void WriteColor(TextWriter output, string str, ConsoleColor c)
         {
 #if !SILVERLIGHT // Console.ForegroundColor
+          if (string.IsNullOrEmpty(str))
+          {
+            return;
+          }
 
           if (this is SuperConsole)
           {
