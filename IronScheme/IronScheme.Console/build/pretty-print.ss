@@ -11,6 +11,7 @@
   (import 
     (rename 
       (except (ironscheme) 
+        generic-write
         pretty-gensyms
         pretty-print 
         pretty-width) 

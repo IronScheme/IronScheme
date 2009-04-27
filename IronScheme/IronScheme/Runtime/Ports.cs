@@ -38,11 +38,6 @@ namespace IronScheme.Runtime
       sb.Length = 0;
       return r;
     }
-
-    public override string ToString()
-    {
-      return string.Format("#<string-output-port {0}>", Builtins.WriteFormat(base.ToString()));
-    }
   }
 
   public partial class Builtins
@@ -53,7 +48,6 @@ namespace IronScheme.Runtime
       if (File.Exists(fn))
       {
         return Assembly.LoadFrom(fn);
-
       }
       FileNotFoundViolation(FALSE, "file not found", path);
       return null;
@@ -69,8 +63,46 @@ namespace IronScheme.Runtime
 
       switch (Path.GetExtension(path))
       {
+        case ".fasl":
+          {
+#if DEBUG
+            Stopwatch sw = Stopwatch.StartNew();
+#endif
+            Cons c = null;
+            using (Stream s = File.OpenRead(path))
+            {
+              c = psyntax.Serialization.DeserializePort(s) as Cons;
+            }
+
+            var cb = IronSchemeLanguageContext.Compile(c);
+
+            ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb);
+
+            var sm = ScriptDomainManager.CurrentManager.CreateModule("boot", sc);
+
+            Compiler.SimpleGenerator.ClearGlobals();
+#if DEBUG
+            Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
+            sw = Stopwatch.StartNew();
+#endif
+            object result = sm.GetScripts()[0].Run(sm);
+#if DEBUG
+            Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
+#endif
+            return result;
+          }
         case ".exe":
         case ".dll":
+          const string newbf = "ironscheme.boot.new.dll";
+          if (File.Exists(newbf) && File.GetLastWriteTime(newbf) > File.GetLastWriteTime(path))
+          {
+            if (File.Exists("ironscheme.boot.old.dll"))
+            {
+              File.Delete("ironscheme.boot.old.dll");
+            }
+            File.Move("ironscheme.boot.dll", "ironscheme.boot.old.dll");
+            File.Move(newbf, "ironscheme.boot.dll");
+          }
 
           Assembly ext = AssemblyLoad(path);
           if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
@@ -127,44 +159,60 @@ namespace IronScheme.Runtime
           }
           break;
         default:
-
-          // check for already compiled version
-          string cfn = Path.ChangeExtension(path, ".dll");
-          if (File.Exists(cfn))
           {
-            DateTime ct = File.GetLastWriteTime(cfn);
-            if (!File.Exists(path) || ct >= File.GetLastWriteTime(path))
+            // check for already compiled version
+            string cfn = Path.ChangeExtension(path, ".dll");
+            if (File.Exists(cfn))
             {
-              if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct || 
-                cfn.EndsWith("ironscheme.boot.dll"))
+              DateTime ct = File.GetLastWriteTime(cfn);
+              if (!File.Exists(path) || ct >= File.GetLastWriteTime(path))
               {
-                path = cfn;
-                goto case ".dll";
+                if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct ||
+                  cfn.EndsWith("ironscheme.boot.dll"))
+                {
+                  path = cfn;
+                  goto case ".dll";
+                }
               }
             }
+
+            cfn = Path.ChangeExtension(path, ".new.dll");
+            if (File.Exists(cfn))
+            {
+              DateTime ct = File.GetLastWriteTime(cfn);
+              if (!File.Exists(path) || ct >= File.GetLastWriteTime(path))
+              {
+                if (File.GetLastWriteTime(Path.Combine(ApplicationDirectory, "IronScheme.dll")) <= ct ||
+                  cfn.EndsWith("ironscheme.boot.dll"))
+                {
+                  path = cfn;
+                  goto case ".dll";
+                }
+              }
+            }
+
+            if (!File.Exists(path))
+            {
+              return FileNotFoundViolation("load", "file not found", path);
+            }
+
+            SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
+#if DEBUG
+            Stopwatch sw = Stopwatch.StartNew();
+#endif
+            ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
+
+            Compiler.SimpleGenerator.ClearGlobals();
+#if DEBUG
+            Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
+            sw = Stopwatch.StartNew();
+#endif
+            object result = sm.GetScripts()[0].Run(sm);
+#if DEBUG
+            Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
+#endif
+            return result;
           }
-
-          if (!File.Exists(path))
-          {
-            return FileNotFoundViolation("load", "file not found", path);
-          }
-
-          SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
-#if DEBUG
-          Stopwatch sw = Stopwatch.StartNew();
-#endif
-          ScriptModule sm = ScriptDomainManager.CurrentManager.CompileModule(Path.GetFileNameWithoutExtension(path), su);
-
-          Compiler.SimpleGenerator.ClearGlobals();
-#if DEBUG
-          Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
-          sw = Stopwatch.StartNew();
-#endif
-          object result = sm.GetScripts()[0].Run(sm);
-#if DEBUG
-          Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
-#endif
-          return result;
 
       }
 
@@ -320,47 +368,49 @@ namespace IronScheme.Runtime
     static readonly object quasisyntax = SymbolTable.StringToObject("quasisyntax");
     static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 
+    [Obsolete]
     static string ReaderFormat(Cons s, Function<object, string> Format)
     {
       object scar = s.car;
-      if (IsSymbol(scar) && s.cdr is Cons && (int)Length(s.cdr) == 1)
+      if (scar is SymbolId && s.cdr is Cons && ((Cons)s.cdr).Length == 1)
       {
-        if (IsTrue(IsEqual(quote, scar)))
+        if (quote == scar)
         {
           return "'" + Format(Second(s));
         }
-        if (IsTrue(IsEqual(quasiquote, scar)))
+        if (quasiquote == scar)
         {
           return "`" + Format(Second(s));
         }
-        if (IsTrue(IsEqual(unquote, scar)))
+        if (unquote == scar)
         {
           return "," + Format(Second(s));
         }
-        if (IsTrue(IsEqual(unquote_splicing, scar)))
+        if (unquote_splicing == scar)
         {
           return ",@" + Format(Second(s));
         }
-        if (IsTrue(IsEqual(syntax, scar)))
+        if (syntax== scar)
         {
           return "#'" + Format(Second(s));
         }
-        if (IsTrue(IsEqual(quasisyntax, scar)))
+        if (quasisyntax== scar)
         {
           return "#`" + Format(Second(s));
         }
-        if (IsTrue(IsEqual(unsyntax, scar)))
+        if (unsyntax== scar)
         {
           return "#," + Format(Second(s));
         }
-        if (IsTrue(IsEqual(unsyntax_splicing, scar)))
+        if (unsyntax_splicing== scar)
         {
           return "#,@" + Format(Second(s));
         }
       }
       return null;
     }
-    
+
+    [Obsolete]
     public static string DisplayFormat(object obj)
     {
       if (obj == null)
@@ -573,12 +623,6 @@ namespace IronScheme.Runtime
         return p.GetBuffer();
       }
 
-      //finally check if this is some constructed type
-      if (R6RS.Records.IsRecordAny(obj))
-      {
-        return R6RS.Records.PrintRecord(obj);
-      }
-
       if (obj is MultipleValues)
       {
         object[] values = ((MultipleValues)obj).ToArray();
@@ -594,12 +638,14 @@ namespace IronScheme.Runtime
       return obj.ToString();
     }
 
+    [Obsolete]
     [Builtin("display")]
     public static object Display(object obj)
     {
       return Display(obj, CurrentOutputPort());
     }
 
+    [Obsolete]
     [Builtin("display")]
     public static object Display(object obj, object port)
     {
@@ -616,6 +662,7 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    [Obsolete]
     public static string WriteFormat(object obj)
     {
       if (obj == null)
@@ -769,12 +816,6 @@ namespace IronScheme.Runtime
         return p.GetBuffer();
       }
 
-      //finally check if this is some constructed type
-      if (R6RS.Records.IsRecordAny(obj))
-      {
-        return R6RS.Records.PrintRecord(obj);
-      }
-
       if (obj is MultipleValues)
       {
         object[] values = ((MultipleValues)obj).ToArray();
@@ -796,12 +837,14 @@ namespace IronScheme.Runtime
     //  return Write(datum, port);
     //}
 
+    [Obsolete]
     [Builtin("write")]
     public static object Write(object obj)
     {
       return Write(obj, CurrentOutputPort());
     }
 
+    [Obsolete]
     [Builtin("write")]
     public static object Write(object obj, object port)
     {
@@ -959,19 +1002,34 @@ namespace IronScheme.Runtime
     [Builtin("close-input-port")]
     public static object CloseInputPort(object port)
     {
-      if (readcache.ContainsKey(port))
+      if (port is Stream)
       {
-        readcache.Remove(port);
+        ((Stream)port).Close();
       }
-      RequiresNotNull<TextReader>(port).Close();
+      else
+      {
+        if (readcache.ContainsKey(port))
+        {
+          readcache.Remove(port);
+        }
+        RequiresNotNull<TextReader>(port).Close();
+      }
       return Unspecified;
     }
 
     [Builtin("close-output-port")]
     public static object CloseOutputPort(object port)
     {
-      RequiresNotNull<TextWriter>(port).Close();
+      if (port is Stream)
+      {
+        ((Stream)port).Close();
+      }
+      else
+      {
+        RequiresNotNull<TextWriter>(port).Close();
+      }
       return Unspecified;
+
     }
 
 

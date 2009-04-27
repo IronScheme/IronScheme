@@ -573,49 +573,49 @@ namespace IronScheme.Runtime.R6RS
 
     internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();
 
-    internal static bool IsRecordAny(object obj)
-    {
-      if (obj != null)
-      {
-        RecordTypeDescriptor rtd;
-        if (typedescriptors.TryGetValue(obj.GetType(), out rtd))
-        {
-          return true;
-        }
-      }
-      return false;
-    }
+    //internal static bool IsRecordAny(object obj)
+    //{
+    //  if (obj != null)
+    //  {
+    //    RecordTypeDescriptor rtd;
+    //    if (typedescriptors.TryGetValue(obj.GetType(), out rtd))
+    //    {
+    //      return true;
+    //    }
+    //  }
+    //  return false;
+    //}
 
-    internal static string PrintRecord(object rec)
-    {
-      RecordTypeDescriptor rtd;
-      if (typedescriptors.TryGetValue(rec.GetType(), out rtd))
-      {
-        if (rtd.opaque)
-        {
-          return string.Format("#[{0}]", rtd.name);
-        }
-        else
-        {
-          List<string> fields = new List<string>();
-          GetFields(rec, rtd, fields);
-          return string.Format("#[{0}{1}]", rtd.name, string.Join("", fields.ToArray()));
-        }
-      }
-      return "not a record!!";
-    }
+    //internal static string PrintRecord(object rec)
+    //{
+    //  RecordTypeDescriptor rtd;
+    //  if (typedescriptors.TryGetValue(rec.GetType(), out rtd))
+    //  {
+    //    if (rtd.opaque)
+    //    {
+    //      return string.Format("#[{0}]", rtd.name);
+    //    }
+    //    else
+    //    {
+    //      List<string> fields = new List<string>();
+    //      GetFields(rec, rtd, fields);
+    //      return string.Format("#[{0}{1}]", rtd.name, string.Join("", fields.ToArray()));
+    //    }
+    //  }
+    //  return "not a record!!";
+    //}
 
-    static void GetFields(object rec, RecordTypeDescriptor rtd, List<string> fields)
-    {
-      if (rtd.parent != null)
-      {
-        GetFields(rec, rtd.parent, fields);
-      }
-      foreach (FieldDescriptor fd in rtd.fields)
-      {
-        fields.Add(string.Format(" {0}:{1}", fd.name, WriteFormat(fd.accessor.Invoke(null, new object[] { rec }))));
-      }
-    }
+    //static void GetFields(object rec, RecordTypeDescriptor rtd, List<string> fields)
+    //{
+    //  if (rtd.parent != null)
+    //  {
+    //    GetFields(rec, rtd.parent, fields);
+    //  }
+    //  foreach (FieldDescriptor fd in rtd.fields)
+    //  {
+    //    fields.Add(string.Format(" {0}:{1}", fd.name, WriteFormat(fd.accessor.Invoke(null, new object[] { rec }))));
+    //  }
+    //}
 
     [Builtin("record?")]
     public static object IsRecord(object obj)
@@ -645,10 +645,31 @@ namespace IronScheme.Runtime.R6RS
       return FALSE;
     }
 
+    static bool IsCondition(object rtd)
+    {
+      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      // argghhh
+      if (r.type == typeof(Condition) || r.type.BaseType == typeof(Condition))
+      {
+        return true;
+      }
+
+      var parent = RecordTypeParent(rtd);
+      if (parent != FALSE)
+      {
+        return IsCondition(parent);
+      }
+      return false;
+    }
+
     [Builtin("record-type-name")]
     public static object RecordTypeName(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      if (IsCondition(rtd))
+      {
+        return SymbolTable.StringToObject(r.type.Name.Replace("$","&"));
+      }
       return SymbolTable.StringToObject(r.type.Name);
     }
 

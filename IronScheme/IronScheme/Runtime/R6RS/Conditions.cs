@@ -25,61 +25,6 @@ namespace IronScheme.Runtime.R6RS
 {
   public abstract class Condition : Exception
   {
-    static IEnumerable<FieldDescriptor> GetFields(RecordTypeDescriptor rtd)
-    {
-      if (rtd == null)
-      {
-        yield break;
-      }
-      foreach (FieldDescriptor fd in rtd.fields)
-      {
-        yield return fd;
-      }
-      foreach (FieldDescriptor fd in GetFields(rtd.parent))
-      {
-        yield return fd;
-      }
-    }
-
-    public override string ToString()
-    {
-      RecordTypeDescriptor rtd = Records.RecordRtd(this) as RecordTypeDescriptor;
-
-      List<string> ii = new List<string>();
-
-      foreach (FieldDescriptor fd in GetFields(rtd))
-      {
-        object r = fd.accessor.Invoke(null, new object[] { this });
-        if (r is bool && !(bool)r)
-        {
-          continue;
-        }
-
-        if (r is Array || r is Cons)
-        {
-          int nr = 1;
-          foreach (var i in r as IEnumerable)
-          {
-            ii.Add(string.Format("{3}{0,-2}{1,5} {2}", " ", "(" + nr + ")", Builtins.WriteFormat(i), Environment.NewLine));
-            nr++;
-          }
-        }
-        else
-        {
-          ii.Add(Builtins.WriteFormat(r));
-        }
-
-      }
-
-      string tail = string.Join(" ", ii.ToArray());
-
-      return string.Format("{0,-20}{1}", GetType().Name.Replace("$", "&") + (tail.Length > 0 ? ": " : ""), tail);
-    }
-
-    public override string Message
-    {
-      get { return ToString(); }
-    }
 
   }
 

@@ -86,10 +86,25 @@ namespace IronScheme.Runtime
       }
     }
 
+    internal int Length
+    {
+      get
+      {
+        int i = 0;
+        foreach (var o in this)
+        {
+          i++;
+        }
+        return i;
+      }
+    }
+
+#if DEBUG
     public override string ToString()
     {
       return Builtins.WriteFormat(this);
     }
+#endif
 
     public string PrettyPrint
     {

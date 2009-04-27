@@ -109,10 +109,13 @@
           (string->symbol
             (string-append "set-" (syn->str id) "-" (syn->str fld) "!")))))
     (syntax-case x ()
-      [(_ name (field* ...) printer)
-       #`(begin 
-           (define-record name (field* ...)) 
-           (define rp (make-record-printer 'name printer)))]
+      [(k name (field* ...) printer)
+        (with-syntax ((pname (datum->syntax #'k
+                                            (string->symbol (string-append (symbol->string (syntax->datum #'name)) 
+                                                                           "?")))))
+         #`(begin 
+             (define-record name (field* ...)) 
+             (define record-printer (add-record-printer! pname printer))))]
       [(_ name (field* ...))
        (with-syntax ([(getter* ...)
                       (map (gen-getter #'name) #'(field* ...))]

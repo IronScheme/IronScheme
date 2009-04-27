@@ -16,7 +16,7 @@ namespace EmbeddingConsole
     {
       try
       {
-        var r = "foo".EvalInScheme();
+        var r = "foo".Eval();
         Debug.Fail("Cannot get here");
       }
       catch
@@ -28,15 +28,15 @@ namespace EmbeddingConsole
   (let ((x (string-append x ""\n"")))
     (display x)
     x))
-".EvalInScheme();
+".Eval();
 
-      var foo = "foo".EvalInScheme<ICallable>();
+      var foo = "foo".Eval<ICallable>();
       var foodel = foo.ToDelegate<Func<object, object>>();
       var result = foodel("hello world");
       Console.Write(result);
 
       // this should become quite funky in C# 4.0  :)
-      var bar = "(lambda x (for-each display (reverse x))(newline))".EvalInScheme<ICallable>();
+      var bar = "(lambda x (for-each display (reverse x))(newline))".Eval<ICallable>();
       bar.Call(1, 2, 3, 4, 5);
 
       Console.ReadLine();

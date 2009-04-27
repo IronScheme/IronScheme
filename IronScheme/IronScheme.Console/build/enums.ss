@@ -70,8 +70,14 @@
                     (bitwise-arithmetic-shift-left mask 1))))
               (assertion-violation 'make-enumeration "not a symbol" n)))))))
               
+  (define (string-join sep strings)
+    (let f ((s strings)(a '()))
+      (if (null? (cdr s))
+          (apply string-append (reverse! (cons (car s) a)))
+          (f (cdr s) (cons* sep (car s) a)))))
+              
   (define (make-name symbols)
-    (string->symbol (format "~a" symbols)))
+    (string->symbol (string-join " " (map symbol->string symbols))))
 
   (define (make-enumeration symbols)
     (let-values (((s mapping mask) (make-info symbols)))

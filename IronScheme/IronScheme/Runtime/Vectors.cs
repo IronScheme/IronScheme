@@ -102,10 +102,7 @@ namespace IronScheme.Runtime
     //  object[] l = RequiresNotNull<object[]>(vec);
     //  return l.Length;
     //}
-    
 
-    [Builtin("vector->list")]
-    [Obsolete]
     internal static object VectorToList(object vec)
     {
       object[] l = RequiresNotNull<object[]>(vec);

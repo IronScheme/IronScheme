@@ -313,18 +313,18 @@
                                                    sb
                                                    0)))]
         [(8)
-          (clr-static-call Microsoft.Scripting.Math.BigInteger
-                           "op_Implicit(UInt64)"
-                           (clr-static-call System.BitConverter
-                                            "ToUInt64(Byte[],Int32)"
-                                            sb
-                                            0))]
+          (exact (clr-static-call Microsoft.Scripting.Math.BigInteger
+                                 "op_Implicit(UInt64)"
+                                 (clr-static-call System.BitConverter
+                                                  "ToUInt64(Byte[],Int32)"
+                                                  sb
+                                                  0)))]
         [else
           (let ((data (make-bytevector (+ size 1))))
             (bytevector-copy! sb 0 data 0 size)
-            (clr-static-call Microsoft.Scripting.Math.BigInteger
-                             "Create(Byte[])"
-                             data))])))
+            (exact (clr-static-call Microsoft.Scripting.Math.BigInteger
+                                   "Create(Byte[])"
+                                   data)))])))
                                                    
   (define (bytevector-sint-ref bv k end size)
     (unless (bytevector? bv)
@@ -354,16 +354,16 @@
                            sb
                            0)]
         [(8)
-          (clr-static-call Microsoft.Scripting.Math.BigInteger
-                           "op_Implicit(Int64)"
-                           (clr-static-call System.BitConverter
-                                            "ToInt64(Byte[],Int32)"
-                                            sb
-                                            0))]
+          (exact (clr-static-call Microsoft.Scripting.Math.BigInteger
+                                 "op_Implicit(Int64)"
+                                 (clr-static-call System.BitConverter
+                                                  "ToInt64(Byte[],Int32)"
+                                                  sb
+                                                  0)))]
         [else
-          (clr-static-call Microsoft.Scripting.Math.BigInteger
-                           "Create(Byte[])"
-                           sb)])))
+          (exact (clr-static-call Microsoft.Scripting.Math.BigInteger
+                                 "Create(Byte[])"
+                                 sb))])))
                            
   (define (bytevector-uint-set! bv k n end size)                           
     (unless (bytevector? bv)

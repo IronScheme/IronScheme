@@ -254,7 +254,7 @@ namespace Microsoft.Scripting.Generation {
         protected override SlotFactory CreateSlotFactory(ScriptCode scriptCode) {
             AssemblyGen ag = null;
 #if !DEBUG
-            if (scriptCode.SourceUnit.Kind == SourceCodeKind.Default)
+            if (scriptCode.SourceUnit.Kind == SourceCodeKind.Default && scriptCode.CodeBlock.Name != "ironscheme.boot.new")
             {
               if (runtimemethods == null)
               {
@@ -274,24 +274,33 @@ namespace Microsoft.Scripting.Generation {
             return factory;
         }
 
-        protected override IAttributesCollection CreateLanguageDictionary(LanguageContext context, ScopeAllocator allocator) {
-            LanguageInfo li = _languages[context];
+        protected override IAttributesCollection CreateLanguageDictionary(LanguageContext context, ScopeAllocator allocator)
+        {
+          LanguageInfo li = _languages[context];
 
-            // TODO: Force all dictionaries to share same object data (for multi-module)
+          // TODO: Force all dictionaries to share same object data (for multi-module)
+          GlobalFieldAllocator gfa = allocator.LocalAllocator as GlobalFieldAllocator;
+          if (gfa != null)
+          {
+            Dictionary<SymbolId, Slot> fields = gfa.SlotFactory.Fields;
 
-            GlobalFieldAllocator gfa = allocator.LocalAllocator as GlobalFieldAllocator;
-            if (gfa != null) {
-                Dictionary<SymbolId, Slot> fields = gfa.SlotFactory.Fields;
+            BuildDictionary(li, fields);
 
-                BuildDictionary(li, fields);
+            Type t = li.TypeGen.FinishType();
+            li.TypeGen.AssemblyGen.DumpAndLoad();
 
-                Type t = li.TypeGen.FinishType();
-                li.TypeGen.AssemblyGen.DumpAndLoad();
-
-                return (IAttributesCollection)Activator.CreateInstance(t);
-            } else {
-                throw new InvalidOperationException("invalid allocator");
+            if (ModuleName == "ironscheme.boot.new")
+            {
+              return null;
             }
+
+            return (IAttributesCollection)Activator.CreateInstance(t);
+          }
+          else
+          {
+            throw new InvalidOperationException("invalid allocator");
+          }
+
         }
 
         protected override CodeGen CreateCodeGen(ScriptCode scriptCode) {
@@ -322,8 +331,17 @@ namespace Microsoft.Scripting.Generation {
             string outDir, fileName;
             GetCompiledSourceUnitAssemblyLocation(scriptCode.CompilerContext.SourceUnit, out outDir, out fileName);
 
+
             AssemblyGen ag;
             string ext = ".dll";
+
+            if (scriptCode.CodeBlock.Name == "ironscheme.boot.new")
+            {
+              fileName = "ironscheme.boot.new";
+              ext = ".dll";
+            }
+
+
             // Try to create a file called "filename.<cnt>.exe", ensuring that the filename does not clash with an existing file
             int cnt = 0;
             for (; ; ) {

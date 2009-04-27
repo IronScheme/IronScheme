@@ -33,6 +33,7 @@
   (psyntax library-manager)
   (psyntax expander)
   (ironscheme unsafe)
+  (only (ironscheme core) compile-bootfile)
   (only (ironscheme) time-it optimization-level include import library)
   )
   
@@ -44,12 +45,13 @@
     "build/arithmetic/fixnums.ss"
     "build/lists.ss"
     "build/base.ss"
+    "build/numbers.ss"
+    "build/generic-writer.ss"
+    
     "build/hashtables.ss"
     "build/files.ss"
     "build/bytevectors.ss"
     "build/control.ss"
-    
-    "build/numbers.ss"
     
     "build/eval.ss"
     "build/mutable-pairs.ss"
@@ -272,6 +274,8 @@
     (library                                    i) 
     (include                                    i)
     (pretty-print                               i)
+    (generic-write                              i)
+    (initialize-default-printers                i)
     (pretty-width                               i)
     (pretty-gensyms                             i)
     (uninstall-library                          i)
@@ -353,6 +357,7 @@
     (reverse!                                   ic)
     (eqv-hash                                   ic) ; TODO: remove
     (make-record-printer                        irp)
+    (add-record-printer!                        irp)
     ($car                                       iu)
     ($cdr                                       iu)
     ($vector-ref                                iu)
@@ -1123,6 +1128,7 @@
     (interaction-environment                    i)
     (new-interaction-environment                i)
     (string-normalize                           ic)
+    (compile-bootfile                           ic)
     (load                                       i)
     (compile                                    i)
     (compile->closure                           i)
@@ -1160,8 +1166,6 @@
     (ironscheme-build                           i)
     (ironscheme-test                            i)
     (stacktrace                                 i)
-    (license                                    i)
-    (load-r5rs                                  i)
     (last-pair                                  i)
     (make-list                                  i)
     (unspecified?                               i)
@@ -1523,21 +1527,22 @@
             (cond
               ((assq x locs) => cdr)
               (else #f))))
-        (when (file-exists? bootfile)
-          (delete-file bootfile))
-        (let ((p (open-output-file bootfile)))
-          (display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
-          (display ";;; Copyright (c) 2007, 2008 Llewellyn Pritchard" p) (newline p)
-          (display ";;; automatically generated from psyntax & ironscheme sources" p) (newline p)
-          (display ";;; for copyright details, see psyntax/main.ss" p) (newline p) (newline p)
-          (time-it "code generation and pretty-print"  
-            (lambda ()  
-              (for-each
-                (lambda (x)
-                  (compile-core-expr-to-port x p)
-                  (newline p))
-                core*)))
-          (close-output-port p))
+        (time-it "code generation" (lambda () (compile-bootfile (map compile-core-expr core*))))
+        ;(when (file-exists? bootfile)
+          ;(delete-file bootfile))
+        ;(let ((p (open-output-file bootfile)))
+          ;(display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
+          ;(display ";;; Copyright (c) 2007, 2008, 2009 Llewellyn Pritchard" p) (newline p)
+          ;(display ";;; automatically generated from psyntax & ironscheme sources" p) (newline p)
+          ;(display ";;; for copyright details, see psyntax/main.ss" p) (newline p) (newline p)
+          ;(time-it "pretty-print"  
+            ;(lambda ()  
+              ;(for-each
+                ;(lambda (x)
+                  ;(compile-core-expr-to-port x p)
+                  ;(newline p))
+                ;core*)))
+          ;(close-output-port p))
         (cps-mode          
           (time-it "cps conversion" do-cps-conversion)
           #f))))

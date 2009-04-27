@@ -187,6 +187,7 @@ SectionIn 1 2 RO
 	File "IronScheme.Console.exe.config"
 	
 	File "IronScheme.dll"
+	File "IronScheme.Remoting.dll"
 	File "IronScheme.Closures.dll"
 	File "ironscheme.boot.dll"
 	File "Microsoft.Scripting.dll"
