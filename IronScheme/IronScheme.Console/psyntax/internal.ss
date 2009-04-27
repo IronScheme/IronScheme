@@ -19,8 +19,8 @@
 ;;; DEALINGS IN THE SOFTWARE. 
 
 (library (psyntax internal)
-  (export current-primitive-locations compile-core-expr-to-port expanded->core compile-core-expr)
-  (import (rnrs) (psyntax compat) (only (ironscheme) pretty-print))
+  (export current-primitive-locations compile-core-expr-to-port compile-core-expr-to-fasl expanded->core compile-core-expr)
+  (import (rnrs) (psyntax compat) (only (ironscheme) pretty-print serialize-port))
   
   (define current-primitive-locations
     (make-parameter 
@@ -109,6 +109,9 @@
     
   (define (compile-core-expr x)
     ((rewriter #f) x))    
+    
+  (define (compile-core-expr-to-fasl x p)
+    (serialize-port ((rewriter #f) x) p))    
 
   (define (compile-core-expr-to-port x p)
     (pretty-print ((rewriter #f) x) p)))

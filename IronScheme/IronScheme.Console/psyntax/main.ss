@@ -39,9 +39,13 @@
     (rnrs control)
     (rnrs io simple)
     (rnrs lists)
+    (rnrs conditions)
+    (rnrs records inspection)
+    (rnrs records procedural)
     (only (rnrs conditions) serious-condition?)
     (only (rnrs exceptions) raise)
     (psyntax compat)
+    (psyntax config)
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
@@ -52,7 +56,7 @@
     (ironscheme clr)
     (ironscheme constant-fold)
     (ironscheme library)
-    (only (ironscheme) pretty-print))
+    (only (ironscheme) pretty-print initialize-default-printers))
     
   (define trace-printer (make-parameter pretty-print))
       
@@ -102,7 +106,66 @@
       [(color)      (and (not (emacs-mode?)) (clr-static-prop-set! console foregroundcolor color))])) 
       
   (define (system-exception? e)
-    (clr-is SystemException e))         
+    (clr-is SystemException e))  
+    
+  (define (get-field-pairs rtd rec)
+    (let* ((flds (record-type-field-names rtd))
+           (len  (vector-length flds)))
+      (let f ((i 0)(a '()))
+        (if (= i len)
+            (reverse a)
+            (f (+ i 1) 
+               (cons (cons (vector-ref flds i) 
+                           ((record-accessor rtd i) rec))
+                     a))))))
+    
+  (define (get-fields rtd rec)
+    (let ((par (record-type-parent rtd)))
+      (if par
+          (append (get-fields par rec) (get-field-pairs rtd rec))
+          (get-field-pairs rtd rec))))    
+    
+  (define (display-condition e)
+    (for-each 
+      (lambda (c)
+        (let ((rtd (record-rtd c)))
+          (display "  ")
+          (display (record-type-name rtd))
+          (let* ((flds (get-fields rtd c))
+                 (len  (length flds)))
+            (cond 
+              [(zero? len)
+                (newline)]
+              [(= 1 len)
+                (let ((fld (cdr (car flds))))
+                  (if (vector? fld)
+                      (let ((len (vector-length fld)))
+                        (newline)
+                        (let f ((i 0))
+                          (cond
+                            [(= i len)]
+                            [else
+                              (display "    [")
+                              (display (+ i 1))
+                              (display "] ")
+                              (display (vector-ref fld i))
+                              (newline)
+                              (f (+ i 1))]))) 
+                      (begin
+                        (display ": ")
+                        (display fld)
+                        (newline))))]
+              [else
+                (display ":\n")
+                (for-each
+                  (lambda (nv)
+                    (display "    ")
+                    (display (car nv))
+                    (display ": ")
+                    (display (cdr nv))
+                    (newline))
+                  flds)]))))
+      (simple-conditions e)))
     
   (define (eval-top-level x)
     (call/cc
@@ -114,7 +177,7 @@
                              (current-output-port (current-error-port)))
                 (when serious?
                   (display "Unhandled exception during evaluation:\n"))
-                (display e)
+                (display-condition e)
                 (newline))
               (if serious?
                 (k))))
@@ -160,12 +223,14 @@
  
   (current-precompiled-library-loader load-serialized-library)
   
+  (initialize-default-printers)
+  
   (set-symbol-value! 'default-exception-handler 
     (lambda (ex)
       (cond
         [(serious-condition? ex) (raise ex)]
         [else 
-          (display ex)
+          (display-condition ex)
           (newline)])))
       
   (set-symbol-value! 'load load)
@@ -178,7 +243,9 @@
   
   (set-symbol-value! 'trace-printer trace-printer)
   (set-symbol-value! 'pretty-print pretty-print)
-  (set-symbol-value! 'convert->cps convert->cps)
+  (cps-mode
+    (set-symbol-value! 'convert->cps convert->cps)
+    (void))
   (set-symbol-value! 'assertion-violation assertion-violation)
   (set-symbol-value! 'raise raise)
   (set-symbol-value! 'emacs-mode? emacs-mode?)

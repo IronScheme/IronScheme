@@ -63,7 +63,7 @@ namespace IronScheme.Runtime
       return SymbolTable.StringToObject(name.Substring(0, i));
     }
 
-
+    [Obsolete("Remove when possible")]
     internal static object IODecodingError()
     {
       if (IsR6RSLoaded())
@@ -82,6 +82,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Remove when possible")]
     internal static object IOEncodingError()
     {
       if (IsR6RSLoaded())
@@ -101,6 +102,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Remove when possible")]
     internal static object UndefinedError(object sym)
     {
       if (IsR6RSLoaded())
@@ -130,6 +132,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Remove when possible")]
     internal static object LexicalError(string msg, object what)
     {
       if (IsR6RSLoaded())
@@ -154,6 +157,7 @@ namespace IronScheme.Runtime
 
     }
 
+    [Obsolete("Remove when possible")]
     internal static object SyntaxError(object who, object message, object form, object subform)
     {
       if (IsR6RSLoaded())
@@ -181,6 +185,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Remove when possible")]
     internal static object FileNotFoundViolation(object who, object message, object filename)
     {
       if (IsR6RSLoaded())
@@ -213,6 +218,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Remove when possible")]
     internal static object IOPortViolation(object who, object message, object port)
     {
       if (IsR6RSLoaded())
@@ -248,6 +254,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Remove when possible")]
     internal static object FileAlreadyExistsViolation(object who, object filename)
     {
       if (IsR6RSLoaded())
@@ -274,6 +281,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Remove when possible")]
     internal static object FileInUseViolation(object who, object filename)
     {
       if (IsR6RSLoaded())
@@ -306,16 +314,19 @@ namespace IronScheme.Runtime
       return Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("&assertion-rcd"));
     }
 
+    [Obsolete("Remove when possible")]
     internal static object AssertionViolation(object who, object message, object irritant1)
     {
       return AssertionViolation(who, message, new object[] { irritant1 });
     }
 
+    [Obsolete("Remove when possible")]
     internal static object AssertionViolation(object who, object message, object irritant1, object irritant2)
     {
       return AssertionViolation(who, message, new object[] { irritant1, irritant2 });
     }
 
+    [Obsolete("Remove when possible")]
     internal static object AssertionViolation(object who, object message, params object[] irritants)
     {
       if (IsR6RSLoaded())
@@ -362,90 +373,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    internal static object ImplementationRestriction(object who, object message, params object[] irritants)
-    {
-      if (IsR6RSLoaded())
-      {
-        ICallable a = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&implementation-restriction-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&irritants-rcd"))) as ICallable;
-#if CPS
-        if (IsTrue(who))
-        {
-          throw
-             (Exception)R6RS.Conditions.Condition(
-             OptimizedBuiltins.Call(a), 
-             OptimizedBuiltins.Call(w,CleanWho(who)), 
-             OptimizedBuiltins.Call(m,message), 
-             OptimizedBuiltins.Call(i, VectorToList(irritants)));
-        }
-        else
-        {
-          throw
-             (Exception)R6RS.Conditions.Condition(
-             OptimizedBuiltins.Call(a), 
-             OptimizedBuiltins.Call(m,message), 
-             OptimizedBuiltins.Call(i, VectorToList(irritants)));
-        }
-#else
 
-        if (IsTrue(who))
-        {
-          return R6RS.Exceptions.RaiseContinueable(
-             R6RS.Conditions.Condition(a.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
-        }
-        else
-        {
-          return R6RS.Exceptions.RaiseContinueable(
-             R6RS.Conditions.Condition(a.Call(), m.Call(message), i.Call(VectorToList(irritants))));
-        }
-#endif
-      }
-      else
-      {
-        throw new Exception(string.Format("implementation-restriction: {0}", message));
-      }
-    }
-
-    internal static object Error(object who, object message, params object[] irritants)
-    {
-      if (IsR6RSLoaded())
-      {
-        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&error-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&message-rcd"))) as ICallable;
-        ICallable i = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&irritants-rcd"))) as ICallable;
-
-#if CPS
-        if (IsTrue(who))
-        {
-          throw
-             (Exception)R6RS.Conditions.Condition(OptimizedBuiltins.Call(e), OptimizedBuiltins.Call(w, CleanWho(who)), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants)));
-        }
-        else
-        {
-          throw
-             (Exception)R6RS.Conditions.Condition(OptimizedBuiltins.Call(e), OptimizedBuiltins.Call(m, message), OptimizedBuiltins.Call(i, VectorToList(irritants)));
-        }
-#else
-        if (IsTrue(who))
-        {
-          return R6RS.Exceptions.RaiseContinueable(
-             R6RS.Conditions.Condition(e.Call(), w.Call(CleanWho(who)), m.Call(message), i.Call(VectorToList(irritants))));
-        }
-        else
-        {
-          return R6RS.Exceptions.RaiseContinueable(
-             R6RS.Conditions.Condition(e.Call(), m.Call(message), i.Call(VectorToList(irritants))));
-        }
-#endif
-      }
-      else
-      {
-        throw new Exception(string.Format("error: {0}", message));
-      }
-    }
 
     static readonly int TICKS = (int)((DateTime.Now.Ticks >> 16) & 0x7FFFFFFF);
 

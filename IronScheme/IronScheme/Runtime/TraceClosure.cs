@@ -43,7 +43,7 @@ namespace IronScheme.Runtime
         }
         else
         {
-          ppo = Make(Builtins.cc, new CallTarget2(Builtins.Write));
+          ppo = "write".Eval();
         }
         ICallable pp = ppo as ICallable;
 

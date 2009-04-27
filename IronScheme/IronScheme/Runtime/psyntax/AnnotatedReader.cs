@@ -21,11 +21,6 @@ namespace IronScheme.Runtime.psyntax
         this.source = source;
         this.stripped = stripped;
       }
-
-      public override string ToString()
-      {
-        return string.Format("#<annotation {0} {1} {2}>", WriteFormat(expression),WriteFormat(source), WriteFormat(stripped));
-      }
     }
 
     [Builtin("read-annotated")]

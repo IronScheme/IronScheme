@@ -41,11 +41,18 @@ namespace IronScheme.Hosting
       get { return (LanguageProvider as IronSchemeLanguageProvider).Console; }
     }
 
+    static string WriteFormat(object obj)
+    {
+      var w = new IronScheme.Runtime.StringWriter();
+      "(write {0} {1})".Eval(obj, w);
+      return w.GetBuffer();
+    }
+
     protected override void PrintInteractiveCodeResult(object obj)
     {
       if (obj != Builtins.Unspecified)
       {
-        string strv = Builtins.WriteFormat(obj);
+        string strv = WriteFormat(obj);
         IConsole.WriteLine(string.Format("{0}", strv), Style.Out);
       }
     }

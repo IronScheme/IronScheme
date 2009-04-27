@@ -165,6 +165,10 @@
       <Project>{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}</Project>
       <Name>IronScheme.Closures</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IronScheme.Remoting\IronScheme.Remoting.csproj">
+      <Project>{DD78568C-CDB5-4CED-BC9C-C18182ED5945}</Project>
+      <Name>IronScheme.Remoting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
       <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
       <Name>Microsoft.Scripting</Name>
@@ -181,6 +185,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>

@@ -29,7 +29,7 @@ namespace IronScheme.Compiler
     {
       Cons lambdas = args as Cons;
 
-      int arlen = (int)Builtins.Length(args);
+      int arlen = lambdas.Length;
 
       if (arlen == 1)
       {

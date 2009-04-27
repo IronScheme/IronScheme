@@ -218,13 +218,14 @@ namespace IronScheme.Runtime.R6RS
       return GetBool(!(obj is ReadOnlyHashtable));
     }
 
-    [Builtin("equal-hash")]
-    public static object EqualHash(object obj)
-    {
-      //very slow... :(
-      string r = WriteFormat(obj);
-      return r.GetHashCode();
-    }
+    //[Obsolete]
+    //[Builtin("equal-hash")]
+    //public static object EqualHash(object obj)
+    //{
+    //  //very slow... :(
+    //  string r = WriteFormat(obj);
+    //  return r.GetHashCode();
+    //}
 
     //[Builtin("string-hash")]
     //[Obsolete("Implemented in Scheme, do not use, remove if possible", true)]

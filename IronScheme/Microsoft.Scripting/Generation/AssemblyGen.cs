@@ -46,7 +46,6 @@ namespace Microsoft.Scripting.Generation {
         private readonly string _outDir;            // null means the current directory
         private const string peverify_exe = "peverify.exe";
 #endif
-
         public AssemblyGen(string moduleName,
             string outDir,
             string outFile,
@@ -92,15 +91,17 @@ namespace Microsoft.Scripting.Generation {
             }
 
             if (SaveAndReloadAssemblies) {
-                asmname.Name = Path.GetFileNameWithoutExtension(_outFileName);
-                _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndSave, outDir, null);
-                _myModule = _myAssembly.DefineDynamicModule(_outFileName, _outFileName, EmitDebugInfo);
+                asmname.Name = Path.GetFileNameWithoutExtension(moduleName);
+                _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.RunAndSave, outDir, null);
+              _myModule = _myAssembly.DefineDynamicModule( moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName,
+                                                           _outFileName, EmitDebugInfo);
             } else {
                 asmname.Name = moduleName;
                 _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
                 _myModule = _myAssembly.DefineDynamicModule(moduleName, EmitDebugInfo);
             }
             _myAssembly.DefineVersionInfoResource();
+            
 #endif
             if (EmitDebugInfo) SetDebuggableAttributes();
         }
@@ -203,6 +204,10 @@ namespace Microsoft.Scripting.Generation {
                 return _myAssembly;
             }
 
+            if (_outFileName == "ironscheme.boot.new.dll")
+            {
+              return _myAssembly;
+            }
 
             byte[] ass = File.ReadAllBytes(fullPath);
             string pdbfn = Path.ChangeExtension(fullPath, ".pdb");

@@ -248,10 +248,10 @@ namespace IronScheme.Runtime
       }
       else
       {
-        if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
-        {
-          return IsSame(first, second);
-        }
+        //if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
+        //{
+        //  return IsSame(first, second);
+        //}
         if (first is Encoding && second is Encoding)
         {
           return ((Encoding)first).WebName == ((Encoding)second).WebName;

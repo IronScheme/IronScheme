@@ -421,13 +421,13 @@
                  (r (complexnum-real-part num)))
               (and (rational? r) 
                    (rational? i)
-                   (make-rectnum (flonum->ratnum r) (flonum->ratnum i))))]
+                   (exact (make-rectnum (exact r) (exact i)))))]
           [else            
             (assertion-violation 'exact "no exact equivalent" num)])]
       [(flonum? num)
         (if (or (flnan? num) (flinfinite? num))
             (assertion-violation 'exact "no exact equivalent" num)
-            (flonum->ratnum num))]
+            (exact (flonum->ratnum num)))]
       [(bignum? num)
         (if (fx<=? (fixnum-width) (bitwise-length num))
             num

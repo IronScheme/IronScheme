@@ -77,8 +77,6 @@ namespace IronScheme
       }
     }
 
-    static ICallable evalproc;
-
     public override CodeBlock ParseSourceCode(CompilerContext context)
     {
 #if DEBUG

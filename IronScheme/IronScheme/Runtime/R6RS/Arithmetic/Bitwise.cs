@@ -5,10 +5,10 @@ using System.ComponentModel;
 using Microsoft.Scripting.Math;
 using System.Collections;
 
-namespace IronScheme.Runtime.R6RS.Arithmetic
-{
-  public class Bitwise : Builtins
-  {
+//namespace IronScheme.Runtime.R6RS.Arithmetic
+//{
+  //public class Bitwise : Builtins
+  //{
     //static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
     //[Builtin("bitwise-not")]
@@ -236,5 +236,5 @@ namespace IronScheme.Runtime.R6RS.Arithmetic
 
     //  return ToIntegerIfPossible(new BigInteger(1, Array.ConvertAll<int, uint>(result, delegate(int i) { return (uint)i; })));
     //}
-  }
-}
+  //}
+//}

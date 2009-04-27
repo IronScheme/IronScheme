@@ -172,14 +172,14 @@
     <Content Include="build\equal.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="build\generic-writer.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="build\pretty-print.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compile-system-libraries.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ironscheme.boot.cps">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\clr\reflection.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -413,9 +413,6 @@
     </None>
     <None Include="srfi\streams\primitive.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ironscheme.boot.pp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\clr.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -732,6 +729,9 @@
     <Content Include="editor\readme.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="ironscheme.boot.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="ironscheme.ico" />
     <Content Include="tests\r6rs\README.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

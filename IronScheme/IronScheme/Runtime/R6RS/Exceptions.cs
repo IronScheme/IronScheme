@@ -134,6 +134,19 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
+
+    static object GetStackTrace(StackTrace sf)
+    {
+      var sfs = sf.ToString().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+      for (int i = 0; i < sfs.Length; i++)
+      {
+        sfs[i] = sfs[i].Replace("   at ironscheme.boot.new.", string.Empty);
+      }
+
+      return sfs;
+    }
+
     [Builtin("raise")]
     public static object Raise(object obj)
     {
@@ -143,8 +156,7 @@ namespace IronScheme.Runtime.R6RS
         var sf = new StackTrace(1);
         ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
         var values = new ArrayList(((CompoundCondition)obj).conds);
-        values.Add(st.Call((object)sf.ToString().
-          Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)));
+        values.Add(st.Call(GetStackTrace(sf)));
         ((CompoundCondition)obj).conds = values.ToArray();
       }
 
@@ -204,7 +216,7 @@ namespace IronScheme.Runtime.R6RS
       {
         var sf = new StackTrace(1);
         ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
-        obj = Conditions.Condition(obj, st.Call((object)sf.ToString().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)));
+        obj = Conditions.Condition(obj, st.Call(GetStackTrace(sf)));
       }
 
       ICallable ch = CurrentHandler;

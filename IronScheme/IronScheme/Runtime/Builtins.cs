@@ -283,32 +283,32 @@ namespace IronScheme.Runtime
     /// <summary>
     /// Displays the license of IronScheme.
     /// </summary>
-    [Builtin]
-    public static object License()
-    {
-      return Display(@"Microsoft Public License (Ms-PL)
-================================
-
-This license governs use of the accompanying software. If you use the software, you accept this license. If you do not accept the license, do not use the software.
-
-1. Definitions
-The terms ""reproduce,"" ""reproduction,"" ""derivative works,"" and ""distribution"" have the same meaning here as under U.S. copyright law.
-A ""contribution"" is the original software, or any additions or changes to the software.
-A ""contributor"" is any person that distributes its contribution under this license.
-""Licensed patents"" are a contributor's patent claims that read directly on its contribution.
-
-2. Grant of Rights
-(A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
-(B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
-
-3. Conditions and Limitations
-(A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
-(B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software, your patent license from such contributor to the software ends automatically.
-(C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution notices that are present in the software.
-(D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
-(E) The software is licensed ""as-is."" You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement.
-");
-    }
+//    [Builtin]
+//    public static object License()
+//    {
+//      return Display(@"Microsoft Public License (Ms-PL)
+//================================
+//
+//This license governs use of the accompanying software. If you use the software, you accept this license. If you do not accept the license, do not use the software.
+//
+//1. Definitions
+//The terms ""reproduce,"" ""reproduction,"" ""derivative works,"" and ""distribution"" have the same meaning here as under U.S. copyright law.
+//A ""contribution"" is the original software, or any additions or changes to the software.
+//A ""contributor"" is any person that distributes its contribution under this license.
+//""Licensed patents"" are a contributor's patent claims that read directly on its contribution.
+//
+//2. Grant of Rights
+//(A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
+//(B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
+//
+//3. Conditions and Limitations
+//(A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
+//(B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software, your patent license from such contributor to the software ends automatically.
+//(C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution notices that are present in the software.
+//(D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
+//(E) The software is licensed ""as-is."" You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement.
+//");
+//    }
 
     [Builtin]
     public static object StackTrace()
@@ -454,6 +454,43 @@ A ""contributor"" is any person that distributes its contribution under this lic
                      (totalts2 - totalts).TotalMilliseconds,
                      colcountafter - colcount);
       }
+    }
+
+    [Builtin("compile-bootfile")]
+    public static object CompileBootfile(object libs)
+    {
+      AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
+#if !DEBUG
+//      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
+#endif
+      // if you ever want to inspect the emitted dll's comment this out, use with care
+      ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
+
+#if DEBUG
+      Stopwatch sw = Stopwatch.StartNew();
+#endif
+      CodeBlock cb = IronSchemeLanguageContext.CompileExpr(libs as Cons);
+      cb.ExplicitCodeContextExpression = null;
+      cb.Name = "ironscheme.boot.new";
+
+      ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); 
+
+#if DEBUG
+      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - bootfile"));
+      sw = Stopwatch.StartNew();
+#endif
+      ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule("ironscheme.boot.new", sc);
+
+#if DEBUG
+      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- bootfile"));
+#endif
+
+      ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+      Compiler.SimpleGenerator.ClearGlobals();
+
+      return TRUE;
     }
 
     static int evalcounter = 0;

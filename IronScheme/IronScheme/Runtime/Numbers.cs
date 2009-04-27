@@ -337,7 +337,7 @@ namespace IronScheme.Runtime
           return ConvertToComplex(first) + ConvertToComplex(second);
       }
 
-      return Error("+", "BUG");
+      throw new NotImplementedException();
     }
 
     [Builtin("+", AllowConstantFold = true)]
@@ -413,7 +413,7 @@ namespace IronScheme.Runtime
           return ConvertToComplex(first) - ConvertToComplex(second);
       }
 
-      return Error("-", "BUG");
+      throw new NotImplementedException();
     }
 
     [Builtin("-", AllowConstantFold = true)]
@@ -486,7 +486,7 @@ namespace IronScheme.Runtime
           return ConvertToComplex(first) * ConvertToComplex(second);
       }
 
-      return Error("*", "BUG");
+      throw new NotImplementedException();
     }
 
     protected internal static object ToIntegerIfPossible(BigInteger i)
@@ -585,7 +585,7 @@ namespace IronScheme.Runtime
         return AssertionViolation("/", "divide by zero", first, second);
       }
 
-      return Error("/", "BUG");
+      throw new NotImplementedException();
     }
 
     [Builtin("/", AllowConstantFold = true)]
@@ -890,7 +890,7 @@ namespace IronScheme.Runtime
           return ConvertToComplex(first) % ConvertToComplex(second);
       }
 
-      return Error("RemainderInternal", "BUG");
+      throw new NotImplementedException();
     }
     
     //[Obsolete]
@@ -1084,7 +1084,7 @@ namespace IronScheme.Runtime
         {
           if (r == 0)
           {
-            return ImplementationRestriction("expt", "no supported", obj1, obj2);
+            throw new NotSupportedException();
           }
           return Divide(1, r);
         }
@@ -1127,7 +1127,7 @@ namespace IronScheme.Runtime
         }
       }
 
-      return ImplementationRestriction("expt", "no supported", obj1, obj2);
+      throw new NotSupportedException();
     }
 
 
@@ -1966,7 +1966,7 @@ namespace IronScheme.Runtime
         case NumberClass.Complex:
           return AssertionViolation("<", "not real", first, second);
         default:
-          return Error("<", "BUG");
+          return FALSE;
       }
 
       return GetBool(result);
@@ -2108,7 +2108,7 @@ namespace IronScheme.Runtime
         case NumberClass.Complex:
           return AssertionViolation(">", "not real", first, second);
         default:
-          return Error(">", "BUG");
+          return FALSE;;
       }
 
       return GetBool(result);
@@ -2237,11 +2237,16 @@ namespace IronScheme.Runtime
       return AssertionViolation("negative?", "not a real", obj);
     }
 
+    //static ICallable is_number;
 
     [Builtin("number?")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     internal static object IsNumber(object obj)
     {
+      //if (is_number == null)
+      //{
+      //  is_number = "number?".Eval<ICallable>();
+      //}
       return IsComplex(obj);
     }
 

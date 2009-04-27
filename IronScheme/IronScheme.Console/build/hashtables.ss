@@ -15,6 +15,7 @@
     string-hash
     string-ci-hash
     symbol-hash
+    equal-hash
 
     hashtable-equivalence-function
     hashtable-hash-function)
@@ -92,6 +93,9 @@
     (unless (symbol? sym)
       (assertion-violation 'symbol-hash "not a symbol" sym))        
     (clr-call Object GetHashCode sym))
+    
+  (define (equal-hash obj)
+    (string-hash (format "~a" obj)))    
    
 
     
