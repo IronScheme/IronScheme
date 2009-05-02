@@ -259,7 +259,7 @@ namespace Microsoft.Scripting.Shell {
                 KeyboardInterruptException pki = tae.ExceptionState as KeyboardInterruptException;
                 if (pki != null) {
                     //_console.WriteLine(_engine.FormatException(tae), Style.Error);
-
+                    _console.WriteLine();
                     Thread.ResetAbort();
 
                     /*!!!

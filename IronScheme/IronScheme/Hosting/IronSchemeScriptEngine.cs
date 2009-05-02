@@ -89,7 +89,9 @@ namespace IronScheme.Hosting
       }
       if (exception is Runtime.R6RS.Condition)
       {
-        return exception.ToString();
+        var w = new IronScheme.Runtime.StringWriter();
+        "(display {0} {1})".Eval(exception, w);
+        return w.GetBuffer();
       }
       return string.Format(@"&clr
 &who:                 {3}.{2}

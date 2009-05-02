@@ -7,9 +7,7 @@
     thread-sleep
     monitor-enter
     monitor-exit
-    lock
-    )
-    
+    lock)
   (import 
     (rnrs)
     (ironscheme clr))
@@ -24,7 +22,7 @@
     
   (define (make-thread proc)
     (clr-new thread proc))  
-     
+    
   (define queue-work-item
     (case-lambda 
       [(proc)       (queue-work-item proc #f)]

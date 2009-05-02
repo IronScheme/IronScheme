@@ -242,7 +242,6 @@ namespace IronScheme.Runtime
         Runtime.Cons.FromList(candidates));
     }
 
-
     [Builtin]
     public static object Typeof(object o)
     {

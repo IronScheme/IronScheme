@@ -70,6 +70,7 @@
     (add-custom-printer! char? write-char)
     (add-custom-printer! string? write-string)
     (add-custom-printer! pair? write-pair)
+    (add-custom-printer! procedure? write-procedure)
     (add-custom-printer! bytevector? write-bytevector)
     (add-custom-printer! vector? write-vector))
                 
@@ -85,6 +86,19 @@
         (lambda (p)
           (add-custom-printer! (car p) (cdr p)))
         p)))
+        
+  (define (get-clr-type-name obj)
+    (clr-prop-get System.Type Name (clr-call System.Object GetType obj)))
+        
+  (define (write-procedure proc port readable?)
+    (let ((pn (procedure-name proc)))
+      (if pn
+          (begin
+            (put-string port "#<procedure ")
+            (write-symbol pn port readable?)
+            (put-string port ">"))
+          (put-string port "#<procedure>"))))
+        
         
   (define (multiple-values? obj)
     (clr-is IronScheme.Runtime.MultipleValues obj))
@@ -249,29 +263,89 @@
           
   (define (write-record rec port readable?)
     (define (write-record-generic)
-      (let* ((rtd (record-rtd rec))
-             (name (record-type-name rtd)))
-        (put-string port "#<")
-        (generic-write name port readable?)
-        (for-each 
-          (lambda (nv)
-            (put-string port " ")
-            (generic-write (car nv) port readable?)
-            (put-string port ":")
-            (generic-write (cdr nv) port readable?))
-          (get-fields rtd rec))
-        (put-string port ">")))
+      (let ((rtd (record-rtd rec)))
+        (if rtd
+            (let ((name (record-type-name rtd)))
+              (put-string port "#<")
+              (generic-write name port readable?)
+              (for-each 
+                (lambda (nv)
+                  (put-string port " ")
+                  (generic-write (car nv) port readable?)
+                  (put-string port ":")
+                  (generic-write (cdr nv) port readable?))
+                (get-fields rtd rec))
+              (put-string port ">"))
+            (put-string port "#<unknown-record>")))) ; will the last expr ever be hit?
     (or (write-custom-printers record-printers rec port readable?)
         (write-record-generic)))
+        
+  (define (clr-exception-message ex)
+    (clr-prop-get System.Exception Message ex))
+        
+  (define (display-condition e port)
+    (for-each 
+      (lambda (c)
+        (let ((rtd (record-rtd c)))
+          (if rtd
+              (begin
+                (put-string port (symbol->string (record-type-name rtd)))
+                (let* ((flds (get-fields rtd c))
+                       (len  (length flds)))
+                  (cond 
+                    [(zero? len)
+                      (put-string port "\n")]
+                    [(= 1 len)
+                      (let ((fld (cdr (car flds))))
+                        (if (vector? fld)
+                            (let ((len (vector-length fld)))
+                              (put-string port "\n")
+                              (let f ((i 0))
+                                (cond
+                                  [(= i len)]
+                                  [else
+                                    (put-string port "  [")
+                                    (put-string port (number->string (+ i 1)))
+                                    (put-string port "] ")
+                                    (generic-write (vector-ref fld i) port #f)
+                                    (put-string port "\n")
+                                    (f (+ i 1))]))) 
+                            (begin
+                              (put-string port ": ")
+                              (generic-write fld port #f)
+                              (put-string port "\n"))))]
+                    [else
+                      (put-string port ":\n")
+                      (for-each
+                        (lambda (nv)
+                          (put-string port "  ")
+                          (generic-write (car nv) port #f)
+                          (put-string port ": ")
+                          (generic-write (cdr nv) port #f)
+                          (put-string port "\n"))
+                        flds)])))
+              (let ((name (get-clr-type-name c))
+                    (msg  (clr-exception-message c)))
+                (put-string port "#<clr-exception ")
+                (put-string port name)
+                (put-string port " ")
+                (put-string port msg)
+                (put-string port ">")))))
+      (simple-conditions e)))
 
   (define (write-condition cnd port readable?)
-    (let ((cnds (simple-conditions cnd)))
-      (if (= 1 (length cnds))
-          (write-record (car cnds) port readable?)
-          (put-string port "#<compound-condition>"))))
+    (if readable?
+        (let ((cnds (simple-conditions cnd)))
+          (if (= 1 (length cnds))
+              (write-record (car cnds) port readable?)
+              (put-string port "#<compound-condition>")))
+        (display-condition cnd port)))
       
   (define (write/type obj port)
-    (put-string port "#<unknown>"))
+    (let ((name (get-clr-type-name obj)))
+      (put-string port "#<clr-type ")
+      (put-string port name)
+      (put-string port ">")))
       
   (initial-printers))
   

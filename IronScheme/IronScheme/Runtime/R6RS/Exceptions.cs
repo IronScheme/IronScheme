@@ -156,6 +156,16 @@ namespace IronScheme.Runtime.R6RS
         var sf = new StackTrace(1);
         ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
         var values = new ArrayList(((CompoundCondition)obj).conds);
+
+        foreach (var val in values)
+        {
+          if (val.GetType().Name == "$stacktrace")
+          {
+            values.Remove(val);
+            break;
+          }
+        }
+
         values.Add(st.Call(GetStackTrace(sf)));
         ((CompoundCondition)obj).conds = values.ToArray();
       }
@@ -212,12 +222,25 @@ namespace IronScheme.Runtime.R6RS
     {
       InitDefaultHandler();
 
-      if (IsTrue(((ICallable)SymbolValue(SymbolTable.StringToObject("stacktrace-enable?"))).Call()))
+      if (obj is CompoundCondition)
       {
         var sf = new StackTrace(1);
         ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
-        obj = Conditions.Condition(obj, st.Call(GetStackTrace(sf)));
+        var values = new ArrayList(((CompoundCondition)obj).conds);
+
+        foreach (var val in values)
+        {
+          if (val.GetType().Name == "$stacktrace")
+          {
+            values.Remove(val);
+            break;
+          }
+        }
+
+        values.Add(st.Call(GetStackTrace(sf)));
+        ((CompoundCondition)obj).conds = values.ToArray();
       }
+
 
       ICallable ch = CurrentHandler;
       if (ch != null)
