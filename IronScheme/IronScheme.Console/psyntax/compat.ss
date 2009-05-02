@@ -31,6 +31,7 @@
   (import 
     (rnrs)
     (ironscheme reader)
+    (ironscheme clr)
     (ironscheme records printer)
     (ironscheme serialization)
     (only (ironscheme) fprintf symbol-bound? remove-location)
@@ -62,16 +63,34 @@
 
   (define (read-library-source-file file-name)
 		(with-input-from-file file-name read-annotated))
+		
+  (define (allocate-local-slot)
+    (clr-static-call System.Threading.Thread AllocateDataSlot))
+
+  (define (get-local-data slot)
+    (clr-static-call System.Threading.Thread GetData slot))
+
+  (define (set-local-data! slot value)
+    (clr-static-call System.Threading.Thread SetData slot value))
+
   
   (define make-parameter
     (case-lambda
-      ((x) (make-parameter x (lambda (x) x)))
+      ((x) (make-parameter x values))
       ((x fender)
        (assert (procedure? fender))
-       (let ((x (fender x)))
+       (let ((slot (allocate-local-slot)))
+         (set-local-data! slot (fender x))
          (case-lambda
-           (() x)
-           ((v) (set! x (fender v))))))))
+           (()  (let ((value (get-local-data slot)))
+                  (if (null? value)
+                      (let ((value (fender x)))
+                        (set-local-data! slot value)
+                        value)
+                      value)))
+           ((v) 
+            (set! x (fender v))
+            (set-local-data! slot (fender v))))))))
 
   (define-syntax parameterize 
     (lambda (x)

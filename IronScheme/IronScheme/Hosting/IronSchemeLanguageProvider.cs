@@ -166,12 +166,12 @@ namespace IronScheme.Hosting
             }
             catch (ThreadAbortException)
             {
-              System.Console.Error.WriteLine("Execution interupted");
+              Console.WriteLine("Execution interupted", Style.Error);
               ev = 2;
             }
             catch (Exception ex)
             {
-              System.Console.Error.WriteLine(ex);
+              Console.WriteLine(Engine.FormatException(ex), Style.Error);
               ev = 1;
             }
             finally
@@ -187,12 +187,15 @@ namespace IronScheme.Hosting
           5000000
 #endif
           );
+        //t.IsBackground = true;
 
         t.Start();
 
         System.Console.CancelKeyPress += delegate
         {
           t.Abort();
+          System.Console.Error.WriteLine("Evaluation aborted.");
+          System.Environment.Exit(1);
         };
 
         e.WaitOne();
