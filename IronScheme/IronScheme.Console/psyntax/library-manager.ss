@@ -122,7 +122,10 @@
                    (display-hex (quotient n 16))
                    (display-hex (remainder n 16))))))
             (string->list 
-              (symbol->string (car ls))))
+              (let ((d (symbol->string (car ls))))
+                (if (and (char=? #\: (string-ref d 0)) (char<=? #\0 (string-ref d 1) #\9))
+                    (substring d 1 (string-length d))
+                    d))))
           (f (cdr ls))))
       (extract)))
 

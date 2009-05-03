@@ -273,6 +273,8 @@
     (export                                     i)
     (library                                    i) 
     (include                                    i)
+    (open-output-string                         i)
+    (get-output-string                          i)
     (pretty-print                               i)
     (generic-write                              i)
     (initialize-default-printers                i)

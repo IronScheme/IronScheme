@@ -1,7 +1,10 @@
 (library (ironscheme datetime)
   (export
     now
+    utc-now
+    datetime->utc
     today
+    difference
     time-of-day
     datetime?
     timespan?
@@ -59,8 +62,17 @@
   (define (now)
     (clr-static-prop-get datetime now))   
 
+  (define (utc-now)
+    (clr-static-prop-get datetime UtcNow))   
+
   (define (today)
-    (clr-static-prop-get datetime today))   
+    (clr-static-prop-get datetime today))
+    
+  (define/contract (datetime->utc dt:datetime)    
+    (clr-call DateTime ToUniversalTime dt))
+    
+  (define/contract (difference dt1:datetime dt2:datetime)
+    (clr-static-call DateTime "op_Subtraction(DateTime,DateTime)" dt1 dt2))
 
   (define/contract (time-of-day dt:datetime)
     (clr-prop-get datetime timeofday dt))

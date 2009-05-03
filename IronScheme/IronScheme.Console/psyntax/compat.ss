@@ -72,25 +72,27 @@
 
   (define (set-local-data! slot value)
     (clr-static-call System.Threading.Thread SetData slot value))
-
   
   (define make-parameter
     (case-lambda
       ((x) (make-parameter x values))
       ((x fender)
        (assert (procedure? fender))
-       (let ((slot (allocate-local-slot)))
-         (set-local-data! slot (fender x))
+       (let ((x (fender x))
+             (slot (allocate-local-slot)))
+         (set-local-data! slot x)
          (case-lambda
-           (()  (let ((value (get-local-data slot)))
-                  (if (null? value)
-                      (let ((value (fender x)))
-                        (set-local-data! slot value)
-                        value)
-                      value)))
+           (()  
+            (let ((value (get-local-data slot)))
+              (if (null? value)
+                  (let ((value x))
+                    (set-local-data! slot value)
+                    value)
+                  value)))
            ((v) 
-            (set! x (fender v))
-            (set-local-data! slot (fender v))))))))
+            (let ((v (fender v)))
+              (set! x v)
+              (set-local-data! slot v))))))))
 
   (define-syntax parameterize 
     (lambda (x)

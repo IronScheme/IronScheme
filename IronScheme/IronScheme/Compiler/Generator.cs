@@ -605,7 +605,7 @@ namespace IronScheme.Compiler
           {
             CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
 
-            if (cbe.Block.ParameterCount == pp.Length)
+            if (pp.Length < 9 && cbe.Block.ParameterCount == pp.Length)
             {
               return InlineCall(cb, cbe, istailposition, pp);
             }

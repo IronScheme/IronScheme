@@ -99,6 +99,9 @@
     
     make-custom-binary-input/output-port
     make-custom-textual-input/output-port
+    
+    open-output-string
+    get-output-string
     )
   
   (import 
@@ -108,6 +111,8 @@
       open-string-output-port 
       port? 
       call-with-string-output-port
+      open-output-string
+      get-output-string
       put-datum
       get-datum
       buffer-mode?
