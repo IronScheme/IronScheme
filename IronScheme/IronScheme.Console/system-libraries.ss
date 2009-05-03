@@ -5,6 +5,7 @@
 
 (import (ironscheme))
 
+
 (let () 
   (import 
     (ironscheme clr)
@@ -32,6 +33,9 @@
     (ironscheme clr reflection)
     
     (ironscheme ffi)
+    (ironscheme integrable)
+    (ironscheme library-utils)
+    
 
     (ironscheme syntax-format)
     (ironscheme define-macro)
@@ -43,17 +47,9 @@
     (ironscheme collections stack))
   #f)
 
+
 (let () 
-  (import 
-    (srfi lists)
-    (srfi streams)
-    (srfi system)
-    (srfi land)
-    (srfi and-let)
-    (srfi string-ports)
-    (srfi receive)
-    (srfi parameters)
-    (srfi format))
+  (include "srfi/compile-all.ironscheme.sps")
   #f)
 
 
@@ -71,3 +67,4 @@
     (ironscheme linq)
     (match)) ; seperate
   #f)
+ 

@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "IronScheme"
-!define PRODUCT_VERSION "1.0-beta3a"
+!define PRODUCT_VERSION "1.0-beta4"
 !define PRODUCT_PUBLISHER "leppie"
 !define PRODUCT_WEB_SITE "http://www.codeplex.com/IronScheme/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\IronScheme.Console.exe"
@@ -224,6 +224,11 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\srfi"
 	File /r srfi\*.ss
+	File /r srfi\*.sps
+	File /r srfi\*.sls
+	File /r srfi\*.scm
+	File srfi\COPYING
+	File srfi\README
 	;File /r srfi\*.fasl
 	
 	SetOutPath "$INSTDIR\websample"
