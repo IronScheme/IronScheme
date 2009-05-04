@@ -327,7 +327,7 @@ namespace IronScheme.Hosting
 
     protected override void PrintLogo()
     {
-      if (Options.RunAction != ConsoleHostOptions.Action.RunFiles)
+      if (Options.RunAction != ConsoleHostOptions.Action.RunFiles && !LanguageProvider.InputRedirected)
       {
         // errrkkk
         var tokens = logo.Split(new string[] { "ironscheme.codeplex.com" }, StringSplitOptions.None);

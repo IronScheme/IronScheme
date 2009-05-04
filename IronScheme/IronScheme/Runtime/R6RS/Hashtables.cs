@@ -302,7 +302,7 @@ namespace IronScheme.Runtime.R6RS
         result[i++] = c.Call(de.Key, de.Value);
       }
 
-      return List(result);
+      return Runtime.Cons.FromArray(result);
     }
 
     [Builtin("hashtable-for-each")]

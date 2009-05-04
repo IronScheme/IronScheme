@@ -20,6 +20,7 @@ using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.Reflection.Emit;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -179,6 +180,15 @@ namespace IronScheme.Runtime.R6RS
       return GetBool(obj is RecordTypeDescriptor);
     }
 
+
+    static Regex assnamefix = new Regex(@"[\\/:]");
+
+    static string MakeSafe(Match m)
+    {
+      var c = m.Value[0];
+      return string.Format("%{0:X}{1:X}", c / 16, c % 16);
+    }
+
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
@@ -205,8 +215,10 @@ namespace IronScheme.Runtime.R6RS
         assname = assname + "-" + Guid.NewGuid();
       }
 
+      string safeassname = assnamefix.Replace(n, MakeSafe);  
+
       AssemblyGen ag =
-        new AssemblyGen(n.Replace("/", "#"), ".", n.Replace("/", "#") + ".dll", AssemblyGenAttributes.None);
+        new AssemblyGen(safeassname, ".", safeassname + ".dll", AssemblyGenAttributes.None);
 
 
       bool @sealed = RequiresNotNull<bool>(issealed);

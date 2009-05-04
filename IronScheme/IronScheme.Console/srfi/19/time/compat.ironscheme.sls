@@ -37,11 +37,11 @@
   
   (define host:time-resolution 1000)
   
-  (define base (make-datetime 1970 1 1))
+  (define base (datetime->local (make-utc-datetime 1970 1 1)))
   
   (define (host:current-time) (now))
   ; since 1970
   (define (host:time-nanosecond t) (exact (round (* 1000 (total-milliseconds (difference t base))))))
   (define (host:time-second t) (exact (round (total-seconds (difference t base)))))
-  (define (host:time-gmt-offset t) (exact (round (total-hours (difference t (datetime->utc t))))))
+  (define (host:time-gmt-offset t) (exact (round (total-seconds (difference t (datetime->utc t))))))
 )

@@ -116,10 +116,25 @@ namespace Microsoft.Scripting.Shell {
         
         #region Console
 
+        static bool IsInputRedirected()
+        {
+          try
+          {
+            var f = System.Console.KeyAvailable;
+            return true;
+          }
+          catch
+          {
+            return false;
+          }
+        }
+
+        static readonly bool inputredirected = IsInputRedirected();
+
         private static IConsole CreateConsole(CommandLine commandLine, ScriptEngine engine, bool isSuper, bool isColorful) {
             Debug.Assert(engine != null);
 
-            if (isSuper) {
+            if (!inputredirected && isSuper) {
                 return CreateSuperConsole(commandLine, engine, isColorful);
             } else {
                 return new BasicConsole(engine, isColorful);
@@ -331,7 +346,10 @@ namespace Microsoft.Scripting.Shell {
             StringBuilder b = new StringBuilder();
             int autoIndentSize = 0;
 
-            _console.Write(Prompt, Style.Prompt);
+            if (!LanguageProvider.InputRedirected)
+            {
+              _console.Write(Prompt, Style.Prompt);
+            }
 
             while (true) {
                 string line = ReadLine(autoIndentSize);
@@ -358,8 +376,11 @@ namespace Microsoft.Scripting.Shell {
                     autoIndentSize = GetNextAutoIndentSize(code);
                 }
 
-                // Keep on reading input
-                _console.Write(PromptContinuation, Style.Prompt);
+                if (!LanguageProvider.InputRedirected)
+                {
+                  // Keep on reading input
+                  _console.Write(PromptContinuation, Style.Prompt);
+                }
             }
         }
 

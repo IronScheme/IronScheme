@@ -908,7 +908,7 @@
               (let* ((neg? (negative? obj2))
                      (obj2 (if neg? (abs obj2) obj2)))
                 (cond
-                  [(and (integer? obj1) (integer? obj2))
+                  [(and e (integer? obj1) (integer? obj2))
                     (let* ((a (->bignum obj1))
                            (r (clr-call Microsoft.Scripting.Math.BigInteger
                                         Power
@@ -919,7 +919,7 @@
                                (raise (make-restriction-violation))
                                (/ 1 r))
                            (exact r)))]
-                  [(and (rational? obj1) (integer? obj2))
+                  [(and e (rational? obj1) (integer? obj2))
                     (let* ((f (->ratnum obj1)))
                        (if neg?
                            (/ (expt (denominator f) obj2) (expt (numerator f) obj2))

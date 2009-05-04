@@ -3,6 +3,7 @@
     now
     utc-now
     datetime->utc
+    datetime->local
     today
     difference
     time-of-day
@@ -29,6 +30,7 @@
     day-of-year
     day-of-week
     make-datetime
+    make-utc-datetime
     make-timespan
     )
   (import 
@@ -43,6 +45,13 @@
     
   (define (timespan? obj)
     (clr-is timespan obj))     
+    
+  (define make-utc-datetime
+    (case-lambda
+      [(ticks)                                  (clr-new datetime ticks 'utc)]
+      [(year month day)                         (clr-new datetime year month day 0 0 0 (clr-cast DateTimeKind 'utc))]
+      [(year month day hour minute second)      (clr-new datetime year month day hour minute second (clr-cast DateTimeKind 'utc))]    
+      [(year month day hour minute second ms)   (clr-new datetime year month day hour minute second (clr-cast int32 ms) (clr-cast DateTimeKind 'utc))]))    
     
   (define make-datetime
     (case-lambda
@@ -70,6 +79,9 @@
     
   (define/contract (datetime->utc dt:datetime)    
     (clr-call DateTime ToUniversalTime dt))
+    
+  (define/contract (datetime->local dt:datetime)    
+    (clr-call DateTime ToLocalTime dt))    
     
   (define/contract (difference dt1:datetime dt2:datetime)
     (clr-static-call DateTime "op_Subtraction(DateTime,DateTime)" dt1 dt2))

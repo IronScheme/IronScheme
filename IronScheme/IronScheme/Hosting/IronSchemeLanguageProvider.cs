@@ -248,7 +248,7 @@ namespace IronScheme.Hosting
 
       static bool IsNotConsole()
       {
-        return System.Console.LargestWindowHeight == 0 && System.Console.LargestWindowWidth == 0;
+        return System.Console.LargestWindowHeight == 0 && System.Console.LargestWindowWidth == 0 || LanguageProvider.InputRedirected;
       }
 
       protected override void ParseArgument(string arg)

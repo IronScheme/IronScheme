@@ -72,6 +72,7 @@ namespace Microsoft.Scripting.Generation {
         private ActionBinder _binder;
 
         private readonly ConstantPool _constantPool;
+        internal Label startpoint;
 
         private int _curLine;
         private TextWriter _ilOut;
@@ -87,6 +88,12 @@ namespace Microsoft.Scripting.Generation {
         // This is true if we are emitting code while in an interpreted context.
         // This flag should always be flowed through to other CodeGen objects created from this one.
         private bool _interpretedMode = false;
+
+        public void DefineStartPoint()
+        {
+          startpoint = DefineLabel();
+          MarkLabel(startpoint);
+        }
 
         public CodeGen(TypeGen typeGen, AssemblyGen assemblyGen, MethodBase mi, ILGenerator ilg,
             IList<Type> paramTypes, ConstantPool constantPool) {

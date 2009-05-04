@@ -36,7 +36,7 @@ namespace IronScheme.Runtime
         string rr = string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
         if (rr.Contains("e"))
         {
-          return rr;
+          return rr.Replace("e+", "e");
         }
         else
         {
@@ -58,7 +58,7 @@ namespace IronScheme.Runtime
           return "+nan.0";
         }
         else
-          return string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower();
+          return string.Format(CultureInfo.InvariantCulture, "{0:r}", obj).ToLower().Replace("e+", "e");
       }
     }
 
