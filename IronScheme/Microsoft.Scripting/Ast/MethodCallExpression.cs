@@ -191,43 +191,39 @@ namespace Microsoft.Scripting.Ast {
 
                   CodeGen rcg;
 
-                  if (!CodeGen.IsMono)
+                  if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
                   {
-                    if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
+                    if (rcg == cg)
                     {
-                      if (rcg == cg)
+                      List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
+                      for (int arg = 0; arg < _parameterInfos.Length; arg++)
                       {
-                        List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
-                        for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                        Expression argument = _arguments[arg];
+                        if (argument is BoundExpression)
                         {
-                          Expression argument = _arguments[arg];
-                          if (argument is BoundExpression)
+                          var abe = argument as BoundExpression;
+                          if (abe.Variable == pars[arg])
                           {
-                            var abe = argument as BoundExpression;
-                            if (abe.Variable == pars[arg])
-                            {
-                              pars[arg] = null;
-                              continue;
-                            }
-                          }
-                          Type type = _parameterInfos[arg].ParameterType;
-                          EmitArgument(cg, argument, type);
-                        }
-
-                        for (int arg = 0; arg < _parameterInfos.Length; arg++)
-                        {
-                          if (pars[_parameterInfos.Length - arg - 1] != null)
-                          {
-                            cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg - 1);
+                            pars[arg] = null;
+                            continue;
                           }
                         }
-                        //HACK: eeek! but it works :)
-                        int offset = -(cg.Size + 5);
-                        cg.Emit(OpCodes.Br, offset);
-
-                        cg.skipreturn = true;
-                        return;
+                        Type type = _parameterInfos[arg].ParameterType;
+                        EmitArgument(cg, argument, type);
                       }
+
+                      for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                      {
+                        if (pars[_parameterInfos.Length - arg - 1] != null)
+                        {
+                          cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg - 1);
+                        }
+                      }
+
+                      cg.Emit(OpCodes.Br, cg.startpoint);
+
+                      cg.skipreturn = true;
+                      return;
                     }
                   }
 
@@ -288,9 +284,8 @@ namespace Microsoft.Scripting.Ast {
                               cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg);
                             }
                           }
-                          //HACK: eeek! but it works :)
-                          int offset = -(cg.Size + 5);
-                          cg.Emit(OpCodes.Br, offset);
+
+                          cg.Emit(OpCodes.Br, cg.startpoint);
 
                           cg.skipreturn = true;
                           return;

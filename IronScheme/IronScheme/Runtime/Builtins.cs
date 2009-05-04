@@ -156,7 +156,7 @@ namespace IronScheme.Runtime
     [Builtin("get-command-line")]
     public static object CommandLine()
     {
-      return List(commandline);
+      return Runtime.Cons.FromList(commandline);
     }
 
     [Builtin("clr-type?")]
@@ -238,7 +238,7 @@ namespace IronScheme.Runtime
       }
 
       return AssertionViolation("get-clr-type", "type not found",
-        Cons( name, List( typeargs)),
+        Cons( name, Runtime.Cons.FromArray(typeargs)),
         Runtime.Cons.FromList(candidates));
     }
 
@@ -353,7 +353,7 @@ namespace IronScheme.Runtime
       paths.Add(ApplicationDirectory);
       paths.Add(Path.Combine(ApplicationDirectory, "lib"));
 
-      return List(paths.ToArray());
+      return Runtime.Cons.FromList(paths);
     }
 
     [Builtin("procedure-arity")]
@@ -634,7 +634,7 @@ namespace IronScheme.Runtime
     [Builtin("list*", AllowCPS=false)]
     public static object ListStar(object a, params object[] rest)
     {
-      return ListStarHelper(a, List(rest));
+      return ListStarHelper(a, Runtime.Cons.FromArray(rest));
     }
 
     [Builtin("list*", AllowCPS = false)]

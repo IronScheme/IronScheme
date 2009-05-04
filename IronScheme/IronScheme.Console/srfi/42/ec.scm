@@ -733,7 +733,7 @@
              (cond
               ((and (list? a1) (list? a2))
                (:generator-proc (:list a1 a2)) )
-              ((and (string? a1) (string? a1))
+              ((and (string? a1) (string? a2))
                (:generator-proc (:string a1 a2)) )
               ((and (vector? a1) (vector? a2))
                (:generator-proc (:vector a1 a2)) )
@@ -751,7 +751,7 @@
              (cond
               ((and (list? a1) (list? a2) (list? a3))
                (:generator-proc (:list a1 a2 a3)) )
-              ((and (string? a1) (string? a1) (string? a3))
+              ((and (string? a1) (string? a2) (string? a3))
                (:generator-proc (:string a1 a2 a3)) )
               ((and (vector? a1) (vector? a2) (vector? a3))
                (:generator-proc (:vector a1 a2 a3)) )

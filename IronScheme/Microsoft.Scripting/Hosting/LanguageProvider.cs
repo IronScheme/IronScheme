@@ -139,11 +139,33 @@ namespace Microsoft.Scripting.Hosting {
 
         // TODO:
 
+        static bool IsInputRedirected()
+        {
+          try
+          {
+            var f = System.Console.KeyAvailable;
+            return false;
+          }
+          catch
+          {
+            return true;
+          }
+        }
+
+        static readonly bool inputredirected = IsInputRedirected();
+
+        public static bool InputRedirected
+        {
+          get { return LanguageProvider.inputredirected; }
+        } 
+
+
         public virtual IConsole GetConsole(CommandLine commandLine, IScriptEngine engine, ConsoleOptions options) {
             Contract.RequiresNotNull(engine, "engine");
             Contract.RequiresNotNull(options, "options");
 
-            if (options.TabCompletion) {
+            if (options.TabCompletion && !inputredirected)
+            {
                 return CreateSuperConsole(commandLine, engine, options.ColorfulConsole);
             } else {
                 return new BasicConsole(engine, options.ColorfulConsole);

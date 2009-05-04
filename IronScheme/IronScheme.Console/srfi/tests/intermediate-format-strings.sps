@@ -63,7 +63,7 @@
 
 (expect " 3.46e11" (format "~8,2F" 3.4567e11))
 
-(check (format "~w" (let ( (c (list 'a 'b 'c)) ) (set-cdr! (cddr c) c) c))
+#;(check (format "~w" (let ( (c (list 'a 'b 'c)) ) (set-cdr! (cddr c) c) c))
        (=> member)
        '("#0=(a b c . #0#)" "#1=(a b c . #1#)"))
 
@@ -210,3 +210,13 @@ def")
 (check-report)
 
 ;; #!eof
+
+
+(let ((v 1) (l '()))
+  (for-each 
+    (lambda (x)
+	    (let ((n v))
+	      (set! v (+ v 1))
+	      (set! l (cons n l))))
+	    '(0 0 0 0 0))
+	 l) 

@@ -600,6 +600,8 @@ namespace Microsoft.Scripting.Ast {
 
 
           }
+
+          cg.DefineStartPoint();
         }
 
         private void CreateScopeAccessSlots(CodeGen cg) {

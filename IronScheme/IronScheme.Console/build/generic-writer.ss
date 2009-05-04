@@ -125,7 +125,10 @@
                 (let* ((chr (string-ref str i))
                        (cat (char-general-category chr)))
                   (cond 
-                    [(or (and (zero? i) (eq? cat 'Nd)) (memq cat '(Cn Zs)))
+                    [(or (and (zero? i) (or (eq? cat 'Nd)
+                                            (char=? chr #\@)
+                                            (and (char=? chr #\.) (not (string=? str "..."))))) 
+                         (memq cat '(Cn Zs)))
                       (put-string port "\\x")
                       (put-string port (number->string (char->integer chr) 16))
                       (put-string port ";")]
@@ -189,7 +192,7 @@
       (define (write-short str)
         (put-string port str) 
         (generic-write (car dr) port readable?))
-      (if (and (symbol? ar) (pair? dr) (= (length dr) 1))
+      (if (and (symbol? ar) (pair? dr) (null? (cdr dr)))
           (case ar
             [(quote)              (write-short "'")]
             [(quasiquote)         (write-short "`")]
@@ -307,12 +310,12 @@
                                     (put-string port "  [")
                                     (put-string port (number->string (+ i 1)))
                                     (put-string port "] ")
-                                    (generic-write (vector-ref fld i) port #f)
+                                    (generic-write (vector-ref fld i) port #t)
                                     (put-string port "\n")
                                     (f (+ i 1))]))) 
                             (begin
                               (put-string port ": ")
-                              (generic-write fld port #f)
+                              (generic-write fld port #t)
                               (put-string port "\n"))))]
                     [else
                       (put-string port ":\n")
@@ -321,7 +324,7 @@
                           (put-string port "  ")
                           (generic-write (car nv) port #f)
                           (put-string port ": ")
-                          (generic-write (cdr nv) port #f)
+                          (generic-write (cdr nv) port #t)
                           (put-string port "\n"))
                         flds)])))
               (let ((name (get-clr-type-name c))

@@ -220,7 +220,7 @@
     (ir          (ironscheme reader)                   #f    #t)
     (iser        (ironscheme serialization)            #f    #t)
     (ic          (ironscheme core)                     #f    #t)
-    (iu          (ironscheme unsafe)                   #f    #t)
+    (iu          (ironscheme unsafe)                   #t    #t)
     (irp         (ironscheme records printer)          #t    #t)
     (is-clr-int  (ironscheme clr internal)             #t    #t)
     (ne          (psyntax null-environment-5)          #f    #f)
@@ -1529,7 +1529,10 @@
             (cond
               ((assq x locs) => cdr)
               (else #f))))
-        (time-it "code generation" (lambda () (compile-bootfile (map compile-core-expr core*))))
+        (time-it "code generation" 
+          (lambda () 
+            (parameterize ((optimization-level 'none))
+              (compile-bootfile (map compile-core-expr core*)))))
         ;(when (file-exists? bootfile)
           ;(delete-file bootfile))
         ;(let ((p (open-output-file bootfile)))
