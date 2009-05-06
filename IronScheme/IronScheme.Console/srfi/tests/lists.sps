@@ -207,7 +207,7 @@
 	     (eq? b y))))
     (fail 'split-at!:1))
 
-(or (eq? 37 (last '(1 2 3 37)))
+(or (eqv? 37 (last '(1 2 3 37)))
     (fail 'last:1))
 
 (or (not (length+ (circular-list 1 2 3)))

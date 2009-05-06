@@ -806,7 +806,7 @@
       [(exact-integer? x) x]
       [(ratnum? x)
         (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
-          (exact (if (positive? r) (+ r 1) r)))]
+          (exact (if (positive? x) (+ r 1) r)))]
       [else
         (clr-static-call System.Math "Ceiling(System.Double)" (inexact x))]))
 
