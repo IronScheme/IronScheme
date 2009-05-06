@@ -33,7 +33,7 @@
     :-dispatch-ref :-dispatch-set! make-initial-:-dispatch 
     dispatch-union :generator-proc)
   (import
-    (except (rnrs) error)
+    (except (ironscheme) error)
     (rnrs r5rs)
     (srfi :39 parameters)
     (prefix (srfi :23 error) ER:)

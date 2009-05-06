@@ -90,7 +90,7 @@
   <PropertyGroup>
     <PostBuildEvent>"$(FrameworkSDKDir)Bin\ildasm" /out:"$(TargetName).il" /NOBAR /LINENUM "$(TargetPath)"
 "$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(TargetName).il"
-"$(FrameworkDir)\ilasm" /dll /opt /NOLOGO /QUIET "$(TargetName).il"
+"$(FrameworkDir)\ilasm" /dll /opt  /NOLOGO /QUIET "$(TargetName).il"
 "$(FrameworkSDKDir)Bin\peverify" /NOLOGO "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

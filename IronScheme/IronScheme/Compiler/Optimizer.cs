@@ -169,6 +169,14 @@ namespace IronScheme.Compiler
         {
           if (!Generator.assigns.ContainsKey(node.Variable.Name))
           {
+            if (node.Value is BoundExpression)
+            {
+              var be = node.Value as BoundExpression;
+              if (Generator.assigns.ContainsKey(be.Variable.Name))
+              {
+                return base.Walk(node);
+              }
+            }
             node.Variable.AssumedValue = node.Value;
           }
           return base.Walk(node);

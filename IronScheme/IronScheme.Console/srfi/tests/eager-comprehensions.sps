@@ -621,11 +621,11 @@
         (read-char port) ; eof-object
         line )))
 
-(define (read-lines filename) ; list of all lines
-  (my-call-with-input-file 
-   filename
-   (lambda (port)
-     (list-ec (:port line port read-line) line) )))
+ (define (read-lines filename) ; list of all lines
+   (my-call-with-input-file 
+    filename
+    (lambda (port)
+      (list-ec (:port line port get-line) line) )))
 
 (my-check
  (begin
@@ -633,7 +633,7 @@
      (do-ec (:range n 10) (begin (write n f) (newline f)))
      (close-output-port f))
    (read-lines "tmp1") )
- => (list-ec (:char-range c #\0 #\9) (string c #\newline)) )
+ => (list-ec (:char-range c #\0 #\9) (string c)) )
 
 
 ; ==========================================================================

@@ -44,11 +44,28 @@ namespace Microsoft.Scripting.Ast {
 
         private SymbolId _name;
         private Expression assumedValue;
+        private bool _reassigned = false;
+
+        public bool ReAssigned
+        {
+          get { return _reassigned; }
+          set { _reassigned = value; }
+        }
 
         public Expression AssumedValue
         {
-          get { return assumedValue; }
-          set { assumedValue = value; }
+          get { return _reassigned ? null : assumedValue; }
+          set 
+          {
+            if (assumedValue != null)
+            {
+              _reassigned = true;
+            }
+            else
+            {
+              assumedValue = value;
+            }
+          }
         }
 
         // TODO: Maybe we don't need this!
