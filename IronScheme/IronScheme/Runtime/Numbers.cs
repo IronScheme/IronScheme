@@ -319,12 +319,18 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
+          if (avoidoverflow || overflowcount > 10)
+          {
+            goto case NumberClass.BigInteger;
+          }
           try
           {
             return checked(ConvertToInteger(first) + ConvertToInteger(second));
           }
           catch (OverflowException)
           {
+            overflowcount++;
+            avoidoverflow = true;
             return ConvertToBigInteger(first) + ConvertToBigInteger(second);
           }
         case NumberClass.BigInteger:
@@ -395,12 +401,18 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
+          if (avoidoverflow || overflowcount > 10)
+          {
+            goto case NumberClass.BigInteger;
+          }
           try
           {
             return checked(ConvertToInteger(first) - ConvertToInteger(second));
           }
           catch (OverflowException)
           {
+            overflowcount++;
+            avoidoverflow = true;
             return ConvertToBigInteger(first) - ConvertToBigInteger(second);
           }
         case NumberClass.BigInteger:
@@ -446,6 +458,9 @@ namespace IronScheme.Runtime
       }
     }
 
+    static bool avoidoverflow = false;
+    static int overflowcount = 0;
+
     [Builtin("*", AllowConstantFold = true)]
     public static object Multiply(object first, object second)
     {
@@ -468,12 +483,18 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
+          if (avoidoverflow || overflowcount > 10)
+          {
+            goto case NumberClass.BigInteger;
+          }
           try
           {
             return checked(ConvertToInteger(first) * ConvertToInteger(second));
           }
           catch (OverflowException)
           {
+            overflowcount++;
+            avoidoverflow = true;
             return ConvertToBigInteger(first) * ConvertToBigInteger(second);
           }
         case NumberClass.BigInteger:
@@ -493,6 +514,7 @@ namespace IronScheme.Runtime
     {
       if (i <= int.MaxValue && i >= int.MinValue)
       {
+        avoidoverflow = false;
         return (int)i;
       }
       else
