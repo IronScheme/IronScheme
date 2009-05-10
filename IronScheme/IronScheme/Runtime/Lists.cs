@@ -102,24 +102,6 @@ namespace IronScheme.Runtime
       return GetBool(arg1 is Cons);
     }
 
-    //[Builtin("list?")]
-    //public static object IsList(object arg1)
-    //{
-    //  if (arg1 == null)
-    //  {
-    //    return TRUE;
-    //  }
-    //  Cons c = arg1 as Cons;
-    //  if (c == null)
-    //  {
-    //    return FALSE;
-    //  }
-    //  else
-    //  {
-    //    return GetBool(c.IsProper);
-    //  }
-    //}
-
     [Builtin("null?")]
     public static object IsNull(object arg1)
     {
@@ -227,22 +209,6 @@ namespace IronScheme.Runtime
       }
       return c;
     }
-    
-    //[Builtin("set-car!")]
-    //public static object SetCar(object list, object value)
-    //{
-    //  Cons c = RequiresNotNull<Runtime.Cons>(list);
-    //  c.car = value;
-    //  return Unspecified;
-    //}
-
-    //[Builtin("set-cdr!")]
-    //public static object SetCdr(object list, object value)
-    //{
-    //  Cons c = RequiresNotNull<Runtime.Cons>(list);
-    //  c.cdr = value;
-    //  return Unspecified;
-    //}
     
     [Builtin]
     public static object Car(object args)

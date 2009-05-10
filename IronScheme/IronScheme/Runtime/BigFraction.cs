@@ -67,6 +67,40 @@ namespace IronScheme.Runtime
 
     readonly static BigInteger MANTISSA = (ulong.MaxValue >> (64 - 52)) + 1;
 
+    public static bool GetMantissaAndExponent(this double d, out BigInteger mantissa, out BigInteger exponent)
+    {
+      if (double.IsNaN(d))
+      {
+        mantissa = exponent = 0;
+        return false;
+      }
+
+      if (double.IsNegativeInfinity(d))
+      {
+        mantissa = -1;
+        exponent = 0;
+        return false;
+      }
+
+      if (double.IsPositiveInfinity(d))
+      {
+        mantissa = 1;
+        exponent = 0;
+        return false;
+      }
+
+      var r = BitConverter.DoubleToInt64Bits(d);
+
+      var man = GetMantissa(r);
+      var exp = GetExponent(r);
+
+      const int BIAS = 1075;
+      exponent = exp - BIAS;
+      mantissa = man + MANTISSA;
+
+      return true;
+    }
+
     public static bool GetComponents(this double d, out BigInteger numerator, out BigInteger denominator)
     {
       if (double.IsNaN(d))

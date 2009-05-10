@@ -109,7 +109,6 @@
     <Compile Include="Runtime\Builtins.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Runtime\Characters.cs" />
     <Compile Include="Runtime\ComplexFraction.cs" />
     <Compile Include="Runtime\Cons.cs" />
     <Compile Include="Runtime\Control.cs" />
@@ -132,8 +131,6 @@
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
     <Compile Include="Runtime\psyntax\Serialization.cs" />
-    <Compile Include="Runtime\R6RS\Arithmetic\Bitwise.cs" />
-    <Compile Include="Runtime\R6RS\ByteVectors.cs" />
     <Compile Include="Runtime\R6RS\Conditions.cs" />
     <Compile Include="Runtime\R6RS\Programs.cs" />
     <Compile Include="Runtime\R6RS\Exceptions.cs" />
@@ -142,7 +139,6 @@
     <Compile Include="Runtime\R6RS\Unicode.cs" />
     <Compile Include="Runtime\R6RS\Hashtables.cs" />
     <Compile Include="Runtime\R6RS\Records.cs" />
-    <Compile Include="Runtime\Strings.cs" />
     <Compile Include="Runtime\Symbols.cs">
       <SubType>Code</SubType>
     </Compile>

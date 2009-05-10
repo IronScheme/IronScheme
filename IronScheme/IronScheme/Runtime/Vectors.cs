@@ -31,53 +31,10 @@ namespace IronScheme.Runtime
       return Ast.NewArray(typeof(object[]), values);
     }
 
-    //[InlineEmitter("vector-ref", Optimization=OptimizationLevel.Safe)]
-    //public static Expression VectorRef(Expression[] values)
-    //{
-    //  if (values.Length == 2)
-    //  {
-    //    return Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)));
-    //  }
-    //  return null;
-    //}
-
-    //[InlineEmitter("vector-set!", Optimization = OptimizationLevel.Safe)]
-    //public static Expression VectorSet(Expression[] values)
-    //{
-    //  if (values.Length == 3)
-    //  {
-    //    return Ast.AssignArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)), values[2]);
-    //  }
-    //  return null;
-    //}
-
   }
 
   public partial class Builtins
   {
-    //[Builtin("make-vector")]
-    //[Obsolete]
-    //public static object MakeVector(object k)
-    //{
-    //  return MakeVector(k, Unspecified);
-    //}
-
-    //[Builtin("make-vector")]
-    //[Obsolete]
-    //public static object MakeVector(object K, object fill)
-    //{
-    //  int k = RequiresNotNull<int>(K);
-    //  object[] vector = new object[k];
-    //  if (fill != null)
-    //  {
-    //    for (int i = 0; i < k; i++)
-    //    {
-    //      vector[i] = fill;
-    //    }
-    //  }
-    //  return vector;
-    //}
-
     [Builtin("vector")]
     public static object Vector(params object[] args)
     {
@@ -94,14 +51,6 @@ namespace IronScheme.Runtime
       }
       return all.ToArray();
     }
-
-    //[Builtin("vector-length")]
-    //[Obsolete]
-    //public static object VectorLength(object vec)
-    //{
-    //  object[] l = RequiresNotNull<object[]>(vec);
-    //  return l.Length;
-    //}
 
     internal static object VectorToList(object vec)
     {
