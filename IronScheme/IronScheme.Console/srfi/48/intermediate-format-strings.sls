@@ -41,7 +41,7 @@
   (import
     (rnrs)
     (srfi :48 intermediate-format-strings compat)
-    (srfi :6 basic-string-ports)
+    (srfi :6  basic-string-ports)
     (srfi :38 with-shared-structure))
   
   (define ascii-tab #\tab)
@@ -66,9 +66,11 @@
             (string-append (make-string off char) str)
             str)))
       
-      (define (compose-with-digits digits pre-str frac-str exp-str)
+(define (compose-with-digits digits pre-str frac-str exp-str)
         (let ( [frac-len (string-length frac-str)] )
-          (cond
+;;@@DEBUG
+;;(format #t "~%@@(compose-with-digits digits=~s pre-str=~s frac-str=~s exp-str=~s ) ~%" digits pre-str frac-str exp-str)
+          (cond	
             [(< frac-len digits) ;; grow frac part, pad with zeros
              (string-append pre-str "."
                             frac-str (make-string (- digits frac-len) #\0)
@@ -79,28 +81,34 @@
                             frac-str
                             exp-str)
              ]
-            [else ;; must round to shrink it
+            [else ;; must round to shrink frac-part
              (let* ( [first-part (substring frac-str 0 digits)]
                      [last-part  (substring frac-str digits frac-len)]
-                     [temp-str
-                      (number->string
-                       (round (string->number
-                               (string-append first-part "." last-part))))]
-                     [dot-pos (string-index  temp-str #\.)]
-                     [carry?
-                      (and (> dot-pos digits)
-                           (> (round (string->number
-                                      (string-append "0." frac-str)))
-                              0))]
-                     [new-frac
-                      (if (< dot-pos digits)
-                          (string-grow
-                            (substring temp-str 0 dot-pos)
-                            (- digits dot-pos -1)
-                            #\0)
-                          (substring temp-str 0 digits))
+                     ;; NB: Scheme uses "Round to Even Rule" for .5
+                     [rounded-frac
+		     ;; NB: exact is r6; r5 is inexact->exact
+                      (exact (round (string->number
+                                        (string-append first-part "." last-part))))
                       ]
-                     )
+		     [rounded-frac-str (number->string rounded-frac)]
+                     [rounded-frac-len (string-length rounded-frac-str)]
+                     [carry? (and (not (zero? rounded-frac))
+                                  (> rounded-frac-len digits))
+                      ]
+                     [new-frac
+                      (let ( (pre-frac
+                              (if carry? ;; trim leading "1"
+                                  (substring rounded-frac-str 1 (min rounded-frac-len digits))
+                                  (substring rounded-frac-str 0 (min rounded-frac-len digits))) ;; may be zero length
+                              )
+                           )
+                        (if (< (string-length pre-frac) digits)
+                            (string-grow pre-frac digits #\0)
+                            pre-frac))
+                      ]
+                    )
+;;@@DEBUG
+;;(format #t "@@ first-part=~s last-part=~s rounded-frac=~s carry?=~s ~%" first-part last-part rounded-frac carry?)
                (string-append
                 (if carry? (number->string (+ 1 (string->number pre-str))) pre-str)
                 "."
@@ -108,7 +116,11 @@
                 exp-str))]
             ) ) )
       
+      
       (define (format-fixed number-or-string width digits) ; returns a string
+;;@@DEBUG
+;;(format #t "~%(format-fixed number-or-string=~s width=~s digits=~s)~%" number-or-string width digits)
+
         (cond
           [(string? number-or-string)
            (string-grow number-or-string width #\space)

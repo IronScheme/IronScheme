@@ -145,7 +145,6 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
       AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));
       AddBuiltins(Context, typeof(Runtime.R6RS.Unicode));
-      AddBuiltins(Context, typeof(Runtime.R6RS.ByteVectors));
       AddBuiltins(Context, typeof(Runtime.R6RS.Sorting));
       AddBuiltins(Context, typeof(Runtime.R6RS.IO));
       AddBuiltins(Context, typeof(Runtime.R6RS.Exceptions));

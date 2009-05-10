@@ -100,130 +100,6 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    //static bool EqualCons(Cons a, Cons b)
-    //{
-    //  if (ReferenceEquals(a,b))
-    //  {
-    //    return true;
-    //  }
-    //  if (a == null || b == null)
-    //  {
-    //    return false;
-    //  }
-
-    //  if (a.IsCyclic || b.IsCyclic)
-    //  {
-    //    return IsTrue(IsEquivalent(a.car, b.car)) && a.cdr == b.cdr;
-    //  }
-
-    //  return IsTrue(IsEquivalent(a.car, b.car)) && EqualCons(a.cdr as Cons, b.cdr as Cons);
-    //}
-
-    //[Builtin("equal?")]
-    //public static object IsEquivalent(object first, object second)
-    //{
-    //  try
-    //  {
-
-    //    if (first == second)
-    //    {
-    //      return TRUE;
-    //    }
-
-    //    if (first == null ^ second == null)
-    //    {
-    //      return FALSE;
-    //    }
-
-    //    bool s1 = first is SymbolId;
-    //    bool s2 = second is SymbolId;
-
-    //    bool c1 = first is Cons;
-    //    bool c2 = second is Cons;
-
-    //    if (s1 && c2 || s2 && c1)
-    //    {
-    //      return FALSE;
-    //    }
-
-    //    if (c1 && c2)
-    //    {
-    //      Cons cc1 = first as Cons;
-    //      Cons cc2 = second as Cons;
-    //      return GetBool(EqualCons(cc1, cc2));
-    //    }
-
-    //    if (first is byte[] && second is byte[])
-    //    {
-    //      byte[] f = first as byte[];
-    //      byte[] s = second as byte[];
-
-    //      if (f.Length != s.Length)
-    //      {
-    //        return FALSE;
-    //      }
-    //      else
-    //      {
-    //        for (int i = 0; i < f.Length; i++)
-    //        {
-    //          if (!Equals(f[i], s[i]))
-    //          {
-    //            return FALSE;
-    //          }
-    //        }
-
-    //        return TRUE;
-    //      }
-    //    }
-
-    //    if (first is object[] && second is object[])
-    //    {
-    //      object[] f = first as object[];
-    //      object[] s = second as object[];
-
-    //      if (f.Length != s.Length)
-    //      {
-    //        return FALSE;
-    //      }
-    //      else
-    //      {
-    //        for (int i = 0; i < f.Length; i++)
-    //        {
-    //          if (!IsTrue(IsEquivalent(f[i], s[i])))
-    //          {
-    //            return FALSE;
-    //          }
-    //        }
-
-    //        return TRUE;
-    //      }
-    //    }
-
-    //    Type t1 = first.GetType();
-    //    Type t2 = second.GetType();
-
-    //    if (t1.IsAssignableFrom(t2) || t2.IsAssignableFrom(t1))
-    //    {
-    //      return IsEqualValue(first, second);
-    //    }
-
-    //    if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
-    //    {
-    //      return IsSame(first, second);
-    //    }
-
-    //    string w1 = WriteFormat(first);
-    //    string w2 = WriteFormat(second);
-
-    //    bool result = w1 == w2;
-
-    //    return GetBool(result);
-    //  }
-    //  catch (NullReferenceException)
-    //  {
-    //    return FALSE;
-    //  }
-    //}
 
     [Builtin("eq?")]
     public static object IsEqual(object first, object second)
@@ -240,24 +116,11 @@ namespace IronScheme.Runtime
     [Builtin("eqv?")]
     public static object IsEqualValue(object first, object second)
     {
-      object eq = IsEqual(first, second);
-
-      if (IsTrue(eq))
+      if (first is Encoding && second is Encoding)
       {
-        return eq;
+        return ((Encoding)first).WebName == ((Encoding)second).WebName;
       }
-      else
-      {
-        //if (IsTrue(IsNumber(first)) && IsTrue(IsNumber(second)) && IsTrue(IsExact(first)) && IsTrue(IsExact(second)))
-        //{
-        //  return IsSame(first, second);
-        //}
-        if (first is Encoding && second is Encoding)
-        {
-          return ((Encoding)first).WebName == ((Encoding)second).WebName;
-        }
-        return GetBool(Equals(first, second));
-      }
+      return GetBool(Equals(first, second));
     }
   }
 }

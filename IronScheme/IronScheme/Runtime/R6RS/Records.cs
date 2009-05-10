@@ -338,15 +338,6 @@ namespace IronScheme.Runtime.R6RS
         rtd.fields.Add(fd);
       }
 
-      if (parenttype != typeof(Condition) && !parenttype.IsSubclassOf(typeof(Condition)))
-      {
-        CodeGen ts = tg.DefineMethodOverride(typeof(object).GetMethod("ToString", Type.EmptyTypes));
-
-        ts.EmitThis();
-        ts.EmitCall(typeof(Builtins).GetMethod("WriteFormat"));
-        ts.EmitReturn();
-      }
-
       // constructor logic
       {
         List<Type> paramtypes = new List<Type>();

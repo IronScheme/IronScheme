@@ -20,7 +20,9 @@
 
 (expect (format "test ~s" 'me) (format #f "test ~a" "me"))
 
-(expect  " 0.333" (format "~6,3F" 1/3)) ;;; "  .333" OK
+(check (format "~6,3F" 1/3)
+       (=> member)  
+         '(" 0.333" "  .333"))
 
 (expect "  12" (format "~4F" 12))
 
@@ -36,20 +38,32 @@
 
 (expect "    32" (format "~6F" 32))
 
-(expect "  32.0" (format "~6F" 32.)) ;; "   32." OK
+(check (format "~6F" 32.)
 ;; NB: (not (and (exact? 32.) (integer? 32.)))
+       (=> member)  
+         '("  32.0" "   32."))
 
-(expect "  3.2e46" (format "~8F" 32e45))
+(check (format "~8F" 32e45)
+       (=> member)  
+       '("  3.2e46" " 3.2e+46"))
 
 (expect " 3.2e-44" (format "~8,1F" 32e-45))
 
-(expect "  3.2e21" (format "~8F" 32e20))
+(check (format "~8F" 32e20)
+       (=> member)  
+       '("  3.2e21" " 3.2e+21"))
 
-(expect "3200000.0" (format "~8F" 32e5)) ;; OK; prefer: "   3.2e6"
+(check (format "~8F" 32e5)
+       (=> member)  
+         '("3200000.0"  "   3.2e6" "  3.2e+6"))
 
-(expect "  3200.0" (format "~8F" 32e2)) ;; "   3200." OK
+(check (format "~8F" 32e2)
+       (=> member)  
+       '("  3200.0" "   3200."))
 
-(expect " 3.20e11" (format "~8,2F" 32e10))
+(check (format "~8,2F" 32e10)
+       (=> member)  
+         '(" 3.20e11" "3.20e+11"))
 
 (expect "      1.2345" (format "~12F" 1.2345))
 
@@ -63,7 +77,8 @@
 
 (expect " 3.46e11" (format "~8,2F" 3.4567e11))
 
-#;(check (format "~w" (let ( (c (list 'a 'b 'c)) ) (set-cdr! (cddr c) c) c))
+
+(check (format "~w" (let ( (c (list 'a 'b 'c)) ) (set-cdr! (cddr c) c) c))
        (=> member)
        '("#0=(a b c . #0#)" "#1=(a b c . #1#)"))
 
@@ -198,7 +213,9 @@ def")
   (check (format "~f" 1e4)
          (=> member)
          '("1e4" "10000.0"))
-  (check (format "~f" -1.23e10) => "-1.23e10")
+  (check (format "~f" -1.23e10)
+         (=> member)
+         '("-1.23e10" "-1.23e+10" "-12300000000.0" "-12300000000."))
   (check (format "~f" 1e-4)
          (=> member)
          '("1e-4" "0.0001" ".0001"))
@@ -210,13 +227,3 @@ def")
 (check-report)
 
 ;; #!eof
-
-
-(let ((v 1) (l '()))
-  (for-each 
-    (lambda (x)
-	    (let ((n v))
-	      (set! v (+ v 1))
-	      (set! l (cons n l))))
-	    '(0 0 0 0 0))
-	 l) 
