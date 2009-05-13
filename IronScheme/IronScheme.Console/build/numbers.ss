@@ -8,7 +8,6 @@
     zero?
     positive?
     negative?
-    number?
     complex?
     real?
     rational?
@@ -67,7 +66,6 @@
       zero?
       positive?
       negative?
-      number?
       complex?
       real?
       rational?
@@ -211,14 +209,6 @@
     (unless (fixnum? x)
       (assertion-violation 'fixnum->flonum "not a fixnum" x))
     (clr-cast System.Double (clr-cast System.Int32 x)))
-    
-  (define (number? obj)
-    (or (fixnum? obj)
-        (flonum? obj)
-        (bignum? obj)
-        (ratnum? obj)
-        (complexnum? obj)
-        (rectnum? obj)))
         
   (define (nan? num)
     (cond

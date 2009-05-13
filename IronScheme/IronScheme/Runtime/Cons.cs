@@ -99,13 +99,6 @@ namespace IronScheme.Runtime
       }
     }
 
-#if DEBUG
-    public override string ToString()
-    {
-      return Builtins.WriteFormat(this);
-    }
-#endif
-
     public string PrettyPrint
     {
       get { return ToPrettyString(); }
