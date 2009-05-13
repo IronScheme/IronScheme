@@ -271,10 +271,11 @@
       boolean?      
       procedure?
 
-      fixnum?
       flonum?
-      fixnum-width
-      
+
+      ;fixnum?
+      ;fixnum-width
+      ;
       mod
       mod0   
       div-and-mod
@@ -348,13 +349,10 @@
     (define (procedure? obj)
       (clr-is ironscheme.runtime.icallable obj))  
       
-    (define (fixnum? obj)
-      (clr-is system.int32 obj))        
 
     (define (flonum? obj)
-      (clr-is system.double obj))   
-      
-    (define (fixnum-width) 32)
+      (clr-is system.double obj))  
+            
     
     (define (char->integer chr)
       (unless (char? chr)

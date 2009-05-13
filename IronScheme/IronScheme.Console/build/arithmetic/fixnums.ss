@@ -56,6 +56,8 @@
     (ironscheme unsafe)
     (ironscheme integrable)
     (except (rnrs) 
+      fixnum?
+      fixnum-width
       fxif
       fxcopy-bit
       fxbit-field
@@ -110,6 +112,11 @@
       fx*
       fxreverse-bit-field
       ))
+      
+  (define (fixnum? obj)
+    (clr-is system.int32 obj))        
+    
+  (define (fixnum-width) 32)
       
   (define (greatest-fixnum)  #x7fffffff)
   (define (least-fixnum)    #x-80000000)      

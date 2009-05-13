@@ -177,7 +177,10 @@ namespace IronScheme.Compiler
                 return base.Walk(node);
               }
             }
-            node.Variable.AssumedValue = node.Value;
+            if (node.Variable.AssumedValue == null)
+            {
+              node.Variable.AssumedValue = node.Value;
+            }
           }
           return base.Walk(node);
         }

@@ -129,11 +129,11 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          return ((int)a).CompareTo((int)b);
+          return RuntimeHelpers.Int32ToObject( ((int)a).CompareTo((int)b));
         case NumberClass.BigInteger:
-          return ConvertToBigInteger(a).CompareTo(ConvertToBigInteger(b));
+          return RuntimeHelpers.Int32ToObject( ConvertToBigInteger(a).CompareTo(ConvertToBigInteger(b)));
         case NumberClass.Rational:
-          return ConvertToRational(a).CompareTo(ConvertToRational(b));
+          return RuntimeHelpers.Int32ToObject( ConvertToRational(a).CompareTo(ConvertToRational(b)));
 
         default:
           return AssertionViolation("exact-compare", "not exact", a, b);
@@ -151,7 +151,7 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Real:
-          return ((double)a).CompareTo(b);
+          return RuntimeHelpers.Int32ToObject( ((double)a).CompareTo(b));
         default:
           return AssertionViolation("inexact-compare", "not a real", a, b);
       }
@@ -161,24 +161,24 @@ namespace IronScheme.Runtime
 
     #region math
 
-    [Builtin("+", AllowConstantFold = true)]
-    public static object Add()
-    {
-      return RuntimeHelpers.Int32ToObject(0);
-    }
+    //[Builtin("+", AllowConstantFold = true)]
+    //public static object Add()
+    //{
+    //  return RuntimeHelpers.Int32ToObject(0);
+    //}
 
-    [Builtin("+", AllowConstantFold = true)]
-    public static object Add(object first)
-    {
-      if (GetNumberClass(first) != NumberClass.NotANumber)
-      {
-        return first;
-      }
-      else
-      {
-        return AssertionViolation("+", "not a number", first);
-      }
-    }
+    //[Builtin("+", AllowConstantFold = true)]
+    //public static object Add(object first)
+    //{
+    //  if (GetNumberClass(first) != NumberClass.NotANumber)
+    //  {
+    //    return first;
+    //  }
+    //  else
+    //  {
+    //    return AssertionViolation("+", "not a number", first);
+    //  }
+    //}
 
     enum NumberClass
     {
@@ -278,7 +278,8 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Builtin("+", AllowConstantFold = true)]
+    [Builtin("generic+", AllowConstantFold = true)]
+    //[Builtin("+", AllowConstantFold = true)]
     public static object Add(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -327,40 +328,41 @@ namespace IronScheme.Runtime
       throw new NotImplementedException();
     }
 
-    [Builtin("+", AllowConstantFold = true)]
-    public static object Add(object car, params object[] args)
-    {
-      for (int i = 0; i < args.Length; i++)
-			{
-        car = Add(car, args[i]); 
-			}
+    //[Builtin("+", AllowConstantFold = true)]
+    //public static object Add(object car, params object[] args)
+    //{
+    //  for (int i = 0; i < args.Length; i++)
+    //  {
+    //    car = Add(car, args[i]); 
+    //  }
 
-      return car;
-    }
+    //  return car;
+    //}
 
-    [Builtin("-", AllowConstantFold = true)]
-    public static object Subtract(object first)
-    {
-      if (first is int)
-      {
-        int fi = (int)first;
-        if (fi == int.MinValue)
-        {
-          return - (BigInteger)fi;
-        }
-        else
-        {
-          return -fi;
-        }
-      }
-      if (first is double)
-      {
-        return -(double)first;
-      }
-      return Subtract(RuntimeHelpers.Int32ToObject(0), first);
-    }
+    //[Builtin("-", AllowConstantFold = true)]
+    //public static object Subtract(object first)
+    //{
+    //  if (first is int)
+    //  {
+    //    int fi = (int)first;
+    //    if (fi == int.MinValue)
+    //    {
+    //      return - (BigInteger)fi;
+    //    }
+    //    else
+    //    {
+    //      return -fi;
+    //    }
+    //  }
+    //  if (first is double)
+    //  {
+    //    return -(double)first;
+    //  }
+    //  return Subtract(RuntimeHelpers.Int32ToObject(0), first);
+    //}
 
-    [Builtin("-", AllowConstantFold = true)]
+    [Builtin("generic-", AllowConstantFold = true)]
+    //[Builtin("-", AllowConstantFold = true)]
     public static object Subtract(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -409,40 +411,41 @@ namespace IronScheme.Runtime
       throw new NotImplementedException();
     }
 
-    [Builtin("-", AllowConstantFold = true)]
-    public static object Subtract(object car, params object[] args)
-    {
-      for (int i = 0; i < args.Length; i++)
-      {
-        car = Subtract(car, args[i]);
-      }
+    //[Builtin("-", AllowConstantFold = true)]
+    //public static object Subtract(object car, params object[] args)
+    //{
+    //  for (int i = 0; i < args.Length; i++)
+    //  {
+    //    car = Subtract(car, args[i]);
+    //  }
 
-      return car;
-    }
+    //  return car;
+    //}
 
-    [Builtin("*", AllowConstantFold = true)]
-    public static object Multiply()
-    {
-      return RuntimeHelpers.Int32ToObject(1);
-    }
+    //[Builtin("*", AllowConstantFold = true)]
+    //public static object Multiply()
+    //{
+    //  return RuntimeHelpers.Int32ToObject(1);
+    //}
 
-    [Builtin("*", AllowConstantFold = true)]
-    public static object Multiply(object first)
-    {
-      if (GetNumberClass(first) != NumberClass.NotANumber)
-      {
-        return first;
-      }
-      else
-      {
-        return AssertionViolation("*", "not a number", first);
-      }
-    }
+    //[Builtin("*", AllowConstantFold = true)]
+    //public static object Multiply(object first)
+    //{
+    //  if (GetNumberClass(first) != NumberClass.NotANumber)
+    //  {
+    //    return first;
+    //  }
+    //  else
+    //  {
+    //    return AssertionViolation("*", "not a number", first);
+    //  }
+    //}
 
     static bool avoidoverflow = false;
     static int overflowcount = 0;
 
-    [Builtin("*", AllowConstantFold = true)]
+    [Builtin("generic*", AllowConstantFold = true)]
+    //[Builtin("*", AllowConstantFold = true)]
     public static object Multiply(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -504,16 +507,16 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Builtin("*", AllowConstantFold = true)]
-    public static object Multiply(object car, params object[] args)
-    {
-      for (int i = 0; i < args.Length; i++)
-      {
-        car = Multiply(car, args[i]);
-      }
+    //[Builtin("*", AllowConstantFold = true)]
+    //public static object Multiply(object car, params object[] args)
+    //{
+    //  for (int i = 0; i < args.Length; i++)
+    //  {
+    //    car = Multiply(car, args[i]);
+    //  }
 
-      return car;
-    }
+    //  return car;
+    //}
 
     static object ConvertNumber(object result, Type type)
     {
@@ -534,13 +537,14 @@ namespace IronScheme.Runtime
 
     static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
-    [Builtin("/", AllowConstantFold = true)]
-    public static object Divide(object first)
-    {
-      return Divide(RuntimeHelpers.Int32ToObject(1), first);
-    }
+    //[Builtin("/", AllowConstantFold = true)]
+    //public static object Divide(object first)
+    //{
+    //  return Divide(RuntimeHelpers.Int32ToObject(1), first);
+    //}
 
-    [Builtin("/", AllowConstantFold = true)]
+    [Builtin("generic/", AllowConstantFold = true)]
+    //[Builtin("/", AllowConstantFold = true)]
     public static object Divide(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
@@ -591,17 +595,17 @@ namespace IronScheme.Runtime
       throw new NotImplementedException();
     }
 
-    [Builtin("/", AllowConstantFold = true)]
-    public static object Divide(object car, params object[] args)
-    {
-      object result = 1;
-      for (int i = 0; i < args.Length; i++)
-      {
-        result = Multiply(result, args[i]);
-      }
+    //[Builtin("/", AllowConstantFold = true)]
+    //public static object Divide(object car, params object[] args)
+    //{
+    //  object result = 1;
+    //  for (int i = 0; i < args.Length; i++)
+    //  {
+    //    result = Multiply(result, args[i]);
+    //  }
 
-      return Divide(car, result);
-    }
+    //  return Divide(car, result);
+    //}
 
     #endregion
 

@@ -43,6 +43,7 @@
     "build/conditions.ss"
     "build/exceptions.ss"
     "build/arithmetic/fixnums.ss"
+    "build/primitive-numbers.ss"
     "build/lists.ss"
     "build/base.ss"
     "build/numbers.ss"
@@ -292,6 +293,10 @@
     (stacktrace-condition?                      i)
     (condition-stacktrace                       i)
     (&stacktrace                                i)
+    (generic+                                   ic)
+    (generic-                                   ic)
+    (generic*                                   ic)
+    (generic/                                   ic)    
     (exact-compare                              ic)
     (inexact-compare                            ic)
     (bignum-sqrt                                ic)
