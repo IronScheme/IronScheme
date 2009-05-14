@@ -131,8 +131,9 @@ namespace Microsoft.Scripting {
             return new_created;
         }
 
-        private static ScriptEnvironmentSetup GetSetupInformation() {
-#if !SILVERLIGHT
+        private static ScriptEnvironmentSetup GetSetupInformation()
+        {
+#if FULL
             ScriptEnvironmentSetup result;
 
             // setup provided by app-domain creator:
@@ -152,7 +153,7 @@ namespace Microsoft.Scripting {
             }
 #endif
 
-            // default setup:
+          // default setup:
             return new ScriptEnvironmentSetup(true);
         }
 

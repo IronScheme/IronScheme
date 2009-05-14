@@ -25,7 +25,20 @@ namespace IronScheme.Runtime.R6RS
 {
   public abstract class Condition : Exception
   {
+    public override string ToString()
+    {
+      var w = new StringWriter();
+      "(display {0} {1})".Eval(this, w);
+      return w.GetBuffer();
+    }
 
+    public override string Message
+    {
+      get
+      {
+        return ToString();
+      }
+    }
   }
 
   sealed class CompoundCondition : Condition

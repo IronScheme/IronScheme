@@ -42,7 +42,7 @@
       [(action id)
         (action/id-url (context-item 'controller) action id)]
       [(controller action id)
-        (string-append (action-url controller action) "/" (url-encode (format "~a" id)))]))
+        (string-append (action-url controller action) "?" (url-encode (format "~a" id)))]))
     
   (define (action-link name action . args)
     `(a (href . ,(action-url action)) ,@args ,name))

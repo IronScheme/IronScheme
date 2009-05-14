@@ -170,20 +170,20 @@ namespace IronScheme.Runtime
     }
 
     //[Builtin]
-    [Obsolete("Implemented in Scheme")]
-    internal static object Length(object args)
-    {
-      Cons c = Requires<Runtime.Cons>(args);
-      int length = 0;
+    //[Obsolete("Implemented in Scheme")]
+    //internal static object Length(object args)
+    //{
+    //  Cons c = Requires<Runtime.Cons>(args);
+    //  int length = 0;
 
-      while (c != null)
-      {
-        length++;
-        c = c.cdr as Cons;
-      }
+    //  while (c != null)
+    //  {
+    //    length++;
+    //    c = c.cdr as Cons;
+    //  }
 
-      return length;
-    }
+    //  return length;
+    //}
     
     internal static object First(object args)
     {

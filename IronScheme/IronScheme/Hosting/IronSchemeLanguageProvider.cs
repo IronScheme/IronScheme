@@ -63,26 +63,13 @@ namespace IronScheme.Hosting
     void Initialize()
     {
       IronScheme.Compiler.BaseHelper.Initialize(this);
-
-      AutoResetEvent e = new AutoResetEvent(false);
-
-      Thread t = new Thread(delegate()
-      {
-        Runtime.Builtins.Load("~/ironscheme.boot.pp");
-        e.Set();
-      }, 1500000);
-
-      t.Start();
-
-      e.WaitOne();
+      Runtime.Builtins.Load("~/ironscheme.boot.dll");
     }
 
     public override string LanguageDisplayName
     {
       get { return "IronScheme"; }
     }
-
-    
 
     IronSchemeScriptEngine se;
 

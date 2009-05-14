@@ -35,7 +35,7 @@ namespace Microsoft.Scripting {
     /// Provides language specific facilities which are typicalled called by the runtime.
     /// </summary>
     public abstract class LanguageContext
-#if !SILVERLIGHT
+#if FULL
         : ICloneable
 #endif
     {
@@ -201,7 +201,7 @@ namespace Microsoft.Scripting {
 
         #endregion
 
-#if !SILVERLIGHT
+#if FULL
         // Convert a CodeDom to source code, and output the generated code and the line number mappings (if any)
         public virtual SourceUnit GenerateSourceCode(System.CodeDom.CodeObject codeDom) {
             throw new NotImplementedException();

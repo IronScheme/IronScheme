@@ -84,7 +84,7 @@ namespace Microsoft.Scripting.Hosting {
             }
         }
 
-#if !SILVERLIGHT
+#if FULL
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2235:MarkAllNonSerializableFields")] // MBRO
         private RemoteScriptHost _remoteHost;
 
@@ -157,7 +157,7 @@ namespace Microsoft.Scripting.Hosting {
             _palType = typeof(PlatformAdaptationLayer);
             _hostType = typeof(ScriptHost);
 
-#if !SILVERLIGHT
+#if FULL
             _localHostType = typeof(LocalScriptHost);
 #endif
         }
@@ -177,7 +177,7 @@ namespace Microsoft.Scripting.Hosting {
 
         internal IScriptHost CreateScriptHost(IScriptEnvironment environment) {
             Debug.Assert(environment != null);
-#if !SILVERLIGHT
+#if FULL
             // a remote host was created by call to ScriptEnvironment.CreateRemote
             if (_remoteHost != null) return CreateLocalHost(_remoteHost);
 #endif

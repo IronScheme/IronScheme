@@ -99,7 +99,7 @@ namespace Microsoft.Scripting.Hosting {
         ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, IScriptModule module);
         ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink);
 
-#if !SILVERLIGHT
+#if FULL
 
         // sourcePath and module can be null
         ICompiledCode CompileCodeDom(System.CodeDom.CodeMemberMethod code, IScriptModule module);
@@ -210,7 +210,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #region IScriptEngine Members
 
-#if !SILVERLIGHT
+#if FULL
         RemoteWrapper ILocalObject.Wrap() {
             return new RemoteScriptEngine(this);
         }
@@ -556,7 +556,7 @@ namespace Microsoft.Scripting.Hosting {
             return CompileSourceUnit(SourceUnit.CreateSnippet(this, code, SourceCodeKind.InteractiveCode), module);
         }
 
-#if !SILVERLIGHT
+#if FULL
         public ICompiledCode CompileCodeDom(System.CodeDom.CodeMemberMethod code, IScriptModule module) {
             Contract.RequiresNotNull(code, "code");
 
@@ -568,7 +568,7 @@ namespace Microsoft.Scripting.Hosting {
         #endregion
 
         #region ObjectHandle Wrappings
-#if !SILVERLIGHT
+#if FULL
 
         public bool TryGetVariableAndWrap(string name, IScriptModule module, out IObjectHandle obj) {
             object local_obj;

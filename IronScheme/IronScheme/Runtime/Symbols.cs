@@ -25,17 +25,17 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-    internal static bool IsSymbol(object obj)
-    {
-      return obj is SymbolId;
-    }
+    //internal static bool IsSymbol(object obj)
+    //{
+    //  return obj is SymbolId;
+    //}
 
-    [Builtin("symbol->string")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    internal static object SymbolToString(object obj)
-    {
-      SymbolId s = RequiresNotNull<SymbolId>(obj);
-      return SymbolTable.IdToString(s);
-    }
+    //[Builtin("symbol->string")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
+    //internal static object SymbolToString(object obj)
+    //{
+    //  SymbolId s = RequiresNotNull<SymbolId>(obj);
+    //  return SymbolTable.IdToString(s);
+    //}
   }
 }

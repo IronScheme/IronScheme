@@ -13,7 +13,7 @@
  *
  * ***************************************************************************/
 
-#if !SILVERLIGHT
+#if FULL
 
 using System;
 using System.Collections.Generic;
@@ -40,7 +40,7 @@ namespace Microsoft.Scripting {
             set { _module.FileName = value; }
         }
 
-        #region Construction
+#region Construction
 
         internal RemoteScriptModule(ScriptModule module) {
             Debug.Assert(module != null);

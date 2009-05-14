@@ -52,7 +52,7 @@ namespace IronScheme.Runtime
       return all.ToArray();
     }
 
-    internal static object VectorToList(object vec)
+    internal static Cons VectorToList(object[] vec)
     {
       object[] l = RequiresNotNull<object[]>(vec);
       return Runtime.Cons.FromArray(l);
@@ -68,11 +68,7 @@ namespace IronScheme.Runtime
         while (e != null)
         {
           v.Add(e.car);
-          if (e.cdr != null && !(e.cdr is Cons))
-          {
-            AssertionViolation("list->vector", "not a proper list", list);
-          }
-          e = e.cdr as Cons;
+           e = e.cdr as Cons;
         }
       }
       return v.ToArray();
