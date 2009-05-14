@@ -84,7 +84,7 @@
      
   (define-view (view:library id bindings desc)
     (page-template 
-      `(h2 (no-escape ,id))
+      `(h2 (no-escape ,(format "~a" id)))
       `(h4 (a (href . ,(action/id-url "library-edit" id)) "Description"))
       `(p ,desc)
       `(h4 "Exports")

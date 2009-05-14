@@ -13,7 +13,7 @@
  *
  * ***************************************************************************/
 
-#if !SILVERLIGHT
+#if FULL
 
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace Microsoft.Scripting.Hosting {
             get { return null; }
         }
 
-        #region Construction
+#region Construction
 
         internal RemoteScriptHost() {
             // to be provided later:
@@ -61,7 +61,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        #region Virtual File System
+#region Virtual File System
 
         public string NormalizePath(string path) {
             return _host.NormalizePath(path);
@@ -73,7 +73,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        #region Source Units
+#region Source Units
 
         public SourceUnit TryGetSourceFileUnit(IScriptEngine engine, string path, Encoding encoding) {
             return _host.TryGetSourceFileUnit(engine, path, encoding);
@@ -85,7 +85,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        #region Notifications
+#region Notifications
 
         public void EngineCreated(IScriptEngine engine) {
             _host.EngineCreated(engine);
@@ -97,7 +97,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        #region Environment Variables
+#region Environment Variables
 
         public bool TrySetVariable(IScriptEngine engine, SymbolId name, object value) {
             return _host.TrySetVariable(engine, name, value);
@@ -109,7 +109,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        #region Modules
+#region Modules
 
         public IScriptModule DefaultModule {
             get {

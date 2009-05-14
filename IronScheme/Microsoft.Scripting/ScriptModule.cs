@@ -53,7 +53,7 @@ namespace Microsoft.Scripting {
         // compiler options:
         CompilerOptions GetCompilerOptions(IScriptEngine engine);
 
-#if !SILVERLIGHT
+#if FULL
         IObjectHandle LookupVariableAndWrap(string name);
         // TODO: void SetVariable(string name, IObjectHandle value);
 #endif
@@ -243,7 +243,7 @@ namespace Microsoft.Scripting {
 
         #region IScriptModule Members
 
-#if !SILVERLIGHT
+#if FULL
         RemoteWrapper ILocalObject.Wrap() {
             return new RemoteScriptModule(this);
         }

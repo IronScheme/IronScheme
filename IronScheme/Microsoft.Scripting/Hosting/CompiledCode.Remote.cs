@@ -13,7 +13,7 @@
  *
  * ***************************************************************************/
 
-#if !SILVERLIGHT
+#if FULL
 
 using System;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ namespace Microsoft.Scripting.Hosting {
             get { return _compiledCode; }
         }
 
-        #region ICompiledCode Members
+#region ICompiledCode Members
 
         public IScriptModule MakeModule(string name) {
             return RemoteWrapper.WrapRemotable<IScriptModule>(_compiledCode.MakeModule(name));

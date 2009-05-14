@@ -51,8 +51,7 @@
               (if (null? lst)
                   a
                   (f (combine a (car lst)) (cdr lst)))))]))
-      
-      
+  
   (define +
     (case-lambda
       [() 0]
@@ -99,6 +98,9 @@
         (generic* num1 num2)]
       [(num1 num2 num3 . rest)
         (reduce * (* (* num1 num2) num3) rest)]))                
+        
+  (define (exact-zero? num)
+    (and (exact? num) (zero? num)))        
 
   (define /
     (case-lambda
@@ -111,11 +113,15 @@
           (assertion-violation '/ "not a number" num1))
         (unless (number? num2)
           (assertion-violation '/ "not a number" num2))
-        (generic/ num1 num2)]
+        (when (and (exact? num1) (exact-zero? num2))
+          (assertion-violation '/ "divide by zero" num1 num2))
+        (if (and (zero? num1) (zero? num2))
+            +nan.0
+            (generic/ num1 num2))]
       [(num1 num2 num3 . rest)
         (/ num1 (reduce * (* num2 num3) rest))])) 
                           
    
 )
   
-  
+   

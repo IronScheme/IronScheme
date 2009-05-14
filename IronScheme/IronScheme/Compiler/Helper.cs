@@ -23,10 +23,42 @@ namespace IronScheme.Compiler
         object hnum = Builtins.StringToNumber(head);
         object tnum = Builtins.StringToNumber(tail);
 
-        return Builtins.Multiply(hnum, Builtins.Expt(10, tnum));
+        return Builtins.Multiply(hnum, Expt10(tnum));
       }
       else
       {
+        return null;
+      }
+    }
+
+    readonly static BigInteger TEN = 10;
+
+    static object Expt10(int tnum)
+    {
+      if (tnum < 0)
+      {
+        return new Fraction(1, TEN.Power(-tnum));
+      }
+      return TEN.Power(tnum);
+    }
+
+    static object Expt10(object tnum)
+    {
+      if (tnum is int)
+      {
+        return Expt10((int)tnum);
+      }
+      else if (tnum is BigInteger)
+      {
+        return Expt10((BigInteger)tnum);
+      }
+      else if (tnum is double)
+      {
+        return Math.Pow(10, (double)tnum);
+      }
+      else
+      {
+        // we're fucked.
         return null;
       }
     }

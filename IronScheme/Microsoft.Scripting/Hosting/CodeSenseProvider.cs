@@ -42,7 +42,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #region ILocalObject Members
 
-#if !SILVERLIGHT
+#if FULL
         RemoteWrapper ILocalObject.Wrap() {
             return new RemoteCodeSenseProvider(this);
         }

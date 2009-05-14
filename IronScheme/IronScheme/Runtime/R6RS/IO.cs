@@ -28,22 +28,22 @@ namespace IronScheme.Runtime.R6RS
 {
   public class IO : Builtins
   {
-    static object bm_none = SymbolTable.StringToObject("none");
-    static object bm_line = SymbolTable.StringToObject("line");
+    //static object bm_none = SymbolTable.StringToObject("none");
+    //static object bm_line = SymbolTable.StringToObject("line");
     static object bm_block = SymbolTable.StringToObject("block");
 
     //(buffer-mode? obj )
-    [Builtin("buffer-mode?")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object IsBufferMode(object s)
-    {
-      if (s is SymbolId)
-      {
-        SymbolId bm = RequiresNotNull<SymbolId>(s);
-        return GetBool(s == bm_none || s == bm_line || s == bm_block);
-      }
-      return FALSE;
-    }
+    //[Builtin("buffer-mode?")]
+    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
+    //public static object IsBufferMode(object s)
+    //{
+    //  if (s is SymbolId)
+    //  {
+    //    SymbolId bm = RequiresNotNull<SymbolId>(s);
+    //    return GetBool(s == bm_none || s == bm_line || s == bm_block);
+    //  }
+    //  return FALSE;
+    //}
 
     internal class Transcoder
     {

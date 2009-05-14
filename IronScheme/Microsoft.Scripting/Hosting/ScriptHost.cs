@@ -97,7 +97,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-#if !SILVERLIGHT
+#if FULL
         RemoteWrapper ILocalObject.Wrap() {
             return new RemoteScriptHost(this);
         }

@@ -83,7 +83,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #region Remotable Services
 
-#if !SILVERLIGHT
+#if FULL
         RemoteWrapper ILocalObject.Wrap() {
             return new RemoteLanguageProvider(this);
         }

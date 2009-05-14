@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-#if !SILVERLIGHT
+#if FULL
 
 using System;
 using System.Collections.Generic;
@@ -102,7 +102,7 @@ namespace Microsoft.Scripting.Hosting {
             get { return null; }
         }
 
-        #region ILocalObject Members
+#region ILocalObject Members
 
 #if !SILVERLIGHT
         RemoteWrapper ILocalObject.Wrap() {

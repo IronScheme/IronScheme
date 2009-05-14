@@ -31,7 +31,7 @@ namespace Microsoft.Scripting.Hosting {
         IScriptHost Host { get; }
         
         // convenience API:
-#if !SILVERLIGHT
+#if FULL
         void RedirectIO(TextReader input, TextWriter output, TextWriter errorOutput);
 #endif
 
@@ -94,7 +94,7 @@ namespace Microsoft.Scripting.Hosting {
             return ScriptDomainManager.CurrentManager.Environment;
         }
 
-#if !SILVERLIGHT
+#if FULL
         RemoteWrapper ILocalObject.Wrap() {
             return new RemoteScriptEnvironment(_manager);
         }
@@ -246,7 +246,7 @@ namespace Microsoft.Scripting.Hosting {
 
         #region Convenience API (not available for Silverlight to make the assembly smaller)
 
-#if !SILVERLIGHT
+#if FULL
 
         public void RedirectIO(TextReader input, TextWriter output, TextWriter errorOutput) {
             if (input != null) Console.SetIn(input);

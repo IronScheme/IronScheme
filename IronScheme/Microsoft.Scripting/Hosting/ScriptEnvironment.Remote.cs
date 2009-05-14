@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-#if !SILVERLIGHT
+#if FULL
 
 using System;
 using System.Collections;
@@ -28,7 +28,7 @@ namespace Microsoft.Scripting.Hosting {
     internal sealed class RemoteScriptEnvironment : RemoteWrapper, IScriptEnvironment {
         private readonly ScriptDomainManager _manager;
 
-        #region Construction
+#region Construction
 
         internal RemoteScriptEnvironment(ScriptDomainManager manager) {
             Debug.Assert(manager != null);
@@ -63,7 +63,7 @@ namespace Microsoft.Scripting.Hosting {
             return new_created;
         }
 
-        #region RemoteDelegate
+#region RemoteDelegate
 
         private sealed class RemoteDelegate : MarshalByRefObject {
 

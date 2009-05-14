@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-#if !SILVERLIGHT
+#if FULL
 
 using System;
 using System.Collections.Generic;

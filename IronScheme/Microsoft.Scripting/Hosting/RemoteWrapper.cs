@@ -23,13 +23,14 @@ namespace Microsoft.Scripting.Hosting {
         Type GetType();
     }
 
-    internal interface ILocalObject : IRemotable {
-#if !SILVERLIGHT
+    internal interface ILocalObject : IRemotable
+    {
+#if FULL
         RemoteWrapper Wrap();
 #endif
     }
 
-#if SILVERLIGHT
+#if !FULL
 
     internal sealed class RemoteWrapper {
         internal static T WrapRemotable<T>(IRemotable remotable, IRemotable host) 

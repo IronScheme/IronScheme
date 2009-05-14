@@ -26,7 +26,7 @@ namespace Microsoft.Scripting.Hosting {
     }
 
     public class ErrorSink 
-#if !SILVERLIGHT
+#if FULL
         : MarshalByRefObject 
 #endif 
     {
