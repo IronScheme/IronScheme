@@ -799,8 +799,10 @@ namespace Microsoft.Scripting {
             ScriptModule result = new ScriptModule(name, kind, scope, scriptCodes);
 
             {
-            if (name == "ironscheme.boot.new")
-              return result;
+              if (name == "ironscheme.boot.new")
+              {
+                return result;
+              }
             }
 
             // single source file unit modules have unique full path:

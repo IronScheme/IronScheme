@@ -231,6 +231,10 @@ namespace IronScheme.Runtime
 
     static Fraction ConvertToRational(object o)
     {
+      if (o is int)
+      {
+        return (int)o;
+      }
       if (o is Fraction)
       {
         return (Fraction)o;
@@ -243,7 +247,7 @@ namespace IronScheme.Runtime
       {
         return (Fraction)(double)o;
       }
-      return (Fraction)FractionConverter.ConvertFrom(o);
+      throw new NotSupportedException("number type not supported");
     }
 
     protected static double ConvertToReal(object o)
@@ -295,7 +299,7 @@ namespace IronScheme.Runtime
           }
           try
           {
-            return checked(ConvertToInteger(first) + ConvertToInteger(second));
+            return RuntimeHelpers.Int32ToObject(checked(ConvertToInteger(first) + ConvertToInteger(second)));
           }
           catch (OverflowException)
           {
@@ -344,7 +348,7 @@ namespace IronScheme.Runtime
           }
           try
           {
-            return checked(ConvertToInteger(first) - ConvertToInteger(second));
+            return RuntimeHelpers.Int32ToObject(checked(ConvertToInteger(first) - ConvertToInteger(second)));
           }
           catch (OverflowException)
           {
@@ -396,7 +400,7 @@ namespace IronScheme.Runtime
           }
           try
           {
-            return checked(ConvertToInteger(first) * ConvertToInteger(second));
+            return RuntimeHelpers.Int32ToObject(checked(ConvertToInteger(first) * ConvertToInteger(second)));
           }
           catch (OverflowException)
           {
@@ -417,37 +421,19 @@ namespace IronScheme.Runtime
       throw new NotSupportedException("number type not supported");
     }
 
+    // improve this
     protected internal static object ToIntegerIfPossible(BigInteger i)
     {
       if (i <= int.MaxValue && i >= int.MinValue)
       {
         avoidoverflow = false;
-        return (int)i;
+        return RuntimeHelpers.Int32ToObject((int)i);
       }
       else
       {
         return i;
       }
     }
-
-    static object ConvertNumber(object result, Type type)
-    {
-      try
-      {
-        return Convert.ChangeType(result, type);
-      }
-      catch (OverflowException)
-      {
-        if (type == typeof(int) || type == typeof(long))
-        {
-          return BigIntConverter.ConvertFrom(result);
-        }
-
-        throw;
-      }
-    }
-
-    static TypeConverter BigIntConverter = TypeDescriptor.GetConverter(typeof(BigInteger));
 
     [Builtin("generic/", AllowConstantFold = true)]
     public static object Divide(object first, object second)
@@ -576,13 +562,28 @@ namespace IronScheme.Runtime
     }
 
 
-    static TypeConverter FractionConverter = TypeDescriptor.GetConverter(typeof(Fraction));
-
+    // improve actually
     static object IntegerIfPossible(object res)
     {
-      if (res is BigInteger || res is Fraction || res is ComplexFraction)
+      if (res is BigInteger)
       {
-        return Exact(res);
+        return ToIntegerIfPossible((BigInteger)res);
+      }
+      else if (res is Fraction)
+      {
+        Fraction f = (Fraction)res;
+        if (f.Denominator == 1)
+        {
+          return ToIntegerIfPossible(f.Numerator);
+        }
+      }
+      else if (res is ComplexFraction)
+      {
+        ComplexFraction cf = (ComplexFraction)res;
+        if (cf.Imag == 0)
+        {
+          return IntegerIfPossible(cf.Real);
+        }
       }
       return res;
     }
@@ -595,11 +596,6 @@ namespace IronScheme.Runtime
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     internal static object Inexact(object obj)
     {
-      //if (!IsTrue(IsNumber(obj)))
-      //{
-      //  return AssertionViolation("inexact", "not a number", obj);
-      //}
-
       if (IsExact(obj))
       {
         return SafeConvert(obj);
@@ -611,10 +607,6 @@ namespace IronScheme.Runtime
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     internal static object Exact(object obj)
     {
-      //if (!IsTrue(IsNumber(obj)))
-      //{
-      //  return AssertionViolation("exact", "not a number", obj);
-      //}
       if (obj is double)
       {
         double d = (double)obj;
@@ -640,7 +632,8 @@ namespace IronScheme.Runtime
       }
       if (obj is long)
       {
-        BigInteger r = (BigInteger)BigIntConverter.ConvertFrom(obj);
+        Debugger.Break();
+        BigInteger r = (BigInteger)(long)obj;
         int ir;
         if (r.AsInt32(out ir))
         {
@@ -657,7 +650,7 @@ namespace IronScheme.Runtime
           {
             return (BigInteger)f.Numerator;
           }
-          return (int)f.Numerator;
+          return RuntimeHelpers.Int32ToObject((int)f.Numerator);
         }
         return f;
       }

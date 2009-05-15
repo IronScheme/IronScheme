@@ -209,7 +209,7 @@
                   (f (cdr s) (bitwise-ior v v2))
                   (f (cdr s) v))))))))
 
-   (make-record-printer 'enum 
+   (add-record-printer! enum? 
      (lambda (x p wr)
        (fprintf p "#[enum-set ~a]" (enum-set->list x))))  
 )      

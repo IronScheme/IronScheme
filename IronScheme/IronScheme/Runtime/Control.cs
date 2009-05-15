@@ -29,32 +29,33 @@ namespace IronScheme.Runtime
 {
   public static partial class BuiltinEmitters
   {
-    static MethodInfo ICallable_Call = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]) });
-    static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector");
-    static MethodInfo List = typeof(Cons).GetMethod("FromArray", new Type[] { typeof(object[]) });
-    static MethodInfo Append = typeof(Builtins).GetMethod("Append", new Type[] { typeof(object), typeof(object) });
-    static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Make", new Type[] { typeof(CodeContext), typeof(Delegate) });
-    
+    readonly static MethodInfo ICallable_Call = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]) });
+    readonly static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector", new [] { typeof(Cons) });
+    readonly static ConstructorInfo Cons_ctr = typeof(Cons).GetConstructor(new[] { typeof(object), typeof(object) });
 
     [InlineEmitter("apply")]
     public static Expression Apply(Expression[] args)
     {
       Expression c = Ast.ConvertHelper(args[0], typeof(ICallable));
-      if (args.Length == 2)
+      if (args.Length > 1)
       {
-        return Ast.ComplexCallHelper(c, ICallable_Call, Ast.Call(ListToVector, args[1]));
-      }
-      else if (args.Length > 2)
-      {
-        Expression head = Ast.ComplexCallHelper(List, ArrayUtils.RemoveFirst(ArrayUtils.RemoveLast(args)));
-        Expression cargs = Ast.ComplexCallHelper(Append, head, args[args.Length - 1]);
+        Expression arg = Ast.ConvertHelper(args[args.Length - 1], typeof(Cons));
+        for (int i = args.Length - 2; i > 0; i--)
+        {
+          arg = MakeCons(args[i], arg);
+        }
         
-        return Ast.ComplexCallHelper(c, ICallable_Call, Ast.Call(ListToVector, cargs));
+        return Ast.ComplexCallHelper(c, ICallable_Call, Ast.Call(ListToVector, arg));
       }
       else
       {
         return null;
       }
+    }
+
+    static Expression MakeCons(Expression car, Expression cdr)
+    {
+      return Ast.New(Cons_ctr, car , cdr);
     }
 
     [InlineEmitter("void")]

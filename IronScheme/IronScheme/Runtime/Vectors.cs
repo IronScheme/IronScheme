@@ -58,23 +58,18 @@ namespace IronScheme.Runtime
       return Runtime.Cons.FromArray(l);
     }
 
-    public static object[] ListToVector(object list)
+    public static object[] ListToVector(Cons e)
     {
-      Cons e = Requires<Cons>(list);
       ArrayList v = new ArrayList();
 
-      if (e != null)
+      while (e != null)
       {
-        while (e != null)
-        {
-          v.Add(e.car);
-           e = e.cdr as Cons;
-        }
+        v.Add(e.car);
+        e = e.cdr as Cons;
       }
+
       return v.ToArray();
     }
-
-
 
     [Builtin("vector-binary-search")]
     public static object VectorBinarySearch(object vector, object obj)
