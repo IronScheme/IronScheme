@@ -162,6 +162,7 @@ namespace IronScheme.Compiler
       {
         return e;
       }
+      
       else
         if (t.BaseType == typeof(MulticastDelegate))
         {
@@ -178,6 +179,15 @@ namespace IronScheme.Compiler
           }
           else
           {
+            // prevent boxing
+            if (e is UnaryExpression && e.Type == typeof(object))
+            {
+              var ue = (UnaryExpression)e;
+              if (ue.Operand.Type == t)
+              {
+                return ue.Operand;
+              }
+            }
             if (t.IsArray && t != typeof(byte[]))
             {
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);

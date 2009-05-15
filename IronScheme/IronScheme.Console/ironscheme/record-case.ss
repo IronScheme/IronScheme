@@ -33,12 +33,13 @@
       (syntax-case x (else)
         [(_ r [(r? f ...) e e* ...] ... [else ee])
           (for-all identifier? #'(r? ...))
-          #'(let ((r* r))
+          #'(let ((r* r)
+                  (rtd (record-type-descriptor r?)))
               (cond
-                [((record-predicate (record-type-descriptor r?)) r*)
+                [((record-predicate rtd) r*)
                  (apply 
                   (lambda (f ...) e e* ...) 
-                  (get-fields r* (record-type-descriptor r?) 'f ...) )] ...
+                  (get-fields r* rtd 'f ...) )] ...
                 [else ee]))]
         [(_ r [(r? f ...) e  e* ...] ... )
           #'(record-case r [(r? f ...) e e* ...] ... [else #f])]

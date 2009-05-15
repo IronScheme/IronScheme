@@ -52,7 +52,7 @@ namespace IronScheme.Hosting
       Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
       Runtime.Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
       Runtime.Closure.Unspecified = Builtins.Unspecified;
-      Runtime.Closure.ArrayFromCons = l => (object[])Builtins.ListToVector(l);
+      Runtime.Closure.ArrayFromCons = l => (object[])Builtins.ListToVector((Cons)l);
 
       Initialize();
 
@@ -119,15 +119,6 @@ namespace IronScheme.Hosting
       protected override string PromptContinuation
       {
         get { return ". "; }
-      }
-
-      protected override void Initialize()
-      {
-        if (File.Exists("unknown_ast.ast"))
-        {
-          File.Delete("unknown_ast.ast");
-        }
-        base.Initialize();
       }
 
       protected override int RunFile(string filename)
