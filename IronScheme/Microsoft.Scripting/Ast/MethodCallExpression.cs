@@ -174,7 +174,7 @@ namespace Microsoft.Scripting.Ast {
 
 
         public override void Emit(CodeGen cg) {
-          EmitLocation(cg);
+          //EmitLocation(cg);
           if (_instance != null && !cg.IsDynamicMethod && !IsParamsMethod()) // damn DM! // go away! // this dangerous too for now
           {
 
@@ -212,6 +212,8 @@ namespace Microsoft.Scripting.Ast {
                         EmitArgument(cg, argument, type);
                       }
 
+                      EmitLocation(cg);
+
                       for (int arg = 0; arg < _parameterInfos.Length; arg++)
                       {
                         if (pars[_parameterInfos.Length - arg - 1] != null)
@@ -233,6 +235,8 @@ namespace Microsoft.Scripting.Ast {
                     Type type = _parameterInfos[arg].ParameterType;
                     EmitArgument(cg, argument, type);
                   }
+
+                  EmitLocation(cg);
 
                   cbe.EmitDirect(cg, tailcall);
                   return;
@@ -277,11 +281,17 @@ namespace Microsoft.Scripting.Ast {
                             EmitArgument(cg, argument, type);
                           }
 
+                          var ptt = pt.GetValue(cg.MethodInfo) as Type[];
+
+                          int adjust = ptt.Length - 1 - _parameterInfos.Length;
+
+                          EmitLocation(cg);
+
                           for (int arg = 0; arg < _parameterInfos.Length; arg++)
                           {
                             if (pars[_parameterInfos.Length - arg - 1] != null)
                             {
-                              cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg);
+                              cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg + adjust);
                             }
                           }
 
@@ -334,6 +344,8 @@ namespace Microsoft.Scripting.Ast {
                 EmitArgument(cg, argument, type);
               }
 
+              EmitLocation(cg);
+
               //ever hit????
               cbe.EmitDirect(cg, tailcall);
               return;
@@ -366,9 +378,12 @@ namespace Microsoft.Scripting.Ast {
                 EmitArgument(cg, argument, type);
             }
 
+            EmitLocation(cg);
             // Emit the actual call
             cg.EmitCall(_method, tailcall);
         }
+
+        static FieldInfo pt = typeof(MethodBuilder).GetField("m_parameterTypes", BindingFlags.NonPublic | BindingFlags.Instance);
 
         bool IsParamsMethod()
         {

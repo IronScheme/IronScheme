@@ -781,6 +781,8 @@ namespace Microsoft.Scripting {
             Contract.RequiresNotNull(name, "name");
             Contract.RequiresNotNullItems(scriptCodes, "scriptCodes");
 
+            CodeGen.SymbolWriters.Clear();
+
             OptimizedModuleGenerator generator = null;
 
             if (scope == null) {
@@ -797,6 +799,8 @@ namespace Microsoft.Scripting {
             }
             
             ScriptModule result = new ScriptModule(name, kind, scope, scriptCodes);
+
+            CodeGen.SymbolWriters.Clear();
 
             {
               if (name == "ironscheme.boot.new")

@@ -102,6 +102,8 @@ namespace Microsoft.Scripting.Ast {
 
         private Expression _explicitCodeContextExpression;
 
+        public string Filename { get; set; }
+
       public override string ToString()
       {
         return _name;
@@ -966,8 +968,6 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
         bool hasThis = HasThis();
 
-        cg.EmitSequencePointNone();
-
         // TODO: storing implementations on code gen doesn't allow blocks being referenced from different methods
         // the implementations should be stored on some kind of Module when available
         CodeGen impl = cg.ProvideCodeBlockImplementation(this, hasContextParameter, hasThis);
@@ -1003,7 +1003,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
             bool hasThis = HasThis();
 
-            cg.EmitSequencePointNone();
+            
 
             // TODO: storing implementations on code gen doesn't allow blocks being referenced from different methods
             // the implementations should be stored on some kind of Module when available
@@ -1023,6 +1023,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
  typeof(CallTargetWithContextN);
                 }
                 _impl = wrapper.MethodInfo;
+                //cg.EmitPosition(Start, Start);
                 cg.EmitDelegateConstruction(wrapper, delegateType);
             } else if (_parameterArray) {
                 if (delegateType == null) {
@@ -1032,6 +1033,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 #endif
  typeof(CallTargetWithContextN);
                 }
+                //cg.EmitPosition(Start, Start);
                 cg.EmitDelegateConstruction(impl, delegateType);
             } else {
                 if (delegateType == null) {
@@ -1050,6 +1052,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
                 }
                 _impl = impl.MethodInfo;
+               // cg.EmitPosition(Start, Start);
                 cg.EmitDelegateConstruction(impl, delegateType);
             }
         }
@@ -1122,7 +1125,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
         }
 
         private string GetGeneratedName() {
-          if (_name == "anon" || string.IsNullOrEmpty(_name))
+          if (_name == "anon" || string.IsNullOrEmpty(_name) || _name.Contains("#") || _name.EndsWith("dummy"))
           {
             return _name + "$" + Interlocked.Increment(ref _Counter);
           }
@@ -1304,6 +1307,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             CompilerHelpers.EmitStackTraceTryBlockStart(impl); 
 #endif
           // emit the actual body
+            Debug.Assert(!Inlined);
             EmitBody(impl);
 
             string displayName;
@@ -1328,8 +1332,16 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                     }
                 }
             }
+            var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
+            
+            cg.EmitPosition(Start, s);
+            //cg.Emit(OpCodes.Nop);
 
             Body.Emit(cg);
+            //EmitEndPosition(cg);
+            var e = new SourceLocation(End.Index, End.Line, End.Column - 1);
+            cg.EmitPosition(e, End);
+            cg.EmitSequencePointNone();
         }
 
 

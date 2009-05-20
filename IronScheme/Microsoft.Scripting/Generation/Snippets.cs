@@ -25,13 +25,12 @@ using Microsoft.Scripting.Utils;
 namespace Microsoft.Scripting.Generation {
 
     public class Snippets {
-        private const string AssemblyName = "snippets";
-        private const string DebugAssemblyName = "debugSnippets";
+        private const string AssemblyName = "IronScheme Runtime Generated Code";
+        private const string DebugAssemblyName = "IronScheme Runtime Generated Code - Debug";
 
         private AssemblyGen _assembly;
         private AssemblyGen _debugAssembly;
 
-        private int _count = 0;
         private int _debugTypeIndex = 0;
 
         public AssemblyGen Assembly {
@@ -47,6 +46,7 @@ namespace Microsoft.Scripting.Generation {
             get {
                 if (_debugAssembly == null) {
                     _debugAssembly = CreateNewAssembly(DebugAssemblyName, MakeGenAttrs(true));
+                    _debugAssembly.CreateSymWriter();
                 }
                 return _debugAssembly;
             }
@@ -86,8 +86,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         private string GenerateAssemblyName(string baseName) {
-            int current_count = Interlocked.Increment(ref _count);
-            return (current_count > 0) ? baseName + current_count : baseName;
+            return baseName;
         }
 
         private AssemblyGen CreateNewAssembly(string name, AssemblyGenAttributes attrs) {

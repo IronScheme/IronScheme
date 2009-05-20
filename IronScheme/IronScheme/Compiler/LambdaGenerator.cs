@@ -27,6 +27,8 @@ namespace IronScheme.Compiler
     public override Expression Generate(object args, CodeBlock c)
     {
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
+      NameHint = SymbolId.Empty;
+      cb.Filename = LocationHint;
       cb.Parent = c;
 
       object arg = Builtins.First(args);

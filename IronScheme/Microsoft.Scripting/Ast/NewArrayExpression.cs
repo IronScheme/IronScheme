@@ -44,6 +44,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
+          EmitLocation(cg);
           var et = _type.GetElementType(); 
             cg.EmitArray(
                 et,

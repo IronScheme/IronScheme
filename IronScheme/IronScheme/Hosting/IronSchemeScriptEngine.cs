@@ -162,6 +162,14 @@ namespace IronScheme.Hosting
       }
     }
 
+    public override Guid LanguageGuid
+    {
+      get
+      {
+        return new Guid("4BFAEA21-B66A-458b-BC32-24457C9178B8");
+      }
+    }
+
     #endregion
 
     internal LanguageContext GetLanguageContext()

@@ -189,6 +189,7 @@ SectionIn 1 2 RO
 	File "IronScheme.dll"
 	File "IronScheme.Remoting.dll"
 	File "IronScheme.Closures.dll"
+	File "IronScheme.Web.Runtime.dll"
 	File "ironscheme.boot.dll"
 	File "Microsoft.Scripting.dll"
 	
@@ -200,6 +201,7 @@ SectionIn 1 2 RO
 	File ..\..\..\tools\IronScheme.VisualStudio.dll
 	File ..\..\..\tools\RegPkg.exe
 	File ..\..\..\tools\RegPkg.exe.config
+	File IronScheme.Web.Runtime.dll
 	
 	File "ironscheme-buildscript.ss"
 
@@ -274,6 +276,7 @@ Section -Post
   nsExec::ExecToStack 'cmd /c mklink IronScheme.Closures.dll "$INSTDIR\IronScheme.Closures.dll"'
   nsExec::ExecToStack 'cmd /c mklink ironscheme.boot.dll "$INSTDIR\ironscheme.boot.dll"'
   nsExec::ExecToStack 'cmd /c mklink Microsoft.Scripting.dll "$INSTDIR\Microsoft.Scripting.dll"'
+  nsExec::ExecToStack 'cmd /c mklink IronScheme.Web.Runtime.dll "$INSTDIR\IronScheme.Web.Runtime.dll"'
   nsExec::ExecToStack 'cmd /c mklink /d ironscheme "$INSTDIR\ironscheme"'
   nsExec::ExecToStack 'cmd /c mklink /d srfi "$INSTDIR\srfi"'
   nsExec::ExecToStack 'cmd /c mklink /d lib "$INSTDIR\lib"'

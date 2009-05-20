@@ -563,7 +563,7 @@ namespace Microsoft.Scripting.Ast {
             // (break/continue) or return/yield statement in finally clause
             TryFlowResult flow = TryFlowAnalyzer.Analyze(FinallyStatement);
 
-            cg.EmitPosition(Start, _header);
+            //cg.EmitPosition(Start, _header);
 
             // If there's a yield anywhere, go for a complex codegen
             if (YieldInBlock(_tryYields) || _yieldInCatch || YieldInBlock(_finallyYields)) {

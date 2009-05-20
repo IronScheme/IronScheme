@@ -224,7 +224,7 @@ namespace Microsoft.Scripting.Ast {
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public override void Emit(CodeGen cg) {
-
+          
             // TODO: code gen will be suboptimal for chained AndAlsos and AndAlso inside If
             if (NodeType == AstNodeType.AndAlso || NodeType == AstNodeType.OrElse) {
                 EmitBooleanOperator(cg, NodeType == AstNodeType.AndAlso);
@@ -233,6 +233,8 @@ namespace Microsoft.Scripting.Ast {
 
             _left.EmitAs(cg, GetEmitType());
             _right.EmitAs(cg, GetEmitType());
+
+            EmitLocation(cg);
 
             switch (NodeType) {
                 case AstNodeType.Equal:

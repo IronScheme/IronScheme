@@ -93,7 +93,7 @@ namespace Microsoft.Scripting.Ast {
             }
 
             if (_header.IsValid) {
-                cg.EmitPosition(Start, _header);
+                //cg.EmitPosition(Start, _header);
             }
             cg.MarkLabel(continueTarget);
 

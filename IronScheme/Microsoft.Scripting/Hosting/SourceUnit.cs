@@ -35,7 +35,7 @@ namespace Microsoft.Scripting.Hosting {
         private SourceContentProvider _contentProvider;
         private Action<SourceUnit> _contentReloader; // TODO: better: ReloadableStringProvider?
 
-        private bool _isDebuggable;
+        private bool _isDebuggable = true;
         private bool _disableLineFeedLineSeparator;
 
         // content dependent properties:

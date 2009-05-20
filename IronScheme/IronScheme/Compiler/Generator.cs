@@ -46,6 +46,8 @@ namespace IronScheme.Compiler
       set { Generator.spanhint = value; }
     }
 
+    protected static string LocationHint { get; set; }
+
     // this is probably not very threadsafe....
     protected static Dictionary<SymbolId, CodeBlockExpression> references = new Dictionary<SymbolId, CodeBlockExpression>();
 
@@ -447,6 +449,7 @@ namespace IronScheme.Compiler
             // if null is returned, the method cannot be inlined
             if (result != null)
             {
+              result.SetLoc(spanhint);
               if (result.Type.IsValueType)
               {
                 result = Ast.ConvertHelper(result, typeof(object));
@@ -502,7 +505,9 @@ namespace IronScheme.Compiler
                       object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
                         Closure.Make(null, handler),
                         Closure.Make(null, disp));
-                      return GetCons(result, cb);
+                      var rrrr = GetCons(result, cb);
+                      rrrr.SetLoc(spanhint);
+                      return rrrr;
                     }
                     catch
                     {
@@ -525,7 +530,9 @@ namespace IronScheme.Compiler
                     ;
                   }
 
-                  return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                  var rrrr = Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                  rrrr.SetLoc(spanhint);
+                  return rrrr;
                 }
               }
 
@@ -566,7 +573,9 @@ namespace IronScheme.Compiler
                         object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
                           Closure.Make(null, handler),
                           Closure.Make(null, disp));
-                        return GetCons(result, cb);
+                        var rrrr = GetCons(result, cb);
+                        rrrr.SetLoc(spanhint);
+                        return rrrr;
                       }
                       catch
                       {
@@ -584,7 +593,9 @@ namespace IronScheme.Compiler
                     }
                     MethodBase meth = mc.Target.Method;
 
-                    return Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                    var rrrr = Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                    rrrr.SetLoc(spanhint);
+                    return rrrr;
                   }
                 }
                 // check for overload thing
@@ -896,7 +907,9 @@ namespace IronScheme.Compiler
 
       cbe.Block.Bind();
 
-      return Ast.ComplexCallHelper(cbe, dc, ppp);
+      var r = Ast.ComplexCallHelper(cbe, dc, ppp);
+      r.SetLoc(SpanHint);
+      return r;
     }
 
     static bool NeedsContext(CodeBlockExpression cbe)
@@ -941,7 +954,9 @@ namespace IronScheme.Compiler
 
       cbe.Block.Bind();
 
-      return Ast.ComplexCallHelper(cbe, dc, ppp);
+      var r = Ast.ComplexCallHelper(cbe, dc, ppp);
+      r.SetLoc(SpanHint);
+      return r;
     }
 
     #endregion

@@ -58,6 +58,17 @@
                 (lambda (x) 
                   (cons (car x) (map f (cdr x))))
                 (cdr x))))
+           ((annotated-call) 
+            (cons* 'annotated-call
+                   (cadr x)
+                   (f (cddr x))))
+           ((annotated-case-lambda) 
+            (cons* 'annotated-case-lambda
+                   (cadr x)
+                   (map 
+                     (lambda (x) 
+                       (cons (car x) (map f (cdr x))))
+                     (cddr x))))                
            ((lambda) 
             (cons* 'lambda (cadr x) (map f (cddr x))))
            ((letrec) 

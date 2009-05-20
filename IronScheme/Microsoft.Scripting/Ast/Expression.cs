@@ -92,6 +92,7 @@ namespace Microsoft.Scripting.Ast {
         if (IsValidLocation)
         {
           cg.EmitPosition(_start, _end);
+          cg.Emit(OpCodes.Nop);
         }
       }
 

@@ -55,6 +55,8 @@ namespace Microsoft.Scripting {
         }
 
         public object CurrentValue {
+          [DebuggerHidden]
+          [DebuggerStepThrough]
             get {
                 if (_value != Uninitialized.Instance) return _value;                
 

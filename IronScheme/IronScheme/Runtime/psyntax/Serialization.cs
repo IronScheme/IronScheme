@@ -166,13 +166,16 @@ namespace IronScheme.Runtime.psyntax
         try
         {
           Assembly a = Assembly.Load(assemblyName);
-          return a.GetType(typeName);
+          return a.GetType(typeName, true);
         }
         catch (Exception)
         {
-          foreach (Type t in R6RS.Records.typedescriptors.Keys)
+          typeName = typeName.Substring(0, typeName.Length - 36);
+          foreach (var kvp in R6RS.Records.typedescriptors)
           {
-            if (t.Name == typeName)
+            var t = kvp.Key;
+            var v = kvp.Value;
+            if (typeName == v.name) // watch for exceptions?
             {
               return t;
             }

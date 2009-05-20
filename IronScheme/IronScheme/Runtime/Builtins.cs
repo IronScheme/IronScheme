@@ -83,6 +83,8 @@ namespace IronScheme.Runtime
       get { return lastException; }
     }
 
+    [DebuggerHidden]
+    [DebuggerStepThrough]
     public static bool IsTrue(object arg)
     {
       if (arg == FALSE)
@@ -336,6 +338,20 @@ namespace IronScheme.Runtime
       return Guid.NewGuid();
     }
 
+    [Builtin("debug-mode?")]
+    public static object IsDebugMode()
+    {
+      return GetBool(ScriptDomainManager.Options.DebugMode);
+    }
+
+    [Builtin("debug-mode?")]
+    public static object IsDebugMode(object newmode)
+    {
+      ScriptDomainManager.Options.DebugMode = IsTrue(newmode);
+      return Unspecified;
+    }
+
+
     internal readonly static List<string> includepaths = new List<string>();
 
 
@@ -460,10 +476,24 @@ namespace IronScheme.Runtime
     {
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
-#if !DEBUG
-//      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
-#endif
+
+      if (ScriptDomainManager.Options.DebugMode)
+      {
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.EmitDebugInfo;
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.GenerateDebugAssemblies;
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.DisableOptimizations;
+
+        ScriptDomainManager.Options.DebugCodeGeneration = true;
+      }
+      else
+      {
+        ScriptDomainManager.Options.DebugCodeGeneration = false;
+      }
+
+
+
       // if you ever want to inspect the emitted dll's comment this out, use with care
       ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
 
@@ -474,7 +504,8 @@ namespace IronScheme.Runtime
       cb.ExplicitCodeContextExpression = null;
       cb.Name = "ironscheme.boot.new";
 
-      ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); 
+      ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb);
+      sc.SourceUnit.IsVisibleToDebugger = true;
 
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - bootfile"));
@@ -521,10 +552,21 @@ namespace IronScheme.Runtime
 
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
-#if !DEBUG
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
-#endif
+
+      if (ScriptDomainManager.Options.DebugMode)
+      {
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.EmitDebugInfo;
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.GenerateDebugAssemblies;
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.DisableOptimizations;
+        ScriptDomainManager.Options.DebugCodeGeneration = true;
+      }
+      else
+      {
+        ScriptDomainManager.Options.DebugCodeGeneration = false;
+      }
+
       // if you ever want to inspect the emitted dll's comment this out, use with care
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 

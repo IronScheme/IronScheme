@@ -25,16 +25,17 @@
     build-case-lambda build-let build-primref build-foreign-call
     build-data build-sequence build-void build-letrec build-letrec*
     build-global-define build-library-letrec*)
-  (import (rnrs) (psyntax compat) (psyntax config))
+  (import (rnrs) (psyntax compat) (psyntax config) (only (ironscheme) debug-mode?))
   
   (define (build-global-define x)
     (if-wants-global-defines
       `(define ,x uninitialized)
       (build-void)))
-  (define-syntax build-application
-    (syntax-rules ()
-      ((_ ae fun-exp arg-exps)
-       `(,fun-exp . ,arg-exps))))
+  (define build-application
+    (lambda (ae fun-exp arg-exps)
+      (if (and (debug-mode?) ae)
+          `(annotated-call ,ae ,fun-exp . ,arg-exps)
+          (cons fun-exp arg-exps))))
   (define-syntax build-conditional
     (syntax-rules ()
       ((_ ae test-exp then-exp else-exp)
@@ -57,16 +58,14 @@
   (define build-lambda
     (lambda (ae vars exp) 
       (if-wants-case-lambda
-          (if ae
-              `(case-lambda (,vars ,exp))
-              `(case-lambda (,vars ,exp)))
-          `(lambda ,vars ,exp))))
+        (build-case-lambda ae (list vars) (list exp))
+        `(lambda ,vars ,exp))))
   (define build-case-lambda
     (if-wants-case-lambda
       (lambda (ae vars* exp*)
-        (if ae
-          `(case-lambda . ,(map list vars* exp*))
-          `(case-lambda . ,(map list vars* exp*))))
+        (if (and (debug-mode?) ae)
+            `(annotated-case-lambda ,ae . ,(map list vars* exp*))
+            `(case-lambda . ,(map list vars* exp*))))
       (lambda (ae vars* exp*)
         (define (build-error ae)
           (build-application ae 

@@ -125,8 +125,8 @@ namespace Microsoft.Scripting.Generation {
                 _argumentSlots[i] = new ArgSlot(i + firstArg + thisOffset, paramTypes[i + firstArg], this);
             }
 
-            if (typeGen != null)
-                this._debugSymbolWriter = typeGen.AssemblyGen.SymbolWriter;
+            //if (typeGen != null)
+            //    this._debugSymbolWriter = typeGen.AssemblyGen.SymbolWriter;
 
             ILDebug = assemblyGen.ILDebug;
             // this is a bit more tricky than i would think :|
@@ -161,7 +161,10 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public bool EmitDebugInfo {
-            get { return _debugSymbolWriter != null; }
+            get 
+            {
+              return _typeGen != null && _typeGen.AssemblyGen.SymbolWriter != null;// _debugSymbolWriter != null;
+            }
         }
 
         //[Obsolete("use Methodbase instead")]
@@ -701,6 +704,7 @@ namespace Microsoft.Scripting.Generation {
                 if (start == SourceLocation.None || end == SourceLocation.None) {
                     return;
                 }
+
                 Debug.Assert(start.Line > 0 && end.Line > 0);
 
                 MarkSequencePoint(
@@ -709,20 +713,21 @@ namespace Microsoft.Scripting.Generation {
                     end.Line, end.Column
                     );
 
-                Emit(OpCodes.Nop);
+                //Emit(OpCodes.Nop);
             }
 
             EmitCurrentLine(start.Line);
         }
 
         public void EmitSequencePointNone() {
-            if (EmitDebugInfo) {
-                MarkSequencePoint(
-                    _debugSymbolWriter,
-                    SourceLocation.None.Line, SourceLocation.None.Column,
-                    SourceLocation.None.Line, SourceLocation.None.Column
-                    );
-            }
+          if (EmitDebugInfo)
+          {
+            MarkSequencePoint(
+                _debugSymbolWriter,
+                SourceLocation.None.Line, SourceLocation.None.Column,
+                SourceLocation.None.Line, SourceLocation.None.Column
+                );
+          }
         }
 
         public Slot GetLocalTmp(Type type) {
@@ -1985,12 +1990,25 @@ namespace Microsoft.Scripting.Generation {
             _ilg.MarkLabel(loc);
         }
         
-        public void MarkSequencePoint(ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn) {
-            if (_context != null) {
+        void MarkSequencePoint(ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn) {
+          if (document == null)
+          {
+            return;
+          }
+          if (_context != null) {
                 startLine = _context.SourceUnit.MapLine(startLine);
                 endLine = _context.SourceUnit.MapLine(endLine);
             }
-            _ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
+
+            Debug.Assert(document != null);
+
+            var fn = GetFilename(document);
+
+            if (fn != null)
+            {
+              Debug.WriteLine(string.Format("{4} : {5} ({0},{1}) - ({2},{3})", startLine, startColumn, endLine, endColumn, fn ?? "none", MethodBase.Name));
+              _ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
+            }
         }
         
         public void EmitWriteLine(string value) {
@@ -2369,6 +2387,20 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
+        readonly internal static Dictionary<string, ISymbolDocumentWriter> SymbolWriters = new Dictionary<string, ISymbolDocumentWriter>();
+
+        static string GetFilename(ISymbolDocumentWriter w)
+        {
+          foreach (var kp in SymbolWriters)
+          {
+            if (kp.Value == w)
+            {
+              return kp.Key;
+            }
+          }
+          return null;
+        }
+
         /// <summary>
         /// Returns the CodeGen implementing the code block.
         /// Emits the code block implementation if it hasn't been emitted yet.
@@ -2377,18 +2409,45 @@ namespace Microsoft.Scripting.Generation {
             Assert.NotNull(block);
             CodeGen impl;
 
+            Debug.Assert(!block.Inlined);
+
             // emit the code block method if it has:
-            if (!_codeBlockImplementations.TryGetValue(block, out impl)) {
-                FlowChecker.Check(block);
-                impl = block.CreateMethod(this, hasContextParameter, hasThis);
-                impl.Binder = _binder;
+            if (!_codeBlockImplementations.TryGetValue(block, out impl))
+            {
+              FlowChecker.Check(block);
+              impl = block.CreateMethod(this, hasContextParameter, hasThis);
+              impl.Binder = _binder;
 
-                _codeBlockImplementations.Add(block, impl);
+              if (block.Filename != null && EmitDebugInfo)
+              {
+                var fn = block.Filename;
+                ISymbolDocumentWriter sw;
+                if (!SymbolWriters.TryGetValue(fn, out sw))
+                {
+                  SymbolWriters[fn] = sw = _typeGen.AssemblyGen.ModuleBuilder.DefineDocument(
+                    fn,
+                    _typeGen.AssemblyGen.LanguageGuid,
+                    _typeGen.AssemblyGen.VendorGuid,
+                    SymbolGuids.DocumentType_Text);
+                }
 
-                block.EmitFunctionImplementation(impl);
-                impl.Finish();
+                impl._debugSymbolWriter = sw;
+              }
+              else
+              {
+                impl._debugSymbolWriter = null;
+              }
 
-                
+              _codeBlockImplementations.Add(block, impl);
+
+              block.EmitFunctionImplementation(impl);
+              impl.Finish();
+
+
+            }
+            else
+            {
+              ;
             }
 
             return impl;

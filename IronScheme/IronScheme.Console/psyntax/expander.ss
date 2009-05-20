@@ -2780,7 +2780,7 @@
       (syntax-match e  ()
         ((rator rands ...)
          (let ((rator (chi-expr rator r mr)))
-           (build-application no-source
+           (build-application (syntax-annotation e)
              rator
              (chi-expr* rands r mr)))))))
 
@@ -3718,7 +3718,7 @@
 
   (define-record interaction-env (rib r locs)
     (lambda (x p wr)
-      (display "#<environment>" p)))
+      (display "#<interactive-environment>" p)))
       
   (define (interaction-environment-symbols)
     (environment-symbols (interaction-environment)))
@@ -3736,8 +3736,14 @@
       (case (cadr b) 
         ((core-prim global) 'procedure)
         ((core-macro macro global-macro) 'syntax)
-        (($core-rtd) 'record)
-        (else (if (eq? (car b) (cadr b)) 'syntax 'unknown)))))            
+        (($core-rtd $rtd) 'record)
+        (else 
+          (if (eq? (car b) (cadr b)) 
+              'syntax 
+              (begin
+                ;(display (cadr b))
+                ;(newline)
+                'unknown))))))            
   
   (define environment?
     (lambda (x) (or (env? x) (interaction-env? x))))

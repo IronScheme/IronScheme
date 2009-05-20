@@ -78,15 +78,21 @@ namespace Microsoft.Scripting {
             return result;
         }
 
+        [DebuggerHidden]
+        [DebuggerStepThrough]
         public static string CharToString(char ch) {
             if (ch < 255) return chars[ch];
             return new string(ch, 1);
         }
 
+        [DebuggerHidden]
+        [DebuggerStepThrough]
         public static object BooleanToObject(bool value) {
             return value ? True : False;
         }
 
+        [DebuggerHidden]
+        [DebuggerStepThrough]
         public static object Int32ToObject(Int32 value) {
             // caches improves pystone by ~5-10% on MS .Net 1.1, this is a very integer intense app
             if (value < MAX_CACHE && value >= MIN_CACHE) {

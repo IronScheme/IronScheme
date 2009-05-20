@@ -62,6 +62,7 @@ namespace Microsoft.Scripting.Ast {
             // Emit the index
             _index.Emit(cg);
             // Load the array element
+            EmitLocation(cg);
             cg.EmitLoadElement(_elementType);
         }
     }

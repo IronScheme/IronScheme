@@ -77,6 +77,7 @@ namespace Microsoft.Scripting.Ast {
             _value.Emit(cg);
             //temp.EmitGet(cg);
             // Store it in the array
+            EmitLocation(cg);
             cg.EmitStoreElement(_elementType);
             
             //temp.EmitGet(cg); //DO NOT WANT!!!

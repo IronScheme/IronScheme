@@ -566,13 +566,15 @@
     (define (vector->list vec)
       (unless (vector? vec)
         (assertion-violation 'vector->list "not a vector" vec))
-      (clr-static-call IronScheme.Runtime.Cons FromList vec))         
+      (clr-static-call IronScheme.Runtime.Cons FromList vec))   
+      
+    (define (reverse-helper l a)
+      (if (null? l)
+          a
+          (reverse-helper (cdr l) (cons (car l) a))))
           
-    (define (xcons x y)
-      (cons y x))            
-     
     (define (reverse lst)
-      (fold-left xcons '() lst))
+      (reverse-helper lst '()))
      
     (define (caar   x) (car (car x)))
     (define (cadr   x) (car (cdr x)))

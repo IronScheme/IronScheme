@@ -32,20 +32,20 @@ namespace IronScheme.Hosting
     public IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
-#if !DEBUG || CPS
-      ScriptDomainManager.Options.DebugMode = false;
-      ScriptDomainManager.Options.EngineDebug = false;
-      ScriptDomainManager.Options.DebugCodeGeneration = false;
-      ScriptDomainManager.Options.OptimizeEnvironments = true;
+//#if !DEBUG || CPS
+//      ScriptDomainManager.Options.DebugMode = false;
+//      ScriptDomainManager.Options.EngineDebug = false;
+//      ScriptDomainManager.Options.DebugCodeGeneration = false;
+//      ScriptDomainManager.Options.OptimizeEnvironments = true;
 
-#endif
-      ScriptDomainManager.Options.AssemblyGenAttributes =
-#if DEBUG && !CPS
- Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
-        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
- Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
-#endif
-       Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
+//#endif
+//      ScriptDomainManager.Options.AssemblyGenAttributes =
+//#if DEBUG && !CPS
+// Microsoft.Scripting.Generation.AssemblyGenAttributes.EmitDebugInfo |
+//        Microsoft.Scripting.Generation.AssemblyGenAttributes.GenerateDebugAssemblies |
+// Microsoft.Scripting.Generation.AssemblyGenAttributes.DisableOptimizations |
+//#endif
+//       Microsoft.Scripting.Generation.AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
       

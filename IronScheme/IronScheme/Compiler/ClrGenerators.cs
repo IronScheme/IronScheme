@@ -158,7 +158,7 @@ namespace IronScheme.Compiler
 
     protected static Expression ConvertToHelper(Type t, Expression e)
     {
-      if (t == e.Type)
+      if (t.IsAssignableFrom(e.Type))
       {
         return e;
       }
@@ -183,7 +183,7 @@ namespace IronScheme.Compiler
             if (e is UnaryExpression && e.Type == typeof(object))
             {
               var ue = (UnaryExpression)e;
-              if (ue.Operand.Type == t)
+              if (t.IsAssignableFrom(ue.Operand.Type))
               {
                 return ue.Operand;
               }

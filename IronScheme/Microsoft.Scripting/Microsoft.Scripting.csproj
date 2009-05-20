@@ -50,7 +50,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" Condition=" $(SilverlightBuild) != 'true' " />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Hosts\Silverlight\SilverlightVersion.cs" Condition=" '$(SilverlightBuild)' == 'true' ">
@@ -345,7 +344,6 @@
     <Compile Include="Hosting\PlatformAdaptationLayer.cs" />
     <Compile Include="Hosting\ConsoleHost.cs" />
     <Compile Include="Hosting\ConsoleHostOptions.cs" />
-    <Compile Include="Hosting\ScriptConfiguratiton.cs" />
     <Compile Include="Hosting\ScriptEnvironment.Remote.cs" />
     <Compile Include="Hosting\ScriptEnvironmentSetup.cs" />
     <Compile Include="Hosting\ScriptHost.cs" />

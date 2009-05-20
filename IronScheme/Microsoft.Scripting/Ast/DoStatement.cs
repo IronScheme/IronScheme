@@ -76,7 +76,7 @@ namespace Microsoft.Scripting.Ast {
 
             cg.MarkLabel(continueTarget);
             // TODO: Check if we need to emit position somewhere else also.
-            cg.EmitPosition(Start, _header);
+            //cg.EmitPosition(Start, _header);
 
             _test.Emit(cg);
             cg.Emit(OpCodes.Brtrue, startTarget);

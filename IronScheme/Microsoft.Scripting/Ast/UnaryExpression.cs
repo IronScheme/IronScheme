@@ -43,6 +43,8 @@ namespace Microsoft.Scripting.Ast {
 
             _operand.Emit(cg);
 
+            EmitLocation(cg);
+
             switch (NodeType) {
                 case AstNodeType.Convert:
                     cg.EmitCast(_operand.Type, _type);
