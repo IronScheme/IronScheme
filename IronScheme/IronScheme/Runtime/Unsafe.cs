@@ -4,6 +4,7 @@ using System.Text;
 using IronScheme.Compiler;
 using Microsoft.Scripting.Ast;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -35,6 +36,17 @@ namespace IronScheme.Runtime
           Builtins.SyntaxError(false, string.Format("expected {0} arguments", count), args, false);
           return false;
         }
+      }
+
+
+      [InlineEmitter("$break")]
+      public static Expression Break(Expression[] args)
+      {
+        if (Expect(args, 0))
+        {
+          return Ast.Call(typeof(Debugger).GetMethod("Break"));
+        }
+        return null;
       }
 
       [InlineEmitter("$try")]

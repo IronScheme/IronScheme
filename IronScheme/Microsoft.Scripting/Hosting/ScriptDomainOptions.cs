@@ -22,11 +22,11 @@ using Microsoft.Scripting.Generation;
 namespace Microsoft.Scripting.Hosting {
     [Serializable]
     public sealed class ScriptDomainOptions {
-        private bool _debugMode = true;
+        private bool _debugMode = false;
         private bool _engineDebug;
         private bool _verbose;
         private bool _traceBackSupport = (IntPtr.Size == 4);  // currently only enabled on 32-bit
-        private bool _debugCodeGen = true;
+        private bool _debugCodeGen = false;
         private bool _trackPerformance;
         private bool _optimizeEnvironments = true;
         private bool _frames;

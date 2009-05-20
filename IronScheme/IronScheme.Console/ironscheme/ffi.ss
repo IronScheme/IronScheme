@@ -15,9 +15,28 @@
   )
   (import 
     (ironscheme)
-    (ironscheme clr))
+    (ironscheme clr)
+    (ironscheme clr internal))
     
   (clr-using System.Runtime.InteropServices)
+  
+  (define-syntax ffi-callout
+    (lambda (x)
+      (define (->string id) 
+        (symbol->string (syntax->datum id)))
+      (syntax-case x ()
+        [(_ ret (args ...))
+          (with-syntax (((args ...) (map ->string #'(ret args ...))))
+            #'(ffi-callout-internal args ...))])))
+            
+  (define-syntax ffi-callback
+    (lambda (x)
+      (define (->string id) 
+        (symbol->string (syntax->datum id)))
+      (syntax-case x ()
+        [(_ ret (args ...))
+          (with-syntax (((args ...) (map ->string #'(ret args ...))))
+            #'(ffi-callback-internal args ...))])))    
 
   (define (write-int8! ptr ofs val) 
     (clr-static-call Marshal "WriteByte(IntPtr,Int32,Byte)" ptr ofs val))

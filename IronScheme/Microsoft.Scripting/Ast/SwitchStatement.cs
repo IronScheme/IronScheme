@@ -55,7 +55,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
-            cg.EmitPosition(Start, _header);
+            //cg.EmitPosition(Start, _header);
 
             Label breakTarget = cg.DefineLabel();
             Label defaultTarget = breakTarget;

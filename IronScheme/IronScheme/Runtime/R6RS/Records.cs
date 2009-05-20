@@ -103,7 +103,7 @@ namespace IronScheme.Runtime.R6RS
 
 #if DEBUG
         // this is just all wrong wrong wrong!!!
-        Assembly genass = ag.DumpAndLoad();
+        //Assembly genass = ag.DumpAndLoad();
 #endif
         MethodInfo ci = type.GetMethod("make");
         constructor = Closure.Make(null, Delegate.CreateDelegate(typeof(CallTargetN), ci));
@@ -215,11 +215,9 @@ namespace IronScheme.Runtime.R6RS
         assname = assname + "-" + Guid.NewGuid();
       }
 
-      string safeassname = assnamefix.Replace(n, MakeSafe);  
-
-      AssemblyGen ag =
-        new AssemblyGen(safeassname, ".", safeassname + ".dll", AssemblyGenAttributes.None);
-
+      AssemblyGen ag = ScriptDomainManager.Options.DebugMode ?
+        ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
+        ScriptDomainManager.CurrentManager.Snippets.Assembly;
 
       bool @sealed = RequiresNotNull<bool>(issealed);
       bool opaque = RequiresNotNull<bool>(isopaque);
@@ -253,7 +251,7 @@ namespace IronScheme.Runtime.R6RS
         attrs |= TypeAttributes.Sealed;
       }
 
-      TypeGen tg = ag.DefinePublicType(n.Replace("&", "$"), parenttype, attrs);
+      TypeGen tg = ag.DefinePublicType(n.Replace("&", "$") + Guid.NewGuid() , parenttype, attrs);
 
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
@@ -669,11 +667,7 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordTypeName(object rtd)
     {
       RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      if (IsCondition(rtd))
-      {
-        return SymbolTable.StringToObject(r.type.Name.Replace("$","&"));
-      }
-      return SymbolTable.StringToObject(r.type.Name);
+      return SymbolTable.StringToObject(r.name);
     }
 
     [Builtin("record-type-parent")]

@@ -274,6 +274,7 @@
     (export                                     i)
     (library                                    i) 
     (include                                    i)
+    (debug-mode?                                i)
     (decompose-flonum                           i)
     (open-output-string                         i)
     (get-output-string                          i)
@@ -365,6 +366,7 @@
     (eqv-hash                                   ic) ; TODO: remove
     (make-record-printer                        irp)
     (add-record-printer!                        irp)
+    ($break                                     iu)
     ($car                                       iu)
     ($cdr                                       iu)
     ($vector-ref                                iu)

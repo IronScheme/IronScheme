@@ -136,7 +136,7 @@
                                                                            "?")))))
          #`(begin 
              (define-record name (field* ...)) 
-             (define record-printer (add-record-printer! pname printer))))]
+             (define dummy (add-record-printer! pname printer))))]
       [(_ name (field* ...))
        (with-syntax ([(getter* ...)
                       (map (gen-getter #'name) #'(field* ...))]

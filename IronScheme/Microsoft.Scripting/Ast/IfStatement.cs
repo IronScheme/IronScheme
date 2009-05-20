@@ -60,8 +60,8 @@ namespace Microsoft.Scripting.Ast {
             Label eoi = cg.DefineLabel();
             foreach (IfStatementTest t in _tests) {
                 Label next = cg.DefineLabel();
-                cg.EmitPosition(t.Start, t.Header);
-
+                //cg.EmitPosition(t.Start, t.Header);
+                
                 t.Test.EmitBranchFalse(cg, next);
 
                 t.Body.Emit(cg);

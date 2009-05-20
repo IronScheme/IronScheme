@@ -172,6 +172,7 @@ namespace IronScheme.Compiler
           return typeof(sbyte);
         case "int16":
           return typeof(short);
+        case "int":
         case "int32":
           return typeof(int);
         case "int64":
@@ -186,8 +187,10 @@ namespace IronScheme.Compiler
           return typeof(ulong);
         case "uintpr":
           return typeof(UIntPtr);
+        case "float":
         case "float32":
           return typeof(float);
+        case "double":
         case "float64":
           return typeof(double);
         case "string":
@@ -201,11 +204,9 @@ namespace IronScheme.Compiler
 
     protected static Type MakeDelegateType(Type returntype, List<Type> paramtypes)
     {
-      AssemblyName asmName = new AssemblyName("delegate-maker");
-      AssemblyBuilder dynamicAsm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.Run);
-      ModuleBuilder dynamicMod = dynamicAsm.DefineDynamicModule("delegate-maker");
+      ModuleBuilder dynamicMod = ScriptDomainManager.CurrentManager.Snippets.Assembly.ModuleBuilder;
 
-      TypeBuilder tb = dynamicMod.DefineType("delegate-maker", TypeAttributes.Public | TypeAttributes.Sealed, typeof(MulticastDelegate));
+      TypeBuilder tb = dynamicMod.DefineType("delegate-maker" + Guid.NewGuid(), TypeAttributes.Public | TypeAttributes.Sealed, typeof(MulticastDelegate));
 
       tb.DefineConstructor(MethodAttributes.RTSpecialName | MethodAttributes.SpecialName | MethodAttributes.Public | MethodAttributes.HideBySig, CallingConventions.Standard,
         new Type[] { typeof(object), typeof(IntPtr) }).SetImplementationFlags(MethodImplAttributes.Runtime);
@@ -215,11 +216,8 @@ namespace IronScheme.Compiler
 
       inv.SetImplementationFlags(MethodImplAttributes.Runtime);
       
-      //inv.SetCustomAttribute(new CustomAttributeBuilder(typeof(UnmanagedFunctionPointerAttribute).GetConstructors()[0], new object[] { CallingConvention.Cdecl }));
       var t = tb.CreateType();
-
       return t;
-
     }
   }
 
@@ -325,7 +323,7 @@ namespace IronScheme.Compiler
   public sealed class PInvokeCallGenerator : FFIGenerator
   {
     //(import (ironscheme clr))
-    //(define malloc (ffi-callout msvcrt malloc void* (uint32)))
+    //(define malloc (pinvoke-call msvcrt malloc void* (uint32)))
     public override Expression Generate(object args, CodeBlock cb)
     {
       Cons c = args as Cons;
@@ -365,11 +363,9 @@ namespace IronScheme.Compiler
  
     public static MethodInfo MakePInvokeStub(string DllPath, string EntryPoint, Type returnType, Type[] parameterTypes)
     {
-      AssemblyName asmName = new AssemblyName(DllPath + "-" + EntryPoint);
-      AssemblyBuilder dynamicAsm = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.Run);
-      ModuleBuilder dynamicMod = dynamicAsm.DefineDynamicModule(DllPath + "-" + EntryPoint);//,, DllPath + "-" + EntryPoint + ".dll");
+      ModuleBuilder dynamicMod = ScriptDomainManager.CurrentManager.Snippets.Assembly.ModuleBuilder;
 
-      TypeBuilder tb = dynamicMod.DefineType("errr", TypeAttributes.Public);
+      TypeBuilder tb = dynamicMod.DefineType("pinvoke-" + EntryPoint + Guid.NewGuid(), TypeAttributes.Public);
 
       MethodBuilder dynamicMethod = tb.DefineMethod(EntryPoint,
         MethodAttributes.Static | MethodAttributes.Public | MethodAttributes.PinvokeImpl, CallingConventions.Standard,
@@ -383,7 +379,7 @@ namespace IronScheme.Compiler
       MethodInfo mi = t.GetMethod(EntryPoint);
       try
       {
-        Marshal.Prelink(mi);
+        //Marshal.Prelink(mi);
       }
       catch (Exception ex)
       {

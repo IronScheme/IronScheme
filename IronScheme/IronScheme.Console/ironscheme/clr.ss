@@ -23,32 +23,12 @@
     clr-indexer-set!
     clr-new
     clr-new-array
-    ffi-callout
-    ffi-callback
     pinvoke-call)
   (import
     (rnrs)
     (ironscheme clr helpers)
     (ironscheme clr internal))
-    
-  (define-syntax ffi-callout
-    (lambda (x)
-      (define (->string id) 
-        (symbol->string (syntax->datum id)))
-      (syntax-case x ()
-        [(_ ret (args ...))
-          (with-syntax (((args ...) (map ->string #'(ret args ...))))
-            #'(ffi-callout-internal args ...))])))
-            
-  (define-syntax ffi-callback
-    (lambda (x)
-      (define (->string id) 
-        (symbol->string (syntax->datum id)))
-      (syntax-case x ()
-        [(_ ret (args ...))
-          (with-syntax (((args ...) (map ->string #'(ret args ...))))
-            #'(ffi-callback-internal args ...))])))            
-            
+        
   (define-syntax pinvoke-call
     (lambda (x)
       (define (->string id) 
@@ -62,14 +42,14 @@
   (define-syntax clr-using
     (lambda (e)
       (syntax-case e ()
-        [(k namespace)
-         #`(define #,(symbol->syntax #'k 'using) (clr-using-internal 'namespace))])))
+        [(_ namespace)
+         #`(define using (clr-using-internal 'namespace))])))
 
   (define-syntax clr-reference
     (lambda (e)
       (syntax-case e ()
-        [(k assname)
-         #`(define #,(symbol->syntax #'k 'reference) (clr-reference-internal 'assname))])))
+        [(_ assname)
+         #`(define reference (clr-reference-internal 'assname))])))
 
   (define-syntax clr-is
     (lambda (e)

@@ -47,7 +47,15 @@ namespace IronScheme.Runtime
       string fn = Path.GetFullPath(path);
       if (File.Exists(fn))
       {
-        return Assembly.LoadFrom(fn);
+        var pdb = Path.ChangeExtension(fn, ".pdb");
+        if (File.Exists(pdb))
+        {
+          return Assembly.Load(File.ReadAllBytes(fn), File.ReadAllBytes(pdb));
+        }
+        else
+        {
+          return Assembly.LoadFrom(fn);
+        }
       }
       FileNotFoundViolation(FALSE, "file not found", path);
       return null;
@@ -100,8 +108,19 @@ namespace IronScheme.Runtime
             {
               File.Delete("ironscheme.boot.old.dll");
             }
+
             File.Move("ironscheme.boot.dll", "ironscheme.boot.old.dll");
             File.Move(newbf, "ironscheme.boot.dll");
+          }
+
+          if (File.Exists("ironscheme.boot.new.pdb"))
+          {
+            if (File.Exists("ironscheme.boot.pdb"))
+            {
+              File.Delete("ironscheme.boot.pdb");
+            }
+
+            File.Move("ironscheme.boot.new.pdb", "ironscheme.boot.pdb");
           }
 
           Assembly ext = AssemblyLoad(path);

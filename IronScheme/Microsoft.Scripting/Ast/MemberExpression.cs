@@ -71,6 +71,8 @@ namespace Microsoft.Scripting.Ast {
             // emit "this", if any
             EmitInstance(cg);
 
+            EmitLocation(cg);
+
             switch (_member.MemberType) {
                 case MemberTypes.Field:
                     FieldInfo field = (FieldInfo)_member;

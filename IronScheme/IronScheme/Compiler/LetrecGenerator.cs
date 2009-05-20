@@ -30,7 +30,7 @@ namespace IronScheme.Compiler
     public override Expression Generate(object args, CodeBlock c)
     {
       level++;
-      NameHint = SymbolTable.StringToId("letrec");
+      NameHint = SymbolTable.StringToId("");
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
       cb.Parent = c;
 

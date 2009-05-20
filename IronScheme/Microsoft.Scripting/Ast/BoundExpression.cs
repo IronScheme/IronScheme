@@ -153,6 +153,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
+          EmitLocation(cg);
             // Do not emit CheckInitialized for variables that are defined, or for temp variables.
             // Only emit CheckInitialized for variables of type object
             bool check = _variable.Uninitialized;// !_defined && !_variable.IsTemporary && _variable.Type == typeof(object);

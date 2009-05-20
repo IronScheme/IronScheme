@@ -139,14 +139,14 @@ namespace Microsoft.Scripting.Ast {
         }
 
         internal override void EmitAddress(CodeGen cg, Type asType) {
-          EmitLocation(cg);
+          //EmitLocation(cg);
             _value.Emit(cg);
             _vr.Slot.EmitSet(cg);
             _vr.Slot.EmitGetAddr(cg);
         }
 
         public override void Emit(CodeGen cg) {
-          EmitLocation(cg);
+          //EmitLocation(cg);
             _value.Emit(cg);
             cg.Emit(OpCodes.Dup);
             _vr.Slot.EmitSet(cg);

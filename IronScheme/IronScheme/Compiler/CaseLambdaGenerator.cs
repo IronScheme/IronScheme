@@ -18,12 +18,58 @@ using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using IronScheme.Runtime.psyntax;
+using System.Text.RegularExpressions;
 
 namespace IronScheme.Compiler
 {
-  [Generator("case-lambda")]
-  public sealed class CaseLambdaGenerator : SimpleGenerator
+  [Generator("annotated-case-lambda")]
+  public sealed class AnnotatedCaseLambdaGenerator : CaseLambdaGenerator
   {
+    public override Expression Generate(object args, CodeBlock c)
+    {
+      Cons a = (Cons)args;
+      object an = a.car;
+      if (an is AnnotatedReader.Annotation)
+      {
+        var anno = (AnnotatedReader.Annotation)an;
+        if (anno.source is Cons)
+        {
+          Cons src = anno.source as Cons;
+          string filename = src.car as string;
+          string location = src.cdr as string;
+
+          Cons expr = anno.expression as Cons;
+
+          annotations = expr.cdr as Cons;
+
+          SpanHint = ExtractLocation(location);
+
+          LocationHint = filename;
+
+          return base.Generate(a.cdr, c);
+        }
+      }
+      LocationHint = null;
+      SpanHint = SourceSpan.None;
+      return base.Generate(a.cdr, c);
+    }
+
+
+  }
+
+  [Generator("case-lambda")]
+  public class CaseLambdaGenerator : SimpleGenerator
+  {
+    protected static SourceSpan ExtractLocation(string location)
+    {
+      var m = Regex.Match(location, @"\((?<startline>\d+),(?<startcol>\d+)\)\s-\s\((?<endline>\d+),(?<endcol>\d+)\)");
+
+      return new SourceSpan(
+        new SourceLocation(0, Convert.ToInt32(m.Groups["startline"].Value), Convert.ToInt32(m.Groups["startcol"].Value)),
+        new SourceLocation(0, Convert.ToInt32(m.Groups["endline"].Value), Convert.ToInt32(m.Groups["endcol"].Value)));
+    } 
+
+    protected Cons annotations;
     LambdaGenerator lambdagen;
     public override Expression Generate(object args, CodeBlock c)
     {
@@ -42,13 +88,27 @@ namespace IronScheme.Compiler
       else
       {
         List<CodeBlockDescriptor> cbs = new List<CodeBlockDescriptor>();
+        Cons annotations = this.annotations;
+        this.annotations = null;
 
         string lambdaname = GetLambdaName(c);
+
+        NameHint = SymbolId.Empty;
+
+        var sh = SpanHint;
+        var lh = LocationHint;
+        AnnotatedReader.Annotation ann = null;
 
         while (lambdas != null)
         {
           object actual = lambdas.car;
-          CodeBlock cb = Ast.CodeBlock(SpanHint, lambdaname);
+          if (annotations != null)
+          {
+            ann = annotations.car as AnnotatedReader.Annotation;
+            sh = ExtractLocation(((Cons)ann.source).cdr as string);
+          }
+          CodeBlock cb = Ast.CodeBlock(sh, lambdaname);
+          cb.Filename = lh;
           cb.Parent = c;
 
           object arg = Builtins.First(actual);
@@ -67,7 +127,10 @@ namespace IronScheme.Compiler
           descriptorshack.Add(cbd.codeblock, cbd);
 
           cbs.Add(cbd);
-
+          if (annotations != null)
+          {
+            annotations = annotations.cdr as Cons;
+          }
           lambdas = lambdas.cdr as Cons;
         }
 

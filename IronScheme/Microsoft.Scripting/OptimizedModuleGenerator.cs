@@ -247,24 +247,31 @@ namespace Microsoft.Scripting.Generation {
         }
 
         #region Abstract overrides
-#if !DEBUG
+
         static AssemblyGen runtimemethods;
-#endif
 
         protected override SlotFactory CreateSlotFactory(ScriptCode scriptCode) {
             AssemblyGen ag = null;
-#if !DEBUG
+
             if (scriptCode.SourceUnit.Kind == SourceCodeKind.Default && scriptCode.CodeBlock.Name != "ironscheme.boot.new")
             {
-              if (runtimemethods == null)
+              if (ScriptDomainManager.Options.DebugMode)
               {
-                runtimemethods = ScriptDomainManager.CurrentManager.Snippets.Assembly;
+                ag = ScriptDomainManager.CurrentManager.Snippets.DebugAssembly;
               }
-              ag = runtimemethods;
+              else
+              {
+                if (runtimemethods == null)
+                {
+                  runtimemethods = ScriptDomainManager.CurrentManager.Snippets.Assembly;
+                }
+                ag = runtimemethods;
+              }
             }
             else
-#endif
+            {
               ag = CreateModuleAssembly(scriptCode);
+            }
 
             TypeGen tg = GenerateModuleGlobalsType(ag);
             StaticFieldSlotFactory factory = new StaticFieldSlotFactory(tg);
@@ -322,7 +329,7 @@ namespace Microsoft.Scripting.Generation {
             //scriptCode.CompilerContext.Options
             AssemblyGenAttributes genAttrs = ScriptDomainManager.Options.AssemblyGenAttributes;
 
-            if (scriptCode.SourceUnit.IsVisibleToDebugger && ScriptDomainManager.Options.DebugMode)
+            if (ScriptDomainManager.Options.DebugMode)
                 genAttrs |= AssemblyGenAttributes.EmitDebugInfo;
             
             if (ScriptDomainManager.Options.DebugCodeGeneration)

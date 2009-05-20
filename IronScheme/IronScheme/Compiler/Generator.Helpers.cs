@@ -674,6 +674,10 @@ namespace IronScheme.Compiler
     {
       if (parent == null || parent.IsGlobal)
       {
+        if (id.IsEmpty)
+        {
+          return "anon";
+        }
         return SymbolTable.IdToString(id);
       }
       else
@@ -684,7 +688,15 @@ namespace IronScheme.Compiler
         }
         if (parent.IsGlobal)
         {
+          if (id.IsEmpty)
+          {
+            return "anon";
+          }
           return SymbolTable.IdToString(id);
+        }
+        if (id.IsEmpty)
+        {
+          return parent.Name + "#" + "anon";
         }
 
         return parent.Name + "#" + SymbolTable.IdToString(id);

@@ -37,7 +37,7 @@ namespace Microsoft.Scripting.Generation {
         private AssemblyGenAttributes _genAttrs;
         private int _index;
         
-        private ISymbolDocumentWriter _symbolWriter;
+        private ISymbolWriter _symbolWriter;
         private readonly string _outFileName;       // can be null iff !SaveAndReloadAssemblies
         private PortableExecutableKinds _peKind;
         private ImageFileMachine _machine;
@@ -131,16 +131,18 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        public void SetSourceUnit(SourceUnit sourceUnit) {
-            if (EmitDebugInfo) {
-                Debug.Assert(sourceUnit.IsVisibleToDebugger);
-                _symbolWriter = _myModule.DefineDocument(
-                    sourceUnit.Id,
-                    sourceUnit.Engine.LanguageGuid,
-                    sourceUnit.Engine.VendorGuid,
-                    SymbolGuids.DocumentType_Text);
-			}
-		}
+        internal Guid LanguageGuid { get; set; }
+        internal Guid VendorGuid { get; set; }
+
+        public void SetSourceUnit(SourceUnit sourceUnit)
+        {
+          if (EmitDebugInfo)
+          {
+            LanguageGuid = sourceUnit.Engine.LanguageGuid;
+            VendorGuid = sourceUnit.Engine.VendorGuid;
+            CreateSymWriter();
+          }
+        }
 
         public bool EmitDebugInfo {
             get {
@@ -447,7 +449,7 @@ namespace Microsoft.Scripting.Generation {
 #endif
         
         // TODO: SourceUnit should provide writers for each symbol document file used in the unit
-        public ISymbolDocumentWriter SymbolWriter {
+        public ISymbolWriter SymbolWriter {
             get { return _symbolWriter; }
             set { _symbolWriter = value; }
         }
@@ -456,8 +458,13 @@ namespace Microsoft.Scripting.Generation {
             get { return _myAssembly; }
         }
 
-        internal ModuleBuilder ModuleBuilder {
+        public ModuleBuilder ModuleBuilder {
             get { return _myModule; }
+        }
+
+        internal void CreateSymWriter()
+        {
+          _symbolWriter = _myModule.GetSymWriter();
         }
     }
 

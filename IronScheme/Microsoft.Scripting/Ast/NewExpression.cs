@@ -58,6 +58,7 @@ namespace Microsoft.Scripting.Ast {
                 }
 
             }
+            EmitLocation(cg);
             cg.EmitNew(_constructor);
         }
 
