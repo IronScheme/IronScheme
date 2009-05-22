@@ -1332,16 +1332,24 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                     }
                 }
             }
-            var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
-            
-            cg.EmitPosition(Start, s);
-            //cg.Emit(OpCodes.Nop);
+
+            if (Start.IsValid)
+            {
+              var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
+
+              cg.EmitPosition(Start, s);
+              //cg.Emit(OpCodes.Nop);
+            }
 
             Body.Emit(cg);
             //EmitEndPosition(cg);
-            var e = new SourceLocation(End.Index, End.Line, End.Column - 1);
-            cg.EmitPosition(e, End);
-            cg.EmitSequencePointNone();
+
+            if (End.IsValid)
+            {
+              var e = new SourceLocation(End.Index, End.Line, End.Column - 1);
+              cg.EmitPosition(e, End);
+              cg.EmitSequencePointNone();
+            }
         }
 
 
