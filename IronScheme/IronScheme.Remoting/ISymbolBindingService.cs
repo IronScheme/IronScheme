@@ -5,6 +5,8 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting;
 using System.Runtime.Serialization;
+using System.Threading;
+using System.Diagnostics;
 
 namespace IronScheme.Remoting
 {
@@ -47,6 +49,7 @@ namespace IronScheme.Remoting
 
   public static class ServiceManager
   {
+    static Process isp;
     static ServiceManager()
     {
       BinaryClientFormatterSinkProvider sbs = new BinaryClientFormatterSinkProvider();
@@ -54,6 +57,23 @@ namespace IronScheme.Remoting
       IpcClientChannel client = new IpcClientChannel("IronScheme", sbs);
 
       ChannelServices.RegisterChannel(client, false);
+
+      isp = new Process
+      {
+        StartInfo = new ProcessStartInfo
+        {
+          FileName = @"c:\dev\IronScheme\IronScheme.Console\bin\Debug\IronScheme.Console.exe",
+          Arguments = "-emacs",
+          CreateNoWindow = true,
+          UseShellExecute = false,
+          RedirectStandardError = true,
+          RedirectStandardOutput = true,
+          RedirectStandardInput = true,
+        }
+      };
+
+      isp.Start();
+
     }
 
     public static ISymbolBindingService GetSymbolBindingService()
@@ -66,6 +86,18 @@ namespace IronScheme.Remoting
     {
       var iis = RemotingServices.Connect(typeof(IInteractionService), "ipc://IronScheme/InteractionService") as IInteractionService;
       return iis;
+    }
+
+    public static bool InstanceExists
+    {
+      get
+      {
+        bool isnew;
+        var m = new Mutex(false, "IronScheme", out isnew);
+        m.ReleaseMutex();
+        m.Close();
+        return isnew;
+      }
     }
   }
 

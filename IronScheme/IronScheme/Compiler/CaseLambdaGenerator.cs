@@ -40,9 +40,14 @@ namespace IronScheme.Compiler
 
           Cons expr = anno.expression as Cons;
 
-          annotations = expr.cdr as Cons;
+          annotations = expr == null ? null : expr.cdr as Cons;
 
           SpanHint = ExtractLocation(location);
+
+          if (c.Filename == null)
+          {
+            c.Filename = filename;
+          }
 
           LocationHint = filename;
 

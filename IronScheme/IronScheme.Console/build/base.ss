@@ -368,7 +368,7 @@
                      (fx<? num #xe000)))
         (assertion-violation 'integer->char "not a valid unicode value" num))
       (string-ref (clr-static-call System.Char ConvertFromUtf32 num) 0))
-    
+      
     (define make-string
       (case-lambda
         [(k)
@@ -380,13 +380,8 @@
             (assertion-violation 'make-string "cannot be negative" k))        
           (unless (char? fill)
             (assertion-violation 'make-string "not a character" fill))
-          (let ((str (clr-new System.Text.StringBuilder (clr-cast System.Int32 k))))
-            (let f ((i 0))
-              (if (fx=? i k)
-                  str
-                  (begin
-                    (clr-call System.Text.StringBuilder "Append(Char)" str fill)
-                    (f (fx+ i 1))))))]))
+          (let ((str (clr-new System.String (clr-cast System.Char fill) (clr-cast System.Int32 k))))            
+            (clr-new System.Text.StringBuilder (clr-cast System.String str)))]))
 
     (define (string-ref str k)
       (unless (and (fixnum? k) (fx>=? k 0))

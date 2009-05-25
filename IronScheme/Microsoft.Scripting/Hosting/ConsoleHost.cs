@@ -168,7 +168,7 @@ namespace Microsoft.Scripting.Hosting {
 
         protected virtual void ExecuteInternal() {
 
-            if (_options.DisplayLogo && _options.IgnoredArgs.Count == 0) {
+            if (_options.DisplayLogo) {
                 PrintLogo();
             }
             

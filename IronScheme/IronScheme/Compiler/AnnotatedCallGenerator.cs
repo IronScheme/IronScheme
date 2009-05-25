@@ -47,6 +47,10 @@ namespace IronScheme.Compiler
             new SourceLocation(0, Convert.ToInt32(m.Groups["endline"].Value), Convert.ToInt32(m.Groups["endcol"].Value)));
 
           //LocationHint = filename;
+          if (cb.Filename == null)
+          {
+            cb.Filename = filename;
+          }
 
           var result = GetAst(c.cdr, cb);
           result.SetLoc(SpanHint);

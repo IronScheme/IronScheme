@@ -53,6 +53,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
+          EmitLocation(cg);
             if (_typeOperand.IsAssignableFrom(_expression.Type)) {
                 // if its always true just emit the bool
                 cg.EmitConstant(true);
