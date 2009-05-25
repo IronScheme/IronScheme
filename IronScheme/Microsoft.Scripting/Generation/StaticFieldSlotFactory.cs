@@ -27,7 +27,10 @@ namespace Microsoft.Scripting.Generation {
         }
 
         protected override Slot CreateSlot(SymbolId name, Type type) {
-            FieldBuilder fb = _typeGen.TypeBuilder.DefineField(SymbolTable.IdToString(name), type, FieldAttributes.Assembly | FieldAttributes.Static);
+
+            FieldBuilder fb = _typeGen.TypeBuilder.DefineField(SymbolTable.IdToString( name), 
+              type, FieldAttributes.Assembly | FieldAttributes.Static | FieldAttributes.InitOnly);
+            
             return new StaticFieldSlot(fb);
         }
     }

@@ -416,6 +416,10 @@ namespace Microsoft.Scripting.Ast {
       internal static SymbolId UnGenSym(SymbolId sym)
       {
         string ss = SymbolTable.IdToString(sym);
+        if (ss.Contains("weak-temp"))
+        {
+          return sym;
+        }
         //name is between 1st and 2nd $
         int start = ss.IndexOf('$') + 1;
         if (start > 0)

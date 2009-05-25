@@ -74,9 +74,6 @@ namespace Microsoft.Scripting.Generation {
         private readonly ConstantPool _constantPool;
         internal Label startpoint;
 
-        private int _curLine;
-        private TextWriter _ilOut;
-
         private bool _generator;                    // true if emitting generator, false otherwise
         private Slot _gotoRouter;                   // Slot that stores the number of the label to go to.
 
@@ -125,17 +122,11 @@ namespace Microsoft.Scripting.Generation {
                 _argumentSlots[i] = new ArgSlot(i + firstArg + thisOffset, paramTypes[i + firstArg], this);
             }
 
-            //if (typeGen != null)
-            //    this._debugSymbolWriter = typeGen.AssemblyGen.SymbolWriter;
 
             ILDebug = assemblyGen.ILDebug;
             // this is a bit more tricky than i would think :|
             //CacheConstants = true;
 
-            //EmitLineInfo = ScriptDomainManager.Options.DynamicStackTraceSupport;
-            WriteSignature(mi, paramTypes);
-
-            //_codeBlockImplementations = new Dictionary<CodeBlock, CodeGen>();
 #if !DEBUG
         }
 #else
@@ -1775,16 +1766,7 @@ namespace Microsoft.Scripting.Generation {
             return _argumentSlots[index];
         }
 
-        public void Flush() {
-            if (_ilOut != null) {
-                _ilOut.Flush();
-                _ilOut.Close();
-                _ilOut = null;
-            }
-        }
-
         public MethodInfo CreateDelegateMethodInfo() {
-            Flush();
 
             if (_methodInfo is DynamicMethod) {
                 return (MethodInfo)_methodInfo;
@@ -1839,38 +1821,27 @@ namespace Microsoft.Scripting.Generation {
             return res;
         }
 
-        public static bool IsMono = typeof(ILGenerator).GetField("m_length", BindingFlags.NonPublic | BindingFlags.Instance) == null;
-
-        public int Size
-        {
-          get { return (int)_ilg.GetType().GetField("m_length", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_ilg); }
-        }
 
         #region ILGenerator methods
 
         public void BeginCatchBlock(Type exceptionType) {
-            WriteIL("}} catch ({0}) {{", exceptionType.FullName);
             _ilg.BeginCatchBlock(exceptionType);
         }
 
         public Label BeginExceptionBlock() {
-            WriteIL(" try {");
             return _ilg.BeginExceptionBlock();
         }
 
         public void BeginFaultBlock() {
-            WriteIL("} fault {");
             _ilg.BeginFaultBlock();
         }
 
         public void BeginFinallyBlock() {
-            WriteIL("} finally {");
             _ilg.BeginFinallyBlock();
         }
 
         public LocalBuilder DeclareLocal(Type localType) {
             LocalBuilder lb = _ilg.DeclareLocal(localType);
-            WriteIL(String.Format("Local: {0}, {1}", lb.LocalIndex, localType));
             return lb;
         }
 
@@ -1879,96 +1850,78 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void Emit(OpCode opcode) {
-            WriteIL(opcode);
             _ilg.Emit(opcode);
         }
 
         public void Emit(OpCode opcode, byte arg) {
-            WriteIL(opcode, arg);
-            _ilg.Emit(opcode, arg);
+             _ilg.Emit(opcode, arg);
         }
 
         public void Emit(OpCode opcode, ConstructorInfo con) {
-            WriteIL(opcode, con);
             _ilg.Emit(opcode, con);
         }
 
         public void Emit(OpCode opcode, double arg) {
-            WriteIL(opcode, arg);
             _ilg.Emit(opcode, arg);
         }
 
         public void Emit(OpCode opcode, FieldInfo field) {
-            WriteIL(opcode, field);
             _ilg.Emit(opcode, field);
         }
         
         public void Emit(OpCode opcode, float arg) {
-            WriteIL(opcode, arg);
             _ilg.Emit(opcode, arg);
         }
         
         public void Emit(OpCode opcode, int arg) {
-            WriteIL(opcode, arg);
             _ilg.Emit(opcode, arg);
         }
         
         public void Emit(OpCode opcode, Label label) {
-            WriteIL(opcode, label);
             _ilg.Emit(opcode, label);
         }
         
         public void Emit(OpCode opcode, Label[] labels) {
-            WriteIL(opcode, labels);
             _ilg.Emit(opcode, labels);
         }
         
         public void Emit(OpCode opcode, LocalBuilder local) {
-            WriteIL(opcode, local);
             _ilg.Emit(opcode, local);
         }
         
         public void Emit(OpCode opcode, long arg) {
-            WriteIL(opcode, arg);
             _ilg.Emit(opcode, arg);
         }
         
         public void Emit(OpCode opcode, MethodInfo meth) {
-            WriteIL(opcode, meth);
             _ilg.Emit(opcode, meth);
         }
         
         [CLSCompliant(false)]
         public void Emit(OpCode opcode, sbyte arg)
         {
-            WriteIL(opcode, arg);
             _ilg.Emit(opcode, arg);
         }
         
         public void Emit(OpCode opcode, short arg) {
-            WriteIL(opcode, arg);
             _ilg.Emit(opcode, arg);
         }
         
 #if !SILVERLIGHT
         public void Emit(OpCode opcode, SignatureHelper signature) {
-            WriteIL(opcode, signature);
             _ilg.Emit(opcode, signature);
         }
 #endif
 
         public void Emit(OpCode opcode, string str) {
-            WriteIL(opcode, str);
             _ilg.Emit(opcode, str);
         }
         
         public void Emit(OpCode opcode, Type cls) {
-            WriteIL(opcode, cls);
             _ilg.Emit(opcode, cls);
         }
         
         public void EmitCall(OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes) {
-            WriteIL(opcode, methodInfo, optionalParameterTypes);
             _ilg.EmitCall(opcode, methodInfo, optionalParameterTypes);
         }
         
@@ -1981,12 +1934,10 @@ namespace Microsoft.Scripting.Generation {
                 }
             }
 
-            WriteIL(" }");
             _ilg.EndExceptionBlock();
         }
         
         public void MarkLabel(Label loc) {
-            WriteIL(loc);
             _ilg.MarkLabel(loc);
         }
         
@@ -2017,210 +1968,6 @@ namespace Microsoft.Scripting.Generation {
 
         #endregion
 
-        #region IL Debugging Support
-
-#if !SILVERLIGHT
-        static int count;
-#endif
-        [Conditional("DEBUG")]
-        private void InitializeILWriter() {
-#if !SILVERLIGHT
-            Debug.Assert(ILDebug);
-            // This ensures that it is not a DynamicMethod
-            Debug.Assert(_typeGen != null);
-
-            string full_method_name = ((_methodInfo.DeclaringType != null) ? _methodInfo.DeclaringType.Name + "." : "") + _methodInfo.Name;
-
-            string filename = String.Format("gen_{0}_{1}.il", IOUtils.ToValidFileName(full_method_name), 
-                System.Threading.Interlocked.Increment(ref count));
-            
-            string tempFolder = Path.Combine(Path.GetTempPath(), "IronPython");
-            Directory.CreateDirectory(tempFolder);
-            filename = Path.Combine(tempFolder, filename);
-
-            if (EmitDebugInfo) {
-                _debugSymbolWriter = _typeGen.AssemblyGen.ModuleBuilder.DefineDocument(filename,
-                    SymbolGuids.LanguageType_ILAssembly,
-                    SymbolGuids.LanguageVendor_Microsoft,
-                    SymbolGuids.DocumentType_Text);
-            }
-
-            _ilOut = new StreamWriter(ScriptDomainManager.CurrentManager.PAL.OpenOutputFileStream(filename));
-#endif
-        }
-
-        [Conditional("DEBUG")]
-        private void WriteSignature(MethodBase method, IList<Type> paramTypes) {
-            WriteIL("{0} {1} (", method.Name, method.Attributes);
-            foreach (Type type in paramTypes) {
-                WriteIL("\t{0}", MakeTypeName(type));
-            }
-            WriteIL(")");
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(string format, object arg0) {
-            WriteIL(String.Format(CultureInfo.CurrentCulture, format, arg0));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(string format, object arg0, object arg1) {
-            WriteIL(String.Format(CultureInfo.CurrentCulture, format, arg0, arg1));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(string format, object arg0, object arg1, object arg2) {
-            WriteIL(String.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2));
-        }
-
-        [Conditional("DEBUG")]
-        private void WriteIL(string format, object arg0, object arg1, object arg2, object arg3, object arg4) {
-            WriteIL(String.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2, arg3, arg4));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(string str) {
-            if (!ILDebug) return;
-
-            if (_ilOut == null) {
-                InitializeILWriter();
-            }
-
-            _curLine++;
-            _ilOut.WriteLine(str);
-            _ilOut.Flush();
-
-            int lines = 0;
-            for (int i = 0; i < str.Length; i++) {
-                if (str[i] == '\n') lines++;
-            }
-
-            if (_debugSymbolWriter != null) {
-                MarkSequencePoint(
-                 _debugSymbolWriter,
-                 _curLine, 1,
-                 _curLine+lines, str.Length + 1
-                 );
-            }
-
-            _curLine += lines;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "method")]
-        private static string MakeSignature(MethodBase method) {
-#if DEBUG
-            return ReflectionUtils.FormatSignature(new StringBuilder(), method).ToString();
-#else
-            throw Assert.Unreachable;
-#endif
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "type")]
-        private static string MakeTypeName(Type type) {
-#if DEBUG
-            return ReflectionUtils.FormatTypeName(new StringBuilder(), type).ToString();
-#else
-            throw Assert.Unreachable;
-#endif
-        }
-
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode) {
-            if(ILDebug) WriteIL(opcode.ToString());
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, byte arg) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, arg);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, ConstructorInfo con) {
-            if (ILDebug) WriteIL("{0} {1}\t", opcode, MakeSignature(con));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, double arg) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, arg);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, FieldInfo field) {
-            if (ILDebug) WriteIL("{0}\t{1}.{2}", opcode, MakeTypeName(field.DeclaringType), field.Name);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, float arg) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, arg);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, int arg) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, arg);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, Label label) {
-            if (ILDebug) WriteIL("{0}\tlabel_{1}", opcode, GetLabelId(label));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, Label[] labels) {
-            if (ILDebug) {
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                sb.Append(opcode.ToString());
-                sb.Append("\t[");
-                for (int i = 0; i < labels.Length; i++) {
-                    if (i != 0) sb.Append(", ");
-                    sb.Append("label_" + GetLabelId(labels[i]).ToString(CultureInfo.CurrentCulture));
-                }
-                sb.Append("]");
-                WriteIL(sb.ToString());
-            }
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, LocalBuilder local) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, local);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, long arg) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, arg);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, MethodInfo meth) {
-            if(ILDebug) WriteIL("{0}\t{1}", opcode, MakeSignature(meth));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, sbyte arg) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, arg);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, short arg) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, arg);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, SignatureHelper signature) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, signature);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, string str) {
-            if(ILDebug) WriteIL("{0}\t{1}", opcode, str);
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, Type cls) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, MakeTypeName(cls));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(OpCode opcode, MethodInfo meth, Type[] optionalParameterTypes) {
-            if (ILDebug) WriteIL("{0}\t{1}", opcode, MakeSignature(meth));
-        }
-        [Conditional("DEBUG")]
-        private void WriteIL(Label l) {
-            if(ILDebug) WriteIL("label_{0}:", GetLabelId(l).ToString(CultureInfo.CurrentCulture));
-        }
-
-        private static int GetLabelId(Label l) {
-            return l.GetHashCode();
-        }
-
-        #endregion
-
-        [Conditional("DEBUG")]
-        public void Comment(string commentText) {
-            Slot slot = GetLocalTmp(typeof(string));
-            EmitString(commentText);
-            slot.EmitSet(this);
-            FreeLocalTmp(slot);
-        }
-
         #region IDisposable Members
 
         public void Dispose() {
@@ -2230,9 +1977,7 @@ namespace Microsoft.Scripting.Generation {
 
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
-                if (_ilOut != null) {
-                    _ilOut.Dispose();
-                }
+
             }
         }
 
@@ -2418,20 +2163,27 @@ namespace Microsoft.Scripting.Generation {
               impl = block.CreateMethod(this, hasContextParameter, hasThis);
               impl.Binder = _binder;
 
-              if (block.Filename != null && EmitDebugInfo)
+              if (EmitDebugInfo)
               {
-                var fn = block.Filename;
-                ISymbolDocumentWriter sw;
-                if (!SymbolWriters.TryGetValue(fn, out sw))
+                if (block.Filename != null)
                 {
-                  SymbolWriters[fn] = sw = _typeGen.AssemblyGen.ModuleBuilder.DefineDocument(
-                    fn,
-                    _typeGen.AssemblyGen.LanguageGuid,
-                    _typeGen.AssemblyGen.VendorGuid,
-                    SymbolGuids.DocumentType_Text);
-                }
+                  var fn = block.Filename;
+                  ISymbolDocumentWriter sw;
+                  if (!SymbolWriters.TryGetValue(fn, out sw))
+                  {
+                    SymbolWriters[fn] = sw = _typeGen.AssemblyGen.ModuleBuilder.DefineDocument(
+                      fn,
+                      _typeGen.AssemblyGen.LanguageGuid,
+                      _typeGen.AssemblyGen.VendorGuid,
+                      SymbolGuids.DocumentType_Text);
+                  }
 
-                impl._debugSymbolWriter = sw;
+                  impl._debugSymbolWriter = sw;
+                }
+                else
+                {
+                  impl._debugSymbolWriter = null;
+                }
               }
               else
               {

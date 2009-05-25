@@ -62,6 +62,8 @@ namespace Microsoft.Scripting {
 
                 return GetCachedValue();
             }
+          [DebuggerHidden]
+          [DebuggerStepThrough]
             set {
                 if (value == Uninitialized.Instance && _value == Uninitialized.Instance) {
                     throw _context.LanguageContext.MissingName(_name);

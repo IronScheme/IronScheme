@@ -84,11 +84,17 @@ namespace Microsoft.Scripting.Ast {
             Label eoi = cg.DefineLabel();
             Label next = cg.DefineLabel();
             _test.Emit(cg);
+            cg.EmitSequencePointNone();
+            cg.Emit(OpCodes.Nop);
             cg.Emit(OpCodes.Brfalse, next);
             _true.Emit(cg);
+            cg.EmitSequencePointNone();
+            cg.Emit(OpCodes.Nop);
             cg.Emit(OpCodes.Br, eoi);
             cg.MarkLabel(next);
             _false.Emit(cg);
+            cg.EmitSequencePointNone();
+            cg.Emit(OpCodes.Nop);
             cg.MarkLabel(eoi);
         }
 

@@ -1193,6 +1193,15 @@
              (bless `((letrec ((,f (lambda ,lhs* ,b . ,b*))) ,f) . ,rhs*))
              (invalid-fmls-error stx lhs*))))))
   
+  (define trace-let-macro
+    (lambda (stx)
+      (syntax-match stx ()
+        ((_ f ((lhs* rhs*) ...) b b* ...) (id? f)
+         (if (valid-bound-ids? lhs*)
+             (bless 
+               `((letrec ((,f (trace-lambda ,f ,lhs* ,b . ,b*))) ,f) . ,rhs*))
+             (invalid-fmls-error stx lhs*))))))
+
   (define let-values-macro
     (lambda (stx)
       (define (rename x old* new*)
@@ -2686,6 +2695,7 @@
            ((define-enumeration)    define-enumeration-macro)
            ((trace-lambda)          trace-lambda-macro)
            ((trace-define)          trace-define-macro)
+           ((trace-let)             trace-let-macro)
            ((trace-define-syntax)   trace-define-syntax-macro)
            ((trace-let-syntax)      trace-let-syntax-macro)
            ((trace-letrec-syntax)   trace-letrec-syntax-macro)
@@ -2934,10 +2944,10 @@
 
   (define (chi-defun x r mr)
     (syntax-match x ()
-      [(_ (_ . fmls) . body*)
+      [(_ (ctxt . fmls) . body*)
       (let-values (((fmls body)
                     (chi-lambda-clause fmls fmls body* r mr)))
-         (build-lambda (syntax-annotation x) fmls body))]))
+          (build-lambda (syntax-annotation ctxt) fmls body))]))
 
   (define chi-rhs
     (lambda (rhs r mr)
@@ -4016,6 +4026,14 @@
 
   (define (syntax-annotation x)
     (if (stx? x) (stx-expr x) x))
+
+;  (define (syntax-annotation x)
+;    (if (stx? x)
+;        (let ([expr (stx-expr x)])
+;          (if (annotation? x)
+;              x
+;              (stx->datum x)))
+;        (stx->datum x)))
 
   (define (assertion-error expr pos)
     (raise

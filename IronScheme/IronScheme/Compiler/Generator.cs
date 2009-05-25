@@ -299,7 +299,7 @@ namespace IronScheme.Compiler
                 {
                   ReturnStatement rs = (ReturnStatement)cbe.Block.Body;
 
-                  if (IsSimpleExpression(rs.Expression))
+                  if (!cb.IsGlobal && IsSimpleExpression(rs.Expression))
                   {
                     return InlineCall(cb, Ast.CodeBlockExpression(RewriteBody(cbe.Block), false), ppp);
                   }
@@ -449,7 +449,10 @@ namespace IronScheme.Compiler
             // if null is returned, the method cannot be inlined
             if (result != null)
             {
-              result.SetLoc(spanhint);
+              if (spanhint.IsValid)
+              {
+                result.SetLoc(spanhint);
+              }
               if (result.Type.IsValueType)
               {
                 result = Ast.ConvertHelper(result, typeof(object));
@@ -506,7 +509,10 @@ namespace IronScheme.Compiler
                         Closure.Make(null, handler),
                         Closure.Make(null, disp));
                       var rrrr = GetCons(result, cb);
-                      rrrr.SetLoc(spanhint);
+                      if (spanhint.IsValid)
+                      {
+                        rrrr.SetLoc(spanhint);
+                      }
                       return rrrr;
                     }
                     catch
@@ -531,7 +537,10 @@ namespace IronScheme.Compiler
                   }
 
                   var rrrr = Ast.ComplexCallHelper(meth as MethodInfo, pars);
-                  rrrr.SetLoc(spanhint);
+                  if (spanhint.IsValid)
+                  {
+                    rrrr.SetLoc(spanhint);
+                  }
                   return rrrr;
                 }
               }
@@ -574,7 +583,10 @@ namespace IronScheme.Compiler
                           Closure.Make(null, handler),
                           Closure.Make(null, disp));
                         var rrrr = GetCons(result, cb);
-                        rrrr.SetLoc(spanhint);
+                        if (spanhint.IsValid)
+                        {
+                          rrrr.SetLoc(spanhint);
+                        }
                         return rrrr;
                       }
                       catch
@@ -594,7 +606,10 @@ namespace IronScheme.Compiler
                     MethodBase meth = mc.Target.Method;
 
                     var rrrr = Ast.ComplexCallHelper(meth as MethodInfo, pars);
-                    rrrr.SetLoc(spanhint);
+                    if (spanhint.IsValid)
+                    {
+                      rrrr.SetLoc(spanhint);
+                    }
                     return rrrr;
                   }
                 }
@@ -646,7 +661,7 @@ namespace IronScheme.Compiler
           Ast.Call(ex, call, Ast.NewArray(typeof(object[]), pp)) :
           Ast.Call(ex, call, pp);
 
-        if (spanhint != SourceSpan.Invalid || spanhint != SourceSpan.None)
+        if (spanhint.IsValid)
         {
           r.SetLoc(spanhint);
         }
@@ -908,7 +923,10 @@ namespace IronScheme.Compiler
       cbe.Block.Bind();
 
       var r = Ast.ComplexCallHelper(cbe, dc, ppp);
-      r.SetLoc(SpanHint);
+      if (SpanHint.IsValid)
+      {
+        r.SetLoc(SpanHint);
+      }
       return r;
     }
 
@@ -955,7 +973,10 @@ namespace IronScheme.Compiler
       cbe.Block.Bind();
 
       var r = Ast.ComplexCallHelper(cbe, dc, ppp);
-      r.SetLoc(SpanHint);
+      if (SpanHint.IsValid)
+      {
+        r.SetLoc(SpanHint);
+      }
       return r;
     }
 
