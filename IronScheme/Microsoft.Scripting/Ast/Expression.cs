@@ -76,7 +76,7 @@ namespace Microsoft.Scripting.Ast {
           }
         }
 
-        public void SetLoc(SourceSpan span)
+        public virtual void SetLoc(SourceSpan span)
         {
           _start = span.Start;
           _end = span.End;

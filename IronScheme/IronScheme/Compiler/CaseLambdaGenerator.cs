@@ -29,9 +29,9 @@ namespace IronScheme.Compiler
     {
       Cons a = (Cons)args;
       object an = a.car;
-      if (an is AnnotatedReader.Annotation)
+      if (an is Annotation)
       {
-        var anno = (AnnotatedReader.Annotation)an;
+        var anno = (Annotation)an;
         if (anno.source is Cons)
         {
           Cons src = anno.source as Cons;
@@ -102,14 +102,14 @@ namespace IronScheme.Compiler
 
         var sh = SpanHint;
         var lh = LocationHint;
-        AnnotatedReader.Annotation ann = null;
+        Annotation ann = null;
 
         while (lambdas != null)
         {
           object actual = lambdas.car;
           if (annotations != null)
           {
-            ann = annotations.car as AnnotatedReader.Annotation;
+            ann = annotations.car as Annotation;
             sh = ExtractLocation(((Cons)ann.source).cdr as string);
           }
           CodeBlock cb = Ast.CodeBlock(sh, lambdaname);

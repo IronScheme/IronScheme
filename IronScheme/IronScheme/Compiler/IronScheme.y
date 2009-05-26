@@ -93,6 +93,20 @@ static object MakeNumber(string input)
   return n;
 }
 
+static object Annotate(object obj, gppg.LexLocation start, gppg.LexLocation end)
+{
+  return Annotate(obj, GetLocation(start,end));
+}
+
+static object Annotate(object obj, gppg.LexLocation start)
+{
+  return Annotate(obj, GetLocation(start, start));
+}
+
+static object Annotate(object obj, SourceSpan loc)
+{
+  return AnnotationHelper.Annotate(obj, loc);
+}
 
 
 static readonly object Ignore = new object();

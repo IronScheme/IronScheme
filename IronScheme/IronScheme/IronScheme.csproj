@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\AnnotatedCallGenerator.cs" />
+    <Compile Include="Compiler\AnnotationHelper.cs" />
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
@@ -165,6 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml" />
   </ItemGroup>

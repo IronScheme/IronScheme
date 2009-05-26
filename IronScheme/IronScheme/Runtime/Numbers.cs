@@ -197,7 +197,7 @@ namespace IronScheme.Runtime
       {
         return NumberClass.Real;
       }
-      else if (obj is Complex64)
+      else if (obj is Complex64 || obj is ComplexFraction)
       {
         return NumberClass.Complex;
       }

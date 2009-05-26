@@ -39,6 +39,14 @@ namespace Microsoft.Scripting.Ast {
             get { return _type; }
         }
 
+        public override void SetLoc(SourceSpan span)
+        {
+          if (span.IsValid)
+          {
+            Operand.SetLoc(span);
+          }
+        }      
+
         public override void Emit(CodeGen cg) {
 
             _operand.Emit(cg);
