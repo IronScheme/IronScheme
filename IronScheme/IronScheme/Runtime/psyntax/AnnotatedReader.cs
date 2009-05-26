@@ -6,23 +6,23 @@ using System.IO;
 
 namespace IronScheme.Runtime.psyntax
 {
+  [Serializable]
+  internal sealed class Annotation
+  {
+    public readonly object expression;
+    public readonly object source;
+    public readonly object stripped;
+
+    public Annotation(object expression, object source, object stripped)
+    {
+      this.expression = expression;
+      this.source = source;
+      this.stripped = stripped;
+    }
+  }
+
   public class AnnotatedReader : Builtins
   {
-    [Serializable]
-    internal sealed class Annotation
-    {
-      public readonly object expression;
-      public readonly object source;
-      public readonly object stripped;
-
-      public Annotation(object expression, object source, object stripped)
-      {
-        this.expression = expression;
-        this.source = source;
-        this.stripped = stripped;
-      }
-    }
-
     [Builtin("read-annotated")]
     public static object ReadAnnotated()
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Ast;
+using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
@@ -360,10 +361,12 @@ namespace IronScheme.Compiler
       //Pass1 p1 = new Pass1();
       //p1.WalkNode(cb);
 
-
-
       new FlattenBodies(cb).Optimize();
-      new RemoveTemporaries(cb).Optimize();
+
+      if (!ScriptDomainManager.Options.DebugMode)
+      {
+        new RemoveTemporaries(cb).Optimize();
+      }
 
     }
   }

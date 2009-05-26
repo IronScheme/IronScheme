@@ -45,6 +45,14 @@ namespace Microsoft.Scripting.Ast {
             get { return _valueIndex; }
         }
 
+        public override void SetLoc(SourceSpan span)
+        {
+          if (span.IsValid)
+          {
+            _expressions[ValueIndex].SetLoc(span);
+          }
+        }
+
         /// <summary>
         /// The expression type is the type of the expression being selected.
         /// </summary>

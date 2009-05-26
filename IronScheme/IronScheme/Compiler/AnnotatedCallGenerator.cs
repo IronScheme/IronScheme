@@ -31,9 +31,9 @@ namespace IronScheme.Compiler
 
       var an = c.car;
 
-      if (an is AnnotatedReader.Annotation)
+      if (an is Annotation)
       {
-        var anno = (AnnotatedReader.Annotation)an;
+        var anno = (Annotation)an;
         if (anno.source is Cons)
         {
           Cons src = anno.source as Cons;
