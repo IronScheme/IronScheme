@@ -175,7 +175,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg) {
           //EmitLocation(cg);
-          if (_instance != null && !cg.IsDynamicMethod && !IsParamsMethod()) // damn DM! // go away! // this dangerous too for now
+          if (_instance != null && !ScriptDomainManager.Options.DebugMode && !cg.IsDynamicMethod && !IsParamsMethod()) // damn DM! // go away! // this dangerous too for now
           {
 
             if (_instance is UnaryExpression)

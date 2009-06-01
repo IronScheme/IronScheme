@@ -20,7 +20,8 @@
 
 (library (psyntax expander)
   (export identifier? syntax-dispatch 
-          eval expand generate-temporaries free-identifier=?
+          eval core-expand 
+          generate-temporaries free-identifier=?
           bound-identifier=? datum->syntax syntax-error
           syntax-violation
           syntax->datum 
@@ -754,7 +755,7 @@
                       macro! local-macro local-macro! global-macro
                       global-macro! module library set! let-syntax 
                       letrec-syntax import export $core-rtd 
-                      ctv local-ctv global-ctv)
+                      ctv local-ctv global-ctv stale-when)
                     (values type (binding-value b) id))
                    (else
                     (values 'call #f #f))))
@@ -2737,7 +2738,13 @@
              (syntax-violation #f 
                "raw symbol encountered in output of macro"
                expr x)))))
-      (add-mark (gen-mark) x expr))
+      (add-mark (gen-mark)
+        (if (and (pair? x) 
+                 (stx? expr)
+                 (annotation? (stx-expr expr)))
+            (make-annotation x (annotation-source (stx-expr expr)) x)
+            x)
+        expr))
     (let ((x (transformer (add-mark anti-mark expr #f))))
       (if (procedure? x) 
           (return 
@@ -2794,6 +2801,8 @@
              rator
              (chi-expr* rands r mr)))))))
 
+
+
   (define chi-expr
     (lambda (e r mr)
       (let-values (((type value kwd) (syntax-type e r)))
@@ -2826,6 +2835,13 @@
              ((_ x x* ...)
               (build-sequence no-source
                 (chi-expr* (cons x x*) r mr)))))
+          ((stale-when)
+           (syntax-match e ()
+             ((_ guard x x* ...)
+              (begin
+                (handle-stale-when guard mr)
+                (build-sequence no-source
+                  (chi-expr* (cons x x*) r mr))))))
           ((let-syntax letrec-syntax)
            (syntax-match e ()
              ((_ ((xlhs* xrhs*) ...) xbody xbody* ...)
@@ -2947,7 +2963,7 @@
       [(_ (ctxt . fmls) . body*)
       (let-values (((fmls body)
                     (chi-lambda-clause fmls fmls body* r mr)))
-          (build-lambda (syntax-annotation ctxt) fmls body))]))
+          (build-lambda (syntax-annotation x) fmls body))]))
 
   (define chi-rhs
     (lambda (rhs r mr)
@@ -3193,6 +3209,14 @@
                      (chi-body* (append x* (cdr e*))
                         r mr lex* rhs* mod** kwd* exp* rib
                         mix? sd?))))
+                 ((stale-when)
+                  (syntax-match e ()
+                    ((_ guard x* ...) 
+                     (begin
+                       (handle-stale-when guard mr)
+                       (chi-body* (append x* (cdr e*))
+                          r mr lex* rhs* mod** kwd* exp* rib
+                          mix? sd?)))))
                  ((global-macro global-macro!)
                   (chi-body*
                      (cons (add-subst rib (chi-global-macro value e r))
@@ -3605,6 +3629,7 @@
           (assertion-violation 'imp-collector "BUG: not a procedure" x))
         x)))
 
+
   (define chi-library-internal
     (lambda (e* rib mix?)
       (let-values (((e* r mr lex* rhs* mod** _kwd* exp*)
@@ -3686,18 +3711,44 @@
                                   (list invoke-body)))
                               macro* export-subst export-env))))))))))))))
 
+  (define stale-when-collector (make-parameter #f))
+
+  (define (make-stale-collector)
+    (let ([code (build-data no-source #f)]
+          [req* '()])
+      (case-lambda
+        [() (values code req*)]
+        [(c r*) 
+         (set! code 
+           (build-conditional no-source 
+             code 
+             (build-data no-source #t)
+             c))
+         (set! req* (set-union r* req*))])))
+
+  (define (handle-stale-when guard-expr mr)
+    (let ([stc (make-collector)])
+      (let ([core-expr (parameterize ([inv-collector stc])
+                         (chi-expr guard-expr mr mr))])
+        (cond
+          [(stale-when-collector) => 
+           (lambda (c) (c core-expr (stc)))]))))
+
   (define core-library-expander
     (case-lambda
       ((e verify-name)
        (let-values (((name* exp* imp* b*) (parse-library e)))
          (let-values (((name ver) (parse-library-name name*)))
            (verify-name name)
+           (let ([c (make-stale-collector)])
            (let-values (((imp* invoke-req* visit-req* invoke-code
                                visit-code export-subst export-env)
-                         (library-body-expander name exp* imp* b* #f)))
+                           (parameterize ([stale-when-collector c])
+                             (library-body-expander name exp* imp* b* #f))))
+               (let-values ([(guard-code guard-req*) (c)])
               (values name ver imp* invoke-req* visit-req* 
                       invoke-code visit-code export-subst
-                      export-env)))))))
+                    export-env guard-code guard-req*)))))))))
   
   (define (parse-top-level-program e*)
     (syntax-match e* ()
@@ -3792,7 +3843,7 @@
   ;;; expander (chi-expr).   It takes an expression and an environment.
   ;;; It returns two values: The resulting core-expression and a list of
   ;;; libraries that must be invoked before evaluating the core expr.
-  (define expand
+  (define core-expand
     (lambda (x env)
       (cond
         ((env? env)
@@ -3825,6 +3876,7 @@
         (else
          (assertion-violation 'expand "not an environment" env)))))
 
+
   ;;; This is R6RS's eval.  It takes an expression and an environment,
   ;;; expands the expression, invokes its invoke-required libraries and
   ;;; evaluates its expanded core form.
@@ -3832,7 +3884,7 @@
     (lambda (x env)
       (unless (environment? env)
         (error 'eval "not an environment" env))
-      (let-values (((x invoke-req*) (expand x env)))
+      (let-values (((x invoke-req*) (core-expand x env)))
         (for-each invoke-library invoke-req*)
         (eval-core (expanded->core x)))))
         
@@ -3840,7 +3892,7 @@
     (lambda (x env)
       (unless (environment? env)
         (error 'eval "not an environment" env))
-      (let-values (((x invoke-req*) (expand x env)))
+      (let-values (((x invoke-req*) (core-expand x env)))
         (for-each invoke-library invoke-req*)
         (expanded->core x))))        
 
@@ -3865,7 +3917,8 @@
                        (set-symbol-value! loc proc)))
                    macro*))
        (let-values (((name ver imp* inv* vis* 
-                      invoke-code macro* export-subst export-env)
+                      invoke-code macro* export-subst export-env
+                      guard-code guard-req*)
                      (core-library-expander x verify-name)))
          (let ((id (gensym))
                (name name)
@@ -3873,6 +3926,7 @@
                (imp* (map library-spec imp*))
                (vis* (map library-spec vis*))
                (inv* (map library-spec inv*))
+               (guard-req* (map library-spec guard-req*))
                (visit-proc (lambda () (visit! macro*)))
                (invoke-proc 
                 (lambda () (eval-core (expanded->core invoke-code))))
@@ -3882,10 +3936,12 @@
               imp* vis* inv* export-subst export-env
               visit-proc invoke-proc
               visit-code invoke-code
+              guard-code guard-req*
               #t filename)
            (values id name ver imp* vis* inv* 
                    invoke-code visit-code
-                   export-subst export-env))))
+                   export-subst export-env 
+                   guard-code guard-req*))))
       ((x filename)
        (library-expander x filename (lambda (x) (values))))
       ((x)
@@ -3895,7 +3951,8 @@
   ;;; be) be used in the "next" system.  So, we drop it.
   (define (boot-library-expand x)
     (let-values (((id name ver imp* vis* inv* 
-                   invoke-code visit-code export-subst export-env)
+                   invoke-code visit-code export-subst export-env
+                   guard-code guard-dep*)
                   (library-expander x)))
       (values name invoke-code export-subst export-env)))
   

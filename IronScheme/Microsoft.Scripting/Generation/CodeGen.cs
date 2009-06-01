@@ -1957,7 +1957,7 @@ namespace Microsoft.Scripting.Generation {
 
             if (fn != null)
             {
-              Debug.WriteLine(string.Format("{4} : {5} ({0},{1}) - ({2},{3})", startLine, startColumn, endLine, endColumn, fn ?? "none", MethodBase.Name));
+              //Debug.WriteLine(string.Format("{4} : {5} ({0},{1}) - ({2},{3})", startLine, startColumn, endLine, endColumn, fn ?? "none", MethodBase.Name));
               _ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
             }
         }

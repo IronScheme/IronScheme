@@ -93,23 +93,33 @@ static object MakeNumber(string input)
   return n;
 }
 
-static object Annotate(object obj, gppg.LexLocation start, gppg.LexLocation end)
+static Annotation Annotate(object obj, gppg.LexLocation start, gppg.LexLocation end)
 {
   return Annotate(obj, GetLocation(start,end));
 }
 
-static object Annotate(object obj, gppg.LexLocation start)
+static Annotation Annotate(object obj, gppg.LexLocation start)
 {
   return Annotate(obj, GetLocation(start, start));
 }
 
-static object Annotate(object obj, SourceSpan loc)
+static Annotation Annotate(object obj, SourceSpan loc)
 {
   return AnnotationHelper.Annotate(obj, loc);
 }
 
 
-static readonly object Ignore = new object();
+static ConsAnnotation AnnotateList(Cons obj, gppg.LexLocation start, gppg.LexLocation end)
+{
+  return AnnotationHelper.AnnotateList(obj, GetLocation(start,end));
+}
+
+static Cons Strip(Cons c)
+{
+  return AnnotationHelper.Strip(c);
+}
+
+static readonly Annotation Ignore = new Annotation(null,null,null);
 static readonly object quote = SymbolTable.StringToObject("quote");
 static readonly object unquote_splicing = SymbolTable.StringToObject("unquote-splicing");
 static readonly object quasiquote = SymbolTable.StringToObject("quasiquote");
@@ -123,8 +133,9 @@ static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 
 %union
 {
-  public Cons list;
-  public object elem;
+  public Cons lst;
+  internal ConsAnnotation list;
+  internal Annotation elem;
   public string text;
 }
 
@@ -132,7 +143,8 @@ static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 %token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX IGNOREDATUM
 %token <text> SYMBOL LITERAL STRING NUMBER CHARACTER 
 
-%type <list> exprlist list file
+%type <lst> exprlist file
+%type <list> list 
 %type <elem> expr specexpr
 
 %start file
@@ -144,11 +156,11 @@ file
     ;
     
 list
-    : LBRACE exprlist RBRACE                      { $$ = SetLocation($2,@1,@3); }
-    | LBRACK exprlist RBRACK                      { $$ = SetLocation($2,@1,@3); }
-    | LBRACE exprlist expr DOT expr RBRACE        { $$ = SetLocation(Append($2, new Cons($3,$5)),@1,@6); } 
-    | LBRACK exprlist expr DOT expr RBRACK        { $$ = SetLocation(Append($2, new Cons($3,$5)),@1,@6); } 
-    | specexpr expr                               { $$ = SetLocation(new Cons($1, new Cons($2)), @1, @2); }
+    : LBRACE exprlist RBRACE                      { $$ = AnnotateList($2,@1,@3); }
+    | LBRACK exprlist RBRACK                      { $$ = AnnotateList($2,@1,@3); }
+    | LBRACE exprlist expr DOT expr RBRACE        { $$ = AnnotateList(Append($2, new Cons($3,$5)),@1, @6); } 
+    | LBRACK exprlist expr DOT expr RBRACK        { $$ = AnnotateList(Append($2, new Cons($3,$5)),@1, @6); } 
+    | specexpr expr                               { $$ = AnnotateList(new Cons($1, new Cons($2)), @1, @2); }
     ;
 
 exprlist
@@ -158,25 +170,25 @@ exprlist
     
 expr
     : list                                        { $$ = $1;}
-    | SYMBOL                                      { $$ = SymbolTable.StringToObject($1); }
-    | STRING                                      { $$ = Helper.CleanString($1); }
-    | NUMBER                                      { $$ = skipnumbers ? null : MakeNumber($1);}
-    | LITERAL                                     { $$ = $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null);}
-    | CHARACTER                                   { $$ = $1[0];}
-    | VECTORLBRACE exprlist RBRACE                { $$ = SetLocation(Builtins.ListToVector($2),@1,@3);}
-    | BYTEVECTORLBRACE exprlist RBRACE            { $$ = SetLocation(Builtins.ListToByteVector($2),@1,@3); }
+    | SYMBOL                                      { $$ = Annotate( SymbolTable.StringToObject($1), @1); }
+    | STRING                                      { $$ = Annotate(Helper.CleanString($1), @1); }
+    | NUMBER                                      { $$ = Annotate( skipnumbers ? null : MakeNumber($1), @1);}
+    | LITERAL                                     { $$ = Annotate( $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null), @1);}
+    | CHARACTER                                   { $$ = Annotate($1[0], @1);}
+    | VECTORLBRACE exprlist RBRACE                { $$ = Annotate(Builtins.ListToVector($2),@1,@3);}
+    | BYTEVECTORLBRACE exprlist RBRACE            { $$ = Annotate(Builtins.ListToByteVector(Strip($2)),@1,@3); }
     | IGNOREDATUM expr                            { $$ = Ignore; }
     ; 
 
 specexpr
-    : QUOTE                                       { $$ = quote;}
-    | UNQUOTESPLICING                             { $$ = unquote_splicing; }
-    | QUASIQUOTE                                  { $$ = quasiquote; }
-    | UNQUOTE                                     { $$ = unquote; }
-    | SYNTAX                                      { $$ = syntax;}
-    | UNSYNTAXSPLICING                            { $$ = unsyntax_splicing; }
-    | QUASISYNTAX                                 { $$ = quasisyntax; }
-    | UNSYNTAX                                    { $$ = unsyntax; }
+    : QUOTE                                       { $$ = Annotate(quote, @1);}
+    | UNQUOTESPLICING                             { $$ = Annotate(unquote_splicing, @1); }
+    | QUASIQUOTE                                  { $$ = Annotate(quasiquote, @1); }
+    | UNQUOTE                                     { $$ = Annotate(unquote, @1); }
+    | SYNTAX                                      { $$ = Annotate(syntax, @1);}
+    | UNSYNTAXSPLICING                            { $$ = Annotate(unsyntax_splicing, @1); }
+    | QUASISYNTAX                                 { $$ = Annotate(quasisyntax, @1); }
+    | UNSYNTAX                                    { $$ = Annotate(unsyntax, @1); }
     
     ;    
 

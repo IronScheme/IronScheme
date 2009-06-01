@@ -40,6 +40,7 @@
 (define scheme-library-files
   '(
     "psyntax/config.ss"
+    "build/records/procedural.ss"
     "build/conditions.ss"
     "build/exceptions.ss"
     "build/arithmetic/fixnums.ss"
@@ -67,7 +68,6 @@
     "build/io/ports.ss"
     "build/io/simple.ss"
     "build/records/inspection.ss"
-    "build/records/procedural.ss"
     "build/records/syntactic.ss"
     
     ; depends on records - hashtables - bitwise
@@ -103,6 +103,7 @@
     (set!                (set!))
     (let-syntax          (let-syntax))
     (letrec-syntax       (letrec-syntax))
+    (stale-when          (stale-when))
     (foreign-call        (core-macro . foreign-call))
     (quote               (core-macro . quote))
     (syntax-case         (core-macro . syntax-case))
@@ -274,6 +275,7 @@
     (export                                     i)
     (library                                    i) 
     (include                                    i)
+    (stale-when                                 i)
     (debug-mode?                                i)
     (decompose-flonum                           i)
     (open-output-string                         i)
@@ -307,7 +309,7 @@
     (syntax-transpose                           i)
     (emacs-mode?                                i)
     ;(expand-boot-cps                            i)
-    (expand                                     i)
+    (core-expand                                     i)
     (expand->core                               i)
     (include-into                               i)
     (make-compile-time-value                    i)
@@ -364,7 +366,6 @@
     (deserialize-port                           i)
     (reverse!                                   ic)
     (eqv-hash                                   ic) ; TODO: remove
-    (make-record-printer                        irp)
     (add-record-printer!                        irp)
     ($break                                     iu)
     ($car                                       iu)
@@ -1188,6 +1189,7 @@
     (annotation-expression                      ir)
     (annotation-source                          ir)
     (annotation-stripped                        ir)
+    (make-annotation                            ir)
     
     (library-letrec*)
     
@@ -1363,7 +1365,7 @@
                             '()))))
           `(install-library
              ',id ',name ',version ',import-libs ',visit-libs ',invoke-libs
-             ',subst ',env values values '#f '#f ',visible? '#f)))))
+             ',subst ',env values values '#f '#f  '#f '() ',visible? '#f)))))
   (let ((code `(library (psyntax primlocs)
                   (export) ;;; must be empty
                   (import
@@ -1499,7 +1501,7 @@
                               bootstrap-collection))
                 (install-library
                    id name version import-libs visit-libs invoke-libs
-                   subst env values values #f #f visible? #f)))))))
+                   subst env values values #f #f #f '() visible? #f)))))))
     (for-each build-library library-legend)))
 
 

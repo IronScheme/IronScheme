@@ -38,13 +38,7 @@ namespace IronScheme.Compiler
         {
           Cons src = anno.source as Cons;
           string filename = src.car as string;
-          string location = src.cdr as string;
-
-          var m = Regex.Match(location, @"\((?<startline>\d+),(?<startcol>\d+)\)\s-\s\((?<endline>\d+),(?<endcol>\d+)\)");
-
-          var SpanHint = new SourceSpan(
-            new SourceLocation(0, Convert.ToInt32(m.Groups["startline"].Value), Convert.ToInt32(m.Groups["startcol"].Value)),
-            new SourceLocation(0, Convert.ToInt32(m.Groups["endline"].Value), Convert.ToInt32(m.Groups["endcol"].Value)));
+          object location = src.cdr;
 
           //LocationHint = filename;
           if (cb.Filename == null)
@@ -52,9 +46,20 @@ namespace IronScheme.Compiler
             cb.Filename = filename;
           }
 
-          var result = GetAst(c.cdr, cb);
-          result.SetLoc(SpanHint);
-          return result;
+          if (location is string)
+          {
+            var SpanHint = ExtractLocation(location as string);
+            
+            var result = GetAst(c.cdr, cb);
+            result.SetLoc(SpanHint);
+            return result;
+          }
+          else if (location is SourceSpan)
+          {
+            var result = GetAst(c.cdr, cb);
+            result.SetLoc((SourceSpan)location);
+            return result;
+          }
         }
       }
 

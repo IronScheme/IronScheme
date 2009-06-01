@@ -24,65 +24,46 @@ using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime.R6RS
 {
-  //public abstract class Record<R>
-  //{
-  //  public override bool Equals(object obj)
-  //  {
-  //    if (eqv_handler != null)
-  //    {
-  //      return Builtins.IsTrue(eqv_handler.Call(this, obj));
-  //    }
-  //    return base.Equals(obj);
-  //  }
-
-  //  public override int GetHashCode()
-  //  {
-  //    if (hashcode_handler != null)
-  //    {
-  //      return Convert.ToInt32(hashcode_handler.Call(this));
-  //    }
-  //    return base.GetHashCode();
-  //  }
-
-  //  public override string ToString()
-  //  {
-  //    if (printer_handler != null)
-  //    {
-  //      StringWriter sw = new StringWriter();
-  //      printer_handler.Call(this, sw, Builtins.FALSE);
-  //      return sw.GetBuffer();
-  //    }
-  //    return base.ToString();
-  //  }
-
-  //  public static ICallable eqv_handler;
-  //  public static ICallable hashcode_handler;
-  //  public static ICallable printer_handler;
-  //}
-
-  class RecordTypeDescriptor
+  [CLSCompliant(false)]
+  public class RecordTypeDescriptor
   {
-    public Type type;
-    public string name;
-    public bool @sealed, opaque;
-    public ICallable constructor;
-    public MethodInfo predicate;
+    internal Type type;
+
+    public string Name { get; internal set; }
+
+    internal bool @sealed, opaque, generative;
+
+    public object Sealed { get { return Builtins.GetBool(@sealed); } }
+    public object Opaque { get { return Builtins.GetBool(opaque); } }
+    public object Generative { get { return Builtins.GetBool(generative); } }
+
+    public ICallable Constructor { get; internal set; }
+    
+    internal MethodInfo predicate;
+
+    public ICallable Predicate { get; internal set; }
+    
     public object uid;
-    public bool generative;
-    public CodeGen cg;
+    
+    internal CodeGen cg;
 
-    public RecordTypeDescriptor parent;
+    public RecordTypeDescriptor Parent {get; internal set;}
 
-    public List<FieldDescriptor> fields = new List<FieldDescriptor>();
+    internal FieldDescriptor[] fields;
+
+    public FieldDescriptor[] Fields
+    {
+      get { return fields; }
+    }
 
     internal AssemblyGen ag;
     internal TypeGen tg;
 
     public IEnumerable<FieldDescriptor> GetAllFields()
     {
-      if (parent != null)
+      if (Parent != null)
       {
-        foreach (FieldDescriptor fd in parent.GetAllFields())
+        foreach (FieldDescriptor fd in Parent.GetAllFields())
         {
           yield return fd;
         }
@@ -101,23 +82,29 @@ namespace IronScheme.Runtime.R6RS
 
         Records.typedescriptors[type] = this;
 
-#if DEBUG
-        // this is just all wrong wrong wrong!!!
-        //Assembly genass = ag.DumpAndLoad();
-#endif
         MethodInfo ci = type.GetMethod("make");
-        constructor = Closure.Make(null, Delegate.CreateDelegate(typeof(CallTargetN), ci));
+        Constructor = Closure.Make(null, Delegate.CreateDelegate(typeof(CallTargetN), ci));
 
         // update fields
         predicate = type.GetMethod(predicate.Name);
+        Predicate = Closure.MakeStatic(Delegate.CreateDelegate(typeof(CallTarget1), predicate));
 
         foreach (FieldDescriptor fd in fields)
         {
           fd.field = type.GetField(fd.field.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
           fd.accessor = type.GetMethod(fd.accessor.Name);
+
+          fd.Accessor = Closure.MakeStatic(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
+
           if (fd.mutable)
           {
             fd.mutator = type.GetMethod(fd.mutator.Name);
+
+            fd.Mutator = Closure.MakeStatic(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
+          }
+          else
+          {
+            fd.Mutator = Builtins.FALSE;
           }
         }
       }
@@ -127,22 +114,28 @@ namespace IronScheme.Runtime.R6RS
 
     public override string ToString()
     {
-      return string.Format("rtd: {0}", name);
+      return string.Format("rtd: {0}", Name);
     }
   }
 
-  class FieldDescriptor
+  [CLSCompliant(false)]
+  public class FieldDescriptor
   {
-    public string name;
-    public bool mutable;
+    public string Name { get; internal set; }
+    
+    internal bool mutable;
 
-    public FieldInfo field;
-    public MethodInfo accessor, mutator;
+    public object Mutable { get { return Builtins.GetBool(mutable); } }
 
+    internal FieldInfo field;
+    internal MethodInfo accessor, mutator;
+
+    public object Accessor { get; internal set; }
+    public object Mutator { get; internal set; }
 
     public override string ToString()
     {
-      return string.Format("fd: {0}", name);
+      return string.Format("fd: {0}", Name);
     }
   }
 
@@ -155,7 +148,7 @@ namespace IronScheme.Runtime.R6RS
 
     public override string ToString()
     {
-      return string.Format("rcd: {0}", type.name);
+      return string.Format("rcd: {0}", type.Name);
     }
   }
 
@@ -163,25 +156,7 @@ namespace IronScheme.Runtime.R6RS
   {
     static Dictionary<string, RecordTypeDescriptor> nongenerative = new Dictionary<string, RecordTypeDescriptor>();
 
-    internal static Dictionary<string, ICallable> printers = new Dictionary<string, ICallable>();
-
-    [Builtin("make-record-printer")]
-    public static object MakeRecordPrinter(object typename, object proc)
-    {
-      string fn = SymbolTable.IdToString(RequiresNotNull<SymbolId>(typename));
-      printers[fn] = RequiresNotNull<ICallable>(proc);
-      return Unspecified;
-    }
-
-
-    [Builtin("record-type-descriptor?")]
-    public static object IsRecordTypeDescriptor(object obj)
-    {
-      return GetBool(obj is RecordTypeDescriptor);
-    }
-
-
-    static Regex assnamefix = new Regex(@"[\\/:]");
+    static Regex assnamefix = new Regex(@"[\\/:]", RegexOptions.Compiled);
 
     static string MakeSafe(Match m)
     {
@@ -238,11 +213,11 @@ namespace IronScheme.Runtime.R6RS
       TypeAttributes attrs = TypeAttributes.Public | TypeAttributes.Serializable;
 
       RecordTypeDescriptor rtd = new RecordTypeDescriptor();
-      rtd.name = n;
+      rtd.Name = n;
       rtd.@sealed = @sealed;
       rtd.opaque = opaque;
       rtd.ag = ag;
-      rtd.parent = prtd;
+      rtd.Parent = prtd;
       rtd.uid = uid;
       rtd.generative = id == null;
 
@@ -275,6 +250,8 @@ namespace IronScheme.Runtime.R6RS
 
       object[] f = RequiresNotNull<object[]>(fields);
 
+      List<FieldDescriptor> rtd_fields = new List<FieldDescriptor>();
+
       foreach (Cons c in f)
       {
         string fname = SymbolTable.IdToString(RequiresNotNull<SymbolId>(Second(c)));
@@ -283,7 +260,7 @@ namespace IronScheme.Runtime.R6RS
         string mname = n + "-" + fname + "-set!";
 
         FieldDescriptor fd = new FieldDescriptor();
-        fd.name = fname;
+        fd.Name = fname;
 
         FieldAttributes fattrs = FieldAttributes.Public | FieldAttributes.InitOnly;
         if (c.car == SymbolTable.StringToObject("mutable"))
@@ -333,15 +310,17 @@ namespace IronScheme.Runtime.R6RS
           pi.SetSetMethod(mb);
         }
 
-        rtd.fields.Add(fd);
+        rtd_fields.Add(fd);
       }
+
+      rtd.fields = rtd_fields.ToArray();
 
       // constructor logic
       {
         List<Type> paramtypes = new List<Type>();
         List<FieldDescriptor> allfields = new List<FieldDescriptor>(rtd.GetAllFields());
 
-        int diff = allfields.Count - rtd.fields.Count;
+        int diff = allfields.Count - rtd.Fields.Length;
 
         foreach (FieldDescriptor var in allfields)
         {
@@ -362,7 +341,7 @@ namespace IronScheme.Runtime.R6RS
 
         for (int i = 0; i < allfields.Count; i++)
         {
-          cg.DefineParameter(i + 1, ParameterAttributes.None, allfields[i].name);
+          cg.DefineParameter(i + 1, ParameterAttributes.None, allfields[i].Name);
         }
 
         int fi = 0;
@@ -378,9 +357,9 @@ namespace IronScheme.Runtime.R6RS
           mk.Emit(OpCodes.Ldelem, typeof(object));
         }
 
-        cg.Emit(OpCodes.Call, (rtd.parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.parent.cg.MethodBase as ConstructorInfo));
+        cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.cg.MethodBase as ConstructorInfo));
 
-        foreach (FieldDescriptor fd in rtd.fields)
+        foreach (FieldDescriptor fd in rtd.Fields)
         {
           cg.EmitThis();
           cg.EmitArgGet(fi);
@@ -431,25 +410,13 @@ namespace IronScheme.Runtime.R6RS
       // should be internal somehow
       if (t.type.IsSubclassOf(typeof(Exception)))
       {
-        SetSymbolValue(SymbolTable.StringToObject(t.name + "-rcd"), rcd);
+        SetSymbolValue(SymbolTable.StringToObject(t.Name + "-rcd"), rcd);
       }
       
       return rcd;
     }
 
-    [Builtin("record-predicate")]
-    public static object RecordPredicate(object rtd)
-    {
-      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
-#if CPS
-      CallTarget1 rp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
-      
-      return Closure.Make(Context, OptimizedBuiltins.MakeCPS(rp));
-#else
-      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
-#endif
-    }
-
+    
     [Builtin("record-constructor")]
     public static object RecordConstructor(object cd)
     {
@@ -457,7 +424,7 @@ namespace IronScheme.Runtime.R6RS
       Type tt = ci.type.Finish();
 
       // this is foo.make(params object[] args) calls constructor(s).
-      ICallable pp = ci.type.constructor;
+      ICallable pp = ci.type.Constructor;
 
       RecordConstructorDescriptor rcd = ci;
 
@@ -529,94 +496,8 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    [Builtin("record-accessor")]
-    public static object RecordAccessor(object rtd, object k)
-    {
-      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      int i = RequiresNotNull<int>(k);
-
-      if (i >= t.fields.Count)
-      {
-        return AssertionViolation("record-accessor", "invalid field index", rtd, k);
-      }
-
-      MethodInfo am = t.fields[i].accessor;
-
-#if CPS
-      CallTarget1 rp = Delegate.CreateDelegate(typeof(CallTarget1), am) as CallTarget1;
-      return Closure.Make(Context, OptimizedBuiltins.MakeCPS(rp));
-#else
-      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget1), am));
-#endif
-    }
-
-    [Builtin("record-mutator")]
-    public static object RecordMutator(object rtd, object k)
-    {
-      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      int i = RequiresNotNull<int>(k);
-
-      if (i >= t.fields.Count)
-      {
-        return AssertionViolation("record-mutator", "invalid field index", rtd, k);
-      }
-
-      MethodInfo mm = t.fields[i].mutator;
-
-#if CPS
-      CallTarget2 rp = Delegate.CreateDelegate(typeof(CallTarget2), mm) as CallTarget2;
-
-      return Closure.Make(Context, OptimizedBuiltins.MakeCPS(rp));
-#else
-      return Closure.Make(Context, Delegate.CreateDelegate(typeof(CallTarget2), mm));
-#endif
-    }
-
     internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();
 
-    //internal static bool IsRecordAny(object obj)
-    //{
-    //  if (obj != null)
-    //  {
-    //    RecordTypeDescriptor rtd;
-    //    if (typedescriptors.TryGetValue(obj.GetType(), out rtd))
-    //    {
-    //      return true;
-    //    }
-    //  }
-    //  return false;
-    //}
-
-    //internal static string PrintRecord(object rec)
-    //{
-    //  RecordTypeDescriptor rtd;
-    //  if (typedescriptors.TryGetValue(rec.GetType(), out rtd))
-    //  {
-    //    if (rtd.opaque)
-    //    {
-    //      return string.Format("#[{0}]", rtd.name);
-    //    }
-    //    else
-    //    {
-    //      List<string> fields = new List<string>();
-    //      GetFields(rec, rtd, fields);
-    //      return string.Format("#[{0}{1}]", rtd.name, string.Join("", fields.ToArray()));
-    //    }
-    //  }
-    //  return "not a record!!";
-    //}
-
-    //static void GetFields(object rec, RecordTypeDescriptor rtd, List<string> fields)
-    //{
-    //  if (rtd.parent != null)
-    //  {
-    //    GetFields(rec, rtd.parent, fields);
-    //  }
-    //  foreach (FieldDescriptor fd in rtd.fields)
-    //  {
-    //    fields.Add(string.Format(" {0}:{1}", fd.name, WriteFormat(fd.accessor.Invoke(null, new object[] { rec }))));
-    //  }
-    //}
 
     [Builtin("record?")]
     public static object IsRecord(object obj)
@@ -646,89 +527,6 @@ namespace IronScheme.Runtime.R6RS
       return FALSE;
     }
 
-    static bool IsCondition(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      // argghhh
-      if (r.type == typeof(Condition) || r.type.BaseType == typeof(Condition))
-      {
-        return true;
-      }
-
-      var parent = RecordTypeParent(rtd);
-      if (parent != FALSE)
-      {
-        return IsCondition(parent);
-      }
-      return false;
-    }
-
-    [Builtin("record-type-name")]
-    public static object RecordTypeName(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return SymbolTable.StringToObject(r.name);
-    }
-
-    [Builtin("record-type-parent")]
-    public static object RecordTypeParent(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.parent ?? FALSE;
-    }
-
-    [Builtin("record-type-uid")]
-    public static object RecordTypeUid(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return r.uid ?? FALSE;
-    }
-
-    [Builtin("record-type-generative?")]
-    public static object IsRecordTypeGenerative(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return GetBool(r.generative);
-    }
-
-    [Builtin("record-type-sealed?")]
-    public static object IsRecordTypeSealed(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return GetBool(r.type.IsSealed);
-    }
-
-    [Builtin("record-type-opaque?")]
-    public static object IsRecordTypeOpaque(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return GetBool(r.opaque);
-    }
-
-    [Builtin("record-type-field-names")]
-    public static object RecordTypeFieldNames(object rtd)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      List<object> names = new List<object>();
-
-      foreach (FieldDescriptor fd in r.fields)
-      {
-        names.Add(SymbolTable.StringToObject(fd.name));
-      }
-      return names.ToArray();
-    }
-
-    [Builtin("record-field-mutable?")]
-    public static object IsRecordFieldMutable(object rtd, object k)
-    {
-      RecordTypeDescriptor r = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      int i = RequiresNotNull<int>(k);
-      if (i >= r.fields.Count)
-      {
-        return AssertionViolation("record-field-mutable?", "invalid field index", rtd, k);
-      }
-      return GetBool(r.fields[i].mutable);
-    }
   }
 }
 

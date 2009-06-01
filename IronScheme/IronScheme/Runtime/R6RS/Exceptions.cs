@@ -153,13 +153,13 @@ namespace IronScheme.Runtime.R6RS
       InitDefaultHandler();
       if (obj is CompoundCondition)
       {
-        var sf = new StackTrace(1);
+        var sf = new StackTrace(1, true);
         ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
         var values = new ArrayList(((CompoundCondition)obj).conds);
 
         foreach (var val in values)
         {
-          if (val.GetType().Name == "$stacktrace")
+          if (val.GetType().Name.Contains("stacktrace"))
           {
             values.Remove(val);
             break;
@@ -224,13 +224,13 @@ namespace IronScheme.Runtime.R6RS
 
       if (obj is CompoundCondition)
       {
-        var sf = new StackTrace(1);
+        var sf = new StackTrace(1, true);
         ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
         var values = new ArrayList(((CompoundCondition)obj).conds);
 
         foreach (var val in values)
         {
-          if (val.GetType().Name == "$stacktrace")
+          if (val.GetType().Name.Contains("stacktrace"))
           {
             values.Remove(val);
             break;

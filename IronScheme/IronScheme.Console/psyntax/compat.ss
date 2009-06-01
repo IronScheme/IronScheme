@@ -22,10 +22,11 @@
   (export make-parameter parameterize define-record compile-core file-options-constructor
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
-          load-serialized-library serialize-library
-          annotation-stripped make-record-printer
+          make-annotation
+          annotation-stripped
 		      read-library-source-file
           library-version-mismatch-warning
+          library-stale-warning
           file-locator-resolution-error
           label-binding set-label-binding! remove-location)
   (import 
@@ -33,7 +34,6 @@
     (ironscheme reader)
     (ironscheme clr)
     (ironscheme records printer)
-    (ironscheme serialization)
     (only (ironscheme) fprintf symbol-bound? remove-location)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value compile-core))
@@ -41,25 +41,32 @@
 
  (define (library-version-mismatch-warning name depname filename)
     (fprintf (current-error-port)
-        "WARNING: library ~s has an inconsistent dependency \
-         on library ~s; file ~s will be recompiled from \
-         source.\n"
+        "WARNING: library ~s has an inconsistent dependency on library ~s; file ~s will be recompiled from source.\n"
        name depname filename))
 
-    (define (file-locator-resolution-error libname failed-list)
-      (define-condition-type &library-resolution &condition
+  (define (library-stale-warning name filename)
+    (fprintf (current-error-port)
+       "WARNING: library ~s is stale; file ~s will be recompiled from source.\n"
+       name filename))
+
+  (define (file-locator-resolution-error libname failed-list pending-list)
+    (define-condition-type &library-resolution &condition
          make-library-resolution-condition
          library-resolution-condition?
          (library condition-library)
          (files condition-files))
+    (define-condition-type &imported-from &condition
+       make-imported-from-condition imported-from-condition?
+       (importing-library importing-library))
+
       (raise 
-        (condition 
-          (make-error)
+      (apply condition (make-error)
           (make-who-condition 'expander)
           (make-message-condition
             "cannot locate library in library-path")
           (make-library-resolution-condition 
-            libname failed-list))))
+          libname failed-list)
+        (map make-imported-from-condition pending-list))))
 
   (define (read-library-source-file file-name)
 		(with-input-from-file file-name read-annotated))

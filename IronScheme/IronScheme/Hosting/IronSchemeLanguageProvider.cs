@@ -123,7 +123,21 @@ namespace IronScheme.Hosting
 
       protected override int RunFile(string filename)
       {
-        IronScheme.Runtime.Builtins.commandline = Options.RemainingArgs;
+        var rest = Options.RemainingArgs;
+        for (int i = 0; i < rest.Length; i++)
+        {
+          if (rest[i] == filename)
+          {
+            var tail = new string[rest.Length - i];
+            Array.Copy(rest, i, tail, 0, tail.Length);
+
+            tail[0] = tail[0].Replace("\\", "/");
+
+            Engine.Execute(string.Format("(command-line '(\"{0}\"))", string.Join("\" \"", tail)), 
+              Compiler.BaseHelper.scriptmodule);
+          }
+        }
+        //IronScheme.Runtime.Builtins.commandline = Options.RemainingArgs;
         //Runtime.Builtins.Load("~/ironscheme.boot.pp");
         if (!Options.TabCompletion)
         {

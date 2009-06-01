@@ -443,4 +443,23 @@
       [(_ e ...)
         (letrec-syntax [(define (lambda (x) (syntax-case x (define) [(_ (e . args) b b* ...) #'(trace-define (e . args) b b* ...)])))]
           #'(begin e ...))])))
-        
+
+
+(trace-define-syntax eval-expr
+  (lambda (x)
+    (define (parse e)
+      (syntax-case e ()
+        [(l op r)
+          (with-syntax ((r (parse #'(r))))
+            #'(op l r))]
+        [(l op r op* r* r** ...)
+          (with-syntax ((r (parse #'(r))))
+            (parse #'((op l r) op* r* r** ...)))]
+        [((x x* ...))
+          (parse #'(x x* ...))]          
+        [(x) #'x]))
+    (syntax-case x ()
+      [(_ e e* ...)
+        (parse #'(e e* ...))])))
+         
+  

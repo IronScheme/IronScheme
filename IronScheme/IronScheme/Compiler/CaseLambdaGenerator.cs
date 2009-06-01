@@ -32,17 +32,26 @@ namespace IronScheme.Compiler
       if (an is Annotation)
       {
         var anno = (Annotation)an;
+
         if (anno.source is Cons)
         {
           Cons src = anno.source as Cons;
           string filename = src.car as string;
-          string location = src.cdr as string;
+          object location = src.cdr;
 
           Cons expr = anno.expression as Cons;
 
           annotations = expr == null ? null : expr.cdr as Cons;
 
-          SpanHint = ExtractLocation(location);
+          // bootstrap check
+          if (location is string)
+          {
+            SpanHint = ExtractLocation(location as string);
+          }
+          else if (location is SourceSpan)
+          {
+            SpanHint = (SourceSpan)location;
+          }
 
           if (c.Filename == null)
           {
@@ -65,15 +74,6 @@ namespace IronScheme.Compiler
   [Generator("case-lambda")]
   public class CaseLambdaGenerator : SimpleGenerator
   {
-    protected static SourceSpan ExtractLocation(string location)
-    {
-      var m = Regex.Match(location, @"\((?<startline>\d+),(?<startcol>\d+)\)\s-\s\((?<endline>\d+),(?<endcol>\d+)\)");
-
-      return new SourceSpan(
-        new SourceLocation(0, Convert.ToInt32(m.Groups["startline"].Value), Convert.ToInt32(m.Groups["startcol"].Value)),
-        new SourceLocation(0, Convert.ToInt32(m.Groups["endline"].Value), Convert.ToInt32(m.Groups["endcol"].Value)));
-    } 
-
     protected Cons annotations;
     LambdaGenerator lambdagen;
     public override Expression Generate(object args, CodeBlock c)
@@ -110,7 +110,20 @@ namespace IronScheme.Compiler
           if (annotations != null)
           {
             ann = annotations.car as Annotation;
-            sh = ExtractLocation(((Cons)ann.source).cdr as string);
+
+            if (ann != null)
+            {
+              var h = (Cons)ann.source;
+
+              if (h.cdr is string)
+              {
+                sh = ExtractLocation(((Cons)ann.source).cdr as string);
+              }
+              else if (h.cdr is SourceSpan)
+              {
+                sh = (SourceSpan)h.cdr;
+              }
+            }
           }
           CodeBlock cb = Ast.CodeBlock(sh, lambdaname);
           cb.Filename = lh;

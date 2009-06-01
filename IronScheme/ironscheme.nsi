@@ -4,7 +4,7 @@
 !define PRODUCT_NAME "IronScheme"
 !define PRODUCT_VERSION "1.0-beta4"
 !define PRODUCT_PUBLISHER "leppie"
-!define PRODUCT_WEB_SITE "http://www.codeplex.com/IronScheme/"
+!define PRODUCT_WEB_SITE "http://ironscheme.codeplex.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\IronScheme.Console.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"

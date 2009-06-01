@@ -779,9 +779,7 @@ namespace IronScheme.Runtime
       Cons c = ReadElement(doc.DocumentElement);
 
       return c;
-    }
-
-
+    }    
 
     static Cons ReadElement(XmlElement e)
     {
@@ -790,7 +788,7 @@ namespace IronScheme.Runtime
 
       foreach (XmlAttribute a in e.Attributes)
       {
-        all.Add(ReadAttribute(a));    
+        all.Add(ReadAttribute(a));
       }
 
       foreach (XmlNode n in e.ChildNodes)
