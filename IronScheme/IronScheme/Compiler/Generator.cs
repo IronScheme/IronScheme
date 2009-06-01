@@ -24,6 +24,7 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 using System.Diagnostics;
 using Microsoft.Scripting.Math;
+using IronScheme.Runtime.psyntax;
 
 [assembly: Extension(GeneratorType=typeof(Generator), BuiltinsType=typeof(Builtins))]
 
@@ -58,6 +59,10 @@ namespace IronScheme.Compiler
 
     protected static Expression GetCons(object args, CodeBlock cb)
     {
+      if (args is Annotation)
+      {
+        args = ((Annotation)args).stripped;
+      }
       Cons c = args as Cons;
       if (c != null)
       {
@@ -264,6 +269,10 @@ namespace IronScheme.Compiler
 
     protected internal static Expression GetAst(object args, CodeBlock cb, bool istailposition)
     {
+      if (args is Annotation)
+      {
+        args = ((Annotation)args).stripped;
+      }
       Cons c = args as Cons;
       if (c != null)
       {

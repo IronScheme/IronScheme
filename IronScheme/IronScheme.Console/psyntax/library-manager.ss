@@ -54,8 +54,8 @@
 
   (define-record library 
     (id name version imp* vis* inv* subst env visit-state
-        invoke-state visit-code invoke-code visible?
-        source-file-name)
+        invoke-state visit-code invoke-code guard-code guard-req*
+        visible?  source-file-name)
     (lambda (x p wr)
       (unless (library? x)
         (assertion-violation 'record-type-printer "not a library"))
@@ -174,6 +174,8 @@
                   (library-env x)
                   (compile (library-visit-code x))
                   (compile (library-invoke-code x))
+                  (compile (library-guard-code x))
+                  (map library-desc (library-guard-req* x))
                   (library-visible? x)))))
       ((current-library-collection))))
 
@@ -185,18 +187,30 @@
       filename
       (case-lambda
         ((id name ver imp* vis* inv* exp-subst exp-env
-          visit-proc invoke-proc visible?)
+          visit-proc invoke-proc guard-proc guard-req* visible?)
          ;;; make sure all dependencies are met
          ;;; if all is ok, install the library
          ;;; otherwise, return #f so that the
          ;;; library gets recompiled.
-         (let f ((deps (append imp* vis* inv*)))
+         (let f ((deps (append imp* vis* inv* guard-req*)))
            (cond
              ((null? deps)
+              ;;; CHECK
+              (for-each
+                (lambda (x)
+                  (let ([label (car x)] [dname (cadr x)])
+                    (let ([lib (find-library-by-name dname)])
+                      (invoke-library lib))))
+                guard-req*)
+              (cond
+                [(guard-proc) ;;; stale
+                 (library-stale-warning name filename)
+                 #f]
+                [else
               (install-library id name ver imp* vis* inv* 
                 exp-subst exp-env visit-proc invoke-proc 
-                #f #f visible? #f)
-              #t)
+                   #f #f #f '() visible? #f)
+                 #t]))
              (else
               (let ((d (car deps))) 
                 (let ((label (car d)) (dname (cadr d))) 
@@ -330,10 +344,12 @@
     (case-lambda
       ((id name ver imp* vis* inv* exp-subst exp-env 
         visit-proc invoke-proc visit-code invoke-code 
+        guard-code guard-req*
         visible? source-file-name)
        (let ((imp-lib* (map find-library-by-spec/die imp*))
              (vis-lib* (map find-library-by-spec/die vis*))
-             (inv-lib* (map find-library-by-spec/die inv*)))
+             (inv-lib* (map find-library-by-spec/die inv*))
+             (guard-lib* (map find-library-by-spec/die guard-req*)))
          (unless (and (symbol? id) (list? name) (list? ver))
            (assertion-violation 'install-library 
              "invalid spec with id/name/ver" id name ver))
@@ -342,7 +358,8 @@
              "library is already installed" name))
          (let ((lib (make-library id name ver imp-lib* vis-lib* inv-lib* 
                        exp-subst exp-env visit-proc invoke-proc 
-                       visit-code invoke-code visible? source-file-name)))
+                       visit-code invoke-code guard-code guard-lib*
+                       visible? source-file-name)))
            (install-library-record lib))))))
 
   (define (imported-label->binding lab)
@@ -393,6 +410,5 @@
       (unless (library? x)
         (assertion-violation 'library-spec "not a library" x))
       (list (library-id x) (library-name x) (library-version x)))) 
-      
   )
 

@@ -318,6 +318,8 @@ namespace Microsoft.Scripting.Ast {
             _left.EmitBranchFalse(cg, otherwise);
             // then
 
+            EmitLocation(cg);
+
             if (isAnd) {
                 _right.EmitAs(cg, typeof(bool));
             } else {

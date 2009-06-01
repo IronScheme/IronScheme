@@ -139,8 +139,6 @@ namespace IronScheme.Compiler
       AddInlineEmitters(typeof(BuiltinEmitters.Unsafe));
       AddInlineEmitters(typeof(BuiltinEmitters.Unchecked));
 
-      AddBuiltins(Context, typeof(Runtime.psyntax.AnnotatedReader));
-      AddBuiltins(Context, typeof(Runtime.psyntax.Serialization));
 
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
       AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));
@@ -149,7 +147,6 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.IO));
       AddBuiltins(Context, typeof(Runtime.R6RS.Exceptions));
       AddBuiltins(Context, typeof(Runtime.R6RS.Conditions));
-      AddBuiltins(Context, typeof(Runtime.R6RS.Programs));
 
       cc.Scope.SetName((SymbolId)SymbolTable.StringToObject("uninitialized"), Uninitialized.Instance);
 

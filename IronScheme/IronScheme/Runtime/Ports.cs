@@ -26,6 +26,7 @@ using System.Diagnostics;
 using IronScheme.Runtime.R6RS;
 using System.Globalization;
 using System.Net.Sockets;
+using IronScheme.Runtime.psyntax;
 
 namespace IronScheme.Runtime
 {
@@ -251,7 +252,78 @@ namespace IronScheme.Runtime
     //[Builtin("get-datum")]
     public static object Read(object port)
     {
-      return ReadNext(port);
+      var r = ReadAnnotatedNext(port);
+      if (r is Annotation)
+      {
+        return ((Annotation)r).stripped;
+      }
+      return r;
+    }
+
+    [Builtin("read-annotated")]
+    public static object ReadAnnotated()
+    {
+      return ReadAnnotated(Builtins.CurrentInputPort());
+    }
+
+    [Builtin("read-annotated")]
+    public static object ReadAnnotated(object port)
+    {
+      string filename = "";
+      if (port is StreamReader)
+      {
+        StreamReader r = (StreamReader)port;
+        if (r.BaseStream is FileStream)
+        {
+          FileStream fs = (FileStream)r.BaseStream;
+          filename = fs.Name.Replace(Environment.CurrentDirectory + "\\", string.Empty);
+        }
+        
+      }
+
+      IronScheme.Compiler.AnnotationHelper.Filename = filename;
+
+      var res = ReadAnnotatedNext(port);
+      return res;
+    }
+
+
+    [Builtin("make-annotation")]
+    public static object MakeAnnotation(object expr, object source, object stripped)
+    {
+      if (expr is Cons && stripped is Cons)
+      {
+        return new ConsAnnotation(expr as Cons, source, stripped as Cons);
+      }
+      else
+      {
+        return new Annotation(expr, source, stripped);
+      }
+    }
+
+
+    [Builtin("annotation?")]
+    public static object IsAnnotation(object obj)
+    {
+      return GetBool(obj is Annotation);
+    }
+
+    [Builtin("annotation-expression")]
+    public static object AnnotationExpression(object obj)
+    {
+      return RequiresNotNull<Annotation>(obj).expression;
+    }
+
+    [Builtin("annotation-source")]
+    public static object AnnotationSource(object obj)
+    {
+      return RequiresNotNull<Annotation>(obj).source;
+    }
+
+    [Builtin("annotation-stripped")]
+    public static object AnnotationStripped(object obj)
+    {
+      return RequiresNotNull<Annotation>(obj).stripped;
     }
 
     protected interface ITranscodedPort
@@ -259,7 +331,7 @@ namespace IronScheme.Runtime
       Stream BinaryPort { get; }
     }
 
-    static object ReadNext(object port)
+    static object ReadAnnotatedNext(object port)
     {
       Cons c;
       if (readcache.TryGetValue(port, out c))

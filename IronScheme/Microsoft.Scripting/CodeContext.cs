@@ -69,7 +69,9 @@ namespace Microsoft.Scripting {
 
         #region Public API Surface
 
+      
         public Scope Scope {
+          [DebuggerStepThrough]
             get {
                 return _scope;
             }

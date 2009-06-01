@@ -1151,6 +1151,8 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             impl = outer.DefineMethod(implName, _returnType,
                 paramTypes, SymbolTable.IdsToStrings(paramNames), GetStaticDataForBody(outer));
 
+            //impl.EmitSequencePointNone();
+
             if (_explicitCodeContextExpression != null && HasEnvironment)
               {
                 Slot localContextSlot = impl.GetLocalTmp(typeof(CodeContext));
@@ -1323,69 +1325,32 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
         }
 
         internal protected virtual void EmitBody(CodeGen cg) {
+          if (Start.IsValid)
+          {
+            var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
+
+            cg.EmitPosition(Start, s);
+            cg.Emit(OpCodes.Nop);
+          }
+          else
+          {
+            cg.EmitSequencePointNone();
+          }
+
             CreateEnvironmentFactory(false);
             CreateSlots(cg);
-            if (cg.InterpretedMode) {
-                foreach (VariableReference vr in _references) {
-                    if (vr.Variable.Kind == Variable.VariableKind.Local && vr.Variable.Block == this) {
-                        vr.Slot.EmitSetUninitialized(cg);
-                    }
-                }
-            }
-
-            if (Start.IsValid)
-            {
-              var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
-
-              cg.EmitPosition(Start, s);
-              //cg.Emit(OpCodes.Nop);
-            }
 
             Body.Emit(cg);
-            //EmitEndPosition(cg);
 
             if (End.IsValid)
             {
-              var e = new SourceLocation(End.Index, End.Line, End.Column - 1);
+              var e = new SourceLocation(End.Index, End.Line, System.Math.Max(1, End.Column - 1));
               cg.EmitPosition(e, End);
-              cg.EmitSequencePointNone();
+              
             }
-        }
-
-
-        private void EmitStartPosition(CodeGen cg) {
-            // ensure a break point exists at the top
-            // of the file if there isn't a statement
-            // flush with the start of the file.
-            if (!Start.IsValid) return;
-
-            if (Body.Start.IsValid) {
-                if (Body.Start != Start) {
-                    cg.EmitPosition(Start, Start);
-                }
-            } else {
-                BlockStatement block = Body as BlockStatement;
-                if (block != null) {
-                    for (int i = 0; i < block.Statements.Count; i++) {
-                        if (block.Statements[i].Start.IsValid) {
-                            if (block.Statements[i].Start != Start) {
-                                cg.EmitPosition(Start, Start);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void EmitEndPosition(CodeGen cg) {
-            // ensure we emit a sequence point at the end
-            // so the user can inspect any info before exiting
-            // the function.  Also make sure additional code
-            // isn't associated with this function.
-            cg.EmitPosition(End, End);
             cg.EmitSequencePointNone();
         }
+
 
         // This is used for compiling the toplevel CodeBlock object.
         internal T CreateDelegate<T>(CompilerContext context) 

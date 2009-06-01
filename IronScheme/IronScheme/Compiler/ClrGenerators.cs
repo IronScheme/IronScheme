@@ -236,6 +236,10 @@ namespace IronScheme.Compiler
         bf = BindingFlags.Static;
         instance = null;
       }
+      else
+      {
+        instance = ConvertToHelper(t, instance);
+      }
 
       FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
 

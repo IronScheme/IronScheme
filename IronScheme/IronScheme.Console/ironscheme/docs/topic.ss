@@ -63,9 +63,5 @@
 					[(name desc form params return exceptions remark examples library related)
 							(p (make-guid) name desc form params return exceptions remark examples library related)]))))		
 
-  (make-record-printer 'topic 
-    (lambda (t p)
-      (assert (topic? t))
-      (fprintf p "<topic ~a ~a>" (topic-name t) (topic-id t))))
 )
     

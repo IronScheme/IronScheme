@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -125,52 +126,61 @@ namespace IronScheme.Runtime
       }
     }
 
+    [DebuggerStepThrough]
     public virtual object Call()
     {
       return Call(new object[0]);
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1)
     {
       return Call(new object[] { arg1 });
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1, object arg2)
     {
       return Call(new object[] { arg1, arg2 });
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1, object arg2, object arg3)
     {
       return Call(new object[] { arg1 , arg2, arg3 });
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1, object arg2, object arg3, object arg4)
     {
       return Call(new object[] { arg1 , arg2, arg3, arg4 });
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6 });
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
     }
 
+    [DebuggerStepThrough]
     public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
     }
 
-
+    [DebuggerStepThrough]
     public abstract object Call(object[] args);
 
     readonly Delegate target;
@@ -238,6 +248,7 @@ namespace IronScheme.Runtime
         get { return IsValid(target.Method) ? new MethodInfo[]{ target.Method } : None; }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object[] args)
       {
         if (paramcount >= 0 && paramcount != args.Length)
@@ -271,6 +282,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call()
       {
         if (paramcount == 0)
@@ -283,6 +295,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1)
       {
         if (paramcount == 1)
@@ -295,6 +308,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2)
       {
         if (paramcount == 2)
@@ -307,6 +321,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3)
       {
         if (paramcount == 3)
@@ -319,6 +334,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4)
       {
         if (paramcount == 4)
@@ -331,6 +347,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
       {
         if (paramcount == 5)
@@ -343,6 +360,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
       {
         if (paramcount == 6)
@@ -355,6 +373,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
       {
         if (paramcount == 7)
@@ -367,6 +386,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
       {
         if (paramcount == 8)
@@ -393,6 +413,7 @@ namespace IronScheme.Runtime
         get { return IsValid(target.Method) ? new MethodInfo[] { target.Method } : None; }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object[] args)
       {
         if (paramcount >= 0 && paramcount != args.Length)
@@ -426,6 +447,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call()
       {
         if (paramcount == 0)
@@ -438,6 +460,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1)
       {
         if (paramcount == 1)
@@ -450,6 +473,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2)
       {
         if (paramcount == 2)
@@ -462,6 +486,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3)
       {
         if (paramcount == 3)
@@ -474,6 +499,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4)
       {
         if (paramcount == 4)
@@ -486,6 +512,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
       {
         if (paramcount == 5)
@@ -498,6 +525,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
       {
         if (paramcount == 6)
@@ -510,6 +538,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
       {
         if (paramcount == 7)
@@ -522,6 +551,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
       {
         if (paramcount == 8)
@@ -616,6 +646,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object[] args)
       {
         if (args.Length < (double)Arity)
@@ -730,6 +761,7 @@ namespace IronScheme.Runtime
         return "empty case-lambda";
       }
 
+      [DebuggerStepThrough]
       public override object Call(object[] args)
       {
         int arglen = args.Length;
@@ -746,6 +778,7 @@ namespace IronScheme.Runtime
         return AssertionViolation(ToString(), "invalid argument count", args, arities);
       }
 
+      [DebuggerStepThrough]
       public override object Call()
       {
         int i = Array.IndexOf(arities, 0);
@@ -759,6 +792,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1)
       {
         int i = Array.IndexOf(arities, 1);
@@ -772,6 +806,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2)
       {
         int i = Array.IndexOf(arities, 2);
@@ -785,6 +820,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3)
       {
         int i = Array.IndexOf(arities, 3);
@@ -798,6 +834,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4)
       {
         int i = Array.IndexOf(arities, 4);
@@ -811,6 +848,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
       {
         int i = Array.IndexOf(arities, 5);
@@ -824,6 +862,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
       {
         int i = Array.IndexOf(arities, 6);
@@ -837,6 +876,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
       {
         int i = Array.IndexOf(arities, 7);
@@ -850,6 +890,7 @@ namespace IronScheme.Runtime
         }
       }
 
+      [DebuggerStepThrough]
       public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
       {
         int i = Array.IndexOf(arities, 8);

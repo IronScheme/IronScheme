@@ -29,7 +29,7 @@ namespace Microsoft.Scripting.Generation {
         protected override Slot CreateSlot(SymbolId name, Type type) {
 
             FieldBuilder fb = _typeGen.TypeBuilder.DefineField(SymbolTable.IdToString( name), 
-              type, FieldAttributes.Assembly | FieldAttributes.Static | FieldAttributes.InitOnly);
+              type, FieldAttributes.Assembly | FieldAttributes.Static);
             
             return new StaticFieldSlot(fb);
         }

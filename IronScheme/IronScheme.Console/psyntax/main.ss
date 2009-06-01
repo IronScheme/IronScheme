@@ -38,6 +38,7 @@
     (rnrs exceptions)
     (rnrs control)
     (rnrs io simple)
+    (rnrs io ports)
     (rnrs lists)
     (only (rnrs conditions) serious-condition?)
     (only (rnrs exceptions) raise)
@@ -53,7 +54,7 @@
     (ironscheme clr)
     (ironscheme constant-fold)
     (ironscheme library)
-    (only (ironscheme) pretty-print initialize-default-printers))
+    (only (ironscheme) pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port))
     
   (define trace-printer (make-parameter pretty-print))
       
@@ -158,6 +159,49 @@
 					      (serialize-all serialize-library compile-core-expr)))))))
 
   (define fo (make-enumeration '(no-fail no-create no-truncate)))
+  
+  (define (compile-library-content sk 
+          id name ver imp* vis* inv* exp-subst exp-env
+          visit-proc invoke-proc guard-proc guard-req* visible?)
+    (sk id name ver imp* vis* inv* exp-subst exp-env
+        (compile-core (expanded->core visit-proc))
+        (compile-core (expanded->core invoke-proc))
+        (compile-core (expanded->core guard-proc))
+        guard-req* visible?))
+  
+  (define (load-serialized-library filename sk)
+    (let ((fasl-filename (change-extension filename)))
+      (if (file-exists? fasl-filename)
+          (if (or (not (file-exists? filename))
+                  (file-newer? fasl-filename filename))
+              (let ((port (open-file-input-port fasl-filename)))                  
+                (guard [e 
+                        (e 
+                          (close-input-port port)
+                          (display (format "WARNING: precompiled library (~a) could not load.\n" filename) (current-error-port))
+                          #f)]
+                  (let ((content (deserialize-port port)))
+                    (close-input-port port)
+                    (apply compile-library-content sk content))))
+              (begin
+                (display (format "WARNING: precompiled library (~a) is out of date.\n" filename) (current-error-port))
+                #f))
+          #f)))
+    
+  (define (change-extension filename)
+    (clr-static-call System.IO.Path ChangeExtension filename ".fasl"))    
+    
+  (define (serialize-library filename content)     
+    (display "serializing ")
+    (display filename)
+    (newline)
+    (let ((fasl-filename (change-extension filename)))
+      (when (file-exists? fasl-filename)
+        (delete-file fasl-filename))
+    (let ((port (open-file-output-port fasl-filename)))
+      (serialize-port content port)
+      (close-output-port port))))
+    
  
   (current-precompiled-library-loader load-serialized-library)
   
@@ -195,11 +239,12 @@
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))
   
-  (enable-constant-fold/env 
-    '(only (rnrs) = < > <= >= negative? positive? zero? exp expt div mod div0 mod0)
-    '(except (rnrs arithmetic fixnums) fx*/carry fx-/carry fx+/carry fxdiv0-and-mod0 fxdiv-and-mod)
-    '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod)
-    '(rnrs arithmetic bitwise))
+  (unless (debug-mode?)
+    (enable-constant-fold/env 
+      '(only (rnrs) + - * / = < > <= >= negative? positive? zero? exp expt div mod div0 mod0 even? odd?)
+      '(except (rnrs arithmetic fixnums) fx*/carry fx-/carry fx+/carry fxdiv0-and-mod0 fxdiv-and-mod)
+      '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod)
+      '(rnrs arithmetic bitwise)))
   
   (interaction-environment (new-interaction-environment))
   )

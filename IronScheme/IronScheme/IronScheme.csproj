@@ -122,7 +122,6 @@
     <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
     <Compile Include="Runtime\psyntax\Serialization.cs" />
     <Compile Include="Runtime\R6RS\Conditions.cs" />
-    <Compile Include="Runtime\R6RS\Programs.cs" />
     <Compile Include="Runtime\R6RS\Exceptions.cs" />
     <Compile Include="Runtime\R6RS\IO.cs" />
     <Compile Include="Runtime\R6RS\Sorting.cs" />

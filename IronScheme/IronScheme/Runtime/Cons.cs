@@ -17,6 +17,7 @@ using System.Text;
 using System.Collections;
 using Microsoft.Scripting;
 using System.IO;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -66,6 +67,7 @@ namespace IronScheme.Runtime
       return first;
     }
 
+    [DebuggerStepThrough]
     public static Cons FromArray(params object[] args)
     {
       if (args == null)

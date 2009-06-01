@@ -28,6 +28,8 @@ namespace IronScheme
       return Eval(expr, INTERACTION_ENVIRONMENT, args);
     }
 
+    static readonly Regex INDEXREPLACE = new Regex("{(?<index>\\d+)}", RegexOptions.Compiled);
+
     public static object Eval(this string expr, string importspec, params object[] args)
     {
       if (string.IsNullOrEmpty(expr))
@@ -42,7 +44,7 @@ namespace IronScheme
       Guid[] replacements = new Guid[args.Length];
       string[] vars = new string[args.Length];
 
-      expr = Regex.Replace(expr, "{(?<index>\\d+)}", m =>
+      expr = INDEXREPLACE.Replace(expr, m =>
       {
         Guid g = Guid.NewGuid();
         var index = Convert.ToInt32(m.Groups["index"].Value);

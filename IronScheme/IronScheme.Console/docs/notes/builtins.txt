@@ -39,7 +39,6 @@ vector [7]
 
 (rnrs programs):
 
-exit
 
 (rnrs syntax-case):
 
@@ -169,26 +168,14 @@ simple-conditions
 
 (rnrs records inspection):
 
-record-field-mutable?
 record-rtd
-record-type-field-names
-record-type-generative?
-record-type-name
-record-type-opaque?
-record-type-parent
-record-type-sealed?
-record-type-uid
 record?
 
 (rnrs records procedural):
 
 make-record-constructor-descriptor
 make-record-type-descriptor
-record-accessor [3]
 record-constructor [3]
-record-mutator [3]
-record-predicate [3]
-record-type-descriptor?
 
 (rnrs records syntactic):
 
