@@ -175,7 +175,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg) {
           //EmitLocation(cg);
-          if (_instance != null && !ScriptDomainManager.Options.DebugMode && !cg.IsDynamicMethod && !IsParamsMethod()) // damn DM! // go away! // this dangerous too for now
+          if (_instance != null && !cg.IsDynamicMethod && !IsParamsMethod()) // damn DM! // go away! // this dangerous too for now
           {
 
             if (_instance is UnaryExpression)
@@ -193,7 +193,7 @@ namespace Microsoft.Scripting.Ast {
 
                   if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
                   {
-                    if (rcg == cg)
+                    if (rcg == cg && !ScriptDomainManager.Options.DebugMode)
                     {
                       List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
                       for (int arg = 0; arg < _parameterInfos.Length; arg++)
@@ -262,7 +262,7 @@ namespace Microsoft.Scripting.Ast {
 
                       if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
                       {
-                        if (rcg == cg)
+                        if (rcg == cg && !ScriptDomainManager.Options.DebugMode)
                         {
                           List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
                           for (int arg = 0; arg < _parameterInfos.Length; arg++)

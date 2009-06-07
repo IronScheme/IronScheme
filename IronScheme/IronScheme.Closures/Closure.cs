@@ -214,7 +214,7 @@ namespace IronScheme.Runtime
 
     protected static bool IsValid(MethodInfo mi)
     {
-      return mi.IsPublic && mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi) 
+      return mi.IsPublic && mi.IsStatic && !mi.Name.Contains("#") && IsValidParams(mi) && mi.DeclaringType != null
 #if DEBUG
         && mi.Module.Name != "<In Memory Module>"
 #endif

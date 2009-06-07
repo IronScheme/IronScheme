@@ -114,6 +114,9 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitBoxing(Type);
         }
 
+        static FieldInfo True = typeof(RuntimeHelpers).GetField("True");
+        static FieldInfo False = typeof(RuntimeHelpers).GetField("False");
+
         /// <summary>
         /// Generates code for this expression in a value position.  This will leave
         /// the value of the expression on the top of the stack typed as asType.
@@ -121,10 +124,25 @@ namespace Microsoft.Scripting.Ast {
         /// <param name="cg">Where to generate the code.</param>
         /// <param name="asType">The type to leave on top of the stack.</param>
         internal void EmitAs(CodeGen cg, Type asType) {
-            this.Emit(cg);  // emit as Type
-            if (asType.IsValueType || !IsConstant(null) && Type != typeof(SymbolId)) {
-                cg.EmitConvert(Type, asType);
+          if (this is ConstantExpression && asType == typeof(object) && Type == typeof(bool))
+          {
+            if (IsConstant(true))
+            {
+              cg.EmitFieldGet(True);
             }
+            else
+            {
+              cg.EmitFieldGet(False);
+            }
+          }
+          else
+          {
+            this.Emit(cg);  // emit as Type
+            if (asType.IsValueType || !IsConstant(null) && Type != typeof(SymbolId))
+            {
+              cg.EmitConvert(Type, asType);
+            }
+          }
         }
 
         /// <summary>

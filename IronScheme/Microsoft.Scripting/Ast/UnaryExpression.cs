@@ -48,33 +48,44 @@ namespace Microsoft.Scripting.Ast {
         }      
 
         public override void Emit(CodeGen cg) {
-
+          if (NodeType == AstNodeType.Convert && _operand is ConstantExpression &&
+            _operand.Type == typeof(bool) && _type == typeof(object))
+          {
+            _operand.EmitAs(cg, typeof(object));
+          }
+          else
+          {
             _operand.Emit(cg);
 
             EmitLocation(cg);
 
-            switch (NodeType) {
-                case AstNodeType.Convert:
-                    cg.EmitCast(_operand.Type, _type);
-                    break;
+            switch (NodeType)
+            {
+              case AstNodeType.Convert:
+                cg.EmitCast(_operand.Type, _type);
+                break;
 
-                case AstNodeType.Not:
-                    if (_operand.Type == typeof(bool)) {
-                        cg.Emit(OpCodes.Ldc_I4_0);
-                        cg.Emit(OpCodes.Ceq);
-                    } else {
-                        cg.Emit(OpCodes.Not);
-                    }
-                    break;
-                case AstNodeType.Negate:
-                    cg.Emit(OpCodes.Neg);
-                    break;
-                case AstNodeType.OnesComplement:
-                    cg.Emit(OpCodes.Not);
-                    break;
-                default:
-                    throw new NotImplementedException();
+              case AstNodeType.Not:
+                if (_operand.Type == typeof(bool))
+                {
+                  cg.Emit(OpCodes.Ldc_I4_0);
+                  cg.Emit(OpCodes.Ceq);
+                }
+                else
+                {
+                  cg.Emit(OpCodes.Not);
+                }
+                break;
+              case AstNodeType.Negate:
+                cg.Emit(OpCodes.Neg);
+                break;
+              case AstNodeType.OnesComplement:
+                cg.Emit(OpCodes.Not);
+                break;
+              default:
+                throw new NotImplementedException();
             }
+          }
         }
 
         internal override void EmitAddress(CodeGen cg, Type asType) {

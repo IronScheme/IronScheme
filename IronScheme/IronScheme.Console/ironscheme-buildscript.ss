@@ -275,6 +275,7 @@
     (export                                     i)
     (library                                    i) 
     (include                                    i)
+    ;(switch                                     )
     (stale-when                                 i)
     (debug-mode?                                i)
     (decompose-flonum                           i)

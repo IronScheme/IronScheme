@@ -14,9 +14,6 @@
 (define/contract (make-dynamic-method name return-type:clr-type . param-types:clr-type)
   (clr-new DynamicMethod (symbol->string name) return-type (list->vector param-types)))
     
-
-(define dm (make-dynamic-method 'int-proc (get-clr-type 'System.Object) (get-clr-type 'System.Object) (get-clr-type 'System.Object)))
-
 (define (get-delegate-type dm)
   (let ((p (method-params dm)))
     (case (length p)
@@ -33,28 +30,6 @@
     
 (define (opcode? obj)
   (clr-is OpCode obj))
-  
-;(define (opcode-operand-type opcode)
-  ;(clr-prop-get OpCode OperandType opcode))
-  ;
-;(define (opcode-type opcode)
-  ;(clr-prop-get OpCode OpCodeType opcode))
-  
-;(define (make-field-ref name) #f)  
-;(define (make-method-ref name) #f) 
-;
-;(define (get-operand-type opcode)
-  ;(case (opcode-operand-type opcode)
-    ;[(inlinenone) #f]
-    ;[(inlinefield)  make-field-ref]
-    ;[(inlinemethod) make-method-ref]
-    ;[(inlinestring) values]
-    ;[(inliner)      values]
-    ;[else 
-      ;(assertion-violation 'get-operand-type "todo" opcode)]))
-;
-;(define (il-gen? obj)
-  ;(clr-is ILGenerator obj))  
   
 (define (get-il-gen dm)
   (clr-call DynamicMethod GetILGenerator dm))    
@@ -75,20 +50,135 @@
           #'(clr-static-field-get OpCodes name))])))
 
 (define emit (import-clr-method System.Reflection.Emit.ILGenerator Emit))        
-        
+
+(define (declare-local ilgen type)
+  (clr-call System.Reflection.Emit.ILGenerator DeclareLocal ilgen type))
+  
+(define (define-label ilgen)
+  (clr-call System.Reflection.Emit.ILGenerator DefineLabel ilgen))
+  
+(define (mark-label ilgen label)
+  (clr-call System.Reflection.Emit.ILGenerator MarkLabel ilgen label))
+  
+(define (get-method type name . argtypes)
+  (single
+    (from c in (type-member type (symbol->string name))
+     where (method? c) 
+     let p = (method-params c)
+     where (= (length argtypes) (length p))
+     where (for-all eq? (map param-type p) argtypes)
+     select c)))
+  
      
-(define (get-ctor type)
+(define (get-ctor type . argtypes)
   (single
     (from c in (type-member type ".ctor")
-     where (and (constructor? c) (= 2 (length (method-params c))))
+     where (constructor? c) 
+     let p = (method-params c)
+     where (= (length argtypes) (length p))
+     where (for-all eq? (map param-type p) argtypes)
      select c)))
+     
+(define-syntax type
+  (lambda (x)
+    (syntax-case x ()
+      [(_ class)
+        #'(get-clr-type 'class)])))     
+     
+(define-syntax ctor
+  (lambda (x)
+    (syntax-case x ()     
+      [(_ class argtype ...)
+        #'(get-ctor (type class) (type argtype) ...)])))
+        
+(define-syntax method
+  (lambda (x)
+    (syntax-case x ()
+      [(_ class name argtype ...)
+        #'(get-method (type class) 'name (type argtype) ...)])))
+     
+(define-syntax il-method
+  (lambda (x)
+    (define (get-labels opcodes)
+      (let f ((x opcodes)(a '()))
+        (if (null? x)
+            (reverse a)
+            (syntax-case (car x) (label)
+              [(label name)
+                (f (cdr x) (cons #'name a))]
+              [_ (f (cdr x) a)]))))
+    (define (parse-opcode ilg)
+      (lambda (oc)
+        (with-syntax ((ilg ilg))
+          (syntax-case oc (label newobj call callvirt)
+            [(op class)
+              (exists (lambda (x) (free-identifier=? #'op x)) 
+                      (list #'isinst #'unbox.any #'box #'castclass #'newarr))
+              #'(emit ilg (opcode op) (type class))]
+            [(newobj type argtype ...)
+              #'(emit ilg (opcode newobj) (ctor type argtype ...))]
+            [(callvirt type argtype ...)
+              #'(emit ilg (opcode callvirt) (method type argtype ...))]
+            [(call type argtype ...)
+              #'(emit ilg (opcode call) (method type argtype ...))]
+            [(label name)
+              #'(mark-label ilg name)]
+            [(op arg)
+              #'(emit ilg (opcode op) arg)]
+            [op
+              #'(emit ilg (opcode op))]))))
+    (syntax-case x (=> locals)
+      [(_ name (param-type ... => return-type) (locals (local-name local-type) ...) opcode ...)
+        (with-syntax (((label ...) (get-labels #'(opcode ...))))
+          #`(let* ((dm (make-dynamic-method 'name 
+                                            (type return-type) 
+                                            (type param-type) ... ))
+                   (ilg (get-il-gen dm)))
+               (let ((local-name (declare-local ilg (type local-type))) ...
+                     (label (define-label ilg)) ...)
+                 #,@(map (parse-opcode #'ilg) #'(opcode ...))
+                 (make-proc dm))))]
+      [(_ name (param-type ... => return-type) opcode ...)
+        #'(il-method name 
+                     (param-type ... => return-type) 
+                     (locals) 
+                     opcode ...)]
+      [(_ (param-type ... => return-type) (locals (local-name local-type) ...) opcode ...)
+        #'(il-method anon 
+                     (param-type ... => return-type) 
+                     (locals (local-name local-type) ...) 
+                     opcode ...)]
+      [(_ (param-type ... => return-type) opcode ...)
+        #'(il-method (param-type ... => return-type) 
+                     (locals) 
+                     opcode ...)]
+                 ))) 
+            
 
-(define il-gen (get-il-gen dm))
-
-(emit il-gen (opcode ldarg.0))
-(emit il-gen (opcode ldarg.1))
-(emit il-gen (opcode newobj) (get-ctor (get-clr-type 'IronScheme.Runtime.Cons)))
-(emit il-gen (opcode ret))
-
-(define my-cons (make-proc dm))
+(define cons+car 
+  (il-method
+    (System.Object System.Object System.Object => System.Object)
+    (locals (foo System.Object))
+    (ldarg 2)
+    (castclass IronScheme.Runtime.ICallable)    
+    (br hello)
+    (label wooo)
+    (ldarg 0)
+    (ldarg 1)
+    (starg 0)
+    (starg 1)
+    (br done)
+    (label hello)
+    ldarg.0
+    ldarg.1
+    (br wooo)
+    (label done)
+    (newobj IronScheme.Runtime.Cons System.Object System.Object)
+    (stloc foo)
+    (ldloc foo)
+    dup
+    (call IronScheme.Runtime.Builtins Car System.Object)
+    tailcall
+    (callvirt IronScheme.Runtime.ICallable Call System.Object System.Object)
+    ret))
 
