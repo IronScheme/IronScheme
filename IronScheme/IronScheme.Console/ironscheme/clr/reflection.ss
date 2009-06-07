@@ -1,5 +1,8 @@
 (library (ironscheme clr reflection)
   (export
+    method?
+    param?
+    member?
     constructor?
     method-params
     param-name
@@ -64,7 +67,7 @@
 
   (define/contract (type-enum? type:clr-type)
     (clr-prop-get System.Type IsEnum type)) 
-
+    
   (define type-member
     (case/contract
       [(type name) 

@@ -358,6 +358,7 @@ namespace IronScheme.Runtime
       }
     }
 
+
     public static T ConvertToDelegate<T>(object proc)
     {
       if (proc is bool && !Builtins.IsTrue(proc))

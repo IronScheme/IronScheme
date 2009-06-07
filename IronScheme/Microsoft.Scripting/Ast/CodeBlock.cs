@@ -331,7 +331,7 @@ namespace Microsoft.Scripting.Ast {
             _variablesmap.Add(variable.Name, variable);
             return variable;
         }
-#if FULL
+
         private void EmitEnvironmentIDs(CodeGen cg) {
             int size = 0;
             foreach (Variable prm in _parameters) {
@@ -378,13 +378,13 @@ namespace Microsoft.Scripting.Ast {
             }
             //cg.EmitDebugMarker("--- End Environment IDs ---");
         }
-#endif
 
         private static void EmitSetVariableName(CodeGen cg, int index, SymbolId name) {
             cg.Emit(OpCodes.Dup);
             cg.EmitInt(index);
             cg.Emit(OpCodes.Ldelema, typeof(SymbolId));
             cg.EmitSymbolId(name);
+            cg.EmitUnbox(typeof(SymbolId));
             cg.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(SymbolId) }));
         }
 
@@ -445,9 +445,10 @@ namespace Microsoft.Scripting.Ast {
             environmentSlot.EmitSet(cg);
 
             // Emit the names array for the environment constructor
-#if FULL
-            EmitEnvironmentIDs(cg);
-#endif
+            if (ScriptDomainManager.Options.DebugMode)
+            {
+              EmitEnvironmentIDs(cg);
+            }
 
             // Emit code to generate the new instance of the environment
 

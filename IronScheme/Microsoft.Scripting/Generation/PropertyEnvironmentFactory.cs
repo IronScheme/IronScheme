@@ -116,12 +116,14 @@ namespace Microsoft.Scripting.Generation {
 
         public override void EmitNewEnvironment(CodeGen cg) {
             ConstructorInfo ctor = EnvironmentType.GetConstructor(
+              ScriptDomainManager.Options.DebugMode ?
                 new Type[] {
                     StorageType,
-#if FULL
                     typeof(SymbolId[]),
-#endif
-                    });
+                    } :
+                new Type[] {
+                    StorageType,
+                });
 
             // emit: dict.Tuple[.Item000...].Item000 = dict, and then leave dict on the stack
 

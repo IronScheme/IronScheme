@@ -24,6 +24,7 @@ using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Ast;
 
 namespace Microsoft.Scripting {
     /// <summary>
@@ -34,7 +35,8 @@ namespace Microsoft.Scripting {
     /// affect that engine, etc...
     /// 
     /// A CodeContext is logically associated with a Module ?
-    /// </summary>    
+    /// </summary>  
+    [DebuggerTypeProxy(typeof(CodeContextDebugView))]
     public sealed class CodeContext {
         // The name that is used for static fields that hold a CodeContext to be shared
         public const string ContextFieldName = "__global_context";
@@ -95,5 +97,56 @@ namespace Microsoft.Scripting {
         }
 
         #endregion
+
+      [DebuggerDisplay("{Value}", Name="{Name}", Type="{Type}")]
+        class NameValuePair
+        {
+          public SymbolId Name {get;set;}
+          public object Value {get;set;}
+
+          [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+          public Type Type 
+          {
+            get {return Value == null ? null : Value.GetType(); }
+          }
+      }
+
+        class CodeContextDebugView
+        {
+          CodeContext cc;
+
+          public CodeContextDebugView(CodeContext cc)
+          {
+            this.cc = cc;
+          }
+
+          [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+          public NameValuePair[] Values
+          {
+            get
+            {
+              var v = new List<NameValuePair>();
+
+              var scope = cc.Scope;
+
+              while (scope != null && scope != scope.ModuleScope)
+              {
+                foreach (string s in scope.Dict.Keys)
+                {
+                  SymbolId i = SymbolTable.StringToId(s);
+                  v.Add(new NameValuePair
+                  {
+                    Name = Variable.UnGenSym(i),
+                    Value = scope.LookupName(i),
+                  });
+                }
+
+                scope = scope.Parent;
+              }
+              return v.ToArray();
+            }
+          }
+        }
     }   
+
 }
