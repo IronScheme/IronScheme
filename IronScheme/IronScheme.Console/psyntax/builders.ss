@@ -22,6 +22,7 @@
   (export build-lexical-assignment build-global-reference
     build-application build-conditional build-lexical-reference
     build-global-assignment build-global-definition build-lambda
+    build-typed-case-lambda build-typed-lambda
     build-case-lambda build-let build-primref build-foreign-call
     build-data build-sequence build-void build-letrec build-letrec*
     build-global-define build-library-letrec*)
@@ -60,6 +61,12 @@
       (if-wants-case-lambda
         (build-case-lambda ae (list vars) (list exp))
         `(lambda ,vars ,exp))))
+  (define build-typed-lambda
+    (lambda (ae vars type-spec exp) 
+      `(typed-case-lambda [,vars ,type-spec ,exp])))        
+  (define build-typed-case-lambda
+    (lambda (ae vars* type-spec* exp*)
+      `(typed-case-lambda . ,(map list vars* type-spec* exp*))))
   (define build-case-lambda
     (if-wants-case-lambda
       (lambda (ae vars* exp*)

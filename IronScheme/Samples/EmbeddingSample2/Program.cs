@@ -31,7 +31,7 @@ namespace EmbeddingConsole
 ".Eval();
 
       var foo = "foo".Eval<ICallable>();
-      var foodel = foo.ToDelegate<Func<object, object>>();
+      var foodel = foo.ToDelegate< System.Func<object, object>>();
       var result = foodel("hello world");
       Console.Write(result);
 

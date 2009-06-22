@@ -109,7 +109,9 @@
     (syntax-case         (core-macro . syntax-case))
     (syntax              (core-macro . syntax))
     (lambda              (core-macro . lambda))
+    (typed-lambda        (core-macro . typed-lambda))
     (case-lambda         (core-macro . case-lambda))
+    (typed-case-lambda   (core-macro . typed-case-lambda))
     (type-descriptor     (core-macro . type-descriptor))
     (letrec              (core-macro . letrec))
     (letrec*             (core-macro . letrec*))
@@ -270,6 +272,8 @@
 (define identifier->library-map
   '(
     ;;;
+    (typed-lambda                               i)
+    (typed-case-lambda                          i)
     (pointer+                                   i)
     (import                                     i) 
     (export                                     i)

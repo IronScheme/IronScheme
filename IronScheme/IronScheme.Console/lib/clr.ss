@@ -1,3 +1,14 @@
+#| ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 2007,2008,2009
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************|#
+
 (library (clr)
   (export import-clr-method)
   (import 
@@ -29,10 +40,13 @@
                           (cons name type)))
                        p)))
               (if (method-static? meth)
-               r
-               (cons (cons "this" (member-declaring-type meth)) r))))) 
+                  r
+                  (cons (cons "this" (member-declaring-type meth)) r))))) 
       (define (get-methods type name)
-        (type-member type (symbol->string name) 'method '(instance public static)))
+        (filter (lambda (m)
+                  (let ((p (method-params m)))
+                    (not (exists type-generic? (map param-type p)))))
+                (type-member type (symbol->string name) 'method '(instance public static))))
       (define (get-methdef type meth params)
         (let ((static? (method-static? meth))
               (p       (datum->syntax type (map string->symbol (map car params)))))
@@ -55,21 +69,24 @@
           (map (lambda (meth)
                  (let ((fp (map (lambda (o n) (cons (car n) (cdr o))) (cdr meth) (cdar meths))))
                    (cons (get-methdef type (car meth) fp)
-                     (datum->syntax type 
                       (map 
                         (lambda (e) 
                           (let ((n (string->symbol (car e)))
                                 (t (cdr e)))
-                            (if (type-enum? t)
-                              `(enum? ,n)
-                              (let ((fn (string->symbol (type-fullname t)))
-                                    (vt? (type-valuetype? t)))
-                                (cond
-                                  [(eq? n 'this)           #t]
-                                  [(eq? fn 'System.Object) #t]
-                                  [vt?                     `(clr-is ,fn ,n)]
-                                  [else                    `(or (null? ,n) (clr-is ,fn ,n))])))))
-                          fp)))))
+                            (with-syntax ((n* (datum->syntax type n)))                                
+                              (if (type-enum? t)
+                                  #'(enum? n*)
+                                  (let ((fn (string->symbol (type-fullname t)))
+                                        (at? (type-array? t))
+                                        (vt? (type-valuetype? t)))
+                                    (with-syntax ((fn* (datum->syntax type fn)))                                      
+                                      (cond
+                                        [(eq? n 'this)           #'#t]
+                                        [(eq? fn 'System.Object) #'#t]
+                                        [at?                     #'(vector? n*)] 
+                                        [vt?                     #'(clr-is fn* n*)]
+                                        [else                    #'(or (null? n*) (clr-is fn* n*))])))))))
+                          fp))))
             meths)))
           #'((p ...)
               (cond 

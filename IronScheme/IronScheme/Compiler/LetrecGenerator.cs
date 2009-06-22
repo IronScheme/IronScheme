@@ -66,12 +66,6 @@ namespace IronScheme.Compiler
           if (mce.Method == Closure_Make || mce.Method == Closure_MakeCase || mce.Method == Closure_MakeVarArgsX)
           {
             vars[i].SetInitialized();
-            //if (mce.Method == Closure_Make)
-            //{
-            //  libraryglobals.Add(vars[i].Name, mce.Arguments[1] as CodeBlockExpression);
-            //  e = GetAst(defs[i], cb);
-            //  libraryglobals.Remove(vars[i].Name);
-            //}
           }
         }
 

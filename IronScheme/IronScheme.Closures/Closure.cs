@@ -25,6 +25,9 @@ namespace IronScheme.Runtime
   public delegate object[] ArrayFromConsHandler(object args);
   public delegate object AssertHandler(object who, object msg, params object[] irritants);
 
+
+  
+
   [Serializable]
   public abstract class Closure : ICallable
   {
@@ -59,7 +62,7 @@ namespace IronScheme.Runtime
 
     public static AssertHandler AssertionViolation;
 
-    int paramcount = int.MaxValue;
+    protected int paramcount = int.MaxValue;
 
     public static ConsFromArrayHandler ConsFromArray;
     public static ConsFromArrayHandler ConsStarFromArray;
@@ -221,7 +224,7 @@ namespace IronScheme.Runtime
         ;
     }
 
-    Closure(Delegate target, int paramcount)
+    protected Closure(Delegate target, int paramcount)
     {
       this.paramcount = paramcount;
       this.target = target;
@@ -399,6 +402,10 @@ namespace IronScheme.Runtime
         }
       }
     }
+
+
+
+
 
     [Serializable]
     sealed class SimpleClosure : Closure

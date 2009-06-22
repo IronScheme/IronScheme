@@ -257,7 +257,14 @@ namespace Microsoft.Scripting.Generation {
             {
               if (ScriptDomainManager.Options.DebugMode)
               {
-                ag = ScriptDomainManager.CurrentManager.Snippets.DebugAssembly;
+                if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
+                {
+                  ag = CreateModuleAssembly(scriptCode);
+                }
+                else
+                {
+                  ag = ScriptDomainManager.CurrentManager.Snippets.DebugAssembly;
+                }
               }
               else
               {
