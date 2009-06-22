@@ -1115,6 +1115,15 @@
                        (chi-lambda-clause* e fmls*
                          (map cons b* b**) r mr)))
            (build-case-lambda (syntax-annotation e) fmls* body*))))))
+           
+  (define typed-case-lambda-transformer
+    (lambda (e r mr)
+      (syntax-match e ()
+        ((_ (fmls* type-spec* b* b** ...) ...)
+         (let-values (((fmls* body*)
+                       (chi-lambda-clause* e fmls*
+                         (map cons b* b**) r mr)))
+           (build-typed-case-lambda (syntax-annotation e) fmls* (map stx->datum type-spec*) body*))))))
   
   (define lambda-transformer
     (lambda (e r mr)
@@ -1124,6 +1133,15 @@
                        (chi-lambda-clause e fmls
                           (cons b b*) r mr)))
            (build-lambda (syntax-annotation e) fmls body))))))
+           
+  (define typed-lambda-transformer
+    (lambda (e r mr)
+      (syntax-match e ()
+        ((_ fmls type-spec b b* ...)
+         (let-values (((fmls body)
+                       (chi-lambda-clause e fmls
+                          (cons b b*) r mr)))
+           (build-typed-lambda (syntax-annotation e) fmls (stx->datum type-spec) body))))))           
   
   (define bless
     (lambda (x)
@@ -2630,7 +2648,9 @@
       (case name
         ((quote)                  quote-transformer)
         ((lambda)                 lambda-transformer)
+        ((typed-lambda)           typed-lambda-transformer)
         ((case-lambda)            case-lambda-transformer)
+        ((typed-case-lambda)      typed-case-lambda-transformer)
         ((letrec)                 letrec-transformer)
         ((letrec*)                letrec*-transformer)
         ((if)                     if-transformer)

@@ -83,7 +83,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override Type Type {
             get {
-                return typeof(Delegate);
+                return _delegateType ?? typeof(Delegate);
             }
         }
 

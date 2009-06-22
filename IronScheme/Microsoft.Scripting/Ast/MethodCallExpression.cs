@@ -327,11 +327,6 @@ namespace Microsoft.Scripting.Ast {
                 ;
               }
             }
-            else
-              if (typeof(Delegate).IsAssignableFrom(_instance.Type))
-              {
-                ;
-              }
             else if (_instance is CodeBlockExpression)
             {
               CodeBlockExpression cbe = (CodeBlockExpression)_instance;
@@ -350,6 +345,11 @@ namespace Microsoft.Scripting.Ast {
               cbe.EmitDirect(cg, tailcall);
               return;
             }
+            else
+              if (typeof(Delegate).IsAssignableFrom(_instance.Type))
+              {
+                //Console.WriteLine("eeeeek");
+              }
             else
             {
               ;

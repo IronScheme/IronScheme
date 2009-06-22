@@ -18,6 +18,7 @@ using System.Diagnostics;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
+using System.Collections.Generic;
 
 namespace Microsoft.Scripting.Ast {
     /// <summary>
@@ -66,6 +67,20 @@ namespace Microsoft.Scripting.Ast {
               assumedValue = value;
             }
           }
+        }
+
+        Dictionary<Type, Variable> TypedVariables = new Dictionary<Type, Variable>();
+
+        public void SetTypedVariable(Type t, Variable var)
+        {
+          TypedVariables[t] = var;
+        }
+
+        public Variable GetTypedVariable(Type t)
+        {
+          Variable v;
+          TypedVariables.TryGetValue(t, out v);
+          return v;
         }
 
         // TODO: Maybe we don't need this!

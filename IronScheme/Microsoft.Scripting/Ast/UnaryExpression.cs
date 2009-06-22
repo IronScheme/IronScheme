@@ -48,6 +48,17 @@ namespace Microsoft.Scripting.Ast {
         }      
 
         public override void Emit(CodeGen cg) {
+
+          //if (NodeType == AstNodeType.Convert && _operand is BoundExpression)
+          //{
+          //  var be = _operand as BoundExpression;
+          //  var tv = be.Variable.GetTypedVariable(Type);
+          //  if (tv != null)
+          //  {
+          //    tv.
+          //    return;
+          //  }
+          //}          
           if (NodeType == AstNodeType.Convert && _operand is ConstantExpression &&
             _operand.Type == typeof(bool) && _type == typeof(object))
           {

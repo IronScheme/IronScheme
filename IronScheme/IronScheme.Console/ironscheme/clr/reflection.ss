@@ -1,3 +1,14 @@
+#| ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 2007,2008,2009
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************|#
+
 (library (ironscheme clr reflection)
   (export
     method?
@@ -10,6 +21,7 @@
     method-static?
     member-declaring-type
     member-name
+    type-generic?
     type-fullname
     type-valuetype?
     type-array?
@@ -61,6 +73,9 @@
     
   (define/contract (type-valuetype? type:clr-type)
     (clr-prop-get System.Type IsValueType type))  
+    
+  (define/contract (type-generic? type:clr-type)
+    (clr-prop-get System.Type IsGenericType type))     
     
   (define/contract (type-array? type:clr-type)
     (clr-prop-get System.Type IsArray type))     

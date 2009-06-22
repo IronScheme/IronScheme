@@ -18,6 +18,16 @@ namespace TailCallMaker
         string line = null;
         while ((line = r.ReadLine()) != null)
         {
+          if (line.Contains(".class public auto ansi sealed IronScheme.Runtime.Func`"))
+          {
+            while (line.EndsWith(","))
+            {
+              line = line + r.ReadLine().Trim();
+            }
+            var tail = line.Substring(55);
+            line = line + " extends [mscorlib]System.MulticastDelegate implements class IronScheme.Runtime.ITypedCallable`" + tail.Replace("R", "!R").Replace("A", "!A");
+            r.ReadLine();
+          }
           lines.Add(line);
         }
       }
@@ -49,7 +59,14 @@ namespace TailCallMaker
               ci = prevline.IndexOf(':');
             }
 
-            if (prevline.Substring(ci + 1).Trim().StartsWith("call"))
+            var prevcmd = prevline.Substring(ci + 1).Trim();
+            //if (prevcmd.StartsWith("box        !R"))
+            //{
+            //  lines[i - j] = "";
+            //  j++;
+            //}
+
+            if (prevcmd.StartsWith("call"))
             {
               lines[i - j] = "tail. " + prevline;
             }

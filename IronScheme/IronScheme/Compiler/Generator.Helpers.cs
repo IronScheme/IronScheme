@@ -285,7 +285,7 @@ namespace IronScheme.Compiler
 
     static Variable CreateParameter(SymbolId sname, CodeBlock cb, Type type)
     {
-      Variable v = Variable.Parameter(cb, sname, typeof(object));
+      Variable v = Variable.Parameter(cb, sname, type);
       cb.AddParameter(v);
       return v;
     }
@@ -360,14 +360,19 @@ namespace IronScheme.Compiler
 
     protected static Expression MakeClosure(CodeBlock cb, bool varargs)
     {
+      return MakeClosure(cb, varargs, false);
+    }
+
+    protected static Expression MakeClosure(CodeBlock cb, bool varargs, bool typed)
+    {
       if (varargs)
       {
-        return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false),
+        return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, typed),
           Ast.Constant(cb.ParameterCount));
       }
       else
       {
-        return Ast.SimpleCallHelper(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, false));
+        return Ast.SimpleCallHelper(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, typed));
       }
     }
 
@@ -387,6 +392,28 @@ namespace IronScheme.Compiler
         Statement s = null;
         if (c.cdr == null)
         {
+          if (e.Type != cb.ReturnType)
+          {
+            Expression ee = e;
+            while (ee is UnaryExpression)
+            {
+              var ue = ee as UnaryExpression;
+              if (ue.NodeType != AstNodeType.Convert)
+              {
+                break;
+              }
+              if (ue.Operand.Type == cb.ReturnType)
+              {
+                e = ue.Operand;
+                break;
+              }
+              ee = ue.Operand;
+            }
+            if (!(e is VoidExpression))
+            {
+              e = Ast.ConvertHelper(e, cb.ReturnType);
+            }
+          }
           s = MakeTailCallReturn(allowtailcall, e);
         }
         else
@@ -700,7 +727,6 @@ namespace IronScheme.Compiler
       }
     }
 
-
     protected static bool AssignParameters(CodeBlock cb, object arg)
     {
       bool isrest = false;
@@ -724,6 +750,48 @@ namespace IronScheme.Compiler
           else
           {
             cargs = r;
+          }
+        }
+      }
+      else if (arg != null) // empty 
+      {
+        SymbolId an = (SymbolId)arg;
+        isrest = true;
+        CreateParameter(an, cb, typeof(object));
+      }
+      return isrest;
+    }
+
+    protected static bool AssignParameters(CodeBlock cb, object arg, object types)
+    {
+      bool isrest = false;
+      Cons cargs = arg as Cons;
+      Cons ctypes = types as Cons;
+      if (cargs != null)
+      {
+        while (cargs != null)
+        {
+          SymbolId an = (SymbolId)Builtins.First(cargs);
+          SymbolId type = (SymbolId)Builtins.First(ctypes);
+
+          Type clrtype = Builtins.GetClrType(type) as Type;
+
+          CreateParameter(an, cb, clrtype);
+
+          Cons r = cargs.cdr as Cons;
+          Cons rt = ctypes.cdr as Cons;
+
+          if (r == null && cargs.cdr != null)
+          {
+            SymbolId ta = (SymbolId)cargs.cdr;
+            CreateParameter(ta, cb, typeof(object));
+            isrest = true;
+            break;
+          }
+          else
+          {
+            cargs = r;
+            ctypes = rt;
           }
         }
       }

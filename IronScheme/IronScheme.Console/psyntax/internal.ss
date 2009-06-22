@@ -58,6 +58,12 @@
                 (lambda (x) 
                   (cons (car x) (map f (cdr x))))
                 (cdr x))))
+           ((typed-case-lambda) 
+            (cons 'typed-case-lambda
+              (map 
+                (lambda (x) 
+                  (cons* (car x) (cadr x) (map f (cddr x))))
+                (cdr x))))                
            ((annotated-call) 
             (cons* 'annotated-call
                    (cadr x)

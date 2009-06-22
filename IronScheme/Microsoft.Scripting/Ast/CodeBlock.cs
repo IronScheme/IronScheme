@@ -1226,6 +1226,35 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                 return outer.DefineMethod(implName, typeof(object), paramTypes.ToArray(), null, staticData);
             }
         }
+
+        private CodeGen MakeUntypedWrapperMethod(CodeGen outer, CodeGen impl)
+        {
+          string implName = impl.MethodBase.Name;
+          List<Type> types = new List<Type>();
+
+          foreach (var p in _parameters)
+          {
+            types.Add(typeof(object));
+          }
+
+          CodeGen wrapper = CreateWrapperCodeGen(outer, implName, types, null);
+
+          for (int i = 0; i < _parameters.Count; i++)
+          {
+            wrapper.EmitArgAddr(i);
+            wrapper.EmitCall(Unbox.MakeGenericMethod(_parameters[i].Type));
+          }
+
+          wrapper.EmitCall(impl.MethodInfo);
+          wrapper.EmitCall(Box.MakeGenericMethod(_returnType), true);
+          wrapper.EmitReturn();
+
+          return wrapper;
+        }
+
+        public static MethodInfo Unbox;
+        public static MethodInfo Box;
+
         /// <summary>
         /// Creates a wrapper method for the user-defined function.  This allows us to use the CallTargetN
         /// delegate against the function when we don't have a CallTarget# which is large enough.

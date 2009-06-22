@@ -28,6 +28,7 @@ using Microsoft.Scripting.Generation;
 using System.Xml;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection.Emit;
 
 namespace IronScheme.Runtime
 {
@@ -167,11 +168,41 @@ namespace IronScheme.Runtime
       return GetBool(o is Type);
     }
 
+    public static MethodBuilder MakeMethod(string name, Type returntype, Type[] paramtypes)
+    {
+      var mb = ModuleBuilder;
+      var tb = mb.DefineType(Guid.NewGuid().ToString(), TypeAttributes.Public);
+
+      var meth = tb.DefineMethod(name, MethodAttributes.Public | MethodAttributes.Static, returntype, paramtypes);
+
+      return meth;
+    }
+
+    public static Delegate CreateDelegate(MethodBuilder mb, Type deltype)
+    {
+      var tb = mb.DeclaringType as TypeBuilder;
+      var t = tb.CreateType();
+
+      var meth = t.GetMethod(mb.Name);
+
+      return Delegate.CreateDelegate(deltype, meth);
+    }
+
+    public static ModuleBuilder ModuleBuilder
+    {
+      get
+      {
+        return ScriptDomainManager.CurrentManager.Snippets.Assembly.ModuleBuilder;
+      }
+    }
+
 
     [Builtin("get-clr-type")]
     public static object GetClrType(object name, params object[] typeargs)
     {
       SymbolId s = RequiresNotNull<SymbolId>(name);
+
+      //int a = Adder<int>.Result.Invoke(1, 2);
 
       string tn = SymbolTable.IdToString(s);
 
@@ -243,6 +274,29 @@ namespace IronScheme.Runtime
         Cons( name, Runtime.Cons.FromArray(typeargs)),
         Runtime.Cons.FromList(candidates));
     }
+
+
+    //class Adder<T>
+    //{
+    //  readonly static Func<double, double, double> doubleadder =
+    //    (x, y) => x + y;
+    //  readonly static Func<int, int, int> int32adder =
+    //    (x, y) => x + y;
+
+    //  public static readonly ITypedCallable<T, T, T> Result;
+
+    //  static Adder()
+    //  {
+    //    if (typeof(T) == typeof(int))
+    //    {
+    //      Result = (ITypedCallable<T, T, T>)(object)int32adder;
+    //    }
+    //    else if (typeof(T) == typeof(double))
+    //    {
+    //      Result = (ITypedCallable<T, T, T>)(object)doubleadder;
+    //    }
+    //  }
+    //}
 
     [Builtin]
     public static object Typeof(object o)
@@ -568,7 +622,9 @@ namespace IronScheme.Runtime
       }
 
       // if you ever want to inspect the emitted dll's comment this out, use with care
+      ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
+      
 
       int c = ++evalcounter;
 

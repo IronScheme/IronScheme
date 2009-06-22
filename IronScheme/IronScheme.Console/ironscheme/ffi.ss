@@ -1,4 +1,15 @@
-﻿(library (ironscheme ffi)
+﻿#| ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 2007,2008,2009
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************|#
+
+(library (ironscheme ffi)
   (export
     make-pointer-setter
     make-pointer-getter
@@ -12,6 +23,16 @@
     pointer+
     null-pointer
     null-pointer?
+    write-int8!
+    write-int16!
+    write-int32!
+    write-int64!
+    write-intptr!
+    read-int8
+    read-int16
+    read-int32
+    read-int64
+    read-intptr
   )
   (import 
     (ironscheme)

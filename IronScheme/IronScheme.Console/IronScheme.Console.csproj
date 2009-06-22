@@ -270,9 +270,6 @@
     <None Include="ironscheme\docs\topic.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="editor\main.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="examples\forms.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -679,9 +676,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="docs\visual-studio.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="editor\readme.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="build\primitive-numbers.ss">
