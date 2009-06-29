@@ -31,13 +31,17 @@
     : :list :string :vector :integers :range :real-range :char-range 
     :port :dispatched :do :let :parallel :while :until
     :-dispatch-ref :-dispatch-set! make-initial-:-dispatch 
-    dispatch-union :generator-proc)
+    dispatch-union :generator-proc
+    nested index)
   (import
     (except (ironscheme) error)
     (rnrs r5rs)
     (srfi :39 parameters)
     (prefix (srfi :23 error) ER:)
     (srfi private include))
+    
+  (define-syntax nested (lambda (x) (syntax-violation #f "invalid auxiliary syntax" x)))
+  (define-syntax index (lambda (x) (syntax-violation #f "invalid auxiliary syntax" x)))    
   
   (define (error . args)
     (parameterize ([ER:error-who 

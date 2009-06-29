@@ -266,7 +266,7 @@
     (System.Object System.Object System.Object => System.Object)
     (locals (foo System.Object))
     (ldarg 2)
-    (castclass IronScheme.Runtime.ICallable)    
+    (castclass IronScheme.Runtime.Callable)    
     (br hello)
     (label wooo)
     (ldarg 0)
@@ -285,7 +285,7 @@
     dup
     (call IronScheme.Runtime.Builtins Car System.Object)
     tailcall
-    (callvirt IronScheme.Runtime.ICallable Call System.Object System.Object)
+    (callvirt IronScheme.Runtime.Callable Call System.Object System.Object)
     ret))
     
 (define my+ 

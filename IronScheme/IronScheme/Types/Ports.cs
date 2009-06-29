@@ -496,7 +496,7 @@ namespace IronScheme.Types
   public abstract class CustomTextualPort : TextualPort
   {
     readonly string id;
-    readonly ICallable read, write, get_pos, set_pos, close;
+    readonly Callable read, write, get_pos, set_pos, close;
 
     internal CustomTextualPort(string id, object read, object write, object get_pos, object set_pos, object close)
     {

@@ -21,7 +21,7 @@ namespace IronScheme.Runtime
 {
   sealed class TraceClosure : Closure
   {
-    readonly ICallable realtarget, filter;
+    readonly Callable realtarget, filter;
     readonly SymbolId name;
 
     public SymbolId Name
@@ -29,7 +29,7 @@ namespace IronScheme.Runtime
       get { return name; }
     } 
 
-    public ICallable RealTarget
+    public Callable RealTarget
     {
       get { return realtarget; }
     }
@@ -37,7 +37,7 @@ namespace IronScheme.Runtime
     [ThreadStatic]
     static int depth;
 
-    public TraceClosure(ICallable realtarget,  SymbolId name, ICallable filter)
+    public TraceClosure(Callable realtarget,  SymbolId name, Callable filter)
     {
       this.realtarget = realtarget;
       this.filter = filter;
@@ -52,13 +52,13 @@ namespace IronScheme.Runtime
 
         if (Builtins.cc.Scope.TryLookupName(SymbolTable.StringToId("trace-printer"), out ppo))
         {
-          ppo = (ppo as ICallable).Call();
+          ppo = (ppo as Callable).Call();
         }
         else
         {
           ppo = "write".Eval();
         }
-        ICallable pp = ppo as ICallable;
+        Callable pp = ppo as Callable;
 
         depth++;
 

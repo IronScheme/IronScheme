@@ -102,23 +102,23 @@ namespace IronScheme.Compiler
       cc.Scope.SetName((SymbolId)s, cwv);
 #else
 
-      ICallable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
+      Callable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
       cc.Scope.SetName(SymbolTable.StringToObject("values"), values);
 
-      ICallable cpsvoid = Closure.Make(null, (CallTarget0) Builtins.Void);
+      Callable cpsvoid = Closure.Make(null, (CallTarget0) Builtins.Void);
       cc.Scope.SetName(SymbolTable.StringToObject("cps-void"), cpsvoid);
 
-      ICallable cwv = Closure.Make(null, (CallTarget3)OptimizedBuiltins.CallWithValues);
+      Callable cwv = Closure.Make(null, (CallTarget3)OptimizedBuiltins.CallWithValues);
       cc.Scope.SetName(SymbolTable.StringToObject("call-with-values"), cwv);
 
-      ICallable dw = Closure.Make(null, (CallTarget4)OptimizedBuiltins.DynamicWind);
+      Callable dw = Closure.Make(null, (CallTarget4)OptimizedBuiltins.DynamicWind);
       cc.Scope.SetName(SymbolTable.StringToObject("dynamic-wind"), dw);
 
-      ICallable cwcc = Closure.Make(null, (CallTarget2)OptimizedBuiltins.CallWithCurrentContinuation);
+      Callable cwcc = Closure.Make(null, (CallTarget2)OptimizedBuiltins.CallWithCurrentContinuation);
       cc.Scope.SetName(SymbolTable.StringToObject("call-with-current-continuation"), cwcc);
       cc.Scope.SetName(SymbolTable.StringToObject("call/cc"), cwcc);
 
-      ICallable id4cps = Closure.Make(null, (CallTargetN)Builtins.Values);
+      Callable id4cps = Closure.Make(null, (CallTargetN)Builtins.Values);
       cc.Scope.SetName(SymbolTable.StringToObject("identity-for-cps"), id4cps);
 
       Closure.IdentityForCPS = id4cps;

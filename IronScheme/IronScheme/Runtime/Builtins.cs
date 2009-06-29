@@ -429,28 +429,28 @@ namespace IronScheme.Runtime
     [Builtin("procedure-arity")]
     public static object ProcArity(object proc)
     {
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
       return c.Arity;
     }
 
     [Builtin("procedure-form")]
     public static object ProcForm(object proc)
     {
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
       return c.Form;
     }
 
     [Builtin("procedure-name")]
     public static object ProcName(object proc)
     {
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
       return SymbolTable.StringToObject(c.ToString());
     }
 
     [Builtin("procedure-environment")]
     public static object ProcEnv(object proc)
     {
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
       return FALSE;
     }
 
@@ -465,9 +465,9 @@ namespace IronScheme.Runtime
     [CLSCompliant(false)]
     public static object MakeTraceProcedure(object name, object proc, object filter)
     {
-      ICallable p = RequiresNotNull<ICallable>(proc);
+      Callable p = RequiresNotNull<Callable>(proc);
       SymbolId n = RequiresNotNull<SymbolId>(name);
-      ICallable f = filter as ICallable;
+      Callable f = filter as Callable;
       return new TraceClosure(p, n, f);
     }
 
@@ -476,7 +476,7 @@ namespace IronScheme.Runtime
     [Builtin("time-it")]
     public static object TimeIt(object who, object thunk)
     {
-      ICallable c = RequiresNotNull<ICallable>(thunk);
+      Callable c = RequiresNotNull<Callable>(thunk);
 
       int colcount = 0;
       for (int i = 0; i < 3; i++)
@@ -595,12 +595,12 @@ namespace IronScheme.Runtime
         {
           return SymbolValue(expr);
         };
-        return Closure.Make(null, n);
+        return Closure.Create(null, n);
       }
 #endif
 #if CPS
       // this would look a ton sweeter on C# 4.0 :)
-      ICallable cps = SymbolValue(SymbolTable.StringToObject("convert->cps")) as ICallable;
+      Callable cps = SymbolValue(SymbolTable.StringToObject("convert->cps")) as Callable;
       expr = cps.Call(Closure.IdentityForCPS, expr, sk);
 #endif
 
@@ -653,7 +653,7 @@ namespace IronScheme.Runtime
           return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
         };
 
-        return Closure.Make(cc, err);
+        return Closure.Create(cc, err);
       }
 #if DEBUG
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
@@ -671,8 +671,8 @@ namespace IronScheme.Runtime
 #if CPS
         catch (Exception ex)
         {
-          ICallable raise = SymbolValue(SymbolTable.StringToObject("raise")) as ICallable;
-          ICallable k = SymbolValue(sk) as ICallable;
+          Callable raise = SymbolValue(SymbolTable.StringToObject("raise")) as Callable;
+          Callable k = SymbolValue(sk) as Callable;
           return OptimizedBuiltins.CallWithK(raise, k, ex);
         }
 #endif
@@ -687,7 +687,7 @@ namespace IronScheme.Runtime
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
       Compiler.SimpleGenerator.ClearGlobals();
 
-      return Closure.Make(cc, compiled);
+      return Closure.Create(cc, compiled);
     }
 
 #if CPS
@@ -704,7 +704,7 @@ namespace IronScheme.Runtime
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)
     {
-      ICallable compiled = CompileCore(cc, expr) as ICallable;
+      Callable compiled = CompileCore(cc, expr) as Callable;
       return compiled.Call();
     }
 #endif

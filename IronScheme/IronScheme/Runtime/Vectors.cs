@@ -110,7 +110,7 @@ namespace IronScheme.Runtime
     [Builtin("vector-filter")]
     public static object VectorFilter(object proc, object vector)
     {
-      ICallable p = RequiresNotNull<ICallable>(proc);
+      Callable p = RequiresNotNull<Callable>(proc);
       object[] v = Requires<object[]>(vector);
 
       List<object> output = new List<object>();

@@ -777,7 +777,7 @@
   ;;; either a procedure, an identifier-syntax transformer or an
   ;;; ($rtd . #<rtd>) form (ikarus/chez).  sanitize-binding converts
   ;;; the output to one of:
-  ;;;   (lacal-macro . procedure)
+  ;;;   (local-macro . procedure)
   ;;;   (local-macro! . procedure)
   ;;;   (local-ctv . compile-time-value)
   ;;;   ($rtd . $rtd)

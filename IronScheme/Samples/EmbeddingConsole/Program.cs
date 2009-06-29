@@ -22,12 +22,12 @@ namespace EmbeddingConsole
     x))
 ");
 
-      var foo = se.Evaluate("foo") as ICallable;
+      var foo = se.Evaluate("foo") as Callable;
       var result = foo.Call("hello world");
       Console.Write(result);
 
       // this should become quite funky in C# 4.0  :)
-      var bar = se.Evaluate("(lambda x (for-each display (reverse x))(newline))") as ICallable;
+      var bar = se.Evaluate("(lambda x (for-each display (reverse x))(newline))") as Callable;
       bar.Call(1, 2, 3, 4, 5);
       
       Console.ReadLine();

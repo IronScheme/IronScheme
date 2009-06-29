@@ -30,13 +30,13 @@ namespace EmbeddingConsole
     x))
 ".Eval();
 
-      var foo = "foo".Eval<ICallable>();
+      var foo = "foo".Eval<Callable>();
       var foodel = foo.ToDelegate< System.Func<object, object>>();
       var result = foodel("hello world");
       Console.Write(result);
 
       // this should become quite funky in C# 4.0  :)
-      var bar = "(lambda x (for-each display (reverse x))(newline))".Eval<ICallable>();
+      var bar = "(lambda x (for-each display (reverse x))(newline))".Eval<Callable>();
       bar.Call(1, 2, 3, 4, 5);
 
       Console.ReadLine();

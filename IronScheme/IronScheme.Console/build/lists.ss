@@ -231,7 +231,8 @@
            (let ((a (car ls)))
              (values (cons (car a) cars)
                      (cons (cdr a) cdrs))))))))
-                     
+
+  ;;http://en.literateprograms.org/Floyd%27s_cycle-finding_algorithm_%28Scheme%29                     
   (define (list/check? head tail)
     (if (pair? head)
         (let ((head ($cdr head)))

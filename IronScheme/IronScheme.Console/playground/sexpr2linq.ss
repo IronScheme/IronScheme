@@ -14,10 +14,10 @@
   (clr-is BinaryExpression obj))
   
   
-(define ICallable-Type (get-clr-type 'IronScheme.Runtime.ICallable))
+(define Callable-Type (get-clr-type 'IronScheme.Runtime.Callable))
 
 (define call-map
-  (let* ((mems (type-member ICallable-Type "Call" 'method))
+  (let* ((mems (type-member Callable-Type "Call" 'method))
          (vecl (length mems))
          (vec  (make-vector vecl)))
     (for-each (lambda (mem)

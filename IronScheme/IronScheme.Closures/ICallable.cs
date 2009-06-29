@@ -1,3 +1,16 @@
+#region License
+/* ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************/
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -5,26 +18,27 @@ using System.Reflection;
 
 namespace IronScheme.Runtime
 {
-  public interface ICallable
+  public abstract class Callable
   {
-    object Call();
-    object Call(object arg1);
-    object Call(object arg1, object arg2);
-    object Call(object arg1, object arg2, object arg3);
-    object Call(object arg1, object arg2, object arg3, object arg4);
-    object Call(object arg1, object arg2, object arg3, object arg4, object arg5);
-    object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6);
-    object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7);
-    object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8);
-    
-    object Call(object[] args);
+    public abstract object Call();
+    public abstract object Call(object arg1);
+    public abstract object Call(object arg1, object arg2);
+    public abstract object Call(object arg1, object arg2, object arg3);
+    public abstract object Call(object arg1, object arg2, object arg3, object arg4);
+    public abstract object Call(object arg1, object arg2, object arg3, object arg4, object arg5);
+    public abstract object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6);
+    public abstract object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7);
+    public abstract object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8);
 
-    object Arity { get; }
-    object Form { get; }
-    bool AllowConstantFold { get; set; }
+    public abstract object Call(object[] args);
+
+    public abstract object Arity { get; }
+    public abstract object Form { get; }
+
+    public bool AllowConstantFold { get; set; }
   }
 
-  public interface ITypedCallable// : ICallable
+  public interface ITypedCallable
   {
 
   }

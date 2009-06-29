@@ -207,12 +207,12 @@ namespace IronScheme.Hosting
         }
         try
         {
-          ICallable c = se.Evaluate(string.Format(@"
+          Callable c = se.Evaluate(string.Format(@"
 (lambda (maker)
   (map (lambda (b) 
           (maker (car b) (cdr b)))
        (environment-bindings {0})))
-", importspec)) as ICallable;
+", importspec)) as Callable;
 
           CallTarget2 maker = (n, t) =>
             {
@@ -223,7 +223,7 @@ namespace IronScheme.Hosting
               };
             };
 
-          var r = c.Call(Closure.MakeStatic(maker)) as IEnumerable;
+          var r = c.Call(Closure.CreateStatic(maker)) as IEnumerable;
 
           List<SymbolBinding> sbs = new List<SymbolBinding>();
 
@@ -254,12 +254,12 @@ namespace IronScheme.Hosting
 
         try
         {
-          ICallable c = se.Evaluate(string.Format(@"
+          Callable c = se.Evaluate(string.Format(@"
 (lambda (maker)
   (let ((p (eval '{0} {1})))
     (let ((forms (call-with-values (lambda () (procedure-form p)) vector)))
       (maker (symbol->string '{0}) forms))))
-", proc, importspec)) as ICallable;
+", proc, importspec)) as Callable;
 
           CallTarget2 maker = (n, forms) =>
             {
@@ -278,7 +278,7 @@ namespace IronScheme.Hosting
               return pi;
             };
 
-          return c.Call(Closure.MakeStatic(maker)) as ProcedureInfo;
+          return c.Call(Closure.CreateStatic(maker)) as ProcedureInfo;
         }
         catch (Exception ex)
         {

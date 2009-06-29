@@ -1,3 +1,16 @@
+#region License
+/* ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************/
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,11 +20,11 @@ using System.Reflection;
 
 namespace IronScheme.Runtime
 {
-  public sealed class BuiltinMethod : ICallable
+  public sealed class BuiltinMethod : Callable
   {
     readonly MethodBinder meth;
     readonly MethodBase[] methods;
-    readonly Dictionary<int, ICallable> cache = new Dictionary<int, ICallable>();
+    readonly Dictionary<int, Callable> cache = new Dictionary<int, Callable>();
 
     public MethodBinder Binder
     {
@@ -24,14 +37,8 @@ namespace IronScheme.Runtime
     {
       get { return name; }
     }
-    
-    public bool AllowConstantFold
-    {
-      get { return foldable; }
-      set { foldable = value; }
-    }
 
-    object ICallable.Arity
+    public override object Arity
     {
       get
       {
@@ -69,7 +76,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    object ICallable.Form
+    public override object Form
     {
       get 
       {
@@ -146,7 +153,7 @@ namespace IronScheme.Runtime
 
     bool baked = false;
 
-    public object Call(object[] args)
+    public override object Call(object[] args)
     {
       if (args == null)
       {
@@ -155,7 +162,7 @@ namespace IronScheme.Runtime
 
       int nargs = args.Length;
 
-      ICallable c;
+      Callable c;
 
       if (cache.TryGetValue(nargs, out c))
       {
@@ -195,7 +202,7 @@ namespace IronScheme.Runtime
 
             if (d != null)
             {
-              cache[nargs] = c = Closure.Make(context, d);
+              cache[nargs] = c = Closure.Create(context, d);
             }
           }
         }
@@ -239,9 +246,9 @@ namespace IronScheme.Runtime
 
     #region ICallable Members
 
-    public object Call()
+    public override object Call()
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(0, out c))
       {
         return c.Call();
@@ -249,9 +256,9 @@ namespace IronScheme.Runtime
       return Call(new object[0]);
     }
 
-    public object Call(object arg1)
+    public override object Call(object arg1)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(1, out c))
       {
         return c.Call(arg1);
@@ -259,9 +266,9 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1 });
     }
 
-    public object Call(object arg1, object arg2)
+    public override object Call(object arg1, object arg2)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(2, out c))
       {
         return c.Call(arg1, arg2);
@@ -269,9 +276,9 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2 });
     }
 
-    public object Call(object arg1, object arg2, object arg3)
+    public override object Call(object arg1, object arg2, object arg3)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(3, out c))
       {
         return c.Call(arg1, arg2, arg3);
@@ -279,9 +286,9 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2, arg3 });
     }
 
-    public object Call(object arg1, object arg2, object arg3, object arg4)
+    public override object Call(object arg1, object arg2, object arg3, object arg4)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(4, out c))
       {
         return c.Call(arg1, arg2, arg3, arg4);
@@ -289,9 +296,9 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2, arg3, arg4 });
     }
 
-    public object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(5, out c))
       {
         return c.Call(arg1, arg2, arg3, arg4, arg5);
@@ -299,9 +306,9 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
     }
 
-    public object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(6, out c))
       {
         return c.Call(arg1, arg2, arg3, arg4, arg5, arg6);
@@ -309,9 +316,9 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6 });
     }
 
-    public object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(7, out c))
       {
         return c.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
@@ -319,9 +326,9 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
     }
 
-    public object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
     {
-      ICallable c;
+      Callable c;
       if (cache.TryGetValue(8, out c))
       {
         return c.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);

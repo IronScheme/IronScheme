@@ -74,9 +74,9 @@ namespace IronScheme.Runtime.R6RS
     
     sealed class HashComparer : IEqualityComparer
     {
-      readonly internal ICallable hash, equiv;
+      readonly internal Callable hash, equiv;
 
-      public HashComparer(ICallable hash, ICallable equiv)
+      public HashComparer(Callable hash, Callable equiv)
       {
         this.hash = hash;
         this.equiv = equiv;
@@ -105,7 +105,7 @@ namespace IronScheme.Runtime.R6RS
       {
       }
 
-      internal ICallable HashFunction
+      internal Callable HashFunction
       {
         get
         {
@@ -113,7 +113,7 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      internal ICallable EqualityFunction
+      internal Callable EqualityFunction
       {
         get
         {
@@ -132,7 +132,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("make-hashtable")]
     public static object MakeHashtable(object hashfun, object equivfun)
     {
-      HashComparer hc = new HashComparer(hashfun as ICallable, equivfun as ICallable);
+      HashComparer hc = new HashComparer(hashfun as Callable, equivfun as Callable);
       Hashtable ht = new HashtableEx(hc);
       return ht;
     }
@@ -146,7 +146,7 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        HashComparer hc = new HashComparer(hashfun as ICallable, equivfun as ICallable);
+        HashComparer hc = new HashComparer(hashfun as Callable, equivfun as Callable);
         Hashtable ht = new HashtableEx((int) k, hc);
         return ht;
       }
@@ -291,7 +291,7 @@ namespace IronScheme.Runtime.R6RS
     public static object HashtableMap(object ht, object proc)
     {
       Hashtable h = RequiresNotNull<Hashtable>(ht);
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
 
       object[] result = new object[h.Count];
 
@@ -309,7 +309,7 @@ namespace IronScheme.Runtime.R6RS
     public static object HashtableForEach(object ht, object proc)
     {
       Hashtable h = RequiresNotNull<Hashtable>(ht);
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
 
       foreach (DictionaryEntry de in h)
       {

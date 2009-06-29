@@ -687,6 +687,7 @@
     <None Include="ironscheme\library-utils.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="playground\symbolic-case.ss" />
     <Content Include="srfi\38\with-shared-structure.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -350,7 +350,7 @@ namespace IronScheme.Runtime
     delegate void VoidCallable5(object t0, object t1, object t2, object t3, object t4);
     delegate void VoidCallableX(params object[] args);
 
-    static Delegate MakeVoidCallable(ICallable c, int arity)
+    static Delegate MakeVoidCallable(Callable c, int arity)
     {
       switch (arity)
       {
@@ -382,7 +382,7 @@ namespace IronScheme.Runtime
       ParameterInfo[] pars = meth.GetParameters();
       if (meth.ReturnType == typeof(void))
       {
-        Delegate d = MakeVoidCallable(proc as ICallable, pars.Length);
+        Delegate d = MakeVoidCallable(proc as Callable, pars.Length);
         return (T)(object)Delegate.CreateDelegate(typeof(T), d.Target , d.Method);
       }
       else
@@ -414,9 +414,9 @@ namespace IronScheme.Runtime
       Process p = new Process();
       p.StartInfo = new ProcessStartInfo(filename, args);
       p.StartInfo.CreateNoWindow = !showwindow;
-      ICallable exitp = exit as ICallable;
-      ICallable outp = output as ICallable;
-      ICallable errorp = error as ICallable;
+      Callable exitp = exit as Callable;
+      Callable outp = output as Callable;
+      Callable errorp = error as Callable;
 
       if (exitp != null)
       {

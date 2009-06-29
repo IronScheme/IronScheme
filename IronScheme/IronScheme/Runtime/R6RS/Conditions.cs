@@ -120,7 +120,7 @@ namespace IronScheme.Runtime.R6RS
       {
         CallTarget1 recp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
 
-        ICallable kk = k as ICallable;
+        Callable kk = k as Callable;
 
         if (cond is CompoundCondition)
         {
@@ -164,7 +164,7 @@ namespace IronScheme.Runtime.R6RS
       };
 #endif
 
-      return Closure.Make(Context, p);
+      return Closure.Create(Context, p);
     }
 
     //(condition-accessor rtd proc)
@@ -178,7 +178,7 @@ namespace IronScheme.Runtime.R6RS
         return AssertionViolation("condition-accessor", "not a valid condition", rtd);
       }
 
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
 
 #if CPS
       CallTarget2 p = delegate(object k, object cond)
@@ -253,7 +253,7 @@ namespace IronScheme.Runtime.R6RS
         }
       };
 #endif
-      return Closure.Make(Context, p);
+      return Closure.Create(Context, p);
     }
 
   }

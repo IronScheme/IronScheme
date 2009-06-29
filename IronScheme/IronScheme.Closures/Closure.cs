@@ -29,7 +29,7 @@ namespace IronScheme.Runtime
   
 
   [Serializable]
-  public abstract class Closure : ICallable
+  public abstract class Closure : Callable
   {
     readonly static Dictionary<Type, int> targetmap = new Dictionary<Type, int>();
 
@@ -58,8 +58,6 @@ namespace IronScheme.Runtime
       targetmap.Add(typeof(CallTargetWithContextN), -1 + 16);
     }
 
-    public bool AllowConstantFold {get;set;}
-
     public static AssertHandler AssertionViolation;
 
     protected int paramcount = int.MaxValue;
@@ -68,7 +66,7 @@ namespace IronScheme.Runtime
     public static ConsFromArrayHandler ConsStarFromArray;
     public static ArrayFromConsHandler ArrayFromCons;
     public static CallTarget2 Cons;
-    public static ICallable IdentityForCPS;
+    public static Callable IdentityForCPS;
     public static object Unspecified;
 
     public override string ToString()
@@ -87,12 +85,12 @@ namespace IronScheme.Runtime
       return name.Substring(i + 2);
     }
 
-    public virtual object Arity
+    public override object Arity
     {
       get { return paramcount; }
     }
 
-    public virtual object Form
+    public override object Form
     {
       get 
       {
@@ -130,61 +128,61 @@ namespace IronScheme.Runtime
     }
 
     [DebuggerStepThrough]
-    public virtual object Call()
+    public override object Call()
     {
       return Call(new object[0]);
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1)
+    public override object Call(object arg1)
     {
       return Call(new object[] { arg1 });
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1, object arg2)
+    public override object Call(object arg1, object arg2)
     {
       return Call(new object[] { arg1, arg2 });
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1, object arg2, object arg3)
+    public override object Call(object arg1, object arg2, object arg3)
     {
       return Call(new object[] { arg1 , arg2, arg3 });
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1, object arg2, object arg3, object arg4)
+    public override object Call(object arg1, object arg2, object arg3, object arg4)
     {
       return Call(new object[] { arg1 , arg2, arg3, arg4 });
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5 });
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6 });
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7 });
     }
 
     [DebuggerStepThrough]
-    public virtual object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
+    public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
     {
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
     }
 
-    [DebuggerStepThrough]
-    public abstract object Call(object[] args);
+    //[DebuggerStepThrough]
+    //public abstract object Call(object[] args);
 
     readonly Delegate target;
 
@@ -573,12 +571,12 @@ namespace IronScheme.Runtime
 
     }
 
-    public static ICallable MakeStatic(Delegate target)
+    public static Callable CreateStatic(Delegate target)
     {
-      return Make(null, target);
+      return Create(null, target);
     }
 
-    public static ICallable Make(CodeContext cc, Delegate target)
+    public static Callable Create(CodeContext cc, Delegate target)
     {
       int arity;
       if (targetmap.TryGetValue(target.GetType(), out arity))
@@ -596,12 +594,12 @@ namespace IronScheme.Runtime
       throw new NotSupportedException();
     }
 
-    public static ICallable MakeVarArgX(CodeContext cc, Delegate target, int paramcount)
+    public static Callable CreateVarArgX(CodeContext cc, Delegate target, int paramcount)
     {
       return new VarArgClosure(cc, target, paramcount);
     }
 
-    public static ICallable MakeCase(CodeContext cc, Delegate[] targets, int[] arities)
+    public static Callable CreateCase(CodeContext cc, Delegate[] targets, int[] arities)
     {
       return new CaseClosure(cc, targets, arities);
     }
@@ -609,14 +607,14 @@ namespace IronScheme.Runtime
     [Serializable]
     sealed class VarArgClosure : Closure
     {
-      ICallable realtarget;
+      Callable realtarget;
       int pcount = 0;
 
       public VarArgClosure(CodeContext cc, Delegate target, int paramcount)
         : base(target, -1)
       {
         pcount = paramcount;
-        realtarget = Make(cc, target);
+        realtarget = Create(cc, target) as Callable;
       }
 
       public override object Arity
@@ -679,7 +677,7 @@ namespace IronScheme.Runtime
     sealed class CaseClosure : Closure
     {
       int[] arities;
-      List<ICallable> targets = new List<ICallable>();
+      List<Callable> targets = new List<Callable>();
 
       public override MethodInfo[] Targets
       {
@@ -702,11 +700,11 @@ namespace IronScheme.Runtime
         {
           if (arities[i] < 0)
           {
-            this.targets.Add(MakeVarArgX(cc, targets[i], -arities[i]));
+            this.targets.Add(CreateVarArgX(cc, targets[i], -arities[i]));
           }
           else
           {
-            this.targets.Add(Make(cc, targets[i]));
+            this.targets.Add(Create(cc, targets[i]));
           }
         }
       }
@@ -716,7 +714,7 @@ namespace IronScheme.Runtime
         get 
         {
           List<object> arities = new List<object>();
-          foreach (ICallable c in targets)
+          foreach (Callable c in targets)
           {
             if (c.Arity != Unspecified)
             {
@@ -740,7 +738,7 @@ namespace IronScheme.Runtime
         get
         {
           List<object> forms = new List<object>();
-          foreach (ICallable c in targets)
+          foreach (Callable c in targets)
           {
             if (c.Form != Unspecified)
             {
@@ -761,7 +759,7 @@ namespace IronScheme.Runtime
 
       public override string ToString()
       {
-        foreach (ICallable c in targets)
+        foreach (Callable c in targets)
         {
           return c.ToString();
         }
@@ -931,7 +929,7 @@ namespace IronScheme.Runtime
       public override object Call(object[] args)
       {
         object r = null, except = null;
-        ICallable K = args[0] as ICallable;
+        Callable K = args[0] as Callable;
         List<object> newargs = new List<object>();
         newargs.AddRange(args);
         newargs.RemoveAt(0);

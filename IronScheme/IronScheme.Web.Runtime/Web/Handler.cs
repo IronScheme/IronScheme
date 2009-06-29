@@ -27,13 +27,13 @@ namespace IronScheme.Web
   {
     IronSchemeLanguageProvider lp;
     IScriptEngine se;
-    ICallable process_routes;
+    Callable process_routes;
     Dictionary<string, Compiled> compiled = new Dictionary<string, Compiled>();
 
     class Compiled
     {
       public DateTime Time;
-      public ICallable Closure;
+      public Callable Closure;
     }
 
     public bool IsReusable
@@ -56,10 +56,10 @@ namespace IronScheme.Web
         {
           if (process_routes == null)
           {
-            ICallable eval = Builtins.SymbolValue(SymbolTable.StringToObject("eval-r6rs")) as ICallable;
+            Callable eval = Builtins.SymbolValue(SymbolTable.StringToObject("eval-r6rs")) as Callable;
             StringReader r = new StringReader("(eval 'process-request (environment '(ironscheme web routing)))");
 
-            process_routes = eval.Call(Builtins.Read(r)) as ICallable;
+            process_routes = eval.Call(Builtins.Read(r)) as Callable;
           }
           process_routes.Call();
         }
@@ -76,7 +76,7 @@ namespace IronScheme.Web
       {
         if (!compiled.TryGetValue(context.Request.PhysicalPath, out cc) || cc.Time < File.GetLastWriteTime(context.Request.PhysicalPath))
         {
-          ICallable ccc = se.Evaluate(string.Format("(compile->closure \"{0}\")", context.Request.PhysicalPath.Replace('\\', '/'))) as ICallable;
+          Callable ccc = se.Evaluate(string.Format("(compile->closure \"{0}\")", context.Request.PhysicalPath.Replace('\\', '/'))) as Callable;
           cc = new Compiled();
           cc.Time = DateTime.Now;
           cc.Closure = ccc;

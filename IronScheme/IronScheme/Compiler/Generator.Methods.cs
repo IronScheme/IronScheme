@@ -33,23 +33,23 @@ namespace IronScheme.Compiler
     static readonly MethodInfo Builtins_VectorAppend = typeof(Builtins).GetMethod("VectorAppend");
     static readonly MethodInfo Builtins_ToImproper = typeof(Builtins).GetMethod("ToImproper");
 
-    protected static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Make", new Type[] { typeof(CodeContext), typeof(Delegate)});
-    protected static readonly MethodInfo Closure_MakeCase = typeof(Closure).GetMethod("MakeCase");
-    protected static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("MakeVarArgX");
+    protected static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Create", new Type[] { typeof(CodeContext), typeof(Delegate) });
+    protected static readonly MethodInfo Closure_MakeCase = typeof(Closure).GetMethod("CreateCase");
+    protected static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("CreateVarArgX");
 
     protected static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
     protected static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
 
-    protected static readonly MethodInfo ICallable_Call0 = typeof(ICallable).GetMethod("Call", new Type[] { });
-    protected static readonly MethodInfo ICallable_Call1 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), });
-    protected static readonly MethodInfo ICallable_Call2 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_Call3 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_Call4 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_Call5 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_Call6 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_Call7 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_Call8 = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_CallN = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]), });
+    protected static readonly MethodInfo ICallable_Call0 = typeof(Callable).GetMethod("Call", new Type[] { });
+    protected static readonly MethodInfo ICallable_Call1 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), });
+    protected static readonly MethodInfo ICallable_Call2 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call3 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call4 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call5 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call6 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call7 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_Call8 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
+    protected static readonly MethodInfo ICallable_CallN = typeof(Callable).GetMethod("Call", new Type[] { typeof(object[]), });
 
     protected static readonly MethodInfo CallTargetWithContext0_Invoke = typeof(CallTargetWithContext0).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContext1_Invoke = typeof(CallTargetWithContext1).GetMethod("Invoke");
