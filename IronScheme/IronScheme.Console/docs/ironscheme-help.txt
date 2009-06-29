@@ -76,7 +76,7 @@ compile-system-libraries
 Compiles commonly used libraries.
 
 ironscheme-build
-Buils the IronScheme bootfile.
+Builds the IronScheme bootfile.
 
 last-pair
 Returns the last pair of a list.
@@ -98,7 +98,7 @@ Alters the binding temporarily of a parameter.
 
 optimization-level
 Gets or sets the current optimization level. Accepts 'none , 'safe or 'unchecked .
-
+Note: This procedure is obsolete.
 
 procedure-arity
 Returns multiple values for the procedure arities. 
@@ -114,12 +114,14 @@ Returns the name of a procedure.
 
 serialize-port
 Uses the .NET binary serializer to serialize an object to a port.
+Note: procedures (including closures) and continuations cannot be serialized currently.
 
 deserialize-port
 Uses the .NET binary serializer to deserialize a port to an object.
 
 stacktrace
 Prints the stacktrace of the last exception.
+Note: This procedure is obsolete.
 
 string-ci-compare
 Used for comparing case-insensitive strings.
@@ -176,7 +178,7 @@ vector-binary-search
 Returns the index of a binary search for an object (.NET dependent).
 
 vector-contains?
-Returns #t if the vector contains the specified object.
+Returns #t if the vector contains the specified object (based on eqv?).
 
 vector-copy
 Makes a copy of the specified vector.
@@ -185,7 +187,7 @@ vector-filter
 Analogous to filter.
 
 vector-index-of
-Returns the index of the specified obejct if found.
+Returns the index of the specified obejct if found (based on eqv?).
 
 vector-reverse!
 Destructively reverses a vector.
