@@ -196,7 +196,7 @@ namespace IronScheme.Compiler
               t == typeof(byte) || t == typeof(sbyte) || t == typeof(float) || t == typeof(ComplexFraction) || t == typeof(Fraction) ||
               t == typeof(IEnumerable) ||
               t == typeof(bool) || t == typeof(string) || t == typeof(System.IO.Stream) || t == typeof(Encoding) || t == typeof(Hashtable) ||
-                t == typeof(Array) || t == typeof(byte[]) || t == typeof(ICallable) || t == typeof(StringBuilder))
+                t == typeof(Array) || t == typeof(byte[]) || t == typeof(Callable) || t == typeof(StringBuilder))
             {
               return Ast.ConvertHelper(e, t);
             }

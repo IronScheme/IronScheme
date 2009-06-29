@@ -669,16 +669,16 @@ namespace IronScheme.Runtime.R6RS
     class CustomBinaryInputStream : CustomStream
     {
       string id;
-      ICallable read, get_pos, set_pos, close;
+      Callable read, get_pos, set_pos, close;
 
       public CustomBinaryInputStream(object id, object read, object get_pos, object set_pos, object close)
       {
         this.id = RequiresNotNull<string>(id);
-        this.read = RequiresNotNull<ICallable>(read);
+        this.read = RequiresNotNull<Callable>(read);
         // rest optional
-        this.get_pos = get_pos as ICallable;
-        this.set_pos = set_pos as ICallable;
-        this.close = close as ICallable;
+        this.get_pos = get_pos as Callable;
+        this.set_pos = set_pos as Callable;
+        this.close = close as Callable;
       }
 
       public override bool CanRead
@@ -774,16 +774,16 @@ namespace IronScheme.Runtime.R6RS
     class CustomTextReader : TextReader
     {
       string id;
-      ICallable read, get_pos, set_pos, close;
+      Callable read, get_pos, set_pos, close;
 
       public CustomTextReader(object id, object read, object get_pos, object set_pos, object close)
       {
         this.id = RequiresNotNull<string>(id);
-        this.read = RequiresNotNull<ICallable>(read);
+        this.read = RequiresNotNull<Callable>(read);
         // rest optional
-        this.get_pos = get_pos as ICallable;
-        this.set_pos = set_pos as ICallable;
-        this.close = close as ICallable;
+        this.get_pos = get_pos as Callable;
+        this.set_pos = set_pos as Callable;
+        this.close = close as Callable;
       }
 
       public override int Read(char[] buffer, int index, int count)
@@ -1426,7 +1426,7 @@ namespace IronScheme.Runtime.R6RS
         return r;
       };
 
-      return Values(tc == null ? s : TranscodedPort(s, tc), Closure.Make(Context, extract));
+      return Values(tc == null ? s : TranscodedPort(s, tc), Closure.Create(Context, extract));
     }
 
     //(call-with-bytevector-output-port proc) 
@@ -1440,7 +1440,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("call-with-bytevector-output-port")]
     public static object CallWithBytevectorOutputPort(object proc, object maybetranscoder)
     {
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
       Transcoder tc = maybetranscoder as Transcoder;
 
       using (MemoryStream s = new MemoryStream())
@@ -1471,16 +1471,16 @@ namespace IronScheme.Runtime.R6RS
     class CustomBinaryOutputStream : CustomStream
     {
       string id;
-      ICallable write, get_pos, set_pos, close;
+      Callable write, get_pos, set_pos, close;
 
       public CustomBinaryOutputStream(object id, object write, object get_pos, object set_pos, object close)
       {
         this.id = RequiresNotNull<string>(id);
-        this.write = RequiresNotNull<ICallable>(write);
+        this.write = RequiresNotNull<Callable>(write);
         // rest optional
-        this.get_pos = get_pos as ICallable;
-        this.set_pos = set_pos as ICallable;
-        this.close = close as ICallable;
+        this.get_pos = get_pos as Callable;
+        this.set_pos = set_pos as Callable;
+        this.close = close as Callable;
       }
 
       public override bool CanRead
@@ -1577,16 +1577,16 @@ namespace IronScheme.Runtime.R6RS
     class CustomTextWriter : TextWriter
     {
       string id;
-      ICallable write, get_pos, set_pos, close;
+      Callable write, get_pos, set_pos, close;
 
       public CustomTextWriter(object id, object write, object get_pos, object set_pos, object close)
       {
         this.id = RequiresNotNull<string>(id);
-        this.write = RequiresNotNull<ICallable>(write);
+        this.write = RequiresNotNull<Callable>(write);
         // rest optional
-        this.get_pos = get_pos as ICallable;
-        this.set_pos = set_pos as ICallable;
-        this.close = close as ICallable;
+        this.get_pos = get_pos as Callable;
+        this.set_pos = set_pos as Callable;
+        this.close = close as Callable;
       }
 
       public override void Write(char[] buffer, int index, int count)
@@ -2068,17 +2068,17 @@ namespace IronScheme.Runtime.R6RS
     class CustomBinaryInputOutputStream : CustomStream
     {
       string id;
-      ICallable read, write, get_pos, set_pos, close;
+      Callable read, write, get_pos, set_pos, close;
 
       public CustomBinaryInputOutputStream(object id, object read, object write, object get_pos, object set_pos, object close)
       {
         this.id = RequiresNotNull<string>(id);
-        this.read = RequiresNotNull<ICallable>(read);
-        this.write = RequiresNotNull<ICallable>(write);
+        this.read = RequiresNotNull<Callable>(read);
+        this.write = RequiresNotNull<Callable>(write);
         // rest optional
-        this.get_pos = get_pos as ICallable;
-        this.set_pos = set_pos as ICallable;
-        this.close = close as ICallable;
+        this.get_pos = get_pos as Callable;
+        this.set_pos = set_pos as Callable;
+        this.close = close as Callable;
       }
 
       public override bool CanRead

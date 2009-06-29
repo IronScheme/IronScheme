@@ -68,6 +68,38 @@
 (bench (let ((a 10000)(b 100)) (fx* a b)))
 
 
+(define generate-indices
+  (lambda this-list
+    (let ((indice-list (cons 0 '())))
+      (let loop ((c-elem this-list)
+                 (c-indice 1)
+                 (c-ip indice-list))
+        (if (not (null? c-elem))
+          (begin
+            (set-cdr! c-ip (cons c-indice '()))
+            (loop (cdr c-elem) (+ c-indice 1) (cdr c-ip))))
+        indice-list))))
+         
+(define-syntax generate-structure
+  (syntax-rules ()
+    ((_ struct-name (mand-field opt-fields ...))
+     (begin
+       (apply (lambda (mand-field opt-fields ... n-fields)
+                (let ((data (make-vector n-fields)))
+                  (lambda (command . argument)
+                    (case command
+                      ((opt-fields)
+                        (if (null? argument)
+                           (vector-ref data opt-fields)
+                           (vector-set! data opt-fields (car argument)))) ...
+                      (else (format "No matched field...!\n"))))))
+               (generate-indices 'mand-field 'opt-fields ...))))))
+
+(define a (generate-structure test_t (field-1 field-2 field-3)))
+
+
+
+
 (let ()
   (let* ((a (+ 1 2))
          (b 3)

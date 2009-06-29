@@ -116,12 +116,12 @@ namespace IronScheme
 
 #pragma warning disable 3001,3002
 
-    public static ICallable ToSchemeProcedure(this Delegate del)
+    public static Callable ToSchemeProcedure(this Delegate del)
     {
-      return Closure.MakeStatic(del);
+      return Closure.CreateStatic(del) as Callable;
     }
 
-    public static T ToDelegate<T>(this ICallable c)
+    public static T ToDelegate<T>(this Callable c)
     {
       return Runtime.Helpers.ConvertToDelegate<T>(c);
     }

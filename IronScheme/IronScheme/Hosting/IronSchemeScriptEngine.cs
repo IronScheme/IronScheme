@@ -132,7 +132,7 @@ namespace IronScheme.Hosting
 
     protected override IList<object> Ops_GetAttrNames(CodeContext context, object obj)
     {
-      ICallable c = context.Scope.LookupName(SymbolTable.StringToId("int-env-syms")) as ICallable;
+      Callable c = context.Scope.LookupName(SymbolTable.StringToId("int-env-syms")) as Callable;
 #if CPS
       Cons ids = c.Call(Closure.IdentityForCPS) as Cons;
 #else

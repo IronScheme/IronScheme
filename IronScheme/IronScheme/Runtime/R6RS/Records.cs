@@ -37,11 +37,11 @@ namespace IronScheme.Runtime.R6RS
     public object Opaque { get { return Builtins.GetBool(opaque); } }
     public object Generative { get { return Builtins.GetBool(generative); } }
 
-    public ICallable Constructor { get; internal set; }
+    public Callable Constructor { get; internal set; }
     
     internal MethodInfo predicate;
 
-    public ICallable Predicate { get; internal set; }
+    public object Predicate { get; internal set; }
     
     public object uid;
     
@@ -83,24 +83,24 @@ namespace IronScheme.Runtime.R6RS
         Records.typedescriptors[type] = this;
 
         MethodInfo ci = type.GetMethod("make");
-        Constructor = Closure.Make(null, Delegate.CreateDelegate(typeof(CallTargetN), ci));
+        Constructor = Closure.Create(null, Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
 
         // update fields
         predicate = type.GetMethod(predicate.Name);
-        Predicate = Closure.MakeStatic(Delegate.CreateDelegate(typeof(CallTarget1), predicate));
+        Predicate = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), predicate)) as Callable;
 
         foreach (FieldDescriptor fd in fields)
         {
           fd.field = type.GetField(fd.field.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
           fd.accessor = type.GetMethod(fd.accessor.Name);
 
-          fd.Accessor = Closure.MakeStatic(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
+          fd.Accessor = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
 
           if (fd.mutable)
           {
             fd.mutator = type.GetMethod(fd.mutator.Name);
 
-            fd.Mutator = Closure.MakeStatic(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
+            fd.Mutator = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
           }
           else
           {
@@ -142,7 +142,7 @@ namespace IronScheme.Runtime.R6RS
   class RecordConstructorDescriptor
   {
     public RecordTypeDescriptor type;
-    public ICallable protocol;
+    public Callable protocol;
     public RecordConstructorDescriptor parent;
     internal CodeGen cg;
 
@@ -404,7 +404,7 @@ namespace IronScheme.Runtime.R6RS
       RecordConstructorDescriptor rcd = new RecordConstructorDescriptor();
       rcd.cg = t.cg;
       rcd.type = t;
-      rcd.protocol = protocol as ICallable;
+      rcd.protocol = protocol as Callable;
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;
 
       // should be internal somehow
@@ -424,11 +424,11 @@ namespace IronScheme.Runtime.R6RS
       Type tt = ci.type.Finish();
 
       // this is foo.make(params object[] args) calls constructor(s).
-      ICallable pp = ci.type.Constructor;
+      Callable pp = ci.type.Constructor as Callable;
 
       RecordConstructorDescriptor rcd = ci;
 
-      List<ICallable> init = new List<ICallable>();
+      List<Callable> init = new List<Callable>();
 
       while (rcd != null)
       {
@@ -449,7 +449,7 @@ namespace IronScheme.Runtime.R6RS
 #if CPS
         return Closure.Make(Context, OptimizedBuiltins.MakeCPS(np));
 #else
-        return Closure.Make(Context, np);
+        return Closure.Create(Context, np);
 #endif
       }
       else
@@ -458,11 +458,11 @@ namespace IronScheme.Runtime.R6RS
 
         CallTargetN np = delegate(object[] args)
         {
-          ICallable ppp = pp;
+          Callable ppp = pp;
 
           List<object> allargs = new List<object>();
           int i = init.Count;
-          ICallable collector = null;
+          Callable collector = null;
           CallTargetN xxx = delegate(object[] margs)
           {
             allargs.AddRange(margs);
@@ -476,11 +476,11 @@ namespace IronScheme.Runtime.R6RS
               return collector;
             }
           };
-          ppp = collector = Closure.Make(Context, xxx);
+          ppp = collector = Closure.Create(Context, xxx) as Callable;
 
-          foreach (ICallable ctr in init)
+          foreach (Callable ctr in init)
           {
-            ppp = ctr.Call(ppp) as ICallable;
+            ppp = ctr.Call(ppp) as Callable;
           }
 
           object result = ppp.Call(args);
@@ -492,7 +492,7 @@ namespace IronScheme.Runtime.R6RS
           return result;
         };
 
-        return Closure.Make(Context, np);
+        return Closure.Create(Context, np);
       }
     }
 

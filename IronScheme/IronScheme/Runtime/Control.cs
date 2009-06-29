@@ -29,14 +29,14 @@ namespace IronScheme.Runtime
 {
   public static partial class BuiltinEmitters
   {
-    readonly static MethodInfo ICallable_Call = typeof(ICallable).GetMethod("Call", new Type[] { typeof(object[]) });
+    readonly static MethodInfo ICallable_Call = typeof(Callable).GetMethod("Call", new Type[] { typeof(object[]) });
     readonly static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector", new [] { typeof(Cons) });
     readonly static ConstructorInfo Cons_ctr = typeof(Cons).GetConstructor(new[] { typeof(object), typeof(object) });
 
     [InlineEmitter("apply")]
     public static Expression Apply(Expression[] args)
     {
-      Expression c = Ast.ConvertHelper(args[0], typeof(ICallable));
+      Expression c = Ast.ConvertHelper(args[0], typeof(Callable));
       if (args.Length > 1)
       {
         Expression arg = Ast.ConvertHelper(args[args.Length - 1], typeof(Cons));
@@ -118,9 +118,9 @@ namespace IronScheme.Runtime
     [Builtin("dynamic-wind")]
     public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
     {
-      ICallable inf = RequiresNotNull<ICallable>(infunc);
-      ICallable bodyf = RequiresNotNull<ICallable>(bodyfunc);
-      ICallable outf = RequiresNotNull<ICallable>(outfunc);
+      Callable inf = RequiresNotNull<Callable>(infunc);
+      Callable bodyf = RequiresNotNull<Callable>(bodyfunc);
+      Callable outf = RequiresNotNull<Callable>(outfunc);
 
       inf.Call();
 
@@ -183,13 +183,13 @@ namespace IronScheme.Runtime
     [Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object fc1)
     {
-      ICallable fc = RequiresNotNull<ICallable>(fc1);
+      Callable fc = RequiresNotNull<Callable>(fc1);
       Continuation ccc = new Continuation();
       contstack.Push(ccc);
       try
       {
         CallTargetN exitproc = MakeContinuation(ccc);
-        ICallable fce = Closure.Make(cc, exitproc);
+        Callable fce = Closure.Create(cc, exitproc) as Callable;
         object res = fc.Call(fce);
         return res;
       }
@@ -289,7 +289,7 @@ namespace IronScheme.Runtime
     public static object Apply(object fn, object list)
     {
       Cons args = Requires<Runtime.Cons>(list);
-      ICallable c = RequiresNotNull<ICallable>(fn);
+      Callable c = RequiresNotNull<Callable>(fn);
 
       if (args == null)
       {

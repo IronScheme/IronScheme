@@ -17,10 +17,10 @@
           (ironscheme clr))
   
   (define (allow-constant-fold? proc)
-    (clr-prop-get IronScheme.Runtime.ICallable AllowConstantFold proc))
+    (clr-prop-get IronScheme.Runtime.Callable AllowConstantFold proc))
 
   (define (set-allow-constant-fold! proc bool)
-    (clr-prop-set! IronScheme.Runtime.ICallable AllowConstantFold proc bool))
+    (clr-prop-set! IronScheme.Runtime.Callable AllowConstantFold proc bool))
     
   (define (enable-constant-fold . procs)
     (for-each (lambda (proc)

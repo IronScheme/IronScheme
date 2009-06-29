@@ -265,7 +265,7 @@ namespace IronScheme.Compiler
 
     static Expression MakeCallBack(Variable proc, Expression[] a)
     {
-      var procr = Ast.ConvertHelper(Ast.Read(proc), typeof(ICallable));
+      var procr = Ast.ConvertHelper(Ast.Read(proc), typeof(Callable));
       MethodInfo call = GetCallable(a.Length);
       var expr = Ast.Call(procr, call, a);
       return expr;

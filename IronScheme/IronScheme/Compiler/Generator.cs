@@ -410,7 +410,7 @@ namespace IronScheme.Compiler
 
                   Expression producer = ppp[0];
 
-                  Expression exx = Ast.ConvertHelper(producer, typeof(ICallable));
+                  Expression exx = Ast.ConvertHelper(producer, typeof(Callable));
 
                   MethodInfo callx = GetCallable(0);
 
@@ -471,7 +471,7 @@ namespace IronScheme.Compiler
                 result = Ast.ConvertHelper(result, typeof(object));
               }
 #if CPS
-              Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(ICallable));
+              Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(Callable));
               return Ast.Call(k, GetCallable(1), result);
 #else
               return result;
@@ -519,8 +519,8 @@ namespace IronScheme.Compiler
                     try
                     {
                       object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
-                        Closure.Make(null, handler),
-                        Closure.Make(null, disp));
+                        Closure.Create(null, handler),
+                        Closure.Create(null, disp));
                       var rrrr = GetCons(result, cb);
                       if (spanhint.IsValid)
                       {
@@ -593,8 +593,8 @@ namespace IronScheme.Compiler
                       try
                       {
                         object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
-                          Closure.Make(null, handler),
-                          Closure.Make(null, disp));
+                          Closure.Create(null, handler),
+                          Closure.Create(null, disp));
                         var rrrr = GetCons(result, cb);
                         if (spanhint.IsValid)
                         {
@@ -666,7 +666,7 @@ namespace IronScheme.Compiler
           Builtins.SyntaxError(SymbolTable.StringToObject("generator"), "expecting a procedure", c.car, c);
         }
 
-        ex = Ast.ConvertHelper(ex, typeof(ICallable));
+        ex = Ast.ConvertHelper(ex, typeof(Callable));
         
         MethodInfo call = GetCallable(pp.Length);
 

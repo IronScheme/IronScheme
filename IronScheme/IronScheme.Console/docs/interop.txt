@@ -18,6 +18,6 @@ From .NET to Scheme:
 1. Eval a string and get a returned object. TODO: make an easy interface for this.
 
 2. Use a scheme procedure passed as an argument to a .NET method. 
-   Scheme procedures are of type ICallable, and capture their environment.
+   Scheme procedures are of type Callable, and capture their environment.
 
 

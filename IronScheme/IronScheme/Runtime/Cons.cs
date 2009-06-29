@@ -109,7 +109,7 @@ namespace IronScheme.Runtime
     public string ToPrettyString()
     {
       StringWriter w = new StringWriter();
-      ((ICallable)Builtins.SymbolValue(SymbolTable.StringToObject("pretty-print"))).Call(this, w);
+      ((Callable)Builtins.SymbolValue(SymbolTable.StringToObject("pretty-print"))).Call(this, w);
       return w.GetBuffer();
     }
 

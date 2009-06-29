@@ -343,26 +343,26 @@
           (stringbuilder? obj)))
   
     (define (char? obj)
-      (clr-is system.char obj))
+      (clr-is System.Char obj))
       
     (define (vector? obj)
-      (clr-is system.object[] obj))
+      (clr-is System.Object[] obj))
 
     (define (bytevector? obj)
-      (clr-is system.byte[] obj))
+      (clr-is System.Byte[] obj))
 
     (define (symbol? obj)
-      (clr-is microsoft.scripting.symbolid obj))
+      (clr-is Microsoft.Scripting.SymbolId obj))
       
     (define (boolean? obj)
-      (clr-is system.boolean obj))
+      (clr-is System.Boolean obj))
      
     (define (procedure? obj)
-      (clr-is ironscheme.runtime.icallable obj))  
+      (clr-is Ironscheme.Runtime.Callable obj))  
       
 
     (define (flonum? obj)
-      (clr-is system.double obj))  
+      (clr-is System.Double obj))  
             
     
     (define (char->integer chr)

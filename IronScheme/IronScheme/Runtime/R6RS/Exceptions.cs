@@ -28,10 +28,10 @@ namespace IronScheme.Runtime.R6RS
   public class Exceptions : Builtins
   {
 #if !CPS
-    static Stack<ICallable> handlerstack = new Stack<ICallable>();
-    static ICallable defaulthandler;
+    static Stack<Callable> handlerstack = new Stack<Callable>();
+    static Callable defaulthandler;
 
-    static ICallable CurrentHandler
+    static Callable CurrentHandler
     {
       get
       {
@@ -47,8 +47,8 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("with-exception-handler")]
     public static object WithExceptionHandler(object handler, object thunk)
     {
-      ICallable h = RequiresNotNull<ICallable>(handler);
-      ICallable t = RequiresNotNull<ICallable>(thunk);
+      Callable h = RequiresNotNull<Callable>(handler);
+      Callable t = RequiresNotNull<Callable>(thunk);
 
       InitDefaultHandler();
 
@@ -128,7 +128,7 @@ namespace IronScheme.Runtime.R6RS
         SymbolId dh = SymbolTable.StringToId("default-exception-handler");
         if (cc.Scope.ContainsName(dh))
         {
-          defaulthandler = SymbolValue(dh) as ICallable;
+          defaulthandler = SymbolValue(dh) as Callable;
           handlerstack.Push(defaulthandler);
         }
       }
@@ -154,7 +154,7 @@ namespace IronScheme.Runtime.R6RS
       if (obj is CompoundCondition)
       {
         var sf = new StackTrace(1, true);
-        ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
+        Callable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as Callable;
         var values = new ArrayList(((CompoundCondition)obj).conds);
 
         foreach (var val in values)
@@ -170,7 +170,7 @@ namespace IronScheme.Runtime.R6RS
         ((CompoundCondition)obj).conds = values.ToArray();
       }
 
-      ICallable ch = CurrentHandler;
+      Callable ch = CurrentHandler;
       if (ch != null)
       {
         try
@@ -197,9 +197,9 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        ICallable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&non-continuable-rcd"))) as ICallable;
-        ICallable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&who-rcd"))) as ICallable;
-        ICallable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&message-rcd"))) as ICallable;
+        Callable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&non-continuable-rcd"))) as Callable;
+        Callable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&who-rcd"))) as Callable;
+        Callable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&message-rcd"))) as Callable;
 
         var result = R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"));
         throw new NonContinuation { Value = result };
@@ -225,7 +225,7 @@ namespace IronScheme.Runtime.R6RS
       if (obj is CompoundCondition)
       {
         var sf = new StackTrace(1, true);
-        ICallable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as ICallable;
+        Callable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as Callable;
         var values = new ArrayList(((CompoundCondition)obj).conds);
 
         foreach (var val in values)
@@ -242,7 +242,7 @@ namespace IronScheme.Runtime.R6RS
       }
 
 
-      ICallable ch = CurrentHandler;
+      Callable ch = CurrentHandler;
       if (ch != null)
       {
         try

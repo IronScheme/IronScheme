@@ -1,3 +1,16 @@
+#region License
+/* ****************************************************************************
+ * Copyright (c) Llewellyn Pritchard. 
+ *
+ * This source code is subject to terms and conditions of the Microsoft Public License. 
+ * A copy of the license can be found in the License.html file at the root of this distribution. 
+ * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
+ * Microsoft Public License.
+ *
+ * You must not remove this notice, or any other, from this software.
+ * ***************************************************************************/
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -94,7 +107,7 @@ namespace IronScheme.Runtime
     {
       return delegate(object k)
       {
-        return ((ICallable)k).Call(prim());
+        return ((Callable)k).Call(prim());
       };
     }
 
@@ -102,7 +115,7 @@ namespace IronScheme.Runtime
     {
       return delegate(object k, object a1)
       {
-        return ((ICallable)k).Call(prim(a1));
+        return ((Callable)k).Call(prim(a1));
       };
     }
 
@@ -110,7 +123,7 @@ namespace IronScheme.Runtime
     {
       return delegate(object k, object a1, object a2)
       {
-        return ((ICallable)k).Call(prim(a1,a2));
+        return ((Callable)k).Call(prim(a1,a2));
       };
     }
 
@@ -137,8 +150,8 @@ namespace IronScheme.Runtime
 
     class Winder
     {
-      public ICallable In;
-      public ICallable Out;
+      public Callable In;
+      public Callable Out;
 
       public override string ToString()
       {
@@ -150,10 +163,10 @@ namespace IronScheme.Runtime
 
     public static object DynamicWind(object k, object infunc, object bodyfunc, object outfunc)
     {
-      ICallable inf = (ICallable)(infunc);
-      ICallable bodyf = (ICallable)(bodyfunc);
-      ICallable outf = (ICallable)(outfunc);
-      ICallable K = (ICallable)(k);
+      Callable inf = (Callable)(infunc);
+      Callable bodyf = (Callable)(bodyfunc);
+      Callable outf = (Callable)(outfunc);
+      Callable K = (Callable)(k);
 
       CallTarget1 k1 = delegate(object V)
       {
@@ -205,8 +218,8 @@ namespace IronScheme.Runtime
     //[Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object k, object fc1)
     {
-      ICallable fc = (ICallable)(fc1);
-      ICallable e = (ICallable)(k);
+      Callable fc = (Callable)(fc1);
+      Callable e = (Callable)(k);
 
       List<Winder> err = new List<Winder>(windstack);
       err.Reverse();
@@ -219,7 +232,7 @@ namespace IronScheme.Runtime
 
         GetWinders(windstack, winders, out rewind, out unwind);
 
-        ICallable FK = null;
+        Callable FK = null;
 
         CallTarget1 fk = delegate(object IGNORE)
         {
@@ -230,7 +243,7 @@ namespace IronScheme.Runtime
 
         foreach (Winder w in rewind)
         {
-          ICallable IFK = FK;
+          Callable IFK = FK;
           Winder tw = w;
 
           CallTarget1 tempk = delegate(object IGNORE)
@@ -249,7 +262,7 @@ namespace IronScheme.Runtime
 
         foreach (Winder w in unwind)
         {
-          ICallable IFK = FK;
+          Callable IFK = FK;
           Winder tw = w;
 
           CallTarget1 uk = delegate(object IGNORE)
@@ -277,7 +290,7 @@ namespace IronScheme.Runtime
     //last arg must be a list
     public static object Apply(object k, object fn, object arg1, object args)
     {
-      ICallable c = (ICallable)(fn);
+      Callable c = (Callable)(fn);
       object[] targs = Closure.ArrayFromCons(Closure.Cons(arg1, args));
 
       List<object> allargs = new List<object>();
@@ -291,12 +304,12 @@ namespace IronScheme.Runtime
 
       allargs.AddRange(Closure.ArrayFromCons(targs[i]));
 
-      return OptimizedBuiltins.CallWithK(c, k as ICallable, allargs.ToArray());
+      return OptimizedBuiltins.CallWithK(c, k as Callable, allargs.ToArray());
     }
 
     public static object Values(object k, object list)
     {
-      ICallable K = (ICallable)k;
+      Callable K = (Callable)k;
       object[] args = Closure.ArrayFromCons(list);
 
       if (args.Length == 1)
@@ -313,9 +326,9 @@ namespace IronScheme.Runtime
     //[Builtin("call-with-values")]
     public static object CallWithValues(object k, object producer, object consumer)
     {
-      ICallable pro = (ICallable)producer;
-      ICallable con = (ICallable)consumer;
-      ICallable K = (ICallable)k;
+      Callable pro = (Callable)producer;
+      Callable con = (Callable)consumer;
+      Callable K = (Callable)k;
 
       CallTarget1 ct = delegate(object arg)
       {
@@ -334,8 +347,8 @@ namespace IronScheme.Runtime
     //[Builtin("call-with-values")]
     public static object CallWithValues(object producer, object consumer)
     {
-      ICallable pro = (ICallable)producer;
-      ICallable con = (ICallable)consumer;
+      Callable pro = (Callable)producer;
+      Callable con = (Callable)consumer;
 
       object r = pro.Call();
 

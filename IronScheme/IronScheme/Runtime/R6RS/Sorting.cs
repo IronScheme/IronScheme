@@ -38,7 +38,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("vector-sort!")]
     public static object VectorSortD(object proc, object vec)
     {
-      ICallable c = RequiresNotNull<ICallable>(proc);
+      Callable c = RequiresNotNull<Callable>(proc);
       object[] v = RequiresNotNull<object[]>(vec);
       try
       {
