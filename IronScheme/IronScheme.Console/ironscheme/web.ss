@@ -47,6 +47,7 @@
     display-html)
   (import 
     (ironscheme)
+    (ironscheme contracts)
     (ironscheme xml)
     (ironscheme web-utils)
     (ironscheme clr))
@@ -92,13 +93,13 @@
   (define (user-name)
     (clr-prop-get System.Security.Principal.IIdentity Name (user-identity)))  
     
-  (define (user-in-role? role)
+  (define/contract (user-in-role? role:string)
     (clr-call System.Security.Principal.IPrincipal IsInRole (get-user) role))
 
   (define (user-authenticated?)
     (clr-prop-get System.Security.Principal.IIdentity IsAuthenticated (user-identity)))  
     
-  (define (resolve-url vpath)
+  (define/contract (resolve-url vpath:string)
     (clr-call httpresponse ApplyAppPathModifier (response) vpath))    
     
   (define (nv-helper instance key)
@@ -136,7 +137,6 @@
     (clr-indexer-set! httpsessionstate (get-session) (clr-cast system.string (->string key)) value)
     (void))
     
-    
   (define (application-item key)
     (define k (clr-indexer-get httpapplicationstate (get-app) (clr-cast system.string (->string key))))
     (if (null? k) #f
@@ -150,9 +150,11 @@
     (clr-prop-get httpcontext items (context)))       
     
   (define (->string s)
-    (if (symbol? s)
-      (symbol->string s)
-      s))    
+    (cond 
+      [(symbol? s) (symbol->string s)]
+      [(string? s) s]
+      [else 
+        (assertion-violation '->string "not a symbol or string" s)]))
     
   (define (context-item key)
     (hashtable-ref (items) (->string key) #f))
@@ -166,19 +168,21 @@
   (define (server-util)
     (clr-prop-get httpcontext server (context)))
     
-  (define (map-path p)
+  (define/contract (map-path p:string)
     (clr-call httpserverutility mappath (server-util) p))   
     
   (define (http-output-port)
     (clr-prop-get httpresponse output (response)))
     
-  (define (rewrite-path path)
+  (define/contract (rewrite-path path:string)
     (clr-call httpcontext rewritepath (context) path))    
     
   (define redirect 
-    (case-lambda 
-      [(path)               (clr-call httpresponse redirect (response) path)]    
-      [(path endresponse?)  (clr-call httpresponse redirect (response) path endresponse?)]))
+    (case/contract 
+      [(path:string)               
+        (clr-call httpresponse redirect (response) path)]    
+      [(path:string endresponse?:boolean)  
+        (clr-call httpresponse redirect (response) path endresponse?)]))
     
   (define (request-raw-url)
     (clr-prop-get httprequest rawurl (request)))       
@@ -186,7 +190,7 @@
   (define (forms-authentication-logout)
     (clr-static-call system.web.security.formsauthentication SignOut))
     
-  (define (forms-authentication-login user)
+  (define/contract (forms-authentication-login user:string)
     (clr-static-call system.web.security.formsauthentication SetAuthCookie user #f))      
   
   (define (display-html html)

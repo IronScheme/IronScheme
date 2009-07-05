@@ -190,6 +190,7 @@ SectionIn 1 2 RO
 	File "IronScheme.Remoting.dll"
 	File "IronScheme.Closures.dll"
 	File "IronScheme.Web.Runtime.dll"
+	
 	File "ironscheme.boot.dll"
 	File "Microsoft.Scripting.dll"
 	
@@ -198,10 +199,12 @@ SectionIn 1 2 RO
 	File "init.ss"
 	File "compile-system-libraries.ss"
 	
+	File "..\..\..\IronScheme.WebServer\bin\Release\IronScheme.WebServer.exe"
+	File "..\..\..\IronScheme.WebServer\bin\Release\IronScheme.WebServer.exe.config"
+	
 	File ..\..\..\tools\IronScheme.VisualStudio.dll
 	File ..\..\..\tools\RegPkg.exe
 	File ..\..\..\tools\RegPkg.exe.config
-	File IronScheme.Web.Runtime.dll
 	
 	File "ironscheme-buildscript.ss"
 
@@ -250,6 +253,9 @@ SectionIn 1 2 RO
 	
 	SetOutPath "$INSTDIR\websample\styles"
 	File /r ..\..\..\IronScheme.Web\styles\*.css
+	
+	SetOutPath "$INSTDIR\websample\data"
+	File "placeholder.txt"
 	
 	SetOutPath "$INSTDIR\tests"
 	File /r tests\*.*

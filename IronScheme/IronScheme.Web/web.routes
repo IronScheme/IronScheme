@@ -6,6 +6,9 @@
     (context-item-set! 'year year)
     (context-item-set! 'month month)
     (load-controller/action "calender" "show"))]
+[(controller)
+ (zero? (string-length controller))
+ (load-controller/action "doc" "index")] ;; default goes to docs
   
 #|
 ; defaults

@@ -97,6 +97,9 @@ delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t\u000c ]
 but_delimiter          [^\[\]\(\)\";#\r\n\t\u000c ]
 numbut_delimiter       [^\[\]\(\)\";#\r\n\t\u000c i]
 
+fold_case              "#!fold-case"[^\n]*
+no_fold_case           "#!no-fold-case"[^\n]* 
+
 line_comment           (";"[^\n]*)|("#!"[^\n]*)
 
 ignore_datum           "#;"
@@ -209,6 +212,9 @@ bad_atoms              {atoms}{but_delimiter}+
 
 {white_space}+        { ; }
 {new_line}            { ;}
+
+{fold_case}           { return Make(Tokens.FOLDCASE); }
+{no_fold_case}        { return Make(Tokens.NOFOLDCASE); }
                      
 {comment_start}       { yy_push_state(ML_COMMENT);  }                      
 {line_comment}        {  }

@@ -16,6 +16,7 @@
 %{
 
 public bool skipnumbers = false;
+bool FoldCase = false;
 
 public Cons parsed;
 
@@ -140,7 +141,7 @@ static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 }
 
 %token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT BYTEVECTORLBRACE
-%token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX IGNOREDATUM
+%token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX IGNOREDATUM FOLDCASE NOFOLDCASE
 %token <text> SYMBOL LITERAL STRING NUMBER CHARACTER 
 
 %type <lst> exprlist file
@@ -170,7 +171,7 @@ exprlist
     
 expr
     : list                                        { $$ = $1;}
-    | SYMBOL                                      { $$ = Annotate( SymbolTable.StringToObject($1), @1); }
+    | SYMBOL                                      { $$ = Annotate( SymbolTable.StringToObjectWithCase($1, FoldCase), @1); }
     | STRING                                      { $$ = Annotate(Helper.CleanString($1), @1); }
     | NUMBER                                      { $$ = Annotate( skipnumbers ? null : MakeNumber($1), @1);}
     | LITERAL                                     { $$ = Annotate( $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null), @1);}
@@ -178,6 +179,8 @@ expr
     | VECTORLBRACE exprlist RBRACE                { $$ = Annotate(Builtins.ListToVector($2),@1,@3);}
     | BYTEVECTORLBRACE exprlist RBRACE            { $$ = Annotate(Builtins.ListToByteVector(Strip($2)),@1,@3); }
     | IGNOREDATUM expr                            { $$ = Ignore; }
+    | FOLDCASE                                    { FoldCase = true; $$ = Ignore; }
+    | NOFOLDCASE                                  { FoldCase = false; $$ = Ignore; }
     ; 
 
 specexpr

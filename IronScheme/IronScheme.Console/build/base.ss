@@ -219,6 +219,8 @@
     
     string-set!
     string-fill!
+    
+    string-format
   
     )
   (import 

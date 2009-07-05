@@ -6,9 +6,13 @@
     add)
   (import
     (ironscheme)
+    (ironscheme clr)
     (models blog)
     (ironscheme web)
     (ironscheme web views))
+    
+  (define (to-string obj)
+    (clr-call System.Object ToString obj))    
           
   (define (page-template . body)
     `(html (xmlns . http://www.w3.org/1999/xhtml)
@@ -46,7 +50,7 @@
         (div (class . blog-body) (no-escape ,(blog-entry-body e)))
         (span (class . blog-footer)
           "posted by " ,(blog-entry-author e) 
-          " on " ,(blog-entry-date e)
+          " on " ,(to-string (blog-entry-date e))
           ,(when (string=? (user-name) "admin")
             `(span
               ,(action/id-link "edit" "edit" id)
