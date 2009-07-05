@@ -69,6 +69,7 @@
           #'(match url 
               r ...
               [(controller)
+                (positive? (string-length controller))
                 (load-controller/action controller "index")]
               [(controller action)
                 (load-controller/action controller (if (zero? (string-length action)) "index" action))]

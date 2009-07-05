@@ -69,7 +69,7 @@
          
   (define (make-sort-link id type)
     `(a 
-      (href . ,(string-append (action/id-url "library" id) "?sort=" type)) 
+      (href . ,(string-append (action/id-url "library" id) "&sort=" type)) 
       ,(string-append "Sort by " type)))
       
   (define (make-id-link id lib)

@@ -53,6 +53,16 @@ namespace Microsoft.Scripting {
           }
         }
 
+        public static object StringToObjectWithCase(string name, bool foldcase)
+        {
+          if (foldcase)
+          {
+            name = name.ToUpperInvariant().ToLowerInvariant();
+          }
+          SymbolId id = StringToId(name);
+          return GetSymbol(id.Id);
+        }
+
         public static object StringToObject(string name)
         {
           SymbolId id = StringToId(name);

@@ -27,6 +27,7 @@
     )
   (import 
     (rnrs)
+    ; do not use contracts, it depends on this
     (ironscheme clr))
     
   (define (string-split str . del)

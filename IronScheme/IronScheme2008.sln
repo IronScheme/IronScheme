@@ -53,9 +53,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemotingSample", "Samples\R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Web.Runtime", "IronScheme.Web.Runtime\IronScheme.Web.Runtime.csproj", "{07D0A60A-8320-4F70-AA3B-7C75008C0009}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.WebServer", "IronScheme.WebServer\IronScheme.WebServer.csproj", "{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 12
+		SccNumberOfProjects = 13
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -96,6 +98,9 @@ Global
 		SccProjectUniqueName11 = IronScheme.Web.Runtime\\IronScheme.Web.Runtime.csproj
 		SccProjectName11 = IronScheme.Web.Runtime
 		SccLocalPath11 = IronScheme.Web.Runtime
+		SccProjectUniqueName12 = IronScheme.WebServer\\IronScheme.WebServer.csproj
+		SccProjectName12 = IronScheme.WebServer
+		SccLocalPath12 = IronScheme.WebServer
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -146,6 +151,10 @@ Global
 		{07D0A60A-8320-4F70-AA3B-7C75008C0009}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07D0A60A-8320-4F70-AA3B-7C75008C0009}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07D0A60A-8320-4F70-AA3B-7C75008C0009}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,6 +33,7 @@
     (ironscheme regex)
     (ironscheme registry)
     (ironscheme strings)
+    (ironscheme symbolic-case)
     (ironscheme threading)
     (ironscheme web)
     (ironscheme web-utils)

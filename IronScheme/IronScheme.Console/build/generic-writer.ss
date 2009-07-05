@@ -296,7 +296,7 @@
         (write-record-generic)))
         
   (define (clr-exception-message ex)
-    (clr-prop-get System.Exception Message ex))
+    (clr-call System.Exception ToString ex))
         
   (define (display-condition e port)
     (for-each 
@@ -341,11 +341,11 @@
                         flds)])))
               (let ((name (get-clr-type-name c))
                     (msg  (clr-exception-message c)))
-                (put-string port "#<clr-exception ")
+                (put-string port "CLR Exception: ")
                 (put-string port name)
-                (put-string port " ")
+                (put-string port "\n")
                 (put-string port msg)
-                (put-string port ">")))))
+                (put-string port "\n")))))
       (simple-conditions e)))
 
   (define (write-condition cnd port readable?)

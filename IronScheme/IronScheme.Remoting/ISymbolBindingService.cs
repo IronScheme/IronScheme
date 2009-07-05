@@ -85,7 +85,7 @@ namespace IronScheme.Remoting
         }
       };
 
-      isp.Start();
+      //isp.Start();
 
     }
 

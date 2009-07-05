@@ -202,6 +202,7 @@
       (ironscheme regex)
       (ironscheme registry)
       (ironscheme strings)
+      (ironscheme symbolic-case)
       (ironscheme syntax-format)
       (ironscheme threading)
       (ironscheme web-utils)
