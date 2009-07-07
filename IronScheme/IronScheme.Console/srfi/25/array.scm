@@ -1,4 +1,4 @@
-﻿;;; array
+;;; array
 ;;; 1997 - 2001 Jussi Piitulainen
 
 ;;; --- Intro ---
@@ -333,7 +333,7 @@
 
 ;;; (array:good-shape? shape)
 ;;; returns true if `shape' is an array of the right shape and its
-;;; elements are exact integers that pairwise bound intervals `[lo..hi)´.
+;;; elements are exact integers that pairwise bound intervals `[lo..hi)�.
 
 (define (array:good-shape? shape)
   (and (array:array? shape)
