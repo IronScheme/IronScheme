@@ -1,26 +1,7 @@
-;; Copyright (c) 2009 Derick Eddington
-;;
-;; Permission is hereby granted, free of charge, to any person obtaining a
-;; copy of this software and associated documentation files (the "Software"),
-;; to deal in the Software without restriction, including without limitation
-;; the rights to use, copy, modify, merge, publish, distribute, sublicense,
-;; and/or sell copies of the Software, and to permit persons to whom the
-;; Software is furnished to do so, subject to the following conditions:
-;;
-;; The above copyright notice and this permission notice shall be included in
-;; all copies or substantial portions of the Software.
-;;
-;; Except as contained in this notice, the name(s) of the above copyright
-;; holders shall not be used in advertising or otherwise to promote the sale,
-;; use or other dealings in this Software without prior written authorization.
-;;
-;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-;; THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-;; DEALINGS IN THE SOFTWARE.
+;; Copyright (c) 2009 Derick Eddington.  All rights reserved.  Licensed under an
+;; MIT-style license.  My license is in the file named LICENSE from the original
+;; collection this file is distributed with.  If this file is redistributed with
+;; some other collection, my license must also be included.
 
 #!r6rs
 (library (srfi :67 compare-procedures)
@@ -39,17 +20,12 @@
            refine-compare select-compare string-compare string-compare-ci 
            symbol-compare vector-compare vector-compare-as-list)
   
-  (import (except (rnrs) error)
+  (import (rnrs)
           (rnrs r5rs)    ; for modulo
           (srfi :27 random-bits)  ; for random-integer
-          (srfi :39 parameters)
-          (prefix (srfi :23 error) ER:)
+          (srfi :23 error tricks)
           (srfi private include))
   
-  (define (error . args)
-    (parameterize ([ER:error-who 
-                    "(library (srfi :67 compare-procedures))"])
-      (apply ER:error args)))
-  
-  (include/resolve ("srfi" "67") "compare.ss")  
+  (SRFI-23-error->R6RS "(library (srfi :67 compare-procedures))"
+   (include/resolve ("srfi" "67") "compare.ss"))  
   )

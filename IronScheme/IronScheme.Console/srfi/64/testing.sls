@@ -1,26 +1,7 @@
-;; Copyright (c) 2009 Derick Eddington
-;;
-;; Permission is hereby granted, free of charge, to any person obtaining a
-;; copy of this software and associated documentation files (the "Software"),
-;; to deal in the Software without restriction, including without limitation
-;; the rights to use, copy, modify, merge, publish, distribute, sublicense,
-;; and/or sell copies of the Software, and to permit persons to whom the
-;; Software is furnished to do so, subject to the following conditions:
-;;
-;; The above copyright notice and this permission notice shall be included in
-;; all copies or substantial portions of the Software.
-;;
-;; Except as contained in this notice, the name(s) of the above copyright
-;; holders shall not be used in advertising or otherwise to promote the sale,
-;; use or other dealings in this Software without prior written authorization.
-;;
-;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-;; THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-;; DEALINGS IN THE SOFTWARE.
+;; Copyright (c) 2009 Derick Eddington.  All rights reserved.  Licensed under an
+;; MIT-style license.  My license is in the file named LICENSE from the original
+;; collection this file is distributed with.  If this file is redistributed with
+;; some other collection, my license must also be included.
 
 #!r6rs
 (library (srfi :64 testing)
@@ -60,7 +41,7 @@
     test-on-bad-count-simple test-on-bad-end-name-simple
     test-on-final-simple test-on-test-end-simple)
   (import
-    (except (rnrs base) error)
+    (rnrs base)
     (rnrs control)
     (rnrs exceptions)
     (rnrs io simple)
@@ -72,10 +53,8 @@
     (srfi :6 basic-string-ports)
     (srfi :9 records)
     (srfi :39 parameters)
+    (srfi :23 error tricks)
     (srfi private include))
-
-  (define (error msg)
-    (assertion-violation "(library (srfi :64 testing))" msg))
 
   (define (eval form)
     (rnrs:eval form (environment '(rnrs)
@@ -89,5 +68,6 @@
       (() test-log-to-file)
       ((val) (set! test-log-to-file val))))
   
-  (include/resolve ("srfi" "64") "testing.scm")
+  (SRFI-23-error->R6RS "(library (srfi :64 testing))"
+   (include/resolve ("srfi" "64") "testing.scm"))
 )

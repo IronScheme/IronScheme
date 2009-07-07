@@ -21,7 +21,7 @@
 ; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ; 
 ; -----------------------------------------------------------------------
-; Modified by Derick Eddington to be able to be included into an R6RS library.
+; Modified by Derick Eddington to print things a little differently.
 ; 
 ; Lightweight testing (reference implementation)
 ; ==============================================
@@ -42,7 +42,27 @@
 
 ; -- utilities --
 
-(define check:write write)
+#;(define check:write write)
+
+(define (print/header/padded x header padding)
+  (define (print/lines)
+    (let* ((str (call-with-string-output-port
+                  (lambda (sop) (check:write x sop))))
+           (sip (open-string-input-port str)))
+      (let loop ((lines '()))
+        (let ((l (get-line sip)))
+          (if (eof-object? l)
+            (reverse lines)
+            (loop (cons l lines)))))))
+  (let ((lines (print/lines)))
+    (display header)
+    (display (car lines))
+    (let loop ((lines (cdr lines)))
+      (unless (null? lines)
+        (newline)
+        (display padding)
+        (display (car lines))
+        (loop (cdr lines))))))
 
 ; You can also use a pretty printer if you have one.
 ; However, the output might not improve for most cases
@@ -55,7 +75,7 @@
 ; -- mode --
 
 (define check:mode 
-  (make-parameter 'off
+  (make-parameter 'report
                   (lambda (v) (case v
                                 ((off)           0)
                                 ((summary)       1)
@@ -68,8 +88,8 @@
 
 ; -- state --
 
-(define check:correct #f)
-(define check:failed   #f)
+(define check:correct 0)
+(define check:failed '())
 
 (define (check-reset!)
   (set! check:correct 0)
@@ -78,24 +98,26 @@
 (define (check:add-correct!)
   (set! check:correct (+ check:correct 1)))
 
-(define (check:add-failed! expression actual-result expected-result)
+(define (check:add-failed! expression actual-result expected-result pred)
   (set! check:failed
-        (cons (list expression actual-result expected-result)
+        (cons (list expression actual-result expected-result pred)
               check:failed)))
 
 ; -- reporting --
 
-(define (check:report-expression expression)
+(define (check:report-expression expression pred)
   (newline)
   (check:write expression)
-  (display " => "))
+  (if pred
+    (begin (print/header/padded pred "(=> " "    ")
+           (display ")\n"))
+    (display "=>\n")))
 
 (define (check:report-actual-result actual-result)
-  (check:write actual-result)
-  (display " ; "))
+  (check:write actual-result))
 
 (define (check:report-correct cases)
-  (display "correct")
+  (display "; correct")
   (if (not (= cases 1))
       (begin (display " (")
              (display cases)
@@ -103,10 +125,9 @@
   (newline))
 
 (define (check:report-failed expected-result)
-  (display "*** failed ***")
-  (newline)
-  (display " ; expected result: ")
-  (check:write expected-result)
+  (display "; *** failed ***\n")
+  (print/header/padded expected-result "; expected result: "
+                                       ";                  ")
   (newline))
 
 (define (check-report)
@@ -123,10 +144,11 @@
             (let* ((w (car (reverse check:failed)))
                    (expression (car w))
                    (actual-result (cadr w))
-                   (expected-result (caddr w)))                  
+                   (expected-result (caddr w))
+                   (pred (cadddr w)))                  
               (display " First failed example:")
               (newline)
-              (check:report-expression expression)
+              (check:report-expression expression pred)
               (check:report-actual-result actual-result)
               (check:report-failed expected-result))))))
 
@@ -136,44 +158,46 @@
        
 ; -- simple checks --
 
-(define (check:proc expression thunk equal expected-result)
+(define (check:proc expression thunk equal equal-expr expected-result)
   (case (check:mode)
     ((0) #f)
     ((1)
      (let ((actual-result (thunk)))
        (if (equal actual-result expected-result)
            (check:add-correct!)
-           (check:add-failed! expression actual-result expected-result))))
+           (check:add-failed!
+            expression actual-result expected-result equal-expr))))
     ((10)
      (let ((actual-result (thunk)))
        (if (equal actual-result expected-result)
            (check:add-correct!)
            (begin
-             (check:report-expression expression)
+             (check:report-expression expression equal-expr)
              (check:report-actual-result actual-result)
              (check:report-failed expected-result)
-             (check:add-failed! expression actual-result expected-result)))))
+             (check:add-failed!
+              expression actual-result expected-result equal-expr)))))
     ((100)
-     (check:report-expression expression)
+     (check:report-expression expression equal-expr)
      (let ((actual-result (thunk)))
        (check:report-actual-result actual-result)
        (if (equal actual-result expected-result)
            (begin (check:report-correct 1)
                   (check:add-correct!))
            (begin (check:report-failed expected-result)
-                  (check:add-failed! expression 
-				     actual-result 
-				     expected-result)))))
+                  (check:add-failed!
+                   expression actual-result expected-result equal-expr)))))
     (else (error "unrecognized check:mode" (check:mode))))
   (if #f #f))
 
 (define-syntax check
   (syntax-rules (=>)
     ((check expr => expected)
-     (check expr (=> equal?) expected))
+     (if (>= (check:mode) 1)
+	 (check:proc 'expr (lambda () expr) equal? #F expected)))
     ((check expr (=> equal) expected)
      (if (>= (check:mode) 1)
-	 (check:proc 'expr (lambda () expr) equal expected)))))
+	 (check:proc 'expr (lambda () expr) equal 'equal expected)))))
 
 ; -- parametric checks --
 
@@ -182,20 +206,20 @@
         (expression (cadr w))
         (actual-result (caddr w))
         (expected-result (cadddr w))
-	(cases (car (cddddr w))))
+	(cases (car (cddddr w)))
+        (equal-expr (cadr (cddddr w))))
     (if correct?
         (begin (if (>= (check:mode) 100)
-                   (begin (check:report-expression expression)
+                   (begin (check:report-expression expression equal-expr)
                           (check:report-actual-result actual-result)
                           (check:report-correct cases)))
                (check:add-correct!))
         (begin (if (>= (check:mode) 10)
-                   (begin (check:report-expression expression)
+                   (begin (check:report-expression expression equal-expr)
                           (check:report-actual-result actual-result)
                           (check:report-failed expected-result)))
-               (check:add-failed! expression 
-				  actual-result 
-				  expected-result)))))
+               (check:add-failed!
+                expression actual-result expected-result equal-expr)))))
 
 (define-syntax check-ec:make
   (syntax-rules (=>)
@@ -216,7 +240,8 @@
 		      (list (list 'let (list (list 'arg arg) ...) 'expr)
 			    actual-result
 			    expected-result
-			    cases))))
+			    cases
+                            'equal))))
 	      (if w
 		  (cons #f w)
 		  (list #t 
@@ -225,7 +250,8 @@
 				   expected (arg ...))
 			(if #f #f)
 		        (if #f #f)
-			cases)))))))))
+			cases
+                        'equal)))))))))
 
 ; (*) is a compile-time check that (arg ...) is a list
 ; of pairwise disjoint bound variables at this point.
@@ -254,9 +280,3 @@
      (check-ec (nested q1 ... q) etc ...))
     ((check-ec q1 q2             etc ...)
      (check-ec (nested q1 q2)    etc ...))))
-
-
-;; Modified from original: 
-;; Moved down here because R6RS libraries require expressions after definitions
-(check-set-mode! 'report)
-(check-reset!)

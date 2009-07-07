@@ -232,7 +232,7 @@ SectionIn 1 2 RO
 	File /r srfi\*.sps
 	File /r srfi\*.sls
 	File /r srfi\*.scm
-	File srfi\COPYING
+	File srfi\LICENSE
 	File srfi\README
 	;File /r srfi\*.fasl
 	

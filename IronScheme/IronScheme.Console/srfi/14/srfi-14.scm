@@ -86,10 +86,9 @@
 	    (tail (cdr maybe-base)))
 	(if (null? tail)
 	    (if (char-set? bcs) (%string-copy (char-set:s bcs))
-		(parameterize ([ER:error-who proc])
-                  (ER:error "BASE-CS parameter not a char-set" bcs)))
-	    (parameterize ([ER:error-who proc])
-              (ER:error "Expected final base char set -- too many parameters" maybe-base))))
+		(assertion-violation proc "BASE-CS parameter not a char-set" bcs))
+	    (assertion-violation proc
+             "Expected final base char set -- too many parameters" maybe-base)))
       (make-string 256 (%latin1->char 0))))
 
 ;;; If CS is really a char-set, do CHAR-SET:S, otw report an error msg on
@@ -99,8 +98,7 @@
 (define (%char-set:s/check cs proc)
   (let lp ((cs cs))
     (if (char-set? cs) (char-set:s cs)
-	(lp (parameterize ([ER:error-who proc])
-              (ER:error "Not a char-set" cs))))))
+	(lp (assertion-violation proc "Not a char-set" cs)))))
 
 
 
@@ -402,9 +400,9 @@
   (check-arg (lambda (x) (and (integer? x) (exact? x) (<= lower x))) upper proc)
 
   (if (and (< lower upper) (< 256 upper) error?)
-      (parameterize ([ER:error-who proc])
-        (ER:error "Requested UCS range contains unavailable characters -- this implementation only supports Latin-1"
-	     lower upper)))
+      (assertion-violation proc
+       "Requested UCS range contains unavailable characters -- this implementation only supports Latin-1"
+	     lower upper))
 
   (let lp ((i (- (min upper 256) 1)))
     (cond ((<= lower i) (%set1! bs i) (lp (- i 1))))))
@@ -454,8 +452,7 @@
   (cond ((char-set? x) x)
 	((string? x) (string->char-set x))
 	((char? x) (char-set x))
-	(else (parameterize ([ER:error-who '->char-set])
-                (ER:error "Not a charset, string or char." x)))))
+	(else (error "Not a charset, string or char." x))))
 
 
 

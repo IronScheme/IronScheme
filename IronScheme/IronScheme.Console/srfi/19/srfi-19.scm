@@ -275,10 +275,9 @@
 ;;; current-time
 
 ;;; specific time getters.
-;; Ikarus's (current-time) uses POSIX gettimeofday()
+
 ;; I'm not sure why the original was using time-nanoseconds
 ;; as 10000 * the milliseconds
-;; 
 
 (define (tm:get-time-of-day)
   (let ([ct (host:current-time)])

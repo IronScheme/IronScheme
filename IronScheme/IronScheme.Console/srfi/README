@@ -25,6 +25,7 @@ These SRFIs are available:
   (srfi :16 case-lambda)
   (srfi :19 time)
   (srfi :23 error)
+  (srfi :25 multi-dimensional-arrays)
   (srfi :26 cut)
   (srfi :27 random-bits)
   (srfi :31 rec)
@@ -48,15 +49,15 @@ having another "srfi" directory.
   
 For the latest development version, go to:
 
-  https://code.launchpad.net/~ikarus-libraries-team/ikarus-libraries/srfi
+  https://code.launchpad.net/~scheme-libraries-team/scheme-libraries/srfi
 
 If you already have ported SRFIs to R6RS, we'd love to assimilate them.  You
-can let us know by "asking a question" at the Ikarus Libraries project page:
+can let us know by "asking a question" at the Scheme Libraries project page:
 
-  https://launchpad.net/ikarus-libraries
+  https://launchpad.net/scheme-libraries
 
 Bug Reporting:
 --------------
 Submit bug reports at:
 
-  https://bugs.launchpad.net/ikarus-libraries/+filebug
+  https://bugs.launchpad.net/scheme-libraries/+filebug

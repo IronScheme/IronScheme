@@ -610,22 +610,11 @@
  (pi-BBP 5)
  => (/ 40413742330349316707 12864093722915635200) )
 
-
-(define (read-line port) ; next line (incl. #\newline) of port
-  (let ((line
-         (string-ec 
-          (:until (:port c port read-char)
-                  (char=? c #\newline) )
-          c )))
-    (if (string=? line "")
-        (read-char port) ; eof-object
-        line )))
-
- (define (read-lines filename) ; list of all lines
-   (my-call-with-input-file 
-    filename
-    (lambda (port)
-      (list-ec (:port line port get-line) line) )))
+(define (read-lines filename) ; list of all lines
+  (my-call-with-input-file 
+   filename
+   (lambda (port)
+     (list-ec (:port line port get-line) line) )))
 
 (my-check
  (begin
