@@ -193,7 +193,7 @@ namespace Microsoft.Scripting.Ast {
 
                   if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
                   {
-                    if (rcg == cg && !ScriptDomainManager.Options.DebugMode)
+                    if (rcg == cg && !ScriptDomainManager.Options.DebugMode && HasNoCallableArgs())
                     {
                       List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
                       for (int arg = 0; arg < _parameterInfos.Length; arg++)
@@ -262,7 +262,7 @@ namespace Microsoft.Scripting.Ast {
 
                       if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
                       {
-                        if (rcg == cg && !ScriptDomainManager.Options.DebugMode)
+                        if (rcg == cg && !ScriptDomainManager.Options.DebugMode && HasNoCallableArgs())
                         {
                           List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
                           for (int arg = 0; arg < _parameterInfos.Length; arg++)
@@ -381,6 +381,18 @@ namespace Microsoft.Scripting.Ast {
             EmitLocation(cg);
             // Emit the actual call
             cg.EmitCall(_method, tailcall);
+        }
+
+        private bool HasNoCallableArgs()
+        {
+          foreach (var a in _arguments)
+          {
+            if (a.Type.Name == "Callable")
+            {
+              return false;
+            }
+          }
+          return true;
         }
 
         static FieldInfo pt = typeof(MethodBuilder).GetField("m_parameterTypes", BindingFlags.NonPublic | BindingFlags.Instance);

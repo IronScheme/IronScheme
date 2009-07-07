@@ -2,7 +2,6 @@
 #!r6rs
 (library (srfi :23)
   (export
-    error
-    error-who)
+    error)
   (import (srfi :23 error))
 )

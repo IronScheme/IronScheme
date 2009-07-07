@@ -155,6 +155,19 @@
   (define make-empty-rib
     (lambda ()
       (make-rib '() '() '() #f #f)))
+
+  (define (top-marked-symbols rib)
+    (let-values ([(sym* mark**) 
+                  (let ([sym* (rib-sym* rib)] [mark** (rib-mark** rib)])
+                    (if (rib-sealed/freq rib)
+                        (values (vector->list sym*) (vector->list mark**))
+                        (values sym* mark**)))])
+      (let f ([sym* sym*] [mark** mark**])
+        (cond
+          [(null? sym*) '()]
+          [(equal? (car mark**) top-mark*) 
+           (cons (car sym*) (f (cdr sym*) (cdr mark**)))]
+          [else (f (cdr sym*) (cdr mark**))]))))
       
   (define make-cache-rib
     (lambda ()
@@ -2778,7 +2791,8 @@
                        [(global-ctv) 
                         (let ([lib (cadr binding)]
                               [loc (cddr binding)])
-                          (visit-library lib)
+                          (unless (eq? lib '*interaction*)
+                            (visit-library lib))
                           (symbol-value loc))]
                        [else #f]))))))
           (return x))))
@@ -2794,7 +2808,8 @@
     ;;; FIXME: does not handle macro!?
     (let ((lib (car p))
           (loc (cdr p)))
-      (visit-library lib)
+      (unless (eq? lib '*interaction*)
+        (visit-library lib))
       (let ((x (symbol-value loc)))
         (let ((transformer
                (cond
@@ -2898,8 +2913,12 @@
                  (else            "a non-expression"))
                " was found where an expression was expected")))
           ((mutable) 
+           (let* ((lib (car value))
+                  (loc (cdr value)))
+             (if (eq? lib '*interaction*)
+                 (build-global-reference no-source loc) 
            (stx-error e 
-             "attempt to reference an unexportable variable"))
+                   "attempt to reference an unexportable variable"))))
           (else
            ;(assertion-violation 'chi-expr "invalid type " type (strip e '()))
            (stx-error e "invalid expression"))))))
@@ -2918,14 +2937,18 @@
              ((core-prim)
               (stx-error e "cannot modify imported core primitive"))
              ((global)
-              (stx-error e "attempt to modify imported binding"))
+              (stx-error e "attempt to modify an immutable binding"))
              ((global-macro!)
               (chi-expr (chi-global-macro value e r) r mr))
              ((local-macro!)
               (chi-expr (chi-local-macro value e r) r mr))
              ((mutable) 
+              (let ([lib (car value)] [loc (cdr value)])
+                (if (eq? lib '*interaction*)
+                    (build-global-assignment no-source loc 
+                      (chi-expr v r mr))
               (stx-error e 
-                "attempt to assign to an unexportable variable"))
+                      "attempt to modify an unexportable variable"))))
              (else (stx-error e))))))))
   
   (define (verify-formals fmls stx)
@@ -3171,6 +3194,24 @@
                               (cons (cons lab (cons '$module iface)) mr)
                               mod** kwd*)))))))))
 
+  (define (copy-rib-contents! from-rib to-rib sd?)
+    (for-each
+      (lambda (sym mark* label)
+        (let ([id (make-stx sym mark* '() '())])
+          (extend-rib! to-rib id label sd?)))
+      (rib-sym* from-rib) (rib-mark** from-rib) (rib-label* from-rib)))
+
+  (define chi-body*-macro
+    (lambda (e* r mr lex* rhs* mod** kwd* exp* rib mix? sd? e)
+      (let ([rib2 (make-empty-rib)])
+        (let-values ([(e1* r mr lex* rhs* mod** kwd* exp*)
+                      (chi-body* (list (add-subst rib2 e)) 
+                        r mr lex* rhs* mod** kwd* exp* rib2 mix? sd?)])
+          (copy-rib-contents! rib2 rib sd?)
+          (if (null? e1*)
+              (chi-body* e* r mr lex* rhs* mod** kwd* exp* rib mix? sd?)
+              (values (append e1* e*) r mr lex* rhs* mod** kwd* exp*))))))
+
   (define chi-body*
     (lambda (e* r mr lex* rhs* mod** kwd* exp* rib mix? sd?)
       (cond
@@ -3238,23 +3279,17 @@
                           r mr lex* rhs* mod** kwd* exp* rib
                           mix? sd?)))))
                  ((global-macro global-macro!)
-                  (chi-body*
-                     (cons (add-subst rib (chi-global-macro value e r))
-                           (cdr e*))
-                     r mr lex* rhs* mod** kwd* exp* rib 
-                     mix? sd?))
+                  (chi-body*-macro (cdr e*)
+                     r mr lex* rhs* mod** kwd* exp* rib mix? sd?
+                     (chi-global-macro value e r)))
                  ((local-macro local-macro!)
-                  (chi-body*
-                     (cons (add-subst rib (chi-local-macro value e r))
-                           (cdr e*))
-                     r mr lex* rhs* mod** kwd* exp* rib 
-                     mix? sd?))
+                  (chi-body*-macro (cdr e*)
+                     r mr lex* rhs* mod** kwd* exp* rib mix? sd?
+                     (chi-local-macro value e r))) 
                  ((macro macro!)
-                  (chi-body*
-                     (cons (add-subst rib (chi-macro value e r))
-                           (cdr e*))
-                     r mr lex* rhs* mod** kwd* exp* rib mix?
-                     sd?))
+                  (chi-body*-macro (cdr e*)
+                     r mr lex* rhs* mod** kwd* exp* rib mix? sd?
+                     (chi-macro value e r)))
                  ((module)
                   (let-values (((lex* rhs* m-exp-id* m-exp-lab* r mr mod** kwd*)
                                 (chi-internal-module e r mr lex* rhs* mod** kwd*)))
@@ -3620,7 +3655,9 @@
     (let ((ls '()))
       (case-lambda
         (() ls)
-        ((x) (set! ls (set-cons x ls))))))
+        ((x) 
+         (unless (eq? x '*interaction*) 
+           (set! ls (set-cons x ls)))))))
 
   (define inv-collector
     (make-parameter
@@ -3683,7 +3720,6 @@
           (let ((rib (make-top-rib subst-names subst-labels)))
             (define (wrap x) (make-stx x top-mark* (list rib) '()))
             (let ((b* (map wrap b*))
-                  (main-exp* (map wrap main-exp*))
                   (rtc (make-collector))
                   (vtc (make-collector)))
               (parameterize ((inv-collector rtc)
@@ -3691,7 +3727,12 @@
                 (let-values (((init* r mr lex* rhs* internal-exp*)
                               (chi-library-internal b* rib mix?)))
                   (let-values (((exp-name* exp-id*)
-                                (parse-exports (append main-exp* internal-exp*))))
+                                (parse-exports
+                                  (if (eq? main-exp* 'all)
+                                      (map wrap (top-marked-symbols rib))
+                                      (append
+                                        (map wrap main-exp*)
+                                        internal-exp*)))))
                     (seal-rib! rib)
                     (let* ((init* (chi-expr* init* r mr))
                            (rhs* (chi-rhs* rhs* r mr)))
@@ -3702,6 +3743,7 @@
                           "attempt to export mutated variable")
                         (let-values (((export-env global* macro*)
                                       (make-export-env/macros lex* loc* r)))
+                          (unless (eq? main-exp* 'all)
                           (for-each
                             (lambda (s) 
                               (let ((name (car s)) (label (cdr s)))
@@ -3712,7 +3754,7 @@
                                         (when (eq? type 'mutable)
                                           (syntax-violation 'export
                                             errstr name))))))))
-                            export-subst)
+                              export-subst))
                           (let ((invoke-body
                                  (if-wants-library-letrec*
                                    (build-library-letrec* no-source
@@ -3783,13 +3825,6 @@
        (assertion-violation 'expander 
          "top-level program is missing an (import ---) clause"))))
 
-  (define top-level-expander
-    (lambda (e*)
-      (let-values (((imp* b*) (parse-top-level-program e*)))
-          (let-values (((imp* invoke-req* visit-req* invoke-code
-                         visit-code export-subst export-env)
-                        (library-body-expander '() '() imp* b* #t)))
-            (values invoke-req* invoke-code)))))
 
   ;;; An env record encapsulates a substitution and a set of
   ;;; libraries.
@@ -3920,6 +3955,13 @@
   ;;; Given a (library . _) s-expression, library-expander expands
   ;;; it to core-form, registers it with the library manager, and
   ;;; returns its invoke-code, visit-code, subst and env.
+
+  (define (initial-visit! macro*)
+    (for-each (lambda (x)
+                 (let ((loc (car x)) (proc (cadr x)))
+                   (set-symbol-value! loc proc)))
+      macro*))
+
   (define library-expander
     (case-lambda 
       ((x filename verify-name)
@@ -3931,11 +3973,6 @@
                       (let ((loc (car x)) (src (cddr x)))
                         (build-global-assignment no-source loc src)))
                     macro*))))
-       (define (visit! macro*)
-         (for-each (lambda (x)
-                     (let ((loc (car x)) (proc (cadr x)))
-                       (set-symbol-value! loc proc)))
-                   macro*))
        (let-values (((name ver imp* inv* vis* 
                       invoke-code macro* export-subst export-env
                       guard-code guard-req*)
@@ -3947,7 +3984,7 @@
                (vis* (map library-spec vis*))
                (inv* (map library-spec inv*))
                (guard-req* (map library-spec guard-req*))
-               (visit-proc (lambda () (visit! macro*)))
+               (visit-proc (lambda () (initial-visit! macro*)))
                (invoke-proc 
                 (lambda () (eval-core (expanded->core invoke-code))))
                (visit-code (build-visit-code macro*))
@@ -4197,17 +4234,47 @@
   (define syntax->datum
     (lambda (x) (stx->datum x)))
 
+  (define top-level-expander
+    (lambda (e*)
+      (let-values (((imp* b*) (parse-top-level-program e*)))
+        (let-values (((imp* invoke-req* visit-req* invoke-code
+                       macro* export-subst export-env)
+                      (library-body-expander '() 'all imp* b* #t)))
+          (values invoke-req* invoke-code macro* 
+                  export-subst export-env)))))
+
   (define compile-r6rs-top-level
     (lambda (x*)
-      (let-values (((lib* invoke-code) (top-level-expander x*)))
+      (let-values (((lib* invoke-code macro* export-subst export-env) 
+                    (top-level-expander x*)))
         (lambda ()
           (for-each invoke-library lib*)
-          (eval-core (expanded->core invoke-code))))))
-          
+          (initial-visit! macro*)
+          (eval-core (expanded->core invoke-code))
+          (make-interaction-env 
+            (subst->rib export-subst)
+            (map 
+              (lambda (x)
+                (let ([label (car x)] [binding (cdr x)])
+                  (let ([type (car binding)] [val (cdr binding)])
+                   (cons* label type '*interaction* val))))
+              export-env)
+            '())))))
+
+  (define (subst->rib subst)
+    (let ([rib (make-empty-rib)])
+      (set-rib-sym*! rib (map car subst))
+      (set-rib-mark**! rib 
+        (map (lambda (x) top-mark*) subst))
+      (set-rib-label*! rib (map cdr subst))
+      rib))  
+        
   (define pre-compile-r6rs-top-level
     (lambda (x*)
-      (let-values (((lib* invoke-code) (top-level-expander x*)))
+      (let-values (((lib* invoke-code  macro* export-subst export-env) 
+                    (top-level-expander x*)))
         (for-each invoke-library lib*)
+        (initial-visit! macro*)
         (compile-core (expanded->core invoke-code)))))
 
   (define new-interaction-environment

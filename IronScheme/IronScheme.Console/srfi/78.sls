@@ -2,48 +2,11 @@
 #!r6rs
 (library (srfi :78)
   (export
-    :
-    :-dispatch-ref
-    :-dispatch-set!
-    :char-range
-    :dispatched
-    :do
-    :generator-proc
-    :integers
-    :let
-    :list
-    :parallel
-    :port
-    :range
-    :real-range
-    :string
-    :until
-    :vector
-    :while
-    any?-ec
-    append-ec
     check
     check-ec
     check-passed?
     check-report
     check-reset!
-    check-set-mode!
-    dispatch-union
-    do-ec
-    every?-ec
-    first-ec
-    fold-ec
-    fold3-ec
-    last-ec
-    list-ec
-    make-initial-:-dispatch
-    max-ec
-    min-ec
-    product-ec
-    string-append-ec
-    string-ec
-    sum-ec
-    vector-ec
-    vector-of-length-ec)
+    check-set-mode!)
   (import (srfi :78 lightweight-testing))
 )

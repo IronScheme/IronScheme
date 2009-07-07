@@ -1,26 +1,7 @@
-;; Copyright (c) 2009 Derick Eddington
-;;
-;; Permission is hereby granted, free of charge, to any person obtaining a
-;; copy of this software and associated documentation files (the "Software"),
-;; to deal in the Software without restriction, including without limitation
-;; the rights to use, copy, modify, merge, publish, distribute, sublicense,
-;; and/or sell copies of the Software, and to permit persons to whom the
-;; Software is furnished to do so, subject to the following conditions:
-;;
-;; The above copyright notice and this permission notice shall be included in
-;; all copies or substantial portions of the Software.
-;;
-;; Except as contained in this notice, the name(s) of the above copyright
-;; holders shall not be used in advertising or otherwise to promote the sale,
-;; use or other dealings in this Software without prior written authorization.
-;;
-;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-;; THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-;; DEALINGS IN THE SOFTWARE.
+;; Copyright (c) 2009 Derick Eddington.  All rights reserved.  Licensed under an
+;; MIT-style license.  My license is in the file named LICENSE from the original
+;; collection this file is distributed with.  If this file is redistributed with
+;; some other collection, my license must also be included.
 
 #!r6rs
 (library (srfi private registry)
@@ -51,7 +32,7 @@
                 (19   time)
                 #;(21   real-time-multithreading)
                 (23   error)
-                #;(25   multi-dimensional-arrays)
+                (25   multi-dimensional-arrays)
                 (26   cut)
                 (27   random-bits)
                 #;(28   basic-format-strings)
@@ -61,8 +42,6 @@
                 (38   with-shared-structure)
                 (39   parameters)
                 (41   streams)
-                (41   streams primitive)
-                (41   streams derived)
                 (42   eager-comprehensions)
                 (43   vectors)
                 #;(44   collections)
@@ -88,10 +67,7 @@
                 #;(87   case)
                 #;(95   sorting-and-merging)
                 (98   os-environment-variables)
-                (99   records)
-                (99   records procedural)
-                (99   records inspection)
-                (99   records syntactic)))
+                (99   records)))
             (define (make-feature-names x)
               (define number car)
               (define mnemonic cdr)

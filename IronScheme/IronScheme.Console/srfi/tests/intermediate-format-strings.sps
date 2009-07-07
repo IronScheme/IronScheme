@@ -63,7 +63,16 @@
 
 (check (format "~8,2F" 32e10)
        (=> member)  
-         '(" 3.20e11" "3.20e+11"))
+         '(" 3.20e11" "3.20e+11" "320000000000.00"))
+
+(check (format "~0,3F" 20263/2813)
+       (=> member)
+       '( "7.203" ))
+
+(check (format "~0,2F" 20263/2813)
+       (=> member)
+       '( "7.20" ))
+
 
 (expect "      1.2345" (format "~12F" 1.2345))
 
@@ -75,7 +84,9 @@
 
 (expect "0.000+1.949i" (format "~8,3F" (sqrt -3.8)))
 
-(expect " 3.46e11" (format "~8,2F" 3.4567e11))
+(check (format "~8,2F" 3.4567e11)
+       (=> member)  
+       '(" 3.46e11" "3.46e+11" "345670000000.00"))
 
 
 (check (format "~w" (let ( (c (list 'a 'b 'c)) ) (set-cdr! (cddr c) c) c))

@@ -19,17 +19,16 @@
 ; (check expr)
 ;    evals expr and issues an error if it is not #t.
 
+;; Extended by Derick Eddington to test free-identifier=? of <> and <...>.
+
 (import
-  (except (rnrs) error)
-  (rnrs eval)
-  (srfi :23 error)
-  (srfi :39 parameters))
+  (rnrs)
+  (rnrs eval))
 
 (define (check expr)
   (if (not (eq? (eval expr (environment '(rnrs) '(srfi :26 cut)))
                 #t))
-      (parameterize ([error-who 'check])
-        (error "check failed" expr))))
+      (assertion-violation 'check "check failed" expr)))
 
 ; (check-all)
 ;    runs several tests on cut and reports.
@@ -56,6 +55,16 @@
 	     '(1 2))
 	a)
       2)
+     (equal?
+      (let* ((<> 'wrong) (f (cut list <> <...>)))
+        (set! <> 'ok)
+        (f 1 2))
+      '(ok 1 2))
+     (equal?
+      (let* ((<...> 'wrong) (f (cut list <> <...>)))
+        (set! <...> 'ok)
+        (f 1))
+      '(1 ok))
       ; cutes
      (equal? ((cute list)) '())
      (equal? ((cute list <...>)) '())
@@ -73,7 +82,18 @@
 	(map (cute + (begin (set! a (+ a 1)) a) <>)
 	     '(1 2))
 	a)
-      1))))
+      1)
+     (equal?
+      (let* ((<> 'ok) (f (cute list <> <...>)))
+        (set! <> 'wrong)
+        (f 1 2))
+      '(ok 1 2))
+     (equal?
+      (let* ((<...> 'ok) (f (cute list <> <...>)))
+        (set! <...> 'wrong)
+        (f 1))
+      '(1 ok))
+     )))
 
 ; run the checks when loading
 (check-all)

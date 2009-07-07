@@ -45,6 +45,7 @@
 (import 
   (rnrs)
   (rnrs r5rs)
+  (srfi :42 eager-comprehensions)
   (srfi :78 lightweight-testing))
 
 ; -- simple test --

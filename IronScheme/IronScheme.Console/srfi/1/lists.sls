@@ -58,14 +58,14 @@
     append assq assv caaaar caaadr caaar caadar caaddr
     caadr caar cadaar cadadr cadar caddar cadddr caddr cadr
     car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar
-    cddadr cddar cdddar cddddr cdddr cddr cdr cons
+    cddadr cddar cdddar cddddr cdddr cddr cdr cons cons*
     length list list-ref memq memv null? pair?
     reverse set-car! set-cdr!
     ;; different than R6RS:
-    assoc cons* filter find fold-right for-each map member partition remove)
+    assoc filter find fold-right for-each map member partition remove)
   (import 
     (except (rnrs)
-            assoc cons* error filter find fold-right
+            assoc error filter find fold-right
             for-each map member partition remove)
     (rnrs mutable-pairs))
 
@@ -288,11 +288,11 @@
 ;;;
 ;;; (cons first (unfold not-pair? car cdr rest values))
 
-(define (cons* first . rest)
-  (let recur ((x first) (rest rest))
-    (if (pair? rest)
-       (cons x (recur (car rest) (cdr rest)))
-       x)))
+;(define (cons* first . rest)
+;  (let recur ((x first) (rest rest))
+;    (if (pair? rest)
+;       (cons x (recur (car rest) (cdr rest)))
+;       x)))
 
 ;;; (unfold not-pair? car cdr lis values)
 
