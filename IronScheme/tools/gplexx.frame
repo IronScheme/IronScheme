@@ -393,7 +393,7 @@ using gppg;
             /// </summary>
             /// <param name="strm">The underlying stream</param>
             /// <returns></returns>
-            public static TextBuff NewTextBuff(Stream strm)
+            public static ScanBuff NewTextBuff(Stream strm)
             {
                 // First check if this is a UTF16 file
                 //
@@ -410,10 +410,10 @@ using gppg;
                     return new TextBuff(strm);
                 //
                 // There is no unicode preamble, so we
-                // must go back to the UTF8 default.
+                // must go back to the Latin1 default.
                 //
                 strm.Seek(0, SeekOrigin.Begin);
-                return new TextBuff(strm);
+                return new StreamBuff(strm);
             }
 
             protected TextBuff(Stream str) { 
@@ -436,8 +436,6 @@ using gppg;
                     ch1 = bStrm.ReadByte();
                     if ((ch1 & 0xc0) == 0x80)
                         return ((ch0 & 0x1f) << 6) + (ch1 & 0x3f);
-                    else
-                        throw BadUTF8();
                 }
                 else if ((ch0 & 0xf0) == 0xe0)
                 {
@@ -446,11 +444,8 @@ using gppg;
                     ch2 = bStrm.ReadByte();
                     if ((ch1 & ch2 & 0xc0) == 0x80)
                         return ((ch0 & 0xf) << 12) + ((ch1 & 0x3f) << 6) + (ch2 & 0x3f);
-                    else
-                        throw BadUTF8();
                 }
-                else
-                    throw BadUTF8();
+                return (int)IronScheme.Runtime.Builtins.LexicalError("Bad UTF8 character", (char)ch0 );
             }
 
             public sealed override int ReadPos
