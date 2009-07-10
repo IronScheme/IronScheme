@@ -53,6 +53,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\IronScheme.Remoting.Client\IronScheme.Remoting.Client.csproj">
+      <Project>{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9}</Project>
+      <Name>IronScheme.Remoting.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\IronScheme.Remoting\IronScheme.Remoting.csproj">
       <Project>{DD78568C-CDB5-4CED-BC9C-C18182ED5945}</Project>
       <Name>IronScheme.Remoting</Name>
