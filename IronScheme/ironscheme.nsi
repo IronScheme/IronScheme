@@ -188,6 +188,8 @@ SectionIn 1 2 RO
 	
 	File "IronScheme.dll"
 	File "IronScheme.Remoting.dll"
+	File "IronScheme.Remoting.Client.dll"
+	File "IronScheme.Remoting.Server.dll"
 	File "IronScheme.Closures.dll"
 	File "IronScheme.Web.Runtime.dll"
 	

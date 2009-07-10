@@ -79,6 +79,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IronScheme.Remoting.Client\IronScheme.Remoting.Client.csproj">
+      <Project>{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9}</Project>
+      <Name>IronScheme.Remoting.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IronScheme.Remoting.Server\IronScheme.Remoting.Server.csproj">
+      <Project>{88AEA620-7094-4DA8-BFDA-1132A502111E}</Project>
+      <Name>IronScheme.Remoting.Server</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IronScheme.Remoting\IronScheme.Remoting.csproj">
+      <Project>{DD78568C-CDB5-4CED-BC9C-C18182ED5945}</Project>
+      <Name>IronScheme.Remoting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IronScheme.Web.Runtime\IronScheme.Web.Runtime.csproj">
       <Project>{07D0A60A-8320-4F70-AA3B-7C75008C0009}</Project>
       <Name>IronScheme.Web.Runtime</Name>
