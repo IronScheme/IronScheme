@@ -137,14 +137,23 @@ namespace IronScheme.Runtime.R6RS
 
     static object GetStackTrace(StackTrace sf)
     {
+      List<string> newst = new List<string>();
       var sfs = sf.ToString().Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
       for (int i = 0; i < sfs.Length; i++)
       {
-        sfs[i] = sfs[i].Replace("   at ironscheme.boot.new.", string.Empty);
+        if (sfs[i].StartsWith(@"   at Microsoft.Scripting.Hosting.ScriptEngine.ExecuteCommand(String code, IScriptModule module)"))
+        {
+          break;
+        }
+        newst.Add(sfs[i].
+          Replace("   at ironscheme.boot.new.", string.Empty).
+          Replace("   at ", string.Empty).
+          Replace("CodeContext $context, ", string.Empty).
+          Replace("Object ", string.Empty));
       }
 
-      return sfs;
+      return newst.ToArray();
     }
 
     [Builtin("raise")]

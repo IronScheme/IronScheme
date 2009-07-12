@@ -531,19 +531,23 @@
     (define (vector-ref x n)
       (unless (vector? x)
         (assertion-violation 'vector-ref "not a vector" x))
-      (unless (integer? n)
+      (unless (fixnum? n) ; no support for big indices
         (assertion-violation 'vector-ref "not an integer" n))
-      (when (negative? n)
+      (when (fxnegative? n)
         (assertion-violation 'vector-ref "negative index" n))
+      (when (fx>=? n (vector-length x))
+        (assertion-violation 'vector-set! "index out of bounds" n))
       ($vector-ref x n))
       
     (define (vector-set! x n value)
       (unless (vector? x)
         (assertion-violation 'vector-set! "not a vector" x))
-      (unless (integer? n)
+      (unless (fixnum? n) ; no support for big indices
         (assertion-violation 'vector-set! "not an integer" n))
-      (when (negative? n)
+      (when (fxnegative? n)
         (assertion-violation 'vector-set! "negative index" n))
+      (when (fx>=? n (vector-length x))
+        (assertion-violation 'vector-set! "index out of bounds" n))
       ($vector-set! x n value)
       (void))   
       
