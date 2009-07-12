@@ -97,6 +97,43 @@
 
 (define a (generate-structure test_t (field-1 field-2 field-3)))
 
+(define (make-type-final type)
+  type)
+
+(define-syntax make-type
+  (lambda (x)
+    (syntax-case x ()
+      [(_ type)
+        (with-syntax ((type (get-clr-type (syntax->datum #'type))))
+          #'(make-type-final type))])))
+
+(import (ironscheme threading))
+
+(define (make-threaded-eval id)
+  (let ((env (new-interaction-environment)))
+    (lambda (expr)
+      (queue-work-item 
+        (lambda (state)
+          (let ((result (eval expr env)))
+            (printf "Result on ~a ~s\n" state result)))
+        id)
+      (void))))
+
+(define eval-1 (make-threaded-eval 'thread1))
+(define eval-2 (make-threaded-eval 'thread2))
+
+(eval-1 '(define a 1))
+(eval-2 '(define a 99))
+
+(eval-1 'a) ;=> 1
+(eval-2 'a) ;=> 99
+
+(eval-1 '(set! a -1))
+(eval-2 '(set! a -99))
+
+(eval-1 'a) ;=> -1
+(eval-2 'a) ;=> -99
+
 
 
 
@@ -111,56 +148,7 @@
            (d (- c b)))
       (* a b c d))))
  
-(import (ironscheme clr)) 
-(clr-using System.Runtime.InteropServices)
 
-(define (write-int8! ptr ofs val) 
-  (clr-static-call Marshal "WriteByte(IntPtr,Int32,Byte)" ptr ofs val))
-
-(define (write-int16! ptr ofs val) 
-  (clr-static-call Marshal "WriteInt16(IntPtr,Int32,Int16)" ptr ofs val))
-
-(define (write-int32! ptr ofs val) 
-  (clr-static-call Marshal "WriteInt32(IntPtr,Int32,Int32)" ptr ofs val))
-
-(define (write-int64! ptr ofs val) 
-  (clr-static-call Marshal "WriteInt64(IntPtr,Int32,Int64)" ptr ofs val))
-
-(define (write-intptr! ptr ofs val) 
-  (clr-static-call Marshal "WriteIntPtr(IntPtr,Int32,IntPtr)" ptr ofs val))
-  
-(define (read-int8 ptr ofs) 
-  (clr-static-call Marshal "ReadByte(IntPtr,Int32)" ptr ofs))
-
-(define (read-int16 ptr ofs) 
-  (clr-static-call Marshal "ReadInt16(IntPtr,Int32)" ptr ofs))
-
-(define (read-int32 ptr ofs) 
-  (clr-static-call Marshal "ReadInt32(IntPtr,Int32)" ptr ofs))
-
-(define (read-int64 ptr ofs) 
-  (clr-static-call Marshal "ReadInt64(IntPtr,Int32)" ptr ofs))
-
-(define (read-intptr ptr ofs) 
-  (clr-static-call Marshal "ReadIntPtr(IntPtr,Int32)" ptr ofs))
-  
-(define (make-pointer-getter sym)
-  (case sym
-    [(int8 uint8)  read-int8]
-    [(int16 uint16)  read-int16]
-    [(int32 uint32)  read-int32]
-    [(int64 uint64)  read-int64]
-    [(intptr uintptr) read-intptr]
-    [else (assertion-violation 'make-pointer-getter "unknown type" sym)]))
-    
-(define (make-pointer-setter sym)
-  (case sym
-    [(int8 uint8)  write-int8!]
-    [(int16 uint16)  write-int16!]
-    [(int32 uint32)  write-int32!]
-    [(int64 uint64)  write-int64!]
-    [(intptr uintptr) write!-intptr!]
-    [else (assertion-violation 'make-pointer-setter "unknown type" sym)]))
 
 
 (import (ironscheme ffi))   
