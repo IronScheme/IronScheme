@@ -140,7 +140,7 @@ namespace IronScheme.Runtime
     public static object DeserializePort(object binaryport)
     {
       Stream s = Requires<Stream>(binaryport);
-      return psyntax.Serialization.SERIALIZER.Deserialize(s);
+      return psyntax.Serialization.SERIALIZER.UnsafeDeserialize(s, null);
     }
 
 
@@ -478,6 +478,10 @@ namespace IronScheme.Runtime
     {
       Callable c = RequiresNotNull<Callable>(thunk);
 
+#if DEBUG
+      TimeSpan _compile1 = compile1, _compile2 = compile2, _eval = eval;
+#endif
+
       int colcount = 0;
       for (int i = 0; i < 3; i++)
       {
@@ -512,6 +516,17 @@ namespace IronScheme.Runtime
         {
           colcountafter += GC.CollectionCount(i);
         }
+
+#if DEBUG
+        TimeSpan __compile1 = compile1, __compile2 = compile2, __eval = eval;
+        Console.WriteLine(@"Time spent:
+  compile   {0:f3}ms
+  compile*  {1:f3}ms
+  run       {2:f3}ms", 
+     (__compile1 - _compile1).TotalMilliseconds,
+     (__compile2 - _compile2).TotalMilliseconds,
+     (__eval - _eval).TotalMilliseconds);
+#endif
 
         Console.WriteLine(@"Statistics for '{0}':
   Real Time:  {1:f0}ms
@@ -637,6 +652,9 @@ namespace IronScheme.Runtime
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); //wrap
 
 #if DEBUG
+      sw.Stop();
+      compile1 += sw.Elapsed;
+
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
 #endif
@@ -656,18 +674,22 @@ namespace IronScheme.Runtime
         return Closure.Create(cc, err);
       }
 #if DEBUG
+      sw.Stop();
+      compile2 += sw.Elapsed;
+
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
 #endif
 
       CallTarget0 compiled = delegate
       {
+#if DEBUG
         try
         {
-#if DEBUG
           sw = Stopwatch.StartNew();
 #endif
           return sc.Run(cc.ModuleContext.Module);
-        }
+#if DEBUG
+          }
 #if CPS
         catch (Exception ex)
         {
@@ -678,10 +700,12 @@ namespace IronScheme.Runtime
 #endif
         finally
         {
-#if DEBUG
+
+          sw.Stop();
+          eval += sw.Elapsed;
           Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
-#endif
         }
+#endif
       };
 
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
@@ -700,6 +724,10 @@ namespace IronScheme.Runtime
       return compiled.Call();
     }
 #else
+
+#if DEBUG
+    static TimeSpan compile1, compile2, eval;
+#endif
 
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)

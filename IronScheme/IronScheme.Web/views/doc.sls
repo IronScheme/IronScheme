@@ -60,7 +60,7 @@
          
   (define-view (library-edit id desc)
     (page-template
-      `(h2 (no-escape ,id))
+      `(h2 ,(format "~a" id))
       `(form (action . ,(action/id-url "library-edit" id)) (method . post)
          (textarea (style . "width:500px;height:200px") (id . desc) (name . desc) ,desc)
          (br)
@@ -84,7 +84,7 @@
      
   (define-view (view:library id bindings desc)
     (page-template 
-      `(h2 (no-escape ,(format "~a" id)))
+      `(h2 ,(format "~a" id))
       `(h4 (a (href . ,(action/id-url "library-edit" id)) "Description"))
       `(p ,desc)
       `(h4 "Exports")

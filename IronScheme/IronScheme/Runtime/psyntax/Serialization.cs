@@ -103,13 +103,12 @@ namespace IronScheme.Runtime.psyntax
     {
       public override Type BindToType(string assemblyName, string typeName)
       {
-        try
+        Assembly a = Assembly.Load(assemblyName);
+        Type tt = a.GetType(typeName, false);
+
+        if (tt == null)
         {
-          Assembly a = Assembly.Load(assemblyName);
-          return a.GetType(typeName, true);
-        }
-        catch (Exception)
-        {
+          // remove guid suffix, fix this shit
           typeName = typeName.Substring(0, typeName.Length - 36);
           foreach (var kvp in R6RS.Records.typedescriptors)
           {
@@ -122,7 +121,10 @@ namespace IronScheme.Runtime.psyntax
           }
           return AssertionViolation(FALSE, "could not find type to deserialize", assemblyName, typeName) as Type;
         }
-
+        else
+        {
+          return tt;
+        }
       }
     }
 
