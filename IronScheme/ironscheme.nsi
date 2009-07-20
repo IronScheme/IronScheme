@@ -201,6 +201,7 @@ SectionIn 1 2 RO
 	File "init.ss"
 	File "compile-system-libraries.ss"
 	
+	File "..\..\..\IronScheme.LibraryBrowser\bin\Release\IronScheme.LibraryBrowser.exe"
 	File "..\..\..\IronScheme.WebServer\bin\Release\IronScheme.WebServer.exe"
 	File "..\..\..\IronScheme.WebServer\bin\Release\IronScheme.WebServer.exe.config"
 	
