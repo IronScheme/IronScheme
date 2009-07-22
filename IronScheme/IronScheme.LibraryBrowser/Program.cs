@@ -20,18 +20,28 @@ namespace IronScheme.LibraryBrowser
         {
           UseShellExecute = false,
           CreateNoWindow = true,
-          FileName = "IronScheme.WebServer.exe"
+          FileName = "IronScheme.WebServer.exe",
+          RedirectStandardError = true
+          
         }
       };
 
       if (ps.Start())
       {
         Thread.Sleep(1000);
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new MainForm());
 
-        ps.Kill();
+        if (!ps.HasExited)
+        {
+          Application.EnableVisualStyles();
+          Application.SetCompatibleTextRenderingDefault(false);
+          Application.Run(new MainForm());
+
+          ps.Kill();
+        }
+        else
+        {
+          MessageBox.Show(ps.StandardError.ReadToEnd(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
       }
     }
   }
