@@ -196,6 +196,7 @@ SectionIn 1 2 RO
 	File "ironscheme.boot.dll"
 	File "Microsoft.Scripting.dll"
 	
+	File "setup-xp.bat"
 	File "build-options.ss"
 	File "system-libraries.ss"
 	File "init.ss"
