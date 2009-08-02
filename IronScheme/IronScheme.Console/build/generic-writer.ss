@@ -151,18 +151,18 @@
           
   (define (write-char chr port readable?)
     (if readable?
-        (case (char->integer chr)
-          [(0) (put-string port "#\\nul")]
-          [(7) (put-string port "#\\alarm")]
-          [(8) (put-string port "#\\backspace")]
-          [(9) (put-string port "#\\tab")]
-          [(10) (put-string port "#\\newline")]
-          [(11) (put-string port "#\\vtab")]
-          [(12) (put-string port "#\\page")]
-          [(13) (put-string port "#\\return")]
-          [(27) (put-string port "#\\esc")]
-          [(32) (put-string port "#\\space")]
-          [(127) (put-string port "#\\delete")]
+        (case chr
+          [(#\nul)        (put-string port "#\\nul")]
+          [(#\alarm)      (put-string port "#\\alarm")]
+          [(#\backspace)  (put-string port "#\\backspace")]
+          [(#\tab)        (put-string port "#\\tab")]
+          [(#\newline)    (put-string port "#\\newline")]
+          [(#\vtab)       (put-string port "#\\vtab")]
+          [(#\page)       (put-string port "#\\page")]
+          [(#\return)     (put-string port "#\\return")]
+          [(#\esc)        (put-string port "#\\esc")]
+          [(#\space)      (put-string port "#\\space")]
+          [(#\delete)     (put-string port "#\\delete")]
           [else (put-string port "#\\")
                 (put-char port chr)])
         (put-char port chr)))
@@ -175,11 +175,15 @@
             (unless (= i len)
               (let ((chr (string-ref str i)))
                 (case chr
-                  [(#\\) (put-string port "\\\\")]
-                  [(#\") (put-string port "\\\"")]
-                  [(#\newline) (put-string port "\\n")]
-                  [(#\return) (put-string port "\\r")]
-                  [(#\tab) (put-string port "\\v")]
+                  [(#\\)          (put-string port "\\\\")]
+                  [(#\")          (put-string port "\\\"")]
+                  [(#\newline)    (put-string port "\\n")]
+                  [(#\return)     (put-string port "\\r")]
+                  [(#\tab)        (put-string port "\\t")]
+                  [(#\alarm)      (put-string port "\\a")]
+                  [(#\backspace)  (put-string port "\\b")]
+                  [(#\vtab)       (put-string port "\\v")]
+                  [(#\page)       (put-string port "\\f")]
                   [else (put-char port chr)])
                 (f (+ i 1)))))
           (put-char port #\"))

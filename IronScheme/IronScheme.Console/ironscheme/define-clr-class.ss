@@ -26,56 +26,52 @@
 
 (define (make-typed-var name type))
 
+(visibility-options
+  public
+  private
+  internal
+  protected)
+
 (class-options
   public
+  internal
   abstract
   sealed
   (extends baseclass)
   (implements interfaces ...))
 
 (field-options
-  public
+  (visibility-options)
   static
-  internal
-  protected
-  new
   readonly
   volatile
   (type typename))
   
 (event-options
-  private
-  internal
+  (visibility-options)
   static
-  protected
-  new
   (type typename))  
 
 (property-options
-  private
-  internal
+  (visibility-options)
   static
-  protected
   abstract
   virtual
   override
   (type typename))
   
 (method-options
-  private
-  internal
+  (visibility-options)
   static
-  protected
   abstract
   virtual
   override
+  sealed
   (returns typename))  
   
 (constructor-options
-  private
-  internal
-  static
-  protected)   
+  (visibility-options)
+  static)   
 
 (define-clr-class name
   
@@ -87,7 +83,7 @@
   (property name)
   (property name (get body))
   (property name (set body))
-  (property name (get body) (set body))
+  (property name (get body) (set body)) ; value is implicit
   
   (constructor (args) body)
   

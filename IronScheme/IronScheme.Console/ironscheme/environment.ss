@@ -25,44 +25,47 @@
     )
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
 
-  (clr-using system)
+  (clr-using System)
   
   (define (application-directory)
-    (clr-static-prop-get ironscheme.runtime.builtins applicationdirectory))
+    (clr-static-prop-get Ironscheme.Runtime.Builtins ApplicationDirectory))
   
   (define current-directory
-    (case-lambda
-      [()       (clr-static-prop-get environment currentdirectory)]
-      [(path)   (clr-static-prop-set! environment currentdirectory path)]))
+    (case/contract
+      [()       
+        (clr-static-prop-get Environment CurrentDirectory)]
+      [(path:string)   
+        (clr-static-prop-set! Environment CurrentDirectory path)]))
     
   (define (current-user)
-    (clr-static-prop-get environment username))
+    (clr-static-prop-get Environment Username))
 
   (define (current-user-domain)
-    (clr-static-prop-get environment userdomainname))
+    (clr-static-prop-get Environment UserDomainname))
     
   (define (get-netbiosname)
-    (clr-static-prop-get environment machinename))
+    (clr-static-prop-get Environment Machinename))
     
   (define (get-hostname)
-    (clr-static-call system.net.dns gethostname))
+    (clr-static-call System.Net.Dns GetHostname))
     
   (define (get-logical-drives)
-    (clr-static-call environment getlogicaldrives))    
+    (clr-static-call Environment GetLogicalDrives))    
 
   (define (get-environment-variables)
-    (clr-static-call environment getenvironmentvariables))    ; returns a hashtable
+    (clr-static-call Environment GetEnvironmentVariables))    ; returns a hashtable
 
-  (define (get-environment-variable name)
-    (let ((v (clr-static-call environment getenvironmentvariable name)))
+  (define/contract (get-environment-variable name:string)
+    (let ((v (clr-static-call Environment GetEnvironmentVariable name)))
       (if (null? v) #f v)))
 
-  (define (set-environment-variable! name value)
-    (clr-static-call environment setenvironmentvariable name value))    
+  (define/contract (set-environment-variable! name:string value:string)
+    (clr-static-call Environment SetEnvironmentVariable name value))    
     
-  (define (expand-environment-variables name)
-    (clr-static-call environment expandenvironmentvariables name))    
+  (define/contract (expand-environment-variables name:string)
+    (clr-static-call Environment ExpandEnvironmentVariables name))    
 
 )

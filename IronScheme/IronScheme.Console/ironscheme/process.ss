@@ -46,136 +46,145 @@
     process-peak-paged-memory-size
     process-peak-virtual-memory-size
     process?)
-    
-    
+
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
     
-  (clr-using system.diagnostics)
+  (clr-using System.Diagnostics)
   
   (define (process? obj)
-    (clr-is process obj))
+    (clr-is Process obj))
     
-  (define (process-start p)
-    (clr-static-call ironscheme.runtime.helpers startprocess p))
+  (define/contract (process-start p:process)
+    (clr-static-call Ironscheme.Runtime.Helpers StartProcess p))
     
   (define wait-for-exit
-    (case-lambda
-      [(p)     (clr-call process waitforexit p)]
-      [(p ms)  (clr-call process waitforexit p ms)]))
+    (case/contract 
+      [(p:process)     (clr-call Process waitforexit p)]
+      [(p:process ms)  (clr-call Process waitforexit p ms)]))
       
   (define wait-for-input-idle
-    (case-lambda
-      [(p)     (clr-call process waitforinputidle p)]
-      [(p ms)  (clr-call process waitforinputidle p ms)]))      
+    (case/contract 
+      [(p:process)     (clr-call Process waitforinputidle p)]
+      [(p:process ms)  (clr-call Process waitforinputidle p ms)]))      
       
   (define get-processes
-    (case-lambda
-      [()      (clr-static-call process getprocesses)]
-      [(host)  (clr-static-call process getprocesses host)]))
+    (case/contract 
+      [()      
+        (clr-static-call Process getprocesses)]
+      [(host:string)  
+        (clr-static-call Process getprocesses host)]))
       
   (define get-processes-by-name
-    (case-lambda
-      [(name)      (clr-static-call process getprocessesbyname name)]
-      [(name host) (clr-static-call process getprocessesbyname name host)]))
+    (case/contract 
+      [(name:string)      
+        (clr-static-call Process getprocessesbyname name)]
+      [(name:string host:string) 
+        (clr-static-call Process getprocessesbyname name host)]))
       
   (define get-process-by-id
-    (case-lambda
-      [(id)      (clr-static-call process getprocessbyid id)]
-      [(id host) (clr-static-call process getprocessbyid id host)]))  
+    (case/contract 
+      [(id)      
+        (clr-static-call Process getprocessbyid id)]
+      [(id host:string) 
+        (clr-static-call Process getprocessbyid id host)]))  
 
   (define (get-current-process)
-    (clr-static-call process getcurrentprocess))
+    (clr-static-call Process getcurrentprocess))
     
-  (define (process-kill p)
-    (clr-call process kill p))
+  (define/contract (process-kill p:process)
+    (clr-call Process kill p))
     
-  (define (process-refresh p)
-    (clr-call process refresh p))
+  (define/contract (process-refresh p:process)
+    (clr-call Process refresh p))
     
-  (define (process-input-port p)
-    (clr-prop-get process standardinput p))
+  (define/contract (process-input-port p:process)
+    (clr-prop-get Process standardinput p))
 
-  (define (process-output-port p)
-    (clr-prop-get process standardoutput p))
+  (define/contract (process-output-port p:process)
+    (clr-prop-get Process standardoutput p))
 
-  (define (process-error-port p)
-    (clr-prop-get process standarderror p))
+  (define/contract (process-error-port p:process)
+    (clr-prop-get Process standarderror p))
     
-  (define (process-responding? p)
-    (clr-prop-get process responding p))    
+  (define/contract (process-responding? p:process)
+    (clr-prop-get Process responding p))    
     
-  (define (process-exited? p)
-    (clr-prop-get process hasexited p))    
+  (define/contract (process-exited? p:process)
+    (clr-prop-get Process hasexited p))    
     
-  (define (process-exit-code p)
-    (clr-prop-get process exitcode p))    
+  (define/contract (process-exit-code p:process)
+    (clr-prop-get Process exitcode p))    
     
-  (define (process-name p)
-    (clr-prop-get process processname p))    
+  (define/contract (process-name p:process)
+    (clr-prop-get Process processname p))    
 
-  (define (process-id p)
-    (clr-prop-get process id p))    
+  (define/contract (process-id p:process)
+    (clr-prop-get Process id p))    
     
-  (define (process-start-time p)
-    (clr-prop-get process starttime p))    
+  (define/contract (process-start-time p:process)
+    (clr-prop-get Process starttime p))    
 
-  (define (process-exit-time p)
-    (clr-prop-get process exittime p))    
+  (define/contract (process-exit-time p:process)
+    (clr-prop-get Process exittime p))    
     
-  (define (process-user-cpu-time p)
-    (clr-prop-get process userprocessortime p))     
+  (define/contract (process-user-cpu-time p:process)
+    (clr-prop-get Process userprocessortime p))     
 
-  (define (process-total-cpu-time p)
-    (clr-prop-get process totalprocessortime p))     
+  (define/contract (process-total-cpu-time p:process)
+    (clr-prop-get Process totalprocessortime p))     
 
-  (define (process-system-cpu-time p)
-    (clr-prop-get process privilegedprocessortime p))      
+  (define/contract (process-system-cpu-time p:process)
+    (clr-prop-get Process privilegedprocessortime p))      
     
-  (define (process-private-memory-size p)
-    (clr-prop-get process privatememorysize p))             
+  (define/contract (process-private-memory-size p:process)
+    (clr-prop-get Process privatememorysize p))             
     
-  (define (process-virtual-memory-size p)
-    (clr-prop-get process virtualmemorysize p))       
+  (define/contract (process-virtual-memory-size p:process)
+    (clr-prop-get Process virtualmemorysize p))       
     
-  (define (process-working-set p)
-    (clr-prop-get process workingset p))       
+  (define/contract (process-working-set p:process)
+    (clr-prop-get Process workingset p))       
     
-  (define (process-peak-working-set p)
-    (clr-prop-get process peakworkingset p))      
+  (define/contract (process-peak-working-set p:process)
+    (clr-prop-get Process peakworkingset p))      
 
-  (define (process-paged-system-memory-size p)
-    (clr-prop-get process pagedsystemmemorysize p)) 
+  (define/contract (process-paged-system-memory-size p:process)
+    (clr-prop-get Process pagedsystemmemorysize p)) 
 
-  (define (process-paged-memory-size p)
-    (clr-prop-get process pagedmemorysize p))      
+  (define/contract (process-paged-memory-size p:process)
+    (clr-prop-get Process pagedmemorysize p))      
 
-  (define (process-non-paged-system-memory-size p)
-    (clr-prop-get process nonpagedsystemmemorysize p))      
+  (define/contract (process-non-paged-system-memory-size p:process)
+    (clr-prop-get Process nonpagedsystemmemorysize p))      
 
-  (define (process-peak-paged-memory-size p)
-    (clr-prop-get process peakpagedmemorysize p))      
+  (define/contract (process-peak-paged-memory-size p:process)
+    (clr-prop-get Process peakpagedmemorysize p))      
 
-  (define (process-peak-virtual-memory-size p)
-    (clr-prop-get process peakvirtualmemorysize p))         
-    
-    
+  (define/contract (process-peak-virtual-memory-size p:process)
+    (clr-prop-get Process peakvirtualmemorysize p))         
+
   (define process-priority
-    (case-lambda
-      [(p)            (clr-prop-get process priorityclass p)]
-      [(p priority)   (clr-prop-set! process priorityclass p priority)]))
+    (case/contract
+      [(p:process)            (clr-prop-get Process priorityclass p)]
+      [(p:process priority)   (clr-prop-set! Process priorityclass p priority)]))
 
   (define process-boost
-    (case-lambda
-      [(p)            (clr-prop-get process priorityboostenabled p)]
-      [(p value)      (clr-prop-set! process priorityboostenabled p value)]))
+    (case/contract
+      [(p:process)            (clr-prop-get Process priorityboostenabled p)]
+      [(p:process value)      (clr-prop-set! Process priorityboostenabled p value)]))
   
   (define make-process
-    (case-lambda 
-      [(filename args)              (clr-static-call ironscheme.runtime.helpers makeprocess filename args #t #f #f #f)]
-      [(filename args show?)        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? #f #f #f)]
-      [(filename args show? exit)   (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit #f #f)]
-      [(filename args show? exit out err)   (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit out err)]))
+    (case/contract 
+      [(filename:string args:string)              
+        (clr-static-call ironscheme.runtime.helpers makeprocess filename args #t #f #f #f)]
+      [(filename:string args:string show?:boolean)        
+        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? #f #f #f)]
+      [(filename:string args:string show?:boolean exit:procedure)   
+        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit #f #f)]
+      [(filename:string args:string show?:boolean exit:procedure out err)   
+        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit out err)]))
      
 )

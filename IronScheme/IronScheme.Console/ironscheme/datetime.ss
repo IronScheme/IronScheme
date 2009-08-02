@@ -49,20 +49,20 @@
     (ironscheme contracts)
     (ironscheme clr))
 
-  (clr-using system)
+  (clr-using System)
 
   (define (datetime? obj)
-    (clr-is datetime obj))   
+    (clr-is DateTime obj))   
     
   (define (timespan? obj)
-    (clr-is timespan obj))     
+    (clr-is TimeSpan obj))     
     
   (define make-utc-datetime
     (case-lambda
-      [(ticks)                                  (clr-new datetime ticks 'utc)]
-      [(year month day)                         (clr-new datetime year month day 0 0 0 (clr-cast DateTimeKind 'utc))]
-      [(year month day hour minute second)      (clr-new datetime year month day hour minute second (clr-cast DateTimeKind 'utc))]    
-      [(year month day hour minute second ms)   (clr-new datetime year month day hour minute second (clr-cast int32 ms) (clr-cast DateTimeKind 'utc))]))    
+      [(ticks)                                  (clr-new DateTime ticks 'utc)]
+      [(year month day)                         (clr-new DateTime year month day 0 0 0 (clr-cast DateTimeKind 'utc))]
+      [(year month day hour minute second)      (clr-new DateTime year month day hour minute second (clr-cast DateTimeKind 'utc))]    
+      [(year month day hour minute second ms)   (clr-new DateTime year month day hour minute second (clr-cast int32 ms) (clr-cast DateTimeKind 'utc))]))    
     
   (define make-datetime
     (case-lambda
@@ -73,20 +73,20 @@
       
   (define make-timespan
     (case-lambda
-      [(ticks)                                  (clr-new timespan ticks)]
-      [(hours minutes seconds)                  (clr-new timespan hours minutes seconds)]
-      [(days hours minutes seconds)             (clr-new timespan days hours minutes seconds)]    
-      [(days hours minutes seconds ms)          (clr-new timespan days hours minutes seconds ms)]))    
+      [(ticks)                                  (clr-new TimeSpan ticks)]
+      [(hours minutes seconds)                  (clr-new TimeSpan hours minutes seconds)]
+      [(days hours minutes seconds)             (clr-new TimeSpan days hours minutes seconds)]    
+      [(days hours minutes seconds ms)          (clr-new TimeSpan days hours minutes seconds ms)]))    
       
   
   (define (now)
-    (clr-static-prop-get datetime now))   
+    (clr-static-prop-get DateTime now))   
 
   (define (utc-now)
-    (clr-static-prop-get datetime UtcNow))   
+    (clr-static-prop-get DateTime UtcNow))   
 
   (define (today)
-    (clr-static-prop-get datetime today))
+    (clr-static-prop-get DateTime today))
     
   (define/contract (datetime->utc dt:datetime)    
     (clr-call DateTime ToUniversalTime dt))
@@ -98,70 +98,70 @@
     (clr-static-call DateTime "op_Subtraction(DateTime,DateTime)" dt1 dt2))
 
   (define/contract (time-of-day dt:datetime)
-    (clr-prop-get datetime timeofday dt))
+    (clr-prop-get DateTime TimeOfDay dt))
 
   (define/contract (day-of-year dt:datetime)
-    (clr-prop-get datetime dayofyear dt))
+    (clr-prop-get DateTime DayOfYear dt))
 
   (define/contract (day-of-week dt:datetime)
-    (clr-prop-get datetime dayofweek dt))
+    (clr-prop-get DateTime DayOfWeek dt))
   
   (define/contract (year dt:datetime)
-    (clr-prop-get datetime year dt))
+    (clr-prop-get DateTime Year dt))
 
   (define/contract (month dt:datetime)
-    (clr-prop-get datetime month dt))
+    (clr-prop-get DateTime Month dt))
 
   (define/contract (day dt:datetime)
-    (clr-prop-get datetime day dt))
+    (clr-prop-get DateTime Day dt))
 
   (define/contract (hour dt:datetime)
-    (clr-prop-get datetime hour dt))
+    (clr-prop-get DateTime Hour dt))
 
   (define/contract (minute dt:datetime)
-    (clr-prop-get datetime minute dt))
+    (clr-prop-get DateTime Minute dt))
 
   (define/contract (second dt:datetime)
-    (clr-prop-get datetime second dt))
+    (clr-prop-get DateTime Second dt))
 
   (define/contract (millisecond dt:datetime)
-    (clr-prop-get datetime millisecond dt))
+    (clr-prop-get DateTime Millisecond dt))
 
   (define (ticks date/timespan)
     (cond
-      ((datetime? date/timespan)    (clr-prop-get datetime ticks date/timespan))
-      ((timespan? date/timespan)    (clr-prop-get timespan ticks date/timespan))
+      ((datetime? date/timespan)    (clr-prop-get DateTime Ticks date/timespan))
+      ((timespan? date/timespan)    (clr-prop-get TimeSpan Ticks date/timespan))
       (else
         (assertion-violation 'ticks "not a datetime or timespan" date/timespan))))
     
   (define/contract (days ts:timespan)
-    (clr-prop-get timespan days ts))
+    (clr-prop-get TimeSpan Days ts))
 
   (define/contract (hours ts:timespan)
-    (clr-prop-get timespan hours ts))
+    (clr-prop-get TimeSpan Hours ts))
 
   (define/contract (minutes ts:timespan)
-    (clr-prop-get timespan minutes ts))
+    (clr-prop-get TimeSpan Minutes ts))
 
   (define/contract (seconds ts:timespan)
-    (clr-prop-get timespan seconds ts))
+    (clr-prop-get TimeSpan Seconds ts))
 
   (define/contract (milliseconds ts:timespan)
-    (clr-prop-get timespan milliseconds ts))
+    (clr-prop-get TimeSpan Milliseconds ts))
 
   (define/contract (total-days ts:timespan)
-    (clr-prop-get timespan totaldays ts))
+    (clr-prop-get TimeSpan TotalDays ts))
 
   (define/contract (total-hours ts:timespan)
-    (clr-prop-get timespan totalhours ts))
+    (clr-prop-get TimeSpan TotalHours ts))
 
   (define/contract (total-minutes ts:timespan)
-    (clr-prop-get timespan totalminutes ts))
+    (clr-prop-get TimeSpan TotalMinutes ts))
 
   (define/contract (total-seconds ts:timespan)
-    (clr-prop-get timespan totalseconds ts))
+    (clr-prop-get TimeSpan TotalSeconds ts))
 
   (define/contract (total-milliseconds ts:timespan)
-    (clr-prop-get timespan totalmilliseconds ts))
+    (clr-prop-get TimeSpan TotalMilliseconds ts))
 
 )

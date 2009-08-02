@@ -21,9 +21,9 @@
     (let ((len (vector-length vec)))
       (let f ((i 0))
         (cond 
-          [(= i len) #f]
+          [(fx=? i len) #f]
           [(eq? sym (vector-ref vec i)) i]
-          [else (f (+ i 1))]))))
+          [else (f (fx+ i 1))]))))
 
   (define (get-fields r rtd . x)  
     (reverse

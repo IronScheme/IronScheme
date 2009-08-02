@@ -9,6 +9,7 @@
     include/resolve)
   (import 
     (rnrs) 
+    (ironscheme reader)
     (for (srfi private include compat) expand))
   
   (define-syntax include/resolve
@@ -27,7 +28,7 @@
             (call-with-input-file filename
               (lambda (fip)
                 (let loop ([a '()])
-                  (let ([x (read fip)])
+                  (let ([x (read-annotated fip)])
                     (if (eof-object? x)
                       (cons #'begin (datum->syntax ctxt (reverse a)))
                       (loop (cons x a))))))))))

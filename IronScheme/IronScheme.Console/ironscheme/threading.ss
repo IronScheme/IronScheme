@@ -21,26 +21,27 @@
     lock)
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
     
-  (clr-using system.threading)
+  (clr-using System.Threading)
   
-  (define (start-thread thread)
-    (clr-call thread start thread))
+  (define/contract (start-thread thread:thread)
+    (clr-call Thread Start thread))
       
   (define (thread? obj)
-    (clr-is thread obj))
+    (clr-is Thread obj))
     
-  (define (make-thread proc)
-    (clr-new thread proc))  
+  (define/contract (make-thread proc:procedure)
+    (clr-new Thread proc))
     
   (define queue-work-item
-    (case-lambda 
-      [(proc)       (queue-work-item proc #f)]
-      [(proc state) (clr-static-call threadpool queueuserworkitem proc state)]))
+    (case/contract 
+      [(proc:procedure)       (queue-work-item proc #f)]
+      [(proc:procedure state) (clr-static-call Threadpool QueueUserWorkitem proc state)]))
       
-  (define (thread-sleep dur)
-    (clr-static-call thread sleep (clr-cast system.int32 dur)))      
+  (define/contract (thread-sleep dur:fixnum)
+    (clr-static-call Thread Sleep (clr-cast system.int32 dur)))      
    
   (define (monitor-enter obj)
     (clr-static-call Monitor Enter obj))

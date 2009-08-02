@@ -11,6 +11,7 @@
 
 (library (ironscheme contracts)
   (export
+    case-lambda
     case/contract
     lambda/contract
     define/contract
@@ -36,6 +37,9 @@
   (define-syntax define/contract
     (lambda (x)
       (syntax-case x ()
+        [(_ name (case-lambda e ...))
+          (identifier? #'name)
+          #'(define name (case/contract e ...))]
         [(_ (name . formals) body body* ...)
           (identifier? #'name)
           #'(define name (lambda/contract formals body body* ...))])))

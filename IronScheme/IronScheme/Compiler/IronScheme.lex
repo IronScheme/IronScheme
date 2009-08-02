@@ -97,10 +97,10 @@ delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t\u000c ]
 but_delimiter          [^\[\]\(\)\";#\r\n\t\u000c ]
 numbut_delimiter       [^\[\]\(\)\";#\r\n\t\u000c i]
 
-fold_case              "#!fold-case"[^\n]*
-no_fold_case           "#!no-fold-case"[^\n]* 
+fold_case              "#!fold-case"
+no_fold_case           "#!no-fold-case" 
 
-line_comment           (";"[^\n]*)|("#!"[^\n]*)
+line_comment           (";"[^\n]*)
 
 ignore_datum           "#;"
 
@@ -125,7 +125,7 @@ identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 good_id                {identifier}{delimiter}
 bad_id                 {identifier}{but_delimiter}
 
-
+directive              "#!"({identifier})
 
 
 radix2                 #[bB]
@@ -151,11 +151,13 @@ uinteger8              ({digit8})+
 uinteger10             ({digit10})+
 uinteger16             ({digit16})+
 
+mantissa_width         ("|"{uinteger10})?
+
 decimal10              (({uinteger10}{suffix})|("."({digit10})+{suffix})|(({digit10})+"."({digit10})*{suffix}))
 
 ureal2                 (({uinteger2})|({uinteger2}"/"{uinteger2}))
 ureal8                 (({uinteger8})|({uinteger8}"/"{uinteger8}))
-ureal10                (({decimal10})|({uinteger10}"/"{uinteger10}))
+ureal10                (({decimal10}{mantissa_width})|({uinteger10}"/"{uinteger10}))
 ureal16                (({uinteger16})|({uinteger16}"/"{uinteger16}))
 
 naninf                 ("nan.0"|"inf.0")
@@ -215,6 +217,8 @@ bad_atoms              {atoms}{but_delimiter}+
 
 {fold_case}           { return Make(Tokens.FOLDCASE); }
 {no_fold_case}        { return Make(Tokens.NOFOLDCASE); }
+
+{directive}           { return Make(Tokens.DIRECTIVE); }
                      
 {comment_start}       { yy_push_state(ML_COMMENT);  }                      
 {line_comment}        {  }

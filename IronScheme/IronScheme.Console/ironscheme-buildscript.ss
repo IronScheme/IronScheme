@@ -95,6 +95,7 @@
 (define psyntax-system-macros
   '((define              (define))
     (define-syntax       (define-syntax))
+    (define-fluid-syntax (define-fluid-syntax))
     (module              (module))
     (begin               (begin))
     (library             (library))
@@ -425,6 +426,7 @@
     (letrec                                     i r ba se ne)
     (letrec*                                    i r ba)
     (letrec-syntax                              i r ba se ne)
+    (define-fluid-syntax                        i)
     (fluid-let-syntax                           i)
     (or                                         i r ba se ne)
     (quasiquote                                 i r ba se ne)

@@ -18,25 +18,32 @@
     )
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
 
   (clr-using system)
   
+  (define (rng? obj)
+    (clr-is Random obj))
+  
   (define make-random
-    (case-lambda
-      [()       (clr-new random)]
-      [(seed)   (clr-new random seed)]))
+    (case/contract
+      [()             (clr-new Random)]
+      [(seed:fixnum)  (clr-new Random seed)]))
       
   (define next-fixnum
-    (case-lambda
-      [(rg)         (clr-call random next rg)]
-      [(rg max)     (clr-call random next rg max)]
-      [(rg min max) (clr-call random next rg min max)]))
+    (case/contract
+      [(rg:rng)         
+        (clr-call Random Next rg)]
+      [(rg:rng max:fixnum)     
+        (clr-call Random Next rg max)]
+      [(rg:rng min:fixnum max:fixnum) 
+        (clr-call Random Next rg min max)]))
 
-  (define (next-bytevector rg bytevector)
-    (clr-call random nextbytes rg bytevector))
+  (define/contract (next-bytevector rg:rng bytevector:bytevector)
+    (clr-call Random NextBytes rg bytevector))
           
-  (define (next-flonum rg)
-    (clr-call random nextdouble rg))
+  (define/contract (next-flonum rg:rng)
+    (clr-call Random NextDouble rg))
 
 )
