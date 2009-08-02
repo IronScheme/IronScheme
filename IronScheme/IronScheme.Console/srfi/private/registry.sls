@@ -59,7 +59,7 @@
                 (64   testing)
                 #;(66   octet-vectors)
                 (67   compare-procedures)
-                #;(69   basic-hash-tables)
+                (69   basic-hash-tables)
                 #;(71   let)
                 #;(74   blobs)
                 (78   lightweight-testing)

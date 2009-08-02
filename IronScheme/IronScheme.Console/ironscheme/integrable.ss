@@ -31,7 +31,7 @@
          (identifier? #'name)
          (with-syntax ((xname (make-residual-name #'name)))
            #'(begin
-               (define-syntax name
+               (define-fluid-syntax name
                  (lambda (x)
                    (syntax-case x ()
                      [_ (identifier? x) #'xname]

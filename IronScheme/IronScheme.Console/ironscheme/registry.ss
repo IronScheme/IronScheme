@@ -16,15 +16,16 @@
     )
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
 
-  (clr-using microsoft.win32)
+  (clr-using Microsoft.Win32)
 
-  (define (get-registry-value key name default)
-    (clr-static-call registry getvalue key name default))    
+  (define/contract (get-registry-value key:string name:string default)
+    (clr-static-call Registry GetValue key name default))    
 
-  (define (set-registry-value! key name value)
-    (clr-static-call registry setvalue key name value))    
+  (define/contract (set-registry-value! key:string name:string value)
+    (clr-static-call Registry SetValue key name value))    
     
  ;; todo: registry keys
 

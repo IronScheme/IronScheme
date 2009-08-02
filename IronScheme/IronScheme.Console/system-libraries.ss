@@ -17,7 +17,6 @@
 
 (import (ironscheme))
 
-
 (let () 
   (import 
     (ironscheme clr)
@@ -48,7 +47,6 @@
     (ironscheme ffi)
     (ironscheme integrable)
     (ironscheme library-utils)
-    
 
     (ironscheme syntax-format)
     (ironscheme define-macro)

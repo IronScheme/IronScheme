@@ -39,6 +39,7 @@ These SRFIs are available:
   (srfi :61 cond)
   (srfi :64 testing)
   (srfi :67 compare-procedures)
+  (srfi :69 basic-hash-tables)
   (srfi :78 lightweight-testing)
   (srfi :98 os-environment-variables)
   (srfi :99 records)

@@ -220,7 +220,7 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         public override string ToString() {
-            return _id;
+            return _id ?? "*interactive*";
         }
 
         #region Line/File mapping

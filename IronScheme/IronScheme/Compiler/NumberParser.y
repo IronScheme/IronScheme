@@ -120,7 +120,7 @@ object ConvertToDouble(string s)
 
 %token DIGIT2 DIGIT8 DIGIT10 DIGIT16 RADIX2 RADIX8 RADIX10 RADIX16
 %token EXACT INEXACT EXPMARKER NANINF
-%token DOT SLASH IMAG AT PLUS MINUS 
+%token DOT SLASH IMAG AT PLUS MINUS PIPE
 
 %type <value> number uinteger2 uinteger8 uinteger10 uinteger16 decimal10 naninf
 %type <value> ureal2 ureal8 ureal10 ureal16 real2 real8 real10 real16 sreal2 sreal8 sreal10 sreal16
@@ -191,12 +191,16 @@ uinteger10  : digit10                     { $$ = GetNum($1); }
 uinteger16  : digit16                     { $$ = GetNum($1); }
             | uinteger16 digit16          { $$ = Builtins.Add(Builtins.Multiply(16, $1),  GetNum($2)); }
             ;
+            
+manttisa  :
+          | PIPE uinteger10
+          ;          
 
 digit10x  : /* empty */                   { $$ = string.Empty; }
           | digit10x digit10              { $$ = $1 + $2; }
           ;
 
-decimal10 : uinteger10 suffix               { $$ = ($2.Length == 0) ? $1 : ConvertToDouble($1 + $2); }
+decimal10 : uinteger10 suffix manttisa      { $$ = ($2.Length == 0) ? $1 : ConvertToDouble($1 + $2); }
           | DOT digit10 digit10x suffix     { $$ = ConvertToDouble("." + $2 + $3 + $4); }
           | uinteger10 DOT digit10x suffix  { $$ = ConvertToDouble($1 + "." + $3 + $4); }
           ;

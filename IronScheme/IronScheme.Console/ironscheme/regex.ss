@@ -25,52 +25,56 @@
     regex-unescape)
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
     
-  (clr-using system.text.regularexpressions)
+  (clr-using System.Text.RegularExpressions)
   
   (define (regex? obj)
-    (clr-is regex obj))
+    (clr-is Regex obj))
     
-  (define (make-regex pattern)
-    (clr-new regex pattern 'compiled))   
+  (define/contract (make-regex pattern:string)
+    (clr-new Regex pattern 'compiled))   
     
-  (define (regex-match input pattern)
-    (clr-static-call regex match input pattern))
+  (define/contract (regex-match input:string pattern:string)
+    (clr-static-call Regex Match input pattern))
 
-  (define (regex-matches input pattern)
+  (define/contract (regex-matches input:string pattern:string)
     (clr-static-call IronScheme.Runtime.Cons FromList
-      (clr-static-call regex matches input pattern)))
+      (clr-static-call Regex Matches input pattern)))
+      
+  (define (match? obj)
+    (clr-is Match obj))      
     
-  (define (match-value match)
+  (define/contract (match-value match:match)
     (and 
       (match-success? match)
-      (clr-prop-get group value match)))
+      (clr-prop-get Group Value match)))
     
-  (define (match-success? match)
-    (clr-prop-get group success match))    
+  (define/contract (match-success? match:match)
+    (clr-prop-get Group Success match))    
 
-  (define (match-group match group-name)
-    (clr-indexer-get groupcollection 
-      (clr-prop-get match groups match) 
-      (clr-cast system.string group-name)))
+  (define/contract (match-group match:match group-name:string)
+    (clr-indexer-get GroupCollection 
+      (clr-prop-get Match Groups match) 
+      (clr-cast System.String group-name)))
   
-  (define (regex-match? input pattern)
-    (clr-static-call regex ismatch input pattern))
+  (define/contract (regex-match? input:string pattern:string)
+    (clr-static-call Regex IsMatch input pattern))
 
-  (define (regex-split input pattern/re)
+  (define/contract (regex-split input:string pattern/re)
     (if (regex? pattern/re)
-      (clr-call regex split pattern/re input)
-      (clr-static-call regex split input pattern/re)))
+      (clr-call Regex Split pattern/re input)
+      (clr-static-call Regex Split input pattern/re)))
     
-  (define (regex-replace input pattern replacement)
-    (clr-static-call regex replace input pattern (clr-cast system.string replacement))) ; need cast to deal with overload
+  (define/contract (regex-replace input:string pattern:string replacement:string)
+    (clr-static-call Regex Replace input pattern (clr-cast system.string replacement))) ; need cast to deal with overload
 
-  (define (regex-escape input)
-    (clr-static-call regex escape input))
+  (define/contract (regex-escape input:string)
+    (clr-static-call Regex Escape input))
 
-  (define (regex-unescape input)
-    (clr-static-call regex unescape input))
+  (define/contract (regex-unescape input:string)
+    (clr-static-call Regex Unescape input))
  
 )
     

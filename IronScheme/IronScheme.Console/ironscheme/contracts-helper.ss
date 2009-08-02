@@ -14,7 +14,10 @@
     parse-body)
   (import 
     (ironscheme) 
-    (ironscheme strings))
+    (ironscheme clr))
+    
+  (define (string-split str . del)
+    (clr-call System.String split str (clr-cast System.String[] (list->vector del)) 'none))
     
   (define (parse-body x)
     (define (get-name/type name)

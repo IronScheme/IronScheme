@@ -41,89 +41,98 @@
     
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
     
-  (clr-using system.io)
+  (clr-using System.IO)
     
   (define file-copy
-    (case-lambda
-      [(from to)            (file-copy from to #f)]
-      [(from to overwrite?) (clr-static-call file copy from to overwrite?)]))
+    (case/contract
+      [(from to)            
+        (file-copy from to #f)]
+      [(from:string to:string overwrite?:boolean) 
+        (clr-static-call File Copy from to overwrite?)]))
        
-  (define (file-move from to)
-    (clr-static-call file move from to))    
+  (define/contract (file-move from:string to:string)
+    (clr-static-call File Move from to))    
 
-  (define (file-create-time fn)
-    (clr-static-call file getcreationtime fn))    
+  (define/contract (file-create-time fn:string)
+    (clr-static-call File GetCreationTime fn))    
 
-  (define (file-access-time fn)
-    (clr-static-call file getlastaccesstime fn))    
+  (define/contract (file-access-time fn:string)
+    (clr-static-call File GetLastAccessTime fn))    
 
-  (define (file-modified-time fn)
-    (clr-static-call file getlastwritetime fn))    
+  (define/contract (file-modified-time fn:string)
+    (clr-static-call File GetLastWriteTime fn))    
     
-  (define (directory-exists? fn)
-    (clr-static-call directory exists fn))
+  (define/contract (directory-exists? fn:string)
+    (clr-static-call Directory Exists fn))
     
   (define delete-directory 
-    (case-lambda
-      [(dir)            (delete-directory dir #f)]
-      [(dir recursive?) (clr-static-call directory delete dir recursive?)]))
+    (case/contract
+      [(dir)            
+        (delete-directory dir #f)]
+      [(dir:string recursive?:boolean) 
+        (clr-static-call Directory Delete dir recursive?)]))
     
-  (define (directory-move from to)
-    (clr-static-call directory move from to))    
+  (define/contract (directory-move from:string to:string)
+    (clr-static-call Directory Move from to))    
     
-  (define (create-directory name)
-    (clr-static-call directory createdirectory name))      
+  (define/contract (create-directory name:string)
+    (clr-static-call Directory CreateDirectory name))      
     
   (define get-files 
-    (case-lambda
-      [(dir)            (get-files dir "*")]
-      [(dir pattern)    (clr-static-call directory getfiles dir pattern)]))   
+    (case/contract
+      [(dir)            
+        (get-files dir "*")]
+      [(dir:string pattern:string)    
+        (clr-static-call Directory GetFiles dir pattern)]))   
 
   (define get-directories 
-    (case-lambda
-      [(dir)            (get-directories dir "*")]
-      [(dir pattern)    (clr-static-call directory getdirectories dir pattern)]))    
+    (case/contract
+      [(dir)            
+        (get-directories dir "*")]
+      [(dir:string pattern:string)    
+        (clr-static-call Directory GetDirectories dir pattern)]))    
     
-  (define (change-extension path extension)
-    (clr-static-call path changeextension path extension))
+  (define/contract (change-extension path:string extension:string)
+    (clr-static-call Path ChangeExtension path extension))
     
-  (define (path-combine path1 path2)
-    (clr-static-call path combine path1 path2))
+  (define/contract (path-combine path1:string path2:string)
+    (clr-static-call Path Combine path1 path2))
 
-  (define (get-directory-name path)
-    (clr-static-call path getdirectoryname path))
+  (define/contract (get-directory-name path:string)
+    (clr-static-call Path GetDirectoryname path))
 
-  (define (get-extension path)
-    (clr-static-call path getextension path))
+  (define/contract (get-extension path:string)
+    (clr-static-call Path GetExtension path))
 
-  (define (get-filename path)
-    (clr-static-call path getfilename path))
+  (define/contract (get-filename path:string)
+    (clr-static-call Path GetFilename path))
 
-  (define (get-filename-without-extension path)
-    (clr-static-call path getfilenamewithoutextension path))
+  (define/contract (get-filename-without-extension path:string)
+    (clr-static-call Path GetFilenameWithoutExtension path))
 
-  (define (get-full-path path)
-    (clr-static-call path getfullpath path))
+  (define/contract (get-full-path path:string)
+    (clr-static-call Path GetFullPath path))
 
-  (define (get-path-root path)
-    (clr-static-call path getpathroot path))
+  (define/contract (get-path-root path:string)
+    (clr-static-call Path GetPathRoot path))
 
   (define (get-random-filename)
-    (clr-static-call path getrandomfilename))
+    (clr-static-call Path GetRandomFilename))
 
   (define (get-temp-filename)
-    (clr-static-call path gettempfilename))
+    (clr-static-call Path GetTempFilename))
     
   (define (get-temp-path)
-    (clr-static-call path gettemppath))    
+    (clr-static-call Path GetTempPath))    
     
-  (define (path-rooted? path)
-    (clr-static-call path ispathrooted path))    
+  (define/contract (path-rooted? path:string)
+    (clr-static-call Path IsPathRooted path))    
 
-  (define (path-has-extension? path)
-    (clr-static-call path hasextension path))    
+  (define/contract (path-has-extension? path:string)
+    (clr-static-call Path HasExtension path))    
 
     
 )

@@ -57,6 +57,8 @@
   (only (srfi :64 testing))
   (only (srfi :67))
   (only (srfi :67 compare-procedures))
+  (only (srfi :69))
+  (only (srfi :69 basic-hash-tables))  
   (only (srfi :78))
   (only (srfi :78 lightweight-testing))
   (only (srfi :78 lightweight-testing compat))

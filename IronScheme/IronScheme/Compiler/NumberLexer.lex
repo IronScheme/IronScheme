@@ -49,6 +49,7 @@ minus                  "-"
 slash                  "/"
 imag                   "i"
 at                     "@"
+pipe                   "|"
 
 naninf                 ("nan.0"|"inf.0")
 
@@ -90,6 +91,7 @@ naninf                 ("nan.0"|"inf.0")
 {slash}                { return Make(Tokens.SLASH); }
 {imag}                 { return Make(Tokens.IMAG); }
 {at}                   { return Make(Tokens.AT); }
+{pipe}                 { return Make(Tokens.PIPE); }
 
 {naninf}               { return Make(Tokens.NANINF); }
 

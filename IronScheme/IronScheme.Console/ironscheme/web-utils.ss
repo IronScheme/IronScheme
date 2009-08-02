@@ -17,22 +17,23 @@
     html-encode)
   (import 
     (ironscheme)
+    (ironscheme contracts)
     (ironscheme clr))
 
   (clr-reference "System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
-  (clr-using system.web)
+  (clr-using System.Web)
     
-  (define (url-encode s)
-    (clr-static-call httputility urlencode (clr-cast system.string s)))    
+  (define/contract (url-encode s:string)
+    (clr-static-call HttpUtility UrlEncode (clr-cast system.string s)))    
     
-  (define (url-decode s)
-    (clr-static-call httputility urldecode s))    
+  (define/contract (url-decode s:string)
+    (clr-static-call HttpUtility UrlDecode s))    
 
-  (define (html-encode s)
-    (clr-static-call httputility htmlencode s))    
+  (define/contract (html-encode s:string)
+    (clr-static-call HttpUtility HtmlEncode s))    
     
-  (define (html-decode s)
-    (clr-static-call httputility htmldecode s))    
+  (define/contract (html-decode s:string)
+    (clr-static-call HttpUtility HtmlDecode s))    
 
   
     
