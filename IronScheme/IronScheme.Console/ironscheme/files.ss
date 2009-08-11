@@ -46,8 +46,8 @@
     
   (clr-using System.IO)
     
-  (define file-copy
-    (case/contract
+  (define/contract file-copy
+    (case-lambda
       [(from to)            
         (file-copy from to #f)]
       [(from:string to:string overwrite?:boolean) 
@@ -68,8 +68,8 @@
   (define/contract (directory-exists? fn:string)
     (clr-static-call Directory Exists fn))
     
-  (define delete-directory 
-    (case/contract
+  (define/contract delete-directory 
+    (case-lambda
       [(dir)            
         (delete-directory dir #f)]
       [(dir:string recursive?:boolean) 
@@ -81,15 +81,15 @@
   (define/contract (create-directory name:string)
     (clr-static-call Directory CreateDirectory name))      
     
-  (define get-files 
-    (case/contract
+  (define/contract get-files 
+    (case-lambda
       [(dir)            
         (get-files dir "*")]
       [(dir:string pattern:string)    
         (clr-static-call Directory GetFiles dir pattern)]))   
 
-  (define get-directories 
-    (case/contract
+  (define/contract get-directories 
+    (case-lambda
       [(dir)            
         (get-directories dir "*")]
       [(dir:string pattern:string)    

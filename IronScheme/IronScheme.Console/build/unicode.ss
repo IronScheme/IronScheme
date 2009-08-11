@@ -82,7 +82,8 @@
     string-foldcase
     string-ci-compare
     )
-    (ironscheme clr))
+    (ironscheme clr)
+    (ironscheme contracts))
     
   (clr-using System.Globalization)   
     
@@ -94,70 +95,48 @@
     (clr-prop-get CultureInfo TextInfo
       (clr-static-prop-get CultureInfo InvariantCulture)))   
       
-  (define (char-upcase chr)
-    (unless (char? chr)
-      (assertion-violation 'char-upcase "not a character" chr))
+  (define/contract (char-upcase chr:char)
     (clr-static-call System.Char ToUpper chr))               
     
-  (define (char-downcase chr)
-    (unless (char? chr)
-      (assertion-violation 'char-downcase "not a character" chr))
+  (define/contract (char-downcase chr:char)
     (clr-static-call System.Char ToLower chr))               
 
-  (define (char-titlecase chr)
-    (unless (char? chr)
-      (assertion-violation 'char-titlecase "not a character" chr))
+  (define/contract (char-titlecase chr:char)
     (string-ref (clr-call TextInfo 
                           ToTitleCase 
                           text-info 
                           (->string (string chr)))
                 0))               
 
-  (define (char-foldcase chr)
-    (unless (char? chr)
-      (assertion-violation 'char-foldcase "not a character" chr))
+  (define/contract (char-foldcase chr:char)
     (clr-static-call System.Char 
                      ToLowerInvariant 
                      (clr-static-call System.Char 
                                       ToUpperInvariant 
                                       chr)))
     
-  (define (char-alphabetic? chr)
-    (unless (char? chr)
-      (assertion-violation 'char-alphabetic? "not a character" chr))
+  (define/contract (char-alphabetic? chr:char)
     (clr-static-call System.Char "IsLetter(Char)" chr))               
 
-  (define (char-numeric? chr)
-    (unless (char? chr)
-      (assertion-violation 'char-numeric? "not a character" chr))
+  (define/contract (char-numeric? chr:char)
     (clr-static-call System.Char "IsDigit(Char)" chr))               
 
-  (define (char-whitespace? chr)
-    (unless (char? chr)
-      (assertion-violation 'char-whitespace? "not a character" chr))
+  (define/contract (char-whitespace? chr:char)
     (clr-static-call System.Char "IsWhiteSpace(Char)" chr))               
 
-  (define (char-upper-case? chr)
-    (unless (char? chr)
-      (assertion-violation 'char-upper-case? "not a character" chr))
+  (define/contract (char-upper-case? chr:char)
     (clr-static-call System.Char "IsUpper(Char)" chr)) 
     
-  (define (char-lower-case? chr)
-    (unless (char? chr)
-      (assertion-violation 'char-lower-case? "not a character" chr))
+  (define/contract (char-lower-case? chr:char)
     (clr-static-call System.Char "IsLower(Char)" chr)) 
     
-  (define (char-title-case? chr)
-    (unless (char? chr)
-      (assertion-violation 'char-title-case? "not a character" chr))
+  (define/contract (char-title-case? chr:char)
     (case chr
       [(#\I #\A) #f]
       [else
         (eqv? chr (char-titlecase chr))]))
         
-  (define (char-general-category chr)        
-    (unless (char? chr)
-      (assertion-violation 'char-general-category "not a character" chr))
+  (define/contract (char-general-category chr:char)
     (case (clr-static-call System.Char "GetUnicodeCategory(Char)" chr)
       [(closepunctuation)          'Pe]
       [(connectorpunctuation)      'Pc]
@@ -209,69 +188,64 @@
                   (->string b) 
                   'IgnoreCase)]))
         
-  (define (string-ci-compare a b)
-    (unless (string? a) (assertion-violation 'string-ci-compare "not a string" a))
-    (unless (string? b) (assertion-violation 'string-ci-compare "not a string" b))
+  (define/contract (string-ci-compare a:string b:string)
     ($string-ci-compare a b))
     
-  (define-syntax make-string-ci-compare
+  (define-syntax define-string-ci-compare
     (syntax-rules ()
-      [(_ cmp k)
-        (lambda (a b . rest)
-          (unless (string? a) (assertion-violation 'k "not a string" a))
-          (for-all
-            (lambda (x)
-              (unless (string? x) (assertion-violation 'k "not a string" x))  
-              (let ((r (cmp ($string-ci-compare a x) 0)))
-                (set! a x)
-                r))
-            (cons b rest)))]))
+      [(_ name cmp)
+        (define/contract name
+          (case-lambda
+            [(a:string b:string) 
+              (cmp ($string-ci-compare a b) 0)]
+            [(a:string b . rest)
+              (for-all
+                (lambda (x)
+                  (unless (string? x) (assertion-violation 'name "not a string" x))  
+                  (let ((r (cmp ($string-ci-compare a x) 0)))
+                    (set! a x)
+                    r))
+                (cons b rest))]))]))
 
-  (define string-ci=? (make-string-ci-compare fx=? string-ci=?))
-  (define string-ci<? (make-string-ci-compare fx<? string-ci<?))
-  (define string-ci>? (make-string-ci-compare fx>? string-ci>?))
-  (define string-ci<=? (make-string-ci-compare fx<=? string-ci<=?))
-  (define string-ci>=? (make-string-ci-compare fx>=? string-ci>=?)) 
+  (define-string-ci-compare string-ci=? fx=?)
+  (define-string-ci-compare string-ci<? fx<?)
+  (define-string-ci-compare string-ci>? fx>?)
+  (define-string-ci-compare string-ci<=? fx<=?)
+  (define-string-ci-compare string-ci>=? fx>=?)
   
-  
-  (define (string-titlecase str)
-    (unless (string? str) 
-      (assertion-violation 'string-titlecase "not a string" str))
+  (define/contract (string-titlecase str:string)
     (clr-call TextInfo ToTitleCase text-info (string-downcase str)))
     
-  (define (string-foldcase str)
-    (unless (string? str) 
-      (assertion-violation 'string-foldcase "not a string" str))
+  (define/contract (string-foldcase str:string)
     (clr-call System.String ToLowerInvariant (string-upcase str)))
-    
   
-  
-  (define-syntax char-ci-compare
+  (define-syntax define-char-ci-compare
     (syntax-rules ()
-      [(_ cmp k)
-        (lambda (a b . rest)
-          (unless (char? a) (assertion-violation 'k "not a char" a))
-          (for-all
-            (lambda (x)
-              (unless (char? x) (assertion-violation 'k "not a char" x))  
-              (let ((r (cmp (char->integer (char-upcase a)) (char->integer (char-upcase x)))))
-                (set! a x)
-                r))
-            (cons b rest)))]))    
+      [(_ name cmp)
+        (define/contract name
+          (case-lambda
+            [(a:char b:char)
+              (cmp (char->integer (char-upcase a)) (char->integer (char-upcase b)))]
+            [(a:char b . rest)
+              (for-all
+                (lambda (x)
+                  (unless (char? x) (assertion-violation 'k "not a char" x))  
+                  (let ((r (cmp (char->integer (char-upcase a)) (char->integer (char-upcase x)))))
+                    (set! a x)
+                    r))
+                (cons b rest))]))]))    
     
-  (define char-ci=? (char-ci-compare fx=? char-ci=?))
-  (define char-ci<? (char-ci-compare fx<? char-ci<?))
-  (define char-ci>? (char-ci-compare fx>? char-ci>?))
-  (define char-ci<=? (char-ci-compare fx<=? char-ci<=?))
-  (define char-ci>=? (char-ci-compare fx>=? char-ci>=?))
+  (define-char-ci-compare char-ci=? fx=?)
+  (define-char-ci-compare char-ci<? fx<?)
+  (define-char-ci-compare char-ci>? fx>?)
+  (define-char-ci-compare char-ci<=? fx<=?)
+  (define-char-ci-compare char-ci>=? fx>=?)
   
-  (define (string-upcase str)
-    (if (string? str)
-        (clr-call System.String Replace 
-          (clr-call System.String ToUpper (->string str))
-          "ß" 
-          "SS")
-        (assertion-violation 'string-upcase "not a string" str)))
+  (define/contract (string-upcase str:string)
+    (clr-call System.String Replace 
+      (clr-call System.String ToUpper (->string str))
+      "ß" 
+      "SS"))
 
   (define-syntax string-normalize
     (syntax-rules ()

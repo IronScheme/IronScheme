@@ -265,13 +265,6 @@
       string>=?
       symbol=?
       boolean=?     
-      rationalize
-      max
-      min
-      even?
-      odd?
-      gcd
-      lcm
       vector-map
       vector-for-each
       string-for-each
@@ -286,15 +279,6 @@
 
       flonum?
 
-      ;fixnum?
-      ;fixnum-width
-      ;
-      mod
-      mod0   
-      div-and-mod
-      div0-and-mod0
-      div0
-      
       list->vector
       list->string 
       
@@ -331,6 +315,7 @@
       ;current-error-port
       
      )
+    (ironscheme contracts)
     (ironscheme clr)
     (ironscheme unsafe))
     
@@ -361,20 +346,16 @@
      
     (define (procedure? obj)
       (clr-is Ironscheme.Runtime.Callable obj))  
-      
 
     (define (flonum? obj)
       (clr-is System.Double obj))  
-            
     
     (define (char->integer chr)
       (unless (char? chr)
-        (assertion-violation 'char->integer "not a character" chr))
+        (assertion-violation 'char->integer "not a char" chr))
       (clr-cast System.Int32 (clr-cast System.Char chr)))
       
-    (define (integer->char num)
-      (unless (fixnum? num)
-        (assertion-violation 'integer->char "not a integer" num))
+    (define/contract (integer->char num:fixnum)
       (when (or (fxnegative? num)      
                 (fx>? num #x10ffff)
                 (and (fx>? num #xd7ff)
@@ -382,17 +363,13 @@
         (assertion-violation 'integer->char "not a valid unicode value" num))
       (string-ref (clr-static-call System.Char ConvertFromUtf32 num) 0))
       
-    (define make-string
+    (define/contract make-string
       (case-lambda
         [(k)
           (make-string k #\nul)]
-        [(k fill)
-          (unless (fixnum? k)
-            (assertion-violation 'make-string "not a fixnum" k))
+        [(k:fixnum fill:char)
           (when (negative? k)
             (assertion-violation 'make-string "cannot be negative" k))        
-          (unless (char? fill)
-            (assertion-violation 'make-string "not a character" fill))
           (let ((str (clr-new System.String (clr-cast System.Char fill) (clr-cast System.Int32 k))))            
             (clr-new System.Text.StringBuilder (clr-cast System.String str)))]))
 
@@ -440,9 +417,7 @@
           str
           (clr-call Object ToString str)))
           
-    (define (string . args)
-      (unless (for-all char? args)
-        (assertion-violation 'string "not all char" args))
+    (define/contract (string . args:char)
       (let ((str (clr-new System.Text.StringBuilder)))
         (let f ((args args))
           (if (null? args)
@@ -451,17 +426,18 @@
                 (clr-call System.Text.StringBuilder "Append(Char)" str (car args))
                 (f (cdr args)))))))
           
-    (define (string->list str)
-      (unless (string? str)
-        (assertion-violation 'string->list "not a string" str))
+    (define/contract (string->list str:string)
       (clr-static-call IronScheme.Runtime.Cons FromList (->string str)))
+      
+    (define (->mutable-string str)
+      (clr-new System.Text.StringBuilder (clr-cast System.String str)))    
           
     (define (string-copy str)
       (cond
         [(clr-string? str)
           (clr-static-call System.String Copy str)]
         [(stringbuilder? str)
-          (clr-call System.Text.StringBuilder ToString str)]
+          (->mutable-string (clr-call System.Text.StringBuilder ToString str))]
         [else
           (assertion-violation 'string-copy "not a string" str)]))
 
@@ -474,76 +450,40 @@
         [(clr-string? str)
           (clr-call System.String Substring str start (fx- end start))]
         [(stringbuilder? str)
-          (clr-call System.Text.StringBuilder ToString str start (fx- end start))]
+          (->mutable-string (clr-call System.Text.StringBuilder ToString str start (fx- end start)))]
         [else
           (assertion-violation 'substring "not a string" str)]))
       
     ; probably need to be made faster  
-    (define (string-append . args)
-      (unless (for-all string? args)
-        (assertion-violation 'string-append "not strings" args))
+    (define/contract (string-append . args:string)
       (clr-static-call System.String 
                        "Concat(String[])"
                        (list->vector (map ->string args))))
                        
-    (define (string-format fmt . args)
+    (define/contract (string-format fmt:string . args)
       (clr-static-call System.String "Format(String,Object[])" fmt (list->vector args)))                       
     
-    (define (symbol->string sym)
-      (unless (symbol? sym)
-        (assertion-violation 'symbol->string "not a symbol" sym))
+    (define/contract (symbol->string sym:symbol)
       (clr-static-call Microsoft.Scripting.SymbolTable IdToString sym))
       
-    (define (string->symbol str)
-      (unless (string? str)
-        (assertion-violation 'string->symbol "not a string" str))
+    (define/contract (string->symbol str:string)
       (clr-static-call Microsoft.Scripting.SymbolTable StringToObject str))
       
-    
-    (define (div0 x1 x2)
-      (let* ((d (div x1 x2))
-             (m (- x1 (* d x2))))
-        (cond 
-          [(< m (magnitude (/ x2 2))) d]
-          [(positive? x2) (+ d 1)]
-          [else (- d 1)])))
-    
-    (define (mod x1 x2)
-      (- x1 (* (div x1 x2) x2)))
-
-    (define (mod0 x1 x2)
-      (- x1 (* (div0 x1 x2) x2)))
-      
-    (define (div-and-mod x1 x2)
-      (let ((d (div x1 x2)))
-        (values d (- x1 (* d x2)))))             
-
-    (define (div0-and-mod0 x1 x2)
-      (let ((d (div0 x1 x2)))
-        (values d (- x1 (* d x2)))))             
         
-    (define (list->vector lst)
+    (define/contract (list->vector lst:list)
       (apply vector lst))        
       
-    (define (list->string lst)
+    (define/contract (list->string lst:list)
       (apply string lst))
       
-    (define (vector-ref x n)
-      (unless (vector? x)
-        (assertion-violation 'vector-ref "not a vector" x))
-      (unless (fixnum? n) ; no support for big indices
-        (assertion-violation 'vector-ref "not an integer" n))
+    (define/contract (vector-ref x:vector n:fixnum)
       (when (fxnegative? n)
         (assertion-violation 'vector-ref "negative index" n))
       (when (fx>=? n (vector-length x))
         (assertion-violation 'vector-set! "index out of bounds" n))
       ($vector-ref x n))
       
-    (define (vector-set! x n value)
-      (unless (vector? x)
-        (assertion-violation 'vector-set! "not a vector" x))
-      (unless (fixnum? n) ; no support for big indices
-        (assertion-violation 'vector-set! "not an integer" n))
+    (define/contract (vector-set! x:vector n:fixnum value)
       (when (fxnegative? n)
         (assertion-violation 'vector-set! "negative index" n))
       (when (fx>=? n (vector-length x))
@@ -551,11 +491,9 @@
       ($vector-set! x n value)
       (void))   
       
-    (define make-vector         
+    (define/contract make-vector         
       (case-lambda
-        [(k)
-          (unless (fixnum? k)
-            (assertion-violation 'make-vector "not a fixnum" k))
+        [(k:fixnum)
           (when (negative? k)
             (assertion-violation 'make-vector "cannot be negative" k))
           (clr-new-array System.Object k)]
@@ -564,20 +502,16 @@
             (vector-fill! vec fill)
             vec)]))
             
-    (define (vector-length vec)
-      (unless (vector? vec)
-        (assertion-violation 'vector-length "not a vector" vec))
+    (define/contract (vector-length vec:vector)
       (clr-prop-get System.Array Length vec))            
     
-    (define (vector-fill! vec val)
+    (define/contract (vector-fill! vec:vector val)
       (let ((len (vector-length vec)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))
           (vector-set! vec i val))))  
           
-    (define (vector->list vec)
-      (unless (vector? vec)
-        (assertion-violation 'vector->list "not a vector" vec))
+    (define/contract (vector->list vec:vector)
       (clr-static-call IronScheme.Runtime.Cons FromList vec))   
       
     (define (reverse-helper l a)
@@ -585,7 +519,7 @@
           a
           (reverse-helper (cdr l) (cons (car l) a))))
           
-    (define (reverse lst)
+    (define/contract (reverse lst:list)
       (reverse-helper lst '()))
      
     (define (caar   x) (car (car x)))
@@ -628,81 +562,9 @@
     ;(define current-error-port
       ;(make-parameter (clr-static-prop-get System.Console Error)))
       
-    (define (even? n)
-      (unless (integer? n)
-        (assertion-violation 'even? "not a integer" n))
-      (= 0 (mod n 2)))           
 
-    (define (odd? n)
-      (unless (integer? n)
-        (assertion-violation 'odd? "not a integer" n))
-      (= 1 (mod n 2)))      
-    
-    (define (max a . rest)
-      (unless (real? a)
-        (assertion-violation 'max "not a real" a))    
-      (fold-left 
-        (lambda (a b) 
-          (let ((r (if (< a b) b a)))
-            (if (or (inexact? a) (inexact? b))
-              (inexact r)
-              r)))
-        a 
-        rest))
-      
-    (define (min a . rest)
-      (unless (real? a)
-        (assertion-violation 'min "not a real" a))    
-      (fold-left 
-        (lambda (a b) 
-          (let ((r (if (> a b) b a)))
-            (if (or (inexact? a) (inexact? b))
-              (inexact r)
-              r)))
-        a 
-        rest))   
-      
-    (define (gcd . nums)
-      (case (length nums)
-        [(0) 0]
-        [(1)
-          (let ((n (car nums)))
-            (unless (integer? n)
-              (assertion-violation 'gcd "not an integer" n))
-            (abs n))]
-        [(2)
-          (let ((a (car nums))(b (cadr nums)))
-            (unless (integer? a)
-              (assertion-violation 'gcd "not an integer" a))
-            (unless (integer? b)
-              (assertion-violation 'gcd "not an integer" b))
-            (if (zero? b)
-              (abs a)
-              (abs (gcd b (mod a b)))))]
-        [else
-          (fold-left gcd (abs (car nums)) (cdr nums))]))              
-            
-    (define (lcm . nums)
-      (case (length nums)
-        [(0) 1]
-        [(1)
-          (let ((n (car nums)))
-            (unless (integer? n)
-              (assertion-violation 'lcm "not an integer" n))
-            (abs n))]
-        [(2)
-          (let ((a (car nums))(b (cadr nums)))
-            (unless (integer? a)
-              (assertion-violation 'lcm "not an integer" a))
-            (unless (integer? b)
-              (assertion-violation 'lcm "not an integer" b))
-            (if (or (zero? a)(zero? b))
-              0
-              (abs (* (/ a (gcd a b)) b))))]
-        [else
-          (fold-left lcm (abs (car nums)) (cdr nums))])) 
           
-    (define (string-compare a b)
+    (define/contract (string-compare a:string b:string)
       (clr-static-call System.String 
                        "Compare(String,String,StringComparison)"
                        (->string a) 
@@ -769,36 +631,9 @@
     (define-char-compare char<=? fx<=?)
     (define-char-compare char>=? fx>=?)
     
-    ;; from SLIB
-    (define (rationalize x e) 
-      (if (and (infinite? x) (infinite? e))
-        +nan.0
-        (let ((r (apply / (find-ratio x e))))
-          (if (and (exact? x) (exact? e))
-            r
-            (inexact r)))))
 
-    (define (find-ratio x e) 
-      (find-ratio-between (- x e) (+ x e)))
-
-    (define (find-ratio-between x y)
-      (define (sr x y)
-        (let ((fx (exact (floor x))) 
-              (fy (exact (floor y))))
-          (cond 
-            ((>= fx x) (list fx 1))
-	          ((= fx fy) (let ((rat (sr (/ (- y fy)) (/ (- x fx)))))
-			                   (list (+ (cadr rat) (* fx (car rat))) (car rat))))
-	          (else (list (+ 1 fx) 1)))))
-      (cond 
-        ((< y x) (find-ratio-between y x))
-        ((>= x y) (list x 1))
-        ((positive? x) (sr x y))
-        ((negative? y) (let ((rat (sr (- y) (- x))))
-		                     (list (- (car rat)) (cadr rat))))
-        (else '(0 1))))
         
-    (define (vector-map p vec1 . vecs)
+    (define/contract (vector-map p:procedure vec1:vector . vecs:vector)
       (let* ((len (vector-length vec1))
              (res (make-vector len '())))
         (do ((i 0 (fx+ i 1)))
@@ -809,7 +644,7 @@
                 (apply p (map (lambda (x) (vector-ref x i)) 
                               (cons vec1 vecs))))))))
           
-    (define (vector-for-each p vec1 . vecs)
+    (define/contract (vector-for-each p:procedure vec1:vector . vecs:vector)
       (let ((len (vector-length vec1)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))
@@ -818,7 +653,7 @@
               (apply p (map (lambda (x) (vector-ref x i)) 
                             (cons vec1 vecs)))))))
             
-    (define (string-for-each p str1 . strs)
+    (define/contract (string-for-each p:procedure str1:string . strs:string)
       (let ((len (string-length str1)))
         (do ((i 0 (fx+ i 1)))
             ((fx=? i len))

@@ -72,13 +72,18 @@
     (void))
     
   (define (load/unload filename)
-    (let ((libs (installed-libraries)))
-      (load filename)
-      (for-each
-        (lambda (lib)
-          (unless (memq lib libs)
-            (uninstall-library lib)))
-        (installed-libraries))))
+    (let ((libs #f)) 
+      (dynamic-wind
+        (lambda ()
+          (set! libs (installed-libraries)))
+        (lambda ()
+          (load filename))
+        (lambda ()          
+          (for-each
+            (lambda (lib)
+              (unless (memq lib libs)
+                (uninstall-library lib)))
+            (installed-libraries))))))
 
   (define (load filename)
     (apply load-r6rs-top-level filename 'load (cdr (command-line)))

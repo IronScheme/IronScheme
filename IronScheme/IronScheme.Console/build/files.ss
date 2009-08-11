@@ -19,17 +19,18 @@
     
   (import 
     (except (rnrs) file-exists? delete-file)
+    (ironscheme contracts)
     (ironscheme clr))
     
   (clr-using system.io)
     
-  (define (file-exists? fn)
+  (define/contract (file-exists? fn:string)
     (clr-static-call file exists fn))
     
-  (define (delete-file fn)
+  (define/contract (delete-file fn:string)
     (clr-static-call file delete fn))
     
-  (define (get-directory-name path)
+  (define/contract (get-directory-name path)
     (clr-static-call path getdirectoryname path))   
     
   (define (get-last-write-time filename)
@@ -38,7 +39,7 @@
   (define (compare-time t1 t2)
     (clr-call IComparable CompareTo t1 t2))    
     
-  (define (file-newer? file1 file2)
+  (define/contract (file-newer? file1:string file2:string)
     (let ((r (compare-time (get-last-write-time file1)
                            (get-last-write-time file2))))
       (>= r 0)))

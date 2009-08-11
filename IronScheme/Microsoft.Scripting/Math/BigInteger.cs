@@ -1765,7 +1765,7 @@ namespace Microsoft.Scripting.Math {
                 if (bytes[msb] != highByte) break;
             }
             // ensure high bit is 0 if positive, 1 if negative
-            bool needExtraByte = (bytes[msb] & 0x80) != (highByte & 0x80);
+            bool needExtraByte = true;// (bytes[msb] & 0x80) != (highByte & 0x80);
 
             byte[] trimmedBytes = new byte[msb + 1 + (needExtraByte ? 1 : 0)];
             Array.Copy(bytes, trimmedBytes, msb + 1);

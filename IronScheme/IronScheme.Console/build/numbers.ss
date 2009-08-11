@@ -64,6 +64,18 @@
     sqrt
     exact-integer-sqrt
     expt
+    rationalize
+    even?
+    odd?
+    max
+    min
+    gcd
+    lcm
+    div0
+    mod
+    mod0
+    div-and-mod
+    div0-and-mod0    
     number->string
     )
   (import 
@@ -121,8 +133,21 @@
       sqrt
       exact-integer-sqrt
       expt
+      rationalize
+      even?
+      odd?
+      max
+      min
+      gcd
+      lcm
+      div0
+      mod
+      mod0
+      div-and-mod
+      div0-and-mod0       
       number->string)
     (ironscheme core)
+    (ironscheme contracts)
     (ironscheme unsafe)
     (ironscheme clr))
 
@@ -211,14 +236,10 @@
       [else
         (assertion-violation '->bignum "not an integer" num)]))     
 
-  (define (real->flonum x)
-    (unless (real? x)
-      (assertion-violation 'real->flonum "not a real" x))
+  (define/contract (real->flonum x:real)
     (clr-static-call System.Convert "ToDouble(System.Object)" x))
     
-  (define (fixnum->flonum x)
-    (unless (fixnum? x)
-      (assertion-violation 'fixnum->flonum "not a fixnum" x))
+  (define/contract (fixnum->flonum x:fixnum)
     (clr-cast System.Double (clr-cast System.Int32 x)))
         
   (define (nan? num)
@@ -384,19 +405,13 @@
                (= (denominator (real-part obj)) 1)))]
       [else #f]))                
 
-  (define (zero? num)
-    (unless (number? num)
-      (assertion-violation 'zero? "not a number" num))    
+  (define/contract (zero? num:number)
     (= num 0))
     
-  (define (positive? num)
-    (unless (number? num)
-      (assertion-violation 'positive? "not a number" num))    
+  (define/contract (positive? num:number)
     (> num 0))
       
-  (define (negative? num)
-    (unless (number? num)
-      (assertion-violation 'negative? "not a number" num))    
+  (define/contract (negative? num:number)
     (< num 0))
     
   (define (inexact num)
@@ -445,6 +460,28 @@
          num]
       [else
         (assertion-violation 'exact "not a number" num)])) 
+        
+  (define/contract (div0 x1:real x2:real)
+    (let* ((d (div x1 x2))
+           (m (- x1 (* d x2))))
+      (cond 
+        [(< m (magnitude (/ x2 2))) d]
+        [(positive? x2) (+ d 1)]
+        [else (- d 1)])))
+  
+  (define/contract (mod x1:real x2:real)
+    (- x1 (* (div x1 x2) x2)))
+
+  (define/contract (mod0 x1:real x2:real)
+    (- x1 (* (div0 x1 x2) x2)))
+    
+  (define/contract (div-and-mod x1:real x2:real)
+    (let ((d (div x1 x2)))
+      (values d (- x1 (* d x2)))))             
+
+  (define/contract (div0-and-mod0 x1:real x2:real)
+    (let ((d (div0 x1 x2)))
+      (values d (- x1 (* d x2)))))         
         
   (define (hex-char num)
     (integer->char (+ num (char->integer (if (fx<? num 10) #\0 #\W)))))
@@ -529,6 +566,10 @@
                     "?")))))
             #'(define name
                 (case-lambda
+                  [(a) 
+                    (if (number? a)
+                        #t
+                        (assertion-violation 'name "not a number" a))]
                   [(a b)
                     (cond 
                       [(and (real? a)
@@ -595,11 +636,7 @@
   (define-real-comparer >)
   (define-real-comparer >=)   
   
-  (define (make-rectangular r1 r2)
-    (unless (real? r1)
-      (assertion-violation 'make-rectangular "not a real" r1))
-    (unless (real? r2)
-      (assertion-violation 'make-rectangular "not a real" r2))
+  (define/contract (make-rectangular r1:real r2:real)
     (cond 
       [(and (exact? r1) (exact? r2))
         (make-rectnum (->ratnum r1) (->ratnum r2))]
@@ -607,18 +644,12 @@
       [else 
         (make-complexnum (inexact r1) (inexact r2))]))
       
-  (define (make-polar r1 r2)
-    (unless (real? r1)
-      (assertion-violation 'make-polar "not a real" r1))
-    (unless (real? r2)
-      (assertion-violation 'make-polar "not a real" r2))
+  (define/contract (make-polar r1:real r2:real)
     (if (and (exact? r2) (zero? r2))
       r1      
       (* r1 (make-rectangular (cos r2) (sin r2)))))
         
-  (define (angle num)
-    (unless (number? num)
-      (assertion-violation 'angle "not a number" num))
+  (define/contract (angle num:number)
     (if (rectnum? num)
         (angle (inexact num))      
         (atan (imag-part num)
@@ -756,11 +787,7 @@
         (/ (log num1) (log num2))]))
         
         
-  (define (div x1 x2)
-    (unless (real? x1)
-      (assertion-violation 'div "not a real" x1))
-    (unless (real? x2)
-      (assertion-violation 'div "not a real" x2))
+  (define/contract (div x1:real x2:real)
     (when (zero? x2)
       (assertion-violation 'div "divide by zero" x1 x2))
     (when (or (nan? x1) (infinite? x1))
@@ -780,16 +807,12 @@
              (exact d)
              d))))
              
-  (define (abs x1)
-    (unless (real? x1)
-      (assertion-violation 'abs "not a real" x1))
+  (define/contract (abs x1:real)
     (if (negative? x1)
         (- x1)
         x1))
         
-  (define (floor x)
-    (unless (real? x)
-      (assertion-violation 'floor "not a real" x))
+  (define/contract (floor x:real)
     (cond
       [(exact-integer? x) x]
       [(ratnum? x)
@@ -798,9 +821,7 @@
       [else
         (clr-static-call System.Math "Floor(System.Double)" (inexact x))]))
              
-  (define (ceiling x)
-    (unless (real? x)
-      (assertion-violation 'ceiling "not a real" x))
+  (define/contract (ceiling x:real)
     (cond
       [(exact-integer? x) x]
       [(ratnum? x)
@@ -809,9 +830,7 @@
       [else
         (clr-static-call System.Math "Ceiling(System.Double)" (inexact x))]))
 
-  (define (truncate x)
-    (unless (real? x)
-      (assertion-violation 'truncate "not a real" x))
+  (define/contract (truncate x:real)
     (cond
       [(exact-integer? x) x]
       [else
@@ -820,9 +839,7 @@
               (exact r)
               r))]))
             
-  (define (round x)
-    (unless (real? x)
-      (assertion-violation 'round "not a real" x))
+  (define/contract (round x:real)
     (cond
       [(exact-integer? x) x]
       [(ratnum? x)
@@ -849,7 +866,7 @@
         (clr-static-call System.Math "Round(System.Double)" (inexact x))]))
         
         
-  (define (sqrt num)
+  (define/contract (sqrt num:number)
     (cond
       [(rectnum? num)
         (sqrt (rectnum->complexnum num))]
@@ -865,6 +882,101 @@
           (if (exact? num)
               (exact r)
               r))]))
+              
+  (define/contract (even? n:integer)
+    (= 0 (mod n 2)))
+
+  (define/contract (odd? n:integer)
+    (= 1 (mod n 2)))
+  
+  (define/contract (max a:real . rest:real)
+    (fold-left 
+      (lambda (a b) 
+        (let ((r (if (< a b) b a)))
+          (if (or (inexact? a) (inexact? b))
+            (inexact r)
+            r)))
+      a 
+      rest))
+    
+  (define/contract (min a:real . rest:real)
+    (fold-left 
+      (lambda (a b) 
+        (let ((r (if (> a b) b a)))
+          (if (or (inexact? a) (inexact? b))
+            (inexact r)
+            r)))
+      a 
+      rest))   
+    
+  (define (gcd . nums)
+    (case (length nums)
+      [(0) 0]
+      [(1)
+        (let ((n (car nums)))
+          (unless (integer? n)
+            (assertion-violation 'gcd "not an integer" n))
+          (abs n))]
+      [(2)
+        (let ((a (car nums))(b (cadr nums)))
+          (unless (integer? a)
+            (assertion-violation 'gcd "not an integer" a))
+          (unless (integer? b)
+            (assertion-violation 'gcd "not an integer" b))
+          (if (zero? b)
+            (abs a)
+            (abs (gcd b (mod a b)))))]
+      [else
+        (fold-left gcd (abs (car nums)) (cdr nums))]))              
+          
+  (define (lcm . nums)
+    (case (length nums)
+      [(0) 1]
+      [(1)
+        (let ((n (car nums)))
+          (unless (integer? n)
+            (assertion-violation 'lcm "not an integer" n))
+          (abs n))]
+      [(2)
+        (let ((a (car nums))(b (cadr nums)))
+          (unless (integer? a)
+            (assertion-violation 'lcm "not an integer" a))
+          (unless (integer? b)
+            (assertion-violation 'lcm "not an integer" b))
+          (if (or (zero? a)(zero? b))
+            0
+            (abs (* (/ a (gcd a b)) b))))]
+      [else
+        (fold-left lcm (abs (car nums)) (cdr nums))]))               
+              
+  ;; from SLIB
+  (define/contract (rationalize x:real e:real) 
+    (if (and (infinite? x) (infinite? e))
+      +nan.0
+      (let ((r (apply / (find-ratio x e))))
+        (if (and (exact? x) (exact? e))
+          r
+          (inexact r)))))
+
+  (define (find-ratio x e) 
+    (find-ratio-between (- x e) (+ x e)))
+
+  (define (find-ratio-between x y)
+    (define (sr x y)
+      (let ((fx (exact (floor x))) 
+            (fy (exact (floor y))))
+        (cond 
+          ((>= fx x) (list fx 1))
+          ((= fx fy) (let ((rat (sr (/ (- y fy)) (/ (- x fx)))))
+		                   (list (+ (cadr rat) (* fx (car rat))) (car rat))))
+          (else (list (+ 1 fx) 1)))))
+    (cond 
+      ((< y x) (find-ratio-between y x))
+      ((>= x y) (list x 1))
+      ((positive? x) (sr x y))
+      ((negative? y) (let ((rat (sr (- y) (- x))))
+	                     (list (- (car rat)) (cadr rat))))
+      (else '(0 1))))              
                 
   (define (exact-integer-sqrt num)
     (if (bignum? num)

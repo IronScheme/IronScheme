@@ -83,8 +83,8 @@
   (define/contract (type-enum? type:clr-type)
     (clr-prop-get System.Type IsEnum type)) 
     
-  (define type-member
-    (case/contract
+  (define/contract type-member
+    (case-lambda
       [(type name) 
         (type-member type name 'all)]
       [(type name member-types)
@@ -93,8 +93,8 @@
         (vector->list
           (clr-call System.Type GetMember type name member-types binding-flags))]))
   
-  (define type-members
-    (case/contract
+  (define/contract type-members
+    (case-lambda
       [(type) 
         (type-members type '(public static instance))]
       [(type:clr-type binding-flags:symbol/symbol-list)

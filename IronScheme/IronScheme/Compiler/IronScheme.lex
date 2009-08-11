@@ -125,7 +125,7 @@ identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
 good_id                {identifier}{delimiter}
 bad_id                 {identifier}{but_delimiter}
 
-directive              "#!"({identifier})
+directive              "#!"(({identifier})|([ \t]*"/"[^\n]*))
 
 
 radix2                 #[bB]

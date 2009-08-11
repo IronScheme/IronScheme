@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace IronScheme.Compiler
 {
@@ -59,6 +61,29 @@ namespace IronScheme.Compiler
 
       class Pass0 : DeepWalker
       {
+        static Statement TryRewriteExpression(Expression ex)
+        {
+          if (ex is UnaryExpression && ex.NodeType == AstNodeType.Convert)
+          {
+            var ux = ex as UnaryExpression;
+            return TryRewriteExpression(ux.Operand);
+          }
+          if (ex is VoidExpression)
+          {
+            VoidExpression ve = (VoidExpression)ex;
+            return Rewrite(ve.Statement);
+          }
+
+          if (ex is CommaExpression)
+          {
+            var ce = ex as CommaExpression;
+            var block = RewriteExpressions(ce.Expressions, Ast.Statement);
+            return Rewrite(Ast.Block(block));
+          }
+
+          return null;
+        }
+
         static Statement Rewrite(Statement body)
         {
           if (body is BlockStatement)
@@ -81,13 +106,63 @@ namespace IronScheme.Compiler
             return Ast.Block(newbody);
           }
 
+          if (body is WriteStatement)
+          {
+            var ws = (WriteStatement)body;
+
+            if (ws.Value is CommaExpression)
+            {
+              var ce = ws.Value as CommaExpression;
+              var block = RewriteExpressions(ce.Expressions, x => Ast.Write(ws.Variable, x));
+              return Rewrite(Ast.Block(block));
+            }
+          }
+
+          if (body is ReturnStatement)
+          {
+            var rs = body as ReturnStatement;
+
+            if (rs.Expression is UnaryExpression && rs.Expression.NodeType == AstNodeType.Convert)
+            {
+              var ux = (UnaryExpression)rs.Expression;
+              var op = ux.Operand;
+
+              if (op is VoidExpression)
+              {
+                return Rewrite(op as VoidExpression);
+              }
+              if (op is CommaExpression)
+              {
+                var ce = op as CommaExpression;
+                var block = RewriteExpressions(ce.Expressions, 
+                  x => Ast.Return(Ast.ConvertHelper(x, ux.Type)));
+
+                return Rewrite(Ast.Block(block));
+              }
+            }
+
+            if (rs.Expression is CommaExpression)
+            {
+              var ce = rs.Expression as CommaExpression;
+              var block = RewriteExpressions(ce.Expressions, Ast.Return);
+              return Rewrite(Ast.Block(block));
+            }
+
+            if (rs.Expression is VoidExpression)
+            {
+              var ve = rs.Expression as VoidExpression;
+              return Rewrite(ve);
+            }
+
+          }
+
           if (body is ExpressionStatement)
           {
             var es = (ExpressionStatement)body;
-            if (es.Expression is VoidExpression)
+            var trs = TryRewriteExpression(es.Expression);
+            if (trs != null)
             {
-              VoidExpression ve = (VoidExpression)es.Expression;
-              return ve.Statement;
+              return trs;
             }
           }
 
@@ -105,6 +180,52 @@ namespace IronScheme.Compiler
           }
 
           return body;
+        }
+
+        private static Statement Rewrite(VoidExpression ve)
+        {
+          var block = new List<Statement>();
+          var s = Rewrite(ve.Statement);
+          if (s is BlockStatement)
+          {
+            block.AddRange(((BlockStatement)s).Statements);
+          }
+          else
+          {
+            block.Add(s);
+          }
+
+          block.Add(Ast.Return(Ast.ReadField(null, Generator.Unspecified)));
+
+          return Rewrite(Ast.Block(block));
+        }
+
+        private static List<Statement> RewriteExpressions(ReadOnlyCollection<Expression> cee, 
+          IronScheme.Runtime.Func<Expression, Statement> lastmaker)
+        {
+          var block = new List<Statement>();
+          int i = 0;
+          for (; i < cee.Count - 1; i++)
+          {
+            var ex = cee[i];
+            var trs = TryRewriteExpression(ex);
+            if (trs is BlockStatement)
+            {
+              block.AddRange(((BlockStatement)trs).Statements);
+            }
+            else if (trs == null)
+            {
+              block.Add(Ast.Statement(ex));
+            }
+            else
+            {
+              block.Add(trs);
+            }
+          }
+
+          var last = lastmaker(cee[i]);
+          block.Add(last);
+          return block;
         }
 
         protected override void PostWalk(CodeBlock node)
@@ -143,7 +264,7 @@ namespace IronScheme.Compiler
             if (node.Value is BoundExpression)
             {
               var be = node.Value as BoundExpression;
-              if (Generator.assigns.ContainsKey(be.Variable.Name))
+              if (be.Variable.Block != node.Variable.Block || Generator.assigns.ContainsKey(be.Variable.Name))
               {
                 return base.Walk(node);
               }
@@ -160,23 +281,48 @@ namespace IronScheme.Compiler
       // assign aliasing
       class Pass1 : DeepWalker
       {
+        static bool CanAlias(Variable here, Variable there)
+        {
+          var cb = here.Block;
+          do
+          {
+            if (cb == there.Block)
+            {
+              return true;
+            }
+            cb = cb.Parent;
+          }
+          while (cb != null);
+
+          return false;
+        }
+
         protected override bool Walk(BoundExpression node)
         {
           BoundExpression e = node;
           Dictionary<Variable, bool> loopcheck = new Dictionary<Variable, bool>();
           while (e.Variable.AssumedValue is BoundExpression)
           {
+            var be = e.Variable.AssumedValue as BoundExpression;
             if (loopcheck.ContainsKey(e.Variable))
             {
               e = node;
               break;
             }
             loopcheck.Add(e.Variable, true);
+
+            if (!CanAlias(node.Variable, be.Variable))
+            {
+              e = node;
+              break;
+            }
+
             if (e.Variable.Lift)
             {
               break;
             }
-            e = e.Variable.AssumedValue as BoundExpression;
+
+            e = be;
           }
           node.Variable = e.Variable;
 
@@ -230,7 +376,14 @@ namespace IronScheme.Compiler
               var nstmt = Rewrite(stmt);
               if (nstmt != null)
               {
-                newbody.Add(stmt);
+                if (nstmt is BlockStatement)
+                {
+                  newbody.AddRange(((BlockStatement)nstmt).Statements);
+                }
+                else
+                {
+                  newbody.Add(stmt);
+                }
               }
             }
             return Ast.Block(newbody);
@@ -241,7 +394,19 @@ namespace IronScheme.Compiler
             var ws = (WriteStatement)s;
             if (!references.ContainsKey(ws.Variable))
             {
-              return null;
+              if (ws.Value is MemberExpression)
+              {
+                var me = ws.Value as MemberExpression;
+                if (me.Member == Compiler.Generator.Unspecified)
+                {
+                  return null;
+                }
+              }
+              if (ws.Value is BoundExpression)
+              {
+                return null;
+              }
+              return Ast.Statement(ws.Value);
             }
           }
 

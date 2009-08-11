@@ -28,22 +28,7 @@ namespace IronScheme.Runtime.R6RS
 {
   public class IO : Builtins
   {
-    //static object bm_none = SymbolTable.StringToObject("none");
-    //static object bm_line = SymbolTable.StringToObject("line");
     static object bm_block = SymbolTable.StringToObject("block");
-
-    //(buffer-mode? obj )
-    //[Builtin("buffer-mode?")]
-    //[Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    //public static object IsBufferMode(object s)
-    //{
-    //  if (s is SymbolId)
-    //  {
-    //    SymbolId bm = RequiresNotNull<SymbolId>(s);
-    //    return GetBool(s == bm_none || s == bm_line || s == bm_block);
-    //  }
-    //  return FALSE;
-    //}
 
     internal class Transcoder
     {
@@ -133,18 +118,10 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    ////(native-eol-style)
-    //[Builtin("native-eol-style")]
-    //[Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
-    //public static object NativeEolStyle()
-    //{
-    //  return eol_crlf;
-    //}
 
     //(make-transcoder codec) 
     //(make-transcoder codec eol-style) 
     //(make-transcoder codec eol-style handling-mode)
-
     [Builtin("make-transcoder")]
     public static object MakeTranscoder(object codec)
     {
@@ -330,17 +307,15 @@ namespace IronScheme.Runtime.R6RS
       
       if (s.CanRead)
       {
-        if (s is MemoryStream && s.CanWrite)
+        if (s.CanWrite)
         {
-          TextWriter w = new TranscodedWriter(s, tc);
-          return w;
+          return TranscodedInputOutputPort(s, tc);
         }
-        return new TranscodedReader(s, tc);
+        return TranscodedInputPort(s, tc);
       }
       if (s.CanWrite)
       {
-        TextWriter w = new TranscodedWriter(s, tc);
-        return w;
+        return TranscodedOutputPort(s, tc);
       }
       return FALSE;
     }
@@ -651,14 +626,6 @@ namespace IronScheme.Runtime.R6RS
     {
       string s = RequiresNotNull<string>(str);
       return new StringReader(s); //lexer is broken...
-    }
-
-    //(standard-input-port)
-    [Builtin("standard-input-port")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object StandardInputPort()
-    {
-      return Console.OpenStandardInput();
     }
 
     abstract class CustomStream : Stream
@@ -1449,22 +1416,6 @@ namespace IronScheme.Runtime.R6RS
         c.Call(p);
         return s.ToArray();
       }
-    }
-
-    //(standard-output-port)
-    [Builtin("standard-output-port")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object StandardOutputPort()
-    {
-      return Console.OpenStandardOutput();
-    }
-
-    //(standard-error-port)
-    [Builtin("standard-error-port")]
-    [Obsolete("Implemented in Scheme, do not use, remove if possible")]
-    public static object StandardErrorPort()
-    {
-      return Console.OpenStandardError();
     }
 
 

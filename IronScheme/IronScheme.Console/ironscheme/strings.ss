@@ -39,8 +39,8 @@
   (define/contract (string-replace str:string old:string new:string)
     (clr-call system.string replace str (clr-cast system.string old) (clr-cast system.string new)))  
           
-  (define string-index-of
-    (case/contract
+  (define/contract string-index-of
+    (case-lambda
       [(str:string sub:string)    
         (clr-call system.string indexof str (clr-cast system.string sub))]
       [(str:string sub:string k:fixnum)  

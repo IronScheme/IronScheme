@@ -33,6 +33,7 @@
   (psyntax library-manager)
   (psyntax expander)
   (ironscheme unsafe)
+  (ironscheme clr internal)
   (only (ironscheme core) compile-bootfile)
   (only (ironscheme) time-it optimization-level include import library)
   )
@@ -315,7 +316,7 @@
     (syntax-transpose                           i)
     (emacs-mode?                                i)
     ;(expand-boot-cps                            i)
-    (core-expand                                     i)
+    (core-expand                                i)
     (expand->core                               i)
     (include-into                               i)
     (make-compile-time-value                    i)
@@ -1032,6 +1033,8 @@
     (write-char                                 i r is se)
     (call-with-input-file                       i r is se)
     (call-with-output-file                      i r is se)
+    (textual-input-port?                        i)
+    (textual-output-port?                       i)
     ;;;
     (hashtable-clear!                           i r ht)
     (hashtable-contains?                        i r ht)
@@ -1266,7 +1269,6 @@
 
 
 (define (verify-map)
-
   (define (f x)
     (for-each
       (lambda (x)
@@ -1526,6 +1528,7 @@
                  ((assq x alist) => cdr)
                  (else (error #f "undefined prim" x))))))))))
   (define-prims
+    clr-call-internal clr-cast-internal zero? string-length vector-ref syntax-violation vector-length cons* cadr cddr filter
     syntax-dispatch apply cons append map list syntax-error reverse
     assertion-violation null? car cdr pair? bound-identifier=? list->vector
     generate-temporaries = + datum->syntax string->symbol void

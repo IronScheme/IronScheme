@@ -75,13 +75,18 @@ namespace IronScheme.Compiler
       // pass 1
       for (int i = 0; i < vars.Count; i++)
       {
-        if (defs[i] is Cons && ((Cons)defs[i]).car == SymbolTable.StringToObject("case-lambda"))
+        if (defs[i] is Cons && (((Cons)defs[i]).car == SymbolTable.StringToObject("case-lambda") || 
+          ((Cons)defs[i]).car == SymbolTable.StringToObject("annotated-case-lambda")))
         {
           Cons cl = defs[i] as Cons;
 
+          if (cl.car == SymbolTable.StringToObject("annotated-case-lambda"))
+          {
+            cl = cl.cdr as Cons;
+          }
+
           if (cl.cdr != null)
           {
-            // cant handle overloads (case-lambda with 2 or more bodies)
             if (((Cons)cl.cdr).cdr == null)
             {
               Cons b = ((Cons)((Cons)cl.cdr).car).cdr as Cons;
@@ -200,7 +205,7 @@ namespace IronScheme.Compiler
         }
 
         stmts.Add(Ast.Write(locals[i], e));
-
+        // needed indeed
         stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(vars[i]), Ast.Read(locals[i]))));
       }
 

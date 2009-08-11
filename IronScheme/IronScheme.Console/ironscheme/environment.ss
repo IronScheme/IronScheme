@@ -33,8 +33,8 @@
   (define (application-directory)
     (clr-static-prop-get Ironscheme.Runtime.Builtins ApplicationDirectory))
   
-  (define current-directory
-    (case/contract
+  (define/contract current-directory
+    (case-lambda
       [()       
         (clr-static-prop-get Environment CurrentDirectory)]
       [(path:string)   

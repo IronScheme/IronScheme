@@ -18,6 +18,7 @@ using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
@@ -57,12 +58,13 @@ namespace IronScheme.Compiler
 
       Statement r = null;
 
-      if (v == null || cb.Parent == null)
+      if (v == null)
       {
         r = Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(s), value));
       }
       else
       {
+        Trace.Assert(cb.Parent != null);
         r = Ast.Write(v, value);
       }
 

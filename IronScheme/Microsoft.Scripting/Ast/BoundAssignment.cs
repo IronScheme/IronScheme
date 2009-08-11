@@ -39,12 +39,15 @@ namespace Microsoft.Scripting.Ast {
       get { return _value; }
     }
 
-    static Expression GetReference(Expression expr)
+    Expression GetReference(Expression expr)
     {
       if (expr is BoundExpression)
       {
         var be = expr as BoundExpression;
-        return be.Variable.AssumedValue ?? expr;
+        if (be.Variable.Block == _variable.Block)
+        {
+          return be.Variable.AssumedValue ?? expr;
+        }
       }
       return expr;
     }
@@ -92,12 +95,15 @@ namespace Microsoft.Scripting.Ast {
         // implementation detail.
         private VariableReference _vr;
 
-        static Expression GetReference(Expression expr)
+        Expression GetReference(Expression expr)
         {
           if (expr is BoundExpression)
           {
             var be = expr as BoundExpression;
-            return be.Variable.AssumedValue ?? expr;
+            if (be.Variable.Block == _variable.Block)
+            {
+              return be.Variable.AssumedValue ?? expr;
+            }
           }
           return expr;
         }

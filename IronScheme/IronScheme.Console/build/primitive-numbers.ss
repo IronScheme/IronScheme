@@ -28,6 +28,7 @@
     (except 
       (ironscheme core))
     (ironscheme unsafe)
+    (ironscheme contracts)
     (ironscheme clr))
     
   (define (flonum? obj)
@@ -58,54 +59,36 @@
       [(_ combine nil lst)
         (if (null? lst)
             nil
-            (let f ((a (combine (car lst) nil))(lst (cdr lst)))
+            (let f ((a (combine nil (car lst)))(lst (cdr lst)))
               (if (null? lst)
                   a
                   (f (combine a (car lst)) (cdr lst)))))]))
   
-  (define +
+  (define/contract +
     (case-lambda
       [() 0]
-      [(num)
-        (unless (number? num)
-          (assertion-violation '+ "not a number" num))
+      [(num:number)
         num]
-      [(num1 num2)                   
-        (unless (number? num1)
-          (assertion-violation '+ "not a number" num1))
-        (unless (number? num2)
-          (assertion-violation '+ "not a number" num2))
+      [(num1:number num2:number)
         (generic+ num1 num2)]
       [(num1 num2 num3 . rest)
         (reduce + (+ (+ num1 num2) num3) rest)]))
         
-  (define -
+  (define/contract -
     (case-lambda
-      [(num)
-        (unless (number? num)
-          (assertion-violation '- "not a number" num))
+      [(num:number)
         (generic- 0 num)]
-      [(num1 num2)                   
-        (unless (number? num1)
-          (assertion-violation '- "not a number" num1))
-        (unless (number? num2)
-          (assertion-violation '- "not a number" num2))
+      [(num1:number num2:number)
         (generic- num1 num2)]
       [(num1 num2 num3 . rest)
         (reduce - (- (- num1 num2) num3) rest)]))
         
-  (define *
+  (define/contract *
     (case-lambda
       [() 1]
-      [(num)
-        (unless (number? num)
-          (assertion-violation '* "not a number" num))
+      [(num:number)
         num]
-      [(num1 num2)                   
-        (unless (number? num1)
-          (assertion-violation '* "not a number" num1))
-        (unless (number? num2)
-          (assertion-violation '* "not a number" num2))
+      [(num1:number num2:number)                   
         (generic* num1 num2)]
       [(num1 num2 num3 . rest)
         (reduce * (* (* num1 num2) num3) rest)]))                
@@ -113,17 +96,11 @@
   (define (exact-zero? num)
     (and (exact? num) (zero? num)))        
 
-  (define /
+  (define/contract /
     (case-lambda
-      [(num)
-        (unless (number? num)
-          (assertion-violation '/ "not a number" num))
+      [(num:number)
         (generic/ 1 num)]
-      [(num1 num2)                   
-        (unless (number? num1)
-          (assertion-violation '/ "not a number" num1))
-        (unless (number? num2)
-          (assertion-violation '/ "not a number" num2))
+      [(num1:number num2:number)
         (when (and (exact? num1) (exact-zero? num2))
           (assertion-violation '/ "divide by zero" num1 num2))
         (if (and (zero? num1) (zero? num2))

@@ -26,13 +26,13 @@
   (define (rng? obj)
     (clr-is Random obj))
   
-  (define make-random
-    (case/contract
+  (define/contract make-random
+    (case-lambda
       [()             (clr-new Random)]
       [(seed:fixnum)  (clr-new Random seed)]))
       
-  (define next-fixnum
-    (case/contract
+  (define/contract next-fixnum
+    (case-lambda
       [(rg:rng)         
         (clr-call Random Next rg)]
       [(rg:rng max:fixnum)     

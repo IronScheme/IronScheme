@@ -50,10 +50,10 @@ namespace Microsoft.Scripting.Generation {
             //
             // Emit: RuntimeHelpers.SetGlobalName(context, name, value)
             //
-            _frame.EmitGet(cg);
-            cg.EmitSymbolId(_name);
-            val.EmitGet(cg);
-            cg.EmitCall(typeof(RuntimeHelpers), "SetGlobalName");
+            //_frame.EmitGet(cg);
+            //cg.EmitSymbolId(_name);
+            //val.EmitGet(cg);
+            //cg.EmitCall(typeof(RuntimeHelpers), "SetGlobalName");
         }
 
         public override void EmitSetUninitialized(CodeGen cg) {

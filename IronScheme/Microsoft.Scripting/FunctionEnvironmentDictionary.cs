@@ -39,14 +39,15 @@ namespace Microsoft.Scripting
     /// Base class for FunctionEnvironment's which use a Tuple for the underlying storage.
     /// </summary>
     /// <typeparam name="TupleType"></typeparam>
+  [DebuggerNonUserCode]
   public sealed class FunctionEnvironmentDictionary<TupleType> : TupleDictionary<TupleType>
 #if FULL
 , IFunctionEnvironment 
 #endif
  where TupleType : Tuple
   {
-        private Dictionary<SymbolId, int> _slotDict;
-        private int _size;
+        //private Dictionary<SymbolId, int> _slotDict;
+        //private int _size;
 
         public FunctionEnvironmentDictionary(TupleType data) :
             base(data) {
@@ -58,71 +59,73 @@ namespace Microsoft.Scripting
         }
 
         protected internal override bool TrySetExtraValue(SymbolId key, object value) {
-          if (_slotDict == null) MakeSlotDict();
+          return false;
+          //if (_slotDict == null) MakeSlotDict();
 
-          int val;
-          if (_slotDict.TryGetValue(key, out val))
-          {
-            if (_size < Tuple.MaxSize)
-            {
-              // fast path
-              TupleData.SetValue(val, value);
-            }
-            else
-            {
-              // slow path
-              object res = TupleData;
-              int lastAccess = -1;
-              foreach (int i in Tuple.GetAccessPath(_size, val))
-              {
-                if (lastAccess != -1)
-                {
-                  res = ((Tuple)res).GetValue(lastAccess);
-                }
-                lastAccess = i;
-              }
-              ((Tuple)res).SetValue(lastAccess, value);
-            }
-            return true;
-          }
+          //int val;
+          //if (_slotDict.TryGetValue(key, out val))
+          //{
+          //  if (_size < Tuple.MaxSize)
+          //  {
+          //    // fast path
+          //    TupleData.SetValue(val, value);
+          //  }
+          //  else
+          //  {
+          //    // slow path
+          //    object res = TupleData;
+          //    int lastAccess = -1;
+          //    foreach (int i in Tuple.GetAccessPath(_size, val))
+          //    {
+          //      if (lastAccess != -1)
+          //      {
+          //        res = ((Tuple)res).GetValue(lastAccess);
+          //      }
+          //      lastAccess = i;
+          //    }
+          //    ((Tuple)res).SetValue(lastAccess, value);
+          //  }
+          //  return true;
+          //}
 
-            return false;
+          //  return false;
         }
 
         protected internal override bool TryGetExtraValue(SymbolId key, out object value) {
-          if (_slotDict == null) MakeSlotDict();
+          
+          //if (_slotDict == null) MakeSlotDict();
 
-          int val;
-          if (_slotDict.TryGetValue(key, out val))
-          {
-            if (_size < Tuple.MaxSize)
-            {
-              value = TupleData.GetValue(val);
-            }
-            else
-            {
-              object res = TupleData;
-              foreach (int i in Tuple.GetAccessPath(_size, val))
-              {
-                res = ((Tuple)res).GetValue(i);
-              }
-              value = res;
-            }
-            return true;
-          }
-            value = null;
-            return false;
+          //int val;
+          //if (_slotDict.TryGetValue(key, out val))
+          //{
+          //  if (_size < Tuple.MaxSize)
+          //  {
+          //    value = TupleData.GetValue(val);
+          //  }
+          //  else
+          //  {
+          //    object res = TupleData;
+          //    foreach (int i in Tuple.GetAccessPath(_size, val))
+          //    {
+          //      res = ((Tuple)res).GetValue(i);
+          //    }
+          //    value = res;
+          //  }
+          //  return true;
+          //}
+          value = null;
+          return false;
         }
 
-        private void MakeSlotDict() {
-            _size = Tuple.GetSize(TupleData.GetType());
+        //private void MakeSlotDict() {
+        //    //_size = Tuple.GetSize(TupleData.GetType());
 
-            Dictionary<SymbolId, int> slotDict = new Dictionary<SymbolId, int>();
-            for (int index = 0; index < Extra.Length; index++) {
-                slotDict[Extra[index]] = index + 1;
-            }
-            _slotDict = slotDict;
-        }
+        //    //Dictionary<SymbolId, int> slotDict = new Dictionary<SymbolId, int>();
+        //    //for (int index = 0; index < 0; index++) {
+        //    //    slotDict[Extra[index]] = index + 1;
+        //    //}
+        //    //_slotDict = slotDict;
+        //}
 
 
 #if FULL

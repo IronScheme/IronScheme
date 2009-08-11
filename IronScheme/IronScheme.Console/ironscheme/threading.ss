@@ -35,10 +35,12 @@
   (define/contract (make-thread proc:procedure)
     (clr-new Thread proc))
     
-  (define queue-work-item
-    (case/contract 
-      [(proc:procedure)       (queue-work-item proc #f)]
-      [(proc:procedure state) (clr-static-call Threadpool QueueUserWorkitem proc state)]))
+  (define/contract queue-work-item
+    (case-lambda 
+      [(proc)
+        (queue-work-item proc #f)]
+      [(proc:procedure state) 
+        (clr-static-call Threadpool QueueUserWorkitem proc state)]))
       
   (define/contract (thread-sleep dur:fixnum)
     (clr-static-call Thread Sleep (clr-cast system.int32 dur)))      

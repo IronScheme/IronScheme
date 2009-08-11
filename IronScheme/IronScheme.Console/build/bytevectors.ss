@@ -155,7 +155,8 @@
       bytevector-uint-set!
       bytevector-sint-set!
       
-      ))
+      )
+    (ironscheme contracts))
      
   (define (native-endianness) 'little)
   
@@ -198,7 +199,7 @@
   (define (->fixnum b)
     (clr-static-call System.Convert "ToInt32(Object)" b))      
   
-  (define make-bytevector
+  (define/contract make-bytevector
     (case-lambda
       [(k)
         (clr-new-array System.Byte (clr-cast System.Int32 k))]
@@ -207,16 +208,10 @@
           (bytevector-fill! bv fill)
           bv)]))
                   
-  (define (bytevector-length bv)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-length "not a bytevector" bv))
+  (define/contract (bytevector-length bv:bytevector)
     (clr-prop-get System.Array Length bv))  
     
-  (define (bytevector=? bv1 bv2)
-    (unless (bytevector? bv1)
-      (assertion-violation 'bytevector=? "not a bytevector" bv1))
-    (unless (bytevector? bv2)
-      (assertion-violation 'bytevector=? "not a bytevector" bv2))
+  (define/contract (bytevector=? bv1:bytevector bv2:bytevector)
     (cond
       [(eq? bv1 bv2) #t]
       [(let ((bl (bytevector-length bv1)))
@@ -230,9 +225,7 @@
             #f))]
       [else #f]))
                       
-  (define (bytevector-fill! bv fill)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-fill! "not a bytevector" bv))    
+  (define/contract (bytevector-fill! bv:bytevector fill)
     (let ((fill (->byte fill))
           (k (bytevector-length bv)))
       (let f ((i 0))
@@ -240,51 +233,41 @@
           (bytevector-u8-set! bv i fill)
           (f (+ i 1))))))
           
-  (define (bytevector-copy! bv1 s1 bv2 s2 len)
-    (unless (bytevector? bv1)
-      (assertion-violation 'bytevector-copy! "not a bytevector" bv1))
-    (unless (bytevector? bv2)
-      (assertion-violation 'bytevector-copy! "not a bytevector" bv2))         
+  (define/contract (bytevector-copy! bv1:bytevector s1 bv2:bytevector s2 len)
     (clr-static-call System.Buffer BlockCopy bv1 s1 bv2 s2 len))  
     
-  (define (bytevector-copy bv)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-copy "not a bytevector" bv)) 
+  (define/contract (bytevector-copy bv:bytevector)
     (clr-call System.Array Clone bv))  
     
-  (define (bytevector-u8-ref bv k)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-u8-ref "not a bytevector" bv)) 
+  (define/contract (bytevector-u8-ref bv:bytevector k)
+    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+      (assertion-violation 'bytevector-u8-ref "indexer out of bounds" bv k)) 
     (clr-static-call System.Convert "ToInt32(Byte)" 
       ($bytevector-ref bv k)))
       
-  (define (bytevector-u8-set! bv k value)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-u8-set! "not a bytevector" bv)) 
+  (define/contract (bytevector-u8-set! bv:bytevector k value)
+    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+      (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
     ($bytevector-set! bv k (clr-static-call System.Convert "ToByte(Object)" value)))
    
-  (define (bytevector-s8-ref bv k)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-s8-ref "not a bytevector" bv)) 
+  (define/contract (bytevector-s8-ref bv:bytevector k)
+    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+      (assertion-violation 'bytevector-s8-ref "indexer out of bounds" bv k)) 
     (byte->sbyte ($bytevector-ref bv k)))
       
-  (define (bytevector-s8-set! bv k value)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-s8-set! "not a bytevector" bv)) 
+  (define/contract (bytevector-s8-set! bv:bytevector k value)
+    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+      (assertion-violation 'bytevector-s8-set! "indexer out of bounds" bv k)) 
     ($bytevector-set! bv k (->byte value)))  
    
-  (define (bytevector->u8-list bv)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector->u8-list "not a bytevector" bv)) 
+  (define/contract (bytevector->u8-list bv:bytevector)
     (let ((l (bytevector-length bv)))
       (let f ((i (- l 1))(a '()))
         (if (negative? i)
             a
             (f (- i 1) (cons (bytevector-u8-ref bv i) a))))))
             
-  (define (u8-list->bytevector lst)
-    (unless (list? lst)
-      (assertion-violation 'u8-list->bytevector "not a list" lst))
+  (define/contract (u8-list->bytevector lst:list)
     (let* ((l (length lst))
            (bv (make-bytevector l)))
       (let f ((i 0)(lst lst))
@@ -294,9 +277,7 @@
               (bytevector-u8-set! bv i (car lst))
               (f (+ i 1) (cdr lst)))))))
               
-  (define (bytevector-uint-ref bv k end size)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-uint-ref "not a bytevector" bv))
+  (define/contract (bytevector-uint-ref bv:bytevector k end size)
     (unless (and (integer? k) (exact? k) (not (negative? k)))
       (assertion-violation 'bytevector-uint-ref "not a non-negative exact integer" k))
     (unless (and (integer? size) (exact? size) (not (negative? size)))
@@ -309,7 +290,7 @@
         (clr-static-call System.Array Reverse sb))
       (case size
         [(1)
-          (->fixnum ($bytevector-ref sb k))]
+          (->fixnum ($bytevector-ref sb 0))]
         [(2)
           (->fixnum 
             (clr-static-call System.BitConverter 
@@ -337,9 +318,7 @@
                                    "Create(Byte[])"
                                    data)))])))
                                                    
-  (define (bytevector-sint-ref bv k end size)
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-sint-ref "not a bytevector" bv))
+  (define/contract (bytevector-sint-ref bv:bytevector k end size)
     (unless (and (integer? k) (exact? k) (not (negative? k)))
       (assertion-violation 'bytevector-sint-ref "not a non-negative exact integer" k))
     (unless (and (integer? size) (exact? size) (not (negative? size)))
@@ -352,7 +331,7 @@
         (clr-static-call System.Array Reverse sb))
       (case size
         [(1)
-          (byte->sbyte ($bytevector-ref sb k))]
+          (byte->sbyte ($bytevector-ref sb 0))]
         [(2)
           (->fixnum 
             (clr-static-call System.BitConverter 
@@ -376,15 +355,13 @@
                                  "Create(Byte[])"
                                  sb))])))
                            
-  (define (bytevector-uint-set! bv k n end size)                           
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-uint-set! "not a bytevector" bv))
+  (define/contract (bytevector-uint-set! bv:bytevector k n end size)                           
     (unless (and (integer? k) (exact? k) (not (negative? k)))
       (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" k))
     (unless (and (integer? size) (exact? size) (not (negative? size)))
       (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" size))
     (unless (symbol? end)
-      (assertion-violation 'bytevector-uint-set! "not a symbol" end))                 
+      (assertion-violation 'bytevector-uint-set! "not a symbol" end))   
     (case size
       [(1)
         ($bytevector-set! bv k (->byte n))]
@@ -424,9 +401,7 @@
           (bytevector-copy! data (if (eq? end 'big) 1 0) bv k size))])
     (void))
           
-  (define (bytevector-sint-set! bv k n end size)                           
-    (unless (bytevector? bv)
-      (assertion-violation 'bytevector-sint-set! "not a bytevector" bv))
+  (define/contract (bytevector-sint-set! bv:bytevector k n end size)                           
     (unless (and (integer? k) (exact? k) (not (negative? k)))
       (assertion-violation 'bytevector-sint-set! "not a non-negative exact integer" k))
     (unless (and (integer? size) (exact? size) (not (negative? size)))
@@ -470,43 +445,42 @@
           (when (eq? end 'big)
             (clr-static-call System.Array Reverse data))
           (bytevector-copy! data 0 bv k size))])
-    (void))          
-      
-              
-  (define (string->utf8 s)
-    (unless (string? s)
-      (assertion-violation 'string->utf8 "not a string" s))
-    (get-bytes utf8 s))
+    (void))  
     
-  (define string->utf16
+  (define (clr-string? obj)
+    (clr-is System.String obj))  
+
+  (define (->string str)
+    (if (clr-string? str)
+        str
+        (clr-call Object ToString str)))              
+              
+  (define/contract (string->utf8 s:string)
+    (get-bytes utf8 (->string s)))
+    
+  (define/contract string->utf16
     (case-lambda
       [(s)
         (string->utf16 s 'big)]
-      [(s end)
-        (unless (string? s)
-          (assertion-violation 'string->utf16 "not a string" s))
+      [(s:string end)
         (case end
-          [(big)    (get-bytes utf16be s)]
-          [(little) (get-bytes utf16le s)]
+          [(big)    (get-bytes utf16be (->string s))]
+          [(little) (get-bytes utf16le (->string s))]
           [else
             (assertion-violation 'string->utf16 "unknown endianness" end)])]))
                
-  (define string->utf32
+  (define/contract string->utf32
     (case-lambda
       [(s)
         (string->utf32 s 'big)]
-      [(s end)
-        (unless (string? s)
-          (assertion-violation 'string->utf32 "not a string" s))
+      [(s:string end)
         (case end
-          [(big)    (get-bytes utf32be s)]
-          [(little) (get-bytes utf32le s)]
+          [(big)    (get-bytes utf32be (->string s))]
+          [(little) (get-bytes utf32le (->string s))]
           [else
             (assertion-violation 'string->utf32 "unknown endianness" end)])]))
             
-  (define (utf8->string bv)
-    (unless (bytevector? bv)
-      (assertion-violation 'utf8->string "not a bytevector" bv))
+  (define/contract (utf8->string bv:bytevector)
     (get-string utf8 bv))
     
   (define (trim-front bv k)

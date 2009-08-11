@@ -41,10 +41,10 @@ namespace Microsoft.Scripting.Generation {
         public override void EmitSet(CodeGen cg, Slot val) {
             // Emit the following:
             //    RuntimeHelpers.SetName(codeContext, name, value)
-            _frame.EmitGet(cg);
-            cg.EmitSymbolId(_name);
-            val.EmitGet(cg);
-            cg.EmitCall(typeof(RuntimeHelpers), "SetName");
+            //_frame.EmitGet(cg);
+            //cg.EmitSymbolId(_name);
+            //val.EmitGet(cg);
+            //cg.EmitCall(typeof(RuntimeHelpers), "SetNameBoxed");
         }
 
         public override void EmitSetUninitialized(CodeGen cg) {

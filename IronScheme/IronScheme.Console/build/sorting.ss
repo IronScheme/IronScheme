@@ -17,6 +17,7 @@
     
   (import 
     (except (rnrs) list-sort vector-sort)
+    (ironscheme contracts)
     (ironscheme clr))
   
   (define (split ls)
@@ -60,25 +61,20 @@
                 (cdr source-1)
                 (cons car-1 so-far))))))))         
 
-  (define list-sort 
-    (lambda (precedes? ls)
-     (if (null? ls)
-       '()
-        (let helper ((piece ls))
-         (if (null? (cdr piece))
-            piece
-            (let ((parts (split piece)))
-              (merge (helper (car parts))
-                     (helper (cdr parts)) 
-                     precedes?)))))))
+  (define/contract (list-sort precedes?:procedure ls:list)
+    (if (null? ls)
+        '()
+         (let helper ((piece ls))
+          (if (null? (cdr piece))
+              piece
+              (let ((parts (split piece)))
+                (merge (helper (car parts))
+                       (helper (cdr parts)) 
+                       precedes?))))))
 
-  (define (vector-sort pred? vec)
-    (unless (vector? vec)
-      (assertion-violation 'vector-sort "not a vector" vec))
+  (define/contract (vector-sort pred?:procedure vec:vector)
     (let ((vec (clr-call System.Array Clone vec)))
       (vector-sort! pred? vec)
       vec))
-
-                     
 
 )

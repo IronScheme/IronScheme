@@ -33,6 +33,7 @@
     
   (import 
     (rnrs base)
+    (rnrs arithmetic fixnums)
     (rnrs control)
     (only 
       (rnrs hashtables) 
@@ -40,6 +41,7 @@
       hashtable-equivalence-function 
       hashtable-hash-function)
     (ironscheme core)
+    (ironscheme contracts)
     (ironscheme clr))
     
   (clr-using system)
@@ -48,61 +50,57 @@
   (define (hashtable? obj)
     (clr-is Hashtable obj))
   
-  (define make-eq-hashtable
+  (define/contract make-eq-hashtable
     (case-lambda
-      [()   (make-eq-hashtable 32)]
-      [(k)  (clr-new hashtable (clr-cast int32 k))]))
+      [()           (make-eq-hashtable 32)]
+      [(k:fixnum)   (clr-new hashtable (clr-cast int32 k))]))
     
-  (define make-eqv-hashtable
+  (define/contract make-eqv-hashtable
     (case-lambda
-      [()   (make-eqv-hashtable 32)]
-      [(k)  (make-hashtable eqv-hash eqv? k)]))
+      [()           (make-eqv-hashtable 32)]
+      [(k:fixnum)   (make-hashtable eqv-hash eqv? k)]))
   
-  (define (hashtable-size ht)
+  (define/contract (hashtable-size ht:hashtable)
     (clr-prop-get hashtable count ht))
     
-  (define (hashtable-ref ht key default)
+  (define/contract (hashtable-ref ht:hashtable key default)
     (let ((r (clr-indexer-get hashtable ht key)))
       (if (or (not (null? r)) (hashtable-contains? ht key))
         r
         default)))
       
-  (define (hashtable-set! ht key obj)
+  (define/contract (hashtable-set! ht:hashtable key obj)
     (clr-indexer-set! hashtable ht key obj))
 
-  (define (hashtable-delete! ht key)
+  (define/contract (hashtable-delete! ht:hashtable key)
     (clr-call hashtable remove ht key))
   
-  (define (hashtable-contains? ht key)
+  (define/contract (hashtable-contains? ht:hashtable key)
     (clr-call hashtable containskey ht key))
     
-  (define (hashtable-update! ht key proc default)
+  (define/contract (hashtable-update! ht:hashtable key proc:procedure default)
     (hashtable-set!
       ht key
       (proc (hashtable-ref ht key default))))
 
-  (define hashtable-clear!
+  (define/contract hashtable-clear!
     (case-lambda 
-      ((ht)     (hashtable-clear! ht 32))
-      ((ht k)   (clr-call hashtable clear ht))))
+      [(ht:hashtable)     
+        (hashtable-clear! ht 32)]
+      [(ht:hashtable k:fixnum)   
+        (clr-call hashtable clear ht)]))
       
-  (define (string-hash str)
-    (unless (string? str)
-      (assertion-violation 'string-hash "not a string" str))
+  (define/contract (string-hash str:string)
     (clr-call StringComparer "GetHashCode(String)"
         (clr-static-prop-get StringComparer Ordinal) 
         (clr-call Object ToString str)))
 
-  (define (string-ci-hash str)
-    (unless (string? str)
-      (assertion-violation 'string-ci-hash "not a string" str))
+  (define/contract (string-ci-hash str:string)
     (clr-call StringComparer "GetHashCode(String)"
         (clr-static-prop-get StringComparer InvariantCultureIgnoreCase) 
         (clr-call Object ToString str)))
         
-  (define (symbol-hash sym)
-    (unless (symbol? sym)
-      (assertion-violation 'symbol-hash "not a symbol" sym))        
+  (define/contract (symbol-hash sym:symbol)
     (clr-call Object GetHashCode sym))
     
   (define (equal-hash obj)

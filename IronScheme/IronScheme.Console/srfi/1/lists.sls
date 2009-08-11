@@ -1330,7 +1330,7 @@
 (define delete-duplicates 
   (case-lambda
     [(lis)
-     (delete-duplicates equal?)]
+     (delete-duplicates lis equal?)]
     [(lis elt=)
      (check-arg procedure? elt= delete-duplicates)
      (let recur ((lis lis))

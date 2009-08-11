@@ -18,21 +18,26 @@
     add-custom-printer!
     add-record-printer!)
   (import 
-    (except (ironscheme) write-char write display generic-write initialize-default-printers)
+    (except (ironscheme) write-char write display generic-write initialize-default-printers textual-output-port?)
+    (ironscheme contracts)
     (ironscheme clr))
     
-  (define write
+  (define (textual-output-port? obj)
+    (and (output-port? obj)
+         (textual-port? obj)))     
+    
+  (define/contract write
     (case-lambda 
       [(obj)    
         (generic-write obj #t)]
-      [(obj port)    
+      [(obj port:textual-output-port)    
         (generic-write obj port #t)]))
 
-  (define display
+  (define/contract display
     (case-lambda 
       [(obj)    
         (generic-write obj #f)]
-      [(obj port)    
+      [(obj port:textual-output-port)    
         (generic-write obj port #f)]))
   
   (define generic-write 
@@ -93,10 +98,14 @@
       (add-custom-printer! condition? write-condition)
       (add-custom-printer! record? write-record)
       (add-custom-printer! multiple-values? write-mv)
+      (add-custom-printer! hashtable? write-hashtable)
       (for-each 
         (lambda (p)
           (add-custom-printer! (car p) (cdr p)))
         p)))
+        
+  (define (write-hashtable ht port readable?)
+    (put-string port "#<hashtable>"))        
         
   (define (get-clr-type-name obj)
     (clr-prop-get System.Type Name (clr-call System.Object GetType obj)))
@@ -366,8 +375,7 @@
       (put-string port name)
       (let ((s (clr-call Object ToString obj)))
         (unless (string=? s name)
-          (put-string port " ")
-          (put-string port s)))
+          (write-string s port #t)))
       (put-string port ">")))
       
   (initial-printers))

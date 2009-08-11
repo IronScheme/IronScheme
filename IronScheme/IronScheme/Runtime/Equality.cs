@@ -39,11 +39,11 @@ namespace IronScheme.Runtime
             return ue.Operand;
           }
         }
-        if (e is ConditionalExpression)
-        {
-          ConditionalExpression ce = (ConditionalExpression)e;
-          return Ast.Condition(ce.Test, ce.IfFalse, ce.IfTrue);
-        }
+        //if (e is ConditionalExpression)
+        //{
+        //  ConditionalExpression ce = (ConditionalExpression)e;
+        //  return Ast.Condition(ce.Test, ce.IfFalse, ce.IfTrue);
+        //}
         if (e.Type == typeof(bool))
         {
           return Ast.Not(e);
