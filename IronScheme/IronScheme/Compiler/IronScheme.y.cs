@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Text;
 using gppg;
 using IronScheme.Runtime;
+using IronScheme.Runtime.psyntax;
 using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
@@ -18,13 +19,15 @@ namespace IronScheme.Compiler
 public enum Tokens {
     error=1,EOF=2,LBRACE=3,RBRACE=4,LBRACK=5,RBRACK=6,QUOTE=7,QUASIQUOTE=8,
     UNQUOTE=9,UNQUOTESPLICING=10,VECTORLBRACE=11,DOT=12,BYTEVECTORLBRACE=13,UNSYNTAX=14,SYNTAX=15,UNSYNTAXSPLICING=16,
-    QUASISYNTAX=17,IGNOREDATUM=18,SYMBOL=19,LITERAL=20,STRING=21,NUMBER=22,CHARACTER=23};
+    QUASISYNTAX=17,IGNOREDATUM=18,FOLDCASE=19,NOFOLDCASE=20,DIRECTIVE=21,SYMBOL=22,LITERAL=23,STRING=24,
+    NUMBER=25,CHARACTER=26};
 
 public struct ValueType
-#line 141 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 136 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{
-  public Cons list;
-  public object elem;
+  public Cons lst;
+  internal ConsAnnotation list;
+  internal Annotation elem;
   public string text;
 }
 // Abstract base class for GPLEX scanners
@@ -35,8 +38,11 @@ public abstract class ScanBase : IScanner<ValueType,LexLocation> {
 
 public class Parser: ShiftReduceParser<ValueType, LexLocation>
 {
-#line 15 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 16 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
 
+
+public bool skipnumbers = false;
+bool FoldCase = false;
 
 public Cons parsed;
 
@@ -104,135 +110,137 @@ static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
   return o;
 }
 
-
-static string CleanString(string input)
+static object MakeNumber(string input)
 {
-  input = input.Substring(1, input.Length - 2);
-  input = input.Replace("\\\\", "\\");
-  input = input.Replace("\\\"", "\"");
-  input = input.Replace("\\r", "\r");
-  input = input.Replace("\\n", "\n");
-  input = input.Replace("\\t", "\t");
-  input = input.Replace("\r", "");
-  // deal with string continuations
-  string[] lines = input.Split('\n');
-  
-  List<string> fixup = new List<string>();
-  
-  for (int i = 0; i < lines.Length; i++)
+  object n = Builtins.StringToNumber(input);
+  if (!Builtins.IsTrue(n))
   {
-    if (lines[i].EndsWith("\\") && lines.Length > 1)
-    {
-      string line = lines[i];
-      string tail = lines[i + 1];
-      
-      int index = 0;
-      for (int j = 0; j < tail.Length; j++)
-      {
-        if (!(tail[j] == ' ' || tail[j] == '\t'))
-        {
-          index = j;
-          break;
-        }
-      }
-      
-      string newline = line.Substring(0, line.Length - 1) + tail.Substring(index);
-      fixup.Add(newline);
-      i++;
-    }
-    else
-    {
-      fixup.Add(lines[i]);
-    }
+    Builtins.LexicalError("number could not be parsed", input);
   }
-  
-  return string.Join("\n", fixup.ToArray());
+  return n;
 }
 
-static readonly object Ignore = new object();
-static readonly SymbolId quote = SymbolTable.StringToId("quote");
-static readonly SymbolId unquote_splicing = SymbolTable.StringToId("unquote-splicing");
-static readonly SymbolId quasiquote = SymbolTable.StringToId("quasiquote");
-static readonly SymbolId unquote = SymbolTable.StringToId("unquote");
-static readonly SymbolId syntax = SymbolTable.StringToId("syntax");
-static readonly SymbolId unsyntax_splicing = SymbolTable.StringToId("unsyntax-splicing");
-static readonly SymbolId quasisyntax = SymbolTable.StringToId("quasisyntax");
-static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
+static Annotation Annotate(object obj, gppg.LexLocation start, gppg.LexLocation end)
+{
+  return Annotate(obj, GetLocation(start,end));
+}
+
+static Annotation Annotate(object obj, gppg.LexLocation start)
+{
+  return Annotate(obj, GetLocation(start, start));
+}
+
+static Annotation Annotate(object obj, SourceSpan loc)
+{
+  return AnnotationHelper.Annotate(obj, loc);
+}
+
+
+static ConsAnnotation AnnotateList(Cons obj, gppg.LexLocation start, gppg.LexLocation end)
+{
+  return AnnotationHelper.AnnotateList(obj, GetLocation(start,end));
+}
+
+static Cons Strip(Cons c)
+{
+  return AnnotationHelper.Strip(c);
+}
+
+static readonly Annotation Ignore = new Annotation(null,null,null);
+static readonly object quote = SymbolTable.StringToObject("quote");
+static readonly object unquote_splicing = SymbolTable.StringToObject("unquote-splicing");
+static readonly object quasiquote = SymbolTable.StringToObject("quasiquote");
+static readonly object unquote = SymbolTable.StringToObject("unquote");
+static readonly object syntax = SymbolTable.StringToObject("syntax");
+static readonly object unsyntax_splicing = SymbolTable.StringToObject("unsyntax-splicing");
+static readonly object quasisyntax = SymbolTable.StringToObject("quasisyntax");
+static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 
   protected override void Initialize()
   {
     this.errToken = (int)Tokens.error;
     this.eofToken = (int)Tokens.EOF;
 
-    states=new State[39];
-    AddState(0,new State(-7,new int[]{-3,1,-1,3}));
+    states=new State[46];
+    AddState(0,new State(-8,new int[]{-2,1,-1,3}));
     AddState(1,new State(new int[]{2,2}));
     AddState(2,new State(-1));
-    AddState(3,new State(new int[]{3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37,2,-2},new int[]{-4,4,-2,5,-5,16}));
-    AddState(4,new State(-8));
-    AddState(5,new State(-9));
-    AddState(6,new State(-7,new int[]{-1,7}));
-    AddState(7,new State(new int[]{4,8,3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37},new int[]{-4,9,-2,5,-5,16}));
+    AddState(3,new State(new int[]{3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45,2,-2},new int[]{-4,4,-3,5,-5,20}));
+    AddState(4,new State(-9));
+    AddState(5,new State(-10));
+    AddState(6,new State(-8,new int[]{-1,7}));
+    AddState(7,new State(new int[]{4,8,3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,9,-3,5,-5,20}));
     AddState(8,new State(-3));
-    AddState(9,new State(new int[]{12,10,4,-8,3,-8,5,-8,7,-8,10,-8,8,-8,9,-8,15,-8,16,-8,17,-8,14,-8,19,-8,21,-8,22,-8,20,-8,23,-8,11,-8,13,-8,18,-8}));
-    AddState(10,new State(new int[]{3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37},new int[]{-4,11,-2,5,-5,16}));
+    AddState(9,new State(new int[]{12,10,4,-9,3,-9,5,-9,7,-9,10,-9,8,-9,9,-9,15,-9,16,-9,17,-9,14,-9,22,-9,24,-9,25,-9,23,-9,26,-9,11,-9,13,-9,18,-9,21,-9,19,-9,20,-9}));
+    AddState(10,new State(new int[]{3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,11,-3,5,-5,20}));
     AddState(11,new State(new int[]{4,12}));
     AddState(12,new State(-5));
-    AddState(13,new State(-7,new int[]{-1,14}));
-    AddState(14,new State(new int[]{6,15,3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37},new int[]{-4,4,-2,5,-5,16}));
+    AddState(13,new State(-8,new int[]{-1,14}));
+    AddState(14,new State(new int[]{6,15,3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,16,-3,5,-5,20}));
     AddState(15,new State(-4));
-    AddState(16,new State(new int[]{3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37},new int[]{-4,17,-2,5,-5,16}));
-    AddState(17,new State(-6));
-    AddState(18,new State(-18));
-    AddState(19,new State(-19));
-    AddState(20,new State(-20));
-    AddState(21,new State(-21));
+    AddState(16,new State(new int[]{12,17,6,-9,3,-9,5,-9,7,-9,10,-9,8,-9,9,-9,15,-9,16,-9,17,-9,14,-9,22,-9,24,-9,25,-9,23,-9,26,-9,11,-9,13,-9,18,-9,21,-9,19,-9,20,-9}));
+    AddState(17,new State(new int[]{3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,18,-3,5,-5,20}));
+    AddState(18,new State(new int[]{6,19}));
+    AddState(19,new State(-6));
+    AddState(20,new State(new int[]{3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,21,-3,5,-5,20}));
+    AddState(21,new State(-7));
     AddState(22,new State(-22));
     AddState(23,new State(-23));
     AddState(24,new State(-24));
     AddState(25,new State(-25));
-    AddState(26,new State(-10));
-    AddState(27,new State(-11));
-    AddState(28,new State(-12));
-    AddState(29,new State(-13));
-    AddState(30,new State(-14));
-    AddState(31,new State(-7,new int[]{-1,32}));
-    AddState(32,new State(new int[]{4,33,3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37},new int[]{-4,4,-2,5,-5,16}));
-    AddState(33,new State(-15));
-    AddState(34,new State(-7,new int[]{-1,35}));
-    AddState(35,new State(new int[]{4,36,3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37},new int[]{-4,4,-2,5,-5,16}));
-    AddState(36,new State(-16));
-    AddState(37,new State(new int[]{3,6,5,13,7,18,10,19,8,20,9,21,15,22,16,23,17,24,14,25,19,26,21,27,22,28,20,29,23,30,11,31,13,34,18,37},new int[]{-4,38,-2,5,-5,16}));
-    AddState(38,new State(-17));
+    AddState(26,new State(-26));
+    AddState(27,new State(-27));
+    AddState(28,new State(-28));
+    AddState(29,new State(-29));
+    AddState(30,new State(-11));
+    AddState(31,new State(-12));
+    AddState(32,new State(-13));
+    AddState(33,new State(-14));
+    AddState(34,new State(-15));
+    AddState(35,new State(-8,new int[]{-1,36}));
+    AddState(36,new State(new int[]{4,37,3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,4,-3,5,-5,20}));
+    AddState(37,new State(-16));
+    AddState(38,new State(-8,new int[]{-1,39}));
+    AddState(39,new State(new int[]{4,40,3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,4,-3,5,-5,20}));
+    AddState(40,new State(-17));
+    AddState(41,new State(new int[]{3,6,5,13,7,22,10,23,8,24,9,25,15,26,16,27,17,28,14,29,22,30,24,31,25,32,23,33,26,34,11,35,13,38,18,41,21,43,19,44,20,45},new int[]{-4,42,-3,5,-5,20}));
+    AddState(42,new State(-18));
+    AddState(43,new State(-19));
+    AddState(44,new State(-20));
+    AddState(45,new State(-21));
 
-    rules=new Rule[26];
-    rules[1]=new Rule(-6, new int[]{-3,2});
-    rules[2]=new Rule(-3, new int[]{-1});
-    rules[3]=new Rule(-2, new int[]{3,-1,4});
-    rules[4]=new Rule(-2, new int[]{5,-1,6});
-    rules[5]=new Rule(-2, new int[]{3,-1,-4,12,-4,4});
-    rules[6]=new Rule(-2, new int[]{-5,-4});
-    rules[7]=new Rule(-1, new int[]{});
-    rules[8]=new Rule(-1, new int[]{-1,-4});
-    rules[9]=new Rule(-4, new int[]{-2});
-    rules[10]=new Rule(-4, new int[]{19});
-    rules[11]=new Rule(-4, new int[]{21});
-    rules[12]=new Rule(-4, new int[]{22});
-    rules[13]=new Rule(-4, new int[]{20});
+    rules=new Rule[30];
+    rules[1]=new Rule(-6, new int[]{-2,2});
+    rules[2]=new Rule(-2, new int[]{-1});
+    rules[3]=new Rule(-3, new int[]{3,-1,4});
+    rules[4]=new Rule(-3, new int[]{5,-1,6});
+    rules[5]=new Rule(-3, new int[]{3,-1,-4,12,-4,4});
+    rules[6]=new Rule(-3, new int[]{5,-1,-4,12,-4,6});
+    rules[7]=new Rule(-3, new int[]{-5,-4});
+    rules[8]=new Rule(-1, new int[]{});
+    rules[9]=new Rule(-1, new int[]{-1,-4});
+    rules[10]=new Rule(-4, new int[]{-3});
+    rules[11]=new Rule(-4, new int[]{22});
+    rules[12]=new Rule(-4, new int[]{24});
+    rules[13]=new Rule(-4, new int[]{25});
     rules[14]=new Rule(-4, new int[]{23});
-    rules[15]=new Rule(-4, new int[]{11,-1,4});
-    rules[16]=new Rule(-4, new int[]{13,-1,4});
-    rules[17]=new Rule(-4, new int[]{18,-4});
-    rules[18]=new Rule(-5, new int[]{7});
-    rules[19]=new Rule(-5, new int[]{10});
-    rules[20]=new Rule(-5, new int[]{8});
-    rules[21]=new Rule(-5, new int[]{9});
-    rules[22]=new Rule(-5, new int[]{15});
-    rules[23]=new Rule(-5, new int[]{16});
-    rules[24]=new Rule(-5, new int[]{17});
-    rules[25]=new Rule(-5, new int[]{14});
+    rules[15]=new Rule(-4, new int[]{26});
+    rules[16]=new Rule(-4, new int[]{11,-1,4});
+    rules[17]=new Rule(-4, new int[]{13,-1,4});
+    rules[18]=new Rule(-4, new int[]{18,-4});
+    rules[19]=new Rule(-4, new int[]{21});
+    rules[20]=new Rule(-4, new int[]{19});
+    rules[21]=new Rule(-4, new int[]{20});
+    rules[22]=new Rule(-5, new int[]{7});
+    rules[23]=new Rule(-5, new int[]{10});
+    rules[24]=new Rule(-5, new int[]{8});
+    rules[25]=new Rule(-5, new int[]{9});
+    rules[26]=new Rule(-5, new int[]{15});
+    rules[27]=new Rule(-5, new int[]{16});
+    rules[28]=new Rule(-5, new int[]{17});
+    rules[29]=new Rule(-5, new int[]{14});
 
-    nonTerminals = new string[] {"", "exprlist", "list", "file", "expr", 
+    nonTerminals = new string[] {"", "exprlist", "file", "list", "expr", 
       "specexpr", "$accept", };
   }
 
@@ -241,100 +249,116 @@ static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
     switch (action)
     {
       case 2: // file -> exprlist 
-#line 159 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ parsed = value_stack.array[value_stack.top-1].list; }
+#line 156 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ parsed = value_stack.array[value_stack.top-1].lst; }
         break;
       case 3: // list -> LBRACE exprlist RBRACE 
-#line 163 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = SetLocation(value_stack.array[value_stack.top-2].list,location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
+#line 160 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = AnnotateList(value_stack.array[value_stack.top-2].lst,location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
         break;
       case 4: // list -> LBRACK exprlist RBRACK 
-#line 164 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = SetLocation(value_stack.array[value_stack.top-2].list,location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
+#line 161 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = AnnotateList(value_stack.array[value_stack.top-2].lst,location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
         break;
       case 5: // list -> LBRACE exprlist expr DOT expr RBRACE 
-#line 165 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = SetLocation(Append(value_stack.array[value_stack.top-5].list, new Cons(value_stack.array[value_stack.top-4].elem,value_stack.array[value_stack.top-2].elem)),location_stack.array[location_stack.top-6],location_stack.array[location_stack.top-1]); }
+#line 162 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = AnnotateList(Append(value_stack.array[value_stack.top-5].lst, new Cons(value_stack.array[value_stack.top-4].elem,value_stack.array[value_stack.top-2].elem)),location_stack.array[location_stack.top-6], location_stack.array[location_stack.top-1]); }
         break;
-      case 6: // list -> specexpr expr 
-#line 166 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = SetLocation(new Cons(value_stack.array[value_stack.top-2].elem, new Cons(value_stack.array[value_stack.top-1].elem)), location_stack.array[location_stack.top-2], location_stack.array[location_stack.top-1]); }
+      case 6: // list -> LBRACK exprlist expr DOT expr RBRACK 
+#line 163 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = AnnotateList(Append(value_stack.array[value_stack.top-5].lst, new Cons(value_stack.array[value_stack.top-4].elem,value_stack.array[value_stack.top-2].elem)),location_stack.array[location_stack.top-6], location_stack.array[location_stack.top-1]); }
         break;
-      case 7: // exprlist -> 
-#line 170 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = null; }
+      case 7: // list -> specexpr expr 
+#line 164 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.list = AnnotateList(new Cons(value_stack.array[value_stack.top-2].elem, new Cons(value_stack.array[value_stack.top-1].elem)), location_stack.array[location_stack.top-2], location_stack.array[location_stack.top-1]); }
         break;
-      case 8: // exprlist -> exprlist expr 
-#line 171 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.list = Append(value_stack.array[value_stack.top-2].list,new Cons(value_stack.array[value_stack.top-1].elem)); }
+      case 8: // exprlist -> 
+#line 168 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.lst = null; }
         break;
-      case 9: // expr -> list 
-#line 175 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+      case 9: // exprlist -> exprlist expr 
+#line 169 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.lst = Append(value_stack.array[value_stack.top-2].lst,new Cons(value_stack.array[value_stack.top-1].elem)); }
+        break;
+      case 10: // expr -> list 
+#line 173 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = value_stack.array[value_stack.top-1].list;}
         break;
-      case 10: // expr -> SYMBOL 
-#line 176 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = SymbolTable.StringToId(value_stack.array[value_stack.top-1].text); }
+      case 11: // expr -> SYMBOL 
+#line 174 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate( SymbolTable.StringToObjectWithCase(value_stack.array[value_stack.top-1].text, FoldCase), location_stack.array[location_stack.top-1]); }
         break;
-      case 11: // expr -> STRING 
-#line 177 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = CleanString(value_stack.array[value_stack.top-1].text); }
+      case 12: // expr -> STRING 
+#line 175 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(Helper.CleanString(value_stack.array[value_stack.top-1].text), location_stack.array[location_stack.top-1]); }
         break;
-      case 12: // expr -> NUMBER 
-#line 178 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = Builtins.StringToNumber(value_stack.array[value_stack.top-1].text);}
+      case 13: // expr -> NUMBER 
+#line 176 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate( skipnumbers ? null : MakeNumber(value_stack.array[value_stack.top-1].text), location_stack.array[location_stack.top-1]);}
         break;
-      case 13: // expr -> LITERAL 
-#line 179 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = value_stack.array[value_stack.top-1].text == "#t" ? Builtins.TRUE : (value_stack.array[value_stack.top-1].text == "#f" ? Builtins.FALSE : null);}
+      case 14: // expr -> LITERAL 
+#line 177 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate( value_stack.array[value_stack.top-1].text == "#t" ? Builtins.TRUE : (value_stack.array[value_stack.top-1].text == "#f" ? Builtins.FALSE : null), location_stack.array[location_stack.top-1]);}
         break;
-      case 14: // expr -> CHARACTER 
-#line 180 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = value_stack.array[value_stack.top-1].text[0];}
+      case 15: // expr -> CHARACTER 
+#line 178 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(value_stack.array[value_stack.top-1].text[0], location_stack.array[location_stack.top-1]);}
         break;
-      case 15: // expr -> VECTORLBRACE exprlist RBRACE 
-#line 181 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = SetLocation(Builtins.ListToVector(value_stack.array[value_stack.top-2].list),location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]);}
+      case 16: // expr -> VECTORLBRACE exprlist RBRACE 
+#line 179 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(Builtins.ListToVector(value_stack.array[value_stack.top-2].lst),location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]);}
         break;
-      case 16: // expr -> BYTEVECTORLBRACE exprlist RBRACE 
-#line 182 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = SetLocation(Builtins.ListToByteVector(value_stack.array[value_stack.top-2].list),location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
+      case 17: // expr -> BYTEVECTORLBRACE exprlist RBRACE 
+#line 180 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(Builtins.ListToByteVector(Strip(value_stack.array[value_stack.top-2].lst)),location_stack.array[location_stack.top-3],location_stack.array[location_stack.top-1]); }
         break;
-      case 17: // expr -> IGNOREDATUM expr 
-#line 183 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+      case 18: // expr -> IGNOREDATUM expr 
+#line 181 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
 			{ yyval.elem = Ignore; }
         break;
-      case 18: // specexpr -> QUOTE 
-#line 187 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = quote;}
+      case 19: // expr -> DIRECTIVE 
+#line 182 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Ignore; }
         break;
-      case 19: // specexpr -> UNQUOTESPLICING 
-#line 188 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = unquote_splicing; }
+      case 20: // expr -> FOLDCASE 
+#line 183 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ FoldCase = true; yyval.elem = Ignore; }
         break;
-      case 20: // specexpr -> QUASIQUOTE 
-#line 189 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = quasiquote; }
+      case 21: // expr -> NOFOLDCASE 
+#line 184 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ FoldCase = false; yyval.elem = Ignore; }
         break;
-      case 21: // specexpr -> UNQUOTE 
-#line 190 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = unquote; }
+      case 22: // specexpr -> QUOTE 
+#line 188 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(quote, location_stack.array[location_stack.top-1]);}
         break;
-      case 22: // specexpr -> SYNTAX 
-#line 191 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = syntax;}
+      case 23: // specexpr -> UNQUOTESPLICING 
+#line 189 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(unquote_splicing, location_stack.array[location_stack.top-1]); }
         break;
-      case 23: // specexpr -> UNSYNTAXSPLICING 
-#line 192 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = unsyntax_splicing; }
+      case 24: // specexpr -> QUASIQUOTE 
+#line 190 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(quasiquote, location_stack.array[location_stack.top-1]); }
         break;
-      case 24: // specexpr -> QUASISYNTAX 
-#line 193 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = quasisyntax; }
+      case 25: // specexpr -> UNQUOTE 
+#line 191 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(unquote, location_stack.array[location_stack.top-1]); }
         break;
-      case 25: // specexpr -> UNSYNTAX 
-#line 194 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
-			{ yyval.elem = unsyntax; }
+      case 26: // specexpr -> SYNTAX 
+#line 192 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(syntax, location_stack.array[location_stack.top-1]);}
+        break;
+      case 27: // specexpr -> UNSYNTAXSPLICING 
+#line 193 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(unsyntax_splicing, location_stack.array[location_stack.top-1]); }
+        break;
+      case 28: // specexpr -> QUASISYNTAX 
+#line 194 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(quasisyntax, location_stack.array[location_stack.top-1]); }
+        break;
+      case 29: // specexpr -> UNSYNTAX 
+#line 195 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
+			{ yyval.elem = Annotate(unsyntax, location_stack.array[location_stack.top-1]); }
         break;
     }
   }
@@ -347,7 +371,7 @@ static readonly SymbolId unsyntax = SymbolTable.StringToId("unsyntax");
       return CharToString((char)terminal);
   }
 
-#line 198 "C:\dev\IronScheme\IronScheme\Compiler\IronScheme.y"
+#line 199 "c:\DevProjects\IronScheme\IronScheme\IronScheme\Compiler\IronScheme.y"
 
 
 
