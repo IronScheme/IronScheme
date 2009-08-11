@@ -416,9 +416,9 @@ namespace Microsoft.Scripting.Generation {
 
             Label ok = cg.DefineLabel();
             cg.ContextSlot.EmitGet(cg);
-            cg.EmitNull();
-            cg.Emit(OpCodes.Ceq);
-            cg.Emit(OpCodes.Brtrue_S, ok);
+            //cg.EmitNull();
+            //cg.Emit(OpCodes.Ceq);
+            cg.Emit(OpCodes.Brfalse_S, ok);
             cg.EmitReturn();
             //cg.EmitNew(typeof(InvalidOperationException), ArrayUtils.EmptyTypes);
             //cg.Emit(OpCodes.Throw);
@@ -436,9 +436,9 @@ namespace Microsoft.Scripting.Generation {
 
                 cg.EmitCodeContext();
                 cg.EmitSymbolId(kv.Key);
-                cg.EmitUnbox(typeof(SymbolId));
+                //cg.EmitUnbox(typeof(SymbolId));
                 builtin.EmitWrapperAddr(cg);
-                cg.EmitCall(typeof(RuntimeHelpers), "InitializeModuleField");
+                cg.EmitCall(typeof(RuntimeHelpers), "InitializeModuleFieldBoxed");
             }
 
             cg.EmitReturn();
@@ -536,7 +536,7 @@ namespace Microsoft.Scripting.Generation {
             Slot rawKeysCache = li.TypeGen.AddStaticField(typeof(SymbolId[]), "ExtraKeysCache");
             CodeGen init = li.TypeGen.TypeInitializer;
 
-            init.EmitInt(fields.Count);
+            init.EmitInt(0);
             init.Emit(OpCodes.Newarr, typeof(SymbolId));
 
             //int current = 0;

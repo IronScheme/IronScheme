@@ -41,9 +41,14 @@
     newline
     
     display
-    write)
+    write
+    
+    textual-input-port?
+    textual-output-port?
+    )
     
   (import 
+    (ironscheme contracts)
     (except (ironscheme)
         peek-char 
         write-char
@@ -52,24 +57,38 @@
         with-input-from-file
         with-output-to-file
         call-with-input-file
-        call-with-output-file))
-     
+        call-with-output-file
+        textual-input-port?
+        textual-output-port?))
+
+  (define (textual-input-port? obj)
+    (and (input-port? obj)
+         (textual-port? obj)))   
+         
+  (define (textual-output-port? obj)
+    (and (output-port? obj)
+         (textual-port? obj)))               
         
-  (define peek-char
+  (define/contract peek-char
     (case-lambda
-      [()       (peek-char (current-input-port))]
-      [(port)   (lookahead-char port)]))            
+      [()
+        (peek-char (current-input-port))]
+      [(port:textual-input-port)
+        (lookahead-char port)]))
         
-  (define read-char
+  (define/contract read-char
     (case-lambda
-      [()       (read-char (current-input-port))]
-      [(port)   (get-char port)]))        
+      [()       
+        (read-char (current-input-port))]
+      [(port:textual-input-port)   
+        (get-char port)]))        
       
-  (define write-char
+  (define/contract write-char
     (case-lambda
-      [(chr)       (write-char chr (current-output-port))]
-      [(chr port)  (put-char port chr)]))        
-      
+      [(chr)       
+        (write-char chr (current-output-port))]
+      [(chr:char port:textual-output-port)  
+        (put-char port chr)]))        
          
   (define-syntax try
     (syntax-rules (finally)
@@ -79,28 +98,30 @@
           (lambda () expr)
           (lambda () fin))]))        
          
-  (define (with-input-from-file filename thunk)
+  (define/contract (with-input-from-file filename:string thunk:procedure)
     (parameterize ((current-input-port (open-input-file filename)))
       (try (thunk)
         finally (close-input-port (current-input-port)))))
 
-  (define (with-output-to-file filename thunk)
+  (define/contract (with-output-to-file filename:string thunk:procedure)
     (parameterize ((current-output-port (open-output-file filename)))
       (try (thunk)
         finally (close-output-port (current-output-port)))))
         
-  (define (call-with-input-file filename proc)
+  (define/contract (call-with-input-file filename:string proc:procedure)
     (let ((p (open-input-file filename)))
       (try (proc p)
         finally (close-input-port p))))   
 
-  (define (call-with-output-file filename proc)
+  (define/contract (call-with-output-file filename:string proc:procedure)
     (let ((p (open-output-file filename)))
       (try (proc p)
         finally (close-output-port p))))     
         
-  (define newline
+  (define/contract newline
     (case-lambda
-      [()       (newline (current-output-port))]
-      [(port)   (display "\n" port)]))                
+      [()       
+        (newline (current-output-port))]
+      [(port:textual-output-port)   
+        (display "\n" port)]))                
 )

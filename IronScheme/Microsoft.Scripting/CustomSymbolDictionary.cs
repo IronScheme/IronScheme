@@ -358,8 +358,8 @@ namespace Microsoft.Scripting {
         }
 
         public bool ContainsKey(SymbolId name) {
-            object value;
-            if (TryGetExtraValue(name, out value) && value != Uninitialized.Instance) return true;
+            //object value;
+            //if (TryGetExtraValue(name, out value) && value != Uninitialized.Instance) return true;
             if (_data == null) return false;
 
             lock (this) return _data.ContainsKey(name);
@@ -378,8 +378,8 @@ namespace Microsoft.Scripting {
         }
 
         public bool TryGetValue(SymbolId name, out object value) {
-            if (TryGetExtraValue(name, out value) && value != Uninitialized.Instance) return true;
-
+            //if (TryGetExtraValue(name, out value) && value != Uninitialized.Instance) return true;
+          value = null;
             if (_data == null) return false;
 
             lock (this) return _data.TryGetValue(name, out value);

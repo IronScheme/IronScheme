@@ -180,12 +180,14 @@ namespace IronScheme.Runtime.R6RS
       }
 
       Callable ch = CurrentHandler;
+      object hmm = null;
       if (ch != null)
       {
         try
         {
           handlerstack.Pop();
-          ch.Call(obj);
+          hmm = ch.Call(obj);
+          //Console.WriteLine(hmm);
         }
         finally
         {

@@ -26,60 +26,77 @@
     )
   (import 
     (rnrs)
+    (ironscheme contracts)
     (ironscheme clr))
 
-  (clr-using system)
+  (clr-using System)
   
   (define (clear)
-    (clr-static-call console clear))   
+    (clr-static-call Console Clear))   
   
-  (define beep
+  (define/contract beep
     (case-lambda
-      [()           (clr-static-call console beep)]
-      [(freq dur)   (clr-static-call console beep freq dur)]))
+      [()
+        (clr-static-call Console Beep)]
+      [(freq:fixnum dur:fixnum)   
+        (clr-static-call Console Beep freq dur)]))
 
-  (define window-title
+  (define/contract window-title
     (case-lambda
-      [()           (clr-static-prop-get console title)]
-      [(text)       (clr-static-prop-set! console title text)]))
+      [()
+        (clr-static-prop-get Console Title)]
+      [(text:string)
+        (clr-static-prop-set! Console Title text)]))
     
-  (define buffer-width
+  (define/contract buffer-width
     (case-lambda
-      [()           (clr-static-prop-get console bufferwidth)]
-      [(value)      (clr-static-prop-set! console bufferwidth value)]))
+      [()
+        (clr-static-prop-get Console BufferWidth)]
+      [(value:fixnum)      
+        (clr-static-prop-set! Console BufferWidth value)]))
 
-  (define buffer-height
+  (define/contract buffer-height
     (case-lambda
-      [()           (clr-static-prop-get console bufferheight)]
-      [(value)      (clr-static-prop-set! console bufferheight value)]))
+      [()
+        (clr-static-prop-get Console BufferHeight)]
+      [(value:fixnum)
+        (clr-static-prop-set! Console BufferHeight value)]))
 
-  (define (set-buffer-size! w h)
-    (clr-static-call console setbuffersize w h))       
+  (define/contract (set-buffer-size! w:fixnum h:fixnum)
+    (clr-static-call Console SetBufferSize w h))       
 
-  (define window-width
+  (define/contract window-width
     (case-lambda
-      [()           (clr-static-prop-get console windowwidth)]
-      [(value)      (clr-static-prop-set! console windowwidth value)]))
+      [()
+        (clr-static-prop-get Console WindowWidth)]
+      [(value:fixnum)      
+        (clr-static-prop-set! Console WindowWidth value)]))
 
-  (define window-height
+  (define/contract window-height
     (case-lambda
-      [()           (clr-static-prop-get console windowheight)]
-      [(value)      (clr-static-prop-set! console windowheight value)]))
+      [()
+        (clr-static-prop-get Console WindowHeight)]
+      [(value:fixnum)      
+        (clr-static-prop-set! Console WindowHeight value)]))
 
   (define (set-window-size! w h)
-    (clr-static-call console setwindowsize w h))   
+    (clr-static-call Console SetWindowSize w h))   
  
-  (define foreground-color
+  (define/contract foreground-color
     (case-lambda
-      [()           (clr-static-prop-get console foregroundcolor)]
-      [(color)      (clr-static-prop-set! console foregroundcolor color)]))
+      [()           
+        (clr-static-prop-get Console ForegroundColor)]
+      [(color:symbol)      
+        (clr-static-prop-set! Console ForegroundColor color)]))
 
-  (define background-color
+  (define/contract background-color
     (case-lambda
-      [()           (clr-static-prop-get console backgroundcolor)]
-      [(color)      (clr-static-prop-set! console backgroundcolor color)]))
+      [()           
+        (clr-static-prop-get Console BackgroundColor)]
+      [(color:symbol)      
+        (clr-static-prop-set! Console BackgroundColor color)]))
 
   (define (reset-color)
-    (clr-static-call console resetcolor))     
+    (clr-static-call Console ResetColor))     
 
 )

@@ -24,6 +24,7 @@
       record-type-descriptor? record-predicate
       record-accessor record-mutator)
     (ironscheme clr)
+    (ironscheme contracts)
     (ironscheme unsafe))
     
   (clr-using IronScheme.Runtime.R6RS)
@@ -31,16 +32,16 @@
   (define (record-type-descriptor? obj)
     (clr-is RecordTypeDescriptor obj))
     
-  (define (record-predicate rtd)
+  (define/contract (record-predicate rtd:record-type-descriptor)
     (clr-prop-get RecordTypeDescriptor Predicate rtd))       
 
-  (define (record-accessor rtd k)
+  (define/contract (record-accessor rtd:record-type-descriptor k)
     (clr-prop-get FieldDescriptor 
                   Accessor 
                   ($vector-ref (clr-prop-get RecordTypeDescriptor Fields rtd) 
                                k)))       
 
-  (define (record-mutator rtd k)
+  (define/contract (record-mutator rtd:record-type-descriptor k)
     (clr-prop-get FieldDescriptor 
                   Mutator 
                   ($vector-ref (clr-prop-get RecordTypeDescriptor Fields rtd) 

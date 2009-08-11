@@ -13,8 +13,9 @@
   (export printf
           fprintf
           format)
-  (import (rnrs))
-
+  (import 
+    (except (ironscheme) printf fprintf format)
+    (ironscheme contracts))
   
   ;; dofmt does all of the work.  It loops through the control string
   ;; recognizing format directives and printing all other characters
@@ -28,7 +29,7 @@
           (if (fx<=? n nmax)
               (let ((c (string-ref cntl n)))
                 (if (and (char=? c #\~) (fx<? n nmax))
-                    (case (string-ref cntl (fx+ n 1))
+                    (case (char-downcase (string-ref cntl (fx+ n 1)))
                       ((#\a)
                        (display (car a) p)
                        (loop (fx+ n 2) (cdr a)))
@@ -47,6 +48,9 @@
                       ((#\d)
                        (write (number->string (car a) 10) p)
                        (loop (fx+ n 2) (cdr a)))
+                      ((#\%)
+                       (newline p)
+                       (loop (fx+ n 2) a))                       
                       ((#\~)
                        (write-char #\~ p)
                        (loop (fx+ n 2) a))
@@ -60,13 +64,13 @@
   ;; printf and fprintf differ only in that fprintf passes its
   ;; port argument to dofmt while printf passes the current output
   ;; port.
-  (define (printf control . args)
+  (define/contract (printf control:string . args)
       (dofmt (current-output-port) control args))
-      
-  (define (fprintf p control . args)
+
+  (define/contract (fprintf p:textual-output-port control:string . args)
       (dofmt p control args))
       
-  (define (format control . args)
+  (define/contract (format control:string . args)
     (call-with-values open-string-output-port
       (lambda (p c)
         (dofmt p control args)

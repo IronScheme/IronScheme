@@ -84,7 +84,7 @@ namespace IronScheme.Runtime
       get { return lastException; }
     }
 
-    [DebuggerHidden]
+    //[DebuggerHidden]
     [DebuggerStepThrough]
     public static bool IsTrue(object arg)
     {
@@ -478,10 +478,6 @@ namespace IronScheme.Runtime
     {
       Callable c = RequiresNotNull<Callable>(thunk);
 
-#if DEBUG
-      TimeSpan _compile1 = compile1, _compile2 = compile2, _eval = eval;
-#endif
-
       int colcount = 0;
       for (int i = 0; i < 3; i++)
       {
@@ -516,17 +512,6 @@ namespace IronScheme.Runtime
         {
           colcountafter += GC.CollectionCount(i);
         }
-
-#if DEBUG
-        TimeSpan __compile1 = compile1, __compile2 = compile2, __eval = eval;
-        Console.WriteLine(@"Time spent:
-  compile   {0:f3}ms
-  compile*  {1:f3}ms
-  run       {2:f3}ms", 
-     (__compile1 - _compile1).TotalMilliseconds,
-     (__compile2 - _compile2).TotalMilliseconds,
-     (__eval - _eval).TotalMilliseconds);
-#endif
 
         Console.WriteLine(@"Statistics for '{0}':
   Real Time:  {1:f0}ms
@@ -643,6 +628,7 @@ namespace IronScheme.Runtime
 
       int c = ++evalcounter;
 
+
 #if DEBUG
       Stopwatch sw = Stopwatch.StartNew();
 #endif
@@ -653,7 +639,6 @@ namespace IronScheme.Runtime
 
 #if DEBUG
       sw.Stop();
-      compile1 += sw.Elapsed;
 
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
@@ -675,7 +660,6 @@ namespace IronScheme.Runtime
       }
 #if DEBUG
       sw.Stop();
-      compile2 += sw.Elapsed;
 
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
 #endif
@@ -702,7 +686,6 @@ namespace IronScheme.Runtime
         {
 
           sw.Stop();
-          eval += sw.Elapsed;
           Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
         }
 #endif
@@ -724,10 +707,6 @@ namespace IronScheme.Runtime
       return compiled.Call();
     }
 #else
-
-#if DEBUG
-    static TimeSpan compile1, compile2, eval;
-#endif
 
     [Builtin("eval-core")]
     public static object EvalCore(CodeContext cc, object expr)

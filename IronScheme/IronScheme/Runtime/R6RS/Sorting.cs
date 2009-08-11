@@ -13,28 +13,11 @@
 
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Scripting.Generation;
-using Microsoft.Scripting;
-using System.Reflection;
-using Microsoft.Scripting.Utils;
-using System.Reflection.Emit;
-using System.Collections;
 
 namespace IronScheme.Runtime.R6RS
 {
   public class Sorting : Builtins
   {
-    //[Builtin("vector-sort")]
-    //public static object VectorSort(object proc, object vec)
-    //{
-    //  object[] v = RequiresNotNull<object[]>(vec);
-    //  v = v.Clone() as object[];
-    //  VectorSortD(proc, v);
-    //  return v;
-    //}
-    
     [Builtin("vector-sort!")]
     public static object VectorSortD(object proc, object vec)
     {

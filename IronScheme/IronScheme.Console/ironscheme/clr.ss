@@ -18,7 +18,6 @@
     clr-using
     clr-reference
     clr-is
-    clr-foreach
     clr-cast
     clr-call
     clr-static-call
@@ -185,10 +184,5 @@
         [(_ type arg)
          #'(clr-cast-internal 'type arg)])))
 
-  ;; little helper for C# people
-  (define-syntax clr-foreach
-    (syntax-rules (in)
-      ((_ e in lst body body* ...)
-       (for-each (lambda (e) body body* ...) lst))))
 
   )

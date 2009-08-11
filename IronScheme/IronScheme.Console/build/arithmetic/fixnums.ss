@@ -313,10 +313,10 @@
       (overflow-error 'fxdiv x1 x2))
     (cond
       [($fx=? 0 x1) 0]
-      [($fx<? 0 x1) (%%fxdiv0 x1 x2)]
-      [($fx<? 0 x2) (%%fxdiv0 ($$fx- x1 ($$fx- x2 1)) x2)]
+      [($fx<? 0 x1) ($fxdiv0 x1 x2)]
+      [($fx<? 0 x2) ($fxdiv0 ($$fx- x1 ($$fx- x2 1)) x2)]
       [else
-        (%%fxdiv0 ($$fx+ x1 ($$fx+ x2 1)) x2)]))
+        ($fxdiv0 ($$fx+ x1 ($$fx+ x2 1)) x2)]))
       
   (define-fx* (fxmod x1 x2)
     ($$fx- x1 ($$fx* (fxdiv* x1 x2) x2)))
@@ -337,11 +337,8 @@
       (assertion-violation 'fxdiv0 "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
       (overflow-error 'fxdiv0 x1 x2))
-    (%%fxdiv0 x1 x2))   
+    ($fxdiv0 x1 x2))   
     
-  (define-integrable (%%fxdiv0 x1 x2)
-    ($fxdiv0 x1 x2))                    
-
   (define-fx (fxdiv0-and-mod0 x1 x2)
     (let ((d (fxdiv0* x1 x2)))
       (values d ($$fx- x1 ($$fx* d x2))))) 

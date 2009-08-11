@@ -20,7 +20,11 @@
 
 (library (psyntax internal)
   (export current-primitive-locations compile-core-expr-to-port compile-core-expr-to-fasl expanded->core compile-core-expr)
-  (import (rnrs) (psyntax compat) (only (ironscheme) pretty-print serialize-port))
+  (import 
+    (rnrs) 
+    (psyntax compat) 
+    (only (ironscheme) pretty-print serialize-port)
+    (only (ironscheme clr) clr-is))
   
   (define current-primitive-locations
     (make-parameter 
@@ -35,7 +39,7 @@
           (char? x) 
           (symbol? x)
           (boolean? x)
-          (string? x)
+          (clr-is System.String x)
           (bytevector? x)
           (number? x)))
     (not (simple? x)))

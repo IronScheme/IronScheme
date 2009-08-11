@@ -65,6 +65,7 @@ namespace IronScheme.Runtime.psyntax
 
       static ISerializationSurrogate surrogate = new SymbolSurrogate();
       static ISerializationSurrogate surrogate2 = new BooleanSurrogate();
+
     }
 
     sealed class SymbolSurrogate : ISerializationSurrogate

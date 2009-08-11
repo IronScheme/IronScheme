@@ -246,7 +246,7 @@ namespace Microsoft.Scripting.Ast {
                   ;
                 }
               }
-              else if (ue.Operand is BoundExpression)
+              else if (ue.Operand is BoundExpression && pt != null)
               {
                 BoundExpression be = ue.Operand as BoundExpression;
                 var v = UnwindBoundExpression(be);

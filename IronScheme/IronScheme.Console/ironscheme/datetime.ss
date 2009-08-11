@@ -27,6 +27,7 @@
     minute
     second
     millisecond
+    date
     days
     hours
     minutes
@@ -57,27 +58,38 @@
   (define (timespan? obj)
     (clr-is TimeSpan obj))     
     
-  (define make-utc-datetime
+  (define/contract make-utc-datetime
     (case-lambda
-      [(ticks)                                  (clr-new DateTime ticks 'utc)]
-      [(year month day)                         (clr-new DateTime year month day 0 0 0 (clr-cast DateTimeKind 'utc))]
-      [(year month day hour minute second)      (clr-new DateTime year month day hour minute second (clr-cast DateTimeKind 'utc))]    
-      [(year month day hour minute second ms)   (clr-new DateTime year month day hour minute second (clr-cast int32 ms) (clr-cast DateTimeKind 'utc))]))    
+      [(ticks)
+        (clr-new DateTime ticks 'utc)]
+      [(year:fixnum month:fixnum day:fixnum)
+        (clr-new DateTime year month day 0 0 0 (clr-cast DateTimeKind 'utc))]
+      [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum)
+        (clr-new DateTime year month day hour minute second (clr-cast DateTimeKind 'utc))]    
+      [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum ms:fixnum)
+        (clr-new DateTime year month day hour minute second (clr-cast int32 ms) (clr-cast DateTimeKind 'utc))]))    
     
-  (define make-datetime
+  (define/contract make-datetime
     (case-lambda
-      [(ticks)                                  (clr-new datetime ticks)]
-      [(year month day)                         (clr-new datetime year month day)]
-      [(year month day hour minute second)      (clr-new datetime year month day hour minute second)]    
-      [(year month day hour minute second ms)   (clr-new datetime year month day hour minute second (clr-cast int32 ms))]))    
+      [(ticks)                                  
+        (clr-new DateTime ticks)]
+      [(year:fixnum month:fixnum day:fixnum)
+        (clr-new DateTime year month day)]
+      [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum)
+        (clr-new DateTime year month day hour minute second)]    
+      [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum ms:fixnum)   
+        (clr-new DateTime year month day hour minute second (clr-cast int32 ms))]))    
       
-  (define make-timespan
+  (define/contract make-timespan
     (case-lambda
-      [(ticks)                                  (clr-new TimeSpan ticks)]
-      [(hours minutes seconds)                  (clr-new TimeSpan hours minutes seconds)]
-      [(days hours minutes seconds)             (clr-new TimeSpan days hours minutes seconds)]    
-      [(days hours minutes seconds ms)          (clr-new TimeSpan days hours minutes seconds ms)]))    
-      
+      [(ticks)                                  
+        (clr-new TimeSpan ticks)]
+      [(hours:fixnum minutes:fixnum seconds:fixnum)
+        (clr-new TimeSpan hours minutes seconds)]
+      [(days:fixnum hours:fixnum minutes:fixnum seconds:fixnum)
+        (clr-new TimeSpan days hours minutes seconds)]    
+      [(days:fixnum hours:fixnum minutes:fixnum seconds:fixnum ms:fixnum)
+        (clr-new TimeSpan days hours minutes seconds ms)]))    
   
   (define (now)
     (clr-static-prop-get DateTime now))   
@@ -126,6 +138,13 @@
 
   (define/contract (millisecond dt:datetime)
     (clr-prop-get DateTime Millisecond dt))
+    
+  (define/contract (date dt:datetime)
+    (clr-prop-get DateTime Date dt))
+    
+  (define/contract (datetime-kind dt:datetime)
+    (clr-prop-get DateTime Kind dt))
+    
 
   (define (ticks date/timespan)
     (cond

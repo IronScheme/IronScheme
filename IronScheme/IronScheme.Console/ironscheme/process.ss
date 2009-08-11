@@ -60,131 +60,131 @@
   (define/contract (process-start p:process)
     (clr-static-call Ironscheme.Runtime.Helpers StartProcess p))
     
-  (define wait-for-exit
-    (case/contract 
-      [(p:process)     (clr-call Process waitforexit p)]
-      [(p:process ms)  (clr-call Process waitforexit p ms)]))
+  (define/contract wait-for-exit
+    (case-lambda
+      [(p:process)     (clr-call Process WaitForExit p)]
+      [(p:process ms)  (clr-call Process WaitForExit p ms)]))
       
-  (define wait-for-input-idle
-    (case/contract 
-      [(p:process)     (clr-call Process waitforinputidle p)]
-      [(p:process ms)  (clr-call Process waitforinputidle p ms)]))      
+  (define/contract wait-for-input-idle
+    (case-lambda 
+      [(p:process)     (clr-call Process WaitForInputIdle p)]
+      [(p:process ms)  (clr-call Process WaitForInputIdle p ms)]))      
       
-  (define get-processes
-    (case/contract 
+  (define/contract get-processes
+    (case-lambda 
       [()      
-        (clr-static-call Process getprocesses)]
+        (clr-static-call Process GetProcesses)]
       [(host:string)  
-        (clr-static-call Process getprocesses host)]))
+        (clr-static-call Process GetProcesses host)]))
       
-  (define get-processes-by-name
-    (case/contract 
+  (define/contract get-processes-by-name
+    (case-lambda 
       [(name:string)      
-        (clr-static-call Process getprocessesbyname name)]
+        (clr-static-call Process GetProcessesByName name)]
       [(name:string host:string) 
-        (clr-static-call Process getprocessesbyname name host)]))
+        (clr-static-call Process GetProcessesByName name host)]))
       
-  (define get-process-by-id
-    (case/contract 
+  (define/contract get-process-by-id
+    (case-lambda 
       [(id)      
-        (clr-static-call Process getprocessbyid id)]
+        (clr-static-call Process GetProcessbyId id)]
       [(id host:string) 
-        (clr-static-call Process getprocessbyid id host)]))  
+        (clr-static-call Process GetProcessById id host)]))  
 
   (define (get-current-process)
-    (clr-static-call Process getcurrentprocess))
+    (clr-static-call Process GetCurrentProcess))
     
   (define/contract (process-kill p:process)
-    (clr-call Process kill p))
+    (clr-call Process Kill p))
     
   (define/contract (process-refresh p:process)
-    (clr-call Process refresh p))
+    (clr-call Process Refresh p))
     
   (define/contract (process-input-port p:process)
-    (clr-prop-get Process standardinput p))
+    (clr-prop-get Process StandardInput p))
 
   (define/contract (process-output-port p:process)
-    (clr-prop-get Process standardoutput p))
+    (clr-prop-get Process StandardOutput p))
 
   (define/contract (process-error-port p:process)
-    (clr-prop-get Process standarderror p))
+    (clr-prop-get Process StandardError p))
     
   (define/contract (process-responding? p:process)
-    (clr-prop-get Process responding p))    
+    (clr-prop-get Process Responding p))    
     
   (define/contract (process-exited? p:process)
-    (clr-prop-get Process hasexited p))    
+    (clr-prop-get Process HasExited p))    
     
   (define/contract (process-exit-code p:process)
-    (clr-prop-get Process exitcode p))    
+    (clr-prop-get Process ExitCode p))    
     
   (define/contract (process-name p:process)
-    (clr-prop-get Process processname p))    
+    (clr-prop-get Process ProcessName p))    
 
   (define/contract (process-id p:process)
-    (clr-prop-get Process id p))    
+    (clr-prop-get Process Id p))    
     
   (define/contract (process-start-time p:process)
-    (clr-prop-get Process starttime p))    
+    (clr-prop-get Process StartTime p))    
 
   (define/contract (process-exit-time p:process)
-    (clr-prop-get Process exittime p))    
+    (clr-prop-get Process ExitTime p))    
     
   (define/contract (process-user-cpu-time p:process)
-    (clr-prop-get Process userprocessortime p))     
+    (clr-prop-get Process UserProcessorTime p))     
 
   (define/contract (process-total-cpu-time p:process)
-    (clr-prop-get Process totalprocessortime p))     
+    (clr-prop-get Process TotalProcessorTime p))     
 
   (define/contract (process-system-cpu-time p:process)
-    (clr-prop-get Process privilegedprocessortime p))      
+    (clr-prop-get Process PrivilegedProcessorTime p))      
     
   (define/contract (process-private-memory-size p:process)
-    (clr-prop-get Process privatememorysize p))             
+    (clr-prop-get Process PrivateMemorySize p))             
     
   (define/contract (process-virtual-memory-size p:process)
-    (clr-prop-get Process virtualmemorysize p))       
+    (clr-prop-get Process VirtualMemorySize p))       
     
   (define/contract (process-working-set p:process)
-    (clr-prop-get Process workingset p))       
+    (clr-prop-get Process WorkingSet p))       
     
   (define/contract (process-peak-working-set p:process)
-    (clr-prop-get Process peakworkingset p))      
+    (clr-prop-get Process PeakWorkingSet p))      
 
   (define/contract (process-paged-system-memory-size p:process)
-    (clr-prop-get Process pagedsystemmemorysize p)) 
+    (clr-prop-get Process PagedSystemMemorySize p)) 
 
   (define/contract (process-paged-memory-size p:process)
-    (clr-prop-get Process pagedmemorysize p))      
+    (clr-prop-get Process PagedMemorySize p))      
 
   (define/contract (process-non-paged-system-memory-size p:process)
-    (clr-prop-get Process nonpagedsystemmemorysize p))      
+    (clr-prop-get Process NonPagedSystemMemorySize p))      
 
   (define/contract (process-peak-paged-memory-size p:process)
-    (clr-prop-get Process peakpagedmemorysize p))      
+    (clr-prop-get Process PeakPagedMemorySize p))      
 
   (define/contract (process-peak-virtual-memory-size p:process)
-    (clr-prop-get Process peakvirtualmemorysize p))         
+    (clr-prop-get Process PeakVirtualMemorySize p))         
 
-  (define process-priority
-    (case/contract
-      [(p:process)            (clr-prop-get Process priorityclass p)]
-      [(p:process priority)   (clr-prop-set! Process priorityclass p priority)]))
+  (define/contract process-priority
+    (case-lambda
+      [(p:process)            (clr-prop-get Process PriorityClass p)]
+      [(p:process priority)   (clr-prop-set! Process PriorityClass p priority)]))
 
-  (define process-boost
-    (case/contract
-      [(p:process)            (clr-prop-get Process priorityboostenabled p)]
-      [(p:process value)      (clr-prop-set! Process priorityboostenabled p value)]))
+  (define/contract process-boost
+    (case-lambda
+      [(p:process)            (clr-prop-get Process PriorityBoostEnabled p)]
+      [(p:process value)      (clr-prop-set! Process PriorityBoostEnabled p value)]))
   
-  (define make-process
-    (case/contract 
+  (define/contract make-process
+    (case-lambda 
       [(filename:string args:string)              
-        (clr-static-call ironscheme.runtime.helpers makeprocess filename args #t #f #f #f)]
+        (clr-static-call IronScheme.Runtime.Helpers MakeProcess filename args #t #f #f #f)]
       [(filename:string args:string show?:boolean)        
-        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? #f #f #f)]
+        (clr-static-call IronScheme.Runtime.Helpers MakeProcess filename args show? #f #f #f)]
       [(filename:string args:string show?:boolean exit:procedure)   
-        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit #f #f)]
+        (clr-static-call IronScheme.Runtime.Helpers MakeProcess filename args show? exit #f #f)]
       [(filename:string args:string show?:boolean exit:procedure out err)   
-        (clr-static-call ironscheme.runtime.helpers makeprocess filename args show? exit out err)]))
+        (clr-static-call IronScheme.Runtime.Helpers MakeProcess filename args show? exit out err)]))
      
 )

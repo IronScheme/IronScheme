@@ -152,14 +152,6 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-
-    //[Builtin("hashtable?")]
-    //[Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    //public static object IsHashtable(object obj)
-    //{
-    //  return  GetBool(obj is Hashtable);
-    //}
-
     [Builtin("hashtable-copy")]
     public static object HashtableCopy(object obj)
     {
@@ -217,39 +209,6 @@ namespace IronScheme.Runtime.R6RS
       RequiresNotNull<Hashtable>(obj);
       return GetBool(!(obj is ReadOnlyHashtable));
     }
-
-    //[Obsolete]
-    //[Builtin("equal-hash")]
-    //public static object EqualHash(object obj)
-    //{
-    //  //very slow... :(
-    //  string r = WriteFormat(obj);
-    //  return r.GetHashCode();
-    //}
-
-    //[Builtin("string-hash")]
-    //[Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    //public static object StringHash(object obj)
-    //{
-    //  string r = RequiresNotNull<string>(obj);
-    //  return StringComparer.Ordinal.GetHashCode(r);
-    //}
-
-    //[Builtin("string-ci-hash")]
-    //[Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    //public static object StringCaseInsensitiveHash(object obj)
-    //{
-    //  string r = RequiresNotNull<string>(obj);
-    //  return StringComparer.InvariantCultureIgnoreCase.GetHashCode(r);
-    //}
-
-    //[Builtin("symbol-hash")]
-    //[Obsolete("Implemented in Scheme, do not use, remove if possible", true)]
-    //public static object SymbolHash(object obj)
-    //{
-    //  SymbolId s = RequiresNotNull<SymbolId>(obj);
-    //  return s.GetHashCode();
-    //}
 
     [Builtin("eqv-hash")]
     public static object EqvHash(object obj)

@@ -56,6 +56,7 @@ namespace Microsoft.Scripting {
         /// </summary>
         protected TupleDictionary(TupleType data) {
             _data = data;
+           _extra = new SymbolId[0];
         }
 
         public override SymbolId[] GetExtraKeys() {

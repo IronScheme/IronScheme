@@ -209,6 +209,10 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private void ResolveClosure(CodeBlock block) {
+          if (block.Name == "anon#1#2##anon#1#2#3#4")
+          {
+            ;
+          }
             foreach (VariableReference r in block.References) {
                 Debug.Assert(r.Variable != null);
 

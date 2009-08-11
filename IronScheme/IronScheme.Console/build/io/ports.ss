@@ -117,7 +117,8 @@
   
   (import 
     (ironscheme clr)
-    (except (rnrs) 
+    (ironscheme contracts)
+    (except (ironscheme) 
       call-with-port
       open-string-output-port 
       port? 
@@ -151,10 +152,11 @@
          (memq obj '(none line block)) 
          #t))
 
-  (define (put-datum p datum) 
+  (define/contract (put-datum p:textual-output-port datum) 
     (write datum p))
   
-  (define get-datum read)
+  (define/contract (get-datum port:textual-input-port) 
+    (read port))
     
   (define (get-output-string port)
     (clr-call ironscheme.runtime.stringwriter getbuffer port))
@@ -170,12 +172,12 @@
     (or (textual-port? obj) 
         (binary-port? obj)))
     
-  (define (call-with-string-output-port proc)
+  (define/contract (call-with-string-output-port proc:procedure)
     (let ((p (open-output-string)))
       (call-with-port p proc)
       (get-output-string p)))
       
-  (define (call-with-port port proc)
+  (define/contract (call-with-port port:port proc:procedure)
     (let ((r (proc port)))
       (close-port port)
       r))      

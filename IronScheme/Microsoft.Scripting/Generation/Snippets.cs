@@ -62,7 +62,6 @@ namespace Microsoft.Scripting.Generation {
             ScriptDomainOptions options = ScriptDomainManager.Options;
 
             AssemblyGenAttributes result = options.AssemblyGenAttributes;
-
             result &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 
             if (debug)

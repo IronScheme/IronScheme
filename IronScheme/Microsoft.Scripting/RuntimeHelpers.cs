@@ -34,6 +34,7 @@ namespace Microsoft.Scripting {
     /// languages that use object as a universal type.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+    [DebuggerNonUserCode]
     public static partial class RuntimeHelpers {
         private const int MIN_CACHE = -100;
         private const int MAX_CACHE = 1000;
@@ -195,7 +196,7 @@ namespace Microsoft.Scripting {
         /// Called from generated code, helper to do name lookup
         /// </summary>
         public static object LookupName(CodeContext context, SymbolId name) {
-            return context.LanguageContext.LookupName(context, name);
+          return context.Scope.LookupName(name);
         }
 
         /// <summary>
@@ -214,6 +215,11 @@ namespace Microsoft.Scripting {
             context.LanguageContext.SetName(context, name, value);
         }
 
+        public static void SetNameBoxed(CodeContext context, object name, object value)
+        {
+          context.LanguageContext.SetName(context, (SymbolId) name, value);
+        }
+
         /// <summary>
         /// Called from generated code, helper to remove a name
         /// </summary>
@@ -225,18 +231,20 @@ namespace Microsoft.Scripting {
         /// Called from generated code, helper to do a global name lookup
         /// </summary>
         public static object LookupGlobalName(CodeContext context, SymbolId name) {
+          return context.Scope.ModuleScope.LookupName(name);
             // TODO: could we get rid of new context creation:
-            CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
-            return context.LanguageContext.LookupName(moduleScopedContext, name);
+            //CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
+            //return context.LanguageContext.LookupName(moduleScopedContext, name);
         }
 
         /// <summary>
         /// Called from generated code, helper to do global name assignment
         /// </summary>
         public static void SetGlobalName(CodeContext context, SymbolId name, object value) {
+          context.Scope.ModuleScope.SetName(name, value);
             // TODO: could we get rid of new context creation:
-            CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
-            context.LanguageContext.SetName(moduleScopedContext, name, value);
+            //CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
+            //context.LanguageContext.SetName(moduleScopedContext, name, value);
         }
 
         /// <summary>
@@ -246,6 +254,14 @@ namespace Microsoft.Scripting {
             // TODO: could we get rid of new context creation:
             CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
             context.LanguageContext.RemoveName(moduleScopedContext, name);
+        }
+
+        public static void InitializeModuleFieldBoxed(CodeContext context, object name, ref ModuleGlobalWrapper wrapper)
+        {
+          var s = (SymbolId)name;
+          ModuleGlobalCache mgc = context.LanguageContext.GetModuleCache(s);
+
+          wrapper = new ModuleGlobalWrapper(context, mgc, s);
         }
 
         public static void InitializeModuleField(CodeContext context, SymbolId name, ref ModuleGlobalWrapper wrapper) {

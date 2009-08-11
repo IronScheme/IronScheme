@@ -28,6 +28,7 @@
   
   (import 
     (rnrs)
+    (ironscheme contracts)
     (only (rnrs r5rs) 
       delay    
       null-environment
@@ -36,31 +37,19 @@
   (define inexact->exact exact)    
   (define exact->inexact inexact)
     
-  (define (sign n)
+  (define/contract (sign n:real)
     (cond 
       [(> n 0) 1]
       [(< n 0) -1]
       (else 0)))
  
-  (define (quotient n1 n2)
-    (unless (integer-valued? n1)
-      (assertion-violation 'quotient "not an integer" n1))
-    (unless (integer-valued? n2)
-      (assertion-violation 'quotient "not an integer" n2))
+  (define/contract (quotient n1:integer n2:integer)
     (* (sign n1) (sign n2) (div (abs n1) (abs n2))))
   
-  (define (remainder n1 n2)
-    (unless (integer-valued? n1)
-      (assertion-violation 'remainder "not an integer" n1))
-    (unless (integer-valued? n2)
-      (assertion-violation 'remainder "not an integer" n2))
+  (define/contract (remainder n1:integer n2:integer)
     (* (sign n1) (mod (abs n1) (abs n2))))
   
-  (define (modulo n1 n2)
-    (unless (integer-valued? n1)
-      (assertion-violation 'modulo "not an integer" n1))
-    (unless (integer-valued? n2)
-      (assertion-violation 'modulo "not an integer" n2))
+  (define/contract (modulo n1:integer n2:integer)
     (* (sign n2) (mod (* (sign n2) n1) (abs n2)))) 
     
   (define make-promise
