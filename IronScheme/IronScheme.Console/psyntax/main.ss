@@ -146,10 +146,10 @@
   (define (load-r6rs-top-level filename how . args)
     (parameterize ([library-path (local-library-path filename)])
       (let ((x* 
-             (with-input-from-file filename
-               (lambda ()
+             (call-with-input-file filename
+               (lambda (p)
                  (let f ()
-                   (let ((x (read-annotated)))
+                   (let ((x (read-annotated p)))
                      (if (eof-object? x) 
                          '()
                          (cons x (f)))))))))

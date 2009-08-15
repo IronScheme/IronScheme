@@ -375,6 +375,7 @@
       (put-string port name)
       (let ((s (clr-call Object ToString obj)))
         (unless (string=? s name)
+          (put-string port " ")
           (write-string s port #t)))
       (put-string port ">")))
       

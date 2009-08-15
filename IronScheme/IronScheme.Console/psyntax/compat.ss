@@ -69,7 +69,7 @@
         (map make-imported-from-condition pending-list))))
 
   (define (read-library-source-file file-name)
-		(with-input-from-file file-name read-annotated))
+		(call-with-input-file file-name read-annotated))
 		
   (define (allocate-local-slot)
     (clr-static-call System.Threading.Thread AllocateDataSlot))

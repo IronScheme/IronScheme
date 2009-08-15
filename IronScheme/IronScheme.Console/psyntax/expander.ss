@@ -1668,10 +1668,10 @@
           (stx-error stx))
         (cons 
           (bless 'begin)
-          (with-input-from-file filename
-            (lambda ()
+          (call-with-input-file filename
+            (lambda (p)
               (let f ((ls '()))
-                (let ((x (read-annotated)))
+                (let ((x (read-annotated p)))
                   (cond
                     ((eof-object? x) (reverse ls))
                     (else

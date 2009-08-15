@@ -20,7 +20,7 @@ using System.IO;
 namespace IronScheme.Runtime.psyntax
 {
   [Serializable]
-  internal class Annotation
+  public class Annotation
   {
     public readonly object expression;
     public readonly object source;
