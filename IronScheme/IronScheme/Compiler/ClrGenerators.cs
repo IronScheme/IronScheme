@@ -188,7 +188,7 @@ namespace IronScheme.Compiler
                 return ue.Operand;
               }
             }
-            if (t.IsArray && t != typeof(byte[]))
+            if (t.IsArray && t != typeof(byte[]) && t != typeof(char[]))
             {
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
@@ -585,7 +585,21 @@ namespace IronScheme.Compiler
 
       foreach (ConstructorInfo c in t.GetConstructors())
       {
-        candidates.Add(c);
+        bool add = true;
+
+        foreach (var pi in c.GetParameters())
+        {
+          if (pi.ParameterType.IsPointer)
+          {
+            add = false;
+            break;
+          }
+        }
+
+        if (add)
+        {
+          candidates.Add(c);
+        }
       }
 
       Type[] types = new Type[arguments.Length];

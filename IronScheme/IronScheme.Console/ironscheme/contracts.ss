@@ -24,7 +24,7 @@
   ; not exported  
   (define-syntax who 
     (lambda (x) 
-      (syntax-violation 'who "invalid use of auxiliary keyword" x)))
+      (syntax-violation #f "invalid use of auxiliary keyword" x)))
     
   (define-syntax lambda/contract  
     (lambda (x)

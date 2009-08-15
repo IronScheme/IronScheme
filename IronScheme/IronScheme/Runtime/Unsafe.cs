@@ -18,6 +18,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting.Ast;
 using System.Reflection;
 using System.Diagnostics;
+using System.IO;
 
 namespace IronScheme.Runtime
 {
@@ -67,10 +68,31 @@ namespace IronScheme.Runtime
       {
         if (Expect(args, 2))
         {
+          return Ast.Void(Ast.Try(Ast.Return(args[0])).Catch(typeof(Exception), Ast.Return(args[1])));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$try/overflow")]
+      public static Expression TryOverflow(Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
           return Ast.Void(Ast.Try(Ast.Return(args[0])).Catch(typeof(OverflowException), Ast.Return(args[1])));
         }
         return null;
       }
+
+      [InlineEmitter("$try/io")]
+      public static Expression TryIO(Expression[] args)
+      {
+        if (Expect(args, 2))
+        {
+          return Ast.Void(Ast.Try(Ast.Return(args[0])).Catch(typeof(IOException), Ast.Return(args[1])));
+        }
+        return null;
+      }
+
 
       #region car + cdr
 

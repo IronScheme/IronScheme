@@ -893,10 +893,10 @@ namespace IronScheme.Runtime
 
       NetworkStream ns = tcp.GetStream();
 
-      if (maybetranscoder is R6RS.IO.Transcoder)
+      if (maybetranscoder is R6RS.Transcoder)
       {
-        R6RS.IO.Transcoder tc = maybetranscoder as R6RS.IO.Transcoder;
-        return new R6RS.IO.CustomTextReaderWriter(
+        R6RS.Transcoder tc = maybetranscoder as R6RS.Transcoder;
+        return new R6RS.CustomTextReaderWriter(
           SymbolTable.StringToObject(string.Format("#<tcp-textual-input/output-port {0}:{1}>", host, port)),
           new StreamReader(ns, tc.codec), new StreamWriter(ns, tc.codec));
       }
@@ -975,14 +975,14 @@ namespace IronScheme.Runtime
         return (T)(object)obj.ToString();
       }
 
-      if (typeof(T) == typeof(TextWriter) && obj is R6RS.IO.CustomTextReaderWriter)
+      if (typeof(T) == typeof(TextWriter) && obj is R6RS.CustomTextReaderWriter)
       {
-        return (T)(object)((R6RS.IO.CustomTextReaderWriter)obj).output;
+        return (T)(object)((R6RS.CustomTextReaderWriter)obj).output;
       }
 
-      if (typeof(T) == typeof(TextReader) && obj is R6RS.IO.CustomTextReaderWriter)
+      if (typeof(T) == typeof(TextReader) && obj is R6RS.CustomTextReaderWriter)
       {
-        return (T)(object)((R6RS.IO.CustomTextReaderWriter)obj).input;
+        return (T)(object)((R6RS.CustomTextReaderWriter)obj).input;
       }
 
       if (obj != null && !(obj is T))

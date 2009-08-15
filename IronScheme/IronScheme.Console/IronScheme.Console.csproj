@@ -135,9 +135,6 @@
     <None Include="build\io\ports.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\io\simple.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="build\mutable-pairs.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -692,6 +689,9 @@
     </Content>
     <Content Include="build\primitive-numbers.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="build\io\simple.ss">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

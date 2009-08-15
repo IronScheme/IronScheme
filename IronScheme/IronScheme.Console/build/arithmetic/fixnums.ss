@@ -135,7 +135,7 @@
   (define-syntax checked
     (syntax-rules ()
       [(_ expr)
-        ($try expr (overflow-error #f))]))
+        ($try/overflow expr (overflow-error #f))]))
             
   (define-syntax define-fx
     (lambda (x)

@@ -46,24 +46,17 @@ namespace IronScheme.Runtime
     static Assembly AssemblyLoad(string path)
     {
       string fn = Path.GetFullPath(path);
-      if (File.Exists(fn))
+      var pdb = Path.ChangeExtension(fn, ".pdb");
+      if (File.Exists(pdb))
       {
-        var pdb = Path.ChangeExtension(fn, ".pdb");
-        if (File.Exists(pdb))
-        {
-          return Assembly.Load(File.ReadAllBytes(fn), File.ReadAllBytes(pdb));
-        }
-        else
-        {
-          return Assembly.LoadFrom(fn);
-        }
+        return Assembly.Load(File.ReadAllBytes(fn), File.ReadAllBytes(pdb));
       }
-      FileNotFoundViolation(FALSE, "file not found", path);
-      return null;
+      else
+      {
+        return Assembly.LoadFrom(fn);
+      }
     }
 
-    //[Builtin("load")] // this is patched in r6rs mode, but its needed to bootstrap
-    //[Builtin("load-r5rs")] // is this used anywhere?
     internal static object Load(object filename)
     {
       CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
@@ -240,6 +233,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("read")]
+    [Obsolete]
     public static object Read()
     {
       return Read(CurrentInputPort());
@@ -249,7 +243,7 @@ namespace IronScheme.Runtime
     static Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
 
     [Builtin("read")]
-    //[Builtin("get-datum")]
+    [Obsolete]
     public static object Read(object port)
     {
       var r = ReadAnnotatedNext(port);
@@ -258,12 +252,6 @@ namespace IronScheme.Runtime
         return ((Annotation)r).stripped;
       }
       return r;
-    }
-
-    [Builtin("read-annotated")]
-    public static object ReadAnnotated()
-    {
-      return ReadAnnotated(Builtins.CurrentInputPort());
     }
 
     [Builtin("read-annotated")]
@@ -303,32 +291,31 @@ namespace IronScheme.Runtime
 
 
     [Builtin("annotation?")]
+    [Obsolete]
     public static object IsAnnotation(object obj)
     {
       return GetBool(obj is Annotation);
     }
 
     [Builtin("annotation-expression")]
+    [Obsolete]
     public static object AnnotationExpression(object obj)
     {
       return RequiresNotNull<Annotation>(obj).expression;
     }
 
     [Builtin("annotation-source")]
+    [Obsolete]
     public static object AnnotationSource(object obj)
     {
       return RequiresNotNull<Annotation>(obj).source;
     }
 
     [Builtin("annotation-stripped")]
+    [Obsolete]
     public static object AnnotationStripped(object obj)
     {
       return RequiresNotNull<Annotation>(obj).stripped;
-    }
-
-    protected interface ITranscodedPort
-    {
-      Stream BinaryPort { get; }
     }
 
     static object ReadAnnotatedNext(object port)
@@ -451,23 +438,25 @@ namespace IronScheme.Runtime
 
 
     [Builtin("input-port?")]
+    [Obsolete]
     public static object IsInputPort(object obj)
     {
       if (obj is Stream)
       {
         return GetBool(((Stream)obj).CanRead);
       }
-      return GetBool(obj is TextReader || obj is R6RS.IO.CustomTextReaderWriter); 
+      return GetBool(obj is TextReader || obj is R6RS.CustomTextReaderWriter); 
     }
 
     [Builtin("output-port?")]
+    [Obsolete]
     public static object IsOutputPort(object obj)
     {
       if (obj is Stream)
       {
         return GetBool(((Stream)obj).CanWrite);
       }
-      return GetBool(obj is TextWriter || obj is R6RS.IO.CustomTextReaderWriter);
+      return GetBool(obj is TextWriter || obj is R6RS.CustomTextReaderWriter);
     }
 
     //probably a good idea to make these threadstatic
@@ -475,10 +464,10 @@ namespace IronScheme.Runtime
     //[Obsolete]
     static TextReader currentinputport = Console.In;
     //[ThreadStatic]
-    //[Obsolete]
+    [Obsolete]
     static TextWriter currentoutputport = Console.Out;
     //[ThreadStatic]
-    //[Obsolete]
+    [Obsolete]
     static TextWriter currenterrorport = Console.Error;
 
     [Builtin("current-input-port")]
@@ -490,7 +479,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("current-output-port")]
-    //[Obsolete]
+    [Obsolete]
     public static object CurrentOutputPort(object newport)
     {
       currentoutputport = newport as TextWriter;
@@ -506,14 +495,14 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("current-output-port")]
-    //[Obsolete]
+    [Obsolete]
     public static object CurrentOutputPort()
     {
       return currentoutputport;
     }
 
     [Builtin("current-error-port")]
-    //[Obsolete]
+    [Obsolete]
     public static object CurrentErrorPort(object newport)
     {
       currenterrorport = newport as TextWriter;
@@ -522,7 +511,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("current-error-port")]
-    //[Obsolete]
+    [Obsolete]
     public static object CurrentErrorPort()
     {
       return currenterrorport;
@@ -545,6 +534,7 @@ namespace IronScheme.Runtime
     }
     
     [Builtin("open-input-file")]
+    [Obsolete]
     public static object OpenInputFile(object filename)
     {
       string fn = RequiresNotNull<string>(filename);
@@ -563,6 +553,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("open-output-file")]
+    [Obsolete]
     public static object OpenOutputFile(object filename)
     {
       string fn = RequiresNotNull<string>(filename);
@@ -581,6 +572,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("close-input-port")]
+    [Obsolete]
     public static object CloseInputPort(object port)
     {
       if (port is Stream)
@@ -599,6 +591,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("close-output-port")]
+    [Obsolete]
     public static object CloseOutputPort(object port)
     {
       if (port is Stream)

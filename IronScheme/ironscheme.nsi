@@ -222,8 +222,8 @@ SectionIn 1 2 RO
 	File /r ironscheme\*.ss
 	
 	SetOutPath "$INSTDIR\lib"
-	File /r lib\*.ss
-	File /r lib\*.sls
+	File lib\*.ss
+	File lib\*.sls
 	
 	SetOutPath "$INSTDIR\build"
 	File /r build\*.ss

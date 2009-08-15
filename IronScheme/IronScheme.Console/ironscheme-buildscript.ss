@@ -66,8 +66,7 @@
     "build/unicode.ss"
     "build/arithmetic/bitwise.ss"
     "build/arithmetic/flonums.ss"
-    "build/io/ports.ss"
-    "build/io/simple.ss"
+
     "build/records/inspection.ss"
     "build/records/syntactic.ss"
     
@@ -79,7 +78,12 @@
     "build/equal.ss"
     
     "psyntax/compat.ss"
-    "build/pretty-print.ss" ;; needs make-parameter
+    
+    ;; needs make-parameter
+    "build/io/ports.ss"
+    "build/io/simple.ss"
+    
+    "build/pretty-print.ss" 
     
     "build/cps.ss"
     
@@ -399,6 +403,8 @@
     ($fxarithmetic-shift-left                   iu)
     ($fxarithmetic-shift-right                  iu)
     ($try                                       iu)
+    ($try/overflow                              iu)
+    ($try/io                                    iu)
     ($fl=?                                      iu)
     ($fl+                                       iu)
     ($fl*                                       iu)
@@ -1406,10 +1412,10 @@
       ((not (assq (cdar subst) env)) (prune-subst (cdr subst) env))
       (else (cons (car subst) (prune-subst (cdr subst) env)))))
   (define (load file proc)
-    (with-input-from-file file
-       (lambda ()
+    (call-with-input-file file
+       (lambda (p)
          (let f ()
-           (let ((x (read-annotated)))
+           (let ((x (read-annotated p)))
              (unless (eof-object? x) 
                (proc x)
                (f)))))))
