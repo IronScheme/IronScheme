@@ -39,6 +39,8 @@ namespace IronScheme.Compiler
 
     protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
+    public static bool TypeHelpersEnabled { get; set; }
+
     static ClrGenerator()
     {
       ResetReferences();
@@ -192,21 +194,21 @@ namespace IronScheme.Compiler
             {
               return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
             }
-            if (t == typeof(double) || t == typeof(int) || t == typeof(char) || t == typeof(BigInteger) || t == typeof(Complex64) || t == typeof(Cons) ||
-              t == typeof(byte) || t == typeof(sbyte) || t == typeof(float) || t == typeof(ComplexFraction) || t == typeof(Fraction) ||
-              t == typeof(IEnumerable) ||
-              t == typeof(bool) || t == typeof(string) || t == typeof(System.IO.Stream) || t == typeof(Encoding) || t == typeof(Hashtable) ||
-                t == typeof(Array) || t == typeof(byte[]) || t == typeof(Callable) || t == typeof(StringBuilder))
-            {
-              return Ast.ConvertHelper(e, t);
-            }
             else
             {
               if (e is ConstantExpression && ((ConstantExpression)e).Value == null)
               {
                 return e;
               }
-              return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
+
+              if (TypeHelpersEnabled)
+              {
+                return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
+              }
+              else
+              {
+                return Ast.ConvertHelper(e, t);
+              }
             }
           }
     }

@@ -352,7 +352,7 @@ namespace Microsoft.Scripting.Hosting {
             _languageContext.UpdateSourceCodeProperties(compilerContext);
 
             if (!sourceUnit.CodeProperties.HasValue) {
-                throw new InvalidImplementationException();
+                return SourceCodeProperties.None;
             }
 
             return sourceUnit.CodeProperties.Value;

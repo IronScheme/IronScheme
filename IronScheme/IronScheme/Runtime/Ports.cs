@@ -232,18 +232,10 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
-    [Builtin("read")]
-    [Obsolete]
-    public static object Read()
-    {
-      return Read(CurrentInputPort());
-    }
-
     //[ThreadStatic]
     static Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
 
-    [Builtin("read")]
-    [Obsolete]
+    //[Builtin("read")]
     public static object Read(object port)
     {
       var r = ReadAnnotatedNext(port);
@@ -290,33 +282,6 @@ namespace IronScheme.Runtime
     }
 
 
-    [Builtin("annotation?")]
-    [Obsolete]
-    public static object IsAnnotation(object obj)
-    {
-      return GetBool(obj is Annotation);
-    }
-
-    [Builtin("annotation-expression")]
-    [Obsolete]
-    public static object AnnotationExpression(object obj)
-    {
-      return RequiresNotNull<Annotation>(obj).expression;
-    }
-
-    [Builtin("annotation-source")]
-    [Obsolete]
-    public static object AnnotationSource(object obj)
-    {
-      return RequiresNotNull<Annotation>(obj).source;
-    }
-
-    [Builtin("annotation-stripped")]
-    [Obsolete]
-    public static object AnnotationStripped(object obj)
-    {
-      return RequiresNotNull<Annotation>(obj).stripped;
-    }
 
     static object ReadAnnotatedNext(object port)
     {
@@ -364,10 +329,6 @@ namespace IronScheme.Runtime
               }
             }
           }
-          //else if (r is ITranscodedPort)
-          //{
-          //  result = IronSchemeLanguageContext.ReadExpressions(((ITranscodedPort)r).BinaryPort, Context.ModuleContext.CompilerContext);
-          //}
           else
           {
             string input = r.ReadToEnd();
@@ -437,85 +398,85 @@ namespace IronScheme.Runtime
     }
 
 
-    [Builtin("input-port?")]
-    [Obsolete]
-    public static object IsInputPort(object obj)
-    {
-      if (obj is Stream)
-      {
-        return GetBool(((Stream)obj).CanRead);
-      }
-      return GetBool(obj is TextReader || obj is R6RS.CustomTextReaderWriter); 
-    }
+    //[Builtin("input-port?")]
+    //[Obsolete]
+    //public static object IsInputPort(object obj)
+    //{
+    //  if (obj is Stream)
+    //  {
+    //    return GetBool(((Stream)obj).CanRead);
+    //  }
+    //  return GetBool(obj is TextReader || obj is R6RS.CustomTextReaderWriter); 
+    //}
 
-    [Builtin("output-port?")]
-    [Obsolete]
-    public static object IsOutputPort(object obj)
-    {
-      if (obj is Stream)
-      {
-        return GetBool(((Stream)obj).CanWrite);
-      }
-      return GetBool(obj is TextWriter || obj is R6RS.CustomTextReaderWriter);
-    }
+    //[Builtin("output-port?")]
+    //[Obsolete]
+    //public static object IsOutputPort(object obj)
+    //{
+    //  if (obj is Stream)
+    //  {
+    //    return GetBool(((Stream)obj).CanWrite);
+    //  }
+    //  return GetBool(obj is TextWriter || obj is R6RS.CustomTextReaderWriter);
+    //}
 
     //probably a good idea to make these threadstatic
     //[ThreadStatic]
     //[Obsolete]
-    static TextReader currentinputport = Console.In;
+    //static TextReader currentinputport = Console.In;
     //[ThreadStatic]
-    [Obsolete]
-    static TextWriter currentoutputport = Console.Out;
+    //[Obsolete]
+    //static TextWriter currentoutputport = Console.Out;
     //[ThreadStatic]
-    [Obsolete]
-    static TextWriter currenterrorport = Console.Error;
-
-    [Builtin("current-input-port")]
     //[Obsolete]
-    public static object CurrentInputPort(object newport)
-    {
-      currentinputport = newport as TextReader;
-      return Unspecified;
-    }
+    //static TextWriter currenterrorport = Console.Error;
 
-    [Builtin("current-output-port")]
-    [Obsolete]
-    public static object CurrentOutputPort(object newport)
-    {
-      currentoutputport = newport as TextWriter;
-      return Unspecified;
-    }
+    //[Builtin("current-input-port")]
+    ////[Obsolete]
+    //public static object CurrentInputPort(object newport)
+    //{
+    //  currentinputport = newport as TextReader;
+    //  return Unspecified;
+    //}
 
-
-    [Builtin("current-input-port")]
+    //[Builtin("current-output-port")]
     //[Obsolete]
-    public static object CurrentInputPort()
-    {
-      return currentinputport;
-    }
-
-    [Builtin("current-output-port")]
-    [Obsolete]
-    public static object CurrentOutputPort()
-    {
-      return currentoutputport;
-    }
-
-    [Builtin("current-error-port")]
-    [Obsolete]
-    public static object CurrentErrorPort(object newport)
-    {
-      currenterrorport = newport as TextWriter;
-      return Unspecified;
-    }
+    //public static object CurrentOutputPort(object newport)
+    //{
+    //  currentoutputport = newport as TextWriter;
+    //  return Unspecified;
+    //}
 
 
-    [Builtin("current-error-port")]
-    [Obsolete]
-    public static object CurrentErrorPort()
-    {
-      return currenterrorport;
-    }
+    //[Builtin("current-input-port")]
+    ////[Obsolete]
+    //public static object CurrentInputPort()
+    //{
+    //  return currentinputport;
+    //}
+
+    //[Builtin("current-output-port")]
+    //[Obsolete]
+    //public static object CurrentOutputPort()
+    //{
+    //  return currentoutputport;
+    //}
+
+    //[Builtin("current-error-port")]
+    //[Obsolete]
+    //public static object CurrentErrorPort(object newport)
+    //{
+    //  currenterrorport = newport as TextWriter;
+    //  return Unspecified;
+    //}
+
+
+    //[Builtin("current-error-port")]
+    //[Obsolete]
+    //public static object CurrentErrorPort()
+    //{
+    //  return currenterrorport;
+    //}
     
     static string GetPath(string filename)
     {
@@ -532,78 +493,78 @@ namespace IronScheme.Runtime
       }
       return filename;
     }
-    
-    [Builtin("open-input-file")]
-    [Obsolete]
-    public static object OpenInputFile(object filename)
-    {
-      string fn = RequiresNotNull<string>(filename);
-      try
-      {
-        return File.OpenText(GetPath(fn));
-      }
-      catch (FileNotFoundException ex)
-      {
-        return FileNotFoundViolation("open-input-file", ex.Message, filename);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("open-input-file", ex.Message, filename);
-      }      
-    }
 
-    [Builtin("open-output-file")]
-    [Obsolete]
-    public static object OpenOutputFile(object filename)
-    {
-      string fn = RequiresNotNull<string>(filename);
-      try
-      {
-        return File.CreateText(GetPath(fn));
-      }
-      catch (FileNotFoundException ex)
-      {
-        return FileNotFoundViolation("open-output-file", ex.Message, filename);
-      }
-      catch (Exception ex)
-      {
-        return AssertionViolation("open-output-file", ex.Message, filename);
-      }
-    }
+    //[Builtin("open-input-file")]
+    //[Obsolete]
+    //public static object OpenInputFile(object filename)
+    //{
+    //  string fn = RequiresNotNull<string>(filename);
+    //  try
+    //  {
+    //    return File.OpenText(GetPath(fn));
+    //  }
+    //  catch (FileNotFoundException ex)
+    //  {
+    //    return FileNotFoundViolation("open-input-file", ex.Message, filename);
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    return AssertionViolation("open-input-file", ex.Message, filename);
+    //  }
+    //}
 
-    [Builtin("close-input-port")]
-    [Obsolete]
-    public static object CloseInputPort(object port)
-    {
-      if (port is Stream)
-      {
-        ((Stream)port).Close();
-      }
-      else
-      {
-        if (readcache.ContainsKey(port))
-        {
-          readcache.Remove(port);
-        }
-        RequiresNotNull<TextReader>(port).Close();
-      }
-      return Unspecified;
-    }
+    //[Builtin("open-output-file")]
+    //[Obsolete]
+    //public static object OpenOutputFile(object filename)
+    //{
+    //  string fn = RequiresNotNull<string>(filename);
+    //  try
+    //  {
+    //    return File.CreateText(GetPath(fn));
+    //  }
+    //  catch (FileNotFoundException ex)
+    //  {
+    //    return FileNotFoundViolation("open-output-file", ex.Message, filename);
+    //  }
+    //  catch (Exception ex)
+    //  {
+    //    return AssertionViolation("open-output-file", ex.Message, filename);
+    //  }
+    //}
 
-    [Builtin("close-output-port")]
-    [Obsolete]
-    public static object CloseOutputPort(object port)
-    {
-      if (port is Stream)
-      {
-        ((Stream)port).Close();
-      }
-      else
-      {
-        RequiresNotNull<TextWriter>(port).Close();
-      }
-      return Unspecified;
+    //[Builtin("close-input-port")]
+    //[Obsolete]
+    //public static object CloseInputPort(object port)
+    //{
+    //  if (port is Stream)
+    //  {
+    //    ((Stream)port).Close();
+    //  }
+    //  else
+    //  {
+    //    if (readcache.ContainsKey(port))
+    //    {
+    //      readcache.Remove(port);
+    //    }
+    //    RequiresNotNull<TextReader>(port).Close();
+    //  }
+    //  return Unspecified;
+    //}
 
-    }
+    //[Builtin("close-output-port")]
+    //[Obsolete]
+    //public static object CloseOutputPort(object port)
+    //{
+    //  if (port is Stream)
+    //  {
+    //    ((Stream)port).Close();
+    //  }
+    //  else
+    //  {
+    //    RequiresNotNull<TextWriter>(port).Close();
+    //  }
+    //  return Unspecified;
+
+    //}
   }
 }

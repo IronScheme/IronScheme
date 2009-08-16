@@ -483,3 +483,71 @@
         (parse #'(e e* ...))])))
          
 
+(import (ironscheme clr))
+
+
+(define-syntax with-clr-type
+  (lambda (x)
+    (syntax-case x ()
+      [(_ ((id type) ...) body body* ...)
+        (for-all identifier? #'(id ... type ...))
+        (with-syntax ((((id type renamed) ...) (map list 
+                                                    #'(id ...) 
+                                                    #'(type ...) 
+                                                    (generate-temporaries #'(id ...)))))
+          #'(let-syntax ((renamed (identifier-syntax id)) ...) 
+              (let-syntax (
+                  (id (lambda (x)
+                          (define (lit=? id sym)
+                            (eq? (syntax->datum id) sym))
+                          (syntax-case x () 
+                            [(_ : prop = value)
+                              (and (identifier? #'prop) (lit=? #': ':) (lit=? #'= '=))
+                              #'(clr-prop-set! type prop renamed value)]
+                            [(_ : prop)
+                              (and (identifier? #'prop) (lit=? #': ':))
+                              #'(clr-prop-get type prop renamed)]
+                            [(_ -> field = value)
+                              (and (identifier? #'field) (lit=? #'-> '->) (lit=? #'= '=))
+                              #'(clr-field-set! type field renamed value)]
+                            [(_ -> field)
+                              (and (identifier? #'field) (lit=? #'-> '->))
+                              #'(clr-field-get type field renamed)]
+                            [(_ meth . arg)
+                              (identifier? #'meth)
+                              #'(clr-call type meth renamed . arg)]
+                            [(_ (arg arg* ...) = value)
+                              (lit=? #'= '=)
+                              #'(clr-indexer-set! type renamed arg arg* ... value)]
+                            [(_ (arg arg* ...))
+                              #'(clr-indexer-get type renamed arg arg* ...)]
+                            [_ #'renamed]))) ...)
+                body body* ...)))])))
+                
+;(define-syntax declare-clr-type 
+  ;(syntax-rules ()
+    ;[(_ name                 
+
+(import (ironscheme clr))
+(clr-using IronScheme)
+                          
+(let ((obj (clr-new TestClass "foo"))) 
+  (with-clr-type ((obj TestClass))
+    (printf "~a\n" (eq? obj 50))
+    (printf "~a\n" (obj : Message))
+    (obj : Message = "world")
+    (printf "~a\n" (obj -> Source))
+    (obj -> Source = "bar")
+    (printf "~a\n" (obj -> Source))
+    (obj Print "hello")
+    (printf "~a\n" (obj (1)))
+    (obj (99) = #\a)
+    (obj : Message)
+    ))
+    
+(let ((obj (clr-new TestClass "foo"))) 
+  (with-clr-type ((obj TestClass))
+    (obj : Message)
+    (obj (99) #\a)
+    (obj : Message)
+    ))    

@@ -510,21 +510,10 @@ namespace IronScheme.Runtime.R6RS
       get { return tc.codec; }
     }
 
-    public override void Write(string value)
-    {
-      if (tc.eolstyle != IO.eol_none)
-      {
-        value = IO.lftx.Replace(value, delegate(Match m)
-        {
-          return IO.GetNewline(tc.eolstyle, m.Value);
-        });
-      }
-      base.Write(value);
-    }
-
     public override void Write(char value)
     {
-      byte[] bytes = Encoding.GetBytes(new char[] { value });
+      string s = new string(new char[] { value });
+      byte[] bytes = IO.StringToByteVector(s, tc) as byte[];
       port.Write(bytes, 0, bytes.Length);
     }
 
@@ -575,6 +564,7 @@ namespace IronScheme.Runtime.R6RS
       {
         Encoding enc = ParsePreamble(port);
       }
+
       long p = port.Position;
       int max = tc.codec.GetMaxByteCount(1);
       byte[] buffer = new byte[max];
@@ -594,28 +584,31 @@ namespace IronScheme.Runtime.R6RS
       byte[] b = new byte[4];
       int len = port.Read(b, 0, 4);
 
-      if (b[0] == 0xff && b[1] == 0xfe)
+      if (b[0] == 0xff && b[1] == 0xfe && (len < 4 || !(b[2] == 0 && b[3] == 0)))
       {
         port.Position = 2;
+        return new UnicodeEncoding(false, false);
       }
-      else if (b[0] == 0xfe && b[1] == 0xff)
+      else if (b[0] == 0xfe && b[1] == 0xff && (len < 4 || !(b[2] == 0 && b[3] == 0)))
       {
         port.Position = 2;
+        return new UnicodeEncoding(true, false);
       }
-      else if (b[0] == 0xfe && b[1] == 0xff)
+      else if (len >= 4 && b[0] == 0 && b[1] == 0 && b[2] == 0xfe && b[3] == 0xff)
       {
         port.Position = 4;
+        return new UTF32Encoding(false, false);
       }
-      else if (b[0] == 0xfe && b[1] == 0xff)
+      else if (len >= 4 && b[0] == 0xff && b[1] == 0xef && b[2] == 0 && b[3] == 0)
       {
         port.Position = 4;
+        return new UTF32Encoding(true, false);
       }
       else
       {
         port.Position = 0;
+        return Encoding.UTF8;
       }
-
-      return null;
     }
 
     public override string ReadToEnd()
@@ -825,7 +818,7 @@ namespace IronScheme.Runtime.R6RS
 
     static object eol_lf = SymbolTable.StringToObject("lf"); //10
     static object eol_cr = SymbolTable.StringToObject("cr"); //13
-    static object eol_crlf = SymbolTable.StringToObject("crlf");
+    internal static object eol_crlf = SymbolTable.StringToObject("crlf");
     static object eol_nel = SymbolTable.StringToObject("nel");
     static object eol_crnel = SymbolTable.StringToObject("crnel"); //194 133
     static object eol_ls = SymbolTable.StringToObject("ls"); // 226 128 168
@@ -1824,6 +1817,10 @@ namespace IronScheme.Runtime.R6RS
       if (fo == null)
       {
         return 0;
+      }
+      if (fo == FALSE)
+      {
+        return FileOptions.NoFail;
       }
       if (enum_value == null)
       {

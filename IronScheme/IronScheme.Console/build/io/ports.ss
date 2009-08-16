@@ -53,6 +53,8 @@
     port-has-set-port-position!?
     set-port-position!
     
+    close-input-port
+    close-output-port
     close-port
     call-with-port
     
@@ -111,6 +113,11 @@
     make-custom-binary-input/output-port
     make-custom-textual-input/output-port
     
+    open-input-file
+    open-output-file
+    
+    read
+    
     open-output-string
     get-output-string
     
@@ -141,7 +148,7 @@
       input-port?
       output-port?
       current-error-port
-      ;current-input-port
+      current-input-port
       current-output-port
       native-transcoder
       open-input-file
@@ -351,8 +358,7 @@
         (clr-is TextWriter obj)
         (clr-is CustomTextReaderWriter obj)))
   
-  ;; figure out how to make this work nice
-  #;(define current-input-port 
+  (define current-input-port 
     (make-parameter (clr-static-prop-get Console In) 
                     (lambda (x) 
                       (unless (and (textual-port? x)
@@ -390,13 +396,19 @@
 
   (define (standard-output-port)
     (clr-static-call System.Console OpenStandardOutput))
-    
+  
   (define/contract (open-input-file filename:string)
-    (open-file-input-port filename '() 'block (native-transcoder)))
+    (unless (file-exists? filename)
+      (file-not-found 'open-file-input-port filename))
+    (guard (e 
+      [e (assertion-violation 'open-input-file "oops" filename)])
+        (clr-static-call File OpenText filename)))
 
   (define/contract (open-output-file filename:string)
-    (open-file-output-port filename '() 'block (native-transcoder)))
-    
+    (guard (e 
+      [e (assertion-violation 'open-output-file "oops" filename)])
+        (clr-static-call File CreateText filename)))
+  
   (define (get-input-port port)
     (clr-field-get CustomTextReaderWriter input port))
     
@@ -800,7 +812,7 @@
                       s)
                   (lambda ()
                     (let ((r (clr-call MemoryStream ToArray s)))
-                      (clr-call MemoryStream SetLength s 0)
+                      (clr-call MemoryStream SetLength s (clr-static-call Convert "ToInt64(Int32)" 0))
                       r))))]))   
                       
   (define/contract call-with-bytevector-output-port
