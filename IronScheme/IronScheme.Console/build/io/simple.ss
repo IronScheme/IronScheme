@@ -27,9 +27,6 @@
     with-input-from-file
     with-output-to-file
     
-    open-input-file
-    open-output-file
-    
     close-input-port
     close-output-port
     
@@ -96,8 +93,8 @@
         (dynamic-wind
           (lambda () #f)
           (lambda () expr)
-          (lambda () fin))]))        
-         
+          (lambda () fin))]))  
+          
   (define/contract (with-input-from-file filename:string thunk:procedure)
     (parameterize ((current-input-port (open-input-file filename)))
       (try (thunk)

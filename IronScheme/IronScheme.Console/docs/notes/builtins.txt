@@ -55,15 +55,8 @@ vector-sort! [7]
 
 (rnrs io simple):
 
-close-input-port
-close-output-port
 eof-object
 eof-object?
-input-port?
-open-input-file
-open-output-file
-output-port?
-read [7]
 
 (rnrs bytevectors):
 
@@ -99,61 +92,13 @@ make-hashtable [1]
 
 (rnrs io ports):
 
-binary-port?
+
 bytevector->string
-call-with-bytevector-output-port [1]
-close-port
 eof-object
 eof-object?
-flush-output-port
-get-bytevector-all
-get-bytevector-n
-get-bytevector-n!
-get-bytevector-some
-get-char
-get-line
-get-string-all
-get-string-n
-get-string-n!
-get-u8
-input-port?
-latin-1-codec
-lookahead-char
-lookahead-u8
-make-custom-binary-input-port [1]
-make-custom-binary-input/output-port [1]
-make-custom-binary-output-port [1]
-make-custom-textual-input-port [1]
-make-custom-textual-input/output-port [1]
-make-custom-textual-output-port [1]
-make-transcoder
-native-transcoder
-open-bytevector-input-port
-open-bytevector-output-port
 open-file-input-port
 open-file-input/output-port
-open-file-output-port
-open-string-input-port
-output-port-buffer-mode
-output-port?
-port-eof?
-port-has-port-position?
-port-has-set-port-position!?
-port-position
-port-transcoder
-put-bytevector
-put-char
-put-string
-put-u8
-set-port-position!
 string->bytevector
-textual-port?
-transcoded-port
-transcoder-codec
-transcoder-eol-style
-transcoder-error-handling-mode
-utf-16-codec
-utf-8-codec
 
 (rnrs enums):
 

@@ -157,11 +157,18 @@ namespace IronScheme
       return Parse(sc, cc);
     }
 
+    static Dictionary<Stream, Scanner> scannermap = new Dictionary<Stream, Scanner>();
+
     static CodeBlock ParseStream(Stream s, CompilerContext cc)
     {
-      Scanner sc = new Scanner(s);
-      sc.Errors = cc.Errors;
-      sc.SourceUnit = cc.SourceUnit;
+      Scanner sc;
+      //if (!scannermap.TryGetValue(s, out sc))
+      {
+        sc = new Scanner(s);
+        sc.Errors = cc.Errors;
+        sc.SourceUnit = cc.SourceUnit;
+        //scannermap[s] = sc;
+      }
       return Parse(sc, cc);
     }
 
