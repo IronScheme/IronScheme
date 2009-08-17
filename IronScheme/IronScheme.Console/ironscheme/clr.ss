@@ -221,7 +221,8 @@
                               #'(clr-indexer-set! type renamed arg arg* (... ...) value)]
                             [(_ (arg arg* (... ...)))
                               #'(clr-indexer-get type renamed arg arg* (... ...))]
-                            [(_ . args) #'(renamed . args)]                                                
+                            [(_ . args) 
+                              (syntax-violation 'with-clr-type "invalid syntax" x #f)]
                             [_ #'renamed]))) ...)
                   body body* ...)))])))        
 
