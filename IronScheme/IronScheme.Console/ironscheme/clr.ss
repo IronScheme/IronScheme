@@ -191,40 +191,35 @@
       (syntax-case x ()
         [(_ ((id type) ...) body body* ...)
           (for-all identifier? #'(id ... type ...))
-          (with-syntax ((((id type renamed) ...) (map list 
-                                                      #'(id ...) 
-                                                      #'(type ...) 
-                                                      (generate-temporaries #'(id ...)))))
-            #'(let-syntax ((renamed (identifier-syntax id)) ...) 
-                (let-syntax (
-                    (id (lambda (x)
-                          (define (lit=? id sym)
-                            (eq? (syntax->datum id) sym))
-                          (syntax-case x () 
-                            [(_ : prop = value)
-                              (and (identifier? #'prop) (lit=? #': ':) (lit=? #'= '=))
-                              #'(clr-prop-set! type prop renamed value)]
-                            [(_ : prop)
-                              (and (identifier? #'prop) (lit=? #': ':))
-                              #'(clr-prop-get type prop renamed)]
-                            [(_ -> field = value)
-                              (and (identifier? #'field) (lit=? #'-> '->) (lit=? #'= '=))
-                              #'(clr-field-set! type field renamed value)]
-                            [(_ -> field)
-                              (and (identifier? #'field) (lit=? #'-> '->))
-                              #'(clr-field-get type field renamed)]
-                            [(_ meth . arg)
-                              (or (identifier? #'meth) (string? (syntax->datum #'meth)))
-                              #'(clr-call type meth renamed . arg)]
-                            [(_ (arg arg* (... ...)) = value)
-                              (lit=? #'= '=)
-                              #'(clr-indexer-set! type renamed arg arg* (... ...) value)]
-                            [(_ (arg arg* (... ...)))
-                              #'(clr-indexer-get type renamed arg arg* (... ...))]
-                            [(_ . args) 
-                              (syntax-violation 'with-clr-type "invalid syntax" x #f)]
-                            [_ #'renamed]))) ...)
-                  body body* ...)))])))        
+          #'(let-syntax 
+                ([id (lambda (x)
+                      (define (lit=? id sym)
+                        (eq? (syntax->datum id) sym))
+                      (syntax-case x () 
+                        [(_ : prop = value)
+                          (and (identifier? #'prop) (lit=? #': ':) (lit=? #'= '=))
+                          #'(clr-prop-set! type prop id value)]
+                        [(_ : prop)
+                          (and (identifier? #'prop) (lit=? #': ':))
+                          #'(clr-prop-get type prop id)]
+                        [(_ -> field = value)
+                          (and (identifier? #'field) (lit=? #'-> '->) (lit=? #'= '=))
+                          #'(clr-field-set! type field id value)]
+                        [(_ -> field)
+                          (and (identifier? #'field) (lit=? #'-> '->))
+                          #'(clr-field-get type field id)]
+                        [(_ meth . arg)
+                          (or (identifier? #'meth) (string? (syntax->datum #'meth)))
+                          #'(clr-call type meth id . arg)]
+                        [(_ (arg arg* (... ...)) = value)
+                          (lit=? #'= '=)
+                          #'(clr-indexer-set! type id arg arg* (... ...) value)]
+                        [(_ (arg arg* (... ...)))
+                          #'(clr-indexer-get type id arg arg* (... ...))]
+                        [(_ . args) 
+                          (syntax-violation 'with-clr-type "invalid syntax" x #f)]
+                        [_ #'id]))] ...)
+              body body* ...)])))        
 
 
   )
