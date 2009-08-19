@@ -35,6 +35,7 @@
     clr-new-array
     pinvoke-call
     with-clr-type
+    let-clr-type
     )
   (import
     (rnrs)
@@ -185,41 +186,54 @@
       (syntax-case e ()
         [(_ type arg)
          #'(clr-cast-internal 'type arg)])))
-         
-  (define-syntax with-clr-type
+
+  (define (lit=? id sym)
+    (eq? (syntax->datum id) sym))
+
+  (define-syntax let-clr-type 
     (lambda (x)
       (syntax-case x ()
-        [(_ ((id type) ...) body body* ...)
+        [(_ ((id (type arg ...)) ...) b b* ...)
           (for-all identifier? #'(id ... type ...))
-          #'(let-syntax 
-                ([id (lambda (x)
-                      (define (lit=? id sym)
-                        (eq? (syntax->datum id) sym))
-                      (syntax-case x () 
-                        [(_ : prop = value)
-                          (and (identifier? #'prop) (lit=? #': ':) (lit=? #'= '=))
-                          #'(clr-prop-set! type prop id value)]
-                        [(_ : prop)
-                          (and (identifier? #'prop) (lit=? #': ':))
-                          #'(clr-prop-get type prop id)]
-                        [(_ -> field = value)
-                          (and (identifier? #'field) (lit=? #'-> '->) (lit=? #'= '=))
-                          #'(clr-field-set! type field id value)]
-                        [(_ -> field)
-                          (and (identifier? #'field) (lit=? #'-> '->))
-                          #'(clr-field-get type field id)]
-                        [(_ meth . arg)
-                          (or (identifier? #'meth) (string? (syntax->datum #'meth)))
-                          #'(clr-call type meth id . arg)]
-                        [(_ (arg arg* (... ...)) = value)
-                          (lit=? #'= '=)
-                          #'(clr-indexer-set! type id arg arg* (... ...) value)]
-                        [(_ (arg arg* (... ...)))
-                          #'(clr-indexer-get type id arg arg* (... ...))]
-                        [(_ . args) 
-                          (syntax-violation 'with-clr-type "invalid syntax" x #f)]
-                        [_ #'id]))] ...)
-              body body* ...)])))        
+          #'(let ((id (clr-new type arg ...)) ...)
+              (with-clr-type ((id type) ...)
+                b b* ...))])))         
+
+  (define-syntax with-clr-type
+    (lambda (x)
+      (define (parse id type)
+        (with-syntax ((id id)(type type))
+          #'(id 
+              (lambda (x)
+                (syntax-case x () 
+                  [(_ : prop = value)
+                    (and (identifier? #'prop) (lit=? #': ':) (lit=? #'= '=))
+                    #'(clr-prop-set! type prop id value)]
+                  [(_ : prop)
+                    (and (identifier? #'prop) (lit=? #': ':))
+                    #'(clr-prop-get type prop id)]
+                  [(_ -> field = value)
+                    (and (identifier? #'field) (lit=? #'-> '->) (lit=? #'= '=))
+                    #'(clr-field-set! type field id value)]
+                  [(_ -> field)
+                    (and (identifier? #'field) (lit=? #'-> '->))
+                    #'(clr-field-get type field id)]
+                  [(_ meth . arg)
+                    (or (identifier? #'meth) (string? (syntax->datum #'meth)))
+                    #'(clr-call type meth id . arg)]
+                  [(_ (arg arg* (... ...)) = value)
+                    (lit=? #'= '=)
+                    #'(clr-indexer-set! type id arg arg* (... ...) value)]
+                  [(_ (arg arg* (... ...)))
+                    #'(clr-indexer-get type id arg arg* (... ...))]
+                  [(_ . args) 
+                    (syntax-violation 'with-clr-type "invalid syntax" x #f)]
+                  [_ #'id])))))
+      (syntax-case x ()
+        [(_ ((id type) ...) b b* ...)
+          (for-all identifier? #'(id ... type ...))
+          (with-syntax (((e ...) (map parse #'(id ...) #'(type ...))))
+            #'(let-syntax (e ...) b b* ...))])))
 
 
   )
