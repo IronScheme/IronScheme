@@ -36,6 +36,8 @@ namespace IronScheme.Compiler
 
     public override Expression Generate(object args, CodeBlock c)
     {
+      var ns = ClrGenerator.SaveReferences();
+
       Cons name = (args as Cons).car as Cons;
 
       string[] fullname = Array.ConvertAll<object, string>((object[])Builtins.ListToVector(name), SymbolToString);
@@ -237,7 +239,7 @@ namespace IronScheme.Compiler
 #endif
 
       NameHint = SymbolId.Invalid;
-      ClrGenerator.ResetReferences();
+      ClrGenerator.ResetReferences(ns);
       return ex;
     }
 

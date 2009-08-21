@@ -44,8 +44,7 @@
     (ironscheme contracts)
     (ironscheme clr))
     
-  (clr-using system)
-  (clr-using system.collections)
+  (clr-using System.Collections)
   
   (define (hashtable? obj)
     (clr-is Hashtable obj))
@@ -53,7 +52,7 @@
   (define/contract make-eq-hashtable
     (case-lambda
       [()           (make-eq-hashtable 32)]
-      [(k:fixnum)   (clr-new hashtable (clr-cast int32 k))]))
+      [(k:fixnum)   (clr-new Hashtable (clr-cast int32 k))]))
     
   (define/contract make-eqv-hashtable
     (case-lambda
@@ -61,22 +60,22 @@
       [(k:fixnum)   (make-hashtable eqv-hash eqv? k)]))
   
   (define/contract (hashtable-size ht:hashtable)
-    (clr-prop-get hashtable count ht))
+    (clr-prop-get Hashtable Count ht))
     
   (define/contract (hashtable-ref ht:hashtable key default)
-    (let ((r (clr-indexer-get hashtable ht key)))
+    (let ((r (clr-indexer-get Hashtable ht key)))
       (if (or (not (null? r)) (hashtable-contains? ht key))
         r
         default)))
       
   (define/contract (hashtable-set! ht:hashtable key obj)
-    (clr-indexer-set! hashtable ht key obj))
+    (clr-indexer-set! Hashtable ht key obj))
 
   (define/contract (hashtable-delete! ht:hashtable key)
-    (clr-call hashtable remove ht key))
+    (clr-call Hashtable Remove ht key))
   
   (define/contract (hashtable-contains? ht:hashtable key)
-    (clr-call hashtable containskey ht key))
+    (clr-call Hashtable ContainsKey ht key))
     
   (define/contract (hashtable-update! ht:hashtable key proc:procedure default)
     (hashtable-set!
@@ -85,10 +84,10 @@
 
   (define/contract hashtable-clear!
     (case-lambda 
-      [(ht:hashtable)     
+      [(ht)     
         (hashtable-clear! ht 32)]
       [(ht:hashtable k:fixnum)   
-        (clr-call hashtable clear ht)]))
+        (clr-call Hashtable Clear ht)]))
       
   (define/contract (string-hash str:string)
     (clr-call StringComparer "GetHashCode(String)"

@@ -59,13 +59,13 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>false</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>1591</NoWarn>
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
@@ -695,6 +695,15 @@
     </Content>
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="ironscheme\clr\shorthand-helper.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ironscheme\clr\shorthand.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="ironscheme\linq3.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\library-utils.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
