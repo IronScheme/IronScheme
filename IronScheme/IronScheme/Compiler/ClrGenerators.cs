@@ -25,6 +25,7 @@ using Microsoft.Scripting.Utils;
 using System.Text.RegularExpressions;
 using Microsoft.Scripting.Math;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace IronScheme.Compiler
 {
@@ -37,7 +38,7 @@ namespace IronScheme.Compiler
     protected static MethodInfo Helpers_RequiresArray = typeof(Helpers).GetMethod("RequiresArray");
     protected static MethodInfo Helpers_RequiresNotNull = typeof(Helpers).GetMethod("RequiresNotNull");
 
-    protected static Dictionary<string, string> namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+    protected static Dictionary<string, string> namespaces = ResetReferences();
 
     public static bool TypeHelpersEnabled { get; set; }
 
@@ -46,11 +47,23 @@ namespace IronScheme.Compiler
       ResetReferences();
     }
 
-    public static void ResetReferences()
+    public static object SaveReferences()
     {
-      namespaces.Clear();
+      var old = namespaces;
+      ResetReferences();
+      return old;
+    }
+
+    public static void ResetReferences(object prev)
+    {
+      namespaces = prev as Dictionary<string, string>;
+    }
+
+    static Dictionary<string, string> ResetReferences()
+    {
+      var namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
       namespaces.Add("System", "System");
-      namespaces.Add("System.Collections", "System.Collections");
+      return namespaces;
     }
 
     protected static Regex typeparser = new Regex(@"(?<ns>([^\s.<]+\.)*)(?<type>[^\s.<\[]+)(?<args>(<[^>]+>)?)(?<isarray>\[\])?",
@@ -220,13 +233,28 @@ namespace IronScheme.Compiler
     // (clr-field-get type field-name obj )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+      object stype = Builtins.Second(Builtins.First(args));
+      Type t = null;
+      string type = null;
+      bool inferred = false;
 
-      Type t = GetType(type);
-      if (t == null)
+      if (stype is SymbolId)
       {
-        Builtins.SyntaxError("clr-field-get", "type not found", type, false);
+        type = SymbolTable.IdToString((SymbolId)stype);
+        t = GetType(type);
+
+        if (t == null)
+        {
+          Builtins.SyntaxError("clr-field-get", "type not found", type, false);
+        }
+
       }
+      else
+      {
+        type = "inferred";
+        inferred = true;
+      }
+
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
       BindingFlags bf = BindingFlags.Instance;
@@ -237,11 +265,27 @@ namespace IronScheme.Compiler
       {
         bf = BindingFlags.Static;
         instance = null;
+
+        if (inferred)
+        {
+          Builtins.SyntaxError("clr-field-get", "type inference not possible on static member", member, false);
+        }
+      }
+      else if (inferred)
+      {
+        if (instance is UnaryExpression && instance.Type == typeof(object))
+        {
+          var ue = (UnaryExpression)instance;
+          instance = ue.Operand;
+        }
+        t = instance.Type;
       }
       else
       {
         instance = ConvertToHelper(t, instance);
       }
+
+      type = t.Name;
 
       FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
 
@@ -260,13 +304,28 @@ namespace IronScheme.Compiler
     // (clr-field-set! type field-name obj value)
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
+      object stype = Builtins.Second(Builtins.First(args));
+      Type t = null;
+      string type = null;
+      bool inferred = false;
 
-      Type t = GetType(type);
-      if (t == null)
+      if (stype is SymbolId)
       {
-        Builtins.SyntaxError("clr-field-set!", "type not found", type, false);
+        type = SymbolTable.IdToString((SymbolId)stype);
+        t = GetType(type);
+
+        if (t == null)
+        {
+          Builtins.SyntaxError("clr-field-get", "type not found", type, false);
+        }
+
       }
+      else
+      {
+        type = "inferred";
+        inferred = true;
+      }
+
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
       BindingFlags bf = BindingFlags.Instance;
@@ -277,11 +336,28 @@ namespace IronScheme.Compiler
       {
         bf = BindingFlags.Static;
         instance = null;
+
+        if (inferred)
+        {
+          Builtins.SyntaxError("clr-field-set!", "type inference not possible on static member", member, false);
+        }
+      }
+      else if (inferred)
+      {
+        if (instance is UnaryExpression && instance.Type == typeof(object))
+        {
+          var ue = (UnaryExpression)instance;
+          instance = ue.Operand;
+        }
+        t = instance.Type;
+
       }
       else
       {
         instance = ConvertToHelper(t, instance);
       }
+      type = t.Name;
+
 
       FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
 
@@ -308,13 +384,28 @@ namespace IronScheme.Compiler
     // (clr-call type member obj arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
-      
-      Type t = GetType(type);
-      if (t == null)
+      object stype = Builtins.Second(Builtins.First(args));
+      Type t = null;
+      string type = null;
+      bool inferred = false;
+
+      if (stype is SymbolId)
       {
-        Builtins.SyntaxError("clr-call", "type not found", type, false);
+        type = SymbolTable.IdToString((SymbolId)stype);
+        t = GetType(type);
+
+        if (t == null)
+        {
+          Builtins.SyntaxError("clr-field-get", "type not found", type, false);
+        }
+
       }
+      else
+      {
+        type = "inferred";
+        inferred = true;
+      }
+
       object memobj = Builtins.Second(Builtins.Second(args));
 
       string member = memobj is SymbolId ? SymbolTable.IdToString((SymbolId)memobj) : "";
@@ -340,10 +431,43 @@ namespace IronScheme.Compiler
       if (instance is ConstantExpression && ((ConstantExpression)instance).Value == null)
       {
         ct = CallType.None;
+
+        if (inferred)
+        {
+          Builtins.SyntaxError("clr-call", "type inference not possible on static member", member, false);
+        }
+      }
+      else if (inferred)
+      {
+        if (instance is UnaryExpression && instance.Type == typeof(object))
+        {
+          var ue = (UnaryExpression)instance;
+          instance = ue.Operand;
+        }
+        t = instance.Type;
       }
       else
       {
         instance = ConvertToHelper(t, instance);
+      }
+
+      type = t.Name;
+
+      if (member == "get_item")
+      {
+        if (Attribute.IsDefined(t, typeof(DefaultMemberAttribute)))
+        {
+          var dma = Attribute.GetCustomAttribute(t, typeof(DefaultMemberAttribute)) as DefaultMemberAttribute;
+          member = "get_" + dma.MemberName;
+        }
+      }
+      else if (member == "set_item")
+      {
+        if (Attribute.IsDefined(t, typeof(DefaultMemberAttribute)))
+        {
+          var dma = Attribute.GetCustomAttribute(t , typeof(DefaultMemberAttribute)) as DefaultMemberAttribute;
+          member = "set_" + dma.MemberName;
+        }
       }
 
       Expression[] arguments = GetAstListNoCast(Cdddr(args) as Cons, cb);

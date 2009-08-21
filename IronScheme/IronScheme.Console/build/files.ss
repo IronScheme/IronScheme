@@ -22,16 +22,16 @@
     (ironscheme contracts)
     (ironscheme clr))
     
-  (clr-using system.io)
+  (clr-using System.IO)
     
   (define/contract (file-exists? fn:string)
-    (clr-static-call file exists fn))
+    (clr-static-call File Exists fn))
     
   (define/contract (delete-file fn:string)
-    (clr-static-call file delete fn))
+    (clr-static-call File Delete fn))
     
   (define/contract (get-directory-name path)
-    (clr-static-call path getdirectoryname path))   
+    (clr-static-call Path GetDirectoryName path))   
     
   (define (get-last-write-time filename)
     (clr-static-call File GetLastWriteTime filename))
