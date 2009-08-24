@@ -17,7 +17,7 @@ using System.Text;
 using System.Reflection;
 using Microsoft.Scripting;
 
-namespace IronScheme.Runtime
+namespace IronScheme.Runtime.Typed
 {
   public delegate R Func<R>();
   public delegate R Func<A1, R>(A1 a1);

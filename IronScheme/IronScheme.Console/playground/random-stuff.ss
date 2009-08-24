@@ -1,4 +1,140 @@
 ﻿
+(define-record-type node 
+  (protocol (lambda (p)
+              (lambda (key)
+                (p key #f '()))))
+  (fields key 
+          (mutable value) 
+          (mutable children)))
+
+(define (get-node node key)
+  (let f ((c (node-children node)))
+    (if (null? c)
+        #f
+        (let ((node (car c)))
+          (if (bound-identifier=? (node-key node) key)
+              node
+              (f (cdr c)))))))
+
+(define (make-tree)  (make-node #f))
+
+(define (tree-add! tree value . keys)
+  (let f ((keys keys)(node tree))
+    (let ((cnode (get-node node (car keys))))
+      (if cnode
+          (if (null? (cdr keys))
+              (node-value-set! cnode value)
+              (f (cdr keys) cnode))
+          (let ((cnode (make-node (car keys))))
+            (node-children-set! node (cons cnode (node-children node)))
+            (if (null? (cdr keys))
+                (node-value-set! cnode value)
+                (f (cdr keys) cnode)))))))
+                
+(define (generate-node node ids)
+  (with-syntax ((pred (node-key node))
+                (id   (car ids)))
+    (let ((val (node-value node)))
+      (if val
+          (with-syntax ((val val))
+            #'((pred id) val))
+          (with-syntax (((c ...) (map (lambda (x)
+                                        (generate-node x (cdr ids))) 
+                                      (node-children node))))
+            #'((pred id)
+                (cond
+                  c ...
+                  ;;;
+                  [else (error #f "not matched" 'id 'pred)])))))))
+
+(define (generate-tree tree ids)
+  (with-syntax (((c ...) (map (lambda (x)
+                                (generate-node x ids)) 
+                              (node-children tree))))
+    #'(cond
+        c ...
+        [else (error #f "not matched")]))
+            
+
+(define ($ x)
+  (printf "~s\n" x))
+(define (make-bound-id-hashtable)
+  (make-hashtable (lambda (x) (symbol-hash (syntax->datum x))) bound-identifier=?))
+  
+(define (analyze-predicates clauses) 
+  (let ((ht (make-eq-hashtable)))
+    (for-each (lambda (clause)
+                (syntax-case clause ()
+                  [(pred id)
+                    (hashtable-update! ht #'id 
+                       (lambda (v)
+                         (hashtable-update! v #'pred 
+                            (lambda (v) (fx+ v 1)) 0)
+                         v)
+                       (make-bound-id-hashtable))]))
+              clauses)
+    (hashtable-for-each ht
+      (lambda (k v)
+        (printf "~s :\n" k)
+        (hashtable-for-each v 
+          (lambda (k v)
+            (printf "~s => ~s\n" k v)))))
+    ht))
+    
+(define (get-max ht id)
+  (let* ((preds (hashtable-ref ht id #f))
+         (lens  (hashtable-map preds (lambda (k v) v))))
+    (apply max lens)))
+    
+    
+(define (sort-ids ids ht)
+  (list-sort (lambda (id1 id2)
+               (let ((max1 (get-max ht id1))
+                     (max2 (get-max ht id2)))
+                 (fx>? max1 max2)))
+             ids))
+
+(trace-define-syntax fsm-cond
+  (lambda (x)
+    (syntax-case x ()
+      [(_ (id ...) ((pred ...) expr) ...)
+        (for-all identifier? #'(pred ... ... id ...))
+        (let* ((ht  (analyze-predicates #'((pred id) ... ...)))
+               (ids (sort-ids #'(id ...) ht)))
+          ($ #'((pred id) ... ...))    
+          #'(cond
+              [(and (pred id) ...) expr] ...
+              [else
+                (assertion-violation #f "not matched")]))])))
+
+(define test
+  (lambda (a b c)
+    (fsm-cond (a b c)
+      [(fixnum?   boolean?  symbol?)  'case1]
+      [(fixnum?   symbol?   symbol?)  'case2]
+      [(fixnum?   symbol?   boolean?) 'case3]
+      [(symbol?   symbol?   boolean?) 'case4]
+      [(fixnum?   boolean?  fixnum?)  'case5])))
+
+(lambda (a b c)      
+  (cond
+    [(fixnum? a)
+      (cond
+        [(boolean? b) 
+          (cond 
+            [(symbol? c) 'case1]
+            [(fixnum? c) 'case5]
+            [else (error #f "not matched" c)])]
+        [(symbol? b)
+          (cond
+            [(symbol? c) 'case2]
+            [(boolean? c) 'case3]
+            [else (error #f "not matched" c)])]
+        [else (error #f "not matched" b)])]
+    [(and (symbol? a) (symbol? b) (fixnum? c)) 'case4]
+    [else (error #f "not matched" a)]))
+
+
 (import 
   (ironscheme)
   (ironscheme clr))

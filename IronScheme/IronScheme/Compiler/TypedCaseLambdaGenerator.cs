@@ -104,7 +104,7 @@ namespace IronScheme.Compiler
     {
       Type[] types = GetTypeSpec(cb);
 
-      var functype = Builtins.GetClrType(SymbolTable.StringToId("IronScheme.Runtime.TypedClosure"), types);
+      var functype = Builtins.GetClrType(SymbolTable.StringToId("IronScheme.Runtime.Typed.TypedClosure"), types);
 
       return functype as Type;
     }
@@ -113,7 +113,7 @@ namespace IronScheme.Compiler
     {
       Type[] types = GetTypeSpec(cb);
 
-      var functype = Builtins.GetClrType(SymbolTable.StringToId("IronScheme.Runtime.Func"), types);
+      var functype = Builtins.GetClrType(SymbolTable.StringToId("IronScheme.Runtime.Typed.Func"), types);
 
       return functype as Type;
     }

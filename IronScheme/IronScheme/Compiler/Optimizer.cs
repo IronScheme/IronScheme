@@ -201,7 +201,7 @@ namespace IronScheme.Compiler
         }
 
         private static List<Statement> RewriteExpressions(ReadOnlyCollection<Expression> cee, 
-          IronScheme.Runtime.Func<Expression, Statement> lastmaker)
+          IronScheme.Runtime.Typed.Func<Expression, Statement> lastmaker)
         {
           var block = new List<Statement>();
           int i = 0;

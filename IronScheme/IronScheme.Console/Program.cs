@@ -46,10 +46,10 @@ namespace IronScheme.Runtime
 
         ////// set the Cor_Enable_Profiling env var. This indicates to the CLR whether or
         ////// not we are using the profiler at all.  1 = yes, 0 = no.
-        //if (psi.EnvironmentVariables.ContainsKey("COR_ENABLE_PROFILING") == true)
-        //  psi.EnvironmentVariables["COR_ENABLE_PROFILING"] = "1";
-        //else
-        //  psi.EnvironmentVariables.Add("COR_ENABLE_PROFILING", "1");
+        if (psi.EnvironmentVariables.ContainsKey("COR_ENABLE_PROFILING") == true)
+          psi.EnvironmentVariables["COR_ENABLE_PROFILING"] = "1";
+        else
+          psi.EnvironmentVariables.Add("COR_ENABLE_PROFILING", "1");
 
         // ----- RUN THE PROCESS -------------------
 
@@ -59,6 +59,7 @@ namespace IronScheme.Runtime
 
         psi.Arguments = string.Join(" ", argargs);
         psi.UseShellExecute = false;
+        
         Process p = Process.Start(psi);
         //p.PriorityBoostEnabled = true;
 

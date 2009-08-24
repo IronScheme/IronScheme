@@ -1,4 +1,4 @@
-﻿#!r6rs
+#!r6rs
 #| ****************************************************************************
  * Copyright (c) Llewellyn Pritchard. 2007,2008,2009
  *
@@ -71,6 +71,7 @@
     by
     equals
     on
+    into
     ascending
     descending
     let
@@ -97,6 +98,7 @@
     where
     join
     group
+    into
     by
     equals
     on

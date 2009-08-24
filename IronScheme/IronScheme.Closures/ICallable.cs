@@ -38,54 +38,57 @@ namespace IronScheme.Runtime
     public bool AllowConstantFold { get; set; }
   }
 
-  public interface ITypedCallable
+  namespace Typed
   {
+    public interface ITypedCallable
+    {
 
-  }
+    }
 
-  public interface ITypedCallable<R> : ITypedCallable
-  {
-    R Invoke();
-  }
+    public interface ITypedCallable<R> : ITypedCallable
+    {
+      R Invoke();
+    }
 
-  public interface ITypedCallable<A1, R> : ITypedCallable
-  {
-    R Invoke(A1 a1);
-  }
+    public interface ITypedCallable<A1, R> : ITypedCallable
+    {
+      R Invoke(A1 a1);
+    }
 
-  public interface ITypedCallable<A1, A2, R> : ITypedCallable
-  {
-    R Invoke(A1 a1, A2 a2);
-  }
+    public interface ITypedCallable<A1, A2, R> : ITypedCallable
+    {
+      R Invoke(A1 a1, A2 a2);
+    }
 
-  public interface ITypedCallable<A1, A2, A3, R> : ITypedCallable
-  {
-    R Invoke(A1 a1, A2 a2, A3 a3);
-  }
+    public interface ITypedCallable<A1, A2, A3, R> : ITypedCallable
+    {
+      R Invoke(A1 a1, A2 a2, A3 a3);
+    }
 
-  public interface ITypedCallable<A1, A2, A3, A4, R> : ITypedCallable
-  {
-    R Invoke(A1 a1, A2 a2, A3 a3, A4 a4);
-  }
+    public interface ITypedCallable<A1, A2, A3, A4, R> : ITypedCallable
+    {
+      R Invoke(A1 a1, A2 a2, A3 a3, A4 a4);
+    }
 
-  public interface ITypedCallable<A1, A2, A3, A4, A5, R> : ITypedCallable
-  {
-    R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
-  }
+    public interface ITypedCallable<A1, A2, A3, A4, A5, R> : ITypedCallable
+    {
+      R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+    }
 
-  public interface ITypedCallable<A1, A2, A3, A4, A5, A6, R> : ITypedCallable
-  {
-    R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6);
-  }
+    public interface ITypedCallable<A1, A2, A3, A4, A5, A6, R> : ITypedCallable
+    {
+      R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6);
+    }
 
-  public interface ITypedCallable<A1, A2, A3, A4, A5, A6, A7, R> : ITypedCallable
-  {
-    R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7);
-  }
+    public interface ITypedCallable<A1, A2, A3, A4, A5, A6, A7, R> : ITypedCallable
+    {
+      R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7);
+    }
 
-  public interface ITypedCallable<A1, A2, A3, A4, A5, A6, A7, A8, R> : ITypedCallable
-  {
-    R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8);
+    public interface ITypedCallable<A1, A2, A3, A4, A5, A6, A7, A8, R> : ITypedCallable
+    {
+      R Invoke(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8);
+    }
   }
 
 }

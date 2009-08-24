@@ -20,7 +20,7 @@
         [(ctx =? expr (lit ...) [p e] ...)
           #'(ctx =? expr (lit ...) [p #t e] ...)]
         [(ctx =? expr (lit ...) [p f e] ...)
-          (identifier? #'=?)
+          (and (identifier? #'=?) (for-all identifier? #'(lit ...)))
           #'(syntax-case expr ()
               [p 
                (and (=? #'lit 'lit) ... f)

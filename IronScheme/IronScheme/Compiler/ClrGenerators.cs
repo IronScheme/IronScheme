@@ -89,7 +89,7 @@ namespace IronScheme.Compiler
       Type[] gentypes = Array.ConvertAll<string, Type>(genargs, GetType);
 
       nsandname = m.Groups["ns"].Value + m.Groups["type"].Value;
-      
+
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
         if (ass.ManifestModule.Name != "<In Memory Module>")
@@ -177,7 +177,7 @@ namespace IronScheme.Compiler
       {
         return e;
       }
-      
+
       else
         if (t.BaseType == typeof(MulticastDelegate))
         {
@@ -226,6 +226,7 @@ namespace IronScheme.Compiler
           }
     }
   }
+  
 
   [Generator("clr-field-get-internal")]
   public sealed class ClrFieldGetGenerator : ClrGenerator
