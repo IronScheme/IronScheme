@@ -24,7 +24,7 @@
     find-library-by-name install-library library-spec invoke-library 
     current-library-expander uninstall-library
     current-library-collection library-path library-extensions
-    serialize-all current-precompiled-library-loader)
+    serialize-all current-precompiled-library-loader allow-library-redefinition)
   (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format))
 
   (define (make-collection)
@@ -40,6 +40,8 @@
          (if del?
              (set! set (remq x set))
              (set! set (set-cons x set)))))))
+             
+  (define allow-library-redefinition (make-parameter #f))             
 
   (define current-library-collection
     ;;; this works now because make-collection is a lambda
@@ -354,8 +356,10 @@
            (assertion-violation 'install-library 
              "invalid spec with id/name/ver" id name ver))
          (when (library-exists? name)
-           (assertion-violation 'install-library 
-             "library is already installed" name))
+           (if (allow-library-redefinition)
+               (uninstall-library name)
+               (assertion-violation 'install-library 
+                 "library is already installed" name)))
          (let ((lib (make-library id name ver imp-lib* vis-lib* inv-lib* 
                        exp-subst exp-env visit-proc invoke-proc 
                        visit-code invoke-code guard-code guard-lib*

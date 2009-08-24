@@ -396,7 +396,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         private TypeGen GenerateModuleGlobalsType(AssemblyGen ag) {
-            TypeGen tg = ag.DefinePublicType(ModuleName, typeof(CustomSymbolDictionary));
+            TypeGen tg = ag.DefinePublicType(ModuleName == "ironscheme.boot.new" ? "#" : ModuleName, typeof(CustomSymbolDictionary));
             tg.AddCodeContextField();
             tg.DefaultConstructor = tg.TypeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
 

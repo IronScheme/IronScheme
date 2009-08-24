@@ -213,7 +213,7 @@
   (clr-using System)
   (clr-using System.IO)
   (clr-using System.Text)
-  (clr-using System.Text.RegularExpressions)
+  ;(clr-using System.Text.RegularExpressions)
   (clr-using IronScheme.Runtime)  
   (clr-using IronScheme.Runtime.R6RS)
   (clr-using IronScheme.Runtime.psyntax)
@@ -300,8 +300,8 @@
   (define (string-replace str old new)
     (clr-call String "Replace(String,String)" str old new))
     
-  (define (match-value m)
-    (clr-prop-get Group Value m))
+  ;(define (match-value m)
+    ;(clr-prop-get Group Value m))
     
   (define (has-preamble? bv)
     (let ((b0 ($bytevector-ref bv 0))

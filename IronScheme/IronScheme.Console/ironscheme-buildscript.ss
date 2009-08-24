@@ -278,6 +278,7 @@
 (define identifier->library-map
   '(
     ;;;
+    (allow-library-redefinition                 i)
     (typed-lambda                               i)
     (typed-case-lambda                          i)
     (pointer+                                   i)
@@ -303,7 +304,7 @@
     (&where                                     i)
     (condition-where                            i)
     (make-stacktrace-condition                  i)
-    (stacktrace-enable?                         i)
+    (display-stacktrace                         i)
     (stacktrace-condition?                      i)
     (condition-stacktrace                       i)
     (&stacktrace                                i)
@@ -1524,15 +1525,20 @@
   (define-syntax define-prims
     (syntax-rules ()
       ((_ name* ...)
-       (let ((g* (map (lambda (x) (gensym)) '(name* ...)))
+       (let ((g* (map gensym '(name* ...)))
              (v* (list name* ...)))
          (for-each set-symbol-value! g* v*)
-         (let ((alist (map cons '(name* ...) g*)))
-           (current-primitive-locations
+         (let ((ht (make-eq-hashtable)))
+            (for-each 
+              (lambda (k v) 
+                (hashtable-set! ht k v))              
+              '(name* ...) g*)
+            (current-primitive-locations
              (lambda (x) 
-               (cond
-                 ((assq x alist) => cdr)
-                 (else (error #f "undefined prim" x))))))))))
+               (let ((op (hashtable-ref ht x #f)))
+                 (unless op
+                  (error #f "undefined prim" x))
+                 op))))))))
   (define-prims
     clr-call-internal clr-cast-internal zero? string-length vector-ref syntax-violation vector-length cons* cadr cddr filter
     syntax-dispatch apply cons append map list syntax-error reverse

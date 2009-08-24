@@ -43,6 +43,7 @@
     (ironscheme docs)
     
     (ironscheme clr reflection)
+    (ironscheme clr shorthand)
     
     (ironscheme ffi)
     (ironscheme integrable)

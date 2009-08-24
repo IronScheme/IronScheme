@@ -147,7 +147,7 @@ namespace IronScheme.Runtime.R6RS
           break;
         }
         newst.Add(sfs[i].
-          Replace("   at ironscheme.boot.new.", string.Empty).
+          Replace("   at #.", string.Empty).
           Replace("   at ", string.Empty).
           Replace("CodeContext $context, ", string.Empty).
           Replace("Object ", string.Empty));

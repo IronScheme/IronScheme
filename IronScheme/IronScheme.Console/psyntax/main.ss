@@ -29,7 +29,7 @@
     ironscheme-build
     ironscheme-test
     emacs-mode?
-    stacktrace-enable?
+    display-stacktrace
     compile
     compile-system-libraries
     compile->closure)
@@ -58,7 +58,7 @@
     
   (define trace-printer (make-parameter pretty-print))
       
-  (define stacktrace-enable? (make-parameter #t))
+  (define display-stacktrace (make-parameter #t))
   
   (define command-line (make-parameter (get-command-line))) 
    
@@ -126,7 +126,8 @@
               (if serious?
                 (k))))
           (lambda ()
-            (eval x (interaction-environment))))))) 
+            (parameterize ([allow-library-redefinition #t])
+              (eval x (interaction-environment))))))))
             
   (define (eval-embedded x)
     (eval x (interaction-environment)))            
@@ -236,7 +237,7 @@
   (set-symbol-value! 'assertion-violation assertion-violation)
   (set-symbol-value! 'raise raise)
   (set-symbol-value! 'emacs-mode? emacs-mode?)
-  (set-symbol-value! 'stacktrace-enable? stacktrace-enable?)
+  (set-symbol-value! 'stacktrace-enable? display-stacktrace)
   
   (file-options-constructor (enum-set-constructor fo))
   
@@ -248,7 +249,9 @@
     (enable-constant-fold/env 
       '(only (rnrs) + - * / = < > <= >= negative? positive? zero? exp expt div mod div0 mod0 even? odd?)
       '(except (rnrs arithmetic fixnums) fx*/carry fx-/carry fx+/carry fxdiv0-and-mod0 fxdiv-and-mod)
-      '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod)
+      '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod 
+                make-no-infinities-violation make-no-nans-violation 
+                no-infinities-violation? no-nans-violation?)
       '(rnrs arithmetic bitwise)))
   
   (interaction-environment (new-interaction-environment))
