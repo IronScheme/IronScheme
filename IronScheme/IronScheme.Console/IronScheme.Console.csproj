@@ -702,6 +702,12 @@
     <Content Include="ironscheme\clr\shorthand.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="ironscheme\fsm-cond.sls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ironscheme\fsm-cond-helpers.sls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="ironscheme\linq3.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
