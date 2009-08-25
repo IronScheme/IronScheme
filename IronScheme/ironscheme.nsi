@@ -200,7 +200,7 @@ SectionIn 1 2 RO
 	File "build-options.ss"
 	File "system-libraries.ss"
 	File "init.ss"
-	File "compile-system-libraries.ss"
+	File "compile-system-libraries.sps"
 	
 	File "..\..\..\IronScheme.LibraryBrowser\bin\Release\IronScheme.LibraryBrowser.exe"
 	File "..\..\..\IronScheme.WebServer\bin\Release\IronScheme.WebServer.exe"
@@ -213,17 +213,15 @@ SectionIn 1 2 RO
 	File "ironscheme-buildscript.ss"
 
 	SetOutPath "$INSTDIR\examples"
-	File /r examples\*.ss
+	File /r examples\*.*
 	
 	SetOutPath "$INSTDIR\docs"
 	File /r docs\*.txt
 	
 	SetOutPath "$INSTDIR\ironscheme"
-	File /r ironscheme\*.ss
 	File /r ironscheme\*.sls
 	
 	SetOutPath "$INSTDIR\lib"
-	File lib\*.ss
 	File lib\*.sls
 	
 	SetOutPath "$INSTDIR\build"
@@ -239,7 +237,6 @@ SectionIn 1 2 RO
 	File /r srfi\*.scm
 	File srfi\LICENSE
 	File srfi\README
-	;File /r srfi\*.fasl
 	
 	SetOutPath "$INSTDIR\websample"
 	File ..\..\..\IronScheme.Web\test.ss
