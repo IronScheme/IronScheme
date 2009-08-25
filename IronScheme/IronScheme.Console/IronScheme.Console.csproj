@@ -178,71 +178,71 @@
     <None Include="build\pretty-print.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="compile-system-libraries.ss">
+    <None Include="compile-system-libraries.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr\reflection.ss">
+    <None Include="ironscheme\clr\reflection.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\contracts-helper.ss">
+    <None Include="ironscheme\contracts-helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\ffi.ss">
+    <None Include="ironscheme\ffi.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\integrable.ss">
+    <None Include="ironscheme\integrable.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="build\numbers.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\syntax-utils.ss" />
+    <None Include="ironscheme\syntax-utils.sls" />
     <None Include="lib\as-match.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\ikarus.ss">
+    <None Include="lib\ikarus.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\files.ss">
+    <None Include="ironscheme\files.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\contracts.ss">
+    <None Include="ironscheme\contracts.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="build\trace.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\syntax-format.ss">
+    <None Include="ironscheme\syntax-format.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\define-clr-class.ss">
+    <None Include="ironscheme\define-clr-class.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\define-macro.ss">
+    <None Include="ironscheme\define-macro.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\record-case.ss">
+    <None Include="ironscheme\record-case.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\controllers.ss">
+    <None Include="ironscheme\web\controllers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\routing-helper.ss">
+    <None Include="ironscheme\web\routing-helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\routing.ss">
+    <None Include="ironscheme\web\routing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\views.ss">
+    <None Include="ironscheme\web\views.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\datatype.ss">
+    <None Include="lib\datatype.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="run-tests.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="lib\list-match.ss">
+    <None Include="lib\list-match.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\foof-loop.sls">
@@ -250,10 +250,10 @@
     </None>
     <None Include="playground\grid.ss" />
     <None Include="playground\il-assembler.ss" />
-    <None Include="lib\clr.ss">
+    <None Include="lib\clr.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\linq2.ss">
+    <None Include="ironscheme\linq2.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\irc.ss" />
@@ -267,118 +267,118 @@
     <None Include="system-libraries.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\topic-printer.ss">
+    <None Include="ironscheme\docs\topic-printer.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\templates.ss">
+    <None Include="ironscheme\docs\templates.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\topic-manager.ss">
+    <None Include="ironscheme\docs\topic-manager.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\topic.ss">
+    <None Include="ironscheme\docs\topic.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="examples\forms.ss">
+    <None Include="examples\forms.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="examples\runge-kutta.ss">
+    <None Include="examples\runge-kutta.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="examples\stack-balloon-party.ss">
+    <None Include="examples\stack-balloon-party.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="init.ss">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr\helpers.ss">
+    <None Include="ironscheme\clr\helpers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\arraylist.ss">
+    <None Include="ironscheme\collections\arraylist.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\ilist.ss">
+    <None Include="ironscheme\collections\ilist.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\icollection.ss">
+    <None Include="ironscheme\collections\icollection.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\stack.ss">
+    <None Include="ironscheme\collections\stack.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\console.ss">
+    <None Include="ironscheme\console.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\conversions.ss">
+    <None Include="ironscheme\conversions.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web-utils.ss">
+    <None Include="ironscheme\web-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\xml.ss">
+    <None Include="ironscheme\xml.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\process.ss">
+    <None Include="ironscheme\process.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\datetime.ss">
+    <None Include="ironscheme\datetime.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\linq.ss">
+    <None Include="ironscheme\linq.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\regex.ss">
+    <None Include="ironscheme\regex.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\registry.ss">
+    <None Include="ironscheme\registry.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="build\format.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\random.ss">
+    <None Include="ironscheme\random.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\environment.ss">
+    <None Include="ironscheme\environment.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\strings.ss">
+    <None Include="ironscheme\strings.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\threading.ss">
+    <None Include="ironscheme\threading.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web.ss">
+    <None Include="ironscheme\web.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs.ss">
+    <None Include="ironscheme\docs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\draw-tree.ss">
+    <None Include="lib\draw-tree.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\declare-type.ss">
+    <None Include="lib\declare-type.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\match.ss">
+    <None Include="lib\match.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\pregexp.ss">
+    <None Include="lib\pregexp.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\schelog.ss">
+    <None Include="lib\schelog.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\simple-regression-testing.ss">
+    <None Include="lib\simple-regression-testing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\testing.ss">
+    <None Include="lib\testing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\tiny-talk.ss">
+    <None Include="lib\tiny-talk.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr.ss">
+    <None Include="ironscheme\clr.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme-buildscript.ss">
@@ -696,22 +696,22 @@
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="ironscheme\clr\shorthand-helper.ss">
+    <None Include="ironscheme\clr\shorthand-helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ironscheme\clr\shorthand.ss">
+    </None>
+    <None Include="ironscheme\clr\shorthand.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="ironscheme\fsm-cond.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ironscheme\fsm-cond-helpers.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ironscheme\linq3.ss">
+    <None Include="ironscheme\linq3.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\library-utils.ss">
+    <None Include="ironscheme\library-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="srfi\69.sls">
@@ -768,9 +768,9 @@
     <Content Include="srfi\tests\multi-dimensional-arrays.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ironscheme\symbolic-case.ss">
+    <None Include="ironscheme\symbolic-case.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="placeholder.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
