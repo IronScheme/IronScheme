@@ -18,18 +18,19 @@
 
 (define (make-tree)  (make-node #f))
 
-(define (tree-add! tree value . keys)
+(define (tree-add! tree value keys)
   (let f ((keys keys)(node tree))
-    (let ((cnode (get-node node (car keys))))
+    (let ((cnode (or (get-node node (car keys))
+                     (let ((cnode (make-node (car keys))))
+                       (node-children-set! node (cons cnode (node-children node)))
+                       cnode))))
       (if cnode
           (if (null? (cdr keys))
               (node-value-set! cnode value)
-              (f (cdr keys) cnode))
-          (let ((cnode (make-node (car keys))))
-            (node-children-set! node (cons cnode (node-children node)))
-            (if (null? (cdr keys))
-                (node-value-set! cnode value)
-                (f (cdr keys) cnode)))))))
+              (f (cdr keys) cnode))))))
+              
+(define (get-child-keys node)
+  (map node-key (node-children node)))              
                 
 (define (generate-node node ids)
   (with-syntax ((pred (node-key node))
@@ -40,21 +41,48 @@
             #'((pred id) val))
           (with-syntax (((c ...) (map (lambda (x)
                                         (generate-node x (cdr ids))) 
-                                      (node-children node))))
+                                      (node-children node)))
+                        (child-keys (get-child-keys node))                                      
+                        (next-id (car (cdr ids))))
             #'((pred id)
                 (cond
                   c ...
                   ;;;
-                  [else (error #f "not matched" 'id 'pred)])))))))
+                  [else (error #f "not matched" next-id 'child-keys)])))))))
 
 (define (generate-tree tree ids)
   (with-syntax (((c ...) (map (lambda (x)
                                 (generate-node x ids)) 
-                              (node-children tree))))
+                              (node-children tree)))
+                (child-keys (get-child-keys tree))                              
+                (next-id (car ids)))                              
     #'(cond
         c ...
-        [else (error #f "not matched")]))
-            
+        [else (error #f "not matched" next-id 'child-keys)])))
+
+(trace-define-syntax fsm-cond
+  (lambda (x)
+    (syntax-case x ()
+      [(_ (id ...) ((pred ...) expr) ...)
+        (for-all identifier? #'(pred ... ... id ...))
+        (let* ((tree (make-tree)))
+          (for-each (lambda (preds expr)
+                      (tree-add! tree expr preds))
+                    #'((pred ...) ...)
+                    #'(expr ...))
+          (generate-tree tree #'(id ...)))])))
+
+(import (ironscheme fsm-cond))
+(define test
+  (lambda (a b c)
+    (fsm-cond (a b c)
+      [(fixnum?   boolean?  symbol?)  'case1]
+      [(fixnum?   symbol?   symbol?)  'case2]
+      [(fixnum?   symbol?   boolean?) 'case3]
+      [(fixnum?   boolean?  boolean?) 'case22]
+      [(symbol?   symbol?   boolean?) 'case4]
+      [(fixnum?   boolean?  fixnum?)  'case5])))
+      
 
 (define ($ x)
   (printf "~s\n" x))
@@ -92,29 +120,7 @@
                (let ((max1 (get-max ht id1))
                      (max2 (get-max ht id2)))
                  (fx>? max1 max2)))
-             ids))
-
-(trace-define-syntax fsm-cond
-  (lambda (x)
-    (syntax-case x ()
-      [(_ (id ...) ((pred ...) expr) ...)
-        (for-all identifier? #'(pred ... ... id ...))
-        (let* ((ht  (analyze-predicates #'((pred id) ... ...)))
-               (ids (sort-ids #'(id ...) ht)))
-          ($ #'((pred id) ... ...))    
-          #'(cond
-              [(and (pred id) ...) expr] ...
-              [else
-                (assertion-violation #f "not matched")]))])))
-
-(define test
-  (lambda (a b c)
-    (fsm-cond (a b c)
-      [(fixnum?   boolean?  symbol?)  'case1]
-      [(fixnum?   symbol?   symbol?)  'case2]
-      [(fixnum?   symbol?   boolean?) 'case3]
-      [(symbol?   symbol?   boolean?) 'case4]
-      [(fixnum?   boolean?  fixnum?)  'case5])))
+             ids))      
 
 (lambda (a b c)      
   (cond
