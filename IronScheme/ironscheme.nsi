@@ -274,7 +274,7 @@ Section -Post
   DetailPrint "Generating native images..."
   nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.dll"'
   DetailPrint "Compiling system libraries..."
-  nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.ss"'
+  nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.sps"'
   DetailPrint "Creating symbolic links..."
   SetOutPath "$INSTDIR\websample"
   nsExec::ExecToStack 'cmd /c mkdir bin'
