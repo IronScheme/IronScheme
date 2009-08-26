@@ -76,51 +76,18 @@
 (define test
   (lambda (a b c)
     (fsm-cond (a b c)
-      [(fixnum?   boolean?  symbol?)  'case1]
+      [(fixnum?   boolean?  fixnum?)  'case1]
       [(fixnum?   symbol?   symbol?)  'case2]
       [(fixnum?   symbol?   boolean?) 'case3]
       [(fixnum?   boolean?  boolean?) 'case22]
       [(symbol?   symbol?   boolean?) 'case4]
-      [(fixnum?   boolean?  fixnum?)  'case5])))
+      [(fixnum?   values  fixnum?)    'case5]
+      [else #f])))
       
 
 (define ($ x)
   (printf "~s\n" x))
-(define (make-bound-id-hashtable)
-  (make-hashtable (lambda (x) (symbol-hash (syntax->datum x))) bound-identifier=?))
-  
-(define (analyze-predicates clauses) 
-  (let ((ht (make-eq-hashtable)))
-    (for-each (lambda (clause)
-                (syntax-case clause ()
-                  [(pred id)
-                    (hashtable-update! ht #'id 
-                       (lambda (v)
-                         (hashtable-update! v #'pred 
-                            (lambda (v) (fx+ v 1)) 0)
-                         v)
-                       (make-bound-id-hashtable))]))
-              clauses)
-    (hashtable-for-each ht
-      (lambda (k v)
-        (printf "~s :\n" k)
-        (hashtable-for-each v 
-          (lambda (k v)
-            (printf "~s => ~s\n" k v)))))
-    ht))
-    
-(define (get-max ht id)
-  (let* ((preds (hashtable-ref ht id #f))
-         (lens  (hashtable-map preds (lambda (k v) v))))
-    (apply max lens)))
-    
-    
-(define (sort-ids ids ht)
-  (list-sort (lambda (id1 id2)
-               (let ((max1 (get-max ht id1))
-                     (max2 (get-max ht id2)))
-                 (fx>? max1 max2)))
-             ids))      
+   
 
 (lambda (a b c)      
   (cond
