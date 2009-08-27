@@ -695,7 +695,9 @@
             (import (foo) name))])))
             
             
-                
+(let ((k #'k))
+  (with-syntax ((k k))
+    (list k)))                
               
     
     

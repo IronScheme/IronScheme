@@ -15,7 +15,7 @@
     (ironscheme)
     (ironscheme fsm-cond-helpers))
 
-  (define-syntax fsm-cond
+  (trace-define-syntax fsm-cond
     (lambda (x)
       (syntax-case x ()
         [(_ (id ...) ((pred ...) expr) ... (else else-expr))

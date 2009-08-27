@@ -57,24 +57,25 @@
                   (id   (car ids)))
       (let ((val (node-value node)))
         (if val
-            #`(and (pred id) #,val)
+            #`(and (pred id) (lambda () #,val))
             (with-syntax (((c ...) (map (lambda (x)
                                           (generate-node x (cdr ids)))
                                         (reverse (node-children node))))
                           (child-keys (get-child-keys node))
                           (next-id (car (cdr ids))))
               #'(and (pred id)
-                     (or
-                        c ...)))))))
+                     (or c ...)))))))
+                        
   (define (generate-tree tree ids else-expr)
     (with-syntax (((c ...) (map (lambda (x)
                                   (generate-node x ids))
                                 (reverse (node-children tree))))
                   (else-expr else-expr))
-      #'(or
-          c ...
-          else-expr)))
-            
+      #'(let ((r (or c ...)))
+          (if r
+              (r)
+              else-expr))))
+
   ;; analysis, todo
   (define (make-bound-id-hashtable)
     (make-hashtable (lambda (x) (symbol-hash (syntax->datum x))) bound-identifier=?))
