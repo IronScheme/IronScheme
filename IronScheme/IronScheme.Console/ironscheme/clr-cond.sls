@@ -9,13 +9,29 @@
  * You must not remove this notice, or any other, from this software.
  * ***************************************************************************|#
 
-(library (ironscheme fsm-cond)
+(library (ironscheme clr-cond)
   (export 
-    fsm-cond)
+    clr-cond)
   (import
     (ironscheme)
+    (ironscheme clr)
     (ironscheme fsm-cond-helpers))
+
+  (define-syntax clr-cond
+    (lambda (x)
+      (syntax-case x ()
+        [(_ (id ...) ((pred ...) expr) ...)
+          (with-syntax ((#(pred* ...) (get-predicates #'(pred ... ...))))
+            #'(let-syntax 
+                  ((pred* (syntax-rules () 
+                            [(_ x) 
+                              (clr-is pred* x)])) ...)
+                (clr-cond-aux (id ...)
+                              ((pred ...) expr) ...)))])))
     
-  (trace-define-syntax fsm-cond (generator #f)))
+  (define-syntax clr-cond-aux
+    (generator #f)))
+
+          
           
 

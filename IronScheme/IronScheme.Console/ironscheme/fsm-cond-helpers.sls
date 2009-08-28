@@ -11,11 +11,12 @@
 
 (library (ironscheme fsm-cond-helpers)
   (export
-    make-tree
-    tree-add!
-    generate-tree)
+    get-predicates
+    generator)
   (import
     (ironscheme))
+    
+  (define sort-proc (make-parameter #f))
 
   (define-record-type node
     (protocol (lambda (p)
@@ -24,6 +25,14 @@
     (fields key
             (mutable value)
             (mutable children)))
+
+  (define (get-predicates preds)
+    (let ((ht (make-bound-id-hashtable)))
+      (for-each 
+        (lambda (x)
+          (hashtable-set! ht x x))
+        preds)
+      (hashtable-keys ht)))
 
   (define (get-node node key)
     (let f ((c (node-children node)))
@@ -51,6 +60,17 @@
 
   (define (get-child-keys node)
     (map node-key (reverse (node-children node))))
+    
+  (define (get-sorted-children node)
+    (let ((sp (sort-proc))
+          (nc (node-children node)))
+      (if sp
+          (list-sort (lambda (x y) 
+                       (sp (syntax->datum x)
+                           (syntax->datum y))) 
+                     nc)
+          (reverse nc))))
+
 
   (define (generate-node node ids)
     (with-syntax ((pred (node-key node))
@@ -60,7 +80,7 @@
             #`(and (pred id) (lambda () #,val))
             (with-syntax (((c ...) (map (lambda (x)
                                           (generate-node x (cdr ids)))
-                                        (reverse (node-children node))))
+                                        (get-sorted-children node)))
                           (child-keys (get-child-keys node))
                           (next-id (car (cdr ids))))
               #'(and (pred id)
@@ -69,12 +89,27 @@
   (define (generate-tree tree ids else-expr)
     (with-syntax (((c ...) (map (lambda (x)
                                   (generate-node x ids))
-                                (reverse (node-children tree))))
+                                (get-sorted-children tree)))
                   (else-expr else-expr))
       #'(let ((r (or c ...)))
           (if r
               (r)
               else-expr))))
+              
+  (define (generator proc)
+    (lambda (x)
+      (syntax-case x ()
+        [(_ (id ...) ((pred ...) expr) ... (else else-expr))
+          (for-all identifier? #'(pred ... ... id ...))
+          (parameterize [(sort-proc proc)]
+            (let* ((tree (make-tree)))
+              (for-each (lambda (preds expr)
+                          (tree-add! tree expr preds))
+                        #'((pred ...) ...)
+                        #'(expr ...))
+              (generate-tree tree #'(id ...) #'else-expr)))]
+        [(k (id ...) ((pred ...) expr) ...)
+          #'(k (id ...) ((pred ...) expr) ... (else #f))])))              
 
   ;; analysis, todo
   (define (make-bound-id-hashtable)

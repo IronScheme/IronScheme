@@ -83,6 +83,17 @@
       [(symbol?   symbol?   boolean?) 'case4]
       [(fixnum?   values  fixnum?)    'case5]
       [else #f])))
+
+(import (ironscheme clr-cond))
+(define test
+  (lambda (a b c)
+    (clr-cond (a b c)
+      [(Int32   Int32   Int32)   'case1]
+      [(Int32   String  String)  'case2]
+      [(Int32   String  Boolean) 'case3]
+      [(Int32   Boolean Boolean) 'case22]
+      [(String  String  Boolean) 'case4]
+      [(Int32   Object  Int32)   'case5])))
       
 
 (define ($ x)

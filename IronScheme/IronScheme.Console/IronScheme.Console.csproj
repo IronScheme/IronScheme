@@ -708,6 +708,9 @@
     <Content Include="ironscheme\fsm-cond-helpers.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ironscheme\clr-cond.sls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="ironscheme\linq3.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
