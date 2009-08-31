@@ -199,7 +199,6 @@ SectionIn 1 2 RO
 	File "setup-xp.bat"
 	File "build-options.ss"
 	File "system-libraries.ss"
-	File "init.ss"
 	File "compile-system-libraries.sps"
 	
 	File "..\..\..\IronScheme.LibraryBrowser\bin\Release\IronScheme.LibraryBrowser.exe"
