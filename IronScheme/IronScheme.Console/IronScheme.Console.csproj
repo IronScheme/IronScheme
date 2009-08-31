@@ -288,9 +288,6 @@
     <None Include="examples\stack-balloon-party.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="init.ss">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme\clr\helpers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -52,6 +52,36 @@ namespace IronScheme.Runtime
         }
       }
 
+      [InlineEmitter("$and")]
+      public static Expression BooleanAnd(Expression[] args)
+      {
+        int len = args.Length;
+        switch (len)
+        {
+          case 0:
+            return Ast.Constant(true);
+          default:
+            var rargs = new Expression[len - 1];
+            Array.Copy(args, 1, rargs, 0, rargs.Length);
+            return Ast.AndAlso(args[0], BooleanAnd(rargs));
+        }
+      }
+
+      [InlineEmitter("$or")]
+      public static Expression BooleanOr(Expression[] args)
+      {
+        int len = args.Length;
+        switch (len)
+        {
+          case 0:
+            return Ast.Constant(false);
+          default:
+            var rargs = new Expression[len - 1];
+            Array.Copy(args, 1, rargs, 0, rargs.Length);
+            return Ast.OrElse(args[0], BooleanOr(rargs));
+        }
+      }
+
 
       [InlineEmitter("$break")]
       public static Expression Break(Expression[] args)

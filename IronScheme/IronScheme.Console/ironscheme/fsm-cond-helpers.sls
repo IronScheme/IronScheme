@@ -84,21 +84,21 @@
                           (child-keys (get-child-keys node))
                           (next-id (car (cdr ids))))
               #'(and (pred id)
-                     (or c ...)))))))
+                     (or c ... #f)))))))
                         
   (define (generate-tree tree ids else-expr)
     (with-syntax (((c ...) (map (lambda (x)
                                   (generate-node x ids))
                                 (get-sorted-children tree)))
                   (else-expr else-expr))
-      #'(let ((r (or c ...)))
+      #'(let ((r (or c ... #f)))
           (if r
               (r)
               else-expr))))
               
   (define (generator proc)
     (lambda (x)
-      (syntax-case x ()
+      (syntax-case x (else)
         [(_ (id ...) ((pred ...) expr) ... (else else-expr))
           (for-all identifier? #'(pred ... ... id ...))
           (parameterize [(sort-proc proc)]

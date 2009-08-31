@@ -107,7 +107,6 @@
     <Compile Include="Runtime\Equality.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Runtime\Extension.cs" />
     <Compile Include="Runtime\Helpers.cs" />
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>
@@ -129,9 +128,6 @@
     <Compile Include="Runtime\R6RS\Unicode.cs" />
     <Compile Include="Runtime\R6RS\Hashtables.cs" />
     <Compile Include="Runtime\R6RS\Records.cs" />
-    <Compile Include="Runtime\Symbols.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Runtime\TraceClosure.cs" />
     <Compile Include="Runtime\Unsafe.cs" />
     <Compile Include="Runtime\Vectors.cs" />

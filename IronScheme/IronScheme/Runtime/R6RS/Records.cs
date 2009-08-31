@@ -21,6 +21,7 @@ using Microsoft.Scripting.Utils;
 using System.Reflection.Emit;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Collections;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -58,6 +59,14 @@ namespace IronScheme.Runtime.R6RS
 
     internal AssemblyGen ag;
     internal TypeGen tg;
+
+    public int TotalFieldCount
+    {
+      get
+      {
+        return fields.Length + (Parent == null ? 0 : Parent.TotalFieldCount);
+      }
+    }
 
     public IEnumerable<FieldDescriptor> GetAllFields()
     {
@@ -444,6 +453,12 @@ namespace IronScheme.Runtime.R6RS
       {
         CallTargetN np = delegate(object[] args)
         {
+          
+          if (ci.type.TotalFieldCount != args.Length)
+          {
+            return AssertionViolation(ci.type.Name,
+              string.Format("Incorrect number of arguments, expected {0} got {1}", ci.type.TotalFieldCount, args.Length), args);
+          }
           return pp.Call(args);
         };
 #if CPS
@@ -468,6 +483,11 @@ namespace IronScheme.Runtime.R6RS
             allargs.AddRange(margs);
             if (i == 0)
             {
+              if (ci.type.TotalFieldCount != allargs.Count)
+              {
+                return AssertionViolation(ci.type.Name,
+                  string.Format("Incorrect number of arguments, expected {0} got {1}", ci.type.TotalFieldCount, allargs.Count), allargs.ToArray());
+              }
               return pp.Call(allargs.ToArray());
             }
             else

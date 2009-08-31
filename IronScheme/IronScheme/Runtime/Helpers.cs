@@ -342,34 +342,50 @@ namespace IronScheme.Runtime
 
     internal static BinaryFormatter bf = new BinaryFormatter();
 
-    delegate void VoidCallable0();
-    delegate void VoidCallable1(object t0);
-    delegate void VoidCallable2(object t0, object t1);
-    delegate void VoidCallable3(object t0, object t1, object t2);
-    delegate void VoidCallable4(object t0, object t1, object t2, object t3);
-    delegate void VoidCallable5(object t0, object t1, object t2, object t3, object t4);
-    delegate void VoidCallableX(params object[] args);
-
-    static Delegate MakeVoidCallable(Callable c, int arity)
+    static Delegate MakeTypedCallable(Type returntype, Type[] argtypes, Callable c)
     {
-      switch (arity)
-      {
-        case 0:
-          return (VoidCallable0)delegate { c.Call(); };
-        case 1:
-          return (VoidCallable1)delegate(object o0) { c.Call(o0); };
-        case 2:
-          return (VoidCallable2)delegate(object o0, object o1) { c.Call(o0, o1); };
-        case 3:
-          return (VoidCallable3)delegate(object o0, object o1, object o2) { c.Call(o0, o1, o2); };
-        case 4:
-          return (VoidCallable4)delegate(object o0, object o1, object o2, object o3) { c.Call(o0, o1, o2, o3); };
-        case 5:
-          return (VoidCallable5)delegate(object o0, object o1, object o2, object o3, object o4) { c.Call(o0, o1, o2, o3, o4); };
-        default:
-          return (VoidCallableX)delegate(object[] args) { c.Call(args); };
-      }
+      int arity = argtypes.Length;
+      var d = Delegate.CreateDelegate(CallTargets[arity], c, Compiler.Generator.GetCallable(arity));
+      var meth = typeof(Typed.Utils).GetMethod("MakeTyped", new Type[] { CallTargets[arity] });
+      var targs = new Type[arity + 1];
+      int i = 0;
+      for (; i < arity; i++)
+			{
+			  targs[i] = argtypes[i];
+			}
+      targs[i] = returntype;
+      var gm = meth.MakeGenericMethod(targs);
+
+      var wrapper = gm.Invoke(null, new object[] { d });
+
+      return wrapper as Delegate;
     }
+
+    static Delegate MakeVoidTypedCallable(Type[] argtypes, Callable c)
+    {
+      int arity = argtypes.Length;
+      var d = Delegate.CreateDelegate(CallTargets[arity], c, Compiler.Generator.GetCallable(arity));
+      var meth = typeof(Typed.Utils).GetMethod("MakeVoidTyped", new Type[] { CallTargets[arity] });
+
+      var gm = meth.MakeGenericMethod(argtypes);
+
+      var wrapper = gm.Invoke(null, new object[] { d });
+
+      return wrapper as Delegate;
+    }
+
+    readonly static Type[] CallTargets = 
+    {
+      typeof(CallTarget0),
+      typeof(CallTarget1),
+      typeof(CallTarget2),
+      typeof(CallTarget3),
+      typeof(CallTarget4),
+      typeof(CallTarget5),
+      typeof(CallTarget6),
+      typeof(CallTarget7),
+      typeof(CallTarget8),
+    };
 
 
     public static T ConvertToDelegate<T>(object proc)
@@ -382,14 +398,14 @@ namespace IronScheme.Runtime
       ParameterInfo[] pars = meth.GetParameters();
       if (meth.ReturnType == typeof(void))
       {
-        Delegate d = MakeVoidCallable(proc as Callable, pars.Length);
+        Delegate d = MakeVoidTypedCallable(Array.ConvertAll(pars, x => x.ParameterType), proc as Callable);
         return (T)(object)Delegate.CreateDelegate(typeof(T), d.Target , d.Method);
       }
       else
       {
-        return (T)(object)Delegate.CreateDelegate(typeof(T), proc, Compiler.Generator.GetCallable(pars.Length));
+        Delegate d = MakeTypedCallable(meth.ReturnType, Array.ConvertAll(pars, x => x.ParameterType), proc as Callable);
+        return (T)(object)Delegate.CreateDelegate(typeof(T), d.Target, d.Method);
       }
-      
     }
 
     public static bool StartProcess(Process p)

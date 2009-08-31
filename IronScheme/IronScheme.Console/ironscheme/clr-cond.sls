@@ -14,23 +14,42 @@
     clr-cond)
   (import
     (ironscheme)
+    (ironscheme strings)
     (ironscheme clr)
+    (ironscheme unsafe)
+    (ironscheme clr reflection)
     (ironscheme fsm-cond-helpers))
 
   (define-syntax clr-cond
     (lambda (x)
+      (define (gen-predicate pred id)
+        (list pred
+              id
+              (let ((x (symbol->string (syntax->datum pred))))
+                (if (string-ends-with? x "?")
+                    (let ((p (string->symbol (substring x 0 (- (string-length x) 1)))))
+                      #`($or (null? #,id) (clr-is #,(datum->syntax pred p) #,id)))
+                    #`(clr-is #,pred #,id)))))
       (syntax-case x ()
         [(_ (id ...) ((pred ...) expr) ...)
-          (with-syntax ((#(pred* ...) (get-predicates #'(pred ... ...))))
-            #'(let-syntax 
-                  ((pred* (syntax-rules () 
-                            [(_ x) 
-                              (clr-is pred* x)])) ...)
-                (clr-cond-aux (id ...)
-                              ((pred ...) expr) ...)))])))
-    
+          (let ((preds (vector->list (get-predicates #'(pred ... ...)))))
+            (with-syntax ((((pred* x test) ...) (map gen-predicate 
+                                                     preds 
+                                                     (generate-temporaries preds))))
+              #'(let-syntax
+                    ((pred* (syntax-rules () [(_ x) test])) ...)
+                  (clr-cond-aux (id ...)
+                                ((pred ...) expr) ...))))])))
+
   (define-syntax clr-cond-aux
-    (generator #f)))
+    (generator #f))
+
+  (define-syntax clr-method-ref
+    (lambda (x)
+      (syntax-case x ()
+        [(_ type method (arg-type ...) ...)
+          #'(case-lambda )]))))
+    
 
           
           

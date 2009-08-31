@@ -29,10 +29,18 @@ namespace IronScheme.Runtime.Typed
   public delegate R Func<A1, A2, A3, A4, A5, A6, A7, R>(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7);
   public delegate R Func<A1, A2, A3, A4, A5, A6, A7, A8, R>(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8);
 
+  delegate void Action();
+  delegate void Action<A1>(A1 a1);
+  delegate void Action<A1, A2>(A1 a1, A2 a2);
+  delegate void Action<A1, A2, A3>(A1 a1, A2 a2, A3 a3);
+  delegate void Action<A1, A2, A3, A4>(A1 a1, A2 a2, A3 a3, A4 a4);
+  delegate void Action<A1, A2, A3, A4, A5>(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+  delegate void Action<A1, A2, A3, A4, A5, A6>(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6);
+  delegate void Action<A1, A2, A3, A4, A5, A6, A7>(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7);
+  delegate void Action<A1, A2, A3, A4, A5, A6, A7, A8>(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8);
 
 
-
-  static class Utils
+  internal static class Utils
   {
     static T Unbox<T>(object o)
     {
@@ -47,6 +55,100 @@ namespace IronScheme.Runtime.Typed
     {
       return o;
     }
+
+    #region Typed Return Case - no tail calls
+
+    public static Func<R> MakeTyped<R>(CallTarget0 f)
+    {
+      return () => Unbox<R>(f());
+    }
+
+    public static Func<A1, R> MakeTyped<A1, R>(CallTarget1 f)
+    {
+      return (a1) => Unbox<R>(f(a1));
+    }
+
+    public static Func<A1, A2, R> MakeTyped<A1, A2, R>(CallTarget2 f)
+    {
+      return (a1, a2) => Unbox<R>(f(a1,a2));
+    }
+
+    public static Func<A1, A2, A3, R> MakeTyped<A1, A2, A3, R>(CallTarget3 f)
+    {
+      return (a1, a2, a3) => Unbox<R>(f(a1, a2, a3));
+    }
+
+    public static Func<A1, A2, A3, A4, R> MakeTyped<A1, A2, A3, A4, R>(CallTarget4 f)
+    {
+      return (a1, a2, a3, a4) => Unbox<R>(f(a1, a2, a3, a4));
+    }
+
+    public static Func<A1, A2, A3, A4, A5, R> MakeTyped<A1, A2, A3, A4, A5, R>(CallTarget5 f)
+    {
+      return (a1, a2, a3, a4, a5) => Unbox<R>(f(a1, a2, a3, a4, a5));
+    }
+
+    public static Func<A1, A2, A3, A4, A5, A6, R> MakeTyped<A1, A2, A3, A4, A5, A6, R>(CallTarget6 f)
+    {
+      return (a1, a2, a3, a4, a5, a6) => Unbox<R>(f(a1, a2, a3, a4, a5, a6));
+    }
+
+    public static Func<A1, A2, A3, A4, A5, A6, A7, R> MakeTyped<A1, A2, A3, A4, A5, A6, A7, R>(CallTarget7 f)
+    {
+      return (a1, a2, a3, a4, a5, a6, a7) => Unbox<R>(f(a1, a2, a3, a4, a5, a6, a7));
+    }
+
+    public static Func<A1, A2, A3, A4, A5, A6, A7, A8, R> MakeTyped<A1, A2, A3, A4, A5, A6, A7, A8, R>(CallTarget8 f)
+    {
+      return (a1, a2, a3, a4, a5, a6, a7, a8) => Unbox<R>(f(a1, a2, a3, a4, a5, a6, a7, a8));
+    }
+
+    public static Action MakeVoidTyped<R>(CallTarget0 f)
+    {
+      return () => f();
+    }
+
+    public static Action<A1> MakeVoidTyped<A1>(CallTarget1 f)
+    {
+      return (a1) => f(a1);
+    }
+
+    public static Action<A1, A2> MakeVoidTyped<A1, A2>(CallTarget2 f)
+    {
+      return (a1, a2) => f(a1, a2);
+    }
+
+    public static Action<A1, A2, A3> MakeVoidTyped<A1, A2, A3>(CallTarget3 f)
+    {
+      return (a1, a2, a3) => f(a1, a2, a3);
+    }
+
+    public static Action<A1, A2, A3, A4> MakeVoidTyped<A1, A2, A3, A4>(CallTarget4 f)
+    {
+      return (a1, a2, a3, a4) => f(a1, a2, a3, a4);
+    }
+
+    public static Action<A1, A2, A3, A4, A5> MakeVoidTyped<A1, A2, A3, A4, A5>(CallTarget5 f)
+    {
+      return (a1, a2, a3, a4, a5) => f(a1, a2, a3, a4, a5);
+    }
+
+    public static Action<A1, A2, A3, A4, A5, A6> MakeVoidTyped<A1, A2, A3, A4, A5, A6>(CallTarget6 f)
+    {
+      return (a1, a2, a3, a4, a5, a6) => f(a1, a2, a3, a4, a5, a6);
+    }
+
+    public static Action<A1, A2, A3, A4, A5, A6, A7> MakeVoidTyped<A1, A2, A3, A4, A5, A6, A7>(CallTarget7 f)
+    {
+      return (a1, a2, a3, a4, a5, a6, a7) => f(a1, a2, a3, a4, a5, a6, a7);
+    }
+
+    public static Action<A1, A2, A3, A4, A5, A6, A7, A8> MakeVoidTyped<A1, A2, A3, A4, A5, A6, A7, A8>(CallTarget8 f)
+    {
+      return (a1, a2, a3, a4, a5, a6, a7, a8) => f(a1, a2, a3, a4, a5, a6, a7, a8);
+    }
+
+    #endregion
 
     #region Typed Return Case - no tail calls
 
