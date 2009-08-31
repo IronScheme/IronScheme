@@ -25,11 +25,6 @@ namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
-    /// <summary>
-    /// Nots the specified obj.
-    /// </summary>
-    /// <param name="obj">The obj.</param>
-    /// <returns></returns>
     [Builtin("not", AllowConstantFold=true)]
     public static object Not(object obj)
     {
@@ -40,9 +35,5 @@ namespace IronScheme.Runtime
     {
       return v ? TRUE : FALSE;
     }
-
-
-
-
   }
 }

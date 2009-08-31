@@ -118,59 +118,41 @@ namespace IronScheme.Runtime
           }
 
           Assembly ext = AssemblyLoad(path);
-          if (Attribute.IsDefined(ext, typeof(ExtensionAttribute)))
-          {
-            IronScheme.Compiler.Generator.AddGenerators(cc, ext);
 
-            foreach (ExtensionAttribute ea in ext.GetCustomAttributes(typeof(ExtensionAttribute), false))
-            {
-              if (ea.BuiltinsType != null)
-              {
-                IronScheme.Compiler.Generator.AddBuiltins(cc, ea.BuiltinsType);
-              }
-              if (ea.ScriptResource != null)
-              {
-                //TODO: ExtensionAttribute.ScriptResource
-              }
-            }
-          }
-          else
+          // just reference.?
+          MethodInfo entry = null;
+          foreach (Type t in ext.GetExportedTypes())
           {
-            // just reference.?
-            MethodInfo entry = null;
-            foreach (Type t in ext.GetExportedTypes())
+            if (t.BaseType == typeof(CustomSymbolDictionary))
             {
-              if (t.BaseType == typeof(CustomSymbolDictionary))
+              List<Type> ii = new List<Type>(t.GetInterfaces());
+              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
               {
-                List<Type> ii = new List<Type>(t.GetInterfaces());
-                if (ii.Contains(typeof(IModuleDictionaryInitialization)))
+                entry = t.GetMethod("Initialize");
+                if (entry != null)
                 {
-                  entry = t.GetMethod("Initialize");
-                  if (entry != null)
-                  {
-                    break;
-                  }
+                  break;
                 }
               }
             }
-
-            if (entry == null)
-            {
-              // what now?
-            }
-            else
-            {
-              IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
-                IModuleDictionaryInitialization;
-
-              CodeContext ccc = new CodeContext(cc, init as IAttributesCollection);
-              init.InitializeModuleDictionary(ccc);
-
-              CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
-              return t(ccc);
-            }
           }
-          break;
+
+          if (entry == null)
+          {
+            // what now?
+            throw new ArgumentException("No entry point");
+          }
+          else
+          {
+            IModuleDictionaryInitialization init = Activator.CreateInstance(entry.DeclaringType) as
+              IModuleDictionaryInitialization;
+
+            CodeContext ccc = new CodeContext(cc, init as IAttributesCollection);
+            init.InitializeModuleDictionary(ccc);
+
+            CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
+            return t(ccc);
+          }
         default:
           {
             // check for already compiled version
@@ -206,7 +188,7 @@ namespace IronScheme.Runtime
 
             if (!File.Exists(path))
             {
-              return FileNotFoundViolation("load", "file not found", path);
+              throw new FileNotFoundException("Not found", path);
             }
 
             SourceUnit su = ScriptDomainManager.CurrentManager.Host.TryGetSourceFileUnit(cc.LanguageContext.Engine, path, Encoding.Default);
@@ -228,8 +210,6 @@ namespace IronScheme.Runtime
           }
 
       }
-
-      return Unspecified;
     }
 
     //[ThreadStatic]
@@ -374,7 +354,6 @@ namespace IronScheme.Runtime
       return old;
     }
 
-
     sealed class Eof 
     {
       public override string ToString()
@@ -397,86 +376,6 @@ namespace IronScheme.Runtime
       return GetBool(obj == EOF);
     }
 
-
-    //[Builtin("input-port?")]
-    //[Obsolete]
-    //public static object IsInputPort(object obj)
-    //{
-    //  if (obj is Stream)
-    //  {
-    //    return GetBool(((Stream)obj).CanRead);
-    //  }
-    //  return GetBool(obj is TextReader || obj is R6RS.CustomTextReaderWriter); 
-    //}
-
-    //[Builtin("output-port?")]
-    //[Obsolete]
-    //public static object IsOutputPort(object obj)
-    //{
-    //  if (obj is Stream)
-    //  {
-    //    return GetBool(((Stream)obj).CanWrite);
-    //  }
-    //  return GetBool(obj is TextWriter || obj is R6RS.CustomTextReaderWriter);
-    //}
-
-    //probably a good idea to make these threadstatic
-    //[ThreadStatic]
-    //[Obsolete]
-    //static TextReader currentinputport = Console.In;
-    //[ThreadStatic]
-    //[Obsolete]
-    //static TextWriter currentoutputport = Console.Out;
-    //[ThreadStatic]
-    //[Obsolete]
-    //static TextWriter currenterrorport = Console.Error;
-
-    //[Builtin("current-input-port")]
-    ////[Obsolete]
-    //public static object CurrentInputPort(object newport)
-    //{
-    //  currentinputport = newport as TextReader;
-    //  return Unspecified;
-    //}
-
-    //[Builtin("current-output-port")]
-    //[Obsolete]
-    //public static object CurrentOutputPort(object newport)
-    //{
-    //  currentoutputport = newport as TextWriter;
-    //  return Unspecified;
-    //}
-
-
-    //[Builtin("current-input-port")]
-    ////[Obsolete]
-    //public static object CurrentInputPort()
-    //{
-    //  return currentinputport;
-    //}
-
-    //[Builtin("current-output-port")]
-    //[Obsolete]
-    //public static object CurrentOutputPort()
-    //{
-    //  return currentoutputport;
-    //}
-
-    //[Builtin("current-error-port")]
-    //[Obsolete]
-    //public static object CurrentErrorPort(object newport)
-    //{
-    //  currenterrorport = newport as TextWriter;
-    //  return Unspecified;
-    //}
-
-
-    //[Builtin("current-error-port")]
-    //[Obsolete]
-    //public static object CurrentErrorPort()
-    //{
-    //  return currenterrorport;
-    //}
     
     static string GetPath(string filename)
     {
@@ -493,78 +392,5 @@ namespace IronScheme.Runtime
       }
       return filename;
     }
-
-    //[Builtin("open-input-file")]
-    //[Obsolete]
-    //public static object OpenInputFile(object filename)
-    //{
-    //  string fn = RequiresNotNull<string>(filename);
-    //  try
-    //  {
-    //    return File.OpenText(GetPath(fn));
-    //  }
-    //  catch (FileNotFoundException ex)
-    //  {
-    //    return FileNotFoundViolation("open-input-file", ex.Message, filename);
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    return AssertionViolation("open-input-file", ex.Message, filename);
-    //  }
-    //}
-
-    //[Builtin("open-output-file")]
-    //[Obsolete]
-    //public static object OpenOutputFile(object filename)
-    //{
-    //  string fn = RequiresNotNull<string>(filename);
-    //  try
-    //  {
-    //    return File.CreateText(GetPath(fn));
-    //  }
-    //  catch (FileNotFoundException ex)
-    //  {
-    //    return FileNotFoundViolation("open-output-file", ex.Message, filename);
-    //  }
-    //  catch (Exception ex)
-    //  {
-    //    return AssertionViolation("open-output-file", ex.Message, filename);
-    //  }
-    //}
-
-    //[Builtin("close-input-port")]
-    //[Obsolete]
-    //public static object CloseInputPort(object port)
-    //{
-    //  if (port is Stream)
-    //  {
-    //    ((Stream)port).Close();
-    //  }
-    //  else
-    //  {
-    //    if (readcache.ContainsKey(port))
-    //    {
-    //      readcache.Remove(port);
-    //    }
-    //    RequiresNotNull<TextReader>(port).Close();
-    //  }
-    //  return Unspecified;
-    //}
-
-    //[Builtin("close-output-port")]
-    //[Obsolete]
-    //public static object CloseOutputPort(object port)
-    //{
-    //  if (port is Stream)
-    //  {
-    //    ((Stream)port).Close();
-    //  }
-    //  else
-    //  {
-    //    RequiresNotNull<TextWriter>(port).Close();
-    //  }
-    //  return Unspecified;
-
-    //}
   }
 }

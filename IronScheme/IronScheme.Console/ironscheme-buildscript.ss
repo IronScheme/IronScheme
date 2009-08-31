@@ -380,6 +380,8 @@
     (eqv-hash                                   ic) ; TODO: remove
     (add-record-printer!                        irp)
     ($break                                     iu)
+    ($and                                       iu)
+    ($or                                        iu)
     ($car                                       iu)
     ($cdr                                       iu)
     ($vector-ref                                iu)

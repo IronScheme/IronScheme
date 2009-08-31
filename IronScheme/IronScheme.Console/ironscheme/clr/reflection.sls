@@ -26,6 +26,7 @@
     type-valuetype?
     type-array?
     type-enum?
+    find-type-members
     type-member
     type-members)
   (import 
@@ -82,6 +83,14 @@
 
   (define/contract (type-enum? type:clr-type)
     (clr-prop-get System.Type IsEnum type)) 
+    
+  (define/contract (find-type-members type:clr-type 
+                                      member-types:symbol/symbol-list 
+                                      binding-flags:symbol/symbol-list
+                                      filter:procedure
+                                      criteria)
+    (vector->list
+      (clr-call System.Type FindMembers type member-types binding-flags filter criteria)))
     
   (define/contract type-member
     (case-lambda

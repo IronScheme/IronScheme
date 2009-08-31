@@ -1,4 +1,6 @@
 ﻿
+
+
 (define-record-type node 
   (protocol (lambda (p)
               (lambda (key)
@@ -88,7 +90,7 @@
 (define test
   (lambda (a b c)
     (clr-cond (a b c)
-      [(Int32   Int32   Int32)   'case1]
+      [(Int32   Int32?   Int32)   'case1]
       [(Int32   String  String)  'case2]
       [(Int32   String  Boolean) 'case3]
       [(Int32   Boolean Boolean) 'case22]

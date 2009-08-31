@@ -26,8 +26,6 @@ using System.Diagnostics;
 using Microsoft.Scripting.Math;
 using IronScheme.Runtime.psyntax;
 
-[assembly: Extension(GeneratorType=typeof(Generator), BuiltinsType=typeof(Builtins))]
-
 namespace IronScheme.Compiler
 {
 
