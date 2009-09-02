@@ -28,8 +28,6 @@
     (rnrs)
     (ironscheme contracts)
     (ironscheme clr))
-
-  (clr-using System)
   
   (define (clear)
     (clr-static-call Console Clear))   

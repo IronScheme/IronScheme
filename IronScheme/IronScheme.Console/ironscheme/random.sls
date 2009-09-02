@@ -20,8 +20,6 @@
     (rnrs)
     (ironscheme contracts)
     (ironscheme clr))
-
-  (clr-using system)
   
   (define (rng? obj)
     (clr-is Random obj))

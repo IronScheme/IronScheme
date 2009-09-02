@@ -58,19 +58,21 @@
       bitwise-arithmetic-shift
       ))
       
+  (clr-using Microsoft.Scripting.Math)
+      
   (define (bignum? obj)
-    (clr-is Microsoft.Scripting.Math.BigInteger obj))      
+    (clr-is BigInteger obj))      
     
   (define (->bignum ei)
     (cond
       [(bignum? ei) ei]
       [(fixnum? ei) 
-        (clr-static-call Microsoft.Scripting.Math.BigInteger "Create(System.Int32)" ei)]
+        (clr-static-call BigInteger "Create(System.Int32)" ei)]
       [else
         (assertion-violation #f "not a exact integer" ei)]))
         
   (define (bitwise-not ei)
-    (exact (clr-static-call Microsoft.Scripting.Math.BigInteger 
+    (exact (clr-static-call BigInteger 
                             op_OnesComplement  
                             (->bignum ei))))
                             
@@ -80,7 +82,7 @@
       [(ei)
         (->bignum ei)]
       [(ei1 ei2)
-        (exact (clr-static-call Microsoft.Scripting.Math.BigInteger 
+        (exact (clr-static-call BigInteger 
                                 op_BitwiseAnd  
                                 (->bignum ei1)
                                 (->bignum ei2)))]
@@ -93,7 +95,7 @@
       [(ei)
         (->bignum ei)]
       [(ei1 ei2)
-        (exact (clr-static-call Microsoft.Scripting.Math.BigInteger 
+        (exact (clr-static-call BigInteger 
                                 op_BitwiseOr  
                                 (->bignum ei1)
                                 (->bignum ei2)))]
@@ -106,7 +108,7 @@
       [(ei)
         (->bignum ei)]
       [(ei1 ei2)
-        (exact (clr-static-call Microsoft.Scripting.Math.BigInteger 
+        (exact (clr-static-call BigInteger 
                                 op_ExclusiveOr  
                                 (->bignum ei1)
                                 (->bignum ei2)))]
@@ -124,12 +126,12 @@
         
   (define (bitwise-length ei)
     (let ((ei (->bignum ei)))
-      (if (clr-static-call Microsoft.Scripting.Math.BigInteger 
+      (if (clr-static-call BigInteger 
                            op_LessThan
                            ei
                            (->bignum 0))
           (bitwise-length (bitwise-not ei))
-          (clr-prop-get Microsoft.Scripting.Math.BigInteger BitLength ei))))
+          (clr-prop-get BigInteger BitLength ei))))
           
   (define (bitwise-first-bit-set ei)
     (let ((ei (->bignum ei)))
@@ -175,7 +177,7 @@
       
   (define (bitwise-arithmetic-shift ei k)
     (exact 
-      (clr-static-call Microsoft.Scripting.Math.BigInteger 
+      (clr-static-call BigInteger 
                        LeftShift 
                        (->bignum ei) 
                        k)))

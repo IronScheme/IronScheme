@@ -29,6 +29,8 @@ namespace IronScheme.Compiler
     int level = 0;
     public override Expression Generate(object args, CodeBlock c)
     {
+      var refs = ClrGenerator.SaveReferences();
+
       level++;
       NameHint = SymbolTable.StringToId("");
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
@@ -102,6 +104,9 @@ namespace IronScheme.Compiler
 #endif
 
       level--;
+
+      ClrGenerator.ResetReferences(refs);
+
       return ex;
     }
   }

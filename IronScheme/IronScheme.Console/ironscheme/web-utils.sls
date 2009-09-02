@@ -24,7 +24,7 @@
   (clr-using System.Web)
     
   (define/contract (url-encode s:string)
-    (clr-static-call HttpUtility UrlEncode (clr-cast system.string s)))    
+    (clr-static-call HttpUtility UrlEncode (clr-cast String s)))    
     
   (define/contract (url-decode s:string)
     (clr-static-call HttpUtility UrlDecode s))    

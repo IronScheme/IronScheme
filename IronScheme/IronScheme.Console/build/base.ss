@@ -309,11 +309,7 @@
       vector->list
       char->integer
       integer->char
-      
-      ;current-input-port
-      ;current-output-port
-      ;current-error-port
-      
+     
      )
     (ironscheme contracts)
     (ironscheme clr)
@@ -553,17 +549,6 @@
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
     
-    ;(define current-input-port
-      ;(make-parameter (clr-static-prop-get System.Console In)))
-    ;
-    ;(define current-output-port
-      ;(make-parameter (clr-static-prop-get System.Console Out)))
-;
-    ;(define current-error-port
-      ;(make-parameter (clr-static-prop-get System.Console Error)))
-      
-
-          
     (define/contract (string-compare a:string b:string)
       (clr-static-call System.String 
                        "Compare(String,String,StringComparison)"
