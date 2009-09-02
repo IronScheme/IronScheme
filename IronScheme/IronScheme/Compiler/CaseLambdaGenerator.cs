@@ -125,6 +125,9 @@ namespace IronScheme.Compiler
               }
             }
           }
+
+          var refs = ClrGenerator.SaveReferences();
+
           CodeBlock cb = Ast.CodeBlock(sh, lambdaname);
           cb.Filename = lh;
           cb.Parent = c;
@@ -150,6 +153,8 @@ namespace IronScheme.Compiler
             annotations = annotations.cdr as Cons;
           }
           lambdas = lambdas.cdr as Cons;
+
+          ClrGenerator.ResetReferences(refs);
         }
 
         return MakeCaseClosure(lambdaname, cbs);

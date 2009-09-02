@@ -50,8 +50,6 @@
     (ironscheme contracts)
     (ironscheme clr))
 
-  (clr-using System)
-
   (define (datetime? obj)
     (clr-is DateTime obj))   
     

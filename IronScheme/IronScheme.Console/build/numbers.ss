@@ -150,60 +150,63 @@
     (ironscheme contracts)
     (ironscheme unsafe)
     (ironscheme clr))
+    
+  (clr-using Microsoft.Scripting.Math)
+  (clr-using IronScheme.Runtime)    
 
   (define (bignum? obj)
-    (clr-is Microsoft.Scripting.Math.BigInteger obj))
+    (clr-is BigInteger obj))
     
   (define (rectnum? obj)
-    (clr-is IronScheme.Runtime.ComplexFraction obj))    
+    (clr-is ComplexFraction obj))    
     
   (define (make-rectnum r1 r2)
-    (clr-static-call IronScheme.Runtime.ComplexFraction Make r1 r2))
+    (clr-static-call ComplexFraction Make r1 r2))
     
   (define (rectnum-imag-part c)
-    (clr-prop-get IronScheme.Runtime.ComplexFraction Imag c))
+    (clr-prop-get ComplexFraction Imag c))
     
   (define (rectnum-real-part c)
-    (clr-prop-get IronScheme.Runtime.ComplexFraction Real c))    
+    (clr-prop-get ComplexFraction Real c))    
   
   (define (ratnum? obj)
-    (clr-is IronScheme.Runtime.Fraction obj))
+    (clr-is Fraction obj))
     
   (define (ratnum-denominator rat)
-    (clr-prop-get IronScheme.Runtime.Fraction Denominator rat))   
+    (clr-prop-get Fraction Denominator rat))   
     
   (define (ratnum-numerator rat)
-    (clr-prop-get IronScheme.Runtime.Fraction Numerator rat))  
+    (clr-prop-get Fraction Numerator rat))  
   
   (define (complexnum? obj)
-    (clr-is Microsoft.Scripting.Math.Complex64 obj))
+    (clr-is Complex64 obj))
     
   (define (make-complexnum r1 r2)
-    (clr-static-call Microsoft.Scripting.Math.Complex64 Make r1 r2))
+    (clr-static-call Complex64 Make r1 r2))
     
   (define (complexnum-imag-part c)
-    (clr-prop-get Microsoft.Scripting.Math.Complex64 Imag c))
+    (clr-prop-get Complex64 Imag c))
     
   (define (complexnum-real-part c)
-    (clr-prop-get Microsoft.Scripting.Math.Complex64 Real c))
+    (clr-prop-get Complex64 Real c))
     
   (define (bignum/ a b)
-    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Division a b))    
+    (clr-static-call BigInteger op_Division a b))    
     
   (define (bignum% a b)
-    (clr-static-call Microsoft.Scripting.Math.BigInteger op_Modulus a b))
+    (clr-static-call BigInteger op_Modulus a b))
     
   (define (bignum->fixnum b)
-    (clr-call Microsoft.Scripting.Math.BigInteger ToInt32 b))
+    (clr-call BigInteger ToInt32 b))
     
   (define (flonum->ratnum f)
-    (clr-static-call IronScheme.Runtime.Fraction "op_Implicit(System.Double)" f))
+    (clr-static-call Fraction "op_Implicit(Double)" f))
 
   (define (ratnum->flonum r)
-    (clr-call IronScheme.Runtime.Fraction ToDouble r '()))
+    (clr-call Fraction ToDouble r '()))
     
   (define (fixnum->bignum f)
-    (clr-static-call Microsoft.Scripting.Math.BigInteger "Create(System.Int32)" f))   
+    (clr-static-call BigInteger "Create(Int32)" f))   
     
   (define (real->complexnum num)
     (if (complexnum? num)
@@ -211,15 +214,15 @@
         (make-complexnum (inexact num) 0.0)))
         
   (define (complexnum->rectnum num)
-    (clr-static-call IronScheme.Runtime.ComplexFraction "op_Implicit(Microsoft.Scripting.Math.Complex64)" num))     
+    (clr-static-call ComplexFraction "op_Implicit(Complex64)" num))     
     
   (define (rectnum->complexnum num)
-    (clr-call IronScheme.Runtime.ComplexFraction ToComplex64 num))               
+    (clr-call ComplexFraction ToComplex64 num))               
         
   (define (->fixnum num)
     (if (fixnum? num)
         num
-        (clr-static-call System.Convert "ToInt32(Object)" num)))
+        (clr-static-call Convert "ToInt32(Object)" num)))
     
   (define (->ratnum num)
     (cond 
@@ -237,10 +240,10 @@
         (assertion-violation '->bignum "not an integer" num)]))     
 
   (define/contract (real->flonum x:real)
-    (clr-static-call System.Convert "ToDouble(System.Object)" x))
+    (clr-static-call Convert "ToDouble(Object)" x))
     
   (define/contract (fixnum->flonum x:fixnum)
-    (clr-cast System.Double (clr-cast System.Int32 x)))
+    (clr-cast Double (clr-cast Int32 x)))
         
   (define (nan? num)
     (cond
@@ -489,7 +492,7 @@
   (define (fixnum->string num radix)
     (if (fxnegative? num)
         (string-append "-" (number->string (abs num) radix))
-        (clr-static-call System.Convert "ToString(Int32,Int32)" num radix)))
+        (clr-static-call Convert "ToString(Int32,Int32)" num radix)))
      
   (define (bignum->string num radix)
     (let* ((neg? (negative? num))
@@ -724,9 +727,9 @@
             [(rectnum? num)
               (name (rectnum->complexnum num))]
             [(complexnum? num)
-              (clr-static-call Microsoft.Scripting.Math.Complex64 name num)]
+              (clr-static-call Complex64 name num)]
             [(real? num)
-              (clr-static-call System.Math name (inexact num))]
+              (clr-static-call Math name (inexact num))]
             [else
               (assertion-violation 'name "not a number" num)]))]))
               
@@ -747,9 +750,9 @@
           [(rectnum? num)
               (atan (rectnum->complexnum num))]
           [(complexnum? num)
-            (clr-static-call Microsoft.Scripting.Math.Complex64 Atan num)]
+            (clr-static-call Complex64 Atan num)]
           [(real? num)
-            (clr-static-call System.Math Atan (inexact num))]
+            (clr-static-call Math Atan (inexact num))]
           [else
             (assertion-violation 'atan "not a number" num)])]
       [(num1 num2)
@@ -757,7 +760,7 @@
           (assertion-violation 'atan "not a real" num1))
         (unless (real? num2)
           (assertion-violation 'atan "not a real" num2))
-        (clr-static-call System.Math Atan2 (inexact num1) (inexact num2))]))
+        (clr-static-call Math Atan2 (inexact num1) (inexact num2))]))
             
   (define log
     (case-lambda
@@ -768,9 +771,9 @@
           [(rectnum? num)
               (log (rectnum->complexnum num))]
           [(complexnum? num) 
-            (clr-static-call Microsoft.Scripting.Math.Complex64 Log num)]
+            (clr-static-call Complex64 Log num)]
           [(negative? num) 
-            (clr-static-call Microsoft.Scripting.Math.Complex64 
+            (clr-static-call Complex64 
                              Log 
                              (make-complexnum (inexact num) 0.0))]
           [(zero? num)
@@ -782,7 +785,7 @@
               (make-complexnum (inexact (abs num)) 0)
               num)]
           [else
-            (clr-static-call System.Math Log (inexact num))])]
+            (clr-static-call Math Log (inexact num))])]
       [(num1 num2)
         (/ (log num1) (log num2))]))
         
@@ -819,7 +822,7 @@
         (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
           (exact (if (negative? x) (- r 1) r)))]
       [else
-        (clr-static-call System.Math "Floor(System.Double)" (inexact x))]))
+        (clr-static-call Math "Floor(Double)" (inexact x))]))
              
   (define/contract (ceiling x:real)
     (cond
@@ -828,13 +831,13 @@
         (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
           (exact (if (positive? x) (+ r 1) r)))]
       [else
-        (clr-static-call System.Math "Ceiling(System.Double)" (inexact x))]))
+        (clr-static-call Math "Ceiling(Double)" (inexact x))]))
 
   (define/contract (truncate x:real)
     (cond
       [(exact-integer? x) x]
       [else
-        (let ((r (clr-static-call System.Math "Truncate(System.Double)" (inexact x))))
+        (let ((r (clr-static-call Math "Truncate(Double)" (inexact x))))
           (if (exact? x)
               (exact r)
               r))]))
@@ -863,7 +866,7 @@
                        [else (+ d 1)]))]
             [else d]))]
       [else
-        (clr-static-call System.Math "Round(System.Double)" (inexact x))]))
+        (clr-static-call Math "Round(Double)" (inexact x))]))
         
         
   (define/contract (sqrt num:number)
@@ -871,14 +874,14 @@
       [(rectnum? num)
         (sqrt (rectnum->complexnum num))]
       [(complexnum? num)
-        (clr-static-call Microsoft.Scripting.Math.Complex64 Sqrt num)]
+        (clr-static-call Complex64 Sqrt num)]
       [(negative? num)
         (make-rectangular 0 (sqrt (- num)))]
       [(bignum? num)
         (bignum-sqrt num)]
       [(infinite? num) num]
       [else
-        (let ((r (clr-static-call System.Math Sqrt (inexact num))))
+        (let ((r (clr-static-call Math Sqrt (inexact num))))
           (if (exact? num)
               (exact r)
               r))]))
@@ -998,7 +1001,7 @@
       [(rectnum? obj1)
         (expt (rectnum->complexnum obj1) obj2)]
       [(or (complexnum? obj1) (negative? obj1))
-        (clr-static-call Microsoft.Scripting.Math.Complex64 
+        (clr-static-call Complex64 
                          Pow 
                          (real->complexnum obj1)
                          (real->complexnum obj2))]
@@ -1019,7 +1022,7 @@
                 (cond
                   [(and e (integer? obj1) (integer? obj2))
                     (let* ((a (->bignum obj1))
-                           (r (clr-call Microsoft.Scripting.Math.BigInteger
+                           (r (clr-call BigInteger
                                         Power
                                         a
                                         (->fixnum obj2))))
@@ -1034,7 +1037,7 @@
                            (/ (expt (denominator f) obj2) (expt (numerator f) obj2))
                            (/ (expt (numerator f) obj2) (expt (denominator f) obj2))))]
                   [(and (real? obj1) (real? obj2))
-                    (let ((r (clr-static-call System.Math Pow (inexact obj1) (inexact obj2))))
+                    (let ((r (clr-static-call Math Pow (inexact obj1) (inexact obj2))))
                       (if neg? 
                           (/ 1 r)
                           r))]

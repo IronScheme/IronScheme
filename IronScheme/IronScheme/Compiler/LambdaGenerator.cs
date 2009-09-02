@@ -26,6 +26,8 @@ namespace IronScheme.Compiler
   {
     public override Expression Generate(object args, CodeBlock c)
     {
+      var refs = ClrGenerator.SaveReferences();
+
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
       NameHint = SymbolId.Empty;
       cb.Filename = LocationHint;
@@ -41,6 +43,9 @@ namespace IronScheme.Compiler
       FillBody(cb, stmts, body, true);
 
       Expression ex = MakeClosure(cb, isrest);
+
+      ClrGenerator.ResetReferences(refs);
+
       return ex;
     }
   }

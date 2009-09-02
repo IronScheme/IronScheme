@@ -57,7 +57,7 @@
   (define/contract (match-group match:match group-name:string)
     (clr-indexer-get GroupCollection 
       (clr-prop-get Match Groups match) 
-      (clr-cast System.String group-name)))
+      (clr-cast String group-name)))
   
   (define/contract (regex-match? input:string pattern:string)
     (clr-static-call Regex IsMatch input pattern))
@@ -68,7 +68,7 @@
       (clr-static-call Regex Split input pattern/re)))
     
   (define/contract (regex-replace input:string pattern:string replacement:string)
-    (clr-static-call Regex Replace input pattern (clr-cast system.string replacement))) ; need cast to deal with overload
+    (clr-static-call Regex Replace input pattern (clr-cast String replacement))) ; need cast to deal with overload
 
   (define/contract (regex-escape input:string)
     (clr-static-call Regex Escape input))

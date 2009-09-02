@@ -96,10 +96,10 @@
       (clr-static-prop-get CultureInfo InvariantCulture)))   
       
   (define/contract (char-upcase chr:char)
-    (clr-static-call System.Char ToUpper chr))               
+    (clr-static-call Char ToUpper chr))               
     
   (define/contract (char-downcase chr:char)
-    (clr-static-call System.Char ToLower chr))               
+    (clr-static-call Char ToLower chr))               
 
   (define/contract (char-titlecase chr:char)
     (string-ref (clr-call TextInfo 
@@ -109,26 +109,26 @@
                 0))               
 
   (define/contract (char-foldcase chr:char)
-    (clr-static-call System.Char 
+    (clr-static-call Char 
                      ToLowerInvariant 
-                     (clr-static-call System.Char 
+                     (clr-static-call Char 
                                       ToUpperInvariant 
                                       chr)))
     
   (define/contract (char-alphabetic? chr:char)
-    (clr-static-call System.Char "IsLetter(Char)" chr))               
+    (clr-static-call Char "IsLetter(Char)" chr))               
 
   (define/contract (char-numeric? chr:char)
-    (clr-static-call System.Char "IsDigit(Char)" chr))               
+    (clr-static-call Char "IsDigit(Char)" chr))               
 
   (define/contract (char-whitespace? chr:char)
-    (clr-static-call System.Char "IsWhiteSpace(Char)" chr))               
+    (clr-static-call Char "IsWhiteSpace(Char)" chr))               
 
   (define/contract (char-upper-case? chr:char)
-    (clr-static-call System.Char "IsUpper(Char)" chr)) 
+    (clr-static-call Char "IsUpper(Char)" chr)) 
     
   (define/contract (char-lower-case? chr:char)
-    (clr-static-call System.Char "IsLower(Char)" chr)) 
+    (clr-static-call Char "IsLower(Char)" chr)) 
     
   (define/contract (char-title-case? chr:char)
     (case chr
@@ -137,7 +137,7 @@
         (eqv? chr (char-titlecase chr))]))
         
   (define/contract (char-general-category chr:char)
-    (case (clr-static-call System.Char "GetUnicodeCategory(Char)" chr)
+    (case (clr-static-call Char "GetUnicodeCategory(Char)" chr)
       [(closepunctuation)          'Pe]
       [(connectorpunctuation)      'Pc]
       [(control)                   'Cc]
@@ -171,7 +171,7 @@
       [else #f]))
       
   (define (clr-string? obj)
-    (clr-is System.String obj))  
+    (clr-is String obj))  
 
   (define (->string str)
     (if (clr-string? str)
@@ -217,7 +217,7 @@
     (clr-call TextInfo ToTitleCase text-info (string-downcase str)))
     
   (define/contract (string-foldcase str:string)
-    (clr-call System.String ToLowerInvariant (string-upcase str)))
+    (clr-call String ToLowerInvariant (string-upcase str)))
   
   (define-syntax define-char-ci-compare
     (syntax-rules ()
@@ -242,8 +242,8 @@
   (define-char-ci-compare char-ci>=? fx>=?)
   
   (define/contract (string-upcase str:string)
-    (clr-call System.String Replace 
-      (clr-call System.String ToUpper (->string str))
+    (clr-call String Replace 
+      (clr-call String ToUpper (->string str))
       "ß" 
       "SS"))
 
@@ -251,7 +251,7 @@
     (syntax-rules ()
       [(_ str form)
         (if (string? str)
-            (clr-call System.String Normalize (->string str) 'form)
+            (clr-call String Normalize (->string str) 'form)
             (assertion-violation 'string-normalize "not a string" str))]))
   
   (define (string-normalize-nfc s)

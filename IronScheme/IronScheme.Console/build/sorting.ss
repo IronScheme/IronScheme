@@ -73,7 +73,7 @@
                        precedes?))))))
 
   (define/contract (vector-sort pred?:procedure vec:vector)
-    (let ((vec (clr-call System.Array Clone vec)))
+    (let ((vec (clr-call Array Clone vec)))
       (vector-sort! pred? vec)
       vec))
 

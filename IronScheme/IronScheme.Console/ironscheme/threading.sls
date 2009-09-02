@@ -43,7 +43,7 @@
         (clr-static-call Threadpool QueueUserWorkitem proc state)]))
       
   (define/contract (thread-sleep dur:fixnum)
-    (clr-static-call Thread Sleep (clr-cast system.int32 dur)))      
+    (clr-static-call Thread Sleep (clr-cast Int32 dur)))      
    
   (define (monitor-enter obj)
     (clr-static-call Monitor Enter obj))

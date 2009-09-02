@@ -125,7 +125,7 @@
       ))
       
   (define (fixnum? obj)
-    (clr-is system.int32 obj))        
+    (clr-is Int32 obj))        
     
   (define (fixnum-width) 32)
       
@@ -168,7 +168,7 @@
                   
   (define-syntax fxabs
     (syntax-rules ()
-      [(_ e) (clr-static-call System.Math "abs(int32)" e)]))                            
+      [(_ e) (clr-static-call Math "Abs(Int32)" e)]))                            
             
   (define-fx (fx+ x1 x2)
     (checked ($fx+ x1 x2)))            

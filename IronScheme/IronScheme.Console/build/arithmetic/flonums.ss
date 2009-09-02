@@ -290,75 +290,75 @@
     (not (flinfinite?* fl)))
     
   (define-fl* (flinfinite? fl)
-    (clr-static-call system.double isinfinity fl))
+    (clr-static-call Double isinfinity fl))
     
   (define-fl (flnan? fl)
-    (clr-static-call system.double isnan fl))    
+    (clr-static-call Double isnan fl))    
     
   (define-fl (flsin fl)
-    (clr-static-call system.math sin fl))
+    (clr-static-call Math Sin fl))
 
   (define-fl (flcos fl)
-    (clr-static-call system.math cos fl))
+    (clr-static-call Math Cos fl))
 
   (define-fl (fltan fl)
-    (clr-static-call system.math tan fl))
+    (clr-static-call Math Tan fl))
 
   (define-fl (flasin fl)
-    (clr-static-call system.math asin fl))
+    (clr-static-call Math Asin fl))
 
   (define-fl (flacos fl)
-    (clr-static-call system.math acos fl))
+    (clr-static-call Math Acos fl))
 
   (define flatan 
     (case-lambda 
       [(fl)      
         (unless (flonum? fl)
           (assertion-violation 'flatan "not a flonum" fl))
-        (clr-static-call system.math atan fl)]
+        (clr-static-call Math Atan fl)]
       [(fl1 fl2) 
         (unless (flonum? fl1)
           (assertion-violation 'flatan "not a flonum" fl1))
         (unless (flonum? fl2)
           (assertion-violation 'flatan "not a flonum" fl2))
-        (clr-static-call system.math atan2 fl1 fl2)]))
+        (clr-static-call Math Atan2 fl1 fl2)]))
 
   (define fllog 
     (case-lambda
       [(fl)       
         (unless (flonum? fl)
           (assertion-violation 'fllog "not a flonum" fl))
-        (clr-static-call system.math log fl)]
+        (clr-static-call Math Log fl)]
       [(fl1 fl2)  
         (unless (flonum? fl1)
           (assertion-violation 'fllog "not a flonum" fl1))
         (unless (flonum? fl2)
           (assertion-violation 'fllog "not a flonum" fl2))
-        (clr-static-call system.math log fl1 fl2)]))
+        (clr-static-call Math Log fl1 fl2)]))
 
   (define-fl (flsqrt fl)
-    (clr-static-call system.math sqrt fl))
+    (clr-static-call Math Sqrt fl))
     
   (define-fl (flexp fl)
-    (clr-static-call system.math exp fl))    
+    (clr-static-call Math Exp fl))    
 
   (define-fl (flexpt fl n)
-    (clr-static-call system.math pow fl n))    
+    (clr-static-call Math Pow fl n))    
     
   (define-fl (flceiling fl)
-    (clr-static-call system.math "ceiling(double)" fl))    
+    (clr-static-call Math "Ceiling(Double)" fl))    
 
   (define-fl* (flfloor fl)
-    (clr-static-call system.math "floor(double)" fl))    
+    (clr-static-call Math "Floor(Double)" fl))    
 
   (define-fl (fltruncate fl)
-    (clr-static-call system.math "truncate(double)" fl))    
+    (clr-static-call Math "Truncate(Double)" fl))    
 
   (define-fl (flround fl)
-    (clr-static-call system.math "round(double)" fl))    
+    (clr-static-call Math "Round(Double)" fl))    
     
   (define-fl (flabs fl)
-    (clr-static-call system.math "abs(double)" fl)) 
+    (clr-static-call Math "Abs(Double)" fl)) 
     
   (define-fl (flpositive? r)
     ($fl<? 0.0 r))

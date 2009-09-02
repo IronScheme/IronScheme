@@ -27,8 +27,6 @@
     (rnrs)
     (ironscheme contracts)
     (ironscheme clr))
-
-  (clr-using System)
   
   (define (application-directory)
     (clr-static-prop-get Ironscheme.Runtime.Builtins ApplicationDirectory))

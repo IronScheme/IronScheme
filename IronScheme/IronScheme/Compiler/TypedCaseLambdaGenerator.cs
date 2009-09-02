@@ -76,6 +76,8 @@ namespace IronScheme.Compiler
   {
     public override Expression Generate(object args, CodeBlock c)
     {
+      var refs = ClrGenerator.SaveReferences();
+
       object arg = Builtins.First(args);
       object typespec = Builtins.Second(args);
 
@@ -96,6 +98,9 @@ namespace IronScheme.Compiler
 
 
       Expression ex = Ast.New(ct.GetConstructor( new Type[] { dt }), Ast.CodeBlockExpression(cb, true, dt));
+
+      ClrGenerator.ResetReferences(refs);
+
       return ex;
     }
 
@@ -165,6 +170,8 @@ namespace IronScheme.Compiler
 
         while (lambdas != null)
         {
+          var refs = ClrGenerator.SaveReferences();
+
           object actual = lambdas.car;
 
           CodeBlock cb = Ast.CodeBlock(sh, lambdaname);
@@ -189,6 +196,8 @@ namespace IronScheme.Compiler
           cbs.Add(cbd);
 
           lambdas = lambdas.cdr as Cons;
+
+          ClrGenerator.ResetReferences(refs);
         }
 
         return MakeCaseClosure(lambdaname, cbs);
