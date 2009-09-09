@@ -1,4 +1,11 @@
-﻿
+﻿(import (ironscheme clr))
+(import (ironscheme clr dynamic))
+(clr-dynamic (list 12 34) PrettyPrint)
+(clr-dynamic (list 12 34) car 1)
+(define int->string (clr-call-site Int32 ToString))
+(clr-using System.Reflection.Emit)
+(define emit (clr-call-site ILGenerator Emit))
+(clr-static-call-site DateTime Parse)
 
 
 (define-record-type node 

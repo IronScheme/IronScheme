@@ -16,6 +16,6 @@
     (ironscheme)
     (ironscheme fsm-cond-helpers))
     
-  (trace-define-syntax fsm-cond (generator #f)))
+  (define-syntax fsm-cond (generator #f)))
           
 

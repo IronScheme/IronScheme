@@ -42,15 +42,21 @@ namespace IronScheme.Compiler
 
     public static bool TypeHelpersEnabled { get; set; }
 
-    static ClrGenerator()
+    protected static void ClrSyntaxError(string who, string msg, params object[] forms)
     {
-      ResetReferences();
+      var f1 = forms.Length > 0 ? forms[0] : Builtins.FALSE;
+      var f2 = forms.Length > 1 ? forms[1] : Builtins.FALSE;
+      Builtins.SyntaxError(who, msg, f1, f2);
     }
 
     public static object SaveReferences()
     {
       var old = namespaces;
-      ResetReferences();
+      namespaces = ResetReferences();
+      foreach (var kvp in old)
+      {
+        namespaces[kvp.Key] = kvp.Value;
+      }
       return old;
     }
 
@@ -226,7 +232,15 @@ namespace IronScheme.Compiler
           }
     }
   }
-  
+
+  [Generator("clr-namespaces-internal")]
+  public sealed class ClrNamespacesGenerator : ClrGenerator
+  {
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      return Ast.Constant(new IronSchemeConstant(Cons.FromList(namespaces.Keys), cb));
+    }
+  }
 
   [Generator("clr-field-get-internal")]
   public sealed class ClrFieldGetGenerator : ClrGenerator
@@ -246,7 +260,7 @@ namespace IronScheme.Compiler
 
         if (t == null)
         {
-          Builtins.SyntaxError("clr-field-get", "type not found", type, false);
+          ClrSyntaxError("clr-field-get", "type not found", type);
         }
 
       }
@@ -269,7 +283,7 @@ namespace IronScheme.Compiler
 
         if (inferred)
         {
-          Builtins.SyntaxError("clr-field-get", "type inference not possible on static member", member, false);
+          ClrSyntaxError("clr-field-get", "type inference not possible on static member", member);
         }
       }
       else if (inferred)
@@ -292,7 +306,7 @@ namespace IronScheme.Compiler
 
       if (fi == null)
       {
-        Builtins.SyntaxError("clr-field-get", "field not found on type: " + type, args, member);
+        ClrSyntaxError("clr-field-get", "field not found on type: " + type, args, member);
       }
 
       return Ast.ReadField(instance, fi);
@@ -317,7 +331,7 @@ namespace IronScheme.Compiler
 
         if (t == null)
         {
-          Builtins.SyntaxError("clr-field-get", "type not found", type, false);
+          ClrSyntaxError("clr-field-set!", "type not found", type);
         }
 
       }
@@ -340,7 +354,7 @@ namespace IronScheme.Compiler
 
         if (inferred)
         {
-          Builtins.SyntaxError("clr-field-set!", "type inference not possible on static member", member, false);
+          ClrSyntaxError("clr-field-set!", "type inference not possible on static member", member);
         }
       }
       else if (inferred)
@@ -364,7 +378,7 @@ namespace IronScheme.Compiler
 
       if (fi == null)
       {
-        Builtins.SyntaxError("clr-field-set!", "field not found on type: " + type, args, member);
+        ClrSyntaxError("clr-field-set!", "field not found on type: " + type, args);
       }
 
       Expression value = GetAst(Builtins.Car(Builtins.LastPair(args)), cb);
@@ -397,7 +411,7 @@ namespace IronScheme.Compiler
 
         if (t == null)
         {
-          Builtins.SyntaxError("clr-field-get", "type not found", type, false);
+          ClrSyntaxError("clr-call", "type not found", type);
         }
 
       }
@@ -435,7 +449,7 @@ namespace IronScheme.Compiler
 
         if (inferred)
         {
-          Builtins.SyntaxError("clr-call", "type inference not possible on static member", member, false);
+          ClrSyntaxError("clr-call", "type inference not possible on static member", member);
         }
       }
       else if (inferred)
@@ -566,7 +580,7 @@ namespace IronScheme.Compiler
         return ConvertFromHelper(meth.ReturnType, r);
       }
 
-      Builtins.SyntaxError("clr-call", "member could not be resolved on type: " + type, args, member);
+      ClrSyntaxError("clr-call", "member could not be resolved on type: " + type, args, member);
 
       return null;
     }
@@ -587,7 +601,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        Builtins.SyntaxError("clr-using", "namespace is not a symbol", name, false);
+        ClrSyntaxError("clr-using", "namespace is not a symbol", name);
       }
 
       return Ast.ReadField(null, Unspecified);
@@ -616,7 +630,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        Builtins.SyntaxError("clr-reference", "reference is not a symbol or a string", name, false);
+        ClrSyntaxError("clr-reference", "reference is not a symbol or a string", name);
       }
 
 
@@ -634,7 +648,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        Builtins.SyntaxError("clr-is", "type not found", type, false);
+        ClrSyntaxError("clr-is", "type not found", type);
       }
 
       return Ast.TypeIs(GetAst(Builtins.Second(args), cb), t);
@@ -661,7 +675,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        Builtins.SyntaxError("clr-cast", "type not found", type, false);
+        ClrSyntaxError("clr-cast", "type not found", type);
       }
 
       Expression obj = GetAst(Builtins.Second(args), cb);
@@ -680,7 +694,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        Builtins.SyntaxError("clr-new-array", "type not found", type, false);
+        ClrSyntaxError("clr-new-array", "type not found", type);
       }
 
       t = t.MakeArrayType();
@@ -703,7 +717,7 @@ namespace IronScheme.Compiler
       Type t = GetType(type);
       if (t == null)
       {
-        Builtins.SyntaxError("clr-new", "type not found", type, false);
+        ClrSyntaxError("clr-new", "type not found", type);
       }
 
       Expression[] arguments = GetAstListNoCast(Builtins.Cdr(args) as Cons, cb);
@@ -791,7 +805,7 @@ namespace IronScheme.Compiler
         return r;
       }
 
-      Builtins.SyntaxError("clr-new", "constructor could not be resolved on type: " + type, args, false);
+      ClrSyntaxError("clr-new", "constructor could not be resolved on type: " + type, args);
 
       return null;
     }

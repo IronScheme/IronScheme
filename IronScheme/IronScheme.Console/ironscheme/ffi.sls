@@ -13,16 +13,20 @@
   (export
     make-pointer-setter
     make-pointer-getter
+    
     make-ffi-callout
     make-ffi-callback
+    
     ffi-callout
     ffi-callback
     pinvoke-call
+    
     pointer?
     pointer=?
     pointer+
     null-pointer
     null-pointer?
+    
     write-int8!
     write-int16!
     write-int32!
@@ -33,6 +37,11 @@
     read-int32
     read-int64
     read-intptr
+    
+    dlopen
+    dlsym
+    dlclose
+    dlerror
   )
   (import 
     (ironscheme)
@@ -110,22 +119,31 @@
       
   (define (make-ffi-callout return-type arg-types)
     (eval `(ffi-callout ,return-type ,arg-types) 
-           (environment '(ironscheme clr))))      
+           (environment '(ironscheme ffi))))      
 
   (define (make-ffi-callback return-type arg-types)
     (eval `(ffi-callback ,return-type ,arg-types) 
-           (environment '(ironscheme clr))))  
+           (environment '(ironscheme ffi))))  
            
   (define (pointer? obj)
-    (clr-is System.IntPtr obj))
+    (clr-is IntPtr obj))
     
   (define/contract (pointer=? p1:pointer p2:pointer)
-    (clr-static-call System.IntPtr op_Equality p1 p2))
+    (clr-static-call IntPtr op_Equality p1 p2))
     
   (define (null-pointer)
-    (clr-static-field-get System.IntPtr Zero))
+    (clr-static-field-get IntPtr Zero))
     
   (define/contract (null-pointer? obj:pointer)
-    (clr-static-call System.IntPtr op_Equality (null-pointer) obj))
+    (clr-static-call IntPtr op_Equality (null-pointer) obj))
+    
+  (define dlopen (pinvoke-call kernel32 LoadLibrary intptr (string)))
+  (define dlsym (pinvoke-call kernel32 GetProcAddress intptr (intptr string)))  
+  ;dlclose dlerror
+  (define dlclose (pinvoke-call kernel32 FreeLibrary int32 (intptr)))  
+  
+  (define (dlerror) "not implemented")
+  
+    
 )    
   

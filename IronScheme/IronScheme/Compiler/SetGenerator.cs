@@ -64,7 +64,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        Trace.Assert(cb.Parent != null);
+        //Trace.Assert(cb.Parent != null);
         r = Ast.Write(v, value);
       }
 

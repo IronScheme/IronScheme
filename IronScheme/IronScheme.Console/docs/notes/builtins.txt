@@ -11,7 +11,6 @@ call-with-values [1][5][7]
 car [7]
 cdr [7]
 cons [7]
-dynamic-wind [1][5]
 eq? [7]
 eqv? [7]
 list [7]
@@ -67,9 +66,6 @@ string-downcase
 
 (rnrs exceptions):
 
-raise [4]
-raise-continuable [4]
-with-exception-handler [1][4]
 
 (rnrs arithmetic bitwise):
 
@@ -91,7 +87,6 @@ hashtable-mutable?
 make-hashtable [1]
 
 (rnrs io ports):
-
 
 bytevector->string
 eof-object

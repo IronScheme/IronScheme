@@ -400,12 +400,12 @@
   (define/contract (open-input-file filename:string)
     (unless (file-exists? filename)
       (file-not-found 'open-file-input-port filename))
-    (guard (e 
+    (clr-guard (e 
       [e (assertion-violation 'open-input-file "oops" filename)])
         (clr-static-call File OpenText filename)))
 
   (define/contract (open-output-file filename:string)
-    (guard (e 
+    (clr-guard (e 
       [e (assertion-violation 'open-output-file "oops" filename)])
         (clr-static-call File CreateText filename)))
   
@@ -584,7 +584,7 @@
       [(filename:string options buffer-mode:buffer-mode tc)
         (unless (file-exists? filename)
           (file-not-found 'open-file-input-port filename))
-        (guard (e 
+        (clr-guard (e 
           [e (assertion-violation 'open-file-input-port "oops" filename)])
             (let ((s (clr-static-call File OpenRead filename)))
               (let ((s (if (eq? buffer-mode 'block)
@@ -642,7 +642,7 @@
       (io-port-error 'get-u8 port)))
       
   (define/contract (lookahead-u8 port:binary-input-port)
-    (guard (e [e (io-port-error 'lookahead-u8 port)])  
+    (clr-guard (e [e (io-port-error 'lookahead-u8 port)])  
       (if (port-has-set-port-position!? port)
         (let ((c (clr-call Stream ReadByte port)))
           (if (fx=? c -1) 
@@ -664,7 +664,7 @@
       nb))
       
   (define/contract (get-bytevector-n port:binary-input-port count:fixnum)
-    (guard (e [e (io-port-error 'get-bytevector-n port)])
+    (clr-guard (e [e (io-port-error 'get-bytevector-n port)])
       (let* ((buffer (make-bytevector count))
              (r (read-buffer port buffer 0 count)))
         (if (fxzero? r)
@@ -685,7 +685,7 @@
                       buffer)))))))
                       
   (define/contract (get-bytevector-n! port:binary-input-port bv:bytevector start:fixnum count:fixnum)
-    (guard (e [e (io-port-error 'get-bytevector-n! port)])
+    (clr-guard (e [e (io-port-error 'get-bytevector-n! port)])
       (let* ((r (read-buffer port bv start count)))
         (if (fxzero? r)
             (eof-object)
@@ -700,7 +700,7 @@
                         (f (fx+ rr r))))))))))
                         
   (define/contract (get-bytevector-some port:binary-input-port)
-    (guard (e [e (io-port-error 'get-bytevector-some port)])
+    (clr-guard (e [e (io-port-error 'get-bytevector-some port)])
       (let f ((a '()))
         (let ((c (clr-call Stream ReadByte port)))
           (if (fx=? c -1)
@@ -710,7 +710,7 @@
               (f (cons c a)))))))
         
   (define/contract (get-bytevector-all port:binary-input-port)
-    (guard (e [e (io-port-error 'get-bytevector-all port)])
+    (clr-guard (e [e (io-port-error 'get-bytevector-all port)])
       (let f ((a '()))
         (let ((c (clr-call Stream ReadByte port)))
           (if (fx=? c -1)
@@ -722,7 +722,7 @@
   (define/contract (get-char port:textual-input-port)
     (if (clr-is CustomTextReaderWriter port)
         (get-char (get-input-port port))
-        (guard (e [e (io-port-error 'get-char port)])
+        (clr-guard (e [e (io-port-error 'get-char port)])
           (let ((c (clr-call TextReader Read port)))
             (if (fx=? c -1)
                 (eof-object)
@@ -731,7 +731,7 @@
   (define/contract (lookahead-char port:textual-input-port)
     (if (clr-is CustomTextReaderWriter port)
         (lookahead-char (get-input-port port))
-        (guard (e [e (io-port-error 'lookahead-char port)])
+        (clr-guard (e [e (io-port-error 'lookahead-char port)])
           (let ((c (clr-call TextReader Peek port)))
             (if (fx=? c -1)
                 (eof-object)
@@ -740,7 +740,7 @@
   (define/contract (get-string-n port:textual-input-port count:fixnum)
     (if (clr-is CustomTextReaderWriter port)
         (get-string-n (get-input-port port) count)  
-        (guard (e [e (io-port-error 'get-string-n port)])
+        (clr-guard (e [e (io-port-error 'get-string-n port)])
           (let* ((buffer (clr-new-array Char count))
                  (c  (clr-call TextReader Read port buffer 0 count)))
             (if (fxzero? c)
@@ -765,9 +765,7 @@
   (define/contract (get-string-all port:textual-input-port)
     (if (clr-is CustomTextReaderWriter port)
         (get-string-all (get-input-port port))  
-        (guard (e 
-            [(i/o-decoding-error? e) 
-              (raise-continuable e)]
+        (clr-guard (e 
             [e (io-port-error 'get-string-all port)])
           (let ((l (clr-call TextReader ReadToEnd port)))
             (if (null? l)
@@ -777,9 +775,7 @@
   (define/contract (get-line port:textual-input-port)
     (if (clr-is CustomTextReaderWriter port)
         (get-line (get-input-port port))  
-        (guard (e 
-            [(i/o-decoding-error? e) 
-              (raise-continuable e)]        
+        (clr-guard (e 
             [e (io-port-error 'get-line port)])
           (let ((l (clr-call TextReader ReadLine port)))
             (if (null? l)
@@ -798,8 +794,9 @@
         (assertion-violation 'flush-output-port "not an output port" port)]))
         
   (define/contract (output-port-buffer-mode port:output-port)
-    ;; todo
-    'line) 
+    (if (clr-is BufferedStream port)
+        'block
+        'line)) 
     
   (define/contract open-bytevector-output-port
     (case-lambda
@@ -850,7 +847,7 @@
 
   (define/contract (put-u8 port:binary-output-port byte:fixnum)
     (let ((byte (->byte byte)))
-      (guard (e [e (io-port-error 'put-u8 port)])
+      (clr-guard (e [e (io-port-error 'put-u8 port)])
         (clr-call Stream WriteByte port byte))))
             
   (define/contract put-bytevector 

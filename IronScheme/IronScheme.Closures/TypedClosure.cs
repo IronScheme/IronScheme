@@ -294,7 +294,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -361,7 +361,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -429,7 +429,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -497,7 +497,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -565,7 +565,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -633,7 +633,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -702,7 +702,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -770,7 +770,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }
@@ -838,7 +838,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        //if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method))
         {
           targets.Add(typedtarget.Method);
         }

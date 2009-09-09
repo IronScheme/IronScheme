@@ -267,7 +267,6 @@ namespace IronScheme
       {
         return Compile(p.parsed);
       }
-      Builtins.SyntaxError("parser", "expression could not be parsed", cc.SourceUnit.ToString(), false);
       return null;
     }
 

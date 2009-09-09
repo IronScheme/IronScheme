@@ -20,6 +20,9 @@
 (let () 
   (import 
     (ironscheme clr)
+    
+    (ironscheme io)
+    (ironscheme fsm-cond)
     (ironscheme console)
     (ironscheme conversions)
     (ironscheme datetime)
@@ -44,6 +47,7 @@
     
     (ironscheme clr reflection)
     (ironscheme clr shorthand)
+    (ironscheme clr dynamic)
     
     (ironscheme ffi)
     (ironscheme integrable)

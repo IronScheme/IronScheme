@@ -783,7 +783,7 @@ namespace IronScheme.Runtime.R6RS
   
   public class IO : Builtins
   {
-    static object bm_block = SymbolTable.StringToObject("block");
+    static object bm_line = SymbolTable.StringToObject("line");
 
     static object eol_lf = SymbolTable.StringToObject("lf"); //10
     static object eol_cr = SymbolTable.StringToObject("cr"); //13
@@ -912,13 +912,13 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-output-port")]
     public static object OpenFileOutputPort(object filename, object fileoptions)
     {
-      return OpenFileOutputPort(filename, fileoptions, bm_block);
+      return OpenFileOutputPort(filename, fileoptions, bm_line);
     }
 
     [Builtin("open-file-output-port")]
     public static object OpenFileOutputPort(object filename, object fileoptions, object buffermode)
     {
-      return OpenFileOutputPort(filename, fileoptions, bm_block, FALSE);
+      return OpenFileOutputPort(filename, fileoptions, buffermode, FALSE);
     }
 
     [Flags]
@@ -1003,11 +1003,18 @@ namespace IronScheme.Runtime.R6RS
       string fn = RequiresNotNull<string>(filename);
       FileOptions fo = ToFileOptions(fileoptions);
       FileMode fm = GetMode(fo, fn);
+      bool blockbuffer = buffermode == SymbolTable.StringToObject("block");
+      bool nobuffer = buffermode == SymbolTable.StringToObject("none");
 
       Transcoder tc = maybetranscoder as Transcoder;
       try
       {
         Stream s = File.Open(fn, fm, FileAccess.Write);
+
+        if (blockbuffer)
+        {
+          s = new BufferedStream(s);
+        }
 
         if (tc == null)
         {
@@ -1015,7 +1022,7 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return TranscodedOutputPort(new BufferedStream(s), tc);
+          return TranscodedOutputPort(s, tc);
         }
       }
       catch (Condition)
@@ -1061,13 +1068,13 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("open-file-input/output-port")]
     public static object OpenFileInputOutputPort(object filename, object fileoptions)
     {
-      return OpenFileInputOutputPort(filename, fileoptions, bm_block);
+      return OpenFileInputOutputPort(filename, fileoptions, bm_line);
     }
 
     [Builtin("open-file-input/output-port")]
     public static object OpenFileInputOutputPort(object filename, object fileoptions, object buffermode)
     {
-      return OpenFileInputOutputPort(filename, fileoptions, bm_block, FALSE);
+      return OpenFileInputOutputPort(filename, fileoptions, buffermode, FALSE);
     }
 
     [Builtin("open-file-input/output-port")]
@@ -1075,9 +1082,15 @@ namespace IronScheme.Runtime.R6RS
     {
       string fn = RequiresNotNull<string>(filename);
       Transcoder tc = maybetranscoder as Transcoder;
+      bool blockbuffer = buffermode == SymbolTable.StringToObject("block");
       try
       {
         Stream s = File.Open(fn, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+
+        if (blockbuffer)
+        {
+          s = new BufferedStream(s);
+        }
 
         if (tc == null)
         {
@@ -1085,7 +1098,7 @@ namespace IronScheme.Runtime.R6RS
         }
         else
         {
-          return TranscodedInputOutputPort(new BufferedStream(s), tc);
+          return TranscodedInputOutputPort(s, tc);
         }
       }
       catch (FileNotFoundException ex)

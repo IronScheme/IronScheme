@@ -69,18 +69,19 @@ namespace IronScheme.Runtime
       }
       else
       {
-        Encoding oi = Console.InputEncoding;
+        //Encoding oi = Console.InputEncoding;
         Encoding oo = Console.OutputEncoding;
 
         try
         {
-          Console.InputEncoding = Console.OutputEncoding = Encoding.UTF8;
+          //Console.InputEncoding = Encoding.UTF8;
+            Console.OutputEncoding = Encoding.UTF8;
           return new IronSchemeConsoleHost().Run(args);
         }
         finally
         {
           Console.OutputEncoding = oo;
-          Console.InputEncoding = oi;
+          //Console.InputEncoding = oi;
         }
       }
     }

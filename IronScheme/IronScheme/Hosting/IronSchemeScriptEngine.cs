@@ -187,28 +187,15 @@ namespace IronScheme.Hosting
       public override void Add(SourceUnit sourceUnit, string message, SourceSpan span, int errorCode, Severity severity)
       {
         base.Add(sourceUnit, message, span, errorCode, severity);
-        if (sourceUnit.Kind == SourceCodeKind.InteractiveCode && message != "unexpected EOF")
-        {
-          LexicalError(message);
-        }
-        else
-        if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
-        {
-          LexicalError(message + "|" + sourceUnit.ToString());
-        }
-      }
-
-      static void LexicalError(string message)
-      {
-        string[] tokens = message.Split('|');
-        if (tokens.Length == 2)
-        {
-          Builtins.LexicalError(tokens[0], tokens[1]);
-        }
-        else
-        {
-          Builtins.LexicalError(message, false);
-        }
+        //if (sourceUnit.Kind == SourceCodeKind.InteractiveCode && message != "unexpected EOF")
+        //{
+        //  throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
+        //}
+        //else
+        //if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
+        //{
+        //  throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
+        //}
       }
     }
   }

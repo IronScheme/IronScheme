@@ -108,7 +108,7 @@
     (put-string port "#<hashtable>"))        
         
   (define (get-clr-type-name obj)
-    (clr-prop-get System.Type Name (clr-call System.Object GetType obj)))
+    (clr-prop-get System.Type Fullname (clr-call System.Object GetType obj)))
         
   (define (write-procedure proc port readable?)
     (let ((pn (procedure-name proc)))

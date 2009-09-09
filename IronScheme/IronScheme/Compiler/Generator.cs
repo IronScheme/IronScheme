@@ -265,6 +265,10 @@ namespace IronScheme.Compiler
       return e;
     }
 
+    class CompileTimeEvaluationException : Exception
+    {
+    }
+
     protected internal static Expression GetAst(object args, CodeBlock cb, bool istailposition)
     {
       if (args is Annotation)
@@ -511,7 +515,7 @@ namespace IronScheme.Compiler
                     };
                     CallTarget1 handler = delegate(object e)
                     {
-                      throw (Exception)e;
+                      throw new CompileTimeEvaluationException();
                     };
 
                     try
@@ -526,7 +530,7 @@ namespace IronScheme.Compiler
                       }
                       return rrrr;
                     }
-                    catch
+                    catch (CompileTimeEvaluationException)
                     {
                     }
                   }
@@ -585,7 +589,7 @@ namespace IronScheme.Compiler
 
                       CallTarget1 handler = delegate (object e)
                       {
-                        throw (Exception)e;
+                        throw new CompileTimeEvaluationException();
                       };
 
                       try
@@ -600,7 +604,7 @@ namespace IronScheme.Compiler
                         }
                         return rrrr;
                       }
-                      catch
+                      catch (CompileTimeEvaluationException)
                       {
                       }
                     }

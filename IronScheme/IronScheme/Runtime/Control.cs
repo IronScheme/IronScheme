@@ -116,6 +116,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("dynamic-wind")]
+    [Obsolete("Implemented in Scheme")]
     public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
     {
       Callable inf = RequiresNotNull<Callable>(infunc);
@@ -136,23 +137,18 @@ namespace IronScheme.Runtime
 
     internal class Continuation : Exception
     {
-      object value;
-
-      public object Value
-      {
-        get { return this.value; }
-        set { this.value = value; }
-      } 
-    }
-
-    internal class NonContinuation : Continuation
-    {
+      public object Value {get; internal set;}
+      internal StackTrace Stack { get; set; }
     }
 
     static CallTargetN MakeContinuation(Continuation cc)
     {
       CallTargetN ct = delegate(object[] value)
       {
+        if (!CheckStack(cc))
+        {
+          return AssertionViolation("call/cc", "not supported, continuation called outside dynamic extent");
+        }
         if (value.Length == 0)
         {
           cc.Value = Unspecified;
@@ -177,15 +173,31 @@ namespace IronScheme.Runtime
       return ct;
     }
 
-    //this needs to be better controlled, and perhaps use weak references
-    internal static Stack<Continuation> contstack = new Stack<Continuation>();
+    static bool CheckStack(Continuation cc)
+    {
+      var st = new StackTrace();
+      var c1 = cc.Stack.GetFrames();
+      var f1 = st.GetFrames();
+
+      Array.Reverse(c1);
+      Array.Reverse(f1);
+
+      for (int i = 0; i < c1.Length; i++)
+      {
+        if (c1[i].GetMethod() != f1[i].GetMethod())
+        {
+          return false;
+        }
+      }
+      return true;
+    }
     
     [Builtin("call-with-current-continuation"), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object fc1)
     {
       Callable fc = RequiresNotNull<Callable>(fc1);
-      Continuation ccc = new Continuation();
-      contstack.Push(ccc);
+      Continuation ccc = new Continuation { Stack = new StackTrace() };
+
       try
       {
         CallTargetN exitproc = MakeContinuation(ccc);
@@ -197,17 +209,12 @@ namespace IronScheme.Runtime
       {
         if (ccc == c)
         {
-          contstack.Pop();
           return c.Value;
         }
         else
         {
           throw;
         }
-      }
-      finally
-      {
-        ;
       }
     }
 #endif

@@ -1430,10 +1430,8 @@
         (define (f* x*)
           (syntax-match x* (else)
             (()
-             (cps-mode 
-              (let ((g (gensym)))
-                (values `(,g (lambda () (raise-continuable ,con))) g))             
-              (values `(raise ,con) #t)))
+             (let ((g (gensym)))
+               (values `((lambda () (raise-continuable ,con))) g)))
             (((else e e* ...))
              (values `(begin ,e ,@e*) #f))
             ((cls . cls*) 
@@ -1441,16 +1439,12 @@
                (values (f cls e) g)))
             (others (stx-error others "invalid guard clause"))))
         (let-values (((code raisek) (f* clause*)))
-          (cps-mode
-            (if raisek
-              `((call/cc
-                  (lambda (,raisek)
-                    (,outerk 
-                      (lambda () ,code)))))
-              `(,outerk (lambda () ,code)))
-            (if raisek              
-             `(,outerk ,code)
-             code))))
+          (if raisek
+            `((call/cc
+                (lambda (,raisek)
+                  (,outerk 
+                    (lambda () ,code)))))
+            `(,outerk (lambda () ,code)))))
       (syntax-match x ()
         ((_ (con clause* ...) b b* ...)
          (id? con)
@@ -1458,11 +1452,15 @@
            (bless
              `((call/cc
                  (lambda (,outerk)
-                   (lambda ()
                      (with-exception-handler
                        (lambda (,con)
                          ,(gen-clauses con outerk clause*))
-                       (lambda () ,b ,@b*))))))))))))
+                       (lambda () 
+                         (call-with-values 
+                          (lambda () ,b ,@b*)
+                          (lambda args
+                              (,outerk (lambda ()
+                                         (apply values args))))))))))))))))
 
   (define define-enumeration-macro
     (lambda (stx) 
