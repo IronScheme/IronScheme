@@ -22,8 +22,6 @@
     (ironscheme)
     (ironscheme clr shorthand-helper)
     (ironscheme clr))
-    
-    
   
   (define-syntax define-clr-type
     (lambda (x)

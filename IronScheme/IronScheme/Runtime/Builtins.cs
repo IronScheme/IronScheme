@@ -196,6 +196,11 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Builtin("get-clr-type")]
+    public static object GetClrType(object name)
+    {
+      return GetClrType(name, new object[0]);
+    }
 
     [Builtin("get-clr-type")]
     public static object GetClrType(object name, params object[] typeargs)
@@ -270,40 +275,19 @@ namespace IronScheme.Runtime
         }
       }
 
-      return AssertionViolation("get-clr-type", "type not found",
-        Cons( name, Runtime.Cons.FromArray(typeargs)),
-        Runtime.Cons.FromList(candidates));
+      return FALSE;
+
+      //return AssertionViolation("get-clr-type", "type not found",
+      //  Cons( name, Runtime.Cons.FromArray(typeargs)),
+      //  Runtime.Cons.FromList(candidates));
     }
-
-
-    //class Adder<T>
-    //{
-    //  readonly static Func<double, double, double> doubleadder =
-    //    (x, y) => x + y;
-    //  readonly static Func<int, int, int> int32adder =
-    //    (x, y) => x + y;
-
-    //  public static readonly ITypedCallable<T, T, T> Result;
-
-    //  static Adder()
-    //  {
-    //    if (typeof(T) == typeof(int))
-    //    {
-    //      Result = (ITypedCallable<T, T, T>)(object)int32adder;
-    //    }
-    //    else if (typeof(T) == typeof(double))
-    //    {
-    //      Result = (ITypedCallable<T, T, T>)(object)doubleadder;
-    //    }
-    //  }
-    //}
 
     [Builtin]
     public static object Typeof(object o)
     {
       if (o == null)
       {
-        return typeof(Cons);
+        return typeof(object);
       }
       return o.GetType();
     }
@@ -333,57 +317,6 @@ namespace IronScheme.Runtime
       {
         return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase).Replace("file:\\", "").Replace("file:", "");
       }
-    }
-
-    /// <summary>
-    /// Displays the license of IronScheme.
-    /// </summary>
-//    [Builtin]
-//    public static object License()
-//    {
-//      return Display(@"Microsoft Public License (Ms-PL)
-//================================
-//
-//This license governs use of the accompanying software. If you use the software, you accept this license. If you do not accept the license, do not use the software.
-//
-//1. Definitions
-//The terms ""reproduce,"" ""reproduction,"" ""derivative works,"" and ""distribution"" have the same meaning here as under U.S. copyright law.
-//A ""contribution"" is the original software, or any additions or changes to the software.
-//A ""contributor"" is any person that distributes its contribution under this license.
-//""Licensed patents"" are a contributor's patent claims that read directly on its contribution.
-//
-//2. Grant of Rights
-//(A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
-//(B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
-//
-//3. Conditions and Limitations
-//(A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
-//(B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software, your patent license from such contributor to the software ends automatically.
-//(C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution notices that are present in the software.
-//(D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
-//(E) The software is licensed ""as-is."" You bear the risk of using it. The contributors give no express warranties, guarantees or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement.
-//");
-//    }
-
-    [Builtin]
-    public static object StackTrace()
-    {
-      Exception ex = LastException;
-      if (ex != null)
-      {
-        if ((Console.LargestWindowWidth | Console.LargestWindowHeight) == 0)
-        {
-          Console.WriteLine(ex.StackTrace);
-        }
-        else
-        {
-          ConsoleColor old = Console.ForegroundColor;
-          Console.ForegroundColor = ConsoleColor.Red;
-          Console.WriteLine(ex.StackTrace);
-          Console.ForegroundColor = old;
-        }
-      }
-      return Unspecified;
     }
 
     [Builtin("make-guid")]
@@ -875,15 +808,6 @@ namespace IronScheme.Runtime
       return new Cons(SymbolTable.StringToObject(a.Name), a.Value);
     }
 
-    [Builtin("download-string")]
-    public static object DownloadString(object str)
-    {
-      string s = Requires<string>(str);
-      using (WebClient wc = new WebClient())
-      {
-        return wc.DownloadString(s);
-      }
-    }
 
     [Builtin("open-tcp-input/output-port")]
     public static object OpenTcpInputOutputPort(object host, object port, object maybetranscoder)
@@ -904,8 +828,7 @@ namespace IronScheme.Runtime
       {
         return ns;
       }
-    }
-    
+    }    
 
     static void RequiresCondition(bool condition, string message)
     {

@@ -200,9 +200,9 @@ digit10x  : /* empty */                   { $$ = string.Empty; }
           | digit10x digit10              { $$ = $1 + $2; }
           ;
 
-decimal10 : uinteger10 suffix manttisa      { $$ = ($2.Length == 0) ? $1 : ConvertToDouble($1 + $2); }
-          | DOT digit10 digit10x suffix     { $$ = ConvertToDouble("." + $2 + $3 + $4); }
-          | uinteger10 DOT digit10x suffix  { $$ = ConvertToDouble($1 + "." + $3 + $4); }
+decimal10 : uinteger10 suffix             { $$ = ($2.Length == 0) ? $1 : ConvertToDouble($1 + $2); }
+          | DOT digit10 digit10x suffix   { $$ = ConvertToDouble("." + $2 + $3 + $4); }
+          | uinteger10 DOT digit10x suffix { $$ = ConvertToDouble($1 + "." + $3 + $4); }
           ;
 
 ureal2    : uinteger2
@@ -213,7 +213,7 @@ ureal8    : uinteger8
           | uinteger8 SLASH uinteger8     { $$ = Fraction($1,$3); }
           ;
 
-ureal10   : decimal10
+ureal10   : decimal10 manttisa           { $$ = $1; }
           | uinteger10 SLASH uinteger10   { $$ = Fraction($1,$3); }
           ;
 

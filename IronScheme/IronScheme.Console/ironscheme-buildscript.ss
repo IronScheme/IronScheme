@@ -41,6 +41,7 @@
 (define scheme-library-files
   '(
     "psyntax/config.ss"
+    "build/control.ss"    
     "build/records/procedural.ss"
     "build/conditions.ss"
     "build/exceptions.ss"
@@ -54,7 +55,6 @@
     "build/hashtables.ss"
     "build/files.ss"
     "build/bytevectors.ss"
-    "build/control.ss"
     
     "build/eval.ss"
     "build/mutable-pairs.ss"
@@ -279,6 +279,7 @@
   '(
     ;;;
     (allow-library-redefinition                 i)
+    (with-clr-exception-handler                 i)
     (typed-lambda                               i)
     (typed-case-lambda                          i)
     (pointer+                                   i)
@@ -370,6 +371,7 @@
     (format                                     i ic)
     (fprintf                                    i)
     (printf                                     i)
+    (load-port                                  i)
     (load/args                                  i)
     (load/unload                                i)
     (make-promise                               ic)
@@ -380,8 +382,10 @@
     (eqv-hash                                   ic) ; TODO: remove
     (add-record-printer!                        irp)
     ($break                                     iu)
-    ($and                                       iu)
-    ($or                                        iu)
+    ($throw                                     iu)
+    ($try/finally                               iu)
+    ($and?                                      iu)
+    ($or?                                       iu)
     ($car                                       iu)
     ($cdr                                       iu)
     ($vector-ref                                iu)
@@ -1178,6 +1182,7 @@
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
     
+    (clr-namespaces-internal                    is-clr-int)
     (clr-using-internal                         is-clr-int)
     (clr-reference-internal                     is-clr-int)
     (clr-is-internal                            is-clr-int)
@@ -1194,7 +1199,6 @@
     
     (ironscheme-build                           i)
     (ironscheme-test                            i)
-    (stacktrace                                 i)
     (last-pair                                  i)
     (make-list                                  i)
     (unspecified?                               i)

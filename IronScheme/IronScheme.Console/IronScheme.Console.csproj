@@ -705,9 +705,12 @@
     <Content Include="ironscheme\fsm-cond-helpers.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ironscheme\clr-cond.sls">
+    <Content Include="ironscheme\clr\dynamic.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="ironscheme\io.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\linq3.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -772,6 +775,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="lib\diff.sls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\smart-curry.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="playground\diff.sps" />

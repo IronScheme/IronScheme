@@ -887,10 +887,10 @@
               r))]))
               
   (define/contract (even? n:integer)
-    (= 0 (mod n 2)))
+    (zero? (mod n 2)))
 
   (define/contract (odd? n:integer)
-    (= 1 (mod n 2)))
+    (not (zero? (mod n 2))))
   
   (define/contract (max a:real . rest:real)
     (fold-left 
@@ -912,45 +912,27 @@
       a 
       rest))   
     
-  (define (gcd . nums)
-    (case (length nums)
-      [(0) 0]
-      [(1)
-        (let ((n (car nums)))
-          (unless (integer? n)
-            (assertion-violation 'gcd "not an integer" n))
-          (abs n))]
-      [(2)
-        (let ((a (car nums))(b (cadr nums)))
-          (unless (integer? a)
-            (assertion-violation 'gcd "not an integer" a))
-          (unless (integer? b)
-            (assertion-violation 'gcd "not an integer" b))
-          (if (zero? b)
+  (define/contract gcd
+    (case-lambda
+      [() 0]
+      [(a:integer) (abs a)]
+      [(a:integer b:integer) 
+        (if (zero? b)
             (abs a)
-            (abs (gcd b (mod a b)))))]
-      [else
-        (fold-left gcd (abs (car nums)) (cdr nums))]))              
+            (abs (gcd b (mod a b))))]
+      [(a:integer b:integer . rest)
+        (fold-left gcd (abs a) (cons b rest))]))
           
-  (define (lcm . nums)
-    (case (length nums)
-      [(0) 1]
-      [(1)
-        (let ((n (car nums)))
-          (unless (integer? n)
-            (assertion-violation 'lcm "not an integer" n))
-          (abs n))]
-      [(2)
-        (let ((a (car nums))(b (cadr nums)))
-          (unless (integer? a)
-            (assertion-violation 'lcm "not an integer" a))
-          (unless (integer? b)
-            (assertion-violation 'lcm "not an integer" b))
-          (if (or (zero? a)(zero? b))
-            0
-            (abs (* (/ a (gcd a b)) b))))]
-      [else
-        (fold-left lcm (abs (car nums)) (cdr nums))]))               
+  (define/contract lcm
+    (case-lambda
+      [() 1]
+      [(a:integer) a]
+      [(a:integer b:integer) 
+        (if (or (zero? a)(zero? b))
+          0
+          (abs (* (/ a (gcd a b)) b)))]
+      [(a:integer b:integer . rest)
+        (fold-left lcm (abs a) (cons b rest))]))
               
   ;; from SLIB
   (define/contract (rationalize x:real e:real) 
@@ -1000,7 +982,9 @@
     (cond
       [(rectnum? obj1)
         (expt (rectnum->complexnum obj1) obj2)]
-      [(or (complexnum? obj1) (negative? obj1))
+      [(or (complexnum? obj1) (and (negative? obj1) 
+                                   (not (and (real? obj1)
+                                             (integer? obj2)))))
         (clr-static-call Complex64 
                          Pow 
                          (real->complexnum obj1)

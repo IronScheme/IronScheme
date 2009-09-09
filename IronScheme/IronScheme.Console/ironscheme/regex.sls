@@ -25,6 +25,7 @@
     regex-unescape)
   (import 
     (rnrs)
+    (ironscheme fsm-cond)
     (ironscheme contracts)
     (ironscheme clr))
     
@@ -67,8 +68,14 @@
       (clr-call Regex Split pattern/re input)
       (clr-static-call Regex Split input pattern/re)))
     
-  (define/contract (regex-replace input:string pattern:string replacement:string)
-    (clr-static-call Regex Replace input pattern (clr-cast String replacement))) ; need cast to deal with overload
+  (define/contract (regex-replace input:string pattern/re replacement/evaluator)
+    (fsm-cond (pattern/re replacement/evaluator)
+      [(regex?  string?)    (clr-call Regex "Replace(String,String)" pattern/re input replacement/evaluator)]
+      [(string? string?)    (clr-static-call Regex "Replace(String,String,String)" input pattern/re replacement/evaluator)]
+      [(string? procedure?) (clr-static-call Regex "Replace(String,String,MatchEvaluator)" input pattern/re replacement/evaluator)]
+      [(regex?  procedure?) (clr-call Regex "Replace(String,MatchEvaluator)" pattern/re input replacement/evaluator)]
+      [else 
+        (assertion-violation 'regex-replace "not valid arguments" pattern/re replacement/evaluator)]))
 
   (define/contract (regex-escape input:string)
     (clr-static-call Regex Escape input))

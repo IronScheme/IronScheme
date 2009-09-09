@@ -11,6 +11,7 @@
 
 (library (ironscheme clr)
   (export
+    clr-namespaces
     clr-static-event-add!
     clr-static-event-remove!
     clr-event-add!
@@ -33,12 +34,28 @@
     clr-indexer-set!
     clr-new
     clr-new-array
+    clr-guard
     pinvoke-call
     )
   (import
     (rnrs)
+    (only (ironscheme) with-clr-exception-handler)
     (ironscheme clr helpers)
     (ironscheme clr internal))
+    
+  (define-syntax clr-namespaces
+    (syntax-rules ()
+      [(_) 
+        (clr-namespaces-internal)]))    
+    
+  (define-syntax clr-guard
+    (syntax-rules ()
+      [(_ [var cls ...] b b* ...)
+        (with-clr-exception-handler
+          (lambda (var)
+            (cond cls ...))
+          (lambda ()
+            b b* ...))]))    
         
   (define-syntax pinvoke-call
     (lambda (x)

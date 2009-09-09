@@ -31,7 +31,7 @@
     (ironscheme clr))
     
   (define/contract (string-split str:string . del:string)
-    (clr-call String "Split(String[])" str (list->vector del) 'none))  
+    (clr-call String "Split(String[],StringSplitOptions)" str (list->vector del) 'none))  
     
   (define/contract (string-join del:string strs:list)
     (clr-static-call String Join del (list->vector strs)))  

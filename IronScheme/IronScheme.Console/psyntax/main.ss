@@ -24,6 +24,7 @@
     trace-printer
     command-line
     load
+    load-port
     load/args
     load/unload
     ironscheme-build
@@ -40,8 +41,8 @@
     (rnrs io simple)
     (rnrs io ports)
     (rnrs lists)
-    (only (rnrs conditions) serious-condition?)
-    (only (rnrs exceptions) raise)
+    (only (rnrs conditions) serious-condition? condition?)
+    (only (rnrs exceptions) raise raise-continuable with-exception-handler)
     (psyntax compat)
     (psyntax config)
     (psyntax internal)
@@ -116,15 +117,14 @@
       (lambda (k)
         (with-exception-handler
           (lambda (e)
-            (let ((serious? (or (serious-condition? e) (system-exception? e))))
+            (let ((serious? (or (serious-condition? e) (system-exception? e) (not (condition? e)))))
               (parameterize ((foreground-color (if serious? 'red 'yellow))
                              (current-output-port (current-error-port)))
                 (when serious?
                   (display "Unhandled exception during evaluation:\n"))
                 (display e)
                 (newline))
-              (if serious?
-                (k))))
+              (k)))
           (lambda ()
             (parameterize ([allow-library-redefinition #t])
               (eval x (interaction-environment))))))))
@@ -143,7 +143,29 @@
     
   (define (compile->closure filename)
     (load-r6rs-top-level filename 'closure))
-  
+    
+  (define (load-port port . args)
+    (load-port-r6rs-top-level port #f 'load args)
+    (void))
+    
+  (define (load-port-r6rs-top-level port close-port? how args)
+      (let ((x* (let f ()
+                  (let ((x (read-annotated port)))
+                     (if (eof-object? x) 
+                         '()
+                         (cons x (f)))))))
+        (when close-port?
+          (close-input-port port))                         
+        (case how
+          ((closure)   (pre-compile-r6rs-top-level x*))
+          ((load)      
+            (parameterize ([command-line (cons (format "~a" port) (map (lambda (x) (format "~a" x)) args))])
+              ((compile-r6rs-top-level x*))))
+          ((compile)   
+              (begin 
+					      (compile-r6rs-top-level x*) ; i assume this is needed
+					      (serialize-all serialize-library compile-core-expr))))))
+    
   (define (load-r6rs-top-level filename how . args)
     (parameterize ([library-path (local-library-path filename)])
       (let ((x* 
@@ -236,6 +258,8 @@
     (void))
   (set-symbol-value! 'assertion-violation assertion-violation)
   (set-symbol-value! 'raise raise)
+  (set-symbol-value! 'raise-continuable raise-continuable)
+  (set-symbol-value! 'with-exception-handler with-exception-handler)
   (set-symbol-value! 'emacs-mode? emacs-mode?)
   (set-symbol-value! 'stacktrace-enable? display-stacktrace)
   

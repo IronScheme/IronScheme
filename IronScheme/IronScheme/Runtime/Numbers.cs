@@ -496,7 +496,6 @@ namespace IronScheme.Runtime
       {
         var i = (BigInteger)obj;
         return i < 0 ? double.NegativeInfinity : double.PositiveInfinity;
-        //return IsTrue(IsPositive(obj)) ? double.PositiveInfinity : double.NegativeInfinity;
       }
     }
 
@@ -628,17 +627,6 @@ namespace IronScheme.Runtime
         {
           return new ComplexFraction((Fraction)c.Real, (Fraction)c.Imag);
         }
-      }
-      if (obj is long)
-      {
-        Debugger.Break();
-        BigInteger r = (BigInteger)(long)obj;
-        int ir;
-        if (r.AsInt32(out ir))
-        {
-          return ir;
-        }
-        return r;
       }
       if (obj is Fraction)
       {

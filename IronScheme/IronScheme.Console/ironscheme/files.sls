@@ -37,6 +37,9 @@
     get-temp-path
     path-rooted?
     path-has-extension?
+    
+    invalid-filename-characters
+    invalid-path-characters
     )
     
   (import 
@@ -45,6 +48,7 @@
     (ironscheme clr))
     
   (clr-using System.IO)
+ 
     
   (define/contract file-copy
     (case-lambda
@@ -132,7 +136,14 @@
     (clr-static-call Path IsPathRooted path))    
 
   (define/contract (path-has-extension? path:string)
-    (clr-static-call Path HasExtension path))    
+    (clr-static-call Path HasExtension path))  
+    
+  (define (invalid-filename-characters)
+    (string->list
+      (clr-new String (clr-static-call Path GetInvalidFileNameChars))))
 
+  (define (invalid-path-characters)
+    (string->list
+      (clr-new String (clr-static-call Path GetInvalidPathChars))))
     
 )

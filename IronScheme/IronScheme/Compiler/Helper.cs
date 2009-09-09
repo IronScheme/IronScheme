@@ -18,12 +18,13 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using IronScheme.Runtime;
 using Microsoft.Scripting.Math;
+using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
   static class Helper
   {
-    static Regex expnum = new Regex(@"^(?<head>-?\d+)e(?<tail>-?\d+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+    static Regex expnum = new Regex(@"^(?<head>-?((\d+\.?)|(\d*\.\d+)))e(?<tail>-?\d+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
     public static object ParseReal(string s)
     {
@@ -76,39 +77,13 @@ namespace IronScheme.Compiler
       }
     }
 
-    static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    static Regex escapes = new Regex(@"\\[ntr\\""]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    //static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    static Regex escapes = new Regex(@"\\(([ntr\\""])|(x[\da-f]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static string CleanString(string input)
     {
       input = input.Substring(1, input.Length - 2);
-
-      input = unichar.Replace(input, delegate(Match m)
-      {
-        string s = m.Value;
-        s = s.Substring(2, s.Length - 3);
-        int iv = int.Parse(s, NumberStyles.HexNumber);
-        return ((char)iv).ToString();
-      });
-
-      input = escapes.Replace(input, delegate(Match m)
-      {
-        string s = m.Value;
-
-        switch (s[1])
-        {
-          case 'n':
-            return "\n";
-          case 't':
-            return "\t";
-          case 'r':
-            return "";
-          case '"':
-            return "\"";
-        }
-        return s;
-      });
-
+      
       input = input.Replace("\r", "");
 
       input = ProcessStringContinuations(input);
@@ -121,6 +96,21 @@ namespace IronScheme.Compiler
         {
           case '\\':
             return "\\";
+          case 'n':
+            return "\n";
+          case 't':
+            return "\t";
+          case 'r':
+            return "";
+          case '"':
+            return "\"";
+          case 'x':
+            {
+              string ss = m.Value;
+              ss = ss.Substring(2, s.Length - 3);
+              int iv = int.Parse(ss, NumberStyles.HexNumber);
+              return ((char)iv).ToString();
+            }
         }
         return s;
       });
@@ -222,7 +212,7 @@ namespace IronScheme.Compiler
             
             if (((utf32 < 0) || (utf32 > 1114111)) || ((utf32 >= 55296) && (utf32 <= 57343)))
             {
-              Runtime.Builtins.LexicalError("not a valid Unicode value", utf32);
+              throw new SyntaxErrorException(string.Format("not a valid Unicode value: {0}", utf32));
             }
 
             output = char.ConvertFromUtf32(utf32);
@@ -231,7 +221,7 @@ namespace IronScheme.Compiler
           {
             if (input.Length != 3)
             {
-              Builtins.LexicalError("unknown escape sequence", input);
+              throw new SyntaxErrorException(string.Format("unknown escape sequence: {0}", input));
             }
             output = input[2].ToString();
           }

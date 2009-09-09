@@ -41,7 +41,8 @@
 
  (define (library-version-mismatch-warning name depname filename)
     (fprintf (current-error-port)
-        "WARNING: library ~s has an inconsistent dependency on library ~s; file ~s will be recompiled from source.\n"
+        "WARNING: library ~s has an inconsistent dependency on library ~s; \
+         file ~s will be recompiled from source.\n"
        name depname filename))
 
   (define (library-stale-warning name filename)

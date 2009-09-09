@@ -338,9 +338,9 @@ namespace IronScheme.Runtime
         {
           return IOPortViolation("read", ex.Message, port);
         }
-        catch (Condition)
+        catch (SyntaxErrorException ex)
         {
-          throw;
+          return LexicalError(ex.Message, ex.SourceUnit.ToString());
         }
       }
     }

@@ -14,7 +14,18 @@
     when
     unless
     do
-    case-lambda)
+    case-lambda
     
-  (import (rnrs control))
+    dynamic-wind)
+    
+  (import 
+    (except (rnrs) dynamic-wind)
+    (ironscheme contracts)
+    (ironscheme unsafe))
+    
+  (define/contract (dynamic-wind in:procedure proc:procedure out:procedure)
+    (in)
+    ($try/finally (proc)
+                  (out)))
+
 )

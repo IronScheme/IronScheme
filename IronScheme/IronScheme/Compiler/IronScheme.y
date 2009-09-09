@@ -54,7 +54,7 @@ static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
   }
   return new SourceSpan(
     new SourceLocation(1, start.sLin, start.sCol + 1),
-    new SourceLocation(1, end.eLin, ecol));
+    new SourceLocation(1, Math.Max(end.eLin, start.sLin), Math.Max(ecol, start.eCol + 1)));
 }
 
 protected override SourceSpan GetLocation(gppg.LexLocation loc)
@@ -87,9 +87,9 @@ static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
 static object MakeNumber(string input)
 {
   object n = Builtins.StringToNumber(input);
-  if (!Builtins.IsTrue(n))
+  if (n == Builtins.FALSE)
   {
-    Builtins.LexicalError("number could not be parsed", input);
+    throw new SyntaxErrorException(string.Format("number could not be parsed: {0}", input));
   }
   return n;
 }

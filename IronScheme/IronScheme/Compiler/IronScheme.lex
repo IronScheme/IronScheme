@@ -117,7 +117,7 @@ digit10                {digit}
 digit16                {digit10}|[a-fA-F]
 
 letter                 [[:IsLetter:]]
-idescape               ("\\x"{digit16}+";")
+idescape               ("\\x"({digit16})+";")
 idinitial              ("->"|({letter})|{idescape}|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
 identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
@@ -260,18 +260,18 @@ bad_atoms              {atoms}{but_delimiter}+
 
 {good_dot}           { yyless(1); return Make(Tokens.DOT); }
 
-{bad_dot}             { Errors.Add(SourceUnit, string.Format("bad dot|{0}", yytext), 
+{bad_dot}             { throw new SyntaxErrorException(string.Format("bad dot|{0}", yytext) , SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_id}             { Errors.Add(SourceUnit, string.Format("bad identifier|{0}", yytext), 
+{bad_id}             {  throw new SyntaxErrorException(string.Format("bad identifier|{0}", yytext), SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_atoms}          { Errors.Add(SourceUnit, string.Format("bad boolean|{0}", yytext), 
+{bad_atoms}          {  throw new SyntaxErrorException(string.Format("bad boolean|{0}", yytext), SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_number}          { Errors.Add(SourceUnit, string.Format("bad number|{0}", yytext), 
+{bad_number}          {  throw new SyntaxErrorException(string.Format("bad number|{0}", yytext), SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_char}            { Errors.Add(SourceUnit, string.Format("bad char|{0}", yytext), 
+{bad_char}            {  throw new SyntaxErrorException(string.Format("bad char|{0}", yytext), SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 
-.                     { Errors.Add(SourceUnit, string.Format("bad input|{0}", yytext), 
+.                     {  throw new SyntaxErrorException(string.Format("bad input|{0}", yytext), SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 
 

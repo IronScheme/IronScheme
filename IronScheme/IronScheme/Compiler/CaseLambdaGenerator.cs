@@ -80,7 +80,7 @@ namespace IronScheme.Compiler
     {
       Cons lambdas = args as Cons;
 
-      int arlen = lambdas.Length;
+      int arlen = lambdas == null ? 0 : lambdas.Length;
 
       if (arlen == 1)
       {
