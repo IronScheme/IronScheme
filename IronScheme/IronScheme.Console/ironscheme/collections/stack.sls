@@ -26,37 +26,37 @@
     (rnrs)
     (ironscheme clr))
 
-  (clr-using system.collections)
+  (clr-using System.Collections)
   
   (define (make-stack)
-    (clr-new stack))
+    (clr-new Stack))
     
   (define (stack? o)
-    (clr-is stack o))
+    (clr-is Stack o))
   
   (define (stack-clear! s)
-    (clr-call stack clear s))
+    (clr-call Stack Clear s))
   
   (define (stack-contains? s o)
-    (clr-call stack contains s o))
+    (clr-call Stack Contains s o))
     
   (define (stack-peek s)
-    (clr-call stack peek s))
+    (clr-call Stack Peek s))
   
   (define (stack-pop! s)
-    (clr-call stack pop s))
+    (clr-call Stack Pop s))
   
   (define (stack-push! s o)
-    (clr-call stack push s o))
+    (clr-call Stack Push s o))
     
   (define (stack->vector s)
-    (clr-call stack toarray s))
+    (clr-call Stack ToArray s))
     
   (define (stack-clone s)
-    (clr-call stack clone s))
+    (clr-call Stack Clone s))
     
   (define (stack-count s)
-    (clr-prop-get stack count s))
+    (clr-prop-get Stack Count s))
   
   (define (stack-isempty? s)
     (= (stack-count s) 0))    

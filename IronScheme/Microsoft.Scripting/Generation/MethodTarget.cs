@@ -108,7 +108,7 @@ namespace Microsoft.Scripting.Generation {
                     ReflectionUtils.FormatSignature(new System.Text.StringBuilder(), Method)));
 #endif
             } catch (TargetInvocationException tie) {
-                throw ExceptionHelpers.UpdateForRethrow(tie.InnerException);
+                throw tie.InnerException;
             }
 
             //This is only used to support explicit Reference arguments

@@ -250,6 +250,13 @@ namespace IronScheme.Compiler
       readonly CodeBlock root;
       readonly Dictionary<Variable, int> references = new Dictionary<Variable, int>();
 
+      static bool CanAlias(Variable here, Variable there)
+      {
+        var sameblock = here.Block == there.Block;
+        var assigned = Generator.assigns.ContainsKey(there.Name);
+        return here.Type == there.Type && sameblock && !assigned && !there.Lift;
+      }
+
       public RemoveTemporaries(CodeBlock root)
       {
         this.root = root;
@@ -264,14 +271,17 @@ namespace IronScheme.Compiler
             if (node.Value is BoundExpression)
             {
               var be = node.Value as BoundExpression;
-              if (be.Variable.Block != node.Variable.Block || Generator.assigns.ContainsKey(be.Variable.Name))
+              if (be.Variable.Block != node.Variable.Block || Generator.assigns.ContainsKey(be.Variable.Name) || be.Type != node.Variable.Type)
               {
                 return base.Walk(node);
               }
             }
             if (node.Variable.AssumedValue == null)
             {
-              node.Variable.AssumedValue = node.Value;
+              if (node.Value.Type == node.Variable.Type)
+              {
+                node.Variable.AssumedValue = node.Value;
+              }
             }
           }
           return base.Walk(node);
@@ -281,22 +291,6 @@ namespace IronScheme.Compiler
       // assign aliasing
       class Pass1 : DeepWalker
       {
-        static bool CanAlias(Variable here, Variable there)
-        {
-          var cb = here.Block;
-          do
-          {
-            if (cb == there.Block)
-            {
-              return true;
-            }
-            cb = cb.Parent;
-          }
-          while (cb != null);
-
-          return false;
-        }
-
         protected override bool Walk(BoundExpression node)
         {
           BoundExpression e = node;

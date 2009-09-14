@@ -25,6 +25,7 @@
     constructor?
     method-params
     method-invoke
+    method-contains-generic-parameters?
     param-name
     param-type
     method-static?
@@ -69,7 +70,10 @@
   (define (symbol/symbol-list? obj)
     (or 
       (symbol? obj)
-      (and (list? obj) (for-all symbol? obj))))      
+      (and (list? obj) (for-all symbol? obj)))) 
+      
+  (define/contract (method-contains-generic-parameters? meth:method)
+    (clr-prop-get MethodBase ContainsGenericParameters meth))          
 
   (define/contract (method-params meth:method)
     (vector->list (clr-call MethodBase GetParameters meth)))

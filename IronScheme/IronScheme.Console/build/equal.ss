@@ -34,9 +34,9 @@
   (define-record-type box (fields (mutable content box-content set-box-content!)))
   
   (define random
-    (let ((rg (clr-new System.Random)))
+    (let ((rg (clr-new Random)))
       (lambda (k)
-        (clr-call System.Random Next rg k))))    
+        (clr-call Random Next rg k))))    
 
   (define (union-find ht x y)
     (import UNSAFE)

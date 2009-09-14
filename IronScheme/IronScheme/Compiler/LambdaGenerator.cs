@@ -32,6 +32,7 @@ namespace IronScheme.Compiler
       NameHint = SymbolId.Empty;
       cb.Filename = LocationHint;
       cb.Parent = c;
+      cb.Source = new Cons(SymbolTable.StringToObject("lambda"), args);
 
       object arg = Builtins.First(args);
 

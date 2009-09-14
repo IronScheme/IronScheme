@@ -38,7 +38,7 @@
     
   (import 
     (ironscheme clr)
-    (except (rnrs) 
+    (except (ironscheme) 
       bitwise-if 
       bitwise-copy-bit 
       bitwise-bit-field 
@@ -63,13 +63,15 @@
   (define (bignum? obj)
     (clr-is BigInteger obj))      
     
-  (define (->bignum ei)
-    (cond
-      [(bignum? ei) ei]
-      [(fixnum? ei) 
-        (clr-static-call BigInteger "Create(System.Int32)" ei)]
-      [else
-        (assertion-violation #f "not a exact integer" ei)]))
+  (define ->bignum
+    (typed-lambda (ei)
+      ((Object) BigInteger)
+      (cond
+        [(bignum? ei) ei]
+        [(fixnum? ei) 
+          (clr-static-call BigInteger (Create Int32) ei)]
+        [else
+          (assertion-violation #f "not a exact integer" ei)])))
         
   (define (bitwise-not ei)
     (exact (clr-static-call BigInteger 

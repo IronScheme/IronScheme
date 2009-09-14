@@ -53,51 +53,45 @@
   
   (define-syntax ffi-callout
     (lambda (x)
-      (define (->string id) 
-        (symbol->string (syntax->datum id)))
       (syntax-case x ()
         [(_ ret (args ...))
-          (with-syntax (((args ...) (map ->string #'(ret args ...))))
-            #'(ffi-callout-internal args ...))])))
+          #'(ffi-callout-internal 'ret 'args ...)])))
             
   (define-syntax ffi-callback
     (lambda (x)
-      (define (->string id) 
-        (symbol->string (syntax->datum id)))
       (syntax-case x ()
         [(_ ret (args ...))
-          (with-syntax (((args ...) (map ->string #'(ret args ...))))
-            #'(ffi-callback-internal args ...))])))    
+         #'(ffi-callback-internal 'ret 'args ...)])))
 
   (define/contract (write-int8! ptr:pointer ofs:fixnum val:fixnum) 
-    (clr-static-call Marshal "WriteByte(IntPtr,Int32,Byte)" ptr ofs val))
+    (clr-static-call Marshal (WriteByte IntPtr Int32 Byte) ptr ofs val))
 
   (define/contract (write-int16! ptr:pointer ofs:fixnum val:fixnum) 
-    (clr-static-call Marshal "WriteInt16(IntPtr,Int32,Int16)" ptr ofs val))
+    (clr-static-call Marshal (WriteInt16 IntPtr Int32 Int16) ptr ofs val))
 
   (define/contract (write-int32! ptr:pointer ofs:fixnum val:fixnum) 
-    (clr-static-call Marshal "WriteInt32(IntPtr,Int32,Int32)" ptr ofs val))
+    (clr-static-call Marshal (WriteInt32 IntPtr Int32 Int32) ptr ofs val))
 
   (define/contract (write-int64! ptr:pointer ofs:fixnum val:integer) 
-    (clr-static-call Marshal "WriteInt64(IntPtr,Int32,Int64)" ptr ofs val))
+    (clr-static-call Marshal (WriteInt64 IntPtr Int32 Int64) ptr ofs val))
 
   (define/contract (write-intptr! ptr:pointer ofs:fixnum val:pointer) 
-    (clr-static-call Marshal "WriteIntPtr(IntPtr,Int32,IntPtr)" ptr ofs val))
+    (clr-static-call Marshal (WriteIntPtr IntPtr Int32 IntPtr) ptr ofs val))
     
   (define/contract (read-int8 ptr:pointer ofs:fixnum) 
-    (clr-static-call Marshal "ReadByte(IntPtr,Int32)" ptr ofs))
+    (clr-static-call Marshal (ReadByte IntPtr Int32) ptr ofs))
 
   (define/contract (read-int16 ptr:pointer ofs:fixnum) 
-    (clr-static-call Marshal "ReadInt16(IntPtr,Int32)" ptr ofs))
+    (clr-static-call Marshal (ReadInt16 IntPtr Int32) ptr ofs))
 
   (define/contract (read-int32 ptr:pointer ofs:fixnum) 
-    (clr-static-call Marshal "ReadInt32(IntPtr,Int32)" ptr ofs))
+    (clr-static-call Marshal (ReadInt32 IntPtr Int32) ptr ofs))
 
   (define/contract (read-int64 ptr:pointer ofs:fixnum) 
-    (clr-static-call Marshal "ReadInt64(IntPtr,Int32)" ptr ofs))
+    (clr-static-call Marshal (ReadInt64 IntPtr Int32) ptr ofs))
 
   (define/contract (read-intptr ptr:pointer ofs:fixnum) 
-    (clr-static-call Marshal "ReadIntPtr(IntPtr,Int32)" ptr ofs))
+    (clr-static-call Marshal (ReadIntPtr IntPtr Int32) ptr ofs))
     
   (define/contract (make-pointer-getter sym:symbol)
     (case sym

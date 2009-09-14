@@ -216,7 +216,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\define-clr-class.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\define-macro.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -250,9 +249,6 @@
     </None>
     <None Include="playground\grid.ss" />
     <None Include="playground\il-assembler.ss" />
-    <None Include="lib\clr.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme\linq2.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -351,10 +347,7 @@
     <None Include="ironscheme\docs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\draw-tree.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="lib\declare-type.sls">
+    <None Include="examples\declare-type.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\match.sls">
@@ -367,9 +360,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\simple-regression-testing.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="lib\testing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\tiny-talk.sls">
@@ -780,7 +770,13 @@
     <Content Include="lib\smart-curry.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="isc.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="playground\diff.sps" />
+    <Content Include="srfitest.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="placeholder.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

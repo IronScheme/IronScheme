@@ -290,10 +290,10 @@
     (not (flinfinite?* fl)))
     
   (define-fl* (flinfinite? fl)
-    (clr-static-call Double isinfinity fl))
+    (clr-static-call Double IsInfinity fl))
     
   (define-fl (flnan? fl)
-    (clr-static-call Double isnan fl))    
+    (clr-static-call Double IsNaN fl))    
     
   (define-fl (flsin fl)
     (clr-static-call Math Sin fl))
@@ -346,19 +346,19 @@
     (clr-static-call Math Pow fl n))    
     
   (define-fl (flceiling fl)
-    (clr-static-call Math "Ceiling(Double)" fl))    
+    (clr-static-call Math (Ceiling Double) fl))    
 
   (define-fl* (flfloor fl)
-    (clr-static-call Math "Floor(Double)" fl))    
+    (clr-static-call Math (Floor Double) fl))    
 
   (define-fl (fltruncate fl)
-    (clr-static-call Math "Truncate(Double)" fl))    
+    (clr-static-call Math (Truncate Double) fl))    
 
   (define-fl (flround fl)
-    (clr-static-call Math "Round(Double)" fl))    
+    (clr-static-call Math (Round Double) fl))    
     
   (define-fl (flabs fl)
-    (clr-static-call Math "Abs(Double)" fl)) 
+    (clr-static-call Math (Abs Double) fl)) 
     
   (define-fl (flpositive? r)
     ($fl<? 0.0 r))

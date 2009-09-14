@@ -40,7 +40,7 @@
       [(proc)
         (queue-work-item proc #f)]
       [(proc:procedure state) 
-        (clr-static-call Threadpool QueueUserWorkitem proc state)]))
+        (clr-static-call ThreadPool QueueUserWorkItem proc state)]))
       
   (define/contract (thread-sleep dur:fixnum)
     (clr-static-call Thread Sleep (clr-cast Int32 dur)))      

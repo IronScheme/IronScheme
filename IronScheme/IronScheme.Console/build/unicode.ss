@@ -116,19 +116,19 @@
                                       chr)))
     
   (define/contract (char-alphabetic? chr:char)
-    (clr-static-call Char "IsLetter(Char)" chr))               
+    (clr-static-call Char (IsLetter Char) chr))               
 
   (define/contract (char-numeric? chr:char)
-    (clr-static-call Char "IsDigit(Char)" chr))               
+    (clr-static-call Char (IsDigit Char) chr))               
 
   (define/contract (char-whitespace? chr:char)
-    (clr-static-call Char "IsWhiteSpace(Char)" chr))               
+    (clr-static-call Char (IsWhiteSpace Char) chr))               
 
   (define/contract (char-upper-case? chr:char)
-    (clr-static-call Char "IsUpper(Char)" chr)) 
+    (clr-static-call Char (IsUpper Char) chr)) 
     
   (define/contract (char-lower-case? chr:char)
-    (clr-static-call Char "IsLower(Char)" chr)) 
+    (clr-static-call Char (IsLower Char) chr)) 
     
   (define/contract (char-title-case? chr:char)
     (case chr
@@ -137,7 +137,7 @@
         (eqv? chr (char-titlecase chr))]))
         
   (define/contract (char-general-category chr:char)
-    (case (clr-static-call Char "GetUnicodeCategory(Char)" chr)
+    (case (clr-static-call Char (GetUnicodeCategory Char) chr)
       [(closepunctuation)          'Pe]
       [(connectorpunctuation)      'Pc]
       [(control)                   'Cc]
@@ -182,7 +182,7 @@
     (syntax-rules ()
       [(_ a b)
         (clr-call CompareInfo 
-                  "Compare(String,String,CompareOptions)" 
+                  (Compare String String CompareOptions)
                   compare-info 
                   (->string a) 
                   (->string b) 

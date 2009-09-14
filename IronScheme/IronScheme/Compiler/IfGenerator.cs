@@ -95,6 +95,7 @@ namespace IronScheme.Compiler
       if (testexp.Type != typeof(bool))
       {
         testexp = Ast.SimpleCallHelper(Builtins_IsTrue, testexp);
+        //testexp = Ast.NotEqual(Ast.Constant(false), testexp);
       }
 
       return Ast.Condition(testexp, t, e);

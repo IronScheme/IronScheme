@@ -51,8 +51,7 @@
         [(_ (id ...) ((pred ...) expr) ...)
           #'(clr-cond (id ...) ((pred ...) expr) ... (else #f))])))
 
-  (define-syntax clr-cond-aux
-    (generator #f))
+  (define-syntax clr-cond-aux (fsm-cond-transformer #f))
     
   (define (clr-call-targets type meth argtypes)
     (let ((len  (length argtypes))
@@ -96,11 +95,13 @@
           [(property? m)
             (if (null? args)
                 (property-get-value m instance '())
-                (property-set-value m instance '() (car args)))]
+                (begin (property-set-value m instance '() (car args))
+                       (void)))]
           [(field? m)
             (if (null? args)
                 (field-get-value m instance)
-                (field-set-value m instance (car args)))]))))
+                (begin (field-set-value m instance (car args))
+                       (void)))]))))
     
   (define-syntax clr-dynamic
     (lambda (x)
@@ -108,84 +109,126 @@
         [(_ instance mem arg ...)
           #'(clr-dynamic-internal instance 'mem arg ...)])))   
           
-  (define (find-clr-type namespaces type)
-    (let ((t (symbol->string type)))
-      (exists get-clr-type 
-              (cons type 
-                    (map (lambda (ns) 
-                           (string->symbol 
-                              (string-append ns "." t)))
-                         namespaces)))))
-                         
   (define (generate-method-sig meth argtypes)
-    (string-append meth "(" (string-join "," argtypes) ")"))
+    `(,(string->symbol meth) . ,(map type-fullname argtypes)))
+
+  (define (type-and-namespace type ns)
+    (if (zero? (string-length ns))
+        type
+        (string-append ns "." type)))
+    
+  (define get-type
+    (case-lambda
+      [(name)
+        (get-type name '())]
+      [(name ns)
+        (or (exists
+              (lambda (ns)
+                (let ((t (clr-static-call IronScheme.Compiler.ClrGenerator GetTypeFast (type-and-namespace name ns))))
+                  (if (null? t) #f t)))
+              (cons "" ns))
+            (assertion-violation 'get-type "type not found" name ns))]
+      [(name ns . args)
+        (let* ((gt  args)
+               (len (length gt))
+               (t   (get-type (string-append name "`" (number->string len)) ns)))
+          (clr-call Type (MakeGenericType Type[]) t (list->vector gt)))]))               
+            
+  (define-syntax type
+    (lambda (x)
+      (syntax-case x ()
+        [(_ (class typearg ...))
+          #'(get-type (symbol->string 'class) (clr-namespaces) (type typearg) ...)]
+        [(_ class)
+          #'(type (class))])))                      
                          
-  (define (type-name/namespace type)
-    (let ((ns (type-namespace type)))
-      (if (zero? (string-length ns))
-          (type-name type)
-          (string-append ns "." (type-name type)))))
           
   (define (prepare-sigs mems)
     (iterator->list
-      (from m in mems 
+      (from m in mems
+       where (not (method-contains-generic-parameters? m)) 
        let p = (method-params m)
        let l = (length p)
        group p by l into g
        orderby (key g)
-       select (cons (key g) 
-                    (iterator->list 
-                      (from m in g 
-                       select (iterator->list 
-                                (from p in m 
-                                 select (type-name/namespace (param-type p))))))))))
+       select (cons 
+                (key g) 
+                (iterator->list 
+                  (from m in g 
+                   select (iterator->list 
+                            (from p in m 
+                             select (param-type p)))))))))
                                  
   (define (make-ids n)
-    (map syntax->datum (generate-temporaries (make-list n))))   
+    (map syntax->datum (generate-temporaries (make-list n)))) 
+    
+  (define (generate-clause p)
+    (cond
+      [(type-enum? p)
+        'System.Object?]
+      [(type-assignable-from? (get-type "System.Delegate") p)
+        'IronScheme.Runtime.Callable]
+      [(type-array? p)
+        'System.Array]
+      [else
+        (let ((n (type-fullname p)))
+          (string->symbol 
+            (if (type-valuetype? p)
+                n
+                (string-append n "?"))))]))
+            
+  (define (wrap-clause t static? cls)
+    (if static?
+        cls
+        `(if (clr-is ,t this)
+             ,cls
+             (assertion-violation 'clr-call-site "instance not matched" this ,t))))
     
   (define (generate-clauses type meth ids clauses static?)
-    (let ((t (string->symbol type)))
-      `(clr-cond ,(if static? ids (cons 'this ids))
-         ,@(map (lambda (cls)
-                  `[,(if static?
-                         (map string->symbol cls)
-                         (cons t (map string->symbol cls)))
-                    ,(if static?
-                         `(clr-static-call ,t ,(generate-method-sig meth cls) ,@ids)
-                         `(clr-call ,t ,(generate-method-sig meth cls) this ,@ids))])
-                clauses)
-         (else (assertion-violation ,meth "failed to match arguments")))))
+    (let ((t (type-fullname type)))
+      (wrap-clause t static?
+        `(clr-cond ,ids
+           ,@(map (lambda (cls)
+                    `[,(map generate-clause cls)
+                      ,(if static?
+                           `(clr-static-call ,t ,(generate-method-sig meth cls) ,@ids)
+                           `(clr-call ,t ,(generate-method-sig meth cls) this ,@ids))])
+                  clauses)
+           (else (assertion-violation ,(string-append t "::" meth) 
+                                      "failed to match arguments"
+                                      ,@ids))))))
                          
-  (define (generate-clr-call-site namespaces type meth static?)
-    (let ((t (find-clr-type namespaces type)))
-      (unless t
-        (assertion-violation 'clr-call-site "type not found" type))
-      (let* ((meth-name (symbol->string meth))
-             (mems (type-member t meth-name 'method (list 'public (if static? 'static 'instance))))
-             (sigs (prepare-sigs mems)))
-        (eval (cons 'case-lambda
-                    (map (lambda (sig) 
-                           (let* ((ids (make-ids (car sig)))
-                                  (cls (generate-clauses (type-name/namespace t) 
-                                                         meth-name 
-                                                         ids 
-                                                         (cdr sig) 
-                                                         static?)))
-                            (if static?
-                                `[(,@ids) ,cls]                                  
-                                `[(this ,@ids) ,cls])))
-                         sigs))
-              (environment '(ironscheme) '(ironscheme clr) '(ironscheme clr dynamic))))))
+  (define (generate-clr-call-site type meth static?)
+    (let* ((meth-name (symbol->string meth))
+           (mems (type-member type meth-name 'method (list 'public (if static? 'static 'instance))))
+           (sigs (prepare-sigs mems)))
+      (when (null? sigs)
+        (assertion-violation 'clr-call-site "no candidates found for method" meth type))
+      (eval (cons 'case-lambda
+                  (map (lambda (sig) 
+                         (let* ((ids (make-ids (car sig)))
+                                (cls (generate-clauses type
+                                                       meth-name 
+                                                       ids 
+                                                       (cdr sig) 
+                                                       static?)))
+                          (if static?
+                              `[(,@ids) ,cls]                                  
+                              `[(this ,@ids) ,cls])))
+                       sigs))
+            (environment '(ironscheme) '(ironscheme clr) '(ironscheme clr dynamic)))))
+              
+            
     
   (define-syntax clr-call-site
     (syntax-rules ()
-      [(_ type meth)
-        (generate-clr-call-site (clr-namespaces) 'type 'meth #f)]))
+      [(_ clr-type meth)
+        (generate-clr-call-site (type clr-type) 'meth #f)]))
         
   (define-syntax clr-static-call-site
     (syntax-rules ()
-      [(_ type meth)
-        (generate-clr-call-site (clr-namespaces) 'type 'meth #t)])))
+      [(_ clr-type meth)
+        (generate-clr-call-site (type clr-type) 'meth #t)])))
     
 
           

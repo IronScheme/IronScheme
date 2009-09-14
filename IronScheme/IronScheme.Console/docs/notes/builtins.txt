@@ -78,13 +78,7 @@ string-downcase
 
 (rnrs hashtables):
 
-hashtable-copy
 hashtable-entries [6]
-hashtable-equivalence-function [3]
-hashtable-hash-function [3]
-hashtable-keys
-hashtable-mutable?
-make-hashtable [1]
 
 (rnrs io ports):
 

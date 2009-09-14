@@ -72,33 +72,16 @@ namespace IronScheme.Hosting
 &message:             continuations cannot be used in this way, sorry :(";
       }
 #endif
-      if (exception is NotSupportedException)
-      {
-        return @"&implementation-restriction
-&message:             " + exception.Message;
-      }
 
       if (exception is ThreadAbortException)
       {
         return "evaluation aborted";
       }
-      if (exception is InvalidCastException)
-      {
-        return @"&assertion
-&message:             " + exception.Message;
-      }
-      if (exception is Runtime.R6RS.Condition)
-      {
-        var w = new IronScheme.Runtime.StringWriter();
-        "(display {0} {1})".Eval(exception, w);
-        return w.GetBuffer();
-      }
-      return string.Format(@"&clr
-&who:                 {3}.{2}
-&clr-type:            {0}
-&message:             {1}", exception.GetType(), exception.Message, exception.TargetSite.Name,
-                        exception.TargetSite.DeclaringType == null ? "<anon>" : exception.TargetSite.DeclaringType.Name);
 
+      var w = new IronScheme.Runtime.StringWriter();
+      w.WriteLine("Unhandled CLR exception reading input:");
+      "(display {0} {1})".Eval(exception, w);
+      return w.GetBuffer();
     }
 
     #region Abstract
@@ -175,28 +158,6 @@ namespace IronScheme.Hosting
     internal LanguageContext GetLanguageContext()
     {
       return LanguageContext;
-    }
-
-    public override Microsoft.Scripting.Hosting.ErrorSink GetCompilerErrorSink()
-    {
-      return new ErrorSink();
-    }
-
-    class ErrorSink : Microsoft.Scripting.Hosting.ErrorSink
-    {
-      public override void Add(SourceUnit sourceUnit, string message, SourceSpan span, int errorCode, Severity severity)
-      {
-        base.Add(sourceUnit, message, span, errorCode, severity);
-        //if (sourceUnit.Kind == SourceCodeKind.InteractiveCode && message != "unexpected EOF")
-        //{
-        //  throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
-        //}
-        //else
-        //if (sourceUnit.Kind != SourceCodeKind.InteractiveCode)
-        //{
-        //  throw new SyntaxErrorException(message, sourceUnit, span, errorCode, severity);
-        //}
-      }
     }
   }
 }

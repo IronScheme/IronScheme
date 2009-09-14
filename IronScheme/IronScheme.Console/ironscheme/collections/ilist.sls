@@ -27,36 +27,36 @@
     (ironscheme clr)
     (ironscheme collections icollection))
 
-  (clr-using system.collections)
+  (clr-using System.Collections)
   
   (define (ilist? o)
-    (clr-is ilist o))
+    (clr-is IList o))
   
   (define (ilist-clear! s)
-    (clr-call ilist clear s))
+    (clr-call IList Clear s))
   
   (define (ilist-contains? s o)
-    (clr-call ilist contains s o))
+    (clr-call IList Contains s o))
 
   (define (ilist-indexof s o)
-    (clr-call ilist indexof s o))
+    (clr-call IList IndexOf s o))
     
   (define (ilist-insert! s n o)
-    (clr-call ilist insert s n o))
+    (clr-call IList Insert s n o))
 
   (define (ilist-add! s o)
-    (clr-call ilist add s o))
+    (clr-call IList Add s o))
   
   (define (ilist-remove! s o)
-    (clr-call ilist remove s o))
+    (clr-call IList Remove s o))
     
   (define (ilist-removeat! s n)
-    (clr-call ilist removeat s n))    
+    (clr-call IList RemoveAt s n))    
     
   (define (ilist-ref s index)
-    (clr-indexer-get ilist s index))
+    (clr-indexer-get IList s index))
 
   (define (ilist-set! s index value)
-    (clr-indexer-set! ilist s index value))
+    (clr-indexer-set! IList s index value))
 
 )

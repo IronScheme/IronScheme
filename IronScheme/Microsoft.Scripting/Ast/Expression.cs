@@ -137,6 +137,18 @@ namespace Microsoft.Scripting.Ast {
           }
           else
           {
+            if (this is UnaryExpression)
+            {
+              UnaryExpression ue = this as UnaryExpression;
+              if (ue.NodeType == AstNodeType.Convert)
+              {
+                if (ue.Operand.Type == asType)
+                {
+                  ue.Operand.Emit(cg);
+                  return;
+                }
+              }
+            }
             this.Emit(cg);  // emit as Type
             if (asType.IsValueType || !IsConstant(null) && Type != typeof(SymbolId))
             {

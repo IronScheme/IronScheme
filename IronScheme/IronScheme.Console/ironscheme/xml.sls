@@ -21,7 +21,7 @@
   (define string->xml (symbol-value 'string->xml))    
   
   (define (string-concat . args)
-    (clr-static-call System.String "Concat(Object[])" (list->vector args)))
+    (clr-static-call String (Concat Object[]) (list->vector args)))
 
 	(define ->xml
 		(letrec 

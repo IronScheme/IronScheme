@@ -172,19 +172,21 @@
   (define (bignum? obj)
     (clr-is BigInteger obj))      
     
-  (define (->bignum ei)
-    (cond
-      [(bignum? ei) ei]
-      [(fixnum? ei) 
-        (clr-static-call BigInteger "Create(Int32)" ei)]
-      [else
-        (assertion-violation #f "not a exact integer" ei)]))
+  (define ->bignum 
+    (typed-lambda (ei)
+      ((Object) BigInteger)
+        (cond
+          [(bignum? ei) ei]
+          [(fixnum? ei) 
+            (clr-static-call BigInteger (Create Int32) ei)]
+          [else
+            (assertion-violation #f "not a exact integer" ei)])))
   
   (define (get-bytes enc str)
-    (clr-call Encoding "GetBytes(String)" enc str))
+    (clr-call Encoding (GetBytes String) enc str))
 
   (define (get-string enc bv)
-    (clr-call Encoding "GetString(Byte[])" enc bv))
+    (clr-call Encoding (GetString Byte[]) enc bv))
   
   (define (byte->sbyte b)
     (let ((b (->fixnum b)))
@@ -192,15 +194,19 @@
           (fx- b 256)
           b)))
   
-  (define (->byte k)
-    (unless (fixnum? k)
-      (assertion-violation #f "not a fixnum" k))
-    (when (or (fx<? k -128) (fx>? k 255))
-      (assertion-violation #f "too big or small for octect or byte" k))
-    (clr-cast Byte (clr-cast Int32 k)))
+  (define ->byte
+    (typed-lambda (k)
+      ((Object) Byte)
+      (unless (fixnum? k)
+        (assertion-violation #f "not a fixnum" k))
+      (when (or (fx<? k -128) (fx>? k 255))
+        (assertion-violation #f "too big or small for octect or byte" k))
+      (clr-cast Byte (clr-cast Int32 k))))
     
-  (define (->fixnum b)
-    (clr-static-call Convert "ToInt32(Object)" b))      
+  (define ->fixnum
+    (typed-lambda (b)
+      ((Object) Int32)
+      (clr-static-call Convert (ToInt32 Object) b)))
   
   (define/contract make-bytevector
     (case-lambda
@@ -245,13 +251,13 @@
   (define/contract (bytevector-u8-ref bv:bytevector k)
     (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
       (assertion-violation 'bytevector-u8-ref "indexer out of bounds" bv k)) 
-    (clr-static-call Convert "ToInt32(Byte)" 
+    (clr-static-call Convert (ToInt32 Byte) 
       ($bytevector-ref bv k)))
       
   (define/contract (bytevector-u8-set! bv:bytevector k value)
     (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
       (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
-    ($bytevector-set! bv k (clr-static-call Convert "ToByte(Object)" value)))
+    ($bytevector-set! bv k (clr-static-call Convert (ToByte Object) value)))
    
   (define/contract (bytevector-s8-ref bv:bytevector k)
     (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
@@ -297,28 +303,28 @@
         [(2)
           (->fixnum 
             (clr-static-call BitConverter 
-                             "ToUInt16(Byte[],Int32)"
+                             (ToUInt16 Byte[] Int32)
                              sb
                              0))]
         [(4)
           (exact (clr-static-call BigInteger
-                                  "op_Implicit(UInt32)"
+                                  (op_Implicit UInt32)
                                   (clr-static-call BitConverter
-                                                   "ToUInt32(Byte[],Int32)"
+                                                   (ToUInt32 Byte[] Int32)
                                                    sb
                                                    0)))]
         [(8)
           (exact (clr-static-call BigInteger
-                                 "op_Implicit(UInt64)"
+                                 (op_Implicit UInt64)
                                  (clr-static-call BitConverter
-                                                  "ToUInt64(Byte[],Int32)"
+                                                  (ToUInt64 Byte[] Int32)
                                                   sb
                                                   0)))]
         [else
           (let ((data (make-bytevector (+ size 1))))
             (bytevector-copy! sb 0 data 0 size)
             (exact (clr-static-call BigInteger
-                                   "Create(Byte[])"
+                                   (Create Byte[])
                                    data)))])))
                                                    
   (define/contract (bytevector-sint-ref bv:bytevector k end size)
@@ -338,24 +344,24 @@
         [(2)
           (->fixnum 
             (clr-static-call BitConverter 
-                             "ToInt16(Byte[],Int32)"
+                             (ToInt16 Byte[] Int32)
                              sb
                              0))]
         [(4)
           (clr-static-call BitConverter
-                           "ToInt32(Byte[],Int32)"
+                           (ToInt32 Byte[] Int32)
                            sb
                            0)]
         [(8)
           (exact (clr-static-call BigInteger
-                                 "op_Implicit(Int64)"
+                                 (op_Implicit Int64)
                                  (clr-static-call BitConverter
-                                                  "ToInt64(Byte[],Int32)"
+                                                  (ToInt64 Byte[] Int32)
                                                   sb
                                                   0)))]
         [else
           (exact (clr-static-call BigInteger
-                                 "Create(Byte[])"
+                                 (Create Byte[])
                                  sb))])))
                            
   (define/contract (bytevector-uint-set! bv:bytevector k n end size)                           
@@ -370,27 +376,27 @@
         ($bytevector-set! bv k (->byte n))]
       [(2)
         (let ((data (clr-static-call BitConverter
-                                     "GetBytes(UInt16)"
+                                     (GetBytes UInt16)
                                      (clr-static-call Convert
-                                                      "ToUInt16(Object)"
+                                                      (ToUInt16 Object)
                                                       n))))
           (when (eq? end 'big)
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [(4)
         (let ((data (clr-static-call BitConverter
-                                     "GetBytes(UInt32)"
+                                     (GetBytes UInt32)
                                      (clr-static-call Convert
-                                                      "ToUInt32(Object)"
+                                                      (ToUInt32 Object)
                                                       n))))
           (when (eq? end 'big)
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [(8)
         (let ((data (clr-static-call BitConverter
-                                     "GetBytes(UInt64)"
+                                     (GetBytes UInt64)
                                      (clr-static-call Convert
-                                                      "ToUInt64(Object)"
+                                                      (ToUInt64 Object)
                                                       n))))
           (when (eq? end 'big)
             (clr-static-call Array Reverse data))
@@ -416,27 +422,27 @@
         ($bytevector-set! bv k (->byte n))]
       [(2)
         (let ((data (clr-static-call BitConverter
-                                     "GetBytes(Int16)"
+                                     (GetBytes Int16)
                                      (clr-static-call Convert
-                                                      "ToInt16(Object)"
+                                                      (ToInt16 Object)
                                                       n))))
           (when (eq? end 'big)
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [(4)
         (let ((data (clr-static-call BitConverter
-                                     "GetBytes(Int32)"
+                                     (GetBytes Int32)
                                      (clr-static-call Convert
-                                                      "ToInt32(Object)"
+                                                      (ToInt32 Object)
                                                       n))))
           (when (eq? end 'big)
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [(8)
         (let ((data (clr-static-call BitConverter
-                                     "GetBytes(Int64)"
+                                     (GetBytes Int64)
                                      (clr-static-call Convert
-                                                      "ToInt64(Object)"
+                                                      (ToInt64 Object)
                                                       n))))
           (when (eq? end 'big)
             (clr-static-call Array Reverse data))
@@ -453,10 +459,12 @@
   (define (clr-string? obj)
     (clr-is String obj))  
 
-  (define (->string str)
-    (if (clr-string? str)
-        str
-        (clr-call Object ToString str)))              
+  (define ->string 
+    (typed-lambda (str)
+      ((Object) String)
+      (if (clr-string? str)
+          str
+          (clr-call Object ToString str))))
               
   (define/contract (string->utf8 s:string)
     (get-bytes utf8 (->string s)))
@@ -571,7 +579,7 @@
                 
             
   (define (single->double s)
-    (clr-static-call Convert "ToDouble(Single)" s))  
+    (clr-static-call Convert (ToDouble Single) s))  
             
   (define (bytevector-ieee-single-ref bv k end)
     (let ((d (make-bytevector 4)))
@@ -588,15 +596,15 @@
       (clr-static-call BitConverter ToDouble d 0)))
       
   (define (bytevector-ieee-single-set! bv k value end)
-    (let* ((value (clr-static-call Convert "ToSingle(Object)" value))
-           (data  (clr-static-call BitConverter "GetBytes(Single)" value)))
+    (let* ((value (clr-static-call Convert (ToSingle Object) value))
+           (data  (clr-static-call BitConverter (GetBytes Single) value)))
       (when (eq? end 'big)
         (clr-static-call Array Reverse data))
       (bytevector-copy! data 0 bv k 4)))
       
   (define (bytevector-ieee-double-set! bv k value end)
-    (let* ((value (clr-static-call Convert "ToDouble(Object)" value))
-           (data  (clr-static-call BitConverter "GetBytes(Double)" value)))
+    (let* ((value (clr-static-call Convert (ToDouble Object) value))
+           (data  (clr-static-call BitConverter (GetBytes Double) value)))
       (when (eq? end 'big)
         (clr-static-call Array Reverse data))
       (bytevector-copy! data 0 bv k 8)))
@@ -674,22 +682,22 @@
     (bytevector-sint-set! bytevector k n (native-endianness) 8))
     
   (define (bytevector-ieee-single-native-ref bytevector k)
-    (if (not (zero? (mod k 4)))
+    (if (not (fxzero? (fxmod k 4)))
       (assertion-violation 'bytevector-ieee-single-native-ref "must be multiple of 4" k)
       (bytevector-ieee-single-ref bytevector k (native-endianness))))
     
   (define (bytevector-ieee-double-native-ref bytevector k)     
-    (if (not (zero? (mod k 8)))
+    (if (not (fxzero? (fxmod k 8)))
       (assertion-violation 'bytevector-ieee-double-native-ref "must be multiple of 8" k)
       (bytevector-ieee-double-ref bytevector k (native-endianness))))
     
   (define (bytevector-ieee-single-native-set! bytevector k x)     
-    (if (not (zero? (mod k 4)))
+    (if (not (fxzero? (fxmod k 4)))
       (assertion-violation 'bytevector-ieee-single-native-set! "must be multiple of 4" k)
       (bytevector-ieee-single-set! bytevector k x (native-endianness))))
     
   (define (bytevector-ieee-double-native-set! bytevector k x)     
-    (if (not (zero? (mod k 8)))
+    (if (not (fxzero? (fxmod k 8)))
       (assertion-violation 'bytevector-ieee-double-native-set! "must be multiple of 8" k)
       (bytevector-ieee-double-set! bytevector k x (native-endianness))))
 )

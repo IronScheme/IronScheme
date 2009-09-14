@@ -67,7 +67,7 @@ namespace Microsoft.Scripting {
     /// ScriptModule is not thread safe. Host should either lock when multiple threads could 
     /// access the same module or should make a copy for each thread.
     /// </summary>
-    public sealed class ScriptModule : IScriptModule, IMembersList, ILocalObject {
+    public sealed class ScriptModule : IScriptModule, ILocalObject {
         private readonly Scope _scope;
         private ScriptCode[] _codeBlocks;
         private ModuleContext[] _moduleContexts; // resizable
@@ -196,7 +196,7 @@ namespace Microsoft.Scripting {
                     return value;
                 }
             }
-            return OperationFailed.Value;
+            return null;
         }
 
         [SpecialName]

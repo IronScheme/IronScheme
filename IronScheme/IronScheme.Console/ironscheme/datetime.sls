@@ -65,7 +65,7 @@
       [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum)
         (clr-new DateTime year month day hour minute second (clr-cast DateTimeKind 'utc))]    
       [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum ms:fixnum)
-        (clr-new DateTime year month day hour minute second (clr-cast int32 ms) (clr-cast DateTimeKind 'utc))]))    
+        (clr-new DateTime year month day hour minute second (clr-cast Int32 ms) (clr-cast DateTimeKind 'utc))]))    
     
   (define/contract make-datetime
     (case-lambda
@@ -76,7 +76,7 @@
       [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum)
         (clr-new DateTime year month day hour minute second)]    
       [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum ms:fixnum)   
-        (clr-new DateTime year month day hour minute second (clr-cast int32 ms))]))    
+        (clr-new DateTime year month day hour minute second (clr-cast Int32 ms))]))    
       
   (define/contract make-timespan
     (case-lambda
@@ -90,13 +90,13 @@
         (clr-new TimeSpan days hours minutes seconds ms)]))    
   
   (define (now)
-    (clr-static-prop-get DateTime now))   
+    (clr-static-prop-get DateTime Now))   
 
   (define (utc-now)
     (clr-static-prop-get DateTime UtcNow))   
 
   (define (today)
-    (clr-static-prop-get DateTime today))
+    (clr-static-prop-get DateTime Today))
     
   (define/contract (datetime->utc dt:datetime)    
     (clr-call DateTime ToUniversalTime dt))
@@ -105,7 +105,7 @@
     (clr-call DateTime ToLocalTime dt))    
     
   (define/contract (difference dt1:datetime dt2:datetime)
-    (clr-static-call DateTime "op_Subtraction(DateTime,DateTime)" dt1 dt2))
+    (clr-static-call DateTime (op_Subtraction DateTime DateTime) dt1 dt2))
 
   (define/contract (time-of-day dt:datetime)
     (clr-prop-get DateTime TimeOfDay dt))

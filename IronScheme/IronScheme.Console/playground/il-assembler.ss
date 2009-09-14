@@ -62,7 +62,7 @@
     [else (assertion-violation 'get-il-gen "not supported" dm)]))
   
 (define (create-instance type . args)
-  (clr-static-call Activator "CreateInstance(Type,Object[])" type (list->vector args)))    
+  (clr-static-call Activator (CreateInstance Type Object[]) type (list->vector args)))    
 
 (define-syntax opcode
   (lambda (x)

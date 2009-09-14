@@ -1182,6 +1182,7 @@
     (syntax-dispatch ) ; only goes to $all
     (syntax-error    ) ; only goes to $all
     
+    (clr-type-of-internal                       is-clr-int)
     (clr-namespaces-internal                    is-clr-int)
     (clr-using-internal                         is-clr-int)
     (clr-reference-internal                     is-clr-int)

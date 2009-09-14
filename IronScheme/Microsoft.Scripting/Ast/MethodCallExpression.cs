@@ -177,7 +177,6 @@ namespace Microsoft.Scripting.Ast {
           //EmitLocation(cg);
           if (_instance != null && !cg.IsDynamicMethod && !IsParamsMethod()) // damn DM! // go away! // this dangerous too for now
           {
-
             if (_instance is UnaryExpression)
             {
               UnaryExpression ue = (UnaryExpression)_instance;
@@ -330,6 +329,50 @@ namespace Microsoft.Scripting.Ast {
             else if (_instance is CodeBlockExpression)
             {
               CodeBlockExpression cbe = (CodeBlockExpression)_instance;
+
+              CodeGen rcg = null;
+
+              if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
+              {
+                if (rcg == cg && !ScriptDomainManager.Options.DebugMode && HasNoCallableArgs())
+                {
+                  List<Variable> pars = new List<Variable>(cbe.Block.Parameters);
+                  for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                  {
+                    Expression argument = _arguments[arg];
+                    if (argument is BoundExpression)
+                    {
+                      var abe = argument as BoundExpression;
+                      if (abe.Variable == pars[arg])
+                      {
+                        pars[arg] = null;
+                        continue;
+                      }
+                    }
+                    Type type = _parameterInfos[arg].ParameterType;
+                    EmitArgument(cg, argument, type);
+                  }
+
+                  var ptt = pt.GetValue(cg.MethodInfo) as Type[];
+
+                  int adjust = ptt.Length - 1 - _parameterInfos.Length;
+
+                  EmitLocation(cg);
+
+                  for (int arg = 0; arg < _parameterInfos.Length; arg++)
+                  {
+                    if (pars[_parameterInfos.Length - arg - 1] != null)
+                    {
+                      cg.Emit(OpCodes.Starg_S, _parameterInfos.Length - arg + adjust);
+                    }
+                  }
+
+                  cg.Emit(OpCodes.Br, cg.startpoint);
+
+                  cg.skipreturn = true;
+                  return;
+                }
+              }
 
               Debug.Assert(_arguments.Count == _parameterInfos.Length);
               for (int arg = 0; arg < _parameterInfos.Length; arg++)

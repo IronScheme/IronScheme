@@ -168,7 +168,7 @@
                   
   (define-syntax fxabs
     (syntax-rules ()
-      [(_ e) (clr-static-call Math "Abs(Int32)" e)]))                            
+      [(_ e) (clr-static-call Math (Abs Int32) e)]))                            
             
   (define-fx (fx+ x1 x2)
     (checked ($fx+ x1 x2)))            

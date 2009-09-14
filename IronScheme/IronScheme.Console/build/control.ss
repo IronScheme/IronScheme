@@ -20,6 +20,7 @@
     
   (import 
     (except (rnrs) dynamic-wind)
+    (ironscheme clr)
     (ironscheme contracts)
     (ironscheme unsafe))
     

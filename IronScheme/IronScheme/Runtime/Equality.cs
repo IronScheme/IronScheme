@@ -26,7 +26,7 @@ namespace IronScheme.Runtime
   public static partial class BuiltinEmitters
   {
     [InlineEmitter("not")]
-    public static Expression Not(Expression[] obj)
+    public static Expression Not(params Expression[] obj)
     {
       if (obj.Length == 1)
       {
@@ -39,15 +39,16 @@ namespace IronScheme.Runtime
             return ue.Operand;
           }
         }
-        //if (e is ConditionalExpression)
-        //{
-        //  ConditionalExpression ce = (ConditionalExpression)e;
-        //  return Ast.Condition(ce.Test, ce.IfFalse, ce.IfTrue);
-        //}
+        if (e is ConditionalExpression)
+        {
+          ConditionalExpression ce = (ConditionalExpression)e;
+          return Ast.Condition(ce.Test, Not(ce.IfTrue),  Not(ce.IfFalse));
+        }
         if (e.Type == typeof(bool))
         {
           return Ast.Not(e);
         }
+        //return Ast.Equal(Ast.Constant(false), obj[0]);
         return Ast.Not(Ast.Call(IsTrue, obj[0]));
       }
       return null;

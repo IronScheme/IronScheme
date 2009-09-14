@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-
+#if FULL
 using System;
 using System.Runtime.InteropServices;
 
@@ -56,3 +56,4 @@ namespace Microsoft.Scripting.Utils {
     }
 #endif
 }
+#endif

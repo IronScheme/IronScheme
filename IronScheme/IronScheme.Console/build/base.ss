@@ -315,8 +315,12 @@
     (ironscheme clr)
     (ironscheme unsafe))
     
+    (clr-using System.Text)
+    (clr-using IronScheme.Runtime)
+    (clr-using Microsoft.Scripting)
+    
     (define (clr-string? obj)
-      (clr-is System.String obj))
+      (clr-is String obj))
 
     (define (stringbuilder? obj)
       (clr-is System.Text.StringBuilder obj))
@@ -326,30 +330,30 @@
           (stringbuilder? obj)))
   
     (define (char? obj)
-      (clr-is System.Char obj))
+      (clr-is Char obj))
       
     (define (vector? obj)
-      (clr-is System.Object[] obj))
+      (clr-is Object[] obj))
 
     (define (bytevector? obj)
-      (clr-is System.Byte[] obj))
+      (clr-is Byte[] obj))
 
     (define (symbol? obj)
-      (clr-is Microsoft.Scripting.SymbolId obj))
+      (clr-is SymbolId obj))
       
     (define (boolean? obj)
-      (clr-is System.Boolean obj))
+      (clr-is Boolean obj))
      
     (define (procedure? obj)
-      (clr-is Ironscheme.Runtime.Callable obj))  
+      (clr-is Callable obj))  
 
     (define (flonum? obj)
-      (clr-is System.Double obj))  
+      (clr-is Double obj))  
     
     (define (char->integer chr)
       (unless (char? chr)
         (assertion-violation 'char->integer "not a char" chr))
-      (clr-cast System.Int32 (clr-cast System.Char chr)))
+      (clr-cast Int32 (clr-cast Char chr)))
       
     (define/contract (integer->char num:fixnum)
       (when (or (fxnegative? num)      
@@ -357,7 +361,7 @@
                 (and (fx>? num #xd7ff)
                      (fx<? num #xe000)))
         (assertion-violation 'integer->char "not a valid unicode value" num))
-      (string-ref (clr-static-call System.Char ConvertFromUtf32 num) 0))
+      (string-ref (clr-static-call Char ConvertFromUtf32 num) 0))
       
     (define/contract make-string
       (case-lambda
@@ -366,17 +370,17 @@
         [(k:fixnum fill:char)
           (when (negative? k)
             (assertion-violation 'make-string "cannot be negative" k))        
-          (let ((str (clr-new System.String (clr-cast System.Char fill) (clr-cast System.Int32 k))))            
-            (clr-new System.Text.StringBuilder (clr-cast System.String str)))]))
+          (let ((str (clr-new String (clr-cast Char fill) (clr-cast Int32 k))))            
+            (clr-new StringBuilder (clr-cast String str)))]))
 
     (define (string-ref str k)
       (unless (and (fixnum? k) (fx>=? k 0))
         (assertion-violation 'string-ref "not a non-negative integer" k))        
       (cond
         [(clr-string? str) 
-          (clr-prop-get System.String Chars str k)]
+          (clr-prop-get String Chars str k)]
         [(stringbuilder? str) 
-          (clr-prop-get System.Text.StringBuilder Chars str k)]
+          (clr-prop-get StringBuilder Chars str k)]
         [else
           (assertion-violation 'string-set! "not a string" str)]))
             
@@ -385,7 +389,7 @@
         (assertion-violation 'string-set! "not a mutable string" str))
       (unless (and (fixnum? k) (fx>=? k 0))
         (assertion-violation 'string-set! "not a non-negative integer" k))        
-      (clr-prop-set! System.Text.StringBuilder Chars str k val))
+      (clr-prop-set! StringBuilder Chars str k val))
       
     (define (string-fill! str k fill)
       (unless (stringbuilder? str)
@@ -396,44 +400,48 @@
         (assertion-violation 'string-fill! "not a character" fill))
       (let f ((i 0))
         (unless (fx=? i k)
-          (clr-prop-set! System.Text.StringBuilder Chars str i fill)
+          (clr-prop-set! StringBuilder Chars str i fill)
           (f (fx+ i 1)))))
             
     (define (string-length str)
       (cond
         [(clr-string? str) 
-          (clr-prop-get System.String Length str)]
+          (clr-prop-get String Length str)]
         [(stringbuilder? str) 
-          (clr-prop-get System.Text.StringBuilder Length str)]
+          (clr-prop-get StringBuilder Length str)]
         [else
           (assertion-violation 'string-length "not a string" str)]))
           
-    (define (->string str)
-      (if (clr-string? str)
-          str
-          (clr-call Object ToString str)))
+    (define ->string
+      (typed-lambda (str)
+        ((Object) String)
+        (if (clr-string? str)
+            str
+            (clr-call Object ToString str))))
           
     (define/contract (string . args:char)
-      (let ((str (clr-new System.Text.StringBuilder)))
+      (let ((str (clr-new StringBuilder)))
         (let f ((args args))
           (if (null? args)
               str
               (begin
-                (clr-call System.Text.StringBuilder "Append(Char)" str (car args))
+                (clr-call StringBuilder (Append Char) str (car args))
                 (f (cdr args)))))))
           
     (define/contract (string->list str:string)
-      (clr-static-call IronScheme.Runtime.Cons FromList (->string str)))
+      (clr-static-call Cons FromList (->string str)))
       
-    (define (->mutable-string str)
-      (clr-new System.Text.StringBuilder (clr-cast System.String str)))    
+    (define ->mutable-string 
+      (typed-lambda (str)
+        ((String) StringBuilder)
+        (clr-new StringBuilder str)))    
           
     (define (string-copy str)
       (cond
         [(clr-string? str)
-          (clr-static-call System.String Copy str)]
+          (clr-static-call String Copy str)]
         [(stringbuilder? str)
-          (->mutable-string (clr-call System.Text.StringBuilder ToString str))]
+          (->mutable-string (clr-call StringBuilder ToString str))]
         [else
           (assertion-violation 'string-copy "not a string" str)]))
 
@@ -444,26 +452,26 @@
         (assertion-violation 'substring "not a non-negative integer" end))             
       (cond
         [(clr-string? str)
-          (clr-call System.String Substring str start (fx- end start))]
+          (clr-call String Substring str start (fx- end start))]
         [(stringbuilder? str)
-          (->mutable-string (clr-call System.Text.StringBuilder ToString str start (fx- end start)))]
+          (->mutable-string (clr-call StringBuilder ToString str start (fx- end start)))]
         [else
           (assertion-violation 'substring "not a string" str)]))
       
     ; probably need to be made faster  
     (define/contract (string-append . args:string)
-      (clr-static-call System.String 
-                       "Concat(String[])"
+      (clr-static-call String 
+                       (Concat String[])
                        (list->vector (map ->string args))))
                        
     (define/contract (string-format fmt:string . args)
-      (clr-static-call System.String "Format(String,Object[])" fmt (list->vector args)))                       
+      (clr-static-call String (Format String Object[]) fmt (list->vector args)))                       
     
     (define/contract (symbol->string sym:symbol)
-      (clr-static-call Microsoft.Scripting.SymbolTable IdToString sym))
+      (clr-static-call SymbolTable IdToString sym))
       
     (define/contract (string->symbol str:string)
-      (clr-static-call Microsoft.Scripting.SymbolTable StringToObject str))
+      (clr-static-call SymbolTable StringToObject str))
       
         
     (define/contract (list->vector lst:list)
@@ -492,14 +500,14 @@
         [(k:fixnum)
           (when (negative? k)
             (assertion-violation 'make-vector "cannot be negative" k))
-          (clr-new-array System.Object k)]
+          (clr-new-array Object k)]
         [(k fill)
           (let ((vec (make-vector k)))
             (vector-fill! vec fill)
             vec)]))
             
     (define/contract (vector-length vec:vector)
-      (clr-prop-get System.Array Length vec))            
+      (clr-prop-get Array Length vec))            
     
     (define/contract (vector-fill! vec:vector val)
       (let ((len (vector-length vec)))
@@ -508,7 +516,7 @@
           (vector-set! vec i val))))  
           
     (define/contract (vector->list vec:vector)
-      (clr-static-call IronScheme.Runtime.Cons FromList vec))   
+      (clr-static-call Cons FromList vec))   
       
     (define (reverse-helper l a)
       (if (null? l)
@@ -550,7 +558,7 @@
     (define (cddddr x) (cdddr (cdr x)))
     
     (define/contract (string-compare a:string b:string)
-      (clr-static-call System.String 
+      (clr-static-call String 
                        "Compare(String,String,StringComparison)"
                        (->string a) 
                        (->string b) 
@@ -565,7 +573,7 @@
               (for-all
                 (lambda (x)
                   (unless (string? x) (assertion-violation 'name "not a string" x))  
-                  (let ((r (cmp (clr-static-call System.String 
+                  (let ((r (cmp (clr-static-call String 
                                                  "Compare(String,String,StringComparison)"
                                                  (->string a)
                                                  (->string x) 

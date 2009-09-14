@@ -27,9 +27,44 @@ namespace IronScheme.Compiler
   {
     protected static string Unquote(object o)
     {
-      Cons c = o as Cons;
-      c = c.cdr as Cons;
-      return c.car as string;
+      if (o is SymbolId)
+      {
+        var rtype = Builtins.SymbolValue(o);
+        if (rtype is SymbolId)
+        {
+          return SymbolTable.IdToString((SymbolId)rtype);
+        }
+        else if (rtype is string)
+        {
+          return rtype as string;
+        }
+        else if (rtype is Cons)
+        {
+          Cons r = rtype as Cons;
+          return "errror!";
+        }
+        else
+        {
+          return "error!";
+        }
+      }
+      else
+      {
+        Cons c = o as Cons;
+        c = c.cdr as Cons;
+        if (c.car is string)
+        {
+          return c.car as string;
+        }
+        else if (c.car is SymbolId)
+        {
+          return SymbolTable.IdToString((SymbolId)c.car);
+        }
+        else
+        {
+          return "error!";
+        }
+      }
     }
 
     protected static MethodInfo ConvertTo = typeof(Helpers).GetMethod("FFIConvertTo");
@@ -185,7 +220,7 @@ namespace IronScheme.Compiler
           return typeof(uint);
         case "uint64":
           return typeof(ulong);
-        case "uintpr":
+        case "uintptr":
           return typeof(UIntPtr);
         case "float":
         case "float32":

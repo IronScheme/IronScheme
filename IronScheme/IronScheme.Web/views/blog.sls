@@ -12,7 +12,7 @@
     (ironscheme web views))
     
   (define (to-string obj)
-    (clr-call System.Object ToString obj))    
+    (clr-call Object ToString obj))    
           
   (define (page-template . body)
     `(html (xmlns . http://www.w3.org/1999/xhtml)

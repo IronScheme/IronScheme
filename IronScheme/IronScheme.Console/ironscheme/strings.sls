@@ -31,20 +31,20 @@
     (ironscheme clr))
     
   (define/contract (string-split str:string . del:string)
-    (clr-call String "Split(String[],StringSplitOptions)" str (list->vector del) 'none))  
+    (clr-call String (Split String[] StringSplitOptions) str (list->vector del) 'none))  
     
   (define/contract (string-join del:string strs:list)
     (clr-static-call String Join del (list->vector strs)))  
     
   (define/contract (string-replace str:string old:string new:string)
-    (clr-call String "Replace(String,String)" str old new))  
+    (clr-call String (Replace String String) str old new))  
           
   (define/contract string-index-of
     (case-lambda
       [(str:string sub:string)
-        (clr-call String "IndexOf(String)" str sub)]
+        (clr-call String (IndexOf String) str sub)]
       [(str:string sub:string k:fixnum)  
-        (clr-call String "IndexOf(String,Int32)" str sub k)]))
+        (clr-call String (IndexOf String Int32) str sub k)]))
     
   (define/contract (string-contains? str:string sub:string)
     (clr-call String Contains str sub))

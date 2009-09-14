@@ -109,8 +109,12 @@ namespace IronScheme.Compiler
       }
     }
 
-    protected static MethodInfo GetDirectCallable(bool needscontext, int arity)
+    protected static MethodInfo GetDirectCallable(bool needscontext, int arity, Type dt)
     {
+      if (dt.IsGenericType)
+      {
+        return dt.GetMethod("Invoke");
+      }
       switch (arity)
       {
         case 0:

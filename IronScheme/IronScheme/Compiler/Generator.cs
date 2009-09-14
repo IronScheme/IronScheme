@@ -25,6 +25,7 @@ using Microsoft.Scripting.Utils;
 using System.Diagnostics;
 using Microsoft.Scripting.Math;
 using IronScheme.Runtime.psyntax;
+using IronScheme.Runtime.Typed;
 
 namespace IronScheme.Compiler
 {
@@ -157,6 +158,12 @@ namespace IronScheme.Compiler
         return Builtins.IsTrue(ce.Value);
       }
 
+      if (e is ConditionalExpression)
+      {
+        ConditionalExpression ce = (ConditionalExpression) e;
+        return IsSimpleExpression(ce.Test) && IsSimpleExpression(ce.IfTrue) && IsSimpleExpression(ce.IfFalse);
+      }
+
       if (e is BoundExpression)
       {
         return true;
@@ -198,18 +205,18 @@ namespace IronScheme.Compiler
 
     static CodeBlock RewriteBody(CodeBlock cb)
     {
-      CodeBlock ncb = Ast.CodeBlock("temp-inline:" + cb.Name);
+      CodeBlock ncb = Ast.CodeBlock("temp-inline:" + cb.Name, cb.ReturnType);
       ncb.Parent = cb.Parent;
 
       foreach (var item in cb.Parameters)
       {
-        Variable newvar = ncb.CreateParameter(item.Name, typeof(object));
+        Variable newvar = ncb.CreateParameter(item.Name, item.Type);
         newvar.Lift = item.Lift;
       }
 
       foreach (var item in cb.Variables)
       {
-        Variable newvar = ncb.CreateLocalVariable(item.Name, typeof(object));
+        Variable newvar = ncb.CreateLocalVariable(item.Name, item.Type);
         newvar.Lift = item.Lift;
       }
 
@@ -262,6 +269,13 @@ namespace IronScheme.Compiler
         TypeBinaryExpression tbe = (TypeBinaryExpression)e;
         return Ast.TypeIs(RewriteExpression(cb, tbe.Expression), tbe.TypeOperand);
       }
+
+      if (e is ConditionalExpression)
+      {
+        ConditionalExpression ce = (ConditionalExpression)e;
+        return Ast.Condition(RewriteExpression(cb, ce.Test), RewriteExpression(cb, ce.IfTrue), RewriteExpression(cb, ce.IfFalse));
+      }
+
       return e;
     }
 
@@ -306,6 +320,15 @@ namespace IronScheme.Compiler
               //inline here? we could for simple bodies, but we need to copy the entire structure
               if (!(cbe.Block.HasEnvironment || cbe.Block.IsClosure))
               {
+                if (cbe.Block.Source != null && !ScriptDomainManager.Options.DebugMode && !cb.IsGlobal && NotChildBlock(cb.Parent, cbe.Block))
+                {
+                  //Cons src = cbe.Block.Source as Cons;
+
+                  //var invoke = new Cons(src, c.cdr);
+
+                  //return GetAst(invoke, cb);
+                }
+
                 if (cbe.Block.Body is ReturnStatement)
                 {
                   ReturnStatement rs = (ReturnStatement)cbe.Block.Body;
@@ -651,6 +674,7 @@ namespace IronScheme.Compiler
               return InlineCall(cb, cbe, istailposition, pp);
             }
           }
+
           // cater for varargs more efficiently, this does not seem to hit, probably needed somewhere else
           if (mcexpr.Method == Closure_MakeVarArgsX)
           {
@@ -661,6 +685,18 @@ namespace IronScheme.Compiler
               return CallVarArgs(cbe, pp);
             }
           }
+        }
+
+        if (ex is NewExpression && typeof(ITypedCallable).IsAssignableFrom(ex.Type))
+        {
+          NewExpression mcexpr = ex as NewExpression;
+          CodeBlockExpression cbe = mcexpr.Arguments[0] as CodeBlockExpression;
+
+          if (pp.Length < 9 && cbe.Block.ParameterCount == pp.Length)
+          {
+            return InlineCall(cb, cbe, istailposition, pp);
+          }
+
         }
 
         if (ex is ConstantExpression)
@@ -690,7 +726,7 @@ namespace IronScheme.Compiler
       }
       else if (args is byte[])
       {
-        Expression[] ba = Array.ConvertAll<byte, Expression>(args as byte[], delegate (byte b) { return Ast.Constant(b);});
+        Expression[] ba = Array.ConvertAll(args as byte[], b => Ast.Constant(b));
         return Ast.NewArray(typeof(byte[]), ba);
       }
       else
@@ -727,6 +763,20 @@ namespace IronScheme.Compiler
         }
         return Ast.Constant(args);
       }
+    }
+
+    static bool NotChildBlock(CodeBlock codeBlock, CodeBlock parent)
+    {
+      while (codeBlock.Parent != null)
+      {
+        if (codeBlock.Parent == parent)
+        {
+          return false;
+        }
+        codeBlock = codeBlock.Parent;
+      }
+
+      return true;
     }
 
     static object GetRuntimeConstant(ConstantExpression ce)
@@ -916,7 +966,7 @@ namespace IronScheme.Compiler
     {
       bool needscontext = NeedsContext(cbe); // true;
       int pc = ppp.Length;
-      MethodInfo dc = GetDirectCallable(needscontext, pc);
+      MethodInfo dc = GetDirectCallable(needscontext, pc, cbe.Type);
 
       List<Variable> paruninit = new List<Variable>(cbe.Block.Parameters);
 
@@ -933,7 +983,9 @@ namespace IronScheme.Compiler
         ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
       }
 
-      cbe = Ast.CodeBlockReference(cbe.Block, CallTargets.GetTargetType(needscontext, pc, false));
+      var delegatetype = cbe.Type != typeof(Delegate) ? cbe.Type : CallTargets.GetTargetType(needscontext, pc, false);
+
+      cbe = Ast.CodeBlockReference(cbe.Block, delegatetype);
 
       cbe.Block.Bind();
 
@@ -977,7 +1029,7 @@ namespace IronScheme.Compiler
 
       ppp = nppp;
 
-      MethodInfo dc = GetDirectCallable(needscontext, pc);
+      MethodInfo dc = GetDirectCallable(needscontext, pc, cbe.Type);
       if (needscontext)
       {
         ppp = ArrayUtils.Insert<Expression>(Ast.CodeContext(), ppp);
@@ -999,7 +1051,7 @@ namespace IronScheme.Compiler
 
     protected internal static Expression Unwrap(Expression ex)
     {
-      while (ex is UnaryExpression && ((UnaryExpression)ex).NodeType == AstNodeType.Convert)
+      while (ex is UnaryExpression && ex.NodeType == AstNodeType.Convert)
       {
         ex = ((UnaryExpression)ex).Operand;
       }

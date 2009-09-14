@@ -8,7 +8,7 @@
  *
  * You must not remove this notice, or any other, from this software.
  * ***************************************************************************|#
-
+#|
 (library (ironscheme define-clr-class)
   (export define-clr-class)
   (import (rnrs))
@@ -21,7 +21,7 @@
           )))
 )
 
-#|
+
 (define (make-type type . typeargs))
 
 (define (make-typed-var name type))

@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-
+#if FULL
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -153,3 +153,4 @@ namespace Microsoft.Scripting.Utils {
         #endregion
     }
 }
+#endif

@@ -29,7 +29,7 @@
     (ironscheme clr))
   
   (define (application-directory)
-    (clr-static-prop-get Ironscheme.Runtime.Builtins ApplicationDirectory))
+    (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory))
   
   (define/contract current-directory
     (case-lambda
@@ -39,16 +39,16 @@
         (clr-static-prop-set! Environment CurrentDirectory path)]))
     
   (define (current-user)
-    (clr-static-prop-get Environment Username))
+    (clr-static-prop-get Environment UserName))
 
   (define (current-user-domain)
-    (clr-static-prop-get Environment UserDomainname))
+    (clr-static-prop-get Environment UserDomainName))
     
   (define (get-netbiosname)
-    (clr-static-prop-get Environment Machinename))
+    (clr-static-prop-get Environment MachineName))
     
   (define (get-hostname)
-    (clr-static-call System.Net.Dns GetHostname))
+    (clr-static-call System.Net.Dns GetHostName))
     
   (define (get-logical-drives)
     (clr-static-call Environment GetLogicalDrives))    

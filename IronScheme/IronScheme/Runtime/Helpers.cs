@@ -390,9 +390,9 @@ namespace IronScheme.Runtime
 
     public static T ConvertToDelegate<T>(object proc)
     {
-      if (proc is bool && !Builtins.IsTrue(proc))
+      if (!(proc is Callable))
       {
-        return default(T);
+        Builtins.AssertionViolation("ConvertToDelegate", "not a procedure", proc);
       }
       MethodInfo meth = typeof(T).GetMethod("Invoke");
       ParameterInfo[] pars = meth.GetParameters();
