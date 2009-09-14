@@ -67,7 +67,7 @@ namespace IronScheme
         base.UpdateSourceCodeProperties(context);
         //context.SourceUnit.CodeProperties = prev;
       }
-      catch (Runtime.R6RS.CompoundCondition)
+      catch (SyntaxErrorException)
       {
         context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
       }
@@ -265,7 +265,7 @@ namespace IronScheme
 
       if (p.Parse() && (!cc.SourceUnit.CodeProperties.HasValue || cc.SourceUnit.CodeProperties.Value != SourceCodeProperties.None))
       {
-        return Compile(p.parsed);
+        return Compile( p.parsed);
       }
       return null;
     }

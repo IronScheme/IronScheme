@@ -69,11 +69,11 @@ namespace Microsoft.Scripting {
             : base(context) {
             this._extensionTypes = extensionTypes;
         }
-
+#if FULL
         protected internal override IList<Type> GetExtensionTypes(Type t) {
             return _extensionTypes;
         }
-
+#endif
 
         // A bunch of conversion code
         public override object Convert(object obj, Type toType) {

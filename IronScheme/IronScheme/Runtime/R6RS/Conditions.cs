@@ -23,21 +23,13 @@ using System.Collections;
 
 namespace IronScheme.Runtime.R6RS
 {
-  public abstract class Condition : Exception
+  public abstract class Condition
   {
     public override string ToString()
     {
       var w = new StringWriter();
       "(display {0} {1})".Eval(this, w);
       return w.GetBuffer();
-    }
-
-    public override string Message
-    {
-      get
-      {
-        return ToString();
-      }
     }
   }
 
@@ -101,7 +93,7 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("condition?")]
     public static object IsCondition(object cond)
     {
-      return GetBool(cond is Exception);
+      return GetBool(cond is Condition);
     }
 
     //(condition-predicate rtd)
@@ -110,7 +102,7 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
 
-      if (!t.type.IsSubclassOf(typeof(Exception)))
+      if (!t.type.IsSubclassOf(typeof(Condition)))
       {
         return AssertionViolation("condition-predicate", "not a valid condition", rtd);
       }
@@ -173,7 +165,7 @@ namespace IronScheme.Runtime.R6RS
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
 
-      if (!t.type.IsSubclassOf(typeof(Exception)))
+      if (!t.type.IsSubclassOf(typeof(Condition)))
       {
         return AssertionViolation("condition-accessor", "not a valid condition", rtd);
       }

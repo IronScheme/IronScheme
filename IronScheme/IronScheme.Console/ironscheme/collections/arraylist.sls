@@ -37,38 +37,38 @@
     (ironscheme clr)
     (ironscheme collections ilist))
 
-  (clr-using system.collections)
+  (clr-using System.Collections)
   
   (define make-arraylist
     (case-lambda
-      [()     (clr-new arraylist)]
-      [(col)  (clr-new arraylist (clr-cast icollection col))]))
+      [()     (clr-new ArrayList)]
+      [(col)  (clr-new ArrayList (clr-cast ICollection col))]))
     
   (define (arraylist? o)
-    (clr-is arraylist o))
+    (clr-is ArrayList o))
     
   (define (arraylist-lastindexof s o)
-    (clr-call arraylist lastindexof s o))    
+    (clr-call ArrayList LastIndexOf s o))    
     
   (define (arraylist-addrange! s o)
-    (clr-call arraylist addrange s o))    
+    (clr-call ArrayList AddRange s o))    
 
   (define (arraylist-insertrange! s n c)
-    (clr-call arraylist insertrange s n c))
+    (clr-call ArrayList InsertRange s n c))
 
   (define (arraylist-removerange! s start c)
-    (clr-call arraylist removerange s start c))    
+    (clr-call ArrayList RemoveRange s start c))    
   
   (define (arraylist-sort! s)
-    (clr-call arraylist sort s))
+    (clr-call ArrayList Sort s))
     
   (define (arraylist->vector s)
-    (clr-call arraylist toarray s))
+    (clr-call ArrayList ToArray s))
     
   (define (arraylist-clone s)
-    (clr-call arraylist clone s))
+    (clr-call ArrayList Clone s))
   
   (define (arraylist-reverse! s)
-    (clr-call arraylist reverse s))
+    (clr-call ArrayList Reverse s))
 
 )

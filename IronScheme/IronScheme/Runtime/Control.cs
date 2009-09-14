@@ -115,25 +115,25 @@ namespace IronScheme.Runtime
       return new MultipleValues(arg1, arg2, arg3, arg4);
     }
 
-    [Builtin("dynamic-wind")]
-    [Obsolete("Implemented in Scheme")]
-    public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
-    {
-      Callable inf = RequiresNotNull<Callable>(infunc);
-      Callable bodyf = RequiresNotNull<Callable>(bodyfunc);
-      Callable outf = RequiresNotNull<Callable>(outfunc);
+    //[Builtin("dynamic-wind")]
+    //[Obsolete("Implemented in Scheme")]
+    //public static object DynamicWind(object infunc, object bodyfunc, object outfunc)
+    //{
+    //  Callable inf = RequiresNotNull<Callable>(infunc);
+    //  Callable bodyf = RequiresNotNull<Callable>(bodyfunc);
+    //  Callable outf = RequiresNotNull<Callable>(outfunc);
 
-      inf.Call();
+    //  inf.Call();
 
-      try
-      {
-        return bodyf.Call();
-      }
-      finally
-      {
-        outf.Call();
-      }
-    }
+    //  try
+    //  {
+    //    return bodyf.Call();
+    //  }
+    //  finally
+    //  {
+    //    outf.Call();
+    //  }
+    //}
 
     internal class Continuation : Exception
     {

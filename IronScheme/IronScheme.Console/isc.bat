@@ -1,0 +1,1 @@
+@IronScheme.Console.exe -nologo %*

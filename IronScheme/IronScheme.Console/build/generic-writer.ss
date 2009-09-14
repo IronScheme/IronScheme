@@ -108,7 +108,7 @@
     (put-string port "#<hashtable>"))        
         
   (define (get-clr-type-name obj)
-    (clr-prop-get System.Type Fullname (clr-call System.Object GetType obj)))
+    (clr-prop-get Type FullName (typeof obj)))
         
   (define (write-procedure proc port readable?)
     (let ((pn (procedure-name proc)))
@@ -309,12 +309,12 @@
         (write-record-generic)))
         
   (define (clr-exception-message ex)
-    (clr-call System.Exception ToString ex))
+    (clr-call Exception ToString ex))
         
   (define (display-condition e port)
     (for-each 
       (lambda (c)
-        (let ((rtd (record-rtd c)))
+        (let ((rtd (and (record? c) (record-rtd c))))
           (if rtd
               (begin
                 (put-string port (symbol->string (record-type-name rtd)))

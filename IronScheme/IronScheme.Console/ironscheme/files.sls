@@ -106,16 +106,16 @@
     (clr-static-call Path Combine path1 path2))
 
   (define/contract (get-directory-name path:string)
-    (clr-static-call Path GetDirectoryname path))
+    (clr-static-call Path GetDirectoryName path))
 
   (define/contract (get-extension path:string)
     (clr-static-call Path GetExtension path))
 
   (define/contract (get-filename path:string)
-    (clr-static-call Path GetFilename path))
+    (clr-static-call Path GetFileName path))
 
   (define/contract (get-filename-without-extension path:string)
-    (clr-static-call Path GetFilenameWithoutExtension path))
+    (clr-static-call Path GetFileNameWithoutExtension path))
 
   (define/contract (get-full-path path:string)
     (clr-static-call Path GetFullPath path))
@@ -124,10 +124,10 @@
     (clr-static-call Path GetPathRoot path))
 
   (define (get-random-filename)
-    (clr-static-call Path GetRandomFilename))
+    (clr-static-call Path GetRandomFileName))
 
   (define (get-temp-filename)
-    (clr-static-call Path GetTempFilename))
+    (clr-static-call Path GetTempFileName))
     
   (define (get-temp-path)
     (clr-static-call Path GetTempPath))    

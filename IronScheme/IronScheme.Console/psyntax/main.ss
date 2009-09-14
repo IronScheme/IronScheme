@@ -106,28 +106,33 @@
     
   (define foreground-color
     (case-lambda
-      [()           (and (not (emacs-mode?)) (clr-static-prop-get console foregroundcolor))]
-      [(color)      (and (not (emacs-mode?)) (clr-static-prop-set! console foregroundcolor color))])) 
+      [()           (and (not (emacs-mode?)) (clr-static-prop-get Console ForegroundColor))]
+      [(color)      (and (not (emacs-mode?)) (clr-static-prop-set! Console ForegroundColor color))])) 
       
   (define (system-exception? e)
     (clr-is SystemException e))  
     
   (define (eval-top-level x)
-    (call/cc
-      (lambda (k)
-        (with-exception-handler
-          (lambda (e)
-            (let ((serious? (or (serious-condition? e) (system-exception? e) (not (condition? e)))))
-              (parameterize ((foreground-color (if serious? 'red 'yellow))
-                             (current-output-port (current-error-port)))
-                (when serious?
-                  (display "Unhandled exception during evaluation:\n"))
-                (display e)
-                (newline))
-              (k)))
-          (lambda ()
-            (parameterize ([allow-library-redefinition #t])
-              (eval x (interaction-environment))))))))
+    (clr-guard [e [e (parameterize ((foreground-color 'red)
+                                    (current-output-port (current-error-port)))
+                       (display "Unhandled CLR exception during evaluation:\n")
+                       (display e)
+                       (newline))]]
+      (call/cc
+        (lambda (k)
+          (with-exception-handler
+            (lambda (e)
+              (let ((serious? (or (serious-condition? e) (system-exception? e) (not (condition? e)))))
+                (parameterize ((foreground-color (if serious? 'red 'yellow))
+                               (current-output-port (current-error-port)))
+                  (when serious?
+                    (display "Unhandled exception during evaluation:\n"))
+                  (display e)
+                  (newline))
+                (k)))
+            (lambda ()
+              (parameterize ([allow-library-redefinition #t])
+                (eval x (interaction-environment)))))))))
             
   (define (eval-embedded x)
     (eval x (interaction-environment)))            

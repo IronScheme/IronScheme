@@ -58,7 +58,7 @@
     (clr-is Process obj))
     
   (define/contract (process-start p:process)
-    (clr-static-call Ironscheme.Runtime.Helpers StartProcess p))
+    (clr-static-call IronScheme.Runtime.Helpers StartProcess p))
     
   (define/contract wait-for-exit
     (case-lambda
@@ -87,7 +87,7 @@
   (define/contract get-process-by-id
     (case-lambda 
       [(id)      
-        (clr-static-call Process GetProcessbyId id)]
+        (clr-static-call Process GetProcessById id)]
       [(id host:string) 
         (clr-static-call Process GetProcessById id host)]))  
 
@@ -158,7 +158,7 @@
     (clr-prop-get Process PagedMemorySize p))      
 
   (define/contract (process-non-paged-system-memory-size p:process)
-    (clr-prop-get Process NonPagedSystemMemorySize p))      
+    (clr-prop-get Process NonpagedSystemMemorySize p))      
 
   (define/contract (process-peak-paged-memory-size p:process)
     (clr-prop-get Process PeakPagedMemorySize p))      

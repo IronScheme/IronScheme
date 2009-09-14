@@ -36,7 +36,7 @@ namespace Microsoft.Scripting {
         public int Id {
             get { return _id; }
         }
-
+#if FULL
         public SymbolId CaseInsensitiveIdentifier {
             get { return new SymbolId(_id & 0x00FFFFFF); }
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Scripting {
         public int CaseInsensisitveId {
             get { return _id & 0x00FFFFFF; }
         }
-
+#endif
         public override bool Equals(object obj) {
             if (!(obj is SymbolId)) return false;
             SymbolId other = (SymbolId)obj;
@@ -54,18 +54,20 @@ namespace Microsoft.Scripting {
         public bool Equals(SymbolId other) {
             return _id == other._id;
         }
-
+#if FULL
         public bool CaseInsensitiveEquals(SymbolId other) {
             return (_id & 0x00FFFFFF) == (other._id & 0x00FFFFFF);
         }
+#endif
 
         public override int GetHashCode() {
             return _id;
         }
-
+#if FULL
         public int GetCaseInsensitiveHashCode() {
             return (_id & 0x00FFFFFF);
         }
+#endif
 
         /// <summary>
         /// Override of ToString.

@@ -536,10 +536,10 @@
 
 
   (define (starts-with? str sub)
-    (clr-call system.string startswith str sub))
+    (clr-call String StartsWith str sub))
     
   (define (ends-with? str sub)
-    (clr-call system.string endswith str sub))  
+    (clr-call String EndsWith str sub))  
 
 
   (define (clr-generator? o)

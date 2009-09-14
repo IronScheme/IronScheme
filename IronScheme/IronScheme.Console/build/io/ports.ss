@@ -223,7 +223,7 @@
     
   (define/contract (get-codec name:string enccb deccb)
     (clr-static-call Encoding 
-                     "GetEncoding(String,EncoderFallback,DecoderFallback)" 
+                     (GetEncoding String EncoderFallback DecoderFallback)
                      name 
                      enccb 
                      deccb))
@@ -237,7 +237,7 @@
          (textual-port? obj)))                        
     
   (define (latin-1-codec) 
-    (clr-static-call Encoding "GetEncoding(String)" "iso-8859-1"))
+    (clr-static-call Encoding (GetEncoding String) "iso-8859-1"))
     
   (define (utf-8-codec) 
     (clr-new UTF8Encoding #f))
@@ -298,7 +298,7 @@
     (clr-field-get Transcoder handlingmode tc))
     
   (define (string-replace str old new)
-    (clr-call String "Replace(String,String)" str old new))
+    (clr-call String (Replace String String) str old new))
     
   ;(define (match-value m)
     ;(clr-prop-get Group Value m))
@@ -389,13 +389,13 @@
                       x)))
    
   (define (standard-error-port)
-    (clr-static-call System.Console OpenStandardError))
+    (clr-static-call Console OpenStandardError))
     
   (define (standard-input-port)
-    (clr-static-call System.Console OpenStandardInput))
+    (clr-static-call Console OpenStandardInput))
 
   (define (standard-output-port)
-    (clr-static-call System.Console OpenStandardOutput))
+    (clr-static-call Console OpenStandardOutput))
   
   (define/contract (open-input-file filename:string)
     (unless (file-exists? filename)
@@ -489,7 +489,7 @@
   (define-syntax long->fixnum
     (syntax-rules ()
       [(_ n)
-        (clr-static-call Convert "ToInt32(Int64)" n)]))
+        (clr-static-call Convert (ToInt32 Int64) n)]))
         
   (define (port-position port)
     (cond
@@ -529,7 +529,7 @@
   (define-syntax fixnum->long
     (syntax-rules ()
       [(_ n)
-        (clr-static-call Convert "ToInt64(Int32)" n)]))
+        (clr-static-call Convert (ToInt64 Int32) n)]))
         
   (define/contract (set-port-position! port pos:fixnum)        
     (cond
@@ -660,7 +660,7 @@
         
   (define (trim-buffer bv k)
     (let ((nb (make-bytevector k)))
-      (clr-static-call Array "Copy(Array,Array,Int32)" bv nb k)
+      (clr-static-call Array (Copy Array Array Int32) bv nb k)
       nb))
       
   (define/contract (get-bytevector-n port:binary-input-port count:fixnum)
@@ -809,7 +809,7 @@
                       s)
                   (lambda ()
                     (let ((r (clr-call MemoryStream ToArray s)))
-                      (clr-call MemoryStream SetLength s (clr-static-call Convert "ToInt64(Int32)" 0))
+                      (clr-call MemoryStream SetLength s (clr-static-call Convert (ToInt64 Int32) 0))
                       r))))]))   
                       
   (define/contract call-with-bytevector-output-port
@@ -843,7 +843,7 @@
       (assertion-violation #f "not a fixnum" k))
     (when (or (fx<? k 0) (fx>? k 255))
       (assertion-violation #f "too big or small for byte" k))
-    (clr-cast System.Byte (clr-cast System.Int32 k)))
+    (clr-cast Byte (clr-cast Int32 k)))
 
   (define/contract (put-u8 port:binary-output-port byte:fixnum)
     (let ((byte (->byte byte)))
@@ -862,7 +862,7 @@
   (define/contract (put-char port:textual-output-port chr:char)
     (if (clr-is CustomTextReaderWriter port)
         (put-char (get-output-port port) chr)  
-        (clr-call TextWriter "Write(Char)" port chr)))
+        (clr-call TextWriter (Write Char) port chr)))
         
   (define (->string str)
     (cond
@@ -882,7 +882,7 @@
         (if (clr-is CustomTextReaderWriter port)
             (put-string (get-output-port port) str start count)  
             (clr-call TextWriter 
-                      "Write(String)" 
+                      (Write String)
                       port 
                       (clr-call String Substring (->string str) start count)))]))
 

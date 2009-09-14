@@ -5,7 +5,162 @@
 (define int->string (clr-call-site Int32 ToString))
 (clr-using System.Reflection.Emit)
 (define emit (clr-call-site ILGenerator Emit))
-(clr-static-call-site DateTime Parse)
+(define dp (clr-static-call-site DateTime Parse))
+
+(import (rnrs))
+
+(define-syntax foo
+  (syntax-rules ()
+    [(_ e) 'e]))
+    
+(define-syntax bar
+  (syntax-rules ()
+    [(_ e) (foo e)]))
+          
+(bar ((apple) pie))      
+
+(let ()
+(let ((a 3)
+      (b 4))
+  (+ a b)))
+    
+
+
+(import (rnrs)
+  (for (lib) expand run))
+
+(define-syntax make-record-accessor-aliases
+  (syntax-rules ()
+    ((_ ?record-name)
+     (let-syntax
+         ((A (lambda (stx)
+               (define (make-record-accessor-aliases k rtd)
+                 (let ((rtd-name (symbol->string (record-type-name rtd))))
+                   (let process-parent ((parent-rtd (record-type-parent rtd))
+                                        (result     '()))
+                     (if parent-rtd
+                         (let* ((slots  (record-type-field-names parent-rtd))
+                                (len    (vector-length slots)))
+                           (let make-def ((i    0)
+                                          (defs '()))
+                             (if (= i len)
+                                 (process-parent (record-type-parent parent-rtd)
+                                                 (append defs result))
+                               (make-def (+ 1 i)
+                                         (cons
+                 (make-accessor k rtd-name
+                 parent-rtd slots i)
+                                               defs)))))
+                       (begin
+                         ;; (write result)
+                         ;; (newline)
+                         result)))))
+               (define (make-accessor k rtd-name parent-rtd slots i)
+                 (let ((accessor-name
+                         (slot-name->accessor-name rtd-name
+                                                   (vector-ref slots i)))
+                       (accessor-proc
+                         (record-accessor parent-rtd i)))
+                   (datum->syntax k
+                      `(define ,accessor-name ',accessor-proc))))
+               (define (slot-name->accessor-name rtd-name slot-name)
+                 (string->symbol (string-append rtd-name "-"
+                                     (symbol->string slot-name))))
+               (syntax-case stx ()
+                 ((k kk)
+                  (with-syntax (((B (... ...))
+                                 (make-record-accessor-aliases
+                                    (syntax kk)
+                                    (record-type-descriptor ?record-name))))
+                    (syntax (begin B (... ...)))))))))
+       (A ?record-name)))))
+
+(make-record-accessor-aliases gamma)
+(define o (make-gamma 1 2)) 
+
+
+
+(import (ironscheme clr dynamic))
+(import (ironscheme clr))
+(clr-using System.Collections.Generic)
+(define fi (clr-call-site (List Int32) FindIndex))
+(define li (clr-new (List Int32)))
+
+(clr-static-call Array (Exists #(Int32)) '#(1 2 3) 2)
+
+(define dic-add (clr-call-site (Dictionary Int32 String) Add))
+
+(define dic (clr-new (Dictionary Int32 String)))
+
+(add dic 1 "foo")
+
+  (import (ironscheme) (ironscheme ffi))
+  
+  (define lib (dlopen "glu32.dll"))
+  
+  (define-syntax define-function
+    (syntax-rules ()
+      ((_ ret name args)
+       (define name ((ffi-callout ret args) (dlsym lib (symbol->string 'name)))))))  
+       
+(define-function void glutInit (void* void*))
+
+(import (srfi :25))
+(import (srfi :25 multi-dimensional-arrays arlib))
+(let ((m (array (shape 1 3 1 3) 'a 'b 'c 'd)))
+  (or (array-equal? (share-array/prefix m 1 2)
+                    (share-array/index!
+                     m (shape)
+                     (lambda (x)
+                       (vector 1 2))
+                     (vector)))
+      (error "share-array/index! with prefix 1 2 failed")))
+(let ()
+  (define (memq obj lst)
+    (if (null? lst) 
+      #f
+      (if (eq? obj (car lst)) 
+        lst
+        (memq obj (cdr lst)))))
+   memq)
+   
+(import (rnrs))
+
+(define-syntax print-fields
+  (lambda (stx)
+    (define (print-fields* rtd)
+      (write (record-type-field-names rtd))
+      (newline))
+    (syntax-case stx ()
+      ((_ ?record-name)
+       (begin
+         ;;This is wrong.
+         (print-fields* (record-type-descriptor #'?record-name))
+         (syntax '(#f))))))) 
+         
+            
+
+(import (ironscheme regex))
+
+(call-with-input-file "arith.tex"
+  (lambda (p)
+    (let* ((c (get-string-all p))
+           (m (regex-matches c "\\\\r?proto{(?<name>.+)}{\\s?(?<args>.+)}{procedure}")))
+      (for-each 
+        (lambda (m)
+          (display (group-value (match-group m "name")))
+          (display " : ")
+          (let ((as (group-value (match-group m "args")))) 
+            (display
+                  (regex-replace 
+                    (regex-replace as "\\\\var.*?{(?<name>.+?)}"
+                      (lambda (m)
+                        (group-value (match-group m "name"))))
+                    "\\\\dotsfoo" "...")))
+          (newline))
+        m))))
+      
+      
 
 
 (define-record-type node 

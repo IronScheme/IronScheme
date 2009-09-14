@@ -64,6 +64,10 @@ namespace Microsoft.Scripting.Ast {
             }
             else
             {
+              if (Type != typeof(object) && value.Type != Type)
+              {
+                Debugger.Break();
+              }
               assumedValue = value;
             }
           }

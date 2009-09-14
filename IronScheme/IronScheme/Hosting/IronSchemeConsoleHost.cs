@@ -33,7 +33,6 @@ namespace IronScheme.Hosting
     {
       logo = string.Format("IronScheme {0} ironscheme.codeplex.com © leppie 2007,2008,2009 {1}",
           VERSION,
-            //typeof(IronSchemeConsoleHost).Assembly.GetName().Version,
 #if DEBUG
 #if CPS
             "Debug - CPS build"
@@ -44,15 +43,6 @@ namespace IronScheme.Hosting
             ""
 #endif
 );
-
-      //if (Debugger.IsAttached)
-      //{
-      //  Console.Title = string.Format("IronScheme {0} - Debugger Attached ", VERSION);
-      //}
-      //else
-      //{
-      //  Console.Title = string.Format("IronScheme {0} ", VERSION);
-      //}
     }
 
 
@@ -89,11 +79,6 @@ namespace IronScheme.Hosting
         Console.WriteLine();
         
       }
-    }
-
-    protected override void UnhandledException(IScriptEngine engine, Exception e)
-    {
-      base.UnhandledException(engine, e);
     }
   }
 }

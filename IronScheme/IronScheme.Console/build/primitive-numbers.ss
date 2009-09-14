@@ -32,7 +32,7 @@
     (ironscheme clr))
     
   (define (flonum? obj)
-    (clr-is system.double obj))     
+    (clr-is Double obj))     
 
   (define (bignum? obj)
     (clr-is Microsoft.Scripting.Math.BigInteger obj))

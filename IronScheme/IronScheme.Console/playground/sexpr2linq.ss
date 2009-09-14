@@ -37,31 +37,31 @@
   (vector-ref call-map argcount))
 
 (define (Add expr1 expr2)
-  (clr-static-call Expression "Add(Expression,Expression)" expr1 expr2))
+  (clr-static-call Expression (Add Expression Expression) expr1 expr2))
   
 (define (And expr1 expr2)
-  (clr-static-call Expression "And(Expression,Expression)" expr1 expr2))  
+  (clr-static-call Expression (And Expression Expression) expr1 expr2))  
   
 (define (AndAlso expr1 expr2)
-  (clr-static-call Expression "AndAlso(Expression,Expression)" expr1 expr2))  
+  (clr-static-call Expression (AndAlso Expression Expression) expr1 expr2))  
   
 (define (ArrayIndex array index)
-  (clr-static-call Expression "ArrayIndex(Expression,Expression)" array index))  
+  (clr-static-call Expression (ArrayIndex Expression Expression) array index))  
 
 (define (Bind proc expr)
   (let ((meth (get-call-meth 2)))
-    (clr-static-call Expression "Bind(MethodInfo,Expression)" meth expr)))  
+    (clr-static-call Expression (Bind MethodInfo Expression) meth expr)))  
   
 (define (Call proc . args)
   (let ((meth (get-call-meth (length args))))
     (clr-static-call Expression 
-                     "Call(Expression,MethodInfo,Expression[])" 
+                     (Call Expression MethodInfo Expression[]) 
                      (Constant proc) 
                      meth 
                      (list->vector args))))
 
 (define (Constant obj)
-  (clr-static-call Expression "Constant(Object)" obj))                     
+  (clr-static-call Expression (Constant Object) obj))                     
     
     
   

@@ -17,12 +17,12 @@
     (rnrs)
     (ironscheme clr))
 
-  (clr-using system.collections)
+  (clr-using System.Collections)
      
   (define (icollection? o)
-    (clr-is icollection o))
+    (clr-is ICollection o))
 
   (define (icollection-count s)
-    (clr-prop-get icollection count s))
+    (clr-prop-get ICollection Count s))
 
 )

@@ -1025,7 +1025,7 @@ namespace IronScheme.Runtime.R6RS
           return TranscodedOutputPort(s, tc);
         }
       }
-      catch (Condition)
+      catch (Continuation)
       {
         throw;
       }
@@ -1100,6 +1100,10 @@ namespace IronScheme.Runtime.R6RS
         {
           return TranscodedInputOutputPort(s, tc);
         }
+      }
+      catch (Continuation)
+      {
+        throw;
       }
       catch (FileNotFoundException ex)
       {

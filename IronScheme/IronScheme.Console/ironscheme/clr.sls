@@ -12,6 +12,7 @@
 (library (ironscheme clr)
   (export
     clr-namespaces
+    clr-type-of
     clr-static-event-add!
     clr-static-event-remove!
     clr-event-add!
@@ -42,6 +43,11 @@
     (only (ironscheme) with-clr-exception-handler)
     (ironscheme clr helpers)
     (ironscheme clr internal))
+    
+  (define-syntax clr-type-of
+    (syntax-rules ()
+      [(_ type) 
+        (clr-type-of-internal 'type)]))    
     
   (define-syntax clr-namespaces
     (syntax-rules ()

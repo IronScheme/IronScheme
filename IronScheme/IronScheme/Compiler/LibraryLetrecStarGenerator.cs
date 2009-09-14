@@ -19,6 +19,7 @@ using IronScheme.Runtime;
 using Microsoft.Scripting;
 using System.Reflection;
 using Microsoft.Scripting.Generation;
+using IronScheme.Runtime.Typed;
 
 namespace IronScheme.Compiler
 {
@@ -32,6 +33,75 @@ namespace IronScheme.Compiler
     static string SymbolToString(object sym)
     {
       return SymbolTable.IdToString((SymbolId)sym);
+    }
+
+    readonly static object CASELAMBDA = SymbolTable.StringToObject("case-lambda");
+    readonly static object ANNCASELAMBDA = SymbolTable.StringToObject("annotated-case-lambda");
+    readonly static object TYPEDCASELAMBDA = SymbolTable.StringToObject("typed-case-lambda");
+    readonly static object ANNTYPEDCASELAMBDA = SymbolTable.StringToObject("annotated-typed-case-lambda");
+
+
+    static bool IsLambda(object obj, out bool annotated, out bool typed)
+    {
+      Cons c = obj as Cons;
+      if (c == null)
+      {
+        annotated = false;
+        typed = false;
+        return false;
+      }
+      if (c.car == CASELAMBDA)
+      {
+        annotated = false;
+        typed = false;
+        return true;
+      }
+      if (c.car == ANNCASELAMBDA)
+      {
+        annotated = true;
+        typed = false;
+        return true;
+      }
+      if (c.car == TYPEDCASELAMBDA)
+      {
+        annotated = false;
+        typed = true;
+        return true;
+      }
+      if (c.car == ANNTYPEDCASELAMBDA)
+      {
+        annotated = true;
+        typed = true;
+        return true;
+      }
+      annotated = false;
+      typed = false;
+      return false;
+    }
+
+    static object Copy(object o)
+    {
+      if (o is Cons)
+      {
+        Cons c = o as Cons;
+        return new Cons(Copy(c.car), Copy(c.cdr));
+      }
+      if (o is object[])
+      {
+        object[] a = o as object[];
+        return Array.ConvertAll<object,object>(a, Copy);
+      }
+      return o;
+    }
+
+    static int GetDepth(object o)
+    {
+      if (o is Cons)
+      {
+        Cons c = o as Cons;
+        return Math.Max(1 + GetDepth(c.car), GetDepth(c.cdr));
+      }
+      return 1;
     }
 
     public override Expression Generate(object args, CodeBlock c)
@@ -54,6 +124,7 @@ namespace IronScheme.Compiler
 
       List<object> defs = new List<object>();
       List<object> bodies = new List<object>();
+      List<object> sources = new List<object>();
 
       args = (args as Cons).cdr;
 
@@ -77,12 +148,23 @@ namespace IronScheme.Compiler
       // pass 1
       for (int i = 0; i < vars.Count; i++)
       {
-        if (defs[i] is Cons && (((Cons)defs[i]).car == SymbolTable.StringToObject("case-lambda") || 
-          ((Cons)defs[i]).car == SymbolTable.StringToObject("annotated-case-lambda")))
+        sources.Add(null);
+        bool annotated, typed;
+        if (IsLambda(defs[i], out annotated, out typed))
         {
           Cons cl = defs[i] as Cons;
 
-          if (cl.car == SymbolTable.StringToObject("annotated-case-lambda"))
+          
+          sources[i] = Copy(cl);
+
+          int depth = GetDepth(sources[i]);
+
+          if (depth > 10)
+          {
+            sources[i] = null;
+          }
+
+          if (annotated)
           {
             cl = cl.cdr as Cons;
           }
@@ -91,8 +173,15 @@ namespace IronScheme.Compiler
           {
             if (((Cons)cl.cdr).cdr == null)
             {
-              Cons b = ((Cons)((Cons)cl.cdr).car).cdr as Cons;
-              ((Cons)((Cons)cl.cdr).car).cdr = new Cons(Builtins.FALSE);
+              Cons bh = (Cons)((Cons)cl.cdr).car;
+
+              if (typed)
+              {
+                bh = bh.cdr as Cons;
+              }
+
+              Cons b = bh.cdr as Cons;
+              bh.cdr = new Cons(Builtins.FALSE);
 
               bodies.Add(b);
             }
@@ -104,8 +193,15 @@ namespace IronScheme.Compiler
 
               while (cc != null)
               {
-                Cons b = ((Cons)cc.car).cdr as Cons;
-                ((Cons)cc.car).cdr = new Cons(Builtins.FALSE);
+                Cons bh = (Cons)cc.car;
+
+                if (typed)
+                {
+                  bh = bh.cdr as Cons;
+                }
+
+                Cons b = bh.cdr as Cons;
+                bh.cdr = new Cons(Builtins.FALSE);
                 cbs.Add(b);
                 cc = cc.cdr as Cons;
               }
@@ -135,19 +231,23 @@ namespace IronScheme.Compiler
 
         if (e is MethodCallExpression)
         {
+
           MethodCallExpression mce = e as MethodCallExpression;
+          
           if (mce.Method == Closure_Make)
           {
-            libraryglobals.Add(locals[i].Name, mce.Arguments[1] as CodeBlockExpression);
-            libraryglobals.Add(vars[i], mce.Arguments[1] as CodeBlockExpression);
+            var cbe= mce.Arguments[1] as CodeBlockExpression;
+            cbe.Block.Source = sources[i];
+
+            libraryglobals.Add(locals[i].Name, cbe);
+            libraryglobals.Add(vars[i], cbe);
           }
-          if (mce.Method == Closure_MakeVarArgsX)
+          else if (mce.Method == Closure_MakeVarArgsX)
           {
             libraryglobalsX.Add(locals[i].Name, mce.Arguments[1] as CodeBlockExpression);
             libraryglobalsX.Add(vars[i], mce.Arguments[1] as CodeBlockExpression);
           }
-
-          if (mce.Method == Closure_MakeCase)
+          else if (mce.Method == Closure_MakeCase)
           {
             NewArrayExpression tcs = mce.Arguments[1] as NewArrayExpression;
 
@@ -161,6 +261,16 @@ namespace IronScheme.Compiler
 
             libraryglobalsN.Add(locals[i].Name, cdbs.ToArray());
             libraryglobalsN.Add(vars[i], cdbs.ToArray());
+          }
+
+        }
+        else if (e is NewExpression)
+        {
+          NewExpression ne = e as NewExpression;
+          if (typeof(ITypedCallable).IsAssignableFrom(e.Type))
+          {
+            libraryglobals.Add(locals[i].Name, ne.Arguments[0] as CodeBlockExpression);
+            libraryglobals.Add(vars[i], ne.Arguments[0] as CodeBlockExpression);
           }
         }
       }
@@ -242,6 +352,8 @@ namespace IronScheme.Compiler
       ClrGenerator.ResetReferences(ns);
       return ex;
     }
+
+
 
 
   }

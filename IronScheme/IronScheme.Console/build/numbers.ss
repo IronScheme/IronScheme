@@ -200,13 +200,13 @@
     (clr-call BigInteger ToInt32 b))
     
   (define (flonum->ratnum f)
-    (clr-static-call Fraction "op_Implicit(Double)" f))
+    (clr-static-call Fraction (op_Implicit Double) f))
 
   (define (ratnum->flonum r)
     (clr-call Fraction ToDouble r '()))
     
   (define (fixnum->bignum f)
-    (clr-static-call BigInteger "Create(Int32)" f))   
+    (clr-static-call BigInteger (Create Int32) f))   
     
   (define (real->complexnum num)
     (if (complexnum? num)
@@ -214,7 +214,7 @@
         (make-complexnum (inexact num) 0.0)))
         
   (define (complexnum->rectnum num)
-    (clr-static-call ComplexFraction "op_Implicit(Complex64)" num))     
+    (clr-static-call ComplexFraction (op_Implicit Complex64) num))     
     
   (define (rectnum->complexnum num)
     (clr-call ComplexFraction ToComplex64 num))               
@@ -222,7 +222,7 @@
   (define (->fixnum num)
     (if (fixnum? num)
         num
-        (clr-static-call Convert "ToInt32(Object)" num)))
+        (clr-static-call Convert (ToInt32 Object) num)))
     
   (define (->ratnum num)
     (cond 
@@ -240,9 +240,11 @@
         (assertion-violation '->bignum "not an integer" num)]))     
 
   (define/contract (real->flonum x:real)
-    (clr-static-call Convert "ToDouble(Object)" x))
+    (clr-static-call Convert (ToDouble Object) x))
     
-  (define/contract (fixnum->flonum x:fixnum)
+  (define (fixnum->flonum x)
+    (unless (fixnum? x)
+      (assertion-violation 'fixnum->flonum "not a fixnum" x))
     (clr-cast Double (clr-cast Int32 x)))
         
   (define (nan? num)
@@ -492,7 +494,7 @@
   (define (fixnum->string num radix)
     (if (fxnegative? num)
         (string-append "-" (number->string (abs num) radix))
-        (clr-static-call Convert "ToString(Int32,Int32)" num radix)))
+        (clr-static-call Convert (ToString Int32 Int32) num radix)))
      
   (define (bignum->string num radix)
     (let* ((neg? (negative? num))
@@ -721,27 +723,27 @@
         
   (define-syntax define-math-proc
     (syntax-rules ()
-      [(_ name)
+      [(_ name clr-name)
         (define (name num)
           (cond
             [(rectnum? num)
               (name (rectnum->complexnum num))]
             [(complexnum? num)
-              (clr-static-call Complex64 name num)]
+              (clr-static-call Complex64 clr-name num)]
             [(real? num)
-              (clr-static-call Math name (inexact num))]
+              (clr-static-call Math clr-name (inexact num))]
             [else
               (assertion-violation 'name "not a number" num)]))]))
               
-  (define-math-proc exp)
-  (define-math-proc sin)
-  (define-math-proc asin)
-  (define-math-proc sinh)
-  (define-math-proc cos)
-  (define-math-proc acos)
-  (define-math-proc cosh)
-  (define-math-proc tan)
-  (define-math-proc tanh)
+  (define-math-proc exp Exp)
+  (define-math-proc sin Sin)
+  (define-math-proc asin Asin)
+  (define-math-proc sinh Sinh)
+  (define-math-proc cos Cos)
+  (define-math-proc acos Acos)
+  (define-math-proc cosh Cosh)
+  (define-math-proc tan Tan)
+  (define-math-proc tanh Tanh)
   
   (define atan
     (case-lambda
@@ -822,7 +824,7 @@
         (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
           (exact (if (negative? x) (- r 1) r)))]
       [else
-        (clr-static-call Math "Floor(Double)" (inexact x))]))
+        (clr-static-call Math (Floor Double) (inexact x))]))
              
   (define/contract (ceiling x:real)
     (cond
@@ -831,13 +833,13 @@
         (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
           (exact (if (positive? x) (+ r 1) r)))]
       [else
-        (clr-static-call Math "Ceiling(Double)" (inexact x))]))
+        (clr-static-call Math (Ceiling Double) (inexact x))]))
 
   (define/contract (truncate x:real)
     (cond
       [(exact-integer? x) x]
       [else
-        (let ((r (clr-static-call Math "Truncate(Double)" (inexact x))))
+        (let ((r (clr-static-call Math (Truncate Double) (inexact x))))
           (if (exact? x)
               (exact r)
               r))]))
@@ -866,7 +868,7 @@
                        [else (+ d 1)]))]
             [else d]))]
       [else
-        (clr-static-call Math "Round(Double)" (inexact x))]))
+        (clr-static-call Math (Round Double) (inexact x))]))
         
         
   (define/contract (sqrt num:number)

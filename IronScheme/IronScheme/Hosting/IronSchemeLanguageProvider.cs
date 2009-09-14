@@ -122,8 +122,7 @@ namespace IronScheme.Hosting
               Compiler.BaseHelper.scriptmodule);
           }
         }
-        //IronScheme.Runtime.Builtins.commandline = Options.RemainingArgs;
-        //Runtime.Builtins.Load("~/ironscheme.boot.pp");
+
         if (!Options.TabCompletion)
         {
           Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
@@ -164,7 +163,7 @@ namespace IronScheme.Hosting
           5000000
 #endif
           );
-        //t.IsBackground = true;
+        t.IsBackground = true;
 
         t.Start();
 

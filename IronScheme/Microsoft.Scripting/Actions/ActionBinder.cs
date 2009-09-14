@@ -649,13 +649,13 @@ private readonly RuleCache _ruleCache = new RuleCache();
         } 
 #endif
 
-
+#if FULL
         protected internal virtual IList<Type> GetExtensionTypes(Type t) {
             // consult globally registered types
             return RuntimeHelpers.GetExtensionTypes(t);
         }
 
-#if FULL
+
 
         /// <summary>
         /// Provides an opportunity for languages to replace all MemberInfo's with their own type.

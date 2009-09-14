@@ -83,7 +83,9 @@ namespace IronScheme.Compiler
 
       Cons body = Builtins.Cdr(Builtins.Cdr(args)) as Cons;
 
-      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c), Builtins.GetClrType(Builtins.Second(typespec)) as Type);
+      var returntype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote,  Builtins.Second(typespec)));
+
+      CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c), returntype);
       NameHint = SymbolId.Empty;
       cb.Filename = LocationHint;
       cb.Parent = c;
@@ -146,7 +148,7 @@ namespace IronScheme.Compiler
     {
       Cons lambdas = args as Cons;
 
-      int arlen = lambdas.Length;
+      int arlen = lambdas == null ? 0 : lambdas.Length;
 
       if (arlen == 1)
       {

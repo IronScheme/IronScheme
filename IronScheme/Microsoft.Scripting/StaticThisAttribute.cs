@@ -12,6 +12,7 @@
  *
  *
  * ***************************************************************************/
+#if FULL
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -24,7 +25,5 @@ namespace Microsoft.Scripting {
     public sealed class StaticThisAttribute : Attribute {
     }
 }
-
-#if FULL
 
 #endif

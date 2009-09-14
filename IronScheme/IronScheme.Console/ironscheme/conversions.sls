@@ -33,7 +33,7 @@
     (clr-static-call Convert ToByte obj))
     
   (define (->sbyte obj)
-    (clr-static-call Convert ToSbyte obj))
+    (clr-static-call Convert ToSByte obj))
     
   (define (->char obj)
     (clr-static-call Convert ToChar obj))
@@ -42,19 +42,19 @@
     (clr-static-call Convert ToInt16 obj))
     
   (define (->uint16 obj)
-    (clr-static-call Convert ToUint16 obj))
+    (clr-static-call Convert ToUInt16 obj))
     
   (define (->int32 obj)
     (clr-static-call Convert ToInt32 obj))
     
   (define (->uint32 obj)
-    (clr-static-call Convert ToUint32 obj))
+    (clr-static-call Convert ToUInt32 obj))
     
   (define (->int64 obj)
     (clr-static-call Convert ToInt64 obj))
     
   (define (->uint64 obj)
-    (clr-static-call Convert ToUint64 obj))
+    (clr-static-call Convert ToUInt64 obj))
     
   (define (->single obj)
     (clr-static-call Convert ToSingle obj))
@@ -69,7 +69,7 @@
     (clr-static-call Convert ToBoolean obj))
   
   (define (->datetime obj)
-    (clr-static-call Convert ToDatetime obj))
+    (clr-static-call Convert ToDateTime obj))
           
 
 )

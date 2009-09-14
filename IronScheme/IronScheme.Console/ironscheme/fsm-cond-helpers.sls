@@ -12,7 +12,7 @@
 (library (ironscheme fsm-cond-helpers)
   (export
     get-predicates
-    generator)
+    fsm-cond-transformer)
   (import
     (ironscheme))
     
@@ -96,7 +96,7 @@
               (r)
               else-expr))))
               
-  (define (generator proc)
+  (define (fsm-cond-transformer proc)
     (lambda (x)
       (syntax-case x (else)
         [(_ (id ...) ((pred ...) expr) ... (else else-expr))

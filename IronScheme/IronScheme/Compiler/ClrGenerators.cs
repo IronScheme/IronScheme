@@ -72,6 +72,182 @@ namespace IronScheme.Compiler
       return namespaces;
     }
 
+    public static Type GetTypeFast(string name)
+    {
+      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        if (ass.ManifestModule.Name != "<In Memory Module>")
+        {
+          var t = ass.GetType(name);
+          if (t != null)
+          {
+            return t;
+          }
+        }
+      }
+      return null;
+    }
+
+    static string GetTypeName(string name, string ns)
+    {
+      if (string.IsNullOrEmpty(ns))
+      {
+        return name;
+      }
+      else
+      {
+        return ns + "." + name;
+      }
+    }
+
+    protected static Type ReadType(object type)
+    {
+      Cons gt = type as Cons;
+      if (gt != null)
+      {
+        var ga = new List<Type>();
+
+        if (gt.cdr == null)
+        {
+          // no support for open types
+          return null;
+        }
+
+        foreach (var garg in gt.cdr as Cons)
+        {
+          var t = ReadType(garg);
+          if (t == null)
+          {
+            return null;
+          }
+          ga.Add(t);
+        }
+
+        var st = string.Format("{0}`{1}",
+          SymbolTable.IdToString((SymbolId)gt.car),
+          ga.Count);
+
+        var mt = ScanForType(st);
+        if (mt == null)
+        {
+          return null;
+        }
+
+        if (ga.Count == 0)
+        {
+          return mt;
+        }
+
+        var ft = mt.MakeGenericType(ga.ToArray());
+        return ft;
+      }
+      else if (type is SymbolId)
+      {
+        var st = SymbolTable.IdToString((SymbolId)type);
+        return ScanForType(st);
+      }
+      else if (type is string)
+      {
+        return ScanForType(type as string);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+    static Type ScanForType(string name)
+    {
+      var t = GetTypeFast(GetTypeName(name, ""));
+      if (t != null)
+      {
+        return t;
+      }
+
+      foreach (var ns in namespaces.Keys)
+      {
+        t = GetTypeFast(GetTypeName(name, ns));
+        if (t != null)
+        {
+          return t;
+        }
+      }
+
+      return null;
+    }
+
+    public static Type ExtractTypeInfo(object rtype)
+    {
+      Type t;
+      string type;
+      bool inferred;
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
+      return t;
+    }
+
+
+    protected static void ExtractTypeInfo(object rtype, out Type t, out string type, out bool inferred)
+    {
+      inferred = false;
+      t = null;
+      type = null;
+
+      if (rtype is SymbolId)
+      {
+        var tt = Builtins.SymbolValue(rtype);
+        t = ReadType(tt);
+
+        if (t == null)
+        {
+          ClrSyntaxError("ExtractTypeInfo", "type not found", tt);
+        }
+        type = t.FullName;
+      }
+      // quoted
+      else
+      {
+        object stype = Builtins.Second(rtype);
+
+        if (stype is SymbolId)
+        {
+          type = SymbolTable.IdToString((SymbolId)stype);
+          t = ReadType(stype);
+
+          if (t == null)
+          {
+            ClrSyntaxError("ExtractTypeInfo", "type not found", type);
+          }
+
+        }
+        else if (stype is string)
+        {
+          type = stype as string;
+          t = ReadType(type);
+
+          if (t == null)
+          {
+            ClrSyntaxError("ExtractTypeInfo", "type not found", type);
+          }
+
+        }
+        else if (stype is Cons)
+        {
+          t = ReadType(stype);
+          type = t.FullName;
+
+          if (t == null)
+          {
+            ClrSyntaxError("ExtractTypeInfo", "type not found", stype);
+          }
+        }
+        else
+        {
+          type = "inferred";
+          inferred = true;
+        }
+      }
+    }
+
     protected static Regex typeparser = new Regex(@"(?<ns>([^\s.<]+\.)*)(?<type>[^\s.<\[]+)(?<args>(<[^>]+>)?)(?<isarray>\[\])?",
       RegexOptions.Compiled | RegexOptions.ExplicitCapture); // last bit has to be greedy, greedy wont help, need to figure out nesting constructs
 
@@ -233,6 +409,22 @@ namespace IronScheme.Compiler
     }
   }
 
+  [Generator("clr-type-of-internal")]
+  public sealed class ClrTypeOfGenerator : ClrGenerator
+  {
+    public override Expression Generate(object args, CodeBlock cb)
+    {
+      var to = Builtins.First(args);
+      Type t = ExtractTypeInfo(to);
+      
+      if (t == null)
+      {
+        ClrSyntaxError("clr-type-of", "type not found", to, Cons.FromList(namespaces.Keys));
+      }
+      return Ast.Constant(t);
+    }
+  }
+
   [Generator("clr-namespaces-internal")]
   public sealed class ClrNamespacesGenerator : ClrGenerator
   {
@@ -248,27 +440,13 @@ namespace IronScheme.Compiler
     // (clr-field-get type field-name obj )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      object stype = Builtins.Second(Builtins.First(args));
-      Type t = null;
-      string type = null;
-      bool inferred = false;
+      Type t;
+      string type;
+      bool inferred;
 
-      if (stype is SymbolId)
-      {
-        type = SymbolTable.IdToString((SymbolId)stype);
-        t = GetType(type);
+      object rtype = Builtins.First(args);
 
-        if (t == null)
-        {
-          ClrSyntaxError("clr-field-get", "type not found", type);
-        }
-
-      }
-      else
-      {
-        type = "inferred";
-        inferred = true;
-      }
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
 
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
@@ -311,6 +489,7 @@ namespace IronScheme.Compiler
 
       return Ast.ReadField(instance, fi);
     }
+
   }
 
   [Generator("clr-field-set!-internal")]
@@ -319,27 +498,13 @@ namespace IronScheme.Compiler
     // (clr-field-set! type field-name obj value)
     public override Expression Generate(object args, CodeBlock cb)
     {
-      object stype = Builtins.Second(Builtins.First(args));
       Type t = null;
       string type = null;
       bool inferred = false;
 
-      if (stype is SymbolId)
-      {
-        type = SymbolTable.IdToString((SymbolId)stype);
-        t = GetType(type);
+      object rtype = Builtins.First(args);
 
-        if (t == null)
-        {
-          ClrSyntaxError("clr-field-set!", "type not found", type);
-        }
-
-      }
-      else
-      {
-        type = "inferred";
-        inferred = true;
-      }
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
 
       string member = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.Second(args)));
 
@@ -399,43 +564,56 @@ namespace IronScheme.Compiler
     // (clr-call type member obj arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      object stype = Builtins.Second(Builtins.First(args));
       Type t = null;
       string type = null;
       bool inferred = false;
 
-      if (stype is SymbolId)
-      {
-        type = SymbolTable.IdToString((SymbolId)stype);
-        t = GetType(type);
+      object rtype = Builtins.First(args);
 
-        if (t == null)
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
+
+      string member = null;
+      var marg = Builtins.Second(args);
+
+      object memobj = null;
+      Type[] argtypes = null;
+      Type[] gentypes = null;
+
+      if (marg is SymbolId)
+      {
+        var mem = Builtins.SymbolValue(marg);
+
+        if (mem is Cons)
         {
-          ClrSyntaxError("clr-call", "type not found", type);
-        }
-
-      }
-      else
-      {
-        type = "inferred";
-        inferred = true;
-      }
-
-      object memobj = Builtins.Second(Builtins.Second(args));
-
-      string member = memobj is SymbolId ? SymbolTable.IdToString((SymbolId)memobj) : "";
-
-      if (memobj is string)
-      {
-        string mems = memobj as string;
-        int bi = mems.IndexOf('(');
-        if (bi < 0)
-        {
-          member = mems;
+          ExtractMethodInfo(mem as Cons, ref member, ref argtypes, ref gentypes);
         }
         else
         {
-          member = mems.Substring(0, bi);
+          ClrSyntaxError("clr-call", "type member not supported", mem);
+        }
+      }
+      else
+      {
+        memobj = Builtins.Second(marg);
+
+        member = memobj is SymbolId ? SymbolTable.IdToString((SymbolId)memobj) : "";
+
+        if (memobj is string)
+        {
+          string mems = memobj as string;
+          int bi = mems.IndexOf('(');
+          if (bi < 0)
+          {
+            member = mems;
+          }
+          else
+          {
+            member = mems.Substring(0, bi);
+          }
+        }
+        else if (memobj is Cons)
+        {
+          ExtractMethodInfo(memobj as Cons, ref member, ref argtypes, ref gentypes);
         }
       }
 
@@ -489,14 +667,19 @@ namespace IronScheme.Compiler
 
       List<MethodBase> candidates = new List<MethodBase>();
 
-      BindingFlags bf = BindingFlags.IgnoreCase | BindingFlags.Public | (ct == CallType.None ? BindingFlags.Static : BindingFlags.Instance);
+      BindingFlags bf = BindingFlags.Public | (ct == CallType.None ? BindingFlags.Static : BindingFlags.Instance);
 
-      foreach (MemberInfo mi in t.GetMember(member, bf))
+      foreach (MethodInfo mi in t.GetMember(member, MemberTypes.Method, bf))
       {
-        if (mi is MethodInfo)
+        if (mi.ContainsGenericParameters)
         {
-          candidates.Add((MethodInfo)mi);    
+          if (gentypes != null && mi.GetGenericArguments().Length == gentypes.Length)
+          {
+            candidates.Add(mi.MakeGenericMethod(gentypes));
+            continue;
+          }
         }
+        candidates.Add(mi);    
       }
 
       Type[] types = new Type[arguments.Length];
@@ -525,6 +708,13 @@ namespace IronScheme.Compiler
               types[i] = GetType(typeargs[i]);
             }
           }
+        }
+      }
+      else if (argtypes != null)
+      {
+        for (int i = 0; i < types.Length; i++)
+        {
+          types[i] = argtypes[i];
         }
       }
 
@@ -583,6 +773,49 @@ namespace IronScheme.Compiler
       ClrSyntaxError("clr-call", "member could not be resolved on type: " + type, args, member);
 
       return null;
+    }
+
+    private static void ExtractMethodInfo(Cons mcc, ref string member, ref Type[] argtypes, ref Type[] gentypes)
+    {
+      member = SymbolTable.IdToString((SymbolId)mcc.car);
+
+      mcc = mcc.cdr as Cons;
+
+      if (mcc.car is object[])
+      {
+        var gargs = new List<Type>();
+
+        foreach (var ga in mcc.car as object[])
+        {
+          var tt = ReadType(ga);
+          if (tt == null)
+          {
+            ClrSyntaxError("clr-call", "type not found", ga);
+          }
+          gargs.Add(tt);
+        }
+
+        gentypes = gargs.ToArray();
+
+        mcc = mcc.cdr as Cons;
+      }
+
+      if (mcc != null)
+      {
+        var targs = new List<Type>();
+
+        foreach (var arg in mcc)
+        {
+          var tt = ReadType(arg);
+          if (tt == null)
+          {
+            ClrSyntaxError("clr-call", "type not found", arg);
+          }
+          targs.Add(tt);
+        }
+
+        argtypes = targs.ToArray();
+      }
     }
   }
 
@@ -644,8 +877,14 @@ namespace IronScheme.Compiler
     // (clr-is type arg)
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
-      Type t = GetType(type);
+      Type t;
+      string type;
+      bool inferred;
+
+      object rtype = Builtins.First(args);
+
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
+
       if (t == null)
       {
         ClrSyntaxError("clr-is", "type not found", type);
@@ -671,8 +910,14 @@ namespace IronScheme.Compiler
     // (clr-cast type arg)
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
-      Type t = GetType(type);
+      Type t;
+      string type;
+      bool inferred;
+
+      object rtype = Builtins.First(args);
+
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
+
       if (t == null)
       {
         ClrSyntaxError("clr-cast", "type not found", type);
@@ -690,8 +935,14 @@ namespace IronScheme.Compiler
     // (clr-new-array type size )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
-      Type t = GetType(type);
+      Type t;
+      string type;
+      bool inferred;
+
+      object rtype = Builtins.First(args);
+
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
+
       if (t == null)
       {
         ClrSyntaxError("clr-new-array", "type not found", type);
@@ -713,8 +964,14 @@ namespace IronScheme.Compiler
     // (clr-new type arg1 ... )
     public override Expression Generate(object args, CodeBlock cb)
     {
-      string type = SymbolTable.IdToString((SymbolId)Builtins.Second(Builtins.First(args)));
-      Type t = GetType(type);
+      Type t;
+      string type;
+      bool inferred;
+
+      object rtype = Builtins.First(args);
+
+      ExtractTypeInfo(rtype, out t, out type, out inferred);
+
       if (t == null)
       {
         ClrSyntaxError("clr-new", "type not found", type);

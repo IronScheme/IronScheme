@@ -77,6 +77,8 @@ namespace Microsoft.Scripting.Ast {
           set { inlined = value; }
         }
 
+        public object Source { get; set; }
+
 
 
 #if FULL

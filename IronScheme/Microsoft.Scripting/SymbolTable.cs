@@ -22,14 +22,13 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.Scripting {
     public static class SymbolTable {
-        private static object _lockObj = new object();
+        //private static object _lockObj = new object();
 
-        private static Dictionary<string, int> _idDict = new Dictionary<string, int>(InitialTableSize);
+        readonly static Dictionary<string, int> _idDict = new Dictionary<string, int>(InitialTableSize);
 
         private const int InitialTableSize = 8192;
-        private static Dictionary<int, string> _fieldDict = new Dictionary<int, string>(InitialTableSize);
-
-        private static Dictionary<SymbolId, object> _boxDict = new Dictionary<SymbolId, object>(InitialTableSize);
+        readonly static Dictionary<int, string> _fieldDict = new Dictionary<int, string>(InitialTableSize);
+        readonly static Dictionary<SymbolId, object> _boxDict = new Dictionary<SymbolId, object>(InitialTableSize);
 
         private static int _nextCaseInsensitiveId = 1;
 
@@ -37,7 +36,7 @@ namespace Microsoft.Scripting {
             _fieldDict[0] = null;   // initialize the null string
         }
 
-        static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        readonly static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static object GetSymbol(int id)
         {
@@ -84,60 +83,63 @@ namespace Microsoft.Scripting {
             });
 
             int res;
-            lock (_lockObj) {
+            //lock (_lockObj) {
                 // First, look up the identifier case-sensitively.
-                if (!_idDict.TryGetValue(field, out res)) {
-                    //string invariantField = field.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
+              if (!_idDict.TryGetValue(field, out res))
+              {
+                //string invariantField = field.ToUpper(System.Globalization.CultureInfo.InvariantCulture);
 
-                    // OK, didn't find it, so let's look up the case-insensitive
-                    // identifier.
-                    //if (_idDict.TryGetValue(invariantField, out res)) {
-                    //    // OK, this is a new casing of an existing identifier.
-                    //    Debug.Assert(res < 0, "Must have invariant bit set!");
+                // OK, didn't find it, so let's look up the case-insensitive
+                // identifier.
+                //if (_idDict.TryGetValue(invariantField, out res)) {
+                //    // OK, this is a new casing of an existing identifier.
+                //    Debug.Assert(res < 0, "Must have invariant bit set!");
 
-                    //    // Throw if we've exhausted the number of casings.
-                    //    if (unchecked(((uint)res & 0x00FFFFFF) == 0x00FFFFFF)) {
-                    //        throw new InvalidOperationException(String.Format(Resources.CantAddCasing, field));
-                    //    }
+                //    // Throw if we've exhausted the number of casings.
+                //    if (unchecked(((uint)res & 0x00FFFFFF) == 0x00FFFFFF)) {
+                //        throw new InvalidOperationException(String.Format(Resources.CantAddCasing, field));
+                //    }
 
-                    //    int invariantRes = res + 0x01000000;
+                //    int invariantRes = res + 0x01000000;
 
-                    //    // Mask off the high bit.
-                    //    res = unchecked((int)((uint)res & 0x7FFFFFFF));
+                //    // Mask off the high bit.
+                //    res = unchecked((int)((uint)res & 0x7FFFFFFF));
 
-                    //    _idDict[field] = res;
-                    //    _idDict[invariantField] = invariantRes;
-                    //    _fieldDict[res] = field;
-                    //} else {
-                        // This is a whole new identifier.
+                //    _idDict[field] = res;
+                //    _idDict[invariantField] = invariantRes;
+                //    _fieldDict[res] = field;
+                //} else {
+                // This is a whole new identifier.
 
-                        if (_nextCaseInsensitiveId == int.MaxValue) {
-                            throw new InvalidOperationException(String.Format(Resources.CantAddIdentifier, field));
-                        }
+                //if (_nextCaseInsensitiveId == int.MaxValue)
+                //{
+                //  throw new InvalidOperationException(String.Format(Resources.CantAddIdentifier, field));
+                //}
 
-                        // register new id...
-                        res = _nextCaseInsensitiveId++;
-                        // Console.WriteLine("Registering {0} as {1}", field, res);
+                // register new id...
+                res = Interlocked.Increment(ref _nextCaseInsensitiveId);
+                // Console.WriteLine("Registering {0} as {1}", field, res);
 
-                        //_fieldDict[res] = invariantField;
+                //_fieldDict[res] = invariantField;
 
-                        //if (field != invariantField) {
-                            res |= 0x01000000;
-                            _idDict[field] = res;
-                            _fieldDict[res] = field;
-                        //}
+                //if (field != invariantField) {
+                //res |= 0x01000000;
+                _idDict[field] = res;
+                _fieldDict[res] = field;
+                //}
 
-                        //_idDict[invariantField] = unchecked((int)(((uint)res | 0x80000000) + 0x01000000));
-                    //}
-                } else {
+                //_idDict[invariantField] = unchecked((int)(((uint)res | 0x80000000) + 0x01000000));
+                //}
+              }
+                // else {
                     // If this happens to be the invariant field, then we need to
                     // mask off the top byte, since that's just used to pick the next
                     // id for this identifier.
-                    if (res < 0) {
-                        res &= 0x00FFFFFF;
-                    }
-                }
-            }
+                    //if (res < 0) {
+                        //res &= 0x00FFFFFF;
+                    //}
+                //}
+            //}
             return new SymbolId(res);
         }
 
@@ -188,9 +190,9 @@ namespace Microsoft.Scripting {
                 throw new ArgumentNullException(Resources.NameMustBeString);
             }
 
-            lock (_lockObj) {
+            //lock (_lockObj) {
                 return _idDict.ContainsKey(symbol);
-            }
+            //}
         }
     }
 }

@@ -395,7 +395,7 @@ namespace IronScheme.Runtime.R6RS
       }
 
       // should be internal somehow
-      if (parenttype.IsSubclassOf(typeof(Exception)))
+      if (parenttype.IsSubclassOf(typeof(Condition)))
       {
         SetSymbolValue(SymbolTable.StringToObject(n + "-rtd"), rtd);
       }
@@ -417,7 +417,7 @@ namespace IronScheme.Runtime.R6RS
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;
 
       // should be internal somehow
-      if (t.type.IsSubclassOf(typeof(Exception)))
+      if (t.type.IsSubclassOf(typeof(Condition)))
       {
         SetSymbolValue(SymbolTable.StringToObject(t.Name + "-rcd"), rcd);
       }
@@ -544,7 +544,7 @@ namespace IronScheme.Runtime.R6RS
           return rtd;
         }
       }
-      return FALSE;
+      return AssertionViolation("record-rtd", "not a record", obj);
     }
 
   }

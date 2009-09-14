@@ -774,7 +774,7 @@ namespace IronScheme.Compiler
           SymbolId an = (SymbolId)Builtins.First(cargs);
           SymbolId type = (SymbolId)Builtins.First(ctypes);
 
-          Type clrtype = Builtins.GetClrType(type) as Type;
+          Type clrtype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote, type));
 
           CreateParameter(an, cb, clrtype);
 

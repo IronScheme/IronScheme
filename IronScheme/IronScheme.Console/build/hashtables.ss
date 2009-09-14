@@ -13,6 +13,14 @@
   (export
     make-eq-hashtable
     make-eqv-hashtable
+    make-hashtable
+    
+    hashtable-copy
+    hashtable-keys
+    hashtable-mutable?
+    eqv-hash
+    
+    
     hashtable?
     
     hashtable-size
@@ -35,16 +43,12 @@
     (rnrs base)
     (rnrs arithmetic fixnums)
     (rnrs control)
-    (only 
-      (rnrs hashtables) 
-      make-hashtable 
-      hashtable-equivalence-function 
-      hashtable-hash-function)
-    (ironscheme core)
+    (except (ironscheme core) eqv-hash)
     (ironscheme contracts)
     (ironscheme clr))
     
   (clr-using System.Collections)
+  (clr-using IronScheme.Runtime.R6RS)
   
   (define (hashtable? obj)
     (clr-is Hashtable obj))
@@ -52,12 +56,53 @@
   (define/contract make-eq-hashtable
     (case-lambda
       [()           (make-eq-hashtable 32)]
-      [(k:fixnum)   (clr-new Hashtable (clr-cast int32 k))]))
+      [(k:fixnum)   (clr-new Hashtable (clr-cast Int32 k))]))
     
   (define/contract make-eqv-hashtable
     (case-lambda
       [()           (make-eqv-hashtable 32)]
       [(k:fixnum)   (make-hashtable eqv-hash eqv? k)]))
+      
+  (define/contract make-hashtable
+    (case-lambda
+      [(hash equiv)
+        (make-hashtable hash equiv 32)]
+      [(hash:procedure equiv:procedure k:fixnum)
+        (let ((cmp (clr-new HashComparer hash equiv)))
+          (clr-new HashtableEx k cmp))]))  
+          
+  (define/contract hashtable-copy
+    (case-lambda
+      [(ht)
+        (hashtable-copy ht #f)]
+      [(ht:hashtable mutable?:boolean)
+        (cond
+          [mutable? (clr-call Hashtable Clone ht)]
+          [(clr-is HashtableEx ht)
+            (clr-call HashtableEx MakeReadOnly ht)]
+          [else
+            (clr-new ReadOnlyHashtable ht)])]))
+            
+  (define/contract (hashtable-keys ht:hashtable)
+    (let ((keys (clr-new ArrayList (clr-prop-get Hashtable Keys ht))))
+      (clr-call ArrayList ToArray keys)))  
+      
+  (define/contract (hashtable-mutable? ht:hashtable)
+    (not (clr-is ReadOnlyHashtable ht)))
+    
+  (define (eqv-hash obj)
+    (if (null? obj)
+        0
+        (clr-call Object GetHashCode obj)))
+        
+  (define/contract (hashtable-equivalence-function ht:hashtable)
+    (if (clr-is HashtableEx ht)
+        (clr-prop-get HashtableEx EqualityFunction ht)
+        eq?))
+         
+  (define/contract (hashtable-hash-function ht:hashtable)
+    (and (clr-is HashtableEx ht)
+         (clr-prop-get HashtableEx HashFunction ht)))
   
   (define/contract (hashtable-size ht:hashtable)
     (clr-prop-get Hashtable Count ht))
@@ -90,12 +135,12 @@
         (clr-call Hashtable Clear ht)]))
       
   (define/contract (string-hash str:string)
-    (clr-call StringComparer "GetHashCode(String)"
+    (clr-call StringComparer (GetHashCode String)
         (clr-static-prop-get StringComparer Ordinal) 
         (clr-call Object ToString str)))
 
   (define/contract (string-ci-hash str:string)
-    (clr-call StringComparer "GetHashCode(String)"
+    (clr-call StringComparer (GetHashCode String)
         (clr-static-prop-get StringComparer InvariantCultureIgnoreCase) 
         (clr-call Object ToString str)))
         

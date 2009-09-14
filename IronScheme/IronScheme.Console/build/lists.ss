@@ -91,9 +91,9 @@
       
   (define (list-tail lst index)
     (cond
+      [(zero? index) lst]
       [(or (null? lst) (negative? index))
         (assertion-violation 'list-tail "index out of range" lst index)]
-      [(zero? index) lst]
       [else
         (list-tail (cdr lst) (- index 1))]))      
         

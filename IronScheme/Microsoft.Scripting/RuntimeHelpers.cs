@@ -55,10 +55,10 @@ namespace Microsoft.Scripting {
 
 #if FULL
         private static Publisher<DelegateSignatureInfo, DelegateInfo> _dynamicDelegateCache = new Publisher<DelegateSignatureInfo, DelegateInfo>(); 
-#endif
+
 
         private static Dictionary<Type, List<Type>> _extensionTypes = new Dictionary<Type, List<Type>>();
-
+#endif
         private static object[] MakeCache() {
             object[] result = new object[MAX_CACHE - MIN_CACHE];
 
@@ -177,6 +177,7 @@ namespace Microsoft.Scripting {
             return new MissingMemberException(message);
         }
 
+
         public delegate object AssertHandler(object who, object msg, params object[] irritants);
 
         public static AssertHandler Assert;
@@ -196,7 +197,7 @@ namespace Microsoft.Scripting {
         /// Called from generated code, helper to do name lookup
         /// </summary>
         public static object LookupName(CodeContext context, SymbolId name) {
-          return context.Scope.LookupName(name);
+          return context.Scope.LookupName(context.LanguageContext, name);
         }
 
         /// <summary>
@@ -219,7 +220,7 @@ namespace Microsoft.Scripting {
         {
           context.LanguageContext.SetName(context, (SymbolId) name, value);
         }
-
+#if FULL
         /// <summary>
         /// Called from generated code, helper to remove a name
         /// </summary>
@@ -227,6 +228,7 @@ namespace Microsoft.Scripting {
             context.LanguageContext.RemoveName(context, name);
             return null;
         }
+#endif
         /// <summary>
         /// Called from generated code, helper to do a global name lookup
         /// </summary>
@@ -247,6 +249,8 @@ namespace Microsoft.Scripting {
             //context.LanguageContext.SetName(moduleScopedContext, name, value);
         }
 
+#if FULL
+
         /// <summary>
         /// Called from generated code, helper to remove a global name
         /// </summary>
@@ -255,7 +259,7 @@ namespace Microsoft.Scripting {
             CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
             context.LanguageContext.RemoveName(moduleScopedContext, name);
         }
-
+#endif
         public static void InitializeModuleFieldBoxed(CodeContext context, object name, ref ModuleGlobalWrapper wrapper)
         {
           var s = (SymbolId)name;
@@ -405,7 +409,7 @@ namespace Microsoft.Scripting {
         public static IAttributesCollection GetLocalDictionary(CodeContext context) {
             return context.Scope.Dict;
         }
-
+#if FULL
         /// <summary>
         /// Initializes all but the 1st member of a environement tuple to Uninitialized.Instance
         /// 
@@ -439,7 +443,7 @@ namespace Microsoft.Scripting {
         }
 
 
-#if FULL
+
         public static DynamicStackFrame[] GetDynamicStackFrames(Exception e) {
             return GetDynamicStackFrames(e, true);
         }
@@ -578,7 +582,7 @@ namespace Microsoft.Scripting {
 
             throw RuntimeHelpers.SimpleTypeError("Object is not callable.");
         }
-
+#if FULL
         /// <summary>
         /// Registers a set of extension methods from the provided assemly.
         /// </summary>
@@ -659,5 +663,6 @@ namespace Microsoft.Scripting {
 
             return ArrayUtils.EmptyTypes;
         }
+#endif
     }
 }

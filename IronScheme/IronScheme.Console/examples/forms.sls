@@ -11,22 +11,22 @@
   
   ;;will load assembly if not loaded
   (clr-reference System.Windows.Forms)
-  (clr-using system.windows.forms)
+  (clr-using System.Windows.Forms)
   
   (define (make-form)
-    (clr-new form))
+    (clr-new Form))
     
   (define (form-show form)
-    (clr-call form show form))
+    (clr-call Form Show form))
     
   (define (application-run form)
-    (clr-static-call application run (clr-cast form form)))
+    (clr-static-call Application (Run Form) form))
   
   (define (form-click-add! form proc)
-    (clr-event-add! form click form proc))
+    (clr-event-add! Form Click form proc))
     
   (define (application-exit)
-    (clr-static-call application exit))
+    (clr-static-call Application Exit))
     
 
 )
