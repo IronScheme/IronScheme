@@ -1,4 +1,39 @@
-﻿(import (ironscheme clr))
+﻿
+
+(debug-mode? #t)
+(import (source-optimizer optimize))
+(optimize '(if (not #t) 1 2))
+
+(optimize '(letrec ((f (lambda (x) (f x)))) (f)))
+(optimize '((lambda (x) (x x)) (lambda (y) (y y))))
+
+(import (source-optimizer optimize))
+(optimize '((lambda (x) (begin (set! x 2) x)) 1))
+(optimize '(letrec ((f (lambda (x) (f x)))) f))
+(optimize '(letrec ((f (lambda (x) (f x)))) +))
+(optimize '((lambda (x) (+ x)) 1))
+(optimize '((lambda (x) (- x)) 1))
+(optimize '((lambda (x) (* x)) 1))
+(optimize '((lambda (x) (/ x)) 1))
+(optimize '((lambda (y) y) ((lambda (x) (+ x)) 1)))
+(optimize '((lambda (y) y) ((lambda (x) (- x)) 1)))
+(optimize '((lambda (y) y) ((lambda (x) (* x)) 1)))
+(optimize '((lambda (y) y) ((lambda (x) (/ x)) 1)))
+(optimize '(((lambda (x) (lambda (f) (f x))) 1) +))
+(optimize '(((lambda (x) (lambda (f) (f x))) 1) -))
+(optimize '(((lambda (x) (lambda (f) (f x))) 1) *))
+(optimize '(((lambda (x) (lambda (f) (f x))) 1) /))
+
+(let-syntax [(quote (syntax-rules () [(_ e) (apply list 'e)]))]
+  (define (f) '(x)))
+
+(define (f) '(x))  
+(eq? (f) (f))     => #f
+  
+
+
+
+(import (ironscheme clr))
 (import (ironscheme clr dynamic))
 (clr-dynamic (list 12 34) PrettyPrint)
 (clr-dynamic (list 12 34) car 1)
@@ -876,3 +911,8 @@
               
     
     
+
+
+
+
+

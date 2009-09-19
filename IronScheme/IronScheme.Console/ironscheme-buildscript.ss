@@ -34,7 +34,7 @@
   (psyntax expander)
   (ironscheme unsafe)
   (ironscheme clr internal)
-  (only (ironscheme core) compile-bootfile)
+  (only (ironscheme core) compile-bootfile format)
   (only (ironscheme) time-it optimization-level include import library)
   )
   
@@ -86,6 +86,12 @@
     "build/pretty-print.ss" 
     
     "build/cps.ss"
+    
+    "source-optimizer/prelex.sls"
+    "source-optimizer/primitive.sls"
+    "source-optimizer/transform.sls"
+    "source-optimizer/cp0.sls"
+    "source-optimizer/optimize.sls"
     
     "build/constant-fold.ss"
     
@@ -278,6 +284,7 @@
 (define identifier->library-map
   '(
     ;;;
+    (optimize                                   ic)
     (allow-library-redefinition                 i)
     (with-clr-exception-handler                 i)
     (typed-lambda                               i)
@@ -1548,7 +1555,7 @@
                  op))))))))
   (define-prims
     clr-call-internal clr-cast-internal zero? string-length vector-ref syntax-violation vector-length cons* cadr cddr filter
-    syntax-dispatch apply cons append map list syntax-error reverse
+    syntax-dispatch apply cons append map list syntax-error reverse format
     assertion-violation null? car cdr pair? bound-identifier=? list->vector
     generate-temporaries = + datum->syntax string->symbol void
     string-append symbol->string syntax->datum gensym length 

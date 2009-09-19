@@ -235,7 +235,9 @@ namespace IronScheme.Runtime.R6RS
         attrs |= TypeAttributes.Sealed;
       }
 
-      TypeGen tg = ag.DefinePublicType(n.Replace("&", "$") + Guid.NewGuid() , parenttype, attrs);
+      object gid = (object)id ?? Guid.NewGuid();
+
+      TypeGen tg = ag.DefinePublicType("record." + gid + "." + n.Replace("&", "$"), parenttype, attrs);
 
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
