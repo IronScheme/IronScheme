@@ -314,8 +314,7 @@
   (define (display-condition e port)
     (for-each 
       (lambda (c)
-        (let ((rtd (and (record? c) (record-rtd c))))
-          (if rtd
+        (let ((rtd (record-rtd c)))
               (begin
                 (put-string port (symbol->string (record-type-name rtd)))
                 (let* ((flds (get-fields rtd c))
@@ -351,14 +350,7 @@
                           (put-string port ": ")
                           (generic-write (cdr nv) port #t)
                           (put-string port "\n"))
-                        flds)])))
-              (let ((name (get-clr-type-name c))
-                    (msg  (clr-exception-message c)))
-                (put-string port "CLR Exception: ")
-                (put-string port name)
-                (put-string port "\n")
-                (put-string port msg)
-                (put-string port "\n")))))
+                        flds)])))))
       (simple-conditions e)))
 
   (define (write-condition cnd port readable?)
@@ -371,13 +363,21 @@
       
   (define (write/type obj port)
     (let ((name (get-clr-type-name obj)))
-      (put-string port "#<clr-type ")
-      (put-string port name)
-      (let ((s (clr-call Object ToString obj)))
-        (unless (string=? s name)
-          (put-string port " ")
-          (write-string s port #t)))
-      (put-string port ">")))
+      (if (clr-is Exception obj)
+          (let ((msg  (clr-exception-message obj)))
+             (put-string port "CLR Exception: ")
+             (put-string port name)
+             (put-string port "\n")
+             (put-string port msg)
+             (put-string port "\n"))
+          (begin
+            (put-string port "#<clr-type ")
+            (put-string port name)
+            (let ((s (clr-call Object ToString obj)))
+              (unless (string=? s name)
+                (put-string port " ")
+                (write-string s port #t)))
+            (put-string port ">")))))
       
   (initial-printers))
   

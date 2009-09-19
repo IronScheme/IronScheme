@@ -197,7 +197,7 @@
           id name ver imp* vis* inv* exp-subst exp-env
           visit-proc invoke-proc guard-proc guard-req* visible?)
     (sk id name ver imp* vis* inv* exp-subst exp-env
-        (compile-core (expanded->core visit-proc))
+        (lambda () ((compile-core (expanded->core visit-proc))))
         (compile-core (expanded->core invoke-proc))
         (compile-core (expanded->core guard-proc))
         guard-req* visible?))
