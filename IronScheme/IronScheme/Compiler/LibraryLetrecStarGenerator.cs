@@ -219,8 +219,12 @@ namespace IronScheme.Compiler
           bodies.Add(null);
         }
 
+        VarHint = locals[i].Name;
+        VarHint2 = vars[i];
+
         NameHint = SymbolTable.StringToId(n + "::" + Builtins.UnGenSymInternal(vars[i]));
         Expression e = GetAst(defs[i], cb);
+        VarHint = VarHint2 = SymbolId.Empty;
 
         if (e.Type.IsValueType)
         {

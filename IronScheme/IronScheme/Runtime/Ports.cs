@@ -57,6 +57,8 @@ namespace IronScheme.Runtime
       }
     }
 
+    internal static Assembly BootfileAssembly { get; set; }
+
     internal static object Load(object filename)
     {
       CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
@@ -118,6 +120,8 @@ namespace IronScheme.Runtime
           }
 
           Assembly ext = AssemblyLoad(path);
+
+          BootfileAssembly = ext;
 
           // just reference.?
           MethodInfo entry = null;

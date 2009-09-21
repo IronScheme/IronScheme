@@ -250,7 +250,7 @@
            (set-prelex-source-singly-referenced?! new-x #f))
          (let ([opnd (prelex-operand new-x)])
            (if (and opnd (not (operand-inner-pending opnd)))
-               (or (cp0-single-ref new-x opnd ctxt env ec sc)
+               (or ;(cp0-single-ref new-x opnd ctxt env ec sc)
                    (begin
                      (dynamic-wind
                        (lambda () (set-operand-inner-pending! opnd #t))

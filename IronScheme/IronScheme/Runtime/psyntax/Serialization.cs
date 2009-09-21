@@ -21,6 +21,7 @@ using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization;
 using System.Reflection;
 using Microsoft.Scripting.Generation;
+using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime.psyntax
 {
@@ -102,6 +103,7 @@ namespace IronScheme.Runtime.psyntax
 
     sealed class TypeCorrector : SerializationBinder
     {
+      static Regex typematch = new Regex(@"record\.[^\.]+\.", RegexOptions.Compiled);
       public override Type BindToType(string assemblyName, string typeName)
       {
         Assembly a = Assembly.Load(assemblyName);
@@ -110,7 +112,7 @@ namespace IronScheme.Runtime.psyntax
         if (tt == null)
         {
           // remove guid suffix, fix this shit
-          typeName = typeName.Substring(0, typeName.Length - 36);
+          typeName = typematch.Replace(typeName, string.Empty);
           foreach (var kvp in R6RS.Records.typedescriptors)
           {
             var t = kvp.Key;

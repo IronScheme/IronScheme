@@ -9,9 +9,47 @@ using Microsoft.Scripting.Ast;
 using IronScheme.Runtime;
 using System.Reflection;
 using Microsoft.Scripting.Math;
+using IronScheme.Runtime.R6RS;
+using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
+  sealed class RecordTypeConstant : CompilerConstant
+  {
+    public object RecordName { get; set; }
+    public object Sealed { get; set; }
+    public object Opaque { get; set; }
+    public object Uid { get; set; }
+    public object Parent { get; set; }
+    public object[] Fields { get; set; }
+    public SymbolId NameHint { get; set; }
+
+    public override Type Type
+    {
+      get { return typeof(void); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      if (Parent == null || Builtins.IsTrue(Builtins.IsSymbolBound(Parent)))
+      {
+        var parent = Parent == null ? null : Builtins.SymbolValue(Parent);
+
+        var rtd = Records.GenerateRecordTypeDescriptor(cg.TypeGen.AssemblyGen, RecordName, parent, Uid, Sealed, Opaque,
+          Array.ConvertAll(Fields, x => ((IronSchemeConstant)x).value));
+
+        (rtd.type as TypeBuilder).CreateType();
+
+        Builtins.SetSymbolValue(NameHint, rtd);
+      }
+    }
+
+    public override object Create()
+    {
+      throw new NotImplementedException();
+    }
+  }
+
   sealed class FractionConstant : CompilerConstant
   {
     Fraction value;
@@ -68,7 +106,7 @@ namespace IronScheme.Compiler
 
   sealed class IronSchemeConstant : CompilerConstant
   {
-    readonly object value;
+    internal readonly object value;
     readonly CodeBlock cb;
     static int constantcounter = 0;
 

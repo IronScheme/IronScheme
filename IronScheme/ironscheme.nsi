@@ -229,6 +229,9 @@ SectionIn 1 2 RO
 	SetOutPath "$INSTDIR\psyntax"
 	File psyntax\*.ss
 	
+	SetOutPath "$INSTDIR\source-optimizer"
+	File source-optimizer\*.sls
+	
 	SetOutPath "$INSTDIR\srfi"
 	File /r srfi\*.ss
 	File /r srfi\*.sps
