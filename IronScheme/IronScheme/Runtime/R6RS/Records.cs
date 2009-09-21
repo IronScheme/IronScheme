@@ -22,6 +22,78 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Collections;
+using Microsoft.Scripting.Ast;
+using IronScheme.Compiler;
+using IronScheme.Runtime.R6RS;
+
+namespace IronScheme.Runtime
+{
+  partial class BuiltinEmitters
+  {
+    [InlineEmitter("make-record-type-descriptor")]
+    public static Expression MakeRecordTypeDescriptor(Expression[] obj)
+    {
+      if (obj.Length == 6)
+      {
+        var name = Unwrap(obj[0]);
+        var parent = Unwrap(obj[1]);
+        var uid = Unwrap(obj[2]);
+        var issealed = Unwrap(obj[3]);
+        var isopaque = Unwrap(obj[4]);
+        var fields = obj[5];
+        if (fields is BoundExpression)
+        {
+          return null;
+        }
+
+        if (name is BoundExpression)
+        {
+          return null;
+        }
+
+        var rname = ((ConstantExpression)name).Value;
+
+        var ruid = ((ConstantExpression)uid).Value;
+        var rsealed = ((ConstantExpression)issealed).Value;
+        var ropaque = ((ConstantExpression)isopaque).Value;
+
+        var ff = ((NewArrayExpression)fields).Expressions;
+        var dfields = new Expression[ff.Count];
+        ff.CopyTo(dfields, 0);
+        var rfields = Array.ConvertAll(dfields, x => ((ConstantExpression) x).Value);
+
+        if (!Builtins.IsTrue(ruid))
+        {
+          ruid = Builtins.GenSym();
+          obj[2] = Ast.Convert(Ast.Constant(ruid), typeof(object));
+        }
+
+        object par = null;
+
+        if (parent is BoundExpression)
+        {
+          par = ((BoundExpression)parent).Variable.Name;
+        }
+
+        var e = Ast.Constant(
+          new RecordTypeConstant
+          {
+            RecordName = rname,
+            Uid = ruid,
+            Sealed = rsealed,
+            Opaque = ropaque,
+            Parent = par,
+            Fields = rfields,
+            NameHint = IronScheme.Compiler.Generator.VarHint,
+          });
+
+        return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("MakeRecordTypeDescriptor"), obj));
+      }
+
+      return null;
+    }
+  }
+}
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -47,6 +119,21 @@ namespace IronScheme.Runtime.R6RS
     public object uid;
     
     internal CodeGen cg;
+
+    internal ConstructorInfo DefaultConstructor
+    {
+      get
+      {
+        if (cg == null)
+        {
+          return type.GetConstructors()[0];
+        }
+        else
+        {
+          return cg.MethodBase as ConstructorInfo;
+        }
+      }
+    }
 
     public RecordTypeDescriptor Parent {get; internal set;}
 
@@ -81,6 +168,59 @@ namespace IronScheme.Runtime.R6RS
       {
         yield return fd;
       }
+    }
+
+    public static RecordTypeDescriptor Create(Type type, string name, string uid, RecordTypeDescriptor parentrtd)
+    {
+      var rtd = new RecordTypeDescriptor
+      {
+        type = type,
+        Name = name,
+        predicate = type.GetMethod(name + "?"),
+        uid = uid,
+        @sealed = type.IsSealed,
+        Parent = parentrtd
+
+      };
+
+      Records.typedescriptors[type] = rtd;
+
+      MethodInfo ci = type.GetMethod("make");
+      rtd.Constructor = Closure.Create(null, Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
+
+      rtd.Predicate = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), rtd.predicate)) as Callable;
+
+      var flds = new List<FieldDescriptor>();
+
+      foreach (FieldInfo fi in type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+      {
+        var fd = new FieldDescriptor { Name = fi.Name };
+
+        fd.field = fi;
+
+        var pi = type.GetProperty(fi.Name);
+
+        fd.accessor = pi.GetGetMethod();
+
+        fd.Accessor = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
+
+        if (pi.CanWrite)
+        {
+          fd.mutator = pi.GetSetMethod();
+
+          fd.Mutator = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
+        }
+        else
+        {
+          fd.Mutator = Builtins.FALSE;
+        }
+
+        flds.Add(fd);
+      }
+
+      rtd.fields = flds.ToArray();
+
+      return rtd;
     }
 
     public Type Finish()
@@ -161,6 +301,8 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 
+
+
   public class Records : Builtins
   {
     static Dictionary<string, RecordTypeDescriptor> nongenerative = new Dictionary<string, RecordTypeDescriptor>();
@@ -173,8 +315,22 @@ namespace IronScheme.Runtime.R6RS
       return string.Format("%{0:X}{1:X}", c / 16, c % 16);
     }
 
+
+
+
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
+    {
+      AssemblyGen ag = ScriptDomainManager.Options.DebugMode ?
+        ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
+        ScriptDomainManager.CurrentManager.Snippets.Assembly;
+
+      var rtd = GenerateRecordTypeDescriptor(ag, name, parent, uid, issealed, isopaque, fields);
+      rtd.Finish();
+      return rtd;
+    }
+
+    public static RecordTypeDescriptor GenerateRecordTypeDescriptor(AssemblyGen ag, object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
       string n = SymbolTable.IdToString(RequiresNotNull<SymbolId>(name));
       string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)): null;
@@ -186,22 +342,14 @@ namespace IronScheme.Runtime.R6RS
         {
           return ngrtd;
         }
-      }
 
-      string assname = n;
+        var type = BootfileAssembly.GetType("record." + id + "." + n.Replace("&", "$"), false);
 
-      if (id != null)
-      {
-        assname = id;
+        if (type != null)
+        {
+          return RecordTypeDescriptor.Create(type, n, id, parent as RecordTypeDescriptor);
+        }
       }
-      else
-      {
-        assname = assname + "-" + Guid.NewGuid();
-      }
-
-      AssemblyGen ag = ScriptDomainManager.Options.DebugMode ?
-        ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
-        ScriptDomainManager.CurrentManager.Snippets.Assembly;
 
       bool @sealed = RequiresNotNull<bool>(issealed);
       bool opaque = RequiresNotNull<bool>(isopaque);
@@ -242,6 +390,27 @@ namespace IronScheme.Runtime.R6RS
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
 
+      GeneratePredicate(n, rtd, tg);
+
+      GenerateFields(fields, n, rtd, tg);
+
+      GenerateConstructor(rtd, tg);
+
+      if (id != null)
+      {
+        nongenerative[n + id] = rtd;
+      }
+
+      if (parenttype.IsSubclassOf(typeof(Condition)))
+      {
+        SetSymbolValue(SymbolTable.StringToObject(n + "-rtd"), rtd);
+      }
+
+      return rtd;
+    }
+
+    static void GeneratePredicate(string n, RecordTypeDescriptor rtd, TypeGen tg)
+    {
       // predicate
 
       MethodBuilder pb = tg.TypeBuilder.DefineMethod(n + "?", MethodAttributes.Public | MethodAttributes.Static,
@@ -258,7 +427,10 @@ namespace IronScheme.Runtime.R6RS
       pgen.Emit(OpCodes.Ret);
 
       rtd.predicate = pb;
+    }
 
+    static void GenerateFields(object fields, string n, RecordTypeDescriptor rtd, TypeGen tg)
+    {
       object[] f = RequiresNotNull<object[]>(fields);
 
       List<FieldDescriptor> rtd_fields = new List<FieldDescriptor>();
@@ -325,7 +497,10 @@ namespace IronScheme.Runtime.R6RS
       }
 
       rtd.fields = rtd_fields.ToArray();
+    }
 
+    static void GenerateConstructor(RecordTypeDescriptor rtd, TypeGen tg)
+    {
       // constructor logic
       {
         List<Type> paramtypes = new List<Type>();
@@ -359,6 +534,7 @@ namespace IronScheme.Runtime.R6RS
 
         cg.EmitThis();
 
+
         for (fi = 0; fi < diff; fi++)
         {
           cg.EmitArgGet(fi);
@@ -368,7 +544,7 @@ namespace IronScheme.Runtime.R6RS
           mk.Emit(OpCodes.Ldelem, typeof(object));
         }
 
-        cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.cg.MethodBase as ConstructorInfo));
+        cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
 
         foreach (FieldDescriptor fd in rtd.Fields)
         {
@@ -390,21 +566,6 @@ namespace IronScheme.Runtime.R6RS
 
         rtd.cg = cg;
       }
-
-      if (id != null)
-      {
-        nongenerative[n + id] = rtd;
-      }
-
-      // should be internal somehow
-      if (parenttype.IsSubclassOf(typeof(Condition)))
-      {
-        SetSymbolValue(SymbolTable.StringToObject(n + "-rtd"), rtd);
-      }
-
-      rtd.Finish();
-
-      return rtd;
     }
 
     [Builtin("make-record-constructor-descriptor")]
@@ -418,7 +579,6 @@ namespace IronScheme.Runtime.R6RS
       rcd.protocol = protocol as Callable;
       rcd.parent = parent_constructor_descriptor as RecordConstructorDescriptor;
 
-      // should be internal somehow
       if (t.type.IsSubclassOf(typeof(Condition)))
       {
         SetSymbolValue(SymbolTable.StringToObject(t.Name + "-rcd"), rcd);

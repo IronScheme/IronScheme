@@ -1,0 +1,5 @@
+﻿Idea list
+=========
+
+* Compile record generation (just shape)
+* 

@@ -650,6 +650,7 @@
     <Content Include="docs\notes\cps-conversion.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="docs\notes\ideas.txt" />
     <Content Include="docs\notes\lambda-lift-optimization.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

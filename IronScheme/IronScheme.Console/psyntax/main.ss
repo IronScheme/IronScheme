@@ -59,7 +59,7 @@
     
   (define trace-printer (make-parameter pretty-print))
       
-  (define display-stacktrace (make-parameter #t))
+  (define display-stacktrace (make-parameter #f))
   
   (define command-line (make-parameter (get-command-line))) 
    

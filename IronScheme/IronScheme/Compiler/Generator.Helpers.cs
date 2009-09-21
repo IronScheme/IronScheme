@@ -812,6 +812,9 @@ namespace IronScheme.Compiler
     //[ThreadStatic]
     static SymbolId namehint = SymbolId.Invalid;
 
+    internal static SymbolId VarHint { get; set; }
+    internal static SymbolId VarHint2 { get; set; }
+
     protected static SymbolId NameHint
     {
       get
