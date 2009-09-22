@@ -799,6 +799,12 @@
     <None Include="source-optimizer\transform.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="srfi\102.sls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="srfi\102\procedure-arity.sls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="tests\source-optimizer.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
