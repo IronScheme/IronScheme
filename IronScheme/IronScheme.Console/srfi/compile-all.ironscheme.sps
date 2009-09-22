@@ -74,6 +74,8 @@
   (only (srfi :99 records inspection))
   (only (srfi :99 records procedural))
   (only (srfi :99 records syntactic))
+  (only (srfi :102))
+  (only (srfi :102 procedure-arity))
   (only (srfi private OS-id-features))
   (only (srfi private include))
   (only (srfi private include compat))
