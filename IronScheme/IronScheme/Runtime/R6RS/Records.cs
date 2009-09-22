@@ -35,59 +35,66 @@ namespace IronScheme.Runtime
     {
       if (obj.Length == 6)
       {
-        var name = Unwrap(obj[0]);
-        var parent = Unwrap(obj[1]);
-        var uid = Unwrap(obj[2]);
-        var issealed = Unwrap(obj[3]);
-        var isopaque = Unwrap(obj[4]);
-        var fields = obj[5];
-        if (fields is BoundExpression)
+        try
         {
-          return null;
-        }
-
-        if (name is BoundExpression)
-        {
-          return null;
-        }
-
-        var rname = ((ConstantExpression)name).Value;
-
-        var ruid = ((ConstantExpression)uid).Value;
-        var rsealed = ((ConstantExpression)issealed).Value;
-        var ropaque = ((ConstantExpression)isopaque).Value;
-
-        var ff = ((NewArrayExpression)fields).Expressions;
-        var dfields = new Expression[ff.Count];
-        ff.CopyTo(dfields, 0);
-        var rfields = Array.ConvertAll(dfields, x => ((ConstantExpression) x).Value);
-
-        if (!Builtins.IsTrue(ruid))
-        {
-          ruid = Builtins.GenSym();
-          obj[2] = Ast.Convert(Ast.Constant(ruid), typeof(object));
-        }
-
-        object par = null;
-
-        if (parent is BoundExpression)
-        {
-          par = ((BoundExpression)parent).Variable.Name;
-        }
-
-        var e = Ast.Constant(
-          new RecordTypeConstant
+          var name = Unwrap(obj[0]);
+          var parent = Unwrap(obj[1]);
+          var uid = Unwrap(obj[2]);
+          var issealed = Unwrap(obj[3]);
+          var isopaque = Unwrap(obj[4]);
+          var fields = obj[5];
+          if (fields is BoundExpression)
           {
-            RecordName = rname,
-            Uid = ruid,
-            Sealed = rsealed,
-            Opaque = ropaque,
-            Parent = par,
-            Fields = rfields,
-            NameHint = IronScheme.Compiler.Generator.VarHint,
-          });
+            return null;
+          }
 
-        return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("MakeRecordTypeDescriptor"), obj));
+          if (name is BoundExpression)
+          {
+            return null;
+          }
+
+          var rname = ((ConstantExpression)name).Value;
+
+          var ruid = ((ConstantExpression)uid).Value;
+          var rsealed = ((ConstantExpression)issealed).Value;
+          var ropaque = ((ConstantExpression)isopaque).Value;
+
+          var ff = ((NewArrayExpression)fields).Expressions;
+          var dfields = new Expression[ff.Count];
+          ff.CopyTo(dfields, 0);
+          var rfields = Array.ConvertAll(dfields, x => ((ConstantExpression)x).Value);
+
+          if (!Builtins.IsTrue(ruid))
+          {
+            ruid = Builtins.GenSym();
+            obj[2] = Ast.Convert(Ast.Constant(ruid), typeof(object));
+          }
+
+          object par = null;
+
+          if (parent is BoundExpression)
+          {
+            par = ((BoundExpression)parent).Variable.Name;
+          }
+
+          var e = Ast.Constant(
+            new RecordTypeConstant
+            {
+              RecordName = rname,
+              Uid = ruid,
+              Sealed = rsealed,
+              Opaque = ropaque,
+              Parent = par,
+              Fields = rfields,
+              NameHint = IronScheme.Compiler.Generator.VarHint,
+            });
+
+          return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("MakeRecordTypeDescriptor"), obj));
+        }
+        catch
+        {
+          //kaboom, redirect to runtime
+        }
       }
 
       return null;
@@ -186,7 +193,19 @@ namespace IronScheme.Runtime.R6RS
       Records.typedescriptors[type] = rtd;
 
       MethodInfo ci = type.GetMethod("make");
-      rtd.Constructor = Closure.Create(null, Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
+      var pari = ci.GetParameters();
+      int pcount = pari.Length;
+      var ct = typeof(CallTargetN);
+
+      if (pcount < 9)
+      {
+        if (pcount == 0 || !pari[0].ParameterType.IsArray)
+        {
+          ct = CallTargets.GetTargetType(false, pcount, false);
+        }
+      }
+
+      rtd.Constructor = Closure.Create(null, Delegate.CreateDelegate(ct, ci)) as Callable;
 
       rtd.Predicate = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), rtd.predicate)) as Callable;
 
@@ -232,7 +251,18 @@ namespace IronScheme.Runtime.R6RS
         Records.typedescriptors[type] = this;
 
         MethodInfo ci = type.GetMethod("make");
-        Constructor = Closure.Create(null, Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
+        var pari = ci.GetParameters();
+        int pcount = pari.Length;
+        var ct = typeof(CallTargetN);
+
+        if (pcount < 9)
+        {
+          if (pcount == 0 || !pari[0].ParameterType.IsArray)
+          {
+            ct = CallTargets.GetTargetType(false, pcount, false);
+          }
+        }
+        Constructor = Closure.Create(null, Delegate.CreateDelegate(ct, ci)) as Callable;
 
         // update fields
         predicate = type.GetMethod(predicate.Name);
@@ -520,51 +550,99 @@ namespace IronScheme.Runtime.R6RS
           parenttypes.Add(typeof(object));
         }
 
-        CodeGen cg = tg.DefineConstructor(paramtypes.ToArray());
-        CodeGen mk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make",
-         tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
-
-
-        for (int i = 0; i < allfields.Count; i++)
+        if (paramtypes.Count < 9)
         {
-          cg.DefineParameter(i + 1, ParameterAttributes.None, allfields[i].Name);
-        }
+          CodeGen cg = tg.DefineConstructor(paramtypes.ToArray());
 
-        int fi = 0;
-
-        cg.EmitThis();
+          CodeGen mk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make",
+           tg.TypeBuilder, paramtypes.ToArray(), allfields.ConvertAll(x => x.Name).ToArray());
 
 
-        for (fi = 0; fi < diff; fi++)
-        {
-          cg.EmitArgGet(fi);
+          for (int i = 0; i < allfields.Count; i++)
+          {
+            cg.DefineParameter(i + 1, ParameterAttributes.None, allfields[i].Name);
+          }
 
-          mk.EmitArgGet(0);
-          mk.EmitConstant(fi);
-          mk.Emit(OpCodes.Ldelem, typeof(object));
-        }
+          int fi = 0;
 
-        cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
-
-        foreach (FieldDescriptor fd in rtd.Fields)
-        {
           cg.EmitThis();
-          cg.EmitArgGet(fi);
-          cg.EmitFieldSet(fd.field);
 
-          mk.EmitArgGet(0);
-          mk.EmitConstant(fi);
-          mk.Emit(OpCodes.Ldelem, typeof(object));
 
-          fi++;
+          for (fi = 0; fi < diff; fi++)
+          {
+            cg.EmitArgGet(fi);
+            mk.EmitArgGet(fi);
+          }
+
+          cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
+
+          foreach (FieldDescriptor fd in rtd.Fields)
+          {
+            cg.EmitThis();
+            cg.EmitArgGet(fi);
+            cg.EmitFieldSet(fd.field);
+
+            mk.EmitArgGet(fi);
+
+            fi++;
+          }
+
+          mk.EmitNew(cg.MethodBase as ConstructorInfo);
+          mk.EmitReturn();
+
+          cg.EmitReturn();
+
+          rtd.cg = cg;
         }
+        else
+        {
 
-        mk.EmitNew(cg.MethodBase as ConstructorInfo);
-        mk.EmitReturn();
+          CodeGen cg = tg.DefineConstructor(paramtypes.ToArray());
+          CodeGen mk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make",
+           tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
 
-        cg.EmitReturn();
 
-        rtd.cg = cg;
+          for (int i = 0; i < allfields.Count; i++)
+          {
+            cg.DefineParameter(i + 1, ParameterAttributes.None, allfields[i].Name);
+          }
+
+          int fi = 0;
+
+          cg.EmitThis();
+
+
+          for (fi = 0; fi < diff; fi++)
+          {
+            cg.EmitArgGet(fi);
+
+            mk.EmitArgGet(0);
+            mk.EmitConstant(fi);
+            mk.Emit(OpCodes.Ldelem, typeof(object));
+          }
+
+          cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
+
+          foreach (FieldDescriptor fd in rtd.Fields)
+          {
+            cg.EmitThis();
+            cg.EmitArgGet(fi);
+            cg.EmitFieldSet(fd.field);
+
+            mk.EmitArgGet(0);
+            mk.EmitConstant(fi);
+            mk.Emit(OpCodes.Ldelem, typeof(object));
+
+            fi++;
+          }
+
+          mk.EmitNew(cg.MethodBase as ConstructorInfo);
+          mk.EmitReturn();
+
+          cg.EmitReturn();
+
+          rtd.cg = cg;
+        }
       }
     }
 

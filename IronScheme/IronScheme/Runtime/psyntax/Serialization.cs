@@ -103,7 +103,7 @@ namespace IronScheme.Runtime.psyntax
 
     sealed class TypeCorrector : SerializationBinder
     {
-      static Regex typematch = new Regex(@"record\.[^\.]+\.", RegexOptions.Compiled);
+      readonly static Regex typematch = new Regex(@"record\.[^\.]+\.", RegexOptions.Compiled);
       public override Type BindToType(string assemblyName, string typeName)
       {
         Assembly a = Assembly.Load(assemblyName);
