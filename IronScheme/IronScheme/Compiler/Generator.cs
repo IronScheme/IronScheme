@@ -320,15 +320,6 @@ namespace IronScheme.Compiler
               //inline here? we could for simple bodies, but we need to copy the entire structure
               if (!(cbe.Block.HasEnvironment || cbe.Block.IsClosure))
               {
-                if (cbe.Block.Source != null && !ScriptDomainManager.Options.DebugMode && !cb.IsGlobal && NotChildBlock(cb.Parent, cbe.Block))
-                {
-                  //Cons src = cbe.Block.Source as Cons;
-
-                  //var invoke = new Cons(src, c.cdr);
-
-                  //return GetAst(invoke, cb);
-                }
-
                 if (cbe.Block.Body is ReturnStatement)
                 {
                   ReturnStatement rs = (ReturnStatement)cbe.Block.Body;
