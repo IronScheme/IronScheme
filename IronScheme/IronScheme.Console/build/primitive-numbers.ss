@@ -47,12 +47,12 @@
     (clr-is Microsoft.Scripting.Math.Complex64 obj))
     
   (define (number? obj)
-    (or (fixnum? obj)
-        (flonum? obj)
-        (bignum? obj)
-        (ratnum? obj)
-        (complexnum? obj)
-        (rectnum? obj)))    
+    ($or? (fixnum? obj)
+          (flonum? obj)
+          (bignum? obj)
+          (ratnum? obj)
+          (complexnum? obj)
+          (rectnum? obj)))    
 
   (define-syntax reduce
     (syntax-rules ()

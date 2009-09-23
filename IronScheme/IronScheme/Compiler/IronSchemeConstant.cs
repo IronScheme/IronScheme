@@ -14,6 +14,114 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
+  sealed class RecordPredicateConstant : CompilerConstant
+  {
+    public object RtdSymbol { get; set; }
+    public SymbolId NameHint { get; set; }
+    public SymbolId NameHint2 { get; set; }
+
+
+    public override Type Type
+    {
+      get { return typeof(void); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      if (Builtins.IsTrue(Builtins.IsSymbolBound(RtdSymbol)))
+      {
+        var rtd = Builtins.SymbolValue(RtdSymbol) as RecordTypeDescriptor;
+
+        BoundExpression.Emitter emit = (x, y) =>
+          {
+            x.Emit(OpCodes.Isinst, rtd.type);
+            x.Emit(OpCodes.Ldnull);
+            x.Emit(OpCodes.Cgt_Un);
+            x.EmitCall(typeof(RuntimeHelpers).GetMethod("BooleanToObject"), y);
+          };
+
+        BoundExpression.Fixups[NameHint] = emit;
+        BoundExpression.Fixups[NameHint2] = emit;
+
+      }
+    }
+
+    public override object Create()
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+  sealed class RecordAccessorConstant : CompilerConstant
+  {
+    public object RtdSymbol { get; set; }
+    public int Index { get; set; }
+    public SymbolId NameHint { get; set; }
+    public SymbolId NameHint2 { get; set; }
+    
+    public override Type Type
+    {
+      get { return typeof(void); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      if (Builtins.IsTrue(Builtins.IsSymbolBound(RtdSymbol)))
+      {
+        var rtd = Builtins.SymbolValue(RtdSymbol) as RecordTypeDescriptor;
+
+        BoundExpression.Emitter emit = (x, y) =>
+        {
+          x.EmitCall(rtd.Fields[Index].accessor, y);
+        };
+
+        BoundExpression.Fixups[NameHint] = emit;
+        BoundExpression.Fixups[NameHint2] = emit;
+      }
+    }
+
+    public override object Create()
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+  sealed class RecordMutatorConstant : CompilerConstant
+  {
+    public object RtdSymbol { get; set; }
+    public int Index { get; set; }
+    public SymbolId NameHint { get; set; }
+    public SymbolId NameHint2 { get; set; }
+
+    public override Type Type
+    {
+      get { return typeof(void); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      if (Builtins.IsTrue(Builtins.IsSymbolBound(RtdSymbol)))
+      {
+        var rtd = Builtins.SymbolValue(RtdSymbol) as RecordTypeDescriptor;
+
+        BoundExpression.Emitter emit = (x, y) =>
+        {
+          x.EmitCall(rtd.Fields[Index].mutator, y);
+        };
+
+        BoundExpression.Fixups[NameHint] = emit;
+        BoundExpression.Fixups[NameHint2] = emit;
+
+      }
+    }
+
+    public override object Create()
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
   sealed class RecordTypeConstant : CompilerConstant
   {
     public object RecordName { get; set; }

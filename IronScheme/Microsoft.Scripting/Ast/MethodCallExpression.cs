@@ -27,8 +27,8 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class MethodCallExpression : Expression {
-        private readonly MethodInfo _method;
-        private readonly Expression _instance;
+        private MethodInfo _method;
+        private Expression _instance;
         private readonly ReadOnlyCollection<Expression> _arguments;
         private readonly ParameterInfo[] _parameterInfos;
 
@@ -48,10 +48,12 @@ namespace Microsoft.Scripting.Ast {
 
         public MethodInfo Method {
             get { return _method; }
+          set { _method = value; }
         }
 
         public Expression Instance {
             get { return _instance; }
+          set { _instance = value; }
         }
 
         public ReadOnlyCollection<Expression> Arguments {
@@ -398,9 +400,29 @@ namespace Microsoft.Scripting.Ast {
               ;
             }
           }
-          if (_instance is BoundExpression)
+
+          var ii = _instance;
+
+          while (ii is UnaryExpression && ii.NodeType == AstNodeType.Convert)
           {
-            ;
+            ii = ((UnaryExpression)ii).Operand;
+          }
+
+          BoundExpression.Emitter fixup = null;
+
+          if (ii is BoundExpression)
+          {
+            var be = ii as BoundExpression;
+
+            //if (be.Variable.Name == SymbolTable.StringToId("car"))
+            //{
+            //  Debugger.Break();
+            //}
+
+            if (BoundExpression.Fixups.ContainsKey(be.Variable.Name))
+            {
+              fixup = BoundExpression.Fixups[be.Variable.Name];
+            }
           }
             // Emit instance, if calling an instance method
             if (!_method.IsStatic) {
@@ -409,7 +431,14 @@ namespace Microsoft.Scripting.Ast {
                 if (type.IsValueType) {
                     _instance.EmitAddress(cg, type);
                 } else {
+                  if (fixup == null)
+                  {
                     _instance.Emit(cg);
+                  }
+                  else
+                  {
+                    //ii.Emit(cg);
+                  }
                 }
             }
 
@@ -423,7 +452,15 @@ namespace Microsoft.Scripting.Ast {
 
             EmitLocation(cg);
             // Emit the actual call
-            cg.EmitCall(_method, tailcall);
+
+            if (fixup == null)
+            {
+              cg.EmitCall(_method, tailcall);
+            }
+            else
+            {
+              fixup(cg, tailcall);
+            }
         }
 
         private bool HasNoCallableArgs()

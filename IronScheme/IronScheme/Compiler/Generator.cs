@@ -560,11 +560,6 @@ namespace IronScheme.Compiler
                   }
                   MethodBase meth = mc.Target.Method;
 
-                  if (Array.Exists(pars, e => e.Type != typeof(object)))
-                  {
-                    ;
-                  }
-
                   var rrrr = Ast.ComplexCallHelper(meth as MethodInfo, pars);
                   if (spanhint.IsValid)
                   {
@@ -696,7 +691,7 @@ namespace IronScheme.Compiler
         }
 
         ex = Ast.ConvertHelper(ex, typeof(Callable));
-        
+
         MethodInfo call = GetCallable(pp.Length);
 
         Expression r = pp.Length > 8 ?

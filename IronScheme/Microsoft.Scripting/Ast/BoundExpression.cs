@@ -17,11 +17,22 @@ using System;
 using System.Diagnostics;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
+using System.Collections.Generic;
 
 namespace Microsoft.Scripting.Ast {
     public class BoundExpression : Expression {
         private Variable /*!*/ _variable;
         private bool _defined;
+
+      public delegate void Emitter(CodeGen cg, bool tailcall);
+
+      readonly static Dictionary<SymbolId, Emitter> fixups = new Dictionary<SymbolId, Emitter>();
+
+      public static Dictionary<SymbolId, Emitter> Fixups
+      {
+        get { return BoundExpression.fixups; }
+      } 
+ 
 
         // Implementation detail
         private VariableReference _vr;

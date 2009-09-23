@@ -111,7 +111,7 @@ namespace IronScheme.Compiler
     {
       Type[] types = GetTypeSpec(cb);
 
-      var functype = Builtins.GetClrType(SymbolTable.StringToId("IronScheme.Runtime.Typed.TypedClosure"), types);
+      var functype = GetGenericType("IronScheme.Runtime.Typed.TypedClosure", types);
 
       return functype as Type;
     }
@@ -120,9 +120,16 @@ namespace IronScheme.Compiler
     {
       Type[] types = GetTypeSpec(cb);
 
-      var functype = Builtins.GetClrType(SymbolTable.StringToId("IronScheme.Runtime.Typed.Func"), types);
+      var functype = GetGenericType("IronScheme.Runtime.Typed.Func", types);
 
       return functype as Type;
+    }
+
+    private static Type GetGenericType(string typename, Type[] types)
+    {
+      int l = types.Length;
+      var functype = ClrGenerator.GetTypeFast(typename + "`" + l).MakeGenericType(types);
+      return functype;
     }
 
     private static Type[] GetTypeSpec(CodeBlock cb)

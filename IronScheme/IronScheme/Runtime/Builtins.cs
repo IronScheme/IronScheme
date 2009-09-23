@@ -196,12 +196,14 @@ namespace IronScheme.Runtime
       }
     }
 
+    [Obsolete("Use the other one")]
     [Builtin("get-clr-type")]
     public static object GetClrType(object name)
     {
       return GetClrType(name, new object[0]);
     }
 
+    [Obsolete("Use the other one")]
     [Builtin("get-clr-type")]
     public static object GetClrType(object name, params object[] typeargs)
     {
@@ -276,10 +278,6 @@ namespace IronScheme.Runtime
       }
 
       return FALSE;
-
-      //return AssertionViolation("get-clr-type", "type not found",
-      //  Cons( name, Runtime.Cons.FromArray(typeargs)),
-      //  Runtime.Cons.FromList(candidates));
     }
 
     [Builtin]

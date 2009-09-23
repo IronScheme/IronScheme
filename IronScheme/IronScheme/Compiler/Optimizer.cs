@@ -18,6 +18,9 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using IronScheme.Runtime;
+using Microsoft.Scripting.Utils;
+using System.Reflection;
 
 namespace IronScheme.Compiler
 {
@@ -40,6 +43,63 @@ namespace IronScheme.Compiler
           WalkNode(node.Block);
         }
         base.PostWalk(node);
+      }
+    }
+
+    class FixupPrimitives
+    {
+      readonly CodeBlock root;
+
+
+      public FixupPrimitives(CodeBlock root)
+      {
+        this.root = root;
+      }
+
+      public void Optimize()
+      {
+        Pass0 p0 = new Pass0();
+        p0.WalkNode(root);
+      }
+
+      class Pass0 : DeepWalker
+      {
+        protected override bool Walk(MethodCallExpression node)
+        {
+          var i = node.Instance;
+          while (i is UnaryExpression && i.NodeType == AstNodeType.Convert)
+          {
+             i = ((UnaryExpression)i).Operand;
+          }
+
+          if (i is BoundExpression)
+          {
+            var be = (BoundExpression)i;
+            if (Builtins.IsTrue(Builtins.IsSymbolBound(be.Variable.Name)))
+            {
+              var c = Builtins.SymbolValue(be.Variable.Name) as BuiltinMethod;
+              if (c != null)
+              {
+                var mb = c.Binder;
+
+                var pars = new Expression[node.Arguments.Count];
+                node.Arguments.CopyTo(pars, 0);
+
+                Type[] types = Array.ConvertAll(pars, x => x.Type);
+                MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                if (mc != null)
+                {
+                  var meth = mc.Target.Method as MethodInfo;
+
+                  node.Method = meth;
+                  node.Instance = null;
+                }
+              }
+            }
+          }
+
+          return base.Walk(node);
+        }
       }
     }
 
@@ -591,7 +651,10 @@ namespace IronScheme.Compiler
         new RemoveTemporaries(cb).Optimize();
       }
 
+      new FixupPrimitives(cb).Optimize();
+
       //new ConversionCSE(cb).Optimize();
+
 
     }
   }

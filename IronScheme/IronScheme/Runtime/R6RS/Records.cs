@@ -30,6 +30,79 @@ namespace IronScheme.Runtime
 {
   partial class BuiltinEmitters
   {
+    [InlineEmitter("record-predicate")]
+    public static Expression RecordPredicate(Expression[] obj)
+    {
+      if (obj.Length == 1)
+      {
+        var rtd = Unwrap(obj[0]);
+        if (rtd is BoundExpression)
+        {
+          var rtdname = ((BoundExpression)rtd).Variable.Name;
+          var e = Ast.Constant(new RecordPredicateConstant 
+          { 
+            RtdSymbol = rtdname, 
+            NameHint = IronScheme.Compiler.Generator.VarHint, 
+            NameHint2 = IronScheme.Compiler.Generator.VarHint2 
+          });
+          return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("RecordPredicate"), obj));
+        }
+      }
+      return null;
+    }
+
+    [InlineEmitter("record-accessor")]
+    public static Expression RecordAccessor(Expression[] obj)
+    {
+      if (obj.Length == 2)
+      {
+        var rtd = Unwrap(obj[0]);
+        var index = Unwrap(obj[1]);
+
+        if (rtd is BoundExpression && index is ConstantExpression)
+        {
+          var rtdname = ((BoundExpression)rtd).Variable.Name;
+          var i = (int) ((ConstantExpression)index).Value;
+          var e = Ast.Constant(new RecordAccessorConstant 
+          { 
+            RtdSymbol = rtdname, 
+            Index = i, 
+            NameHint = IronScheme.Compiler.Generator.VarHint ,
+            NameHint2 = IronScheme.Compiler.Generator.VarHint2
+          });
+          return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("RecordAccessor"), obj));
+        }
+      }
+      return null;
+    }
+
+    [InlineEmitter("record-mutator")]
+    public static Expression RecordMutator(Expression[] obj)
+    {
+      if (obj.Length == 2)
+      {
+        var rtd = Unwrap(obj[0]);
+        var index = Unwrap(obj[1]);
+
+        if (rtd is BoundExpression && index is ConstantExpression)
+        {
+          var rtdname = ((BoundExpression)rtd).Variable.Name;
+          var i = (int)((ConstantExpression)index).Value;
+          var e = Ast.Constant(new RecordMutatorConstant 
+          { 
+            RtdSymbol = rtdname, 
+            Index = i, 
+            NameHint = IronScheme.Compiler.Generator.VarHint,
+            NameHint2 = IronScheme.Compiler.Generator.VarHint2
+          });
+
+          return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("RecordMutator"), obj));
+        }
+      }
+      return null;
+    }
+
+
     [InlineEmitter("make-record-type-descriptor")]
     public static Expression MakeRecordTypeDescriptor(Expression[] obj)
     {
@@ -360,6 +433,7 @@ namespace IronScheme.Runtime.R6RS
       return rtd;
     }
 
+    [CLSCompliant(false)]
     public static RecordTypeDescriptor GenerateRecordTypeDescriptor(AssemblyGen ag, object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
       string n = SymbolTable.IdToString(RequiresNotNull<SymbolId>(name));
@@ -424,7 +498,7 @@ namespace IronScheme.Runtime.R6RS
 
       GenerateFields(fields, n, rtd, tg);
 
-      GenerateConstructor(rtd, tg);
+      GenerateConstructor(rtd, tg, parenttype);
 
       if (id != null)
       {
@@ -529,7 +603,7 @@ namespace IronScheme.Runtime.R6RS
       rtd.fields = rtd_fields.ToArray();
     }
 
-    static void GenerateConstructor(RecordTypeDescriptor rtd, TypeGen tg)
+    static void GenerateConstructor(RecordTypeDescriptor rtd, TypeGen tg, Type parenttype)
     {
       // constructor logic
       {
@@ -574,7 +648,7 @@ namespace IronScheme.Runtime.R6RS
             mk.EmitArgGet(fi);
           }
 
-          cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
+          cg.Emit(OpCodes.Call, (rtd.Parent == null ? parenttype.GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
 
           foreach (FieldDescriptor fd in rtd.Fields)
           {
@@ -665,6 +739,12 @@ namespace IronScheme.Runtime.R6RS
       return rcd;
     }
 
+    [Builtin("record-predicate")]
+    public static object RecordPredicate(object rtd)
+    {
+      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      return Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
+    }
     
     [Builtin("record-constructor")]
     public static object RecordConstructor(object cd)
@@ -701,11 +781,7 @@ namespace IronScheme.Runtime.R6RS
           }
           return pp.Call(args);
         };
-#if CPS
-        return Closure.Make(Context, OptimizedBuiltins.MakeCPS(np));
-#else
         return Closure.Create(Context, np);
-#endif
       }
       else
       {
@@ -754,6 +830,36 @@ namespace IronScheme.Runtime.R6RS
 
         return Closure.Create(Context, np);
       }
+    }
+
+    [Builtin("record-accessor")]
+    public static object RecordAccessor(object rtd, object k)
+    {
+      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      int i = RequiresNotNull<int>(k);
+
+      if (i >= t.Fields.Length)
+      {
+        return AssertionViolation("record-accessor", "invalid field index", rtd, k);
+      }
+
+      MethodInfo am = t.fields[i].accessor;
+      return Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), am));
+    }
+
+    [Builtin("record-mutator")]
+    public static object RecordMutator(object rtd, object k)
+    {
+      RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
+      int i = RequiresNotNull<int>(k);
+
+      if (i >= t.Fields.Length)
+      {
+        return AssertionViolation("record-mutator", "invalid field index", rtd, k);
+      }
+
+      MethodInfo mm = t.fields[i].mutator;
+      return Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget2), mm));
     }
 
     internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();
