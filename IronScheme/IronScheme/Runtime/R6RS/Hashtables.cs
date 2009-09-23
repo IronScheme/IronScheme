@@ -24,6 +24,8 @@ using System.Collections;
 namespace IronScheme.Runtime.R6RS
 {
   #region Support classes
+
+  [CLSCompliant(false)]
   public sealed class ReadOnlyHashtable : Hashtable
   {
     public ReadOnlyHashtable(IDictionary content, IEqualityComparer c)
@@ -71,7 +73,7 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 
-
+  [CLSCompliant(false)]
   public sealed class HashComparer : IEqualityComparer
   {
     readonly internal Callable hash, equiv;
@@ -93,6 +95,7 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 
+  [CLSCompliant(false)]
   public sealed class HashtableEx : Hashtable
   {
     public HashtableEx(IEqualityComparer c)

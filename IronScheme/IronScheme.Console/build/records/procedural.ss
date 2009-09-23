@@ -20,9 +20,7 @@
     record-mutator)
     
   (import 
-    (except (ironscheme) 
-      record-type-descriptor? record-predicate
-      record-accessor record-mutator)
+    (except (ironscheme) record-type-descriptor? )
     (ironscheme clr)
     (ironscheme contracts)
     (ironscheme unsafe))
@@ -31,7 +29,7 @@
   
   (define (record-type-descriptor? obj)
     (clr-is RecordTypeDescriptor obj))
-    
+  #|  
   (define/contract (record-predicate rtd:record-type-descriptor)
     (clr-prop-get RecordTypeDescriptor Predicate rtd))       
 
@@ -46,5 +44,5 @@
                   Mutator 
                   ($vector-ref (clr-prop-get RecordTypeDescriptor Fields rtd) 
                                k)))       
-    
+ |#   
 )

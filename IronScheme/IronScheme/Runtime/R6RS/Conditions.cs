@@ -25,6 +25,11 @@ namespace IronScheme.Runtime.R6RS
 {
   public abstract class Condition
   {
+    public Condition()
+    {
+
+    }
+
     public override string ToString()
     {
       var w = new StringWriter();
