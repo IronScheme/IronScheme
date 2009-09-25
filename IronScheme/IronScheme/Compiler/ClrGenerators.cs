@@ -480,7 +480,7 @@ namespace IronScheme.Compiler
 
       type = t.Name;
 
-      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
+      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy);
 
       if (fi == null)
       {
