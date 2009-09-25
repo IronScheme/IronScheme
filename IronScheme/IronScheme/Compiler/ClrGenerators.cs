@@ -539,7 +539,7 @@ namespace IronScheme.Compiler
       type = t.Name;
 
 
-      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase);
+      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy);
 
       if (fi == null)
       {
@@ -667,7 +667,7 @@ namespace IronScheme.Compiler
 
       List<MethodBase> candidates = new List<MethodBase>();
 
-      BindingFlags bf = BindingFlags.Public | (ct == CallType.None ? BindingFlags.Static : BindingFlags.Instance);
+      BindingFlags bf = BindingFlags.Public | (ct == CallType.None ? BindingFlags.Static : BindingFlags.Instance) | BindingFlags.FlattenHierarchy;
 
       foreach (MethodInfo mi in t.GetMember(member, MemberTypes.Method, bf))
       {
