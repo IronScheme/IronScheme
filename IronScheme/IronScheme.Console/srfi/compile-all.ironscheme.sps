@@ -74,6 +74,8 @@
   (only (srfi :99 records inspection))
   (only (srfi :99 records procedural))
   (only (srfi :99 records syntactic))
+  (only (srfi :101))
+  (only (srfi :101 random-access-lists))  
   (only (srfi :102))
   (only (srfi :102 procedure-arity))
   (only (srfi private OS-id-features))

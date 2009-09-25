@@ -723,12 +723,10 @@ namespace IronScheme.Runtime
           }
           switch (arities.Count)
           {
-            case 0:
-              return Unspecified;
             case 1:
               return arities[0];
             default:
-              return new MultipleValues(arities.ToArray());
+              return ConsFromArray(arities.ToArray());
           }
         }
       }

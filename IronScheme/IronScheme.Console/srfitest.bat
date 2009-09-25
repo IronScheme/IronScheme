@@ -9,6 +9,7 @@ IronScheme.Console.exe -nologo srfi\tests\lists.sps >> srfitest.log
 IronScheme.Console.exe -nologo srfi\tests\multi-dimensional-arrays--arlib.sps >> srfitest.log
 IronScheme.Console.exe -nologo srfi\tests\multi-dimensional-arrays.sps >> srfitest.log
 IronScheme.Console.exe -nologo srfi\tests\os-environment-variables.sps >> srfitest.log
+IronScheme.Console.exe -nologo srfi\tests\procedure-arity.sps >> srfitest.log
 IronScheme.Console.exe -nologo srfi\tests\print-ascii.sps >> srfitest.log
 rem IronScheme.Console.exe -nologo srfi\tests\random-conftest.sps >> srfitest.log
 IronScheme.Console.exe -nologo srfi\tests\random.sps >> srfitest.log

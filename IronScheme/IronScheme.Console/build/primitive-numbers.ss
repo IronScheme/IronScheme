@@ -14,45 +14,18 @@
     +
     -
     *
-    /
-    number?)
+    /)
   (import 
     (except 
       (rnrs)
       +
       -
       *
-      /
-      flonum?
-      number?)
-    (except 
-      (ironscheme core))
+      /)
+    (ironscheme core)
     (ironscheme unsafe)
     (ironscheme contracts)
     (ironscheme clr))
-    
-  (define (flonum? obj)
-    (clr-is Double obj))     
-
-  (define (bignum? obj)
-    (clr-is Microsoft.Scripting.Math.BigInteger obj))
-    
-  (define (rectnum? obj)
-    (clr-is IronScheme.Runtime.ComplexFraction obj)) 
-  
-  (define (ratnum? obj)
-    (clr-is IronScheme.Runtime.Fraction obj))
-  
-  (define (complexnum? obj)
-    (clr-is Microsoft.Scripting.Math.Complex64 obj))
-    
-  (define (number? obj)
-    ($or? (fixnum? obj)
-          (flonum? obj)
-          (bignum? obj)
-          (ratnum? obj)
-          (complexnum? obj)
-          (rectnum? obj)))    
 
   (define-syntax reduce
     (syntax-rules ()

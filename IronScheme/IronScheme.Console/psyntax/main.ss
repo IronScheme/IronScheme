@@ -97,11 +97,11 @@
     (case-lambda
       [()      (ironscheme-build #f)]
       [(cps?)  
-        (call-with-output-file "build-options.ss"
-          (lambda (p)
-            (write `(define-option cps-mode ,cps?) p)
-            (write `(define-option if-wants-letrec* ,(not cps?)) p)
-            (newline p)))
+        ;(call-with-output-file "build-options.ss"
+          ;(lambda (p)
+            ;(write `(define-option cps-mode ,cps?) p)
+            ;(write `(define-option if-wants-letrec* ,(not cps?)) p)
+            ;(newline p)))
         (load "ironscheme-buildscript.ss")]))
     
   (define foreground-color

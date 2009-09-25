@@ -43,7 +43,7 @@
 
 (library (source-optimizer match)
   (export
-    match match-let match-let* match-letrec match-lambda match-lambda*)
+    match)
   (import
     (rnrs) (rnrs mutable-pairs))
   
@@ -498,64 +498,6 @@
       ((_ x k i v d ((v2 v2-ls) ...))
        (match-extract-quasiquote-vars x k (v2 ... . i) ((v2 v2-ls) ... . v) d))
       ))
-  
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Gimme some sugar baby.
-  
-  (define-syntax match-lambda
-    (syntax-rules ()
-      ((_ clause ...) (lambda (expr) (match expr clause ...)))))
-  
-  (define-syntax match-lambda*
-    (syntax-rules ()
-      ((_ clause ...) (lambda expr (match expr clause ...)))))
-  
-  (define-syntax match-let
-    (syntax-rules ()
-      ((_ (vars ...) . body)
-       (match-let/helper let () () (vars ...) . body))
-      ((_ loop . rest)
-       (match-named-let loop () . rest))))
-  
-  (define-syntax match-letrec
-    (syntax-rules ()
-      ((_ vars . body) (match-let/helper letrec () () vars . body))))
-  
-  (define-syntax match-let/helper
-    (syntax-rules ()
-      ((_ let ((var expr) ...) () () . body)
-       (let ((var expr) ...) . body))
-      ((_ let ((var expr) ...) ((pat tmp) ...) () . body)
-       (let ((var expr) ...)
-         (match-let* ((pat tmp) ...)
-           . body)))
-      ((_ let (v ...) (p ...) (((a . b) expr) . rest) . body)
-       (match-let/helper
-        let (v ... (tmp expr)) (p ... ((a . b) tmp)) rest . body))
-      ((_ let (v ...) (p ...) ((#(a ...) expr) . rest) . body)
-       (match-let/helper
-        let (v ... (tmp expr)) (p ... (#(a ...) tmp)) rest . body))
-      ((_ let (v ...) (p ...) ((a expr) . rest) . body)
-       (match-let/helper let (v ... (a expr)) (p ...) rest . body))
-      ))
-  
-  (define-syntax match-named-let
-    (syntax-rules ()
-      ((_ loop ((pat expr var) ...) () . body)
-       (let loop ((var expr) ...)
-         (match-let ((pat var) ...)
-           . body)))
-      ((_ loop (v ...) ((pat expr) . rest) . body)
-       (match-named-let loop (v ... (pat expr tmp)) rest . body))))
-  
-  (define-syntax match-let*
-    (syntax-rules ()
-      ((_ () . body)
-       (begin . body))
-      ((_ ((pat expr) . rest) . body)
-       (match expr (pat (match-let* rest . body))))))
-  
   
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Otherwise COND-EXPANDed bits.

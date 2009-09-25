@@ -41,34 +41,35 @@
 (define scheme-library-files
   '(
     "psyntax/config.ss"
-    "build/control.ss"    
+    "build/predicates.ss"
     "build/records/procedural.ss"
     "build/conditions.ss"
     "build/exceptions.ss"
     "build/arithmetic/fixnums.ss"
     "build/primitive-numbers.ss"
+    "build/hashtables.ss"
     "build/lists.ss"
     "build/base.ss"
     "build/numbers.ss"
-    "build/generic-writer.ss"
-    
-    "build/hashtables.ss"
-    "build/files.ss"
     "build/bytevectors.ss"
     
-    "build/eval.ss"
+    "psyntax/compat.ss"
+    
+    ;; needs make-parameter
+    "build/io/ports.ss"
+    "build/io/simple.ss"
+    
+    "build/generic-writer.ss"
+    
+    "build/files.ss"
     "build/mutable-pairs.ss"
-    "build/mutable-strings.ss"
     "build/programs.ss"
     "build/r5rs.ss"
     "build/sorting.ss"
-    "build/syntax-case.ss"
     "build/unicode.ss"
     "build/arithmetic/bitwise.ss"
     "build/arithmetic/flonums.ss"
-
     "build/records/inspection.ss"
-    "build/records/syntactic.ss"
     
     ; depends on records - hashtables - bitwise
     "build/enums.ss"
@@ -76,12 +77,6 @@
     "build/format.ss"
     "build/trace.ss"
     "build/equal.ss"
-    
-    "psyntax/compat.ss"
-    
-    ;; needs make-parameter
-    "build/io/ports.ss"
-    "build/io/simple.ss"
     
     "build/pretty-print.ss" 
     
@@ -285,6 +280,12 @@
   '(
     ;;;
     (optimize                                   ic)
+    (clr-string?                                ic)
+    (stringbuilder?                             ic)
+    (bignum?                                    ic)
+    (rectnum?                                   ic)
+    (ratnum?                                    ic)
+    (complexnum?                                ic)
     (allow-library-redefinition                 i)
     (with-clr-exception-handler                 i)
     (typed-lambda                               i)

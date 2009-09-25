@@ -18,18 +18,26 @@
     =>
     assertion-violation
     error
-    raise-continuable)
+    raise-continuable
+    dynamic-wind)
   (import 
     (psyntax config) 
     (only (ironscheme) import make-stacktrace-condition stacktrace-condition? display-stacktrace)
     (ironscheme clr)
     (ironscheme unsafe)
+    (ironscheme contracts)
     (except (rnrs) 
       with-exception-handler 
       raise 
       raise-continuable 
       assertion-violation 
-      error))
+      error
+      dynamic-wind))
+    
+  (define/contract (dynamic-wind in:procedure proc:procedure out:procedure)
+    (in)
+    ($try/finally (proc)
+                  (out)))      
 
   (define *current-exception-handlers*
     (list 
