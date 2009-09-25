@@ -75,9 +75,10 @@ namespace IronScheme.Compiler
           if (i is BoundExpression)
           {
             var be = (BoundExpression)i;
-            if (Builtins.IsTrue(Builtins.IsSymbolBound(be.Variable.Name)))
+            var v = be.Variable.Name;
+            if (Builtins.IsTrue(Builtins.IsSymbolBound(v)))
             {
-              var c = Builtins.SymbolValue(be.Variable.Name) as BuiltinMethod;
+              var c = Builtins.SymbolValue(v) as BuiltinMethod;
               if (c != null)
               {
                 var mb = c.Binder;
@@ -95,6 +96,19 @@ namespace IronScheme.Compiler
                   node.Instance = null;
                 }
               }
+            }
+            else
+            {
+              //var pars = new Expression[node.Arguments.Count];
+              //node.Arguments.CopyTo(pars, 0);
+
+              //var r = Generator.TryConvertToDirectCall(v, pars);
+
+              //if (r != null)
+              //{
+              //  node.Instance = r.Instance;
+              //  node.Method = r.Method;
+              //}
             }
           }
 

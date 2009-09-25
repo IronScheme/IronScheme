@@ -6,14 +6,9 @@
   (import (rename (ironscheme) (procedure-arity is:procedure-arity)))
   
   (define (procedure-arity proc)
-    (let-values ((a (is:procedure-arity proc))) 
+    (let ((a (is:procedure-arity proc))) 
       (cond
         [(null? a) #f]
-        [(null? (cdr a))
-          (let ((arity (car a)))
-            (if (unspecified? arity)
-                #f
-                arity))]
         [else a])))
 
   (define (arity-at-least? obj)
@@ -30,9 +25,11 @@
     (assert (and (integer? k)
                  (exact? k)
                  (not (negative? k))))
-    (let-values ((a (is:procedure-arity proc)))
-      (exists 
-        (lambda (x)
-          (if (exact? x)
-              (= k x)
-              (< x k)))))))
+    (let ((a (is:procedure-arity proc)))
+      (let ((a (if (list? a) a (list a))))
+        (exists 
+          (lambda (x)
+            (if (exact? x)
+                (= k x)
+                (<= x k)))
+          a)))))

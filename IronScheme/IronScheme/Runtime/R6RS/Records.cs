@@ -102,6 +102,19 @@ namespace IronScheme.Runtime
       return null;
     }
 
+    //rather complicated... :\
+
+    //[InlineEmitter("record-constructor")]
+    //public static Expression RecordConstructor(Expression[] obj)
+    //{
+    //  return null;
+    //}
+
+    //[InlineEmitter("make-record-constructor-descriptor")]
+    //public static Expression MakeRecordConstructorDescriptor(Expression[] obj)
+    //{
+    //  return null;
+    //}
 
     [InlineEmitter("make-record-type-descriptor")]
     public static Expression MakeRecordTypeDescriptor(Expression[] obj)
@@ -843,8 +856,7 @@ namespace IronScheme.Runtime.R6RS
         return AssertionViolation("record-accessor", "invalid field index", rtd, k);
       }
 
-      MethodInfo am = t.fields[i].accessor;
-      return Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), am));
+      return t.fields[i].Accessor;
     }
 
     [Builtin("record-mutator")]
@@ -858,8 +870,7 @@ namespace IronScheme.Runtime.R6RS
         return AssertionViolation("record-mutator", "invalid field index", rtd, k);
       }
 
-      MethodInfo mm = t.fields[i].mutator;
-      return Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget2), mm));
+      return t.fields[i].Mutator;
     }
 
     internal readonly static Dictionary<Type, RecordTypeDescriptor> typedescriptors = new Dictionary<Type, RecordTypeDescriptor>();

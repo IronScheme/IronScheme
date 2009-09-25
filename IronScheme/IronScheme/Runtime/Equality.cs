@@ -94,6 +94,10 @@ namespace IronScheme.Runtime
         {
           return Ast.Equal(obj[0], obj[1]);
         }
+        else if (Unwrap(obj[0]) is ConstantExpression || Unwrap(obj[1]) is ConstantExpression)
+        {
+          return Ast.Call(typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static), obj); 
+        }
       }
       return null;
     }

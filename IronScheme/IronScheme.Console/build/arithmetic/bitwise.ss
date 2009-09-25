@@ -38,6 +38,7 @@
     
   (import 
     (ironscheme clr)
+    (ironscheme core)
     (except (ironscheme) 
       bitwise-if 
       bitwise-copy-bit 
@@ -60,9 +61,6 @@
       
   (clr-using Microsoft.Scripting.Math)
       
-  (define (bignum? obj)
-    (clr-is BigInteger obj))      
-    
   (define ->bignum
     (typed-lambda (ei)
       ((Object) BigInteger)

@@ -41,9 +41,7 @@
     fxdiv0-and-mod0
     fxdiv0
     fxmod0
-    fx+/carry
-    fx-/carry
-    fx*/carry
+
     fxnot
     fxand
     fxior
@@ -67,7 +65,6 @@
     (ironscheme unsafe)
     (ironscheme integrable)
     (except (rnrs) 
-      fixnum?
       fixnum-width
       fxif
       fxcopy-bit
@@ -82,10 +79,6 @@
       fxlength
       fxfirst-bit-set
       fxbit-set?
-
-      fx*/carry
-      fx-/carry
-      fx+/carry
       
       fxmod
       fxmod0
@@ -123,9 +116,6 @@
       fx*
       fxreverse-bit-field
       ))
-      
-  (define (fixnum? obj)
-    (clr-is Int32 obj))        
     
   (define (fixnum-width) 32)
       
@@ -375,21 +365,7 @@
         (if (fx>? a b) b a))
       a 
       rest))                 
-      
-  (define-fx (fx*/carry fx1 fx2 fx3)
-    (let ((s (+ (* fx1 fx2) fx3))
-          (e (expt 2 (fixnum-width))))
-      (values (mod0 s e) (div0 s e))))
 
-  (define-fx (fx-/carry fx1 fx2 fx3)
-    (let ((s (- fx1 fx2 fx3))
-          (e (expt 2 (fixnum-width))))
-      (values (mod0 s e) (div0 s e))))
-
-  (define-fx (fx+/carry fx1 fx2 fx3)
-    (let ((s (+ fx1 fx2 fx3))
-          (e (expt 2 (fixnum-width))))
-      (values (mod0 s e) (div0 s e))))
   
 
   (define-fx* (fxif fx1 fx2 fx3)

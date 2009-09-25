@@ -270,14 +270,6 @@
       string-for-each
       reverse
       vector-fill!
-      char?
-      vector?
-      bytevector?
-      symbol?
-      boolean?      
-      procedure?
-
-      flonum?
 
       list->vector
       list->string 
@@ -291,7 +283,6 @@
       make-vector
       vector-length  
       
-      string? 
       make-string  
       string-ref
       string-set!
@@ -313,42 +304,12 @@
      )
     (ironscheme contracts)
     (ironscheme clr)
+    (ironscheme core)
     (ironscheme unsafe))
     
     (clr-using System.Text)
     (clr-using IronScheme.Runtime)
     (clr-using Microsoft.Scripting)
-    
-    (define (clr-string? obj)
-      (clr-is String obj))
-
-    (define (stringbuilder? obj)
-      (clr-is System.Text.StringBuilder obj))
-      
-    (define (string? obj)
-      (or (clr-string? obj) 
-          (stringbuilder? obj)))
-  
-    (define (char? obj)
-      (clr-is Char obj))
-      
-    (define (vector? obj)
-      (clr-is Object[] obj))
-
-    (define (bytevector? obj)
-      (clr-is Byte[] obj))
-
-    (define (symbol? obj)
-      (clr-is SymbolId obj))
-      
-    (define (boolean? obj)
-      (clr-is Boolean obj))
-     
-    (define (procedure? obj)
-      (clr-is Callable obj))  
-
-    (define (flonum? obj)
-      (clr-is Double obj))  
     
     (define (char->integer chr)
       (unless (char? chr)

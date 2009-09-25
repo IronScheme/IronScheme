@@ -77,6 +77,9 @@
     div-and-mod
     div0-and-mod0    
     number->string
+    fx+/carry
+    fx-/carry
+    fx*/carry
     )
   (import 
     (except 
@@ -145,7 +148,10 @@
       mod0
       div-and-mod
       div0-and-mod0       
-      number->string)
+      number->string
+      fx+/carry
+      fx-/carry
+      fx*/carry)
     (ironscheme core)
     (ironscheme contracts)
     (ironscheme unsafe)
@@ -153,12 +159,6 @@
     
   (clr-using Microsoft.Scripting.Math)
   (clr-using IronScheme.Runtime)    
-
-  (define (bignum? obj)
-    (clr-is BigInteger obj))
-    
-  (define (rectnum? obj)
-    (clr-is ComplexFraction obj))    
     
   (define (make-rectnum r1 r2)
     (clr-static-call ComplexFraction Make r1 r2))
@@ -168,9 +168,6 @@
     
   (define (rectnum-real-part c)
     (clr-prop-get ComplexFraction Real c))    
-  
-  (define (ratnum? obj)
-    (clr-is Fraction obj))
     
   (define (ratnum-denominator rat)
     (clr-prop-get Fraction Denominator rat))   
@@ -178,9 +175,6 @@
   (define (ratnum-numerator rat)
     (clr-prop-get Fraction Numerator rat))  
   
-  (define (complexnum? obj)
-    (clr-is Complex64 obj))
-    
   (define (make-complexnum r1 r2)
     (clr-static-call Complex64 Make r1 r2))
     
@@ -1029,6 +1023,22 @@
                           r))]
                   [else 
                     (raise (make-restriction-violation))]))]))]))
+                    
+      
+  (define/contract (fx*/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+    (let ((s (+ (* fx1 fx2) fx3))
+          (e (expt 2 (fixnum-width))))
+      (values (mod0 s e) (div0 s e))))
+
+  (define/contract (fx-/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+    (let ((s (- fx1 fx2 fx3))
+          (e (expt 2 (fixnum-width))))
+      (values (mod0 s e) (div0 s e))))
+
+  (define/contract (fx+/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+    (let ((s (+ fx1 fx2 fx3))
+          (e (expt 2 (fixnum-width))))
+      (values (mod0 s e) (div0 s e))))                    
                   
 ;;; Free-format algorithm for printing IEEE double-precision positive
 ;;; floating-point numbers in base 10
