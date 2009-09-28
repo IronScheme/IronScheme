@@ -128,6 +128,7 @@
     <Compile Include="Runtime\R6RS\Unicode.cs" />
     <Compile Include="Runtime\R6RS\Hashtables.cs" />
     <Compile Include="Runtime\R6RS\Records.cs" />
+    <Compile Include="Runtime\SchemeException.cs" />
     <Compile Include="Runtime\TraceClosure.cs" />
     <Compile Include="Runtime\Unsafe.cs" />
     <Compile Include="Runtime\Vectors.cs" />

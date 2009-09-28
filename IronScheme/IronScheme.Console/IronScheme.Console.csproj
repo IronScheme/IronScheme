@@ -688,7 +688,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\linq3.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\library-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -797,6 +796,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="srfi\tests\procedure-arity.sps">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="srfi\tests\random-access-lists.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="tests\source-optimizer.sps">

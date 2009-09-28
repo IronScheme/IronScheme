@@ -156,7 +156,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    static Type ScanForType(string name)
+    protected static Type ScanForType(string name)
     {
       var t = GetTypeFast(GetTypeName(name, ""));
       if (t != null)
@@ -248,90 +248,6 @@ namespace IronScheme.Compiler
       }
     }
 
-    protected static Regex typeparser = new Regex(@"(?<ns>([^\s.<]+\.)*)(?<type>[^\s.<\[]+)(?<args>(<[^>]+>)?)(?<isarray>\[\])?",
-      RegexOptions.Compiled | RegexOptions.ExplicitCapture); // last bit has to be greedy, greedy wont help, need to figure out nesting constructs
-
-    //this clearly wont scale well at all...
-    protected internal static Type GetType(string nsandname)
-    {
-      nsandname = nsandname.ToLower();
-      Match m = typeparser.Match(nsandname);
-      if (!m.Success)
-      {
-        return null;
-      }
-
-      string am = m.Groups["args"].Value;
-
-      bool isarray = m.Groups["isarray"].Success;
-
-
-      string[] genargs = am.Length > 0 ? am.Substring(1, am.Length - 2).Split('&') : new string[0];
-
-      Type[] gentypes = Array.ConvertAll<string, Type>(genargs, GetType);
-
-      nsandname = m.Groups["ns"].Value + m.Groups["type"].Value;
-
-      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
-      {
-        if (ass.ManifestModule.Name != "<In Memory Module>")
-        {
-          try
-          {
-            foreach (Type t in ass.GetExportedTypes())
-            {
-              string tname = t.Name;
-              int genargsc = 0;
-
-              int geni = t.Name.IndexOf('`');
-
-              if (geni > 0)
-              {
-                genargsc = int.Parse(tname.Substring(geni + 1));
-                tname = tname.Substring(0, geni);
-              }
-
-              string nsm = t.Namespace + "." + tname;
-              nsm = nsm.ToLower();
-
-              Type tt = t;
-
-              if (nsm == nsandname)
-              {
-                if (gentypes.Length == genargsc && gentypes.Length > 0)
-                {
-                  tt = tt.MakeGenericType(gentypes);
-                }
-                if (isarray)
-                {
-                  tt = tt.MakeArrayType();
-                }
-                return tt;
-              }
-              else if (tname.ToLower() == nsandname)
-              {
-                if (namespaces.ContainsKey(t.Namespace))
-                {
-                  if (gentypes.Length == genargsc && gentypes.Length > 0)
-                  {
-                    tt = tt.MakeGenericType(gentypes);
-                  }
-                  if (isarray)
-                  {
-                    tt = tt.MakeArrayType();
-                  }
-                  return tt;
-                }
-              }
-            }
-          }
-          catch (Exception) //mono
-          {
-          }
-        }
-      }
-      return null;
-    }
 
     protected static Expression ConvertFromHelper(Type t, Expression e)
     {
@@ -705,7 +621,7 @@ namespace IronScheme.Compiler
           {
             if (typeargs[i].Length > 0)
             {
-              types[i] = GetType(typeargs[i]);
+              types[i] = ScanForType(typeargs[i]);
             }
           }
         }

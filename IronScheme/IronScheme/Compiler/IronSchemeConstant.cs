@@ -121,8 +121,39 @@ namespace IronScheme.Compiler
     }
   }
 
+  sealed class RecordConstructorDescriptorConstant : CompilerConstant
+  {
+    public object RtdSymbol { get; set; }
+    public object ParentRcd { get; set; }
+    public object Protocol { get; set; }
+    public SymbolId NameHint { get; set; }
 
-  sealed class RecordTypeConstant : CompilerConstant
+    public override Type Type
+    {
+      get { return typeof(void); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      if (Builtins.IsTrue(Builtins.IsSymbolBound(RtdSymbol)))
+      {
+        var rtd = Builtins.SymbolValue(RtdSymbol);
+        var pcd = ParentRcd;
+        var prt = Builtins.SymbolValue(Protocol);
+        var cd = Records.MakeRecordConstructorDescriptor(rtd, pcd, prt);
+
+        Builtins.SetSymbolValueFast(NameHint, cd);
+      }
+    }
+
+    public override object Create()
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+
+  sealed class RecordTypeDescriptorConstant : CompilerConstant
   {
     public object RecordName { get; set; }
     public object Sealed { get; set; }
@@ -148,7 +179,7 @@ namespace IronScheme.Compiler
 
         (rtd.type as TypeBuilder).CreateType();
 
-        Builtins.SetSymbolValue(NameHint, rtd);
+        Builtins.SetSymbolValueFast(NameHint, rtd);
       }
     }
 

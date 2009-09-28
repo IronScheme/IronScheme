@@ -56,6 +56,8 @@
   (clr-using System.Web)
   (clr-using System.Collections.Specialized)
   (clr-using System.Web.SessionState)
+  (clr-using System.Security.Principal)
+  (clr-using System.Web.Security)
   
   (define (context)
     (clr-static-prop-get HttpContext Current))
@@ -88,16 +90,16 @@
     (clr-prop-get HttpContext User (context)))    
     
   (define (user-identity)
-    (clr-prop-get System.Security.Principal.IPrincipal Identity (get-user)))
+    (clr-prop-get IPrincipal Identity (get-user)))
     
   (define (user-name)
-    (clr-prop-get System.Security.Principal.IIdentity Name (user-identity)))  
+    (clr-prop-get IIdentity Name (user-identity)))  
     
   (define/contract (user-in-role? role:string)
-    (clr-call System.Security.Principal.IPrincipal IsInRole (get-user) role))
+    (clr-call IPrincipal IsInRole (get-user) role))
 
   (define (user-authenticated?)
-    (clr-prop-get System.Security.Principal.IIdentity IsAuthenticated (user-identity)))  
+    (clr-prop-get IIdentity IsAuthenticated (user-identity)))  
     
   (define/contract (resolve-url vpath:string)
     (clr-call HttpResponse ApplyAppPathModifier (response) vpath))    
@@ -188,10 +190,10 @@
     (clr-prop-get HttpRequest RawUrl (request)))       
     
   (define (forms-authentication-logout)
-    (clr-static-call System.Web.Security.FormsAuthentication SignOut))
+    (clr-static-call FormsAuthentication SignOut))
     
   (define/contract (forms-authentication-login user:string)
-    (clr-static-call System.Web.Security.FormsAuthentication SetAuthCookie user #f))      
+    (clr-static-call FormsAuthentication SetAuthCookie user #f))      
   
   (define (display-html html)
     (display (->xml html) (http-output-port)))

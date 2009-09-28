@@ -42,5 +42,5 @@
   (define/contract (file-newer? file1:string file2:string)
     (let ((r (compare-time (get-last-write-time file1)
                            (get-last-write-time file2))))
-      (>= r 0)))
+      (fx>=? r 0)))
 )

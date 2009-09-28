@@ -47,7 +47,6 @@ namespace IronScheme.Runtime
       }
     }
 
-
     [Builtin("string->number", AllowConstantFold = true)]
     public static object StringToNumber(object obj)
     {
@@ -118,8 +117,7 @@ namespace IronScheme.Runtime
       return GetBool(ConvertToComplex(a) == ConvertToComplex(b));
     }
 
-    [Builtin("exact-compare", AllowConstantFold = true)]
-    public static object ExactCompare(object a, object b)
+    public static int ExactCompare(object a, object b)
     {
       NumberClass f = GetNumberClass(a);
       NumberClass s = GetNumberClass(b);
@@ -129,19 +127,20 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          return RuntimeHelpers.Int32ToObject( ((int)a).CompareTo((int)b));
+          return ((int)a).CompareTo((int)b);
         case NumberClass.BigInteger:
-          return RuntimeHelpers.Int32ToObject( ConvertToBigInteger(a).CompareTo(ConvertToBigInteger(b)));
+          return ConvertToBigInteger(a).CompareTo(ConvertToBigInteger(b));
         case NumberClass.Rational:
-          return RuntimeHelpers.Int32ToObject( ConvertToRational(a).CompareTo(ConvertToRational(b)));
+          return ConvertToRational(a).CompareTo(ConvertToRational(b));
 
         default:
-          return AssertionViolation("exact-compare", "not exact", a, b);
+          AssertionViolation("exact-compare", "not exact", a, b);
+          // never reached
+          return 0;
       }
     }
 
-    [Builtin("inexact-compare", AllowConstantFold = true)]
-    public static object InexactCompare(object a, object b)
+    public static int InexactCompare(object a, object b)
     {
       NumberClass f = GetNumberClass(a);
       NumberClass s = GetNumberClass(b);
@@ -151,9 +150,11 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Real:
-          return RuntimeHelpers.Int32ToObject( ((double)a).CompareTo(b));
+          return ((double)a).CompareTo(b);
         default:
-          return AssertionViolation("inexact-compare", "not a real", a, b);
+          AssertionViolation("inexact-compare", "not a real", a, b);
+          // never reached
+          return 0;
       }
     }
 
@@ -165,9 +166,42 @@ namespace IronScheme.Runtime
              obj is ComplexFraction;
     }
 
-
-
     #region math
+
+    [Builtin("fx+internal", AllowConstantFold = true)]
+    public static object FxPlusInternal(object a, object b)
+    {
+      long r = (long)(int)a + (int)b;
+      if (r > int.MaxValue || r < int.MinValue)
+      {
+        return FALSE;
+      }
+      return RuntimeHelpers.Int32ToObject((int)r);
+    }
+
+    [Builtin("fx-internal", AllowConstantFold = true)]
+    public static object FxMinusInternal(object a, object b)
+    {
+      long r = (long)(int)a - (int)b;
+      if (r > int.MaxValue || r < int.MinValue)
+      {
+        return FALSE;
+      }
+      return RuntimeHelpers.Int32ToObject((int)r);
+    }
+
+
+    [Builtin("fx*internal", AllowConstantFold = true)]
+    public static object FxMultiplyInternal(object a, object b)
+    {
+      long r = (long)(int)a * (int)b;
+      if (r > int.MaxValue || r < int.MinValue)
+      {
+        return FALSE;
+      }
+      return RuntimeHelpers.Int32ToObject((int)r);
+    }
+
 
     enum NumberClass
     {
@@ -293,19 +327,16 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          if (avoidoverflow || overflowcount > 10)
           {
-            goto case NumberClass.BigInteger;
-          }
-          try
-          {
-            return RuntimeHelpers.Int32ToObject(checked(ConvertToInteger(first) + ConvertToInteger(second)));
-          }
-          catch (OverflowException)
-          {
-            overflowcount++;
-            avoidoverflow = true;
-            return ConvertToBigInteger(first) + ConvertToBigInteger(second);
+            long result = (long)ConvertToInteger(first) + ConvertToInteger(second);
+            if (result > int.MaxValue || result < int.MinValue)
+            {
+              return (BigInteger)result;
+            }
+            else
+            {
+              return RuntimeHelpers.Int32ToObject((int) result);
+            }
           }
         case NumberClass.BigInteger:
           return ToIntegerIfPossible(ConvertToBigInteger(first) + ConvertToBigInteger(second));
@@ -342,19 +373,16 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          if (avoidoverflow || overflowcount > 25)
           {
-            goto case NumberClass.BigInteger;
-          }
-          try
-          {
-            return RuntimeHelpers.Int32ToObject(checked(ConvertToInteger(first) - ConvertToInteger(second)));
-          }
-          catch (OverflowException)
-          {
-            overflowcount++;
-            avoidoverflow = true;
-            return ConvertToBigInteger(first) - ConvertToBigInteger(second);
+            long result = (long)ConvertToInteger(first) - ConvertToInteger(second);
+            if (result > int.MaxValue || result < int.MinValue)
+            {
+              return (BigInteger)result;
+            }
+            else
+            {
+              return RuntimeHelpers.Int32ToObject((int)result);
+            }
           }
         case NumberClass.BigInteger:
           return ToIntegerIfPossible(ConvertToBigInteger(first) - ConvertToBigInteger(second));
@@ -394,19 +422,16 @@ namespace IronScheme.Runtime
       switch (effective)
       {
         case NumberClass.Integer:
-          if (avoidoverflow || overflowcount > 25)
           {
-            goto case NumberClass.BigInteger;
-          }
-          try
-          {
-            return RuntimeHelpers.Int32ToObject(checked(ConvertToInteger(first) * ConvertToInteger(second)));
-          }
-          catch (OverflowException)
-          {
-            overflowcount++;
-            avoidoverflow = true;
-            return ConvertToBigInteger(first) * ConvertToBigInteger(second);
+            long result = (long)ConvertToInteger(first) * ConvertToInteger(second);
+            if (result > int.MaxValue || result < int.MinValue)
+            {
+              return (BigInteger)result;
+            }
+            else
+            {
+              return RuntimeHelpers.Int32ToObject((int)result);
+            }
           }
         case NumberClass.BigInteger:
           return ToIntegerIfPossible(ConvertToBigInteger(first) * ConvertToBigInteger(second));
@@ -590,7 +615,7 @@ namespace IronScheme.Runtime
 
  
   
-    [Builtin("inexact")]
+    //[Builtin("inexact")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     internal static object Inexact(object obj)
     {
@@ -601,7 +626,7 @@ namespace IronScheme.Runtime
       return obj;
     }
 
-    [Builtin("exact")]
+    //[Builtin("exact")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     internal static object Exact(object obj)
     {

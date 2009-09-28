@@ -280,9 +280,11 @@ namespace Microsoft.Scripting {
 
         // The locals dictionary must be first so that we have the benefit of an emtpy stack when we emit the value
         // in the ScopeExpression
-        public static CodeContext CreateNestedCodeContext(IAttributesCollection locals, CodeContext context, bool visible) {
-            return new CodeContext(new Scope(context.Scope, locals, visible), context.LanguageContext, context.ModuleContext);
+        public static CodeContext CreateNestedCodeContext(IAttributesCollection locals, CodeContext context)
+        {
+          return new CodeContext(new Scope(context.Scope, locals), context.LanguageContext, context.ModuleContext);
         }
+
 
 #if FULL
 

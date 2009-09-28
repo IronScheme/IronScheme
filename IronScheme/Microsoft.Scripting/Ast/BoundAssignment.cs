@@ -140,7 +140,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override Type Type {
             get {
-                return _variable.Type;
+                return typeof(void);
             }
         }
 
@@ -148,13 +148,13 @@ namespace Microsoft.Scripting.Ast {
           //EmitLocation(cg);
             _value.Emit(cg);
             _vr.Slot.EmitSet(cg);
-            _vr.Slot.EmitGetAddr(cg);
+            //_vr.Slot.EmitGetAddr(cg);
         }
 
         public override void Emit(CodeGen cg) {
           //EmitLocation(cg);
             _value.Emit(cg);
-            cg.Emit(OpCodes.Dup);
+            //cg.Emit(OpCodes.Dup);
             _vr.Slot.EmitSet(cg);
         }
 

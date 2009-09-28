@@ -43,23 +43,28 @@
     (ironscheme unsafe)
     (ironscheme clr))
     
+  (clr-using IronScheme.Runtime)   
+  (clr-using Microsoft.Scripting) 
+  (clr-using Microsoft.Scripting.Math)
+  (clr-using System.Text)
+    
   (define (fixnum? obj)
-    (clr-is Int32 obj))     
+    (clr-is Int32 obj))
     
   (define (flonum? obj)
-    (clr-is Double obj))     
+    (clr-is Double obj))
 
   (define (bignum? obj)
-    (clr-is Microsoft.Scripting.Math.BigInteger obj))
+    (clr-is BigInteger obj))
     
   (define (rectnum? obj)
-    (clr-is IronScheme.Runtime.ComplexFraction obj)) 
+    (clr-is ComplexFraction obj)) 
   
   (define (ratnum? obj)
-    (clr-is IronScheme.Runtime.Fraction obj))
+    (clr-is Fraction obj))
   
   (define (complexnum? obj)
-    (clr-is Microsoft.Scripting.Math.Complex64 obj))
+    (clr-is Complex64 obj))
     
   (define (number? obj)
     ($or? (fixnum? obj)
@@ -68,20 +73,20 @@
           (ratnum? obj)
           (complexnum? obj)
           (rectnum? obj))) 
-          
+
   (define (clr-string? obj)
     (clr-is String obj))
 
   (define (stringbuilder? obj)
-    (clr-is System.Text.StringBuilder obj))
+    (clr-is StringBuilder obj))
     
   (define (string? obj)
     (or (clr-string? obj) 
-        (stringbuilder? obj)))             
+        (stringbuilder? obj)))
 
   (define (char? obj)
     (clr-is Char obj))
-    
+
   (define (vector? obj)
     (clr-is Object[] obj))
 
@@ -89,15 +94,14 @@
     (clr-is Byte[] obj))
 
   (define (symbol? obj)
-    (clr-is Microsoft.Scripting.SymbolId obj))
+    (clr-is SymbolId obj))
     
   (define (boolean? obj)
     (clr-is Boolean obj))
    
   (define (procedure? obj)
-    (clr-is IronScheme.Runtime.Callable obj))  
-                          
-   
+    (clr-is Callable obj))  
+
 )
   
    

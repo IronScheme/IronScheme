@@ -197,6 +197,7 @@ SectionIn 1 2 RO
 	File "Microsoft.Scripting.dll"
 	
 	File "setup-xp.bat"
+	File "isc.bat"
 	File "system-libraries.ss"
 	File "compile-system-libraries.sps"
 	

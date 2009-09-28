@@ -84,11 +84,6 @@
       list?
       length))
       
-   
-    
-        
-
-      
   (define (list-tail lst index)
     (cond
       [(zero? index) lst]
@@ -378,36 +373,49 @@
             [else
               (append! obj* i1)]))]))
   
-  (define (fold-left combine nil list1 . lists)
-	  (cond 
-	    [(null? list1) nil]
-	    [(null? lists)
-	      (fold-left combine (combine nil (car list1)) (cdr list1))]
-	    [else
-		    (apply fold-left 
-			    (cons*
-				    combine 
-				    (apply combine (cons* nil (car list1) (map car lists))) 
-				    (cdr list1) 
-				    (map cdr lists)))]))   
+  (define fold-left
+    (case-lambda
+      [(combine nil lst)
+	      (if (null? lst) 
+	          nil
+	          (fold-left combine 
+	                     (combine nil (car lst)) 
+	                     (cdr lst)))]
+      [(combine nil list1 . lists)
+	      (cond 
+	        [(null? list1) nil]
+	        [else
+		        (apply fold-left 
+			        (cons*
+				        combine 
+				        (apply combine (cons* nil (car list1) (map car lists))) 
+				        (cdr list1) 
+				        (map cdr lists)))])]))
 				  
-  (define (fold-right combine nil list1 . lists)
-	  (cond
-	    [(null? list1) nil]
-	    [(null? lists)
-	      (combine (car list1) (fold-right combine nil (cdr list1)))]
-		  [else
-		    (apply combine 
-			    (append
-				    (list (car list1))
-				    (map car lists)
-				    (list 
-				      (apply fold-right
-					      (cons*
-						      combine
-						      nil
-						      (cdr list1) 
-						      (map cdr lists))))))]))
+  (define fold-right
+    (case-lambda
+      [(combine nil lst)
+        (if (null? lst)
+            nil
+	          (combine (car lst) 
+	                   (fold-right combine 
+	                               nil 
+	                               (cdr lst))))]
+      [(combine nil list1 . lists)
+	      (cond
+	        [(null? list1) nil]
+		      [else
+		        (apply combine 
+			        (append
+				        (list (car list1))
+				        (map car lists)
+				        (list 
+				          (apply fold-right
+					          (cons*
+						          combine
+						          nil
+						          (cdr list1) 
+						          (map cdr lists))))))])]))
 					    
    (define (remove obj list)
      (remp (lambda (x) (equal? obj x)) list))

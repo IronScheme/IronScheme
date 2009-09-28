@@ -25,7 +25,7 @@ namespace IronScheme.Compiler
   [Generator("set!")]
   public sealed class SetGenerator : SimpleGenerator
   {
-    static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
+    static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValueFast");
     readonly static Stack<SymbolId> setstack = new Stack<SymbolId>();
 
     public static bool IsAssigned(SymbolId s)

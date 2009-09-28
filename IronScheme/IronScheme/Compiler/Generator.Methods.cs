@@ -49,7 +49,7 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo ICallable_Call6 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
     protected static readonly MethodInfo ICallable_Call7 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
     protected static readonly MethodInfo ICallable_Call8 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
-    protected static readonly MethodInfo ICallable_CallN = typeof(Callable).GetMethod("Call", new Type[] { typeof(object[]), });
+    protected internal static readonly MethodInfo ICallable_CallN = typeof(Callable).GetMethod("Call", new Type[] { typeof(object[]), });
 
     protected static readonly MethodInfo CallTargetWithContext0_Invoke = typeof(CallTargetWithContext0).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContext1_Invoke = typeof(CallTargetWithContext1).GetMethod("Invoke");

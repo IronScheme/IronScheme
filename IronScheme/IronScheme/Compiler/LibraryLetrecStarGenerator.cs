@@ -28,7 +28,7 @@ namespace IronScheme.Compiler
   [Generator("library-letrec*")]
   public sealed class LibraryLetrecStarGenerator : SimpleGenerator
   {
-    static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValue");
+    static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValueFast");
 
     static string SymbolToString(object sym)
     {
