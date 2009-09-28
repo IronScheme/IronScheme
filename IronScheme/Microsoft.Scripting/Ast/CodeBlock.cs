@@ -470,7 +470,6 @@ namespace Microsoft.Scripting.Ast {
             Slot ctxSlot = cg.GetNamedLocal(typeof(CodeContext), "$frame");
             cg.EnvironmentSlot.EmitGetDictionary(cg);
             cg.EmitCodeContext();
-            cg.EmitBoolean(_visibleScope);
             cg.EmitCall(typeof(RuntimeHelpers), "CreateNestedCodeContext");
             ctxSlot.EmitSet(cg);
             return ctxSlot;

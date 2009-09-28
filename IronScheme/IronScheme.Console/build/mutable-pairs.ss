@@ -13,17 +13,18 @@
   (export
     set-car!
     set-cdr!)
-    
   (import 
     (rnrs)
     (ironscheme contracts)
     (ironscheme clr))
+
+  (clr-using IronScheme.Runtime)   
     
   (define/contract (set-car! lst:pair val)
-    (clr-field-set! IronScheme.Runtime.Cons car lst val))      
+    (clr-field-set! Cons car lst val))      
     
   (define/contract (set-cdr! lst:pair val)
-    (clr-field-set! IronScheme.Runtime.Cons cdr lst val))      
+    (clr-field-set! Cons cdr lst val))      
   
 )
 

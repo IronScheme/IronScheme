@@ -549,8 +549,18 @@
                                (number->string (imag-part num) radix))
                            "i")]
           [else
-            (assertion-violation 'number->string "not a number" num)])]))                           
-    
+            (assertion-violation 'number->string "not a number" num)])]))  
+            
+
+  (define-syntax exact-compare
+    (syntax-rules ()
+      [(_ x y)
+        (clr-static-call Builtins ExactCompare x y)]))                       
+
+  (define-syntax inexact-compare
+    (syntax-rules ()
+      [(_ x y)
+        (clr-static-call Builtins InexactCompare x y)]))    
 
   (define-syntax define-comparer 
     (lambda (x)

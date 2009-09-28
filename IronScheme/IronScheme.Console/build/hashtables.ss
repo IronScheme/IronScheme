@@ -110,8 +110,8 @@
   (define/contract (hashtable-ref ht:hashtable key default)
     (let ((r (clr-indexer-get Hashtable ht key)))
       (if (or (not (null? r)) (hashtable-contains? ht key))
-        r
-        default)))
+          r
+          default)))
       
   (define/contract (hashtable-set! ht:hashtable key obj)
     (clr-indexer-set! Hashtable ht key obj))

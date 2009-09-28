@@ -79,66 +79,54 @@ namespace IronScheme
 
     public override CodeBlock ParseSourceCode(CompilerContext context)
     {
-#if DEBUG
-      Stopwatch sw = Stopwatch.StartNew();
 
-      try
+      switch (context.SourceUnit.Kind)
       {
-#endif
-        switch (context.SourceUnit.Kind)
-        {
 
-          case SourceCodeKind.InteractiveCode:
+        case SourceCodeKind.InteractiveCode:
+          {
+            string code = context.SourceUnit.GetCode();
+
+            if (code.Length < 10)
             {
-              string code = context.SourceUnit.GetCode();
-
-              if (code.Length < 10)
-              {
-                code = code.Trim();
-              }
-              if (code.Length > 0)
-              {
+              code = code.Trim();
+            }
+            if (code.Length > 0)
+            {
 #if CPS
               code = string.Format("(eval-r6rs identity-for-cps '(begin {0}))", code.Trim());
 #else
-                code = string.Format("(eval-r6rs '(begin {0}))", code.Trim());
+              code = string.Format("(eval-r6rs '(begin {0}))", code.Trim());
 #endif
-              }
+            }
 
-              CodeBlock cb = ParseString(code, context);
-              if (cb == null && context.SourceUnit.CodeProperties == null)
-              {
-                context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
-              }
-              return cb;
-            }
-          case SourceCodeKind.File:
-            using (Stream s = File.OpenRead(context.SourceUnit.Id))
+            CodeBlock cb = ParseString(code, context);
+            if (cb == null && context.SourceUnit.CodeProperties == null)
             {
-              return ParseStream(s, context);
+              context.SourceUnit.CodeProperties = SourceCodeProperties.IsIncompleteStatement;
             }
-          default:
+            return cb;
+          }
+        case SourceCodeKind.File:
+          using (Stream s = File.OpenRead(context.SourceUnit.Id))
+          {
+            return ParseStream(s, context);
+          }
+        default:
+          {
+            string code = context.SourceUnit.GetCode();
+            if (code.Length < 10)
             {
-              string code = context.SourceUnit.GetCode();
-              if (code.Length < 10)
-              {
-                code = code.Trim();
-              }
-              if (code.Length > 0)
-              {
-                code = string.Format("(eval-embedded '(begin {0}))", code.Trim());
-              }
-              CodeBlock cb = ParseString(code, context);
-              return cb;
+              code = code.Trim();
             }
-        }
-#if DEBUG
+            if (code.Length > 0)
+            {
+              code = string.Format("(eval-embedded '(begin {0}))", code.Trim());
+            }
+            CodeBlock cb = ParseString(code, context);
+            return cb;
+          }
       }
-      finally
-      {
-        Trace.WriteLine(sw.ElapsedMilliseconds, "Parse: " + context.SourceUnit);
-      }
-#endif
     }
 
     static Parser parser;
@@ -269,7 +257,5 @@ namespace IronScheme
       }
       return null;
     }
-
-
   }
 }

@@ -54,6 +54,11 @@ namespace Microsoft.Scripting {
             }
         }
 
+        public static void SetValue(object value, ModuleGlobalWrapper wrapper)
+        {
+          wrapper.CurrentValue = value;
+        }
+
         public object CurrentValue {
           [DebuggerHidden]
           [DebuggerStepThrough]

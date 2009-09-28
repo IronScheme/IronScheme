@@ -209,76 +209,18 @@ namespace IronScheme.Runtime
     {
       SymbolId s = RequiresNotNull<SymbolId>(name);
 
-      //int a = Adder<int>.Result.Invoke(1, 2);
-
       string tn = SymbolTable.IdToString(s);
 
-      List<Type> candidates = new List<Type>();
+      var t = ClrGenerator.GetTypeFast(tn);
 
-      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+      if (t == null)
       {
-        try
-        {
-          if (ass.ManifestModule.Name != "<In Memory Module>")
-          {
-            foreach (Type t in ass.GetExportedTypes())
-            {
-              string tnl = (t.Namespace + "." + t.Name);
-
-              if (t.IsGenericType)
-              {
-                tnl = tnl.Substring(0, tnl.Length - 2);
-              }
-
-              if (tnl == tn)
-              {
-                candidates.Add(t);
-
-                // we have right name and namespace, now for possible type args, confusing logic :|
-                if (typeargs != null && typeargs.Length > 0)
-                {
-                  if (t.IsGenericType)
-                  {
-                    Type[] ga = t.GetGenericArguments();
-                    if (typeargs.Length == ga.Length)
-                    {
-                      Type[] ta = new Type[typeargs.Length];
-                      for (int i = 0; i < ta.Length; i++)
-                      {
-                        ta[i] = typeargs[i] as Type;
-                        if (!ta[i].IsSubclassOf(ga[i].BaseType))
-                        {
-                          continue;
-                        }
-                      }
-
-                      try
-                      {
-                        return t.MakeGenericType(ta);
-                      }
-                      catch
-                      {
-                        continue;
-                      }
-                    }
-                  }
-                }
-                else if (!t.IsGenericType)
-                {
-                  return t;
-                }
-              }
-            }
-          }
-        }
-        catch (Exception)
-        {
-          //mono?
-        }
+        return FALSE;
       }
 
-      return FALSE;
+      return t.MakeGenericType(Array.ConvertAll(typeargs, x => (Type)x));
     }
+    
 
     [Builtin]
     public static object Typeof(object o)
@@ -456,6 +398,18 @@ namespace IronScheme.Runtime
       }
     }
 
+    public static object MakePrimlocHashtable(Cons map)
+    {
+      var ht = new Hashtable(1024);
+
+      foreach (Cons m in map)
+      {
+        ht[m.car] = m.cdr;
+      }
+
+      return ht;
+    }
+
     [Builtin("compile-bootfile")]
     public static object CompileBootfile(object libs)
     {
@@ -477,14 +431,8 @@ namespace IronScheme.Runtime
         ScriptDomainManager.Options.DebugCodeGeneration = false;
       }
 
-
-
-      // if you ever want to inspect the emitted dll's comment this out, use with care
       ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
 
-#if DEBUG
-      Stopwatch sw = Stopwatch.StartNew();
-#endif
       CodeBlock cb = IronSchemeLanguageContext.CompileExpr(libs as Cons);
       cb.ExplicitCodeContextExpression = null;
       cb.Name = "ironscheme.boot.new";
@@ -492,15 +440,7 @@ namespace IronScheme.Runtime
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb);
       sc.SourceUnit.IsVisibleToDebugger = true;
 
-#if DEBUG
-      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - bootfile"));
-      sw = Stopwatch.StartNew();
-#endif
       ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule("ironscheme.boot.new", sc);
-
-#if DEBUG
-      Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- bootfile"));
-#endif
 
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
       Compiler.SimpleGenerator.ClearGlobals();
@@ -745,14 +685,20 @@ namespace IronScheme.Runtime
       return GetBool(ModuleScope.ContainsName((SymbolId)symbol));
     }
 
-    [Builtin("set-symbol-value!")]
-    public static object SetSymbolValue(object symbol, object value)
+    public static void SetSymbolValueFast(object symbol, object value)
     {
       if (ModuleScope == null)
       {
         ModuleScope = BaseHelper.cc.Scope.ModuleScope;
       }
       ModuleScope.SetName((SymbolId)symbol, value);
+    }
+
+
+    [Builtin("set-symbol-value!")]
+    public static object SetSymbolValue(object symbol, object value)
+    {
+      SetSymbolValueFast(symbol, value);
       return Unspecified;
     }
 
@@ -800,12 +746,10 @@ namespace IronScheme.Runtime
       return Runtime.Cons.FromList(all);
     }
 
-
     static Cons ReadAttribute(XmlAttribute a)
     {
       return new Cons(SymbolTable.StringToObject(a.Name), a.Value);
     }
-
 
     [Builtin("open-tcp-input/output-port")]
     public static object OpenTcpInputOutputPort(object host, object port, object maybetranscoder)
@@ -913,10 +857,5 @@ namespace IronScheme.Runtime
 
       return (T)obj;
     }
-
- 
-
- 
-
   }
 }

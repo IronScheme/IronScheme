@@ -12,26 +12,26 @@
 (library (ironscheme arithmetic fixnums)
   (export
     fixnum?
-    
+
     fixnum-width
     least-fixnum
     greatest-fixnum
-    
+
     fx=?
     fx>?
     fx<?
     fx>=?
     fx<=?
-    
+
     fxzero?
     fxpositive?
     fxnegative?
     fxodd?
     fxeven?
-    
+
     fxmax
     fxmin
-    
+
     fx+
     fx*
     fx-
@@ -61,6 +61,7 @@
     fxreverse-bit-field
   )
   (import 
+    (ironscheme core)
     (ironscheme clr)
     (ironscheme unsafe)
     (ironscheme integrable)
@@ -74,59 +75,59 @@
       fxarithmetic-shift-left
       fxarithmetic-shift-right
       fxrotate-bit-field
-      
+ 
       fxbit-count
       fxlength
       fxfirst-bit-set
       fxbit-set?
-      
+
       fxmod
       fxmod0
       fxdiv-and-mod
       fxdiv0-and-mod0
       fxdiv0
       fxdiv
-      
+
       fxand
       fxior
       fxxor
-      
+
       fx=?
       fx<?
       fx>?
       fx<=?
       fx>=?
-      
+
       fxnot
-      
+
       fxzero?
       fxpositive?
       fxnegative?
       fxodd?
       fxeven?
-      
+
       greatest-fixnum
       least-fixnum
-      
+
       fxmax
       fxmin
-      
+
       fx-
       fx+
       fx*
       fxreverse-bit-field
       ))
-    
+
   (define (fixnum-width) 32)
-      
+  
   (define (greatest-fixnum)  #x7fffffff)
-  (define (least-fixnum)    #x-80000000)      
-      
+  (define (least-fixnum)    #x-80000000)
+
   (define-syntax checked
     (syntax-rules ()
       [(_ expr)
-        ($try/overflow expr (overflow-error #f))]))
-            
+        (or expr (overflow-error #f))]))
+
   (define-syntax define-fx
     (lambda (x)
       (syntax-case x ()
@@ -141,7 +142,7 @@
                 checks ...
                 (let ()
                   body body* ...)))]))) 
-                  
+
   (define-syntax define-fx*
     (lambda (x)
       (syntax-case x ()
@@ -154,18 +155,18 @@
                   "*")))))
             #'(begin
                 (define-integrable (uname formals ...) body body* ...)
-                (define-fx (name formals ...) (uname formals ...))))])))                   
-                  
+                (define-fx (name formals ...) (uname formals ...))))])))
+
   (define-syntax fxabs
     (syntax-rules ()
-      [(_ e) (clr-static-call Math (Abs Int32) e)]))                            
-            
+      [(_ e) (clr-static-call Math (Abs Int32) e)]))
+
   (define-fx (fx+ x1 x2)
-    (checked ($fx+ x1 x2)))            
-    
+    (checked (fx+internal x1 x2)))
+
   (define-fx (fx* x1 x2)
-    (checked ($fx* x1 x2)))            
-      
+    (checked (fx*internal x1 x2)))
+
   (define fx-
     (case-lambda
       [(x1)
@@ -179,8 +180,8 @@
           (assertion-violation 'fx- "not a fixnum" x1))
         (unless (fixnum? x2)
           (assertion-violation 'fx- "not a fixnum" x2))
-        (checked ($fx- x1 x2))]))
-  
+        (checked (fx-internal x1 x2))]))
+
   (define (overflow-error name . irritants)
     (raise
       (condition
@@ -188,7 +189,7 @@
         (make-who-condition name)
         (make-message-condition "arithmetic overflow")
         (make-irritants-condition irritants))))
-                  
+
   (define-fx* (fxarithmetic-shift x k)
     (cond
       [($fx=? k 0) x]
@@ -199,7 +200,7 @@
           (when ($fx>? (fxabs x) (fxabs i))
             (overflow-error 'fxarithmetic-shift x k))
           i)]))
-          
+
   (define-fx* (fxbit-count x)
     (if ($fx<=? x 0)
       ($fxnot (fxbit-count* ($fxnot x)))
@@ -207,8 +208,8 @@
         (if ($fx<? 0 x)
           (f ($$fx+ count ($fxand x 1))
              ($fxarithmetic-shift-right x 1))
-          count))))          
-          
+          count))))
+
   (define-fx* (fxlength x)
     (if ($fx<? x 0)
       (fxlength* ($fxnot x))
@@ -216,7 +217,7 @@
         (if ($fx<? 0 x)
           (f ($$fx+ count 1) ($fxarithmetic-shift-right x 1))
           count))))
-          
+
   (define-fx (fxfirst-bit-set x)
     (if ($fx=? x 0)
       -1
@@ -227,7 +228,7 @@
             (f ($$fx+ count 1)
                ($fxarithmetic-shift-right x 1)))
           count))))
-          
+
   (define-fx (fxbit-set? x k)
     (when ($fx<? k 0)
       (assertion-violation 'fxbit-set? "cannot be negative" k))
@@ -236,10 +237,10 @@
     (if ($fx=? 0 x)
       #f
       ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))))
-                  
+
   (define-fx (fxnot x1)
     ($fxnot x1))
-    
+
   (define-syntax define-fx-comparer 
     (lambda (x)
       (syntax-case x ()
@@ -264,13 +265,13 @@
                         [(name a ($car b))
                           (f ($car b) ($cdr b))]
                         [else #f]))])))])))
-                     
+
   (define-fx-comparer fx=?)
   (define-fx-comparer fx<?)
   (define-fx-comparer fx<=?)
   (define-fx-comparer fx>?)
   (define-fx-comparer fx>=?)
-  
+
   (define-syntax define-fx-bitop
     (lambda (x)
       (syntax-case x ()
@@ -291,7 +292,7 @@
                     (uname x1 x2)]
                   [args
                     (fold-left name (name) args)])))])))
-                    
+
   (define-fx-bitop fxand -1)
   (define-fx-bitop fxior 0)
   (define-fx-bitop fxxor 0)
@@ -307,7 +308,7 @@
       [($fx<? 0 x2) ($fxdiv0 ($$fx- x1 ($$fx- x2 1)) x2)]
       [else
         ($fxdiv0 ($$fx+ x1 ($$fx+ x2 1)) x2)]))
-      
+
   (define-fx* (fxmod x1 x2)
     ($$fx- x1 ($$fx* (fxdiv* x1 x2) x2)))
 
@@ -317,36 +318,36 @@
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
       (overflow-error 'fxmod0 x1 x2))
     ($fxmod0 x1 x2))
-    
+ 
   (define-fx (fxdiv-and-mod x1 x2)
     (let ((d (fxdiv* x1 x2)))
       (values d ($$fx- x1 ($$fx* d x2))))) 
-      
+
   (define-fx* (fxdiv0 x1 x2)
     (when ($fx=? 0 x2)
       (assertion-violation 'fxdiv0 "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
       (overflow-error 'fxdiv0 x1 x2))
-    ($fxdiv0 x1 x2))   
-    
+    ($fxdiv0 x1 x2))
+
   (define-fx (fxdiv0-and-mod0 x1 x2)
     (let ((d (fxdiv0* x1 x2)))
       (values d ($$fx- x1 ($$fx* d x2))))) 
 
   (define-fx* (fxpositive? r)
     ($fx<? 0 r))
-    
+
   (define-fx* (fxnegative? r)
-    ($fx>? 0 r))   
-    
+    ($fx>? 0 r))
+
   (define-fx* (fxzero? r)
-    ($fx=? 0 r))           
+    ($fx=? 0 r))
 
   (define-fx* (fxeven? n)
     ($fx=? 0 ($fxand n 1)))
 
   (define-fx* (fxodd? n)
-    ($fx=? 1 ($fxand n 1)))   
+    ($fx=? 1 ($fxand n 1)))
 
   (define (fxmax a . rest)
     (unless (fixnum? a)
@@ -356,7 +357,7 @@
         (if (fx<? a b) b a))
       a 
       rest))
-    
+
   (define (fxmin a . rest)
     (unless (fixnum? a)
       (assertion-violation 'fxmin "not a fixnum" a))
@@ -364,15 +365,13 @@
       (lambda (a b) 
         (if (fx>? a b) b a))
       a 
-      rest))                 
-
-  
+      rest))
 
   (define-fx* (fxif fx1 fx2 fx3)
     ($fxior ($fxand fx1 fx2)
       ($fxand ($fxnot fx1) fx3)))
-  
-  (define-fx* (fxcopy-bit fx1 fx2 fx3)      
+
+  (define-fx* (fxcopy-bit fx1 fx2 fx3)
     (fxif* ($fxarithmetic-shift-left 1 fx2)
       ($fxarithmetic-shift-left fx3 fx2) fx1))
   
@@ -380,7 +379,7 @@
     ($fxarithmetic-shift-right 
       ($fxand fx1 ($fxnot ($fxarithmetic-shift-left -1 fx3)))
       fx2))
-        
+
   (define-fx* (fxcopy-bit-field to start end from)
     (fxif* 
       ($fxand 
@@ -388,13 +387,13 @@
         ($fxnot ($fxarithmetic-shift-left -1 end)))
       ($fxarithmetic-shift-left from start)
       to))
-        
+
   (define-fx (fxarithmetic-shift-left fx1 fx2)
-    (fxarithmetic-shift* fx1 fx2))            
-    
+    (fxarithmetic-shift* fx1 fx2))
+
   (define-fx (fxarithmetic-shift-right fx1 fx2)
-    (fxarithmetic-shift* fx1 ($$fx- fx2)))            
-          
+    (fxarithmetic-shift* fx1 ($$fx- fx2)))
+
   (define-fx (fxrotate-bit-field n start end count)
     (let ((width ($$fx- end start)))
       (if (fxpositive?* width)

@@ -16,6 +16,12 @@
     char-titlecase
     char-foldcase
     
+    char=?
+    char<?
+    char>?
+    char<=?
+    char>=?    
+    
     char-ci=?
     char-ci<?
     char-ci>?
@@ -35,11 +41,20 @@
     string-titlecase
     string-foldcase
     
+    string=?
+    string<?
+    string>?
+    string<=?
+    string>=?
+    
     string-ci=?
     string-ci<?
     string-ci>?
     string-ci<=?
     string-ci>=?
+    
+    string-compare
+    string-ci-compare
     
     string-normalize-nfd
     string-normalize-nfkd
@@ -47,6 +62,11 @@
     string-normalize-nfkc)
     
   (import (except (ironscheme)
+    char=?
+    char<?
+    char>?
+    char<=?
+    char>=?    
     char-ci=?
     char-ci<?
     char-ci>?
@@ -57,6 +77,11 @@
     string-ci>?
     string-ci<=?
     string-ci>=?
+    string=?
+    string<?
+    string>?
+    string<=?
+    string>=?
     string-normalize-nfd
     string-normalize-nfkd
     string-normalize-nfc
@@ -80,6 +105,7 @@
     ;string-downcase
     string-titlecase
     string-foldcase
+    string-compare
     string-ci-compare
     )
     (ironscheme clr)
@@ -110,9 +136,9 @@
 
   (define/contract (char-foldcase chr:char)
     (clr-static-call Char 
-                     ToLowerInvariant 
+                     ToLower 
                      (clr-static-call Char 
-                                      ToUpperInvariant 
+                                      ToUpper 
                                       chr)))
     
   (define/contract (char-alphabetic? chr:char)
@@ -176,7 +202,42 @@
   (define (->string str)
     (if (clr-string? str)
         str
-        (clr-call Object ToString str)))      
+        (clr-call Object ToString str)))   
+        
+  (define/contract (string-compare a:string b:string)
+    ($string-compare a b))
+                     
+  (define-syntax $string-compare
+    (syntax-rules ()
+      [(_ a b)
+        (clr-call CompareInfo 
+                  (Compare String String CompareOptions)
+                  compare-info 
+                  (->string a) 
+                  (->string b) 
+                  'Ordinal)]))                       
+                       
+  (define-syntax define-string-compare
+    (syntax-rules ()
+      [(_ name cmp)
+        (define/contract name
+          (case-lambda
+            [(a:string b:string) 
+              (cmp ($string-compare a b) 0)]
+            [(a:string b . rest)
+              (for-all
+                (lambda (x)
+                  (unless (string? x) (assertion-violation 'name "not a string" x))  
+                  (let ((r (cmp ($string-compare a x) 0)))
+                    (set! a x)
+                    r))
+                (cons b rest))]))]))                       
+
+  (define-string-compare string=? fx=?)
+  (define-string-compare string<? fx<?)
+  (define-string-compare string>? fx>?)
+  (define-string-compare string<=? fx<=?)
+  (define-string-compare string>=? fx>=?)           
       
   (define-syntax $string-ci-compare
     (syntax-rules ()
@@ -218,6 +279,29 @@
     
   (define/contract (string-foldcase str:string)
     (clr-call String ToLowerInvariant (string-upcase str)))
+    
+        
+  (define-syntax define-char-compare
+    (syntax-rules ()
+      [(_ name cmp)
+        (define/contract name
+          (case-lambda
+            [(a:char b:char)
+              (cmp (char->integer a) (char->integer b))]
+            [(a:char b . rest)
+              (for-all
+                (lambda (x)
+                  (unless (char? x) (assertion-violation 'k "not a char" x))  
+                  (let ((r (cmp (char->integer a) (char->integer x))))
+                    (set! a x)
+                    r))
+                (cons b rest))]))]))         
+  
+  (define-char-compare char=? fx=?)
+  (define-char-compare char<? fx<?)
+  (define-char-compare char>? fx>?)
+  (define-char-compare char<=? fx<=?)
+  (define-char-compare char>=? fx>=?)    
   
   (define-syntax define-char-ci-compare
     (syntax-rules ()

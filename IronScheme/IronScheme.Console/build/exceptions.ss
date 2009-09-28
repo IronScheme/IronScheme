@@ -45,9 +45,9 @@
         (display "Unhandled exception:\n")
         (display condition)
         (newline)
-        ($throw (clr-new Exception)))))
+        ($throw (clr-new IronScheme.Runtime.SchemeException condition)))))
 
-  (define (with-exception-handler handler thunk)
+  (define/contract (with-exception-handler handler:procedure thunk:procedure)
     (with-exception-handlers (cons handler *current-exception-handlers*)
                              thunk))
 

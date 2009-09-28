@@ -20,6 +20,7 @@ using System.Reflection.Emit;
 
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Ast;
 
 namespace Microsoft.Scripting.Generation {
     /// <summary>
@@ -43,6 +44,12 @@ namespace Microsoft.Scripting.Generation {
 
             val.EmitGet(cg);
             EmitSet(cg);
+        }
+
+        public virtual void EmitSet(CodeGen cg, Expression value)
+        {
+          value.Emit(cg);
+          EmitSet(cg);
         }
 
         // This override assumes that the IL stack already holds the value to be assigned from.

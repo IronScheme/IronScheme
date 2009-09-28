@@ -36,15 +36,10 @@ namespace Microsoft.Scripting.Generation {
             cg.EmitPropertyGet(typeof(ModuleGlobalWrapper), "CurrentValue");
         }
 
-        public override void EmitSet(CodeGen cg) {
-            Slot val = cg.GetLocalTmp(Type);
-            val.EmitSet(cg);
-
-            _wrapper.EmitGet(cg);
-            val.EmitGet(cg);
-            cg.EmitPropertySet(typeof(ModuleGlobalWrapper), "CurrentValue");
-
-            cg.FreeLocalTmp(val);
+        public override void EmitSet(CodeGen cg)
+        {
+          _wrapper.EmitGet(cg);
+          cg.EmitCall(typeof(ModuleGlobalWrapper), "SetValue");
         }
 
         public override void EmitSet(CodeGen cg, Slot val) {

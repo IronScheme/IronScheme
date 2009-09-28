@@ -22,35 +22,6 @@ using System.Text.RegularExpressions;
 
 namespace IronScheme
 {
-
-  public class TestClass
-  {
-    public string Source;
-    public string Message { get; set; }
-
-    public TestClass()
-    {
-
-    }
-
-    public TestClass(string msg)
-    {
-      Message = msg;
-    }
-
-    public void Print(string hello)
-    {
-      Console.WriteLine("{0} {1}", hello, Message);
-    }
-
-    public char this[int i]
-    {
-      get { return Message[i]; }
-      set { Message = i.ToString() + value.ToString(); }
-    }
-  }
-
-
   public static class RuntimeExtensions
   {
     readonly static LanguageProvider provider =
@@ -107,7 +78,7 @@ namespace IronScheme
       for (int i = 0; i < args.Length; i++)
       {
         var arg = vars[i];
-        Builtins.SetSymbolValue(SymbolTable.StringToObject(arg), args[i]);
+        Builtins.SetSymbolValueFast(SymbolTable.StringToObject(arg), args[i]);
         assigns[i] = string.Format("({0} (symbol-value '{0}))", arg);
       }
 

@@ -156,22 +156,14 @@
     char?
     char->integer
     integer->char
-    char=?
-    char<?
-    char>?
-    char<=?
-    char>=?
+
     
     string?
     make-string
     string
     string-length
     string-ref
-    string=?
-    string<?
-    string>?
-    string<=?
-    string>=?
+
     substring
     string-append
     string->list
@@ -253,16 +245,7 @@
       cddadr
       cdddar
       cddddr
-      char=?
-      char<?
-      char>?
-      char<=?
-      char>=?
-      string=?
-      string<?
-      string>?
-      string<=?
-      string>=?
+ 
       symbol=?
       boolean=?     
       vector-map
@@ -295,7 +278,6 @@
       string
       
       string-format
-      string-compare
       
       vector->list
       char->integer
@@ -517,37 +499,6 @@
     (define (cddadr x) (cddar (cdr x)))
     (define (cdddar x) (cdddr (car x)))
     (define (cddddr x) (cdddr (cdr x)))
-    
-    (define/contract (string-compare a:string b:string)
-      (clr-static-call String 
-                       "Compare(String,String,StringComparison)"
-                       (->string a) 
-                       (->string b) 
-                       'ordinal))
-          
-    (define-syntax define-string-compare
-      (syntax-rules ()
-        [(_ name cmp)
-          (define name
-            (lambda (a b . rest)
-              (unless (string? a) (assertion-violation 'name "not a string" a))
-              (for-all
-                (lambda (x)
-                  (unless (string? x) (assertion-violation 'name "not a string" x))  
-                  (let ((r (cmp (clr-static-call String 
-                                                 "Compare(String,String,StringComparison)"
-                                                 (->string a)
-                                                 (->string x) 
-                                                 'ordinal) 0)))
-                    (set! a x)
-                    r))
-                (cons b rest))))]))
-
-    (define-string-compare string=? fx=?)
-    (define-string-compare string<? fx<?)
-    (define-string-compare string>? fx>?)
-    (define-string-compare string<=? fx<=?)
-    (define-string-compare string>=? fx>=?)
 
     (define (symbol=? a b . rest)
       (unless (symbol? a) (assertion-violation 'symbol=? "not a symbol" a))
@@ -565,55 +516,49 @@
           (eq? a x)) 
         (cons b rest)))
         
-    (define-syntax define-char-compare
-      (syntax-rules ()
-        [(_ name cmp)
-          (define name
-            (lambda (a b . rest)
-              (unless (char? a) (assertion-violation 'name "not a char" a))
-              (for-all
-                (lambda (x)
-                  (unless (char? x) (assertion-violation 'name "not a char" x))  
-                  (let ((r (cmp (char->integer a) (char->integer x))))
-                    (set! a x)
-                    r))
-                (cons b rest))))]))        
-    
-    (define-char-compare char=? fx=?)
-    (define-char-compare char<? fx<?)
-    (define-char-compare char>? fx>?)
-    (define-char-compare char<=? fx<=?)
-    (define-char-compare char>=? fx>=?)
-    
-
-        
-    (define/contract (vector-map p:procedure vec1:vector . vecs:vector)
-      (let* ((len (vector-length vec1))
-             (res (make-vector len '())))
-        (do ((i 0 (fx+ i 1)))
-            ((fx=? i len) res)
-          (vector-set! res i
-            (if (null? vecs)
-                (p (vector-ref vec1 i))
-                (apply p (map (lambda (x) (vector-ref x i)) 
-                              (cons vec1 vecs))))))))
+    (define/contract vector-map
+      (case-lambda
+        [(p:procedure vec:vector)
+          (let* ((len (vector-length vec))
+                 (res (make-vector len '())))
+            (do ((i 0 (fx+ i 1)))
+                ((fx=? i len) res)
+              (vector-set! res i (p (vector-ref vec i)))))]
+        [(p:procedure vec1:vector . vecs:vector)
+          (let* ((len (vector-length vec1))
+                 (res (make-vector len '())))
+            (do ((i 0 (fx+ i 1)))
+                ((fx=? i len) res)
+              (vector-set! res i
+                    (apply p (map (lambda (x) (vector-ref x i)) 
+                                  (cons vec1 vecs))))))]))
           
-    (define/contract (vector-for-each p:procedure vec1:vector . vecs:vector)
-      (let ((len (vector-length vec1)))
-        (do ((i 0 (fx+ i 1)))
-            ((fx=? i len))
-          (if (null? vecs)
-              (p (vector-ref vec1 i))
+    (define/contract vector-for-each
+      (case-lambda
+        [(p:procedure vec:vector)
+          (let ((len (vector-length vec)))
+            (do ((i 0 (fx+ i 1)))
+                ((fx=? i len))
+              (p (vector-ref vec i))))]
+        [(p:procedure vec1:vector . vecs:vector)
+          (let ((len (vector-length vec1)))
+            (do ((i 0 (fx+ i 1)))
+                ((fx=? i len))
               (apply p (map (lambda (x) (vector-ref x i)) 
-                            (cons vec1 vecs)))))))
+                            (cons vec1 vecs)))))]))
             
-    (define/contract (string-for-each p:procedure str1:string . strs:string)
-      (let ((len (string-length str1)))
-        (do ((i 0 (fx+ i 1)))
-            ((fx=? i len))
-          (if (null? strs)
-              (p (string-ref str1 i))
+    (define/contract string-for-each
+      (case-lambda
+        [(p:procedure str:string)
+          (let ((len (string-length str)))
+            (do ((i 0 (fx+ i 1)))
+                ((fx=? i len))
+              (p (string-ref str i))))]
+        [(p:procedure str1:string . strs:string)
+          (let ((len (string-length str1)))
+            (do ((i 0 (fx+ i 1)))
+                ((fx=? i len))
               (apply p (map (lambda (x) (string-ref x i)) 
-                            (cons str1 strs)))))))
+                            (cons str1 strs)))))]))
 
 )

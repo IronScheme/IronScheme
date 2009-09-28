@@ -81,7 +81,7 @@ namespace IronScheme.Runtime
           default:
             var rargs = new Expression[len - 1];
             Array.Copy(args, 1, rargs, 0, rargs.Length);
-            return Ast.AndAlso(args[0], BooleanAnd(rargs));
+            return Ast.AndAlso(Ast.ConvertHelper(args[0], typeof(bool)), BooleanAnd(rargs));
         }
       }
 
@@ -96,7 +96,7 @@ namespace IronScheme.Runtime
           default:
             var rargs = new Expression[len - 1];
             Array.Copy(args, 1, rargs, 0, rargs.Length);
-            return Ast.OrElse(args[0], BooleanOr(rargs));
+            return Ast.OrElse(Ast.ConvertHelper(args[0], typeof(bool)), BooleanOr(rargs));
         }
       }
 

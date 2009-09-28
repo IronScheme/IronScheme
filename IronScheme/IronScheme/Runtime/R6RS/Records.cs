@@ -113,6 +113,28 @@ namespace IronScheme.Runtime
     //[InlineEmitter("make-record-constructor-descriptor")]
     //public static Expression MakeRecordConstructorDescriptor(Expression[] obj)
     //{
+    //  if (obj.Length == 3)
+    //  {
+    //    var rtd = Unwrap(obj[0]);
+    //    var parentrcd = Unwrap(obj[1]);
+    //    var protocol = Unwrap(obj[2]);
+
+    //    if (rtd is BoundExpression && parentrcd is ConstantExpression && protocol is BoundExpression)
+    //    {
+    //      var rtdname = ((BoundExpression)rtd).Variable.Name;
+    //      var pcdname = ((ConstantExpression)parentrcd).Value;
+    //      var prtname = ((BoundExpression)protocol).Variable.Name;
+    //      var e = Ast.Constant(new RecordConstructorDescriptorConstant
+    //      {
+    //        RtdSymbol = rtdname,
+    //        ParentRcd = pcdname,
+    //        Protocol = protocol,
+    //        NameHint = IronScheme.Compiler.Generator.VarHint,
+    //      });
+
+    //      return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("MakeRecordConstructorDescriptor"), obj));
+    //    }
+    //  }
     //  return null;
     //}
 
@@ -164,7 +186,7 @@ namespace IronScheme.Runtime
           }
 
           var e = Ast.Constant(
-            new RecordTypeConstant
+            new RecordTypeDescriptorConstant
             {
               RecordName = rname,
               Uid = ruid,
@@ -520,7 +542,7 @@ namespace IronScheme.Runtime.R6RS
 
       if (parenttype.IsSubclassOf(typeof(Condition)))
       {
-        SetSymbolValue(SymbolTable.StringToObject(n + "-rtd"), rtd);
+        SetSymbolValueFast(SymbolTable.StringToObject(n + "-rtd"), rtd);
       }
 
       return rtd;
@@ -746,7 +768,7 @@ namespace IronScheme.Runtime.R6RS
 
       if (t.type.IsSubclassOf(typeof(Condition)))
       {
-        SetSymbolValue(SymbolTable.StringToObject(t.Name + "-rcd"), rcd);
+        SetSymbolValueFast(SymbolTable.StringToObject(t.Name + "-rcd"), rcd);
       }
       
       return rcd;

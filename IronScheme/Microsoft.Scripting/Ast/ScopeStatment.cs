@@ -58,7 +58,7 @@ namespace Microsoft.Scripting.Ast {
 
             _scope.Emit(cg);            //Locals dictionary
             cg.EmitCodeContext();       //CodeContext
-            cg.EmitBoolean(true);       //Visible = true
+            //cg.EmitBoolean(true);       //Visible = true
             cg.EmitCall(typeof(RuntimeHelpers), "CreateNestedCodeContext");
 
             newContext.EmitSet(cg);

@@ -72,10 +72,11 @@ namespace IronScheme.Compiler
              i = ((UnaryExpression)i).Operand;
           }
 
-          if (i is BoundExpression)
+          if (i is BoundExpression && node.Method != Generator.ICallable_CallN)
           {
             var be = (BoundExpression)i;
             var v = be.Variable.Name;
+
             if (Builtins.IsTrue(Builtins.IsSymbolBound(v)))
             {
               var c = Builtins.SymbolValue(v) as BuiltinMethod;
