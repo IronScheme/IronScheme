@@ -12,6 +12,7 @@
 #endregion
 
 using System.Text;
+using System.Collections;
 
 namespace IronScheme.Runtime.R6RS
 {

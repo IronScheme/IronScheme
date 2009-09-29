@@ -111,15 +111,16 @@
     (ironscheme clr)
     (ironscheme contracts))
     
-  (clr-using System.Globalization)   
+  (clr-using System.Globalization) 
+  
+  (define culture-info  
+    (clr-static-prop-get CultureInfo InvariantCulture))
     
   (define compare-info 
-    (clr-prop-get CultureInfo CompareInfo
-      (clr-static-prop-get CultureInfo InvariantCulture)))
+    (clr-prop-get CultureInfo CompareInfo culture-info))
       
   (define text-info 
-    (clr-prop-get CultureInfo TextInfo
-      (clr-static-prop-get CultureInfo InvariantCulture)))   
+    (clr-prop-get CultureInfo TextInfo culture-info))
       
   (define/contract (char-upcase chr:char)
     (clr-static-call Char ToUpper chr))               
@@ -128,18 +129,15 @@
     (clr-static-call Char ToLower chr))               
 
   (define/contract (char-titlecase chr:char)
-    (string-ref (clr-call TextInfo 
-                          ToTitleCase 
-                          text-info 
-                          (->string (string chr)))
-                0))               
+    (if (char-title-case? chr)
+        chr
+        (char-upcase chr)))
 
   (define/contract (char-foldcase chr:char)
-    (clr-static-call Char 
-                     ToLower 
-                     (clr-static-call Char 
-                                      ToUpper 
-                                      chr)))
+    (case chr
+      [(#\x130 #\x131) chr]
+      [else
+        (char-downcase (char-upcase chr))]))
     
   (define/contract (char-alphabetic? chr:char)
     (clr-static-call Char (IsLetter Char) chr))               
@@ -151,16 +149,13 @@
     (clr-static-call Char (IsWhiteSpace Char) chr))               
 
   (define/contract (char-upper-case? chr:char)
-    (clr-static-call Char (IsUpper Char) chr)) 
+    (eq? 'Lu (char-general-category chr)))
     
   (define/contract (char-lower-case? chr:char)
-    (clr-static-call Char (IsLower Char) chr)) 
+    (eq? 'Ll (char-general-category chr)))
     
   (define/contract (char-title-case? chr:char)
-    (case chr
-      [(#\I #\A) #f]
-      [else
-        (eqv? chr (char-titlecase chr))]))
+    (eq? 'Lt (char-general-category chr)))
         
   (define/contract (char-general-category chr:char)
     (case (clr-static-call Char (GetUnicodeCategory Char) chr)
@@ -274,11 +269,7 @@
   (define-string-ci-compare string-ci<=? fx<=?)
   (define-string-ci-compare string-ci>=? fx>=?)
   
-  (define/contract (string-titlecase str:string)
-    (clr-call TextInfo ToTitleCase text-info (string-downcase str)))
-    
-  (define/contract (string-foldcase str:string)
-    (clr-call String ToLowerInvariant (string-upcase str)))
+
     
         
   (define-syntax define-char-compare
@@ -325,11 +316,18 @@
   (define-char-ci-compare char-ci<=? fx<=?)
   (define-char-ci-compare char-ci>=? fx>=?)
   
+  ;; all wrong ... :(
   (define/contract (string-upcase str:string)
     (clr-call String Replace 
       (clr-call String ToUpper (->string str))
       "ß" 
       "SS"))
+      
+  (define/contract (string-titlecase str:string)
+    (clr-call TextInfo ToTitleCase text-info (string-downcase str)))
+    
+  (define/contract (string-foldcase str:string)
+    (clr-call String ToLowerInvariant (string-upcase str)))      
 
   (define-syntax string-normalize
     (syntax-rules ()
