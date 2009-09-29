@@ -257,7 +257,7 @@ namespace IronScheme.Compiler
 
     public override Type Type
     {
-      get { return value.GetType(); }
+      get { return typeof(object); }
     }
 
     //static Dictionary<CodeGen, Dictionary<Slot, object>> cache = new Dictionary<CodeGen, Dictionary<Slot, object>>();
