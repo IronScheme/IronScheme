@@ -46,6 +46,40 @@ namespace IronScheme.Compiler
       }
     }
 
+    class FixupConditionals
+    {
+      readonly CodeBlock root;
+
+      public FixupConditionals(CodeBlock root)
+      {
+        this.root = root;
+      }
+
+      public void Optimize()
+      {
+        Pass0 p0 = new Pass0();
+        p0.WalkNode(root);
+      }
+
+      class Pass0 : DeepWalker
+      {
+        protected override bool Walk(ConditionalExpression node)
+        {
+          if (node.Test is UnaryExpression && node.Test.NodeType == AstNodeType.Not)
+          {
+            var tmp = node.IfFalse;
+            node.IfFalse = node.IfTrue;
+            node.IfTrue = tmp;
+
+            var ue = node.Test as UnaryExpression;
+
+            node.Test = ue.Operand;
+          }
+          return base.Walk(node);
+        }
+      }
+    }
+
     class FixupPrimitives
     {
       readonly CodeBlock root;
@@ -121,7 +155,7 @@ namespace IronScheme.Compiler
     class FlattenBodies
     {
       readonly CodeBlock root;
-      
+      static Expression Unspecified = Ast.ReadField(null, Generator.Unspecified);
 
       public FlattenBodies(CodeBlock root)
       {
@@ -154,6 +188,22 @@ namespace IronScheme.Compiler
             var ce = ex as CommaExpression;
             var block = RewriteExpressions(ce.Expressions, Ast.Statement);
             return Rewrite(Ast.Block(block));
+          }
+
+          if (ex is ConditionalExpression)
+          {
+            var ce = ex as ConditionalExpression;
+
+            if (ce.IfFalse == Unspecified || ce.IfFalse is MemberExpression && ((MemberExpression)ce.IfFalse).Member == Generator.Unspecified)
+            {
+              return Ast.If(ce.Test, Rewrite(Ast.Statement(ce.IfTrue)));
+            }
+            if (ce.IfTrue == Unspecified || ce.IfTrue is MemberExpression && ((MemberExpression)ce.IfTrue).Member == Generator.Unspecified)
+            {
+              return Ast.If(Ast.Not(ce.Test), Rewrite(Ast.Statement(ce.IfFalse)));
+            }
+
+            return Ast.If(ce.Test, Rewrite(Ast.Statement(ce.IfTrue))).Else(Rewrite(Ast.Statement(ce.IfFalse)));
           }
 
           return null;
@@ -270,7 +320,7 @@ namespace IronScheme.Compiler
             block.Add(s);
           }
 
-          block.Add(Ast.Return(Ast.ReadField(null, Generator.Unspecified)));
+          block.Add(Ast.Return(Unspecified));
 
           return Rewrite(Ast.Block(block));
         }
@@ -659,6 +709,7 @@ namespace IronScheme.Compiler
       //Pass1 p1 = new Pass1();
       //p1.WalkNode(cb);
 
+      new FixupConditionals(cb).Optimize();
       new FlattenBodies(cb).Optimize();
 
       //if (!ScriptDomainManager.Options.DebugMode)

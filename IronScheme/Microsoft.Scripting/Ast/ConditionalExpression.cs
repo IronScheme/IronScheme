@@ -22,9 +22,9 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class ConditionalExpression : Expression {
-        private readonly Expression/*!*/ _test;
-        private readonly Expression/*!*/ _true;
-        private readonly Expression/*!*/ _false;
+        private Expression/*!*/ _test;
+        private Expression/*!*/ _true;
+        private Expression/*!*/ _false;
         private readonly Type/*!*/ _expressionType;
 
         internal ConditionalExpression(Expression/*!*/ test, Expression/*!*/ ifTrue, Expression/*!*/ ifFalse, Type/*!*/ type)
@@ -37,14 +37,17 @@ namespace Microsoft.Scripting.Ast {
 
         public Expression Test {
             get { return _test; }
+          set { _test = value; }
         }
 
         public Expression IfTrue {
             get { return _true; }
+          set { _true = value; }
         }
 
         public Expression IfFalse {
             get { return _false; }
+          set { _false = value; }
         }
 
         public override Type Type {
