@@ -79,7 +79,7 @@ namespace IronScheme.Compiler
       var refs = ClrGenerator.SaveReferences();
 
       object arg = Builtins.First(args);
-      object typespec = Builtins.Second(args);
+      object typespec = Builtins.Second(Builtins.Second(args));
 
       Cons body = Builtins.Cdr(Builtins.Cdr(args)) as Cons;
 
@@ -107,7 +107,7 @@ namespace IronScheme.Compiler
     }
 
 
-    private Type GetClosureType(CodeBlock cb)
+    Type GetClosureType(CodeBlock cb)
     {
       Type[] types = GetTypeSpec(cb);
 
@@ -116,7 +116,7 @@ namespace IronScheme.Compiler
       return functype as Type;
     }
 
-    private Type GetDelegateType(CodeBlock cb)
+    Type GetDelegateType(CodeBlock cb)
     {
       Type[] types = GetTypeSpec(cb);
 
@@ -125,14 +125,14 @@ namespace IronScheme.Compiler
       return functype as Type;
     }
 
-    private static Type GetGenericType(string typename, Type[] types)
+    static Type GetGenericType(string typename, Type[] types)
     {
       int l = types.Length;
       var functype = ClrGenerator.GetTypeFast(typename + "`" + l).MakeGenericType(types);
       return functype;
     }
 
-    private static Type[] GetTypeSpec(CodeBlock cb)
+    static Type[] GetTypeSpec(CodeBlock cb)
     {
       List<Type> types = new List<Type>();
 

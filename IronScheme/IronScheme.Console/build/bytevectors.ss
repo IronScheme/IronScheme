@@ -174,7 +174,7 @@
     
   (define ->bignum 
     (typed-lambda (ei)
-      ((Object) BigInteger)
+      '((Object) BigInteger)
         (cond
           [(bignum? ei) ei]
           [(fixnum? ei) 
@@ -196,7 +196,7 @@
   
   (define ->byte
     (typed-lambda (k)
-      ((Object) Byte)
+      '((Object) Byte)
       (unless (fixnum? k)
         (assertion-violation #f "not a fixnum" k))
       (when (or (fx<? k -128) (fx>? k 255))
@@ -205,7 +205,7 @@
     
   (define ->fixnum
     (typed-lambda (b)
-      ((Object) Int32)
+      '((Object) Int32)
       (clr-static-call Convert (ToInt32 Object) b)))
   
   (define/contract make-bytevector
@@ -461,7 +461,7 @@
 
   (define ->string 
     (typed-lambda (str)
-      ((Object) String)
+      '((Object) String)
       (if (clr-string? str)
           str
           (clr-call Object ToString str))))

@@ -357,7 +357,7 @@
           
     (define ->string
       (typed-lambda (str)
-        ((Object) String)
+        '((Object) String)
         (if (clr-string? str)
             str
             (clr-call Object ToString str))))
@@ -376,7 +376,7 @@
       
     (define ->mutable-string 
       (typed-lambda (str)
-        ((String) StringBuilder)
+        '((String) StringBuilder)
         (clr-new StringBuilder str)))    
           
     (define (string-copy str)

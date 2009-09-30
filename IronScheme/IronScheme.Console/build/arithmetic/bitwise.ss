@@ -63,7 +63,7 @@
       
   (define ->bignum
     (typed-lambda (ei)
-      ((Object) BigInteger)
+      '((Object) BigInteger)
       (cond
         [(bignum? ei) ei]
         [(fixnum? ei) 
