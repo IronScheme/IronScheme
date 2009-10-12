@@ -1,0 +1,191 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{371F38E6-8D55-482F-B010-4AFAC11C3CDB}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Oyster.IntX</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Oyster.Math</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>Oyster.IntX.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <RunFxCop>false</RunFxCop>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>Oyster.IntX.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Bits.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IntX.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Multipliers\AutoFhtMultiplier.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Multipliers\ClassicMultiplier.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Multipliers\IMultiplier.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Multipliers\MultiplierBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Multipliers\MultiplyManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OpHelpers\DigitHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OpHelpers\DigitOpHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OpHelpers\FhtHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OpHelpers\OpHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OpHelpers\StrRepHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Parsers\ClassicParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Parsers\FastParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Parsers\IParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Parsers\ParseManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Parsers\ParserBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Parsers\Pow2Parser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Settings\IntXGlobalSettings.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Settings\IntXSettings.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringConverters\ClassicStringConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringConverters\FastStringConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringConverters\IStringConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringConverters\Pow2StringConverter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringConverters\StringConverterBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringConverters\StringConvertManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\Constants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\ArrayPool.cs" />
+    <Compile Include="Utils\Enums.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Utils\Strings.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Oyster.Math</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

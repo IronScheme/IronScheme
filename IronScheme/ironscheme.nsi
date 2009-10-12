@@ -194,6 +194,7 @@ SectionIn 1 2 RO
 	File "IronScheme.Web.Runtime.dll"
 	
 	File "ironscheme.boot.dll"
+	File "Oyster.IntX.dll"
 	File "Microsoft.Scripting.dll"
 	
 	File "setup-xp.bat"
@@ -284,6 +285,7 @@ Section -Post
   ; this will probably fail on non-Vista
   nsExec::ExecToStack 'cmd /c mklink IronScheme.dll "$INSTDIR\IronScheme.dll"'
   nsExec::ExecToStack 'cmd /c mklink IronScheme.Closures.dll "$INSTDIR\IronScheme.Closures.dll"'
+  nsExec::ExecToStack 'cmd /c mklink Oyster.IntX.dll "$INSTDIR\Oyster.IntX.dll"'
   nsExec::ExecToStack 'cmd /c mklink ironscheme.boot.dll "$INSTDIR\ironscheme.boot.dll"'
   nsExec::ExecToStack 'cmd /c mklink Microsoft.Scripting.dll "$INSTDIR\Microsoft.Scripting.dll"'
   nsExec::ExecToStack 'cmd /c mklink IronScheme.Web.Runtime.dll "$INSTDIR\IronScheme.Web.Runtime.dll"'

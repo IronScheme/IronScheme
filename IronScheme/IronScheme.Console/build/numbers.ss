@@ -157,6 +157,7 @@
     (ironscheme unsafe)
     (ironscheme clr))
     
+  (clr-using Oyster.Math)
   (clr-using Microsoft.Scripting.Math)
   (clr-using IronScheme.Runtime)    
     
@@ -185,22 +186,22 @@
     (clr-prop-get Complex64 Real c))
     
   (define (bignum/ a b)
-    (clr-static-call BigInteger op_Division a b))    
+    (clr-static-call IntX op_Division a b))    
     
   (define (bignum% a b)
-    (clr-static-call BigInteger op_Modulus a b))
+    (clr-static-call IntX op_Modulus a b))
     
   (define (bignum->fixnum b)
-    (clr-call BigInteger ToInt32 b))
+    (clr-call IntX ToInt32 b))
     
   (define (flonum->ratnum f)
     (clr-static-call Fraction (op_Implicit Double) f))
 
   (define (ratnum->flonum r)
-    (clr-call Fraction ToDouble r '()))
+    (clr-call Fraction (ToDouble IFormatProvider) r '()))
     
   (define (fixnum->bignum f)
-    (clr-static-call BigInteger (Create Int32) f))   
+    (clr-static-call IntX (Create Int32) f))   
     
   (define (real->complexnum num)
     (if (complexnum? num)
@@ -216,7 +217,7 @@
   (define (->fixnum num)
     (if (fixnum? num)
         num
-        (clr-static-call Convert (ToInt32 Object) num)))
+        (clr-call IntX ToInt32 num)))
     
   (define (->ratnum num)
     (cond 
@@ -233,8 +234,18 @@
       [else
         (assertion-violation '->bignum "not an integer" num)]))     
 
-  (define/contract (real->flonum x:real)
-    (clr-static-call Convert (ToDouble Object) x))
+  (define (real->flonum x)
+    (cond
+      [(flonum? x)
+        x]
+      [(fixnum? x)
+        (fixnum->flonum x)]
+      [(bignum? x)
+        (clr-call IntX ToFloat64 x)]
+      [(real? x)
+        (clr-static-call Convert (ToDouble Object) x)]
+      [else
+        (assertion-violation 'real->flonum "not a real" x)]))
     
   (define (fixnum->flonum x)
     (unless (fixnum? x)
@@ -1012,7 +1023,7 @@
                 (cond
                   [(and e (integer? obj1) (integer? obj2))
                     (let* ((a (->bignum obj1))
-                           (r (clr-call BigInteger
+                           (r (clr-call IntX
                                         Power
                                         a
                                         (->fixnum obj2))))

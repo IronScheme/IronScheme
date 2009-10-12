@@ -208,7 +208,7 @@
           (if (or (not (file-exists? filename))
                   (file-newer? fasl-filename filename))
               (let ((port (open-file-input-port fasl-filename)))                  
-                (guard [e 
+                (clr-guard [e 
                         (e 
                           (close-input-port port)
                           (display (format "WARNING: precompiled library (~a) could not load.\n" filename) (current-error-port))

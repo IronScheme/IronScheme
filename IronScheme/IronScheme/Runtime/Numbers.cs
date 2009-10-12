@@ -14,7 +14,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Scripting.Math;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.ComponentModel;
@@ -23,6 +22,9 @@ using System.Diagnostics;
 using IronScheme.Compiler.Numbers;
 using System.Globalization;
 using Microsoft.Scripting;
+using Microsoft.Scripting.Math;
+using BigInteger = Oyster.Math.IntX;
+
 
 namespace IronScheme.Runtime
 {
@@ -397,9 +399,6 @@ namespace IronScheme.Runtime
       throw new NotSupportedException("number type not supported");
     }
 
-    static bool avoidoverflow = false;
-    static int overflowcount = 0;
-
     [Builtin("generic*", AllowConstantFold = true)]
     public static object Multiply(object first, object second)
     {
@@ -451,7 +450,6 @@ namespace IronScheme.Runtime
     {
       if (i <= int.MaxValue && i >= int.MinValue)
       {
-        avoidoverflow = false;
         return RuntimeHelpers.Int32ToObject((int)i);
       }
       else
@@ -503,6 +501,22 @@ namespace IronScheme.Runtime
     {
       try
       {
+        if (obj is int)
+        {
+          return (int)obj;
+        }
+        if (obj is double)
+        {
+          return (double)obj;
+        }
+        if (obj is BigInteger)
+        {
+          return ((BigInteger)obj).ToFloat64();
+        }
+        if (obj is Fraction)
+        {
+          return ((Fraction)obj).ToDouble(null);
+        }
         if (obj is Complex64)
         {
           Complex64 c = (Complex64)obj;
@@ -548,7 +562,7 @@ namespace IronScheme.Runtime
       }
       if (x1 * x1 != v0)
       {
-        return Math.Sqrt(v0);
+        return Math.Sqrt(v0.ToFloat64());
       }
       return x1;
     }

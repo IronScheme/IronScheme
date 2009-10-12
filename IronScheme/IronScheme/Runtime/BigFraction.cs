@@ -12,7 +12,8 @@
 
 using System;
 using System.Globalization;
-using Microsoft.Scripting.Math;
+//using Microsoft.Scripting.Math;
+using BigInteger = Oyster.Math.IntX;
 
 namespace System.Runtime.CompilerServices
 {
@@ -191,44 +192,44 @@ namespace IronScheme.Runtime
 	/// - the fraction is always reduced by the gcd of the nominator and denominator
 	/// </remarks>
   [Serializable]
-  [System.ComponentModel.TypeConverter(typeof(Fraction.TypeConverter))]
+  //[System.ComponentModel.TypeConverter(typeof(Fraction.TypeConverter))]
 	public class Fraction : IComparable, IConvertible
 	{
-    class TypeConverter : System.ComponentModel.TypeConverter
-    {
-      public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext context, Type sourceType)
-      {
-        if (sourceType == typeof(Fraction))
-        {
-          return true;
-        }
-        switch (Type.GetTypeCode(sourceType))
-        {
-          case TypeCode.Boolean:
-          case TypeCode.DateTime:
-          case TypeCode.DBNull:
-          case TypeCode.Empty:
-          case TypeCode.Object:
-            return false;
-          default:
-            return true;
-        }
-      }
+    //class TypeConverter : System.ComponentModel.TypeConverter
+    //{
+    //  public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext context, Type sourceType)
+    //  {
+    //    if (sourceType == typeof(Fraction))
+    //    {
+    //      return true;
+    //    }
+    //    switch (Type.GetTypeCode(sourceType))
+    //    {
+    //      case TypeCode.Boolean:
+    //      case TypeCode.DateTime:
+    //      case TypeCode.DBNull:
+    //      case TypeCode.Empty:
+    //      case TypeCode.Object:
+    //        return false;
+    //      default:
+    //        return true;
+    //    }
+    //  }
 
-      public override object ConvertFrom(System.ComponentModel.ITypeDescriptorContext context, CultureInfo culture, object value)
-      {
-        if (value != null)
-        {
-          Type vt = value.GetType();
-          if (vt == typeof(Fraction))
-          {
-            return value;
-          }
-          return (Fraction)Convert.ToDouble(value, CultureInfo.InvariantCulture);
-        }
-        return base.ConvertFrom(context, culture, value);
-      }
-    }
+    //  public override object ConvertFrom(System.ComponentModel.ITypeDescriptorContext context, CultureInfo culture, object value)
+    //  {
+    //    if (value != null)
+    //    {
+    //      Type vt = value.GetType();
+    //      if (vt == typeof(Fraction))
+    //      {
+    //        return value;
+    //      }
+    //      return (Fraction)Convert.ToDouble(value, CultureInfo.InvariantCulture);
+    //    }
+    //    return base.ConvertFrom(context, culture, value);
+    //  }
+    //}
 		#region Declarations
 
 		private BigInteger numerator;
@@ -326,65 +327,70 @@ namespace IronScheme.Runtime
 
 		#region Conversions
 
-		public static explicit operator Decimal(Fraction fraction)
-		{
-			return (Decimal)fraction.numerator / (Decimal)fraction.denominator;
-		}
+    //public static explicit operator Decimal(Fraction fraction)
+    //{
+    //  return (Decimal)fraction.numerator / (Decimal)fraction.denominator;
+    //}
 
-    public static explicit operator Double(Fraction fraction)
-		{
-      BigInteger n = fraction.Numerator, d = fraction.Denominator;
-      double r = (double)n / (double)d;
-      return r;
-		}
-
-    public static explicit operator BigInteger(Fraction fraction)
-		{
-			return (BigInteger)fraction.numerator / (BigInteger)fraction.denominator;
-		}
-
-		[method:CLSCompliant(false)]
-    public static explicit operator UInt64(Fraction fraction)
-		{
-			return (UInt64)(BigInteger)fraction;
-		}
-
-    public static explicit operator Int64(Fraction fraction)
+    public double ToDouble(IFormatProvider foo)
     {
-      return (Int64)(BigInteger)fraction;
+      return (double)this;
     }
 
-    public static explicit operator Int32(Fraction fraction)
-		{
-			return (Int32)(BigInteger)fraction;
-		}
+    public static explicit operator Double(Fraction fraction)
+    {
+      BigInteger n = fraction.Numerator, d = fraction.Denominator;
+      double r = n.ToFloat64() / d.ToFloat64();
+      return r;
+    }
 
-		[method:CLSCompliant(false)]
-    public static explicit operator UInt32(Fraction fraction)
-		{
-			return (UInt32)(BigInteger)fraction;
-		}
+    public static explicit operator BigInteger(Fraction fraction)
+    {
+      return (BigInteger)fraction.numerator / (BigInteger)fraction.denominator;
+    }
 
-    public static explicit operator Int16(Fraction fraction)
-		{
-			return (Int16)(BigInteger)fraction;
-		}
+    //[method:CLSCompliant(false)]
+    //public static explicit operator UInt64(Fraction fraction)
+    //{
+    //  return (UInt64)(BigInteger)fraction;
+    //}
 
-		[method:CLSCompliant(false)]
-    public static explicit operator UInt16(Fraction fraction)
-		{
-			return (UInt16)(BigInteger)fraction;
-		}
+    //public static explicit operator Int64(Fraction fraction)
+    //{
+    //  return (Int64)(BigInteger)fraction;
+    //}
 
-    public static explicit operator Byte(Fraction fraction)
-		{
-			return (Byte)(BigInteger)fraction;
-		}
+    //public static explicit operator Int32(Fraction fraction)
+    //{
+    //  return (Int32)(BigInteger)fraction;
+    //}
 
-    public static explicit operator Single(Fraction fraction)
-		{
-			return (Single)(BigInteger)fraction;
-		}
+    //[method:CLSCompliant(false)]
+    //public static explicit operator UInt32(Fraction fraction)
+    //{
+    //  return (UInt32)(BigInteger)fraction;
+    //}
+
+    //public static explicit operator Int16(Fraction fraction)
+    //{
+    //  return (Int16)(BigInteger)fraction;
+    //}
+
+    //[method:CLSCompliant(false)]
+    //public static explicit operator UInt16(Fraction fraction)
+    //{
+    //  return (UInt16)(BigInteger)fraction;
+    //}
+
+    //public static explicit operator Byte(Fraction fraction)
+    //{
+    //  return (Byte)(BigInteger)fraction;
+    //}
+
+    //public static explicit operator Single(Fraction fraction)
+    //{
+    //  return (Single)(BigInteger)fraction;
+    //}
 
     public static implicit operator Fraction(int number)
     {
@@ -412,97 +418,97 @@ namespace IronScheme.Runtime
 
 		#region IConvertible Members
 
-		[method:CLSCompliant(false)]
-    public UInt64 ToUInt64(IFormatProvider provider)
-		{
-			return (UInt64)this;
-		}
+    //[method:CLSCompliant(false)]
+    //public UInt64 ToUInt64(IFormatProvider provider)
+    //{
+    //  return (UInt64)this;
+    //}
 
-    public Int64 ToInt64(IFormatProvider provider)
-    {
-      return (Int64)this;
-    }
+    //public Int64 ToInt64(IFormatProvider provider)
+    //{
+    //  return (Int64)this;
+    //}
 
-		[method:CLSCompliant(false)]
-		public sbyte ToSByte(IFormatProvider provider)
-		{
-			return (SByte)this;
-		}
+    //[method:CLSCompliant(false)]
+    //public sbyte ToSByte(IFormatProvider provider)
+    //{
+    //  return (SByte)this;
+    //}
 
-		public double ToDouble(IFormatProvider provider)
-		{
-			return (Double)this;
-		}
+    //public double ToDouble(IFormatProvider provider)
+    //{
+    //  return (Double)this;
+    //}
 
-		public DateTime ToDateTime(IFormatProvider provider)
-		{
-			throw new InvalidCastException("Cannot convert fraction value to DateTime");
-		}
+    //public DateTime ToDateTime(IFormatProvider provider)
+    //{
+    //  throw new InvalidCastException("Cannot convert fraction value to DateTime");
+    //}
 
-		public float ToSingle(IFormatProvider provider)
-		{
-			return (Single)this;
-		}
+    //public float ToSingle(IFormatProvider provider)
+    //{
+    //  return (Single)this;
+    //}
 
-		public bool ToBoolean(IFormatProvider provider)
-		{
-			throw new InvalidCastException("Cannot convert fraction value to Boolean");
-		}
+    //public bool ToBoolean(IFormatProvider provider)
+    //{
+    //  throw new InvalidCastException("Cannot convert fraction value to Boolean");
+    //}
 
-		public Int32 ToInt32(IFormatProvider provider)
-		{
-			return (Int32)this;
-		}
+    //public Int32 ToInt32(IFormatProvider provider)
+    //{
+    //  return (Int32)this;
+    //}
 
-		[method:CLSCompliant(false)]
-		public ushort ToUInt16(IFormatProvider provider)
-		{
-			return (UInt16)this;
-		}
+    //[method:CLSCompliant(false)]
+    //public ushort ToUInt16(IFormatProvider provider)
+    //{
+    //  return (UInt16)this;
+    //}
 
-		public short ToInt16(IFormatProvider provider)
-		{
-			return (Int16)this;
-		}
+    //public short ToInt16(IFormatProvider provider)
+    //{
+    //  return (Int16)this;
+    //}
 
-		public string ToString(IFormatProvider provider)
-		{
-			throw new InvalidCastException("Cannot convert fraction value to String");
-		}
+    //public string ToString(IFormatProvider provider)
+    //{
+    //  throw new InvalidCastException("Cannot convert fraction value to String");
+    //}
 
-		public byte ToByte(IFormatProvider provider)
-		{
-			return (Byte)this;
-		}
+    //public byte ToByte(IFormatProvider provider)
+    //{
+    //  return (Byte)this;
+    //}
 
-		public char ToChar(IFormatProvider provider)
-		{
-			throw new InvalidCastException("Cannot convert fraction value to Char");
-		}
+    //public char ToChar(IFormatProvider provider)
+    //{
+    //  throw new InvalidCastException("Cannot convert fraction value to Char");
+    //}
 
-		public System.TypeCode GetTypeCode()
-		{
-			return TypeCode.Decimal;
-		}
+    //public System.TypeCode GetTypeCode()
+    //{
+    //  return TypeCode.Decimal;
+    //}
 
-		public decimal ToDecimal(IFormatProvider provider)
-		{
-			return (Decimal)this;
-		}
+    //public decimal ToDecimal(IFormatProvider provider)
+    //{
+    //  return (Decimal)this;
+    //}
 
-		public object ToType(Type conversionType, IFormatProvider provider)
-		{
-			if (this.denominator == 1)
-				return Convert.ChangeType((BigInteger)this, conversionType, provider);
-			else
-				return Convert.ChangeType((Decimal)this, conversionType, provider);
-		}
+    //public object ToType(Type conversionType, IFormatProvider provider)
+    //{
+    //  if (this.denominator == 1)
+    //    return Convert.ChangeType((BigInteger)this, conversionType, provider);
+    //  else
+    //    return Convert.ChangeType((Decimal)this, conversionType, provider);
+    //}
 
-		[method:CLSCompliant(false)]
-		public UInt32 ToUInt32(IFormatProvider provider)
-		{
-			return (UInt32)this;
-		}
+    //[method:CLSCompliant(false)]
+    //public UInt32 ToUInt32(IFormatProvider provider)
+    //{
+    //  return (UInt32)this;
+    //}
 
 		#endregion
 
@@ -671,5 +677,94 @@ namespace IronScheme.Runtime
 		{
 			return numerator + "/" + denominator;
 		}
-	}
+
+    #region IConvertible Members
+
+    TypeCode IConvertible.GetTypeCode()
+    {
+      throw new NotImplementedException();
+    }
+
+    bool IConvertible.ToBoolean(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    byte IConvertible.ToByte(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    char IConvertible.ToChar(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    DateTime IConvertible.ToDateTime(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    decimal IConvertible.ToDecimal(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    double IConvertible.ToDouble(IFormatProvider provider)
+    {
+      return (double)this;
+    }
+
+    short IConvertible.ToInt16(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    int IConvertible.ToInt32(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    long IConvertible.ToInt64(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    sbyte IConvertible.ToSByte(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    float IConvertible.ToSingle(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    string IConvertible.ToString(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    object IConvertible.ToType(Type conversionType, IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    ushort IConvertible.ToUInt16(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    uint IConvertible.ToUInt32(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    ulong IConvertible.ToUInt64(IFormatProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    #endregion
+  }
 }

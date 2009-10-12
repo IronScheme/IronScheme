@@ -159,7 +159,7 @@
     (ironscheme contracts))
     
   (clr-using System.Text)
-  (clr-using Microsoft.Scripting.Math)    
+  (clr-using Oyster.Math)    
      
   (define (native-endianness) 'little)
   
@@ -170,15 +170,15 @@
   (define utf32be (clr-new UTF32Encoding #t #f))
   
   (define (bignum? obj)
-    (clr-is BigInteger obj))      
+    (clr-is IntX obj))      
     
   (define ->bignum 
     (typed-lambda (ei)
-      '((Object) BigInteger)
+      '((Object) IntX)
         (cond
           [(bignum? ei) ei]
           [(fixnum? ei) 
-            (clr-static-call BigInteger (Create Int32) ei)]
+            (clr-static-call IntX (Create Int32) ei)]
           [else
             (assertion-violation #f "not a exact integer" ei)])))
   
@@ -307,14 +307,14 @@
                              sb
                              0))]
         [(4)
-          (exact (clr-static-call BigInteger
+          (exact (clr-static-call IntX
                                   (op_Implicit UInt32)
                                   (clr-static-call BitConverter
                                                    (ToUInt32 Byte[] Int32)
                                                    sb
                                                    0)))]
         [(8)
-          (exact (clr-static-call BigInteger
+          (exact (clr-static-call IntX
                                  (op_Implicit UInt64)
                                  (clr-static-call BitConverter
                                                   (ToUInt64 Byte[] Int32)
@@ -323,7 +323,7 @@
         [else
           (let ((data (make-bytevector (+ size 1))))
             (bytevector-copy! sb 0 data 0 size)
-            (exact (clr-static-call BigInteger
+            (exact (clr-static-call IntX
                                    (Create Byte[])
                                    data)))])))
                                                    
@@ -353,14 +353,14 @@
                            sb
                            0)]
         [(8)
-          (exact (clr-static-call BigInteger
+          (exact (clr-static-call IntX
                                  (op_Implicit Int64)
                                  (clr-static-call BitConverter
                                                   (ToInt64 Byte[] Int32)
                                                   sb
                                                   0)))]
         [else
-          (exact (clr-static-call BigInteger
+          (exact (clr-static-call IntX
                                  (Create Byte[])
                                  sb))])))
                            
@@ -402,7 +402,7 @@
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [else
-        (let ((data (clr-call BigInteger
+        (let ((data (clr-call IntX
                               ToByteArray
                               (->bignum n))))
           (when (eq? end 'big)
@@ -448,7 +448,7 @@
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [else
-        (let ((data (clr-call BigInteger
+        (let ((data (clr-call IntX
                               ToByteArray
                               (->bignum n))))
           (when (eq? end 'big)

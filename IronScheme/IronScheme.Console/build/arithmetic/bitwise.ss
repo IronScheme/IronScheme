@@ -59,20 +59,20 @@
       bitwise-arithmetic-shift
       ))
       
-  (clr-using Microsoft.Scripting.Math)
+  (clr-using Oyster.Math)
       
   (define ->bignum
     (typed-lambda (ei)
-      '((Object) BigInteger)
+      '((Object) IntX)
       (cond
         [(bignum? ei) ei]
         [(fixnum? ei) 
-          (clr-static-call BigInteger (Create Int32) ei)]
+          (clr-static-call IntX (Create Int32) ei)]
         [else
           (assertion-violation #f "not a exact integer" ei)])))
         
   (define (bitwise-not ei)
-    (exact (clr-static-call BigInteger 
+    (exact (clr-static-call IntX 
                             op_OnesComplement  
                             (->bignum ei))))
                             
@@ -82,8 +82,8 @@
       [(ei)
         (->bignum ei)]
       [(ei1 ei2)
-        (exact (clr-static-call BigInteger 
-                                op_BitwiseAnd  
+        (exact (clr-static-call IntX 
+                                (op_BitwiseAnd IntX IntX)
                                 (->bignum ei1)
                                 (->bignum ei2)))]
       [(ei1 ei2 . rest)
@@ -95,8 +95,8 @@
       [(ei)
         (->bignum ei)]
       [(ei1 ei2)
-        (exact (clr-static-call BigInteger 
-                                op_BitwiseOr  
+        (exact (clr-static-call IntX 
+                                (op_BitwiseOr IntX IntX)
                                 (->bignum ei1)
                                 (->bignum ei2)))]
       [(ei1 ei2 . rest)
@@ -108,15 +108,15 @@
       [(ei)
         (->bignum ei)]
       [(ei1 ei2)
-        (exact (clr-static-call BigInteger 
-                                op_ExclusiveOr  
+        (exact (clr-static-call IntX 
+                                (op_ExclusiveOr IntX IntX)  
                                 (->bignum ei1)
                                 (->bignum ei2)))]
       [(ei1 ei2 . rest)
         (fold-left bitwise-xor (->bignum ei1) (cons ei2 rest))]))
         
   (define (bitwise-bit-count ei)
-    (if (positive? ei)
+    (if (not (negative? ei))
         (let f ((c 0)(ei (->bignum ei)))
           (if (positive? ei)
               (f (+ c (bitwise-and ei 1))
@@ -126,13 +126,13 @@
         
   (define (bitwise-length ei)
     (let ((ei (->bignum ei)))
-      (if (clr-static-call BigInteger 
-                           op_LessThan
+      (if (clr-static-call IntX 
+                           (op_LessThan IntX IntX)
                            ei
                            (->bignum 0))
           (bitwise-length (bitwise-not ei))
-          (clr-prop-get BigInteger BitLength ei))))
-          
+          (clr-prop-get IntX BitLength ei))))
+
   (define (bitwise-first-bit-set ei)
     (let ((ei (->bignum ei)))
       (if (zero? ei)
@@ -176,16 +176,27 @@
       to))
       
   (define (bitwise-arithmetic-shift ei k)
-    (exact 
-      (clr-static-call BigInteger 
-                       LeftShift 
-                       (->bignum ei) 
-                       k)))
+    (exact
+      (if (negative? ei)
+          (floor (* ei (expt 2 k)))
+          (if (fxnegative? k)
+            (clr-static-call IntX 
+                             op_RightShift 
+                             (->bignum ei) 
+                             (fx- k))
+            (clr-static-call IntX 
+                             op_LeftShift 
+                             (->bignum ei) 
+                             k)))))
                   
   (define (bitwise-arithmetic-shift-left ei1 ei2)
+    (when (negative? ei2)
+      (assertion-violation 'bitwise-arithmetic-shift-left "cannot be negative" ei2))
     (bitwise-arithmetic-shift ei1 ei2))            
     
   (define (bitwise-arithmetic-shift-right ei1 ei2)
+    (when (negative? ei2)
+      (assertion-violation 'bitwise-arithmetic-shift-right "cannot be negative" ei2))
     (bitwise-arithmetic-shift ei1 (- ei2)))            
     
   (define (bitwise-rotate-bit-field n start end count)

@@ -21,6 +21,7 @@ using Microsoft.Scripting;
 using System.Diagnostics;
 using Microsoft.Scripting.Math;
 using System.Runtime.InteropServices;
+using BigInteger = Oyster.Math.IntX;
 
 namespace IronScheme.Runtime
 {

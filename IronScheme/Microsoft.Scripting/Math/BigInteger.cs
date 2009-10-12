@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-
+#if FULL
 using System;
 using System.Text;
 using System.Collections;
@@ -28,6 +28,7 @@ namespace Microsoft.Scripting.Math {
     /// </summary>
     /// 
     [Serializable]
+    [Obsolete]
     [System.ComponentModel.TypeConverter(typeof(BigInteger.TypeConvertor))]
     public class BigInteger : IFormattable, IComparable, IConvertible {
 
@@ -290,6 +291,7 @@ namespace Microsoft.Scripting.Math {
         }
 
         private static int bias = 1075;
+
         public static BigInteger Create(double v) {
             byte[] bytes = System.BitConverter.GetBytes(v);
             ulong mantissa = Mantissa(bytes);
@@ -1932,3 +1934,4 @@ namespace Microsoft.Scripting.Math {
         #endregion
     }
 }
+#endif
