@@ -46,6 +46,7 @@
   (clr-using IronScheme.Runtime)   
   (clr-using Microsoft.Scripting) 
   (clr-using Microsoft.Scripting.Math)
+  (clr-using Oyster.Math)
   (clr-using System.Text)
     
   (define (fixnum? obj)
@@ -55,7 +56,7 @@
     (clr-is Double obj))
 
   (define (bignum? obj)
-    (clr-is BigInteger obj))
+    (clr-is IntX obj))
     
   (define (rectnum? obj)
     (clr-is ComplexFraction obj)) 

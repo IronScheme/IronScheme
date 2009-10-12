@@ -119,6 +119,7 @@ namespace IronScheme.Runtime
       {
         return ((Encoding)first).WebName == ((Encoding)second).WebName;
       }
+
       return GetBool(Equals(first, second));
     }
   }

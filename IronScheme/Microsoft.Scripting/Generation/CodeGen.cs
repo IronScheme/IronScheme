@@ -32,6 +32,7 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Actions;
 using System.Text;
 using Microsoft.Scripting.Utils;
+using BigInteger = Oyster.Math.IntX;
 
 namespace Microsoft.Scripting.Generation {
 
@@ -1541,19 +1542,19 @@ namespace Microsoft.Scripting.Generation {
             int ival;
             if (value.AsInt32(out ival)) {
                 EmitInt(ival);
-                EmitCall(typeof(BigInteger), "Create", new Type[] { typeof(int) });
+                EmitNew(typeof(BigInteger), new Type[] { typeof(int) });
                 return;
             }
             long lval;
             if (value.AsInt64(out lval)) {
                 Emit(OpCodes.Ldc_I8, lval);
-                EmitCall(typeof(BigInteger), "Create", new Type[] { typeof(long) });
+                EmitNew(typeof(BigInteger), new Type[] { typeof(long) });
                 return;
             }
 
-            EmitInt(value.Sign);
             EmitArray(value.GetBits());
-            EmitNew(typeof(BigInteger), new Type[] { typeof(short), typeof(uint[]) });
+            EmitBoolean(value.Negative);
+            EmitNew(typeof(BigInteger), new Type[] { typeof(uint[]), typeof(bool) });
             return;
         }
 

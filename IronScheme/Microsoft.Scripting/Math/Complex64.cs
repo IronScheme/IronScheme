@@ -18,13 +18,16 @@ using System.Diagnostics;
 using System.Text;
 using System.Collections;
 
+
 namespace Microsoft.Scripting.Math {
+
+  
     /// <summary>
     /// Implementation of the complex number data type.
     /// </summary>
   [Serializable]
     public struct Complex64 {
-        private readonly double real, imag;
+        readonly double real, imag;
 
         public static Complex64 MakeImaginary(double imag) {
             return new Complex64(0.0, imag);
@@ -119,7 +122,8 @@ namespace Microsoft.Scripting.Math {
             return MakeReal(d);
         }
 
-        public static implicit operator Complex64(BigInteger i) {
+        public static implicit operator Complex64(Oyster.Math.IntX i)
+        {
             if (object.ReferenceEquals(i, null)) {
                 throw new ArgumentException(MathResources.InvalidArgument, "i");
             }
@@ -301,34 +305,34 @@ namespace Microsoft.Scripting.Math {
 
         public static Complex64 Cos(Complex64 z)
         {
-          Complex64 z1 = Exp(new Complex64(-z.Imag, z.Real));
-          Complex64 z2 = Exp(new Complex64(z.Imag, -z.Real));
+          Complex64 z1 = Exp(new Complex64(-z.imag, z.real));
+          Complex64 z2 = Exp(new Complex64(z.imag, -z.real));
 
-          return new Complex64(0.5 * (z1.Real + z2.Real), 0.5 * (z1.Imag + z2.Imag));
+          return new Complex64(0.5 * (z1.real + z2.real), 0.5 * (z1.imag + z2.imag));
         }
 
         public static Complex64 Cosh(Complex64 z)
         {
           Complex64 z1 = Exp(z);
-          Complex64 z2 = Exp(new Complex64(-z.Real, -z.Imag));
+          Complex64 z2 = Exp(new Complex64(-z.real, -z.imag));
 
-          return new Complex64(0.5 * (z1.Real + z2.Real), 0.5 * (z1.Imag + z2.Imag));
+          return new Complex64(0.5 * (z1.real + z2.real), 0.5 * (z1.imag + z2.imag));
         }
 
         public static Complex64 Sin(Complex64 z)
         {
-          Complex64 z1 = Exp(new Complex64(-z.Imag, z.Real));
-          Complex64 z2 = Exp(new Complex64(z.Imag, -z.Real));
+          Complex64 z1 = Exp(new Complex64(-z.imag, z.real));
+          Complex64 z2 = Exp(new Complex64(z.imag, -z.real));
 
-          return new Complex64(0.5 * (z1.Imag - z2.Imag), 0.5 * (z2.Real - z1.Real));
+          return new Complex64(0.5 * (z1.imag - z2.imag), 0.5 * (z2.real - z1.real));
         }
 
         public static Complex64 Sinh(Complex64 z)
         {
           Complex64 z1 = Exp(z);
-          Complex64 z2 = Exp(new Complex64(-z.Real, -z.Imag));
+          Complex64 z2 = Exp(new Complex64(-z.real, -z.imag));
 
-          return new Complex64(0.5 * (z1.Real - z2.Real), 0.5 * (z1.Imag - z2.Imag));
+          return new Complex64(0.5 * (z1.real - z2.real), 0.5 * (z1.imag - z2.imag));
         }
 
         public static Complex64 Tan(Complex64 z)
@@ -343,11 +347,11 @@ namespace Microsoft.Scripting.Math {
 
         public static Complex64 Exp(Complex64 z)
         {
-          double value = System.Math.Exp(z.Real);
+          double value = System.Math.Exp(z.real);
 
           return new Complex64(
-                value * System.Math.Cos(z.Imag),
-                value * System.Math.Sin(z.Imag));
+                value * System.Math.Cos(z.imag),
+                value * System.Math.Sin(z.imag));
         }
 
         public static Complex64 Log(Complex64 z)
@@ -369,7 +373,7 @@ namespace Microsoft.Scripting.Math {
         public double Modulus
         {
           [DebuggerStepThrough()]
-          get { return System.Math.Sqrt(Real * Real + Imag * Imag); }
+          get { return System.Math.Sqrt(real * real + imag * imag); }
         }
 
         [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
@@ -377,7 +381,7 @@ namespace Microsoft.Scripting.Math {
         {
           get 
           { 
-            double d = System.Math.Atan2(Imag, Real);
+            double d = System.Math.Atan2(imag, real);
             return d;
           }
         }

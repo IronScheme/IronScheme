@@ -39,7 +39,6 @@ namespace Microsoft.Scripting {
         private const int MIN_CACHE = -100;
         private const int MAX_CACHE = 1000;
         private static readonly object[] cache = MakeCache();
-        private static readonly string[] chars = MakeSingleCharStrings();
 
         /// <summary> Singleton boxed instance of True.  We should never box additional instances. </summary>
         public static readonly object True = true;
@@ -67,23 +66,6 @@ namespace Microsoft.Scripting {
             }
 
             return result;
-        }
-
-        private static string[] MakeSingleCharStrings() {
-            string[] result = new string[255];
-
-            for (char ch = (char)0; ch < result.Length; ch++) {
-                result[ch] = new string(ch, 1);
-            }
-
-            return result;
-        }
-
-        [DebuggerHidden]
-        [DebuggerStepThrough]
-        public static string CharToString(char ch) {
-            if (ch < 255) return chars[ch];
-            return new string(ch, 1);
         }
 
         [DebuggerHidden]

@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Collections;
 using Microsoft.Scripting.Math;
+using BigInteger = Oyster.Math.IntX;
 
 namespace IronScheme.Runtime
 {
@@ -91,7 +92,7 @@ namespace IronScheme.Runtime
 
     public override string ToString()
     {
-      if (real == 0) return imag.ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat) + "i";
+      if (real == 0) return imag.ToString() + "i";
       else if (imag < 0) return string.Format(System.Globalization.CultureInfo.InvariantCulture.NumberFormat, "{0}{1}i", real, imag);
       else return string.Format(System.Globalization.CultureInfo.InvariantCulture.NumberFormat, "{0}+{1}i", real, imag);
     }
@@ -271,7 +272,7 @@ namespace IronScheme.Runtime
 
     public override int GetHashCode()
     {
-      return (int)real + (int)imag * 1000003;
+      return real.GetHashCode() ^ imag.GetHashCode();
     }
 
     public override bool Equals(object obj)

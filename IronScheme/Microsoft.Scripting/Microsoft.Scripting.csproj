@@ -439,6 +439,12 @@
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj">
+      <Project>{371F38E6-8D55-482F-B010-4AFAC11C3CDB}</Project>
+      <Name>Oyster.IntX</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" Condition=" '$(SilverlightTreeBuild)' != 'true' " />
   <Import Project="..\..\silverlight.build.targets" Condition=" '$(SilverlightTreeBuild)' == 'true' " />
 </Project>

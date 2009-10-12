@@ -19,6 +19,7 @@ using System.Globalization;
 using IronScheme.Runtime;
 using Microsoft.Scripting.Math;
 using Microsoft.Scripting;
+using BigInteger = Oyster.Math.IntX;
 
 namespace IronScheme.Compiler
 {
@@ -51,9 +52,9 @@ namespace IronScheme.Compiler
     {
       if (tnum < 0)
       {
-        return new Fraction(1, TEN.Power(-tnum));
+        return new Fraction(1, BigInteger.Pow(10, (uint) -tnum));
       }
-      return TEN.Power(tnum);
+      return BigInteger.Pow(TEN, (uint) tnum);
     }
 
     static object Expt10(object tnum)
@@ -64,7 +65,7 @@ namespace IronScheme.Compiler
       }
       else if (tnum is BigInteger)
       {
-        return Expt10((BigInteger)tnum);
+        return Expt10((int)(BigInteger)tnum);
       }
       else if (tnum is double)
       {

@@ -71,9 +71,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting.Client"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.LibraryBrowser", "IronScheme.LibraryBrowser\IronScheme.LibraryBrowser.csproj", "{4D2643EB-B0AC-4581-BB4F-6BA5A192DDDF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oyster.IntX", "Oyster.IntX\Oyster.IntX.csproj", "{371F38E6-8D55-482F-B010-4AFAC11C3CDB}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 16
+		SccNumberOfProjects = 17
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
@@ -133,6 +135,9 @@ Global
 		SccProjectTopLevelParentUniqueName15 = IronScheme2008.sln
 		SccProjectName15 = IronScheme.LibraryBrowser
 		SccLocalPath15 = IronScheme.LibraryBrowser
+		SccProjectUniqueName16 = Oyster.IntX\\Oyster.IntX.csproj
+		SccProjectName16 = Oyster.IntX
+		SccLocalPath16 = Oyster.IntX
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,6 +204,10 @@ Global
 		{4D2643EB-B0AC-4581-BB4F-6BA5A192DDDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D2643EB-B0AC-4581-BB4F-6BA5A192DDDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D2643EB-B0AC-4581-BB4F-6BA5A192DDDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

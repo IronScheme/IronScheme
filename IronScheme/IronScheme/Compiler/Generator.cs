@@ -26,6 +26,7 @@ using System.Diagnostics;
 using Microsoft.Scripting.Math;
 using IronScheme.Runtime.psyntax;
 using IronScheme.Runtime.Typed;
+using BigInteger = Oyster.Math.IntX;
 
 namespace IronScheme.Compiler
 {
@@ -518,7 +519,7 @@ namespace IronScheme.Compiler
 
                 if (bf.AllowConstantFold && !ScriptDomainManager.Options.DebugMode)
                 {
-                  bool constant = Array.TrueForAll(pars, e => e is ConstantExpression);
+                  bool constant = Array.TrueForAll(pars, e => e is ConstantExpression && e.Type != typeof(BigInteger));
 
                   if (constant)
                   {
@@ -584,7 +585,7 @@ namespace IronScheme.Compiler
 
                   if (clos.AllowConstantFold && !ScriptDomainManager.Options.DebugMode)
                   {
-                    bool constant = Array.TrueForAll(pars, e => e is ConstantExpression);
+                    bool constant = Array.TrueForAll(pars, e => e is ConstantExpression && e.Type != typeof(BigInteger));
 
                     if (constant)
                     {

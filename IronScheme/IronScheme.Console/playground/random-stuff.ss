@@ -1,6 +1,74 @@
 ﻿
-
 (debug-mode? #t)
+
+(library (foo)
+ (export foo)
+ (import (ironscheme))
+(define f
+  (make-parameter 'report
+                  (lambda (v) (case v
+                                ((off)           0)
+                                ((summary)       1)
+                                ((report-failed) 10)
+                                ((report)        100)
+                                (else (error "unrecognized mode" v))))))
+(define (foo)
+  (case (f)
+    [(0) #t]
+    [(1) #f]
+    [(10)
+      (display "m:10\n")]
+    [(100)
+      (display "m:100\n")]
+    [else
+      (display "match nothing: ")
+      (write (f))
+      (newline)])))
+
+
+
+
+(define (check:proc expression thunk equal equal-expr expected-result)
+  (display (eqv? (check:mode) 100))
+  (newline)
+  (case (check:mode)
+    ((0) #f)
+    ((1)
+     (let ((actual-result (thunk)))
+       (if (equal actual-result expected-result)
+           (check:add-correct!)
+           (check:add-failed!
+            expression actual-result expected-result equal-expr))))
+    ((10)
+     (let ((actual-result (thunk)))
+       (if (equal actual-result expected-result)
+           (check:add-correct!)
+           (begin
+             (check:report-expression expression equal-expr)
+             (check:report-actual-result actual-result)
+             (check:report-failed expected-result)
+             (check:add-failed!
+              expression actual-result expected-result equal-expr)))))
+    (else 
+      (if (eqv? (check:mode) (100))
+        (begin
+         (check:report-expression expression equal-expr)
+         (let ((actual-result (thunk)))
+           (check:report-actual-result actual-result)
+           (if (equal actual-result expected-result)
+               (begin (check:report-correct 1)
+                      (check:add-correct!))
+               (begin (check:report-failed expected-result)
+                      (check:add-failed!
+                       expression actual-result expected-result equal-expr)))))
+        (error "unrecognized check:mode" (check:mode)))))
+  (if #f #f))
+
+
+
+
+
+
 (import (source-optimizer optimize))
 (optimize '(if (not #t) 1 2))
 
@@ -30,7 +98,12 @@
 (define (f) '(x))  
 (eq? (f) (f))     => #f
   
-
+(define (rpn . args)
+  (define (p s a)
+    (if (procedure? a)
+        (cons (a (cadr s) (car s)) (cddr s))
+        (cons a s)))
+  (car (fold-left p '() args)))
 
 
 (import (ironscheme clr))
