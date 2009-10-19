@@ -498,6 +498,11 @@ namespace IronScheme.Runtime.R6RS
     Transcoder tc;
     Stream port;
 
+    public Transcoder Transcoder
+    {
+      get { return tc; }
+    }
+
     public TranscodedWriter(Stream s, Transcoder tc)
     {
       NewLine = "\n";
@@ -526,8 +531,7 @@ namespace IronScheme.Runtime.R6RS
     {
       port.Flush();
     }
-
-
+    
     public Stream BinaryPort
     {
       get { return port; }
@@ -539,6 +543,12 @@ namespace IronScheme.Runtime.R6RS
   {
     Stream port;
     Transcoder tc;
+
+    public Transcoder Transcoder
+    {
+      get { return tc; }
+    }
+
     public TranscodedReader(Stream s, Transcoder tc)
     {
       this.tc = tc;
@@ -649,8 +659,7 @@ namespace IronScheme.Runtime.R6RS
       }
       return value;
     }
-
-
+    
     public Stream BinaryPort
     {
       get { return port; }

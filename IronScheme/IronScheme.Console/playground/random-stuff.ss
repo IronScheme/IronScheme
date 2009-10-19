@@ -25,6 +25,13 @@
       (write (f))
       (newline)])))
 
+     [module (one two three)
+         (define (one)       'one)
+         (define (two)       'two)
+         (define three        (cons 'three (hidden)))
+         (define (hidden)    'hidden)]
+     
+     (printf "calling anonymous: ~s ~s ~s~%" (one) (two) three)
 
 
 

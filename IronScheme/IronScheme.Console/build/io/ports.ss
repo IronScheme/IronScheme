@@ -330,7 +330,16 @@
     ())
 |#
   
-  (define (port-transcoder port:port) #f)
+  (define/contract (port-transcoder port:port) 
+    (cond
+      [(clr-is TranscodedReader port)
+        (clr-prop-get TranscodedReader Transcoder port)]
+      [(clr-is TranscodedWriter port)
+        (clr-prop-get TranscodedWriter Transcoder port)]
+      [(clr-is CustomTextReaderWriter port)
+        (or (port-transcoder (get-output-port port))
+            (port-transcoder (get-input-port port)))]
+      [else #f]))
   
   (define (textual-port? obj)
     (or (clr-is TextReader obj)

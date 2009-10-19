@@ -125,7 +125,6 @@
     <Compile Include="Runtime\R6RS\Exceptions.cs" />
     <Compile Include="Runtime\R6RS\IO.cs" />
     <Compile Include="Runtime\R6RS\Sorting.cs" />
-    <Compile Include="Runtime\R6RS\Unicode.cs" />
     <Compile Include="Runtime\R6RS\Hashtables.cs" />
     <Compile Include="Runtime\R6RS\Records.cs" />
     <Compile Include="Runtime\SchemeException.cs" />
