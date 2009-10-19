@@ -2830,7 +2830,6 @@
     (lambda (p e r) (do-macro-call (local-macro-transformer p) e r)))
   
   (define (chi-global-macro p e r)
-    ;;; FIXME: does not handle macro!?
     (let ((lib (car p))
           (loc (cdr p)))
       (unless (eq? lib '*interaction*)
@@ -2839,6 +2838,10 @@
         (let ((transformer
                (cond
                  ((procedure? x) x)
+                 ((and (pair? x) 
+                       (eq? (car x) 'macro!)
+                       (procedure? (cdr x)))
+                  (cdr x))
                  (else (assertion-violation 'chi-global-macro
                           "BUG: not a procedure" x)))))
           (do-macro-call transformer e r)))))

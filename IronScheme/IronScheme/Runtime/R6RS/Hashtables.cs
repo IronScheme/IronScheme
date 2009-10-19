@@ -134,70 +134,6 @@ namespace IronScheme.Runtime.R6RS
 
   public class Hashtables : Builtins
   {
-    //[Obsolete]
-    //[Builtin("make-hashtable")]
-    //public static object MakeHashtable(object hashfun, object equivfun)
-    //{
-    //  HashComparer hc = new HashComparer(hashfun as Callable, equivfun as Callable);
-    //  Hashtable ht = new HashtableEx(hc);
-    //  return ht;
-    //}
-
-    //[Obsolete]
-    //[Builtin("make-hashtable")]
-    //public static object MakeHashtable(object hashfun, object equivfun, object k)
-    //{
-    //  if (k == null)
-    //  {
-    //    return MakeHashtable(hashfun, equivfun);
-    //  }
-    //  else
-    //  {
-    //    HashComparer hc = new HashComparer(hashfun as Callable, equivfun as Callable);
-    //    Hashtable ht = new HashtableEx((int) k, hc);
-    //    return ht;
-    //  }
-    //}
-
-    //[Obsolete]
-    //[Builtin("hashtable-copy")]
-    //public static object HashtableCopy(object obj)
-    //{
-    //  return HashtableCopy(obj, FALSE);
-    //}
-
-    //[Obsolete]
-    //[Builtin("hashtable-copy")]
-    //public static object HashtableCopy(object obj, object mutable)
-    //{
-    //  Hashtable ht = RequiresNotNull<Hashtable>(obj);
-    //  bool m = RequiresNotNull<bool>(mutable);
-    //  if (m)
-    //  {
-    //    return ht.Clone();
-    //  }
-    //  else
-    //  {
-    //    if (ht is HashtableEx)
-    //    {
-    //      return ((HashtableEx)ht).MakeReadOnly();
-    //    }
-    //    else
-    //    {
-    //      return new ReadOnlyHashtable(ht);
-    //    }
-    //  }
-    //}
-
-    //[Obsolete]
-    //[Builtin("hashtable-keys")]
-    //public static object HashtableKeys(object obj)
-    //{
-    //  Hashtable ht = RequiresNotNull<Hashtable>(obj);
-    //  ArrayList keys = new ArrayList(ht.Keys);
-    //  return keys.ToArray();
-    //}
-
     [Builtin("hashtable-entries")]
     public static object HashtableEntries(object obj)
     {
@@ -212,53 +148,6 @@ namespace IronScheme.Runtime.R6RS
       }
       return Values((object)keys.ToArray(), (object)values.ToArray());
     }
-
-    //[Obsolete]
-    //[Builtin("hashtable-mutable?")]
-    //public static object IsHashtableMutable(object obj)
-    //{
-    //  RequiresNotNull<Hashtable>(obj);
-    //  return GetBool(!(obj is ReadOnlyHashtable));
-    //}
-
-    //[Obsolete]
-    //[Builtin("eqv-hash")]
-    //public static object EqvHash(object obj)
-    //{
-    //  return obj.GetHashCode();
-    //}
-
-    //[Obsolete]
-    //[Builtin("hashtable-equivalence-function")]
-    //public static object HashtableEquivalenceFunction(object obj)
-    //{
-    //  Hashtable ht = RequiresNotNull<Hashtable>(obj);
-    //  HashtableEx htx = ht as HashtableEx;
-    //  if (htx != null)
-    //  {
-    //    return htx.EqualityFunction;
-    //  }
-    //  else
-    //  {
-    //    return SymbolValue(SymbolTable.StringToObject("eq?"));
-    //  }
-    //}
-
-    //[Obsolete]
-    //[Builtin("hashtable-hash-function")]
-    //public static object HashtableHashFunction(object obj)
-    //{
-    //  Hashtable ht = RequiresNotNull<Hashtable>(obj);
-    //  HashtableEx htx = ht as HashtableEx;
-    //  if (htx != null)
-    //  {
-    //    return htx.HashFunction;
-    //  }
-    //  else
-    //  {
-    //    return FALSE;
-    //  }
-    //}
 
     [Builtin("hashtable-map")]
     public static object HashtableMap(object ht, object proc)
