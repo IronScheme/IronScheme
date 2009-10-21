@@ -1,17 +1,18 @@
 ;;; array test
 ;;; 2001 Jussi Piitulainen
 
+
+(define (tail n)
+  (if (< n (length (past)))
+      (list-tail (past) (- (length (past)) n))
+      (past)))
+
 (define past
   (let ((stones '()))
     (lambda stone
       (if (null? stone)
           (reverse stones)
           (set! stones (cons (apply (lambda (stone) stone) stone) stones))))))
-
-(define (tail n)
-  (if (< n (length (past)))
-      (list-tail (past) (- (length (past)) n))
-      (past)))
 
 ;;; Simple tests
 

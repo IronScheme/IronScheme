@@ -14,10 +14,7 @@
               (syntax-rules (error)
                 ((_ expr (error msg))
                  (check (and expr #T) => #T))
-                ((_ . r) (or . r))))
-             (past
-              (syntax-rules ()
-                ((_ . r) (begin)))))
+                ((_ . r) (or . r)))))
   (include/resolve ("srfi" "25") "test.scm"))
 
 (check-report)
