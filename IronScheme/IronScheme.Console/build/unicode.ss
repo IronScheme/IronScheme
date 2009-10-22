@@ -237,12 +237,8 @@
   (define-syntax $string-ci-compare
     (syntax-rules ()
       [(_ a b)
-        (clr-call CompareInfo 
-                  (Compare String String CompareOptions)
-                  compare-info 
-                  (->string a) 
-                  (->string b) 
-                  'IgnoreCase)]))
+        ($string-compare (string-foldcase a) 
+                         (string-foldcase b))]))
         
   (define/contract (string-ci-compare a:string b:string)
     ($string-ci-compare a b))
@@ -302,7 +298,7 @@
               (for-all
                 (lambda (x)
                   (unless (char? x) (assertion-violation 'name "not a char" x))  
-                  (let ((r (cmp (char->integer (char-upcase a)) (char->integer (char-upcase x)))))
+                  (let ((r (cmp (char->integer (char-foldcase a)) (char->integer (char-foldcase x)))))
                     (set! a x)
                     r))
                 (cons b rest))]))]))    
@@ -508,7 +504,7 @@
     (make-case "\x1FC7;" "\x0397;\x0342;\x0345;" "\x0397;\x0342;\x0399;" ) 
     (make-case "\x1FF7;" "\x03A9;\x0342;\x0345;" "\x03A9;\x0342;\x0399;" ) 
     (make-case #\x03A3 "\x03C2;" "\x03A3;" "\x03A3;" 
-      (lambda (b a) 
+      (lambda (b a) ; almost correct
         (if (or (not b) (char-whitespace? b))
             #f
             (or (not a) (char-whitespace? a)))))) 
