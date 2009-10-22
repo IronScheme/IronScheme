@@ -318,7 +318,10 @@
            (before (cons #f (reverse (cdr (reverse chars)))))
            (after (append (cdr chars) (list #f))))
       (apply string-append (map proc chars before after))))
-
+      
+  (define (string-fold-fast proc str)
+    (apply string-append (map proc (string->list str))))
+      
   (define/contract (string-downcase str:string)
     (string-fold 
       (lambda (c b a)
@@ -349,8 +352,8 @@
       str))
     
   (define/contract (string-foldcase str:string)
-    (string-fold 
-      (lambda (c b a)
+    (string-fold-fast
+      (lambda (c)
         (let ((uc (hashtable-ref case-fold-map c #f)))
           (or uc
               (string (char-foldcase c)))))
