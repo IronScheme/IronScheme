@@ -211,22 +211,22 @@
                 (clr-guard [e 
                         (e 
                           (close-input-port port)
-                          (display (format "WARNING: precompiled library (~a) could not load.\n" filename) (current-error-port))
+                          (display (format "WARNING: precompiled library (~a) could not load.\n" (relative-filename filename)) (current-error-port))
                           #f)]
                   (let ((content (deserialize-port port)))
                     (close-input-port port)
                     (apply compile-library-content sk content))))
               (begin
-                (display (format "WARNING: precompiled library (~a) is out of date.\n" filename) (current-error-port))
+                (display (format "WARNING: precompiled library (~a) is out of date.\n" (relative-filename filename)) (current-error-port))
                 #f))
           #f)))
     
   (define (change-extension filename)
-    (clr-static-call System.IO.Path ChangeExtension filename ".fasl"))    
+    (clr-static-call System.IO.Path ChangeExtension filename ".fasl"))  
     
   (define (serialize-library filename content)     
     (display "serializing ")
-    (display filename)
+    (display (relative-filename filename))
     (newline)
     (let ((fasl-filename (change-extension filename)))
       (when (file-exists? fasl-filename)
@@ -234,8 +234,7 @@
     (let ((port (open-file-output-port fasl-filename)))
       (serialize-port content port)
       (close-output-port port))))
-    
- 
+
   (current-precompiled-library-loader load-serialized-library)
   
   (initialize-default-printers)

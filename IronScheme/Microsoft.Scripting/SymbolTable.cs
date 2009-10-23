@@ -62,6 +62,11 @@ namespace Microsoft.Scripting {
           return GetSymbol(id.Id);
         }
 
+        public static object Intern(SymbolId s)
+        {
+          return GetSymbol(s.Id);
+        }
+
         public static object StringToObject(string name)
         {
           SymbolId id = StringToId(name);

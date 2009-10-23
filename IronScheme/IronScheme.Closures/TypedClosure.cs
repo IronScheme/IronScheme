@@ -53,8 +53,18 @@ namespace IronScheme.Runtime.Typed
 
     static object Box<T>(T o)
     {
+      if (typeof(T) == typeof(bool))
+      {
+        return RuntimeHelpers.BooleanToObject((bool)(object)o);
+      }
+      if (typeof(T) == typeof(SymbolId))
+      {
+        var s = (SymbolId)(object)o;
+        return SymbolTable.Intern(s);
+      }
       return o;
     }
+
 
     #region Typed Return Case - no tail calls
 
