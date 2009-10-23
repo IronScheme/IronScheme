@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "IronScheme"
-!define PRODUCT_VERSION "1.0-beta5"
+!define PRODUCT_VERSION "1.0-RC1"
 !define PRODUCT_PUBLISHER "leppie"
 !define PRODUCT_WEB_SITE "http://ironscheme.codeplex.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\IronScheme.Console.exe"
@@ -51,10 +51,10 @@ ShowUnInstDetails show
 ; MUI end ------
 
 !define BASE_URL http://download.microsoft.com/download
-!define URL_DOTNET "http://download.microsoft.com/download/0/8/c/08c19fa4-4c4f-4ffb-9d6c-150906578c9e/NetFx20SP1_x86.exe"
+!define URL_DOTNET "http://download.microsoft.com/download/c/6/e/c6e88215-0178-4c6c-b5f3-158ff77b1f38/NetFx20SP2_x86.exe"
 
-LangString DESC_SHORTDOTNET ${LANG_ENGLISH} ".Net Framework 2.0 SP1"
-LangString DESC_LONGDOTNET ${LANG_ENGLISH} "Microsoft .Net Framework 2.0 SP1"
+LangString DESC_SHORTDOTNET ${LANG_ENGLISH} ".Net Framework 2.0 SP2"
+LangString DESC_LONGDOTNET ${LANG_ENGLISH} "Microsoft .Net Framework 2.0 SP2"
 LangString DESC_DOTNET_DECISION ${LANG_ENGLISH} "$(DESC_SHORTDOTNET) is required.$\nIt is strongly \
   advised that you install$\n$(DESC_SHORTDOTNET) before continuing.$\nIf you choose to continue, \
   you will need to connect$\nto the internet before proceeding.$\nWould you like to continue with \
@@ -160,12 +160,12 @@ MessageBox MB_ICONEXCLAMATION|MB_YESNO|MB_DEFBUTTON2 "$(DESC_DOTNET_DECISION)" /
 
 DownloadNET:
 
-nsisdl::download /TIMEOUT=60000 "${URL_DOTNET}" "$TEMP\NetFx20SP1_x86.exe"
+nsisdl::download /TIMEOUT=60000 "${URL_DOTNET}" "$TEMP\NetFx20SP2_x86.exe"
 Pop $0
 StrCmp "$0" "success" InstallNET AbortInstall
 
 InstallNET:
-Exec '"$TEMP\NetFx20SP1_x86.exe" /q:a /c:"install.exe /qb"'
+Exec '"$TEMP\NetFx20SP2_x86.exe" /q:a /c:"install.exe /qb"'
 
 Install:
 
@@ -176,6 +176,7 @@ SectionIn 1 2 RO
   SetOutPath "$INSTDIR"
   
   DetailPrint "Removing previous native images (if any)..."
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\IronScheme.Console.exe"'
   nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'
 
   CreateDirectory "$SMPROGRAMS\IronScheme"
@@ -275,6 +276,7 @@ SectionEnd
 Section -Post
   SetOutPath "$INSTDIR"
   DetailPrint "Generating native images..."
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\IronScheme.Console.exe"'
   nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.dll"'
   DetailPrint "Compiling system libraries..."
   nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.sps"'
@@ -368,6 +370,7 @@ Section Uninstall
   Pop $NETPATH
 
   DetailPrint "Removing native images..."
+  nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\IronScheme.Console.exe"'
   nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'
   
   Delete "$DESKTOP\IronScheme.lnk"

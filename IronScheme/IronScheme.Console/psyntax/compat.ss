@@ -28,7 +28,7 @@
           library-version-mismatch-warning
           library-stale-warning
           file-locator-resolution-error
-          label-binding set-label-binding! remove-location)
+          label-binding set-label-binding! remove-location relative-filename)
   (import 
     (rnrs)
     (ironscheme reader)
@@ -37,18 +37,32 @@
     (only (ironscheme) fprintf symbol-bound? remove-location)
     (only (psyntax system $bootstrap)
           void gensym eval-core set-symbol-value! symbol-value compile-core))
-
+          
+  (define (replace s b a)
+    (clr-call String (Replace String String) s b a))
+          
+  (define (relative-filename filename)
+    (replace
+      (string-append "."
+                    (replace 
+                      (replace 
+                        filename 
+                        (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory) 
+                        "")
+                      "\\"
+                      "/"))
+      "./" ""))
 
  (define (library-version-mismatch-warning name depname filename)
     (fprintf (current-error-port)
         "WARNING: library ~s has an inconsistent dependency on library ~s; \
          file ~s will be recompiled from source.\n"
-       name depname filename))
+       name depname (relative-filename filename)))
 
   (define (library-stale-warning name filename)
     (fprintf (current-error-port)
        "WARNING: library ~s is stale; file ~s will be recompiled from source.\n"
-       name filename))
+       name (relative-filename filename)))
 
   (define (file-locator-resolution-error libname failed-list pending-list)
     (define-condition-type &library-resolution &condition
@@ -59,8 +73,7 @@
     (define-condition-type &imported-from &condition
        make-imported-from-condition imported-from-condition?
        (importing-library importing-library))
-
-      (raise 
+    (raise 
       (apply condition (make-error)
           (make-who-condition 'expander)
           (make-message-condition
@@ -159,11 +172,10 @@
   (define file-options-constructor (make-parameter #f))
   
   (define (file-options-spec x) ((file-options-constructor) x))
-
-  
   
   (define (set-label-binding! label binding)
     (set-symbol-value! label binding))
+    
   (define (label-binding label)
     (and (symbol-bound? label) (symbol-value label))))
 
