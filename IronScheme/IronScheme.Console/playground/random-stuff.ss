@@ -1,6 +1,21 @@
 ﻿
 (debug-mode? #t)
 
+
+(define-syntax define-syntax/info
+  (lambda (x)
+    (syntax-case x ()
+      [(_ id form)
+        #'(define-syntax id
+            (lambda (x)
+              (syntax-case x ()
+                [k
+                  (identifier? #'k)
+                  #''form]
+                [_
+                  (form x)])))])))
+
+
 (library (foo)
  (export foo)
  (import (ironscheme))

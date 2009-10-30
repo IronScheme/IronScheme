@@ -51,8 +51,6 @@ namespace IronScheme
       return base.MissingName(name);
     }
 
-    //static SourceCodeProperties props = SourceCodeProperties.None;
-
     public override void UpdateSourceCodeProperties(CompilerContext context)
     {
       if (parser == null)
@@ -60,12 +58,10 @@ namespace IronScheme
         parser = new Parser();
       }
       parser.skipnumbers = true;
-      var prev = context.SourceUnit.CodeProperties;
+      
       try
       {
-        //context.SourceUnit.CodeProperties = SourceCodeProperties.None;
         base.UpdateSourceCodeProperties(context);
-        //context.SourceUnit.CodeProperties = prev;
       }
       catch (SyntaxErrorException)
       {

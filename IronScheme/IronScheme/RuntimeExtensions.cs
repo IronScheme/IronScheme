@@ -89,6 +89,7 @@ namespace IronScheme
 
         if (importspec != INTERACTION_ENVIRONMENT)
         {
+          importspec = importspec.Replace("(environment", "(environment '(only (ironscheme) let symbol-value)");
           expr = string.Format("(eval '{0} {1})", expr, importspec);
         }
 
@@ -116,9 +117,48 @@ namespace IronScheme
 
 #pragma warning disable 3001,3002
 
+    readonly static Type[] CallTargets = 
+    {
+      typeof(CallTarget0),
+      typeof(CallTarget1),
+      typeof(CallTarget2),
+      typeof(CallTarget3),
+      typeof(CallTarget4),
+      typeof(CallTarget5),
+      typeof(CallTarget6),
+      typeof(CallTarget7),
+      typeof(CallTarget8),
+    };
+
     public static Callable ToSchemeProcedure(this Delegate del)
     {
-      return Closure.CreateStatic(del) as Callable;
+      var m = del.Method;
+      var pars = m.GetParameters();
+      var rt = m.ReturnType;
+      var partypes = Array.ConvertAll(pars, x => x.ParameterType);
+
+      List<Type> g = new List<Type>();
+      g.AddRange(partypes);
+      g.Add(rt);
+
+      var allargs = g.ToArray();
+
+      if (Array.TrueForAll(allargs, x => x == typeof(object)))
+      {
+        return Closure.CreateStatic(Delegate.CreateDelegate(CallTargets[partypes.Length], del.Target, m));
+      }
+      else
+      {
+        var tc = typeof(Callable).Assembly.GetType("IronScheme.Runtime.Typed.TypedClosure`" + allargs.Length);
+        var dt = typeof(Callable).Assembly.GetType("IronScheme.Runtime.Typed.Func`" + allargs.Length);
+
+        tc = tc.MakeGenericType(allargs);
+        dt = dt.MakeGenericType(allargs);
+
+        var tci = Activator.CreateInstance(tc, Delegate.CreateDelegate(dt, del.Target, m));
+
+        return tci as Callable;
+      }
     }
 
     public static T ToDelegate<T>(this Callable c)
