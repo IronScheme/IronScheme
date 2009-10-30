@@ -229,11 +229,6 @@ namespace Microsoft.Scripting.Math {
         }
 
         public static double Hypot(double x, double y) {
-            //
-            // sqrt(x*x + y*y) == sqrt(x*x * (1 + (y*y)/(x*x))) ==
-            // sqrt(x*x) * sqrt(1 + (y/x)*(y/x)) ==
-            // abs(x) * sqrt(1 + (y/x)*(y/x))
-            //
 
             //  First, get abs
             if (x < 0.0) x = -x;
@@ -295,7 +290,6 @@ namespace Microsoft.Scripting.Math {
             return this == ((Complex64)obj);
         }
 
-        [DebuggerStepThrough()]
         public static Complex64 Polar(double modulus, double argument)
         {
           return new Complex64(
@@ -368,15 +362,13 @@ namespace Microsoft.Scripting.Math {
         {
           return Polar(System.Math.Sqrt(z.Modulus), z.Argument / 2);
         }
-
-        [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
+        
         public double Modulus
         {
           [DebuggerStepThrough()]
           get { return System.Math.Sqrt(real * real + imag * imag); }
         }
 
-        [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
         public double Argument
         {
           get 

@@ -196,14 +196,12 @@ namespace IronScheme.Runtime
       }
     }
 
-    [Obsolete("Use the other one")]
     [Builtin("get-clr-type")]
     public static object GetClrType(object name)
     {
       return GetClrType(name, new object[0]);
     }
 
-    [Obsolete("Use the other one")]
     [Builtin("get-clr-type")]
     public static object GetClrType(object name, params object[] typeargs)
     {
