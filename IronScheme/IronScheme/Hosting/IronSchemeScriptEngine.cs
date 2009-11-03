@@ -78,6 +78,12 @@ namespace IronScheme.Hosting
         return "evaluation aborted";
       }
 
+      if (exception is SchemeException)
+      {
+        // must be printed already
+        return null;
+      }
+
       var w = new IronScheme.Runtime.StringWriter();
       w.WriteLine("Unhandled CLR exception reading input:");
       "(display {0} {1})".Eval(exception, w);

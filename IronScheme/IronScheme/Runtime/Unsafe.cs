@@ -132,39 +132,6 @@ namespace IronScheme.Runtime
         return null;
       }
 
-
-
-      [InlineEmitter("$try")]
-      public static Expression Try(Expression[] args)
-      {
-        if (Expect(args, 2))
-        {
-          return Ast.Void(Ast.Try(Ast.Return(args[0])).Catch(typeof(Exception), Ast.Return(args[1])));
-        }
-        return null;
-      }
-
-      [InlineEmitter("$try/overflow")]
-      public static Expression TryOverflow(Expression[] args)
-      {
-        if (Expect(args, 2))
-        {
-          return Ast.Void(Ast.Try(Ast.Return(args[0])).Catch(typeof(OverflowException), Ast.Return(args[1])));
-        }
-        return null;
-      }
-
-      [InlineEmitter("$try/io")]
-      public static Expression TryIO(Expression[] args)
-      {
-        if (Expect(args, 2))
-        {
-          return Ast.Void(Ast.Try(Ast.Return(args[0])).Catch(typeof(IOException), Ast.Return(args[1])));
-        }
-        return null;
-      }
-
-
       #region car + cdr
 
       static FieldInfo car = typeof(Cons).GetField("car");
@@ -273,7 +240,7 @@ namespace IronScheme.Runtime
       {
         if (Expect<int>(args, 2))
         {
-          return Ast.AddChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+          return Ast.Add(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
         }
         return null;
       }
@@ -283,7 +250,7 @@ namespace IronScheme.Runtime
       {
         if (Expect<int>(args, 2))
         {
-          return Ast.MultiplyChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+          return Ast.Multiply(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
         }
         return null;
       }
@@ -293,13 +260,13 @@ namespace IronScheme.Runtime
       {
         if (args.Length == 1)
         {
-          return Ast.SubtractChecked(Ast.Zero(), UnwrapAndCast<int>(args[0]));
+          return Ast.Subtract(Ast.Zero(), UnwrapAndCast<int>(args[0]));
         }
         else
         {
           if (Expect<int>(args, 2))
           {
-            return Ast.SubtractChecked(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
+            return Ast.Subtract(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
           }
           return null;
         }
@@ -531,63 +498,6 @@ namespace IronScheme.Runtime
 
       #endregion
 
-    }
-
-    internal class Unchecked
-    {
-      static bool Expect(Expression[] args, int count)
-      {
-        if (args.Length == count &&
-          Array.TrueForAll(args, delegate(Expression e) { return e.Type == typeof(object) || e.Type == typeof(int); }))
-        {
-          return true;
-        }
-        else
-        {
-          UnsafeSyntaxError(Builtins.FALSE, string.Format("expected {0} arguments", count), args);
-          return false;
-        }
-      }
-
-      #region fixnums
-      
-      [InlineEmitter("$$fx+")]
-      public static Expression FxAdd(params Expression[] args)
-      {
-        if (Expect<int>(args, 2))
-        {
-          return Ast.Add(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-        }
-        return null;
-      }
-
-      [InlineEmitter("$$fx*")]
-      public static Expression FxMultiply(params Expression[] args)
-      {
-        if (Expect<int>(args, 2))
-        {
-          return Ast.Multiply(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-        }
-        return null;
-      }
-
-      [InlineEmitter("$$fx-")]
-      public static Expression FxMinus(params Expression[] args)
-      {
-        if (args.Length == 1)
-        {
-          return Ast.Negate(UnwrapAndCast<int>(args[0]));
-        }
-        else
-        {
-          if (Expect<int>(args, 2))
-          {
-            return Ast.Subtract(UnwrapAndCast<int>(args[0]), UnwrapAndCast<int>(args[1]));
-          }
-          return null;
-        }
-      }
-      #endregion
     }
   }
 }

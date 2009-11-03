@@ -137,8 +137,6 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Builtins));
       AddInlineEmitters(typeof(BuiltinEmitters));
       AddInlineEmitters(typeof(BuiltinEmitters.Unsafe));
-      AddInlineEmitters(typeof(BuiltinEmitters.Unchecked));
-
 
       AddBuiltins(Context, typeof(Runtime.R6RS.Records));
       AddBuiltins(Context, typeof(Runtime.R6RS.Hashtables));

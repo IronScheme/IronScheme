@@ -147,7 +147,11 @@ namespace IronScheme.Hosting
             }
             catch (Exception ex)
             {
-              Console.WriteLine(Engine.FormatException(ex), Style.Error);
+              var fmt = Engine.FormatException(ex);
+              if (fmt != null)
+              {
+                Console.WriteLine(fmt, Style.Error);
+              }
               ev = 1;
             }
             finally
