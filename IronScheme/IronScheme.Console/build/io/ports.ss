@@ -643,12 +643,11 @@
         (make-who-condition who))))
     
   (define/contract (get-u8 port:binary-input-port)
-    ($try/io 
+    (clr-guard (e [e (io-port-error 'lookahead-u8 port)])
       (let ((c (clr-call Stream ReadByte port)))
         (if (fx=? c -1) 
             (eof-object)
-            c))
-      (io-port-error 'get-u8 port)))
+            c))))
       
   (define/contract (lookahead-u8 port:binary-input-port)
     (clr-guard (e [e (io-port-error 'lookahead-u8 port)])  

@@ -521,13 +521,13 @@
         [(p:procedure vec:vector)
           (let* ((len (vector-length vec))
                  (res (make-vector len '())))
-            (do ((i 0 ($$fx+ i 1)))
+            (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len) res)
               ($vector-set! res i (p ($vector-ref vec i)))))]
         [(p:procedure vec1:vector . vecs:vector)
           (let* ((len (vector-length vec1))
                  (res (make-vector len '())))
-            (do ((i 0 ($$fx+ i 1)))
+            (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len) res)
               ($vector-set! res i
                     (apply p (map (lambda (x) ($vector-ref x i)) 
@@ -537,12 +537,12 @@
       (case-lambda
         [(p:procedure vec:vector)
           (let ((len (vector-length vec)))
-            (do ((i 0 ($$fx+ i 1)))
+            (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
               (p ($vector-ref vec i))))]
         [(p:procedure vec1:vector . vecs:vector)
           (let ((len (vector-length vec1)))
-            (do ((i 0 ($$fx+ i 1)))
+            (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
               (apply p (map (lambda (x) ($vector-ref x i)) 
                             (cons vec1 vecs)))))]))
@@ -551,12 +551,12 @@
       (case-lambda
         [(p:procedure str:string)
           (let ((len (string-length str)))
-            (do ((i 0 ($$fx+ i 1)))
+            (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
               (p (string-ref str i))))]
         [(p:procedure str1:string . strs:string)
           (let ((len (string-length str1)))
-            (do ((i 0 ($$fx+ i 1)))
+            (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
               (apply p (map (lambda (x) (string-ref x i)) 
                             (cons str1 strs)))))]))

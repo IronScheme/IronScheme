@@ -44,7 +44,7 @@
       (lambda (condition)
         (display "Unhandled exception:\n")
         (display condition)
-        (newline)
+        ;; let's get out of here        
         ($throw (clr-new IronScheme.Runtime.SchemeException condition)))))
 
   (define/contract (with-exception-handler handler:procedure thunk:procedure)

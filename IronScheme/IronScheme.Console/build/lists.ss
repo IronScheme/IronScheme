@@ -245,10 +245,10 @@
         (let ((head ($cdr head)))
            (if (pair? head)
                (if (not (eq? head tail))
-                   (length/check ($cdr head) ($cdr tail) ($$fx+ i 2))
+                   (length/check ($cdr head) ($cdr tail) ($fx+ i 2))
                    (assertion-violation 'length "not a proper list"))
                (if (null? head)
-                   ($$fx+ i 1)
+                   ($fx+ i 1)
                    (assertion-violation 'length "not a proper list"))))
         (if (null? head)
             i
