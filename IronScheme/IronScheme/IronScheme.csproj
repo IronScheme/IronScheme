@@ -58,6 +58,11 @@
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
+    <Compile Include="Compiler\Optimizer.ConversionCSE.cs" />
+    <Compile Include="Compiler\Optimizer.FixupConditionals.cs" />
+    <Compile Include="Compiler\Optimizer.FixupPrimitives.cs" />
+    <Compile Include="Compiler\Optimizer.FlattenBodies.cs" />
+    <Compile Include="Compiler\Optimizer.RemoveTemporaries.cs" />
     <Compile Include="Compiler\TypedCaseLambdaGenerator.cs" />
     <Compile Include="Compiler\FFICallGenerator.cs" />
     <Compile Include="Compiler\SerializedConstant.cs" />

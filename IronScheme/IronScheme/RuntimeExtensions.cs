@@ -85,7 +85,11 @@ namespace IronScheme
       // must start try here, values have been assigned
       try
       {
-        expr = string.Format("(let ({0}) {1})", string.Join(" ", assigns), expr);
+        // limitation, no defines allowed with parameters
+        if (assigns.Length > 0)
+        {
+          expr = string.Format("(let ({0}) {1})", string.Join(" ", assigns), expr);
+        }
 
         if (importspec != INTERACTION_ENVIRONMENT)
         {

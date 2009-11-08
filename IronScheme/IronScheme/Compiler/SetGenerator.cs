@@ -39,6 +39,22 @@ namespace IronScheme.Compiler
 
       assigns[s] = true;
 
+      if (libraryglobals.ContainsKey(s))
+      {
+        libraryglobals.Remove(s);
+      }
+
+      if (libraryglobalsN.ContainsKey(s))
+      {
+        libraryglobalsN.Remove(s);
+      }
+
+      if (libraryglobalsX.ContainsKey(s))
+      {
+        libraryglobalsX.Remove(s);
+      }
+
+
       setstack.Push(s);
 
       NameHint = Builtins.UnGenSymInternal(s);
