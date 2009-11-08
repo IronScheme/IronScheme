@@ -309,6 +309,7 @@ namespace IronScheme.Compiler
 
 #if OPTIMIZATIONS
 
+#if !BLAH
           CodeBlockExpression cbe;
 
           //// needs to do the same for overloads...
@@ -373,6 +374,7 @@ namespace IronScheme.Compiler
               }
             }
           }
+#endif
 
           if (!ScriptDomainManager.Options.DebugMode)
           {

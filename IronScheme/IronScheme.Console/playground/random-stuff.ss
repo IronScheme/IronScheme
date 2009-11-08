@@ -1,6 +1,8 @@
 ﻿
 (debug-mode? #t)
 
+(import (rnrs-benchmarks sboyer))
+(time (main))
 
 (define-syntax define-syntax/info
   (lambda (x)

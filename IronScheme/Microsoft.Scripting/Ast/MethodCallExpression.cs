@@ -376,6 +376,8 @@ namespace Microsoft.Scripting.Ast {
                 }
               }
 
+
+
               Debug.Assert(_arguments.Count == _parameterInfos.Length);
               for (int arg = 0; arg < _parameterInfos.Length; arg++)
               {
@@ -387,6 +389,7 @@ namespace Microsoft.Scripting.Ast {
               EmitLocation(cg);
 
               //ever hit????
+              // in some cases
               cbe.EmitDirect(cg, tailcall);
               return;
             }
