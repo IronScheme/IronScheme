@@ -39,7 +39,7 @@
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release\</OutputPath>
     <DocumentationFile>Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
-    <DefineConstants>DEBUG;TRACE;nFULL</DefineConstants>
+    <DefineConstants>TRACE;nFULL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

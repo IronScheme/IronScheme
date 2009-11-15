@@ -35,7 +35,7 @@
   (ironscheme unsafe)
   (ironscheme clr internal)
   (only (ironscheme core) compile-bootfile format)
-  (only (ironscheme) time-it optimization-level include import library)
+  (only (ironscheme) time-it include import library)
   )
   
 (define scheme-library-files
@@ -338,7 +338,6 @@
     (include-into                               i)
     (make-compile-time-value                    i)
     (library-path                               i ic)
-    (optimization-level                         i)
     (interaction-environment-symbols            i)
     (environment-symbols                        i)
     (environment-bindings                       i)
@@ -1573,9 +1572,8 @@
               ((assq x locs) => cdr)
               (else #f))))
         (time-it "code generation" 
-          (lambda () 
-            (parameterize ((optimization-level 'none))
-              (compile-bootfile (map compile-core-expr core*)))))
+          (lambda ()
+            (compile-bootfile (map compile-core-expr core*))))
         ;(when (file-exists? bootfile)
           ;(delete-file bootfile))
         ;(let ((p (open-output-file bootfile)))

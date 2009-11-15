@@ -101,17 +101,31 @@ namespace IronScheme.Runtime.psyntax
     }
 
 
+    static Assembly FindAssembly(string assname)
+    {
+      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        if (ass.FullName == assname)
+        {
+          return ass;
+        }
+      }
+      // this might accidentally load the debug file..., and screw up stuff, dunno why...
+      return Assembly.Load(assname);
+    }
+
     sealed class TypeCorrector : SerializationBinder
     {
       readonly static Regex typematch = new Regex(@"record\.[^\.]+\.", RegexOptions.Compiled);
+
       public override Type BindToType(string assemblyName, string typeName)
       {
-        Assembly a = Assembly.Load(assemblyName);
+        Assembly a = FindAssembly(assemblyName);
         Type tt = a.GetType(typeName, false);
 
         if (tt == null)
         {
-          // remove guid suffix, fix this shit
+          //fall back for dynamic records
           typeName = typematch.Replace(typeName, string.Empty);
           foreach (var kvp in R6RS.Records.typedescriptors)
           {

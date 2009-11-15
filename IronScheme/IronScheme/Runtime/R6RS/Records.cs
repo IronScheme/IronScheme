@@ -452,9 +452,7 @@ namespace IronScheme.Runtime.R6RS
       var c = m.Value[0];
       return string.Format("%{0:X}{1:X}", c / 16, c % 16);
     }
-
-
-
+    
 
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
