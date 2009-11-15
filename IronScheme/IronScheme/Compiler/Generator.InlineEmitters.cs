@@ -8,10 +8,8 @@ namespace IronScheme.Compiler
 {
   partial class Generator
   {
-    readonly static Dictionary<OptimizationLevel, Dictionary<SymbolId, InlineEmitter>> inlineemitters = 
-      new Dictionary<OptimizationLevel, Dictionary<SymbolId, InlineEmitter>>();
-
-    public static OptimizationLevel Optimization = OptimizationLevel.None;
+    readonly static Dictionary<SymbolId, InlineEmitter> inlineemitters = 
+      new Dictionary<SymbolId, InlineEmitter>();
 
     public static void AddInlineEmitters(Type emittertype)
     {
@@ -19,16 +17,10 @@ namespace IronScheme.Compiler
       {
         foreach (InlineEmitterAttribute ba in mi.GetCustomAttributes(typeof(InlineEmitterAttribute), false))
         {
-          Dictionary<SymbolId, InlineEmitter> dic;
-          if (!inlineemitters.TryGetValue(ba.Optimization, out dic))
-          {
-            inlineemitters[ba.Optimization] = dic = new Dictionary<SymbolId, InlineEmitter>();
-          }
-
           string name = ba.Name ?? mi.Name.ToLower();
           object s = SymbolTable.StringToObject(name);
 
-          inlineemitters[ba.Optimization][(SymbolId)s] = Delegate.CreateDelegate(typeof(InlineEmitter), mi) as InlineEmitter;
+          inlineemitters[(SymbolId)s] = Delegate.CreateDelegate(typeof(InlineEmitter), mi) as InlineEmitter;
         }
       }
     }

@@ -762,6 +762,9 @@
     <Content Include="isc.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="lib\bench.sls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="playground\ca.sps" />
     <None Include="playground\diff.sps" />
     <None Include="source-optimizer\cp0.sls">

@@ -80,100 +80,127 @@
     (case-lambda
       [()  -1]
       [(ei)
-        (->bignum ei)]
+        ei]
       [(ei1 ei2)
-        (exact (clr-static-call IntX 
-                                (op_BitwiseAnd IntX IntX)
-                                (->bignum ei1)
-                                (->bignum ei2)))]
+        (if (and (fixnum? ei1)
+                 (fixnum? ei2))
+            (fxand ei1 ei2)
+            (exact (clr-static-call IntX 
+                                    (op_BitwiseAnd IntX IntX)
+                                    (->bignum ei1)
+                                    (->bignum ei2))))]
       [(ei1 ei2 . rest)
-        (fold-left bitwise-and (->bignum ei1) (cons ei2 rest))]))
+        (fold-left bitwise-and ei1 (cons ei2 rest))]))
         
   (define bitwise-ior
     (case-lambda
       [()  0]
       [(ei)
-        (->bignum ei)]
+        ei]
       [(ei1 ei2)
-        (exact (clr-static-call IntX 
-                                (op_BitwiseOr IntX IntX)
-                                (->bignum ei1)
-                                (->bignum ei2)))]
+        (if (and (fixnum? ei1)
+                 (fixnum? ei2))
+            (fxior ei1 ei2)      
+            (exact (clr-static-call IntX 
+                                    (op_BitwiseOr IntX IntX)
+                                    (->bignum ei1)
+                                    (->bignum ei2))))]
       [(ei1 ei2 . rest)
-        (fold-left bitwise-ior (->bignum ei1) (cons ei2 rest))]))
+        (fold-left bitwise-ior ei1 (cons ei2 rest))]))
 
   (define bitwise-xor
     (case-lambda
       [()  0]
       [(ei)
-        (->bignum ei)]
+        ei]
       [(ei1 ei2)
-        (exact (clr-static-call IntX 
-                                (op_ExclusiveOr IntX IntX)  
-                                (->bignum ei1)
-                                (->bignum ei2)))]
+        (if (and (fixnum? ei1)
+                 (fixnum? ei2))
+            (fxxor ei1 ei2)      
+            (exact (clr-static-call IntX 
+                                    (op_ExclusiveOr IntX IntX)  
+                                    (->bignum ei1)
+                                    (->bignum ei2))))]
       [(ei1 ei2 . rest)
-        (fold-left bitwise-xor (->bignum ei1) (cons ei2 rest))]))
+        (fold-left bitwise-xor ei1 (cons ei2 rest))]))
         
   (define (bitwise-bit-count ei)
-    (if (not (negative? ei))
-        (let f ((c 0)(ei (->bignum ei)))
-          (if (positive? ei)
-              (f (+ c (bitwise-and ei 1))
-                 (bitwise-arithmetic-shift-right ei 1))
-              c))
-        (bitwise-not (bitwise-bit-count (bitwise-not ei)))))    
+    (if (fixnum? ei)
+        (fxbit-count ei)
+        (if (not (negative? ei))
+            (let f ((c 0)(ei (->bignum ei)))
+              (if (positive? ei)
+                  (f (+ c (bitwise-and ei 1))
+                     (bitwise-arithmetic-shift-right ei 1))
+                  c))
+            (bitwise-not (bitwise-bit-count (bitwise-not ei))))))
         
   (define (bitwise-length ei)
-    (let ((ei (->bignum ei)))
-      (if (clr-static-call IntX 
-                           (op_LessThan IntX IntX)
-                           ei
-                           (->bignum 0))
-          (bitwise-length (bitwise-not ei))
-          (clr-prop-get IntX BitLength ei))))
+    (if (fixnum? ei)
+        (fxlength ei)
+        (let ((ei (->bignum ei)))
+          (if (clr-static-call IntX 
+                               (op_LessThan IntX IntX)
+                               ei
+                               (->bignum 0))
+              (bitwise-length (bitwise-not ei))
+              (clr-prop-get IntX BitLength ei)))))
 
   (define (bitwise-first-bit-set ei)
-    (let ((ei (->bignum ei)))
-      (if (zero? ei)
-          -1
-          (let f ((c 0)(ei ei))
-            (if (= 1 (bitwise-and ei 1))
-                c
-                (f (+ c 1) (bitwise-arithmetic-shift-right ei 1)))))))
+    (if (fixnum? ei)
+        (fxfirst-bit-set ei)
+        (let ((ei (->bignum ei)))
+          (if (zero? ei)
+              -1
+              (let f ((c 0)(ei ei))
+                (if (= 1 (bitwise-and ei 1))
+                    c
+                    (f (+ c 1) (bitwise-arithmetic-shift-right ei 1))))))))
 
   (define (bitwise-bit-set? ei k)
-    (let ((ei (->bignum ei))
-          (k (->bignum k)))
-      (when (negative? k)
-        (assertion-violation 'bitwise-bit-set? "cannot be negative" k))
-      (cond
-        [(= -1 ei) #t]
-        [else
-          (= 1 (bitwise-and 1 (bitwise-arithmetic-shift-right ei k)))])))
+    (cond
+      [(= -1 ei) #t]
+      [(fixnum? ei)
+        (fxbit-set? ei k)]
+      [else
+        (let ((ei (->bignum ei))
+              (k (->bignum k)))
+          (when (negative? k)
+            (assertion-violation 'bitwise-bit-set? "cannot be negative" k))
+          (= 1 (bitwise-and 1 (bitwise-arithmetic-shift-right ei k))))]))
   
   (define (bitwise-if ei1 ei2 ei3)
-    (bitwise-ior (bitwise-and ei1 ei2)
-      (bitwise-and (bitwise-not ei1) ei3)))
+    (if (and (fixnum? ei1)
+             (fixnum? ei2)
+             (fixnum? ei3))
+        (fxif ei1 ei2 ei3)
+        (bitwise-ior (bitwise-and ei1 ei2)
+          (bitwise-and (bitwise-not ei1) ei3))))
       
   (define (bitwise-copy-bit ei1 ei2 ei3)
-    (bitwise-if 
-      (bitwise-arithmetic-shift-left 1 ei2)
-      (bitwise-arithmetic-shift-left ei3 ei2)
-      ei1))
+    (if (fixnum? ei1)
+        (fxcopy-bit ei1 ei2 ei3)
+        (bitwise-if 
+          (bitwise-arithmetic-shift-left 1 ei2)
+          (bitwise-arithmetic-shift-left ei3 ei2)
+          ei1)))
         
   (define (bitwise-bit-field ei1 ei2 ei3)
-    (bitwise-arithmetic-shift-right
-      (bitwise-and ei1 (bitwise-not (bitwise-arithmetic-shift-left -1 ei3)))
-      ei2))
+    (if (fixnum? ei1)
+        (fxbit-field ei1 ei2 ei3)
+        (bitwise-arithmetic-shift-right
+          (bitwise-and ei1 (bitwise-not (bitwise-arithmetic-shift-left -1 ei3)))
+          ei2)))
   
   (define (bitwise-copy-bit-field to start end from)
-    (bitwise-if 
-      (bitwise-and 
-        (bitwise-arithmetic-shift-left -1 start) 
-        (bitwise-not (bitwise-arithmetic-shift-left -1 end)))
-      (bitwise-arithmetic-shift-left from start)
-      to))
+    (if (fixnum? to)
+        (fxcopy-bit-field to start end from)
+        (bitwise-if 
+          (bitwise-and 
+            (bitwise-arithmetic-shift-left -1 start) 
+            (bitwise-not (bitwise-arithmetic-shift-left -1 end)))
+          (bitwise-arithmetic-shift-left from start)
+          to)))
       
   (define (bitwise-arithmetic-shift ei k)
     (exact
@@ -200,25 +227,30 @@
     (bitwise-arithmetic-shift ei1 (- ei2)))            
     
   (define (bitwise-rotate-bit-field n start end count)
-    (let ((width (- end start)))
-      (if (positive? width)
-        (let ((count (mod count width))
-              (field (bitwise-bit-field n start end)))
-           (bitwise-copy-bit-field n start end 
-            (bitwise-ior 
-              (bitwise-arithmetic-shift-left field count) 
-              (bitwise-arithmetic-shift-right field (- width count)))))
-        n)))
+    (if (fixnum? n)
+        (fxrotate-bit-field n start end count)
+        (let ((width (- end start)))
+          (if (positive? width)
+            (let ((count (mod count width))
+                  (field (bitwise-bit-field n start end)))
+               (bitwise-copy-bit-field n start end 
+                (bitwise-ior 
+                  (bitwise-arithmetic-shift-left field count) 
+                  (bitwise-arithmetic-shift-right field (- width count)))))
+            n))))
         
   (define (bitwise-reverse-bit-field x1 start end)
-    (unless (< start end)
-       (assertion-violation 'bitwise-reverse-bit-field "start must be less than end" start end))
-    (do ((width (- end start) (- width 1))
-         (bits  (bitwise-bit-field x1 start end)
-                (bitwise-arithmetic-shift-right bits 1))
-         (rbits 0
-                (bitwise-ior (bitwise-arithmetic-shift-left rbits 1)
-                             (bitwise-and bits 1))))
-        ((= width 0)
-         (bitwise-copy-bit-field x1 start end rbits))))
+    (if (fixnum? x1)
+        (fxreverse-bit-field x1 start end)
+        (begin
+          (unless (< start end)
+             (assertion-violation 'bitwise-reverse-bit-field "start must be less than end" start end))
+          (do ((width (- end start) (- width 1))
+               (bits  (bitwise-bit-field x1 start end)
+                      (bitwise-arithmetic-shift-right bits 1))
+               (rbits 0
+                      (bitwise-ior (bitwise-arithmetic-shift-left rbits 1)
+                                   (bitwise-and bits 1))))
+              ((= width 0)
+               (bitwise-copy-bit-field x1 start end rbits))))))
 )

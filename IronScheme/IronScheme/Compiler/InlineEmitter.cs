@@ -19,25 +19,11 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
-  public enum OptimizationLevel
-  {
-    None = 0,
-    Safe = 1,
-    Unchecked = 2,
-  }
-
   // there arent many places this is viable, except where the types are known and IL can be generated more efficiently
   [AttributeUsage(AttributeTargets.Method, AllowMultiple=true)]
   public class InlineEmitterAttribute : Attribute
   {
     readonly string name;
-    OptimizationLevel opt = OptimizationLevel.None;
-
-    public OptimizationLevel Optimization
-    {
-      get { return opt; }
-      set { opt = value; }
-    } 
     
     public string Name
     {

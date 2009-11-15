@@ -20,6 +20,7 @@ using Microsoft.Scripting.Shell;
 using System.IO;
 using IronScheme.Runtime;
 using System.Threading;
+using System.Diagnostics;
 
 namespace IronScheme.Hosting
 {

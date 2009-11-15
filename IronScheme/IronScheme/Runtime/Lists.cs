@@ -49,13 +49,13 @@ namespace IronScheme.Runtime
     static FieldInfo car = typeof(Cons).GetField("car");
     static FieldInfo cdr = typeof(Cons).GetField("cdr");
 
-    [InlineEmitter("car", Optimization=OptimizationLevel.Safe)]
+    //[InlineEmitter("car", Optimization=OptimizationLevel.Safe)]
     public static Expression Car(Expression[] values)
     {
       return ConsAccessor(values, car);
     }
 
-    [InlineEmitter("cdr", Optimization = OptimizationLevel.Safe)]
+    //[InlineEmitter("cdr", Optimization = OptimizationLevel.Safe)]
     public static Expression Cdr(Expression[] values)
     {
       return ConsAccessor(values, cdr);

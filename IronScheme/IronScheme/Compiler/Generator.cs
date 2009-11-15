@@ -987,17 +987,7 @@ namespace IronScheme.Compiler
 
     static bool TryGetInlineEmitter(SymbolId f, out InlineEmitter ie)
     {
-      ie = null;
-      OptimizationLevel o = Optimization;
-      while (o >= 0)
-      {
-        if (inlineemitters[o].TryGetValue(f, out ie))
-        {
-          return true;
-        }
-        o--;
-      }
-      return false;
+      return inlineemitters.TryGetValue(f, out ie);
     }
     
     protected static Expression CallNormal(CodeBlockExpression cbe, params Expression[] ppp)
