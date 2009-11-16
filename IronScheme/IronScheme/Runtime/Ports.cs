@@ -119,23 +119,35 @@ namespace IronScheme.Runtime
             File.Move("ironscheme.boot.new.pdb", "ironscheme.boot.pdb");
           }
 
-          Assembly ext = AssemblyLoad(path);
-
-          BootfileAssembly = ext;
-
           // just reference.?
           MethodInfo entry = null;
-          foreach (Type t in ext.GetExportedTypes())
+
+          Type ilmergefixup = typeof(Builtins).Assembly.GetType("#", false);
+
+          if (ilmergefixup != null)
           {
-            if (t.BaseType == typeof(CustomSymbolDictionary))
+            entry = ilmergefixup.GetMethod("Initialize");
+            BootfileAssembly = typeof(Builtins).Assembly;
+          }
+          else
+          {
+
+            Assembly ext = AssemblyLoad(path);
+
+            BootfileAssembly = ext;
+
+            foreach (Type t in ext.GetExportedTypes())
             {
-              List<Type> ii = new List<Type>(t.GetInterfaces());
-              if (ii.Contains(typeof(IModuleDictionaryInitialization)))
+              if (t.BaseType == typeof(CustomSymbolDictionary))
               {
-                entry = t.GetMethod("Initialize");
-                if (entry != null)
+                List<Type> ii = new List<Type>(t.GetInterfaces());
+                if (ii.Contains(typeof(IModuleDictionaryInitialization)))
                 {
-                  break;
+                  entry = t.GetMethod("Initialize");
+                  if (entry != null)
+                  {
+                    break;
+                  }
                 }
               }
             }
