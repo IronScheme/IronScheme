@@ -21,6 +21,7 @@ using IronScheme.Runtime;
 using Microsoft.Scripting.Hosting;
 using IronScheme.Hosting;
 using Microsoft.Scripting.Actions;
+using System.IO;
 
 namespace IronScheme.Compiler
 {
@@ -58,6 +59,7 @@ namespace IronScheme.Compiler
 
     }
 
+
     internal static void Initialize(IronSchemeLanguageProvider ironSchemeLanguageProvider)
     {
       lp = ironSchemeLanguageProvider;
@@ -74,6 +76,9 @@ namespace IronScheme.Compiler
       binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
 
       Generator.initme = true;
+
+
+
     }
   }
 

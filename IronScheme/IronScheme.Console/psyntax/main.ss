@@ -33,6 +33,9 @@
     display-stacktrace
     compile
     compile-system-libraries
+    serializer-port
+    open-package
+    package-filename
     compile->closure)
   (import 
     (rnrs base)
@@ -41,6 +44,8 @@
     (rnrs io simple)
     (rnrs io ports)
     (rnrs lists)
+    (rnrs hashtables)
+    (rnrs bytevectors)
     (only (rnrs conditions) serious-condition? condition?)
     (only (rnrs exceptions) raise raise-continuable with-exception-handler)
     (psyntax compat)
@@ -53,9 +58,10 @@
     (ironscheme files)
     (ironscheme cps)
     (ironscheme clr)
+    (only (ironscheme unsafe) $fx+ $fx-)
     (ironscheme constant-fold)
-    (ironscheme library)
-    (only (ironscheme) pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port))
+    (except (ironscheme library) file-locator)
+    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port))
     
   (define trace-printer (make-parameter pretty-print))
       
@@ -64,6 +70,52 @@
   (define command-line (make-parameter (get-command-line))) 
    
   (define emacs-mode? (make-parameter #f))
+  
+  (define (init-open-package fn)
+    (cond
+      [(not fn) #f]
+      [(procedure? fn)
+        (let* ((p (fn))
+               (pkg (deserialize-port p))
+               (os (port-position p)))
+          (close-input-port p)
+          (package-map pkg)
+          (let ((fl (file-locator)))
+            (file-locator 
+              (lambda (x)
+                (let ((fn (format "~a" x)))
+                  (or (and (hashtable-contains? pkg fn) fn)
+                      (fl x))))))
+          (vector-for-each 
+            (lambda (k)
+              (hashtable-update! pkg k 
+                (lambda (v) 
+                  (cons ($fx+ (car v) os)
+                        ($fx+ (cdr v) os)))
+                #f))
+            (hashtable-keys pkg))
+          fn)]
+      [else #f]))
+  
+  (define serializer-port (make-parameter #f))
+  (define library-map (make-parameter #f))
+  
+  (define open-package (make-parameter #f init-open-package))
+  
+  (define package-filename 
+    (make-parameter 
+      #f 
+      (lambda (x)
+        (and x 
+             (string? x) 
+             (file-exists? x)
+             (open-package 
+               (lambda ()
+                 ;(printf "~a\n" x)
+                 (open-file-input-port x)))
+             x))))
+                 
+  (define package-map (make-parameter #f))
     
   (define (local-library-path filename)
     (cons (get-directory-name filename) (library-path)))
@@ -137,11 +189,21 @@
   (define (eval-embedded x)
     (eval x (interaction-environment)))            
     
-  (define (compile-system-libraries)
-    (eval-top-level 
-      `(begin
-         (include "system-libraries.ss")
-         (compile "system-libraries.ss"))))
+  (define compile-system-libraries
+    (case-lambda
+      [()
+        (eval-top-level 
+          `(begin
+             (include "system-libraries.ss")
+             (compile "system-libraries.ss")))]
+      [(filename)
+        (when (file-exists? filename)
+          (delete-file filename))
+        (parameterize [(serializer-port (open-file-output-port filename))]
+          (eval-top-level 
+            `(begin
+               (include "system-libraries.ss")
+               (compile "system-libraries.ss"))))]))
     
   (define (compile filename)
     (load-r6rs-top-level filename 'compile))
@@ -153,23 +215,39 @@
     (load-port-r6rs-top-level port #f 'load args)
     (void))
     
+  (define (->bytes n)
+    (let ((bv (make-bytevector 4)))
+      (bytevector-u32-native-set! bv 0 4 n)
+      bv))
+      
   (define (load-port-r6rs-top-level port close-port? how args)
-      (let ((x* (let f ()
-                  (let ((x (read-annotated port)))
-                     (if (eof-object? x) 
-                         '()
-                         (cons x (f)))))))
-        (when close-port?
-          (close-input-port port))                         
-        (case how
-          ((closure)   (pre-compile-r6rs-top-level x*))
-          ((load)      
-            (parameterize ([command-line (cons (format "~a" port) (map (lambda (x) (format "~a" x)) args))])
-              ((compile-r6rs-top-level x*))))
-          ((compile)   
-              (begin 
-					      (compile-r6rs-top-level x*) ; i assume this is needed
-					      (serialize-all serialize-library compile-core-expr))))))
+    (let ((x* (let f ()
+                (let ((x (read-annotated port)))
+                   (if (eof-object? x) 
+                       '()
+                       (cons x (f)))))))
+      (when close-port?
+        (close-input-port port))
+      (case how
+        ((closure)   (pre-compile-r6rs-top-level x*))
+        ((load)      
+          (parameterize ([command-line (cons (format "~a" port) (map (lambda (x) (format "~a" x)) args))])
+            ((compile-r6rs-top-level x*))))
+        ((compile)   
+            (let ((sp (serializer-port))
+                  (extracter #f))
+              (when sp
+                (let-values (((p e) (open-bytevector-output-port)))
+                  (serializer-port p)
+                  (set! extracter e))
+                (library-map (make-eq-hashtable)))
+				      (compile-r6rs-top-level x*) ; i assume this is needed
+				      (serialize-all serialize-library compile-core-expr)
+			        (when sp
+  	            (serialize-port (library-map) sp)
+ 		            (put-bytevector sp (extracter))
+  		          (close-output-port sp))
+				      )))))
     
   (define (load-r6rs-top-level filename how . args)
     (parameterize ([library-path (local-library-path filename)])
@@ -187,9 +265,19 @@
             (parameterize ([command-line (cons filename (map (lambda (x) (format "~a" x)) args))])
               ((compile-r6rs-top-level x*))))
           ((compile)   
-              (begin 
-					      (compile-r6rs-top-level x*) ; i assume this is needed
-					      (serialize-all serialize-library compile-core-expr)))))))
+            (let ((sp (serializer-port))
+                  (extracter #f))
+              (when sp
+                (let-values (((p e) (open-bytevector-output-port)))
+                  (serializer-port p)
+                  (set! extracter e))
+                (library-map (make-eq-hashtable)))
+				      (compile-r6rs-top-level x*) ; i assume this is needed
+				      (serialize-all serialize-library compile-core-expr)
+			        (when sp
+  	            (serialize-port (library-map) sp)
+		            (put-bytevector sp (extracter))
+  		          (close-output-port sp))))))))
 
   (define fo (make-enumeration '(no-fail no-create no-truncate)))
   
@@ -201,8 +289,8 @@
         (compile-core (expanded->core invoke-proc))
         (compile-core (expanded->core guard-proc))
         guard-req* visible?))
-  
-  (define (load-serialized-library filename sk)
+        
+  (define (load-fasl filename sk)        
     (let ((fasl-filename (change-extension filename)))
       (if (file-exists? fasl-filename)
           (if (or (not (file-exists? filename))
@@ -220,20 +308,48 @@
                 (display (format "WARNING: precompiled library (~a) is out of date.\n" (relative-filename filename)) (current-error-port))
                 #f))
           #f)))
+          
+  (define (load-from-package pkg filename sk)
+    (let* ((port ((open-package)))
+           (os (hashtable-ref pkg filename #f))
+           (sos (car os))
+           (eos (cdr os)))
+      (set-port-position! port sos)
+      (let* ((lp (open-bytevector-input-port (get-bytevector-n port ($fx- eos sos))))
+             (content (deserialize-port lp)))
+        (close-input-port port)
+        (close-input-port lp)
+        (apply compile-library-content sk content))))          
+  
+  (define (load-serialized-library filename sk)
+    (let ((pkg (package-map)))
+      (if pkg
+          (or (load-from-package pkg filename sk)
+              (load-fasl filename sk))
+          (load-fasl filename sk))))
     
   (define (change-extension filename)
     (clr-static-call System.IO.Path ChangeExtension filename ".fasl"))  
     
-  (define (serialize-library filename content)     
+  (define (serialize-library filename content)
     (display "serializing ")
     (display (relative-filename filename))
     (newline)
-    (let ((fasl-filename (change-extension filename)))
-      (when (file-exists? fasl-filename)
-        (delete-file fasl-filename))
-    (let ((port (open-file-output-port fasl-filename)))
-      (serialize-port content port)
-      (close-output-port port))))
+    (let ((sp (serializer-port)))
+      (if sp
+          (let ((lm (library-map))
+                (sos (port-position sp)))
+            (let-values (((op e) (open-bytevector-output-port)))
+              (serialize-port content op)
+              (put-bytevector sp (e))
+              (hashtable-set! lm (format "~a" (cadr content)) (cons sos (port-position sp)))))
+          (begin    
+            (let ((fasl-filename (change-extension filename)))
+              (when (file-exists? fasl-filename)
+                (delete-file fasl-filename))
+            (let ((port (open-file-output-port fasl-filename)))
+              (serialize-port content port)
+              (close-output-port port)))))))
 
   (current-precompiled-library-loader load-serialized-library)
   

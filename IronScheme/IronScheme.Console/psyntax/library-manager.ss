@@ -22,7 +22,7 @@
   (export imported-label->binding library-subst installed-libraries
     visit-library library-name library-version library-exists?
     find-library-by-name install-library library-spec invoke-library 
-    current-library-expander uninstall-library file-locator
+    current-library-expander uninstall-library file-locator library-name->file-name
     current-library-collection library-path library-extensions
     serialize-all current-precompiled-library-loader allow-library-redefinition)
   (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format))
@@ -252,7 +252,7 @@
       (lambda (f)
         (if (procedure? f)
             f
-            (assertion-violation 'library-locator 
+            (assertion-violation 'library-loader 
                    "not a procedure" f)))))
 
   (define current-library-expander

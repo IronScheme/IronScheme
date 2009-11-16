@@ -100,6 +100,11 @@ namespace IronScheme.Runtime.psyntax
       }
     }
 
+    static bool IsILMerged
+    {
+      get { return typeof(Builtins).Assembly.GetType("#", false) != null; }
+    }
+
 
     static Assembly FindAssembly(string assname)
     {
@@ -109,6 +114,10 @@ namespace IronScheme.Runtime.psyntax
         {
           return ass;
         }
+      }
+      if (IsILMerged)
+      {
+        return BootfileAssembly;
       }
       // this might accidentally load the debug file..., and screw up stuff, dunno why...
       return Assembly.Load(assname);

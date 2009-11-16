@@ -52,6 +52,8 @@ namespace IronScheme.Hosting
       Runtime.Builtins.Load("~/ironscheme.boot.dll");
     }
 
+
+
     public override string LanguageDisplayName
     {
       get { return "IronScheme"; }
@@ -65,6 +67,7 @@ namespace IronScheme.Hosting
       {
         LanguageContext lc = new IronSchemeLanguageContext();
         se = new IronSchemeScriptEngine(this, options ?? GetOptionsParser().EngineOptions, lc);
+
       }
       return se;
     }
@@ -188,6 +191,8 @@ namespace IronScheme.Hosting
       {
         IronScheme.Runtime.Builtins.commandline = new string[] { "interactive" };
 
+
+
         if (!Options.TabCompletion)
         {
           Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
@@ -197,6 +202,8 @@ namespace IronScheme.Hosting
         {
           Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
         }
+
+
 
       }
     }
