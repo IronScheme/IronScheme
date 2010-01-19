@@ -79,6 +79,23 @@ namespace Oyster.Math
 				ArrayPool<double>.Instance.AddArray(data2);
 			}
 
+			// Maybe check for validity using classic multiplication
+			if (IntX.GlobalSettings.ApplyFhtValidityCheck)
+			{
+				uint lowerDigitCount = System.Math.Min(length2, System.Math.Min(length1, Constants.FhtValidityCheckDigitCount));
+
+				// Validate result by multiplying lowerDigitCount digits using classic algorithm and comparing
+				uint[] validationResult = new uint[lowerDigitCount * 2];
+				fixed (uint* validationResultPtr = validationResult)
+				{
+					_classicMultiplier.Multiply(digitsPtr1, lowerDigitCount, digitsPtr2, lowerDigitCount, validationResultPtr);
+					if (DigitOpHelper.Cmp(validationResultPtr, lowerDigitCount, digitsResPtr, lowerDigitCount) != 0)
+					{
+						throw new FhtMultiplicationException(string.Format(Strings.FhtMultiplicationError, length1, length2));
+					}
+				}
+			}
+
 			return digitsResPtr[newLength - 1] == 0 ? --newLength : newLength;
 		}
 	}

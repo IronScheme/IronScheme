@@ -35,6 +35,9 @@ namespace Oyster.Math
 			uint* digitsPtr1End = digitsPtr1 + length1;
 			uint* digitsPtr2End = digitsPtr2 + length2;
 
+			// We must always clear first "length1" digits in result
+			DigitHelper.SetBlockDigits(digitsResPtr, length1, 0U);
+
 			// Perform digits multiplication
 			uint* ptr1, ptrRes = null;
 			for (; digitsPtr2 < digitsPtr2End; ++digitsPtr2, ++digitsResPtr)

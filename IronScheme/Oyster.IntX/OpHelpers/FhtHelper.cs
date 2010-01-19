@@ -113,6 +113,9 @@ namespace Oyster.Math
 					slice[i] = unitDigitsPtr[i];
 				}
 
+				// Clear remaining double values (this array is from pool and may be dirty)
+				DigitHelper.SetBlockDigits(slice + unitCount, newLength - unitCount, 0.0);
+
 				// FHT (as well as FFT) works more accurate with "balanced" data, so let's balance it
 				double carry = 0, dataDigit;
 				for (uint i = 0; i < unitCount || i < newLength && carry != 0; ++i)
@@ -336,7 +339,7 @@ namespace Oyster.Math
 		/// Fast version for length == 4.
 		/// </summary>
 		/// <param name="slice">Double array slice.</param>
-		static void Fht4(double* slice)
+		static private void Fht4(double* slice)
 		{
 			// Get 4 digits
 			double d0 = slice[0];
@@ -476,7 +479,7 @@ namespace Oyster.Math
 		/// Fast version for length == 8.
 		/// </summary>
 		/// <param name="slice">Double array slice.</param>
-		static void ReverseFht8(double* slice)
+		static private void ReverseFht8(double* slice)
 		{
 			// Get 8 digits	
 			double d0 = slice[0];
@@ -534,7 +537,7 @@ namespace Oyster.Math
 		/// <param name="index2">Second slice index.</param>
 		/// <param name="cos">Cos value.</param>
 		/// <param name="sin">Sin value.</param>
-		static void FhtButterfly(double* slice1, double* slice2, uint index1, uint index2, double cos, double sin)
+		static private void FhtButterfly(double* slice1, double* slice2, uint index1, uint index2, double cos, double sin)
 		{
 			double d11 = slice1[index1];
 			double d12 = slice1[index2];
@@ -560,7 +563,7 @@ namespace Oyster.Math
 		/// <param name="index2">Second slice index.</param>
 		/// <param name="cos">Cos value.</param>
 		/// <param name="sin">Sin value.</param>
-		static void ReverseFhtButterfly(double* slice1, double* slice2, uint index1, uint index2, double cos, double sin)
+		static private void ReverseFhtButterfly(double* slice1, double* slice2, uint index1, uint index2, double cos, double sin)
 		{
 			double d21 = slice2[index1];
 			double d22 = slice2[index2];
@@ -586,7 +589,7 @@ namespace Oyster.Math
 		/// <param name="index2">Second slice index.</param>
 		/// <param name="cos">Cos value.</param>
 		/// <param name="sin">Sin value.</param>
-		static void ReverseFhtButterfly2(double* slice1, double* slice2, uint index1, uint index2, double cos, double sin)
+		static private void ReverseFhtButterfly2(double* slice1, double* slice2, uint index1, uint index2, double cos, double sin)
 		{
 			double temp = slice1[index1];
 			double temp2 = slice2[index1] * cos + slice2[index2] * sin;
@@ -602,7 +605,7 @@ namespace Oyster.Math
 		/// Fills sine table for FHT.
 		/// </summary>
 		/// <param name="sineTable">Sine table to fill.</param>
-		static void FillSineTable(double[] sineTable)
+		static private void FillSineTable(double[] sineTable)
 		{
 			for (int i = 0, p = 1; i < sineTable.Length; ++i, p *= 2)
 			{
@@ -615,7 +618,7 @@ namespace Oyster.Math
 		/// </summary>
 		/// <param name="valuesPtr">Values to init.</param>
 		/// <param name="lengthLog2">Log2(processing slice length).</param>
-		static void GetInitialTrigValues(TrigValues* valuesPtr, int lengthLog2)
+		static private void GetInitialTrigValues(TrigValues* valuesPtr, int lengthLog2)
 		{
 			valuesPtr->TableSin = SineTable[lengthLog2];
 			valuesPtr->TableCos = SineTable[lengthLog2 + 1];
@@ -629,7 +632,7 @@ namespace Oyster.Math
 		/// Generates next trigonometry values for FHT basing on previous ones.
 		/// </summary>
 		/// <param name="valuesPtr">Current trig values.</param>
-		static void NextTrigValues(TrigValues* valuesPtr)
+		static private void NextTrigValues(TrigValues* valuesPtr)
 		{
 			double oldCos = valuesPtr->Cos;
 			valuesPtr->Cos = valuesPtr->Cos * valuesPtr->TableCos - valuesPtr->Sin * valuesPtr->TableSin + valuesPtr->Cos;

@@ -62,6 +62,7 @@ namespace Oyster.Math
 			resultArray2[0] = length;
 
 			IMultiplier multiplier = MultiplyManager.GetCurrentMultiplier();
+			IDivider divider = DivideManager.GetCurrentDivider();
 
 			// Generate all needed pows of numberBase in stack
 			Stack baseIntStack = new Stack(resultLengthLog2);
@@ -108,7 +109,7 @@ namespace Oyster.Math
 							// Divide ptr1 (with length in *ptr2) by baseIntPtr here.
 							// Results are stored in ptr2 & (ptr2 + innerStep), lengths - in *ptr1 and (*ptr1 + innerStep)
 							loLength = *ptr2;
-							*(ptr1 + innerStep) = DigitOpHelper.DivMod(
+							*(ptr1 + innerStep) = divider.DivMod(
 								ptr1,
 								ptr2,
 								ref loLength,
