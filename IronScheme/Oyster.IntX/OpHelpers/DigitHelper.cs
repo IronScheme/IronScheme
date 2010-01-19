@@ -100,6 +100,17 @@ namespace Oyster.Math
 		}
 
 		/// <summary>
+		/// Sets digits in given block to given value.
+		/// </summary>
+		/// <param name="block">Block start pointer.</param>
+		/// <param name="blockLength">Block length.</param>
+		/// <param name="value">Value to set.</param>
+		unsafe static public void SetBlockDigits(double* block, uint blockLength, double value)
+		{
+			for (double* blockEnd = block + blockLength; block < blockEnd; *block++ = value) ;
+		}
+
+		/// <summary>
 		/// Copies digits from one block to another.
 		/// </summary>
 		/// <param name="blockFrom">From block start pointer.</param>

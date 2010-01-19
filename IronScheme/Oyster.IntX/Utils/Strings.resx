@@ -126,6 +126,9 @@
   <data name="CantBeNullOne" xml:space="preserve">
     <value>Operand can't be null.</value>
   </data>
+  <data name="FhtMultiplicationError" xml:space="preserve">
+    <value>FHT multiplication returned invalid result for IntX objects with lengths {0} and {1}.</value>
+  </data>
   <data name="IntegerTooBig" xml:space="preserve">
     <value>One of the operated big integers is too big.</value>
   </data>

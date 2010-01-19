@@ -68,8 +68,8 @@ namespace Oyster.Math
 		static public IntX Sub(IntX int1, IntX int2)
 		{
 			// Process zero values in special way
+			if (int1._length == 0) return -int2;
 			if (int2._length == 0) return new IntX(int1);
-			if (int1._length == 0) return new IntX(-int2);
 
 			// Determine lower big int (without sign)
 			IntX smallerInt;
@@ -135,122 +135,6 @@ namespace Oyster.Math
 
 		#endregion Add/Subtract operation - common methods
 
-		#region Divide/modulo operation
-
-		/// <summary>
-		/// Divides one <see cref="IntX" /> by another.
-		/// </summary>
-		/// <param name="int1">First big integer.</param>
-		/// <param name="int2">Second big integer.</param>
-		/// <param name="modRes">Remainder big integer.</param>
-		/// <param name="resultFlags">Which operation results to return.</param>
-		/// <returns>Divident big integer.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="int1" /> or <paramref name="int2" /> is a null reference.</exception>
-		/// <exception cref="DivideByZeroException"><paramref name="int2" /> equals zero.</exception>
-		static public IntX DivMod(IntX int1, IntX int2, out IntX modRes, DivModResultFlags resultFlags)
-		{
-			// Null reference exceptions
-			if (ReferenceEquals(int1, null))
-			{
-				throw new ArgumentNullException("int1", Strings.CantBeNull);
-			}
-			else if (ReferenceEquals(int2, null))
-			{
-				throw new ArgumentNullException("int2", Strings.CantBeNull);
-			}
-
-			// Check if int2 equals zero
-			if (int2._length == 0)
-			{
-				throw new DivideByZeroException();
-			}
-
-			// Get flags
-			bool divNeeded = (resultFlags & DivModResultFlags.Div) != 0;
-			bool modNeeded = (resultFlags & DivModResultFlags.Mod) != 0;
-
-			// Special situation: check if int1 equals zero; in this case zero is always returned
-			if (int1._length == 0)
-			{
-				modRes = modNeeded ? new IntX() : null;
-				return divNeeded ? new IntX() : null;
-			}
-
-			// Special situation: check if int2 equals one - nothing to divide in this case
-			if (int2._length == 1 && int2._digits[0] == 1)
-			{
-				modRes = modNeeded ? new IntX() : null;
-				return divNeeded ? int2._negative ? -int1 : +int1 : null;
-			}
-
-			// Get resulting sign
-			bool resultNegative = int1._negative ^ int2._negative;
-
-			// Check if int1 > int2
-			int compareResult = DigitOpHelper.Cmp(int1._digits, int1._length, int2._digits, int2._length);
-			if (compareResult < 0)
-			{
-				modRes = modNeeded ? new IntX(int1) : null;
-				return divNeeded ? new IntX() : null;
-			}
-			else if (compareResult == 0)
-			{
-				modRes = modNeeded ? new IntX() : null;
-				return divNeeded ? new IntX(resultNegative ? -1 : 1) : null;
-			}
-
-			//
-			// Actually divide here (by Knuth algorithm)
-			//
-
-			// Prepare divident (if needed)
-			IntX divRes = null;
-			if (divNeeded)
-			{
-				divRes = new IntX(int1._length - int2._length + 1U, resultNegative);
-			}
-
-			// Prepare mod (if needed)
-			if (modNeeded)
-			{
-				modRes = new IntX(int1._length + 1U, int1._negative);
-			}
-			else
-			{
-				modRes = null;
-			}
-
-			// Call procedure itself
-			uint modLength = int1._length;
-			uint divLength = DigitOpHelper.DivMod(
-				int1._digits,
-				modNeeded ? modRes._digits : null,
-				ref modLength,
-				int2._digits,
-				null,
-				int2._length,
-				divNeeded ? divRes._digits : null,
-				resultFlags,
-				compareResult);
-
-			// Maybe set new lengths and perform normalization
-			if (divNeeded)
-			{
-				divRes._length = divLength;
-				divRes.TryNormalize();
-			}
-			if (modNeeded)
-			{
-				modRes._length = modLength;
-				modRes.TryNormalize();
-			}
-
-			// Return div
-			return divRes;
-		}
-
-		#endregion Divide/modulo operation
-
 		#region Power operation
 
 		/// <summary>
@@ -269,13 +153,14 @@ namespace Oyster.Math
 				throw new ArgumentNullException("value");
 			}
 
-			// Return zero for a zero
-			if (value._length == 0) return new IntX();
-
 			// Return one for zero pow
 			if (power == 0) return 1;
 
-      if (power == 1) return value;
+			// Return the number itself from a power of one
+			if (power == 1) return new IntX(value);
+
+			// Return zero for a zero
+			if (value._length == 0) return new IntX();
 
 			// Get first one bit
 			int msb = Bits.Msb(power);
@@ -349,9 +234,9 @@ namespace Oyster.Math
 		{
 			// Special processing for zero
 			if (int2 == 0) return int1._length == 0 ? 0 : (int1._negative ? -1 : 1);
+			if (int1._length == 0) return int2 > 0 ? -1 : 1;
 
 			// Compare presentation
-      if (int1._length == 0) return 0.CompareTo(int2);
 			if (int1._length > 1) return int1._negative ? -1 : 1;
 			uint digit2;
 			bool negative2;
@@ -376,10 +261,10 @@ namespace Oyster.Math
 		{
 			// Special processing for zero
 			if (int2 == 0) return int1._length == 0 ? 0 : (int1._negative ? -1 : 1);
+			if (int1._length == 0) return -1;
 
 			// Compare presentation
 			if (int1._negative) return -1;
-      if (int1._length == 0) return 0.CompareTo(int2);
 			if (int1._length > 1) return 1;
 			return int1._digits[0] == int2 ? 0 : (int1._digits[0] < int2 ? -1 : 1);
 		}
@@ -463,8 +348,13 @@ namespace Oyster.Math
 				}
 				else
 				{
-          uint length = newLength < intX._length ? newLength + 1 : newLength;
-          DigitOpHelper.Shr(intX._digits, fullDigits, length, newInt._digits, 0, smallShift);
+					// If new result length is smaller then original length we shouldn't lose any digits
+					if (newLength < intX._length)
+					{
+						newLength++;
+					}
+
+					DigitOpHelper.Shr(intX._digits, fullDigits, newLength, newInt._digits, 0, smallShift);
 				}
 			}
 

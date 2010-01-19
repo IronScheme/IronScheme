@@ -26,11 +26,6 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
@@ -62,7 +57,7 @@
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>Oyster.IntX.xml</DocumentationFile>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>false</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
     <NoWarn>1591</NoWarn>
@@ -71,7 +66,6 @@
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
-    <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System">
@@ -79,6 +73,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dividers\AutoNewtonDivider.cs" />
+    <Compile Include="Dividers\ClassicDivider.cs" />
+    <Compile Include="Dividers\DivideManager.cs" />
+    <Compile Include="Dividers\DividerBase.cs" />
+    <Compile Include="Dividers\IDivider.cs" />
+    <Compile Include="OpHelpers\NewtonHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -164,6 +164,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Utils\ArrayPool.cs" />
+    <Compile Include="Utils\FhtMultiplicationException.cs" />
     <Compile Include="Utils\Enums.cs">
       <SubType>Code</SubType>
     </Compile>

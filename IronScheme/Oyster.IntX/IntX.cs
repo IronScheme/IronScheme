@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2005-2008, Andriy Kozachuk a.k.a. Oyster
+Copyright (c) 2005-2010, Andriy Kozachuk a.k.a. Oyster
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -38,7 +38,7 @@ namespace Oyster.Math
 {
 	/// <summary>
 	/// Numeric class which represents arbitrary-precision integers.
-	/// (c) Andriy Kozachuk a.k.a. Oyster [dev.oyster@gmail.com] 2005-2008
+	/// (c) Andriy Kozachuk a.k.a. Oyster [dev.oyster@gmail.com] 2005-2010
 	/// </summary>
   [Serializable]
 	sealed public class IntX : IComparable, IConvertible
@@ -699,7 +699,7 @@ namespace Oyster.Math
 		static public IntX operator /(IntX int1, IntX int2)
 		{
 			IntX modRes;
-			return OpHelper.DivMod(int1, int2, out modRes, DivModResultFlags.Div);
+			return DivideManager.GetCurrentDivider().DivMod(int1, int2, out modRes, DivModResultFlags.Div);
 		}
 
 		/// <summary>
@@ -711,7 +711,7 @@ namespace Oyster.Math
 		static public IntX operator %(IntX int1, IntX int2)
 		{
 			IntX modRes;
-			OpHelper.DivMod(int1, int2, out modRes, DivModResultFlags.Mod);
+			DivideManager.GetCurrentDivider().DivMod(int1, int2, out modRes, DivModResultFlags.Mod);
 			return modRes;
 		}
 
@@ -1212,6 +1212,33 @@ namespace Oyster.Math
 		#region Divide/modulo
 
 		/// <summary>
+		/// Divides one <see cref="IntX" /> object by another.
+		/// </summary>
+		/// <param name="int1">First big integer.</param>
+		/// <param name="int2">Second big integer.</param>
+		/// <param name="mode">Divide mode.</param>
+		/// <returns>Division result.</returns>
+		static public IntX Divide(IntX int1, IntX int2, DivideMode mode)
+		{
+			IntX modRes;
+			return DivideManager.GetDivider(mode).DivMod(int1, int2, out modRes, DivModResultFlags.Div);
+		}
+
+		/// <summary>
+		/// Divides one <see cref="IntX" /> object by another and returns division modulo.
+		/// </summary>
+		/// <param name="int1">First big integer.</param>
+		/// <param name="int2">Second big integer.</param>
+		/// <param name="mode">Divide mode.</param>
+		/// <returns>Modulo result.</returns>
+		static public IntX Modulo(IntX int1, IntX int2, DivideMode mode)
+		{
+			IntX modRes;
+			DivideManager.GetDivider(mode).DivMod(int1, int2, out modRes, DivModResultFlags.Mod);
+			return modRes;
+		}
+
+		/// <summary>
 		/// Divides one <see cref="IntX" /> object on another.
 		/// Returns both divident and remainder
 		/// </summary>
@@ -1221,7 +1248,21 @@ namespace Oyster.Math
 		/// <returns>Division result.</returns>
 		static public IntX DivideModulo(IntX int1, IntX int2, out IntX modRes)
 		{
-			return OpHelper.DivMod(int1, int2, out modRes, DivModResultFlags.Div | DivModResultFlags.Mod);
+			return DivideManager.GetCurrentDivider().DivMod(int1, int2, out modRes, DivModResultFlags.Div | DivModResultFlags.Mod);
+		}
+
+		/// <summary>
+		/// Divides one <see cref="IntX" /> object on another.
+		/// Returns both divident and remainder
+		/// </summary>
+		/// <param name="int1">First big integer.</param>
+		/// <param name="int2">Second big integer.</param>
+		/// <param name="modRes">Remainder big integer.</param>
+		/// <param name="mode">Divide mode.</param>
+		/// <returns>Division result.</returns>
+		static public IntX DivideModulo(IntX int1, IntX int2, out IntX modRes, DivideMode mode)
+		{
+			return DivideManager.GetDivider(mode).DivMod(int1, int2, out modRes, DivModResultFlags.Div | DivModResultFlags.Mod);
 		}
 
 		#endregion Divide/modulo

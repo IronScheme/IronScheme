@@ -44,6 +44,28 @@ namespace Oyster.Math
 
 	#endregion enum MultiplyMode
 
+	#region enum DivideMode
+
+	/// <summary>
+	/// Big integers divide mode used in <see cref="IntX" />.
+	/// </summary>
+	public enum DivideMode
+	{
+		/// <summary>
+		/// Newton approximation algorithm is used for really big integers.
+		/// Time estimate is same as for multiplication.
+		/// Default mode.
+		/// </summary>
+		AutoNewton,
+		/// <summary>
+		/// Classic method is used.
+		/// Time estimate is O(n ^ 2).
+		/// </summary>
+		Classic
+	}
+
+	#endregion enum DivideMode
+
 	#region enum ParseMode
 
 	/// <summary>

@@ -72,8 +72,29 @@ namespace Oyster.Math
 		/// </summary>
 		public const uint AutoFhtLengthUpperBound = 1U << 26;
 		
+		/// <summary>
+		/// Number of lower digits used to check FHT multiplication result validity.
+		/// </summary>
+		public const uint FhtValidityCheckDigitCount = 10;
+
 		#endregion FHT constants
 		
+		#region Newton constants
+
+		/// <summary>
+		/// <see cref="IntX" /> length from which Newton approach is used (in auto-Newton mode).
+		/// Before this length usual divide algorithm works faster.
+		/// </summary>
+		public const uint AutoNewtonLengthLowerBound = 1U << 13;
+
+		/// <summary>
+		/// <see cref="IntX" /> length 'till which Newton approach is used (in auto-Newton mode).
+		/// After this length using of fast division may be slow.
+		/// </summary>
+		public const uint AutoNewtonLengthUpperBound = 1U << 26;
+
+		#endregion Newton constants
+
 		#region Parsing constants
 		
 		/// <summary>
