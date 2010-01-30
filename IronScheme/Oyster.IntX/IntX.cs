@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+// TODO: move IronScheme extras to partial file.
 
 using System;
 using System.Diagnostics;
