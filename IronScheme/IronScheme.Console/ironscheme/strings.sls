@@ -34,7 +34,7 @@
     (clr-call String (Split String[] StringSplitOptions) str (list->vector del) 'none))  
     
   (define/contract (string-join del:string strs:list)
-    (clr-static-call String Join del (list->vector strs)))  
+    (clr-static-call String (Join String Object[]) del (list->vector strs)))  
     
   (define/contract (string-replace str:string old:string new:string)
     (clr-call String (Replace String String) str old new))  

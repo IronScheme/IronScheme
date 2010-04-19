@@ -92,8 +92,10 @@ namespace Microsoft.Scripting.Generation {
 
             if (SaveAndReloadAssemblies) {
                 asmname.Name = Path.GetFileNameWithoutExtension(moduleName);
+#pragma warning disable 0618
                 _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.RunAndSave, outDir, null);
-              _myModule = _myAssembly.DefineDynamicModule( moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName,
+#pragma warning restore 0618
+                _myModule = _myAssembly.DefineDynamicModule( moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName,
                                                            _outFileName, EmitDebugInfo);
             } else {
                 asmname.Name = moduleName;
