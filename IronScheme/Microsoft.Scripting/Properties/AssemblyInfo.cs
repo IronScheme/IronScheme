@@ -50,7 +50,6 @@ using System.Security;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: SecurityTransparent]
 
 [assembly: System.Resources.NeutralResourcesLanguage("en-US")]
 
@@ -60,5 +59,5 @@ using System.Security;
 [assembly: AssemblyVersion("1.0.0.500")]
 [assembly: AssemblyFileVersion("2.0.11102.00")]
 [assembly: AssemblyInformationalVersion("1.0")]
-[assembly: AllowPartiallyTrustedCallers]
+
 #endif

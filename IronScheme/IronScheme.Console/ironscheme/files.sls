@@ -103,7 +103,7 @@
     (clr-static-call Path ChangeExtension path extension))
     
   (define/contract (path-combine path1:string path2:string)
-    (clr-static-call Path Combine path1 path2))
+    (clr-static-call Path (Combine String String) path1 path2))
 
   (define/contract (get-directory-name path:string)
     (clr-static-call Path GetDirectoryName path))

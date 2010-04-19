@@ -95,7 +95,7 @@ namespace IronScheme.Actions
 
     public override bool PreferConvert(Type t1, Type t2)
     {
-      throw new Exception("The method or operation is not implemented.");
+      return true;
     }
 
     public override Expression ConvertExpression(Expression expr, Type toType)
