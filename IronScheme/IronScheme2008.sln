@@ -77,7 +77,7 @@ Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 17
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs02.codeplex.com/
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/TFS02
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = IronScheme\\IronScheme.csproj
 		SccProjectName1 = IronScheme
