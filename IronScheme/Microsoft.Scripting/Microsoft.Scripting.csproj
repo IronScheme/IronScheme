@@ -52,9 +52,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Hosts\Silverlight\SilverlightVersion.cs" Condition=" '$(SilverlightBuild)' == 'true' ">
-      <Link>Properties\SilverlightVersion.cs</Link>
-    </Compile>
     <Compile Include="ActionOnCallAttribute.cs" />
     <Compile Include="Actions\AbstractObject.cs" />
     <Compile Include="Actions\ArgumentInfo.cs" />
