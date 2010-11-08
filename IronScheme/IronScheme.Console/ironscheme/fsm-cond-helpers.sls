@@ -43,20 +43,30 @@
                 node
                 (f (cdr c)))))))
 
+#|
+(import (ironscheme clr))
+(clr-reference System.Windows.Forms)
+(clr-using System.Windows.Forms)
+(import (ironscheme clr dynamic))
+(display-stacktrace #t)
+(define cs (clr-static-call-site Application Run))
+|#
   (define (make-tree)  (make-node #f))
 
   (define (tree-add! tree value keys)
-    (let f ((keys keys)(node tree))
-      (let ((cnode (or (get-node node (car keys))
-                       (let ((cnode (make-node (car keys))))
-                         (node-children-set! node (cons cnode (node-children node)))
-                         cnode))))
-        (if (null? (cdr keys))
-            (let ((nv (node-value cnode)))
-              (when nv
-                (syntax-violation 'tree-add! "duplicate match" (list nv value) (car keys)))
-              (node-value-set! cnode value))
-            (f (cdr keys) cnode)))))
+    (if (null? keys)
+        (node-value-set! tree value)
+        (let f ((keys keys)(node tree))
+          (let ((cnode (or (get-node node (car keys))
+                           (let ((cnode (make-node (car keys))))
+                             (node-children-set! node (cons cnode (node-children node)))
+                             cnode))))
+            (if (null? (cdr keys))
+                (let ((nv (node-value cnode)))
+                  (when nv
+                    (syntax-violation 'tree-add! "duplicate match" (list nv value) (car keys)))
+                  (node-value-set! cnode value))
+                (f (cdr keys) cnode))))))
 
   (define (get-child-keys node)
     (map node-key (reverse (node-children node))))
@@ -90,8 +100,10 @@
     (with-syntax (((c ...) (map (lambda (x)
                                   (generate-node x ids))
                                 (get-sorted-children tree)))
+                  (zero (let ((nv (node-value tree)))
+                          (or nv #'#f)))
                   (else-expr else-expr))
-      #'(let ((r (or c ... #f)))
+      #'(let ((r (or zero c ... #f)))
           (if r
               (r)
               else-expr))))

@@ -691,11 +691,17 @@ namespace IronScheme.Compiler
       return null;
     }
 
-    private static void ExtractMethodInfo(Cons mcc, ref string member, ref Type[] argtypes, ref Type[] gentypes)
+    static void ExtractMethodInfo(Cons mcc, ref string member, ref Type[] argtypes, ref Type[] gentypes)
     {
       member = SymbolTable.IdToString((SymbolId)mcc.car);
 
       mcc = mcc.cdr as Cons;
+
+      if (mcc == null)
+      {
+        argtypes = gentypes = new Type[0];
+        return;
+      }
 
       if (mcc.car is object[])
       {
@@ -763,25 +769,30 @@ namespace IronScheme.Compiler
     // (clr-reference assname)
     public override Expression Generate(object args, CodeBlock cb)
     {
+      Assembly ass = null;
       object name = Builtins.Second(Builtins.First(args));
       string assname = null;
       if (name is SymbolId)
       {
-        assname = SymbolTable.IdToString((SymbolId)name);
+        assname = SymbolTable.IdToString((SymbolId)name).Replace(".dll", "");
 #pragma warning disable 618
-        Assembly.LoadWithPartialName(assname);
+        ass = Assembly.LoadWithPartialName(assname);
 #pragma warning restore 618
       }
       else if (name is string)
       {
         assname = (string)name;
-        Assembly.Load(assname);
+        ass = Assembly.Load(assname);
       }
       else
       {
         ClrSyntaxError("clr-reference", "reference is not a symbol or a string", name);
       }
 
+      if (ass == null)
+      {
+        ClrSyntaxError("clr-reference", "Assembly not found", args);
+      }
 
       return Ast.ReadField(null, Unspecified);
     }

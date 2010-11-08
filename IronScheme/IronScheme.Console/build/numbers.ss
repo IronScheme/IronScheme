@@ -1150,7 +1150,7 @@
     (call-with-values (lambda () (decompose-flonum flo)) flonum->digits))  
 
   (define (get-chr i)
-    (integer->char (+ (char->integer #\0) i)))  
+    (integer->char (+ (char->integer #\0)(fxmod i 10))))  
     
   (define (flonum->string flo)
     (cond

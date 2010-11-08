@@ -27,11 +27,11 @@ namespace IronScheme.Hosting
 {
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
-    const string VERSION = "1.0 RC 1";
+    const string VERSION = "1.0";
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © leppie 2007,2008,2009 {1}",
+      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © leppie 2007,2008,2009,2010 {1}",
           VERSION,
 #if DEBUG
 #if CPS
