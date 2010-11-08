@@ -562,7 +562,7 @@
               (f (+ i size) (cdr lst)))))))
               
   (define (bytevector->uint-list bv end size)
-    (when (negative? size)
+    (unless (positive? size)
       (assertion-violation 'bytevector->uint-list "invalid size" size))
     (let f ((l (bytevector-length bv)) (a '()))
       (if (zero? l)
@@ -570,7 +570,7 @@
           (f (- l size) (cons (bytevector-uint-ref bv (- l size) end size) a)))))
 
   (define (bytevector->sint-list bv end size)
-    (when (negative? size)
+    (unless (positive? size)
       (assertion-violation 'bytevector->sint-list "invalid size" size))
     (let f ((l (bytevector-length bv)) (a '()))
       (if (zero? l)

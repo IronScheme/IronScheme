@@ -203,6 +203,11 @@ namespace IronScheme.Runtime
         return FALSE;
       }
 
+      if (typeargs.Length == 0)
+      {
+        return t;
+      }
+
       return t.MakeGenericType(Array.ConvertAll(typeargs, x => (Type)x));
     }
     

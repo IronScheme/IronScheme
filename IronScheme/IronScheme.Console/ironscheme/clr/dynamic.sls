@@ -164,7 +164,7 @@
     
   (define (generate-clause p)
     (cond
-      [(type-enum? p)
+      #;[(type-enum? p)
         'System.Object?]
       [(type-assignable-from? (get-type "System.Delegate") p)
         'IronScheme.Runtime.Callable]

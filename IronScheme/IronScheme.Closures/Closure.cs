@@ -778,7 +778,10 @@ namespace IronScheme.Runtime
           }
         }
 
-        return AssertionViolation(ToString(), "invalid argument count", args, arities);
+
+        object arts = ConsFromArray(Array.ConvertAll<int, object>(arities, x => x));
+
+        return AssertionViolation(ToString(), "invalid argument count", args, arts);
       }
 
       [DebuggerStepThrough]
