@@ -33,10 +33,10 @@ namespace Oyster.Math
 		/// </summary>
 		/// <param name="intX">Big integer to convert.</param>
 		/// <param name="numberBase">Base of system in which to do output.</param>
-		/// <param name="upperCase">Use uppercase for bases from 11 to 16 (which use letters A-F).</param>
+		/// <param name="alphabet">Alphabet which contains chars used to represent big integer, char position is coresponding digit value.</param>
 		/// <returns>Object string representation.</returns>
 		/// <exception cref="ArgumentException"><paramref name="numberBase" /> is less then 2 or <paramref name="intX" /> is too big to fit in string.</exception>
-		virtual public string ToString(IntX intX, uint numberBase, bool upperCase)
+		virtual public string ToString(IntX intX, uint numberBase, char[] alphabet)
 		{
 			// Test base
 			if (numberBase < 2 || numberBase > 65536)
@@ -51,7 +51,7 @@ namespace Oyster.Math
 			uint outputLength = (uint)System.Math.Ceiling(Constants.DigitBaseLog / System.Math.Log(numberBase) * intX._length);
 
 			// Define length coefficient for string builder
-			bool isBigBase = numberBase > 16;
+			bool isBigBase = numberBase > alphabet.Length;
 			uint lengthCoef = isBigBase ? (uint)System.Math.Ceiling(System.Math.Log10(numberBase)) + 2U : 1U;
 
 			// Determine maximal possible length of string
@@ -66,7 +66,6 @@ namespace Oyster.Math
 			uint[] outputArray = ToString(intX._digits, intX._length, numberBase, ref outputLength);
 
 			// Output everything to the string builder
-			char[] usedChars = upperCase ? Constants.BaseUpperChars : Constants.BaseLowerChars;
 			StringBuilder outputBuilder = new StringBuilder((int)(outputLength * lengthCoef + 1));
 
 			// Maybe append minus sign
@@ -80,8 +79,8 @@ namespace Oyster.Math
 			{
 				if (!isBigBase)
 				{
-					// Output char-by-char for bases up to 16
-					outputBuilder.Append(usedChars[(int)outputArray[i]]);
+					// Output char-by-char for bases up to covered by alphabet
+					outputBuilder.Append(alphabet[(int)outputArray[i]]);
 				}
 				else
 				{

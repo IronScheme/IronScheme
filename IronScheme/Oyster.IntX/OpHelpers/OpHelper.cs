@@ -68,7 +68,7 @@ namespace Oyster.Math
 		static public IntX Sub(IntX int1, IntX int2)
 		{
 			// Process zero values in special way
-			if (int1._length == 0) return -int2;
+			if (int1._length == 0) return new IntX(int2._digits, true);
 			if (int2._length == 0) return new IntX(int1);
 
 			// Determine lower big int (without sign)

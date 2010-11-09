@@ -61,6 +61,24 @@ namespace Oyster.Math {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Alphabet characters must be unique..
+        /// </summary>
+        internal static string AlphabetRepeatingChars {
+            get {
+                return ResourceManager.GetString("AlphabetRepeatingChars", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alphabet is too small to represent numbers in base {0}..
+        /// </summary>
+        internal static string AlphabetTooSmall {
+            get {
+                return ResourceManager.GetString("AlphabetTooSmall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operands can&apos;t be null..
         /// </summary>
         internal static string CantBeNull {
@@ -88,6 +106,24 @@ namespace Oyster.Math {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t compare with provided argument..
+        /// </summary>
+        internal static string CantCmp {
+            get {
+                return ResourceManager.GetString("CantCmp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Digit bytes array length is invalid..
+        /// </summary>
+        internal static string DigitBytesLengthInvalid {
+            get {
+                return ResourceManager.GetString("DigitBytesLengthInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to FHT multiplication returned invalid result for IntX objects with lengths {0} and {1}..
         /// </summary>
         internal static string FhtMultiplicationError {
@@ -106,7 +142,7 @@ namespace Oyster.Math {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Base must be between 2 and 16..
+        ///   Looks up a localized string similar to Base is invalid..
         /// </summary>
         internal static string ParseBaseInvalid {
             get {

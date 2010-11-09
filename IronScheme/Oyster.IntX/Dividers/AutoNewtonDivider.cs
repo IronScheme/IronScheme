@@ -242,7 +242,6 @@ namespace Oyster.Math
 					if ((resultFlags & DivModResultFlags.Div) != 0)
 					{
 						DigitHelper.DigitsBlockCopy(quotPtr, digitsResPtr, quotLength);
-						return quotLength;
 					}
 					else
 					{

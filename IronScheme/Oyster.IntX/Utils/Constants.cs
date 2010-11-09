@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Oyster.Math
 {
 	/// <summary>
@@ -5,6 +7,20 @@ namespace Oyster.Math
 	/// </summary>
 	static internal class Constants
 	{
+		#region .cctor
+
+		static Constants()
+		{
+			BaseCharToDigits = StrRepHelper.CharDictionaryFromAlphabet(new string(BaseUpperChars), 16U);
+			for (int i = 10; i < BaseLowerChars.Length; i++)
+			{
+				BaseCharToDigits.Add(BaseLowerChars[i], (uint)i);
+			}
+		}
+
+		#endregion .cctor
+
+
 		#region ToString constants
 		
 		/// <summary>
@@ -16,6 +32,11 @@ namespace Oyster.Math
 		/// Chars used to parse/output big integers (lower case).
 		/// </summary>
 		public static readonly char[] BaseLowerChars = "0123456789abcdef".ToCharArray();
+		
+		/// <summary>
+		/// Standard char->digit dictionary.
+		/// </summary>
+		static readonly public IDictionary<char, uint> BaseCharToDigits;
 		
 		/// <summary>
 		/// Digit opening bracet (used for bases bigger then 16).

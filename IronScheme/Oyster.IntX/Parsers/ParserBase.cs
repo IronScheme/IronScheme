@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Oyster.Math
@@ -43,19 +44,24 @@ namespace Oyster.Math
 		/// </summary>
 		/// <param name="value">Number as string.</param>
 		/// <param name="numberBase">Number base.</param>
+		/// <param name="charToDigits">Char->digit dictionary.</param>
 		/// <param name="checkFormat">Check actual format of number (0 or 0x at start).</param>
 		/// <returns>Parsed object.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="value" /> is a null reference.</exception>
 		/// <exception cref="ArgumentException"><paramref name="numberBase" /> is less then 2 or more then 16.</exception>
 		/// <exception cref="FormatException"><paramref name="value" /> is not in valid format.</exception>
-		virtual public IntX Parse(string value, uint numberBase, bool checkFormat)
+		virtual public IntX Parse(string value, uint numberBase, IDictionary<char, uint> charToDigits, bool checkFormat)
 		{
 			// Exceptions
 			if (value == null)
 			{
 				throw new ArgumentNullException("value");
 			}
-			else if (numberBase < 2 || numberBase > 16)
+			if (charToDigits == null)
+			{
+				throw new ArgumentNullException("charToDigits");
+			}
+			if (numberBase < 2 || numberBase > charToDigits.Count)
 			{
 				throw new ArgumentException(Strings.ParseBaseInvalid, "numberBase");
 			}
@@ -121,7 +127,7 @@ namespace Oyster.Math
 
 			// Now we have only (in)valid string which consists from numbers only.
 			// Parse it
-			newInt._length = Parse(value, startIndex, endIndex, numberBase, newInt._digits);
+			newInt._length = Parse(value, startIndex, endIndex, numberBase, charToDigits, newInt._digits);
 
 			return newInt;
 		}
@@ -133,13 +139,14 @@ namespace Oyster.Math
 		/// <param name="startIndex">Index inside string from which to start.</param>
 		/// <param name="endIndex">Index inside string on which to end.</param>
 		/// <param name="numberBase">Number base.</param>
+		/// <param name="charToDigits">Char->digit dictionary.</param>
 		/// <param name="digitsRes">Resulting digits.</param>
 		/// <returns>Parsed integer length.</returns>
-		virtual public uint Parse(string value, int startIndex, int endIndex, uint numberBase, uint[] digitsRes)
+		virtual public uint Parse(string value, int startIndex, int endIndex, uint numberBase, IDictionary<char, uint> charToDigits, uint[] digitsRes)
 		{
 			// Default implementation - always call pow2 parser if numberBase is pow of 2
 			return numberBase == 1U << Bits.Msb(numberBase)
-				? _pow2Parser.Parse(value, startIndex, endIndex, numberBase, digitsRes)
+				? _pow2Parser.Parse(value, startIndex, endIndex, numberBase, charToDigits, digitsRes)
 				: 0;
 		}
 	}

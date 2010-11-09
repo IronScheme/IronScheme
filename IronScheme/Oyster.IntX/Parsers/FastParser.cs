@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Oyster.Math
 {
@@ -34,11 +35,12 @@ namespace Oyster.Math
 		/// <param name="startIndex">Index inside string from which to start.</param>
 		/// <param name="endIndex">Index inside string on which to end.</param>
 		/// <param name="numberBase">Number base.</param>
+		/// <param name="charToDigits">Char->digit dictionary.</param>
 		/// <param name="digitsRes">Resulting digits.</param>
 		/// <returns>Parsed integer length.</returns>
-		override unsafe public uint Parse(string value, int startIndex, int endIndex, uint numberBase, uint[] digitsRes)
+		override unsafe public uint Parse(string value, int startIndex, int endIndex, uint numberBase, IDictionary<char, uint> charToDigits, uint[] digitsRes)
 		{
-			uint newLength = base.Parse(value, startIndex, endIndex, numberBase, digitsRes);
+			uint newLength = base.Parse(value, startIndex, endIndex, numberBase, charToDigits, digitsRes);
 
 			// Maybe base method already parsed this number
 			if (newLength != 0) return newLength;
@@ -47,7 +49,7 @@ namespace Oyster.Math
 			uint initialLength = (uint)digitsRes.LongLength;
 			if (initialLength < Constants.FastParseLengthLowerBound || initialLength > Constants.FastParseLengthUpperBound)
 			{
-				return _classicParser.Parse(value, startIndex, endIndex, numberBase, digitsRes);
+				return _classicParser.Parse(value, startIndex, endIndex, numberBase, charToDigits, digitsRes);
 			}
 
 			uint valueLength = (uint)(endIndex - startIndex + 1);
@@ -73,7 +75,7 @@ namespace Oyster.Math
 					for (; valuePtr < valueEndPtr; ++valuePtr, --valueDigitsPtr, --valueDigitsPtr2)
 					{
 						// Get digit itself - this call will throw an exception if char is invalid
-						*valueDigitsPtr = StrRepHelper.GetDigit(*valuePtr, numberBase);
+						*valueDigitsPtr = StrRepHelper.GetDigit(charToDigits, *valuePtr, numberBase);
 
 						// Set length of this digit (zero for zero)
 						*valueDigitsPtr2 = *valueDigitsPtr == 0U ? 0U : 1U;
