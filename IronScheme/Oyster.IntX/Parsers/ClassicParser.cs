@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Oyster.Math
 {
 	/// <summary>
@@ -22,11 +24,12 @@ namespace Oyster.Math
 		/// <param name="startIndex">Index inside string from which to start.</param>
 		/// <param name="endIndex">Index inside string on which to end.</param>
 		/// <param name="numberBase">Number base.</param>
+		/// <param name="charToDigits">Char->digit dictionary.</param>
 		/// <param name="digitsRes">Resulting digits.</param>
 		/// <returns>Parsed integer length.</returns>
-		override public uint Parse(string value, int startIndex, int endIndex, uint numberBase, uint[] digitsRes)
+		override public uint Parse(string value, int startIndex, int endIndex, uint numberBase, IDictionary<char, uint> charToDigits, uint[] digitsRes)
 		{
-			uint newLength = base.Parse(value, startIndex, endIndex, numberBase, digitsRes);
+			uint newLength = base.Parse(value, startIndex, endIndex, numberBase, charToDigits, digitsRes);
 
 			// Maybe base method already parsed this number
 			if (newLength != 0) return newLength;
@@ -36,7 +39,7 @@ namespace Oyster.Math
 			ulong digit;
 			for (int i = startIndex; i <= endIndex; ++i)
 			{
-				digit = StrRepHelper.GetDigit(value[i], numberBase);
+				digit = StrRepHelper.GetDigit(charToDigits, value[i], numberBase);
 
 				// Next multiply existing values by base and add this value to them
 				if (newLength == 0)

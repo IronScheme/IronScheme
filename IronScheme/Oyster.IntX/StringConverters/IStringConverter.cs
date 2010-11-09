@@ -10,9 +10,9 @@ namespace Oyster.Math
 		/// </summary>
 		/// <param name="intX">Big integer to convert.</param>
 		/// <param name="numberBase">Base of system in which to do output.</param>
-		/// <param name="upperCase">Use uppercase for bases from 11 to 16 (which use letters A-F).</param>
+		/// <param name="alphabet">Alphabet which contains chars used to represent big integer, char position is coresponding digit value.</param>
 		/// <returns>Object string representation.</returns>
-		string ToString(IntX intX, uint numberBase, bool upperCase);
+		string ToString(IntX intX, uint numberBase, char[] alphabet);
 		
 		/// <summary>
 		/// Converts digits from internal representaion into given base.

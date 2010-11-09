@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Oyster.Math
 {
 	/// <summary>
@@ -6,7 +8,7 @@ namespace Oyster.Math
 	sealed internal class Pow2Parser : IParser
 	{
 		// Not needed in this implementation
-		public IntX Parse(string value, uint numberBase, bool checkFormat)
+		public IntX Parse(string value, uint numberBase, IDictionary<char, uint> charToDigits, bool checkFormat)
 		{
 			return null;
 		}
@@ -18,9 +20,10 @@ namespace Oyster.Math
 		/// <param name="startIndex">Index inside string from which to start.</param>
 		/// <param name="endIndex">Index inside string on which to end.</param>
 		/// <param name="numberBase">Number base.</param>
+		/// <param name="charToDigits">Char->digit dictionary.</param>
 		/// <param name="digitsRes">Resulting digits.</param>
 		/// <returns>Parsed integer length.</returns>
-		public uint Parse(string value, int startIndex, int endIndex, uint numberBase, uint[] digitsRes)
+		public uint Parse(string value, int startIndex, int endIndex, uint numberBase, IDictionary<char, uint> charToDigits, uint[] digitsRes)
 		{
 			// Calculate length of input string
 			int bitsInChar = Bits.Msb(numberBase);
@@ -42,7 +45,7 @@ namespace Oyster.Math
 			uint digit;
 			for (int i = startIndex; i <= endIndex; ++i)
 			{
-				digit = StrRepHelper.GetDigit(value[i], numberBase);
+				digit = StrRepHelper.GetDigit(charToDigits, value[i], numberBase);
 
 				// Correct initial digit shift
 				if (initialShift == 0)

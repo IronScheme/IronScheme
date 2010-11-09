@@ -6,7 +6,7 @@ namespace Oyster.Math
 	sealed internal class Pow2StringConverter : IStringConverter
 	{
 		// Not needed in this implementation
-		public string ToString(IntX intX, uint numberBase, bool upperCase)
+		public string ToString(IntX intX, uint numberBase, char[] alphabet)
 		{
 			return null;
 		}

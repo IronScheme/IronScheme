@@ -42,7 +42,9 @@ namespace Oyster.Math
 	/// (c) Andriy Kozachuk a.k.a. Oyster [dev.oyster@gmail.com] 2005-2010
 	/// </summary>
   [Serializable]
-	sealed public class IntX : IComparable, IConvertible
+	sealed public class IntX : IConvertible,
+    IEquatable<IntX>, IEquatable<int>, IEquatable<uint>, IEquatable<long>, IEquatable<ulong>,
+		IComparable, IComparable<IntX>, IComparable<int>, IComparable<uint>, IComparable<long>, IComparable<ulong>
 	{
 #if DEBUG
 
@@ -823,6 +825,8 @@ namespace Oyster.Math
 
 		#region Conversion operators
 
+		#region To IntX (Implicit)
+
 		/// <summary>
 		/// Implicitly converts <see cref="Int32" /> to <see cref="IntX" />.
 		/// </summary>
@@ -876,92 +880,63 @@ namespace Oyster.Math
 			return new IntX(value);
 		}
 
+		#endregion To IntX (Implicit)
+
+		#region From IntX (Explicit)
+
+		/// <summary>
+		/// Explicitly converts <see cref="IntX" /> to <see cref="int" />.
+		/// </summary>
+		/// <param name="value">Value to convert.</param>
+		/// <returns>Conversion result.</returns>
     static public explicit operator int(IntX value)
     {
-      if (value._length > 1)
-      {
-        throw new InvalidCastException("Too big");
-      }
-      if (value._length == 0)
-      {
-        return 0;
-      }
-      if (value._negative)
-      {
-        return -(int)value._digits[0];
-      }
-      return (int)value._digits[0];
+			int res = (int)(uint)value;
+			return value._negative ? -res : res;
     }
 
+		/// <summary>
+		/// Explicitly converts <see cref="IntX" /> to <see cref="uint" />.
+		/// </summary>
+		/// <param name="value">Value to convert.</param>
+		/// <returns>Conversion result.</returns>
     [CLSCompliant(false)]
     static public explicit operator uint(IntX value)
     {
-      if (value._length > 1)
+			if (value == null)
       {
-        throw new InvalidCastException("Too big");
+				throw new ArgumentNullException("value");
       }
-      if (value._length == 0)
-      {
-        return 0;
-      }
-      if (value._negative)
-      {
-        throw new ArgumentOutOfRangeException("negative");
-      }
+
+			if (value._length == 0) return 0;
       return value._digits[0];
     }
 
+		/// <summary>
+		/// Explicitly converts <see cref="IntX" /> to <see cref="long" />.
+		/// </summary>
+		/// <param name="value">Value to convert.</param>
+		/// <returns>Conversion result.</returns>
     static public explicit operator long(IntX value)
     {
-      if (value._length > 2)
-      {
-        throw new InvalidCastException("Too big");
-      }
-      if (value._length == 0)
-      {
-        return 0;
-      }
-      if (value._length == 1)
-      {
-        if (value._negative)
-        {
-          return -value._digits[0];
-        }
-        return value._digits[0];
-      }
-      else
-      {
-        if (value._negative)
-        {
-          return -(value._digits[0] | (long)value._digits[1] << 32); 
-        }
-        return value._digits[0] | (long) value._digits[1] << 32;
-      }
+			long res = (long)(ulong)value;
+			return value._negative ? -res : res;
     }
 
+		/// <summary>
+		/// Explicitly converts <see cref="IntX" /> to <see cref="ulong" />.
+		/// </summary>
+		/// <param name="value">Value to convert.</param>
+		/// <returns>Conversion result.</returns>
     [CLSCompliant(false)]
     static public explicit operator ulong(IntX value)
     {
-      if (value._length > 2)
+      ulong res = (uint)value;
+      if (value._length > 1)
       {
-        throw new InvalidCastException("Too big");
+        res |= (ulong)value._digits[1] << Constants.DigitBitCount;
       }
-      if (value._length == 0)
-      {
-        return 0;
-      }
-      if (value._negative)
-      {
-        throw new ArgumentOutOfRangeException("negative");
-      }
-      if (value._length == 1)
-      {
-        return value._digits[0];
-      }
-      else
-      {
-        return value._digits[0] | (ulong) value._digits[1] << 32;
-      }
+      return res;
     }
 
 		#endregion Conversion operators
@@ -1192,6 +1167,8 @@ namespace Oyster.Math
 
     #endregion Operators
 
+    #endregion
+
     #region Math static methods
 
     #region Multiply
@@ -1307,7 +1284,7 @@ namespace Oyster.Math
 		/// <returns>Decimal number in string.</returns>
 		override public string ToString()
 		{
-			return StringConvertManager.GetStringConverter(Settings.ToStringMode).ToString(this, 10U, true);
+			return ToString(10U, true);
 		}
 
 		/// <summary>
@@ -1318,7 +1295,7 @@ namespace Oyster.Math
 		[CLSCompliant(false)]
 		public string ToString(uint numberBase)
 		{
-			return StringConvertManager.GetStringConverter(Settings.ToStringMode).ToString(this, numberBase, true);
+			return ToString(numberBase, true);
 		}
 
 		/// <summary>
@@ -1330,7 +1307,22 @@ namespace Oyster.Math
 		[CLSCompliant(false)]
 		public string ToString(uint numberBase, bool upperCase)
 		{
-			return StringConvertManager.GetStringConverter(Settings.ToStringMode).ToString(this, numberBase, upperCase);
+			return StringConvertManager.GetStringConverter(Settings.ToStringMode)
+				.ToString(this, numberBase, upperCase ? Constants.BaseUpperChars : Constants.BaseLowerChars);
+		}
+
+		/// <summary>
+		/// Returns string representation of this <see cref="IntX" /> object in given base using custom alphabet.
+		/// </summary>
+		/// <param name="numberBase">Base of system in which to do output.</param>
+		/// <param name="alphabet">Alphabet which contains chars used to represent big integer, char position is coresponding digit value.</param>
+		/// <returns>Object string representation.</returns>
+		[CLSCompliant(false)]
+		public string ToString(uint numberBase, string alphabet)
+		{
+			StrRepHelper.AssertAlphabet(alphabet, numberBase);
+			return StringConvertManager.GetStringConverter(Settings.ToStringMode)
+				.ToString(this, numberBase, alphabet.ToCharArray());
 		}
 
 		#endregion ToString override
@@ -1339,12 +1331,14 @@ namespace Oyster.Math
 
 		/// <summary>
 		/// Parses provided string representation of <see cref="IntX" /> object in decimal base.
+		/// If number starts from "0" then it's treated as octal; if number starts fropm "0x"
+		/// then it's treated as hexadecimal.
 		/// </summary>
 		/// <param name="value">Number as string.</param>
 		/// <returns>Parsed object.</returns>
 		static public IntX Parse(string value)
 		{
-			return ParseManager.GetCurrentParser().Parse(value, 10U, true);
+			return ParseManager.GetCurrentParser().Parse(value, 10U, Constants.BaseCharToDigits, true);
 		}
 
 		/// <summary>
@@ -1356,18 +1350,34 @@ namespace Oyster.Math
 		[CLSCompliant(false)]
 		static public IntX Parse(string value, uint numberBase)
 		{
-			return ParseManager.GetCurrentParser().Parse(value, numberBase, false);
+			return ParseManager.GetCurrentParser().Parse(value, numberBase, Constants.BaseCharToDigits, false);
+		}
+
+		/// <summary>
+		/// Parses provided string representation of <see cref="IntX" /> object using custom alphabet.
+		/// </summary>
+		/// <param name="value">Number as string.</param>
+		/// <param name="numberBase">Number base.</param>
+		/// <param name="alphabet">Alphabet which contains chars used to represent big integer, char position is coresponding digit value.</param>
+		/// <returns>Parsed object.</returns>
+		[CLSCompliant(false)]
+		static public IntX Parse(string value, uint numberBase, string alphabet)
+		{
+			return ParseManager.GetCurrentParser()
+				.Parse(value, numberBase, StrRepHelper.CharDictionaryFromAlphabet(alphabet, numberBase), false);
 		}
 
 		/// <summary>
 		/// Parses provided string representation of <see cref="IntX" /> object in decimal base.
+		/// If number starts from "0" then it's treated as octal; if number starts fropm "0x"
+		/// then it's treated as hexadecimal.
 		/// </summary>
 		/// <param name="value">Number as string.</param>
 		/// <param name="mode">Parse mode.</param>
 		/// <returns>Parsed object.</returns>
 		static public IntX Parse(string value, ParseMode mode)
 		{
-			return ParseManager.GetParser(mode).Parse(value, 10U, true);
+			return ParseManager.GetParser(mode).Parse(value, 10U, Constants.BaseCharToDigits, true);
 		}
 
 		/// <summary>
@@ -1380,23 +1390,89 @@ namespace Oyster.Math
 		[CLSCompliant(false)]
 		static public IntX Parse(string value, uint numberBase, ParseMode mode)
 		{
-			return ParseManager.GetParser(mode).Parse(value, numberBase, false);
+			return ParseManager.GetParser(mode).Parse(value, numberBase, Constants.BaseCharToDigits, false);
+		}
+
+		/// <summary>
+		/// Parses provided string representation of <see cref="IntX" /> object using custom alphabet.
+		/// </summary>
+		/// <param name="value">Number as string.</param>
+		/// <param name="numberBase">Number base.</param>
+		/// <param name="alphabet">Alphabet which contains chars used to represent big integer, char position is coresponding digit value.</param>
+		/// <param name="mode">Parse mode.</param>
+		/// <returns>Parsed object.</returns>
+		[CLSCompliant(false)]
+		static public IntX Parse(string value, uint numberBase, string alphabet, ParseMode mode)
+		{
+			return ParseManager.GetParser(mode)
+				.Parse(value, numberBase, StrRepHelper.CharDictionaryFromAlphabet(alphabet, numberBase), false);
 		}
 
 		#endregion Parsing methods
 
-		#region Equals/GetHashCode overrides
+		#region IEquatable/Equals/GetHashCode implementation/overrides
+
+		/// <summary>
+		/// Returns equality of this <see cref="IntX" /> with another big integer.
+		/// </summary>
+		/// <param name="n">Big integer to compare with.</param>
+		/// <returns>True if equals.</returns>
+		public bool Equals(IntX n)
+		{
+			return base.Equals(n) || this == n;
+		}
+
+		/// <summary>
+		/// Returns equality of this <see cref="IntX" /> with another integer.
+		/// </summary>
+		/// <param name="n">Integer to compare with.</param>
+		/// <returns>True if equals.</returns>
+		public bool Equals(int n)
+		{
+			return this == n;
+		}
+
+		/// <summary>
+		/// Returns equality of this <see cref="IntX" /> with another unsigned integer.
+		/// </summary>
+		/// <param name="n">Unsigned integer to compare with.</param>
+		/// <returns>True if equals.</returns>
+		[CLSCompliant(false)]
+		public bool Equals(uint n)
+		{
+			return this == n;
+		}
+
+		/// <summary>
+		/// Returns equality of this <see cref="IntX" /> with another long integer.
+		/// </summary>
+		/// <param name="n">Long integer to compare with.</param>
+		/// <returns>True if equals.</returns>
+		public bool Equals(long n)
+		{
+			return this == n;
+		}
+
+		/// <summary>
+		/// Returns equality of this <see cref="IntX" /> with another unsigned long integer.
+		/// </summary>
+		/// <param name="n">Unsigned long integer to compare with.</param>
+		/// <returns>True if equals.</returns>
+		[CLSCompliant(false)]
+		public bool Equals(ulong n)
+		{
+			return this == n;
+		}
+
 
 		/// <summary>
 		/// Returns equality of this <see cref="IntX" /> with another object.
 		/// </summary>
-		/// <param name="obj">Object to compare equality with.</param>
+		/// <param name="obj">Object to compare with.</param>
 		/// <returns>True if equals.</returns>
 		override public bool Equals(object obj)
 		{
-			if (base.Equals(obj)) return true;
-			IntX intX = obj as IntX;
-			return intX != null ? this == intX : false;
+			return obj is IntX && Equals((IntX)obj);
 		}
 
 		/// <summary>
@@ -1405,10 +1481,105 @@ namespace Oyster.Math
 		/// <returns>Object hash code.</returns>
 		override public int GetHashCode()
 		{
-			return _length == 0 ? 0 : (int)_digits[0];
+			switch (_length)
+			{
+				case 0:
+					return 0;
+				case 1:
+					return (int)(_digits[0] ^ _length ^ (_negative ? 1 : 0));
+				default:
+					return (int)(_digits[0] ^ _digits[_length - 1] ^ _length ^ (_negative ? 1 : 0));
+			}
 		}
 
-		#endregion Equals/GetHashCode overrides
+		#endregion Equals/GetHashCode implementation/overrides
+
+		#region IComparable implementation
+
+		/// <summary>
+		/// Compares current object with another big integer.
+		/// </summary>
+		/// <param name="n">Big integer to compare with.</param>
+		/// <returns>1 if object is bigger than <paramref name="n" />, -1 if object is smaller than <paramref name="n" />, 0 if they are equal.</returns>
+		public int CompareTo(IntX n)
+		{
+			return OpHelper.Cmp(this, n, true);
+		}
+
+		/// <summary>
+		/// Compares current object with another integer.
+		/// </summary>
+		/// <param name="n">Integer to compare with.</param>
+		/// <returns>1 if object is bigger than <paramref name="n" />, -1 if object is smaller than <paramref name="n" />, 0 if they are equal.</returns>
+		public int CompareTo(int n)
+		{
+			return OpHelper.Cmp(this, n);
+		}
+
+		/// <summary>
+		/// Compares current object with another unsigned integer.
+		/// </summary>
+		/// <param name="n">Unsigned integer to compare with.</param>
+		/// <returns>1 if object is bigger than <paramref name="n" />, -1 if object is smaller than <paramref name="n" />, 0 if they are equal.</returns>
+		[CLSCompliant(false)]
+		public int CompareTo(uint n)
+		{
+			return OpHelper.Cmp(this, n);
+		}
+
+		/// <summary>
+		/// Compares current object with another long integer.
+		/// </summary>
+		/// <param name="n">Long integer to compare with.</param>
+		/// <returns>1 if object is bigger than <paramref name="n" />, -1 if object is smaller than <paramref name="n" />, 0 if they are equal.</returns>
+		public int CompareTo(long n)
+		{
+			return OpHelper.Cmp(this, n, true);
+		}
+
+		/// <summary>
+		/// Compares current object with another unsigned long integer.
+		/// </summary>
+		/// <param name="n">Unsigned long integer to compare with.</param>
+		/// <returns>1 if object is bigger than <paramref name="n" />, -1 if object is smaller than <paramref name="n" />, 0 if they are equal.</returns>
+		[CLSCompliant(false)]
+		public int CompareTo(ulong n)
+		{
+			return OpHelper.Cmp(this, n, true);
+		}
+
+		/// <summary>
+		/// Compares current object with another object.
+		/// </summary>
+		/// <param name="obj">Object to compare with.</param>
+		/// <returns>1 if object is bigger than <paramref name="obj" />, -1 if object is smaller than <paramref name="obj" />, 0 if they are equal.</returns>
+		public int CompareTo(object obj)
+		{
+			if (obj is IntX)
+			{
+				return CompareTo((IntX)obj);
+			}
+			else if (obj is int)
+			{
+				return CompareTo((int)obj);
+			}
+			else if (obj is uint)
+			{
+				return CompareTo((uint)obj);
+			}
+			else if (obj is long)
+			{
+				return CompareTo((long)obj);
+			}
+			else if (obj is ulong)
+			{
+				return CompareTo((ulong)obj);
+			}
+
+			throw new ArgumentException(Strings.CantCmp, "obj");
+		}
+
+		#endregion IComparable implementation
 
 		#region Other public methods
 
@@ -1530,19 +1701,6 @@ namespace Oyster.Math
 
 		#endregion Other utilitary methods
 
-    #region IComparable Members
-
-    public int CompareTo(object obj)
-    {
-      var r = this - (IntX)obj;
-      if (r == 0)
-      {
-        return 0;
-      }
-      return r._negative ? -1 : 1;
-    }
-
-    #endregion
 
     public IntX Abs()
     {
