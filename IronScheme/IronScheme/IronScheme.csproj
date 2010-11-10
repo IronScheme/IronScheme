@@ -116,12 +116,6 @@
     <Compile Include="Runtime\Lists.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="Types\Boolean.cs" />
-    <None Include="Types\ByteVector.cs" />
-    <None Include="Types\Character.cs" />
-    <None Include="Types\Cons.cs" />
-    <None Include="Types\Object.cs" />
-    <None Include="Types\Number.cs" />
     <Compile Include="Runtime\Numbers.cs" />
     <Compile Include="Runtime\Ports.cs" />
     <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
@@ -135,13 +129,6 @@
     <Compile Include="Runtime\TraceClosure.cs" />
     <Compile Include="Runtime\Unsafe.cs" />
     <Compile Include="Runtime\Vectors.cs" />
-    <None Include="Types\Other.cs" />
-    <None Include="Types\Ports.cs" />
-    <None Include="Types\Procedure.cs" />
-    <None Include="Types\String.cs" />
-    <None Include="Types\Symbol.cs" />
-    <None Include="Types\Vector.cs" />
-    <None Include="Types\Void.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
@@ -162,7 +149,6 @@
     <None Include="Compiler\NumberParser.y" />
     <None Include="Compiler\IronScheme.lex" />
     <None Include="Compiler\IronScheme.y" />
-    <None Include="Types\Types.cd" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

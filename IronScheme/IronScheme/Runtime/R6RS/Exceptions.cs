@@ -28,21 +28,6 @@ namespace IronScheme.Runtime.R6RS
   public class Exceptions : Builtins
   {
 #if !CPS
-    //static Stack<Callable> handlerstack = new Stack<Callable>();
-    //static Callable defaulthandler;
-
-    //static Callable CurrentHandler
-    //{
-    //  get
-    //  {
-    //    if (handlerstack.Count > 0)
-    //    {
-    //      return handlerstack.Peek();
-    //    }
-    //    return null;
-    //  }
-    //}
-
     [Builtin("with-clr-exception-handler")]
     public static object WithClrExceptionHandler(object handler, object thunk)
     {
@@ -75,93 +60,7 @@ namespace IronScheme.Runtime.R6RS
       }
 
       return weh.Call(handler, thunk);
-
-      //Callable h = RequiresNotNull<Callable>(handler);
-      //Callable t = RequiresNotNull<Callable>(thunk);
-
-      //InitDefaultHandler();
-
-      //handlerstack.Push(h);
-
-      //try
-      //{
-      //  var result = t.Call();
-      //  return result;
-      //}
-      //catch (NonContinuation cc)
-      //{
-      //  if (contstack.Count > 0)
-      //  {
-      //    Continuation c = contstack.Peek();
-      //    c.Value = cc.Value;
-      //    throw c;
-      //  }
-      //  throw (Exception)cc.Value;
-      //}
-      //catch (Continuation cc)
-      //{
-      //  if (contstack.Count > 0)
-      //  {
-      //    Continuation c = contstack.Pop();
-      //    if (cc == c)
-      //    {
-      //      return c.Value;
-      //    }
-      //    else
-      //    {
-      //      throw;
-      //    }
-      //  }
-      //  throw;
-      //}
-
-      //catch (Condition)
-      //{
-      //  throw;
-      //}
-      //catch (Exception ex)
-      //{
-      //  try
-      //  {
-      //    return h.Call(ex);
-      //  }
-      //  catch (Continuation ccc)
-      //  {
-      //    if (contstack.Count > 0)
-      //    {
-      //      Continuation c = contstack.Pop();
-      //      if (ccc == c)
-      //      {
-      //        return c.Value;
-      //      }
-      //      else
-      //      {
-      //        throw;
-      //      }
-      //    }
-      //    throw;
-      //  }
-      //  finally { }
-      //}      
-      //finally
-      //{
-      //  handlerstack.Pop();
-      //}
     }
-
-
-    //static void InitDefaultHandler()
-    //{
-    //  if (defaulthandler == null)
-    //  {
-    //    SymbolId dh = SymbolTable.StringToId("default-exception-handler");
-    //    if (cc.Scope.ContainsName(dh))
-    //    {
-    //      defaulthandler = SymbolValue(dh) as Callable;
-    //      handlerstack.Push(defaulthandler);
-    //    }
-    //  }
-    //}
 
     public static object GetStackTrace()
     {
@@ -197,78 +96,10 @@ namespace IronScheme.Runtime.R6RS
       }
 
       return realraise.Call(obj);
-
-      //InitDefaultHandler();
-      //if (obj is CompoundCondition)
-      //{
-      //  var sf = new StackTrace(1, true);
-      //  Callable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as Callable;
-      //  var values = new ArrayList(((CompoundCondition)obj).conds);
-
-      //  foreach (var val in values)
-      //  {
-      //    if (val.GetType().Name.Contains("stacktrace"))
-      //    {
-      //      values.Remove(val);
-      //      break;
-      //    }
-      //  }
-
-      //  values.Add(st.Call(GetStackTrace(sf)));
-      //  ((CompoundCondition)obj).conds = values.ToArray();
-      //}
-
-      //Callable ch = CurrentHandler;
-      //object hmm = null;
-      //if (ch != null)
-      //{
-      //  try
-      //  {
-      //    handlerstack.Pop();
-      //    hmm = ch.Call(obj);
-      //    //Console.WriteLine(hmm);
-      //  }
-      //  finally
-      //  {
-      //    handlerstack.Push(ch);
-      //  }
-      //}
-
-      //if (handlerstack.Count == 0)
-      //{
-
-      //  if (!(obj is Exception))
-      //  {
-      //    obj = new NonCondition(obj);
-      //  }
-
-      //  Exception ex = RequiresNotNull<Exception>(obj);
-      //  throw ex;
-      //}
-      //else
-      //{
-      //  Callable e = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&non-continuable-rcd"))) as Callable;
-      //  Callable w = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&who-rcd"))) as Callable;
-      //  Callable m = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&message-rcd"))) as Callable;
-
-      //  var result = R6RS.Conditions.Condition(e.Call(), w.Call("raise"), m.Call("handler returned"));
-      //  throw (Exception) result ;
-      //}
     }
-
-    //class NonCondition : Condition
-    //{
-    //  public object value;
-
-    //  public NonCondition(object value)
-    //  {
-    //    this.value = value;
-    //  }
-    //}
 
     static Callable realraisec;
 
-    // erk??
     [Builtin("raise-continuable")]
     [Obsolete("Implemented in Scheme")]
     public static object RaiseContinueable(object obj)
@@ -279,51 +110,6 @@ namespace IronScheme.Runtime.R6RS
       }
 
       return realraisec.Call(obj);
-
-      //InitDefaultHandler();
-
-      //if (obj is CompoundCondition)
-      //{
-      //  var sf = new StackTrace(1, true);
-      //  Callable st = R6RS.Records.RecordConstructor(SymbolValue(SymbolTable.StringToObject("&stacktrace-rcd"))) as Callable;
-      //  var values = new ArrayList(((CompoundCondition)obj).conds);
-
-      //  foreach (var val in values)
-      //  {
-      //    if (val.GetType().Name.Contains("stacktrace"))
-      //    {
-      //      values.Remove(val);
-      //      break;
-      //    }
-      //  }
-
-      //  values.Add(st.Call(GetStackTrace(sf)));
-      //  ((CompoundCondition)obj).conds = values.ToArray();
-      //}
-
-
-      //Callable ch = CurrentHandler;
-      //if (ch != null)
-      //{
-      //  try
-      //  {
-      //    handlerstack.Pop();
-      //    var result = ch.Call(obj);
-      //    return result;
-      //  }
-      //  finally
-      //  {
-      //    handlerstack.Push(ch);
-      //  }
-      //}
-
-      //if (!(obj is Exception))
-      //{
-      //  obj = new NonCondition(obj);
-      //}
-
-      //Exception ex = RequiresNotNull<Exception>(obj);
-      //throw ex;
     }
 
 #endif
