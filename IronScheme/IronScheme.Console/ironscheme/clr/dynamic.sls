@@ -164,8 +164,8 @@
     
   (define (generate-clause p)
     (cond
-      #;[(type-enum? p)
-        'System.Object?]
+      [(type-enum? p)
+        'Microsoft.Scripting.SymbolId]
       [(type-assignable-from? (get-type "System.Delegate") p)
         'IronScheme.Runtime.Callable]
       [(type-array? p)
