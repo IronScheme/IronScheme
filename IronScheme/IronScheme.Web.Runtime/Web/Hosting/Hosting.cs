@@ -1,15 +1,17 @@
-﻿#region Using directives
+﻿#region License
+/* Copyright (c) 2007,2008,2009,2010 Llewellyn Pritchard 
+ * All rights reserved.
+ * This source code is subject to terms and conditions of the BSD License.
+ * See docs/license.txt. */
+#endregion
+
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using System.Net;
+using System.Threading;
 using System.Web;
 using System.Web.Hosting;
-using System.Threading;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.Remoting.Lifetime;
-#endregion
 
 namespace IronScheme.Web.Hosting
 {

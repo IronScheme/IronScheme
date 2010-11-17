@@ -1,13 +1,8 @@
-#| ****************************************************************************
- * Copyright (c) Llewellyn Pritchard. 2007,2008,2009
- *
- * This source code is subject to terms and conditions of the Microsoft Public License. 
- * A copy of the license can be found in the License.html file at the root of this distribution. 
- * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
- * Microsoft Public License.
- *
- * You must not remove this notice, or any other, from this software.
- * ***************************************************************************|#
+#| License
+Copyright (c) 2007,2008,2009,2010 Llewellyn Pritchard 
+All rights reserved.
+This source code is subject to terms and conditions of the BSD License.
+See docs/license.txt. |#
 
 (library (ironscheme strings)
   (export 

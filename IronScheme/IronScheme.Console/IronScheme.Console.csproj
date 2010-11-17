@@ -207,7 +207,7 @@
     <None Include="ironscheme\syntax-format.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\define-clr-class.sls">
+    <None Include="playground\define-clr-class.sls">
     </None>
     <None Include="ironscheme\define-macro.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -691,7 +691,7 @@
     <None Include="ironscheme\io.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\linq3.sls">
+    <None Include="playground\linq3.sls">
     </None>
     <None Include="ironscheme\library-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

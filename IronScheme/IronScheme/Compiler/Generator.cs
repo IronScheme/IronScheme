@@ -1,31 +1,19 @@
 #region License
-/* ****************************************************************************
- * Copyright (c) Llewellyn Pritchard. 
- *
- * This source code is subject to terms and conditions of the Microsoft Public License. 
- * A copy of the license can be found in the License.html file at the root of this distribution. 
- * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
- * Microsoft Public License.
- *
- * You must not remove this notice, or any other, from this software.
- * ***************************************************************************/
+/* Copyright (c) 2007,2008,2009,2010 Llewellyn Pritchard 
+ * All rights reserved.
+ * This source code is subject to terms and conditions of the BSD License.
+ * See docs/license.txt. */
 #endregion
-
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.Scripting.Ast;
-using IronScheme.Runtime;
-using Microsoft.Scripting;
-using IronScheme.Hosting;
-using Microsoft.Scripting.Actions;
-using System.Reflection;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Utils;
 using System.Diagnostics;
-using Microsoft.Scripting.Math;
+using System.Reflection;
+using IronScheme.Runtime;
 using IronScheme.Runtime.psyntax;
 using IronScheme.Runtime.Typed;
+using Microsoft.Scripting;
+using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
 
 namespace IronScheme.Compiler

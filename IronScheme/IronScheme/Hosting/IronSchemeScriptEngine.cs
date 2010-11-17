@@ -1,30 +1,19 @@
 #region License
-/* ****************************************************************************
- * Copyright (c) Llewellyn Pritchard. 
- *
- * This source code is subject to terms and conditions of the Microsoft Public License. 
- * A copy of the license can be found in the License.html file at the root of this distribution. 
- * By using this source code in any fashion, you are agreeing to be bound by the terms of the 
- * Microsoft Public License.
- *
- * You must not remove this notice, or any other, from this software.
- * ***************************************************************************/
+/* Copyright (c) 2007,2008,2009,2010 Llewellyn Pritchard 
+ * All rights reserved.
+ * This source code is subject to terms and conditions of the BSD License.
+ * See docs/license.txt. */
 #endregion
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.Scripting.Hosting;
+using System.Reflection;
+using System.Threading;
+using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
-using IronScheme.Actions;
-using System.Reflection;
-using System.Collections;
-using IronScheme.Runtime;
-using System.Diagnostics;
+using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Shell;
-using System.Threading;
-using System.IO;
 
 namespace IronScheme.Hosting
 {
