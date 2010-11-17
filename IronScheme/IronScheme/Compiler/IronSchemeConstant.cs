@@ -1,16 +1,18 @@
+#region License
+/* Copyright (c) 2007,2008,2009,2010 Llewellyn Pritchard 
+ * All rights reserved.
+ * This source code is subject to terms and conditions of the BSD License.
+ * See docs/license.txt. */
+#endregion
+
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Scripting.Generation;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Reflection.Emit;
-using System.IO;
-using Microsoft.Scripting.Ast;
-using IronScheme.Runtime;
 using System.Reflection;
-using Microsoft.Scripting.Math;
+using System.Reflection.Emit;
+using IronScheme.Runtime;
 using IronScheme.Runtime.R6RS;
 using Microsoft.Scripting;
+using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Generation;
 using BigInteger = Oyster.Math.IntX;
 
 namespace IronScheme.Compiler

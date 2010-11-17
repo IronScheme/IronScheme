@@ -1,3 +1,4 @@
+#region License
 // Fraction numbers
 // (C) 2004 Andreas Tönne, All right reserved
 // No GPL, no license fee!
@@ -9,6 +10,12 @@
 // - CompareTo: equality corrected (a case was missing)
 // - CompareTo: inqueality of very large fractions lead to OverflowExceptions
 // -			added 128bit comparison in these cases only
+
+/* Copyright (c) 2007,2008,2009,2010 Llewellyn Pritchard 
+ * All rights reserved.
+ * This source code is subject to terms and conditions of the BSD License.
+ * See docs/license.txt. */
+#endregion
 
 using System;
 using System.Globalization;
