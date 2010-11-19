@@ -186,7 +186,6 @@ namespace Microsoft.Scripting.Ast {
               {
                 if (ue.Operand is CodeBlockExpression)
                 {
-
                   CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
                   Debug.Assert(_arguments.Count == _parameterInfos.Length);
 
@@ -478,7 +477,8 @@ namespace Microsoft.Scripting.Ast {
           return true;
         }
 
-        static FieldInfo pt = typeof(MethodBuilder).GetField("m_parameterTypes", BindingFlags.NonPublic | BindingFlags.Instance);
+        static FieldInfo pt = typeof(MethodBuilder).GetField("m_parameterTypes", BindingFlags.NonPublic | BindingFlags.Instance) ??
+          typeof(MethodBuilder).GetField("parameters", BindingFlags.NonPublic | BindingFlags.Instance); // for mono
 
         bool IsParamsMethod()
         {

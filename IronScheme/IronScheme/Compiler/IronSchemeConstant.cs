@@ -183,6 +183,21 @@ namespace IronScheme.Compiler
         (rtd.type as TypeBuilder).CreateType();
 
         Builtins.SetSymbolValueFast(NameHint, rtd);
+
+        //Console.WriteLine("Emitting type: {0} ({1})", RecordName, NameHint);
+      }
+      else
+      {
+        //Console.WriteLine("================================================================");
+        //Console.WriteLine("Parent not bound: {0} of {1}", Parent, RecordName);
+
+        //foreach (var s in BaseHelper.cc.Scope.ModuleScope.Keys)
+        //{
+        //  Console.WriteLine(s);
+        //}
+
+        throw new Exception(string.Format("Parent not bound: {0} of {1}", Parent, RecordName));
+
       }
     }
 
