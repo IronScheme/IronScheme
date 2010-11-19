@@ -15,6 +15,7 @@ using IronScheme.Runtime.R6RS;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -150,17 +151,22 @@ namespace IronScheme.Runtime
           {
             return null;
           }
-
+          
           var rname = ((ConstantExpression)name).Value;
-
           var ruid = ((ConstantExpression)uid).Value;
           var rsealed = ((ConstantExpression)issealed).Value;
           var ropaque = ((ConstantExpression)isopaque).Value;
 
-          var ff = ((NewArrayExpression)fields).Expressions;
-          var dfields = new Expression[ff.Count];
-          ff.CopyTo(dfields, 0);
-          var rfields = Array.ConvertAll(dfields, x => ((ConstantExpression)x).Value);
+          object[] rfields = { };
+
+          if (fields is NewArrayExpression)
+          {
+            var ff = ((NewArrayExpression)fields).Expressions;
+            var dfields = new Expression[ff.Count];
+            ff.CopyTo(dfields, 0);
+
+            rfields = Array.ConvertAll(dfields, x => ((ConstantExpression)x).Value);
+          }
 
           if (!Builtins.IsTrue(ruid))
           {
@@ -191,6 +197,7 @@ namespace IronScheme.Runtime
         }
         catch
         {
+          throw;
           //kaboom, redirect to runtime
         }
       }
