@@ -132,7 +132,7 @@ namespace IronScheme.Runtime
     [InlineEmitter("make-record-type-descriptor")]
     public static Expression MakeRecordTypeDescriptor(Expression[] obj)
     {
-      if (obj.Length == 6)
+      if (obj.Length == 6 && IronScheme.Compiler.Generator.VarHint != SymbolId.Empty)
       {
         try
         {
