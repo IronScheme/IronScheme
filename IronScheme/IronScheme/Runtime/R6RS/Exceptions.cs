@@ -41,12 +41,19 @@ namespace IronScheme.Runtime.R6RS
     [Obsolete("Implemented in Scheme")]
     public static object WithExceptionHandler(object handler, object thunk)
     {
-      if (weh == null)
+      if (IsR6RSLoaded())
       {
-        weh = SymbolValue(SymbolTable.StringToObject("with-exception-handler")) as Callable;
-      }
+        if (weh == null)
+        {
+          weh = SymbolValue(SymbolTable.StringToObject("with-exception-handler")) as Callable;
+        }
 
-      return weh.Call(handler, thunk);
+        return weh.Call(handler, thunk);
+      }
+      else
+      {
+        throw new Exception("R6RS not loaded when calling 'with-exception-handler'");
+      }
     }
 
     public static object GetStackTrace()
@@ -77,12 +84,19 @@ namespace IronScheme.Runtime.R6RS
     [Obsolete("Implemented in Scheme")]
     public static object Raise(object obj)
     {
-      if (realraise == null)
+      if (IsR6RSLoaded())
       {
-        realraise = SymbolValue(SymbolTable.StringToObject("raise")) as Callable;
-      }
+        if (realraise == null)
+        {
+          realraise = SymbolValue(SymbolTable.StringToObject("raise")) as Callable;
+        }
 
-      return realraise.Call(obj);
+        return realraise.Call(obj);
+      }
+      else
+      {
+        throw new Exception("R6RS not loaded when calling 'raise'");
+      }
     }
 
     static Callable realraisec;
@@ -91,12 +105,19 @@ namespace IronScheme.Runtime.R6RS
     [Obsolete("Implemented in Scheme")]
     public static object RaiseContinueable(object obj)
     {
-      if (realraisec == null)
+      if (IsR6RSLoaded())
       {
-        realraisec = SymbolValue(SymbolTable.StringToObject("raise-continuable")) as Callable;
-      }
+        if (realraisec == null)
+        {
+          realraisec = SymbolValue(SymbolTable.StringToObject("raise-continuable")) as Callable;
+        }
 
-      return realraisec.Call(obj);
+        return realraisec.Call(obj);
+      }
+      else
+      {
+        throw new Exception("R6RS not loaded when calling 'raise-continuable'");
+      }
     }
 
 #endif
