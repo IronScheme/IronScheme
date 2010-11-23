@@ -300,7 +300,7 @@ namespace IronScheme.Runtime
 
     protected static bool IsR6RSLoaded()
     {
-      return r6rsloaded || (r6rsloaded = Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("&assertion-rcd")));
+      return r6rsloaded || (r6rsloaded = Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("r6rs-loaded")));
     }
 
     [Obsolete("Remove when possible")]

@@ -399,5 +399,7 @@
       '(rnrs arithmetic bitwise)))
   
   (interaction-environment (new-interaction-environment))
+  
+  (set-symbol-value! 'r6rs-loaded #t)
   )
 
