@@ -110,11 +110,13 @@ namespace IronScheme.Runtime
       internal StackTrace Stack { get; set; }
     }
 
+    static bool IsMono = Type.GetType("Mono.Runtime", false) != null;
+
     static CallTargetN MakeContinuation(Continuation cc)
     {
       CallTargetN ct = delegate(object[] value)
       {
-        if (!CheckStack(cc))
+        if (!CheckStack(cc)) 
         {
           return AssertionViolation("call/cc", "not supported, continuation called outside dynamic extent");
         }
@@ -148,8 +150,23 @@ namespace IronScheme.Runtime
       var c1 = cc.Stack.GetFrames();
       var f1 = st.GetFrames();
 
-      Array.Reverse(c1);
-      Array.Reverse(f1);
+      if (IsMono)
+      {
+        // mono: for some reason the one stack is reversed... but not all the time... FFFFFUUUUUU!! 8/
+        if (c1[0].GetMethod().Name != "Main")
+        {
+          Array.Reverse(c1);
+        }
+        if (f1[0].GetMethod().Name != "Main")
+        {
+          Array.Reverse(f1);
+        }
+      }
+      else
+      {
+        Array.Reverse(c1);
+        Array.Reverse(f1);
+      }
 
       for (int i = 0; i < c1.Length; i++)
       {
