@@ -344,7 +344,7 @@ namespace Oyster.Math
 				// Do copy with real shift in the needed direction
 				if (toLeft)
 				{
-					DigitOpHelper.Shr(intX._digits, 0, intX._length, newInt._digits, fullDigits + 1, Constants.DigitBitCount - smallShift);
+					DigitOpHelper.Shr(intX._digits, 0, intX._length, newInt._digits, fullDigits + 1, Constants.DigitBitCount - smallShift, false);
 				}
 				else
 				{
@@ -354,7 +354,7 @@ namespace Oyster.Math
 						newLength++;
 					}
 
-					DigitOpHelper.Shr(intX._digits, fullDigits, newLength, newInt._digits, 0, smallShift);
+					DigitOpHelper.Shr(intX._digits, fullDigits, newLength, newInt._digits, 0, smallShift, fullDigits + newLength > intX._length);
 				}
 			}
 

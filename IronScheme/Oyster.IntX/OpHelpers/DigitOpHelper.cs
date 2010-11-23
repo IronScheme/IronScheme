@@ -293,13 +293,20 @@ namespace Oyster.Math
 			uint length,
 			uint[] digitsRes,
 			uint resOffset,
-			int rightShift)
+			int rightShift,
+      bool zerolast)
 		{
 			fixed (uint* digitsPtr = digits, digitsResPtr = digitsRes)
 			{
-				Shr(digitsPtr + offset, length, digitsResPtr + resOffset, rightShift, resOffset != 0);
+				Shr(digitsPtr + offset, length, digitsResPtr + resOffset, rightShift, resOffset != 0, zerolast);
 			}
 		}
+
+    unsafe static public uint Shr(uint* digitsPtr, uint length, uint* digitsResPtr, int rightShift, bool resHasOffset)
+    {
+      return Shr(digitsPtr, length, digitsResPtr, rightShift, resHasOffset, false);
+    }
+
 
 		/// <summary>
 		/// Shifts big integer.
@@ -310,7 +317,7 @@ namespace Oyster.Math
 		/// <param name="rightShift">Shift to the right (always between 1 an 31).</param>
 		/// <param name="resHasOffset">True if <paramref name="digitsResPtr" /> has offset.</param>
 		/// <returns>Resulting big integer length.</returns>
-		unsafe static public uint Shr(uint* digitsPtr, uint length, uint* digitsResPtr, int rightShift, bool resHasOffset)
+		unsafe static public uint Shr(uint* digitsPtr, uint length, uint* digitsResPtr, int rightShift, bool resHasOffset, bool zerolast)
 		{
       int rightShiftRev = (Constants.DigitBitCount - rightShift);
 
@@ -335,7 +342,7 @@ namespace Oyster.Math
         uint* digitsPtrNext = digitsPtr + 1;
         for (; digitsPtr < digitsPtrEndPrev; ++digitsPtr, ++digitsPtrNext, ++digitsResPtr)
         {
-          *digitsResPtr = *digitsPtr >> rightShift | *digitsPtrNext << rightShiftRev;
+          *digitsResPtr = *digitsPtr >> rightShift | ((zerolast && digitsPtrNext == digitsPtrEndPrev) ? 0 : *digitsPtrNext << rightShiftRev);
         }
 
         // Shift last digit in special way
