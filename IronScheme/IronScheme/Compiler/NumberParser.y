@@ -77,7 +77,7 @@ static object Fraction(object num, object den)
   }
   catch (DivideByZeroException)
   {
-    return Builtins.AssertionViolation("ParseFraction", "divide by zero", num, den);
+    throw;
   }
 }
 
