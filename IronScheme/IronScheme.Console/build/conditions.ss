@@ -320,7 +320,8 @@ See docs/license.txt. |#
                   (parent super)
                   (fields (immutable field* aux-accessor*) ...)
                   (nongenerative)
-                  (sealed #f) (opaque #f))
+                  (sealed #f) 
+                  (opaque #f))
                (define predicate (condition-predicate (record-type-descriptor name)))
                (define accessor* (condition-accessor (record-type-descriptor name) aux-accessor*)) 
                ...

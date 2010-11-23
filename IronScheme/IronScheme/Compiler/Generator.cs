@@ -464,10 +464,6 @@ namespace IronScheme.Compiler
 #if CPS
             Expression result = ie(GetAstList((c.cdr as Cons).cdr as Cons, cb));
 #else
-            //if (ie.Method.Name == "MakeRecordTypeDescriptor")
-            //{
-            //  Console.Write(c.PrettyPrint);
-            //}
             Expression result = ie(GetAstList(c.cdr as Cons, cb));
 #endif
             // if null is returned, the method cannot be inlined

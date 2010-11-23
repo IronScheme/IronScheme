@@ -2210,7 +2210,8 @@
                                      `(immutable ,field ,aux))
                                    field* aux-accessor*))
                     (nongenerative)
-                    (sealed #f) (opaque #f))
+                    (sealed #f) 
+                    (opaque #f))
                  (define ,predicate (condition-predicate
                                       (record-type-descriptor ,name)))
                  ,@(map 
