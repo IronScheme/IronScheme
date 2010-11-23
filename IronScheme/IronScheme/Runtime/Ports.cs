@@ -342,7 +342,7 @@ namespace IronScheme.Runtime
         }
         catch (SyntaxErrorException ex)
         {
-          return LexicalError(ex.Message, ex.SourceUnit.ToString());
+          return LexicalError(ex.Message, (ex.SourceUnit ?? (object)"(standard-input-port)").ToString());
         }
       }
     }
