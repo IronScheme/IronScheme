@@ -64,14 +64,19 @@ namespace IronScheme.Runtime.R6RS
 
       for (int i = 0; i < sfs.Length; i++)
       {
-        if (sfs[i].StartsWith(@"   at Microsoft.Scripting.Hosting.ScriptEngine.ExecuteCommand(String code, IScriptModule module)"))
+        if (sfs[i].StartsWith(@"   at Microsoft.Scripting.Hosting.ScriptEngine.ExecuteCommand(String code, IScriptModule module)") ||
+          sfs[i].StartsWith("   at Microsoft.Scripting.Hosting.ScriptEngine.ExecuteCommand(System.String code, IScriptModule module)"))
         {
           break;
         }
         newst.Add(sfs[i].
           Replace("   at #.", string.Empty).
           Replace("   at ", string.Empty).
+          Replace("Microsoft.Scripting.CodeContext $context, ", string.Empty).
+          Replace("Microsoft.Scripting.CodeContext $context", string.Empty).
           Replace("CodeContext $context, ", string.Empty).
+          Replace("CodeContext $context", string.Empty).
+          Replace("System.Object ", string.Empty).
           Replace("Object ", string.Empty));
       }
 
