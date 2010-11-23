@@ -312,7 +312,7 @@ namespace Oyster.Math
 		/// <returns>Resulting big integer length.</returns>
 		unsafe static public uint Shr(uint* digitsPtr, uint length, uint* digitsResPtr, int rightShift, bool resHasOffset)
 		{
-			int rightShiftRev = Constants.DigitBitCount - rightShift;
+      int rightShiftRev = (Constants.DigitBitCount - rightShift);
 
 			// Shift first digit in special way
 			if (resHasOffset)
@@ -320,35 +320,35 @@ namespace Oyster.Math
 				digitsResPtr[-1] = digitsPtr[0] << rightShiftRev;
 			}
 
-			if (rightShift == 0)
-			{
-				// Handle special situation here - only memcpy is needed (maybe)
-				if (digitsPtr != digitsResPtr)
-				{
-					DigitHelper.DigitsBlockCopy(digitsPtr, digitsResPtr, length);
-				}
-			}
-			else
-			{
-			// Shift all digits except last one
-			uint* digitsPtrEndPrev = digitsPtr + length - 1;
-			uint* digitsPtrNext = digitsPtr + 1;
-			for (; digitsPtr < digitsPtrEndPrev; ++digitsPtr, ++digitsPtrNext, ++digitsResPtr)
-			{
-				*digitsResPtr = *digitsPtr >> rightShift | *digitsPtrNext << rightShiftRev;
-			}
+      if (rightShift == 0)
+      {
+        // Handle special situation here - only memcpy is needed (maybe)
+        if (digitsPtr != digitsResPtr)
+        {
+          DigitHelper.DigitsBlockCopy(digitsPtr, digitsResPtr, length);
+        }
+      }
+      else
+      {
+        // Shift all digits except last one
+        uint* digitsPtrEndPrev = digitsPtr + length - 2;
+        uint* digitsPtrNext = digitsPtr + 1;
+        for (; digitsPtr < digitsPtrEndPrev; ++digitsPtr, ++digitsPtrNext, ++digitsResPtr)
+        {
+          *digitsResPtr = *digitsPtr >> rightShift | *digitsPtrNext << rightShiftRev;
+        }
 
-			// Shift last digit in special way
-			uint lastValue = *digitsPtr >> rightShift;
-			if (lastValue != 0)
-			{
-				*digitsResPtr = lastValue;
-			}
-				else
-				{
-					--length;
-				}
-			}
+        // Shift last digit in special way
+        uint lastValue = *digitsPtr >> rightShift;
+        if (lastValue != 0)
+        {
+          *digitsResPtr = lastValue;
+        }
+        else
+        {
+          --length;
+        }
+      }
 
 			return length;
 		}

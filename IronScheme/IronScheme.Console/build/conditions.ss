@@ -6,14 +6,12 @@ See docs/license.txt. |#
 
 (library (ironscheme conditions)
   (export
-    
     &condition
     condition
     simple-conditions
     condition?
     condition-predicate
     condition-accessor
-    
   
     &message
     make-message-condition
@@ -164,10 +162,7 @@ See docs/license.txt. |#
     &no-nans-rtd &no-nans-rcd 
     
     &where-rtd &where-rcd
-    &stacktrace-rtd &stacktrace-rcd
-    
-    
-    )
+    &stacktrace-rtd &stacktrace-rcd)
   (import 
     (except (rnrs)
       &condition
@@ -288,8 +283,7 @@ See docs/license.txt. |#
       
       &no-nans
       make-no-nans-violation
-      no-nans-violation?         
-      ))
+      no-nans-violation?))
   
   (define-record-type &condition (nongenerative))
   
@@ -425,6 +419,4 @@ See docs/license.txt. |#
     make-no-infinities-violation no-infinities-violation?)
   
   (define-condition-type &no-nans &implementation-restriction
-    make-no-nans-violation no-nans-violation?)     
-
-)
+    make-no-nans-violation no-nans-violation?))
