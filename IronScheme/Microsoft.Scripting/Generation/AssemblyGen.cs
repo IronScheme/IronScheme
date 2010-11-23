@@ -90,6 +90,8 @@ namespace Microsoft.Scripting.Generation {
                 _outDir = outDir;
             }
 
+          // SymbolWriter fails on Mono for some reason
+
             if (SaveAndReloadAssemblies) {
                 asmname.Name = Path.GetFileNameWithoutExtension(moduleName);
 #pragma warning disable 0618

@@ -138,7 +138,7 @@ namespace IronScheme.Compiler
                 }
                 else
                 {
-                  newbody.Add(stmt);
+                  newbody.Add(nstmt);
                 }
               }
             }

@@ -167,11 +167,6 @@ namespace IronScheme.Runtime
 
             rfields = Array.ConvertAll(dfields, x => ((ConstantExpression)x).Value);
           }
-          //else
-          //{
-          //  Console.WriteLine(((ConstantExpression) fields).Value);
-
-          //}
 
           if (!Builtins.IsTrue(ruid))
           {
@@ -463,7 +458,7 @@ namespace IronScheme.Runtime.R6RS
         ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
         ScriptDomainManager.CurrentManager.Snippets.Assembly;
 
-      var rtd = GenerateRecordTypeDescriptor(ag, name, parent, uid, issealed, isopaque, fields ?? new object[0]); // mono hack...
+      var rtd = GenerateRecordTypeDescriptor(ag, name, parent, uid, issealed, isopaque, fields); 
       rtd.Finish();
       return rtd;
     }

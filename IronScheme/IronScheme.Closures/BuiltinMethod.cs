@@ -150,7 +150,7 @@ namespace IronScheme.Runtime
     {
       if (args == null)
       {
-        args = new object[0];
+        throw new ArgumentNullException("args cannot be null");
       }
 
       int nargs = args.Length;
@@ -185,8 +185,8 @@ namespace IronScheme.Runtime
 
             bool needContext = NeedContext(mb);
 
-
-            Type dt = nargs > 8 ? typeof(CallTargetN) : CallTargets.GetTargetType(needContext, nargs, false);
+            Type dt = (nargs > 8 || IsParams(mb)) ? // for mono
+              typeof(CallTargetN) : CallTargets.GetTargetType(needContext, nargs, false);
             Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
             if (d == null)
             {
@@ -228,6 +228,19 @@ namespace IronScheme.Runtime
       {
         return Closure.AssertionViolation(meth.ToString(), ex.Message, args);
       }
+    }
+
+    bool IsParams(MethodBase mb)
+    {
+      foreach (var pi in mb.GetParameters())
+      {
+        if (pi.IsDefined(typeof(ParamArrayAttribute), false))
+        {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     static bool NeedContext(MethodBase mb)
