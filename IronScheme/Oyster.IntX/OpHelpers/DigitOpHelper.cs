@@ -331,7 +331,7 @@ namespace Oyster.Math
       else
       {
         // Shift all digits except last one
-        uint* digitsPtrEndPrev = digitsPtr + length - 2;
+        uint* digitsPtrEndPrev = digitsPtr + length - 1;
         uint* digitsPtrNext = digitsPtr + 1;
         for (; digitsPtr < digitsPtrEndPrev; ++digitsPtr, ++digitsPtrNext, ++digitsResPtr)
         {
