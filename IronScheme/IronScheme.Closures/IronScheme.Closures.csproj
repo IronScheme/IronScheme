@@ -69,6 +69,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="IronScheme.Glue.il">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -80,7 +85,7 @@
   <PropertyGroup>
     <PostBuildEvent>"$(FrameworkSDKDir)Bin\ildasm" /out:"$(TargetName).il" /NOBAR /LINENUM "$(TargetPath)"
 "$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(TargetName).il"
-"$(FrameworkDir)\ilasm" /dll /opt  /NOLOGO /QUIET "$(TargetName).il"
-"$(FrameworkSDKDir)Bin\peverify" /NOLOGO "$(TargetPath)"</PostBuildEvent>
+"$(FrameworkDir)\ilasm" /dll /opt  /NOLOGO /QUIET /out:$(TargetName).dll "$(TargetName).il" "IronScheme.Glue.il"
+rem "$(FrameworkSDKDir)Bin\peverify" /NOLOGO "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
