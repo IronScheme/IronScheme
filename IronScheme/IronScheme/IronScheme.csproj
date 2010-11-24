@@ -39,7 +39,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;BIGFRACTION;OPTIMIZATIONS</DefineConstants>
+    <DefineConstants>TRACE;BIGFRACTION;OPTIMIZATIONS;nUSE_GLUE</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>1591</NoWarn>
@@ -151,6 +151,10 @@
     <None Include="Compiler\IronScheme.y" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="IronScheme.Glue, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\IronScheme.Glue\IronScheme.Glue\bin\Release\IronScheme.Glue.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
