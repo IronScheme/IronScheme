@@ -616,7 +616,7 @@ namespace IronScheme.Runtime
     #region Other Obsolete
 
  
-  
+#if !USE_GLUE
     //[Builtin("inexact")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
     internal static object Inexact(object obj)
@@ -670,6 +670,8 @@ namespace IronScheme.Runtime
       }
       return obj;
     }
+
+#endif
 
  
     #endregion

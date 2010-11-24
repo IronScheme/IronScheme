@@ -49,7 +49,7 @@ namespace IronScheme.Runtime
       }
       return SymbolTable.StringToObject(name.Substring(0, i));
     }
-
+#if !USE_GLUE
     [Obsolete("Remove when possible")]
     internal static object IODecodingError()
     {
@@ -295,6 +295,7 @@ namespace IronScheme.Runtime
         throw new IOException(filename as string);
       }
     }
+#endif
 
     static bool r6rsloaded = false;
 
@@ -303,6 +304,7 @@ namespace IronScheme.Runtime
       return r6rsloaded || (r6rsloaded = Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("r6rs-loaded")));
     }
 
+#if !USE_GLUE
     [Obsolete("Remove when possible")]
     internal static object AssertionViolation(object who, object message, object irritant1)
     {
@@ -362,7 +364,7 @@ namespace IronScheme.Runtime
       }
     }
 
-
+#endif
 
     static readonly int TICKS = (int)((DateTime.Now.Ticks >> 16) & 0x7FFFFFFF);
 

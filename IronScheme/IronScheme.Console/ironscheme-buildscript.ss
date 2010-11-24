@@ -1181,7 +1181,7 @@
 		;;;
     (void                                       $boot i)
     (gensym                                     $boot i)
-    (ungensym                                   i)
+    (ungensym                                   $boot i)
     (symbol-bound?                              i)
     (symbol-value                               $boot i)
     (set-symbol-value!                          $boot i)
