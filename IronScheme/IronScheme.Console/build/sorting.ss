@@ -13,6 +13,7 @@ See docs/license.txt. |#
   (import 
     (except (rnrs) list-sort vector-sort vector-sort!)
     (ironscheme contracts)
+    ;(ironscheme unsafe)
     (ironscheme clr))
   
   (define (split ls)
