@@ -609,7 +609,7 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-#warning Remove when Mono fixed
+#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655934
     string ReadToEndInternal()
     {
       // taken temporarily from MS
@@ -645,7 +645,7 @@ namespace IronScheme.Runtime.R6RS
       return base.Read(buffer, index, count);
     }
 
-#warning Remove when Mono fixed
+#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655934
     string ReadLineInternal()
     {
       StringBuilder builder = new StringBuilder();

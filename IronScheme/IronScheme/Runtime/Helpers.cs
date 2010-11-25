@@ -335,10 +335,24 @@ namespace IronScheme.Runtime
 
     internal static BinaryFormatter bf = new BinaryFormatter();
 
+#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655741
+    static MethodInfo LookupCallable(Callable c, Type[] args)
+    {
+      if (Builtins.IsMono)
+      {
+        var nargs = Array.ConvertAll(args, x => typeof(object));
+        return c.GetType().GetMethod("Call", nargs);
+      }
+      else
+      {
+        return Compiler.Generator.GetCallable(args.Length);
+      }
+    }
+
     static Delegate MakeTypedCallable(Type returntype, Type[] argtypes, Callable c)
     {
       int arity = argtypes.Length;
-      var d = Delegate.CreateDelegate(CallTargets[arity], c, Compiler.Generator.GetCallable(arity));
+      var d = Delegate.CreateDelegate(CallTargets[arity], c, LookupCallable(c, argtypes));
       var meth = typeof(Typed.Utils).GetMethod("MakeTyped", new Type[] { CallTargets[arity] });
       var targs = new Type[arity + 1];
       int i = 0;
@@ -357,7 +371,7 @@ namespace IronScheme.Runtime
     static Delegate MakeVoidTypedCallable(Type[] argtypes, Callable c)
     {
       int arity = argtypes.Length;
-      var d = Delegate.CreateDelegate(CallTargets[arity], c, Compiler.Generator.GetCallable(arity));
+      var d = Delegate.CreateDelegate(CallTargets[arity], c, LookupCallable(c, argtypes));
       var meth = typeof(Typed.Utils).GetMethod("MakeVoidTyped", new Type[] { CallTargets[arity] });
 
       var gm = meth.MakeGenericMethod(argtypes);
