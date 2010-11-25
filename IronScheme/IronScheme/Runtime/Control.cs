@@ -110,7 +110,7 @@ namespace IronScheme.Runtime
       internal StackTrace Stack { get; set; }
     }
 
-    static bool IsMono = Type.GetType("Mono.Runtime", false) != null;
+    internal static readonly bool IsMono = Type.GetType("Mono.Runtime", false) != null;
 
     static CallTargetN MakeContinuation(Continuation cc)
     {

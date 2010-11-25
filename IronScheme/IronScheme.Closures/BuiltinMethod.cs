@@ -185,6 +185,7 @@ namespace IronScheme.Runtime
 
             bool needContext = NeedContext(mb);
 
+#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655439
             Type dt = (nargs > 8 || IsParams(mb)) ? // for mono
               typeof(CallTargetN) : CallTargets.GetTargetType(needContext, nargs, false);
             Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
