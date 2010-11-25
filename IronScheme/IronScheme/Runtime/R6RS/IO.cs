@@ -609,9 +609,23 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
+#warning Remove when Mono fixed
+    string ReadToEndInternal()
+    {
+      // taken temporarily from MS
+      int num;
+      char[] buffer = new char[0x1000];
+      StringBuilder builder = new StringBuilder(0x1000);
+      while ((num = this.Read(buffer, 0, buffer.Length)) != 0)
+      {
+        builder.Append(buffer, 0, num);
+      }
+      return builder.ToString();
+    }
+
     public override string ReadToEnd()
     {
-      string value = base.ReadToEnd();
+      string value = ReadToEndInternal();
       if (tc.eolstyle != IO.eol_none)
       {
         value = IO.eoltx.Replace(value, delegate(Match m)
@@ -631,9 +645,37 @@ namespace IronScheme.Runtime.R6RS
       return base.Read(buffer, index, count);
     }
 
+#warning Remove when Mono fixed
+    string ReadLineInternal()
+    {
+      StringBuilder builder = new StringBuilder();
+      while (true)
+      {
+        int num = this.Read();
+        switch (num)
+        {
+          case -1:
+            if (builder.Length > 0)
+            {
+              return builder.ToString();
+            }
+            return null;
+
+          case 13:
+          case 10:
+            if ((num == 13) && (this.Peek() == 10))
+            {
+              this.Read();
+            }
+            return builder.ToString();
+        }
+        builder.Append((char)num);
+      }
+    }
+    
     public override string ReadLine()
     {
-      string value = base.ReadLine();
+      string value = ReadLineInternal();
       if (tc.eolstyle != IO.eol_none)
       {
         value = IO.eoltx.Replace(value, delegate(Match m)
