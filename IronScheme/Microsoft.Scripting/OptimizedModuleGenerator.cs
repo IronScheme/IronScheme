@@ -281,6 +281,72 @@ namespace Microsoft.Scripting.Generation {
             }
 
             TypeGen tg = GenerateModuleGlobalsType(ag);
+
+            if (scriptCode.LibraryGlobals != null)
+            {
+              foreach (var kvp in scriptCode.LibraryGlobals)
+              {
+                var k = kvp.Key;
+                var v = kvp.Value;
+
+                var cg = v.Block.CreateGlobalMethodStub(tg);
+
+                if (cg != null)
+                {
+                  CodeGen._codeBlockStubs[v.Block] = cg;
+                  CodeGen._codeBlockLookup[k] = cg;
+                }
+              }
+            }
+
+            if (scriptCode.LibraryGlobalsX != null)
+            {
+              foreach (var kvp in scriptCode.LibraryGlobalsX)
+              {
+                var k = kvp.Key;
+                var v = kvp.Value;
+
+                var cg = v.Block.CreateGlobalMethodStub(tg);
+
+                if (cg != null)
+                {
+                  CodeGen._codeBlockStubsX[v.Block] = cg;
+                  CodeGen._codeBlockLookupX[k] = cg;
+                }
+              }
+            }
+
+            if (scriptCode.LibraryGlobalsN != null)
+            {
+              foreach (var kvp in scriptCode.LibraryGlobalsN)
+              {
+                var k = kvp.Key;
+                var v = kvp.Value;
+
+                var cgd = new List<CodeGenDescriptor>();
+
+                foreach (var i in v)
+                {
+                  var cg = i.codeblock.Block.CreateGlobalMethodStub(tg);
+
+                  if (cg != null)
+                  {
+                    CodeGen._codeBlockStubsN[i.codeblock.Block] = cg;
+
+                    cgd.Add(new CodeGenDescriptor
+                    {
+                      arity = i.arity,
+                      varargs = i.varargs,
+                      cg = cg,
+                    });
+                  }
+                }
+
+                CodeGen._codeBlockLookupN[k] = cgd.ToArray();
+
+              }
+            }
+
             StaticFieldSlotFactory factory = new StaticFieldSlotFactory(tg);
 
             _languages[scriptCode.LanguageContext] = new LanguageInfo(factory, tg);
@@ -299,6 +365,16 @@ namespace Microsoft.Scripting.Generation {
             Dictionary<SymbolId, Slot> fields = gfa.SlotFactory.Fields;
 
             BuildDictionary(li, fields);
+
+            //// emit methods without bodies
+            //foreach (var kvp in CodeGen._codeBlockStubs)
+            //{
+            //}
+
+            //foreach (var kvp in CodeGen._codeBlockStubsX)
+            //{
+            //}
+
 
             Type t = li.TypeGen.FinishType();
             li.TypeGen.AssemblyGen.DumpAndLoad();

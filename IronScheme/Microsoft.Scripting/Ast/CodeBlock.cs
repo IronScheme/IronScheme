@@ -1135,6 +1135,30 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
           {
             return _name;
           }
+        }        
+
+        internal CodeGen CreateGlobalMethodStub(TypeGen tg)
+        {
+          List<Type> paramTypes = new List<Type>();
+          List<SymbolId> paramNames = new List<SymbolId>();
+          string implName;
+
+          int lastParamIndex = ComputeSignature(false, false, out paramTypes, out paramNames, out implName);
+
+          if (paramTypes.Count <= 8)
+          {
+            var cg = tg.DefineMethod(implName, _returnType, paramTypes, SymbolTable.IdsToStrings(paramNames), null);
+
+            if (_parameterArray)
+            {
+              cg.ParamsSlot = cg.GetArgumentSlot(lastParamIndex);
+            }
+            return cg;
+          }
+          else
+          {
+            return null;
+          }
         }
 
         /// <summary>
@@ -1142,16 +1166,32 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
         /// </summary>
         /// <returns></returns>
         internal CodeGen CreateMethod(CodeGen outer, bool hasContextParameter, bool hasThis) {
+          CodeGen impl;
+
+          if (!CodeGen._codeBlockStubs.TryGetValue(this, out impl) && 
+              !CodeGen._codeBlockStubsX.TryGetValue(this, out impl) &&
+              !CodeGen._codeBlockStubsN.TryGetValue(this, out impl))
+          {
             List<Type> paramTypes = new List<Type>();
             List<SymbolId> paramNames = new List<SymbolId>();
-            CodeGen impl;
+
             string implName;
-            
+
             int lastParamIndex = ComputeSignature(hasContextParameter, hasThis, out paramTypes, out paramNames, out implName);
 
             // create the new method & setup its locals
             impl = outer.DefineMethod(implName, _returnType,
                 paramTypes, SymbolTable.IdsToStrings(paramNames), GetStaticDataForBody(outer));
+
+            if (_parameterArray)
+            {
+              impl.ParamsSlot = impl.GetArgumentSlot(lastParamIndex);
+            }
+          }
+          else
+          {
+            //Console.WriteLine("Already created: {0}", Name);
+          }
 
             //impl.EmitSequencePointNone();
 
@@ -1172,10 +1212,6 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
               }
             }
             
-            if (_parameterArray) {
-                impl.ParamsSlot = impl.GetArgumentSlot(lastParamIndex);
-            }
-
             impl.Allocator = CompilerHelpers.CreateLocalStorageAllocator(outer, impl);
 
             return impl;
@@ -1460,6 +1496,13 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
           }
           HasEnvironment = false;
         }
+    }
+
+    public class CodeBlockDescriptor
+    {
+      public int arity;
+      public CodeBlockExpression codeblock;
+      public bool varargs;
     }
 
     public static partial class Ast {

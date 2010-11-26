@@ -133,6 +133,7 @@ namespace IronScheme.Compiler
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
       Closure.Cons = Builtins.Cons;
+      MethodCallExpression.MakeList = MakeList;
 
       AddBuiltins(Context, typeof(Builtins));
       AddInlineEmitters(typeof(BuiltinEmitters));
@@ -370,13 +371,6 @@ namespace IronScheme.Compiler
       {
         return Ast.SimpleCallHelper(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, typed));
       }
-    }
-
-    protected internal class CodeBlockDescriptor
-    {
-      public int arity;
-      public CodeBlockExpression codeblock;
-      public bool varargs;
     }
 
     protected internal static void FillBody(CodeBlock cb, List<Statement> stmts, Cons body, bool allowtailcall)

@@ -238,7 +238,14 @@ namespace Microsoft.Scripting.Ast {
 
                   EmitLocation(cg);
 
-                  cbe.EmitDirect(cg, tailcall);
+                  if (CodeGen._codeBlockStubs.TryGetValue(cbe.Block, out rcg))
+                  {
+                    cg.EmitCall(rcg.MethodInfo, tailcall);
+                  }
+                  else
+                  {
+                    cbe.EmitDirect(cg, tailcall);
+                  }
                   return;
                 }
                 else
@@ -411,6 +418,8 @@ namespace Microsoft.Scripting.Ast {
           }
 
           BoundExpression.Emitter fixup = null;
+          bool varargs = false;
+          var pttt = Array.ConvertAll(_parameterInfos, x => x.ParameterType);
 
           if (ii is BoundExpression)
           {
@@ -420,11 +429,56 @@ namespace Microsoft.Scripting.Ast {
             //{
             //  Debugger.Break();
             //}
-
-            if (BoundExpression.Fixups.ContainsKey(be.Variable.Name))
+            CodeGen rcg;
+            CodeGenDescriptor[] cgd;
+            if (CodeGen._codeBlockLookup.TryGetValue(be.Variable.Name, out rcg))
             {
-              fixup = BoundExpression.Fixups[be.Variable.Name];
+              _method = rcg.MethodInfo;
+              pttt = pt.GetValue(_method) as Type[];
             }
+            else
+              if (CodeGen._codeBlockLookupX.TryGetValue(be.Variable.Name, out rcg))
+              {
+                var lpppt = pt.GetValue(rcg.MethodInfo) as Type[];
+                if (lpppt.Length - 1 > _arguments.Count)
+                {
+                }
+                else if (AllArgsAreObject(_arguments))
+                {
+                  _method = rcg.MethodInfo;
+                  pttt = lpppt;
+                  varargs = true;
+                }
+              }
+              else if (CodeGen._codeBlockLookupN.TryGetValue(be.Variable.Name, out cgd))
+              {
+                if (AllArgsAreObject(_arguments))
+                {
+                  foreach (var i in cgd)
+                  {
+                    if (i.arity == _arguments.Count)
+                    {
+                      _method = i.cg.MethodInfo;
+                      pttt = pt.GetValue(_method) as Type[];
+                      break;
+                    }
+                    else if (i.varargs || i.arity < 0)
+                    {
+                      var kk = (-i.arity - 1) <= _arguments.Count;
+                      Console.WriteLine(kk);
+                      _method = i.cg.MethodInfo;
+                      pttt = pt.GetValue(_method) as Type[];
+                      varargs = true;
+                      break;
+                    }
+                  }
+                }
+              }
+              else
+                if (BoundExpression.Fixups.ContainsKey(be.Variable.Name))
+                {
+                  fixup = BoundExpression.Fixups[be.Variable.Name];
+                }
           }
             // Emit instance, if calling an instance method
             if (!_method.IsStatic) {
@@ -444,12 +498,36 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
 
-            // Emit arguments
-            Debug.Assert(_arguments.Count == _parameterInfos.Length);
-            for (int arg = 0; arg < _parameterInfos.Length; arg++) {
+            if (varargs)
+            {
+              int arg = 0;
+              for (; arg < pttt.Length - 1; arg++)
+              {
                 Expression argument = _arguments[arg];
-                Type type = _parameterInfos[arg].ParameterType;
+                Type type = pttt[arg];
                 EmitArgument(cg, argument, type);
+              }
+              // make tail
+              var tailargs = new List<Expression>();
+              for (; arg < _arguments.Count; arg++)
+              {
+                tailargs.Add(_arguments[arg]);
+              }
+              var tailarr = tailargs.ToArray();
+              var tail = Ast.ComplexCallHelper(MakeList(tailarr, true), tailarr);
+              EmitArgument(cg, tail, typeof(object));
+            }
+            else
+            {
+
+              // Emit arguments
+              Trace.Assert(_arguments.Count == pttt.Length);
+              for (int arg = 0; arg < pttt.Length; arg++)
+              {
+                Expression argument = _arguments[arg];
+                Type type = pttt[arg];
+                EmitArgument(cg, argument, type);
+              }
             }
 
             EmitLocation(cg);
@@ -464,6 +542,23 @@ namespace Microsoft.Scripting.Ast {
               fixup(cg, tailcall);
             }
         }
+
+      // TODO: Make better, get rid on double conversion of possible
+        static bool AllArgsAreObject(ReadOnlyCollection<Expression> _arguments)
+        {
+          foreach (var i in _arguments)
+          {
+            if (i.Type == typeof(object[]))
+            {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        public delegate MethodInfo MakeListHandler(Expression[] args, bool proper);
+
+        public static MakeListHandler MakeList;
 
         private bool HasNoCallableArgs()
         {

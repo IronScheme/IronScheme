@@ -46,6 +46,11 @@ namespace Microsoft.Scripting {
         private CallTargetWithContext0 _optimizedTarget;
         private Scope _optimizedScope;
 
+        public Dictionary<SymbolId, CodeBlockExpression> LibraryGlobals { get; set; }
+        public Dictionary<SymbolId, CodeBlockDescriptor[]> LibraryGlobalsN { get; set; }
+        public Dictionary<SymbolId, CodeBlockExpression> LibraryGlobalsX { get; set; }
+        public Dictionary<CodeBlockExpression, CodeBlockDescriptor> DescriptorHacks { get; set; }
+
         internal ScriptCode(CodeBlock code, LanguageContext languageContext, CompilerContext compilerContext) {
             Assert.NotNull(code, languageContext, compilerContext);
             
