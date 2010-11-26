@@ -420,6 +420,12 @@ namespace IronScheme.Runtime
       cb.Name = "ironscheme.boot.new";
 
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb);
+
+      sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
+      sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
+      sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
+      sc.DescriptorHacks = Compiler.SimpleGenerator.descriptorshack;
+
       sc.SourceUnit.IsVisibleToDebugger = true;
 
       ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule("ironscheme.boot.new", sc);

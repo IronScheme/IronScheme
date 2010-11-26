@@ -38,6 +38,13 @@ namespace Microsoft.Scripting.Generation {
 
     public delegate void EmitArrayHelper(int index);
 
+    class CodeGenDescriptor
+    {
+      public bool varargs;
+      public int arity;
+      public CodeGen cg;
+    }
+
     /// <summary>
     /// CodeGen is a helper class to make code generation a simple task.  Rather than interacting
     /// at the IL level CodeGen raises the abstraction level to enable emitting of values, expressions,
@@ -58,6 +65,13 @@ namespace Microsoft.Scripting.Generation {
         private IList<Label> _yieldLabels;
         private Nullable<ReturnBlock> _returnBlock;
         internal static Dictionary<CodeBlock, CodeGen> _codeBlockImplementations = new Dictionary<CodeBlock,CodeGen>();
+        internal static Dictionary<CodeBlock, CodeGen> _codeBlockStubs = new Dictionary<CodeBlock, CodeGen>();
+        internal static Dictionary<SymbolId, CodeGen> _codeBlockLookup = new Dictionary<SymbolId, CodeGen>();
+        internal static Dictionary<CodeBlock, CodeGen> _codeBlockStubsX = new Dictionary<CodeBlock, CodeGen>();
+        internal static Dictionary<SymbolId, CodeGen> _codeBlockLookupX = new Dictionary<SymbolId, CodeGen>();
+        internal static Dictionary<CodeBlock, CodeGen> _codeBlockStubsN = new Dictionary<CodeBlock, CodeGen>();
+        internal static Dictionary<SymbolId, CodeGenDescriptor[]> _codeBlockLookupN = new Dictionary<SymbolId, CodeGenDescriptor[]>();
+
 
         // Key slots
         private EnvironmentSlot _environmentSlot;   // reference to function's own environment
@@ -2147,6 +2161,19 @@ namespace Microsoft.Scripting.Generation {
           return null;
         }
 
+        internal CodeGen ProvideAbstractCodeBlock(CodeBlock block, bool hasContextParameter, bool hasThis)
+        {
+          Assert.NotNull(block);
+          CodeGen impl = null;
+
+          if (!hasContextParameter)
+          {
+            impl = block.CreateMethod(this, hasContextParameter, hasThis);
+          }
+
+          return impl;
+        }
+
         /// <summary>
         /// Returns the CodeGen implementing the code block.
         /// Emits the code block implementation if it hasn't been emitted yet.
@@ -2192,6 +2219,19 @@ namespace Microsoft.Scripting.Generation {
               }
 
               _codeBlockImplementations.Add(block, impl);
+
+              if (_codeBlockStubs.ContainsKey(block))
+              {
+                _codeBlockStubs.Remove(block);
+              }
+              else if (_codeBlockStubsX.ContainsKey(block))
+              {
+                _codeBlockStubsX.Remove(block);
+              }
+              else if (_codeBlockStubsN.ContainsKey(block))
+              {
+                _codeBlockStubsN.Remove(block);
+              }
 
               block.EmitFunctionImplementation(impl);
               impl.Finish();

@@ -217,7 +217,7 @@
     
   (define (->bytes n)
     (let ((bv (make-bytevector 4)))
-      (bytevector-u32-native-set! bv 0 4 n)
+      (bytevector-u32-native-set! bv 0 n)
       bv))
       
   (define (load-port-r6rs-top-level port close-port? how args)
