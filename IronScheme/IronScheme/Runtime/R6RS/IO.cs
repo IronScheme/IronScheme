@@ -613,15 +613,15 @@ namespace IronScheme.Runtime.R6RS
 #warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655934
     string ReadToEndInternal()
     {
-      // taken temporarily from MS
-      int num;
-      char[] buffer = new char[0x1000];
-      StringBuilder builder = new StringBuilder(0x1000);
-      while ((num = this.Read(buffer, 0, buffer.Length)) != 0)
+      int c;
+      var buffer = new List<char>(4096);
+      
+      while ((c = Read()) >= 0)
       {
-        builder.Append(buffer, 0, num);
+        buffer.Add((char)c);
       }
-      return builder.ToString();
+
+      return new string(buffer.ToArray());
     }
 
     public override string ReadToEnd()
@@ -639,11 +639,6 @@ namespace IronScheme.Runtime.R6RS
         value = value.Replace("\r", "");
       }
       return value;
-    }
-
-    public override int Read(char[] buffer, int index, int count)
-    {
-      return base.Read(buffer, index, count);
     }
 
 #warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655934
