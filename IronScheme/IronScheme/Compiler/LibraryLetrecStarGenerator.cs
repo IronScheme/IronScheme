@@ -320,18 +320,18 @@ namespace IronScheme.Compiler
       // pass 3, remove library locals
       for (int i = 0; i < vars.Count; i++)
       {
-        if (libraryglobals.ContainsKey(locals[i].Name))
-        {
-          libraryglobals.Remove(locals[i].Name);
-        }
-        if (libraryglobalsX.ContainsKey(locals[i].Name))
-        {
-          libraryglobalsX.Remove(locals[i].Name);
-        }
-        if (libraryglobalsN.ContainsKey(locals[i].Name))
-        {
-          libraryglobalsN.Remove(locals[i].Name);
-        }
+        //if (libraryglobals.ContainsKey(locals[i].Name))
+        //{
+        //  libraryglobals.Remove(locals[i].Name);
+        //}
+        //if (libraryglobalsX.ContainsKey(locals[i].Name))
+        //{
+        //  libraryglobalsX.Remove(locals[i].Name);
+        //}
+        //if (libraryglobalsN.ContainsKey(locals[i].Name))
+        //{
+        //  libraryglobalsN.Remove(locals[i].Name);
+        //}
       }
 
       Cons body = Builtins.Cdr(args) as Cons;

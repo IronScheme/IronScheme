@@ -51,6 +51,22 @@ namespace Microsoft.Scripting {
         public Dictionary<SymbolId, CodeBlockExpression> LibraryGlobalsX { get; set; }
         public Dictionary<CodeBlockExpression, CodeBlockDescriptor> DescriptorHacks { get; set; }
 
+        public void ClearCache()
+        {
+          LibraryGlobals = null;
+          LibraryGlobalsN = null;
+          LibraryGlobalsX = null;
+          DescriptorHacks = null;
+
+          CodeGen._codeBlockImplementations.Clear();
+          CodeGen._codeBlockLookup.Clear();
+          CodeGen._codeBlockLookupN.Clear();
+          CodeGen._codeBlockLookupX.Clear();
+          CodeGen._codeBlockStubs.Clear();
+          CodeGen._codeBlockStubsN.Clear();
+          CodeGen._codeBlockStubsX.Clear();
+        }
+
         internal ScriptCode(CodeBlock code, LanguageContext languageContext, CompilerContext compilerContext) {
             Assert.NotNull(code, languageContext, compilerContext);
             

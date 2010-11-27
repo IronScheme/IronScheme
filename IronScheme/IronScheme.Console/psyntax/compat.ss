@@ -42,16 +42,16 @@
     (clr-call String (Replace String String) s b a))
           
   (define (relative-filename filename)
-    (replace
-      (string-append "."
-                    (replace 
-                      (replace 
-                        filename 
-                        (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory) 
-                        "")
-                      "\\"
-                      "/"))
-      "./" ""))
+    (let ((rf (replace 
+                filename 
+                (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
+                "")))
+       (replace        
+         (string-append 
+            "."
+            (replace rf "\\" "/"))
+         "./"
+         "")))
 
  (define (library-version-mismatch-warning name depname filename)
     (fprintf (current-error-port)

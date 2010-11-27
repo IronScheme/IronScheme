@@ -424,13 +424,14 @@ namespace IronScheme.Runtime
       sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
       sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
       sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
-      sc.DescriptorHacks = Compiler.SimpleGenerator.descriptorshack;
 
       sc.SourceUnit.IsVisibleToDebugger = true;
 
       ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule("ironscheme.boot.new", sc);
 
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+
+      sc.ClearCache();
       Compiler.SimpleGenerator.ClearGlobals();
 
       return TRUE;
@@ -504,6 +505,10 @@ namespace IronScheme.Runtime
 #endif
       try
       {
+        sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
+        sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
+        sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
+
         ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
         sc = sm.GetScripts()[0];
       }
@@ -516,6 +521,11 @@ namespace IronScheme.Runtime
         };
 
         return Closure.Create(cc, err);
+      }
+      finally
+      {
+        sc.ClearCache();
+        Compiler.SimpleGenerator.ClearGlobals();
       }
 #if DEBUG
       sw.Stop();

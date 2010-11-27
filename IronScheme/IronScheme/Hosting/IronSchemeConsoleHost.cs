@@ -19,7 +19,7 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © leppie 2007,2008,2009,2010 {1}",
+      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © 2007,2008,2009,2010 leppie {1}",
           VERSION,
 #if DEBUG
 #if CPS

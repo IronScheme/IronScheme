@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Scripting;
+using System.Collections.Generic;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -648,29 +649,39 @@ namespace IronScheme.Runtime.R6RS
 #warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655934
     string ReadLineInternal()
     {
-      StringBuilder builder = new StringBuilder();
-      while (true)
+      int c;
+      var res = new List<char>(256);
+      
+      while ((c = Read()) >= 0)
       {
-        int num = this.Read();
-        switch (num)
+        var chr = (char)c;
+        // only deal with non-Unicode specific line-endings
+        if (chr == '\r')
         {
-          case -1:
-            if (builder.Length > 0)
-            {
-              return builder.ToString();
-            }
-            return null;
-
-          case 13:
-          case 10:
-            if ((num == 13) && (this.Peek() == 10))
-            {
-              this.Read();
-            }
-            return builder.ToString();
+          if (Peek() == '\n')
+          {
+            // swallow for \r\n
+            Read();
+          }
+          break;
         }
-        builder.Append((char)num);
+        else if (chr == '\n')
+        {
+          break;
+        }
+        else
+        {
+          res.Add(chr);
+        }
       }
+
+      // if nothing read, do not return empty string
+      // null implies EOF
+      if (res.Count == 0)
+      {
+        return null;
+      }
+      return new string(res.ToArray());
     }
     
     public override string ReadLine()
