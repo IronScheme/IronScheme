@@ -1135,10 +1135,17 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
           {
             return _name;
           }
-        }        
+        }
+
+        CodeGen _stub;
 
         internal CodeGen CreateGlobalMethodStub(TypeGen tg)
         {
+          if (_stub != null)
+          {
+            return _stub;
+          }
+
           List<Type> paramTypes = new List<Type>();
           List<SymbolId> paramNames = new List<SymbolId>();
           string implName;
@@ -1153,7 +1160,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             {
               cg.ParamsSlot = cg.GetArgumentSlot(lastParamIndex);
             }
-            return cg;
+            return _stub = cg;
           }
           else
           {
