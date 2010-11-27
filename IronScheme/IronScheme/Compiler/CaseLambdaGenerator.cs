@@ -58,8 +58,6 @@ namespace IronScheme.Compiler
       SpanHint = SourceSpan.None;
       return base.Generate(a.cdr, c);
     }
-
-
   }
 
   [Generator("case-lambda")]
