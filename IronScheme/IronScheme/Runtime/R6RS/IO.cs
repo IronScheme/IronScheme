@@ -614,14 +614,18 @@ namespace IronScheme.Runtime.R6RS
     string ReadToEndInternal()
     {
       int c;
-      var buffer = new List<char>(4096);
+      var res = new List<char>();
+      var buffer = new char[4096];
       
-      while ((c = Read()) >= 0)
+      while ((c = Read(buffer, 0, buffer.Length)) > 0)
       {
-        buffer.Add((char)c);
+        for (int i = 0; i < c; i++)
+        {
+          res.Add(buffer[i]);
+        }
       }
 
-      return new string(buffer.ToArray());
+      return new string(res.ToArray());
     }
 
     public override string ReadToEnd()

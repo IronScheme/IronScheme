@@ -30,7 +30,7 @@ namespace Microsoft.Scripting.Ast {
         private MethodInfo _method;
         private Expression _instance;
         private readonly List<Expression> _arguments;
-        private readonly ParameterInfo[] _parameterInfos;
+        private ParameterInfo[] _parameterInfos;
 
 
 #if FULL
@@ -56,14 +56,20 @@ namespace Microsoft.Scripting.Ast {
           set { _instance = value; }
         }
 
-        public ReadOnlyCollection<Expression> Arguments {
-            get { return new ReadOnlyCollection<Expression>(_arguments); }
+        public List<Expression> Arguments {
+            get { return _arguments; }
         }
 
         public override Type Type {
             get {
                 return _method.ReturnType;
             }
+        }
+
+        public ParameterInfo[] ParameterInfos
+        {
+          get { return _parameterInfos; }
+          set { _parameterInfos = value; }
         }
 
 

@@ -483,7 +483,7 @@ namespace IronScheme.Runtime
 
       // if you ever want to inspect the emitted dll's comment this out, use with care
       ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
-      //ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       int c = ++evalcounter;
       
