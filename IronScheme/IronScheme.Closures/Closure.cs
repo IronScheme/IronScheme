@@ -185,6 +185,11 @@ namespace IronScheme.Runtime
       get { return None; }
     }
 
+    public virtual MethodInfo[] VarargTargets
+    {
+      get { return None; }
+    }
+    
     protected Closure() : this(null, -1)
     {
     }
@@ -614,6 +619,11 @@ namespace IronScheme.Runtime
         get { return (double)( pcount - 1); }
       }
 
+      public override MethodInfo[] VarargTargets
+      {
+        get { return IsValid(target.Method) ? new MethodInfo[] { target.Method } : None; }
+      }
+
       public override object Form
       {
         get
@@ -681,6 +691,19 @@ namespace IronScheme.Runtime
             mis.AddRange(c.Targets);
           }
           return mis.ToArray(); 
+        }
+      }
+
+      public override MethodInfo[] VarargTargets
+      {
+        get
+        {
+          List<MethodInfo> mis = new List<MethodInfo>();
+          foreach (Closure c in targets)
+          {
+            mis.AddRange(c.VarargTargets);
+          }
+          return mis.ToArray();
         }
       }
 

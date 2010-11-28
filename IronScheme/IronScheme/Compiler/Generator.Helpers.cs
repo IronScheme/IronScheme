@@ -299,7 +299,7 @@ namespace IronScheme.Compiler
     readonly static object list = SymbolTable.StringToObject("list-prim");
     readonly static object liststar = SymbolTable.StringToObject("list*");
 
-    protected static MethodInfo MakeList(Expression[] args, bool proper)
+    protected internal static MethodInfo MakeList(Expression[] args, bool proper)
     {
       Type[] types = Array.ConvertAll<Expression, Type>(args,
         delegate(Expression e) { return e.Type.IsArray ? e.Type.GetElementType() : e.Type; });
