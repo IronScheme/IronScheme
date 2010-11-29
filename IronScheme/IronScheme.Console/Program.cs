@@ -62,6 +62,8 @@ namespace IronScheme.Runtime
         //Encoding oi = Console.InputEncoding;
         Encoding oo = Console.OutputEncoding;
 
+        //Debugger.Launch();
+
         try
         {
           //Console.InputEncoding = Encoding.UTF8;

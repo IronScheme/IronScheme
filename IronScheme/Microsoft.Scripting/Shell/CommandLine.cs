@@ -121,11 +121,11 @@ namespace Microsoft.Scripting.Shell {
           try
           {
             var f = System.Console.KeyAvailable;
-            return true;
+            return false;
           }
           catch
           {
-            return false;
+            return true;
           }
         }
 

@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Scripting;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime.R6RS
 {
@@ -649,7 +650,7 @@ namespace IronScheme.Runtime.R6RS
     string ReadLineInternal()
     {
       int c;
-      var res = new List<char>(256);
+      var res = new List<char>();
       
       while ((c = Read()) >= 0)
       {
@@ -662,28 +663,24 @@ namespace IronScheme.Runtime.R6RS
             // swallow for \r\n
             Read();
           }
-          break;
+          return new string(res.ToArray());
         }
         else if (chr == '\n')
         {
-          break;
+          return new string(res.ToArray());
         }
-        else
-        {
-          res.Add(chr);
-        }
+
+        res.Add(chr);
       }
 
-      // if nothing read, do not return empty string
       // null implies EOF
-      if (res.Count == 0)
-      {
-        return null;
-      }
-      return new string(res.ToArray());
+      Debug.Assert (res.Count == 0);
+      return null;
     }
     
-    public override string ReadLine()
+    public
+
+ override string ReadLine()
     {
       string value = ReadLineInternal();
       if (tc.eolstyle != IO.eol_none)
