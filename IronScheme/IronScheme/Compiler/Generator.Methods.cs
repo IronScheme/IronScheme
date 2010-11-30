@@ -29,7 +29,8 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo Closure_MakeCase = typeof(Closure).GetMethod("CreateCase");
     protected static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("CreateVarArgX");
 
-    protected static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
+    protected internal static readonly MethodInfo Builtins_IsTrue = typeof(Builtins).GetMethod("IsTrue");
+    protected internal static readonly MethodInfo BooleanToObject = typeof(RuntimeHelpers).GetMethod("BooleanToObject");
     protected static readonly MethodInfo Builtins_Display = typeof(Builtins).GetMethod("Display", new Type[] { typeof(object) });
 
     protected static readonly MethodInfo ICallable_Call0 = typeof(Callable).GetMethod("Call", new Type[] { });

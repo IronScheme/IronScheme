@@ -191,8 +191,8 @@ See docs/license.txt. |#
       [($fx<? k 0)
         ($fxarithmetic-shift-right x ($fx- k))]
       [else
-        (let ((i ($fxarithmetic-shift-left x k)))
-          (when ($fx>? (fxabs x) (fxabs i))
+        (let ((i (fxarithmetic-shift-left-internal x k)))
+          (unless i
             (overflow-error 'fxarithmetic-shift x k))
           i)]))
 

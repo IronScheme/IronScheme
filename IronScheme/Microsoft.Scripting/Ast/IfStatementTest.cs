@@ -21,7 +21,7 @@ namespace Microsoft.Scripting.Ast {
         private readonly SourceLocation _header;
         private readonly SourceLocation _end;
 
-        private readonly Expression /*!*/ _test;
+        private Expression /*!*/ _test;
         private Statement /*!*/ _body;
 
         internal IfStatementTest(SourceSpan span, SourceLocation header, Expression /*!*/ test, Statement /*!*/ body)
@@ -53,6 +53,7 @@ namespace Microsoft.Scripting.Ast {
 
         public Expression Test {
             get { return _test; }
+          set { _test = value; }
         }
 
         public Statement Body {

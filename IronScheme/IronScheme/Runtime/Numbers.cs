@@ -192,6 +192,17 @@ namespace IronScheme.Runtime
       return RuntimeHelpers.Int32ToObject((int)r);
     }
 
+    [Builtin("fxarithmetic-shift-left-internal", AllowConstantFold = true)]
+    public static object FxShiftLeftInternal(object a, object b)
+    {
+      long r = (long)(int)a << (int)b;
+      if (r > int.MaxValue || r < int.MinValue)
+      {
+        return FALSE;
+      }
+      return RuntimeHelpers.Int32ToObject((int)r);
+    }
+
 
     enum NumberClass
     {
