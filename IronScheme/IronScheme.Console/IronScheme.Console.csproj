@@ -79,6 +79,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
+      <Project>{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}</Project>
+      <Name>IronScheme.Closures</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IronScheme.Remoting.Client\IronScheme.Remoting.Client.csproj">
       <Project>{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9}</Project>
       <Name>IronScheme.Remoting.Client</Name>
@@ -606,6 +610,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.XML" />

@@ -284,54 +284,57 @@ namespace Microsoft.Scripting.Ast {
           {
             var be = ii as BoundExpression;
 
-            CodeGen rcg;
-            CodeGenDescriptor[] cgd;
-            if (CodeGen._codeBlockLookup.TryGetValue(be.Variable.Name, out rcg))
+            if (BoundExpression.Fixups.ContainsKey(be.Variable.Name))
             {
-              _method = rcg.MethodInfo;
-              pttt = pt.GetValue(_method) as Type[];
+              fixup = BoundExpression.Fixups[be.Variable.Name];
             }
-            else if (CodeGen._codeBlockLookupX.TryGetValue(be.Variable.Name, out rcg))
+            else
             {
-              var lpppt = pt.GetValue(rcg.MethodInfo) as Type[];
-              if (lpppt.Length - 1 > _arguments.Count)
-              {
-              }
-              else if (AllArgsAreObject(_arguments))
+              CodeGen rcg;
+              CodeGenDescriptor[] cgd;
+              if (CodeGen._codeBlockLookup.TryGetValue(be.Variable.Name, out rcg))
               {
                 _method = rcg.MethodInfo;
-                pttt = lpppt;
-                varargs = true;
+                pttt = pt.GetValue(_method) as Type[];
               }
-              else if (_arguments.Count == 1 && lpppt.Length == 1 &&
-                _arguments[0].Type == typeof(object[]) && _arguments[0] is MethodCallExpression &&
-                ((MethodCallExpression)_arguments[0])._method.Name == "ListToVector")
+              else if (CodeGen._codeBlockLookupX.TryGetValue(be.Variable.Name, out rcg))
               {
-                _arguments[0] = Unwrap(((MethodCallExpression)_arguments[0]).Arguments[0]);
-                _method = rcg.MethodInfo;
-                pttt = lpppt;
-              }
-            }
-            else if (CodeGen._codeBlockLookupN.TryGetValue(be.Variable.Name, out cgd))
-            {
-              if (AllArgsAreObject(_arguments))
-              {
-                foreach (var i in cgd)
+                var lpppt = pt.GetValue(rcg.MethodInfo) as Type[];
+                if (lpppt.Length - 1 > _arguments.Count)
                 {
-                  if (i.arity == _arguments.Count)
+                }
+                else if (AllArgsAreObject(_arguments))
+                {
+                  _method = rcg.MethodInfo;
+                  pttt = lpppt;
+                  varargs = true;
+                }
+                else if (_arguments.Count == 1 && lpppt.Length == 1 &&
+                  _arguments[0].Type == typeof(object[]) && _arguments[0] is MethodCallExpression &&
+                  ((MethodCallExpression)_arguments[0])._method.Name == "ListToVector")
+                {
+                  _arguments[0] = Unwrap(((MethodCallExpression)_arguments[0]).Arguments[0]);
+                  _method = rcg.MethodInfo;
+                  pttt = lpppt;
+                }
+              }
+              else if (CodeGen._codeBlockLookupN.TryGetValue(be.Variable.Name, out cgd))
+              {
+                if (AllArgsAreObject(_arguments))
+                {
+                  foreach (var i in cgd)
                   {
-                    _method = i.cg.MethodInfo;
-                    pttt = pt.GetValue(_method) as Type[];
-                    break;
+                    if (i.arity == _arguments.Count)
+                    {
+                      _method = i.cg.MethodInfo;
+                      pttt = pt.GetValue(_method) as Type[];
+                      break;
+                    }
                   }
                 }
               }
             }
 
-            if (BoundExpression.Fixups.ContainsKey(be.Variable.Name))
-            {
-              fixup = BoundExpression.Fixups[be.Variable.Name];
-            }
           }
           // Emit instance, if calling an instance method
           if (!_method.IsStatic)
@@ -347,10 +350,6 @@ namespace Microsoft.Scripting.Ast {
               if (fixup == null)
               {
                 _instance.Emit(cg);
-              }
-              else
-              {
-                //ii.Emit(cg);
               }
             }
           }
@@ -386,7 +385,7 @@ namespace Microsoft.Scripting.Ast {
               EmitArgument(cg, argument, type);
             }
           }
-
+          
           EmitLocation(cg);
           // Emit the actual call
 
