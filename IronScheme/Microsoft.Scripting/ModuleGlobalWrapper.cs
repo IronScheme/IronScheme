@@ -60,15 +60,19 @@ namespace Microsoft.Scripting {
         }
 
         public object CurrentValue {
+#if !DEBUG
           [DebuggerHidden]
           [DebuggerStepThrough]
+#endif
             get {
                 if (_value != Uninitialized.Instance) return _value;                
 
                 return GetCachedValue();
             }
+#if !DEBUG
           [DebuggerHidden]
           [DebuggerStepThrough]
+#endif
             set {
                 if (value == Uninitialized.Instance && _value == Uninitialized.Instance) {
                     throw _context.LanguageContext.MissingName(_name);

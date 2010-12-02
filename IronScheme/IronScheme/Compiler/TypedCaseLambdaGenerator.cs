@@ -63,15 +63,56 @@ namespace IronScheme.Compiler
 
   }
 
+  public abstract class TypedGenerator : SimpleGenerator
+  {
+    protected Type GetClosureType(CodeBlock cb)
+    {
+      Type[] types = GetTypeSpec(cb);
+
+      var functype = GetGenericType("IronScheme.Runtime.Typed.TypedClosure", types);
+
+      return functype as Type;
+    }
+
+    protected Type GetDelegateType(CodeBlock cb)
+    {
+      Type[] types = GetTypeSpec(cb);
+
+      var functype = GetGenericType("IronScheme.Runtime.Typed.Func", types);
+
+      return functype as Type;
+    }
+
+    protected static Type GetGenericType(string typename, Type[] types)
+    {
+      int l = types.Length;
+      var functype = ClrGenerator.GetTypeFast(typename + "`" + l).MakeGenericType(types);
+      return functype;
+    }
+
+    protected static Type[] GetTypeSpec(CodeBlock cb)
+    {
+      List<Type> types = new List<Type>();
+
+      foreach (var v in cb.Parameters)
+      {
+        types.Add(v.Type);
+      }
+
+      types.Add(cb.ReturnType);
+      return types.ToArray();
+    }
+  }
+
   [Generator("typed-lambda")]
-  public sealed class TypedLambdaGenerator : SimpleGenerator
+  public sealed class TypedLambdaGenerator : TypedGenerator
   {
     public override Expression Generate(object args, CodeBlock c)
     {
       var refs = ClrGenerator.SaveReferences();
 
       object arg = Builtins.First(args);
-      object typespec = Builtins.Second(Builtins.Second(args));
+      object typespec = (Builtins.Second(args));
 
       Cons body = Builtins.Cdr(Builtins.Cdr(args)) as Cons;
 
@@ -90,56 +131,16 @@ namespace IronScheme.Compiler
       Type dt = GetDelegateType(cb);
       Type ct = GetClosureType(cb);
 
-
       Expression ex = Ast.New(ct.GetConstructor( new Type[] { dt }), Ast.CodeBlockExpression(cb, true, dt));
 
       ClrGenerator.ResetReferences(refs);
 
       return ex;
     }
-
-
-    Type GetClosureType(CodeBlock cb)
-    {
-      Type[] types = GetTypeSpec(cb);
-
-      var functype = GetGenericType("IronScheme.Runtime.Typed.TypedClosure", types);
-
-      return functype as Type;
-    }
-
-    Type GetDelegateType(CodeBlock cb)
-    {
-      Type[] types = GetTypeSpec(cb);
-
-      var functype = GetGenericType("IronScheme.Runtime.Typed.Func", types);
-
-      return functype as Type;
-    }
-
-    static Type GetGenericType(string typename, Type[] types)
-    {
-      int l = types.Length;
-      var functype = ClrGenerator.GetTypeFast(typename + "`" + l).MakeGenericType(types);
-      return functype;
-    }
-
-    static Type[] GetTypeSpec(CodeBlock cb)
-    {
-      List<Type> types = new List<Type>();
-
-      foreach (var v in cb.Parameters)
-      {
-        types.Add(v.Type);
-      }
-
-      types.Add(cb.ReturnType);
-      return types.ToArray();
-    }
   }
 
   [Generator("typed-case-lambda")]
-  public class TypedCaseLambdaGenerator : SimpleGenerator
+  public class TypedCaseLambdaGenerator : TypedGenerator
   {
     protected Cons annotations;
     TypedLambdaGenerator lambdagen;
@@ -175,24 +176,36 @@ namespace IronScheme.Compiler
 
           object actual = lambdas.car;
 
-          CodeBlock cb = Ast.CodeBlock(sh, lambdaname);
+          object arg = Builtins.First(actual);
+          object typespec = (Builtins.Second(actual));
+
+          Cons body = Builtins.Cdr(Builtins.Cdr(actual)) as Cons;
+
+          var returntype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote, Builtins.Second(typespec)));
+
+          CodeBlock cb = Ast.CodeBlock(SpanHint, lambdaname, returntype);
+          NameHint = SymbolId.Empty;
           cb.Filename = lh;
           cb.Parent = c;
 
-          object arg = Builtins.First(actual);
-          Cons body = Builtins.Cdr(actual) as Cons;
-
-          bool isrest = AssignParameters(cb, arg);
+          bool isrest = AssignParameters(cb, arg, Builtins.Car(typespec));
 
           List<Statement> stmts = new List<Statement>();
           FillBody(cb, stmts, body, true);
 
+          Type dt = GetDelegateType(cb);
+          Type ct = GetClosureType(cb);
+
+          var cbe = Ast.CodeBlockExpression(cb, true, dt);
+          Expression ex = Ast.New(ct.GetConstructor(new Type[] { dt }), cbe);
+
           CodeBlockDescriptor cbd = new CodeBlockDescriptor();
           cbd.arity = isrest ? -cb.ParameterCount : cb.ParameterCount;
-          cbd.codeblock = Ast.CodeBlockExpression(cb, false);
+          cbd.callable = ex;
+          cbd.codeblock = cbe;
           cbd.varargs = isrest;
 
-          descriptorshack.Add(cbd.codeblock, cbd);
+          descriptorshack2.Add(cbd.callable, cbd);
 
           cbs.Add(cbd);
 
@@ -201,7 +214,7 @@ namespace IronScheme.Compiler
           ClrGenerator.ResetReferences(refs);
         }
 
-        return MakeCaseClosure(lambdaname, cbs);
+        return MakeTypedCaseClosure(lambdaname, cbs);
       }
     }
   }

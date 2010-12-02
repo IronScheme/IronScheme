@@ -340,6 +340,21 @@ namespace IronScheme.Compiler
       return string.Join("#", tokens);
     }
 
+    protected static Expression MakeTypedCaseClosure(string name, List<CodeBlockDescriptor> cases)
+    {
+      List<Expression> targets = new List<Expression>();
+      List<Expression> arities = new List<Expression>();
+
+      foreach (CodeBlockDescriptor c in cases)
+      {
+        targets.Add(c.callable);
+        arities.Add(Ast.Constant(c.arity));
+      }
+
+      return Ast.SimpleCallHelper(Closure_MakeTypedCase, Ast.CodeContext(),
+        Ast.NewArrayHelper(typeof(Callable[]), targets), Ast.NewArrayHelper(typeof(int[]), arities));
+    }
+
     protected static Expression MakeCaseClosure(string name, List<CodeBlockDescriptor> cases)
     {
       List<Expression> targets = new List<Expression>();

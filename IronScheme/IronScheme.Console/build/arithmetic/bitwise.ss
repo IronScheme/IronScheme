@@ -57,8 +57,7 @@ See docs/license.txt. |#
   (clr-using Oyster.Math)
       
   (define ->bignum
-    (typed-lambda (ei)
-      '((Object) IntX)
+    (typed-lambda (ei) ((Object) IntX)
       (cond
         [(bignum? ei) ei]
         [(fixnum? ei) 

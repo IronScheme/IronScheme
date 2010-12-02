@@ -303,7 +303,7 @@ namespace IronScheme.Compiler
           //// needs to do the same for overloads...
           if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
           {
-            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+            Expression[] ppp = GetAstListNoCast(c.cdr as Cons, cb);
 
             if (cbe.Block.ParameterCount < 9 && cbe.Block.ParameterCount == ppp.Length)
             {
@@ -327,7 +327,7 @@ namespace IronScheme.Compiler
           // varargs
           if (SimpleGenerator.libraryglobalsX.TryGetValue(f, out cbe))
           {
-            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+            Expression[] ppp = GetAstListNoCast(c.cdr as Cons, cb);
 
             if (cbe.Block.ParameterCount < 9 && cbe.Block.ParameterCount - 1 <= ppp.Length)
             {
@@ -340,7 +340,7 @@ namespace IronScheme.Compiler
           CodeBlockDescriptor[] cbd;
           if (SimpleGenerator.libraryglobalsN.TryGetValue(f, out cbd))
           {
-            Expression[] ppp = GetAstList(c.cdr as Cons, cb);
+            Expression[] ppp = GetAstListNoCast(c.cdr as Cons, cb);
 
             foreach (CodeBlockDescriptor d in cbd)
             {
@@ -475,7 +475,7 @@ namespace IronScheme.Compiler
               }
               if (result.Type.IsValueType)
               {
-                result = Ast.ConvertHelper(result, typeof(object));
+                //result = Ast.ConvertHelper(result, typeof(object));
               }
 #if CPS
               Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(Callable));
@@ -635,20 +635,21 @@ namespace IronScheme.Compiler
           }
         }
 
-        Expression[] pp = GetAstList(c.cdr as Cons, cb);
+       
         Expression ex = Unwrap(GetAst(c.car, cb));
 
         // a 'let'
         if (ex is MethodCallExpression)
         {
+          var ppp = GetAstList(c.cdr as Cons, cb);
           MethodCallExpression mcexpr = (MethodCallExpression)ex;
           if (mcexpr.Method == Closure_Make)
           {
             CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
 
-            if (pp.Length < 9 && cbe.Block.ParameterCount == pp.Length)
+            if (ppp.Length < 9 && cbe.Block.ParameterCount == ppp.Length)
             {
-              return InlineCall(cb, cbe, istailposition, pp);
+              return InlineCall(cb, cbe, istailposition, ppp);
             }
           }
 
@@ -657,9 +658,9 @@ namespace IronScheme.Compiler
           {
             CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
 
-            if (pp.Length < 9 && cbe.Block.ParameterCount <= pp.Length)
+            if (ppp.Length < 9 && cbe.Block.ParameterCount <= ppp.Length)
             {
-              return CallVarArgs(cbe, pp);
+              return CallVarArgs(cbe, ppp);
             }
           }
         }
@@ -668,10 +669,11 @@ namespace IronScheme.Compiler
         {
           NewExpression mcexpr = ex as NewExpression;
           CodeBlockExpression cbe = mcexpr.Arguments[0] as CodeBlockExpression;
+          var ppp = GetAstListNoCast(c.cdr as Cons, cb);
 
-          if (pp.Length < 9 && cbe.Block.ParameterCount == pp.Length)
+          if (ppp.Length < 9 && cbe.Block.ParameterCount == ppp.Length)
           {
-            return InlineCall(cb, cbe, istailposition, pp);
+            return InlineCall(cb, cbe, istailposition, ppp);
           }
 
         }
@@ -680,6 +682,8 @@ namespace IronScheme.Compiler
         {
           Builtins.SyntaxError(SymbolTable.StringToObject("generator"), "expecting a procedure", c.car, c);
         }
+
+        Expression[] pp = GetAstList(c.cdr as Cons, cb);
 
         ex = Ast.ConvertHelper(ex, typeof(Callable));
 

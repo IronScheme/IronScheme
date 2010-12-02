@@ -60,7 +60,7 @@ See docs/license.txt. |#
     (ironscheme clr)
     (ironscheme unsafe)
     (ironscheme integrable)
-    (except (rnrs) 
+    (except (ironscheme) 
       fixnum-width
       fxif
       fxcopy-bit
@@ -122,7 +122,7 @@ See docs/license.txt. |#
     (syntax-rules ()
       [(_ expr)
         (or expr (overflow-error #f))]))
-
+        
   (define-syntax define-fx
     (lambda (x)
       (syntax-case x ()
@@ -266,6 +266,7 @@ See docs/license.txt. |#
   (define-fx-comparer fx<=?)
   (define-fx-comparer fx>?)
   (define-fx-comparer fx>=?)
+
 
   (define-syntax define-fx-bitop
     (lambda (x)
