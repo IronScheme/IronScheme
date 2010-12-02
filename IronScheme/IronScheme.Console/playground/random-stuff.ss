@@ -1,4 +1,20 @@
 ﻿
+
+(define (fib n)
+  (if (< n 2)
+      n
+      (+ (fib (- n 2)) (fib (- n 1)))))
+  
+(define fibf (lambda (n)
+  (if (fx<? n 2)
+      n
+      (fx+ (fibf (fx- n 1)) (fibf (fx- n 2))))))
+        
+(define fibt (typed-lambda (n) ((Int32) Int32)
+  (if ($fx<? n 2)
+      n
+      ($fx+ (fibt ($fx- n 1)) (fibt ($fx- n 2))))))  
+
 (debug-mode? #t)
 
 (import (rnrs-benchmarks sboyer))

@@ -27,6 +27,7 @@ namespace IronScheme.Compiler
     protected internal static readonly Dictionary<SymbolId, CodeBlockExpression> libraryglobalsX = new Dictionary<SymbolId, CodeBlockExpression>();
 
     protected internal static readonly Dictionary<CodeBlockExpression, CodeBlockDescriptor> descriptorshack = new Dictionary<CodeBlockExpression, CodeBlockDescriptor>();
+    protected internal static readonly Dictionary<Expression, CodeBlockDescriptor> descriptorshack2 = new Dictionary<Expression, CodeBlockDescriptor>();
 
     protected static readonly Regex LOCATIONMATCH = new Regex(
       @"\((?<startline>\d+),(?<startcol>\d+)\)\s-\s\((?<endline>\d+),(?<endcol>\d+)\)",

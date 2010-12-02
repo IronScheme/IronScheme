@@ -591,6 +591,8 @@ namespace IronScheme.Runtime
       throw new NotSupportedException();
     }
 
+
+
     public static Callable CreateVarArgX(CodeContext cc, Delegate target, int paramcount)
     {
       return new VarArgClosure(cc, target, paramcount);
@@ -600,6 +602,12 @@ namespace IronScheme.Runtime
     {
       return new CaseClosure(cc, targets, arities);
     }
+
+    public static Callable CreateTypedCase(CodeContext cc, Callable[] targets, int[] arities)
+    {
+      return new CaseClosure(cc, targets, arities);
+    }
+
 
     [Serializable]
     sealed class VarArgClosure : Closure
@@ -704,6 +712,16 @@ namespace IronScheme.Runtime
             mis.AddRange(c.VarargTargets);
           }
           return mis.ToArray();
+        }
+      }
+
+      public CaseClosure(CodeContext cc, Callable[] targets, int[] arities)
+        : base(null, -1)
+      {
+        this.arities = arities;
+        for (int i = 0; i < targets.Length; i++)
+        {
+          this.targets.Add(targets[i]);
         }
       }
 

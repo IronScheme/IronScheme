@@ -169,14 +169,14 @@ See docs/license.txt. |#
     
   (define ->bignum 
     (typed-lambda (ei)
-      '((Object) IntX)
+      ((Object) IntX)
         (cond
           [(bignum? ei) ei]
           [(fixnum? ei) 
             (clr-static-call IntX (Create Int32) ei)]
           [else
             (assertion-violation #f "not a exact integer" ei)])))
-  
+            
   (define (get-bytes enc str)
     (clr-call Encoding (GetBytes String) enc str))
 
@@ -191,7 +191,7 @@ See docs/license.txt. |#
   
   (define ->byte
     (typed-lambda (k)
-      '((Object) Byte)
+      ((Object) Byte)
       (unless (fixnum? k)
         (assertion-violation #f "not a fixnum" k))
       (when (or (fx<? k -128) (fx>? k 255))
@@ -200,7 +200,7 @@ See docs/license.txt. |#
     
   (define ->fixnum
     (typed-lambda (b)
-      '((Object) Int32)
+      ((Object) Int32)
       (clr-static-call Convert (ToInt32 Object) b)))
   
   (define/contract make-bytevector
@@ -453,13 +453,22 @@ See docs/license.txt. |#
     
   (define (clr-string? obj)
     (clr-is String obj))  
+  
+  (define ->moo 
+    (typed-case-lambda 
+      [(str) ((Object) String) str]
+      [(x y) ((Int32 Int32) Int32) (+ x y)]))
+
+  (define (bar)
+    (and (->moo "a") (->moo 1 2))) 
 
   (define ->string 
     (typed-lambda (str)
-      '((Object) String)
+      ((Object) String)
       (if (clr-string? str)
           str
           (clr-call Object ToString str))))
+       
               
   (define/contract (string->utf8 s:string)
     (get-bytes utf8 (->string s)))

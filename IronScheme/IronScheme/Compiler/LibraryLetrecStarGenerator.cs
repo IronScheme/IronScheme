@@ -258,6 +258,21 @@ namespace IronScheme.Compiler
             libraryglobalsN.Add(locals[i].Name, cdbs.ToArray());
             libraryglobalsN.Add(vars[i], cdbs.ToArray());
           }
+          else if (mce.Method == Closure_MakeTypedCase)
+          {
+            NewArrayExpression tcs = mce.Arguments[1] as NewArrayExpression;
+
+            List<CodeBlockDescriptor> cdbs = new List<CodeBlockDescriptor>();
+
+            foreach (Expression tc in tcs.Expressions)
+            {
+              //where do we clean this up??
+              cdbs.Add(descriptorshack2[tc]);
+            }
+
+            libraryglobalsN.Add(locals[i].Name, cdbs.ToArray());
+            libraryglobalsN.Add(vars[i], cdbs.ToArray());
+          }
 
         }
         else if (e is NewExpression)

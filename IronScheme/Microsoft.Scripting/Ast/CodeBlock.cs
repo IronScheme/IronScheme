@@ -1509,6 +1509,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
     {
       public int arity;
       public CodeBlockExpression codeblock;
+      public Expression callable;
       public bool varargs;
     }
 

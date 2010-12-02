@@ -351,8 +351,7 @@ See docs/license.txt. |#
           (assertion-violation 'string-length "not a string" str)]))
           
     (define ->string
-      (typed-lambda (str)
-        '((Object) String)
+      (typed-lambda (str) ((Object) String)
         (if (clr-string? str)
             str
             (clr-call Object ToString str))))
@@ -370,9 +369,11 @@ See docs/license.txt. |#
       (clr-static-call Cons FromList (->string str)))
       
     (define ->mutable-string 
-      (typed-lambda (str)
-        '((String) StringBuilder)
-        (clr-new StringBuilder str)))    
+      (typed-lambda (str) ((String) StringBuilder)
+        (clr-new StringBuilder str))) 
+        
+
+           
           
     (define (string-copy str)
       (cond
