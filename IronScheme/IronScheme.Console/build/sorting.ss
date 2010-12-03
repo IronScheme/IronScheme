@@ -12,6 +12,7 @@ See docs/license.txt. |#
     
   (import 
     (except (rnrs) list-sort vector-sort vector-sort!)
+    (ironscheme unsafe)
     (ironscheme contracts)
     ;(ironscheme unsafe)
     (ironscheme clr))
@@ -69,7 +70,7 @@ See docs/license.txt. |#
                        precedes?))))))
                        
   (define/contract (vector-sort! pred?:procedure vec:vector)
-    (clr-guard (e [e (assertion-violation 'vector-sort! (clr-prop-get Exception Message e) pred? vec)])
+    (clr-guard (e [e #;($throw e) (assertion-violation 'vector-sort! (clr-prop-get Exception Message e) pred? vec)])
       (clr-static-call Array 
                        (Sort #(Object) Object[] (Comparison Object))
                        vec                      

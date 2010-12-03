@@ -37,12 +37,12 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>false</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <Optimize>true</Optimize>
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
@@ -85,7 +85,7 @@
   <PropertyGroup>
     <PostBuildEvent>"$(FrameworkSDKDir)Bin\ildasm" /out:"$(TargetName).il" /NOBAR /LINENUM "$(TargetPath)"
 "$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(TargetName).il"
-"$(FrameworkDir)\ilasm" /dll /opt  /NOLOGO /QUIET /out:$(TargetName).dll "$(TargetName).il" "IronScheme.Glue.il"
+"$(FrameworkDir)\ilasm" /dll  /OPT  /NOLOGO /QUIET /out:$(TargetName).dll "$(TargetName).il" "IronScheme.Glue.il"
 rem "$(FrameworkSDKDir)Bin\peverify" /NOLOGO "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -280,8 +280,8 @@ namespace IronScheme.Compiler
           NewExpression ne = e as NewExpression;
           if (typeof(ITypedCallable).IsAssignableFrom(e.Type))
           {
-            libraryglobals.Add(locals[i].Name, ne.Arguments[0] as CodeBlockExpression);
-            libraryglobals.Add(vars[i], ne.Arguments[0] as CodeBlockExpression);
+            libraryglobals.Add(locals[i].Name, ne.Arguments[1] as CodeBlockExpression);
+            libraryglobals.Add(vars[i], ne.Arguments[1] as CodeBlockExpression);
           }
         }
       }
