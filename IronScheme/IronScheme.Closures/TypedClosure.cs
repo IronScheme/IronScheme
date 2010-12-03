@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting;
+using System;
 
 namespace IronScheme.Runtime.Typed
 {
@@ -289,13 +290,22 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<R>)target);
     }
 
+    public TypedClosure(CodeContext cc, Func<R> target)
+      : base(target, 0)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<R>), CheckCodeContext(cc), target.Method) as Func<R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<R>)typedtarget);
+    }
+
 
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -356,13 +366,24 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, R>)target);
     }
 
+    public TypedClosure(CodeContext cc, Func<A1, R> target)
+      : base(target, 1)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, R>), CheckCodeContext(cc), target.Method) as Func<A1, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, R>)typedtarget);
+    }
+
+
+
 
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -424,13 +445,22 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, A2, R>)target);
     }
 
+    public TypedClosure(CodeContext cc, Func<A1, A2, R> target)
+      : base(target, 2)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, A2, R>), CheckCodeContext(cc), target.Method) as Func<A1, A2, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, A2, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, A2, R>)typedtarget);
+    }
+
 
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -492,13 +522,21 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, A2, A3, R>)target);
     }
 
+    public TypedClosure(CodeContext cc, Func<A1, A2, A3, R> target)
+      : base(target, 3)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, A2, A3, R>), CheckCodeContext(cc), target.Method) as Func<A1, A2, A3, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, A2, A3, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, A2, A3, R>)typedtarget);
+    }
 
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -560,13 +598,21 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, A2, A3, A4, R>)target);
     }
 
-
+    public TypedClosure(CodeContext cc, Func<A1, A2, A3, A4, R> target)
+      : base(target, 4)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, A2, A3, A4, R>), CheckCodeContext(cc), target.Method) as Func<A1, A2, A3, A4, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, A2, A3, A4, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, A2, A3, A4, R>)typedtarget);
+    }
+    
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -628,13 +674,22 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, R>)target); 
     }
 
+    public TypedClosure(CodeContext cc, Func<A1, A2, A3, A4, A5, R> target)
+      : base(target, 5)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, A2, A3, A4, A5, R>), CheckCodeContext(cc), target.Method) as Func<A1, A2, A3, A4, A5, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, A2, A3, A4, A5, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, R>)typedtarget);
+    }
+
 
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -696,6 +751,15 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, A6, R>)target);
     }
 
+    public TypedClosure(CodeContext cc, Func<A1, A2, A3, A4, A5, A6, R> target)
+      : base(target, 6)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, A2, A3, A4, A5, A6, R>), CheckCodeContext(cc), target.Method) as Func<A1, A2, A3, A4, A5, A6, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, A2, A3, A4, A5, A6, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, A6, R>)typedtarget);
+    }
+
 
 
     public override MethodInfo[] Targets
@@ -703,7 +767,7 @@ namespace IronScheme.Runtime.Typed
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -765,13 +829,22 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, A6, A7, R>)target);
     }
 
+    public TypedClosure(CodeContext cc, Func<A1, A2, A3, A4, A5, A6, A7, R> target)
+      : base(target, 7)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, A2, A3, A4, A5, A6, A7, R>), CheckCodeContext(cc), target.Method) as Func<A1, A2, A3, A4, A5, A6, A7, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, A2, A3, A4, A5, A6, A7, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, A6, A7, R>)typedtarget);
+    }
+
 
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }
@@ -834,12 +907,21 @@ namespace IronScheme.Runtime.Typed
         Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, A6, A7, A8, R>)target);
     }
 
+    public TypedClosure(CodeContext cc, Func<A1, A2, A3, A4, A5, A6, A7, A8, R> target)
+      : base(target, 8)
+    {
+      typedtarget = Delegate.CreateDelegate(typeof(Func<A1, A2, A3, A4, A5, A6, A7, A8, R>), CheckCodeContext(cc), target.Method) as Func<A1, A2, A3, A4, A5, A6, A7, A8, R>;
+      untypedtarget = (typeof(R) == typeof(object)) ?
+        Utils.MakeUntypedTailCallSafe((Func<A1, A2, A3, A4, A5, A6, A7, A8, object>)(object)typedtarget) :
+        Utils.MakeUntyped((Func<A1, A2, A3, A4, A5, A6, A7, A8, R>)typedtarget);
+    }
+
     public override MethodInfo[] Targets
     {
       get
       {
         List<MethodInfo> targets = new List<MethodInfo>();
-        if (IsValid(typedtarget.Method))
+        if (IsValid(typedtarget.Method) && typedtarget.Target == null)
         {
           targets.Add(typedtarget.Method);
         }

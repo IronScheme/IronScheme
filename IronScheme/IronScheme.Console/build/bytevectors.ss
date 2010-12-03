@@ -453,14 +453,6 @@ See docs/license.txt. |#
     
   (define (clr-string? obj)
     (clr-is String obj))  
-  
-  (define ->moo 
-    (typed-case-lambda 
-      [(str) ((Object) String) str]
-      [(x y) ((Int32 Int32) Int32) (+ x y)]))
-
-  (define (bar)
-    (and (->moo "a") (->moo 1 2))) 
 
   (define ->string 
     (typed-lambda (str)

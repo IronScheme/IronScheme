@@ -23,6 +23,16 @@ namespace IronScheme.Runtime
   [Serializable]
   public abstract class Closure : Callable
   {
+
+    protected static object CheckCodeContext(CodeContext cc)
+    {
+      if (cc != null && cc.Scope.Parent.Parent == null)
+      {
+        return null;
+      }
+      return cc;
+    }
+
     readonly static Dictionary<Type, int> targetmap = new Dictionary<Type, int>();
 
     static Closure()

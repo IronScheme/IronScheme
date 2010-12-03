@@ -14,6 +14,31 @@
   (if ($fx<? n 2)
       n
       ($fx+ (fibt ($fx- n 1)) (fibt ($fx- n 2))))))  
+      
+(define (fib2 n)
+  (define fib-aux (lambda (n a b)
+    (if (= n 0)
+        a
+        (fib-aux (- n 1) b (+ a b)))))
+  (fib-aux n 0 1))
+  
+(define (fibf2 n)
+  (define fib-aux (lambda (n a b)
+    (if (fx=? n 0)
+        a
+        (fib-aux (fx- n 1) b (fx+ a b)))))
+  (fib-aux n 0 1))
+  
+(define (fibt2 n)
+  (define fib-aux (typed-lambda (n a b) ((Int32 Int32 Int32) Int32)
+    (if ($fx=? n 0)
+        a
+        (fib-aux ($fx- n 1) b ($fx+ a b)))))
+  (fib-aux n 0 1))  
+  
+(time (fib2 35))
+(time (fibf2 35))
+(time (fibt2 35))          
 
 (debug-mode? #t)
 
