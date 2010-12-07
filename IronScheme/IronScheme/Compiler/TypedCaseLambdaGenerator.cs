@@ -144,7 +144,8 @@ namespace IronScheme.Compiler
   public class TypedCaseLambdaGenerator : TypedGenerator
   {
     protected Cons annotations;
-    TypedLambdaGenerator lambdagen;
+    static TypedLambdaGenerator lambdagen;
+
     public override Expression Generate(object args, CodeBlock c)
     {
       Cons lambdas = args as Cons;
