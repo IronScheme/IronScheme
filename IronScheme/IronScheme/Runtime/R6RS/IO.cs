@@ -632,17 +632,17 @@ namespace IronScheme.Runtime.R6RS
     public override string ReadToEnd()
     {
       string value = ReadToEndInternal();
-      if (tc.eolstyle != IO.eol_none)
-      {
+      //if (tc.eolstyle != IO.eol_none)
+      //{
         value = IO.eoltx.Replace(value, delegate(Match m)
         {
           return IO.GetNewline(tc.eolstyle, "\n");
         });
-      }
-      else
-      {
-        value = value.Replace("\r", "");
-      }
+      //}
+      //else
+      //{
+      //  value = value.Replace("\r", "");
+      //}
       return value;
     }
 
@@ -683,17 +683,17 @@ namespace IronScheme.Runtime.R6RS
  override string ReadLine()
     {
       string value = ReadLineInternal();
-      if (tc.eolstyle != IO.eol_none)
-      {
+      //if (tc.eolstyle != IO.eol_none)
+      //{
         value = IO.eoltx.Replace(value, delegate(Match m)
         {
           return IO.GetNewline(tc.eolstyle, "\n");
         });
-      }
-      else
-      {
-        value = value.Replace("\r", "");
-      }
+      //}
+      //else
+      //{
+      //  value = value.Replace("\r", "");
+      //}
       return value;
     }
     
@@ -842,6 +842,11 @@ namespace IronScheme.Runtime.R6RS
     static string nel = "\u0085";
     static string ls = "\u2028";
 
+    internal static Regex eoltx = new Regex(string.Join("|",
+      Array.ConvertAll<string, string>(
+      new string[] { "\r\n", nel, "\r" + nel, ls, "\r", "\n", }, Regex.Escape)), RegexOptions.Compiled);
+    internal static Regex lftx = new Regex("\\n", RegexOptions.Compiled);
+
     internal static string GetNewline(object symbolId, string current)
     {
       if (symbolId == eol_none)
@@ -899,11 +904,11 @@ namespace IronScheme.Runtime.R6RS
 
       string value = t.codec.GetString(b);
 
-      if (t.eolstyle == eol_none)
-      {
-        value = value.Replace("\r", "");
-      }
-      else
+      //if (t.eolstyle == eol_none)
+      //{
+      //  value = value.Replace("\r", "");
+      //}
+      //else
       {
         value = eoltx.Replace(value, delegate(Match m)
         {
@@ -1100,10 +1105,6 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    internal static Regex eoltx = new Regex(string.Join("|", 
-      Array.ConvertAll<string, string>(
-      new string[] { "\r\n", nel, "\r" + nel, ls, "\r", "\n", }, Regex.Escape)), RegexOptions.Compiled);
-    internal static Regex lftx = new Regex("\\n", RegexOptions.Compiled);
 
     [Builtin("open-file-input/output-port")]
     public static object OpenFileInputOutputPort(object filename)

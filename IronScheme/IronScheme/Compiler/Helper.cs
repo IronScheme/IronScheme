@@ -95,7 +95,7 @@ namespace IronScheme.Compiler
           case 't':
             return "\t";
           case 'r':
-            return "";
+            return "\r";
           case '"':
             return "\"";
           case 'x':
