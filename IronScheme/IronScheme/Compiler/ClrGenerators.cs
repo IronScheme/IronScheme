@@ -12,6 +12,7 @@ using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
+using System.IO;
 
 namespace IronScheme.Compiler
 {
@@ -758,21 +759,35 @@ namespace IronScheme.Compiler
       Assembly ass = null;
       object name = Builtins.Second(Builtins.First(args));
       string assname = null;
+
       if (name is SymbolId)
       {
-        assname = SymbolTable.IdToString((SymbolId)name).Replace(".dll", "");
-#pragma warning disable 618
-        ass = Assembly.LoadWithPartialName(assname);
-#pragma warning restore 618
+        assname = SymbolTable.IdToString((SymbolId)name);//.Replace(".dll", "");
       }
       else if (name is string)
       {
         assname = (string)name;
-        ass = Assembly.Load(assname);
       }
       else
       {
         ClrSyntaxError("clr-reference", "reference is not a symbol or a string", name);
+      }
+
+      try
+      {
+        var aname = AssemblyName.GetAssemblyName(assname);
+        ass = Assembly.Load(aname);
+      }
+      catch (FileNotFoundException)
+      {
+        try
+        {
+          ass = Assembly.Load(assname);
+        }
+        catch (FileNotFoundException)
+        {
+          // final fail, after AssemblyResolve
+        }
       }
 
       if (ass == null)
