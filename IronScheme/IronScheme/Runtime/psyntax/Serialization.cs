@@ -12,6 +12,7 @@ using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using Microsoft.Scripting;
+using System.IO;
 
 namespace IronScheme.Runtime.psyntax
 {
@@ -34,7 +35,19 @@ namespace IronScheme.Runtime.psyntax
           return ass;
         }
       }
-      return null;
+
+      // last chance
+      var fn = Path.Combine(Environment.CurrentDirectory, args.Name + ".dll");
+
+      try
+      {
+        var a = Assembly.LoadFrom(fn);
+        return a;
+      }
+      catch (FileNotFoundException)
+      {
+        return null;
+      }
     }
 
     sealed class Selector : SurrogateSelector
