@@ -707,6 +707,7 @@
     <None Include="ironscheme\io.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="playground\bw.sps" />
     <None Include="playground\linq3.sls">
     </None>
     <None Include="ironscheme\library-utils.sls">

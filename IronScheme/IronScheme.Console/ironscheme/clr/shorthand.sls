@@ -23,16 +23,17 @@ See docs/license.txt. |#
       (syntax-case x ()
         [(_ (name (id type) ...) b b* ...)
           (for-all identifier? #'(id ... type ...))
-          #'(define (name id ...)
-              (with-clr-type ((id type) ...)
-                b b* ...))])))  
+          #'(define name 
+              (typed-lambda (id ...) ((type ...) Object) 
+                (with-clr-type ((id type) ...)
+                  b b* ...)))])))  
             
   (define-syntax lambda-clr-type
     (lambda (x)
       (syntax-case x ()
         [(_ ((id type) ...) b b* ...)
           (for-all identifier? #'(id ... type ...))
-          #'(lambda (id ...)
+          #'(typed-lambda (id ...) ((type ...) Object) 
               (with-clr-type ((id type) ...)
                 b b* ...))])))
 
@@ -41,9 +42,10 @@ See docs/license.txt. |#
       (syntax-case x ()
         [(_ ((id (type arg ...)) ...) b b* ...)
           (for-all identifier? #'(id ... type ...))
-          #'(let ((id (clr-new type arg ...)) ...)
-              (with-clr-type ((id type) ...)
-                b b* ...))])))         
+          #'((typed-lambda (id ...) ((type ...) Object)
+               (with-clr-type ((id type) ...)
+                  b b* ...))
+              (clr-new type arg ...) ...)])))
 
   (define-syntax with-clr-type
     (lambda (x)
