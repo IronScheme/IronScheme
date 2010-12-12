@@ -154,7 +154,7 @@ namespace IronScheme.Runtime
 
     public static object EnumToSymbol<T>(T value)
     {
-      return SymbolTable.StringToObject(value.ToString().ToLower());
+      return SymbolTable.StringToObject(value.ToString());
     }
 
     public static T SymbolToEnum<T>(object symbol)

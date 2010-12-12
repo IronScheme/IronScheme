@@ -12,7 +12,7 @@ See docs/license.txt. |#
     (ironscheme clr))
     
   (define (string-split str . del)
-    (clr-call String (Split String[] StringSplitOptions) str (list->vector del) 'none))
+    (clr-call String (Split String[] StringSplitOptions) str (list->vector del) 'None))
     
   (define (parse-body loc x)
     (define (get-name/type name)

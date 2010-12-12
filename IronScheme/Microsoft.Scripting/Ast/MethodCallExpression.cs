@@ -294,8 +294,12 @@ namespace Microsoft.Scripting.Ast {
               CodeGenDescriptor[] cgd;
               if (CodeGen._codeBlockLookup.TryGetValue(be.Variable.Name, out rcg))
               {
-                _method = rcg.MethodInfo;
-                pttt = pt.GetValue(_method) as Type[];
+                var lpttt = pt.GetValue(rcg.MethodInfo) as Type[];
+                if (_arguments.Count == lpttt.Length)
+                {
+                  _method = rcg.MethodInfo;
+                  pttt = lpttt;
+                }
               }
               else if (CodeGen._codeBlockLookupX.TryGetValue(be.Variable.Name, out rcg))
               {
@@ -378,7 +382,7 @@ namespace Microsoft.Scripting.Ast {
             // Emit arguments
             // we cant really complain here or show error...
             Debug.Assert(_arguments.Count == pttt.Length);
-            for (int arg = 0; arg < pttt.Length; arg++)
+            for (int arg = 0; arg < pttt.Length && arg < _arguments.Count; arg++)
             {
               Expression argument = _arguments[arg];
               Type type = pttt[arg];
