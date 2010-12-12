@@ -7,9 +7,14 @@
 (clr-reference bwapi-clr)
 (clr-using BWAPI)
 
-#|
+
 (trace-define-syntax bw-import
   (lambda (x)
+    (define (symbol-append s1 . args)
+      (string->symbol 
+        (apply string-append 
+                (symbol->string s1)
+                (map symbol->string args))))
     (syntax-case x ()
       [(_ type) 
         (let* ((tn (string->symbol 
@@ -17,19 +22,25 @@
                        "BWAPI." 
                        (symbol->string (syntax->datum #'type)))))
                (t  (get-clr-type tn))
-               (m  (type-members t)))
+               (m  (type-members t '(public instance static declaredonly))))
+          (define (member-name->symbol m)
+            (string->symbol (member-name m)))
+          (define (member-name->syntax m)
+            (datum->syntax #'type (member-name->symbol m)))
+          (define (member-name->syntaxname m)
+            (datum->syntax 
+              #'type 
+              (symbol-append 
+                (syntax->datum #'type) ':: (member-name->symbol m))))
           (with-syntax ((tn       (datum->syntax #'type tn))
-                        ((mn ...) (map (lambda (x) 
-                                         (datum->syntax 
-                                           #'type
-                                           (string->symbol (member-name x))))
-                                       m)))
+                        ((sn ...) (map member-name->syntaxname m)) 
+                        ((mn ...) (map member-name->syntax m)))
             #'(begin
                 (define-syntax sn
                   (syntax-rules ()
-                    [(_ arg ...) (clr-call tn mn arg ...)])) 
+                    [(_ args (... ...)) (clr-call tn mn args (... ...))])) 
                 ... )))])))
-|#
+
 
 (define (init) 
   (clr-static-call bwapi BWAPI_init))
