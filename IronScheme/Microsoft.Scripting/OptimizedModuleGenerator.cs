@@ -268,11 +268,18 @@ namespace Microsoft.Scripting.Generation {
               }
               else
               {
-                if (runtimemethods == null)
+                if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
                 {
-                  runtimemethods = ScriptDomainManager.CurrentManager.Snippets.Assembly;
+                  ag = CreateModuleAssembly(scriptCode);
                 }
-                ag = runtimemethods;
+                else
+                {
+                  if (runtimemethods == null)
+                  {
+                    runtimemethods = ScriptDomainManager.CurrentManager.Snippets.Assembly;
+                  }
+                  ag = runtimemethods;
+                }
               }
             }
             else
