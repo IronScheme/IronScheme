@@ -480,7 +480,8 @@ namespace IronScheme.Compiler
 
       if (e is BoundExpression)
       {
-        return null;
+        // fails for (begin wtf 1) where wtf is undefined
+        //return null;
       }
 
       if (e is MethodCallExpression)

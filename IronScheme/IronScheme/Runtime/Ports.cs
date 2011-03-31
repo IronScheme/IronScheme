@@ -13,6 +13,7 @@ using System.Text;
 using IronScheme.Runtime.psyntax;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
