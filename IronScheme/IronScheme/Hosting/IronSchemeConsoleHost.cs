@@ -1,5 +1,5 @@
 #region License
-/* Copyright (c) 2007,2008,2009,2010 Llewellyn Pritchard 
+/* Copyright (c) 2007,2008,2009,2010,2011 Llewellyn Pritchard 
  * All rights reserved.
  * This source code is subject to terms and conditions of the BSD License.
  * See docs/license.txt. */
@@ -15,11 +15,11 @@ namespace IronScheme.Hosting
 {
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
-    const string VERSION = "1.0 RC2";
+    const string VERSION = "1.0 RC3";
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © 2007,2008,2009,2010 leppie {1}",
+      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © 2007,2008,2009,2010,2011 leppie {1}",
           VERSION,
 #if DEBUG
 #if CPS
@@ -30,6 +30,7 @@ namespace IronScheme.Hosting
 #else
             ""
 #endif
+            
 );
     }
 
@@ -77,7 +78,7 @@ namespace IronScheme.Hosting
         }
         Console.ForegroundColor = old;
 
-        Console.WriteLine();
+        Console.WriteLine("({0})", IntPtr.Size == 8 ? "64-bit" : "32-bit");
         
       }
     }
