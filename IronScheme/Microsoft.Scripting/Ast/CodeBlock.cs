@@ -1215,7 +1215,8 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             } else {
               if (Parent == null || !Parent.IsGlobal)
               {
-                impl.ContextSlot = hasContextParameter ? impl.GetArgumentSlot(0) : outer.ContextSlot;
+                impl.ContextSlot = hasContextParameter ? impl.GetArgumentSlot(0) : 
+                    (Parent == null ? impl.ContextSlot : outer.ContextSlot);
               }
             }
             

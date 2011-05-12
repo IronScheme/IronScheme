@@ -31,6 +31,8 @@ namespace Microsoft.Scripting.Generation {
         private AssemblyGen _assembly;
         private AssemblyGen _debugAssembly;
 
+        public AssemblyGen CurrentAssembly { get; set; }
+
         private int _debugTypeIndex = 0;
 
         public AssemblyGen Assembly {

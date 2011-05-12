@@ -30,23 +30,37 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    static Assembly AssemblyLoad(string path)
+    static Assembly AssemblyLoad(string path, bool loadinmemory)
     {
       string fn = Path.GetFullPath(path);
       var pdb = Path.ChangeExtension(fn, ".pdb");
       if (File.Exists(pdb))
       {
-        return Assembly.Load(File.ReadAllBytes(fn), File.ReadAllBytes(pdb));
+        if (loadinmemory)
+        {
+          return Assembly.Load(File.ReadAllBytes(fn), File.ReadAllBytes(pdb));
+        }
+        else
+        {
+          return Assembly.LoadFrom(fn);
+        }
       }
       else
       {
-        return Assembly.LoadFrom(fn);
+        if (loadinmemory)
+        {
+          return Assembly.Load(File.ReadAllBytes(fn));
+        }
+        else
+        {
+          return Assembly.LoadFrom(fn);
+        }
       }
     }
 
     internal static Assembly BootfileAssembly { get; set; }
 
-    internal static object Load(object filename)
+    internal static object Load(object filename, bool loadinmemory)
     {
       CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
 
@@ -119,7 +133,7 @@ namespace IronScheme.Runtime
           else
           {
 
-            Assembly ext = AssemblyLoad(path);
+            Assembly ext = AssemblyLoad(path, loadinmemory);
 
             BootfileAssembly = ext;
 

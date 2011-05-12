@@ -53,7 +53,7 @@
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
-    (only (ironscheme core) get-command-line format)
+    (only (ironscheme core) get-command-line format compile-library load-library-dll)
     (ironscheme enums)
     (ironscheme files)
     (ironscheme cps)
@@ -206,7 +206,7 @@
                (compile "system-libraries.ss"))))]))
     
   (define (compile filename)
-    (load-r6rs-top-level filename 'compile))
+    (load-r6rs-top-level filename 'compile-dll))
     
   (define (compile->closure filename)
     (load-r6rs-top-level filename 'closure))
@@ -264,6 +264,9 @@
           ((load)      
             (parameterize ([command-line (cons filename (map (lambda (x) (format "~a" x)) args))])
               ((compile-r6rs-top-level x*))))
+          ((compile-dll)
+  		      (compile-r6rs-top-level x*) ; i assume this is needed
+			      (serialize-all compile-dll compile-core-expr))
           ((compile)   
             (let ((sp (serializer-port))
                   (extracter #f))
@@ -291,7 +294,7 @@
         guard-req* visible?))
         
   (define (load-fasl filename sk)        
-    (let ((fasl-filename (change-extension filename)))
+    (let ((fasl-filename (change-extension filename ".fasl")))
       (if (file-exists? fasl-filename)
           (if (or (not (file-exists? filename))
                   (file-newer? fasl-filename filename))
@@ -327,9 +330,35 @@
           (or (load-from-package pkg filename sk)
               (load-fasl filename sk))
           (load-fasl filename sk))))
+          
+  (define (load-library-from-dll filename sk)
+    (let* ((dll-filename (change-extension filename ".dll"))
+           (content (load-library-dll dll-filename)))
+      (and content (apply sk content))))
     
-  (define (change-extension filename)
-    (clr-static-call System.IO.Path ChangeExtension filename ".fasl"))  
+  (define (change-extension filename newext)
+    (clr-static-call System.IO.Path ChangeExtension filename newext))  
+    
+  (define (compile-dll filename content)
+    (display "compiling ")
+    (display (relative-filename filename))
+    (newline)
+    (let ((v (list->vector content)))
+      (vector-set! v 0 `',(vector-ref v 0))
+      (vector-set! v 1 `',(vector-ref v 1))
+      (vector-set! v 2 `',(vector-ref v 2))
+      (vector-set! v 3 `',(vector-ref v 3))
+      (vector-set! v 4 `',(vector-ref v 4))
+      (vector-set! v 5 `',(vector-ref v 5))
+      (vector-set! v 6 `',(vector-ref v 6))
+      (vector-set! v 7 `',(vector-ref v 7))
+      (vector-set! v 8 `(lambda () ,(vector-ref v 8)))
+      (vector-set! v 9 `(lambda () ,(vector-ref v 9)))
+      (vector-set! v 10 `(lambda () ,(vector-ref v 10)))
+      (vector-set! v 11 `',(vector-ref v 11))
+      (vector-set! v 12 `',(vector-ref v 12))
+      
+      (compile-library filename (compile-core-expr (cons 'list (vector->list v))))))
     
   (define (serialize-library filename content)
     (display "serializing ")
@@ -344,14 +373,14 @@
               (put-bytevector sp (e))
               (hashtable-set! lm (format "~a" (cadr content)) (cons sos (port-position sp)))))
           (begin    
-            (let ((fasl-filename (change-extension filename)))
+            (let ((fasl-filename (change-extension filename ".fasl")))
               (when (file-exists? fasl-filename)
                 (delete-file fasl-filename))
             (let ((port (open-file-output-port fasl-filename)))
               (serialize-port content port)
               (close-output-port port)))))))
 
-  (current-precompiled-library-loader load-serialized-library)
+  (current-precompiled-library-loader load-library-from-dll)
   
   (initialize-default-printers)
   

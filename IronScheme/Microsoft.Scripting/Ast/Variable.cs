@@ -268,6 +268,7 @@ namespace Microsoft.Scripting.Ast {
 
                 case VariableKind.Global:
                     _storage = cg.Allocator.GlobalAllocator.AllocateStorage(_name, _type);
+                    Debug.Assert(_storage != null);
                     break;
                 case VariableKind.Temporary:
                     // Nothing to do here

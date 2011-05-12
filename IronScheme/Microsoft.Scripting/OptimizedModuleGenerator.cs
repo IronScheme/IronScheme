@@ -287,7 +287,9 @@ namespace Microsoft.Scripting.Generation {
               ag = CreateModuleAssembly(scriptCode);
             }
 
-            TypeGen tg = GenerateModuleGlobalsType(ag);
+            ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly = ag;
+
+            TypeGen tg = GenerateModuleGlobalsType(ag, scriptCode);
 
             if (scriptCode.LibraryGlobals != null)
             {
@@ -384,14 +386,22 @@ namespace Microsoft.Scripting.Generation {
 
 
             Type t = li.TypeGen.FinishType();
-            li.TypeGen.AssemblyGen.DumpAndLoad();
+            var ass = li.TypeGen.AssemblyGen.DumpAndLoad();
 
             if (ModuleName == "ironscheme.boot.new")
             {
               return null;
             }
 
-            return (IAttributesCollection)Activator.CreateInstance(t);
+            try
+            {
+              return (IAttributesCollection)Activator.CreateInstance(ass.GetType(t.FullName));
+            }
+            catch (Exception ex)
+            {
+              Console.WriteLine(ex.Message);
+              return null;
+            }
           }
           else
           {
@@ -476,6 +486,23 @@ namespace Microsoft.Scripting.Generation {
 
             fileName = Path.GetFileNameWithoutExtension(path);
             Debug.Assert(!String.IsNullOrEmpty(fileName));
+        }
+
+        private TypeGen GenerateModuleGlobalsType(AssemblyGen ag, ScriptCode sc)
+        {
+          var n = sc.CodeBlock.Name;
+          switch (n)
+          {
+            case "visit-code":
+            case "invoke-code":
+            case "guard-code":
+              TypeGen tg = ag.DefinePublicType(sc.CodeBlock.Name, typeof(CustomSymbolDictionary));
+              tg.AddCodeContextField();
+              tg.DefaultConstructor = tg.TypeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
+              return tg;
+            default:
+              return GenerateModuleGlobalsType(ag);
+          }
         }
 
         private TypeGen GenerateModuleGlobalsType(AssemblyGen ag) {

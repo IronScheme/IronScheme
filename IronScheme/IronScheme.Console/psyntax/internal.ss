@@ -126,7 +126,7 @@
       (not (eq? (eval-core `',x) (eval-core `',x)))))
 
   (define (expanded->core x)
-    ((rewriter #t) x))
+    ((rewriter #f) x))
     
   (define (compile-core-expr x)
     ((rewriter #f) x))    

@@ -15,6 +15,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
+using System.Reflection.Emit;
 
 namespace IronScheme.Compiler
 {
@@ -23,11 +24,14 @@ namespace IronScheme.Compiler
   {
     static Generator()
     {
+      AllowTranscientBinding = true;
       Initialize();
     }
 
     [ThreadStatic]
     static SourceSpan spanhint;
+
+    internal static bool AllowTranscientBinding { get; set; }
 
     protected static SourceSpan SpanHint
     {
@@ -89,7 +93,7 @@ namespace IronScheme.Compiler
         {
           args = (BigInteger)(long)args;
         }
-        if (args != null && args.GetType().Name == "stx")
+        if (args != null && args.GetType().Namespace.StartsWith("record.g$"))
         {
           args = new SerializedConstant(args);
         }
@@ -161,6 +165,16 @@ namespace IronScheme.Compiler
       {
         return false;
       }
+    }
+
+    internal static bool IsTransient(Module m)
+    {
+      var mb = m as ModuleBuilder;
+      if (mb == null)
+      {
+        return false;
+      }
+      return mb.IsTransient();
     }
 
     static bool IsSimpleCall(MethodCallExpression mce)
@@ -610,22 +624,31 @@ namespace IronScheme.Compiler
                     }
                   }
 
-                  Type[] types = GetExpressionTypes(pars);
-                  MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-                  if (mc != null)
+                  // exclude transient members if needed
+                  if (!AllowTranscientBinding)
                   {
-                    if (mc.Target.NeedsContext)
-                    {
-                      pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
-                    }
-                    MethodBase meth = mc.Target.Method;
+                    mis = Array.FindAll(mis, x => !IsTransient(x.Module));
+                  }
 
-                    var rrrr = Ast.ComplexCallHelper(meth as MethodInfo, pars);
-                    if (spanhint.IsValid)
+                  if (mis.Length > 0)
+                  {
+                    Type[] types = GetExpressionTypes(pars);
+                    MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                    if (mc != null)
                     {
-                      rrrr.SetLoc(spanhint);
+                      if (mc.Target.NeedsContext)
+                      {
+                        pars = ArrayUtils.Insert<Expression>(Ast.CodeContext(), pars);
+                      }
+                      MethodBase meth = mc.Target.Method;
+
+                      var rrrr = Ast.ComplexCallHelper(meth as MethodInfo, pars);
+                      if (spanhint.IsValid)
+                      {
+                        rrrr.SetLoc(spanhint);
+                      }
+                      return rrrr;
                     }
-                    return rrrr;
                   }
                 }
                 // check for overload thing
@@ -868,7 +891,10 @@ namespace IronScheme.Compiler
 
       foreach (Variable l in cb.Variables)
       {
-        l.Name = (SymbolId) Builtins.GenSym(l.Name);
+        if (l.DefaultValue == null)
+        {
+          l.Name = (SymbolId)Builtins.GenSym(l.Name);
+        }
         l.Block = parent;
         parent.AddVariable(l);
         if (l.Lift)
