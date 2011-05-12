@@ -117,7 +117,8 @@ namespace IronScheme.Runtime
     public static object DeserializePort(object binaryport)
     {
       Stream s = Requires<Stream>(binaryport);
-      return psyntax.Serialization.SERIALIZER.UnsafeDeserialize(s, null);
+      var o = psyntax.Serialization.SERIALIZER.UnsafeDeserialize(s, null);
+      return o;
     }
 
 
@@ -390,6 +391,20 @@ namespace IronScheme.Runtime
       return ht;
     }
 
+    [Builtin("load-library-dll")]
+    public static object LoadLibraryDll(object filename)
+    {
+      try
+      {
+        var o = Load(filename, true);
+        return o;
+      }
+      catch
+      {
+        return FALSE;
+      }
+    }
+
     [Builtin("compile-bootfile")]
     public static object CompileBootfile(object libs)
     {
@@ -435,6 +450,78 @@ namespace IronScheme.Runtime
       Compiler.SimpleGenerator.ClearGlobals();
 
       return TRUE;
+    }
+
+    [Builtin("compile-library")]
+    public static object CompileLibrary(object filename, object content)
+    {
+      AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
+      ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.DisableOptimizations;
+
+      if (ScriptDomainManager.Options.DebugMode)
+      {
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.EmitDebugInfo;
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.GenerateDebugAssemblies;
+        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.DisableOptimizations;
+
+        ScriptDomainManager.Options.DebugCodeGeneration = true;
+      }
+      else
+      {
+        ScriptDomainManager.Options.DebugCodeGeneration = false;
+      }
+
+      ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
+
+      //Console.WriteLine(new Cons(libs).PrettyPrint);
+
+      //object[] arr = ListToVector(content as Cons);
+      //0: id
+      //1: name
+      //2: version
+      //3: imp*
+      //4: vis*
+      //5: inv*
+      //6: subst
+      //7: env
+      //8: visit code
+      //9: invoke code
+      //10: guard code
+      //11: guard req?
+      //12: visible?
+
+
+      Compiler.Generator.AllowTranscientBinding = false;
+
+      try
+      {
+
+        CodeBlock cb = IronSchemeLanguageContext.CompileExpr(new Cons(content));
+        cb.ExplicitCodeContextExpression = null;
+        cb.Name = "";
+
+        ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb, filename as string);
+
+        sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
+        sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
+        sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
+
+        sc.SourceUnit.IsVisibleToDebugger = true;
+
+        ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(Path.GetFileNameWithoutExtension(filename as string), sc);
+
+        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+
+        Compiler.SimpleGenerator.ClearGlobals();
+
+        return TRUE;
+      }
+      finally
+      {
+        Compiler.Generator.AllowTranscientBinding = true;
+      }
     }
 
     static int evalcounter = 0;

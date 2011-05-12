@@ -40,7 +40,7 @@ namespace IronScheme.Hosting
     void Initialize()
     {
       IronScheme.Compiler.BaseHelper.Initialize(this);
-      Runtime.Builtins.Load("~/ironscheme.boot.dll");
+      Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
 
 

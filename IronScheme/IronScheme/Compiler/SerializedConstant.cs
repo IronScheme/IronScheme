@@ -10,13 +10,15 @@ using System.IO;
 using System.Reflection.Emit;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting;
+using System.Collections.Generic;
 
 namespace IronScheme.Compiler
 {
   sealed class SerializedConstant : CompilerConstant
   {
     readonly object value;
-    static int constantcounter = 0;
+    int index = -1;
 
     public SerializedConstant(object value)
     {
@@ -25,10 +27,13 @@ namespace IronScheme.Compiler
 
     public override Type Type
     {
-      get { return value.GetType(); }
+      get { return typeof(object); }
     }
 
     static long totallength = 0;
+
+    StaticFieldSlot fs;
+    LocalBuilder arrloc;
 
     public override void EmitCreation(CodeGen cg)
     {
@@ -38,26 +43,77 @@ namespace IronScheme.Compiler
       }
       else
       {
-        ModuleBuilder mb = cg.TypeGen.TypeBuilder.Module as ModuleBuilder;
+        var tg = cg.TypeGen;
+        var ag = tg.AssemblyGen;
+        index = tg.ConstantCounter;
 
-        //FieldSlot s = cg.TypeGen.AddStaticField(typeof(object), "s11n:" + constantcounter) as FieldSlot;
+        if (ScriptDomainManager.CurrentManager.Snippets.Assembly == ag || ScriptDomainManager.CurrentManager.Snippets.DebugAssembly == ag)
+        {
+          var sym = (SymbolId) Runtime.Builtins.GenSym("s11n:" + index);
 
-        MemoryStream s = new MemoryStream();
+          Runtime.Builtins.SetSymbolValue(sym, value);
 
-        bf.Serialize(s, value);
-        s.Position = 0;
-        totallength += s.Length;
-        mb.DefineManifestResource("s11n:" + constantcounter, s, System.Reflection.ResourceAttributes.Public);
+          cg.EmitSymbolId(sym);
+          cg.EmitCall(typeof(Runtime.Builtins), "SymbolValue");
+        }
+        else
+        {
 
-        cg.EmitType(cg.TypeGen.TypeBuilder);
-        cg.EmitString("s11n:" + constantcounter);
-        cg.EmitCall(typeof(Runtime.Helpers).GetMethod("GetConstant"));
+          fs = tg.AddStaticField(typeof(object), "s11n:" + index) as StaticFieldSlot;
+          tg.SerializedConstants.Add(this);
+          
 
-        constantcounter++;
+          var tcg = tg.TypeInitializer;
+
+          if (index == 0)
+          {
+            arrloc = tcg.DeclareLocal(typeof(object[]));
+            // first
+            // setup deserializtion to array, then assign to fields
+            tcg.EmitType(tg.TypeBuilder);
+            tcg.EmitCall(typeof(Runtime.Helpers), "DeserializeAssemblyConstants");
+
+            tcg.Emit(OpCodes.Stloc, arrloc);
+
+            tg.CreatingType += (sender, ea) =>
+            {
+              var constants = new List<object>();
+  
+              foreach (SerializedConstant sc in tg.SerializedConstants)
+              {
+                constants.Add(sc.value);
+              }
+
+              var constantsarray = constants.ToArray();
+
+              MemoryStream s = new MemoryStream();
+
+              bf.Serialize(s, constantsarray);
+              s.Position = 0;
+              totallength += s.Length;
+              var mb = tg.TypeBuilder.Module as ModuleBuilder;
+              mb.DefineManifestResource("SerializedConstants", s, System.Reflection.ResourceAttributes.Public);
+
+            };
+          
+
+          }
+
+          tcg.Emit(OpCodes.Ldloc, ((SerializedConstant) tg.SerializedConstants[0]).arrloc);
+
+          tcg.EmitInt(index);
+          tcg.Emit(OpCodes.Ldelem_Ref);
+
+          fs.EmitSet(tcg);
+          fs.EmitGet(cg);
+        }
+
+
+        tg.ConstantCounter++;
       }
     }
 
-    static BinaryFormatter bf = Runtime.Helpers.bf;
+    static BinaryFormatter bf = Runtime.psyntax.Serialization.SERIALIZER;
 
     public override object Create()
     {

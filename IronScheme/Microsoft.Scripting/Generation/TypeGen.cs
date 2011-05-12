@@ -40,6 +40,10 @@ namespace Microsoft.Scripting.Generation {
         private ConstructorBuilder _defaultCtor;
         private ActionBinder _binder;
 
+        public event EventHandler CreatingType;
+        public int ConstantCounter = 0;
+        public List<object> SerializedConstants = new List<object>();
+
         private static readonly Type[] SymbolIdIntCtorSig = new Type[] { typeof(int) };
 
         public TypeGen(AssemblyGen myAssembly, TypeBuilder myType) {
@@ -76,6 +80,10 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public Type FinishType() {
+            if (CreatingType != null)
+            {
+              CreatingType(this, EventArgs.Empty);
+            }
             if (_initGen != null) _initGen.Emit(OpCodes.Ret);
 
             Type ret = _myType.CreateType();

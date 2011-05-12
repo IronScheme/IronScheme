@@ -19,27 +19,27 @@ namespace IronScheme.Runtime
 {
   public static class Helpers
   {
-    static Dictionary<Type, Dictionary<string, object>> cache = new Dictionary<Type, Dictionary<string, object>>();
+    //static Dictionary<Type, Dictionary<string, object>> cache = new Dictionary<Type, Dictionary<string, object>>();
 
-    public static object GetConstant(Type t, string id)
-    {
-      Dictionary<string, object> innerc;
+    //public static object GetConstant(Type t, string id)
+    //{
+    //  Dictionary<string, object> innerc;
 
-      if (!cache.TryGetValue(t, out innerc))
-      {
-        cache[t] = innerc = new Dictionary<string, object>();
-      }
+    //  if (!cache.TryGetValue(t, out innerc))
+    //  {
+    //    cache[t] = innerc = new Dictionary<string, object>();
+    //  }
 
-      object c;
-      if (!innerc.TryGetValue(id, out c))
-      {
-        Assembly ass = t.Assembly;
-        Stream s = ass.GetManifestResourceStream(id);
-        c = innerc[id] = bf.Deserialize(s);
-      }
+    //  object c;
+    //  if (!innerc.TryGetValue(id, out c))
+    //  {
+    //    Assembly ass = t.Assembly;
+    //    Stream s = ass.GetManifestResourceStream(id);
+    //    c = innerc[id] = bf.Deserialize(s);
+    //  }
 
-      return c;
-    }
+    //  return c;
+    //}
 
     public static T FFIConvertTo<T>(object obj)
     {
@@ -326,14 +326,16 @@ namespace IronScheme.Runtime
       return (T)obj;
     }
 
-    static Helpers()
+    public static object[] DeserializeAssemblyConstants(Type t)
     {
-      bf.AssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple;
-      bf.FilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Low;
-      bf.TypeFormat = System.Runtime.Serialization.Formatters.FormatterTypeStyle.TypesWhenNeeded;
+      using (var s = t.Assembly.GetManifestResourceStream("SerializedConstants"))
+      {
+        var arr = psyntax.Serialization.SERIALIZER.Deserialize(s);
+        return arr as object[];
+      }
     }
 
-    internal static BinaryFormatter bf = new BinaryFormatter();
+    //internal static BinaryFormatter bf = psyntax.Serialization.SERIALIZER;
 
 #warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655741
     static MethodInfo LookupCallable(Callable c, Type[] args)
