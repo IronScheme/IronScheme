@@ -696,11 +696,18 @@ namespace IronScheme.Compiler
         {
           NewExpression mcexpr = ex as NewExpression;
           CodeBlockExpression cbe = mcexpr.Arguments[0] as CodeBlockExpression;
-          var ppp = GetAstListNoCast(c.cdr as Cons, cb);
-
-          if (ppp.Length < 9 && cbe.Block.ParameterCount == ppp.Length)
+          if (cbe == null && mcexpr.Arguments[0].Type == typeof(CodeContext) && mcexpr.Arguments[0] is ConstantExpression) // implies null
           {
-            return InlineCall(cb, cbe, istailposition, ppp);
+            cbe = mcexpr.Arguments[1] as CodeBlockExpression;
+          }
+          if (cbe != null)
+          {
+            var ppp = GetAstListNoCast(c.cdr as Cons, cb);
+
+            if (ppp.Length < 9 && cbe.Block.ParameterCount == ppp.Length)
+            {
+              return InlineCall(cb, cbe, istailposition, ppp);
+            }
           }
 
         }

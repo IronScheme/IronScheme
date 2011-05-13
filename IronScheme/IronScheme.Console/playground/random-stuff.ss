@@ -1,4 +1,45 @@
 ﻿
+(let drink ((beers 6))
+  (if (zero? beers) 
+      'yeah
+      (drink (- beers 1))))
+
+
+(library (foo)
+  (export bar)
+  (import (rnrs))
+  
+  (define foo 'hello))
+  
+(library (sym)
+  (export blah)
+  (import (ironscheme symbolic-case)
+          (foo))
+  
+  (define-syntax blah
+    (lambda (x)
+      (symbolic-case x (bar)
+        [(_ bar) #''ok]))))
+
+(library (syn)
+  (export halb bar)
+  (import (foo))
+  
+  (define-syntax halb
+    (lambda (x)
+      (syntax-case x (bar)
+        [(_ bar) #''ok]))))
+        
+(import 
+  (rnrs)
+  (sym)
+  (syn)
+  (rename foo (bar rab)))
+  
+(blah bar)
+(halb bar)  
+
+
 
 (define (fib n)
   (if (< n 2)
