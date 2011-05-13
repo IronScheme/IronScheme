@@ -172,6 +172,10 @@ namespace IronScheme.Compiler
       var mb = m as ModuleBuilder;
       if (mb == null)
       {
+        if (m.GetType().Name == "InternalModuleBuilder") // nice one .NET 4...
+        {
+          return true;
+        }
         return false;
       }
       return mb.IsTransient();

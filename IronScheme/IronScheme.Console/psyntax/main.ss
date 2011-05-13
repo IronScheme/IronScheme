@@ -336,8 +336,7 @@
            (content (load-library-dll dll-filename)))
       (and content (apply sk content))))
     
-  (define (change-extension filename newext)
-    (clr-static-call System.IO.Path ChangeExtension filename newext))  
+
     
   (define (compile-dll filename content)
     (display "compiling ")
