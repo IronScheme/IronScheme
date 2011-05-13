@@ -150,7 +150,7 @@
                (f (cdr ls) (library-extensions) failed-list))
               (else
                (let ((name (string-append (car ls) str (car exts))))
-                 (if (file-exists? name)
+                 (if (or (file-exists? name) (compiled-library-exists? name))
                      name
                      (f ls (cdr exts) (cons name failed-list)))))))))
       (lambda (f)

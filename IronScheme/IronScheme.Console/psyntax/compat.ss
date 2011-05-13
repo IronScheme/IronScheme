@@ -26,8 +26,8 @@
           annotation-stripped
 		      read-library-source-file
           library-version-mismatch-warning
-          library-stale-warning
-          file-locator-resolution-error
+          library-stale-warning compiled-library-exists?
+          file-locator-resolution-error change-extension
           label-binding set-label-binding! remove-location relative-filename)
   (import 
     (rnrs)
@@ -40,6 +40,12 @@
           
   (define (replace s b a)
     (clr-call String (Replace String String) s b a))
+    
+  (define (change-extension filename newext)
+    (clr-static-call System.IO.Path ChangeExtension filename newext))  
+    
+  (define (compiled-library-exists? filename)
+    (file-exists? (change-extension filename ".dll")))
           
   (define (relative-filename filename)
     (let ((rf (replace 
