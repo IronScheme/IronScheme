@@ -50,6 +50,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionOnCallAttribute.cs" />
@@ -328,6 +330,7 @@
     <Compile Include="DynamicStackFrame.cs" />
     <Compile Include="StaticExtensionMethodAttribute.cs" />
     <Compile Include="StaticThisAttribute.cs" />
+    <Compile Include="Storage.cs" />
     <Compile Include="SymbolDictionary.cs" />
     <Compile Include="BaseSymbolDictionary.cs" />
     <Compile Include="SyntaxErrorException.cs" />

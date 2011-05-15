@@ -260,6 +260,11 @@ namespace Microsoft.Scripting {
             return ((TupleDictionary<TupleType>)scope.Dict).TupleData;
         }
 
+        public static StorageType GetStorageData<StorageType>(Scope scope) where StorageType : class, new()
+        {
+          return ((Storage<StorageType>)scope.Dict).Data;
+        }
+
         // The locals dictionary must be first so that we have the benefit of an emtpy stack when we emit the value
         // in the ScopeExpression
         public static CodeContext CreateNestedCodeContext(IAttributesCollection locals, CodeContext context)
