@@ -394,6 +394,10 @@ namespace IronScheme.Runtime
     [Builtin("load-library-dll")]
     public static object LoadLibraryDll(object filename)
     {
+      if (!File.Exists(filename as string))
+      {
+        return FALSE;
+      }
       try
       {
         var o = Load(filename, true);
@@ -474,8 +478,6 @@ namespace IronScheme.Runtime
       }
 
       ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
-
-      //Console.WriteLine(new Cons(libs).PrettyPrint);
 
       //object[] arr = ListToVector(content as Cons);
       //0: id
