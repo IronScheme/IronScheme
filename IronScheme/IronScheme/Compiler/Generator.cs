@@ -93,7 +93,7 @@ namespace IronScheme.Compiler
         {
           args = (BigInteger)(long)args;
         }
-        if (args != null && args.GetType().Namespace.StartsWith("record.g$"))
+        if (args != null && args.GetType().Namespace.StartsWith("record."))
         {
           args = new SerializedConstant(args);
         }

@@ -170,7 +170,7 @@ namespace IronScheme.Runtime
 
           if (!Builtins.IsTrue(ruid))
           {
-            ruid = Builtins.GenSym();
+            ruid = Guid.NewGuid().ToString();
             obj[2] = Ast.Convert(Ast.Constant(ruid), typeof(object));
           }
 
@@ -467,7 +467,7 @@ namespace IronScheme.Runtime.R6RS
     public static RecordTypeDescriptor GenerateRecordTypeDescriptor(AssemblyGen ag, object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
       string n = SymbolTable.IdToString(RequiresNotNull<SymbolId>(name));
-      string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)): null;
+      string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)): uid as string;
 
       if (id != null)
       {
@@ -510,7 +510,7 @@ namespace IronScheme.Runtime.R6RS
       rtd.ag = ag;
       rtd.Parent = prtd;
       rtd.uid = uid;
-      rtd.generative = id == null;
+      rtd.generative = id == null || uid is string;
 
       if (@sealed)
       {
