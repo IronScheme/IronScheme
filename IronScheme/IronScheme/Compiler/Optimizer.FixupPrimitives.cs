@@ -70,7 +70,7 @@ namespace IronScheme.Compiler
 
                   // will not work on varargs, need to somehow decorate them
                   var meth = Array.Find(cc.Targets,
-                    x => x.GetParameters().Length == node.Arguments.Count && (Generator.AllowTranscientBinding || !Generator.IsTransient(x.Module)));
+                    x => x.GetParameters().Length == node.Arguments.Count && (Generator.AllowTransientBinding || !Generator.IsTransient(x.Module)));
 
                   if (meth != null)
                   {
@@ -80,7 +80,7 @@ namespace IronScheme.Compiler
                   else
                   {
                     meth = Array.Find(cc.VarargTargets,
-                      x => x.GetParameters().Length - 1 <= node.Arguments.Count && (Generator.AllowTranscientBinding || !Generator.IsTransient(x.Module)));
+                      x => x.GetParameters().Length - 1 <= node.Arguments.Count && (Generator.AllowTransientBinding || !Generator.IsTransient(x.Module)));
 
                     if (meth != null)
                     {

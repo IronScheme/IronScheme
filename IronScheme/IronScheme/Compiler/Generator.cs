@@ -24,14 +24,14 @@ namespace IronScheme.Compiler
   {
     static Generator()
     {
-      AllowTranscientBinding = true;
+      AllowTransientBinding = true;
       Initialize();
     }
 
     [ThreadStatic]
     static SourceSpan spanhint;
 
-    internal static bool AllowTranscientBinding { get; set; }
+    internal static bool AllowTransientBinding { get; set; }
 
     protected static SourceSpan SpanHint
     {
@@ -629,7 +629,7 @@ namespace IronScheme.Compiler
                   }
 
                   // exclude transient members if needed
-                  if (!AllowTranscientBinding)
+                  if (!AllowTransientBinding)
                   {
                     mis = Array.FindAll(mis, x => !IsTransient(x.Module));
                   }
