@@ -390,7 +390,7 @@ namespace Microsoft.Scripting.Ast {
             cg.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(SymbolId) }));
         }
 
-        internal void CreateEnvironmentFactory(bool generator) {
+        internal void CreateEnvironmentFactory(bool generator, CodeGen cg) {
             if (HasEnvironment) {
                 // Get the environment size
                 int size = 0;
@@ -424,7 +424,7 @@ namespace Microsoft.Scripting.Ast {
                 // Find the right environment factory for the size of elements to store
                 if (useclass)
                 {
-                  _environmentFactory = CreateEnvironmentFactory(lifted);
+                  _environmentFactory = CreateEnvironmentFactory(lifted, cg);
                 }
                 else
                 {
@@ -433,7 +433,7 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        static bool useclass = false;
+        static bool useclass = true;
 
         internal EnvironmentSlot EmitEnvironmentAllocation(CodeGen cg) {
             Debug.Assert(_environmentFactory != null);
@@ -578,7 +578,14 @@ namespace Microsoft.Scripting.Ast {
                 {
                   scope.EmitGet(cg);
 
-                  cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetTupleDictionaryData").MakeGenericMethod(parent._environmentFactory.StorageType));
+                  if (useclass)
+                  {
+                    cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetStorageData").MakeGenericMethod(parent._environmentFactory.StorageType));
+                  }
+                  else
+                  {
+                    cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetTupleDictionaryData").MakeGenericMethod(parent._environmentFactory.StorageType));
+                  }
 
                   Slot storage = new LocalSlot(cg.DeclareLocal(parent._environmentFactory.StorageType), cg);
                   storage.EmitSet(cg);
@@ -1412,7 +1419,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             cg.EmitSequencePointNone();
           }
 
-            CreateEnvironmentFactory(false);
+            CreateEnvironmentFactory(false, cg);
             CreateSlots(cg);
 
             Body.Emit(cg);
@@ -1458,9 +1465,27 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             return new PropertyEnvironmentFactory(tupleType, envType);
         }
 
-        internal static EnvironmentFactory CreateEnvironmentFactory(List<Variable> vars)
+        internal static EnvironmentFactory CreateEnvironmentFactory(List<Variable> vars, CodeGen cg)
         {
-          return null;
+          Type storageType = GenerateStorageType(vars, cg);
+          Type envType = typeof(Storage<>).MakeGenericType(storageType);
+          return new ClassEnvironmentFactory(storageType, envType);
+        }
+
+        static Type GenerateStorageType(List<Variable> vars, CodeGen cg)
+        {
+          var tg = cg.TypeGen.AssemblyGen.DefinePublicType("closure." + Guid.NewGuid(), typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
+
+          tg.TypeBuilder.DefineField("$parent$", typeof(IAttributesCollection), FieldAttributes.Public);
+
+          foreach (var v in vars)
+          {
+            tg.TypeBuilder.DefineField(SymbolTable.IdToString(v.Name), v.Type, FieldAttributes.Public);
+          }
+
+          var t = tg.FinishType();
+
+          return t;
         }
 
         public void AddParameter(Variable par)

@@ -73,7 +73,8 @@ namespace Microsoft.Scripting.Generation {
 
       public override Slot CreateSlot(Slot instance)
       {
-        Slot s = new FieldSlot(instance, _storageType.GetField(SymbolTable.IdToString(_name)));
+        var sym = SymbolTable.IdToString(_name);
+        Slot s = new FieldSlot(instance, _storageType.GetField(sym));
         if (_type != s.Type)
         {
           s = new CastSlot(s, _type);

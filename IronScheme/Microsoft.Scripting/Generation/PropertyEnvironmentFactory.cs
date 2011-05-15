@@ -198,7 +198,26 @@ namespace Microsoft.Scripting.Generation {
 
     public override void EmitNewEnvironment(CodeGen cg)
     {
-      throw new NotImplementedException();
+      ConstructorInfo ctor = EnvironmentType.GetConstructor(new Type[] {StorageType});
+
+      // emit: dict.Tuple[.Item000...].Item000 = dict, and then leave dict on the stack
+
+      cg.EmitNew(ctor);
+      cg.Emit(OpCodes.Dup);
+
+      Slot tmp = cg.GetLocalTmp(EnvironmentType);
+      tmp.EmitSet(cg);
+
+      cg.EmitPropertyGet(EnvironmentType, "Data");
+
+      var fld = StorageType.GetField("$parent$");
+
+      //cg.EmitFieldGet(fld);
+
+      tmp.EmitGet(cg);
+      cg.EmitFieldSet(fld);
+
+      cg.FreeLocalTmp(tmp);
     }
 
     public override void EmitStorage(CodeGen cg)
@@ -210,7 +229,7 @@ namespace Microsoft.Scripting.Generation {
     {
       cg.EmitCodeContext();
       cg.EmitPropertyGet(typeof(CodeContext), "Scope");
-      cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetTupleDictionaryData").MakeGenericMethod(StorageType));
+      cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetStorageData").MakeGenericMethod(StorageType));
     }
 
     public override EnvironmentSlot CreateEnvironmentSlot(CodeGen cg)

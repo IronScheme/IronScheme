@@ -156,8 +156,29 @@ namespace Microsoft.Scripting.Generation {
                         typeof(CodeContext).GetProperty("Scope")),
                     typeof(Scope).GetProperty("Dict"))
                 );
-                                       
+
                 cg.Context = sc.CompilerContext;
+
+                GlobalFieldAllocator gfa = sa.LocalAllocator as GlobalFieldAllocator;
+                if (gfa != null)
+                {
+                  Dictionary<SymbolId, Slot> fields = gfa.SlotFactory.Fields;
+
+                  Label ok = cg.DefineLabel();
+                  cg.ContextSlot.EmitGet(cg);
+                  //cg.EmitNull();
+                  //cg.Emit(OpCodes.Ceq);
+                  cg.Emit(OpCodes.Brtrue_S, ok);
+
+                  // MyModuleDictType.ContextSlot = arg0
+                  
+                  cg.EmitNew(cg.TypeGen.DefaultConstructor);
+                  cg.EmitArgGet(0);
+                  cg.EmitCall(typeof(IModuleDictionaryInitialization), "InitializeModuleDictionary");
+                  
+                  cg.MarkLabel(ok);
+                }
+
                 sc.CodeBlock.EmitFunctionImplementation(cg);
 
                 cg.Finish();

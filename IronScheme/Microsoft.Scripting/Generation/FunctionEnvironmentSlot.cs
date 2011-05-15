@@ -47,6 +47,7 @@ namespace Microsoft.Scripting.Generation {
       public override void EmitGetDictionary(CodeGen cg)
       {
         EmitGet(cg);
+        cg.EmitFieldGet(_storageType, "$parent$");
       }
     }
 }

@@ -87,7 +87,7 @@ namespace Microsoft.Scripting.Ast {
                 cg.Allocator = CompilerHelpers.CreateFrameAllocator();
             }
             cg.Allocator.Block = this;
-            CreateEnvironmentFactory(true);
+            CreateEnvironmentFactory(true, cg);
             EmitGeneratorBody(cg);
             cg.EmitReturn();
         }
