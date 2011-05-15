@@ -18,7 +18,7 @@
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <TargetFrameworkSubset>
     </TargetFrameworkSubset>
@@ -85,7 +85,7 @@
   <PropertyGroup>
     <PostBuildEvent>"$(FrameworkSDKDir)Bin\ildasm" /out:"$(TargetName).il" /NOBAR /LINENUM "$(TargetPath)"
 "$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(TargetName).il"
-"$(FrameworkDir)\ilasm" /dll  /OPT  /NOLOGO  /out:$(TargetName).dll "$(TargetName).il" "IronScheme.Glue.il"
+"$(FrameworkDir)\ilasm" /dll  /OPT  /NOLOGO /QUIET /out:$(TargetName).dll "$(TargetName).il" "IronScheme.Glue.il"
 rem "$(FrameworkSDKDir)Bin\peverify" /NOLOGO "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

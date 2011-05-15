@@ -495,7 +495,7 @@ namespace IronScheme.Runtime
       //12: visible?
 
 
-      Compiler.Generator.AllowTranscientBinding = false;
+      Compiler.Generator.AllowTransientBinding = false;
 
       try
       {
@@ -522,7 +522,7 @@ namespace IronScheme.Runtime
       }
       finally
       {
-        Compiler.Generator.AllowTranscientBinding = true;
+        Compiler.Generator.AllowTransientBinding = true;
       }
     }
 
