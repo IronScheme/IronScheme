@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		dlr.diff = dlr.diff
 		header.bmp = header.bmp
 		ironscheme.ico = ironscheme.ico
+		is2010.patch = is2010.patch
 		License.html = License.html
 		logo-128.png = logo-128.png
 		logo-192.png = logo-192.png
