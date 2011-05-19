@@ -16,7 +16,8 @@ namespace Microsoft.Scripting
 
     public bool TryGetValue(SymbolId name, out object value)
     {
-      throw new NotImplementedException();
+      value = null;
+      return false;
     }
 
     public bool Remove(SymbolId name)
@@ -73,12 +74,17 @@ namespace Microsoft.Scripting
 
     public int Count
     {
-      get { throw new NotImplementedException(); }
+      get { return 0; }
     }
+
+    static readonly ICollection<object> EMPTY = new List<object>();
 
     public ICollection<object> Keys
     {
-      get { throw new NotImplementedException(); }
+      get
+      {
+        return EMPTY;
+      }
     }
 
     #endregion
