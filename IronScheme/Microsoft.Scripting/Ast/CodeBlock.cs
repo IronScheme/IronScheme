@@ -1472,9 +1472,12 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
           return new ClassEnvironmentFactory(storageType, envType);
         }
 
+
+        static int closure_counter = 0;
+
         static Type GenerateStorageType(List<Variable> vars, CodeGen cg)
         {
-          var tg = cg.TypeGen.AssemblyGen.DefinePublicType("closure." + Guid.NewGuid(), typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
+          var tg = cg.TypeGen.AssemblyGen.DefinePublicType("closure.$env" + closure_counter++, typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
 
           tg.TypeBuilder.DefineField("$parent$", typeof(IAttributesCollection), FieldAttributes.Public);
 
