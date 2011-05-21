@@ -51,6 +51,7 @@ namespace IronScheme.Compiler
       Optimize<FlattenBodies>(cb);
       Optimize<RemoveTemporaries>(cb);
       Optimize<FixupPrimitives>(cb);
+      Optimize<TypeVariables>(cb);
     }
   }
 }
