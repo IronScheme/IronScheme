@@ -158,7 +158,7 @@ namespace Microsoft.Scripting.Ast {
             EmitGenerator(ncg);
 
             flowedContext.EmitGet(_impl);
-            _impl.EmitDelegateConstruction(ncg, _next);
+            _impl.EmitDelegateConstruction(ncg, _next, false);
             _impl.EmitNew(_generator, new Type[] { typeof(CodeContext), _next });
         }
 

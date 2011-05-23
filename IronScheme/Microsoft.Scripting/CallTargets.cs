@@ -29,23 +29,6 @@ namespace Microsoft.Scripting {
 
         #endregion
 
-        public static Type GetTargetType(Type contextType, int args)
-        {
-          switch (args)
-          {
-            case 0: return typeof(CallTargetWithContext0<>).MakeGenericType(contextType);
-            case 1: return typeof(CallTargetWithContext1<>).MakeGenericType(contextType);
-            case 2: return typeof(CallTargetWithContext2<>).MakeGenericType(contextType);
-            case 3: return typeof(CallTargetWithContext3<>).MakeGenericType(contextType);
-            case 4: return typeof(CallTargetWithContext4<>).MakeGenericType(contextType);
-            case 5: return typeof(CallTargetWithContext5<>).MakeGenericType(contextType);
-            case 6: return typeof(CallTargetWithContext6<>).MakeGenericType(contextType);
-            case 7: return typeof(CallTargetWithContext7<>).MakeGenericType(contextType);
-            case 8: return typeof(CallTargetWithContext8<>).MakeGenericType(contextType);
-          }
-          throw new NotImplementedException();
-        }
-
         public static Type GetTargetType(bool needsContext, int nargs, bool needsThis) {
             if (needsThis)
             {
@@ -110,8 +93,8 @@ namespace Microsoft.Scripting {
 
 
     public delegate object CallTargetN(params object[] args);
+  [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContextN(CodeContext context, params object[] args);
-    public delegate object CallTargetWithContextN<CodeContext>(CodeContext context, params object[] args);
 
 #if FULL
     public delegate object CallTargetWithThisN(object instance, params object[] args);
@@ -143,31 +126,31 @@ namespace Microsoft.Scripting {
 
     // *** BEGIN GENERATED CODE ***
 
-
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext0(CodeContext context);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext1(CodeContext context, object arg0);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext2(CodeContext context, object arg0, object arg1);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext3(CodeContext context, object arg0, object arg1, object arg2);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext4(CodeContext context, object arg0, object arg1, object arg2, object arg3);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext5(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext6(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext7(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6);
+    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext8(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7);
+
 
 
     // *** END GENERATED CODE ***
 
     #endregion
 
-    public delegate object CallTargetWithContext0<CodeContext>(CodeContext context);
-    public delegate object CallTargetWithContext1<CodeContext>(CodeContext context, object arg0);
-    public delegate object CallTargetWithContext2<CodeContext>(CodeContext context, object arg0, object arg1);
-    public delegate object CallTargetWithContext3<CodeContext>(CodeContext context, object arg0, object arg1, object arg2);
-    public delegate object CallTargetWithContext4<CodeContext>(CodeContext context, object arg0, object arg1, object arg2, object arg3);
-    public delegate object CallTargetWithContext5<CodeContext>(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4);
-    public delegate object CallTargetWithContext6<CodeContext>(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5);
-    public delegate object CallTargetWithContext7<CodeContext>(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6);
-    public delegate object CallTargetWithContext8<CodeContext>(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7);
 
 
 #if FULL
@@ -203,7 +186,7 @@ namespace Microsoft.Scripting {
 
     // *** END GENERATED CODE ***
 
-    #endregion 
+    #endregion
 #endif
 
 

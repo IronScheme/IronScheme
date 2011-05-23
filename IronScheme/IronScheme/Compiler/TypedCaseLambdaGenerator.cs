@@ -131,8 +131,7 @@ namespace IronScheme.Compiler
       Type dt = GetDelegateType(cb);
       Type ct = GetClosureType(cb);
 
-      Expression ex = Ast.New(ct.GetConstructor( new Type[] { typeof(CodeContext), dt }), 
-        c.IsGlobal ? Ast.Null(typeof(CodeContext)) : Ast.CodeContext() as Expression, Ast.CodeBlockExpression(cb, true, dt));
+      Expression ex = Ast.New(ct.GetConstructor( new Type[] { dt }), Ast.CodeBlockExpression(cb, true, dt));
 
       ClrGenerator.ResetReferences(refs);
 
@@ -199,8 +198,7 @@ namespace IronScheme.Compiler
           Type ct = GetClosureType(cb);
 
           var cbe = Ast.CodeBlockExpression(cb, true, dt);
-          Expression ex = Ast.New(ct.GetConstructor(new Type[] { typeof(CodeContext), dt }),
-            c.IsGlobal ? Ast.Null(typeof(CodeContext)) : Ast.CodeContext() as Expression, cbe);
+          Expression ex = Ast.New(ct.GetConstructor(new Type[] {  dt }), cbe);
 
           CodeBlockDescriptor cbd = new CodeBlockDescriptor();
           cbd.arity = isrest ? -cb.ParameterCount : cb.ParameterCount;
