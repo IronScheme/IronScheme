@@ -25,6 +25,8 @@ namespace Microsoft.Scripting.Ast {
         private readonly Expression /*!*/ _operand;
         private readonly Type /*!*/ _type;
 
+        public static MethodInfo Converter;
+
         internal UnaryExpression(AstNodeType nodeType, Expression /*!*/ expression, Type /*!*/ type)
             : base(nodeType) {
             _operand = expression;
@@ -73,7 +75,14 @@ namespace Microsoft.Scripting.Ast {
             switch (NodeType)
             {
               case AstNodeType.Convert:
-                cg.EmitCast(_operand.Type, _type);
+                if (_type != _operand.Type && _type.Name == "Callable" && Converter != null)
+                {
+                  cg.EmitCall(Converter);
+                }
+                else
+                {
+                  cg.EmitCast(_operand.Type, _type);
+                }
                 break;
 
               case AstNodeType.Not:

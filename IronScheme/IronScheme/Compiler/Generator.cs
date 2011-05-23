@@ -25,6 +25,7 @@ namespace IronScheme.Compiler
     static Generator()
     {
       AllowTransientBinding = true;
+      UnaryExpression.Converter = typeof(Helpers).GetMethod("RequiresNotNull").MakeGenericMethod(typeof(Callable));
       Initialize();
     }
 
@@ -719,7 +720,11 @@ namespace IronScheme.Compiler
 
         Expression[] pp = GetAstList(c.cdr as Cons, cb);
 
-        ex = Ast.ConvertHelper(ex, typeof(Callable));
+        if (ex.Type != typeof(Callable))
+        {
+          ex = Ast.Convert(ex, typeof(Callable));
+          //ex = Ast.Call(typeof(Helpers).GetMethod("RequiresNotNull").MakeGenericMethod(typeof(Callable)), ex);
+        }
 
         MethodInfo call = GetCallable(pp.Length);
 
