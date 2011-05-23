@@ -42,7 +42,7 @@
     <DefineConstants>TRACE;nFULL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <BaseAddress>4194304</BaseAddress>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>

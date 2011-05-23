@@ -1283,7 +1283,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         // Not to be used with virtual methods
-        public void EmitDelegateConstruction(CodeGen delegateFunction, Type delegateType) {            
+        public void EmitDelegateConstruction(CodeGen delegateFunction, Type delegateType, bool hasContext) {            
             Contract.RequiresNotNull(delegateFunction, "delegateFunction");
             Contract.RequiresNotNull(delegateType, "delegateType");
 
@@ -1291,12 +1291,12 @@ namespace Microsoft.Scripting.Generation {
                 Delegate d = delegateFunction.CreateDelegate(delegateType);
                 this.ConstantPool.AddData(d).EmitGet(this);
             }
-            //else if (delegateFunction.HasContext)
-            //{
-                
-            //    Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
-            //    Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
-            //} 
+            else if (hasContext)
+            {
+
+              Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
+              Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
+            } 
             else {
                 EmitNull();
                 Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);

@@ -10,6 +10,7 @@ using System.Reflection;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using BigInteger = Oyster.Math.IntX;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {

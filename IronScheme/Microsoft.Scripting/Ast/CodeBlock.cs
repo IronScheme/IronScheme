@@ -424,13 +424,22 @@ namespace Microsoft.Scripting.Ast {
                 // Find the right environment factory for the size of elements to store
                 if (useclass)
                 {
-                  _environmentFactory = CreateEnvironmentFactory(lifted, cg);
+                  _environmentFactory = CreateEnvironmentFactory(lifted, cg, GetParentEvironmentType());
                 }
                 else
                 {
                   _environmentFactory = CreateEnvironmentFactory(size);
                 }
             }
+        }
+
+        Type GetParentEvironmentType()
+        {
+          if (Parent == null || Parent.EnvironmentFactory == null)
+          {
+            return typeof(IAttributesCollection);
+          }
+          return Parent.EnvironmentType;
         }
 
         static bool useclass = true;
@@ -1029,21 +1038,29 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 #if FULL
 hasThis ? typeof(CallTargetWithContextAndThisN) : 
 #endif
- typeof(CallTargetWithContextN);
+ typeof(CallTargetN);
                 }
                 _impl = wrapper.MethodInfo;
                 //cg.EmitPosition(Start, Start);
-                cg.EmitDelegateConstruction(wrapper, delegateType);
+                if (hasContextParameter)
+                {
+                  cg.EmitCodeContext();
+                }
+                cg.EmitDelegateConstruction(wrapper, delegateType, hasContextParameter);
             } else if (_parameterArray) {
                 if (delegateType == null) {
                   delegateType =
 #if FULL
 hasThis ? typeof(CallTargetWithContextAndThisN) : 
 #endif
- typeof(CallTargetWithContextN);
+ typeof(CallTargetN);
                 }
                 //cg.EmitPosition(Start, Start);
-                cg.EmitDelegateConstruction(impl, delegateType);
+                if (hasContextParameter)
+                {
+                  cg.EmitCodeContext();
+                }
+                cg.EmitDelegateConstruction(impl, delegateType, hasContextParameter);
             } else {
                 if (delegateType == null) {
 
@@ -1053,7 +1070,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                     } else { 
 #endif	
 
-                        delegateType = CallTargets.GetTargetType(hasContextParameter, _parameters.Count - (hasThis ? 1 : 0), hasThis);
+                        delegateType = CallTargets.GetTargetType(false, _parameters.Count - (hasThis ? 1 : 0), hasThis);
 
 #if FULL
                     } 
@@ -1062,7 +1079,11 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                 }
                 _impl = impl.MethodInfo;
                // cg.EmitPosition(Start, Start);
-                cg.EmitDelegateConstruction(impl, delegateType);
+                if (hasContextParameter)
+                {
+                  cg.EmitCodeContext();
+                }
+                cg.EmitDelegateConstruction(impl, delegateType, hasContextParameter);
             }
         }
 
@@ -1465,9 +1486,9 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             return new PropertyEnvironmentFactory(tupleType, envType);
         }
 
-        internal static EnvironmentFactory CreateEnvironmentFactory(List<Variable> vars, CodeGen cg)
+        internal static EnvironmentFactory CreateEnvironmentFactory(List<Variable> vars, CodeGen cg, Type parentType)
         {
-          Type storageType = GenerateStorageType(vars, cg);
+          Type storageType = GenerateStorageType(vars, cg, parentType);
           Type envType = typeof(Storage<>).MakeGenericType(storageType);
           return new ClassEnvironmentFactory(storageType, envType);
         }
@@ -1475,7 +1496,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
         static int closure_counter = 0;
 
-        static Type GenerateStorageType(List<Variable> vars, CodeGen cg)
+        static Type GenerateStorageType(List<Variable> vars, CodeGen cg, Type parentType)
         {
           var tg = cg.TypeGen.AssemblyGen.DefinePublicType("closure.$env" + closure_counter++, typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
 
