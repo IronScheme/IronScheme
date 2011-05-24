@@ -1,4 +1,4 @@
-﻿diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
+diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
 --- IronScheme/IronScheme.csproj	Tue Jan 20 00:26:36 1970
 +++ IronScheme/IronScheme.csproj	Tue Jan 20 00:26:36 1970
 @@ -1,4 +1,5 @@
@@ -67,7 +67,7 @@
    </PropertyGroup>
    <ItemGroup>
      <Compile Include="Actions\IronSchemeActionBinder.cs" />
-@@ -155,6 +173,23 @@
+@@ -156,6 +174,23 @@
      <Reference Include="System" />
      <Reference Include="System.Data" />
      <Reference Include="System.Xml" />
@@ -923,17 +923,7 @@ diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Micr
    </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
      <DebugType>pdbonly</DebugType>
-@@ -42,16 +61,15 @@
-     <DefineConstants>TRACE;nFULL</DefineConstants>
-     <ErrorReport>prompt</ErrorReport>
-     <WarningLevel>4</WarningLevel>
--    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-     <RunCodeAnalysis>false</RunCodeAnalysis>
-     <BaseAddress>4194304</BaseAddress>
-     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-     <DebugSymbols>true</DebugSymbols>
-+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+@@ -50,8 +69,6 @@
    </PropertyGroup>
    <ItemGroup>
      <Reference Include="System" />
@@ -1383,7 +1373,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
  	ProjectSection(SolutionItems) = preProject
  		dlr.diff = dlr.diff
-@@ -17,8 +15,6 @@
+@@ -18,8 +16,6 @@
  		welcome.bmp = welcome.bmp
  	EndProjectSection
  EndProject
@@ -1392,7 +1382,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9-2424-489F-8F3B-F1F7165E5A44}"
  	ProjectSection(SolutionItems) = preProject
  		tools\gplex.exe = tools\gplex.exe
-@@ -30,6 +26,16 @@
+@@ -31,6 +27,16 @@
  		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
  	EndProjectSection
  EndProject
@@ -1409,7 +1399,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
  	ProjectSection(ProjectDependencies) = postProject
  		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {36084D27-12DC-40FE-BE74-C830B7D0F620}
-@@ -49,8 +55,6 @@
+@@ -50,8 +56,6 @@
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingConsole", "Samples\EmbeddingConsole\EmbeddingConsole.csproj", "{1D7426EB-2FF1-46C8-8458-442067E66D24}"
  EndProject
@@ -1418,7 +1408,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingSample2", "Samples\EmbeddingSample2\EmbeddingSample2.csproj", "{560818DE-C49E-4798-960F-6DED05BFD8B0}"
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting", "IronScheme.Remoting\IronScheme.Remoting.csproj", "{DD78568C-CDB5-4CED-BC9C-C18182ED5945}"
-@@ -61,10 +65,6 @@
+@@ -62,10 +66,6 @@
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.WebServer", "IronScheme.WebServer\IronScheme.WebServer.csproj", "{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}"
  EndProject
@@ -1429,7 +1419,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting.Server", "IronScheme.Remoting.Server\IronScheme.Remoting.Server.csproj", "{88AEA620-7094-4DA8-BFDA-1132A502111E}"
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting.Client", "IronScheme.Remoting.Client\IronScheme.Remoting.Client.csproj", "{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9}"
-@@ -214,13 +214,13 @@
+@@ -215,13 +215,13 @@
  	EndGlobalSection
  	GlobalSection(NestedProjects) = preSolution
  		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {06F93FA9-2424-489F-8F3B-F1F7165E5A44}
