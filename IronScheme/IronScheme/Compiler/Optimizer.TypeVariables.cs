@@ -7,6 +7,7 @@
 
 using Microsoft.Scripting.Ast;
 using System;
+using System.Collections.Generic;
 
 namespace IronScheme.Compiler
 {
@@ -22,24 +23,40 @@ namespace IronScheme.Compiler
 
       class Pass0 : DeepWalker
       {
+        Dictionary<Variable, int> writecounts = new Dictionary<Variable, int>();
+
+        protected override bool Walk(WriteStatement node)
+        {
+          writecounts[node.Variable] = writecounts.ContainsKey(node.Variable) ? writecounts[node.Variable] + 1 : 1;
+          return base.Walk(node);
+        }
+
         protected override void PostWalk(WriteStatement node)
         {
           var v = node.Variable;
-          if (v.Kind != Variable.VariableKind.Global)
+          var val = node.Value;
+          
+          if (v.Type == typeof(object))
           {
-            var val = node.Value;
-            if (v.Type == typeof(object))
+            if (val.Type != typeof(object))
             {
-              if (val.Type != typeof(object))
-              {
-                v.Type = val.Type;
-              }
-            }
-            else if (v.Type != val.Type)
-            {
-              v.Type = typeof(object);
+              v.Type = val.Type;
             }
           }
+          else if (v.Type != val.Type)
+          {
+            v.Type = typeof(object);
+          }
+          else
+          {
+            writecounts[node.Variable]--;
+          }
+
+          if (writecounts[node.Variable] > 1)
+          {
+            v.Type = typeof(object);
+          }
+
           base.PostWalk(node);
         }
       }

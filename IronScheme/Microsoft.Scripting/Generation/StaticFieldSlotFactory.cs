@@ -22,6 +22,8 @@ namespace Microsoft.Scripting.Generation {
     public class StaticFieldSlotFactory : SlotFactory {
         private TypeGen _typeGen;
 
+        public TypeGen TypeGen { get { return _typeGen; } }
+
         public StaticFieldSlotFactory(TypeGen typeGen) {
             _typeGen = typeGen;
         }
