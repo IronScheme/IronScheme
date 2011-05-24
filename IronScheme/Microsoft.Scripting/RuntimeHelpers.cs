@@ -242,6 +242,20 @@ namespace Microsoft.Scripting {
             context.LanguageContext.RemoveName(moduleScopedContext, name);
         }
 #endif
+        public static void InitializeFieldBoxed<T>(CodeContext context, object name, ref T wrapper)
+        {
+          var s = (SymbolId)name;
+          object val;
+          if (context.Scope.ModuleScope.TryLookupName(s, out val))
+          {
+            wrapper = (T)val;
+          }
+          else
+          {
+            wrapper = default(T);
+          }
+        }
+
         public static void InitializeModuleFieldBoxed(CodeContext context, object name, ref ModuleGlobalWrapper wrapper)
         {
           var s = (SymbolId)name;

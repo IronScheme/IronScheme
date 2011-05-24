@@ -191,13 +191,15 @@ namespace Microsoft.Scripting.Generation {
         private ScopeAllocator CreateStorageAllocator(ScriptCode scriptCode) {
             ScopeAllocator allocator;
             if (!_allocators.TryGetValue(scriptCode.LanguageContext, out allocator)) {
-                SlotFactory sf = CreateSlotFactory(scriptCode);
-                ModuleGlobalFactory mgf = new ModuleGlobalFactory(sf);
+                var sf = CreateSlotFactory(scriptCode) as StaticFieldSlotFactory;
+                var mgf = new ModuleGlobalFactory(sf);
+                var sf2 = new StaticFieldSlotFactory(sf.TypeGen);
                 GlobalFieldAllocator gfa = new GlobalFieldAllocator(mgf);
+                var gfa2 = new GlobalFieldAllocator(sf2);
 
                 // Locals and globals are allocated from the same namespace for optimized modules
                 ScopeAllocator global = new ScopeAllocator(null, gfa);
-                allocator = new ScopeAllocator(global, gfa);
+                allocator = new ScopeAllocator(global, gfa2);
 
                 _allocators[scriptCode.LanguageContext] = allocator;
             }
@@ -389,7 +391,7 @@ namespace Microsoft.Scripting.Generation {
           LanguageInfo li = _languages[context];
 
           // TODO: Force all dictionaries to share same object data (for multi-module)
-          GlobalFieldAllocator gfa = allocator.LocalAllocator as GlobalFieldAllocator;
+          GlobalFieldAllocator gfa = allocator.GlobalAllocator as GlobalFieldAllocator;
           if (gfa != null)
           {
             Dictionary<SymbolId, Slot> fields = gfa.SlotFactory.Fields;
@@ -564,12 +566,26 @@ namespace Microsoft.Scripting.Generation {
                 ModuleGlobalSlot builtin = slot as ModuleGlobalSlot;
 
                 Debug.Assert(builtin != null);
+                if (builtin != null)
+                {
+                  cg.EmitCodeContext();
+                  cg.EmitSymbolId(kv.Key);
+                  //cg.EmitUnbox(typeof(SymbolId));
+                  builtin.EmitWrapperAddr(cg);
+                  cg.EmitCall(typeof(RuntimeHelpers), "InitializeModuleFieldBoxed");
+                }
 
-                cg.EmitCodeContext();
-                cg.EmitSymbolId(kv.Key);
-                //cg.EmitUnbox(typeof(SymbolId));
-                builtin.EmitWrapperAddr(cg);
-                cg.EmitCall(typeof(RuntimeHelpers), "InitializeModuleFieldBoxed");
+                StaticFieldSlot sfs = slot as StaticFieldSlot;
+                if (sfs != null)
+                {
+                  cg.EmitCodeContext();
+                  cg.EmitSymbolId(kv.Key);
+                  //cg.EmitUnbox(typeof(SymbolId));
+                  //builtin.EmitWrapperAddr(cg);
+                  sfs.EmitGetAddr(cg);
+                  cg.EmitCall(typeof(RuntimeHelpers).GetMethod("InitializeFieldBoxed").MakeGenericMethod( sfs.Type ));
+
+                }
             }
 
             cg.EmitReturn();

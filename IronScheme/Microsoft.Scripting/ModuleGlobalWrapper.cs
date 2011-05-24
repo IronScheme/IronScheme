@@ -46,12 +46,6 @@ namespace Microsoft.Scripting {
             _context = context; 
             _global = global;
             _name = name;
-
-            if (SymbolTable.IdToString(_name).Contains("weak-temp"))
-            {
-              _value = _context.Scope.ModuleScope.LookupName(_name);
-              _context.Scope.ModuleScope.RemoveName(_name);
-            }
         }
 
         public static void SetValue(object value, ModuleGlobalWrapper wrapper)

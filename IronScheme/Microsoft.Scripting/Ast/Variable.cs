@@ -267,7 +267,14 @@ namespace Microsoft.Scripting.Ast {
                     break;
 
                 case VariableKind.Global:
-                    _storage = cg.Allocator.GlobalAllocator.AllocateStorage(_name, _type);
+                    if (_defaultValue is UnboundExpression || cg.Allocator.Parent.Parent.Parent != null)
+                    {
+                      _storage = cg.Allocator.GlobalAllocator.AllocateStorage(_name, _type);
+                    }
+                    else
+                    {
+                      _storage = cg.Allocator.Parent.LocalAllocator.AllocateStorage(_name, _type);
+                    }
                     Debug.Assert(_storage != null);
                     break;
                 case VariableKind.Temporary:
