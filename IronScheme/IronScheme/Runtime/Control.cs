@@ -187,7 +187,7 @@ namespace IronScheme.Runtime
       try
       {
         CallTargetN exitproc = MakeContinuation(ccc);
-        Callable fce = Closure.Create(cc, exitproc) as Callable;
+        Callable fce = Closure.Create(exitproc) as Callable;
         object res = fc.Call(fce);
         return res;
       }

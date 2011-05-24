@@ -191,12 +191,12 @@ namespace IronScheme.Runtime
             Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
             if (d == null)
             {
-              d = Delegate.CreateDelegate(needContext ? typeof(CallTargetWithContextN) : typeof(CallTargetN), mb as MethodInfo, false);
+              d = Delegate.CreateDelegate(typeof(CallTargetN), needContext ? context : null, mb as MethodInfo, false);
             }
 
             if (d != null)
             {
-              cache[nargs] = c = Closure.Create(context, d);
+              cache[nargs] = c = Closure.Create(d);
             }
           }
         }

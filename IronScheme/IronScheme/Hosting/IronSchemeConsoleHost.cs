@@ -45,7 +45,7 @@ namespace IronScheme.Hosting
       {
         var se = Options.LanguageProvider.GetEngine();
         Callable op = se.Evaluate("open-package") as Callable;
-        op.Call( Closure.CreateStatic(new CallTarget0(ResourceLoader)));
+        op.Call( Closure.Create(new CallTarget0(ResourceLoader)));
       }
     }
 

@@ -544,7 +544,7 @@ namespace IronScheme.Runtime
         {
           return SymbolValue(expr);
         };
-        return Closure.Create(null, n);
+        return Closure.Create(n);
       }
 #endif
 #if CPS
@@ -609,7 +609,7 @@ namespace IronScheme.Runtime
           return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
         };
 
-        return Closure.Create(cc, err);
+        return Closure.Create(err);
       }
       finally
       {
@@ -652,7 +652,7 @@ namespace IronScheme.Runtime
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
       Compiler.SimpleGenerator.ClearGlobals();
 
-      return Closure.Create(cc, compiled);
+      return Closure.Create(compiled);
     }
 
 #if CPS

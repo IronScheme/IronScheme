@@ -167,8 +167,8 @@ namespace IronScheme.Runtime
             CodeContext ccc = new CodeContext(cc, init as IAttributesCollection);
             init.InitializeModuleDictionary(ccc);
 
-            CallTargetWithContext0 t = Delegate.CreateDelegate(typeof(CallTargetWithContext0), entry) as CallTargetWithContext0;
-            return t(ccc);
+            var t = Delegate.CreateDelegate(typeof(CallTarget0), ccc, entry) as CallTarget0;
+            return t();
           }
         default:
           {

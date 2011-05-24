@@ -384,7 +384,7 @@ namespace IronScheme.Compiler
       }
       else
       {
-        return Ast.SimpleCallHelper(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, typed));
+        return Ast.SimpleCallHelper(Closure_Make, Ast.CodeBlockExpression(cb, false, typed));
       }
     }
 

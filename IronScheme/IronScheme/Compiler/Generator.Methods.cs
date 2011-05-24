@@ -26,7 +26,7 @@ namespace IronScheme.Compiler
     static readonly MethodInfo Builtins_VectorAppend = typeof(Builtins).GetMethod("VectorAppend");
     static readonly MethodInfo Builtins_ToImproper = typeof(Builtins).GetMethod("ToImproper");
 
-    protected static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Create", new Type[] { typeof(object), typeof(Delegate) });
+    protected static readonly MethodInfo Closure_Make = typeof(Closure).GetMethod("Create", new Type[] { typeof(Delegate) });
     protected static readonly MethodInfo Closure_MakeCase = typeof(Closure).GetMethod("CreateCase");
     protected static readonly MethodInfo Closure_MakeVarArgsX = typeof(Closure).GetMethod("CreateVarArgX");
     protected static readonly MethodInfo Closure_MakeTypedCase = typeof(Closure).GetMethod("CreateTypedCase");
@@ -46,6 +46,7 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo ICallable_Call8 = typeof(Callable).GetMethod("Call", new Type[] { typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), typeof(object), });
     protected internal static readonly MethodInfo ICallable_CallN = typeof(Callable).GetMethod("Call", new Type[] { typeof(object[]), });
 
+#pragma warning disable 0618
     protected static readonly MethodInfo CallTargetWithContext0_Invoke = typeof(CallTargetWithContext0).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContext1_Invoke = typeof(CallTargetWithContext1).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContext2_Invoke = typeof(CallTargetWithContext2).GetMethod("Invoke");
@@ -56,6 +57,7 @@ namespace IronScheme.Compiler
     protected static readonly MethodInfo CallTargetWithContext7_Invoke = typeof(CallTargetWithContext7).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContext8_Invoke = typeof(CallTargetWithContext8).GetMethod("Invoke");
     protected static readonly MethodInfo CallTargetWithContextN_Invoke = typeof(CallTargetWithContextN).GetMethod("Invoke");
+#pragma warning restore 0618
 
     protected static readonly MethodInfo CallTarget0_Invoke = typeof(CallTarget0).GetMethod("Invoke");
     protected static readonly MethodInfo CallTarget1_Invoke = typeof(CallTarget1).GetMethod("Invoke");

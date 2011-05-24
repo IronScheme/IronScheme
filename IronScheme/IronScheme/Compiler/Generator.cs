@@ -398,8 +398,8 @@ namespace IronScheme.Compiler
                   MethodCallExpression producer = ppp[0] as MethodCallExpression;
                   if (consumer.Method == Closure_Make && producer.Method == Closure_Make)
                   {
-                    CodeBlockExpression ccbe = consumer.Arguments[1] as CodeBlockExpression;
-                    CodeBlockExpression pcbe = producer.Arguments[1] as CodeBlockExpression;
+                    CodeBlockExpression ccbe = consumer.Arguments[0] as CodeBlockExpression;
+                    CodeBlockExpression pcbe = producer.Arguments[0] as CodeBlockExpression;
 
                     pcbe.Block.Bind();
                     ccbe.Block.Bind();
@@ -431,7 +431,7 @@ namespace IronScheme.Compiler
                 }
                 if (consumer.Method == Closure_Make)
                 {
-                  CodeBlockExpression ccbe = consumer.Arguments[1] as CodeBlockExpression;
+                  CodeBlockExpression ccbe = consumer.Arguments[0] as CodeBlockExpression;
                   ccbe.Block.Bind();
 
                   Expression producer = ppp[0];
@@ -545,8 +545,8 @@ namespace IronScheme.Compiler
                     try
                     {
                       object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
-                        Closure.Create(null, handler),
-                        Closure.Create(null, disp));
+                        Closure.Create(handler),
+                        Closure.Create(disp));
                       var rrrr = GetCons(result, cb);
                       if (spanhint.IsValid)
                       {
@@ -614,8 +614,8 @@ namespace IronScheme.Compiler
                       try
                       {
                         object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
-                          Closure.Create(null, handler),
-                          Closure.Create(null, disp));
+                          Closure.Create(handler),
+                          Closure.Create(disp));
                         var rrrr = GetCons(result, cb);
                         if (spanhint.IsValid)
                         {
@@ -673,7 +673,7 @@ namespace IronScheme.Compiler
           MethodCallExpression mcexpr = (MethodCallExpression)ex;
           if (mcexpr.Method == Closure_Make)
           {
-            CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
+            CodeBlockExpression cbe = mcexpr.Arguments[0] as CodeBlockExpression;
 
             if (ppp.Length < 9 && cbe.Block.ParameterCount == ppp.Length)
             {
