@@ -19,28 +19,6 @@ namespace IronScheme.Runtime
 {
   public static class Helpers
   {
-    //static Dictionary<Type, Dictionary<string, object>> cache = new Dictionary<Type, Dictionary<string, object>>();
-
-    //public static object GetConstant(Type t, string id)
-    //{
-    //  Dictionary<string, object> innerc;
-
-    //  if (!cache.TryGetValue(t, out innerc))
-    //  {
-    //    cache[t] = innerc = new Dictionary<string, object>();
-    //  }
-
-    //  object c;
-    //  if (!innerc.TryGetValue(id, out c))
-    //  {
-    //    Assembly ass = t.Assembly;
-    //    Stream s = ass.GetManifestResourceStream(id);
-    //    c = innerc[id] = bf.Deserialize(s);
-    //  }
-
-    //  return c;
-    //}
-
     public static T FFIConvertTo<T>(object obj)
     {
       var objtype = obj == null ? typeof(IntPtr) : obj.GetType();
@@ -253,6 +231,12 @@ namespace IronScheme.Runtime
         return obj as T[];
       }
 
+      if (obj is T[])
+      {
+        return obj as T[];
+      }
+
+
       object[] arr = obj as object[];
 
       if (arr == null)
@@ -320,7 +304,14 @@ namespace IronScheme.Runtime
         {
           return (T)o;
         }
-        return (T) Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
+        if (typeof(T) == typeof(Callable))
+        {
+          return (T)Builtins.AssertionViolation(GetCaller(), "expected procedure", obj);
+        }
+        else
+        {
+          return (T)Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
+        }
       }
 
       return (T)obj;

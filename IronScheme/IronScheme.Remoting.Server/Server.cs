@@ -203,7 +203,7 @@ namespace IronScheme.Remoting.Server
             };
           };
 
-        var r = c.Call(Closure.CreateStatic(maker)) as IEnumerable;
+        var r = c.Call(Closure.Create(maker)) as IEnumerable;
 
         List<SymbolBinding> sbs = new List<SymbolBinding>();
 
@@ -257,7 +257,7 @@ namespace IronScheme.Remoting.Server
             return pi;
           };
 
-        return c.Call(Closure.CreateStatic(maker)) as ProcedureInfo;
+        return c.Call(Closure.Create(maker)) as ProcedureInfo;
       }
       catch (Exception ex)
       {

@@ -17,9 +17,6 @@ namespace IronScheme.Runtime
   public delegate object[] ArrayFromConsHandler(object args);
   public delegate object AssertHandler(object who, object msg, params object[] irritants);
 
-
-  
-
   [Serializable]
   public abstract class Closure : Callable
   {
@@ -47,28 +44,6 @@ namespace IronScheme.Runtime
       targetmap.Add(typeof(CallTarget7), 7);
       targetmap.Add(typeof(CallTarget8), 8);
       targetmap.Add(typeof(CallTargetN), -1);
-
-      //targetmap.Add(typeof(CallTargetWithContext0), 0 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext1), 1 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext2), 2 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext3), 3 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext4), 4 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext5), 5 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext6), 6 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext7), 7 + 16);
-      //targetmap.Add(typeof(CallTargetWithContext8), 8 + 16);
-      //targetmap.Add(typeof(CallTargetWithContextN), -1 + 16);
-
-      //targetmap.Add(typeof(CallTargetWithContext0<>), 0 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext1<>), 1 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext2<>), 2 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext3<>), 3 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext4<>), 4 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext5<>), 5 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext6<>), 6 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext7<>), 7 + 32);
-      //targetmap.Add(typeof(CallTargetWithContext8<>), 8 + 32);
-      //targetmap.Add(typeof(CallTargetWithContextN<>), -1 + 32);
     }
 
     public static AssertHandler AssertionViolation;
@@ -194,9 +169,6 @@ namespace IronScheme.Runtime
       return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
     }
 
-    //[DebuggerStepThrough]
-    //public abstract object Call(object[] args);
-
     readonly Delegate target;
 
     readonly static MethodInfo[] None = { };
@@ -251,175 +223,6 @@ namespace IronScheme.Runtime
       return SymbolTable.StringToObject(target.Method.Name);
     }
 
-    [Obsolete("Simplifying closures")]
-    [Serializable]
-    sealed class ContextClosure : Closure
-    {
-      CodeContext cc;
-
-      public ContextClosure(CodeContext cc, Delegate target, int paramcount)
-        : base(target, paramcount)
-      {
-        this.cc = cc;
-      }
-
-      public override MethodInfo[] Targets
-      {
-        get { return IsValid(target.Method) ? new MethodInfo[]{ target.Method } : None; }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object[] args)
-      {
-        if (paramcount >= 0 && paramcount != args.Length)
-        {
-          AssertionViolation(GetWho(), string.Format("invalid argument count, expected {0} got {1}", paramcount, args.Length), args);
-        }
-        switch (paramcount)
-        {
-          case -1:
-            return ((CallTargetWithContextN)target)(cc, args);
-          case 0:
-            return ((CallTargetWithContext0)target)(cc);
-          case 1:
-            return ((CallTargetWithContext1)target)(cc, args[0]);
-          case 2:
-            return ((CallTargetWithContext2)target)(cc, args[0], args[1]);
-          case 3:
-            return ((CallTargetWithContext3)target)(cc, args[0], args[1], args[2]);
-          case 4:
-            return ((CallTargetWithContext4)target)(cc, args[0], args[1], args[2], args[3]);
-          case 5:
-            return ((CallTargetWithContext5)target)(cc, args[0], args[1], args[2], args[3], args[4]);
-          case 6:
-            return ((CallTargetWithContext6)target)(cc, args[0], args[1], args[2], args[3], args[4], args[5]);
-          case 7:
-            return ((CallTargetWithContext7)target)(cc, args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
-          case 8:
-            return ((CallTargetWithContext8)target)(cc, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
-          default:
-            throw new NotSupportedException();
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call()
-      {
-        if (paramcount == 0)
-        {
-          return ((CallTargetWithContext0)target)(cc);
-        }
-        else
-        {
-          return base.Call();
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1)
-      {
-        if (paramcount == 1)
-        {
-          return ((CallTargetWithContext1)target)(cc, arg1);
-        }
-        else
-        {
-          return base.Call(arg1);
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1, object arg2)
-      {
-        if (paramcount == 2)
-        {
-          return ((CallTargetWithContext2)target)(cc, arg1, arg2);
-        }
-        else
-        {
-          return base.Call(arg1, arg2);
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1, object arg2, object arg3)
-      {
-        if (paramcount == 3)
-        {
-          return ((CallTargetWithContext3)target)(cc, arg1, arg2, arg3);
-        }
-        else
-        {
-          return base.Call(arg1, arg2, arg3);
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1, object arg2, object arg3, object arg4)
-      {
-        if (paramcount == 4)
-        {
-          return ((CallTargetWithContext4)target)(cc, arg1, arg2, arg3, arg4);
-        }
-        else
-        {
-          return base.Call(arg1, arg2, arg3, arg4);
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5)
-      {
-        if (paramcount == 5)
-        {
-          return ((CallTargetWithContext5)target)(cc, arg1, arg2, arg3, arg4, arg5);
-        }
-        else
-        {
-          return base.Call(arg1, arg2, arg3, arg4, arg5);
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6)
-      {
-        if (paramcount == 6)
-        {
-          return ((CallTargetWithContext6)target)(cc, arg1, arg2, arg3, arg4, arg5, arg6);
-        }
-        else
-        {
-          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6);
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7)
-      {
-        if (paramcount == 7)
-        {
-          return ((CallTargetWithContext7)target)(cc, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-        }
-        else
-        {
-          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-        }
-      }
-
-      [DebuggerStepThrough]
-      public override object Call(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8)
-      {
-        if (paramcount == 8)
-        {
-          return ((CallTargetWithContext8)target)(cc, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-        }
-        else
-        {
-          return base.Call(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-        }
-      }
-    }
-
     [Serializable]
     sealed class SimpleClosure : Closure
     {
@@ -430,7 +233,7 @@ namespace IronScheme.Runtime
 
       public override MethodInfo[] Targets
       {
-        get { return IsValid(target.Method) ? new MethodInfo[] { target.Method } : None; }
+        get { return IsValid(target.Method) && target.Target == null ? new MethodInfo[] { target.Method } : None; }
       }
 
       [DebuggerStepThrough]
@@ -586,17 +389,7 @@ namespace IronScheme.Runtime
 
     }
 
-    public static Callable CreateStatic(Delegate target)
-    {
-      return Create(null, target);
-    }
-
-    public static Callable Create(CodeContext cc, Delegate target)
-    {
-      return Create((object)cc, target);
-    }
-
-    public static Callable Create(object cc, Delegate target)
+    public static Callable Create(Delegate target)
     {
       int arity;
       if (targetmap.TryGetValue(target.GetType(), out arity))
@@ -605,23 +398,9 @@ namespace IronScheme.Runtime
         {
           return new SimpleClosure(target, arity);
         }
-        else if (arity < 31 && arity > 14)
-        {
-          Trace.Fail("Must not get here");
-          arity -= 16;
-          return new ContextClosure(cc as CodeContext, target, arity);
-        }
-        //else
-        //{
-        //  arity -= 32;
-        //  var st = cc.GetType();
-        //  var ct = typeof(ContextClosure<>).MakeGenericType(st);
-        //  return Activator.CreateInstance(ct, cc, target, arity) as Callable;
-        //}
       }
       throw new NotSupportedException();
     }
-
 
     public static Callable CreateVarArgX(CodeContext cc, Delegate target, int paramcount)
     {
@@ -649,7 +428,7 @@ namespace IronScheme.Runtime
         : base(target, -1)
       {
         pcount = paramcount;
-        realtarget = Create(cc, target) as Callable;
+        realtarget = Create(target) as Callable;
       }
 
       public override object Arity
@@ -659,7 +438,7 @@ namespace IronScheme.Runtime
 
       public override MethodInfo[] VarargTargets
       {
-        get { return IsValid(target.Method) ? new MethodInfo[] { target.Method } : None; }
+        get { return IsValid(target.Method) && target.Target == null ? new MethodInfo[] { target.Method } : None; }
       }
 
       public override object Form
@@ -767,7 +546,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            this.targets.Add(Create(cc, targets[i]));
+            this.targets.Add(Create(targets[i]));
           }
         }
       }

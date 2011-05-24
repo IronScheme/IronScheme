@@ -310,9 +310,9 @@ namespace IronScheme.Runtime.R6RS
         }
       }
 
-      rtd.Constructor = Closure.Create(null, Delegate.CreateDelegate(ct, ci)) as Callable;
+      rtd.Constructor = Closure.Create(Delegate.CreateDelegate(ct, ci)) as Callable;
 
-      rtd.Predicate = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), rtd.predicate)) as Callable;
+      rtd.Predicate = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), rtd.predicate)) as Callable;
 
       var flds = new List<FieldDescriptor>();
 
@@ -326,13 +326,13 @@ namespace IronScheme.Runtime.R6RS
 
         fd.accessor = pi.GetGetMethod();
 
-        fd.Accessor = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
+        fd.Accessor = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
 
         if (pi.CanWrite)
         {
           fd.mutator = pi.GetSetMethod();
 
-          fd.Mutator = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
+          fd.Mutator = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
         }
         else
         {
@@ -367,24 +367,24 @@ namespace IronScheme.Runtime.R6RS
             ct = CallTargets.GetTargetType(false, pcount, false);
           }
         }
-        Constructor = Closure.Create(null, Delegate.CreateDelegate(ct, ci)) as Callable;
+        Constructor = Closure.Create(Delegate.CreateDelegate(ct, ci)) as Callable;
 
         // update fields
         predicate = type.GetMethod(predicate.Name);
-        Predicate = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), predicate)) as Callable;
+        Predicate = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), predicate)) as Callable;
 
         foreach (FieldDescriptor fd in fields)
         {
           fd.field = type.GetField(fd.field.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
           fd.accessor = type.GetMethod(fd.accessor.Name);
 
-          fd.Accessor = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
+          fd.Accessor = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
 
           if (fd.mutable)
           {
             fd.mutator = type.GetMethod(fd.mutator.Name);
 
-            fd.Mutator = Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
+            fd.Mutator = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
           }
           else
           {
@@ -773,7 +773,7 @@ namespace IronScheme.Runtime.R6RS
     public static object RecordPredicate(object rtd)
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
-      return Closure.CreateStatic(Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
+      return Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
     }
     
     [Builtin("record-constructor")]
@@ -811,7 +811,7 @@ namespace IronScheme.Runtime.R6RS
           }
           return pp.Call(args);
         };
-        return Closure.Create(Context, np);
+        return Closure.Create(np);
       }
       else
       {
@@ -842,7 +842,7 @@ namespace IronScheme.Runtime.R6RS
               return collector;
             }
           };
-          ppp = collector = Closure.Create(Context, xxx) as Callable;
+          ppp = collector = Closure.Create(xxx) as Callable;
 
           foreach (Callable ctr in init)
           {
@@ -858,7 +858,7 @@ namespace IronScheme.Runtime.R6RS
           return result;
         };
 
-        return Closure.Create(Context, np);
+        return Closure.Create(np);
       }
     }
 

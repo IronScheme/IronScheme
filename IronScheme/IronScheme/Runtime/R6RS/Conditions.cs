@@ -150,7 +150,7 @@ namespace IronScheme.Runtime.R6RS
       };
 #endif
 
-      return Closure.Create(Context, p);
+      return Closure.Create(p);
     }
 
     //(condition-accessor rtd proc)
@@ -239,7 +239,7 @@ namespace IronScheme.Runtime.R6RS
         }
       };
 #endif
-      return Closure.Create(Context, p);
+      return Closure.Create(p);
     }
 
   }

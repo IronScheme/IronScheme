@@ -143,7 +143,7 @@ namespace IronScheme
 
       if (Array.TrueForAll(allargs, x => x == typeof(object)))
       {
-        return Closure.CreateStatic(Delegate.CreateDelegate(CallTargets[partypes.Length], del.Target, m));
+        return Closure.Create(Delegate.CreateDelegate(CallTargets[partypes.Length], del.Target, m));
       }
       else
       {

@@ -232,7 +232,7 @@ namespace IronScheme.Compiler
           
           if (mce.Method == Closure_Make)
           {
-            var cbe= mce.Arguments[1] as CodeBlockExpression;
+            var cbe= mce.Arguments[0] as CodeBlockExpression;
             cbe.Block.Source = sources[i];
 
             libraryglobals.Add(locals[i].Name, cbe);

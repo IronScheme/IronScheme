@@ -376,7 +376,7 @@ namespace IronScheme.Compiler
         paramtypes, 
         cb);
 
-      return Ast.Call(Closure_Make, Ast.CodeContext(), Ast.CodeBlockExpression(call, false));
+      return Ast.Call(Closure_Make, Ast.CodeBlockExpression(call, false));
   
     }
 
