@@ -389,6 +389,11 @@ namespace IronScheme.Runtime
 
     }
 
+    public static Callable Create(Delegate target, int paramcount)
+    {
+      return new SimpleClosure(target, paramcount > 8 ? -1 : paramcount);
+    }
+
     public static Callable Create(Delegate target)
     {
       int arity;
