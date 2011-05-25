@@ -240,12 +240,12 @@ namespace IronScheme.Compiler
           }
           else if (mce.Method == Closure_MakeVarArgsX)
           {
-            libraryglobalsX.Add(locals[i].Name, mce.Arguments[1] as CodeBlockExpression);
-            libraryglobalsX.Add(vars[i], mce.Arguments[1] as CodeBlockExpression);
+            libraryglobalsX.Add(locals[i].Name, mce.Arguments[0] as CodeBlockExpression);
+            libraryglobalsX.Add(vars[i], mce.Arguments[0] as CodeBlockExpression);
           }
           else if (mce.Method == Closure_MakeCase)
           {
-            NewArrayExpression tcs = mce.Arguments[1] as NewArrayExpression;
+            NewArrayExpression tcs = mce.Arguments[0] as NewArrayExpression;
 
             List<CodeBlockDescriptor> cdbs = new List<CodeBlockDescriptor>();
 
@@ -260,7 +260,7 @@ namespace IronScheme.Compiler
           }
           else if (mce.Method == Closure_MakeTypedCase)
           {
-            NewArrayExpression tcs = mce.Arguments[1] as NewArrayExpression;
+            NewArrayExpression tcs = mce.Arguments[0] as NewArrayExpression;
 
             List<CodeBlockDescriptor> cdbs = new List<CodeBlockDescriptor>();
 

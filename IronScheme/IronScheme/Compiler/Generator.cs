@@ -684,7 +684,7 @@ namespace IronScheme.Compiler
           // cater for varargs more efficiently, this does not seem to hit, probably needed somewhere else
           if (mcexpr.Method == Closure_MakeVarArgsX)
           {
-            CodeBlockExpression cbe = mcexpr.Arguments[1] as CodeBlockExpression;
+            CodeBlockExpression cbe = mcexpr.Arguments[0] as CodeBlockExpression;
 
             if (ppp.Length < 9 && cbe.Block.ParameterCount <= ppp.Length)
             {
