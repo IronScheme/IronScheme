@@ -6,6 +6,7 @@
 #endregion
 
 
+using System;
 namespace IronScheme.Runtime
 {
   public sealed class MultipleValues
@@ -17,7 +18,12 @@ namespace IronScheme.Runtime
       this.values = values;
     }
 
-    public object[] ToArray()
+    internal int Length
+    {
+      get { return values.Length; }
+    }
+
+    internal object[] ToArray()
     {
       foreach (object item in values)
       {
@@ -26,6 +32,25 @@ namespace IronScheme.Runtime
           return (object[]) Closure.AssertionViolation(false, "cannot pass multiple values", values);
         }
       }
+
+      return values;
+    }
+
+    public object[] ToArray(int expects)
+    {
+      if (expects != values.Length)
+      {
+        Closure.AssertionViolation(false, string.Format("expected {0} arguments, got {1}", expects, values.Length), values);
+      }
+
+      foreach (object item in values)
+      {
+        if (item is MultipleValues)
+        {
+          return (object[])Closure.AssertionViolation(false, "cannot pass multiple values", values);
+        }
+      }
+
       return values;
     }
 
@@ -342,7 +367,19 @@ namespace IronScheme.Runtime
 
       if (r is MultipleValues)
       {
-        return con.Call(((MultipleValues)r).ToArray());
+        var mv = (MultipleValues)r;
+        if (con.Arity is double && (double)con.Arity > mv.Length)
+        {
+          return Closure.AssertionViolation(con.ToString(), string.Format("expected at least {0:F0} arguments, got {1}", con.Arity, mv.Length), mv.ToArray());
+        }
+        else if (con.Arity is int && (int)con.Arity != mv.Length)
+        {
+          return Closure.AssertionViolation(con.ToString(), string.Format("expected {0} arguments, got {1}", con.Arity, mv.Length), mv.ToArray());
+        }
+        else
+        {
+          return con.Call(mv.ToArray());
+        }
       }
 
       return con.Call(r);
