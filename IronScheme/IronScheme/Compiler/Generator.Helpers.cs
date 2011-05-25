@@ -366,7 +366,7 @@ namespace IronScheme.Compiler
         arities.Add(Ast.Constant(c.arity));
       }
       
-      return Ast.SimpleCallHelper(Closure_MakeCase, Ast.CodeContext(),
+      return Ast.SimpleCallHelper(Closure_MakeCase,
         Ast.NewArrayHelper(typeof(Delegate[]), targets), Ast.NewArrayHelper(typeof(int[]), arities));
     }
 
@@ -379,7 +379,7 @@ namespace IronScheme.Compiler
     {
       if (varargs)
       {
-        return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeContext(), Ast.CodeBlockExpression(cb, false, typed),
+        return Ast.SimpleCallHelper(Closure_MakeVarArgsX, Ast.CodeBlockExpression(cb, false, typed),
           Ast.Constant(cb.ParameterCount));
       }
       else
