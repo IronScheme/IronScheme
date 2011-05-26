@@ -35,17 +35,16 @@ namespace IronScheme.Runtime
     public static object VectorAppend(params object[] args)
     {
       ArrayList all = new ArrayList();
-      foreach (object[] e in args)
+      foreach (var e in args)
       {
-        all.AddRange(e);
+        all.AddRange(RequiresNotNull<object[]>(e));
       }
       return all.ToArray();
     }
 
     internal static Cons VectorToList(object[] vec)
     {
-      object[] l = RequiresNotNull<object[]>(vec);
-      return Runtime.Cons.FromArray(l);
+      return Runtime.Cons.FromArray(vec);
     }
 
     public static object[] ListToVector(Cons e)
