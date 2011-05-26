@@ -533,7 +533,7 @@ namespace IronScheme.Runtime
     public static object CompileCore(object expr, object sk)
 #else
     [Builtin("compile-core")]
-    public static object CompileCore(CodeContext cc, object expr)
+    public static object CompileCore(object expr)
 #endif
     {
 #if !CPS
@@ -584,7 +584,7 @@ namespace IronScheme.Runtime
       CodeBlock cb = IronSchemeLanguageContext.CompileExpr(new Cons(expr));
       cb.ExplicitCodeContextExpression = null;
 
-      ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb); //wrap
+      ScriptCode sc = Context.LanguageContext.CompileSourceCode(cb); //wrap
 
 #if DEBUG
       sw.Stop();
@@ -629,7 +629,7 @@ namespace IronScheme.Runtime
         {
           sw = Stopwatch.StartNew();
 #endif
-          return sc.Run(cc.ModuleContext.Module);
+        return sc.Run(Context.ModuleContext.Module);
 #if DEBUG
           }
 #if CPS
@@ -667,9 +667,9 @@ namespace IronScheme.Runtime
 #else
 
     [Builtin("eval-core")]
-    public static object EvalCore(CodeContext cc, object expr)
+    public static object EvalCore(object expr)
     {
-      Callable compiled = CompileCore(cc, expr) as Callable;
+      Callable compiled = CompileCore(expr) as Callable;
       return compiled.Call();
     }
 #endif
