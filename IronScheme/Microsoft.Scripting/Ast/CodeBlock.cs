@@ -458,7 +458,7 @@ namespace Microsoft.Scripting.Ast {
             // Emit the names array for the environment constructor
             if (ScriptDomainManager.Options.DebugMode)
             {
-              EmitEnvironmentIDs(cg);
+              //EmitEnvironmentIDs(cg);
             }
 
             // Emit code to generate the new instance of the environment

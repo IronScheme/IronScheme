@@ -78,7 +78,7 @@ namespace IronScheme.Runtime
     {
       string str = RequiresNotNull<string>(obj);
       radix = radix ?? 10;
-      int r = (int)radix;
+      int r = RequiresNotNull<int>(radix);
 
       if (str.Length == 0)
       {

@@ -68,6 +68,8 @@ namespace Microsoft.Scripting {
             return result;
         }
 
+        
+
         [DebuggerHidden]
         [DebuggerStepThrough]
         public static object BooleanToObject(bool value) {

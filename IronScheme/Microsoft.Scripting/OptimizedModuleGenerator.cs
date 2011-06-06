@@ -103,8 +103,15 @@ namespace Microsoft.Scripting.Generation {
             // everything succeeded, commit the results
             for (int i = 0; i < _scriptCodes.Length; i++) {
                 ScriptCode sc = _scriptCodes[i];
-
-                sc.OptimizedTarget = targets[i];
+                var dict = scopes[i].Dict;
+                if (dict is SymbolDictionary)
+                {
+                  sc.OptimizedTarget = targets[i];
+                }
+                else
+                {
+                  sc.OptimizedTarget = (CallTargetWithContext0) Delegate.CreateDelegate(typeof(CallTargetWithContext0), dict.GetType().GetMethod("Initialize"));// targets[i];
+                }
                 sc.OptimizedScope = scopes[i];
             }
 

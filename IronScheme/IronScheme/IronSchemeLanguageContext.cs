@@ -131,13 +131,10 @@ namespace IronScheme
     static CodeBlock ParseStream(Stream s, CompilerContext cc)
     {
       Scanner sc;
-      //if (!scannermap.TryGetValue(s, out sc))
-      {
-        sc = new Scanner(s);
-        sc.Errors = cc.Errors;
-        sc.SourceUnit = cc.SourceUnit;
-        //scannermap[s] = sc;
-      }
+      sc = new Scanner(s);
+      sc.Errors = cc.Errors;
+      sc.SourceUnit = cc.SourceUnit;
+
       return Parse(sc, cc);
     }
 
@@ -206,8 +203,6 @@ namespace IronScheme
     static void Compile(CodeBlock cb, Cons expr)
     {
       cb.IsGlobal = true;
-
-      expr = Compiler.SourceOptimizer.Optimize(expr);
 
       Compiler.Generator.FillBody(cb, new List<Statement>(), expr, true);
 

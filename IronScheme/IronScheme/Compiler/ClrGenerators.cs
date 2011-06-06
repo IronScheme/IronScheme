@@ -383,7 +383,7 @@ namespace IronScheme.Compiler
 
       type = t.Name;
 
-      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy);
+      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.FlattenHierarchy);
 
       if (fi == null)
       {
@@ -442,7 +442,7 @@ namespace IronScheme.Compiler
       type = t.Name;
 
 
-      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.IgnoreCase | BindingFlags.FlattenHierarchy);
+      FieldInfo fi = t.GetField(member, BindingFlags.Public | bf | BindingFlags.FlattenHierarchy);
 
       if (fi == null)
       {
@@ -549,7 +549,7 @@ namespace IronScheme.Compiler
 
       type = t.Name;
 
-      if (member == "get_item")
+      if (member == "get_Item")
       {
         if (Attribute.IsDefined(t, typeof(DefaultMemberAttribute)))
         {
@@ -557,7 +557,7 @@ namespace IronScheme.Compiler
           member = "get_" + dma.MemberName;
         }
       }
-      else if (member == "set_item")
+      else if (member == "set_Item")
       {
         if (Attribute.IsDefined(t, typeof(DefaultMemberAttribute)))
         {
@@ -819,16 +819,6 @@ namespace IronScheme.Compiler
       }
 
       return Ast.TypeIs(GetAst(Builtins.Second(args), cb), t);
-    }
-  }
-
-  [Generator("define-clr-class-internal")]
-  public sealed class DefineClrClassInternalGenerator : ClrGenerator
-  {
-    // (clr-is type arg)
-    public override Expression Generate(object args, CodeBlock cb)
-    {
-      return Ast.Null();
     }
   }
 

@@ -69,7 +69,6 @@
     <Compile Include="Compiler\SerializedConstant.cs" />
     <Compile Include="Compiler\numberlexer.lex.cs" />
     <Compile Include="Compiler\NumberParser.y.cs" />
-    <Compile Include="Compiler\SourceOptimizer.cs" />
     <Compile Include="Compiler\LibraryLetrecStarGenerator.cs" />
     <Compile Include="Compiler\LetrecGenerator.cs" />
     <Compile Include="Compiler\Helper.cs" />

@@ -8,6 +8,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Scripting;
+using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Compiler
 {
@@ -15,15 +17,9 @@ namespace IronScheme.Compiler
   {
 
 #if DONE
-    class ConversionCSE
+    class ConversionCSE : OptimizerBase
     {
-      readonly CodeBlock root;
       readonly Dictionary<Variable, Dictionary<Type, int>> references = new Dictionary<Variable, Dictionary<Type, int>>();
-
-      public ConversionCSE(CodeBlock root)
-      {
-        this.root = root;
-      }
 
       // count references
       class Pass0 : DeepWalker
@@ -41,7 +37,7 @@ namespace IronScheme.Compiler
           {
             var be = node.Operand as BoundExpression;
 
-            if (be.Variable.Kind == Variable.VariableKind.Local && !be.Variable.Lift)
+            if (be.Variable.Kind == Variable.VariableKind.Local && !be.Variable.Lift && be.Type == typeof(object) && node.Type != typeof(object))
             {
               Dictionary<Type, int> counts;
               if (!references.TryGetValue(be.Variable, out counts))
@@ -76,15 +72,23 @@ namespace IronScheme.Compiler
 
         protected override bool Walk(UnaryExpression node)
         {
-
+          if (node.NodeType == AstNodeType.Convert && node.Operand is BoundExpression)
+          {
+            var be = node.Operand as BoundExpression;
+            var tv = be.Variable.GetTypedVariable(node.Type);
+            if (tv != null)
+            {
+              be.Variable = tv;
+            }
+          }
           return base.Walk(node);
         }
       }
 
-      public void Optimize()
+      public override void Optimize()
       {
         Pass0 p0 = new Pass0(references);
-        p0.WalkNode(root);
+        p0.WalkNode(Root);
 
         foreach (var v in references.Keys)
         {
@@ -92,18 +96,39 @@ namespace IronScheme.Compiler
           {
             var c = references[v][t];
 
-            if (t != typeof(object) && c > 1)
+            if (t != typeof(object) && c > 1 && t.IsValueType)
             {
               var n = SymbolTable.StringToId(t.Name + "___" + SymbolTable.IdToString(v.Name));
               var tv = v.Block.CreateVariable(n, Variable.VariableKind.Local, t);
               v.SetTypedVariable(t, tv);
+
+              var inittv = Ast.Write(tv, Ast.SimpleCallHelper(typeof(IronScheme.Runtime.Helpers).GetMethod("UnsafeConvert").MakeGenericMethod(tv.Type), Ast.Read(v)));
+
+              var bs = v.Block.Body as BlockStatement;
+              if (bs != null)
+              {
+                Statement[] newbody = new Statement[bs.Statements.Count + 1];
+                newbody[0] = inittv;
+                bs.Statements.CopyTo(newbody, 1);
+
+                v.Block.Body = Ast.Block(newbody);
+              }
+              else
+              {
+                v.Block.Body = Ast.Block(inittv, v.Block.Body);
+              }
             }
           }
           v.Block.Bind();
         }
 
         Pass1 p1 = new Pass1(references);
-        p1.WalkNode(root);
+        p1.WalkNode(Root);
+
+        foreach (var v in references.Keys)
+        {
+          v.Block.Bind();
+        }
 
       }
     }
