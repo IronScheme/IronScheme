@@ -168,12 +168,12 @@ See docs/license.txt. |#
   (define-syntax clr-indexer-get
     (syntax-rules ()
       [(_ type instance arg args* ...)
-       (clr-prop-get type item instance arg args* ...)]))
+       (clr-prop-get type Item instance arg args* ...)]))
 
   (define-syntax clr-indexer-set!
     (syntax-rules ()
       [(_ type instance arg args* ... value)
-       (clr-prop-set! type item instance arg args* ... value)]))
+       (clr-prop-set! type Item instance arg args* ... value)]))
 
   (define-syntax clr-static-prop-get
     (syntax-rules ()

@@ -52,6 +52,7 @@ namespace IronScheme.Compiler
       Optimize<RemoveTemporaries>(cb);
       Optimize<FixupPrimitives>(cb);
       Optimize<TypeVariables>(cb);
+      //Optimize<ConversionCSE>(cb);
     }
   }
 }

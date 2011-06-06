@@ -383,7 +383,7 @@ namespace IronScheme.Compiler
           }
 #endif
 
-          if (!ScriptDomainManager.Options.DebugMode)
+          //if (!ScriptDomainManager.Options.DebugMode)
           {
 
             if (f == SymbolTable.StringToId("call-with-values"))

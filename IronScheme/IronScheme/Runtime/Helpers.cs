@@ -65,6 +65,18 @@ namespace IronScheme.Runtime
       }
     }
 
+    public static T UnsafeConvert<T>(object o)
+    {
+      if (o is T)
+      {
+        return (T)o;
+      }
+      else
+      {
+        return default(T);
+      }
+    }
+
     static BigInteger GetValue(object v)
     {
       if (v is uint)
