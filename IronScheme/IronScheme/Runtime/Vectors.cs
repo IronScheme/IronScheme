@@ -54,10 +54,16 @@ namespace IronScheme.Runtime
       while (e != null)
       {
         v.Add(e.car);
-        e = e.cdr as Cons;
+        e = Requires<Cons>(e.cdr);
       }
 
       return v.ToArray();
+    }
+
+    public static object[] ListToVector(object args)
+    {
+      Cons e = Requires<Cons>(args);
+      return ListToVector(e);
     }
 
     [Builtin("vector-binary-search")]

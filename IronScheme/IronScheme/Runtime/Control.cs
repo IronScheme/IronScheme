@@ -19,16 +19,21 @@ namespace IronScheme.Runtime
   public static partial class BuiltinEmitters
   {
     readonly static MethodInfo ICallable_Call = typeof(Callable).GetMethod("Call", new Type[] { typeof(object[]) });
-    readonly static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector", new [] { typeof(Cons) });
+    readonly static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector", new [] { typeof(object) });
     readonly static ConstructorInfo Cons_ctr = typeof(Cons).GetConstructor(new[] { typeof(object), typeof(object) });
 
     [InlineEmitter("apply")]
     public static Expression Apply(Expression[] args)
     {
+      if (args.Length == 0)
+      {
+        return null;
+      }
+
       Expression c = Ast.ConvertHelper(args[0], typeof(Callable));
       if (args.Length > 1)
       {
-        Expression arg = Ast.ConvertHelper(args[args.Length - 1], typeof(Cons));
+        Expression arg = Ast.ConvertHelper(args[args.Length - 1], typeof(object));
         for (int i = args.Length - 2; i > 0; i--)
         {
           arg = MakeCons(args[i], arg);
