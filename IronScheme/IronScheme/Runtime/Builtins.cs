@@ -215,7 +215,7 @@ namespace IronScheme.Runtime
 
     public static object ListToByteVector(object obj)
     {
-      object[] bytes = ListToVector((Cons)obj);
+      object[] bytes = ListToVector(obj);
       byte[] buffer = new byte[bytes.Length];
       for (int i = 0; i < buffer.Length; i++)
       {

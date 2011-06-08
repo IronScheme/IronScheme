@@ -35,7 +35,20 @@ namespace Microsoft.Scripting.Shell {
             protected List<string> _list = new List<string>();
             private int _current;
             private bool _increment;         // increment on Next()
+            static string filename;
 
+            static string Filename
+            {
+              get 
+              { 
+                return filename ?? (filename = 
+                  Path.Combine(
+                    Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IronScheme"),
+                    "history.ss")); 
+              }
+            }
+            
             public string Current {
                 get {
                     return _current >= 0 && _current < _list.Count ? _list[_current] : String.Empty;
@@ -46,6 +59,7 @@ namespace Microsoft.Scripting.Shell {
                 if (line != null && line.Length > 0) {
                     int oldCount = _list.Count;
                     _list.Add(line);
+                    File.AppendAllText(Filename, string.Format("{0}{1}", line, Environment.NewLine));
                     if (setCurrentAsLast || _current == oldCount) {
                         _current = _list.Count;
                     } else {
@@ -70,6 +84,39 @@ namespace Microsoft.Scripting.Shell {
                     _increment = true;
                 }
                 return Current;
+            }
+
+            public static History LoadOrDefault()
+            {
+              // check for irosncheme app dir
+              var dir = Path.GetDirectoryName(Filename);
+              
+              if (!Directory.Exists(dir))
+              {
+                Directory.CreateDirectory(dir);
+              }
+
+              if (File.Exists(Filename))
+              {
+                using (var r = File.OpenText(Filename))
+                {
+                  string line;
+                  var h = new History();
+
+                  while ((line = r.ReadLine()) != null)
+                  {
+                    if (line.Length > 0 && line != Environment.NewLine)
+                    {
+                      h._list.Add(line);
+                    }
+                  }
+
+                  h._current = h._list.Count;
+
+                  return h;
+                }
+              }
+              return new History();
             }
         }
 
@@ -194,7 +241,7 @@ namespace Microsoft.Scripting.Shell {
         /// <summary>
         /// Command history
         /// </summary>
-        private History _history = new History();
+        private History _history = History.LoadOrDefault();
 
         /// <summary>
         /// Tab options available in current context

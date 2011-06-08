@@ -29,7 +29,7 @@ namespace IronScheme.Hosting
       Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
       Runtime.Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
       Runtime.Closure.Unspecified = Builtins.Unspecified;
-      Runtime.Closure.ArrayFromCons = l => (object[])Builtins.ListToVector((Cons)l);
+      Runtime.Closure.ArrayFromCons = Builtins.ListToVector;
 
       Initialize();
 
