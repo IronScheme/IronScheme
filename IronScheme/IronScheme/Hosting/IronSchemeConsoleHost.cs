@@ -15,7 +15,7 @@ namespace IronScheme.Hosting
 {
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
-    const string VERSION = "1.0 RC4";
+    const string VERSION = "1.0 RC5";
     string logo;
     public IronSchemeConsoleHost()
     {
@@ -78,7 +78,7 @@ namespace IronScheme.Hosting
         }
         Console.ForegroundColor = old;
 
-        Console.WriteLine("({0})", IntPtr.Size == 8 ? "64-bit" : "32-bit");
+        Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", Environment.Version.ToString(2));
         
       }
     }

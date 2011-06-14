@@ -305,10 +305,12 @@ See docs/license.txt. |#
   (define-char-ci-compare char-ci>=? fx>=?)
   
   (define (string-fold proc str)
-    (let* ((chars (string->list str))
-           (before (cons #f (reverse (cdr (reverse chars)))))
-           (after (append (cdr chars) (list #f))))
-      (apply string-append (map proc chars before after))))
+    (if (fxzero? (string-length str))
+        ""
+        (let* ((chars (string->list str))
+               (before (cons #f (reverse (cdr (reverse chars)))))
+               (after (append (cdr chars) (list #f))))
+          (apply string-append (map proc chars before after)))))
       
   (define (string-fold-fast proc str)
     (apply string-append (map proc (string->list str))))

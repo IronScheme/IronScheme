@@ -219,7 +219,7 @@ namespace Microsoft.Scripting.Ast {
                     var mce = v as MethodCallExpression;
                     if (mce.Arguments.Count == 2)
                     {
-                      var cbe = mce.Arguments[1] as CodeBlockExpression;
+                      var cbe = mce.Arguments[0] as CodeBlockExpression;
                       if (cbe != null)
                       {
                         CodeGen rcg = null;

@@ -220,12 +220,12 @@ namespace IronScheme.Compiler
         else if (stype is Cons)
         {
           t = ReadType(stype);
-          type = t.FullName;
 
           if (t == null)
           {
             ClrSyntaxError("ExtractTypeInfo", "type not found", stype);
           }
+          type = t.FullName;
         }
         else
         {
