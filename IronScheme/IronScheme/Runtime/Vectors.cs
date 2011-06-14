@@ -47,7 +47,7 @@ namespace IronScheme.Runtime
       return Runtime.Cons.FromArray(vec);
     }
 
-    public static object[] ListToVector(Cons e)
+    internal static object[] ListToVector(Cons e)
     {
       ArrayList v = new ArrayList();
 
@@ -106,7 +106,7 @@ namespace IronScheme.Runtime
     public static object VectorFilter(object proc, object vector)
     {
       Callable p = RequiresNotNull<Callable>(proc);
-      object[] v = Requires<object[]>(vector);
+      object[] v = RequiresNotNull<object[]>(vector);
 
       List<object> output = new List<object>();
       
