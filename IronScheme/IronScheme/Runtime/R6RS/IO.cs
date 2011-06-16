@@ -879,7 +879,7 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        return (string)AssertionViolation("transocde-port", "not a valid eol symbol", symbolId);
+        return (string)AssertionViolation("transcode-port", "not a valid eol symbol", symbolId);
       }
     }
 

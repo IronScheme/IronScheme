@@ -938,7 +938,7 @@ See docs/license.txt. |#
   (define/contract lcm
     (case-lambda
       [() 1]
-      [(a:integer) a]
+      [(a:integer) (abs a)]
       [(a:integer b:integer) 
         (if (or (zero? a)(zero? b))
           0

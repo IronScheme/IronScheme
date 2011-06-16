@@ -195,7 +195,7 @@ See docs/license.txt. |#
     (lambda (e)
       (syntax-case e ()
         [(_ type size)
-         #'(clr-new-array-internal 'type size)])))
+          #'(clr-new-array-internal 'type size)])))
 
   (define-syntax clr-cast
     (lambda (e)

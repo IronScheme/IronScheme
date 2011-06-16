@@ -549,12 +549,19 @@ namespace IronScheme.Compiler
 
       type = t.Name;
 
+      Expression[] arguments = GetAstListNoCast(Cdddr(args) as Cons, cb);
+
       if (member == "get_Item")
       {
         if (Attribute.IsDefined(t, typeof(DefaultMemberAttribute)))
         {
           var dma = Attribute.GetCustomAttribute(t, typeof(DefaultMemberAttribute)) as DefaultMemberAttribute;
           member = "get_" + dma.MemberName;
+        }
+        else if (t.IsArray)
+        {
+          var index = arguments[0];
+          return Ast.ArrayIndex(instance, Ast.ConvertHelper(index, typeof(int)));
         }
       }
       else if (member == "set_Item")
@@ -564,9 +571,13 @@ namespace IronScheme.Compiler
           var dma = Attribute.GetCustomAttribute(t , typeof(DefaultMemberAttribute)) as DefaultMemberAttribute;
           member = "set_" + dma.MemberName;
         }
+        else if (t.IsArray)
+        {
+          var index = arguments[0];
+          var v = arguments[1];
+          return Ast.Comma(Ast.AssignArrayIndex(instance, Ast.ConvertHelper(index, typeof(int)), v), Ast.ReadField(null, Unspecified));
+        }
       }
-
-      Expression[] arguments = GetAstListNoCast(Cdddr(args) as Cons, cb);
 
       List<MethodBase> candidates = new List<MethodBase>();
 
