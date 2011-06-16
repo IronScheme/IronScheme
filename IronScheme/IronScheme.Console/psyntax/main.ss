@@ -330,14 +330,23 @@
           (or (load-from-package pkg filename sk)
               (load-fasl filename sk))
           (load-fasl filename sk))))
-          
-  (define (load-library-from-dll filename sk)
-    (let* ((dll-filename (change-extension filename ".dll"))
-           (content (load-library-dll dll-filename)))
-      (and content (apply sk content))))
-    
 
-    
+  (define (load-library-from-dll filename sk)        
+    (let ((dll-filename (change-extension filename ".dll")))
+      (if (file-exists? dll-filename)
+          (if (or (not (file-exists? filename))
+                  (file-newer? dll-filename filename))
+              (clr-guard [e 
+                      (e 
+                        (display (format "WARNING: precompiled library (~a) could not load.\n" (relative-filename filename)) (current-error-port))
+                        #f)]
+                (let ((content (load-library-dll dll-filename)))
+                  (and content (apply sk content))))
+              (begin
+                (display (format "WARNING: precompiled library (~a) is out of date.\n" (relative-filename filename)) (current-error-port))
+                #f))
+          #f)))
+                    
   (define (compile-dll filename content)
     (display "compiling ")
     (display (relative-filename filename))
@@ -356,7 +365,6 @@
       (vector-set! v 10 `(lambda () ,(vector-ref v 10)))
       (vector-set! v 11 `',(vector-ref v 11))
       (vector-set! v 12 `',(vector-ref v 12))
-      
       (compile-library filename (compile-core-expr (cons 'list (vector->list v))))))
     
   (define (serialize-library filename content)
