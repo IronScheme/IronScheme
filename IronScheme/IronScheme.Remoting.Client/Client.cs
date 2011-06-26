@@ -18,7 +18,6 @@ namespace IronScheme.Remoting.Client
 {
   public static class ServiceManager
   {
-    static Process isp;
     static ServiceManager()
     {
       BinaryClientFormatterSinkProvider sbs = new BinaryClientFormatterSinkProvider();
@@ -26,24 +25,7 @@ namespace IronScheme.Remoting.Client
       IpcClientChannel client = new IpcClientChannel("IronScheme", sbs);
 
       ChannelServices.RegisterChannel(client, false);
-
-      isp = new Process
-      {
-        StartInfo = new ProcessStartInfo
-        {
-          FileName = @"c:\dev\IronScheme\IronScheme.Console\bin\Debug\IronScheme.Console.exe",
-          Arguments = "-emacs",
-          CreateNoWindow = true,
-          UseShellExecute = false,
-          RedirectStandardError = true,
-          RedirectStandardOutput = true,
-          RedirectStandardInput = true,
-        }
-      };
-
-      //isp.Start();
-
-    }
+   }
 
     public static ISymbolBindingService GetSymbolBindingService()
     {
