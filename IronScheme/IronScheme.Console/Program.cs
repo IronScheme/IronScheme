@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using IronScheme.Hosting;
+using IronScheme.Remoting.Server;
 
 namespace IronScheme.Runtime
 {
@@ -59,6 +60,11 @@ namespace IronScheme.Runtime
       }
       else
       {
+        if (Array.IndexOf(args, "--remoting-server") >= 0)
+        {
+          Host.Start();
+          args = Array.FindAll(args, x => x != "--remoting-server");
+        }
         //Encoding oi = Console.InputEncoding;
         Encoding oo = Console.OutputEncoding;
 

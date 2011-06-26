@@ -107,7 +107,7 @@ namespace IronScheme
       return (T)Eval(expr, INTERACTION_ENVIRONMENT, args);
     }
 
-    public static T Eval<T>(this string expr, string importspec, params object[] args)
+    public static T EvalWithEnvironment<T>(this string expr, string importspec, params object[] args)
     {
       return (T)Eval(expr, importspec, args);
     }

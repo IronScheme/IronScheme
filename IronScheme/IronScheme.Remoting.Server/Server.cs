@@ -192,7 +192,7 @@ namespace IronScheme.Remoting.Server
 @"(lambda (maker)
     (map (lambda (b) 
             (maker (car b) (cdr b)))
-         (environment-bindings {0})))".Eval<Callable>(importspec);
+         (environment-bindings {0})))".Eval<Callable>(importspec.Eval());
 
         CallTarget2 maker = (n, t) =>
           {
@@ -234,11 +234,11 @@ namespace IronScheme.Remoting.Server
 
       try
       {
-        Callable c =
+        Callable c = 
 @"(lambda (maker)
-    (let ((p (eval '{0} {1})))
+    (let ((p (eval {0} {1})))
       (let ((forms (call-with-values (lambda () (procedure-form p)) vector)))
-        (maker (symbol->string '{0}) forms))))".Eval<Callable>(proc, importspec);
+        (maker (symbol->string {0}) forms))))".Eval<Callable>(SymbolTable.StringToObject(proc), importspec.Eval());
 
         CallTarget2 maker = (n, forms) =>
           {

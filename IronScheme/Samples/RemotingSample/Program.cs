@@ -4,13 +4,35 @@ using System.Linq;
 using System.Text;
 using IronScheme.Remoting;
 using IronScheme.Remoting.Client;
+using System.Diagnostics;
 
 namespace RemotingSample
 {
   class Program
   {
+    static void StartServer()
+    {
+      var isp = new Process
+      {
+        StartInfo = new ProcessStartInfo
+        {
+          FileName = @"c:\dev\IronScheme\IronScheme.Console\bin\Release\IronScheme.Console.exe",
+          Arguments = "-emacs --remoting-server",
+          CreateNoWindow = true,
+          UseShellExecute = false,
+          RedirectStandardError = true,
+          RedirectStandardOutput = true,
+          RedirectStandardInput = true,
+        }
+      };
+
+      isp.Start();
+    }
+
     static void Main(string[] args)
     {
+      //StartServer();
+
       var sbs = ServiceManager.GetSymbolBindingService();
 
       var result = sbs.GetBindings("(ironscheme linq2)");
