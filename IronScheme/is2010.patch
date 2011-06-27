@@ -67,7 +67,7 @@ diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
    </PropertyGroup>
    <ItemGroup>
      <Compile Include="Actions\IronSchemeActionBinder.cs" />
-@@ -156,6 +174,23 @@
+@@ -155,6 +173,23 @@
      <Reference Include="System" />
      <Reference Include="System.Data" />
      <Reference Include="System.Xml" />
@@ -911,19 +911,7 @@ diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Micr
    </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
      <DebugSymbols>true</DebugSymbols>
-@@ -30,9 +48,10 @@
-     <DefineConstants>TRACE;DEBUG;nFULL</DefineConstants>
-     <ErrorReport>prompt</ErrorReport>
-     <WarningLevel>4</WarningLevel>
--    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-     <RunCodeAnalysis>false</RunCodeAnalysis>
-     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-   </PropertyGroup>
-   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-     <DebugType>pdbonly</DebugType>
-@@ -50,8 +69,6 @@
+@@ -50,8 +68,6 @@
    </PropertyGroup>
    <ItemGroup>
      <Reference Include="System" />
@@ -932,7 +920,7 @@ diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Micr
    </ItemGroup>
    <ItemGroup>
      <Compile Include="ActionOnCallAttribute.cs" />
-@@ -438,6 +455,21 @@
+@@ -438,6 +454,21 @@
      </EmbeddedResource>
    </ItemGroup>
    <ItemGroup>
@@ -1437,3 +1425,17 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  		{DD78568C-CDB5-4CED-BC9C-C18182ED5945} = {8ED223BB-6188-4162-8B6F-593B6A32F1AC}
  		{88AEA620-7094-4DA8-BFDA-1132A502111E} = {8ED223BB-6188-4162-8B6F-593B6A32F1AC}
  		{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9} = {8ED223BB-6188-4162-8B6F-593B6A32F1AC}
+diff U3B IronScheme.Console/srfi/compile-all.ironscheme.sps IronScheme.Console/srfi/compile-all.ironscheme.sps
+--- IronScheme.Console/srfi/compile-all.ironscheme.sps	Tue Jan 20 00:26:36 1970
++++ IronScheme.Console/srfi/compile-all.ironscheme.sps	Tue Jan 20 00:26:36 1970
+@@ -16,8 +16,8 @@
+   (only (srfi :19))
+   (only (srfi :19 time))
+   (only (srfi :19 time compat))
+-  (only (srfi :2))
+-  (only (srfi :2 and-let*))
++  ;(only (srfi :2))
++  ;(only (srfi :2 and-let*))
+   (only (srfi :23))
+   (only (srfi :23 error))
+   (only (srfi :23 error tricks))
