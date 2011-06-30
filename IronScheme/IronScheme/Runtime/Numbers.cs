@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       Scanner number_scanner = new Scanner();
 
       number_parser.scanner = number_scanner;
-      number_scanner.SetSource(str,0);
+      number_scanner.SetSource(str, 0);
       number_parser.result = null;
       number_scanner.yy_push_state(3);
 
@@ -150,9 +150,9 @@ namespace IronScheme.Runtime
 
     internal static bool IsExact(object obj)
     {
-      return obj is int || 
-             obj is BigInteger || 
-             obj is Fraction || 
+      return obj is int ||
+             obj is BigInteger ||
+             obj is Fraction ||
              obj is ComplexFraction;
     }
 
@@ -208,7 +208,7 @@ namespace IronScheme.Runtime
     {
       Complex = 1,
       Real = 2 | Complex,
-      Rational = 4 | Real ,
+      Rational = 4 | Real,
       BigInteger = 8 | Rational,
       Integer = 16 | BigInteger,
       NotANumber = 0
@@ -306,6 +306,26 @@ namespace IronScheme.Runtime
       }
     }
 
+    protected static ComplexFraction ConvertToComplexFraction(object o)
+    {
+      if (o is ComplexFraction)
+      {
+        return (ComplexFraction)o;
+      }
+      else if (o is int)
+      {
+        return new ComplexFraction((int)o);
+      }
+      else if (o is BigInteger)
+      {
+        return new ComplexFraction((BigInteger)o);
+      }
+      else
+      {
+        return new ComplexFraction((Fraction)o);
+      }
+    }
+
     [Builtin("generic+", AllowConstantFold = true)]
     public static object Add(object first, object second)
     {
@@ -315,7 +335,7 @@ namespace IronScheme.Runtime
       {
         throw new NotSupportedException("number type not supported");
       }
-      
+
       NumberClass s = GetNumberClass(second);
 
       if (s == NumberClass.NotANumber)
@@ -336,7 +356,7 @@ namespace IronScheme.Runtime
             }
             else
             {
-              return RuntimeHelpers.Int32ToObject((int) result);
+              return RuntimeHelpers.Int32ToObject((int)result);
             }
           }
         case NumberClass.BigInteger:
@@ -346,11 +366,17 @@ namespace IronScheme.Runtime
         case NumberClass.Real:
           return ConvertToReal(first) + ConvertToReal(second);
         case NumberClass.Complex:
-          return ConvertToComplex(first) + ConvertToComplex(second);
+          if (IsExact(first) && IsExact(second))
+          {
+            return IntegerIfPossible(ConvertToComplexFraction(first) + ConvertToComplexFraction(second));
+          }
+          return DoubleIfPossible(ConvertToComplex(first) + ConvertToComplex(second));
       }
 
       throw new NotSupportedException("number type not supported");
     }
+
+
 
     [Builtin("generic-", AllowConstantFold = true)]
     public static object Subtract(object first, object second)
@@ -392,7 +418,11 @@ namespace IronScheme.Runtime
         case NumberClass.Real:
           return ConvertToReal(first) - ConvertToReal(second);
         case NumberClass.Complex:
-          return ConvertToComplex(first) - ConvertToComplex(second);
+          if (IsExact(first) && IsExact(second))
+          {
+            return IntegerIfPossible(ConvertToComplexFraction(first) - ConvertToComplexFraction(second));
+          }
+          return DoubleIfPossible(ConvertToComplex(first) - ConvertToComplex(second));
       }
 
       throw new NotSupportedException("number type not supported");
@@ -438,7 +468,11 @@ namespace IronScheme.Runtime
         case NumberClass.Real:
           return ConvertToReal(first) * ConvertToReal(second);
         case NumberClass.Complex:
-          return ConvertToComplex(first) * ConvertToComplex(second);
+          if (IsExact(first) && IsExact(second))
+          {
+            return IntegerIfPossible(ConvertToComplexFraction(first) * ConvertToComplexFraction(second));
+          }
+          return DoubleIfPossible(ConvertToComplex(first) * ConvertToComplex(second));
       }
 
       throw new NotSupportedException("number type not supported");
@@ -486,7 +520,11 @@ namespace IronScheme.Runtime
         case NumberClass.Real:
           return ConvertToReal(first) / ConvertToReal(second);
         case NumberClass.Complex:
-          return ConvertToComplex(first) / ConvertToComplex(second);
+          if (IsExact(first) && IsExact(second))
+          {
+            return IntegerIfPossible(ConvertToComplexFraction(first) / ConvertToComplexFraction(second));
+          }
+          return DoubleIfPossible(ConvertToComplex(first) / ConvertToComplex(second));
       }
 
       throw new NotSupportedException("number type not supported");
@@ -597,6 +635,18 @@ namespace IronScheme.Runtime
       return Values(x1, v0 - q0);
     }
 
+    static object DoubleIfPossible(object res)
+    {
+      if (res is Complex64)
+      {
+        var c = (Complex64)res;
+        if (c.Imag == 0)
+        {
+          return c.Real;
+        }
+      }
+      return res;
+    }
 
     // improve actually
     static object IntegerIfPossible(object res)
@@ -626,7 +676,7 @@ namespace IronScheme.Runtime
 
     #region Other Obsolete
 
- 
+
 #if !USE_GLUE
     //[Builtin("inexact")]
     [Obsolete("Implemented in Scheme, do not use, remove if possible", false)]
@@ -684,7 +734,7 @@ namespace IronScheme.Runtime
 
 #endif
 
- 
+
     #endregion
   }
 }
