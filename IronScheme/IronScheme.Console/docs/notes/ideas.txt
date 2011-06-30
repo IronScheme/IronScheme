@@ -1,5 +1,43 @@
 ﻿Idea list
 =========
 
-* Compile record generation (just shape)
-* 
+* Typed Scheme
+
+(define/c + (int32 int32 -> int32))
+
+(define (+ a b) 
+  (import (unsafe))
+  (fx+ a b))
+
+=> 
+
+(define + 
+  (typed-lambda (a b)
+    ((int32 int32) int32) ; from contract
+    (import (unsafe))
+    (fx+ a b)))
+
+(define/c cons ('CAR 'CDR -> (cons 'CAR 'CDR)))
+(define/c car ((cons 'CAR 'CDR) -> 'CAR))
+(define/c cdr ((cons 'CAR 'CDR) -> 'CDR))
+
+(define (cons car cdr)
+  (clr-new (cons 'CAR 'CDR) car cdr))
+  
+  
+  
+
+* TCE with loop hoisting (optimizer pass(es))
+
+Conditions for TCE
+
+- Tail call application of current procedure within current procedure
+
+Additional conditions for loop hoist
+
+- No indirect references, only tail call applications
+- Must be tail call application in 'parent'
+
+
+
+  
