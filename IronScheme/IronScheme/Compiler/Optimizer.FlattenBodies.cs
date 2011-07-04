@@ -66,6 +66,12 @@ namespace IronScheme.Compiler
 
         static Statement Rewrite(Statement body)
         {
+          if (body is LabeledStatement)
+          {
+            var ls = (LabeledStatement)body;
+            return ls.Mark(Rewrite(ls.Statement));
+          }
+
           if (body is BlockStatement)
           {
             var node = body as BlockStatement;
@@ -114,6 +120,7 @@ namespace IronScheme.Compiler
               if (op is CommaExpression)
               {
                 var ce = op as CommaExpression;
+
                 var block = RewriteExpressions(ce.Expressions,
                   x => Ast.Return(Ast.ConvertHelper(x, ux.Type)));
 
@@ -124,8 +131,17 @@ namespace IronScheme.Compiler
             if (rs.Expression is CommaExpression)
             {
               var ce = rs.Expression as CommaExpression;
-              var block = RewriteExpressions(ce.Expressions, Ast.Return);
-              return Rewrite(Ast.Block(block));
+              var le = ce.Expressions[ce.Expressions.Count - 1];
+              if (le is VoidExpression && ((VoidExpression)le).Statement is ContinueStatement)
+              {
+                var block = RewriteExpressions(ce.Expressions, x => Ast.Continue());
+                return Rewrite(Ast.Block(block));
+              }
+              else
+              {
+                var block = RewriteExpressions(ce.Expressions, Ast.Return);
+                return Rewrite(Ast.Block(block));
+              }
             }
 
             if (rs.Expression is VoidExpression)

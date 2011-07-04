@@ -188,68 +188,69 @@ namespace Microsoft.Scripting.Ast {
           {
             if (!IsParamsMethod())
             {
-              if (_instance is UnaryExpression)
-              {
-                UnaryExpression ue = (UnaryExpression)_instance;
-                if (typeof(Delegate).IsAssignableFrom(ue.Type))
-                {
-                  if (ue.Operand is CodeBlockExpression)
-                  {
-                    CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
-                    CodeGen rcg;
+              //if (_instance is UnaryExpression)
+              //{
+              //  UnaryExpression ue = (UnaryExpression)_instance;
+              //  if (typeof(Delegate).IsAssignableFrom(ue.Type))
+              //  {
+              //    if (ue.Operand is CodeBlockExpression)
+              //    {
+              //      CodeBlockExpression cbe = (CodeBlockExpression)ue.Operand;
+              //      CodeGen rcg;
 
-                    Debug.Assert(_arguments.Count == _parameterInfos.Length);
+              //      Debug.Assert(_arguments.Count == _parameterInfos.Length);
 
-                    if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
-                    {
-                      if (rcg == cg && HasNoCallableArgs())
-                      {
-                        RewriteLoop(cg, cbe);
-                        return;
-                      }
-                    }
-                  }
-                }
-                else if (ue.Operand is BoundExpression)
-                {
-                  BoundExpression be = ue.Operand as BoundExpression;
-                  var v = UnwindBoundExpression(be);
-                  if (v is MethodCallExpression)
-                  {
-                    var mce = v as MethodCallExpression;
-                    if (mce.Arguments.Count == 2)
-                    {
-                      var cbe = mce.Arguments[0] as CodeBlockExpression;
-                      if (cbe != null)
-                      {
-                        CodeGen rcg = null;
+              //      if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
+              //      {
+              //        if (rcg == cg && HasNoCallableArgs())
+              //        {
+              //          RewriteLoop(cg, cbe);
+              //          return;
+              //        }
+              //      }
+              //    }
+              //  }
+              //  else if (ue.Operand is BoundExpression)
+              //  {
+              //    BoundExpression be = ue.Operand as BoundExpression;
+              //    var v = UnwindBoundExpression(be);
+              //    if (v is MethodCallExpression)
+              //    {
+              //      var mce = v as MethodCallExpression;
+              //      if (mce.Arguments.Count == 2)
+              //      {
+              //        var cbe = mce.Arguments[0] as CodeBlockExpression;
+              //        if (cbe != null)
+              //        {
+              //          CodeGen rcg = null;
 
-                        if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
-                        {
-                          if (rcg == cg && HasNoCallableArgs())
-                          {
-                            RewriteLoop(cg, cbe);
-                            return;
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              else if (_instance is CodeBlockExpression)
+              //          if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
+              //          {
+              //            if (rcg == cg && HasNoCallableArgs())
+              //            {
+              //              RewriteLoop(cg, cbe);
+              //              return;
+              //            }
+              //          }
+              //        }
+              //      }
+              //    }
+              //  }
+              //}
+              //else 
+              if (_instance is CodeBlockExpression)
               {
                 CodeBlockExpression cbe = (CodeBlockExpression)_instance;
-                CodeGen rcg = null;
+                //CodeGen rcg = null;
 
-                if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
-                {
-                  if (rcg == cg && HasNoCallableArgs())
-                  {
-                    RewriteLoop(cg, cbe);
-                    return;
-                  }
-                }
+                //if (tailcall && CodeGen._codeBlockImplementations.TryGetValue(cbe.Block, out rcg))
+                //{
+                //  if (rcg == cg && HasNoCallableArgs())
+                //  {
+                //    RewriteLoop(cg, cbe);
+                //    return;
+                //  }
+                //}
 
                 Debug.Assert(_arguments.Count == _parameterInfos.Length);
                 for (int arg = 0; arg < _parameterInfos.Length; arg++)

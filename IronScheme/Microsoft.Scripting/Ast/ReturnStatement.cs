@@ -17,7 +17,7 @@ using Microsoft.Scripting.Generation;
 
 namespace Microsoft.Scripting.Ast {
     public class ReturnStatement : Statement {
-        private readonly Expression _expr;
+        private Expression _expr;
 
         internal ReturnStatement(SourceSpan span, Expression expression)
             : base(AstNodeType.ReturnStatement, span) {
@@ -26,6 +26,7 @@ namespace Microsoft.Scripting.Ast {
 
         public Expression Expression {
             get { return _expr; }
+          set { _expr = value; }
         }
 
 
