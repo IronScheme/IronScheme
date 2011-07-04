@@ -93,7 +93,6 @@ namespace Microsoft.Scripting {
 
 
     public delegate object CallTargetN(params object[] args);
-  [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContextN(CodeContext context, params object[] args);
 
 #if FULL
@@ -126,23 +125,15 @@ namespace Microsoft.Scripting {
 
     // *** BEGIN GENERATED CODE ***
 
-    [Obsolete("Simplifying closures")]
+    
     public delegate object CallTargetWithContext0(CodeContext context);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext1(CodeContext context, object arg0);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext2(CodeContext context, object arg0, object arg1);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext3(CodeContext context, object arg0, object arg1, object arg2);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext4(CodeContext context, object arg0, object arg1, object arg2, object arg3);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext5(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext6(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext7(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6);
-    [Obsolete("Simplifying closures")]
     public delegate object CallTargetWithContext8(CodeContext context, object arg0, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7);
 
 

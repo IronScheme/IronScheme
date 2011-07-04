@@ -574,6 +574,13 @@ namespace IronScheme.Runtime
       ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 
+      var prevt = IronScheme.Compiler.Generator.AllowTransientBinding;
+
+      if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
+      {
+        IronScheme.Compiler.Generator.AllowTransientBinding = true;
+      }
+
       int c = ++evalcounter;
       
 #if DEBUG
@@ -613,6 +620,7 @@ namespace IronScheme.Runtime
       }
       finally
       {
+        IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
         sc.ClearCache();
         Compiler.SimpleGenerator.ClearGlobals();
       }

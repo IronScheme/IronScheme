@@ -58,6 +58,7 @@
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
+    <Compile Include="Compiler\Optimizer.TCE.cs" />
     <Compile Include="Compiler\Optimizer.TypeVariables.cs" />
     <Compile Include="Compiler\Optimizer.ConversionCSE.cs" />
     <Compile Include="Compiler\Optimizer.FixupConditionals.cs" />

@@ -98,7 +98,7 @@ namespace Microsoft.Scripting.Ast {
           }
           else
           {
-            if (!(s is ReturnStatement) && !(s is IfStatement))
+            if (!(s is ReturnStatement) && !(s is IfStatement) && !(s is ContinueStatement))
             {
               return true;
             }

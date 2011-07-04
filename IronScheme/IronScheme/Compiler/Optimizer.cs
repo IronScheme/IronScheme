@@ -15,11 +15,19 @@ namespace IronScheme.Compiler
     class DeepWalker : Walker
     {
       readonly Dictionary<CodeBlock, bool> blocks = new Dictionary<CodeBlock, bool>();
+      protected CodeBlock Current;
 
       protected override bool Walk(CodeBlock node)
       {
         blocks[node] = true;
+        Current = node;
         return base.Walk(node);
+      }
+
+      protected override void PostWalk(CodeBlock node)
+      {
+        base.PostWalk(node);
+        Current = node.Parent ?? node;
       }
 
       protected override void PostWalk(CodeBlockExpression node)
@@ -53,6 +61,8 @@ namespace IronScheme.Compiler
       Optimize<FixupPrimitives>(cb);
       Optimize<TypeVariables>(cb);
       //Optimize<ConversionCSE>(cb);
+      Optimize<TCE>(cb);
+      Optimize<FlattenBodies>(cb);
     }
   }
 }

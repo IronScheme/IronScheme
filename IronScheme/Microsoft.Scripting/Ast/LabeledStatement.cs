@@ -43,7 +43,10 @@ namespace Microsoft.Scripting.Ast {
             }
 
             Label label = cg.DefineLabel();
-            cg.PushTargets(label, label, this);
+            Label label2 = cg.DefineLabel();
+
+            cg.MarkLabel(label2);
+            cg.PushTargets(label, label2, this);
 
             _statement.Emit(cg);
 
