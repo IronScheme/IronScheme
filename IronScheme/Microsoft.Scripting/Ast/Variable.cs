@@ -112,6 +112,8 @@ namespace Microsoft.Scripting.Ast {
             _kind = kind;
             _block = block;
 
+            Debug.Assert(new List<Variable>(block.Variables).Find(x => x.Name == name) == null);
+
             // enables case: 
             //
             // temp = CreateVariable(..., expression.Type, ...)

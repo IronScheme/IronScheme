@@ -32,11 +32,12 @@ namespace Microsoft.Scripting.Ast {
       get { return _variable; }
     } 
 
-    private readonly Expression /*!*/ _value;
+    private Expression /*!*/ _value;
 
     public Expression Value
     {
       get { return _value; }
+      set { _value = value; }
     }
 
     Expression GetReference(Expression expr)

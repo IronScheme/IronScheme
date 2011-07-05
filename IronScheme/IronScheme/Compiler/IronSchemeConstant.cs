@@ -51,7 +51,7 @@ namespace IronScheme.Compiler
 
     public override object Create()
     {
-      throw new NotImplementedException();
+      return GetType().Name;
     }
   }
 
@@ -85,7 +85,7 @@ namespace IronScheme.Compiler
 
     public override object Create()
     {
-      throw new NotImplementedException();
+      return GetType().Name;
     }
   }
 
@@ -120,7 +120,7 @@ namespace IronScheme.Compiler
 
     public override object Create()
     {
-      throw new NotImplementedException();
+      return GetType().Name;
     }
   }
 
@@ -151,7 +151,7 @@ namespace IronScheme.Compiler
 
     public override object Create()
     {
-      throw new NotImplementedException();
+      return GetType().Name;
     }
   }
 
@@ -192,7 +192,7 @@ namespace IronScheme.Compiler
 
     public override object Create()
     {
-      throw new NotImplementedException();
+      return GetType().Name;
     }
   }
 

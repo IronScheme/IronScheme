@@ -879,7 +879,7 @@ namespace IronScheme.Compiler
       return InlineCall(parent, cbe, false, pp);
     }
 
-    protected static Expression InlineCall(CodeBlock parent, CodeBlockExpression cbe, bool istailpostion, params Expression[] pp)
+    protected internal static Expression InlineCall(CodeBlock parent, CodeBlockExpression cbe, bool istailpostion, params Expression[] pp)
     {
       // all var names are unique.
       CodeBlock cb = cbe.Block;
@@ -894,13 +894,19 @@ namespace IronScheme.Compiler
 
       cb.Inlined = true;
 
+      var parentvars = new List<Variable>(parent.Variables);
+
       foreach (Variable p in cb.Parameters)
       {
         SymbolId origname = p.Name;
-        p.Name = (SymbolId) Builtins.GenSym(p.Name);
-        p.Block = parent;
-        p.Kind = Variable.VariableKind.Local;
-        parent.AddVariable(p);
+
+        //if (p.Block != parent)
+        {
+          p.Name = (SymbolId)Builtins.GenSym(p.Name);
+          p.Block = parent;
+          p.Kind = Variable.VariableKind.Local;
+          parent.AddVariable(p);
+        }
         Expression val = Unwrap(pp[i]);
         if (val.Type != typeof(Boolean) && val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
         {
@@ -921,12 +927,15 @@ namespace IronScheme.Compiler
 
       foreach (Variable l in cb.Variables)
       {
-        if (l.DefaultValue == null)
+        //if (l.Block != parent)
         {
-          l.Name = (SymbolId)Builtins.GenSym(l.Name);
+          if (l.DefaultValue == null)
+          {
+            l.Name = (SymbolId)Builtins.GenSym(l.Name);
+          }
+          l.Block = parent;
+          parent.AddVariable(l);
         }
-        l.Block = parent;
-        parent.AddVariable(l);
         if (l.Lift)
         {
           parent.HasEnvironment = true;
@@ -1025,6 +1034,12 @@ namespace IronScheme.Compiler
           b = Ast.ConvertHelper(b, typeof(object));
         }
         return Ast.Condition(ifs.Tests[0].Test, a, b);
+      }
+
+      if (statement is LabeledStatement)
+      {
+        var ls = statement as LabeledStatement;
+        return Ast.Void(ls);
       }
 
       throw new ArgumentException("Unexpected");

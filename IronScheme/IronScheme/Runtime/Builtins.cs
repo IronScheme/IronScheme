@@ -578,7 +578,7 @@ namespace IronScheme.Runtime
 
       if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
       {
-        IronScheme.Compiler.Generator.AllowTransientBinding = true;
+        IronScheme.Compiler.Generator.AllowTransientBinding = false;
       }
 
       int c = ++evalcounter;

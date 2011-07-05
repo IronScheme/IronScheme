@@ -209,18 +209,18 @@ namespace Microsoft.Scripting.Ast {
             WalkNode(node);
             Debug.Assert(_stack.Count == 0);
 
-            while (_blocks != null && _blocks.Count > 0) {
-                Block b = _blocks.Dequeue();
-                WriteLine();
-                WriteLine("//");
-                WriteLine("// CODE BLOCK: {0} ({1})", b.CodeBlock.Name, b.Id);
-                WriteLine("//");
-                WriteLine();
+            //while (_blocks != null && _blocks.Count > 0) {
+            //    Block b = _blocks.Dequeue();
+            //    WriteLine();
+            //    WriteLine("//");
+            //    WriteLine("// CODE BLOCK: {0} ({1})", b.CodeBlock.Name, b.Id);
+            //    WriteLine("//");
+            //    WriteLine();
 
-                WalkNode(b.CodeBlock);
+            //    WalkNode(b.CodeBlock);
 
-                Debug.Assert(_stack.Count == 0);
-            }
+            //    Debug.Assert(_stack.Count == 0);
+            //}
 
             WriteLine();
         }
