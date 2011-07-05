@@ -150,7 +150,7 @@ namespace IronScheme.Compiler
           var mce = node.Expression as MethodCallExpression;
           if (mce != null && IsHoistable(mce, out cbe, out var))
           {
-            var inlinedexpr = Generator.InlineCall(Current, cbe, mce.TailCall, mce.Arguments.ToArray());
+            var inlinedexpr = InlineCall(Current, cbe, mce.Arguments.ToArray());
             node.Expression = inlinedexpr;
 
             fixups.Add(var.Block);
@@ -206,6 +206,60 @@ namespace IronScheme.Compiler
           if (mce.Arguments.Count > 8) return false;
 
           return true;
+        }
+
+        static Expression InlineCall(CodeBlock parent, CodeBlockExpression cbe, params Expression[] pp)
+        {
+          // all var names are unique.
+          CodeBlock cb = cbe.Block;
+
+          List<Statement> assigns = new List<Statement>();
+          int i = 0;
+
+          cb.Inlined = true;
+
+          var parentvars = new List<Variable>(parent.Variables);
+
+          foreach (Variable p in cb.Parameters)
+          {
+            SymbolId origname = p.Name;
+
+            //if (p.Block != parent)
+            {
+              p.Name = (SymbolId)Builtins.GenSym(p.Name);
+              p.Block = parent;
+              p.Kind = Variable.VariableKind.Local;
+              parent.AddVariable(p);
+            }
+            assigns.Add(Ast.Write(p, pp[i]));
+
+            if (p.Lift)
+            {
+              parent.HasEnvironment = true;
+            }
+            i++;
+          }
+
+          foreach (Variable l in cb.Variables)
+          {
+            //if (l.Block != parent)
+            {
+              if (l.DefaultValue == null)
+              {
+                l.Name = (SymbolId)Builtins.GenSym(l.Name);
+              }
+              l.Block = parent;
+              parent.AddVariable(l);
+            }
+            if (l.Lift)
+            {
+              parent.HasEnvironment = true;
+            }
+          }
+
+          assigns.Add(cb.Body);
+
+          return Ast.Void(Ast.Block(assigns));
         }
 
       }

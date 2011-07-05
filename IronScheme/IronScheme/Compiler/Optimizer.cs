@@ -63,8 +63,8 @@ namespace IronScheme.Compiler
       //Optimize<ConversionCSE>(cb);
       Optimize<TCE>(cb);
       Optimize<FlattenBodies>(cb);
-      //Optimize<LoopHoist>(cb);
-      //Optimize<FlattenBodies>(cb);
+      Optimize<LoopHoist>(cb);
+      Optimize<FlattenBodies>(cb);
       Optimize<RemoveTemporaries>(cb);
     }
   }
