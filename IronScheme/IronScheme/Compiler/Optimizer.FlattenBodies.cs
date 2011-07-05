@@ -8,6 +8,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Scripting.Ast;
+using IronScheme.Runtime;
+using System;
 
 namespace IronScheme.Compiler
 {
@@ -102,6 +104,13 @@ namespace IronScheme.Compiler
               var block = RewriteExpressions(ce.Expressions, x => Ast.Write(ws.Variable, x));
               return Rewrite(Ast.Block(block));
             }
+            else if (ws.Value == null)
+            {
+              var cb = ws.Variable.Block;
+              cb.RemoveVariables(new List<Variable>(new[] { ws.Variable }));
+              cb.Bind();
+              return Ast.Empty();
+            }
           }
 
           if (body is ReturnStatement)
@@ -150,6 +159,24 @@ namespace IronScheme.Compiler
               return Rewrite(ve);
             }
 
+            if (rs.Expression is MethodCallExpression)
+            {
+              var mce = rs.Expression as MethodCallExpression;
+              var uce = Unwrap(mce.Instance);
+              if (uce is CommaExpression)
+              {
+                var ce = uce as CommaExpression;
+                var block = RewriteExpressions(ce.Expressions, 
+                  x => 
+                    {
+                      var args = Array.ConvertAll(mce.Arguments.ToArray(), y => Ast.ConvertHelper(y, typeof(object)));
+                      var mc = Ast.Call(Ast.ConvertHelper(x, typeof(Callable)), mce.Method, args);
+                      mc.TailCall = mce.TailCall;
+                      return Ast.Return(mc);
+                    });
+                return Rewrite(Ast.Block(block));
+              }
+            }
           }
 
           if (body is ExpressionStatement)
@@ -178,7 +205,17 @@ namespace IronScheme.Compiler
           return body;
         }
 
-        private static Statement Rewrite(VoidExpression ve)
+        protected internal static Expression Unwrap(Expression ex)
+        {
+          while (ex is UnaryExpression && ex.NodeType == AstNodeType.Convert)
+          {
+            ex = ((UnaryExpression)ex).Operand;
+          }
+
+          return ex;
+        }
+
+        static Statement Rewrite(VoidExpression ve)
         {
           var block = new List<Statement>();
           var s = Rewrite(ve.Statement);
@@ -196,7 +233,7 @@ namespace IronScheme.Compiler
           return Rewrite(Ast.Block(block));
         }
 
-        private static List<Statement> RewriteExpressions(ReadOnlyCollection<Expression> cee,
+        static List<Statement> RewriteExpressions(ReadOnlyCollection<Expression> cee,
           IronScheme.Runtime.Typed.Func<Expression, Statement> lastmaker)
         {
           var block = new List<Statement>();

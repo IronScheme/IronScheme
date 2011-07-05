@@ -18,21 +18,40 @@ namespace IronScheme.Compiler
   {
     class TCE : OptimizerBase
     {
+      public static IEnumerable<CodeBlock> Distinct(IEnumerable<CodeBlock> l)
+      {
+        var dic = new Dictionary<CodeBlock, bool>();
+
+        foreach (var v in l)
+        {
+          if (!dic.ContainsKey(v))
+          {
+            dic[v] = true;
+            yield return v;
+          }
+        }
+      }
+
       public override void Optimize()
       {
-        var fixups = new List<ReturnStatement>();
+        var fixups = new List<CodeBlock>();
 
         Pass0 p0 = new Pass0(fixups);
         p0.WalkNode(Root);
+
+        foreach (var cb in Distinct(fixups))
+        {
+          cb.Bind();
+        }
 
         Root.Bind();
       }
 
       class Pass0 : DeepWalker
       {
-        readonly List<ReturnStatement> fixups;
+        readonly List<CodeBlock> fixups;
 
-        public Pass0(List<ReturnStatement> fixups)
+        public Pass0(List<CodeBlock> fixups)
         {
           this.fixups = fixups;
         }
@@ -49,8 +68,9 @@ namespace IronScheme.Compiler
 
         protected override bool Walk(ReturnStatement node)
         {
+          Variable var;
           var mce = node.Expression as MethodCallExpression;
-          if (mce != null && IsTCE(mce))
+          if (mce != null && IsTCE(mce, out var))
           {
             if (!(Current.Body is LabeledStatement))
             {
@@ -74,7 +94,8 @@ namespace IronScheme.Compiler
             ee.Add(Ast.Void(Ast.Continue()));
             node.Expression = Ast.Comma(ee);
 
-            fixups.Add(node);
+            var.Lift = false;
+            fixups.Add(var.Block);
 
             Current.Bind();
           }
@@ -82,15 +103,16 @@ namespace IronScheme.Compiler
           return base.Walk(node);
         }
 
-        bool IsTCE(MethodCallExpression mce)
+        bool IsTCE(MethodCallExpression mce, out Variable var)
         {
+          var = null;
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           var i = Unwrap(mce.Instance);
           if (i.Type != typeof(Callable)) return false;
           var be = i as BoundExpression;
           if (be == null) return false;
-          var var = be.Variable;
+          var = be.Variable;
           if (!var.Lift || var.Type != typeof(Callable) || var.ReAssigned) return false;
           if (mce.Method.Name != "Call") return false;
           if (mce.Arguments.Count > 0 && mce.Arguments[0].Type == typeof(object[])) return false;

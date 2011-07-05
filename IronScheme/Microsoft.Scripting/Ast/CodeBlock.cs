@@ -231,6 +231,8 @@ namespace Microsoft.Scripting.Ast {
 
         public void Bind()
         {
+          IsClosure = false;
+          HasEnvironment = false;
           ClosureBinder.Bind(this);
         }
 
@@ -309,6 +311,7 @@ namespace Microsoft.Scripting.Ast {
 
             Variable variable = Variable.Create(name, kind, this, type, defaultValue);
             _variables.Add(variable);
+            Debug.Assert(!_variablesmap.ContainsKey(name));
             _variablesmap.Add(variable.Name, variable);
             return variable;
         }
@@ -316,6 +319,7 @@ namespace Microsoft.Scripting.Ast {
         public Variable CreateLocalVariable(SymbolId name, Type type) {
             Variable variable = Variable.Local(name, this, type);
             _variables.Add(variable);
+            Debug.Assert(!_variablesmap.ContainsKey(name));
             _variablesmap.Add(variable.Name, variable);
             return variable;
         }
@@ -323,6 +327,7 @@ namespace Microsoft.Scripting.Ast {
         public Variable CreateTemporaryVariable(SymbolId name, Type type) {
             Variable variable = Variable.Temporary(name, this, type);
             _variables.Add(variable);
+            Debug.Assert(!_variablesmap.ContainsKey(name));
             _variablesmap.Add(variable.Name, variable);
             return variable;
         }
@@ -330,6 +335,7 @@ namespace Microsoft.Scripting.Ast {
         public Variable CreateGeneratorTempVariable(SymbolId name, Type type) {
             Variable variable = Variable.GeneratorTemp(name, this, type);
             _variables.Add(variable);
+            Debug.Assert(!_variablesmap.ContainsKey(name));
             _variablesmap.Add(variable.Name, variable);
             return variable;
         }
@@ -410,15 +416,29 @@ namespace Microsoft.Scripting.Ast {
                 foreach (Variable parm in _parameters) {
                   if (parm.Lift)
                   {
-                    lifted.Add(parm);
-                    size++;
+                    if (!lifted.Contains(parm))
+                    {
+                      lifted.Add(parm);
+                      size++;
+                    }
+                    else
+                    {
+                      Console.WriteLine(parm);
+                    }
                   }
                 }
                 foreach (Variable var in _variables) {
                   if (var.Lift)
                   {
-                    lifted.Add(var);
-                    size++;
+                    if (!lifted.Contains(var))
+                    {
+                      lifted.Add(var);
+                      size++;
+                    }
+                    else
+                    {
+                      Console.WriteLine(var);
+                    }
                   }
                 }
                 // Find the right environment factory for the size of elements to store
@@ -1521,6 +1541,8 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
       // for rewriting
         public void AddVariable(Variable par)
         {
+          Debug.Assert(!_variables.Contains(par));
+          Debug.Assert(!_variablesmap.ContainsKey(par.Name));
           _variables.Add(par);
           _variablesmap.Add(par.Name, par);
         }
