@@ -111,6 +111,13 @@ namespace IronScheme.Compiler
               cb.Bind();
               return Ast.Empty();
             }
+            else if (ws.Variable.Block == null)
+            {
+              //var cb = ws.Variable.Block;
+              //cb.RemoveVariables(new List<Variable>(new[] { ws.Variable }));
+              //cb.Bind();
+              return Ast.Empty();
+            }
           }
 
           if (body is ReturnStatement)

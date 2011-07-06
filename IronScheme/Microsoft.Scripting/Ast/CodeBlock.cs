@@ -78,7 +78,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public object Source { get; set; }
-
+        public bool IsRest { get; set; }
 
 
 #if FULL
@@ -1181,7 +1181,14 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
           }
           else
           {
-            return _name;
+            if (IsRest)
+            {
+              return _name + "+";
+            }
+            else
+            {
+              return _name;
+            }
           }
         }
 

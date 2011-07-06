@@ -32,7 +32,7 @@
     ldarg.2
     callvirt   instance object IronScheme.Runtime.ConsFromArrayHandler::Invoke(object[])
     tail.
-    call object [ironscheme.boot]'#'::'ironscheme.exceptions::assertion-violation'(object, object, object)
+    call object [ironscheme.boot]'#'::'ironscheme.exceptions::assertion-violation+'(object, object, object)
     ret
   } // end of method Glue::AssertionViolation
 

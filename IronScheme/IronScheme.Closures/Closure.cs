@@ -66,11 +66,11 @@ namespace IronScheme.Runtime
       string name = target.Method.Name;
 
       int i = name.IndexOf("::");
-      if (i < 0)
+      if (i >= 0)
       {
-        return name;
+        name = name.Substring(i + 2);
       }
-      return name.Substring(i + 2);
+      return name;
     }
 
     public override object Arity
@@ -491,7 +491,12 @@ namespace IronScheme.Runtime
 
       public override string ToString()
       {
-        return realtarget.ToString();
+        var name = realtarget.ToString();
+        if (name.EndsWith("+") && name != "+")
+        {
+          return name.Substring(0, name.Length - 1);
+        }
+        return name;
       }
     }
 

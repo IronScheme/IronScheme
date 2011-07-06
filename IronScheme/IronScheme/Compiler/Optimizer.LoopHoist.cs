@@ -90,6 +90,7 @@ namespace IronScheme.Compiler
               callsites[var]++;
             }
           }
+
           return base.Walk(node);
         }
 
@@ -109,6 +110,7 @@ namespace IronScheme.Compiler
         protected override bool Walk(BoundExpression node)
         {
           var var = node.Variable;
+
           if (!refmap.ContainsKey(var))
           {
             refmap[var] = 1;
@@ -117,6 +119,7 @@ namespace IronScheme.Compiler
           {
             refmap[var]++;
           }
+
           return base.Walk(node);
         }
       }
@@ -147,13 +150,16 @@ namespace IronScheme.Compiler
         {
           CodeBlockExpression cbe;
           Variable var;
+
           var mce = node.Expression as MethodCallExpression;
           if (mce != null && IsHoistable(mce, out cbe, out var))
           {
             var inlinedexpr = InlineCall(Current, cbe, mce.Arguments.ToArray());
             node.Expression = inlinedexpr;
-
-            fixups.Add(var.Block);
+            var b = var.Block;
+            //b.RemoveVariables(new List<Variable>(new[] { var }));
+            //var.Block = null;
+            fixups.Add(b);
           }
 
           return base.Walk(node);

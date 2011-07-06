@@ -30,6 +30,11 @@ namespace IronScheme.Compiler
         Current = node.Parent ?? node;
       }
 
+      protected override bool Walk(CodeBlockExpression node)
+      {
+        return base.Walk(node) && !blocks.ContainsKey(node.Block);
+      }
+
       protected override void PostWalk(CodeBlockExpression node)
       {
         if (!blocks.ContainsKey(node.Block))
