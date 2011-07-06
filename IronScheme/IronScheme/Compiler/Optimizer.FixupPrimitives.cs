@@ -29,42 +29,44 @@ namespace IronScheme.Compiler
         protected override bool Walk(MethodCallExpression node)
         {
           var i = node.Instance;
-          while (i is UnaryExpression && i.NodeType == AstNodeType.Convert)
-          {
-            i = ((UnaryExpression)i).Operand;
-          }
 
-          if (i is BoundExpression)
+          if (node.Method != Generator.ICallable_CallN)
           {
 
-            var be = (BoundExpression)i;
-            var v = be.Variable.Name;
-
-            if (Builtins.IsTrue(Builtins.IsSymbolBound(v)))
+            while (i is UnaryExpression && i.NodeType == AstNodeType.Convert)
             {
-              var val = Builtins.SymbolValue(v);
+              i = ((UnaryExpression)i).Operand;
+            }
 
-              var c = val as BuiltinMethod;
-              if (c != null)
+            if (i is BoundExpression)
+            {
+
+              var be = (BoundExpression)i;
+              var v = be.Variable.Name;
+
+              if (Builtins.IsTrue(Builtins.IsSymbolBound(v)))
               {
-                var mb = c.Binder;
+                var val = Builtins.SymbolValue(v);
 
-                var pars = new Expression[node.Arguments.Count];
-                node.Arguments.CopyTo(pars, 0);
-
-                Type[] types = Array.ConvertAll(pars, x => x.Type);
-                MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
-                if (mc != null)
+                var c = val as BuiltinMethod;
+                if (c != null)
                 {
-                  var meth = mc.Target.Method as MethodInfo;
+                  var mb = c.Binder;
 
-                  node.Method = meth;
-                  node.Instance = null;
+                  var pars = new Expression[node.Arguments.Count];
+                  node.Arguments.CopyTo(pars, 0);
+
+                  Type[] types = Array.ConvertAll(pars, x => x.Type);
+                  MethodCandidate mc = mb.MakeBindingTarget(CallType.None, types);
+                  if (mc != null)
+                  {
+                    var meth = mc.Target.Method as MethodInfo;
+
+                    node.Method = meth;
+                    node.Instance = null;
+                  }
                 }
-              }
-              else if (val is Closure)
-              {
-                if (node.Method != Generator.ICallable_CallN)
+                else if (val is Closure)
                 {
                   var cc = val as Closure;
 
@@ -114,6 +116,7 @@ namespace IronScheme.Compiler
                       node.Instance = null;
                     }
                   }
+
                 }
               }
             }

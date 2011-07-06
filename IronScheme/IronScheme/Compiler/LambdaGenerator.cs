@@ -31,6 +31,9 @@ namespace IronScheme.Compiler
 
       bool isrest = AssignParameters(cb, arg);
 
+      cb.IsRest = isrest;
+
+
       List<Statement> stmts = new List<Statement>();
       FillBody(cb, stmts, body, true);
 

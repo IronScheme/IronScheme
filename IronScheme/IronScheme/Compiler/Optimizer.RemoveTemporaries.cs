@@ -236,8 +236,8 @@ namespace IronScheme.Compiler
       {
         Pass0 p0 = new Pass0();
         p0.WalkNode(Root);
-        Pass1 p1 = new Pass1();
-        p1.WalkNode(Root);
+        //Pass1 p1 = new Pass1();
+        //p1.WalkNode(Root);
         Pass2 p2 = new Pass2(references);
         p2.WalkNode(Root);
         Pass3 p3 = new Pass3(references);
