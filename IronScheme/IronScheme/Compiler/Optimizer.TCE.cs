@@ -121,6 +121,7 @@ namespace IronScheme.Compiler
           var cbe = av.Arguments[0] as CodeBlockExpression;
           if (cbe == null || cbe.Block != Current) return false;
           if (mce.Arguments.Count > 8) return false;
+          if (cbe.Block.HasEnvironment) return false;
 
           return true;
         }
