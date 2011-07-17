@@ -301,6 +301,8 @@ namespace IronScheme.Runtime
       return SymbolTable.StringToObject(m.Name.ToLower());
     }
 
+    [DebuggerNonUserCode]
+    [DebuggerStepThrough]
     public static T RequiresNotNull<T>(object obj)
     {
       if (obj == null)

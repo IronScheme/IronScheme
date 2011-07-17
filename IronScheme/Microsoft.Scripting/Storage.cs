@@ -16,8 +16,9 @@ namespace Microsoft.Scripting
 
     public bool TryGetValue(SymbolId name, out object value)
     {
-      value = null;
-      return false;
+      var s = SymbolTable.IdToString(name);
+      value = Data.GetType().GetField(s).GetValue(Data);
+      return true;
     }
 
     public bool Remove(SymbolId name)
@@ -54,7 +55,10 @@ namespace Microsoft.Scripting
 
     public bool TryGetObjectValue(object name, out object value)
     {
-      throw new NotImplementedException();
+      SymbolId n = (SymbolId)name;
+      var s = SymbolTable.IdToString(n);
+      value = Data.GetType().GetField(s).GetValue(Data);
+      return true;
     }
 
     public bool RemoveObjectKey(object name)
@@ -83,7 +87,17 @@ namespace Microsoft.Scripting
     {
       get
       {
-        return EMPTY;
+        var keys = new List<object>();
+
+        foreach (var fi in Data.GetType().GetFields())
+        {
+          if (fi.Name != "$parent$")
+          {
+            keys.Add(fi.Name);
+          }
+        }
+
+        return keys;
       }
     }
 

@@ -102,6 +102,8 @@ namespace IronScheme.Compiler
 
       Cons name = (args as Cons).car as Cons;
 
+      bool isprogram = name == null;
+
       string[] fullname = Array.ConvertAll<object, string>(Builtins.ListToVector(name), SymbolToString);
 
       string n = string.Join(".", fullname);
@@ -130,6 +132,7 @@ namespace IronScheme.Compiler
         SymbolId l = (SymbolId)((Cons)d.cdr).car;
         vars.Add(l);
         locals.Add(Create(v, cb, typeof(object)));
+
         defs.Add(((Cons)((Cons)d.cdr).cdr).car);
 
         a = a.cdr as Cons;
@@ -145,7 +148,6 @@ namespace IronScheme.Compiler
         if (IsLambda(defs[i], out annotated, out typed))
         {
           Cons cl = defs[i] as Cons;
-
           
           sources[i] = Copy(cl);
 
@@ -329,7 +331,10 @@ namespace IronScheme.Compiler
 
         stmts.Add(Ast.Write(locals[i], e));
         // needed indeed
-        stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(vars[i]), Ast.Read(locals[i]))));
+        if (!isprogram)
+        {
+          stmts.Add(Ast.Statement(Ast.SimpleCallHelper(SetSymbolValue, Ast.Constant(vars[i]), Ast.Read(locals[i]))));
+        }
       }
 
       Cons body = Builtins.Cdr(args) as Cons;

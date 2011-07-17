@@ -780,6 +780,8 @@ namespace IronScheme.Runtime
       return GetBool(ModuleScope.ContainsName((SymbolId)symbol));
     }
 
+    [DebuggerNonUserCode]
+    [DebuggerStepThrough]
     public static void SetSymbolValueFast(object symbol, object value)
     {
       if (ModuleScope == null)
