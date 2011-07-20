@@ -259,6 +259,41 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    [Builtin("lw-debug-mode?")]
+    public static object IsLightWeightDebugMode()
+    {
+      return GetBool(ScriptDomainManager.Options.LightweightDebugging);
+    }
+
+    [Builtin("lw-debug-mode?")]
+    public static object IsLightWeightDebugMode(object newmode)
+    {
+      ScriptDomainManager.Options.LightweightDebugging = IsTrue(newmode);
+      return Unspecified;
+    }
+
+    [Builtin("lw-debugger")]
+    public static object LightWeightDebugger()
+    {
+      return Microsoft.Scripting.Debugging.Debug.Debugger ?? FALSE;
+    }
+
+    [Builtin("lw-debugger")]
+    public static object LightWeightDebugger(object debugger)
+    {
+      if (debugger == FALSE)
+      {
+        ScriptDomainManager.Options.LightweightDebugging = false;
+        Microsoft.Scripting.Debugging.Debug.Debugger = null;
+      }
+      else
+      {
+        ScriptDomainManager.Options.LightweightDebugging = true;
+        Microsoft.Scripting.Debugging.Debug.Debugger = new SchemeDebugger(RequiresNotNull<Callable>(debugger));
+      }
+      return Unspecified;
+    }
+
 
     internal readonly static List<string> includepaths = new List<string>();
 

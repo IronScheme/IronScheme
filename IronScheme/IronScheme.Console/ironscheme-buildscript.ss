@@ -305,6 +305,8 @@
     ;(switch                                     )
     (stale-when                                 i)
     (debug-mode?                                i)
+    (lw-debug-mode?                             i)
+    (lw-debugger                                i)
     (decompose-flonum                           i)
     (open-output-string                         i)
     (get-output-string                          i)

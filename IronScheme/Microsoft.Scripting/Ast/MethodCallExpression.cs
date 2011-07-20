@@ -203,6 +203,13 @@ namespace Microsoft.Scripting.Ast {
                 EmitLocation(cg);
 
                 cbe.EmitDirect(cg, tailcall);
+
+                if (ScriptDomainManager.Options.LightweightDebugging && !tailcall)
+                {
+                  cg.EmitConstant(SpanToLong(Span));
+                  cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+                }
+
                 return;
               }
             }
@@ -341,6 +348,28 @@ namespace Microsoft.Scripting.Ast {
           else
           {
             fixup(cg, tailcall);
+          }
+
+          if (ScriptDomainManager.Options.LightweightDebugging && !tailcall)
+          {
+            cg.EmitConstant(SpanToLong(Span));
+            cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+          }
+        }
+
+        protected override void EmitLocation(CodeGen cg)
+        {
+          if (ScriptDomainManager.Options.LightweightDebugging)
+          {
+            if (!cg.IsDynamicMethod)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(!tailcall ? Debugging.DebugMethods.ExpressionIn : Debugging.DebugMethods.ExpressionInTail);
+            }
+          }
+          else
+          {
+            base.EmitLocation(cg);
           }
         }
 
