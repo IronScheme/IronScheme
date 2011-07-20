@@ -633,11 +633,23 @@ namespace Microsoft.Scripting.Generation {
             } else {
                 if (expr == null) {
                     EmitNull();
+                    if (ScriptDomainManager.Options.LightweightDebugging)
+                    {
+                      EmitCall(Debugging.DebugMethods.ProcedureExit);
+                    }
                     EmitReturnFromObject();
                 } else {
                     expr.EmitAs(this, CompilerHelpers.GetReturnType(_methodInfo));
                     if (!skipreturn)
                     {
+                      if (ScriptDomainManager.Options.LightweightDebugging)
+                      {
+                        var mce = expr as MethodCallExpression;
+                        if (mce == null || !mce.TailCall)
+                        {
+                          EmitCall(Debugging.DebugMethods.ProcedureExit);
+                        }
+                      }
                       EmitReturn();
                     }
                     skipreturn = false;

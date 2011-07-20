@@ -29,6 +29,16 @@ namespace Microsoft.Scripting.Ast {
             get { return _nodeType; }
         }
 
+        [CLSCompliant(false)]
+        protected static ulong SpanToLong(SourceSpan span)
+        {
+          var start = span.Start;
+          var end = span.End;
+          var st = (uint)((start.Line << 10) | (start.Column));
+          var en = (uint)((end.Line << 10) | (end.Column));
+          return ((ulong)en) << 32 | st; 
+        }
+
 #if DEBUG
         public string Dump {
             get {

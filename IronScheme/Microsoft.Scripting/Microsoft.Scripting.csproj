@@ -130,6 +130,7 @@
     <Compile Include="BinderOps.cs" />
     <Compile Include="Cast.cs" />
     <Compile Include="Cast.Generated.cs" />
+    <Compile Include="Debugging\Debugger.cs" />
     <Compile Include="DefaultLanguageContext.cs" />
     <Compile Include="CallType.cs" />
     <Compile Include="Generation\FrameStorageAllocator.cs" />

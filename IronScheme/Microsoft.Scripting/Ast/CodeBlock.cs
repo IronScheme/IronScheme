@@ -1455,16 +1455,30 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
         }
 
         internal protected virtual void EmitBody(CodeGen cg) {
-          if (Start.IsValid)
-          {
-            var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
 
-            cg.EmitPosition(Start, s);
-            cg.Emit(OpCodes.Nop);
+          if (ScriptDomainManager.Options.LightweightDebugging)
+          {
+            if (!cg.IsDynamicMethod)
+            {
+              cg.Emit(OpCodes.Ldtoken, cg.MethodInfo);
+              cg.EmitConstant(Filename);
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ProcedureEnter);
+            }
           }
           else
           {
-            cg.EmitSequencePointNone();
+            if (Start.IsValid)
+            {
+              var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
+
+              cg.EmitPosition(Start, s);
+              cg.Emit(OpCodes.Nop);
+            }
+            else
+            {
+              cg.EmitSequencePointNone();
+            }
           }
 
             CreateEnvironmentFactory(false, cg);
@@ -1472,13 +1486,16 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
             Body.Emit(cg);
 
-            if (End.IsValid)
+            if (!ScriptDomainManager.Options.LightweightDebugging)
             {
-              var e = new SourceLocation(End.Index, End.Line, System.Math.Max(1, End.Column - 1));
-              cg.EmitPosition(e, End);
-              
+              if (End.IsValid)
+              {
+                var e = new SourceLocation(End.Index, End.Line, System.Math.Max(1, End.Column - 1));
+                cg.EmitPosition(e, End);
+
+              }
+              cg.EmitSequencePointNone();
             }
-            cg.EmitSequencePointNone();
         }
 
 

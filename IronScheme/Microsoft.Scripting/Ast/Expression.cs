@@ -87,8 +87,9 @@ namespace Microsoft.Scripting.Ast {
         get {return _start.IsValid && _end.IsValid;}
       }
 
-      protected void EmitLocation(CodeGen cg)
+      protected virtual void EmitLocation(CodeGen cg)
       {
+
         if (IsValidLocation)
         {
           cg.EmitPosition(_start, _end);

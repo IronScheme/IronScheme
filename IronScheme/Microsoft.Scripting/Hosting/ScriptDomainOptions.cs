@@ -42,6 +42,8 @@ namespace Microsoft.Scripting.Hosting {
         public ScriptDomainOptions() {
         }
 
+        public bool LightweightDebugging {get;set;}
+
         #region Public accessors
 
         /// <summary>
