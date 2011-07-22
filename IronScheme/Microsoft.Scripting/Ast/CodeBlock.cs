@@ -191,7 +191,7 @@ namespace Microsoft.Scripting.Ast {
         public bool EmitLocalDictionary {
             get {
                 // When custom frames are turned on, we emit dictionaries everywhere
-                return ScriptDomainManager.Options.Frames || _emitLocalDictionary;
+                return ScriptDomainManager.Options.Frames || _emitLocalDictionary || ScriptDomainManager.Options.LightweightDebugging;
             }
             set {
                 _emitLocalDictionary = value;
@@ -1456,17 +1456,8 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
         internal protected virtual void EmitBody(CodeGen cg) {
 
-          if (ScriptDomainManager.Options.LightweightDebugging)
-          {
-            if (!cg.IsDynamicMethod)
-            {
-              cg.Emit(OpCodes.Ldtoken, cg.MethodInfo);
-              cg.EmitConstant(Filename);
-              cg.EmitConstant(SpanToLong(Span));
-              cg.EmitCall(Debugging.DebugMethods.ProcedureEnter);
-            }
-          }
-          else
+
+          if (!ScriptDomainManager.Options.LightweightDebugging)
           {
             if (Start.IsValid)
             {
@@ -1483,6 +1474,18 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
             CreateEnvironmentFactory(false, cg);
             CreateSlots(cg);
+
+            if (ScriptDomainManager.Options.LightweightDebugging)
+            {
+              if (!cg.IsDynamicMethod)
+              {
+                cg.Emit(OpCodes.Ldtoken, cg.MethodInfo);
+                cg.EmitConstant(Filename);
+                cg.EmitConstant(SpanToLong(Span));
+                cg.EmitCodeContext();
+                cg.EmitCall(Debugging.DebugMethods.ProcedureEnter);
+              }
+            }
 
             Body.Emit(cg);
 

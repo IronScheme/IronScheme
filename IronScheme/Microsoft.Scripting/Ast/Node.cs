@@ -30,13 +30,18 @@ namespace Microsoft.Scripting.Ast {
         }
 
         [CLSCompliant(false)]
-        protected static ulong SpanToLong(SourceSpan span)
+        protected static long SpanToLong(SourceSpan span)
         {
+          if (!span.IsValid)
+          {
+            return 0;
+          }
+
           var start = span.Start;
           var end = span.End;
           var st = (uint)((start.Line << 10) | (start.Column));
           var en = (uint)((end.Line << 10) | (end.Column));
-          return ((ulong)en) << 32 | st; 
+          return (long) (((ulong)en) << 32 | st); 
         }
 
 #if DEBUG
