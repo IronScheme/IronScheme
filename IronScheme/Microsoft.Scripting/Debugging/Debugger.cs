@@ -9,6 +9,7 @@ namespace Microsoft.Scripting.Debugging
     public MethodBase Method { get; internal set; }
     public string Filename { get; internal set; }
     public SourceSpan Span { get; internal set; }
+    public CodeContext Context { get; internal set; }
   }
 
   public enum NotifyReason
@@ -35,37 +36,45 @@ namespace Microsoft.Scripting.Debugging
     static string CurrentFilename
     {
       get 
-      { 
-        var top = stack.Peek();
-        if (top == null)
+      {
+        if (stack.Count == 0)
         {
           return null;
         }
+        var top = stack.Peek();
         return top.Filename; 
       }
     }
 
-    static SourceSpan LongToSpan(ulong span)
+    static SourceSpan LongToSpan(long span)
     {
-      var st = (uint)(span & 0xffffffff);
-      var en = (uint)(span >> 32);
-      var start = new SourceLocation(0, (int)(st >> 10), (int)(st & 0x3ff));
-      var end = new SourceLocation(0, (int)(en >> 10), (int)(en & 0x3ff));
+      var uspan = (ulong)span;
+      var st = (uint)(uspan & 0xffffffff);
+      var en = (uint)(uspan >> 32);
+      var sc = (int)(st & 0x3ff);
+      var ec = (int)(en & 0x3ff);
+      if (sc == 0 && ec == 0)
+      {
+        return SourceSpan.Invalid;
+      }
+      var start = new SourceLocation(0, (int)(st >> 10), sc);
+      var end = new SourceLocation(0, (int)(en >> 10), ec);
       return new SourceSpan(start, end);
     }
-    
-    public static void ProcedureEnter(RuntimeMethodHandle meth, string filename, ulong span)
-    {
-      if (Debugger != null)
-      {
-        var frame = new StackFrame
-        {
-          Method = MethodBase.GetMethodFromHandle(meth),
-          Filename = filename,
-          Span = LongToSpan(span)
-        };
-        stack.Push(frame);
 
+    public static void ProcedureEnter(RuntimeMethodHandle meth, string filename, long span, CodeContext context)
+    {
+      var frame = new StackFrame
+      {
+        Method = MethodBase.GetMethodFromHandle(meth),
+        Filename = filename,
+        Span = LongToSpan(span),
+        Context = context
+      };
+      stack.Push(frame);
+
+      if (Debugger != null && frame.Span.IsValid)
+      {
         Debugger.Notify(NotifyReason.ProcedureEnter, filename, frame.Span);
       }
     }
@@ -74,12 +83,13 @@ namespace Microsoft.Scripting.Debugging
     {
       if (Debugger != null)
       {
-        Debugger.Notify(NotifyReason.ProcedureExit, CurrentFilename, SourceSpan.None);
-        stack.Pop();
+        Debugger.Notify(NotifyReason.ProcedureExit, CurrentFilename, SourceSpan.Invalid);
       }
+
+      stack.Pop();
     }
 
-    public static void ExpressionIn(ulong span)
+    public static void ExpressionIn(long span)
     {
       if (Debugger != null)
       {
@@ -88,7 +98,7 @@ namespace Microsoft.Scripting.Debugging
       }
     }
 
-    public static void ExpressionOut(ulong span)
+    public static void ExpressionOut(long span)
     {
       if (Debugger != null)
       {
@@ -97,14 +107,15 @@ namespace Microsoft.Scripting.Debugging
       }
     }
 
-    public static void ExpressionInTail(ulong span)
+    public static void ExpressionInTail(long span)
     {
       if (Debugger != null)
       {
         var s = LongToSpan(span);
         Debugger.Notify(NotifyReason.ExpressionInTail, CurrentFilename, s);
-        stack.Pop();
       }
+
+      stack.Pop();
     }
 
     
