@@ -44,7 +44,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
-          EmitLocation(cg);
+          
           var et = _type.GetElementType(); 
             cg.EmitArray(
                 et,
@@ -58,6 +58,29 @@ namespace Microsoft.Scripting.Ast {
                   }
                 }
             );
+          // fake it...
+            EmitLocation(cg);
+            if (ScriptDomainManager.Options.LightweightDebugging)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+            }
+        }
+
+        protected override void EmitLocation(CodeGen cg)
+        {
+          if (ScriptDomainManager.Options.LightweightDebugging)
+          {
+            if (!cg.IsDynamicMethod)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+            }
+          }
+          else
+          {
+            base.EmitLocation(cg);
+          }
         }
 
 

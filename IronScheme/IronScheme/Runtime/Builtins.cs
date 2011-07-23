@@ -294,6 +294,24 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    [Builtin("lw-debugger-call-stack")]
+    public static object LightWeightDebuggerCallStack()
+    {
+      return Runtime.Cons.FromList(Microsoft.Scripting.Debugging.Debug.CallStack);
+    }
+
+    [Builtin("lw-debugger-location-stack")]
+    public static object LightWeightDebuggerLocationStack()
+    {
+      return Runtime.Cons.FromList(Microsoft.Scripting.Debugging.Debug.LocationStack);
+    }
+
+    [Builtin("lw-debugger-stackframe-variables")]
+    public static object LightWeightDebuggerStackframeVariables(object stackframe)
+    {
+      var sf = RequiresNotNull<Microsoft.Scripting.Debugging.StackFrame>(stackframe);
+      return sf.Context.GetEnvironmentVariables();
+    }
 
     internal readonly static List<string> includepaths = new List<string>();
 

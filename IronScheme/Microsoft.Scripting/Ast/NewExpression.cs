@@ -60,6 +60,32 @@ namespace Microsoft.Scripting.Ast {
             }
             EmitLocation(cg);
             cg.EmitNew(_constructor);
+            if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+            }
+        }
+
+        protected override void EmitLocation(CodeGen cg)
+        {
+          if (ScriptDomainManager.Options.LightweightDebugging)
+          {
+            if (!cg.IsDynamicMethod)
+            {
+
+              if (Span.IsValid)
+              {
+                var s = SpanToLong(Span);
+                cg.EmitConstant(s);
+                cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+              }
+            }
+          }
+          else
+          {
+            base.EmitLocation(cg);
+          }
         }
 
 

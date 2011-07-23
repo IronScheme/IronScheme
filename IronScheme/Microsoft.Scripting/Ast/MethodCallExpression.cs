@@ -204,7 +204,7 @@ namespace Microsoft.Scripting.Ast {
 
                 cbe.EmitDirect(cg, tailcall);
 
-                if (ScriptDomainManager.Options.LightweightDebugging && !tailcall)
+                if (ScriptDomainManager.Options.LightweightDebugging && !tailcall && Span.IsValid)
                 {
                   cg.EmitConstant(SpanToLong(Span));
                   cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
@@ -350,7 +350,7 @@ namespace Microsoft.Scripting.Ast {
             fixup(cg, tailcall);
           }
 
-          if (ScriptDomainManager.Options.LightweightDebugging && !tailcall)
+          if (ScriptDomainManager.Options.LightweightDebugging && !tailcall && Span.IsValid)
           {
             cg.EmitConstant(SpanToLong(Span));
             cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
@@ -363,8 +363,19 @@ namespace Microsoft.Scripting.Ast {
           {
             if (!cg.IsDynamicMethod)
             {
-              cg.EmitConstant(SpanToLong(Span));
-              cg.EmitCall(!tailcall ? Debugging.DebugMethods.ExpressionIn : Debugging.DebugMethods.ExpressionInTail);
+              var s = SpanToLong(Span);
+              if (tailcall)
+              {
+                cg.EmitConstant(s);
+                cg.EmitCall(Debugging.DebugMethods.ExpressionInTail);
+              }
+              else if (Span.IsValid)
+              {
+                cg.EmitConstant(s);
+                cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+              }
+              
+              
             }
           }
           else
