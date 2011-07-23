@@ -25,6 +25,7 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Ast;
+using System.Collections;
 
 namespace Microsoft.Scripting {
     /// <summary>
@@ -109,6 +110,30 @@ namespace Microsoft.Scripting {
           {
             get {return Value == null ? null : Value.GetType(); }
           }
+      }
+
+      public object[] GetEnvironmentVariables()
+      {
+        var envs = new List<object>();
+
+        var scope = Scope;
+
+        while (scope != null && scope != scope.ModuleScope)
+        {
+          var nv = new Hashtable();
+
+          foreach (string s in scope.Dict.Keys)
+          {
+            SymbolId i = SymbolTable.StringToId(s);
+            nv.Add(i, scope.LookupName(i));
+          }
+
+          envs.Add(nv);
+
+          scope = scope.Parent;
+        }
+
+        return envs.ToArray();
       }
 
         class CodeContextDebugView

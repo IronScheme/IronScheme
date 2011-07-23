@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Microsoft.Scripting.Debugging
 {
-  class StackFrame
+  public class StackFrame
   {
     public MethodBase Method { get; internal set; }
     public string Filename { get; internal set; }
@@ -30,6 +30,7 @@ namespace Microsoft.Scripting.Debugging
   public static class Debug
   {
     static readonly Stack<StackFrame> stack = new Stack<StackFrame>();
+    static readonly Stack<SourceSpan> locationstack = new Stack<SourceSpan>();
 
     public static IDebuggerCallback Debugger { get; set; }
 
@@ -62,6 +63,16 @@ namespace Microsoft.Scripting.Debugging
       return new SourceSpan(start, end);
     }
 
+    public static IEnumerable<StackFrame> CallStack
+    {
+      get { return stack; }
+    }
+
+    public static IEnumerable<SourceSpan> LocationStack
+    {
+      get { return locationstack; }
+    }
+
     public static void ProcedureEnter(RuntimeMethodHandle meth, string filename, long span, CodeContext context)
     {
       var frame = new StackFrame
@@ -81,9 +92,11 @@ namespace Microsoft.Scripting.Debugging
 
     public static void ProcedureExit()
     {
-      if (Debugger != null)
+      var sf = stack.Peek();
+
+      if (Debugger != null && sf.Span.IsValid)
       {
-        Debugger.Notify(NotifyReason.ProcedureExit, CurrentFilename, SourceSpan.Invalid);
+        Debugger.Notify(NotifyReason.ProcedureExit, CurrentFilename, sf.Span);
       }
 
       stack.Pop();
@@ -91,27 +104,34 @@ namespace Microsoft.Scripting.Debugging
 
     public static void ExpressionIn(long span)
     {
-      if (Debugger != null)
+      var s = LongToSpan(span);
+      
+      if (Debugger != null && s.IsValid)
       {
-        var s = LongToSpan(span);
         Debugger.Notify(NotifyReason.ExpressionIn, CurrentFilename, s);
       }
+
+      locationstack.Push(s);
     }
 
     public static void ExpressionOut(long span)
     {
-      if (Debugger != null)
+      var s = LongToSpan(span);
+
+      if (Debugger != null && s.IsValid)
       {
-        var s = LongToSpan(span);
         Debugger.Notify(NotifyReason.ExpressionOut, CurrentFilename, s);
       }
+
+      locationstack.Pop();
     }
 
     public static void ExpressionInTail(long span)
     {
-      if (Debugger != null)
+      var s = LongToSpan(span);
+
+      if (Debugger != null && s.IsValid)
       {
-        var s = LongToSpan(span);
         Debugger.Notify(NotifyReason.ExpressionInTail, CurrentFilename, s);
       }
 

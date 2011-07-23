@@ -17,7 +17,13 @@ namespace Microsoft.Scripting
     public bool TryGetValue(SymbolId name, out object value)
     {
       var s = SymbolTable.IdToString(name);
-      value = Data.GetType().GetField(s).GetValue(Data);
+      var fi = Data.GetType().GetField(s);
+      if (fi == null)
+      {
+        value = null;
+        return false;
+      }
+      value = fi.GetValue(Data);
       return true;
     }
 
