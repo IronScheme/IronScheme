@@ -18,7 +18,22 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object UnGenSym(object symbol)
     {
-      return UnGenSymInternal(RequiresNotNull<SymbolId>(symbol));
+      var sym = RequiresNotNull<SymbolId>(symbol);
+
+      string ss = SymbolTable.IdToString(sym);
+      //name is between 1st and 2nd $
+      int start = ss.IndexOf('$') + 1;
+      if (start > 0)
+      {
+        int count = ss.IndexOf('$', start) - start;
+
+        if (count > 0)
+        {
+          ss = ss.Substring(start, count);
+          return SymbolTable.StringToObject(ss);
+        }
+      }
+      return symbol;
     }
 
     internal static SymbolId UnGenSymInternal(SymbolId sym)

@@ -315,7 +315,6 @@ namespace IronScheme.Runtime
 
     internal readonly static List<string> includepaths = new List<string>();
 
-
     [Builtin("get-library-paths")]
     public static object GetLibraryPaths()
     {

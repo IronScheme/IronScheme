@@ -489,7 +489,7 @@ namespace IronScheme.Compiler
         //remove methods without side effects
       }
 
-      if (IsUnspecified(e))
+      if (IsUnspecified(e) && !ScriptDomainManager.Options.LightweightDebugging)
       {
         return null;
       }
@@ -512,9 +512,7 @@ namespace IronScheme.Compiler
 
       return e;
     }
-
-
-
+    
     static Statement OptimizeBody(Statement cbbody)
     {
       if (cbbody is BlockStatement)

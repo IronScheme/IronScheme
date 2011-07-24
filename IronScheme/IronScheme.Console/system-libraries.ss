@@ -51,6 +51,8 @@ See docs/license.txt. |#
     (ironscheme syntax-format)
     (ironscheme define-macro)
     (ironscheme contracts)
+    
+    (ironscheme debugger)
 
     (ironscheme collections arraylist)
     (ironscheme collections icollection)

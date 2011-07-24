@@ -26,12 +26,11 @@
     build-case-lambda build-let build-primref build-foreign-call
     build-data build-sequence build-void build-letrec build-letrec*
     build-global-define build-library-letrec*)
-  (import (rnrs) (psyntax compat) (psyntax config) (only (ironscheme) debug-mode? lw-debug-mode?))
+  (import (rnrs) (psyntax compat) ;(psyntax config) 
+          (only (ironscheme) debug-mode? lw-debug-mode?))
   
   (define (build-global-define x)
-    (if-wants-global-defines
-      `(define ,x uninitialized)
-      (build-void)))
+    (build-void))
   (define build-application
     (lambda (ae fun-exp arg-exps)
       (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
@@ -44,23 +43,25 @@
   (define-syntax build-lexical-reference
     (syntax-rules ()
       ((_ ae var) var)))
-  (define-syntax build-lexical-assignment
-    (syntax-rules ()
-      ((_ ae var exp) `(set! ,var ,exp))))
+  (define build-lexical-assignment
+    (lambda (ae var exp)
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-call ,ae set! ,var ,exp)
+          `(set! ,var ,exp))))
   (define-syntax build-global-reference
     (syntax-rules ()
       ((_ ae var) var)))
-  (define-syntax build-global-assignment
-    (syntax-rules ()
-      ((_ ae var exp) `(set! ,var ,exp))))
+  (define build-global-assignment
+    (lambda (ae var exp)
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-call ,ae set! ,var ,exp)
+          `(set! ,var ,exp))))
   (define-syntax build-global-definition
     (syntax-rules ()
       ((_ ae var exp) (build-global-assignment ae var exp))))
   (define build-lambda
     (lambda (ae vars exp) 
-      (if-wants-case-lambda
-        (build-case-lambda ae (list vars) (list exp))
-        `(lambda ,vars ,exp))))
+      (build-case-lambda ae (list vars) (list exp))))
   (define build-typed-lambda
     (lambda (ae vars type-spec exp) 
       `(typed-case-lambda [,vars ,type-spec ,exp])))        
@@ -68,48 +69,10 @@
     (lambda (ae vars* type-spec* exp*)
       `(typed-case-lambda . ,(map list vars* type-spec* exp*))))
   (define build-case-lambda
-    (if-wants-case-lambda
-      (lambda (ae vars* exp*)
-        (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
-            `(annotated-case-lambda ,ae . ,(map list vars* exp*))
-            `(case-lambda . ,(map list vars* exp*))))
-      (lambda (ae vars* exp*)
-        (define (build-error ae)
-          (build-application ae 
-            (build-primref ae 'error) 
-            (list (build-data ae 'apply) 
-                  (build-data ae "invalid arg count"))))
-        (define (build-pred ae n vars) 
-          (let-values (((count pred) 
-                        (let f ((vars vars) (count 0))
-                          (cond
-                            ((pair? vars) (f (cdr vars) (+ count 1)))
-                            ((null? vars) (values count '=))
-                            (else (values count '>=))))))
-            (build-application ae (build-primref ae pred) 
-              (list (build-lexical-reference ae n) 
-                    (build-data ae count)))))
-        (define (build-apply ae g vars exp)
-          (build-application ae (build-primref ae 'apply) 
-            (list (build-lambda ae vars exp) 
-                  (build-lexical-reference ae g))))
-        (define (expand-case-lambda ae vars exp*) 
-          (let ((g (gensym)) (n (gensym)))
-            `(lambda ,g
-               ,(build-let ae 
-                  (list n) (list (build-application ae
-                                   (build-primref ae 'length)
-                                   (list (build-lexical-reference ae g))))
-                  (let f ((vars* vars*) (exp* exp*))
-                    (if (null? vars*)
-                        (build-error ae)
-                        (build-conditional ae
-                          (build-pred ae n (car vars*))
-                          (build-apply ae g (car vars*) (car exp*))
-                          (f (cdr vars*) (cdr exp*)))))))))
-        (if (= (length exp*) 1) 
-            (build-lambda ae (car vars*) (car exp*))
-            (expand-case-lambda ae vars* exp*)))))
+    (lambda (ae vars* exp*)
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-case-lambda ,ae . ,(map list vars* exp*))
+          `(case-lambda . ,(map list vars* exp*)))))
   (define build-let
     (lambda (ae lhs* rhs* body)
       (build-application ae (build-lambda ae lhs* body) rhs*)))
@@ -135,21 +98,15 @@
     (lambda () '((primitive void))))
   (define build-letrec
     (lambda (ae vars val-exps body-exp)
-      (if (null? vars) body-exp `(letrec ,(map list vars val-exps) ,body-exp))))
+      (if (null? vars) 
+          body-exp 
+          `(letrec ,(map list vars val-exps) ,body-exp))))
   (define build-letrec*
     (lambda (ae vars val-exps body-exp)
       (cond
         ((null? vars) body-exp)
         (else
-         (if-wants-letrec*
-          `(letrec* ,(map list vars val-exps) ,body-exp)
-          (build-let ae vars (map (lambda (x) (build-lexical-reference ae 'uninitialized)) vars)
-            (build-sequence ae
-              (append
-                (map (lambda (lhs rhs) 
-                       (build-lexical-assignment ae lhs rhs))
-                     vars val-exps)
-                (list body-exp)))))))))
+          `(letrec* ,(map list vars val-exps) ,body-exp)))))
   (define build-library-letrec*
     (lambda (ae name vars locs val-exps body-exp)
       `(library-letrec* ,name ,(map list vars locs val-exps) ,body-exp)))

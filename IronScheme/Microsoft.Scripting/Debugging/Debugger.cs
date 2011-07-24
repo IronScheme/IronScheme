@@ -10,6 +10,17 @@ namespace Microsoft.Scripting.Debugging
     public string Filename { get; internal set; }
     public SourceSpan Span { get; internal set; }
     public CodeContext Context { get; internal set; }
+
+    public override string ToString()
+    {
+      return string.Format("{0} {1} ({2}:{3}-{4}:{5})",
+        Method,
+        Filename,
+        Span.Start.Line,
+        Span.Start.Column,
+        Span.End.Line,
+        Span.End.Column);
+    }
   }
 
   public enum NotifyReason

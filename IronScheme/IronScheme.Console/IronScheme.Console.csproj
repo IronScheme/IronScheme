@@ -373,9 +373,6 @@
     <None Include="psyntax\compat.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\config.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="psyntax\expander.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -704,6 +701,9 @@
     <Content Include="ironscheme\clr\dynamic.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="ironscheme\debugger.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\io.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
