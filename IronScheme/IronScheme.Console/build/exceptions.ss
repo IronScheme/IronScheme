@@ -25,7 +25,7 @@ See docs/license.txt. |#
     file-already-exists-violation
     file-in-use-violation)
   (import 
-    (psyntax config) 
+    ;(psyntax config) 
     (only (ironscheme) import make-stacktrace-condition stacktrace-condition? display-stacktrace ungensym)
     (ironscheme clr)
     (ironscheme unsafe)

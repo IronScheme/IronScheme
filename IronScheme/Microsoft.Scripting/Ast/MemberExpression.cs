@@ -71,7 +71,11 @@ namespace Microsoft.Scripting.Ast {
             // emit "this", if any
             EmitInstance(cg);
 
-            EmitLocation(cg);
+            if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+            }
 
             switch (_member.MemberType) {
                 case MemberTypes.Field:
@@ -85,6 +89,12 @@ namespace Microsoft.Scripting.Ast {
                 default:
                     Debug.Assert(false, "Invalid member type");
                     break;
+            }
+
+            if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
             }
         }
 

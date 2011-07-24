@@ -28,7 +28,7 @@
   (rnrs files)
   (rnrs hashtables)
   (psyntax internal)
-  (psyntax config)
+  ;(psyntax config)
   (psyntax compat)
   (psyntax library-manager)
   (psyntax expander)
@@ -40,7 +40,7 @@
   
 (define scheme-library-files
   '(
-    "psyntax/config.ss"
+    ;"psyntax/config.ss"
     "build/predicates.ss"
     "build/records/procedural.ss"
     "build/conditions.ss"
@@ -81,7 +81,7 @@
     "build/pretty-print.ss" 
     
     ;; disabled for v1.0
-    "build/cps.ss"
+    ;"build/cps.ss"
     
     ;; disabled for v1.0
     ;"source-optimizer/prelex.sls"
@@ -1465,38 +1465,9 @@
           (reverse (cons* (car code*) code (cdr code*)))
           export-locs)))))
 
-(define do-cps-conversion
-  (cps-mode
-    (let ()
-      (include "build/cps.ss")
-      (import (ironscheme cps))
-      (define expand-boot-cps
-        (case-lambda
-          [()       (expand-boot-cps write)]
-          [(write)
-            (define (read-file port)
-              (let f ((e (read port))(a '()))
-                (if (eof-object? e)
-                  (reverse a)
-                  (let ((r (convert->cps e 'identity-for-cps)))
-                    (f (read port) (cons r a))))))
-            (when (file-exists? bootfile-cps)
-              (delete-file bootfile-cps))
-            (call-with-input-file bootfile    
-              (lambda (in)
-                (call-with-output-file bootfile-cps
-                  (lambda (out)      
-                    (for-each 
-                      (lambda (e)
-                        (write e out))
-                      (read-file in))))))
-            (delete-file bootfile)]))    
-      expand-boot-cps)
-      #f))
+(define do-cps-conversion #f)
 
-(define bootfile 
-  (cps-mode "ironscheme.boot.temp" 
-            "ironscheme.boot.pp"))
+(define bootfile "ironscheme.boot.pp")
             
 (define bootfile-cps "ironscheme.boot.cps")
 
@@ -1586,25 +1557,7 @@
               (else #f))))
         (time-it "code generation" 
           (lambda () 
-            (compile-bootfile (map compile-core-expr core*))))
-        ;(when (file-exists? bootfile)
-          ;(delete-file bootfile))
-        ;(let ((p (open-output-file bootfile)))
-          ;(display ";;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig" p) (newline p)
-          ;(display ";;; Copyright (c) 2007, 2008, 2009 Llewellyn Pritchard" p) (newline p)
-          ;(display ";;; automatically generated from psyntax & ironscheme sources" p) (newline p)
-          ;(display ";;; for copyright details, see psyntax/main.ss" p) (newline p) (newline p)
-          ;(time-it "pretty-print"  
-            ;(lambda ()  
-              ;(for-each
-                ;(lambda (x)
-                  ;(compile-core-expr-to-port x p)
-                  ;(newline p))
-                ;core*)))
-          ;(close-output-port p))
-        (cps-mode          
-          (time-it "cps conversion" do-cps-conversion)
-          #f))))
+            (compile-bootfile (map compile-core-expr core*)))))))
 
 (display "IronScheme build completed.\n")
 

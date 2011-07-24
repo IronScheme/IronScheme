@@ -83,7 +83,21 @@ namespace Microsoft.Scripting.Ast {
       {
         cg.EmitBoxing(_value.Type);
       }
+
+      if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+      {
+        cg.EmitConstant(SpanToLong(Span));
+        cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+      }
+      
       _vr.Slot.EmitSet(cg);
+
+      if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+      {
+        cg.EmitConstant(SpanToLong(Span));
+        cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+      }
+
       _vr.Variable.SetInitialized();
     }
   }
@@ -145,18 +159,47 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+        protected override void EmitLocation(CodeGen cg)
+        {
+          if (ScriptDomainManager.Options.LightweightDebugging)
+          {
+            if (!cg.IsDynamicMethod)
+            {
+              if (Span.IsValid)
+              {
+                cg.EmitConstant(SpanToLong(Span));
+                cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+              }
+            }
+          }
+          else
+          {
+            base.EmitLocation(cg);
+          }
+        }
+
         internal override void EmitAddress(CodeGen cg, Type asType) {
-          //EmitLocation(cg);
+          EmitLocation(cg);
             _value.Emit(cg);
             _vr.Slot.EmitSet(cg);
             //_vr.Slot.EmitGetAddr(cg);
+            if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+            }
         }
 
         public override void Emit(CodeGen cg) {
-          //EmitLocation(cg);
+          EmitLocation(cg);
             _value.Emit(cg);
             //cg.Emit(OpCodes.Dup);
             _vr.Slot.EmitSet(cg);
+            if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+            {
+              cg.EmitConstant(SpanToLong(Span));
+              cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+            }
         }
 
 

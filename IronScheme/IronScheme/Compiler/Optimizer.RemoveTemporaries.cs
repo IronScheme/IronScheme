@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using System;
+using Microsoft.Scripting;
 
 namespace IronScheme.Compiler
 {
@@ -154,7 +155,7 @@ namespace IronScheme.Compiler
               if (ws.Value is MemberExpression)
               {
                 var me = ws.Value as MemberExpression;
-                if (me.Member == Compiler.Generator.Unspecified)
+                if (me.Member == Compiler.Generator.Unspecified && !ScriptDomainManager.Options.LightweightDebugging)
                 {
                   return null;
                 }

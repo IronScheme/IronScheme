@@ -39,21 +39,32 @@ namespace IronScheme.Compiler
           if (location is string)
           {
             var SpanHint = ExtractLocation(location as string);
-            
-            var result = GetAst(c.cdr, cb);
-            result.SetLoc(SpanHint);
-            return result;
+            return Apply(cb, c, SpanHint);
           }
           else if (location is SourceSpan)
           {
-            var result = GetAst(c.cdr, cb);
-            result.SetLoc((SourceSpan)location);
-            return result;
+            return Apply(cb, c, (SourceSpan)location);
           }
         }
       }
 
       return GetAst(c.cdr, cb);
+    }
+
+    static Expression Apply(CodeBlock cb, Cons c, SourceSpan SpanHint)
+    {
+      var result = GetAst(c.cdr, cb);
+
+      var ve = result as VoidExpression;
+      if (ve != null && ve.Statement is WriteStatement)
+      {
+        ve.Statement.SetLoc(SpanHint);
+      }
+      else
+      {
+        result.SetLoc(SpanHint);
+      }
+      return result;
     }
   }
 }

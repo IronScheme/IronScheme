@@ -49,7 +49,7 @@
     (psyntax library-manager)
     (psyntax builders)
     (psyntax compat)
-    (psyntax config)
+    ;(psyntax config)
     (psyntax internal)
     (only (rnrs syntax-case) syntax-case syntax with-syntax)
     (prefix (rnrs syntax-case) sys.))
@@ -1932,63 +1932,8 @@
 
 
   (define define-struct-macro
-    (if-wants-define-struct
-      (lambda (e)
-        (define enumerate
-          (lambda (ls)
-            (let f ((i 0) (ls ls))
-              (cond
-                ((null? ls) '())
-                (else (cons i (f (+ i 1) (cdr ls))))))))
-        (define mkid
-          (lambda (id str)
-            (datum->stx id (string->symbol str))))
-        (syntax-match e ()
-          ((_ name (field* ...))
-           (let* ((namestr (symbol->string (id->sym name)))
-                  (fields (map id->sym field*))
-                  (fieldstr* (map symbol->string fields))
-                  (rtd (datum->stx name (make-struct-type namestr fields)))
-                  (constr (mkid name (string-append "make-" namestr)))
-                  (pred (mkid name (string-append namestr "?")))
-                  (i* (enumerate field*))
-                  (getters
-                   (map (lambda (x)
-                          (mkid name (string-append namestr "-" x)))
-                        fieldstr*))
-                  (setters
-                   (map (lambda (x)
-                          (mkid name (string-append "set-" namestr "-" x "!")))
-                        fieldstr*)))
-             (bless
-               `(begin
-                  (define-syntax ,name (cons '$rtd ',rtd))
-                  (define ,constr
-                    (lambda ,field*
-                      ($struct ',rtd ,@field*)))
-                  (define ,pred
-                    (lambda (x) ($struct/rtd? x ',rtd)))
-                  ,@(map (lambda (getter i)
-                            `(define ,getter
-                               (lambda (x)
-                                 (if ($struct/rtd? x ',rtd)
-                                     ($struct-ref x ,i)
-                                     (assertion-violation ',getter
-                                            "not a struct of required type"
-                                            x ',rtd)))))
-                         getters i*)
-                  ,@(map (lambda (setter i)
-                            `(define ,setter
-                               (lambda (x v)
-                                 (if ($struct/rtd? x ',rtd)
-                                     ($struct-set! x ,i v)
-                                     (assertion-violation ',setter
-                                            "not a struct of required type"
-                                            x ',rtd)))))
-                         setters i*)))))))
-      (lambda (stx)
-        (stx-error stx "define-struct not supported"))))
-
+    (lambda (stx)
+      (stx-error stx "define-struct not supported")))
 
   (define define-record-type-macro
     (lambda (x)
@@ -3000,7 +2945,7 @@
            (case type
              ((lexical)
               (set-lexical-mutable! value #t)
-              (build-lexical-assignment no-source
+              (build-lexical-assignment (syntax-annotation e)
                 (lexical-var value)
                 (chi-expr v r mr)))
              ((core-prim)
@@ -3014,7 +2959,7 @@
              ((mutable) 
               (if (and (pair? value) (let ((lib (car value))) (eq? lib '*interaction*)))
                   (let ([loc (cdr value)])
-                    (build-global-assignment no-source loc 
+                    (build-global-assignment (syntax-annotation e) loc 
                       (chi-expr v r mr)))
                   (stx-error e "attempt to modify an unexportable variable")))
              (else (stx-error e))))))))
@@ -3821,14 +3766,11 @@
                                             errstr name))))))))
                               export-subst))
                           (let ((invoke-body
-                                 (if-wants-library-letrec*
-                                   (build-library-letrec* no-source
-                                     name lex* loc* rhs*
-                                     (if (null? init*) 
-                                         (build-void)
-                                         (build-sequence no-source init*)))
-                                   (build-letrec* no-source lex* rhs* 
-                                     (build-exports global* init*))))
+                                 (build-library-letrec* no-source
+                                   name lex* loc* rhs*
+                                   (if (null? init*) 
+                                       (build-void)
+                                       (build-sequence no-source init*))))
                                 (invoke-definitions 
                                   (map build-global-define (map cdr global*))))
                             (values
