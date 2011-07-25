@@ -80,6 +80,5 @@ See docs/license.txt. |#
 
   (define/contract (regex-unescape input:string)
     (clr-static-call Regex Unescape input))
- 
 )
     
