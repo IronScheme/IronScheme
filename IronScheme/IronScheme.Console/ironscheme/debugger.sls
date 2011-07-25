@@ -3,6 +3,7 @@
   (export step-into)
   (import 
     (ironscheme)
+    (ironscheme regex-cond)
     (ironscheme strings)
     (ironscheme console))
 
@@ -96,19 +97,30 @@
     (let loop ()
       (display-bright "debug> ")
       (let ((input (get-line (current-input-port))))
-        (case input
-          [("c") (set! debug-mode 'run)]
-          [("n") (set! debug-mode 'step-into)]
-          [("callstack")
+        (regex-cond input 
+          ["^c(ontinue)?$" (set! debug-mode 'run)]
+          ["^n(ext)?$" (set! debug-mode 'step-into)]
+          ["^callstack$"
             (for-each (lambda (x) 
                         (display x)
                         (newline))
                       (lw-debugger-call-stack))
             (loop)]
-          [("where") 
+          ["^w(here)?$" 
             (print-source (get-source filename) sl sc el ec 2)
             (loop)]
-          [("print")
+          ["^p(rint)?\\s+(?<varname>\\w+)$"
+            (let ((var (string->symbol varname))
+                  (env (lw-debugger-stackframe-variables (car (lw-debugger-call-stack)))))
+              (let f ((i 0))
+                (unless (fx=? i (vector-length env))
+                  (let ((e (vector-ref env i)))
+                    (hashtable-for-each e (lambda (k v)
+                                            (when (eq? (ungensym k) var)
+                                              (printf "~a: ~a = ~s\n" i var v)))))
+                  (f (fx+ i 1)))))
+            (loop)]
+          ["^p(rint)?$"
             (let ((env (lw-debugger-stackframe-variables (car (lw-debugger-call-stack)))))
               (let f ((i 0))
                 (unless (fx=? i (vector-length env))
@@ -116,21 +128,12 @@
                     (hashtable-for-each e (lambda (k v)
                                             (printf "~a: ~a = ~s\n" i (ungensym k) v))))
                   (f (fx+ i 1)))))
-            (loop)]
-          [else
-            (cond
-              [(string-starts-with? input "print")
-                (let ((var (string->symbol (substring input 6 (string-length input))))
-                      (env (lw-debugger-stackframe-variables (car (lw-debugger-call-stack)))))
-                  (let f ((i 0))
-                    (unless (fx=? i (vector-length env))
-                      (let ((e (vector-ref env i)))
-                        (hashtable-for-each e (lambda (k v)
-                                                (when (eq? (ungensym k) var)
-                                                  (printf "~a: ~a = ~s\n" i var v)))))
-                      (f (fx+ i 1)))))
-                (loop)])]
-         ))))
+            (loop)]            
+          [else 
+            (unless (string=? input "")
+              (printf "ERROR: Unknown command: ~a\n" input))
+            (loop)])
+         )))
 
   (define (notify reason filename startline startcol endline endcol)
     (when (and (memq reason '(expr-in expr-in-tail)) filename (fx>? startline 0))

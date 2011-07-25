@@ -28,6 +28,7 @@ See docs/license.txt. |#
     (ironscheme random)
     (ironscheme record-case)
     (ironscheme regex)
+    (ironscheme regex-cond)
     (ironscheme registry)
     (ironscheme strings)
     (ironscheme symbolic-case)
