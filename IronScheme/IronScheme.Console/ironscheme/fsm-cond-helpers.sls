@@ -38,14 +38,6 @@ See docs/license.txt. |#
                 node
                 (f (cdr c)))))))
 
-#|
-(import (ironscheme clr))
-(clr-reference System.Windows.Forms)
-(clr-using System.Windows.Forms)
-(import (ironscheme clr dynamic))
-(display-stacktrace #t)
-(define cs (clr-static-call-site Application Run))
-|#
   (define (make-tree)  (make-node #f))
 
   (define (tree-add! tree value keys)
@@ -75,7 +67,6 @@ See docs/license.txt. |#
                            (syntax->datum y))) 
                      nc)
           (reverse nc))))
-
 
   (define (generate-node node ids)
     (with-syntax ((pred (node-key node))

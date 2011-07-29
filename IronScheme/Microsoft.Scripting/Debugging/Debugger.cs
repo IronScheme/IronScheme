@@ -37,7 +37,6 @@ namespace Microsoft.Scripting.Debugging
     void Notify(NotifyReason reason, string filename, SourceSpan span);
   }
 
-  [CLSCompliant(false)]
   public static class Debug
   {
     static readonly Stack<StackFrame> stack = new Stack<StackFrame>();
@@ -101,13 +100,13 @@ namespace Microsoft.Scripting.Debugging
       }
     }
 
-    public static void ProcedureExit()
+    public static void ProcedureExit(long span)
     {
-      var sf = stack.Peek();
+      var s = LongToSpan(span);
 
-      if (Debugger != null && sf.Span.IsValid)
+      if (Debugger != null && s.IsValid)
       {
-        Debugger.Notify(NotifyReason.ProcedureExit, CurrentFilename, sf.Span);
+        Debugger.Notify(NotifyReason.ProcedureExit, CurrentFilename, s);
       }
 
       stack.Pop();

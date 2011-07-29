@@ -90,26 +90,26 @@
             (newline)
             (f (fx+ line 1)))))))
    
-  (define debug-mode 'run)       
-       
+  (define debug-mode 'run)    
+  
   (define (enter-debug-repl filename sl sc el ec)
     (print-source (get-source filename) sl sc el ec 0)
     (let loop ()
       (display-bright "debug> ")
       (let ((input (get-line (current-input-port))))
-        (regex-cond input 
-          ["^c(ontinue)?$" (set! debug-mode 'run)]
-          ["^n(ext)?$" (set! debug-mode 'step-into)]
-          ["^callstack$"
+        (regex-cond* input 
+          ["c(ontinue)?" (set! debug-mode 'run)]
+          ["n(ext)?" (set! debug-mode 'step-into)]
+          ["callstack"
             (for-each (lambda (x) 
                         (display x)
                         (newline))
                       (lw-debugger-call-stack))
             (loop)]
-          ["^w(here)?$" 
+          ["w(here)?" 
             (print-source (get-source filename) sl sc el ec 2)
             (loop)]
-          ["^p(rint)?\\s+(?<varname>\\w+)$"
+          ["p(rint)?\\s+(?<varname>\\w+)"
             (let ((var (string->symbol varname))
                   (env (lw-debugger-stackframe-variables (car (lw-debugger-call-stack)))))
               (let f ((i 0))
@@ -120,7 +120,7 @@
                                               (printf "~a: ~a = ~s\n" i var v)))))
                   (f (fx+ i 1)))))
             (loop)]
-          ["^p(rint)?$"
+          ["p(rint)?"
             (let ((env (lw-debugger-stackframe-variables (car (lw-debugger-call-stack)))))
               (let f ((i 0))
                 (unless (fx=? i (vector-length env))
@@ -152,5 +152,6 @@
   (define (step-into filename)
     (parameterize [(lw-debugger notify)]
       (set! debug-mode 'step-into)
+      ;(guard [e [e 
       (load filename)
       (reset))))

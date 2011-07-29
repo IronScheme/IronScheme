@@ -301,13 +301,17 @@
                 (clr-guard [e 
                         (e 
                           (close-input-port port)
-                          (display (format "WARNING: precompiled library (~a) could not load.\n" (relative-filename filename)) (current-error-port))
+                          (display (format "WARNING: precompiled library (~a) could not load.\n" 
+                                           (relative-filename filename)) 
+                                   (current-error-port))
                           #f)]
                   (let ((content (deserialize-port port)))
                     (close-input-port port)
                     (apply compile-library-content sk content))))
               (begin
-                (display (format "WARNING: precompiled library (~a) is out of date.\n" (relative-filename filename)) (current-error-port))
+                (display (format "WARNING: precompiled library (~a) is out of date.\n" 
+                                 (relative-filename filename)) 
+                         (current-error-port))
                 #f))
           #f)))
           
@@ -337,12 +341,16 @@
                   (file-newer? dll-filename filename))
               (clr-guard [e 
                       (e 
-                        (display (format "WARNING: precompiled library (~a) could not load.\n" (relative-filename filename)) (current-error-port))
+                        (display (format "WARNING: precompiled library (~a) could not load.\n" 
+                                         (relative-filename filename)) 
+                                 (current-error-port))
                         #f)]
                 (let ((content (load-library-dll dll-filename)))
                   (and content (apply sk content))))
               (begin
-                (display (format "WARNING: precompiled library (~a) is out of date.\n" (relative-filename filename)) (current-error-port))
+                (display (format "WARNING: precompiled library (~a) is out of date.\n" 
+                                 (relative-filename filename)) 
+                         (current-error-port))
                 #f))
           #f)))
                     

@@ -29,8 +29,7 @@ namespace Microsoft.Scripting.Ast {
             get { return _nodeType; }
         }
 
-        [CLSCompliant(false)]
-        protected static long SpanToLong(SourceSpan span)
+        protected internal static long SpanToLong(SourceSpan span)
         {
           if (!span.IsValid)
           {

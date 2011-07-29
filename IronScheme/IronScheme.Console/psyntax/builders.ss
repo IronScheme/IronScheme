@@ -40,17 +40,21 @@
     (syntax-rules ()
       ((_ ae test-exp then-exp else-exp)
        `(if ,test-exp ,then-exp ,else-exp))))
-  (define-syntax build-lexical-reference
-    (syntax-rules ()
-      ((_ ae var) var)))
+  (define build-lexical-reference
+    (lambda (ae var)
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-call ,ae . ,var)
+          var)))
   (define build-lexical-assignment
     (lambda (ae var exp)
       (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
           `(annotated-call ,ae set! ,var ,exp)
           `(set! ,var ,exp))))
-  (define-syntax build-global-reference
-    (syntax-rules ()
-      ((_ ae var) var)))
+  (define build-global-reference
+    (lambda (ae var)
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-call ,ae . ,var)
+          var)))
   (define build-global-assignment
     (lambda (ae var exp)
       (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
