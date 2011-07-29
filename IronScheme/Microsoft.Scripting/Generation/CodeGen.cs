@@ -635,6 +635,7 @@ namespace Microsoft.Scripting.Generation {
                     EmitNull();
                     if (ScriptDomainManager.Options.LightweightDebugging)
                     {
+                      EmitConstant(Node.SpanToLong(expr.Span));
                       EmitCall(Debugging.DebugMethods.ProcedureExit);
                     }
                     EmitReturnFromObject();
@@ -647,6 +648,7 @@ namespace Microsoft.Scripting.Generation {
                         var mce = expr as MethodCallExpression;
                         if (mce == null || !mce.TailCall)
                         {
+                          EmitConstant(Node.SpanToLong(expr.Span));
                           EmitCall(Debugging.DebugMethods.ProcedureExit);
                         }
                       }
