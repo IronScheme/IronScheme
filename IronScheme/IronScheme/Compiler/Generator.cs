@@ -894,6 +894,11 @@ namespace IronScheme.Compiler
 
       cb.Inlined = true;
 
+      if (parent.Filename == null && cb.Filename != null)
+      {
+        parent.Filename = cb.Filename;
+      }
+
       var parentvars = new List<Variable>(parent.Variables);
 
       foreach (Variable p in cb.Parameters)

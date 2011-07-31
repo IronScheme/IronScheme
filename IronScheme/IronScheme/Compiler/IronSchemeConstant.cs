@@ -275,7 +275,6 @@ namespace IronScheme.Compiler
       }
       else
       {
-        ModuleBuilder mb = cg.TypeGen.TypeBuilder.Module as ModuleBuilder;
         CodeGen init = cg.TypeGen.TypeInitializer;
 
         Slot s = cg.TypeGen.AddStaticField(typeof(object), FieldAttributes.InitOnly | FieldAttributes.Private, 
