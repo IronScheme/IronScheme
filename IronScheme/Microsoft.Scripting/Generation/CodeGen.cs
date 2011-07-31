@@ -626,6 +626,29 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
+        static SourceSpan GetSpan(Expression expr)
+        {
+          if (expr != null)
+          {
+            if (expr.Span.IsValid)
+            {
+              return expr.Span;
+            }
+
+            var ue = expr as UnaryExpression;
+
+            if (ue != null && ue.NodeType == AstNodeType.Convert)
+            {
+              var e = ue.Operand;
+              if (e is BoundExpression || e is ConstantExpression)
+              {
+                return e.Span;
+              }
+            }
+          }
+
+          return SourceSpan.Invalid;
+        }
 
         public void EmitReturn(Expression expr) {
             if (_yieldLabels != null) {
@@ -635,7 +658,7 @@ namespace Microsoft.Scripting.Generation {
                     EmitNull();
                     if (ScriptDomainManager.Options.LightweightDebugging)
                     {
-                      EmitConstant(Node.SpanToLong(expr.Span));
+                      EmitConstant(Node.SpanToLong(GetSpan(expr)));
                       EmitCall(Debugging.DebugMethods.ProcedureExit);
                     }
                     EmitReturnFromObject();
@@ -648,7 +671,7 @@ namespace Microsoft.Scripting.Generation {
                         var mce = expr as MethodCallExpression;
                         if (mce == null || !mce.TailCall)
                         {
-                          EmitConstant(Node.SpanToLong(expr.Span));
+                          EmitConstant(Node.SpanToLong(GetSpan(expr)));
                           EmitCall(Debugging.DebugMethods.ProcedureExit);
                         }
                       }

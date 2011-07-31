@@ -87,9 +87,11 @@
   (define-syntax build-foreign-call
     (syntax-rules ()
       ((_ ae name arg*) `(foreign-call ,name . ,arg*))))
-  (define-syntax build-data
-    (syntax-rules ()
-      ((_ ae exp) `',exp)))
+  (define build-data
+    (lambda (ae exp)
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-call ,ae . ',exp)
+          `',exp)))
   (define build-sequence
     (lambda (ae exps)
       (let loop ((exps exps))

@@ -98,26 +98,19 @@ namespace IronScheme.Runtime
           }
         case ".exe":
         case ".dll":
-          const string newbf = "ironscheme.boot.new.dll";
+          const string newbf = "build/ironscheme.boot.dll";
           if (File.Exists(newbf) && File.GetLastWriteTime(newbf) > File.GetLastWriteTime(path))
           {
-            if (File.Exists("ironscheme.boot.old.dll"))
-            {
-              File.Delete("ironscheme.boot.old.dll");
-            }
-
+            File.Delete("ironscheme.boot.old.dll");
+            File.Delete("ironscheme.boot.pdb");
             File.Move("ironscheme.boot.dll", "ironscheme.boot.old.dll");
             File.Move(newbf, "ironscheme.boot.dll");
-          }
 
-          if (File.Exists("ironscheme.boot.new.pdb"))
-          {
-            if (File.Exists("ironscheme.boot.pdb"))
+            const string newpdb = "build/ironscheme.boot.pdb";
+            if (File.Exists(newpdb))
             {
-              File.Delete("ironscheme.boot.pdb");
+              File.Move(newpdb, "ironscheme.boot.pdb");
             }
-
-            File.Move("ironscheme.boot.new.pdb", "ironscheme.boot.pdb");
           }
 
           // just reference.?

@@ -90,6 +90,12 @@ namespace Microsoft.Scripting.Generation {
                 _outDir = outDir;
             }
 
+            if (moduleName == "ironscheme.boot.new")
+            {
+              _outDir = outDir = Path.Combine(outDir, "build");
+              _outFileName = "ironscheme.boot.dll";
+            }
+
           // SymbolWriter fails on Mono for some reason
 
             if (SaveAndReloadAssemblies) {
