@@ -11,6 +11,11 @@ namespace Microsoft.Scripting.Debugging
     public SourceSpan Span { get; internal set; }
     public CodeContext Context { get; internal set; }
 
+    public int StartLine { get { return Span.Start.Line; } }
+    public int StartColumn { get { return Span.Start.Column; } }
+    public int EndLine { get { return Span.End.Line; } }
+    public int EndColumn { get { return Span.End.Column; } }
+
     public override string ToString()
     {
       return string.Format("{0} {1} ({2}:{3}-{4}:{5})",
@@ -39,10 +44,24 @@ namespace Microsoft.Scripting.Debugging
 
   public static class Debug
   {
+    const int TRACE_LENGTH = 128;
     static readonly Stack<StackFrame> stack = new Stack<StackFrame>();
     static readonly Stack<SourceSpan> locationstack = new Stack<SourceSpan>();
+    static readonly Queue<SourceSpan> locationtrace = new Queue<SourceSpan>(TRACE_LENGTH);
 
     public static IDebuggerCallback Debugger { get; set; }
+
+    static void AddLocationTrace(SourceSpan s)
+    {
+      if (s.IsValid)
+      {
+        if (locationtrace.Count == TRACE_LENGTH)
+        {
+          locationtrace.Dequeue();
+        }
+        locationtrace.Enqueue(s);
+      }
+    }
 
     static string CurrentFilename
     {
@@ -78,9 +97,9 @@ namespace Microsoft.Scripting.Debugging
       get { return stack; }
     }
 
-    public static IEnumerable<SourceSpan> LocationStack
+    public static IEnumerable<SourceSpan> LocationTrace
     {
-      get { return locationstack; }
+      get { return locationtrace; }
     }
 
     public static void ProcedureEnter(RuntimeMethodHandle meth, string filename, long span, CodeContext context)
@@ -103,6 +122,7 @@ namespace Microsoft.Scripting.Debugging
     public static void ProcedureExit(long span)
     {
       var s = LongToSpan(span);
+      AddLocationTrace(s);
 
       if (Debugger != null && s.IsValid)
       {
@@ -115,13 +135,13 @@ namespace Microsoft.Scripting.Debugging
     public static void ExpressionIn(long span)
     {
       var s = LongToSpan(span);
+      locationstack.Push(s);
+      AddLocationTrace(s);
       
       if (Debugger != null && s.IsValid)
       {
         Debugger.Notify(NotifyReason.ExpressionIn, CurrentFilename, s);
       }
-
-      locationstack.Push(s);
     }
 
     public static void ExpressionOut(long span)
@@ -139,6 +159,7 @@ namespace Microsoft.Scripting.Debugging
     public static void ExpressionInTail(long span)
     {
       var s = LongToSpan(span);
+      AddLocationTrace(s);
 
       if (Debugger != null && s.IsValid)
       {
@@ -148,7 +169,12 @@ namespace Microsoft.Scripting.Debugging
       stack.Pop();
     }
 
-    
+    public static void Reset()
+    {
+      stack.Clear();
+      locationstack.Clear();
+      locationtrace.Clear();
+    }
   }
 
   static class DebugMethods

@@ -64,7 +64,6 @@ namespace Microsoft.Scripting.Ast {
 
 
         public override void Emit(CodeGen cg) {
-          EmitLocation(cg);
             cg.EmitConstant(_value);
         }
 

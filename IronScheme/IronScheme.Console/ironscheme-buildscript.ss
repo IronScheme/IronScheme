@@ -307,7 +307,7 @@
     (lw-debug-mode?                             i)
     (lw-debugger                                i)
     (lw-debugger-call-stack                     i)
-    (lw-debugger-location-stack                 i)
+    (lw-debugger-location-trace                 i)
     (lw-debugger-stackframe-variables           i)
     (decompose-flonum                           i)
     (open-output-string                         i)

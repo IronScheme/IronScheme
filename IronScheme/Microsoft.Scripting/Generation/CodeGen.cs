@@ -635,6 +635,11 @@ namespace Microsoft.Scripting.Generation {
               return expr.Span;
             }
 
+            if (expr is BoundExpression || expr is ConstantExpression)
+            {
+              return expr.Span;
+            }
+
             var ue = expr as UnaryExpression;
 
             if (ue != null && ue.NodeType == AstNodeType.Convert)
@@ -666,13 +671,21 @@ namespace Microsoft.Scripting.Generation {
                     expr.EmitAs(this, CompilerHelpers.GetReturnType(_methodInfo));
                     if (!skipreturn)
                     {
-                      if (ScriptDomainManager.Options.LightweightDebugging)
+                      var mce = expr as MethodCallExpression;
+                      if (mce == null || !mce.TailCall)
                       {
-                        var mce = expr as MethodCallExpression;
-                        if (mce == null || !mce.TailCall)
+                        if (ScriptDomainManager.Options.LightweightDebugging)
                         {
                           EmitConstant(Node.SpanToLong(GetSpan(expr)));
                           EmitCall(Debugging.DebugMethods.ProcedureExit);
+                        }
+                        else if (ScriptDomainManager.Options.DebugMode)
+                        {
+                          var s = GetSpan(expr);
+                          if (s.IsValid)
+                          {
+                            EmitPosition(s.Start, s.End);
+                          }
                         }
                       }
                       EmitReturn();

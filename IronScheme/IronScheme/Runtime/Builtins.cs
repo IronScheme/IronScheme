@@ -289,6 +289,7 @@ namespace IronScheme.Runtime
       else
       {
         ScriptDomainManager.Options.LightweightDebugging = true;
+        Microsoft.Scripting.Debugging.Debug.Reset();
         Microsoft.Scripting.Debugging.Debug.Debugger = new SchemeDebugger(RequiresNotNull<Callable>(debugger));
       }
       return Unspecified;
@@ -300,10 +301,10 @@ namespace IronScheme.Runtime
       return Runtime.Cons.FromList(Microsoft.Scripting.Debugging.Debug.CallStack);
     }
 
-    [Builtin("lw-debugger-location-stack")]
-    public static object LightWeightDebuggerLocationStack()
+    [Builtin("lw-debugger-location-trace")]
+    public static object LightWeightDebuggerLocationTrace()
     {
-      return Runtime.Cons.FromList(Microsoft.Scripting.Debugging.Debug.LocationStack);
+      return Runtime.Cons.FromList(Microsoft.Scripting.Debugging.Debug.LocationTrace);
     }
 
     [Builtin("lw-debugger-stackframe-variables")]

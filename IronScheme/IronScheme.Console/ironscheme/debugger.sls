@@ -3,9 +3,47 @@
   (export step-into)
   (import 
     (ironscheme)
+    (ironscheme clr)
     (ironscheme regex-cond)
     (ironscheme strings)
     (ironscheme console))
+    
+  (clr-using Microsoft.Scripting.Debugging)
+  
+  (define (stack-frame-filename sf)
+    (clr-prop-get StackFrame Filename sf))
+    
+  (define (stack-frame-start-line sf)
+    (clr-prop-get StackFrame StartLine sf))
+
+  (define (stack-frame-start-column sf)
+    (clr-prop-get StackFrame StartColumn sf))
+
+  (define (stack-frame-end-line sf)
+    (clr-prop-get StackFrame EndLine sf))
+
+  (define (stack-frame-end-column sf)
+    (clr-prop-get StackFrame EndColumn sf))
+    
+  (define (span-start-line span)
+    (clr-prop-get #f Line
+      (clr-prop-get Microsoft.Scripting.SourceSpan Start span)))
+
+  (define (span-start-column span)
+    (clr-prop-get #f Column
+      (clr-prop-get Microsoft.Scripting.SourceSpan Start span)))
+
+  (define (span-end-line span)
+    (clr-prop-get #f Line
+      (clr-prop-get Microsoft.Scripting.SourceSpan End span)))
+
+  (define (span-end-column span)
+    (clr-prop-get #f Column
+      (clr-prop-get Microsoft.Scripting.SourceSpan End span)))
+      
+  (define (current-location)
+    (car (reverse (lw-debugger-location-trace))))
+    
 
   (define (file->vector filename)
     (let ((input (open-input-file filename)))
@@ -90,7 +128,19 @@
             (newline)
             (f (fx+ line 1)))))))
    
-  (define debug-mode 'run)    
+  (define debug-mode 'run)  
+  
+  (define (current-stack-frame)
+    (car (lw-debugger-call-stack)))
+  
+  (define (for-each-variable proc)
+    (let ((env (lw-debugger-stackframe-variables (current-stack-frame))))
+      (let f ((i 0))
+        (unless (fx=? i (vector-length env))
+          (let ((e (vector-ref env i)))
+            (hashtable-for-each e (lambda (k v)
+                                    (proc k v i))))
+          (f (fx+ i 1))))))
   
   (define (enter-debug-repl filename sl sc el ec)
     (print-source (get-source filename) sl sc el ec 0)
@@ -110,24 +160,14 @@
             (print-source (get-source filename) sl sc el ec 2)
             (loop)]
           ["p(rint)?\\s+(?<varname>\\w+)"
-            (let ((var (string->symbol varname))
-                  (env (lw-debugger-stackframe-variables (car (lw-debugger-call-stack)))))
-              (let f ((i 0))
-                (unless (fx=? i (vector-length env))
-                  (let ((e (vector-ref env i)))
-                    (hashtable-for-each e (lambda (k v)
-                                            (when (eq? (ungensym k) var)
-                                              (printf "~a: ~a = ~s\n" i var v)))))
-                  (f (fx+ i 1)))))
+            (let ((var (string->symbol varname)))
+              (for-each-variable (lambda (k v i)
+                                   (when (eq? (ungensym k) var)
+                                     (printf "~a: ~a = ~s\n" i var v)))))
             (loop)]
           ["p(rint)?"
-            (let ((env (lw-debugger-stackframe-variables (car (lw-debugger-call-stack)))))
-              (let f ((i 0))
-                (unless (fx=? i (vector-length env))
-                  (let ((e (vector-ref env i)))
-                    (hashtable-for-each e (lambda (k v)
-                                            (printf "~a: ~a = ~s\n" i (ungensym k) v))))
-                  (f (fx+ i 1)))))
+            (for-each-variable (lambda (k v i)
+                                 (printf "~a: ~a = ~s\n" i (ungensym k) v)))
             (loop)]            
           [else 
             (unless (string=? input "")
@@ -144,6 +184,16 @@
                             (fx- endline 1)
                             (fx- endcol 1))
           #f)))
+          
+  (define (handle-exception e)
+    (printf "Unhandled exception:\n~a" e) ; already newline at end :(
+    (let ((sf (current-stack-frame))
+          (l (current-location)))
+      (enter-debug-repl (stack-frame-filename sf) 
+                        (fx- (span-start-line l) 1)
+                        (fx- (span-start-column l) 1)
+                        (fx- (span-end-line l) 1)
+                        (fx- (span-end-column l) 1))))
             
   (define (reset)
     (set! debug-mode 'run)
@@ -151,7 +201,8 @@
             
   (define (step-into filename)
     (parameterize [(lw-debugger notify)]
+      (reset)
       (set! debug-mode 'step-into)
-      ;(guard [e [e 
-      (load filename)
-      (reset))))
+      (guard [e [e (handle-exception e)]]
+        (load filename))
+      )))
