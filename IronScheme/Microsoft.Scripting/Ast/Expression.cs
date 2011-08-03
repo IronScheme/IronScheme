@@ -89,11 +89,10 @@ namespace Microsoft.Scripting.Ast {
 
       protected virtual void EmitLocation(CodeGen cg)
       {
-
         if (IsValidLocation)
         {
           cg.EmitPosition(_start, _end);
-          cg.Emit(OpCodes.Nop);
+          //cg.Emit(OpCodes.Nop);
         }
       }
 

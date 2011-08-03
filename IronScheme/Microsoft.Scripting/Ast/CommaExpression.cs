@@ -49,7 +49,14 @@ namespace Microsoft.Scripting.Ast {
         {
           if (span.IsValid)
           {
-            _expressions[ValueIndex].SetLoc(span);
+            foreach (var expr in _expressions)
+            {
+              if (!expr.Span.IsValid)
+              {
+                expr.SetLoc(span);
+              }
+            }
+            //_expressions[ValueIndex].SetLoc(span);
           }
         }
 

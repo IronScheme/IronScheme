@@ -4147,7 +4147,20 @@
                 (annotation-source x)))))
 
   (define (syntax-annotation x)
-    (if (stx? x) (stx-expr x) x))
+    (cond 
+      [(stx? x) 
+        (let ([expr (stx-expr x)]
+              [ae* (stx-ae* x)])
+          (cond 
+            [(annotation? expr) expr]
+            [(and  (pair? ae*)); (not expr) (null? (cdr ae*))) 
+              (syntax-annotation (car ae*))]
+            ;[(annotation? ae*) ae*]
+            ;[(stx? ae*)  (syntax-annotation ae*)]
+            ;[(pair? expr) (syntax-annotation (car expr))]
+            [else x]))]
+      ;[(pair? x) (syntax-annotation (car x))]
+      [else x]))
 
 ;  (define (syntax-annotation x)
 ;    (if (stx? x)

@@ -778,11 +778,11 @@ namespace Microsoft.Scripting.Generation {
         public void EmitSequencePointNone() {
           if (EmitDebugInfo)
           {
-            MarkSequencePoint(
-                _debugSymbolWriter,
-                SourceLocation.None.Line, SourceLocation.None.Column,
-                SourceLocation.None.Line, SourceLocation.None.Column
-                );
+            //MarkSequencePoint(
+            //    _debugSymbolWriter,
+            //    SourceLocation.None.Line, SourceLocation.None.Column,
+            //    SourceLocation.None.Line, SourceLocation.None.Column
+            //    );
           }
         }
 
