@@ -55,14 +55,17 @@ namespace IronScheme.Compiler
     {
       var result = GetAst(c.cdr, cb);
 
-      var ve = result as VoidExpression;
-      if (ve != null && ve.Statement is WriteStatement)
+      if (!result.Span.IsValid)
       {
-        ve.Statement.SetLoc(SpanHint);
-      }
-      else
-      {
-        result.SetLoc(SpanHint);
+        var ve = result as VoidExpression;
+        if (ve != null && ve.Statement is WriteStatement)
+        {
+          ve.Statement.SetLoc(SpanHint);
+        }
+        else
+        {
+          result.SetLoc(SpanHint);
+        }
       }
       return result;
     }

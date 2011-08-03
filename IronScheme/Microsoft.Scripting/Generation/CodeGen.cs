@@ -644,11 +644,7 @@ namespace Microsoft.Scripting.Generation {
 
             if (ue != null && ue.NodeType == AstNodeType.Convert)
             {
-              var e = ue.Operand;
-              if (e is BoundExpression || e is ConstantExpression)
-              {
-                return e.Span;
-              }
+              return GetSpan(ue.Operand);
             }
           }
 
@@ -668,24 +664,32 @@ namespace Microsoft.Scripting.Generation {
                     }
                     EmitReturnFromObject();
                 } else {
-                    expr.EmitAs(this, CompilerHelpers.GetReturnType(_methodInfo));
-                    if (!skipreturn)
+                    if (ScriptDomainManager.Options.DebugMode)
                     {
-                      var mce = expr as MethodCallExpression;
-                      if (mce == null || !mce.TailCall)
+                      if (!skipreturn)
                       {
-                        if (ScriptDomainManager.Options.LightweightDebugging)
-                        {
-                          EmitConstant(Node.SpanToLong(GetSpan(expr)));
-                          EmitCall(Debugging.DebugMethods.ProcedureExit);
-                        }
-                        else if (ScriptDomainManager.Options.DebugMode)
+                        var mce = expr as MethodCallExpression;
+                        if (mce == null || !mce.TailCall)
                         {
                           var s = GetSpan(expr);
                           if (s.IsValid)
                           {
                             EmitPosition(s.Start, s.End);
                           }
+                        }
+                      }
+                    }
+                    expr.EmitAs(this, CompilerHelpers.GetReturnType(_methodInfo));
+                    if (!skipreturn)
+                    {
+                      if (ScriptDomainManager.Options.LightweightDebugging)
+                      {
+                        var mce = expr as MethodCallExpression;
+                        if (mce == null || !mce.TailCall)
+                        {
+
+                          EmitConstant(Node.SpanToLong(GetSpan(expr)));
+                          EmitCall(Debugging.DebugMethods.ProcedureExit);
                         }
                       }
                       EmitReturn();
