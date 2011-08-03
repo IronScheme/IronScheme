@@ -142,6 +142,13 @@ namespace IronScheme.Compiler
 
                 return Rewrite(Ast.Block(block));
               }
+              if (op is ConditionalExpression)
+              {
+                // MUST get this working
+                //var ce = op as ConditionalExpression;
+                //return Ast.If(ce.Test, Rewrite(Ast.Return(Ast.ConvertHelper(ce.IfTrue, typeof(object))))).
+                //  Else(Rewrite(Ast.Return(Ast.ConvertHelper(ce.IfFalse, typeof(object)))));
+              }
             }
 
             if (rs.Expression is CommaExpression)

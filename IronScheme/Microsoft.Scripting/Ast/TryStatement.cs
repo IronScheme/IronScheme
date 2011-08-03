@@ -251,7 +251,7 @@ namespace Microsoft.Scripting.Ast {
 
             // Then, emit the actual body
             _body.Emit(cg);
-            cg.EmitSequencePointNone();
+            //cg.EmitSequencePointNone();
 
             //******************************************************************
             // Emit the catch blocks
@@ -298,7 +298,7 @@ namespace Microsoft.Scripting.Ast {
                     cg.FreeLocalTmp(cr.Slot);
                     cr.Block.Body.Emit(cg);
                     cg.MarkLabel(next);
-                    cg.EmitSequencePointNone();
+                    //cg.EmitSequencePointNone();
                 }
             }
 
@@ -350,7 +350,7 @@ namespace Microsoft.Scripting.Ast {
                 //
                 EmitFinallyFlowControl(cg, flow, flowControlFlag);
 
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
             }
 
             // Clear the target labels
@@ -409,7 +409,7 @@ namespace Microsoft.Scripting.Ast {
             //******************************************************************
 
             _body.Emit(cg);
-            cg.EmitSequencePointNone();
+            //cg.EmitSequencePointNone();
 
             //******************************************************************
             // 3. Emit the catch blocks
