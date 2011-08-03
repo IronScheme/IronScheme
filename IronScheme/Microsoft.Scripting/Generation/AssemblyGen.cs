@@ -134,7 +134,7 @@ namespace Microsoft.Scripting.Generation {
         private DebuggableAttribute.DebuggingModes CurrentDebuggableAttributes {
             get {
                 return DebuggableAttribute.DebuggingModes.Default |
-                       DebuggableAttribute.DebuggingModes.IgnoreSymbolStoreSequencePoints |
+                       //DebuggableAttribute.DebuggingModes.IgnoreSymbolStoreSequencePoints |
                        (DisableOptimizations ?
                             DebuggableAttribute.DebuggingModes.DisableOptimizations :
                             DebuggableAttribute.DebuggingModes.None);

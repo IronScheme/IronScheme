@@ -553,12 +553,12 @@ namespace IronScheme.Compiler
 
     static Statement MakeTailCallReturn(bool allowtailcall, Expression e)
     {
-      if (allowtailcall)
+      //if (allowtailcall)
       {
         if (e is MethodCallExpression)
         {
           MethodCallExpression mce = ((MethodCallExpression)e);
-          mce.TailCall = !mce.Method.ReturnType.IsValueType;
+          mce.TailCall = !mce.Method.ReturnType.IsValueType && allowtailcall;
         }
         else if (e is ConditionalExpression)
         {
@@ -586,9 +586,18 @@ namespace IronScheme.Compiler
         {
           // ignore
         }
-        else if (e is UnaryExpression)
+        else if (e is UnaryExpression && e.NodeType == AstNodeType.Convert)
         {
-          ;
+          var op = ((UnaryExpression)e).Operand;
+
+          if (op is ConditionalExpression)
+          {
+            ConditionalExpression ce = (ConditionalExpression)op;
+            Statement truestmt = OptimizeBody(MakeTailCallReturn(allowtailcall, Ast.ConvertHelper(ce.IfTrue, e.Type)));
+            Statement falsestmt = OptimizeBody(MakeTailCallReturn(allowtailcall, Ast.ConvertHelper(ce.IfFalse, e.Type)));
+
+            return Ast.IfThenElse(ce.Test, truestmt, falsestmt);
+          }
         }
         else if (e is VoidExpression)
         {
