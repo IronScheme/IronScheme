@@ -68,7 +68,6 @@ namespace Microsoft.Scripting.Ast {
                 
                 t.Test.EmitBranchFalse(cg, next);
 
-                //cg.EmitSequencePointNone();
                 //cg.Emit(OpCodes.Nop);
 
                 t.Body.Emit(cg);
