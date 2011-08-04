@@ -377,6 +377,7 @@ namespace Microsoft.Scripting.Generation {
                 default:
                 case TargetBlockType.Normal:
                     Emit(OpCodes.Ret);
+                    EmitSequencePointNone();
                     break;
                 case TargetBlockType.Catch:
                 case TargetBlockType.Try:
@@ -772,21 +773,18 @@ namespace Microsoft.Scripting.Generation {
                     start.Line, start.Column,
                     end.Line, end.Column
                     );
-
-                //Emit(OpCodes.Nop);
             }
-
-            EmitCurrentLine(start.Line);
         }
 
         public void EmitSequencePointNone() {
           if (EmitDebugInfo)
           {
-            //MarkSequencePoint(
-            //    _debugSymbolWriter,
-            //    SourceLocation.None.Line, SourceLocation.None.Column,
-            //    SourceLocation.None.Line, SourceLocation.None.Column
-            //    );
+            MarkSequencePoint(
+                _debugSymbolWriter,
+                SourceLocation.None.Line, SourceLocation.None.Column,
+                SourceLocation.None.Line, SourceLocation.None.Column
+                );
+            Emit(OpCodes.Nop);
           }
         }
 

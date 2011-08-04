@@ -106,29 +106,41 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.Equal:
                     if (_left.IsConstant(null)) {
                         _right.EmitAsObject(cg);
+                        cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brfalse, label);
+                        cg.EmitSequencePointNone();
                     } else if (_right.IsConstant(null)) {
                         _left.EmitAsObject(cg);
+                        cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brfalse, label);
+                        cg.EmitSequencePointNone();
                     } else {
                         _left.EmitAs(cg, GetEmitType());
                         _right.EmitAs(cg, GetEmitType());
+                        cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Beq, label);
+                        cg.EmitSequencePointNone();
                     }
                     return true;
 
                 case AstNodeType.NotEqual:
                     if (_left.IsConstant(null)) {
                         _right.EmitAsObject(cg);
+                        cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brtrue, label);
+                        cg.EmitSequencePointNone();
                     } else if (_right.IsConstant(null)) {
                         _left.EmitAsObject(cg);
+                        cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brtrue, label);
+                        cg.EmitSequencePointNone();
                     } else {
                         _left.EmitAs(cg, GetEmitType());
                         _right.EmitAs(cg, GetEmitType());
                         cg.Emit(OpCodes.Ceq);
+                        cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brfalse, label);
+                        cg.EmitSequencePointNone();
                     }
                     return true;
 
