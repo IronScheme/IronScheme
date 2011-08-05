@@ -1456,6 +1456,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
         internal protected virtual void EmitBody(CodeGen cg) {
 
+          var prevls = cg.lambdaspan;
 
           if (!ScriptDomainManager.Options.LightweightDebugging)
           {
@@ -1470,6 +1471,8 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             {
               cg.EmitSequencePointNone();
             }
+
+            cg.lambdaspan = Span;
           }
 
             CreateEnvironmentFactory(false, cg);
@@ -1491,6 +1494,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
             if (!ScriptDomainManager.Options.LightweightDebugging)
             {
+              cg.lambdaspan = prevls;
               cg.EmitSequencePointNone();
             }
         }

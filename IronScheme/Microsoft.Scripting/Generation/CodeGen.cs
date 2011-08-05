@@ -756,6 +756,8 @@ namespace Microsoft.Scripting.Generation {
             EmitFieldGet(typeof(Uninitialized), "Instance");
         }
 
+        internal SourceSpan lambdaspan;
+
         public void EmitPosition(SourceLocation start, SourceLocation end) {
             if (EmitDebugInfo) {
 
@@ -764,6 +766,11 @@ namespace Microsoft.Scripting.Generation {
 
                 if (start == SourceLocation.None || end == SourceLocation.None) {
                     return;
+                }
+
+                if (start == lambdaspan.Start && end == lambdaspan.End)
+                {
+                  return;
                 }
 
                 Debug.Assert(start.Line > 0 && end.Line > 0);
