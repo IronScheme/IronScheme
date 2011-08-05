@@ -60,9 +60,11 @@ namespace IronScheme.Compiler
     
     public static void Optimize(CodeBlock cb)
     {
+      Optimize<RemoveUselessConversions>(cb);
       Optimize<FixupConditionals>(cb);
       Optimize<FlattenBodies>(cb);
       Optimize<RemoveTemporaries>(cb);
+      Optimize<RemoveUselessConversions>(cb); // just 1 hit
       Optimize<FixupPrimitives>(cb);
       Optimize<TypeVariables>(cb);
       //Optimize<ConversionCSE>(cb);
@@ -71,6 +73,7 @@ namespace IronScheme.Compiler
       Optimize<LoopHoist>(cb);
       Optimize<FlattenBodies>(cb);
       Optimize<RemoveTemporaries>(cb);
+      //Optimize<RemoveUselessConversions>(cb); // no hits
     }
   }
 }

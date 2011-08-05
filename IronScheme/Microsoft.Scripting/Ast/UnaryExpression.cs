@@ -22,7 +22,7 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     public class UnaryExpression : Expression {
-        private readonly Expression /*!*/ _operand;
+        private Expression /*!*/ _operand;
         private readonly Type /*!*/ _type;
 
         public static MethodInfo Converter;
@@ -35,6 +35,7 @@ namespace Microsoft.Scripting.Ast {
 
         public Expression Operand {
             get { return _operand; }
+          set { _operand = value; }
         }
 
         public override Type Type {
