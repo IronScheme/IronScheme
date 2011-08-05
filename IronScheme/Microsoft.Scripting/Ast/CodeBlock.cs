@@ -1491,12 +1491,6 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
 
             if (!ScriptDomainManager.Options.LightweightDebugging)
             {
-              if (End.IsValid)
-              {
-                var e = new SourceLocation(End.Index, End.Line, System.Math.Max(1, End.Column - 1));
-                cg.EmitPosition(e, End);
-
-              }
               cg.EmitSequencePointNone();
             }
         }
