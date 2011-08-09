@@ -234,6 +234,23 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
+        protected override void EmitLocation(CodeGen cg)
+        {
+          if (ScriptDomainManager.Options.LightweightDebugging)
+          {
+            if (!cg.IsDynamicMethod)
+            {
+              var s = SpanToLong(Span);
+              cg.EmitConstant(s);
+              cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+            }
+          }
+          else
+          {
+            base.EmitLocation(cg);
+          }
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public override void Emit(CodeGen cg) {
           
@@ -319,6 +336,16 @@ namespace Microsoft.Scripting.Ast {
                     break;
                 default:
                     throw new InvalidOperationException(NodeType.ToString());
+            }
+
+            if (ScriptDomainManager.Options.LightweightDebugging)
+            {
+              if (!cg.IsDynamicMethod)
+              {
+                var s = SpanToLong(Span);
+                cg.EmitConstant(s);
+                cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+              }
             }
         }
 

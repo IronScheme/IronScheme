@@ -52,8 +52,25 @@ namespace Microsoft.Scripting.Ast {
             return false;
         }
 
+        protected override void EmitLocation(CodeGen cg)
+        {
+          if (ScriptDomainManager.Options.LightweightDebugging)
+          {
+            if (!cg.IsDynamicMethod)
+            {
+              var s = SpanToLong(Span);
+              cg.EmitConstant(s);
+              cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
+            }
+          }
+          else
+          {
+            base.EmitLocation(cg);
+          }
+        }
+
         public override void Emit(CodeGen cg) {
-          EmitLocation(cg);
+          
             if (_typeOperand.IsAssignableFrom(_expression.Type)) {
                 // if its always true just emit the bool
                 cg.EmitConstant(true);
@@ -61,9 +78,22 @@ namespace Microsoft.Scripting.Ast {
             }
 
             _expression.EmitAsObject(cg);
+
+            EmitLocation(cg);
+
             cg.Emit(OpCodes.Isinst, _typeOperand);
             cg.Emit(OpCodes.Ldnull);
             cg.Emit(OpCodes.Cgt_Un);
+
+            if (ScriptDomainManager.Options.LightweightDebugging)
+            {
+              if (!cg.IsDynamicMethod)
+              {
+                var s = SpanToLong(Span);
+                cg.EmitConstant(s);
+                cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+              }
+            }
         }
 
 
