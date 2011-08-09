@@ -77,6 +77,8 @@ namespace Microsoft.Scripting.Ast {
               cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
             }
 
+            EmitLocation(cg);
+
             switch (_member.MemberType) {
                 case MemberTypes.Field:
                     FieldInfo field = (FieldInfo)_member;
