@@ -1190,7 +1190,7 @@
                      (build-one cls (f (car cls*) (cdr cls*)))))))))))
 
   
-  (define quote-transformer
+  (define quote-transformer ; tricky to add source info here.
     (lambda (e r mr)
       (syntax-match e ()
         ((_ datum) (build-data no-source (stx->datum datum))))))
