@@ -72,13 +72,13 @@ See docs/license.txt. |#
     (lambda (e)
       (syntax-case e ()
         [(_ namespace)
-         #`(define using (clr-using-internal 'namespace))])))
+         #'(define using (clr-using-internal 'namespace))])))
 
   (define-syntax clr-reference
     (lambda (e)
       (syntax-case e ()
         [(_ assname)
-         #`(define reference (clr-reference-internal 'assname))])))
+         #'(define reference (clr-reference-internal 'assname))])))
 
   (define-syntax clr-is
     (lambda (e)
