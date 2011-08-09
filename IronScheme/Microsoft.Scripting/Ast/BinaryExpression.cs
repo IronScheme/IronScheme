@@ -176,11 +176,31 @@ namespace Microsoft.Scripting.Ast {
         public override void EmitBranchFalse(CodeGen cg, Label label) {
             switch (NodeType) {
                 case AstNodeType.Equal:
+                    EmitLocation(cg);
                     EmitBranchTrue(cg, AstNodeType.NotEqual, label);
+                    if (ScriptDomainManager.Options.LightweightDebugging)
+                    {
+                      if (!cg.IsDynamicMethod)
+                      {
+                        var s = SpanToLong(Span);
+                        cg.EmitConstant(s);
+                        cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+                      }
+                    }
                     break;
 
                 case AstNodeType.NotEqual:
+                    EmitLocation(cg);
                     EmitBranchTrue(cg, AstNodeType.Equal, label);
+                    if (ScriptDomainManager.Options.LightweightDebugging)
+                    {
+                      if (!cg.IsDynamicMethod)
+                      {
+                        var s = SpanToLong(Span);
+                        cg.EmitConstant(s);
+                        cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+                      }
+                    }
                     break;
 
                 case AstNodeType.AndAlso:
@@ -230,7 +250,17 @@ namespace Microsoft.Scripting.Ast {
 
         public override void EmitBranchTrue(CodeGen cg, Label label) {
             if (!EmitBranchTrue(cg, NodeType, label)) {
+              EmitLocation(cg);
                 base.EmitBranchTrue(cg, label);
+                if (ScriptDomainManager.Options.LightweightDebugging)
+                {
+                  if (!cg.IsDynamicMethod)
+                  {
+                    var s = SpanToLong(Span);
+                    cg.EmitConstant(s);
+                    cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+                  }
+                }
             }
         }
 
