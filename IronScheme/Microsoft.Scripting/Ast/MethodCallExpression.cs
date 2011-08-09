@@ -337,9 +337,6 @@ namespace Microsoft.Scripting.Ast {
               EmitArgument(cg, argument, type);
             }
           }
-          
-          EmitLocation(cg);
-          // Emit the actual call
 
           // check for possible conversion/boxing needed, disabled tail call
           if (tailcall)
@@ -353,6 +350,9 @@ namespace Microsoft.Scripting.Ast {
               tailcall = false;
             }
           }
+
+          EmitLocation(cg);
+          // Emit the actual call
 
           if (fixup == null)
           {
