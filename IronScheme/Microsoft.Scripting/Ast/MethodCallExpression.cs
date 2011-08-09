@@ -341,6 +341,19 @@ namespace Microsoft.Scripting.Ast {
           EmitLocation(cg);
           // Emit the actual call
 
+          // check for possible conversion/boxing needed, disabled tail call
+          if (tailcall)
+          {
+            if (_method.ReturnType.IsValueType && !cg.MethodInfo.ReturnType.IsValueType)
+            {
+              tailcall = false;
+            }
+            else if (!_method.ReturnType.IsValueType && cg.MethodInfo.ReturnType.IsValueType)
+            {
+              tailcall = false;
+            }
+          }
+
           if (fixup == null)
           {
             cg.EmitCall(_method, tailcall);
