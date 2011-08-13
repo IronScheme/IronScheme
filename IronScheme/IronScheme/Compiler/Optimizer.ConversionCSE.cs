@@ -10,13 +10,14 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
   static partial class Optimizer
   {
 
-#if DONE
+#if !DONE
     class ConversionCSE : OptimizerBase
     {
       readonly Dictionary<Variable, Dictionary<Type, int>> references = new Dictionary<Variable, Dictionary<Type, int>>();
@@ -33,25 +34,43 @@ namespace IronScheme.Compiler
 
         protected override bool Walk(UnaryExpression node)
         {
+          //if (Current.Name.EndsWith("fxdiv")) Debugger.Break();
+
           if (node.NodeType == AstNodeType.Convert && node.Operand is BoundExpression)
           {
             var be = node.Operand as BoundExpression;
 
-            if (be.Variable.Kind == Variable.VariableKind.Local && !be.Variable.Lift && be.Type == typeof(object) && node.Type != typeof(object))
+            if (!be.Variable.Lift)
             {
-              Dictionary<Type, int> counts;
-              if (!references.TryGetValue(be.Variable, out counts))
+              var origbe = be;
+
+              if (be.Variable.Kind == Variable.VariableKind.Local && be.Variable.AssumedValue is BoundExpression)
               {
-                references[be.Variable] = counts = new Dictionary<Type, int>();
+                var assbe = be.Variable.AssumedValue as BoundExpression;
+                if (assbe.Variable.Kind == Variable.VariableKind.Parameter)
+                {
+                  be = assbe;
+                }
               }
 
-              if (counts.ContainsKey(node.Type))
+              if (be.Variable.Kind == Variable.VariableKind.Parameter
+                && be.Type == typeof(object)
+                && node.Type != typeof(object))
               {
-                counts[node.Type]++;
-              }
-              else
-              {
-                counts[node.Type] = 1;
+                Dictionary<Type, int> counts;
+                if (!references.TryGetValue(origbe.Variable, out counts))
+                {
+                  references[origbe.Variable] = counts = new Dictionary<Type, int>();
+                }
+
+                if (counts.ContainsKey(node.Type))
+                {
+                  counts[node.Type]++;
+                }
+                else
+                {
+                  counts[node.Type] = 1;
+                }
               }
             }
           }
@@ -74,6 +93,7 @@ namespace IronScheme.Compiler
         {
           if (node.NodeType == AstNodeType.Convert && node.Operand is BoundExpression)
           {
+            //if (Current.Name.EndsWith("fxdiv")) Debugger.Break();
             var be = node.Operand as BoundExpression;
             var tv = be.Variable.GetTypedVariable(node.Type);
             if (tv != null)
@@ -102,7 +122,18 @@ namespace IronScheme.Compiler
               var tv = v.Block.CreateVariable(n, Variable.VariableKind.Local, t);
               v.SetTypedVariable(t, tv);
 
-              var inittv = Ast.Write(tv, Ast.SimpleCallHelper(typeof(IronScheme.Runtime.Helpers).GetMethod("UnsafeConvert").MakeGenericMethod(tv.Type), Ast.Read(v)));
+              var vv = v;
+
+              if (vv.Kind == Variable.VariableKind.Local && vv.AssumedValue is BoundExpression)
+              {
+                var assbe = vv.AssumedValue as BoundExpression;
+                if (assbe.Variable.Kind == Variable.VariableKind.Parameter)
+                {
+                  vv = assbe.Variable;
+                }
+              }
+
+              var inittv = Ast.Write(tv, Ast.SimpleCallHelper(typeof(IronScheme.Runtime.Helpers).GetMethod("UnsafeConvert").MakeGenericMethod(tv.Type), Ast.Read(vv)));
 
               var bs = v.Block.Body as BlockStatement;
               if (bs != null)

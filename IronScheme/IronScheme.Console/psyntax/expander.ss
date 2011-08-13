@@ -3754,17 +3754,17 @@
                         (let-values (((export-env global* macro*)
                                       (make-export-env/macros lex* loc* r)))
                           (unless (eq? main-exp* 'all)
-                          (for-each
-                            (lambda (s) 
-                              (let ((name (car s)) (label (cdr s)))
-                                (let ((p (assq label export-env)))
-                                  (when p
-                                    (let ((b (cdr p)))
-                                      (let ((type (car b)))
-                                        (when (eq? type 'mutable)
-                                          (syntax-violation 'export
-                                            errstr name))))))))
-                              export-subst))
+                            (for-each
+                              (lambda (s) 
+                                (let ((name (car s)) (label (cdr s)))
+                                  (let ((p (assq label export-env)))
+                                    (when p
+                                      (let ((b (cdr p)))
+                                        (let ((type (car b)))
+                                          (when (eq? type 'mutable)
+                                            (syntax-violation 'export
+                                              errstr name))))))))
+                                export-subst))
                           (let ((invoke-body
                                  (build-library-letrec* no-source
                                    name lex* loc* rhs*

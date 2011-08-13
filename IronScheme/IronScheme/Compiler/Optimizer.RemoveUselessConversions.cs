@@ -21,8 +21,10 @@ namespace IronScheme.Compiler
 
       class Pass0 : DeepWalker
       {
-        protected override bool Walk(UnaryExpression node)
+        protected override void PostWalk(UnaryExpression node)
         {
+          base.PostWalk(node);
+
           if (node.NodeType == AstNodeType.Convert)
           {
             var op = node.Operand;
@@ -35,7 +37,6 @@ namespace IronScheme.Compiler
               }
             }
           }
-          return base.Walk(node);
         }
       }
     }

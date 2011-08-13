@@ -50,6 +50,40 @@ namespace IronScheme.Compiler
           }
           return base.Walk(node);
         }
+
+        //protected override bool Walk(BoundExpression node)
+        //{
+        //  BoundExpression e = node;
+        //  Dictionary<Variable, bool> loopcheck = new Dictionary<Variable, bool>();
+        //  while (e.Variable.AssumedValue is BoundExpression)
+        //  {
+        //    var be = e.Variable.AssumedValue as BoundExpression;
+        //    if (loopcheck.ContainsKey(e.Variable))
+        //    {
+        //      e = node;
+        //      break;
+        //    }
+        //    loopcheck.Add(e.Variable, true);
+
+        //    if (!CanAlias(node.Variable, be.Variable))
+        //    {
+        //      e = node;
+        //      break;
+        //    }
+
+        //    if (e.Variable.Lift)
+        //    {
+        //      break;
+        //    }
+
+        //    e = be;
+
+        //    break;
+        //  }
+        //  node.Variable = e.Variable;
+
+        //  return base.Walk(node);
+        //}
       }
 
       // assign aliasing

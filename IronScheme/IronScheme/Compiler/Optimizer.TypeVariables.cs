@@ -33,6 +33,8 @@ namespace IronScheme.Compiler
 
         protected override void PostWalk(WriteStatement node)
         {
+          base.PostWalk(node);
+
           var v = node.Variable;
           var val = node.Value;
           
@@ -56,8 +58,6 @@ namespace IronScheme.Compiler
           {
             v.Type = typeof(object);
           }
-
-          base.PostWalk(node);
         }
       }
     }
