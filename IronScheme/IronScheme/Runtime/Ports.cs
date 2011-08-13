@@ -36,26 +36,52 @@ namespace IronScheme.Runtime
       var pdb = Path.ChangeExtension(fn, ".pdb");
       if (File.Exists(pdb))
       {
-        if (loadinmemory)
+        if (IsSameAge(fn, pdb))
         {
-          return Assembly.Load(File.ReadAllBytes(fn), File.ReadAllBytes(pdb));
+          if (loadinmemory)
+          {
+            return Assembly.Load(File.ReadAllBytes(fn), File.ReadAllBytes(pdb));
+          }
+          else
+          {
+            return Assembly.LoadFrom(fn);
+          }
         }
         else
         {
-          return Assembly.LoadFrom(fn);
+          // remove the stale file
+          File.Delete(pdb);
         }
+      }
+
+      if (loadinmemory)
+      {
+        return Assembly.Load(File.ReadAllBytes(fn));
       }
       else
       {
-        if (loadinmemory)
-        {
-          return Assembly.Load(File.ReadAllBytes(fn));
-        }
-        else
-        {
-          return Assembly.LoadFrom(fn);
-        }
+        return Assembly.LoadFrom(fn);
       }
+    }
+
+    static bool IsSameAge(string fn, string pdb)
+    {
+      var assd = DateTime.MinValue;
+      var pdbd = DateTime.MinValue;
+
+      if (File.Exists(fn))
+      {
+        assd = File.GetLastWriteTime(fn);
+      }
+
+      if (File.Exists(pdb))
+      {
+        pdbd = File.GetLastWriteTime(pdb);
+      }
+
+      var diff = assd - pdbd;
+
+      return diff.TotalSeconds < 5;
     }
 
     internal static Assembly BootfileAssembly { get; set; }

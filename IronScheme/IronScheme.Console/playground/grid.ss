@@ -29,6 +29,28 @@
               (define var (delay* ex 'var)) ...
               body body* ...))])))
               
+        
+#|
+(define-syntax lazy-let
+  (lambda (x)
+    (syntax-case x ()
+      [(_ [(var ex) ...] body body* ...) 
+        (with-syntax (((v ...) (generate-temporaries #'(var ...))))
+          #'(let ()
+              (let-syntax ((var (identifier-syntax (force v))) ...)
+                (define v (delay ex)) ...
+                body body* ...)))])))      
+
+(define-syntax lazy-let
+  (syntax-rules ()
+    [(_ [(var ex) ...] body body* ...) 
+      (let ()
+          (define x (delay ex)) ...
+          (let-syntax ((var (identifier-syntax (force x))) ...)
+           body body* ...))]))
+           
+(define-syntax lazy-let (syntax-rules () [(_ [(var ex) ...] body body* ...) (let () (let-syntax ((var (identifier-syntax (force var))) ...) (define var (delay ex)) ... body body* ...))]))
+|#              
 (trace-define-syntax grid
   (lambda (x)
     (define (find-ranges vars exps)
