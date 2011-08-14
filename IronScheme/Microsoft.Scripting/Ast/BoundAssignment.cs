@@ -104,7 +104,7 @@ namespace Microsoft.Scripting.Ast {
 
     public class BoundAssignment : Expression {
         private readonly Variable /*!*/ _variable;
-        private readonly Expression /*!*/ _value;
+        private Expression /*!*/ _value;
         private bool _defined;
 
         // implementation detail.
@@ -146,6 +146,7 @@ namespace Microsoft.Scripting.Ast {
 
         public Expression Value {
             get { return _value; }
+          set { _value = value; }
         }
 
         internal bool IsDefined {
