@@ -29,6 +29,11 @@ namespace IronScheme.Compiler
       {
         static Statement TryRewriteExpression(Expression ex)
         {
+          //if (ex is BoundAssignment)
+          //{
+          //  var ba = (BoundAssignment)ex;
+          //  return Ast.Write(ba.Variable, ba.Value);
+          //}
           if (ex is UnaryExpression && ex.NodeType == AstNodeType.Convert)
           {
             var ux = ex as UnaryExpression;
@@ -141,13 +146,6 @@ namespace IronScheme.Compiler
                   x => Ast.Return(Ast.ConvertHelper(x, ux.Type)));
 
                 return Rewrite(Ast.Block(block));
-              }
-              if (op is ConditionalExpression)
-              {
-                // MUST get this working
-                //var ce = op as ConditionalExpression;
-                //return Ast.If(ce.Test, Rewrite(Ast.Return(Ast.ConvertHelper(ce.IfTrue, typeof(object))))).
-                //  Else(Rewrite(Ast.Return(Ast.ConvertHelper(ce.IfFalse, typeof(object)))));
               }
             }
 
