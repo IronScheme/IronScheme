@@ -341,7 +341,11 @@ namespace IronScheme.Compiler
                   }
                 }
               }
-              return CallNormal(cbe, ppp);
+              if (cbe.Block != cb.Parent && cbe.Block != cb) // do TCE later
+              {
+                //if (cb.Name.Contains("assq")) Debugger.Break();
+                return CallNormal(cbe, ppp);
+              }
             }
           }
 
@@ -377,7 +381,10 @@ namespace IronScheme.Compiler
                   else
                   {
                     //inline here?
-                    return CallNormal(d.codeblock, ppp);
+                    //if (d.codeblock.Block != cb.Parent && d.codeblock.Block != cb) // do TCE later, not yet
+                    {
+                      return CallNormal(d.codeblock, ppp);
+                    }
                   }
                 }
               }
@@ -804,6 +811,8 @@ namespace IronScheme.Compiler
     internal static MethodCallExpression TryConvertToDirectCall(SymbolId f, Expression[] ppp)
     {
       CodeBlockExpression cbe;
+
+      return null;
 
       //// needs to do the same for overloads...
       if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))

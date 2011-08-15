@@ -68,7 +68,7 @@ namespace IronScheme.Compiler
     {
       public override void Optimize()
       {
-        int fc = 0;
+        int total = 0, fc = 0;
         do
         {
           var vartypes = new Dictionary<Variable, Dictionary<Type, List<Expression>>>();
@@ -79,8 +79,14 @@ namespace IronScheme.Compiler
           p1.WalkNode(Root);
 
           fc = p1.Count;
+          total += fc;
         }
         while (fc > 0);
+
+        //if (total > 0)
+        //{
+        //  Console.WriteLine("Typed {0} variables", total);
+        //}
       }
 
       static Expression Unwrap(Expression ex)
@@ -191,7 +197,7 @@ namespace IronScheme.Compiler
             else
             {
               // what here?
-              //var = node.Variable;
+              var = null;
             }
           }
 
