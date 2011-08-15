@@ -105,6 +105,7 @@ namespace IronScheme.Compiler
 
         bool IsTCE(MethodCallExpression mce, out Variable var)
         {
+          //if (Current.Name.Contains("exists")) Debugger.Break();
           var = null;
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
@@ -113,11 +114,11 @@ namespace IronScheme.Compiler
           var be = i as BoundExpression;
           if (be == null) return false;
           var = be.Variable;
-          if (!var.Lift || var.Type != typeof(Callable) || var.ReAssigned) return false;
+          if (/*!var.Lift ||*/ var.Type != typeof(Callable) || var.ReAssigned) return false;
           if (mce.Method.Name != "Call") return false;
           if (mce.Arguments.Count > 0 && mce.Arguments[0].Type == typeof(object[])) return false;
           var av = var.AssumedValue as MethodCallExpression;
-          if (av == null || av.Type != typeof(Callable) || av.Method.Name != "Create") return false;
+          if (av == null || av.Type != typeof(Callable) || av.Method.Name != "Create") return false; // need to cater for case-lambda too
           var cbe = av.Arguments[0] as CodeBlockExpression;
           if (cbe == null || cbe.Block != Current) return false;
           if (mce.Arguments.Count > 8) return false;
