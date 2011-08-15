@@ -78,11 +78,6 @@ namespace IronScheme.Compiler
           var p1 = new Pass1 { vartypes = vartypes };
           p1.WalkNode(Root);
 
-          //foreach (var b in p1.rebinds.Keys)
-          //{
-          //  b.Bind();
-          //}
-
           fc = p1.Count;
         }
         while (fc > 0);
@@ -124,8 +119,6 @@ namespace IronScheme.Compiler
 
         void ProcessAssignment(Expression val, Variable var)
         {
-          //if (Current.Name.Contains("enum-set-projection")) Debugger.Break();
-
           Dictionary<Type, List<Expression>> typecounts;
 
           if (!vartypes.TryGetValue(var, out typecounts))
@@ -161,11 +154,6 @@ namespace IronScheme.Compiler
           var var = node.Variable;
 
           val = ProcessAssignment(val, var);
-          
-          //if (val.Type.IsValueType && var.Type != val.Type)
-          //{
-          //  val = Ast.Convert(val, var.Type);
-          //}
           node.Value = val;
         }
 
@@ -177,12 +165,6 @@ namespace IronScheme.Compiler
           var var = node.Variable;
 
           val = ProcessAssignment(val, var);
-          
-          //if (val.Type.IsValueType && var.Type != val.Type)
-          //{
-          //  val = Ast.Convert(val, var.Type);
-          //}
-
           node.Value = val;
         }
 
@@ -201,9 +183,7 @@ namespace IronScheme.Compiler
                   var.Type = kv.Key;
                   Count++;
                   rebinds[var.Block] = true;
-                  val = Unwrap(val);
-
-                  return val;
+                  return Unwrap(val);
                 }
                 break;
               }

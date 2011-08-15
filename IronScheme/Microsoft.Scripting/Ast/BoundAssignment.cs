@@ -78,11 +78,11 @@ namespace Microsoft.Scripting.Ast {
 
     public override void Emit(CodeGen cg)
     {
-      _value.Emit(cg);
-      if (_vr.Variable.Type == typeof(object) && _value.Type.IsValueType && _value.Type != typeof(SymbolId))
-      {
-        cg.EmitBoxing(_value.Type);
-      }
+      _value.EmitAs(cg, _vr.Slot.Type);
+      //if (_vr.Variable.Type == typeof(object) && _value.Type.IsValueType && _value.Type != typeof(SymbolId))
+      //{
+      //  cg.EmitBoxing(_value.Type);
+      //}
 
       if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
       {
@@ -193,7 +193,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg) {
           EmitLocation(cg);
-            _value.Emit(cg);
+            _value.EmitAs(cg, _vr.Slot.Type);
             //cg.Emit(OpCodes.Dup);
             _vr.Slot.EmitSet(cg);
             if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
