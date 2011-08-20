@@ -32,16 +32,18 @@ namespace IronScheme.Compiler
 
       protected override bool Walk(CodeBlockExpression node)
       {
-        return base.Walk(node) && !blocks.ContainsKey(node.Block);
+        return !blocks.ContainsKey(node.Block) && base.Walk(node);
       }
 
       protected override void PostWalk(CodeBlockExpression node)
       {
+        base.PostWalk(node);
         if (!blocks.ContainsKey(node.Block))
         {
+          var c = Current;
           WalkNode(node.Block);
+          Current = c;
         }
-        base.PostWalk(node);
       }
     }
 
