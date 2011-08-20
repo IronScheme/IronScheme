@@ -812,7 +812,7 @@ namespace IronScheme.Compiler
     {
       CodeBlockExpression cbe;
 
-      return null;
+      //return null;
 
       //// needs to do the same for overloads...
       if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))

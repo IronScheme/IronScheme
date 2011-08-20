@@ -94,8 +94,11 @@ namespace IronScheme.Compiler
             ee.Add(Ast.Void(Ast.Continue()));
             node.Expression = Ast.Comma(ee);
 
-            var.Lift = false;
-            fixups.Add(var.Block);
+            if (var != null)
+            {
+              var.Lift = false;
+              fixups.Add(var.Block);
+            }
 
             Current.Bind();
           }
@@ -105,26 +108,37 @@ namespace IronScheme.Compiler
 
         bool IsTCE(MethodCallExpression mce, out Variable var)
         {
-          //if (Current.Name.Contains("exists")) Debugger.Break();
           var = null;
+          if (Current.HasEnvironment) return false;
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
-          var i = Unwrap(mce.Instance);
-          if (i.Type != typeof(Callable)) return false;
-          var be = i as BoundExpression;
-          if (be == null) return false;
-          var = be.Variable;
-          if (/*!var.Lift ||*/ var.Type != typeof(Callable) || var.ReAssigned) return false;
-          if (mce.Method.Name != "Call") return false;
-          if (mce.Arguments.Count > 0 && mce.Arguments[0].Type == typeof(object[])) return false;
-          var av = var.AssumedValue as MethodCallExpression;
-          if (av == null || av.Type != typeof(Callable) || av.Method.Name != "Create") return false; // need to cater for case-lambda too
-          var cbe = av.Arguments[0] as CodeBlockExpression;
-          if (cbe == null || cbe.Block != Current) return false;
           if (mce.Arguments.Count > 8) return false;
-          if (cbe.Block.HasEnvironment) return false;
+          var i = Unwrap(mce.Instance);
+          if (i is CodeBlockExpression)
+          {
+            var cbe = i as CodeBlockExpression;
+            if (cbe.Block == Current)
+            {
+              return true;
+            }
+            return false;
+          }
+          else
+          {
+            if (i.Type != typeof(Callable)) return false;
+            var be = i as BoundExpression;
+            if (be == null) return false;
+            var = be.Variable;
+            if (/*!var.Lift ||*/ var.Type != typeof(Callable) || var.ReAssigned) return false;
+            if (mce.Method.Name != "Call") return false;
+            if (mce.Arguments.Count > 0 && mce.Arguments[0].Type == typeof(object[])) return false;
+            var av = var.AssumedValue as MethodCallExpression;
+            if (av == null || av.Type != typeof(Callable) || av.Method.Name != "Create") return false; 
+            var cbe = av.Arguments[0] as CodeBlockExpression;
+            if (cbe == null || cbe.Block != Current) return false;
 
-          return true;
+            return true;
+          }
         }
 
       }

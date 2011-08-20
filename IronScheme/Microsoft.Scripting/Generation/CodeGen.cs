@@ -978,7 +978,8 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void Finish() {
-            Debug.Assert(_targets.Count == 0);
+            // not sure if this check is needed
+            //Debug.Assert(_targets.Count == 0);
 
             if (_returnBlock.HasValue) {
                 MarkLabel(_returnBlock.Value.returnStart);
