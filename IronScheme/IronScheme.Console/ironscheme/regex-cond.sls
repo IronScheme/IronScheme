@@ -24,10 +24,10 @@
                                                     ((group ...) grps)
                                                     (pattern (wrap #'pattern)))
                                         #'((let ((m (regex-match str pattern)))
-                                            (if (group-success? m)
+                                            (and (group-success? m) m)) =>
+                                              (lambda (m)
                                                 (let ((binding (group-value (match-group m group))) ...)
-                                                  e e* ...)
-                                                #f)))))]))))
+                                                  e e* ...)))))]))))
             (with-syntax (((clause ...) (map parse-clause #'((pattern e e* ...) ...))))
               #'(cond
                   clause ...
@@ -52,10 +52,10 @@
                                                                         grps))
                                                     ((group ...) grps))
                                         #'((let ((m (regex-match str pattern)))
-                                            (if (group-success? m)
+                                            (and (group-success? m) m)) =>
+                                              (lambda (m)
                                                 (let ((binding (group-value (match-group m group))) ...)
-                                                  e e* ...)
-                                                #f)))))]))))
+                                                  e e* ...)))))]))))
             (with-syntax (((clause ...) (map parse-clause #'((pattern e e* ...) ...))))
               #'(cond
                   clause ...
