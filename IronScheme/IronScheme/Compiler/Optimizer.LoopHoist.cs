@@ -169,6 +169,7 @@ namespace IronScheme.Compiler
         {
           cbe = null;
           var = null;
+          
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           var i = Unwrap(mce.Instance);
@@ -234,6 +235,7 @@ namespace IronScheme.Compiler
             {
               p.Name = (SymbolId)Builtins.GenSym(p.Name);
               p.Block = parent;
+              //p.Kind = p.Lift ? Variable.VariableKind.Local : Variable.VariableKind.Temporary;
               p.Kind = Variable.VariableKind.Local;
               parent.AddVariable(p);
             }
