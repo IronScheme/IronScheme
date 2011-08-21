@@ -29,7 +29,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    public void Notify(NotifyReason reason, string filename, Microsoft.Scripting.SourceSpan span)
+    public void Notify(NotifyReason reason, string filename, SourceSpan span)
     {
       callback.Call(ReasonToSymbol(reason), filename ?? Builtins.FALSE, span.Start.Line, span.Start.Column, span.End.Line, span.End.Column);
     }

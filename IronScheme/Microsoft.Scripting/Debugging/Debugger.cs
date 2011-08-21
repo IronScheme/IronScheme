@@ -144,6 +144,7 @@ namespace Microsoft.Scripting.Debugging
       }
     }
 
+    // is this needed or interesting?
     public static void ExpressionOut(long span)
     {
       var s = LongToSpan(span);
