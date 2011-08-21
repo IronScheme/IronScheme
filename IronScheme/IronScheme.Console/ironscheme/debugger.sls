@@ -244,6 +244,16 @@
               (breakpoint-add! bp)
               (printf "~a\n" bp))
             (loop)]
+          ["(rb|remove-breakpoint)\\s+(?<line>\\d+)"
+            (let ((bp (get-breakpoint filename (string->number line))))
+              (and bp
+                  (breakpoint-remove! bp)))
+            (loop)]
+          ["(rb|remove-breakpoint)\\s+(?<filename>[^\\s]+)\\s+(?<line>\\d+)"
+            (let ((bp (get-breakpoint filename (string->number line))))
+              (and bp
+                  (breakpoint-remove! bp)))
+            (loop)]
           ["h(elp)?"
             (display "Commands:
 continue    - Continue
@@ -258,6 +268,10 @@ breakpoint line
             - Adds a breakpoint at 'line' in current file
 breakpoint filename line
             - Adds a breakpoint at 'line' in 'filename'
+remove-breakpoint line
+            - Removes a breakpoint at 'line' in current file
+remove-breakpoint filename line
+            - Removes a breakpoint at 'line' in 'filename'
 help        - Displays this
 ")
             (loop)]
