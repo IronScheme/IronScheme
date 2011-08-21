@@ -244,6 +244,23 @@
               (breakpoint-add! bp)
               (printf "~a\n" bp))
             (loop)]
+          ["h(elp)?"
+            (display "Commands:
+continue    - Continue
+next        - Step Into
+callstack   - Displays callstack
+where       - Displays sourcecode
+print       - Prints out all the variables' values
+print var   - Prints out 'var' value
+quit        - Exits the debugger
+breakpoint  - Displays all breakpoints
+breakpoint line
+            - Adds a breakpoint at 'line' in current file
+breakpoint filename line
+            - Adds a breakpoint at 'line' in 'filename'
+help        - Displays this
+")
+            (loop)]
           [else 
             (unless (string=? input "")
               (printf "ERROR: Unknown command: ~a\n" input))
