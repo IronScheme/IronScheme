@@ -31,7 +31,20 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
-            //cg.EmitPosition(Start, End);
+            if (Span.IsValid)
+            {
+              cg.EmitPosition(Start, End);
+
+              if (ScriptDomainManager.Options.LightweightDebugging)
+              {
+                if (!cg.IsDynamicMethod)
+                {
+                  var s = SpanToLong(Span);
+                  cg.EmitConstant(s);
+                  cg.EmitCall(Debugging.DebugMethods.ExpressionInTail); // not really but will do for LW debugger
+                }
+              }
+            }
 
             if (_statement != null) {
                 cg.CheckAndPushTargets(_statement);

@@ -284,7 +284,7 @@ help        - Displays this
          
 
   (define (notify reason filename startline startcol endline endcol)
-    (when (and (memq reason '(expr-in expr-in-tail)) filename (fx>? startline 0))
+    (when (and (memq reason '(expr-in expr-in-tail proc-enter proc-exit)) filename (fx>? startline 0))
       (cond 
         [(eq? debug-mode 'step-into) 
           (printf "~a: ~a\n" "Step Into" filename)        
