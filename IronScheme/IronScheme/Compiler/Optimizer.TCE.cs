@@ -91,7 +91,7 @@ namespace IronScheme.Compiler
             {
               ee.Add(Ast.Assign(par, Ast.Read(temps[i++])));
             }
-            ee.Add(Ast.Void(Ast.Continue()));
+            ee.Add(Ast.Void(Ast.Continue(mce.Span)));
             node.Expression = Ast.Comma(ee);
 
             if (var != null)
@@ -109,6 +109,7 @@ namespace IronScheme.Compiler
         bool IsTCE(MethodCallExpression mce, out Variable var)
         {
           var = null;
+          // this could possibly removed if the label can be moved before the environment is allocated
           if (Current.HasEnvironment) return false;
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
