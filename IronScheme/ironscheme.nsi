@@ -229,6 +229,11 @@ ${EndIf}
 	File ..\..\..\tools\IronScheme.VisualStudio.dll
 	File ..\..\..\tools\RegPkg.exe
 	File ..\..\..\tools\RegPkg.exe.config
+${If} ${RunningX64}	
+  File ..\..\..\tools\IronScheme.Profiler.x64.dll
+${Else}  
+	File ..\..\..\tools\IronScheme.Profiler.x86.dll
+${EndIf}	
 	
 	File "ironscheme-buildscript.ss"
 
