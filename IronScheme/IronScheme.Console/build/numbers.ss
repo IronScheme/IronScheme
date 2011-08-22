@@ -1044,17 +1044,20 @@ See docs/license.txt. |#
   (define/contract (fx*/carry fx1:fixnum fx2:fixnum fx3:fixnum)
     (let ((s (+ (* fx1 fx2) fx3))
           (e (expt 2 (fixnum-width))))
-      (values (mod0 s e) (div0 s e))))
+      (let-values (((d m) (div0-and-mod0 s e)))
+        (values m d))))
 
   (define/contract (fx-/carry fx1:fixnum fx2:fixnum fx3:fixnum)
     (let ((s (- fx1 fx2 fx3))
           (e (expt 2 (fixnum-width))))
-      (values (mod0 s e) (div0 s e))))
+      (let-values (((d m) (div0-and-mod0 s e)))
+        (values m d))))
 
   (define/contract (fx+/carry fx1:fixnum fx2:fixnum fx3:fixnum)
     (let ((s (+ fx1 fx2 fx3))
           (e (expt 2 (fixnum-width))))
-      (values (mod0 s e) (div0 s e))))                    
+      (let-values (((d m) (div0-and-mod0 s e)))
+        (values m d))))
                   
 ;;; Free-format algorithm for printing IEEE double-precision positive
 ;;; floating-point numbers in base 10
