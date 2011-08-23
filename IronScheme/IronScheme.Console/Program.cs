@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Text;
 using IronScheme.Hosting;
 using IronScheme.Remoting.Server;
+using System.IO;
 
 namespace IronScheme.Runtime
 {
@@ -20,6 +21,8 @@ namespace IronScheme.Runtime
       if (args.Length > 0 && args[0] == "-profile")
       {
         const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";
+
+        ExecuteRegsvr32(false, true);
 
         ProcessStartInfo psi;
 
@@ -50,13 +53,20 @@ namespace IronScheme.Runtime
 
         psi.Arguments = string.Join(" ", argargs);
         psi.UseShellExecute = false;
-        
-        Process p = Process.Start(psi);
-        //p.PriorityBoostEnabled = true;
 
-        p.WaitForExit();
+        try
+        {
+          Process p = Process.Start(psi);
+          //p.PriorityBoostEnabled = true;
 
-        return p.ExitCode;
+          p.WaitForExit();
+
+          return p.ExitCode;
+        }
+        finally
+        {
+          ExecuteRegsvr32(false, false);
+        }
       }
       else
       {
@@ -82,6 +92,25 @@ namespace IronScheme.Runtime
           //Console.InputEncoding = oi;
         }
       }
+    }
+
+    // https://github.com/sawilde/opencover/blob/master/main/OpenCover.Framework/ProfilerRegistration.cs
+    static void ExecuteRegsvr32(bool userRegistration, bool register)
+    {
+      const string UserRegistrationString = "/n /i:user";
+
+      var startInfo = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "regsvr32.exe"),
+                               string.Format("/s {2} {0} \"{1}\"", userRegistration ? UserRegistrationString : String.Empty,
+                               GetProfilerPath(), register ? string.Empty : "/u")) { CreateNoWindow = true };
+
+      var process = Process.Start(startInfo);
+      process.WaitForExit();
+    }
+
+    static string GetProfilerPath()
+    {
+      var dir = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+      return Path.Combine(dir, string.Format("IronScheme.Profiler.x{0}.dll", IntPtr.Size == 8 ? "64" : "86"));
     }
   }
 }
