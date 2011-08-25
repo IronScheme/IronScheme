@@ -803,6 +803,14 @@ namespace IronScheme.Compiler
 
       if (ass == null)
       {
+        // last chance
+#pragma warning disable 0618
+        ass = Assembly.LoadWithPartialName(assname);
+#pragma warning restore 0618
+      }
+
+      if (ass == null)
+      {
         ClrSyntaxError("clr-reference", "Assembly not found", args);
       }
 
