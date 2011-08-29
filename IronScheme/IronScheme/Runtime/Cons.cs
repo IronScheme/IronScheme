@@ -14,7 +14,7 @@ using Microsoft.Scripting;
 namespace IronScheme.Runtime
 {
   [Serializable]
-  public sealed class Cons : IEnumerable<object>
+  public class Cons : IEnumerable<object>
   {
     public object car;
     public object cdr;
@@ -130,4 +130,21 @@ namespace IronScheme.Runtime
 
     #endregion
   }
+
+#if IDEA_EVER_GETS_A_SOLUTION
+  public sealed class ImmutableCons : Cons
+  {
+    public ImmutableCons(object car)
+      : base(car)
+    {
+
+    }
+
+    public ImmutableCons(object car, object cdr) 
+      : base(car, cdr)
+    {
+
+    }
+  }
+#endif
 }
