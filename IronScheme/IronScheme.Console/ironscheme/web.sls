@@ -47,7 +47,7 @@ See docs/license.txt. |#
     (ironscheme web-utils)
     (ironscheme clr))
 
-  (clr-reference "System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
+  (clr-reference System.Web)
   (clr-using System.Web)
   (clr-using System.Collections.Specialized)
   (clr-using System.Web.SessionState)
