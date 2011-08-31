@@ -17,11 +17,12 @@ namespace IronScheme.Hosting
 {
   public sealed class IronSchemeLanguageProvider : LanguageProvider
   {
-    public IronSchemeLanguageProvider() : this (ScriptDomainManager.CurrentManager)
+    internal IronSchemeLanguageProvider()
+      : this(ScriptDomainManager.CurrentManager)
     {
     }
 
-    public IronSchemeLanguageProvider(ScriptDomainManager x)
+    internal IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;

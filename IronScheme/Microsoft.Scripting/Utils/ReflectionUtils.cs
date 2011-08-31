@@ -124,7 +124,8 @@ namespace Microsoft.Scripting.Utils {
             Debug.Assert(type.IsAssignableFrom(actualType));
 
             try {
-                return (T)Activator.CreateInstance(actualType, args);
+                return (T)Activator.CreateInstance(actualType, 
+                  BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, args, null);
             } catch (TargetInvocationException e) {
                 throw new InvalidImplementationException(System.String.Format(Resources.InvalidCtorImplementation, actualType), e.InnerException);
             } catch (Exception e) {
