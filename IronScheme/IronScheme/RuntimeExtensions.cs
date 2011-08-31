@@ -23,6 +23,11 @@ namespace IronScheme
 
     readonly static ScriptEngine se = provider.GetEngine();
 
+    public static ScriptEngine ScriptEngine
+    {
+      get { return se; }
+    } 
+
     public const string INTERACTION_ENVIRONMENT = "(interaction-environment)";
 
     public static LanguageProvider Provider

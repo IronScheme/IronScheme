@@ -12,7 +12,7 @@ namespace EmbeddingConsole
   {
     static void Main(string[] args)
     {
-      var slp = new IronSchemeLanguageProvider();
+      var slp = ScriptDomainManager.CurrentManager.GetLanguageProvider(typeof(IronSchemeLanguageProvider)); 
       var se = slp.GetEngine();
 
       se.Evaluate(@"
