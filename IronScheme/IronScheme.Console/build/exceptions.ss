@@ -46,8 +46,9 @@ See docs/license.txt. |#
   (define *current-exception-handlers*
     (list 
       (lambda (condition)
-        (display "Unhandled exception:\n")
-        (display condition)
+        ; dont print here
+        ;(display "Unhandled exception:\n")
+        ;(display condition)
         ;; let's get out of here        
         ($throw (clr-new IronScheme.Runtime.SchemeException condition)))))
 
