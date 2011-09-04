@@ -442,7 +442,7 @@ See docs/license.txt. |#
                  (r (complexnum-real-part num)))
               (and (rational? r) 
                    (rational? i)
-                   (exact (make-rectnum (exact r) (exact i)))))]
+                   (make-rectangular (exact r) (exact i))))]
           [else            
             (assertion-violation 'exact "no exact equivalent" num)])]
       [(flonum? num)
