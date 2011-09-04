@@ -541,9 +541,7 @@ See docs/license.txt. |#
                                      (infinite? i)))
                                "" 
                                "+")
-                           (if (= 1.0 (imag-part num))
-                               ""
-                               (number->string (imag-part num) radix))
+                           (number->string (imag-part num) radix)
                            "i")]
           [(rectnum? num)
             (string-append (if (zero? (real-part num)) 
