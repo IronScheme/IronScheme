@@ -87,6 +87,8 @@ naninf                 ("nan.0"|"inf.0")
 
 {naninf}               { return Make(Tokens.NANINF); }
 
+.                      { if (yytext.Length > 0) throw new  SyntaxErrorException("Unexpected character: " + yytext); }
+
 <<EOF>>               { }
 %%
 
