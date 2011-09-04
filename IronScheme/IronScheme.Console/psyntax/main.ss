@@ -120,8 +120,10 @@
     (cons (get-directory-name filename) (library-path)))
 
   (define (load/args filename . args)
-    (apply load-r6rs-top-level filename 'load args)
-    (void))
+    (with-guard
+      (lambda ()
+        (apply load-r6rs-top-level filename 'load args)
+        (void))))
     
   (define (load/unload filename)
     (let ((libs #f)) 
@@ -138,8 +140,10 @@
             (installed-libraries))))))
 
   (define (load filename)
-    (apply load-r6rs-top-level filename 'load (cdr (command-line)))
-    (void))
+    (with-guard
+      (lambda ()
+        (apply load-r6rs-top-level filename 'load (cdr (command-line)))
+        (void))))
     
   (define (ironscheme-test)
     (load "tests/r6rs/run.sps"))    
@@ -203,16 +207,39 @@
             `(begin
                (include "system-libraries.ss")
                (compile "system-libraries.ss"))))]))
+               
+  (define (with-guard f)
+    (clr-guard [e [e (parameterize ((current-output-port (current-error-port)))
+                       (display "Unhandled CLR exception during evaluation:\n")
+                       (display e)
+                       (newline))]]
+      (call/cc
+        (lambda (k)
+          (with-exception-handler
+            (lambda (e)
+              (let ((serious? (or (serious-condition? e) (system-exception? e) (not (condition? e)))))
+                (parameterize ((current-output-port (current-error-port)))
+                  (when serious?
+                    (display "Unhandled exception during evaluation:\n"))
+                  (display e))
+                (k)))
+            f)))))
     
   (define (compile filename)
-    (load-r6rs-top-level filename 'compile-dll))
+    (with-guard
+      (lambda ()
+        (load-r6rs-top-level filename 'compile-dll))))
     
   (define (compile->closure filename)
-    (load-r6rs-top-level filename 'closure))
+    (with-guard
+      (lambda ()
+      (load-r6rs-top-level filename 'closure))))
     
   (define (load-port port . args)
-    (load-port-r6rs-top-level port #f 'load args)
-    (void))
+    (with-guard
+      (lambda ()
+        (load-port-r6rs-top-level port #f 'load args)
+        (void))))
     
   (define (->bytes n)
     (let ((bv (make-bytevector 4)))
