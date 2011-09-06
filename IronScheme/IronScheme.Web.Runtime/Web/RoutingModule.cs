@@ -21,7 +21,7 @@ namespace IronScheme.Web
     public void Dispose()
     {
     }
-
+#if DEBUG
     class TraceWriter : TextWriter
     {
       public override void Write(string value)
@@ -40,11 +40,14 @@ namespace IronScheme.Web
         get { return System.Text.Encoding.Default; }
       }
     }
+#endif
 
     public void Init(HttpApplication app)
     {
+#if DEBUG
       System.Diagnostics.Trace.AutoFlush = true;
       Console.SetOut(new TraceWriter());
+#endif
       app.PostResolveRequestCache += new EventHandler(app_PostResolveRequestCache);
       app.AuthorizeRequest += new EventHandler(app_AuthorizeRequest);
       app.AuthenticateRequest += new EventHandler(app_AuthenticateRequest);

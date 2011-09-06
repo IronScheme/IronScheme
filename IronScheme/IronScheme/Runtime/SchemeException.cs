@@ -31,7 +31,8 @@ namespace IronScheme.Runtime
     {
       get
       {
-        return "(and (stacktrace-condition? {0}) (condition-stacktrace {0}))"
+        return 
+         "(and (stacktrace-condition? {0}) (condition-stacktrace {0}))"
           .Eval(Condition) as string;
       }
     }
