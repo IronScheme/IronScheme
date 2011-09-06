@@ -79,9 +79,11 @@
     <None Include="controllers\blog.sls" />
     <None Include="controllers\calender.sls" />
     <None Include="controllers\auth.sls" />
+    <None Include="controllers\web-repl.sls" />
     <None Include="controllers\doc.sls" />
     <None Include="models\blog.sls" />
     <None Include="models\doc.sls" />
+    <None Include="views\web-repl.sls" />
     <None Include="views\doc.sls" />
     <None Include="web.routes" />
     <None Include="test2.ss">
