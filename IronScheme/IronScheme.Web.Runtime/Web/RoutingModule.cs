@@ -61,25 +61,34 @@ namespace IronScheme.Web
 
       if (context.User == null)
       {
-        HttpCookie authc = context.Request.Cookies[FormsAuthentication.FormsCookieName];
-        if (authc != null)
+        try
         {
-          FormsAuthenticationTicket fat = FormsAuthentication.Decrypt(authc.Value);
-
-          if (fat.Expired)
+          HttpCookie authc = context.Request.Cookies[FormsAuthentication.FormsCookieName];
+          if (authc != null)
           {
-            context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
+            FormsAuthenticationTicket fat = FormsAuthentication.Decrypt(authc.Value);
+
+            if (fat.Expired)
+            {
+              context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
+            }
+            else
+            {
+              context.User = new GenericPrincipal(new FormsIdentity(FormsAuthentication.RenewTicketIfOld(fat)), new string[0]);
+            }
           }
           else
           {
-            context.User = new GenericPrincipal(new FormsIdentity(FormsAuthentication.RenewTicketIfOld(fat)), new string[0]);
+            context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
           }
         }
-        else
+        catch
         {
+          context.Request.Cookies.Clear();
           context.User = new GenericPrincipal(new GenericIdentity(""), new string[0]);
         }
       }
+
     }
 
     #endregion
