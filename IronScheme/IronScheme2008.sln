@@ -76,9 +76,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.LibraryBrowser",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oyster.IntX", "Oyster.IntX\Oyster.IntX.csproj", "{371F38E6-8D55-482F-B010-4AFAC11C3CDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Web.Eval", "IronScheme.Web.Eval\IronScheme.Web.Eval.csproj", "{62337EB3-2E19-4C32-B4C7-548A613C33EE}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 17
+		SccNumberOfProjects = 18
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/TFS02
 		SccLocalPath0 = .
@@ -141,6 +143,10 @@ Global
 		SccProjectUniqueName16 = Oyster.IntX\\Oyster.IntX.csproj
 		SccProjectName16 = Oyster.IntX
 		SccLocalPath16 = Oyster.IntX
+		SccProjectUniqueName17 = IronScheme.Web.Eval\\IronScheme.Web.Eval.csproj
+		SccProjectTopLevelParentUniqueName17 = IronScheme2008.sln
+		SccProjectName17 = IronScheme.Web.Eval
+		SccLocalPath17 = IronScheme.Web.Eval
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -211,6 +217,10 @@ Global
 		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62337EB3-2E19-4C32-B4C7-548A613C33EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62337EB3-2E19-4C32-B4C7-548A613C33EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62337EB3-2E19-4C32-B4C7-548A613C33EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62337EB3-2E19-4C32-B4C7-548A613C33EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -221,6 +231,7 @@ Global
 		{B034B10F-A70E-4A23-B7A5-1803A3B3F14E} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
 		{7BABDF0D-A9D2-4089-9ED6-27DFC6F3D498} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
 		{4D2643EB-B0AC-4581-BB4F-6BA5A192DDDF} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
+		{62337EB3-2E19-4C32-B4C7-548A613C33EE} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
 		{1D7426EB-2FF1-46C8-8458-442067E66D24} = {0F075144-4F66-4BA2-9EA4-F7A9A68D0128}
 		{560818DE-C49E-4798-960F-6DED05BFD8B0} = {0F075144-4F66-4BA2-9EA4-F7A9A68D0128}
 		{4CD245A9-644A-46C0-875F-1B8641AF7A45} = {0F075144-4F66-4BA2-9EA4-F7A9A68D0128}
