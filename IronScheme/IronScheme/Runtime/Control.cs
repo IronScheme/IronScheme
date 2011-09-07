@@ -13,6 +13,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
+using System.Threading;
 
 namespace IronScheme.Runtime
 {
@@ -113,6 +114,7 @@ namespace IronScheme.Runtime
     {
       public object Value {get; internal set;}
       internal StackTrace Stack { get; set; }
+      internal Thread Thread { get; set; }
     }
 
     internal static readonly bool IsMono = Type.GetType("Mono.Runtime", false) != null;
@@ -155,6 +157,12 @@ namespace IronScheme.Runtime
       var c1 = cc.Stack.GetFrames();
       var f1 = st.GetFrames();
 
+      if (cc.Thread != Thread.CurrentThread)
+      {
+        // can't check reliably
+        return true;
+      }
+
       if (IsMono)
       {
         // mono: for some reason the one stack is reversed... but not all the time... FFFFFUUUUUU!! 8/
@@ -187,7 +195,7 @@ namespace IronScheme.Runtime
     public static object CallWithCurrentContinuation(object fc1)
     {
       Callable fc = RequiresNotNull<Callable>(fc1);
-      Continuation ccc = new Continuation { Stack = new StackTrace() };
+      Continuation ccc = new Continuation { Stack = new StackTrace() , Thread = Thread.CurrentThread };
 
       try
       {

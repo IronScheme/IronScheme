@@ -19,6 +19,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
+using System.Threading;
 
 namespace IronScheme.Runtime
 {
@@ -103,7 +104,25 @@ namespace IronScheme.Runtime
         return "#<unspecified>";
       }
     }
-  
+
+    delegate object Func();
+
+    [Builtin("with-timeout")]
+    public static object WithTimeout(object proc, object duration)
+    {
+      var d = Requires<int>(duration);
+      var t = new Func(Requires<Callable>(proc).Call);
+
+      var wh = t.BeginInvoke(null, null);
+
+      if (wh.AsyncWaitHandle.WaitOne(d))
+      {
+        return t.EndInvoke(wh);
+      }
+
+      return AssertionViolation("with-timeout", string.Format("call exceeded limit: {0}ms", d), null);
+
+    }
 
     [Builtin("serialize-port")]
     public static object Serialize(object o, object binaryport)
