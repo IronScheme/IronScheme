@@ -3,3 +3,14 @@
   font-family: Consolas, Lucida Console, Mono Sans, Courier New, Monospace;
   font-size:13px;
 }
+
+.output, .result
+{
+  border: 1px solid #eee;
+  padding: 3px 3px 3px 3px;
+}
+
+.heading 
+{
+  margin-bottom: 5px;
+}

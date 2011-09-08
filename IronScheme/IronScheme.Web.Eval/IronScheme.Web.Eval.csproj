@@ -34,12 +34,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="codemirror.css" />
+    <Content Include="codemirror.min.js" />
+    <Content Include="codeplex-logo.png" />
+    <Content Include="default.css" />
+    <Content Include="eval-basic.js" />
     <Content Include="eval.css" />
     <Content Include="eval.js" />
+    <Content Include="favicon.ico" />
+    <Content Include="ga.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="basic.ss" />
     <None Include="index.ss" />
+    <None Include="mobile.ss" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
@@ -68,7 +77,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
