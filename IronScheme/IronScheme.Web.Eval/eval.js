@@ -48,7 +48,7 @@ $('#save').click(function(event) {
   
   var x = $.post('snippet.ss', { expr: $('#expr').val() }, 
             function(data) {
-              editor.setValue(data.content);
+              $('#result pre').text(data.id);
             }, 'json');
   x.error(function() { status.text("Server error"); });            
 });

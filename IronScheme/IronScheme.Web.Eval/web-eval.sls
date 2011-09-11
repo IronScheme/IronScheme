@@ -5,12 +5,7 @@
     (ironscheme web))
 
   (define (web-env)
-    (let ((env (session 'env)))
-      (unless env 
-        (let ((new-env (new-interaction-environment)))
-          (session-set! 'env new-env)
-          (set! env new-env)))
-      env))
+    (new-interaction-environment))
       
   (define (render s)
     (display s (http-output-port)))
