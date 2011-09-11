@@ -105,7 +105,7 @@ See docs/license.txt. |#
         k))       
 
   (define (querystring key)
-    (nv-helper (get-querystring) key))
+    (nv-helper (get-querystring) (->string key)))
 
   (define (querystring-keys)
     (clr-prop-get NameValueCollection AllKeys (get-querystring)))    

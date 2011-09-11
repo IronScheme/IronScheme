@@ -20,6 +20,8 @@ diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
 -    <TargetFrameworkSubset>
 -    </TargetFrameworkSubset>
 +    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
++    <IsWebBootstrapper>false</IsWebBootstrapper>
++    <TargetFrameworkProfile />
 +    <PublishUrl>publish\</PublishUrl>
 +    <Install>true</Install>
 +    <InstallFrom>Disk</InstallFrom>
@@ -32,10 +34,8 @@ diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
 +    <MapFileExtensions>true</MapFileExtensions>
 +    <ApplicationRevision>0</ApplicationRevision>
 +    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-+    <IsWebBootstrapper>false</IsWebBootstrapper>
 +    <UseApplicationTrust>false</UseApplicationTrust>
 +    <BootstrapperEnabled>true</BootstrapperEnabled>
-+    <TargetFrameworkProfile />
    </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
      <DebugSymbols>true</DebugSymbols>
@@ -62,12 +62,12 @@ diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
      <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
      <ErrorReport>prompt</ErrorReport>
      <Optimize>true</Optimize>
-+    <CodeAnalysisRuleSet>Migrated rules for IronScheme.ruleset</CodeAnalysisRuleSet>
++    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
 +    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
    </PropertyGroup>
    <ItemGroup>
      <Compile Include="Actions\IronSchemeActionBinder.cs" />
-@@ -155,6 +173,23 @@
+@@ -159,6 +177,23 @@
      <Reference Include="System" />
      <Reference Include="System.Data" />
      <Reference Include="System.Xml" />
@@ -115,6 +115,8 @@ diff U3B IronScheme.Closures/IronScheme.Closures.csproj IronScheme.Closures/Iron
 -    </TargetFrameworkSubset>
 +    <RunPostBuildEvent>Always</RunPostBuildEvent>
 +    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
++    <IsWebBootstrapper>false</IsWebBootstrapper>
++    <TargetFrameworkProfile />
 +    <PublishUrl>publish\</PublishUrl>
 +    <Install>true</Install>
 +    <InstallFrom>Disk</InstallFrom>
@@ -127,10 +129,8 @@ diff U3B IronScheme.Closures/IronScheme.Closures.csproj IronScheme.Closures/Iron
 +    <MapFileExtensions>true</MapFileExtensions>
 +    <ApplicationRevision>0</ApplicationRevision>
 +    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-+    <IsWebBootstrapper>false</IsWebBootstrapper>
 +    <UseApplicationTrust>false</UseApplicationTrust>
 +    <BootstrapperEnabled>true</BootstrapperEnabled>
-+    <TargetFrameworkProfile />
    </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
      <DebugSymbols>true</DebugSymbols>
@@ -159,7 +159,7 @@ diff U3B IronScheme.Closures/IronScheme.Closures.csproj IronScheme.Closures/Iron
      <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
      <ErrorReport>prompt</ErrorReport>
      <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-+    <CodeAnalysisRuleSet>Migrated rules for IronScheme.Closures.ruleset</CodeAnalysisRuleSet>
++    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
 +    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
    </PropertyGroup>
    <ItemGroup>
@@ -198,7 +198,7 @@ diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronSch
    <PropertyGroup>
      <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
      <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-@@ -15,15 +16,13 @@
+@@ -15,18 +16,17 @@
      <SccProvider>SAK</SccProvider>
      <FileUpgradeFlags>
      </FileUpgradeFlags>
@@ -216,14 +216,10 @@ diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronSch
      <TargetZone>LocalIntranet</TargetZone>
      <GenerateManifests>false</GenerateManifests>
      <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-@@ -41,6 +40,7 @@
-     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-     <UseApplicationTrust>false</UseApplicationTrust>
-     <BootstrapperEnabled>true</BootstrapperEnabled>
 +    <TargetFrameworkProfile />
-   </PropertyGroup>
-   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-     <DebugSymbols>true</DebugSymbols>
+     <PublishUrl>publish\</PublishUrl>
+     <Install>true</Install>
+     <InstallFrom>Disk</InstallFrom>
 @@ -51,12 +51,12 @@
      <NoWarn>1591</NoWarn>
      <DebugType>full</DebugType>
@@ -250,12 +246,12 @@ diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronSch
      <UseVSHostingProcess>false</UseVSHostingProcess>
      <ErrorReport>prompt</ErrorReport>
      <Optimize>true</Optimize>
-+    <CodeAnalysisRuleSet>Migrated rules for IronScheme.Console.ruleset</CodeAnalysisRuleSet>
++    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
 +    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
    </PropertyGroup>
    <ItemGroup>
      <Compile Include="Program.cs" />
-@@ -585,7 +588,7 @@
+@@ -582,7 +585,7 @@
    <ItemGroup>
      <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
        <Visible>False</Visible>
@@ -264,7 +260,7 @@ diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronSch
        <Install>false</Install>
      </BootstrapperPackage>
      <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-@@ -925,9 +928,7 @@
+@@ -929,9 +932,7 @@
      <Content Include="srfi\27\readme">
        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
      </Content>
@@ -692,6 +688,69 @@ diff U3B IronScheme.Web/IronScheme.Web.csproj IronScheme.Web/IronScheme.Web.cspr
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
         Other similar extension points exist, see Microsoft.Common.targets.
    <Target Name="BeforeBuild">
+diff U3B IronScheme.Web.Eval/IronScheme.Web.Eval.csproj IronScheme.Web.Eval/IronScheme.Web.Eval.csproj
+--- IronScheme.Web.Eval/IronScheme.Web.Eval.csproj	Tue Jan 20 00:26:36 1970
++++ IronScheme.Web.Eval/IronScheme.Web.Eval.csproj	Tue Jan 20 00:26:36 1970
+@@ -1,4 +1,5 @@
+-﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <PropertyGroup>
+     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+@@ -10,11 +11,17 @@
+     <AppDesignerFolder>Properties</AppDesignerFolder>
+     <RootNamespace>IronScheme.Web.Eval</RootNamespace>
+     <AssemblyName>IronScheme.Web.Eval</AssemblyName>
+-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
++    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+     <SccProjectName>SAK</SccProjectName>
+     <SccLocalPath>SAK</SccLocalPath>
+     <SccAuxPath>SAK</SccAuxPath>
+     <SccProvider>SAK</SccProvider>
++    <FileUpgradeFlags>
++    </FileUpgradeFlags>
++    <OldToolsVersion>3.5</OldToolsVersion>
++    <UpgradeBackupLocation />
++    <UseIISExpress>false</UseIISExpress>
++    <TargetFrameworkProfile />
+   </PropertyGroup>
+   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+     <DebugSymbols>true</DebugSymbols>
+@@ -24,6 +31,7 @@
+     <DefineConstants>DEBUG;TRACE</DefineConstants>
+     <ErrorReport>prompt</ErrorReport>
+     <WarningLevel>4</WarningLevel>
++    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+   </PropertyGroup>
+   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+     <DebugType>pdbonly</DebugType>
+@@ -32,6 +40,7 @@
+     <DefineConstants>TRACE</DefineConstants>
+     <ErrorReport>prompt</ErrorReport>
+     <WarningLevel>4</WarningLevel>
++    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+   </PropertyGroup>
+   <ItemGroup>
+     <Content Include="codemirror.css" />
+@@ -79,8 +88,16 @@
+   <ItemGroup>
+     <Folder Include="Properties\" />
+   </ItemGroup>
++  <ItemGroup>
++    <Reference Include="System.Data.DataSetExtensions" />
++    <Reference Include="System.Web.ApplicationServices" />
++    <Reference Include="System.Web.DynamicData" />
++    <Reference Include="System.Web.Entity" />
++    <Reference Include="System.Web.Extensions" />
++    <Reference Include="System.Xml.Linq" />
++  </ItemGroup>
+   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\WebApplications\Microsoft.WebApplication.targets" />
++  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
+   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+        Other similar extension points exist, see Microsoft.Common.targets.
+   <Target Name="BeforeBuild">
 diff U3B IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj
 --- IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj	Tue Jan 20 00:26:36 1970
 +++ IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj	Tue Jan 20 00:26:36 1970
@@ -892,6 +951,8 @@ diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Micr
 +    <FileUpgradeFlags>
 +    </FileUpgradeFlags>
 +    <UpgradeBackupLocation />
++    <IsWebBootstrapper>false</IsWebBootstrapper>
++    <TargetFrameworkProfile />
 +    <PublishUrl>publish\</PublishUrl>
 +    <Install>true</Install>
 +    <InstallFrom>Disk</InstallFrom>
@@ -904,14 +965,24 @@ diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Micr
 +    <MapFileExtensions>true</MapFileExtensions>
 +    <ApplicationRevision>0</ApplicationRevision>
 +    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-+    <IsWebBootstrapper>false</IsWebBootstrapper>
 +    <UseApplicationTrust>false</UseApplicationTrust>
 +    <BootstrapperEnabled>true</BootstrapperEnabled>
-+    <TargetFrameworkProfile />
    </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
      <DebugSymbols>true</DebugSymbols>
-@@ -50,8 +68,6 @@
+@@ -33,6 +51,7 @@
+     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+     <RunCodeAnalysis>false</RunCodeAnalysis>
+     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
++    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+   </PropertyGroup>
+   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+     <DebugType>pdbonly</DebugType>
+@@ -47,11 +66,10 @@
+     <BaseAddress>4194304</BaseAddress>
+     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+     <DebugSymbols>true</DebugSymbols>
++    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
    </PropertyGroup>
    <ItemGroup>
      <Reference Include="System" />
@@ -920,7 +991,7 @@ diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Micr
    </ItemGroup>
    <ItemGroup>
      <Compile Include="ActionOnCallAttribute.cs" />
-@@ -438,6 +454,21 @@
+@@ -439,6 +457,21 @@
      </EmbeddedResource>
    </ItemGroup>
    <ItemGroup>
@@ -1370,7 +1441,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9-2424-489F-8F3B-F1F7165E5A44}"
  	ProjectSection(SolutionItems) = preProject
  		tools\gplex.exe = tools\gplex.exe
-@@ -31,6 +27,16 @@
+@@ -33,6 +29,16 @@
  		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
  	EndProjectSection
  EndProject
@@ -1387,7 +1458,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
  	ProjectSection(ProjectDependencies) = postProject
  		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {36084D27-12DC-40FE-BE74-C830B7D0F620}
-@@ -50,8 +56,6 @@
+@@ -52,8 +58,6 @@
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingConsole", "Samples\EmbeddingConsole\EmbeddingConsole.csproj", "{1D7426EB-2FF1-46C8-8458-442067E66D24}"
  EndProject
@@ -1396,46 +1467,192 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingSample2", "Samples\EmbeddingSample2\EmbeddingSample2.csproj", "{560818DE-C49E-4798-960F-6DED05BFD8B0}"
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting", "IronScheme.Remoting\IronScheme.Remoting.csproj", "{DD78568C-CDB5-4CED-BC9C-C18182ED5945}"
-@@ -62,10 +66,6 @@
+@@ -63,10 +67,6 @@
+ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Web.Runtime", "IronScheme.Web.Runtime\IronScheme.Web.Runtime.csproj", "{07D0A60A-8320-4F70-AA3B-7C75008C0009}"
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.WebServer", "IronScheme.WebServer\IronScheme.WebServer.csproj", "{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}"
- EndProject
+-EndProject
 -Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}"
 -EndProject
 -Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Remoting", "Remoting", "{8ED223BB-6188-4162-8B6F-593B6A32F1AC}"
--EndProject
+ EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting.Server", "IronScheme.Remoting.Server\IronScheme.Remoting.Server.csproj", "{88AEA620-7094-4DA8-BFDA-1132A502111E}"
  EndProject
- Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting.Client", "IronScheme.Remoting.Client\IronScheme.Remoting.Client.csproj", "{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9}"
-@@ -215,13 +215,13 @@
- 	EndGlobalSection
- 	GlobalSection(NestedProjects) = preSolution
- 		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {06F93FA9-2424-489F-8F3B-F1F7165E5A44}
--		{07D0A60A-8320-4F70-AA3B-7C75008C0009} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
--		{B034B10F-A70E-4A23-B7A5-1803A3B3F14E} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
--		{7BABDF0D-A9D2-4089-9ED6-27DFC6F3D498} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
--		{4D2643EB-B0AC-4581-BB4F-6BA5A192DDDF} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
- 		{1D7426EB-2FF1-46C8-8458-442067E66D24} = {0F075144-4F66-4BA2-9EA4-F7A9A68D0128}
- 		{560818DE-C49E-4798-960F-6DED05BFD8B0} = {0F075144-4F66-4BA2-9EA4-F7A9A68D0128}
- 		{4CD245A9-644A-46C0-875F-1B8641AF7A45} = {0F075144-4F66-4BA2-9EA4-F7A9A68D0128}
-+		{7BABDF0D-A9D2-4089-9ED6-27DFC6F3D498} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
-+		{07D0A60A-8320-4F70-AA3B-7C75008C0009} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
-+		{B034B10F-A70E-4A23-B7A5-1803A3B3F14E} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
-+		{4D2643EB-B0AC-4581-BB4F-6BA5A192DDDF} = {6C400E24-82F5-4A10-A108-C0BD7FC7E8F5}
- 		{DD78568C-CDB5-4CED-BC9C-C18182ED5945} = {8ED223BB-6188-4162-8B6F-593B6A32F1AC}
- 		{88AEA620-7094-4DA8-BFDA-1132A502111E} = {8ED223BB-6188-4162-8B6F-593B6A32F1AC}
- 		{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9} = {8ED223BB-6188-4162-8B6F-593B6A32F1AC}
 diff U3B IronScheme.Console/srfi/compile-all.ironscheme.sps IronScheme.Console/srfi/compile-all.ironscheme.sps
 --- IronScheme.Console/srfi/compile-all.ironscheme.sps	Tue Jan 20 00:26:36 1970
 +++ IronScheme.Console/srfi/compile-all.ironscheme.sps	Tue Jan 20 00:26:36 1970
-@@ -16,8 +16,8 @@
-   (only (srfi :19))
-   (only (srfi :19 time))
-   (only (srfi :19 time compat))
+@@ -1,87 +1,87 @@
+-;; Automatically generated by ../xitomatl/utils/make-compile-all.sps
+-;; Do: ikarus --compile-dependencies compile-all.ikarus.sps
+-(import
+-  (only (srfi :0))
+-  (only (srfi :0 cond-expand))
+-  (only (srfi :1))
+-  (only (srfi :1 lists))
+-  (only (srfi :11))
+-  (only (srfi :11 let-values))
+-  (only (srfi :13))
+-  (only (srfi :13 strings))
+-  (only (srfi :14))
+-  (only (srfi :14 char-sets))
+-  (only (srfi :16))
+-  (only (srfi :16 case-lambda))
+-  (only (srfi :19))
+-  (only (srfi :19 time))
+-  (only (srfi :19 time compat))
 -  (only (srfi :2))
 -  (only (srfi :2 and-let*))
+-  (only (srfi :23))
+-  (only (srfi :23 error))
+-  (only (srfi :23 error tricks))
+-  (only (srfi :25))
+-  (only (srfi :25 multi-dimensional-arrays))
+-  (only (srfi :25 multi-dimensional-arrays all))
+-  (only (srfi :25 multi-dimensional-arrays arlib))
+-  (only (srfi :26))
+-  (only (srfi :26 cut))
+-  (only (srfi :27))
+-  (only (srfi :27 random-bits))
+-  (only (srfi :31))
+-  (only (srfi :31 rec))
+-  (only (srfi :37))
+-  (only (srfi :37 args-fold))
+-  (only (srfi :38))
+-  (only (srfi :38 with-shared-structure))
+-  (only (srfi :39))
+-  (only (srfi :39 parameters))
+-  (only (srfi :41))
+-  (only (srfi :41 streams))
+-  (only (srfi :41 streams derived))
+-  (only (srfi :41 streams primitive))
+-  (only (srfi :42))
+-  (only (srfi :42 eager-comprehensions))
+-  (only (srfi :43))
+-  (only (srfi :43 vectors))
+-  (only (srfi :48))
+-  (only (srfi :48 intermediate-format-strings))
+-  (only (srfi :48 intermediate-format-strings compat))
+-  (only (srfi :6))
+-  (only (srfi :6 basic-string-ports))
+-  (only (srfi :6 basic-string-ports compat))
+-  (only (srfi :61))
+-  (only (srfi :61 cond))
+-  (only (srfi :64))
+-  (only (srfi :64 testing))
+-  (only (srfi :67))
+-  (only (srfi :67 compare-procedures))
+-  (only (srfi :69))
+-  (only (srfi :69 basic-hash-tables))  
+-  (only (srfi :78))
+-  (only (srfi :78 lightweight-testing))
+-  (only (srfi :78 lightweight-testing compat))
+-  (only (srfi :8))
+-  (only (srfi :8 receive))
+-  (only (srfi :9))
+-  (only (srfi :9 records))
+-  (only (srfi :98))
+-  (only (srfi :98 os-environment-variables))
+-  (only (srfi :99))
+-  (only (srfi :99 records))
+-  (only (srfi :99 records helper))
+-  (only (srfi :99 records inspection))
+-  (only (srfi :99 records procedural))
+-  (only (srfi :99 records syntactic))
+-  (only (srfi :101))
+-  (only (srfi :101 random-access-lists))  
+-  (only (srfi :102))
+-  (only (srfi :102 procedure-arity))
+-  (only (srfi private OS-id-features))
+-  (only (srfi private include))
+-  (only (srfi private include compat))
+-  (only (srfi private let-opt))
+-  (only (srfi private platform-features))
+-  (only (srfi private registry))
+-)
++;; Automatically generated by ../xitomatl/utils/make-compile-all.sps
++;; Do: ikarus --compile-dependencies compile-all.ikarus.sps
++(import
++  (only (srfi :0))
++  (only (srfi :0 cond-expand))
++  (only (srfi :1))
++  (only (srfi :1 lists))
++  (only (srfi :11))
++  (only (srfi :11 let-values))
++  (only (srfi :13))
++  (only (srfi :13 strings))
++  (only (srfi :14))
++  (only (srfi :14 char-sets))
++  (only (srfi :16))
++  (only (srfi :16 case-lambda))
++  (only (srfi :19))
++  (only (srfi :19 time))
++  (only (srfi :19 time compat))
 +  ;(only (srfi :2))
 +  ;(only (srfi :2 and-let*))
-   (only (srfi :23))
-   (only (srfi :23 error))
-   (only (srfi :23 error tricks))
++  (only (srfi :23))
++  (only (srfi :23 error))
++  (only (srfi :23 error tricks))
++  (only (srfi :25))
++  (only (srfi :25 multi-dimensional-arrays))
++  (only (srfi :25 multi-dimensional-arrays all))
++  (only (srfi :25 multi-dimensional-arrays arlib))
++  (only (srfi :26))
++  (only (srfi :26 cut))
++  (only (srfi :27))
++  (only (srfi :27 random-bits))
++  (only (srfi :31))
++  (only (srfi :31 rec))
++  (only (srfi :37))
++  (only (srfi :37 args-fold))
++  (only (srfi :38))
++  (only (srfi :38 with-shared-structure))
++  (only (srfi :39))
++  (only (srfi :39 parameters))
++  (only (srfi :41))
++  (only (srfi :41 streams))
++  (only (srfi :41 streams derived))
++  (only (srfi :41 streams primitive))
++  (only (srfi :42))
++  (only (srfi :42 eager-comprehensions))
++  (only (srfi :43))
++  (only (srfi :43 vectors))
++  (only (srfi :48))
++  (only (srfi :48 intermediate-format-strings))
++  (only (srfi :48 intermediate-format-strings compat))
++  (only (srfi :6))
++  (only (srfi :6 basic-string-ports))
++  (only (srfi :6 basic-string-ports compat))
++  (only (srfi :61))
++  (only (srfi :61 cond))
++  (only (srfi :64))
++  (only (srfi :64 testing))
++  (only (srfi :67))
++  (only (srfi :67 compare-procedures))
++  (only (srfi :69))
++  (only (srfi :69 basic-hash-tables))  
++  (only (srfi :78))
++  (only (srfi :78 lightweight-testing))
++  (only (srfi :78 lightweight-testing compat))
++  (only (srfi :8))
++  (only (srfi :8 receive))
++  (only (srfi :9))
++  (only (srfi :9 records))
++  (only (srfi :98))
++  (only (srfi :98 os-environment-variables))
++  (only (srfi :99))
++  (only (srfi :99 records))
++  (only (srfi :99 records helper))
++  (only (srfi :99 records inspection))
++  (only (srfi :99 records procedural))
++  (only (srfi :99 records syntactic))
++  (only (srfi :101))
++  (only (srfi :101 random-access-lists))  
++  (only (srfi :102))
++  (only (srfi :102 procedure-arity))
++  (only (srfi private OS-id-features))
++  (only (srfi private include))
++  (only (srfi private include compat))
++  (only (srfi private let-opt))
++  (only (srfi private platform-features))
++  (only (srfi private registry))
++)

@@ -37,12 +37,12 @@ namespace IronScheme
 
     public static object Eval(this string expr, params object[] args)
     {
-      return Eval(expr, INTERACTION_ENVIRONMENT, args);
+      return EvalWithEnvironment(expr, INTERACTION_ENVIRONMENT, args);
     }
 
     static readonly Regex INDEXREPLACE = new Regex("{(?<index>\\d+)}", RegexOptions.Compiled);
 
-    public static object Eval(this string expr, string importspec, params object[] args)
+    public static object EvalWithEnvironment(this string expr, string importspec, params object[] args)
     {
       if (string.IsNullOrEmpty(expr))
       {
@@ -109,12 +109,12 @@ namespace IronScheme
 
     public static T Eval<T>(this string expr, params object[] args)
     {
-      return (T)Eval(expr, INTERACTION_ENVIRONMENT, args);
+      return EvalWithEnvironment<T>(expr, INTERACTION_ENVIRONMENT, args);
     }
 
     public static T EvalWithEnvironment<T>(this string expr, string importspec, params object[] args)
     {
-      return (T)Eval(expr, importspec, args);
+      return (T)EvalWithEnvironment(expr, importspec, args);
     }
 
 

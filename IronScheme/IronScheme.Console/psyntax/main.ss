@@ -231,9 +231,7 @@
         (load-r6rs-top-level filename 'compile-dll))))
     
   (define (compile->closure filename)
-    (with-guard
-      (lambda ()
-      (load-r6rs-top-level filename 'closure))))
+    (load-r6rs-top-level filename 'closure))
     
   (define (load-port port . args)
     (with-guard
