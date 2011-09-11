@@ -1,16 +1,35 @@
 ﻿body, textarea, pre
 {
-  font-family: Consolas, Lucida Console, Mono Sans, Courier New, Monospace;
-  font-size:13px;
+  font-family: Consolas, Monospace, Courier New;
+  font-size:10pt;
 }
 
-.output, .result
+#output, #result, #status
 {
   border: 1px solid #eee;
+}
+
+#error
+{
+  border: 1px solid red;
+}
+
+pre 
+{
+  margin: 0px 0px 0px 0px;
+}
+
+#output , #result, #status, #error, #commands
+{
   padding: 3px 3px 3px 3px;
+  margin-top: 3px;
 }
 
 .heading 
 {
   margin-bottom: 5px;
+}
+img
+{
+  border-width: 0px;
 }

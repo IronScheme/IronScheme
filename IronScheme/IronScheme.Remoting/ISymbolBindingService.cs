@@ -24,7 +24,7 @@ namespace IronScheme.Remoting
     string EvalToString(string expr);
     string EvalToString(string expr, string importspec);
     object Eval(string expr, params object[] args);
-    object Eval(string expr, string importspec, params object[] args);
+    object EvalWithEnvironment(string expr, string importspec, params object[] args);
   }
 
   public interface IRemoteSchemeObject : IObjectHandle

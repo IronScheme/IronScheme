@@ -14,6 +14,8 @@ using IronScheme.Hosting;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
+using System.Diagnostics;
+
 
 namespace IronScheme.Web
 {
@@ -64,22 +66,31 @@ namespace IronScheme.Web
         return;
       }
 
-      Compiled cc;
-
-      lock (this)
+      try
       {
-        if (!compiled.TryGetValue(context.Request.PhysicalPath, out cc) || cc.Time < File.GetLastWriteTime(context.Request.PhysicalPath) || cc.Closure == null)
-        {
-          Callable ccc = se.Evaluate(string.Format("(compile->closure \"{0}\")", context.Request.PhysicalPath.Replace('\\', '/'))) as Callable;
-          cc = new Compiled();
-          cc.Time = DateTime.Now;
-          cc.Closure = ccc;
+        Compiled cc;
 
-          compiled[context.Request.PhysicalPath] = cc;
+        lock (this)
+        {
+          if (!compiled.TryGetValue(context.Request.PhysicalPath, out cc) || cc.Time < File.GetLastWriteTime(context.Request.PhysicalPath) || cc.Closure == null)
+          {
+            Callable ccc = se.Evaluate(string.Format("(compile->closure \"{0}\")", context.Request.PhysicalPath.Replace('\\', '/'))) as Callable;
+            cc = new Compiled();
+            cc.Time = DateTime.Now;
+            cc.Closure = ccc;
+
+            compiled[context.Request.PhysicalPath] = cc;
+          }
         }
+
+        cc.Closure.Call();
+
+      }
+      catch (SchemeException ex)
+      {
+        context.Response.Output.WriteLine("<pre>{0}<pre>", context.Server.HtmlEncode(ex.ToString()));
       }
 
-      cc.Closure.Call();
     }
   }
 }

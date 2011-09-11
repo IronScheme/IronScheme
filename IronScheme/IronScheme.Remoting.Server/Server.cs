@@ -146,7 +146,7 @@ namespace IronScheme.Remoting.Server
       return ToRemote(result);
     }
 
-    public object Eval(string expr, string importspec, params object[] args)
+    public object EvalWithEnvironment(string expr, string importspec, params object[] args)
     {
       object result = EvalInternal(expr, GetImportSpec(importspec), Array.ConvertAll(args, x => FromRemote(x)));
       return ToRemote(result);
@@ -156,7 +156,7 @@ namespace IronScheme.Remoting.Server
     {
       try
       {
-        return expr.Eval(importspec, args);
+        return expr.EvalWithEnvironment(importspec, args);
       }
       catch (Exception ex)
       {

@@ -439,15 +439,16 @@ namespace IronScheme.Runtime
           colcountafter += GC.CollectionCount(i);
         }
 
-        Console.WriteLine(@"Statistics for '{0}':
+        "(display {0})".Eval(string.Format(@"Statistics for '{0}':
   Real Time:  {1:f0}ms
   CPU Time:   {2:f0}ms
   User Time:  {3:f0}ms
-  GC's:       {4}", who, 
+  GC's:       {4}
+",                   who, 
                      sw.Elapsed.TotalMilliseconds, 
                      (userts2 - userts).TotalMilliseconds,
                      (totalts2 - totalts).TotalMilliseconds,
-                     colcountafter - colcount);
+                     colcountafter - colcount));
       }
     }
 
