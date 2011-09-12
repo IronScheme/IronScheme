@@ -1,12 +1,12 @@
 ﻿body, textarea, pre
 {
-  font-family: Consolas, Monospace, Courier New;
+  font-family: Consolas, monospace; /* fails on android... */
   font-size:10pt;
 }
 
 #output, #result, #status
 {
-  border: 1px solid #eee;
+  border: 1px solid #808080;
 }
 
 #error
@@ -14,16 +14,36 @@
   border: 1px solid red;
 }
 
-pre 
+pre, h4 
 {
   margin: 0px 0px 0px 0px;
+  min-height: 1em;
 }
 
-#output , #result, #status, #error, #commands
+ #output h4, #result h4, #status h4, #error h4
 {
+  border-bottom: 1px solid #808080;
+  margin-bottom: 3px;
+  background-color: #eee;
   padding: 3px 3px 3px 3px;
-  margin-top: 3px;
 }
+ 
+#error h4
+{
+  border-bottom: 1px solid red;
+  background-color: #FF8080;
+} 
+
+#output, #result, #status, #error, #commands
+{
+  margin-top: 5px;
+}
+
+#output pre, #result pre, #status pre, #error pre
+{
+  margin: 3px 3px 3px 3px;
+}
+
 
 .heading 
 {

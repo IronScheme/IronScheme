@@ -9,47 +9,97 @@ var edargs =
 
 var editor = CodeMirror.fromTextArea(document.getElementById('expr'), edargs);
 
-$('#eform').submit(function(event) {
+function hidetext() {
+  //var status = $('#status');
+  var error = $('#error');
+  var output = $('#output');
+  var result = $('#result');
+
+  //status.hide();
+  error.hide();
+  output.hide();
+  result.hide();
+}
+
+function cleartext() {
+  var error = $('#error pre');
+  var output = $('#output pre');
+  var result = $('#result pre');
+  
+  error.text('');
+  output.text('');
+  result.text('');
+}
+
+$('#submit').click(function(event) {
   editor.save();
   event.preventDefault();
 
-  var status = $('#status');
+  var status = $('#status pre');
   var error = $('#error pre');
   var output = $('#output pre');
   var result = $('#result pre');
 
+  hidetext();
+  cleartext();
+
   status.text('Please wait...');
-  error.text('');
-  output.text('');
-  result.text('');
 
   var x = $.post('index.ss', { expr: $("#expr").val() },
       function(data) {
         status.text("Completed");
-        error.text(data.error);
-        output.text(data.output);
-        result.text(data.result);
+        if (data.error != undefined) {
+          error.text(data.error);
+          error.parent().show();
+        }
+        if (data.output != undefined && data.output != '') {
+          output.text(data.output);
+          output.parent().show();
+        }
+        if (data.result != undefined) {
+          result.text(data.result);
+          result.parent().show();
+        }
       }, 'json');
   x.error(function() { status.text("Server error"); });
 });
 
-$('#load').click(function(event) {
-  event.preventDefault();
-  $.getJSON('snippet.ss?id=' + 1, function(data) {
+function load(id) {
+  var status = $('#status pre');
+  hidetext();
+  cleartext();
+
+  status.text("Loading snippet...");
+
+  var x = $.getJSON('snippet.ss?id=' + id, function(data) {
+    status.text("Completed");
     editor.setValue(data.content);
   });
+  x.error(function() { status.text("Server error"); });
+}
+
+$('#load').click(function(event) {
+  event.preventDefault();
+  load(1);
 });
 
 $('#save').click(function(event) {
   event.preventDefault();
   editor.save();
+
+  var status = $('#status pre');
+  hidetext();
+  cleartext();
+
+  status.text("Saving snippet...");
   
-  var status = $('#status');
-  
-  var x = $.post('snippet.ss', { expr: $('#expr').val() }, 
+  var x = $.post('snippet.ss', { expr: $('#expr').val() },
             function(data) {
+              status.text("Completed");
               $('#result pre').text(data.id);
             }, 'json');
-  x.error(function() { status.text("Server error"); });            
+  x.error(function() { status.text("Server error"); });
 });
+
+hidetext();
 

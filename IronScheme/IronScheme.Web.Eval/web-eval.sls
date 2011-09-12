@@ -3,9 +3,6 @@
   (import 
     (ironscheme)
     (ironscheme web))
-
-  (define (web-env)
-    (new-interaction-environment))
       
   (define (render s)
     (display s (http-output-port)))
@@ -19,7 +16,7 @@
                                       "error" (format "~a" e) 
                                       "output" (extract))))]
             (let ((p (read (open-string-input-port (string-append "(begin " expr ")"))))
-                  (env (web-env)))
+                  (env (new-interaction-environment)))
               (let ((r (with-timeout 
                          (lambda () 
                            ; parameters are thread static, so bind again... todo: global parameters
