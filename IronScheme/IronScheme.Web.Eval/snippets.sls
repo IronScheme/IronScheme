@@ -40,7 +40,10 @@
           (if id
               (let ((e (find (lambda (e) (fx=? (snippet-id e) id)) entries)))
                 (if e
-                    (fprintf (http-output-port) "{ ~s: ~s }" "content" (snippet-content e))
+                    (fprintf (http-output-port) "{ ~s: ~s, ~s: ~s, ~s: ~s }" 
+                             "id" (snippet-id e)
+                             "name" (snippet-name e)
+                             "content" (snippet-content e))
                     (fprintf (http-output-port) "{ ~s: ~s }" "error" "not found")))
               (fprintf (http-output-port) "{ ~s: ~s }" "error" "id not number")))
         (fprintf (http-output-port) "{ ~s: ~s }" "error" "no id")))
