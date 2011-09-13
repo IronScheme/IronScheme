@@ -7,5 +7,5 @@
   [(get)
     (snippet:load (querystring 'id))]
   [(post)
-    (snippet:save (form 'expr))])
+    (snippet:save (form 'name) (form 'expr))])
       
