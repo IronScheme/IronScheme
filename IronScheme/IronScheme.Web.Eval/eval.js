@@ -80,7 +80,7 @@ function load(id) {
 
 $('#load').click(function(event) {
   event.preventDefault();
-  load(1);
+  load($('#snippets').val());
 });
 
 $('#save').click(function(event) {
@@ -91,15 +91,28 @@ $('#save').click(function(event) {
   hidetext();
   cleartext();
 
-  status.text("Saving snippet...");
-  
-  var x = $.post('snippet.ss', { expr: $('#expr').val() },
-            function(data) {
-              status.text("Completed");
-              $('#result pre').text(data.id);
-            }, 'json');
-  x.error(function() { status.text("Server error"); });
-});
+  var name = $('#name').val();
+  var expr = $('#expr').val();
 
-hidetext();
+  if (name == '' || expr == '') {
+    status.text("Name or expr is empty");
+  }
+  else {
+    status.text("Saving snippet...");
+
+    var x = $.post('snippet.ss',
+            {
+              name: name,
+              expr: expr
+            },
+            function(data) {
+              if (data.id != undefined) {
+                window.location = '?id=' + data.id;
+              } else {
+                status.text("Error saving snippet: " + data.error);
+              }
+            }, 'json');
+    x.error(function() { status.text("Server error"); });
+  }
+});
 

@@ -7,11 +7,18 @@
 #output, #result, #status
 {
   border: 1px solid #808080;
+  display:none;
 }
 
 #error
 {
   border: 1px solid red;
+  display:none;
+}
+
+#status
+{
+  display:block;
 }
 
 pre, h4 
@@ -43,6 +50,12 @@ pre, h4
 {
   margin: 3px 3px 3px 3px;
 }
+
+#snippets, #name
+{
+  width: 200px;
+}
+
 
 
 .heading 
