@@ -50,15 +50,15 @@ $('#submit').click(function(event) {
         status.text("Completed");
         if (data.error != undefined) {
           error.text(data.error);
-          error.parent().show();
+          error.parent().fadeIn('fast');
         }
         if (data.output != undefined && data.output != '') {
           output.text(data.output);
-          output.parent().show();
+          output.parent().fadeIn('fast');
         }
         if (data.result != undefined) {
           result.text(data.result);
-          result.parent().show();
+          result.parent().fadeIn('fast');
         }
       }, 'json');
   x.error(function() { status.text("Server error"); });

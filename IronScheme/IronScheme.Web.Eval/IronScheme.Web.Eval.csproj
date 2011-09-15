@@ -38,7 +38,6 @@
     <Content Include="codemirror.min.js" />
     <Content Include="codeplex-logo.png" />
     <Content Include="default.css" />
-    <Content Include="eval-basic.js" />
     <Content Include="eval.css" />
     <Content Include="eval.js" />
     <Content Include="favicon.ico" />
@@ -46,9 +45,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic.ss" />
     <None Include="index.ss" />
-    <None Include="mobile.ss" />
     <None Include="snippet.ss" />
     <None Include="snippets.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

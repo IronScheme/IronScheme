@@ -2,7 +2,15 @@
   (export web-eval)
   (import 
     (ironscheme)
-    (ironscheme web))
+    (ironscheme web)
+    (ironscheme clr))
+
+  (define (make-stopwatch)
+    (clr-static-call System.Diagnostics.Stopwatch StartNew))
+    
+  (define (elapsed-milliseconds sw)
+    (clr-static-call Convert ToInt32 (clr-prop-get System.Diagnostics.Stopwatch ElapsedMilliseconds sw)))
+          
       
   (define (render s)
     (display s (http-output-port)))
@@ -16,18 +24,21 @@
                                       "error" (format "~a" e) 
                                       "output" (extract))))]
             (let ((p (read (open-string-input-port (string-append "(begin " expr ")"))))
-                  (env (new-interaction-environment)))
-              (let ((r (with-timeout 
+                  (env (new-interaction-environment))
+                  (sw (make-stopwatch)))
+              (let* ((r (with-timeout 
                          (lambda () 
                            ; parameters are thread static, so bind again... todo: global parameters
                            (parameterize [(current-output-port port)
                                           (current-error-port port)
                                           (interaction-environment env)]
-                             (eval p env))) 2000)))
+                             (eval p env))) 5000))
+                      (ms (elapsed-milliseconds sw)))
                 (let-values (((p e) (open-string-output-port)))
                   (pretty-print r p)
-                  (render (format "{ ~s: ~s, ~s: ~s }" 
+                  (render (format "{ ~s: ~s, ~s: ~s, ~s: ~s }" 
                                   "output" (extract) 
-                                  "result" (e)))))))))))
+                                  "result" (e)
+                                  "time" ms))))))))))
     
 )
