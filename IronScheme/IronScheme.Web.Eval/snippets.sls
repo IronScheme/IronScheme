@@ -74,7 +74,7 @@
           (guard (e
               [e (fprintf (http-output-port) "{ ~s: ~s }" "error" "invalid expression")])
             (let ((p (read (open-string-input-port (string-append "(begin " expr ")")))))
-              (if (eof-object? p)
+              (if (or (eof-object? p) (fx<=? (length p) 1))
                   (fprintf (http-output-port) "{ ~s: ~s }" "error" "invalid expression")
                   (begin (core-expand p (interaction-environment))
                          (let* ((id (fx+ 1 (snippet-id (car entries))))
