@@ -99,9 +99,15 @@ namespace Microsoft.Scripting.Ast {
             BlockStatement bs = (BlockStatement)s;
             return IsNotIfOrReturn(bs.Statements[bs.Statements.Count - 1]);
           }
+          else if (s is IfStatement)
+          {
+            var ifs = s as IfStatement;
+            return IsNotIfOrReturn(ifs.Tests[0].Body) || (ifs.ElseStatement != null && IsNotIfOrReturn(ifs.ElseStatement));
+            
+          }
           else
           {
-            if (!(s is ReturnStatement) && !(s is IfStatement) && !(s is ContinueStatement))
+            if (!(s is ReturnStatement) /*&& !(s is IfStatement)*/ && !(s is ContinueStatement))
             {
               return true;
             }
