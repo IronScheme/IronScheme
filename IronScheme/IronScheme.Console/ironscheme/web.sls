@@ -195,6 +195,6 @@ See docs/license.txt. |#
     (display (->xml html) (http-output-port)))
     
   (define (wprintf fmt . args)
-    (apply fprintf (http-output-port) args))
+    (apply fprintf (http-output-port) fmt args))
     
 )
