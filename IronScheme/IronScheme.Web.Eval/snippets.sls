@@ -60,26 +60,26 @@
     (if id
         (let ((e (load-snippet id)))
           (if e
-              (fprintf (http-output-port) "{ ~s: ~s, ~s: ~s, ~s: ~s }" 
+              (wprintf "{ ~s: ~s, ~s: ~s, ~s: ~s }" 
                        "id" (snippet-id e)
                        "name" (snippet-name e)
                        "content" (snippet-content e))
-              (fprintf (http-output-port) "{ ~s: ~s }" "error" "not found")))
-        (fprintf (http-output-port) "{ ~s: ~s }" "error" "no id")))
+              (wprintf "{ ~s: ~s }" "error" "not found")))
+        (wprintf "{ ~s: ~s }" "error" "no id")))
   
   (define (save name expr)
     (let ((name (string-trim name)))
       (if (fxzero? (string-length name))
-          (fprintf (http-output-port) "{ ~s: ~s }" "error" "empty name")
+          (wprintf "{ ~s: ~s }" "error" "empty name")
           (guard (e
-              [e (fprintf (http-output-port) "{ ~s: ~s }" "error" "invalid expression")])
+              [e (wprintf "{ ~s: ~s }" "error" "invalid expression")])
             (let ((p (read (open-string-input-port (string-append "(begin " expr "\n)")))))
               (if (or (eof-object? p) (fx<=? (length p) 1))
-                  (fprintf (http-output-port) "{ ~s: ~s }" "error" "invalid expression")
+                  (wprintf "{ ~s: ~s }" "error" "invalid expression")
                   (begin (core-expand p (interaction-environment))
                          (let* ((id (fx+ 1 (snippet-id (car entries))))
                                 (e (make-snippet id name expr #f #f 0)))
                            (set! entries (cons e entries))
                            (save-entries)
-                           (fprintf (http-output-port) "{ ~s: ~s }" "id" id)))))))))
+                           (wprintf "{ ~s: ~s }" "id" id)))))))))
 )  

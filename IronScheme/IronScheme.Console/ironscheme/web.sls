@@ -39,7 +39,8 @@ See docs/license.txt. |#
     user-name
     user-in-role?
     user-authenticated?
-    display-html)
+    display-html
+    wprintf)
   (import 
     (ironscheme)
     (ironscheme contracts)
@@ -192,5 +193,8 @@ See docs/license.txt. |#
   
   (define (display-html html)
     (display (->xml html) (http-output-port)))
+    
+  (define (wprintf fmt . args)
+    (apply fprintf (http-output-port) args))
     
 )
