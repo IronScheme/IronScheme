@@ -23,7 +23,7 @@
          (guard [e (e (render (format "{ ~s: ~s, ~s: ~s }" 
                                       "error" (format "~a" e) 
                                       "output" (extract))))]
-            (let ((p (read (open-string-input-port (string-append "(begin " expr ")"))))
+            (let ((p (read (open-string-input-port (string-append "(begin " expr "\n)"))))
                   (env (new-interaction-environment))
                   (sw (make-stopwatch)))
               (let* ((r (with-timeout 
