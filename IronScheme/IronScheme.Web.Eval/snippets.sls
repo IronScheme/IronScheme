@@ -73,7 +73,7 @@
           (fprintf (http-output-port) "{ ~s: ~s }" "error" "empty name")
           (guard (e
               [e (fprintf (http-output-port) "{ ~s: ~s }" "error" "invalid expression")])
-            (let ((p (read (open-string-input-port (string-append "(begin " expr ")")))))
+            (let ((p (read (open-string-input-port (string-append "(begin " expr "\n)")))))
               (if (or (eof-object? p) (fx<=? (length p) 1))
                   (fprintf (http-output-port) "{ ~s: ~s }" "error" "invalid expression")
                   (begin (core-expand p (interaction-environment))
