@@ -10,25 +10,15 @@ var edargs =
 var editor = CodeMirror.fromTextArea(document.getElementById('expr'), edargs);
 
 function hidetext() {
-  //var status = $('#status');
-  var error = $('#error');
-  var output = $('#output');
-  var result = $('#result');
-
-  //status.hide();
-  error.hide();
-  output.hide();
-  result.hide();
+  $('#error').hide();
+  $('#output').hide();
+  $('#result').hide();
 }
 
 function cleartext() {
-  var error = $('#error pre');
-  var output = $('#output pre');
-  var result = $('#result pre');
-  
-  error.text('');
-  output.text('');
-  result.text('');
+  $('#error pre').text('');
+  $('#output pre').text('');
+  $('#result pre').text('');
 }
 
 $('#submit').click(function(event) {
@@ -73,6 +63,9 @@ function load(id) {
 
   var x = $.getJSON('snippet.ss?id=' + id, function(data) {
     status.text("Completed");
+    var dl = $('#direct-link');
+    dl.attr('href', '?id=' + id);
+    dl.text('Direct link');
     editor.setValue(data.content);
   });
   x.error(function() { status.text("Server error"); });
@@ -115,4 +108,5 @@ $('#save').click(function(event) {
     x.error(function() { status.text("Server error"); });
   }
 });
+
 
