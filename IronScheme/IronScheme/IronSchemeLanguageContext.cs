@@ -77,7 +77,7 @@ namespace IronScheme
 #if CPS
               code = string.Format("(eval-r6rs identity-for-cps '(begin {0}))", code.Trim());
 #else
-              code = string.Format("(eval-r6rs '(begin {0}))", code/*.Trim()*/);
+              code = string.Format("(eval-r6rs '(begin {0}))", code + "\n"); // need to deal with comments
 #endif
             }
 
@@ -102,7 +102,7 @@ namespace IronScheme
             }
             if (code.Length > 0)
             {
-              code = string.Format("(eval-embedded '(begin {0}))", code.Trim());
+              code = string.Format("(eval-embedded '(begin {0}))", code + "\n");
             }
             CodeBlock cb = ParseString(code, context);
             return cb;
