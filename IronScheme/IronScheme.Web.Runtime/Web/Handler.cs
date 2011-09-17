@@ -39,35 +39,36 @@ namespace IronScheme.Web
 
     public void ProcessRequest(HttpContext context)
     {
-      if (lp == null)
-      {
-        lp = Helpers.Provider as IronSchemeLanguageProvider;
-        se = lp.GetEngine();
-        compiled.Clear();
-      }
-      
-      if (!File.Exists(context.Request.PhysicalPath))
-      {
-        if (context.Request.AppRelativeCurrentExecutionFilePath == "~/process-routes.ss")
-        {
-          if (process_routes == null)
-          {
-            Callable eval = Builtins.SymbolValue(SymbolTable.StringToObject("eval-r6rs")) as Callable;
-            StringReader r = new StringReader("(eval 'process-request (environment '(ironscheme web routing)))");
-
-            process_routes = eval.Call(Builtins.Read(r)) as Callable;
-          }
-          process_routes.Call();
-        }
-        else
-        {
-          context.Response.StatusCode = 404;
-        }
-        return;
-      }
-
       try
       {
+        if (lp == null)
+        {
+          lp = Helpers.Provider as IronSchemeLanguageProvider;
+          se = lp.GetEngine();
+          compiled.Clear();
+        }
+
+        if (!File.Exists(context.Request.PhysicalPath))
+        {
+          if (context.Request.AppRelativeCurrentExecutionFilePath == "~/process-routes.ss")
+          {
+            if (process_routes == null)
+            {
+              Callable eval = Builtins.SymbolValue(SymbolTable.StringToObject("eval-r6rs")) as Callable;
+              StringReader r = new StringReader("(eval 'process-request (environment '(ironscheme web routing)))");
+
+              process_routes = eval.Call(Builtins.Read(r)) as Callable;
+            }
+            process_routes.Call();
+          }
+          else
+          {
+            context.Response.StatusCode = 404;
+          }
+          return;
+        }
+
+
         Compiled cc;
 
         lock (this)

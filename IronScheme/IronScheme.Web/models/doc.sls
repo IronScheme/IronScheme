@@ -12,8 +12,9 @@
   (import
     (ironscheme)
     (ironscheme web)
+    (prefix (ironscheme web models) model:)
     (ironscheme strings)
-    (ironscheme linq))
+    (ironscheme linq2))
 
   (define-enumeration identifier-type 
     (variable 
@@ -72,21 +73,11 @@
     (make-eq-hashtable))
   
   (define (load-data)  
-    (let ((fn (map-path "~/data/doc.data")))
-      (if (file-exists? fn)
-        (call-with-port (open-file-input-port fn)
-          (lambda (p)
-            (guard (e (#t (begin (delete-file fn) (init-defaults))))
-              (deserialize-port p))))
-        (init-defaults))))
+    (or (model:load-data "~/data/doc.data")
+        (init-defaults)))
         
   (define (save-data)
-    (let ((fn (map-path "~/data/doc.data")))
-      (when (file-exists? fn) 
-        (delete-file fn))
-      (call-with-port (open-file-output-port fn)
-        (lambda (p)
-          (serialize-port data p)))))    
+    (model:save-data "~/data/doc.data" data))
           
   (define data (load-data))    
   
@@ -153,14 +144,15 @@
       #f))
  
   (define (get-symbols lib sort)
-    (from i in (environment-bindings (environment lib))
-     orderby (case sort
-               [(type) (cdr i)]
-               [else (car i)])
-     then (car i)
-     ; the above scenario looks strange, but as the input is unique,
-     ; the second call to (car i) never happens
-     select i))
+    (iterator->list
+      (from i in (environment-bindings (environment lib))
+       orderby (case sort
+                 [(type) (cdr i)]
+                 [else (car i)])
+       then (car i)
+       ; the above scenario looks strange, but as the input is unique,
+       ; the second call to (car i) never happens
+       select i)))
      
   (define (make-lib-name lib)
     (let ((n (format "~a" lib)))
@@ -172,13 +164,15 @@
   (define (make-id-sym id lib)
     (string->symbol (string-append (symbol->string id) " " (make-lib-name lib))))        
      
-  (define (get-libraries) 
-    (from l in libraries
-     select 
-      (cons (car l) 
-        (from ll in (cdr l)
-         orderby (make-lib-name ll)
-         select ll))))
+  (define (get-libraries)
+    (iterator->list   
+      (from l in libraries
+       select 
+        (cons (car l) 
+          (iterator->list 
+            (from ll in (cdr l)
+             orderby (make-lib-name ll)
+             select ll))))))
      
   (define libraries
     '(("IronScheme"
@@ -280,7 +274,6 @@
       (srfi :99 records procedural)
       (srfi :99 records syntactic))
     ("Other"
-      (clr)
       (syn-param)
       (foof-loop)
       (as-match)

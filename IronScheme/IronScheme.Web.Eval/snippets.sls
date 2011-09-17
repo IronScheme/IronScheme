@@ -10,7 +10,8 @@
     (except (ironscheme) load)
     (ironscheme linq2)
     (ironscheme strings)
-    (ironscheme web))
+    (ironscheme web)
+    (ironscheme web models))
     
   (define-record-type snippet
     (fields id
@@ -21,20 +22,10 @@
             (mutable views)))
 
   (define (save-entries)
-    (let ((fn (map-path "~/snippets.data")))
-      (delete-file fn)
-      (call-with-port (open-file-output-port fn)
-        (lambda (p)
-          (serialize-port entries p)))))
+    (save-data "~/snippets.data" entries))
     
   (define (load-entries)  
-    (let ((fn (map-path "~/snippets.data")))
-      (if (file-exists? fn)
-        (call-with-port (open-file-input-port fn)
-          (lambda (p)
-            (guard (e (#t (begin (delete-file fn) #f)))
-              (deserialize-port p))))
-        #f)))
+    (load-data "~/snippets.data"))
   
   (define entries (or (load-entries)
                       (list (make-snippet 1 "First one" "(display 'HelloWorld)" #f #f 0))))
