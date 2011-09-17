@@ -16,7 +16,7 @@ See docs/license.txt. |#
     (ironscheme web routing-helper))
     
   (define (parse-url)
-    (let* ((f (vector-ref (string-split (request-raw-url) "?") 0))
+    (let* ((f (vector-ref (string-split (string-replace (request-raw-url) (request-app-path) "") "?") 0))
            (t (string-split f "/")))
       (cdr (vector->list t))))
              

@@ -33,6 +33,7 @@ See docs/license.txt. |#
     forms-authentication-logout
     forms-authentication-login
     request-raw-url
+    request-app-path
     http-output-port
     error-add!
     error-clear!
@@ -150,7 +151,7 @@ See docs/license.txt. |#
   (define (->string s)
     (cond 
       [(symbol? s) (symbol->string s)]
-      [(string? s) s]
+      [(or (string? s) (null? s)) s]
       [else 
         (assertion-violation '->string "not a symbol or string" s)]))
     
@@ -183,7 +184,10 @@ See docs/license.txt. |#
         (clr-call HttpResponse Redirect (response) path endresponse?)]))
     
   (define (request-raw-url)
-    (clr-prop-get HttpRequest RawUrl (request)))       
+    (clr-prop-get HttpRequest RawUrl (request)))      
+    
+  (define (request-app-path)
+    (clr-prop-get HttpRequest ApplicationPath (request)))      
     
   (define (forms-authentication-logout)
     (clr-static-call FormsAuthentication SignOut))

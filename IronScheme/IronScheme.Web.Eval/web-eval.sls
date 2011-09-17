@@ -21,15 +21,18 @@
                                "output" (extract)))]
             (let ((p (read (open-string-input-port (string-append "(begin " expr "\n)"))))
                   (env (new-interaction-environment))
-                  (sw (make-stopwatch)))
+                  (ms #f))
               (let* ((r (with-timeout 
                          (lambda () 
                            ; parameters are thread static, so bind again... todo: global parameters
                            (parameterize [(current-output-port port)
                                           (current-error-port port)
                                           (interaction-environment env)]
-                             (eval p env))) 5000))
-                      (ms (elapsed-milliseconds sw)))
+                             (let* ((sw (make-stopwatch))
+                                    (r (eval p env)))
+                               (set! ms (elapsed-milliseconds sw))
+                               r)))
+                         5000)))
                 (let-values (((p e) (open-string-output-port)))
                   (pretty-print r p)
                   (wprintf "{ ~s: ~s, ~s: ~s, ~s: ~s }" 

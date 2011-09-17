@@ -15,6 +15,7 @@
     (ironscheme)
     (ironscheme datetime)
     (ironscheme web)
+    (ironscheme web models)
     (ironscheme strings)
     (ironscheme linq))
     
@@ -24,23 +25,13 @@
       (mutable body)))
   
   (define (load-entries)  
-    (let ((fn (map-path "~/data/blog.data")))
-      (if (file-exists? fn)
-        (call-with-port (open-file-input-port fn)
-          (lambda (p)
-            (guard (e (#t (begin (delete-file fn) '())))
-              (deserialize-port p))))
+    (or (load-data "~/data/blog.data")
         (list (make-blog-entry 1 (now) 
                 'leppie "Welcome to the IronScheme blog" 
-                "Use the username: admin and the password: admin to login") ))))
+                "Use the username: admin and the password: admin to login") )))
         
   (define (save-entries)
-    (let ((fn (map-path "~/data/blog.data")))
-      (when (file-exists? fn) 
-        (delete-file fn))
-      (call-with-port (open-file-output-port fn)
-        (lambda (p)
-          (serialize-port entries p)))))      
+    (save-data "~/data/blog.data" entries))   
   
   (define entries (load-entries))
   

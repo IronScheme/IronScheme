@@ -6,7 +6,6 @@
     (rename (view:library library)))
   (import
     (ironscheme)
-    (ironscheme linq)
     (ironscheme web)
     (ironscheme web views)
     (ironscheme record-case)

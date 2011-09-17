@@ -710,6 +710,9 @@
     <None Include="ironscheme\regex-cond.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\web\models.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="playground\bw.sps" />
     <None Include="playground\linq3.sls">
     </None>
