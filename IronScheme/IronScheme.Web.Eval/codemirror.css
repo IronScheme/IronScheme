@@ -4,8 +4,18 @@
   border: 1px solid #808080;
 }
 
-.CodeMirror-scroll {
-  overflow: auto;
+@media screen and (max-width: 800px) 
+{
+  .CodeMirror {
+    font-family: monospace;
+  }
+}
+
+.CodeMirror-scroll 
+{
+  overflow:auto;
+  overflow-x: auto;
+  overflow-y: scroll;
   min-height: 100px;
   /* This is needed to prevent an IE[67] bug where the scrolled content
      is visible outside of the scrolling box. */
