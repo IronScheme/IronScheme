@@ -19,9 +19,9 @@
          (guard [e (e (wprintf "{ ~s: ~s, ~s: ~s }" 
                                "error" (format "~a" e) 
                                "output" (extract)))]
-            (let ((p (read (open-string-input-port (string-append "(begin " expr "\n)"))))
-                  (env (new-interaction-environment))
-                  (ms #f))
+            (let* ((p (read (open-string-input-port (string-append "(begin " expr "\n)"))))
+                   (env (new-interaction-environment))
+                   (ms (eval '(import (rename (rnrs) (lambda λ))) env)))
               (let* ((r (with-timeout 
                          (lambda () 
                            ; parameters are thread static, so bind again... todo: global parameters
