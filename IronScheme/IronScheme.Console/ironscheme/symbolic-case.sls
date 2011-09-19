@@ -22,14 +22,19 @@ See docs/license.txt. |#
     
   (define-syntax syntax-casep
     (lambda (x)
+      (define (parse-clause c)
+        (syntax-case c ()
+          [(p e)
+            #'(p #t e)]
+          [(p f e)
+            #'(p f e)]))
       (syntax-case x ()
-        [(ctx =? expr (lit ...) [p e] ...)
-          #'(ctx =? expr (lit ...) [p #t e] ...)]
-        [(ctx =? expr (lit ...) [p f e] ...)
+        [(ctx =? expr (lit ...) e ...)
           (and (identifier? #'=?) (for-all identifier? #'(lit ...)))
-          #'(syntax-case expr ()
-              [p 
-               (and (=? #'lit 'lit) ... f)
-               e] ...)])))
+          (with-syntax [(((p f e) ...) (map parse-clause #'(e ...)))]
+            #'(syntax-case expr ()
+                [p 
+                 (and (=? #'lit 'lit) ... f)
+                 e] ...))])))
 
 )
