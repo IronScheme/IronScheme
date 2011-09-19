@@ -38,6 +38,7 @@ See docs/license.txt. |#
     (ironscheme web routing-helper)
     (ironscheme web controllers)
     (ironscheme web views)
+    (ironscheme web models)
     (ironscheme xml)
     (ironscheme docs)
     
