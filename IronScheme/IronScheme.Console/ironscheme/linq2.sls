@@ -57,6 +57,7 @@ See docs/license.txt. |#
     from
     foreach   ; C# like syntactic sugar, supports 'break/continue' 
     ; auxiliary keywords
+    #|
     in
     select
     orderby
@@ -72,10 +73,12 @@ See docs/license.txt. |#
     let
     =
     then
+    |#
     )
 
   (import 
-    (rnrs))
+    (except (rnrs) syntax-case)
+    (rename (ironscheme symbolic-case) (symbolic-case syntax-case)))
     
  (define-syntax define-aux
     (syntax-rules ()
@@ -86,7 +89,7 @@ See docs/license.txt. |#
               (syntax-violation #f "invalid use of auxiliary keyword" x 'id))) 
           ...)]))
             
-  (define-aux 
+  #;(define-aux 
     select
     in
     orderby
