@@ -8,7 +8,6 @@
     load-snippet-content)
   (import 
     (except (ironscheme) load)
-    (ironscheme linq2)
     (ironscheme strings)
     (ironscheme web)
     (ironscheme web models))
