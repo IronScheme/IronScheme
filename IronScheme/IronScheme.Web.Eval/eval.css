@@ -1,16 +1,7 @@
 ﻿body, textarea, pre
 {
-  font-family: Consolas, monospace; /* fails on android... */
+  font-family: monospace; 
   font-size:10pt;
-}
-
-@media screen and (max-width: 800px) 
-{
-  body, textarea, pre
-  {
-    font-family: monospace; 
-    font-size:10pt;
-  }
 }
 
 #output, #result, #status

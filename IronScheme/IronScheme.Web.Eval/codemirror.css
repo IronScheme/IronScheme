@@ -1,14 +1,7 @@
 .CodeMirror {
   line-height: 1em;
-  font-family: Consolas, monospace;
+  font-family: monospace;
   border: 1px solid #808080;
-}
-
-@media screen and (max-width: 800px) 
-{
-  .CodeMirror {
-    font-family: monospace;
-  }
 }
 
 .CodeMirror-scroll 

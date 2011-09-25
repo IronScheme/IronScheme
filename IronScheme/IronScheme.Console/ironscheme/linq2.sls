@@ -80,7 +80,7 @@ See docs/license.txt. |#
     (except (rnrs) syntax-case)
     (rename (ironscheme symbolic-case) (symbolic-case syntax-case)))
     
- (define-syntax define-aux
+ #;(define-syntax define-aux
     (syntax-rules ()
       [(_ id ...)
         (begin

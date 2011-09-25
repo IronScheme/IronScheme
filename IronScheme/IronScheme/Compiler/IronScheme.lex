@@ -112,7 +112,7 @@ letter                 [[:IsLetter:]]
 idescape               ("\\x"({digit16})+";")
 idinitial              ("->"|({letter})|{idescape}|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
-identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"
+identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"|"@"
 
 good_id                {identifier}{delimiter}
 bad_id                 {identifier}{but_delimiter}
@@ -213,7 +213,7 @@ bad_atoms              {atoms}{but_delimiter}+
 {directive}           { return Make(Tokens.DIRECTIVE); }
                      
 {comment_start}       { yy_push_state(ML_COMMENT);  }                      
-{line_comment}        {  }
+{line_comment}        { ; }
 
 
 <ML_COMMENT>[^\n\|]+          { ; }
@@ -262,6 +262,8 @@ bad_atoms              {atoms}{but_delimiter}+
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
 {bad_char}            {  throw new SyntaxErrorException(string.Format("bad char|{0}", yytext), SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+
+<<EOF>>               { ; }
 
 .                     {  throw new SyntaxErrorException(string.Format("bad input|{0}", yytext), SourceUnit,
                           new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
