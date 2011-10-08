@@ -40,7 +40,6 @@ See docs/license.txt. |#
     (ironscheme web views)
     (ironscheme web models)
     (ironscheme xml)
-    (ironscheme docs)
     
     (ironscheme clr reflection)
     (ironscheme clr shorthand)
@@ -54,12 +53,7 @@ See docs/license.txt. |#
     (ironscheme define-macro)
     (ironscheme contracts)
     
-    (ironscheme debugger)
-
-    (ironscheme collections arraylist)
-    (ironscheme collections icollection)
-    (ironscheme collections ilist)
-    (ironscheme collections stack))
+    (ironscheme debugger))
   #f)
 
 
