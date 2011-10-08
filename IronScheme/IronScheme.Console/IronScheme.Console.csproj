@@ -192,7 +192,7 @@
     <None Include="build\numbers.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\syntax-utils.sls" />
+    <None Include="playground\syntax-utils.sls" />
     <None Include="lib\as-match.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -259,16 +259,16 @@
     <None Include="system-libraries.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\topic-printer.sls">
+    <None Include="playground\docs\topic-printer.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\templates.sls">
+    <None Include="playground\docs\templates.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\topic-manager.sls">
+    <None Include="playground\docs\topic-manager.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs\topic.sls">
+    <None Include="playground\docs\topic.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="examples\forms.sls">
@@ -283,16 +283,16 @@
     <None Include="ironscheme\clr\helpers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\arraylist.sls">
+    <None Include="playground\collections\arraylist.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\ilist.sls">
+    <None Include="playground\collections\ilist.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\icollection.sls">
+    <None Include="playground\collections\icollection.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\collections\stack.sls">
+    <None Include="playground\collections\stack.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\console.sls">
@@ -340,7 +340,7 @@
     <None Include="ironscheme\web.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\docs.sls">
+    <None Include="playground\docs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="examples\declare-type.sls">
