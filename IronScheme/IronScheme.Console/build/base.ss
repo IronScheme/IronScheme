@@ -320,7 +320,7 @@ See docs/license.txt. |#
         [(stringbuilder? str) 
           (clr-prop-get StringBuilder Chars str k)]
         [else
-          (assertion-violation 'string-set! "not a string" str)]))
+          (assertion-violation 'string-ref "not a string" str)]))
             
     (define (string-set! str k val)
       (unless (stringbuilder? str)
@@ -521,12 +521,13 @@ See docs/license.txt. |#
                 (($fx=? i len) res)
               ($vector-set! res i (p ($vector-ref vec i)))))]
         [(p:procedure vec1:vector . vecs:vector)
+          (define (ref i) (lambda (x) ($vector-ref x i)))
           (let* ((len (vector-length vec1))
                  (res (make-vector len '())))
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len) res)
               ($vector-set! res i
-                    (apply p (map (lambda (x) ($vector-ref x i)) 
+                    (apply p (map (ref i) 
                                   (cons vec1 vecs))))))]))
           
     (define/contract vector-for-each
@@ -537,10 +538,11 @@ See docs/license.txt. |#
                 (($fx=? i len))
               (p ($vector-ref vec i))))]
         [(p:procedure vec1:vector . vecs:vector)
+          (define (ref i) (lambda (x) ($vector-ref x i)))
           (let ((len (vector-length vec1)))
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
-              (apply p (map (lambda (x) ($vector-ref x i)) 
+              (apply p (map (ref i) 
                             (cons vec1 vecs)))))]))
             
     (define/contract string-for-each
@@ -551,10 +553,11 @@ See docs/license.txt. |#
                 (($fx=? i len))
               (p (string-ref str i))))]
         [(p:procedure str1:string . strs:string)
+          (define (ref i) (lambda (x) (string-ref x i)))
           (let ((len (string-length str1)))
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
-              (apply p (map (lambda (x) (string-ref x i)) 
+              (apply p (map (ref i) 
                             (cons str1 strs)))))]))
 
 )
