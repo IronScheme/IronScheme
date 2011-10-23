@@ -70,7 +70,7 @@ See docs/license.txt. |#
                        precedes?))))))
                        
   (define/contract (vector-sort! pred?:procedure vec:vector)
-    (clr-guard (e [e #;($throw e) (assertion-violation 'vector-sort! (clr-prop-get Exception Message e) pred? vec)])
+    (clr-guard (e [e (assertion-violation 'vector-sort! (clr-prop-get Exception Message e) pred? vec)])
       (clr-static-call Array 
                        (Sort #(Object) Object[] (Comparison Object))
                        vec                      
