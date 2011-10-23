@@ -371,9 +371,6 @@ See docs/license.txt. |#
     (define ->mutable-string 
       (typed-lambda (str) ((String) StringBuilder)
         (clr-new StringBuilder str))) 
-        
-
-           
           
     (define (string-copy str)
       (cond
@@ -423,7 +420,7 @@ See docs/license.txt. |#
       (when (fxnegative? n)
         (assertion-violation 'vector-ref "negative index" n))
       (when (fx>=? n (vector-length x))
-        (assertion-violation 'vector-set! "index out of bounds" n))
+        (assertion-violation 'vector-ref "index out of bounds" n))
       ($vector-ref x n))
       
     (define/contract (vector-set! x:vector n:fixnum value)

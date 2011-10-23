@@ -69,11 +69,13 @@ namespace IronScheme.Compiler
       Optimize<RemoveUselessConversions>(cb); // just 1 hit
       Optimize<FixupPrimitives>(cb);
       Optimize<SimpleTypeVariables>(cb); // for callables
+
       Optimize<TCE>(cb);
       Optimize<FlattenBodies>(cb);
       Optimize<LoopHoist>(cb);
       Optimize<FlattenBodies>(cb); // important to clean up previous
       Optimize<TypeVariables>(cb);
+
       //Optimize<RemoveTemporaries>(cb);
       //Optimize<ConversionCSE>(cb);
       //Optimize<RemoveUselessConversions>(cb); // no hits
