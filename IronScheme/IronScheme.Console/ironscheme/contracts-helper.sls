@@ -9,6 +9,7 @@ See docs/license.txt. |#
     parse-body)
   (import 
     (ironscheme) 
+    (only (ironscheme unsafe) $car $cdr)
     (ironscheme clr))
     
   (define (string-split str . del)
@@ -44,9 +45,10 @@ See docs/license.txt. |#
                     (g (cadr ai))
                     (l loc)
                     (s (string-append "not " (cddr ai))))
-        #'(for-each (lambda (x) 
-                     (unless (g x) (assertion-violation 'l s x)))
-                     n)))            
+        #'(let loop ((n n))
+               (unless (null? n)
+                 (unless (g ($car n)) (assertion-violation 'l s ($car n)))
+                 (loop ($cdr n))))))
     (syntax-case x ()
       [((a ...) body body* ...)
         (for-all identifier? #'(a ...))
