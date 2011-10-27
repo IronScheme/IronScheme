@@ -341,11 +341,7 @@ namespace Microsoft.Scripting.Ast {
           // check for possible conversion/boxing needed, disabled tail call
           if (tailcall)
           {
-            if (_method.ReturnType.IsValueType && !cg.MethodInfo.ReturnType.IsValueType)
-            {
-              tailcall = false;
-            }
-            else if (!_method.ReturnType.IsValueType && cg.MethodInfo.ReturnType.IsValueType)
+            if (ShouldTailCallBeRemoved(cg))
             {
               tailcall = false;
             }
@@ -368,6 +364,23 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitConstant(SpanToLong(Span));
             cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
           }
+        }
+
+        bool ShouldTailCallBeRemoved(CodeGen cg)
+        {
+          var ass = _method.DeclaringType.Assembly;
+
+          if (ass.GlobalAssemblyCache || ass == typeof(Expression).Assembly)
+          {
+            return true;
+          }
+
+          if (!_method.ReturnType.IsValueType && cg.MethodInfo.ReturnType.IsValueType) 
+          {
+            return true;
+          }
+
+          return _method.ReturnType.IsValueType && !cg.MethodInfo.ReturnType.IsValueType;
         }
 
         protected override void EmitLocation(CodeGen cg)
