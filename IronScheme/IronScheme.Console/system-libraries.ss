@@ -32,6 +32,7 @@ See docs/license.txt. |#
     (ironscheme registry)
     (ironscheme strings)
     (ironscheme symbolic-case)
+    (ironscheme syntax-parameters)
     (ironscheme threading)
     (ironscheme web)
     (ironscheme web-utils)

@@ -752,6 +752,9 @@
     <Content Include="ironscheme\clr\dynamic.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="ironscheme\syntax-parameters.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\debugger.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
