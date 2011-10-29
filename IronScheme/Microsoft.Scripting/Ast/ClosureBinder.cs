@@ -56,6 +56,10 @@ namespace Microsoft.Scripting.Ast {
                 if (_references == null) {
                     _references = new Dictionary<Variable, VariableReference>();
                 }
+                if (variable.Block == null)
+                {
+                  return null;
+                }
                 VariableReference reference;
                 if (!_references.TryGetValue(variable, out reference)) {
                     _references[variable] = reference = new VariableReference(variable);
@@ -209,14 +213,11 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private void ResolveClosure(CodeBlock block) {
-          if (block.Name == "anon#1#2##anon#1#2#3#4")
-          {
-            ;
-          }
+
             foreach (VariableReference r in block.References) {
                 Debug.Assert(r.Variable != null);
 
-                if (r.Variable.Block == block) {
+                if (r.Variable.Block == null || r.Variable.Block == block) {
                     // local reference => no closure
                     continue;
                 }
