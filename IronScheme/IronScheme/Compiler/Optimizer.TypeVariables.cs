@@ -123,6 +123,19 @@ namespace IronScheme.Compiler
           return base.Walk(node);
         }
 
+        protected override bool Walk(UnaryExpression node)
+        {
+          if (node.NodeType == AstNodeType.Convert)
+          {
+            if (node.Operand is BoundExpression)
+            {
+              var be = node.Operand as BoundExpression;
+              ProcessAssignment(node, be.Variable);
+            }
+          }
+          return base.Walk(node);
+        }
+
         void ProcessAssignment(Expression val, Variable var)
         {
           Dictionary<Type, List<Expression>> typecounts;
@@ -193,10 +206,28 @@ namespace IronScheme.Compiler
                 }
                 break;
               }
+
             }
             else
             {
               // what here?
+              foreach (var kv in typecounts)
+              {
+                if (kv.Key == typeof(object))
+                {
+                  continue;
+                }
+
+                if (kv.Key != typeof(bool) && kv.Key != typeof(SymbolId) && kv.Key.IsValueType)
+                {
+                  var.Type = kv.Key;
+                  Count++;
+                  rebinds[var.Block] = true;
+                  return Unwrap(val);
+                }
+                break;
+              }
+
               var = null;
             }
           }

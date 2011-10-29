@@ -606,7 +606,6 @@ namespace Microsoft.Scripting.Generation {
         public void EmitBoxing(Type type) {
             Contract.RequiresNotNull(type, "type");
 
-
             if (type.IsValueType) {
                 if (type == typeof(void)) {
                     Emit(OpCodes.Ldnull);

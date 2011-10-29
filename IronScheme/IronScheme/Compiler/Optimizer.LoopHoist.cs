@@ -158,7 +158,7 @@ namespace IronScheme.Compiler
             node.Expression = inlinedexpr;
             var b = var.Block;
             //b.RemoveVariables(new List<Variable>(new[] { var }));
-            //var.Block = null;
+            var.Block = null;
             fixups.Add(b);
           }
 

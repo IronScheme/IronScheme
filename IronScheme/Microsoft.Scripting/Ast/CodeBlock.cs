@@ -522,9 +522,16 @@ namespace Microsoft.Scripting.Ast {
                 prm.Allocate(cg);
             }
             foreach (Variable var in _variables) {
+              if (var.Block != null)
+              {
                 var.Allocate(cg);
+              }
             }
             foreach (VariableReference r in References) {
+              if (r.Variable.Block == null)
+              {
+                Debugger.Break();
+              }
                 r.CreateSlot(cg);
                 Debug.Assert(r.Slot != null);
             }

@@ -36,7 +36,7 @@ namespace IronScheme.Compiler
       while (a != null)
       {
         Cons d = a.car as Cons;
-        Variable t = cb.CreateVariable((SymbolId)Builtins.GenSym(d.car), Variable.VariableKind.Temporary , typeof(object));
+        Variable t = cb.CreateVariable((SymbolId)Builtins.GenSym(d.car), Variable.VariableKind.Temporary, typeof(object));
         temps.Add(t);
         Variable r = Create((SymbolId)d.car, cb, typeof(object));
         r.SetUnInitialized();

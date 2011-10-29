@@ -64,15 +64,24 @@ namespace Microsoft.Scripting.Ast {
       _variable.AssumedValue = _variable.AssumedValue == null ? GetReference(value) : null;
     }
 
+
+    public bool HasNoRef
+    {
+      get { return _vr == null; }
+    }
+
     internal VariableReference Ref
     {
       get { return _vr; }
       set
       {
-        Debug.Assert(value != null);
-        Debug.Assert(value.Variable == _variable);
-        Debug.Assert(_vr == null || _vr.Equals(value));
-        _vr = value;
+        if (value != null)
+        {
+          Debug.Assert(value != null);
+          Debug.Assert(value.Variable == _variable);
+          Debug.Assert(_vr == null || _vr.Equals(value));
+          _vr = value;
+        }
       }
     }
 

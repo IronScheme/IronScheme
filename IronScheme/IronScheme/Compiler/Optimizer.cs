@@ -76,6 +76,8 @@ namespace IronScheme.Compiler
       Optimize<FlattenBodies>(cb); // important to clean up previous
       Optimize<TypeVariables>(cb);
 
+      Optimize<RemoveTemporaries>(cb); // for unreferenced loop variables
+
       //Optimize<RemoveTemporaries>(cb);
       //Optimize<ConversionCSE>(cb);
       //Optimize<RemoveUselessConversions>(cb); // no hits

@@ -82,7 +82,7 @@ namespace IronScheme.Compiler
             var temps = new List<Variable>();
             foreach (var par in Current.Parameters)
             {
-              var v = Current.CreateTemporaryVariable((SymbolId)Builtins.GenSym(par.Name), par.Type);
+              var v = Current.CreateLocalVariable((SymbolId)Builtins.GenSym(par.Name), par.Type);
               ee.Add(Ast.Assign(v, mce.Arguments[i++]));
               temps.Add(v);
             }
