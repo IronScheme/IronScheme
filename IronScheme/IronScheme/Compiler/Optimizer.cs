@@ -72,11 +72,17 @@ namespace IronScheme.Compiler
 
       Optimize<TCE>(cb);
       Optimize<FlattenBodies>(cb);
+
+      Optimize<MarkUnspecifiedProcedureReturns>(cb);
+
       Optimize<LoopHoist>(cb);
       Optimize<FlattenBodies>(cb); // important to clean up previous
       Optimize<TypeVariables>(cb);
 
       Optimize<RemoveTemporaries>(cb); // for unreferenced loop variables
+
+      Optimize<MarkUnspecifiedProcedureReturns>(cb);
+      Optimize<AnalyzeProcedureReturns>(cb);
 
       //Optimize<RemoveTemporaries>(cb);
       //Optimize<ConversionCSE>(cb);

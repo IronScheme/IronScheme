@@ -189,6 +189,7 @@ namespace IronScheme.Compiler
 
         Expression ProcessAssignment(Expression val, Variable var)
         {
+
           var typecounts = vartypes[var];
 
           if (var.Type == typeof(object) && var.Kind != Variable.VariableKind.Parameter)
@@ -218,6 +219,11 @@ namespace IronScheme.Compiler
                   continue;
                 }
 
+                if (Generator.assigns.ContainsKey(var.Name))
+                {
+                  return val;
+                }
+
                 if (kv.Key != typeof(bool) && kv.Key != typeof(SymbolId) && kv.Key.IsValueType)
                 {
                   var.Type = kv.Key;
@@ -225,6 +231,13 @@ namespace IronScheme.Compiler
                   rebinds[var.Block] = true;
                   return Unwrap(val);
                 }
+                //if (!kv.Key.IsValueType)
+                //{
+                //  var.Type = kv.Key;
+                //  Count++;
+                //  rebinds[var.Block] = true;
+                //  return Unwrap(val);
+                //}
                 break;
               }
 
