@@ -337,7 +337,7 @@ namespace IronScheme.Compiler
                     !ScriptDomainManager.Options.LightweightDebugging && 
                     !cb.IsGlobal && IsSimpleExpression(rs.Expression))
                   {
-                    return InlineCall(cb, Ast.CodeBlockExpression(RewriteBody(cbe.Block), false), ppp);
+                    return InlineCall(cb, Ast.CodeBlockExpression(RewriteBody(cbe.Block), false, cbe.IsStronglyTyped), ppp);
                   }
                 }
               }
@@ -926,12 +926,26 @@ namespace IronScheme.Compiler
         Expression val = Unwrap(pp[i]);
         if (val.Type != typeof(Boolean) && val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
         {
-          p.Type = val.Type;
-          assigns.Add(Ast.Write(p, val));
+          if (p.Type == typeof(object))
+          {
+            p.Type = val.Type;
+            assigns.Add(Ast.Write(p, val));
+          }
+          else
+          {
+            assigns.Add(Ast.Write(p, Ast.ConvertHelper(val, p.Type)));
+          }
         }
         else
         {
-          assigns.Add(Ast.Write(p, pp[i]));
+          if (p.Type == typeof(object))
+          {
+            assigns.Add(Ast.Write(p, pp[i]));
+          }
+          else
+          {
+            assigns.Add(Ast.Write(p, Ast.ConvertHelper(pp[i], p.Type)));
+          }
         }
           
         if (p.Lift)
@@ -1034,7 +1048,14 @@ namespace IronScheme.Compiler
         {
           ((MethodCallExpression)e).TailCall = false;
         }
-        return Unwrap(e);
+        if (e.Type != typeof(object))
+        {
+          return e;
+        }
+        else
+        {
+          return Unwrap(e);
+        }
       }
 
       if (statement is IfStatement)
