@@ -189,10 +189,12 @@ See docs/license.txt. |#
   (define (clr-string? obj)
     (clr-is String obj))  
 
-  (define (->string str)
-    (if (clr-string? str)
-        str
-        (clr-call Object ToString str)))   
+  (define ->string
+    (typed-lambda (str)
+      ((Object) String)    
+      (if (clr-string? str)
+          str
+          (clr-call Object ToString str))))   
         
   (define/contract (string-compare a:string b:string)
     ($string-compare a b))

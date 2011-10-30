@@ -33,6 +33,11 @@ namespace IronScheme.Compiler
             var cb = kv.Key;
             var retlist = kv.Value;
 
+            if (cb.DecorateWithUnspecifiedReturn)
+            {
+              continue;
+            }
+
             var allgood = false;
 
             foreach (var ret in retlist)
