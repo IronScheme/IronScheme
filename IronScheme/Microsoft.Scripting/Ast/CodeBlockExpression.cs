@@ -39,6 +39,11 @@ namespace Microsoft.Scripting.Ast {
         private readonly bool _stronglyTyped;
         private readonly Type _delegateType;
         private bool _isDeclarative;
+
+        public bool IsStronglyTyped
+        {
+          get { return _stronglyTyped; }
+        }
         
 #if DEBUG
         internal bool ForceWrapperMethod {

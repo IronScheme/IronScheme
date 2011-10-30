@@ -102,11 +102,18 @@ See docs/license.txt. |#
     string-foldcase
     string-compare
     string-ci-compare
+    char->integer
     )
     (ironscheme clr)
+    (ironscheme unsafe)
     (ironscheme contracts))
     
   (clr-using System.Globalization) 
+  
+  (define char->integer
+    (typed-lambda (chr)
+      ((Char) Int32)
+      chr))
   
   (define culture-info  
     (clr-static-prop-get CultureInfo InvariantCulture))
@@ -225,11 +232,11 @@ See docs/license.txt. |#
                     r))
                 (cons b rest))]))]))                       
 
-  (define-string-compare string=? fx=?)
-  (define-string-compare string<? fx<?)
-  (define-string-compare string>? fx>?)
-  (define-string-compare string<=? fx<=?)
-  (define-string-compare string>=? fx>=?)           
+  (define-string-compare string=? $fx=?)
+  (define-string-compare string<? $fx<?)
+  (define-string-compare string>? $fx>?)
+  (define-string-compare string<=? $fx<=?)
+  (define-string-compare string>=? $fx>=?)           
       
   (define-syntax $string-ci-compare
     (syntax-rules ()
@@ -256,11 +263,11 @@ See docs/license.txt. |#
                     r))
                 (cons b rest))]))]))
 
-  (define-string-ci-compare string-ci=? fx=?)
-  (define-string-ci-compare string-ci<? fx<?)
-  (define-string-ci-compare string-ci>? fx>?)
-  (define-string-ci-compare string-ci<=? fx<=?)
-  (define-string-ci-compare string-ci>=? fx>=?)
+  (define-string-ci-compare string-ci=? $fx=?)
+  (define-string-ci-compare string-ci<? $fx<?)
+  (define-string-ci-compare string-ci>? $fx>?)
+  (define-string-ci-compare string-ci<=? $fx<=?)
+  (define-string-ci-compare string-ci>=? $fx>=?)
         
   (define-syntax define-char-compare
     (syntax-rules ()
@@ -278,11 +285,11 @@ See docs/license.txt. |#
                     r))
                 (cons b rest))]))]))         
   
-  (define-char-compare char=? fx=?)
-  (define-char-compare char<? fx<?)
-  (define-char-compare char>? fx>?)
-  (define-char-compare char<=? fx<=?)
-  (define-char-compare char>=? fx>=?) 
+  (define-char-compare char=? $fx=?)
+  (define-char-compare char<? $fx<?)
+  (define-char-compare char>? $fx>?)
+  (define-char-compare char<=? $fx<=?)
+  (define-char-compare char>=? $fx>=?) 
   
   (define-syntax define-char-ci-compare
     (syntax-rules ()
@@ -300,11 +307,11 @@ See docs/license.txt. |#
                     r))
                 (cons b rest))]))]))    
     
-  (define-char-ci-compare char-ci=? fx=?)
-  (define-char-ci-compare char-ci<? fx<?)
-  (define-char-ci-compare char-ci>? fx>?)
-  (define-char-ci-compare char-ci<=? fx<=?)
-  (define-char-ci-compare char-ci>=? fx>=?)
+  (define-char-ci-compare char-ci=? $fx=?)
+  (define-char-ci-compare char-ci<? $fx<?)
+  (define-char-ci-compare char-ci>? $fx>?)
+  (define-char-ci-compare char-ci<=? $fx<=?)
+  (define-char-ci-compare char-ci>=? $fx>=?)
   
   (define (string-fold proc str)
     (if (fxzero? (string-length str))
