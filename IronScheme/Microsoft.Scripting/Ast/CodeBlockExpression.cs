@@ -50,10 +50,6 @@ namespace Microsoft.Scripting.Ast {
             get { return _forceWrapperMethod; }
         }
 
-        internal bool IsStronglyTyped {
-            get { return _stronglyTyped; }
-        }
-
 #endif
         internal Type DelegateType {
             get { return _delegateType; }

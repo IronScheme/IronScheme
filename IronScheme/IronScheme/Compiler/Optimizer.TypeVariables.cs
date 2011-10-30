@@ -108,7 +108,7 @@ namespace IronScheme.Compiler
           var val = node.Value;
           var var = node.Variable;
 
-          ProcessAssignment(val, var);    
+          ProcessAssignment(val, var, true);    
 
           return base.Walk(node);
         }
@@ -118,7 +118,7 @@ namespace IronScheme.Compiler
           var val = node.Value;
           var var = node.Variable;
 
-          ProcessAssignment(val, var);  
+          ProcessAssignment(val, var, true);  
 
           return base.Walk(node);
         }
@@ -130,13 +130,13 @@ namespace IronScheme.Compiler
             if (node.Operand is BoundExpression)
             {
               var be = node.Operand as BoundExpression;
-              ProcessAssignment(node, be.Variable);
+              ProcessAssignment(node, be.Variable, false);
             }
           }
           return base.Walk(node);
         }
 
-        void ProcessAssignment(Expression val, Variable var)
+        void ProcessAssignment(Expression val, Variable var, bool unwrap)
         {
           Dictionary<Type, List<Expression>> typecounts;
 
@@ -145,7 +145,10 @@ namespace IronScheme.Compiler
             vartypes[var] = typecounts = new Dictionary<Type, List<Expression>>();
           }
 
-          val = Unwrap(val);
+          if (unwrap)
+          {
+            val = Unwrap(val);
+          }
 
           List<Expression> exps;
 
@@ -189,6 +192,7 @@ namespace IronScheme.Compiler
 
         Expression ProcessAssignment(Expression val, Variable var)
         {
+          //if (var.Block.Name.EndsWith("sqrt")) Debugger.Break();
 
           var typecounts = vartypes[var];
 
@@ -212,6 +216,7 @@ namespace IronScheme.Compiler
             else
             {
               // what here?
+              if (false)
               foreach (var kv in typecounts)
               {
                 if (kv.Key == typeof(object))
@@ -224,7 +229,7 @@ namespace IronScheme.Compiler
                   return val;
                 }
 
-                if (kv.Key != typeof(bool) && kv.Key != typeof(SymbolId) && kv.Key.IsValueType)
+                if (kv.Key != typeof(bool) && kv.Key != typeof(SymbolId) && kv.Key != typeof(Microsoft.Scripting.Math.Complex64) && kv.Key.IsValueType)
                 {
                   var.Type = kv.Key;
                   Count++;
