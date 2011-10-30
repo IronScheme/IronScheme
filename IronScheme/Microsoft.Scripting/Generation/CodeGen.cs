@@ -2293,6 +2293,14 @@ namespace Microsoft.Scripting.Generation {
               }
 
               block.EmitFunctionImplementation(impl);
+
+              // add custom attributes to method
+              if (block.DecorateWithUnspecifiedReturn)
+              {
+                var mb = impl.MethodBase as MethodBuilder;
+                mb.SetCustomAttribute(typeof(IronScheme.Runtime.UnspecifiedReturnAttribute).GetConstructor(Type.EmptyTypes), new byte[0]);
+              }
+
               impl.Finish();
 
 

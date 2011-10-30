@@ -127,6 +127,7 @@
     <Compile Include="Ast\AstNodeType.cs" />
     <Compile Include="Ast\SwitchStatementBuilder.cs" />
     <Compile Include="Ast\TypeUtils.cs" />
+    <Compile Include="IronSchemeAttributes.cs" />
     <Compile Include="BinderOps.cs" />
     <Compile Include="Cast.cs" />
     <Compile Include="Cast.Generated.cs" />
