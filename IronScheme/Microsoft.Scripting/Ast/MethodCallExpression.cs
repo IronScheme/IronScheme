@@ -470,7 +470,7 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private static void EmitArgument(CodeGen cg, Expression argument, Type type) {
-          if (argument.Type != type && argument.Type.IsValueType)
+          if (argument.Type != type && (argument.Type.IsValueType || type.IsValueType))
           {
             argument = Ast.Convert(argument, type);
           }
