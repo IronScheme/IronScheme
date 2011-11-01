@@ -1701,6 +1701,10 @@ namespace Oyster.Math
 
 		#endregion Other utilitary methods
 
+    public unsafe static bool IsNegativeZero(double d)
+    {
+      return *(ulong*)&d == 0x8000000000000000;
+    }
 
     public IntX Abs()
     {

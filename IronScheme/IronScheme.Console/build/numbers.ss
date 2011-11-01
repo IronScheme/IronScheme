@@ -1150,7 +1150,10 @@ See docs/license.txt. |#
     
   (define (flonum->string flo)
     (cond
-      [(flzero? flo) "0.0"]
+      [(flzero? flo) 
+        (if (clr-static-call IntX IsNegativeZero flo)
+            "-0.0"
+            "0.0")]
       [(flnan? flo) "+nan.0"]
       [(flinfinite? flo) 
         (if (flpositive? flo)
