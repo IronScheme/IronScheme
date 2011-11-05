@@ -126,17 +126,34 @@ namespace IronScheme.Compiler
           }
           else
           {
-            if (i.Type != typeof(Callable)) return false;
+            if (!typeof(Callable).IsAssignableFrom(i.Type)) return false;
             var be = i as BoundExpression;
             if (be == null) return false;
             var = be.Variable;
-            if (/*!var.Lift ||*/ var.Type != typeof(Callable) || var.ReAssigned) return false;
-            if (mce.Method.Name != "Call") return false;
+            if (/*!var.Lift ||*/ !typeof(Callable).IsAssignableFrom(var.Type) || var.ReAssigned) return false;
+            if (!(mce.Method.Name == "Call" || mce.Method.Name == "Invoke")) return false;
             if (mce.Arguments.Count > 0 && mce.Arguments[0].Type == typeof(object[])) return false;
             var av = var.AssumedValue as MethodCallExpression;
-            if (av == null || av.Type != typeof(Callable) || av.Method.Name != "Create") return false; 
-            var cbe = av.Arguments[0] as CodeBlockExpression;
-            if (cbe == null || cbe.Block != Current) return false;
+            
+            while (av == null && be.Variable.AssumedValue is BoundExpression)
+            {
+              be = be.Variable.AssumedValue as BoundExpression;
+              av = be.Variable.AssumedValue as MethodCallExpression;
+            }
+
+            if (av == null && be.Variable.AssumedValue is NewExpression)
+            {
+              var ne = be.Variable.AssumedValue as NewExpression;
+              if (!typeof(Callable).IsAssignableFrom(ne.Type)) return false;
+              var cbe = ne.Arguments[0] as CodeBlockExpression;
+              if (cbe == null || cbe.Block != Current) return false;
+            }
+            else
+            {
+              if (av == null || !typeof(Callable).IsAssignableFrom(av.Type) || av.Method.Name != "Create") return false;
+              var cbe = av.Arguments[0] as CodeBlockExpression;
+              if (cbe == null || cbe.Block != Current) return false;
+            }
 
             return true;
           }

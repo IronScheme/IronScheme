@@ -21,7 +21,11 @@
 (define-syntax let:
   (syntax-rules (:)
     [(_ ((id : type val) ...) : ret-type b b* ...)
-      ((lambda: ((id : type) ...) : ret-type b b* ...) val ...)]))
+      ((lambda: ((id : type) ...) : ret-type b b* ...) val ...)]
+    [(_ var ((id : type val) ...) : ret-type b b* ...)  
+      (letrec: ((var : (IronScheme.Runtime.Typed.TypedClosure type ... ret-type) 
+                  (lambda: ((id : type) ...) : ret-type b b* ...))) : ret-type
+        (var val ...))]))
               
 (define-syntax define:
   (lambda (x)
@@ -29,13 +33,14 @@
       [(_ (id args ...) body)
         (with-syntax [(type-spec-id (syntax-format ":~a" #'id #'id))]
           (lambda (lookup)
-            (with-syntax [(type-spec (datum->syntax #'id (lookup #'type-spec-id)))]
-              #'(define id
-                  (typed-lambda (args ...) 
-                    type-spec
-                    body)))))])))
-                    
-
+            (let ((type-spec (lookup #'type-spec-id)))
+              (unless type-spec
+                (syntax-violation (syntax->datum #'id) "Type spec not found" x))
+              (with-syntax [(type-spec (datum->syntax #'id type-spec))]
+                #'(define id
+                    (typed-lambda (args ...) 
+                      type-spec
+                      body))))))])))
                     
 (define-syntax letrec:
   (lambda (x)
@@ -43,7 +48,7 @@
       ((_ ((i : type e) ...) : ret-type b1 b2 ...)
        (with-syntax
            (((t ...) (generate-temporaries #'(i ...))))
-         #'(let: ((i : type <undefined>) ...) : ret-type
+         #'(let: ((i : type '()) ...) : ret-type
              (let: ((t : type e) ...) : ret-type
                (set! i t) ...
                (begin b1 b2 ...))))))))

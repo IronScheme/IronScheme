@@ -741,19 +741,32 @@ namespace IronScheme.Compiler
           Builtins.SyntaxError(SymbolTable.StringToObject("generator"), "expecting a procedure", c.car, c);
         }
 
-        Expression[] pp = GetAstList(c.cdr as Cons, cb);
+        Expression r = null;
 
-        if (ex.Type != typeof(Callable))
+        if (ex.Type.Name.Contains("TypedClosure"))
         {
-          ex = Ast.Convert(ex, typeof(Callable));
-          //ex = Ast.Call(typeof(Helpers).GetMethod("RequiresNotNull").MakeGenericMethod(typeof(Callable)), ex);
+          Expression[] pp = GetAstListNoCast(c.cdr as Cons, cb);
+
+          var m = ex.Type.GetMethod("Invoke");
+          r = Ast.SimpleCallHelper(ex, m, pp);
         }
+        else
+        {
 
-        MethodInfo call = GetCallable(pp.Length);
+          Expression[] pp = GetAstList(c.cdr as Cons, cb);
 
-        Expression r = pp.Length > 8 ?
-          Ast.Call(ex, call, Ast.NewArray(typeof(object[]), pp)) :
-          Ast.Call(ex, call, pp);
+          if (ex.Type != typeof(Callable))
+          {
+            ex = Ast.ConvertHelper(ex, typeof(Callable));
+            //ex = Ast.Call(typeof(Helpers).GetMethod("RequiresNotNull").MakeGenericMethod(typeof(Callable)), ex);
+          }
+
+          MethodInfo call = GetCallable(pp.Length);
+
+          r = pp.Length > 8 ?
+            Ast.Call(ex, call, Ast.NewArray(typeof(object[]), pp)) :
+            Ast.Call(ex, call, pp);
+        }
 
         if (spanhint.IsValid)
         {
