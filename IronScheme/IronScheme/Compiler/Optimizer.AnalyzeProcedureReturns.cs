@@ -54,23 +54,6 @@ namespace IronScheme.Compiler
                     continue;
                   }
                 }
-                //if (mce.Instance != null && mce.Instance.Type == typeof(Callable) && mce.Method.Name == "Call")
-                //{
-                //  var inst = mce.Instance as MethodCallExpression;
-                //  if (inst != null)
-                //  {
-                //    if (inst.Method.Name.StartsWith("Create") && inst.Arguments[0] is CodeBlockExpression)
-                //    {
-                //      var ii = inst.Arguments[0] as CodeBlockExpression;
-
-                //      if (ii.Block.DecorateWithUnspecifiedReturn)
-                //      {
-                //        allgood = true;
-                //        continue;
-                //      }
-                //    }
-                //  }
-                //}
               }
               if (!(ret.Expression is MemberExpression))
               {

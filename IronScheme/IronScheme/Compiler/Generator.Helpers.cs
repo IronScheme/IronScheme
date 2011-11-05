@@ -558,7 +558,7 @@ namespace IronScheme.Compiler
         if (e is MethodCallExpression)
         {
           MethodCallExpression mce = ((MethodCallExpression)e);
-          mce.TailCall = !mce.Method.ReturnType.IsValueType && allowtailcall;
+          mce.TailCall = /*!mce.Method.ReturnType.IsValueType &&*/ allowtailcall;
         }
         else if (e is ConditionalExpression)
         {
@@ -785,7 +785,7 @@ namespace IronScheme.Compiler
         while (cargs != null)
         {
           SymbolId an = (SymbolId)Builtins.First(cargs);
-          SymbolId type = (SymbolId)Builtins.First(ctypes);
+          object type = Builtins.First(ctypes);
 
           Type clrtype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote, type));
 
