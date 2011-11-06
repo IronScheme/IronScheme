@@ -48,7 +48,16 @@ namespace Microsoft.Scripting.Ast {
           {
             Operand.SetLoc(span);
           }
-        }      
+        }
+
+        public override bool IsConstant(object value)
+        {
+          if (value == null && NodeType == AstNodeType.Convert && !Type.IsValueType)
+          {
+            return Operand.IsConstant(value);
+          }
+          return base.IsConstant(value);
+        }
 
         public override void Emit(CodeGen cg) {
 

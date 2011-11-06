@@ -61,7 +61,10 @@ namespace Microsoft.Scripting.Ast {
     {
       _value = value;
       _variable = var;
-      _variable.AssumedValue = _variable.AssumedValue == null ? GetReference(value) : null;
+      if (!value.IsConstant(null))
+      {
+        _variable.AssumedValue = _variable.AssumedValue == null ? GetReference(value) : null;
+      }
     }
 
 
