@@ -100,7 +100,7 @@ namespace IronScheme.Compiler
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           var i = Unwrap(mce.Instance);
-          if (i.Type != typeof(Callable)) return false;
+          if (!typeof(Callable).IsAssignableFrom(i.Type)) return false;
           var be = i as BoundExpression;
           if (be == null) return false;
           var = be.Variable;
@@ -157,7 +157,6 @@ namespace IronScheme.Compiler
             var inlinedexpr = InlineCall(Current, cbe, mce.Arguments.ToArray());
             node.Expression = inlinedexpr;
             var b = var.Block;
-            //b.RemoveVariables(new List<Variable>(new[] { var }));
             var.Block = null;
             fixups.Add(b);
           }
@@ -173,7 +172,7 @@ namespace IronScheme.Compiler
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           var i = Unwrap(mce.Instance);
-          if (i.Type != typeof(Callable)) return false;
+          if (!typeof(Callable).IsAssignableFrom(i.Type)) return false;
           var be = i as BoundExpression;
           if (be == null) return false;
           var = be.Variable;
@@ -203,14 +202,37 @@ namespace IronScheme.Compiler
             }
           }
 
-          if (var.Lift || var.Type != typeof(Callable) || var.ReAssigned) return false;
-          if (mce.Method.Name != "Call") return false;
+          if (var.Lift || !typeof(Callable).IsAssignableFrom(var.Type) || var.ReAssigned) return false;
+          if (!(mce.Method.Name == "Call" || mce.Method.Name == "Invoke")) return false;
           if (mce.Arguments.Count > 0 && mce.Arguments[0].Type == typeof(object[])) return false;
-          var av = var.AssumedValue as MethodCallExpression;
-          if (av == null || av.Type != typeof(Callable) || av.Method.Name != "Create") return false;
-          cbe = av.Arguments[0] as CodeBlockExpression;
-          if (cbe == null || cbe.Block.Parent != Current) return false;
           if (mce.Arguments.Count > 8) return false;
+
+          var av = var.AssumedValue as MethodCallExpression;
+
+          while (av == null && be.Variable.AssumedValue is BoundExpression)
+          {
+            be = be.Variable.AssumedValue as BoundExpression;
+            av = be.Variable.AssumedValue as MethodCallExpression;
+          }
+
+          if (av == null && be.Variable.AssumedValue is NewExpression)
+          {
+            var ne = be.Variable.AssumedValue as NewExpression;
+            if (!typeof(Callable).IsAssignableFrom(ne.Type)) return false;
+            cbe = ne.Arguments[0] as CodeBlockExpression;
+            if (cbe == null || cbe.Block.Parent != Current) return false;
+          }
+          else
+          {
+            if (av == null || !typeof(Callable).IsAssignableFrom(av.Type) || av.Method.Name != "Create") return false;
+            cbe = av.Arguments[0] as CodeBlockExpression;
+            if (cbe == null || cbe.Block.Parent != Current) return false;
+          }
+
+          //if (av == null || av.Type != typeof(Callable) || av.Method.Name != "Create") return false;
+          //cbe = av.Arguments[0] as CodeBlockExpression;
+          //if (cbe == null || cbe.Block.Parent != Current) return false;
+          //if (mce.Arguments.Count > 8) return false;
 
           return true;
         }
@@ -231,14 +253,11 @@ namespace IronScheme.Compiler
           {
             SymbolId origname = p.Name;
 
-            //if (p.Block != parent)
-            {
-              p.Name = (SymbolId)Builtins.GenSym(p.Name);
-              p.Block = parent;
-              //p.Kind = p.Lift ? Variable.VariableKind.Local : Variable.VariableKind.Temporary;
-              p.Kind = Variable.VariableKind.Local;
-              parent.AddVariable(p);
-            }
+            p.Name = (SymbolId)Builtins.GenSym(p.Name);
+            p.Block = parent;
+            p.Kind = Variable.VariableKind.Local;
+            parent.AddVariable(p);
+
             assigns.Add(Ast.Write(p, pp[i]));
 
             if (p.Lift)
@@ -250,15 +269,13 @@ namespace IronScheme.Compiler
 
           foreach (Variable l in cb.Variables)
           {
-            //if (l.Block != parent)
+            if (l.DefaultValue == null)
             {
-              if (l.DefaultValue == null)
-              {
-                l.Name = (SymbolId)Builtins.GenSym(l.Name);
-              }
-              l.Block = parent;
-              parent.AddVariable(l);
+              l.Name = (SymbolId)Builtins.GenSym(l.Name);
             }
+            l.Block = parent;
+            parent.AddVariable(l);
+
             if (l.Lift)
             {
               parent.HasEnvironment = true;
@@ -280,6 +297,18 @@ namespace IronScheme.Compiler
           {
             var mce = node.Value as MethodCallExpression;
             if (mce.Method.Name == "Create" && mce.Type == typeof(Callable))
+            {
+              var cbe = mce.Arguments[0] as CodeBlockExpression;
+              if (cbe != null && cbe.Block.Inlined)
+              {
+                node.Value = null;
+              }
+            }
+          }
+          if (node.Value is NewExpression)
+          {
+            var mce = node.Value as NewExpression;
+            if (mce.Type.Name.Contains("TypedClosure"))
             {
               var cbe = mce.Arguments[0] as CodeBlockExpression;
               if (cbe != null && cbe.Block.Inlined)

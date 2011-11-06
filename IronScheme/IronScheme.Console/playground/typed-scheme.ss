@@ -1,4 +1,4 @@
-﻿(import (ironscheme) (ironscheme syntax-format))
+﻿(import (ironscheme) (ironscheme syntax-format) (ironscheme unsafe))
 
 (define-syntax :
   (lambda (x)
