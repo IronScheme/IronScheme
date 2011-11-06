@@ -29,7 +29,7 @@ namespace Microsoft.Scripting.Ast {
     public class MethodCallExpression : Expression {
         private MethodInfo _method;
         private Expression _instance;
-        private readonly List<Expression> _arguments;
+        private List<Expression> _arguments;
         private ParameterInfo[] _parameterInfos;
 
 
@@ -58,6 +58,7 @@ namespace Microsoft.Scripting.Ast {
 
         public List<Expression> Arguments {
             get { return _arguments; }
+          set { _arguments = value; }
         }
 
         public override Type Type {

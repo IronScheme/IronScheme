@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
+using IronScheme.Runtime.Typed;
 
 namespace IronScheme.Compiler
 {
@@ -59,6 +60,17 @@ namespace IronScheme.Compiler
           if (mce.Method == Closure_Make || mce.Method == Closure_MakeCase || mce.Method == Closure_MakeVarArgsX)
           {
             vars[i].SetInitialized();
+            temps[i].Type = vars[i].Type = typeof(Callable);
+            
+          }
+        }
+        else if (e is NewExpression)
+        {
+          var ne = (NewExpression)e;
+          if (typeof(ITypedCallable).IsAssignableFrom(ne.Type))
+          {
+            vars[i].SetInitialized();
+            temps[i].Type = vars[i].Type = ne.Type;
           }
         }
 
