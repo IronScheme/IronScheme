@@ -38,6 +38,30 @@ namespace IronScheme.Compiler
             }
           }
         }
+
+        protected override void PostWalk(ReturnStatement node)
+        {
+          base.PostWalk(node);
+
+          if (node.Expression is UnaryExpression && node.Expression.NodeType == AstNodeType.Convert)
+          {
+            var ue = (UnaryExpression)node.Expression;
+            if (ue.Operand is MethodCallExpression)
+            {
+              var mce = (MethodCallExpression)ue.Operand;
+
+              if (ue.Type == mce.Type || mce.Type == Current.ReturnType)
+              {
+                node.Expression = mce;
+
+                if (mce.Type == Current.ReturnType)
+                {
+                  mce.TailCall = true;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
