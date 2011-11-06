@@ -57,15 +57,25 @@ namespace IronScheme.Runtime
 
       try
       {
-        if (number_parser.Parse())
+        CallTarget0 disp = delegate
         {
-          Debug.Assert(number_parser.result != null);
-          return number_parser.result;
-        }
-        else
+          if (number_parser.Parse())
+          {
+            Debug.Assert(number_parser.result != null);
+            return number_parser.result;
+          }
+          else
+          {
+            return FALSE;
+          }
+        };
+        CallTarget1 handler = delegate(object o)
         {
-          return FALSE;
-        }
+          throw new Continuation();
+        };
+        return Runtime.R6RS.Exceptions.WithExceptionHandler(
+                          Closure.Create(handler),
+                          Closure.Create(disp));
       }
       catch
       {
