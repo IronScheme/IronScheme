@@ -125,6 +125,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("serialize-port")]
+    [UnspecifiedReturn]
     public static object Serialize(object o, object binaryport)
     {
       Stream s = Requires<Stream>(binaryport);
@@ -285,6 +286,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("lw-debug-mode?")]
+    [UnspecifiedReturn]
     public static object IsLightWeightDebugMode(object newmode)
     {
       ScriptDomainManager.Options.LightweightDebugging = IsTrue(newmode);
@@ -298,6 +300,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("lw-debugger")]
+    [UnspecifiedReturn]
     public static object LightWeightDebugger(object debugger)
     {
       if (debugger == FALSE)
@@ -757,6 +760,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("gc-collect")]
+    [UnspecifiedReturn]
     public static object GcCollect()
     {
       GC.Collect();
@@ -809,6 +813,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("remove-location")]
+    [UnspecifiedReturn]
     public static object RemoveLocation(object symbol)
     {
       if (ModuleScope == null)
@@ -825,6 +830,7 @@ namespace IronScheme.Runtime
     static Scope ModuleScope;
 
     [Builtin("symbol-value")]
+    [UnspecifiedReturn]
     public static object SymbolValue(object symbol)
     {
       if (ModuleScope == null)
@@ -855,6 +861,7 @@ namespace IronScheme.Runtime
 
     [DebuggerNonUserCode]
     [DebuggerStepThrough]
+    [UnspecifiedReturn]
     public static void SetSymbolValueFast(object symbol, object value)
     {
       if (ModuleScope == null)
@@ -866,6 +873,7 @@ namespace IronScheme.Runtime
 
 
     [Builtin("set-symbol-value!")]
+    [UnspecifiedReturn]
     public static object SetSymbolValue(object symbol, object value)
     {
       SetSymbolValueFast(symbol, value);
