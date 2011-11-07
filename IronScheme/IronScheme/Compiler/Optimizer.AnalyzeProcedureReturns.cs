@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Microsoft.Scripting.Ast;
 using System.Diagnostics;
 using IronScheme.Runtime;
+using System.Reflection.Emit;
 
 namespace IronScheme.Compiler
 {
@@ -53,6 +54,12 @@ namespace IronScheme.Compiler
                     allgood = true;
                     continue;
                   }
+                }
+
+                if (!(mce.Method is MethodBuilder) && Attribute.IsDefined(mce.Method, typeof(UnspecifiedReturnAttribute)))
+                {
+                  allgood = true;
+                  continue;
                 }
               }
               if (!(ret.Expression is MemberExpression))

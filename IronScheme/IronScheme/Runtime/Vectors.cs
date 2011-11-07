@@ -95,6 +95,7 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("vector-reverse!")]
+    [UnspecifiedReturn]
     public static object VectorReverse(object vector)
     {
       Array v = RequiresNotNull<Array>(vector);
