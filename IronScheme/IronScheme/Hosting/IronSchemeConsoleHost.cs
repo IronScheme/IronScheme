@@ -15,7 +15,7 @@ namespace IronScheme.Hosting
 {
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
-    const string VERSION = "1.0 RC5";
+    const string VERSION = "1.0 RC6";
     string logo;
     public IronSchemeConsoleHost()
     {
