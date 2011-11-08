@@ -222,7 +222,6 @@ namespace IronScheme.Runtime
         //  return meth.CallReflected(context, CallType.None, aargs.ToArray());
         //}
         // DO NOT WANT!!!!
-        //Debugger.Break();
         return meth.CallReflected(context, CallType.None, args);
       }
       catch (ArgumentTypeException ex)

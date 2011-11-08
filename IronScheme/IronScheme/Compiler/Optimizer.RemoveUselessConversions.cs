@@ -62,6 +62,23 @@ namespace IronScheme.Compiler
             }
           }
         }
+
+        protected override void PostWalk(IfStatementTest node)
+        {
+          base.PostWalk(node);
+
+          if (node.Test is MethodCallExpression)
+          {
+            var mce = (MethodCallExpression)node.Test;
+            if (mce.Method == typeof(IronScheme.Runtime.Builtins).GetMethod("IsTrue"))
+            {
+              if (mce.Arguments[0].Type == typeof(bool))
+              {
+                node.Test = mce.Arguments[0];
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -25,7 +25,7 @@ namespace Microsoft.Scripting.Ast {
         private Expression/*!*/ _test;
         private Expression/*!*/ _true;
         private Expression/*!*/ _false;
-        private readonly Type/*!*/ _expressionType;
+        private Type/*!*/ _expressionType;
 
         internal ConditionalExpression(Expression/*!*/ test, Expression/*!*/ ifTrue, Expression/*!*/ ifFalse, Type/*!*/ type)
             : base(AstNodeType.Conditional) {
@@ -48,6 +48,11 @@ namespace Microsoft.Scripting.Ast {
         public Expression IfFalse {
             get { return _false; }
           set { _false = value; }
+        }
+
+        public void SetType(Type t)
+        {
+          _expressionType = t;
         }
 
         public override Type Type {
