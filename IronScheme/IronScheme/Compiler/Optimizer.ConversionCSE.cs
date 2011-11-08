@@ -34,8 +34,6 @@ namespace IronScheme.Compiler
 
         protected override bool Walk(UnaryExpression node)
         {
-          //if (Current.Name.EndsWith("fxdiv")) Debugger.Break();
-
           if (node.NodeType == AstNodeType.Convert && node.Operand is BoundExpression)
           {
             var be = node.Operand as BoundExpression;
@@ -93,7 +91,6 @@ namespace IronScheme.Compiler
         {
           if (node.NodeType == AstNodeType.Convert && node.Operand is BoundExpression)
           {
-            //if (Current.Name.EndsWith("fxdiv")) Debugger.Break();
             var be = node.Operand as BoundExpression;
             var tv = be.Variable.GetTypedVariable(node.Type);
             if (tv != null)

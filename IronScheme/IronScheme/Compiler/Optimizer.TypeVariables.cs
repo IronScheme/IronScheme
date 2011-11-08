@@ -192,8 +192,6 @@ namespace IronScheme.Compiler
 
         Expression ProcessAssignment(Expression val, Variable var)
         {
-          //if (var.Block.Name.EndsWith("sqrt")) Debugger.Break();
-
           var typecounts = vartypes[var];
 
           if (var.Type == typeof(object) && var.Kind != Variable.VariableKind.Parameter)

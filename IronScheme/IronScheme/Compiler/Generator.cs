@@ -343,7 +343,6 @@ namespace IronScheme.Compiler
               }
               if (cbe.Block != cb.Parent && cbe.Block != cb) // do TCE later
               {
-                //if (cb.Name.Contains("assq")) Debugger.Break();
                 return CallNormal(cbe, ppp);
               }
             }
@@ -937,7 +936,7 @@ namespace IronScheme.Compiler
           parent.AddVariable(p);
         }
         Expression val = Unwrap(pp[i]);
-        if (val.Type != typeof(Boolean) && val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
+        if (/*val.Type != typeof(Boolean) &&*/ val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
         {
           if (p.Type == typeof(object))
           {
