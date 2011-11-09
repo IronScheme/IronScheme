@@ -5,6 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme", "IronScheme\Ir
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
 	ProjectSection(SolutionItems) = preProject
+		debugbuild.bat = debugbuild.bat
 		dlr.diff = dlr.diff
 		header.bmp = header.bmp
 		ironscheme.ico = ironscheme.ico
@@ -14,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		logo-192.png = logo-192.png
 		logtest.bat = logtest.bat
 		r6rstest.bat = r6rstest.bat
+		releasebuild.bat = releasebuild.bat
 		todo.txt = todo.txt
 		welcome.bmp = welcome.bmp
 	EndProjectSection
