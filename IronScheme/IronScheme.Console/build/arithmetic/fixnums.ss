@@ -127,16 +127,18 @@ See docs/license.txt. |#
     (lambda (x)
       (syntax-case x ()
         [(_ (name formals ...) body body* ...)
-          (with-syntax (((checks ...) 
-            (map (lambda (f)
-                   (with-syntax ((f f))
-                     #'(unless (fixnum? f) 
-                        (assertion-violation 'name "not a fixnum" f))))
-                  #'(formals ...))))
-            #'(define (name formals ...)
-                checks ...
-                (let ()
-                  body body* ...)))]))) 
+          (with-syntax (((formals* ...) (generate-temporaries #'(formals ...)))
+                        ((type ...) (map (lambda (x) (datum->syntax x 'Int32)) #'(formals ...))))
+            (with-syntax (((checks ...) 
+              (map (lambda (f)
+                     (with-syntax ((f f))
+                       #'(unless (fixnum? f) 
+                          (assertion-violation 'name "not a fixnum" f))))
+                    #'(formals* ...))))
+              #'(define (name formals* ...)
+                  checks ...
+                  ((typed-lambda (formals ...) ((type ...) Object) body body* ...)
+                    formals* ...))))]))) 
 
   (define-syntax define-fx*
     (lambda (x)
