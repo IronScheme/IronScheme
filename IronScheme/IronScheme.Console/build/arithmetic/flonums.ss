@@ -204,12 +204,12 @@ See docs/license.txt. |#
   (define-fl-binop0 fl* 1.0)
   
   (define-fl (fldenominator fl)
-    (if (or (flnan? fl) (flinfinite? fl))
+    (if (or (flnan?* fl) (flinfinite?* fl))
         1.0
         (real->flonum (denominator fl))))
       
   (define-fl (flnumerator fl)
-    (if (or (flnan? fl) (flinfinite? fl))
+    (if (or (flnan?* fl) (flinfinite?* fl))
         fl
         (real->flonum (numerator fl))))
   
@@ -283,13 +283,13 @@ See docs/license.txt. |#
   (define-fl (flinteger? fl)
     ($fl=? 0.0 (flmod* fl 1.0))) 
     
-  (define-fl (flfinite? fl)
+  (define-fl* (flfinite? fl)
     (not (flinfinite?* fl)))
     
   (define-fl* (flinfinite? fl)
     (clr-static-call Double IsInfinity fl))
     
-  (define-fl (flnan? fl)
+  (define-fl* (flnan? fl)
     (clr-static-call Double IsNaN fl))    
     
   (define-fl (flsin fl)
