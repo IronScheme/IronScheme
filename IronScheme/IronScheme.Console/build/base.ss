@@ -454,13 +454,11 @@ See docs/license.txt. |#
     (define/contract (vector->list vec:vector)
       (clr-static-call Cons FromList vec))   
       
-    (define (reverse-helper l a)
-      (if (null? l)
-          a
-          (reverse-helper (cdr l) (cons (car l) a))))
-          
     (define/contract (reverse lst:list)
-      (reverse-helper lst '()))
+      (let f ((l lst)(a '()))
+        (if (null? l)
+            a
+            (f ($cdr l) (cons ($car l) a)))))
      
     (define (caar   x) (car (car x)))
     (define (cadr   x) (car (cdr x)))
