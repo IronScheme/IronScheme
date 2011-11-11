@@ -407,9 +407,8 @@ See docs/license.txt. |#
       (clr-static-call SymbolTable IdToString sym))
       
     (define/contract (string->symbol str:string)
-      (clr-static-call SymbolTable StringToObject str))
-      
-        
+      (clr-static-call SymbolTable StringToObject (->string str)))
+  
     (define/contract (list->vector lst:list)
       (apply vector lst))        
       
