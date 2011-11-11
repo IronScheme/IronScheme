@@ -60,7 +60,7 @@
     (only (ironscheme unsafe) $fx+ $fx-)
     (ironscheme constant-fold)
     (except (ironscheme library) file-locator)
-    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port))
+    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port time))
     
   (define trace-printer (make-parameter pretty-print))
       
@@ -146,7 +146,9 @@
         (void))))
     
   (define (ironscheme-test)
-    (load "tests/r6rs/run.sps"))    
+    (let ((path (string-append (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
+                               "/tests/r6rs/run.sps")))
+      (time (load path))))
       
   (define ironscheme-build
     (case-lambda
