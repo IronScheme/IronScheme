@@ -383,6 +383,55 @@ namespace IronScheme.Runtime
         return null;
       }
 
+      [InlineEmitter("$fxzero?")]
+      public static Expression FxZero(params Expression[] args)
+      {
+        if (Expect<int>(args, 1))
+        {
+          return Ast.Equal(UnwrapAndCast<int>(args[0]), Ast.Constant(0));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxnegative?")]
+      public static Expression FxNegative(params Expression[] args)
+      {
+        if (Expect<int>(args, 1))
+        {
+          return Ast.LessThan(UnwrapAndCast<int>(args[0]), Ast.Constant(0));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxpositive?")]
+      public static Expression FxPositive(params Expression[] args)
+      {
+        if (Expect<int>(args, 1))
+        {
+          return Ast.GreaterThan(UnwrapAndCast<int>(args[0]), Ast.Constant(0));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxeven?")]
+      public static Expression FxEven(params Expression[] args)
+      {
+        if (Expect<int>(args, 1))
+        {
+          return Ast.Equal(Ast.Add(UnwrapAndCast<int>(args[0]), Ast.Constant(1)), Ast.Constant(0));
+        }
+        return null;
+      }
+
+      [InlineEmitter("$fxodd?")]
+      public static Expression FxOdd(params Expression[] args)
+      {
+        if (Expect<int>(args, 1))
+        {
+          return Ast.Equal(Ast.Add(UnwrapAndCast<int>(args[0]), Ast.Constant(1)), Ast.Constant(1));
+        }
+        return null;
+      }
 
       #endregion
 
