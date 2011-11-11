@@ -306,13 +306,13 @@ See docs/license.txt. |#
         [(k)
           (make-string k #\nul)]
         [(k:fixnum fill:char)
-          (when (negative? k)
+          (when ($fxnegative? k)
             (assertion-violation 'make-string "cannot be negative" k))        
           (let ((str (clr-new String (clr-cast Char fill) (clr-cast Int32 k))))            
             (clr-new StringBuilder (clr-cast String str)))]))
 
     (define (string-ref str k)
-      (unless (and (fixnum? k) (fx>=? k 0))
+      (unless (and (fixnum? k) ($fx>=? k 0))
         (assertion-violation 'string-ref "not a non-negative integer" k))        
       (cond
         [(clr-string? str) 
@@ -325,21 +325,21 @@ See docs/license.txt. |#
     (define (string-set! str k val)
       (unless (stringbuilder? str)
         (assertion-violation 'string-set! "not a mutable string" str))
-      (unless (and (fixnum? k) (fx>=? k 0))
+      (unless (and (fixnum? k) ($fx>=? k 0))
         (assertion-violation 'string-set! "not a non-negative integer" k))        
       (clr-prop-set! StringBuilder Chars str k val))
       
     (define (string-fill! str k fill)
       (unless (stringbuilder? str)
         (assertion-violation 'string-fill! "not a mutable string" str))
-      (unless (and (fixnum? k) (fx>=? k 0))
+      (unless (and (fixnum? k) ($fx>=? k 0))
         (assertion-violation 'string-fill! "not a non-negative integer" k))        
       (unless (char? fill)
         (assertion-violation 'string-fill! "not a character" fill))
       (let f ((i 0))
-        (unless (fx=? i k)
+        (unless ($fx=? i k)
           (clr-prop-set! StringBuilder Chars str i fill)
-          (f (fx+ i 1)))))
+          (f ($fx+ i 1)))))
             
     (define (string-length str)
       (cond
@@ -416,16 +416,16 @@ See docs/license.txt. |#
       (apply string lst))
       
     (define/contract (vector-ref x:vector n:fixnum)
-      (when (fxnegative? n)
+      (when ($fxnegative? n)
         (assertion-violation 'vector-ref "negative index" n))
-      (when (fx>=? n (vector-length x))
+      (when ($fx>=? n (vector-length x))
         (assertion-violation 'vector-ref "index out of bounds" n))
       ($vector-ref x n))
       
     (define/contract (vector-set! x:vector n:fixnum value)
-      (when (fxnegative? n)
+      (when ($fxnegative? n)
         (assertion-violation 'vector-set! "negative index" n))
-      (when (fx>=? n (vector-length x))
+      (when ($fx>=? n (vector-length x))
         (assertion-violation 'vector-set! "index out of bounds" n))
       ($vector-set! x n value)
       (void))   
@@ -433,7 +433,7 @@ See docs/license.txt. |#
     (define/contract make-vector         
       (case-lambda
         [(k:fixnum)
-          (when (negative? k)
+          (when ($fxnegative? k)
             (assertion-violation 'make-vector "cannot be negative" k))
           (clr-new-array Object k)]
         [(k fill)
@@ -446,9 +446,9 @@ See docs/license.txt. |#
     
     (define/contract (vector-fill! vec:vector val)
       (let ((len (vector-length vec)))
-        (do ((i 0 (fx+ i 1)))
-            ((fx=? i len))
-          (vector-set! vec i val))))  
+        (do ((i 0 ($fx+ i 1)))
+            (($fx=? i len))
+          ($vector-set! vec i val))))  
           
     (define/contract (vector->list vec:vector)
       (clr-static-call Cons FromList vec))   
