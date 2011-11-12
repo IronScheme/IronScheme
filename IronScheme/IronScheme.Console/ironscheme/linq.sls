@@ -60,6 +60,7 @@ See docs/license.txt. |#
 
   (import 
     (except (rnrs) syntax-case)
+    (only (ironscheme core) eqv-hash)
     (rename (ironscheme symbolic-case) (symbolic-case syntax-case)))
 
   (define-record-type grouping (fields key iter))
@@ -75,7 +76,7 @@ See docs/license.txt. |#
       [else        eqv?]))
 
   (define (get-hashtable e)
-    (make-hashtable equal-hash (get-eq e)))
+    (make-hashtable eqv-hash (get-eq e)))
 
   (define (symbol<? a b)
     (string<? 
