@@ -340,10 +340,13 @@ See docs/license.txt. |#
         (assertion-violation 'string-fill! "not a non-negative integer" k))        
       (unless (char? fill)
         (assertion-violation 'string-fill! "not a character" fill))
-      (let f ((i 0))
-        (unless ($fx=? i k)
-          (clr-prop-set! StringBuilder Chars str i fill)
-          (f ($fx+ i 1)))))
+      (let: ((str : StringBuilder str)
+             (k : Int32 k)
+             (fill : Char fill))
+        (let f ((i 0))
+          (unless ($fx=? i k)
+            (clr-prop-set! StringBuilder Chars str i fill)
+            (f ($fx+ i 1))))))
             
     (define (string-length str)
       (cond
@@ -515,7 +518,7 @@ See docs/license.txt. |#
     (define/contract vector-map
       (case-lambda
         [(p:procedure vec:vector)
-          ((typed-lambda (p vec len) ((Callable Object[] Int32) Object)
+          ((lambda: ((p : Callable)(vec : Object[])(len : Int32))
             (let ((res (clr-cast Object[] (make-vector len '()))))
               (do ((i 0 ($fx+ i 1)))
                   (($fx=? i len) res)
@@ -534,7 +537,7 @@ See docs/license.txt. |#
     (define/contract vector-for-each
       (case-lambda
         [(p:procedure vec:vector)
-          ((typed-lambda (p vec len) ((Callable Object[] Int32) Object)
+          ((lambda: ((p : Callable)(vec : Object[])(len : Int32))
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
               (p ($vector-ref vec i))))
@@ -550,7 +553,8 @@ See docs/license.txt. |#
     (define/contract string-for-each
       (case-lambda
         [(p:procedure str:string)
-          (let ((len (string-length str)))
+          (let: ((len : Int32 (string-length str))
+                 (p : Callable p))
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
               (p (string-ref str i))))]
