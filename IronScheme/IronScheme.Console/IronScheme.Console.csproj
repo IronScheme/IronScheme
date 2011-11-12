@@ -245,7 +245,7 @@
     </None>
     <None Include="playground\grid.ss" />
     <None Include="playground\il-assembler.ss" />
-    <None Include="ironscheme\linq2.sls">
+    <None Include="ironscheme\linq.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\irc.ss" />

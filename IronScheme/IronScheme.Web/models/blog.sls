@@ -48,14 +48,15 @@
       e))
       
   (define (search-data t)
-    (from e in entries
-     where (or (string-ci-contains? (blog-entry-subject e) t)
-               (string-ci-contains? (blog-entry-body e) t))
-     select e))
+    (iterator->list 
+      (from e in entries
+       where (or (string-ci-contains? (blog-entry-subject e) t)
+                 (string-ci-contains? (blog-entry-body e) t))
+       select e)))
  
   (define (get-data page pagesize) 
     (let ((s (* page pagesize)))
-      (take (skip entries s) pagesize)))
+      (iterator->list (take (skip entries s) pagesize))))
     
   (define (delete-entry! id)
     (let ((e (get-entry-id id)))

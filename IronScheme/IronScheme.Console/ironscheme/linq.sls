@@ -5,7 +5,7 @@ All rights reserved.
 This source code is subject to terms and conditions of the BSD License.
 See docs/license.txt. |#
 
-(library (ironscheme linq2)
+(library (ironscheme linq)
   (export
     ; iterator procs
     iterator?
@@ -56,53 +56,11 @@ See docs/license.txt. |#
     ; main macro's
     from
     foreach   ; C# like syntactic sugar, supports 'break/continue' 
-    ; auxiliary keywords
-    #|
-    in
-    select
-    orderby
-    where
-    join
-    group
-    by
-    equals
-    on
-    into
-    ascending
-    descending
-    let
-    =
-    then
-    |#
     )
 
   (import 
     (except (rnrs) syntax-case)
     (rename (ironscheme symbolic-case) (symbolic-case syntax-case)))
-    
- #;(define-syntax define-aux
-    (syntax-rules ()
-      [(_ id ...)
-        (begin
-          (define-syntax id
-            (lambda (x)
-              (syntax-violation #f "invalid use of auxiliary keyword" x 'id))) 
-          ...)]))
-            
-  #;(define-aux 
-    select
-    in
-    orderby
-    where
-    join
-    group
-    into
-    by
-    equals
-    on
-    ascending
-    descending
-    then)    
 
   (define-record-type grouping (fields key iter))
   
@@ -117,8 +75,7 @@ See docs/license.txt. |#
       [else        eqv?]))
 
   (define (get-hashtable e)
-    ;(make-hashtable equal-hash (get-eq e)))
-    (make-eqv-hashtable)) ; for ikarus
+    (make-hashtable equal-hash (get-eq e)))
 
   (define (symbol<? a b)
     (string<? 
@@ -961,7 +918,7 @@ See docs/license.txt. |#
 ;; examples
 
 #|
-(import (ironscheme linq2))
+(import (ironscheme linq))
 
 ;; euler 1 (bit bigger to test for proper tail calls)
 
@@ -981,7 +938,7 @@ VS
       (else (s (fx+ cur-value 1) sum)))))
   
 
-(define env (environment '(ironscheme linq2)))
+(define env (environment '(ironscheme linq)))
 
 ;; extract proc forms
 (foreach f in (from eb in (environment-bindings env)
@@ -1292,7 +1249,7 @@ References:
 Tests:
 ======
 
-(import (ironscheme linq2))
+(import (ironscheme linq))
 
 ;; conformance to C# tests
 ;; simply permutations of the grammar and matched to the output of C#

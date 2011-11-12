@@ -2,7 +2,7 @@
   (export opcode?)
   (import 
     (ironscheme)
-    (ironscheme linq2)
+    (ironscheme linq)
     (ironscheme clr)
     (ironscheme clr dynamic)
     (ironscheme strings)
