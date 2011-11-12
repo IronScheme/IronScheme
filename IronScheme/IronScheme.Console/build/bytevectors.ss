@@ -488,17 +488,17 @@ See docs/license.txt. |#
       (bytevector-copy! bv k d 0 (bytevector-length d))
       d))
       
-  (define utf16->string           
+  (define/contract utf16->string           
     (case-lambda
       [(bv end)
         (utf16->string bv end #f)]
-      [(bv end endman?)
+      [(bv:bytevector end:symbol endman?)
         (if endman?
             (if (eq? end 'big)
                 (get-string utf16be bv)
                 (get-string utf16le bv))
-            (let ((b0 (bytevector-u8-ref bv 0))
-                  (b1 (bytevector-u8-ref bv 1)))
+            (let ((b0 ($bytevector-ref bv 0))
+                  (b1 ($bytevector-ref bv 1)))
               (cond
                 [(and ($fx=? #xff b0) ($fx=? b1 #xfe))
                   (utf16->string (trim-front bv 2) 'little #t)]
@@ -507,19 +507,19 @@ See docs/license.txt. |#
                 [else
                   (utf16->string bv end #t)])))]))
                 
-  (define utf32->string           
+  (define/contract utf32->string           
     (case-lambda
       [(bv end)
         (utf32->string bv end #f)]
-      [(bv end endman?)
+      [(bv:bytevector end:symbol endman?)
         (if endman?
             (if (eq? end 'big)
                 (get-string utf32be bv)
                 (get-string utf32le bv))
-            (let ((b0 (bytevector-u8-ref bv 0))
-                  (b1 (bytevector-u8-ref bv 1))
-                  (b2 (bytevector-u8-ref bv 2))
-                  (b3 (bytevector-u8-ref bv 3)))                
+            (let ((b0 ($bytevector-ref bv 0))
+                  (b1 ($bytevector-ref bv 1))
+                  (b2 ($bytevector-ref bv 2))
+                  (b3 ($bytevector-ref bv 3)))                
               (cond
                   [(and ($fx=? #xff b0) ($fx=? b1 #xfe) ($fxzero? b2) ($fxzero? b3))
                     (utf32->string (trim-front bv 4) 'little #t)]
