@@ -40,9 +40,6 @@
 
   (define (union-find ht x y)
     (import UNSAFE)
-    
-    (define eq-hashtable-ref hashtable-ref)
-    (define eq-hashtable-set! hashtable-set!)
     (define (find b)
       (let ([n (box-content b)])
         (if (box? n)
@@ -50,17 +47,17 @@
               (let ([nn (box-content n)])
                 (if (box? nn) (begin (set-box-content! b nn) (loop n nn)) n)))
             b)))
-    (let ([bx (eq-hashtable-ref ht x #f)]
-          [by (eq-hashtable-ref ht y #f)])
+    (let ([bx (hashtable-ref ht x #f)]
+          [by (hashtable-ref ht y #f)])
       (if (not bx)
           (if (not by)
               (let ([b (make-box 1)])
-                (eq-hashtable-set! ht x b)
-                (eq-hashtable-set! ht y b)
+                (hashtable-set! ht x b)
+                (hashtable-set! ht y b)
                 #f)
-              (let ([ry (find by)]) (eq-hashtable-set! ht x ry) #f))
+              (let ([ry (find by)]) (hashtable-set! ht x ry) #f))
           (if (not by)
-              (let ([rx (find bx)]) (eq-hashtable-set! ht y rx) #f)
+              (let ([rx (find bx)]) (hashtable-set! ht y rx) #f)
               (let ([rx (find bx)] [ry (find by)])
                 (or (eq? rx ry)
                     (let ([nx (box-content rx)] [ny (box-content ry)])
