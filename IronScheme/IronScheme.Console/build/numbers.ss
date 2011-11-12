@@ -489,10 +489,10 @@ See docs/license.txt. |#
       (values d (- x1 (* d x2)))))         
         
   (define (hex-char num)
-    (integer->char (+ num (char->integer (if (fx<? num 10) #\0 #\W)))))
+    (integer->char ($fx+ num (char->integer (if ($fx<? num 10) #\0 #\W)))))
         
   (define (fixnum->string num radix)
-    (if (fxnegative? num)
+    (if ($fxnegative? num)
         (string-append "-" (number->string (abs num) radix))
         (clr-static-call Convert (ToString Int32 Int32) num radix)))
      

@@ -294,10 +294,10 @@ See docs/license.txt. |#
       (clr-cast Int32 (clr-cast Char chr)))
       
     (define/contract (integer->char num:fixnum)
-      (when (or (fxnegative? num)      
-                (fx>? num #x10ffff)
-                (and (fx>? num #xd7ff)
-                     (fx<? num #xe000)))
+      (when ($or? ($fxnegative? num)      
+                  ($fx>? num #x10ffff)
+                  ($and? ($fx>? num #xd7ff)
+                         ($fx<? num #xe000)))
         (assertion-violation 'integer->char "not a valid unicode value" num))
       (string-ref (clr-static-call Char ConvertFromUtf32 num) 0))
       
@@ -326,7 +326,9 @@ See docs/license.txt. |#
       (unless (stringbuilder? str)
         (assertion-violation 'string-set! "not a mutable string" str))
       (unless (and (fixnum? k) ($fx>=? k 0))
-        (assertion-violation 'string-set! "not a non-negative integer" k))        
+        (assertion-violation 'string-set! "not a non-negative integer" k))
+      (unless (char? val)
+        (assertion-violation 'string-fill! "not a character" val))
       (clr-prop-set! StringBuilder Chars str k val))
       
     (define (string-fill! str k fill)
@@ -382,9 +384,9 @@ See docs/license.txt. |#
           (assertion-violation 'string-copy "not a string" str)]))
 
     (define (substring str start end)
-      (unless (and (fixnum? start) (fx>=? start 0))
+      (unless (and (fixnum? start) ($fx>=? start 0))
         (assertion-violation 'substring "not a non-negative integer" start)) 
-      (unless (and (fixnum? end) (fx>=? end 0))
+      (unless (and (fixnum? end) ($fx>=? end 0))
         (assertion-violation 'substring "not a non-negative integer" end))             
       (cond
         [(clr-string? str)

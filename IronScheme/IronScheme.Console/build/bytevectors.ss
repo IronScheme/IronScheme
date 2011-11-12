@@ -151,7 +151,8 @@ See docs/license.txt. |#
       bytevector-sint-set!
       
       )
-    (ironscheme contracts))
+    (ironscheme contracts)
+    (ironscheme unsafe))
     
   (clr-using System.Text)
   (clr-using Oyster.Math)    
@@ -185,8 +186,8 @@ See docs/license.txt. |#
   
   (define (byte->sbyte b)
     (let ((b (->fixnum b)))
-      (if (fx>? b 127)
-          (fx- b 256)
+      (if ($fx>? b 127)
+          ($fx- b 256)
           b)))
   
   (define ->byte
@@ -194,7 +195,7 @@ See docs/license.txt. |#
       ((Object) Byte)
       (unless (fixnum? k)
         (assertion-violation #f "not a fixnum" k))
-      (when (or (fx<? k -128) (fx>? k 255))
+      (when (or ($fx<? k -128) ($fx>? k 255))
         (assertion-violation #f "too big or small for octect or byte" k))
       (clr-cast Byte (clr-cast Int32 k))))
     
@@ -219,12 +220,12 @@ See docs/license.txt. |#
     (cond
       [(eq? bv1 bv2) #t]
       [(let ((bl (bytevector-length bv1)))
-        (if (= bl (bytevector-length bv2))
+        (if ($fx=? bl (bytevector-length bv2))
             (let f ((i 0))
               (cond 
-                [(= i bl) #t]
-                [(= (bytevector-u8-ref bv1 i) (bytevector-u8-ref bv2 i))
-                  (f (+ i 1))]
+                [($fx=? i bl) #t]
+                [($fx=? (bytevector-u8-ref bv1 i) (bytevector-u8-ref bv2 i))
+                  (f ($fx+ i 1))]
                 [else #f]))
             #f))]
       [else #f]))
@@ -233,9 +234,9 @@ See docs/license.txt. |#
     (let ((fill (->byte fill))
           (k (bytevector-length bv)))
       (let f ((i 0))
-        (unless (= i k)
+        (unless ($fx=? i k)
           (bytevector-u8-set! bv i fill)
-          (f (+ i 1))))))
+          (f ($fx+ i 1))))))
           
   (define/contract (bytevector-copy! bv1:bytevector s1 bv2:bytevector s2 len)
     (clr-static-call Buffer BlockCopy bv1 s1 bv2 s2 len))  
@@ -243,51 +244,49 @@ See docs/license.txt. |#
   (define/contract (bytevector-copy bv:bytevector)
     (clr-call Array Clone bv))  
     
-  (define/contract (bytevector-u8-ref bv:bytevector k)
-    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+  (define/contract (bytevector-u8-ref bv:bytevector k:fixnum)
+    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
       (assertion-violation 'bytevector-u8-ref "indexer out of bounds" bv k)) 
     (clr-static-call Convert (ToInt32 Byte) 
       ($bytevector-ref bv k)))
       
-  (define/contract (bytevector-u8-set! bv:bytevector k value)
-    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+  (define/contract (bytevector-u8-set! bv:bytevector k:fixnum value)
+    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
       (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
     ($bytevector-set! bv k (clr-static-call Convert (ToByte Object) value)))
    
-  (define/contract (bytevector-s8-ref bv:bytevector k)
-    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+  (define/contract (bytevector-s8-ref bv:bytevector k:fixnum)
+    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
       (assertion-violation 'bytevector-s8-ref "indexer out of bounds" bv k)) 
     (byte->sbyte ($bytevector-ref bv k)))
       
-  (define/contract (bytevector-s8-set! bv:bytevector k value)
-    (unless (and (fx>=? k 0) (fx<? k (bytevector-length bv)))
+  (define/contract (bytevector-s8-set! bv:bytevector k:fixnum value)
+    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
       (assertion-violation 'bytevector-s8-set! "indexer out of bounds" bv k)) 
     ($bytevector-set! bv k (->byte value)))  
    
   (define/contract (bytevector->u8-list bv:bytevector)
     (let ((l (bytevector-length bv)))
-      (let f ((i (- l 1))(a '()))
-        (if (negative? i)
+      (let f ((i ($fx- l 1))(a '()))
+        (if ($fxnegative? i)
             a
-            (f (- i 1) (cons (bytevector-u8-ref bv i) a))))))
+            (f ($fx- i 1) (cons (bytevector-u8-ref bv i) a))))))
             
   (define/contract (u8-list->bytevector lst:list)
     (let* ((l (length lst))
            (bv (make-bytevector l)))
       (let f ((i 0)(lst lst))
-        (if (= i l)
+        (if ($fx=? i l)
             bv
             (begin
               (bytevector-u8-set! bv i (car lst))
-              (f (+ i 1) (cdr lst)))))))
+              (f ($fx+ i 1) (cdr lst)))))))
               
-  (define/contract (bytevector-uint-ref bv:bytevector k end size)
-    (unless (and (integer? k) (exact? k) (not (negative? k)))
+  (define/contract (bytevector-uint-ref bv:bytevector k:fixnum end:symbol size:fixnum)
+    (when ($fxnegative? k)
       (assertion-violation 'bytevector-uint-ref "not a non-negative exact integer" k))
-    (unless (and (integer? size) (exact? size) (not (negative? size)))
+    (when ($fxnegative? size)
       (assertion-violation 'bytevector-uint-ref "not a non-negative exact integer" size))
-    (unless (symbol? end)
-      (assertion-violation 'bytevector-uint-ref "not a symbol" end))
     (let ((sb (make-bytevector size)))
       (bytevector-copy! bv k sb 0 size)
       (when (eq? end 'big)
@@ -322,13 +321,11 @@ See docs/license.txt. |#
                                    (Create Byte[])
                                    data)))])))
                                                    
-  (define/contract (bytevector-sint-ref bv:bytevector k end size)
-    (unless (and (integer? k) (exact? k) (not (negative? k)))
+  (define/contract (bytevector-sint-ref bv:bytevector k:fixnum end:symbol size:fixnum)
+    (when ($fxnegative? k)
       (assertion-violation 'bytevector-sint-ref "not a non-negative exact integer" k))
-    (unless (and (integer? size) (exact? size) (not (negative? size)))
+    (when ($fxnegative? size)
       (assertion-violation 'bytevector-sint-ref "not a non-negative exact integer" size))
-    (unless (symbol? end)
-      (assertion-violation 'bytevector-sint-ref "not a symbol" end))
     (let ((sb (make-bytevector size)))
       (bytevector-copy! bv k sb 0 size)
       (when (eq? end 'big)
@@ -359,13 +356,11 @@ See docs/license.txt. |#
                                  (Create Byte[])
                                  sb))])))
                            
-  (define/contract (bytevector-uint-set! bv:bytevector k n end size)                           
-    (unless (and (integer? k) (exact? k) (not (negative? k)))
+  (define/contract (bytevector-uint-set! bv:bytevector k:fixnum n end:symbol size:fixnum) 
+    (when ($fxnegative? k)
       (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" k))
-    (unless (and (integer? size) (exact? size) (not (negative? size)))
+    (when ($fxnegative? size)
       (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" size))
-    (unless (symbol? end)
-      (assertion-violation 'bytevector-uint-set! "not a symbol" end))   
     (case size
       [(1)
         ($bytevector-set! bv k (->byte n))]
@@ -405,13 +400,11 @@ See docs/license.txt. |#
           (bytevector-copy! data (if (eq? end 'big) 1 0) bv k size))])
     (void))
           
-  (define/contract (bytevector-sint-set! bv:bytevector k n end size)                           
-    (unless (and (integer? k) (exact? k) (not (negative? k)))
+  (define/contract (bytevector-sint-set! bv:bytevector k:fixnum n end:symbol size:fixnum) 
+    (when ($fxnegative? k)
       (assertion-violation 'bytevector-sint-set! "not a non-negative exact integer" k))
-    (unless (and (integer? size) (exact? size) (not (negative? size)))
+    (when ($fxnegative? size)
       (assertion-violation 'bytevector-sint-set! "not a non-negative exact integer" size))
-    (unless (symbol? end)
-      (assertion-violation 'bytevector-sint-set! "not a symbol" end))                 
     (case size
       [(1)
         ($bytevector-set! bv k (->byte n))]
@@ -491,7 +484,7 @@ See docs/license.txt. |#
     (get-string utf8 bv))
     
   (define (trim-front bv k)
-    (let ((d (make-bytevector (- (bytevector-length bv) k))))
+    (let ((d (make-bytevector ($fx- (bytevector-length bv) k))))
       (bytevector-copy! bv k d 0 (bytevector-length d))
       d))
       
@@ -507,9 +500,9 @@ See docs/license.txt. |#
             (let ((b0 (bytevector-u8-ref bv 0))
                   (b1 (bytevector-u8-ref bv 1)))
               (cond
-                [(and (= #xff b0) (= b1 #xfe))
+                [(and ($fx=? #xff b0) ($fx=? b1 #xfe))
                   (utf16->string (trim-front bv 2) 'little #t)]
-                [(and (= #xfe b0) (= b1 #xff))
+                [(and ($fx=? #xfe b0) ($fx=? b1 #xff))
                   (utf16->string (trim-front bv 2) 'big #t)]
                 [else
                   (utf16->string bv end #t)])))]))
@@ -528,51 +521,50 @@ See docs/license.txt. |#
                   (b2 (bytevector-u8-ref bv 2))
                   (b3 (bytevector-u8-ref bv 3)))                
               (cond
-                  [(and (= #xff b0) (= b1 #xfe) (zero? b2) (zero? b3))
+                  [(and ($fx=? #xff b0) ($fx=? b1 #xfe) ($fxzero? b2) ($fxzero? b3))
                     (utf32->string (trim-front bv 4) 'little #t)]
-                  [(and (zero? b0) (zero? b1) (= #xfe b2) (= b3 #xff))
+                  [(and ($fxzero? b0) ($fxzero? b1) ($fx=? #xfe b2) ($fx=? b3 #xff))
                     (utf32->string (trim-front bv 4) 'big #t)]
                 [else
                   (utf32->string bv end #t)])))]))  
                   
-  (define (uint-list->bytevector lst end size)
-    (when (negative? size)
+  (define/contract (uint-list->bytevector lst:list end:symbol size:fixnum)
+    (when ($fxnegative? size)
       (assertion-violation 'uint-list->bytevector "invalid size" size))
-    (let ((bv (make-bytevector (* (length lst) size))))
+    (let ((bv (make-bytevector ($fx* (length lst) size))))
       (let f ((i 0)(lst lst))
         (if (null? lst)
             bv
             (begin
-              (bytevector-uint-set! bv i (car lst) end size)
-              (f (+ i size) (cdr lst)))))))
+              (bytevector-uint-set! bv i ($car lst) end size)
+              (f ($fx+ i size) ($cdr lst)))))))
               
-  (define (sint-list->bytevector lst end size)
-    (when (negative? size)
+  (define/contract (sint-list->bytevector lst:list end:symbol size:fixnum)
+    (when ($fxnegative? size)
       (assertion-violation 'sint-list->bytevector "invalid size" size))
-    (let ((bv (make-bytevector (* (length lst) size))))
+    (let ((bv (make-bytevector ($fx* (length lst) size))))
       (let f ((i 0)(lst lst))
         (if (null? lst)
             bv
             (begin
-              (bytevector-sint-set! bv i (car lst) end size)
-              (f (+ i size) (cdr lst)))))))
+              (bytevector-sint-set! bv i ($car lst) end size)
+              (f ($fx+ i size) ($cdr lst)))))))
               
-  (define (bytevector->uint-list bv end size)
-    (unless (positive? size)
+  (define/contract (bytevector->uint-list bv:bytevector end:symbol size:fixnum)
+    (unless ($fxpositive? size)
       (assertion-violation 'bytevector->uint-list "invalid size" size))
     (let f ((l (bytevector-length bv)) (a '()))
-      (if (zero? l)
+      (if ($fxzero? l)
           a
-          (f (- l size) (cons (bytevector-uint-ref bv (- l size) end size) a)))))
+          (f ($fx- l size) (cons (bytevector-uint-ref bv ($fx- l size) end size) a)))))
 
-  (define (bytevector->sint-list bv end size)
-    (unless (positive? size)
+  (define/contract (bytevector->sint-list bv:bytevector end:symbol size:fixnum)
+    (unless ($fxpositive? size)
       (assertion-violation 'bytevector->sint-list "invalid size" size))
     (let f ((l (bytevector-length bv)) (a '()))
-      (if (zero? l)
+      (if ($fxzero? l)
           a
-          (f (- l size) (cons (bytevector-sint-ref bv (- l size) end size) a)))))
-                
+          (f ($fx- l size) (cons (bytevector-sint-ref bv ($fx- l size) end size) a)))))
             
   (define (single->double s)
     (clr-static-call Convert (ToDouble Single) s))  
@@ -677,24 +669,24 @@ See docs/license.txt. |#
   (define (bytevector-s64-native-set! bytevector k n)    
     (bytevector-sint-set! bytevector k n (native-endianness) 8))
     
-  (define (bytevector-ieee-single-native-ref bytevector k)
-    (if (not (fxzero? (fxmod k 4)))
-      (assertion-violation 'bytevector-ieee-single-native-ref "must be multiple of 4" k)
-      (bytevector-ieee-single-ref bytevector k (native-endianness))))
+  (define/contract (bytevector-ieee-single-native-ref bytevector k:fixnum)
+    (unless ($fxzero? ($fxmod0 k 4))
+      (assertion-violation 'bytevector-ieee-single-native-ref "must be multiple of 4" k))
+    (bytevector-ieee-single-ref bytevector k (native-endianness)))
     
-  (define (bytevector-ieee-double-native-ref bytevector k)     
-    (if (not (fxzero? (fxmod k 8)))
-      (assertion-violation 'bytevector-ieee-double-native-ref "must be multiple of 8" k)
-      (bytevector-ieee-double-ref bytevector k (native-endianness))))
+  (define/contract (bytevector-ieee-double-native-ref bytevector k:fixnum)     
+    (unless ($fxzero? ($fxmod0 k 8))
+      (assertion-violation 'bytevector-ieee-double-native-ref "must be multiple of 8" k))
+    (bytevector-ieee-double-ref bytevector k (native-endianness)))
     
-  (define (bytevector-ieee-single-native-set! bytevector k x)     
-    (if (not (fxzero? (fxmod k 4)))
-      (assertion-violation 'bytevector-ieee-single-native-set! "must be multiple of 4" k)
-      (bytevector-ieee-single-set! bytevector k x (native-endianness))))
+  (define/contract (bytevector-ieee-single-native-set! bytevector k:fixnum x)     
+    (unless ($fxzero? ($fxmod0 k 4))
+      (assertion-violation 'bytevector-ieee-single-native-set! "must be multiple of 4" k))
+    (bytevector-ieee-single-set! bytevector k x (native-endianness)))
     
-  (define (bytevector-ieee-double-native-set! bytevector k x)     
-    (if (not (fxzero? (fxmod k 8)))
-      (assertion-violation 'bytevector-ieee-double-native-set! "must be multiple of 8" k)
-      (bytevector-ieee-double-set! bytevector k x (native-endianness))))
+  (define/contract (bytevector-ieee-double-native-set! bytevector k:fixnum x)     
+    (unless ($fxzero? ($fxmod0 k 8))
+      (assertion-violation 'bytevector-ieee-double-native-set! "must be multiple of 8" k))
+    (bytevector-ieee-double-set! bytevector k x (native-endianness)))
 )
 

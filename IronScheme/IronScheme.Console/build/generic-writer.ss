@@ -15,6 +15,7 @@ See docs/license.txt. |#
   (import 
     (except (ironscheme) write-char write display generic-write initialize-default-printers textual-output-port?)
     (ironscheme contracts)
+    (ironscheme unsafe)
     (ironscheme clr))
     
   (define (textual-output-port? obj)
@@ -135,12 +136,12 @@ See docs/license.txt. |#
                (len (string-length str)))
           (let f ((i 0))
             (cond
-              [(= i len)]
+              [($fx=? i len)]
               [else
                 (let* ((chr (string-ref str i))
                        (cat (char-general-category chr)))
                   (cond 
-                    [(or (and (zero? i) 
+                    [(or (and ($fxzero? i) 
                          (or (eq? cat 'Nd)
                              (char=? chr #\@)
                              (and (char=? chr #\.) (not (string=? str "...")))))
@@ -150,7 +151,7 @@ See docs/license.txt. |#
                       (put-string port ";")]
                     [else
                       (put-char port chr)]))
-                (f (+ i 1))])))
+                (f ($fx+ i 1))])))
         (put-string port (symbol->string sym))))
           
   (define (write-char chr port readable?)
@@ -176,7 +177,7 @@ See docs/license.txt. |#
         (let ((len (string-length str)))
           (put-char port #\")
           (let f ((i 0))
-            (unless (= i len)
+            (unless ($fx=? i len)
               (let ((chr (string-ref str i)))
                 (case chr
                   [(#\\)          (put-string port "\\\\")]
@@ -189,7 +190,7 @@ See docs/license.txt. |#
                   [(#\vtab)       (put-string port "\\v")]
                   [(#\page)       (put-string port "\\f")]
                   [else (put-char port chr)])
-                (f (+ i 1)))))
+                (f ($fx+ i 1)))))
           (put-char port #\"))
         (put-string port str)))
 
@@ -228,31 +229,31 @@ See docs/license.txt. |#
   (define (write-vector vec port readable?)
     (put-string port "#(")
     (let* ((len (vector-length vec))
-           (len-1 (- len 1)))       
+           (len-1 ($fx- len 1)))       
       (let f ((i 0))
         (cond
-          [(= i len)]
-          [(= i len-1)
+          [($fx=? i len)]
+          [($fx=? i len-1)
             (generic-write (vector-ref vec i) port readable?)]
           [else
             (generic-write (vector-ref vec i) port readable?)
             (put-string port " ")
-            (f (+ i 1))])))
+            (f ($fx+ i 1))])))
     (put-string port ")"))
       
   (define (write-bytevector bv port readable?)
     (put-string port "#vu8(")
     (let* ((len (bytevector-length bv))
-           (len-1 (- len 1)))       
+           (len-1 ($fx- len 1)))       
       (let f ((i 0))
         (cond
-          [(= i len)]
-          [(= i len-1)
+          [($fx=? i len)]
+          [($fx=? i len-1)
             (generic-write (bytevector-u8-ref bv i) port readable?)]
           [else
             (generic-write (bytevector-u8-ref bv i) port readable?)
             (put-string port " ")
-            (f (+ i 1))])))
+            (f ($fx+ i 1))])))
     (put-string port ")"))
       
   (define (write-port p port readable?)
@@ -271,9 +272,9 @@ See docs/license.txt. |#
     (let* ((flds (record-type-field-names rtd))
            (len  (vector-length flds)))
       (let f ((i 0)(a '()))
-        (if (= i len)
+        (if ($fx=? i len)
             (reverse a)
-            (f (+ i 1) 
+            (f ($fx+ i 1) 
                (cons (cons (vector-ref flds i) 
                            ((record-accessor rtd i) rec))
                      a))))))
@@ -315,23 +316,23 @@ See docs/license.txt. |#
                 (let* ((flds (get-fields rtd c))
                        (len  (length flds)))
                   (cond 
-                    [(zero? len)
+                    [($fxzero? len)
                       (put-string port "\n")]
-                    [(= 1 len)
+                    [($fx=? 1 len)
                       (let ((fld (cdr (car flds))))
                         (if (vector? fld)
                             (let ((len (vector-length fld)))
                               (put-string port "\n")
                               (let f ((i 0))
                                 (cond
-                                  [(= i len)]
+                                  [($fx=? i len)]
                                   [else
                                     (put-string port "  [")
-                                    (put-string port (number->string (+ i 1)))
+                                    (put-string port (number->string ($fx+ i 1)))
                                     (put-string port "] ")
                                     (generic-write (vector-ref fld i) port #t)
                                     (put-string port "\n")
-                                    (f (+ i 1))]))) 
+                                    (f ($fx+ i 1))]))) 
                             (begin
                               (put-string port ": ")
                               (generic-write fld port #t)
@@ -351,7 +352,7 @@ See docs/license.txt. |#
   (define (write-condition cnd port readable?)
     (if readable?
         (let ((cnds (simple-conditions cnd)))
-          (if (= 1 (length cnds))
+          (if ($fx=? 1 (length cnds))
               (write-record (car cnds) port readable?)
               (put-string port "#<compound-condition>")))
         (display-condition cnd port)))
