@@ -1542,7 +1542,7 @@
                  op))))))))
   (define-prims
     clr-call-internal clr-cast-internal zero? string-length vector-ref syntax-violation vector-length cons* cadr cddr filter
-    syntax-dispatch apply cons append map list syntax-error reverse format
+    syntax-dispatch apply cons append map list syntax-error reverse format not make-compile-time-value
     assertion-violation null? car cdr pair? bound-identifier=? list->vector
     generate-temporaries = + datum->syntax string->symbol void
     string-append symbol->string syntax->datum gensym length 
