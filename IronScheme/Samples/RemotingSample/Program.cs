@@ -35,7 +35,7 @@ namespace RemotingSample
 
       var sbs = ServiceManager.GetSymbolBindingService();
 
-      var result = sbs.GetBindings("(ironscheme linq2)");
+      var result = sbs.GetBindings("(ironscheme linq)");
       Console.WriteLine(result);
 
       var pi = sbs.GetProcedureInfo("cons", "(rnrs)");
@@ -43,7 +43,7 @@ namespace RemotingSample
       try
       {
         // not a procedure
-        var pi2 = sbs.GetProcedureInfo("from", "(ironscheme linq2)");
+        var pi2 = sbs.GetProcedureInfo("from", "(ironscheme linq)");
       }
       catch //(EvaluationException ex)
       {

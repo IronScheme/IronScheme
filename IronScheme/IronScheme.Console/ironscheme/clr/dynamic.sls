@@ -13,7 +13,7 @@ See docs/license.txt. |#
     else)
   (import
     (ironscheme)
-    (ironscheme linq2)
+    (ironscheme linq)
     (ironscheme strings)
     (ironscheme clr)
     (ironscheme unsafe)

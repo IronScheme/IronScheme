@@ -6,7 +6,7 @@
     )
   (import 
     (ironscheme)
-    ;(ironscheme linq2)
+    ;(ironscheme linq)
     (ironscheme clr)
     (ironscheme regex-cond)
     (ironscheme strings)

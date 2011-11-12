@@ -14,7 +14,7 @@
     (ironscheme web)
     (prefix (ironscheme web models) model:)
     (ironscheme strings)
-    (ironscheme linq2))
+    (ironscheme linq))
 
   (define-enumeration identifier-type 
     (variable 
@@ -189,7 +189,6 @@
       (ironscheme files)
       (ironscheme library-utils)
       (ironscheme linq)
-      (ironscheme linq2)
       (ironscheme process)
       (ironscheme random)
       (ironscheme record-case)

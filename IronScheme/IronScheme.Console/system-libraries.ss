@@ -22,7 +22,7 @@ See docs/license.txt. |#
     (ironscheme conversions)
     (ironscheme datetime)
     (ironscheme environment)
-    (ironscheme linq2)
+    (ironscheme linq)
     (ironscheme files)
     (ironscheme process)
     (ironscheme random)
@@ -74,7 +74,6 @@ See docs/license.txt. |#
   
 (let () 
   (import 
-    (ironscheme linq)
     (match)) ; seperate
   #f)
   
