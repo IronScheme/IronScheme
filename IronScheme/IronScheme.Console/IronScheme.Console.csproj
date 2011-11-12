@@ -313,9 +313,6 @@
     <None Include="ironscheme\datetime.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\linq.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme\regex.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
