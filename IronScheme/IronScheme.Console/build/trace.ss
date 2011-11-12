@@ -21,10 +21,4 @@ See docs/license.txt. |#
            (make-traced-procedure name  
              (variable-transformer-procedure x) 
              syntax->datum))] 
-        [else x])))
-        
-)        
-        
-          
-
-
+        [else x]))))
