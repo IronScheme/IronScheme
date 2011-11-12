@@ -30,6 +30,7 @@ See docs/license.txt. |#
     (ironscheme regex)
     (ironscheme regex-cond)
     (ironscheme registry)
+    (ironscheme typed)
     (ironscheme strings)
     (ironscheme symbolic-case)
     (ironscheme syntax-parameters)

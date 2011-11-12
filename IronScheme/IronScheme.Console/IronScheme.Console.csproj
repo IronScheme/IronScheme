@@ -841,7 +841,7 @@
     </None>
     <None Include="playground\ca.sps" />
     <None Include="playground\diff.sps" />
-    <None Include="playground\typed-scheme.ss">
+    <None Include="ironscheme\typed.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\cp0.sls">
