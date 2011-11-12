@@ -281,6 +281,7 @@ See docs/license.txt. |#
      )
     (ironscheme contracts)
     (ironscheme clr)
+    (ironscheme typed)
     (ironscheme core)
     (ironscheme unsafe))
     
@@ -294,12 +295,13 @@ See docs/license.txt. |#
       (clr-cast Int32 (clr-cast Char chr)))
       
     (define/contract (integer->char num:fixnum)
-      (when ($or? ($fxnegative? num)      
-                  ($fx>? num #x10ffff)
-                  ($and? ($fx>? num #xd7ff)
-                         ($fx<? num #xe000)))
-        (assertion-violation 'integer->char "not a valid unicode value" num))
-      (string-ref (clr-static-call Char ConvertFromUtf32 num) 0))
+      (let: ((num : Int32 num))
+        (when ($or? ($fxnegative? num)      
+                    ($fx>? num #x10ffff)
+                    ($and? ($fx>? num #xd7ff)
+                           ($fx<? num #xe000)))
+          (assertion-violation 'integer->char "not a valid unicode value" num))
+        (string-ref (clr-static-call Char ConvertFromUtf32 num) 0)))
       
     (define/contract make-string
       (case-lambda
@@ -369,10 +371,11 @@ See docs/license.txt. |#
           
     (define/contract (string->list str:string)
       (clr-static-call Cons FromList (->string str)))
-      
-    (define ->mutable-string 
-      (typed-lambda (str) ((String) StringBuilder)
-        (clr-new StringBuilder str))) 
+    
+    (: ->mutable-string (String -> StringBuilder))
+    
+    (define: (->mutable-string str)
+      (clr-new StringBuilder str)) 
           
     (define (string-copy str)
       (cond
@@ -447,10 +450,11 @@ See docs/license.txt. |#
       (clr-prop-get Array Length vec))            
     
     (define/contract (vector-fill! vec:vector val)
-      (let ((len (vector-length vec)))
+      (let: ((vec : Object[] vec)
+             (len : Int32 (vector-length vec)))
         (do ((i 0 ($fx+ i 1)))
             (($fx=? i len))
-          ($vector-set! vec i val))))  
+          ($vector-set! vec i val))))
           
     (define/contract (vector->list vec:vector)
       (clr-static-call Cons FromList vec))   
