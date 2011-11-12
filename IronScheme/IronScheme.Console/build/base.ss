@@ -511,11 +511,12 @@ See docs/license.txt. |#
     (define/contract vector-map
       (case-lambda
         [(p:procedure vec:vector)
-          (let* ((len (vector-length vec))
-                 (res (make-vector len '())))
-            (do ((i 0 ($fx+ i 1)))
-                (($fx=? i len) res)
-              ($vector-set! res i (p ($vector-ref vec i)))))]
+          ((typed-lambda (p vec len) ((Callable Object[] Int32) Object)
+            (let ((res (clr-cast Object[] (make-vector len '()))))
+              (do ((i 0 ($fx+ i 1)))
+                  (($fx=? i len) res)
+                ($vector-set! res i (p ($vector-ref vec i))))))
+             p vec (vector-length vec))]
         [(p:procedure vec1:vector . vecs:vector)
           (define (ref i) (lambda (x) ($vector-ref x i)))
           (let* ((len (vector-length vec1))
@@ -529,10 +530,11 @@ See docs/license.txt. |#
     (define/contract vector-for-each
       (case-lambda
         [(p:procedure vec:vector)
-          (let ((len (vector-length vec)))
+          ((typed-lambda (p vec len) ((Callable Object[] Int32) Object)
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
-              (p ($vector-ref vec i))))]
+              (p ($vector-ref vec i))))
+            p vec (vector-length vec))]
         [(p:procedure vec1:vector . vecs:vector)
           (define (ref i) (lambda (x) ($vector-ref x i)))
           (let ((len (vector-length vec1)))
