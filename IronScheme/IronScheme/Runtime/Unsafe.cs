@@ -23,7 +23,7 @@ namespace IronScheme.Runtime
     static Expression UnwrapAndCast<T>(Expression e)
     {
       e = Unwrap(e);
-      if (e.Type == typeof(object) || e.Type == typeof(T))
+      if (e.Type == typeof(object) || e.Type == typeof(T) || (typeof(T) == typeof(int) && e.Type == typeof(byte)))
       {
         return Ast.ConvertHelper(Unwrap(e), typeof(T));
       }

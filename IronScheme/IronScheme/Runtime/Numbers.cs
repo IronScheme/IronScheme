@@ -169,9 +169,9 @@ namespace IronScheme.Runtime
     #region math
 
     [Builtin("fx+internal", AllowConstantFold = true)]
-    public static object FxPlusInternal(object a, object b)
+    public static object FxPlusInternal(int a, int b)
     {
-      long r = (long)(int)a + (int)b;
+      long r = (long)a + b;
       if (r > int.MaxValue || r < int.MinValue)
       {
         return FALSE;
@@ -180,9 +180,9 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("fx-internal", AllowConstantFold = true)]
-    public static object FxMinusInternal(object a, object b)
+    public static object FxMinusInternal(int a, int b)
     {
-      long r = (long)(int)a - (int)b;
+      long r = (long)a - b;
       if (r > int.MaxValue || r < int.MinValue)
       {
         return FALSE;
@@ -190,11 +190,10 @@ namespace IronScheme.Runtime
       return RuntimeHelpers.Int32ToObject((int)r);
     }
 
-
     [Builtin("fx*internal", AllowConstantFold = true)]
-    public static object FxMultiplyInternal(object a, object b)
+    public static object FxMultiplyInternal(int a, int b)
     {
-      long r = (long)(int)a * (int)b;
+      long r = (long)a * b;
       if (r > int.MaxValue || r < int.MinValue)
       {
         return FALSE;
@@ -203,16 +202,15 @@ namespace IronScheme.Runtime
     }
 
     [Builtin("fxarithmetic-shift-left-internal", AllowConstantFold = true)]
-    public static object FxShiftLeftInternal(object a, object b)
+    public static object FxShiftLeftInternal(int a, int b)
     {
-      long r = (long)(int)a << (int)b;
+      long r = (long)a << b;
       if (r > int.MaxValue || r < int.MinValue)
       {
         return FALSE;
       }
       return RuntimeHelpers.Int32ToObject((int)r);
     }
-
 
     enum NumberClass
     {
