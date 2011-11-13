@@ -52,7 +52,7 @@
                     (lambda: ((id : type) ...) : ret-type b b* ...))) : ret-type
           (var val ...))]
       [(_ var ((id : type val) ...) b b* ...)
-        #'(let: var ((id : type val) ...) : Object b b* ...)]))
+        (let: var ((id : type val) ...) : Object b b* ...)]))
                 
   (define-syntax define:
     (lambda (x)
