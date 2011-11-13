@@ -152,8 +152,10 @@ See docs/license.txt. |#
       
       )
     (ironscheme contracts)
+    (ironscheme typed)
     (ironscheme unsafe))
-    
+  
+  (clr-using IronScheme.Runtime)  
   (clr-using System.Text)
   (clr-using Oyster.Math)    
      
@@ -164,6 +166,11 @@ See docs/license.txt. |#
   (define utf16be (clr-new UnicodeEncoding #t #f))
   (define utf32le (clr-new UTF32Encoding #f #f))
   (define utf32be (clr-new UTF32Encoding #t #f))
+  
+  (define-syntax $bytevector-length
+    (syntax-rules ()
+      [(_ bv)
+        (clr-prop-get Byte[] Length bv)]))
   
   (define (bignum? obj)
     (clr-is IntX obj))      
@@ -185,7 +192,7 @@ See docs/license.txt. |#
     (clr-call Encoding (GetString Byte[]) enc bv))
   
   (define (byte->sbyte b)
-    (let ((b (->fixnum b)))
+    (let: ((b : Int32 (->fixnum b)))
       (if ($fx>? b 127)
           ($fx- b 256)
           b)))
@@ -195,9 +202,10 @@ See docs/license.txt. |#
       ((Object) Byte)
       (unless (fixnum? k)
         (assertion-violation #f "not a fixnum" k))
-      (when (or ($fx<? k -128) ($fx>? k 255))
-        (assertion-violation #f "too big or small for octect or byte" k))
-      (clr-cast Byte (clr-cast Int32 k))))
+      (let: ((k : Int32 k)) : Byte
+        (when (or ($fx<? k -128) ($fx>? k 255))
+          (assertion-violation #f "too big or small for octect or byte" k))
+        (clr-cast Byte k))))
     
   (define ->fixnum
     (typed-lambda (b)
@@ -206,71 +214,78 @@ See docs/license.txt. |#
   
   (define/contract make-bytevector
     (case-lambda
-      [(k)
+      [(k:fixnum)
         (clr-new-array Byte (clr-cast Int32 k))]
-      [(k fill)
+      [(k:fixnum fill)
         (let ((bv (make-bytevector k)))
           (bytevector-fill! bv fill)
           bv)]))
                   
   (define/contract (bytevector-length bv:bytevector)
-    (clr-prop-get Array Length bv))  
+    ($bytevector-length bv))  
     
   (define/contract (bytevector=? bv1:bytevector bv2:bytevector)
-    (cond
-      [(eq? bv1 bv2) #t]
-      [(let ((bl (bytevector-length bv1)))
-        (if ($fx=? bl (bytevector-length bv2))
-            (let f ((i 0))
-              (cond 
-                [($fx=? i bl) #t]
-                [($fx=? (bytevector-u8-ref bv1 i) (bytevector-u8-ref bv2 i))
-                  (f ($fx+ i 1))]
-                [else #f]))
-            #f))]
-      [else #f]))
+    (let: ((bv1 : Byte[] bv1)(bv2 : Byte[] bv2))
+      (cond
+        [(eq? bv1 bv2) #t]
+        [(let ((bl ($bytevector-length bv1)))
+          (if ($fx=? bl ($bytevector-length bv2))
+              (let: f ((i : Int32 0))
+                (cond 
+                  [($fx=? i bl) #t]
+                  [($fx=? ($bytevector-ref bv1 i) ($bytevector-ref bv2 i))
+                    (f ($fx+ i 1))]
+                  [else #f]))
+              #f))]
+        [else #f])))
                       
   (define/contract (bytevector-fill! bv:bytevector fill)
-    (let ((fill (->byte fill))
-          (k (bytevector-length bv)))
-      (let f ((i 0))
-        (unless ($fx=? i k)
-          (bytevector-u8-set! bv i fill)
-          (f ($fx+ i 1))))))
+    (let: ((bv : Byte[] bv))
+      (let ((fill (->byte fill))
+            (k ($bytevector-length bv)))
+        (let f ((i 0))
+          (unless ($fx=? i k)
+            ($bytevector-set! bv i fill)
+            (f ($fx+ i 1)))))))
           
-  (define/contract (bytevector-copy! bv1:bytevector s1 bv2:bytevector s2 len)
+  (define/contract (bytevector-copy! bv1:bytevector s1:fixnum bv2:bytevector s2:fixnum len:fixnum)
     (clr-static-call Buffer BlockCopy bv1 s1 bv2 s2 len))  
     
   (define/contract (bytevector-copy bv:bytevector)
     (clr-call Array Clone bv))  
     
   (define/contract (bytevector-u8-ref bv:bytevector k:fixnum)
-    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
-      (assertion-violation 'bytevector-u8-ref "indexer out of bounds" bv k)) 
-    (clr-static-call Convert (ToInt32 Byte) 
-      ($bytevector-ref bv k)))
+    (let: ((bv : Byte[] bv)(k : Int32 k))
+      (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
+        (assertion-violation 'bytevector-u8-ref "indexer out of bounds" bv k)) 
+      (clr-static-call Convert (ToInt32 Byte) 
+        ($bytevector-ref bv k))))
       
   (define/contract (bytevector-u8-set! bv:bytevector k:fixnum value)
-    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
-      (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
-    ($bytevector-set! bv k (clr-static-call Convert (ToByte Object) value)))
+    (let: ((bv : Byte[] bv)(k : Int32 k))
+      (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
+        (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
+      ($bytevector-set! bv k (clr-static-call Convert (ToByte Object) value))))
    
   (define/contract (bytevector-s8-ref bv:bytevector k:fixnum)
-    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
-      (assertion-violation 'bytevector-s8-ref "indexer out of bounds" bv k)) 
-    (byte->sbyte ($bytevector-ref bv k)))
+    (let: ((bv : Byte[] bv)(k : Int32 k))
+      (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
+        (assertion-violation 'bytevector-s8-ref "indexer out of bounds" bv k)) 
+      (byte->sbyte ($bytevector-ref bv k))))
       
   (define/contract (bytevector-s8-set! bv:bytevector k:fixnum value)
-    (unless (and ($fx>=? k 0) ($fx<? k (bytevector-length bv)))
-      (assertion-violation 'bytevector-s8-set! "indexer out of bounds" bv k)) 
-    ($bytevector-set! bv k (->byte value)))  
+    (let: ((bv : Byte[] bv)(k : Int32 k))
+      (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
+        (assertion-violation 'bytevector-s8-set! "indexer out of bounds" bv k)) 
+      ($bytevector-set! bv k (->byte value))))
    
   (define/contract (bytevector->u8-list bv:bytevector)
-    (let ((l (bytevector-length bv)))
-      (let f ((i ($fx- l 1))(a '()))
-        (if ($fxnegative? i)
-            a
-            (f ($fx- i 1) (cons (bytevector-u8-ref bv i) a))))))
+    (let: ((bv : Byte[] bv))
+      (let ((l ($bytevector-length bv)))
+        (let f ((i ($fx- l 1))(a '()))
+          (if ($fxnegative? i)
+              a
+              (f ($fx- i 1) (cons (bytevector-u8-ref bv i) a)))))))
             
   (define/contract (u8-list->bytevector lst:list)
     (let* ((l (length lst))
@@ -484,8 +499,8 @@ See docs/license.txt. |#
     (get-string utf8 bv))
     
   (define (trim-front bv k)
-    (let ((d (make-bytevector ($fx- (bytevector-length bv) k))))
-      (bytevector-copy! bv k d 0 (bytevector-length d))
+    (let ((d (make-bytevector ($fx- ($bytevector-length bv) k))))
+      (bytevector-copy! bv k d 0 ($bytevector-length d))
       d))
       
   (define/contract utf16->string           
@@ -529,45 +544,51 @@ See docs/license.txt. |#
                   (utf32->string bv end #t)])))]))  
                   
   (define/contract (uint-list->bytevector lst:list end:symbol size:fixnum)
-    (when ($fxnegative? size)
-      (assertion-violation 'uint-list->bytevector "invalid size" size))
-    (let ((bv (make-bytevector ($fx* (length lst) size))))
-      (let f ((i 0)(lst lst))
-        (if (null? lst)
-            bv
-            (begin
-              (bytevector-uint-set! bv i ($car lst) end size)
-              (f ($fx+ i size) ($cdr lst)))))))
+    (let: ((lst : Cons lst)(size : Int32 size))
+      (when ($fxnegative? size)
+        (assertion-violation 'uint-list->bytevector "invalid size" size))
+      (let: ((bv : Byte[] (make-bytevector ($fx* (length lst) size))))
+        (let: f ((i : Int32 0)(lst : Cons lst))
+          (if (null? lst)
+              bv
+              (begin
+                (bytevector-uint-set! bv i ($car lst) end size)
+                (f ($fx+ i size) ($cdr lst))))))))
               
   (define/contract (sint-list->bytevector lst:list end:symbol size:fixnum)
-    (when ($fxnegative? size)
-      (assertion-violation 'sint-list->bytevector "invalid size" size))
-    (let ((bv (make-bytevector ($fx* (length lst) size))))
-      (let f ((i 0)(lst lst))
-        (if (null? lst)
-            bv
-            (begin
-              (bytevector-sint-set! bv i ($car lst) end size)
-              (f ($fx+ i size) ($cdr lst)))))))
+    (let: ((lst : Cons lst)(size : Int32 size))
+      (when ($fxnegative? size)
+        (assertion-violation 'sint-list->bytevector "invalid size" size))
+      (let: ((bv : Byte[] (make-bytevector ($fx* (length lst) size))))
+        (let: f ((i : Int32 0)(lst : Cons lst))
+          (if (null? lst)
+              bv
+              (begin
+                (bytevector-sint-set! bv i ($car lst) end size)
+                (f ($fx+ i size) ($cdr lst))))))))
               
   (define/contract (bytevector->uint-list bv:bytevector end:symbol size:fixnum)
-    (unless ($fxpositive? size)
-      (assertion-violation 'bytevector->uint-list "invalid size" size))
-    (let f ((l (bytevector-length bv)) (a '()))
-      (if ($fxzero? l)
-          a
-          (f ($fx- l size) (cons (bytevector-uint-ref bv ($fx- l size) end size) a)))))
+    (let: ((bv : Byte[] bv)(size : Int32 size))
+      (unless ($fxpositive? size)
+        (assertion-violation 'bytevector->uint-list "invalid size" size))
+      (let: f ((l : Int32 ($bytevector-length bv)) (a : Cons '()))
+        (if ($fxzero? l)
+            a
+            (f ($fx- l size) (cons (bytevector-uint-ref bv ($fx- l size) end size) a))))))
 
   (define/contract (bytevector->sint-list bv:bytevector end:symbol size:fixnum)
-    (unless ($fxpositive? size)
-      (assertion-violation 'bytevector->sint-list "invalid size" size))
-    (let f ((l (bytevector-length bv)) (a '()))
-      (if ($fxzero? l)
-          a
-          (f ($fx- l size) (cons (bytevector-sint-ref bv ($fx- l size) end size) a)))))
-            
-  (define (single->double s)
-    (clr-static-call Convert (ToDouble Single) s))  
+    (let: ((bv : Byte[] bv)(size : Int32 size))
+      (unless ($fxpositive? size)
+        (assertion-violation 'bytevector->sint-list "invalid size" size))
+      (let: f ((l : Int32 ($bytevector-length bv)) (a : Cons '()))
+        (if ($fxzero? l)
+            a
+            (f ($fx- l size) (cons (bytevector-sint-ref bv ($fx- l size) end size) a))))))
+          
+  (: single->double (Single -> Object))
+       
+  (define: (single->double s)
+    (clr-static-call Convert (ToDouble Single) s))
             
   (define (bytevector-ieee-single-ref bv k end)
     (let ((d (make-bytevector 4)))

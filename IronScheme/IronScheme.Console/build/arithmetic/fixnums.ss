@@ -58,6 +58,7 @@ See docs/license.txt. |#
   (import 
     (ironscheme core)
     (ironscheme clr)
+    (ironscheme typed)
     (ironscheme unsafe)
     (ironscheme integrable)
     (except (ironscheme) 
@@ -169,9 +170,10 @@ See docs/license.txt. |#
       [(x1)
         (unless (fixnum? x1)
           (assertion-violation 'fx- "not a fixnum" x1))
-        (when ($fx=? (least-fixnum) x1)
-          (overflow-error 'fx- x1))
-        ($fx- x1)]
+        (let: ((x1 : Int32 x1))
+          (when ($fx=? (least-fixnum) x1)
+            (overflow-error 'fx- x1))
+          ($fx- x1))]
       [(x1 x2)
         (unless (fixnum? x1)
           (assertion-violation 'fx- "not a fixnum" x1))

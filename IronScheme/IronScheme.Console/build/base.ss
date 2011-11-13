@@ -389,18 +389,19 @@ See docs/license.txt. |#
         [else
           (assertion-violation 'string-copy "not a string" str)]))
 
-    (define (substring str start end)
-      (unless (and (fixnum? start) ($fx>=? start 0))
-        (assertion-violation 'substring "not a non-negative integer" start)) 
-      (unless (and (fixnum? end) ($fx>=? end 0))
-        (assertion-violation 'substring "not a non-negative integer" end))             
-      (cond
-        [(clr-string? str)
-          (clr-call String Substring str start (fx- end start))]
-        [(stringbuilder? str)
-          (->mutable-string (clr-call StringBuilder ToString str start (fx- end start)))]
-        [else
-          (assertion-violation 'substring "not a string" str)]))
+    (define/contract (substring str start:fixnum end:fixnum)
+      (let: ((start : Int32 start)(end : Int32 end))
+        (unless ($fx>=? start 0)
+          (assertion-violation 'substring "not a non-negative integer" start)) 
+        (unless ($fx>=? end 0)
+          (assertion-violation 'substring "not a non-negative integer" end))
+        (cond
+          [(clr-string? str)
+            (clr-call String Substring str start ($fx- end start))]
+          [(stringbuilder? str)
+            (->mutable-string (clr-call StringBuilder ToString str start ($fx- end start)))]
+          [else
+            (assertion-violation 'substring "not a string" str)])))
       
     ; probably need to be made faster  
     (define/contract (string-append . args:string)

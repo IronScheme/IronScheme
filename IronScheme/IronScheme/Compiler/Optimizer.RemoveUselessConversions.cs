@@ -6,6 +6,7 @@
 #endregion
 
 using Microsoft.Scripting.Ast;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
