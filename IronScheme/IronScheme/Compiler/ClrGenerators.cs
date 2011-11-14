@@ -862,6 +862,22 @@ namespace IronScheme.Compiler
 
       Expression obj = GetAst(Builtins.Second(args), cb);
 
+      if (obj.IsConstant(null))
+      {
+        if (t == typeof(int))
+        {
+          return Ast.Convert(Ast.Constant(0), t);
+        }
+        if (t == typeof(double))
+        {
+          return Ast.Convert(Ast.Constant(0.0), t);
+        }
+        if (t == typeof(char))
+        {
+          return Ast.Convert(Ast.Constant((char)0), t);
+        }
+      }
+
       return ConvertToHelper(t, obj);
     }
   }
