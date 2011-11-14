@@ -220,7 +220,11 @@ namespace IronScheme.Compiler
         Expression e = GetAst(defs[i], cb);
         VarHint = VarHint2 = SymbolId.Empty;
 
-        if (e.Type.IsValueType)
+        if (e is UnaryExpression && e.NodeType == AstNodeType.Convert && e.Type != typeof(object))
+        {
+          locals[i].Type = e.Type;
+        }
+        else if (e.Type.IsValueType)
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }

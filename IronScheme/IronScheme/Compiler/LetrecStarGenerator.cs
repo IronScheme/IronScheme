@@ -69,7 +69,11 @@ namespace IronScheme.Compiler
           }
         }
 
-        if (e.Type.IsValueType)
+        if (e is UnaryExpression && e.NodeType == AstNodeType.Convert && e.Type != typeof(object))
+        {
+          vars[i].Type = e.Type;
+        }
+        else if (e.Type.IsValueType)
         {
           e = Ast.ConvertHelper(e, typeof(object));
         }

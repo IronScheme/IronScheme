@@ -1,5 +1,5 @@
 ﻿#| License
-Copyright (c) 2007,2008,2009,2010,2011 Llewellyn Pritchard 
+Copyright (c) 2011 Llewellyn Pritchard 
 All rights reserved.
 This source code is subject to terms and conditions of the BSD License.
 See docs/license.txt. |#
@@ -38,26 +38,23 @@ See docs/license.txt. |#
                 
   (define-syntax define:
     (lambda (x)
+      (define (get-spec id lookup)
+        (let ((type-spec (lookup (syntax-format ":~a" id id))))
+          (unless type-spec
+            (syntax-violation (syntax->datum #'id) "type spec not found" x))
+          (datum->syntax id type-spec)))
       (syntax-case x ()              
         [(_ (id args ...) body)
-          (with-syntax [(type-spec-id (syntax-format ":~a" #'id #'id))]
-            (lambda (lookup)
-              (let ((type-spec (lookup #'type-spec-id)))
-                (unless type-spec
-                  (syntax-violation (syntax->datum #'id) "type spec not found" x))
-                (with-syntax [(type-spec (datum->syntax #'id type-spec))]
-                  #'(define id
-                      (typed-lambda (args ...) 
-                        type-spec
-                        body))))))]
+          (lambda (lookup)
+            (with-syntax [(type-spec (get-spec #'id lookup))]
+              #'(define id
+                  (typed-lambda (args ...) 
+                    type-spec
+                    body))))]
         [(_ id val)
-          (with-syntax [(type-spec-id (syntax-format ":~a" #'id #'id))]
-            (lambda (lookup)
-              (let ((type-spec (lookup #'type-spec-id)))
-                (unless type-spec
-                  (syntax-violation (syntax->datum #'id) "type spec not found" x))
-                (with-syntax [(type-spec (datum->syntax #'id type-spec))]
-                  #'(define id (clr-cast type-spec val))))))])))                
+          (lambda (lookup)
+            (with-syntax [(type-spec (get-spec #'id lookup))]
+              #'(define id (clr-cast type-spec val))))])))                
 
   (define-syntax lambda:
     (syntax-rules (:)
