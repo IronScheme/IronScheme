@@ -10,8 +10,10 @@ See docs/license.txt. |#
     ->
     lambda:
     let:
+    let*:
     define:
-    letrec:)
+    letrec:
+    letrec*:)
   (import 
     (ironscheme)
     (ironscheme clr) 
@@ -77,14 +79,38 @@ See docs/license.txt. |#
           (var val ...))]
       [(_ var ((id : type val) ...) b b* ...)
         (let: var ((id : type val) ...) : Object b b* ...)]))
+        
+  (define-syntax let*:
+    (syntax-rules (:)
+      [(_ () : ret-type b b* ...)
+        (let: () : ret-type b b* ...)]
+      [(_ () b b* ...)
+        (let: () : Ojbect b b* ...)]
+      [(_ ((name1 : type1 expr1) (name2 : type2 expr2) ...) : ret-type b b* ...)
+        (let: ((name1 : type1 expr1))
+          (let*: ((name2 : type2 expr2) ...) : ret-type
+            b b* ...))]
+      [(_ ((name1 : type1 expr1) (name2 : type2 expr2) ...) b b* ...)
+        (let*: ((name1 : type1 expr1) (name2 : type2 expr2) ...) : Object b b* ...)]))
                       
   (define-syntax letrec:
     (lambda (x)
       (syntax-case x (:)
-        ((_ ((i : type e) ...) : ret-type b1 b2 ...)
+        [(_ ((i : type e) ...) : ret-type b1 b2 ...)
          (with-syntax
              (((t ...) (generate-temporaries #'(i ...))))
            #'(let: ((i : type '()) ...) : ret-type
                (let: ((t : type e) ...) : ret-type
                  (set! i t) ...
-                 (begin b1 b2 ...)))))))))
+                 (begin b1 b2 ...))))]
+        [(_ ((i : type e) ...) b1 b2 ...)
+          #'(letrec: ((i : type e) ...) : Object b1 b2 ...)])))
+                 
+  (define-syntax letrec*:
+    (syntax-rules (:)
+        [(_ ((i : type e) ...) : ret-type b1 b2 ...)
+          (let: ((t : type '()) ...) : ret-type
+            (set! t e) ...
+            (begin b1 b2 ...))]
+        [(_ ((i : type e) ...) b1 b2 ...)
+          (letrec*: ((i : type e) ...) : Object b1 b2 ...)])))
