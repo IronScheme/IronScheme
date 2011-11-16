@@ -184,7 +184,13 @@ namespace Microsoft.Scripting.Ast {
             Contract.RequiresNotNull(type, "type");
 
             if (expression.Type != type) {
+              if (type.IsAssignableFrom(expression.Type) && type != typeof(object))
+              {
+              }
+              else
+              {
                 expression = Convert(expression, type);
+              }
             }
             return expression;
         }
