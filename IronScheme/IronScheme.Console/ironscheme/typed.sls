@@ -26,10 +26,25 @@ See docs/license.txt. |#
   (define-syntax :
     (lambda (x)
       (define (parse-type type)
+        (define (parse-type x)
+          (syntax-case x (->)
+            [(a ... -> r)
+              (with-syntax (((a ...) (map parse-type #'(a ...)))
+                            (r (parse-type #'r)))
+                #'(IronScheme.Runtime.Typed.TypedClosure a ... r))]
+            [(t a ...)
+              (with-syntax (((a ...) (map parse-type #'(a ...))))
+                #'(t a ...))]
+            [t #'t]))      
         (syntax-case type (->)
           [(arg ... -> ret)
-            #'((arg ...) ret)]
-          [type #'type]))  
+            (with-syntax (((arg ...) (map parse-type #'(arg ...)))
+                          (ret (parse-type #'ret)))
+              #'((arg ...) ret))]
+          [(type arg ...) 
+            (with-syntax (((arg ...) (map parse-type #'(arg ...))))
+              #'(type arg ...))]
+          [type #'type]))
       (syntax-case x ()
         [(_ id type)
           (identifier? #'id)
@@ -56,29 +71,45 @@ See docs/license.txt. |#
         [(_ id val)
           (lambda (lookup)
             (with-syntax [(type-spec (get-spec #'id lookup))]
-              #'(define id (clr-cast type-spec val))))])))                
+              #'(define id (clr-cast type-spec val))))])))
 
   (define-syntax lambda:
-    (syntax-rules (:)
-      [(_ ((id : type) ...) : ret-type b b* ...)
-        (typed-lambda (id ...) 
-                      ((type ...) ret-type)
-                      b b* ...)]
-      [(_ ((id : type) ...) b b* ...)
-        (lambda: ((id : type) ...) : Object b b* ...)]))
+    (lambda (x)
+      (define (parse-type x)
+        (syntax-case x (->)
+          [(a ... -> r)
+            (with-syntax (((a ...) (map parse-type #'(a ...)))
+                          (r (parse-type #'r)))
+              #'(IronScheme.Runtime.Typed.TypedClosure a ... r))]
+          [(t a ...)
+            (with-syntax (((a ...) (map parse-type #'(a ...))))
+              #'(t a ...))]
+          [t #'t]))
+      (syntax-case x (:)
+        [(_ ((id : type) ...) : ret-type b b* ...)
+          (with-syntax (((type ...) (map parse-type #'(type ...)))
+                        (ret-type (parse-type #'ret-type)))
+            #'(typed-lambda (id ...) 
+                            ((type ...) ret-type)
+                            b b* ...))]
+        [(_ ((id : type) ...) b b* ...)
+          #'(lambda: ((id : type) ...) : Object b b* ...)])))
 
   (define-syntax let:
-    (syntax-rules (:)
-      [(_ ((id : type val) ...) : ret-type b b* ...)
-        ((lambda: ((id : type) ...) : ret-type b b* ...) val ...)]
-      [(_ ((id : type val) ...) b b* ...)
-        (let: ((id : type val) ...) : Object b b* ...)]      
-      [(_ var ((id : type val) ...) : ret-type b b* ...)  
-        (letrec: ((var : (IronScheme.Runtime.Typed.TypedClosure type ... ret-type) 
-                    (lambda: ((id : type) ...) : ret-type b b* ...))) : ret-type
-          (var val ...))]
-      [(_ var ((id : type val) ...) b b* ...)
-        (let: var ((id : type val) ...) : Object b b* ...)]))
+    (lambda (x)
+      (syntax-case x (:)
+        [(_ ((id : type val) ...) : ret-type b b* ...)
+          #'((lambda: ((id : type) ...) : ret-type b b* ...) val ...)]
+        [(_ ((id : type val) ...) b b* ...)
+          #'(let: ((id : type val) ...) : Object b b* ...)]      
+        [(_ var ((id : type val) ...) : ret-type b b* ...)  
+          (with-syntax (((t ...) (generate-temporaries #'(id ...))))
+            #'(let: ((t : type val) ...) : ret-type
+                (letrec: ((var : (type ... -> ret-type) 
+                             (lambda: ((id : type) ...) : ret-type b b* ...))) : (type ... -> ret-type)
+                  (var t ...))))]
+        [(_ var ((id : type val) ...) b b* ...)
+          #'(let: var ((id : type val) ...) : Object b b* ...)])))
         
   (define-syntax let*:
     (syntax-rules (:)
@@ -99,7 +130,7 @@ See docs/license.txt. |#
         [(_ ((i : type e) ...) : ret-type b1 b2 ...)
          (with-syntax
              (((t ...) (generate-temporaries #'(i ...))))
-           #'(let: ((i : type '()) ...) : ret-type
+           #'(let: ((i : type '()) ...) : ret-type ; null has special meaning here
                (let: ((t : type e) ...) : ret-type
                  (set! i t) ...
                  (begin b1 b2 ...))))]
@@ -109,7 +140,7 @@ See docs/license.txt. |#
   (define-syntax letrec*:
     (syntax-rules (:)
         [(_ ((i : type e) ...) : ret-type b1 b2 ...)
-          (let: ((t : type '()) ...) : ret-type
+          (let: ((t : type '()) ...) : ret-type ; null has special meaning here
             (set! t e) ...
             (begin b1 b2 ...))]
         [(_ ((i : type e) ...) b1 b2 ...)

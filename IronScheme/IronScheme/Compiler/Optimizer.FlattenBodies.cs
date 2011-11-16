@@ -194,15 +194,14 @@ namespace IronScheme.Compiler
                     {
                       if (mce.Arguments.Count == 1 && mce.Arguments[0].Type == typeof(object[]))
                       {
-                        var args = mce.Arguments.ToArray();
-                        var mc = Ast.Call(Ast.ConvertHelper(x, typeof(Callable)), mce.Method, args);
+                        var mc = Ast.SimpleCallHelper(x, mce.Method, mce.Arguments.ToArray());
                         mc.TailCall = mce.TailCall;
                         return Ast.Return(mc);
                       }
                       else
                       {
-                        var args = Array.ConvertAll(mce.Arguments.ToArray(), y => Ast.ConvertHelper(y, typeof(object)));
-                        var mc = Ast.Call(Ast.ConvertHelper(x, typeof(Callable)), mce.Method, args);
+                        //var args = Array.ConvertAll(mce.Arguments.ToArray(), y => Ast.ConvertHelper(y, typeof(object)));
+                        var mc = Ast.SimpleCallHelper(x, mce.Method, mce.Arguments.ToArray());
                         mc.TailCall = mce.TailCall;
                         return Ast.Return(mc);
                       }
