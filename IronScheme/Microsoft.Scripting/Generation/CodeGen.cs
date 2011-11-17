@@ -449,9 +449,12 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void EmitCast(Type fromType, Type toType) {
-            if (!TryEmitCast(fromType, toType, false)) {
-                throw new ArgumentException(String.Format("Cannot cast from '{0}' to '{1}'", fromType, toType));
-            }
+          if (!TryEmitCast(fromType, toType, false))
+          {
+            var ex = new ArgumentException(String.Format("Cannot cast from '{0}' to '{1}'", fromType, toType));
+            ex.Data["Who"] = MethodBase.Name;
+            throw ex;
+          }
         }
 
         /// <summary>
