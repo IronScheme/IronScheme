@@ -694,6 +694,11 @@ namespace IronScheme.Runtime
 
         return Closure.Create(err);
       }
+      catch (Exception ex)
+      {
+        var who = ex.Data["Who"];
+        return SyntaxError(who ?? FALSE, ex.Message, FALSE, FALSE);
+      }
       finally
       {
         IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
