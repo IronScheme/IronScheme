@@ -161,7 +161,7 @@
         (with-syntax ((pname (datum->syntax #'k
                                             (string->symbol (string-append (symbol->string (syntax->datum #'name)) 
                                                                            "?")))))
-         #`(begin 
+         #'(begin 
              (define-record name (field* ...)) 
              (define dummy (add-record-printer! pname printer))))]
       [(_ name (field* ...))
@@ -169,7 +169,7 @@
                       (map (gen-getter #'name) #'(field* ...))]
                      [(setter* ...)
                       (map (gen-setter #'name) #'(field* ...))])
-         #`(define-record-type name
+         #'(define-record-type name
              (sealed #t) ; for better performance
              (opaque #t) ; for security
              (nongenerative) ; for sanity
