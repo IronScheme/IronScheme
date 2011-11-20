@@ -71,6 +71,7 @@ namespace IronScheme.Compiler
 
         if (e is UnaryExpression && e.NodeType == AstNodeType.Convert && e.Type != typeof(object))
         {
+          vars[i].SetInitialized();
           vars[i].Type = e.Type;
         }
         else if (e.Type.IsValueType)

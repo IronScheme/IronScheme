@@ -16,26 +16,13 @@ See docs/license.txt. |#
     letrec*:)
   (import 
     (ironscheme)
+    (ironscheme typed-helper)
     (ironscheme clr) 
     (ironscheme syntax-format))
-    
-  (define-syntax ->
-    (lambda (x)
-      (syntax-violation '-> "invalid usage of auxilliary keyword" x)))    
 
   (define-syntax :
     (lambda (x)
-      (define (parse-type type)
-        (define (parse-type x)
-          (syntax-case x (->)
-            [(a ... -> r)
-              (with-syntax (((a ...) (map parse-type #'(a ...)))
-                            (r (parse-type #'r)))
-                #'(IronScheme.Runtime.Typed.TypedClosure a ... r))]
-            [(t a ...)
-              (with-syntax (((a ...) (map parse-type #'(a ...))))
-                #'(t a ...))]
-            [t #'t]))      
+      (define (parse type)
         (syntax-case type (->)
           [(arg ... -> ret)
             (with-syntax (((arg ...) (map parse-type #'(arg ...)))
@@ -49,7 +36,7 @@ See docs/license.txt. |#
         [(_ id type)
           (identifier? #'id)
           (with-syntax [(type-spec-id (syntax-format ":~a" #'id #'id))
-                        (type (parse-type #'type))]
+                        (type (parse #'type))]
             #'(define-syntax type-spec-id
                 (make-compile-time-value 'type)))])))
                 
@@ -60,14 +47,23 @@ See docs/license.txt. |#
           (unless type-spec
             (syntax-violation (syntax->datum #'id) "type spec not found" x))
           (datum->syntax id type-spec)))
-      (syntax-case x ()              
-        [(_ (id args ...) body)
+      (syntax-case x (:)
+        [(_ (id (args : type) ...) : ret-type b b* ...)
+          #'(define id
+              (lambda: ((args : type) ...) : ret-type
+                b b* ...))]
+        [(_ (id (args : type) ...) b b* ...)
+          #'(define: (id (args : type) ...) : Object b b* ...)]
+        [(_ (id args ...) b b* ...)
           (lambda (lookup)
             (with-syntax [(type-spec (get-spec #'id lookup))]
               #'(define id
                   (typed-lambda (args ...) 
                     type-spec
-                    body))))]
+                    b b* ...))))]
+        [(_ id val : type)
+          (with-syntax ((type (parse-type #'type)))
+            #'(define id (clr-cast type val)))]
         [(_ id val)
           (lambda (lookup)
             (with-syntax [(type-spec (get-spec #'id lookup))]
@@ -75,16 +71,6 @@ See docs/license.txt. |#
 
   (define-syntax lambda:
     (lambda (x)
-      (define (parse-type x)
-        (syntax-case x (->)
-          [(a ... -> r)
-            (with-syntax (((a ...) (map parse-type #'(a ...)))
-                          (r (parse-type #'r)))
-              #'(IronScheme.Runtime.Typed.TypedClosure a ... r))]
-          [(t a ...)
-            (with-syntax (((a ...) (map parse-type #'(a ...))))
-              #'(t a ...))]
-          [t #'t]))
       (syntax-case x (:)
         [(_ ((id : type) ...) : ret-type b b* ...)
           (with-syntax (((type ...) (map parse-type #'(type ...)))

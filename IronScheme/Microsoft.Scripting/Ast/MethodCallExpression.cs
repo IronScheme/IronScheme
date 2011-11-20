@@ -411,14 +411,7 @@ namespace Microsoft.Scripting.Ast {
           }
         }
 
-        static Expression Unwrap(Expression ii)
-        {
-          while (ii is UnaryExpression && ii.NodeType == AstNodeType.Convert)
-          {
-            ii = ((UnaryExpression)ii).Operand;
-          }
-          return ii;
-        }
+
 
         static bool LastIsArray(List<Expression> _arguments)
         {

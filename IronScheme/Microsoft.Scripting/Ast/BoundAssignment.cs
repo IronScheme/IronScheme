@@ -139,6 +139,10 @@ namespace Microsoft.Scripting.Ast {
             : base(AstNodeType.BoundAssignment) {
             _variable = variable;
             _value = value;
+            if (value.IsConstant(null))
+            {
+              Debugger.Break();
+            }
             _variable.AssumedValue = _variable.AssumedValue == null ? GetReference(value) : null;
         }
 
