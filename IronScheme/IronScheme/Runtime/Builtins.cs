@@ -663,11 +663,13 @@ namespace IronScheme.Runtime
       Stopwatch sw = Stopwatch.StartNew();
 #endif
       //Console.WriteLine(new Cons(expr).PrettyPrint);
+      try
+      {
 
-      CodeBlock cb = IronSchemeLanguageContext.CompileExpr(new Cons(expr));
-      cb.ExplicitCodeContextExpression = null;
+        CodeBlock cb = IronSchemeLanguageContext.CompileExpr(new Cons(expr));
+        cb.ExplicitCodeContextExpression = null;
 
-      ScriptCode sc = Context.LanguageContext.CompileSourceCode(cb); //wrap
+        ScriptCode sc = Context.LanguageContext.CompileSourceCode(cb); //wrap
 
 #if DEBUG
       sw.Stop();
@@ -675,50 +677,28 @@ namespace IronScheme.Runtime
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile - eval-core({0:D3})", c));
       sw = Stopwatch.StartNew();
 #endif
-      try
-      {
-        sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
-        sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
-        sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
-
-        ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
-        sc = sm.GetScripts()[0];
-      }
-      catch (Variable.UnInitializedUsageException ex)
-      {
-        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-        CallTarget0 err = delegate
+        try
         {
-          return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
-        };
+          sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
+          sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
+          sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
 
-        return Closure.Create(err);
-      }
-      catch (Exception ex)
-      {
-        var who = ex.Data["Who"];
-        return SyntaxError(who ?? FALSE, ex.Message, FALSE, FALSE);
-      }
-      finally
-      {
-        IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
-        sc.ClearCache();
-        Compiler.SimpleGenerator.ClearGlobals();
-      }
+          ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
+          sc = sm.GetScripts()[0];
+
 #if DEBUG
       sw.Stop();
 
       Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("compile*- eval-core({0:D3})", c));
 #endif
-
-      CallTarget0 compiled = delegate
-      {
+          CallTarget0 compiled = delegate
+          {
 #if DEBUG
         try
         {
           sw = Stopwatch.StartNew();
 #endif
-        return sc.Run(Context.ModuleContext.Module);
+            return sc.Run(Context.ModuleContext.Module);
 #if DEBUG
           }
 #if CPS
@@ -736,12 +716,32 @@ namespace IronScheme.Runtime
           Trace.WriteLine(sw.Elapsed.TotalMilliseconds, string.Format("run     - eval-core({0:D3})", c));
         }
 #endif
-      };
+          };
+          return Closure.Create(compiled);
+        }
+        catch (Variable.UnInitializedUsageException ex)
+        {
+          CallTarget0 err = delegate
+          {
+            return AssertionViolation(ex.Variable.Block.Name, ex.Message, UnGenSym(ex.Variable.Name));
+          };
 
-      ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-      Compiler.SimpleGenerator.ClearGlobals();
+          return Closure.Create(err);
+        }
+        finally
+        {
+          ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+          IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
+          sc.ClearCache();
+          Compiler.SimpleGenerator.ClearGlobals();
+        }
+      }
+      catch (Exception ex)
+      {
+        var who = ex.Data["Who"];
+        return SyntaxError(who ?? FALSE, ex.Message, FALSE, FALSE);
+      }
 
-      return Closure.Create(compiled);
     }
 
 #if CPS

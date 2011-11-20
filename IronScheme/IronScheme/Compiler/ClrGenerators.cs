@@ -294,10 +294,10 @@ namespace IronScheme.Compiler
             }
             else
             {
-              if (e is ConstantExpression && ((ConstantExpression)e).Value == null)
-              {
-                return e;
-              }
+              //if (e is ConstantExpression && ((ConstantExpression)e).Value == null)
+              //{
+              //  return e;
+              //}
 
               if (TypeHelpersEnabled)
               {

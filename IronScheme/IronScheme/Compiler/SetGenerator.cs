@@ -58,10 +58,13 @@ namespace IronScheme.Compiler
 
       Variable v = cb.Lookup(s);
 
-      if (value.Type.IsValueType)
-      {
-        value = Ast.ConvertHelper(value, typeof(object));
-      }
+      //if (value.Type.IsValueType)
+      //{
+      //  if (v == null || !v.Type.IsAssignableFrom(value.Type))
+      //  {
+      //    value = Ast.ConvertHelper(value, typeof(object));
+      //  }
+      //}
 
       Statement r = null;
 
@@ -72,6 +75,7 @@ namespace IronScheme.Compiler
       else
       {
         //Trace.Assert(cb.Parent != null);
+        value = Ast.ConvertHelper(value, v.Type);
         r = Ast.Write(v, value);
       }
 

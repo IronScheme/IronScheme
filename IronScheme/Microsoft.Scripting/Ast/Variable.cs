@@ -66,7 +66,16 @@ namespace Microsoft.Scripting.Ast {
             {
               if (Type != typeof(object) && value.Type != Type)
               {
-                Debugger.Break();
+                var v = Expression.Unwrap(value);
+                if (v.Type == typeof(object)) // make runtime exception
+                {
+                  assumedValue = Ast.ConvertHelper(value, Type);
+                }
+                else
+                {
+                  throw new ArgumentException(string.Format("Invalid type assignment {0} to {1}", v.Type.Name, Type.Name));
+                }
+                return;
               }
               assumedValue = value;
             }

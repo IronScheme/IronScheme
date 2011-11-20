@@ -761,6 +761,9 @@
     <None Include="ironscheme\regex-cond.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ironscheme\typed-helper.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme\web\models.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

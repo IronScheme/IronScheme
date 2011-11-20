@@ -53,6 +53,15 @@ namespace Microsoft.Scripting.Ast {
         } 
 #endif
 
+        protected internal static Expression Unwrap(Expression ii)
+        {
+          while (ii is UnaryExpression && ii.NodeType == AstNodeType.Convert)
+          {
+            ii = ((UnaryExpression)ii).Operand;
+          }
+          return ii;
+        }
+
 
         private SourceLocation _start;
         private SourceLocation _end;
