@@ -61,7 +61,7 @@ See docs/license.txt. |#
                   (typed-lambda (args ...) 
                     type-spec
                     b b* ...))))]
-        [(_ id val : type)
+        [(_ id : type val)
           (with-syntax ((type (parse-type #'type)))
             #'(define id (clr-cast type val)))]
         [(_ id val)
