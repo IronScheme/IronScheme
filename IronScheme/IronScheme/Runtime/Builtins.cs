@@ -736,6 +736,10 @@ namespace IronScheme.Runtime
           Compiler.SimpleGenerator.ClearGlobals();
         }
       }
+      catch (Continuation)
+      {
+        throw;
+      }
       catch (Exception ex)
       {
         var who = ex.Data["Who"];

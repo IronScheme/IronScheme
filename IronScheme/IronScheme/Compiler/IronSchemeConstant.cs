@@ -164,7 +164,9 @@ namespace IronScheme.Compiler
     public object Uid { get; set; }
     public object Parent { get; set; }
     public object[] Fields { get; set; }
+    public object[] FieldTypes { get; set; }
     public SymbolId NameHint { get; set; }
+
 
     public override Type Type
     {
@@ -178,7 +180,7 @@ namespace IronScheme.Compiler
         var parent = Parent == null ? null : Builtins.SymbolValue(Parent);
 
         var rtd = Records.GenerateRecordTypeDescriptor(cg.TypeGen.AssemblyGen, RecordName, parent, Uid, Sealed, Opaque,
-          Array.ConvertAll(Fields, x => ((IronSchemeConstant)x).value));
+          Array.ConvertAll(Fields, x => ((IronSchemeConstant)x).value), FieldTypes);
 
         (rtd.type as TypeBuilder).CreateType();
 

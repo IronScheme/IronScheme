@@ -29,7 +29,7 @@ namespace IronScheme.Compiler
 
     public static bool TypeHelpersEnabled { get; set; }
 
-    protected static void ClrSyntaxError(string who, string msg, params object[] forms)
+    protected internal static void ClrSyntaxError(string who, string msg, params object[] forms)
     {
       var f1 = forms.Length > 0 ? forms[0] : Builtins.FALSE;
       var f2 = forms.Length > 1 ? forms[1] : Builtins.FALSE;
@@ -876,6 +876,10 @@ namespace IronScheme.Compiler
         {
           return Ast.Convert(Ast.Constant((char)0), t);
         }
+        if (t == typeof(bool))
+        {
+          return Ast.Convert(Ast.Constant(false), t);
+        }
       }
 
       return ConvertToHelper(t, obj);
@@ -1017,6 +1021,15 @@ namespace IronScheme.Compiler
 
       ClrSyntaxError("clr-new", "constructor could not be resolved on type: " + type, args);
 
+      return null;
+    }
+  }
+
+  [Generator("create-clr-type")]
+  public sealed class CreateClrType : ClrGenerator
+  {
+    public override Expression Generate(object args, CodeBlock cb)
+    {
       return null;
     }
   }

@@ -48,6 +48,7 @@ namespace IronScheme.Compiler
       for (int i = 0; i < vars.Count; i++)
       {
         NameHint = Builtins.UnGenSymInternal(vars[i].Name);
+        //VarHint = vars[i].Name;
         Expression e = GetAst(defs[i], cb);
 
         if (e is MethodCallExpression)

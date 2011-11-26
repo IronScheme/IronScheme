@@ -40,6 +40,10 @@ namespace IronScheme.Runtime.Typed
       {
         return (T)o;
       }
+      if (o == null && !typeof(T).IsValueType)
+      {
+        return (T)o;
+      }
       return (T)Closure.AssertionViolation(false, "expected type: " + typeof(T), o);
     }
 
