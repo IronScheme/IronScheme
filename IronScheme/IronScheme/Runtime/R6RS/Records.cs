@@ -318,17 +318,15 @@ namespace IronScheme.Runtime.R6RS
       MethodInfo ci = type.GetMethod("make");
       var pari = ci.GetParameters();
       int pcount = pari.Length;
-      var ct = typeof(CallTargetN);
 
-      if (pcount < 9)
+      if (pcount < 9 && !(pcount == 1 && pari[0].ParameterType == typeof(object[])))
       {
-        if (pcount == 0 || !pari[0].ParameterType.IsArray)
-        {
-          ct = CallTargets.GetTargetType(false, pcount, false);
-        }
+        rtd.Constructor = CreateCallable(ci);
       }
-
-      rtd.Constructor = Closure.Create(Delegate.CreateDelegate(ct, ci)) as Callable;
+      else
+      {
+        rtd.Constructor = Closure.Create(Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
+      }
 
       rtd.Predicate = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), rtd.predicate)) as Callable;
 
@@ -344,13 +342,13 @@ namespace IronScheme.Runtime.R6RS
 
         fd.accessor = pi.GetGetMethod();
 
-        fd.Accessor = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
+        fd.Accessor = CreateCallable(fd.accessor);
 
         if (pi.CanWrite)
         {
           fd.mutator = pi.GetSetMethod();
 
-          fd.Mutator = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
+          fd.Mutator = CreateCallable(fd.mutator);
         }
         else
         {
@@ -386,7 +384,7 @@ namespace IronScheme.Runtime.R6RS
     }
 
 
-    Type GetClosureType(MethodInfo mi)
+    static Type GetClosureType(MethodInfo mi)
     {
       Type[] types = GetTypeSpec(mi);
 
@@ -395,7 +393,7 @@ namespace IronScheme.Runtime.R6RS
       return functype as Type;
     }
 
-    Type GetDelegateType(MethodInfo mi)
+    static Type GetDelegateType(MethodInfo mi)
     {
       Type[] types = GetTypeSpec(mi);
 
@@ -404,7 +402,7 @@ namespace IronScheme.Runtime.R6RS
       return functype as Type;
     }
 
-    Callable CreateCallable(MethodInfo mi)
+    static Callable CreateCallable(MethodInfo mi)
     {
       var dt = GetDelegateType(mi);
       var d = Delegate.CreateDelegate(dt, mi);
@@ -679,13 +677,13 @@ namespace IronScheme.Runtime.R6RS
         // accesor 
 
         MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static,
-          t, new Type[] { typeof(object) });
+          t, new Type[] { tg.TypeBuilder });
 
         ab.DefineParameter(1, ParameterAttributes.None, n);
 
         ILGenerator agen = ab.GetILGenerator();
         agen.Emit(OpCodes.Ldarg_0);
-        agen.Emit(OpCodes.Castclass, tg.TypeBuilder);
+        //agen.Emit(OpCodes.Castclass, tg.TypeBuilder);
         agen.Emit(OpCodes.Ldfld, fd.field);
         agen.Emit(OpCodes.Ret);
 
@@ -696,13 +694,13 @@ namespace IronScheme.Runtime.R6RS
         if (fd.mutable)
         {
           MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static,
-            typeof(object), new Type[] { typeof(object), t });
+            typeof(object), new Type[] { tg.TypeBuilder, t });
 
           mb.DefineParameter(1, ParameterAttributes.None, n);
 
           ILGenerator mgen = mb.GetILGenerator();
           mgen.Emit(OpCodes.Ldarg_0);
-          mgen.Emit(OpCodes.Castclass, tg.TypeBuilder);
+          //mgen.Emit(OpCodes.Castclass, tg.TypeBuilder);
           mgen.Emit(OpCodes.Ldarg_1);
           mgen.Emit(OpCodes.Stfld, fd.field);
           mgen.Emit(OpCodes.Ldsfld, Compiler.Generator.Unspecified);
