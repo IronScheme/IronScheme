@@ -47,6 +47,11 @@ namespace IronScheme.Compiler
       return old;
     }
 
+    public static void AddReference(string ns)
+    {
+      namespaces[ns] = ns;
+    }
+
     public static void ResetReferences(object prev)
     {
       namespaces = prev as Dictionary<string, string>;
@@ -63,13 +68,10 @@ namespace IronScheme.Compiler
     {
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
-        if (ass.ManifestModule.Name != "<In Memory Module>")
+        var t = ass.GetType(name);
+        if (t != null)
         {
-          var t = ass.GetType(name);
-          if (t != null)
-          {
-            return t;
-          }
+          return t;
         }
       }
       return null;
