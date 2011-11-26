@@ -13,12 +13,47 @@ See docs/license.txt. |#
     let*:
     define:
     letrec:
-    letrec*:)
+    letrec*:
+    struct:)
   (import 
     (ironscheme)
     (ironscheme typed-helper)
     (ironscheme clr) 
     (ironscheme syntax-format))
+    
+  (define-syntax struct:
+    (lambda (x)
+      (define (iota n)
+        (let f ((i 0)(a '()))
+          (if (= i n)
+              (reverse a)
+              (f (+ i 1) (cons i a)))))
+      (syntax-case x (:)
+        [(_ name ((fldname : fldtype) ...))
+          (with-syntax ((make (syntax-format "make-~a" #'name #'name))
+                        (pred (syntax-format "~a?" #'name #'name))
+                        (((getter getter-i) ...)
+                          (let ((flds #'(fldname ...)))
+                            (map (lambda (g i)
+                                   (list (syntax-format "~a-~a" #'name #'name g) i))
+                                 flds
+                                 (iota (length flds)))))
+                        (((setter setter-i) ...)
+                          (let ((flds #'(fldname ...)))
+                            (map (lambda (s i)
+                                   (list (syntax-format "set-~a-~a!" #'name #'name s) i))
+                                 flds
+                                 (iota (length flds))))))                                 
+            #'(begin
+                (define rtd (make-record-type-descriptor 
+                              'name #f #f #f #f 
+                              '#((mutable fldname) ...)
+                              '#(fldtype ...)))
+                (define rcd (make-record-constructor-descriptor rtd #f #f))
+                (define make (record-constructor rcd))
+                (define pred (record-predicate rtd))
+                (define getter (record-accessor rtd getter-i)) ...
+                (define setter (record-mutator rtd setter-i)) ...))])))
 
   (define-syntax :
     (lambda (x)
