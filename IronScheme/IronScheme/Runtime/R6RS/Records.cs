@@ -132,7 +132,7 @@ namespace IronScheme.Runtime
     [InlineEmitter("make-record-type-descriptor")]
     public static Expression MakeRecordTypeDescriptor(Expression[] obj)
     {
-      if (obj.Length == 6 && IronScheme.Compiler.Generator.VarHint != SymbolId.Empty)
+      if ((obj.Length == 6 || obj.Length == 7) && IronScheme.Compiler.Generator.VarHint != SymbolId.Empty)
       {
         try
         {
@@ -168,9 +168,26 @@ namespace IronScheme.Runtime
             rfields = Array.ConvertAll(dfields, x => ((ConstantExpression)x).Value);
           }
 
+          object[] tfields = Array.ConvertAll(rfields, x => SymbolTable.StringToObject("Object"));
+
+          if (obj.Length == 7)
+          {
+            var ftypes = obj[6];
+
+            if (ftypes is NewArrayExpression)
+            {
+              var ff = ((NewArrayExpression)ftypes).Expressions;
+              var dfields = new Expression[ff.Count];
+              ff.CopyTo(dfields, 0);
+
+              tfields = Array.ConvertAll(dfields, x => ((ConstantExpression) ((UnaryExpression)x).Operand).Value);
+            }
+
+          }
+
           if (!Builtins.IsTrue(ruid))
           {
-            ruid = Guid.NewGuid().ToString();
+            ruid = Guid.NewGuid().ToString(); //TODO: recall why this was done :\ Change to gensym if possible
             obj[2] = Ast.Convert(Ast.Constant(ruid), typeof(object));
           }
 
@@ -190,6 +207,7 @@ namespace IronScheme.Runtime
               Opaque = ropaque,
               Parent = par,
               Fields = rfields,
+              FieldTypes = tfields,
               NameHint = IronScheme.Compiler.Generator.VarHint,
             });
 
@@ -347,6 +365,53 @@ namespace IronScheme.Runtime.R6RS
       return rtd;
     }
 
+    static Type[] GetTypeSpec(MethodInfo mi)
+    {
+      List<Type> types = new List<Type>();
+
+      foreach (var v in mi.GetParameters())
+      {
+        types.Add(v.ParameterType);
+      }
+
+      types.Add(mi.ReturnType);
+      return types.ToArray();
+    }
+
+    static Type GetGenericType(string typename, Type[] types)
+    {
+      int l = types.Length;
+      var functype = ClrGenerator.GetTypeFast(typename + "`" + l).MakeGenericType(types);
+      return functype;
+    }
+
+
+    Type GetClosureType(MethodInfo mi)
+    {
+      Type[] types = GetTypeSpec(mi);
+
+      var functype = GetGenericType("IronScheme.Runtime.Typed.TypedClosure", types);
+
+      return functype as Type;
+    }
+
+    Type GetDelegateType(MethodInfo mi)
+    {
+      Type[] types = GetTypeSpec(mi);
+
+      var functype = GetGenericType("IronScheme.Runtime.Typed.Func", types);
+
+      return functype as Type;
+    }
+
+    Callable CreateCallable(MethodInfo mi)
+    {
+      var dt = GetDelegateType(mi);
+      var d = Delegate.CreateDelegate(dt, mi);
+      var ct = GetClosureType(mi);
+      return Activator.CreateInstance(ct, d) as Callable;
+    }
+
     public Type Finish()
     {
       if (type is TypeBuilder)
@@ -358,16 +423,15 @@ namespace IronScheme.Runtime.R6RS
         MethodInfo ci = type.GetMethod("make");
         var pari = ci.GetParameters();
         int pcount = pari.Length;
-        var ct = typeof(CallTargetN);
 
-        if (pcount < 9)
+        if (pcount < 9 && !(pcount == 1 && pari[0].ParameterType == typeof(object[])))
         {
-          if (pcount == 0 || !pari[0].ParameterType.IsArray)
-          {
-            ct = CallTargets.GetTargetType(false, pcount, false);
-          }
+          Constructor = CreateCallable(ci);
         }
-        Constructor = Closure.Create(Delegate.CreateDelegate(ct, ci)) as Callable;
+        else
+        {
+          Constructor = Closure.Create(Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
+        }
 
         // update fields
         predicate = type.GetMethod(predicate.Name);
@@ -378,13 +442,13 @@ namespace IronScheme.Runtime.R6RS
           fd.field = type.GetField(fd.field.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
           fd.accessor = type.GetMethod(fd.accessor.Name);
 
-          fd.Accessor = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), fd.accessor));
+          fd.Accessor = CreateCallable(fd.accessor);
 
           if (fd.mutable)
           {
             fd.mutator = type.GetMethod(fd.mutator.Name);
 
-            fd.Mutator = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget2), fd.mutator));
+            fd.Mutator = CreateCallable(fd.mutator);
           }
           else
           {
@@ -416,6 +480,10 @@ namespace IronScheme.Runtime.R6RS
 
     public object Accessor { get; internal set; }
     public object Mutator { get; internal set; }
+    public Type Type 
+    {
+      get { return field.FieldType; } 
+    }
 
     public override string ToString()
     {
@@ -449,22 +517,29 @@ namespace IronScheme.Runtime.R6RS
       var c = m.Value[0];
       return string.Format("%{0:X}{1:X}", c / 16, c % 16);
     }
-    
 
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
+    {
+      var ftypes = Array.ConvertAll((object[]) fields, x => SymbolTable.StringToObject("Object"));
+      return MakeRecordTypeDescriptorTyped(name, parent, uid, issealed, isopaque, fields, ftypes);
+    }
+    
+
+    [Builtin("make-record-type-descriptor")]
+    public static object MakeRecordTypeDescriptorTyped(object name, object parent, object uid, object issealed, object isopaque, object fields, object fieldtypes)
     {
       AssemblyGen ag = ScriptDomainManager.Options.DebugMode ?
         ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
         ScriptDomainManager.CurrentManager.Snippets.Assembly;
 
-      var rtd = GenerateRecordTypeDescriptor(ag, name, parent, uid, issealed, isopaque, fields); 
+      var rtd = GenerateRecordTypeDescriptor(ag, name, parent, uid, issealed, isopaque, fields, fieldtypes); 
       rtd.Finish();
       return rtd;
     }
 
     [CLSCompliant(false)]
-    public static RecordTypeDescriptor GenerateRecordTypeDescriptor(AssemblyGen ag, object name, object parent, object uid, object issealed, object isopaque, object fields)
+    public static RecordTypeDescriptor GenerateRecordTypeDescriptor(AssemblyGen ag, object name, object parent, object uid, object issealed, object isopaque, object fields, object fieldtypes)
     {
       string n = SymbolTable.IdToString(RequiresNotNull<SymbolId>(name));
       string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)): uid as string;
@@ -503,14 +578,16 @@ namespace IronScheme.Runtime.R6RS
 
       TypeAttributes attrs = TypeAttributes.Public | TypeAttributes.Serializable;
 
-      RecordTypeDescriptor rtd = new RecordTypeDescriptor();
-      rtd.Name = n;
-      rtd.@sealed = @sealed;
-      rtd.opaque = opaque;
-      rtd.ag = ag;
-      rtd.Parent = prtd;
-      rtd.uid = uid;
-      rtd.generative = id == null || uid is string;
+      var rtd = new RecordTypeDescriptor
+        {
+          Name = n,
+          @sealed = @sealed,
+          opaque = opaque,
+          ag = ag,
+          Parent = prtd,
+          uid = uid,
+          generative = id == null || uid is string,
+        };
 
       if (@sealed)
       {
@@ -526,7 +603,7 @@ namespace IronScheme.Runtime.R6RS
 
       GeneratePredicate(n, rtd, tg);
 
-      GenerateFields(fields, n, rtd, tg);
+      GenerateFields(fields, n, rtd, tg, fieldtypes);
 
       GenerateConstructor(rtd, tg, parenttype);
 
@@ -563,21 +640,29 @@ namespace IronScheme.Runtime.R6RS
       rtd.predicate = pb;
     }
 
-    static void GenerateFields(object fields, string n, RecordTypeDescriptor rtd, TypeGen tg)
+    static void GenerateFields(object fields, string n, RecordTypeDescriptor rtd, TypeGen tg, object fieldtypes)
     {
       object[] f = RequiresNotNull<object[]>(fields);
+      object[] ftypes = RequiresNotNull<object[]>(fieldtypes);
 
       List<FieldDescriptor> rtd_fields = new List<FieldDescriptor>();
 
-      foreach (Cons c in f)
+      for (int i = 0; i < f.Length; i++)
       {
+        Cons c = (Cons) f[i];
+        Type t = ClrGenerator.ExtractTypeInfo(List(SymbolTable.StringToObject("quote"), ftypes[i]));
+
+        if (t == null)
+        {
+          ClrGenerator.ClrSyntaxError("GenerateFields", "type not found", ftypes[i]);
+        }
+
         string fname = SymbolTable.IdToString(RequiresNotNull<SymbolId>(Second(c)));
         // we use standard names here, they will be mapped to the given names
         string aname = n + "-" + fname;
         string mname = n + "-" + fname + "-set!";
 
-        FieldDescriptor fd = new FieldDescriptor();
-        fd.Name = fname;
+        var fd = new FieldDescriptor { Name = fname };
 
         FieldAttributes fattrs = FieldAttributes.Public | FieldAttributes.InitOnly;
         if (c.car == SymbolTable.StringToObject("mutable"))
@@ -585,16 +670,16 @@ namespace IronScheme.Runtime.R6RS
           fd.mutable = true;
           fattrs &= ~FieldAttributes.InitOnly;
         }
-        FieldSlot s = tg.AddField(typeof(object), fname, fattrs) as FieldSlot;
+        FieldSlot s = tg.AddField(t, fname, fattrs) as FieldSlot;
 
         fd.field = s.Field;
 
-        PropertyBuilder pi = tg.TypeBuilder.DefineProperty(fname, PropertyAttributes.None, typeof(object), new Type[0]);
+        PropertyBuilder pi = tg.TypeBuilder.DefineProperty(fname, PropertyAttributes.None, t, new Type[0]);
 
         // accesor 
 
         MethodBuilder ab = tg.TypeBuilder.DefineMethod(aname, MethodAttributes.Public | MethodAttributes.Static,
-          typeof(object), new Type[] { typeof(object) });
+          t, new Type[] { typeof(object) });
 
         ab.DefineParameter(1, ParameterAttributes.None, n);
 
@@ -611,7 +696,7 @@ namespace IronScheme.Runtime.R6RS
         if (fd.mutable)
         {
           MethodBuilder mb = tg.TypeBuilder.DefineMethod(mname, MethodAttributes.Public | MethodAttributes.Static,
-            typeof(object), new Type[] { typeof(object), typeof(object) });
+            typeof(object), new Type[] { typeof(object), t });
 
           mb.DefineParameter(1, ParameterAttributes.None, n);
 
@@ -644,14 +729,14 @@ namespace IronScheme.Runtime.R6RS
 
         foreach (FieldDescriptor var in allfields)
         {
-          paramtypes.Add(typeof(object));
+          paramtypes.Add(var.Type);
         }
 
         List<Type> parenttypes = new List<Type>();
 
         for (int i = 0; i < diff; i++)
         {
-          parenttypes.Add(typeof(object));
+          parenttypes.Add(typeof(object)); //TODO: fix this, it looks broken
         }
 
         if (paramtypes.Count < 9)

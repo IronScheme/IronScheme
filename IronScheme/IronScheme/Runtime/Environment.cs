@@ -413,10 +413,15 @@ namespace IronScheme.Runtime
 
     static readonly string TICKSTRING = PackInt(TICKS);
 
+    internal static string GenGenSymString()
+    {
+      return "g$" + anonsymcount++ + "$" + TICKSTRING;
+    }
+
     [Builtin]
     public static object GenSym()
     {
-      return SymbolTable.StringToObject("g$" + anonsymcount++ + "$" + TICKSTRING);
+      return SymbolTable.StringToObject(GenGenSymString());
     }
 
     [Builtin]
