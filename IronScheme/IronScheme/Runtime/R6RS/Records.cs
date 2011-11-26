@@ -593,8 +593,12 @@ namespace IronScheme.Runtime.R6RS
       }
 
       object gid = (object)id ?? Guid.NewGuid();
+      var ns = "record." + gid;
+      var typename = ns + "." + n.Replace("&", "$");
 
-      TypeGen tg = ag.DefinePublicType("record." + gid + "." + n.Replace("&", "$"), parenttype, attrs);
+      ClrGenerator.AddReference(ns);
+
+      TypeGen tg = ag.DefinePublicType(typename, parenttype, attrs);
 
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
