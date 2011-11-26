@@ -27,6 +27,13 @@ namespace Microsoft.Scripting.Ast {
       public delegate void Emitter(CodeGen cg, bool tailcall);
 
       readonly static Dictionary<SymbolId, Emitter> fixups = new Dictionary<SymbolId, Emitter>();
+      readonly static Dictionary<SymbolId, Type[]> fixuptypes = new Dictionary<SymbolId, Type[]>();
+
+      public static Dictionary<SymbolId, Type[]> FixupTypes
+      {
+        get { return BoundExpression.fixuptypes; }
+      } 
+
 
       public static Dictionary<SymbolId, Emitter> Fixups
       {

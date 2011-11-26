@@ -46,6 +46,10 @@ namespace IronScheme.Compiler
         BoundExpression.Fixups[NameHint] = emit;
         BoundExpression.Fixups[NameHint2] = emit;
 
+        BoundExpression.FixupTypes[NameHint] =
+        BoundExpression.FixupTypes[NameHint2] = new Type[] { typeof(object) };
+
+
       }
     }
 
@@ -75,11 +79,23 @@ namespace IronScheme.Compiler
 
         BoundExpression.Emitter emit = (x, y) =>
         {
-          x.EmitCall(rtd.Fields[Index].accessor, y);
+          var m = rtd.Fields[Index].accessor;
+          x.EmitCall(m, y);
+          if (m.ReturnType.IsValueType)
+          {
+            x.EmitBoxing(m.ReturnType);
+          }
         };
 
         BoundExpression.Fixups[NameHint] = emit;
         BoundExpression.Fixups[NameHint2] = emit;
+
+        var pars = rtd.Fields[Index].accessor.GetParameters();
+
+        BoundExpression.FixupTypes[NameHint] =
+        BoundExpression.FixupTypes[NameHint2] =
+          Array.ConvertAll(pars, x => x.ParameterType);
+
       }
     }
 
@@ -114,6 +130,12 @@ namespace IronScheme.Compiler
 
         BoundExpression.Fixups[NameHint] = emit;
         BoundExpression.Fixups[NameHint2] = emit;
+
+        var pars = rtd.Fields[Index].mutator.GetParameters();
+
+        BoundExpression.FixupTypes[NameHint] =
+        BoundExpression.FixupTypes[NameHint2] =           
+          Array.ConvertAll(pars, x => x.ParameterType);
 
       }
     }

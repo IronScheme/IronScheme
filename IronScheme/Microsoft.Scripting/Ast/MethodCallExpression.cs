@@ -236,6 +236,7 @@ namespace Microsoft.Scripting.Ast {
             if (BoundExpression.Fixups.ContainsKey(be.Variable.Name))
             {
               fixup = BoundExpression.Fixups[be.Variable.Name];
+              pttt = BoundExpression.FixupTypes[be.Variable.Name];
             }
             else
             {
@@ -464,7 +465,8 @@ namespace Microsoft.Scripting.Ast {
         }
 
         private static void EmitArgument(CodeGen cg, Expression argument, Type type) {
-          if (argument.Type != type && (argument.Type.IsValueType || type.IsValueType))
+          //if (argument.Type != type && (argument.Type.IsValueType || type.IsValueType))
+          if (!type.IsAssignableFrom(argument.Type) || (argument.Type != type && (argument.Type.IsValueType || type.IsValueType)))
           {
             argument = Ast.Convert(argument, type);
           }

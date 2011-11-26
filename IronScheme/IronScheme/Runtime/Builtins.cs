@@ -730,6 +730,8 @@ namespace IronScheme.Runtime
         }
         finally
         {
+          BoundExpression.Fixups.Clear();
+          BoundExpression.FixupTypes.Clear();
           ScriptDomainManager.Options.AssemblyGenAttributes = aga;
           IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
           sc.ClearCache();
