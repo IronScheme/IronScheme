@@ -50,6 +50,7 @@ See docs/license.txt. |#
                               '#((mutable fldname) ...)
                               '#(fldtype ...)))
                 (define rcd (make-record-constructor-descriptor rtd #f #f))
+                (define-syntax name (list '$rtd #'rtd #'rcd))
                 (define make (record-constructor rcd))
                 (define pred (record-predicate rtd))
                 (define getter (record-accessor rtd getter-i)) ...
