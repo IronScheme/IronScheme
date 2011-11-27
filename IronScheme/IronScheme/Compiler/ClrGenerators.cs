@@ -145,8 +145,32 @@ namespace IronScheme.Compiler
       }
     }
 
+    readonly static Dictionary<string, string> TypeMap = new Dictionary<string,string>
+    {
+      { "fixnum", "Int32" },
+      { "int", "Int32" },
+      { "flonum", "Double" },
+      { "double", "Double" },
+      { "string", "String" },
+      { "bool", "Boolean" },
+      { "vector", "Object[]" },
+      { "bytevector", "Byte[]" },
+      { "cons", "IronScheme.Runtime.Cons" },
+      { "list", "IronScheme.Runtime.Cons" },
+      { "char", "Char" },
+      { "procedure" , "IronScheme.Runtime.Callable" },
+      { "hashtable" , "System.Collections.Hashtable" }
+    };
+
+
     protected static Type ScanForType(string name)
     {
+      string mapname;
+      if (TypeMap.TryGetValue(name, out mapname))
+      {
+        name = mapname;
+      }
+      
       var t = GetTypeFast(GetTypeName(name, ""));
       if (t != null)
       {
