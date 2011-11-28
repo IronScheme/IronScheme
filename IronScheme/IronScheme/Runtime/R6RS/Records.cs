@@ -596,8 +596,6 @@ namespace IronScheme.Runtime.R6RS
       var ns = "record." + gid;
       var typename = ns + "." + n.Replace("&", "$");
 
-      ClrGenerator.AddReference(ns);
-
       TypeGen tg = ag.DefinePublicType(typename, parenttype, attrs);
 
       rtd.tg = tg;

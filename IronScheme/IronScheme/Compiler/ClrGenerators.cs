@@ -47,11 +47,6 @@ namespace IronScheme.Compiler
       return old;
     }
 
-    public static void AddReference(string ns)
-    {
-      namespaces[ns] = ns;
-    }
-
     public static void ResetReferences(object prev)
     {
       namespaces = prev as Dictionary<string, string>;

@@ -14,12 +14,24 @@ See docs/license.txt. |#
     define:
     letrec:
     letrec*:
-    struct:)
+    struct:
+    import-struct-type)
   (import 
     (ironscheme)
     (ironscheme typed-helper)
     (ironscheme clr) 
     (ironscheme syntax-format))
+    
+  (define-syntax import-struct-type
+    (lambda (x)
+      (syntax-case x ()
+        [(_ type)
+          (lambda (lookup)
+            (let ((r (lookup #'type)))
+              (unless r
+                (syntax-violation 'import-struct-type "not a valid type" #'type))
+              (with-syntax ((r (datum->syntax #'type r)))
+                #'(clr-using r))))])))
     
   (define-syntax struct:
     (lambda (x)
@@ -43,18 +55,22 @@ See docs/license.txt. |#
                             (map (lambda (s i)
                                    (list (syntax-format "set-~a-~a!" #'name #'name s) i))
                                  flds
-                                 (iota (length flds))))))                                 
-            #'(begin
-                (define rtd (make-record-type-descriptor 
-                              'name #f #f #f #f 
-                              '#((mutable fldname) ...)
-                              '#(fldtype ...)))
-                (define rcd (make-record-constructor-descriptor rtd #f #f))
-                (define-syntax name (list '$rtd #'rtd #'rcd))
-                (define make (record-constructor rcd))
-                (define pred (record-predicate rtd))
-                (define getter (record-accessor rtd getter-i)) ...
-                (define setter (record-mutator rtd setter-i)) ...))])))
+                                 (iota (length flds))))))
+            (let* ((uid (gensym))
+                   (suid (datum->syntax #'name uid))
+                   (ns (datum->syntax #'name (string->symbol (format "record.~a" uid)))))
+              #`(begin
+                  (define rtd (make-record-type-descriptor 
+                                'name #f '#,suid #f #f 
+                                '#((mutable fldname) ...)
+                                '#(fldtype ...)))
+                  (define rcd (make-record-constructor-descriptor rtd #f #f))
+                  (define-syntax name (make-compile-time-value '#,ns))
+                  (define make (record-constructor rcd))
+                  (define pred (record-predicate rtd))
+                  (define getter (record-accessor rtd getter-i)) ...
+                  (define setter (record-mutator rtd setter-i)) ...
+                  (clr-using #,ns))))])))
 
   (define-syntax :
     (lambda (x)
