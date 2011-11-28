@@ -381,7 +381,15 @@ namespace IronScheme.Runtime
       var d = Delegate.CreateDelegate(CallTargets[arity], c, LookupCallable(c, argtypes));
       var meth = typeof(Typed.Utils).GetMethod("MakeVoidTyped", new Type[] { CallTargets[arity] });
 
-      var gm = meth.MakeGenericMethod(argtypes);
+      var targs = new Type[arity + 1];
+      int i = 0;
+      for (; i < arity; i++)
+      {
+        targs[i] = argtypes[i];
+      }
+      targs[i] = typeof(object);
+
+      var gm = meth.MakeGenericMethod(targs);
 
       var wrapper = gm.Invoke(null, new object[] { d });
 
