@@ -15,7 +15,7 @@ See docs/license.txt. |#
     monitor-exit
     lock)
   (import 
-    (rnrs)
+    (ironscheme)
     (ironscheme contracts)
     (ironscheme clr))
     
@@ -28,7 +28,10 @@ See docs/license.txt. |#
     (clr-is Thread obj))
     
   (define/contract (make-thread proc:procedure)
-    (clr-new Thread proc))
+    (let ((a (procedure-arity proc)))
+      (unless (and (fixnum? a) (fx=? a 0))
+        (assertion-violation 'make-thread "expected procedure with zero parameters" a proc)))
+    (clr-new Thread (clr-cast ThreadStart proc)))
     
   (define/contract queue-work-item
     (case-lambda 
