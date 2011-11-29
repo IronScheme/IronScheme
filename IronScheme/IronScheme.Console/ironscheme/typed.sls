@@ -15,7 +15,8 @@ See docs/license.txt. |#
     letrec:
     letrec*:
     struct:
-    import-struct-type)
+    import-struct-type
+    struct-type-descriptor)
   (import 
     (ironscheme)
     (ironscheme typed-helper)
@@ -30,8 +31,18 @@ See docs/license.txt. |#
             (let ((r (lookup #'type)))
               (unless r
                 (syntax-violation 'import-struct-type "not a valid type" #'type))
-              (with-syntax ((r (datum->syntax #'type r)))
+              (with-syntax ((r (datum->syntax #'type (car r))))
                 #'(clr-using r))))])))
+                
+  (define-syntax struct-type-descriptor
+    (lambda (x)
+      (syntax-case x ()
+        [(_ type)
+          (lambda (lookup)
+            (let ((r (lookup #'type)))
+              (unless r
+                (syntax-violation 'struct-type-descriptor "not a valid type" #'type))
+              (cdr r)))])))
     
   (define-syntax struct:
     (lambda (x)
@@ -65,7 +76,8 @@ See docs/license.txt. |#
                                 '#((mutable fldname) ...)
                                 '#(fldtype ...)))
                   (define rcd (make-record-constructor-descriptor rtd #f #f))
-                  (define-syntax name (make-compile-time-value '#,ns))
+                  (define-syntax name 
+                    (make-compile-time-value (cons '#,ns #'rtd)))
                   (define make (record-constructor rcd))
                   (define pred (record-predicate rtd))
                   (define getter (record-accessor rtd getter-i)) ...
