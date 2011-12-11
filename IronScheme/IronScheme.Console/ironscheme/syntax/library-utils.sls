@@ -4,7 +4,7 @@ All rights reserved.
 This source code is subject to terms and conditions of the BSD License.
 See docs/license.txt. |#
 
-(library (ironscheme library-utils)
+(library (ironscheme syntax library-utils)
   (export
     import-and-reexport-all-from)
   (import (ironscheme))

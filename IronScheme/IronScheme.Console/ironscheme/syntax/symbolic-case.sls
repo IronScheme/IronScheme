@@ -4,7 +4,7 @@ All rights reserved.
 This source code is subject to terms and conditions of the BSD License.
 See docs/license.txt. |#
 
-(library (ironscheme symbolic-case)
+(library (ironscheme syntax symbolic-case)
   (export 
     syntax-casep 
     symbolic=? 

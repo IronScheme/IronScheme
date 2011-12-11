@@ -13,7 +13,7 @@
   
 (library (sym)
   (export blah)
-  (import (ironscheme symbolic-case)
+  (import (ironscheme syntax symbolic-case)
           (foo))
   
   (define-syntax blah

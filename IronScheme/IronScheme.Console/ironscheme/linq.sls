@@ -61,7 +61,7 @@ See docs/license.txt. |#
   (import 
     (except (rnrs) syntax-case)
     (only (ironscheme core) eqv-hash)
-    (rename (ironscheme symbolic-case) (symbolic-case syntax-case)))
+    (rename (ironscheme syntax) (symbolic-case syntax-case)))
 
   (define-record-type grouping (fields key iter))
   
