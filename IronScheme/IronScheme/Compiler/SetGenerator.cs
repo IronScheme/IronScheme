@@ -57,15 +57,6 @@ namespace IronScheme.Compiler
       NameHint = SymbolId.Invalid;
 
       Variable v = cb.Lookup(s);
-
-      //if (value.Type.IsValueType)
-      //{
-      //  if (v == null || !v.Type.IsAssignableFrom(value.Type))
-      //  {
-      //    value = Ast.ConvertHelper(value, typeof(object));
-      //  }
-      //}
-
       Statement r = null;
 
       if (v == null)

@@ -53,8 +53,7 @@ See docs/license.txt. |#
     fxarithmetic-shift-left
     fxarithmetic-shift-right
     fxrotate-bit-field
-    fxreverse-bit-field
-  )
+    fxreverse-bit-field)
   (import 
     (ironscheme core)
     (ironscheme clr)
@@ -111,8 +110,7 @@ See docs/license.txt. |#
       fx-
       fx+
       fx*
-      fxreverse-bit-field
-      ))
+      fxreverse-bit-field))
 
   (define (fixnum-width) 32)
   
@@ -270,7 +268,6 @@ See docs/license.txt. |#
   (define-fx-comparer fx<=?)
   (define-fx-comparer fx>?)
   (define-fx-comparer fx>=?)
-
 
   (define-syntax define-fx-bitop
     (lambda (x)

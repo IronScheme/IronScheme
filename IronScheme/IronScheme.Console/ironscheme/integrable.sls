@@ -22,7 +22,6 @@ See docs/license.txt. |#
                 (symbol->string (syntax->datum name)))))))
       (syntax-case x (lambda)
         [(_ (name . formals) form1 form2 ...)
-          (identifier? #'name)
           #'(define-integrable name (lambda formals form1 form2 ...))]
         [(_ name (lambda formals form1 form2 ...))
          (identifier? #'name)
@@ -51,7 +50,6 @@ See docs/license.txt. |#
                 (symbol->string (syntax->datum name)))))))
       (syntax-case x (typed-lambda)
         [(_ (name . formals) type-spec form1 form2 ...)
-          (identifier? #'name)
           #'(define-typed-integrable name (typed-lambda formals type-spec form1 form2 ...))]
         [(_ name (typed-lambda formals type-spec form1 form2 ...))
          (identifier? #'name)
@@ -68,7 +66,4 @@ See docs/license.txt. |#
                          arg (... ...))])))
                (define xname
                  (fluid-let-syntax ((name (identifier-syntax xname)))
-                   (typed-lambda formals type-spec form1 form2 ...)))))])))                     
-                 
-
-)
+                   (typed-lambda formals type-spec form1 form2 ...)))))]))))

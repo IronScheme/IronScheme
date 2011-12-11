@@ -208,12 +208,9 @@
     <None Include="build\trace.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\syntax-format.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="playground\define-clr-class.sls">
     </None>
-    <None Include="ironscheme\define-macro.sls">
+    <None Include="ironscheme\syntax\define-macro.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\record-case.sls">
@@ -260,16 +257,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\docs\topic-printer.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\docs\templates.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\docs\topic-manager.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\docs\topic.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="examples\forms.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -284,16 +277,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\collections\arraylist.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\collections\ilist.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\collections\icollection.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\collections\stack.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\console.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -338,7 +327,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\docs.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="examples\declare-type.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -749,7 +737,31 @@
     <Content Include="ironscheme\clr\dynamic.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ironscheme\syntax-parameters.sls">
+    <None Include="ironscheme\syntax.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\syntax\utils.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\syntax\shorthand.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\typed\integrable.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\typed\struct-case.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\typed\struct-descriptor.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\typed\struct.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\typed\parsing.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\syntax\parameters.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\debugger.sls">
@@ -761,7 +773,10 @@
     <None Include="ironscheme\regex-cond.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed-helper.sls">
+    <None Include="ironscheme\typed\parsing-helper.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ironscheme\typed.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme\web\models.sls">
@@ -770,7 +785,7 @@
     <None Include="playground\bw.sps" />
     <None Include="playground\linq3.sls">
     </None>
-    <None Include="ironscheme\library-utils.sls">
+    <None Include="ironscheme\syntax\library-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="srfi\69.sls">
@@ -827,7 +842,7 @@
     <Content Include="srfi\tests\multi-dimensional-arrays.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ironscheme\symbolic-case.sls">
+    <None Include="ironscheme\syntax\symbolic-case.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="lib\diff.sls">
@@ -844,7 +859,7 @@
     </None>
     <None Include="playground\ca.sps" />
     <None Include="playground\diff.sps" />
-    <None Include="ironscheme\typed.sls">
+    <None Include="ironscheme\typed\core.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\cp0.sls">

@@ -4,7 +4,7 @@ All rights reserved.
 This source code is subject to terms and conditions of the BSD License.
 See docs/license.txt. |#
 
-(library (ironscheme define-macro)
+(library (ironscheme syntax define-macro)
   (export define-macro)
   (import (rnrs))
 
@@ -19,6 +19,4 @@ See docs/license.txt. |#
                 (syntax-case y ()
                   ((k . args)
                    (let ((lst (syntax->datum #'args)))
-                     (datum->syntax #'k (apply expander lst)))))))]
-          )))
-)
+                     (datum->syntax #'k (apply expander lst)))))))]))))

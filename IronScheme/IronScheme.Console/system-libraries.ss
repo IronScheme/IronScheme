@@ -30,10 +30,9 @@ See docs/license.txt. |#
     (ironscheme regex)
     (ironscheme regex-cond)
     (ironscheme registry)
-    (ironscheme typed)
+    
     (ironscheme strings)
-    (ironscheme symbolic-case)
-    (ironscheme syntax-parameters)
+    
     (ironscheme threading)
     (ironscheme web)
     (ironscheme web-utils)
@@ -49,10 +48,18 @@ See docs/license.txt. |#
     
     ;(ironscheme ffi) ; cant compile due to dynamic codegen
     (ironscheme integrable)
-    (ironscheme library-utils)
+    
 
-    (ironscheme syntax-format)
-    (ironscheme define-macro)
+    (ironscheme syntax)
+    (ironscheme syntax define-macro)
+    (ironscheme syntax parameters)
+    (ironscheme syntax library-utils)
+    (ironscheme syntax symbolic-case)
+    
+    (ironscheme typed)
+    (ironscheme typed struct)
+    (ironscheme typed struct-case)
+    
     (ironscheme contracts)
     
     (ironscheme debugger))

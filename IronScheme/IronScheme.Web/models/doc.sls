@@ -196,7 +196,7 @@
       (ironscheme registry)
       (ironscheme strings)
       (ironscheme symbolic-case)
-      (ironscheme syntax-format)
+      (ironscheme syntax)
       (ironscheme threading)
       (ironscheme web-utils)
       (ironscheme web)
