@@ -421,13 +421,23 @@ namespace IronScheme.Runtime
       TimeSpan totalts = selfprocess.TotalProcessorTime,
         userts = selfprocess.UserProcessorTime;
       
-      Stopwatch sw = Stopwatch.StartNew();
+      Stopwatch sw = new Stopwatch();
       try
       {
 #if CPS
         return OptimizedBuiltins.Call(c);
 #else
-        return c.Call();
+        if (Equals(c.Arity, 1))
+        {
+          return c.Call(sw);
+        }
+        else
+        {
+          sw.Start();
+          var result = c.Call();
+          sw.Stop();
+          return result;
+        }
 #endif
       }
       finally
@@ -452,6 +462,7 @@ namespace IronScheme.Runtime
                      (userts2 - userts).TotalMilliseconds,
                      (totalts2 - totalts).TotalMilliseconds,
                      colcountafter - colcount));
+        GC.Collect(); // to prevent subsequent loading
       }
     }
 

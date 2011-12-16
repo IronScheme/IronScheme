@@ -44,6 +44,7 @@ namespace IronScheme.Compiler
             node.Method = mi;
             node.Instance = i;
             node.Arguments = node.Arguments.ConvertAll(e => Unwrap(e));
+            node.ParameterInfos = mi.GetParameters();
           }
         }
       }

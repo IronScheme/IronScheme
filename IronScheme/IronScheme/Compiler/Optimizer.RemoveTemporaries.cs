@@ -243,15 +243,12 @@ namespace IronScheme.Compiler
           }
 
           node.RemoveVariables(toremove);
-
           node.Bind();
-          base.PostWalk(node);
         }
 
         protected override void PostWalk(VoidExpression node)
         {
           node.Statement = Rewrite(node.Statement);
-          base.PostWalk(node);
         }
 
         protected override void PostWalk(IfStatement node)
@@ -261,9 +258,6 @@ namespace IronScheme.Compiler
           {
             node.ElseStatement = Rewrite(node.ElseStatement);
           }
-
-
-          base.PostWalk(node);
         }
       }
 

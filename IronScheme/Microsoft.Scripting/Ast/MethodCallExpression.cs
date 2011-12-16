@@ -352,6 +352,8 @@ namespace Microsoft.Scripting.Ast {
           EmitLocation(cg);
           // Emit the actual call
 
+          //if (cg.ToString().Contains("id?")) Debugger.Break();
+
           if (fixup == null)
           {
             cg.EmitCall(_method, tailcall);

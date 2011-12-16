@@ -71,6 +71,9 @@ namespace IronScheme.Compiler
       Optimize<FixupPrimitives>(cb);
       Optimize<SimpleTypeVariables>(cb); // for callables
 
+      Optimize<FixupTypedClosureCallsites>(cb);
+      Optimize<RemoveUselessConversions>(cb);
+
       Optimize<TCE>(cb);
       Optimize<FlattenBodies>(cb);
 
@@ -87,7 +90,10 @@ namespace IronScheme.Compiler
 
       //Optimize<RemoveTemporaries>(cb);
       //Optimize<ConversionCSE>(cb);
-      //Optimize<RemoveUselessConversions>(cb); // no hits
+      Optimize<RemoveUselessConversions>(cb);
+      Optimize<FixupTypedClosureCallsites>(cb);
+      Optimize<RemoveUselessConversions>(cb);
+      Optimize<RemoveTemporaries>(cb);
     }
   }
 }

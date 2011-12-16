@@ -37,6 +37,13 @@ namespace IronScheme.Compiler
                 node.Operand = inode.Operand;
               }
             }
+            if (node.Type != typeof(object) && 
+              node.Type != op.Type && 
+              node.Type.IsAssignableFrom(op.Type) && 
+              !(node.Type.IsInterface && op.Type.IsValueType))
+            {
+              node.SetType(op.Type);
+            }
           }
         }
 

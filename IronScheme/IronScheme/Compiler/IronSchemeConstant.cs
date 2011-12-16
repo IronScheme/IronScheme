@@ -14,6 +14,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
 using BigInteger = Oyster.Math.IntX;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
@@ -43,6 +44,7 @@ namespace IronScheme.Compiler
             x.EmitCall(typeof(RuntimeHelpers).GetMethod("BooleanToObject"), y);
           };
 
+        //if (NameHint.ToString().Contains("stx?")) Debugger.Break();
         BoundExpression.Fixups[NameHint] = emit;
         BoundExpression.Fixups[NameHint2] = emit;
 

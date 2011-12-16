@@ -29,6 +29,8 @@ namespace IronScheme.Runtime
         var rtd = Unwrap(obj[0]);
         if (rtd is BoundExpression)
         {
+          //if (!IronScheme.Compiler.Generator.VarHint.IsEmpty && IronScheme.Compiler.Generator.VarHint.ToString().Contains("stx?")) Debugger.Break();
+
           var rtdname = ((BoundExpression)rtd).Variable.Name;
           var e = Ast.Constant(new RecordPredicateConstant 
           { 
@@ -476,7 +478,7 @@ namespace IronScheme.Runtime.R6RS
     internal FieldInfo field;
     internal MethodInfo accessor, mutator;
 
-    public object Accessor { get; internal set; }
+    public Callable Accessor { get; internal set; }
     public object Mutator { get; internal set; }
     public Type Type 
     {
@@ -550,7 +552,7 @@ namespace IronScheme.Runtime.R6RS
           return ngrtd;
         }
 
-        var type = BootfileAssembly.GetType("record." + id + "." + n.Replace("&", "$"), false);
+        var type = ClrGenerator.GetTypeFast("record." + id + "." + n.Replace("&", "$"));
 
         if (type != null)
         {
@@ -855,14 +857,14 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("record-predicate")]
-    public static object RecordPredicate(object rtd)
+    public static Callable RecordPredicate(object rtd)
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
       return Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
     }
-    
+
     [Builtin("record-constructor")]
-    public static object RecordConstructor(object cd)
+    public static Callable RecordConstructor(object cd)
     {
       RecordConstructorDescriptor ci = RequiresNotNull<RecordConstructorDescriptor>(cd);
       Type tt = ci.type.Finish();
@@ -948,14 +950,14 @@ namespace IronScheme.Runtime.R6RS
     }
 
     [Builtin("record-accessor")]
-    public static object RecordAccessor(object rtd, object k)
+    public static Callable RecordAccessor(object rtd, object k)
     {
       RecordTypeDescriptor t = RequiresNotNull<RecordTypeDescriptor>(rtd);
       int i = RequiresNotNull<int>(k);
 
       if (i >= t.Fields.Length)
       {
-        return AssertionViolation("record-accessor", "invalid field index", rtd, k);
+        AssertionViolation("record-accessor", "invalid field index", rtd, k);
       }
 
       return t.fields[i].Accessor;
@@ -969,7 +971,7 @@ namespace IronScheme.Runtime.R6RS
 
       if (i >= t.Fields.Length)
       {
-        return AssertionViolation("record-mutator", "invalid field index", rtd, k);
+        AssertionViolation("record-mutator", "invalid field index", rtd, k);
       }
 
       return t.fields[i].Mutator;

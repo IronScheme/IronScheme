@@ -1927,7 +1927,10 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void Emit(OpCode opcode) {
+          if (!EmitDebugInfo || opcode != OpCodes.Nop)
+          {
             _ilg.Emit(opcode);
+          }
         }
 
         public void Emit(OpCode opcode, byte arg) {

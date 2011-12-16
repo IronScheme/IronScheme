@@ -269,7 +269,7 @@ namespace IronScheme.Compiler
 
           foreach (Variable l in cb.Variables)
           {
-            if (l.DefaultValue == null)
+            if (l.DefaultValue == null && l.Kind != Variable.VariableKind.Global)
             {
               l.Name = (SymbolId)Builtins.GenSym(l.Name);
             }

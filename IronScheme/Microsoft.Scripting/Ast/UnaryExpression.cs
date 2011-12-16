@@ -23,7 +23,7 @@ using Microsoft.Scripting.Utils;
 namespace Microsoft.Scripting.Ast {
     public class UnaryExpression : Expression {
         private Expression /*!*/ _operand;
-        private readonly Type /*!*/ _type;
+        private Type /*!*/ _type;
 
         public static MethodInfo Converter;
 
@@ -118,6 +118,30 @@ namespace Microsoft.Scripting.Ast {
           }
         }
 
+        public override void EmitBranchFalse(CodeGen cg, Label label)
+        {
+          if (NodeType == AstNodeType.Not)
+          {
+            _operand.EmitBranchTrue(cg, label);
+          }
+          else
+          {
+            base.EmitBranchFalse(cg, label);
+          }
+        }
+
+        public override void EmitBranchTrue(CodeGen cg, Label label)
+        {
+          if (NodeType == AstNodeType.Not)
+          {
+            _operand.EmitBranchFalse(cg, label);
+          }
+          else
+          {
+            base.EmitBranchTrue(cg, label);
+          }
+        }
+
         internal override void EmitAddress(CodeGen cg, Type asType) {
             if (NodeType == AstNodeType.Convert && Type == asType) {
                 _operand.EmitAddress(cg, asType);
@@ -162,6 +186,11 @@ namespace Microsoft.Scripting.Ast {
         } 
 #endif
 
+
+        public void SetType(Type type)
+        {
+          _type = type;
+        }
     }
 
     /// <summary>
