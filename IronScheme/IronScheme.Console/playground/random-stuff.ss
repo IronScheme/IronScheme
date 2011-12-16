@@ -40,6 +40,34 @@
 (halb bar)  
 
 
+(define (ack m n)
+  (if (= m 0)
+      (+ n 1)
+      (if (= n 0)
+          (ack (- m 1) 1)
+          (ack (- m 1) (ack m (- n 1))))))
+          
+(define (fx-ack m n)
+  (if (fx=? m 0)
+      (fx+ n 1)
+      (if (fx=? n 0)
+          (fx-ack (fx- m 1) 1)
+          (fx-ack (fx- m 1) (fx-ack m (fx- n 1))))))
+
+(import (ironscheme typed) (ironscheme unsafe))
+          
+(define: (t-ack (m : fixnum) (n : fixnum)) : fixnum
+  (if ($fx=? m 0)
+      ($fx+ n 1)
+      (if ($fx=? n 0)
+          (t-ack ($fx- m 1) 1)
+          (t-ack ($fx- m 1) (t-ack m ($fx- n 1))))))
+  
+          
+(time (ack 3 9))
+(time (fx-ack 3 9))
+(time (t-ack 3 9))
+          
 
 (define (fib n)
   (if (< n 2)

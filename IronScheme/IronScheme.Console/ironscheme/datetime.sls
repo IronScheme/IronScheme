@@ -39,12 +39,23 @@ See docs/license.txt. |#
     make-datetime
     make-utc-datetime
     make-timespan
+    
+    stopwatch?
+    make-stopwatch
+    stopwatch-start
+    stopwatch-stop
+    stopwatch-elapsed
+    
+    measure
     )
   (import 
-    (rnrs)
+    (ironscheme)
+    (ironscheme syntax)
+    (ironscheme typed)
+    (ironscheme unsafe)
     (ironscheme contracts)
     (ironscheme clr))
-
+    
   (define (datetime? obj)
     (clr-is DateTime obj))   
     
@@ -175,5 +186,39 @@ See docs/license.txt. |#
 
   (define/contract (total-milliseconds ts:timespan)
     (clr-prop-get TimeSpan TotalMilliseconds ts))
+    
+  (clr-using System.Diagnostics) 
+  
+  (define (make-stopwatch)
+    (clr-new Stopwatch))
+    
+  (define (stopwatch? o)
+    (clr-is Stopwatch o))
+    
+  (define/contract (stopwatch-start sw:stopwatch)
+    (clr-call Stopwatch Start sw))
+    
+  (define/contract (stopwatch-stop sw:stopwatch)
+    (clr-call Stopwatch Stop sw))
+    
+  (define/contract (stopwatch-elapsed sw:stopwatch)
+    (clr-prop-get Stopwatch Elapsed sw))
+    
+  (define/contract (stopwatch-elapsed-milliseconds sw:stopwatch)
+    (clr-static-call Convert ToInt32 (clr-prop-get Stopwatch ElapsedMilliseconds sw)))
 
-)
+  (define-syntax-case (measure iters expr)
+    (with-syntax ([str (format "~a" (syntax->datum #'expr))])
+      #'(let ((sw (make-stopwatch)))
+         (stopwatch-start sw)
+         (let: f ((i : fixnum 0))
+           (cond 
+            [($fx=? i iters)
+               (stopwatch-stop sw)
+               (printf "~a: ~ams\n" 
+                       str 
+                       (round (/ (stopwatch-elapsed-milliseconds sw) 
+                                 iters)))]
+            [else
+              expr
+              (f ($fx+ i 1))]))))))

@@ -137,7 +137,10 @@ namespace Microsoft.Scripting.Ast {
 
         public SymbolId Name {
             get { return _name; }
-          set { _name = value; }
+            set 
+            { 
+              _name = value; 
+            }
         }
 
         public CodeBlock Block {

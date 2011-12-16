@@ -47,7 +47,7 @@ namespace IronScheme.Runtime
     static bool Expect<T>(Expression[] args, int count)
     {
       if (args.Length == count &&
-        Array.TrueForAll(args, delegate(Expression e) { return e.Type == typeof(object) || e.Type == typeof(T); }))
+        Array.TrueForAll(args, delegate(Expression e) { var ex = Unwrap(e); return e.Type == typeof(object) || ex.Type == typeof(T); }))
       {
         return true;
       }
@@ -195,7 +195,7 @@ namespace IronScheme.Runtime
       {
         if (values.Length == 2)
         {
-          return Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(byte[])), Ast.ConvertHelper(values[1], typeof(int)));
+          return Ast.Convert(Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(byte[])), Ast.ConvertHelper(values[1], typeof(int))), typeof(int));
         }
         UnsafeSyntaxError("$bytevector-ref", "expected 2 arguments", values);
         return null;

@@ -23,7 +23,7 @@ namespace IronScheme.Compiler
     protected static MethodInfo Helpers_EnumToSymbol = typeof(Helpers).GetMethod("EnumToSymbol");
     protected static MethodInfo Helpers_Requires = typeof(Helpers).GetMethod("Requires");
     protected static MethodInfo Helpers_RequiresArray = typeof(Helpers).GetMethod("RequiresArray");
-    protected static MethodInfo Helpers_RequiresNotNull = typeof(Helpers).GetMethod("RequiresNotNull");
+    //protected static MethodInfo Helpers_RequiresNotNull = typeof(Helpers).GetMethod("RequiresNotNull");
 
     protected static Dictionary<string, string> namespaces = ResetReferences();
 

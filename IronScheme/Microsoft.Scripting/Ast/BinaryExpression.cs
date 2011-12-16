@@ -103,6 +103,34 @@ namespace Microsoft.Scripting.Ast {
 
         private bool EmitBranchTrue(CodeGen cg, AstNodeType nodeType, Label label) {
             switch (nodeType) {
+              case AstNodeType.GreaterThan:
+                _left.EmitAs(cg, GetEmitType());
+                _right.EmitAs(cg, GetEmitType());
+                cg.EmitSequencePointNone();
+                cg.Emit(OpCodes.Bgt, label);
+                cg.EmitSequencePointNone();
+                return true;
+              case AstNodeType.GreaterThanOrEqual:
+                _left.EmitAs(cg, GetEmitType());
+                _right.EmitAs(cg, GetEmitType());
+                cg.EmitSequencePointNone();
+                cg.Emit(OpCodes.Bge, label);
+                cg.EmitSequencePointNone();
+                return true;
+              case AstNodeType.LessThan:
+                _left.EmitAs(cg, GetEmitType());
+                _right.EmitAs(cg, GetEmitType());
+                cg.EmitSequencePointNone();
+                cg.Emit(OpCodes.Blt, label);
+                cg.EmitSequencePointNone();
+                return true;
+              case AstNodeType.LessThanOrEqual:
+                _left.EmitAs(cg, GetEmitType());
+                _right.EmitAs(cg, GetEmitType());
+                cg.EmitSequencePointNone();
+                cg.Emit(OpCodes.Ble, label);
+                cg.EmitSequencePointNone();
+                return true;
                 case AstNodeType.Equal:
                     if (_left.IsConstant(null)) {
                         _right.EmitAsObject(cg);
@@ -137,9 +165,9 @@ namespace Microsoft.Scripting.Ast {
                     } else {
                         _left.EmitAs(cg, GetEmitType());
                         _right.EmitAs(cg, GetEmitType());
-                        cg.Emit(OpCodes.Ceq);
+                        //cg.Emit(OpCodes.Ceq);
                         cg.EmitSequencePointNone();
-                        cg.Emit(OpCodes.Brfalse, label);
+                        cg.Emit(OpCodes.Bne_Un, label);
                         cg.EmitSequencePointNone();
                     }
                     return true;
@@ -241,8 +269,24 @@ namespace Microsoft.Scripting.Ast {
                         }
                     }
                     break;
-
+                case AstNodeType.LessThan:
+                    EmitLocation(cg);
+                    EmitBranchTrue(cg, AstNodeType.GreaterThanOrEqual, label);      
+                    break;
+                case AstNodeType.LessThanOrEqual:
+                    EmitLocation(cg);
+                    EmitBranchTrue(cg, AstNodeType.GreaterThan, label);
+                    break;
+                case AstNodeType.GreaterThan:
+                    EmitLocation(cg);
+                    EmitBranchTrue(cg, AstNodeType.LessThanOrEqual, label);
+                    break;
+                case AstNodeType.GreaterThanOrEqual:
+                    EmitLocation(cg);
+                    EmitBranchTrue(cg, AstNodeType.LessThan, label);
+                    break;
                 default:
+
                     base.EmitBranchFalse(cg, label);
                     break;
             }
