@@ -106,14 +106,12 @@ namespace IronScheme.Runtime
       }
     }
 
-
-
     delegate object Func();
 
     [Builtin("generate-executable-wrapper")]
     public static object GenWrapper(object filename)
     {
-      const string PROGRAM = "program.sps";
+      const string PROGRAM = "AA853EBC-97FA-4e82-86FD-749009FDDE5D.sps";
 
       var tmpl = Path.Combine(ApplicationDirectory, "ExecutableTemplate.cs");
       var fn = RequiresNotNull<string>(filename);
