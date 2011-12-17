@@ -53,7 +53,7 @@
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
-    (only (ironscheme core) get-command-line format compile-library load-library-dll)
+    (only (ironscheme core) get-command-line format compile-library load-library-dll generate-executable-wrapper)
     (ironscheme enums)
     (ironscheme files)
     (ironscheme clr)
@@ -61,6 +61,8 @@
     (ironscheme constant-fold)
     (except (ironscheme library) file-locator)
     (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port time))
+    
+  (clr-reference System)
     
   (define trace-printer (make-parameter pretty-print))
       
@@ -227,10 +229,16 @@
                 (k)))
             f)))))
     
-  (define (compile filename)
-    (with-guard
-      (lambda ()
-        (load-r6rs-top-level filename 'compile-dll))))
+  (define compile
+    (case-lambda
+      [(filename)
+        (compile filename #f)]
+      [(filename gen-wrapper?)
+        (with-guard
+          (lambda ()
+            (load-r6rs-top-level filename 'compile-dll)
+            (when gen-wrapper?
+              (generate-executable-wrapper filename))))]))
     
   (define (compile->closure filename)
     (load-r6rs-top-level filename 'closure))

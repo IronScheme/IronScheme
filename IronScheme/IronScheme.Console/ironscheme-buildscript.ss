@@ -282,6 +282,7 @@
   '(
     ;;;
     (optimize                                   ic)
+    (generate-executable-wrapper                ic)
     (clr-string?                                ic)
     (stringbuilder?                             ic)
     (bignum?                                    ic)
