@@ -221,6 +221,7 @@ ${EndIf}
 	File "isc.bat"
 	File "system-libraries.ss"
 	File "compile-system-libraries.sps"
+	File "ExecutableTemplate.cs"
 	
 	File "..\..\..\IronScheme.LibraryBrowser\bin\Release\IronScheme.LibraryBrowser.exe"
 	File "..\..\..\IronScheme.WebServer\bin\Release\IronScheme.WebServer.exe"
