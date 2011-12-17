@@ -20,6 +20,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
 using System.Threading;
+using System.CodeDom.Compiler;
 
 namespace IronScheme.Runtime
 {
@@ -105,7 +106,47 @@ namespace IronScheme.Runtime
       }
     }
 
+
+
     delegate object Func();
+
+    [Builtin("generate-executable-wrapper")]
+    public static object GenWrapper(object filename)
+    {
+      const string PROGRAM = "program.sps";
+
+      var tmpl = Path.Combine(ApplicationDirectory, "ExecutableTemplate.cs");
+      var fn = RequiresNotNull<string>(filename);
+      using (var p = new Microsoft.CSharp.CSharpCodeProvider())
+      {
+        File.Copy(fn, PROGRAM);
+        var cp = new CompilerParameters
+        {
+          EmbeddedResources = { PROGRAM },
+          ReferencedAssemblies = { Path.Combine(ApplicationDirectory, "IronScheme.dll") },
+          OutputAssembly = Path.GetFileNameWithoutExtension(fn) + ".exe",
+          GenerateExecutable = true,
+        };
+
+        Console.Write("compiling executable wrapper '{0}'.... ", cp.OutputAssembly);
+        var results = p.CompileAssemblyFromFile(cp, tmpl);
+        if (results.Errors.Count > 0)
+        {
+          Console.WriteLine("failed.");
+          foreach (var error in results.Errors)
+          {
+            Console.WriteLine(error);
+          }
+        }
+        else
+        {
+          Console.WriteLine("done.");
+        }
+        File.Delete(PROGRAM);
+      }
+      return Unspecified;
+    }
+
 
     [Builtin("with-timeout")]
     public static object WithTimeout(object proc, object duration)
