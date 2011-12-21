@@ -59,9 +59,9 @@
     <Compile Include="TypedClosure.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
+    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj">
       <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
-      <Name>Microsoft.Scripting</Name>
+      <Name>IronScheme.Scripting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

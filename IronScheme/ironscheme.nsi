@@ -215,7 +215,7 @@ ${EndIf}
 	
 	File "ironscheme.boot.dll"
 	File "Oyster.IntX.dll"
-	File "Microsoft.Scripting.dll"
+	File "IronScheme.Scripting.dll"
 	
 	File "setup-xp.bat"
 	File "isc.bat"

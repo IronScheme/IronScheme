@@ -145,9 +145,9 @@
       <Name>IronScheme.Closures</Name>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Scripting\Microsoft.Scripting.csproj">
+    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj">
       <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
-      <Name>Microsoft.Scripting</Name>
+      <Name>IronScheme.Scripting</Name>
     </ProjectReference>
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj">
       <Project>{371F38E6-8D55-482F-B010-4AFAC11C3CDB}</Project>
