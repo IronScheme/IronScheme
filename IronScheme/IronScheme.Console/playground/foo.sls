@@ -19,7 +19,6 @@
                 
   (define-syntax-rule (time expr)
     (measure 100 expr))
-  
 
   (define (ack m n)
     (if (= m 0)

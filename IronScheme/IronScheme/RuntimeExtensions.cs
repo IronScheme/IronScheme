@@ -13,6 +13,8 @@ using IronScheme.Hosting;
 using Microsoft.Scripting.Hosting;
 using IronScheme.Runtime;
 using System.Text.RegularExpressions;
+using System.IO;
+using System.Reflection;
 
 namespace IronScheme
 {
@@ -170,5 +172,18 @@ namespace IronScheme
     }
 
 #pragma warning restore 3001,3002
+  }
+  
+  public class ExecutableLoader : MarshalByRefObject
+  {
+    public ExecutableLoader(Stream s, string[] args)
+    {
+      using (var r = new StreamReader(s))
+      {
+        Cons cmdline = Cons.FromList(args);
+        RuntimeExtensions.Eval("(apply load-port {0} {1})", r, cmdline);
+      }
+
+    }
   }
 }

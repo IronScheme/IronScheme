@@ -121,8 +121,8 @@ namespace IronScheme.Runtime
         var cp = new CompilerParameters
         {
           EmbeddedResources = { PROGRAM },
-          ReferencedAssemblies = { Path.Combine(ApplicationDirectory, "IronScheme.dll") },
           OutputAssembly = Path.GetFileNameWithoutExtension(fn) + ".exe",
+          ReferencedAssemblies = { "System.dll",  "System.Configuration.dll" },
           GenerateExecutable = true,
         };
 
@@ -138,6 +138,15 @@ namespace IronScheme.Runtime
         }
         else
         {
+          Console.WriteLine("done.");
+          Console.Write("generating config file .... ");
+          File.WriteAllText(cp.OutputAssembly + ".config", string.Format(
+@"<?xml version=""1.0""?>
+<configuration>
+  <appSettings>
+    <add key=""IronScheme.Directory"" value=""{0}""/>
+  </appSettings>
+</configuration>", ApplicationDirectory));
           Console.WriteLine("done.");
         }
         File.Delete(PROGRAM);
