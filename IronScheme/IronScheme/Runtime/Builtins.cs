@@ -269,7 +269,21 @@ namespace IronScheme.Runtime
 
       return t.MakeGenericType(Array.ConvertAll(typeargs, x => (Type)x));
     }
-    
+
+    static internal bool compressConstants = false;
+
+    [Builtin("compress-constants?")]
+    public static object CompressConstants()
+    {
+      return RuntimeHelpers.BooleanToObject(compressConstants);
+    }
+
+    [Builtin("compress-constants?")]
+    public static object CompressConstants(object value)
+    {
+      compressConstants = IsTrue(value);
+      return Unspecified;
+    }    
 
     [Builtin]
     public static object Typeof(object o)
