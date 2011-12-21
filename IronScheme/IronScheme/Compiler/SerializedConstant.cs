@@ -92,7 +92,18 @@ namespace IronScheme.Compiler
               s.Position = 0;
               totallength += s.Length;
               var mb = tg.TypeBuilder.Module as ModuleBuilder;
-              mb.DefineManifestResource("SerializedConstants", s, System.Reflection.ResourceAttributes.Public);
+
+              var cms =
+#if !COMPRESS_CONSTANTS
+                s;
+#else                
+                new MemoryStream();
+              var cs = new System.IO.Compression.GZipStream(cms, System.IO.Compression.CompressionMode.Compress, true);
+              var content = s.ToArray();
+              cs.Write(content, 0, content.Length);
+              cs.Close();
+#endif
+              mb.DefineManifestResource("SerializedConstants.gz", cms, System.Reflection.ResourceAttributes.Public);
 
             };
           

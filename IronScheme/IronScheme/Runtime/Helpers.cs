@@ -333,11 +333,32 @@ namespace IronScheme.Runtime
 
     public static object[] DeserializeAssemblyConstants(Type t)
     {
-      using (var s = t.Assembly.GetManifestResourceStream("SerializedConstants"))
+      var ass = t.Assembly;
+      var names = ass.GetManifestResourceNames();
+      for (int i = 0; i < names.Length; i++)
       {
-        var arr = psyntax.Serialization.SERIALIZER.Deserialize(s);
-        return arr as object[];
+        var name = names[i];
+        if (name.StartsWith("SerializedConstants"))
+        {
+          if (name.EndsWith(".gz"))
+          {
+            using (var s = ass.GetManifestResourceStream("SerializedConstants.gz"))
+            {
+              var arr = psyntax.Serialization.SERIALIZER.Deserialize(new System.IO.Compression.GZipStream(s, System.IO.Compression.CompressionMode.Decompress));
+              return arr as object[];
+            }
+          }
+          else
+          {
+            using (var s = ass.GetManifestResourceStream("SerializedConstants"))
+            {
+              var arr = psyntax.Serialization.SERIALIZER.Deserialize(s);
+              return arr as object[];
+            }
+          }
+        }
       }
+      throw new ArgumentException("type contains no constants");
     }
 
     //internal static BinaryFormatter bf = psyntax.Serialization.SERIALIZER;
