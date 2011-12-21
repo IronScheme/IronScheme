@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Scripting</RootNamespace>
-    <AssemblyName>Microsoft.Scripting</AssemblyName>
+    <AssemblyName>IronScheme.Scripting</AssemblyName>
     <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug\</OutputPath>
-    <DocumentationFile>Bin\Debug\Microsoft.Scripting.xml</DocumentationFile>
+    <DocumentationFile>Bin\Debug\IronScheme.Scripting.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG;nFULL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -38,7 +38,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release\</OutputPath>
-    <DocumentationFile>Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
+    <DocumentationFile>Bin\Release\IronScheme.Scripting.xml</DocumentationFile>
     <DefineConstants>TRACE;nFULL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
