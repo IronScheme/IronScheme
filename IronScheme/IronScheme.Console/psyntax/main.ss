@@ -53,7 +53,7 @@
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
-    (only (ironscheme core) get-command-line format compile-library load-library-dll generate-executable-wrapper)
+    (only (ironscheme core) get-command-line format compile-library load-library-dll generate-executable-wrapper compress-constants?)
     (ironscheme enums)
     (ironscheme files)
     (ironscheme clr)
@@ -234,11 +234,14 @@
       [(filename)
         (compile filename #f)]
       [(filename gen-wrapper?)
+        (compile filename gen-wrapper? #f)]        
+      [(filename gen-wrapper? constant-compression?)
         (with-guard
           (lambda ()
-            (load-r6rs-top-level filename 'compile-dll)
-            (when gen-wrapper?
-              (generate-executable-wrapper filename))))]))
+            (parameterize [(compress-constants? constant-compression?)]
+              (load-r6rs-top-level filename 'compile-dll)
+              (when gen-wrapper?
+                (generate-executable-wrapper filename)))))]))
     
   (define (compile->closure filename)
     (load-r6rs-top-level filename 'closure))
