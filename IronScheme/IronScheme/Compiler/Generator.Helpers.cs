@@ -166,7 +166,7 @@ namespace IronScheme.Compiler
       return mi.ReturnType == typeof(object)
         && Array.TrueForAll(mi.GetParameters(), 
         pi => (pi.Position == 0 && pi.ParameterType == typeof(CodeContext)) || 
-          pi.ParameterType == typeof(object) ||
+          //pi.ParameterType == typeof(object) || support types other than object
           (pi.ParameterType == typeof(object[]) && pi.IsDefined(typeof(ParamArrayAttribute), false)));
 #else
       return true;
