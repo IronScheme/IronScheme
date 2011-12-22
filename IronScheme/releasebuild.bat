@@ -1,4 +1,4 @@
-%windir%\microsoft.net\framework\v3.5\msbuild /nologo /v:m /m IronScheme2008.sln /p:Configuration=Release
+%windir%\microsoft.net\framework\v3.5\msbuild /nologo /v:m /m IronScheme2008.sln /p:Configuration=Release /p:Platform="Any CPU" %*
 @IF %ERRORLEVEL% NEQ 0 GOTO err
 @exit /B 0
 :err
