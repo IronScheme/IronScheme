@@ -111,29 +111,39 @@ namespace IronScheme.Runtime
     [Builtin("generate-executable-wrapper")]
     public static object GenWrapper(object filename)
     {
-      const string PROGRAM = "AA853EBC-97FA-4e82-86FD-749009FDDE5D.sps";
-
       var tmpl = Path.Combine(ApplicationDirectory, "ExecutableTemplate.cs");
       var fn = RequiresNotNull<string>(filename);
       using (var p = new Microsoft.CSharp.CSharpCodeProvider())
       {
-        File.Copy(fn, PROGRAM);
+        var supportfn = filename + ".cs";
+        File.WriteAllText(supportfn, string.Format(
+@"
+namespace IronScheme
+{{
+  partial class ExecutableTemplate
+  {{
+    const string PATH = @""{0}"";
+    const string RESOURCE = @""{1}"";
+  }}
+}}", ApplicationDirectory, fn));
+
         var cp = new CompilerParameters
         {
-          EmbeddedResources = { PROGRAM },
+          EmbeddedResources = { fn },
           OutputAssembly = Path.GetFileNameWithoutExtension(fn) + ".exe",
           ReferencedAssemblies = { "System.dll",  "System.Configuration.dll" },
           GenerateExecutable = true,
+          //IncludeDebugInformation = true
         };
 
         Console.Write("compiling executable wrapper '{0}'.... ", cp.OutputAssembly);
-        var results = p.CompileAssemblyFromFile(cp, tmpl);
+        var results = p.CompileAssemblyFromFile(cp, tmpl, supportfn);
         if (results.Errors.Count > 0)
         {
           Console.WriteLine("failed.");
           foreach (var error in results.Errors)
           {
-            Console.WriteLine(error);
+            Console.Error.WriteLine(error);
           }
         }
         else
@@ -149,7 +159,7 @@ namespace IronScheme.Runtime
 </configuration>", ApplicationDirectory));
           Console.WriteLine("done.");
         }
-        File.Delete(PROGRAM);
+        File.Delete(supportfn);
       }
       return Unspecified;
     }
