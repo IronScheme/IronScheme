@@ -599,7 +599,7 @@ diff U3B IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj IronScheme
      <Reference Include="System" />
 @@ -61,6 +81,23 @@
        <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
-       <Name>Microsoft.Scripting</Name>
+       <Name>IronScheme.Scripting</Name>
      </ProjectReference>
 +  </ItemGroup>
 +  <ItemGroup>
@@ -815,7 +815,7 @@ diff U3B IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj IronScheme.Web.Run
      <Reference Include="System" />
 @@ -63,6 +83,23 @@
        <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
-       <Name>Microsoft.Scripting</Name>
+       <Name>IronScheme.Scripting</Name>
      </ProjectReference>
 +  </ItemGroup>
 +  <ItemGroup>
@@ -924,9 +924,9 @@ diff U3B IronScheme.WebServer/IronScheme.WebServer.csproj IronScheme.WebServer/I
    </ItemGroup>
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Microsoft.Scripting.csproj
---- Microsoft.Scripting/Microsoft.Scripting.csproj	Tue Jan 20 00:26:36 1970
-+++ Microsoft.Scripting/Microsoft.Scripting.csproj	Tue Jan 20 00:26:36 1970
+diff U3B Microsoft.Scripting/IronScheme.Scripting.csproj Microsoft.Scripting/IronScheme.Scripting.csproj
+--- Microsoft.Scripting/IronScheme.Scripting.csproj	Tue Jan 20 00:26:36 1970
++++ Microsoft.Scripting/IronScheme.Scripting.csproj	Tue Jan 20 00:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -935,8 +935,8 @@ diff U3B Microsoft.Scripting/Microsoft.Scripting.csproj Microsoft.Scripting/Micr
    <PropertyGroup>
      <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 @@ -12,14 +13,31 @@
-     <AssemblyName>Microsoft.Scripting</AssemblyName>
-     <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
+     <AssemblyName>IronScheme.Scripting</AssemblyName>
+     <DocumentationFile>..\..\Bin\Release\IronScheme.Scripting.XML</DocumentationFile>
      <NoWarn>1591</NoWarn>
 -    <OldToolsVersion>2.0</OldToolsVersion>
 +    <OldToolsVersion>3.5</OldToolsVersion>
@@ -1235,7 +1235,7 @@ diff U3B Samples/EmbeddingSample2/EmbeddingSample2.csproj Samples/EmbeddingSampl
      <Reference Include="System" />
 @@ -71,6 +93,23 @@
        <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
-       <Name>Microsoft.Scripting</Name>
+       <Name>IronScheme.Scripting</Name>
      </ProjectReference>
 +  </ItemGroup>
 +  <ItemGroup>
@@ -1436,7 +1436,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  		welcome.bmp = welcome.bmp
  	EndProjectSection
  EndProject
--Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Scripting", "Microsoft.Scripting\Microsoft.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
+-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Scripting", "Microsoft.Scripting\IronScheme.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
 -EndProject
  Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9-2424-489F-8F3B-F1F7165E5A44}"
  	ProjectSection(SolutionItems) = preProject
@@ -1453,7 +1453,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
 +EndProject
 +Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme", "IronScheme\IronScheme.csproj", "{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}"
 +EndProject
-+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Scripting", "Microsoft.Scripting\Microsoft.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Scripting", "Microsoft.Scripting\IronScheme.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
 +EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
  	ProjectSection(ProjectDependencies) = postProject
