@@ -1271,7 +1271,7 @@ diff U3B Samples/RemotingSample/RemotingSample.csproj Samples/RemotingSample/Rem
      <AppDesignerFolder>Properties</AppDesignerFolder>
      <RootNamespace>RemotingSample</RootNamespace>
      <AssemblyName>RemotingSample</AssemblyName>
--    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
 +    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
      <FileAlignment>512</FileAlignment>
      <SccProjectName>SAK</SccProjectName>
