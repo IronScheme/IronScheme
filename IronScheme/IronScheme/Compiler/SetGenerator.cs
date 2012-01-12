@@ -49,9 +49,10 @@ namespace IronScheme.Compiler
       setstack.Push(s);
 
       NameHint = Builtins.UnGenSymInternal(s);
-
+      var prevvh = VarHint;
+      VarHint = s;
       Expression value = GetAst(Builtins.Second(args), cb);
-
+      VarHint = prevvh;
       setstack.Pop();
 
       NameHint = SymbolId.Invalid;
