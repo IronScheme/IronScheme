@@ -361,8 +361,6 @@ namespace IronScheme.Runtime
       throw new ArgumentException("type contains no constants");
     }
 
-    //internal static BinaryFormatter bf = psyntax.Serialization.SERIALIZER;
-
 #warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655741
     static MethodInfo LookupCallable(Callable c, Type[] args)
     {
