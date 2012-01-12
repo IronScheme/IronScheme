@@ -1,6 +1,6 @@
 diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
---- IronScheme/IronScheme.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme/IronScheme.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme/IronScheme.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme/IronScheme.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -67,7 +67,7 @@ diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
    </PropertyGroup>
    <ItemGroup>
      <Compile Include="Actions\IronSchemeActionBinder.cs" />
-@@ -159,6 +177,23 @@
+@@ -164,6 +182,23 @@
      <Reference Include="System" />
      <Reference Include="System.Data" />
      <Reference Include="System.Xml" />
@@ -92,8 +92,8 @@ diff U3B IronScheme/IronScheme.csproj IronScheme/IronScheme.csproj
    <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme.Closures/IronScheme.Closures.csproj IronScheme.Closures/IronScheme.Closures.csproj
---- IronScheme.Closures/IronScheme.Closures.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Closures/IronScheme.Closures.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Closures/IronScheme.Closures.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Closures/IronScheme.Closures.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -189,8 +189,8 @@ diff U3B IronScheme.Closures/IronScheme.Closures.csproj IronScheme.Closures/Iron
    <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronScheme.Console.csproj
---- IronScheme.Console/IronScheme.Console.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Console/IronScheme.Console.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Console/IronScheme.Console.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Console/IronScheme.Console.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -251,7 +251,7 @@ diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronSch
    </PropertyGroup>
    <ItemGroup>
      <Compile Include="Program.cs" />
-@@ -582,7 +585,7 @@
+@@ -567,7 +570,7 @@
    <ItemGroup>
      <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
        <Visible>False</Visible>
@@ -260,7 +260,7 @@ diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronSch
        <Install>false</Install>
      </BootstrapperPackage>
      <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-@@ -929,9 +932,7 @@
+@@ -1007,9 +1010,7 @@
      <Content Include="srfi\27\readme">
        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
      </Content>
@@ -272,8 +272,8 @@ diff U3B IronScheme.Console/IronScheme.Console.csproj IronScheme.Console/IronSch
        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
      </Content>
 diff U3B IronScheme.LibraryBrowser/IronScheme.LibraryBrowser.csproj IronScheme.LibraryBrowser/IronScheme.LibraryBrowser.csproj
---- IronScheme.LibraryBrowser/IronScheme.LibraryBrowser.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.LibraryBrowser/IronScheme.LibraryBrowser.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.LibraryBrowser/IronScheme.LibraryBrowser.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.LibraryBrowser/IronScheme.LibraryBrowser.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -367,8 +367,8 @@ diff U3B IronScheme.LibraryBrowser/IronScheme.LibraryBrowser.csproj IronScheme.L
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme.Remoting/IronScheme.Remoting.csproj IronScheme.Remoting/IronScheme.Remoting.csproj
---- IronScheme.Remoting/IronScheme.Remoting.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Remoting/IronScheme.Remoting.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Remoting/IronScheme.Remoting.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Remoting/IronScheme.Remoting.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -450,8 +450,8 @@ diff U3B IronScheme.Remoting/IronScheme.Remoting.csproj IronScheme.Remoting/Iron
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme.Remoting.Client/IronScheme.Remoting.Client.csproj IronScheme.Remoting.Client/IronScheme.Remoting.Client.csproj
---- IronScheme.Remoting.Client/IronScheme.Remoting.Client.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Remoting.Client/IronScheme.Remoting.Client.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Remoting.Client/IronScheme.Remoting.Client.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Remoting.Client/IronScheme.Remoting.Client.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -536,8 +536,8 @@ diff U3B IronScheme.Remoting.Client/IronScheme.Remoting.Client.csproj IronScheme
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj
---- IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -622,8 +622,8 @@ diff U3B IronScheme.Remoting.Server/IronScheme.Remoting.Server.csproj IronScheme
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme.Web/IronScheme.Web.csproj IronScheme.Web/IronScheme.Web.csproj
---- IronScheme.Web/IronScheme.Web.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Web/IronScheme.Web.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Web/IronScheme.Web.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Web/IronScheme.Web.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -689,8 +689,8 @@ diff U3B IronScheme.Web/IronScheme.Web.csproj IronScheme.Web/IronScheme.Web.cspr
         Other similar extension points exist, see Microsoft.Common.targets.
    <Target Name="BeforeBuild">
 diff U3B IronScheme.Web.Eval/IronScheme.Web.Eval.csproj IronScheme.Web.Eval/IronScheme.Web.Eval.csproj
---- IronScheme.Web.Eval/IronScheme.Web.Eval.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Web.Eval/IronScheme.Web.Eval.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Web.Eval/IronScheme.Web.Eval.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Web.Eval/IronScheme.Web.Eval.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -733,9 +733,9 @@ diff U3B IronScheme.Web.Eval/IronScheme.Web.Eval.csproj IronScheme.Web.Eval/Iron
    </PropertyGroup>
    <ItemGroup>
      <Content Include="codemirror.css" />
-@@ -79,8 +88,16 @@
+@@ -83,8 +92,16 @@
    <ItemGroup>
-     <Folder Include="Properties\" />
+     <Compile Include="Properties\AssemblyInfo.cs" />
    </ItemGroup>
 +  <ItemGroup>
 +    <Reference Include="System.Data.DataSetExtensions" />
@@ -752,8 +752,8 @@ diff U3B IronScheme.Web.Eval/IronScheme.Web.Eval.csproj IronScheme.Web.Eval/Iron
         Other similar extension points exist, see Microsoft.Common.targets.
    <Target Name="BeforeBuild">
 diff U3B IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj
---- IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -838,8 +838,8 @@ diff U3B IronScheme.Web.Runtime/IronScheme.Web.Runtime.csproj IronScheme.Web.Run
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme.WebServer/IronScheme.WebServer.csproj IronScheme.WebServer/IronScheme.WebServer.csproj
---- IronScheme.WebServer/IronScheme.WebServer.csproj	Tue Jan 20 00:26:36 1970
-+++ IronScheme.WebServer/IronScheme.WebServer.csproj	Tue Jan 20 00:26:36 1970
+--- IronScheme.WebServer/IronScheme.WebServer.csproj	Mon Jan 19 22:26:36 1970
++++ IronScheme.WebServer/IronScheme.WebServer.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -925,8 +925,8 @@ diff U3B IronScheme.WebServer/IronScheme.WebServer.csproj IronScheme.WebServer/I
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B Microsoft.Scripting/IronScheme.Scripting.csproj Microsoft.Scripting/IronScheme.Scripting.csproj
---- Microsoft.Scripting/IronScheme.Scripting.csproj	Tue Jan 20 00:26:36 1970
-+++ Microsoft.Scripting/IronScheme.Scripting.csproj	Tue Jan 20 00:26:36 1970
+--- Microsoft.Scripting/IronScheme.Scripting.csproj	Mon Jan 19 22:26:36 1970
++++ Microsoft.Scripting/IronScheme.Scripting.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -936,7 +936,7 @@ diff U3B Microsoft.Scripting/IronScheme.Scripting.csproj Microsoft.Scripting/Iro
      <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 @@ -12,14 +13,31 @@
      <AssemblyName>IronScheme.Scripting</AssemblyName>
-     <DocumentationFile>..\..\Bin\Release\IronScheme.Scripting.XML</DocumentationFile>
+     <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
      <NoWarn>1591</NoWarn>
 -    <OldToolsVersion>2.0</OldToolsVersion>
 +    <OldToolsVersion>3.5</OldToolsVersion>
@@ -991,7 +991,7 @@ diff U3B Microsoft.Scripting/IronScheme.Scripting.csproj Microsoft.Scripting/Iro
    </ItemGroup>
    <ItemGroup>
      <Compile Include="ActionOnCallAttribute.cs" />
-@@ -439,6 +457,21 @@
+@@ -440,6 +458,21 @@
      </EmbeddedResource>
    </ItemGroup>
    <ItemGroup>
@@ -1014,8 +1014,8 @@ diff U3B Microsoft.Scripting/IronScheme.Scripting.csproj Microsoft.Scripting/Iro
    <ItemGroup>
      <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj">
 diff U3B Oyster.IntX/Oyster.IntX.csproj Oyster.IntX/Oyster.IntX.csproj
---- Oyster.IntX/Oyster.IntX.csproj	Tue Jan 20 00:26:36 1970
-+++ Oyster.IntX/Oyster.IntX.csproj	Tue Jan 20 00:26:36 1970
+--- Oyster.IntX/Oyster.IntX.csproj	Mon Jan 19 22:26:36 1970
++++ Oyster.IntX/Oyster.IntX.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -1089,8 +1089,8 @@ diff U3B Oyster.IntX/Oyster.IntX.csproj Oyster.IntX/Oyster.IntX.csproj
    <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
    <PropertyGroup>
 diff U3B Samples/EmbeddingConsole/EmbeddingConsole.csproj Samples/EmbeddingConsole/EmbeddingConsole.csproj
---- Samples/EmbeddingConsole/EmbeddingConsole.csproj	Tue Jan 20 00:26:36 1970
-+++ Samples/EmbeddingConsole/EmbeddingConsole.csproj	Tue Jan 20 00:26:36 1970
+--- Samples/EmbeddingConsole/EmbeddingConsole.csproj	Mon Jan 19 22:26:36 1970
++++ Samples/EmbeddingConsole/EmbeddingConsole.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1174,8 +1174,8 @@ diff U3B Samples/EmbeddingConsole/EmbeddingConsole.csproj Samples/EmbeddingConso
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B Samples/EmbeddingSample2/EmbeddingSample2.csproj Samples/EmbeddingSample2/EmbeddingSample2.csproj
---- Samples/EmbeddingSample2/EmbeddingSample2.csproj	Tue Jan 20 00:26:36 1970
-+++ Samples/EmbeddingSample2/EmbeddingSample2.csproj	Tue Jan 20 00:26:36 1970
+--- Samples/EmbeddingSample2/EmbeddingSample2.csproj	Mon Jan 19 22:26:36 1970
++++ Samples/EmbeddingSample2/EmbeddingSample2.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1258,8 +1258,8 @@ diff U3B Samples/EmbeddingSample2/EmbeddingSample2.csproj Samples/EmbeddingSampl
    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B Samples/RemotingSample/RemotingSample.csproj Samples/RemotingSample/RemotingSample.csproj
---- Samples/RemotingSample/RemotingSample.csproj	Tue Jan 20 00:26:36 1970
-+++ Samples/RemotingSample/RemotingSample.csproj	Tue Jan 20 00:26:36 1970
+--- Samples/RemotingSample/RemotingSample.csproj	Mon Jan 19 22:26:36 1970
++++ Samples/RemotingSample/RemotingSample.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,5 +1,5 @@
  ﻿<?xml version="1.0" encoding="utf-8"?>
 -<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1267,7 +1267,7 @@ diff U3B Samples/RemotingSample/RemotingSample.csproj Samples/RemotingSample/Rem
    <PropertyGroup>
      <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
      <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-@@ -10,12 +10,32 @@
+@@ -10,7 +10,7 @@
      <AppDesignerFolder>Properties</AppDesignerFolder>
      <RootNamespace>RemotingSample</RootNamespace>
      <AssemblyName>RemotingSample</AssemblyName>
@@ -1276,32 +1276,15 @@ diff U3B Samples/RemotingSample/RemotingSample.csproj Samples/RemotingSample/Rem
      <FileAlignment>512</FileAlignment>
      <SccProjectName>SAK</SccProjectName>
      <SccLocalPath>SAK</SccLocalPath>
-     <SccAuxPath>SAK</SccAuxPath>
+@@ -18,6 +18,7 @@
      <SccProvider>SAK</SccProvider>
-+    <FileUpgradeFlags>
-+    </FileUpgradeFlags>
-+    <OldToolsVersion>3.5</OldToolsVersion>
-+    <UpgradeBackupLocation />
-+    <PublishUrl>publish\</PublishUrl>
-+    <Install>true</Install>
-+    <InstallFrom>Disk</InstallFrom>
-+    <UpdateEnabled>false</UpdateEnabled>
-+    <UpdateMode>Foreground</UpdateMode>
-+    <UpdateInterval>7</UpdateInterval>
-+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-+    <UpdatePeriodically>false</UpdatePeriodically>
-+    <UpdateRequired>false</UpdateRequired>
-+    <MapFileExtensions>true</MapFileExtensions>
-+    <ApplicationRevision>0</ApplicationRevision>
-+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-+    <IsWebBootstrapper>false</IsWebBootstrapper>
-+    <UseApplicationTrust>false</UseApplicationTrust>
-+    <BootstrapperEnabled>true</BootstrapperEnabled>
+     <TargetFrameworkSubset>
+     </TargetFrameworkSubset>
 +    <TargetFrameworkProfile />
    </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
      <DebugSymbols>true</DebugSymbols>
-@@ -25,6 +45,7 @@
+@@ -27,6 +28,7 @@
      <DefineConstants>DEBUG;TRACE</DefineConstants>
      <ErrorReport>prompt</ErrorReport>
      <WarningLevel>4</WarningLevel>
@@ -1309,7 +1292,7 @@ diff U3B Samples/RemotingSample/RemotingSample.csproj Samples/RemotingSample/Rem
    </PropertyGroup>
    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
      <DebugType>pdbonly</DebugType>
-@@ -33,6 +54,7 @@
+@@ -35,6 +37,7 @@
      <DefineConstants>TRACE</DefineConstants>
      <ErrorReport>prompt</ErrorReport>
      <WarningLevel>4</WarningLevel>
@@ -1317,10 +1300,10 @@ diff U3B Samples/RemotingSample/RemotingSample.csproj Samples/RemotingSample/Rem
    </PropertyGroup>
    <ItemGroup>
      <Reference Include="System" />
-@@ -61,6 +83,23 @@
-       <Project>{DD78568C-CDB5-4CED-BC9C-C18182ED5945}</Project>
-       <Name>IronScheme.Remoting</Name>
-     </ProjectReference>
+@@ -42,6 +45,23 @@
+   <ItemGroup>
+     <Compile Include="Program.cs" />
+     <Compile Include="Properties\AssemblyInfo.cs" />
 +  </ItemGroup>
 +  <ItemGroup>
 +    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -1339,11 +1322,11 @@ diff U3B Samples/RemotingSample/RemotingSample.csproj Samples/RemotingSample/Rem
 +      <Install>true</Install>
 +    </BootstrapperPackage>
    </ItemGroup>
-   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+   <ItemGroup>
+     <ProjectReference Include="..\..\IronScheme.Remoting.Client\IronScheme.Remoting.Client.csproj">
 diff U3B TailCallMaker/TailCallMaker.csproj TailCallMaker/TailCallMaker.csproj
---- TailCallMaker/TailCallMaker.csproj	Tue Jan 20 00:26:36 1970
-+++ TailCallMaker/TailCallMaker.csproj	Tue Jan 20 00:26:36 1970
+--- TailCallMaker/TailCallMaker.csproj	Mon Jan 19 22:26:36 1970
++++ TailCallMaker/TailCallMaker.csproj	Mon Jan 19 22:26:36 1970
 @@ -1,4 +1,5 @@
 -﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
 +﻿<?xml version="1.0" encoding="utf-8"?>
@@ -1419,8 +1402,8 @@ diff U3B TailCallMaker/TailCallMaker.csproj TailCallMaker/TailCallMaker.csproj
    <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 diff U3B IronScheme2008.sln IronScheme2008.sln
---- IronScheme2008.sln	Tue Jan 20 00:26:36 1970
-+++ IronScheme2008.sln	Tue Jan 20 00:26:36 1970
+--- IronScheme2008.sln	Mon Jan 19 22:26:36 1970
++++ IronScheme2008.sln	Mon Jan 19 22:26:36 1970
 @@ -1,8 +1,6 @@
  ﻿
 -Microsoft Visual Studio Solution File, Format Version 10.00
@@ -1431,8 +1414,8 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
 +# Visual Studio 2010
  Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
  	ProjectSection(SolutionItems) = preProject
- 		dlr.diff = dlr.diff
-@@ -18,8 +16,6 @@
+ 		debugbuild.bat = debugbuild.bat
+@@ -20,8 +18,6 @@
  		welcome.bmp = welcome.bmp
  	EndProjectSection
  EndProject
@@ -1441,7 +1424,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9-2424-489F-8F3B-F1F7165E5A44}"
  	ProjectSection(SolutionItems) = preProject
  		tools\gplex.exe = tools\gplex.exe
-@@ -33,6 +29,16 @@
+@@ -35,6 +31,16 @@
  		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
  	EndProjectSection
  EndProject
@@ -1458,7 +1441,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
  	ProjectSection(ProjectDependencies) = postProject
  		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {36084D27-12DC-40FE-BE74-C830B7D0F620}
-@@ -52,8 +58,6 @@
+@@ -54,8 +60,6 @@
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingConsole", "Samples\EmbeddingConsole\EmbeddingConsole.csproj", "{1D7426EB-2FF1-46C8-8458-442067E66D24}"
  EndProject
@@ -1467,7 +1450,7 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingSample2", "Samples\EmbeddingSample2\EmbeddingSample2.csproj", "{560818DE-C49E-4798-960F-6DED05BFD8B0}"
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting", "IronScheme.Remoting\IronScheme.Remoting.csproj", "{DD78568C-CDB5-4CED-BC9C-C18182ED5945}"
-@@ -63,10 +67,6 @@
+@@ -65,10 +69,6 @@
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Web.Runtime", "IronScheme.Web.Runtime\IronScheme.Web.Runtime.csproj", "{07D0A60A-8320-4F70-AA3B-7C75008C0009}"
  EndProject
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.WebServer", "IronScheme.WebServer\IronScheme.WebServer.csproj", "{B034B10F-A70E-4A23-B7A5-1803A3B3F14E}"
@@ -1479,8 +1462,8 @@ diff U3B IronScheme2008.sln IronScheme2008.sln
  Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting.Server", "IronScheme.Remoting.Server\IronScheme.Remoting.Server.csproj", "{88AEA620-7094-4DA8-BFDA-1132A502111E}"
  EndProject
 diff U3B IronScheme.Console/srfi/compile-all.ironscheme.sps IronScheme.Console/srfi/compile-all.ironscheme.sps
---- IronScheme.Console/srfi/compile-all.ironscheme.sps	Tue Jan 20 00:26:36 1970
-+++ IronScheme.Console/srfi/compile-all.ironscheme.sps	Tue Jan 20 00:26:36 1970
+--- IronScheme.Console/srfi/compile-all.ironscheme.sps	Mon Jan 19 22:26:36 1970
++++ IronScheme.Console/srfi/compile-all.ironscheme.sps	Mon Jan 19 22:26:36 1970
 @@ -1,87 +1,87 @@
 -;; Automatically generated by ../xitomatl/utils/make-compile-all.sps
 -;; Do: ikarus --compile-dependencies compile-all.ikarus.sps
