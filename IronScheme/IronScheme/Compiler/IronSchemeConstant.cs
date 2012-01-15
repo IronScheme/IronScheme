@@ -191,6 +191,8 @@ namespace IronScheme.Compiler
     public object[] FieldTypes { get; set; }
     public SymbolId NameHint { get; set; }
 
+    bool created;
+
 
     public override Type Type
     {
@@ -199,6 +201,11 @@ namespace IronScheme.Compiler
 
     public override void EmitCreation(CodeGen cg)
     {
+      if (created)
+      {
+        return;
+      }
+
       if (Parent == null || Builtins.IsTrue(Builtins.IsSymbolBound(Parent)))
       {
         var parent = Parent == null ? null : Builtins.SymbolValue(Parent);
@@ -219,6 +226,28 @@ namespace IronScheme.Compiler
     public override object Create()
     {
       return GetType().Name;
+    }
+
+    public Type Generate()
+    {
+      var ag = Generator.CurrentAssemblyGen;
+
+      if (Parent == null || Builtins.IsTrue(Builtins.IsSymbolBound(Parent)))
+      {
+        var parent = Parent == null ? null : Builtins.SymbolValue(Parent);
+
+        var rtd = Records.GenerateRecordTypeDescriptor(ag, RecordName, parent, Uid, Sealed, Opaque,
+          Array.ConvertAll(Fields, x => ((IronSchemeConstant)x).value), FieldTypes);
+
+        var type = (rtd.type as TypeBuilder).CreateType();
+
+        created = true;
+
+        Builtins.SetSymbolValueFast(NameHint, rtd);
+
+        return type;
+      }
+      return null; // cannot create
     }
   }
 

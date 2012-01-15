@@ -12,6 +12,7 @@ using IronScheme.Runtime;
 using IronScheme.Runtime.Typed;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
+using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
@@ -32,6 +33,10 @@ namespace IronScheme.Compiler
     readonly static object TYPEDCASELAMBDA = SymbolTable.StringToObject("typed-case-lambda");
     readonly static object ANNTYPEDCASELAMBDA = SymbolTable.StringToObject("annotated-typed-case-lambda");
 
+    readonly static object MAKERECORD = SymbolTable.StringToObject("make-record-type-descriptor");
+    readonly static object RECORDACC = SymbolTable.StringToObject("record-accessor");
+    readonly static object RECORDMUT = SymbolTable.StringToObject("record-mutator");
+    readonly static object RECORDPRED = SymbolTable.StringToObject("record-predicate");
 
     static bool IsLambda(object obj, out bool annotated, out bool typed)
     {
@@ -96,6 +101,26 @@ namespace IronScheme.Compiler
       return 1;
     }
 
+    static bool IsMakeRecord(object p)
+    {
+      return p is Cons && ((Cons)p).car == MAKERECORD;
+    }
+
+    static bool IsRecordAccessor(object p)
+    {
+      return p is Cons && ((Cons)p).car == RECORDACC;
+    }
+
+    static bool IsRecordMutator(object p)
+    {
+      return p is Cons && ((Cons)p).car == RECORDMUT;
+    }
+
+    static bool IsRecordPredicate(object p)
+    {
+      return p is Cons && ((Cons)p).car == RECORDPRED;
+    }
+
     public override Expression Generate(object args, CodeBlock c)
     {
       var ns = ClrGenerator.SaveReferences();
@@ -137,6 +162,23 @@ namespace IronScheme.Compiler
 
         a = a.cdr as Cons;
       }
+
+#if DONE
+      // pass 0 - record defs
+      for (int i = 0; i < vars.Count; i++)
+      {
+        if (IsMakeRecord(defs[i]))
+        {
+          //Debugger.Break();
+
+          Type type = CreateRecordType(defs[i] as Cons);
+          if (type != null)
+          {
+            ClrGenerator.AddCompileTimeType(type);
+          }
+        }
+      }
+#endif
 
       List<Statement> stmts = new List<Statement>();
 
@@ -355,6 +397,13 @@ namespace IronScheme.Compiler
       ClrGenerator.ResetReferences(ns);
       return ex;
     }
+
+    Type CreateRecordType(Cons def)
+    {
+      return null;
+    }
+
+
 
 
 

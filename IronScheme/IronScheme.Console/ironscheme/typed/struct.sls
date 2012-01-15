@@ -103,7 +103,9 @@ See docs/license.txt. |#
                                                      (list #'struct-mutator #'type f))
                                                    flds))
                               ((xargs ...)    (generate-temporaries #'(args ...))))
-                  #'(define: (name this (xargs : args-type) ...) : ret-type
+                  #'(define: (name (this : type) (xargs : args-type) ...) : ret-type
+                      (when (null? this)
+                        (assertion-violation 'name "instance cannot be null"))
                       (let-syntax ((type-fld (identifier-syntax [_ (type-get this)]
                                                                 [(set! _ val) (type-set this val)])) ...
                                    (type-meth (lambda (x)

@@ -591,6 +591,10 @@ namespace IronScheme
 
       ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.SaveAndReloadAssemblies;
 
+
+      ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly =
+        Compiler.Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly("ironscheme.boot.new.dll");
+
       //Console.WriteLine(new Cons(libs).PrettyPrint);
 
       CodeBlock cb = IronSchemeLanguageContext.CompileExpr(libs as Cons);
@@ -655,6 +659,9 @@ namespace IronScheme
 
 
       Compiler.Generator.AllowTransientBinding = false;
+
+      ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly =
+        Compiler.Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly(filename as string);
 
       try
       {
@@ -734,10 +741,20 @@ namespace IronScheme
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 
       var prevt = IronScheme.Compiler.Generator.AllowTransientBinding;
+      var prevag = Compiler.Generator.CurrentAssemblyGen;
 
       if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
       {
         IronScheme.Compiler.Generator.AllowTransientBinding = false;
+
+        ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly =
+          Compiler.Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly(null);
+      }
+      else
+      {
+        Compiler.Generator.CurrentAssemblyGen = ScriptDomainManager.Options.DebugMode ? 
+          ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
+          ScriptDomainManager.CurrentManager.Snippets.Assembly;
       }
 
       int c = ++evalcounter;
@@ -815,6 +832,7 @@ namespace IronScheme
         {
           BoundExpression.Fixups.Clear();
           BoundExpression.FixupTypes.Clear();
+          Compiler.Generator.CurrentAssemblyGen = prevag;
           ScriptDomainManager.Options.AssemblyGenAttributes = aga;
           IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
           sc.ClearCache();

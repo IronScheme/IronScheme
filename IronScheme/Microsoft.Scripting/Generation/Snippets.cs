@@ -31,7 +31,6 @@ namespace Microsoft.Scripting.Generation {
         private AssemblyGen _assembly;
         private AssemblyGen _debugAssembly;
 
-      [Obsolete("Is this functional?")]
         public AssemblyGen CurrentAssembly { get; set; }
 
         private int _debugTypeIndex = 0;

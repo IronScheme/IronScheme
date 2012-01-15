@@ -46,6 +46,12 @@ namespace Microsoft.Scripting.Generation {
         private readonly string _outDir;            // null means the current directory
         private const string peverify_exe = "peverify.exe";
 #endif
+
+        public static AssemblyGen CreateModuleAssembly(string suid)
+        {
+          return OptimizedModuleGenerator.CreateModuleAssembly(suid);
+        }
+
         public AssemblyGen(string moduleName,
             string outDir,
             string outFile,
