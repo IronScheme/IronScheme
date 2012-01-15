@@ -26,6 +26,7 @@ namespace IronScheme.Compiler
     //protected static MethodInfo Helpers_RequiresNotNull = typeof(Helpers).GetMethod("RequiresNotNull");
 
     protected static Dictionary<string, string> namespaces = ResetReferences();
+    internal static readonly Dictionary<string, Type> compiletimetypes = new Dictionary<string, Type>();
 
     public static bool TypeHelpersEnabled { get; set; }
 
@@ -34,6 +35,16 @@ namespace IronScheme.Compiler
       var f1 = forms.Length > 0 ? forms[0] : Builtins.FALSE;
       var f2 = forms.Length > 1 ? forms[1] : Builtins.FALSE;
       Builtins.SyntaxError(who, msg, f1, f2);
+    }
+
+    public static void AddCompileTimeType(Type t)
+    {
+      compiletimetypes.Add(t.FullName, t);
+    }
+
+    public static void RemoveCompileTimeType(Type t)
+    {
+      compiletimetypes.Remove(t.FullName);
     }
 
     public static object SaveReferences()
@@ -61,9 +72,15 @@ namespace IronScheme.Compiler
 
     public static Type GetTypeFast(string name)
     {
+      Type t;
+      if (compiletimetypes.TryGetValue(name, out t))
+      {
+        return t;
+      }
+
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
-        var t = ass.GetType(name);
+        t = ass.GetType(name);
         if (t != null)
         {
           return t;

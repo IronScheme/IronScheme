@@ -79,6 +79,80 @@ namespace Microsoft.Scripting.Generation {
             return new TupleModuleGenerator(moduleName, scriptCodes);
         }
 
+
+        protected static void GetCompiledSourceUnitAssemblyLocation(string suid, out string outDir, out string fileName)
+        {
+          outDir = ScriptDomainManager.Options.BinariesDirectory;
+
+          if (String.IsNullOrEmpty(suid))
+          {
+            fileName = Guid.NewGuid().ToString();
+            return;
+          }
+
+          string path = IOUtils.ToValidPath(suid);
+
+          if (outDir == null)
+          {
+            try
+            {
+              outDir = Path.GetDirectoryName(path);
+            }
+            catch (PathTooLongException)
+            {
+              outDir = null;
+            }
+          }
+
+          fileName = Path.GetFileNameWithoutExtension(path);
+          Debug.Assert(!String.IsNullOrEmpty(fileName));
+        }
+
+        public static AssemblyGen CreateModuleAssembly(string suid)
+        {
+          AssemblyGenAttributes genAttrs = ScriptDomainManager.Options.AssemblyGenAttributes;
+
+          if (ScriptDomainManager.Options.DebugMode)
+            genAttrs |= AssemblyGenAttributes.EmitDebugInfo;
+
+          if (ScriptDomainManager.Options.DebugCodeGeneration)
+            genAttrs |= AssemblyGenAttributes.DisableOptimizations;
+
+          string outDir, fileName;
+          GetCompiledSourceUnitAssemblyLocation(suid, out outDir, out fileName);
+
+
+          AssemblyGen ag;
+          string ext = ".dll";
+
+          //if (scriptCode.CodeBlock.Name == "ironscheme.boot.new")
+          //{
+          //  fileName = "ironscheme.boot.new";
+          //  ext = ".dll";
+          //}
+
+
+          // Try to create a file called "filename.<cnt>.exe", ensuring that the filename does not clash with an existing file
+          int cnt = 0;
+          for (; ; )
+          {
+            try
+            {
+              ag = new AssemblyGen(fileName, outDir, fileName + ext, genAttrs);
+              break;
+            }
+            catch (IOException)
+            {
+              // If a file already exits with the same name, try the next name in the sequence.
+              ext = "_" + cnt.ToString() + ext;
+            }
+          }
+
+          //ag.SetSourceUnit(su);
+
+          return ag;
+        }
+
         /// <summary>
         /// Creates the methods and optimized Scope's which get associated with each ScriptCode.
         /// </summary>
@@ -278,8 +352,6 @@ namespace Microsoft.Scripting.Generation {
 
         #region Abstract overrides
 
-        static AssemblyGen runtimemethods;
-
         protected override SlotFactory CreateSlotFactory(ScriptCode scriptCode) {
             AssemblyGen ag = null;
 
@@ -289,7 +361,8 @@ namespace Microsoft.Scripting.Generation {
               {
                 if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
                 {
-                  ag = CreateModuleAssembly(scriptCode);
+                  ag = ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly;
+                    //CreateModuleAssembly(scriptCode);
                 }
                 else
                 {
@@ -300,21 +373,18 @@ namespace Microsoft.Scripting.Generation {
               {
                 if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
                 {
-                  ag = CreateModuleAssembly(scriptCode);
+                  ag = ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly;
+                    //CreateModuleAssembly(scriptCode);
                 }
                 else
                 {
-                  if (runtimemethods == null)
-                  {
-                    runtimemethods = ScriptDomainManager.CurrentManager.Snippets.Assembly;
-                  }
-                  ag = runtimemethods;
+                  ag = ScriptDomainManager.CurrentManager.Snippets.Assembly;
                 }
               }
             }
             else
             {
-              ag = CreateModuleAssembly(scriptCode);
+              ag = ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly; //CreateModuleAssembly(scriptCode);
             }
 
             ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly = ag;
@@ -455,67 +525,12 @@ namespace Microsoft.Scripting.Generation {
         /// <summary>
         /// Creates a new assembly for generating a module, ensuring a unique filename like "filename.N.exe" for the generated assembly
         /// </summary>
-        private AssemblyGen CreateModuleAssembly(ScriptCode scriptCode) {
-            //scriptCode.CompilerContext.Options
-            AssemblyGenAttributes genAttrs = ScriptDomainManager.Options.AssemblyGenAttributes;
-
-            if (ScriptDomainManager.Options.DebugMode)
-                genAttrs |= AssemblyGenAttributes.EmitDebugInfo;
-            
-            if (ScriptDomainManager.Options.DebugCodeGeneration)
-                genAttrs |= AssemblyGenAttributes.DisableOptimizations;
-
-            string outDir, fileName;
-            GetCompiledSourceUnitAssemblyLocation(scriptCode.CompilerContext.SourceUnit, out outDir, out fileName);
-
-
-            AssemblyGen ag;
-            string ext = ".dll";
-
-            if (scriptCode.CodeBlock.Name == "ironscheme.boot.new")
-            {
-              fileName = "ironscheme.boot.new";
-              ext = ".dll";
-            }
-
-
-            // Try to create a file called "filename.<cnt>.exe", ensuring that the filename does not clash with an existing file
-            int cnt = 0;
-            for (; ; ) {
-                try {
-                    ag = new AssemblyGen(fileName, outDir, fileName + ext, genAttrs);
-                    break;
-                } catch (IOException) {
-                    // If a file already exits with the same name, try the next name in the sequence.
-                    ext = "_" + cnt.ToString() + ext;
-                }
-            }
-
-            ag.SetSourceUnit(scriptCode.CompilerContext.SourceUnit);
-
-            return ag;
-        }
-
-        private static void GetCompiledSourceUnitAssemblyLocation(SourceUnit sourceUnit, out string outDir, out string fileName) {
-            outDir = ScriptDomainManager.Options.BinariesDirectory;
-
-            if (String.IsNullOrEmpty(sourceUnit.Id)) {
-                fileName = Guid.NewGuid().ToString();
-                return;
-            }
-
-            string path = IOUtils.ToValidPath(sourceUnit.Id);
-
-            if (outDir == null) {
-                try {
-                    outDir = Path.GetDirectoryName(path);
-                } catch (PathTooLongException) {
-                    outDir = null;
-                }
-            }
-
-            fileName = Path.GetFileNameWithoutExtension(path);
-            Debug.Assert(!String.IsNullOrEmpty(fileName));
+        AssemblyGen CreateModuleAssembly(ScriptCode scriptCode) 
+        {
+          var su = scriptCode.CompilerContext.SourceUnit;
+          var ag = CreateModuleAssembly(su.Id);
+          ag.SetSourceUnit(su);
+          return ag;
         }
 
         private TypeGen GenerateModuleGlobalsType(AssemblyGen ag, ScriptCode sc)
@@ -526,7 +541,7 @@ namespace Microsoft.Scripting.Generation {
             case "visit-code":
             case "invoke-code":
             case "guard-code":
-              TypeGen tg = ag.DefinePublicType(sc.CodeBlock.Name, typeof(CustomSymbolDictionary));
+              TypeGen tg = ag.DefinePublicType("syntax-" + sc.CodeBlock.Name, typeof(CustomSymbolDictionary));
               tg.AddCodeContextField();
               tg.DefaultConstructor = tg.TypeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
               return tg;
@@ -556,15 +571,10 @@ namespace Microsoft.Scripting.Generation {
 
             Label ok = cg.DefineLabel();
             cg.ContextSlot.EmitGet(cg);
-            //cg.EmitNull();
-            //cg.Emit(OpCodes.Ceq);
             cg.Emit(OpCodes.Brfalse_S, ok);
             cg.EmitReturn();
-            //cg.EmitNew(typeof(InvalidOperationException), ArrayUtils.EmptyTypes);
-            //cg.Emit(OpCodes.Throw);
             cg.MarkLabel(ok);
 
-            // MyModuleDictType.ContextSlot = arg0
             cg.EmitArgGet(0);
             cg.ContextSlot.EmitSet(cg);
 
@@ -577,7 +587,6 @@ namespace Microsoft.Scripting.Generation {
                 {
                   cg.EmitCodeContext();
                   cg.EmitSymbolId(kv.Key);
-                  //cg.EmitUnbox(typeof(SymbolId));
                   builtin.EmitWrapperAddr(cg);
                   cg.EmitCall(typeof(RuntimeHelpers), "InitializeModuleFieldBoxed");
                 }
@@ -587,8 +596,6 @@ namespace Microsoft.Scripting.Generation {
                 {
                   cg.EmitCodeContext();
                   cg.EmitSymbolId(kv.Key);
-                  //cg.EmitUnbox(typeof(SymbolId));
-                  //builtin.EmitWrapperAddr(cg);
                   sfs.EmitGetAddr(cg);
                   cg.EmitCall(typeof(RuntimeHelpers).GetMethod("InitializeFieldBoxed").MakeGenericMethod( sfs.Type ));
 
@@ -599,88 +606,17 @@ namespace Microsoft.Scripting.Generation {
             cg.Finish();
         }
 
-        //
-        // This generates a method like the following:
-        //
-        //  TryGetExtraValue(int name, object out value) {
-        //      if (name1 == name) {
-        //          value = type.name1Slot.RawValue;
-        //          return value != Uninitialized.Instance;
-        //      }
-        //      if (name2 == name) {
-        //          value = type.name2Slot.RawValue;
-        //          return value != Uninitialized.Instance;
-        //      }
-        //      ...
-        //      return false
-        //  }
-
         private void MakeGetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
             CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod("TryGetExtraValue", BindingFlags.NonPublic | BindingFlags.Instance));
-            //foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
-            //    SymbolId name = kv.Key;
-            //    Slot slot = kv.Value;
 
-            //    cg.EmitSymbolId(name);
-            //    cg.EmitArgGet(0);
-            //    cg.EmitCall(typeof(SymbolId), "op_Equality");
-
-            //    Label next = cg.DefineLabel();
-            //    cg.Emit(OpCodes.Brfalse_S, next);
-
-            //    cg.EmitArgGet(1);
-
-            //    ModuleGlobalSlot builtin = slot as ModuleGlobalSlot;
-            //    Debug.Assert(builtin != null);
-            //    builtin.EmitGetRaw(cg);
-            //    cg.Emit(OpCodes.Stind_Ref);
-
-            //    builtin.EmitGetRaw(cg);
-            //    cg.EmitUninitialized();
-            //    cg.Emit(OpCodes.Ceq);
-            //    cg.Emit(OpCodes.Not);
-            //    cg.EmitReturn();
-            //    cg.MarkLabel(next);
-            //}
             cg.EmitInt(0);
             cg.EmitReturn();
             cg.Finish();
         }
 
-        // This generates a method like the following:
-        //
-        //  TrySetExtraValue(object name, object value) {
-        //      if (name1 == name) {
-        //          type.name1Slot = value;
-        //          return 1;
-        //      }
-        //      if (name2 == name) {
-        //          type.name2Slot = value;
-        //          return 1;
-        //      }
-        //      ...
-        //      return 0
-        //  }
-
         private void MakeSetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
             CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod("TrySetExtraValue", BindingFlags.NonPublic | BindingFlags.Instance));
             Slot valueSlot = cg.GetArgumentSlot(1);
-            //foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
-            //    SymbolId name = kv.Key;
-            //    Slot slot = kv.Value;
-
-            //    cg.EmitSymbolId(name);
-            //    cg.EmitArgGet(0);
-            //    cg.EmitCall(typeof(SymbolId), "op_Equality");
-
-            //    Label next = cg.DefineLabel();
-            //    cg.Emit(OpCodes.Brfalse_S, next);
-
-            //    slot.EmitSet(cg, valueSlot);
-            //    cg.EmitInt(1);
-            //    cg.EmitReturn();
-            //    cg.MarkLabel(next);
-            //}
             cg.EmitInt(0);
             cg.EmitReturn();
             cg.Finish();
@@ -692,16 +628,6 @@ namespace Microsoft.Scripting.Generation {
 
             init.EmitInt(0);
             init.Emit(OpCodes.Newarr, typeof(SymbolId));
-
-            //int current = 0;
-            //foreach (KeyValuePair<SymbolId, Slot> kv in fields) {
-            //  Debug.Assert(current < fields.Count);
-            //  init.Emit(OpCodes.Dup);
-            //  init.EmitInt(current++);
-            //  init.Emit(OpCodes.Ldelema, typeof(SymbolId));
-            //  init.EmitSymbolIdId(kv.Key);
-            //  init.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(int) }));
-            //}
 
             rawKeysCache.EmitSet(init);
 

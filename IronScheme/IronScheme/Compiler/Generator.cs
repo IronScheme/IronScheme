@@ -34,6 +34,8 @@ namespace IronScheme.Compiler
 
     internal static bool AllowTransientBinding { get; set; }
 
+    internal static Microsoft.Scripting.Generation.AssemblyGen CurrentAssemblyGen { get; set; }
+
     protected static SourceSpan SpanHint
     {
       get { return Generator.spanhint; }

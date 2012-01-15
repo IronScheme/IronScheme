@@ -200,18 +200,26 @@ namespace IronScheme.Runtime
             par = ((BoundExpression)parent).Variable.Name;
           }
 
-          var e = Ast.Constant(
-            new RecordTypeDescriptorConstant
-            {
-              RecordName = rname,
-              Uid = ruid,
-              Sealed = rsealed,
-              Opaque = ropaque,
-              Parent = par,
-              Fields = rfields,
-              FieldTypes = tfields,
-              NameHint = IronScheme.Compiler.Generator.VarHint,
-            });
+          var rtdc = new RecordTypeDescriptorConstant
+          {
+            RecordName = rname,
+            Uid = ruid,
+            Sealed = rsealed,
+            Opaque = ropaque,
+            Parent = par,
+            Fields = rfields,
+            FieldTypes = tfields,
+            NameHint = IronScheme.Compiler.Generator.VarHint,
+          };
+
+          var at = rtdc.Generate();
+
+          if (at != null)
+          {
+            ClrGenerator.AddCompileTimeType(at);
+          }
+
+          var e = Ast.Constant(rtdc);
 
           return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("MakeRecordTypeDescriptor"), obj));
         }
