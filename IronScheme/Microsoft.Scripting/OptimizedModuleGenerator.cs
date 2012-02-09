@@ -475,16 +475,6 @@ namespace Microsoft.Scripting.Generation {
 
             BuildDictionary(li, fields);
 
-            //// emit methods without bodies
-            //foreach (var kvp in CodeGen._codeBlockStubs)
-            //{
-            //}
-
-            //foreach (var kvp in CodeGen._codeBlockStubsX)
-            //{
-            //}
-
-
             Type t = li.TypeGen.FinishType();
             var ass = li.TypeGen.AssemblyGen.DumpAndLoad();
 
