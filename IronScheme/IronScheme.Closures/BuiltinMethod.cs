@@ -158,8 +158,6 @@ namespace IronScheme.Runtime
 
       Callable c;
 
-      if (cache.Count > 20) Debugger.Break();
-
       if (cache.TryGetValue(-1, out c) ||
           cache.TryGetValue(nargs, out c))
       {
