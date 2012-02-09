@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
+using System.Diagnostics;
 
 namespace IronScheme.Runtime
 {
@@ -157,7 +158,10 @@ namespace IronScheme.Runtime
 
       Callable c;
 
-      if (cache.TryGetValue(nargs, out c))
+      if (cache.Count > 20) Debugger.Break();
+
+      if (cache.TryGetValue(-1, out c) ||
+          cache.TryGetValue(nargs, out c))
       {
         return c.Call(args);
       }
@@ -166,24 +170,12 @@ namespace IronScheme.Runtime
       {
         try
         {
-          Type[] targs = Array.ConvertAll<object, Type>(args, delegate(object input)
+          if (methods.Length == 1)
           {
-            if (input == null)
-            {
-              return typeof(object);
-            }
-            else
-            {
-              return input.GetType();
-            }
-          });
+            // make c fast
+            MethodBase mb = methods[0];
 
-          MethodCandidate mc = meth.MakeBindingTarget(CallType.None, targs);
-          if (mc != null)
-          {
-            MethodBase mb = mc.Target.Method;
-
-            bool needContext = NeedContext(mb);
+            bool needContext = false;
 
 #warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655439
             Type dt = (nargs > 8 || IsParams(mb)) ? // for mono
@@ -196,7 +188,50 @@ namespace IronScheme.Runtime
 
             if (d != null)
             {
-              cache[nargs] = c = Closure.Create(d);
+              if (dt == typeof(CallTargetN))
+              {
+                cache[-1] = c = Closure.Create(d);
+              }
+              else
+              {
+                cache[nargs] = c = Closure.Create(d);
+              }
+            }
+          }
+          else
+          {
+            Type[] targs = Array.ConvertAll<object, Type>(args, delegate(object input)
+            {
+              if (input == null)
+              {
+                return typeof(object);
+              }
+              else
+              {
+                return input.GetType();
+              }
+            });
+
+            MethodCandidate mc = meth.MakeBindingTarget(CallType.None, targs);
+            if (mc != null)
+            {
+              MethodBase mb = mc.Target.Method;
+
+              bool needContext = NeedContext(mb); // TODO: check if can remove
+
+#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655439
+              Type dt = (nargs > 8 || IsParams(mb)) ? // for mono
+                typeof(CallTargetN) : CallTargets.GetTargetType(needContext, nargs, false);
+              Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
+              if (d == null)
+              {
+                d = Delegate.CreateDelegate(typeof(CallTargetN), needContext ? context : null, mb as MethodInfo, false);
+              }
+
+              if (d != null)
+              {
+                cache[nargs] = c = Closure.Create(d);
+              }
             }
           }
         }
@@ -232,24 +267,22 @@ namespace IronScheme.Runtime
 
     bool IsParams(MethodBase mb)
     {
-      foreach (var pi in mb.GetParameters())
+      var pi = mb.GetParameters();
+      if (pi.Length == 0)
       {
-        if (pi.IsDefined(typeof(ParamArrayAttribute), false))
-        {
-          return true;
-        }
+        return false;
       }
-
-      return false;
+      return pi[pi.Length - 1].IsDefined(typeof(ParamArrayAttribute), false);
     }
 
     static bool NeedContext(MethodBase mb)
     {
-      foreach (ParameterInfo pi in mb.GetParameters())
+      var pi = mb.GetParameters();
+      if (pi.Length == 0)
       {
-        return pi.ParameterType == typeof(CodeContext);
+        return false;
       }
-      return false;
+      return pi[0].ParameterType == typeof(CodeContext);
     }
 
     #region ICallable Members
