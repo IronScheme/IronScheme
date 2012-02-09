@@ -611,12 +611,6 @@ namespace IronScheme.Runtime.R6RS
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
 
-      GeneratePredicate(n, rtd, tg);
-
-      GenerateFields(fields, n, rtd, tg, fieldtypes);
-
-      GenerateConstructor(rtd, tg, parenttype);
-
       if (id != null)
       {
         nongenerative[n + id] = rtd;
@@ -626,6 +620,12 @@ namespace IronScheme.Runtime.R6RS
       {
         SetSymbolValueFast(SymbolTable.StringToObject(n + "-rtd"), rtd);
       }
+
+      GeneratePredicate(n, rtd, tg);
+
+      GenerateFields(fields, n, rtd, tg, fieldtypes);
+
+      GenerateConstructor(rtd, tg, parenttype);
 
       return rtd;
     }
