@@ -169,17 +169,32 @@ namespace IronScheme
     public static object WithTimeout(object proc, object duration)
     {
       var d = Requires<int>(duration);
-      var t = new Func(Requires<Callable>(proc).Call);
+      var p = new Func(Requires<Callable>(proc).Call);
 
-      var wh = t.BeginInvoke(null, null);
+      var reset = new AutoResetEvent(false);
+      object r = null;
 
-      if (wh.AsyncWaitHandle.WaitOne(d))
+      var t = new Thread(() =>
       {
-        return t.EndInvoke(wh);
+        r = p();
+        reset.Set();
+      });
+
+      t.Start();
+
+      // not sure if this is really needed in general
+      while (t.ThreadState != System.Threading.ThreadState.Running)
+      {
+        Thread.Sleep(0);
       }
 
-      return AssertionViolation("with-timeout", string.Format("call exceeded limit: {0}ms", d), null);
+      if (!reset.WaitOne(d))
+      {
+        t.Abort();
+        return AssertionViolation("with-timeout", string.Format("call exceeded limit: {0}ms", d), null);
+      }
 
+      return r;
     }
 
     [Builtin("serialize-port")]
