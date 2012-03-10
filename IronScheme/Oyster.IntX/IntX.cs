@@ -1753,6 +1753,11 @@ namespace Oyster.Math
       return new IntX(n);
     }
 
+    public static IntX Create(long n)
+    {
+      return new IntX(n);
+    }
+
     public IntX Power(int n)
     {
       return Pow(this, (uint)n);

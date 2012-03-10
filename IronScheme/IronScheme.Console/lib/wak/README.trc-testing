@@ -1,0 +1,205 @@
+* Taylor R. Campbell's Simple Testing Utility for Scheme  -*-outline-*-
+
+This is a simple, portable testing utility for Scheme.  It makes no
+pretenses to be a comprehensive framework for building complex test
+suites; it is merely a simple tool to express simple test suites, which
+requires very little cognitive overhead.
+
+The procedure of loading this utility depends on what Scheme system you
+are using.  See Section `Porting' for details.
+
+The file COPYING in this directory contains the GNU General Public
+License.  The file COPYING.LESSER contains the supplements to the GNU
+General Public License that constitute the GNU Lesser General Public
+License.
+
+** Copying
+
+Copyright (C) 2007, 2009 Taylor R. Campbell.
+
+This file is part of TRC-Testing.
+
+TRC-Testing is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+TRC-Testing is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with TRC-Testing.  If not, see
+<http://www.gnu.org/licenses/>.
+
+** Documentation
+
+Definitions:
+
+- A /test/ is either a test case or a test suite.
+
+- /Test cases/ are individual tests, consisting of an optional setup
+  action, a list of actions to conduct the test, and an optional
+  teardown action.
+
+- /Test suites/ are collections of tests.
+
+There is a procedural interface for operating on tests, described
+later; of immediate interest is only the (RUN-TEST <test>) procedure,
+which runs <test>.  Running a test case has the effect of, for each
+action in the test, dynamically winding the setup action, the test
+action, and the teardown action.  Running a test suite has the effect
+of running all of its collected tests.
+
+Typically, the tests for a component of a program are isolated in a
+file containing test suite and test case definitions, using the
+following macros to write tests.
+
+*** Test Description Macros
+
+(DEFINE-TEST-SUITE <name> <description>)                        ;syntax
+
+  Defines <name> to be a test suite with the given description and no
+  child tests.
+
+(DEFINE-TEST-SUITE (<name> <parent-suite>) <description>)       ;syntax
+
+  Defines <name> to be a test suite with the given description and no
+  child tests, and adds the new test suite to the end of the list of
+  <parent-suite>'s children.
+
+(DEFINE-TEST-CASE <suite> <name> <test-case>)                   ;syntax
+
+  Adds <test-case> under the name <name> to <suite>.  <Test-case> is
+  evaluated, and is usually a TEST-CASE expression (see below).  This
+  form is useful for defining test cases that have local variables that
+  must be initialized and deinitialized by the setup and teardown
+  actions; for example,
+
+    (define-test-case mumble-tests foo
+      (let ((socket #f))
+        (test-case foo
+            ((setup     (set! socket (create-socket ...)))
+             (teardown  (close-socket socket) (set! socket #f)))
+          ...))).
+
+(DEFINE-TEST-CASE <suite> <name> (<option> ...)                 ;syntax
+  <test-form>
+  ...)
+
+  Defines <name> to be a test case built from the given options and
+  test forms, and adds it to the list of <suite>'s children.  See
+  TEST-CASE for the valid options and the interpretation of the
+  <test-form>s.  This is equivalent to
+
+    (DEFINE-TEST-CASE <suite> <name>
+      (TEST-CASE <name> (<option> ...)
+        <test-form>
+        ...))
+
+(TEST-CASE <name> (<option> ...) <test-form> ...) -> test-case  ;syntax
+
+  Creates a test case.  <Name> identifies the test case.  Each
+  <test-form> is a form to be executed as a command for a single action
+  in the test case.  Each <option> must be of one of the following
+  forms:
+
+    (DESCRIPTION <string>)
+      Specifies the test case's description.
+
+    (SETUP <form> ...)
+      Specifies the forms to be executed as commands for the test
+      case's setup action.
+
+    (TEARDOWN <form> ...)
+      Specifies the forms to be executed as commands for the test
+      case's teardown action.
+
+**** Test Action Macros
+
+These macros are used to write the actions for tests.  Most test
+actions simply use one of the TEST-* macros.  However, the actions are
+arbitrary Scheme forms, which may use TEST-FAILURE to explicitly signal
+test failures.
+
+(TEST-PREDICATE <predicate> <expression>)                       ;syntax
+
+  Fails iff the value of <expression> fails to satisfy <predicate>.
+
+(TEST-COMPARE <comparator> <expected> <actual>)                 ;syntax
+
+  Fails iff <comparator> yields false when passed the values of
+  <expected> and <actual>, in that order.
+
+(TEST-EQ <expected> <actual>)                                   ;syntax
+(TEST-EQV <expected> <actual>)                                  ;syntax
+(TEST-EQUAL <expected> <actual>)                                ;syntax
+
+  Specializations of TEST-COMPARE with standard Scheme comparators.
+  Generally, tests should use one of these, rather than an even further
+  specialized comparator like CHAR=? or STRING=?, in case the actual
+  value is not a character or string as expected.
+
+(TEST-FAILURE <message> <irritant> ...)                      ;procedure
+
+  Signals that the test currently being run has failed, and transfers
+  control non-locally to the testing utility to report the failure.
+
+*** Programmatic Interface
+
+The underlying programmatic interface is more flexible than the
+syntactic sugar described above, but its documentation has yet to be
+written; the source will have to suffice.
+
+** Porting
+
+See the top of test.scm for the parameters required to port the testing
+utility.  It has presently been ported to Scheme48 and MIT Scheme;
+instructions for loading it into Scheme48 and MIT Scheme follow.
+
+*** Scheme48
+
+Load s48-interfaces.scm and s48-packages.scm into the config package,
+and s48-restart.scm if you are *not* using SLIME48.  Then the
+SIMPLE-TESTING structure will export all of the bindings described
+here, as well as six others to control two user options:
+
+(TEST-VERBOSITY) -> verbosity                                ;procedure
+(SET-TEST-VERBOSITY! <verbosity>)                            ;procedure
+(WITH-TEST-VERBOSITY <verbosity> <thunk>) -> values          ;procedure
+
+  Verbosity may be any of the symbols QUIET, NORMAL, or VERBOSE.  This
+  controls the output generated during RUN-TEST.  The default value is
+  NORMAL.
+
+(TEST-DEBUG-ERRORS?) -> boolean                              ;procedure
+(SET-TEST-DEBUG-ERRORS?! <boolean>)                          ;procedure
+(WITH-TEST-DEBUG-ERRORS? <boolean> <thunk>)                  ;procedure
+
+  Ordinarily, the test utility will handle all errors during testing
+  and report them as test failures.  If this flag is set to true,
+  however, the test utility will propagate errors up so that they may
+  be handled by an enclosing condition handler, such as a debugger, in
+  order to debug errors that arise when running tests.
+
+*** MIT Scheme
+
+Load mit-compile.scm to compile the system and then mit-load.scm to
+load it.  This will define all of the documented bindings in the system
+global environment.  Also, if Edwin is loaded when mit-compile.scm and
+mit-load.scm are loaded, this will also implement two Edwin commands to
+support incremental development of tests:
+
+  M-x eval-test RET
+
+    Examines the test definition at point (see DEFINE-TEST-CASE and
+    DEFINE-TEST-SUITE).  If it is a test case definition, evaluates
+    it.  Runs the test defined at point, whether a test case definition
+    or a test suite definition, showing any output in a temporary
+    pop-up buffer.
+
+  M-x run-test RET
+
+    Runs the test definition at point, showing any output in a
+    temporary pop-up buffer.

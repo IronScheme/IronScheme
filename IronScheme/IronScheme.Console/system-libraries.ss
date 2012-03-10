@@ -69,13 +69,31 @@ See docs/license.txt. |#
 (let () 
   (include "srfi/compile-all.ironscheme.sps")
   #f)
+  
+(let ()
+  (import
+    (wak syn-param)
+    (wak foof-loop)
+    (wak riastreams)
+    (wak foof-loop nested)
+    (wak fmt)
+    (wak trc-testing)
+    )
+  #f)
+      
 
+(let () 
+  (import 
+    (pfds bbtrees)
+    (pfds deques)
+    (pfds sets)
+    (pfds dlists)
+    (pfds queues))
+  #f)
 
 (let () 
   (import 
     (ikarus)
-    (syn-param)
-    (foof-loop)
     (list-match)
     (as-match))
   #f)

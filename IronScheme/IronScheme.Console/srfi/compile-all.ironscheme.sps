@@ -45,6 +45,8 @@
   (only (srfi :42 eager-comprehensions))
   (only (srfi :43))
   (only (srfi :43 vectors))
+  (only (srfi :45))
+  (only (srfi :45 lazy))  
   (only (srfi :48))
   (only (srfi :48 intermediate-format-strings))
   (only (srfi :48 intermediate-format-strings compat))
