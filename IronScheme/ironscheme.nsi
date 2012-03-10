@@ -250,6 +250,17 @@ ${EndIf}
 	SetOutPath "$INSTDIR\lib"
 	File lib\*.sls
 	
+	SetOutPath "$INSTDIR\lib\wak"
+	File /r lib\wak\*.sls
+	File /r lib\wak\*.scm
+	File lib\wak\LICENSE.*
+	File lib\wak\README.*
+	
+	SetOutPath "$INSTDIR\lib\pfds"
+	File /r lib\pfds\*.sls
+	File lib\pfds\LICENSE
+	File lib\pfds\README	
+	
 	SetOutPath "$INSTDIR\build"
 	File /r build\*.ss
 	
