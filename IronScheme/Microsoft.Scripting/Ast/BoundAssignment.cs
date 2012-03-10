@@ -141,7 +141,8 @@ namespace Microsoft.Scripting.Ast {
             _value = value;
             if (value.IsConstant(null))
             {
-              Debugger.Break();
+#warning See if this is problematic, gets invoked by pfds tests
+              //Debugger.Break();
             }
             _variable.AssumedValue = _variable.AssumedValue == null ? GetReference(value) : null;
         }

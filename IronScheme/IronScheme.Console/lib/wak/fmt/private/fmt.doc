@@ -1,0 +1,1349 @@
+
+\title{Combinator Formatting}
+
+\eval
+(begin
+  (display "<style>\n")
+  (display (with-input-from-file "fmt.css" read-string))
+  (display "</style>\n"))
+
+\flushright{\urlh{http://synthcode.com/}{Alex Shinn}}
+\flushright{\urlh{http://synthcode.com/scheme/fmt/fmt-0.8.tar.gz}{Download Version 0.8}}
+
+\eval(display "<br /><br />\n\n")
+
+A library of procedures for formatting Scheme objects to text in
+various ways, and for easily concatenating, composing and extending
+these formatters efficiently without resorting to capturing and
+manipulating intermediate strings.
+
+\eval(display "<br /><br />\n\n")
+
+\section{Table of Contents}
+
+\eval(display "\n\n<!-- TOC -->\n\n")
+
+\eval(display "<br /><br />\n\n")
+
+\section{Installation}
+
+Available for Chicken as the \p{fmt} egg, providing the \q{fmt},
+\q{fmt-c}, \q{fmt-color} and \q{fmt-unicode} extensions.  To install
+manually for Chicken just run \p{"chicken-setup"} in the fmt
+directory.
+
+For Gauche run \p{"make gauche && make install-gauche"}.  The modules
+are installed as \q{text.fmt}, \q{text.fmt.c}, \q{text.fmt.color} and
+\q{text.fmt.unicode}.
+
+For MzScheme you can download and install the latest \p{fmt.plt} yourself
+from:
+
+  \urlh{http://synthcode.com/scheme/fmt/fmt.plt}{http://synthcode.com/scheme/fmt/fmt.plt}
+
+To build the \p{fmt.plt} for yourself you can run \p{"make mzscheme"}.
+
+For Scheme48 the package descriptions are in \p{fmt-scheme48.scm}:
+
+\q{
+> ,config ,load fmt-scheme48.scm
+> ,open fmt
+}
+
+For other implementations you'll need to load SRFI's 1, 6, 13, 33
+(sample provided) and 69 (also provided), and then load the following
+files:
+
+\q{
+  (load "let-optionals.scm")  ; if you don't have LET-OPTIONALS*
+  (load "read-line.scm")      ; if you don't have READ-LINE
+  (load "string-ports.scm")   ; if you don't have CALL-WITH-OUTPUT-STRING
+  (load "make-eq-table.scm")
+  (load "mantissa.scm")
+  (load "fmt.scm")
+  (load "fmt-pretty.scm")     ; optional pretty printing
+  (load "fmt-column.scm")     ; optional columnar output
+  (load "fmt-c.scm")          ; optional C formatting utilities
+  (load "fmt-color.scm")      ; optional color utilities
+  (load "fmt-unicode.scm")    ; optional Unicode-aware formatting,
+                              ;   also requires SRFI-4 or SRFI-66
+}
+
+\section{Background}
+
+There are several approaches to text formatting.  Building strings to
+\q{display} is not acceptable, since it doesn't scale to very large
+output.  The simplest realistic idea, and what people resort to in
+typical portable Scheme, is to interleave \q{display} and \q{write}
+and manual loops, but this is both extremely verbose and doesn't
+compose well.  A simple concept such as padding space can't be
+achieved directly without somehow capturing intermediate output.
+
+The traditional approach is to use templates - typically strings,
+though in theory any object could be used and indeed Emacs' mode-line
+format templates allow arbitrary sexps.  Templates can use either
+escape sequences (as in C's \q{printf} and \urlh{#BIBITEM_2}{CL's}
+\q{format}) or pattern matching (as in Visual Basic's \q{Format},
+\urlh{#BIBITEM_6}{Perl6's} \q{form}, and SQL date formats).  The
+primary disadvantage of templates is the relative difficulty (usually
+impossibility) of extending them, their opaqueness, and the
+unreadability that arises with complex formats.  Templates are not
+without their advantages, but they are already addressed by other
+libraries such as \urlh{#BIBITEM_3}{SRFI-28} and
+\urlh{#BIBITEM_4}{SRFI-48}.
+
+This library takes a combinator approach.  Formats are nested chains
+of closures, which are called to produce their output as needed.
+The primary goal of this library is to have, first and foremost, a
+maximally expressive and extensible formatting library.  The next
+most important goal is scalability - to be able to handle
+arbitrarily large output and not build intermediate results except
+where necessary.  The third goal is brevity and ease of use.
+
+\section{Usage}
+
+The primary interface is the \q{fmt} procedure:
+
+  \q{(fmt <output-dest> <format> ...)}
+
+where \q{<output-dest>} has the same semantics as with \q{format} -
+specifically it can be an output-port, \q{#t} to indicate the current
+output port, or \q{#f} to accumulate output into a string.
+
+Each \q{<format>} should be a format closure as discussed below.  As a
+convenience, non-procedure arguments are also allowed and are
+formatted similar to \q{display}, so that
+
+  \q{(fmt #f "Result: " res nl)}
+
+would return the string \q{"Result: 42\n"}, assuming \q{RES} is bound
+to \q{42}.
+
+\q{nl} is the newline format combinator.
+
+\section{Specification}
+
+The procedure names have gone through several variations, and I'm
+still open to new suggestions.  The current approach is to use
+abbreviated forms of standard output procedures when defining an
+equivalent format combinator (thus \q{display} becomes \q{dsp} and
+\q{write} becomes \q{wrt}), and to use an \q{fmt-} prefix for
+utilities and less common combinators.  Variants of the same formatter
+get a \q{/<variant>} suffix.
+
+\subsection{Formatting Objects}
+
+\subsubsection*{(dsp <obj>)}
+
+Outputs \q{<obj>} using \q{display} semantics.  Specifically, strings
+are output without surrounding quotes or escaping and characters are
+written as if by \q{write-char}.  Other objects are written as with
+\q{write} (including nested strings and chars inside \q{<obj>}).  This
+is the default behavior for top-level formats in \q{fmt}, \q{cat} and
+most other higher-order combinators.
+
+\subsubsection*{(wrt <obj>)}
+
+Outputs \q{<obj>} using \q{write} semantics.  Handles shared
+structures as in \urlh{#BIBITEM_5}{SRFI-38}.
+
+\subsubsection*{(wrt/unshared <obj>)}
+
+As above, but doesn't handle shared structures.  Infinite loops can
+still be avoided if used inside a combinator that truncates data (see
+\q{trim} and \q{fit} below).
+
+\subsubsection*{(pretty <obj>)}
+
+Pretty-prints \q{<obj>}.  Also handles shared structures.  Unlike many
+other pretty printers, vectors and data lists (lists that don't begin
+with a (nested) symbol), are printed in tabular format when there's
+room, greatly saving vertical space.
+
+\subsubsection*{(pretty/unshared <obj>)}
+
+As above but without sharing.
+
+\subsubsection*{(slashified <str> [<quote-ch> <esc-ch> <renamer>])}
+
+Outputs the string \q{<str>}, escaping any quote or escape characters.
+If \q{<esc-ch>} is \q{#f} escapes only the \q{<quote-ch>} by
+doubling it, as in SQL strings and CSV values.  If \q{<renamer>} is
+provided, it should be a procedure of one character which maps that
+character to its escape value, e.g. \q{#\newline => #\n}, or \q{#f} if
+there is no escape value.
+
+  \q{(fmt #f (slashified "hi, \"bob!\""))}
+
+  \q{=> "hi, \"bob!\""}
+
+\subsubsection*{(maybe-slashified <str> <pred> [<quote-ch> <esc-ch> <renamer>])}
+
+Like \q{slashified}, but first checks if any quoting is required (by
+the existence of either any quote or escape characters, or any
+character matching \q{<pred>}), and if so outputs the string in quotes
+and with escapes.  Otherwise outputs the string as is.
+
+  \q{(fmt #f (maybe-slashified "foo" char-whitespace? #\"))}
+
+  \q{=> "foo"}
+
+  \q{(fmt #f (maybe-slashified "foo bar" char-whitespace? #\"))}
+
+  \q{=> "\"foo bar\""}
+
+  \q{(fmt #f (maybe-slashified "foo\"bar\"baz" char-whitespace? #\"))}
+
+  \q{=> "\"foo\"bar\"baz\""}
+
+\subsection{Formatting Numbers}
+
+\subsubsection*{(num <n> [<radix> <precision> <sign> <comma> <comma-sep> <decimal-sep>])}
+
+Formats a single number \q{<n>}.  You can optionally specify any
+\q{<radix>} from 2 to 36 (even if \q{<n>} isn't an integer).
+\q{<precision>} forces a fixed-point format.
+
+A \q{<sign>} of \q{#t} indicates to output a plus sign (+) for positive
+integers.  However, if \q{<sign>} is a character, it means to wrap the
+number with that character and its mirror opposite if the number is
+negative.  For example, \q{#\(} prints negative numbers in parenthesis,
+financial style: \q{-3.14 => (3.14)}
+
+\q{<comma>} is an integer specifying the number of digits between
+commas.  Variable length, as in subcontinental-style, is not yet
+supported.
+
+\q{<comma-sep>} is the character to use for commas, defaulting to \q{#\,}.
+
+\q{<decimal-sep>} is the character to use for decimals, defaulting to
+\q{#\.}, or to \q{#\,} (European style) if \q{<comma-sep>} is already
+\q{#\.}.
+
+These parameters may seem unwieldy, but they can also take their
+defaults from state variables, described below.
+
+\subsubsection*{(num/comma <n> [<base> <precision> <sign>])}
+
+Shortcut for \q{num} to print with commas.
+
+  \q{(fmt #f (num/comma 1234567))}
+
+  \q{=> "1,234,567"}
+
+\subsubsection*{(num/si <n> [<base> <suffix>])}
+
+Abbreviates \q{<n>} with an SI suffix as in the -h or --si option to
+many GNU commands.  The base defaults to 1024, using suffix names
+like Ki, Mi, Gi, etc.  Other bases (e.g. the standard 1000) have the
+suffixes k, M, G, etc.
+
+The \q{<suffix>} argument is appended only if an abbreviation is used.
+
+  \q{(fmt #f (num/si 608))}
+
+  \q{=> "608"}
+
+  \q{(fmt #f (num/si 3986))}
+
+  \q{=> "3.9Ki"}
+
+  \q{(fmt #f (num/si 3986 1000 "B"))}
+
+  \q{=> "4kB"}
+
+See \urlh{http://www.bipm.org/en/si/si_brochure/chapter3/prefixes.html}{http://www.bipm.org/en/si/si_brochure/chapter3/prefixes.html}.
+
+\subsubsection*{(num/fit <width> <n> . <ARGS>)}
+
+Like \q{num}, but if the result doesn't fit in \q{<width>}, output
+instead a string of hashes (with the current \q{<precision>}) rather
+than showing an incorrectly truncated number.  For example
+
+  \q{(fmt #f (fix 2 (num/fit 4 12.345)))}
+  \q{=> "#.##"}
+
+\subsubsection*{(num/roman <n>)}
+
+Formats the number as a Roman numeral:
+
+  \q{(fmt #f (num/roman 1989))}
+  \q{=> "MCMLXXXIX"}
+
+\subsubsection*{(num/old-roman <n>)}
+
+Formats the number as an old-style Roman numeral, without the
+subtraction abbreviation rule:
+
+  \q{(fmt #f (num/old-roman 1989))}
+  \q{=> "MDCCCCLXXXVIIII"}
+
+
+\subsection{Formatting Space}
+
+\subsubsection*{nl}
+
+Outputs a newline.
+
+\subsubsection*{fl}
+
+Short for "fresh line," outputs a newline only if we're not already
+at the start of a line.
+
+\subsubsection*{(space-to <column>)}
+
+Outputs spaces up to the given \q{<column>}.  If the current column is
+already >= \q{<column>}, does nothing.
+
+\subsubsection*{(tab-to [<tab-width>])}
+
+Outputs spaces up to the next tab stop, using tab stops of width
+\q{<tab-width>}, which defaults to 8.  If already on a tab stop, does
+nothing.  If you want to ensure you always tab at least one space, you
+can use \q{(cat " " (tab-to width))}.
+
+\subsubsection*{fmt-null}
+
+Outputs nothing (useful in combinators and as a default noop in
+conditionals).
+
+
+\subsection{Concatenation}
+
+\subsubsection*{(cat <format> ...)}
+
+Concatenates the output of each \q{<format>}.
+
+\subsubsection*{(apply-cat <list>)}
+
+Equivalent to \q{(apply cat <list>)} but may be more efficient.
+
+\subsubsection*{(fmt-join <formatter> <list> [<sep>])}
+
+Formats each element \q{<elt>} of \q{<list>} with \q{(<formatter>
+<elt>)}, inserting \q{<sep>} in between.  \q{<sep>} defaults to the
+empty string, but can be any format.
+
+  \q{(fmt #f (fmt-join dsp '(a b c) ", "))}
+
+  \q{=> "a, b, c"}
+
+\subsubsection*{(fmt-join/prefix <formatter> <list> [<sep>])}
+\subsubsection*{(fmt-join/suffix <formatter> <list> [<sep>])}
+
+  \q{(fmt #f (fmt-join/prefix dsp '(usr local bin) "/"))}
+
+  \q{=> "/usr/local/bin"}
+
+As \q{fmt-join}, but inserts \q{<sep>} before/after every element.
+
+\subsubsection*{(fmt-join/last <formatter> <last-formatter> <list> [<sep>])}
+
+As \q{fmt-join}, but the last element of the list is formatted with
+\q{<last-formatter>} instead.
+
+\subsubsection*{(fmt-join/dot <formatter> <dot-formatter> <list> [<sep>])}
+
+As \q{fmt-join}, but if the list is a dotted list, then formats the dotted
+value with \q{<dot-formatter>} instead.
+
+
+\subsection{Padding and Trimming}
+
+\subsubsection*{(pad <width> <format> ...)}
+\subsubsection*{(pad/left <width> <format> ...)}
+\subsubsection*{(pad/both <width> <format> ...)}
+
+Analogs of SRFI-13 \q{string-pad}, these add extra space to the left,
+right or both sides of the output generated by the \q{<format>}s to
+pad it to \q{<width>}.  If \q{<width>} is exceeded has no effect.
+\q{pad/both} will include an extra space on the right side of the
+output if the difference is odd.
+
+\q{pad} does not accumulate any intermediate data.
+
+Note these are column-oriented padders, so won't necessarily work
+with multi-line output (padding doesn't seem a likely operation for
+multi-line output).
+
+\subsubsection*{(trim <width> <format> ...)}
+\subsubsection*{(trim/left <width> <format> ...)}
+\subsubsection*{(trim/both <width> <format> ...)}
+
+Analogs of SRFI-13 \q{string-trim}, truncates the output of the
+\q{<format>}s to force it in under \q{<width>} columns.  As soon as
+any of the \q{<format>}s exceed \q{<width>}, stop formatting and
+truncate the result, returning control to whoever called \q{trim}.  If
+\q{<width>} is not exceeded has no effect.
+
+If a truncation ellipse is set (e.g. with the \q{ellipses} procedure
+below), then when any truncation occurs \q{trim} and \q{trim/left}
+will append and prepend the ellipse, respectively.  \q{trim/both} will
+both prepend and append.  The length of the ellipse will be considered
+when truncating the original string, so that the total width will
+never be longer than \q{<width>}.
+
+ \q{(fmt #f (ellipses "..." (trim 5 "abcde")))}
+
+ \q{=>  "abcde"}
+
+ \q{(fmt #f (ellipses "..." (trim 5 "abcdef")))}
+
+ \q{=>  "ab..."}
+
+\subsubsection*{(trim/length <width> <format> ...)}
+
+A variant of \q{trim} which acts on the actual character count rather
+than columns, useful for truncating potentially cyclic data.
+
+\subsubsection*{(fit <width> <format> ...)}
+\subsubsection*{(fit/left <width> <format> ...)}
+\subsubsection*{(fit/both <width> <format> ...)}
+
+A combination of \q{pad} and \q{trunc}, ensures the output width is
+exactly \q{<width>}, truncating if it goes over and padding if it goes
+under.
+
+
+\subsection{Format Variables}
+
+You may have noticed many of the formatters are aware of the current
+column.  This is because each combinator is actually a procedure of
+one argument, the current format state, which holds basic
+information such as the row, column, and any other information that
+a format combinator may want to keep track of.  The basic interface
+is:
+
+\subsubsection*{(fmt-let <name> <value> <format> ...)}
+\subsubsection*{(fmt-bind <name> <value> <format> ...)}
+
+\q{fmt-let} sets the name for the duration of the \q{<format>}s, and
+restores it on return.  \q{fmt-bind} sets it without restoring it.
+
+A convenience control structure can be useful in combination with
+these states:
+
+\subsubsection*{(fmt-if <pred> <pass> [<fail>])}
+
+\q{<pred>} takes one argument (the format state) and returns a boolean
+result.  If true, the \q{<pass>} format is applied to the state,
+otherwise \q{<fail>} (defaulting to the identity) is applied.
+
+Many of the previously mentioned combinators have behavior which can
+be altered with state variables.  Although \q{fmt-let} and \q{fmt-bind}
+could be used, these common variables have shortcuts:
+
+\subsubsection*{(radix <k> <format> ...)}
+\subsubsection*{(fix <k> <format> ...)}
+
+These alter the radix and fixed point precision of numbers output with
+\q{dsp}, \q{wrt}, \q{pretty} or \q{num}.  These settings apply
+recursively to all output data structures, so that
+
+  \q{(fmt #f (radix 16 '(70 80 90)))}
+
+will return the string \q{"(#x46 #x50 #x5a)"}.  Note that read/write
+invariance is essential, so for \q{dsp}, \q{wrt} and \q{pretty} the
+radix prefix is always included when not decimal.  Use \q{num} if you
+want to format numbers in alternate bases without this prefix.  For
+example,
+
+  \q{(fmt #f (radix 16 "(" (fmt-join num '(70 80 90) " ") ")"))}
+
+would return \q{"(46 50 5a)"}, the same output as above without the
+"#x" radix prefix.
+
+Note that fixed point formatting supports arbitrary precision in
+implementations with exact non-integral rationals.  When trying to
+print inexact numbers more than the machine precision you will
+typically get results like
+
+  \q{(fmt #f (fix 30 #i2/3))}
+
+  \q{=> "0.666666666666666600000000000000"}
+
+but with an exact rational it will give you as many digits as you
+request:
+
+  \q{(fmt #f (fix 30 2/3))}
+
+  \q{=> "0.666666666666666666666666666667"}
+
+\subsubsection*{(decimal-align <k> <format> ...)}
+
+Specifies an alignment for the decimal place when formatting numbers,
+useful for outputting tables of numbers.
+
+\q{
+  (define (print-angles x)
+     (fmt-join num (list x (sin x) (cos x) (tan x)) " "))
+
+  (fmt #t (decimal-align 5 (fix 3 (fmt-join/suffix print-angles (iota 5) nl))))
+}
+
+would output
+
+\p{
+   0.000    0.000    1.000    0.000
+   1.000    0.842    0.540    1.557
+   2.000    0.909   -0.416   -2.185
+   3.000    0.141   -0.990   -0.142
+   4.000   -0.757   -0.654    1.158
+}
+
+\subsubsection*{(comma-char <k> <format> ...)}
+\subsubsection*{(decimal-char <k> <format> ...)}
+
+\q{comma-char} and \q{decimal-char} set the defaults for number
+formatting.
+
+\subsubsection*{(pad-char <k> <format> ...)}
+
+The \q{pad-char} sets the character used by \q{space-to}, \q{tab-to},
+\q{pad/*}, and \q{fit/*}, and defaults to \q{#\space}.
+
+\q{
+  (define (print-table-of-contents alist)
+    (define (print-line x)
+      (cat (car x) (space-to 72) (pad/left 3 (cdr x))))
+    (fmt #t (pad-char #\. (fmt-join/suffix print-line alist nl))))
+
+  (print-table-of-contents
+   '(("An Unexpected Party" . 29)
+     ("Roast Mutton" . 60)
+     ("A Short Rest" . 87)
+     ("Over Hill and Under Hill" . 100)
+     ("Riddles in the Dark" . 115)))
+}
+
+would output
+
+\p{
+  An Unexpected Party.....................................................29
+  Roast Mutton............................................................60
+  A Short Rest............................................................87
+  Over Hill and Under Hill...............................................100
+  Riddles in the Dark....................................................115
+}
+
+\subsubsection*{(ellipse <ell> <format> ...)}
+
+Sets the truncation ellipse to \q{<ell>}, would should be a string or
+character.
+
+\subsubsection*{(with-width <width> <format> ...)}
+
+Sets the maximum column width used by some formatters.  The default
+is 78.
+
+
+\subsection{Columnar Formatting}
+
+Although \q{tab-to}, \q{space-to} and padding can be used to manually
+align columns to produce table-like output, these can be awkward to
+use.  The optional extensions in this section make this easier.
+
+\subsubsection*{(columnar <column> ...)}
+
+Formats each \q{<column>} side-by-side, i.e. as though each were
+formatted separately and then the individual lines concatenated
+together.  The current column width is divided evenly among the
+columns, and all but the last column are right-padded.  For example
+
+  \q{(fmt #t (columnar (dsp "abc\\ndef\\n") (dsp "123\\n456\\n")))}
+
+outputs
+
+\p{
+     abc     123
+     def     456
+}
+
+assuming a 16-char width (the left side gets half the width, or 8
+spaces, and is left aligned).  Note that we explicitly use DSP instead
+of the strings directly.  This is because \q{columnar} treats raw
+strings as literals inserted into the given location on every line, to
+be used as borders, for example:
+
+\q{
+  (fmt #t (columnar "/* " (dsp "abc\\ndef\\n")
+                    " | " (dsp "123\\n456\\n")
+                    " */"))
+}
+
+would output
+
+\p{
+  /* abc | 123 */
+  /* def | 456 */
+}
+
+You may also prefix any column with any of the symbols \q{'left},
+\q{'right} or \q{'center} to control the justification.  The symbol
+\q{'infinite} can be used to indicate the column generates an infinite
+stream of output.
+
+You can further prefix any column with a width modifier.  Any
+positive integer is treated as a fixed width, ignoring the available
+width.  Any real number between 0 and 1 indicates a fraction of the
+available width (after subtracting out any fixed widths).  Columns
+with unspecified width divide up the remaining width evenly.
+
+Note that \q{columnar} builds its output incrementally, interleaving
+calls to the generators until each has produced a line, then
+concatenating that line together and outputting it.  This is important
+because as noted above, some columns may produce an infinite stream of
+output, and in general you may want to format data larger than can fit
+into memory.  Thus columnar would be suitable for line numbering a
+file of arbitrary size, or implementing the Unix \q{yes(1)} command,
+etc.
+
+As an implementation detail, \q{columnar} uses first-class
+continuations to interleave the column output.  The core \q{fmt}
+itself has no knowledge of or special support for \q{columnar}, which
+could complicate and potentially slow down simpler \q{fmt} operations.
+This is a testament to the power of \q{call/cc} - it can be used to
+implement coroutines or arbitrary control structures even where they
+were not planned for.
+
+\subsubsection*{(tabular <column> ...)}
+
+Equivalent to \q{columnar} except that each column is padded at least
+to the minimum width required on any of its lines.  Thus
+
+  \q{(fmt #t (tabular "|" (dsp "a\\nbc\\ndef\\n") "|" (dsp "123\\n45\\n6\\n") "|"))}
+
+outputs
+
+\p{
+|a  |123|
+|bc |45 |
+|def|6  |
+}
+
+This makes it easier to generate tables without knowing widths in
+advance.  However, because it requires generating the entire output in
+advance to determine the correct column widths, \q{tabular} cannot
+format a table larger than would fit in memory.
+
+\subsubsection*{(fmt-columns <column> ...)}
+
+The low-level formatter on which \q{columnar} is based.  Each \q{<column>}
+must be a list of 2-3 elements:
+
+  \q{(<line-formatter> <line-generator> [<infinite?>])}
+
+where \q{<line-generator>} is the column generator as above, and the
+\q{<line-formatter>} is how each line is formatted.  Raw concatenation
+of each line is performed, without any spacing or width adjustment.
+\q{<infinite?>}, if true, indicates this generator produces an
+infinite number of lines and termination should be determined without
+it.
+
+\subsubsection*{(wrap-lines <format> ...)}
+
+Behaves like \q{cat}, except text is accumulated and lines are optimally
+wrapped to fit in the current width as in the Unix \p{fmt(1)} command.
+
+\subsubsection*{(justify <format> ...)}
+
+Like \q{wrap-lines} except the lines are full-justified.
+
+\q{
+  (define func
+    '(define (fold kons knil ls)
+       (let lp ((ls ls) (acc knil))
+         (if (null? ls) acc (lp (cdr ls) (kons (car ls) acc))))))
+
+  (define doc
+    (string-append
+      "The fundamental list iterator.  Applies KONS to each element "
+      "of LS and the result of the previous application, beginning "
+      "with KNIL.  With KONS as CONS and KNIL as '(), equivalent to REVERSE."))
+
+  (fmt #t (columnar (pretty func) " ; " (justify doc)))
+}
+
+outputs
+
+\p{
+  (define (fold kons knil ls)          ; The   fundamental   list   iterator.
+    (let lp ((ls ls) (acc knil))       ; Applies  KONS  to  each  element  of
+      (if (null? ls)                   ; LS  and  the  result of the previous
+          acc                          ; application,  beginning  with  KNIL.
+          (lp (cdr ls)                 ; With  KONS  as CONS and KNIL as '(),
+              (kons (car ls) acc)))))  ; equivalent to REVERSE.
+}
+
+\subsubsection*{(fmt-file <pathname>)}
+
+Simply displayes the contents of the file \q{<pathname>} a line at a
+time, so that in typical formatters such as \q{columnar} only constant
+memory is consumed, making this suitable for formatting files of
+arbitrary size.
+
+\subsubsection*{(line-numbers [<start>])}
+
+A convenience utility, just formats an infinite stream of numbers (in
+the current radix) beginning with \q{<start>}, which defaults to \q{1}.
+
+The Unix \q{nl(1)} utility could be implemented as:
+
+\q{
+  (fmt #t (columnar 6 'right 'infinite (line-numbers)
+                    " " (fmt-file "read-line.scm")))
+}
+
+\p{
+     1 
+     2 (define (read-line . o)
+     3   (let ((port (if (pair? o) (car o) (current-input-port))))
+     4     (let lp ((res '()))
+     5       (let ((c (read-char port)))
+     6         (if (or (eof-object? c) (eqv? c #\newline))
+     7             (list->string (reverse res))
+     8             (lp (cons c res)))))))
+}
+
+\section{C Formatting}
+
+\subsection{C Formatting Basics}
+
+For purposes such as writing wrappers, code-generators, compilers or
+other language tools, people often need to generate or emit C code.
+Without a decent library framework it's difficult to maintain proper
+indentation.  In addition, for the Scheme programmer it's tedious to
+work with all the context sensitivities of C, such as the expression
+vs. statement distinction, special rules for writing preprocessor
+macros, and when precedence rules require parenthesis.  Fortunately,
+context is one thing this formatting library is good at keeping
+track of.  The C formatting interface tries to make it as easy as
+possible to generate C code without getting in your way.
+
+There are two approaches to using the C formatting extensions -
+procedural and sexp-oriented (described in \ref{csexprs}).  In the
+procedural interface, C operators are made available as formatters
+with a "c-" prefix, literals are converted to their C equivalents and
+symbols are output as-is (you're responsible for making sure they are
+valid C identifiers).  Indentation is handled automatically.
+
+  \q{(fmt #t (c-if 1 2 3))}
+
+outputs
+
+\p{
+  if (1) {
+      2;
+  } else {
+      3;
+  }
+}
+
+In addition, the formatter knows when you're in an expression and
+when you're in a statement, and behaves accordingly, so that
+
+  \q{(fmt #t (c-if (c-if 1 2 3) 4 5))}
+
+outputs
+
+\p{
+  if (1 ? 2 : 3) {
+      4;
+  } else {
+      5;
+  }
+}
+
+Similary, \q{c-begin}, used for sequencing, will separate with
+semi-colons in a statement and commas in an expression.
+
+Moreover, we also keep track of the final expression in a function
+and insert returns for you:
+
+  \q{(fmt #t (c-fun 'int 'foo '() (c-if (c-if 1 2 3) 4 5)))}
+
+outputs
+
+\p{
+  int foo () {
+      if (1 ? 2 : 3) {
+          return 4;
+      } else {
+          return 5;
+      }
+  }
+}
+
+although it knows that void functions don't return.
+
+Switch statements insert breaks by default if they don't return:
+
+\q{
+  (fmt #t (c-switch 'y
+            (c-case 1 (c+= 'x 1))
+            (c-default (c+= 'x 2))))
+}
+
+\p{
+  switch (y) {
+      case 1:
+          x += 1;
+          break;
+      default:
+          x += 2;
+          break;
+  }
+}
+
+though you can explicitly fallthrough if you want:
+
+\q{
+  (fmt #t (c-switch 'y
+            (c-case/fallthrough 1 (c+= 'x 1))
+            (c-default (c+= 'x 2))))
+}
+
+\p{
+  switch (y) {
+      case 1:
+          x += 1;
+      default:
+          x += 2;
+          break;
+  }
+}
+
+Operators are available with just a "c" prefix, e.g. c+, c-, c*, c/,
+etc.  \q{c++} is a prefix operator, \q{c++/post} is postfix.  ||, | and
+|= are written as \q{c-or}, \q{c-bit-or} and \q{c-bit-or=} respectively.
+
+Function applications are written with \q{c-apply}.  Other control
+structures such as \q{c-for} and \q{c-while} work as expected.  The full
+list is in the procedure index below.
+
+When a C formatter encounters an object it doesn't know how to write
+(including lists and records), it outputs them according to the
+format state's current \q{'gen} variable.  This allows you to specify
+generators for your own types, e.g. if you are using your own AST
+records in a compiler.
+
+If the \q{'gen} variable isn't set it defaults to the \q{c-expr/sexp}
+procedure, which formats an s-expression as if it were C code.  Thus
+instead of \q{c-apply} you can just use a list.  The full API is
+available via normal s-expressions - formatters that aren't keywords
+in C are prefixed with a % or otherwise made invalid C identifiers so
+that they can't be confused with function application.
+
+
+\subsection{C Preprocessor Formatting}
+
+C preprocessor formatters also properly handle their surrounding
+context, so you can safely intermix them in the normal flow of C
+code.
+
+\q{
+  (fmt #t (c-switch 'y
+            (c-case 1 (c= 'x 1))
+            (cpp-ifdef 'H_TWO (c-case 2 (c= 'x 4)))
+            (c-default (c= 'x 5))))
+}
+
+\p{
+  switch (y) {
+      case 1:
+          x = 1;
+          break;
+
+  #ifdef H_TWO
+      case 2:
+          x = 4;
+          break;
+  #endif /* H_TWO */
+      default:
+          x = 5;
+          break;
+  }
+}
+
+Macros can be handled with \q{cpp-define}, which knows to wrap
+individual variable references in parenthesis:
+
+  \q{(fmt #t (cpp-define '(min x y) (c-if (c< 'x 'y) 'x 'y)))}
+
+\p{
+  #define min(x, y) (((x) < (y)) ? (x) : (y))
+}
+
+As with all C formatters, the CPP output is pretty printed as
+needed, and if it wraps over several lines the lines are terminated
+with a backslash.
+
+To write a C header file that is included at most once, you can wrap
+the entire body in \q{cpp-wrap-header}:
+
+\q{
+  (fmt #t (cpp-wrap-header "FOO_H"
+            (c-extern (c-prototype 'int 'foo '()))))
+}
+
+\p{
+  #ifndef FOO_H
+  #define FOO_H
+
+  extern int foo ();
+
+  #endif /* ! FOO_H */
+}
+
+
+\subsection{Customizing C Style}
+
+The output uses a simplified K&R style with 4 spaces for indentation
+by default.  The following state variables let you override the
+style:
+
+\subsubsection*{'indent-space}
+
+how many spaces to indent bodies, default \q{4}
+
+\subsubsection*{'switch-indent-space}
+
+how many spaces to indent switch clauses, also defaults to \q{4}
+
+\subsubsection*{'newline-before-brace?}
+
+insert a newline before an open brace (non-K&R), defaults  to \q{#f}
+
+\subsubsection*{'braceless-bodies?}
+
+omit braces when we can prove they aren't needed
+
+\subsubsection*{'non-spaced-ops?}
+
+omit spaces between operators and operands for groups of variables and
+literals (e.g. "a+b+3" instead of "a + b + 3"}
+
+\subsubsection*{'no-wrap?}
+
+Don't wrap function calls and long operator groups over mulitple
+lines.  Functions and control structures will still use multiple
+lines.
+
+The C formatters also respect the \q{'radix} and \q{'precision} settings.
+
+
+\subsection{C Formatter Index}
+
+\subsubsection*{(c-if <condition> <pass> [<fail> [<condition2> <pass2> ...]])}
+
+Print a chain of if/else conditions.  Use a final condition of \q{'else}
+for a final else clause.
+
+\subsubsection*{(c-for <init> <condition> <update> <body> ...)}
+\subsubsection*{(c-while <condition> <body> ...)}
+
+Basic loop constructs.
+
+\subsubsection*{(c-fun <type> <name> <params> <body> ...)}
+\subsubsection*{(c-prototype <type> <name> <params>)}
+
+Output a function or function prototype.  The parameters should be a
+list 2-element lists of the form \q{(<param-type> <param-name>)},
+which are output with DSP.  A parameter can be abbreviated as just the
+symbol name, or \q{#f} can be passed as the type, in which case the
+\q{'default-type} state variable is used.  The parameters may be a
+dotted list, in which case ellipses for a C variadic are inserted -
+the actual name of the dotted value is ignored.
+
+Types are just typically just symbols, or lists of symbols such as
+\q{'(const char)}.  A complete description is given below in section
+\ref{ctypes}.
+
+These can also accessed as %fun and %prototype at the head of a list.
+
+\subsubsection*{(c-var <type> <name> [<init-value>])}
+
+Declares and optionally initializes a variable.  Also accessed as %var
+at the head of a list.
+
+\subsubsection*{(c-begin <expr> ...)}
+
+Outputs each of the <expr>s, separated by semi-colons if in a
+statement or commas if in an expression.
+
+\subsubsection*{(c-switch <clause> ...)}
+\subsubsection*{(c-case <values> <body> ...)}
+\subsubsection*{(c-case/fallthrough <values> <body> ...)}
+\subsubsection*{(c-default <body> ...)}
+
+Switch statements.  In addition to using the clause formatters,
+clauses inside a switch may be handled with a Scheme CASE-like list,
+with the car a list of case values and the cdr the body.
+
+\subsubsection*{(c-label <name>)}
+\subsubsection*{(c-goto <name>)}
+\subsubsection*{(c-return [<result>])}
+\subsubsection*{c-break}
+\subsubsection*{c-continue}
+
+Manual labels and jumps.  Labels can also be accessed as a list
+beginning with a colon, e.g. \q{'(: label1)}.
+
+\subsubsection*{(c-const <expr>)}
+\subsubsection*{(c-static <expr>)}
+\subsubsection*{(c-volatile <expr>)}
+\subsubsection*{(c-restrict <expr>)}
+\subsubsection*{(c-register <expr>)}
+\subsubsection*{(c-auto <expr>)}
+\subsubsection*{(c-inline <expr>)}
+\subsubsection*{(c-extern <expr>)}
+
+Declaration modifiers.  May be nested.
+
+\subsubsection*{(c-extern/C <body> ...)}
+
+Wraps body in an extern "C" { ... } for use with C++.
+
+\subsubsection*{(c-cast <type> <expr>)}
+
+Casts an expression to a type.  Also %cast at the head of a list.
+
+\subsubsection*{(c-typedef <type> <new-name> ...)}
+
+Creates a new type definition with one or more names.
+
+\subsubsection*{(c-struct [<name>] <field-list> [<attributes>])}
+\subsubsection*{(c-union [<name>] <field-list> [<attributes>])}
+\subsubsection*{(c-class [<name>] <field-list> [<attributes>])}
+\subsubsection*{(c-attribute <values> ...)}
+
+Composite type constructors.  Attributes may be accessed as
+%attribute at the head of a list.
+
+\q{
+  (fmt #f (c-struct 'employee
+                      '((short age)
+                        ((char *) name)
+                        ((struct (year month day)) dob))
+                      (c-attribute 'packed)))
+}
+
+\p{
+  struct employee {
+      short age;
+      char* name;
+      struct {
+          int year;
+          int month;
+          int day;
+      } dob;
+  } __attribute__ ((packed));
+}
+
+\subsubsection*{(c-enum [<name>] <enum-list>)}
+
+Enumerated types.  \q{<enum-list>} may be strings, symbols, or lists of
+string or symbol followed by the enum's value.
+
+\subsubsection*{(c-comment <formatter> ...)}
+
+Outputs the \q{<formatter>}s wrapped in C's /* ... */ comment.  Properly
+escapes nested comments inside in an Emacs-friendly style.
+
+\subsection{C Preprocessor Formatter Index}
+
+\subsubsection*{(cpp-include <file>)}
+
+If file is a string, outputs in it "quotes", otherwise (as a symbol
+or arbitrary formatter) it outputs it in brackets.
+
+  \q{(fmt #f (cpp-include 'stdio.h))}
+
+  \q{=> "#include <stdio.h>\n"}
+
+  \q{(fmt #f (cpp-include "config.h"))}
+
+  \q{=> "#include \"config.h\"\n"}
+
+\subsubsection*{(cpp-define <macro> [<value>])}
+
+Defines a preprocessor macro, which may be just a name or a list of
+name and parameters.  Properly wraps the value in parenthesis and
+escapes newlines.  A dotted parameter list will use the C99 variadic
+macro syntax, and will also substitute any references to the dotted
+name with \p{__VA_ARGS__}:
+
+  \q{(fmt #t (cpp-define '(eprintf . args) '(fprintf stderr args)))}
+
+\p{
+  #define eprintf(...) (fprintf(stderr, __VA_ARGS__))
+}
+
+\subsubsection*{(cpp-if <condition> <pass> [<fail> ...])}
+\subsubsection*{(cpp-ifdef <condition> <pass> [<fail> ...])}
+\subsubsection*{(cpp-ifndef <condition> <pass> [<fail> ...])}
+\subsubsection*{(cpp-elif <condition> <pass> [<fail> ...])}
+\subsubsection*{(cpp-else <body> ...)}
+
+Conditional compilation.
+
+\subsubsection*{(cpp-line <num> [<file>])}
+
+Line number information.
+
+\subsubsection*{(cpp-pragma <args> ...)}
+\subsubsection*{(cpp-error <args> ...)}
+\subsubsection*{(cpp-warning <args> ...)}
+
+Additional preprocessor directives.
+
+\subsubsection*{(cpp-stringify <expr>)}
+
+Stringifies \q{<expr>} by prefixing the # operator.
+
+\subsubsection*{(cpp-sym-cat <args> ...)}
+
+Joins the \q{<args>} into a single preprocessor token with the ##
+operator.
+
+\subsubsection*{(cpp-wrap-header <name> <body> ...)}
+
+Wrap an entire header to only be included once.
+
+\subsubsection*{Operators:}
+
+\q{
+c++ c-- c+ c- c* c/ c% c& c^ c~ c! c&& c<< c>> c== c!=
+c< c> c<= c>= c= c+= c-= c*= c/= c%= c&= c^= c<<= c>>=
+c++/post c--/post c-or c-bit-or c-bit-or=
+}
+
+\subsection{C Types}
+\label{ctypes}
+
+Typically a type is just a symbol such as \q{'char} or \q{'int}.  You
+can wrap types with modifiers such as \q{c-const}, but as a
+convenience you can just use a list such as in \q{'(const unsignedchar *)}.
+You can also nest these lists, so the previous example is
+equivalent to \q{'(* (const (unsigned char)))}.
+
+Pointers may be written as \q{'(%pointer <type>)} for readability -
+\q{%pointer} is exactly equivalent to \q{*} in types.
+
+Unamed structs, classes, unions and enums may be used directly as
+types, using their respective keywords at the head of a list.
+
+Two special types are the %array type and function pointer type.  An
+array is written:
+
+  \q{(%array <type> [<size>])}
+
+where \q{<type>} is any other type (including another array or
+function pointer), and \q{<size>}, if given, will print the array
+size.  For example:
+
+  \q{(c-var '(%array (unsigned long) SIZE) 'table '#(1 2 3 4))}
+
+\p{
+unsigned long table[SIZE] = {1, 2, 3, 4};
+}
+
+A function pointer is written:
+
+  \q{(%fun <return-type> (<param-types> ...))}
+
+For example:
+
+  \q{(c-typedef '(%fun double (double double int)) 'f)}
+
+\p{
+typedef double (*f)(double, double, int);
+}
+
+Wherever a type is expected but not given, the value of the
+\q{'default-type} formatting state variable is used.  By default this
+is just \q{'int}.
+
+Type declarations work uniformly for variables and parameters, as well
+for casts and typedefs.
+
+\subsection{C as S-Expressions}
+\label{csexprs}
+
+Rather than building formatting closures by hand, it can be more
+convenient to just build a normal s-expression and ask for it to be
+formatted as C code.  This can be thought of as a simple Scheme->C
+compiler without any runtime support.
+
+In a s-expression, strings and characters are printed as C strings and
+characters, booleans are printed as 0 or 1, symbols are displayed
+as-is, and numbers are printed as C numbers (using the current
+formatting radix if specified).  Vectors are printed as
+comma-separated lists wrapped in braces, which can be used for
+initializing arrays or structs.
+
+A list indicates a C expression or statement.  Any of the existing C
+keywords can be used to pretty-print the expression as described with
+the c-keyword formatters above.  Thus, the example above
+
+  \q{(fmt #t (c-if (c-if 1 2 3) 4 5))}
+
+could also be written
+
+  \q{(fmt #t (c-expr '(if (if 1 2 3) 4 5)))}
+
+C constructs that are dependent on the underlying syntax and have no
+keyword are written with a % prefix (\q{%fun}, \q{%var}, \q{%pointer},
+\q{%array}, \q{%cast}), including C preprocessor constructs
+(\q{%include}, \q{%define}, \q{%pragma}, \q{%error}, \q{%warning},
+\q{%if}, \q{%ifdef}, \q{%ifndef}, \q{%elif}).  Labels are written as
+\q{(: <label-name>)}.  You can write a sequence as \q{(%begin <expr>
+...)}.
+
+For example, the following definition of the fibonacci sequence, which
+apart from the return type of \q{#f} looks like a Lisp definition:
+
+  \q{(fmt #t (c-expr '(%fun #f fib (n)
+                         (if (<= n 1)
+                             1
+                             (+ (fib (- n 1)) (fib (- n 2)))))))}
+
+prints the working C definition:
+
+\p{
+int fib (int n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return fib((n - 1)) + fib((n - 2));
+    }
+}
+}
+
+\section{JavaScript Formatting}
+
+The experimental fmt-js library extends the fmt-c library with
+functionality for formatting JavaScript code.
+
+\subsubsection*{(js-expr x)}
+
+Formats a JavaScript expression similarly to \q{c-expr}.  Inside a
+\q{js-expr} formatter, you can use the normal \q{c-} prefixed
+formatters described in the previous section, and they will format
+appropriately for JavaScript.
+
+Currently expressions will all be terminated with a semi-colon, but
+that will be made optional in a later release.
+
+\subsubsection*{(js-function [<name>] (<params>) <body> ...)}
+
+Defines a function (anonymously if no name is provided).
+
+\subsubsection*{(js-var <name> [<init-value>])}
+
+Declares a JavaScript variable, optionally with an initial value.
+
+\subsubsection*{(js-comment <formatter> ...)}
+
+Formats a comment prefixing lines with \q{"// "}.
+
+\section{Formatting with Color}
+
+The fmt-color library provides the following utilities:
+
+\q{
+  (fmt-red <formatter> ...)
+  (fmt-blue <formatter> ...)
+  (fmt-green <formatter> ...)
+  (fmt-cyan <formatter> ...)
+  (fmt-yellow <formatter> ...)
+  (fmt-magenta <formatter> ...)
+  (fmt-white <formatter> ...)
+  (fmt-black <formatter> ...)
+  (fmt-bold <formatter> ...)
+  (fmt-underline <formatter> ...)
+}
+
+and more generally
+
+  \q{(fmt-color <color> <formatter> ...)}
+
+where color can be a symbol name or \q{#xRRGGBB} numeric value.
+Outputs the formatters colored with ANSI escapes.  In addition
+
+  \q{(fmt-in-html <formatter> ...)}
+
+can be used to mark the format state as being inside HTML, which the
+above color formats will understand and output HTML \q{<span>} tags with
+the appropriate style colors, instead of ANSI escapes.
+
+
+\section{Unicode}
+
+The fmt-unicode library provides the \q{fmt-unicode} formatter, which
+just takes a list of formatters and overrides the string-length for
+padding and trimming, such that Unicode double or full width
+characters are considered 2 characters wide (as they typically are in
+fixed-width terminals), while treating combining and non-spacing
+characters as 0 characters wide.
+
+It also recognizes and ignores ANSI escapes, in particular useful if
+you want to combine this with the fmt-color utilities.
+
+
+\section{Optimizing}
+
+The library is designed for scalability and flexibility, not speed,
+and I'm not going to think about any fine tuning until it's more
+stabilised.  One aspect of the design, however, was influenced for the
+sake of future optimizations, which is that none of the default format
+variables are initialized by global parameters, which leaves room for
+inlining and subsequent simplification of format calls.
+
+If you don't have an aggressively optimizing compiler, you can easily
+achieve large speedups on common cases with CL-style compiler macros.
+
+\section{Common Lisp Format Cheat Sheet}
+
+A quick reference for those of you switching over from Common Lisp's
+format.
+
+\table{
+\b{format} | \b{fmt}
+~a | \q{dsp}
+~c | \q{dsp}
+~s | \q{wrt/unshared}
+~w | \q{wrt}
+~y | \q{pretty}
+~x | \q{(radix 16 ...)} or \q{(num <n> 16)}
+~o | \q{(radix 8 ...)} or \q{(num <n> 8)}
+~b | \q{(radix 2 ...)} or \q{(num <n> 2)}
+~f | \q{(fix <digits> ...)} or \q{(num <n> <radix> <digits>)}
+~% | \q{nl}
+~& | \q{fl}
+~[...~] | normal \q{if} or \q{fmt-if} (delayed test)
+~{...~} | \q{(fmt-join ... <list> [<sep>])}
+}
+
+\section{References}
+
+\bibitem{R5RS} R. Kelsey, W. Clinger, J. Rees (eds.)
+\urlh{http://www.schemers.org/Documents/Standards/R5RS/}{Revised^5 Report on the Algorithmic Language Scheme}
+
+\bibitem{CommonLisp} Guy L. Steele Jr. (editor)
+\urlh{http://www.harlequin.com/education/books/HyperSpec/}{Common Lisp Hyperspec}
+
+\bibitem{SRFI-28} Scott G. Miller
+\urlh{http://srfi.schemers.org/srfi-28/}{SRFI-28 Basic Format Strings}
+
+\bibitem{SRFI-48} Ken Dickey
+\urlh{http://srfi.schemers.org/srfi-48/}{SRFI-48 Intermediate Format Strings}
+
+\bibitem{SRFI-38} Ray Dillinger
+\urlh{http://srfi.schemers.org/srfi-38/}{SRFI-38 External Representation for Data With Shared Structure}
+
+\bibitem{Perl6} Damian Conway
+\urlh{http://www.perl.com/lpt/a/819}{Perl6 Exegesis 7 - formatting}
+
+\eval(display "<br /><br /><br /><br />\n")
+

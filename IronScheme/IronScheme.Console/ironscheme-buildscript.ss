@@ -295,6 +295,7 @@
     (fx*internal                                ic)
     (fxarithmetic-shift-left-internal           ic)
     (with-timeout                               i)
+    (file-mtime                                 i)
     (allow-library-redefinition                 i)
     (open-package                               i)
     (with-clr-exception-handler                 i)

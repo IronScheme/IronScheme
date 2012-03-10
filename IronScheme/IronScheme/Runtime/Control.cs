@@ -35,6 +35,9 @@ namespace IronScheme.Runtime
       if (args.Length > 1)
       {
         Expression arg = Ast.ConvertHelper(args[args.Length - 1], typeof(object));
+        
+        if (arg.IsConstant(null)) Debugger.Break();
+
         for (int i = args.Length - 2; i > 0; i--)
         {
           arg = MakeCons(args[i], arg);

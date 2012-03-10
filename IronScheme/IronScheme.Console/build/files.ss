@@ -10,6 +10,7 @@ See docs/license.txt. |#
     delete-file
     get-directory-name
     file-newer?
+    file-mtime
     )
     
   (import 
@@ -18,6 +19,7 @@ See docs/license.txt. |#
     (ironscheme clr))
     
   (clr-using System.IO)
+  (clr-using Oyster.Math)
     
   (define/contract (file-exists? fn:string)
     (clr-static-call File Exists fn))
@@ -30,6 +32,10 @@ See docs/license.txt. |#
     
   (define (get-last-write-time filename)
     (clr-static-call File GetLastWriteTime filename))
+    
+  (define (file-mtime filename)
+    (let ((dt (clr-static-call File GetLastWriteTime filename)))
+      (clr-static-call IntX (Create Int64) (clr-prop-get DateTime Ticks dt))))
     
   (define (compare-time t1 t2)
     (clr-call IComparable CompareTo t1 t2))    
