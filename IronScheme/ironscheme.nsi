@@ -1,5 +1,14 @@
 
 
+!macro NET2
+!macroend
+
+!ifmacrodef NET4
+!define NETVERSION "NET4"
+!else
+!define NETVERSION "NET2"
+!endif
+
 !include "x64.nsh"
 
 !define PRODUCT_NAME "IronScheme"
@@ -13,13 +22,12 @@
 SetCompressor /SOLID lzma
 XPStyle on
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "IronScheme-${PRODUCT_VERSION}-setup.exe"
+Name "${PRODUCT_NAME} ${PRODUCT_VERSION} ${NETVERSION}"
+OutFile "IronScheme-${PRODUCT_VERSION}-${NETVERSION}-setup.exe"
 InstallDir "$PROGRAMFILES\IronScheme"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
-
 
 !include "MUI2.nsh"
 
@@ -48,37 +56,10 @@ ShowUnInstDetails show
 ; Language files
 !insertmacro MUI_LANGUAGE "English"
 
-
-
 ; MUI end ------
 
-!define BASE_URL http://download.microsoft.com/download
-!define URL_DOTNET "http://download.microsoft.com/download/c/6/e/c6e88215-0178-4c6c-b5f3-158ff77b1f38/NetFx20SP2_x86.exe"
-
-LangString DESC_SHORTDOTNET ${LANG_ENGLISH} ".Net Framework 2.0 SP2"
-LangString DESC_LONGDOTNET ${LANG_ENGLISH} "Microsoft .Net Framework 2.0 SP2"
-LangString DESC_DOTNET_DECISION ${LANG_ENGLISH} "$(DESC_SHORTDOTNET) is required.$\nIt is strongly \
-  advised that you install$\n$(DESC_SHORTDOTNET) before continuing.$\nIf you choose to continue, \
-  you will need to connect$\nto the internet before proceeding.$\nWould you like to continue with \
-  the installation?"
-LangString SEC_DOTNET ${LANG_ENGLISH} "$(DESC_SHORTDOTNET) "
-LangString DESC_INSTALLING ${LANG_ENGLISH} "Installing"
-LangString DESC_DOWNLOADING1 ${LANG_ENGLISH} "Downloading"
-LangString DESC_DOWNLOADFAILED ${LANG_ENGLISH} "Download Failed:"
-LangString ERROR_DOTNET_DUPLICATE_INSTANCE ${LANG_ENGLISH} "The $(DESC_SHORTDOTNET) Installer is \
-  already running."
-LangString ERROR_NOT_ADMINISTRATOR ${LANG_ENGLISH} "$(DESC_000022)"
-LangString ERROR_INVALID_PLATFORM ${LANG_ENGLISH} "$(DESC_000023)"
-LangString DESC_DOTNET_TIMEOUT ${LANG_ENGLISH} "The installation of the $(DESC_SHORTDOTNET) \
-  has timed out."
-LangString ERROR_DOTNET_INVALID_PATH ${LANG_ENGLISH} "The $(DESC_SHORTDOTNET) Installation$\n\
-  was not found in the following location:$\n"
-LangString ERROR_DOTNET_FATAL ${LANG_ENGLISH} "A fatal error occurred during the installation$\n\
-  of the $(DESC_SHORTDOTNET)."
-LangString FAILED_DOTNET_INSTALL ${LANG_ENGLISH} "The installation of $(PRODUCT_NAME) will$\n\
-  continue. However, it may not function properly$\nuntil $(DESC_SHORTDOTNET)$\nis installed."
-
 Var NETPATH
+var NETROOT
 
 ; IsDotNETInstalled
 ;
@@ -94,50 +75,63 @@ Function IsDotNETInstalled
    Push $3
    Push $4
 
-   ReadRegStr $4 HKEY_LOCAL_MACHINE \
-     "Software\Microsoft\.NETFramework" "InstallRoot"
+   ReadRegStr $4 HKEY_LOCAL_MACHINE "Software\Microsoft\.NETFramework" "InstallRoot"
    # remove trailing back slash
    Push $4
    Exch $EXEDIR
    Exch $EXEDIR
    Pop $4
    # if the root directory doesn't exist .NET is not installed
+   ;DetailPrint "InstallRoot = $4"
    IfFileExists $4 0 noDotNET
 
    StrCpy $0 0
+   StrCpy $NETROOT $4
 
-   EnumStart:
+ EnumStart:
+   EnumRegKey $2 HKEY_LOCAL_MACHINE "Software\Microsoft\.NETFramework\Policy"  $0
+   IntOp $0 $0 + 1
+   ;DetailPrint "Policy = $2"
+   StrCmp $2 "" noDotNET
+   StrCpy $1 0
 
-     EnumRegKey $2 HKEY_LOCAL_MACHINE \
-       "Software\Microsoft\.NETFramework\Policy"  $0
-     IntOp $0 $0 + 1
-     StrCmp $2 "" noDotNET
+ EnumPolicy:
+   EnumRegValue $3 HKEY_LOCAL_MACHINE "Software\Microsoft\.NETFramework\Policy\$2" $1
+   IntOp $1 $1 + 1
+   ;DetailPrint "PolicyKey = $3"
+   StrCmp $3 "" EnumStart
+!ifmacrondef NET4
+   ;DetailPrint "Check for .NET 2 @ $4\v2.0.$3"
+   IfFileExists "$4\v2.0.$3" foundDotNET2 
+!else
+   ;DetailPrint "Check for .NET 4 @ $4\v4.0.$3"
+   IfFileExists "$4\v4.0.$3" foundDotNET4 
+!endif
+   Goto EnumPolicy
 
-     StrCpy $1 0
+  noDotNET:
+    DetailPrint ".NET not detected."
+    StrCpy $0 0
+    Goto done
 
-     EnumPolicy:
+!ifmacrondef NET4
+  foundDotNET2:
+    DetailPrint ".NET 2.0 detected @ $4\v2.0.$3."
+    StrCpy $0 "$4\v2.0.$3"
+    Goto done
+!else
+  foundDotNET4:
+    DetailPrint ".NET 4.0 detected @ $4\v4.0.$3."
+    StrCpy $0 "$4\v4.0.$3"
+    Goto done
+!endif
 
-       EnumRegValue $3 HKEY_LOCAL_MACHINE \
-         "Software\Microsoft\.NETFramework\Policy\$2" $1
-       IntOp $1 $1 + 1
-        StrCmp $3 "" EnumStart
-         IfFileExists "$4\v2.0.$3" foundDotNET EnumPolicy
-
-   noDotNET:
-     DetailPrint ".NET 2.0 not detected."
-     StrCpy $0 0
-     Goto done
-
-   foundDotNET:
-     DetailPrint ".NET 2.0 detected @ $4\v2.0.$3."
-     StrCpy $0 "$4\v2.0.$3"
-
-   done:
-     Pop $4
-     Pop $3
-     Pop $2
-     Pop $1
-     Exch $0
+  done:
+    Pop $4
+    Pop $3
+    Pop $2
+    Pop $1
+    Exch $0
 FunctionEnd
 
 InstType "Full"
@@ -147,8 +141,10 @@ Function .onInit
 
 ${If} ${RunningX64}
   StrCpy $INSTDIR "$PROGRAMFILES64\IronScheme"
+  SetRegView 64
 ${Else}
   StrCpy $INSTDIR "$PROGRAMFILES\IronScheme"
+  SetRegView 32
 ${EndIf}
   
 FunctionEnd
@@ -156,28 +152,12 @@ FunctionEnd
 Section -$(SEC_DOTNET) SECDOTNET
 SectionIn 1 2 RO
 
-Goto Start
-
-AbortInstall:
-Abort
-
-Start:
 Call IsDotNETInstalled
 Pop $NETPATH
 StrCmp $NETPATH 0 PromptDownload Install
 
 PromptDownload:
-
-MessageBox MB_ICONEXCLAMATION|MB_YESNO|MB_DEFBUTTON2 "$(DESC_DOTNET_DECISION)" /SD IDNO IDYES DownloadNET IDNO AbortInstall
-
-DownloadNET:
-
-nsisdl::download /TIMEOUT=60000 "${URL_DOTNET}" "$TEMP\NetFx20SP2_x86.exe"
-Pop $0
-StrCmp "$0" "success" InstallNET AbortInstall
-
-InstallNET:
-Exec '"$TEMP\NetFx20SP2_x86.exe" /q:a /c:"install.exe /qb"'
+Abort  "Please install .NET first"
 
 Install:
 
@@ -190,13 +170,8 @@ SectionIn 1 2 RO
   
   DetailPrint "Removing previous native images (if any)..."
 
-${If} ${RunningX64}
-  nsExec::ExecToStack '"$WINDIR\Microsoft.NET\Framework64\v2.0.50727\ngen.exe" uninstall "$INSTDIR\IronScheme.Console.exe"'
-  nsExec::ExecToStack '"$WINDIR\Microsoft.NET\Framework64\v2.0.50727\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'  
-${Else}
   nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\IronScheme.Console.exe"'
   nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'
-${EndIf}
 
   CreateDirectory "$SMPROGRAMS\IronScheme"
 
@@ -312,13 +287,10 @@ SectionEnd
 Section -Post
   SetOutPath "$INSTDIR"
   DetailPrint "Generating native images..."
-${If} ${RunningX64}
-  nsExec::ExecToStack '"$WINDIR\Microsoft.NET\Framework64\v2.0.50727\ngen.exe" install "$INSTDIR\IronScheme.Console.exe"'
-  nsExec::ExecToStack '"$WINDIR\Microsoft.NET\Framework64\v2.0.50727\ngen.exe" install "$INSTDIR\ironscheme.boot.dll"'  
-${Else}
+
   nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\IronScheme.Console.exe"'
   nsExec::ExecToStack '"$NETPATH\ngen.exe" install "$INSTDIR\ironscheme.boot.dll"'
-${EndIf}  
+
   DetailPrint "Compiling system libraries..."
   nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.sps"'
   DetailPrint "Creating symbolic links..."
@@ -352,48 +324,63 @@ Function un.IsDotNETInstalled
    Push $3
    Push $4
 
-   ReadRegStr $4 HKEY_LOCAL_MACHINE \
-     "Software\Microsoft\.NETFramework" "InstallRoot"
+   ReadRegStr $4 HKEY_LOCAL_MACHINE "Software\Microsoft\.NETFramework" "InstallRoot"
    # remove trailing back slash
    Push $4
    Exch $EXEDIR
    Exch $EXEDIR
    Pop $4
    # if the root directory doesn't exist .NET is not installed
+   ;DetailPrint "InstallRoot = $4"
    IfFileExists $4 0 noDotNET
 
    StrCpy $0 0
+   StrCpy $NETROOT $4
 
-   EnumStart:
+ EnumStart:
+   EnumRegKey $2 HKEY_LOCAL_MACHINE "Software\Microsoft\.NETFramework\Policy"  $0
+   IntOp $0 $0 + 1
+   ;DetailPrint "Policy = $2"
+   StrCmp $2 "" noDotNET
+   StrCpy $1 0
 
-     EnumRegKey $2 HKEY_LOCAL_MACHINE \
-       "Software\Microsoft\.NETFramework\Policy"  $0
-     IntOp $0 $0 + 1
-     StrCmp $2 "" noDotNET
+ EnumPolicy:
+   EnumRegValue $3 HKEY_LOCAL_MACHINE "Software\Microsoft\.NETFramework\Policy\$2" $1
+   IntOp $1 $1 + 1
+   ;DetailPrint "PolicyKey = $3"
+   StrCmp $3 "" EnumStart
+!ifmacrondef NET4
+   ;DetailPrint "Check for .NET 2 @ $4\v2.0.$3"
+   IfFileExists "$4\v2.0.$3" foundDotNET2 
+!else
+   ;DetailPrint "Check for .NET 4 @ $4\v4.0.$3"
+   IfFileExists "$4\v4.0.$3" foundDotNET4 
+!endif
+   Goto EnumPolicy
 
-     StrCpy $1 0
+  noDotNET:
+    DetailPrint ".NET not detected."
+    StrCpy $0 0
+    Goto done
 
-     EnumPolicy:
+!ifmacrondef NET4
+  foundDotNET2:
+    DetailPrint ".NET 2.0 detected @ $4\v2.0.$3."
+    StrCpy $0 "$4\v2.0.$3"
+    Goto done
+!else
+  foundDotNET4:
+    DetailPrint ".NET 4.0 detected @ $4\v4.0.$3."
+    StrCpy $0 "$4\v4.0.$3"
+    Goto done
+!endif
 
-       EnumRegValue $3 HKEY_LOCAL_MACHINE \
-         "Software\Microsoft\.NETFramework\Policy\$2" $1
-       IntOp $1 $1 + 1
-        StrCmp $3 "" EnumStart
-         IfFileExists "$4\v2.0.$3" foundDotNET EnumPolicy
-
-   noDotNET:
-     StrCpy $0 0
-     Goto done
-
-   foundDotNET:
-     StrCpy $0 "$4\v2.0.$3"
-
-   done:
-     Pop $4
-     Pop $3
-     Pop $2
-     Pop $1
-     Exch $0
+  done:
+    Pop $4
+    Pop $3
+    Pop $2
+    Pop $1
+    Exch $0
 FunctionEnd
 
 Function un.onUninstSuccess
@@ -404,6 +391,15 @@ FunctionEnd
 Function un.onInit
   MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Are you sure you want to completely remove $(^Name) and all of its components?" IDYES +2
   Abort
+
+  ${If} ${RunningX64}
+    StrCpy $INSTDIR "$PROGRAMFILES64\IronScheme"
+    SetRegView 64
+  ${Else}
+    StrCpy $INSTDIR "$PROGRAMFILES\IronScheme"
+    SetRegView 32
+  ${EndIf}
+  
 FunctionEnd
 
 Section Uninstall
@@ -411,13 +407,8 @@ Section Uninstall
   Pop $NETPATH
 
   DetailPrint "Removing native images..."
-${If} ${RunningX64}
-  nsExec::ExecToStack '"$WINDIR\Microsoft.NET\Framework64\v2.0.50727\ngen.exe" uninstall "$INSTDIR\IronScheme.Console.exe"'
-  nsExec::ExecToStack '"$WINDIR\Microsoft.NET\Framework64\v2.0.50727\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'  
-${Else}
   nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\IronScheme.Console.exe"'
   nsExec::ExecToStack '"$NETPATH\ngen.exe" uninstall "$INSTDIR\ironscheme.boot.dll"'
-${EndIf}
   
   Delete "$DESKTOP\IronScheme.lnk"
 	
