@@ -173,10 +173,18 @@ namespace IronScheme
 
       var reset = new AutoResetEvent(false);
       object r = null;
+      Exception ex = null;
 
       var t = new Thread(() =>
       {
-        r = p();
+        try
+        {
+          r = p();
+        }
+        catch (Exception e)
+        {
+          ex = e;
+        }
         reset.Set();
       });
 
@@ -192,6 +200,11 @@ namespace IronScheme
       {
         t.Abort();
         return AssertionViolation("with-timeout", string.Format("call exceeded limit: {0}ms", d), null);
+      }
+
+      if (ex != null)
+      {
+        throw ex;
       }
 
       return r;
