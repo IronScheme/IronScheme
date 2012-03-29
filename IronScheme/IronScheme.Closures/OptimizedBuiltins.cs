@@ -25,14 +25,6 @@ namespace IronScheme.Runtime
 
     internal object[] ToArray()
     {
-      foreach (object item in values)
-      {
-        if (item is MultipleValues)
-        {
-          return (object[]) Closure.AssertionViolation(false, "cannot pass multiple values", values);
-        }
-      }
-
       return values;
     }
 
@@ -43,15 +35,7 @@ namespace IronScheme.Runtime
         Closure.AssertionViolation(false, string.Format("expected {0} arguments, got {1}", expects, values.Length), values);
       }
 
-      foreach (object item in values)
-      {
-        if (item is MultipleValues)
-        {
-          return (object[])Closure.AssertionViolation(false, "cannot pass multiple values", values);
-        }
-      }
-
-      return values;
+      return ToArray();
     }
 
     public object this[int index]
@@ -60,7 +44,6 @@ namespace IronScheme.Runtime
       set { values[index] = value; }
     }
   }
-
 
   public static class OptimizedBuiltins
   {
@@ -368,24 +351,11 @@ namespace IronScheme.Runtime
       if (r is MultipleValues)
       {
         var mv = (MultipleValues)r;
-        if (con.Arity is double && (double)con.Arity > mv.Length)
-        {
-          return Closure.AssertionViolation(con.ToString(), string.Format("expected at least {0:F0} arguments, got {1}", con.Arity, mv.Length), mv.ToArray());
-        }
-        else if (con.Arity is int && (int)con.Arity != mv.Length)
-        {
-          return Closure.AssertionViolation(con.ToString(), string.Format("expected {0} arguments, got {1}", con.Arity, mv.Length), mv.ToArray());
-        }
-        else
-        {
-          return con.Call(mv.ToArray());
-        }
+        return con.Call(mv.ToArray());
       }
 
       return con.Call(r);
     }
 #endif
-
-
   }
 }

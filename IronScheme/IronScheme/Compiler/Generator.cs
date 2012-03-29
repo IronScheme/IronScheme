@@ -420,7 +420,7 @@ namespace IronScheme.Compiler
                     }
                     else if (ccbe.Block.ParameterCount == 1)
                     {
-                      return InlineCall(cb, ccbe, InlineCall(cb, pcbe));
+                      return InlineCall(cb, ccbe, Ast.SimpleCallHelper(typeof(Helpers).GetMethod("UnwrapValue"), InlineCall(cb, pcbe)));
                     }
                     else
                     {
@@ -464,7 +464,7 @@ namespace IronScheme.Compiler
                   }
                   else if (ccbe.Block.ParameterCount == 1)
                   {
-                    return InlineCall(cb, ccbe, Ast.Call(exx, callx));
+                    return InlineCall(cb, ccbe, Ast.SimpleCallHelper(typeof(Helpers).GetMethod("UnwrapValue"), Ast.Call(exx, callx)));
                   }
                   else
                   {
@@ -515,10 +515,6 @@ namespace IronScheme.Compiler
               if (spanhint.IsValid)
               {
                 result.SetLoc(spanhint);
-              }
-              if (result.Type.IsValueType)
-              {
-                //result = Ast.ConvertHelper(result, typeof(object));
               }
 #if CPS
               Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(Callable));
@@ -734,7 +730,6 @@ namespace IronScheme.Compiler
               return InlineCall(cb, cbe, istailposition, ppp);
             }
           }
-
         }
 
         if (ex is ConstantExpression)
@@ -753,13 +748,11 @@ namespace IronScheme.Compiler
         }
         else
         {
-
           Expression[] pp = GetAstList(c.cdr as Cons, cb);
 
           if (ex.Type != typeof(Callable))
           {
             ex = Ast.ConvertHelper(ex, typeof(Callable));
-            //ex = Ast.Call(typeof(Helpers).GetMethod("RequiresNotNull").MakeGenericMethod(typeof(Callable)), ex);
           }
 
           MethodInfo call = GetCallable(pp.Length);
@@ -776,7 +769,9 @@ namespace IronScheme.Compiler
 
         return r;
       }
+
       object[] v = args as object[];
+
       if (v != null)
       {
         return GetConsVector(v, cb);
@@ -825,8 +820,6 @@ namespace IronScheme.Compiler
     internal static MethodCallExpression TryConvertToDirectCall(SymbolId f, Expression[] ppp)
     {
       CodeBlockExpression cbe;
-
-      //return null;
 
       //// needs to do the same for overloads...
       if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
@@ -930,15 +923,13 @@ namespace IronScheme.Compiler
       {
         SymbolId origname = p.Name;
 
-        //if (p.Block != parent)
-        {
-          p.Name = (SymbolId)Builtins.GenSym(p.Name);
-          p.Block = parent;
-          p.Kind = Variable.VariableKind.Local;
-          parent.AddVariable(p);
-        }
+        p.Name = (SymbolId)Builtins.GenSym(p.Name);
+        p.Block = parent;
+        p.Kind = Variable.VariableKind.Local;
+        parent.AddVariable(p);
+
         Expression val = Unwrap(pp[i]);
-        if (/*val.Type != typeof(Boolean) &&*/ val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
+        if (val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
         {
           if (p.Type == typeof(object))
           {
@@ -971,15 +962,13 @@ namespace IronScheme.Compiler
 
       foreach (Variable l in cb.Variables)
       {
-        //if (l.Block != parent)
+        if (l.DefaultValue == null && l.Kind != Variable.VariableKind.Global)
         {
-          if (l.DefaultValue == null && l.Kind != Variable.VariableKind.Global)
-          {
-            l.Name = (SymbolId)Builtins.GenSym(l.Name);
-          }
-          l.Block = parent;
-          parent.AddVariable(l);
+          l.Name = (SymbolId)Builtins.GenSym(l.Name);
         }
+        l.Block = parent;
+        parent.AddVariable(l);
+
         if (l.Lift)
         {
           parent.HasEnvironment = true;
