@@ -19,6 +19,16 @@ namespace IronScheme.Runtime
 {
   public static class Helpers
   {
+    public static object UnwrapValue(object o)
+    {
+      var mv = o as MultipleValues;
+      if (mv != null)
+      {
+        return mv.ToArray(1);
+      }
+      return o;
+    }
+
     public static T FFIConvertTo<T>(object obj)
     {
       var objtype = obj == null ? typeof(IntPtr) : obj.GetType();

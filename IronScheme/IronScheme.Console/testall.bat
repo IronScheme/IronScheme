@@ -16,3 +16,4 @@ call isc ironscheme-buildscript.ss
 call isc compile-system-libraries.sps
 call run-tests.bat
 call srfitest.bat
+call isc lib\pfds\tests.scm > pfds.log
