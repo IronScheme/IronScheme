@@ -29,6 +29,16 @@ namespace IronScheme.Runtime
       return o;
     }
 
+    public static MultipleValues WrapValue(object o)
+    {
+      var mv = o as MultipleValues;
+      if (mv != null)
+      {
+        return mv;
+      }
+      return new MultipleValues(o);
+    }
+
     public static T FFIConvertTo<T>(object obj)
     {
       var objtype = obj == null ? typeof(IntPtr) : obj.GetType();
