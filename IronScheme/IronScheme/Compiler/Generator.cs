@@ -440,7 +440,7 @@ namespace IronScheme.Compiler
                           Ast.Write(
                             values, 
                             Ast.ComplexCallHelper(
-                              InlineCall(cb, pcbe), 
+                              Ast.SimpleCallHelper(typeof(Helpers).GetMethod("WrapValue"), InlineCall(cb, pcbe)), 
                               typeof(MultipleValues).GetMethod("ToArray", new Type[] { typeof(int) }), 
                               Ast.Constant(pppp.Length)))), 
                           InlineCall(cb, ccbe, pppp));
@@ -483,8 +483,11 @@ namespace IronScheme.Compiler
                         Ast.Void(
                           Ast.Write(
                             values, 
-                            Ast.ComplexCallHelper(Ast.Call(exx, callx), typeof(MultipleValues).GetMethod("ToArray", new Type[] { typeof(int) }), 
-                            Ast.Constant(pppp.Length)))), 
+                            Ast.ComplexCallHelper(
+                              Ast.SimpleCallHelper(typeof(Helpers).GetMethod("WrapValue"),  
+                                                   Ast.Call(exx, callx)), 
+                              typeof(MultipleValues).GetMethod("ToArray", new Type[] { typeof(int) }), 
+                              Ast.Constant(pppp.Length)))), 
                           InlineCall(cb, ccbe, pppp));
                   }
                 }
