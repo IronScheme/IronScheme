@@ -9,6 +9,7 @@ contains
 - bbtrees
 - sets
 - dlists
+- priority search queues (psqs)  
 with more to come, time permitting.
 
 ** Installation
@@ -30,3 +31,11 @@ application to the Function "Reverse"”]] by John Hughes in 1984,
 although he does not give them this name. The trick is likely even
 older than that (he points to a paper by Bird), though I have not the
 knowledge to confirm this.
+
+The implementation of priority search queues is described in [[http://www.cs.ox.ac.uk/people/ralf.hinze/publications/UU-CS-2001-09.pdf]["A Simple
+Implementation Technique for Priority Search Queues"]] by Ralf Hinze.
+
+** Thanks
+Thanks to [[Llewellyn Pritchard][https://github.com/leppie]] for testing this on [[https://ironscheme.codeplex.com/][IronScheme]],
+and to [[http://wingolog.org/][Andy Wingo]] for pointing out priority search queues to me, and
+prodding me into implementing them.
