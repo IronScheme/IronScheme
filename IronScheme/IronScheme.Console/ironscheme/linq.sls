@@ -21,6 +21,10 @@ See docs/license.txt. |#
       (current iterator-current)
       (reset iterator-reset))
     ; LINQ accesor procs
+    select
+    select-many
+    where
+    reverse-iterator
     single
     single/default
     first
@@ -441,6 +445,9 @@ See docs/license.txt. |#
           (lambda ()
             (set! cur init)
             (reset iter))))))
+  
+  (define (select x proc)
+    (map-iterator (get-iterator x) proc))            
 
   (define (filter-iterator iter proc)
     (make-iterator
@@ -455,6 +462,9 @@ See docs/license.txt. |#
         (current iter))
       (lambda ()
         (reset iter))))
+        
+  (define (where x proc)
+    (filter-iterator (get-iterator x) proc))            
 
   (define (flatten-iterator iter)
     (let ((outer iter))
@@ -478,6 +488,13 @@ See docs/license.txt. |#
         (lambda ()
           (set! iter outer)
           (reset iter)))))
+          
+  (define (select-many x proc)
+    (flatten-iterator 
+      (map-iterator 
+        (get-iterator x) 
+        (lambda (x) 
+          (get-iterator (proc x))))))
 
   (define (reverse-iterator iter)
     (let ((reversed #f))

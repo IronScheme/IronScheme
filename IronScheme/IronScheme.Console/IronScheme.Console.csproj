@@ -788,9 +788,6 @@
     <Content Include="lib\pfds\LICENSE">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="lib\pfds\pkg-list.scm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="lib\pfds\private\lazy-lists.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -945,6 +942,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\wak\riastreams\private\stream.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\pfds\psqs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="playground\bw.sps" />
