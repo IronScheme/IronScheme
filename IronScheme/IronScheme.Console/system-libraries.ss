@@ -91,6 +91,7 @@ See docs/license.txt. |#
     (pfds deques)
     (pfds sets)
     (pfds dlists)
+    (pfds psqs)
     (pfds queues))
   #f)
 
