@@ -95,19 +95,33 @@ namespace IronScheme.Runtime
         return FALSE;
       }
 
-      switch (r)
-      {
-        case 2:
-          return StringToNumber("#b" + str);
-        case 8:
-          return StringToNumber("#o" + str);
-        case 10:
-          return StringToNumber(str);
-        case 16:
-          return StringToNumber("#x" + str);
-        default:
-          return FALSE;
+      string prefix = "";
 
+      if (str.Length > 1)
+      {
+        prefix = str.Substring(0, 2);
+      }
+
+      switch (prefix)
+      {
+        case "#b":
+        case "#o":
+        case "#x":
+          return StringToNumber(str);
+        default:
+          switch (r)
+          {
+            case 2:
+              return StringToNumber("#b" + str);
+            case 8:
+              return StringToNumber("#o" + str);
+            case 10:
+              return StringToNumber(str);
+            case 16:
+              return StringToNumber("#x" + str);
+            default:
+              return FALSE;
+          }
       }
     }
 
