@@ -99,113 +99,115 @@ See docs/license.txt. |#
       
   (define make-list
     (case-lambda
-      [(n)      (vector->list (make-vector n))]
-      [(n fill) (vector->list (make-vector n fill))]))
+      [(n)      
+        (vector->list (make-vector n))]
+      [(n fill) 
+        (vector->list (make-vector n fill))]))
       
   (define (find proc l)
     (if (null? l)
-      #f
-      (let ((e (car l))
-            (r (cdr l))
-            (proc proc))
-        (if (proc e) 
-          e
-          (find proc r)))))    
+        #f
+        (let ((e (car l))
+              (r (cdr l))
+              (proc proc))
+          (if (proc e) 
+              e
+              (find proc r)))))    
           
   (define (partition proc l)
     (let f ((l l)(a '())(b '()))
       (if (null? l)
-        (values (reverse! a) (reverse! b))
-        (let ((e (car l)))
-          (if (proc e)
-            (f (cdr l) (cons e a) b)
-            (f (cdr l) a (cons e b)))))))
+          (values (reverse! a) (reverse! b))
+          (let ((e (car l)))
+            (if (proc e)
+                (f (cdr l) (cons e a) b)
+                (f (cdr l) a (cons e b)))))))
       
   (define (remp proc l)
     (let f ((l l)(a '()))
       (if (null? l)
-        (reverse! a)
-        (let ((e (car l)))
-          (if (proc e)
-            (f (cdr l) a)
-            (f (cdr l) (cons e a)))))))
+          (reverse! a)
+          (let ((e (car l)))
+            (if (proc e)
+                (f (cdr l) a)
+                (f (cdr l) (cons e a)))))))
             
   (define (filter proc l)
     (let f ((l l)(a '()))
       (if (null? l)
-        (reverse! a)
-        (let ((e (car l)))
-          (if (proc e)
-            (f (cdr l) (cons e a))
-            (f (cdr l) a))))))            
+          (reverse! a)
+          (let ((e (car l)))
+            (if (proc e)
+                (f (cdr l) (cons e a))
+                (f (cdr l) a))))))            
   
   (define (assq obj lst)
     (if (null? lst) 
-      #f
-      (let ((obj obj)
-            (t (car lst)) 
-            (r (cdr lst)))
-        (if (eq? obj (car t)) 
-          t
-          (assq obj r)))))
+        #f
+        (let ((obj obj)
+              (t (car lst)) 
+              (r (cdr lst)))
+          (if (eq? obj (car t)) 
+              t
+              (assq obj r)))))
           
   (define (assv obj lst)
     (if (null? lst) 
-      #f
-      (let ((obj obj)
-            (t (car lst)) 
-            (r (cdr lst)))
-        (if (eqv? obj (car t)) 
-          t
-          (assv obj r)))))          
+        #f
+        (let ((obj obj)
+              (t (car lst)) 
+              (r (cdr lst)))
+          (if (eqv? obj (car t)) 
+              t
+              (assv obj r)))))          
 
   (define (assoc obj lst)
     (if (null? lst) 
-      #f
-      (let ((obj obj)
-            (t (car lst)) 
-            (r (cdr lst)))
-        (if (equal? obj (car t)) 
-          t
-          (assoc obj r)))))          
+        #f
+        (let ((obj obj)
+              (t (car lst)) 
+              (r (cdr lst)))
+          (if (equal? obj (car t)) 
+              t
+              (assoc obj r)))))          
             
   (define (assp p? lst)
     (if (null? lst) 
-      #f
-      (let ((p? p?)
-            (t (car lst)) 
-            (r (cdr lst)))
-        (if (p? (car t)) 
-          t
-          (assp p? r)))))
+        #f
+        (let ((p? p?)
+              (t (car lst)) 
+              (r (cdr lst)))
+          (if (p? (car t)) 
+              t
+              (assp p? r)))))
   
   (define (memq obj lst)
     (if (null? lst) 
-      #f
-      (if (eq? obj (car lst)) 
-        lst
-        (memq obj (cdr lst)))))
+        #f
+        (if (eq? obj (car lst)) 
+            lst
+            (memq obj (cdr lst)))))
 
   (define (memv obj lst)
     (if (null? lst) 
-      #f
-      (if (eqv? obj (car lst)) 
-        lst
-        (memv obj (cdr lst)))))
+        #f
+        (if (eqv? obj (car lst)) 
+            lst
+            (memv obj (cdr lst)))))
 
   (define (member obj lst)
     (if (null? lst) 
-      #f
-      (if (equal? obj (car lst)) 
-        lst
-        (member obj (cdr lst)))))
+        #f
+        (if (equal? obj (car lst)) 
+            lst
+            (member obj (cdr lst)))))
 
   (define (memp p? lst)
     (if (null? lst) 
-      #f
-      (if (p? (car lst)) 
-        lst
-        (memp p? (cdr lst)))))
+        #f
+        (if (p? (car lst)) 
+            lst
+            (memp p? (cdr lst)))))
   
   (define (all-empty? ls)
     (or (null? ls) 
@@ -256,11 +258,11 @@ See docs/license.txt. |#
     (case-lambda 
       [(f arg1)
         (if (null? arg1)
-          #t
-          (if (null? (cdr arg1))
-            (f (car arg1))
-            (and (f (car arg1)) 
-               (for-all f (cdr arg1)))))]
+            #t
+            (if (null? (cdr arg1))
+                (f (car arg1))
+                (and (f (car arg1)) 
+                   (for-all f (cdr arg1)))))]
       [(f arg1 . args)               
         (let ((args (cons arg1 args)))
           (if (all-empty? args) 
@@ -268,17 +270,17 @@ See docs/license.txt. |#
               (call-with-values (lambda () (split args))
                 (lambda (cars cdrs)
                   (if (all-empty? cdrs)
-                    (apply f cars)
-                    (and (apply f cars) 
-                         (apply for-all f cdrs)))))))]))
+                      (apply f cars)
+                      (and (apply f cars) 
+                           (apply for-all f cdrs)))))))]))
 
   (define exists 
     (case-lambda 
       [(f arg1)
         (if (null? arg1)
-          #f
-          (or (f (car arg1)) 
-               (exists f (cdr arg1))))]
+            #f
+            (or (f (car arg1)) 
+                   (exists f (cdr arg1))))]
       [(f arg1 . args)
         (let ((args (cons arg1 args)))
           (if (all-empty? args) 
@@ -293,15 +295,15 @@ See docs/license.txt. |#
       [(proc list1)
         (let f ((lst list1)(a '()))
           (if (null? lst)
-            (reverse! a)
-            (f (cdr lst) (cons (proc (car lst)) a))))]
+              (reverse! a)
+              (f (cdr lst) (cons (proc (car lst)) a))))]
       [(proc list1 . lists)            
         (let f ((lists (cons list1 lists))(a '()))
           (if (all-empty? lists)
-            (reverse! a)
-            (call-with-values (lambda () (split lists))
-              (lambda (cars cdrs)
-                (f cdrs (cons (apply proc cars) a))))))]))
+              (reverse! a)
+              (call-with-values (lambda () (split lists))
+                (lambda (cars cdrs)
+                  (f cdrs (cons (apply proc cars) a))))))]))
   
   (define for-each
     (case-lambda 
