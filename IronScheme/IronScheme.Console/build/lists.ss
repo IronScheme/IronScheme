@@ -348,7 +348,7 @@ See docs/license.txt. |#
         
   (define append
     (case-lambda
-      [()   '()] ;; hack to make varargs work :(
+      [()   '()]
       [(obj) obj]
       [(obj1 obj2)
         (unless (list? obj1)
