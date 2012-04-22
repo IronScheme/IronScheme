@@ -85,9 +85,9 @@ public int Make(Tokens token)
 
 %}
 
-delimiter              "\n\r"|[\[\]\(\)\";#\r\n\t\u000c ]
-but_delimiter          [^\[\]\(\)\";#\r\n\t\u000c ]
-numbut_delimiter       [^\[\]\(\)\";#\r\n\t\u000c i]
+delimiter              "\n\r"|[\[\]\(\)\";\r\n\t\u000c ]
+but_delimiter          [^\[\]\(\)\";\r\n\t\u000c ]
+numbut_delimiter       [^\[\]\(\)\";\r\n\t\u000c i]
 
 fold_case              "#!fold-case"
 no_fold_case           "#!no-fold-case" 
@@ -194,7 +194,7 @@ string_continuation    (\\{new_line})
 reg_string_char        {string_continuation}|{single_string_char}|{string_esc_seq}|{hex_esc_seq}
 string_literal         \"({reg_string_char})*\"
 
-atoms                  (#[TtFf])
+atoms                  ((#[TtFf])|"#true"|"#false")
 good_atoms             {atoms}{delimiter}
 bad_atoms              {atoms}{but_delimiter}+
 

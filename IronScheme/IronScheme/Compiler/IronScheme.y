@@ -114,6 +114,21 @@ static Cons Strip(Cons c)
   return AnnotationHelper.Strip(c);
 }
 
+static object ParseBoolean(string s)
+{
+  switch (s)
+  {
+    case "#t":
+    case "#true":
+      return Builtins.TRUE;
+    case "#f":
+    case "#false":
+      return Builtins.FALSE;
+    default:
+      return null;      
+  }
+}
+
 static readonly Annotation Ignore = new Annotation(null,null,null);
 static readonly object quote = SymbolTable.StringToObject("quote");
 static readonly object unquote_splicing = SymbolTable.StringToObject("unquote-splicing");
@@ -168,7 +183,7 @@ expr
     | SYMBOL                                      { $$ = Annotate( SymbolTable.StringToObjectWithCase($1, FoldCase), @1); }
     | STRING                                      { $$ = Annotate(Helper.CleanString($1), @1); }
     | NUMBER                                      { $$ = Annotate( skipnumbers ? null : MakeNumber($1), @1);}
-    | LITERAL                                     { $$ = Annotate( $1 == "#t" ? Builtins.TRUE : ($1 == "#f" ? Builtins.FALSE : null), @1);}
+    | LITERAL                                     { $$ = Annotate( ParseBoolean($1), @1);}
     | CHARACTER                                   { $$ = Annotate($1[0], @1);}
     | VECTORLBRACE exprlist RBRACE                { $$ = Annotate(Builtins.ListToVector($2),@1,@3);}
     | BYTEVECTORLBRACE exprlist RBRACE            { $$ = Annotate(Builtins.ListToByteVector(Strip($2)),@1,@3); }
