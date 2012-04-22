@@ -16,14 +16,15 @@ See docs/license.txt. |#
     delay
     force
     make-promise
+    promise?
     
     null-environment
-    scheme-report-environment
-  )
+    scheme-report-environment)
   
   (import 
     (rnrs)
     (ironscheme contracts)
+    (ironscheme records printer)
     (only (rnrs r5rs) 
       delay    
       null-environment
@@ -47,21 +48,32 @@ See docs/license.txt. |#
   (define/contract (modulo n1:integer n2:integer)
     (* (sign n2) (mod (* (sign n2) n1) (abs n2)))) 
     
-  (define make-promise
-    (lambda (proc)
-      (let ((result-ready? #f)
-            (result #f))
-        (lambda ()
-          (if result-ready?
-              result
-              (let ((x (proc)))
-                (if result-ready?
-                    result
-                    (begin (set! result-ready? #t)
-                           (set! result x)
-                           result))))))))
+  (define-record-type (promise create-promise promise?) 
+    (fields 
+      (mutable ready?)
+      (mutable result)
+      proc))
+    
+  (define (make-promise proc)
+    (letrec ((promise 
+              (create-promise
+                #f
+                #f
+                (lambda ()
+                  (let ((promise promise)) ; compiler hack
+                    (if (promise-ready? promise)
+                        (promise-result promise)
+                        (let ((x (proc)))
+                          (if (promise-ready? promise)
+                              (promise-result promise)
+                              (begin (promise-ready?-set! promise #t)
+                                     (promise-result-set! promise x)
+                                     (promise-result promise))))))))))
+      promise))
                            
-  (define force
-    (lambda (object)
-      (object)))                           
-)
+  (define (force promise)
+    ((promise-proc promise)))
+    
+  (add-record-printer! promise? 
+    (lambda (x p wr)
+      (display "#<promise>" p))))
