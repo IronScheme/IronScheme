@@ -397,6 +397,7 @@
     (load/args                                  i)
     (load/unload                                i)
     (make-promise                               ic)
+    (promise?                                   i)
     (enum-set?                                  i)
     (serialize-port                             i)
     (deserialize-port                           i)
