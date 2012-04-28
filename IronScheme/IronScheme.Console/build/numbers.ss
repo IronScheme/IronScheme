@@ -907,8 +907,8 @@ See docs/license.txt. |#
       (lambda (a b) 
         (let ((r (if (< a b) b a)))
           (if (or (inexact? a) (inexact? b))
-            (inexact r)
-            r)))
+              (inexact r)
+              r)))
       a 
       rest))
     
@@ -917,8 +917,8 @@ See docs/license.txt. |#
       (lambda (a b) 
         (let ((r (if (> a b) b a)))
           (if (or (inexact? a) (inexact? b))
-            (inexact r)
-            r)))
+              (inexact r)
+              r)))
       a 
       rest))   
     
@@ -939,19 +939,19 @@ See docs/license.txt. |#
       [(a:integer) (abs a)]
       [(a:integer b:integer) 
         (if (or (zero? a)(zero? b))
-          0
-          (abs (* (/ a (gcd a b)) b)))]
+            0
+            (abs (* (/ a (gcd a b)) b)))]
       [(a:integer b:integer . rest)
         (fold-left lcm (abs a) (cons b rest))]))
               
   ;; from SLIB
   (define/contract (rationalize x:real e:real) 
     (if (and (infinite? x) (infinite? e))
-      +nan.0
-      (let ((r (apply / (find-ratio x e))))
-        (if (and (exact? x) (exact? e))
-          r
-          (inexact r)))))
+        +nan.0
+        (let ((r (apply / (find-ratio x e))))
+          (if (and (exact? x) (exact? e))
+              r
+              (inexact r)))))
 
   (define (find-ratio x e) 
     (find-ratio-between (- x e) (+ x e)))
@@ -1209,9 +1209,6 @@ See docs/license.txt. |#
                     (f (+ i 1) (cdr n))))
                 (put-string p "e")
                 (display (- k 1) p)
-                (r)])))]))
-                          
-   
-)
+                (r)])))])))
   
   

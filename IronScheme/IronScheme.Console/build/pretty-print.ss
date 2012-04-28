@@ -29,8 +29,8 @@ See docs/license.txt. |#
 (define (symbol->string s)
   (rnrs:symbol->string
     (if (pretty-gensyms)
-      (ungensym s)
-      s)))
+        (ungensym s)
+        s)))
 
 (define (read-macro-body l)
   (cadr l))
@@ -289,7 +289,4 @@ See docs/license.txt. |#
 (define (pretty-print obj . opt)
   (let ((port (if (pair? opt) (car opt) (current-output-port))))
     (generic-write obj #f (pretty-width)
-                   (lambda (s) (display s port) #t))))
-                   
-
-)
+                   (lambda (s) (display s port) #t)))))

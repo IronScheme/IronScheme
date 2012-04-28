@@ -60,6 +60,4 @@ See docs/license.txt. |#
     (clr-prop-get FieldDescriptor 
                   Mutable 
                   (vector-ref (clr-prop-get RecordTypeDescriptor Fields rtd) 
-                              k)))
-    
-)
+                              k))))

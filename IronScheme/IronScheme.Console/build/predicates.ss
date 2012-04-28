@@ -96,8 +96,6 @@ See docs/license.txt. |#
     (clr-is Boolean obj))
    
   (define (procedure? obj)
-    (clr-is Callable obj))  
-
-)
+    (clr-is Callable obj)))
   
    

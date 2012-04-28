@@ -36,8 +36,7 @@ See docs/license.txt. |#
     dlopen
     dlsym
     dlclose
-    dlerror
-  )
+    dlerror)
   (import 
     (ironscheme)
     (ironscheme contracts)
@@ -131,8 +130,5 @@ See docs/license.txt. |#
   ;dlclose dlerror
   (define dlclose (pinvoke-call kernel32 FreeLibrary int32 (intptr)))  
   
-  (define (dlerror) "not implemented")
-  
-    
-)    
+  (define (dlerror) "not implemented"))    
   

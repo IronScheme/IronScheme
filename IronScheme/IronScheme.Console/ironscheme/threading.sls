@@ -55,12 +55,12 @@ See docs/license.txt. |#
         [(_ (obj) e e* ...)
           (identifier? #'obj)
           #'(if (null? obj)
-              (assertion-violation 'lock "lock object cannot be null" 'obj)
-              (let ((obj obj))
-                (dynamic-wind
-                  (lambda () (monitor-enter obj))
-                  (lambda () e e* ...)
-                  (lambda () (monitor-exit obj)))))])))
+                (assertion-violation 'lock "lock object cannot be null" 'obj)
+                (let ((obj obj))
+                  (dynamic-wind
+                    (lambda () (monitor-enter obj))
+                    (lambda () e e* ...)
+                    (lambda () (monitor-exit obj)))))])))
         
    
 )

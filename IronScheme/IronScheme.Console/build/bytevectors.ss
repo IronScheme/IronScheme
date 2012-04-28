@@ -148,9 +148,7 @@ See docs/license.txt. |#
       bytevector-uint-ref
       bytevector-sint-ref
       bytevector-uint-set!
-      bytevector-sint-set!
-      
-      )
+      bytevector-sint-set!)
     (ironscheme contracts)
     (ironscheme typed)
     (ironscheme unsafe))
@@ -708,6 +706,4 @@ See docs/license.txt. |#
   (define/contract (bytevector-ieee-double-native-set! bytevector k:fixnum x)     
     (unless ($fxzero? ($fxmod0 k 8))
       (assertion-violation 'bytevector-ieee-double-native-set! "must be multiple of 8" k))
-    (bytevector-ieee-double-set! bytevector k x (native-endianness)))
-)
-
+    (bytevector-ieee-double-set! bytevector k x (native-endianness))))

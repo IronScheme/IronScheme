@@ -166,7 +166,4 @@ See docs/license.txt. |#
     (raise
       (condition
         (if who (make-who-condition who) (condition))
-        (make-i/o-file-protection-error filename))))
-        
-        
-  )
+        (make-i/o-file-protection-error filename)))))

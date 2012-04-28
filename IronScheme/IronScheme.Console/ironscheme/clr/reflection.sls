@@ -157,7 +157,5 @@ See docs/license.txt. |#
         (type-members type '(public static instance))]
       [(type:clr-type binding-flags:symbol/symbol-list)
          (vector->list
-          (clr-call Type GetMembers type binding-flags))]))
-          
-)          
+          (clr-call Type GetMembers type binding-flags))])))          
 

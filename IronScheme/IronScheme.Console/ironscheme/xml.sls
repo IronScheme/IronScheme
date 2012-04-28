@@ -46,39 +46,37 @@ See docs/license.txt. |#
 		          (let ((name (car x))
 		                (value (cdr x))) 
 		            (if (boolean? value)
-		              (if (eq? #t value)
-		                (format " ~a" name)
-		                "")
-		              (format " ~a=~s" name (html-encode (format "~a" value)))))]
+		                (if (eq? #t value)
+		                    (format " ~a" name)
+		                    "")
+		                (format " ~a=~s" name (html-encode (format "~a" value)))))]
 		        [else
 		          (let ((tag (car x))
 		                (body (cdr x))
 		                (indent-str (get-indent i)))
 		            (if (eq? tag 'no-escape)
-		              (car body)
-		              (let-values ([(attrs children) (partition attribute? body)])
-		                (if (null? children)
-		                  (format "~a<~a~a />\n"
-		                    indent-str 
-		                    tag
-		                    (string-map ->xml attrs i))
-		                  (if (complex? x) 
-		                    (format
-		                      "~a<~a~a>\n~a~a</~a>\n"
-		                      indent-str
-		                      tag
-		                      (string-map ->xml attrs i) 
-		                      (string-map ->xml children i)
-		                      indent-str
-		                      tag)                    
-		                    (format
-		                      "~a<~a~a>~a</~a>\n"
-		                      indent-str
-		                      tag
-		                      (string-map ->xml attrs i) 
-		                      (string-map ->xml children i)
-		                      tag))))))]))))
+		                (car body)
+		                (let-values ([(attrs children) (partition attribute? body)])
+		                  (if (null? children)
+		                      (format "~a<~a~a />\n"
+		                        indent-str 
+		                        tag
+		                        (string-map ->xml attrs i))
+		                      (if (complex? x) 
+		                          (format
+		                            "~a<~a~a>\n~a~a</~a>\n"
+		                            indent-str
+		                            tag
+		                            (string-map ->xml attrs i) 
+		                            (string-map ->xml children i)
+		                            indent-str
+		                            tag)                    
+		                          (format
+		                            "~a<~a~a>~a</~a>\n"
+		                            indent-str
+		                            tag
+		                            (string-map ->xml attrs i) 
+		                            (string-map ->xml children i)
+		                            tag))))))]))))
 				(lambda (x)
-					(->xml x 0))))								
-  
-)
+					(->xml x 0)))))

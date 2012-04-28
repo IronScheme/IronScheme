@@ -17,8 +17,7 @@ See docs/license.txt. |#
     set-window-size!
     reset-color  
     foreground-color
-    background-color
-    )
+    background-color)
   (import 
     (rnrs)
     (ironscheme contracts)
@@ -90,6 +89,4 @@ See docs/license.txt. |#
         (clr-static-prop-set! Console BackgroundColor color)]))
 
   (define (reset-color)
-    (clr-static-call Console ResetColor))     
-
-)
+    (clr-static-call Console ResetColor)))

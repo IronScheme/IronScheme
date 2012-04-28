@@ -29,7 +29,5 @@ See docs/license.txt. |#
     (let ((env (apply environment import-spec))
           (env* (apply environment '(only (rnrs) list) import-spec)))
       (let ((b (map car (filter proc-filter (environment-bindings env)))))
-        (apply enable-constant-fold (eval `(list ,@b) env*)))))
-        
-)          
+        (apply enable-constant-fold (eval `(list ,@b) env*))))))          
   

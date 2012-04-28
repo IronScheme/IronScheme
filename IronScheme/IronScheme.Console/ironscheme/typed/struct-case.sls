@@ -35,7 +35,4 @@ See docs/license.txt. |#
                         ((struct-accessor r? f) r*) ...)] ...
                     [else ee]))))]
         [(_ r [(r? f ...) e  e* ...] ... )
-          #'(struct-case r [(r? f ...) e e* ...] ... [else #f])])))    
- 
- )    
-    
+          #'(struct-case r [(r? f ...) e e* ...] ... [else #f])]))))    

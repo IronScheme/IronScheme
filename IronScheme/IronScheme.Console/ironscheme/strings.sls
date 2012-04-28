@@ -60,8 +60,5 @@ See docs/license.txt. |#
     (clr-call String EndsWith (string-upcase str) (string-upcase sub)))
 
   (define/contract (string-trim str:string)
-    (clr-call String Trim str))
-
-          
-)
+    (clr-call String Trim str)))
   

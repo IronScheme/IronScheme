@@ -29,8 +29,8 @@ See docs/license.txt. |#
 
   (define (get-value key)
     (if (symbol? key)
-      (get-value (symbol->string key))
-      (or (context-item key) (form key) (querystring key))))
+        (get-value (symbol->string key))
+        (or (context-item key) (form key) (querystring key))))
     
   (define-syntax define-action
     (lambda (x)
@@ -70,5 +70,4 @@ See docs/license.txt. |#
                 [(action) 
                   ((lambda (arg ...)
                       body body* ...) 
-                    (get-value 'arg) ...)] ...))])))     
-)    
+                    (get-value 'arg) ...)] ...))]))))    

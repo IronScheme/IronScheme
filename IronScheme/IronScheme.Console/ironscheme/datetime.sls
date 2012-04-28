@@ -46,8 +46,7 @@ See docs/license.txt. |#
     stopwatch-stop
     stopwatch-elapsed
     
-    measure
-    )
+    measure)
   (import 
     (ironscheme)
     (ironscheme syntax)

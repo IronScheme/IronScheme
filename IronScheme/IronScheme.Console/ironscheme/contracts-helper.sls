@@ -23,16 +23,16 @@ See docs/license.txt. |#
         (when (zero? (string-length (vector-ref tokens 0)))
           (syntax-violation 'get-name/type "length of argument > 0" name))
         (if (= 1 (vector-length tokens))
-          (cons 
-            (datum->syntax name
-              (string->symbol (vector-ref tokens 0))) #f)
-          (cons* 
-            (datum->syntax name
-              (string->symbol (vector-ref tokens 0))) 
-            (datum->syntax name
-              (string->symbol 
-                (string-append (vector-ref tokens 1) "?")))
-            (vector-ref tokens 1)))))
+            (cons 
+              (datum->syntax name
+                (string->symbol (vector-ref tokens 0))) #f)
+            (cons* 
+              (datum->syntax name
+                (string->symbol (vector-ref tokens 0))) 
+              (datum->syntax name
+                (string->symbol 
+                  (string-append (vector-ref tokens 1) "?")))
+              (vector-ref tokens 1)))))
     (define (make-guard ai)
       (with-syntax ((n (car ai))
                     (g (cadr ai))
@@ -77,12 +77,4 @@ See docs/license.txt. |#
                         (h (if (cdr ri) (make-list-guard ri) #'#f))) 
             #'(formals
                 h
-                (let ((formals formals)) body body* ...))))]
-                ))
- 
-)   
-   
-        
-          
-
-
+                (let ((formals formals)) body body* ...))))])))

@@ -19,7 +19,5 @@ See docs/license.txt. |#
     (clr-field-set! Cons car lst val))      
     
   (define/contract (set-cdr! lst:pair val)
-    (clr-field-set! Cons cdr lst val))      
-  
-)
+    (clr-field-set! Cons cdr lst val)))
 

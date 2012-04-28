@@ -34,16 +34,13 @@ See docs/license.txt. |#
     path-has-extension?
     
     invalid-filename-characters
-    invalid-path-characters
-    )
-    
+    invalid-path-characters)    
   (import 
     (rnrs)
     (ironscheme contracts)
     (ironscheme clr))
     
   (clr-using System.IO)
- 
     
   (define/contract file-copy
     (case-lambda
@@ -139,6 +136,4 @@ See docs/license.txt. |#
 
   (define (invalid-path-characters)
     (string->list
-      (clr-new String (clr-static-call Path GetInvalidPathChars))))
-    
-)
+      (clr-new String (clr-static-call Path GetInvalidPathChars)))))

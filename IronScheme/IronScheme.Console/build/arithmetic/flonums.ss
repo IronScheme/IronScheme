@@ -392,7 +392,4 @@ See docs/license.txt. |#
       (lambda (a b) 
         (if (fl>? a b) b a))
       a 
-      rest))     
-
-    
-)
+      rest)))

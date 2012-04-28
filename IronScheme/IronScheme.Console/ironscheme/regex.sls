@@ -79,6 +79,5 @@ See docs/license.txt. |#
     (clr-static-call Regex Escape input))
 
   (define/contract (regex-unescape input:string)
-    (clr-static-call Regex Unescape input))
-)
+    (clr-static-call Regex Unescape input)))
     

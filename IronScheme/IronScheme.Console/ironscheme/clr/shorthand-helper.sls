@@ -73,6 +73,4 @@ See docs/license.txt. |#
                       (f #'rest #'(clr-indexer-get type id arg arg* (... ...)) #'#f)]
                     [(args (... ...)) 
                       (syntax-violation 'with-clr-type "invalid syntax" x x*)])))]
-              [_ #'id]))))
-   
-  )
+              [_ #'id])))))

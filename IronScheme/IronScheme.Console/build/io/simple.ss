@@ -36,9 +36,7 @@ See docs/license.txt. |#
     write
     
     textual-input-port?
-    textual-output-port?
-    )
-    
+    textual-output-port?)    
   (import 
     (ironscheme contracts)
     (except (ironscheme)
@@ -115,5 +113,4 @@ See docs/license.txt. |#
       [()       
         (newline (current-output-port))]
       [(port:textual-output-port)   
-        (display "\n" port)]))                
-)
+        (display "\n" port)])))

@@ -103,7 +103,8 @@ See docs/license.txt. |#
     
   (define (nv-helper instance key)
     (define k (clr-indexer-get NameValueCollection instance (clr-cast String key)))
-    (if (null? k) #f
+    (if (null? k) 
+        #f
         k))       
 
   (define (querystring key)
@@ -129,7 +130,8 @@ See docs/license.txt. |#
 
   (define (session key)
     (define k (clr-indexer-get HttpSessionState (get-session) (clr-cast String (->string key))))
-    (if (null? k) #f
+    (if (null? k) 
+        #f
         k))       
   
   (define (session-set! key value)
@@ -138,7 +140,8 @@ See docs/license.txt. |#
     
   (define (application-item key)
     (define k (clr-indexer-get HttpApplicationState (get-app) (clr-cast String (->string key))))
-    (if (null? k) #f
+    (if (null? k) 
+        #f
         k))       
   
   (define (application-item-set! key value)
@@ -199,6 +202,4 @@ See docs/license.txt. |#
     (display (->xml html) (http-output-port)))
     
   (define (wprintf fmt . args)
-    (apply fprintf (http-output-port) fmt args))
-    
-)
+    (apply fprintf (http-output-port) fmt args)))

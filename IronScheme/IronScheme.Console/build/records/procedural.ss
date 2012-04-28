@@ -13,7 +13,6 @@ See docs/license.txt. |#
     record-predicate
     record-accessor
     record-mutator)
-    
   (import 
     (except (ironscheme) record-type-descriptor? )
     (ironscheme clr)

@@ -55,7 +55,6 @@ See docs/license.txt. |#
     string-normalize-nfkd
     string-normalize-nfc
     string-normalize-nfkc)
-    
   (import (except (ironscheme)
     char=?
     char<?
@@ -989,6 +988,4 @@ See docs/license.txt. |#
     )
 
   (initialize-case-maps)
-  (initialize-case-folding)
-
-)
+  (initialize-case-folding))

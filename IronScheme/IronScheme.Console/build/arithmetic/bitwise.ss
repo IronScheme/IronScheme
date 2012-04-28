@@ -225,13 +225,13 @@ See docs/license.txt. |#
         (fxrotate-bit-field n start end count)
         (let ((width (- end start)))
           (if (positive? width)
-            (let ((count (mod count width))
-                  (field (bitwise-bit-field n start end)))
-               (bitwise-copy-bit-field n start end 
-                (bitwise-ior 
-                  (bitwise-arithmetic-shift-left field count) 
-                  (bitwise-arithmetic-shift-right field (- width count)))))
-            n))))
+              (let ((count (mod count width))
+                    (field (bitwise-bit-field n start end)))
+                 (bitwise-copy-bit-field n start end 
+                  (bitwise-ior 
+                    (bitwise-arithmetic-shift-left field count) 
+                    (bitwise-arithmetic-shift-right field (- width count)))))
+              n))))
         
   (define (bitwise-reverse-bit-field x1 start end)
     (if (fixnum? x1)
@@ -246,5 +246,4 @@ See docs/license.txt. |#
                       (bitwise-ior (bitwise-arithmetic-shift-left rbits 1)
                                    (bitwise-and bits 1))))
               ((= width 0)
-               (bitwise-copy-bit-field x1 start end rbits))))))
-)
+               (bitwise-copy-bit-field x1 start end rbits)))))))

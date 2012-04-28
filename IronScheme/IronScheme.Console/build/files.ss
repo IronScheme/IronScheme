@@ -10,8 +10,7 @@ See docs/license.txt. |#
     delete-file
     get-directory-name
     file-newer?
-    file-mtime
-    )
+    file-mtime)
     
   (import 
     (except (rnrs) file-exists? delete-file)
@@ -43,5 +42,4 @@ See docs/license.txt. |#
   (define/contract (file-newer? file1:string file2:string)
     (let ((r (compare-time (get-last-write-time file1)
                            (get-last-write-time file2))))
-      (fx>=? r 0)))
-)
+      (fx>=? r 0))))

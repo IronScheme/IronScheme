@@ -60,18 +60,18 @@ See docs/license.txt. |#
     (let ((ht (make-eq-hashtable)))
       (let f ((s symbols)(a '())(mask 1))
         (if (null? s)
-          (values (reverse! a) ht (- mask 1))
-          (let ((n (car s)))
-            (if (symbol? n)
-              (if (hashtable-contains? ht n)
-                (f (cdr s) a mask)
-                (begin
-                  (hashtable-set! ht n mask)
-                  (f 
-                    (cdr s) 
-                    (cons n a) 
-                    (bitwise-arithmetic-shift-left mask 1))))
-              (assertion-violation 'make-enumeration "not a symbol" n)))))))
+            (values (reverse! a) ht (- mask 1))
+            (let ((n (car s)))
+              (if (symbol? n)
+                  (if (hashtable-contains? ht n)
+                      (f (cdr s) a mask)
+                      (begin
+                        (hashtable-set! ht n mask)
+                        (f 
+                          (cdr s) 
+                          (cons n a) 
+                          (bitwise-arithmetic-shift-left mask 1))))
+                  (assertion-violation 'make-enumeration "not a symbol" n)))))))
               
   (define (string-join sep strings)
     (let f ((s strings)(a '()))
@@ -97,55 +97,55 @@ See docs/license.txt. |#
         (assertion-violation 'enum-set-indexer "not a symbol" symbol))
       (let ((v (get-value enumset symbol)))
         (if v
-          (- (bitwise-length v) 1)
-          #f))))
+            (- (bitwise-length v) 1)
+            #f))))
 
   (define/contract (enum-set-constructor enumset:enum)
     (lambda (symbols)
       (let f ((v 0)(s symbols))
         (if (null? s)
-          (make-enum v (enum-info enumset))
-          (let ((n (car s)))
-            (if (symbol? n)
-              (let ((v* (get-value enumset n)))
-                (if v*
-                  (f (bitwise-ior v v*) (cdr s))
-                  (assertion-violation 'enum-set-constructor
-                    "not a member of enum-set" n)))
-              (assertion-violation 'enum-set-constructor "not a symbol" n)))))))
+            (make-enum v (enum-info enumset))
+            (let ((n (car s)))
+              (if (symbol? n)
+                  (let ((v* (get-value enumset n)))
+                    (if v*
+                        (f (bitwise-ior v v*) (cdr s))
+                        (assertion-violation 'enum-set-constructor
+                          "not a member of enum-set" n)))
+                  (assertion-violation 'enum-set-constructor "not a symbol" n)))))))
 
   (define/contract (enum-set->list enumset:enum)
     (let ((value (enum-value enumset)))
       (let f ((s (get-symbols enumset))(l '()))
         (if (null? s)
-          (reverse! l)
-          (if (zero? (bitwise-and (get-value enumset (car s)) value))
-            (f (cdr s) l)
-            (f (cdr s) (cons (car s) l)))))))
+            (reverse! l)
+            (if (zero? (bitwise-and (get-value enumset (car s)) value))
+                (f (cdr s) l)
+                (f (cdr s) (cons (car s) l)))))))
 
   (define/contract (enum-set-member? symbol:symbol enumset:enum)
     (let ((v (get-value enumset symbol)))
       (if v
-        (not (zero? (bitwise-and v (enum-value enumset))))
-        #f)))
+          (not (zero? (bitwise-and v (enum-value enumset))))
+          #f)))
 
   (define/contract (enum-set-subset? enumset1:enum enumset2:enum)
     (let ((v1 (enum-value enumset1))
           (v2 (enum-value enumset2)))
          (if (enum-type=? enumset1 enumset2)
-            (= (bitwise-and v1 v2) v1)
-            (let f ((s (get-symbols enumset1)))
-              (if (null? s)
-                #t
-                (let ((v1* (get-value enumset1 (car s)))
-                      (v2* (get-value enumset2 (car s))))
-                  (if v2*
-                    (let ((has1 (not (zero? (bitwise-and v1 v1*))))
-                          (has2 (not (zero? (bitwise-and v2 v2*)))))
-                       (if (and has1 (not has2))
-                          #f
-                          (f (cdr s))))
-                    #f)))))))
+              (= (bitwise-and v1 v2) v1)
+              (let f ((s (get-symbols enumset1)))
+                (if (null? s)
+                    #t
+                    (let ((v1* (get-value enumset1 (car s)))
+                          (v2* (get-value enumset2 (car s))))
+                      (if v2*
+                          (let ((has1 (not (zero? (bitwise-and v1 v1*))))
+                                (has2 (not (zero? (bitwise-and v2 v2*)))))
+                             (if (and has1 (not has2))
+                                  #f
+                                  (f (cdr s))))
+                          #f)))))))
 
   (define/contract (enum-set=? enumset1:enum enumset2:enum)
     (and
@@ -154,17 +154,17 @@ See docs/license.txt. |#
 
   (define/contract (enum-set-union enumset1:enum enumset2:enum)
     (if (enum-type=? enumset1 enumset2)
-      (make-enum
-        (bitwise-ior (enum-value enumset1) (enum-value enumset2))
-        (enum-info enumset1))
-      #f))
+        (make-enum
+          (bitwise-ior (enum-value enumset1) (enum-value enumset2))
+          (enum-info enumset1))
+        #f))
 
   (define/contract (enum-set-intersection enumset1:enum enumset2:enum)
     (if (enum-type=? enumset1 enumset2)
-      (make-enum
-        (bitwise-and (enum-value enumset1) (enum-value enumset2))
-        (enum-info enumset1))
-      #f))
+        (make-enum
+          (bitwise-and (enum-value enumset1) (enum-value enumset2))
+          (enum-info enumset1))
+        #f))
 
   (define/contract (enum-set-difference enumset1:enum enumset2:enum)
     (if (enum-type=? enumset1 enumset2)
@@ -173,7 +173,7 @@ See docs/license.txt. |#
             (enum-value enumset1) 
             (bitwise-not (enum-value enumset2)))
           (enum-info enumset1))
-      #f))
+        #f))
 
   (define/contract (enum-set-complement enumset:enum)
     (make-enum
@@ -184,16 +184,15 @@ See docs/license.txt. |#
     (let ((v1 (enum-value enumset1)))
        (let f ((s (get-symbols enumset1))(v 0))
           (if (null? s)
-            (make-enum v (enum-info enumset2))
-            (if (zero? (bitwise-and v1 (get-value enumset1 (car s))))
-              (f (cdr s) v)
-              (let ((v2 (get-value enumset2 (car s))))
-                (if v2
-                  (f (cdr s) (bitwise-ior v v2))
-                  (f (cdr s) v))))))))
+              (make-enum v (enum-info enumset2))
+              (if (zero? (bitwise-and v1 (get-value enumset1 (car s))))
+                  (f (cdr s) v)
+                  (let ((v2 (get-value enumset2 (car s))))
+                    (if v2
+                        (f (cdr s) (bitwise-ior v v2))
+                        (f (cdr s) v))))))))
 
   (add-record-printer! enum? 
     (lambda (x p wr)
-      (fprintf p "#<enum-set ~a>" (enum-set->list x))))  
-)      
+      (fprintf p "#<enum-set ~a>" (enum-set->list x)))))      
     

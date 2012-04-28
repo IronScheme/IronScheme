@@ -143,8 +143,4 @@ See docs/license.txt. |#
     (clr-call Object GetHashCode sym))
     
   (define (equal-hash obj)
-    (string-hash (format "~a" obj)))    
-   
-
-    
-)
+    (string-hash (format "~a" obj))))
