@@ -116,28 +116,28 @@ See docs/license.txt. |#
   (define (sort iter sorters)
     (let ((l (iterator->list iter)))
       (if (null? l) 
-        (empty)
-        (let ((r (cdr l)))
-          (if (null? r) 
-            (list-iterator l)
-            (list-iterator 
-              (list-sort
-                (lambda (a b)
-                  (let f ((sorters sorters))
-                    (if (null? sorters) 
-                      #f
-                      (let* ((s (car sorters))
-                             (sel (sorter-sel s))
-                             (a (sel a))
-                             (b (sel b)))
-                        (unless (sorter-eq s)
-                          (sorter-eq-set! s (get-eq a))
-                          (sorter-cmp-set! s 
-                            (get-comparer (sorter-asc? s) a)))
-                        (if ((sorter-eq s) a b)
-                          (f (cdr sorters))
-                          ((sorter-cmp s) a b))))))
-                l)))))))
+          (empty)
+          (let ((r (cdr l)))
+            (if (null? r) 
+                (list-iterator l)
+                (list-iterator 
+                  (list-sort
+                    (lambda (a b)
+                      (let f ((sorters sorters))
+                        (if (null? sorters) 
+                            #f
+                            (let* ((s (car sorters))
+                                   (sel (sorter-sel s))
+                                   (a (sel a))
+                                   (b (sel b)))
+                              (unless (sorter-eq s)
+                                (sorter-eq-set! s (get-eq a))
+                                (sorter-cmp-set! s 
+                                  (get-comparer (sorter-asc? s) a)))
+                              (if ((sorter-eq s) a b)
+                                  (f (cdr sorters))
+                                  ((sorter-cmp s) a b))))))
+                    l)))))))
 
   (define (order-by-iterator iter . sorters)
     (make-delayed-iterator 
@@ -147,21 +147,21 @@ See docs/license.txt. |#
   (define (get-group iter sel proc)
     (let ((l (iterator->list iter)))
       (if (null? l) 
-        (empty)
-        (let ((ht (get-hashtable (car l))))
-          (for-each
-            (lambda (x)
-              (let ((key (proc x)))
-                (hashtable-update! ht key
-                  (lambda (o)
-                    (cons (sel x) o))
-                  '())))
-            l)
-          (vector-iterator
-            (vector-map
-              (lambda (key)
-                (make-grouping key (list-iterator (reverse! (hashtable-ref ht key '())))))
-              (hashtable-keys ht)))))))
+          (empty)
+          (let ((ht (get-hashtable (car l))))
+            (for-each
+              (lambda (x)
+                (let ((key (proc x)))
+                  (hashtable-update! ht key
+                    (lambda (o)
+                      (cons (sel x) o))
+                    '())))
+              l)
+            (vector-iterator
+              (vector-map
+                (lambda (key)
+                  (make-grouping key (list-iterator (reverse! (hashtable-ref ht key '())))))
+                (hashtable-keys ht)))))))
 
   (define (group-by-iterator iter sel proc)
     (make-delayed-iterator 
@@ -191,8 +191,8 @@ See docs/license.txt. |#
   ; this is a bit daft, but conforms with the output on LINQ in .NET
   (define (group-if-needed key vals)
     (if (empty? vals) 
-      (empty)
-      (make-grouping key vals)))
+        (empty)
+        (make-grouping key vals)))
 
   (define (identity x) x)
 
@@ -256,19 +256,19 @@ See docs/license.txt. |#
                   #'(rest ...))]
               [(from e* in l* rest ...)
                 (if (valid-id? #'e* vars)
-                  (recur (cons #'e* vars)
-                    #`(flatten-iterator
-                        (map-iterator #,l
-                          (bind* #,vars K
-                            (map-iterator (get-iterator l*) (lambda (K*) (cons K* K))))))
-                     #'(rest ...))
-                  (syntax-violation 'from "not a unique identifier" #'e* x*))]
+                    (recur (cons #'e* vars)
+                      #`(flatten-iterator
+                          (map-iterator #,l
+                            (bind* #,vars K
+                              (map-iterator (get-iterator l*) (lambda (K*) (cons K* K))))))
+                       #'(rest ...))
+                    (syntax-violation 'from "not a unique identifier" #'e* x*))]
               [(let a = b rest ...)
                 (if (valid-id? #'a vars)
-                  (recur (cons #'a vars)
-                    #`(map-iterator #,l (bind* #,vars K (cons b K)))
-                    #'(rest ...))
-                  (syntax-violation 'from "not a unique identifier" #'a x*))]
+                    (recur (cons #'a vars)
+                      #`(map-iterator #,l (bind* #,vars K (cons b K)))
+                      #'(rest ...))
+                    (syntax-violation 'from "not a unique identifier" #'a x*))]
               [(orderby rest ...)
                 (with-syntax ((asc #'ascending)
                               (desc #'descending))
@@ -299,27 +299,27 @@ See docs/license.txt. |#
               [(join e* in l* on a equals b into f rest ...)
                 (identifier? #'f)
                 (if (valid-id? #'e* vars)
-                  (if (valid-id? #'f* vars)
-                    (with-syntax (((a* eq) (generate-temporaries '(a* eq))))
-                      (recur vars l
-                         #'(let a* = a
-                            let eq = (get-eq a*)
-                            let f = (group-if-needed a*
-                             (from e* in l*
-                              where (eq a* b)
-                              select e*)) rest ...)))
-                    (syntax-violation 'from "not a unique identifier" #'f x*))
-                  (syntax-violation 'from "not a unique identifier" #'e* x*))]
+                    (if (valid-id? #'f* vars)
+                        (with-syntax (((a* eq) (generate-temporaries '(a* eq))))
+                          (recur vars l
+                             #'(let a* = a
+                                let eq = (get-eq a*)
+                                let f = (group-if-needed a*
+                                 (from e* in l*
+                                  where (eq a* b)
+                                  select e*)) rest ...)))
+                        (syntax-violation 'from "not a unique identifier" #'f x*))
+                    (syntax-violation 'from "not a unique identifier" #'e* x*))]
               [(join e* in l* on a equals b rest ...)
                 (if (valid-id? #'e* vars)
-                  (with-syntax (((a* eq) (generate-temporaries '(a* eq))))
-                    (recur vars l
-                      #'(let a* = a
-                         let eq = (get-eq a*)
-                         from e* in l* 
-                         where (eq a* b) 
-                         rest ...)))
-                  (syntax-violation 'from "not a unique identifier" #'e* x*))]))])))
+                    (with-syntax (((a* eq) (generate-temporaries '(a* eq))))
+                      (recur vars l
+                        #'(let a* = a
+                           let eq = (get-eq a*)
+                           from e* in l* 
+                           where (eq a* b) 
+                           rest ...)))
+                    (syntax-violation 'from "not a unique identifier" #'e* x*))]))])))
 
   (define-record-type iterator 
     (opaque #t) 
@@ -453,11 +453,9 @@ See docs/license.txt. |#
     (make-iterator
       (lambda ()
         (let f ((r (move-next iter)))
-          (and 
-            r
-            (or 
-              (proc (current iter))
-              (f (move-next iter))))))
+          (and r
+              (or (proc (current iter))
+                  (f (move-next iter))))))
       (lambda ()
         (current iter))
       (lambda ()
@@ -472,16 +470,16 @@ See docs/license.txt. |#
         (lambda ()
           (define (next)
             (if (eq? iter outer)
-              (and (move-next outer)
-                (begin
-                  (set! iter (current iter))
-                  (reset iter)
-                  (next)))
-              (or 
-                (move-next iter)
-                (begin
-                  (set! iter outer)
-                  (next)))))
+                (and (move-next outer)
+                  (begin
+                    (set! iter (current iter))
+                    (reset iter)
+                    (next)))
+                (or 
+                  (move-next iter)
+                  (begin
+                    (set! iter outer)
+                    (next)))))
           (next))  
         (lambda ()
           (current iter))
@@ -530,13 +528,13 @@ See docs/license.txt. |#
       (make-iterator
         (lambda ()
           (if (< i count)
-            (let f ((r (move-next iter)))
-              (and r
-                (or (= i count)
-                  (begin
-                    (set! i (+ i 1))
-                    (f (move-next iter))))))
-            (move-next iter)))
+              (let f ((r (move-next iter)))
+                (and r
+                    (or (= i count)
+                      (begin
+                        (set! i (+ i 1))
+                        (f (move-next iter))))))
+              (move-next iter)))
         (lambda ()
           (current iter))
         (lambda ()
@@ -548,17 +546,17 @@ See docs/license.txt. |#
       (reset iter)
       (let f ((r (move-next iter))(a init))
         (if r
-          (let ((cur (current iter)))
-            (f (move-next iter) (proc a cur)))
-          a))))
+            (let ((cur (current iter)))
+              (f (move-next iter) (proc a cur)))
+            a))))
 
   (define (iterator->list iter)
     (reset iter)
     (let f ((r (move-next iter))(a '()))
       (if r
-        (let ((cur (current iter)))
-          (f (move-next iter) (cons cur a)))
-        (reverse! a))))
+          (let ((cur (current iter)))
+            (f (move-next iter) (cons cur a)))
+          (reverse! a))))
 
   (define (iterator->vector iter)
     (list->vector (iterator->list iter)))
@@ -571,14 +569,12 @@ See docs/license.txt. |#
     (let ((ht #f))
       (let f ((r (move-next iter)))
         (if r
-          (let-values (((k v) (sel (current iter))))
-            (unless ht
-              (set! ht (get-hashtable k)))
-            (hashtable-set! ht k v)
-            (f (move-next iter)))
-          (or 
-            ht
-            (make-eq-hashtable))))))
+            (let-values (((k v) (sel (current iter))))
+              (unless ht
+                (set! ht (get-hashtable k)))
+              (hashtable-set! ht k v)
+              (f (move-next iter)))
+            (or ht (make-eq-hashtable))))))
 
   (define (get-iterator obj)
     (cond
@@ -615,35 +611,35 @@ See docs/license.txt. |#
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
-        (let ((r (current iter)))
-          (if (move-next iter)
-            (assertion-violation 'single "contains more than one element" iter)
-            r))
-        (assertion-violation 'single "contains no elements" iter))))
+          (let ((r (current iter)))
+            (if (move-next iter)
+                (assertion-violation 'single "contains more than one element" iter)
+                r))
+          (assertion-violation 'single "contains no elements" iter))))
 
   (define (single/default iter default)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
-        (let ((r (current iter)))
-          (if (move-next iter)
-            (assertion-violation 'single/default "contains more than one element" iter)
-            r))
-        default)))
+          (let ((r (current iter)))
+            (if (move-next iter)
+                (assertion-violation 'single/default "contains more than one element" iter)
+                r))
+          default)))
 
   (define (first iter)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
-        (current iter)
-        (assertion-violation 'first "contains no elements" iter))))
+          (current iter)
+          (assertion-violation 'first "contains no elements" iter))))
 
   (define (first/default iter default)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
-        (current iter)
-        default)))
+          (current iter)
+          default)))
 
   (define (last iter)
     (let* ((init (list #f))
@@ -651,8 +647,8 @@ See docs/license.txt. |#
       (foreach e in iter
         (set! cur e))
       (if (eq? cur init)
-        (assertion-violation 'last "contains no elements" iter)
-        cur)))
+          (assertion-violation 'last "contains no elements" iter)
+          cur)))
 
   (define (last/default iter default)
     (let* ((init (list #f))
@@ -660,16 +656,16 @@ See docs/license.txt. |#
       (foreach e in iter
         (set! cur e))
       (if (eq? cur init)
-        default
-        cur)))
+          default
+          cur)))
 
   (define (count iter)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (let f ((r (move-next iter))(i 0))
         (if r
-          (f (move-next iter) (+ i 1))
-          i))))
+            (f (move-next iter) (+ i 1))
+            i))))
 
   (define range
     (case-lambda
@@ -707,9 +703,9 @@ See docs/license.txt. |#
             (move-next iter2)
             (let ((r (move-next iter1)))
               (or r
-                (begin
-                  (set! iter1-done? #t)
-                  (move-next iter2))))))
+                  (begin
+                    (set! iter1-done? #t)
+                    (move-next iter2))))))
         (lambda ()
           (if iter1-done?
             (current iter2)
@@ -750,8 +746,8 @@ See docs/license.txt. |#
           (break)
         (set! i (+ i 1))))
       (if (= i index)
-        r
-        (assertion-violation 'element-at "index out of range" iter index))))
+          r
+          (assertion-violation 'element-at "index out of range" iter index))))
 
   (define (element-at/default iter index default)
     (let ((i 0)
@@ -762,18 +758,18 @@ See docs/license.txt. |#
           (break)
         (set! i (+ i 1))))
       (if (= i index)
-        r
-        default)))
+          r
+          default)))
 
   (define (repeat obj count)
     (let ((i 0))
       (make-iterator
         (lambda ()
           (if (< i count)
-            (begin
-              (set! i (+ i 1))
-              #t)
-            #f))
+              (begin
+                (set! i (+ i 1))
+                #t)
+              #f))
         (lambda ()
           (unless (<= i count)
             (assertion-violation 'current "moved past end of iterator"))
@@ -827,8 +823,8 @@ See docs/license.txt. |#
         (reset iter2)
         (let f ((r1 (move-next iter1))(r2 (move-next iter2)))
           (if (and r1 r2 (equals? (current iter1) (current iter2)))
-            (f (move-next iter1) (move-next iter2))
-            (not (or r1 r2))))]))
+              (f (move-next iter1) (move-next iter2))
+              (not (or r1 r2))))]))
 
   (define (distinct iter)
     (let ((iter (get-iterator iter))
@@ -841,13 +837,13 @@ See docs/license.txt. |#
             (reset iter))
           (let f ((r (move-next iter)))
             (if r
-              (let ((cur (current iter)))
-                (if (hashtable-contains? ht cur)
-                  (f (move-next iter))
-                  (begin
-                    (hashtable-set! ht cur #t)
-                    #t)))
-              #f)))
+                (let ((cur (current iter)))
+                  (if (hashtable-contains? ht cur)
+                      (f (move-next iter))
+                      (begin
+                        (hashtable-set! ht cur #t)
+                        #t)))
+                #f)))
         (lambda ()
           (current iter))
         (lambda ()
@@ -867,13 +863,13 @@ See docs/license.txt. |#
               (hashtable-set! ht e #t)))
           (let f ((r (move-next iter1)))
             (if r
-              (let ((cur (current iter1)))
-                (if (hashtable-contains? ht cur)
-                  (f (move-next iter1))
-                  (begin
-                    (hashtable-set! ht cur #t)
-                    #t)))
-               #f)))
+                (let ((cur (current iter1)))
+                  (if (hashtable-contains? ht cur)
+                      (f (move-next iter1))
+                      (begin
+                        (hashtable-set! ht cur #t)
+                        #t)))
+                 #f)))
         (lambda ()
           (current iter1))
         (lambda ()
@@ -894,13 +890,13 @@ See docs/license.txt. |#
               (hashtable-set! ht e #t)))
           (let f ((r (move-next iter1)))
             (if r
-              (let ((cur (current iter1)))
-                (if (hashtable-contains? ht cur)
-                  (begin
-                    (hashtable-delete! ht cur)
-                    #t)
-                  (f (move-next iter1))))
-               #f)))
+                (let ((cur (current iter1)))
+                  (if (hashtable-contains? ht cur)
+                      (begin
+                        (hashtable-delete! ht cur)
+                        #t)
+                      (f (move-next iter1))))
+                 #f)))
         (lambda ()
           (current iter1))
         (lambda ()

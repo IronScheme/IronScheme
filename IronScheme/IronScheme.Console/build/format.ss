@@ -70,8 +70,5 @@ See docs/license.txt. |#
     (call-with-values open-string-output-port
       (lambda (p c)
         (dofmt p control args)
-        (c))))
-        
-          
-) 
+        (c))))) 
     

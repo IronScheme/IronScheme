@@ -16,8 +16,7 @@ See docs/license.txt. |#
     get-environment-variables
     get-environment-variable
     set-environment-variable!
-    expand-environment-variables
-    )
+    expand-environment-variables)
   (import 
     (rnrs)
     (ironscheme contracts)
@@ -59,6 +58,4 @@ See docs/license.txt. |#
     (clr-static-call Environment SetEnvironmentVariable name value))    
     
   (define/contract (expand-environment-variables name:string)
-    (clr-static-call Environment ExpandEnvironmentVariables name))    
-
-)
+    (clr-static-call Environment ExpandEnvironmentVariables name)))

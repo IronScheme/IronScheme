@@ -7,8 +7,7 @@ See docs/license.txt. |#
 (library (ironscheme registry)
   (export
     get-registry-value
-    set-registry-value!
-    )
+    set-registry-value!)
   (import 
     (rnrs)
     (ironscheme contracts)

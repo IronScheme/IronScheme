@@ -25,14 +25,14 @@ See docs/license.txt. |#
       (let ((names (record-type-field-names rtd)))
         (let f ((x x)(o '()))
           (if (null? x)
-            o
-            (let g ((i (get-index names (car x)))(rtd rtd))
-              (if i
-                (f (cdr x) (cons ((record-accessor rtd i) r) o))
-                (let ((prtd (record-type-parent rtd)))
-                  (if prtd
-                    (g (get-index (record-type-field-names prtd) (car x)) prtd)
-                    (assertion-violation 'get-fields "field not found" (car x) r))))))))))
+              o
+              (let g ((i (get-index names (car x)))(rtd rtd))
+                (if i
+                    (f (cdr x) (cons ((record-accessor rtd i) r) o))
+                    (let ((prtd (record-type-parent rtd)))
+                      (if prtd
+                          (g (get-index (record-type-field-names prtd) (car x)) prtd)
+                          (assertion-violation 'get-fields "field not found" (car x) r))))))))))
 
   (define-syntax record-case
     (lambda (x)
@@ -47,7 +47,5 @@ See docs/license.txt. |#
                   (get-fields r* (record-type-descriptor r?) 'f ...) )] ...
                 [else ee]))]
         [(_ r [(r? f ...) e  e* ...] ... )
-          #'(record-case r [(r? f ...) e e* ...] ... [else #f])]
-          )))
-)
+          #'(record-case r [(r? f ...) e e* ...] ... [else #f])]))))
     

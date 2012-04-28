@@ -9,12 +9,10 @@ See docs/license.txt. |#
     list-sort
     vector-sort
     vector-sort!)
-    
   (import 
     (except (rnrs) list-sort vector-sort vector-sort!)
     (ironscheme unsafe)
     (ironscheme contracts)
-    ;(ironscheme unsafe)
     (ironscheme clr))
   
   (define (split ls)
@@ -51,12 +49,12 @@ See docs/license.txt. |#
           (let ((car-1 (car source-1))
                 (car-2 (car source-2)))
             (if (precedes? car-2 car-1)
-              (loop source-1
-                (cdr source-2)
-                (cons car-2 so-far))
-              (loop source-2
-                (cdr source-1)
-                (cons car-1 so-far))))))))         
+                (loop source-1
+                  (cdr source-2)
+                  (cons car-2 so-far))
+                (loop source-2
+                  (cdr source-1)
+                  (cons car-1 so-far))))))))         
 
   (define/contract (list-sort precedes?:procedure ls:list)
     (if (null? ls)
@@ -84,6 +82,4 @@ See docs/license.txt. |#
   (define/contract (vector-sort pred?:procedure vec:vector)
     (let ((vec (clr-call Array Clone vec)))
       (vector-sort! pred? vec)
-      vec))
-
-)
+      vec)))

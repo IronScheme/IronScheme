@@ -7,7 +7,6 @@ See docs/license.txt. |#
 (library (ironscheme programs)
   (export
     exit)
-    
   (import 
     (except (rnrs) exit)
     (ironscheme clr))
@@ -19,6 +18,4 @@ See docs/license.txt. |#
         (let ((r (or (and (not reason) 1) reason)))
           (unless (fixnum? r)
             (assertion-violation 'exit "not an integer" r))
-          (clr-static-call Environment Exit r))]))
-        
-)
+          (clr-static-call Environment Exit r))])))

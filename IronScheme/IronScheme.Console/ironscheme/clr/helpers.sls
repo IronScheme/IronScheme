@@ -20,6 +20,4 @@ See docs/license.txt. |#
       (string->symbol 
         (string-append h 
           (symbol->string 
-            (syntax->datum s))))))
-  
-  )
+            (syntax->datum s)))))))

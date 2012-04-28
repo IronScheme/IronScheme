@@ -40,8 +40,8 @@ See docs/license.txt. |#
       [(controller action)
         (resolve-url 
           (if (or (string-ci=? action "index") (string=? action ""))
-            (string-append "~/" controller)
-            (string-append "~/" controller "/" action)))]))
+              (string-append "~/" controller)
+              (string-append "~/" controller "/" action)))]))
 
   (define action/id-url
     (case-lambda 
@@ -68,6 +68,4 @@ See docs/license.txt. |#
           (context-item-set! 'view 'n)
           (render-doctype)
           (display-html
-            (begin body body* ...)))]))                
-    
-)    
+            (begin body body* ...)))])))    

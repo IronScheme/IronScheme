@@ -15,7 +15,7 @@ See docs/license.txt. |#
     (ironscheme contracts)
     (ironscheme clr))
 
-  (clr-reference "System.Web, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")
+  (clr-reference System.Web)
   (clr-using System.Web)
     
   (define/contract (url-encode s:string)
@@ -28,6 +28,4 @@ See docs/license.txt. |#
     (clr-static-call HttpUtility HtmlEncode s))    
     
   (define/contract (html-decode s:string)
-    (clr-static-call HttpUtility HtmlDecode s))    
- 
-)
+    (clr-static-call HttpUtility HtmlDecode s)))

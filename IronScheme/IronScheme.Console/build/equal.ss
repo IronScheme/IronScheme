@@ -166,6 +166,4 @@
       (and k (or (> k 0) (interleave? x y 0)))))
 
   (define (equal? x y)
-    (precheck/interleave-equal? x y))
-
-  )
+    (precheck/interleave-equal? x y)))

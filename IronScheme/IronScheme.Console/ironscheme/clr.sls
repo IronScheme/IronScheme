@@ -31,8 +31,7 @@ See docs/license.txt. |#
     clr-new
     clr-new-array
     clr-guard
-    pinvoke-call
-    )
+    pinvoke-call)
   (import
     (rnrs)
     (only (ironscheme) with-clr-exception-handler)
@@ -66,7 +65,6 @@ See docs/license.txt. |#
         [(_ lib proc ret (args ...))
           (with-syntax (((args ...) (map ->string #'(lib proc ret args ...))))
             #'(pinvoke-call-internal args ...))])))
-            
 
   (define-syntax clr-using
     (lambda (e)
@@ -201,9 +199,4 @@ See docs/license.txt. |#
     (lambda (e)
       (syntax-case e ()
         [(_ type arg)
-         #'(clr-cast-internal 'type arg)])))
-
-
-
-
-  )
+         #'(clr-cast-internal 'type arg)]))))

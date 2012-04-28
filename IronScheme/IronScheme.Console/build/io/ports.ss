@@ -119,9 +119,7 @@ See docs/license.txt. |#
     annotation?
     annotation-expression
     annotation-source
-    annotation-stripped
-    )
-  
+    annotation-stripped)  
   (import 
     (ironscheme clr)
     (ironscheme contracts)
@@ -647,15 +645,14 @@ See docs/license.txt. |#
   (define/contract (lookahead-u8 port:binary-input-port)
     (clr-guard (e [e (io-port-error 'lookahead-u8 port)])  
       (if (port-has-set-port-position!? port)
-        (let ((c (clr-call Stream ReadByte port)))
-          (if (fx=? c -1) 
-              (eof-object)
-              (begin 
-                (set-port-position! port (- (port-position port) 1))
-                c)))
-        #f) ;; check me
-      ))    
-      
+          (let ((c (clr-call Stream ReadByte port)))
+            (if (fx=? c -1) 
+                (eof-object)
+                (begin 
+                  (set-port-position! port (- (port-position port) 1))
+                  c)))
+          #f))) ;; check me
+
   (define-syntax read-buffer
     (syntax-rules ()
       [(_ port buffer start length)
@@ -944,6 +941,4 @@ See docs/license.txt. |#
   (define/contract (call-with-port port:port proc:procedure)
     (let ((r (proc port)))
       (close-port port)
-      r))      
-
-)
+      r)))

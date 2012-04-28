@@ -43,8 +43,8 @@ See docs/license.txt. |#
                     [(n v) 
                         (let ((v* (syntax->datum #'v)))
                           (if (string? v*) 
-                            #`(regex-match? n #,(string-append "^" v* "$"))
-                            (syntax-violation 'match "not a string" #'v e)))]
+                              #`(regex-match? n #,(string-append "^" v* "$"))
+                              (syntax-violation 'match "not a string" #'v e)))]
                     [n #f]))
                 tmp)) #,f ))
       (define (parse-clause e)
@@ -67,11 +67,4 @@ See docs/license.txt. |#
               #'(let ((e* e))
                   (syntax-case e* ()
                     c ...
-                    [_ #f]))))])))
-              
-
-   
-)
-    
-    
-  
+                    [_ #f]))))]))))

@@ -203,28 +203,28 @@ See docs/license.txt. |#
       ($fxnot (fxbit-count* ($fxnot x)))
       (let f ((count 0)(x x))
         (if ($fx<? 0 x)
-          (f ($fx+ count ($fxand x 1))
-             ($fxarithmetic-shift-right x 1))
-          count))))
+            (f ($fx+ count ($fxand x 1))
+               ($fxarithmetic-shift-right x 1))
+            count))))
 
   (define-fx* (fxlength x)
     (if ($fx<? x 0)
       (fxlength* ($fxnot x))
       (let f ((count 0)(x x))
         (if ($fx<? 0 x)
-          (f ($fx+ count 1) ($fxarithmetic-shift-right x 1))
-          count))))
+            (f ($fx+ count 1) ($fxarithmetic-shift-right x 1))
+            count))))
 
   (define-fx (fxfirst-bit-set x)
     (if ($fx=? x 0)
       -1
       (let f ((count 0)(x x))
         (if (not ($fx=? 0 x))
-          (if ($fx=? 1 ($fxand 1 x))
-            count
-            (f ($fx+ count 1)
-               ($fxarithmetic-shift-right x 1)))
-          count))))
+            (if ($fx=? 1 ($fxand 1 x))
+                count
+                (f ($fx+ count 1)
+                   ($fxarithmetic-shift-right x 1)))
+            count))))
 
   (define-fx (fxbit-set? x k)
     (when ($fx<? k 0)
@@ -232,8 +232,8 @@ See docs/license.txt. |#
     (when ($fx>=? k 32)
       (assertion-violation 'fxbit-set? "cannot be larger than 31" k))
     (if ($fx=? 0 x)
-      #f
-      ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))))
+        #f
+        ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))))
 
   (define-fx (fxnot x1)
     ($fxnot x1))
@@ -394,13 +394,13 @@ See docs/license.txt. |#
   (define-fx (fxrotate-bit-field n start end count)
     (let ((width ($fx- end start)))
       (if (fxpositive?* width)
-        (let ((count (fxmod* count width))
-              (field (fxbit-field* n start end)))
-           (fxcopy-bit-field* n start end 
-            ($fxior 
-              ($fxarithmetic-shift-left field count) 
-              ($fxarithmetic-shift-right field ($fx- width count)))))
-        n)))
+          (let ((count (fxmod* count width))
+                (field (fxbit-field* n start end)))
+             (fxcopy-bit-field* n start end 
+              ($fxior 
+                ($fxarithmetic-shift-left field count) 
+                ($fxarithmetic-shift-right field ($fx- width count)))))
+          n)))
 
   ;; from larceny        
   (define-fx (fxreverse-bit-field x1 start end)
@@ -413,6 +413,4 @@ See docs/license.txt. |#
                 ($fxior ($fxarithmetic-shift-left rbits 1)
                        ($fxand bits 1))))
         (($fx=? width 0)
-         (fxcopy-bit-field* x1 start end rbits))))
-
-)
+         (fxcopy-bit-field* x1 start end rbits)))))

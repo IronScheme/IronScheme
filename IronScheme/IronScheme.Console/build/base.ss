@@ -565,6 +565,4 @@ See docs/license.txt. |#
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
               (apply p (map (ref i) 
-                            (cons str1 strs)))))]))
-
-)
+                            (cons str1 strs)))))])))

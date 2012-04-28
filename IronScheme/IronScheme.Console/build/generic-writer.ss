@@ -142,9 +142,9 @@ See docs/license.txt. |#
                        (cat (char-general-category chr)))
                   (cond 
                     [(or (and ($fxzero? i) 
-                         (or (eq? cat 'Nd)
-                             (char=? chr #\@)
-                             (and (char=? chr #\.) (not (string=? str "...")))))
+                              (or (eq? cat 'Nd)
+                                  (char=? chr #\@)
+                                  (and (char=? chr #\.) (not (string=? str "...")))))
                          (memq cat '(Cn Zs)))
                       (put-string port "\\x")
                       (put-string port (number->string (char->integer chr) 16))

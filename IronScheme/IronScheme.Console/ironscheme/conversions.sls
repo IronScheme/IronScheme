@@ -64,7 +64,4 @@ See docs/license.txt. |#
     (clr-static-call Convert ToBoolean obj))
   
   (define (->datetime obj)
-    (clr-static-call Convert ToDateTime obj))
-          
-
-)
+    (clr-static-call Convert ToDateTime obj)))

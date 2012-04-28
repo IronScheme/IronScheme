@@ -224,8 +224,3 @@ See docs/license.txt. |#
     (syntax-rules ()
       [(_ clr-type meth)
         (generate-clr-call-site (type clr-type) 'meth #t)])))
-    
-
-          
-          
-

@@ -35,7 +35,4 @@
                 (list-match-aux kar-obj kar
                       (list-match-aux kdr-obj kdr fender template))))]
         [(_ obj const fender template)
-          #'(and (equal? obj const) fender template)])))         
-  
-  
-)
+          #'(and (equal? obj const) fender template)]))))

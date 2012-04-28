@@ -324,5 +324,4 @@ help        - Displays this
              [(debugger-exit? e) (void)]
              [e (handle-exception e)]]
         (load filename))
-      (printf "Exiting debugger\n")
-      )))
+      (printf "Exiting debugger\n"))))

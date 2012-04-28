@@ -35,6 +35,4 @@ See docs/license.txt. |#
             #'(syntax-case expr ()
                 [p 
                  (and (=? #'lit 'lit) ... f)
-                 e] ...))])))
-
-)
+                 e] ...))]))))

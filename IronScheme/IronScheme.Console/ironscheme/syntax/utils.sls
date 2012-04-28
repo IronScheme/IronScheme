@@ -13,6 +13,4 @@ See docs/license.txt. |#
   (define (syntax-format fmt loc . args)
     (datum->syntax loc 
       (string->symbol
-        (apply format fmt (map syntax->datum args)))))
-
-)
+        (apply format fmt (map syntax->datum args))))))

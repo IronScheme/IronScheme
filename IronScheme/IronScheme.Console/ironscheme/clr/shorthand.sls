@@ -53,5 +53,4 @@ See docs/license.txt. |#
         [(_ ((id type) ...) b b* ...)
           (for-all identifier? #'(id ... type ...))
           (with-syntax (((e ...) (map parse-clause #'(id ...) #'(type ...))))
-            #'(let-syntax ((id e) ...) b b* ...))])))  
-  )
+            #'(let-syntax ((id e) ...) b b* ...))]))))

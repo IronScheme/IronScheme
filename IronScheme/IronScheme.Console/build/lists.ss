@@ -41,9 +41,7 @@ See docs/license.txt. |#
     list-ref
     append
     list?
-    length
-    )
-    
+    length)
   (import 
     (ironscheme core)
     (ironscheme clr)
@@ -421,6 +419,4 @@ See docs/license.txt. |#
      (remp (lambda (x) (eqv? obj x)) list))
       
    (define (remq obj list)
-     (remp (lambda (x) (eq? obj x)) list))
-)
-
+     (remp (lambda (x) (eq? obj x)) list)))

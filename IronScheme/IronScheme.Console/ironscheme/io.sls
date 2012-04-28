@@ -12,8 +12,7 @@ See docs/license.txt. |#
     
     synchronized-textual-output-port
     synchronized-textual-input-port
-    synchronized-binary-port
-    )
+    synchronized-binary-port)
     
   (import 
     (ironscheme)
@@ -38,6 +37,4 @@ See docs/license.txt. |#
     (clr-static-call TextReader Synchronized port))    
 
   (define/contract (synchronized-binary-port port:binary-port)
-    (clr-static-call Stream Synchronized port))    
-    
-)
+    (clr-static-call Stream Synchronized port)))
