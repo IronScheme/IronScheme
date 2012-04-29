@@ -112,7 +112,6 @@
              (file-exists? x)
              (open-package 
                (lambda ()
-                 ;(printf "~a\n" x)
                  (open-file-input-port x)))
              x))))
                  
@@ -152,16 +151,8 @@
                                "/tests/r6rs/run.sps")))
       (time (load path))))
       
-  (define ironscheme-build
-    (case-lambda
-      [()      (ironscheme-build #f)]
-      [(cps?)  
-        ;(call-with-output-file "build-options.ss"
-          ;(lambda (p)
-            ;(write `(define-option cps-mode ,cps?) p)
-            ;(write `(define-option if-wants-letrec* ,(not cps?)) p)
-            ;(newline p)))
-        (load "ironscheme-buildscript.ss")]))
+  (define (ironscheme-build)
+    (load "ironscheme-buildscript.ss"))
     
   (define foreground-color
     (case-lambda
@@ -283,8 +274,7 @@
 			        (when sp
   	            (serialize-port (library-map) sp)
  		            (put-bytevector sp (extracter))
-  		          (close-output-port sp))
-				      )))))
+  		          (close-output-port sp)))))))
     
   (define (load-r6rs-top-level filename how . args)
     (parameterize ([library-path (local-library-path filename)])
@@ -479,6 +469,4 @@
   
   (interaction-environment (new-interaction-environment))
   
-  (set-symbol-value! 'r6rs-loaded #t)
-  )
-
+  (set-symbol-value! 'r6rs-loaded #t))

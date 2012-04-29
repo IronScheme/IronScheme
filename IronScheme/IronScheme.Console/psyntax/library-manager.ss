@@ -394,7 +394,6 @@
         (visit)
         (set-library-visit-state! lib #t))))
 
-
   (define (invoke-library-by-spec spec)
     (invoke-library (find-library-by-spec/die spec)))
 
@@ -413,6 +412,4 @@
     (lambda (x) 
       (unless (library? x)
         (assertion-violation 'library-spec "not a library" x))
-      (list (library-id x) (library-name x) (library-version x)))) 
-  )
-
+      (list (library-id x) (library-name x) (library-version x)))))
