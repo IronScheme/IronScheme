@@ -26,7 +26,7 @@
     build-case-lambda build-let build-primref build-foreign-call
     build-data build-sequence build-void build-letrec build-letrec*
     build-global-define build-library-letrec*)
-  (import (rnrs) (psyntax compat) ;(psyntax config) 
+  (import (rnrs) (psyntax compat)
           (only (ironscheme) debug-mode? lw-debug-mode?))
   
   (define (build-global-define x)
@@ -115,8 +115,4 @@
           `(letrec* ,(map list vars val-exps) ,body-exp)))))
   (define build-library-letrec*
     (lambda (ae name vars locs val-exps body-exp)
-      `(library-letrec* ,name ,(map list vars locs val-exps) ,body-exp)))
-
-  )
-
-
+      `(library-letrec* ,name ,(map list vars locs val-exps) ,body-exp))))

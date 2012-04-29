@@ -121,10 +121,6 @@
         (else x)))
     f)
   
-  #;(define need-quote-hack?
-    (let ((x (cons 1 2)))
-      (not (eq? (eval-core `',x) (eval-core `',x)))))
-
   (define (expanded->core x)
     ((rewriter #f) x))
     
@@ -136,5 +132,3 @@
 
   (define (compile-core-expr-to-port x p)
     (pretty-print ((rewriter #f) x) p)))
-
-
