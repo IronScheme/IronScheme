@@ -109,7 +109,7 @@ namespace IronScheme.Runtime.Typed
       return (a1, a2, a3, a4, a5, a6, a7, a8) => Unbox<R>(f(a1, a2, a3, a4, a5, a6, a7, a8));
     }
 
-    public static Action MakeVoidTyped<R>(CallTarget0 f)
+    public static Action MakeVoidTyped(CallTarget0 f)
     {
       return () => f();
     }
