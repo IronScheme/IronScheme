@@ -611,89 +611,24 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655934
-    string ReadToEndInternal()
-    {
-      int c;
-      var res = new List<char>();
-      var buffer = new char[4096];
-      
-      while ((c = Read(buffer, 0, buffer.Length)) > 0)
-      {
-        for (int i = 0; i < c; i++)
-        {
-          res.Add(buffer[i]);
-        }
-      }
-
-      return new string(res.ToArray());
-    }
-
     public override string ReadToEnd()
     {
-      string value = ReadToEndInternal();
-      //if (tc.eolstyle != IO.eol_none)
-      //{
-        value = IO.eoltx.Replace(value, delegate(Match m)
-        {
-          return IO.GetNewline(tc.eolstyle, "\n");
-        });
-      //}
-      //else
-      //{
-      //  value = value.Replace("\r", "");
-      //}
+      string value = base.ReadToEnd();
+      value = IO.eoltx.Replace(value, delegate(Match m)
+      {
+        return IO.GetNewline(tc.eolstyle, "\n");
+      });
       return value;
     }
 
-#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655934
-    string ReadLineInternal()
-    {
-      int c;
-      var res = new List<char>();
-      
-      while ((c = Read()) >= 0)
-      {
-        var chr = (char)c;
-        // only deal with non-Unicode specific line-endings
-        if (chr == '\r')
-        {
-          if (Peek() == '\n')
-          {
-            // swallow for \r\n
-            Read();
-          }
-          return new string(res.ToArray());
-        }
-        else if (chr == '\n')
-        {
-          return new string(res.ToArray());
-        }
-
-        res.Add(chr);
-      }
-
-      // null implies EOF
-      Debug.Assert (res.Count == 0);
-      return null;
-    }
     
-    public
-
- override string ReadLine()
+    public override string ReadLine()
     {
-      string value = ReadLineInternal();
-      //if (tc.eolstyle != IO.eol_none)
-      //{
-        value = IO.eoltx.Replace(value, delegate(Match m)
-        {
-          return IO.GetNewline(tc.eolstyle, "\n");
-        });
-      //}
-      //else
-      //{
-      //  value = value.Replace("\r", "");
-      //}
+      string value = base.ReadLine();
+      value = IO.eoltx.Replace(value, delegate(Match m)
+      {
+        return IO.GetNewline(tc.eolstyle, "\n");
+      });
       return value;
     }
     

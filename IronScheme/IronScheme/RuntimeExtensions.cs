@@ -119,9 +119,6 @@ namespace IronScheme
       return (T)EvalWithEnvironment(expr, importspec, args);
     }
 
-
-#pragma warning disable 3001,3002
-
     readonly static Type[] CallTargets = 
     {
       typeof(CallTarget0),
@@ -170,8 +167,6 @@ namespace IronScheme
     {
       return Runtime.Helpers.ConvertToDelegate<T>(c);
     }
-
-#pragma warning restore 3001,3002
   }
   
   public class ExecutableLoader : MarshalByRefObject
