@@ -211,41 +211,6 @@ namespace IronScheme.Compiler
               }
 
             }
-            else
-            {
-              // what here?
-              if (false)
-              foreach (var kv in typecounts)
-              {
-                if (kv.Key == typeof(object))
-                {
-                  continue;
-                }
-
-                if (Generator.assigns.ContainsKey(var.Name))
-                {
-                  return val;
-                }
-
-                if (kv.Key != typeof(bool) && kv.Key != typeof(SymbolId) && kv.Key != typeof(Microsoft.Scripting.Math.Complex64) && kv.Key.IsValueType)
-                {
-                  var.Type = kv.Key;
-                  Count++;
-                  rebinds[var.Block] = true;
-                  return Unwrap(val);
-                }
-                //if (!kv.Key.IsValueType)
-                //{
-                //  var.Type = kv.Key;
-                //  Count++;
-                //  rebinds[var.Block] = true;
-                //  return Unwrap(val);
-                //}
-                break;
-              }
-
-              var = null;
-            }
           }
 
           return val;
