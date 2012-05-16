@@ -42,7 +42,7 @@ namespace IronScheme.Compiler
 
           if (v.Type == typeof(object))
           {
-            if (val.Type != typeof(object))
+            if (val.Type != typeof(object) && !v.Uninitialized)
             {
               v.Type = val.Type;
             }
@@ -194,7 +194,7 @@ namespace IronScheme.Compiler
         {
           var typecounts = vartypes[var];
 
-          if (var.Type == typeof(object) && var.Kind != Variable.VariableKind.Parameter)
+          if (var.Type == typeof(object) && var.Kind != Variable.VariableKind.Parameter && !var.Uninitialized)
           {
             if (typecounts.Count == 1)
             {

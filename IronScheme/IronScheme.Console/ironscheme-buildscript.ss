@@ -307,6 +307,7 @@
     (library                                    i) 
     (include                                    i)
     (stale-when                                 i)
+    (strict-mode?                               i)
     (debug-mode?                                i)
     (lw-debug-mode?                             i)
     (lw-debugger                                i)

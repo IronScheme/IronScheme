@@ -43,6 +43,7 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         public bool LightweightDebugging {get;set;}
+        public bool StrictMode { get; set; }
 
         #region Public accessors
 
