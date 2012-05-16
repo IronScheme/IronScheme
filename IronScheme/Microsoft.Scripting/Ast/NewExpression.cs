@@ -27,12 +27,20 @@ namespace Microsoft.Scripting.Ast {
         private readonly ConstructorInfo /*!*/ _constructor;
         private readonly ReadOnlyCollection<Expression> /*!*/ _arguments;
         private readonly ParameterInfo[] /*!*/ _parameterInfos;
+        private readonly Type _valueTypeType;
 
         internal NewExpression(ConstructorInfo /*!*/ constructor, ReadOnlyCollection<Expression> /*!*/ arguments, ParameterInfo[] /*!*/ parameters)
             : base(AstNodeType.New) {
             _constructor = constructor;
             _arguments = arguments;
             _parameterInfos = parameters;
+        }
+
+        internal NewExpression(Type valueTypeType)
+          : base(AstNodeType.New) {
+          _valueTypeType = valueTypeType;
+          _arguments = new ReadOnlyCollection<Expression>(new Expression[0]);
+          _parameterInfos = new ParameterInfo [0];
         }
 
         public ConstructorInfo Constructor {
@@ -45,26 +53,39 @@ namespace Microsoft.Scripting.Ast {
 
         public override Type Type {
             get {
+              if (_valueTypeType != null)
+              {
+                return _valueTypeType;
+              }
                 return _constructor.DeclaringType;
             }
         }
 
         public override void Emit(CodeGen cg) {
-            for (int i = 0; i < _parameterInfos.Length; i++) {
-                _arguments[i].Emit(cg);
-                if (_arguments[i].Type != _parameterInfos[i].ParameterType && _arguments[i].Type.IsValueType && typeof(SymbolId) != _arguments[i].Type)
-                {
-                  cg.EmitBoxing(_arguments[i].Type);
-                }
+          if (_valueTypeType != null)
+          {
+            EmitLocation(cg);
+            cg.EmitMissingValue(_valueTypeType); // seems ok?
+          }
+          else
+          {
+            for (int i = 0; i < _parameterInfos.Length; i++)
+            {
+              _arguments[i].Emit(cg);
+              if (_arguments[i].Type != _parameterInfos[i].ParameterType && _arguments[i].Type.IsValueType && typeof(SymbolId) != _arguments[i].Type)
+              {
+                cg.EmitBoxing(_arguments[i].Type);
+              }
 
             }
             EmitLocation(cg);
             cg.EmitNew(_constructor);
-            if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
-            {
-              cg.EmitConstant(SpanToLong(Span));
-              cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
-            }
+          }
+          if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
+          {
+            cg.EmitConstant(SpanToLong(Span));
+            cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
+          }
         }
 
         protected override void EmitLocation(CodeGen cg)
@@ -109,6 +130,12 @@ namespace Microsoft.Scripting.Ast {
     /// Factory methods.
     /// </summary>
     public static partial class Ast {
+      public static NewExpression DefaultValueType(Type t)
+      {
+        Contract.Requires(t.IsValueType, "t", "Must be a value type");
+        return new NewExpression(t);
+      }
+
         public static NewExpression New(ConstructorInfo constructor, params Expression[] arguments) {
             return New(constructor, (IList<Expression>)arguments);
         }
