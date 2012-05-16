@@ -995,6 +995,12 @@ namespace IronScheme.Compiler
         }
       }
 
+      if (t.IsValueType && arguments.Length == 0)
+      {
+        // create default valuetype here
+        return Ast.DefaultValueType(t);
+      }
+
       Type[] types = new Type[arguments.Length];
 
       for (int i = 0; i < types.Length; i++)
