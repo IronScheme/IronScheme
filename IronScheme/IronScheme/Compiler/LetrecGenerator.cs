@@ -49,6 +49,8 @@ namespace IronScheme.Compiler
 
       List<Statement> stmts = new List<Statement>();
 
+      var notstrict = !ScriptDomainManager.Options.StrictMode;
+
       for (int i = 0; i < vars.Count; i++)
       {
         NameHint = Builtins.UnGenSymInternal(vars[i].Name);
@@ -60,9 +62,11 @@ namespace IronScheme.Compiler
           MethodCallExpression mce = (MethodCallExpression)e;
           if (mce.Method == Closure_Make || mce.Method == Closure_MakeCase || mce.Method == Closure_MakeVarArgsX)
           {
-            vars[i].SetInitialized();
-            temps[i].Type = vars[i].Type = typeof(Callable);
-            
+            if (notstrict)
+            {
+              vars[i].SetInitialized();
+              temps[i].Type = vars[i].Type = typeof(Callable);
+            }
           }
         }
         else if (e is NewExpression)
@@ -70,14 +74,20 @@ namespace IronScheme.Compiler
           var ne = (NewExpression)e;
           if (typeof(ITypedCallable).IsAssignableFrom(ne.Type))
           {
-            vars[i].SetInitialized();
-            temps[i].Type = vars[i].Type = ne.Type;
+            if (notstrict)
+            {
+              vars[i].SetInitialized();
+              temps[i].Type = vars[i].Type = ne.Type;
+            }
           }
         }
 
         if (e is UnaryExpression && e.NodeType == AstNodeType.Convert && e.Type != typeof(object))
         {
-          temps[i].Type = vars[i].Type = e.Type;
+          if (notstrict)
+          {
+            temps[i].Type = vars[i].Type = e.Type;
+          }
         }
         else if (e.Type.IsValueType)
         {

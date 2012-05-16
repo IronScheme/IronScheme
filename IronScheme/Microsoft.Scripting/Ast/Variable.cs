@@ -204,7 +204,7 @@ namespace Microsoft.Scripting.Ast {
             _unassigned = true;
         }
 
-        internal bool Uninitialized {
+        public bool Uninitialized {
             get { return _uninitialized; }
         }
 

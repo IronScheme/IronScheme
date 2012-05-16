@@ -321,7 +321,20 @@ namespace IronScheme
     {
       compressConstants = IsTrue(value);
       return Unspecified;
-    }    
+    }
+    
+    [Builtin("strict-mode?")]
+    public static object StrictMode()
+    {
+      return RuntimeHelpers.BooleanToObject(ScriptDomainManager.Options.StrictMode);
+    }
+
+    [Builtin("strict-mode?")]
+    public static object StrictMode(object value)
+    {
+      ScriptDomainManager.Options.StrictMode = IsTrue(value);
+      return Unspecified;
+    } 
 
     [Builtin]
     public static object Typeof(object o)
