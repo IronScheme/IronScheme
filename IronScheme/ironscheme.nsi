@@ -12,7 +12,7 @@
 !include "x64.nsh"
 
 !define PRODUCT_NAME "IronScheme"
-!define PRODUCT_VERSION "1.0-RC6"
+!define PRODUCT_VERSION "1.0-RC7"
 !define PRODUCT_PUBLISHER "leppie"
 !define PRODUCT_WEB_SITE "http://ironscheme.codeplex.com"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\IronScheme.Console.exe"
@@ -203,6 +203,7 @@ SectionIn 1 2 RO
 	File "..\..\..\IronScheme.WebServer\bin\Release\IronScheme.WebServer.exe.config"
 	
 	File ..\..\..\tools\IronScheme.VisualStudio.dll
+	File ..\..\..\tools\IronScheme.VisualStudio.vsix
 	File ..\..\..\tools\RegPkg.exe
 	File ..\..\..\tools\RegPkg.exe.config
 ${If} ${RunningX64}	
