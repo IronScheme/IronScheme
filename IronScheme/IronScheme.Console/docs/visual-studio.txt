@@ -1,15 +1,15 @@
 ﻿Visual Studio
 =============
 
-I have developed a little syntax highlighter for Visual Studio 2008 for R6RS Scheme.
+I have developed a little syntax highlighter for Visual Studio 2008/2010/11 for R6RS Scheme.
 
 Features:
 
 - It has proper Scheme lexing and parsing (it just a copy of what I have in IronScheme itself)
 - Syntax highlighting
-- Brace matching (with an interesting but somehow useful 'bug')
-- Code completion (dumb Intellisense)
-- Navigation Bar
+- Brace matching (with an interesting but somehow useful 'bug') (only VS2008)
+- Code completion (dumb Intellisense) (only VS2008)
+- Navigation Bar (only VS2008)
 
 To do (no order):
 
@@ -24,8 +24,12 @@ To do (no order):
 Requirements:
 
 - Visual Studio 2008 Standard or better
+- Visual Studio 2010
+- Visual Studio 11
 
 Installation:
+
+VS2008:
 
 - Run from the command line: 
   * If admin: RegPkg /codebase <absolute path of IronScheme.VisualStudio.dll>
@@ -33,11 +37,22 @@ Installation:
   * devenv /setup
 
 - I am not sure about the installation yet.
+
+VS2010/11:
+
+- Run the IronScheme.VisualStudio.vsix file
+
 - The IronScheme editor will open for .ss, .sls, .sps files.
 
 Uninstallation:
 
+VS2008:
+
 - Run from the command line:
   * RegPkg /unregister <absolute path of IronScheme.VisualStudio.dll>
+  
+VS2010/11:
+
+- Uninstall from within Visual Studio Extensions Manager
   
   
