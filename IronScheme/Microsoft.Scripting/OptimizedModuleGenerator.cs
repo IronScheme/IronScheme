@@ -139,6 +139,10 @@ namespace Microsoft.Scripting.Generation {
             try
             {
               ag = new AssemblyGen(fileName, outDir, fileName + ext, genAttrs);
+              if (ScriptDomainManager.Options.DebugMode)
+              {
+                ag.CreateSymWriter();
+              }
               break;
             }
             catch (IOException)
