@@ -467,7 +467,7 @@ namespace Microsoft.Scripting.Generation {
         // TODO: SourceUnit should provide writers for each symbol document file used in the unit
         public ISymbolWriter SymbolWriter {
             get { return _symbolWriter; }
-            set { _symbolWriter = value; }
+            //set { _symbolWriter = value; }
         }
 
         public AssemblyBuilder AssemblyBuilder {
