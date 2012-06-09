@@ -1,7 +1,7 @@
 ﻿Visual Studio
 =============
 
-I have developed a little syntax highlighter for Visual Studio 2008/2010/11 for R6RS Scheme.
+I have developed a little syntax highlighter for Visual Studio 2008/2010/2012 for R6RS Scheme.
 
 Features:
 
@@ -25,7 +25,7 @@ Requirements:
 
 - Visual Studio 2008 Standard or better
 - Visual Studio 2010
-- Visual Studio 11
+- Visual Studio 2012
 
 Installation:
 
@@ -38,7 +38,7 @@ VS2008:
 
 - I am not sure about the installation yet.
 
-VS2010/11:
+VS2010/2012:
 
 - Run the IronScheme.VisualStudio.vsix file
 
@@ -51,7 +51,7 @@ VS2008:
 - Run from the command line:
   * RegPkg /unregister <absolute path of IronScheme.VisualStudio.dll>
   
-VS2010/11:
+VS2010/2012:
 
 - Uninstall from within Visual Studio Extensions Manager
   
