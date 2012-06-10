@@ -1,3 +1,5 @@
+@set PATH="c:\Program Files (x86)\Microsoft SDKs\Windows\v8.0A\bin\NETFX 4.0 Tools\";%PATH%
+ 
 call isc ironscheme-buildscript.ss
 @IF %ERRORLEVEL% NEQ 0 exit /b 1
 call isc ironscheme-buildscript.ss

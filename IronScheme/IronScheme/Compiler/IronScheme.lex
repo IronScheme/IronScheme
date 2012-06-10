@@ -75,6 +75,19 @@ public int MakeChar()
   return (int)Tokens.CHARACTER;
 }
 
+public int MakeError(string message)
+{
+  if (maxParseToken == parserMax)
+  {
+    throw new SyntaxErrorException(string.Format("{1}|{0}", yytext, message) , SourceUnit,
+                new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error);  
+  }
+  ErrorMessage = message;
+  yylval.text = yytext;
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
+  return (int)Tokens.error;
+}
+
 
 public int Make(Tokens token)
 {
@@ -205,20 +218,20 @@ bad_atoms              {atoms}{but_delimiter}+
 %%
 
 {white_space}+        { ; }
-{new_line}            { ;}
+{new_line}            { ; }
 
 {fold_case}           { return Make(Tokens.FOLDCASE); }
 {no_fold_case}        { return Make(Tokens.NOFOLDCASE); }
 
 {directive}           { return Make(Tokens.DIRECTIVE); }
                      
-{comment_start}       { yy_push_state(ML_COMMENT);  }                      
-{line_comment}        { ; }
+{comment_start}       { yy_push_state(ML_COMMENT); return Make(Tokens.COMMENT); }                      
+{line_comment}        { return Make(Tokens.COMMENT); }
 
 
-<ML_COMMENT>[^\n\|]+          { ; }
-<ML_COMMENT>{comment_end}     { yy_pop_state();  }
-<ML_COMMENT>"|"               { ; }
+<ML_COMMENT>[^\n\|]+          { return Make(Tokens.COMMENT); }
+<ML_COMMENT>{comment_end}     { yy_pop_state(); return Make(Tokens.COMMENT); }
+<ML_COMMENT>"|"               { return Make(Tokens.COMMENT); }
 
 {ignore_datum}        { return Make(Tokens.IGNOREDATUM); }
  
@@ -247,26 +260,19 @@ bad_atoms              {atoms}{but_delimiter}+
 "#,@"                 { return Make(Tokens.UNSYNTAXSPLICING);}
 "#,"                  { return Make(Tokens.UNSYNTAX);}
 
+{good_id}             { return MakeSymbol(); }
 
-{good_id}          { return MakeSymbol(); }
+{good_dot}            { yyless(1); return Make(Tokens.DOT); }
 
-{good_dot}           { yyless(1); return Make(Tokens.DOT); }
-
-{bad_dot}             { throw new SyntaxErrorException(string.Format("bad dot|{0}", yytext) , SourceUnit,
-                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_id}             {  throw new SyntaxErrorException(string.Format("bad identifier|{0}", yytext), SourceUnit,
-                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_atoms}          {  throw new SyntaxErrorException(string.Format("bad boolean|{0}", yytext), SourceUnit,
-                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_number}          {  throw new SyntaxErrorException(string.Format("bad number|{0}", yytext), SourceUnit,
-                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
-{bad_char}            {  throw new SyntaxErrorException(string.Format("bad char|{0}", yytext), SourceUnit,
-                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+{bad_dot}             { return MakeError("bad dot"); }
+{bad_id}              { return MakeError("bad identifier"); }
+{bad_atoms}           { return MakeError("bad boolean"); }
+{bad_number}          { return MakeError("bad number"); }
+{bad_char}            { return MakeError("bad character"); }
 
 <<EOF>>               { ; }
 
-.                     {  throw new SyntaxErrorException(string.Format("bad input|{0}", yytext), SourceUnit,
-                          new SourceSpan( new SourceLocation(1,tokLin,tokCol + 1) , new SourceLocation(1,tokLin,tokCol + yytext.Length + 1)), 2, Microsoft.Scripting.Hosting.Severity.Error); }
+.                     { return MakeError("bad input"); }
 
 
 
