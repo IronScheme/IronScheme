@@ -101,6 +101,8 @@ using gppg;
         
         static int parserMax = GetMaxParseToken();
         
+        public int maxParseToken { get; set; }
+        
         enum Result {accept, noMatch, contextFound};
 
 ##-->consts
@@ -543,14 +545,16 @@ using gppg;
         }
         // =================== End Nested classes =======================
 
-        public Scanner(Stream file) {
+        public Scanner(Stream file) : this() {
 ##-->bufferCtor
             this.cNum = -1;
             this.chr = '\n'; // to initialize yyline, yycol and lineStart
             GetChr();
         }
 
-        public Scanner() { }
+        public Scanner() { 
+          maxParseToken = parserMax;
+        }
 
         bool eofseen = false;
 
@@ -651,7 +655,7 @@ using gppg;
             // enumeration.  If maxParseTokeen is defined
             // that is used, otherwise int.MaxValue is used.
             int next;
-            do { next = Scan(); } while (next >= parserMax);
+            do { next = Scan(); } while (next >= maxParseToken);
             return next;
         }
         

@@ -74,6 +74,7 @@ namespace gppg
     public abstract int yylex();
     public virtual void yyerror(string format, params object[] args) { }
 
+    public string ErrorMessage { get; protected set; }
     public Microsoft.Scripting.Hosting.ErrorSink Errors;
     public Microsoft.Scripting.Hosting.SourceUnit SourceUnit;
 
