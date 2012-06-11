@@ -6,6 +6,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
 	ProjectSection(SolutionItems) = preProject
 		debugbuild.bat = debugbuild.bat
+		DEVELOPMENT.snk = DEVELOPMENT.snk
 		dlr.diff = dlr.diff
 		header.bmp = header.bmp
 		ironscheme.ico = ironscheme.ico
