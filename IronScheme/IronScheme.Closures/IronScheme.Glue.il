@@ -2,7 +2,7 @@
 
 .assembly extern ironscheme.boot
 {
-  .ver 0:0:0:0
+  .ver 1:0:0:0
   .publickeytoken = (78 F2 E9 D9 54 1A 0D EE)
 }
 
