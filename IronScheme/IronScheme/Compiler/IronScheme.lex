@@ -204,8 +204,12 @@ single_string_char     [^\\\"]
 string_esc_seq         (\\[\"\\abfnrtv])
 hex_esc_seq            (\\x({digit16})+";")
 string_continuation    (\\{new_line})
-reg_string_char        {string_continuation}|{single_string_char}|{string_esc_seq}|{hex_esc_seq}
+reg_string_char        {single_string_char}|{string_esc_seq}|{hex_esc_seq}
 string_literal         \"({reg_string_char})*\"
+
+ml_string_start        \"({reg_string_char})*{string_continuation}?{new_line}
+ml_string_body         ({reg_string_char})*{string_continuation}?{new_line}
+ml_string_end          ({reg_string_char})*\"
 
 atoms                  ((#[TtFf])|"#true"|"#false")
 good_atoms             {atoms}{delimiter}
@@ -214,6 +218,7 @@ bad_atoms              {atoms}{but_delimiter}+
 
 
 %x ML_COMMENT
+%x ML_STRING
 
 %%
 
@@ -234,6 +239,11 @@ bad_atoms              {atoms}{but_delimiter}+
 <ML_COMMENT>{comment_end}     { yy_pop_state(); return Make(Tokens.COMMENT); }
 <ML_COMMENT>"|"               { return Make(Tokens.COMMENT); }
 <ML_COMMENT>"#"               { return Make(Tokens.COMMENT); }
+
+{ml_string_start}     { yy_push_state(ML_STRING); return Make(Tokens.MLSTRING); }
+
+<ML_STRING>{ml_string_body} { return Make(Tokens.MLSTRING); }
+<ML_STRING>{ml_string_end}  { yy_pop_state(); return Make(Tokens.MLSTRING); }
 
 {ignore_datum}        { return Make(Tokens.IGNOREDATUM); }
  
