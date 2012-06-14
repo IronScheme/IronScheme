@@ -129,16 +129,23 @@ using gppg;
         string tokTxt;     // lazily constructed text of token
 #if STACK          
         private Stack<int> scStack = new Stack<int>();
-        
+
         public int[] Stack
         {
-          get { return scStack.ToArray(); }
-          set
+          get 
+          {
+            scStack.Push(currentScOrd);
+            var arr = scStack.ToArray(); 
+            Array.Reverse(arr);
+            scStack.Pop();
+            return arr;
+          }
+          set 
           {
             scStack = new Stack<int>(value);
             if (scStack.Count > 0)
             {
-              BEGIN(scStack.Peek());
+              BEGIN(scStack.Pop());
             }
           }
         }
