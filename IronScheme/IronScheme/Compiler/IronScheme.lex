@@ -113,7 +113,7 @@ comment_start          "#|"
 comment_end            "|#"
 
 white_space            [ \t\u000c]
-new_line               "\n\r"|\r|\n
+new_line               "\n\r"|\r|\n|"\r\n"
 
 digit                  [0-9]
 digit2                 [01]
@@ -203,7 +203,7 @@ bad_char               {character_literal}{but_delimiter}+
 single_string_char     [^\\\"]
 string_esc_seq         (\\[\"\\abfnrtv])
 hex_esc_seq            (\\x({digit16})+";")
-string_continuation    (\\{new_line})
+string_continuation    (\\)
 reg_string_char        {single_string_char}|{string_esc_seq}|{hex_esc_seq}
 string_literal         \"({reg_string_char})*\"
 
@@ -234,7 +234,7 @@ bad_atoms              {atoms}{but_delimiter}+
 {line_comment}        { return Make(Tokens.COMMENT); }
 
 
-<ML_COMMENT>[^\r\n\|#]+        { return Make(Tokens.COMMENT); }
+<ML_COMMENT>[^\r\n\|#]+       { return Make(Tokens.COMMENT); }
 <ML_COMMENT>{comment_start}   { yy_push_state(ML_COMMENT); return Make(Tokens.COMMENT); }    
 <ML_COMMENT>{comment_end}     { yy_pop_state(); return Make(Tokens.COMMENT); }
 <ML_COMMENT>"|"               { return Make(Tokens.COMMENT); }
