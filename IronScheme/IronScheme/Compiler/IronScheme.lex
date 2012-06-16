@@ -200,15 +200,15 @@ character_literal      ((#\\({character})?)|{char_hex_esc_seq}|{char_esc_seq})
 good_char              {character_literal}{delimiter}
 bad_char               {character_literal}{but_delimiter}+
 
-single_string_char     [^\\\"]
+single_string_char     [^\\\"\n\r]
 string_esc_seq         (\\[\"\\abfnrtv])
 hex_esc_seq            (\\x({digit16})+";")
 string_continuation    (\\)
 reg_string_char        {single_string_char}|{string_esc_seq}|{hex_esc_seq}
 string_literal         \"({reg_string_char})*\"
 
-ml_string_start        \"({reg_string_char})*{string_continuation}?{new_line}
-ml_string_body         ({reg_string_char})*{string_continuation}?{new_line}
+ml_string_start        \"({reg_string_char})*({string_continuation})?{new_line}
+ml_string_body         ({reg_string_char})*({string_continuation})?{new_line}
 ml_string_end          ({reg_string_char})*\"
 
 atoms                  ((#[TtFf])|"#true"|"#false")
