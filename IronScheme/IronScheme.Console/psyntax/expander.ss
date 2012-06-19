@@ -28,8 +28,8 @@
           syntax->datum 
           make-variable-transformer make-compile-time-value
           pre-compile-r6rs-top-level
-          variable-transformer?
-          variable-transformer-procedure core-library-expander
+          variable-transformer? parse-top-level-program
+          variable-transformer-procedure core-library-expander parse-library
           compile-r6rs-top-level boot-library-expand top-level-expander
           null-environment scheme-report-environment
           interaction-environment
@@ -3818,7 +3818,7 @@
                (let-values ([(guard-code guard-req*) (c)])
               (values name ver imp* invoke-req* visit-req* 
                       invoke-code visit-code export-subst
-                    export-env guard-code guard-req*)))))))))
+                      export-env guard-code guard-req*)))))))))
   
   (define (parse-top-level-program e*)
     (syntax-match e* ()
