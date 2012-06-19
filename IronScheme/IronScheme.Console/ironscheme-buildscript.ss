@@ -346,6 +346,8 @@
     ;(expand-boot-cps                            i)
     (top-level-expander                         i)
     (core-library-expander                      i)
+    (parse-top-level-program                    i)
+    (parse-library                              i)
     (core-expand                                i)
     (expand->core                               i)
     (include-into                               i)
