@@ -29,7 +29,7 @@
           make-variable-transformer make-compile-time-value
           pre-compile-r6rs-top-level
           variable-transformer?
-          variable-transformer-procedure library-expander
+          variable-transformer-procedure core-library-expander
           compile-r6rs-top-level boot-library-expand top-level-expander
           null-environment scheme-report-environment
           interaction-environment
@@ -3805,6 +3805,7 @@
 
   (define core-library-expander
     (case-lambda
+      ((e) (core-library-expander e (lambda (x) values)))
       ((e verify-name)
        (let-values (((name* exp* imp* b*) (parse-library e)))
          (let-values (((name ver) (parse-library-name name*)))
