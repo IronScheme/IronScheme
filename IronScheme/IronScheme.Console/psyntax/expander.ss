@@ -29,8 +29,8 @@
           make-variable-transformer make-compile-time-value
           pre-compile-r6rs-top-level
           variable-transformer?
-          variable-transformer-procedure
-          compile-r6rs-top-level boot-library-expand 
+          variable-transformer-procedure library-expander
+          compile-r6rs-top-level boot-library-expand top-level-expander
           null-environment scheme-report-environment
           interaction-environment
           expand->core
