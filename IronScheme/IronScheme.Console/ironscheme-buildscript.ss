@@ -344,6 +344,8 @@
     (syntax-transpose                           i)
     (emacs-mode?                                i)
     ;(expand-boot-cps                            i)
+    (top-level-expander                         i)
+    (library-expander                           i)
     (core-expand                                i)
     (expand->core                               i)
     (include-into                               i)
