@@ -46,9 +46,8 @@ See docs/license.txt. |#
     (clr-is Group obj))      
     
   (define/contract (group-value group:group)
-    (and 
-      (group-success? group)
-      (clr-prop-get Group Value group)))
+    (and (group-success? group)
+         (clr-prop-get Group Value group)))
     
   (define/contract (group-success? group:group)
     (clr-prop-get Group Success group))    
@@ -63,8 +62,8 @@ See docs/license.txt. |#
 
   (define/contract (regex-split input:string pattern/re)
     (if (regex? pattern/re)
-      (clr-call Regex Split pattern/re input)
-      (clr-static-call Regex Split input pattern/re)))
+        (clr-call Regex Split pattern/re input)
+        (clr-static-call Regex Split input pattern/re)))
     
   (define/contract (regex-replace input:string pattern/re replacement/evaluator)
     (fsm-cond (pattern/re replacement/evaluator)
