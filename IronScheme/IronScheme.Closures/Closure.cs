@@ -94,16 +94,18 @@ namespace IronScheme.Runtime
 
         form.Add( SymbolTable.StringToObject(ToString()));
 
+        var cctype = typeof(CodeContext);
+
         foreach (ParameterInfo pi in pis)
         {
-          if (pi.ParameterType != typeof(CodeContext))
+          if (pi.ParameterType != cctype)
           {
             if (pi.ParameterType.IsArray)
             {
-              form.Add(SymbolTable.StringToObject(pi.Name));
+              form.Add(SymbolTable.StringToObject(pi.Name ?? "<more than 8>"));
               return ConsStarFromArray(form.ToArray());
             }
-            else
+            else if (pi.ParameterType != cctype)
             {
               form.Add(SymbolTable.StringToObject(pi.Name));
             }
