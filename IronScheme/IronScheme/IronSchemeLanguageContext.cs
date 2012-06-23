@@ -63,22 +63,13 @@ namespace IronScheme
 
       switch (context.SourceUnit.Kind)
       {
-
         case SourceCodeKind.InteractiveCode:
           {
             string code = context.SourceUnit.GetCode();
 
-            //if (code.Length < 10)
-            //{
-            //  code = code.Trim();
-            //}
             if (code.Length > 0)
             {
-#if CPS
-              code = string.Format("(eval-r6rs identity-for-cps '(begin {0}))", code.Trim());
-#else
               code = string.Format("(eval-r6rs '(begin {0}))", code + "\n"); // need to deal with comments
-#endif
             }
 
             CodeBlock cb = ParseString(code, context);

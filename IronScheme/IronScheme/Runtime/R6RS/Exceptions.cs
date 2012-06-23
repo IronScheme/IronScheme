@@ -14,7 +14,6 @@ namespace IronScheme.Runtime.R6RS
 {
   public class Exceptions : Builtins
   {
-#if !CPS
     [Builtin("with-clr-exception-handler")]
     public static object WithClrExceptionHandler(object handler, object thunk)
     {
@@ -61,77 +60,6 @@ namespace IronScheme.Runtime.R6RS
 
       return newst.ToArray();
     }
-
-#if !USE_GLUE
-
-    static Callable weh;
-
-    //(with-exception-handler handler thunk)
-    [Builtin("with-exception-handler")]
-    [Obsolete("Implemented in Scheme")]
-    public static object WithExceptionHandler(object handler, object thunk)
-    {
-      if (IsR6RSLoaded())
-      {
-        if (weh == null)
-        {
-          weh = SymbolValue(SymbolTable.StringToObject("with-exception-handler")) as Callable;
-        }
-
-        return weh.Call(handler, thunk);
-      }
-      else
-      {
-        throw new Exception("R6RS not loaded when calling 'with-exception-handler'");
-      }
-    }
-
-    static Callable realraise;
-
-    [Builtin("raise")]
-    [Obsolete("Implemented in Scheme")]
-    public static object Raise(object obj)
-    {
-      if (IsR6RSLoaded())
-      {
-        if (realraise == null)
-        {
-          realraise = SymbolValue(SymbolTable.StringToObject("raise")) as Callable;
-        }
-
-        return realraise.Call(obj);
-      }
-      else
-      {
-        throw new Exception("R6RS not loaded when calling 'raise'");
-      }
-    }
-
-    static Callable realraisec;
-
-    [Builtin("raise-continuable")]
-    [Obsolete("Implemented in Scheme")]
-    public static object RaiseContinueable(object obj)
-    {
-      if (IsR6RSLoaded())
-      {
-        if (realraisec == null)
-        {
-          realraisec = SymbolValue(SymbolTable.StringToObject("raise-continuable")) as Callable;
-        }
-
-        return realraisec.Call(obj);
-      }
-      else
-      {
-        throw new Exception("R6RS not loaded when calling 'raise-continuable'");
-      }
-    }
-#endif
-
-#endif
   }
-
-
 }
 

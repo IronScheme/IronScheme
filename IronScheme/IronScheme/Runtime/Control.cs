@@ -65,9 +65,6 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-#if !CPS
-    [Builtin]
-#endif
     public static object Values(params object[] values)
     {
       if (values.Length == 1)
@@ -81,7 +78,7 @@ namespace IronScheme.Runtime
 
 #error CPS mode is currently broken, use revision 23730 or earlier
 
-#else
+#endif
 
     [Builtin]
     public static object Values()
@@ -219,61 +216,7 @@ namespace IronScheme.Runtime
         }
       }
     }
-#endif
 
-
-#if CPS
-
-    public static object LetrecIdentity(object var)
-    {
-      bool init = false;
-      CallTarget1 id = delegate(object V)
-      {
-        if (init)
-        {
-          AssertionViolation("letrec", "initialization continuation invoked more than once", UnGenSym(var));
-        }
-        init = true;
-        return V;
-      };
-
-      return Closure.Make(null, id);
-    }
-
-
-    public static object LetrecStarIdentity(object var)
-    {
-      bool init = false;
-      CallTarget1 id = delegate(object V)
-      {
-        if (init)
-        {
-          AssertionViolation("letrec*-identity", "initialization continuation invoked more than once", UnGenSym(var));
-        }
-        init = true;
-        return V;
-      };
-
-      return Closure.Make(null, id);
-    }
-
-    public static object LibraryLetrecIdentity(object var)
-    {
-      bool init = false;
-      CallTarget1 id = delegate(object V)
-      {
-        if (init)
-        {
-          AssertionViolation("library-letrec*-identity", "initialization continuation invoked more than once", UnGenSym(var));
-        }
-        init = true;
-        return V;
-      };
-
-      return Closure.Make(null, id);
-    }
-
-#else
     //procedure:  (apply proc arg1 ... args) 
     //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     [Builtin]
@@ -314,6 +257,5 @@ namespace IronScheme.Runtime
 
       return c.Call(targs.ToArray());
     }
-#endif
   }
 }

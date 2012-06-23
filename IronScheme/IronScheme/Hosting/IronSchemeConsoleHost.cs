@@ -22,11 +22,7 @@ namespace IronScheme.Hosting
       logo = string.Format("IronScheme {0} ironscheme.codeplex.com © 2007,2008,2009,2010,2011,2012 leppie {1}",
           VERSION,
 #if DEBUG
-#if CPS
-            "Debug - CPS build"
-#else
             "- Debug build "
-#endif
 #else
             ""
 #endif
