@@ -507,11 +507,7 @@ namespace IronScheme.Compiler
           InlineEmitter ie;
           if (TryGetInlineEmitter(f, out ie))
           {
-#if CPS
-            Expression result = ie(GetAstList((c.cdr as Cons).cdr as Cons, cb));
-#else
             Expression result = ie(GetAstList(c.cdr as Cons, cb));
-#endif
             // if null is returned, the method cannot be inlined
             if (result != null)
             {
@@ -519,12 +515,7 @@ namespace IronScheme.Compiler
               {
                 result.SetLoc(spanhint);
               }
-#if CPS
-              Expression k = Ast.ConvertHelper(GetAst((c.cdr as Cons).car, cb) , typeof(Callable));
-              return Ast.Call(k, GetCallable(1), result);
-#else
               return result;
-#endif
             }
           }
 #endif

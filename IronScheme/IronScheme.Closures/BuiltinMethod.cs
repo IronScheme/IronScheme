@@ -248,12 +248,6 @@ namespace IronScheme.Runtime
 
       try
       {
-        //if (this == Closure.CPSPrim)
-        //{
-        //  List<object> aargs = new List<object>(args);
-        //  aargs.Insert(0, Closure.IdentityForCPS);
-        //  return meth.CallReflected(context, CallType.None, aargs.ToArray());
-        //}
         // DO NOT WANT!!!!
         return meth.CallReflected(context, CallType.None, args);
       }
@@ -377,9 +371,5 @@ namespace IronScheme.Runtime
 
 
     #endregion
-
-
-
   }
-
 }

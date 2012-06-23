@@ -28,19 +28,12 @@ namespace IronScheme.Runtime
   public sealed class BuiltinAttribute : Attribute
   {
     string name;
-    bool allowcps = true;
     bool allowconstantfold = false;
 
     public bool AllowConstantFold
     {
       get { return allowconstantfold; }
       set { allowconstantfold = value; }
-    }
-
-    public bool AllowCPS
-    {
-      get { return allowcps; }
-      set { allowcps = value; }
     }
 
     public string Name
@@ -51,15 +44,12 @@ namespace IronScheme.Runtime
 
     public BuiltinAttribute()
     {
-
     }
 
     public BuiltinAttribute(string name)
     {
       this.name = name;
     }
-
-    
   }
 
 
@@ -537,9 +527,6 @@ namespace IronScheme
       Stopwatch sw = new Stopwatch();
       try
       {
-#if CPS
-        return OptimizedBuiltins.Call(c);
-#else
         if (Equals(c.Arity, 1))
         {
           return c.Call(sw);
@@ -551,7 +538,6 @@ namespace IronScheme
           sw.Stop();
           return result;
         }
-#endif
       }
       finally
       {
@@ -735,15 +721,9 @@ namespace IronScheme
 
     static int evalcounter = 0;
 
-#if CPS
-    [Builtin("compile-core")]
-    public static object CompileCore(object expr, object sk)
-#else
     [Builtin("compile-core")]
     public static object CompileCore(object expr)
-#endif
     {
-#if !CPS
       // fast path for really simple stuff
       if (expr is SymbolId)
       {
@@ -753,12 +733,6 @@ namespace IronScheme
         };
         return Closure.Create(n);
       }
-#endif
-#if CPS
-      // this would look a ton sweeter on C# 4.0 :)
-      Callable cps = SymbolValue(SymbolTable.StringToObject("convert->cps")) as Callable;
-      expr = cps.Call(Closure.IdentityForCPS, expr, sk);
-#endif
 
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
@@ -842,14 +816,7 @@ namespace IronScheme
             return sc.Run(Context.ModuleContext.Module);
 #if DEBUG
           }
-#if CPS
-        catch (Exception ex)
-        {
-          Callable raise = SymbolValue(SymbolTable.StringToObject("raise")) as Callable;
-          Callable k = SymbolValue(sk) as Callable;
-          return OptimizedBuiltins.CallWithK(raise, k, ex);
-        }
-#endif
+
         finally
         {
 
@@ -889,28 +856,14 @@ namespace IronScheme
         var who = ex.Data["Who"];
         return SyntaxError(who ?? FALSE, ex.Message, FALSE, FALSE);
       }
-
     }
-
-#if CPS
-    [Builtin("eval-core", AllowCPS=false)]
-    public static object EvalCore(object k, object expr)
-    {
-      object sk = GenSym(SymbolTable.StringToObject("eval-core-k"));
-      SetSymbolValue(sk, k);
-      ICallable compiled = CompileCore(expr, sk) as ICallable;
-      return compiled.Call();
-    }
-#else
-
+    
     [Builtin("eval-core")]
     public static object EvalCore(object expr)
     {
       Callable compiled = CompileCore(expr) as Callable;
       return compiled.Call();
     }
-#endif
-
 
     [Builtin("gc-collect")]
     [UnspecifiedReturn]
@@ -932,25 +885,25 @@ namespace IronScheme
       return (rest == null) ? a : new Cons(a, ListStarHelper(Car(rest), Cdr(rest)));
     }
 
-    [Builtin("list*", AllowCPS=false)]
+    [Builtin("list*")]
     public static object ListStar(object a, params object[] rest)
     {
       return ListStarHelper(a, Runtime.Cons.FromArray(rest));
     }
 
-    [Builtin("list*", AllowCPS = false)]
+    [Builtin("list*")]
     public static object ListStar(object a, object b)
     {
       return new Cons(a, b);
     }
 
-    [Builtin("list*", AllowCPS = false)]
+    [Builtin("list*")]
     public static object ListStar(object a, object b, object c)
     {
       return new Cons(a, new Cons(b, c));
     }
 
-    [Builtin("list*", AllowCPS = false)]
+    [Builtin("list*")]
     public static object ListStar(object a, object b, object c, object d)
     {
       return new Cons(a, new Cons(b, new Cons(c , d)));

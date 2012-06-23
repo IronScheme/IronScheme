@@ -43,9 +43,7 @@ namespace IronScheme.Hosting
       IronScheme.Compiler.BaseHelper.Initialize(this);
       Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
-
-
-
+    
     public override string LanguageDisplayName
     {
       get { return "IronScheme"; }
@@ -129,11 +127,7 @@ namespace IronScheme.Hosting
           {
             try
             {
-#if CPS
-              Engine.Execute(string.Format("(load identity-for-cps \"{0}\")", filename.Replace('\\', '/')));
-#else
               Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
-#endif
               ev = 0;
             }
             catch (ThreadAbortException)
@@ -157,11 +151,7 @@ namespace IronScheme.Hosting
             //good for now
 
           }, 
-#if CPS //to compile...
-          10000000
-#else
           5000000
-#endif
           );
         t.IsBackground = true;
 
@@ -260,9 +250,6 @@ namespace IronScheme.Hosting
             co.TabCompletion = !notabcompletion;
             co.ColorfulConsole = !notabcompletion;
           }
-#if DEBUG
-          //co.HandleExceptions = false;
-#endif
           return co;
         }
         set
@@ -281,10 +268,6 @@ namespace IronScheme.Hosting
         {
           EngineOptions eo = new IronSchemeEngineOptions();
           eo.ProfileDrivenCompilation = false;
-          //eo.InterpretedMode = true;
-          // this will blow up visual studio with anything but small files
-          //eo.ClrDebuggingEnabled = true;
-
           return eo;
         }
         set

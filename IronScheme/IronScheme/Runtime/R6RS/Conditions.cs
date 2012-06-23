@@ -101,32 +101,6 @@ namespace IronScheme.Runtime.R6RS
         return AssertionViolation("condition-predicate", "not a valid condition", rtd);
       }
 
-#if CPS
-      CallTarget2 p = delegate(object k, object cond)
-      {
-        CallTarget1 recp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
-
-        Callable kk = k as Callable;
-
-        if (cond is CompoundCondition)
-        {
-          CompoundCondition cc = (CompoundCondition)cond;
-          foreach (object ic in cc.conds)
-          {
-            if (IsTrue(recp(ic)))
-            {
-              return kk.Call(TRUE);
-            }
-          }
-          return kk.Call(FALSE);
-        }
-        else
-        {
-          return kk.Call(recp(cond));
-        }
-      };
-#else
-
       CallTarget1 p = delegate(object cond)
       {
         CallTarget1 recp = Delegate.CreateDelegate(typeof(CallTarget1), t.predicate) as CallTarget1;
@@ -148,7 +122,6 @@ namespace IronScheme.Runtime.R6RS
           return recp(cond);
         }
       };
-#endif
 
       return Closure.Create(p);
     }
@@ -166,44 +139,6 @@ namespace IronScheme.Runtime.R6RS
 
       Callable c = RequiresNotNull<Callable>(proc);
 
-#if CPS
-      CallTarget2 p = delegate(object k, object cond)
-      {
-        ICallable kk = k as ICallable;
-
-        if (cond is CompoundCondition)
-        {
-          CompoundCondition cc = (CompoundCondition)cond;
-          if (cc.conds.Length == 0)
-          {
-            // error?
-            return kk.Call(FALSE);
-          }
-          else
-          {
-            foreach (object e in cc.conds)
-            {
-              if (t.type.IsInstanceOfType(e))
-              {
-                return OptimizedBuiltins.CallWithK(c, kk, e);
-              }
-            }
-            return kk.Call(FALSE);
-          }
-        }
-        else
-        {
-          if (t.type.IsInstanceOfType(cond))
-          {
-            return OptimizedBuiltins.CallWithK(c, kk, cond);
-          }
-          else
-          {
-            return kk.Call(FALSE);
-          }
-        }
-      };
-#else
       CallTarget1 p = delegate(object cond)
       {
         if (cond is CompoundCondition)
@@ -238,7 +173,7 @@ namespace IronScheme.Runtime.R6RS
           }
         }
       };
-#endif
+
       return Closure.Create(p);
     }
 

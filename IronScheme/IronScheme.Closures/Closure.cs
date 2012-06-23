@@ -53,7 +53,6 @@ namespace IronScheme.Runtime
     public static ConsFromArrayHandler ConsStarFromArray;
     public static ArrayFromConsHandler ArrayFromCons;
     public static CallTarget2 Cons;
-    public static Callable IdentityForCPS;
     public static object Unspecified;
 
     public override string ToString()
@@ -757,56 +756,6 @@ namespace IronScheme.Runtime
           return Call(new object[] { arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 });
         }
       }
-
     }
-
-#if CPS
-    internal sealed class CPSClosure : Closure
-    {
-      readonly BuiltinMethod prim;
-
-      public CPSClosure(BuiltinMethod prim)
-      {
-        this.prim = prim;
-      }
-
-      public override string ToString()
-      {
-        return prim.ToString();
-      }
-
-      public override object Call(object[] args)
-      {
-        object r = null, except = null;
-        Callable K = args[0] as Callable;
-        List<object> newargs = new List<object>();
-        newargs.AddRange(args);
-        newargs.RemoveAt(0);
-
-        try
-        {
-          r = prim.Call(newargs.ToArray());
-        }
-        catch (Exception ex)
-        {
-          except = ex;
-        }
-
-        if (except == null)
-        {
-          return K.Call(r);
-        }
-        else
-        {
-          ICallable raise = OptimizedBuiltins.SymbolValue(SymbolTable.StringToObject("raise")) as ICallable;
-          return OptimizedBuiltins.CallWithK(raise, K, except);
-        }
-      }
-    }
-
-#endif
-
   }
-
-
 }

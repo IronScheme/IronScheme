@@ -105,14 +105,6 @@ namespace IronScheme.Compiler
       
       Cons body = Builtins.Cdr(args) as Cons;
 
-#if CPS
-      //TryStatement ts = Ast.TryCatch(SourceSpan.None, SourceLocation.None, Ast.Block(stmts.ToArray()), 
-      // Ast.Catch(typeof(Exception), cb.CreateTemporaryVariable(SymbolTable.StringToObject("$ex"), typeof(Exception)), 
-      // Ast.Empty()));
-      //stmts = new List<Statement>();
-      //stmts.Add(ts);
-#endif
-
       FillBody(cb, stmts, body, true);
 
 #if OPTIMIZATIONS

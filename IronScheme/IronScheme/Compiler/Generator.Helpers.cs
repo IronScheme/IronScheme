@@ -95,40 +95,12 @@ namespace IronScheme.Compiler
     {
       // builtin methods
       AddGenerators(Context, typeof(Generator).Assembly);
-#if !CPS
+
       // HACK: clean up needed
       object s = SymbolTable.StringToObject("call-with-values");
       BuiltinMethod cwv = new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins), "CallWithValues"));
       cc.Scope.SetName((SymbolId)s, cwv);
-#else
 
-      Callable values = Closure.MakeVarArgX(null, (CallTarget2)OptimizedBuiltins.Values, 2);
-      cc.Scope.SetName(SymbolTable.StringToObject("values"), values);
-
-      Callable cpsvoid = Closure.Make(null, (CallTarget0) Builtins.Void);
-      cc.Scope.SetName(SymbolTable.StringToObject("cps-void"), cpsvoid);
-
-      Callable cwv = Closure.Make(null, (CallTarget3)OptimizedBuiltins.CallWithValues);
-      cc.Scope.SetName(SymbolTable.StringToObject("call-with-values"), cwv);
-
-      Callable dw = Closure.Make(null, (CallTarget4)OptimizedBuiltins.DynamicWind);
-      cc.Scope.SetName(SymbolTable.StringToObject("dynamic-wind"), dw);
-
-      Callable cwcc = Closure.Make(null, (CallTarget2)OptimizedBuiltins.CallWithCurrentContinuation);
-      cc.Scope.SetName(SymbolTable.StringToObject("call-with-current-continuation"), cwcc);
-      cc.Scope.SetName(SymbolTable.StringToObject("call/cc"), cwcc);
-
-      Callable id4cps = Closure.Make(null, (CallTargetN)Builtins.Values);
-      cc.Scope.SetName(SymbolTable.StringToObject("identity-for-cps"), id4cps);
-
-      Closure.IdentityForCPS = id4cps;
-
-      cc.Scope.SetName(SymbolTable.StringToObject("letrec-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecIdentity));
-      cc.Scope.SetName(SymbolTable.StringToObject("letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LetrecStarIdentity));
-      cc.Scope.SetName(SymbolTable.StringToObject("library-letrec*-identity"), Closure.Make(null, (CallTarget1) Builtins.LibraryLetrecIdentity));
-
-
-#endif
       
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
@@ -146,18 +118,6 @@ namespace IronScheme.Compiler
       AddBuiltins(Context, typeof(Runtime.R6RS.Conditions));
 
       cc.Scope.SetName((SymbolId)SymbolTable.StringToObject("uninitialized"), Uninitialized.Instance);
-
-#if CPS
-      
-      cc.Scope.SetName(SymbolTable.StringToObject("apply"), Closure.MakeVarArgX(null, (CallTarget4) OptimizedBuiltins.Apply, 4));
-
-      OptimizedBuiltins.SymbolValue = Builtins.SymbolValue;
-
-#else
-      Closure.IdentityForCPS = Runtime.Builtins.SymbolValue(SymbolTable.StringToObject("values")) as BuiltinMethod;
-#endif
-      
-
     }
 
     static bool CheckParams(MethodInfo mi)
@@ -199,22 +159,11 @@ namespace IronScheme.Compiler
 
             foldable[name] = ba.AllowConstantFold;
 
-            if (ba.AllowCPS)
+            if (!cpsfree.TryGetValue(name, out meths))
             {
-              if (!all.TryGetValue(name, out meths))
-              {
-                all[name] = meths = new List<MethodBase>();
-              }
-              meths.Add(mi);
+              cpsfree[name] = meths = new List<MethodBase>();
             }
-            else
-            {
-              if (!cpsfree.TryGetValue(name, out meths))
-              {
-                cpsfree[name] = meths = new List<MethodBase>();
-              }
-              meths.Add(mi);
-            }
+            meths.Add(mi);
           }
           else
           {
@@ -226,11 +175,7 @@ namespace IronScheme.Compiler
       foreach (string mn in all.Keys)
       {
         object s = SymbolTable.StringToObject(mn);
-#if CPS
-        cc.Scope.SetName(s, OptimizedBuiltins.MakeCPSCallable(new BuiltinMethod(mn, all[mn].ToArray())));
-#else
         cc.Scope.SetName((SymbolId)s, new BuiltinMethod(mn, all[mn].ToArray(), foldable[mn]));
-#endif
       }
 
       foreach (string mn in cpsfree.Keys)
@@ -238,7 +183,6 @@ namespace IronScheme.Compiler
         object s = SymbolTable.StringToObject(mn);
         cc.Scope.SetName((SymbolId)s, new BuiltinMethod(mn, cpsfree[mn].ToArray()));
       }
-
     }
 
     protected static CodeBlock GetTopLevel(CodeBlock cb)
