@@ -663,55 +663,38 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="compiler\cps-convert.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\cps\cps-sexp-target.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\cps\cps.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\cps\sexp-to-cps.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\expander.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\codegen.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\classify.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\closure.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\denotation.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\environment.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\history.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\LICENCE">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\sexp.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\standard.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\synrules.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\taxonomy.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compiler\riaxpander\transform.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1029,28 +1012,20 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\cp0.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\cpletrec.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\helpers.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\match.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\optimize.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\prelex.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\primitive.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="source-optimizer\transform.sls">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="srfi\101\random-access-lists.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
