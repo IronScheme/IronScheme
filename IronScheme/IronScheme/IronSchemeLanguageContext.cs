@@ -60,7 +60,6 @@ namespace IronScheme
 
     public override CodeBlock ParseSourceCode(CompilerContext context)
     {
-
       switch (context.SourceUnit.Kind)
       {
         case SourceCodeKind.InteractiveCode:
@@ -102,22 +101,15 @@ namespace IronScheme
     }
 
     static Parser parser;
-    static Scanner scanner;
 
     static CodeBlock ParseString(string expr, CompilerContext cc)
     {
-      if (scanner == null)
-      {
-        scanner = new Scanner();
-      }
-      Scanner sc = scanner;
+      Scanner sc = new Scanner();
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;
       sc.SetSource(expr, 0);
       return Parse(sc, cc);
     }
-
-    static Dictionary<Stream, Scanner> scannermap = new Dictionary<Stream, Scanner>();
 
     static CodeBlock ParseStream(Stream s, CompilerContext cc)
     {
@@ -127,7 +119,6 @@ namespace IronScheme
 
       return Parse(sc, cc);
     }
-
 
     internal static object ReadExpressions(Stream code, CompilerContext cc)
     {
