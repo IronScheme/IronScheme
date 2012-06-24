@@ -58,7 +58,7 @@ namespace IronScheme.Runtime.R6RS
           c.Add(r);
         }
       }
-      return string.Format("{0}", string.Join(Environment.NewLine, c.ToArray()));
+      return string.Format("{0}", string.Join("", c.ToArray()));
     }
   }
 
