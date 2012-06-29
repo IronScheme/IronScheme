@@ -32,6 +32,8 @@ namespace IronScheme.Runtime
   {
     static Assembly AssemblyLoad(string path, bool loadinmemory)
     {
+      var basedir = AppDomain.CurrentDomain.BaseDirectory;
+      
       string fn = Path.GetFullPath(path);
       var pdb = Path.ChangeExtension(fn, ".pdb");
       if (File.Exists(pdb))
@@ -44,7 +46,14 @@ namespace IronScheme.Runtime
           }
           else
           {
-            return Assembly.LoadFrom(fn);
+            if (path.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
+            {
+              return Assembly.LoadFile(fn);
+            }
+            else
+            {
+              return Assembly.LoadFrom(fn);
+            }
           }
         }
         else
@@ -60,7 +69,14 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return Assembly.LoadFrom(fn);
+        if (path.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
+        {
+          return Assembly.LoadFile(fn);
+        }
+        else
+        {
+          return Assembly.LoadFrom(fn);
+        }
       }
     }
 
