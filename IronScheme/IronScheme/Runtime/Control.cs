@@ -65,6 +65,7 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
+    [Builtin]
     public static object Values(params object[] values)
     {
       if (values.Length == 1)
