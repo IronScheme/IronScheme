@@ -24,33 +24,7 @@ using System.CodeDom.Compiler;
 
 namespace IronScheme.Runtime
 {
-  [AttributeUsage(AttributeTargets.Method, AllowMultiple=true)]
-  public sealed class BuiltinAttribute : Attribute
-  {
-    string name;
-    bool allowconstantfold = false;
 
-    public bool AllowConstantFold
-    {
-      get { return allowconstantfold; }
-      set { allowconstantfold = value; }
-    }
-
-    public string Name
-    {
-      get { return name; }
-      set { name = value; }
-    }
-
-    public BuiltinAttribute()
-    {
-    }
-
-    public BuiltinAttribute(string name)
-    {
-      this.name = name;
-    }
-  }
 
 
   public partial class Builtins : BaseHelper

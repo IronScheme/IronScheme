@@ -101,6 +101,7 @@ namespace IronScheme.Compiler
       BuiltinMethod cwv = new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins), "CallWithValues"));
       cc.Scope.SetName((SymbolId)s, cwv);
 
+      Builtins.Exact(1);
       
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
@@ -138,18 +139,11 @@ namespace IronScheme.Compiler
       BuiltinMethod.binder = binder;
       BuiltinMethod.context = cc;
 
-      Dictionary<string, List<MethodBase>> all = new Dictionary<string, List<MethodBase>>();
       Dictionary<string, List<MethodBase>> cpsfree = new Dictionary<string, List<MethodBase>>();
       Dictionary<string, bool> foldable = new Dictionary<string, bool>();
 
       foreach (MethodInfo mi in builtinstype.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static))
       {
-        ObsoleteAttribute obs = Attribute.GetCustomAttribute(mi, typeof(ObsoleteAttribute)) as ObsoleteAttribute;
-        if (obs != null && obs.IsError)
-        {
-          continue;
-        }
-
         foreach (BuiltinAttribute ba in mi.GetCustomAttributes(typeof(BuiltinAttribute), false))
         {
           if (CheckParams(mi))
@@ -172,17 +166,62 @@ namespace IronScheme.Compiler
         }
       }
 
-      foreach (string mn in all.Keys)
-      {
-        object s = SymbolTable.StringToObject(mn);
-        cc.Scope.SetName((SymbolId)s, new BuiltinMethod(mn, all[mn].ToArray(), foldable[mn]));
-      }
-
       foreach (string mn in cpsfree.Keys)
       {
         object s = SymbolTable.StringToObject(mn);
-        cc.Scope.SetName((SymbolId)s, new BuiltinMethod(mn, cpsfree[mn].ToArray()));
+        var targets = cpsfree[mn].ToArray();
+        var paramcounts = new int[targets.Length];
+        var fold = foldable[mn];
+
+        if (AllIsSimple(targets, paramcounts))
+        {
+          Callable c = null;
+          if (targets.Length == 1)
+          {
+            var dt = CallTargets.GetTargetType(false, paramcounts[0], false);
+            var d = Delegate.CreateDelegate(dt, targets[0] as MethodInfo);
+            c = Closure.Create(d, paramcounts[0]);
+          }
+          else
+          {
+            var d = new Delegate[targets.Length];
+
+            for (int i = 0; i < d.Length; i++)
+            {
+              var dt = CallTargets.GetTargetType(false, paramcounts[i], false);
+              d[i] = Delegate.CreateDelegate(dt, targets[i] as MethodInfo);
+            }
+
+            c = Closure.CreateCase(d, paramcounts);
+          }
+          c.AllowConstantFold = fold;
+          cc.Scope.SetName((SymbolId)s, c);
+        }
+        else
+        {
+          cc.Scope.SetName((SymbolId)s, new BuiltinMethod(mn, targets, fold));
+        }
       }
+    }
+
+    static bool AllIsSimple(MethodBase[] targets, int[] paramcounts)
+    {
+      for (int i = 0; i < targets.Length; i++)
+      {
+        var mi = targets[i];
+
+        var pars = mi.GetParameters();
+        paramcounts[i] = pars.Length;
+
+        foreach (var pi in pars)
+        {
+          if (pi.ParameterType != typeof(object))
+          {
+            return false;
+          }
+        }
+      }
+      return true;
     }
 
     protected static CodeBlock GetTopLevel(CodeBlock cb)

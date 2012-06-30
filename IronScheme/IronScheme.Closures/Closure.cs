@@ -13,6 +13,34 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
+  [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+  public sealed class BuiltinAttribute : Attribute
+  {
+    string name;
+    bool allowconstantfold = false;
+
+    public bool AllowConstantFold
+    {
+      get { return allowconstantfold; }
+      set { allowconstantfold = value; }
+    }
+
+    public string Name
+    {
+      get { return name; }
+      set { name = value; }
+    }
+
+    public BuiltinAttribute()
+    {
+    }
+
+    public BuiltinAttribute(string name)
+    {
+      this.name = name;
+    }
+  }
+
   public delegate object ConsFromArrayHandler(object[] args);
   public delegate object[] ArrayFromConsHandler(object args);
   public delegate object AssertHandler(object who, object msg, params object[] irritants);
@@ -62,6 +90,17 @@ namespace IronScheme.Runtime
         return "unknown closure";
       }
       string name = target.Method.Name;
+
+      var ba = Attribute.GetCustomAttribute(target.Method, typeof(BuiltinAttribute), false) as BuiltinAttribute;
+
+      if (ba != null)
+      {
+        if (ba.Name == null)
+        {
+          return name.ToLower();
+        }
+        return ba.Name.ToLower();
+      }
 
       int i = name.IndexOf("::");
       if (i >= 0)
