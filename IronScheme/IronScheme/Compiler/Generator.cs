@@ -593,7 +593,6 @@ namespace IronScheme.Compiler
                 }
               }
 
-#if OPTIMIZATIONS
               Closure clos = m as Closure;
               if (clos != null && !SetGenerator.IsAssigned(f))
               {
@@ -672,7 +671,6 @@ namespace IronScheme.Compiler
                 }
                 // check for overload thing
               }
-#endif
             }
           }
         }
