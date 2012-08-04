@@ -145,6 +145,10 @@ namespace Microsoft.Scripting.Generation {
               }
               break;
             }
+            catch (FileNotFoundException)
+            {
+              throw;
+            }
             catch (IOException)
             {
               // If a file already exits with the same name, try the next name in the sequence.
