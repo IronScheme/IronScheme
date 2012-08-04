@@ -433,7 +433,11 @@
         [else 
           (display ex)
           (newline)])))
-      
+  
+  ; hacks to get compiled libraries playing nicely
+  (set-symbol-value! 'list list)
+  (set-symbol-value! 'values values)    
+  
   (set-symbol-value! 'load load)
   (set-symbol-value! 'compile compile)
   (set-symbol-value! 'compile->closure compile->closure)

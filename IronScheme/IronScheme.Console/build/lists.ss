@@ -41,7 +41,8 @@ See docs/license.txt. |#
     list-ref
     append
     list?
-    length)
+    length
+    list)
   (import 
     (ironscheme core)
     (ironscheme clr)
@@ -75,7 +76,10 @@ See docs/license.txt. |#
       list-ref
       append
       list?
-      length))
+      length
+      list))
+  
+  (define (list . x) x)     
       
   (define (list-tail lst index)
     (cond

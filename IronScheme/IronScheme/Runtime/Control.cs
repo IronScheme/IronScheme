@@ -65,8 +65,7 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-    [Builtin]
-    public static object Values(params object[] values)
+    internal static object Values(params object[] values)
     {
       if (values.Length == 1)
       {
@@ -80,36 +79,6 @@ namespace IronScheme.Runtime
 #error CPS mode is currently broken, use revision 23730 or earlier
 
 #endif
-
-    [Builtin]
-    public static object Values()
-    {
-      return new MultipleValues();
-    }
-
-    [Builtin]
-    public static object Values(object arg1)
-    {
-      return arg1;
-    }
-
-    [Builtin]
-    public static object Values(object arg1, object arg2)
-    {
-      return new MultipleValues(arg1, arg2);
-    }
-
-    [Builtin]
-    public static object Values(object arg1, object arg2, object arg3)
-    {
-      return new MultipleValues(arg1, arg2, arg3);
-    }
-
-    [Builtin]
-    public static object Values(object arg1, object arg2, object arg3, object arg4)
-    {
-      return new MultipleValues(arg1, arg2, arg3, arg4);
-    }
 
     internal class Continuation : Exception
     {
@@ -221,6 +190,7 @@ namespace IronScheme.Runtime
     //procedure:  (apply proc arg1 ... args) 
     //Proc must be a procedure and args must be a list. Calls proc with the elements of the list (append (list arg1 ...) args) as the actual arguments.
     [Builtin]
+#warning params could be dangerous to the calling convention. check me. this one is quite hard to call directly due to compiler optimizations
     public static object Apply(object fn, params object[] args)
     {
       if (args == null)

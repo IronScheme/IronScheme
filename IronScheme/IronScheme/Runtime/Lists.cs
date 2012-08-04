@@ -96,53 +96,46 @@ namespace IronScheme.Runtime
       return GetBool(arg1 == null);
     }
 
-    [Builtin]
-    [Builtin("list-prim")]
+    [Builtin("list-prim", UsedInternallyByCompiler = true)]
+    public static object List(params object[] args)
+    {
+      return Runtime.Cons.FromArray(args);
+    }
+
+    [Builtin("list-prim", UsedInternallyByCompiler = true)]
     public static object List()
     {
       return null;
     }
 
-    [Builtin]
-    [Builtin("list-prim")]
+    [Builtin("list-prim", UsedInternallyByCompiler = true)]
     public static object List(object arg1)
     {
       return new Cons(arg1);
     }
 
-    [Builtin]
-    [Builtin("list-prim")]
+    [Builtin("list-prim", UsedInternallyByCompiler = true)]
     public static object List(object arg1, object arg2)
     {
       return new Cons(arg1, new Cons(arg2));
     }
 
-    [Builtin]
-    [Builtin("list-prim")]
+    [Builtin("list-prim", UsedInternallyByCompiler = true)]
     public static object List(object arg1, object arg2, object arg3)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3)));
     }
 
-    [Builtin]
-    [Builtin("list-prim")]
+    [Builtin("list-prim", UsedInternallyByCompiler = true)]
     public static object List(object arg1, object arg2, object arg3, object arg4)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4))));
     }
 
-    [Builtin]
-    [Builtin("list-prim")]
+    [Builtin("list-prim", UsedInternallyByCompiler = true)]
     public static object List(object arg1, object arg2, object arg3, object arg4, object arg5)
     {
       return new Cons(arg1, new Cons(arg2, new Cons(arg3, new Cons(arg4, new Cons(arg5)))));
-    }
-
-    [Builtin]
-    [Builtin("list-prim")]
-    public static object List(object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, params object[] args)
-    {
-      return Append(List(arg1, arg2, arg3, arg4, arg5), new Cons(arg6, Runtime.Cons.FromArray(args)));
     }
 
     // overload, no export, bad me!

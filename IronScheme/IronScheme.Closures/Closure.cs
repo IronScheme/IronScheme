@@ -25,6 +25,8 @@ namespace IronScheme.Runtime
       set { allowconstantfold = value; }
     }
 
+    public bool UsedInternallyByCompiler { get; set; }
+
     public string Name
     {
       get { return name; }
