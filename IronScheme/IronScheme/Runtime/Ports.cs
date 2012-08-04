@@ -14,6 +14,7 @@ using IronScheme.Runtime.psyntax;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace IronScheme.Runtime
 {
@@ -32,6 +33,22 @@ namespace IronScheme.Runtime
   {
     static Assembly AssemblyLoad(string path, bool loadinmemory)
     {
+      var altpath = path.Replace("\\", "/");
+      foreach (var lass in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        try
+        {
+          if (lass.CodeBase.EndsWith(altpath, true, CultureInfo.CurrentCulture))
+          {
+            return lass;
+          }
+        }
+        catch (NotSupportedException)
+        {
+          // oh well
+        }
+      }
+
       var basedir = AppDomain.CurrentDomain.BaseDirectory;
       
       string fn = Path.GetFullPath(path);
