@@ -16,8 +16,25 @@ namespace IronScheme.Runtime
 {
   class Program
   {
+    static string[] PrefixArgs(string[] args, params string[] extra)
+    {
+      var newargs = new string[args.Length + extra.Length];
+      Array.Copy(extra, newargs, extra.Length);
+      Array.Copy(args, 0, newargs, extra.Length, args.Length);
+      return newargs;
+    }
+
     static int Main(string[] args)
     {
+      var exename = Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
+
+      switch (exename)
+      {
+        case "isc":
+          args = PrefixArgs(args, "-nologo");
+          break;
+      }
+
       if (args.Length > 0 && args[0] == "-profile")
       {
         const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";

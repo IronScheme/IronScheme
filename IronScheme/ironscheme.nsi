@@ -193,7 +193,6 @@ SectionIn 1 2 RO
 	File "IronScheme.Scripting.dll"
 	
 	File "setup-xp.bat"
-	File "isc.bat"
 	File "system-libraries.ss"
 	File "compile-system-libraries.sps"
 	File "ExecutableTemplate.cs"
@@ -295,6 +294,8 @@ Section -Post
   DetailPrint "Compiling system libraries..."
   nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.sps"'
   DetailPrint "Creating symbolic links..."
+  nsExec::ExecToStack 'cmd /c mklink isc.exe "$INSTDIR\IronScheme.Console.exe"'
+  
   SetOutPath "$INSTDIR\websample"
   nsExec::ExecToStack 'cmd /c mkdir bin'
   SetOutPath "$INSTDIR\websample\bin"
