@@ -123,7 +123,15 @@ namespace IronScheme.Runtime.psyntax
         return BootfileAssembly;
       }
       // this might accidentally load the debug file..., and screw up stuff, dunno why...
-      return Assembly.Load(assname);
+      try
+      {
+        return Assembly.Load(assname);
+      }
+        // deal with public key shit, starting to regret this...
+      catch (FileLoadException)
+      {
+        return Assembly.Load(assname.Replace("PublicKeyToken=null", "PublicKeyToken=78f2e9d9541a0dee"));
+      }
     }
 
     sealed class TypeCorrector : SerializationBinder
