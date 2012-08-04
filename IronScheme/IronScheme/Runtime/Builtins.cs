@@ -250,7 +250,8 @@ namespace IronScheme
       return GetClrType(name, new object[0]);
     }
 
-    [Builtin("get-clr-type")]
+    [Builtin("get-clr-type")] 
+#warning params could be dangerous to the calling convention. check me. this will probably never called with a vector argument
     public static object GetClrType(object name, params object[] typeargs)
     {
       SymbolId s = RequiresNotNull<SymbolId>(name);
@@ -859,25 +860,25 @@ namespace IronScheme
       return (rest == null) ? a : new Cons(a, ListStarHelper(Car(rest), Cdr(rest)));
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", UsedInternallyByCompiler = true)]
     public static object ListStar(object a, params object[] rest)
     {
       return ListStarHelper(a, Runtime.Cons.FromArray(rest));
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", UsedInternallyByCompiler = true)]
     public static object ListStar(object a, object b)
     {
       return new Cons(a, b);
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", UsedInternallyByCompiler = true)]
     public static object ListStar(object a, object b, object c)
     {
       return new Cons(a, new Cons(b, c));
     }
 
-    [Builtin("list*")]
+    [Builtin("list*", UsedInternallyByCompiler = true)]
     public static object ListStar(object a, object b, object c, object d)
     {
       return new Cons(a, new Cons(b, new Cons(c , d)));
@@ -962,6 +963,7 @@ namespace IronScheme
 
 
     [Builtin("string-split")]
+#warning params could be dangerous to the calling convention. check me. this will probably never called with a vector argument
     public static object StringSplit(object str, params object[] del)
     {
       return Requires<string>(str).Split(del as string[], StringSplitOptions.None);

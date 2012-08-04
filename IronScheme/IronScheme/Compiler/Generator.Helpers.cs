@@ -71,9 +71,6 @@ namespace IronScheme.Compiler
       binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
 
       Generator.initme = true;
-
-
-
     }
   }
 
@@ -101,7 +98,7 @@ namespace IronScheme.Compiler
       BuiltinMethod cwv = new BuiltinMethod(s.ToString(), GetMethods(typeof(OptimizedBuiltins), "CallWithValues"));
       cc.Scope.SetName((SymbolId)s, cwv);
 
-      Builtins.Exact(1);
+      //Builtins.Exact(1);
       
       RuntimeHelpers.Assert = Builtins.AssertionViolation;
       Closure.AssertionViolation = Builtins.AssertionViolation;
@@ -287,7 +284,7 @@ namespace IronScheme.Compiler
       Type[] types = Array.ConvertAll<Expression, Type>(args,
         delegate(Expression e) { return e.Type.IsArray ? e.Type.GetElementType() : e.Type; });
 
-      MethodBinder listbinder = ((BuiltinMethod) Context.Scope.LookupName(((SymbolId) (proper ? list : liststar)))).Binder;
+      MethodBinder listbinder = ((BuiltinMethod)Context.Scope.LookupName(((SymbolId)(proper ? list : liststar)))).Binder;
 
       return listbinder.MakeBindingTarget(CallType.None, types).Target.Method as MethodInfo;
     }

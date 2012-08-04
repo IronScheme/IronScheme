@@ -302,6 +302,7 @@
     (typed-lambda                               i)
     (typed-case-lambda                          i)
     (pointer+                                   i)
+    (expanded->core                             i)
     (import                                     i) 
     (export                                     i)
     (library                                    i) 
