@@ -191,6 +191,7 @@ SectionIn 1 2 RO
 	File "ironscheme.boot.dll"
 	File "Oyster.IntX.dll"
 	File "IronScheme.Scripting.dll"
+	File "DEVELOPMENT.snk"
 	
 	File "setup-xp.bat"
 	File "system-libraries.ss"

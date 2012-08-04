@@ -433,14 +433,7 @@ namespace IronScheme.Runtime
     {
       if (filename.StartsWith("~"))
       {
-        if (ApplicationDirectory != Environment.CurrentDirectory)
-        {
-          filename = Path.Combine(ApplicationDirectory, filename.Substring(2));
-        }
-        else
-        {
-          filename = filename.Substring(2);
-        }
+        filename = Path.Combine(ApplicationDirectory, filename.Substring(2));
       }
       return filename;
     }
