@@ -532,17 +532,19 @@ See docs/license.txt. |#
           [(complexnum? num)
             (unless (= radix 10)
               (assertion-violation 'number->string "invalid radix" radix))
-            (string-append (if (zero? (real-part num)) 
-                               "" 
-                               (number->string (real-part num) radix))
-                           (if (let ((i (imag-part num)))
-                                 (or (negative? i)
-                                     (nan? i)
-                                     (infinite? i)))
-                               "" 
-                               "+")
-                           (number->string (imag-part num) radix)
-                           "i")]
+            (let ((rp (real-part num))
+                  (ip (imag-part num)))
+              (string-append (if (and (zero? rp) (not (and (flonum? rp) (clr-static-call IntX IsNegativeZero rp))))
+                                 "" 
+                                 (number->string rp radix))
+                             (if (or (negative? ip)
+                                     (nan? ip)
+                                     (infinite? ip)
+                                     (and (flonum? ip) (clr-static-call IntX IsNegativeZero ip)))
+                                 "" 
+                                 "+")
+                             (number->string ip radix)
+                             "i"))]
           [(rectnum? num)
             (string-append (if (zero? (real-part num)) 
                                "" 
@@ -743,15 +745,29 @@ See docs/license.txt. |#
             [else
               (assertion-violation 'name "not a number" num)]))]))
               
+  (define-syntax define-math-proc*
+    (syntax-rules ()
+      [(_ name clr-name)
+        (define (name num)
+          (cond
+            [(rectnum? num)
+              (name (rectnum->complexnum num))]
+            [(complexnum? num)
+              (clr-static-call Complex64 clr-name num)]
+            [(real? num)
+              (name (make-rectangular num 0.0))]
+            [else
+              (assertion-violation 'name "not a number" num)]))]))              
+              
   (define-math-proc exp Exp)
   (define-math-proc sin Sin)
-  (define-math-proc asin Asin)
-  (define-math-proc sinh Sinh)
+  (define-math-proc* asin Asin)
+  (define-math-proc* sinh Sinh)
   (define-math-proc cos Cos)
-  (define-math-proc acos Acos)
-  (define-math-proc cosh Cosh)
+  (define-math-proc* acos Acos)
+  (define-math-proc* cosh Cosh)
   (define-math-proc tan Tan)
-  (define-math-proc tanh Tanh)
+  (define-math-proc* tanh Tanh)
   
   (define atan
     (case-lambda
