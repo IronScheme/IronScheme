@@ -29,6 +29,13 @@ namespace IronScheme.Compiler
         string tail = m.Groups["tail"].Value;
 
         object hnum = Builtins.StringToNumber(head);
+
+        if (hnum is double)
+        {
+          // can't use process below as 1e11 onwards gets precision loss
+          return Convert.ToDouble(s, CultureInfo.InvariantCulture);
+        }
+
         object tnum = Builtins.StringToNumber(tail);
 
         return Builtins.Multiply(hnum, Expt10(tnum));
@@ -45,9 +52,9 @@ namespace IronScheme.Compiler
     {
       if (tnum < 0)
       {
-        return new Fraction(1, BigInteger.Pow(10, (uint) -tnum));
+        return new Fraction(1, BigInteger.Pow(10, (uint)-tnum));
       }
-      return BigInteger.Pow(TEN, (uint) tnum);
+      return BigInteger.Pow(TEN, (uint)tnum);
     }
 
     static object Expt10(object tnum)
@@ -77,7 +84,7 @@ namespace IronScheme.Compiler
     public static string CleanString(string input)
     {
       input = input.Substring(1, input.Length - 2);
-      
+
       input = input.Replace("\r", "");
 
       input = ProcessStringContinuations(input);
@@ -203,7 +210,7 @@ namespace IronScheme.Compiler
           {
             //hex escape
             int utf32 = int.Parse(input.Substring(3), System.Globalization.NumberStyles.HexNumber);
-            
+
             if (((utf32 < 0) || (utf32 > 1114111)) || ((utf32 >= 55296) && (utf32 <= 57343)))
             {
               throw new SyntaxErrorException(string.Format("not a valid Unicode value: {0}", utf32));
