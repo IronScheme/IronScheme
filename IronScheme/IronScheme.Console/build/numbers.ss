@@ -755,7 +755,9 @@ See docs/license.txt. |#
             [(complexnum? num)
               (clr-static-call Complex64 clr-name num)]
             [(real? num)
-              (name (make-rectangular num 0.0))]
+              (if (> (abs num) 1)
+                (name (make-rectangular num 0.0))
+                (clr-static-call Math clr-name (inexact num)))]
             [else
               (assertion-violation 'name "not a number" num)]))]))              
               
