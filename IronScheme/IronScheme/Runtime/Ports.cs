@@ -114,7 +114,7 @@ namespace IronScheme.Runtime
 
       var diff = assd - pdbd;
 
-      return diff.TotalSeconds < 5;
+      return Math.Abs(diff.TotalSeconds) < 5;
     }
 
     internal static Assembly BootfileAssembly { get; set; }
@@ -177,7 +177,7 @@ namespace IronScheme.Runtime
 
           Type ilmergefixup = typeof(Builtins).Assembly.GetType("#", false);
 
-          if (ilmergefixup != null)
+          if (ilmergefixup != null && BootfileAssembly == null)
           {
             entry = ilmergefixup.GetMethod("Initialize");
             BootfileAssembly = typeof(Builtins).Assembly;

@@ -66,7 +66,7 @@
     </DocumentationFile>
     <NoWarn>1591</NoWarn>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
@@ -1390,6 +1390,8 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>
-    </PostBuildEvent>
+copy /Y $(TargetPath) $(TargetDir)$(ProjectName)32.exe
+copy /Y $(TargetPath).config $(TargetDir)$(ProjectName)32.exe.config
+"$(FrameworkSDKDir)Bin\corflags.exe" $(TargetDir)$(ProjectName)32.exe /32BIT+</PostBuildEvent>
   </PropertyGroup>
 </Project>
