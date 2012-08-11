@@ -497,7 +497,7 @@ namespace Microsoft.Scripting.Generation {
             }
             catch (Exception ex)
             {
-              Console.WriteLine(ex.Message);
+              Console.WriteLine("Failed to create language dictionary: {0}", ex.Message);
               return null;
             }
           }

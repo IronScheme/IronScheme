@@ -176,10 +176,14 @@ SectionIn 1 2 RO
   CreateDirectory "$SMPROGRAMS\IronScheme"
 
   CreateShortCut "$SMPROGRAMS\IronScheme\IronScheme.lnk" "$INSTDIR\IronScheme.Console.exe"
+  CreateShortCut "$SMPROGRAMS\IronScheme\IronScheme (32-bit).lnk" "$INSTDIR\IronScheme.Console32.exe"
   CreateShortCut "$DESKTOP\IronScheme.lnk" "$INSTDIR\IronScheme.Console.exe"
+  CreateShortCut "$DESKTOP\IronScheme (32-bit).lnk" "$INSTDIR\IronScheme.Console32.exe"
 
 	File "IronScheme.Console.exe"
 	File "IronScheme.Console.exe.config"
+	File "IronScheme.Console32.exe"
+	File "IronScheme.Console32.exe.config"	
 	
 	File "IronScheme.dll"
 	File "IronScheme.Remoting.dll"
@@ -208,9 +212,8 @@ SectionIn 1 2 RO
 	File ..\..\..\tools\RegPkg.exe.config
 ${If} ${RunningX64}	
   File ..\..\..\tools\IronScheme.Profiler.x64.dll
-${Else}  
-	File ..\..\..\tools\IronScheme.Profiler.x86.dll
 ${EndIf}	
+	File ..\..\..\tools\IronScheme.Profiler.x86.dll
 	
 	File "ironscheme-buildscript.ss"
 
@@ -296,6 +299,7 @@ Section -Post
   nsExec::ExecToStack '"$INSTDIR\IronScheme.Console.exe" "$INSTDIR\compile-system-libraries.sps"'
   DetailPrint "Creating symbolic links..."
   nsExec::ExecToStack 'cmd /c mklink isc.exe "$INSTDIR\IronScheme.Console.exe"'
+  nsExec::ExecToStack 'cmd /c mklink isc32.exe "$INSTDIR\IronScheme.Console32.exe"'
   
   SetOutPath "$INSTDIR\websample"
   nsExec::ExecToStack 'cmd /c mkdir bin'
