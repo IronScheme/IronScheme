@@ -696,6 +696,12 @@
     </None>
     <None Include="compiler\riaxpander\transform.ss">
     </None>
+    <None Include="genv4.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="installprep.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -930,6 +936,9 @@
     <Content Include="lib\pfds\psqs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="ngen-all.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="playground\bw.sps" />
     <None Include="playground\foo.sls" />
     <None Include="playground\linq3.sls">
