@@ -1057,6 +1057,9 @@
     <None Include="srfi\tests\random-access-lists.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="stage.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="testall.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
