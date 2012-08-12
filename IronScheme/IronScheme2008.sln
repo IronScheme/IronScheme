@@ -32,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9
 		tools\IronScheme.Profiler.x86.dll = tools\IronScheme.Profiler.x86.dll
 		tools\IronScheme.VisualStudio.dll = tools\IronScheme.VisualStudio.dll
 		tools\IronScheme.VisualStudio.vsix = tools\IronScheme.VisualStudio.vsix
+		tools\ReferenceRemover.exe = tools\ReferenceRemover.exe
 		tools\RegPkg.exe = tools\RegPkg.exe
 		tools\RegPkg.exe.config = tools\RegPkg.exe.config
 		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
