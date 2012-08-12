@@ -110,7 +110,7 @@ namespace IronScheme.Runtime
       {
         //Console.InputEncoding = Encoding.UTF8;
         Console.OutputEncoding = Encoding.UTF8;
-        return new IronSchemeConsoleHost().Run(args);
+        return IronSchemeConsoleHost.Execute(args);
       }
       finally
       {

@@ -30,6 +30,11 @@ namespace IronScheme.Hosting
 );
     }
 
+    public static int Execute(string[] args)
+    {
+      return new IronSchemeConsoleHost().Run(args);
+    }
+
 
     protected override void Initialize()
     {
