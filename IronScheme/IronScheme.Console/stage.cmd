@@ -28,6 +28,6 @@ rmdir /s /q install-stage\IronScheme\docs\notes
 
 cd install-stage
 ..\zip -r -9 IronScheme-latest.zip IronScheme
-..\tar -c -fIronScheme-latest.tar IronScheme
+c:\MinGW\msys\1.0\bin\tar.exe -c -fIronScheme-latest.tar IronScheme
 ..\xz IronScheme-latest.tar
 cd ..
