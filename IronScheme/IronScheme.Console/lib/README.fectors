@@ -1,0 +1,38 @@
+* Functional Vectors for Scheme
+
+Functional programming needs functional data structures. This is an
+implementation of "vectors" (also called arrays), a finite map keyed
+by consecutive integers between 0 and n - 1, n being the length of the
+vector. Being functional, the structure is not observably mutatable,
+and so access to any version will always give the correct answer.
+
+There are many possible implementations of the vector interface with
+different efficiency characteristics, the one contained prioritises
+"single threaded" use of vectors, that is, one in which access is most
+frequently to the last created version of the vector. Access to
+previously stored versions works correctly, though it will not be
+quite as efficient.
+
+If your use case is not single threaded, I recommend using a tree
+based implementation, which has adequate characteristics for all
+versions of the vector. One such implementation is based on
+fingertrees and is provided as part of my pdfs package[1]
+
+I'd like to thank David Van Horn, whose racket library brought this to
+my attention[2], and from whom I shamelessly stole the name, and
+transitively, Sylvain Conchon and Jean-Christophe Filliâtre for
+bringing it to his[3], and Henry Baker for coming up with the idea in
+the first place[4]. Also, Marco Maggi[5] who has graciously provided a
+test suite for Vicare Scheme.
+
+* Footnotes
+
+[1] [[https://github.com/ijp/pfds][Purely Functional Data Structures for Scheme]]
+
+[2] [[http://dvanhorn.lambda-calcul.us/2011/05/03/fector/][Fector: Persistent Functional Vectors for Racket]]
+
+[3] [[http://www.lri.fr/~filliatr/ftp/publis/puf-wml07.pdf][A Persistent Union-Find Data Structure]]
+
+[4] [[http://home.pipeline.com/~hbaker1/ShallowBinding.ps.gz][Shallow Binding in Lisp 1.5]]
+
+[5] http://marcomaggi.github.com/
