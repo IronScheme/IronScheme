@@ -40,14 +40,6 @@ namespace IronScheme.Hosting
     {
       base.Initialize();
       Options.LanguageProvider = ScriptEnvironment.GetEnvironment().GetLanguageProvider(typeof(IronSchemeLanguageProvider));
-
-      var info = typeof(IronSchemeLanguageProvider).Assembly.GetManifestResourceInfo("ironscheme.libs");
-      if (info != null)
-      {
-        var se = Options.LanguageProvider.GetEngine();
-        Callable op = se.Evaluate("open-package") as Callable;
-        op.Call( Closure.Create(new CallTarget0(ResourceLoader)));
-      }
     }
 
     static Stream ResourceLoader()

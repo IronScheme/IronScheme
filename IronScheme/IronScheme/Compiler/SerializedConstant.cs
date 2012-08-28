@@ -19,10 +19,12 @@ namespace IronScheme.Compiler
   {
     readonly object value;
     int index = -1;
+    readonly bool compress;
 
     public SerializedConstant(object value)
     {
       this.value = value;
+      this.compress = IronScheme.Runtime.Builtins.compressConstants;
     }
 
     public override Type Type
@@ -46,8 +48,8 @@ namespace IronScheme.Compiler
         var tg = cg.TypeGen;
         var ag = tg.AssemblyGen;
         index = tg.ConstantCounter;
-
-        if (ScriptDomainManager.CurrentManager.Snippets.Assembly == ag || ScriptDomainManager.CurrentManager.Snippets.DebugAssembly == ag)
+        var snippets = ScriptDomainManager.CurrentManager.Snippets;
+        if (snippets.Assembly == ag || snippets.DebugAssembly == ag)
         {
           var sym = (SymbolId) Runtime.Builtins.GenSym("s11n:" + index);
 
@@ -93,7 +95,7 @@ namespace IronScheme.Compiler
               totallength += s.Length;
               var mb = tg.TypeBuilder.Module as ModuleBuilder;
 
-              if (IronScheme.Runtime.Builtins.compressConstants)
+              if (compress)
               {
                 var cms = new MemoryStream();
                 var cs = new System.IO.Compression.GZipStream(cms, System.IO.Compression.CompressionMode.Compress, true);

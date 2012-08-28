@@ -116,9 +116,9 @@ namespace IronScheme.Runtime
 
       return Math.Abs(diff.TotalSeconds) < 5;
     }
-
-    internal static Assembly BootfileAssembly { get; set; }
-
+    
+    internal static Assembly BootfileAssembly {get;set;}
+    
     internal static object Load(object filename, bool loadinmemory)
     {
       CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
@@ -127,34 +127,6 @@ namespace IronScheme.Runtime
 
       switch (Path.GetExtension(path))
       {
-        case ".fasl":
-          {
-#if DEBUG
-            Stopwatch sw = Stopwatch.StartNew();
-#endif
-            Cons c = null;
-            using (Stream s = File.OpenRead(path))
-            {
-              c = psyntax.Serialization.DeserializePort(s) as Cons;
-            }
-
-            var cb = IronSchemeLanguageContext.Compile(c);
-
-            ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb);
-
-            var sm = ScriptDomainManager.CurrentManager.CreateModule("boot", sc);
-
-            Compiler.SimpleGenerator.ClearGlobals();
-#if DEBUG
-            Trace.WriteLine(sw.ElapsedMilliseconds, "Compile module: " + sm.FileName);
-            sw = Stopwatch.StartNew();
-#endif
-            object result = sm.GetScripts()[0].Run(sm);
-#if DEBUG
-            Trace.WriteLine(sw.ElapsedMilliseconds, "Run script: " + sm.GetScripts()[0].SourceUnit);
-#endif
-            return result;
-          }
         case ".exe":
         case ".dll":
           const string newbf = "build/ironscheme.boot.dll";
@@ -186,8 +158,6 @@ namespace IronScheme.Runtime
           {
 
             Assembly ext = AssemblyLoad(path, loadinmemory);
-
-            BootfileAssembly = ext;
 
             foreach (Type t in ext.GetExportedTypes())
             {

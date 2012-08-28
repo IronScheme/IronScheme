@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System;
+using System.Security.Permissions;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -9,7 +10,7 @@ using System;
 [assembly: AssemblyTitle("IronScheme")]
 [assembly: AssemblyCompany("leppie")]
 [assembly: AssemblyProduct("IronScheme")]
-[assembly: AssemblyCopyright("Copyright © leppie 2007,2008,2009,2010")]
+[assembly: AssemblyCopyright("Copyright © leppie 2007,2008,2009,2010,2011,2012")]
 #if !USE_GLUE
 [assembly: CLSCompliant(true)]
 #endif
@@ -33,5 +34,7 @@ using System;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("ironscheme.boot, PublicKey=0024000004800000940000000602000000240000525341310004000001000100a19c436ee9130f8746aa1d1f77bd268fd66915c3c1ed59c1e493cace4a2f716640a0f2928035b40fc0111d6d2de826d2bc4fce72928e81355295a1a5157b9a9226af803976a54fcd5702526008270c3dbf8d35b101cb2468920d58b7ffe731b3e0d3729b12335a9fc769b39614f22e2ad5a8a483a0b9b29d9c7f2ecd9918c7ac")]
+//[assembly: InternalsVisibleTo("ironscheme.boot, PublicKey=0024000004800000940000000602000000240000525341310004000001000100a19c436ee9130f8746aa1d1f77bd268fd66915c3c1ed59c1e493cace4a2f716640a0f2928035b40fc0111d6d2de826d2bc4fce72928e81355295a1a5157b9a9226af803976a54fcd5702526008270c3dbf8d35b101cb2468920d58b7ffe731b3e0d3729b12335a9fc769b39614f22e2ad5a8a483a0b9b29d9c7f2ecd9918c7ac")]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+
 
