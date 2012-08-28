@@ -120,7 +120,7 @@ namespace IronScheme.Runtime.psyntax
       }
       if (IsILMerged)
       {
-        return BootfileAssembly;
+        //return BootfileAssembly;
       }
       // this might accidentally load the debug file..., and screw up stuff, dunno why...
       try
