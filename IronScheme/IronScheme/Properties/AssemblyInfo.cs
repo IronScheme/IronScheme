@@ -12,9 +12,7 @@ using System.Security;
 [assembly: AssemblyCompany("leppie")]
 [assembly: AssemblyProduct("IronScheme")]
 [assembly: AssemblyCopyright("Copyright © leppie 2007,2008,2009,2010,2011,2012")]
-#if !USE_GLUE
-[assembly: CLSCompliant(true)]
-#endif
+
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.

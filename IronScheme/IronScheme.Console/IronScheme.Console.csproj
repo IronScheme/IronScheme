@@ -659,6 +659,9 @@
     <Content Include="ilmerge.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="build\misc.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="compiler\cps-convert.sls">
     </None>
     <None Include="compiler\cps\cps-sexp-target.ss">

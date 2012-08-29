@@ -41,7 +41,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;BIGFRACTION;OPTIMIZATIONS;USE_GLUE</DefineConstants>
+    <DefineConstants>TRACE;BIGFRACTION;OPTIMIZATIONS</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>1591;3021</NoWarn>

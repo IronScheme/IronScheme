@@ -10,7 +10,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime
 {
-  sealed class TraceClosure : Closure
+  public sealed class TraceClosure : Closure
   {
     readonly Callable realtarget, filter;
     readonly SymbolId name;
@@ -28,10 +28,10 @@ namespace IronScheme.Runtime
     [ThreadStatic]
     static int depth;
 
-    public TraceClosure(Callable realtarget,  SymbolId name, Callable filter)
+    public TraceClosure(Callable realtarget,  SymbolId name, object filter)
     {
       this.realtarget = realtarget;
-      this.filter = filter;
+      this.filter = filter as Callable;
       this.name = name;
     }
 

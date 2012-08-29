@@ -331,7 +331,7 @@ namespace IronScheme.Runtime
         return (T) Builtins.AssertionViolation(GetCaller(), "argument cannot be null");
       }
 
-      if (obj != null && !(obj is T))
+      if (!(obj is T))
       {
         // no way pass a box op :(
         object o = ConvertFromSchemeObject<T>(obj);

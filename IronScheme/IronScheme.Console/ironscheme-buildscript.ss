@@ -79,6 +79,7 @@
     "build/equal.ss"
     
     "build/pretty-print.ss" 
+    "build/misc.ss"
     
     ;; disabled for v1.0
     ;"build/cps.ss"

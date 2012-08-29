@@ -96,13 +96,14 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
-
+    // can't move this, gets inlined most of the time
     [Builtin("eq?")]
     public static object IsEqual(object first, object second)
     {
       return GetBool(ReferenceEquals(first, second));
     }
 
+    // can't move this, gets inlined most of the time
     [Builtin("eqv?")]
     public static object IsEqualValue(object first, object second)
     {

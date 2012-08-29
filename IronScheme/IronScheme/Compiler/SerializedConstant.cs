@@ -51,11 +51,11 @@ namespace IronScheme.Compiler
         var snippets = ScriptDomainManager.CurrentManager.Snippets;
         if (snippets.Assembly == ag || snippets.DebugAssembly == ag)
         {
-          var sym = (SymbolId) Runtime.Builtins.GenSym("s11n:" + index);
+          var sym = Runtime.Builtins.GenSym("s11n:" + index);
 
-          Runtime.Builtins.SetSymbolValue(sym, value);
+          Runtime.Builtins.SetSymbolValueFast(sym, value);
 
-          cg.EmitSymbolId(sym);
+          cg.EmitSymbolId((SymbolId) sym);
           cg.EmitCall(typeof(Runtime.Builtins), "SymbolValue");
         }
         else

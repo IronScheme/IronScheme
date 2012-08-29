@@ -210,12 +210,6 @@ namespace IronScheme
       return Runtime.Cons.FromList(commandline);
     }
 
-    [Builtin("clr-type?")]
-    public static object IsClrType(object o)
-    {
-      return GetBool(o is Type);
-    }
-
     public static MethodBuilder MakeMethod(string name, Type returntype, Type[] paramtypes)
     {
       var mb = ModuleBuilder;
@@ -301,16 +295,6 @@ namespace IronScheme
       return Unspecified;
     } 
 
-    [Builtin]
-    public static object Typeof(object o)
-    {
-      if (o == null)
-      {
-        return typeof(object);
-      }
-      return o.GetType();
-    }
-
     public static object ListToByteVector(object obj)
     {
       object[] bytes = ListToVector(obj);
@@ -336,12 +320,6 @@ namespace IronScheme
       {
         return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase).Replace("file:\\", "").Replace("file:", "");
       }
-    }
-
-    [Builtin("make-guid")]
-    public static object MakeGuid()
-    {
-      return Guid.NewGuid();
     }
 
     [Builtin("debug-mode?")]
@@ -431,51 +409,6 @@ namespace IronScheme
       paths.Add(Path.Combine(ApplicationDirectory, "lib"));
 
       return Runtime.Cons.FromList(paths);
-    }
-
-    [Builtin("procedure-arity")]
-    public static object ProcArity(object proc)
-    {
-      Callable c = RequiresNotNull<Callable>(proc);
-      return c.Arity;
-    }
-
-    [Builtin("procedure-form")]
-    public static object ProcForm(object proc)
-    {
-      Callable c = RequiresNotNull<Callable>(proc);
-      return c.Form;
-    }
-
-    [Builtin("procedure-name")]
-    public static object ProcName(object proc)
-    {
-      Callable c = RequiresNotNull<Callable>(proc);
-      return SymbolTable.StringToObject(c.ToString());
-    }
-
-    [Builtin("procedure-environment")]
-    public static object ProcEnv(object proc)
-    {
-      Callable c = RequiresNotNull<Callable>(proc);
-      return FALSE;
-    }
-
-    [Builtin("make-traced-procedure")]
-    [CLSCompliant(false)]
-    public static object MakeTraceProcedure(object name, object proc)
-    {
-      return MakeTraceProcedure(name, proc, FALSE);
-    }
-
-    [Builtin("make-traced-procedure")]
-    [CLSCompliant(false)]
-    public static object MakeTraceProcedure(object name, object proc, object filter)
-    {
-      Callable p = RequiresNotNull<Callable>(proc);
-      SymbolId n = RequiresNotNull<SymbolId>(name);
-      Callable f = filter as Callable;
-      return new TraceClosure(p, n, f);
     }
 
     static Process selfprocess;
@@ -840,15 +773,6 @@ namespace IronScheme
       return compiled.Call();
     }
 
-    [Builtin("gc-collect")]
-    [UnspecifiedReturn]
-    public static object GcCollect()
-    {
-      GC.Collect();
-      return Unspecified;
-    }
-  
-
     [Builtin]
     public static object Void()
     {
@@ -951,16 +875,6 @@ namespace IronScheme
       }
       ModuleScope.SetName((SymbolId)symbol, value);
     }
-
-
-    [Builtin("set-symbol-value!")]
-    [UnspecifiedReturn]
-    public static object SetSymbolValue(object symbol, object value)
-    {
-      SetSymbolValueFast(symbol, value);
-      return Unspecified;
-    }
-
 
     [Builtin("string-split")]
 #warning params could be dangerous to the calling convention. check me. this will probably never called with a vector argument
@@ -1110,7 +1024,7 @@ namespace IronScheme
         return (T)(object)((R6RS.CustomTextReaderWriter)obj).input;
       }
 
-      if (obj != null && !(obj is T))
+      if (!(obj is T))
       {
         return (T) AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name,  obj);
       }

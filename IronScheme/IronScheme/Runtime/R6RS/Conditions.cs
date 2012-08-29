@@ -84,12 +84,6 @@ namespace IronScheme.Runtime.R6RS
       return List(cond);
     }
 
-    [Builtin("condition?")]
-    public static object IsCondition(object cond)
-    {
-      return GetBool(cond is Condition);
-    }
-
     //(condition-predicate rtd)
     [Builtin("condition-predicate")]
     public static object ConditionPredicate(object rtd)
