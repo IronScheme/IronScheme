@@ -6,10 +6,20 @@ See docs/license.txt. |#
 
 (library (ironscheme trace)
   (export
-    make-traced-macro)
+    make-traced-macro
+    make-trace-procedure )
   (import 
     (ironscheme)
-    (except (ironscheme core) make-traced-macro))
+    (ironscheme contracts)
+    (ironscheme clr)
+    (except (ironscheme core) make-traced-macro make-trace-procedure ))
+    
+  (define/contract make-trace-procedure 
+    (case-lambda 
+      [(name proc)
+        (make-trace-procedure name proc #f)]
+      [(name:symbol proc:procedure f)
+        (clr-new IronScheme.Runtime.TraceClosure proc name f)]))
     
   (define make-traced-macro 
     (lambda (name x) 

@@ -17,10 +17,7 @@ using Microsoft.Scripting.Hosting;
 
 namespace IronScheme.Compiler
 {
-  public abstract class BaseHelper 
-#if USE_GLUE
-    : Glue
-#endif
+  public abstract class BaseHelper : Glue
   {
     static IronSchemeScriptEngine se;
     internal static CodeContext cc;

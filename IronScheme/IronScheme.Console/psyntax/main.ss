@@ -58,7 +58,7 @@
     (only (ironscheme unsafe) $fx+ $fx-)
     (ironscheme constant-fold)
     (except (ironscheme library) file-locator)
-    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port time))
+    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port time time-it))
     
   (clr-reference System)
     
@@ -145,15 +145,14 @@
   (define compile-system-libraries
     (case-lambda
       [()
-        (eval-top-level 
-          `(begin
-             (include "system-libraries.ss")
-             (compile "system-libraries.ss")))]
+        (compile-system-libraries #f)]
       [(constant-compression?)
-        (eval-top-level 
-          `(begin
-             (include "system-libraries.ss")
-             (compile "system-libraries.ss" #f ,constant-compression?)))]))
+        (time-it "total compile time"
+          (lambda ()
+            (eval-top-level 
+              `(begin
+                 (include "system-libraries.ss")
+                 (compile "system-libraries.ss" #f ,constant-compression?)))))]))
                
   (define (with-guard f)
     (clr-guard [e [e (parameterize ((current-output-port (current-error-port)))

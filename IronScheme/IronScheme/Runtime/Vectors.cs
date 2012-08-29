@@ -66,43 +66,6 @@ namespace IronScheme.Runtime
       return ListToVector(e);
     }
 
-    [Builtin("vector-binary-search")]
-    public static object VectorBinarySearch(object vector, object obj)
-    {
-      Array v = RequiresNotNull<Array>(vector);
-      return Array.BinarySearch(v, obj);
-    }
-
-    [Builtin("vector-index-of")]
-    public static object VectorIndexOf(object vector, object obj)
-    {
-      Array v = RequiresNotNull<Array>(vector);
-      return Array.IndexOf(v, obj);
-    }
-
-    [Builtin("vector-contains?")]
-    public static object VectorContains(object vector, object obj)
-    {
-      Array v = RequiresNotNull<Array>(vector);
-      return Array.IndexOf(v, obj) >= 0;
-    }
-
-    [Builtin("vector-copy")]
-    public static object VectorCopy(object vector)
-    {
-      Array v = RequiresNotNull<Array>(vector);
-      return v.Clone() as object[];
-    }
-
-    [Builtin("vector-reverse!")]
-    [UnspecifiedReturn]
-    public static object VectorReverse(object vector)
-    {
-      Array v = RequiresNotNull<Array>(vector);
-      Array.Reverse(v);
-      return Unspecified;
-    }
-
     [Builtin("vector-filter")]
     public static object VectorFilter(object proc, object vector)
     {

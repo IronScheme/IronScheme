@@ -21,7 +21,8 @@ See docs/license.txt. |#
     bytevector?
     symbol?
     boolean?
-    procedure?)
+    procedure?
+    condition?)
   (import 
     (except 
       (rnrs)
@@ -34,7 +35,8 @@ See docs/license.txt. |#
       bytevector?
       symbol?
       boolean?
-      procedure?)
+      procedure?
+      condition?)
     (ironscheme unsafe)
     (ironscheme clr))
     
@@ -43,6 +45,9 @@ See docs/license.txt. |#
   (clr-using Microsoft.Scripting.Math)
   (clr-using Oyster.Math)
   (clr-using System.Text)
+  
+  (define (condition? obj)
+    (clr-is IronScheme.Runtime.R6RS.Condition obj))
     
   (define (fixnum? obj)
     (clr-is Int32 obj))
