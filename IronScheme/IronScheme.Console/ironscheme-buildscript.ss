@@ -58,6 +58,7 @@
     ;; needs make-parameter
     "build/io/ports.ss"
     "build/io/simple.ss"
+    "build/vectors.ss"
     
     "build/generic-writer.ss"
     
@@ -80,6 +81,7 @@
     
     "build/pretty-print.ss" 
     "build/misc.ss"
+    
     
     ;; disabled for v1.0
     ;"build/cps.ss"
@@ -295,6 +297,16 @@
     (fx-internal                                ic)
     (fx*internal                                ic)
     (fxarithmetic-shift-left-internal           ic)
+    (flvector?                                  i)
+    (fxvector?                                  i)
+    (flvector-ref                               i)
+    (fxvector-ref                               i)
+    (flvector-set!                              i)
+    (fxvector-set!                              i)
+    (make-flvector                              i)
+    (make-fxvector                              i)
+    (flvector-length                            i)
+    (fxvector-length                            i)
     (with-timeout                               i)
     (file-mtime                                 i)
     (allow-library-redefinition                 i)

@@ -74,7 +74,7 @@ namespace Microsoft.Scripting.Ast {
             // Emit the index (as integer)
             _index.Emit(cg);
             // Emit the value
-            _value.Emit(cg);
+            _value.EmitAs(cg, _elementType);
             //temp.EmitGet(cg);
             // Store it in the array
             EmitLocation(cg);

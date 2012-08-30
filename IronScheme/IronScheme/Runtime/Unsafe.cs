@@ -169,7 +169,11 @@ namespace IronScheme.Runtime
       {
         if (values.Length == 2)
         {
-          return Ast.ArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)));
+          if (!typeof(Array).IsAssignableFrom(values[0].Type))
+          {
+            values[0] = Ast.ConvertHelper(values[0], typeof(object[]));
+          }
+          return Ast.ArrayIndex(values[0], Ast.ConvertHelper(values[1], typeof(int)));
         }
         UnsafeSyntaxError("$vector-ref", "expected 2 arguments", values);
         return null;
@@ -180,7 +184,11 @@ namespace IronScheme.Runtime
       {
         if (values.Length == 3)
         {
-          return Ast.AssignArrayIndex(Ast.ConvertHelper(values[0], typeof(object[])), Ast.ConvertHelper(values[1], typeof(int)), values[2]);
+          if (!typeof(Array).IsAssignableFrom(values[0].Type))
+          {
+            values[0] = Ast.ConvertHelper(values[0], typeof(object[]));
+          }
+          return Ast.AssignArrayIndex(values[0], Ast.ConvertHelper(values[1], typeof(int)), values[2]);
         }
         UnsafeSyntaxError("$vector-set!", "expected 3 arguments", values);
         return null;
