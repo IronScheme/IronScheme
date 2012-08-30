@@ -84,6 +84,8 @@ See docs/license.txt. |#
     (add-custom-printer! pair? write-pair)
     (add-custom-printer! procedure? write-procedure)
     (add-custom-printer! bytevector? write-bytevector)
+    (add-custom-printer! flvector? write-flvector)
+    (add-custom-printer! fxvector? write-fxvector)
     (add-custom-printer! vector? write-vector))
                 
   (define (initialize-default-printers)
@@ -240,6 +242,36 @@ See docs/license.txt. |#
             (put-string port " ")
             (f ($fx+ i 1))])))
     (put-string port ")"))
+    
+  (define (write-flvector vec port readable?)
+    (put-string port "#fl(")
+    (let* ((len (flvector-length vec))
+           (len-1 ($fx- len 1)))       
+      (let f ((i 0))
+        (cond
+          [($fx=? i len)]
+          [($fx=? i len-1)
+            (generic-write (flvector-ref vec i) port readable?)]
+          [else
+            (generic-write (flvector-ref vec i) port readable?)
+            (put-string port " ")
+            (f ($fx+ i 1))])))
+    (put-string port ")"))
+    
+  (define (write-fxvector vec port readable?)
+    (put-string port "#fx(")
+    (let* ((len (fxvector-length vec))
+           (len-1 ($fx- len 1)))       
+      (let f ((i 0))
+        (cond
+          [($fx=? i len)]
+          [($fx=? i len-1)
+            (generic-write (fxvector-ref vec i) port readable?)]
+          [else
+            (generic-write (fxvector-ref vec i) port readable?)
+            (put-string port " ")
+            (f ($fx+ i 1))])))
+    (put-string port ")"))        
       
   (define (write-bytevector bv port readable?)
     (put-string port "#vu8(")
