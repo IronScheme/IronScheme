@@ -16,7 +16,8 @@ See docs/license.txt. |#
     (except (ironscheme) write-char write display generic-write initialize-default-printers textual-output-port?)
     (ironscheme contracts)
     (ironscheme unsafe)
-    (ironscheme clr))
+    (ironscheme clr)
+    (ironscheme typed))
     
   (define (textual-output-port? obj)
     (and (output-port? obj)
@@ -232,7 +233,7 @@ See docs/license.txt. |#
     (put-string port "#(")
     (let* ((len (vector-length vec))
            (len-1 ($fx- len 1)))       
-      (let f ((i 0))
+      (let: f ((i : Int32 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)
@@ -243,11 +244,11 @@ See docs/license.txt. |#
             (f ($fx+ i 1))])))
     (put-string port ")"))
     
-  (define (write-flvector vec port readable?)
+  (define: (write-flvector (vec : Double[]) port readable?)
     (put-string port "#fl(")
     (let* ((len (flvector-length vec))
            (len-1 ($fx- len 1)))       
-      (let f ((i 0))
+      (let: f ((i : Int32 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)
@@ -258,11 +259,11 @@ See docs/license.txt. |#
             (f ($fx+ i 1))])))
     (put-string port ")"))
     
-  (define (write-fxvector vec port readable?)
+  (define: (write-fxvector (vec : Int32[]) port readable?)
     (put-string port "#fx(")
     (let* ((len (fxvector-length vec))
            (len-1 ($fx- len 1)))       
-      (let f ((i 0))
+      (let: f ((i : Int32 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)
@@ -277,7 +278,7 @@ See docs/license.txt. |#
     (put-string port "#vu8(")
     (let* ((len (bytevector-length bv))
            (len-1 ($fx- len 1)))       
-      (let f ((i 0))
+      (let: f ((i : Int32 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)

@@ -19,10 +19,10 @@
     (ironscheme clr)
     (ironscheme typed))
       
-    (define (flvector? obj)
+    (define: (flvector? obj) : bool
       (clr-is Double[] obj))    
       
-    (define (fxvector? obj)
+    (define: (fxvector? obj) : bool
       (clr-is Int32[] obj))    
 
     (define: (flvector-ref (x : Double[]) (n : Int32)) : Double
