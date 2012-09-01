@@ -23,7 +23,7 @@
   (import 
     (rnrs) 
     (psyntax compat) 
-    (only (ironscheme) pretty-print serialize-port)
+    (only (ironscheme) pretty-print serialize-port valuetype-vector?)
     (only (ironscheme clr) clr-is))
   
   (define current-primitive-locations
@@ -40,8 +40,8 @@
           (symbol? x)
           (boolean? x)
           (clr-is System.String x)
-          (bytevector? x)
-          (number? x)))
+          (number? x)
+          (valuetype-vector? x)))
     (not (simple? x)))
 
   (define (rewriter quote-hack?)

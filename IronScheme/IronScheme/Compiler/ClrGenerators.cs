@@ -171,7 +171,20 @@ namespace IronScheme.Compiler
       { "list", "IronScheme.Runtime.Cons" },
       { "char", "Char" },
       { "procedure" , "IronScheme.Runtime.Callable" },
-      { "hashtable" , "System.Collections.Hashtable" }
+      { "hashtable" , "System.Collections.Hashtable" },
+      { "fixnum[]", "Int32[]" },
+      { "int[]", "Int32[]" },
+      { "flonum[]", "Double[]" },
+      { "double[]", "Double[]" },
+      { "string[]", "String[]" },
+      { "bool[]", "Boolean[]" },
+      { "vector[]", "Object[]" },
+      { "bytevector[]", "Byte[][]" },
+      { "cons[]", "IronScheme.Runtime.Cons[]" },
+      { "list[]", "IronScheme.Runtime.Cons[]" },
+      { "char[]", "Char[]" },
+      { "procedure[]" , "IronScheme.Runtime.Callable[]" },
+      { "hashtable[]" , "System.Collections.Hashtable[]" }
     };
 
 

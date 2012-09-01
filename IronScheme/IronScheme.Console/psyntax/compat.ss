@@ -36,7 +36,10 @@
     (ironscheme records printer)
     (only (ironscheme) fprintf symbol-bound? remove-location)
     (only (psyntax system $bootstrap)
-          void gensym eval-core set-symbol-value! symbol-value compile-core))
+          void gensym set-symbol-value! symbol-value compile-core))
+
+  (define (eval-core expr)
+    ((compile-core expr)))
           
   (define (replace s b a)
     (clr-call String (Replace String String) s b a))

@@ -149,7 +149,7 @@ static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
   public string text;
 }
 
-%token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT BYTEVECTORLBRACE
+%token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT VALUEVECTORLBRACE
 %token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX IGNOREDATUM FOLDCASE NOFOLDCASE DIRECTIVE
 %token <text> SYMBOL LITERAL STRING NUMBER CHARACTER MLSTRING
 %token maxParseToken COMMENT
@@ -195,7 +195,7 @@ expr
     | LITERAL                                     { $$ = Annotate( ParseBoolean($1), @1);}
     | CHARACTER                                   { $$ = Annotate($1[0], @1);}
     | VECTORLBRACE exprlist RBRACE                { $$ = Annotate(Builtins.ListToVector($2),@1,@3);}
-    | BYTEVECTORLBRACE exprlist RBRACE            { $$ = Annotate(Builtins.ListToByteVector(Strip($2)),@1,@3); }
+    | VALUEVECTORLBRACE exprlist RBRACE           { $$ = Annotate(Helper.ListToVector(this, $1.text, Strip($2)),@1,@3); }
     | IGNOREDATUM expr                            { $$ = Ignore; }
     | DIRECTIVE                                   { $$ = Ignore; }
     | FOLDCASE                                    { FoldCase = true; $$ = Ignore; }

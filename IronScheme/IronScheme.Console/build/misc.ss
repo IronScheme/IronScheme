@@ -44,7 +44,7 @@ See docs/license.txt. |#
     (clr-static-call Guid NewGuid))
   
   (define (typeof obj)
-    (if (null?)
+    (if (null? obj)
         (clr-type-of Object)
         (clr-call Object GetType obj))) 
         
