@@ -18,6 +18,28 @@ namespace IronScheme.Compiler
 {
   static class Helper
   {
+    public static object ListToVector(Parser p, string type, Cons list)
+    {
+      if (p.skipnumbers)
+      {
+        return null;
+      }
+
+      type = type.Substring(1, type.Length - 2);
+      switch (type)
+      {
+        case "u8":
+        case "vu8":
+          return Builtins.ListToByteVector(list);
+        case "fl":
+          return Builtins.ListToFlonumVector(list);
+        case "fx":
+          return Builtins.ListToFixnumVector(list);
+        default:
+          throw new SyntaxErrorException("Not a known vector type: " + type);
+      }
+    }
+
     static Regex expnum = new Regex(@"^(?<head>-?((\d+\.?)|(\d*\.\d+)))e(?<tail>-?\d+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
     public static object ParseReal(string s)

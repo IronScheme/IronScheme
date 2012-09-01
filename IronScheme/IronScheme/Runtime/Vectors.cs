@@ -66,6 +66,42 @@ namespace IronScheme.Runtime
       return ListToVector(e);
     }
 
+    public static T[] ListToVector<T>(Cons list)
+    {
+      var l = new List<T>();
+      while (list != null)
+      {
+        object o = list.car;
+        if (o is T)
+        {
+          l.Add((T)o);
+        }
+        else
+        {
+          var t = typeof(T);
+          if (o == null)
+          {
+            AssertionViolation("ListToVector", "type cannot be null", t, Builtins.FALSE);
+          }
+          AssertionViolation("ListToVector", "not type of " + t.Namespace + "." + t.Name, o, o.GetType());
+        }
+
+        list = Requires<Cons>(list.cdr);
+
+      }
+      return l.ToArray();
+    }
+
+    public static double[] ListToFlonumVector(Cons list)
+    {
+      return ListToVector<double>(list);
+    }
+
+    public static int[] ListToFixnumVector(Cons list)
+    {
+      return ListToVector<int>(list);
+    }
+
     [Builtin("vector-filter")]
     public static object VectorFilter(object proc, object vector)
     {

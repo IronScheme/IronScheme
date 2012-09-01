@@ -6,6 +6,7 @@
 #endregion
 
 using System;
+using System.CodeDom.Compiler;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,19 +15,15 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
-using System.Threading;
-using System.CodeDom.Compiler;
 
 namespace IronScheme.Runtime
 {
-
-
-
   public partial class Builtins : BaseHelper
   {
     protected internal readonly static object TRUE = RuntimeHelpers.True;
@@ -766,13 +763,6 @@ namespace IronScheme
       }
     }
     
-    [Builtin("eval-core")]
-    public static object EvalCore(object expr)
-    {
-      Callable compiled = CompileCore(expr) as Callable;
-      return compiled.Call();
-    }
-
     [Builtin]
     public static object Void()
     {

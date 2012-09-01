@@ -22,7 +22,8 @@ See docs/license.txt. |#
     symbol?
     boolean?
     procedure?
-    condition?)
+    condition?
+    valuetype-vector?)
   (import 
     (except 
       (rnrs)
@@ -45,6 +46,11 @@ See docs/license.txt. |#
   (clr-using Microsoft.Scripting.Math)
   (clr-using Oyster.Math)
   (clr-using System.Text)
+  
+  (define (valuetype-vector? obj)
+    (and (clr-is Array obj)
+         (let ((t (clr-call Type GetElementType (clr-call Object GetType obj))))
+          (clr-prop-get Type IsValueType t))))
   
   (define (condition? obj)
     (clr-is IronScheme.Runtime.R6RS.Condition obj))

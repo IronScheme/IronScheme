@@ -68,8 +68,7 @@ namespace IronScheme.Hosting
 
       if (exception is SchemeException)
       {
-        // must be printed already
-        return null;
+        return exception.ToString();
       }
 
       var w = new IronScheme.Runtime.StringWriter();

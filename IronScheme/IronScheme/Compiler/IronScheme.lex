@@ -215,6 +215,7 @@ atoms                  ((#[TtFf])|"#true"|"#false")
 good_atoms             {atoms}{delimiter}
 bad_atoms              {atoms}{but_delimiter}+
 
+vvstart                "#"({identifier})"("
 
 
 %x ML_COMMENT
@@ -256,10 +257,10 @@ bad_atoms              {atoms}{but_delimiter}+
 "["                   { return Make(Tokens.LBRACK); }                     
 "]"                   { return Make(Tokens.RBRACK); } 
 
-"("                   { return Make(Tokens.LBRACE); }                     
-"#("                  { return Make(Tokens.VECTORLBRACE); }                     
-"#vu8("               { return Make(Tokens.BYTEVECTORLBRACE); }                     
-")"                   { return Make(Tokens.RBRACE); } 
+"("                   { return Make(Tokens.LBRACE); }
+"#("                  { return Make(Tokens.VECTORLBRACE); }   
+{vvstart}             { return Make(Tokens.VALUEVECTORLBRACE); }
+")"                   { return Make(Tokens.RBRACE); }
 
 "`"                   { return Make(Tokens.QUASIQUOTE); }
 "'"                   { return Make(Tokens.QUOTE); }

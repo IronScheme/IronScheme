@@ -45,6 +45,7 @@
       bound-identifier=? datum->syntax syntax-error
       syntax-violation syntax->datum make-variable-transformer
       null-environment scheme-report-environment)
+    (only (ironscheme) valuetype-vector?)  
     (rnrs mutable-pairs)
     (psyntax library-manager)
     (psyntax builders)
@@ -649,7 +650,7 @@
   (define self-evaluating?
     (lambda (x) ;;; am I missing something here?
       (or (number? x) (string? x) (char? x) (boolean? x)
-          (bytevector? x))))
+          (valuetype-vector? x))))
 
   ;;; strip is used to remove the wrap of a syntax object.
   ;;; It takes an stx's expr and marks.  If the marks contain
