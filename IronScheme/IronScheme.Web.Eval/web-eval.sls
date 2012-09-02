@@ -12,6 +12,7 @@
     (clr-static-call Convert ToInt32 (clr-prop-get System.Diagnostics.Stopwatch ElapsedMilliseconds sw)))
           
   (define (web-eval)
+    (response-content-type-set! "application/json")
     (let-values (((port extract) (open-string-output-port)))
      (let ((expr (form 'expr)))
        (parameterize [(current-output-port port)

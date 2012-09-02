@@ -41,7 +41,8 @@ See docs/license.txt. |#
     user-in-role?
     user-authenticated?
     display-html
-    wprintf)
+    wprintf
+    response-content-type-set!)
   (import 
     (ironscheme)
     (ironscheme contracts)
@@ -172,6 +173,10 @@ See docs/license.txt. |#
     
   (define/contract (map-path p:string)
     (clr-call HttpServerUtility MapPath (server-util) p))   
+
+  (define/contract (response-content-type-set! p:string)
+    (clr-prop-set! HttpResponse ContentType (response) p)
+    (void))
     
   (define (http-output-port)
     (clr-prop-get HttpResponse Output (response)))
@@ -179,8 +184,8 @@ See docs/license.txt. |#
   (define/contract (rewrite-path path:string)
     (clr-call HttpContext RewritePath (context) path))    
     
-  (define redirect 
-    (case/contract 
+  (define/contract redirect 
+    (case-lambda 
       [(path:string)               
         (clr-call HttpResponse Redirect (response) path)]    
       [(path:string endresponse?:boolean)  
