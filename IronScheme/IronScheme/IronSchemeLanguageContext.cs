@@ -100,6 +100,7 @@ namespace IronScheme
       }
     }
 
+    [ThreadStatic]
     static Parser parser;
 
     static CodeBlock ParseString(string expr, CompilerContext cc)
