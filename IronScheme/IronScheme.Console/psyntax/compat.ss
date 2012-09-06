@@ -102,6 +102,12 @@
 
   (define (set-local-data! slot value)
     (clr-static-call System.Threading.Thread SetData slot value))
+
+  (define (managed-thread-id)
+    (clr-prop-get 
+      #f 
+      ManagedThreadId
+      (clr-static-prop-get System.Threading.Thread CurrentThread)))
   
   (define make-parameter
     (case-lambda
@@ -109,6 +115,7 @@
       ((x fender)
        (assert (procedure? fender))
        (let ((x (fender x))
+             (id (managed-thread-id))
              (slot (allocate-local-slot)))
          (set-local-data! slot x)
          (case-lambda
@@ -121,7 +128,8 @@
                   value)))
            ((v) 
             (let ((v (fender v)))
-              (set! x v)
+              (when (fx=? (managed-thread-id) id)
+                (set! x v))
               (set-local-data! slot v))))))))
 
   (define-syntax parameterize 

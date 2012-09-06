@@ -23,10 +23,11 @@ See docs/license.txt. |#
     file-not-found-violation
     i/o-port-violation
     file-already-exists-violation
-    file-in-use-violation)
+    file-in-use-violation
+    values)
   (import 
     ;(psyntax config) 
-    (only (ironscheme) import make-stacktrace-condition stacktrace-condition? display-stacktrace ungensym)
+    (only (ironscheme) import make-stacktrace-condition stacktrace-condition? display-stacktrace ungensym make-parameter parameterize)
     (ironscheme clr)
     (ironscheme unsafe)
     (ironscheme contracts)
@@ -36,7 +37,16 @@ See docs/license.txt. |#
       raise-continuable 
       assertion-violation 
       error
-      dynamic-wind))
+      dynamic-wind
+      values))
+      
+  (clr-using IronScheme.Runtime)
+      
+  (define (values . x)
+    (if (and (not (null? x))
+             (null? (cdr x)))
+        (car x)
+        (clr-new MultipleValues (list->vector x))))      
     
   (define/contract (dynamic-wind in:procedure proc:procedure out:procedure)
     (in)
@@ -44,26 +54,17 @@ See docs/license.txt. |#
                   (out)))      
 
   (define *current-exception-handlers*
-    (list 
-      (lambda (condition)
-        ; dont print here
-        ;(display "Unhandled exception:\n")
-        ;(display condition)
-        ;; let's get out of here        
-        ($throw (clr-new IronScheme.Runtime.SchemeException condition)))))
+    (make-parameter
+      (list 
+        (lambda (condition)
+          ($throw (clr-new IronScheme.Runtime.SchemeException condition))))))
 
   (define/contract (with-exception-handler handler:procedure thunk:procedure)
-    (with-exception-handlers (cons handler *current-exception-handlers*)
+    (with-exception-handlers (cons handler (*current-exception-handlers*))
                              thunk))
 
   (define (with-exception-handlers new-handlers thunk)
-    (let ((previous-handlers *current-exception-handlers*))
-      (dynamic-wind
-        (lambda ()
-          (set! *current-exception-handlers* new-handlers))
-        thunk
-        (lambda ()
-          (set! *current-exception-handlers* previous-handlers)))))
+    (parameterize ((*current-exception-handlers* new-handlers)) (thunk)))
           
   (define (add-stacktrace con)
     (if (or (not (display-stacktrace))
@@ -81,7 +82,7 @@ See docs/license.txt. |#
 
   (define (raise obj)
     (let ((obj (add-stacktrace obj)))
-      (let ((handlers *current-exception-handlers*))
+      (let ((handlers (*current-exception-handlers*)))
         (with-exception-handlers (cdr handlers)
           (lambda ()
             ((car handlers) obj)
@@ -92,7 +93,7 @@ See docs/license.txt. |#
 
   (define (raise-continuable obj)
     (let ((obj (add-stacktrace obj)))
-      (let ((handlers *current-exception-handlers*))
+      (let ((handlers (*current-exception-handlers*)))
         (with-exception-handlers (cdr handlers)
           (lambda ()
             ((car handlers) obj))))))

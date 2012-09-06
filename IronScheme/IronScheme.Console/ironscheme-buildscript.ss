@@ -81,18 +81,6 @@
     
     "build/pretty-print.ss" 
     "build/misc.ss"
-    
-    
-    ;; disabled for v1.0
-    ;"build/cps.ss"
-    
-    ;; disabled for v1.0
-    ;"source-optimizer/prelex.sls"
-    ;"source-optimizer/primitive.sls"
-    ;"source-optimizer/transform.sls"
-    ;"source-optimizer/cp0.sls"
-    ;"source-optimizer/optimize.sls"
-    
     "build/constant-fold.ss"
     
     "psyntax/internal.ss"
@@ -381,7 +369,6 @@
     (open-tcp-input/output-port                 i)
     (get-library-paths                          il ic)
     (file-locator                               il)
-    (serializer-port                            i)
     (make-parameter                             i)
     (parameterize                               i)
     (time                                       i)

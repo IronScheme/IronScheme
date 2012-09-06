@@ -33,7 +33,6 @@
     display-stacktrace
     compile
     compile-system-libraries
-    serializer-port
     compile->closure)
   (import 
     (rnrs base)
@@ -47,7 +46,6 @@
     (only (rnrs conditions) serious-condition? condition?)
     (only (rnrs exceptions) raise raise-continuable with-exception-handler)
     (psyntax compat)
-    ;(psyntax config)
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
@@ -69,8 +67,6 @@
   (define command-line (make-parameter (get-command-line))) 
    
   (define emacs-mode? (make-parameter #f))
-
-  (define serializer-port (make-parameter #f))
      
   (define (local-library-path filename)
     (cons (get-directory-name filename) (library-path)))
@@ -193,12 +189,7 @@
       (lambda ()
         (load-port-r6rs-top-level port #f 'load args)
         (void))))
-    
-  (define (->bytes n)
-    (let ((bv (make-bytevector 4)))
-      (bytevector-u32-native-set! bv 0 n)
-      bv))
-      
+       
   (define (load-port-r6rs-top-level port close-port? how args)
     (let ((x* (let f ()
                 (let ((x (read-annotated port)))
@@ -277,14 +268,6 @@
   (current-precompiled-library-loader load-library-from-dll)
   
   (initialize-default-printers)
-  
-  (set-symbol-value! 'default-exception-handler 
-    (lambda (ex)
-      (cond
-        [(serious-condition? ex) (raise ex)]
-        [else 
-          (display ex)
-          (newline)])))
   
   ; hacks to get compiled libraries playing nicely
   (set-symbol-value! 'list list)

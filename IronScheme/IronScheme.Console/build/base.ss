@@ -185,7 +185,6 @@ See docs/license.txt. |#
     apply
     call-with-current-continuation
     call/cc
-    values
     call-with-values
     dynamic-wind
     procedure?
@@ -206,10 +205,7 @@ See docs/license.txt. |#
     
     string-set!
     string-fill!
-    
-    string-format
-  
-    )
+    string-format)
   (import 
     (except (ironscheme) 
       caar
@@ -276,9 +272,7 @@ See docs/license.txt. |#
       
       vector->list
       char->integer
-      integer->char
-      values
-     )
+      integer->char)
     (ironscheme contracts)
     (ironscheme clr)
     (ironscheme typed)
@@ -288,12 +282,6 @@ See docs/license.txt. |#
     (clr-using System.Text)
     (clr-using IronScheme.Runtime)
     (clr-using Microsoft.Scripting)
-    
-    (define (values . x)
-      (if (and (not (null? x))
-               (null? (cdr x)))
-          (car x)
-          (clr-new MultipleValues (list->vector x))))
     
     (define (char->integer chr)
       (unless (char? chr)
