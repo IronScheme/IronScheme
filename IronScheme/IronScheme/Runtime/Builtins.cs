@@ -151,12 +151,6 @@ namespace IronScheme
 
       t.Start();
 
-      // not sure if this is really needed in general
-      while (t.ThreadState != System.Threading.ThreadState.Running)
-      {
-        Thread.Sleep(0);
-      }
-
       if (!reset.WaitOne(d))
       {
         t.Abort();
