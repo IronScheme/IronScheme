@@ -26,6 +26,8 @@ namespace IronScheme.Web
     Callable process_routes;
     Dictionary<string, Compiled> compiled = new Dictionary<string, Compiled>();
 
+    static object GLOBALLOCK = new object();
+
     class Compiled
     {
       public DateTime Time;
@@ -69,7 +71,7 @@ namespace IronScheme.Web
 
       Compiled cc;
 
-      lock (this)
+      lock (GLOBALLOCK)
       {
         if (!compiled.TryGetValue(context.Request.PhysicalPath, out cc) || cc.Time < File.GetLastWriteTime(context.Request.PhysicalPath) || cc.Closure == null)
         {

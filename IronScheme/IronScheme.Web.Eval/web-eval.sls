@@ -26,10 +26,11 @@
   (define (web-eval)
     (response-content-type-set! "application/json")
     (let-values (((port extract) (open-string-output-port)))
-     (let ((expr (form 'expr)))
+     (let ((expr (form 'expr))
+           (res-port (http-output-port)))
        (parameterize [(current-output-port port)
                       (current-error-port port)]
-         (fast-guard [e (wprintf "{ ~s: ~s, ~s: ~s }" 
+         (fast-guard [e (fprintf res-port "{ ~s: ~s, ~s: ~s }" 
                                "error" (format "~a" e) 
                                "output" (extract))]
             (let* ((p (read (open-string-input-port (string-append "(begin " expr "\n)"))))
