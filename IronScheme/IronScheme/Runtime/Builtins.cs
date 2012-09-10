@@ -159,6 +159,11 @@ namespace IronScheme
 
       if (ex != null)
       {
+        var sex = ex as SchemeException;
+        if (sex != null)
+        {
+          return Raise(sex.Condition);
+        }
         throw ex;
       }
 
