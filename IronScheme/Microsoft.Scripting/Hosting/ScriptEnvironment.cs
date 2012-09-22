@@ -29,12 +29,6 @@ namespace Microsoft.Scripting.Hosting {
 
     public interface IScriptEnvironment : IRemotable {
         IScriptHost Host { get; }
-        
-        // convenience API:
-#if FULL
-        void RedirectIO(TextReader input, TextWriter output, TextWriter errorOutput);
-#endif
-
         // language providers (TODO: register):
         string[] GetRegisteredFileExtensions();
         string[] GetRegisteredLanguageIdentifiers();
@@ -82,9 +76,9 @@ namespace Microsoft.Scripting.Hosting {
             _manager = manager;
         }
 
-        public static IScriptEnvironment Create(ScriptEnvironmentSetup setup) {
+        public static IScriptEnvironment Create() {
             ScriptDomainManager manager;
-            if (!ScriptDomainManager.TryCreateLocal(setup, out manager))
+            if (!ScriptDomainManager.TryCreateLocal(out manager))
                 throw new InvalidOperationException("Environment already created in the current AppDomain");
 
             return manager.Environment;
@@ -94,40 +88,6 @@ namespace Microsoft.Scripting.Hosting {
             return ScriptDomainManager.CurrentManager.Environment;
         }
 
-#if FULL
-        RemoteWrapper ILocalObject.Wrap() {
-            return new RemoteScriptEnvironment(_manager);
-        }
-        
-        public static IScriptEnvironment Create() {
-            return Create(null);
-        }
-
-        public static IScriptEnvironment Create(ScriptEnvironmentSetup setup, AppDomain domain) {
-            Contract.RequiresNotNull(domain, "domain");
-
-            if (domain == AppDomain.CurrentDomain) {
-                return Create(setup);
-            }
-
-            RemoteScriptEnvironment rse;
-            if (!RemoteScriptEnvironment.TryCreate(domain, setup, out rse))
-                throw new InvalidOperationException("Environment already created in the specified AppDomain");
-
-            return rse;
-        }
-
-        public static IScriptEnvironment GetEnvironment(AppDomain domain) {
-            Contract.RequiresNotNull(domain, "domain");
-
-            if (domain == AppDomain.CurrentDomain) {
-                return GetEnvironment();
-            }
-
-            // TODO:
-            throw new NotImplementedException("TODO");
-        }
-#endif
         public string[] GetRegisteredFileExtensions() {
             return _manager.GetRegisteredFileExtensions();
         }
@@ -242,19 +202,6 @@ namespace Microsoft.Scripting.Hosting {
             return RuntimeHelpers.GetDelegate(callableObject, delegateType);            
         }
 
-        #endregion
-
-        #region Convenience API (not available for Silverlight to make the assembly smaller)
-
-#if FULL
-
-        public void RedirectIO(TextReader input, TextWriter output, TextWriter errorOutput) {
-            if (input != null) Console.SetIn(input);
-            if (output != null) Console.SetOut(output);
-            if (errorOutput != null) Console.SetError(errorOutput);
-        }
-#endif
-        
         #endregion
     }
 }

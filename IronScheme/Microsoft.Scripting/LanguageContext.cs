@@ -35,9 +35,6 @@ namespace Microsoft.Scripting {
     /// Provides language specific facilities which are typicalled called by the runtime.
     /// </summary>
     public abstract class LanguageContext
-#if FULL
-        : ICloneable
-#endif
     {
         private static ModuleGlobalCache _noCache;
 
@@ -194,11 +191,6 @@ namespace Microsoft.Scripting {
 
         public static void AnalyzeBlock(CodeBlock block)
         {
-
-#if FULL
-            ForestRewriter.Rewrite(block); 
-#endif
-
           ClosureBinder.Bind(block);
             FlowChecker.Check(block);
         }
@@ -208,13 +200,6 @@ namespace Microsoft.Scripting {
         }
 
         #endregion
-
-#if FULL
-        // Convert a CodeDom to source code, and output the generated code and the line number mappings (if any)
-        public virtual SourceUnit GenerateSourceCode(System.CodeDom.CodeObject codeDom) {
-            throw new NotImplementedException();
-        }
-#endif
 
         public virtual ScriptCode Reload(ScriptCode original, ScriptModule module) {
             original.SourceUnit.Reload();

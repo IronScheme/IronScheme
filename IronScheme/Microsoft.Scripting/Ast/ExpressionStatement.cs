@@ -29,15 +29,6 @@ namespace Microsoft.Scripting.Ast {
             get { return _expression; }
         }
 
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            _expression.Evaluate(context);
-            return NextStatement;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             //cg.EmitPosition(Start, End);
             // expression needs to be emitted incase it has side-effects.

@@ -30,11 +30,6 @@ namespace Microsoft.Scripting.Hosting {
 
         object Evaluate();
         object Evaluate(IScriptModule module);
-
-#if FULL
-        IObjectHandle EvaluateAndWrap();
-        IObjectHandle EvaluateAndWrap(IScriptModule module);
-#endif
     }
 
     /// <summary>
@@ -93,28 +88,5 @@ namespace Microsoft.Scripting.Hosting {
 
             return _code.Run(localModule);
         }
-
-#if FULL
-
-        public IObjectHandle EvaluateAndWrap() {
-            return new ObjectHandle(Evaluate());
-        }
-
-        public IObjectHandle EvaluateAndWrap(IScriptModule module) {
-            return new ObjectHandle(Evaluate(module));
-        }
-
-#endif
-
-      #region ILocalObject Members
-
-#if FULL
-        RemoteWrapper ILocalObject.Wrap() {
-            return new RemoteCompiledCode(this);
-        }
-#endif
-
-      #endregion
-
     }
 }

@@ -97,11 +97,6 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-#if FULL
-        RemoteWrapper ILocalObject.Wrap() {
-            return new RemoteScriptHost(this);
-        }
-#endif
         static internal void CreateDefaultModule(ref ScriptModule defaultModule) {
            // create a module and throw it away if there is already one:
             ScriptModule module = ScriptDomainManager.CurrentManager.CreateModule("<default>", null, ScriptCode.EmptyArray);

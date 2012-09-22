@@ -36,21 +36,11 @@ namespace Microsoft.Scripting.Ast {
         }
 
         internal ScopeStatement(SourceSpan span, Expression/*!*/ scope, Statement/*!*/ body)
-            : base(AstNodeType.ScopeStatement, span) {
-            _scope = scope;
-            _body = body;
-            }
-
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            IAttributesCollection scopeObject = _scope.Evaluate(context) as IAttributesCollection;
-            CodeContext scopeContext = RuntimeHelpers.CreateNestedCodeContext(scopeObject, context, true);
-            _body.Execute(scopeContext);
-            return NextStatement;
-        } 
-#endif
-
+          : base(AstNodeType.ScopeStatement, span)
+        {
+          _scope = scope;
+          _body = body;
+        }
 
         public override void Emit(CodeGen cg) {
             Slot tempContext = cg.ContextSlot;

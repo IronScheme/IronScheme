@@ -25,12 +25,8 @@ namespace Microsoft.Scripting.Hosting {
 
     internal interface ILocalObject : IRemotable
     {
-#if FULL
-        RemoteWrapper Wrap();
-#endif
-    }
 
-#if !FULL
+    }
 
     internal sealed class RemoteWrapper {
         internal static T WrapRemotable<T>(IRemotable remotable, IRemotable host) 
@@ -56,54 +52,4 @@ namespace Microsoft.Scripting.Hosting {
         }
     }
 
-#else
-
-    internal abstract class RemoteWrapper : MarshalByRefObject, IRemotable {
-        public abstract ILocalObject LocalObject { get; }
-
-        public new Type GetType() {
-            return LocalObject.GetType();
-        }
-
-        internal static T/*?*/ TryGetLocal<T>(object remotable) 
-            where T : class, IRemotable {
-
-            RemoteWrapper remote_wrapper = remotable as RemoteWrapper;
-            if (remote_wrapper == null) return (T)remotable;
-            if (!Utilities.IsRemote(remote_wrapper)) return (T)remote_wrapper.LocalObject;
-
-            return null;
-        }
-
-        internal static T GetLocalArgument<T>(object remotableArgument, string argumentName) 
-            where T : class, IRemotable {
-
-            if (remotableArgument == null) throw new ArgumentNullException(argumentName);
-            
-            T result = TryGetLocal<T>(remotableArgument);
-            if (result == null) {
-                throw new ArgumentException(Resources.RemoteInstanceMisused, argumentName);
-            }
-            return (T)result;
-        }
-
-        internal static T WrapRemotable<T>(object remotable) 
-            where T : class, IRemotable {
-
-            return WrapRemotable<T>(remotable, null);
-        }
-
-        internal static T WrapRemotable<T>(object remotable, IRemotable host)
-            where T : class, IRemotable {
-
-            ILocalObject local;
-
-            if ((host == null || host is RemoteWrapper) && (local = remotable as ILocalObject) != null) {
-                return (T)(object)local.Wrap();
-            } else {
-                return (T)remotable;
-            }
-        }
-    }
-#endif
 }

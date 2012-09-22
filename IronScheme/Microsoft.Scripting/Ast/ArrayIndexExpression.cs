@@ -46,16 +46,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
-#if FULL
-       protected override object DoEvaluate(CodeContext context) {
-            Array array = (Array)_array.Evaluate(context);
-            int index = (int)_index.Evaluate(context);
-            return array.GetValue(index);
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             // Emit the array reference
             _array.Emit(cg);

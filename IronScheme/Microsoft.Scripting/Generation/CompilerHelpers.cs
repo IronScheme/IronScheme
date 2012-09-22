@@ -65,9 +65,6 @@ namespace Microsoft.Scripting.Generation {
         public static bool IsParamsMethod(ParameterInfo[] pis) {
             foreach (ParameterInfo pi in pis) {
               if (IsParamArray(pi)
-#if FULL
-|| IsParamDictionary(pi) 
-#endif
 ) return true;
             }
             return false;
@@ -76,14 +73,6 @@ namespace Microsoft.Scripting.Generation {
         public static bool IsParamArray(ParameterInfo parameter) {
             return parameter.IsDefined(typeof(ParamArrayAttribute), false);
         }
-
-
-#if FULL
-        public static bool IsParamDictionary(ParameterInfo parameter) {
-            return parameter.IsDefined(typeof(ParamDictionaryAttribute), false);
-        } 
-#endif
-
 
         public static bool IsOutParameter(ParameterInfo pi) {
             // not using IsIn/IsOut properties as they are not available in Silverlight:
@@ -225,58 +214,6 @@ namespace Microsoft.Scripting.Generation {
             ret.AddRange(baseParamTypes);
             return ret.ToArray();
         }
-
-
-#if FULL
-        public static void EmitStackTraceTryBlockStart(CodeGen cg) {
-            Contract.RequiresNotNull(cg, "cg");
-
-            if (ScriptDomainManager.Options.DynamicStackTraceSupport) {
-                // push a try for traceback support
-                cg.PushTryBlock();
-                cg.BeginExceptionBlock();
-            }
-        }   
-#endif
-
-
-
-#if FULL
-       public static void EmitStackTraceFaultBlock(CodeGen cg, string name, string displayName) {
-            Contract.RequiresNotNull(cg, "cg");
-            Contract.RequiresNotNull(name, "name");
-            Contract.RequiresNotNull(displayName, "displayName");
-
-            if (ScriptDomainManager.Options.DynamicStackTraceSupport) {
-                // push a fault block (runs only if there's an exception, doesn't handle the exception)
-                cg.PopTargets();
-                if (cg.IsDynamicMethod) {
-                    cg.BeginCatchBlock(typeof(Exception));
-                } else {
-                    cg.BeginFaultBlock();
-                }
-
-                cg.EmitCodeContext();
-                if (cg.IsDynamicMethod) {
-                    cg.ConstantPool.AddData(cg.MethodBase).EmitGet(cg);
-                } else {
-                    cg.Emit(OpCodes.Ldtoken, cg.MethodInfo);
-                    cg.EmitCall(typeof(MethodBase), "GetMethodFromHandle", new Type[] { typeof(RuntimeMethodHandle) });
-                }
-                cg.EmitString(name);
-                cg.EmitString(displayName);
-                cg.EmitGetCurrentLine();
-                cg.EmitCall(typeof(ExceptionHelpers), "UpdateStackTrace");
-
-                // end the exception block
-                if (cg.IsDynamicMethod) {
-                    cg.Emit(OpCodes.Rethrow);
-                }
-                cg.EndExceptionBlock();
-            }
-        } 
-#endif
-
 
         #region CodeGen Creation Support
 
@@ -598,29 +535,5 @@ namespace Microsoft.Scripting.Generation {
         public static bool IsStrongBox(Type t) {
             return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(StrongBox<>);
         }
-
-
-#if FULL
-        /// <summary>
-        /// Returns a value which indicates failure when a ConvertToAction of ImplicitTry or
-        /// ExplicitTry.
-        /// </summary>
-        public static Statement GetTryConvertReturnValue(CodeContext context, StandardRule rule) {
-            Statement failed;            
-            if (rule.ReturnType == typeof(BigInteger)) {
-                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.ReadField(null, typeof(BigInteger), "Zero"));
-            } else if (rule.ReturnType.IsInterface || rule.ReturnType.IsClass) {
-                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.Constant(null));
-            } else if(rule.ReturnType.IsGenericType && rule.ReturnType.GetGenericTypeDefinition() == typeof(Nullable<>) ||
-                (rule.ReturnType.IsGenericType && rule.ReturnType.GetGenericTypeDefinition() == typeof(Nullable<>))) {
-                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.Constant(null));
-            } else { 
-                failed = rule.MakeReturn(context.LanguageContext.Binder, Ast.RuntimeConstant(Activator.CreateInstance(rule.ReturnType)));
-            }
-            rule.IsError = true;
-            return failed;
-        } 
-#endif
-
     }
 }

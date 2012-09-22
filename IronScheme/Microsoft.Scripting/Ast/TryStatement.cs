@@ -111,53 +111,6 @@ namespace Microsoft.Scripting.Ast {
             get { return _finally; }
         }
 
-
-#if FULL
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2219:DoNotRaiseExceptionsInExceptionClauses")]
-        protected override object DoExecute(CodeContext context) {
-            bool rethrow = false;
-            Exception savedExc = null;
-            object ret = Statement.NextStatement;
-            try {
-                ret = _body.Execute(context);
-            } catch (Exception exc) {
-                rethrow = true;
-                savedExc = exc;
-                if (_handlers != null) {
-                    PushEvalException(exc);
-                    try {
-                        foreach (CatchBlock handler in _handlers) {
-                            if (handler.Test.IsInstanceOfType(exc)) {
-                                rethrow = false;
-                                if (handler.Variable != null) {
-                                    BoundAssignment.EvaluateAssign(context, handler.Variable, exc);
-                                }
-                                ret = handler.Body.Execute(context);
-                                break;
-                            }
-                        }
-                    } finally {
-                        PopEvalException();
-                    }
-                }
-            } finally {
-                if (_finally != null) {
-                    object finallyRet = _finally.Execute(context);
-                    if (finallyRet != Statement.NextStatement) {
-                        ret = finallyRet;
-                        rethrow = false;
-                    }
-                }
-                if (rethrow) {
-                    throw ExceptionHelpers.UpdateForRethrow(savedExc);
-                }
-            }
-
-            return ret;
-        } 
-#endif
-
-
         private static void PopEvalException() {
             _evalExceptions.RemoveAt(_evalExceptions.Count - 1);
             if (_evalExceptions.Count == 0) _evalExceptions = null;

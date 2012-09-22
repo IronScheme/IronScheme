@@ -60,9 +60,8 @@ namespace Microsoft.Scripting.Hosting {
         protected virtual void Initialize() {
             // A console application needs just the simple setup.
             // The full setup is potentially expensive as it can involve loading System.Configuration.dll
-            ScriptEnvironmentSetup setup = new ScriptEnvironmentSetup(true);
             ScriptDomainManager manager;
-            ScriptDomainManager.TryCreateLocal(setup, out manager);
+            ScriptDomainManager.TryCreateLocal(out manager);
         }
 
         /// <summary>

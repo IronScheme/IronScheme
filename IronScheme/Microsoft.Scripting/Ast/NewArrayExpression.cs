@@ -82,28 +82,6 @@ namespace Microsoft.Scripting.Ast {
             base.EmitLocation(cg);
           }
         }
-
-
-#if FULL
-        protected override object DoEvaluate(CodeContext context) {
-            if (_type.GetElementType().IsValueType) {
-                // value arrays cannot be cast to object arrays
-                object contents = (object)_constructor.Invoke(new object[] { _expressions.Count });
-                System.Reflection.MethodInfo setter = _type.GetMethod("Set");
-                for (int i = 0; i < _expressions.Count; i++) {
-                    setter.Invoke(contents, new object[] { i, _expressions[i].Evaluate(context) });
-                }
-                return contents;
-            } else {
-                object[] contents = (object[])_constructor.Invoke(new object[] { _expressions.Count });
-                for (int i = 0; i < _expressions.Count; i++) {
-                    contents[i] = _expressions[i].Evaluate(context);
-                }
-                return contents;
-            }
-        } 
-#endif
-
     }
 
     /// <summary>

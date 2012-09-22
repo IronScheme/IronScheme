@@ -81,14 +81,6 @@ namespace Microsoft.Scripting.Generation {
 
         public object CallReflected(CodeContext context, object[] args)
         {
-
-#if FULL
-            if (ScriptDomainManager.Options.EngineDebug) {
-                PerfTrack.NoteEvent(PerfTrack.Categories.Methods, this);
-            } 
-#endif
-
-
           object instance = _instanceBuilder.Build(context, args);
             object[] callArgs = new object[_argBuilders.Count];
             for (int i = 0; i < callArgs.Length; i++) {
@@ -119,92 +111,6 @@ namespace Microsoft.Scripting.Generation {
             return _returnBuilder.Build(context, callArgs, args, result);
         }
 
-
-#if FULL
-public Expression MakeExpression(ActionBinder binder, StandardRule rule, Expression[] parameters) {
-            MethodBinderContext context = new MethodBinderContext(binder, rule);
-
-            Expression check = Ast.True();
-            if (_binder.IsBinaryOperator) {
-                // TODO: only if we have a narrowing level
-
-                // need to emit check to see if args are convertible...
-                for (int i = 0; i < _argBuilders.Count; i++) {
-                    Expression checkedExpr = _argBuilders[i].CheckExpression(context, parameters);
-                    if(checkedExpr != null) {
-                        check = Ast.AndAlso(check, checkedExpr);
-                    }
-                }
-            }
-
-            Expression[] args = new Expression[_argBuilders.Count];
-            for (int i = 0; i < _argBuilders.Count; i++) {
-                args[i] = _argBuilders[i].ToExpression(context, parameters);
-            }
-
-            MethodInfo mi = Method as MethodInfo;
-            Expression ret, call;
-            if (!Method.IsPublic || !Method.DeclaringType.IsVisible) {
-                if (mi != null) {
-                    mi = CompilerHelpers.GetCallableMethod(mi);
-                }
-            }
-
-            if (Method.IsPublic && Method.DeclaringType.IsVisible) {
-                // public method
-                if (mi != null) {
-                    Expression instance = mi.IsStatic ? null : _instanceBuilder.ToExpression(context, parameters);
-                    call = Ast.SimpleCallHelper(instance, mi, args);
-                } else {
-                    call = Ast.SimpleNewHelper((ConstructorInfo)Method, args);
-                }
-            } else {
-                // Private binding, invoke via reflection
-                if (mi != null) {
-                    Expression instance = mi.IsStatic ? null : _instanceBuilder.ToExpression(context, parameters);
-                    call = Ast.Call(
-                        Ast.RuntimeConstant(mi),
-                        typeof(MethodInfo).GetMethod("Invoke", new Type[] { typeof(object), typeof(object[]) }),
-                        Ast.ConvertHelper(instance, typeof(object)),
-                        Ast.NewArrayHelper(typeof(object[]), args)
-                    );
-                } else {
-                    call = Ast.Call(
-                        Ast.RuntimeConstant((ConstructorInfo)Method),
-                        typeof(ConstructorInfo).GetMethod("Invoke", new Type[] { typeof(object[]) }), 
-                        Ast.NewArrayHelper(typeof(object[]), args)
-                    ); 
-                }
-            }
-
-            ret = _returnBuilder.ToExpression(context, _argBuilders, parameters, call);
-
-            List<Expression> updates = null;
-            for (int i = 0; i < _argBuilders.Count; i++) {                
-                Expression next = _argBuilders[i].UpdateFromReturn(context, parameters);
-                if (next != null) {
-                    if (updates == null) updates = new List<Expression>();
-                    updates.Add(next);
-                }
-            }
-
-            if (updates != null) {
-                updates.Insert(0, ret);
-                ret = Ast.Comma(0, updates.ToArray());
-            }
-
-            if (!check.IsConstant(true)) {
-                ret = Ast.Condition(
-                    check,
-                    Ast.ConvertHelper(ret, typeof(object)),
-                    GetNotImplemented()
-                );
-            }
-            return ret;
-      } 
-#endif
-
-
         private static MethodCallExpression GetNotImplemented() {
             return Ast.Call(
                 Ast.ReadProperty(
@@ -216,69 +122,6 @@ public Expression MakeExpression(ActionBinder binder, StandardRule rule, Express
                 Ast.NewArray(typeof(MethodCandidate[]))
             );
         }
-
-
-#if FULL
-        /// <summary>
-        /// Creates a call to this MethodTarget with the specified parameters.  Casts are inserted to force
-        /// the types to the provided known types.
-        /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="rule"></param>
-        /// <param name="parameters"></param>
-        /// <param name="knownTypes"></param>
-        /// <returns></returns>
-        public Expression MakeExpression(ActionBinder binder, StandardRule rule, Expression[] parameters, Type[] knownTypes) {
-            Expression[] args = parameters;
-            if (knownTypes != null) {
-                args = new Expression[parameters.Length];
-                for (int i = 0; i < args.Length; i++) {
-                    args[i] = parameters[i];
-                    if (knownTypes[i] != null && !knownTypes[i].IsAssignableFrom(parameters[i].Type)) {
-                        args[i] = Ast.Convert(parameters[i], CompilerHelpers.GetVisibleType(knownTypes[i]));
-                    }
-                }
-            }
-
-            return MakeExpression(binder, rule, args);
-        } 
-#endif
-
-
-#if FULL
-
-        public AbstractValue AbstractCall(AbstractContext context, IList<AbstractValue> args) {
-            AbstractValue[] callArgs = new AbstractValue[_argBuilders.Count];
-            for (int i = 0; i < _argBuilders.Count; i++) {
-                callArgs[i] = _argBuilders[i].AbstractBuild(context, args);
-            }
-
-            Expression[] argExprs = new Expression[callArgs.Length];
-            for (int i = 0; i < callArgs.Length; i++) {
-                Expression expr = callArgs[i].Expression;
-                if (expr == null) {
-                    argExprs = null;
-                    break;
-                } else {
-                    argExprs[i] = expr;
-                }
-            }
-
-            Expression callExpr = null;
-            if (argExprs != null) {
-                MethodInfo mi = Method as MethodInfo;
-                if (mi != null) {
-                    Expression instance = mi.IsStatic ? null : _instanceBuilder.AbstractBuild(context, args).Expression;
-                    callExpr = Ast.SimpleCallHelper(instance, mi, argExprs);
-                } else {
-                    callExpr = Ast.SimpleNewHelper((ConstructorInfo)Method, argExprs);
-                }
-            }
-
-            return AbstractValue.LimitType(this.ReturnType, callExpr);
-        } 
-#endif
-
 
         private static int FindMaxPriority(IList<ArgBuilder> abs, int ceiling) {
             int max = 0;
@@ -381,15 +224,6 @@ public Expression MakeExpression(ActionBinder binder, StandardRule rule, Express
                     // actual incoming argument.
                     newArgBuilders.Add(ab);
                 }
-            }
-
-            if (kwIndex != -1)
-            {
-
-#if FULL
-                newArgBuilders.Insert(kwIndex, new ParamsDictArgBuilder(curArg, names, nameIndexes)); 
-#endif
-
             }
 
             return new MethodTarget(_binder, Method, argCount, _instanceBuilder, newArgBuilders, _returnBuilder);

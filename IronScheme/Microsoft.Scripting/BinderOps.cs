@@ -82,18 +82,6 @@ namespace Microsoft.Scripting {
             return args.ToArray();
         }
 
-
-#if FULL
-        public static SymbolDictionary MakeSymbolDictionary(SymbolId[] names, object[] values) {
-            SymbolDictionary res = new SymbolDictionary();
-            for (int i = 0; i < names.Length; i++) {
-                ((IAttributesCollection)res)[names[i]] = values[i];
-            }
-            return res;
-        } 
-#endif
-
-
         public static object IncorrectBoxType(Type expected, object received) {
             throw new ArgumentTypeException(String.Format("Expected type {0}, got {1}", expected, CompilerHelpers.GetType(received)));
         }
@@ -116,71 +104,5 @@ namespace Microsoft.Scripting {
             }
             return true;
         }
-
-
-#if FULL
-      #region Event support
-
-        public static void SetEvent(EventTracker eventTracker, object value) {
-            EventTracker et = value as EventTracker;
-            if(et != null){
-                if (et != eventTracker) {
-                    throw new ArgumentException(String.Format("expected event from {0}.{1}, got event from {2}.{3}",
-                                                eventTracker.DeclaringType.Name,
-                                                eventTracker.Name,
-                                                et.DeclaringType.Name,
-                                                et.Name));
-                }
-                return;
-            } 
-
-            BoundMemberTracker bmt = value as BoundMemberTracker;
-            if (bmt == null) throw new ArgumentTypeException("expected bound event, got " + CompilerHelpers.GetType(value).Name);
-            if (bmt.BoundTo.MemberType != TrackerTypes.Event) throw new ArgumentTypeException("expected bound event, got " + bmt.BoundTo.MemberType.ToString());
-
-            if (bmt.BoundTo != eventTracker) throw new ArgumentException(String.Format("expected event from {0}.{1}, got event from {2}.{3}", 
-                eventTracker.DeclaringType.Name, 
-                eventTracker.Name, 
-                bmt.BoundTo.DeclaringType.Name, 
-                bmt.BoundTo.Name));
-        }
-
-        public static EventTracker EventTrackerInPlaceAdd<T>(EventTracker self, T target) {
-            MethodInfo add = self.Event.GetAddMethod(ScriptDomainManager.Options.PrivateBinding);
-            add.Invoke(null, new object[] { target });
-            return self;
-        }
-
-        public static EventTracker EventTrackerInPlaceRemove<T>(EventTracker self, T target) {
-            MethodInfo remove = self.Event.GetRemoveMethod(ScriptDomainManager.Options.PrivateBinding);
-            remove.Invoke(null, new object[] { target });
-            return self;
-        }
-
-        public static BoundMemberTracker BoundEventTrackerInPlaceAdd<T>(BoundMemberTracker self, T target) {
-            if (self.BoundTo.MemberType == TrackerTypes.Event) {
-                EventTracker et = (EventTracker)self.BoundTo;
-
-                MethodInfo add = et.Event.GetAddMethod(ScriptDomainManager.Options.PrivateBinding);
-                add.Invoke(self.ObjectInstance, new object[] { target });
-                return self;
-            }
-            throw new InvalidOperationException();
-        }
-
-        public static BoundMemberTracker BoundEventTrackerInPlaceRemove<T>(BoundMemberTracker self, T target) {
-            if (self.BoundTo.MemberType == TrackerTypes.Event) {
-                EventTracker et = (EventTracker)self.BoundTo;
-
-                MethodInfo remove = et.Event.GetRemoveMethod(ScriptDomainManager.Options.PrivateBinding);
-                remove.Invoke(self.ObjectInstance, new object[] { target });
-                return self;
-            }
-            throw new InvalidOperationException();
-        }
-        
-      #endregion 
-#endif
-
     }
 }

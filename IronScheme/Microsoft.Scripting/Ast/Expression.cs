@@ -36,23 +36,6 @@ namespace Microsoft.Scripting.Ast {
             : base(nodeType) {
         }
 
-
-
-
-
-#if FULL 
-        public object Evaluate(CodeContext context) {
-            return DoEvaluate(context);
-        }
-
-        protected virtual object DoEvaluate(CodeContext context) {
-            throw new NotImplementedException(String.Format(CultureInfo.CurrentCulture, Resources.NotImplemented_Evaluate, this));
-        }
-        public virtual AbstractValue AbstractEvaluate(AbstractContext context) {
-            throw new NotImplementedException();
-        } 
-#endif
-
         protected internal static Expression Unwrap(Expression ii)
         {
           while (ii is UnaryExpression && ii.NodeType == AstNodeType.Convert)
@@ -215,36 +198,5 @@ namespace Microsoft.Scripting.Ast {
           get { return inferredtype; }
           set { inferredtype = value; }
         }
-
-
-#if FULL
-        public static object[] Evaluate(IList<Expression> items, CodeContext context) {
-            Contract.RequiresNotNullItems(items, "items");
-            Contract.RequiresNotNull(context, "context");
-
-            object[] ret = new object[items.Count];
-            for (int i = 0; i < items.Count; i++) {
-                ret[i] = items[i].Evaluate(context);
-            }
-            return ret;
-        } 
-#endif
-
-
-
-#if FULL
-        internal virtual EvaluationAddress EvaluateAddress(CodeContext context) {
-            return new EvaluationAddress(this);
-        } 
-#endif
-
-
-
-#if FULL
-        internal virtual object EvaluateAssign(CodeContext context, object value) {
-            return value;
-        } 
-#endif
-
     }
 }

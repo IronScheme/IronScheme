@@ -30,6 +30,7 @@
            (res-port (http-output-port)))
        (parameterize [(current-output-port port)
                       (current-error-port port)]
+          ; pass res-port as handler will be executed in worker thread
          (fast-guard [e (fprintf res-port "{ ~s: ~s, ~s: ~s }" 
                                "error" (format "~a" e) 
                                "output" (extract))]

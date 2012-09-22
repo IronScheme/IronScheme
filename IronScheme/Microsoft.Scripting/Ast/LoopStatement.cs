@@ -58,29 +58,6 @@ namespace Microsoft.Scripting.Ast {
             get { return _else; }
         }
 
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            object ret = NextStatement;
-            while (_test == null || (bool)_test.Evaluate(context)) {
-                ret = _body.Execute(context);
-                if (ret == Statement.Break) {
-                    return NextStatement;
-                } else if (!(ret is ControlFlow)) {
-                    return ret;
-                }
-                if (_increment != null) {
-                    _increment.Evaluate(context);
-                }
-            }
-            if (_else != null) {
-                return _else.Execute(context);
-            }
-            return NextStatement;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             Nullable<Label> firstTime = null;
             Label eol = cg.DefineLabel();

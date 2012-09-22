@@ -52,11 +52,6 @@ namespace Microsoft.Scripting.Generation {
             _index = index;
             _parameterType = parameterType;
             _isParams = CompilerHelpers.IsParamArray(paramInfo);
-
-#if FULL
-            _isParamsDict = CompilerHelpers.IsParamDictionary(paramInfo); 
-#endif
-
         }
 
         public override int Priority {
@@ -88,15 +83,6 @@ namespace Microsoft.Scripting.Generation {
         internal override Expression CheckExpression(MethodBinderContext context, Expression[] parameters) {
             return context.CheckExpression(parameters[_index], _parameterType);
         }
-
-
-#if FULL
-        public override AbstractValue AbstractBuild(AbstractContext context, IList<AbstractValue> parameters) {
-            AbstractValue value = parameters[_index];
-            return context.Binder.AbstractExecute(ConvertToAction.Make(_parameterType), new AbstractValue[] { value });
-        } 
-#endif
-
 
         public int Index {
             get {

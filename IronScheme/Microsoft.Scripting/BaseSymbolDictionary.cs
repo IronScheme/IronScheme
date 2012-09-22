@@ -36,9 +36,6 @@ namespace Microsoft.Scripting {
     /// key.
     /// </summary>
   public abstract class BaseSymbolDictionary
-#if FULL
-: IValueEquality 
-#endif
   {
         private static object _nullObject = new object();
         private const int ObjectKeysId = -2;
@@ -73,50 +70,6 @@ namespace Microsoft.Scripting {
 
         #endregion        
         
-
-#if FULL
-        #region IValueEquality Members
-
-        public int GetValueHashCode() {
-            throw new ArgumentTypeException("dictionaries are not hashable"); 
-        }
-
-        public virtual bool ValueEquals(object other) {
-            if (Object.ReferenceEquals(this, other)) return true;
-
-            IAttributesCollection oth = other as IAttributesCollection;
-            IAttributesCollection ths = this as IAttributesCollection;
-            if (oth == null) return false;
-
-            if (oth.Count != ths.Count) return false;
-
-            foreach (KeyValuePair<object, object> o in ths) {
-                object res;
-                if (!oth.TryGetObjectValue(o.Key, out res))  
-                    return false;
-
-                IValueEquality ve = res as IValueEquality;
-                if(ve != null) {
-                    if(!ve.ValueEquals(o.Value)) return false;
-                } else if ((ve = (o.Value as IValueEquality))!= null) {
-                    if(!ve.Equals(res)) return false;
-                } else if(res != null) {
-                    if(!res.Equals(o.Value)) return false;
-                } else if(o.Value != null) {
-                    if(!o.Value.Equals(res)) return false;
-                } // else both null and are equal
-            }
-            return true;
-        }
-
-        public bool ValueNotEquals(object other) {
-            return !ValueEquals(other);
-        }
-
-        #endregion   
-#endif
-
-
         public static object NullToObj(object o) {
             if (o == null) return _nullObject;
             return o;

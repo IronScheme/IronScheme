@@ -47,24 +47,6 @@ namespace Microsoft.Scripting.Ast {
         }
 
 
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            object ret = NextStatement;
-            
-            do {
-                ret = _body.Execute(context);
-                if (ret == Statement.Break) {
-                    break;
-                } else if (!(ret is ControlFlow)) {
-                    return ret;
-                }
-            } while (context.LanguageContext.IsTrue(_test.Evaluate(context)));
-
-            return NextStatement;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             Label startTarget = cg.DefineLabel();
             Label breakTarget = cg.DefineLabel();

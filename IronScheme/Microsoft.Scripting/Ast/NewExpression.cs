@@ -108,22 +108,6 @@ namespace Microsoft.Scripting.Ast {
             base.EmitLocation(cg);
           }
         }
-
-
-#if FULL
-        protected override object DoEvaluate(CodeContext context) {
-            object[] args = new object[_arguments.Count];
-            for (int i = 0; i < _arguments.Count; i++) {
-                args[i] = _arguments[i].Evaluate(context);
-            }
-            try {
-                return _constructor.Invoke(args);
-            } catch (TargetInvocationException e) {
-                throw ExceptionHelpers.UpdateForRethrow(e.InnerException);
-            }
-        } 
-#endif
-
     }
 
     /// <summary>

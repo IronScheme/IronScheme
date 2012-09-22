@@ -35,14 +35,6 @@ namespace Microsoft.Scripting.Generation {
 
         internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters)
         {
-
-#if FULL
-            if (_tmp == null) {
-                _tmp = context.GetTemporary(Type, "outParam");
-            } 
-#endif
-
-
           return Ast.Comma(Ast.Assign(_tmp, base.ToExpression(context, parameters)), Ast.Read(_tmp));
         }
 

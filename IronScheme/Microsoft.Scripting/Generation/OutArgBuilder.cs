@@ -43,17 +43,6 @@ namespace Microsoft.Scripting.Generation {
 
         internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters)
         {
-
-#if FULL
-            if (_isRef) {
-                if (_tmp == null) {
-                    _tmp = context.GetTemporary(_parameterType, "outParam");
-                }
-                return Ast.Read(_tmp);
-            } 
-#endif
-
-
           return GetDefaultValue();
         }
 

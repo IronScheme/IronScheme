@@ -92,7 +92,7 @@ namespace Microsoft.Scripting {
         public static ScriptDomainManager CurrentManager {
             get {
                 ScriptDomainManager result;
-                TryCreateLocal(null, out result);
+                TryCreateLocal(out result);
                 return result;
             }
         }
@@ -106,19 +106,15 @@ namespace Microsoft.Scripting {
         /// Returns either <c>true</c> and the newly created environment initialized according to the provided setup information
         /// or <c>false</c> and the existing one ignoring the specified setup information.
         /// </summary>
-        internal static bool TryCreateLocal(ScriptEnvironmentSetup setup, out ScriptDomainManager manager) {
+        internal static bool TryCreateLocal(out ScriptDomainManager manager) {
 
             bool new_created = false;
 
             if (_singleton == null) {
 
-                if (setup == null) {
-                    setup = GetSetupInformation();
-                }
-
                 lock (_singletonLock) {
                     if (_singleton == null) {
-                        ScriptDomainManager singleton = new ScriptDomainManager(setup);
+                        ScriptDomainManager singleton = new ScriptDomainManager();
                         Utilities.MemoryBarrier();
                         _singleton = singleton;
                         new_created = true;
@@ -131,52 +127,16 @@ namespace Microsoft.Scripting {
             return new_created;
         }
 
-        private static ScriptEnvironmentSetup GetSetupInformation()
-        {
-#if FULL
-            ScriptEnvironmentSetup result;
-
-            // setup provided by app-domain creator:
-            result = ScriptEnvironmentSetup.GetAppDomainAssociated(AppDomain.CurrentDomain);
-            if (result != null) {
-                return result;
-            }
-
-            // setup provided in a configuration file:
-            // This will load System.Configuration.dll which costs ~350 KB of memory. However, this does not normally 
-            // need to be loaded in simple scenarios (like running the console hosts). Hence, the working set cost
-            // is only paid in hosted scenarios.
-            ScriptConfiguration config = System.Configuration.ConfigurationManager.GetSection(ScriptConfiguration.Section) as ScriptConfiguration;
-            if (config != null) {
-                // TODO:
-                //return config;
-            }
-#endif
-
-          // default setup:
-            return new ScriptEnvironmentSetup(true);
-        }
-
         /// <summary>
         /// Initializes environment according to the setup information.
         /// </summary>
-        private ScriptDomainManager(ScriptEnvironmentSetup setup) {
-            Debug.Assert(setup != null);
-
+        private ScriptDomainManager() {
             // create local environment for the host:
             _environment = new ScriptEnvironment(this);
-            
-            // create PAL (default always available):
-            _pal = setup.CreatePAL();
-
-            // let setup register providers listed on it:
-            setup.RegisterProviders(this);
+            _host = new ScriptHost(_environment);
 
             // initialize snippets:
             _snippets = new Snippets();
-
-            // create a local host unless a remote one has already been created:
-            _host = setup.CreateScriptHost(_environment);
         }
 
         #endregion
