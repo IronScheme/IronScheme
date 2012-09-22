@@ -32,20 +32,6 @@ namespace Microsoft.Scripting.Ast {
             }
 
 
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            object ret = Statement.NextStatement;
-            foreach (Statement stmt in _statements) {
-                ret = stmt.Execute(context);
-                if (ret != Statement.NextStatement) {
-                    break;
-                }
-            }
-            return ret;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             //cg.EmitPosition(Span.Start, Span.End);
             // Should emit nop for the colon?

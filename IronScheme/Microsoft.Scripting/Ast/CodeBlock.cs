@@ -82,21 +82,8 @@ namespace Microsoft.Scripting.Ast {
         public object Source { get; set; }
         public bool IsRest { get; set; }
 
-
-#if FULL
-        // Interpreted mode: Cache for emitted delegate so that we only generate code once.
-        private Delegate _delegate; 
-#endif
-
-
         // Profile-driven compilation support
         private int _callCount = 0;
-
-#if FULL
-        private CompilerContext _declaringContext;
-        private bool _forceWrapperMethod; 
-#endif
-
         private const int _maxInterpretedCalls = 2;
         
         /// <summary>
@@ -686,62 +673,6 @@ namespace Microsoft.Scripting.Ast {
             _generatorTemps += count;
         }
 
-
-#if FULL
-        private object DoExecute(CodeContext context) {
-            object ret;
-
-            // Make sure that locals owned by this block mask any identically-named variables in outer scopes
-            if (!IsGlobal) {
-                foreach (Variable v in _variables) {
-                    if (v.Kind == Variable.VariableKind.Local && v.Uninitialized && v.Block == this) {
-                        BoundAssignment.EvaluateAssign(context, v, Uninitialized.Instance);
-                    }
-                }
-            }
-
-            context.Scope.SourceLocation = Span.Start;
-            ret = Body.Execute(context);
-
-            if (ret == Statement.NextStatement) {
-                return null;
-            } else {
-                Debug.Assert(!(ret is ControlFlow));
-                return ret;
-            }
-        }
-
-        public object Execute(CodeContext context) {
-            try {
-                return DoExecute(context);
-            } catch (Exception e) {
-#if !SILVERLIGHT
-                MethodBase method = MethodBase.GetCurrentMethod();
-#else
-                MethodBase method = null;
-#endif
-                SourceUnit sourceUnit = context.ModuleContext.CompilerContext.SourceUnit;
-                int line = context.Scope.SourceLocation.Line;
-
-                ExceptionHelpers.UpdateStackTrace(context, method, _name, sourceUnit.GetSymbolDocument(line), sourceUnit.MapLine(line));
-                ExceptionHelpers.AssociateDynamicStackFrames(e);
-                throw ExceptionHelpers.UpdateForRethrow(e);
-            }
-        }
-
-        internal object TopLevelExecute(CodeContext context) {
-            FlowChecker.Check(this);
-
-            try {
-                return Execute(context);
-            } finally {
-                //RuntimeHelpers.ClearDynamicStackFrames();
-                //throw; // ExceptionHelpers.UpdateForRethrow(e);
-            }
-        } 
-#endif
-
-
         protected bool NeedsWrapperMethod(bool stronglyTyped) {
             return _parameters.Count > (stronglyTyped ? ReflectionUtils.MaxSignatureSize - 1 : CallTargets.MaximumCallArgs);
         }
@@ -769,180 +700,6 @@ namespace Microsoft.Scripting.Ast {
             return _callCount++ > _maxInterpretedCalls;
         }
 
-
-#if FULL
-        public class CodeBlockInvoker {
-            private CodeBlock _block;
-            private CodeContext _context;
-
-            public CodeBlockInvoker(CodeBlock block, CodeContext context) {
-                _block = block;
-                _context = context;
-            }
-
-            public TRet InvokeWithChildContext<TRet>() {
-                return (TRet)_block.ExecuteWithChildContext(_context);
-            }
-
-            public TRet InvokeWithChildContext<T0, TRet>(T0 arg0) {
-                return (TRet)_block.ExecuteWithChildContext(_context, arg0);
-            }
-
-            public TRet InvokeWithChildContext<T0, T1, TRet>(T0 arg0, T1 arg1) {
-                return (TRet)_block.ExecuteWithChildContext(_context, arg0, arg1);
-            }
-
-            public TRet InvokeWithChildContext<T0, T1, T2, TRet>(T0 arg0, T1 arg1, T2 arg2) {
-                return (TRet)_block.ExecuteWithChildContext(_context, arg0, arg1, arg2);
-            }
-
-            public TRet InvokeWithChildContext<T0, T1, T2, T3, TRet>(T0 arg0, T1 arg1, T2 arg2, T3 arg3) {
-                return (TRet)_block.ExecuteWithChildContext(_context, arg0, arg1, arg2, arg3);
-            }
-
-            public TRet InvokeWithChildContext<T0, T1, T2, T3, T4, TRet>(T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4) {
-                return (TRet)_block.ExecuteWithChildContext(_context, arg0, arg1, arg2, arg3, arg4);
-            }
-
-            public TRet InvokeWithChildContext<T0, T1, T2, T3, T4, T5, TRet>(T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) {
-                return (TRet)_block.ExecuteWithChildContext(_context, arg0, arg1, arg2, arg3, arg4, arg5);
-            }
-
-            public void ExecuteWithChildContext() {
-                _block.ExecuteWithChildContext(_context);
-            }
-
-            public void ExecuteWithChildContext<T0>(T0 arg0) {
-                _block.ExecuteWithChildContext(_context, arg0);
-            }
-
-            public void ExecuteWithChildContext<T0, T1>(T0 arg0, T1 arg1) {
-                _block.ExecuteWithChildContext(_context, arg0, arg1);
-            }
-
-            public void ExecuteWithChildContext<T0, T1, T2>(T0 arg0, T1 arg1, T2 arg2) {
-                _block.ExecuteWithChildContext(_context, arg0, arg1, arg2);
-            }
-
-            public void ExecuteWithChildContext<T0, T1, T2, T3>(T0 arg0, T1 arg1, T2 arg2, T3 arg3) {
-                _block.ExecuteWithChildContext(_context, arg0, arg1, arg2, arg3);
-            }
-
-            public void ExecuteWithChildContext<T0, T1, T2, T3, T4>(T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4) {
-                _block.ExecuteWithChildContext(_context, arg0, arg1, arg2, arg3, arg4);
-            }
-
-            public void ExecuteWithChildContext<T0, T1, T2, T3, T4, T5>(T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) {
-                _block.ExecuteWithChildContext(_context, arg0, arg1, arg2, arg3, arg4, arg5);
-            }
-        }
-
-        private object ExecuteWithChildContext(CodeContext parent, params object[] args) {
-            // Fast path for if we have emitted this code block as a delegate
-            if (_delegate != null) {
-                return ReflectionUtils.InvokeDelegate(_delegate, args);
-            }
-
-            if (parent.LanguageContext.Engine.Options.ProfileDrivenCompilation) {
-                lock (this) {
-                    // Check _delegate again -- maybe it appeared between our first check and taking the lock
-                    if (_delegate == null && ShouldCompile()) {
-                        _delegate = GetCompiledDelegate(_declaringContext, null, _forceWrapperMethod);
-                    }
-                }
-                if (_delegate != null) {
-                    return ReflectionUtils.InvokeDelegate(_delegate, args);
-                }
-            }
-
-            CodeContext child = RuntimeHelpers.CreateNestedCodeContext(new SymbolDictionary(), parent, IsVisible);
-            for (int i = 0; i < _parameters.Count; i++) {
-                RuntimeHelpers.SetName(child, _parameters[i].Name, args[i]);
-            }
-            return Execute(child);
-        }
-
-        private object ExecuteWithChildContextAndThis(CodeContext parent, object @this, params object[] args) {
-            if (_delegate != null) {
-                return parent.LanguageContext.CallWithThis(parent, _delegate, @this, args);
-            }
-
-            if (parent.LanguageContext.Engine.Options.ProfileDrivenCompilation) {
-                lock (this) {
-                    if (_delegate == null && ShouldCompile()) {
-                        _delegate = GetCompiledDelegate(_declaringContext, null, _forceWrapperMethod);
-                    }
-                }
-                if (_delegate != null) {
-                    return parent.LanguageContext.CallWithThis(parent, _delegate, @this, args);
-                }
-            }
-
-            CodeContext child = RuntimeHelpers.CreateNestedCodeContext(new SymbolDictionary(), parent, IsVisible);
-            RuntimeHelpers.SetName(child, _parameters[0].Name, @this);
-            for (int i = 1; i < _parameters.Count; i++) {
-                RuntimeHelpers.SetName(child, _parameters[i].Name, args[i-1]);
-            }
-            return Execute(child);
-        }
-
-        // Return a delegate to execute this block in interpreted mode.
-        public virtual Delegate GetDelegateForInterpreter(CodeContext context, Type delegateType, bool forceWrapperMethod) {
-            FlowChecker.Check(this);
-
-            bool delayedEmit = context.LanguageContext.Engine.Options.ProfileDrivenCompilation;
-            // Walk the tree to determine whether to emit this CodeBlock or interpret it
-            if (InterpretChecker.CanEvaluate(this, delayedEmit)) {
-                // Hold onto our declaring context in case we decide to emit ourselves later
-                _declaringContext = context.ModuleContext.CompilerContext;
-                _forceWrapperMethod = forceWrapperMethod;
-
-                if (delegateType == null) {
-                    if (HasThis()) {
-                        return new CallTargetWithContextAndThisN(ExecuteWithChildContextAndThis);
-                    } else {
-                        return new CallTargetWithContextN(ExecuteWithChildContext);
-                    }
-                }
-
-                return MakeStronglyTypedDelegate(context, delegateType);                
-            } else {
-                lock (this) {
-                    if (_delegate == null) {
-                        _delegate = GetCompiledDelegate(context.ModuleContext.CompilerContext, delegateType, forceWrapperMethod);
-                    }
-                    return _delegate;
-                }
-            }
-
-        }
-
-        private Delegate MakeStronglyTypedDelegate(CodeContext context, Type delegateType) {
-            MethodInfo target = delegateType.GetMethod("Invoke");            
-            ParameterInfo[] pis = target.GetParameters();
-            CodeBlockInvoker cbi = new CodeBlockInvoker(this, context);
-            MemberInfo[] targets;
-
-            Type[] paramTypes;
-            if (target.ReturnType == typeof(void)) {
-                paramTypes = ReflectionUtils.GetParameterTypes(pis);
-                targets = typeof(CodeBlockInvoker).GetMember("ExecuteWithChildContext");
-            } else {
-                paramTypes = ArrayUtils.Append(ReflectionUtils.GetParameterTypes(pis), target.ReturnType);
-                targets = typeof(CodeBlockInvoker).GetMember("InvokeWithChildContext");
-            }
-            
-            foreach (MethodInfo mi in targets) {
-                if (mi.GetParameters().Length == pis.Length) {
-                    MethodInfo genMethod = mi.MakeGenericMethod(paramTypes);
-                    return Delegate.CreateDelegate(delegateType, cbi, genMethod);
-                }
-            }
-            throw new InvalidOperationException(String.Format("failed to make delegate for type {0}", delegateType.FullName));
-        } 
-#endif
-
-
         public void Update()
       {
         FlowChecker.Check(this);
@@ -967,17 +724,11 @@ namespace Microsoft.Scripting.Ast {
                     CodeGen wrapper = MakeWrapperMethodN(null, cg, hasThis);
                     wrapper.Finish();
                     delegateType =
-#if FULL
-hasThis ? typeof(CallTargetWithContextAndThisN) :  
-#endif
  typeof(CallTargetWithContextN);
                     return wrapper.CreateDelegate(delegateType);
                     //throw new NotImplementedException("Wrapper methods not implemented for code blocks in FastEval mode");
                 } else if (_parameterArray) {
                   delegateType =
-#if FULL
-hasThis ? typeof(CallTargetWithContextAndThisN) : 
-#endif
  typeof(CallTargetWithContextN);
                     return cg.CreateDelegate(delegateType);
                     //throw new NotImplementedException("Parameter arrays not implemented for code blocks in FastEval mode");
@@ -1064,9 +815,6 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                 
                 if (delegateType == null) {
                   delegateType =
-#if FULL
-hasThis ? typeof(CallTargetWithContextAndThisN) : 
-#endif
  typeof(CallTargetN);
                 }
                 _impl = wrapper.MethodInfo;
@@ -1079,9 +827,6 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
             } else if (_parameterArray) {
                 if (delegateType == null) {
                   delegateType =
-#if FULL
-hasThis ? typeof(CallTargetWithContextAndThisN) : 
-#endif
  typeof(CallTargetN);
                 }
                 //cg.EmitPosition(Start, Start);
@@ -1092,19 +837,7 @@ hasThis ? typeof(CallTargetWithContextAndThisN) :
                 cg.EmitDelegateConstruction(impl, delegateType, hasContextParameter);
             } else {
                 if (delegateType == null) {
-
-#if FULL
-                    if (stronglyTyped) {
-                        delegateType = ReflectionUtils.GetDelegateType(GetParameterTypes(hasContextParameter), _returnType);
-                    } else { 
-#endif	
-
                         delegateType = CallTargets.GetTargetType(false, _parameters.Count - (hasThis ? 1 : 0), hasThis);
-
-#if FULL
-                    } 
-#endif
-
                 }
                 _impl = impl.MethodInfo;
                // cg.EmitPosition(Start, Start);

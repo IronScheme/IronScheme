@@ -32,12 +32,6 @@ namespace Microsoft.Scripting.Ast {
         private List<Expression> _arguments;
         private ParameterInfo[] _parameterInfos;
 
-
-#if FULL
-        private ReflectedCaller _caller; 
-#endif
-
-
         internal MethodCallExpression(MethodInfo /*!*/ method, Expression instance, ReadOnlyCollection<Expression> /*!*/ arguments, ParameterInfo[] /*!*/ parameters)
             : base(AstNodeType.Call) {
             _method = method;
@@ -74,104 +68,10 @@ namespace Microsoft.Scripting.Ast {
         }
 
 
-#if FULL
-        private object EvaluateInstance(CodeContext context) {
-            object res = _instance.Evaluate(context);
-
-            // box "this" if it is a value type (in case _method tries to modify it)
-            // -- this keeps the same semantics as Emit().
-            if (_method.DeclaringType != null && _method.DeclaringType.IsValueType) {
-                res = System.Runtime.CompilerServices.RuntimeHelpers.GetObjectValue(res);
-            }
-            return res;
-        } 
-#endif
-
-
-
-#if FULL
-        protected override object DoEvaluate(CodeContext context) {
-            object instance = null;
-            // Evaluate the instance first (if the method is non-static)
-            if (!Method.IsStatic) {
-                instance = EvaluateInstance(context);
-            }
-
-            object[] parameters = new object[_parameterInfos.Length];
-            EvaluationAddress[] paramAddrs = new EvaluationAddress[_parameterInfos.Length];
-            if (_parameterInfos.Length > 0) {
-                int last = parameters.Length;
-                for (int i = 0; i < last; i++) {
-                    ParameterInfo pi = _parameterInfos[i];
-
-                    if (pi.ParameterType.IsByRef) {
-                        paramAddrs[i] = _arguments[i].EvaluateAddress(context);
-
-                        object value = paramAddrs[i].GetValue(context, !IsInputParameter(i));
-                        if (IsInputParameter(i)) {
-                            parameters[i] = context.LanguageContext.Binder.Convert(
-                                value,
-                                _parameterInfos[i].ParameterType.GetElementType()
-                            );
-                        }
-                    } else if (IsInputParameter(i)) {
-                        Expression arg = _arguments[i];
-                        parameters[i] = arg != null ? arg.Evaluate(context) : null;
-                    }
-                }
-            }
-
-            try {
-                object res;
-                try {
-                    // Call the method
-                    res = InvokeMethod(instance, parameters);
-
-                    // Return the singleton True or False object
-                    if (Type == typeof(Boolean)) {
-                        res = RuntimeHelpers.BooleanToObject((bool)res);
-                    }
-                } finally {
-                    // expose by-ref args
-                    for (int i = 0; i < _parameterInfos.Length; i++) {
-                        if (_parameterInfos[i].ParameterType.IsByRef) {
-                            paramAddrs[i].AssignValue(context, parameters[i]);
-                        }
-                    }
-                }
-
-                // back propagate instance on value types if the instance supports it.
-                if (_method.DeclaringType != null && _method.DeclaringType.IsValueType && !_method.IsStatic) {
-                    _instance.EvaluateAssign(context, instance);
-                }
-
-                return res;
-            } catch (TargetInvocationException e) {                
-                // Unwrap the real (inner) exception and raise it
-                throw ExceptionHelpers.UpdateForRethrow(e.InnerException);
-            }
-        } 
-#endif
-
-
         private bool IsInputParameter(int i) {
             return !_parameterInfos[i].IsOut || (_parameterInfos[i].Attributes & ParameterAttributes.In) != 0;
         }
 
-
-#if FULL
-        private object InvokeMethod(object instance, object[] parameters) {
-            if (_caller == null) {
-                _caller = ReflectedCaller.Create(_method);
-            }
-            if (instance == null) {
-                return _caller.Invoke(parameters);
-            } else {
-                return _caller.InvokeInstance(instance, parameters);
-            }
-
-        } 
-#endif
         static Expression UnwindBoundExpression(BoundExpression be)
         {
           if (be.Variable.AssumedValue != null && be.Variable.AssumedValue is BoundExpression)

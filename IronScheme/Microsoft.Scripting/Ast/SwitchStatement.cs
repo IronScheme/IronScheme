@@ -170,14 +170,6 @@ namespace Microsoft.Scripting.Ast {
             cg.Emit(OpCodes.Switch, jmpLabels);
             return true;
         }
-
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            throw new NotImplementedException();
-        } 
-#endif
-
     }
 
     /// <summary>

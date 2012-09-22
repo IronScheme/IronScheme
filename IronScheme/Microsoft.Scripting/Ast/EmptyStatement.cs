@@ -21,14 +21,6 @@ namespace Microsoft.Scripting.Ast {
             : base(AstNodeType.EmptyStatement, span) {
             }
 
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            return NextStatement;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             //cg.EmitPosition(Start, End);
         }

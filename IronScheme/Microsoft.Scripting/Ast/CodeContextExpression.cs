@@ -30,14 +30,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
-#if FULL
-        protected override object DoEvaluate(CodeContext context) {
-            return context;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             cg.EmitCodeContext();
         }

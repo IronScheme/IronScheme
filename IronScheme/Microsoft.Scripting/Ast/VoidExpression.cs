@@ -44,21 +44,6 @@ namespace Microsoft.Scripting.Ast {
             _statement.Emit(cg);
           }
         }
-
-
-#if FULL
-        protected override object DoEvaluate(CodeContext context) {
-            object ret = _statement.Execute(context);
-            // The interpreter is not able to deal with control flow inside of expressions
-
-            if (ret != Statement.NextStatement) {
-                throw new ExpressionReturnException(ret);
-            }
-
-            return null;
-        } 
-#endif
-
     }
 
     /// <summary>

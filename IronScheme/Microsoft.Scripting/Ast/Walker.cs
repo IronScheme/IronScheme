@@ -69,13 +69,6 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.TypeIs:
                     DefaultWalk((TypeBinaryExpression)node);
                     break;
-
-#if FULL
-                case AstNodeType.ActionExpression:
-                    DefaultWalk((ActionExpression)node);
-                    break; 
-#endif
-
                 case AstNodeType.ArrayIndexAssignment:
                     DefaultWalk((ArrayIndexAssignment)node);
                     break;
@@ -127,13 +120,6 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.DoStatement:
                     DefaultWalk((DoStatement)node);
                     break;
-
-#if FULL
-                case AstNodeType.DynamicConversionExpression:
-                    DefaultWalk((DynamicConversionExpression)node);
-                    break; 
-#endif
-
                 case AstNodeType.EmptyStatement:
                     DefaultWalk((EmptyStatement)node);
                     break;
@@ -205,20 +191,6 @@ namespace Microsoft.Scripting.Ast {
                     break;
             }
         }
-
-
-#if FULL
-       // ActionExpression
-        private void DefaultWalk(ActionExpression node) {
-            if (Walk(node)) {
-                foreach (Expression ex in node.Arguments) {
-                    WalkNode(ex);
-                }
-            }
-            PostWalk(node);
-        } 
-#endif
-
 
         // ArrayIndexAssignment
         private void DefaultWalk(ArrayIndexAssignment node) {
@@ -317,18 +289,6 @@ namespace Microsoft.Scripting.Ast {
             Walk(node);
             PostWalk(node);
         }
-
-
-#if FULL
-        // DynamicConversionExpression
-        private void DefaultWalk(DynamicConversionExpression node) {
-            if (Walk(node)) {
-                WalkNode(node.Expression);
-            }
-            PostWalk(node);
-        } 
-#endif
-
 
         // EnvironmentExpression
         private void DefaultWalk(EnvironmentExpression node) {

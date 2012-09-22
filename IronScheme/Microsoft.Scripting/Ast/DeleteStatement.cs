@@ -49,27 +49,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            switch (_var.Kind) {
-                case Variable.VariableKind.Temporary:
-                case Variable.VariableKind.GeneratorTemporary:
-                    context.Scope.TemporaryStorage.Remove(_var);
-                    break;
-                case Variable.VariableKind.Global:
-                    RuntimeHelpers.RemoveGlobalName(context, _var.Name);
-                    break;
-                default:
-                    RuntimeHelpers.RemoveName(context, _var.Name);
-                    break;
-            }
-            
-            return Statement.NextStatement;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             //cg.EmitPosition(Start, End);
             _ref.Slot.EmitDelete(cg, _var.Name, !_defined);

@@ -26,9 +26,6 @@ namespace Microsoft.Scripting.Hosting {
     }
 
     public class ErrorSink 
-#if FULL
-        : MarshalByRefObject 
-#endif 
     {
         private int _fatalErrorCount;
         private int _errorCount;

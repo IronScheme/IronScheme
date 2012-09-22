@@ -53,10 +53,6 @@ namespace Microsoft.Scripting {
         // compiler options:
         CompilerOptions GetCompilerOptions(IScriptEngine engine);
 
-#if FULL
-        IObjectHandle LookupVariableAndWrap(string name);
-        // TODO: void SetVariable(string name, IObjectHandle value);
-#endif
     }
 
     /// <summary>
@@ -242,16 +238,6 @@ namespace Microsoft.Scripting {
         #endregion
 
         #region IScriptModule Members
-
-#if FULL
-        RemoteWrapper ILocalObject.Wrap() {
-            return new RemoteScriptModule(this);
-        }
-
-        public IObjectHandle LookupVariableAndWrap(string name) {
-            return new ObjectHandle(LookupVariable(name));
-        }
-#endif
 
         public CompilerOptions GetCompilerOptions(IScriptEngine engine) {
             Contract.RequiresNotNull(engine, "engine");

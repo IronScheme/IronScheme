@@ -150,30 +150,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
-#if FULL
-        /// <summary>
-        /// Write out the given rule's AST (only if ShowRules is enabled)
-        /// </summary>
-        public static void Dump<T>(StandardRule<T> rule) {
-            if (ScriptDomainManager.Options.ShowRules) {
-#if !SILVERLIGHT
-                ConsoleColor color = Console.ForegroundColor;
-                try {
-                    Console.ForegroundColor = GetAstColor();
-#endif
-                    AstWriter.Dump(rule.Test, "Rule.Test", System.Console.Out);
-                    AstWriter.Dump(rule.Target, "Rule.Target", System.Console.Out);
-#if !SILVERLIGHT
-                } finally {
-                    Console.ForegroundColor = color;
-                }
-#endif
-            }
-        } 
-#endif
-
-
         /// <summary>
         /// Write out the given AST
         /// </summary>
@@ -360,12 +336,6 @@ namespace Microsoft.Scripting.Ast {
                     Dump((TypeBinaryExpression)node);
                     break;
 
-#if FULL
-                case AstNodeType.ActionExpression:
-                    Dump((ActionExpression)node);
-                    break; 
-#endif
-
                 case AstNodeType.ArrayIndexAssignment:
                     Dump((ArrayIndexAssignment)node);
                     break;
@@ -414,13 +384,6 @@ namespace Microsoft.Scripting.Ast {
                 case AstNodeType.DoStatement:
                     Dump((DoStatement)node);
                     break;
-
-#if FULL
-                case AstNodeType.DynamicConversionExpression:
-                    Dump((DynamicConversionExpression)node);
-                    break; 
-#endif
-
                 case AstNodeType.EmptyStatement:
                     Dump((EmptyStatement)node);
                     break;
@@ -494,50 +457,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
-#if FULL
-
-        // More proper would be to make this a virtual method on Action
-        private static string FormatAction(DynamicAction action) {
-            DoOperationAction doa;
-            GetMemberAction gma;
-            SetMemberAction sma;
-            InvokeMemberAction ima;
-            ConvertToAction cta;
-            CallAction cla;
-
-            if ((doa = action as DoOperationAction) != null) {
-                return "Do " + doa.Operation.ToString();
-            } else if ((gma = action as GetMemberAction) != null) {
-                return "GetMember " + SymbolTable.IdToString(gma.Name);
-            } else if ((sma = action as SetMemberAction) != null) {
-                return "SetMember " + SymbolTable.IdToString(sma.Name);
-            } else if ((ima = action as InvokeMemberAction) != null) {
-                return "InvokeMember " + ima.Name;
-            } else if ((cta = action as ConvertToAction) != null) {
-                return "ConvertTo " + cta.ToType.ToString();
-            } else if ((cla = action as CallAction) != null) {
-                return "Call";
-            } else {
-                return "UnknownAction (" + action.Kind.ToString() + ")";
-            }
-        }
-
-        // ActionExpression
-        private void Dump(ActionExpression node) {
-            Out(".action", Flow.Space);
-            Out(FormatAction(node.Action));
-            Out("(");
-            Indent();
-            NewLine();
-            foreach (Expression arg in node.Arguments) {
-                WalkNode(arg);
-                NewLine();
-            }
-            Dedent();
-            Out(")");
-        } 
-#endif
 
 
         // ArrayIndexAssignment
@@ -660,13 +579,6 @@ namespace Microsoft.Scripting.Ast {
             CompilerConstant cc;
             if ((cc = value as CompilerConstant) != null) {
                 value = cc.Create();
-
-#if FULL
-                if (value is ITemplatedValue) {
-                    return ".template (" + ((ITemplatedValue)value).ObjectValue.ToString() + ")";
-                } 
-#endif
-
             }
 
             Type t;
@@ -692,17 +604,6 @@ namespace Microsoft.Scripting.Ast {
         private void Dump(DeleteUnboundExpression node) {
             Out(String.Format(".delname({0})", SymbolTable.IdToString(node.Name)));
         }
-
-
-#if FULL
-        // DynamicConversionExpression
-        private void Dump(DynamicConversionExpression node) {
-            Out(String.Format("(.convert.d {0})(", node.Type));
-            WalkNode(node.Expression);
-            Out(")");
-        } 
-#endif
-
 
         // EnvironmentExpression
         private void Dump(EnvironmentExpression node) {

@@ -109,50 +109,6 @@ namespace Microsoft.Scripting.Ast {
                 }
             }
         }
-
-
-#if FULL
-        protected override object DoEvaluate(CodeContext context) {
-            object self = _expression != null ? _expression.Evaluate(context) : null;
-            switch (_member.MemberType) {
-                case MemberTypes.Field:
-                    FieldInfo field = (FieldInfo)_member;
-                    return field.GetValue(self);
-                case MemberTypes.Property:                    
-                    PropertyInfo property = (PropertyInfo)_member;
-                    return property.GetValue(self, Utils.ArrayUtils.EmptyObjects);
-                default:
-                    Debug.Assert(false, "Invalid member type");
-                    break;
-            }
-
-            throw new InvalidOperationException();
-        } 
-#endif
-
-
-
-#if FULL
-        internal override object EvaluateAssign(CodeContext context, object value) {
-            object self = _expression != null ? _expression.Evaluate(context) : null;
-            switch (_member.MemberType) {
-                case MemberTypes.Field:
-                    FieldInfo field = (FieldInfo)_member;
-                    field.SetValue(self, value);
-                    return value;
-                case MemberTypes.Property:
-                    PropertyInfo property = (PropertyInfo)_member;
-                    property.SetValue(self, value, ArrayUtils.EmptyObjects);
-                    return value;
-                default:
-                    Debug.Assert(false, "Invalid member type");
-                    break;
-            }
-
-            throw new InvalidOperationException();
-        } 
-#endif
-
     }
 
     /// <summary>

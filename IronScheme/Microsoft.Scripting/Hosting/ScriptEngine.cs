@@ -99,33 +99,6 @@ namespace Microsoft.Scripting.Hosting {
         ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, IScriptModule module);
         ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink);
 
-#if FULL
-
-        // sourcePath and module can be null
-        ICompiledCode CompileCodeDom(System.CodeDom.CodeMemberMethod code, IScriptModule module);
-
-        IObjectHandle EvaluateAndWrap(string expression);
-        IObjectHandle EvaluateAndWrap(string expression, IScriptModule module);
-
-        // code sense:
-        bool TryGetVariableAndWrap(string name, IScriptModule module, out IObjectHandle obj);
-        bool TryGetObjectMemberValue(IObjectHandle obj, string name, out IObjectHandle value);
-        bool TryGetObjectMemberValue(IObjectHandle obj, string name, IScriptModule module, out IObjectHandle value);
-        string[] GetObjectMemberNames(IObjectHandle obj);
-        string[] GetObjectMemberNames(IObjectHandle obj, IScriptModule module);
-        
-        string[] GetObjectCallSignatures(IObjectHandle obj);
-        string GetObjectDocumentation(IObjectHandle obj);
-
-        // object operations:
-        bool IsObjectCallable(IObjectHandle obj);
-        bool IsObjectCallable(IObjectHandle obj, IScriptModule module);
-        IObjectHandle CallObject(IObjectHandle obj, params object[] args);
-        IObjectHandle CallObject(IObjectHandle obj, IScriptModule module, params object[] args);
-
-#endif
-
-                
         // TODO: (internal)
         CompilerOptions GetModuleCompilerOptions(ScriptModule module);
 
@@ -209,12 +182,6 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         #region IScriptEngine Members
-
-#if FULL
-        RemoteWrapper ILocalObject.Wrap() {
-            return new RemoteScriptEngine(this);
-        }
-#endif
 
         ILanguageProvider IScriptEngine.LanguageProvider {
             get { return LanguageProvider; }
@@ -556,186 +523,6 @@ namespace Microsoft.Scripting.Hosting {
             return CompileSourceUnit(SourceUnit.CreateSnippet(this, code, SourceCodeKind.InteractiveCode), module);
         }
 
-#if FULL
-        public ICompiledCode CompileCodeDom(System.CodeDom.CodeMemberMethod code, IScriptModule module) {
-            Contract.RequiresNotNull(code, "code");
-
-            CompilerOptions options = (module != null) ? module.GetCompilerOptions(this) : GetDefaultCompilerOptions();
-            return CompileSourceUnit(_languageContext.GenerateSourceCode(code), module);
-        }
-#endif
-
-        #endregion
-
-        #region ObjectHandle Wrappings
-#if FULL
-
-        public bool TryGetVariableAndWrap(string name, IScriptModule module, out IObjectHandle obj) {
-            object local_obj;
-            bool result = TryGetVariable(name, module, out local_obj);
-            obj = new ObjectHandle(local_obj);
-            return result;
-        }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
-        public string[] GetObjectCallSignatures(IObjectHandle obj) {
-            Contract.RequiresNotNull(obj, "obj");
-            return GetObjectCallSignatures(obj.Unwrap());
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
-        public string[] GetObjectMemberNames(IObjectHandle obj) {
-            return GetObjectMemberNames(obj, null);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="module"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"><paramref name="obj"/></exception>
-        public string[] GetObjectMemberNames(IObjectHandle obj, IScriptModule module) {
-            Contract.RequiresNotNull(obj, "obj");
-            return GetObjectMemberNames(obj.Unwrap(), module);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
-        public string GetObjectDocumentation(IObjectHandle obj) {
-            Contract.RequiresNotNull(obj, "obj");
-            return GetObjectDocumentation(obj.Unwrap());
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"><paramref name="obj"/>, <paramref name="name"/></exception>
-        public bool TryGetObjectMemberValue(IObjectHandle obj, string name, out IObjectHandle value) {
-            return TryGetObjectMemberValue(obj, name, null, out value);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="name"></param>
-        /// <param name="module">Can be <c>null</c>.</param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"><paramref name="obj"/>, <paramref name="name"/></exception>
-        public bool TryGetObjectMemberValue(IObjectHandle obj, string name, IScriptModule module, out IObjectHandle value) {
-            Contract.RequiresNotNull(obj, "obj");
-            object v;
-            return Utilities.MakeHandle(TryGetObjectMemberValue(obj.Unwrap(), name, module, out v), v, out value);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
-        public bool IsObjectCallable(IObjectHandle obj) {
-            return IsObjectCallable(obj, null);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="module"></param>
-        /// <returns></returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException"></exception>
-        /// <exception cref="ArgumentNullException"></exception>
-        public bool IsObjectCallable(IObjectHandle obj, IScriptModule module) {
-            Contract.RequiresNotNull(obj, "obj");
-            return IsObjectCallable(obj.Unwrap(), module);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj">Handle to an object to call. The object must be local w.r.t. this engine.</param>
-        /// <param name="args">Array of arguments. Arguments of type <see cref="IObjectHandle"/> are unwrapped.</param>
-        /// <returns>Wrapped result of the call.</returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException">obj, args[i]</exception>
-        /// <exception cref="ArgumentNullException">obj, args</exception>
-        public IObjectHandle CallObject(IObjectHandle obj, params object[] args) {
-            return CallObject(obj, null, args);
-        }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="obj">Handle to an object to call. The object must be local w.r.t. this engine.</param>
-        /// <param name="module">The module in whose context to make the call. A <c>null</c> reference means the default module.</param>
-        /// <param name="args">Array of arguments. Arguments of type <see cref="IObjectHandle"/> are unwrapped.</param>
-        /// <returns>Wrapped result of the call.</returns>
-        /// <exception cref="System.Runtime.Serialization.SerializationException">obj, args[i]</exception>
-        /// <exception cref="ArgumentNullException">obj, args</exception>
-        public IObjectHandle CallObject(IObjectHandle obj, IScriptModule module, params object[] args) {
-            Contract.RequiresNotNull(obj, "obj");
-            Contract.RequiresNotNull(args, "args");
-
-            object local_obj = obj.Unwrap();
-            object[] local_args = new object[args.Length];
-            for (int i = 0; i < args.Length; i++) {
-                IObjectHandle handle = args[i] as IObjectHandle;
-                local_args[i] = (handle != null) ? handle.Unwrap() : args[i];
-            }
-            
-            return new ObjectHandle(CallObject(local_obj, module, local_args));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="expression"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="expression"/></exception>
-        public IObjectHandle EvaluateAndWrap(string expression) {
-            return new ObjectHandle(Evaluate(expression));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="expression"></param>
-        /// <param name="module">Can be <c>null</c>.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="expression"/></exception>
-        public IObjectHandle EvaluateAndWrap(string expression, IScriptModule module) {
-            return new ObjectHandle(Evaluate(expression, module));
-        }
-
-
-#endif
         #endregion
 
         #region CodeContext/LangaugeContext - TODO: move to LanguageContext
@@ -798,15 +585,6 @@ namespace Microsoft.Scripting.Hosting {
         public void DumpDebugInfo()
         {
 
-#if FULL
-            if (ScriptDomainManager.Options.EngineDebug) {
-                PerfTrack.DumpStats();
-                try {
-                    ScriptDomainManager.CurrentManager.Snippets.Dump();
-                } catch (NotSupportedException) { } // usually not important info...
-            } 
-#endif
-
         }
 
 
@@ -837,17 +615,4 @@ namespace Microsoft.Scripting.Hosting {
 
 
     }
-
-
-#if FULL
-    // TODO: (dependency workaround, should be in Python's assembly): 
-    [Flags]
-    public enum ModuleOptions {
-        None = 0x0000,
-        PublishModule = 0x0001,
-        TrueDivision = 0x0002,
-        ShowClsMethods = 0x0004
-    } 
-#endif
-
   }

@@ -25,11 +25,7 @@ using Microsoft.Scripting.Utils;
 namespace Microsoft.Scripting {
     class ParameterWrapper {
         private Type _type;
-        private bool _prohibitNull, _isParams
-#if FULL
-, _isParamsDict 
-#endif
-;
+        private bool _prohibitNull, _isParams;
         private ActionBinder _binder;
         private SymbolId _name;
 
@@ -58,15 +54,7 @@ namespace Microsoft.Scripting {
             : this(binder, info.ParameterType) {
             _name = SymbolTable.StringToId(info.Name ?? "<unknown>");
 
-#if FULL
-            _prohibitNull = info.IsDefined(typeof(NotNullAttribute), false); 
-#endif
-
             _isParams = info.IsDefined(typeof(ParamArrayAttribute), false);
-
-#if FULL
-            _isParamsDict = info.IsDefined(typeof(ParamDictionaryAttribute), false); 
-#endif
 
             }
 
@@ -190,16 +178,6 @@ namespace Microsoft.Scripting {
                 return _isParams;
             }
         }
-
-#if FULL
-
-        public bool IsParamsDict {
-            get {
-                return _isParamsDict;
-            }
-        } 
-#endif
-
 
         public string ToSignatureString() {
             return Type.Name;

@@ -150,43 +150,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
-#if FULL
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
-        protected override object DoEvaluate(CodeContext context) {
-            object x = _operand.Evaluate(context);
-            switch (NodeType) {
-#if FULL
-                case AstNodeType.Convert:
-                    return Cast.Explicit(x, _type);
-#endif
-                case AstNodeType.Not:
-                    if (x is bool) return (bool)x ? RuntimeHelpers.False : RuntimeHelpers.True;
-                    if (x is int) return (int)~(int)x;
-                    if (x is long) return (long)~(long)x;
-                    if (x is short) return (short)~(short)x;
-                    if (x is uint) return (uint)~(uint)x;
-                    if (x is ulong) return (ulong)~(ulong)x;
-                    if (x is ushort) return (ushort)~(ushort)x;
-                    if (x is byte) return (byte)~(byte)x;
-                    if (x is sbyte) return (sbyte)~(sbyte)x;
-                    throw new InvalidOperationException("can't perform unary not on type " + CompilerHelpers.GetType(x).Name);
-
-                case AstNodeType.Negate:
-                    if (x is int) return (int)(-(int)x);
-                    if (x is long) return (long)(-(long)x);
-                    if (x is short) return (short)(-(short)x);
-                    if (x is float) return -(float)x;
-                    if (x is double) return -(double)x;
-                    throw new InvalidOperationException("can't negate type " + CompilerHelpers.GetType(x).Name);
-
-                default:
-                    throw new NotImplementedException();
-            }
-        } 
-#endif
-
-
         public void SetType(Type type)
         {
           _type = type;

@@ -38,14 +38,6 @@ namespace Microsoft.Scripting.Generation {
 
         internal override Expression ToExpression(MethodBinderContext context, Expression[] parameters)
         {
-
-#if FULL
-            if (_tmp == null) {
-                _tmp = context.GetTemporary(_elementType, "outParam");
-            } 
-#endif
-
-
           // Ideally we'd pass in Ast.ReadField(parameters[Index], "Value") but due to
             // a bug in partial trust we can't access the generic field.
 

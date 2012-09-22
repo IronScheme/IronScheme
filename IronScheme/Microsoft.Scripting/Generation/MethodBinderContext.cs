@@ -26,23 +26,10 @@ namespace Microsoft.Scripting.Generation {
     class MethodBinderContext {
         private ActionBinder _actionBinder;
 
-#if FULL
- private StandardRule _rule; 
-#endif
 
-
-        public MethodBinderContext(ActionBinder actionBinder
-#if FULL
-, StandardRule rule 
-#endif
-)
+        public MethodBinderContext(ActionBinder actionBinder)
         {
             _actionBinder = actionBinder;
-
-#if FULL
- _rule = rule; 
-#endif
-
         }
 
         public Expression ConvertExpression(Expression expr, Type type) {
@@ -52,13 +39,5 @@ namespace Microsoft.Scripting.Generation {
         public Expression CheckExpression(Expression expr, Type type) {
             return _actionBinder.CheckExpression(expr, type);
         }
-
-#if FULL
-
-        public Variable GetTemporary(Type type, string name) {
-            return _rule.GetTemporary(type, name);
-        } 
-#endif
-
     }
 }

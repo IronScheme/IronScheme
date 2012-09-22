@@ -38,23 +38,6 @@ namespace Microsoft.Scripting.Ast {
           set { _else = value; }
         }
 
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            foreach (IfStatementTest t in _tests) {
-                object val = t.Test.Evaluate(context);
-                if (context.LanguageContext.IsTrue(val)) {
-                    return t.Body.Execute(context);
-                }
-            }
-            if (_else != null) {
-                return _else.Execute(context);
-            }
-            return NextStatement;
-        } 
-#endif
-
-
         public override void Emit(CodeGen cg) {
             bool eoiused = false;
             Label eoi = cg.DefineLabel();

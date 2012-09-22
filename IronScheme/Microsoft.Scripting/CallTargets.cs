@@ -32,29 +32,6 @@ namespace Microsoft.Scripting {
         public static Type GetTargetType(bool needsContext, int nargs, bool needsThis) {
             if (needsThis)
             {
-
-#if FULL
-                if (needsContext) {
-                    switch (nargs) {
-                        case 0: return typeof(CallTargetWithContextAndThis0);
-                        case 1: return typeof(CallTargetWithContextAndThis1);
-                        case 2: return typeof(CallTargetWithContextAndThis2);
-                        case 3: return typeof(CallTargetWithContextAndThis3);
-                        case 4: return typeof(CallTargetWithContextAndThis4);
-                        case 5: return typeof(CallTargetWithContextAndThis5);
-                    }
-                } else {
-                    switch (nargs) {
-                        case 0: return typeof(CallTargetWithThis0);
-                        case 1: return typeof(CallTargetWithThis1);
-                        case 2: return typeof(CallTargetWithThis2);
-                        case 3: return typeof(CallTargetWithThis3);
-                        case 4: return typeof(CallTargetWithThis4);
-                        case 5: return typeof(CallTargetWithThis5);
-                    }
-                } 
-#endif
-
             } else {
                 return GetTargetType(needsContext, nargs);
             }
@@ -94,11 +71,6 @@ namespace Microsoft.Scripting {
 
     public delegate object CallTargetN(params object[] args);
     public delegate object CallTargetWithContextN(CodeContext context, params object[] args);
-
-#if FULL
-    public delegate object CallTargetWithThisN(object instance, params object[] args);
-    public delegate object CallTargetWithContextAndThisN(CodeContext context, object instance, params object[] args); 
-#endif
 
 
     #region Generated Contextless CallTargets
@@ -141,44 +113,4 @@ namespace Microsoft.Scripting {
     // *** END GENERATED CODE ***
 
     #endregion
-
-
-
-#if FULL
-    #region Generated CallTargets WithThis
-
-    // *** BEGIN GENERATED CODE ***
-
-
-    public delegate object CallTargetWithThis0(object instance);
-    public delegate object CallTargetWithThis1(object instance, object arg0);
-    public delegate object CallTargetWithThis2(object instance, object arg0, object arg1);
-    public delegate object CallTargetWithThis3(object instance, object arg0, object arg1, object arg2);
-    public delegate object CallTargetWithThis4(object instance, object arg0, object arg1, object arg2, object arg3);
-    public delegate object CallTargetWithThis5(object instance, object arg0, object arg1, object arg2, object arg3, object arg4);
-
-
-    // *** END GENERATED CODE ***
-
-    #endregion
-
-    #region Generated CallTargets WithContextAndThis
-
-    // *** BEGIN GENERATED CODE ***
-
-
-    public delegate object CallTargetWithContextAndThis0(CodeContext context, object instance);
-    public delegate object CallTargetWithContextAndThis1(CodeContext context, object instance, object arg0);
-    public delegate object CallTargetWithContextAndThis2(CodeContext context, object instance, object arg0, object arg1);
-    public delegate object CallTargetWithContextAndThis3(CodeContext context, object instance, object arg0, object arg1, object arg2);
-    public delegate object CallTargetWithContextAndThis4(CodeContext context, object instance, object arg0, object arg1, object arg2, object arg3);
-    public delegate object CallTargetWithContextAndThis5(CodeContext context, object instance, object arg0, object arg1, object arg2, object arg3, object arg4);
-
-
-    // *** END GENERATED CODE ***
-
-    #endregion
-#endif
-
-
-  }
+ }

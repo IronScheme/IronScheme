@@ -56,14 +56,6 @@ namespace Microsoft.Scripting.Ast {
                 cg.PopTargets();
             }
         }
-
-
-#if FULL
-        protected override object DoExecute(CodeContext context) {
-            return Statement.Continue;
-        } 
-#endif
-
     }
 
     public static partial class Ast {

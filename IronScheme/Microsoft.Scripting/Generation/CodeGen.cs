@@ -146,10 +146,6 @@ namespace Microsoft.Scripting.Generation {
         }
 #else
 
-#if FULL
-            PerfTrack.NoteEvent(PerfTrack.Categories.Compiler, "CodeGen " + GetPerfTrackName(mi)); 
-#endif
-
             }
 
         private string GetPerfTrackName(MethodBase mi) {
@@ -2173,24 +2169,6 @@ namespace Microsoft.Scripting.Generation {
 
             return true;
         }
-
-
-#if FULL
-        public Slot CreateDynamicSite(DynamicAction action, Type[] siteTypes, out bool fast) {
-            object site;
-            if (fast = CanUseFastSite()) {
-                // Use fast dynamic site (with cached CodeContext)
-                Type fastSite = DynamicSiteHelpers.MakeFastDynamicSiteType(siteTypes);
-                site = DynamicSiteHelpers.MakeFastSite(null, action, fastSite);
-            } else {
-                Type siteType = DynamicSiteHelpers.MakeDynamicSiteType(siteTypes);
-                site = DynamicSiteHelpers.MakeSite(action, siteType);
-            }
-
-            return ConstantPool.AddData(site);
-        } 
-#endif
-
 
         internal Slot GetTemporarySlot(Type type) {
             Slot temp;

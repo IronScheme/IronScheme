@@ -95,15 +95,6 @@ namespace Microsoft.Scripting.Ast {
               }
             }
         }
-
-
-#if FULL
-        protected override object DoEvaluate(CodeContext context) {
-            return RuntimeHelpers.BooleanToObject(
-                _typeOperand.IsInstanceOfType(_expression.Evaluate(context)));
-        } 
-#endif
-
     }
 
     /// <summary>
