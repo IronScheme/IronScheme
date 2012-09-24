@@ -22,7 +22,7 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Hosting {
 
-    public interface ICompiledCode : IRemotable {
+    public interface ICompiledCode {
         IScriptModule MakeModule(string name);
         
         void Execute();
@@ -35,7 +35,7 @@ namespace Microsoft.Scripting.Hosting {
     /// <summary>
     /// Hosting API counterpart for <see cref="ScriptCode"/>.
     /// </summary>
-    public sealed class CompiledCode : ICompiledCode, ILocalObject {
+    public sealed class CompiledCode : ICompiledCode {
         private readonly ScriptCode _code;
 
         // should be called only from ScriptCode.FromCompiledCode:
@@ -78,15 +78,15 @@ namespace Microsoft.Scripting.Hosting {
         /// The module must be local with respect to the compiled code object.
         /// </summary>
         public object Evaluate(IScriptModule module) {
-            ScriptModule localModule;
+            IScriptModule localModule;
 
             if (module == null) {
-                localModule = RemoteWrapper.TryGetLocal<ScriptModule>(ScriptDomainManager.CurrentManager.Host.DefaultModule);
+                localModule = ScriptDomainManager.CurrentManager.Host.DefaultModule;
             } else {
-                localModule = RemoteWrapper.GetLocalArgument<ScriptModule>(module, "module");
+                localModule = module;
             }
 
-            return _code.Run(localModule);
+            return _code.Run((ScriptModule)localModule);
         }
     }
 }

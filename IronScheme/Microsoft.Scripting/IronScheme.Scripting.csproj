@@ -205,7 +205,6 @@
     <Compile Include="Generation\MethodTarget.cs" />
     <Compile Include="Generation\ParameterInfoWrapper.cs" />
     <Compile Include="Compilers\CompilerOptions.cs" />
-    <Compile Include="Hosting\RemoteWrapper.cs" />
     <Compile Include="Hosting\ScriptDomainOptions.cs" />
     <Compile Include="InvariantContext.cs" />
     <Compile Include="LanguageContext.cs" />
