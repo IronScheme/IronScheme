@@ -28,7 +28,7 @@ namespace Microsoft.Scripting.Hosting {
         // TODO:
     }
 
-    public interface ILanguageProvider : IRemotable {
+    public interface ILanguageProvider  {
         IScriptEnvironment Environment { get; }
         string LanguageDisplayName { get; }
         string[] GetRegisteredIdentifiers();
@@ -50,7 +50,7 @@ namespace Microsoft.Scripting.Hosting {
     /// <summary>
     /// Should be stateless - multiple instances for each language can exist.
     /// </summary>
-    public abstract class LanguageProvider : ILocalObject, ILanguageProvider {
+    public abstract class LanguageProvider : ILanguageProvider {
 
         private ScriptDomainManager _manager;
 

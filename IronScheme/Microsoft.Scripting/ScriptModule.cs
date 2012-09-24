@@ -33,7 +33,7 @@ namespace Microsoft.Scripting {
         ShowCls = 0x01,
     }
 
-    public interface IScriptModule : IRemotable {
+    public interface IScriptModule {
         string ModuleName { get; }
         string FileName { get; set; } // TODO: setter?
 
@@ -63,7 +63,7 @@ namespace Microsoft.Scripting {
     /// ScriptModule is not thread safe. Host should either lock when multiple threads could 
     /// access the same module or should make a copy for each thread.
     /// </summary>
-    public sealed class ScriptModule : IScriptModule, ILocalObject {
+    public sealed class ScriptModule : IScriptModule {
         private readonly Scope _scope;
         private ScriptCode[] _codeBlocks;
         private ModuleContext[] _moduleContexts; // resizable

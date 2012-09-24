@@ -25,7 +25,7 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Hosting {
 
-    public interface IScriptHost : IRemotable {
+    public interface IScriptHost {
         // virtual file-system ops:
         string NormalizePath(string path);  // throws ArgumentException
         string[] GetSourceFileNames(string mask, string searchPattern);
@@ -59,7 +59,7 @@ namespace Microsoft.Scripting.Hosting {
         Action<Exception> EventExceptionHandler { get; }
     }
 
-    public class ScriptHost : IScriptHost, ILocalObject {
+    public class ScriptHost : IScriptHost {
 
         /// <summary>
         /// The environment the host is attached to.

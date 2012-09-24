@@ -33,7 +33,7 @@ using Microsoft.Scripting.Utils;
 namespace Microsoft.Scripting.Hosting {
     public delegate T ModuleBinder<T>(ScriptModule scope);
 
-    public interface IScriptEngine : IRemotable, ILanguageService {
+    public interface IScriptEngine : ILanguageService {
         ILanguageProvider LanguageProvider { get; }
 
         Guid LanguageGuid { get; }
@@ -112,7 +112,7 @@ namespace Microsoft.Scripting.Hosting {
         ErrorSink GetCompilerErrorSink();
     }
 
-    public abstract class ScriptEngine : IScriptEngine, ILocalObject {
+    public abstract class ScriptEngine : IScriptEngine {
         private readonly LanguageProvider _provider;
         private readonly EngineOptions _options;
         private readonly LanguageContext _languageContext;
@@ -530,8 +530,7 @@ namespace Microsoft.Scripting.Hosting {
         // Gets a LanguageContext for the specified module that captures the current state 
         // of the module which will be used for compilation and execution of the next piece of code against the module.
         private CodeContext GetCodeContext(IScriptModule module) {
-            return GetCodeContext(RemoteWrapper.GetLocalArgument<ScriptModule>(module ?? 
-                ScriptDomainManager.CurrentManager.Host.DefaultModule, "module"));
+            return GetCodeContext(module ?? ScriptDomainManager.CurrentManager.Host.DefaultModule);
         }
 
         internal protected CodeContext GetCodeContext(ScriptModule module) {

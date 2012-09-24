@@ -27,7 +27,7 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Hosting {
 
-    public interface IScriptEnvironment : IRemotable {
+    public interface IScriptEnvironment {
         IScriptHost Host { get; }
         // language providers (TODO: register):
         string[] GetRegisteredFileExtensions();
@@ -44,9 +44,9 @@ namespace Microsoft.Scripting.Hosting {
         IScriptModule CompileModule(string name, ScriptModuleKind kind, CompilerOptions options, ErrorSink errorSink, IAttributesCollection dictionary, params SourceUnit[] sourceUnits);
         
 
-        void PublishModule(IScriptModule module);
-        void PublishModule(IScriptModule module, string publicName);
-        IDictionary<string, IScriptModule> GetPublishedModules();
+        //void PublishModule(IScriptModule module);
+        //void PublishModule(IScriptModule module, string publicName);
+        //IDictionary<string, IScriptModule> GetPublishedModules();
         
         Delegate GetDelegate(object callableObject, Type delegateType);
         
@@ -57,7 +57,7 @@ namespace Microsoft.Scripting.Hosting {
         ScriptDomainOptions GlobalOptions { get; set; }
     }
 
-    public sealed class ScriptEnvironment : IScriptEnvironment, ILocalObject {
+    public sealed class ScriptEnvironment : IScriptEnvironment {
 
         private readonly ScriptDomainManager _manager;
         
@@ -128,7 +128,7 @@ namespace Microsoft.Scripting.Hosting {
 
             ScriptCode[] script_codes = new ScriptCode[compiledCodes.Length];
             for (int i = 0; i < compiledCodes.Length; i++) {
-                script_codes[i] = ScriptCode.FromCompiledCode(RemoteWrapper.TryGetLocal<CompiledCode>(compiledCodes[i]));
+                script_codes[i] = ScriptCode.FromCompiledCode(compiledCodes[i] as CompiledCode);
                 if (script_codes[i] == null) {
                     throw new ArgumentException(Resources.RemoteCodeModuleComposition, String.Format("{0}[{1}]", "compiledCodes", i));
                 }
@@ -153,24 +153,24 @@ namespace Microsoft.Scripting.Hosting {
             return _manager.CompileModule(name, kind, new Scope(dictionary), options, errorSink, sourceUnits);
         }
 
-        public void PublishModule(IScriptModule module) {
-            _manager.PublishModule(RemoteWrapper.GetLocalArgument<ScriptModule>(module, "module"));
-        }
+        //public void PublishModule(IScriptModule module) {
+        //    _manager.PublishModule(RemoteWrapper.GetLocalArgument<ScriptModule>(module, "module"));
+        //}
 
-        public void PublishModule(IScriptModule module, string publicName) {
-            _manager.PublishModule(RemoteWrapper.GetLocalArgument<ScriptModule>(module, "module"), publicName);
-        }
+        //public void PublishModule(IScriptModule module, string publicName) {
+        //    _manager.PublishModule(RemoteWrapper.GetLocalArgument<ScriptModule>(module, "module"), publicName);
+        //}
 
-        public IDictionary<string, IScriptModule> GetPublishedModules() {
-            IDictionary<string, ScriptModule> local_modules = _manager.GetPublishedModules();
+        //public IDictionary<string, IScriptModule> GetPublishedModules() {
+        //    IDictionary<string, ScriptModule> local_modules = _manager.GetPublishedModules();
 
-            IDictionary<string, IScriptModule> result = new Dictionary<string, IScriptModule>(local_modules.Count);
-            foreach (KeyValuePair<string, ScriptModule> local_module in local_modules) {
-                result.Add(local_module.Key, local_module.Value);
-            }
+        //    IDictionary<string, IScriptModule> result = new Dictionary<string, IScriptModule>(local_modules.Count);
+        //    foreach (KeyValuePair<string, ScriptModule> local_module in local_modules) {
+        //        result.Add(local_module.Key, local_module.Value);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         #endregion
 

@@ -63,7 +63,7 @@ namespace Microsoft.Scripting {
         }
 
         public static LanguageContext FromEngine(IScriptEngine engine) {
-            ScriptEngine localEngine = RemoteWrapper.GetLocalArgument<ScriptEngine>(engine, "engine");
+            ScriptEngine localEngine = engine as ScriptEngine;
             return localEngine.LanguageContext;
         }
 
