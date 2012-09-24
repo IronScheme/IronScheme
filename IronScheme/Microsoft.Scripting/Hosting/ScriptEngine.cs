@@ -530,7 +530,7 @@ namespace Microsoft.Scripting.Hosting {
         // Gets a LanguageContext for the specified module that captures the current state 
         // of the module which will be used for compilation and execution of the next piece of code against the module.
         private CodeContext GetCodeContext(IScriptModule module) {
-            return GetCodeContext(module ?? ScriptDomainManager.CurrentManager.Host.DefaultModule);
+            return GetCodeContext((ScriptModule)(module ?? ScriptDomainManager.CurrentManager.Host.DefaultModule));
         }
 
         internal protected CodeContext GetCodeContext(ScriptModule module) {
