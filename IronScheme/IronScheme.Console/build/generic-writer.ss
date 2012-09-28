@@ -32,7 +32,7 @@ See docs/license.txt. |#
         (newline)]
       [(obj port)    
         (write obj port)
-        (newline)]))
+        (newline port)]))
 
   (define displayln
     (case-lambda 
@@ -41,7 +41,7 @@ See docs/license.txt. |#
         (newline)]
       [(obj port)    
         (display obj port)
-        (newline)]))
+        (newline port)]))
     
   (define/contract write
     (case-lambda 
