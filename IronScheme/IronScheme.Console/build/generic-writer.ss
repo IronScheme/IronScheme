@@ -8,12 +8,14 @@ See docs/license.txt. |#
   (export 
     write 
     display
+    writeln
+    displayln
     initialize-default-printers
     generic-write
     add-custom-printer!
     add-record-printer!)
   (import 
-    (except (ironscheme) write-char write display generic-write initialize-default-printers textual-output-port?)
+    (except (ironscheme) write-char write display generic-write initialize-default-printers textual-output-port? writeln displayln)
     (ironscheme contracts)
     (ironscheme unsafe)
     (ironscheme clr)
@@ -21,7 +23,25 @@ See docs/license.txt. |#
     
   (define (textual-output-port? obj)
     (and (output-port? obj)
-         (textual-port? obj)))     
+         (textual-port? obj)))
+
+  (define writeln
+    (case-lambda 
+      [(obj)    
+        (write obj)
+        (newline)]
+      [(obj port)    
+        (write obj port)
+        (newline)]))
+
+  (define displayln
+    (case-lambda 
+      [(obj)    
+        (display obj)
+        (newline)]
+      [(obj port)    
+        (display obj port)
+        (newline)]))
     
   (define/contract write
     (case-lambda 

@@ -285,6 +285,8 @@
     (fx-internal                                ic)
     (fx*internal                                ic)
     (fxarithmetic-shift-left-internal           ic)
+    (displayln                                  i)
+    (writeln                                    i)    
     (flvector?                                  i)
     (fxvector?                                  i)
     (flvector-ref                               i)
