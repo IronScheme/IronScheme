@@ -587,6 +587,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
