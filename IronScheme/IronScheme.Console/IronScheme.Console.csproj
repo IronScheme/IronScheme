@@ -158,7 +158,6 @@
       <Link>ironscheme.nsi</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="App.config" />
     <None Include="build\constant-fold.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
