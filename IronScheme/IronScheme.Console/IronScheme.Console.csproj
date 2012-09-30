@@ -1416,9 +1416,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-copy /Y $(TargetPath) $(TargetDir)$(ProjectName)32.exe
-copy /Y $(TargetPath).config $(TargetDir)$(ProjectName)32.exe.config
+    <PostBuildEvent>copy /Y $(TargetPath) $(TargetDir)$(ProjectName)32.exe
 "$(FrameworkSDKDir)Bin\corflags.exe" $(TargetDir)$(ProjectName)32.exe /32BIT+</PostBuildEvent>
   </PropertyGroup>
 </Project>
