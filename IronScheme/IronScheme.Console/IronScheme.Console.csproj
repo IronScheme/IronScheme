@@ -176,16 +176,16 @@
     <None Include="compile-system-libraries.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr\reflection.sls">
+    <None Include="lib\ironscheme\clr\reflection.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\contracts-helper.sls">
+    <None Include="lib\ironscheme\contracts-helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\ffi.sls">
+    <None Include="lib\ironscheme\ffi.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\integrable.sls">
+    <None Include="lib\ironscheme\integrable.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="build\numbers.ss">
@@ -198,10 +198,10 @@
     <None Include="lib\ikarus.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\files.sls">
+    <None Include="lib\ironscheme\files.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\contracts.sls">
+    <None Include="lib\ironscheme\contracts.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="build\trace.ss">
@@ -209,22 +209,22 @@
     </None>
     <None Include="playground\define-clr-class.sls">
     </None>
-    <None Include="ironscheme\syntax\define-macro.sls">
+    <None Include="lib\ironscheme\syntax\define-macro.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\record-case.sls">
+    <None Include="lib\ironscheme\record-case.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\controllers.sls">
+    <None Include="lib\ironscheme\web\controllers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\routing-helper.sls">
+    <None Include="lib\ironscheme\web\routing-helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\routing.sls">
+    <None Include="lib\ironscheme\web\routing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\views.sls">
+    <None Include="lib\ironscheme\web\views.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\datatype.sls">
@@ -238,7 +238,7 @@
     </None>
     <None Include="playground\grid.ss" />
     <None Include="playground\il-assembler.ss" />
-    <None Include="ironscheme\linq.sls">
+    <None Include="lib\ironscheme\linq.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\irc.ss" />
@@ -266,7 +266,7 @@
     <None Include="examples\stack-balloon-party.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr\helpers.sls">
+    <None Include="lib\ironscheme\clr\helpers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\collections\arraylist.sls">
@@ -277,46 +277,46 @@
     </None>
     <None Include="playground\collections\stack.sls">
     </None>
-    <None Include="ironscheme\console.sls">
+    <None Include="lib\ironscheme\console.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\conversions.sls">
+    <None Include="lib\ironscheme\conversions.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web-utils.sls">
+    <None Include="lib\ironscheme\web-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\xml.sls">
+    <None Include="lib\ironscheme\xml.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\process.sls">
+    <None Include="lib\ironscheme\process.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\datetime.sls">
+    <None Include="lib\ironscheme\datetime.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\regex.sls">
+    <None Include="lib\ironscheme\regex.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\registry.sls">
+    <None Include="lib\ironscheme\registry.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="build\format.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\random.sls">
+    <None Include="lib\ironscheme\random.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\environment.sls">
+    <None Include="lib\ironscheme\environment.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\strings.sls">
+    <None Include="lib\ironscheme\strings.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\threading.sls">
+    <None Include="lib\ironscheme\threading.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web.sls">
+    <None Include="lib\ironscheme\web.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\docs.sls">
@@ -339,7 +339,7 @@
     <None Include="lib\tiny-talk.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr.sls">
+    <None Include="lib\ironscheme\clr.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme-buildscript.ss">
@@ -665,39 +665,39 @@
     <None Include="build\vectors.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="compiler\cps-convert.sls">
+    <None Include="playground\compiler\cps-convert.sls">
     </None>
-    <None Include="compiler\cps\cps-sexp-target.ss">
+    <None Include="playground\compiler\cps\cps-sexp-target.ss">
     </None>
-    <None Include="compiler\cps\cps.ss">
+    <None Include="playground\compiler\cps\cps.ss">
     </None>
-    <None Include="compiler\cps\sexp-to-cps.ss">
+    <None Include="playground\compiler\cps\sexp-to-cps.ss">
     </None>
-    <None Include="compiler\expander.sls">
+    <None Include="playground\compiler\expander.sls">
     </None>
-    <None Include="compiler\codegen.sls">
+    <None Include="playground\compiler\codegen.sls">
     </None>
-    <None Include="compiler\riaxpander\classify.ss">
+    <None Include="playground\compiler\riaxpander\classify.ss">
     </None>
-    <None Include="compiler\riaxpander\closure.ss">
+    <None Include="playground\compiler\riaxpander\closure.ss">
     </None>
-    <None Include="compiler\riaxpander\denotation.ss">
+    <None Include="playground\compiler\riaxpander\denotation.ss">
     </None>
-    <None Include="compiler\riaxpander\environment.ss">
+    <None Include="playground\compiler\riaxpander\environment.ss">
     </None>
-    <None Include="compiler\riaxpander\history.ss">
+    <None Include="playground\compiler\riaxpander\history.ss">
     </None>
-    <None Include="compiler\riaxpander\LICENCE">
+    <None Include="playground\compiler\riaxpander\LICENCE">
     </None>
-    <None Include="compiler\riaxpander\sexp.ss">
+    <None Include="playground\compiler\riaxpander\sexp.ss">
     </None>
-    <None Include="compiler\riaxpander\standard.ss">
+    <None Include="playground\compiler\riaxpander\standard.ss">
     </None>
-    <None Include="compiler\riaxpander\synrules.ss">
+    <None Include="playground\compiler\riaxpander\synrules.ss">
     </None>
-    <None Include="compiler\riaxpander\taxonomy.ss">
+    <None Include="playground\compiler\riaxpander\taxonomy.ss">
     </None>
-    <None Include="compiler\riaxpander\transform.ss">
+    <None Include="playground\compiler\riaxpander\transform.ss">
     </None>
     <None Include="genv4.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -708,64 +708,64 @@
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr\shorthand-helper.sls">
+    <None Include="lib\ironscheme\clr\shorthand-helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\clr\shorthand.sls">
+    <None Include="lib\ironscheme\clr\shorthand.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="ironscheme\fsm-cond.sls">
+    <Content Include="lib\ironscheme\fsm-cond.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ironscheme\fsm-cond-helpers.sls">
+    <Content Include="lib\ironscheme\fsm-cond-helpers.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ironscheme\clr\dynamic.sls">
+    <Content Include="lib\ironscheme\clr\dynamic.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ironscheme\syntax.sls">
+    <None Include="lib\ironscheme\syntax.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\syntax\utils.sls">
+    <None Include="lib\ironscheme\syntax\utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\syntax\shorthand.sls">
+    <None Include="lib\ironscheme\syntax\shorthand.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed\integrable.sls">
+    <None Include="lib\ironscheme\typed\integrable.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed\struct-case.sls">
+    <None Include="lib\ironscheme\typed\struct-case.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed\struct-descriptor.sls">
+    <None Include="lib\ironscheme\typed\struct-descriptor.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed\struct.sls">
+    <None Include="lib\ironscheme\typed\struct.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed\parsing.sls">
+    <None Include="lib\ironscheme\typed\parsing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\syntax\parameters.sls">
+    <None Include="lib\ironscheme\syntax\parameters.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\debugger.sls">
+    <None Include="lib\ironscheme\debugger.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\io.sls">
+    <None Include="lib\ironscheme\io.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\regex-cond.sls">
+    <None Include="lib\ironscheme\regex-cond.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed\parsing-helper.sls">
+    <None Include="lib\ironscheme\typed\parsing-helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\typed.sls">
+    <None Include="lib\ironscheme\typed.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme\web\models.sls">
+    <None Include="lib\ironscheme\web\models.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="lib\pfds\bbtrees.sls">
@@ -955,13 +955,13 @@
     <None Include="playground\foo.sls" />
     <None Include="playground\linq3.sls">
     </None>
-    <None Include="ironscheme\syntax\library-utils.sls">
+    <None Include="lib\ironscheme\syntax\library-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="srfi\69.sls">
+    <Content Include="lib\srfi\69.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\69\basic-hash-tables.sls">
+    <Content Include="lib\srfi\69\basic-hash-tables.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="setup-xp.bat">
@@ -970,49 +970,49 @@
     <Content Include="docs\webserver-xp.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\23\error\tricks.sls">
+    <Content Include="lib\srfi\23\error\tricks.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25.sls">
+    <Content Include="lib\srfi\25.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\arlib.scm">
+    <Content Include="lib\srfi\25\arlib.scm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\array.scm">
+    <Content Include="lib\srfi\25\array.scm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\ix-ctor.scm">
+    <Content Include="lib\srfi\25\ix-ctor.scm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\list.scm">
+    <Content Include="lib\srfi\25\list.scm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\multi-dimensional-arrays.sls">
+    <Content Include="lib\srfi\25\multi-dimensional-arrays.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\multi-dimensional-arrays\all.sls">
+    <Content Include="lib\srfi\25\multi-dimensional-arrays\all.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\multi-dimensional-arrays\arlib.sls">
+    <Content Include="lib\srfi\25\multi-dimensional-arrays\arlib.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\op-ctor.scm">
+    <Content Include="lib\srfi\25\op-ctor.scm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\25\test.scm">
+    <Content Include="lib\srfi\25\test.scm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\LICENSE">
+    <Content Include="lib\srfi\LICENSE">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\multi-dimensional-arrays--arlib.sps">
+    <Content Include="lib\srfi\tests\multi-dimensional-arrays--arlib.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\multi-dimensional-arrays.sps">
+    <Content Include="lib\srfi\tests\multi-dimensional-arrays.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ironscheme\syntax\symbolic-case.sls">
+    <None Include="lib\ironscheme\syntax\symbolic-case.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="lib\diff.sls">
@@ -1026,47 +1026,47 @@
     </None>
     <None Include="playground\ca.sps" />
     <None Include="playground\diff.sps" />
-    <None Include="ironscheme\typed\core.sls">
+    <None Include="lib\ironscheme\typed\core.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="source-optimizer\cp0.sls">
+    <None Include="playground\source-optimizer\cp0.sls">
     </None>
-    <None Include="source-optimizer\cpletrec.sls">
+    <None Include="playground\source-optimizer\cpletrec.sls">
     </None>
-    <None Include="source-optimizer\helpers.sls">
+    <None Include="playground\source-optimizer\helpers.sls">
     </None>
-    <None Include="source-optimizer\match.sls">
+    <None Include="playground\source-optimizer\match.sls">
     </None>
-    <None Include="source-optimizer\optimize.sls">
+    <None Include="playground\source-optimizer\optimize.sls">
     </None>
-    <None Include="source-optimizer\prelex.sls">
+    <None Include="playground\source-optimizer\prelex.sls">
     </None>
-    <None Include="source-optimizer\primitive.sls">
+    <None Include="playground\source-optimizer\primitive.sls">
     </None>
-    <None Include="source-optimizer\transform.sls">
+    <None Include="playground\source-optimizer\transform.sls">
     </None>
-    <None Include="srfi\101\random-access-lists.sls">
+    <None Include="lib\srfi\101\random-access-lists.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\102.sls">
+    <None Include="lib\srfi\102.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\102\procedure-arity.sls">
+    <None Include="lib\srfi\102\procedure-arity.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\101.sls">
+    <None Include="lib\srfi\101.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="srfi\45\lazy.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="srfi\45.sls">
+    <Content Include="lib\srfi\45\lazy.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="srfi\tests\procedure-arity.sps">
+    <Content Include="lib\srfi\45.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="lib\srfi\tests\procedure-arity.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="srfi\tests\random-access-lists.sps">
+    <None Include="lib\srfi\tests\random-access-lists.sps">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="stage.cmd">
@@ -1087,319 +1087,319 @@
     <Content Include="placeholder.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\38\with-shared-structure.ironscheme.sls">
+    <Content Include="lib\srfi\38\with-shared-structure.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\compile-all.ironscheme.sps">
+    <Content Include="lib\srfi\compile-all.ironscheme.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\0.sls">
+    <Content Include="lib\srfi\0.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\0\cond-expand.sls">
+    <Content Include="lib\srfi\0\cond-expand.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\1.sls">
+    <Content Include="lib\srfi\1.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\11.sls">
+    <Content Include="lib\srfi\11.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\11\let-values.sls">
+    <Content Include="lib\srfi\11\let-values.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\13.sls">
+    <Content Include="lib\srfi\13.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\13\srfi-13.scm">
+    <Content Include="lib\srfi\13\srfi-13.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\13\strings.sls">
+    <Content Include="lib\srfi\13\strings.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\14.sls">
+    <Content Include="lib\srfi\14.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\14\char-sets.sls">
+    <Content Include="lib\srfi\14\char-sets.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\14\srfi-14.scm">
+    <Content Include="lib\srfi\14\srfi-14.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\16.sls">
+    <Content Include="lib\srfi\16.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\16\case-lambda.sls">
+    <Content Include="lib\srfi\16\case-lambda.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\19.sls">
+    <Content Include="lib\srfi\19.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\19\srfi-19.scm">
+    <Content Include="lib\srfi\19\srfi-19.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\19\time.sls">
+    <Content Include="lib\srfi\19\time.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\19\time\compat.ironscheme.sls">
+    <Content Include="lib\srfi\19\time\compat.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\1\lists.sls">
+    <Content Include="lib\srfi\1\lists.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\2.sls">
+    <Content Include="lib\srfi\2.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\23.sls">
+    <Content Include="lib\srfi\23.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\23\error.sls">
+    <Content Include="lib\srfi\23\error.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\26.sls">
+    <Content Include="lib\srfi\26.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\26\cut.scm">
+    <Content Include="lib\srfi\26\cut.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\26\cut.sls">
+    <Content Include="lib\srfi\26\cut.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\27.sls">
+    <Content Include="lib\srfi\27.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\27\random-bits.sls">
+    <Content Include="lib\srfi\27\random-bits.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\27\random.ss">
+    <Content Include="lib\srfi\27\random.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\27\readme">
+    <Content Include="lib\srfi\27\readme">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\2\and-let%252a.sls">
+    <Content Include="lib\srfi\2\and-let%252a.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\31.sls">
+    <Content Include="lib\srfi\31.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\31\rec.sls">
+    <Content Include="lib\srfi\31\rec.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\37.sls">
+    <Content Include="lib\srfi\37.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\37\args-fold.sls">
+    <Content Include="lib\srfi\37\args-fold.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\37\srfi-37-reference.scm">
+    <Content Include="lib\srfi\37\srfi-37-reference.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\38.sls">
+    <Content Include="lib\srfi\38.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\39.sls">
+    <Content Include="lib\srfi\39.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\39\parameters.ironscheme.sls">
+    <Content Include="lib\srfi\39\parameters.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\41.sls">
+    <Content Include="lib\srfi\41.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\41\streams.sls">
+    <Content Include="lib\srfi\41\streams.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\41\streams\derived.sls">
+    <Content Include="lib\srfi\41\streams\derived.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\41\streams\primitive.sls">
+    <Content Include="lib\srfi\41\streams\primitive.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\42.sls">
+    <Content Include="lib\srfi\42.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\42\design.scm">
+    <Content Include="lib\srfi\42\design.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\42\eager-comprehensions.sls">
+    <Content Include="lib\srfi\42\eager-comprehensions.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\42\ec.scm">
+    <Content Include="lib\srfi\42\ec.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\42\extension.scm">
+    <Content Include="lib\srfi\42\extension.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\42\timing.scm">
+    <Content Include="lib\srfi\42\timing.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\43.sls">
+    <Content Include="lib\srfi\43.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\43\vector-lib.scm">
+    <Content Include="lib\srfi\43\vector-lib.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\43\vectors.sls">
+    <Content Include="lib\srfi\43\vectors.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\48.sls">
+    <Content Include="lib\srfi\48.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\48\intermediate-format-strings.sls">
+    <Content Include="lib\srfi\48\intermediate-format-strings.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\48\intermediate-format-strings\compat.ironscheme.sls">
+    <Content Include="lib\srfi\48\intermediate-format-strings\compat.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\6.sls">
+    <Content Include="lib\srfi\6.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\61.sls">
+    <Content Include="lib\srfi\61.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\61\cond.sls">
+    <Content Include="lib\srfi\61\cond.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\64.sls">
+    <Content Include="lib\srfi\64.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\64\testing.scm">
+    <Content Include="lib\srfi\64\testing.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\64\testing.sls">
+    <Content Include="lib\srfi\64\testing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\67.sls">
+    <Content Include="lib\srfi\67.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\67\compare-procedures.sls">
+    <Content Include="lib\srfi\67\compare-procedures.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\67\compare.ss">
+    <Content Include="lib\srfi\67\compare.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\6\basic-string-ports.sls">
+    <Content Include="lib\srfi\6\basic-string-ports.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\6\basic-string-ports\compat.ironscheme.sls">
+    <Content Include="lib\srfi\6\basic-string-ports\compat.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\78.sls">
+    <Content Include="lib\srfi\78.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\78\check.scm">
+    <Content Include="lib\srfi\78\check.scm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\78\lightweight-testing.sls">
+    <Content Include="lib\srfi\78\lightweight-testing.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\78\lightweight-testing\compat.ironscheme.sls">
+    <Content Include="lib\srfi\78\lightweight-testing\compat.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\8.sls">
+    <Content Include="lib\srfi\8.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\8\receive.sls">
+    <Content Include="lib\srfi\8\receive.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\9.sls">
+    <Content Include="lib\srfi\9.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\98.sls">
+    <Content Include="lib\srfi\98.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\98\os-environment-variables.ironscheme.sls">
+    <Content Include="lib\srfi\98\os-environment-variables.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\99.sls">
+    <Content Include="lib\srfi\99.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\99\records.sls">
+    <Content Include="lib\srfi\99\records.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\99\records\helper.sls">
+    <Content Include="lib\srfi\99\records\helper.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\99\records\inspection.sls">
+    <Content Include="lib\srfi\99\records\inspection.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\99\records\procedural.sls">
+    <Content Include="lib\srfi\99\records\procedural.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\99\records\syntactic.sls">
+    <Content Include="lib\srfi\99\records\syntactic.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\9\records.sls">
+    <Content Include="lib\srfi\9\records.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\private\include.sls">
+    <Content Include="lib\srfi\private\include.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\private\include\compat.ironscheme.sls">
+    <Content Include="lib\srfi\private\include\compat.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\private\let-opt.sls">
+    <Content Include="lib\srfi\private\let-opt.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\private\make-aliased-libraries.sps">
+    <Content Include="lib\srfi\private\make-aliased-libraries.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\private\OS-id-features.sls">
+    <Content Include="lib\srfi\private\OS-id-features.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\private\platform-features.ironscheme.sls">
+    <Content Include="lib\srfi\private\platform-features.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\private\registry.sls">
+    <Content Include="lib\srfi\private\registry.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\README">
+    <Content Include="lib\srfi\README">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\and-let_.sps">
+    <Content Include="lib\srfi\tests\and-let_.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\compare-procedures.sps">
+    <Content Include="lib\srfi\tests\compare-procedures.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\cut.sps">
+    <Content Include="lib\srfi\tests\cut.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\eager-comprehensions.sps">
+    <Content Include="lib\srfi\tests\eager-comprehensions.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\intermediate-format-strings.sps">
+    <Content Include="lib\srfi\tests\intermediate-format-strings.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\lightweight-testing.sps">
+    <Content Include="lib\srfi\tests\lightweight-testing.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\lists.sps">
+    <Content Include="lib\srfi\tests\lists.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\os-environment-variables.sps">
+    <Content Include="lib\srfi\tests\os-environment-variables.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\print-ascii.sps">
+    <Content Include="lib\srfi\tests\print-ascii.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\random-conftest.sps">
+    <Content Include="lib\srfi\tests\random-conftest.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\random.sps">
+    <Content Include="lib\srfi\tests\random.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\rec-factorial.sps">
+    <Content Include="lib\srfi\tests\rec-factorial.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\records.sps">
+    <Content Include="lib\srfi\tests\records.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\testing.sps">
+    <Content Include="lib\srfi\tests\testing.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="srfi\tests\time.sps">
+    <Content Include="lib\srfi\tests\time.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ironscheme.ico" />

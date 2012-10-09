@@ -67,7 +67,7 @@ See docs/license.txt. |#
 
 
 (let () 
-  (include "srfi/compile-all.ironscheme.sps")
+  (include "lib/srfi/compile-all.ironscheme.sps")
   #f)
   
 (let ()

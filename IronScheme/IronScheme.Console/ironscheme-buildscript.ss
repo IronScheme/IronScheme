@@ -1503,6 +1503,7 @@
          (set! ls (cons x ls)))))))
 
 (verify-map)
+(library-path '("." "lib/"))
 
 (let ((all-names (map car identifier->library-map))
       (all-labels (map (lambda (x) (gensym)) identifier->library-map))
