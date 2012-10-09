@@ -25,4 +25,3 @@ See docs/license.txt. |#
         (with-syntax (((a ...) (map parse-type #'(a ...))))
           #'(t a ...))]
       [t #'t])))    
-    

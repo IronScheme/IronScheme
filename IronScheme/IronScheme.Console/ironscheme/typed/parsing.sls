@@ -39,16 +39,22 @@ See docs/license.txt. |#
      
   (define (parse-arg-type x)
     (syntax-case x (:)
-      [(arg : type) #'(arg type)]
-      [arg #'(arg Object)]))
+      [(arg : type) 
+        #'(arg type)]
+      [arg 
+        #'(arg Object)]))
       
   (define (parse-name-type-expr x)
     (syntax-case x (:)
-      [(name : type expr) #'(name type expr)]
-      [(name expr) #'(name Object expr)]))
+      [(name : type expr) 
+        #'(name type expr)]
+      [(name expr) 
+        #'(name Object expr)]))
       
   (define (parse-return-type-body x)
     (syntax-case x (:)
-      [(: ret-type b b* ...) #'(ret-type b b* ...)]
-      [(b b* ...) #'(Object b b* ...)])))    
+      [(: ret-type b b* ...) 
+        #'(ret-type b b* ...)]
+      [(b b* ...) 
+        #'(Object b b* ...)])))
     
