@@ -16,14 +16,12 @@ copy IronScheme.Remoting*.dll install-stage\IronScheme
 
 xcopy /e ..\..\examples install-stage\IronScheme\examples\
 xcopy /e ..\..\docs install-stage\IronScheme\docs\
-xcopy /e ..\..\ironscheme install-stage\IronScheme\ironscheme\
-xcopy /e ..\..\srfi install-stage\IronScheme\srfi\
 xcopy /e ..\..\lib install-stage\IronScheme\lib\
 xcopy /e ..\..\tests install-stage\IronScheme\tests\
 
 del install-stage\IronScheme\lib\pfds\tests.scm
 del install-stage\IronScheme\tests\*.sps
-rmdir /s /q install-stage\IronScheme\srfi\tests
+rmdir /s /q install-stage\IronScheme\lib\srfi\tests
 rmdir /s /q install-stage\IronScheme\docs\notes
 
 cd install-stage
