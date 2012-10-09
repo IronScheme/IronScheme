@@ -619,7 +619,7 @@ namespace IronScheme.Compiler
       {
         if (c.cdr != null && !(c.cdr is Cons))
         {
-          Builtins.SyntaxError("GetAstList", "improper list cant be used as an expression", c, false);
+          Builtins.SyntaxError("GetAstList", "improper list cant be used as an expression", c, Builtins.FALSE);
         }
         iscontinuation = e.Count == 0;
         Expression ex = GetAst(c.car, cb);
@@ -762,6 +762,12 @@ namespace IronScheme.Compiler
         while (cargs != null)
         {
           SymbolId an = (SymbolId)Builtins.First(cargs);
+
+          if (ctypes == null)
+          {
+            Builtins.SyntaxError("AssignParameters", "missing parameter type", Builtins.UnGenSymInternal(an), Builtins.FALSE);
+          }
+
           object type = Builtins.First(ctypes);
 
           Type clrtype = ClrGenerator.ExtractTypeInfo(Builtins.List(quote, type));
@@ -771,6 +777,7 @@ namespace IronScheme.Compiler
           Cons r = cargs.cdr as Cons;
           Cons rt = ctypes.cdr as Cons;
 
+          // not sure I can even handle this...
           if (r == null && cargs.cdr != null)
           {
             SymbolId ta = (SymbolId)cargs.cdr;
@@ -784,12 +791,20 @@ namespace IronScheme.Compiler
             ctypes = rt;
           }
         }
+        if (ctypes != null)
+        {
+          Builtins.SyntaxError("AssignParameters", "extra parameter type(s)", ctypes, Builtins.FALSE);
+        }
       }
       else if (arg != null) // empty 
       {
         SymbolId an = (SymbolId)arg;
         isrest = true;
         CreateParameter(an, cb, typeof(object));
+      }
+      else
+      {
+        Builtins.SyntaxError("AssignParameters", "extra parameter type(s)", ctypes, Builtins.FALSE);
       }
       return isrest;
     }
