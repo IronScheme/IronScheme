@@ -6,6 +6,8 @@ See docs/license.txt. |#
 
 (library (ironscheme syntax)
   (export 
+    block
+    thunk
     syntax-format
     define-syntax-rule
     define-syntax-case
