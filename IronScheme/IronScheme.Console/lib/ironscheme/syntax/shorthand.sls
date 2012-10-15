@@ -6,6 +6,8 @@ See docs/license.txt. |#
 
 (library (ironscheme syntax shorthand)
   (export 
+    block
+    thunk
     define-syntax-rule
     define-syntax-case)
   (import (ironscheme))
@@ -23,4 +25,11 @@ See docs/license.txt. |#
         (define-syntax name
           (lambda (x)
             (syntax-case x ()
-              [(name p ...) b])))])))
+              [(name p ...) b])))]))
+              
+
+  (define-syntax-rule (block b b* ...)
+    (let () b b* ...))
+    
+  (define-syntax-rule (thunk b b* ...)
+    (lambda () b b* ...)))
