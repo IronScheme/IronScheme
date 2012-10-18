@@ -106,6 +106,9 @@ namespace IronScheme.Runtime
 
       //Debugger.Launch();
 
+      // when the MS wankers actually make this work, I'll try again...
+      // EnableMulticodeJIT();
+
       try
       {
         //Console.InputEncoding = Encoding.UTF8;
@@ -118,6 +121,28 @@ namespace IronScheme.Runtime
         //Console.InputEncoding = oi;
       }
 
+    }
+
+    static void EnableMulticodeJIT()
+    {
+      var type = typeof(object).Assembly.GetType("System.Runtime.ProfileOptimization", false);
+      if (type != null)
+      {
+        var sprmi = type.GetMethod("SetProfileRoot");
+        var spmi = type.GetMethod("StartProfile");
+        if (sprmi != null && spmi != null)
+        {
+          Action<string> SetProfileRoot = Delegate.CreateDelegate(typeof(Action<string>), sprmi) as Action<string>;
+          Action<string> SetProfile = Delegate.CreateDelegate(typeof(Action<string>), spmi) as Action<string>;
+
+          var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IronScheme\\JITCache");
+
+          Directory.CreateDirectory(dir);
+
+          SetProfileRoot(dir);
+          SetProfile("IronScheme");
+        }
+      }
     }
 
     // https://github.com/sawilde/opencover/blob/master/main/OpenCover.Framework/ProfilerRegistration.cs
