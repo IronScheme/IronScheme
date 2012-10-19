@@ -106,8 +106,7 @@ namespace IronScheme.Runtime
 
       //Debugger.Launch();
 
-      // when the MS wankers actually make this work, I'll try again...
-      // EnableMulticodeJIT();
+      EnableMulticoreJIT();
 
       try
       {
@@ -123,7 +122,7 @@ namespace IronScheme.Runtime
 
     }
 
-    static void EnableMulticodeJIT()
+    static void EnableMulticoreJIT()
     {
       var type = typeof(object).Assembly.GetType("System.Runtime.ProfileOptimization", false);
       if (type != null)
