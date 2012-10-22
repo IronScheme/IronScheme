@@ -113,43 +113,43 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\arithmetic\bitwise.ss">
+    <None Include="build\arithmetic\bitwise.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\arithmetic\fixnums.ss">
+    <None Include="build\arithmetic\fixnums.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\arithmetic\flonums.ss">
+    <None Include="build\arithmetic\flonums.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\conditions.ss">
+    <None Include="build\conditions.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\enums.ss">
+    <None Include="build\enums.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\exceptions.ss">
+    <None Include="build\exceptions.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\files.ss">
+    <None Include="build\files.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\hashtables.ss">
+    <None Include="build\hashtables.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\io\ports.ss">
+    <None Include="build\io\ports.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\mutable-pairs.ss">
+    <None Include="build\mutable-pairs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\programs.ss">
+    <None Include="build\programs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\r5rs.ss">
+    <None Include="build\r5rs.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\records\inspection.ss">
+    <None Include="build\records\inspection.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -158,19 +158,19 @@
       <Link>ironscheme.nsi</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\constant-fold.ss">
+    <None Include="build\constant-fold.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\cps.ss">
+    <None Include="build\cps.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="build\equal.ss">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="build\generic-writer.ss">
+    <None Include="build\equal.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\pretty-print.ss">
+    <None Include="build\generic-writer.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="build\pretty-print.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compile-system-libraries.sps">
@@ -188,7 +188,7 @@
     <None Include="lib\ironscheme\integrable.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\numbers.ss">
+    <None Include="build\numbers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\syntax-utils.sls" />
@@ -204,7 +204,7 @@
     <None Include="lib\ironscheme\contracts.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\trace.ss">
+    <None Include="build\trace.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\define-clr-class.sls">
@@ -301,7 +301,7 @@
     <None Include="lib\ironscheme\registry.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\format.ss">
+    <None Include="build\format.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\ironscheme\random.sls">
@@ -345,40 +345,40 @@
     <None Include="ironscheme-buildscript.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\builders.ss">
+    <None Include="psyntax\builders.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\compat.ss">
+    <None Include="psyntax\compat.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\expander.ss">
+    <None Include="psyntax\expander.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\internal.ss">
+    <None Include="psyntax\internal.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\library-manager.ss">
+    <None Include="psyntax\library-manager.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="psyntax\main.ss">
+    <None Include="psyntax\main.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\base.ss">
+    <None Include="build\base.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\bytevectors.ss">
+    <None Include="build\bytevectors.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\lists.ss">
+    <None Include="build\lists.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\records\procedural.ss">
+    <None Include="build\records\procedural.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\sorting.ss">
+    <None Include="build\sorting.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\unicode.ss">
+    <None Include="build\unicode.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="tests\windtests.sps" />
@@ -644,25 +644,25 @@
     <Content Include="docs\visual-studio.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="build\primitive-numbers.ss">
+    <None Include="build\primitive-numbers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="build\io\simple.ss">
+    </None>
+    <None Include="build\io\simple.sls">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="build\predicates.ss">
+    </None>
+    <None Include="build\predicates.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="ilmerge-dll.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ilmerge.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="build\misc.ss">
+    <None Include="build\misc.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\vectors.ss">
+    <None Include="build\vectors.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="playground\compiler\cps-convert.sls">

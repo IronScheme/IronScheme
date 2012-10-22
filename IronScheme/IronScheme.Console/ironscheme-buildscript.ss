@@ -28,66 +28,63 @@
   (rnrs files)
   (rnrs hashtables)
   (psyntax internal)
-  ;(psyntax config)
   (psyntax compat)
   (psyntax library-manager)
   (psyntax expander)
   (ironscheme unsafe)
   (ironscheme clr internal)
   (only (ironscheme core) compile-bootfile format)
-  (only (ironscheme) time-it include import library)
-  )
+  (only (ironscheme) time-it include import library))
   
 (define scheme-library-files
   '(
-    ;"psyntax/config.ss"
-    "build/predicates.ss"
-    "build/records/procedural.ss"
-    "build/conditions.ss"
-    "build/exceptions.ss"
-    "build/arithmetic/fixnums.ss"
-    "build/primitive-numbers.ss"
-    "build/hashtables.ss"
-    "build/lists.ss"
-    "build/base.ss"
-    "build/numbers.ss"
-    "build/bytevectors.ss"
+    "build/predicates.sls"
+    "build/records/procedural.sls"
+    "build/conditions.sls"
+    "build/exceptions.sls"
+    "build/arithmetic/fixnums.sls"
+    "build/primitive-numbers.sls"
+    "build/hashtables.sls"
+    "build/lists.sls"
+    "build/base.sls"
+    "build/numbers.sls"
+    "build/bytevectors.sls"
     
-    "psyntax/compat.ss"
+    "psyntax/compat.sls"
     
     ;; needs make-parameter
-    "build/io/ports.ss"
-    "build/io/simple.ss"
-    "build/vectors.ss"
+    "build/io/ports.sls"
+    "build/io/simple.sls"
+    "build/vectors.sls"
     
-    "build/generic-writer.ss"
+    "build/generic-writer.sls"
     
-    "build/files.ss"
-    "build/mutable-pairs.ss"
-    "build/programs.ss"
-    "build/r5rs.ss"
-    "build/sorting.ss"
-    "build/unicode.ss"
-    "build/arithmetic/bitwise.ss"
-    "build/arithmetic/flonums.ss"
-    "build/records/inspection.ss"
+    "build/files.sls"
+    "build/mutable-pairs.sls"
+    "build/programs.sls"
+    "build/r5rs.sls"
+    "build/sorting.sls"
+    "build/unicode.sls"
+    "build/arithmetic/bitwise.sls"
+    "build/arithmetic/flonums.sls"
+    "build/records/inspection.sls"
     
     ; depends on records - hashtables - bitwise
-    "build/enums.ss"
+    "build/enums.sls"
     
-    "build/format.ss"
-    "build/trace.ss"
-    "build/equal.ss"
+    "build/format.sls"
+    "build/trace.sls"
+    "build/equal.sls"
     
-    "build/pretty-print.ss" 
-    "build/misc.ss"
-    "build/constant-fold.ss"
+    "build/pretty-print.sls" 
+    "build/misc.sls"
+    "build/constant-fold.sls"
     
-    "psyntax/internal.ss"
-    "psyntax/library-manager.ss"
-    "psyntax/builders.ss"
-    "psyntax/expander.ss"
-    "psyntax/main.ss"
+    "psyntax/internal.sls"
+    "psyntax/library-manager.sls"
+    "psyntax/builders.sls"
+    "psyntax/expander.sls"
+    "psyntax/main.sls"
     ))
 
 

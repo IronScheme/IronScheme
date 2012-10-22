@@ -90,7 +90,7 @@
   
   (define library-extensions
     (make-parameter
-      '(".sls" ".ss")
+      '(".sls")
       (lambda (x)
         (if (and (list? x) (for-all string? x))
             (map (lambda (x) x) x)
