@@ -23,10 +23,10 @@
     visit-library library-name library-version library-exists?
     find-library-by-name install-library library-spec invoke-library 
     current-library-expander uninstall-library file-locator library-name->file-name
-    current-library-collection library-path library-extensions
+    current-library-collection library-path library-extensions alternative-file-locator
     serialize-all current-precompiled-library-loader allow-library-redefinition)
   (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format))
-
+  
   (define (make-collection)
     (let ((set '()))
       (define (set-cons x ls)
@@ -130,7 +130,15 @@
                     d))))
           (f (cdr ls))))
       (extract)))
-
+      
+  (define alternative-file-locator
+    (make-parameter
+      (lambda (location save-path) #f)
+      (lambda (f)
+        (if (procedure? f)
+            f
+            (assertion-violation 'alternative-file-locator "not a procedure" f)))))
+      
   (define file-locator
     (make-parameter
       (lambda (x)
@@ -150,9 +158,13 @@
                (f (cdr ls) (library-extensions) failed-list))
               (else
                (let ((name (string-append (car ls) str (car exts))))
-                 (if (or (file-exists? name) (compiled-library-exists? name))
+                 (if (or (file-exists? name) 
+                         (compiled-library-exists? name))
                      name
-                     (f ls (cdr exts) (cons name failed-list)))))))))
+                     (let ((save-path (string-append "lib" str (car exts))))
+                       (if ((alternative-file-locator) name save-path)
+                           save-path
+                           (f ls (cdr exts) (cons name failed-list)))))))))))
       (lambda (f)
         (if (procedure? f)
             f

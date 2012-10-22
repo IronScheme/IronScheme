@@ -371,6 +371,7 @@
     (open-tcp-input/output-port                 i)
     (get-library-paths                          il ic)
     (file-locator                               il)
+    (alternative-file-locator                   il)
     (make-parameter                             i)
     (parameterize                               i)
     (time                                       i)

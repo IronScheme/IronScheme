@@ -55,8 +55,8 @@
     (ironscheme clr)
     (only (ironscheme unsafe) $fx+ $fx-)
     (ironscheme constant-fold)
-    (except (ironscheme library) file-locator)
-    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port time time-it))
+    (except (ironscheme library) file-locator alternative-file-locator)
+    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port time time-it string=?))
     
   (clr-reference System)
     
@@ -264,6 +264,17 @@
       (vector-set! v 11 `',(vector-ref v 11))
       (vector-set! v 12 `',(vector-ref v 12))
       (compile-library filename (compile-core-expr (cons 'list (vector->list v))))))
+      
+  (define (web-path-exists? url save-path)
+    (if (string=? (substring url 0 5) "http:")
+        (let ((wc (clr-new System.Net.WebClient)))
+          (clr-guard [e [e #f]]
+            (clr-call System.Net.WebClient DownloadFile  wc (clr-cast String url) save-path)
+            (printf "Downloaded ~a to ~a\n" url save-path)
+            #t))
+        #f))
+        
+  (alternative-file-locator web-path-exists?)
 
   (current-precompiled-library-loader load-library-from-dll)
   
