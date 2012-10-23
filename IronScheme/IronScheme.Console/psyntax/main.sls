@@ -103,7 +103,7 @@
       (time (load path))))
       
   (define (ironscheme-build)
-    (load "ironscheme-buildscript.ss"))
+    (load "ironscheme-buildscript.sps"))
     
   (define foreground-color
     (case-lambda
@@ -305,7 +305,7 @@
   
   (library-path (get-library-paths))
   
-  (library-extensions (cons ".ironscheme.sls" (library-extensions)))
+  (library-extensions (append (library-extensions) (list ".ironscheme.sls")))
   
   (unless (debug-mode?)
     (enable-constant-fold/env 
