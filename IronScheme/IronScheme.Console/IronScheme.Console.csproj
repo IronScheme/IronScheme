@@ -342,7 +342,7 @@
     <None Include="lib\ironscheme\clr.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ironscheme-buildscript.ss">
+    <None Include="ironscheme-buildscript.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="psyntax\builders.sls">
