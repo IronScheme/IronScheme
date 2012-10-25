@@ -53,7 +53,9 @@ See docs/license.txt. |#
     fxarithmetic-shift-left
     fxarithmetic-shift-right
     fxrotate-bit-field
-    fxreverse-bit-field)
+    fxreverse-bit-field
+    fxadd1
+    fxsub1)
   (import 
     (ironscheme core)
     (ironscheme clr)
@@ -110,7 +112,9 @@ See docs/license.txt. |#
       fx-
       fx+
       fx*
-      fxreverse-bit-field))
+      fxreverse-bit-field    
+      fxadd1
+      fxsub1))
 
   (define (fixnum-width) 32)
   
@@ -156,6 +160,12 @@ See docs/license.txt. |#
   (define-syntax fxabs
     (syntax-rules ()
       [(_ e) (clr-static-call Math (Abs Int32) e)]))
+      
+  (define-fx (fxadd1 x)
+    ($fx+ x 1))      
+
+  (define-fx (fxsub1 x)
+    ($fx- x 1))
 
   (define-fx (fx+ x1 x2)
     (checked (fx+internal x1 x2)))

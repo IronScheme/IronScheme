@@ -99,7 +99,7 @@
           trace-match/lexical-context 
           match/lexical-context 
           guard ... quasiquote unquote unquote-splicing)
-  (import (ironscheme))
+  (import (except (ironscheme) add1 sub1))
 
 (define-syntax add1
 	(syntax-rules ()

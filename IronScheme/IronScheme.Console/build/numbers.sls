@@ -75,6 +75,8 @@ See docs/license.txt. |#
     fx+/carry
     fx-/carry
     fx*/carry
+    add1
+    sub1
     )
   (import 
     (except 
@@ -146,7 +148,9 @@ See docs/license.txt. |#
       number->string
       fx+/carry
       fx-/carry
-      fx*/carry)
+      fx*/carry
+      add1
+      sub1)
     (ironscheme core)
     (ironscheme contracts)
     (ironscheme unsafe)
@@ -486,7 +490,13 @@ See docs/license.txt. |#
 
   (define/contract (div0-and-mod0 x1:real x2:real)
     (let ((d (div0 x1 x2)))
-      (values d (- x1 (* d x2)))))         
+      (values d (- x1 (* d x2)))))     
+      
+  (define/contract (add1 x:number)
+    (+ x 1))
+
+  (define/contract (sub1 x:number)
+    (- x 1))
         
   (define (hex-char num)
     (integer->char ($fx+ num (char->integer (if ($fx<? num 10) #\0 #\W)))))
