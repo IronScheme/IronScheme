@@ -195,9 +195,6 @@
     <None Include="lib\as-match.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\ikarus.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="lib\ironscheme\files.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -330,7 +327,7 @@
     <None Include="lib\pregexp.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="lib\schelog.sls">
+    <None Include="playground\schelog.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\simple-regression-testing.sls">

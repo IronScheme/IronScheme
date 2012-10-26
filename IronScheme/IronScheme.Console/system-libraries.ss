@@ -97,7 +97,6 @@ See docs/license.txt. |#
 
 (let () 
   (import 
-    (ikarus)
     (list-match)
     (as-match)
     (fectors))
