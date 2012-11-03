@@ -100,7 +100,9 @@
   (define (ironscheme-test)
     (let ((path (string-append (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
                                "/tests/r6rs/run.sps")))
-      (time (load path))))
+      (time-it "R6RS test suite"
+        (lambda () 
+          (load path)))))
       
   (define (ironscheme-build)
     (load "ironscheme-buildscript.sps"))
