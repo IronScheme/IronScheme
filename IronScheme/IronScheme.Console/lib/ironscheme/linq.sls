@@ -49,6 +49,8 @@ See docs/license.txt. |#
     sum
     take
     skip
+    take/while
+    skip/while
     iterator=?
     distinct
     union
@@ -540,6 +542,34 @@ See docs/license.txt. |#
         (lambda ()
           (set! i 0)
           (reset iter)))))
+          
+  (define (take/while-iterator iter pred)
+    (make-iterator
+      (lambda ()
+        (and (move-next iter) (pred (current iter))))
+      (lambda ()
+        (current iter))
+      (lambda ()
+        (reset iter))))
+
+  (define (skip/while-iterator iter pred)
+    (let ((found #f))
+      (make-iterator
+        (lambda ()
+          (if found
+              (move-next iter)
+              (let f ((r (move-next iter)))
+                (and r
+                    (if (pred (current iter))
+                        (f (move-next iter))
+                        (begin 
+                           (set! found #t)
+                           #t))))))
+        (lambda ()
+          (current iter))
+        (lambda ()
+          (set! found #f)
+          (reset iter)))))
 
   (define (aggregate iter init proc)
     (let ((iter (get-iterator iter)))
@@ -807,12 +837,18 @@ See docs/license.txt. |#
 
   (define (sum iter)
     (aggregate iter 0 +))
-
+    
   (define (take count iter)
-    (take-iterator (get-iterator iter) count))
+    (take-iterator  (get-iterator iter) count))
 
   (define (skip count iter)                     
-    (skip-iterator (get-iterator iter) count))
+    (skip-iterator (get-iterator iter) count))    
+
+  (define (take/while pred iter)
+    (take/while-iterator (get-iterator iter) pred))
+
+  (define (skip/while pred iter)                     
+    (skip/while-iterator (get-iterator iter) pred))
 
   (define iterator=?
     (case-lambda
