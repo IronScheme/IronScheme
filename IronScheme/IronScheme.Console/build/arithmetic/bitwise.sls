@@ -154,7 +154,7 @@ See docs/license.txt. |#
   (define (bitwise-bit-set? ei k)
     (cond
       [(= -1 ei) #t]
-      [(and (fixnum? ei) (< 0 k 32))
+      [(and (fixnum? ei) (< -1 k 32))
         (fxbit-set? ei k)]
       [else
         (let ((ei (->bignum ei))
@@ -174,7 +174,7 @@ See docs/license.txt. |#
   (define (bitwise-copy-bit ei1 ei2 ei3)
     (unless (or (zero? ei3) (= ei3 1))
       (assertion-violation 'bitwise-copy-bit "Must be 0 or 1" ei3))
-    (if (and (fixnum? ei1) (< 0 ei2 32))
+    (if (and (fixnum? ei1) (< -1 ei2 32))
         (fxcopy-bit ei1 ei2 ei3)
         (bitwise-if 
           (bitwise-arithmetic-shift-left 1 ei2)
@@ -182,14 +182,18 @@ See docs/license.txt. |#
           ei1)))
         
   (define (bitwise-bit-field ei1 ei2 ei3)
-    (if (fixnum? ei1)
+    (unless (<= ei2 ei3)
+      (assertion-violation 'bitwise-bit-field "Must be less than or equal" ei2 ei3))
+    (if (and (fixnum? ei1) (< -1 ei3 32))
         (fxbit-field ei1 ei2 ei3)
         (bitwise-arithmetic-shift-right
           (bitwise-and ei1 (bitwise-not (bitwise-arithmetic-shift-left -1 ei3)))
           ei2)))
   
   (define (bitwise-copy-bit-field to start end from)
-    (if (fixnum? to)
+    (unless (<= start end)
+      (assertion-violation 'bitwise-copy-bit-field "Must be less than or equal" start end))  
+    (if (and (fixnum? to) (fixnum? from) (< -1 end 32))
         (fxcopy-bit-field to start end from)
         (bitwise-if 
           (bitwise-and 
@@ -223,7 +227,9 @@ See docs/license.txt. |#
     (bitwise-arithmetic-shift ei1 (- ei2)))            
     
   (define (bitwise-rotate-bit-field n start end count)
-    (if (fixnum? n)
+    (unless (< start end)
+       (assertion-violation 'bitwise-rotate-bit-field "start must be less than end" start end))
+    (if (and (fixnum? n) (< -1 end 32))
         (fxrotate-bit-field n start end count)
         (let ((width (- end start)))
           (if (positive? width)
@@ -236,16 +242,15 @@ See docs/license.txt. |#
               n))))
         
   (define (bitwise-reverse-bit-field x1 start end)
-    (if (fixnum? x1)
+    (unless (< start end)
+       (assertion-violation 'bitwise-reverse-bit-field "start must be less than end" start end))
+    (if (and (fixnum? x1) (< -1 end 32))
         (fxreverse-bit-field x1 start end)
-        (begin
-          (unless (< start end)
-             (assertion-violation 'bitwise-reverse-bit-field "start must be less than end" start end))
-          (do ((width (- end start) (- width 1))
-               (bits  (bitwise-bit-field x1 start end)
-                      (bitwise-arithmetic-shift-right bits 1))
-               (rbits 0
-                      (bitwise-ior (bitwise-arithmetic-shift-left rbits 1)
-                                   (bitwise-and bits 1))))
-              ((= width 0)
-               (bitwise-copy-bit-field x1 start end rbits)))))))
+        (do ((width (- end start) (- width 1))
+             (bits  (bitwise-bit-field x1 start end)
+                    (bitwise-arithmetic-shift-right bits 1))
+             (rbits 0
+                    (bitwise-ior (bitwise-arithmetic-shift-left rbits 1)
+                                 (bitwise-and bits 1))))
+            ((= width 0)
+             (bitwise-copy-bit-field x1 start end rbits))))))
