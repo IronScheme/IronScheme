@@ -69,6 +69,12 @@ namespace IronScheme.Runtime
 
     delegate object Func();
 
+    [Builtin("ironscheme-version")]
+    public static object Version()
+    {
+      return IronScheme.Hosting.IronSchemeConsoleHost.VERSION;
+    }
+
     [Builtin("generate-executable-wrapper")]
     public static object GenWrapper(object filename)
     {
