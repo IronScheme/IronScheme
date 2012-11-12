@@ -154,7 +154,7 @@ See docs/license.txt. |#
   (define (bitwise-bit-set? ei k)
     (cond
       [(= -1 ei) #t]
-      [(fixnum? ei)
+      [(and (fixnum? ei) (< 0 k 32))
         (fxbit-set? ei k)]
       [else
         (let ((ei (->bignum ei))
