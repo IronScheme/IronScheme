@@ -16,7 +16,7 @@ namespace IronScheme.Hosting
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
     // no static fields before this one
-    static string VERSION = "1.0 RC7";
+    internal static string VERSION = "1.0 RC7";
     string logo;
     public IronSchemeConsoleHost()
     {

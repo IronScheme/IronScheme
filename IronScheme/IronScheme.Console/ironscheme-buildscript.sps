@@ -1242,6 +1242,7 @@
     
     (ironscheme-build                           i)
     (ironscheme-test                            i)
+    (ironscheme-version                         i)
     (last-pair                                  i)
     (make-list                                  i)
     (unspecified?                               i)
