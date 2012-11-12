@@ -172,7 +172,9 @@ See docs/license.txt. |#
           (bitwise-and (bitwise-not ei1) ei3))))
       
   (define (bitwise-copy-bit ei1 ei2 ei3)
-    (if (fixnum? ei1)
+    (unless (or (zero? ei3) (= ei3 1))
+      (assertion-violation 'bitwise-copy-bit "Must be 0 or 1" ei3))
+    (if (and (fixnum? ei1) (< 0 ei2 32))
         (fxcopy-bit ei1 ei2 ei3)
         (bitwise-if 
           (bitwise-arithmetic-shift-left 1 ei2)
