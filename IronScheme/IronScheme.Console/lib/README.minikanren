@@ -1,0 +1,44 @@
+-*- mode : org -*-
+* MiniKanren - A declarative logic programming system
+
+** What is it?
+MiniKanren is a relational programming extension to the Scheme
+programming Language, written as a smaller version of [[http://kanren.sourceforge.net/][Kanren]] suitable
+for pedagogical purposes. It is featured in the book, [[https://mitpress.mit.edu/books/reasoned-schemer][The Reasoned
+Schemer]], written by Dan Friedman, William Byrd, and Oleg Kiselyov.
+
+** How do I install it
+Place the directory minikanren and the file minikanren.scm somewhere
+on your scheme implementations path.
+
+A pkg-list.scm file is also provided for use with dorodango/guildhall
+
+** What is its license?
+According to its website, and the [[https://github.com/webyrd/miniKanren][MiniKanren repository of William
+Byrd]] , Kanren, and therefore MiniKanren, is released under the MIT
+License. See COPYING for details.
+
+** How does this version differ from the original repository?
+This version has been modified by me (Ian Price), for use in r6rs
+scheme systems.
+
+I have also taken the decision to add an additional file,
+minikanren.scm, which provides a subset of the original files which I
+feel are most useful to be able to get with a single import. All
+bindings from the original files are still available, but you will
+need to them import with
+
+#+begin_src scheme
+(import (minikanren mk)
+        (minikanren mkextraforms)
+        (minikanren prelude))
+#+end_src
+
+rather than with
+
+#+begin_src scheme
+(import (minikanren))
+#+end_src
+
+If you would like to challenge this, feel free to drop me an email, or
+a pull request.
