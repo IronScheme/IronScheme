@@ -662,6 +662,9 @@
     <None Include="build\vectors.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="IronScheme.TFS.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\LICENSE.minikanren">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

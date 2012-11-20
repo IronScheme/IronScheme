@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>IronScheme</id>
+    <version>0.9.$TFSREV$</version>
+    <authors>leppie</authors>
+    <owners>leppie</owners>
+    <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
+    <projectUrl>http://ironscheme.codeplex.com</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Scheme on .NET</description>
+    <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+  </metadata>
+  <files>
+    <file src="install-stage\IronScheme\lib\**\*.*" target="content\lib" />
+    <file src="install-stage\IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
+    <file src="install-stage\IronScheme\IronScheme.Web.Runtime.dll" target="lib\IronScheme.Web.Runtime.dll" />
+  </files>
+</package>
