@@ -216,13 +216,15 @@ See docs/license.txt. |#
         (and (null? (car ls)) 
              (all-empty? (cdr ls))))) 
   
-  (define (split ls)
+  (define (split ls who orig-ls)
     (cond
       ((null? ls) (values '() '()))
       (else 
-       (call-with-values (lambda () (split (cdr ls)))
+       (call-with-values (lambda () (split (cdr ls) who orig-ls))
          (lambda (cars cdrs)
            (let ((a (car ls)))
+             (when (null? a)
+               (apply assertion-violation who "Unbalanced lists" orig-ls))
              (values (cons (car a) cars)
                      (cons (cdr a) cdrs))))))))
 
@@ -265,16 +267,17 @@ See docs/license.txt. |#
                 (f (car arg1))
                 (and (f (car arg1)) 
                    (for-all f (cdr arg1)))))]
-      [(f arg1 . args)               
-        (let ((args (cons arg1 args)))
-          (if (all-empty? args) 
-              #t
-              (call-with-values (lambda () (split args))
-                (lambda (cars cdrs)
-                  (if (all-empty? cdrs)
-                      (apply f cars)
-                      (and (apply f cars) 
-                           (apply for-all f cdrs)))))))]))
+      [(f arg1 . args)
+        (let ((orig-ls (cons arg1 args)))
+          (let for-all ((args orig-ls))
+            (if (all-empty? args) 
+                #t
+                (call-with-values (lambda () (split args 'for-all orig-ls))
+                  (lambda (cars cdrs)
+                    (if (all-empty? cdrs)
+                        (apply f cars)
+                        (and (apply f cars)
+                             (for-all cdrs))))))))]))
 
   (define exists 
     (case-lambda 
@@ -284,14 +287,15 @@ See docs/license.txt. |#
             (or (f (car arg1)) 
                    (exists f (cdr arg1))))]
       [(f arg1 . args)
-        (let ((args (cons arg1 args)))
-          (if (all-empty? args) 
-              #f
-              (call-with-values (lambda () (split args))
-                (lambda (cars cdrs)
-                  (or (apply f cars)
-                      (apply exists f cdrs))))))]))
-                  
+        (let ((orig-ls (cons arg1 args)))
+          (let exists ((args orig-ls))
+            (if (all-empty? args) 
+                #f
+                (call-with-values (lambda () (split args 'exists orig-ls))
+                  (lambda (cars cdrs)
+                    (or (apply f cars)
+                        (exists cdrs)))))))]))
+
   (define map
     (case-lambda 
       [(proc list1)
@@ -299,13 +303,14 @@ See docs/license.txt. |#
           (if (null? lst)
               (reverse! a)
               (f (cdr lst) (cons (proc (car lst)) a))))]
-      [(proc list1 . lists)            
-        (let f ((lists (cons list1 lists))(a '()))
-          (if (all-empty? lists)
-              (reverse! a)
-              (call-with-values (lambda () (split lists))
-                (lambda (cars cdrs)
-                  (f cdrs (cons (apply proc cars) a))))))]))
+      [(proc list1 . lists)
+        (let ((orig-ls (cons list1 lists)))
+          (let f ((lists orig-ls)(a '()))
+            (if (all-empty? lists)
+                (reverse! a)
+                (call-with-values (lambda () (split lists 'map orig-ls))
+                  (lambda (cars cdrs)
+                    (f cdrs (cons (apply proc cars) a)))))))]))
   
   (define for-each
     (case-lambda 
@@ -314,13 +319,14 @@ See docs/license.txt. |#
           (f (car arg1))
           (for-each f (cdr arg1)))]
       [(f arg1 . args)
-        (let ((args (cons arg1 args)))
-          (if (not (all-empty? args))
-              (call-with-values (lambda () (split args))
-                (lambda (cars cdrs)
-                  (apply f cars)
-                  (apply for-each f cdrs)))))]))
-                  
+        (let ((orig-ls (cons arg1 args)))
+          (let for-each ((args orig-ls))
+            (if (not (all-empty? args))
+                (call-with-values (lambda () (split args 'for-each orig-ls))
+                  (lambda (cars cdrs)
+                    (apply f cars)
+                    (for-each cdrs))))))]))
+
   (define cons* 
     (lambda (a . rest) 
       (let f ((a a) (rest rest))
@@ -332,14 +338,13 @@ See docs/license.txt. |#
     (clr-static-call IronScheme.Runtime.Cons 
                      FromList 
                      lst))
-                      
-            
+
   (define (append-fast! a b)
     (let ((c ($cdr a)))
       (if (null? c)
           (clr-field-set! IronScheme.Runtime.Cons cdr a b)
           (append-fast! c b))))
-            
+
   (define (append! a b)
     (cond
       [(null? a) b]
@@ -347,7 +352,7 @@ See docs/license.txt. |#
       [else
         (append-fast! a b)
         a]))
-        
+
   (define append
     (case-lambda
       [()   '()]
@@ -371,7 +376,7 @@ See docs/license.txt. |#
                   (append! obj* (apply append (cons i1 il))))]
             [else
               (append! obj* i1)]))]))
-  
+
   (define fold-left
     (case-lambda
       [(combine nil lst)
