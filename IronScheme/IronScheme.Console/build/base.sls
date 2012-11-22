@@ -512,6 +512,12 @@ See docs/license.txt. |#
           (eq? a x)) 
         (cons b rest)))
         
+    (define (vector-length=? vecs)
+      (apply = (map vector-length vecs)))
+
+    (define (string-length=? vecs)
+      (apply = (map string-length vecs)))
+        
     (define/contract vector-map
       (case-lambda
         [(p:procedure vec:vector)
@@ -523,6 +529,8 @@ See docs/license.txt. |#
              p vec (vector-length vec))]
         [(p:procedure vec1:vector . vecs:vector)
           (define (ref i) (lambda (x) ($vector-ref x i)))
+          (unless (vector-length=? (cons vec1 vecs))
+            (apply assertion-violation 'vector-map "Unbalanced vectors" vec1 vecs))
           (let* ((len (vector-length vec1))
                  (res (make-vector len '())))
             (do ((i 0 ($fx+ i 1)))
@@ -541,6 +549,8 @@ See docs/license.txt. |#
             p vec (vector-length vec))]
         [(p:procedure vec1:vector . vecs:vector)
           (define (ref i) (lambda (x) ($vector-ref x i)))
+          (unless (vector-length=? (cons vec1 vecs))
+            (apply assertion-violation 'vector-for-each "Unbalanced vectors" vec1 vecs))
           (let ((len (vector-length vec1)))
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
@@ -557,6 +567,8 @@ See docs/license.txt. |#
               (p (string-ref str i))))]
         [(p:procedure str1:string . strs:string)
           (define (ref i) (lambda (x) (string-ref x i)))
+          (unless (string-length=? (cons str1 strs))
+            (apply assertion-violation 'string-for-each "Unbalanced strings" str1 strs))
           (let ((len (string-length str1)))
             (do ((i 0 ($fx+ i 1)))
                 (($fx=? i len))
