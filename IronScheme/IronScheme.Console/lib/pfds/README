@@ -9,7 +9,11 @@ contains
 - bbtrees
 - sets
 - dlists
-- priority search queues (psqs)  
+- priority search queues (psqs)
+- finger trees
+- sequences
+- heaps
+
 with more to come, time permitting.
 
 ** Installation
@@ -34,6 +38,11 @@ knowledge to confirm this.
 
 The implementation of priority search queues is described in [[http://www.cs.ox.ac.uk/people/ralf.hinze/publications/UU-CS-2001-09.pdf]["A Simple
 Implementation Technique for Priority Search Queues"]] by Ralf Hinze.
+
+The heaps use a height-biased leftist tree implementation.
+
+Finger trees are described in [[http://www.soi.city.ac.uk/~ross/papers/FingerTree.html][Finger trees: a simple general-purpose
+data structure]] by Ross Paterson and Ralf Hinze.
 
 ** Thanks
 Thanks to [[Llewellyn Pritchard][https://github.com/leppie]] for testing this on [[https://ironscheme.codeplex.com/][IronScheme]],

@@ -121,6 +121,10 @@
 ;; bbtree-ref/index bbtree non-negative-integer -> any any
 ;; returns the key and value of the association in the bbtree at the
 ;; given index.
+;;
+;; bbtree-ordering-procedure : bbtree -> (any any -> bool)
+;; returns the ordering procedure used internally to order the
+;; bbtree.
 (library (pfds bbtrees)
 (export make-bbtree
         bbtree?
