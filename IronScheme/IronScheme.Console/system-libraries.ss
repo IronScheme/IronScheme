@@ -92,7 +92,10 @@ See docs/license.txt. |#
     (pfds sets)
     (pfds dlists)
     (pfds psqs)
-    (pfds queues))
+    (pfds queues)
+    (pfds fingertrees)
+    (pfds sequences)
+    (pfds heaps))
   #f)
 
 (let () 

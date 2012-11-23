@@ -1,7 +1,7 @@
 #!r6rs
 ;;; deques.sls --- Purely functional deques
 
-;; Copyright (C) 2011 Ian Price <ianprice90@googlemail.com>
+;; Copyright (C) 2011,2012 Ian Price <ianprice90@googlemail.com>
 
 ;; Author: Ian Price <ianprice90@googlemail.com>
 
@@ -44,6 +44,16 @@
 ;; deque-empty-condition? : object -> boolean
 ;; tests if an object is a &deque-empty condition
 ;;
+;; deque->list : deque -> listof(any)
+;; returns a list containing all the elements of the deque. The order
+;; of the elements in the list is the same as the order they would be
+;; dequeued from the front of the deque.
+;;
+;; list->deque : listof(any) -> deque
+;; returns a deque containing all of the elements in the list. The
+;; order of the elements in the deque is the same as the order of the
+;; elements in the list.
+;;
 (library (pfds deques)
 (export make-deque
         deque?
@@ -54,6 +64,8 @@
         dequeue-front
         dequeue-rear
         deque-empty-condition?
+        deque->list
+        list->deque
         )
 (import (except (rnrs) cons*)
         (pfds private lazy-lists))
@@ -167,12 +179,12 @@
          (let* ((n  (floor (/ (+ lenL lenR) 2)))
                 (l* (take n l))
                 (r* (rot1 n r l)))
-           (%make-deque len (- lenL n) (+ lenR n) l* r* l* r*)))
+           (%make-deque len n (- len n) l* r* l* r*)))
         ((> lenR (+ 1 (* c lenL)))
          (let* ((n  (floor (/ (+ lenL lenR) 2)))
                 (l* (rot1 n l r))
                 (r* (take n r)))
-           (%make-deque len (+ lenL n) (- lenR n) l* r* l* r*)))
+           (%make-deque len (- len n) n l* r* l* r*)))
         (else
          (%make-deque len lenL lenR l r l^ r^))))
 
@@ -180,5 +192,16 @@
   &assertion
   make-deque-empty-condition
   deque-empty-condition?)
+
+(define (list->deque l)
+  (fold-left enqueue-rear (make-deque) l))
+
+(define (deque->list deq)
+  (define (recur deq l)
+    (if (deque-empty? deq)
+        l
+        (let-values ([(last deq*) (dequeue-rear deq)])
+          (recur deq* (cons last l)))))
+  (recur deq '()))
 
 )
