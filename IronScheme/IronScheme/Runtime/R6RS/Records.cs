@@ -560,7 +560,7 @@ namespace IronScheme.Runtime.R6RS
           return ngrtd;
         }
 
-        var type = ClrGenerator.GetTypeFast("record." + id + "." + n.Replace("&", "$"));
+        var type = ClrGenerator.GetTypeFast("record." + id + "." + n.Replace("&", "$").Replace("*", "$")); // TODO: Make me better
 
         if (type != null)
         {
@@ -604,7 +604,7 @@ namespace IronScheme.Runtime.R6RS
 
       object gid = (object)id ?? Guid.NewGuid();
       var ns = "record." + gid;
-      var typename = ns + "." + n.Replace("&", "$");
+      var typename = ns + "." + n.Replace("&", "$").Replace("*", "$"); // TODO: Make me better
 
       TypeGen tg = ag.DefinePublicType(typename, parenttype, attrs);
 
