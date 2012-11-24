@@ -8,11 +8,9 @@
     <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
     <projectUrl>http://ironscheme.codeplex.com</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>
-        Scheme on .NET
-        TFS builds
-        The last version number represent the TFS version
-    </description>
+    <description>Scheme on .NET
+TFS builds
+The last version number represent the TFS version</description>
     <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
     <copyright>Copyright 2012</copyright>
   </metadata>
