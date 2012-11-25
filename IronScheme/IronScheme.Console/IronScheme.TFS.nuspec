@@ -12,7 +12,7 @@
 TFS builds
 The last version number represent the TFS version</description>
     <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
-    <copyright>Copyright 2012</copyright>
+    <copyright>Copyright 2007-2012</copyright>
   </metadata>
   <files>
     <file src="install-stage\IronScheme\lib\**\*.*" target="content\lib" />
