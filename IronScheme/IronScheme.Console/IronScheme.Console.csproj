@@ -154,10 +154,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\ironscheme.nsi">
-      <Link>ironscheme.nsi</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="build\constant-fold.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1109,9 +1105,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="srfitest.bat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="placeholder.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\srfi\38\with-shared-structure.ironscheme.sls">
