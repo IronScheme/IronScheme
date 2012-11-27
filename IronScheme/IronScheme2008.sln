@@ -13,10 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		License.html = License.html
 		logo-128.png = logo-128.png
 		logo-192.png = logo-192.png
-		logtest.bat = logtest.bat
 		r6rstest.bat = r6rstest.bat
 		releasebuild.bat = releasebuild.bat
-		todo.txt = todo.txt
 		welcome.bmp = welcome.bmp
 	EndProjectSection
 EndProject
