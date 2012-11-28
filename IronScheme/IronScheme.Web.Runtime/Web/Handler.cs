@@ -45,6 +45,7 @@ namespace IronScheme.Web
       {
         lp = Helpers.Provider as IronSchemeLanguageProvider;
         se = lp.GetEngine();
+        se.Evaluate("(library-path (cons \"..\" (library-path)))");
         compiled.Clear();
       }
 
