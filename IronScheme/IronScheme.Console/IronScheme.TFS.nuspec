@@ -10,7 +10,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Scheme on .NET
 TFS builds
-The last version number represent the TFS version</description>
+The last version number represent the TFS version
+Discuss @ http://ironscheme.codeplex.com/discussions/404918</description>
     <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
     <copyright>Copyright 2007-2012</copyright>
   </metadata>

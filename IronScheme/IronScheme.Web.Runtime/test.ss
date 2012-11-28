@@ -1,4 +1,12 @@
-﻿#| Nuget test file |#
+﻿#| 
+Nuget test file
+
+Make sure you can call this file from the web browser.
+
+For now IIS (and IIS Express) works in integrated mode (only tested on .NET 4)
+
+This file aims to do absolutely nothing but test if the IronScheme web handler works. It can be deleted if not needed.
+|#
 
 (import 
   (ironscheme)
