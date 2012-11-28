@@ -1,0 +1,15 @@
+﻿<!-- This file is used for Nuget configuration -->
+<configuration>
+  <system.web>
+    <trust level="Full" />
+  </system.web>
+	<system.webServer>
+		<validation validateIntegratedModeConfiguration="true" />
+		<security>
+			<requestFiltering allowDoubleEscaping="true" />
+		</security>	
+    <handlers>
+			<add name="IronScheme.Web" path="*.ss" verb="*" type="IronScheme.Web.Handler" resourceType="Unspecified" requireAccess="Script" preCondition="integratedMode" />
+		</handlers>
+	</system.webServer>
+</configuration>
