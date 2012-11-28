@@ -17,6 +17,7 @@ The last version number represent the TFS version</description>
   <files>
     <file src="install-stage\IronScheme\lib\**\*.*" target="content\lib" />
     <file src="web.config.transform" target="content\web.config.transform" />
+    <file src="test.ss" target="content\test.ss" />
     <file src="install-stage\IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
     <file src="install-stage\IronScheme\IronScheme.Web.Runtime.dll" target="lib\IronScheme.Web.Runtime.dll" />
   </files>
