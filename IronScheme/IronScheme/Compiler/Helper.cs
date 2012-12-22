@@ -100,8 +100,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    //static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    static Regex escapes = new Regex(@"\\(([ntr\\""])|(x[\da-f]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    static readonly Regex escapes = new Regex(@"\\(([ntr\\""])|(x[\da-f]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static string CleanString(string input)
     {
