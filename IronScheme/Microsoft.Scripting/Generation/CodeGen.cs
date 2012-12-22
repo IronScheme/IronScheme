@@ -1596,9 +1596,9 @@ namespace Microsoft.Scripting.Generation {
         }
 
         private void EmitComplex(Complex64 value) {
-            if (value.Real != 0.0 || Oyster.Math.IntX.IsNegativeZero(value.Real)) {
+            if (value.Real != 0.0) {
                 Emit(OpCodes.Ldc_R8, value.Real);
-                if (value.Imag != 0.0 || Oyster.Math.IntX.IsNegativeZero(value.Imag)) {
+                if (value.Imag != 0.0) {
                     Emit(OpCodes.Ldc_R8, value.Imag);
                     EmitCall(typeof(Complex64), "Make");
                 } else {

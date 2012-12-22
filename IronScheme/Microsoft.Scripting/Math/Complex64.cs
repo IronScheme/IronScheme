@@ -17,6 +17,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Collections;
+using Oyster.Math;
 
 
 namespace Microsoft.Scripting.Math {
