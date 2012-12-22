@@ -11,6 +11,7 @@ using System.Text;
 using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
+using Oyster.Math;
 
 namespace IronScheme.Runtime
 {
@@ -75,8 +76,11 @@ namespace IronScheme.Runtime
     {
       if (obj.Length == 2)
       {
-        Func<Type, bool> p = t => Unwrap(obj[0]).Type == t || Unwrap(obj[1]).Type == t;
-        bool vt = !(Unwrap(obj[0]).Type.IsValueType || Unwrap(obj[1]).Type.IsValueType);
+        var o1 = Unwrap(obj[0]);
+        var o2 = Unwrap(obj[1]);
+
+        Func<Type, bool> p = t => o1.Type == t || o2.Type == t;
+        bool vt = !(o1.Type.IsValueType || o2.Type.IsValueType);
 
         if (p(typeof(SymbolId))
           || p(typeof(bool))
@@ -85,9 +89,13 @@ namespace IronScheme.Runtime
         {
           return Ast.Equal(obj[0], obj[1]);
         }
-        else if (Unwrap(obj[0]) is ConstantExpression || Unwrap(obj[1]) is ConstantExpression)
+        else if (p(typeof(double)))
         {
-          return Ast.Call(typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static), obj); 
+          return null;
+        }
+        else if (o1 is ConstantExpression || o2 is ConstantExpression)
+        {
+          return Ast.Call(typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static), obj);
         }
       }
       return null;

@@ -1,4 +1,10 @@
 ﻿
+(let ((x +0.0)
+      (y -0.0))
+  (map (lambda (op)
+          (list (op x y) (op y x)))
+       (list = > < >= <=)))
+
 (let drink ((beers 6))
   (if (zero? beers) 
       'yeah

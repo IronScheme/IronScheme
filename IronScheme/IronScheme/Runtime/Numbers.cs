@@ -398,8 +398,6 @@ namespace IronScheme.Runtime
       throw new NotSupportedException("number type not supported");
     }
 
-
-
     [Builtin("generic-", AllowConstantFold = true)]
     public static object Subtract(object first, object second)
     {

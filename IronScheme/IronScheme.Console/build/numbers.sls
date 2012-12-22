@@ -542,19 +542,17 @@ See docs/license.txt. |#
           [(complexnum? num)
             (unless (= radix 10)
               (assertion-violation 'number->string "invalid radix" radix))
-            (let ((rp (real-part num))
-                  (ip (imag-part num)))
-              (string-append (if (and (zero? rp) (not (and (flonum? rp) (clr-static-call IntX IsNegativeZero rp))))
-                                 "" 
-                                 (number->string rp radix))
-                             (if (or (negative? ip)
-                                     (nan? ip)
-                                     (infinite? ip)
-                                     (and (flonum? ip) (clr-static-call IntX IsNegativeZero ip)))
-                                 "" 
-                                 "+")
-                             (number->string ip radix)
-                             "i"))]
+            (string-append (if (zero? (real-part num)) 
+                               "" 
+                               (number->string (real-part num) radix))
+                           (if (let ((i (imag-part num)))
+                                 (or (negative? i)
+                                     (nan? i)
+                                     (infinite? i)))
+                               "" 
+                               "+")
+                           (number->string (imag-part num) radix)
+                           "i")]
           [(rectnum? num)
             (string-append (if (zero? (real-part num)) 
                                "" 
@@ -1178,10 +1176,7 @@ See docs/license.txt. |#
     
   (define (flonum->string flo)
     (cond
-      [(flzero? flo) 
-        (if (clr-static-call IntX IsNegativeZero flo)
-            "-0.0"
-            "0.0")]
+      [(flzero? flo) "0.0"]
       [(flnan? flo) "+nan.0"]
       [(flinfinite? flo) 
         (if (flpositive? flo)
