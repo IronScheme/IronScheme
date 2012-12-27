@@ -106,7 +106,10 @@ namespace Microsoft.Scripting.Generation {
 
             if (SaveAndReloadAssemblies) {
                 asmname.Name = Path.GetFileNameWithoutExtension(moduleName);
-                asmname.KeyPair = new StrongNameKeyPair(File.ReadAllBytes("DEVELOPMENT.snk"));
+                if (File.Exists("DEVELOPMENT.snk"))
+                {
+                  asmname.KeyPair = new StrongNameKeyPair(File.ReadAllBytes("DEVELOPMENT.snk"));
+                }
                 asmname.Version = new Version("1.0.0.0");
 #pragma warning disable 0618
                 _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.RunAndSave, outDir, null);
