@@ -92,7 +92,11 @@ namespace Microsoft.Scripting.Generation {
                 throw new ArgumentException("Invalid output directory", e);
             }
 
-            if (SaveAndReloadAssemblies || VerifyAssemblies) {
+            if (SaveAndReloadAssemblies
+#if PEVERIFY
+              || VerifyAssemblies
+#endif              
+              ) {
                 _outDir = outDir;
             }
 
@@ -257,15 +261,18 @@ namespace Microsoft.Scripting.Generation {
         public void Dump(string fileName) {
 #if !SILVERLIGHT // AssemblyBuilder.Save
             _myAssembly.Save(fileName ?? _outFileName, _peKind, _machine);
+#if PEVERIFY
             if (VerifyAssemblies) {
                 PeVerifyThis();
             }
+#endif
 #endif
         }
 
         private static string FindPeverify() {
 #if !SILVERLIGHT // Environment.GetEnvironmentVariable
-            string path = System.Environment.GetEnvironmentVariable("PATH");
+#if PEVERIFY
+          string path = System.Environment.GetEnvironmentVariable("PATH");
             string[] dirs = path.Split(';');
             foreach (string dir in dirs) {
                 string file = Path.Combine(dir, peverify_exe);
@@ -274,10 +281,12 @@ namespace Microsoft.Scripting.Generation {
                 }
             }
 #endif
+#endif
             return null;
         }
 
 #if !SILVERLIGHT // ProcessStartInfo
+#if PEVERIFY
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         private void PeVerifyThis() {
             string peverifyPath = FindPeverify();
@@ -390,6 +399,7 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 #endif
+#endif
       public TypeGen DefinePublicType(string name, Type parent, TypeAttributes attrs)
       {
         if (BeforeFieldInit) attrs |= TypeAttributes.BeforeFieldInit;
@@ -459,6 +469,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
 #if !SILVERLIGHT
+#if PEVERIFY
         public bool VerifyAssemblies {
             get {
                 return (_genAttrs & AssemblyGenAttributes.VerifyAssemblies) != 0;
@@ -468,6 +479,7 @@ namespace Microsoft.Scripting.Generation {
                 else _genAttrs &= ~AssemblyGenAttributes.VerifyAssemblies;
             }
         }
+#endif
 #endif
         
         // TODO: SourceUnit should provide writers for each symbol document file used in the unit
