@@ -1,4 +1,13 @@
 ﻿
+(define (foo)
+  (let f ((n 10))
+    (unless (zero? n)
+      (f (- n 1))))
+  (let f ((n 10))
+    (unless (zero? n)
+      (f (- n 1))))
+  (values))      
+
 (let ((x +0.0)
       (y -0.0))
   (map (lambda (op)

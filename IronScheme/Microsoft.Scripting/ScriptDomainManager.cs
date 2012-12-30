@@ -137,6 +137,7 @@ namespace Microsoft.Scripting {
 
             // initialize snippets:
             _snippets = new Snippets();
+            _pal = null;
         }
 
         #endregion
