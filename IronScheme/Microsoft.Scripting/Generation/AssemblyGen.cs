@@ -44,7 +44,9 @@ namespace Microsoft.Scripting.Generation {
 
 #if !SILVERLIGHT
         private readonly string _outDir;            // null means the current directory
+#if PEVERIFY
         private const string peverify_exe = "peverify.exe";
+#endif
 #endif
 
         public static AssemblyGen CreateModuleAssembly(string suid)
