@@ -802,10 +802,7 @@ namespace IronScheme.Compiler
         isrest = true;
         CreateParameter(an, cb, typeof(object));
       }
-      else
-      {
-        Builtins.SyntaxError("AssignParameters", "extra parameter type(s)", ctypes, Builtins.FALSE);
-      }
+      // else both null, which is OK, no?
       return isrest;
     }
 
