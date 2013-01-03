@@ -635,6 +635,10 @@
     <Content Include="docs\visual-studio.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="..\DEVELOPMENT.snk">
+      <Link>DEVELOPMENT.snk</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="build\primitive-numbers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
