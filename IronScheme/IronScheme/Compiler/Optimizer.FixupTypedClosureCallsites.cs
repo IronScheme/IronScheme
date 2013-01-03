@@ -38,7 +38,7 @@ namespace IronScheme.Compiler
 
           var i = Unwrap(node.Instance);
 
-          if (i != null && node.Method.Name == "Call" &&  i.Type.IsSubclassOf(typeof(Callable)))
+          if (i != null && node.Method.Name == "Call" && typeof(IronScheme.Runtime.Typed.ITypedCallable).IsAssignableFrom(i.Type))
           {
             var mi = i.Type.GetMethod("Invoke");
             node.Method = mi;
