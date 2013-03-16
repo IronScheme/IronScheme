@@ -208,6 +208,7 @@ See docs/license.txt. |#
             (overflow-error 'fxarithmetic-shift x k))
           i)]))
 
+  ; can be made faster : http://stackoverflow.com/q/15370250/15541
   (define-fx* (fxbit-count x)
     (if ($fx<=? x 0)
       ($fxnot (fxbit-count* ($fxnot x)))

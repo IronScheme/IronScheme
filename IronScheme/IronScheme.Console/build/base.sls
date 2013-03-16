@@ -415,7 +415,7 @@ See docs/license.txt. |#
       (clr-static-call SymbolTable StringToObject (->string str)))
   
     (define/contract (list->vector lst:list)
-      (apply vector lst))        
+      (clr-static-call Builtins ListToVector lst))
       
     (define/contract (list->string lst:list)
       (apply string lst))
