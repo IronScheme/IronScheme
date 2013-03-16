@@ -755,6 +755,7 @@ namespace IronScheme
           IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
           sc.ClearCache();
           Compiler.SimpleGenerator.ClearGlobals();
+          Compiler.ClrGenerator.compiletimetypes.Clear();
         }
       }
       catch (Continuation)
