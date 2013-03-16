@@ -117,7 +117,8 @@ See docs/license.txt. |#
                                     (->bignum ei2))))]
       [(ei1 ei2 . rest)
         (fold-left bitwise-xor ei1 (cons ei2 rest))]))
-        
+
+  ; can be made faster : http://stackoverflow.com/q/15370250/15541        
   (define (bitwise-bit-count ei)
     (if (fixnum? ei)
         (fxbit-count ei)

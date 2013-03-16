@@ -45,6 +45,7 @@ See docs/license.txt. |#
                     (g (cadr ai))
                     (l loc)
                     (s (string-append "not " (cddr ai))))
+        ; the compiler generates stupid code for this, but still faster than using for-all
         #'(let loop ((n n))
                (unless (null? n)
                  (unless (g ($car n)) (assertion-violation 'l s ($car n)))
