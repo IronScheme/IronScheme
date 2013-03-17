@@ -493,7 +493,13 @@ namespace Microsoft.Scripting.Generation {
 
             try
             {
-              return (IAttributesCollection)Activator.CreateInstance(ass.GetType(t.FullName));
+              var rt = ass.GetType(t.FullName);
+              if (rt == null)
+              {
+                Console.WriteLine("Type: '{0}' not found in '{1}' (mono bug)", t.FullName, ass.FullName);
+                return null;
+              }
+              return (IAttributesCollection)Activator.CreateInstance(rt);
             }
             catch (Exception ex)
             {

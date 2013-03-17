@@ -104,7 +104,7 @@
           ((<= 0 n 9) (display n p))
           (else (display 
                   (integer->char 
-                    (+ (char->integer #\A)
+                    (+ (char->integer #\a) ; lowercase
                        (- n 10)))
                   p))))
       (let f ((ls x))
