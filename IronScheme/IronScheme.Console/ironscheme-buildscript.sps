@@ -1,5 +1,5 @@
 ;;; Copyright (c) 2006, 2007 Abdulaziz Ghuloum and Kent Dybvig
-;;; Copyright (c) 2007, 2008 Llewellyn Pritchard
+;;; Copyright (c) 2007-2013 Llewellyn Pritchard
 ;;; 
 ;;; Permission is hereby granted, free of charge, to any person obtaining a
 ;;; copy of this software and associated documentation files (the "Software"),
