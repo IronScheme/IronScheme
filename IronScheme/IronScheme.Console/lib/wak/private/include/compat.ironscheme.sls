@@ -24,16 +24,21 @@
           file-mtime
           merge-path
           (rename (library-path library-search-paths)))
-  (import (rnrs base)
+  (import (rnrs)
           (wak private include utils)
+          (ironscheme clr)
+          (only (ironscheme strings) string-replace)
           (only (ironscheme reader) 
                 annotation?
                 read-annotated
                 annotation-expression)
           (only (ironscheme)
-                library-path                
+                library-path
                 stale-when
                 file-mtime))
                 
 (define (merge-path path origin)
-  (string-append origin "/" (string-join path "/"))))
+  (string-replace 
+    (string-append origin "/" (string-join path "/"))
+    (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
+    ".")))

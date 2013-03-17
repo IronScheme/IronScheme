@@ -15,6 +15,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Diagnostics;
 using System.Globalization;
+using System.Reflection.Emit;
 
 namespace IronScheme.Runtime
 {
@@ -36,6 +37,11 @@ namespace IronScheme.Runtime
       var altpath = path.Replace("\\", "/");
       foreach (var lass in AppDomain.CurrentDomain.GetAssemblies())
       {
+        // prevent unneeded caught exception (for .NET 2 at least)
+        if (lass is AssemblyBuilder)
+        {
+          continue;
+        }
         try
         {
           if (lass.CodeBase.EndsWith(altpath, true, CultureInfo.CurrentCulture))
