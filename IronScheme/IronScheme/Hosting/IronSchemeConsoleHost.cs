@@ -1,5 +1,5 @@
 #region License
-/* Copyright (c) 2007,2008,2009,2010,2011 Llewellyn Pritchard 
+/* Copyright (c) 2007-2013 Llewellyn Pritchard 
  * All rights reserved.
  * This source code is subject to terms and conditions of the BSD License.
  * See docs/license.txt. */
@@ -16,11 +16,11 @@ namespace IronScheme.Hosting
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
     // no static fields before this one
-    internal static string VERSION = "1.0 RC7";
+    internal static string VERSION = "Latest";
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © 2007,2008,2009,2010,2011,2012 leppie {1}",
+      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © 2007,2008,2009,2010,2011,2012,2013 Llewellyn Pritchard {1}",
           VERSION,
 #if DEBUG
             "- Debug build "
