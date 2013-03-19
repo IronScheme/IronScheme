@@ -38,7 +38,11 @@
                 file-mtime))
                 
 (define (merge-path path origin)
-  (string-replace 
-    (string-append origin "/" (string-join path "/"))
-    (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
-    ".")))
+  (string-replace
+    (string-replace 
+      (string-append origin "/" (string-join path "/"))
+      (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
+      ".")
+     "\\"
+     "/"))) ; make precompiled assemblies work on Linux
+    
