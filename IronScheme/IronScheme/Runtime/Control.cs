@@ -87,7 +87,7 @@ namespace IronScheme.Runtime
       internal Thread Thread { get; set; }
     }
 
-    internal static readonly bool IsMono = Type.GetType("Mono.Runtime", false) != null;
+    public static readonly bool IsMono = Type.GetType("Mono.Runtime", false) != null;
 
     static CallTargetN MakeContinuation(Continuation cc)
     {

@@ -145,12 +145,14 @@
       [()
         (compile-system-libraries #f)]
       [(constant-compression?)
-        (time-it "total compile time"
-          (lambda ()
-            (eval-top-level 
-              `(begin
-                 (include "system-libraries.ss")
-                 (compile "system-libraries.ss" #f ,constant-compression?)))))]))
+        (if (clr-static-field-get IronScheme.Runtime.Builtins IsMono)
+            (printf "Precompiling does not work on Mono due to a bug. https://bugzilla.xamarin.com/show_bug.cgi?id=11199\n")
+            (time-it "total compile time"
+              (lambda ()
+                (eval-top-level 
+                  `(begin
+                     (include "system-libraries.ss")
+                     (compile "system-libraries.ss" #f ,constant-compression?))))))]))
                
   (define (with-guard f)
     (clr-guard [e [e (parameterize ((current-output-port (current-error-port)))
