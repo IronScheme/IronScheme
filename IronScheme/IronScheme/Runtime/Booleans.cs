@@ -20,7 +20,5 @@ namespace IronScheme.Runtime
     {
       return v ? TRUE : FALSE;
     }
-
-
   }
 }
