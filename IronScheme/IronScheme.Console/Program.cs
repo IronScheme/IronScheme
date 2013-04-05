@@ -36,7 +36,9 @@ namespace IronScheme.Runtime
           break;
       }
 
-      if (args.Length > 0 && args[0] == "-profile")
+      int index;
+
+      if ((index = Array.IndexOf(args, "-profile")) >= 0)
       {
         const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";
 
@@ -64,10 +66,8 @@ namespace IronScheme.Runtime
             psi.EnvironmentVariables.Add("COR_ENABLE_PROFILING", "1");
 
           // ----- RUN THE PROCESS -------------------
-
-
           string[] argargs = new string[args.Length - 1];
-          Array.Copy(args, 1, argargs, 0, argargs.Length);
+          args = Array.FindAll(args, x => x != "-profile");
 
           psi.Arguments = string.Join(" ", argargs);
           psi.UseShellExecute = false;
@@ -90,7 +90,7 @@ namespace IronScheme.Runtime
         {
           // remove -profile
           string[] argargs = new string[args.Length - 1];
-          Array.Copy(args, 1, argargs, 0, argargs.Length);
+          args = Array.FindAll(args, x => x != "-profile");
 
           args = argargs;
         }

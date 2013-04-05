@@ -105,7 +105,10 @@
           (load path)))))
       
   (define (ironscheme-build)
-    (load "ironscheme-buildscript.sps"))
+     (time-it "the entire bootstrap process"
+        (lambda () 
+          (load "ironscheme-buildscript.sps")))
+     (display "IronScheme build completed.\n"))
     
   (define foreground-color
     (case-lambda

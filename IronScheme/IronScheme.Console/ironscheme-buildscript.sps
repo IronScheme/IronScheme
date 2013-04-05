@@ -1570,22 +1570,20 @@
     open-string-output-port identifier? free-identifier=? exists
     values call-with-values for-all ellipsis-map vector eq? eqv?))
 
-(time-it "the entire bootstrap process"  
-  (lambda () 
-    (let-values (((core* locs)
-                   (time-it "macro expansion"  
-                     (lambda ()   
-                       (parameterize ((current-library-collection bootstrap-collection))
-                         (expand-all scheme-library-files))))))
-        (current-primitive-locations
-          (lambda (x)
-            (cond
-              ((assq x locs) => cdr)
-              (else #f))))
-        (time-it "code generation" 
-          (lambda () 
-            (compile-bootfile (map compile-core-expr core*)))))))
+(let-values (((core* locs)
+               (time-it "macro expansion"  
+                 (lambda ()   
+                   (parameterize ((current-library-collection bootstrap-collection))
+                     (expand-all scheme-library-files))))))
+    (current-primitive-locations
+      (lambda (x)
+        (cond
+          ((assq x locs) => cdr)
+          (else #f))))
+    (time-it "code generation" 
+      (lambda () 
+        (compile-bootfile (map compile-core-expr core*)))))
 
-(display "IronScheme build completed.\n")
+
 
 
