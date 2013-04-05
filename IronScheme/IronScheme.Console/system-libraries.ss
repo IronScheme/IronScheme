@@ -100,6 +100,7 @@ See docs/license.txt. |#
 
 (let () 
   (import 
+    (minikanren)
     (list-match)
     (as-match)
     (fectors))

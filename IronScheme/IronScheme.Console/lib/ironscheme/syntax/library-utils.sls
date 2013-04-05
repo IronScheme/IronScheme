@@ -25,4 +25,16 @@ See docs/license.txt. |#
                         (import (rename lib (id* t*) ...)) 
                         (export (rename (t* id*) ...)))))) 
              #'(impspec* ...)))]))))
+#| 
+
+Example
+=======
+
+(library (ikarus)
+  (export)
+  (import (ironscheme syntax library-utils))
+
+  (import-and-reexport-all-from 
+    (ironscheme)))
     
+|#
