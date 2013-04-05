@@ -3,7 +3,6 @@
 
 A. Running the interactive console
 
-- Desktop: double click IronScheme
 - Windows: IronScheme.Console
 - Mono: mono IronScheme.Console.exe (where the latter can be found)
 
@@ -13,18 +12,10 @@ Use the TAB key for context sensitive command completion in the REPL.
 
 B. Running programs
 
-- Desktop: n/a (you could provide your own file association, if desired)
 - Windows: IronScheme.Console filename args ...
 - Mono: mono IronScheme.Console.exe filename args ... 
 
 C. Compiling programs
 
-- Desktop: n/a
 - Windows: IronScheme.Console filename -compile
 - Mono: mono IronScheme.Console.exe filename -compile
-
-Note:
- 
-Compiling is not really compiling. It only does the expansion process. 
-This however, is normally a time consuming process, depending on macro usage.
-Thus, the files can load and compile in a very quick time.

@@ -27,6 +27,3 @@ Notes:
 - only files in the build and psyntax directory are compiled into the bootfile.
 - the above mentioned makes up mostly of R6RS and a few extra IronScheme-specific procedures.
 - take care when making changes to the build system as this can break your IronScheme installation.
-- if screwed, delete ironscheme.boot.pp and ironscheme.boot.dll and replace with the original installation file(s).
-- for a base system, with only the compound (ironscheme) as well as all of (rnrs) libraries, only the 4 dll's are required.
-- add IronScheme.Console.exe to run standalone. add libraries as needed. 
