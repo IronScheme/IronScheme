@@ -125,7 +125,7 @@ letter                 [[:IsLetter:]]
 idescape               ("\\x"({digit16})+";")
 idinitial              ("->"|({letter})|{idescape}|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
-identifier             (({idinitial})({subsequent})*)|"+"|"..."|"-"|"@"
+identifier             (({idinitial})({subsequent})*)|"+o"|"..."|"-o"|"@"|"+"|"-"
 
 good_id                {identifier}{delimiter}
 bad_id                 {identifier}{but_delimiter}
