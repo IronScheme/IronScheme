@@ -47,10 +47,6 @@ namespace IronScheme.Remoting.Server
 
   public abstract class RemoteService : MarshalByRefObject
   {
-    public RemoteService()
-    {
-    }
-
     protected string GetImportSpec(string spec)
     {
       return string.Format("(apply environment '({0}))", spec);
@@ -97,9 +93,6 @@ namespace IronScheme.Remoting.Server
 
   public sealed class InteractionService : RemoteService, IInteractionService
   {
-
-    #region IInteractionService Members
-
     internal static string WriteFormat(object obj)
     {
       var w = new IronScheme.Runtime.StringWriter();
@@ -119,7 +112,7 @@ namespace IronScheme.Remoting.Server
       return WriteFormat(result);
     }
 
-    object ToRemote(object obj)
+    static object ToRemote(object obj)
     {
       Type t = obj.GetType();
 
@@ -131,7 +124,7 @@ namespace IronScheme.Remoting.Server
       return new RemoteSchemeObject(obj);
     }
 
-    object FromRemote(object obj)
+    static object FromRemote(object obj)
     {
       if (obj is RemoteSchemeObject)
       {
@@ -152,7 +145,7 @@ namespace IronScheme.Remoting.Server
       return ToRemote(result);
     }
 
-    object EvalInternal(string expr, string importspec, params object[] args)
+    static object EvalInternal(string expr, string importspec, params object[] args)
     {
       try
       {
@@ -163,8 +156,6 @@ namespace IronScheme.Remoting.Server
         throw new EvaluationException(ex.ToString());
       }
     }
-
-    #endregion
   }
 
   public sealed class SymbolBindingService : RemoteService, ISymbolBindingService
@@ -180,7 +171,7 @@ namespace IronScheme.Remoting.Server
     }
 
 
-    SymbolBinding[] GetBindingsInternal(string importspec)
+    static SymbolBinding[] GetBindingsInternal(string importspec)
     {
       if (string.IsNullOrEmpty(importspec))
       {
@@ -221,7 +212,7 @@ namespace IronScheme.Remoting.Server
     }
 
 
-    ProcedureInfo GetProcedureInfoInternal(string proc, string importspec)
+    static ProcedureInfo GetProcedureInfoInternal(string proc, string importspec)
     {
       if (string.IsNullOrEmpty(proc))
       {

@@ -28,5 +28,5 @@ D. Source (Visual Studio 2008)
 
 E. Source (Mono)
 
-- To do: figure out how compile on Mono ;p
+- Not supported
 

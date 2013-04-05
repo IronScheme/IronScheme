@@ -78,14 +78,14 @@ Example 1:
 
   (import (mylib))
 
-Will look for a file called 'mylib.(ss|sls)' in the current directory, 
+Will look for a file called 'mylib.sls' in the current directory, 
 as well as the IronScheme installation directory, if different.
 
 Example 2:
 
   (import (ironscheme pretty-print))
 
-Will look for 'ironscheme/pretty-print.(ss|sls)' (note the directory prefix) 
+Will look for 'ironscheme/pretty-print.sls' (note the directory prefix) 
 in the current directory, as well as the IronScheme installation directory, if different.
 
 Other differences
