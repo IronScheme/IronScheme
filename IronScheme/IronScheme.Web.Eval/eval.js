@@ -51,7 +51,11 @@ $('#submit').click(function(event) {
           result.parent().fadeIn('fast');
         }
       }, 'json');
-  x.error(function() { status.text("Server error"); });
+  x.error(function(data) {
+    error.html(data.responseText);
+    error.parent().fadeIn('fast');
+    status.text('Server Error');
+  });
 });
 
 function load(id) {
