@@ -11,8 +11,11 @@
     (ironscheme regex-cond)
     (ironscheme strings)
     (ironscheme console))
-    
+  
+  (clr-using Microsoft.Scripting)
+  (clr-using IronScheme.Scripting)  
   (clr-using Microsoft.Scripting.Debugging)
+  (clr-using IronScheme.Scripting.Debugging)
   
   (define (stack-frame-filename sf)
     (clr-prop-get StackFrame Filename sf))
@@ -31,19 +34,19 @@
     
   (define (span-start-line span)
     (clr-prop-get #f Line
-      (clr-prop-get Microsoft.Scripting.SourceSpan Start span)))
+      (clr-prop-get SourceSpan Start span)))
 
   (define (span-start-column span)
     (clr-prop-get #f Column
-      (clr-prop-get Microsoft.Scripting.SourceSpan Start span)))
+      (clr-prop-get SourceSpan Start span)))
 
   (define (span-end-line span)
     (clr-prop-get #f Line
-      (clr-prop-get Microsoft.Scripting.SourceSpan End span)))
+      (clr-prop-get SourceSpan End span)))
 
   (define (span-end-column span)
     (clr-prop-get #f Column
-      (clr-prop-get Microsoft.Scripting.SourceSpan End span)))
+      (clr-prop-get SourceSpan End span)))
       
   (define (current-location)
     (car (reverse (lw-debugger-location-trace))))
