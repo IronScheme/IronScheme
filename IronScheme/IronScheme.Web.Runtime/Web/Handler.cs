@@ -14,7 +14,6 @@ using IronScheme.Hosting;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
-using System.Diagnostics;
 
 
 namespace IronScheme.Web
