@@ -13,6 +13,7 @@ copy un-ngen-all.cmd install-stage\IronScheme
 copy IronScheme.dll install-stage\IronScheme
 copy IronScheme.Web.Runtime.dll install-stage\IronScheme
 copy IronScheme.Remoting*.dll install-stage\IronScheme
+copy ExecutableTemplate.cs install-stage\IronScheme
 
 xcopy /e ..\..\examples install-stage\IronScheme\examples\
 xcopy /e ..\..\docs install-stage\IronScheme\docs\
