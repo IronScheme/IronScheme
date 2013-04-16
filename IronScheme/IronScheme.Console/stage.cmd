@@ -22,6 +22,8 @@ xcopy /e ..\..\tests install-stage\IronScheme\tests\
 
 del install-stage\IronScheme\lib\pfds\tests.scm
 del install-stage\IronScheme\tests\*.sps
+del install-stage\IronScheme\lib\wak\fmt\private\test*.scm
+del install-stage\IronScheme\lib\wak\foof-loop\private\test-foof-loop.scm
 rmdir /s /q install-stage\IronScheme\lib\srfi\tests
 rmdir /s /q install-stage\IronScheme\docs\notes
 
