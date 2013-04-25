@@ -44,6 +44,7 @@
           (valuetype-vector? x)))
     (not (simple? x)))
 
+  ; the output is the input language of IronScheme
   (define (rewriter quote-hack?)
     (define (f x)
       (cond
@@ -78,8 +79,9 @@
                    (map 
                      (lambda (x) 
                        (cons (car x) (map f (cdr x))))
-                     (cddr x))))                
-           ((lambda) 
+                     (cddr x))))
+           ; annotated-typed-case-lambda is missing                
+           ((lambda) ; not sure if this is ever hit
             (cons* 'lambda (cadr x) (map f (cddr x))))
            ((letrec) 
             (let ((bindings (cadr x)) (body* (cddr x)))
@@ -113,7 +115,7 @@
                  (lambda (loc)
                    loc))
                 (else op))))
-           ((define) x)
+           ((define) x) ; this does not look correct, I doubt it is ever hit
            (else 
             (if (list? x) 
                 (map f x)

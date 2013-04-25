@@ -979,24 +979,28 @@ VS
       ((or (fxzero? (fxmod cur-value 3)) (fxzero? (fxmod cur-value 5)))
         (s (fx+ cur-value 1) (+ sum cur-value)))
       (else (s (fx+ cur-value 1) sum)))))
-  
-
-(define env (environment '(ironscheme linq)))
 
 ;; extract proc forms
-(foreach f in (from eb in (environment-bindings env)
-               let s = (car eb)
-               where (eq? 'procedure (cdr eb))
-               orderby s
-               let b = (eval s env)
-               let forms = (call-with-values 
-                             (lambda () (procedure-form b)) 
-                             list)
-               from f in forms
-               select (cons s (cdr f)))
-  (printf "~a\n" f))
-|#  
-
+(let* ((env (environment '(ironscheme linq)))
+       (bindings (environment-bindings env)))
+  (foreach f in (from eb in bindings
+                 let s = (car eb)
+                 where (let ((type (cdr eb))) 
+                         (eq? 'procedure type))
+                 orderby s
+                 let b = (eval s env)
+                 let forms = (call-with-values 
+                               (lambda () (procedure-form b)) 
+                               list)
+                 from f in (map cdr forms)
+                 where (list? f)
+                 group (cons s f) by (length f) into b
+                 orderby (key b)
+                 from f in b
+                 select f)
+    (printf "~a\n" f)))
+ 
+|# 
 ;; docs
 
 #|
@@ -1454,7 +1458,8 @@ Tests:
 (print-list u)
 
 (define v ( from x in selectdata
-            from y in groupdata select y into z
+            from y in groupdata 
+            select y into z
             where (even? z)
             select z))
 
