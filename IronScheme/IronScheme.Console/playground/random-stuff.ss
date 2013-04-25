@@ -1,4 +1,86 @@
 ﻿
+
+(import (ironscheme random))
+
+(define random 
+  (let ((r (make-random))) 
+    (lambda (n) (next-fixnum r n))))
+
+(define (calculate-pi trials)
+  (define (this-time-have-common-factors?)
+    (define (get-rand)
+      (+ (random (greatest-fixnum)) 1))
+    (= (gcd (get-rand) (get-rand)) 1))
+  (define (execute-experiment n-times acc)
+    (if (> n-times 0)
+        (if (this-time-have-common-factors?)
+            (execute-experiment (- n-times 1) (+ acc 1))
+            (execute-experiment (- n-times 1) acc))
+        acc))
+  (define n-success (execute-experiment trials 0))
+  (define prob (/ n-success trials))
+  (inexact (sqrt (/ 6 prob))))
+  
+(define (calculate-pi/fl trials)
+  (define (this-time-have-common-factors?)
+    (define (get-rand)
+      (fx+ (random 9999999) 1))
+    (fx=? (gcd (get-rand) (get-rand)) 1))
+  (define (execute-experiment n-times acc)
+    (if (fx>? n-times 0)
+        (if (this-time-have-common-factors?)
+            (execute-experiment (fx- n-times 1) (fl+ acc 1.0))
+            (execute-experiment (fx- n-times 1) acc))
+        acc))
+  (let* ((n-success (execute-experiment trials 0.0))
+         (prob (fl/ n-success (fixnum->flonum trials))))
+    (flsqrt (fl/ 6.0 prob))))
+
+
+(import (ironscheme random)
+        (ironscheme syntax))
+
+(define random 
+  (let ((r (make-random))) 
+    (lambda () (next-flonum r))))
+
+(define pi (angle -1))
+(define-syntax-rule (sqr x) (fl* x x))    
+    
+(define (in-unit-circle? x y) (fl<=? (flsqrt (fl+ (sqr x) (sqr y))) 1.0))
+;; point in ([-1,1], [-1,1])
+(define (random-point-in-2x2-square) (values (fl* 2.0 (fl- (random) 0.5)) (fl* 2.0 (fl- (random) 0.5))))
+ 
+;; Area of circle is (pi r^2). r is 1, area of circle is pi
+;; Area of square is 2^2 = 4
+;; There is a pi/4 chance of landing in circle
+;; .: pi = 4*(proportion passed) = 4*(passed/samples)
+(define (passed:samples->pi passed samples) (* 4 (/ passed samples)))
+ 
+;; generic kind of monte-carlo simulation
+(define (monte-carlo run-length report-frequency
+                     sample-generator pass?
+                     interpret-result)
+  (let inner ((samples 0) (passed 0) (cnt report-frequency))
+    (cond
+      [(fx=? samples run-length) (interpret-result passed samples)]
+      [(fxzero? cnt) ; intermediate report
+       (printf "~a samples of ~a: ~a passed -> ~a~%"
+               samples run-length passed (interpret-result passed samples))
+       (inner samples passed report-frequency)]
+      [else
+       (inner (fxadd1 samples)
+              (if (call-with-values sample-generator pass?)
+                  (fxadd1 passed) 
+                  passed) 
+              (fxsub1 cnt))])))
+ 
+;; (monte-carlo ...) gives an "exact" result... which will be a fraction.
+;; to see how it looks as a decimal we can exact->inexact it
+(time (let ((mc (monte-carlo 10000000 1000000 random-point-in-2x2-square in-unit-circle? passed:samples->pi)))
+  (printf "exact = ~a~%inexact = ~a~%(pi - guess) = ~a~%" mc (exact->inexact mc) (- pi mc))))
+
+
 (define (foo)
   (let f ((n 10))
     (unless (zero? n)
@@ -25,6 +107,7 @@
   (import (rnrs))
   
   (define foo 'hello))
+  
   
 (library (sym)
   (export blah)

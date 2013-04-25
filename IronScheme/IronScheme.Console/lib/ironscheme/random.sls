@@ -10,7 +10,7 @@ See docs/license.txt. |#
     next-fixnum
     next-bytevector
     next-flonum 
-    )
+    random)
   (import 
     (rnrs)
     (ironscheme contracts)
@@ -37,4 +37,12 @@ See docs/license.txt. |#
     (clr-call Random NextBytes rg bytevector))
           
   (define/contract (next-flonum rg:rng)
-    (clr-call Random NextDouble rg)))
+    (clr-call Random NextDouble rg))
+  
+  ; make parameter like in Racket?
+  (define rng (make-random))
+    
+  (define/contract random 
+    (case-lambda 
+      [() (next-flonum rng)]
+      [(n:fixnum) (next-fixnum rng n)])))
