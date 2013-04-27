@@ -12,7 +12,7 @@ using System;
 
 namespace IronScheme.Runtime
 {
-  public static partial class BuiltinEmitters
+  static partial class BuiltinEmitters
   {
     [InlineEmitter("null?")]
     public static Expression IsNull(Expression[] values)

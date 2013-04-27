@@ -13,7 +13,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Compiler
 {
   [Generator("annotated-call")]
-  public sealed class AnnotatedCallGenerator : SimpleGenerator
+  sealed class AnnotatedCallGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

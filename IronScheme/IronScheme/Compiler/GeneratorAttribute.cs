@@ -10,7 +10,7 @@ using System;
 namespace IronScheme.Compiler
 {
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-  public sealed class GeneratorAttribute : Attribute
+  sealed class GeneratorAttribute : Attribute
   {
     string name;
 

@@ -19,7 +19,7 @@ namespace IronScheme.Compiler
   // see expander.ss:3406
   //`(library-letrec* name ,(map list vars locs val-exps) ,body-exp))
   [Generator("library-letrec*")]
-  public sealed class LibraryLetrecStarGenerator : SimpleGenerator
+  sealed class LibraryLetrecStarGenerator : SimpleGenerator
   {
     static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValueFast");
 

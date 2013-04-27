@@ -97,8 +97,8 @@ See docs/license.txt. |#
       [(null? lst) lst]
       [(null? (cdr lst)) lst]
       [else
-        (last-pair (cdr lst))]))       
-      
+        (last-pair (cdr lst))]))
+
   (define make-list
     (case-lambda
       [(n)      
@@ -114,8 +114,8 @@ See docs/license.txt. |#
               (proc proc))
           (if (proc e) 
               e
-              (find proc r)))))    
-          
+              (find proc r)))))
+         
   (define (partition proc l)
     (let f ((l l)(a '())(b '()))
       (if (null? l)
@@ -247,15 +247,17 @@ See docs/license.txt. |#
            (if (pair? head)
                (if (not (eq? head tail))
                    (length/check ($cdr head) ($cdr tail) ($fx+ i 2))
-                   (assertion-violation 'length "not a proper list"))
+                   (assertion-violation 'length "not a proper list" head))
                (if (null? head)
                    ($fx+ i 1)
-                   (assertion-violation 'length "not a proper list"))))
+                   (assertion-violation 'length "not a proper list" head))))
         (if (null? head)
             i
-            (assertion-violation 'length "not a proper list"))))
+            (assertion-violation 'length "not a proper list" head))))
           
   (define (length lst)
+    (unless (or (null? lst) (pair? lst))
+      (assertion-violation 'length "not a pair" lst))
     (length/check lst lst 0))
 
   (define for-all 

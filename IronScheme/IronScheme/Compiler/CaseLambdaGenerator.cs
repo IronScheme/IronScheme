@@ -14,7 +14,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Compiler
 {
   [Generator("annotated-case-lambda")]
-  public sealed class AnnotatedCaseLambdaGenerator : CaseLambdaGenerator
+  sealed class AnnotatedCaseLambdaGenerator : CaseLambdaGenerator
   {
     public override Expression Generate(object args, CodeBlock c)
     {
@@ -61,7 +61,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("case-lambda")]
-  public class CaseLambdaGenerator : SimpleGenerator
+  class CaseLambdaGenerator : SimpleGenerator
   {
     protected Cons annotations;
     LambdaGenerator lambdagen;

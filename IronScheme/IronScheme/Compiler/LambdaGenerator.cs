@@ -13,7 +13,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Compiler
 {
   [Generator("lambda")]
-  public sealed class LambdaGenerator : SimpleGenerator
+  sealed class LambdaGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock c)
     {

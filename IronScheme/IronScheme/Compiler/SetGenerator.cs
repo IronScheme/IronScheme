@@ -14,7 +14,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Compiler
 {
   [Generator("set!")]
-  public sealed class SetGenerator : SimpleGenerator
+  sealed class SetGenerator : SimpleGenerator
   {
     static MethodInfo SetSymbolValue = typeof(Builtins).GetMethod("SetSymbolValueFast");
     readonly static Stack<SymbolId> setstack = new Stack<SymbolId>();
