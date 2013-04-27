@@ -16,7 +16,7 @@ using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Compiler
 {
-  public abstract class FFIGenerator : SimpleGenerator
+  abstract class FFIGenerator : SimpleGenerator
   {
     protected static string Unquote(object o)
     {
@@ -250,7 +250,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("ffi-callback-internal")]
-  public sealed class FFICallbackGenerator : FFIGenerator
+  sealed class FFICallbackGenerator : FFIGenerator
   {
     //(import (ironscheme clr))
     //(define f (ffi-callback int32 (void* uint16)))
@@ -303,7 +303,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("ffi-callout-internal")]
-  public sealed class FFICalloutGenerator : FFIGenerator
+  sealed class FFICalloutGenerator : FFIGenerator
   {
     //(import (ironscheme clr))
     //(define f (ffi-callout int32 (void* uint16)))
@@ -348,7 +348,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("pinvoke-call-internal")]
-  public sealed class PInvokeCallGenerator : FFIGenerator
+  sealed class PInvokeCallGenerator : FFIGenerator
   {
     //(import (ironscheme clr))
     //(define malloc (pinvoke-call msvcrt malloc void* (uint32)))

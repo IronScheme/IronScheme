@@ -13,7 +13,7 @@ using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
-  public static partial class BuiltinEmitters
+  static partial class BuiltinEmitters
   {
     static void UnsafeSyntaxError(object who, string msg, object form)
     {

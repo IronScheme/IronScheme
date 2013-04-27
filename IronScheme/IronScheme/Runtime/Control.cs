@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace IronScheme.Runtime
 {
-  public static partial class BuiltinEmitters
+  static partial class BuiltinEmitters
   {
     readonly static MethodInfo ICallable_Call = typeof(Callable).GetMethod("Call", new Type[] { typeof(object[]) });
     readonly static MethodInfo ListToVector = typeof(Builtins).GetMethod("ListToVector", new [] { typeof(object) });

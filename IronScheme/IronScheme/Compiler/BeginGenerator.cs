@@ -12,7 +12,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Compiler
 {
   [Generator("begin")]
-  public sealed class BeginGenerator : SimpleGenerator
+  sealed class BeginGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

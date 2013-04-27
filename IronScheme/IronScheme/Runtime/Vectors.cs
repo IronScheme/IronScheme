@@ -13,7 +13,7 @@ using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Runtime
 {
-  public static partial class BuiltinEmitters
+  static partial class BuiltinEmitters
   {
     [InlineEmitter("vector")]
     public static Expression Vector(Expression[] values)

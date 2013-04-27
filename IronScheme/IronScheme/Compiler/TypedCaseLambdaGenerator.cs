@@ -15,7 +15,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Compiler
 {
   [Generator("annotated-typed-case-lambda")]
-  public sealed class AnnotatedTypedCaseLambdaGenerator : TypedCaseLambdaGenerator
+  sealed class AnnotatedTypedCaseLambdaGenerator : TypedCaseLambdaGenerator
   {
     public override Expression Generate(object args, CodeBlock c)
     {
@@ -63,7 +63,7 @@ namespace IronScheme.Compiler
 
   }
 
-  public abstract class TypedGenerator : SimpleGenerator
+  abstract class TypedGenerator : SimpleGenerator
   {
     protected Type GetClosureType(CodeBlock cb)
     {
@@ -105,7 +105,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("typed-lambda")]
-  public sealed class TypedLambdaGenerator : TypedGenerator
+  sealed class TypedLambdaGenerator : TypedGenerator
   {
     public override Expression Generate(object args, CodeBlock c)
     {
@@ -140,7 +140,7 @@ namespace IronScheme.Compiler
   }
 
   [Generator("typed-case-lambda")]
-  public class TypedCaseLambdaGenerator : TypedGenerator
+  class TypedCaseLambdaGenerator : TypedGenerator
   {
     protected Cons annotations;
     static TypedLambdaGenerator lambdagen;

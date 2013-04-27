@@ -14,12 +14,12 @@ using Microsoft.Scripting.Ast;
 
 namespace IronScheme.Compiler
 {
-  public interface IGenerator
+  interface IGenerator
   {
     Expression Generate(object args, CodeBlock cb);
   }
 
-  public abstract class SimpleGenerator : Generator, IGenerator
+  abstract class SimpleGenerator : Generator, IGenerator
   {
     public abstract Expression Generate(object args, CodeBlock cb);
     protected internal static readonly Dictionary<SymbolId, CodeBlockExpression> libraryglobals = new Dictionary<SymbolId, CodeBlockExpression>();
@@ -55,7 +55,7 @@ namespace IronScheme.Compiler
   {
     public static void AddGenerators(CodeContext cc, Assembly assembly)
     {
-      foreach (Type t in assembly.GetExportedTypes())
+      foreach (Type t in assembly.GetTypes())
       {
         if (Attribute.IsDefined(t, typeof(GeneratorAttribute)))
         {

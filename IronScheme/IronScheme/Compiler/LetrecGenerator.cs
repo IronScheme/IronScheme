@@ -15,7 +15,7 @@ namespace IronScheme.Compiler
 {
 
   [Generator("letrec")]
-  public sealed class LetrecGenerator : SimpleGenerator
+  sealed class LetrecGenerator : SimpleGenerator
   {
     
     int level = 0;

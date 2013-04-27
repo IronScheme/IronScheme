@@ -11,7 +11,7 @@ using Microsoft.Scripting.Ast;
 namespace IronScheme.Compiler
 {
   [Generator("quote")]
-  public sealed class QuoteGenerator : SimpleGenerator
+  sealed class QuoteGenerator : SimpleGenerator
   {
     public override Expression Generate(object args, CodeBlock cb)
     {

@@ -15,7 +15,7 @@ using Oyster.Math;
 
 namespace IronScheme.Runtime
 {
-  public static partial class BuiltinEmitters
+  static partial class BuiltinEmitters
   {
     [InlineEmitter("not")]
     public static Expression Not(params Expression[] obj)

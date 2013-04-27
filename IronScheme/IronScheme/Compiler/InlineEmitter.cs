@@ -12,7 +12,7 @@ namespace IronScheme.Compiler
 {
   // there arent many places this is viable, except where the types are known and IL can be generated more efficiently
   [AttributeUsage(AttributeTargets.Method, AllowMultiple=true)]
-  public class InlineEmitterAttribute : Attribute
+  class InlineEmitterAttribute : Attribute
   {
     readonly string name;
     
@@ -31,5 +31,5 @@ namespace IronScheme.Compiler
     }
   }
 
-  public delegate Expression InlineEmitter(params Expression[] args);
+  delegate Expression InlineEmitter(params Expression[] args);
 }

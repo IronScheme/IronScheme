@@ -20,7 +20,7 @@ using System.Reflection.Emit;
 namespace IronScheme.Compiler
 {
 
-  public partial class Generator
+  partial class Generator
   {
     static Generator()
     {

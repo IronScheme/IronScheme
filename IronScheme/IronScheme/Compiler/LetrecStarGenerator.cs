@@ -15,7 +15,7 @@ namespace IronScheme.Compiler
 {
 
   [Generator("letrec*")]
-  public sealed class LetrecStarGenerator : SimpleGenerator
+  sealed class LetrecStarGenerator : SimpleGenerator
   {
     int level = 0;
     public override Expression Generate(object args, CodeBlock c)
