@@ -247,10 +247,10 @@ See docs/license.txt. |#
            (if (pair? head)
                (if (not (eq? head tail))
                    (length/check ($cdr head) ($cdr tail) ($fx+ i 2))
-                   (assertion-violation 'length "not a proper list" head))
+                   (assertion-violation 'length "not a proper list"))
                (if (null? head)
                    ($fx+ i 1)
-                   (assertion-violation 'length "not a proper list" head))))
+                   (assertion-violation 'length "not a proper list"))))
         (if (null? head)
             i
             (assertion-violation 'length "not a proper list" head))))
