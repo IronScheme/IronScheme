@@ -103,8 +103,16 @@ namespace IronScheme.Runtime
       var exp = GetExponent(r);
 
       const int BIAS = 1075;
-      exponent = exp - BIAS;
-      mantissa = man + MANTISSA;
+      if (exp == 0)
+      {
+        exponent = exp - BIAS;
+        mantissa = (man << 1) ;
+      }
+      else
+      {
+        exponent = exp - BIAS;
+        mantissa = man + MANTISSA;
+      }
 
       return true;
     }
@@ -144,10 +152,19 @@ namespace IronScheme.Runtime
       var e = GetExponent(r);
       var s = GetSign(r) == 0 ? 1 : -1;
 
+
+
       const int BIAS = 1023;
       var re = e - BIAS;
 
       var exp = (((BigInteger)1) << Math.Abs(re));
+
+      if (e == 0)
+      {
+        denominator = s * exp * (MANTISSA >> 1);
+        numerator = m;
+        return true;
+      }
 
       if (re < 0)
       {
