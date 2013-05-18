@@ -505,6 +505,11 @@ namespace IronScheme.Compiler
         ClrSyntaxError("clr-field-set!", "field not found on type: " + type, args);
       }
 
+      if (fi.IsLiteral)
+      {
+        ClrSyntaxError("clr-field-set!", "cannot set a constant field: " + type);
+      }
+
       Expression value = GetAst(Builtins.Car(Builtins.LastPair(args)), cb);
 
       return Ast.Comma(Ast.AssignField(instance,fi, value), Ast.ReadField(null, Unspecified));
