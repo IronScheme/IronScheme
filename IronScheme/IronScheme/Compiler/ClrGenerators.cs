@@ -443,7 +443,7 @@ namespace IronScheme.Compiler
 
       if (fi.IsLiteral)
       {
-        return Ast.Constant(fi.GetValue(instance));
+        return Ast.Constant(fi.GetValue(null));
       }
 
       return Ast.ReadField(instance, fi);
