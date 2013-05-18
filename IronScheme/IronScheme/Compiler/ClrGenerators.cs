@@ -441,6 +441,11 @@ namespace IronScheme.Compiler
         ClrSyntaxError("clr-field-get", "field not found on type: " + type, args, member);
       }
 
+      if (fi.IsLiteral)
+      {
+        return Ast.Constant(fi.GetValue(instance));
+      }
+
       return Ast.ReadField(instance, fi);
     }
 
