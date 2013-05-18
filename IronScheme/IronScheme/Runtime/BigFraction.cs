@@ -106,7 +106,7 @@ namespace IronScheme.Runtime
       if (exp == 0)
       {
         exponent = exp - BIAS;
-        mantissa = (man << 1) ;
+        mantissa = (man << 1);
       }
       else
       {
