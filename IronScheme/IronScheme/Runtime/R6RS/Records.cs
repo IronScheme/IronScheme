@@ -773,6 +773,7 @@ namespace IronScheme.Runtime.R6RS
             mk.EmitArgGet(fi);
           }
 
+          // improve get constructor to look for protected constructors too
           cg.Emit(OpCodes.Call, (rtd.Parent == null ? parenttype.GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
 
           foreach (FieldDescriptor fd in rtd.Fields)
