@@ -81,7 +81,7 @@ namespace IronScheme.Runtime
           var t = typeof(T);
           if (o == null)
           {
-            AssertionViolation("ListToVector", "type cannot be null", t, Builtins.FALSE);
+            AssertionViolation("ListToVector", "type cannot be null", t, FALSE);
           }
           AssertionViolation("ListToVector", "not type of " + t.Namespace + "." + t.Name, o, o.GetType());
         }

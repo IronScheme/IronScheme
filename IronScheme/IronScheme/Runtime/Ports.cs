@@ -258,7 +258,7 @@ namespace IronScheme.Runtime
     }
 
     //[ThreadStatic]
-    static Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
+    static readonly Dictionary<object, Cons> readcache = new Dictionary<object, Cons>();
 
     //[Builtin("read")]
     public static object Read(object port)

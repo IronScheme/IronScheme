@@ -12,7 +12,7 @@ namespace IronScheme.Compiler
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
   sealed class GeneratorAttribute : Attribute
   {
-    string name;
+    readonly string name;
 
     public string Name
     {

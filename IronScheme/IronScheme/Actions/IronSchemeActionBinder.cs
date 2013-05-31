@@ -56,7 +56,7 @@ namespace IronScheme.Actions
           return null;
         }
       }
-      if (obj != null && toType.IsAssignableFrom(obj.GetType()))
+      if (obj != null && toType.IsInstanceOfType(obj))
       {
         return obj;
       }

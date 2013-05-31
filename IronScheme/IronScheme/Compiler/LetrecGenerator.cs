@@ -17,13 +17,10 @@ namespace IronScheme.Compiler
   [Generator("letrec")]
   sealed class LetrecGenerator : SimpleGenerator
   {
-    
-    int level = 0;
     public override Expression Generate(object args, CodeBlock c)
     {
       var refs = ClrGenerator.SaveReferences();
 
-      level++;
       NameHint = SymbolTable.StringToId("");
       CodeBlock cb = Ast.CodeBlock(SpanHint, GetLambdaName(c));
       cb.Parent = c;
@@ -112,8 +109,6 @@ namespace IronScheme.Compiler
 #else
       Expression ex = Ast.SimpleCallHelper(MakeClosure(cb, false), GetCallable(0));
 #endif
-
-      level--;
 
       ClrGenerator.ResetReferences(refs);
 

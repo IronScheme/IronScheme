@@ -240,7 +240,7 @@ namespace IronScheme.Hosting
 
       ConsoleOptions co;
 
-      public override Microsoft.Scripting.Shell.ConsoleOptions ConsoleOptions
+      public override ConsoleOptions ConsoleOptions
       {
         get
         {

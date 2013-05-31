@@ -129,7 +129,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    static BinaryFormatter bf = Runtime.psyntax.Serialization.SERIALIZER;
+    static readonly BinaryFormatter bf = Runtime.psyntax.Serialization.SERIALIZER;
 
     public override object Create()
     {

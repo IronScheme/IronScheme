@@ -764,18 +764,18 @@ namespace IronScheme.Runtime.R6RS
   
   public class IO : Builtins
   {
-    static object bm_line = SymbolTable.StringToObject("line");
+    static readonly object bm_line = SymbolTable.StringToObject("line");
 
-    static object eol_lf = SymbolTable.StringToObject("lf"); //10
-    static object eol_cr = SymbolTable.StringToObject("cr"); //13
+    static readonly object eol_lf = SymbolTable.StringToObject("lf"); //10
+    static readonly object eol_cr = SymbolTable.StringToObject("cr"); //13
     internal static object eol_crlf = SymbolTable.StringToObject("crlf");
-    static object eol_nel = SymbolTable.StringToObject("nel");
-    static object eol_crnel = SymbolTable.StringToObject("crnel"); //194 133
-    static object eol_ls = SymbolTable.StringToObject("ls"); // 226 128 168
+    static readonly object eol_nel = SymbolTable.StringToObject("nel");
+    static readonly object eol_crnel = SymbolTable.StringToObject("crnel"); //194 133
+    static readonly object eol_ls = SymbolTable.StringToObject("ls"); // 226 128 168
     internal static object eol_none = SymbolTable.StringToObject("none");
 
-    static string nel = "\u0085";
-    static string ls = "\u2028";
+    private const string nel = "\u0085";
+    private const string ls = "\u2028";
 
     internal static Regex eoltx = new Regex(string.Join("|",
       Array.ConvertAll<string, string>(

@@ -46,7 +46,7 @@ namespace IronScheme.Runtime
       return null;
     }
 
-    static MethodInfo IsTrue = typeof(Builtins).GetMethod("IsTrue");
+    static readonly MethodInfo IsTrue = typeof(Builtins).GetMethod("IsTrue");
 
     static Expression Unwrap(Expression ex)
     {

@@ -253,7 +253,7 @@ namespace IronScheme.Compiler
 
   sealed class FractionConstant : CompilerConstant
   {
-    Fraction value;
+    readonly Fraction value;
     
     public FractionConstant(Fraction f)
     {
@@ -280,7 +280,7 @@ namespace IronScheme.Compiler
 
   sealed class ComplexFractionConstant : CompilerConstant
   {
-    ComplexFraction value;
+    readonly ComplexFraction value;
 
     public ComplexFractionConstant(ComplexFraction f)
     {
