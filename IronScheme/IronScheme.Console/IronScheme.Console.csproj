@@ -678,6 +678,9 @@
     <None Include="lib\minikanren\mkprelude.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\minikanren\mktests.scm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\pfds\fingertrees.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
