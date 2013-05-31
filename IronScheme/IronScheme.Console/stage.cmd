@@ -20,6 +20,7 @@ xcopy /e ..\..\docs install-stage\IronScheme\docs\
 xcopy /e ..\..\lib install-stage\IronScheme\lib\
 xcopy /e ..\..\tests install-stage\IronScheme\tests\
 
+del install-stage\IronScheme\lib\minikanren\mktests.scm
 del install-stage\IronScheme\lib\pfds\tests.scm
 del install-stage\IronScheme\tests\*.sps
 del install-stage\IronScheme\lib\wak\fmt\private\test*.scm
