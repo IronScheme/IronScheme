@@ -19,7 +19,6 @@
 
 using System;
 using System.Globalization;
-//using Microsoft.Scripting.Math;
 using BigInteger = Oyster.Math.IntX;
 
 namespace System.Runtime.CompilerServices

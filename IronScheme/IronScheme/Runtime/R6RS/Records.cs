@@ -400,7 +400,7 @@ namespace IronScheme.Runtime.R6RS
 
       var functype = GetGenericType("IronScheme.Runtime.Typed.TypedClosure", types);
 
-      return functype as Type;
+      return functype;
     }
 
     static Type GetDelegateType(MethodInfo mi)
@@ -409,7 +409,7 @@ namespace IronScheme.Runtime.R6RS
 
       var functype = GetGenericType("IronScheme.Runtime.Typed.Func", types);
 
-      return functype as Type;
+      return functype;
     }
 
     static Callable CreateCallable(MethodInfo mi)
@@ -516,7 +516,7 @@ namespace IronScheme.Runtime.R6RS
 
   public class Records : Builtins
   {
-    static Dictionary<string, RecordTypeDescriptor> nongenerative = new Dictionary<string, RecordTypeDescriptor>();
+    static readonly Dictionary<string, RecordTypeDescriptor> nongenerative = new Dictionary<string, RecordTypeDescriptor>();
 
     static Regex assnamefix = new Regex(@"[\\/:]", RegexOptions.Compiled);
 
@@ -898,7 +898,6 @@ namespace IronScheme.Runtime.R6RS
       {
         CallTargetN np = delegate(object[] args)
         {
-          
           if (ci.type.TotalFieldCount != args.Length)
           {
             return AssertionViolation(ci.type.Name,

@@ -23,7 +23,7 @@ namespace IronScheme.Runtime.psyntax
       SERIALIZER.AssemblyFormat = FormatterAssemblyStyle.Simple;
       SERIALIZER.Binder = new TypeCorrector();
       SERIALIZER.SurrogateSelector = new Selector();
-      AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
     }
 
     static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -67,8 +67,8 @@ namespace IronScheme.Runtime.psyntax
         return base.GetSurrogate(type, context, out selector);
       }
 
-      static ISerializationSurrogate surrogate = new SymbolSurrogate();
-      static ISerializationSurrogate surrogate2 = new BooleanSurrogate();
+      static readonly ISerializationSurrogate surrogate = new SymbolSurrogate();
+      static readonly ISerializationSurrogate surrogate2 = new BooleanSurrogate();
 
     }
 

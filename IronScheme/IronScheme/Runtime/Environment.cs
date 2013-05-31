@@ -76,7 +76,7 @@ namespace IronScheme.Runtime
     static int anonsymcount = 0;
     static int symcount = 0;
 
-    static char[] symchars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@=".ToCharArray(); //64 for ease
+    static readonly char[] symchars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@=".ToCharArray(); //64 for ease
 
     static string PackInt(int i)
     {

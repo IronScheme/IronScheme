@@ -25,7 +25,7 @@ namespace IronScheme.Compiler
 
       class Pass0 : DeepWalker
       {
-        Dictionary<Variable, int> writecounts = new Dictionary<Variable, int>();
+        readonly Dictionary<Variable, int> writecounts = new Dictionary<Variable, int>();
 
         protected override bool Walk(WriteStatement node)
         {
@@ -166,7 +166,7 @@ namespace IronScheme.Compiler
         internal Dictionary<Variable, Dictionary<Type, List<Expression>>> vartypes;
 
         internal int Count = 0;
-        internal Dictionary<CodeBlock, bool> rebinds = new Dictionary<CodeBlock, bool>(); 
+        internal readonly Dictionary<CodeBlock, bool> rebinds = new Dictionary<CodeBlock, bool>(); 
 
         protected override void PostWalk(WriteStatement node)
         {

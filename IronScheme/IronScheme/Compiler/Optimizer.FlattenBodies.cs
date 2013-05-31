@@ -17,7 +17,7 @@ namespace IronScheme.Compiler
   {
     class FlattenBodies : OptimizerBase
     {
-      static Expression Unspecified = Ast.ReadField(null, Generator.Unspecified);
+      static readonly Expression Unspecified = Ast.ReadField(null, Generator.Unspecified);
 
       public override void Optimize()
       {

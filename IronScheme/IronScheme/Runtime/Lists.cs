@@ -34,8 +34,8 @@ namespace IronScheme.Runtime
       return Ast.TypeIs(values[0], typeof(Cons));
     }
 
-    static FieldInfo car = typeof(Cons).GetField("car");
-    static FieldInfo cdr = typeof(Cons).GetField("cdr");
+    static readonly FieldInfo car = typeof(Cons).GetField("car");
+    static readonly FieldInfo cdr = typeof(Cons).GetField("cdr");
 
     //[InlineEmitter("car", Optimization=OptimizationLevel.Safe)]
     public static Expression Car(Expression[] values)
