@@ -14,6 +14,11 @@ namespace IronScheme.Runtime.R6RS
 {
   public abstract class Condition
   {
+    // make-record-type needs a public default constructor when abstract
+    public Condition()
+    {
+    }
+
     public override string ToString()
     {
       var w = new StringWriter();
