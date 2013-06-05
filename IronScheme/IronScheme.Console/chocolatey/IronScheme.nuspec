@@ -14,9 +14,6 @@
     <licenseUrl>http://ironscheme.codeplex.com/license</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
-    <!--<dependencies>
-      <dependency id="" version="" />
-    </dependencies>-->
     <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
   </metadata>
   <files>
