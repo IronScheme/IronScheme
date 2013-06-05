@@ -2,7 +2,7 @@
 
 $packageName = 'IronScheme' # arbitrary name for the package, used in messages
 $installerType = 'EXE_OR_MSI' #only one of these two: exe or msi
-$url = 'http://build.ironscheme.net/IronScheme-100775.zip' # download url
+$url = 'http://build.ironscheme.net/IronScheme-TFSREV.zip' # download url
 $url64 = $url # 64bit URL here or just use the same as $url
 $silentArgs = 'SILENT_ARGS_HERE' # "/s /S /q /Q /quiet /silent /SILENT /VERYSILENT" # try any of these to get the silent installer #msi is always /quiet
 $validExitCodes = @(0) #please insert other valid exit codes here, exit codes for ms http://msdn.microsoft.com/en-us/library/aa368542(VS.85).aspx
