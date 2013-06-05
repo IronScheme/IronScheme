@@ -3,8 +3,8 @@
   <metadata>
     <id>IronScheme</id>
     <version>0.9.$TFSREV$</version>
-    <authors>leppie</authors>
-    <owners>leppie</owners>
+    <authors>Llewellyn Pritchard</authors>
+    <owners>Llewellyn Pritchard</owners>
     <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
     <projectUrl>http://ironscheme.codeplex.com</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,7 +13,7 @@ TFS builds
 The last version number represent the TFS version
 Discuss @ http://ironscheme.codeplex.com/discussions/404918</description>
     <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
-    <copyright>Copyright 2007-2012</copyright>
+    <copyright>Copyright 2007-2013</copyright>
   </metadata>
   <files>
     <file src="install-stage\IronScheme\lib\**\*.*" target="content\lib" />

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>IronScheme</id>
+    <title>IronScheme</title>
+    <version>0.9.$TFSREV$</version>
+    <authors>Llewellyn Pritchard</authors>
+    <owners>Llewellyn Pritchard</owners>
+    <summary>IronScheme</summary>
+    <description>IronScheme</description>
+    <projectUrl>http://ironscheme.codeplex.com</projectUrl>
+    <tags>IronScheme Scheme R6RS</tags>
+    <copyright>Copyright 2007-2013</copyright>
+    <licenseUrl>http://ironscheme.codeplex.com/license</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
+    <!--<dependencies>
+      <dependency id="" version="" />
+    </dependencies>-->
+    <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+    <!--<file src="content\**" target="content" />-->
+  </files>
+</package>

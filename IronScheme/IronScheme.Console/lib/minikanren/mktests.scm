@@ -41,7 +41,7 @@
     (for-each  display args)
     (error 'WiljaCodeTester "That's all, folks!")))
 
-#;(define-syntax test-divergence
+(define-syntax test-divergence
   (syntax-rules ()
     ((_ title tested-expression)
      (let ((max-ticks 10000000))
@@ -49,8 +49,8 @@
        ((make-engine (lambda () tested-expression))
         max-ticks
         (lambda (t v)
-	  (errorf title
-	    "infinite loop returned " v " after " (- max-ticks t) " ticks"))
+	        (errorf title
+	          "infinite loop returned " v " after " (- max-ticks t) " ticks"))
         (lambda (e^) (void)))))))
 
 ;;; Comment out this definition to test divergent code (Chez Scheme only)
