@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-
+#if FULL
 namespace Microsoft.Scripting.Ast {
     public enum ArgumentKind {
         Simple,
@@ -23,3 +23,4 @@ namespace Microsoft.Scripting.Ast {
         Block
     };
 }
+#endif

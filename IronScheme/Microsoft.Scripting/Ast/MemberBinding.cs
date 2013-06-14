@@ -12,10 +12,11 @@
  *
  *
  * ***************************************************************************/
-
+#if FULL
 namespace Microsoft.Scripting.Ast {
     public enum MemberBinding {
         Unbound,
         Bound
     };
 }
+#endif

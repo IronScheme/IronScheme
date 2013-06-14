@@ -16,16 +16,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-using System.Globalization;
-
-using Microsoft.Scripting;
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Ast {
     /// <summary>
@@ -84,7 +75,6 @@ namespace Microsoft.Scripting.Ast {
         if (IsValidLocation)
         {
           cg.EmitPosition(_start, _end);
-          //cg.Emit(OpCodes.Nop);
         }
       }
 
@@ -106,8 +96,8 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitBoxing(Type);
         }
 
-        static FieldInfo True = typeof(RuntimeHelpers).GetField("True");
-        static FieldInfo False = typeof(RuntimeHelpers).GetField("False");
+        static readonly FieldInfo True = typeof(RuntimeHelpers).GetField("True");
+        static readonly FieldInfo False = typeof(RuntimeHelpers).GetField("False");
 
         /// <summary>
         /// Generates code for this expression in a value position.  This will leave

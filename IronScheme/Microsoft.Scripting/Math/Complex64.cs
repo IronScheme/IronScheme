@@ -196,10 +196,12 @@ namespace Microsoft.Scripting.Math {
             return new Complex64(real, imag);
         }
 
+        [Obsolete("WTF? DO NOT USE!", true)]
         public static Complex64 Mod(Complex64 x, Complex64 y) {
             return x % y;
         }
 
+        [Obsolete("WTF? DO NOT USE!", true)]
         public static Complex64 operator %(Complex64 x, Complex64 y) {
             if (object.ReferenceEquals(x, null)) {
                 throw new ArgumentException(MathResources.InvalidArgument, "x");

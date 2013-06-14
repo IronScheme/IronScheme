@@ -147,23 +147,6 @@ namespace Microsoft.Scripting.Ast {
                 if (_indices.TryGetValue(variable, out index)) {
                     index *= 2;
                     return true;
-                } else {
-                  //if (variable.Name == SymbolTable.StringToId("body")
-                  //  && variable.Kind == Variable.VariableKind.Parameter
-                  //  && variable.Block.Name.StartsWith("define-macro"))
-                  //{
-                  //}
-                  //else
-                  //{
-                  //  // locals and parameters must have be tracked, except for global scope
-                  //  Debug.Assert(
-                  //      variable.Kind != Variable.VariableKind.Local &&
-                  //      variable.Kind != Variable.VariableKind.Parameter ||
-                  //      variable.Lift ||
-                  //      variable.Block.IsGlobal,
-                  //      "Untracked local/parameter " + variable.Name.ToString()
-                  //  );
-                  //}
                 }
             }
 
@@ -563,7 +546,7 @@ namespace Microsoft.Scripting.Ast {
         [Conditional("DEBUG")]
         public void Dump(BitArray bits) {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.AppendFormat("FlowChecker ({0})", _block is CodeBlock ? ((CodeBlock)_block).Name : "");
+            sb.AppendFormat("FlowChecker ({0})", _block != null ? ((CodeBlock)_block).Name : "");
             sb.Append('{');
             bool comma = false;
 

@@ -250,10 +250,8 @@ namespace Microsoft.Scripting.Ast {
           }
 
           EmitLocation(cg);
+
           // Emit the actual call
-
-          //if (cg.ToString().Contains("id?")) Debugger.Break();
-
           if (fixup == null)
           {
             cg.EmitCall(_method, tailcall);
@@ -313,8 +311,6 @@ namespace Microsoft.Scripting.Ast {
             base.EmitLocation(cg);
           }
         }
-
-
 
         static bool LastIsArray(List<Expression> _arguments)
         {
@@ -616,7 +612,7 @@ namespace Microsoft.Scripting.Ast {
                 current++;
             }
             Contract.Requires(consumed == arguments.Length, "arguments", "Incorrect number of arguments");
-            return Call(instance, method, clone != null ? clone : arguments);
+            return Call(instance, method, clone ?? arguments);
         }
 
         private static Expression CreateDefaultValueExpression(ParameterInfo parameter) {

@@ -1,4 +1,22 @@
-﻿
+﻿(library (foo) 
+  (export cowan-test-eq cowan-test-eqv) 
+  (import 
+    (rename (except (rnrs) - =) (fx- -) (fx=? =)))
+  (define (cowan-test-eq n x y)
+    (cond ((eq? x y) 'done)
+          ((= n 0)
+           (cowan-test-eq n 'a 'a))
+          (else
+           (cowan-test-eq (- n 1) x y))))
+  (define (cowan-test-eqv n x y)
+    (cond ((eqv? x y) 'done)
+          ((= n 0)
+           (cowan-test-eqv n 'a 'a))
+          (else
+           (cowan-test-eqv (- n 1) x y)))))
+(import (foo))           
+(time (cowan-test-eq 100000000 'a 'b))
+(time (cowan-test-eqv 100000000 'a 'b))         
 
 (import (ironscheme random))
 

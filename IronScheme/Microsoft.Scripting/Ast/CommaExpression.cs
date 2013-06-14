@@ -56,7 +56,6 @@ namespace Microsoft.Scripting.Ast {
                 expr.SetLoc(span);
               }
             }
-            //_expressions[ValueIndex].SetLoc(span);
           }
         }
 

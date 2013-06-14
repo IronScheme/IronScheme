@@ -31,13 +31,13 @@ namespace Microsoft.Scripting.Ast {
 
       public static Dictionary<SymbolId, Type[]> FixupTypes
       {
-        get { return BoundExpression.fixuptypes; }
+        get { return fixuptypes; }
       } 
 
 
       public static Dictionary<SymbolId, Emitter> Fixups
       {
-        get { return BoundExpression.fixups; }
+        get { return fixups; }
       } 
  
 

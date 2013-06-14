@@ -360,7 +360,6 @@ namespace Microsoft.Scripting.Ast {
             cg.Emit(OpCodes.Newarr, typeof(SymbolId));
 
             int index = 0;
-            //cg.EmitDebugMarker("--- Environment IDs ---");
 
             foreach (Variable prm in _parameters) {
                 if (prm.Lift) {
@@ -373,7 +372,6 @@ namespace Microsoft.Scripting.Ast {
                     EmitSetVariableName(cg, index++, var.Name);
                 }
             }
-            //cg.EmitDebugMarker("--- End Environment IDs ---");
         }
 
         private static void EmitSetVariableName(CodeGen cg, int index, SymbolId name) {
@@ -456,27 +454,16 @@ namespace Microsoft.Scripting.Ast {
         internal EnvironmentSlot EmitEnvironmentAllocation(CodeGen cg) {
             Debug.Assert(_environmentFactory != null);
 
-            //cg.EmitDebugMarker("-- ENV ALLOC START --");
-
             _environmentFactory.EmitStorage(cg);
             cg.Emit(OpCodes.Dup);
             // Store the environment reference in the local
             EnvironmentSlot environmentSlot = _environmentFactory.CreateEnvironmentSlot(cg);
             environmentSlot.EmitSet(cg);
 
-            // Emit the names array for the environment constructor
-            if (ScriptDomainManager.Options.DebugMode)
-            {
-              //EmitEnvironmentIDs(cg);
-            }
-
             // Emit code to generate the new instance of the environment
-
             _environmentFactory.EmitNewEnvironment(cg);
 
-            //cg.EmitDebugMarker("-- ENV ALLOC END --");
-
-            return environmentSlot;
+          return environmentSlot;
         }
 
         /// <summary>
@@ -711,7 +698,7 @@ namespace Microsoft.Scripting.Ast {
           {
             return _compiled;
           }
-            bool createWrapperMethod = _parameterArray ? false : forceWrapperMethod || NeedsWrapperMethod(false);
+            bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(false));
             bool hasThis = HasThis();
 
             CodeGen cg = CreateInterprettedMethod(context, delegateType, hasThis);
@@ -754,7 +741,7 @@ namespace Microsoft.Scripting.Ast {
         //FlowChecker.Check(this);
 
         // TODO: explicit delegate type may be wrapped...
-        bool createWrapperMethod = _parameterArray ? false : (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
+        bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
 
         bool hasContextParameter = _explicitCodeContextExpression == null &&
             (createWrapperMethod ||
@@ -789,7 +776,7 @@ namespace Microsoft.Scripting.Ast {
             //FlowChecker.Check(this);
 
             // TODO: explicit delegate type may be wrapped...
-            bool createWrapperMethod = _parameterArray ? false : (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
+            bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
 
             bool hasContextParameter = _explicitCodeContextExpression == null && 
                 (createWrapperMethod ||
@@ -862,7 +849,7 @@ namespace Microsoft.Scripting.Ast {
             return result;
         }
 
-        protected int ComputeSignature(bool hasContextParameter, bool hasThis, out List<Type> paramTypes, out List<SymbolId> paramNames, out string implName) {
+        int ComputeSignature(bool hasContextParameter, bool hasThis, out List<Type> paramTypes, out List<SymbolId> paramNames, out string implName) {
 
             paramTypes = new List<Type>();
             paramNames = new List<SymbolId>();
@@ -992,36 +979,28 @@ namespace Microsoft.Scripting.Ast {
               impl.ParamsSlot = impl.GetArgumentSlot(lastParamIndex);
             }
           }
-          else
-          {
-            //Console.WriteLine("Already created: {0}", Name);
-          }
 
-            //impl.EmitSequencePointNone();
+          if (_explicitCodeContextExpression != null && HasEnvironment)
+            {
+              Slot localContextSlot = impl.GetLocalTmp(typeof(CodeContext));
+              
+              //cannot access code context slot during emit:
+              _explicitCodeContextExpression.Emit(impl);
 
-            if (_explicitCodeContextExpression != null && HasEnvironment)
-              {
-                Slot localContextSlot = impl.GetLocalTmp(typeof(CodeContext));
-                
-                //cannot access code context slot during emit:
-                _explicitCodeContextExpression.Emit(impl);
+              localContextSlot.EmitSet(impl);
+              impl.ContextSlot = localContextSlot;
 
-                localContextSlot.EmitSet(impl);
-                impl.ContextSlot = localContextSlot;
-
-            } else {
-              if (Parent == null || !Parent.IsGlobal)
-              {
-                impl.ContextSlot = hasContextParameter ? impl.GetArgumentSlot(0) : 
-                    (Parent == null ? impl.ContextSlot : outer.ContextSlot);
-              }
+          } else {
+            if (Parent == null || !Parent.IsGlobal)
+            {
+              impl.ContextSlot = hasContextParameter ? impl.GetArgumentSlot(0) : 
+                  (Parent == null ? impl.ContextSlot : outer.ContextSlot);
             }
-            
-            impl.Allocator = CompilerHelpers.CreateLocalStorageAllocator(outer, impl);
+          }
+          
+          impl.Allocator = CompilerHelpers.CreateLocalStorageAllocator(outer, impl);
 
-            
-
-            return impl;
+          return impl;
         }
 
         private CodeGen CreateInterprettedMethod(CompilerContext context, Type delegateType, bool hasThis) {
@@ -1029,7 +1008,6 @@ namespace Microsoft.Scripting.Ast {
             List<SymbolId> paramNames;
             CodeGen impl;
             string implName;
-
 
             int lastParamIndex;
 
@@ -1070,7 +1048,7 @@ namespace Microsoft.Scripting.Ast {
                 return outer.DefineMethod(implName, typeof(object), paramTypes.ToArray(), null, staticData);
             }
         }
-
+/*
         private CodeGen MakeUntypedWrapperMethod(CodeGen outer, CodeGen impl)
         {
           string implName = impl.MethodBase.Name;
@@ -1098,7 +1076,7 @@ namespace Microsoft.Scripting.Ast {
 
         public static MethodInfo Unbox;
         public static MethodInfo Box;
-
+*/
         /// <summary>
         /// Creates a wrapper method for the user-defined function.  This allows us to use the CallTargetN
         /// delegate against the function when we don't have a CallTarget# which is large enough.
@@ -1186,6 +1164,7 @@ namespace Microsoft.Scripting.Ast {
             Debug.Assert(!Inlined);
             EmitBody(impl);
 
+#if FULL
             string displayName;
             
             if (impl.HasContext) {
@@ -1193,7 +1172,7 @@ namespace Microsoft.Scripting.Ast {
             } else {
                 displayName = _name;
             }
-#if FULL
+
             CompilerHelpers.EmitStackTraceFaultBlock(impl, _name, displayName);
 #endif
         }

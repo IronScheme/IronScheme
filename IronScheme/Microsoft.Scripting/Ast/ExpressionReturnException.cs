@@ -12,7 +12,7 @@
  *
  *
  * ***************************************************************************/
-
+#if FULL
 using System;
 
 namespace Microsoft.Scripting.Ast {
@@ -35,3 +35,4 @@ namespace Microsoft.Scripting.Ast {
         }
     }
 }
+#endif
