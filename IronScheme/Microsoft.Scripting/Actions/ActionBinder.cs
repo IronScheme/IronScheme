@@ -68,7 +68,7 @@ namespace Microsoft.Scripting.Actions {
                         return obj;
                     }
                 } else {
-                    if (toType.IsAssignableFrom(obj.GetType())) {
+                    if (toType.IsInstanceOfType(obj)) {
                         return obj;
                     }
                 }

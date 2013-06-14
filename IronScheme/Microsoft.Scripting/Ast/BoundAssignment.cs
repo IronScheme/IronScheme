@@ -91,10 +91,6 @@ namespace Microsoft.Scripting.Ast {
     public override void Emit(CodeGen cg)
     {
       _value.EmitAs(cg, _vr.Slot.Type);
-      //if (_vr.Variable.Type == typeof(object) && _value.Type.IsValueType && _value.Type != typeof(SymbolId))
-      //{
-      //  cg.EmitBoxing(_value.Type);
-      //}
 
       if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
       {

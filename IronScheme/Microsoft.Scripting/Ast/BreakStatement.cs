@@ -31,7 +31,6 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
-            //cg.EmitPosition(Start, End);
 
             if (_statement != null) {
                 cg.CheckAndPushTargets(_statement);

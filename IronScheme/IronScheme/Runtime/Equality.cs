@@ -50,7 +50,7 @@ namespace IronScheme.Runtime
 
     static Expression Unwrap(Expression ex)
     {
-      while (ex is UnaryExpression && ((UnaryExpression)ex).NodeType == AstNodeType.Convert)
+      while (ex is UnaryExpression && ex.NodeType == AstNodeType.Convert)
       {
         ex = ((UnaryExpression)ex).Operand;
       }
@@ -117,7 +117,7 @@ namespace IronScheme.Runtime
     {
       if (first is Encoding && second is Encoding)
       {
-        return ((Encoding)first).WebName == ((Encoding)second).WebName;
+        return GetBool(((Encoding) first).WebName == ((Encoding) second).WebName);
       }
 
       return GetBool(Equals(first, second));

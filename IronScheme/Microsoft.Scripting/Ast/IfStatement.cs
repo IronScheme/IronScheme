@@ -51,23 +51,18 @@ namespace Microsoft.Scripting.Ast {
                 
                 t.Test.EmitBranchFalse(cg, next);
 
-                //cg.Emit(OpCodes.Nop);
-
                 t.Body.Emit(cg);
-
-                //cg.EmitSequencePointNone();
 
                 // optimize no else case
                 if (IsNotIfOrReturn(t.Body))
                 {
-                  eoiused |= true;
+                  eoiused = true;
                   cg.Emit(OpCodes.Br, eoi);
                 }
                 cg.MarkLabel(next);
             }
             if (_else != null) {
                 _else.Emit(cg);
-                //cg.EmitSequencePointNone();
             }
             if (eoiused)
             {
@@ -90,7 +85,7 @@ namespace Microsoft.Scripting.Ast {
           }
           else
           {
-            if (!(s is ReturnStatement) /*&& !(s is IfStatement)*/ && !(s is ContinueStatement))
+            if (!(s is ReturnStatement) && !(s is ContinueStatement))
             {
               return true;
             }
