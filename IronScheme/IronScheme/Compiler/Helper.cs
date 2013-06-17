@@ -289,9 +289,13 @@ namespace IronScheme.Compiler
       else
       {
         double o2 = SafeConvert(obj2);
-        if (o2 == 0.0 && !(obj2 is double))
+        if (o2 == 0.0)
         {
-          return obj1;
+          o2 = 0; // get rid of negative 0
+          if (!(obj2 is double))
+          {
+            return obj1;
+          }
         }
         return Complex64.Make(SafeConvert(obj1), o2);
       }
@@ -305,9 +309,13 @@ namespace IronScheme.Compiler
     public static object MakePolar(object obj1, object obj2)
     {
       double o2 = SafeConvert(obj2);
-      if (o2 == 0.0 && !(obj2 is double))
+      if (o2 == 0.0)
       {
-        return obj1;
+        o2 = 0; // get rid of negative 0
+        if (!(obj2 is double))
+        {
+          return obj1;
+        }
       }
       object r = MakeRectangular(Math.Cos(o2), Math.Sin(o2));
       if (r is double)
