@@ -31,8 +31,8 @@ cd install-stage
 c:\MinGW\msys\1.0\bin\tar.exe -c -fIronScheme-latest.tar IronScheme
 ..\xz IronScheme-latest.tar
 
-copy ngen-all.cmd install-stage\IronScheme
-copy un-ngen-all.cmd install-stage\IronScheme
+copy ..\ngen-all.cmd IronScheme
+copy ..\un-ngen-all.cmd IronScheme
 
 ..\zip -r -9 IronScheme-latest.zip IronScheme
 cd ..
