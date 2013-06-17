@@ -801,8 +801,7 @@ namespace Microsoft.Scripting.Ast {
                 wrapper.Finish();
                 
                 if (delegateType == null) {
-                  delegateType =
- typeof(CallTargetN);
+                  delegateType = typeof(CallTargetN);
                 }
                 _impl = wrapper.MethodInfo;
                 //cg.EmitPosition(Start, Start);
@@ -813,8 +812,7 @@ namespace Microsoft.Scripting.Ast {
                 cg.EmitDelegateConstruction(wrapper, delegateType, hasContextParameter);
             } else if (_parameterArray) {
                 if (delegateType == null) {
-                  delegateType =
- typeof(CallTargetN);
+                  delegateType = typeof(CallTargetN);
                 }
                 //cg.EmitPosition(Start, Start);
                 if (hasContextParameter)

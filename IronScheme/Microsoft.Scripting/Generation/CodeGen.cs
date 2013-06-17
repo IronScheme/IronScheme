@@ -1355,10 +1355,23 @@ namespace Microsoft.Scripting.Generation {
               Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
               Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
             } 
-            else {
+            else 
+            {
+              if (delegateFunction.MethodInfo.IsPublic)
+              {
                 EmitNull();
                 Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
                 Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
+              }
+              else
+              {
+                var cache = TypeGen.AddStaticField(delegateType, FieldAttributes.Private, "$proc-cache$" + delegateFunction.MethodInfo.Name);
+                TypeGen.TypeInitializer.EmitNull();
+                TypeGen.TypeInitializer.Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
+                TypeGen.TypeInitializer.Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));
+                cache.EmitSet(TypeGen.TypeInitializer);
+                cache.EmitGet(this);
+              }
             }
         }
 
@@ -2279,11 +2292,11 @@ namespace Microsoft.Scripting.Generation {
               block.EmitFunctionImplementation(impl);
 
               // add custom attributes to method
-              if (block.DecorateWithUnspecifiedReturn)
-              {
-                var mb = impl.MethodBase as MethodBuilder;
-                mb.SetCustomAttribute(typeof(IronScheme.Runtime.UnspecifiedReturnAttribute).GetConstructor(Type.EmptyTypes), new byte[0]);
-              }
+              //if (block.DecorateWithUnspecifiedReturn)
+              //{
+              //  var mb = impl.MethodBase as MethodBuilder;
+              //  mb.SetCustomAttribute(typeof(IronScheme.Runtime.UnspecifiedReturnAttribute).GetConstructor(Type.EmptyTypes), new byte[0]);
+              //}
 
               impl.Finish();
 

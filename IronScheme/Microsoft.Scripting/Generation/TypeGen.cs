@@ -215,7 +215,7 @@ namespace Microsoft.Scripting.Generation {
 
             Type[] parameterTypes = CompilerHelpers.MakeParamTypeArray(paramTypes, constantPool);
 
-            if (parameterTypes.Length > 0 && parameterTypes[0] == typeof(CodeContext) && name != "Initialize")
+            if (parameterTypes.Length > 0 && parameterTypes[0] == typeof(CodeContext) && name != "Initialize" || name.Contains("#"))
             {
               attrs = MethodAttributes.Static | MethodAttributes.Private;
             }
