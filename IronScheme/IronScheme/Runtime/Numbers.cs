@@ -172,7 +172,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    internal static bool IsExact(object obj)
+    static bool IsExact(object obj)
     {
       return obj is int ||
              obj is BigInteger ||
@@ -242,6 +242,10 @@ namespace IronScheme.Runtime
       {
         return NumberClass.Integer;
       }
+      else if (obj is double)
+      {
+        return NumberClass.Real;
+      }
       else if (obj is BigInteger)
       {
         return NumberClass.BigInteger;
@@ -249,10 +253,6 @@ namespace IronScheme.Runtime
       else if (obj is Fraction)
       {
         return NumberClass.Rational;
-      }
-      else if (obj is double)
-      {
-        return NumberClass.Real;
       }
       else if (obj is Complex64 || obj is ComplexFraction)
       {
@@ -264,7 +264,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    protected static int ConvertToInteger(object o)
+    static int ConvertToInteger(object o)
     {
       if (o is int)
       {
@@ -307,12 +307,12 @@ namespace IronScheme.Runtime
       throw new NotSupportedException("number type not supported");
     }
 
-    protected static double ConvertToReal(object o)
+    static double ConvertToReal(object o)
     {
       return SafeConvert(o);
     }
 
-    protected static Complex64 ConvertToComplex(object o)
+    static Complex64 ConvertToComplex(object o)
     {
       if (o is Complex64)
       {
@@ -328,7 +328,7 @@ namespace IronScheme.Runtime
       }
     }
 
-    protected static ComplexFraction ConvertToComplexFraction(object o)
+    static ComplexFraction ConvertToComplexFraction(object o)
     {
       if (o is ComplexFraction)
       {

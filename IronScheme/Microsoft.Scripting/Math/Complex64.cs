@@ -376,8 +376,7 @@ namespace Microsoft.Scripting.Math {
         {
           get 
           { 
-            double d = System.Math.Atan2(imag, real);
-            return d;
+            return System.Math.Atan2(imag, real);
           }
         }
 
@@ -385,6 +384,15 @@ namespace Microsoft.Scripting.Math {
 
         public static Complex64 Acos(Complex64 z)
         {
+          if (z.imag == 0 && z.real > 0)
+          {
+            var r = Acos(new Complex64(-z.real, 0));
+            return System.Math.PI - r;
+          }
+          if (z.imag < 0)
+          {
+            return System.Math.PI - Acos(-z);
+          }
           return -i * Log(z + i * Sqrt(1 - Pow(z, 2)));
         }
 
@@ -395,6 +403,14 @@ namespace Microsoft.Scripting.Math {
 
         public static Complex64 Asin(Complex64 z)
         {
+          if (z.imag == 0 && z.real < 0)
+          {
+            return -Asin(new Complex64(-z.real, 0));
+          }
+          if (z.imag > 0)
+          {
+            return -Asin(-z);
+          }
           return -i * Log(z * i + Sqrt(1 - Pow(z, 2)));
         }
 
