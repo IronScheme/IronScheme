@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using IronScheme.Web.Hosting;
 
 namespace IronScheme.WebServer
@@ -20,7 +21,8 @@ namespace IronScheme.WebServer
 
       if (File.Exists(Path.Combine(dir, "web.config")))
       {
-        if (File.Exists(Path.Combine(Path.Combine(dir, "bin"), "IronScheme.Web.Runtime.dll")))
+        //if (File.Exists(Path.Combine(Path.Combine(dir, "bin"), "IronScheme.Web.Runtime.dll")))
+        if (File.Exists(new [] {dir, "bin", "IronScheme.Web.Runtime.dll"}.Aggregate(Path.Combine)))
         {
           var ctl = new HttpListenerController(
             new string[] { string.Format("http://{0}:{1}/", s.IP, s.Port) },
