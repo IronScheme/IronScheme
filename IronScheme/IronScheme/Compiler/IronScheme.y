@@ -37,6 +37,25 @@ static Cons Append(Cons c, Cons t)
   return c;
 }
 
+static Cons Append(Cons c, Cons t, object end)
+{
+  if (c == null || c.car == Ignore)
+  {
+    Last(t).cdr = end;
+    return t;
+  }
+  else if (t == null || t.car == Ignore)
+  {
+    Last(c).cdr = end;
+  }
+  else
+  {
+    Last(t).cdr = end;
+    Last(c).cdr = t;
+  }
+  return c;
+}
+
 public static Dictionary<object,SourceSpan> sourcemap = new Dictionary<object,SourceSpan>();
 
 static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
@@ -168,10 +187,18 @@ file
     ;
     
 list
-    : LBRACE exprlist RBRACE                      { $$ = AnnotateList($2,@1,@3); }
-    | LBRACK exprlist RBRACK                      { $$ = AnnotateList($2,@1,@3); }
-    | LBRACE exprlist expr DOT expr RBRACE        { $$ = AnnotateList(Append($2, new Cons($3,$5)),@1, @6); } 
-    | LBRACK exprlist expr DOT expr RBRACK        { $$ = AnnotateList(Append($2, new Cons($3,$5)),@1, @6); } 
+    : LBRACE RBRACE                               { $$ = AnnotateList(null,@1,@2); }
+    | LBRACK RBRACK                               { $$ = AnnotateList(null,@1,@2); }
+    | LBRACE expr RBRACE                          { $$ = AnnotateList(new Cons($2),@1,@3); }
+    | LBRACK expr RBRACK                          { $$ = AnnotateList(new Cons($2),@1,@3); }    
+    | LBRACE expr DOT expr RBRACE                 { $$ = AnnotateList(new Cons($2,$4),@1, @5); } 
+    | LBRACK expr DOT expr RBRACK                 { $$ = AnnotateList(new Cons($2,$4),@1, @5); } 
+    | LBRACE expr DOT expr DOT expr exprlist RBRACE        { $$ = AnnotateList(new Cons($4, new Cons($2, new Cons($6, $7))),@1, @8); } 
+    | LBRACK expr DOT expr DOT expr exprlist RBRACK        { $$ = AnnotateList(new Cons($4, new Cons($2, new Cons($6, $7))),@1, @8);  }    
+    | LBRACE expr expr exprlist RBRACE            { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4),@1,@5); }
+    | LBRACK expr expr exprlist RBRACK            { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4),@1,@5); }    
+    | LBRACE expr expr exprlist DOT expr RBRACE   { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4, $6),@1, @7); }
+    | LBRACK expr expr exprlist DOT expr RBRACK   { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4, $6),@1, @7); }
     | specexpr expr                               { $$ = AnnotateList(new Cons($1, new Cons($2)), @1, @2); }
     ;
 
