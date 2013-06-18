@@ -393,7 +393,7 @@ namespace Microsoft.Scripting.Math {
           {
             return System.Math.PI - Acos(-z);
           }
-          return -i * Log(z + i * Sqrt(1 - Pow(z, 2)));
+          return -i * Log(z + i * Sqrt(1 - (z * z)));
         }
 
         public static Complex64 Acosh(Complex64 z)
@@ -411,7 +411,7 @@ namespace Microsoft.Scripting.Math {
           {
             return -Asin(-z);
           }
-          return -i * Log(z * i + Sqrt(1 - Pow(z, 2)));
+          return -i * Log(z * i + Sqrt(1 - (z * z)));
         }
 
         public static Complex64 Asinh(Complex64 z)
