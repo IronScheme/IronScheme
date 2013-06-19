@@ -58,7 +58,7 @@ namespace IronScheme.Hosting
       {
         // cheat
         return @"&implementation-restriction
-&message:             continuations cannot be used in this way, sorry :(";
+&message: ""continuations cannot be used in this way, sorry :(""";
       }
 
       if (exception is ThreadAbortException)
@@ -69,6 +69,16 @@ namespace IronScheme.Hosting
       if (exception is SchemeException)
       {
         return exception.ToString();
+      }
+
+      if (exception is SyntaxErrorException)
+      {
+        var parts = exception.Message.Split('|');
+        return @"Unhandled exception while reading input:
+&lexical
+&message: """ + parts[0] + @"""
+&irritants: (""" + parts[1] + @""")
+";
       }
 
       var w = new IronScheme.Runtime.StringWriter();
