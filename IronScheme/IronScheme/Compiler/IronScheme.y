@@ -25,11 +25,11 @@ static Cons Last(Cons c)
 
 static Cons Append(Cons c, Cons t)
 {
-  if (c == null || c.car == Ignore)
+  if (c == null)
   {
     return t;
   }
-  if (t == null || t.car == Ignore)
+  if (t == null)
   {
     return c;
   }
@@ -39,12 +39,12 @@ static Cons Append(Cons c, Cons t)
 
 static Cons Append(Cons c, Cons t, object end)
 {
-  if (c == null || c.car == Ignore)
+  if (c == null)
   {
     Last(t).cdr = end;
     return t;
   }
-  else if (t == null || t.car == Ignore)
+  else if (t == null)
   {
     Last(c).cdr = end;
   }
@@ -196,9 +196,9 @@ listcont
     :                                             { $$ = null; }
     | ignore                                      { $$ = null; }
     | expr                                        { $$ = $1 == Ignore ? null : new Cons($1); }
-    | expr DOT expr                               { $$ =  new Cons($1, $3); }
+    | expr DOT expr                               { $$ = new Cons($1, $3); }
     | expr DOT expr DOT expr exprlist             { $$ = new Cons($3, new Cons($1, new Cons($5, $6))); }
-    | expr expr exprlist                          { $$ = Append(new Cons($1, new Cons($2)), $3); }
+    | expr expr exprlist                          { $$ = new Cons($1, new Cons($2, $3)); }
     | expr expr exprlist DOT expr                 { $$ = Append(new Cons($1, new Cons($2)), $3, $5); }
     ;
 
