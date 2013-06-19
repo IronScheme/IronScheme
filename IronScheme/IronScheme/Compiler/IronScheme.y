@@ -174,9 +174,9 @@ static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 %token maxParseToken COMMENT
 
 %type <text> mlstring
-%type <lst> exprlist file
+%type <lst> exprlist file listcont
 %type <list> list 
-%type <elem> expr specexpr
+%type <elem> expr specexpr ignore
 
 %start file
 
@@ -187,19 +187,19 @@ file
     ;
     
 list
-    : LBRACE RBRACE                               { $$ = AnnotateList(null,@1,@2); }
-    | LBRACK RBRACK                               { $$ = AnnotateList(null,@1,@2); }
-    | LBRACE expr RBRACE                          { $$ = AnnotateList(new Cons($2),@1,@3); }
-    | LBRACK expr RBRACK                          { $$ = AnnotateList(new Cons($2),@1,@3); }    
-    | LBRACE expr DOT expr RBRACE                 { $$ = AnnotateList(new Cons($2,$4),@1, @5); } 
-    | LBRACK expr DOT expr RBRACK                 { $$ = AnnotateList(new Cons($2,$4),@1, @5); } 
-    | LBRACE expr DOT expr DOT expr exprlist RBRACE        { $$ = AnnotateList(new Cons($4, new Cons($2, new Cons($6, $7))),@1, @8); } 
-    | LBRACK expr DOT expr DOT expr exprlist RBRACK        { $$ = AnnotateList(new Cons($4, new Cons($2, new Cons($6, $7))),@1, @8);  }    
-    | LBRACE expr expr exprlist RBRACE            { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4),@1,@5); }
-    | LBRACK expr expr exprlist RBRACK            { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4),@1,@5); }    
-    | LBRACE expr expr exprlist DOT expr RBRACE   { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4, $6),@1, @7); }
-    | LBRACK expr expr exprlist DOT expr RBRACK   { $$ = AnnotateList(Append(new Cons($2, new Cons($3)), $4, $6),@1, @7); }
+    : LBRACE listcont RBRACE                      { $$ = AnnotateList($2,@1,@3); }
+    | LBRACK listcont RBRACK                      { $$ = AnnotateList($2,@1,@3); }
     | specexpr expr                               { $$ = AnnotateList(new Cons($1, new Cons($2)), @1, @2); }
+    ;
+    
+listcont
+    :                                             { $$ = null; }
+    | ignore                                      { $$ = null; }
+    | expr                                        { $$ = $1 == Ignore ? null : new Cons($1); }
+    | expr DOT expr                               { $$ =  new Cons($1, $3); }
+    | expr DOT expr DOT expr exprlist             { $$ = new Cons($3, new Cons($1, new Cons($5, $6))); }
+    | expr expr exprlist                          { $$ = Append(new Cons($1, new Cons($2)), $3); }
+    | expr expr exprlist DOT expr                 { $$ = Append(new Cons($1, new Cons($2)), $3, $5); }
     ;
 
 exprlist
@@ -223,11 +223,16 @@ expr
     | CHARACTER                                   { $$ = Annotate($1[0], @1);}
     | VECTORLBRACE exprlist RBRACE                { $$ = Annotate(Builtins.ListToVector($2),@1,@3);}
     | VALUEVECTORLBRACE exprlist RBRACE           { $$ = Annotate(Helper.ListToVector(this, $1.text, Strip($2)),@1,@3); }
-    | IGNOREDATUM expr                            { $$ = Ignore; }
+    | expr ignore                                 { $$ = $1; }
+    | ignore expr                                 { $$ = $2; }
+    ; 
+    
+ignore
+    : IGNOREDATUM expr                            { $$ = Ignore; }
     | DIRECTIVE                                   { $$ = Ignore; }
     | FOLDCASE                                    { FoldCase = true; $$ = Ignore; }
     | NOFOLDCASE                                  { FoldCase = false; $$ = Ignore; }
-    ; 
+    ;
 
 specexpr
     : QUOTE                                       { $$ = Annotate(quote, @1);}
