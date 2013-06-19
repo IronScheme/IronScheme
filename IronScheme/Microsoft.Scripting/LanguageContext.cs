@@ -169,7 +169,7 @@ namespace Microsoft.Scripting {
             CodeBlock block = ParseSourceCode(context);
 
             if (block == null) {
-                throw new SyntaxErrorException();
+                throw new SyntaxErrorException("invalid syntax|" + sourceUnit.GetCode().Trim());
             }
 
             //DumpBlock(block, sourceUnit.Id);

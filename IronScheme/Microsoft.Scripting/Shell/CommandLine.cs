@@ -234,18 +234,21 @@ namespace Microsoft.Scripting.Shell {
             int? res = null;
             do {
                 if (Options.HandleExceptions) {
-                    try {
-                        res = TryInteractiveAction();
+                  try
+                  {
+                    res = TryInteractiveAction();
 #if SILVERLIGHT 
                     } catch (ExitProcessException e) {
                         res = e.ExitCode;
 #endif
-                    } catch (Exception e) {
+                  }
+                  catch (Exception e) 
+                  {
                         // There should be no unhandled exceptions in the interactive session
                         // We catch all exceptions here, and just display it,
                         // and keep on going
                         _console.WriteLine(_engine.FormatException(e), Style.Error);
-                    }
+                  }
                 } else {
                     res = TryInteractiveAction();
                 }

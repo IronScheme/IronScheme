@@ -224,7 +224,7 @@ expr
     | VECTORLBRACE exprlist RBRACE                { $$ = Annotate(Builtins.ListToVector($2),@1,@3);}
     | VALUEVECTORLBRACE exprlist RBRACE           { $$ = Annotate(Helper.ListToVector(this, $1.text, Strip($2)),@1,@3); }
     | expr ignore                                 { $$ = $1; }
-    | ignore expr                                 { $$ = $2; }
+    | ignore expr                                 { $$ = $2; } // this causes a lot of S/R conflicts, but seemingly ok
     ; 
     
 ignore
