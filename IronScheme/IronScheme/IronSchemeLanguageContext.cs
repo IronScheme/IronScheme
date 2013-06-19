@@ -137,7 +137,7 @@ namespace IronScheme
       {
         return p.parsed;
       }
-      return null;
+      return Builtins.LexicalError("invalid syntax", code);
     }
 
     internal static object ReadExpressions(string code, CompilerContext cc)
@@ -159,7 +159,7 @@ namespace IronScheme
         {
           return p.parsed;
         }
-        return null;
+        return Builtins.LexicalError("invalid syntax", code);
       }
       finally
       {
