@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using IronScheme.Hosting;
 using IronScheme.Runtime;
@@ -401,15 +402,6 @@ namespace IronScheme.Compiler
         else
         {
           s = Ast.Statement(e);
-        }
-
-        if (c.car is Cons && Parser.sourcemap.ContainsKey(c.car))
-        {
-          s.SetLoc(Parser.sourcemap[c.car]);
-        }
-        else
-        {
-          ;
         }
 
         stmts.Add(s);

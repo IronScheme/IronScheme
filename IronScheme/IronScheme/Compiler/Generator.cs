@@ -537,10 +537,6 @@ namespace IronScheme.Compiler
               IGenerator gh = m as IGenerator;
               if (gh != null)
               {
-                if (!Parser.sourcemap.TryGetValue(c, out spanhint))
-                {
-                  spanhint = SourceSpan.None;
-                }
                 return gh.Generate(c.cdr, cb);
               }
 
