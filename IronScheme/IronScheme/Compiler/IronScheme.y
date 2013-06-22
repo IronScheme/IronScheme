@@ -56,8 +56,6 @@ static Cons Append(Cons c, Cons t, object end)
   return c;
 }
 
-public static Dictionary<object,SourceSpan> sourcemap = new Dictionary<object,SourceSpan>();
-
 static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
 {
   int ecol = end.eCol + 1;
@@ -83,7 +81,6 @@ static object SetLocation(object o, gppg.LexLocation start, gppg.LexLocation end
   {
     return null;
   }
-  sourcemap[o] = GetLocation(start, end);
   return o;
 }
 
@@ -93,7 +90,6 @@ static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
   {
     return null;
   }
-  sourcemap[o] = GetLocation(start, end);
   return o;
 }
 

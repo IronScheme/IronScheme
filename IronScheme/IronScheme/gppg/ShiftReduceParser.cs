@@ -41,16 +41,26 @@ namespace gppg
     protected int eofToken;
 
 
-
+    bool initialized = false;
     protected abstract void Initialize();
 
 
     public bool Parse()
     {
-      Initialize();	// allow derived classes to instantiate rules, states and nonTerminals
+      if (!initialized)
+      {
+        Initialize(); // allow derived classes to instantiate rules, states and nonTerminals
+        initialized = true;
+      }
 
       next = 0;
       current_state = states[0];
+
+      state_stack.top = 0;
+      value_stack.top = 0;
+      location_stack.top = 0;
+      recovering = false;
+      tokensSinceLastError = 0;
 
       state_stack.Push(current_state);
       value_stack.Push(yyval);

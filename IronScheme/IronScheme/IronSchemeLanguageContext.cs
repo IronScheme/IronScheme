@@ -152,19 +152,13 @@ namespace IronScheme
       sc.Errors = cc.Errors;
       sc.SetSource(code, 0);
       p.scanner = sc;
-      
-      try
+
+      if (p.Parse())
       {
-        if (p.Parse())
-        {
-          return p.parsed;
-        }
-        return Builtins.LexicalError("invalid syntax", code);
+        return p.parsed;
       }
-      finally
-      {
-        Parser.sourcemap.Clear();
-      }
+      return Builtins.LexicalError("invalid syntax", code);
+
     }
 
     internal static CodeBlock Compile(Cons expr)
@@ -173,7 +167,6 @@ namespace IronScheme
 
       Compile(cb, expr);
 
-      Parser.sourcemap.Clear();
       return cb;
     }
 
