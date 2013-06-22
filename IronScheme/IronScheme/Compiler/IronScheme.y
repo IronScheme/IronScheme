@@ -75,24 +75,6 @@ protected override SourceSpan GetLocation(gppg.LexLocation loc)
     new SourceLocation(1, loc.eLin, loc.eCol + 1));
 }
 
-static object SetLocation(object o, gppg.LexLocation start, gppg.LexLocation end)
-{
-  if (o == null)
-  {
-    return null;
-  }
-  return o;
-}
-
-static Cons SetLocation(Cons o, gppg.LexLocation start, gppg.LexLocation end)
-{
-  if (o == null)
-  {
-    return null;
-  }
-  return o;
-}
-
 static object MakeNumber(string input)
 {
   object n = Builtins.StringToNumber(input);

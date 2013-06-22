@@ -18,17 +18,14 @@ namespace IronScheme.Compiler
 {
   abstract class ClrGenerator : SimpleGenerator
   {
-    protected static MethodInfo Helpers_ConvertToDelegate = typeof(Helpers).GetMethod("ConvertToDelegate");
-    protected static MethodInfo Helpers_SymbolToEnum = typeof(Helpers).GetMethod("SymbolToEnum");
-    protected static MethodInfo Helpers_EnumToSymbol = typeof(Helpers).GetMethod("EnumToSymbol");
-    protected static MethodInfo Helpers_Requires = typeof(Helpers).GetMethod("Requires");
-    protected static MethodInfo Helpers_RequiresArray = typeof(Helpers).GetMethod("RequiresArray");
-    //protected static MethodInfo Helpers_RequiresNotNull = typeof(Helpers).GetMethod("RequiresNotNull");
+    static readonly MethodInfo Helpers_ConvertToDelegate = typeof (Helpers).GetMethod("ConvertToDelegate");
+    static readonly MethodInfo Helpers_SymbolToEnum = typeof (Helpers).GetMethod("SymbolToEnum");
+    static readonly MethodInfo Helpers_EnumToSymbol = typeof (Helpers).GetMethod("EnumToSymbol");
+    static readonly MethodInfo Helpers_Requires = typeof (Helpers).GetMethod("Requires");
+    static readonly MethodInfo Helpers_RequiresArray = typeof (Helpers).GetMethod("RequiresArray");
 
     protected static Dictionary<string, string> namespaces = ResetReferences();
     internal static readonly Dictionary<string, Type> compiletimetypes = new Dictionary<string, Type>();
-
-    public static bool TypeHelpersEnabled { get; set; }
 
     protected internal static void ClrSyntaxError(string who, string msg, params object[] forms)
     {
@@ -125,8 +122,8 @@ namespace IronScheme.Compiler
         }
 
         var st = string.Format("{0}`{1}",
-          SymbolTable.IdToString((SymbolId)gt.car),
-          ga.Count);
+                               SymbolTable.IdToString((SymbolId) gt.car),
+                               ga.Count);
 
         var mt = ScanForType(st);
         if (mt == null)
@@ -144,7 +141,7 @@ namespace IronScheme.Compiler
       }
       else if (type is SymbolId)
       {
-        var st = SymbolTable.IdToString((SymbolId)type);
+        var st = SymbolTable.IdToString((SymbolId) type);
         return ScanForType(st);
       }
       else if (type is string)
@@ -157,35 +154,35 @@ namespace IronScheme.Compiler
       }
     }
 
-    readonly static Dictionary<string, string> TypeMap = new Dictionary<string,string>
-    {
-      { "fixnum", "Int32" },
-      { "int", "Int32" },
-      { "flonum", "Double" },
-      { "double", "Double" },
-      { "string", "String" },
-      { "bool", "Boolean" },
-      { "vector", "Object[]" },
-      { "bytevector", "Byte[]" },
-      { "cons", "IronScheme.Runtime.Cons" },
-      { "list", "IronScheme.Runtime.Cons" },
-      { "char", "Char" },
-      { "procedure" , "IronScheme.Runtime.Callable" },
-      { "hashtable" , "System.Collections.Hashtable" },
-      { "fixnum[]", "Int32[]" },
-      { "int[]", "Int32[]" },
-      { "flonum[]", "Double[]" },
-      { "double[]", "Double[]" },
-      { "string[]", "String[]" },
-      { "bool[]", "Boolean[]" },
-      { "vector[]", "Object[]" },
-      { "bytevector[]", "Byte[][]" },
-      { "cons[]", "IronScheme.Runtime.Cons[]" },
-      { "list[]", "IronScheme.Runtime.Cons[]" },
-      { "char[]", "Char[]" },
-      { "procedure[]" , "IronScheme.Runtime.Callable[]" },
-      { "hashtable[]" , "System.Collections.Hashtable[]" }
-    };
+    static readonly Dictionary<string, string> TypeMap = new Dictionary<string, string>
+      {
+        {"fixnum", "Int32"},
+        {"int", "Int32"},
+        {"flonum", "Double"},
+        {"double", "Double"},
+        {"string", "String"},
+        {"bool", "Boolean"},
+        {"vector", "Object[]"},
+        {"bytevector", "Byte[]"},
+        {"cons", "IronScheme.Runtime.Cons"},
+        {"list", "IronScheme.Runtime.Cons"},
+        {"char", "Char"},
+        {"procedure", "IronScheme.Runtime.Callable"},
+        {"hashtable", "System.Collections.Hashtable"},
+        {"fixnum[]", "Int32[]"},
+        {"int[]", "Int32[]"},
+        {"flonum[]", "Double[]"},
+        {"double[]", "Double[]"},
+        {"string[]", "String[]"},
+        {"bool[]", "Boolean[]"},
+        {"vector[]", "Object[]"},
+        {"bytevector[]", "Byte[][]"},
+        {"cons[]", "IronScheme.Runtime.Cons[]"},
+        {"list[]", "IronScheme.Runtime.Cons[]"},
+        {"char[]", "Char[]"},
+        {"procedure[]", "IronScheme.Runtime.Callable[]"},
+        {"hashtable[]", "System.Collections.Hashtable[]"}
+      };
 
 
     protected static Type ScanForType(string name)
@@ -195,7 +192,7 @@ namespace IronScheme.Compiler
       {
         name = mapname;
       }
-      
+
       var t = GetTypeFast(GetTypeName(name, ""));
       if (t != null)
       {
@@ -241,14 +238,14 @@ namespace IronScheme.Compiler
         }
         type = t.FullName;
       }
-      // quoted
+        // quoted
       else
       {
         object stype = Builtins.Second(rtype);
 
         if (stype is SymbolId)
         {
-          type = SymbolTable.IdToString((SymbolId)stype);
+          type = SymbolTable.IdToString((SymbolId) stype);
           t = ReadType(stype);
 
           if (t == null)
@@ -289,17 +286,17 @@ namespace IronScheme.Compiler
 
     protected static Expression ConvertFromHelper(Type t, Expression e)
     {
-      if (t == typeof(void))
+      if (t == typeof (void))
       {
         return Ast.Comma(e, Ast.ReadField(null, Unspecified));
       }
-      else if (t.BaseType == typeof(Enum))
+      else if (t.BaseType == typeof (Enum))
       {
         return Ast.SimpleCallHelper(Helpers_EnumToSymbol.MakeGenericMethod(t), e);
       }
       else if (t.IsValueType)
       {
-        return Ast.ConvertHelper(e, typeof(object));
+        return Ast.ConvertHelper(e, typeof (object));
       }
       else
       {
@@ -314,52 +311,35 @@ namespace IronScheme.Compiler
         return e;
       }
 
-      else
-        if (t.BaseType == typeof(MulticastDelegate))
+      else if (t.BaseType == typeof (MulticastDelegate))
+      {
+        return Ast.SimpleCallHelper(Helpers_ConvertToDelegate.MakeGenericMethod(t), e);
+      }
+      else if (t.BaseType == typeof (Enum))
+      {
+        if (e.Type.IsValueType)
         {
-          return Ast.SimpleCallHelper(Helpers_ConvertToDelegate.MakeGenericMethod(t), e);
+          e = Ast.ConvertHelper(e, typeof (object));
         }
-        else
-          if (t.BaseType == typeof(Enum))
+        return Ast.SimpleCallHelper(Helpers_SymbolToEnum.MakeGenericMethod(t), e);
+      }
+      else
+      {
+        // prevent boxing
+        if (e is UnaryExpression && e.Type == typeof (object))
+        {
+          var ue = (UnaryExpression) e;
+          if (t.IsAssignableFrom(ue.Operand.Type))
           {
-            if (e.Type.IsValueType)
-            {
-              e = Ast.ConvertHelper(e, typeof(object));
-            }
-            return Ast.SimpleCallHelper(Helpers_SymbolToEnum.MakeGenericMethod(t), e);
+            return ue.Operand;
           }
-          else
-          {
-            // prevent boxing
-            if (e is UnaryExpression && e.Type == typeof(object))
-            {
-              var ue = (UnaryExpression)e;
-              if (t.IsAssignableFrom(ue.Operand.Type))
-              {
-                return ue.Operand;
-              }
-            }
-            if (t.IsArray && t != typeof(byte[]) && t != typeof(char[]))
-            {
-              return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
-            }
-            else
-            {
-              //if (e is ConstantExpression && ((ConstantExpression)e).Value == null)
-              //{
-              //  return e;
-              //}
-
-              if (TypeHelpersEnabled)
-              {
-                return Ast.SimpleCallHelper(Helpers_Requires.MakeGenericMethod(t), e);
-              }
-              else
-              {
-                return Ast.ConvertHelper(e, t);
-              }
-            }
-          }
+        }
+        if (t.IsArray && t != typeof (byte[]) && t != typeof (char[]))
+        {
+          return Ast.SimpleCallHelper(Helpers_RequiresArray.MakeGenericMethod(t.GetElementType()), e);
+        }
+        return Ast.ConvertHelper(e, t);
+      }
     }
   }
 
@@ -872,7 +852,7 @@ namespace IronScheme.Compiler
 
       if (ass == null)
       {
-        ClrSyntaxError("clr-reference", "Assembly not found", args);
+        ClrSyntaxError("clr-reference", "assembly not found", args);
       }
 
       return Ast.ReadField(null, Unspecified);
