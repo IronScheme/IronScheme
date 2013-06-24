@@ -702,6 +702,24 @@
     <None Include="lib\README.minikanren">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="nuget\IronScheme.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\IronScheme.Web.Runtime.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\IronScheme.REPL.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\IronScheme.Remoting.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\IronScheme.Core.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\libs\ironscheme.clr.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="playground\compiler\cps-convert.sls">
     </None>
     <None Include="playground\compiler\cps\cps-sexp-target.ss">
