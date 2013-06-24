@@ -148,18 +148,18 @@
                   (failed-list '()))
             (cond
               ((null? ls)
-               (file-locator-resolution-error x 
-                  (reverse failed-list)
-                  (let ([ls (external-pending-libraries)])
-                    (if (null? ls) 
-                        (error 'library-manager "BUG")
-                        (cdr ls)))))
+                (or (compiled-library-exists? x)
+                    (file-locator-resolution-error x 
+                      (reverse failed-list)
+                      (let ([ls (external-pending-libraries)])
+                        (if (null? ls) 
+                            (error 'library-manager "BUG")
+                            (cdr ls))))))
               ((null? exts)
                (f (cdr ls) (library-extensions) failed-list))
               (else
                (let ((name (string-append (car ls) str (car exts))))
-                 (if (or (file-exists? name) 
-                         (compiled-library-exists? name))
+                 (if (file-exists? name) 
                      name
                      (let ((save-path (string-append "lib" str (car exts))))
                        (if ((alternative-file-locator) name save-path)
@@ -177,7 +177,7 @@
       (lambda (x)
         (when (library-source-file-name x) 
           (serialize 
-            (library-source-file-name x)
+            (library-name x)
             (list (library-id x) 
                   (library-name x)
                   (library-version x) 
@@ -194,10 +194,11 @@
       ((current-library-collection))))
 
   (define current-precompiled-library-loader
-    (make-parameter (lambda (filename sk) #f)))
+    (make-parameter (lambda (libname filename sk) #f)))
         
-  (define (try-load-from-file filename)
+  (define (try-load-from-file libname filename)
     ((current-precompiled-library-loader)
+      libname
       filename
       (case-lambda
         ((id name ver imp* vis* inv* exp-subst exp-env
@@ -244,7 +245,7 @@
           (cond
             ((not file-name) 
              (assertion-violation #f "cannot find library" x))
-            ((try-load-from-file file-name))
+            ((try-load-from-file x file-name))
             (else 
              ((current-library-expander)
               (read-library-source-file file-name)

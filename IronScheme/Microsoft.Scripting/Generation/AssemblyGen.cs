@@ -111,7 +111,7 @@ namespace Microsoft.Scripting.Generation {
           // SymbolWriter fails on Mono for some reason
 
             if (SaveAndReloadAssemblies) {
-                asmname.Name = Path.GetFileNameWithoutExtension(moduleName);
+                asmname.Name = moduleName == "ironscheme.boot.new" ? "ironscheme.boot" : moduleName;
                 if (File.Exists("DEVELOPMENT.snk"))
                 {
                   asmname.KeyPair = new StrongNameKeyPair(File.ReadAllBytes("DEVELOPMENT.snk"));

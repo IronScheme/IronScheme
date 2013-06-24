@@ -27,10 +27,11 @@
 		      read-library-source-file
           library-version-mismatch-warning
           library-stale-warning compiled-library-exists?
-          file-locator-resolution-error change-extension
+          file-locator-resolution-error change-extension library-name->dll-name
           label-binding set-label-binding! remove-location relative-filename)
   (import 
     (rnrs)
+    (rnrs r5rs)
     (ironscheme reader)
     (ironscheme clr)
     (ironscheme records printer)
@@ -47,8 +48,44 @@
   (define (change-extension filename newext)
     (clr-static-call System.IO.Path ChangeExtension filename newext))  
     
-  (define (compiled-library-exists? filename)
-    (file-exists? (change-extension filename ".dll")))
+  (define (library-name->dll-name x)
+    (let ((fn (let-values (((p extract) (open-string-output-port)))
+                (define (display-hex n)
+                  (cond
+                    ((<= 0 n 9) (display n p))
+                    (else (display 
+                            (integer->char 
+                              (+ (char->integer #\a) ; lowercase
+                                 (- n 10)))
+                            p))))
+                (let f ((ls x))
+                  (unless (null? ls)
+                    (display "." p)
+                    (for-each
+                      (lambda (c)
+                        (cond
+                          ((or (char<=? #\a c #\z)
+                               (char<=? #\A c #\Z)
+                               (char<=? #\0 c #\9)
+                               (memv c '(#\- #\. #\_ #\~)))
+                           (display c p))
+                          (else
+                           (display "%" p)
+                           (let ((n (char->integer c)))
+                             (display-hex (quotient n 16))
+                             (display-hex (remainder n 16))))))
+                      (string->list 
+                        (let ((d (symbol->string (car ls))))
+                          (if (and (char=? #\: (string-ref d 0)) (char<=? #\0 (string-ref d 1) #\9))
+                              (substring d 1 (string-length d))
+                              d))))
+                    (f (cdr ls))))
+                (string-append (extract) ".dll"))))
+       (substring fn 1 (string-length fn))))
+    
+  (define (compiled-library-exists? libname)
+    (let ((dllname (library-name->dll-name libname)))
+      (and (file-exists? dllname) dllname)))
           
   (define (relative-filename filename)
     (let ((rf (replace 
