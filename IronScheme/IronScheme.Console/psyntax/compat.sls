@@ -81,7 +81,9 @@
                               d))))
                     (f (cdr ls))))
                 (string-append (extract) ".dll"))))
-       (substring fn 1 (string-length fn))))
+       (string-append (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory) 
+                      "/"
+                      (substring fn 1 (string-length fn)))))
     
   (define (compiled-library-exists? libname)
     (let ((dllname (library-name->dll-name libname)))
