@@ -5,13 +5,10 @@
     <version>0.9.$TFSREV$</version>
     <authors>Llewellyn Pritchard</authors>
     <owners>Llewellyn Pritchard</owners>
-    <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
+    <iconUrl>http://ironscheme.net/logo-32.png</iconUrl>
     <projectUrl>http://ironscheme.codeplex.com</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Scheme on .NET
-TFS builds
-The last version number represent the TFS version
-Discuss @ http://ironscheme.codeplex.com/discussions/404918</description>
+    <description>Basic IronScheme REPL</description>
     <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
     <copyright>Copyright 2007-2013</copyright>
     <dependencies>
@@ -20,9 +17,7 @@ Discuss @ http://ironscheme.codeplex.com/discussions/404918</description>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\install-stage\IronScheme\IronScheme.Console*.exe" target="lib" />
-    <file src="..\install-stage\IronScheme\DEVELOPMENT.snk" target="lib" />
-    <file src="..\install-stage\IronScheme\system-libraries.ss" target="lib" />
-    <file src="..\install-stage\IronScheme\ExecutableTemplate.cs" target="lib" />
+    <file src="..\install-stage\IronScheme\IronScheme.Console*v2.exe" target="lib\net20" />
+    <file src="..\install-stage\IronScheme\IronScheme.Console*v4.exe" target="lib\net40" />
   </files>
 </package>
