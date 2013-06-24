@@ -253,7 +253,7 @@
   (define (compile-dll libname content)
     (let ((filename (library-name->dll-name libname)))
       (display "compiling ")
-      (display filename)
+      (display (relative-filename filename))
       (newline)
       (let ((v (list->vector content)))
         (vector-set! v 0 `',(vector-ref v 0))
