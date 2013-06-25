@@ -20,6 +20,11 @@ namespace IronScheme.Runtime
 {
   public static class Helpers
   {
+    public static Type GetTypeFast(string name)
+    {
+      return Compiler.ClrGenerator.GetTypeFast(name);
+    }
+
     public static object UnwrapValue(object o)
     {
       var mv = o as MultipleValues;
