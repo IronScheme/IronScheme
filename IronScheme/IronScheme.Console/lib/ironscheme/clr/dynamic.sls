@@ -105,7 +105,7 @@ See docs/license.txt. |#
           #'(clr-dynamic-internal instance 'mem arg ...)])))   
           
   (define (generate-method-sig meth argtypes)
-    `(,(string->symbol meth) . ,(map type-fullname argtypes)))
+    (cons (string->symbol meth) (map type-fullname argtypes)))
 
   (define (type-and-namespace type ns)
     (if (zero? (string-length ns))
