@@ -32,6 +32,8 @@ namespace IronScheme.Runtime
 
   public partial class Builtins
   {
+    public static bool ShowImports { get; set; }
+
     static Assembly AssemblyLoad(string path, bool loadinmemory)
     {
       var altpath = path.Replace("\\", "/");
@@ -56,7 +58,15 @@ namespace IronScheme.Runtime
       }
 
       var basedir = AppDomain.CurrentDomain.BaseDirectory;
-      
+
+      if (ShowImports)
+      {
+        if (!path.EndsWith("ironscheme.boot.dll"))
+        {
+          Console.WriteLine(Path.GetFileName(path));
+        }
+      }
+
       string fn = Path.GetFullPath(path);
       var pdb = Path.ChangeExtension(fn, ".pdb");
       if (File.Exists(pdb))

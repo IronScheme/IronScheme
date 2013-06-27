@@ -6,11 +6,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using IronScheme.Hosting;
 using IronScheme.Remoting.Server;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime
 {
@@ -96,11 +98,9 @@ namespace IronScheme.Runtime
         }
       }
 
-      if (Array.IndexOf(args, "--remoting-server") >= 0)
-      {
-        Host.Start();
-        args = Array.FindAll(args, x => x != "--remoting-server");
-      }
+      args = Args(args, "--remoting-server", x => Host.Start());
+      args = Args(args, "--show-loaded-libraries", x => Builtins.ShowImports = true);
+
       //Encoding oi = Console.InputEncoding;
       Encoding oo = Console.OutputEncoding;
 
@@ -120,6 +120,42 @@ namespace IronScheme.Runtime
         //Console.InputEncoding = oi;
       }
 
+    }
+
+    static string[] Args(string[] args, string argname, Action<string[]> handler)
+    {
+      var i = Array.IndexOf(args, argname);
+      if (i >= 0)
+      {
+        var newargs = new List<string>();
+        int j = 0;
+
+        for (; j < i; j++)
+        {
+          newargs.Add(args[j]);
+        }
+        
+        j++;
+
+        var argargs = new List<string>();
+
+        while (j < args.Length && !args[j].StartsWith("-"))
+        {
+          argargs.Add(args[j]);
+          j++;
+        }
+
+        while (j < args.Length)
+        {
+          newargs.Add(args[j]);
+          j++;
+        }
+
+        handler(argargs.ToArray());
+
+        args = newargs.ToArray();
+      }
+      return args;
     }
 
     static void EnableMulticoreJIT()

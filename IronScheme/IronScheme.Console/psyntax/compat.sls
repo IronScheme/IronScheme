@@ -22,7 +22,7 @@
   (export make-parameter parameterize define-record compile-core file-options-constructor
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
-          make-annotation
+          make-annotation application-directory
           annotation-stripped
 		      read-library-source-file
           library-version-mismatch-warning
@@ -38,6 +38,9 @@
     (only (ironscheme) fprintf symbol-bound? remove-location)
     (only (psyntax system $bootstrap)
           void gensym set-symbol-value! symbol-value compile-core))
+          
+  (define (application-directory) 
+    (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory))
 
   (define (eval-core expr)
     ((compile-core expr)))
@@ -81,7 +84,7 @@
                               d))))
                     (f (cdr ls))))
                 (string-append (extract) ".dll"))))
-       (string-append (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory) 
+       (string-append (application-directory) 
                       "/"
                       (substring fn 1 (string-length fn)))))
     
@@ -92,7 +95,7 @@
   (define (relative-filename filename)
     (let ((rf (replace 
                 filename 
-                (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
+                (application-directory)
                 "")))
        (replace        
          (string-append 
