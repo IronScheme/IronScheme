@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>minikanren.mk</id>
+    <title>(minikanren mk)</title>
+    <version>0.9.$TFSREV$</version>
+    <authors>Llewellyn Pritchard</authors>
+    <owners>Llewellyn Pritchard</owners>
+    <iconUrl>http://ironscheme.net/logo-32-library.png</iconUrl>
+    <projectUrl>http://ironscheme.codeplex.com</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>(minikanren mk) library</description>
+    <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
+    <copyright>Copyright 2007-2013</copyright>
+    <dependencies>
+      <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\install-stage\IronScheme\minikanren.mk.dll" target="lib" />
+  </files>
+</package>
