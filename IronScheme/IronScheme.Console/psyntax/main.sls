@@ -98,7 +98,7 @@
         (void))))
     
   (define (ironscheme-test)
-    (let ((path (string-append (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
+    (let ((path (string-append (application-directory)
                                "/tests/r6rs/run.sps")))
       (time-it "R6RS test suite"
         (lambda () 
@@ -150,12 +150,13 @@
       [(constant-compression?)
         (if (clr-static-field-get IronScheme.Runtime.Builtins IsMono)
             (printf "Precompiling does not work on Mono due to a bug. https://bugzilla.xamarin.com/show_bug.cgi?id=11199\n")
-            (time-it "total compile time"
-              (lambda ()
-                (eval-top-level 
-                  `(begin
-                     (include "system-libraries.ss")
-                     (compile "system-libraries.ss" #f ,constant-compression?))))))]))
+            (let ((path (string-append (application-directory) "/system-libraries.ss")))
+              (time-it "total compile time"
+                (lambda ()
+                  (eval-top-level 
+                    `(begin
+                       (include ,path)
+                       (compile ,path #f ,constant-compression?)))))))]))
                
   (define (with-guard f)
     (clr-guard [e [e (parameterize ((current-output-port (current-error-port)))
@@ -239,13 +240,13 @@
                   (file-newer? dll-filename filename))
               (clr-guard [e 
                       (e 
-                        (display (format "WARNING: precompiled library (~a) could not load.\n" libname) 
+                        (display (format "WARNING: precompiled library ~a could not load. ~s\n" libname (clr-prop-get Exception Message e)) 
                                  (current-error-port))
                         #f)]
                 (let ((content (load-library-dll dll-filename)))
                   (and content (apply sk content))))
               (begin
-                (display (format "WARNING: precompiled library (~a) is out of date.\n" libname) 
+                (display (format "WARNING: precompiled library ~a is out of date.\n" libname) 
                          (current-error-port))
                 #f))
           #f)))
