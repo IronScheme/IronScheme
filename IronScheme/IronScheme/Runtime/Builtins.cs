@@ -461,7 +461,7 @@ namespace IronScheme
           colcountafter += GC.CollectionCount(i);
         }
 
-        "(display {0})".Eval(string.Format(@"Statistics for '{0}':
+        "(display {0} (current-error-port))".Eval(string.Format(@"Statistics for '{0}':
   Real Time:  {1:f0}ms
   CPU Time:   {2:f0}ms
   User Time:  {3:f0}ms
