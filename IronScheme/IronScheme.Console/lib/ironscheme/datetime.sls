@@ -49,7 +49,7 @@ See docs/license.txt. |#
     measure)
   (import 
     (ironscheme)
-    (ironscheme syntax)
+    (ironscheme syntax shorthand)
     (ironscheme typed)
     (ironscheme unsafe)
     (ironscheme contracts)
@@ -214,10 +214,11 @@ See docs/license.txt. |#
            (cond 
             [($fx=? i iters)
                (stopwatch-stop sw)
-               (printf "~a: ~ams\n" 
-                       str 
-                       (round (/ (stopwatch-elapsed-milliseconds sw) 
-                                 iters)))]
+               (fprintf (current-error-port)
+                        "~a: ~ams\n" 
+                        str 
+                        (round (/ (stopwatch-elapsed-milliseconds sw) 
+                                  iters)))]
             [else
               expr
               (f ($fx+ i 1))]))))))
