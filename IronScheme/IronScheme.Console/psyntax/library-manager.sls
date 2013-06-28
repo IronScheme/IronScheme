@@ -246,9 +246,11 @@
             ((not file-name) 
              (assertion-violation #f "cannot find library" x))
             ((try-load-from-file x file-name))
+            ((compiled-library-filename? file-name)
+              (assertion-violation #f "cannot find library" x)) 
             (else 
              ((current-library-expander)
-              (read-library-source-file file-name)
+              (read-library-source-file file-name) 
               file-name
               (lambda (name)
                 (unless (equal? name x)
