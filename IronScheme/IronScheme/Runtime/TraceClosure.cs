@@ -75,8 +75,8 @@ namespace IronScheme.Runtime
 
         if ((Console.LargestWindowWidth | Console.LargestWindowHeight) == 0)
         {
-          Console.WriteLine("{0} -> {1}", prefix, name);
-          Console.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          Console.Error.WriteLine("{0} -> {1}", prefix, name);
+          Console.Error.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
 
           object result = realtarget.Call(args);
 
@@ -84,17 +84,17 @@ namespace IronScheme.Runtime
 
           pp.Call(filter == null ? result : filter.Call(result), p);
 
-          Console.WriteLine("{0} <- {1}", prefix, name);
-          Console.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          Console.Error.WriteLine("{0} <- {1}", prefix, name);
+          Console.Error.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
           return result;
         }
         else
         {
 
           Console.ForegroundColor = ConsoleColor.Yellow;
-          Console.WriteLine("{0} -> {1}", prefix, name);
+          Console.Error.WriteLine("{0} -> {1}", prefix, name);
           Console.ForegroundColor = ConsoleColor.White;
-          Console.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          Console.Error.WriteLine(pre.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
           Console.ForegroundColor = ConsoleColor.Gray;
 
           object result = realtarget.Call(args);
@@ -104,9 +104,9 @@ namespace IronScheme.Runtime
           pp.Call(filter == null ? result : filter.Call(result), p);
 
           Console.ForegroundColor = ConsoleColor.Cyan;
-          Console.WriteLine("{0} <- {1}", prefix, name);
+          Console.Error.WriteLine("{0} <- {1}", prefix, name);
           Console.ForegroundColor = ConsoleColor.White;
-          Console.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
+          Console.Error.WriteLine(p.GetBuffer().TrimEnd(Environment.NewLine.ToCharArray()));
           Console.ForegroundColor = ConsoleColor.Gray;
           return result;
         }
