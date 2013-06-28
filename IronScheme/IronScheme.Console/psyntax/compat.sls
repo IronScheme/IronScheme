@@ -26,7 +26,7 @@
           annotation-stripped
 		      read-library-source-file
           library-version-mismatch-warning
-          library-stale-warning compiled-library-exists?
+          library-stale-warning compiled-library-exists? compiled-library-filename?
           file-locator-resolution-error change-extension library-name->dll-name
           label-binding set-label-binding! remove-location relative-filename)
   (import 
@@ -41,6 +41,9 @@
           
   (define (application-directory) 
     (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory))
+    
+  (define (compiled-library-filename? filename) 
+    (string=? (clr-static-call System.IO.Path GetExtension filename) ".dll"))    
 
   (define (eval-core expr)
     ((compile-core expr)))
