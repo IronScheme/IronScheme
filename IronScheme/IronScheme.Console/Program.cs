@@ -6,13 +6,11 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using IronScheme.Hosting;
 using IronScheme.Remoting.Server;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace IronScheme.Runtime
 {
@@ -28,56 +26,26 @@ namespace IronScheme.Runtime
 
     static int Main(string[] args)
     {
-      var exename = Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
 
-      switch (exename)
-      {
-        case "isc":
-        case "isc32":
-          args = PrefixArgs(args, "-nologo");
-          break;
-      }
-
-      int index;
-
-      if ((index = Array.IndexOf(args, "-profile")) >= 0)
+      if ((Array.IndexOf(args, "-profile")) >= 0)
       {
         const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";
 
         if (ExecuteRegsvr32(false, true))
         {
-          ProcessStartInfo psi;
-
-          // create a process executor
-          psi = new ProcessStartInfo(typeof(Program).Assembly.Location);
-
-          // ----- SET THE CLR ENVIRONMENT VARIABLES -------------------
-
-          // set the COR_PROFILER env var. This indicates to the CLR which COM object to
-          // instantiate for profiling.
-          if (psi.EnvironmentVariables.ContainsKey("COR_PROFILER") == true)
-            psi.EnvironmentVariables["COR_PROFILER"] = PROFILER_GUID;
-          else
-            psi.EnvironmentVariables.Add("COR_PROFILER", PROFILER_GUID);
-
-          ////// set the Cor_Enable_Profiling env var. This indicates to the CLR whether or
-          ////// not we are using the profiler at all.  1 = yes, 0 = no.
-          if (psi.EnvironmentVariables.ContainsKey("COR_ENABLE_PROFILING") == true)
-            psi.EnvironmentVariables["COR_ENABLE_PROFILING"] = "1";
-          else
-            psi.EnvironmentVariables.Add("COR_ENABLE_PROFILING", "1");
+          ProcessStartInfo psi = new ProcessStartInfo(typeof(Program).Assembly.Location);
+          psi.EnvironmentVariables["COR_PROFILER"] = PROFILER_GUID;
+          psi.EnvironmentVariables["COR_ENABLE_PROFILING"] = "1";
 
           // ----- RUN THE PROCESS -------------------
-          string[] argargs = new string[args.Length - 1];
           args = Array.FindAll(args, x => x != "-profile");
 
-          psi.Arguments = string.Join(" ", argargs);
+          psi.Arguments = string.Join(" ", args);
           psi.UseShellExecute = false;
 
           try
           {
             Process p = Process.Start(psi);
-            //p.PriorityBoostEnabled = true;
 
             p.WaitForExit();
 
@@ -91,41 +59,42 @@ namespace IronScheme.Runtime
         else
         {
           // remove -profile
-          string[] argargs = new string[args.Length - 1];
           args = Array.FindAll(args, x => x != "-profile");
-
-          args = argargs;
         }
+      }
+
+      var exename = Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
+
+      switch (exename)
+      {
+        case "isc":
+        case "isc32":
+          args = PrefixArgs(args, "-nologo");
+          break;
       }
 
       args = Args(args, "--remoting-server", x => Host.Start());
       args = Args(args, "--show-loaded-libraries", x => Builtins.ShowImports = true);
 
-      //Encoding oi = Console.InputEncoding;
       Encoding oo = Console.OutputEncoding;
-
-      //Debugger.Launch();
 
       EnableMulticoreJIT();
 
       try
       {
-        //Console.InputEncoding = Encoding.UTF8;
         Console.OutputEncoding = Encoding.UTF8;
         return IronSchemeConsoleHost.Execute(args);
       }
       finally
       {
         Console.OutputEncoding = oo;
-        //Console.InputEncoding = oi;
       }
-
     }
 
     static string[] Args(string[] args, string argname, Action<string[]> handler)
     {
       var i = Array.IndexOf(args, argname);
-      if (i >= 0)
+      if (i >= 0) // why are we still fuckin writing code like this?
       {
         args = Array.FindAll(args, x => x != argname);
         handler(args);

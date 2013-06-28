@@ -36,3 +36,8 @@ copy ..\un-ngen-all.cmd IronScheme
 
 ..\zip -r -9 IronScheme-latest.zip IronScheme
 cd ..
+
+echo (compile-system-libraries) | install-stage\IronScheme\IronScheme.Console32-v2.exe
+
+FOR %%f IN (install-stage\IronScheme\*.dll) ^
+DO @peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 %%f
