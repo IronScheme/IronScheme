@@ -127,33 +127,8 @@ namespace IronScheme.Runtime
       var i = Array.IndexOf(args, argname);
       if (i >= 0)
       {
-        var newargs = new List<string>();
-        int j = 0;
-
-        for (; j < i; j++)
-        {
-          newargs.Add(args[j]);
-        }
-        
-        j++;
-
-        var argargs = new List<string>();
-
-        while (j < args.Length && !args[j].StartsWith("-"))
-        {
-          argargs.Add(args[j]);
-          j++;
-        }
-
-        while (j < args.Length)
-        {
-          newargs.Add(args[j]);
-          j++;
-        }
-
-        handler(argargs.ToArray());
-
-        args = newargs.ToArray();
+        args = Array.FindAll(args, x => x != argname);
+        handler(args);
       }
       return args;
     }
