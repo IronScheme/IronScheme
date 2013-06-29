@@ -14,7 +14,7 @@ See docs/license.txt. |#
     parse-return-type-body)
   (import 
     (ironscheme)
-    (ironscheme syntax)
+    (ironscheme syntax utils)
     (ironscheme typed parsing-helper))
 
   (define-syntax :

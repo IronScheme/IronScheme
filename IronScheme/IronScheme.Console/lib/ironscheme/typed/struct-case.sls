@@ -10,7 +10,7 @@ See docs/license.txt. |#
     struct-case)
   (import 
     (ironscheme)
-    (ironscheme typed)
+    (ironscheme typed core)
     (ironscheme typed struct)
     (ironscheme typed struct-descriptor))
 
