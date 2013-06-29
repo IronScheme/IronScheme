@@ -213,6 +213,8 @@ namespace Microsoft.Scripting.Generation {
                 }
             }
 
+            name = name.Replace(TypeBuilder + "::", "");
+
             Type[] parameterTypes = CompilerHelpers.MakeParamTypeArray(paramTypes, constantPool);
 
             if (parameterTypes.Length > 0 && parameterTypes[0] == typeof(CodeContext) && name != "Initialize" || name.Contains("#"))
