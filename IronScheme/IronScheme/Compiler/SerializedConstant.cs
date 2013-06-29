@@ -7,6 +7,7 @@
 
 using System;
 using System.IO;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Scripting.Generation;
@@ -24,15 +25,13 @@ namespace IronScheme.Compiler
     public SerializedConstant(object value)
     {
       this.value = value;
-      this.compress = IronScheme.Runtime.Builtins.compressConstants;
+      compress = IronScheme.Runtime.Builtins.compressConstants;
     }
 
     public override Type Type
     {
       get { return typeof(object); }
     }
-
-    static long totallength = 0;
 
     StaticFieldSlot fs;
     LocalBuilder arrloc;
@@ -60,10 +59,8 @@ namespace IronScheme.Compiler
         }
         else
         {
-
-          fs = tg.AddStaticField(typeof(object), "s11n:" + index) as StaticFieldSlot;
+          fs = tg.AddStaticField(typeof(object), FieldAttributes.Private, "s11n:" + index) as StaticFieldSlot;
           tg.SerializedConstants.Add(this);
-          
 
           var tcg = tg.TypeInitializer;
 
@@ -92,7 +89,7 @@ namespace IronScheme.Compiler
 
               bf.Serialize(s, constantsarray);
               s.Position = 0;
-              totallength += s.Length;
+
               var mb = tg.TypeBuilder.Module as ModuleBuilder;
 
               if (compress)
@@ -103,16 +100,13 @@ namespace IronScheme.Compiler
                 cs.Write(content, 0, content.Length);
                 cs.Close();
 
-                mb.DefineManifestResource("SerializedConstants.gz", cms, System.Reflection.ResourceAttributes.Public);
+                mb.DefineManifestResource("SerializedConstants.gz", cms, ResourceAttributes.Private);
               }
               else
               {
-                mb.DefineManifestResource("SerializedConstants", s, System.Reflection.ResourceAttributes.Public);
+                mb.DefineManifestResource("SerializedConstants", s, ResourceAttributes.Private);
               }
-
             };
-          
-
           }
 
           tcg.Emit(OpCodes.Ldloc, ((SerializedConstant) tg.SerializedConstants[0]).arrloc);
@@ -123,7 +117,6 @@ namespace IronScheme.Compiler
           fs.EmitSet(tcg);
           fs.EmitGet(cg);
         }
-
 
         tg.ConstantCounter++;
       }
