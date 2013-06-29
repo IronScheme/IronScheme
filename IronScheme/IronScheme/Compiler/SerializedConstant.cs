@@ -50,7 +50,7 @@ namespace IronScheme.Compiler
         var snippets = ScriptDomainManager.CurrentManager.Snippets;
         if (snippets.Assembly == ag || snippets.DebugAssembly == ag)
         {
-          var sym = Runtime.Builtins.GenSym("s11n:" + index);
+          var sym = Runtime.Builtins.GenSym("$z$" + index);
 
           Runtime.Builtins.SetSymbolValueFast(sym, value);
 
@@ -59,7 +59,7 @@ namespace IronScheme.Compiler
         }
         else
         {
-          fs = tg.AddStaticField(typeof(object), FieldAttributes.Private, "s11n:" + index) as StaticFieldSlot;
+          fs = tg.AddStaticField(typeof(object), FieldAttributes.Private, "$z$" + index) as StaticFieldSlot;
           tg.SerializedConstants.Add(this);
 
           var tcg = tg.TypeInitializer;

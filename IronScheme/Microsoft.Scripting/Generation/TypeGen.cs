@@ -325,7 +325,7 @@ namespace Microsoft.Scripting.Generation {
             if (!_indirectSymbolIds.TryGetValue(id, out value)) {
                 // create field, emit fix-up...
 
-                value = AddStaticField(typeof(object), FieldAttributes.Private, "symbol_" + SymbolTable.IdToString(id));
+                value = AddStaticField(typeof(object), FieldAttributes.Private, "$s$" + SymbolTable.IdToString(id));
                 CodeGen init = TypeInitializer;
                 //Slot localTmp = init.GetLocalTmp(typeof(SymbolId));
                 init.EmitString(SymbolTable.IdToString(id));
