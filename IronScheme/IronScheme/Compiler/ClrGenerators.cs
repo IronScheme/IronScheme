@@ -529,7 +529,7 @@ namespace IronScheme.Compiler
 
         if (mem is Cons)
         {
-          ExtractMethodInfo(mem as Cons, ref member, ref argtypes, ref gentypes);
+          ExtractMethodInfo(mem as Cons, out member, ref argtypes, ref gentypes);
         }
         else
         {
@@ -557,7 +557,7 @@ namespace IronScheme.Compiler
         }
         else if (memobj is Cons)
         {
-          ExtractMethodInfo(memobj as Cons, ref member, ref argtypes, ref gentypes);
+          ExtractMethodInfo(memobj as Cons, out member, ref argtypes, ref gentypes);
         }
       }
 
@@ -730,7 +730,7 @@ namespace IronScheme.Compiler
       return null;
     }
 
-    static void ExtractMethodInfo(Cons mcc, ref string member, ref Type[] argtypes, ref Type[] gentypes)
+    static void ExtractMethodInfo(Cons mcc, out string member, ref Type[] argtypes, ref Type[] gentypes)
     {
       member = SymbolTable.IdToString((SymbolId)mcc.car);
 
