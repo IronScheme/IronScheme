@@ -13,7 +13,7 @@ peverify /nologo /ignore=0x80131820 ironscheme.boot.dll
 isc -debug compile-system-libraries.sps
 isc -debug compile-system-libraries.sps
 
-FOR /F %%F IN ('type libraries.lst') DO del %%~pnF.pdb
+FOR /F %%F IN ('type libraries.lst') DO @del %%~pnF.pdb
 
 isc ironscheme-buildscript.sps
 isc compile-system-libraries.sps
@@ -22,5 +22,5 @@ call srfitest.bat
 isc lib\pfds\tests.scm > pfds.log
 echo (include "lib/minikanren/mktests.scm") | isc > mktest.log
 
-FOR /F %%f IN ('type libraries.lst') DO del %%f
+FOR /F %%f IN ('type libraries.lst') DO @del %%f
 
