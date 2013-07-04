@@ -317,6 +317,10 @@ namespace IronScheme.Compiler
       }
       else if (t.BaseType == typeof (Enum))
       {
+        if (e is ConstantExpression && e.Type == typeof(SymbolId))
+        {
+          return Ast.Constant(Helpers.SymbolToEnum(t, ((ConstantExpression) e).Value));
+        }
         if (e.Type.IsValueType)
         {
           e = Ast.ConvertHelper(e, typeof (object));
