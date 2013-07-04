@@ -29,15 +29,40 @@ See docs/license.txt. |#
   (define (regex? obj)
     (clr-is Regex obj))
     
-  (define/contract (make-regex pattern:string)
-    (clr-new Regex pattern 'compiled))   
+  (define/contract make-regex
+    (case-lambda
+      [(pattern:string)
+        (clr-new Regex pattern)]
+      [(pattern:string options:symbol)
+        (clr-new Regex pattern options)]))
     
-  (define/contract (regex-match input:string pattern:string)
-    (clr-static-call Regex Match input pattern))
+  (define/contract (regex-match input:string pattern/re)
+    (cond 
+      [(regex? pattern/re)
+        (clr-call Regex Match pattern/re input)]
+      [(string? pattern/re) 
+        (clr-static-call Regex Match input pattern/re)]
+      [else
+        (assertion-violation 'regex-match "not a string or regex" pattern/re)]))
 
-  (define/contract (regex-matches input:string pattern:string)
+  (define/contract (regex-matches input:string pattern/re)
     (clr-static-call IronScheme.Runtime.Cons FromList
-      (clr-static-call Regex Matches input pattern)))
+      (cond 
+        [(regex? pattern/re)
+          (clr-call Regex Matches pattern/re input)]
+        [(string? pattern/re)
+          (clr-static-call Regex Matches input pattern/re)]
+        [else
+          (assertion-violation 'regex-matches "not a string or regex" pattern/re)])))
+          
+  (define/contract (regex-match? input:string pattern/re)
+    (cond
+      [(regex? pattern/re)
+        (clr-call Regex IsMatch pattern/re input)]
+      [(string? pattern/re)
+        (clr-static-call Regex IsMatch input pattern/re)]
+      [else
+        (assertion-violation 'regex-match? "not a string or regex" pattern/re)]))
 
   (define (match? obj)
     (clr-is Match obj))      
@@ -57,8 +82,7 @@ See docs/license.txt. |#
       (clr-prop-get Match Groups match) 
       (clr-cast String group-name)))
   
-  (define/contract (regex-match? input:string pattern:string)
-    (clr-static-call Regex IsMatch input pattern))
+
 
   (define/contract (regex-split input:string pattern/re)
     (if (regex? pattern/re)
