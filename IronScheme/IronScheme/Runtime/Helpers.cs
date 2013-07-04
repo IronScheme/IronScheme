@@ -173,19 +173,18 @@ namespace IronScheme.Runtime
       return SymbolTable.StringToObject(value.ToString());
     }
 
-    public static T SymbolToEnum<T>(object symbol)
+    internal static object SymbolToEnum(Type type, object symbol)
     {
       if (symbol is SymbolId)
       {
         string name = SymbolTable.IdToString(RequiresNotNull<SymbolId>(symbol));
         try
         {
-          return (T)Enum.Parse(typeof(T), name, true);
+          return Enum.Parse(type, name, true);
         }
         catch (Exception ex)
         {
-          Builtins.AssertionViolation("symbol-to-enum", ex.Message, symbol, typeof(T));
-          return default(T);
+          return Builtins.AssertionViolation("symbol-to-enum", ex.Message, symbol, type);
         }
       }
       else if (symbol is Cons)
@@ -193,16 +192,20 @@ namespace IronScheme.Runtime
         int v = 0;
         foreach (object n in symbol as Cons)
         {
-          v |= (int)(object)SymbolToEnum<T>(n); 
+          v |= (int)SymbolToEnum(type, n);
         }
 
-        return (T)(object)v;
+        return v;
       }
       else
       {
-        Builtins.AssertionViolation("symbol-to-enum", "Not a valid type", symbol, typeof(T));
-        return default(T);
+        return Builtins.AssertionViolation("symbol-to-enum", "Not a valid type", symbol, type);
       }
+    }
+
+    public static T SymbolToEnum<T>(object symbol)
+    {
+      return (T) SymbolToEnum(typeof (T), symbol);
     }
 
     static object ConvertFromSchemeObject<T>(object o)
