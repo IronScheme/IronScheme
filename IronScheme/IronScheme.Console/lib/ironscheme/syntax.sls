@@ -8,6 +8,7 @@ See docs/license.txt. |#
   (export 
     block
     thunk
+    with-implicit
     syntax-format
     define-syntax-rule
     define-syntax-case

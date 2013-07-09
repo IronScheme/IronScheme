@@ -8,9 +8,16 @@ See docs/license.txt. |#
   (export 
     block
     thunk
+    with-implicit
     define-syntax-rule
     define-syntax-case)
   (import (ironscheme))
+  
+  (define-syntax with-implicit
+    (syntax-rules ()
+      [(_ (tid id ...) b1 b2 ...)
+       (with-syntax ([id (datum->syntax #'tid 'id)] ...)
+         b1 b2 ...)]))  
 
   (define-syntax define-syntax-rule
     (syntax-rules ()
