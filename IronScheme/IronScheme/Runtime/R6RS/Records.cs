@@ -499,7 +499,7 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 
-  class RecordConstructorDescriptor
+  public class RecordConstructorDescriptor
   {
     public RecordTypeDescriptor type;
     public Callable protocol;

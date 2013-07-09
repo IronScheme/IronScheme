@@ -414,6 +414,7 @@
     (make-promise                               ic)
     (promise?                                   i)
     (enum-set?                                  i)
+    (record-constructor-descriptor?             i)
     (serialize-port                             i)
     (deserialize-port                           i)
     (reverse!                                   ic)
