@@ -78,7 +78,7 @@ namespace IronScheme.Runtime
     [Builtin("generate-executable-wrapper")]
     public static object GenWrapper(object filename)
     {
-      var tmpl = Path.Combine(ApplicationDirectory, "ExecutableTemplate.cs");
+      var tmpl = Path.Combine(ApplicationDirectory, "Executable.cs.template");
       var fn = RequiresNotNull<string>(filename);
       using (var p = new Microsoft.CSharp.CSharpCodeProvider())
       {

@@ -96,9 +96,9 @@
     <Compile Include="Compiler\ironscheme.lex.cs" />
     <Compile Include="Compiler\IronScheme.y.cs" />
     <Compile Include="Compiler\LambdaGenerator.cs" />
-    <Content Include="ExecutableTemplate.cs">
+    <None Include="Executable.cs.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Compile Include="gppg\IScanner.cs" />
     <Compile Include="gppg\ParserStack.cs" />
     <Compile Include="gppg\Rule.cs" />
