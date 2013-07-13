@@ -45,16 +45,12 @@ namespace IronScheme.Runtime
       {
         return false;
       }
-      else if (arg == TRUE)
+      if (arg == TRUE)
       {
         return true;
       }
-      else if (arg is bool)
-      {
-        return (bool)arg;
-      }
-
-      return true;
+      bool? b = arg as bool?;
+      return b.GetValueOrDefault(true);
     }
 
     sealed class UnspecifiedObject 
