@@ -37,5 +37,4 @@ See docs/license.txt. |#
             methods))
             
   (define (struct-descriptor-method-names sd)
-    (map car (struct-descriptor-methods sd))))    
-    
+    (map car (struct-descriptor-methods sd))))
