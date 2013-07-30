@@ -9,8 +9,6 @@ See docs/license.txt. |#
     syntax-format)
   (import 
     (ironscheme))
-    
-    
   
   (define (syntax-format fmt loc . args)
     (datum->syntax loc 

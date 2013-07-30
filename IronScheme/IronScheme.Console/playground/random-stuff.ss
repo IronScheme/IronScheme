@@ -1,4 +1,13 @@
-﻿(library (foo) 
+﻿
+;; not quite working....
+(define-syntax define-for-syntax
+  (lambda (x)
+    (syntax-case x ()
+      [(_ (method . formals) b b* ...)
+        #'(begin (module something (method) (define (method . formals) b b* ...))
+                 (import something))])))
+
+(library (foo) 
   (export cowan-test-eq cowan-test-eqv) 
   (import 
     (rename (except (rnrs) - =) (fx- -) (fx=? =)))

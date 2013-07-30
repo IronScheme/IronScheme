@@ -33,7 +33,6 @@ See docs/license.txt. |#
           (lambda (x)
             (syntax-case x ()
               [(name p ...) b])))]))
-              
 
   (define-syntax-rule (block b b* ...)
     (let () b b* ...))

@@ -2,7 +2,10 @@
   (export regex-cond regex-cond* else)
   (import 
     (ironscheme)
+    (ironscheme syntax utils)
     (ironscheme regex))
+    
+;;; CHALLENGE: How to refactor this? - define-for-syntax would help here
     
   (define-syntax regex-cond*
     (lambda (x)
