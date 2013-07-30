@@ -147,7 +147,6 @@ See docs/license.txt. |#
     
   (define/contract (datetime-kind dt:datetime)
     (clr-prop-get DateTime Kind dt))
-    
 
   (define (ticks date/timespan)
     (cond
