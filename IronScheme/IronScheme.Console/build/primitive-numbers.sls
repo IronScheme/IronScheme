@@ -27,10 +27,10 @@ See docs/license.txt. |#
       [(_ combine nil lst)
         (if (null? lst)
             nil
-            (let f ((a (combine nil (car lst)))(lst (cdr lst)))
+            (let f ((a (combine nil ($car lst)))(lst ($cdr lst)))
               (if (null? lst)
                   a
-                  (f (combine a (car lst)) (cdr lst)))))]))
+                  (f (combine a ($car lst)) ($cdr lst)))))]))
   
   (define/contract +
     (case-lambda
