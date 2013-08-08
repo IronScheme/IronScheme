@@ -211,7 +211,7 @@ See docs/license.txt. |#
   ; can be made faster : http://stackoverflow.com/q/15370250/15541
   (define-fx* (fxbit-count x)
     (if ($fx<=? x 0)
-      ($fxnot (fxbit-count* ($fxnot x)))
+      ($fxnot (fxbit-count ($fxnot x)))
       (let f ((count 0)(x x))
         (if ($fx<? 0 x)
             (f ($fx+ count ($fxand x 1))
@@ -220,7 +220,7 @@ See docs/license.txt. |#
 
   (define-fx* (fxlength x)
     (if ($fx<? x 0)
-      (fxlength* ($fxnot x))
+      (fxlength ($fxnot x))
       (let f ((count 0)(x x))
         (if ($fx<? 0 x)
             (f ($fx+ count 1) ($fxarithmetic-shift-right x 1))
@@ -422,6 +422,6 @@ See docs/license.txt. |#
                 ($fxarithmetic-shift-right bits 1))
          (rbits 0
                 ($fxior ($fxarithmetic-shift-left rbits 1)
-                       ($fxand bits 1))))
+                        ($fxand bits 1))))
         (($fx=? width 0)
          (fxcopy-bit-field* x1 start end rbits)))))
