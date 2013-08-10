@@ -26,9 +26,11 @@
 ;; bbtree-size : bbtree -> non-negative integer
 ;; returns the number of elements in a bbtree
 ;;
-;; bbtree-ref : bbtree any -> any
-;; returns the value associated with the key in the bbtree.
-;; If the value is not in the tree, an &assertion-violation condition is raised.
+;; bbtree-ref : bbtree any [any] -> any
+;; returns the value associated with the key in the bbtree.  If the
+;; value is not in the tree, then, if the optional third argument is
+;; passed, it is returned, otherwise an &assertion-violation condition
+;; is raised.
 ;;
 ;; bbtree-set : bbtree any any -> bbtree
 ;; returns a new bbtree with the key associated with the value. If the
@@ -60,7 +62,7 @@
 ;; other, more specific tree traversal procedures. For example,
 ;;   (define (l-to-r-pre-order cons base bbtree)
 ;;     (bbtree-traverse (lambda (key value left right base)
-;;                        (r (l (cons key value base))))
+;;                        (right (left (cons key value base))))
 ;;                      base
 ;;                      bbtree))
 ;; implements a left-to-right pre-order traversal variant of bbtree-fold
@@ -536,16 +538,21 @@
   (assert (bbtree? bbtree))
   (size (bbtree-tree bbtree)))
 
-(define (bbtree-ref bbtree key)
-  (assert (bbtree? bbtree))
-  (lookup (bbtree-tree bbtree)
-          key
-          node-value
-          (lambda ()
-            (assertion-violation 'bbtree-ref
-                                 "Key is not in the tree"
-                                 key))
-          (bbtree-ordering-procedure bbtree)))
+(define bbtree-ref
+  (let ((ref (lambda (bbtree key failure)
+               (assert (bbtree? bbtree))
+               (lookup (bbtree-tree bbtree)
+                       key
+                       node-value
+                       failure
+                       (bbtree-ordering-procedure bbtree)))))
+    (case-lambda
+      ((bbtree key)
+       (define (fail)
+         (assertion-violation 'bbtree-ref "Key is not in the tree" key))
+       (ref bbtree key fail))
+      ((bbtree key ret)
+       (ref bbtree key (lambda () ret))))))
 
 (define (bbtree-set bbtree key value)
   (assert (bbtree? bbtree))

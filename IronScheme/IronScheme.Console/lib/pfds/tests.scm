@@ -261,6 +261,8 @@
     (test-eqv 'b (bbtree-ref tree2 2))
     (test-eqv 2 (bbtree-size tree3))
     (test-eqv 'c (bbtree-ref tree3 1))
+    (test-eqv #f (bbtree-ref tree1 #xdeadbeef #f))
+    (test-eqv 'not-in (bbtree-ref tree1 #xdeadbeef 'not-in))
     (test-exn assertion-violation? (bbtree-ref tree3 20))))
 
 (define-test-case bbtrees bbtree-update ()
