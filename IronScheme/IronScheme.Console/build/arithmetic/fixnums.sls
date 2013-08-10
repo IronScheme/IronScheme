@@ -292,6 +292,10 @@ See docs/license.txt. |#
             #'(define name 
                 (case-lambda
                   [() id]
+                  [(x)
+                    (unless (fixnum? x)
+                      (assertion-violation 'name "not a fixnum" x))
+                    x]
                   [(x1 x2)
                     (unless (fixnum? x1)
                       (assertion-violation 'name "not a fixnum" x1))
