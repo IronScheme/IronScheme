@@ -205,17 +205,21 @@ See docs/license.txt. |#
       
   (define (bitwise-arithmetic-shift ei k)
     (exact
-      (if (negative? ei)
-          (floor (* ei (expt 2 k)))
-          (if (fxnegative? k)
-            (clr-static-call IntX 
-                             op_RightShift 
-                             (->bignum ei) 
-                             (fx- k))
-            (clr-static-call IntX 
-                             op_LeftShift 
-                             (->bignum ei) 
-                             k)))))
+      (cond 
+        [(negative? ei)
+          (if (negative? k)
+              -1
+              (floor (* ei (expt 2 k))))]
+        [(fxnegative? k)
+          (clr-static-call IntX 
+                           op_RightShift 
+                           (->bignum ei) 
+                           (fx- k))]
+        [else
+          (clr-static-call IntX 
+                           op_LeftShift 
+                           (->bignum ei) 
+                           k)])))
                   
   (define (bitwise-arithmetic-shift-left ei1 ei2)
     (when (negative? ei2)
