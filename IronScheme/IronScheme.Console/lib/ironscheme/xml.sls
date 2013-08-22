@@ -18,6 +18,7 @@ See docs/license.txt. |#
   (define (string-concat . args)
     (clr-static-call String (Concat Object[]) (list->vector args)))
 
+  ; TODO: attempt to make this a macro
 	(define ->xml
 		(letrec 
 			((complex? 				

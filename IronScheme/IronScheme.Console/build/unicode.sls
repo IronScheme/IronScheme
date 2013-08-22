@@ -101,8 +101,7 @@ See docs/license.txt. |#
     string-foldcase
     string-compare
     string-ci-compare
-    char->integer
-    )
+    char->integer)
     (ironscheme clr)
     (ironscheme unsafe)
     (ironscheme contracts))
