@@ -177,7 +177,13 @@ See docs/license.txt. |#
                         [(null? b) #t]
                         [(name a ($car b))
                           (f ($car b) ($cdr b))]
-                        [else #f]))])))]))) 
+                        [else #f]))])))])))
+                        
+  (define-fl-comparer fl=?)
+  (define-fl-comparer fl<?)
+  (define-fl-comparer fl<=?)
+  (define-fl-comparer fl>?)
+  (define-fl-comparer fl>=?)                          
                         
   (define-syntax define-fl-binop0
     (lambda (x)
@@ -247,12 +253,6 @@ See docs/license.txt. |#
           (assertion-violation 'fl/ "not a flonum" x1))                      
         (fold-left fl/ x1 (cons x2 rest))]))        
                                 
-  (define-fl-comparer fl=?)
-  (define-fl-comparer fl<?)
-  (define-fl-comparer fl<=?)
-  (define-fl-comparer fl>?)
-  (define-fl-comparer fl>=?) 
-  
   (define-fl* (fldiv0 x1 x2)
     (let* ((d (fldiv* x1 x2))
            (m ($fl- x1 ($fl* d x2))))
@@ -380,8 +380,12 @@ See docs/license.txt. |#
     (unless (flonum? a)
       (assertion-violation 'flmax "not a flonum" a))
     (fold-left 
-      (lambda (a b) 
-        (if (fl<? a b) b a))
+      (lambda (a b)
+        (cond
+          [(flnan? a) a]
+          [(flnan? b) b]
+          [else 
+            (if (fl<? a b) b a)]))
       a 
       rest))
     
@@ -389,7 +393,11 @@ See docs/license.txt. |#
     (unless (flonum? a)
       (assertion-violation 'flmin "not a flonum" a))
     (fold-left 
-      (lambda (a b) 
-        (if (fl>? a b) b a))
+      (lambda (a b)
+        (cond
+          [(flnan? a) a]
+          [(flnan? b) b]
+          [else        
+            (if (fl>? a b) b a)]))
       a 
       rest)))
