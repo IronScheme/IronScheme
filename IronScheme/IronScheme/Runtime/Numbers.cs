@@ -652,7 +652,7 @@ namespace IronScheme.Runtime
         x1 = x1 - 1;
         q0 = x1 * x1;
       }
-      return Values(x1, v0 - q0);
+      return Values(ToIntegerIfPossible(x1), ToIntegerIfPossible(v0 - q0));
     }
 
     static object DoubleIfPossible(object res)
