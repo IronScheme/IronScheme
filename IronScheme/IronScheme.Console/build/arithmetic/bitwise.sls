@@ -207,9 +207,11 @@ See docs/license.txt. |#
     (exact
       (cond 
         [(negative? ei)
-          (if (negative? k)
+          (if (and (negative? k) (not (fixnum? k)))
               -1
               (floor (* ei (expt 2 k))))]
+        ; due to underlying bignum library, only fixnum shifts are supported
+        ; make this better
         [(fxnegative? k)
           (clr-static-call IntX 
                            op_RightShift 
@@ -232,8 +234,8 @@ See docs/license.txt. |#
     (bitwise-arithmetic-shift ei1 (- ei2)))            
     
   (define (bitwise-rotate-bit-field n start end count)
-    (unless (< start end)
-       (assertion-violation 'bitwise-rotate-bit-field "start must be less than end" start end))
+    (unless (<= start end)
+       (assertion-violation 'bitwise-rotate-bit-field "start must be less than or equal end" start end))
     (if (and (fixnum? n) (< -1 end 32))
         (fxrotate-bit-field n start end count)
         (let ((width (- end start)))
@@ -247,8 +249,8 @@ See docs/license.txt. |#
               n))))
         
   (define (bitwise-reverse-bit-field x1 start end)
-    (unless (< start end)
-       (assertion-violation 'bitwise-reverse-bit-field "start must be less than end" start end))
+    (unless (<= start end)
+       (assertion-violation 'bitwise-reverse-bit-field "start must be less than or equal end" start end))
     (if (and (fixnum? x1) (< -1 end 32))
         (fxreverse-bit-field x1 start end)
         (do ((width (- end start) (- width 1))
