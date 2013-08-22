@@ -930,21 +930,29 @@ See docs/license.txt. |#
   
   (define/contract (max a:real . rest:real)
     (fold-left 
-      (lambda (a b) 
-        (let ((r (if (< a b) b a)))
-          (if (or (inexact? a) (inexact? b))
-              (inexact r)
-              r)))
+      (lambda (a b)
+        (cond
+          [(nan? a) a]
+          [(nan? b) b]
+          [else        
+            (let ((r (if (< a b) b a)))
+              (if (or (inexact? a) (inexact? b))
+                  (inexact r)
+                  r))]))
       a 
       rest))
     
   (define/contract (min a:real . rest:real)
     (fold-left 
-      (lambda (a b) 
-        (let ((r (if (> a b) b a)))
-          (if (or (inexact? a) (inexact? b))
-              (inexact r)
-              r)))
+      (lambda (a b)
+        (cond
+          [(nan? a) a]
+          [(nan? b) b]
+          [else        
+            (let ((r (if (> a b) b a)))
+              (if (or (inexact? a) (inexact? b))
+                  (inexact r)
+                  r))]))
       a 
       rest))   
     
@@ -1007,7 +1015,6 @@ See docs/license.txt. |#
                (rest (- num (* rf rf))))
           (values rf rest))))
   
-          
   (define (expt obj1 obj2)
     (define (make-restriction-violation)
       (condition
@@ -1016,6 +1023,7 @@ See docs/license.txt. |#
         (make-message-condition "not supported")
         (make-irritants-condition obj1 obj2)))
     (cond
+      [(and (flonum? obj2) (negative? obj2) (infinite? obj2)) 0.0]
       [(rectnum? obj1)
         (expt (rectnum->complexnum obj1) obj2)]
       [(or (complexnum? obj1) (and (negative? obj1) 
