@@ -359,13 +359,27 @@ namespace Microsoft.Scripting.Ast {
                     break;
 
                 case AstNodeType.GreaterThanOrEqual:
-                    cg.Emit(OpCodes.Clt);
+                    if (GetEmitType() == typeof (double))
+                    {
+                      cg.Emit(OpCodes.Clt_Un);
+                    }
+                    else
+                    {
+                      cg.Emit(OpCodes.Clt);
+                    }
                     cg.EmitInt(0);
                     cg.Emit(OpCodes.Ceq);
                     break;
 
                 case AstNodeType.LessThanOrEqual:
-                    cg.Emit(OpCodes.Cgt);
+                    if (GetEmitType() == typeof (double))
+                    {
+                      cg.Emit(OpCodes.Cgt_Un);
+                    }
+                    else
+                    {
+                      cg.Emit(OpCodes.Cgt);
+                    }
                     cg.EmitInt(0);
                     cg.Emit(OpCodes.Ceq);
                     break;
