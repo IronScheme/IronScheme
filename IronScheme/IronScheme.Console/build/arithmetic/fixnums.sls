@@ -210,13 +210,16 @@ See docs/license.txt. |#
 
   ; can be made faster : http://stackoverflow.com/q/15370250/15541
   (define-fx* (fxbit-count x)
-    (if ($fx<=? x 0)
-      ($fxnot (fxbit-count ($fxnot x)))
-      (let f ((count 0)(x x))
-        (if ($fx<? 0 x)
-            (f ($fx+ count ($fxand x 1))
-               ($fxarithmetic-shift-right x 1))
-            count))))
+    (cond 
+      [($fx=? x 0) 0]
+      [($fx<? x 0)
+        ($fxnot (fxbit-count ($fxnot x)))]
+      [else
+        (let f ((count 0)(x x))
+          (if ($fx<? 0 x)
+              (f ($fx+ count ($fxand x 1))
+                 ($fxarithmetic-shift-right x 1))
+              count))]))
 
   (define-fx* (fxlength x)
     (if ($fx<? x 0)
@@ -240,11 +243,11 @@ See docs/license.txt. |#
   (define-fx (fxbit-set? x k)
     (when ($fx<? k 0)
       (assertion-violation 'fxbit-set? "cannot be negative" k))
-    (when ($fx>=? k 32)
-      (assertion-violation 'fxbit-set? "cannot be larger than 31" k))
-    (if ($fx=? 0 x)
-        #f
-        ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))))
+    (cond 
+      [($fx>=? k 32) #t]
+      [($fx=? 0 x) #f]
+      [else  
+        ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))]))
 
   (define-fx (fxnot x1)
     ($fxnot x1))
@@ -361,6 +364,7 @@ See docs/license.txt. |#
   (define-fx* (fxodd? n)
     ($fx=? 1 ($fxand n 1)))
 
+  ; TODO: improve this
   (define (fxmax a . rest)
     (unless (fixnum? a)
       (assertion-violation 'fxmax "not a fixnum" a))
@@ -370,6 +374,7 @@ See docs/license.txt. |#
       a 
       rest))
 
+  ; TODO: improve this
   (define (fxmin a . rest)
     (unless (fixnum? a)
       (assertion-violation 'fxmin "not a fixnum" a))
@@ -401,12 +406,18 @@ See docs/license.txt. |#
       to))
 
   (define-fx (fxarithmetic-shift-left fx1 fx2)
+    (when (or ($fx<? fx2 0) ($fx>=? fx2 32))
+      (assertion-violation 'fxarithmetic-shift-left "shift amount must be non-negative and less than 32" fx2))
     (fxarithmetic-shift* fx1 fx2))
 
   (define-fx (fxarithmetic-shift-right fx1 fx2)
+    (when (or ($fx<? fx2 0) ($fx>=? fx2 32))
+      (assertion-violation 'fxarithmetic-shift-right "shift amount must be non-negative and less than 32" fx2))
     (fxarithmetic-shift* fx1 ($fx- fx2)))
 
   (define-fx (fxrotate-bit-field n start end count)
+    (unless ($fx<=? start end)
+        (assertion-violation 'fxrotate-bit-field "start must be less than or equal end" start end))  
     (let ((width ($fx- end start)))
       (if (fxpositive?* width)
           (let ((count (fxmod* count width))
@@ -420,7 +431,7 @@ See docs/license.txt. |#
   ;; from larceny        
   (define-fx (fxreverse-bit-field x1 start end)
     (unless ($fx<=? start end)
-        (assertion-violation 'fxreverse-bit-field "start must be less than end" start end))
+        (assertion-violation 'fxreverse-bit-field "start must be less than or equal end" start end))
     (do ((width ($fx- end start) ($fx- width 1))
          (bits  (fxbit-field* x1 start end)
                 ($fxarithmetic-shift-right bits 1))
