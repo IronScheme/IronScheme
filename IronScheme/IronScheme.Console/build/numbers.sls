@@ -525,6 +525,8 @@ See docs/license.txt. |#
       [(num radix prec)
         (number->string num radix)]
       [(num radix)
+        (unless (fixnum? radix)
+          (assertion-violation 'number->string "not a fixnum" radix))
         (cond
           [(fixnum? num)
             (fixnum->string num radix)]
