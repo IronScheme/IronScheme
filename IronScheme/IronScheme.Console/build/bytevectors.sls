@@ -259,7 +259,7 @@ See docs/license.txt. |#
       (clr-static-call Convert (ToInt32 Byte) 
         ($bytevector-ref bv k))))
       
-  (define/contract (bytevector-u8-set! bv:bytevector k:fixnum value)
+  (define/contract (bytevector-u8-set! bv:bytevector k:fixnum value:fixnum)
     (let: ((bv : Byte[] bv)(k : Int32 k))
       (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
         (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
@@ -271,7 +271,7 @@ See docs/license.txt. |#
         (assertion-violation 'bytevector-s8-ref "indexer out of bounds" bv k)) 
       (byte->sbyte ($bytevector-ref bv k))))
       
-  (define/contract (bytevector-s8-set! bv:bytevector k:fixnum value)
+  (define/contract (bytevector-s8-set! bv:bytevector k:fixnum value:fixnum)
     (let: ((bv : Byte[] bv)(k : Int32 k))
       (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
         (assertion-violation 'bytevector-s8-set! "indexer out of bounds" bv k)) 
