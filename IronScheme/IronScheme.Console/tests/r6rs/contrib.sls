@@ -71,5 +71,18 @@
     (test (fxmod -1720408098 -1532586397) 1344764696)
     
     (test/values (exact-integer-sqrt 4294967312) 65536 16)
+    
+    (test/exn (number->string 10 "bobbles") &assertion)
+    
+    (test/exn (string->number "0" '()) &assertion)
+    
+    (test/exn (substring "" 1 0) &assertion)
+    
+    (test (let ((a 0)) (guard (exn (else #f)) (/ a))) #f)
+    
+    (test/exn (let ((a 0)) (/ a)) &assertion)
+    
+    (test/exn (bytevector-u8-set! (make-bytevector 1) 0 (lambda x x)) &assertion)
+    
     ;;;
     ))
