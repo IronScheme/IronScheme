@@ -396,6 +396,8 @@ See docs/license.txt. |#
         (assertion-violation 'substring "not a non-negative integer" start)) 
       (unless ($fx>=? end 0)
         (assertion-violation 'substring "not a non-negative integer" end))
+      (when ($fx<? end start)
+        (assertion-violation 'substring "start must be smaller or equal to end" start end))
       (unless ($fx<=? end (string-length str))
         (assertion-violation 'substring "outside string bounds" end))
       (cond
