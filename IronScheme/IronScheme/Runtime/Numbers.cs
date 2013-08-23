@@ -87,7 +87,6 @@ namespace IronScheme.Runtime
     public static object StringToNumber(object obj, object radix)
     {
       string str = RequiresNotNull<string>(obj);
-      radix = radix ?? 10;
       int r = RequiresNotNull<int>(radix);
 
       if (str.Length == 0)
@@ -530,21 +529,29 @@ namespace IronScheme.Runtime
 
       NumberClass effective = f & s;
 
-      switch (effective)
+      try
       {
-        case NumberClass.Integer:
-        case NumberClass.BigInteger:
-          return IntegerIfPossible(new Fraction(ConvertToBigInteger(first), ConvertToBigInteger(second)));
-        case NumberClass.Rational:
-          return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
-        case NumberClass.Real:
-          return ConvertToReal(first) / ConvertToReal(second);
-        case NumberClass.Complex:
-          if (IsExact(first) && IsExact(second))
-          {
-            return IntegerIfPossible(ConvertToComplexFraction(first) / ConvertToComplexFraction(second));
-          }
-          return DoubleIfPossible(ConvertToComplex(first) / ConvertToComplex(second));
+
+        switch (effective)
+        {
+          case NumberClass.Integer:
+          case NumberClass.BigInteger:
+            return IntegerIfPossible(new Fraction(ConvertToBigInteger(first), ConvertToBigInteger(second)));
+          case NumberClass.Rational:
+            return IntegerIfPossible(ConvertToRational(first)/ConvertToRational(second));
+          case NumberClass.Real:
+            return ConvertToReal(first)/ConvertToReal(second);
+          case NumberClass.Complex:
+            if (IsExact(first) && IsExact(second))
+            {
+              return IntegerIfPossible(ConvertToComplexFraction(first)/ConvertToComplexFraction(second));
+            }
+            return DoubleIfPossible(ConvertToComplex(first)/ConvertToComplex(second));
+        }
+      }
+      catch (DivideByZeroException)
+      {
+        return AssertionViolation("/", "divide by zero", first);
       }
 
       throw new NotSupportedException("number type not supported");
