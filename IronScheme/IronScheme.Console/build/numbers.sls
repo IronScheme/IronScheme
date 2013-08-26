@@ -884,25 +884,23 @@ See docs/license.txt. |#
     (cond
       [(exact-integer? x) x]
       [(ratnum? x)
-        (let* ((num (ratnum-numerator x))
+        (let* ((neg? (negative? x))
+               (x (abs x))
+               (num (ratnum-numerator x))
                (den (ratnum-denominator x))
                (d (bignum/ num den))
                (r (bignum% num den))
-               (hd (div d 2)))
-          (cond
-            [(negative? r)
-              (exact (cond 
-                       [(> (- r) hd) (- d 1)]
-                       [(< (- r) hd) d]
-                       [(even? d) d]
-                       [else (+ d 1)]))]
-            [(positive? r)
-              (exact (cond 
+               (hd (div0 den 2)))
+          (let ((n (exact 
+                     (cond 
                        [(> r hd) (+ d 1)]
                        [(< r hd) d]
-                       [(even? d) d]
-                       [else (+ d 1)]))]
-            [else d]))]
+                       ;; deal with denominator == 2, round to even
+                       [(even? (div0 (+ num 1) 2)) (+ d 1)]
+                       [else d]))))
+             (if neg?
+                 (- n)
+                 n)))]
       [else
         (clr-static-call Math (Round Double) (inexact x))]))
         
