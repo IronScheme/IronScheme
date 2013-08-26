@@ -47,6 +47,12 @@
     
     (test (round 1/2) 0)
     (test (round -1/2) 0)
+    (test (round 3/2) 2)
+    (test (round -3/2) -2)
+    (test (round 5/2) 2)
+    (test (round -5/2) -2)
+    (test (round 7/2) 4)
+    (test (round -7/2) -4)
     
     
     (test (bitwise-bit-count 0) 0)
