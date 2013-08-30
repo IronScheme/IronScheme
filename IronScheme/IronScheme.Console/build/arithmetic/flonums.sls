@@ -284,7 +284,7 @@ See docs/license.txt. |#
     ($fl=? 0.0 (flmod* fl 1.0))) 
     
   (define-fl* (flfinite? fl)
-    (not (flinfinite?* fl)))
+    (not (or (flinfinite?* fl) (flnan?* fl))))
     
   (define-fl* (flinfinite? fl)
     (clr-static-call Double IsInfinity fl))
