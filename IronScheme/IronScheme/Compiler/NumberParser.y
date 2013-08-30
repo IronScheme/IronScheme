@@ -263,7 +263,7 @@ complex2  : real2
           | real2 MINUS ureal2 IMAG       { $$ = Helper.MakeRectangular($1, Builtins.Multiply(-1, $3)); }
           | real2 PLUS IMAG               { $$ = Helper.MakeRectangular($1,1); }
           | real2 MINUS IMAG              { $$ = Helper.MakeRectangular($1,-1); }
-          | sreal2 IMAG                   { $$ = Helper.MakeRectangular(0,$2); }
+          | sreal2 IMAG                   { $$ = Helper.MakeRectangular(0,$1); }
           | PLUS IMAG                     { $$ = Helper.MakeRectangular(0,1); }
           | MINUS IMAG                    { $$ = Helper.MakeRectangular(0,-1); }
           | real2 PLUS naninf IMAG        { $$ = Helper.MakeRectangular($1, $3); }
