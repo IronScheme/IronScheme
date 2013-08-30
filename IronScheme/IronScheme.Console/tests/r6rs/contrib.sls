@@ -90,5 +90,16 @@
     
     (test/exn (bytevector-u8-set! (make-bytevector 1) 0 (lambda x x)) &assertion)
     
+    (test (finite? +nan.0) #f)
+    (test (flfinite? +nan.0) #f)
+    
+    (test (flinfinite? +nan.0) #f)
+    (test (infinite? +nan.0) #f)
+    
+    (test (bitwise-arithmetic-shift-right 1152921504606846978 957814624420449346) 0)
+    (test (bitwise-arithmetic-shift-right -208254935351228883 957814624420449346) -1)
+    
+    (test (bitwise-arithmetic-shift-right -208254935351228883 1073741826) -1)
+    
     ;;;
     ))
