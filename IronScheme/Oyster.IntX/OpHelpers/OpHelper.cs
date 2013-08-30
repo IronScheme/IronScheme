@@ -307,9 +307,16 @@ namespace Oyster.Math
 			ulong intXBitCount = (ulong)(intX._length - 1) * Constants.DigitBitCount + (ulong)msb + 1UL;
 
 			// If shifting to the right and shift is too big then return zero
-			if (!toLeft && bitCount >= intXBitCount) return new IntX();
+		  if (!toLeft && bitCount >= intXBitCount)
+		  {
+		    if (intX.Negative)
+		    {
+		      return -1;
+		    }
+		    return new IntX();
+		  }
 
-			// Calculate new bit count
+		  // Calculate new bit count
 			ulong newBitCount = toLeft ? intXBitCount + bitCount : intXBitCount - bitCount;
 
 			// If shifting to the left and shift is too big to fit in big integer, throw an exception

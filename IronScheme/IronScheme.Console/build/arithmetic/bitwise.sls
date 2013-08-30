@@ -202,26 +202,36 @@ See docs/license.txt. |#
             (bitwise-not (bitwise-arithmetic-shift-left -1 end)))
           (bitwise-arithmetic-shift-left from start)
           to)))
-      
+          
   (define (bitwise-arithmetic-shift ei k)
     (exact
       (cond 
+        [(fixnum? k)
+          (if (fxnegative? k)
+              (clr-static-call IntX 
+                               op_RightShift 
+                               (->bignum ei) 
+                               (fx- k))
+              (clr-static-call IntX 
+                               op_LeftShift 
+                               (->bignum ei) 
+                               k))]
         [(negative? ei)
           (if (and (negative? k) (not (fixnum? k)))
               -1
-              (floor (* ei (expt 2 k))))]
-        ; due to underlying bignum library, only fixnum shifts are supported
-        ; make this better
-        [(fxnegative? k)
-          (clr-static-call IntX 
-                           op_RightShift 
-                           (->bignum ei) 
-                           (fx- k))]
-        [else
-          (clr-static-call IntX 
-                           op_LeftShift 
-                           (->bignum ei) 
-                           k)])))
+              (floor (* ei (expt 2 k))))]                               
+        ;; handle bignum right shifts
+        [(negative? k) 
+          (if (negative? ei)
+              -1
+              0)]
+        [else ;; else &implementation-restriction
+          (raise
+            (condition
+              (make-implementation-restriction-violation)
+              (make-who-condition 'bitwise-arithmetic-shift)
+              (make-message-condition "bignum left shift not supported")
+              (make-irritants-condition ei k)))])))
                   
   (define (bitwise-arithmetic-shift-left ei1 ei2)
     (when (negative? ei2)
