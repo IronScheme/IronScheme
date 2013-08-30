@@ -74,11 +74,21 @@ namespace IronScheme.Hosting
       if (exception is SyntaxErrorException)
       {
         var parts = exception.Message.Split('|');
-        return @"Unhandled exception while reading input:
+        if (parts.Length > 1)
+        {
+          return @"Unhandled exception while reading input:
 &lexical
 &message: """ + parts[0] + @"""
 &irritants: (""" + parts[1] + @""")
 ";
+        }
+        else
+        {
+          return @"Unhandled exception while reading input:
+&lexical
+&message: """ + parts[0] + @"""
+";
+        }
       }
 
       var w = new IronScheme.Runtime.StringWriter();
