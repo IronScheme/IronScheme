@@ -231,7 +231,7 @@ See docs/license.txt. |#
               (make-implementation-restriction-violation)
               (make-who-condition 'bitwise-arithmetic-shift)
               (make-message-condition "bignum left shift not supported")
-              (make-irritants-condition ei k)))])))
+              (make-irritants-condition (list ei k))))])))
                   
   (define (bitwise-arithmetic-shift-left ei1 ei2)
     (when (negative? ei2)
