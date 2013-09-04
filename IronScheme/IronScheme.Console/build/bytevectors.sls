@@ -689,21 +689,21 @@ See docs/license.txt. |#
     (bytevector-sint-set! bytevector k n (native-endianness) 8))
     
   (define/contract (bytevector-ieee-single-native-ref bytevector k:fixnum)
-    (unless ($fxzero? ($fxmod0 k 4))
+    (unless ($fxzero? ($fxmod k 4))
       (assertion-violation 'bytevector-ieee-single-native-ref "must be multiple of 4" k))
     (bytevector-ieee-single-ref bytevector k (native-endianness)))
     
   (define/contract (bytevector-ieee-double-native-ref bytevector k:fixnum)     
-    (unless ($fxzero? ($fxmod0 k 8))
+    (unless ($fxzero? ($fxmod k 8))
       (assertion-violation 'bytevector-ieee-double-native-ref "must be multiple of 8" k))
     (bytevector-ieee-double-ref bytevector k (native-endianness)))
     
   (define/contract (bytevector-ieee-single-native-set! bytevector k:fixnum x)     
-    (unless ($fxzero? ($fxmod0 k 4))
+    (unless ($fxzero? ($fxmod k 4))
       (assertion-violation 'bytevector-ieee-single-native-set! "must be multiple of 4" k))
     (bytevector-ieee-single-set! bytevector k x (native-endianness)))
     
   (define/contract (bytevector-ieee-double-native-set! bytevector k:fixnum x)     
-    (unless ($fxzero? ($fxmod0 k 8))
+    (unless ($fxzero? ($fxmod k 8))
       (assertion-violation 'bytevector-ieee-double-native-set! "must be multiple of 8" k))
     (bytevector-ieee-double-set! bytevector k x (native-endianness))))

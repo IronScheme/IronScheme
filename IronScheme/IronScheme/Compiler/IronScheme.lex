@@ -119,7 +119,7 @@ digit                  [0-9]
 digit2                 [01]
 digit8                 [0-7]
 digit10                {digit}
-digit16                {digit10}|[a-fA-F]
+digit16                [0-9a-fA-F]
 
 letter                 [[:IsLetter:]]
 idescape               ("\\x"({digit16})+";")
@@ -167,10 +167,10 @@ ureal16                (({uinteger16})|({uinteger16}"/"{uinteger16}))
 
 naninf                 ("nan.0"|"inf.0")
 
-real2                  ({sign}{ureal2}|"+"{naninf}|"-"{naninf})
-real8                  ({sign}{ureal8}|"+"{naninf}|"-"{naninf})
-real10                 ({sign}{ureal10}|"+"{naninf}|"-"{naninf})
-real16                 ({sign}{ureal16}|"+"{naninf}|"-"{naninf})
+real2                  (({sign}{ureal2})|("+"{naninf})|("-"{naninf}))
+real8                  (({sign}{ureal8})|("+"{naninf})|("-"{naninf}))
+real10                 (({sign}{ureal10})|("+"{naninf})|("-"{naninf}))
+real16                 (({sign}{ureal16})|("+"{naninf})|("-"{naninf}))
 
 complex2               ({real2}|({real2}"@"{real2})|({real2}"+"{ureal2}"i")|({real2}"-"{ureal2}"i")|({real2}"+i")|({real2}"-i")|("+"{ureal2}"i")|("-"{ureal2}"i")|("+i")|("-i")|({real2}"+"{naninf}"i")|({real2}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))
 complex8               ({real8}|({real8}"@"{real8})|({real8}"+"{ureal8}"i")|({real8}"-"{ureal8}"i")|({real8}"+i")|({real8}"-i")|("+"{ureal8}"i")|("-"{ureal8}"i")|("+i")|("-i")|({real8}"+"{naninf}"i")|({real8}"-"{naninf}"i")|("+"{naninf}"i")|("-"{naninf}"i"))

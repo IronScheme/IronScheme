@@ -352,7 +352,8 @@ namespace IronScheme.Runtime
       }
 
       [InlineEmitter("$fxdiv0")]
-      public static Expression FxDiv0(params Expression[] args)
+      [InlineEmitter("$fxdiv")]
+      public static Expression FxDiv(params Expression[] args)
       {
         if (Expect<int>(args, 2))
         {
@@ -362,7 +363,8 @@ namespace IronScheme.Runtime
       }
 
       [InlineEmitter("$fxmod0")]
-      public static Expression FxMod0(params Expression[] args)
+      [InlineEmitter("$fxmod")]
+      public static Expression FxMod(params Expression[] args)
       {
         if (Expect<int>(args, 2))
         {

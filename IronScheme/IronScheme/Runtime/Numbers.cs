@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using IronScheme.Compiler.Numbers;
+using IronScheme.Runtime.R6RS;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Math;
 using BigInteger = Oyster.Math.IntX;

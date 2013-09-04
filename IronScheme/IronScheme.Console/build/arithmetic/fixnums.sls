@@ -319,36 +319,50 @@ See docs/license.txt. |#
       (overflow-error 'fxdiv x1 x2))
     (cond
       [($fx=? 0 x1) 0]
-      [($fx<? 0 x1) ($fxdiv0 x1 x2)]
-      [($fx<? 0 x2) ($fxdiv0 ($fx- x1 ($fx- x2 1)) x2)]
+      [($fx<? 0 x1) 
+        ($fxdiv x1 x2)]
+      [($fx<? 0 x2) 
+        ($fx-($fxdiv ($fx+ x1 1) x2) 1)]
       [else
-        ($fxdiv0 ($fx+ x1 ($fx+ x2 1)) x2)]))
+        ($fx+($fxdiv ($fx+ x1 1) x2) 1)]))
 
   (define-fx* (fxmod x1 x2)
-    ($fx- x1 ($fx* (fxdiv* x1 x2) x2)))
+    ($fx- 0 ($fx- ($fx* (fxdiv* x1 x2) x2) x1)))
 
-  (define-fx (fxmod0 x1 x2)
-    (when ($fx=? 0 x2)
-      (assertion-violation 'fxmod0 "divide by zero" x1 x2))
-    (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (overflow-error 'fxmod0 x1 x2))
-    ($fxmod0 x1 x2))
- 
   (define-fx (fxdiv-and-mod x1 x2)
     (let ((d (fxdiv* x1 x2)))
-      (values d ($fx- x1 ($fx* d x2))))) 
+      (values d ($fx- 0 ($fx- ($fx* d x2) x1))))) 
 
   (define-fx* (fxdiv0 x1 x2)
     (when ($fx=? 0 x2)
       (assertion-violation 'fxdiv0 "divide by zero" x1 x2))
     (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
       (overflow-error 'fxdiv0 x1 x2))
-    ($fxdiv0 x1 x2))
-
+    (let* ((d (fxdiv* x1 x2))
+           (m ($fx- 0 ($fx- ($fx* d x2) x1)))
+           (halfx2 ($fxdiv x2 2))
+           (abshalfx2 (if ($fx<=? 0 halfx2)
+                          halfx2
+                          ($fx- 0 halfx2))))
+       (cond
+        [($fx<? m ($fx+ abshalfx2 ($fxand x2 1)))
+          d]
+        [($fx>? x2 0)
+          ($fx+ d 1)]
+        [else
+          ($fx- d 1)])))
+    
+  (define-fx (fxmod0 x1 x2)
+    (when ($fx=? 0 x2)
+      (assertion-violation 'fxmod0 "divide by zero" x1 x2))
+    (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
+      (overflow-error 'fxmod0 x1 x2))
+    ($fx- 0 ($fx- ($fx* (fxdiv0* x1 x2) x2) x1)))
+    
   (define-fx (fxdiv0-and-mod0 x1 x2)
     (let ((d (fxdiv0* x1 x2)))
-      (values d ($fx- x1 ($fx* d x2))))) 
-
+      (values d ($fx- 0 ($fx- ($fx* d x2) x1)))))
+      
   (define-fx* (fxpositive? r)
     ($fx<? 0 r))
 

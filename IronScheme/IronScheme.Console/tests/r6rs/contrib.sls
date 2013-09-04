@@ -101,5 +101,18 @@
     
     (test (bitwise-arithmetic-shift-right -208254935351228883 1073741826) -1)
     
+    (test/exn (bitwise-arithmetic-shift-left 1152921504606846978 957814624420449346) &implementation-restriction)
+    
+    (test (gcd 2.0 1.0) 1.0)
+    (test (gcd 2.0 1) 1)
+    
+    (test (fxbit-set? 264987013 46934755) #f)
+    
+    (test #e.1 1/10)
+    
+    ;;(test/exn #e+inf.0 &lexical)
+    
+    (test #b-1010i 0-10i) 
+    
     ;;;
     ))
