@@ -322,9 +322,9 @@ See docs/license.txt. |#
       [($fx<? 0 x1) 
         ($fxdiv x1 x2)]
       [($fx<? 0 x2) 
-        ($fx-($fxdiv ($fx+ x1 1) x2) 1)]
+        ($fx- ($fxdiv ($fx+ x1 1) x2) 1)]
       [else
-        ($fx+($fxdiv ($fx+ x1 1) x2) 1)]))
+        ($fx+ ($fxdiv ($fx+ x1 1) x2) 1)]))
 
   (define-fx* (fxmod x1 x2)
     ($fx- 0 ($fx- ($fx* (fxdiv* x1 x2) x2) x1)))
