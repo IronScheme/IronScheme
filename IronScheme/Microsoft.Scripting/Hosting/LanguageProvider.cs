@@ -124,19 +124,16 @@ namespace Microsoft.Scripting.Hosting {
           }
         }
 
-        static readonly bool inputredirected = IsInputRedirected();
-
         public static bool InputRedirected
         {
-          get { return LanguageProvider.inputredirected; }
+          get { return IsInputRedirected(); }
         } 
-
 
         public virtual IConsole GetConsole(CommandLine commandLine, IScriptEngine engine, ConsoleOptions options) {
             Contract.RequiresNotNull(engine, "engine");
             Contract.RequiresNotNull(options, "options");
 
-            if (options.TabCompletion && !inputredirected)
+            if (options.TabCompletion && !InputRedirected)
             {
                 return CreateSuperConsole(commandLine, engine, options.ColorfulConsole);
             } else {
