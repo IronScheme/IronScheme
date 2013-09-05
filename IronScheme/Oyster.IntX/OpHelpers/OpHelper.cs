@@ -365,7 +365,12 @@ namespace Oyster.Math
 				}
 			}
 
-			return newInt;
+		  if (!toLeft && intX.Negative && (intX & 1) == 1)
+		  {
+		    return newInt - 1;
+		  }
+
+		  return newInt;
 		}
 
 		#endregion Shift operation

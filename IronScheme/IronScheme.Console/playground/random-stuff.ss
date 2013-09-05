@@ -1,4 +1,9 @@
 ﻿
+(let f ((x -1))
+  (when (> x -10000000)
+    (assert (= (bitwise-arithmetic-shift x -1) (fxarithmetic-shift x -1)))
+    (f (- x 2))))
+
 ;; not quite working....
 (define-syntax define-for-syntax
   (lambda (x)
