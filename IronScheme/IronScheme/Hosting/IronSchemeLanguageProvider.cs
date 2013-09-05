@@ -67,12 +67,22 @@ namespace IronScheme.Hosting
       return base.GetConsole(commandLine, engine, options);
     }
 
-    CommandLineX cl = new CommandLineX();
+    // make this lazy
+    CommandLineX cl;
+
+    void InitializeCommandLine()
+    {
+      if (cl == null)
+      {
+         cl = new CommandLineX();
+      }
+    }
 
     public IConsole Console
     {
       get
       {
+        InitializeCommandLine();
         return cl.GetConsole();
       }
 
@@ -80,6 +90,7 @@ namespace IronScheme.Hosting
 
     public override CommandLine GetCommandLine()
     {
+      InitializeCommandLine();
       return cl;
     }
 
@@ -173,8 +184,6 @@ namespace IronScheme.Hosting
       {
         IronScheme.Runtime.Builtins.commandline = new string[] { "interactive" };
 
-
-
         if (!Options.TabCompletion)
         {
           Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
@@ -184,8 +193,6 @@ namespace IronScheme.Hosting
         {
           Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
         }
-
-
 
       }
     }

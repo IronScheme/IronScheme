@@ -129,9 +129,9 @@ namespace Microsoft.Scripting.Shell {
           }
         }
 
-        static readonly bool inputredirected = IsInputRedirected();
+        readonly bool inputredirected = IsInputRedirected();
 
-        private static IConsole CreateConsole(CommandLine commandLine, ScriptEngine engine, bool isSuper, bool isColorful) {
+        private IConsole CreateConsole(CommandLine commandLine, ScriptEngine engine, bool isSuper, bool isColorful) {
             Debug.Assert(engine != null);
 
             if (!inputredirected && isSuper) {
@@ -144,7 +144,7 @@ namespace Microsoft.Scripting.Shell {
         // The advanced console functions are in a special non-inlined function so that 
         // dependencies are pulled in only if necessary.
         [MethodImplAttribute(MethodImplOptions.NoInlining)]
-        private static IConsole CreateSuperConsole(CommandLine commandLine, ScriptEngine engine, bool isColorful) {
+        private IConsole CreateSuperConsole(CommandLine commandLine, ScriptEngine engine, bool isColorful) {
             Debug.Assert(engine != null);
             return new SuperConsole(commandLine, engine, isColorful);
         }
