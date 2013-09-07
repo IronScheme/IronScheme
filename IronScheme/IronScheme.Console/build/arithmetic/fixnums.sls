@@ -244,8 +244,8 @@ See docs/license.txt. |#
     (when ($fx<? k 0)
       (assertion-violation 'fxbit-set? "cannot be negative" k))
     (cond 
-      [(and ($fx>=? k 32) ($fx<? x 0)) #t]
       [($fx=? 0 x) #f]
+      [($fx>=? k 32) ($fx<? x 0)]
       [else  
         ($fx=? 1 ($fxand 1 ($fxarithmetic-shift-right x k)))]))
 
