@@ -1027,7 +1027,14 @@ See docs/license.txt. |#
         (make-message-condition "not supported")
         (make-irritants-condition obj1 obj2)))
     (cond
-      [(and (flonum? obj2) (negative? obj2) (infinite? obj2)) 0.0]
+      [(infinite? obj2)
+        (if (negative? obj2)
+            (if (> (abs obj1) 1)
+                0.0
+                +inf.0)
+            (if (> (abs obj1) 1)
+                +inf.0
+                0.0))]      
       [(rectnum? obj1)
         (expt (rectnum->complexnum obj1) obj2)]
       [(or (complexnum? obj1) (and (negative? obj1) 
