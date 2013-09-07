@@ -61,6 +61,7 @@
     (test (bitwise-rotate-bit-field 1 1 1 1) 1)
     
     (test (fxbit-set? -1 100) #t)
+    (test (fxbit-set? 1 100) #f)
     
     (test/exn (fxarithmetic-shift-right 42 (fixnum-width)) &assertion)
     (test/exn (fxarithmetic-shift-left 42 (fixnum-width)) &assertion)
@@ -114,5 +115,22 @@
     
     (test #b-1010i 0-10i) 
     
-    ;;;
+    (test/values (div0-and-mod0 -2.169352291377933e18 -inf.0) -1.0 +nan.0)
+    (test/values (fldiv0-and-mod0 -2.169352291377933e18 -inf.0) -1.0 +nan.0)
+    
+    (test (bitwise-arithmetic-shift -210724790 -8) -823144)
+    
+    (test (fxbit-set? 264987013 46934755) #f)
+    (test (fxbit-set? 2147483647 629032290) #f)
+    
+    (test (expt 1/2 +inf.0) 0.0)
+    (test (expt -1/2 +inf.0) 0.0)
+    (test (expt 2 +inf.0) +inf.0)
+    (test (expt -2 +inf.0) +inf.0)
+
+    (test (expt 1/2 -inf.0) +inf.0)
+    (test (expt -1/2 -inf.0) +inf.0)
+    (test (expt 2 -inf.0) 0.0)
+    (test (expt -2 -inf.0) 0.0)
+    
     ))
