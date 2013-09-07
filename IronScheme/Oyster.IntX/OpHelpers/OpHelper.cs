@@ -365,10 +365,11 @@ namespace Oyster.Math
 				}
 			}
 
-		  if (!toLeft && intX.Negative && (intX & 1) == 1)
+		  if (!toLeft && intX.Negative)
 		  {
-		    return newInt - 1;
+		    return ~-newInt;
 		  }
+
 
 		  return newInt;
 		}
