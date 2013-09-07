@@ -118,6 +118,10 @@
     (test/values (div0-and-mod0 -2.169352291377933e18 -inf.0) -1.0 +nan.0)
     (test/values (fldiv0-and-mod0 -2.169352291377933e18 -inf.0) -1.0 +nan.0)
     
+    (test (mod0 -2.169352291377933e18 -inf.0) +nan.0)
+    (test (flmod0 -2.169352291377933e18 -inf.0) +nan.0)
+
+    
     (test (bitwise-arithmetic-shift -210724790 -8) -823144)
     
     (test (fxbit-set? 264987013 46934755) #f)

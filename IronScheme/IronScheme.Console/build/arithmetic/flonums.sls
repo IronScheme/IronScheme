@@ -265,7 +265,9 @@ See docs/license.txt. |#
     ($fl- x1 ($fl* (fldiv* x1 x2) x2)))
 
   (define-fl (flmod0 x1 x2)
-    ($fl- x1 ($fl* (fldiv0* x1 x2) x2)))
+    (if (flinfinite?* x2)
+        +nan.0
+        ($fl- x1 ($fl* (fldiv0* x1 x2) x2))))
     
   (define-fl (fldiv-and-mod x1 x2)
     (let ((d (fldiv* x1 x2)))
@@ -278,7 +280,9 @@ See docs/license.txt. |#
 
   (define-fl (fldiv0-and-mod0 x1 x2)
     (let ((d (fldiv0* x1 x2)))
-      (values d ($fl- x1 ($fl* d x2)))))                                            
+      (if (flinfinite?* x2)
+          (values d +nan.0)
+          (values d ($fl- x1 ($fl* d x2))))))
     
   (define-fl (flinteger? fl)
     ($fl=? 0.0 (flmod* fl 1.0))) 

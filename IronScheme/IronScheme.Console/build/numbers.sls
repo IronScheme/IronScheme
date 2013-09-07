@@ -482,15 +482,19 @@ See docs/license.txt. |#
     (- x1 (* (div x1 x2) x2)))
 
   (define/contract (mod0 x1:real x2:real)
-    (- x1 (* (div0 x1 x2) x2)))
+    (if (infinite? x2)
+        +nan.0
+        (- x1 (* (div0 x1 x2) x2))))
     
   (define/contract (div-and-mod x1:real x2:real)
     (let ((d (div x1 x2)))
-      (values d (- x1 (* d x2)))))             
+      (values d (- x1 (* d x2)))))
 
   (define/contract (div0-and-mod0 x1:real x2:real)
     (let ((d (div0 x1 x2)))
-      (values d (- x1 (* d x2)))))     
+      (if (infinite? x2)
+          (values d +nan.0)
+          (values d (- x1 (* d x2))))))
       
   (define/contract (add1 x:number)
     (+ x 1))
