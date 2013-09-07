@@ -56,7 +56,7 @@ namespace IronScheme.Hosting
       if (se == null)
       {
         LanguageContext lc = new IronSchemeLanguageContext();
-        se = new IronSchemeScriptEngine(this, options ?? GetOptionsParser().EngineOptions, lc);
+        se = new IronSchemeScriptEngine(this, options ?? new IronSchemeOptionsParser.IronSchemeEngineOptions(), lc);
 
       }
       return se;
@@ -265,8 +265,12 @@ namespace IronScheme.Hosting
         }
       }
 
-      class IronSchemeEngineOptions : EngineOptions
+      internal class IronSchemeEngineOptions : EngineOptions
       {
+        public IronSchemeEngineOptions()
+        {
+          ProfileDrivenCompilation = false;
+        }
       }
 
       public override EngineOptions EngineOptions
@@ -274,7 +278,6 @@ namespace IronScheme.Hosting
         get
         {
           EngineOptions eo = new IronSchemeEngineOptions();
-          eo.ProfileDrivenCompilation = false;
           return eo;
         }
         set
