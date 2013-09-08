@@ -208,10 +208,15 @@ See docs/license.txt. |#
       (cond 
         [(fixnum? k)
           (if (fxnegative? k)
-              (clr-static-call IntX 
-                               op_RightShift 
-                               (->bignum ei) 
-                               (fx- k))
+              (if (negative? ei)
+                (bitwise-not (clr-static-call IntX 
+                                              op_RightShift 
+                                              (->bignum (bitwise-not ei))
+                                              (fx- k)))
+                (clr-static-call IntX 
+                                 op_RightShift 
+                                 (->bignum ei) 
+                                 (fx- k)))
               (clr-static-call IntX 
                                op_LeftShift 
                                (->bignum ei) 
