@@ -84,7 +84,7 @@ namespace IronScheme.Runtime
 
         if (p(typeof(SymbolId))
           || p(typeof(bool))
-          || (vt && !p(typeof(object)))
+          || (vt && !p(typeof(object)) && !p(typeof(Fraction)) && !p(typeof(IntX)) && !p(typeof(ComplexFraction)))
           )
         {
           return Ast.Equal(obj[0], obj[1]);
