@@ -878,6 +878,9 @@ See docs/license.txt. |#
   (define/contract (truncate x:real)
     (cond
       [(exact-integer? x) x]
+      [(ratnum? x)
+        (let ((r (bignum/ (ratnum-numerator x) (ratnum-denominator x))))
+          (exact r))]      
       [else
         (let ((r (clr-static-call Math (Truncate Double) (inexact x))))
           (if (exact? x)
