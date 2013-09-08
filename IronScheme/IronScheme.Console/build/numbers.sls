@@ -894,13 +894,13 @@ See docs/license.txt. |#
                (den (ratnum-denominator x))
                (d (bignum/ num den))
                (r (bignum% num den))
-               (hd (div0 den 2))) ; TODO: use right shift
+               (hd (div den 2))) 
           (let ((n (exact 
                      (cond 
                        [(> r hd) (+ d 1)]
                        [(< r hd) d]
                        ;; deal with denominator == 2, round to even
-                       [(even? (div0 (+ num 1) 2)) (+ d 1)] ; TODO: use right shift
+                       [(even? (div (+ num 1) 2)) (+ d 1)] 
                        [else d]))))
              (if neg?
                  (- n)
