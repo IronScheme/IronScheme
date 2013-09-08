@@ -191,8 +191,14 @@ See docs/license.txt. |#
           [(#\esc)        (put-string port "#\\esc")]
           [(#\space)      (put-string port "#\\space")]
           [(#\delete)     (put-string port "#\\delete")]
-          [else (put-string port "#\\")
-                (put-char port chr)])
+          [else 
+            (cond 
+              [(char<? #\x0 chr #\x20)
+                (put-string port "#\\x")
+                (put-string port (number->string (char->integer chr) 16))]
+              [else
+                (put-string port "#\\")
+                (put-char port chr)])])
         (put-char port chr)))
       
   (define (write-string str port readable?)
