@@ -147,6 +147,9 @@
     
     (test (eqv? -540606073/7860 -540606073/7860) #t)
     
+    (test (eqv? -5406060731237860 -5406060731237860) #t)
     
+    (test (rationalize +nan.0 196/365) +nan.0)
+    (test (rationalize -inf.0 +nan.0) +nan.0)
     
     ))

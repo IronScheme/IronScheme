@@ -987,7 +987,7 @@ See docs/license.txt. |#
               
   ;; from SLIB
   (define/contract (rationalize x:real e:real) 
-    (if (and (infinite? x) (infinite? e))
+    (if (or (and (infinite? x) (infinite? e)) (nan? x) (nan? e))
         +nan.0
         (let ((r (apply / (find-ratio x e))))
           (if (and (exact? x) (exact? e))
