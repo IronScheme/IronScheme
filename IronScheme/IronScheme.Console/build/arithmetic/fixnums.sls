@@ -201,7 +201,9 @@ See docs/license.txt. |#
     (cond
       [($fx=? k 0) x]
       [($fx<? k 0)
-        ($fxarithmetic-shift-right x ($fx- k))]
+        (if ($fx<=? k -32)
+            (assertion-violation 'fxarithmetic-shift "shift amount more than -32" k)
+            ($fxarithmetic-shift-right x ($fx- k)))]
       [else
         (let ((i (fxarithmetic-shift-left-internal x k)))
           (unless i
