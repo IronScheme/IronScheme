@@ -143,7 +143,7 @@ See docs/license.txt. |#
     (clr-static-call Char (IsLetter Char) chr))               
 
   (define/contract (char-numeric? chr:char)
-    (clr-static-call Char (IsDigit Char) chr))               
+    (clr-static-call Char (IsNumber Char) chr))               
 
   (define/contract (char-whitespace? chr:char)
     (clr-static-call Char (IsWhiteSpace Char) chr))               
