@@ -412,6 +412,14 @@ See docs/license.txt. |#
     ($fxarithmetic-shift-right 
       ($fxand fx1 ($fxnot ($fxarithmetic-shift-left -1 fx3)))
       fx2))
+      
+  (define-fx* (fxcopy-bit-field-nocheck to start end from)
+    (fxif* 
+      ($fxand 
+        ($fxarithmetic-shift-left -1 start) 
+        ($fxnot ($fxarithmetic-shift-left -1 end)))
+      ($fxarithmetic-shift-left from start)
+      to))      
 
   (define-fx* (fxcopy-bit-field to start end from)
     (unless ($fx<=? start end)
@@ -420,12 +428,7 @@ See docs/license.txt. |#
       (assertion-violation 'fxcopy-bit-field "start must be between 0 and 31 inclusive" start)) 
     (when (or ($fx<? end 0) ($fx>=? end 32))
       (assertion-violation 'fxcopy-bit-field "end must be between 0 and 31 inclusive" end))       
-    (fxif* 
-      ($fxand 
-        ($fxarithmetic-shift-left -1 start) 
-        ($fxnot ($fxarithmetic-shift-left -1 end)))
-      ($fxarithmetic-shift-left from start)
-      to))
+    (fxcopy-bit-field-nocheck* to start end from))
 
   (define-fx (fxarithmetic-shift-left fx1 fx2)
     (when (or ($fx<? fx2 0) ($fx>=? fx2 32))
@@ -446,9 +449,9 @@ See docs/license.txt. |#
       (assertion-violation 'fxrotate-bit-field "end must be between 0 and 31 inclusive" end))        
     (let ((width ($fx- end start)))
       (if (fxpositive?* width)
-          (let ((count (fxmod* count width))
+          (let ((count ($fxmod count width))
                 (field (fxbit-field* n start end)))
-             (fxcopy-bit-field* n start end 
+             (fxcopy-bit-field-nocheck* n start end 
               ($fxior 
                 ($fxarithmetic-shift-left field count) 
                 ($fxarithmetic-shift-right field ($fx- width count)))))
@@ -469,4 +472,4 @@ See docs/license.txt. |#
                 ($fxior ($fxarithmetic-shift-left rbits 1)
                         ($fxand bits 1))))
         (($fx=? width 0)
-         (fxcopy-bit-field* x1 start end rbits)))))
+         (fxcopy-bit-field-nocheck* x1 start end rbits)))))
