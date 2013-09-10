@@ -152,4 +152,6 @@
     (test (rationalize +nan.0 196/365) +nan.0)
     (test (rationalize -inf.0 +nan.0) +nan.0)
     
+    (test (round 549831112/3) 183277037)
+    
     ))

@@ -897,7 +897,7 @@ See docs/license.txt. |#
                (den (ratnum-denominator x))
                (d (bignum/ num den))
                (r (bignum% num den))
-               (hd (div den 2))) 
+               (hd (/ den 2))) 
           (let ((n (exact 
                      (cond 
                        [(> r hd) (+ d 1)]
