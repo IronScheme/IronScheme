@@ -414,6 +414,12 @@ See docs/license.txt. |#
       fx2))
 
   (define-fx* (fxcopy-bit-field to start end from)
+    (unless ($fx<=? start end)
+      (assertion-violation 'fxcopy-bit-field "start must be less than or equal end" start end)) 
+    (when (or ($fx<? start 0) ($fx>=? start 32))
+      (assertion-violation 'fxcopy-bit-field "start must be between 0 and 31 inclusive" start)) 
+    (when (or ($fx<? end 0) ($fx>=? end 32))
+      (assertion-violation 'fxcopy-bit-field "end must be between 0 and 31 inclusive" end))       
     (fxif* 
       ($fxand 
         ($fxarithmetic-shift-left -1 start) 
@@ -433,7 +439,11 @@ See docs/license.txt. |#
 
   (define-fx (fxrotate-bit-field n start end count)
     (unless ($fx<=? start end)
-        (assertion-violation 'fxrotate-bit-field "start must be less than or equal end" start end))  
+      (assertion-violation 'fxrotate-bit-field "start must be less than or equal end" start end))  
+    (when (or ($fx<? start 0) ($fx>=? start 32))
+      (assertion-violation 'fxrotate-bit-field "start must be between 0 and 31 inclusive" start)) 
+    (when (or ($fx<? end 0) ($fx>=? end 32))
+      (assertion-violation 'fxrotate-bit-field "end must be between 0 and 31 inclusive" end))        
     (let ((width ($fx- end start)))
       (if (fxpositive?* width)
           (let ((count (fxmod* count width))
@@ -448,6 +458,10 @@ See docs/license.txt. |#
   (define-fx (fxreverse-bit-field x1 start end)
     (unless ($fx<=? start end)
         (assertion-violation 'fxreverse-bit-field "start must be less than or equal end" start end))
+    (when (or ($fx<? start 0) ($fx>=? start 32))
+      (assertion-violation 'fxreverse-bit-field "start must be between 0 and 31 inclusive" start)) 
+    (when (or ($fx<? end 0) ($fx>=? end 32))
+      (assertion-violation 'fxreverse-bit-field "end must be between 0 and 31 inclusive" end))          
     (do ((width ($fx- end start) ($fx- width 1))
          (bits  (fxbit-field* x1 start end)
                 ($fxarithmetic-shift-right bits 1))
