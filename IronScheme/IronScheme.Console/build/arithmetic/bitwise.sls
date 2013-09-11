@@ -209,7 +209,8 @@ See docs/license.txt. |#
         [(fixnum? k)
           (if (fxnegative? k)
               (cond
-                [(fx=? k (least-fixnum)) -1]
+                [(fx=? k (least-fixnum))
+                  (if (negative? ei) -1 0)]
                 [(negative? ei)
                   (bitwise-not (clr-static-call IntX 
                                                 op_RightShift 
