@@ -531,6 +531,8 @@ See docs/license.txt. |#
       [(num radix)
         (unless (fixnum? radix)
           (assertion-violation 'number->string "not a fixnum" radix))
+        (unless (memv radix '(2 8 10 16))
+          (assertion-violation 'number->string "not a valid radix" radix))
         (cond
           [(fixnum? num)
             (fixnum->string num radix)]
