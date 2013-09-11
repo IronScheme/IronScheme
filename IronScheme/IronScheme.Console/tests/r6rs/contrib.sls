@@ -154,8 +154,13 @@
     
     (test (round 549831112/3) 183277037)
     
-    (test (bitwise-arithmetic-shift-right 586338928 2147483648) -1)
+    (test (bitwise-arithmetic-shift-right 586338928 2147483648) 0)
+    (test (bitwise-arithmetic-shift-right 0 2147483648) 0)
     
     (test/exn (fxcopy-bit-field 4194299 29 36 -134217727) &assertion)
+    
+    (test (bitwise-arithmetic-shift-right 0 2147483648) 0)
+    
+    (test/exn (number->string 0 0) &assertion)
     
     ))

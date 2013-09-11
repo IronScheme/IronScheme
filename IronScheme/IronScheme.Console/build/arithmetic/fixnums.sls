@@ -126,10 +126,12 @@ See docs/license.txt. |#
       [(_ expr)
         (or expr (overflow-error #f))]))
         
+  (define-syntax check (lambda (x) (syntax-violation #f)))
+        
   (define-syntax define-fx
     (lambda (x)
-      (syntax-case x ()
-        [(_ (name formals ...) body body* ...)
+      (syntax-case x (check)
+        [(_ (name formals ...) (check c ...) body body* ...)
           (with-syntax (((formals* ...) (generate-temporaries #'(formals ...)))
                         ((type ...) (map (lambda (x) (datum->syntax x 'Int32)) #'(formals ...))))
             (with-syntax (((checks ...) 
@@ -140,13 +142,17 @@ See docs/license.txt. |#
                     #'(formals* ...))))
               #'(define (name formals* ...)
                   checks ...
-                  ((typed-lambda (formals ...) ((type ...) Object) body body* ...)
-                    formals* ...))))]))) 
+                  ((typed-lambda (formals ...) ((type ...) Object)                    
+                      c ... 
+                      body body* ...)
+                    formals* ...))))]
+        [(_ (name formals ...) body body* ...)
+          #'(define-fx (name formals ...) (check) body body* ...)]))) 
 
   (define-syntax define-fx*
     (lambda (x)
-      (syntax-case x ()
-        [(_ (name formals ...) body body* ...)
+      (syntax-case x (check)
+        [(_ (name formals ...) (check c ...) body body* ...)
           (with-syntax ((uname 
             (datum->syntax #'name
               (string->symbol
@@ -155,7 +161,9 @@ See docs/license.txt. |#
                   "*")))))
             #'(begin
                 (define-integrable (uname formals ...) body body* ...)
-                (define-fx (name formals ...) (uname formals ...))))])))
+                (define-fx (name formals ...) (check c ...) (uname formals ...))))]
+        [(_ (name formals ...) body body* ...)
+          #'(define-fx* (name formals ...) (check) body body* ...)])))
 
   (define-syntax fxabs
     (syntax-rules ()
@@ -412,23 +420,21 @@ See docs/license.txt. |#
     ($fxarithmetic-shift-right 
       ($fxand fx1 ($fxnot ($fxarithmetic-shift-left -1 fx3)))
       fx2))
-      
-  (define-fx* (fxcopy-bit-field-nocheck to start end from)
+
+  (define-fx* (fxcopy-bit-field to start end from)
+    (check
+      (unless ($fx<=? start end)
+        (assertion-violation 'fxcopy-bit-field "start must be less than or equal end" start end)) 
+      (when (or ($fx<? start 0) ($fx>=? start 32))
+        (assertion-violation 'fxcopy-bit-field "start must be between 0 and 31 inclusive" start)) 
+      (when (or ($fx<? end 0) ($fx>=? end 32))
+        (assertion-violation 'fxcopy-bit-field "end must be between 0 and 31 inclusive" end)))
     (fxif* 
       ($fxand 
         ($fxarithmetic-shift-left -1 start) 
         ($fxnot ($fxarithmetic-shift-left -1 end)))
       ($fxarithmetic-shift-left from start)
-      to))      
-
-  (define-fx* (fxcopy-bit-field to start end from)
-    (unless ($fx<=? start end)
-      (assertion-violation 'fxcopy-bit-field "start must be less than or equal end" start end)) 
-    (when (or ($fx<? start 0) ($fx>=? start 32))
-      (assertion-violation 'fxcopy-bit-field "start must be between 0 and 31 inclusive" start)) 
-    (when (or ($fx<? end 0) ($fx>=? end 32))
-      (assertion-violation 'fxcopy-bit-field "end must be between 0 and 31 inclusive" end))       
-    (fxcopy-bit-field-nocheck* to start end from))
+      to))
 
   (define-fx (fxarithmetic-shift-left fx1 fx2)
     (when (or ($fx<? fx2 0) ($fx>=? fx2 32))
@@ -451,7 +457,7 @@ See docs/license.txt. |#
       (if (fxpositive?* width)
           (let ((count ($fxmod count width))
                 (field (fxbit-field* n start end)))
-             (fxcopy-bit-field-nocheck* n start end 
+             (fxcopy-bit-field* n start end 
               ($fxior 
                 ($fxarithmetic-shift-left field count) 
                 ($fxarithmetic-shift-right field ($fx- width count)))))
@@ -472,4 +478,4 @@ See docs/license.txt. |#
                 ($fxior ($fxarithmetic-shift-left rbits 1)
                         ($fxand bits 1))))
         (($fx=? width 0)
-         (fxcopy-bit-field-nocheck* x1 start end rbits)))))
+         (fxcopy-bit-field* x1 start end rbits)))))
