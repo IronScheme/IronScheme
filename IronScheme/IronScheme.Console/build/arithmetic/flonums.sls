@@ -119,9 +119,7 @@ See docs/license.txt. |#
     fl*
     fl/
     flnumerator
-    fldenominator
-    ))
-    
+    fldenominator))
     
   (define-syntax define-fl
     (lambda (x)
