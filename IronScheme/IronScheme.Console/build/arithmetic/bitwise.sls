@@ -51,8 +51,7 @@ See docs/license.txt. |#
       bitwise-first-bit-set
       bitwise-bit-set?
       bitwise-reverse-bit-field
-      bitwise-arithmetic-shift
-      ))
+      bitwise-arithmetic-shift))
       
   (clr-using Oyster.Math)
       
@@ -165,16 +164,14 @@ See docs/license.txt. |#
           (= 1 (bitwise-and 1 (bitwise-arithmetic-shift-right ei k))))]))
   
   (define (bitwise-if ei1 ei2 ei3)
-    (if (and (fixnum? ei1)
-             (fixnum? ei2)
-             (fixnum? ei3))
-        (fxif ei1 ei2 ei3)
-        (bitwise-ior (bitwise-and ei1 ei2)
-          (bitwise-and (bitwise-not ei1) ei3))))
+    (bitwise-ior (bitwise-and ei1 ei2)
+      (bitwise-and (bitwise-not ei1) ei3)))
       
   (define (bitwise-copy-bit ei1 ei2 ei3)
     (unless (or (zero? ei3) (= ei3 1))
-      (assertion-violation 'bitwise-copy-bit "Must be 0 or 1" ei3))
+      (assertion-violation 'bitwise-copy-bit "must be 0 or 1" ei3))
+    (when (negative? ei2)
+      (assertion-violation 'bitwise-copy-bit "cannot be negative" ei2))      
     (if (and (fixnum? ei1) (< -1 ei2 32))
         (fxcopy-bit ei1 ei2 ei3)
         (bitwise-if 
@@ -183,8 +180,12 @@ See docs/license.txt. |#
           ei1)))
         
   (define (bitwise-bit-field ei1 ei2 ei3)
+    (when (negative? ei2)
+      (assertion-violation 'bitwise-bit-field "cannot be negative" ei2))
+    (when (negative? ei3)
+      (assertion-violation 'bitwise-bit-field "cannot be negative" ei3)) 
     (unless (<= ei2 ei3)
-      (assertion-violation 'bitwise-bit-field "Must be less than or equal" ei2 ei3))
+      (assertion-violation 'bitwise-bit-field "must be less than or equal" ei2 ei3))
     (if (and (fixnum? ei1) (< -1 ei3 32))
         (fxbit-field ei1 ei2 ei3)
         (bitwise-arithmetic-shift-right
@@ -192,8 +193,12 @@ See docs/license.txt. |#
           ei2)))
   
   (define (bitwise-copy-bit-field to start end from)
+    (when (negative? start)
+      (assertion-violation 'bitwise-copy-bit-field "cannot be negative" start))
+    (when (negative? end)
+      (assertion-violation 'bitwise-copy-bit-field "cannot be negative" end))   
     (unless (<= start end)
-      (assertion-violation 'bitwise-copy-bit-field "Must be less than or equal" start end))  
+      (assertion-violation 'bitwise-copy-bit-field "must be less than or equal" start end))  
     (if (and (fixnum? to) (fixnum? from) (< -1 end 32))
         (fxcopy-bit-field to start end from)
         (bitwise-if 
@@ -253,8 +258,14 @@ See docs/license.txt. |#
     (bitwise-arithmetic-shift ei1 (- ei2)))            
     
   (define (bitwise-rotate-bit-field n start end count)
+    (when (negative? start)
+      (assertion-violation 'bitwise-rotate-bit-field "cannot be negative" start))
+    (when (negative? end)
+      (assertion-violation 'bitwise-rotate-bit-field "cannot be negative" end))
+    (when (negative? count)
+      (assertion-violation 'bitwise-rotate-bit-field "cannot be negative" count))      
     (unless (<= start end)
-       (assertion-violation 'bitwise-rotate-bit-field "start must be less than or equal end" start end))
+      (assertion-violation 'bitwise-rotate-bit-field "start must be less than or equal to end" start end))
     (let ((width (- end start)))
       (if (positive? width)
           (let ((count (mod count width))
@@ -266,8 +277,12 @@ See docs/license.txt. |#
           n)))
         
   (define (bitwise-reverse-bit-field x1 start end)
+    (when (negative? start)
+      (assertion-violation 'bitwise-reverse-bit-field "cannot be negative" start))
+    (when (negative? end)
+      (assertion-violation 'bitwise-reverse-bit-field "cannot be negative" end))  
     (unless (<= start end)
-       (assertion-violation 'bitwise-reverse-bit-field "start must be less than or equal end" start end))
+      (assertion-violation 'bitwise-reverse-bit-field "start must be less than or equal to end" start end))
     (do ((width (- end start) (- width 1))
          (bits  (bitwise-bit-field x1 start end)
                 (bitwise-arithmetic-shift-right bits 1))
