@@ -161,4 +161,10 @@
     
     (test/exn (number->string 0 0) &assertion)
     
+    (test/exn (fxrotate-bit-field 1 1 1 1) &assertion)
+    
+    (test/exn (fxcopy-bit 1 1 2) &assertion)
+    
+    (test/exn (fxcopy-bit 1 31 1) &assertion)
+    
     ))
