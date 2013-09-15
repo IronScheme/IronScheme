@@ -263,7 +263,7 @@ See docs/license.txt. |#
     (let: ((bv : Byte[] bv)(k : Int32 k))
       (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
         (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
-      ($bytevector-set! bv k (clr-static-call Convert (ToByte Object) value))))
+      ($bytevector-set! bv k (clr-static-call Convert (ToByte Object) value)))) ;TODO: can be ->byte ?
    
   (define/contract (bytevector-s8-ref bv:bytevector k:fixnum)
     (let: ((bv : Byte[] bv)(k : Int32 k))
