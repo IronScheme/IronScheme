@@ -210,7 +210,7 @@ See docs/license.txt. |#
       [($fx=? k 0) x]
       [($fx<? k 0)
         (if ($fx<=? k -32)
-            (assertion-violation 'fxarithmetic-shift "shift amount more than -32" k)
+            (assertion-violation 'fxarithmetic-shift "shift amount less than -31" k)
             ($fxarithmetic-shift-right x ($fx- k)))]
       [else
         (let ((i (fxarithmetic-shift-left-internal x k)))
@@ -413,10 +413,22 @@ See docs/license.txt. |#
       ($fxand ($fxnot fx1) fx3)))
 
   (define-fx* (fxcopy-bit fx1 fx2 fx3)
+    (check
+      (when (or ($fx<? fx2 0) ($fx>=? fx2 31))
+        (assertion-violation 'fxcopy-bit "fx2 must be between 0 and 30 inclusive" fx2))     
+      (unless ($fx=? ($fxior fx3 1) 1)
+        (assertion-violation 'fxcopy-bit "fx3 must be 0 or 1" fx3)))
     (fxif* ($fxarithmetic-shift-left 1 fx2)
       ($fxarithmetic-shift-left fx3 fx2) fx1))
   
   (define-fx* (fxbit-field fx1 fx2 fx3)
+    (check
+      (unless ($fx<=? fx2 fx3)
+        (assertion-violation 'fxbit-field "fx2 must be less than or equal fx3" fx2 fx3)) 
+      (when (or ($fx<? fx2 0) ($fx>=? fx2 32))
+        (assertion-violation 'fxbit-field "fx2 must be between 0 and 31 inclusive" fx2)) 
+      (when (or ($fx<? fx3 0) ($fx>=? fx3 32))
+        (assertion-violation 'fxbit-field "fx3 must be between 0 and 31 inclusive" fx3)))
     ($fxarithmetic-shift-right 
       ($fxand fx1 ($fxnot ($fxarithmetic-shift-left -1 fx3)))
       fx2))
@@ -452,16 +464,16 @@ See docs/license.txt. |#
     (when (or ($fx<? start 0) ($fx>=? start 32))
       (assertion-violation 'fxrotate-bit-field "start must be between 0 and 31 inclusive" start)) 
     (when (or ($fx<? end 0) ($fx>=? end 32))
-      (assertion-violation 'fxrotate-bit-field "end must be between 0 and 31 inclusive" end))        
-    (let ((width ($fx- end start)))
-      (if (fxpositive?* width)
-          (let ((count ($fxmod count width))
-                (field (fxbit-field* n start end)))
-             (fxcopy-bit-field* n start end 
-              ($fxior 
-                ($fxarithmetic-shift-left field count) 
-                ($fxarithmetic-shift-right field ($fx- width count)))))
-          n)))
+      (assertion-violation 'fxrotate-bit-field "end must be between 0 and 31 inclusive" end))
+    (unless ($fx<=? count ($fx- end start))
+      (assertion-violation 'fxrotate-bit-field "count must be less than or equal to the difference of end and start" count))
+    (let* ((width ($fx- end start))
+           (field1 (fxbit-field* n start ($fx- end count)))
+           (field2 (fxbit-field* n start end)))
+       (fxcopy-bit-field* n start end 
+        ($fxior 
+          ($fxarithmetic-shift-left field1 count) 
+          ($fxarithmetic-shift-right field2 ($fx- width count))))))
 
   ;; from larceny        
   (define-fx (fxreverse-bit-field x1 start end)
