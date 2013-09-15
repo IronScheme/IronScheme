@@ -206,12 +206,15 @@ See docs/license.txt. |#
         (make-irritants-condition irritants))))
 
   (define-fx* (fxarithmetic-shift x k)
+    (check 
+      (when ($fx<=? k -32)
+         (assertion-violation 'fxarithmetic-shift "shift amount less than -31" k))
+      (when ($fx>=? k 32)
+         (assertion-violation 'fxarithmetic-shift "shift amount more than 31" k)))
     (cond
       [($fx=? k 0) x]
       [($fx<? k 0)
-        (if ($fx<=? k -32)
-            (assertion-violation 'fxarithmetic-shift "shift amount less than -31" k)
-            ($fxarithmetic-shift-right x ($fx- k)))]
+        ($fxarithmetic-shift-right x ($fx- k))]
       [else
         (let ((i (fxarithmetic-shift-left-internal x k)))
           (unless i
@@ -323,10 +326,11 @@ See docs/license.txt. |#
   (define-fx-bitop fxxor 0)
 
   (define-fx* (fxdiv x1 x2)
-    (when ($fx=? 0 x2)
-      (assertion-violation 'fxdiv "divide by zero" x1 x2))
-    (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (overflow-error 'fxdiv x1 x2))
+    (check
+      (when ($fx=? 0 x2)
+        (assertion-violation 'fxdiv "divide by zero" x1 x2))
+      (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
+        (overflow-error 'fxdiv x1 x2)))
     (cond
       [($fx=? 0 x1) 0]
       [($fx<? 0 x1) 
@@ -337,17 +341,27 @@ See docs/license.txt. |#
         ($fx+ ($fxdiv ($fx+ x1 1) x2) 1)]))
 
   (define-fx* (fxmod x1 x2)
+    (check
+      (when ($fx=? 0 x2)
+        (assertion-violation 'fxmod "divide by zero" x1 x2))
+      (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
+        (overflow-error 'fxmod x1 x2)))
     ($fx- 0 ($fx- ($fx* (fxdiv* x1 x2) x2) x1)))
 
   (define-fx (fxdiv-and-mod x1 x2)
+    (when ($fx=? 0 x2)
+      (assertion-violation 'fxdiv-and-mod "divide by zero" x1 x2))
+    (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
+      (overflow-error 'fxdiv-and-mod x1 x2))    
     (let ((d (fxdiv* x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1))))) 
 
   (define-fx* (fxdiv0 x1 x2)
-    (when ($fx=? 0 x2)
-      (assertion-violation 'fxdiv0 "divide by zero" x1 x2))
-    (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
-      (overflow-error 'fxdiv0 x1 x2))
+    (check
+      (when ($fx=? 0 x2)
+        (assertion-violation 'fxdiv0 "divide by zero" x1 x2))
+      (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
+        (overflow-error 'fxdiv0 x1 x2)))
     (let* ((d (fxdiv* x1 x2))
            (m ($fx- 0 ($fx- ($fx* d x2) x1)))
            (halfx2 ($fxdiv x2 2))
@@ -370,6 +384,10 @@ See docs/license.txt. |#
     ($fx- 0 ($fx- ($fx* (fxdiv0* x1 x2) x2) x1)))
     
   (define-fx (fxdiv0-and-mod0 x1 x2)
+    (when ($fx=? 0 x2)
+      (assertion-violation 'fxdiv0-and-mod0 "divide by zero" x1 x2))
+    (when (and ($fx=? -1 x2) ($fx=? (least-fixnum) x1))
+      (overflow-error 'fxdiv0-and-mod0 x1 x2))  
     (let ((d (fxdiv0* x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1)))))
       
