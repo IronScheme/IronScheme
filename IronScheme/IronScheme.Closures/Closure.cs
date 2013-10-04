@@ -19,6 +19,8 @@ namespace IronScheme.Runtime
     string name;
     bool allowconstantfold = false;
 
+    public bool AllowTailCall { get; set; }
+
     public bool AllowConstantFold
     {
       get { return allowconstantfold; }
@@ -49,7 +51,6 @@ namespace IronScheme.Runtime
 
   public abstract class Closure : Callable
   {
-
     protected static object CheckCodeContext(CodeContext cc)
     {
       if (cc != null && cc.Scope.Parent.Parent == null)

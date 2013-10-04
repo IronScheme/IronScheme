@@ -86,7 +86,7 @@ namespace IronScheme.Compiler
       Optimize<RemoveTemporaries>(cb); // for unreferenced loop variables
 
       //Optimize<MarkUnspecifiedProcedureReturns>(cb);
-      Optimize<AnalyzeProcedureReturns>(cb);
+      Optimize<AnalyzeProcedureReturns>(cb); // this is too early too
 
       //Optimize<RemoveTemporaries>(cb);
       //Optimize<ConversionCSE>(cb);

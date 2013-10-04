@@ -7,10 +7,12 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using System.Diagnostics;
 using IronScheme.Runtime;
 using System.Reflection.Emit;
+using Microsoft.Scripting.Utils;
 
 namespace IronScheme.Compiler
 {
@@ -132,27 +134,61 @@ namespace IronScheme.Compiler
           foreach (var ret in retlist)
           {
             var expr = ret.Expression;
+
+            var ue = expr as UnaryExpression;
+            if (ue != null && ue.NodeType == AstNodeType.Convert)
+            {
+              if (ue.Type == typeof(object) && !ue.Operand.Type.IsValueType)
+              {
+                expr = ue.Operand;
+                ret.Expression = expr;
+              }
+            }
+
             if (expr is MethodCallExpression)
             {
               var mce = (MethodCallExpression)expr;
               if (mce.TailCall)
               {
-                var ass = mce.Method.DeclaringType.Assembly;
-                if (ass == typeof(Optimizer).Assembly || 
-                    ass == typeof(Oyster.Math.IntX).Assembly ||
-                    ass == typeof(CodeBlock).Assembly ||
-                    ass.GlobalAssemblyCache)
+                var type = mce.Method.DeclaringType;
+                var ass = type.Assembly;
+                
+                // check for proc attribute class and defy if found, all will be tail called
+                if (ass.GlobalAssemblyCache || (!Attribute.IsDefined(type, typeof(ProcedureAttribute)) && !typeof(IModuleDictionaryInitialization).IsAssignableFrom(type)))
                 {
-                  if (mce.Method.DeclaringType.BaseType != typeof(MulticastDelegate))
+                  // alway tail call delegates
+                  if (type.BaseType != typeof(MulticastDelegate))
                   {
-                    mce.TailCall = false;
+                    var pa = (ProcedureAttribute) Attribute.GetCustomAttribute(mce.Method, typeof(ProcedureAttribute));
+
+                    // either must not allow it
+                    if (pa != null)
+                    {
+                      mce.TailCall = pa.AllowTailCall;
+                    }
+                    else
+                    {
+                      bool tc = false;
+                      foreach (BuiltinAttribute ba in Attribute.GetCustomAttributes(mce.Method, typeof(BuiltinAttribute)))
+                      {
+                        if (ba.AllowTailCall)
+                        {
+                          tc = true;
+                        }
+                      }
+                      mce.TailCall = tc;
+                    }
                   }
                 }
-                else
+                //else if (!mce.Method.DeclaringType.IsAssignableFrom(typeof(Callable)))
                 {
                   // what here?
-                  // look for method decorated with [Recursive] or [NonRecursive] attribute
-                  //Console.WriteLine(mce.Method);
+                  // Callable should be excluded, match with known list
+                  // The problem here is that direct calls are only resolved at link time
+                  // We need to make a list to use at LTO time too
+                  // Perhaps all we need, is to take care of it at LTO
+                  //Console.WriteLine("In {0} => {1}", cb.Name, mce.Method.Name);
+
                 }
               }
             }

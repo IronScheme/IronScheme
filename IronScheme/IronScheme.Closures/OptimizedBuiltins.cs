@@ -47,6 +47,7 @@ namespace IronScheme.Runtime
 
   public static class OptimizedBuiltins
   {
+    [Procedure]
     public static object CallWithValues(object producer, object consumer)
     {
       Callable pro = (Callable)producer;

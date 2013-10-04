@@ -84,6 +84,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override void Emit(CodeGen cg)
         {
+          // TODO: Improve the following to direct call: Callable.Call(Callable.Create(...))
           //EmitLocation(cg);
           if (_instance != null && !cg.IsDynamicMethod) // damn DM! // go away! // this dangerous too for now
           {
@@ -102,6 +103,13 @@ namespace Microsoft.Scripting.Ast {
                 }
 
                 EmitLocation(cg);
+
+                if (tailcall)
+                {
+                  // TODO: Remove tail calls from list of known non-recursive methods
+                  //Console.WriteLine(cbe.Block.Name);
+                  tailcall = true;
+                }
 
                 cbe.EmitDirect(cg, tailcall);
 
@@ -245,6 +253,7 @@ namespace Microsoft.Scripting.Ast {
           {
             if (ShouldTailCallBeRemoved(cg))
             {
+              //Console.WriteLine("Removing tail call: {0} in {1}", cg.MethodBase, cg.TypeGen.AssemblyGen.AssemblyBuilder);
               tailcall = false;
             }
           }
@@ -272,7 +281,7 @@ namespace Microsoft.Scripting.Ast {
         {
           var ass = _method.DeclaringType.Assembly;
 
-          if (ass.GlobalAssemblyCache || ass == typeof(Expression).Assembly)
+          if (ass.GlobalAssemblyCache)
           {
             return true;
           }
@@ -282,7 +291,23 @@ namespace Microsoft.Scripting.Ast {
             return true;
           }
 
-          return _method.ReturnType.IsValueType && !cg.MethodInfo.ReturnType.IsValueType;
+          if (_method.ReturnType.IsValueType && !cg.MethodInfo.ReturnType.IsValueType)
+          {
+            return true;
+          }
+
+          // TODO: Check here for methods that do not need tail calls (non-recursive)
+          // UPDATE: This is always a ReturnStatement
+          if (_method.Name != "Call")
+          {
+            //Console.WriteLine(_method.Name);
+          }
+          //else
+          //{
+          //  Console.WriteLine(Instance);
+          //}
+
+          return false;
         }
 
         protected override void EmitLocation(CodeGen cg)

@@ -161,7 +161,7 @@ namespace IronScheme.Runtime
       return true;
     }
     
-    [Builtin("call-with-current-continuation"), Builtin("call/cc")]
+    [Builtin("call-with-current-continuation", AllowTailCall = true), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object fc1)
     {
       Callable fc = RequiresNotNull<Callable>(fc1);
