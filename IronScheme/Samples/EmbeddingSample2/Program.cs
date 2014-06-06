@@ -16,19 +16,19 @@ namespace EmbeddingConsole
     {
       try
       {
-        var r = "foo".Eval();
-        Debug.Fail("Cannot get here");
+        //var r = "foo".Eval();
+        //Debug.Fail("Cannot get here");
       }
       catch
       {
         // testing exceptions, must be thrown back here
       }
-@"
+      @"
 (define (foo x) 
-  (let ((x (string-append x {0})))
+  (let ((x (string-append {0} x {1})))
     (display x)
     x))
-".Eval("\n");
+".Eval("==", "\n");
 
       var foo = "foo".Eval<Callable>();
       var foodel = foo.ToDelegate< System.Func<object, object>>();
