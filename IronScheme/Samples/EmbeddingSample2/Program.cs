@@ -25,10 +25,10 @@ namespace EmbeddingConsole
       }
 @"
 (define (foo x) 
-  (let ((x (string-append x ""\n"")))
+  (let ((x (string-append x {0})))
     (display x)
     x))
-".Eval();
+".Eval("\n");
 
       var foo = "foo".Eval<Callable>();
       var foodel = foo.ToDelegate< System.Func<object, object>>();

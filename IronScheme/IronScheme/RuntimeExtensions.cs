@@ -80,7 +80,7 @@ namespace IronScheme
       {
         var arg = vars[i];
         Builtins.SetSymbolValueFast(SymbolTable.StringToObject(arg), args[i]);
-        assigns[i] = string.Format("({0} (symbol-value '{0}))", arg);
+        assigns[i] = string.Format("(define {0} (symbol-value '{0}))", arg);
       }
 
       // must start try here, values have been assigned
@@ -89,7 +89,7 @@ namespace IronScheme
         // limitation, no defines allowed with parameters
         if (assigns.Length > 0)
         {
-          expr = string.Format("(let ({0}) {1})", string.Join(" ", assigns), expr);
+          expr = string.Format("(begin {0} {1})", string.Join(" ", assigns), expr);
         }
 
         if (importspec != INTERACTION_ENVIRONMENT)
