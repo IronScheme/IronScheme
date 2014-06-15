@@ -636,6 +636,36 @@ See docs/license.txt. |#
                               (lambda (continue)
                                 body body* ...))
                             (f (move-next iter)))))))))])))
+                            
+  (define-syntax foreach/break-only
+    (lambda (x)
+      (syntax-case x (in)
+        [(_ a in iterable body body* ...)
+          (identifier? #'a)
+          (with-syntax
+            ([break    (datum->syntax #'a 'break)])
+              #'(call/cc
+                  (lambda (break)
+                    (let ((iter (get-iterator iterable)))
+                      (reset iter)
+                      (let f ((r (move-next iter)))
+                        (when r
+                          (let ((a (current iter)))
+                            body body* ...
+                            (f (move-next iter)))))))))])))                            
+                            
+  (define-syntax foreach/no-fc
+    (lambda (x)
+      (syntax-case x (in)
+        [(_ a in iterable body body* ...)
+          (identifier? #'a)
+          #'(let ((iter (get-iterator iterable)))
+              (reset iter)
+              (let f ((r (move-next iter)))
+                (when r
+                  (let ((a (current iter)))
+                        body body* ...)
+                    (f (move-next iter)))))])))
 
   (define (single iter)
     (let ((iter (get-iterator iter)))
@@ -674,7 +704,7 @@ See docs/license.txt. |#
   (define (last iter)
     (let* ((init (list #f))
            (cur init))
-      (foreach e in iter
+      (foreach/no-fc e in iter
         (set! cur e))
       (if (eq? cur init)
           (assertion-violation 'last "contains no elements" iter)
@@ -683,7 +713,7 @@ See docs/license.txt. |#
   (define (last/default iter default)
     (let* ((init (list #f))
            (cur init))
-      (foreach e in iter
+      (foreach/no-fc e in iter
         (set! cur e))
       (if (eq? cur init)
           default
@@ -747,7 +777,7 @@ See docs/license.txt. |#
 
   (define (all? iter pred)
     (and 
-      (foreach e in iter
+      (foreach/break-only e in iter
         (unless (pred e)
           (break #f)))
       #t))
@@ -755,7 +785,7 @@ See docs/license.txt. |#
   (define (any? iter pred)
     (not
       (and 
-        (foreach e in iter
+        (foreach/break-only e in iter
           (when (pred e)
             (break #f)))
         #t)))
@@ -768,26 +798,28 @@ See docs/license.txt. |#
         (any? iter (lambda (e) (equals? e obj)))]))
 
   (define (element-at iter index)
-    (let ((i 0)
-          (r #f))
-      (foreach e in iter
+    (let* ((i 0)
+           (c (list 'check))
+           (r c))
+      (foreach/break-only e in iter
         (when (= i index)
           (set! r e)
-          (break)
-        (set! i (+ i 1))))
-      (if (= i index)
+          (break))
+        (set! i (+ i 1)))
+      (if (not (eq? r c))
           r
           (assertion-violation 'element-at "index out of range" iter index))))
 
   (define (element-at/default iter index default)
-    (let ((i 0)
-          (r #f))
-      (foreach e in iter
+    (let* ((i 0)
+           (c (list 'check))
+           (r c))
+      (foreach/break-only e in iter
         (when (= i index)
           (set! r e)
-          (break)
-        (set! i (+ i 1))))
-      (if (= i index)
+          (break))
+        (set! i (+ i 1)))
+      (if (not (eq? r c))
           r
           default)))
 
@@ -810,7 +842,7 @@ See docs/license.txt. |#
   (define (average iter)
     (let ((total 0)
           (count 0))
-      (foreach e in iter
+      (foreach/no-fc e in iter
         (set! count (+ count 1))
         (set! total (+ total e)))
       (/ total count))) 
@@ -820,7 +852,7 @@ See docs/license.txt. |#
           (r -inf.0))
       (when (empty? iter)
         (assertion-violation 'maximum "empty iterator"))
-      (foreach e in iter
+      (foreach/no-fc e in iter
         (when (< r e)
           (set! r e)))
       r))  
@@ -830,7 +862,7 @@ See docs/license.txt. |#
           (r +inf.0))
       (when (empty? iter)
         (assertion-violation 'minimum "empty iterator"))
-      (foreach e in iter
+      (foreach/no-fc e in iter
         (when (> r e)
           (set! r e)))
       r))
