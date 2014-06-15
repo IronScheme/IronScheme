@@ -86,7 +86,6 @@ namespace IronScheme
       // must start try here, values have been assigned
       try
       {
-        // limitation, no defines allowed with parameters
         if (assigns.Length > 0)
         {
           expr = string.Format("(begin {0} {1})", string.Join(" ", assigns), expr);
@@ -94,7 +93,7 @@ namespace IronScheme
 
         if (importspec != INTERACTION_ENVIRONMENT)
         {
-          importspec = importspec.Replace("(environment", "(environment '(only (ironscheme) let symbol-value)");
+          importspec = importspec.Replace("(environment", "(environment '(only (ironscheme) define begin symbol-value)");
           expr = string.Format("(eval '{0} {1})", expr, importspec);
         }
 
@@ -178,7 +177,6 @@ namespace IronScheme
         Cons cmdline = Cons.FromList(args);
         RuntimeExtensions.Eval("(apply load-port {0} {1})", r, cmdline);
       }
-
     }
   }
 }
