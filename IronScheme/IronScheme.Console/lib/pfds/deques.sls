@@ -68,6 +68,7 @@
         list->deque
         )
 (import (except (rnrs) cons*)
+        (pfds deques private condition)
         (pfds private lazy-lists))
 
 (define c 2)
@@ -187,11 +188,6 @@
            (%make-deque len (- len n) n l* r* l* r*)))
         (else
          (%make-deque len lenL lenR l r l^ r^))))
-
-(define-condition-type &deque-empty
-  &assertion
-  make-deque-empty-condition
-  deque-empty-condition?)
 
 (define (list->deque l)
   (fold-left enqueue-rear (make-deque) l))

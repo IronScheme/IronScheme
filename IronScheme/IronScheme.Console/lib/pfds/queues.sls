@@ -65,6 +65,7 @@
         )
 (import (except (rnrs) cons*)
         (pfds private lazy-lists)
+        (pfds queues private condition)
         (rnrs r5rs))
 
 (define (rotate l r a)
@@ -119,11 +120,6 @@
 
 (define (queue-empty? queue)
   (zero? (queue-length queue)))
-
-(define-condition-type &queue-empty
-  &assertion
-  make-queue-empty-condition
-  queue-empty-condition?)
 
 (define (list->queue list)
   (fold-left enqueue (make-queue) list))

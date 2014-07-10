@@ -95,7 +95,8 @@ See docs/license.txt. |#
     (pfds queues)
     (pfds fingertrees)
     (pfds sequences)
-    (pfds heaps))
+    (pfds heaps)
+    (pfds hamts))
   #f)
 
 (let () 

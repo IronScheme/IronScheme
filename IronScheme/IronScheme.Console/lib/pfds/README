@@ -2,8 +2,8 @@
 
 ** About
 pfds is a set of purely functional data structures written in R6RS
-Scheme. It has been tested with Racket and Guile 2. Right now it
-contains
+Scheme. It has been tested with Racket, Guile 2, Vicare Scheme and
+IronScheme. Right now it contains
 - queues
 - deques
 - bbtrees
@@ -13,6 +13,7 @@ contains
 - finger trees
 - sequences
 - heaps
+- hamts
 
 with more to come, time permitting.
 
@@ -44,7 +45,10 @@ The heaps use a height-biased leftist tree implementation.
 Finger trees are described in [[http://www.soi.city.ac.uk/~ross/papers/FingerTree.html][Finger trees: a simple general-purpose
 data structure]] by Ross Paterson and Ralf Hinze.
 
+Hash Array Map Tries are described in the paper [[http://lampwww.epfl.ch/papers/idealhashtrees.pdf][Ideal Hash Trees]] by
+Phil Bagwell.
+
 ** Thanks
-Thanks to [[Llewellyn Pritchard][https://github.com/leppie]] for testing this on [[https://ironscheme.codeplex.com/][IronScheme]],
-and to [[http://wingolog.org/][Andy Wingo]] for pointing out priority search queues to me, and
-prodding me into implementing them.
+Thanks to [[https://github.com/leppie][Llewellyn Pritchard]] for testing this on [[https://ironscheme.codeplex.com/][IronScheme]], to [[https://github.com/marcomaggi][Marco
+Maggi]] for testing on [[https://github.com/marcomaggi/vicare][Vicare Scheme]], and to [[http://wingolog.org/][Andy Wingo]] for pointing out
+priority search queues to me, and prodding me into implementing them.
