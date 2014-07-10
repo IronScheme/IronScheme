@@ -954,22 +954,40 @@
     <None Include="nuget\libs\pfds.deques.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="nuget\libs\pfds.deques.private.condition.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="nuget\libs\pfds.dlists.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="nuget\libs\pfds.fingertrees.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="nuget\libs\pfds.hamts.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="nuget\libs\pfds.heaps.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="nuget\libs\pfds.private.alists.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\libs\pfds.private.bitwise.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="nuget\libs\pfds.private.lazy-lists.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\libs\pfds.private.vectors.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="nuget\libs\pfds.psqs.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="nuget\libs\pfds.queues.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\libs\pfds.queues.private.condition.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="nuget\libs\pfds.sequences.nuspec">
