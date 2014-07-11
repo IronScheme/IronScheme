@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Text;
 using Microsoft.Scripting;
+using System.Threading;
 
 namespace IronScheme.Runtime
 {
@@ -105,7 +106,8 @@ namespace IronScheme.Runtime
 
     internal static string GenGenSymString()
     {
-      return "g$" + anonsymcount++ + "$" + TICKSTRING;
+      int c = Interlocked.Increment(ref anonsymcount);
+      return "g$" + c + "$" + TICKSTRING;
     }
 
     [Builtin]
@@ -117,15 +119,16 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object GenSym(object name)
     {
+      int c = Interlocked.Increment(ref symcount);
       if (name is string)
       {
         string s = RequiresNotNull<string>(name);
-        return SymbolTable.StringToObject("g$" + s + "$" + symcount++ + "$" + TICKSTRING);
+        return SymbolTable.StringToObject("g$" + s + "$" + c + "$" + TICKSTRING);
       }
       else
       {
         SymbolId s = UnGenSymInternal(RequiresNotNull<SymbolId>(name));
-        return SymbolTable.StringToObject("g$" + s + "$" + symcount++ + "$" + TICKSTRING);
+        return SymbolTable.StringToObject("g$" + s + "$" + c + "$" + TICKSTRING);
       }
     }
   }
