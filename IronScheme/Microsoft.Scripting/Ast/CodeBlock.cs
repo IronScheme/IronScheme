@@ -1264,7 +1264,8 @@ namespace Microsoft.Scripting.Ast {
 
         static Type GenerateStorageType(List<Variable> vars, CodeGen cg, Type parentType)
         {
-          var tg = cg.TypeGen.AssemblyGen.DefinePublicType("closure.$env" + closure_counter++, typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
+          int c = Interlocked.Increment(ref closure_counter);
+          var tg = cg.TypeGen.AssemblyGen.DefinePublicType("closure.$env" + c, typeof(object), TypeAttributes.Sealed | TypeAttributes.NotPublic);
 
           tg.TypeBuilder.DefineField("$parent$", typeof(IAttributesCollection), FieldAttributes.Public);
 

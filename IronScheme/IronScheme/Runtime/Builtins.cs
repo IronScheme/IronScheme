@@ -682,7 +682,7 @@ namespace IronScheme
           ScriptDomainManager.CurrentManager.Snippets.Assembly;
       }
 
-      int c = ++evalcounter;
+      int c = Interlocked.Increment(ref evalcounter); 
       
 #if DEBUG
       Stopwatch sw = Stopwatch.StartNew();

@@ -28,7 +28,7 @@ rmdir /s /q install-stage\IronScheme\lib\srfi\tests
 rmdir /s /q install-stage\IronScheme\docs\notes
 
 cd install-stage
-c:\MinGW\msys\1.0\bin\tar.exe -c -fIronScheme-latest.tar IronScheme
+d:\MinGW\msys\1.0\bin\tar.exe -c -fIronScheme-latest.tar IronScheme
 ..\xz IronScheme-latest.tar
 
 copy ..\ngen-all.cmd IronScheme
