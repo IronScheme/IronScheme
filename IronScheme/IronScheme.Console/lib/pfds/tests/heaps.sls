@@ -6,7 +6,7 @@
         (pfds tests utils)
         (pfds heaps))
 
-(define-test-suite (heaps pfds)
+(define-test-suite heaps
   "Tests for the leftist heap implementation")
 
 (define-test-case heaps empty-heap ()

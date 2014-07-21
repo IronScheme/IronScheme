@@ -12,7 +12,7 @@
          (make-psq key<? priority<?)
          alist))
 
-(define-test-suite (psqs pfds)
+(define-test-suite psqs
   "Tests for the functional priority search tree implementation")
 
 (define-test-case psqs empty-psq ()

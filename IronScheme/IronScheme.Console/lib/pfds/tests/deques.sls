@@ -6,7 +6,7 @@
         (pfds tests utils)
         (pfds deques))
 
-(define-test-suite (deques pfds)
+(define-test-suite deques
   "Tests for the functional deque implementation")
 
 (define-test-case deques empty-deque ()

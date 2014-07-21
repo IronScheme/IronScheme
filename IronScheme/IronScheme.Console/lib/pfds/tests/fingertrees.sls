@@ -28,7 +28,7 @@
         y))
   (%list->fingertree l *cookie* pick values))
 
-(define-test-suite (fingertrees pfds)
+(define-test-suite fingertrees
   "Tests for the fingertree implementation")
 
 (define-test-case fingertrees empty-tree ()

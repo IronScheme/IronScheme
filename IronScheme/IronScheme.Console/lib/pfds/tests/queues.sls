@@ -6,7 +6,7 @@
         (pfds tests utils)
         (pfds queues))
 
-(define-test-suite (queues pfds)
+(define-test-suite queues
   "Tests for the functional queue implementation")
 
 (define-test-case queues empty-queue ()

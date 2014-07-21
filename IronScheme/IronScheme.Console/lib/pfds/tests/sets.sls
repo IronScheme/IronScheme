@@ -6,7 +6,7 @@
         (pfds tests utils)
         (pfds sets))
 
-(define-test-suite (sets pfds)
+(define-test-suite sets
   "Tests for the set implementation")
 
 (define-test-case sets set-basics

@@ -6,7 +6,7 @@
         (pfds tests utils)
         (pfds bbtrees))
 
-(define-test-suite (bbtrees pfds)
+(define-test-suite bbtrees
   "Tests for the bounded balance tree imlementation")
 
 (define-test-case bbtrees empty-tree ()
@@ -26,6 +26,7 @@
     (test-eqv #f (bbtree-ref tree1 #xdeadbeef #f))
     (test-eqv 'not-in (bbtree-ref tree1 #xdeadbeef 'not-in))
     (test-exn assertion-violation? (bbtree-ref tree3 20))))
+
 
 (define-test-case bbtrees bbtree-update ()
   (let ([bb (alist->bbtree '(("foo" . 10) ("bar" . 12)) string<?)]

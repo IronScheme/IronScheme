@@ -6,7 +6,7 @@
         (pfds tests utils)
         (pfds sequences))
 
-(define-test-suite (sequences pfds)
+(define-test-suite sequences
   "Tests for the sequences implementation")
 ;; Note: at the moment, sequences are a trivial instantiation of
 ;; fingertrees, and so are pretty much covered by the fingertrees

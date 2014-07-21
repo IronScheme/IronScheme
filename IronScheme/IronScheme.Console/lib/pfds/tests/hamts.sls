@@ -17,7 +17,7 @@
 
 (define (bad-hash x) 0)
 
-(define-test-suite (hamts pfds)
+(define-test-suite hamts
   "Tests for the Hash Array Mapped Trie implementation")
 
 (define-test-case hamts empty-hamt ()
