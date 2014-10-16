@@ -6,7 +6,6 @@ See docs/license.txt. |#
 
 (library (ironscheme clr shorthand)
   (export
-    ;define-global-clr-type 
     define-clr-type
     lambda-clr-type
     let-clr-type
@@ -15,6 +14,7 @@ See docs/license.txt. |#
     clr-using)
   (import 
     (ironscheme)
+    (ironscheme typed core)
     (ironscheme clr shorthand-helper)
     (ironscheme clr))
   
@@ -26,7 +26,17 @@ See docs/license.txt. |#
           #'(define name 
               (typed-lambda (id ...) ((type ...) Object) 
                 (with-clr-type ((id type) ...)
-                  b b* ...)))])))  
+                  b b* ...)))]
+        [(_ name type val)
+          #'(begin
+              (define: _name : type val)
+              (define-syntax name
+                (lambda (x)
+                  (syntax-case x ()
+                    [(_ arg (... ...))
+                      #'(with-clr-type ((_name type))
+                          (_name arg (... ...)))]
+                    [_ #'_name]))))])))  
             
   (define-syntax lambda-clr-type
     (lambda (x)
