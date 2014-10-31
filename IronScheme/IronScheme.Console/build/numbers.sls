@@ -203,9 +203,12 @@ See docs/license.txt. |#
     (clr-static-call IntX (Create Int32) f))   
     
   (define (real->complexnum num)
-    (if (complexnum? num)
-        num
-        (make-complexnum (inexact num) 0.0)))
+    (cond 
+      [(complexnum? num) num]
+      [(rectnum? num)
+        (rectnum->complexnum num)]
+      [else  
+        (make-complexnum (inexact num) 0.0)]))
         
   (define (complexnum->rectnum num)
     (clr-static-call ComplexFraction (op_Implicit Complex64) num))     
