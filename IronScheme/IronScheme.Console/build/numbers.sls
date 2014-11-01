@@ -1045,9 +1045,13 @@ See docs/license.txt. |#
                 0.0))]      
       [(rectnum? obj1)
         (expt (rectnum->complexnum obj1) obj2)]
-      [(or (complexnum? obj1) (and (negative? obj1) 
-                                   (not (and (real? obj1)
-                                             (integer? obj2)))))
+      [(rectnum? obj2)
+        (expt obj1 (rectnum->complexnum obj2))]
+      [(or (complexnum? obj1) 
+           (complexnum? obj2) 
+           (and (negative? obj1) 
+                (not (and (real? obj1)
+                          (integer? obj2)))))
         (clr-static-call Complex64 
                          Pow 
                          (real->complexnum obj1)
