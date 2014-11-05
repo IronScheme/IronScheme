@@ -1,2 +1,3 @@
 ﻿$packageName = 'IronScheme'
-Uninstall-ChocolateyZipPackage '$packageName' 'IronScheme-TFSREV.zip 
+$zipfile = 'IronScheme-TFSREV.zip'
+Uninstall-ChocolateyZipPackage "$packageName" "$zipfile"
