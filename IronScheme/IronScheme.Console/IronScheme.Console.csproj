@@ -666,9 +666,6 @@
     <None Include="chocolatey\tools\chocolateyInstall.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="chocolatey\tools\chocolateyUninstall.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="IronScheme.TFS.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

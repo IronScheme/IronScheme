@@ -330,15 +330,15 @@ See docs/license.txt. |#
             reset))
 
   (define (move-next iter)
-    (assert (iterator? iter))
+    ;(assert (iterator? iter))
     ((iterator-move-next iter)))
 
   (define (current iter)
-    (assert (iterator? iter))
+    ;(assert (iterator? iter))
     ((iterator-current iter)))
 
   (define (reset iter)
-    (assert (iterator? iter))
+    ;(assert (iterator? iter))
     ((iterator-reset iter)))
 
   (define (list-iterator lst)
@@ -448,15 +448,15 @@ See docs/license.txt. |#
             (set! cur init)
             (reset iter))))))
   
-  (define (select x proc)
-    (map-iterator (get-iterator x) proc))            
+  (define (select x selector)
+    (map-iterator (get-iterator x) selector))
 
-  (define (filter-iterator iter proc)
+  (define (filter-iterator iter predicate)
     (make-iterator
       (lambda ()
         (let f ((r (move-next iter)))
           (and r
-              (or (proc (current iter))
+              (or (predicate (current iter))
                   (f (move-next iter))))))
       (lambda ()
         (current iter))
@@ -489,12 +489,12 @@ See docs/license.txt. |#
           (set! iter outer)
           (reset iter)))))
           
-  (define (select-many x proc)
+  (define (select-many x selector)
     (flatten-iterator 
       (map-iterator 
         (get-iterator x) 
         (lambda (x) 
-          (get-iterator (proc x))))))
+          (get-iterator (selector x))))))
 
   (define (reverse-iterator iter)
     (let ((reversed #f))
@@ -667,7 +667,18 @@ See docs/license.txt. |#
                         body body* ...)
                     (f (move-next iter)))))])))
 
-  (define (single iter)
+  (define-syntax define/predicate
+    (syntax-rules ()
+      [(_ (name iter arg ...) b b* ...)
+        (define name
+          (case-lambda
+            [(iter arg ...) b b* ...]
+            [(iter* predicate arg ...)
+              (let ((iter (where iter* predicate)))
+                b b* ...)]))]))
+  
+
+  (define/predicate (single iter)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
@@ -677,7 +688,7 @@ See docs/license.txt. |#
                 r))
           (assertion-violation 'single "contains no elements" iter))))
 
-  (define (single/default iter default)
+  (define/predicate (single/default iter default)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
@@ -687,21 +698,21 @@ See docs/license.txt. |#
                 r))
           default)))
 
-  (define (first iter)
+  (define/predicate (first iter)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
           (current iter)
           (assertion-violation 'first "contains no elements" iter))))
 
-  (define (first/default iter default)
+  (define/predicate (first/default iter default)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (if (move-next iter)
           (current iter)
           default)))
 
-  (define (last iter)
+  (define/predicate (last iter)
     (let* ((init (list #f))
            (cur init))
       (foreach/no-fc e in iter
@@ -710,7 +721,7 @@ See docs/license.txt. |#
           (assertion-violation 'last "contains no elements" iter)
           cur)))
 
-  (define (last/default iter default)
+  (define/predicate (last/default iter default)
     (let* ((init (list #f))
            (cur init))
       (foreach/no-fc e in iter
@@ -719,7 +730,7 @@ See docs/license.txt. |#
           default
           cur)))
 
-  (define (count iter)
+  (define/predicate (count iter)
     (let ((iter (get-iterator iter)))
       (reset iter)
       (let f ((r (move-next iter))(i 0))
@@ -775,6 +786,7 @@ See docs/license.txt. |#
           (reset iter1)
           (reset iter2)))))  
 
+  ; these are nasty, rewrite them ;p
   (define (all? iter pred)
     (and 
       (foreach/break-only e in iter
@@ -839,7 +851,7 @@ See docs/license.txt. |#
         (lambda ()
           (set! i 0)))))
 
-  (define (average iter)
+  (define/predicate (average iter)
     (let ((total 0)
           (count 0))
       (foreach/no-fc e in iter
@@ -847,7 +859,7 @@ See docs/license.txt. |#
         (set! total (+ total e)))
       (/ total count))) 
 
-  (define (maximum iter)
+  (define/predicate (maximum iter)
     (let ((iter (get-iterator iter))
           (r -inf.0))
       (when (empty? iter)
@@ -857,7 +869,7 @@ See docs/license.txt. |#
           (set! r e)))
       r))  
 
-  (define (minimum iter)
+  (define/predicate (minimum iter)
     (let ((iter (get-iterator iter))
           (r +inf.0))
       (when (empty? iter)
@@ -867,7 +879,7 @@ See docs/license.txt. |#
           (set! r e)))
       r))
 
-  (define (sum iter)
+  (define/predicate (sum iter)
     (aggregate iter 0 +))
     
   (define (take count iter)
