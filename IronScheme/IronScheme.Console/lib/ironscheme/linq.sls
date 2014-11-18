@@ -70,6 +70,23 @@ See docs/license.txt. |#
     (rename (ironscheme syntax symbolic-case) (symbolic-case syntax-case)))
 
   (define-record-type grouping (fields key iter))
+  
+  (define-record-type iterator 
+    (opaque #t) 
+    (fields move-next 
+            current 
+            reset))  
+            
+  (define-record-type sorter
+    (fields
+      asc?
+      sel
+      (mutable cmp)
+      (mutable eq))
+    (protocol
+      (lambda (p)
+        (lambda (asc? sel)
+          (p asc? sel #f #f)))))            
 
   (define key grouping-key)
 
@@ -103,17 +120,6 @@ See docs/license.txt. |#
       [(symbol? a) (if asc? symbol<? symbol>?)]
       [else
         (assertion-violation 'get-comparer "not supported" a)]))
-
-  (define-record-type sorter
-    (fields
-      asc?
-      sel
-      (mutable cmp)
-      (mutable eq))
-    (protocol
-      (lambda (p)
-        (lambda (asc? sel)
-          (p asc? sel #f #f)))))
 
   (define (sort iter sorters)
     (let ((l (iterator->list iter)))
@@ -323,11 +329,7 @@ See docs/license.txt. |#
                            rest ...)))
                     (syntax-violation 'from "not a unique identifier" #'e* x*))]))])))
 
-  (define-record-type iterator 
-    (opaque #t) 
-    (fields move-next 
-            current 
-            reset))
+
 
   (define (move-next iter)
     ;(assert (iterator? iter))
