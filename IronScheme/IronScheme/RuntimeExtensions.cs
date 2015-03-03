@@ -79,7 +79,15 @@ namespace IronScheme
       for (int i = 0; i < args.Length; i++)
       {
         var arg = vars[i];
-        Builtins.SetSymbolValueFast(SymbolTable.StringToObject(arg), args[i]);
+        var rarg = args[i];
+
+        // intern symbols
+        if (rarg is SymbolId)
+        {
+          rarg = SymbolTable.Intern((SymbolId)rarg);
+        }
+
+        Builtins.SetSymbolValueFast(SymbolTable.StringToObject(arg), rarg);
         assigns[i] = string.Format("(define {0} (symbol-value '{0}))", arg);
       }
 
