@@ -46,7 +46,9 @@
               (port (make-custom-textual-output-port
                      "tracking ouput port"
                      (port-tracker-writer tracker)
-                     (port-tracker-position-getter tracker)
+                     (if (port-has-port-position? port) 
+                         (port-tracker-position-getter tracker)
+                         #f)
                      #f
                      #f)))
          (port-tracker-set-port! tracker port)

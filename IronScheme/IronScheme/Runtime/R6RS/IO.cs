@@ -383,7 +383,24 @@ namespace IronScheme.Runtime.R6RS
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-      write.Call(buffer, offset, count);
+      if (HasPosition)
+      {
+        long pos = Position;
+        int written = Convert.ToInt32(write.Call(buffer, offset, count));
+        if (written != count && written != (Position - pos))
+        {
+          Builtins.AssertionViolation("write!", "position does not match number of bytes written");
+        }
+      }
+      else
+      {
+        int written = Convert.ToInt32(write.Call(buffer, offset, count));
+        if (written != count)
+        {
+          Builtins.AssertionViolation("write!", "could not write all the bytes");
+        }
+      }
+
     }
 
     public override string ToString()
@@ -418,14 +435,37 @@ namespace IronScheme.Runtime.R6RS
 
     public override void Write(char[] buffer, int index, int count)
     {
+      if (HasPosition)
+      {
+        long pos = Position;
+        int written = WriteInternal(buffer, index, count);
+        if (written != count && written != (Position - pos))
+        {
+          Builtins.AssertionViolation("write!", "position does not match number of characters written");
+        }
+      }
+      else
+      {
+        int written = WriteInternal(buffer, index, count);
+        if (written != count)
+        {
+          Builtins.AssertionViolation("write!", "could not write all the characters");
+        }
+      }
+    }
+
+    int WriteInternal(char[] buffer, int index, int count)
+    {
       StringBuilder sb = new StringBuilder(new string(buffer));
 
-      write.Call(sb, index, count);
+      int written = Convert.ToInt32(write.Call(sb, index, count));
 
       for (int i = 0; i < count; i++)
       {
         buffer[i] = sb[i];
       }
+
+      return written;
     }
 
     public override void Write(char value)
@@ -722,7 +762,23 @@ namespace IronScheme.Runtime.R6RS
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-      write.Call(buffer, offset, count);
+      if (HasPosition)
+      {
+        long pos = Position;
+        int written = Convert.ToInt32(write.Call(buffer, offset, count));
+        if (written != count && written != (Position - pos))
+        {
+          Builtins.AssertionViolation("write!", "position does not match number of bytes written");
+        }
+      }
+      else
+      {
+        int written = Convert.ToInt32(write.Call(buffer, offset, count));
+        if (written != count)
+        {
+          Builtins.AssertionViolation("write!", "could not write all the bytes");
+        }
+      }
     }
 
     public override string ToString()
