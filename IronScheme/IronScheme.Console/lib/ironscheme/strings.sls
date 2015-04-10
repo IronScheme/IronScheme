@@ -32,7 +32,9 @@ See docs/license.txt. |#
     (clr-static-call String (Join String Object[]) del (list->vector strs)))  
     
   (define/contract (string-replace str:string old:string new:string)
-    (clr-call String (Replace String String) str old new))  
+    (if (string=? old "")
+        str
+        (clr-call String (Replace String String) str old new)))
           
   (define/contract string-index-of
     (case-lambda
