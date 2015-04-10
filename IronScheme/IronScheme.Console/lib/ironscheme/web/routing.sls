@@ -25,7 +25,7 @@ See docs/license.txt. |#
   (define (parse-url)
     (let* ((f (vector-ref (string-split (string-replace (request-raw-url) (req-path) "") "?") 0))
            (t (string-split f "/")))
-      (vector->list t)))
+      (cdr (vector->list t))))
              
   (define (lookup c a)
     (let ((r (application-item 'routes)))
