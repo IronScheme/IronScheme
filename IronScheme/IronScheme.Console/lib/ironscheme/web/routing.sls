@@ -14,11 +14,18 @@ See docs/license.txt. |#
     (ironscheme strings)
     (ironscheme web)
     (ironscheme web routing-helper))
+
+  ; silly .NET    
+  (define (req-path)
+    (let ((p (request-app-path)))
+      (if (string=? p "/")
+          ""
+          p)))    
     
   (define (parse-url)
-    (let* ((f (vector-ref (string-split (string-replace (request-raw-url) (request-app-path) "") "?") 0))
+    (let* ((f (vector-ref (string-split (string-replace (request-raw-url) (req-path) "") "?") 0))
            (t (string-split f "/")))
-      (cdr (vector->list t))))
+      (vector->list t)))
              
   (define (lookup c a)
     (let ((r (application-item 'routes)))
