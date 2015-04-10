@@ -320,7 +320,7 @@ namespace IronScheme
     {
       get
       {
-        return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase).Replace("file:\\", "").Replace("file:", "");
+        return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase.Replace("file:///","")).Replace("file:\\", "").Replace("file:", "");
       }
     }
 
