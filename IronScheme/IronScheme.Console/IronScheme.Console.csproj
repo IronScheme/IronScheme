@@ -1749,9 +1749,9 @@
     <Content Include="lib\srfi\38\with-shared-structure.ironscheme.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="lib\srfi\compile-all.ironscheme.sps">
+    <None Include="system-libraries.srfi.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Content Include="lib\srfi\0.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
