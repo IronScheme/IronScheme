@@ -7,6 +7,7 @@ copy IronScheme.Console-v4.exe install-stage\IronScheme
 copy IronScheme.Console32-v4.exe install-stage\IronScheme
 copy DEVELOPMENT.snk install-stage\IronScheme
 copy system-libraries.ss install-stage\IronScheme
+copy system-libraries.srfi.ss install-stage\IronScheme
 
 
 copy IronScheme.dll install-stage\IronScheme
