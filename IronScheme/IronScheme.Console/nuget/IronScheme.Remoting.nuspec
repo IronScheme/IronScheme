@@ -16,6 +16,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\install-stage\IronScheme\IronScheme.Remoting.*.dll" target="lib" />
+    <file src="..\install-stage\IronScheme\IronScheme.Remoting*.dll" target="lib" />
   </files>
 </package>
