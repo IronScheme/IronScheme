@@ -2702,7 +2702,7 @@
   (define file-options-macro
     (lambda (x)
       (define (valid-option? x)
-        (and (id? x) (memq (id->sym x) '(no-fail no-create no-truncate))))
+        (and (id? x) (memq (id->sym x) '(no-fail no-create no-truncate append))))
       (syntax-match x ()
         ((_ opt* ...)
          (and (for-all valid-option? opt*) 

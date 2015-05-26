@@ -968,7 +968,8 @@ namespace IronScheme.Runtime.R6RS
     {
       NoFail = 1,
       NoCreate = 2,
-      NoTruncate = 4
+      NoTruncate = 4,
+      Append = 8,
     }
 
     static FieldInfo enum_value = null;
@@ -993,7 +994,11 @@ namespace IronScheme.Runtime.R6RS
 
     static FileMode GetMode(FileOptions fo, string filename)
     {
-      if ((fo & FileOptions.NoCreate) != 0)
+      if ((fo & FileOptions.Append) != 0)
+      {
+        return FileMode.Append;
+      }
+      else if ((fo & FileOptions.NoCreate) != 0)
       {
         if ((fo & FileOptions.NoTruncate) != 0)
         {
@@ -1022,7 +1027,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
-            return FileMode.Append;
+            return FileMode.Append; // this is probably a bug, and never reached...
           }
         }
         else
@@ -1033,6 +1038,7 @@ namespace IronScheme.Runtime.R6RS
           }
           else
           {
+
             return FileMode.CreateNew;
           }
         }

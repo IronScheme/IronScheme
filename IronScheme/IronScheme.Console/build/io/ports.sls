@@ -406,10 +406,16 @@ See docs/license.txt. |#
       [e (assertion-violation 'open-input-file "oops" filename)])
         (clr-static-call File OpenText filename)))
 
-  (define/contract (open-output-file filename:string)
-    (clr-guard (e 
-      [e (assertion-violation 'open-output-file "oops" filename)])
-        (clr-static-call File CreateText filename)))
+  (define/contract open-output-file 
+    (case-lambda
+      [(filename)
+        (open-output-file filename #f)]
+      [(filename:string append?:boolean)
+        (clr-guard (e 
+          [e (assertion-violation 'open-output-file "oops" filename)])
+            (if append?
+                (clr-static-call File AppendText filename)
+                (clr-static-call File CreateText filename)))]))
   
   (define (get-input-port port)
     (clr-field-get CustomTextReaderWriter input port))

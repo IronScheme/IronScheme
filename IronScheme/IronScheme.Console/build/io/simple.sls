@@ -93,21 +93,29 @@ See docs/license.txt. |#
       (try (thunk)
         finally (close-input-port (current-input-port)))))
 
-  (define/contract (with-output-to-file filename:string thunk:procedure)
-    (parameterize ((current-output-port (open-output-file filename)))
-      (try (thunk)
-        finally (close-output-port (current-output-port)))))
+  (define/contract with-output-to-file 
+    (case-lambda
+      [(filename thunk)
+        (with-output-to-file filename thunk #f)]
+      [(filename:string thunk:procedure append?:boolean)
+        (parameterize ((current-output-port (open-output-file filename append?)))
+          (try (thunk)
+            finally (close-output-port (current-output-port))))]))
         
   (define/contract (call-with-input-file filename:string proc:procedure)
     (let ((p (open-input-file filename)))
       (try (proc p)
         finally (close-input-port p))))   
 
-  (define/contract (call-with-output-file filename:string proc:procedure)
-    (let ((p (open-output-file filename)))
-      (try (proc p)
-        finally (close-output-port p))))     
-        
+  (define/contract call-with-output-file 
+    (case-lambda
+      [(filename proc)
+        (call-with-output-file filename proc #f)]
+      [(filename:string proc:procedure append?:boolean)
+        (let ((p (open-output-file filename)))
+          (try (proc p)
+            finally (close-output-port p)))]))
+
   (define/contract newline
     (case-lambda
       [()       

@@ -229,7 +229,7 @@
   		      (compile-r6rs-top-level x*)
 			      (serialize-all compile-dll compile-core-expr))))))
 
-  (define fo (make-enumeration '(no-fail no-create no-truncate)))
+  (define fo (make-enumeration '(no-fail no-create no-truncate append)))
  
   (define (load-library-from-dll libname filename sk)        
     (let ((dll-filename (library-name->dll-name libname)))
