@@ -571,6 +571,9 @@ namespace IronScheme.Runtime.R6RS
   [CLSCompliant(false)]
   public class TranscodedReader : TextReader
   {
+    static readonly object hm_replace = SymbolTable.StringToObject("replace"); 
+    static readonly object hm_ignore = SymbolTable.StringToObject("ignore"); 
+
     Stream port;
     Transcoder tc;
 
@@ -602,6 +605,7 @@ namespace IronScheme.Runtime.R6RS
     {
       if (port.Position == 0)
       {
+        // CHECKME: should the codec not be assigned, or did it conflict with the spec?
         Encoding enc = ParsePreamble(port);
       }
 
@@ -614,10 +618,24 @@ namespace IronScheme.Runtime.R6RS
         return -1;
       }
       char[] chars = tc.codec.GetChars(buffer, 0, i);
+      if (chars[0] == '\ufffd')
+      {
+        if (tc.handlingmode == hm_replace)
+        {
+          port.Position = p + 1;
+          return chars[0];
+        }
+        if (tc.handlingmode == hm_ignore)
+        {
+          port.Position = p + 1;
+          return Read();
+        }
+      }
       int len = tc.codec.GetByteCount(chars, 0, 1);
       port.Position = p + len;
       return chars[0];
     }
+
 
     Encoding ParsePreamble(Stream port)
     {

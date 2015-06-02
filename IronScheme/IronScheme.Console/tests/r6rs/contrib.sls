@@ -167,4 +167,6 @@
     
     (test/exn (fxcopy-bit 1 31 1) &assertion)
     
+    (test (utf8->string #vu8(#xe0 #x67 #x0a)) "\xfffd;g\n")
+    
     ))
