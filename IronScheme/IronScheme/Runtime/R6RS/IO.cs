@@ -905,10 +905,13 @@ namespace IronScheme.Runtime.R6RS
     {
       byte[] b = RequiresNotNull<byte[]>(bv);
       Transcoder t = RequiresNotNull<Transcoder>(tc);
-      
-      if ((b[0] == 0xFF && b[1] == 0xFE) || (b[0] == 0xFE && b[1] == 0xFF))
+
+      if (b.Length > 0)
       {
-        b = TrimFront(b, 2);
+        if ((b[0] == 0xFF && b[1] == 0xFE) || (b[0] == 0xFE && b[1] == 0xFF))
+        {
+          b = TrimFront(b, 2);
+        }
       }
 
       string value = t.codec.GetString(b);
