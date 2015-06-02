@@ -1,4 +1,4 @@
-﻿<!-- This file is used for Nuget configuration -->
+﻿<!-- This file is used for Nuget configuration (but it is probably wrong...) -->
 <configuration>
   <system.web>
     <trust level="Full" />
