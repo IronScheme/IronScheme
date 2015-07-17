@@ -959,11 +959,21 @@ namespace IronScheme
       return obj;
     }
 
+    static string GetTypeName(Type t)
+    {
+      // check if scheme record
+      if (t.Namespace.StartsWith("record"))
+      {
+        return t.Name;
+      }
+      return t.ToString();
+    }
+
     protected static T Requires<T>(object obj)
     {
       if (obj != null && !(obj is T))
       {
-        return (T) AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
+        return (T) AssertionViolation(GetCaller(), "expected type: " + GetTypeName(typeof(T)), obj);
       }
       if (obj == null)
       {
@@ -1022,7 +1032,7 @@ namespace IronScheme
 
       if (!(obj is T))
       {
-        return (T) AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name,  obj);
+        return (T) AssertionViolation(GetCaller(), "expected type: " + GetTypeName(typeof(T)), obj);
       }
 
       return (T)obj;
