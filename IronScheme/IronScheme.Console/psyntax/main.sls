@@ -146,7 +146,7 @@
   (define compile-system-libraries
     (case-lambda
       [()
-        (compile-system-libraries #f)]
+        (compile-system-libraries #t)] ; make constant compression default (saves about 45% for all the libraries)
       [(constant-compression?)
         (let ((path (string-append (application-directory) "/system-libraries.ss")))
           (time-it "total compile time"
