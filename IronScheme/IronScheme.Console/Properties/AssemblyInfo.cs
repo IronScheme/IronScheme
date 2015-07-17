@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("leppie")]
 [assembly: AssemblyProduct("IronScheme.Console")]
-[assembly: AssemblyCopyright("Copyright © leppie 2008")]
+[assembly: AssemblyCopyright("Copyright (c) 2007-2015 Llewellyn Pritchard")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

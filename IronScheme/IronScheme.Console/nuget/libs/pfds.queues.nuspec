@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>(pfds queues) library</description>
     <releaseNotes>http://ironscheme.codeplex.com/SourceControl/changeset/$TFSREV$</releaseNotes>
-    <copyright>Copyright 2007-2013</copyright>
+    <copyright>Copyright 2007-2015</copyright>
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd" id="pfds.queues.private.condition" version="[0.9.$TFSREV$]" />
