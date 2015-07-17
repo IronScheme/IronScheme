@@ -34,6 +34,16 @@ namespace IronScheme.Runtime.Typed
 
   internal static class Utils
   {
+    static string GetTypeName(Type t)
+    {
+      // check if scheme record
+      if (t.Namespace.StartsWith("record"))
+      {
+        return t.Name;
+      }
+      return t.ToString();
+    }
+
     static T Unbox<T>(object o)
     {
       if (o is T)
@@ -44,7 +54,7 @@ namespace IronScheme.Runtime.Typed
       {
         return (T)o;
       }
-      return (T)Closure.AssertionViolation(false, "expected type: " + typeof(T), o);
+      return (T)Closure.AssertionViolation(false, "expected type: " + GetTypeName(typeof(T)), o);
     }
 
     static object Box<T>(T o)
