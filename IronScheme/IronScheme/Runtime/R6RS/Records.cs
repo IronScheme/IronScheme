@@ -660,8 +660,12 @@ namespace IronScheme.Runtime.R6RS
       for (int i = 0; i < f.Length; i++)
       {
         Cons c = (Cons) f[i];
-        Type t = ClrGenerator.ExtractTypeInfo(List(SymbolTable.StringToObject("quote"), ftypes[i]));
+        // check for recursive definition
+        Type t = rtd.Name == SymbolTable.IdToString((SymbolId)ftypes[i]) ?
+          rtd.tg.TypeBuilder :
+          ClrGenerator.ExtractTypeInfo(List(SymbolTable.StringToObject("quote"), ftypes[i]));
 
+        // can this ever be null given ExtractTypeInfo throws?
         if (t == null)
         {
           ClrGenerator.ClrSyntaxError("GenerateFields", "type not found", ftypes[i]);
