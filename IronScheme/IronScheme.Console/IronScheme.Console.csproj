@@ -157,9 +157,6 @@
     <None Include="build\constant-fold.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="build\cps.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="build\equal.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
