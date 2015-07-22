@@ -93,8 +93,7 @@ namespace IronScheme.Runtime
     {
       CallTargetN ct = delegate(object[] value)
       {
-        // disable stack check unless debug-mode is #t
-        if (ScriptDomainManager.Options.DebugMode && !CheckStack(cc)) 
+        if (!CheckStack(cc)) 
         {
           return AssertionViolation("call/cc", "not supported, continuation called outside dynamic extent");
         }
@@ -168,7 +167,7 @@ namespace IronScheme.Runtime
     {
       Callable fc = RequiresNotNull<Callable>(fc1);
       // disable stack check unless debug-mode is #t
-      Continuation ccc = new Continuation { Stack = ScriptDomainManager.Options.DebugMode ? new StackTrace() : null, Thread = Thread.CurrentThread };
+      Continuation ccc = new Continuation { Stack = new StackTrace(), Thread = Thread.CurrentThread };
 
       try
       {
