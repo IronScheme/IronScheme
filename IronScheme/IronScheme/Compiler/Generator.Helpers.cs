@@ -329,7 +329,7 @@ namespace IronScheme.Compiler
         arities.Add(Ast.Constant(c.arity));
       }
 
-      return Ast.SimpleCallHelper(Closure_MakeTypedCase, Ast.CodeContext(),
+      return Ast.SimpleCallHelper(Closure_MakeTypedCase,
         Ast.NewArrayHelper(typeof(Callable[]), targets), Ast.NewArrayHelper(typeof(int[]), arities));
     }
 

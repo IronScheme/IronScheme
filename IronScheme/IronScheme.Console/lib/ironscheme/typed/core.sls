@@ -9,6 +9,7 @@ See docs/license.txt. |#
     :
     ->
     lambda:
+    case-lambda:
     let:
     let*:
     define:
@@ -55,15 +56,17 @@ See docs/license.txt. |#
   (define-syntax lambda:
     (lambda (x)
       (syntax-case x (:)
-        [(_ (arg ...) b b* ...)
-          (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...)))
-                        ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))        
-            (with-syntax (((type ...) (map parse-type #'(type ...)))
-                          (ret-type (parse-type #'ret-type)))
-              #'(typed-lambda (id ...) 
-                              ((type ...) ret-type)
-                              b b* ...)))])))
-  
+        [(_ e ...)
+          (with-syntax (((e ...) (parse-lambda-clause #'(e ...))))
+              #'(typed-lambda e ...))])))
+              
+  (define-syntax case-lambda:
+    (lambda (x)
+      (syntax-case x (:)
+        [(_ e ...)
+          (with-syntax (((e ...) (map parse-lambda-clause #'(e ...))))
+              #'(typed-case-lambda e ...))])))              
+                              
   (define-syntax let:
     (lambda (x)
       (syntax-case x (:)

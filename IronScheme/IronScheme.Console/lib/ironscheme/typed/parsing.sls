@@ -8,6 +8,7 @@ See docs/license.txt. |#
   (export
     :
     ->
+    parse-lambda-clause
     parse-type
     parse-arg-type
     parse-name-type-expr
@@ -36,6 +37,17 @@ See docs/license.txt. |#
                         (type (parse #'type))]
             #'(define-syntax type-spec-id
                 (make-compile-time-value 'type)))])))    
+                
+  (define (parse-lambda-clause x)
+    (syntax-case x (:)
+      [((arg ...) b b* ...)
+        (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...)))
+                      ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))        
+          (with-syntax (((type ...) (map parse-type #'(type ...)))
+                        (ret-type (parse-type #'ret-type)))
+            #'((id ...) 
+               ((type ...) ret-type)
+               b b* ...)))]))
      
   (define (parse-arg-type x)
     (syntax-case x (:)

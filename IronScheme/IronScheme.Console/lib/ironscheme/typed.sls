@@ -9,6 +9,7 @@ See docs/license.txt. |#
     :
     ->
     lambda:
+    case-lambda:
     let:
     let*:
     define:

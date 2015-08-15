@@ -737,12 +737,20 @@ namespace IronScheme.Compiler
 
         Expression r = null;
 
-        if (ex.Type.Name.Contains("TypedClosure"))
+        if (ex.Type.Name.StartsWith("TypedClosure"))
         {
-          Expression[] pp = GetAstListNoCast(c.cdr as Cons, cb);
+          try
+          {
+            Expression[] pp = GetAstListNoCast(c.cdr as Cons, cb);
 
-          var m = ex.Type.GetMethod("Invoke");
-          r = Ast.SimpleCallHelper(ex, m, pp);
+            var m = ex.Type.GetMethod("Invoke");
+            r = Ast.SimpleCallHelper(ex, m, pp);
+          }
+          catch (Exception exc)
+          {
+            throw;
+            //Builtins.SyntaxError(SymbolTable.StringToObject("apply-typed-lambda"), exc.Message, c.car, c);
+          }
         }
         else
         {
