@@ -39,7 +39,9 @@ See docs/license.txt. |#
                 (make-compile-time-value 'type)))])))    
                 
   (define (parse-lambda-clause x)
-    (syntax-case x (:)
+    (syntax-case x (->)
+      [((arg ... -> ret-type) b b* ...)
+        (parse-lambda-clause #'((arg ...) : ret-type b b* ...))]
       [((arg ...) b b* ...)
         (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...)))
                       ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))        

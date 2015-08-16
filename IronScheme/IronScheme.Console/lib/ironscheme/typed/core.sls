@@ -55,21 +55,21 @@ See docs/license.txt. |#
 
   (define-syntax lambda:
     (lambda (x)
-      (syntax-case x (:)
+      (syntax-case x ()
         [(_ e ...)
           (with-syntax (((e ...) (parse-lambda-clause #'(e ...))))
               #'(typed-lambda e ...))])))
               
   (define-syntax case-lambda:
     (lambda (x)
-      (syntax-case x (:)
+      (syntax-case x ()
         [(_ e ...)
           (with-syntax (((e ...) (map parse-lambda-clause #'(e ...))))
               #'(typed-case-lambda e ...))])))              
                               
   (define-syntax let:
     (lambda (x)
-      (syntax-case x (:)
+      (syntax-case x ()
         [(_ (arg ...) b b* ...)
           (with-syntax ((((id type val) ...) (map parse-name-type-expr #'(arg ...)))
                         ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))
@@ -84,7 +84,7 @@ See docs/license.txt. |#
                     (var t ...)))))])))
         
   (define-syntax let*:
-    (syntax-rules (:)
+    (syntax-rules ()
       [(_ () b b* ...)
         (let: () b b* ...)]
       [(_ (arg1 arg2 ...) b b* ...)
@@ -106,7 +106,7 @@ See docs/license.txt. |#
                  
   (define-syntax letrec*:
     (lambda (x)
-      (syntax-case x (:)
+      (syntax-case x ()
         [(_ (arg ...) b1 b2 ...)
           (with-syntax ((((i type e) ...) (map parse-name-type-expr #'(arg ...)))
                         ((ret-type b1 b2 ...) (parse-return-type-body #'(b1 b2 ...))))

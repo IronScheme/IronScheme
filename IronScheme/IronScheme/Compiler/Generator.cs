@@ -744,6 +744,7 @@ namespace IronScheme.Compiler
             Expression[] pp = GetAstListNoCast(c.cdr as Cons, cb);
 
             var m = ex.Type.GetMethod("Invoke");
+            //TODO: add checks
             r = Ast.SimpleCallHelper(ex, m, pp);
           }
           catch (Exception exc)
