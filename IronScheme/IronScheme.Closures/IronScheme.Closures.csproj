@@ -93,6 +93,6 @@ rem "$(FrameworkSDKDir)Bin\peverify" /NOLOGO "$(TargetPath)"</PostBuildEvent>
 "$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(TargetName).il"
 "$(FrameworkDir)\ilasm" /dll  /OPT /NOLOGO /QUIET /KEY=$(SolutionDir)DEVELOPMENT.snk /out:$(TargetName).dll /res:$(TargetName).res "$(TargetName).il" "IronScheme.Glue.il"
 rem "$(TargetFrameworkSDKToolsDirectory)\peverify" /NOLOGO "$(TargetPath)"
-    </PostBuildEvent>    
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

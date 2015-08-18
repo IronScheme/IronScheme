@@ -51,7 +51,7 @@ namespace TailCallMaker
 
             var prevcmd = prevline.Substring(ci + 1).Trim();
 
-            if (prevcmd.StartsWith("call"))
+            if (prevcmd.StartsWith("call") && (prevcmd.Contains("::Invoke(") || prevcmd.Contains("::Call(")))
             {
               lines[i - j] = "tail. " + prevline;
             }

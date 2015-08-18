@@ -32,7 +32,6 @@
     ldsfld     class IronScheme.Runtime.ConsFromArrayHandler IronScheme.Runtime.Closure::ConsFromArray
     ldarg.2
     callvirt   instance object IronScheme.Runtime.ConsFromArrayHandler::Invoke(object[])
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::assertion-violation+'(object, object, object)
     ret
   } // end of method Glue::AssertionViolation
@@ -42,7 +41,6 @@
   {
     .maxstack  8
     ldarg.0
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.numbers::exact'(object)
     ret
   } // end of method Glue::Exact
@@ -52,7 +50,6 @@
   {
     .maxstack  8
     ldarg.0
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.numbers::inexact'(object)
     ret
   } // end of method Glue::Inexact
@@ -64,7 +61,6 @@
     .maxstack  8
     ldarg.0
     ldarg.1
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::file-already-exists-violation'(object, object)
     ret
   } // end of method Glue::FileAlreadyExistsViolation
@@ -76,7 +72,6 @@
     .maxstack  8
     ldarg.0
     ldarg.1
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::file-in-use-violation'(object, object)
     ret
   } // end of method Glue::FileInUseViolation
@@ -90,7 +85,6 @@
     ldarg.0
     ldarg.1
     ldarg.2
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::file-not-found-violation'(object, object, object)
     ret
   } // end of method Glue::FileNotFoundViolation
@@ -99,7 +93,6 @@
           IODecodingError() cil managed
   {
     .maxstack  8
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::io-decoding-error'()
     ret
   } // end of method Glue::IODecodingError
@@ -108,7 +101,6 @@
           IOEncodingError() cil managed
   {
     .maxstack  8
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::io-encoding-error'()
     ret
   } // end of method Glue::IOEncodingError
@@ -122,7 +114,6 @@
     ldarg.0
     ldarg.1
     ldarg.2
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::i/o-port-violation'(object, object, object)
     ret
   } // end of method Glue::IOPortViolation
@@ -134,7 +125,6 @@
     .maxstack  8
     ldarg.0
     ldarg.1
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::lexical-error'(object, object)
     ret
   } // end of method Glue::LexicalError
@@ -150,7 +140,6 @@
     ldarg.1
     ldarg.2
     ldarg.3
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::syntax-error'(object, object, object, object)
     ret
   } // end of method Glue::SyntaxError
@@ -160,7 +149,6 @@
   {
     .maxstack  8
     ldarg.0
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::undefined-error'(object)
     ret
   } // end of method Glue::UndefinedError
@@ -170,7 +158,6 @@
   {
     .maxstack  8
     ldarg.0
-    tail.
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::raise'(object)
     ret
   } // end of method Glue::Raise
@@ -179,8 +166,7 @@
           RaiseContinueable(object obj) cil managed
   {
     .maxstack  8
-     ldarg.0
-    tail.
+    ldarg.0
     call object [ironscheme.boot]'#'::'ironscheme.exceptions::raise-continuable'(object)
     ret
   } // end of method Glue::RaiseContinueable

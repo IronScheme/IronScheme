@@ -281,9 +281,43 @@ namespace IronScheme.Runtime.Typed
     #endregion
 
   }
-  
 
-  public class TypedClosure<R> : Closure, ITypedCallable<R>
+  public abstract class TypedClosure : Closure
+  {
+    protected TypedClosure(Delegate d, int i) : base(d, i)
+    {
+    }
+
+    public override object Form
+    {
+      get
+      {
+        MethodInfo mi = TypedTarget;
+
+        List<object> form = new List<object>();
+
+        ParameterInfo[] pis = mi.GetParameters();
+
+        form.Add(SymbolTable.StringToObject(ToString()));
+
+        var cctype = typeof(CodeContext);
+
+        foreach (ParameterInfo pi in pis)
+        {
+          if (pi.ParameterType != cctype)
+          {
+            form.Add(SymbolTable.StringToObject(pi.Name));
+          }
+        }
+
+        return ConsFromArray(form.ToArray());
+      }
+    }
+
+    protected abstract MethodInfo TypedTarget { get; }
+  }
+
+  public class TypedClosure<R> : TypedClosure, ITypedCallable<R>
   {
     readonly Func<R> typedtarget;
     readonly CallTarget0 untypedtarget;
@@ -347,9 +381,14 @@ namespace IronScheme.Runtime.Typed
     {
       return typedtarget.Method.Name;
     }
+
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, R> : Closure, ITypedCallable<A1, R>
+  public class TypedClosure<A1, R> : TypedClosure, ITypedCallable<A1, R>
   {
     readonly Func<A1, R> typedtarget;
     readonly CallTarget1 untypedtarget;
@@ -414,9 +453,13 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, A2, R> : Closure, ITypedCallable<A1, A2, R>
+  public class TypedClosure<A1, A2, R> : TypedClosure, ITypedCallable<A1, A2, R>
   {
     readonly Func<A1, A2, R> typedtarget;
     readonly CallTarget2 untypedtarget;
@@ -481,9 +524,13 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, A2, A3, R> : Closure, ITypedCallable<A1, A2, A3, R>
+  public class TypedClosure<A1, A2, A3, R> : TypedClosure, ITypedCallable<A1, A2, A3, R>
   {
     readonly Func<A1, A2, A3, R> typedtarget;
     readonly CallTarget3 untypedtarget;
@@ -548,9 +595,13 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, A2, A3, A4, R> : Closure, ITypedCallable<A1, A2, A3, A4, R>
+  public class TypedClosure<A1, A2, A3, A4, R> : TypedClosure, ITypedCallable<A1, A2, A3, A4, R>
   {
     readonly Func<A1, A2, A3, A4, R> typedtarget;
     readonly CallTarget4 untypedtarget;
@@ -615,9 +666,13 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, A2, A3, A4, A5, R> : Closure, ITypedCallable<A1, A2, A3, A4, A5, R>
+  public class TypedClosure<A1, A2, A3, A4, A5, R> : TypedClosure, ITypedCallable<A1, A2, A3, A4, A5, R>
   {
     readonly Func<A1, A2, A3, A4, A5, R> typedtarget;
     readonly CallTarget5 untypedtarget;
@@ -682,9 +737,13 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, A2, A3, A4, A5, A6, R> : Closure, ITypedCallable<A1, A2, A3, A4, A5, A6, R>
+  public class TypedClosure<A1, A2, A3, A4, A5, A6, R> : TypedClosure, ITypedCallable<A1, A2, A3, A4, A5, A6, R>
   {
     readonly Func<A1, A2, A3, A4, A5, A6,  R> typedtarget;
     readonly CallTarget6 untypedtarget;
@@ -749,9 +808,13 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, A2, A3, A4, A5, A6, A7, R> : Closure, ITypedCallable<A1, A2, A3, A4, A5, A6, A7, R>
+  public class TypedClosure<A1, A2, A3, A4, A5, A6, A7, R> : TypedClosure, ITypedCallable<A1, A2, A3, A4, A5, A6, A7, R>
   {
     readonly Func<A1, A2, A3, A4, A5, A6, A7, R> typedtarget;
     readonly CallTarget7 untypedtarget;
@@ -816,9 +879,13 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 
-  public class TypedClosure<A1, A2, A3, A4, A5, A6, A7, A8, R> : Closure, ITypedCallable<A1, A2, A3, A4, A5, A6, A7, A8, R>
+  public class TypedClosure<A1, A2, A3, A4, A5, A6, A7, A8, R> : TypedClosure, ITypedCallable<A1, A2, A3, A4, A5, A6, A7, A8, R>
   {
     readonly Func<A1, A2, A3, A4, A5, A6, A7, A8, R> typedtarget;
     readonly CallTarget8 untypedtarget;
@@ -884,5 +951,9 @@ namespace IronScheme.Runtime.Typed
       return typedtarget.Method.Name;
     }
 
+    protected override MethodInfo TypedTarget
+    {
+      get { return typedtarget.Method; }
+    }
   }
 }
