@@ -14,7 +14,7 @@
     <copyright>Copyright 2007-2015</copyright>
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
-      <dependency xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd" id="pfds.bbtrees" version="[0.9.$TFSREV$]" />
+      <dependency id="pfds.bbtrees" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

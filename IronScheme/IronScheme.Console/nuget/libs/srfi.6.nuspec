@@ -15,6 +15,7 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.6.basic-string-ports" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.6.basic-string-ports.compat" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

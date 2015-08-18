@@ -15,6 +15,7 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="ironscheme.clr" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr.helpers" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

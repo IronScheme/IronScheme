@@ -15,6 +15,12 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="ironscheme.web" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr.helpers" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.web-utils" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts-helper" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.xml" version="[0.9.$TFSREV$]" />
       <dependency id="ironscheme.threading" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>

@@ -14,6 +14,16 @@
     <copyright>Copyright 2007-2015</copyright>
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
+      <dependency id="wak.private.include" version="[0.9.$TFSREV$]" />
+      <dependency id="wak.private.include.compat" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.strings" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr.helpers" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts-helper" version="[0.9.$TFSREV$]" />
+      <dependency id="wak.private.include.utils" version="[0.9.$TFSREV$]" />
+      <dependency id="wak.private.include.helper" version="[0.9.$TFSREV$]" />
+      <dependency id="wak.private.include.filesys" version="[0.9.$TFSREV$]" />
       <dependency id="wak.syn-param" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.45.lazy" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.8.receive" version="[0.9.$TFSREV$]" />

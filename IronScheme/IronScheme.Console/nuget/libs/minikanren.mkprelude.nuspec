@@ -15,6 +15,7 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="minikanren.mkextraforms" version="[0.9.$TFSREV$]" />
+      <dependency id="minikanren.mk" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

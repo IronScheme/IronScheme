@@ -15,6 +15,22 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.19.time" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.private.include" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.private.include.compat" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.6.basic-string-ports" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.6.basic-string-ports.compat" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.19.time.compat" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.datetime" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr.helpers" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts-helper" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.core" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.utils" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.parsing" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.parsing-helper" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.shorthand" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

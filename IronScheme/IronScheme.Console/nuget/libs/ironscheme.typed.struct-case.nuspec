@@ -14,7 +14,18 @@
     <copyright>Copyright 2007-2015</copyright>
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.struct-descriptor" version="[0.9.$TFSREV$]" />
       <dependency id="ironscheme.typed.struct" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.define-macro" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.symbolic-case" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.parameters" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.shorthand" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.utils" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr.helpers" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.parsing" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.parsing-helper" version="[0.9.$TFSREV$]" />
       <dependency id="ironscheme.typed.core" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>

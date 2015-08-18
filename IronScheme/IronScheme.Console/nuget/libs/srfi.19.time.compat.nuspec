@@ -15,6 +15,16 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="ironscheme.datetime" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.clr.helpers" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.contracts-helper" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.core" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.utils" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.parsing" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.typed.parsing-helper" version="[0.9.$TFSREV$]" />
+      <dependency id="ironscheme.syntax.shorthand" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

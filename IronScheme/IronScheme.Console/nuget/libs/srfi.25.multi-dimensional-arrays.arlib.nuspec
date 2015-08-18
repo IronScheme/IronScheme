@@ -14,7 +14,10 @@
     <copyright>Copyright 2007-2015</copyright>
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.private.include" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.private.include.compat" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.25.multi-dimensional-arrays.all" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.23.error.tricks" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

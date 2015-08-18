@@ -14,7 +14,7 @@
     <copyright>Copyright 2007-2015</copyright>
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
-      <dependency id="srfi.2.and-let" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.2.and-let%2a" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

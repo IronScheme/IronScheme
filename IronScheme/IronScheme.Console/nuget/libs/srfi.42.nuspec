@@ -15,6 +15,10 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.42.eager-comprehensions" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.private.include" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.private.include.compat" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.23.error.tricks" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.39.parameters" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
   <files>

@@ -15,7 +15,11 @@
     <dependencies>
       <dependency id="IronScheme.Core" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.38.with-shared-structure" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.99.records.inspection" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.99.records.helper" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.99.records.procedural" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.6.basic-string-ports" version="[0.9.$TFSREV$]" />
+      <dependency id="srfi.6.basic-string-ports.compat" version="[0.9.$TFSREV$]" />
       <dependency id="srfi.48.intermediate-format-strings.compat" version="[0.9.$TFSREV$]" />
     </dependencies>
   </metadata>
