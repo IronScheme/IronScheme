@@ -21,6 +21,7 @@ See docs/license.txt. |#
     (ironscheme clr) 
     (ironscheme syntax utils))
 
+  ;; TODO: Add case-lambda version (maybe not?)
   (define-syntax define:
     (lambda (x)
       (define (get-spec id lookup)
@@ -37,11 +38,9 @@ See docs/license.txt. |#
                         (typed-lambda (arg ...) 
                           type-spec
                           b b* ...)))
-                  (with-syntax ((((arg type) ...) (map parse-arg-type #'(arg ...)))
-                                ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))                
+                  (with-syntax (((e ...) (parse-lambda-clause #'((arg ...) b b* ...))))
                     #'(define id
-                        (lambda: ((arg : type) ...) : ret-type
-                          b b* ...))))))]
+                        (typed-lambda e ...))))))]
         [(_ id : type val)
           (with-syntax ((type (parse-type #'type)))
             #'(define id (clr-cast type val)))]
@@ -58,31 +57,33 @@ See docs/license.txt. |#
       (syntax-case x ()
         [(_ e ...)
           (with-syntax (((e ...) (parse-lambda-clause #'(e ...))))
-              #'(typed-lambda e ...))])))
+            #'(typed-lambda e ...))])))
               
   (define-syntax case-lambda:
     (lambda (x)
       (syntax-case x ()
         [(_ e ...)
           (with-syntax (((e ...) (map parse-lambda-clause #'(e ...))))
-              #'(typed-case-lambda e ...))])))              
-                              
+            #'(typed-case-lambda e ...))])))
+            
+  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax let:
     (lambda (x)
       (syntax-case x ()
         [(_ (arg ...) b b* ...)
           (with-syntax ((((id type val) ...) (map parse-name-type-expr #'(arg ...)))
                         ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))
-            #'((lambda: ((id : type) ...) : ret-type b b* ...) val ...))]
+            #'((lambda: ((id : type) ... -> ret-type) b b* ...) val ...))]
         [(_ var (arg ...) b b* ...)
           (with-syntax ((((id type val) ...) (map parse-name-type-expr #'(arg ...)))
                         ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))
             (with-syntax (((t ...) (generate-temporaries #'(id ...))))
               #'(let: ((t : type val) ...) : ret-type
-                  (letrec: ((var : (type ... -> ret-type) 
-                               (lambda: ((id : type) ...) : ret-type b b* ...))) : (type ... -> ret-type)
+                  (letrec: ((var : (type ... -> ret-type)
+                               (lambda: ((id : type) ... -> ret-type)  b b* ...))) : (type ... -> ret-type)
                     (var t ...)))))])))
-        
+
+  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax let*:
     (syntax-rules ()
       [(_ () b b* ...)
@@ -90,7 +91,8 @@ See docs/license.txt. |#
       [(_ (arg1 arg2 ...) b b* ...)
         (let: (arg1)
           (let*: (arg2 ...) b b* ...))]))
-                      
+
+  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax letrec:
     (lambda (x)
       (syntax-case x ()
@@ -103,7 +105,8 @@ See docs/license.txt. |#
                  (let: ((t : type e) ...) : ret-type
                    (set! i t) ...
                    (begin b1 b2 ...)))))])))
-                 
+  
+  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax letrec*:
     (lambda (x)
       (syntax-case x ()
