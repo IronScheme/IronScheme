@@ -739,19 +739,17 @@ namespace IronScheme.Compiler
 
         if (ex.Type.Name.StartsWith("TypedClosure"))
         {
-          try
-          {
-            Expression[] pp = GetAstListNoCast(c.cdr as Cons, cb);
+          Expression[] pp = GetAstListNoCast(c.cdr as Cons, cb);
 
-            var m = ex.Type.GetMethod("Invoke");
-            //TODO: add checks
-            r = Ast.SimpleCallHelper(ex, m, pp);
-          }
-          catch (Exception exc)
+          var m = ex.Type.GetMethod("Invoke");
+          //TODO: add more checks, should we attempt some casting for types?
+          if (m.GetParameters().Length != pp.Length)
           {
-            throw;
-            //Builtins.SyntaxError(SymbolTable.StringToObject("apply-typed-lambda"), exc.Message, c.car, c);
+            Builtins.SyntaxError(SymbolTable.StringToObject("apply-typed-lambda"), 
+              string.Format("incorrect number of parameters, expected {0} got {1}", m.GetParameters().Length, pp.Length),
+              c.car, c);
           }
+          r = Ast.SimpleCallHelper(ex, m, pp);
         }
         else
         {

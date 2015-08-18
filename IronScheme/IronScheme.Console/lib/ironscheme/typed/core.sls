@@ -19,7 +19,7 @@ See docs/license.txt. |#
     (ironscheme)
     (ironscheme typed parsing)
     (ironscheme clr) 
-    (ironscheme syntax))
+    (ironscheme syntax utils))
 
   (define-syntax define:
     (lambda (x)

@@ -68,10 +68,14 @@
       (build-case-lambda ae (list vars) (list exp))))
   (define build-typed-lambda
     (lambda (ae vars type-spec exp) 
-      `(typed-case-lambda [,vars ,type-spec ,exp])))        
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-typed-case-lambda ,ae [,vars ,type-spec ,exp])
+          `(typed-case-lambda [,vars ,type-spec ,exp]))))
   (define build-typed-case-lambda
     (lambda (ae vars* type-spec* exp*)
-      `(typed-case-lambda . ,(map list vars* type-spec* exp*))))
+      (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
+          `(annotated-typed-case-lambda ,ae . ,(map list vars* type-spec* exp*))
+          `(typed-case-lambda . ,(map list vars* type-spec* exp*)))))
   (define build-case-lambda
     (lambda (ae vars* exp*)
       (if (and (or (debug-mode?) (lw-debug-mode?)) ae)
