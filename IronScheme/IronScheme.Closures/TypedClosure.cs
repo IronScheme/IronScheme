@@ -306,12 +306,61 @@ namespace IronScheme.Runtime.Typed
         {
           if (pi.ParameterType != cctype)
           {
-            form.Add(SymbolTable.StringToObject(pi.Name));
+            if (pi.ParameterType != typeof(object))
+            {
+              form.Add(ConsFromArray(new object[] 
+              {
+                SymbolTable.StringToObject(pi.Name),
+                SymbolTable.StringToObject(":"),
+                ParseType(pi.ParameterType)
+              }));
+            }
+            else
+            {
+              form.Add(SymbolTable.StringToObject(pi.Name));
+            }
           }
+        }
+
+        var rt = mi.ReturnType;
+
+        if (rt != typeof(object))
+        {
+          form.Add(SymbolTable.StringToObject("->"));
+          form.Add(ParseType(rt));
         }
 
         return ConsFromArray(form.ToArray());
       }
+    }
+
+    object ParseType(Type type)
+    {
+      if (typeof(TypedClosure).IsAssignableFrom(type))
+      {
+        var sig = new List<object>();
+
+        var args = type.GetGenericArguments();
+
+        int i = 0;
+
+        for (; i < args.Length - 1; i++)
+        {
+          if (args[i] != typeof(object))
+          {
+            sig.Add(ParseType(args[i]));
+          }
+        }
+
+        if (args[i] != typeof(object))
+        {
+          sig.Add(SymbolTable.StringToObject("->"));
+          sig.Add(ParseType(args[i]));
+        }
+
+        return ConsFromArray(sig.ToArray());
+      }
+      return SymbolTable.StringToObject(type.Name);
     }
 
     protected abstract MethodInfo TypedTarget { get; }
