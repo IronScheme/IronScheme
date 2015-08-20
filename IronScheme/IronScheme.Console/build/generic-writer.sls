@@ -259,7 +259,7 @@ See docs/license.txt. |#
     (put-string port "#(")
     (let* ((len (vector-length vec))
            (len-1 ($fx- len 1)))       
-      (let: f ((i : Int32 0))
+      (let: f (((i : Int32) 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)
@@ -274,7 +274,7 @@ See docs/license.txt. |#
     (put-string port "#fl(")
     (let* ((len (flvector-length vec))
            (len-1 ($fx- len 1)))       
-      (let: f ((i : Int32 0))
+      (let: f (((i : Int32) 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)
@@ -289,7 +289,7 @@ See docs/license.txt. |#
     (put-string port "#fx(")
     (let* ((len (fxvector-length vec))
            (len-1 ($fx- len 1)))       
-      (let: f ((i : Int32 0))
+      (let: f (((i : Int32) 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)
@@ -304,7 +304,7 @@ See docs/license.txt. |#
     (put-string port "#vu8(")
     (let* ((len (bytevector-length bv))
            (len-1 ($fx- len 1)))       
-      (let: f ((i : Int32 0))
+      (let: f (((i : Int32) 0))
         (cond
           [($fx=? i len)]
           [($fx=? i len-1)

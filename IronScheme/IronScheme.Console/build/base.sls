@@ -289,7 +289,7 @@ See docs/license.txt. |#
     (clr-cast Int32 (clr-cast Char chr)))
   
   (define/contract (integer->char num:fixnum)
-    (let: ((num : Int32 num))
+    (let: (((num : Int32) num))
       (when ($or? ($fxnegative? num)      
                   ($fx>? num #x10ffff)
                   ($and? ($fx>? num #xd7ff)
@@ -341,9 +341,9 @@ See docs/license.txt. |#
       (assertion-violation 'string-fill! "not a non-negative integer" k))        
     (unless (char? fill)
       (assertion-violation 'string-fill! "not a character" fill))
-    (let: ((str : StringBuilder str)
-           (k : Int32 k)
-           (fill : Char fill))
+    (let: (((str : StringBuilder) str)
+           ((k : Int32) k)
+           ((fill : Char) fill))
       (let f ((i 0))
         (unless ($fx=? i k)
           (clr-prop-set! StringBuilder Chars str i fill)
@@ -357,7 +357,8 @@ See docs/license.txt. |#
         (clr-prop-get StringBuilder Length str)]
       [else
         (assertion-violation 'string-length "not a string" str)]))
-        
+
+  ;; TODO: rewrite in new typed syntax        
   (define ->string
     (typed-lambda (str) ((Object) String)
       (if (clr-string? str)
@@ -391,7 +392,7 @@ See docs/license.txt. |#
         (assertion-violation 'string-copy "not a string" str)]))
 
   (define/contract (substring str start:fixnum end:fixnum)
-    (let: ((start : Int32 start)(end : Int32 end))
+    (let: (((start : Int32) start)((end : Int32) end))
       (unless ($fx>=? start 0)
         (assertion-violation 'substring "not a non-negative integer" start)) 
       (unless ($fx>=? end 0)
@@ -459,8 +460,8 @@ See docs/license.txt. |#
     (clr-prop-get Array Length vec))            
   
   (define/contract (vector-fill! vec:vector val)
-    (let: ((vec : Object[] vec)
-           (len : Int32 (vector-length vec)))
+    (let: (((vec : Object[]) vec)
+           ((len : Int32) (vector-length vec)))
       (do ((i 0 ($fx+ i 1)))
           (($fx=? i len))
         ($vector-set! vec i val))))
@@ -569,8 +570,8 @@ See docs/license.txt. |#
   (define/contract string-for-each
     (case-lambda
       [(p:procedure str:string)
-        (let: ((len : Int32 (string-length str))
-               (p : Callable p))
+        (let: (((len : Int32) (string-length str))
+               ((p : Callable) p))
           (do ((i 0 ($fx+ i 1)))
               (($fx=? i len))
             (p (string-ref str i))))]

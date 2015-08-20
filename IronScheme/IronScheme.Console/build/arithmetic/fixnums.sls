@@ -186,7 +186,7 @@ See docs/license.txt. |#
       [(x1)
         (unless (fixnum? x1)
           (assertion-violation 'fx- "not a fixnum" x1))
-        (let: ((x1 : Int32 x1))
+        (let: (((x1 : Int32) x1))
           (when ($fx=? (least-fixnum) x1)
             (overflow-error 'fx- x1))
           ($fx- x1))]

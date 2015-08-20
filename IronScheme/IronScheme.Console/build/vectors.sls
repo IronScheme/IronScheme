@@ -39,10 +39,10 @@ See docs/license.txt. |#
                         (type[]
                           (syntax-format "~a[]" #'type #'type))]
             #'(begin 
-                (define: (vector? obj) : bool
+                (define: (vector? obj -> bool)
                   (clr-is type[] obj))
 
-                (define: (vector-ref (x : type[]) (n : int)) : type
+                (define: (vector-ref (x : type[]) (n : int) -> type)
                   (when ($fx>? 0 n)
                     (assertion-violation 'vector-ref "negative index" n))
                   ($vector-ref x n))
@@ -53,18 +53,18 @@ See docs/license.txt. |#
                   ($vector-set! x n value)
                   (void))
 
-                (define: (make-vector (k : int)) : type[]
+                (define: (make-vector (k : int) -> type[])
                   (when ($fx>? 0 k)
                     (assertion-violation 'make-vector "cannot be negative" k))
                   (clr-new-array type k))
 
-                (define: (vector-length (vec : type[])) : int
+                (define: (vector-length (vec : type[]) -> int)
                   (clr-prop-get Array Length vec))
 
-                (define: (vector->list (vec : type[])) : list
+                (define: (vector->list (vec : type[]) -> list)
                   (clr-static-call Cons FromList vec))
 
-                (define: (list->vector (lst : list)) : type[]
+                (define: (list->vector (lst : list) -> type[])
                   (clr-static-call Builtins (ListToVector #(type)) lst))
 
                 (define: (vector-fill! (vec : type[]) (val : type))
