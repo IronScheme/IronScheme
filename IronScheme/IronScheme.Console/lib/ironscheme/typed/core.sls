@@ -66,53 +66,58 @@ See docs/license.txt. |#
           (with-syntax (((e ...) (map parse-lambda-clause #'(e ...))))
             #'(typed-case-lambda e ...))])))
             
-  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax let:
     (lambda (x)
-      (syntax-case x ()
+      (syntax-case x (->)
+        [(_ (arg ... -> ret-type) b b* ...)
+          (with-syntax (((((id type) val) ...) (map parse-name-type-expr #'(arg ...))))
+            #'((lambda: ((id : type) ... -> ret-type) b b* ...) val ...))]      
         [(_ (arg ...) b b* ...)
-          (with-syntax ((((id type val) ...) (map parse-name-type-expr #'(arg ...)))
-                        ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))
-            #'((lambda: ((id : type) ... -> ret-type) b b* ...) val ...))]
-        [(_ var (arg ...) b b* ...)
-          (with-syntax ((((id type val) ...) (map parse-name-type-expr #'(arg ...)))
-                        ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))
+          #'(let: (arg ... -> Object) b b* ...)]
+        [(_ var (arg ... -> ret-type) b b* ...)
+          (with-syntax (((((id type) val) ...) (map parse-name-type-expr #'(arg ...))))
             (with-syntax (((t ...) (generate-temporaries #'(id ...))))
-              #'(let: ((t : type val) ...) : ret-type
-                  (letrec: ((var : (type ... -> ret-type)
-                               (lambda: ((id : type) ... -> ret-type)  b b* ...))) : (type ... -> ret-type)
-                    (var t ...)))))])))
+              #'(let: (((t : type) val) ... -> ret-type)
+                  (letrec: (((var : (type ... -> ret-type))
+                               (lambda: ((id : type) ... -> ret-type)  b b* ...)) -> (type ... -> ret-type))
+                    (var t ...)))))]
+         [(_ var (arg ...) b b* ...)
+          #'(let: var (arg ... -> Object) b b* ...)])))
 
-  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax let*:
-    (syntax-rules ()
+    (syntax-rules (->)
+      [(_ (arg1 arg2 ... -> ret-type) b b* ...)
+        (let: (arg1 -> ret-type)
+          (let*: (arg2 ...  -> ret-type) b b* ...))]
+      [(_ (-> ret-type) b b* ...)
+        (let: (-> ret-type) b b* ...)]
       [(_ () b b* ...)
         (let: () b b* ...)]
       [(_ (arg1 arg2 ...) b b* ...)
         (let: (arg1)
           (let*: (arg2 ...) b b* ...))]))
 
-  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax letrec:
     (lambda (x)
-      (syntax-case x ()
-        [(_ (arg ...) b1 b2 ...)
-          (with-syntax ((((i type e) ...) (map parse-name-type-expr #'(arg ...)))
-                        ((ret-type b1 b2 ...) (parse-return-type-body #'(b1 b2 ...))))
+      (syntax-case x (->)
+        [(_ (arg ... -> ret-type) b1 b2 ...)
+          (with-syntax (((((i type) e) ...) (map parse-name-type-expr #'(arg ...))))
            (with-syntax
                (((t ...) (generate-temporaries #'(i ...))))
-             #'(let: ((i : type '()) ...) : ret-type ; null has special meaning here
-                 (let: ((t : type e) ...) : ret-type
+             #'(let: (((i : type) '()) ... -> ret-type) ; null has special meaning here
+                 (let: (((t : type) e) ... -> ret-type)
                    (set! i t) ...
-                   (begin b1 b2 ...)))))])))
+                   (begin b1 b2 ...)))))]
+         [(_ (arg ...) b1 b2 ...)
+          #'(letrec: (arg ... -> Object) b1 b2 ...)])))
   
-  ;; TODO: new lambda syntax (arg ... -> ret-type)
   (define-syntax letrec*:
     (lambda (x)
-      (syntax-case x ()
-        [(_ (arg ...) b1 b2 ...)
-          (with-syntax ((((i type e) ...) (map parse-name-type-expr #'(arg ...)))
-                        ((ret-type b1 b2 ...) (parse-return-type-body #'(b1 b2 ...))))
-            #'(let: ((i : type '()) ...) : ret-type ; null has special meaning here
+      (syntax-case x (->)
+        [(_ (arg ... -> ret-type) b1 b2 ...)
+          (with-syntax (((((i type) e) ...) (map parse-name-type-expr #'(arg ...))))
+            #'(let: (((i : type) '()) ... -> ret-type) ; null has special meaning here
                 (set! i e) ...
-                (begin b1 b2 ...)))]))))
+                (begin b1 b2 ...)))]
+         [(_ (arg ...) b1 b2 ...)
+          #'(letrec*: (arg ... -> Object) b1 b2 ...)]))))

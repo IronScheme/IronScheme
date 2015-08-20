@@ -11,8 +11,7 @@ See docs/license.txt. |#
     parse-lambda-clause
     parse-type
     parse-arg-type
-    parse-name-type-expr
-    parse-return-type-body)
+    parse-name-type-expr)
   (import 
     (ironscheme)
     (ironscheme syntax utils)
@@ -41,34 +40,27 @@ See docs/license.txt. |#
   (define (parse-lambda-clause x)
     (syntax-case x (->)
       [((arg ... -> ret-type) b b* ...)
-        (parse-lambda-clause #'((arg ...) : ret-type b b* ...))]
-      [((arg ...) b b* ...)
-        (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...)))
-                      ((ret-type b b* ...) (parse-return-type-body #'(b b* ...))))        
+        (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...))))
           (with-syntax (((type ...) (map parse-type #'(type ...)))
                         (ret-type (parse-type #'ret-type)))
             #'((id ...) 
                ((type ...) ret-type)
-               b b* ...)))]))
+               b b* ...)))]        
+      [((arg ...) b b* ...)
+        (parse-lambda-clause #'((arg ... -> Object) b b* ...))]))
      
   (define (parse-arg-type x)
     (syntax-case x (:)
-      [(arg : type) 
+      [(arg : type)
+        (identifier? #'arg) 
         #'(arg type)]
       [arg 
+        (identifier? #'arg) 
         #'(arg Object)]))
       
   (define (parse-name-type-expr x)
     (syntax-case x (:)
-      [(name : type expr) 
-        #'(name type expr)]
-      [(name expr) 
-        #'(name Object expr)]))
-      
-  (define (parse-return-type-body x)
-    (syntax-case x (:)
-      [(: ret-type b b* ...) 
-        #'(ret-type b b* ...)]
-      [(b b* ...) 
-        #'(Object b b* ...)])))
+      [(arg expr)
+        (with-syntax ((arg (parse-arg-type #'arg)))
+          #'(arg expr))])))
     

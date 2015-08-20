@@ -17,11 +17,11 @@ See docs/license.txt. |#
     
   (define (parse-type x)
     (syntax-case x (->)
-      [(a ... -> r)
+      [(a ... -> r) ; typed procedure type
         (with-syntax (((a ...) (map parse-type #'(a ...)))
                       (r (parse-type #'r)))
           #'(IronScheme.Runtime.Typed.TypedClosure a ... r))]
-      [(t a ...)
+      [(t a ...) ; generic type
         (with-syntax (((a ...) (map parse-type #'(a ...))))
           #'(t a ...))]
       [t #'t])))    
