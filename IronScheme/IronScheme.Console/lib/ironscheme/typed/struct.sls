@@ -78,8 +78,8 @@ See docs/license.txt. |#
 
   (define-syntax define-method
     (lambda (x)
-      (syntax-case x ()
-        [(_ type (name args ...) b b* ...)
+      (syntax-case x (->)
+        [(_ type (name args ... -> ret-type) b b* ...)
           (lambda (lookup)
             (let* ((r (lookup #'type))
                    (flds (map (lambda (f)
@@ -88,8 +88,7 @@ See docs/license.txt. |#
                    (mths (map (lambda (m)
                                 (datum->syntax #'type m))
                               (struct-descriptor-method-names r))))
-              (with-syntax ([((args args-type) ...) (map parse-arg-type #'(args ...))]
-                            [ (ret-type b b* ...) (parse-return-type-body #'(b b* ...))])
+              (with-syntax ([((args args-type) ...) (map parse-arg-type #'(args ...))])
                 (with-syntax ((this (datum->syntax #'name 'this))
                               ((type-fld ...) flds)
                               ((type-meth ...) mths)
@@ -103,7 +102,7 @@ See docs/license.txt. |#
                                                      (list #'struct-mutator #'type f))
                                                    flds))
                               ((xargs ...)    (generate-temporaries #'(args ...))))
-                  #'(define: (name (this : type) (xargs : args-type) ...) : ret-type
+                  #'(define: (name (this : type) (xargs : args-type) ... -> ret-type)
                       (when (null? this)
                         (assertion-violation 'name "instance cannot be null"))
                       (let-syntax ((type-fld (identifier-syntax [_ (type-get this)]
