@@ -22,6 +22,9 @@ See docs/license.txt. |#
                       (r (parse-type #'r)))
           #'(IronScheme.Runtime.Typed.TypedClosure a ... r))]
       [(t a ...) ; generic type
+        (identifier? #'t) 
         (with-syntax (((a ...) (map parse-type #'(a ...))))
           #'(t a ...))]
-      [t #'t])))    
+      [t 
+        (identifier? #'t)
+        #'t])))    
