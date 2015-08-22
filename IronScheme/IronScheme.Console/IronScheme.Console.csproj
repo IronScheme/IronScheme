@@ -780,6 +780,9 @@
     <None Include="nuget\libs\as-match.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="nuget\libs\ironscheme.typed.language.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="nuget\libs\fectors.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

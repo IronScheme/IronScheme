@@ -64,7 +64,10 @@ See docs/license.txt. |#
     
     (ironscheme debugger))
   #f)
-
+  
+(let ()
+  (import (ironscheme typed language))
+  #f)
 
 (let () 
   (include "system-libraries.srfi.ss")
