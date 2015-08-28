@@ -518,7 +518,7 @@ See docs/license.txt. |#
            (num  (abs num))
            (out  (let f ((num num)(a '()))
                    (if (zero? num)
-                       (apply string a)
+                       (clr-call Object ToString (apply string a)) ;; string proc returns a mutable string
                        (f (div num radix)
                           (cons (hex-char (mod num radix)) a))))))
        (if neg?
