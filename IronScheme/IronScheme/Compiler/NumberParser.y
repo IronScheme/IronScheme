@@ -82,11 +82,12 @@ static object Fraction(object num, object den)
 }
 
 internal object exactr;
+bool wantexact = false;
 
 object ConvertToDouble(string s)
 {
   exactr = null;
-  object r = Helper.ParseReal(s);
+  object r = Helper.ParseReal(s, wantexact);
   if (r != null)
   {
     exactr = r;
@@ -145,8 +146,8 @@ naninf    : NANINF          { $$ = $1.text == "nan.0" ? double.NaN : double.Posi
           ;          
 
 exactness : /* empty */     { $$ = null; }
-          | EXACT           { $$ = true; }
-          | INEXACT         { $$ = false; }
+          | EXACT           { $$ = wantexact = true; }
+          | INEXACT         { $$ = wantexact = false; }
           ;
 
 suffix    : /* empty */                 { $$ = string.Empty; }

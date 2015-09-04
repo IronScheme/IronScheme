@@ -42,30 +42,29 @@ namespace IronScheme.Compiler
 
     static readonly Regex expnum = new Regex(@"^(?<head>-?((\d+\.?)|(\d*\.\d+)))e(?<tail>-?\d+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
-    public static object ParseReal(string s)
+    public static object ParseReal(string s, bool exact)
     {
-      Match m = expnum.Match(s);
-      if (m.Success)
+      if (exact)
       {
-        string head = m.Groups["head"].Value;
-        string tail = m.Groups["tail"].Value;
-
-        object hnum = Builtins.StringToNumber(head);
-
-        if (hnum is double)
+        Match m = expnum.Match(s);
+        if (m.Success)
         {
-          // can't use process below as 1e11 onwards gets precision loss
-          return Convert.ToDouble(s, CultureInfo.InvariantCulture);
+          string head = m.Groups["head"].Value;
+          string tail = m.Groups["tail"].Value;
+
+          object hnum = Builtins.StringToNumber(head);
+
+          if (hnum is double)
+          {
+            // can't use process below as 1e11 onwards gets precision loss
+            return Convert.ToDouble(s, CultureInfo.InvariantCulture);
+          }
+
+          object tnum = Builtins.StringToNumber(tail);
+          return Builtins.Multiply(hnum, Expt10(tnum));
         }
-
-        object tnum = Builtins.StringToNumber(tail);
-
-        return Builtins.Multiply(hnum, Expt10(tnum));
       }
-      else
-      {
-        return null;
-      }
+      return null;
     }
 
     readonly static BigInteger TEN = 10;
