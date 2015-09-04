@@ -55,11 +55,11 @@ static int GetNum(string s)
   return int.MaxValue;
 }
 
-object ApplyExactness(bool? exact, object num)
+static object ApplyExactness(bool? exact, object num)
 {
   if (exact == null)
   {
-    return (exactr != null) ? Builtins.Inexact(num) : num;
+    return num;
   }
   return exact.Value ? Builtins.Exact(num) : Builtins.Inexact(num);
 }
@@ -81,16 +81,13 @@ static object Fraction(object num, object den)
   }
 }
 
-internal object exactr;
 bool wantexact = false;
 
 object ConvertToDouble(string s)
 {
-  exactr = null;
   object r = Helper.ParseReal(s, wantexact);
   if (r != null)
   {
-    exactr = r;
     return r;
   }
   try

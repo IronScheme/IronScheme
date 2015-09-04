@@ -40,7 +40,7 @@ namespace IronScheme.Compiler
       }
     }
 
-    static readonly Regex expnum = new Regex(@"^(?<head>-?((\d+\.?)|(\d*\.\d+)))e(?<tail>-?\d+)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+    static readonly Regex expnum = new Regex(@"^(?<head>-?((\d+\.?)|(\d*\.\d+)))(e(?<tail>-?\d+))?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
     public static object ParseReal(string s, bool exact)
     {
@@ -52,15 +52,30 @@ namespace IronScheme.Compiler
           string head = m.Groups["head"].Value;
           string tail = m.Groups["tail"].Value;
 
+          if (tail == string.Empty)
+          {
+            tail = "0";
+          }
+
           object hnum = Builtins.StringToNumber(head);
+          int tnum = (int) Builtins.StringToNumber(tail);
 
           if (hnum is double)
           {
-            // can't use process below as 1e11 onwards gets precision loss
-            return Convert.ToDouble(s, CultureInfo.InvariantCulture);
-          }
+            // get rid of decimal point
+            double h = (double)hnum;
+            int i = 0;
+            do
+            {
+              h *= 10;
+              i++;
+            }
+            while (h % 1 != 0); // test is 'ok' but not really correct
 
-          object tnum = Builtins.StringToNumber(tail);
+            hnum = Builtins.Exact(h); // might be a bignum
+            tnum -= i;
+          }
+          
           return Builtins.Multiply(hnum, Expt10(tnum));
         }
       }
@@ -76,27 +91,6 @@ namespace IronScheme.Compiler
         return new Fraction(1, BigInteger.Pow(10, (uint)-tnum));
       }
       return BigInteger.Pow(TEN, (uint)tnum);
-    }
-
-    static object Expt10(object tnum)
-    {
-      if (tnum is int)
-      {
-        return Expt10((int)tnum);
-      }
-      else if (tnum is BigInteger)
-      {
-        return Expt10((int)(BigInteger)tnum);
-      }
-      else if (tnum is double)
-      {
-        return Math.Pow(10, (double)tnum);
-      }
-      else
-      {
-        // we're fucked.
-        return null;
-      }
     }
 
     static readonly Regex escapes = new Regex(@"\\(([ntr\\""])|(x[\da-f]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
