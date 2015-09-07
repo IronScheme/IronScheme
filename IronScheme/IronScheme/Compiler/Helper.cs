@@ -58,7 +58,8 @@ namespace IronScheme.Compiler
           }
 
           object hnum = Builtins.StringToNumber(head);
-          int tnum = (int) Builtins.StringToNumber(tail);
+          // this cant get bigger than 32 bit, else we would be dead already
+          int tnum = (int) Builtins.StringToNumber(tail); 
 
           if (hnum is double)
           {

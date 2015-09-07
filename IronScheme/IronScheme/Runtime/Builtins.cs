@@ -320,7 +320,14 @@ namespace IronScheme
     {
       get
       {
-        return Path.GetDirectoryName(typeof(Builtins).Assembly.CodeBase.Replace("file:///","")).Replace("file:\\", "").Replace("file:", "");
+        var loc = typeof(Builtins).Assembly.CodeBase;
+        //Replace("file:///","") breaks on Mono...
+        if (!IsMono)
+        {
+          loc = loc.Replace("file:///","");
+        }
+
+        return Path.GetDirectoryName(loc.Replace("file:\\", "").Replace("file:", ""));
       }
     }
 
