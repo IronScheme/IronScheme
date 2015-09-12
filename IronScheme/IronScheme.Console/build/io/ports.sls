@@ -206,7 +206,6 @@ See docs/license.txt. |#
   (clr-using System)
   (clr-using System.IO)
   (clr-using System.Text)
-  ;(clr-using System.Text.RegularExpressions)
   (clr-using IronScheme.Runtime)  
   (clr-using IronScheme.Runtime.R6RS)
   (clr-using IronScheme.Runtime.psyntax)
@@ -293,36 +292,12 @@ See docs/license.txt. |#
   (define (string-replace str old new)
     (clr-call String (Replace String String) str old new))
     
-  ;(define (match-value m)
-    ;(clr-prop-get Group Value m))
-    
   (define (has-preamble? bv)
     (let ((b0 ($bytevector-ref bv 0))
           (b1 ($bytevector-ref bv 1)))
       ($or? ($and? ($fx=? b0 #xff) ($fx=? b1 #xfe))
             ($and? ($fx=? b0 #xfe) ($fx=? b1 #xff)))))
-#|
-  (define/contract (bytevector->string bv:bytevector tc:transcoder)
-    (let ((l (bytevector-length bv)))
-      (let-values (((s c) (if (and (> l 1) (has-preamble? bv))
-                              (values 2 (- l 2))
-                              (values 0 l))))
-        (let ((value (clr-call Encoding GetString (transcoder-codec tc) bv s c))
-              (eol   (transcoder-eol-style tc)))
-          (if (eq? 'none eol)
-              (string-replace value "\r" "")
-              (regex-replace eoltx 
-                             value
-                             (lambda (m)
-                               (get-newline 
-                                  eol
-                                  (match-value m)))))))))
-            
 
-  (define/contract (string->bytevector str:string tc:transcoder)
-    ())
-|#
-  
   (define/contract (port-transcoder port:port) 
     (cond
       [(clr-is TranscodedReader port)

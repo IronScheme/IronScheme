@@ -26,22 +26,4 @@ See docs/license.txt. |#
     (clr-is RecordTypeDescriptor obj))
     
   (define (record-constructor-descriptor? obj)
-    (clr-is RecordConstructorDescriptor obj))
-    
-  #|  
-  (define/contract (record-predicate rtd:record-type-descriptor)
-    (clr-prop-get RecordTypeDescriptor Predicate rtd))       
-
-  (define/contract (record-accessor rtd:record-type-descriptor k)
-    (clr-prop-get FieldDescriptor 
-                  Accessor 
-                  ($vector-ref (clr-prop-get RecordTypeDescriptor Fields rtd) 
-                               k)))       
-
-  (define/contract (record-mutator rtd:record-type-descriptor k)
-    (clr-prop-get FieldDescriptor 
-                  Mutator 
-                  ($vector-ref (clr-prop-get RecordTypeDescriptor Fields rtd) 
-                               k)))       
- |#   
-)
+    (clr-is RecordConstructorDescriptor obj)))
