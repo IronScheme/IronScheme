@@ -33,7 +33,7 @@ See docs/license.txt. |#
   (define inexact->exact exact)    
   (define exact->inexact inexact)
     
-  (define/contract (sign n:real)
+  (define (sign n)
     (cond 
       [(> n 0) 1]
       [(< n 0) -1]
