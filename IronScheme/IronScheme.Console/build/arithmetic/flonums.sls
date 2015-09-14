@@ -255,7 +255,7 @@ See docs/license.txt. |#
     (let* ((d (fldiv* x1 x2))
            (m ($fl- x1 ($fl* d x2))))
       (cond 
-        [($fl<? m (magnitude ($fl/ x2 2.0))) d]
+        [($fl<? m (flabs* ($fl/ x2 2.0))) d]
         [($fl<? 0.0 x2) ($fl+ d 1.0)]
         [else ($fl- d 1.0)])))
       
@@ -356,7 +356,7 @@ See docs/license.txt. |#
   (define-fl (flround fl)
     (clr-static-call Math (Round Double) fl))    
     
-  (define-fl (flabs fl)
+  (define-fl* (flabs fl)
     (clr-static-call Math (Abs Double) fl)) 
     
   (define-fl (flpositive? r)
