@@ -76,6 +76,8 @@ namespace IronScheme.Compiler
 
       Optimize<TCE>(cb);
       Optimize<FlattenBodies>(cb);
+      Optimize<TCE>(cb); // seems to get a few extra
+      Optimize<FlattenBodies>(cb);
 
       //Optimize<MarkUnspecifiedProcedureReturns>(cb);
 
