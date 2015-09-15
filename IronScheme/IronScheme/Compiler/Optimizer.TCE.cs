@@ -111,6 +111,7 @@ namespace IronScheme.Compiler
           var = null;
           // this could possibly removed if the label can be moved before the environment is allocated
           if (Current.HasEnvironment) return false;
+          // i think this is to check if it is a return?
           if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           if (mce.Arguments.Count > 8) return false;

@@ -78,7 +78,7 @@ namespace IronScheme.Compiler
         protected override bool Walk(ReturnStatement node)
         {
           Variable var;
-          var mce = node.Expression as MethodCallExpression;
+          var mce = Unwrap(node.Expression) as MethodCallExpression;
           if (mce != null && IsGood(mce, out var))
           {
             if (!callsites.ContainsKey(var))
@@ -97,13 +97,15 @@ namespace IronScheme.Compiler
         bool IsGood(MethodCallExpression mce, out Variable var)
         {
           var = null;
-          if (!mce.TailCall) return false;
+          // Am I needed?
+          //if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           var i = Unwrap(mce.Instance);
           if (!typeof(Callable).IsAssignableFrom(i.Type)) return false;
           var be = i as BoundExpression;
           if (be == null) return false;
           var = be.Variable;
+
           return true;
         }
 
@@ -151,7 +153,7 @@ namespace IronScheme.Compiler
           CodeBlockExpression cbe;
           Variable var;
 
-          var mce = node.Expression as MethodCallExpression;
+          var mce = Unwrap(node.Expression) as MethodCallExpression;
           if (mce != null && IsHoistable(mce, out cbe, out var))
           {
             var inlinedexpr = InlineCall(Current, cbe, mce.Arguments.ToArray());
@@ -168,8 +170,9 @@ namespace IronScheme.Compiler
         {
           cbe = null;
           var = null;
-          
-          if (!mce.TailCall) return false;
+
+          // Am I needed?
+          //if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           var i = Unwrap(mce.Instance);
           if (!typeof(Callable).IsAssignableFrom(i.Type)) return false;
