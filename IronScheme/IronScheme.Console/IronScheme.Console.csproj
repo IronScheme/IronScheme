@@ -666,6 +666,9 @@
     <None Include="IronScheme.TFS.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\ironscheme\typed\fixnums.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\ironscheme\typed\language.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
