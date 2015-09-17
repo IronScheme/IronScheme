@@ -1616,6 +1616,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="playground\bw.sps" />
+    <None Include="playground\foo2.sls" />
     <None Include="playground\foo.sls" />
     <None Include="playground\linq3.sls">
     </None>

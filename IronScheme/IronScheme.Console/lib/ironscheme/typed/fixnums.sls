@@ -117,21 +117,17 @@ See docs/license.txt. |#
       fxreverse-bit-field    
       fxadd1
       fxsub1))
-
         
   (define-syntax define-fx
     (lambda (x)
       (define (pred? name)
         (clr-call String EndsWith (symbol->string (syntax->datum name)) "?"))
-      (syntax-case x (check)
-        [(_ (name formals ...) (check c ...) body body* ...)
+      (syntax-case x ()
+        [(_ (name formals ...) body body* ...)
           (with-syntax (((type ...) (map (lambda (x) (datum->syntax x 'Int32)) #'(formals ...)))
                         (ret-type (datum->syntax #'name (if (pred? #'name) 'Boolean 'Int32))))
             #'(define: (name (formals : type) ... -> ret-type)
-                c ... 
-                body body* ...))]
-        [(_ (name formals ...) body body* ...)
-          #'(define-fx (name formals ...) (check) body body* ...)])))
+                body body* ...))])))
 
   (define-fx (fixnum-width) 32)
   
@@ -247,7 +243,9 @@ See docs/license.txt. |#
   (define-fx (fxmod x1 x2)
     ($fx- 0 ($fx- ($fx* (fxdiv x1 x2) x2) x1)))
 
-  (define-fx (fxdiv-and-mod x1 x2)
+  ;; untyped
+  (define (fxdiv-and-mod x1 x2)
+    (import (rnrs))
     (let ((d (fxdiv x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1))))) 
 
@@ -268,8 +266,9 @@ See docs/license.txt. |#
     
   (define-fx (fxmod0 x1 x2)
     ($fx- 0 ($fx- ($fx* (fxdiv0 x1 x2) x2) x1)))
-    
-  (define-fx (fxdiv0-and-mod0 x1 x2)
+  
+  ;; untyped
+  (define (fxdiv0-and-mod0 x1 x2)
     (let ((d (fxdiv0 x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1)))))
       
@@ -300,7 +299,7 @@ See docs/license.txt. |#
 
   (define-fx (fxcopy-bit fx1 fx2 fx3)
     (fxif ($fxarithmetic-shift-left 1 fx2)
-      ($fxarithmetic-shift-left ($fxand fx3 1) fx2) fx1))
+      ($fxarithmetic-shift-left fx3 fx2) fx1))
   
   (define-fx (fxbit-field fx1 fx2 fx3)
     ($fxarithmetic-shift-right 

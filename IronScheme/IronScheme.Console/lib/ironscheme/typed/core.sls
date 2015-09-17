@@ -21,6 +21,9 @@ See docs/license.txt. |#
     (ironscheme clr) 
     (ironscheme syntax utils))
 
+  ;; TODO: figure out how to deal with varargs (hint: need generic reocrd types)
+  ;; TODO: add do: derivative (maybe not? seems to compose well in the presense of type hints)
+  
   ;; TODO: Add case-lambda version (maybe not?)
   (define-syntax define:
     (lambda (x)
