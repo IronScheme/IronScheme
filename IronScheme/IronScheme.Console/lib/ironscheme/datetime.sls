@@ -209,7 +209,7 @@ See docs/license.txt. |#
     (with-syntax ([str (format "~a" (syntax->datum #'expr))])
       #'(let ((sw (make-stopwatch)))
          (stopwatch-start sw)
-         (let: f ((i : fixnum 0))
+         (let: f (((i : fixnum) 0))
            (cond 
             [($fx=? i iters)
                (stopwatch-stop sw)
