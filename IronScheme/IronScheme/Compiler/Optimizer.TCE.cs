@@ -69,7 +69,7 @@ namespace IronScheme.Compiler
         protected override bool Walk(ReturnStatement node)
         {
           Variable var;
-          var mce = node.Expression as MethodCallExpression;
+          var mce = Unwrap(node.Expression) as MethodCallExpression;
           if (mce != null && IsTCE(mce, out var))
           {
             if (!(Current.Body is LabeledStatement))
@@ -112,7 +112,7 @@ namespace IronScheme.Compiler
           // this could possibly removed if the label can be moved before the environment is allocated
           if (Current.HasEnvironment) return false;
           // i think this is to check if it is a return?
-          if (!mce.TailCall) return false;
+          //if (!mce.TailCall) return false;
           if (mce.Instance == null) return false;
           if (mce.Arguments.Count > 8) return false;
           var i = Unwrap(mce.Instance);
