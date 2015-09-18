@@ -54,7 +54,14 @@ namespace Microsoft.Scripting.Generation {
         public override void EmitSet(CodeGen cg) {
             Contract.RequiresNotNull(cg, "cg");
             Debug.Assert(cg == this._codeGen);
-            cg.Emit(OpCodes.Starg, _index);
+            if (_index < byte.MaxValue)
+            {
+              cg.Emit(OpCodes.Starg_S, (byte)_index);
+            }
+            else
+            {
+              cg.Emit(OpCodes.Starg, (short)_index);
+            }
         }
 
         public override Type Type {
