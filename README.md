@@ -13,7 +13,4 @@ Building
 3. Set startup project as `IronScheme.Console`
 4. Set the solution profile to `Release` (optional, but recommended)
 
-Notes
-=====
 
-- The CLR 4 debugger is rather slow. Recommended to stick to CLR 2 .NET versions.
