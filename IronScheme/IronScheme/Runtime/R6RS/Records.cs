@@ -518,6 +518,24 @@ namespace IronScheme.Runtime.R6RS
   {
     static readonly Dictionary<string, RecordTypeDescriptor> nongenerative = new Dictionary<string, RecordTypeDescriptor>();
 
+    internal static void ClearTypesFrom(AssemblyGen ag)
+    {
+      var types = new List<String>();
+
+      foreach (var kvp in nongenerative)
+      {
+        if (kvp.Value.ag == ag)
+        {
+          types.Add(kvp.Key);
+        }
+      }
+
+      foreach (var rtd in types)
+      {
+        nongenerative.Remove(rtd);
+      }
+    }
+
     static Regex assnamefix = new Regex(@"[\\/:]", RegexOptions.Compiled);
 
     static string MakeSafe(Match m)
@@ -557,6 +575,8 @@ namespace IronScheme.Runtime.R6RS
         RecordTypeDescriptor ngrtd;
         if (nongenerative.TryGetValue(n + id, out ngrtd))
         {
+          // this is all nice and well, but when the caller is from a disk assembly, after it has been compiled, there will be a mismatch
+          // this is bit hard to check...
           return ngrtd;
         }
 

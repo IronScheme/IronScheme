@@ -117,6 +117,91 @@ namespace IronScheme.Compiler
       }
     }
 
+    //TODO: check why this does not work for bootfile...
+    class MarkNonRecursiveProcedures : OptimizerBase
+    {
+      public override void Optimize()
+      {
+        int changes = 0;
+
+        var returns = new Dictionary<CodeBlock, List<ReturnStatement>>();
+        Pass0 p0 = new Pass0 { Returns = returns };
+        p0.WalkNode(Root);
+
+        do
+        {
+          changes = 0;
+
+          foreach (var kv in returns)
+          {
+            var cb = kv.Key;
+            var retlist = kv.Value;
+
+            if (cb.DecorateWithNonRecursive)
+            {
+              continue;
+            }
+
+            var allgood = true;
+
+            foreach (var ret in retlist)
+            {
+              if (ret.Expression is MethodCallExpression)
+              {
+                var mce = (MethodCallExpression)ret.Expression;
+                if (mce.Instance is CodeBlockExpression && mce.Method.Name == "Invoke")
+                {
+                  var ii = mce.Instance as CodeBlockExpression;
+                  if (ii.Block.DecorateWithNonRecursive)
+                  {
+                    continue;
+                  }
+                }
+
+                if (mce.TailCall)
+                {
+                  allgood = false;
+                  break;
+                }
+
+                if (!(mce.Method is MethodBuilder) && Attribute.IsDefined(mce.Method, typeof(IronScheme.Runtime.NonRecursiveAttribute)))
+                {
+                  continue;
+                }
+              }
+
+            }
+
+            if (allgood && !cb.DecorateWithNonRecursive)
+            {
+              changes++;
+              cb.DecorateWithNonRecursive = true;
+            }
+          }
+        }
+        while (changes > 0);
+      }
+
+      class Pass0 : DeepWalker
+      {
+        internal Dictionary<CodeBlock, List<ReturnStatement>> Returns;
+
+        protected override void PostWalk(ReturnStatement node)
+        {
+          base.PostWalk(node);
+
+          List<ReturnStatement> retlist;
+
+          if (!Returns.TryGetValue(Current, out retlist))
+          {
+            Returns[Current] = retlist = new List<ReturnStatement>();
+          }
+
+          retlist.Add(node);
+        }
+      }
+    }
+
 
     class AnalyzeProcedureReturns : OptimizerBase
     {
@@ -156,7 +241,7 @@ namespace IronScheme.Compiler
                 // check for proc attribute class and defy if found, all will be tail called
                 if (ass.GlobalAssemblyCache || (!Attribute.IsDefined(type, typeof(ProcedureAttribute)) && !typeof(IModuleDictionaryInitialization).IsAssignableFrom(type)))
                 {
-                  // alway tail call delegates
+                  // always tail call delegates
                   if (type.BaseType != typeof(MulticastDelegate))
                   {
                     var pa = (ProcedureAttribute) Attribute.GetCustomAttribute(mce.Method, typeof(ProcedureAttribute));

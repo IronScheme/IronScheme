@@ -338,4 +338,7 @@ See docs/license.txt. |#
                 ($fxior ($fxarithmetic-shift-left rbits 1)
                         ($fxand bits 1))))
         (($fx=? width 0)
-         (fxcopy-bit-field x1 start end rbits)))))
+         (fxcopy-bit-field x1 start end rbits))))
+         
+         
+  #;(clr-static-call System.Diagnostics.Debugger Break))

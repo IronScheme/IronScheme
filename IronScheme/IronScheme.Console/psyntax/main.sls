@@ -178,7 +178,7 @@
       [(filename)
         (compile filename #f)]
       [(filename gen-wrapper?)
-        (compile filename gen-wrapper? #f)]        
+        (compile filename gen-wrapper? #t)]        
       [(filename gen-wrapper? constant-compression?)
         (with-guard
           (lambda ()
@@ -268,7 +268,10 @@
         (vector-set! v 10 `(lambda () ,(vector-ref v 10)))
         (vector-set! v 11 `',(vector-ref v 11))
         (vector-set! v 12 `',(vector-ref v 12))
-        (compile-library filename (compile-core-expr (cons 'list (vector->list v)))))))
+        (if (compile-library filename (cons 'list (vector->list v)))
+            (parameterize ((allow-library-redefinition #t))
+              (try-load-from-file libname filename))
+            #f))))
       
   (define (web-path-exists? url save-path)
     (if (string=? (substring url 0 5) "http:")

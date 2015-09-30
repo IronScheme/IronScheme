@@ -87,8 +87,6 @@ namespace IronScheme.Compiler
 
       Optimize<RemoveTemporaries>(cb); // for unreferenced loop variables
 
-      //Optimize<MarkUnspecifiedProcedureReturns>(cb);
-      Optimize<AnalyzeProcedureReturns>(cb); // this is too early too
 
       //Optimize<RemoveTemporaries>(cb);
       //Optimize<ConversionCSE>(cb);
@@ -96,6 +94,11 @@ namespace IronScheme.Compiler
       Optimize<FixupTypedClosureCallsites>(cb);
       Optimize<RemoveUselessConversions>(cb);
       Optimize<RemoveTemporaries>(cb);
+
+      //Optimize<MarkUnspecifiedProcedureReturns>(cb);
+      Optimize<MarkNonRecursiveProcedures>(cb);
+      Optimize<AnalyzeProcedureReturns>(cb); // this is too early too
+
     }
   }
 }

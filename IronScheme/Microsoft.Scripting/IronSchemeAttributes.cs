@@ -8,7 +8,7 @@ namespace IronScheme.Runtime
   }
 
   [AttributeUsage(AttributeTargets.Method)]
-  public sealed class RecursiveAttribute : Attribute
+  public sealed class NonRecursiveAttribute : Attribute
   {
   }
 

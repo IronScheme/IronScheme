@@ -57,8 +57,9 @@ namespace IronScheme.Runtime
         }
       }
 
-      var basedir = AppDomain.CurrentDomain.BaseDirectory;
+      var basedir = AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/");
 
+      // this is not quite right, but does kinda work right
       if (ShowImports)
       {
         if (!path.EndsWith("ironscheme.boot.dll"))
@@ -79,7 +80,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            if (path.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
+            if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
             {
               return Assembly.LoadFile(fn);
             }
@@ -91,8 +92,15 @@ namespace IronScheme.Runtime
         }
         else
         {
-          // remove the stale file
-          File.Delete(pdb);
+          try
+          {
+            // remove the stale file
+            File.Delete(pdb);
+          }
+          catch
+          {
+            //FUUUUUUUUUUUUUUUUU
+          }
         }
       }
 
@@ -102,7 +110,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        if (path.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
+        if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
         {
           return Assembly.LoadFile(fn);
         }
@@ -174,6 +182,8 @@ namespace IronScheme.Runtime
           {
 
             Assembly ext = AssemblyLoad(path, loadinmemory);
+            // now that it is loaded, make sure we remove compiletime types
+            IronScheme.Compiler.ClrGenerator.ClearTypesFrom(ext);
 
             foreach (Type t in ext.GetExportedTypes())
             {

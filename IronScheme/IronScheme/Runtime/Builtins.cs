@@ -503,7 +503,7 @@ namespace IronScheme
       }
       try
       {
-        var o = Load(filename, true);
+        var o = Load(filename, false);
         return o;
       }
       catch
@@ -624,9 +624,14 @@ namespace IronScheme
 
         ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(Path.GetFileNameWithoutExtension(filename as string), sc);
 
+        // clean up transient non-generative types, could maybe also have used AllowTransientBinding to check?
+        IronScheme.Runtime.R6RS.Records.ClearTypesFrom(Compiler.Generator.CurrentAssemblyGen);
+
         ScriptDomainManager.Options.AssemblyGenAttributes = aga;
 
         Compiler.SimpleGenerator.ClearGlobals();
+
+        
 
         return TRUE;
       }

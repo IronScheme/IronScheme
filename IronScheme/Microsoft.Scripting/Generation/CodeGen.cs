@@ -1288,7 +1288,7 @@ namespace Microsoft.Scripting.Generation {
       {
         Contract.RequiresNotNull(mi, "mi");
 
-        if (tailcall)
+        if (tailcall && ((mi is MethodBuilder) || !Attribute.IsDefined(mi, typeof(IronScheme.Runtime.NonRecursiveAttribute))))
         {
           Emit(OpCodes.Tailcall);
         }
@@ -2230,6 +2230,9 @@ namespace Microsoft.Scripting.Generation {
           return impl;
         }
 
+        static readonly ConstructorInfo NRC = typeof(IronScheme.Runtime.NonRecursiveAttribute).GetConstructor(Type.EmptyTypes);
+        static readonly CustomAttributeBuilder CAB = new CustomAttributeBuilder(NRC, new object[0]);
+
         /// <summary>
         /// Returns the CodeGen implementing the code block.
         /// Emits the code block implementation if it hasn't been emitted yet.
@@ -2289,18 +2292,24 @@ namespace Microsoft.Scripting.Generation {
                 _codeBlockStubsN.Remove(block);
               }
 
-              block.EmitFunctionImplementation(impl);
+              // do attributes, needs to be done before method body else there is a heavy performance penalty when calling CreateType.
+              if (block.DecorateWithNonRecursive)
+              {
+                var mb = impl.MethodBase as MethodBuilder;
+                mb.SetCustomAttribute(CAB);
+              }
 
               // add custom attributes to method
-              //if (block.DecorateWithUnspecifiedReturn)
-              //{
-              //  var mb = impl.MethodBase as MethodBuilder;
-              //  mb.SetCustomAttribute(typeof(IronScheme.Runtime.UnspecifiedReturnAttribute).GetConstructor(Type.EmptyTypes), new byte[0]);
-              //}
+              /*
+              if (block.DecorateWithUnspecifiedReturn)
+              {
+                var mb = impl.MethodBase as MethodBuilder;
+                mb.SetCustomAttribute(typeof(IronScheme.Runtime.UnspecifiedReturnAttribute).GetConstructor(Type.EmptyTypes), new byte[0]);
+              }*/
+
+              block.EmitFunctionImplementation(impl);
 
               impl.Finish();
-
-
             }
             else
             {

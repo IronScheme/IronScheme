@@ -63,6 +63,7 @@ namespace Microsoft.Scripting.Ast {
         private int _generatorTemps;
 
         public bool DecorateWithUnspecifiedReturn { get; set; }
+        public bool DecorateWithNonRecursive { get; set; }
 
         private bool _isClosure;
         private bool _hasEnvironment;

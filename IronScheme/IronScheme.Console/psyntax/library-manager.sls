@@ -20,12 +20,12 @@
 
 (library (psyntax library-manager)
   (export imported-label->binding library-subst installed-libraries
-    visit-library library-name library-version library-exists?
+    visit-library library-name library-version library-exists? try-load-from-file
     find-library-by-name install-library library-spec invoke-library 
     current-library-expander uninstall-library file-locator library-name->file-name
     current-library-collection library-path library-extensions alternative-file-locator
     serialize-all current-precompiled-library-loader allow-library-redefinition)
-  (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format))
+  (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format printf))
   
   (define (make-collection)
     (let ((set '()))
@@ -176,6 +176,8 @@
     (for-each 
       (lambda (x)
         (when (library-source-file-name x) 
+          (for-each (lambda (x) (invoke-library (find-library-by-name (library-name x))))
+            (library-inv* x))
           (serialize 
             (library-name x)
             (list (library-id x) 
@@ -191,7 +193,7 @@
                   (compile (library-guard-code x))
                   (map library-desc (library-guard-req* x))
                   (library-visible? x)))))
-      ((current-library-collection))))
+      (reverse ((current-library-collection)))))
 
   (define current-precompiled-library-loader
     (make-parameter (lambda (libname filename sk) #f)))
@@ -222,10 +224,10 @@
                  (library-stale-warning name filename)
                  #f]
                 [else
-              (install-library id name ver imp* vis* inv* 
-                exp-subst exp-env visit-proc invoke-proc 
-                   #f #f #f '() visible? #f)
-                 #t]))
+                  (install-library id name ver imp* vis* inv* 
+                    exp-subst exp-env visit-proc invoke-proc 
+                       #f #f #f '() visible? #f)
+                  #t]))
              (else
               (let ((d (car deps))) 
                 (let ((label (car d)) (dname (cadr d))) 

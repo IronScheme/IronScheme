@@ -2,8 +2,8 @@
   (export run)
   (import 
     (except (ironscheme) define + - < = time fx+ fx- fx<? fx=?) 
-    (ironscheme typed) 
-    (ironscheme syntax) 
+    (ironscheme typed core) 
+    (ironscheme syntax shorthand) 
     (only (ironscheme datetime) measure)
     (rename (only (ironscheme typed fixnums) fx+ fx- fx<? fx=?)
         (fx+   +)
@@ -11,7 +11,7 @@
         (fx<?  <)
         (fx=?  =)))
 
-  (define-syntax-case (define (name arg ...) body ...)
+  (define-syntax-rule (define (name arg ...) body ...)
     #'(define: (name (arg : fixnum) ... -> fixnum)
         body ...))
                 

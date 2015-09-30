@@ -12,12 +12,14 @@ isc -debug ironscheme-buildscript.sps
 isc -debug ironscheme-buildscript.sps
 peverify /nologo /ignore=0x80131820 ironscheme.boot.dll
 @IF %ERRORLEVEL% NEQ 0 exit /b 1
+FOR /F %%f IN ('type libraries.lst') DO @del %%f
 isc -debug compile-system-libraries.sps
 ren lib lib.hide
 isc -debug compile-system-libraries.sps
 FOR /F %%F IN ('type libraries.lst') DO @del %%~pnF.pdb
 ren lib.hide lib
 isc ironscheme-buildscript.sps
+FOR /F %%f IN ('type libraries.lst') DO @del %%f
 isc compile-system-libraries.sps
 call run-tests.bat
 call srfitest.bat

@@ -13,6 +13,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using System.IO;
+using System.Reflection.Emit;
 
 namespace IronScheme.Compiler
 {
@@ -42,6 +43,17 @@ namespace IronScheme.Compiler
     public static void RemoveCompileTimeType(Type t)
     {
       compiletimetypes.Remove(t.FullName);
+    }
+
+    public static void ClearTypesFrom(Assembly ass)
+    {
+      foreach (var type in ass.GetExportedTypes())
+      {
+        if (compiletimetypes.ContainsKey(type.FullName))
+        {
+          compiletimetypes.Remove(type.FullName);
+        }
+      }
     }
 
     public static object SaveReferences()
@@ -77,10 +89,13 @@ namespace IronScheme.Compiler
 
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
-        t = ass.GetType(name);
-        if (t != null)
+        if (!(ass is AssemblyBuilder))
         {
-          return t;
+          t = ass.GetType(name);
+          if (t != null)
+          {
+            return t;
+          }
         }
       }
       return null;

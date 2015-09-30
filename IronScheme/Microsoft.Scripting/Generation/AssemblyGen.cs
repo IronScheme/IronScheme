@@ -118,7 +118,7 @@ namespace Microsoft.Scripting.Generation {
                 }
                 asmname.Version = new Version("1.0.0.0");
 #pragma warning disable 0618
-                _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.RunAndSave, outDir, null);
+                _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.Save, outDir, null);
 #pragma warning restore 0618
               
                 _myModule = _myAssembly.DefineDynamicModule( moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName,
@@ -242,17 +242,8 @@ namespace Microsoft.Scripting.Generation {
             byte[] ass = File.ReadAllBytes(fullPath);
             string pdbfn = Path.ChangeExtension(fullPath, ".pdb");
 
-            if (File.Exists(pdbfn))
-            {
-              byte[] pdb = File.ReadAllBytes(pdbfn);
-
-              return Assembly.Load(ass, pdb);
-            }
-            else
-            {
-
-              return Assembly.Load(ass);
-            }
+            // this is not really ideal, but it seems to work fine for now
+            return Assembly.LoadFile(fullPath);
 #endif
         }
 
