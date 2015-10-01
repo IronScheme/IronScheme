@@ -137,6 +137,13 @@
     <Compile Include="Runtime\R6RS\IO.cs" />
     <Compile Include="Runtime\R6RS\Hashtables.cs" />
     <Compile Include="Runtime\R6RS\Records.cs" />
+    <Compile Include="Runtime\Reflection\BackingFieldResolver.cs" />
+    <Compile Include="Runtime\Reflection\ByteBuffer.cs" />
+    <Compile Include="Runtime\Reflection\Disassembler.cs" />
+    <Compile Include="Runtime\Reflection\ILPattern.cs" />
+    <Compile Include="Runtime\Reflection\Image.cs" />
+    <Compile Include="Runtime\Reflection\Instruction.cs" />
+    <Compile Include="Runtime\Reflection\MethodBodyReader.cs" />
     <Compile Include="Runtime\SchemeDebugger.cs" />
     <Compile Include="Runtime\SchemeException.cs" />
     <Compile Include="Runtime\TraceClosure.cs" />
