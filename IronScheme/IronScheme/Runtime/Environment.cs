@@ -10,11 +10,104 @@ using System.IO;
 using System.Text;
 using Microsoft.Scripting;
 using System.Threading;
+using System.Reflection;
 
 namespace IronScheme.Runtime
 {
   public partial class Builtins
   {
+    [Builtin]
+    public static object Disassemble(object proc)
+    {
+      return Disassemble(proc, FALSE);
+    }
+
+    [Builtin]
+    public static object Disassemble(object proc, object argcount)
+    {
+      if (proc is Closure)
+      {
+        var c = RequiresNotNull<Closure>(proc);
+        var st = c.Targets;
+        var vt = c.VarargTargets;
+        var tc = st.Length + vt.Length;
+        // implies case closure
+        if (tc > 1)
+        {
+          // check for valid arg count
+          if (argcount != FALSE)
+          {
+            int ac = Requires<int>(argcount);
+            // now figure out what can be used...
+
+            foreach (var m in st)
+            {
+              if (m.GetParameters().Length == ac)
+              {
+                return DisassembleMethod(m);
+              }
+            }
+
+            foreach (var m in vt)
+            {
+              if (m.GetParameters().Length <= ac - 1)
+              {
+                return DisassembleMethod(m);
+              }
+            }
+
+            return Builtins.AssertionViolation("disassemble", "procedure ambiguation failed", proc, argcount);
+          }
+          else
+          {
+            return Builtins.AssertionViolation("disassemble", "procedure ambiguation requires an argument count parameter", proc);
+          }
+        }
+        else if (tc == 0)
+        {
+          return Builtins.AssertionViolation("disassemble", "not possible on procedure", proc);
+        }
+
+        if (st.Length == 1)
+        {
+          return DisassembleMethod(st[0]);
+        }
+        else
+        {
+          return DisassembleMethod(vt[0]);
+        }
+      }
+      else
+      {
+        return Builtins.AssertionViolation("disassemble", "builtin procedures not supported, consult the source code", proc);
+      }
+    }
+
+    static object DisassembleMethod(MethodInfo meth)
+    {
+      Console.WriteLine(meth);
+
+      var locals = meth.GetMethodBody().LocalVariables;
+
+      if (locals.Count > 0)
+      {
+        Console.WriteLine(".locals init (");
+       
+        foreach (var l in locals)
+        {
+          Console.WriteLine("  {0}", l);
+        }
+
+        Console.WriteLine(")");
+      }
+
+      foreach (var inst in Reflection.Disassembler.GetInstructions(meth))
+      {
+        Console.WriteLine(inst);
+      }
+      return Unspecified;
+    }
+
     [Builtin]
     public static object UnGenSym(object symbol)
     {

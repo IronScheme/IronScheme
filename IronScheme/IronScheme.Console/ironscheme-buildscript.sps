@@ -1252,6 +1252,8 @@
     (cosh                                       i)
     (tanh                                       i)
     
+    (disassemble                                i)
+    
     (read-annotated                             ir)
     (annotation?                                ir)
     (annotation-expression                      ir)
