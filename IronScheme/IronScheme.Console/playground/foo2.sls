@@ -12,11 +12,11 @@
         (fx=?  =)))
 
   (define-syntax-rule (define (name arg ...) body ...)
-    #'(define: (name (arg : fixnum) ... -> fixnum)
+    (define: (name (arg : fixnum) ... -> fixnum)
         body ...))
-                
+      
   (define-syntax-rule (time expr)
-    (measure 100 expr))
+    (measure 1000 expr))
 
   (define (ack m n)
     (cond
