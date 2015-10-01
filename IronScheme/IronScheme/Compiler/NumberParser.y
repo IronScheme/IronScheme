@@ -92,7 +92,13 @@ object ConvertToDouble(string s)
   }
   try
   {
-    return Convert.ToDouble(s, System.Globalization.CultureInfo.InvariantCulture);
+    double d;
+    if (RealParser.TryParseDouble(s, out d))
+    {
+      return d;
+    }
+    return double.PositiveInfinity;
+    //return  Convert.ToDouble(s, System.Globalization.CultureInfo.InvariantCulture);
   }
   catch (OverflowException)
   {

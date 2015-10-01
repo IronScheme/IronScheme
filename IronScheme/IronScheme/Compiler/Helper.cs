@@ -297,6 +297,7 @@ namespace IronScheme.Compiler
 
     static double SafeConvert(object obj1)
     {
+      System.Diagnostics.Trace.Assert(!(obj1 is string));
       return Convert.ToDouble(obj1);
     }
 

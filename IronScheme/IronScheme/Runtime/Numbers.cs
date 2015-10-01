@@ -594,6 +594,7 @@ namespace IronScheme.Runtime
             return (double)AssertionViolation(GetCaller(), "no conversion to real possible", obj);
           }
         }
+        System.Diagnostics.Trace.Assert(!(obj is string));
         return Convert.ToDouble(obj, CultureInfo.InvariantCulture);
       }
       catch (OverflowException)
