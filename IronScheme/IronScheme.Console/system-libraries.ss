@@ -68,6 +68,11 @@ See docs/license.txt. |#
 (let ()
   (import (ironscheme typed language))
   #f)
+  
+(let ()
+  (import (ironscheme typed fixnums))
+  #f)
+  
 
 (let () 
   (include "system-libraries.srfi.ss")
