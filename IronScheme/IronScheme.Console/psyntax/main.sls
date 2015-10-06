@@ -248,26 +248,38 @@
                          (current-error-port))
                 #f))
           #f)))
+  
+   (define (can-prune? subst env)
+     (not 
+      (exists 
+        (lambda (s) 
+          (exists 
+            (lambda (e) 
+              (and (eq? (car e) (cdr s))
+                   (eq? (cadr e) 'global-macro))) 
+            env)) 
+        subst)))  
                     
   (define (compile-dll libname content)
     (let ((filename (library-name->dll-name libname)))
       (display "compiling ")
       (display (relative-filename filename))
       (newline)
-      (let ((v (list->vector content)))
-        (vector-set! v 0 `',(vector-ref v 0))
-        (vector-set! v 1 `',(vector-ref v 1))
-        (vector-set! v 2 `',(vector-ref v 2))
-        (vector-set! v 3 `',(vector-ref v 3))
-        (vector-set! v 4 `',(vector-ref v 4))
-        (vector-set! v 5 `',(vector-ref v 5))
-        (vector-set! v 6 `',(vector-ref v 6))
-        (vector-set! v 7 `',(vector-ref v 7))
-        (vector-set! v 8 `(lambda () ,(vector-ref v 8)))
-        (vector-set! v 9 `(lambda () ,(vector-ref v 9)))
-        (vector-set! v 10 `(lambda () ,(vector-ref v 10)))
-        (vector-set! v 11 `',(vector-ref v 11))
-        (vector-set! v 12 `',(vector-ref v 12))
+      (let* ((v (list->vector content))
+             (prune? (can-prune? (vector-ref v 6) (vector-ref v 7))))
+        (vector-set! v 0 `',(vector-ref v 0)) ; id
+        (vector-set! v 1 `',(vector-ref v 1)) ; name
+        (vector-set! v 2 `',(vector-ref v 2)) ; version
+        (vector-set! v 3 `',(vector-ref v 3)) ; imp*
+        (vector-set! v 4 `',(vector-ref v 4)) ; vis*
+        (vector-set! v 5 `',(vector-ref v 5)) ; inv*
+        (vector-set! v 6 `',(vector-ref v 6)) ; subst
+        (vector-set! v 7 `',(vector-ref v 7)) ; env
+        (vector-set! v 8 `(lambda () ,(if prune? #f (vector-ref v 8)))) ; visit-code
+        (vector-set! v 9 `(lambda () ,(vector-ref v 9))) ; invoke-code
+        (vector-set! v 10 `(lambda () ,(vector-ref v 10))) ; guard-code
+        (vector-set! v 11 `',(vector-ref v 11)) ; guard-req*
+        (vector-set! v 12 `',(vector-ref v 12)) ; visible?
         (if (compile-library filename (cons 'list (vector->list v)))
             (parameterize ((allow-library-redefinition #t))
               (try-load-from-file libname filename))

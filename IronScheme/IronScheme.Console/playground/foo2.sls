@@ -16,7 +16,7 @@
         body ...))
       
   (define-syntax-rule (time expr)
-    (measure 1000 expr))
+    (measure 100 expr))
 
   (define (ack m n)
     (cond
