@@ -248,17 +248,26 @@
                          (current-error-port))
                 #f))
           #f)))
+          
+  (define (is-global-macro? e)
+    (eq? (cadr e) 'global-macro))
   
-   (define (can-prune? subst env)
-     (not 
-      (exists 
-        (lambda (s) 
-          (exists 
-            (lambda (e) 
+  (define (can-prune? subst env)
+    (not
+      (exists
+        (lambda (s)
+          (exists
+            (lambda (e)
               (and (eq? (car e) (cdr s))
-                   (eq? (cadr e) 'global-macro))) 
-            env)) 
-        subst)))  
+                   (is-global-macro? e)))
+            env))
+        subst)))
+        
+  (define (prune-env env)
+    (filter 
+      (lambda (e)
+        (not (is-global-macro? e)))
+      env))
                     
   (define (compile-dll libname content)
     (let ((filename (library-name->dll-name libname)))
@@ -274,7 +283,7 @@
         (vector-set! v 4 `',(vector-ref v 4)) ; vis*
         (vector-set! v 5 `',(vector-ref v 5)) ; inv*
         (vector-set! v 6 `',(vector-ref v 6)) ; subst
-        (vector-set! v 7 `',(vector-ref v 7)) ; env
+        (vector-set! v 7 `',(if prune? (prune-env (vector-ref v 7)) (vector-ref v 7))) ; env
         (vector-set! v 8 `(lambda () ,(if prune? #f (vector-ref v 8)))) ; visit-code
         (vector-set! v 9 `(lambda () ,(vector-ref v 9))) ; invoke-code
         (vector-set! v 10 `(lambda () ,(vector-ref v 10))) ; guard-code
