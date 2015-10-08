@@ -358,7 +358,7 @@ namespace Microsoft.Scripting.Math {
 
         public static Complex64 Pow(Complex64 baseNumber, Complex64 index)
         {
-          if (baseNumber == 0 && index.real > 0)
+          if (baseNumber == 0)
           {
             return 0;
           }
