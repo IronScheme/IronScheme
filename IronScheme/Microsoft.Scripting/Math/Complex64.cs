@@ -360,6 +360,10 @@ namespace Microsoft.Scripting.Math {
         {
           if (baseNumber == 0)
           {
+            if (index == 0)
+            {
+              return 1;
+            }
             return 0;
           }
           return Exp(index * Log(baseNumber));
