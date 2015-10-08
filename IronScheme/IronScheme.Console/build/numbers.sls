@@ -1052,10 +1052,13 @@ See docs/license.txt. |#
            (and (negative? obj1) 
                 (not (and (real? obj1)
                           (integer? obj2)))))
-        (clr-static-call Complex64 
-                         Pow 
-                         (real->complexnum obj1)
-                         (real->complexnum obj2))]
+        (let ((r (clr-static-call Complex64 
+                                  Pow 
+                                  (real->complexnum obj1)
+                                  (real->complexnum obj2))))
+           (if (zero? (imag-part r))
+               (real-part r)
+               r))]
       [else
         (let ((e (and (exact? obj1) (exact? obj2)))
               (z1 (zero? obj1))
