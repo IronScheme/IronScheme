@@ -617,7 +617,7 @@ See docs/license.txt. |#
         (make-who-condition who))))
     
   (define/contract (get-u8 port:binary-input-port)
-    (clr-guard (e [e (io-port-error 'lookahead-u8 port)])
+    (clr-guard (e [e (io-port-error 'get-u8 port)])
       (let ((c (clr-call Stream ReadByte port)))
         (if (fx=? c -1) 
             (eof-object)
