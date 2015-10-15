@@ -360,6 +360,7 @@ namespace Microsoft.Scripting.Math {
         {
           if (baseNumber == 0)
           {
+            // this is really non-sensical, but the behavior is defined in the spec, so try follow it at least.
             if (index == 0)
             {
               return 1;
