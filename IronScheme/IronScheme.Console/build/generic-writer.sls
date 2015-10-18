@@ -324,7 +324,9 @@ See docs/license.txt. |#
         (if (output-port? p)
             (put-string port "input/output-")
             (put-string port "input-"))
-        (put-string port "output-"))
+        (if (output-port? p)
+            (put-string port "output-")
+            (put-string port "closed-")))
     (put-string port "port>"))
     
   (define (get-field-pairs rtd rec)
