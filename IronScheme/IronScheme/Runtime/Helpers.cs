@@ -20,6 +20,11 @@ namespace IronScheme.Runtime
 {
   public static class Helpers
   {
+    public static object LongToBignum(long l)
+    {
+      return new BigInteger(l);
+    }
+
     public static Type GetTypeFast(string name)
     {
       return Compiler.ClrGenerator.GetTypeFast(name);

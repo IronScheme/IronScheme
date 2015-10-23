@@ -55,6 +55,11 @@ See docs/license.txt. |#
     (ironscheme contracts)
     (ironscheme clr))
     
+  (clr-using IronScheme.Runtime)    
+  
+  (define-syntax-rule (long->bignum n)
+    (clr-static-call Helpers LongToBignum n))
+    
   (define (datetime? obj)
     (clr-is DateTime obj))   
     
@@ -150,8 +155,8 @@ See docs/license.txt. |#
 
   (define (ticks date/timespan)
     (cond
-      ((datetime? date/timespan)    (clr-prop-get DateTime Ticks date/timespan))
-      ((timespan? date/timespan)    (clr-prop-get TimeSpan Ticks date/timespan))
+      ((datetime? date/timespan)    (long->bignum (clr-prop-get DateTime Ticks date/timespan)))
+      ((timespan? date/timespan)    (long->bignum (clr-prop-get TimeSpan Ticks date/timespan)))
       (else
         (assertion-violation 'ticks "not a datetime or timespan" date/timespan))))
     
