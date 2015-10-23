@@ -514,16 +514,18 @@ See docs/license.txt. |#
         (clr-static-call Convert (ToString Int32 Int32) num radix)))
      
   (define (bignum->string num radix)
-    (let* ((neg? (negative? num))
-           (num  (abs num))
-           (out  (let f ((num num)(a '()))
-                   (if (zero? num)
-                       (clr-call Object ToString (apply string a)) ;; string proc returns a mutable string
-                       (f (div num radix)
-                          (cons (hex-char (mod num radix)) a))))))
-       (if neg?
-           (string-append "-" out)
-           out)))
+    (if (zero? num)
+        "0"
+        (let* ((neg? (negative? num))
+               (num  (abs num))
+               (out  (let f ((num num)(a '()))
+                       (if (zero? num)
+                           (clr-call Object ToString (apply string a)) ;; string proc returns a mutable string
+                           (f (div num radix)
+                              (cons (hex-char (mod num radix)) a))))))
+           (if neg?
+               (string-append "-" out)
+               out))))
         
   (define number->string
     (case-lambda
