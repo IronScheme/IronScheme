@@ -22,7 +22,7 @@ namespace IronScheme.Runtime
   {
     public static object LongToBignum(long l)
     {
-      return new BigInteger(l);
+      return Builtins.ToIntegerIfPossible(new BigInteger(l));
     }
 
     public static Type GetTypeFast(string name)
