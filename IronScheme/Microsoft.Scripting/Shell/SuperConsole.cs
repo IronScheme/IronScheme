@@ -55,12 +55,20 @@ namespace Microsoft.Scripting.Shell {
                 }
             }
 
+            public string Last
+            {
+              get
+              {
+                return _list.Count > 0 ? _list[_list.Count - 1] : String.Empty;
+              }
+            }
+
             public void Add(string line, bool setCurrentAsLast)
             {
               if (line != null && line.Length > 0)
               {
                 int oldCount = _list.Count;
-                if (line != Current)
+                if (line != Last)
                 {
                   _list.Add(line);
                   File.AppendAllText(Filename, string.Format("{0}{1}", line, Environment.NewLine));
@@ -77,7 +85,14 @@ namespace Microsoft.Scripting.Shell {
                 }
                 else
                 {
-                  _current = _list.Count;
+                  if (setCurrentAsLast || _current == oldCount)
+                  {
+                    _current = _list.Count;
+                  }
+                  else
+                  {
+                    _current++;
+                  }
                 }
               }
             }
