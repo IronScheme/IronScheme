@@ -25,5 +25,5 @@
   ; since 1970, but fractional (100ns per tick in .NET)
   (define (host:time-nanosecond t) (mod (* 100 (ticks (difference t base))) #e1e9))
   (define (host:time-second t) (exact (truncate (total-seconds (difference t base)))))
-  (define (host:time-gmt-offset t) (exact (round (total-seconds (difference t (datetime->utc t))))))
+  (define (host:time-gmt-offset t) (exact (truncate (total-seconds (difference t (datetime->utc t))))))
 )
