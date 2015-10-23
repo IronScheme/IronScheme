@@ -175,6 +175,8 @@
     
   (define compile
     (case-lambda
+      [()
+        (serialize-all compile-dll compile-core-expr)]
       [(filename)
         (compile filename #f)]
       [(filename gen-wrapper?)
