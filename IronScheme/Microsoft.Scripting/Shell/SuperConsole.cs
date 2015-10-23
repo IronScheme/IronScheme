@@ -55,19 +55,31 @@ namespace Microsoft.Scripting.Shell {
                 }
             }
 
-            public void Add(string line, bool setCurrentAsLast) {
-                if (line != null && line.Length > 0) {
-                    int oldCount = _list.Count;
-                    _list.Add(line);
-                    File.AppendAllText(Filename, string.Format("{0}{1}", line, Environment.NewLine));
-                    if (setCurrentAsLast || _current == oldCount) {
-                        _current = _list.Count;
-                    } else {
-                        _current++;
-                    }
-                    // Do not increment on the immediately following Next()
-                    _increment = false;
+            public void Add(string line, bool setCurrentAsLast)
+            {
+              if (line != null && line.Length > 0)
+              {
+                int oldCount = _list.Count;
+                if (line != Current)
+                {
+                  _list.Add(line);
+                  File.AppendAllText(Filename, string.Format("{0}{1}", line, Environment.NewLine));
+                  if (setCurrentAsLast || _current == oldCount)
+                  {
+                    _current = _list.Count;
+                  }
+                  else
+                  {
+                    _current++;
+                  }
+                  // Do not increment on the immediately following Next()
+                  _increment = false;
                 }
+                else
+                {
+                  _current = _list.Count;
+                }
+              }
             }
 
             public string Previous() {
@@ -100,15 +112,16 @@ namespace Microsoft.Scripting.Shell {
               {
                 using (var r = File.OpenText(Filename))
                 {
-                  string line;
+                  string line, last = null;
                   var h = new History();
 
                   while ((line = r.ReadLine()) != null)
                   {
-                    if (line.Length > 0 && line != Environment.NewLine)
+                    if (line.Length > 0 && line != Environment.NewLine && line != last)
                     {
                       h._list.Add(line);
                     }
+                    last = line;
                   }
 
                   h._current = h._list.Count;
