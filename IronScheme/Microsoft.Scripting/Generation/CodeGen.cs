@@ -33,6 +33,7 @@ using Microsoft.Scripting.Actions;
 using System.Text;
 using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.Scripting.Generation {
 
@@ -1636,11 +1637,23 @@ namespace Microsoft.Scripting.Generation {
                 EmitNew(typeof(BigInteger), new Type[] { typeof(long) });
                 return;
             }
-
-            EmitArray(value.GetBits());
+            EmitMetadataArray(value.GetBits());
             EmitBoolean(value.Negative);
             EmitNew(typeof(BigInteger), new Type[] { typeof(uint[]), typeof(bool) });
             return;
+        }
+
+        private void EmitMetadataArray(uint[] p)
+        {
+          var size = p.Length * 4;
+          byte[] data = new byte[size];
+          Buffer.BlockCopy(p, 0, data, 0, size);
+          var fb = this._typeGen.TypeBuilder.DefineInitializedData(Guid.NewGuid().ToString(), data, FieldAttributes.Static);
+          EmitInt(p.Length);
+          Emit(OpCodes.Newarr, typeof(uint));
+          Emit(OpCodes.Dup);
+          Emit(OpCodes.Ldtoken, fb);
+          EmitCall(typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray"));
         }
 
         #endregion
