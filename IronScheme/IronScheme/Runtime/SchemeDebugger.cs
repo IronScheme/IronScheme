@@ -26,10 +26,10 @@ namespace IronScheme.Runtime
     {
       switch (reason)
       {
-        case NotifyReason.ProcedureEnter: return SymbolTable.StringToObject("proc-enter");
-        case NotifyReason.ProcedureExit: return SymbolTable.StringToObject("proc-exit");
-        case NotifyReason.ExpressionIn: return SymbolTable.StringToObject("expr-in");
-        case NotifyReason.ExpressionOut: return SymbolTable.StringToObject("expr-out");
+        case NotifyReason.ProcedureEnter:   return SymbolTable.StringToObject("proc-enter");
+        case NotifyReason.ProcedureExit:    return SymbolTable.StringToObject("proc-exit");
+        case NotifyReason.ExpressionIn:     return SymbolTable.StringToObject("expr-in");
+        case NotifyReason.ExpressionOut:    return SymbolTable.StringToObject("expr-out");
         case NotifyReason.ExpressionInTail: return SymbolTable.StringToObject("expr-in-tail");
         default:
           throw new ArgumentException("Invalid reason");
