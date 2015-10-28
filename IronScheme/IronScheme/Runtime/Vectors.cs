@@ -20,7 +20,6 @@ namespace IronScheme.Runtime
     {
       return Ast.NewArray(typeof(object[]), values);
     }
-
   }
 
   public partial class Builtins
@@ -119,6 +118,5 @@ namespace IronScheme.Runtime
       }
       return output.ToArray();
     }
-
   }
 }
