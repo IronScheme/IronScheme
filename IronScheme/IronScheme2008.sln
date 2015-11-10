@@ -5,6 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme", "IronScheme\Ir
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
 	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
 		debugbuild.bat = debugbuild.bat
 		DEVELOPMENT.snk = DEVELOPMENT.snk
 		header.bmp = header.bmp

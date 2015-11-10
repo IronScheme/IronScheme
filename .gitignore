@@ -1,1 +1,7 @@
 AUTHORS
+
+IronScheme/IronScheme/Compiler/ironscheme.lex.cs
+IronScheme/IronScheme/Compiler/IronScheme.y.cs
+IronScheme/IronScheme/Compiler/numberlexer.lex.cs
+IronScheme/IronScheme/Compiler/NumberParser.y.cs
+IronScheme/Oyster.IntX/Oyster.IntX.xml
