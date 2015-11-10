@@ -185,7 +185,6 @@ exprlist
     |  exprlist expr                              { $$ = Append($1,new Cons($2)); }
     ;       
     
-
 mlstring
     :  MLSTRING                                   { $$ = $1; }
     |  mlstring MLSTRING                          { $$ = $1 + $2; }
@@ -221,7 +220,6 @@ specexpr
     | UNSYNTAXSPLICING                            { $$ = Annotate(unsyntax_splicing, @1); }
     | QUASISYNTAX                                 { $$ = Annotate(quasisyntax, @1); }
     | UNSYNTAX                                    { $$ = Annotate(unsyntax, @1); }
-    
     ;    
 
 %%
