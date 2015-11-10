@@ -387,6 +387,7 @@ See docs/license.txt. |#
       [(clr-string? str)
         (clr-static-call String Copy str)]
       [(stringbuilder? str)
+        ;; before you think WTF! we copying the string
         (->mutable-string (clr-call StringBuilder ToString str))]
       [else
         (assertion-violation 'string-copy "not a string" str)]))
