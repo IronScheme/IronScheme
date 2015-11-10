@@ -1,1 +1,0 @@
-"C:\Program Files (x86)\Microsoft\ILMerge\ILMerge.exe"/ndebug /keyfile:DEVELOPMENT.snk /out:IronScheme.Console.exe IronScheme.Console.exe IronScheme.dll IronScheme.Closures.dll IronScheme.Remoting.Server.dll IronScheme.Scripting.dll Oyster.IntX.dll ironscheme.boot.dll 

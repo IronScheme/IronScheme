@@ -648,9 +648,6 @@
     <Content Include="ilmerge-dll.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ilmerge.cmd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="build\misc.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1630,9 +1627,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="lib\srfi\69\basic-hash-tables.sls">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="setup-xp.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="docs\webserver-xp.txt">
