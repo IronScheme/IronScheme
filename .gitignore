@@ -6,3 +6,4 @@ IronScheme/IronScheme/Compiler/numberlexer.lex.cs
 IronScheme/IronScheme/Compiler/NumberParser.y.cs
 IronScheme/Oyster.IntX/Oyster.IntX.xml
 **/Backup*/**
+**/UpgradeLog*.htm
