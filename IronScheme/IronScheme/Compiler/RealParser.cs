@@ -347,13 +347,16 @@ namespace IronScheme.Compiler
                     try
                     {
                       int exponentMagnitude = int.Parse(source.Substring(firstExponent, lastExponent - firstExponent));
-                      if (exponentSign == '-')
+                      checked
                       {
-                        exponent -= exponentMagnitude;
-                      }
-                      else
-                      {
-                        exponent += exponentMagnitude;
+                        if (exponentSign == '-')
+                        {
+                          exponent -= exponentMagnitude;
+                        }
+                        else
+                        {
+                          exponent += exponentMagnitude;
+                        }
                       }
                     }
                     catch (OverflowException)
