@@ -344,14 +344,21 @@ namespace IronScheme.Compiler
                     int firstExponent = i;
                     int lastExponent = i;
                     while (i < source.Length && source[i] >= '0' && source[i] <= '9') lastExponent = ++i;
-                    int exponentMagnitude = int.Parse(source.Substring(firstExponent, lastExponent - firstExponent));
-                    if (exponentSign == '-')
+                    try
                     {
+                      int exponentMagnitude = int.Parse(source.Substring(firstExponent, lastExponent - firstExponent));
+                      if (exponentSign == '-')
+                      {
                         exponent -= exponentMagnitude;
-                    }
-                    else
-                    {
+                      }
+                      else
+                      {
                         exponent += exponentMagnitude;
+                      }
+                    }
+                    catch (OverflowException)
+                    {
+                      exponent = exponentSign == '-' ? int.MinValue : int.MaxValue;
                     }
                 }
                 result.Exponent = exponent;
