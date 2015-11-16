@@ -334,35 +334,36 @@ namespace IronScheme.Compiler
                 result.Mantissa = mantissaBuilder.ToString();
                 if (i < source.Length && (source[i] == 'e' || source[i] == 'E'))
                 {
-                    char exponentSign = '\0';
+                  const int MAX_EXP_QUAD = (1 << 14); // IEEE quad, without sign
+                  char exponentSign = '\0';
+                  i++;
+                  if (i < source.Length && (source[i] == '-' || source[i] == '+'))
+                  {
+                    exponentSign = source[i];
                     i++;
-                    if (i < source.Length && (source[i] == '-' || source[i] == '+'))
+                  }
+                  int firstExponent = i;
+                  int lastExponent = i;
+                  while (i < source.Length && source[i] >= '0' && source[i] <= '9') lastExponent = ++i;
+
+                  int exponentMagnitude = 0;
+
+                  if (int.TryParse(source.Substring(firstExponent, lastExponent - firstExponent), out exponentMagnitude) &&
+                      exponentMagnitude <= MAX_EXP_QUAD)
+                  {
+                    if (exponentSign == '-')
                     {
-                        exponentSign = source[i];
-                        i++;
+                      exponent -= exponentMagnitude;
                     }
-                    int firstExponent = i;
-                    int lastExponent = i;
-                    while (i < source.Length && source[i] >= '0' && source[i] <= '9') lastExponent = ++i;
-                    try
+                    else
                     {
-                      int exponentMagnitude = int.Parse(source.Substring(firstExponent, lastExponent - firstExponent));
-                      checked
-                      {
-                        if (exponentSign == '-')
-                        {
-                          exponent -= exponentMagnitude;
-                        }
-                        else
-                        {
-                          exponent += exponentMagnitude;
-                        }
-                      }
+                      exponent += exponentMagnitude;
                     }
-                    catch (OverflowException)
-                    {
-                      exponent = exponentSign == '-' ? int.MinValue : int.MaxValue;
-                    }
+                  }
+                  else
+                  {
+                    exponent = exponentSign == '-' ? -MAX_EXP_QUAD : MAX_EXP_QUAD;
+                  }
                 }
                 result.Exponent = exponent;
                 return result;
