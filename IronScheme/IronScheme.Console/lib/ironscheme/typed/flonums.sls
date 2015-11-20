@@ -198,7 +198,7 @@ See docs/license.txt. |#
         +nan.0
         (fl- x1 (fl* (fldiv0 x1 x2) x2))))
 
-  (define-fl (fldiv-and-mod x1 x2)
+  (define: (fldiv-and-mod (x1 : Double) (x2 : Double))
     (let ((d (fldiv x1 x2)))
       (values d (fl- x1 (fl* d x2))))) 
 
@@ -207,7 +207,7 @@ See docs/license.txt. |#
       (flfloor (fl/ x1 x2))
       (fl- (flfloor (fl/ x1 (fl- x2))))))
 
-  (define-fl (fldiv0-and-mod0 x1 x2)
+  (define: (fldiv0-and-mod0 (x1 : Double) (x2 : Double))
     (let ((d (fldiv0 x1 x2)))
       (if (flinfinite? x2)
           (values d +nan.0)
