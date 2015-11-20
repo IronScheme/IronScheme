@@ -251,6 +251,54 @@ namespace IronScheme.Compiler
     }
   }
 
+  sealed class ArrayConstant<T> : CompilerConstant where T : struct
+  {
+    readonly T[] value;
+
+    public ArrayConstant(T[] value)
+    {
+      this.value = value;
+    }
+
+    public override Type Type
+    {
+      get { return typeof(T[]); }
+    }
+
+    int SizeOf()
+    {
+      switch (Type.GetTypeCode(typeof(T)))
+      {
+        case TypeCode.Byte:
+          return 1;
+        case TypeCode.Int32:
+          return 4;
+        case TypeCode.Double:
+          return 8;
+        default:
+          throw new NotSupportedException(string.Format("Type '{0}' not supported", typeof(T)));
+      }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      var size = value.Length * SizeOf();
+      byte[] data = new byte[size];
+      Buffer.BlockCopy(value, 0, data, 0, size);
+      var fb = cg.TypeGen.TypeBuilder.DefineInitializedData(Guid.NewGuid().ToString(), data, FieldAttributes.Static);
+      cg.EmitInt(value.Length);
+      cg.Emit(OpCodes.Newarr, typeof(T));
+      cg.Emit(OpCodes.Dup);
+      cg.Emit(OpCodes.Ldtoken, fb);
+      cg.EmitCall(typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray"));
+    }
+
+    public override object Create()
+    {
+      return value;
+    }
+  }
+
   sealed class FractionConstant : CompilerConstant
   {
     readonly Fraction value;

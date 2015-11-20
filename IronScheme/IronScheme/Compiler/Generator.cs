@@ -77,18 +77,15 @@ namespace IronScheme.Compiler
       }
       else if (args is byte[])
       {
-        Expression[] ba = Array.ConvertAll<byte, Expression>(args as byte[], delegate(byte b) { return Ast.Constant(b); });
-        return Ast.NewArray(typeof(byte[]), ba);
+        return Ast.Constant(new ArrayConstant<byte>((byte[]) args));
       }
       else if (args is int[])
       {
-        Expression[] ba = Array.ConvertAll<int, Expression>(args as int[], delegate(int b) { return Ast.Constant(b); });
-        return Ast.NewArray(typeof(int[]), ba);
+        return Ast.Constant(new ArrayConstant<int>((int[])args));
       }
       else if (args is double[])
       {
-        Expression[] ba = Array.ConvertAll<double, Expression>(args as double[], delegate(double b) { return Ast.Constant(b); });
-        return Ast.NewArray(typeof(double[]), ba);
+        return Ast.Constant(new ArrayConstant<double>((double[])args));
       }
       else if (args is Fraction)
       {
