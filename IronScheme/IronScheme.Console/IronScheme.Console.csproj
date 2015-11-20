@@ -666,6 +666,9 @@
     <None Include="lib\ironscheme\typed\fixnums.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="lib\ironscheme\typed\flonums.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="lib\ironscheme\typed\language.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -778,6 +781,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="nuget\libs\as-match.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="nuget\libs\ironscheme.typed.flonums.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="nuget\libs\ironscheme.typed.fixnums.nuspec">

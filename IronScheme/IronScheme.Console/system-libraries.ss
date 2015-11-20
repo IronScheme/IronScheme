@@ -71,6 +71,7 @@ See docs/license.txt. |#
   
 (let ()
   (import (ironscheme typed fixnums))
+  (import (ironscheme typed flonums))
   #f)
   
 
