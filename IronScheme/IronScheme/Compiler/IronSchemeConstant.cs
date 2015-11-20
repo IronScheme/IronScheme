@@ -254,10 +254,12 @@ namespace IronScheme.Compiler
   sealed class ArrayConstant<T> : CompilerConstant where T : struct
   {
     readonly T[] value;
+    readonly int size;
 
     public ArrayConstant(T[] value)
     {
       this.value = value;
+      size = SizeOf();
     }
 
     public override Type Type
@@ -291,7 +293,7 @@ namespace IronScheme.Compiler
 
     public override void EmitCreation(CodeGen cg)
     {
-      var size = value.Length * SizeOf();
+      var size = value.Length * size;
       if (size > 0 && size < 0x3f0000) // IL limit
       {
         byte[] data = new byte[size];
