@@ -283,14 +283,21 @@ namespace IronScheme.Compiler
     public override void EmitCreation(CodeGen cg)
     {
       var size = value.Length * SizeOf();
-      byte[] data = new byte[size];
-      Buffer.BlockCopy(value, 0, data, 0, size);
-      var fb = cg.TypeGen.TypeBuilder.DefineInitializedData(Guid.NewGuid().ToString(), data, FieldAttributes.Static);
-      cg.EmitInt(value.Length);
-      cg.Emit(OpCodes.Newarr, typeof(T));
-      cg.Emit(OpCodes.Dup);
-      cg.Emit(OpCodes.Ldtoken, fb);
-      cg.EmitCall(typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray"));
+      if (size > 0 && size < 0x3f0000) // IL limit
+      {
+        byte[] data = new byte[size];
+        Buffer.BlockCopy(value, 0, data, 0, size);
+        var fb = cg.TypeGen.TypeBuilder.DefineInitializedData(Guid.NewGuid().ToString(), data, FieldAttributes.Static);
+        cg.EmitInt(value.Length);
+        cg.Emit(OpCodes.Newarr, typeof(T));
+        cg.Emit(OpCodes.Dup);
+        cg.Emit(OpCodes.Ldtoken, fb);
+        cg.EmitCall(typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray"));
+      }
+      else
+      {
+        cg.EmitArray(value);
+      }
     }
 
     public override object Create()
