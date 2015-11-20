@@ -95,42 +95,6 @@ namespace IronScheme.Runtime
       return null;
     }
 
-    //rather complicated... :\
-
-    //[InlineEmitter("record-constructor")]
-    //public static Expression RecordConstructor(Expression[] obj)
-    //{
-    //  return null;
-    //}
-
-    //[InlineEmitter("make-record-constructor-descriptor")]
-    //public static Expression MakeRecordConstructorDescriptor(Expression[] obj)
-    //{
-    //  if (obj.Length == 3)
-    //  {
-    //    var rtd = Unwrap(obj[0]);
-    //    var parentrcd = Unwrap(obj[1]);
-    //    var protocol = Unwrap(obj[2]);
-
-    //    if (rtd is BoundExpression && parentrcd is ConstantExpression && protocol is BoundExpression)
-    //    {
-    //      var rtdname = ((BoundExpression)rtd).Variable.Name;
-    //      var pcdname = ((ConstantExpression)parentrcd).Value;
-    //      var prtname = ((BoundExpression)protocol).Variable.Name;
-    //      var e = Ast.Constant(new RecordConstructorDescriptorConstant
-    //      {
-    //        RtdSymbol = rtdname,
-    //        ParentRcd = pcdname,
-    //        Protocol = protocol,
-    //        NameHint = IronScheme.Compiler.Generator.VarHint,
-    //      });
-
-    //      return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("MakeRecordConstructorDescriptor"), obj));
-    //    }
-    //  }
-    //  return null;
-    //}
-
     [InlineEmitter("make-record-type-descriptor")]
     public static Expression MakeRecordTypeDescriptor(Expression[] obj)
     {

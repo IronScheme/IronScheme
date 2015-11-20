@@ -72,16 +72,19 @@ namespace Microsoft.Scripting {
             return a._id != b._id;
         }
 
+        [Obsolete("Useless")]
         public static bool operator <(SymbolId a, SymbolId b) {
             return a._id < b._id;
         }
 
+        [Obsolete("Useless")]
         public static bool operator >(SymbolId a, SymbolId b) {
             return a._id > b._id;
         }
 
         #region IComparable Members
 
+        [Obsolete("Useless")]
         public int CompareTo(object obj) {
             if (!(obj is SymbolId)) return -1;
 
