@@ -293,7 +293,7 @@ namespace IronScheme.Compiler
 
     public override void EmitCreation(CodeGen cg)
     {
-      var size = value.Length * size;
+      var size = value.Length * this.size;
       if (size > 0 && size < 0x3f0000) // IL limit
       {
         byte[] data = new byte[size];
