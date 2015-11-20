@@ -269,10 +269,19 @@ namespace IronScheme.Compiler
     {
       switch (Type.GetTypeCode(typeof(T)))
       {
+        case TypeCode.SByte:
         case TypeCode.Byte:
           return 1;
+        case TypeCode.Int16:
+        case TypeCode.UInt16:
+        case TypeCode.Char:
+          return 2;
         case TypeCode.Int32:
+        case TypeCode.UInt32:
+        case TypeCode.Single:
           return 4;
+        case TypeCode.Int64:
+        case TypeCode.UInt64:
         case TypeCode.Double:
           return 8;
         default:
