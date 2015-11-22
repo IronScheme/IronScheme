@@ -57,11 +57,9 @@ See docs/license.txt. |#
     fxadd1
     fxsub1)
   (import 
-    (ironscheme core)
     (ironscheme clr)
     (ironscheme typed)
     (ironscheme unsafe)
-    (ironscheme integrable)
     (ironscheme syntax utils)
     (ironscheme syntax shorthand)
     (except (ironscheme) 

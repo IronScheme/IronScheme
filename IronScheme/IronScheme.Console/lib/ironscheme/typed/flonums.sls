@@ -62,11 +62,9 @@ See docs/license.txt. |#
     flsqrt
     flexpt)
   (import
-    (ironscheme core)
     (ironscheme clr)
     (ironscheme typed)
     (ironscheme unsafe)
-    (ironscheme integrable)
     (ironscheme syntax utils)
     (ironscheme syntax shorthand)
     (except (ironscheme)
