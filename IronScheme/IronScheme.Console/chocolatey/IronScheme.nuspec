@@ -6,8 +6,8 @@
     <version>0.9.$TFSREV$</version>
     <authors>Llewellyn Pritchard</authors>
     <owners>Llewellyn Pritchard</owners>
-    <summary>IronScheme</summary>
-    <description>IronScheme</description>
+    <summary>IronScheme: an R6RS Scheme implementation</summary>
+    <description>IronScheme aims to be a R6RS conforming Scheme-like implementation based on the Microsoft DLR. IronScheme implements over 99% of the R6RS specification and specified behavior.</description>
     <projectUrl>http://ironscheme.codeplex.com</projectUrl>
     <tags>IronScheme Scheme R6RS</tags>
     <copyright>Copyright 2007-2015</copyright>
