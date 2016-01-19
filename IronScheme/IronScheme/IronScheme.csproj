@@ -48,7 +48,7 @@
     <DefineConstants>TRACE;BIGFRACTION;OPTIMIZATIONS</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
-    <NoWarn>1591;3021</NoWarn>
+    <NoWarn>1591;3021;0618</NoWarn>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
