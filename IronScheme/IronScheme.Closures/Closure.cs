@@ -144,7 +144,8 @@ namespace IronScheme.Runtime
             if (pi.ParameterType.IsArray)
             {
               form.Add(SymbolTable.StringToObject(pi.Name ?? "<more than 8>"));
-              return ConsStarFromArray(form.ToArray());
+              var _res = ConsStarFromArray(form.ToArray()); 
+              return _res;
             }
             else if (pi.ParameterType != cctype)
             {
@@ -153,7 +154,9 @@ namespace IronScheme.Runtime
           }
         }
 
-        return ConsFromArray(form.ToArray());
+        // prevent tail call
+        var result = ConsFromArray(form.ToArray()); 
+        return result;
       }
     }
 
