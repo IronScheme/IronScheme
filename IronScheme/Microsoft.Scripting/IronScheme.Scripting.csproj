@@ -11,7 +11,7 @@
     <RootNamespace>Microsoft.Scripting</RootNamespace>
     <AssemblyName>IronScheme.Scripting</AssemblyName>
     <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;1734</NoWarn>
     <OldToolsVersion>2.0</OldToolsVersion>
     <SccProjectName>
     </SccProjectName>
