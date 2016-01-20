@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9
 		tools\IronScheme.VisualStudio.vsix = tools\IronScheme.VisualStudio.vsix
 		tools\Mono.Cecil.dll = tools\Mono.Cecil.dll
 		tools\NamespaceRenamer.exe = tools\NamespaceRenamer.exe
+		tools\nunit.framework.dll = tools\nunit.framework.dll
 		tools\ReferenceRemover.exe = tools\ReferenceRemover.exe
 		tools\RegPkg.exe = tools\RegPkg.exe
 		tools\RegPkg.exe.config = tools\RegPkg.exe.config
@@ -63,6 +64,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Remoting.Client", "IronScheme.Remoting.Client\IronScheme.Remoting.Client.csproj", "{2BD91A4C-D8D4-4FB3-90DF-03F7541A7BD9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oyster.IntX", "Oyster.IntX\Oyster.IntX.csproj", "{371F38E6-8D55-482F-B010-4AFAC11C3CDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Tests", "IronScheme.Tests\IronScheme.Tests.csproj", "{FF22CD2F-F20D-4558-912B-460A9250BD6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,6 +113,10 @@ Global
 		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{371F38E6-8D55-482F-B010-4AFAC11C3CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF22CD2F-F20D-4558-912B-460A9250BD6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF22CD2F-F20D-4558-912B-460A9250BD6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF22CD2F-F20D-4558-912B-460A9250BD6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF22CD2F-F20D-4558-912B-460A9250BD6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

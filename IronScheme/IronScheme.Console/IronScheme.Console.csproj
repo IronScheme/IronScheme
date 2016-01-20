@@ -99,6 +99,10 @@
       <Project>{DD78568C-CDB5-4CED-BC9C-C18182ED5945}</Project>
       <Name>IronScheme.Remoting</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IronScheme.Tests\IronScheme.Tests.csproj">
+      <Project>{FF22CD2F-F20D-4558-912B-460A9250BD6B}</Project>
+      <Name>IronScheme.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IronScheme.Web.Runtime\IronScheme.Web.Runtime.csproj">
       <Project>{07D0A60A-8320-4F70-AA3B-7C75008C0009}</Project>
       <Name>IronScheme.Web.Runtime</Name>
