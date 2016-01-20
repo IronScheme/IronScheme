@@ -33,7 +33,7 @@ namespace IronScheme.Tests
 
       p.Start();
 
-      var exited = p.WaitForExit(30000);
+      var exited = p.WaitForExit(90000);
 
       if (!exited)
       {
