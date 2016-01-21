@@ -73,6 +73,8 @@ test_script:
 
     rem the monolith IronScheme.dll is now built, start with packageing
 
+    mkdir install-stage
+
     rmdir /s /q install-stage
 
     mkdir install-stage\IronScheme
