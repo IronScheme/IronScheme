@@ -25,7 +25,7 @@ namespace IronScheme.Tests
     [Test]
     public void Compile()
     {
-
+      Console.WriteLine("Compile");
     }
   }
 
@@ -49,7 +49,7 @@ namespace IronScheme.Tests
     [Test]
     public void Compile()
     {
-
+      Console.WriteLine("Compile");
     }
   }
 }
