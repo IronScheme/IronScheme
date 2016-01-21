@@ -8,20 +8,20 @@ namespace IronScheme.Tests
 {
   public class OtherTests : TestRunner
   {
-    //[Test]
+    [Test]
     public void PFDS()
     {
       var r = RunTest(@"lib\pfds\tests.scm");
-      Debugger.Break();
       Console.WriteLine(r.Output);
-      Console.WriteLine("Expected 8 failed tests.");
-      Assert.True(r.Output.Contains("8 of 8970 tests failed."));
+      Assert.True(r.Output.Contains("255 tests, 255 passed (100%), 0 failed (0%)"));
     }
 
-    //[Test]
+    [Test]
     public void MiniKanren()
     {
-
+      var r = RunTestWithInput(@"(include ""lib/minikanren/mktests.scm"")");
+      Console.WriteLine(r.Output);
+      Assert.True(r.Output.Contains("Ignoring divergent test 10.62"));
     }
   }
 }
