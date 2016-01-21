@@ -62,7 +62,7 @@ namespace IronScheme.Tests
           Output = p.StandardOutput.ReadToEnd()
         };
 
-        var exited = p.WaitForExit(12000000);
+        var exited = p.WaitForExit(180000);
 
         if (!exited)
         {
