@@ -17,9 +17,12 @@ Building
 
 Alternatively, the following can be done from the VS (any version 2008+) command prompt:
 ```
-msbuild "IronScheme\IronSchemeCore.sln" /verbosity:minimal /p:TargetFrameworkVersion=v2.0 /p:Configuration=Release
+msbuild IronSchemeCore.sln /v:m /p:TargetFrameworkVersion=v2.0 /p:Configuration=Release
 ```
-**Note:** this solution will only build the essentials, basically no web projects.
+**Note** 
+
+This solution will only build the essentials, basically no web projects. 
+You can also adjust the framework to your liking. Tested with 2.0, 4.0, 4.5 on the Developer Command Prompt for VS2015.
 
 Notes
 =====
