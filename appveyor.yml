@@ -149,7 +149,7 @@ before_deploy:
 
     rem prep zip
 
-    for /F %s in ('"git log -1 --format=%h"') do set SHA=%s
+    for /F %s in ('git log -1 --format=%h') do set SHA=%s
     
     ren IronScheme-latest.zip IronScheme-%SHA%.zip
 
