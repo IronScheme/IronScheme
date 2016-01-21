@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace IronScheme.Tests
 {
-  public class OtherTests : TestRunner
+  public class Other : TestRunner
   {
     [Test]
     public void PFDS()
