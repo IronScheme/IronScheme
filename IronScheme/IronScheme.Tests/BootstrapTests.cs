@@ -5,10 +5,10 @@ using NUnit.Framework;
 
 namespace IronScheme.Tests
 {
-  public class BootstrapTests : TestRunner
+  public class ReleaseTests : TestRunner
   {
     [Test]
-    public void BootstrapRelease()
+    public void Bootstrap()
     {
       var r = RunIronSchemeTest(@"ironscheme-buildscript.sps");
       Console.WriteLine(r.Output);
@@ -23,7 +23,16 @@ namespace IronScheme.Tests
     }
 
     [Test]
-    public void BootstrapDebug()
+    public void Compile()
+    {
+
+    }
+  }
+
+  public class DebugTests : TestRunner
+  {
+    [Test]
+    public void Bootstrap()
     {
       var r = RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
       Console.WriteLine(r.Output);
@@ -35,6 +44,12 @@ namespace IronScheme.Tests
       Console.WriteLine(r.Output);
 
       Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
+    }
+
+    [Test]
+    public void Compile()
+    {
+
     }
   }
 }
