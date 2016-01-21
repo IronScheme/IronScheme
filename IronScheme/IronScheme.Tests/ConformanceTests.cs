@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace IronScheme.Tests
 {
-  public class ConformanceTests : TestRunner
+  public class Conformance : TestRunner
   {
     [Test]
     public void R6RS()

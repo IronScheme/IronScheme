@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace IronScheme.Tests
 {
-  public class SRFITests : TestRunner
+  public class SRFI : TestRunner
   {
     [Test]
     public void AndLet()

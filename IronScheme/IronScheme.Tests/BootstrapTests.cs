@@ -6,7 +6,7 @@ using System.IO;
 
 namespace IronScheme.Tests
 {
-  public class ReleaseTests : TestRunner
+  public class Release : TestRunner
   {
     [Test]
     public void Bootstrap()
@@ -45,7 +45,7 @@ namespace IronScheme.Tests
     }
   }
 
-  public class DebugTests : TestRunner
+  public class Debug : TestRunner
   {
     [Test]
     public void Bootstrap()
