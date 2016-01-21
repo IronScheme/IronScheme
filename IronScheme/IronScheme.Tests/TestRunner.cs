@@ -43,6 +43,7 @@ namespace IronScheme.Tests
         {
           FileName = exe,
           RedirectStandardOutput = true,
+          StandardOutputEncoding = Encoding.UTF8,
           RedirectStandardError = true,
           RedirectStandardInput = true,
           UseShellExecute = false,
