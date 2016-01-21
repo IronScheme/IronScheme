@@ -143,3 +143,25 @@ test_script:
 artifacts:
 - path: IronScheme\IronScheme.Console\bin\Release\install-stage\IronScheme-latest.zip
 - path: IronScheme\IronScheme.Console\bin\Release\install-stage\IronScheme-latest.tar.xz
+before_deploy:
+- cmd: >-
+    cd install-stage
+
+    rem prep zip
+
+    for /F %s in ('"git log -1 --format=%h"') do set SHA=%s
+    
+    ren IronScheme-latest.zip IronScheme-%SHA%.zip
+
+    ren IronScheme-latest.tar.xz IronScheme-%SHA%.tar.xz
+
+    rem prep nuget packages
+deploy:
+- provider: FTP
+  host: ftp.ironscheme.net
+  protocol: ftp
+  username: leppie
+  password:
+    secure: aZEP9lw3LERRROdS/bOi/A==
+  folder: build.ironscheme.net/wwwroot
+  artifact: IronScheme/IronScheme.Console/bin/Release/install-stage/IronScheme-.*
