@@ -13,41 +13,50 @@ namespace IronScheme.Tests
     protected class TestResult
     {
       public string Output;
-      public int ExitCode;
     }
 
-    protected TestResult RunTestWithInput(string input)
+    protected TestResult RunIronSchemeTestWithInput(string input)
     {
-      return RunTest(null, input);
+      return RunIronSchemeTest(null, input);
     }
 
-    protected TestResult RunTest(string filename)
+    protected TestResult RunIronSchemeTest(string args)
     {
-      return RunTest(filename, null);
+      return RunIronSchemeTest(args, null);
     }
 
-    protected TestResult RunTest(string filename, string input)
+    protected TestResult RunIronSchemeTest(string args, string input)
+    {
+      return RunTest("IronScheme.Console32.exe", args, input);
+    }
+
+    protected TestResult RunTest(string exe, string args)
+    {
+      return RunTest(exe, args, null);
+    }
+
+    protected TestResult RunTest(string exe, string args, string input)
     {
       var p = new Process
       {
         StartInfo = new ProcessStartInfo
         {
-          FileName = "IronScheme.Console32.exe",
+          FileName = exe,
           RedirectStandardOutput = true,
           RedirectStandardError = true,
           RedirectStandardInput = true,
           UseShellExecute = false,
           CreateNoWindow = true,
-          Arguments = filename,
+          Arguments = args,
         },
-        //EnableRaisingEvents = true,
       };
-
-      //p.OutputDataReceived += (s, e) => Console.Write(e.Data);
 
       try
       {
-        p.Start();
+        if (!p.Start())
+        {
+          Assert.Fail("could not start {0}", exe);
+        }
 
         if (input != null)
         {
@@ -67,8 +76,8 @@ namespace IronScheme.Tests
         if (!exited)
         {
           p.Kill();
-        } 
-
+        }
+ 
         Assert.AreEqual(0, p.ExitCode);
 
         return r;
