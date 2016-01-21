@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
+using System.IO;
 
 namespace IronScheme.Tests
 {
@@ -25,7 +26,22 @@ namespace IronScheme.Tests
     [Test]
     public void Compile()
     {
-      Console.WriteLine("Compile");
+      var r = RunIronSchemeTest(@"compile-system-libraries.sps");
+      Console.WriteLine(r.Output);
+
+      Directory.Move("lib", "lib.hide");
+
+      r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps");
+      var loadedlibs = r.Output;
+
+      Directory.Move("lib.hide", "lib");
+
+      foreach (var lib in loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+      {
+        File.Delete(lib);
+      }
+
+      Assert.Pass();
     }
   }
 
@@ -49,7 +65,23 @@ namespace IronScheme.Tests
     [Test]
     public void Compile()
     {
-      Console.WriteLine("Compile");
+      var r = RunIronSchemeTest(@"-debug compile-system-libraries.sps");
+      Console.WriteLine(r.Output);
+
+      Directory.Move("lib", "lib.hide");
+
+      r = RunIronSchemeTest(@"-debug --show-loaded-libraries compile-system-libraries.sps");
+      var loadedlibs = r.Output;
+
+      Directory.Move("lib.hide", "lib");
+
+      foreach (var lib in loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+      {
+        File.Delete(lib);
+        File.Delete(Path.ChangeExtension(lib, "pdb"));
+      }
+
+      Assert.Pass();
     }
   }
 }
