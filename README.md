@@ -5,6 +5,8 @@ Main repo for IronScheme. Codeplex/TFS will not be be maintained anymore.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ebc9krwxtg59x0am?svg=true)](https://ci.appveyor.com/project/leppie/ironscheme)
 
+You can download the latest build artefacts from the above link.
+
 **Note:** Previous SVN mirror has been hosed due to Codeplex SVN not working anymore. You can find the last SVN version at https://gitlab.com/leppie/IronScheme. The history is identical.
 
 Building
