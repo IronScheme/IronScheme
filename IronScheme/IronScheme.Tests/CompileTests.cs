@@ -16,7 +16,6 @@ namespace IronScheme.Tests
       Console.WriteLine("Compiling system libraries");
       RunIronSchemeTest(@"compile-system-libraries.sps");
       Console.WriteLine("Done");
-      Assert.Pass();
     }
   }
 
@@ -36,7 +35,6 @@ namespace IronScheme.Tests
       }
 
       Console.WriteLine("Done");
-      Assert.Pass();
     }
   }
 

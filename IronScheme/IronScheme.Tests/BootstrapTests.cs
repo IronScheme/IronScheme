@@ -40,8 +40,6 @@ namespace IronScheme.Tests
       {
         File.Delete(lib);
       }
-
-      Assert.Pass();
     }
   }
 
@@ -80,8 +78,6 @@ namespace IronScheme.Tests
         File.Delete(lib);
         File.Delete(Path.ChangeExtension(lib, "pdb"));
       }
-
-      Assert.Pass();
     }
   }
 }
