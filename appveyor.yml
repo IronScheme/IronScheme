@@ -32,23 +32,19 @@ test_script:
 
     rem these have to be in order
 
-    goto after_tests
+    rem nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Release /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Release /framework:net-2.0
+    rem nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Debug /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Debug /framework:net-2.0
+    rem nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Setup /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Setup /framework:net-2.0
+    rem nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Conformance /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Conformance /framework:net-2.0
+    rem nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.SRFI /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.SRFI /framework:net-2.0
+    rem nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Other /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Other /framework:net-2.0
-
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Teardown /framework:net-2.0
-
-    :after_tests
+    rem nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Teardown /framework:net-2.0
 
     rem once everything is happy, we can prep the artefacts
 
