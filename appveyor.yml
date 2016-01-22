@@ -4,8 +4,15 @@ branches:
   - master
 configuration: Release
 platform: Any CPU
-install:
+assembly_info:
+  patch: true
+  file: IronScheme\IronScheme\Properties\AssemblyInfo.cs
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}-$(SHA)'install:
 - cmd: >-
+    set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
+
     cinst ilmerge
 
     cinst zip
@@ -25,6 +32,8 @@ test_script:
 
     rem these have to be in order
 
+    goto after_tests
+
     nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Release /framework:net-2.0
 
     nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Debug /framework:net-2.0
@@ -39,9 +48,11 @@ test_script:
 
     nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Teardown /framework:net-2.0
 
+    :after_tests
+
     rem once everything is happy, we can prep the artefacts
 
-    git log -1 --format=%%h | PatchGitRevision
+    echo %SHA% | PatchGitRevision
 
     mkdir merged
 
@@ -71,7 +82,7 @@ test_script:
 
     ILMerge /ndebug /v4 /out:IronScheme.Console32-v4.exe IronScheme.Console32.exe
 
-    rem the monolith IronScheme.dll is now built, start with packageing
+    rem the monolith IronScheme.dll is now built, start with packaging
 
     mkdir install-stage
 
@@ -136,8 +147,6 @@ test_script:
     zip -r -9 IronScheme-latest.zip IronScheme
 
     rem rename artefacts and copy to build root
-
-    set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
 
     ren IronScheme-latest.zip IronScheme-%SHA%.zip
 
