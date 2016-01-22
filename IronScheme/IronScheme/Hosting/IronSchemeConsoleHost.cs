@@ -20,7 +20,7 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} ironscheme.codeplex.com © 2007,2008,2009,2010,2011,2012,2013,2014,2015 Llewellyn Pritchard {1}",
+      logo = string.Format("IronScheme {0} github.com/leppie/IronScheme © 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Llewellyn Pritchard {1}",
           VERSION,
 #if DEBUG
             "- Debug build "
@@ -52,13 +52,13 @@ namespace IronScheme.Hosting
       if (Options.RunAction != ConsoleHostOptions.Action.RunFiles && !LanguageProvider.InputRedirected)
       {
         // errrkkk
-        var tokens = logo.Split(new string[] { "ironscheme.codeplex.com" }, StringSplitOptions.None);
+        var tokens = logo.Split(new string[] { "github.com/leppie/IronScheme" }, StringSplitOptions.None);
 
         ConsoleColor old = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write(tokens[0]);
         Console.ForegroundColor = ConsoleColor.White;
-        Console.Write("ironscheme.codeplex.com");
+        Console.Write("github.com/leppie/IronScheme");
         Console.ForegroundColor = ConsoleColor.DarkGray;
 
         tokens = tokens[1].Split('-');
