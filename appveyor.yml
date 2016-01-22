@@ -135,15 +135,15 @@ test_script:
 
     zip -r -9 IronScheme-latest.zip IronScheme
 
-    cd ..
-
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
 
     ren IronScheme-latest.zip IronScheme-%SHA%.zip
 
     ren IronScheme-latest.tar.xz IronScheme-%SHA%.tar.xz
 
-    copy install-stage\Ironscheme-%SHA%.* %APPVEYOR_BUILD_FOLDER%
+    copy Ironscheme-%SHA%.* %APPVEYOR_BUILD_FOLDER%
+
+    cd ..
 
     rem packageing done, now precompile libraries for Nuget
 
