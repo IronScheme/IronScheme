@@ -3,7 +3,7 @@ IronScheme
 
 Main repo for IronScheme. Codeplex/TFS will not be be maintained anymore.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ebc9krwxtg59x0am?svg=true)](https://ci.appveyor.com/project/leppie/ironscheme)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/leppie/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme)
 
 You can download the latest build artefacts from the above link.
 
