@@ -386,8 +386,8 @@ namespace IronScheme.Compiler
       Cons body = Builtins.Cdr(args) as Cons;
       FillBody(cb, stmts, body, true);
       cb.ExplicitCodeContextExpression = Ast.CodeContext();
-      
-#if OPTIMIZATIONS
+
+#if !nOPTIMIZATIONS
       Expression ex = InlineCall(c, Ast.CodeBlockExpression(cb, false));
 #else
       Expression ex = Ast.SimpleCallHelper(MakeClosure(cb, false), GetCallable(0));

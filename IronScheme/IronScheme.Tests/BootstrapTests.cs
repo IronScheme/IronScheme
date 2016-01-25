@@ -36,9 +36,25 @@ namespace IronScheme.Tests
 
       Directory.Move("lib.hide", "lib");
 
-      foreach (var lib in loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+      var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+      try
       {
-        File.Delete(lib);
+        foreach (var lib in libs)
+        {
+          if (lib != "srfi.2.and-let%2a.dll") // peverify bug
+          {
+            Console.WriteLine("Verifying: " + lib);
+            RunTest("peverify.exe", "/nologo " + lib);
+          }
+        }
+      }
+      finally
+      {
+        foreach (var lib in libs)
+        {
+          File.Delete(lib);
+        }
       }
     }
   }
@@ -73,10 +89,26 @@ namespace IronScheme.Tests
 
       Directory.Move("lib.hide", "lib");
 
-      foreach (var lib in loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
+      var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+      try
       {
-        File.Delete(lib);
-        File.Delete(Path.ChangeExtension(lib, "pdb"));
+        foreach (var lib in libs)
+        {
+          if (lib != "srfi.2.and-let%2a.dll") // peverify bug
+          {
+            Console.WriteLine("Verifying: " + lib);
+            RunTest("peverify.exe", "/nologo /ignore=0x80131820 " + lib);
+          }
+        }
+      }
+      finally
+      {
+        foreach (var lib in libs)
+        {
+          File.Delete(lib);
+          File.Delete(Path.ChangeExtension(lib, "pdb"));
+        }
       }
     }
   }
