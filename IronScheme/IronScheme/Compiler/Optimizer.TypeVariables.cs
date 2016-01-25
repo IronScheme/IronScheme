@@ -42,7 +42,7 @@ namespace IronScheme.Compiler
 
           if (v.Type == typeof(object))
           {
-            if (val.Type != typeof(object) && !v.Uninitialized)
+            if (val.Type != typeof(object) && val.Type != typeof(SymbolId) && !v.Uninitialized)
             {
               v.Type = val.Type;
             }
