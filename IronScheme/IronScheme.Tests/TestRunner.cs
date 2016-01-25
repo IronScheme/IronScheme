@@ -84,7 +84,7 @@ namespace IronScheme.Tests
           Console.Error.WriteLine(r.Output);
         }
  
-        //Assert.AreEqual(0, p.ExitCode);
+        Assert.AreEqual(0, p.ExitCode);
 
         return r;
       }

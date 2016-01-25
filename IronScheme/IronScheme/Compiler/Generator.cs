@@ -323,7 +323,7 @@ namespace IronScheme.Compiler
 
           object m;
 
-#if !nOPTIMIZATIONS
+#if OPTIMIZATIONS
 
 #if !BLAH
           CodeBlockExpression cbe;
@@ -509,7 +509,7 @@ namespace IronScheme.Compiler
 #endif
           // this can be enabled once builtins are auto CPS'd.
           // ok I tried, but there are issues still, not sure what
-#if !nOPTIMIZATIONS
+#if OPTIMIZATIONS
           // check for inline emitter
           InlineEmitter ie;
           if (TryGetInlineEmitter(f, out ie))

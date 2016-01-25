@@ -70,7 +70,7 @@ namespace IronScheme.Tests
       r = RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
       Console.WriteLine(r.Output);
 
-      r = RunTest("peverify.exe", "/nologo /ignore=0x80131820 ironscheme.boot.dll");
+      r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
       Console.WriteLine(r.Output);
 
       Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
@@ -97,8 +97,9 @@ namespace IronScheme.Tests
         {
           if (lib != "srfi.2.and-let%2a.dll") // peverify bug
           {
-            Console.WriteLine("Verifying: " + lib);
-            RunTest("peverify.exe", "/nologo /ignore=0x80131820 " + lib);
+            // disabled for now
+            //Console.WriteLine("Verifying: " + lib);
+            //RunTest("peverify.exe", "/nologo " + lib);
           }
         }
       }
