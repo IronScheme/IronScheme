@@ -323,7 +323,7 @@ namespace IronScheme.Compiler
 
           object m;
 
-#if OPTIMIZATIONS
+#if !nOPTIMIZATIONS
 
 #if !BLAH
           CodeBlockExpression cbe;
@@ -343,7 +343,7 @@ namespace IronScheme.Compiler
                   ReturnStatement rs = (ReturnStatement)cbe.Block.Body;
 
                   if (!ScriptDomainManager.Options.DebugMode && 
-                    !ScriptDomainManager.Options.LightweightDebugging && 
+                    !ScriptDomainManager.Options.LightweightDebugging &&
                     !cb.IsGlobal && IsSimpleExpression(rs.Expression))
                   {
                     return InlineCall(cb, Ast.CodeBlockExpression(RewriteBody(cbe.Block), false, cbe.IsStronglyTyped), ppp);
@@ -509,7 +509,7 @@ namespace IronScheme.Compiler
 #endif
           // this can be enabled once builtins are auto CPS'd.
           // ok I tried, but there are issues still, not sure what
-#if OPTIMIZATIONS
+#if !nOPTIMIZATIONS
           // check for inline emitter
           InlineEmitter ie;
           if (TryGetInlineEmitter(f, out ie))
