@@ -21,6 +21,8 @@ Alternatively, the following can be done from the VS (any version 2008+) command
 ```
 msbuild IronSchemeCore.sln /v:m /p:TargetFrameworkVersion=v2.0 /p:Configuration=Release
 ```
+or using the `build.cmd` batchfile in the IronScheme directory.
+
 **Note** 
 
 This solution will only build the essentials, basically no web projects. 
