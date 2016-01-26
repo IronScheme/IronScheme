@@ -309,7 +309,21 @@ namespace IronScheme.Compiler
       Cons c = args as Cons;
       if (c != null)
       {
-
+        // in debug mode, this will be (annotated-call <location> . symbol)
+        // TODO: see if the discarded annotation is useful
+        if (ScriptDomainManager.Options.DebugMode && c.car is Cons)
+        {
+          Cons ac = c.car as Cons;
+          if (ac.car == SymbolTable.StringToObject("annotated-call"))
+          {
+            object se = ((Cons)ac.cdr).cdr;
+            if (se is SymbolId)
+            {
+              c.car = se;
+            }
+          }
+        }
+        
         if (c.car is SymbolId)
         {
           SymbolId f = (SymbolId)c.car;
