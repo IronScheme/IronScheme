@@ -48,8 +48,6 @@ test_script:
 
     rem once everything is happy, we can prep the artefacts
 
-    echo %SHA% | PatchGitRevision
-
     mkdir merged
 
     ILMerge /ndebug /keyfile:DEVELOPMENT.snk /out:merged\IronScheme.dll IronScheme.dll IronScheme.Closures.dll IronScheme.Scripting.dll Oyster.IntX.dll ironscheme.boot.dll 
@@ -144,9 +142,9 @@ test_script:
 
     rem rename artefacts and copy to build root
 
-    ren IronScheme-latest.zip IronScheme-%SHA%.zip
+    ren IronScheme-latest.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.zip
 
-    ren IronScheme-latest.tar.xz IronScheme-%SHA%.tar.xz
+    ren IronScheme-latest.tar.xz IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.tar.xz
 
     copy Ironscheme-%SHA%.* %APPVEYOR_BUILD_FOLDER%
 
