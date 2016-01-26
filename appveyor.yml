@@ -146,7 +146,7 @@ test_script:
 
     ren IronScheme-latest.tar.xz IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.tar.xz
 
-    copy Ironscheme-%SHA%.* %APPVEYOR_BUILD_FOLDER%
+    copy Ironscheme-%APPVEYOR_BUILD_VERSION%-%SHA%.* %APPVEYOR_BUILD_FOLDER%
 
     cd ..
 artifacts:
