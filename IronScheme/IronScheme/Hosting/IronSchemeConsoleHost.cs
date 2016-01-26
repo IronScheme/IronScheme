@@ -10,13 +10,28 @@ using System.IO;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
+using System.Reflection;
 
 namespace IronScheme.Hosting
 {
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
-    // no static fields before this one
-    internal static string VERSION = "Latest";
+    internal static string VERSION = GetVersion();
+
+    static string GetVersion()
+    {
+      foreach (var a in typeof(Builtins).Assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false))
+      {
+        var info = (AssemblyInformationalVersionAttribute)a;
+        if (info.InformationalVersion == "1.0.0.0")
+        {
+          return "Latest";
+        }
+        return info.InformationalVersion;
+      }
+      return "Latest";
+    }
+
     string logo;
     public IronSchemeConsoleHost()
     {
