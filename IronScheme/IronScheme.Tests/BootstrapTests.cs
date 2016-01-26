@@ -31,10 +31,16 @@ namespace IronScheme.Tests
 
       Directory.Move("lib", "lib.hide");
 
-      r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps");
-      var loadedlibs = r.Output;
+      r = RunIronSchemeTest(@"compile-system-libraries.sps");
 
       Directory.Move("lib.hide", "lib");
+    }
+
+    [Test]
+    public void Verify()
+    {
+      var r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps");
+      var loadedlibs = r.Output;
 
       var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -54,6 +60,7 @@ namespace IronScheme.Tests
         foreach (var lib in libs)
         {
           File.Delete(lib);
+          File.Delete(Path.ChangeExtension(lib, "pdb"));
         }
       }
     }
@@ -84,10 +91,16 @@ namespace IronScheme.Tests
 
       Directory.Move("lib", "lib.hide");
 
-      r = RunIronSchemeTest(@"-debug --show-loaded-libraries compile-system-libraries.sps");
-      var loadedlibs = r.Output;
+      r = RunIronSchemeTest(@"-debug compile-system-libraries.sps");
 
       Directory.Move("lib.hide", "lib");
+    }
+
+    [Test]
+    public void Verify()
+    {
+      var r = RunIronSchemeTest(@"-debug --show-loaded-libraries compile-system-libraries.sps");
+      var loadedlibs = r.Output;
 
       var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -97,7 +110,6 @@ namespace IronScheme.Tests
         {
           if (lib != "srfi.2.and-let%2a.dll") // peverify bug
           {
-            // disabled for now
             Console.WriteLine("Verifying: " + lib);
             RunTest("peverify.exe", "/nologo " + lib);
           }
