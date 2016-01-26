@@ -98,8 +98,8 @@ namespace IronScheme.Tests
           if (lib != "srfi.2.and-let%2a.dll") // peverify bug
           {
             // disabled for now
-            //Console.WriteLine("Verifying: " + lib);
-            //RunTest("peverify.exe", "/nologo " + lib);
+            Console.WriteLine("Verifying: " + lib);
+            RunTest("peverify.exe", "/nologo " + lib);
           }
         }
       }
