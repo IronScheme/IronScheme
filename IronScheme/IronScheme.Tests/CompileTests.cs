@@ -11,11 +11,11 @@ namespace IronScheme.Tests
     [Test]
     public void Run()
     {
-      Console.WriteLine("Bootstrapping");
+      if (!Quiet) Console.WriteLine("Bootstrapping");
       RunIronSchemeTest(@"ironscheme-buildscript.sps", false);
-      Console.WriteLine("Compiling system libraries");
+      if (!Quiet) Console.WriteLine("Compiling system libraries");
       RunIronSchemeTest(@"compile-system-libraries.sps", false);
-      Console.WriteLine("Done");
+      if (!Quiet) Console.WriteLine("Done");
     }
   }
 
@@ -24,17 +24,17 @@ namespace IronScheme.Tests
     [Test]
     public void Run()
     {
-      Console.WriteLine("Collecting system libraries");
+      if (!Quiet) Console.WriteLine("Collecting system libraries");
       var r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps", false);
       var loadedlibs = r.Output;
 
-      Console.WriteLine("Deleting system libraries");
+      if (!Quiet) Console.WriteLine("Deleting system libraries");
       foreach (var lib in loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries))
       {
         File.Delete(lib);
       }
 
-      Console.WriteLine("Done");
+      if (!Quiet) Console.WriteLine("Done");
     }
   }
 
