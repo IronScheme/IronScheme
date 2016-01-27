@@ -28,6 +28,17 @@ or using the `build.cmd` batchfile in the IronScheme directory.
 This solution will only build the essentials, basically no web projects. 
 You can also adjust the framework to your liking. Tested with 2.0, 4.0, 4.5 on the Developer Command Prompt for VS2015.
 
+Running tests
+=============
+
+After building, you can use NUnit to run `IronScheme.Tests.dll` in the `IronScheme.Console` bin folder. 
+
+There is also a batch file in the IronScheme directory called `test.cmd`.
+
+**Note**
+
+Make sure that `peverify` is in your PATH. The test fixtures are designed to execute in a specfic order. The tests will not take less than 6 minutes to complete.
+
 Notes
 =====
 
