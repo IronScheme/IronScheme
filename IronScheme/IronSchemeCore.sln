@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		logo-128.png = logo-128.png
 		logo-192.png = logo-192.png
 		..\sync.sh = ..\sync.sh
+		test.cmd = test.cmd
 		welcome.bmp = welcome.bmp
 	EndProjectSection
 EndProject
