@@ -11,35 +11,26 @@ namespace IronScheme.Tests
     [Test]
     public void Bootstrap()
     {
-      var r = RunIronSchemeTest(@"ironscheme-buildscript.sps");
-      Console.WriteLine(r.Output);
-
-      r = RunIronSchemeTest(@"ironscheme-buildscript.sps");
-      Console.WriteLine(r.Output);
+      RunIronSchemeTest(@"ironscheme-buildscript.sps");
+      RunIronSchemeTest(@"ironscheme-buildscript.sps");
       
-      r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
-      Console.WriteLine(r.Output);
-
+      var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
       Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
     }
 
     [Test]
     public void Compile()
     {
-      var r = RunIronSchemeTest(@"compile-system-libraries.sps");
-      Console.WriteLine(r.Output);
-
+      RunIronSchemeTest(@"compile-system-libraries.sps");
       Directory.Move("lib", "lib.hide");
-
-      r = RunIronSchemeTest(@"compile-system-libraries.sps");
-
+      RunIronSchemeTest(@"compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
     }
 
     [Test]
     public void Verify()
     {
-      var r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps");
+      var r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps", false);
       var loadedlibs = r.Output;
 
       var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -50,8 +41,8 @@ namespace IronScheme.Tests
         {
           if (lib != "srfi.2.and-let%2a.dll") // peverify bug
           {
-            Console.WriteLine("Verifying: " + lib);
-            RunTest("peverify.exe", "/nologo " + lib);
+            if (!Quiet) Console.WriteLine("Verifying: " + lib);
+            RunTest("peverify.exe", "/nologo " + lib, false);
           }
         }
       }
@@ -71,35 +62,26 @@ namespace IronScheme.Tests
     [Test]
     public void Bootstrap()
     {
-      var r = RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
-      Console.WriteLine(r.Output);
+      RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
+      RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
 
-      r = RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
-      Console.WriteLine(r.Output);
-
-      r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
-      Console.WriteLine(r.Output);
-
+      var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
       Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
     }
 
     [Test]
     public void Compile()
     {
-      var r = RunIronSchemeTest(@"-debug compile-system-libraries.sps");
-      Console.WriteLine(r.Output);
-
+      RunIronSchemeTest(@"-debug compile-system-libraries.sps");
       Directory.Move("lib", "lib.hide");
-
-      r = RunIronSchemeTest(@"-debug compile-system-libraries.sps");
-
+      RunIronSchemeTest(@"-debug compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
     }
 
     [Test]
     public void Verify()
     {
-      var r = RunIronSchemeTest(@"-debug --show-loaded-libraries compile-system-libraries.sps");
+      var r = RunIronSchemeTest(@"-debug --show-loaded-libraries compile-system-libraries.sps", false);
       var loadedlibs = r.Output;
 
       var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -110,8 +92,8 @@ namespace IronScheme.Tests
         {
           if (lib != "srfi.2.and-let%2a.dll") // peverify bug
           {
-            Console.WriteLine("Verifying: " + lib);
-            RunTest("peverify.exe", "/nologo " + lib);
+            if (!Quiet) Console.WriteLine("Verifying: " + lib);
+            RunTest("peverify.exe", "/nologo " + lib, false);
           }
         }
       }

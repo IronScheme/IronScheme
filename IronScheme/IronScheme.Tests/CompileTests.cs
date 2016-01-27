@@ -12,9 +12,9 @@ namespace IronScheme.Tests
     public void Run()
     {
       Console.WriteLine("Bootstrapping");
-      RunIronSchemeTest(@"ironscheme-buildscript.sps");
+      RunIronSchemeTest(@"ironscheme-buildscript.sps", false);
       Console.WriteLine("Compiling system libraries");
-      RunIronSchemeTest(@"compile-system-libraries.sps");
+      RunIronSchemeTest(@"compile-system-libraries.sps", false);
       Console.WriteLine("Done");
     }
   }
@@ -25,7 +25,7 @@ namespace IronScheme.Tests
     public void Run()
     {
       Console.WriteLine("Collecting system libraries");
-      var r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps");
+      var r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps", false);
       var loadedlibs = r.Output;
 
       Console.WriteLine("Deleting system libraries");

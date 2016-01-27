@@ -10,9 +10,12 @@ namespace IronScheme.Tests
   [TestFixture]
   public abstract class TestRunner
   {
+    protected bool Quiet { get; private set; }
+
     protected class TestResult
     {
       public string Output;
+      public string Error;
     }
 
     protected TestResult RunIronSchemeTestWithInput(string input)
@@ -25,9 +28,24 @@ namespace IronScheme.Tests
       return RunIronSchemeTest(args, null);
     }
 
+    protected TestResult RunIronSchemeTest(string args, bool echo)
+    {
+      return RunIronSchemeTest(args, null, echo);
+    }
+
     protected TestResult RunIronSchemeTest(string args, string input)
     {
-      return RunTest("IronScheme.Console32.exe", args, input);
+      return RunIronSchemeTest(args, input, true);
+    }
+
+    protected TestResult RunIronSchemeTest(string args, string input, bool echo)
+    {
+      return RunTest("IronScheme.Console32.exe", args, input, echo);
+    }
+
+    protected TestResult RunTest(string exe, string args, bool echo)
+    {
+      return RunTest(exe, args, null, echo);
     }
 
     protected TestResult RunTest(string exe, string args)
@@ -37,6 +55,15 @@ namespace IronScheme.Tests
 
     protected TestResult RunTest(string exe, string args, string input)
     {
+      return RunTest(exe, args, input, true);
+    }
+
+    protected TestResult RunTest(string exe, string args, string input, bool echo)
+    {
+      Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
+      var error = new StringWriter();
+      var output = new StringWriter();
+
       var p = new Process
       {
         StartInfo = new ProcessStartInfo
@@ -49,7 +76,19 @@ namespace IronScheme.Tests
           UseShellExecute = false,
           CreateNoWindow = true,
           Arguments = args,
-        },
+        }
+      };
+
+      p.ErrorDataReceived += (s, e) =>
+      {
+        if (echo && !Quiet) Console.Error.WriteLine(e.Data);
+        error.WriteLine(e.Data);
+      };
+
+      p.OutputDataReceived += (s, e) =>
+      {
+        if (echo && !Quiet) Console.WriteLine(e.Data);
+        output.WriteLine(e.Data);
       };
 
       try
@@ -67,21 +106,32 @@ namespace IronScheme.Tests
           p.StandardInput.Close();
         }
 
-        var r = new TestResult
-        {
-          Output = p.StandardOutput.ReadToEnd()
-        };
+        p.BeginErrorReadLine();
+        p.BeginOutputReadLine();
 
         var exited = p.WaitForExit(180000);
+
+        var r = new TestResult
+        {
+          Output = output.ToString().TrimEnd(Environment.NewLine.ToCharArray()),
+          Error = error.ToString().TrimEnd(Environment.NewLine.ToCharArray())
+        };
 
         if (!exited)
         {
           p.Kill();
         }
 
-        if (p.ExitCode != 0)
+        if (p.ExitCode != 0 && !echo)
         {
-          Console.Error.WriteLine(r.Output);
+          if (r.Output.Length > 0)
+          {
+            Console.WriteLine(r.Output);
+          }
+          if (r.Error.Length > 0)
+          {
+            Console.Error.WriteLine(r.Error);
+          }
         }
  
         Assert.AreEqual(0, p.ExitCode);
