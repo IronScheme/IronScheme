@@ -12,6 +12,8 @@ assembly_info:
   assembly_informational_version: '{version}-$(SHA)'install:
 - cmd: >-
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
+    
+    set QUIET=1
 
     cinst ilmerge
 
@@ -32,19 +34,19 @@ test_script:
 
     rem these have to be in order
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Release /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Debug /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Setup /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Setup /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Conformance /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.SRFI /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Other /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other /framework:net-2.0
 
-    nunit-console IronScheme.Tests.dll /run:IronScheme.Tests.Teardown /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown /framework:net-2.0
 
     rem once everything is happy, we can prep the artefacts
 
