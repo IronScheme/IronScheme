@@ -1,15 +1,36 @@
 @echo off
 setlocal
 
-rem these have to be in order
-set TESTS=Release,Debug,Setup,Conformance,SRFI,Other,Teardown
-
-rem set this to anything if you want dont want verbose output
-set QUIET=1
-
 rem set nunit bin directory
 set NUNIT_PATH=%USERPROFILE%\Downloads\NUnit-2.6.4\NUnit-2.6.4\bin\
 
+rem these have to be in order
+set TESTS=Release,Debug,Setup,Conformance,SRFI,Other,Teardown
+
+set QUIET=1
+set ARGS=%*
+
+rem the args you want to handle
+set MYARGS=verbose V
+
+rem the prefix for arg
+set PREFIX=/
+
+rem implementation start
+for %%m in (%MYARGS%) do call :parse %%m
+goto script
+
+:parse
+for %%a in (%ARGS%) do for /f "tokens=1,2 delims=:" %%b in ("%%a") do if %%b == %PREFIX%%1 call :%1 %%c
+goto :eof
+rem implementation end
+
+:verbose
+:V
+set QUIET=
+goto :eof
+
+:script
 rem setup path
 set PATH=%PATH%;%NUNIT_PATH%;
 
@@ -18,7 +39,6 @@ where peverify >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 goto no_peverify
 where nunit-console-x86 >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 goto no_nunit
-
 
 set NUNIT=call :runtest
 
