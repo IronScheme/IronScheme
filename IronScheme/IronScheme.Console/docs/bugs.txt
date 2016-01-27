@@ -1,4 +1,4 @@
 ﻿Bugs
 ====
 
-Please report any bug(s) found at http://www.codeplex.com/IronScheme .
+Please report any bug(s) found at https://github.com/leppie/IronScheme .
