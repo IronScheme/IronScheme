@@ -33,7 +33,7 @@ Running tests
 
 After building, you can use NUnit to run `IronScheme.Tests.dll` in the `IronScheme.Console` bin folder. 
 
-There is also a batch file in the IronScheme directory called `test.cmd`.
+There is also a batch file in the IronScheme directory called `test.cmd`. You can pass the `/verbose` to the batch file to see complete output in case of failures.
 
 **Note**
 
