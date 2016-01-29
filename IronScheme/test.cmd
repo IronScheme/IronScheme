@@ -52,7 +52,7 @@ exit /b 0
 
 :runtest
 @echo on
-nunit-console-x86.exe /nologo /labels /framework:net-2.0 ^
+nunit-console-x86.exe /nologo /labels ^
 /work:results /result:%1.xml ^
 IronScheme.Tests.dll /run:IronScheme.Tests.%1
 @echo off 

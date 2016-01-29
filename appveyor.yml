@@ -9,7 +9,10 @@ assembly_info:
   file: IronScheme\IronScheme\Properties\AssemblyInfo.cs
   assembly_version: '1.0.0.0'
   assembly_file_version: '{version}'
-  assembly_informational_version: '{version}-$(SHA)'install:
+  assembly_informational_version: '{version}-$(SHA)'environment:
+  matrix:
+  - FX_VERSION: v2.0
+  - FX_VERSION: v4.0install:
 - cmd: >-
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     
@@ -27,26 +30,26 @@ assembly_info:
 
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
 build_script:
-- cmd: msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:TargetFrameworkVersion=v2.0 /p:Configuration=Release
+- cmd: msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:TargetFrameworkVersion=%FX_VERSION% /p:Configuration=Release
 test_script:
 - cmd: >-
     cd IronScheme\IronScheme.Console\bin\Release
 
     rem these have to be in order
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Setup /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Setup
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown /framework:net-2.0
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown
 
     rem once everything is happy, we can prep the artefacts
 
