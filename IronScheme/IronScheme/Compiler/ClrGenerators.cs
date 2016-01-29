@@ -89,7 +89,7 @@ namespace IronScheme.Compiler
 
       foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
       {
-        if (!(ass is AssemblyBuilder))
+        if (!((ass is AssemblyBuilder) || ass.GetType().Name == "InternalAssemblyBuilder"))
         {
           t = ass.GetType(name);
           if (t != null)
