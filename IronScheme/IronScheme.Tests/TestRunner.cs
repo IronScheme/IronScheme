@@ -10,6 +10,11 @@ namespace IronScheme.Tests
   [TestFixture]
   public abstract class TestRunner
   {
+    protected TestRunner()
+    {
+      Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
+    }
+
     protected bool Quiet { get; private set; }
 
     protected class TestResult
@@ -60,7 +65,7 @@ namespace IronScheme.Tests
 
     protected TestResult RunTest(string exe, string args, string input, bool echo)
     {
-      Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
+      
       var error = new StringWriter();
       var output = new StringWriter();
 
