@@ -1,7 +1,11 @@
 IronScheme
 ==========
 
-Main repo for IronScheme. Codeplex/TFS will not be be maintained anymore.
+IronScheme aims to be a R6RS conforming Scheme-like implementation based on the Microsoft DLR.
+
+IronScheme implements over 99% of the R6RS specification and specified behavior.
+
+**Notice:** Main repo for IronScheme. Codeplex/TFS will not be be maintained anymore.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/github/leppie/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/build/tests)
 
@@ -38,6 +42,14 @@ There is also a batch file in the IronScheme directory called `test.cmd`. You ca
 **Note**
 
 Make sure that `peverify` is in your PATH. The test fixtures are designed to execute in a specfic order. The tests will not take less than 6 minutes to complete.
+
+Other
+=====
+
+* http://ironscheme.codeplex.com/
+* http://ironscheme.codeplex.com/documentation
+* http://ironscheme.codeplex.com/discussions
+
 
 Notes
 =====
