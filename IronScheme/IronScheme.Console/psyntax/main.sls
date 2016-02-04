@@ -338,15 +338,14 @@
   
   (library-extensions (append (library-extensions) (list ".ironscheme.sls")))
   
-  (unless (debug-mode?)
-    (enable-constant-fold/env 
-      '(only (rnrs) + - * / = < > <= >= negative? positive? zero? exp expt div mod div0 mod0 even? odd? 
-                    log abs tan sin cos atan asin acos angle denominator)
-      '(except (rnrs arithmetic fixnums) fx*/carry fx-/carry fx+/carry fxdiv0-and-mod0 fxdiv-and-mod)
-      '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod 
-                make-no-infinities-violation make-no-nans-violation 
-                no-infinities-violation? no-nans-violation?)
-      '(rnrs arithmetic bitwise)))
+  (enable-constant-fold/env 
+    '(only (rnrs) + - * / = < > <= >= negative? positive? zero? exp expt div mod div0 mod0 even? odd? 
+                  log abs tan sin cos atan asin acos angle denominator)
+    '(except (rnrs arithmetic fixnums) fx*/carry fx-/carry fx+/carry fxdiv0-and-mod0 fxdiv-and-mod)
+    '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod 
+              make-no-infinities-violation make-no-nans-violation 
+              no-infinities-violation? no-nans-violation?)
+    '(rnrs arithmetic bitwise))
   
   (interaction-environment (new-interaction-environment))
   

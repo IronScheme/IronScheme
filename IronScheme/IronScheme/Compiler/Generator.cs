@@ -356,9 +356,7 @@ namespace IronScheme.Compiler
                 {
                   ReturnStatement rs = (ReturnStatement)cbe.Block.Body;
 
-                  if (!ScriptDomainManager.Options.DebugMode && 
-                    !ScriptDomainManager.Options.LightweightDebugging &&
-                    !cb.IsGlobal && IsSimpleExpression(rs.Expression))
+                  if (!cb.IsGlobal && IsSimpleExpression(rs.Expression))
                   {
                     return InlineCall(cb, Ast.CodeBlockExpression(RewriteBody(cbe.Block), false, cbe.IsStronglyTyped), ppp);
                   }
