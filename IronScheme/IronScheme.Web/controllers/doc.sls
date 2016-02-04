@@ -6,6 +6,7 @@
     (rename (doc:library library)))
   (import
     (ironscheme)
+    (ironscheme strings)
     (ironscheme web)
     (ironscheme web views)
     (models doc)
@@ -39,7 +40,8 @@
         (view-library-edit lib (library-doc-description (get-library lib))))]
     [(post id desc)                
       (let ((lib (parse-lib id)))
-        (save-library-description lib desc)
+        (unless (or (string-ci-contains? desc "https://") (string-ci-contains? desc "http://"))
+          (save-library-description lib desc))
         (redirect (action/id-url "library" lib)))])
 
 )    
