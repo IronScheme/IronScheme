@@ -37,11 +37,9 @@ test_script:
 
     rem these have to be in order
 
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
-
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
-
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Setup
+    
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
 
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
 
