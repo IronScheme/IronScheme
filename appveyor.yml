@@ -12,7 +12,7 @@ assembly_info:
   assembly_informational_version: '{version}-$(SHA)'environment:
   matrix:
   - FX_VERSION: v2.0
-  - FX_VERSION: v4.0install:
+#  - FX_VERSION: v4.0install:
 - cmd: >-
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     
