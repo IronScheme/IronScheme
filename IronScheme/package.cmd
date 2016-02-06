@@ -62,7 +62,7 @@ rmdir /s /q install-stage\IronScheme\docs\notes
 cd install-stage
 tar -c -fIronScheme-latest.tar IronScheme >nul
 xz IronScheme-latest.tar
-copy IronScheme.pdb install-stage\IronScheme
+copy ..\IronScheme.pdb IronScheme
 copy ..\ngen-all.cmd IronScheme
 copy ..\un-ngen-all.cmd IronScheme
 zip -r -9 -q IronScheme-latest.zip IronScheme
