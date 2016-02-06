@@ -1,6 +1,5 @@
-@echo off
+::@echo off
 setlocal
-call build.cmd
 
 set BUILD_ROOT=%~dp0
 set PATH=%PATH%;%BUILD_ROOT%tools;
