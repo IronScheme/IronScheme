@@ -1,6 +1,8 @@
 echo on
 cd IronScheme
 call package.cmd
-ren bin\IronScheme-latest.zip ..\IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.zip
-ren bin\IronScheme-latest.tar.xz ..\IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.tar.xz
-cd ..
+cd bin
+ren IronScheme-latest.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.zip
+ren IronScheme-latest.tar.xz IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.tar.xz
+copy IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.* %APPVEYOR_BUILD_FOLDER%
+cd %APPVEYOR_BUILD_FOLDER%
