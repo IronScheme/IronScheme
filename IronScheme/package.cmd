@@ -1,4 +1,4 @@
-::@echo off
+@echo off
 setlocal
 
 set BUILD_ROOT=%~dp0
@@ -45,7 +45,6 @@ copy DEVELOPMENT.snk install-stage\IronScheme
 copy system-libraries.ss install-stage\IronScheme
 copy system-libraries.srfi.ss install-stage\IronScheme
 copy IronScheme.dll install-stage\IronScheme
-copy IronScheme.pdb install-stage\IronScheme
 copy IronScheme.Web.Runtime.dll install-stage\IronScheme
 copy IronScheme.Remoting*.dll install-stage\IronScheme >nul
 copy Executable.cs.template install-stage\IronScheme
@@ -63,6 +62,7 @@ rmdir /s /q install-stage\IronScheme\docs\notes
 cd install-stage
 tar -c -fIronScheme-latest.tar IronScheme >nul
 xz IronScheme-latest.tar
+copy IronScheme.pdb install-stage\IronScheme
 copy ..\ngen-all.cmd IronScheme
 copy ..\un-ngen-all.cmd IronScheme
 zip -r -9 -q IronScheme-latest.zip IronScheme
