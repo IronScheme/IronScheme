@@ -12,7 +12,7 @@ assembly_info:
   assembly_informational_version: '{version}-$(SHA)'environment:
   matrix:
   - FX_VERSION: v2.0
-#  - FX_VERSION: v4.0install:
+  - FX_VERSION: v4.0install:
 - cmd: >-
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     
@@ -37,17 +37,17 @@ test_script:
 
     rem these have to be in order
 
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
     
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
 
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
 
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
 
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
 
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown
 
     cd %APPVEYOR_BUILD_FOLDER%
 
