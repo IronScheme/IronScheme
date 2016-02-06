@@ -1,3 +1,4 @@
+echo on
 cd IronScheme
 call package.cmd
 ren bin\IronScheme-latest.zip ..\IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.zip
