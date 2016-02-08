@@ -38,7 +38,7 @@ namespace IronScheme.Compiler
 
           if (location is string)
           {
-            var SpanHint = ExtractLocation(location as string);
+            SpanHint = ExtractLocation(location as string);
             return Apply(cb, c, SpanHint);
           }
           else if (location is SourceSpan)

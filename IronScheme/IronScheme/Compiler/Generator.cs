@@ -320,6 +320,8 @@ namespace IronScheme.Compiler
             if (se is SymbolId)
             {
               c.car = se;
+              var sym = GetAst(ac, cb);
+              SpanHint = sym.Span;
             }
           }
         }
