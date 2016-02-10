@@ -7,7 +7,7 @@ IronScheme implements over 99% of the R6RS specification and specified behavior.
 
 **Notice:** Main repo for IronScheme. Codeplex/TFS will not be be maintained anymore.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/leppie/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/build/tests)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/leppie/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
 
 You can download the latest build artefacts from the above link.
 
