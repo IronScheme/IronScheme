@@ -566,6 +566,7 @@ namespace IronScheme
     [Builtin("compile-library")]
     public static object CompileLibrary(object filename, object content)
     {
+      IronScheme.Compiler.Generator.LocationHint = null;
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
