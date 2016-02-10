@@ -241,9 +241,8 @@ See docs/license.txt. |#
   (define-fx (fxmod x1 x2)
     ($fx- 0 ($fx- ($fx* (fxdiv x1 x2) x2) x1)))
 
-  ;; untyped
-  (define (fxdiv-and-mod x1 x2)
-    (import (rnrs))
+  ;; untyped return
+  (define: (fxdiv-and-mod (x1 : Int32)(x2 : Int32))
     (let ((d (fxdiv x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1))))) 
 
@@ -265,8 +264,8 @@ See docs/license.txt. |#
   (define-fx (fxmod0 x1 x2)
     ($fx- 0 ($fx- ($fx* (fxdiv0 x1 x2) x2) x1)))
   
-  ;; untyped
-  (define (fxdiv0-and-mod0 x1 x2)
+  ;; untyped return
+  (define: (fxdiv0-and-mod0 (x1 : Int32)(x2 : Int32))
     (let ((d (fxdiv0 x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1)))))
       
