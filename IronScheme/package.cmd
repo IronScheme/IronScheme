@@ -62,10 +62,11 @@ rmdir /s /q install-stage\IronScheme\docs\notes
 cd install-stage
 tar -c -fIronScheme-latest.tar IronScheme >nul
 xz IronScheme-latest.tar
-copy ..\IronScheme.pdb IronScheme
 copy ..\ngen-all.cmd IronScheme
 copy ..\un-ngen-all.cmd IronScheme
 zip -r -9 -q IronScheme-latest.zip IronScheme
+copy ..\IronScheme.pdb IronScheme
+zip -r -9 -q IronScheme-latest-DEBUG.zip IronScheme
 rem rename artefacts and copy to build root
-copy /y IronScheme-latest.* %BUILD_ROOT%bin
+copy /y IronScheme-latest*.* %BUILD_ROOT%bin
 popd
