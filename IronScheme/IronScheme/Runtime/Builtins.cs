@@ -408,14 +408,15 @@ namespace IronScheme
     {
       List<string> paths = new List<string>();
 
+      paths.AddRange(includepaths);
+
       if (Environment.CurrentDirectory != ApplicationDirectory)
       {
         paths.Add(".");
       }
 
-      paths.AddRange(includepaths);
-      paths.Add(ApplicationDirectory);
       paths.Add(Path.Combine(ApplicationDirectory, "lib"));
+      paths.Add(ApplicationDirectory);
 
       return Runtime.Cons.FromList(paths);
     }
