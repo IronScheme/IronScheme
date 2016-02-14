@@ -1494,11 +1494,7 @@
           (reverse (cons* (car code*) code (cdr code*)))
           export-locs)))))
 
-(define do-cps-conversion #f)
-
 (define bootfile "ironscheme.boot.pp")
-            
-(define bootfile-cps "ironscheme.boot.cps")
 
 (define bootstrap-collection
   (let ((ls '()))
