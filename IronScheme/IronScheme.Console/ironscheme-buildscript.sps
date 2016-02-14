@@ -1494,8 +1494,6 @@
           (reverse (cons* (car code*) code (cdr code*)))
           export-locs)))))
 
-(define bootfile "ironscheme.boot.pp")
-
 (define bootstrap-collection
   (let ((ls '()))
     (case-lambda
