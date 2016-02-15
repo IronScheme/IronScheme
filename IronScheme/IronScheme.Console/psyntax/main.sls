@@ -234,8 +234,8 @@
   (define fo (make-enumeration '(no-fail no-create no-truncate append)))
  
   (define (load-library-from-dll libname filename sk)        
-    (let ((dll-filename (library-name->dll-name libname)))
-      (if (file-exists? dll-filename)
+    (let ((dll-filename (compiled-library-exists? libname)))
+      (if dll-filename
           (if (or (not (file-exists? filename))
                   (file-newer? dll-filename filename))
               (clr-guard [e 
@@ -274,7 +274,7 @@
   (define (compile-dll libname content)
     (let ((filename (library-name->dll-name libname)))
       (display "compiling ")
-      (display (relative-filename filename))
+      (display (get-filename filename))
       (newline)
       (let* ((v (list->vector content))
              (prune? (can-prune? (vector-ref v 6) (vector-ref v 7))))

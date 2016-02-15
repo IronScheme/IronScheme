@@ -21,8 +21,8 @@
 (library (psyntax library-manager)
   (export imported-label->binding library-subst installed-libraries
     visit-library library-name library-version library-exists? try-load-from-file
-    find-library-by-name install-library library-spec invoke-library 
-    current-library-expander uninstall-library file-locator library-name->file-name
+    find-library-by-name install-library library-spec invoke-library compiled-library-exists?
+    current-library-expander uninstall-library file-locator library-name->file-name library-name->dll-name
     current-library-collection library-path library-extensions alternative-file-locator
     serialize-all current-precompiled-library-loader allow-library-redefinition)
   (import (rnrs) (psyntax compat) (rnrs r5rs) (only (ironscheme) format printf))
@@ -130,6 +130,49 @@
                     d))))
           (f (cdr ls))))
       (extract)))
+
+  (define (library-name->dll-name x)
+    (let ((fn (let-values (((p extract) (open-string-output-port)))
+                (define (display-hex n)
+                  (cond
+                    ((<= 0 n 9) (display n p))
+                    (else (display 
+                            (integer->char 
+                              (+ (char->integer #\a) ; lowercase
+                                 (- n 10)))
+                            p))))
+                (let f ((ls x))
+                  (unless (null? ls)
+                    (display "." p)
+                    (for-each
+                      (lambda (c)
+                        (cond
+                          ((or (char<=? #\a c #\z)
+                               (char<=? #\A c #\Z)
+                               (char<=? #\0 c #\9)
+                               (memv c '(#\- #\. #\_ #\~)))
+                           (display c p))
+                          (else
+                           (display "%" p)
+                           (let ((n (char->integer c)))
+                             (display-hex (quotient n 16))
+                             (display-hex (remainder n 16))))))
+                      (string->list 
+                        (let ((d (symbol->string (car ls))))
+                          (if (and (char=? #\: (string-ref d 0)) (char<=? #\0 (string-ref d 1) #\9))
+                              (substring d 1 (string-length d))
+                              d))))
+                    (f (cdr ls))))
+                (string-append (extract) ".dll"))))
+           (substring fn 1 (string-length fn))))
+    
+  (define (compiled-library-exists? libname)
+    (let ((dllname (library-name->dll-name libname)))
+      (exists 
+        (lambda (p)
+          (let ((fn (string-append p "/" dllname)))
+            (and (file-exists? fn) fn)))
+        (library-path))))
       
   (define alternative-file-locator
     (make-parameter
