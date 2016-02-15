@@ -252,7 +252,7 @@
          ;;; if all is ok, install the library
          ;;; otherwise, return #f so that the
          ;;; library gets recompiled.
-         (let f ((deps (append imp* vis* inv* guard-req*)))
+         (let f ((deps (append vis* inv* guard-req*)))
            (cond
              ((null? deps)
               ;;; CHECK

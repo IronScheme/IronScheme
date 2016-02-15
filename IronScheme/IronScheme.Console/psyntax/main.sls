@@ -281,8 +281,8 @@
         (vector-set! v 0 `',(vector-ref v 0)) ; id
         (vector-set! v 1 `',(vector-ref v 1)) ; name
         (vector-set! v 2 `',(vector-ref v 2)) ; version
-        (vector-set! v 3 `',(vector-ref v 3)) ; imp*
-        (vector-set! v 4 `',(vector-ref v 4)) ; vis*
+        (vector-set! v 3 '()) ; imp*
+        (vector-set! v 4 `',(if prune? '() (vector-ref v 4))) ; vis*
         (vector-set! v 5 `',(vector-ref v 5)) ; inv*
         (vector-set! v 6 `',(vector-ref v 6)) ; subst
         (vector-set! v 7 `',(if prune? (prune-env (vector-ref v 7)) (vector-ref v 7))) ; env
