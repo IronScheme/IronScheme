@@ -12,6 +12,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\and-let_.sps");
       Assert.True(r.Output.Contains("; *** checks *** : 30 correct, 0 failed."));
+      AssertError(r);
     }
 
     [Test]
@@ -20,6 +21,7 @@ namespace IronScheme.Tests
       var r = RunIronSchemeTest(@"lib\srfi\tests\compare-procedures.sps");
       Assert.True(r.Output.Contains("*** correct examples: 19938"));
       Assert.True(r.Output.Contains("*** wrong examples:   0"));
+      AssertError(r);
     }
 
     [Test]
@@ -27,6 +29,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\cut.sps");
       Assert.True(r.Output == "passed");
+      AssertError(r);
     }
 
     [Test]
@@ -35,6 +38,7 @@ namespace IronScheme.Tests
       var r = RunIronSchemeTest(@"lib\srfi\tests\eager-comprehensions.sps");
       Assert.True(r.Output.Contains("correct examples : 162"));
       Assert.True(r.Output.Contains("wrong examples   : 0"));
+      AssertError(r);
     }
 
     [Test]
@@ -42,6 +46,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\intermediate-format-strings.sps");
       Assert.True(r.Output.Contains("; *** checks *** : 95 correct, 0 failed."));
+      AssertError(r);
     }
 
     [Test]
@@ -49,6 +54,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\lightweight-testing.sps");
       Assert.True(r.Output.Contains("; *** checks *** : 9 correct, 4 failed. First failed example:"));
+      AssertError(r);
     }
 
     [Test]
@@ -56,6 +62,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\lists.sps");
       Assert.True(r.Output == "Done.");
+      AssertError(r);
     }
 
     [Test]
@@ -63,6 +70,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\multi-dimensional-arrays--arlib.sps");
       Assert.True(r.Output.Contains("; *** checks *** : 47 correct, 0 failed."));
+      AssertError(r);
     }
 
     [Test]
@@ -70,6 +78,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\multi-dimensional-arrays.sps");
       Assert.True(r.Output.Contains("; *** checks *** : 24 correct, 0 failed."));
+      AssertError(r);
     }
 
     [Test]
@@ -77,6 +86,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\os-environment-variables.sps");
       Assert.True(r.Output.Contains("; *** checks *** : 4 correct, 0 failed."));
+      AssertError(r);
     }
 
     [Test]
@@ -84,6 +94,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\procedure-arity.sps");
       Assert.True(r.Output.Length == 0);
+      AssertError(r);
     }
 
     [Test]
@@ -91,12 +102,14 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\print-ascii.sps");
       // is the right?
+      AssertError(r);
     }
 
     [Test]
     public void Random()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\random.sps");
+      AssertError(r);
     }
 
     [Test]
@@ -104,6 +117,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\random-access-lists.sps");
       Assert.True(r.Output.Length == 0);
+      AssertError(r);
     }
 
     [Test]
@@ -111,6 +125,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\rec-factorial.sps");
       Assert.True(r.Output.Contains("3628800"));
+      AssertError(r);
     }
 
     [Test]
@@ -118,6 +133,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\records.sps");
       // is the right?
+      AssertError(r);
     }
 
     [Test]
@@ -126,6 +142,7 @@ namespace IronScheme.Tests
       var r = RunIronSchemeTest(@"lib\srfi\tests\testing.sps");
       Assert.True(r.Output.Contains("# of expected passes      51"));
       Assert.True(r.Output.Contains("# of expected failures    2"));
+      AssertError(r);
     }
 
     [Test]
@@ -133,6 +150,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\time.sps");
       Assert.True(r.Output.Contains(";;; Results: Runs: 8; Goods: 8; Bads: 0; Pass rate: 1"));
+      AssertError(r);
     }
   }
 }

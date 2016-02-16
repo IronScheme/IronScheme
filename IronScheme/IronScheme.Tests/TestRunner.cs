@@ -15,6 +15,11 @@ namespace IronScheme.Tests
       Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
     }
 
+    protected static void AssertError(TestResult tr)
+    {
+      Assert.IsEmpty(tr.Error);
+    }
+
     protected bool Quiet { get; private set; }
 
     protected class TestResult
