@@ -213,6 +213,35 @@
             f
             (assertion-violation 'file-locator "not a procedure" f)))))
 
+  (define (is-global-macro? e)
+    (eq? (cadr e) 'global-macro))
+  
+  (define (can-prune? subst env)
+    (not
+      (exists
+        (lambda (s)
+          (exists
+            (lambda (e)
+              (and (eq? (car e) (cdr s))
+                   (is-global-macro? e)))
+            env))
+        subst)))
+        
+  (define (prune-env env)
+    (filter 
+      (lambda (e)
+        (not (is-global-macro? e)))
+      env))  
+
+  (define (prune-imp* imp* subst)
+    (let ((s* (map cdr subst)))
+      (filter 
+        (lambda (lib)
+          (let ((e (library-env lib)))
+            (or (and (null? e) (null? (library-imp* lib)))
+                (exists (lambda (s) (assq s e)) s*))))
+        imp*)))
+
   (define (serialize-all serialize compile)
     (define (library-desc x) 
       (list (library-id x) (library-name x)))
@@ -221,21 +250,25 @@
         (when (library-source-file-name x) 
           (for-each (lambda (x) (invoke-library (find-library-by-name (library-name x))))
             (library-inv* x))
-          (serialize 
-            (library-name x)
-            (list (library-id x) 
-                  (library-name x)
-                  (library-version x) 
-                  (map library-desc (library-imp* x))
-                  (map library-desc (library-vis* x))
-                  (map library-desc (library-inv* x))
-                  (library-subst x)
-                  (library-env x)
-                  (compile (library-visit-code x))
-                  (compile (library-invoke-code x))
-                  (compile (library-guard-code x))
-                  (map library-desc (library-guard-req* x))
-                  (library-visible? x)))))
+          (let* ((env (library-env x))
+                 (subst (library-subst x))
+                 (prune? (can-prune? subst env))
+                 (imp* (prune-imp* (library-imp* x) subst)))
+            (serialize 
+              (library-name x)
+              (list (library-id x) 
+                    (library-name x)
+                    (library-version x) 
+                    (map library-desc imp*)
+                    (if prune? '() (map library-desc (library-vis* x)))
+                    (map library-desc (library-inv* x))
+                    subst
+                    (if prune? (prune-env env) env)
+                    (if prune? #f (compile (library-visit-code x)))
+                    (compile (library-invoke-code x))
+                    (compile (library-guard-code x))
+                    (map library-desc (library-guard-req* x))
+                    (library-visible? x))))))
       (reverse ((current-library-collection)))))
 
   (define current-precompiled-library-loader
@@ -252,7 +285,7 @@
          ;;; if all is ok, install the library
          ;;; otherwise, return #f so that the
          ;;; library gets recompiled.
-         (let f ((deps (append vis* inv* guard-req*)))
+         (let f ((deps (append imp* vis* inv* guard-req*)))
            (cond
              ((null? deps)
               ;;; CHECK

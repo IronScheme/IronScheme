@@ -251,42 +251,21 @@
                 #f))
           #f)))
           
-  (define (is-global-macro? e)
-    (eq? (cadr e) 'global-macro))
-  
-  (define (can-prune? subst env)
-    (not
-      (exists
-        (lambda (s)
-          (exists
-            (lambda (e)
-              (and (eq? (car e) (cdr s))
-                   (is-global-macro? e)))
-            env))
-        subst)))
-        
-  (define (prune-env env)
-    (filter 
-      (lambda (e)
-        (not (is-global-macro? e)))
-      env))
-                    
   (define (compile-dll libname content)
     (let ((filename (library-name->dll-name libname)))
       (display "compiling ")
       (display (get-filename filename))
       (newline)
-      (let* ((v (list->vector content))
-             (prune? (can-prune? (vector-ref v 6) (vector-ref v 7))))
+      (let ((v (list->vector content)))
         (vector-set! v 0 `',(vector-ref v 0)) ; id
         (vector-set! v 1 `',(vector-ref v 1)) ; name
         (vector-set! v 2 `',(vector-ref v 2)) ; version
-        (vector-set! v 3 '()) ; imp*
-        (vector-set! v 4 `',(if prune? '() (vector-ref v 4))) ; vis*
+        (vector-set! v 3 `',(vector-ref v 3)) ; imp*
+        (vector-set! v 4 `',(vector-ref v 4)) ; vis*
         (vector-set! v 5 `',(vector-ref v 5)) ; inv*
         (vector-set! v 6 `',(vector-ref v 6)) ; subst
-        (vector-set! v 7 `',(if prune? (prune-env (vector-ref v 7)) (vector-ref v 7))) ; env
-        (vector-set! v 8 `(lambda () ,(if prune? #f (vector-ref v 8)))) ; visit-code
+        (vector-set! v 7 `',(vector-ref v 7)) ; env
+        (vector-set! v 8 `(lambda () ,(vector-ref v 8))) ; visit-code
         (vector-set! v 9 `(lambda () ,(vector-ref v 9))) ; invoke-code
         (vector-set! v 10 `(lambda () ,(vector-ref v 10))) ; guard-code
         (vector-set! v 11 `',(vector-ref v 11)) ; guard-req*
