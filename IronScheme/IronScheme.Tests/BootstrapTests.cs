@@ -8,6 +8,8 @@ namespace IronScheme.Tests
 {
   public class Release : TestRunner
   {
+    string[] libs;
+
     [Test]
     public void Bootstrap()
     {
@@ -30,10 +32,7 @@ namespace IronScheme.Tests
     [Test]
     public void Verify()
     {
-      var r = RunIronSchemeTest(@"--show-loaded-libraries compile-system-libraries.sps", false);
-      var loadedlibs = r.Output;
-
-      var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+      var libs = File.ReadAllLines("compiled.lst");
 
       foreach (var lib in libs)
       {
@@ -63,7 +62,12 @@ namespace IronScheme.Tests
     [Test]
     public void Compile()
     {
-      RunIronSchemeTest(@"-debug compile-system-libraries.sps");
+      var r = RunIronSchemeTest(@"-debug compile-system-libraries.sps");
+      var compiledlibs = r.Output;
+      var list = Array.ConvertAll(compiledlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries), l => l.Replace("compiling ", ""));
+
+      File.WriteAllLines("compiled.lst", list);
+
       Directory.Move("lib", "lib.hide");
       RunIronSchemeTest(@"-debug compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
@@ -72,10 +76,7 @@ namespace IronScheme.Tests
     [Test]
     public void Verify()
     {
-      var r = RunIronSchemeTest(@"-debug --show-loaded-libraries compile-system-libraries.sps", false);
-      var loadedlibs = r.Output;
-
-      var libs = loadedlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+      var libs = File.ReadAllLines("compiled.lst");
 
       try
       {
