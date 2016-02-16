@@ -253,13 +253,13 @@
           (let* ((env (library-env x))
                  (subst (library-subst x))
                  (prune? (can-prune? subst env))
-                 (imp* (prune-imp* (library-imp* x) subst)))
+                 (imp* (library-imp* x)))
             (serialize 
               (library-name x)
               (list (library-id x) 
                     (library-name x)
                     (library-version x) 
-                    (map library-desc imp*)
+                    (map library-desc (if prune? (prune-imp* imp* subst) imp*))
                     (if prune? '() (map library-desc (library-vis* x)))
                     (map library-desc (library-inv* x))
                     subst
