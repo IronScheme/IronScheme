@@ -119,7 +119,7 @@ namespace IronScheme.Tests
         p.BeginErrorReadLine();
         p.BeginOutputReadLine();
 
-        var exited = p.WaitForExit(180000);
+        var exited = p.WaitForExit(300000);
 
         var r = new TestResult
         {
