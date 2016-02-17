@@ -11,6 +11,7 @@ using System.Text;
 using IronScheme.Hosting;
 using IronScheme.Remoting.Server;
 using System.IO;
+using System.Collections.Generic;
 
 namespace IronScheme.Runtime
 {
@@ -26,7 +27,6 @@ namespace IronScheme.Runtime
 
     static int Main(string[] args)
     {
-
       if ((Array.IndexOf(args, "-profile")) >= 0)
       {
         const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";
@@ -73,8 +73,9 @@ namespace IronScheme.Runtime
           break;
       }
 
-      args = Args(args, "--remoting-server", x => Host.Start());
-      args = Args(args, "--show-loaded-libraries", x => Builtins.ShowImports = true);
+      args = Args(args, "--remoting-server", () => Host.Start());
+      args = Args(args, "--show-loaded-libraries", () => Builtins.ShowImports = true);
+      args = ParseIncludes(args);
 
       Encoding oo = Console.OutputEncoding;
 
@@ -91,13 +92,46 @@ namespace IronScheme.Runtime
       }
     }
 
-    static string[] Args(string[] args, string argname, Action<string[]> handler)
+    static string[] ParseIncludes(string[] args)
+    {
+      var aa = new List<string>();
+
+      for (int i = 0; i < args.Length; i++)
+      {
+        var a = args[i];
+        if (a == "-I")
+        {
+          i++;
+          if (i < args.Length)
+          {
+            var p = args[i];
+            Builtins.AddIncludePath(p);
+          }
+          else
+          {
+            Console.Error.WriteLine("Error: Missing include path");
+            Environment.Exit(1);
+          }
+        }
+        else
+        {
+          aa.Add(a);
+        }
+      }
+
+      return aa.ToArray();
+    }
+
+    // no System.Core here...
+    delegate void Action();
+
+    static string[] Args(string[] args, string argname, Action handler)
     {
       var i = Array.IndexOf(args, argname);
       if (i >= 0) // why are we still fuckin writing code like this?
       {
         args = Array.FindAll(args, x => x != argname);
-        handler(args);
+        handler();
       }
       return args;
     }

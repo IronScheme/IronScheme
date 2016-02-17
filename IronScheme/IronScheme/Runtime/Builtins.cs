@@ -403,6 +403,11 @@ namespace IronScheme
 
     internal readonly static List<string> includepaths = new List<string>();
 
+    public static void AddIncludePath(string path)
+    {
+      includepaths.Add(path);
+    }
+
     [Builtin("get-library-paths")]
     public static object GetLibraryPaths()
     {
