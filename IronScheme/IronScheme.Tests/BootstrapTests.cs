@@ -8,8 +8,6 @@ namespace IronScheme.Tests
 {
   public class Release : TestRunner
   {
-    string[] libs;
-
     [Test]
     public void Bootstrap()
     {
