@@ -15,7 +15,6 @@ See docs/license.txt. |#
     hashtable-mutable?
     eqv-hash
     
-    
     hashtable?
     
     hashtable-size
@@ -35,12 +34,37 @@ See docs/license.txt. |#
     hashtable-hash-function)
     
   (import 
-    (rnrs base)
-    (rnrs arithmetic fixnums)
-    (rnrs control)
+    (except (ironscheme)
+      make-eq-hashtable
+      make-eqv-hashtable
+      make-hashtable
+      
+      hashtable-copy
+      hashtable-keys
+      hashtable-mutable?
+      eqv-hash
+      
+      hashtable?
+      
+      hashtable-size
+      hashtable-ref
+      hashtable-set!
+      hashtable-delete!
+      hashtable-contains?
+      hashtable-update!
+      hashtable-clear!
+      
+      string-hash
+      string-ci-hash
+      symbol-hash
+      equal-hash
+
+      hashtable-equivalence-function
+      hashtable-hash-function)
     (except (ironscheme core) eqv-hash)
     (ironscheme contracts)
-    (ironscheme clr))
+    (ironscheme clr)
+    (ironscheme unsafe))
     
   (clr-using System.Collections)
   (clr-using IronScheme.Runtime.R6RS)
@@ -143,4 +167,34 @@ See docs/license.txt. |#
     (clr-call Object GetHashCode sym))
     
   (define (equal-hash obj)
-    (string-hash (format "~a" obj))))
+    (define-syntax clobber
+      (syntax-rules ()
+        [(_ a b)
+          ($fx+ ($fx* a 33) b)]))
+    (define ht (make-eq-hashtable))
+    ($fxand 
+      #x7FFFFFFF
+      (let hash ((obj obj))
+        (cond
+          [(or (null? obj) (hashtable-contains? ht obj)) 0]
+          [else 
+            (hashtable-set! ht obj obj)
+            (cond
+              [(string? obj)
+                (string-hash obj)]
+              [(pair? obj)
+                (clobber 
+                  (hash (car obj))
+                  (hash (cdr obj)))]
+              [(vector? obj)
+                (vector-fold-left 
+                  (lambda (a v)
+                    (clobber a (hash v)))
+                  100 obj)]
+              [(bytevector? obj)
+                (bytevector-fold-left 
+                  (lambda (a v)
+                    (clobber a (eqv-hash v)))
+                  200 obj)]
+              [else 
+                (eqv-hash obj)])])))))

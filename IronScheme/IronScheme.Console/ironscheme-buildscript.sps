@@ -396,6 +396,8 @@
     (vector-reverse!                            i) 
     (vector-filter                              i) 
     (vector-append                              i)
+    (vector-fold-left                           i)
+    (bytevector-fold-left                       i)
     (get-command-line                           ic)
     (get-clr-type                               i)
     (clr-type?                                  i)
@@ -418,7 +420,7 @@
     (serialize-port                             i)
     (deserialize-port                           i)
     (reverse!                                   ic)
-    (eqv-hash                                   ic) ; TODO: remove
+    (eqv-hash                                   ic)
     (add-record-printer!                        irp)
     ($break                                     iu)
     ($throw                                     iu)

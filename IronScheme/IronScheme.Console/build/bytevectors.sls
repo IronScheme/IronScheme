@@ -77,7 +77,9 @@ See docs/license.txt. |#
     string->utf32
     utf8->string
     utf16->string
-    utf32->string)
+    utf32->string
+    
+    bytevector-fold-left)
     
   (import 
     (ironscheme integrable)
@@ -148,7 +150,9 @@ See docs/license.txt. |#
       bytevector-uint-ref
       bytevector-sint-ref
       bytevector-uint-set!
-      bytevector-sint-set!)
+      bytevector-sint-set!
+      
+      bytevector-fold-left)
     (ironscheme contracts)
     (ironscheme typed)
     (ironscheme unsafe))
@@ -218,6 +222,14 @@ See docs/license.txt. |#
         (let ((bv (make-bytevector k)))
           (bytevector-fill! bv fill)
           bv)]))
+          
+  (define/contract (bytevector-fold-left combine:procedure nil bv:bytevector)
+    (let ((len ($bytevector-length bv)))
+      (let f ((i 0)(nil nil))
+        (if ($fx=? i len)
+            nil
+            (f ($fx+ i 1) 
+               (combine nil (->fixnum ($bytevector-ref bv i))))))))          
                   
   (define/contract (bytevector-length bv:bytevector)
     ($bytevector-length bv))  
