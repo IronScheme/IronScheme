@@ -177,6 +177,7 @@ See docs/license.txt. |#
     vector-fill!
     vector-map
     vector-for-each
+    vector-fold-left
     
     error
     assertion-violation
@@ -238,7 +239,8 @@ See docs/license.txt. |#
       cddddr
  
       symbol=?
-      boolean=?     
+      boolean=?
+      vector-fold-left
       vector-map
       vector-for-each
       string-for-each
@@ -528,7 +530,15 @@ See docs/license.txt. |#
 
   (define (string-length=? vecs)
     (apply = (map string-length vecs)))
-      
+    
+  (define/contract (vector-fold-left combine:procedure nil vec:vector)
+    (let ((len (vector-length vec)))
+      (let f ((i 0)(nil nil))
+        (if ($fx=? i len)
+            nil
+            (f ($fx+ i 1) 
+               (combine nil ($vector-ref vec i)))))))
+
   (define/contract vector-map
     (case-lambda
       [(p:procedure vec:vector)
