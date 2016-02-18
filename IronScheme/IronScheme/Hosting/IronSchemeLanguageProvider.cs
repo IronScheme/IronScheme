@@ -26,11 +26,11 @@ namespace IronScheme.Hosting
       : base(x)
     {
       ScriptDomainManager.Options.DynamicStackTraceSupport = false;
-      
-      Runtime.Closure.ConsFromArray = Runtime.Cons.FromArray;
-      Runtime.Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
-      Runtime.Closure.Unspecified = Builtins.Unspecified;
-      Runtime.Closure.ArrayFromCons = Builtins.ListToVector;
+
+      Closure.ConsFromArray = Cons.FromArray;
+      Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
+      Closure.Unspecified = Builtins.Unspecified;
+      Closure.ArrayFromCons = Builtins.ListToVector;
 
       Initialize();
 
@@ -182,7 +182,7 @@ namespace IronScheme.Hosting
 
       protected override void OnInteractiveLoopStart()
       {
-        IronScheme.Runtime.Builtins.commandline = new string[] { "interactive" };
+        Builtins.commandline = new string[] { "interactive" };
 
         if (!Options.TabCompletion)
         {
