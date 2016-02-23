@@ -274,7 +274,7 @@ namespace IronScheme.Runtime.R6RS
       }
     }
 
-    public static RecordTypeDescriptor Create(Type type, string name, string uid, RecordTypeDescriptor parentrtd)
+    public static RecordTypeDescriptor Create(Type type, string name, string uid, bool opaque, RecordTypeDescriptor parentrtd)
     {
       var rtd = new RecordTypeDescriptor
       {
@@ -283,8 +283,8 @@ namespace IronScheme.Runtime.R6RS
         predicate = type.GetMethod(name + "?"),
         uid = uid,
         @sealed = type.IsSealed,
+        opaque = opaque,
         Parent = parentrtd
-
       };
 
       Records.typedescriptors[type] = rtd;
@@ -533,6 +533,7 @@ namespace IronScheme.Runtime.R6RS
     {
       string n = SymbolTable.IdToString(RequiresNotNull<SymbolId>(name));
       string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)): uid as string;
+      bool opaque = RequiresNotNull<bool>(isopaque);
 
       if (id != null)
       {
@@ -548,12 +549,11 @@ namespace IronScheme.Runtime.R6RS
 
         if (type != null)
         {
-          return RecordTypeDescriptor.Create(type, n, id, parent as RecordTypeDescriptor);
+          return RecordTypeDescriptor.Create(type, n, id, opaque, parent as RecordTypeDescriptor);
         }
       }
 
       bool @sealed = RequiresNotNull<bool>(issealed);
-      bool opaque = RequiresNotNull<bool>(isopaque);
 
       RecordTypeDescriptor prtd = parent as RecordTypeDescriptor; // can be #f
 
