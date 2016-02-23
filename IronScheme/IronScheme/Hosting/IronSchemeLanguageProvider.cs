@@ -162,7 +162,7 @@ namespace IronScheme.Hosting
             //good for now
 
           }, 
-          Builtins.IsMono ? 10000000 : 5000000);
+          5000000);
         t.IsBackground = true;
 
         t.Start();
