@@ -50,9 +50,9 @@ Other
 * http://ironscheme.codeplex.com/documentation
 * http://ironscheme.codeplex.com/discussions
 
-IRC
-===
-Join [#IronScheme](http://webchat.freenode.net/?channels=IronScheme) on FreeNode.
+IRC chat
+========
+Join [#IronScheme](http://webchat.freenode.net/?channels=IronScheme) on FreeNode
 
 Notes
 =====
