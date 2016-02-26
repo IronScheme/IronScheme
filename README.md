@@ -52,7 +52,7 @@ Other
 
 IRC chat
 ========
-Join [#IronScheme](http://webchat.freenode.net/?channels=IronScheme) on FreeNode
+Join [#IronScheme](http://webchat.freenode.net/?channels=IronScheme) on FreeNode.
 
 Notes
 =====
