@@ -121,6 +121,27 @@ namespace IronScheme.Runtime.R6RS
 
   public class Hashtables : Builtins
   {
+    static readonly object NULL = new object();
+
+    public static object ToNull(object o)
+    {
+      if (o == null)
+      {
+        return NULL;
+      }
+      return o;
+    }
+
+    public static object FromNull(object o)
+    {
+      if (o == NULL)
+      {
+        return null;
+      }
+      return o;
+    }
+
+
     [Builtin("hashtable-entries")]
     public static object HashtableEntries(object obj)
     {
@@ -130,7 +151,7 @@ namespace IronScheme.Runtime.R6RS
 
       foreach (DictionaryEntry de in ht)
       {
-        keys.Add(de.Key);
+        keys.Add(FromNull(de.Key));
         values.Add(de.Value);
       }
       return Values((object)keys.ToArray(), (object)values.ToArray());
@@ -148,7 +169,7 @@ namespace IronScheme.Runtime.R6RS
 
       foreach (DictionaryEntry de in h)
       {
-        result[i++] = c.Call(de.Key, de.Value);
+        result[i++] = c.Call(FromNull(de.Key), de.Value);
       }
 
       return Runtime.Cons.FromArray(result);
@@ -162,7 +183,7 @@ namespace IronScheme.Runtime.R6RS
 
       foreach (DictionaryEntry de in h)
       {
-        c.Call(de.Key, de.Value);
+        c.Call(FromNull(de.Key), de.Value);
       }
 
       return Unspecified;
