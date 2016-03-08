@@ -71,6 +71,16 @@ See docs/license.txt. |#
   
   (define (hashtable? obj)
     (clr-is Hashtable obj))
+    
+  (define-syntax to-null
+    (syntax-rules ()
+      [(_ o)
+        (clr-static-call Hashtables ToNull o)]))
+
+  (define-syntax from-null
+    (syntax-rules ()
+      [(_ o)
+        (clr-static-call Hashtables FromNull o)]))
   
   (define/contract make-eq-hashtable
     (case-lambda
@@ -104,7 +114,7 @@ See docs/license.txt. |#
             
   (define/contract (hashtable-keys ht:hashtable)
     (let ((keys (clr-new ArrayList (clr-prop-get Hashtable Keys ht))))
-      (clr-call ArrayList ToArray keys)))  
+      (vector-map (lambda (k) (from-null k)) (clr-call ArrayList ToArray keys))))  
       
   (define/contract (hashtable-mutable? ht:hashtable)
     (not (clr-is ReadOnlyHashtable ht)))
@@ -127,24 +137,26 @@ See docs/license.txt. |#
     (clr-prop-get Hashtable Count ht))
     
   (define/contract (hashtable-ref ht:hashtable key default)
-    (let ((r (clr-indexer-get Hashtable ht key)))
-      (if (or (not (null? r)) (hashtable-contains? ht key))
-          r
-          default)))
+    (let ((key (to-null key)))
+      (let ((r (clr-indexer-get Hashtable ht key)))
+        (if (or (not (null? r)) (hashtable-contains? ht key))
+            r
+            default))))
       
   (define/contract (hashtable-set! ht:hashtable key obj)
-    (clr-indexer-set! Hashtable ht key obj))
+    (clr-indexer-set! Hashtable ht (to-null key) obj))
 
   (define/contract (hashtable-delete! ht:hashtable key)
-    (clr-call Hashtable Remove ht key))
+    (clr-call Hashtable Remove ht (to-null key)))
   
   (define/contract (hashtable-contains? ht:hashtable key)
-    (clr-call Hashtable ContainsKey ht key))
+    (clr-call Hashtable ContainsKey ht (to-null key)))
     
   (define/contract (hashtable-update! ht:hashtable key proc:procedure default)
-    (hashtable-set!
-      ht key
-      (proc (hashtable-ref ht key default))))
+    (let ((key (to-null key)))
+      (hashtable-set!
+        ht key
+        (proc (hashtable-ref ht key default)))))
 
   (define/contract hashtable-clear!
     (case-lambda 
