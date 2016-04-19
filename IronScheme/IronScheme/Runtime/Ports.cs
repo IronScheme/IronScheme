@@ -359,10 +359,18 @@ namespace IronScheme.Runtime
             {
               return IOPortViolation("read", "port has already been closed", r);
             }
-            // check if stream has been read by reader
-            if (s.Position == 0)
+            bool fuckinmono = false;
+            try
             {
-
+              var test = s.Position;
+            }
+            catch
+            {
+              fuckinmono = true;
+            }
+            // check if stream has been read by reader
+            if (!fuckinmono && s.Position == 0)
+            {
               result = IronSchemeLanguageContext.ReadExpressions(s, GetContext(s, Context.ModuleContext.CompilerContext));
             }
             else
