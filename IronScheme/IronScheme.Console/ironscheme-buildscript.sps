@@ -269,6 +269,7 @@
 (define identifier->library-map
   '(
     ;;;
+    (load/unsafe                                i)
     (optimize                                   ic)
     (generate-executable-wrapper                ic)
     (compress-constants?                        ic)

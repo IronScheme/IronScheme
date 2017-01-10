@@ -138,7 +138,7 @@ namespace IronScheme.Hosting
           {
             try
             {
-              Engine.Execute(string.Format("(load \"{0}\")", filename.Replace('\\', '/')));
+              Engine.Execute(string.Format("(load/unsafe \"{0}\")", filename.Replace('\\', '/')));
               ev = 0;
             }
             catch (ThreadAbortException)
