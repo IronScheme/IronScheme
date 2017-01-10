@@ -24,6 +24,7 @@
     trace-printer
     command-line
     load
+    load/unsafe
     load-port
     load/args
     load/unload
@@ -91,11 +92,14 @@
                 (uninstall-library lib)))
             (installed-libraries))))))
 
+  (define (load/unsafe filename)
+    (apply load-r6rs-top-level filename 'load (cdr (command-line)))
+    (void))
+
   (define (load filename)
     (with-guard
       (lambda ()
-        (apply load-r6rs-top-level filename 'load (cdr (command-line)))
-        (void))))
+        (load/unsafe filename))))
     
   (define (ironscheme-test)
     (let ((path (string-append (application-directory)
