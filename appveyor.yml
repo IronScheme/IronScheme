@@ -9,10 +9,12 @@ assembly_info:
   file: IronScheme\IronScheme\Properties\AssemblyInfo.cs
   assembly_version: '1.0.0.0'
   assembly_file_version: '{version}'
-  assembly_informational_version: '{version}-$(SHA)'environment:
+  assembly_informational_version: '{version}-$(SHA)'
+environment:
   matrix:
   - FX_VERSION: v2.0
-  - FX_VERSION: v4.0install:
+  - FX_VERSION: v4.0
+install:
 - cmd: >-
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     
@@ -22,11 +24,11 @@ assembly_info:
 
     cinst zip
 
-    curl -o xz.zip http://tukaani.org/xz/xz-5.2.1-windows.zip
+    rem curl -o xz.zip http://tukaani.org/xz/xz-5.2.1-windows.zip
 
-    unzip -o xz.zip -d xz bin_i686-sse2/xz.exe
+    rem unzip -o xz.zip -d xz bin_i686-sse2/xz.exe
 
-    copy xz\bin_i686-sse2\xz.exe "C:\Program Files\Git\usr\bin\"
+    rem copy xz\bin_i686-sse2\xz.exe "C:\Program Files\Git\usr\bin\"
 
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
 build_script:
