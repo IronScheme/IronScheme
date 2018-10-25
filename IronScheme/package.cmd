@@ -60,8 +60,8 @@ del install-stage\IronScheme\lib\wak\foof-loop\private\test-foof-loop.scm
 rmdir /s /q install-stage\IronScheme\lib\srfi\tests
 rmdir /s /q install-stage\IronScheme\docs\notes
 cd install-stage
-tar -c -fIronScheme-latest.tar IronScheme >nul
-xz IronScheme-latest.tar
+rem tar -c -fIronScheme-latest.tar IronScheme >nul
+rem xz IronScheme-latest.tar
 copy ..\ngen-all.cmd IronScheme
 copy ..\un-ngen-all.cmd IronScheme
 zip -r -9 -q IronScheme-latest.zip IronScheme
