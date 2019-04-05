@@ -16,7 +16,7 @@ You can download the latest build artefacts from the above link.
 Building
 ========
 
-1. Open the `IronSchemeCore.sln` file in VS2008, VS2010, VS2012, VS2013 or VS2015
+1. Open the `IronSchemeCore.sln` file in VS2008 or later
 2. Allow the project to be converted, if needed
 3. Set startup project as `IronScheme.Console`
 4. Set the solution profile to `Release` (optional, but recommended)
