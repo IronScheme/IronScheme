@@ -43,6 +43,11 @@ There is also a batch file in the IronScheme directory called `test.cmd`. You ca
 
 Make sure that `peverify` is in your PATH. The test fixtures are designed to execute in a specfic order. The tests will not take less than 6 minutes to complete.
 
+Issues
+======
+
+Please @leppie in your issues/PR's, else I will probably not know about it. I do not actively monitor Github. If I still dont answers, nag me on Twitter, also @leppie.
+
 Other
 =====
 
