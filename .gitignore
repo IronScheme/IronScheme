@@ -10,3 +10,4 @@ IronScheme/Oyster.IntX/Oyster.IntX.xml
 **/bin/**
 **/obj/**
 **/Migrated rules for*.ruleset
+/IronScheme/.vs/*
