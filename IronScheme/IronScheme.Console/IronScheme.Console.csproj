@@ -2087,10 +2087,10 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y $(TargetPath) $(TargetDir)$(ProjectName)32.exe
-"$(FrameworkSDKDir)Bin\corflags.exe" $(TargetDir)$(ProjectName)32.exe /32BIT+</PostBuildEvent>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y $(TargetPath) $(TargetDir)$(ProjectName)32.exe
-"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" $(TargetDir)$(ProjectName)32.exe /32BIT+
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
     </PostBuildEvent>
   </PropertyGroup>
 </Project>
