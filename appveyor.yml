@@ -72,7 +72,6 @@ deploy:
   provider: GitHub
   auth_token:
     secure: 0M+cl8r8uyNrw5AR/aqAZaUsCtd/wP2F1PdpdIX7aV5iT1U+Y6/TPbnI0hTMchDh # your encrypted token from GitHub
-  artifact: /.*\.zip/            
   draft: true
   prerelease: false
   on:
