@@ -57,13 +57,25 @@ test_script:
     if "%FX_VERSION%" EQU "v2.0" call ci-artefact.cmd
 artifacts:
 - path: IronScheme-*.zip
-- path: IronScheme-*.tar.xz
 before_deploy:
 - cmd: >-
     rem precompile libraries for Nuget
 
-    echo (compile-system-libraries) | install-stage\IronScheme\IronScheme.Console32-v2.exe
+    rem echo (compile-system-libraries) | install-stage\IronScheme\IronScheme.Console32-v2.exe
 
-    cd install-stage
+    rem cd install-stage
 
     rem prep nuget packages ... WIP
+deploy:
+  release: $(appveyor_build_version)
+  description: 'Automated release'
+  provider: GitHub
+  auth_token:
+    secure: 0M+cl8r8uyNrw5AR/aqAZaUsCtd/wP2F1PdpdIX7aV5iT1U+Y6/TPbnI0hTMchDh # your encrypted token from GitHub
+  artifact: /.*\.zip/            
+  draft: true
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    APPVEYOR_REPO_TAG: false        # deploy on tag push only
+
