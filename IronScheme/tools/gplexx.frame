@@ -402,7 +402,7 @@ using gppg;
         /// </summary>
         public class TextBuff : ScanBuff
         {
-            protected BufferedStream bStrm;   // input buffer
+            protected Stream bStrm;   // input buffer
             protected int delta = 1;          // length of chr, zero for EOF!
             
             private Exception BadUTF8()
@@ -415,7 +415,7 @@ using gppg;
             /// </summary>
             /// <param name="strm">The underlying stream</param>
             /// <returns></returns>
-            public static ScanBuff NewTextBuff(Stream strm, bool preferUtf8)
+            public static ScanBuff NewTextBuff(Stream strm)
             {
                 // First check if this is a UTF16 file
                 //
@@ -435,10 +435,16 @@ using gppg;
                 // must go back to the Latin1 default.
                 //
                 strm.Seek(0, SeekOrigin.Begin);
-				if (preferUtf8)
+
+				int guess = new Guesser(strm).GuessCodePage();
+
+				strm.Seek(0, SeekOrigin.Begin);
+
+				if (guess == 65001)
 				{
 					return new TextBuff(strm);
 				}
+
                 return new StreamBuff(strm);
             }
 
@@ -569,7 +575,7 @@ using gppg;
         }
         // =================== End Nested classes =======================
 
-        public Scanner(Stream file, bool preferUtf8) : this() {
+        public Scanner(Stream file) : this() {
 ##-->bufferCtor
             this.cNum = -1;
             this.chr = '\n'; // to initialize yyline, yycol and lineStart

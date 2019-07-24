@@ -91,7 +91,9 @@ public int MakeError(string message)
 
 public int Make(Tokens token)
 {
-  yylval.text = yytext;
+  string t = yytext;
+  yylval.text = t;
+  yyless(t.Length);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)token;
 }

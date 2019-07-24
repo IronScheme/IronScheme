@@ -362,7 +362,7 @@ namespace IronScheme.Runtime
             // check if stream has been read by reader
             if (s.CanSeek && s.Position == 0)
             {
-              result = IronSchemeLanguageContext.ReadExpressions(s, GetContext(s, Context.ModuleContext.CompilerContext), rr.CurrentEncoding == Encoding.UTF8);
+              result = IronSchemeLanguageContext.ReadExpressions(s, GetContext(s, Context.ModuleContext.CompilerContext));
             }
             else
             {

@@ -81,7 +81,7 @@ namespace IronScheme
         case SourceCodeKind.File:
           using (Stream s = File.OpenRead(context.SourceUnit.Id))
           {
-            return ParseStream(s, context, false);
+            return ParseStream(s, context);
           }
         default:
           {
@@ -112,23 +112,23 @@ namespace IronScheme
       return Parse(sc, cc);
     }
 
-    static CodeBlock ParseStream(Stream s, CompilerContext cc, bool preferUtf8)
+    static CodeBlock ParseStream(Stream s, CompilerContext cc)
     {
-      Scanner sc = new Scanner(s, preferUtf8);
+      Scanner sc = new Scanner(s);
       sc.Errors = cc.Errors;
       sc.SourceUnit = cc.SourceUnit;
 
       return Parse(sc, cc);
     }
 
-    internal static object ReadExpressions(Stream code, CompilerContext cc, bool preferUtf8)
+    internal static object ReadExpressions(Stream code, CompilerContext cc)
     {
       if (parser == null)
       {
         parser = new Parser();
       }
       Parser p = parser;
-      Scanner sc = new Scanner(code, preferUtf8);
+      Scanner sc = new Scanner(code);
       p.scanner = sc;
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;

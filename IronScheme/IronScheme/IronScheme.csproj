@@ -61,6 +61,7 @@
     <Compile Include="Compiler\BeginGenerator.cs" />
     <Compile Include="Compiler\CaseLambdaGenerator.cs" />
     <Compile Include="Compiler\ClrGenerators.cs" />
+    <Compile Include="Compiler\Guesser.cs" />
     <Compile Include="Compiler\Optimizer.FixupTypedClosureCallsites.cs" />
     <Compile Include="Compiler\Optimizer.AnalyzeProcedureReturns.cs" />
     <Compile Include="Compiler\Optimizer.RemoveUselessConversions.cs" />
