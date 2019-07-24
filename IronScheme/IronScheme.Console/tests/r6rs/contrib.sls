@@ -143,7 +143,7 @@
     
     (test (fxarithmetic-shift -2147483648 -31) -1)
     
-    (test (char-numeric? #\²) #t)
+    (test (char-numeric? #\Â²) #t)
     
     (test (eqv? -540606073/7860 -540606073/7860) #t)
     

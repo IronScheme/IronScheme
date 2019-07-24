@@ -415,7 +415,7 @@ using gppg;
             /// </summary>
             /// <param name="strm">The underlying stream</param>
             /// <returns></returns>
-            public static ScanBuff NewTextBuff(Stream strm)
+            public static ScanBuff NewTextBuff(Stream strm, bool preferUtf8)
             {
                 // First check if this is a UTF16 file
                 //
@@ -435,6 +435,10 @@ using gppg;
                 // must go back to the Latin1 default.
                 //
                 strm.Seek(0, SeekOrigin.Begin);
+				if (preferUtf8)
+				{
+					return new TextBuff(strm);
+				}
                 return new StreamBuff(strm);
             }
 
@@ -565,7 +569,7 @@ using gppg;
         }
         // =================== End Nested classes =======================
 
-        public Scanner(Stream file) : this() {
+        public Scanner(Stream file, bool preferUtf8) : this() {
 ##-->bufferCtor
             this.cNum = -1;
             this.chr = '\n'; // to initialize yyline, yycol and lineStart
