@@ -57,7 +57,7 @@ namespace Microsoft.Scripting.Ast {
 
         public override Type Type {
             get {
-                return _expressionType;
+				return _expressionType;
             }
         }
 
@@ -66,10 +66,26 @@ namespace Microsoft.Scripting.Ast {
             Label next = cg.DefineLabel();
             _test.Emit(cg);
             cg.Emit(OpCodes.Brfalse, next);
-            _true.Emit(cg);
+            if (_true.Type != _expressionType)
+            {
+	            _true.EmitAs(cg, _expressionType);
+			}
+            else
+            {
+				_true.Emit(cg);
+			}
+			
             cg.Emit(OpCodes.Br, eoi);
             cg.MarkLabel(next);
-            _false.Emit(cg);
+            if (_false.Type != _expressionType)
+            {
+	            _false.EmitAs(cg, _expressionType);
+			}
+			else
+            {
+				_false.Emit(cg);
+			}
+            
             cg.MarkLabel(eoi);
         }
 
@@ -84,7 +100,7 @@ namespace Microsoft.Scripting.Ast {
             _false.EmitAddress(cg, asType);
             cg.MarkLabel(eoi);
         }
-    }
+	}
 
     public static partial class Ast {
         public static ConditionalExpression Condition(Expression test, Expression ifTrue, Expression ifFalse) {
