@@ -77,6 +77,10 @@ namespace Microsoft.Scripting.Ast {
               case AstNodeType.Convert:
                 if (_type != _operand.Type && _type.Name == "Callable" && Converter != null)
                 {
+	                if (_operand.Type.IsValueType)
+	                {
+						cg.EmitBoxing(_operand.Type);
+	                }
                   cg.EmitCall(Converter);
                 }
                 else
