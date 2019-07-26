@@ -466,6 +466,7 @@ See docs/license.txt. |#
       [(clr-is CustomTextReaderWriter port)
         (port-has-port-position? (get-input-port port))]
       [(clr-is TextWriter port) #f]
+	  [(clr-is TextReader port) #f]
       [else
         (assertion-violation 'port-has-port-position? "not a port" port)]))
         
@@ -494,7 +495,6 @@ See docs/license.txt. |#
         (port-position (get-input-port port))]
       [else
         (assertion-violation 'port-position "not supported" port)]))
-        
 
   (define (port-has-set-port-position!? port)
     (cond
@@ -506,6 +506,8 @@ See docs/license.txt. |#
         (clr-prop-get Stream CanSeek port)]
       [(clr-is CustomTextReaderWriter port)
         (port-has-set-port-position!? (get-input-port port))]
+      [(clr-is TextWriter port) #f]
+	  [(clr-is TextReader port) #f]
       [else
         (assertion-violation 'port-has-set-port-position!? "not a port" port)]))
 
@@ -554,7 +556,6 @@ See docs/license.txt. |#
       (condition
         (make-i/o-file-does-not-exist-error filename)
         (make-who-condition who))))
-                
           
   (define/contract open-file-input-port
     (case-lambda
