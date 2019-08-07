@@ -69,6 +69,7 @@ namespace IronScheme.Runtime
       {
         case "isc":
         case "isc32":
+        case "ironscheme":
           args = PrefixArgs(args, "-nologo");
           break;
       }
