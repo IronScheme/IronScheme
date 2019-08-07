@@ -42,8 +42,7 @@ namespace IronScheme.Hosting
     {
       return new IronSchemeConsoleHost().Run(args);
     }
-
-
+    
     protected override void Initialize()
     {
       base.Initialize();
