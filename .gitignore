@@ -11,3 +11,4 @@ IronScheme/Oyster.IntX/Oyster.IntX.xml
 **/obj/**
 **/Migrated rules for*.ruleset
 /IronScheme/.vs/*
+*.csproj.user
