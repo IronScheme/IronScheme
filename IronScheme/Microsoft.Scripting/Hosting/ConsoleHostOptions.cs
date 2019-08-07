@@ -22,6 +22,7 @@ using Microsoft.Scripting.Shell;
 using System.Threading;
 using Microsoft.Scripting.Utils;
 using System.Globalization;
+using System.IO;
 
 namespace Microsoft.Scripting.Hosting {
 
@@ -157,6 +158,10 @@ namespace Microsoft.Scripting.Hosting {
                     case null:
                     default:
                         _options.IgnoredArgs.Add(current);
+                        if (File.Exists(current))
+                        {
+                          _options.DisplayLogo = false;
+                        }
                         goto case "";
 
                     // host/passthru argument separator
