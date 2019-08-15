@@ -1858,13 +1858,17 @@ namespace Oyster.Math
       }
     }
 
+    public byte[] ToByteArray()
+    {
+      return ToByteArray(false);
+    }
 
     /// <summary>
     /// Return the value of this BigInteger as a little-endian twos-complement
     /// byte array, using the fewest number of bytes possible. If the value is zero,
     /// return an array of one byte whose element is 0x00.
     /// </summary>
-    public byte[] ToByteArray()
+    public byte[] ToByteArray(bool needExtraByte)
     {
       // We could probably make this more efficient by eliminating one of the passes.
       // The current code does one pass for uint array -> byte array conversion,
@@ -1905,7 +1909,7 @@ namespace Oyster.Math
         if (bytes[msb] != highByte) break;
       }
       // ensure high bit is 0 if positive, 1 if negative
-      bool needExtraByte = true;// (bytes[msb] & 0x80) != (highByte & 0x80);
+      //bool needExtraByte = true;// (bytes[msb] & 0x80) != (highByte & 0x80);
 
       byte[] trimmedBytes = new byte[msb + 1 + (needExtraByte ? 1 : 0)];
       Array.Copy(bytes, trimmedBytes, msb + 1);

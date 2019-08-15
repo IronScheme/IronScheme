@@ -386,6 +386,8 @@ See docs/license.txt. |#
       (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" k))
     (when ($fxnegative? size)
       (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" size))
+	  (when (negative? n)
+	    (assertion-violation 'bytevector-uint-set! "not a non-negative exact integer" n))
     (case size
       [(1)
         ($bytevector-set! bv k (->byte n))]
@@ -417,12 +419,17 @@ See docs/license.txt. |#
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [else
-        (let ((data (clr-call IntX
-                              ToByteArray
-                              (->bignum n))))
-          (when (eq? end 'big)
-            (clr-static-call Array Reverse data))
-          (bytevector-copy! data (if (eq? end 'big) 1 0) bv k size))])
+        (let* ((data (clr-call IntX
+                               ToByteArray
+                               (->bignum n)))
+               (dl (bytevector-length data)))
+          (when (> dl size)
+            (assertion-violation 'bytevector-uint-set! "cannot fit number into size" dl size))
+          (let ((b (make-bytevector size)))
+            (bytevector-copy! data 0 b 0 dl)
+            (when (eq? end 'big)
+              (clr-static-call Array Reverse b))
+            (bytevector-copy! b 0 bv k size)))])
     (void))
           
   (define/contract (bytevector-sint-set! bv:bytevector k:fixnum n end:symbol size:fixnum) 
@@ -461,12 +468,17 @@ See docs/license.txt. |#
             (clr-static-call Array Reverse data))
           (bytevector-copy! data 0 bv k size))]
       [else
-        (let ((data (clr-call IntX
-                              ToByteArray
-                              (->bignum n))))
-          (when (eq? end 'big)
-            (clr-static-call Array Reverse data))
-          (bytevector-copy! data 0 bv k size))])
+        (let* ((data (clr-call IntX
+                               ToByteArray
+                               (->bignum n)))
+               (dl (bytevector-length data)))
+          (when (> dl size)
+            (assertion-violation 'bytevector-sint-set! "cannot fit number into size" dl size))
+          (let ((b (make-bytevector size (if (negative? n) 255 0))))
+            (bytevector-copy! data 0 b 0 dl)
+            (when (eq? end 'big)
+              (clr-static-call Array Reverse b))
+            (bytevector-copy! b 0 bv k size)))])
     (void))  
     
   (define (clr-string? obj)
