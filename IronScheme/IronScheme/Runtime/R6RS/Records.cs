@@ -746,7 +746,7 @@ namespace IronScheme.Runtime.R6RS
         init = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$init", tg.TypeBuilder, initTypes.ToArray(), initNames.ToArray());
         init.EmitArgGet(0);
       }
-      else if (rtd.Fields.Length < 8)
+      else if (initTypes.Count < 9)
       {
         init = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$init", tg.TypeBuilder, initTypes.ToArray(), initNames.ToArray());
 
@@ -870,11 +870,11 @@ namespace IronScheme.Runtime.R6RS
           // improve get constructor to look for protected constructors too
           cg.Emit(OpCodes.Call, (rtd.Parent == null ? parenttype.GetConstructor(Type.EmptyTypes) : rtd.Parent.GetDefaultConstructor()));
 
-          cg.EmitThis();
-
           foreach (FieldDescriptor fd in rtd.Fields)
           {
+            cg.EmitThis();
             cg.EmitArgGet(fi);
+            cg.EmitFieldSet(fd.field);
 
             mk.EmitArgGet(fi);
 
@@ -884,10 +884,7 @@ namespace IronScheme.Runtime.R6RS
           mk.EmitNew(cg.MethodBase as ConstructorInfo);
           mk.EmitReturn();
 
-          cg.EmitCall(init.MethodInfo);
-          cg.Emit(OpCodes.Pop);
           cg.EmitReturn();
-
 
           rtd.cg = cg;
         }
