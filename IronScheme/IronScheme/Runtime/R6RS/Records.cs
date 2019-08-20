@@ -746,7 +746,7 @@ namespace IronScheme.Runtime.R6RS
         init = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$init", tg.TypeBuilder, initTypes.ToArray(), initNames.ToArray());
         init.EmitArgGet(0);
       }
-      else if (rtd.Fields.Length < 9)
+      else if (rtd.Fields.Length < 8)
       {
         init = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$init", tg.TypeBuilder, initTypes.ToArray(), initNames.ToArray());
 
