@@ -983,7 +983,15 @@ namespace IronScheme.Runtime.R6RS
         CallTargetN pc = delegate (object[] args)
         {
           var ppc = Closure.Create(ipc);
-          ((Callable)rcd.protocol.Call(ppc)).Call(args);
+          if (rcd.protocol == null)
+          {
+            ppc.Call(args);
+          }
+          else
+          {
+            ((Callable)rcd.protocol.Call(ppc)).Call(args);
+          }
+          
           return instance;
         };
 
@@ -1010,7 +1018,14 @@ namespace IronScheme.Runtime.R6RS
         CallTargetN rc = delegate (object[] args)
         {
           var ppc = Closure.Create(pc);
-          ((Callable)rcd.protocol.Call(ppc)).Call(args);
+          if (rcd.protocol == null)
+          {
+            ppc.Call(args);
+          }
+          else
+          {
+            ((Callable)rcd.protocol.Call(ppc)).Call(args);
+          }
           return instance;
         };
         return Closure.Create(rc);
