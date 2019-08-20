@@ -215,7 +215,9 @@ namespace IronScheme.Runtime.R6RS
     public object Generative { get { return Builtins.GetBool(generative); } }
 
     public Callable Constructor { get; internal set; }
-    
+    public Callable DefaultConstructor { get; private set; }
+    public Callable DefaultInit { get; private set; }
+
     internal MethodInfo predicate;
 
     public object Predicate { get; internal set; }
@@ -224,18 +226,15 @@ namespace IronScheme.Runtime.R6RS
     
     internal CodeGen cg;
 
-    internal ConstructorInfo DefaultConstructor
+    internal ConstructorInfo GetDefaultConstructor()
     {
-      get
+      if (cg == null)
       {
-        if (cg == null)
-        {
-          return type.GetConstructors()[0];
-        }
-        else
-        {
-          return cg.MethodBase as ConstructorInfo;
-        }
+        return type.GetConstructors()[0];
+      }
+      else
+      {
+        return cg.MethodBase as ConstructorInfo;
       }
     }
 
@@ -302,6 +301,9 @@ namespace IronScheme.Runtime.R6RS
         rtd.Constructor = Closure.Create(Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
       }
 
+      rtd.DefaultConstructor = CreateCallable(type.GetMethod("$make", Type.EmptyTypes));
+      rtd.DefaultInit = CreateCallable(type.GetMethod("$init"));
+
       rtd.Predicate = Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), rtd.predicate)) as Callable;
 
       var flds = new List<FieldDescriptor>();
@@ -361,7 +363,6 @@ namespace IronScheme.Runtime.R6RS
     static Type GetClosureType(MethodInfo mi)
     {
       Type[] types = GetTypeSpec(mi);
-
       var functype = GetGenericType("IronScheme.Runtime.Typed.TypedClosure", types);
 
       return functype;
@@ -370,6 +371,11 @@ namespace IronScheme.Runtime.R6RS
     static Type GetDelegateType(MethodInfo mi)
     {
       Type[] types = GetTypeSpec(mi);
+
+      if (types.Length > 9 || (types.Length == 2 && types[0] == typeof(object[])))
+      {
+        return typeof(CallTargetN);
+      }
 
       var functype = GetGenericType("IronScheme.Runtime.Typed.Func", types);
 
@@ -380,6 +386,10 @@ namespace IronScheme.Runtime.R6RS
     {
       var dt = GetDelegateType(mi);
       var d = Delegate.CreateDelegate(dt, mi);
+      if (d is CallTargetN)
+      {
+        return Closure.Create((CallTargetN)d);
+      }
       var ct = GetClosureType(mi);
       return Activator.CreateInstance(ct, d) as Callable;
     }
@@ -404,6 +414,9 @@ namespace IronScheme.Runtime.R6RS
         {
           Constructor = Closure.Create(Delegate.CreateDelegate(typeof(CallTargetN), ci)) as Callable;
         }
+
+        DefaultConstructor = CreateCallable(type.GetMethod("$make", Type.EmptyTypes));
+        DefaultInit = CreateCallable(type.GetMethod("$init"));
 
         // update fields
         predicate = type.GetMethod(predicate.Name);
@@ -662,11 +675,11 @@ namespace IronScheme.Runtime.R6RS
 
         var fd = new FieldDescriptor { Name = fname };
 
-        FieldAttributes fattrs = FieldAttributes.Public | FieldAttributes.InitOnly;
+        FieldAttributes fattrs = FieldAttributes.Public;// | FieldAttributes.InitOnly;
         if (c.car == SymbolTable.StringToObject("mutable"))
         {
           fd.mutable = true;
-          fattrs &= ~FieldAttributes.InitOnly;
+          //fattrs &= ~FieldAttributes.InitOnly;
         }
         FieldSlot s = tg.AddField(t, fname, fattrs) as FieldSlot;
 
@@ -716,6 +729,72 @@ namespace IronScheme.Runtime.R6RS
       rtd.fields = rtd_fields.ToArray();
     }
 
+    static CodeGen MakeInitMethod(RecordTypeDescriptor rtd, TypeGen tg)
+    {
+      var initTypes = new List<Type>();
+      initTypes.Add(tg.TypeBuilder);
+      initTypes.AddRange(Array.ConvertAll(rtd.Fields, f => f.Type));
+
+      var initNames = new List<string>();
+      initNames.Add("$this");
+      initNames.AddRange(Array.ConvertAll(rtd.Fields, f => f.Name));
+
+      CodeGen init = null; 
+
+      if (rtd.Fields.Length == 0)
+      {
+        init = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$init", tg.TypeBuilder, initTypes.ToArray(), initNames.ToArray());
+        init.EmitArgGet(0);
+      }
+      else if (rtd.Fields.Length < 9)
+      {
+        init = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$init", tg.TypeBuilder, initTypes.ToArray(), initNames.ToArray());
+
+        int ii = 1;
+
+        foreach (FieldDescriptor fd in rtd.Fields)
+        {
+          init.EmitArgGet(0);
+          init.EmitArgGet(ii);
+          init.EmitFieldSet(fd.field);
+          ii++;
+        }
+
+        init.EmitArgGet(0);
+      }
+      else
+      {
+        init = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$init", tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
+
+        var local = init.DeclareLocal(tg.TypeBuilder);
+        init.EmitArgGet(0);
+        init.EmitConstant(0);
+        init.Emit(OpCodes.Ldelem, typeof(object));
+        init.Emit(OpCodes.Castclass, tg.TypeBuilder);
+        init.Emit(OpCodes.Stloc, local);
+
+        int ii = 1;
+
+        foreach (FieldDescriptor fd in rtd.Fields)
+        {
+          init.Emit(OpCodes.Ldloc, local);
+
+          init.EmitArgGet(0);
+          init.EmitConstant(ii);
+          init.Emit(OpCodes.Ldelem, typeof(object));
+
+          init.EmitFieldSet(fd.field);
+          ii++;
+        }
+
+        init.Emit(OpCodes.Ldloc, local);
+      }
+
+      init.EmitReturn();
+
+      return init;
+    }
+
     static void GenerateConstructor(RecordTypeDescriptor rtd, TypeGen tg, Type parenttype)
     {
       // constructor logic
@@ -730,20 +809,48 @@ namespace IronScheme.Runtime.R6RS
           paramtypes.Add(var.Type);
         }
 
-        List<Type> parenttypes = new List<Type>();
+        var dctor = tg.DefineConstructor(Type.EmptyTypes);
+        dctor.EmitThis();
+        dctor.Emit(OpCodes.Call, parenttype.GetConstructor(Type.EmptyTypes));
+        dctor.EmitReturn();
 
-        for (int i = 0; i < diff; i++)
+        CodeGen dmk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "$make",
+           tg.TypeBuilder, Type.EmptyTypes, new string[0]);
+        dmk.EmitNew(dctor.MethodBase as ConstructorInfo);
+        dmk.EmitReturn();
+
+        CodeGen init = MakeInitMethod(rtd, tg);
+
+        if (paramtypes.Count == 0)
         {
-          parenttypes.Add(typeof(object)); //TODO: fix this, it looks broken
-        }
+          CodeGen mk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make",
+           tg.TypeBuilder, paramtypes.ToArray(), allfields.ConvertAll(x => x.Name).ToArray());
 
-        if (paramtypes.Count < 9)
+          int fi = 0;
+
+          for (fi = 0; fi < diff; fi++)
+          {
+            mk.EmitArgGet(fi);
+          }
+
+          foreach (FieldDescriptor fd in rtd.Fields)
+          {
+            mk.EmitArgGet(fi);
+
+            fi++;
+          }
+
+          mk.EmitNew(dctor.MethodBase as ConstructorInfo);
+          mk.EmitReturn();
+
+          rtd.cg = dctor;
+        }
+        else if (paramtypes.Count < 9)
         {
           CodeGen cg = tg.DefineConstructor(paramtypes.ToArray());
 
           CodeGen mk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make",
            tg.TypeBuilder, paramtypes.ToArray(), allfields.ConvertAll(x => x.Name).ToArray());
-
 
           for (int i = 0; i < allfields.Count; i++)
           {
@@ -754,7 +861,6 @@ namespace IronScheme.Runtime.R6RS
 
           cg.EmitThis();
 
-
           for (fi = 0; fi < diff; fi++)
           {
             cg.EmitArgGet(fi);
@@ -762,13 +868,13 @@ namespace IronScheme.Runtime.R6RS
           }
 
           // improve get constructor to look for protected constructors too
-          cg.Emit(OpCodes.Call, (rtd.Parent == null ? parenttype.GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
+          cg.Emit(OpCodes.Call, (rtd.Parent == null ? parenttype.GetConstructor(Type.EmptyTypes) : rtd.Parent.GetDefaultConstructor()));
+
+          cg.EmitThis();
 
           foreach (FieldDescriptor fd in rtd.Fields)
           {
-            cg.EmitThis();
             cg.EmitArgGet(fi);
-            cg.EmitFieldSet(fd.field);
 
             mk.EmitArgGet(fi);
 
@@ -778,7 +884,10 @@ namespace IronScheme.Runtime.R6RS
           mk.EmitNew(cg.MethodBase as ConstructorInfo);
           mk.EmitReturn();
 
+          cg.EmitCall(init.MethodInfo);
+          cg.Emit(OpCodes.Pop);
           cg.EmitReturn();
+
 
           rtd.cg = cg;
         }
@@ -788,7 +897,6 @@ namespace IronScheme.Runtime.R6RS
           CodeGen cg = tg.DefineConstructor(paramtypes.ToArray());
           CodeGen mk = tg.DefineMethod(MethodAttributes.Public | MethodAttributes.Static, "make",
            tg.TypeBuilder, new Type[] { typeof(object[]) }, new string[] { "args" });
-
 
           for (int i = 0; i < allfields.Count; i++)
           {
@@ -809,7 +917,7 @@ namespace IronScheme.Runtime.R6RS
             mk.Emit(OpCodes.Ldelem, typeof(object));
           }
 
-          cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.DefaultConstructor));
+          cg.Emit(OpCodes.Call, (rtd.Parent == null ? typeof(object).GetConstructor(Type.EmptyTypes) : rtd.Parent.GetDefaultConstructor()));
 
           foreach (FieldDescriptor fd in rtd.Fields)
           {
@@ -860,6 +968,55 @@ namespace IronScheme.Runtime.R6RS
       return Closure.Create(Delegate.CreateDelegate(typeof(CallTarget1), t.predicate));
     }
 
+    static Callable MakeProtocolCallChain(RecordConstructorDescriptor rcd, object instance)
+    {
+      if (rcd.parent == null)
+      {
+        CallTargetN ipc = delegate (object[] iargs)
+        {
+          var nargs = new List<object>();
+          nargs.Add(instance);
+          nargs.AddRange(iargs);
+          return rcd.type.DefaultInit.Call(nargs.ToArray());
+        };
+        
+        CallTargetN pc = delegate (object[] args)
+        {
+          var ppc = Closure.Create(ipc);
+          ((Callable)rcd.protocol.Call(ppc)).Call(args);
+          return instance;
+        };
+
+        return Closure.Create(pc);
+      }
+      else
+      {
+        var parent = MakeProtocolCallChain(rcd.parent, instance);
+
+        CallTargetN pc = delegate (object[] args)
+        {
+          parent.Call(args);
+
+          CallTargetN ipc = delegate (object[] iargs)
+          {
+            var nargs = new List<object>();
+            nargs.Add(instance);
+            nargs.AddRange(iargs);
+            return rcd.type.DefaultInit.Call(nargs.ToArray());
+          };
+          return Closure.Create(ipc);
+        };
+        
+        CallTargetN rc = delegate (object[] args)
+        {
+          var ppc = Closure.Create(pc);
+          ((Callable)rcd.protocol.Call(ppc)).Call(args);
+          return instance;
+        };
+        return Closure.Create(rc);
+      }
+    }
+
     [Builtin("record-constructor")]
     public static Callable RecordConstructor(object cd)
     {
@@ -898,50 +1055,17 @@ namespace IronScheme.Runtime.R6RS
       }
       else
       {
-        init.Reverse();
-
-        CallTargetN np = delegate(object[] args)
+        CallTargetN rc = delegate (object[] args)
         {
-          Callable ppp = pp;
+          var instance = ci.type.DefaultConstructor.Call();
+          var protochain = MakeProtocolCallChain(ci, instance);
 
-          List<object> allargs = new List<object>();
-          int i = init.Count;
-          Callable collector = null;
-          CallTargetN xxx = delegate(object[] margs)
-          {
-            allargs.AddRange(margs);
-            if (i == 0)
-            {
-              if (ci.type.TotalFieldCount != allargs.Count)
-              {
-                return AssertionViolation(ci.type.Name,
-                  string.Format("Incorrect number of arguments, expected {0} got {1}", ci.type.TotalFieldCount, allargs.Count), allargs.ToArray());
-              }
-              return pp.Call(allargs.ToArray());
-            }
-            else
-            {
-              i--;
-              return collector;
-            }
-          };
-          ppp = collector = Closure.Create(xxx) as Callable;
+          protochain.Call(args);
 
-          foreach (Callable ctr in init)
-          {
-            ppp = ctr.Call(ppp) as Callable;
-          }
-
-          object result = ppp.Call(args);
-
-          if (result == collector)
-          {
-            result = collector.Call();
-          }
-          return result;
+          return instance;
         };
 
-        return Closure.Create(np);
+        return Closure.Create(rc);
       }
     }
 
