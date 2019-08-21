@@ -2,7 +2,7 @@
 setlocal
 
 rem set nunit bin directory
-set NUNIT_PATH=%USERPROFILE%\Downloads\NUnit-2.6.4\NUnit-2.6.4\bin\
+set NUNIT_PATH=D:\Downloads\NUnit-2.6.4\NUnit-2.6.4\bin\
 
 rem these have to be in order
 set TESTS=Debug,Release,Conformance,SRFI,Other,Teardown
