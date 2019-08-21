@@ -78,7 +78,11 @@ namespace IronScheme.Runtime.R6RS
 
     int IEqualityComparer.GetHashCode(object obj)
     {
-      return (int)hash.Call(obj);
+      if (obj is int)
+      {
+        return (int)obj;
+      }
+      return Builtins.ConvertToBigInteger(hash.Call(obj)).ToInt32();
     }
   }
 
