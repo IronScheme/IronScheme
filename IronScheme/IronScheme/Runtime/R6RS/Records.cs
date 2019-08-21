@@ -967,11 +967,10 @@ namespace IronScheme.Runtime.R6RS
 
     static Callable MakeProtocolCallChain(RecordConstructorDescriptor rcd, object instance)
     {
-      var nargs = new List<object>();
-      nargs.Add(instance);
-
       CallTargetN ipc = delegate (object[] iargs)
       {
+        var nargs = new List<object>(iargs.Length + 1);
+        nargs.Add(instance);
         nargs.AddRange(iargs);
         return rcd.type.DefaultInit.Call(nargs.ToArray());
       };
@@ -981,21 +980,20 @@ namespace IronScheme.Runtime.R6RS
       if (rcd.parent != null)
       {
         var parent = MakeProtocolCallChain(rcd.parent, instance);
-        var ippc = Closure.Create(ipc);
 
         CallTargetN rr = delegate (object[] args)
         {
           parent.Call(args);
-          return ippc;
+          return Closure.Create(ipc);
         };
 
         ppp = rr;
       }
 
-      var ppc = Closure.Create(ppp);
-
       CallTargetN pc = delegate (object[] args)
       {
+        var ppc = Closure.Create(ppp);
+
         if (rcd.protocol != null)
         {
           ppc = ((Callable)rcd.protocol.Call(ppc));
