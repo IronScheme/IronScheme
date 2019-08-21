@@ -981,11 +981,12 @@ namespace IronScheme.Runtime.R6RS
       if (rcd.parent != null)
       {
         var parent = MakeProtocolCallChain(rcd.parent, instance);
+        var ippc = Closure.Create(ipc);
 
         CallTargetN rr = delegate (object[] args)
         {
           parent.Call(args);
-          return Closure.Create(ipc);
+          return ippc;
         };
 
         ppp = rr;
@@ -995,14 +996,12 @@ namespace IronScheme.Runtime.R6RS
 
       CallTargetN pc = delegate (object[] args)
       {
-        if (rcd.protocol == null)
+        if (rcd.protocol != null)
         {
-          ppc.Call(args);
+          ppc = ((Callable)rcd.protocol.Call(ppc));
         }
-        else
-        {
-          ((Callable)rcd.protocol.Call(ppc)).Call(args);
-        }
+
+        ppc.Call(args);
 
         return instance;
       };
