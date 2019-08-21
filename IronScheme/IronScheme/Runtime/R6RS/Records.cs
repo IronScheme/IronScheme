@@ -524,10 +524,10 @@ namespace IronScheme.Runtime.R6RS
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptor(object name, object parent, object uid, object issealed, object isopaque, object fields)
     {
-      var ftypes = Array.ConvertAll((object[]) fields, x => SymbolTable.StringToObject("Object"));
+      var ftypes = Array.ConvertAll((object[])fields, x => SymbolTable.StringToObject("Object"));
       return MakeRecordTypeDescriptorTyped(name, parent, uid, issealed, isopaque, fields, ftypes);
     }
-    
+
 
     [Builtin("make-record-type-descriptor")]
     public static object MakeRecordTypeDescriptorTyped(object name, object parent, object uid, object issealed, object isopaque, object fields, object fieldtypes)
@@ -536,7 +536,7 @@ namespace IronScheme.Runtime.R6RS
         ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
         ScriptDomainManager.CurrentManager.Snippets.Assembly;
 
-      var rtd = GenerateRecordTypeDescriptor(ag, name, parent, uid, issealed, isopaque, fields, fieldtypes); 
+      var rtd = GenerateRecordTypeDescriptor(ag, name, parent, uid, issealed, isopaque, fields, fieldtypes);
       rtd.Finish();
       return rtd;
     }
@@ -545,7 +545,7 @@ namespace IronScheme.Runtime.R6RS
     public static RecordTypeDescriptor GenerateRecordTypeDescriptor(AssemblyGen ag, object name, object parent, object uid, object issealed, object isopaque, object fields, object fieldtypes)
     {
       string n = SymbolTable.IdToString(RequiresNotNull<SymbolId>(name));
-      string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)): uid as string;
+      string id = uid is SymbolId ? SymbolTable.IdToString(RequiresNotNull<SymbolId>(uid)) : uid as string;
       bool opaque = RequiresNotNull<bool>(isopaque);
 
       if (id != null)
@@ -584,15 +584,15 @@ namespace IronScheme.Runtime.R6RS
       TypeAttributes attrs = TypeAttributes.Public | TypeAttributes.Serializable;
 
       var rtd = new RecordTypeDescriptor
-        {
-          Name = n,
-          @sealed = @sealed,
-          opaque = opaque,
-          ag = ag,
-          Parent = prtd,
-          uid = uid,
-          generative = id == null || uid is string,
-        };
+      {
+        Name = n,
+        @sealed = @sealed,
+        opaque = opaque,
+        ag = ag,
+        Parent = prtd,
+        uid = uid,
+        generative = id == null || uid is string,
+      };
 
       if (@sealed)
       {
@@ -656,7 +656,7 @@ namespace IronScheme.Runtime.R6RS
 
       for (int i = 0; i < f.Length; i++)
       {
-        Cons c = (Cons) f[i];
+        Cons c = (Cons)f[i];
         // check for recursive definition
         Type t = rtd.Name == SymbolTable.IdToString((SymbolId)ftypes[i]) ?
           rtd.tg.TypeBuilder :
@@ -739,7 +739,7 @@ namespace IronScheme.Runtime.R6RS
       initNames.Add("$this");
       initNames.AddRange(Array.ConvertAll(rtd.Fields, f => f.Name));
 
-      CodeGen init = null; 
+      CodeGen init = null;
 
       if (rtd.Fields.Length == 0)
       {
@@ -954,7 +954,7 @@ namespace IronScheme.Runtime.R6RS
       {
         SetSymbolValueFast(SymbolTable.StringToObject(t.Name + "-rcd"), rcd);
       }
-      
+
       return rcd;
     }
 
@@ -967,66 +967,47 @@ namespace IronScheme.Runtime.R6RS
 
     static Callable MakeProtocolCallChain(RecordConstructorDescriptor rcd, object instance)
     {
-      if (rcd.parent == null)
-      {
-        CallTargetN ipc = delegate (object[] iargs)
-        {
-          var nargs = new List<object>();
-          nargs.Add(instance);
-          nargs.AddRange(iargs);
-          return rcd.type.DefaultInit.Call(nargs.ToArray());
-        };
-        
-        CallTargetN pc = delegate (object[] args)
-        {
-          var ppc = Closure.Create(ipc);
-          if (rcd.protocol == null)
-          {
-            ppc.Call(args);
-          }
-          else
-          {
-            ((Callable)rcd.protocol.Call(ppc)).Call(args);
-          }
-          
-          return instance;
-        };
+      var nargs = new List<object>();
+      nargs.Add(instance);
 
-        return Closure.Create(pc);
-      }
-      else
+      CallTargetN ipc = delegate (object[] iargs)
+      {
+        nargs.AddRange(iargs);
+        return rcd.type.DefaultInit.Call(nargs.ToArray());
+      };
+
+      CallTargetN ppp = ipc;
+
+      if (rcd.parent != null)
       {
         var parent = MakeProtocolCallChain(rcd.parent, instance);
 
-        CallTargetN pc = delegate (object[] args)
+        CallTargetN rr = delegate (object[] args)
         {
           parent.Call(args);
-
-          CallTargetN ipc = delegate (object[] iargs)
-          {
-            var nargs = new List<object>();
-            nargs.Add(instance);
-            nargs.AddRange(iargs);
-            return rcd.type.DefaultInit.Call(nargs.ToArray());
-          };
           return Closure.Create(ipc);
         };
-        
-        CallTargetN rc = delegate (object[] args)
-        {
-          var ppc = Closure.Create(pc);
-          if (rcd.protocol == null)
-          {
-            ppc.Call(args);
-          }
-          else
-          {
-            ((Callable)rcd.protocol.Call(ppc)).Call(args);
-          }
-          return instance;
-        };
-        return Closure.Create(rc);
+
+        ppp = rr;
       }
+
+      var ppc = Closure.Create(ppp);
+
+      CallTargetN pc = delegate (object[] args)
+      {
+        if (rcd.protocol == null)
+        {
+          ppc.Call(args);
+        }
+        else
+        {
+          ((Callable)rcd.protocol.Call(ppc)).Call(args);
+        }
+
+        return instance;
+      };
+
+      return Closure.Create(pc);
     }
 
     [Builtin("record-constructor")]
