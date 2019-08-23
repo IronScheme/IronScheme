@@ -8,7 +8,7 @@
     <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
     <projectUrl>https://github.com/leppie/IronScheme</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Scheme on .NET</description>
+    <description>Only includes IronScheme.dll</description>
     <releaseNotes>https://github.com/leppie/IronScheme</releaseNotes>
     <copyright>Copyright 2007-2019</copyright>
   </metadata>
