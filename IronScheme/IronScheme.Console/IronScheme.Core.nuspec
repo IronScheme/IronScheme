@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>IronScheme.Core</id>
+    <version>VERSION</version>
+    <authors>Llewellyn Pritchard</authors>
+    <owners>Llewellyn Pritchard</owners>
+    <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
+    <projectUrl>https://github.com/leppie/IronScheme</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Scheme on .NET</description>
+    <releaseNotes>https://github.com/leppie/IronScheme</releaseNotes>
+    <copyright>Copyright 2007-2019</copyright>
+  </metadata>
+  <files>
+    <file src="IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
+  </files>
+</package>
