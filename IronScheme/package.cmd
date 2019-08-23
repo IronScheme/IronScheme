@@ -72,6 +72,6 @@ copy /y IronScheme-latest*.* %BUILD_ROOT%bin
 rem nuget
 copy /y ..\IronScheme.Core.nuspec .
 sed -i s/VERSION/%APPVEYOR_BUILD_VERSION%/ IronScheme.Core.nuspec
-nuget pack ..\IronScheme.Core.nuspec
+nuget pack IronScheme.Core.nuspec
 copy /y IronScheme*.nupkg %BUILD_ROOT%bin
 popd
