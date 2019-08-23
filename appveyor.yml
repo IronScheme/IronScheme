@@ -25,13 +25,9 @@ install:
 
     cinst zip
 
-    rem curl -o xz.zip http://tukaani.org/xz/xz-5.2.1-windows.zip
-
-    rem unzip -o xz.zip -d xz bin_i686-sse2/xz.exe
-
-    rem copy xz\bin_i686-sse2\xz.exe "C:\Program Files\Git\usr\bin\"
-
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
+nuget:
+  project_feed: true
 build_script:
 - cmd: msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:TargetFrameworkVersion=%FX_VERSION% /p:Configuration=Release
 test_script:
@@ -61,10 +57,3 @@ artifacts:
 before_deploy:
 - cmd: >-
     rem precompile libraries for Nuget
-
-    rem echo (compile-system-libraries) | install-stage\IronScheme\IronScheme.Console32-v2.exe
-
-    rem cd install-stage
-
-    rem prep nuget packages ... WIP
-
