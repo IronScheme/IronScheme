@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>IronScheme.Core</id>
-    <version>VERSION</version>
+    <version>$version$</version>
     <authors>Llewellyn Pritchard</authors>
     <owners>Llewellyn Pritchard</owners>
     <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
@@ -11,6 +11,13 @@
     <description>Only includes IronScheme.dll</description>
     <releaseNotes>https://github.com/leppie/IronScheme</releaseNotes>
     <copyright>Copyright 2007-2019</copyright>
+    <tags>scheme ironscheme r6rs</tags>
+    <repository type="git" url="https://github.com/leppie/IronScheme" branch="master" commit="$sha$" />
+    <dependencies>
+      <group targetFramework=".NETFramework3.5" />
+      <group targetFramework=".NETFramework4.0" />
+      <group targetFramework=".NETFramework4.5" />
+    </dependencies>
   </metadata>
   <files>
     <file src="IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />

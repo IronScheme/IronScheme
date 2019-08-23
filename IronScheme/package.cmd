@@ -71,7 +71,6 @@ rem rename artefacts and copy to build root
 copy /y IronScheme-latest*.* %BUILD_ROOT%bin
 rem nuget
 copy /y ..\IronScheme.Core.nuspec .
-sed -i s/VERSION/%APPVEYOR_BUILD_VERSION%/ IronScheme.Core.nuspec
-nuget pack IronScheme.Core.nuspec
+nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
 copy /y IronScheme*.nupkg %BUILD_ROOT%bin
 popd
