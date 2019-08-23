@@ -39,6 +39,11 @@ There is also a batch file in the IronScheme directory called `test.cmd`. You ca
 
 Make sure that `peverify` is in your PATH. The test fixtures are designed to execute in a specfic order. The tests will not take less than 6 minutes to complete.
 
+Nuget feed
+==========
+
+https://ci.appveyor.com/nuget/ironscheme
+
 Issues
 ======
 
