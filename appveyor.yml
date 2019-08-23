@@ -57,7 +57,7 @@ test_script:
     if "%FX_VERSION%" EQU "v2.0" call ci-artefact.cmd
 artifacts:
 - path: IronScheme-*.zip
-- path: IronScheme*.nupkg
+- path: '*.nupkg'
 before_deploy:
 - cmd: >-
     rem precompile libraries for Nuget
