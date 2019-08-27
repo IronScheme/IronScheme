@@ -10,11 +10,9 @@ isc lib\srfi\tests\multi-dimensional-arrays--arlib.sps >> srfitest.log
 isc lib\srfi\tests\multi-dimensional-arrays.sps >> srfitest.log
 isc lib\srfi\tests\os-environment-variables.sps >> srfitest.log
 isc lib\srfi\tests\procedure-arity.sps >> srfitest.log
-isc lib\srfi\tests\print-ascii.sps >> srfitest.log
 rem isc lib\srfi\tests\random-conftest.sps >> srfitest.log
-isc lib\srfi\tests\random.sps >> srfitest.log
 isc lib\srfi\tests\random-access-lists.sps >> srfitest.log
-isc lib\srfi\tests\rec-factorial.sps >> srfitest.log
+isc lib\srfi\tests\rec.sps >> srfitest.log
 isc lib\srfi\tests\records.sps >> srfitest.log
 isc lib\srfi\tests\testing.sps >> srfitest.log
 isc lib\srfi\tests\time.sps >> srfitest.log
