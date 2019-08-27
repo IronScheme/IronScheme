@@ -17,6 +17,10 @@ environment:
   - FX_VERSION: v4.0
 install:
 - cmd: >-
+    cd %APPVEYOR_BUILD_FOLDER%
+    
+    git submodule update --init --recursive
+
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     
     set QUIET=1
