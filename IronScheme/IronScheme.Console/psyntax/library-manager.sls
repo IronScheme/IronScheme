@@ -125,9 +125,7 @@
                    (display-hex (remainder n 16))))))
             (string->list 
               (let ((d (symbol->string (car ls))))
-                (if (and (char=? #\: (string-ref d 0)) (char<=? #\0 (string-ref d 1) #\9))
-                    (substring d 1 (string-length d))
-                    d))))
+                    d)))
           (f (cdr ls))))
       (extract)))
 
@@ -159,9 +157,7 @@
                              (display-hex (remainder n 16))))))
                       (string->list 
                         (let ((d (symbol->string (car ls))))
-                          (if (and (char=? #\: (string-ref d 0)) (char<=? #\0 (string-ref d 1) #\9))
-                              (substring d 1 (string-length d))
-                              d))))
+                              d)))
                     (f (cdr ls))))
                 (string-append (extract) ".dll"))))
            (substring fn 1 (string-length fn))))

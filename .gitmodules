@@ -1,0 +1,4 @@
+[submodule "IronScheme/IronScheme.Console/lib/srfi"]
+	path = IronScheme/IronScheme.Console/lib/srfi
+	url = https://github.com/leppie/chez-srfi.git
+	branch = master

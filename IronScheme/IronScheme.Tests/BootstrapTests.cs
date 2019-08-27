@@ -34,7 +34,7 @@ namespace IronScheme.Tests
 
       foreach (var lib in libs)
       {
-        if (lib != "srfi.2.and-let%2a.dll") // peverify bug
+        //if (lib != "srfi.2.and-let%2a.dll") // peverify bug
         {
           if (!Quiet) Console.WriteLine("Verifying: " + lib);
           RunTest("peverify.exe", "/nologo " + lib, false);
@@ -80,7 +80,7 @@ namespace IronScheme.Tests
       {
         foreach (var lib in libs)
         {
-          if (lib != "srfi.2.and-let%2a.dll") // peverify bug
+          //if (lib != "srfi.2.and-let%2a.dll") // peverify bug
           {
             if (!Quiet) Console.WriteLine("Verifying: " + lib);
             RunTest("peverify.exe", "/nologo " + lib, false);
