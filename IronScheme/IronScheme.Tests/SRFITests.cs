@@ -68,12 +68,20 @@ namespace IronScheme.Tests
       AssertError(r);
     }
 
-    [Ignore("Some scoping issue")]
     [Test]
     public void ListQueues()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\list-queues.sps");
-      Assert.True(r.Output == "Done.");
+      Assert.True(r.Output.Contains(@"%%%% Starting test list-queues/simple
+# of expected passes      16
+%%%% Starting test list-queues/whole
+# of expected passes      20
+%%%% Starting test list-queues/map
+# of expected passes      23
+%%%% Starting test list-queues/conversion
+# of expected passes      30
+%%%% Starting test list-queues/unfold
+# of expected passes      34"));
       AssertError(r);
     }
 
