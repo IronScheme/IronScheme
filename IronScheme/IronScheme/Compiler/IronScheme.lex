@@ -237,7 +237,7 @@ vvstart                "#"({identifier})"("
 {line_comment}        { return Make(Tokens.COMMENT); }
 
 
-<ML_COMMENT>[^\r\n\|#]+       { return Make(Tokens.COMMENT); }
+<ML_COMMENT>[^\r\n\|#]+       { if (chr != -1) return Make(Tokens.COMMENT); }
 <ML_COMMENT>{comment_start}   { yy_push_state(ML_COMMENT); return Make(Tokens.COMMENT); }    
 <ML_COMMENT>{comment_end}     { yy_pop_state(); return Make(Tokens.COMMENT); }
 <ML_COMMENT>"|"               { return Make(Tokens.COMMENT); }
