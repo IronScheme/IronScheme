@@ -15,7 +15,6 @@ Building
 1. Open the `IronSchemeCore.sln` file in VS2008 or later
 2. Allow the project to be converted, if needed
 3. Set startup project as `IronScheme.Console`
-4. Set the solution profile to `Release` (optional, but recommended)
 
 Alternatively, the following can be done from the VS (any version 2008+) command prompt:
 ```
@@ -42,7 +41,7 @@ Make sure that `peverify` is in your PATH. The test fixtures are designed to exe
 Nuget feed
 ==========
 
-https://ci.appveyor.com/nuget/ironscheme
+On Nuget.org and CI-builds on https://ci.appveyor.com/nuget/ironscheme
 
 Issues
 ======
