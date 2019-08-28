@@ -229,7 +229,7 @@ vvstart                "#"({identifier})"("
 <<EOF>>               { ; }
 
 <IGNORE>.+            { ; }
-"#!eof"               {  yy_push_state(IGNORE); }
+"#!eof"               { yy_push_state(IGNORE); }
 
 {white_space}+        { ; }
 {new_line}            { ; }

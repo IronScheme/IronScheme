@@ -23,8 +23,6 @@ install:
 
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
 
-    7z
-    
     set QUIET=1
 
     cinst ilmerge
