@@ -64,9 +64,9 @@ rem tar -c -fIronScheme-latest.tar IronScheme >nul
 rem xz IronScheme-latest.tar
 copy ..\ngen-all.cmd IronScheme
 copy ..\un-ngen-all.cmd IronScheme
-zip -r -9 -q IronScheme-latest.zip IronScheme
+7z a IronScheme-latest.zip IronScheme
 copy ..\IronScheme.pdb IronScheme
-zip -r -9 -q IronScheme-latest-DEBUG.zip IronScheme
+7z a IronScheme-latest-DEBUG.zip IronScheme
 rem rename artefacts and copy to build root
 copy /y IronScheme-latest*.* %BUILD_ROOT%bin
 rem nuget
