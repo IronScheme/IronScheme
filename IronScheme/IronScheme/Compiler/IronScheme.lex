@@ -222,8 +222,14 @@ vvstart                "#"({identifier})"("
 
 %x ML_COMMENT
 %x ML_STRING
+%x IGNORE
 
 %%
+
+<<EOF>>               { ; }
+
+<IGNORE>.+            { ; }
+"#!eof"               {  yy_push_state(IGNORE); }
 
 {white_space}+        { ; }
 {new_line}            { ; }
@@ -285,7 +291,7 @@ vvstart                "#"({identifier})"("
 {bad_number}          { return MakeError("bad number"); }
 {bad_char}            { return MakeError("bad character"); }
 
-<<EOF>>               { ; }
+
 
 .                     { return MakeError("bad input"); }
 
