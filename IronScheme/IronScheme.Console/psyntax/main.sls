@@ -279,17 +279,6 @@
               (try-load-from-file libname filename))
             #f))))
       
-  (define (web-path-exists? url save-path)
-    (if (string=? (substring url 0 5) "http:")
-        (let ((wc (clr-new System.Net.WebClient)))
-          (clr-guard [e [e #f]]
-            (clr-call System.Net.WebClient DownloadFile  wc (clr-cast String url) save-path)
-            (printf "Downloaded ~a to ~a\n" url save-path)
-            #t))
-        #f))
-        
-  (alternative-file-locator web-path-exists?)
-
   (current-precompiled-library-loader load-library-from-dll)
   
   (initialize-default-printers)
