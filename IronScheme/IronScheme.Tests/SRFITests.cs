@@ -34,12 +34,12 @@ namespace IronScheme.Tests
       AssertError(r);
     }
 
-    [Ignore("Codegen issue")]
+    [Ignore("Codegen issue with 32 bit")]
     [Test]
     public void Cut()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\cut.sps");
-      Assert.True(r.Output == "passed");
+      Assert.True(r.Output.Contains(";; *** checks *** : 30 correct, 0 failed."));
       AssertError(r);
     }
 
