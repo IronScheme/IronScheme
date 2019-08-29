@@ -166,12 +166,11 @@ namespace IronScheme.Tests
       AssertError(r);
     }
 
-    [Ignore("To be investigated")]
     [Test]
     public void TablesTest()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\tables-test.sps");
-      // is the right?
+      Assert.False(r.Output.Contains("Error: test failed:"));
       AssertError(r);
     }
 
