@@ -1029,9 +1029,19 @@ namespace IronScheme
 
     protected static T RequiresNotNull<T>(object obj)
     {
+      if (obj is T)
+      {
+        return (T)obj;
+      }
+
+      return RequiresNotNullExhaustive<T>(obj);
+    }
+
+    private static T RequiresNotNullExhaustive<T>(object obj)
+    {
       if (obj == null)
       {
-        return (T) AssertionViolation(GetCaller(), "argument cannot be null");
+        return (T)AssertionViolation(GetCaller(), "argument cannot be null");
       }
 
       if (typeof(T) == typeof(string) && obj is StringBuilder)
@@ -1049,12 +1059,7 @@ namespace IronScheme
         return (T)(object)((R6RS.CustomTextReaderWriter)obj).input;
       }
 
-      if (!(obj is T))
-      {
-        return (T) AssertionViolation(GetCaller(), "expected type: " + GetTypeName(typeof(T)), obj);
-      }
-
-      return (T)obj;
+      return (T)AssertionViolation(GetCaller(), "expected type: " + GetTypeName(typeof(T)), obj);
     }
   }
 }

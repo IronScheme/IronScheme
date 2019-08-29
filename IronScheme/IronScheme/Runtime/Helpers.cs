@@ -273,12 +273,12 @@ namespace IronScheme.Runtime
 
     public static T[] RequiresArray<T>(object obj)
     {
-      if (obj is byte[] && typeof(T) == typeof(byte))
+      if (obj is T[])
       {
         return obj as T[];
       }
 
-      if (obj is T[])
+      if (obj is byte[] && typeof(T) == typeof(byte))
       {
         return obj as T[];
       }
@@ -340,30 +340,30 @@ namespace IronScheme.Runtime
     [DebuggerStepThrough]
     public static T RequiresNotNull<T>(object obj)
     {
+      if (obj is T)
+      {
+        return (T)obj;
+      }
+
       if (obj == null)
       {
-        return (T) Builtins.AssertionViolation(GetCaller(), "argument cannot be null");
+        return (T)Builtins.AssertionViolation(GetCaller(), "argument cannot be null");
       }
 
-      if (!(obj is T))
+      // no way pass a box op :(
+      object o = ConvertFromSchemeObject<T>(obj);
+      if (o != null)
       {
-        // no way pass a box op :(
-        object o = ConvertFromSchemeObject<T>(obj);
-        if (o != null)
-        {
-          return (T)o;
-        }
-        if (typeof(T) == typeof(Callable))
-        {
-          return (T)Builtins.AssertionViolation(GetCaller(), "expected procedure", obj);
-        }
-        else
-        {
-          return (T)Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
-        }
+        return (T)o;
       }
-
-      return (T)obj;
+      if (typeof(T) == typeof(Callable))
+      {
+        return (T)Builtins.AssertionViolation(GetCaller(), "expected procedure", obj);
+      }
+      else
+      {
+        return (T)Builtins.AssertionViolation(GetCaller(), "expected type: " + typeof(T).Name, obj);
+      }
     }
 
     public static object[] DeserializeAssemblyConstants(Type t)
