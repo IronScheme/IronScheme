@@ -125,13 +125,26 @@ See docs/license.txt. |#
         (clr-call Object GetHashCode obj)))
         
   (define/contract (hashtable-equivalence-function ht:hashtable)
-    (if (clr-is HashtableEx ht)
-        (clr-prop-get HashtableEx EqualityFunction ht)
-        eq?))
+    (cond 
+      [(clr-is HashtableEx ht)
+        (clr-prop-get HashtableEx EqualityFunction ht)]
+      [(clr-is ReadOnlyHashtable ht)
+        (let ((ef (clr-prop-get ReadOnlyHashtable EqualityFunction ht)))
+          (if (null? ef)
+              eq?
+              ef))]
+      [else  eq?]))
          
   (define/contract (hashtable-hash-function ht:hashtable)
-    (and (clr-is HashtableEx ht)
-         (clr-prop-get HashtableEx HashFunction ht)))
+    (cond 
+      [(clr-is HashtableEx ht)
+        (clr-prop-get HashtableEx HashFunction ht)]
+      [(clr-is ReadOnlyHashtable ht)
+        (let ((hf (clr-prop-get ReadOnlyHashtable HashFunction ht)))
+          (if (null? hf)
+              #f
+              hf))]
+      [else  #f]))
   
   (define/contract (hashtable-size ht:hashtable)
     (clr-prop-get Hashtable Count ht))

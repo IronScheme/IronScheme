@@ -58,6 +58,46 @@ namespace IronScheme.Runtime.R6RS
         Builtins.AssertionViolation("hashtable-set!", "hashtable is readonly", this);
       }
     }
+
+    public Callable HashFunction
+    {
+      get
+      {
+        var ec = EqualityComparer as HashComparer;
+        if (ec != null)
+        {
+          return ec.hash;
+        }
+        return null;
+      }
+    }
+
+    public Callable EqualityFunction
+    {
+      get
+      {
+        var ec = EqualityComparer as HashComparer;
+        if (ec != null)
+        {
+          return ec.equiv;
+        }
+        return null;
+      }
+    }
+
+    public override object Clone()
+    {
+      if (EqualityComparer is HashComparer)
+      {
+        var ht = new HashtableEx(Count, EqualityComparer);
+        foreach (DictionaryEntry kvp in this)
+        {
+          ht.Add(kvp.Key, kvp.Value);
+        }
+        return ht;
+      }
+      return base.Clone();
+    }
   }
 
   [CLSCompliant(false)]
@@ -119,6 +159,18 @@ namespace IronScheme.Runtime.R6RS
     public Hashtable MakeReadOnly()
     {
       return new ReadOnlyHashtable(this, EqualityComparer);
+    }
+
+    public override object Clone()
+    {
+      var ht = new HashtableEx(Count, EqualityComparer);
+
+      foreach (DictionaryEntry kvp in this)
+      {
+        ht.Add(kvp.Key, kvp.Value);
+      }
+
+      return ht;
     }
   }
 
