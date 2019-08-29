@@ -12,6 +12,7 @@ See docs/license.txt. |#
     datetime->local
     today
     difference
+    datetime-add
     time-of-day
     datetime?
     timespan?
@@ -71,11 +72,11 @@ See docs/license.txt. |#
       [(ticks)
         (clr-new DateTime ticks 'utc)]
       [(year:fixnum month:fixnum day:fixnum)
-        (clr-new DateTime year month day 0 0 0 (clr-cast DateTimeKind 'utc))]
+        (clr-new DateTime year month day 0 0 0 (clr-cast DateTimeKind 'Utc))]
       [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum)
-        (clr-new DateTime year month day hour minute second (clr-cast DateTimeKind 'utc))]    
+        (clr-new DateTime year month day hour minute second (clr-cast DateTimeKind 'Utc))]    
       [(year:fixnum month:fixnum day:fixnum hour:fixnum minute:fixnum second:fixnum ms:fixnum)
-        (clr-new DateTime year month day hour minute second (clr-cast Int32 ms) (clr-cast DateTimeKind 'utc))]))    
+        (clr-new DateTime year month day hour minute second (clr-cast Int32 ms) (clr-cast DateTimeKind 'Utc))]))    
     
   (define/contract make-datetime
     (case-lambda
@@ -116,6 +117,9 @@ See docs/license.txt. |#
     
   (define/contract (difference dt1:datetime dt2:datetime)
     (clr-static-call DateTime (op_Subtraction DateTime DateTime) dt1 dt2))
+
+  (define/contract (datetime-add dt:datetime ts:timespan)
+    (clr-static-call DateTime (op_Addition DateTime TimeSpan) dt ts))
 
   (define/contract (time-of-day dt:datetime)
     (clr-prop-get DateTime TimeOfDay dt))
