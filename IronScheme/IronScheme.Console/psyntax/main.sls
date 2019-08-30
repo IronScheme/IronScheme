@@ -308,7 +308,7 @@
   
   (library-path (get-library-paths))
   
-  (library-extensions (append (library-extensions) (list ".ironscheme.sls")))
+  (library-extensions (cons ".ironscheme.sls" (library-extensions)))
   
   (enable-constant-fold/env 
     '(only (rnrs) + - * / = < > <= >= negative? positive? zero? exp expt div mod div0 mod0 even? odd? 
