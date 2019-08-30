@@ -1116,6 +1116,12 @@
     <Content Include="lib\pfds\LICENSE">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="lib\srfi\private\include\read.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\srfi\private\include\read.ironscheme.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="playground\syntax-utils.sls" />
     <None Include="lib\as-match.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
