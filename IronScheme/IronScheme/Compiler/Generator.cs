@@ -710,13 +710,14 @@ namespace IronScheme.Compiler
             }
           }
 
-          // cater for varargs more efficiently, this does not seem to hit, probably needed somewhere else
+          // cater for varargs more efficiently, this does not seem to hit, probably needed somewhere else, hits in ironscheme-test and cut test
           if (mcexpr.Method == Closure_MakeVarArgsX)
           {
             CodeBlockExpression cbe = mcexpr.Arguments[0] as CodeBlockExpression;
 
-            if (ppp.Length < 9 && cbe.Block.ParameterCount <= ppp.Length)
+            if (ppp.Length < 9 && cbe.Block.ParameterCount <= ppp.Length && !NeedsContext(cbe))
             {
+              // TODO: See why having a context fails here
               return CallVarArgs(cbe, ppp);
             }
           }

@@ -34,7 +34,6 @@ namespace IronScheme.Tests
       AssertError(r);
     }
 
-    [Ignore("Codegen issue with 32 bit")]
     [Test]
     public void Cut()
     {
