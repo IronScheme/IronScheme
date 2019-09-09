@@ -28,7 +28,7 @@ public override void yyerror(string format, params object[] args)
 
 int diff()
 {
-  return chr == -1 ? 0 : -1;
+  return code == -1 ? 0 : -1;
 }
 
 public int MakeSymbol()
@@ -37,7 +37,7 @@ public int MakeSymbol()
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = t;
-  yyless(t.Length);
+  yyless(yyleng);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.SYMBOL;
 }
@@ -93,7 +93,7 @@ public int Make(Tokens token)
 {
   string t = yytext;
   yylval.text = t;
-  yyless(t.Length);
+  yyless(yyleng);
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)token;
 }
@@ -243,7 +243,7 @@ vvstart                "#"({identifier})"("
 {line_comment}        { return Make(Tokens.COMMENT); }
 
 
-<ML_COMMENT>[^\r\n\|#]+       { if (chr != -1) return Make(Tokens.COMMENT); }
+<ML_COMMENT>[^\r\n\|#]+       { if (code != -1) return Make(Tokens.COMMENT); }
 <ML_COMMENT>{comment_start}   { yy_push_state(ML_COMMENT); return Make(Tokens.COMMENT); }    
 <ML_COMMENT>{comment_end}     { yy_pop_state(); return Make(Tokens.COMMENT); }
 <ML_COMMENT>"|"               { return Make(Tokens.COMMENT); }

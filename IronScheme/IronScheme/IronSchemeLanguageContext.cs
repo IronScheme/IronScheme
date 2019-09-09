@@ -114,7 +114,7 @@ namespace IronScheme
 
     static CodeBlock ParseStream(Stream s, CompilerContext cc)
     {
-      Scanner sc = new Scanner(s);
+      Scanner sc = new Scanner(s, "GUESS");
       sc.Errors = cc.Errors;
       sc.SourceUnit = cc.SourceUnit;
 
@@ -128,7 +128,7 @@ namespace IronScheme
         parser = new Parser();
       }
       Parser p = parser;
-      Scanner sc = new Scanner(code);
+      Scanner sc = new Scanner(code, "GUESS");
       p.scanner = sc;
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;

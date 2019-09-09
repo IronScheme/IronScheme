@@ -1,20 +1,29 @@
 //
-// gplexx.frame
-// Version 0.6.2 of 13-November-2007
-// Derived from gplex.frame version of 2-September-2006. 
-// Left and Right Anchored state support.
-// Start condition stack. Two generic params.
-// Using fixed length context handling for right anchors
+// Revised backup code
+// Version 1.2.1 of 24-June-2013
 //
+## Derived from gplex.frame version of 2-September-2006.
+## Code page support for files without a BOM. 
+## Left and Right Anchored state support.
+## Start condition stack. Two generic params.
+## Using fixed length context handling for right anchors
+//
+##-->defines
+
 using System;
 using System.IO;
+using System.Text;
+using System.Globalization;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Scripting;
 using System.Text;
 #if !STANDALONE
 using gppg;
 #endif
 
+##-->version295
 ##-->usingDcl
 {   
     /// <summary>
@@ -28,15 +37,22 @@ using gppg;
     // If you declare /noparser, or %option noparser then you get this.
     //
 
-    public enum Tokens
+##-->translate $public enum $Tokens
     { 
       EOF = 0, maxParseToken = int.MaxValue 
       // must have at least these two, values are almost arbitrary
     }
 
-    public abstract class ScanBase
+##-->translate $public abstract class $ScanBase
     {
+        [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "yylex")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "yylex")]
         public abstract int yylex();
+
+        [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "yywrap")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "yywrap")]
+        protected virtual bool yywrap() { return true; }
+
 #if BABEL
         protected abstract int CurrentSc { get; set; }
         // EolState is the 32-bit of state data persisted at 
@@ -49,7 +65,7 @@ using gppg;
         }
     }
     
-    public interface IColorScan
+##-->translate $public interface IColorScan
     {
         void SetSource(string source, int offset);
         int GetNext(ref int state, out int start, out int end);
@@ -57,23 +73,13 @@ using gppg;
     }
 
 #endif // STANDALONE
-
-    public abstract class ScanBuff
-    {
-        public const int EOF = -1;
-        public abstract int Pos { get; set; }
-        public abstract int Read();
-        public abstract int Peek();
-        public abstract int ReadPos { get; }
-        public abstract string GetString(int b, int e);
-    }
     
-    // If the compiler can't find ScanBase maybe you need to run
-    // GPPG with the /gplex option, or GPLEX with /noparser
+    // If the compiler can't find the scanner base class maybe you
+    // need to run GPPG with the /gplex option, or GPLEX with /noparser
 #if BABEL
-    public sealed partial class Scanner : ScanBase, IColorScan
+##-->translate $public sealed partial class $Scanner : $ScanBase, IColorScan
     {
-        public ScanBuff buffer;
+        private ScanBuff buffer;
         int currentScOrd;  // start condition ordinal
         
         protected override int CurrentSc 
@@ -88,39 +94,48 @@ using gppg;
                    currentStart = startState[value]; }
         }
 #else  // BABEL
-    public sealed partial class Scanner : ScanBase
+##-->translate $public sealed partial class $Scanner : $ScanBase
     {
-        public ScanBuff buffer;
+        private ScanBuff buffer;
         int currentScOrd;  // start condition ordinal
 #endif // BABEL
         
+        /// <summary>
+        /// The input buffer for this scanner.
+        /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        public ScanBuff Buffer { get { return buffer; } }
+        
         private static int GetMaxParseToken() {
-            System.Reflection.FieldInfo f = typeof(Tokens).GetField("maxParseToken");
+##-->translate System.Reflection.FieldInfo f = typeof($Tokens).GetField("maxParseToken");
             return (f == null ? int.MaxValue : (int)f.GetValue(null));
         }
         
         static int parserMax = GetMaxParseToken();
-        
+
         public int maxParseToken { get; set; }
         
         enum Result {accept, noMatch, contextFound};
 
+        bool yywrap() { return true; }
+
+
 ##-->consts
 
+#region user code
 ##-->codeIncl
+#endregion user code
+
         int state;
-        int currentStart = initial;
-        int chr;           // last character read
-        int cNum = 0;      // ordinal number of chr
-        int lNum = 0;      // current line number
-        int lineStartNum;  // ordinal number at start of line
+        int currentStart = startState[0];
+        int code;      // last code read
+        int cCol;      // column number of code
+        int lNum;      // current line number
         //
         // The following instance variables are used, among other
         // things, for constructing the yylloc location objects.
         //
         int tokPos;        // buffer position at start of token
-        int tokNum;        // ordinal number of first character
-        int tokLen;        // number of characters in token
         int tokCol;        // zero-based column number at start of token
         int tokLin;        // line number at start of token
         int tokEPos;       // buffer position at end of token
@@ -129,526 +144,213 @@ using gppg;
         string tokTxt;     // lazily constructed text of token
 #if STACK          
         private Stack<int> scStack = new Stack<int>();
-
-        public int[] Stack
-        {
-          get 
-          {
-            scStack.Push(currentScOrd);
-            var arr = scStack.ToArray(); 
-            Array.Reverse(arr);
-            scStack.Pop();
-            return arr;
-          }
-          set 
-          {
-            scStack = new Stack<int>(value);
-            if (scStack.Count > 0)
-            {
-              BEGIN(scStack.Pop());
-            }
-          }
-        }
 #endif // STACK
 
 ##-->tableDef
 
 
 #if BACKUP
-        // ====================== Nested class ==========================
+        // ==============================================================
+        // == Nested struct used for backup in automata that do backup ==
+        // ==============================================================
 
-        internal class Context // class used for automaton backup.
+        struct Context // class used for automaton backup.
         {
             public int bPos;
-            public int cNum;
+            public int rPos; // scanner.readPos saved value
+            public int cCol;
+            public int lNum; // Need this in case of backup over EOL.
             public int state;
             public int cChr;
         }
+        
+        private Context ctx = new Context();
 #endif // BACKUP
 
         // ==============================================================
-        // ===== Nested classes for various ScanBuff derived classes ====
+        // ==== Nested struct to support input switching in scanners ====
         // ==============================================================
 
-        public sealed class StringBuff : ScanBuff
-        {
-            string str;        // input buffer
-            int bPos;          // current position in buffer
-            int sLen;
+		struct BufferContext {
+            internal ScanBuff buffSv;
+			internal int chrSv;
+			internal int cColSv;
+			internal int lNumSv;
+		}
 
-            public StringBuff(string str)
-            {
-                this.str = str;
-                this.sLen = str.Length;
-            }
-
-            public override int Read()
-            {
-                if (bPos < sLen) return str[bPos++];
-#if BABEL
-                else if (bPos == sLen) { bPos++; return '\n'; }   // one strike, see newline
-#endif // BABEL
-                else { bPos++; return EOF; }                      // two strikes and you're out!
-            }
-            
-            public override int ReadPos { get { return bPos - 1; } }
-
-            public override int Peek()
-            {
-                if (bPos < sLen) return str[bPos];
-                else return '\n';
-            }
-
-            public override string GetString(int beg, int end)
-            {
-                //  "end" can be greater than sLen with the BABEL
-                //  option set.  Read returns a "virtual" EOL if
-                //  an attempt is made to read past the end of the
-                //  string buffer.  Without the guard any attempt 
-                //  to fetch yytext for a token that includes the 
-                //  EOL will throw an index exception.
-                if (end > sLen) end = sLen;
-                if (end <= beg) return ""; 
-                else return str.Substring(beg, end - beg);
-            }
-
-            public override int Pos
-            {
-                get { return bPos; }
-                set { bPos = value; }
-            }
-        }
-
-       // ====================== Nested class ==========================
-       //  The LineBuff class contributed by Nigel Horspool, 
-       //  nigelh@cs.uvic.cs
-       // ==============================================================
-
-        public sealed class LineBuff : ScanBuff
-        {
-            IList<string> line;    // list of source lines from a file
-            int numLines;          // number of strings in line list
-            string curLine;        // current line in that list
-            int cLine;             // index of current line in the list
-            int curLen;            // length of current line
-            int curLineStart;      // position of line start in whole file
-            int curLineEnd;        // position of line end in whole file
-            int maxPos;            // max position ever visited in whole file
-            int cPos;              // ordinal number of chr in source
-
-            // Constructed from a list of strings, one per source line.
-            // The lines have had trailing '\n' characters removed.
-            public LineBuff(IList<string> lineList)
-            {
-                line = lineList;
-                numLines = line.Count;
-                cPos = curLineStart = 0;
-                curLine = numLines>0? line[0] : "";
-                maxPos = curLineEnd = curLen = curLine.Length;
-                cLine = 1;
-            }
-
-            public override int Read()
-            {
-                if (cPos < curLineEnd)
-                    return curLine[cPos++ - curLineStart];
-                if (cPos++ == curLineEnd)
-                    return '\n';
-                if (cLine >= numLines)
-                    return EOF;
-                curLine = line[cLine];
-                curLen = curLine.Length;
-                curLineStart = curLineEnd + 1;
-                curLineEnd = curLineStart + curLen;
-                if (curLineEnd>maxPos)
-                    maxPos = curLineEnd;
-                cLine++;
-                return curLen>0? curLine[0] : '\n';
-            }
-
-            public override int Peek()
-            {
-                return (cPos < curLineEnd)? curLine[cPos - curLineStart] : '\n';
-            }
-
-            // To speed up searches for the line containing a position
-            private int cachedPos = 0;
-            private int cachedIx = 0;
-            private int cachedLstart = 0;
-
-            // Given a position pos within the entire source, the results are
-            //   ix     -- the index of the containing line
-            //   lstart -- the position of the first character on that line
-            private void findIndex( int pos, out int ix, out int lstart )
-            {
-                if (pos >= cachedPos) {
-                    ix = cachedIx;  lstart = cachedLstart;
-                } else {
-                    ix = lstart = 0;
-                }
-                for( ; ; ) {
-                    int len = line[ix].Length + 1;
-                    if (pos < lstart+len) break;
-                    lstart += len;
-                    ix++;
-                }
-                cachedPos = pos;
-                cachedIx = ix;
-                cachedLstart = lstart;
-            }
-        
-            public override string GetString(int beg, int end)
-            {
-                if (beg >= maxPos || end <= beg) return "";
-                int endIx, begIx, endLineStart, begLineStart;
-                findIndex(beg, out begIx, out begLineStart);
-                int begCol = beg - begLineStart;
-                findIndex(end, out endIx, out endLineStart);
-                int endCol = end - endLineStart;
-                string s = line[begIx];
-                if (begIx == endIx) {
-                    // the usual case, substring all on one line
-                    return (endCol <= s.Length)?
-                        s.Substring(begCol, endCol-begCol)
-                        : s.Substring(begCol) + "\n";
-                }
-                // the string spans multiple lines, yuk!
-                StringBuilder sb = new StringBuilder();
-                if (begCol < s.Length)
-                    sb.Append(s.Substring(begCol));
-                for( ; ; ) {
-                    sb.Append("\n");
-                    s = line[++begIx];
-                    if (begIx >= endIx) break;
-                    sb.Append(s);
-                }
-                if (endCol <= s.Length) {
-                    sb.Append(s.Substring(0, endCol));
-                } else {
-                    sb.Append(s);
-                    sb.Append("\n");
-                }
-                return sb.ToString();
-            }
-
-            public override int Pos
-            {
-                get { return cPos; }
-                set {
-                    cPos = value;
-                    findIndex(cPos, out cLine, out curLineStart);
-                    curLine = line[cLine];
-                    curLineEnd = curLineStart+curLine.Length;
-                }
-            }
-            
-            public override int ReadPos { get { return cPos - 1; } }
-        }
-        
-        // ====================== Nested class ==========================
-
-        public sealed class StreamBuff : ScanBuff
-        {
-            BufferedStream bStrm;   // input buffer
-            int delta = 1;          // number of bytes in chr, could be 0 for EOF.
-
-            public StreamBuff(Stream str) { this.bStrm = new BufferedStream(str); }
-
-            public override int Read() {
-                int ch0 = bStrm.ReadByte();
-                delta = (ch0 == EOF ? 0 : 1);
-                return ch0; 
-            }
-            
-            public override int ReadPos {
-                get { return (int)bStrm.Position - delta; }
-            }
-
-            public override int Peek()
-            {
-                int rslt = bStrm.ReadByte();
-                bStrm.Seek(-delta, SeekOrigin.Current);
-                return rslt;
-            }
-
-            public override string GetString(int beg, int end)
-            {
-                if (end - beg <= 0) return "";
-                long savePos = bStrm.Position;
-                char[] arr = new char[end - beg];
-                bStrm.Position = (long)beg;
-                for (int i = 0; i < (end - beg); i++)
-                    arr[i] = (char)bStrm.ReadByte();
-                bStrm.Position = savePos;
-                return new String(arr);
-            }
-
-            // Pos is the position *after* reading chr!
-            public override int Pos
-            {
-                get { return (int)bStrm.Position; }
-                set { bStrm.Position = value; }
-            }
-        }
-        
-
-        // ====================== Nested class ==========================
+        // ==============================================================
+        // ===== Private methods to save and restore buffer contexts ====
+        // ==============================================================
 
         /// <summary>
-        /// This is the Buffer for UTF8 files.
-        /// It attempts to read the encoding preamble, which for 
-        /// this encoding should be unicode point \uFEFF which is 
-        /// encoded as EF BB BF
+        /// This method creates a buffer context record from
+        /// the current buffer object, together with some
+        /// scanner state values. 
         /// </summary>
-        public class TextBuff : ScanBuff
-        {
-            protected Stream bStrm;   // input buffer
-            protected int delta = 1;          // length of chr, zero for EOF!
-            
-            private Exception BadUTF8()
-            { return new Exception(String.Format("BadUTF8 Character")); }
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        BufferContext MkBuffCtx()
+		{
+			BufferContext rslt;
+			rslt.buffSv = this.buffer;
+			rslt.chrSv = this.code;
+			rslt.cColSv = this.cCol;
+			rslt.lNumSv = this.lNum;
+			return rslt;
+		}
 
-            /// <summary>
-            /// TextBuff factory.  Reads the file preamble
-            /// and returns a TextBuff, LittleEndTextBuff or
-            /// BigEndTextBuff according to the result.
-            /// </summary>
-            /// <param name="strm">The underlying stream</param>
-            /// <returns></returns>
-            public static ScanBuff NewTextBuff(Stream strm)
-            {
-                // First check if this is a UTF16 file
-                //
-                int b0 = strm.ReadByte();
-                int b1 = strm.ReadByte();
-
-                if (b0 == 0xfe && b1 == 0xff)
-                    return new BigEndTextBuff(strm);
-                if (b0 == 0xff && b1 == 0xfe)
-                    return new LittleEndTextBuff(strm);
-                
-                int b2 = strm.ReadByte();
-                if (b0 == 0xef && b1 == 0xbb && b2 == 0xbf)
-                    return new TextBuff(strm);
-                //
-                // There is no unicode preamble, so we
-                // must go back to the Latin1 default.
-                //
-                strm.Seek(0, SeekOrigin.Begin);
-
-				int guess = new Guesser(strm).GuessCodePage();
-
-				strm.Seek(0, SeekOrigin.Begin);
-
-				if (guess == 65001)
-				{
-					return new TextBuff(strm);
-				}
-
-                return new StreamBuff(strm);
-            }
-
-            protected TextBuff(Stream str) { 
-                this.bStrm = new BufferedStream(str);
-            }
-
-            public override int Read()
-            {
-                int ch0 = bStrm.ReadByte();
-                int ch1;
-                int ch2;
-                if (ch0 < 0x7f)
-                {
-                    delta = (ch0 == EOF ? 0 : 1);
-                    return ch0;
-                }
-                else if ((ch0 & 0xe0) == 0xc0)
-                {
-                    delta = 2;
-                    ch1 = bStrm.ReadByte();
-                    if ((ch1 & 0xc0) == 0x80)
-                        return ((ch0 & 0x1f) << 6) + (ch1 & 0x3f);
-                }
-                else if ((ch0 & 0xf0) == 0xe0)
-                {
-                    delta = 3;
-                    ch1 = bStrm.ReadByte();
-                    ch2 = bStrm.ReadByte();
-                    if ((ch1 & ch2 & 0xc0) == 0x80)
-                        return ((ch0 & 0xf) << 12) + ((ch1 & 0x3f) << 6) + (ch2 & 0x3f);
-                }
-                 throw new SyntaxErrorException(string.Format("Bad UTF8 character: {0}", ch0));
-            }
-
-            public sealed override int ReadPos
-            {
-                get { return (int)bStrm.Position - delta; }
-            }
-
-            public sealed override int Peek()
-            {
-                int rslt = Read();
-                bStrm.Seek(-delta, SeekOrigin.Current);
-                return rslt;
-            }
-
-            /// <summary>
-            /// Returns the string from the buffer between
-            /// the given file positions.  This needs to be
-            /// done carefully, as the number of characters
-            /// is, in general, not equal to (end - beg).
-            /// </summary>
-            /// <param name="beg">Begin filepos</param>
-            /// <param name="end">End filepos</param>
-            /// <returns></returns>
-            public sealed override string GetString(int beg, int end)
-            {
-                int i;
-                if (end - beg <= 0) return "";
-                long savePos = bStrm.Position;
-                char[] arr = new char[end - beg];
-                bStrm.Position = (long)beg;
-                for (i = 0; bStrm.Position < end; i++)
-                    arr[i] = (char)Read();
-                bStrm.Position = savePos;
-                return new String(arr, 0, i);
-            }
-
-            // Pos is the position *after* reading chr!
-            public sealed override int Pos
-            {
-                get { return (int)bStrm.Position; }
-                set { bStrm.Position = value; }
-            }
-        }
-
-        // ====================== Nested class ==========================
         /// <summary>
-        /// This is the Buffer for Big-endian UTF16 files.
+        /// This method restores the buffer value and allied
+        /// scanner state from the given context record value.
         /// </summary>
-        public sealed class BigEndTextBuff : TextBuff
-        {
-            internal BigEndTextBuff(Stream str) : base(str) { } // 
-
-            public override int Read()
-            {
-                int ch0 = bStrm.ReadByte();
-                int ch1 = bStrm.ReadByte();
-                if (ch1 == EOF)
-                {
-                    // An EOF in either byte counts as an EOF
-                    delta = (ch0 == EOF ? 0 : 1);
-                    return -1;
-                }
-                else
-                {
-                    delta = 2;
-                    return (ch0 << 8) + ch1;
-                }
-            }
-        }
-        
-        // ====================== Nested class ==========================
-        /// <summary>
-        /// This is the Buffer for Little-endian UTF16 files.
-        /// </summary>
-        public sealed class LittleEndTextBuff : TextBuff
-        {
-            internal LittleEndTextBuff(Stream str) : base(str) { } // { this.bStrm = new BufferedStream(str); }
-
-            public override int Read()
-            {
-                int ch0 = bStrm.ReadByte();
-                int ch1 = bStrm.ReadByte();
-                if (ch1 == EOF)
-                {
-                    // An EOF in either byte counts as an EOF
-                    delta = (ch0 == EOF ? 0 : 1);
-                    return -1;
-                }
-                else
-                {
-                    delta = 2;
-                    return (ch1 << 8) + ch0;
-                }
-            }
-        }
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        void RestoreBuffCtx(BufferContext value)
+		{
+			this.buffer = value.buffSv;
+			this.code = value.chrSv;
+			this.cCol = value.cColSv;
+			this.lNum = value.lNumSv;
+        } 
         // =================== End Nested classes =======================
 
-        public Scanner(Stream file) : this() {
+#if !NOFILES
+##-->translate $public $Scanner(Stream file) {
 ##-->bufferCtor
-            this.cNum = -1;
-            this.chr = '\n'; // to initialize yyline, yycol and lineStart
-            GetChr();
-        }
+        }   
+#endif // !NOFILES
 
-        public Scanner() { 
-          maxParseToken = parserMax;
-        }
+##-->translate $public $Scanner() { maxParseToken = parserMax; }
 
-        bool eofseen = false;
+        private int readPos;
 
-        void GetChr()
+        void GetCode()
         {
-            if (chr == '\n') 
+            if (code == '\n')  // This needs to be fixed for other conventions
+                               // i.e. [\r\n\205\u2028\u2029]
             { 
-                lineStartNum = cNum + 1; 
-                lNum++; 
+                cCol = -1;
+                lNum++;
             }
-            chr = buffer.Read();
-            if (chr == -1 && !eofseen)
+            readPos = buffer.Pos;
+
+            // Now read new codepoint.
+            code = buffer.Read();
+            if (code > ScanBuff.EndOfFile)
             {
-              chr = ' ';
-              eofseen = true;
+#if (!BYTEMODE)
+                if (code >= 0xD800 && code <= 0xDBFF)
+                {
+                    int next = buffer.Read();
+                    if (next < 0xDC00 || next > 0xDFFF)
+                        code = ScanBuff.UnicodeReplacementChar;
+                    else
+                        code = (0x10000 + ((code & 0x3FF) << 10) + (next & 0x3FF));
+                }
+#endif
+                cCol++;
             }
-            else 
-            {
-              eofseen = false;
-            }
-            cNum++;
         }
-        
+
         void MarkToken()
         {
-            tokPos = buffer.ReadPos;
-            tokNum = cNum;
+#if (!PERSIST)
+            buffer.Mark();
+#endif
+            tokPos = readPos;
             tokLin = lNum;
-            tokCol = cNum - lineStartNum;
+            tokCol = cCol;
         }
         
         void MarkEnd()
         {
             tokTxt = null;
-            tokLen = cNum - tokNum;
-            tokEPos = buffer.ReadPos;
+            tokEPos = readPos;
             tokELin = lNum;
-            tokECol = cNum - lineStartNum;
+            tokECol = cCol;
+        }
+
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        int Peek()
+        {
+            int rslt, codeSv = code, cColSv = cCol, lNumSv = lNum, bPosSv = buffer.Pos;
+            GetCode(); rslt = code;
+            lNum = lNumSv; cCol = cColSv; code = codeSv; buffer.Pos = bPosSv;
+            return rslt;
         }
 
         // ==============================================================
         // =====    Initialization of string-based input buffers     ====
         // ==============================================================
 
+        /// <summary>
+        /// Create and initialize a StringBuff buffer object for this scanner
+        /// </summary>
+        /// <param name="source">the input string</param>
+        /// <param name="offset">starting offset in the string</param>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public void SetSource(string source, int offset)
         {
-            this.buffer = new StringBuff(source);
+            maxParseToken = parserMax;
+            this.buffer = ScanBuff.GetBuffer(source);
             this.buffer.Pos = offset;
-            this.cNum = offset - 1;
-            this.chr = '\n'; // to initialize yyline, yycol and lineStart
-            this.eofseen = false;
-            GetChr();
+            this.lNum = 0;
+            this.code = '\n'; // to initialize yyline, yycol and lineStart
+            GetCode();
         }
-        
-        // ================ LineBuffer Initialization ===================
 
+        // ================ LineBuffer Initialization ===================
+        /// <summary>
+        /// Create and initialize a LineBuff buffer object for this scanner
+        /// </summary>
+        /// <param name="source">the list of input strings</param>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public void SetSource(IList<string> source)
         {
-            this.buffer = new LineBuff(source);
-            this.chr = '\n'; // to initialize yyline, yycol and lineStart
-            this.cNum = -1;
-            this.eofseen = false;
-            GetChr();
+            maxParseToken = parserMax;
+            this.buffer = ScanBuff.GetBuffer(source);
+            this.code = '\n'; // to initialize yyline, yycol and lineStart
+            this.lNum = 0;
+            GetCode();
         }
+
+#if !NOFILES        
+        // =============== StreamBuffer Initialization ==================
+
+        /// <summary>
+        /// Create and initialize a StreamBuff buffer object for this scanner.
+        /// StreamBuff is buffer for 8-bit byte files.
+        /// </summary>
+        /// <param name="source">the input byte stream</param>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        public void SetSource(Stream source)
+        {
+            maxParseToken = parserMax;
+            this.buffer = ScanBuff.GetBuffer(source);
+            this.lNum = 0;
+            this.code = '\n'; // to initialize yyline, yycol and lineStart
+            GetCode();
+        }
+        
+#if !BYTEMODE
+        // ================ TextBuffer Initialization ===================
+
+        /// <summary>
+        /// Create and initialize a TextBuff buffer object for this scanner.
+        /// TextBuff is a buffer for encoded unicode files.
+        /// </summary>
+        /// <param name="source">the input text file</param>
+        /// <param name="fallbackCodePage">Code page to use if file has
+        /// no BOM. For 0, use machine default; for -1, 8-bit binary</param>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        public void SetSource(Stream source, int fallbackCodePage)
+        {
+            maxParseToken = parserMax;
+            this.buffer = ScanBuff.GetBuffer(source, fallbackCodePage);
+            this.lNum = 0;
+            this.code = '\n'; // to initialize yyline, yycol and lineStart
+            GetCode();
+        }
+#endif // !BYTEMODE
+#endif // !NOFILES
         
         // ==============================================================
 
@@ -664,11 +366,11 @@ using gppg;
         //
         public int GetNext(ref int state, out int start, out int end)
         {
-            Tokens next;
+##-->translate            $Tokens next;
             int s, e;
             s = state;        // state at start
             EolState = state;
-            next = (Tokens)Scan();
+##-->translate            next = ($Tokens)Scan();
             state = EolState;
             e = state;       // state at end;
             start = tokPos;
@@ -677,23 +379,33 @@ using gppg;
         }        
 #endif // BABEL
 
-        // ======== IScanner<> Implementation =========
+        // ======== AbstractScanner<> Implementation =========
 
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "yylex")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "yylex")]
         public override int yylex()
         {
             // parserMax is set by reflecting on the Tokens
-            // enumeration.  If maxParseTokeen is defined
+            // enumeration.  If maxParseToken is defined
             // that is used, otherwise int.MaxValue is used.
             int next;
-            do { next = Scan(); } while (next >= maxParseToken);
+            do { next = Scan(); } while (next >= parserMax);
             return next;
         }
         
-        int yyleng { get { return tokLen; } }
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         int yypos { get { return tokPos; } }
+        
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         int yyline { get { return tokLin; } }
+        
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         int yycol { get { return tokCol; } }
 
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "yytext")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "yytext")]
         public string yytext
         {
             get 
@@ -704,26 +416,90 @@ using gppg;
             }
         }
 
-        void yyless(int n) { 
+        /// <summary>
+        /// Discards all but the first "n" codepoints in the recognized pattern.
+        /// Resets the buffer position so that only n codepoints have been consumed;
+        /// yytext is also re-evaluated. 
+        /// </summary>
+        /// <param name="n">The number of codepoints to consume</param>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        void yyless(int n)
+        {
             buffer.Pos = tokPos;
             // Must read at least one char, so set before start.
-            cNum = tokNum - 1;
-            GetChr();
+            cCol = tokCol - 1; 
+            GetCode();
+            // Now ensure that line counting is correct.
             lNum = tokLin;
-            for (int i = 0; i < n; i++) 
-            { 
-              GetChr();
-            }
+            // And count the rest of the text.
+            for (int i = 0; i < n; i++) GetCode();
             MarkEnd();
         }
-
-        // ============ methods available in actions ==============
-
-        internal int YY_START {
-            get { return currentScOrd; }
-            set { currentScOrd = value; } 
+       
+        //
+        //  It would be nice to count backward in the text
+        //  but it does not seem possible to re-establish
+        //  the correct column counts except by going forward.
+        //
+        /// <summary>
+        /// Removes the last "n" code points from the pattern.
+        /// </summary>
+        /// <param name="n">The number to remove</param>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        void _yytrunc(int n) { yyless(yyleng - n); }
+        
+        //
+        // This is painful, but we no longer count
+        // codepoints.  For the overwhelming majority 
+        // of cases the single line code is fast, for
+        // the others, well, at least it is all in the
+        // buffer so no files are touched. Note that we
+        // can't use (tokEPos - tokPos) because of the
+        // possibility of surrogate pairs in the token.
+        //
+        /// <summary>
+        /// The length of the pattern in codepoints (not the same as 
+        /// string-length if the pattern contains any surrogate pairs).
+        /// </summary>
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "yyleng")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "yyleng")]
+        public int yyleng
+        {
+            get {
+                if (tokELin == tokLin)
+                    return tokECol - tokCol;
+                else
+#if BYTEMODE
+                    return tokEPos - tokPos;
+#else
+                {
+                    int ch;
+                    int count = 0;
+                    int save = buffer.Pos;
+                    buffer.Pos = tokPos;
+                    do {
+                        ch = buffer.Read();
+                        if (!char.IsHighSurrogate((char)ch)) count++;
+                    } while (buffer.Pos < tokEPos && ch != ScanBuff.EndOfFile);
+                    buffer.Pos = save;
+                    return count;
+                }
+#endif // BYTEMODE
+            }
         }
         
+        // ============ methods available in actions ==============
+
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
+        internal int YY_START {
+            get { return currentScOrd; }
+            set { currentScOrd = value; 
+                  currentStart = startState[value]; 
+            } 
+        }
+        
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal void BEGIN(int next) {
             currentScOrd = next;
             currentStart = startState[next];
@@ -731,90 +507,53 @@ using gppg;
 
         // ============== The main tokenizer code =================
 
-        int Scan()
-        {
+        int Scan() {
 ##-->prolog 
-                for (; ; )
-                {
-                    int next;              // next state to enter                   
-#if BACKUP
-                    bool inAccept = false; // inAccept ==> current state is an accept state
-                    Result rslt = Result.noMatch;
-                    // skip "idle" transitions
+                for (; ; ) {
+                    int next;              // next state to enter
 #if LEFTANCHORS
-                    if (lineStartNum == cNum && NextState(anchorState[currentScOrd]) != currentStart)
-                        state = anchorState[currentScOrd];
-                    else {
-                        state = currentStart;
-                        while (NextState() == state) {
-                            GetChr();
-                            if (lineStartNum == cNum) {
-                                int anchor = anchorState[currentScOrd];
-                                if (NextState(anchor) != state) {
-                                    state = anchor; 
-                                    break;
-                                }
-                            }
-                        }
+                    for (;;) {
+                        // Discard characters that do not start any pattern.
+                        // Must check the left anchor condition after *every* GetCode!
+                        state = ((cCol == 0) ? anchorState[currentScOrd] : currentStart);
+                        if ((next = NextState()) != goStart) break; // LOOP EXIT HERE...
+                        GetCode();
                     }
-#else // !LEFTANCHORS
-                    state = currentStart;
-                    while (NextState() == state) 
-                        GetChr(); // skip "idle" transitions
-#endif // LEFTANCHORS
-                    MarkToken();
                     
-                    while ((next = NextState()) != currentStart)
-                        if (inAccept && next > maxAccept) // need to prepare backup data
-                        {
-                            Context ctx = new Context();
-                            rslt = Recurse2(ctx, next);
-                            if (rslt == Result.noMatch) RestoreStateAndPos(ctx);
-                            break;
-                        }
-                        else
-                        {
-                            state = next;
-                            GetChr();
-                            if (state <= maxAccept) inAccept = true;
-                        }
-#else // !BACKUP
-#if LEFTANCHORS
-                    if (lineStartNum == cNum) {
-                        int anchor = anchorState[currentScOrd];
-                        if (NextState(anchor) != currentStart)
-                            state = anchor;
-                    }
-                    else {
-                        state = currentStart;
-                        while (NextState() == state) {
-                            GetChr();
-                            if (lineStartNum == cNum) {
-                                int anchor = anchorState[currentScOrd];
-                                if (NextState(anchor) != state) {
-                                    state = anchor;
-                                    break;
-                                }
-                            }
-                        }
-                    }
 #else // !LEFTANCHORS
                     state = currentStart;
-                    while (NextState() == state) 
-                        GetChr(); // skip "idle" transitions
-#endif // LEFTANCHORS
+                    while ((next = NextState()) == goStart) {
+                        // At this point, the current character has no
+                        // transition from the current state.  We discard 
+                        // the "no-match" char.   In traditional LEX such 
+                        // characters are echoed to the console.
+                        GetCode();
+                    }
+#endif // LEFTANCHORS                    
+                    // At last, a valid transition ...    
                     MarkToken();
-                    // common code
-                    while ((next = NextState()) != currentStart)
-                    {
+                    state = next;
+                    GetCode();                    
+#if BACKUP
+                    bool contextSaved = false;
+                    while ((next = NextState()) > eofNum) { // Exit for goStart AND for eofNum
+                        if (state <= maxAccept && next > maxAccept) { // need to prepare backup data
+                            // Store data for the *latest* accept state that was found.
+                            SaveStateAndPos( ref ctx );
+                            contextSaved = true;
+                        }
                         state = next;
-                        GetChr();
+                        GetCode();
+                    }
+                    if (state > maxAccept && contextSaved)
+                        RestoreStateAndPos( ref ctx );
+#else  // BACKUP
+                    while ((next = NextState()) > eofNum) { // Exit for goStart AND for eofNum
+                         state = next;
+                         GetCode();
                     }
 #endif // BACKUP
-                    if (state > maxAccept) 
-                        state = currentStart;
-                    else
-                    {
+                    if (state <= maxAccept) {
                         MarkEnd();
 ##-->actionCases
                     }
@@ -823,54 +562,32 @@ using gppg;
         }
 
 #if BACKUP
-        Result Recurse2(Context ctx, int next)
-        {
-            // Assert: at entry "state" is an accept state AND
-            //         NextState(state, chr) != currentStart AND
-            //         NextState(state, chr) is not an accept state.
-            //
-            bool inAccept;
-            SaveStateAndPos(ctx);
-            state = next;
-            if (state == eofNum) return Result.accept;
-            GetChr();
-            inAccept = false;
-
-            while ((next = NextState()) != currentStart)
-            {
-                if (inAccept && next > maxAccept) // need to prepare backup data
-                    SaveStateAndPos(ctx);
-                state = next;
-                if (state == eofNum) return Result.accept;
-                GetChr(); 
-                inAccept = (state <= maxAccept);
-            }
-            if (inAccept) return Result.accept; else return Result.noMatch;
-        }
-
-        void SaveStateAndPos(Context ctx)
-        {
+        void SaveStateAndPos(ref Context ctx) {
             ctx.bPos  = buffer.Pos;
-            ctx.cNum  = cNum;
+            ctx.rPos  = readPos;
+            ctx.cCol  = cCol;
+            ctx.lNum  = lNum;
             ctx.state = state;
-            ctx.cChr  = chr;
+            ctx.cChr  = code;
         }
 
-        void RestoreStateAndPos(Context ctx)
-        {
+        void RestoreStateAndPos(ref Context ctx) {
             buffer.Pos = ctx.bPos;
-            cNum  = ctx.cNum;
+            readPos = ctx.rPos;
+            cCol  = ctx.cCol;
+            lNum  = ctx.lNum;
             state = ctx.state;
-            chr   = ctx.cChr;
+            code  = ctx.cChr;
         }
-
-        void RestorePos(Context ctx) { buffer.Pos = ctx.bPos; cNum = ctx.cNum; }
-#endif // BACKUP
+#endif  // BACKUP
 
         // ============= End of the tokenizer code ================
 
 #if STACK        
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal void yy_clear_stack() { scStack.Clear(); }
+        
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal int yy_top_state() { return scStack.Peek(); }
         
         internal void yy_push_state(int state)
@@ -889,8 +606,12 @@ using gppg;
         }
  #endif // STACK
 
+        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal void ECHO() { Console.Out.Write(yytext); }
         
 ##-->userCode
-    } // end class Scanner
+    } // end class $Scanner
+
+##-->embeddedBuffers
+
 } // end namespace
