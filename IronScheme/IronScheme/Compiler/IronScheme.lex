@@ -72,7 +72,7 @@ public int MakeChar()
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = Helper.ParseChar(t);
-  yyless(t.Length);
+  yyless(yyleng + diff());
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.CHARACTER;
 }

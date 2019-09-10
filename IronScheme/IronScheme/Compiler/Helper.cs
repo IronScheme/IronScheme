@@ -125,7 +125,7 @@ namespace IronScheme.Compiler
               string ss = m.Value;
               ss = ss.Substring(2, s.Length - 3);
               int iv = int.Parse(ss, NumberStyles.HexNumber);
-              return ((char)iv).ToString();
+              return char.ConvertFromUtf32(iv);
             }
         }
         return s;
@@ -235,11 +235,11 @@ namespace IronScheme.Compiler
           }
           else
           {
-            if (input.Length != 3)
+            if (input.Length < 3)
             {
               throw new SyntaxErrorException(string.Format("unknown escape sequence: {0}", input));
             }
-            output = input[2].ToString();
+            output = input.Substring(2);
           }
           break;
       }
