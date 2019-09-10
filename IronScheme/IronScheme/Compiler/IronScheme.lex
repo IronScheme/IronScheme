@@ -28,7 +28,9 @@ public override void yyerror(string format, params object[] args)
 
 int diff()
 {
-  return code == -1 ? 0 : -1;
+  //return code == -1 ? 0 : (code > ushort.MaxValue ? -2 : -1);
+  //return (code == -1 || (eofseen && code == ' ')) ? 0 : -1;
+  return (code == -1) ? 0 : -1;
 }
 
 public int MakeSymbol()
@@ -37,7 +39,7 @@ public int MakeSymbol()
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = t;
-  yyless(yyleng);
+  yyless(yyleng + diff());
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.SYMBOL;
 }
@@ -123,7 +125,7 @@ digit8                 [0-7]
 digit10                {digit}
 digit16                [0-9a-fA-F]
 
-letter                 [[:IsLetter:]]
+letter                 [[:IsLetterOrUnicodeSchemeIdentifier:]]
 idescape               ("\\x"({digit16})+";")
 idinitial              ("->"|({letter})|{idescape}|[!$%*/:<=>?~_^&])
 subsequent             ({idinitial})|{digit}|[\.\+@]|"-"|"[]"
@@ -226,7 +228,7 @@ vvstart                "#"({identifier})"("
 
 %%
 
-<<EOF>>               { ; }
+
 
 <IGNORE>.+            { ; }
 "#!eof"               { yy_push_state(IGNORE); }
@@ -295,7 +297,7 @@ vvstart                "#"({identifier})"("
 
 .                     { return MakeError("bad input"); }
 
-
+<<EOF>>               { ; }
 
 %%
 

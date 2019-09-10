@@ -186,7 +186,8 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>attrib -R "$(ProjectDir)Compiler\IronScheme.y.cs"
+    <PreBuildEvent>
+attrib -R "$(ProjectDir)Compiler\IronScheme.y.cs"
 attrib -R "$(ProjectDir)Compiler\IronScheme.lex.cs"
 "$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\IronScheme.y" &gt; "$(ProjectDir)Compiler\IronScheme.y.cs"
 "$(SolutionDir)tools\gplex" /stack "/frame:$(SolutionDir)tools\gplexx.frame" "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"
