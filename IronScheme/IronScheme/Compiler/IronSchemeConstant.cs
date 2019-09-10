@@ -317,6 +317,32 @@ namespace IronScheme.Compiler
     }
   }
 
+  sealed class SchemeCharConstant : CompilerConstant
+  {
+    readonly SchemeChar value;
+
+    public SchemeCharConstant(SchemeChar f)
+    {
+      value = f;
+    }
+
+    public override Type Type
+    {
+      get { return typeof(SchemeChar); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      cg.EmitConstant(value.Value);
+      cg.EmitNew(typeof(SchemeChar), new Type[] { typeof(int) });
+    }
+
+    public override object Create()
+    {
+      return value;
+    }
+  }
+
   sealed class FractionConstant : CompilerConstant
   {
     readonly Fraction value;

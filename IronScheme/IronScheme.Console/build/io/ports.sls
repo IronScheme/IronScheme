@@ -842,7 +842,7 @@ See docs/license.txt. |#
   (define/contract (put-char port:textual-output-port chr:char)
     (if (clr-is CustomTextReaderWriter port)
         (put-char (get-output-port port) chr)  
-        (clr-call TextWriter (Write Char) port chr)))
+        (clr-call TextWriter (Write String) port (clr-call Object ToString chr))))
         
   (define (->string str)
     (cond

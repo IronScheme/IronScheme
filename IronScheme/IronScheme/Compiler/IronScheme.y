@@ -132,7 +132,7 @@ static object ParseChar(string s)
   {
     return s[0];
   }
-  return s;
+  return new SchemeChar(char.ConvertToUtf32(s,0));
 }
 
 static readonly Annotation Ignore = new Annotation(null,null,null);

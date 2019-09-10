@@ -30,6 +30,22 @@ namespace IronScheme.Runtime
     }
   }
 
+  public struct SchemeChar
+  {
+    public readonly int Value;
+
+    public SchemeChar(int value)
+    {
+      Value = value;
+    }
+
+    public override string ToString()
+    {
+      return char.ConvertFromUtf32(Value);
+    }
+  }
+
+
   public partial class Builtins
   {
     public static bool ShowImports { get; set; }

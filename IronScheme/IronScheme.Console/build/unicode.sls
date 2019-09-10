@@ -100,18 +100,12 @@ See docs/license.txt. |#
     string-titlecase
     string-foldcase
     string-compare
-    string-ci-compare
-    char->integer)
+    string-ci-compare)
     (ironscheme clr)
     (ironscheme unsafe)
     (ironscheme contracts))
     
   (clr-using System.Globalization) 
-  
-  (define char->integer
-    (typed-lambda (chr)
-      ((Char) Int32)
-      chr))
   
   (define culture-info  
     (clr-static-prop-get CultureInfo InvariantCulture))
@@ -158,7 +152,7 @@ See docs/license.txt. |#
     (eq? 'Lt (char-general-category chr)))
         
   (define/contract (char-general-category chr:char)
-    (case (clr-static-call Char (GetUnicodeCategory Char) chr)
+    (case (clr-static-call Char (GetUnicodeCategory String Int32) (clr-call Object ToString chr) 0)
       [(ClosePunctuation)          'Pe]
       [(ConnectorPunctuation)      'Pc]
       [(Control)                   'Cc]

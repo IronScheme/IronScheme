@@ -286,9 +286,12 @@ See docs/license.txt. |#
   (clr-using Microsoft.Scripting)
   
   (define (char->integer chr)
-    (unless (char? chr)
-      (assertion-violation 'char->integer "not a char" chr))
-    (clr-cast Int32 (clr-cast Char chr)))
+    (if (clr-is SchemeChar chr)
+        (clr-field-get SchemeChar Value chr)
+        (begin
+          (unless (char? chr)
+            (assertion-violation 'char->integer "not a char" chr))
+          (clr-cast Int32 (clr-cast Char chr)))))
   
   (define/contract (integer->char num:fixnum)
     (let: (((num : Int32) num))
@@ -297,14 +300,9 @@ See docs/license.txt. |#
                   ($and? ($fx>? num #xd7ff)
                          ($fx<? num #xe000)))
         (assertion-violation 'integer->char "not a valid unicode value" num))
-      (when ($fx>? num #xffff)
-        (raise
-          (condition
-            (make-implementation-restriction-violation)
-            (make-who-condition 'integer->char)
-            (make-message-condition "code point greater than #xffff")
-            (make-irritants-condition num))))    
-      (string-ref (clr-static-call Char ConvertFromUtf32 num) 0)))    
+      (if ($fx>? num #xffff)
+          (clr-new SchemeChar num)
+          (string-ref (clr-static-call Char ConvertFromUtf32 num) 0))))
     
   (define/contract make-string
     (case-lambda

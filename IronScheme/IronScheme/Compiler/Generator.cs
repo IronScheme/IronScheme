@@ -97,6 +97,11 @@ namespace IronScheme.Compiler
         ComplexFraction cf = (ComplexFraction)args;
         return Ast.Constant(new ComplexFractionConstant(cf));
       }
+      else if (args is SchemeChar)
+      {
+        SchemeChar f = (SchemeChar)args;
+        return Ast.Constant(new SchemeCharConstant(f));
+      }
       else
       {
         if (args is long)

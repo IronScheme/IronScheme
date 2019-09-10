@@ -92,7 +92,8 @@ See docs/license.txt. |#
         (stringbuilder? obj)))
 
   (define (char? obj)
-    (clr-is Char obj))
+    (or (clr-is Char obj)
+        (clr-is SchemeChar obj)))
 
   (define (vector? obj)
     (clr-is Object[] obj))
