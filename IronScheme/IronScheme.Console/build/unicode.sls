@@ -117,10 +117,14 @@ See docs/license.txt. |#
     (clr-prop-get CultureInfo TextInfo culture-info))
       
   (define/contract (char-upcase chr:char)
-    (clr-static-call Char ToUpper chr))               
-    
+    (if (clr-is Char chr)
+        (clr-static-call Char ToUpper chr)
+        chr))
+
   (define/contract (char-downcase chr:char)
-    (clr-static-call Char ToLower chr))               
+    (if (clr-is Char chr)
+        (clr-static-call Char ToLower chr)
+        chr))
 
   (define/contract (char-titlecase chr:char)
     (if (char-title-case? chr)
@@ -134,13 +138,13 @@ See docs/license.txt. |#
         (char-downcase (char-upcase chr))]))
     
   (define/contract (char-alphabetic? chr:char)
-    (clr-static-call Char (IsLetter Char) chr))               
+    (clr-static-call Char (IsLetter String Int32) (clr-call Object ToString chr) 0))               
 
   (define/contract (char-numeric? chr:char)
-    (clr-static-call Char (IsNumber Char) chr))               
+    (clr-static-call Char (IsNumber String Int32) (clr-call Object ToString chr) 0))               
 
   (define/contract (char-whitespace? chr:char)
-    (clr-static-call Char (IsWhiteSpace Char) chr))               
+    (clr-static-call Char (IsWhiteSpace String Int32) (clr-call Object ToString chr) 0))               
 
   (define/contract (char-upper-case? chr:char)
     (eq? 'Lu (char-general-category chr)))

@@ -15,13 +15,13 @@ namespace IronScheme.Tests
       AssertError(r);
     }
 
-    [Ignore("blows up on codepoints > FFFF")]
     [Test]
     public void CharSets()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\char-sets.sps");
-      Assert.True(r.Output.Contains("*** correct examples: 19938"));
-      Assert.True(r.Output.Contains("*** wrong examples:   0"));
+      Assert.True(r.Output.Contains(@";; *** failed ***
+test: (is char-set= char-set:digit)
+"));
       AssertError(r);
     }
 

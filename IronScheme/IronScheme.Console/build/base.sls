@@ -332,7 +332,11 @@ See docs/license.txt. |#
       (assertion-violation 'string-set! "not a non-negative integer" k))
     (unless (char? val)
       (assertion-violation 'string-fill! "not a character" val))
-    (clr-prop-set! StringBuilder Chars str k val))
+    (if (clr-is Char val)
+        (clr-prop-set! StringBuilder Chars str k val)
+        (begin
+          (clr-call StringBuilder Remove str k 1)
+          (clr-call StringBuilder (Insert Int32 String) str k (clr-call Object ToString val)))))
     
   (define (string-fill! str k fill)
     (unless (stringbuilder? str)
@@ -371,7 +375,7 @@ See docs/license.txt. |#
         (if (null? args)
             str
             (begin
-              (clr-call StringBuilder (Append Char) str (car args))
+              (clr-call StringBuilder (Append String) str (clr-call Object ToString (car args)))
               (f (cdr args)))))))
         
   (define/contract (string->list str:string)
