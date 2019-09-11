@@ -19,9 +19,8 @@ namespace IronScheme.Tests
     public void CharSets()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\char-sets.sps");
-      Assert.True(r.Output.Contains(@";; *** failed ***
-test: (is char-set= char-set:digit)
-"));
+      Assert.True(r.Output.Contains(";; *** failed ***"));
+      Assert.True(r.Output.Contains("test: (is char-set= char-set:digit)"));
       AssertError(r);
     }
 
