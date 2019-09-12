@@ -34,7 +34,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public override void EmitCreation(CodeGen cg) {
-          throw new InvalidOperationException();
+            throw new NotSupportedException("Tried to emit a runtime constant. " + Type.Name + " " + _value);
         }
 
         public override object Create() {
