@@ -174,6 +174,11 @@ namespace IronScheme
     {
       return Runtime.Helpers.ConvertToDelegate<T>(c);
     }
+
+    static int Main(string[] args)
+    {
+      return IronSchemeConsoleHost.Execute(args);
+    }
   }
   
   public class ExecutableLoader : MarshalByRefObject

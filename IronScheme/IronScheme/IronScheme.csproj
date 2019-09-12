@@ -54,6 +54,10 @@
     <ErrorReport>prompt</ErrorReport>
     <Optimize>true</Optimize>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actions\IronSchemeActionBinder.cs" />
     <Compile Include="Compiler\AnnotatedCallGenerator.cs" />
