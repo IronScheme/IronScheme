@@ -423,7 +423,7 @@ using gppg;
             // enumeration.  If maxParseToken is defined
             // that is used, otherwise int.MaxValue is used.
             int next;
-            do { next = Scan(); } while (next >= parserMax);
+            do { next = Scan(); } while (next >= maxParseToken);
             return next;
         }
         
