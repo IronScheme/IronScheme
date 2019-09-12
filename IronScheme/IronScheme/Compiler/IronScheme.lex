@@ -36,48 +36,44 @@ int diff()
 public int MakeSymbol()
 {
   string t = yytext;
-  int len = yyleng;
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = t;
-  yyless(len + diff());
-  yylloc = new LexLocation(yyline,yycol,yyline,yycol + len);
+  yyless(yyleng + diff());
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.SYMBOL;
 }
 
 public int MakeBoolean()
 {
   string t = yytext;
-  int len = yyleng;
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = t.ToLower();
-  yyless(len);
-  yylloc = new LexLocation(yyline,yycol,yyline,yycol + len);
+  yyless(t.Length);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.LITERAL;
 }
 
 public int MakeNumber()
 {
   string t = yytext;
-  int len = yyleng;
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = t;
-  yyless(len);
-  yylloc = new LexLocation(yyline,yycol,yyline,yycol + len);
+  yyless(t.Length);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.NUMBER;
 }
 
 public int MakeChar()
 {
   string t = yytext;
-  int len = yyleng;
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = Helper.ParseChar(t);
-  yyless(len + diff());
-  yylloc = new LexLocation(yyline,yycol,yyline,yycol + len);
+  yyless(yyleng + diff());
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.CHARACTER;
 }
 
@@ -98,10 +94,9 @@ public int MakeError(string message)
 public int Make(Tokens token)
 {
   string t = yytext;
-  int len = yyleng;
   yylval.text = t;
-  yyless(len);
-  yylloc = new LexLocation(yyline,yycol,yyline,yycol + len);
+  yyless(yyleng);
+  yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)token;
 }
 
