@@ -327,6 +327,7 @@ using gppg;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source);
             this.buffer.Pos = offset;
+            this.cCol = offset - 1;
             this.lNum = 0;
             this.code = '\n'; // to initialize yyline, yycol and lineStart
             GetCode();
@@ -344,6 +345,7 @@ using gppg;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source);
             this.code = '\n'; // to initialize yyline, yycol and lineStart
+            this.cCol = -1;
             this.lNum = 0;
             GetCode();
         }
@@ -362,6 +364,7 @@ using gppg;
             maxParseToken = parserMax;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source);
+            this.cCol = -1;
             this.lNum = 0;
             this.code = '\n'; // to initialize yyline, yycol and lineStart
             GetCode();
@@ -383,6 +386,7 @@ using gppg;
             maxParseToken = parserMax;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source, fallbackCodePage);
+            this.cCol = -1;
             this.lNum = 0;
             this.code = '\n'; // to initialize yyline, yycol and lineStart
             GetCode();

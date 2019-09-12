@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 
@@ -41,7 +42,13 @@ namespace gppg
     { }
 
     public LexLocation(int sl, int sc, int el, int ec)
-    { sLin = sl; sCol = sc; eLin = el; eCol = ec; }
+    {
+      sLin = sl; sCol = sc; eLin = el; eCol = ec;
+      if (ec < sc && sl == el)
+      {
+        Debugger.Break();
+      }
+    }
 
     public LexLocation Merge(LexLocation last)
     {
