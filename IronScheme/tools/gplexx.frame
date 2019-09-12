@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Scripting;
-using System.Text;
 #if !STANDALONE
 using gppg;
 #endif
@@ -233,7 +232,7 @@ using gppg;
         // =================== End Nested classes =======================
 
 #if !NOFILES
-##-->translate $public $Scanner(Stream file) {
+##-->translate $public $Scanner(Stream file) : this() {
 ##-->bufferCtor
         }   
 #endif // !NOFILES
@@ -271,7 +270,7 @@ using gppg;
             }
             else
             {
-              if (!eofseen && !(buffer is StringBuffer))
+              if (!eofseen)
               {
                 code = ' ';
                 eofseen = true;
@@ -323,7 +322,6 @@ using gppg;
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public void SetSource(string source, int offset)
         {
-            maxParseToken = parserMax;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source);
             this.buffer.Pos = offset;
@@ -340,7 +338,6 @@ using gppg;
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public void SetSource(IList<string> source)
         {
-            maxParseToken = parserMax;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source);
             this.code = '\n'; // to initialize yyline, yycol and lineStart
@@ -359,7 +356,6 @@ using gppg;
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public void SetSource(Stream source)
         {
-            maxParseToken = parserMax;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source);
             this.lNum = 0;
@@ -380,7 +376,6 @@ using gppg;
         [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         public void SetSource(Stream source, int fallbackCodePage)
         {
-            maxParseToken = parserMax;
             this.eofseen = false;
             this.buffer = ScanBuff.GetBuffer(source, fallbackCodePage);
             this.lNum = 0;
