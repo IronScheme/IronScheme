@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 
@@ -41,7 +42,9 @@ namespace gppg
     { }
 
     public LexLocation(int sl, int sc, int el, int ec)
-    { sLin = sl; sCol = sc; eLin = el; eCol = ec; }
+    {
+      sLin = sl; sCol = sc; eLin = el; eCol = ec;
+    }
 
     public LexLocation Merge(LexLocation last)
     {
@@ -49,7 +52,12 @@ namespace gppg
       {
         return this;
       }
-      return new LexLocation(this.sLin, this.sCol, last.eLin, last.eCol);
+      var s = Math.Min(sLin * (uint.MaxValue + 1L) + sCol, last.sLin * (uint.MaxValue + 1L) + last.sCol);
+      var e = Math.Max(eLin * (uint.MaxValue + 1L) + eCol, last.eLin * (uint.MaxValue + 1L) + last.eCol);
+
+      return new LexLocation(
+        (int)(s / (uint.MaxValue + 1L)), (int)(s % (uint.MaxValue + 1L)),
+        (int)(e / (uint.MaxValue + 1L)), (int)(e % (uint.MaxValue + 1L)));
     }
 
     public override string ToString()
