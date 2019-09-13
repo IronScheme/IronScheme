@@ -12,7 +12,7 @@
 
 void FixLineNum(string text)
 {
-  if (text.EndsWith("\n") || text.EndsWith("\r"))
+  if (text.EndsWith("\n"))
   {
     lNum--;
   }
