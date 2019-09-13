@@ -461,10 +461,11 @@ using gppg;
             buffer.Pos = tokPos;
             // Must read at least one char, so set before start.
             cCol = tokCol - 1; 
+            var l = lNum;
             GetCode();
-            if (lNum != tokLin && cCol == 0) {
+            if (lNum != l && cCol == 0) {
               // Now ensure that line counting is correct.
-              lNum = tokLin;
+              lNum = l;
               cCol = tokCol;
             }
             // And count the rest of the text.

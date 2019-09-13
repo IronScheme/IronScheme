@@ -39,7 +39,11 @@ public int MakeSymbol()
   FixLineNum(t);
   t = t.Substring(0, t.Length + diff());
   yylval.text = t;
+  //var l = yyleng;
+  //if (l < 0) System.Diagnostics.Debugger.Break();
   yyless(yyleng + diff());
+  //var yl = yyleng;
+  //if (yl < 0) System.Diagnostics.Debugger.Break();
   yylloc = new LexLocation(yyline,yycol,yyline,yycol + yyleng);
   return (int)Tokens.SYMBOL;
 }
