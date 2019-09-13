@@ -462,8 +462,11 @@ using gppg;
             // Must read at least one char, so set before start.
             cCol = tokCol - 1; 
             GetCode();
-            // Now ensure that line counting is correct.
-            lNum = tokLin;
+            if (lNum != tokLin && cCol == 0) {
+              // Now ensure that line counting is correct.
+              lNum = tokLin;
+              cCol = tokCol;
+            }
             // And count the rest of the text.
             for (int i = 0; i < n; i++) GetCode();
             MarkEnd();
