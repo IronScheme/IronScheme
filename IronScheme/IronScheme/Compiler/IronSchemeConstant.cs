@@ -15,6 +15,7 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
 using BigInteger = Oyster.Math.IntX;
 using System.Diagnostics;
+using System.Text;
 
 namespace IronScheme.Compiler
 {
@@ -309,6 +310,32 @@ namespace IronScheme.Compiler
       {
         cg.EmitArray(value);
       }
+    }
+
+    public override object Create()
+    {
+      return value;
+    }
+  }
+
+  sealed class StringBuilderConstant : CompilerConstant
+  {
+    readonly StringBuilder value;
+
+    public StringBuilderConstant(StringBuilder f)
+    {
+      value = f;
+    }
+
+    public override Type Type
+    {
+      get { return typeof(StringBuilder); }
+    }
+
+    public override void EmitCreation(CodeGen cg)
+    {
+      cg.EmitConstant(value.ToString());
+      cg.EmitNew(typeof(StringBuilder), new Type[] { typeof(string) });
     }
 
     public override object Create()

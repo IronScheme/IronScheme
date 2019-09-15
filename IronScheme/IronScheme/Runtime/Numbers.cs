@@ -604,6 +604,7 @@ namespace IronScheme.Runtime
       }
     }
 
+    // todo: this can probably be easily ported to Scheme
     //based on lsqrt()
     [Builtin("bignum-sqrt", AllowConstantFold = true)]
     public static object SqrtBigInteger(object num)
@@ -633,6 +634,7 @@ namespace IronScheme.Runtime
       return x1;
     }
 
+    // todo: this can probably be easily ported to Scheme
     [Builtin("bignum-sqrt-exact", AllowConstantFold = true)]
     public static object ExactSqrtBigInteger(object num)
     {

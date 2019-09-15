@@ -16,6 +16,7 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
 using System.Reflection.Emit;
+using System.Text;
 
 namespace IronScheme.Compiler
 {
@@ -101,6 +102,11 @@ namespace IronScheme.Compiler
       {
         SchemeChar f = (SchemeChar)args;
         return Ast.Constant(new SchemeCharConstant(f));
+      }
+      else if (args is StringBuilder)
+      {
+        StringBuilder f = (StringBuilder)args;
+        return Ast.Constant(new StringBuilderConstant(f));
       }
       else
       {
