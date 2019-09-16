@@ -47,10 +47,10 @@ namespace Oyster.Math
 		static public IDivider GetDivider(DivideMode mode)
 		{
 			// Check value
-			if (!Enum.IsDefined(typeof(DivideMode), mode))
-			{
-				throw new ArgumentOutOfRangeException("mode");
-			}
+			//if (!Enum.IsDefined(typeof(DivideMode), mode))
+			//{
+			//	throw new ArgumentOutOfRangeException("mode");
+			//}
 
 			switch (mode)
 			{

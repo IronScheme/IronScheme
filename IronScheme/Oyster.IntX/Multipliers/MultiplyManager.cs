@@ -47,10 +47,10 @@ namespace Oyster.Math
 		static public IMultiplier GetMultiplier(MultiplyMode mode)
 		{
 			// Check value
-			if (!Enum.IsDefined(typeof(MultiplyMode), mode))
-			{
-				throw new ArgumentOutOfRangeException("mode");
-			}
+			//if (!Enum.IsDefined(typeof(MultiplyMode), mode))
+			//{
+			//	throw new ArgumentOutOfRangeException("mode");
+			//}
 
 			switch (mode)
 			{
