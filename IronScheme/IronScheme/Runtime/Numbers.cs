@@ -260,6 +260,7 @@ namespace IronScheme.Runtime
       }
       else
       {
+        RaiseNumberTypeNotSupported();
         return NumberClass.NotANumber;
       }
     }
@@ -270,6 +271,12 @@ namespace IronScheme.Runtime
       {
         return (int)o;
       }
+      RaiseNumberTypeNotSupported();
+      return default(int);
+    }
+
+    private static void RaiseNumberTypeNotSupported()
+    {
       throw new NotSupportedException("number type not supported");
     }
 
@@ -283,7 +290,8 @@ namespace IronScheme.Runtime
       {
         return (BigInteger)o;
       }
-      throw new NotSupportedException("number type not supported");
+      RaiseNumberTypeNotSupported();
+      return default(int);
     }
 
     static Fraction ConvertToRational(object o)
@@ -304,7 +312,8 @@ namespace IronScheme.Runtime
       {
         return (Fraction)(double)o;
       }
-      throw new NotSupportedException("number type not supported");
+      RaiseNumberTypeNotSupported();
+      return default(int);
     }
 
     static double ConvertToReal(object o)
@@ -352,18 +361,7 @@ namespace IronScheme.Runtime
     public static object Add(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
-
       NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
 
       NumberClass effective = f & s;
 
@@ -395,25 +393,15 @@ namespace IronScheme.Runtime
           return DoubleIfPossible(ConvertToComplex(first) + ConvertToComplex(second));
       }
 
-      throw new NotSupportedException("number type not supported");
+      RaiseNumberTypeNotSupported();
+      return null;
     }
 
     [Builtin("generic-", AllowConstantFold = true)]
     public static object Subtract(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
-
       NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
 
       NumberClass effective = f & s;
 
@@ -445,25 +433,15 @@ namespace IronScheme.Runtime
           return DoubleIfPossible(ConvertToComplex(first) - ConvertToComplex(second));
       }
 
-      throw new NotSupportedException("number type not supported");
+      RaiseNumberTypeNotSupported();
+      return null;
     }
 
     [Builtin("generic*", AllowConstantFold = true)]
     public static object Multiply(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
-
       NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
 
       NumberClass effective = f & s;
 
@@ -495,7 +473,8 @@ namespace IronScheme.Runtime
           return DoubleIfPossible(ConvertToComplex(first) * ConvertToComplex(second));
       }
 
-      throw new NotSupportedException("number type not supported");
+      RaiseNumberTypeNotSupported();
+      return null;
     }
 
     // improve this
@@ -515,24 +494,12 @@ namespace IronScheme.Runtime
     public static object Divide(object first, object second)
     {
       NumberClass f = GetNumberClass(first);
-
-      if (f == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
-
       NumberClass s = GetNumberClass(second);
-
-      if (s == NumberClass.NotANumber)
-      {
-        throw new NotSupportedException("number type not supported");
-      }
 
       NumberClass effective = f & s;
 
       try
       {
-
         switch (effective)
         {
           case NumberClass.Integer:
@@ -555,7 +522,8 @@ namespace IronScheme.Runtime
         return AssertionViolation("/", "divide by zero", first);
       }
 
-      throw new NotSupportedException("number type not supported");
+      RaiseNumberTypeNotSupported();
+      return null;
     }
 
     #endregion
