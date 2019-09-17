@@ -45,7 +45,7 @@ namespace Oyster.Math
 			newInt._length = Multiply(int1._digits, int1._length, int2._digits, int2._length, newInt._digits);
 
 			// Normalization may be needed
-			newInt.TryNormalize();
+			//newInt.TryNormalize();
 
 			return newInt;
 		}

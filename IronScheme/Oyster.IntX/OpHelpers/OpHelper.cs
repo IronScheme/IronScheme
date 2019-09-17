@@ -50,7 +50,7 @@ namespace Oyster.Math
 				newInt._digits);
 
 			// Normalization may be needed
-			newInt.TryNormalize();
+			//newInt.TryNormalize();
 
 			return newInt;
 		}
@@ -99,7 +99,7 @@ namespace Oyster.Math
 				newInt._digits);
 
 			// Normalization may be needed
-			newInt.TryNormalize();
+			//newInt.TryNormalize();
 
 			return newInt;
 		}

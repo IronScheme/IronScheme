@@ -108,12 +108,12 @@ namespace Oyster.Math
 			if (divNeeded)
 			{
 				divRes._length = divLength;
-				divRes.TryNormalize();
+				//divRes.TryNormalize();
 			}
 			if (modNeeded)
 			{
 				modRes._length = modLength;
-				modRes.TryNormalize();
+				//modRes.TryNormalize();
 			}
 
 			// Return div
