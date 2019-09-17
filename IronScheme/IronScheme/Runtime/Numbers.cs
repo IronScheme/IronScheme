@@ -477,10 +477,9 @@ namespace IronScheme.Runtime
       return null;
     }
 
-    // improve this
     protected internal static object ToIntegerIfPossible(BigInteger i)
     {
-      if (i <= int.MaxValue && i >= int.MinValue)
+      if (i.IsInt32)
       {
         return RuntimeHelpers.Int32ToObject((int)i);
       }
