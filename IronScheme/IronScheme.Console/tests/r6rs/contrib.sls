@@ -68,7 +68,7 @@
     
     (test (expt -2 -inf.0) 0.0)
     
-    (test/exn (integer->char #x10000) &implementation-restriction)
+    (test (integer->char #x10000) #\x10000)
     
     (test (fl<=? +inf.0 +nan.0) (fl<? +inf.0 +nan.0))
     

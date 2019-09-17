@@ -885,6 +885,7 @@ namespace Oyster.Math
     #region From IntX (Explicit)
     public bool IsInt => _length <= 1;
     public bool IsLong => _length <= 2;
+    public bool IsInt32 => _length == 0 || (_length == 1 && (_digits[0] & 0x80000000U) == 0 || (_negative && _digits[0] == 0x80000000U));
 
     /// <summary>
     /// Explicitly converts <see cref="IntX" /> to <see cref="int" />.

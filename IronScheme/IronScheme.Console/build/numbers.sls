@@ -457,9 +457,9 @@ See docs/license.txt. |#
             (assertion-violation 'exact "no exact equivalent" num)
             (exact (flonum->ratnum num)))]
       [(bignum? num)
-        (if (fx<=? (fixnum-width) (bitwise-length num))
-            num
-            (bignum->fixnum num))]
+        (if (clr-prop-get IntX IsInt32 num)
+            (bignum->fixnum num)            
+            num)]
       [(ratnum? num)
         (if (= (ratnum-denominator num) 1)
             (exact (ratnum-numerator num))
