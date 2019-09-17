@@ -186,44 +186,48 @@ namespace IronScheme.Runtime
     public static object FxPlusInternal(int a, int b)
     {
       long r = (long)a + b;
-      if (r > int.MaxValue || r < int.MinValue)
+      int rr = (int)r;
+      if (r != rr)
       {
         return FALSE;
       }
-      return RuntimeHelpers.Int32ToObject((int)r);
+      return RuntimeHelpers.Int32ToObject(rr);
     }
 
     [Builtin("fx-internal", AllowConstantFold = true)]
     public static object FxMinusInternal(int a, int b)
     {
       long r = (long)a - b;
-      if (r > int.MaxValue || r < int.MinValue)
+      int rr = (int)r;
+      if (r != rr)
       {
         return FALSE;
       }
-      return RuntimeHelpers.Int32ToObject((int)r);
+      return RuntimeHelpers.Int32ToObject(rr);
     }
 
     [Builtin("fx*internal", AllowConstantFold = true)]
     public static object FxMultiplyInternal(int a, int b)
     {
       long r = (long)a * b;
-      if (r > int.MaxValue || r < int.MinValue)
+      int rr = (int)r;
+      if (r != rr)
       {
         return FALSE;
       }
-      return RuntimeHelpers.Int32ToObject((int)r);
+      return RuntimeHelpers.Int32ToObject(rr);
     }
 
     [Builtin("fxarithmetic-shift-left-internal", AllowConstantFold = true)]
     public static object FxShiftLeftInternal(int a, int b)
     {
       long r = (long)a << b;
-      if (r > int.MaxValue || r < int.MinValue)
+      int rr = (int)r;
+      if (r != rr)
       {
         return FALSE;
       }
-      return RuntimeHelpers.Int32ToObject((int)r);
+      return RuntimeHelpers.Int32ToObject(rr);
     }
 
     enum NumberClass
@@ -370,13 +374,14 @@ namespace IronScheme.Runtime
         case NumberClass.Integer:
           {
             long result = (long)ConvertToInteger(first) + ConvertToInteger(second);
-            if (result > int.MaxValue || result < int.MinValue)
+            int iresult = (int)result;
+            if (result != iresult)
             {
               return (BigInteger)result;
             }
             else
             {
-              return RuntimeHelpers.Int32ToObject((int)result);
+              return RuntimeHelpers.Int32ToObject(iresult);
             }
           }
         case NumberClass.BigInteger:
@@ -410,13 +415,14 @@ namespace IronScheme.Runtime
         case NumberClass.Integer:
           {
             long result = (long)ConvertToInteger(first) - ConvertToInteger(second);
-            if (result > int.MaxValue || result < int.MinValue)
+            int iresult = (int)result;
+            if (result != iresult)
             {
               return (BigInteger)result;
             }
             else
             {
-              return RuntimeHelpers.Int32ToObject((int)result);
+              return RuntimeHelpers.Int32ToObject(iresult);
             }
           }
         case NumberClass.BigInteger:
@@ -450,13 +456,14 @@ namespace IronScheme.Runtime
         case NumberClass.Integer:
           {
             long result = (long)ConvertToInteger(first) * ConvertToInteger(second);
-            if (result > int.MaxValue || result < int.MinValue)
+            int iresult = (int)result;
+            if (result != iresult)
             {
               return (BigInteger)result;
             }
             else
             {
-              return RuntimeHelpers.Int32ToObject((int)result);
+              return RuntimeHelpers.Int32ToObject(iresult);
             }
           }
         case NumberClass.BigInteger:
@@ -526,9 +533,7 @@ namespace IronScheme.Runtime
     }
 
     #endregion
-
-
-
+       
     static double SafeConvert(object obj)
     {
       try
