@@ -106,7 +106,7 @@ namespace IronScheme.Compiler
       else if (args is StringBuilder)
       {
         StringBuilder f = (StringBuilder)args;
-        return Ast.Constant(new StringBuilderConstant(f));
+        return Ast.Constant(f.ToString());
       }
       else
       {
