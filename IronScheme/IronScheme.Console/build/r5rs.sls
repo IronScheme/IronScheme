@@ -46,7 +46,8 @@ See docs/license.txt. |#
     (* (sign n1) (mod (abs n1) (abs n2))))
   
   (define/contract (modulo n1:integer n2:integer)
-    (* (sign n2) (mod (* (sign n2) n1) (abs n2)))) 
+    (let ((s (sign n2)))
+      (* s (mod (* s n1) (abs n2)))))
     
   (define-record-type (promise create-promise promise?) 
     (fields 
