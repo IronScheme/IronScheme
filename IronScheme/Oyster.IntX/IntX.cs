@@ -880,15 +880,17 @@ namespace Oyster.Math
 			return new IntX(value);
 		}
 
-		#endregion To IntX (Implicit)
+    #endregion To IntX (Implicit)
 
-		#region From IntX (Explicit)
+    #region From IntX (Explicit)
+    public bool IsInt => _length <= 1;
+    public bool IsLong => _length <= 2;
 
-		/// <summary>
-		/// Explicitly converts <see cref="IntX" /> to <see cref="int" />.
-		/// </summary>
-		/// <param name="value">Value to convert.</param>
-		/// <returns>Conversion result.</returns>
+    /// <summary>
+    /// Explicitly converts <see cref="IntX" /> to <see cref="int" />.
+    /// </summary>
+    /// <param name="value">Value to convert.</param>
+    /// <returns>Conversion result.</returns>
     static public explicit operator int(IntX value)
     {
 			int res = (int)(uint)value;

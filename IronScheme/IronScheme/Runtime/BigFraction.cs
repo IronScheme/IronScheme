@@ -316,6 +316,16 @@ namespace IronScheme.Runtime
 		/// <returns></returns>
 		internal BigInteger Gcd(BigInteger smaller, BigInteger larger)
 		{
+      if (smaller.IsInt && larger.IsInt)
+      {
+        return Gcd((uint)smaller, (uint)larger);
+      }
+
+      if (smaller.IsLong && larger.IsLong)
+      {
+        return Gcd((ulong)smaller, (ulong)larger);
+      }
+
 			BigInteger rest;
 
 			smaller = smaller.Abs();
@@ -329,7 +339,6 @@ namespace IronScheme.Runtime
 					return smaller;
 			}
 				
-
 			// the GCD algorithm requires second >= first
 			if(smaller > larger)
 			{
@@ -346,9 +355,65 @@ namespace IronScheme.Runtime
 			return smaller;
 		}
 
-		#endregion
+    internal uint Gcd(uint smaller, uint larger)
+    {
+      uint rest;
 
-		#region Conversions
+      if (smaller == 0)
+        return larger;
+      else
+      {
+        if (larger == 0)
+          return smaller;
+      }
+
+      // the GCD algorithm requires second >= first
+      if (smaller > larger)
+      {
+        rest = larger;
+        larger = smaller;
+        smaller = rest;
+      }
+
+      while ((rest = larger % smaller) != 0)
+      {
+        larger = smaller;
+        smaller = rest;
+      }
+      return smaller;
+    }
+
+    internal ulong Gcd(ulong smaller, ulong larger)
+    {
+      ulong rest;
+
+      if (smaller == 0)
+        return larger;
+      else
+      {
+        if (larger == 0)
+          return smaller;
+      }
+
+      // the GCD algorithm requires second >= first
+      if (smaller > larger)
+      {
+        rest = larger;
+        larger = smaller;
+        smaller = rest;
+      }
+
+      while ((rest = larger % smaller) != 0)
+      {
+        larger = smaller;
+        smaller = rest;
+      }
+      return smaller;
+    }
+
+    #endregion
+
+    #region Conversions
 
     //public static explicit operator Decimal(Fraction fraction)
     //{
