@@ -6,9 +6,7 @@
 #endregion
 
 using System;
-using System.IO;
 using IronScheme.Runtime;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Reflection;
 
@@ -47,11 +45,6 @@ namespace IronScheme.Hosting
     {
       base.Initialize();
       Options.LanguageProvider = ScriptEnvironment.GetEnvironment().GetLanguageProvider(typeof(IronSchemeLanguageProvider));
-    }
-
-    static Stream ResourceLoader()
-    {
-      return typeof(IronSchemeLanguageProvider).Assembly.GetManifestResourceStream("ironscheme.libs");
     }
 
     protected override void PrintLogo()
