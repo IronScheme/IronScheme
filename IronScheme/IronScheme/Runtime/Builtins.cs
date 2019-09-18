@@ -14,6 +14,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Xml;
@@ -21,6 +22,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
+using RuntimeHelpers = Microsoft.Scripting.RuntimeHelpers;
 
 namespace IronScheme.Runtime
 {
@@ -39,22 +41,18 @@ namespace IronScheme.Runtime
 
     //[DebuggerHidden]
     [DebuggerStepThrough]
+    //[MethodImpl((MethodImplOptions)(256))] // doesnt help
     public static bool IsTrue(object arg)
     {
+      if (!(arg is bool) || arg == TRUE)
+      {
+        return true;
+      }
       if (arg == FALSE)
       {
         return false;
       }
-      else if (arg == TRUE)
-      {
-        return true;
-      }
-      else if (arg is bool)
-      {
-        return (bool)arg;
-      }
-
-      return true;
+      return (bool)arg;
     }
 
     sealed class UnspecifiedObject 
