@@ -51,16 +51,4 @@ Please @leppie in your issues/PR's, else I will probably not know about it. I do
 Other
 =====
 
-* http://ironscheme.codeplex.com/
-* http://ironscheme.codeplex.com/documentation
-* http://ironscheme.codeplex.com/discussions
-
-IRC chat
-========
-Join [#IronScheme](http://webchat.freenode.net/?channels=IronScheme) on FreeNode.
-
-Notes
-=====
-
-- The CLR 4 debugger is rather slow. Recommended to stick to CLR 2 .NET versions.
-
+* http://ironscheme.codeplex.com/ (old site)
