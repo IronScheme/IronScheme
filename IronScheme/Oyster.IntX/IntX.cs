@@ -1706,9 +1706,13 @@ namespace Oyster.Math
 
     public IntX Abs()
     {
-      uint[] newdigits = new uint[_digits.Length];
-      Array.Copy(_digits, newdigits, newdigits.Length);
-      return new IntX(newdigits, false);
+      if (_negative)
+      {
+        uint[] newdigits = new uint[_digits.Length];
+        Array.Copy(_digits, newdigits, newdigits.Length);
+        return new IntX(newdigits, false);
+      }
+      return this;
     }
 
     public double ToFloat64()
