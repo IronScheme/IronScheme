@@ -569,11 +569,11 @@ namespace IronScheme.Runtime
               var ffa = ff.Abs();
               var ssa = ss.Abs();
               var r = ffa / ssa;
-              if (ff < 0 && ffa != ssa * r)
+              if (ff.Negative && ffa != ssa * r)
               {
                 r++;
               }
-              if (ff < 0 ^ ss < 0)
+              if (ff.Negative ^ ss.Negative)
               {
                 r = -r;
               }
