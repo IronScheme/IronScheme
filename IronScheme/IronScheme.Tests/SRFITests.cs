@@ -141,6 +141,14 @@ namespace IronScheme.Tests
     }
 
     [Test]
+    public void RandomBits()
+    {
+      var r = RunIronSchemeTest(@"lib\srfi\tests\random-bits.sps");
+      Assert.False(r.Output.Contains("failed"));
+      AssertError(r);
+    }
+
+    [Test]
     public void Rec()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\rec.sps");
