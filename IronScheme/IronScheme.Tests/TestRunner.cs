@@ -154,7 +154,7 @@ namespace IronScheme.Tests
         {
           p.Kill();
         }
-        Assert.Fail("runner failed: {0}", ex.Message);
+        Assert.Fail("runner failed: {0}", ex);
         throw;
       }
     }
