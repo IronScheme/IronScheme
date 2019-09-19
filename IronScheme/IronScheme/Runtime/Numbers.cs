@@ -484,6 +484,7 @@ namespace IronScheme.Runtime
       return null;
     }
 
+
     protected internal static object ToIntegerIfPossible(BigInteger i)
     {
       if (i.IsInt32)
@@ -532,8 +533,75 @@ namespace IronScheme.Runtime
       return null;
     }
 
+    [Builtin("generic-div", AllowConstantFold = true)]
+    public static object Div(object first, object second)
+    {
+      NumberClass f = GetNumberClass(first);
+      NumberClass s = GetNumberClass(second);
+
+      NumberClass effective = f & s;
+
+      try
+      {
+        switch (effective)
+        {
+          case NumberClass.Integer:
+            {
+              long ff = ConvertToInteger(first);
+              long ss = ConvertToInteger(second);
+              var ffa = Math.Abs(ff);
+              var ssa = Math.Abs(ss);
+              long r = ffa / ssa;
+              if (ff < 0 && ffa != ssa * r)
+              {
+                r++;
+              }
+              if (ff < 0 ^ ss < 0)
+              {
+                r = -r;
+              }
+              return ToIntegerIfPossible(r);
+            }
+          case NumberClass.BigInteger:
+            {
+              var ff = ConvertToBigInteger(first);
+              var ss = ConvertToBigInteger(second);
+              var ffa = ff.Abs();
+              var ssa = ss.Abs();
+              var r = ffa / ssa;
+              if (ff < 0 && ffa != ssa * r)
+              {
+                r++;
+              }
+              if (ff < 0 ^ ss < 0)
+              {
+                r = -r;
+              }
+              return ToIntegerIfPossible(r);
+            }
+          case NumberClass.Rational:
+            return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
+          case NumberClass.Real:
+            return ConvertToReal(first) / ConvertToReal(second);
+          case NumberClass.Complex:
+            if (IsExact(first) && IsExact(second))
+            {
+              return IntegerIfPossible(ConvertToComplexFraction(first) / ConvertToComplexFraction(second));
+            }
+            return DoubleIfPossible(ConvertToComplex(first) / ConvertToComplex(second));
+        }
+      }
+      catch (DivideByZeroException)
+      {
+        return AssertionViolation("/", "divide by zero", first);
+      }
+
+      RaiseNumberTypeNotSupported();
+      return null;
+    }
+
     #endregion
-       
+
     static double SafeConvert(object obj)
     {
       try

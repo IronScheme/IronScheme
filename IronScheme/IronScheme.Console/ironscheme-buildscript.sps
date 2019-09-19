@@ -349,6 +349,7 @@
     (generic-                                   ic)
     (generic*                                   ic)
     (generic/                                   ic)    
+    (generic-div                                ic)
     (bignum-sqrt                                ic)
     (bignum-sqrt-exact                          ic)
     (inexact=?                                  ic)
