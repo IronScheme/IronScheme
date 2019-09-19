@@ -580,15 +580,45 @@ namespace IronScheme.Runtime
               return ToIntegerIfPossible(r);
             }
           case NumberClass.Rational:
-            return IntegerIfPossible(ConvertToRational(first) / ConvertToRational(second));
-          case NumberClass.Real:
-            return ConvertToReal(first) / ConvertToReal(second);
-          case NumberClass.Complex:
-            if (IsExact(first) && IsExact(second))
             {
-              return IntegerIfPossible(ConvertToComplexFraction(first) / ConvertToComplexFraction(second));
+              var ff = ConvertToRational(first);
+              var ss = ConvertToRational(second);
+              var ffa = ff.Abs();
+              var ssa = ss.Abs();
+              var r = ffa / ssa;
+              var br = r.Numerator / r.Denominator;
+
+              if (ff < 0 && r.Numerator != r.Denominator * br)
+              {
+                br++;
+              }
+              if (ff < 0 ^ ss < 0)
+              {
+                br = -br;
+              }
+              return IntegerIfPossible(br);
             }
-            return DoubleIfPossible(ConvertToComplex(first) / ConvertToComplex(second));
+          case NumberClass.Real:
+            {
+              var ff = ConvertToReal(first);
+              var ss = ConvertToReal(second);
+
+              var ffa = Math.Abs(ff);
+              var ssa = Math.Abs(ss);
+              var r = ffa / ssa;
+              r = Math.Floor(r);
+              if (ff < 0 && !double.IsInfinity(ss) && ffa != ssa * r)
+              {
+                r++;
+              }
+                           
+              if (ff < 0 ^ ss < 0)
+              {
+                r = -r;
+              }
+
+              return r;
+            }
         }
       }
       catch (DivideByZeroException)
