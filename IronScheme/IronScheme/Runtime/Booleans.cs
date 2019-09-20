@@ -13,7 +13,7 @@ namespace IronScheme.Runtime
     [Builtin("not", AllowConstantFold=true)]
     public static object Not(object obj)
     {
-      return GetBool(!IsTrue(obj));
+      return GetBool(!(!(obj is bool) || (bool)obj));
     }
 
     protected internal static object GetBool(bool v)

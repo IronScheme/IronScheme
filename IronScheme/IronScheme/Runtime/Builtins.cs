@@ -42,18 +42,7 @@ namespace IronScheme.Runtime
     //[DebuggerHidden]
     [DebuggerStepThrough]
     //[MethodImpl((MethodImplOptions)(256))] // doesnt help
-    public static bool IsTrue(object arg)
-    {
-      if (!(arg is bool) || arg == TRUE)
-      {
-        return true;
-      }
-      if (arg == FALSE)
-      {
-        return false;
-      }
-      return (bool)arg;
-    }
+    public static bool IsTrue(object arg) => !(arg is bool) || (bool)arg;
 
     sealed class UnspecifiedObject 
     {
