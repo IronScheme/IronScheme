@@ -68,6 +68,8 @@ namespace IronScheme.Compiler
 
       binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
 
+      MethodCallExpression.BuiltinsIsTrue = typeof(Builtins).GetMethod("IsTrue");
+
       Generator.initme = true;
     }
   }

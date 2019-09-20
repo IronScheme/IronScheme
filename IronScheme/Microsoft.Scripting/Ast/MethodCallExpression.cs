@@ -81,7 +81,8 @@ namespace Microsoft.Scripting.Ast {
           return be.Variable.AssumedValue ?? be;
         }
 
-
+        public static MethodInfo BuiltinsIsTrue;
+    
         public override void Emit(CodeGen cg)
         {
           // TODO: Improve the following to direct call: Callable.Call(Callable.Create(...))
@@ -127,6 +128,38 @@ namespace Microsoft.Scripting.Ast {
 
             }
 
+          }
+
+          if (_method == BuiltinsIsTrue)
+          {
+            EmitLocation(cg);
+            var arg = Unwrap(_arguments[0]);
+            if (arg.Type == typeof(bool))
+            {
+              arg.Emit(cg);
+            }
+            else if (arg.Type == typeof(object))
+            {
+              Label next = cg.DefineLabel();
+              Label end = cg.DefineLabel();
+              arg.Emit(cg);
+              cg.Emit(OpCodes.Dup);
+              cg.Emit(OpCodes.Isinst, typeof(bool));
+              cg.Emit(OpCodes.Brfalse, next);
+
+              cg.EmitUnbox(typeof(bool));
+              cg.Emit(OpCodes.Br, end);
+
+              cg.MarkLabel(next);
+              cg.Emit(OpCodes.Pop);
+              cg.EmitConstant(true);
+              cg.MarkLabel(end);
+            }
+            else
+            {
+              cg.EmitConstant(true);
+            }
+            return;
           }
 
           var ii = _instance;
