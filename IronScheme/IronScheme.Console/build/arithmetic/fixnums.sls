@@ -221,18 +221,16 @@ See docs/license.txt. |#
             (overflow-error 'fxarithmetic-shift x k))
           i)]))
 
-  ; can be made faster : http://stackoverflow.com/q/15370250/15541
   (define-fx* (fxbit-count x)
     (cond 
-      [($fx=? x 0) 0]
       [($fx<? x 0)
         ($fxnot (fxbit-count ($fxnot x)))]
       [else
         (let f ((count 0)(x x))
-          (if ($fx<? 0 x)
-              (f ($fx+ count ($fxand x 1))
-                 ($fxarithmetic-shift-right x 1))
-              count))]))
+          (if ($fx=? 0 x)
+              count
+              (f ($fx+ count 1)
+                 ($fxand x ($fx- x 1)))))]))
 
   (define-fx* (fxlength x)
     (if ($fx<? x 0)
