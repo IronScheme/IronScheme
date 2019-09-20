@@ -94,7 +94,7 @@ namespace IronScheme.Compiler
       return BigInteger.Pow(TEN, (uint)tnum);
     }
 
-    static readonly Regex escapes = new Regex(@"\\(([ntr\\""])|(x[\da-f]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    static readonly Regex escapes = new Regex(@"\\(([ntrabvf\\""])|(x[\da-f]+;))", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static string CleanString(string input)
     {
@@ -120,6 +120,14 @@ namespace IronScheme.Compiler
             return "\r";
           case '"':
             return "\"";
+          case 'a':
+            return "\a";
+          case 'b':
+            return "\b";
+          case 'v':
+            return "\v";
+          case 'f':
+            return "\f";
           case 'x':
             {
               string ss = m.Value;
