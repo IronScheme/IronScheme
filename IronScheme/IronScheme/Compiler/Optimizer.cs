@@ -98,7 +98,7 @@ namespace IronScheme.Compiler
       //Optimize<MarkUnspecifiedProcedureReturns>(cb);
       Optimize<MarkNonRecursiveProcedures>(cb);
       Optimize<AnalyzeProcedureReturns>(cb); // this is too early too
-
+      Optimize<MarkNonRecursiveProcedures>(cb);
     }
   }
 }

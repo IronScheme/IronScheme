@@ -241,6 +241,7 @@ namespace IronScheme.Compiler
                 // check for proc attribute class and defy if found, all will be tail called
                 if (ass.GlobalAssemblyCache || (!Attribute.IsDefined(type, typeof(ProcedureAttribute)) && !typeof(IModuleDictionaryInitialization).IsAssignableFrom(type)))
                 {
+                  mce.TailCall = false;
                   // always tail call delegates
                   if (type.BaseType != typeof(MulticastDelegate))
                   {
@@ -264,6 +265,11 @@ namespace IronScheme.Compiler
                       mce.TailCall = tc;
                     }
                   }
+                }
+
+                if (Attribute.IsDefined(mce.Method, typeof(NonRecursiveAttribute)))
+                {
+                  mce.TailCall = false;
                 }
                 //else if (!mce.Method.DeclaringType.IsAssignableFrom(typeof(Callable)))
                 {
