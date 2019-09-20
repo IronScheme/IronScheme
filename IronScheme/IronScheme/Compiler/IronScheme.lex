@@ -255,10 +255,10 @@ vvstart                "#"({identifier})"("
 <ML_COMMENT>"|"               { return Make(Tokens.COMMENT); }
 <ML_COMMENT>"#"               { return Make(Tokens.COMMENT); }
 
-{ml_string_start}     { yy_push_state(ML_STRING); return Make(Tokens.MLSTRING); }
+{ml_string_start}     { yy_push_state(ML_STRING); return Make(Tokens.MLSTRINGSTART); }
 
 <ML_STRING>{ml_string_body} { return Make(Tokens.MLSTRING); }
-<ML_STRING>{ml_string_end}  { yy_pop_state(); return Make(Tokens.MLSTRING); }
+<ML_STRING>{ml_string_end}  { yy_pop_state(); return Make(Tokens.MLSTRINGEND); }
 
 {ignore_datum}        { return Make(Tokens.IGNOREDATUM); }
  

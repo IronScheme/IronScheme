@@ -157,7 +157,7 @@ static readonly object unsyntax = SymbolTable.StringToObject("unsyntax");
 
 %token LBRACE RBRACE LBRACK RBRACK QUOTE QUASIQUOTE UNQUOTE UNQUOTESPLICING VECTORLBRACE DOT VALUEVECTORLBRACE
 %token UNSYNTAX SYNTAX UNSYNTAXSPLICING QUASISYNTAX IGNOREDATUM FOLDCASE NOFOLDCASE DIRECTIVE
-%token <text> SYMBOL LITERAL STRING NUMBER CHARACTER MLSTRING
+%token <text> SYMBOL LITERAL STRING NUMBER CHARACTER MLSTRING MLSTRINGSTART MLSTRINGEND
 %token maxParseToken COMMENT
 
 %type <text> mlstring
@@ -195,13 +195,13 @@ exprlist
     ;       
     
 mlstring
-    :  MLSTRING                                   { $$ = $1; }
+    :                                             { $$ = null; }
     |  mlstring MLSTRING                          { $$ = $1 + $2; }
     ;     
     
 expr
     : list                                        { $$ = $1;}
-    | mlstring                                    { $$ = Annotate(Helper.CleanString($1), @1); }
+    | MLSTRINGSTART mlstring MLSTRINGEND          { $$ = Annotate(Helper.CleanString($1 + $2 + $3), @1, @3); }
     | SYMBOL                                      { $$ = Annotate( SymbolTable.StringToObjectWithCase($1, FoldCase), @1); }
     | STRING                                      { $$ = Annotate(Helper.CleanString($1), @1); }
     | NUMBER                                      { $$ = Annotate( skipnumbers ? null : MakeNumber($1), @1);}
