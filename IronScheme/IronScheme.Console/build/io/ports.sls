@@ -589,7 +589,7 @@ See docs/license.txt. |#
               s))]))
 
   (define/contract (open-string-input-port str:string)
-    (clr-new StringReader (clr-cast String str)))  
+    (clr-new StringReader (->string str)))
     
   (define (proc/false? obj)
     (or (eq? obj #f)
