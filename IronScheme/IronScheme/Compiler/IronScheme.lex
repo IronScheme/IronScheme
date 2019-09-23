@@ -199,7 +199,7 @@ good_dot               "."{delimiter}?
 bad_dot                "."{but_delimiter}+
 
 
-single_char            [^\n ]
+single_char            [^ ]
 character              {single_char}
 char_hex_esc_seq       (#\\x({digit16})+)
 char_esc_seq           (#\\("nul"|alarm|backspace|tab|linefeed|newline|vtab|page|return|esc|space|delete))
