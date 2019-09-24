@@ -70,6 +70,4 @@ See docs/license.txt. |#
     (clr-call Array Clone vec))
     
   (define/contract (vector-reverse! vec:vector)
-    (clr-static-call Array Reverse vec))
-      
-)      
+    (clr-static-call Array Reverse vec)))      

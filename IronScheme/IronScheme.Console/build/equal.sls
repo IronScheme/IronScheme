@@ -1,5 +1,3 @@
-
-
 ;;; Copied from
 ;;; Efficient Nondestructive Equality Checking for Trees and Graphs 
 ;;; Michael D. Adams and R. Kent Dybvig 

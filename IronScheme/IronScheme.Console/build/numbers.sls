@@ -577,7 +577,6 @@ See docs/license.txt. |#
                            "i")]
           [else
             (assertion-violation 'number->string "not a number" num)])]))  
-            
 
   (define-syntax exact-compare
     (syntax-rules ()
@@ -904,7 +903,6 @@ See docs/license.txt. |#
       [else
         (clr-static-call Math (Round Double) (inexact x))]))
         
-        
   (define/contract (sqrt num:number)
     (cond
       [(rectnum? num)
@@ -1085,8 +1083,8 @@ See docs/license.txt. |#
                           r))]
                   [else 
                     (raise (make-restriction-violation))]))]))]))
-                    
-      
+                   
+  ; TODO: improve this    
   (define/contract (fx*/carry fx1:fixnum fx2:fixnum fx3:fixnum)
     (let ((s (+ (* fx1 fx2) fx3))
           (e (expt 2 (fixnum-width))))
@@ -1187,7 +1185,7 @@ See docs/license.txt. |#
     (let ([f (/ (log 10))])
       (lambda (x)
         (* (log x) f))))
-        
+
 ; lets get printing!        
 
   (define (get-digits flo)
@@ -1195,7 +1193,7 @@ See docs/license.txt. |#
 
   (define (get-chr i)
     (integer->char (+ (char->integer #\0)(fxmod i 10))))  
-    
+
   (define (flonum->string flo)
     (cond
       [(flzero? flo) "0.0"]
@@ -1255,5 +1253,3 @@ See docs/license.txt. |#
                 (put-string p "e")
                 (display (- k 1) p)
                 (r)])))])))
-  
-  

@@ -76,7 +76,4 @@ See docs/license.txt. |#
                 (export vector? vector-ref vector-set! make-vector vector-length vector->list vector-fill! list->vector)))])))
 
   (define-vector-type fl Double)
-  (define-vector-type fx Int32)
-
-
-)
+  (define-vector-type fx Int32))

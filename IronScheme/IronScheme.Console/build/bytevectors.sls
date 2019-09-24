@@ -6,7 +6,6 @@ See docs/license.txt. |#
 
 (library (ironscheme bytevectors)
   (export
-  
     endianness
     native-endianness
     bytevector?
@@ -80,7 +79,6 @@ See docs/license.txt. |#
     utf32->string
     
     bytevector-fold-left)
-    
   (import 
     (ironscheme integrable)
     (ironscheme unsafe)

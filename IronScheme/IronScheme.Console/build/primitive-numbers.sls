@@ -76,5 +76,3 @@ See docs/license.txt. |#
             (generic/ num1 num2))]
       [(num1 num2 num3 . rest)
         (/ num1 (reduce * (* num2 num3) rest))])))
-  
-   

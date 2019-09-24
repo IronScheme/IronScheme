@@ -195,4 +195,3 @@ See docs/license.txt. |#
   (add-record-printer! enum? 
     (lambda (x p wr)
       (fprintf p "#<enum-set ~a>" (enum-set->list x)))))      
-    

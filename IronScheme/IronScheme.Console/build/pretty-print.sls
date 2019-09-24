@@ -265,7 +265,6 @@ See docs/license.txt. |#
       (wr obj 0)))
 
 ; define formatting style (change these to suit your style)
-      
 (define pretty-width (make-parameter 72))
 (define indent-general (make-parameter 2))
 (define max-call-head-width (make-parameter 3))

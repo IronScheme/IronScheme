@@ -151,7 +151,6 @@ See docs/license.txt. |#
     char?
     char->integer
     integer->char
-
     
     string?
     make-string
