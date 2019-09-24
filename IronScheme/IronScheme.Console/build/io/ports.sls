@@ -379,7 +379,7 @@ See docs/license.txt. |#
       (file-not-found 'open-file-input-port filename))
     (clr-guard (e 
       [e (assertion-violation 'open-input-file "oops" filename)])
-        (clr-static-call File OpenText filename)))
+        (clr-static-call File OpenText (->string filename))))
 
   (define/contract open-output-file 
     (case-lambda
@@ -389,8 +389,8 @@ See docs/license.txt. |#
         (clr-guard (e 
           [e (assertion-violation 'open-output-file "oops" filename)])
             (if append?
-                (clr-static-call File AppendText filename)
-                (clr-static-call File CreateText filename)))]))
+                (clr-static-call File AppendText (->string filename))
+                (clr-static-call File CreateText (->string filename))))]))
   
   (define (get-input-port port)
     (clr-field-get CustomTextReaderWriter input port))
@@ -570,7 +570,7 @@ See docs/license.txt. |#
           (file-not-found 'open-file-input-port filename))
         (clr-guard (e 
           [e (assertion-violation 'open-file-input-port "oops" filename)])
-            (let ((s (clr-static-call File OpenRead filename)))
+            (let ((s (clr-static-call File OpenRead (->string filename))))
               (let ((s (if (eq? buffer-mode 'block)
                            (clr-new BufferedStream s)
                            s)))

@@ -14,23 +14,31 @@ See docs/license.txt. |#
     
   (import 
     (except (rnrs) file-exists? delete-file)
+    (only (ironscheme) typed-lambda)
     (ironscheme contracts)
     (ironscheme clr))
     
   (clr-using System.IO)
   (clr-using Oyster.Math)
+
+  (define ->string
+    (typed-lambda (str)
+      ((Object) String)    
+      (if (clr-is String str)
+          str
+          (clr-call Object ToString str))))   
     
   (define/contract (file-exists? fn:string)
-    (clr-static-call File Exists fn))
+    (clr-static-call File Exists (->string fn)))
     
   (define/contract (delete-file fn:string)
-    (clr-static-call File Delete fn))
+    (clr-static-call File Delete (->string fn)))
     
   (define/contract (get-directory-name path)
-    (clr-static-call Path GetDirectoryName path))   
+    (clr-static-call Path GetDirectoryName (->string path)))   
     
   (define (get-last-write-time filename)
-    (clr-static-call File GetLastWriteTime filename))
+    (clr-static-call File GetLastWriteTime (->string filename)))
     
   (define (file-mtime filename)
     (let ((dt (clr-static-call File GetLastWriteTime filename)))

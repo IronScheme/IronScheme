@@ -421,7 +421,7 @@ See docs/license.txt. |#
                      (list->vector (map ->string args))))
                      
   (define/contract (string-format fmt:string . args)
-    (clr-static-call String (Format String Object[]) fmt (list->vector args)))                       
+    (clr-static-call String (Format String Object[]) (->string fmt) (list->vector args)))
   
   (define/contract (symbol->string sym:symbol)
     (clr-static-call SymbolTable IdToString sym))

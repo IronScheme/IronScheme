@@ -85,7 +85,7 @@ See docs/license.txt. |#
     (ironscheme integrable)
     (ironscheme unsafe)
     (ironscheme clr)
-     (except (ironscheme) 
+    (except (ironscheme) 
       bytevector-u16-ref
       bytevector-s16-ref
       bytevector-u16-native-ref
@@ -154,8 +154,7 @@ See docs/license.txt. |#
       
       bytevector-fold-left)
     (ironscheme contracts)
-    (ironscheme typed)
-    (ironscheme unsafe))
+    (ironscheme typed))
   
   (clr-using IronScheme.Runtime)  
   (clr-using System.Text)
