@@ -672,10 +672,13 @@ namespace IronScheme.Runtime.R6RS
     public override string ReadToEnd()
     {
       string value = base.ReadToEnd();
-      value = IO.eoltx.Replace(value, delegate(Match m)
+      if (value != null)
       {
-        return IO.GetNewline(tc.eolstyle, "\n");
-      });
+        value = IO.eoltx.Replace(value, delegate (Match m)
+        {
+          return IO.GetNewline(tc.eolstyle, "\n");
+        });
+      }
       return value;
     }
 
@@ -683,10 +686,13 @@ namespace IronScheme.Runtime.R6RS
     public override string ReadLine()
     {
       string value = base.ReadLine();
-      value = IO.eoltx.Replace(value, delegate(Match m)
+      if (value != null)
       {
-        return IO.GetNewline(tc.eolstyle, "\n");
-      });
+        value = IO.eoltx.Replace(value, delegate (Match m)
+        {
+          return IO.GetNewline(tc.eolstyle, "\n");
+        });
+      }
       return value;
     }
     
