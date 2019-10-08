@@ -590,8 +590,8 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 
-  [CLSCompliant(false)]
-  public class TranscodedReader : TextReader
+      [CLSCompliant(false)]
+  public class TranscodedReader : StreamReader
   {
     static readonly object hm_replace = SymbolTable.StringToObject("replace"); 
     static readonly object hm_ignore = SymbolTable.StringToObject("ignore"); 
@@ -604,7 +604,64 @@ namespace IronScheme.Runtime.R6RS
       get { return tc; }
     }
 
-    public TranscodedReader(Stream s, Transcoder tc)
+    public TranscodedReader(Stream s, Transcoder tc) : base(s, tc.codec, true)
+    {
+      this.tc = tc;
+      this.port = s;
+    }
+
+    public override void Close()
+    {
+      port.Close();
+    }
+
+    public override string ReadToEnd()
+    {
+      string value = base.ReadToEnd();
+      if (value != null)
+      {
+        value = IO.eoltx.Replace(value, delegate (Match m)
+        {
+          return IO.GetNewline(tc.eolstyle, "\n");
+        });
+      }
+      return value;
+    }
+    
+    public override string ReadLine()
+    {
+      string value = base.ReadLine();
+      if (value != null)
+      {
+        value = IO.eoltx.Replace(value, delegate (Match m)
+        {
+          return IO.GetNewline(tc.eolstyle, "\n");
+        });
+      }
+      return value;
+    }
+
+    public Stream BinaryPort
+    {
+      get { return port; }
+    }
+  }
+
+  [CLSCompliant(false)]
+  public class NonBufferedTranscodedReader : TextReader
+  {
+    static readonly object hm_replace = SymbolTable.StringToObject("replace"); 
+    static readonly object hm_ignore = SymbolTable.StringToObject("ignore"); 
+
+    Stream port;
+    Transcoder tc;
+
+    public Transcoder Transcoder
+    {
+      get { return tc; }
+    }
+
+    public NonBufferedTranscodedReader(Stream s, Transcoder tc)
     {
       this.tc = tc;
       this.port = s;
@@ -657,7 +714,6 @@ namespace IronScheme.Runtime.R6RS
       port.Position = p + len;
       return chars[0];
     }
-
 
     Encoding ParsePreamble(Stream port)
     {
@@ -1000,7 +1056,7 @@ namespace IronScheme.Runtime.R6RS
       Stream s = RequiresNotNull<Stream>(binaryport);
       Transcoder tc = RequiresNotNull<Transcoder>(transcoder);
       return new CustomTextReaderWriter(SymbolTable.StringToObject("textual/input-output-port"), 
-        new TranscodedReader(s, tc), new TranscodedWriter(s, tc));
+        new NonBufferedTranscodedReader(s, tc), new TranscodedWriter(s, tc));
     }
 
     [Builtin("open-file-output-port")]

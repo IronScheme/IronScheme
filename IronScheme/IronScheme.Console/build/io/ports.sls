@@ -302,6 +302,8 @@ See docs/license.txt. |#
     (cond
       [(clr-is TranscodedReader port)
         (clr-prop-get TranscodedReader Transcoder port)]
+      [(clr-is NonBufferedTranscodedReader port)
+        (clr-prop-get NonBufferedTranscodedReader Transcoder port)]
       [(clr-is TranscodedWriter port)
         (clr-prop-get TranscodedWriter Transcoder port)]
       [(clr-is CustomTextReaderWriter port)
@@ -449,7 +451,7 @@ See docs/license.txt. |#
           (if w?
               (clr-new CustomTextReaderWriter 
                        "textual/input-output-port"
-                       (clr-new TranscodedReader port tc)
+                       (clr-new NonBufferedTranscodedReader port tc)
                        (clr-new TranscodedWriter port tc))
               (clr-new TranscodedReader port tc))
           (clr-new TranscodedWriter port tc))))
