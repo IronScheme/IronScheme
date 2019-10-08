@@ -170,6 +170,10 @@ namespace IronScheme.Runtime.R6RS
         {
           set_pos.Call((int)value);
         }
+        else
+        {
+          Builtins.AssertionViolation("set-port-position!", "not supported");
+        }
       }
     }
 
@@ -180,7 +184,12 @@ namespace IronScheme.Runtime.R6RS
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      throw new Exception("The method or operation is not implemented.");
+      if (set_pos != null)
+      {
+        set_pos.Call((int)offset);
+        return offset;
+      }
+      return (long)Builtins.AssertionViolation("set-port-position!", "not supported");
     }
 
     public override void SetLength(long value)
@@ -362,6 +371,10 @@ namespace IronScheme.Runtime.R6RS
         {
           set_pos.Call((int)value);
         }
+        else
+        {
+          Builtins.AssertionViolation("set-port-position!", "not supported");
+        }
       }
     }
 
@@ -373,7 +386,12 @@ namespace IronScheme.Runtime.R6RS
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      throw new Exception("The method or operation is not implemented.");
+      if (set_pos != null)
+      {
+        set_pos.Call((int)offset);
+        return offset;
+      }
+      return (long)Builtins.AssertionViolation("set-port-position!", "not supported");
     }
 
     public override void SetLength(long value)
@@ -498,6 +516,10 @@ namespace IronScheme.Runtime.R6RS
         if (set_pos != null)
         {
           set_pos.Call(value);
+        }
+        else
+        {
+          Builtins.AssertionViolation("set-port-position!", "not supported");
         }
       }
     }
@@ -766,6 +788,10 @@ namespace IronScheme.Runtime.R6RS
         {
           set_pos.Call((int)value);
         }
+        else
+        {
+          Builtins.AssertionViolation("set-port-position!", "not supported");
+        }
       }
     }
 
@@ -776,7 +802,12 @@ namespace IronScheme.Runtime.R6RS
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-      throw new Exception("The method or operation is not implemented.");
+      if (set_pos != null)
+      {
+        set_pos.Call((int)offset);
+        return offset;
+      }
+      return (long)Builtins.AssertionViolation("set-port-position!", "not supported");
     }
 
     public override void SetLength(long value)
