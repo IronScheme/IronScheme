@@ -213,7 +213,7 @@ See docs/license.txt. |#
   (define (codec? obj)
     (clr-is Encoding obj))
     
-  (define/contract (get-codec name:string enccb deccb)
+  (define (get-codec name enccb deccb)
     (clr-static-call Encoding 
                      (GetEncoding String EncoderFallback DecoderFallback)
                      name 
@@ -249,7 +249,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'transcode-port "not a valid eof symbol" sym)]))
         
-  (define/contract (codec-name codec:codec)
+  (define (codec-name codec)
     (clr-prop-get Encoding WebName codec))
     
   (define (transcoder? obj)
