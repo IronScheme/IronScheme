@@ -1152,11 +1152,13 @@ namespace IronScheme.Runtime.R6RS
     public static object OpenFileInputOutputPort(object filename, object fileoptions, object buffermode, object maybetranscoder)
     {
       string fn = RequiresNotNull<string>(filename);
+      FileOptions fo = ToFileOptions(fileoptions);
+      FileMode fm = GetMode(fo, fn);
       Transcoder tc = maybetranscoder as Transcoder;
       bool blockbuffer = buffermode == SymbolTable.StringToObject("block");
       try
       {
-        Stream s = File.Open(fn, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        Stream s = File.Open(fn, fm, FileAccess.ReadWrite);
 
         if (blockbuffer)
         {
