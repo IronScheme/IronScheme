@@ -45,11 +45,15 @@ namespace IronScheme.Runtime.R6RS
 
       if (handlingmode == SymbolTable.StringToObject("raise"))
       {
-        this.codec = Encoding.GetEncoding(codec.CodePage, new EncCB(null), new DecCB(null));
+        this.codec = (Encoding)this.codec.Clone();
+        this.codec.EncoderFallback = new EncCB(null);
+        this.codec.DecoderFallback = new DecCB(null);
       }
       else if (handlingmode == SymbolTable.StringToObject("replace"))
       {
-        this.codec = Encoding.GetEncoding(codec.CodePage, EncoderFallback.ReplacementFallback, DecoderFallback.ReplacementFallback);
+        this.codec = (Encoding)this.codec.Clone();
+        this.codec.EncoderFallback = EncoderFallback.ReplacementFallback;
+        this.codec.DecoderFallback = DecoderFallback.ReplacementFallback;
       }
     }
   }
@@ -558,7 +562,7 @@ namespace IronScheme.Runtime.R6RS
   }
 
   [CLSCompliant(false)]
-  public class TranscodedWriter : TextWriter
+  public class TranscodedWriter : StreamWriter
   {
     Transcoder tc;
     Stream port;
@@ -568,23 +572,12 @@ namespace IronScheme.Runtime.R6RS
       get { return tc; }
     }
 
-    public TranscodedWriter(Stream s, Transcoder tc)
+    public TranscodedWriter(Stream s, Transcoder tc) : base(s, tc.codec)
     {
-      NewLine = "\n";
+      NewLine = IO.GetNewline(tc.eolstyle, "\n");
       this.tc = tc;
       this.port = s;
-    }
-
-    public override Encoding Encoding
-    {
-      get { return tc.codec; }
-    }
-
-    public override void Write(char value)
-    {
-      string s = new string(new char[] { value });
-      byte[] bytes = IO.StringToByteVector(s, tc) as byte[];
-      port.Write(bytes, 0, bytes.Length);
+      AutoFlush = true;
     }
 
     public override void Close()
@@ -596,14 +589,20 @@ namespace IronScheme.Runtime.R6RS
     {
       port.Flush();
     }
-    
+
+    public override void Write(string value)
+    {
+        byte[] bytes = IO.StringToByteVector(value, tc) as byte[];
+        port.Write(bytes, 0, bytes.Length);
+    }
+
     public Stream BinaryPort
     {
       get { return port; }
     }
   }
 
-      [CLSCompliant(false)]
+  [CLSCompliant(false)]
   public class TranscodedReader : StreamReader
   {
     static readonly object hm_replace = SymbolTable.StringToObject("replace"); 
