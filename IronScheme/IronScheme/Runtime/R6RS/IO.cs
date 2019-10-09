@@ -634,7 +634,7 @@ namespace IronScheme.Runtime.R6RS
       {
         value = IO.eoltx.Replace(value, delegate (Match m)
         {
-          return IO.GetNewline(tc.eolstyle, "\n");
+          return IO.GetNewline(tc.eolstyle, m.Value);
         });
       }
       return value;
@@ -647,7 +647,7 @@ namespace IronScheme.Runtime.R6RS
       {
         value = IO.eoltx.Replace(value, delegate (Match m)
         {
-          return IO.GetNewline(tc.eolstyle, "\n");
+          return IO.GetNewline(tc.eolstyle, m.Value);
         });
       }
       return value;
@@ -766,7 +766,7 @@ namespace IronScheme.Runtime.R6RS
       {
         value = IO.eoltx.Replace(value, delegate (Match m)
         {
-          return IO.GetNewline(tc.eolstyle, "\n");
+          return IO.GetNewline(tc.eolstyle, m.Value);
         });
       }
       return value;
@@ -780,7 +780,7 @@ namespace IronScheme.Runtime.R6RS
       {
         value = IO.eoltx.Replace(value, delegate (Match m)
         {
-          return IO.GetNewline(tc.eolstyle, "\n");
+          return IO.GetNewline(tc.eolstyle, m.Value);
         });
       }
       return value;

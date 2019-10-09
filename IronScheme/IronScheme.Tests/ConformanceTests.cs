@@ -11,8 +11,8 @@ namespace IronScheme.Tests
     public void R6RS()
     {
       var r = RunIronSchemeTest(@"tests\r6rs\run.sps");
-      if (!Quiet) Console.WriteLine("Expected 6 failed tests.");
-      Assert.True(r.Output.Contains("6 of 8970 tests failed."));
+      if (!Quiet) Console.WriteLine("Expected 4 failed tests.");
+      Assert.True(r.Output.Contains("4 of 8970 tests failed."));
       AssertError(r);
     }
 
