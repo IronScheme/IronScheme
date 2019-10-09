@@ -448,7 +448,7 @@ See docs/license.txt. |#
       [(clr-is CustomTextReaderWriter port)
         (port-has-port-position? (get-input-port port))]
       [(clr-is TextWriter port) #f]
-	  [(clr-is TextReader port) #f]
+	    [(clr-is TextReader port) #f]
       [else
         (assertion-violation 'port-has-port-position? "not a port" port)]))
         
