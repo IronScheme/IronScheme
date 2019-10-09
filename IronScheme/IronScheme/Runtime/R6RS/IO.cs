@@ -42,6 +42,15 @@ namespace IronScheme.Runtime.R6RS
       this.codec = codec;
       this.eolstyle = eolstyle;
       this.handlingmode = handlingmode;
+
+      if (handlingmode == SymbolTable.StringToObject("raise"))
+      {
+        this.codec = Encoding.GetEncoding(codec.CodePage, new EncCB(null), new DecCB(null));
+      }
+      else if (handlingmode == SymbolTable.StringToObject("replace"))
+      {
+        this.codec = Encoding.GetEncoding(codec.CodePage, EncoderFallback.ReplacementFallback, DecoderFallback.ReplacementFallback);
+      }
     }
   }
 
@@ -291,7 +300,11 @@ namespace IronScheme.Runtime.R6RS
         {
           set_pos.Call(value);
         }
-      }
+          else
+          {
+              Builtins.AssertionViolation("set-port-position!", "not supported");
+          }
+        }
     }
 
     public override string ToString()
