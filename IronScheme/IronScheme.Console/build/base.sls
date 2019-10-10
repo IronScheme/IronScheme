@@ -378,7 +378,7 @@ See docs/license.txt. |#
               (f (cdr args)))))))
         
   (define/contract (string->list str:string)
-    (clr-static-call Cons FromList (->string str)))
+    (clr-static-call Builtins StringToList (->string str)))
   
   (: ->mutable-string (String -> StringBuilder))
   

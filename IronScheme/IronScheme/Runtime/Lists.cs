@@ -9,6 +9,8 @@ using System.Reflection;
 using IronScheme.Compiler;
 using Microsoft.Scripting.Ast;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace IronScheme.Runtime
 {
@@ -267,6 +269,28 @@ namespace IronScheme.Runtime
 
       j.cdr = i.car;
       return c;
+    }
+
+    public static object StringToList(string s)
+    {
+      var chars = new List<object>();
+      var e = StringInfo.GetTextElementEnumerator(s);
+      while (e.MoveNext())
+      {
+        var c = ParseChar((string) e.Current);
+        chars.Add(c);
+      }
+
+      return Runtime.Cons.FromList(chars);
+    }
+
+    static object ParseChar(string s)
+    {
+      if (s.Length == 1)
+      {
+        return s[0];
+      }
+      return new SchemeChar(char.ConvertToUtf32(s, 0));
     }
 
   }
