@@ -940,7 +940,7 @@ See docs/license.txt. |#
     (make-fold-case #\xFB15 "\x0574;\x056B;")
     (make-fold-case #\xFB16 "\x057E;\x0576;")
     (make-fold-case #\xFB17 "\x0574;\x056D;")
-    #|
+
     (make-fold-case #\x10400 "\x10428;")
     (make-fold-case #\x10401 "\x10429;")
     (make-fold-case #\x10402 "\x1042A;")
@@ -980,9 +980,7 @@ See docs/license.txt. |#
     (make-fold-case #\x10424 "\x1044C;")
     (make-fold-case #\x10425 "\x1044D;")
     (make-fold-case #\x10426 "\x1044E;")
-    (make-fold-case #\x10427 "\x1044F;")
-    |#
-    )
+    (make-fold-case #\x10427 "\x1044F;"))
 
   (initialize-case-maps)
   (initialize-case-folding))
