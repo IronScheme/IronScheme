@@ -767,7 +767,7 @@ See docs/license.txt. |#
       [()
         (open-bytevector-output-port #f)]
       [(tc)
-        (let ((s (clr-new MemoryStream)))
+        (let ((s (clr-new WriteOnlyMemoryStream)))
           (values (if tc (transcoded-port s tc) s)
                   (lambda ()
                     (let ((r (clr-call MemoryStream ToArray s)))

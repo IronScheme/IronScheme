@@ -296,7 +296,8 @@ namespace IronScheme.Runtime.R6RS
         {
           return Convert.ToInt32(get_pos.Call());
         }
-        return (int)Builtins.AssertionViolation("port-position", "not supported");
+
+        return (int) Builtins.AssertionViolation("port-position", "not supported");
       }
       set
       {
@@ -304,11 +305,11 @@ namespace IronScheme.Runtime.R6RS
         {
           set_pos.Call(value);
         }
-          else
-          {
-              Builtins.AssertionViolation("set-port-position!", "not supported");
-          }
+        else
+        {
+          Builtins.AssertionViolation("set-port-position!", "not supported");
         }
+      }
     }
 
     public override string ToString()
@@ -605,9 +606,6 @@ namespace IronScheme.Runtime.R6RS
   [CLSCompliant(false)]
   public class TranscodedReader : StreamReader
   {
-    static readonly object hm_replace = SymbolTable.StringToObject("replace"); 
-    static readonly object hm_ignore = SymbolTable.StringToObject("ignore"); 
-
     Stream port;
     Transcoder tc;
 
@@ -615,6 +613,7 @@ namespace IronScheme.Runtime.R6RS
     {
       get { return tc; }
     }
+
 
     public TranscodedReader(Stream s, Transcoder tc) : base(s, tc.codec, true)
     {
@@ -659,6 +658,7 @@ namespace IronScheme.Runtime.R6RS
     }
   }
 
+  // TODO: fix/improve this monster
   [CLSCompliant(false)]
   public class NonBufferedTranscodedReader : TextReader
   {
@@ -937,6 +937,15 @@ namespace IronScheme.Runtime.R6RS
     {
       return string.Format("#<custom-textual-input/output-port id: {0}>", id);
     }
+  }
+
+  public class WriteOnlyMemoryStream : MemoryStream
+  {
+    public WriteOnlyMemoryStream()
+    {
+      
+    }
+    public override bool CanRead => false;
   }
 
   #endregion
