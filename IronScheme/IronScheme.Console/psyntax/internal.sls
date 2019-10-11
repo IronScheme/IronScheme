@@ -32,31 +32,14 @@
       (lambda (p)
         (assert (procedure? p))
         p)))
-  
-  (define (mutable? x) 
-    (define (simple? x)
-      (or (null? x) 
-          (char? x) 
-          (symbol? x)
-          (boolean? x)
-          (clr-is System.String x)
-          (number? x)
-          (valuetype-vector? x)))
-    (not (simple? x)))
 
   ; the output is the input language of IronScheme
-  (define (rewriter quote-hack?)
+  (define (rewrite x)
     (define (f x)
       (cond
         ((pair? x) 
          (case (car x)
-           ((quote) 
-            (cond
-              ((and quote-hack? (mutable? (cadr x)))
-               (let ((g (gensym 'weak-temp)))
-                 (set-symbol-value! g (cadr x))
-                 g))
-              (else x)))
+           ((quote) x)
            ((case-lambda) 
             (cons 'case-lambda
               (map 
@@ -121,16 +104,16 @@
                 (map f x)
                 (error 'rewrite "invalid form ~s ~s" x (list? x))))))
         (else x)))
-    f)
+    (f x))
   
   (define (expanded->core x)
-    ((rewriter #f) x))
+    (rewrite x))
     
   (define (compile-core-expr x)
-    ((rewriter #f) x))    
+    (rewrite x))
     
   (define (compile-core-expr-to-fasl x p)
-    (serialize-port ((rewriter #f) x) p))    
+    (serialize-port (rewrite x) p))    
 
   (define (compile-core-expr-to-port x p)
-    (pretty-print ((rewriter #f) x) p)))
+    (pretty-print (rewrite x) p)))
