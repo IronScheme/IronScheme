@@ -271,7 +271,6 @@
     ;;;
     (load/unsafe                                i)
     (optimize                                   ic)
-    (generate-executable-wrapper                ic)
     (compress-constants?                        ic)
     (clr-string?                                ic)
     (stringbuilder?                             ic)

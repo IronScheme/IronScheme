@@ -62,63 +62,6 @@ namespace IronScheme.Runtime
       return IronScheme.Hosting.IronSchemeConsoleHost.VERSION;
     }
 
-    [Builtin("generate-executable-wrapper")]
-    public static object GenWrapper(object filename)
-    {
-      var tmpl = Path.Combine(ApplicationDirectory, "Executable.cs.template");
-      var fn = RequiresNotNull<string>(filename);
-      using (var p = new Microsoft.CSharp.CSharpCodeProvider())
-      {
-        var supportfn = filename + ".cs";
-        File.WriteAllText(supportfn, string.Format(
-@"
-namespace IronScheme
-{{
-  partial class ExecutableTemplate
-  {{
-    const string PATH = @""{0}"";
-    const string RESOURCE = @""{1}"";
-  }}
-}}", ApplicationDirectory, fn));
-
-        var cp = new CompilerParameters
-        {
-          EmbeddedResources = { fn },
-          OutputAssembly = Path.GetFileNameWithoutExtension(fn) + ".exe",
-          ReferencedAssemblies = { "System.dll",  "System.Configuration.dll" },
-          GenerateExecutable = true,
-          //IncludeDebugInformation = true
-        };
-
-        Console.Write("compiling executable wrapper '{0}'.... ", cp.OutputAssembly);
-        var results = p.CompileAssemblyFromFile(cp, tmpl, supportfn);
-        if (results.Errors.Count > 0)
-        {
-          Console.WriteLine("failed.");
-          foreach (var error in results.Errors)
-          {
-            Console.Error.WriteLine(error);
-          }
-        }
-        else
-        {
-          Console.WriteLine("done.");
-          Console.Write("generating config file .... ");
-          File.WriteAllText(cp.OutputAssembly + ".config", string.Format(
-@"<?xml version=""1.0""?>
-<configuration>
-  <appSettings>
-    <add key=""IronScheme.Directory"" value=""{0}""/>
-  </appSettings>
-</configuration>", ApplicationDirectory));
-          Console.WriteLine("done.");
-        }
-        File.Delete(supportfn);
-      }
-      return Unspecified;
-    }
-
-
     [Builtin("with-timeout")]
     public static object WithTimeout(object proc, object duration)
     {

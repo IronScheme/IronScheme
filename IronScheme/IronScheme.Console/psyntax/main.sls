@@ -50,7 +50,7 @@
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
-    (only (ironscheme core) get-command-line format compile-library load-library-dll generate-executable-wrapper compress-constants?)
+    (only (ironscheme core) get-command-line format compile-library load-library-dll compress-constants?)
     (ironscheme enums)
     (ironscheme files)
     (ironscheme clr)
@@ -62,11 +62,8 @@
   (clr-reference System)
     
   (define trace-printer (make-parameter pretty-print))
-      
   (define display-stacktrace (make-parameter #f))
-  
   (define command-line (make-parameter (get-command-line))) 
-   
   (define emacs-mode? (make-parameter #f))
      
   (define (local-library-path filename)
@@ -189,9 +186,7 @@
         (with-guard
           (lambda ()
             (parameterize [(compress-constants? constant-compression?)]
-              (load-r6rs-top-level filename 'compile-dll)
-              (when gen-wrapper?
-                (generate-executable-wrapper filename)))))]))
+              (load-r6rs-top-level filename 'compile-dll))))]))
     
   (define (compile->closure filename)
     (load-r6rs-top-level filename 'closure))
