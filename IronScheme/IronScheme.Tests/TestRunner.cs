@@ -50,7 +50,7 @@ namespace IronScheme.Tests
 
     protected TestResult RunIronSchemeTest(string args, string input, bool echo)
     {
-      return RunTest("IronScheme.Console32.exe", args, input, echo);
+      return RunTest("IronScheme.Console.exe", args, input, echo);
     }
 
     protected TestResult RunTest(string exe, string args, bool echo)
