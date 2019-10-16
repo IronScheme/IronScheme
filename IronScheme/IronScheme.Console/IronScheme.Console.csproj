@@ -1,31 +1,13 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IronScheme.Console</RootNamespace>
-    <AssemblyName>IronScheme.Console</AssemblyName>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
+    <FileUpgradeFlags />
+    <UpgradeBackupLocation />
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFramework>net462</TargetFramework>
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
@@ -43,66 +25,68 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
+    <AssemblyTitle>IronScheme.Console</AssemblyTitle>
+    <Company>leppie</Company>
+    <Product>IronScheme.Console</Product>
+    <Description>Only includes IronScheme.dll</Description>
+    <Copyright>Copyright 2007-2019</Copyright>
+    <Version>1.0.0.0</Version>
     <NoWarn>1591</NoWarn>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <Optimize>false</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <DocumentationFile />
+    <Authors>Llewellyn Pritchard</Authors>
+    <PackageIconUrl>http://ironscheme.net/logo-192.png</PackageIconUrl>
+    <PackageId>IronScheme.Core</PackageId>
+    <PackageProjectUrl>https://github.com/leppie/IronScheme</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/leppie/IronScheme</PackageReleaseNotes>
+    <PackageTags>scheme ironscheme r6rs</PackageTags>
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
+    </PostBuildEvent>
+    <PostBuildEvent />
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
+    </PostBuildEvent>
+    <PostBuildEvent />
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
+    </PostBuildEvent>
+    <PostBuildEvent />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
-    <NoWarn>1591</NoWarn>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <Optimize>true</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
+    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
+"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent />
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
-      <Project>{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}</Project>
-      <Name>IronScheme.Closures</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IronScheme.Tests\IronScheme.Tests.csproj">
-      <Project>{FF22CD2F-F20D-4558-912B-460A9250BD6B}</Project>
-      <Name>IronScheme.Tests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IronScheme\IronScheme.csproj">
-      <Project>{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}</Project>
-      <Name>IronScheme</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj">
-      <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
-      <Name>IronScheme.Scripting</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj">
-      <Project>{371F38E6-8D55-482F-B010-4AFAC11C3CDB}</Project>
-      <Name>Oyster.IntX</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
+    <ProjectReference Include="..\IronScheme.Tests\IronScheme.Tests.csproj" />
+    <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
+    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
+    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build\arithmetic\bitwise.sls">
@@ -159,9 +143,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="compile-system-libraries.sps">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="IronScheme.Core.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="lib\ironscheme\clr\reflection.sls">
@@ -1122,8 +1103,7 @@
     <None Include="build\trace.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="playground\define-clr-class.sls">
-    </None>
+    <None Include="playground\define-clr-class.sls" />
     <None Include="lib\ironscheme\syntax\define-macro.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1164,14 +1144,10 @@
     <None Include="system-libraries.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="playground\docs\topic-printer.sls">
-    </None>
-    <None Include="playground\docs\templates.sls">
-    </None>
-    <None Include="playground\docs\topic-manager.sls">
-    </None>
-    <None Include="playground\docs\topic.sls">
-    </None>
+    <None Include="playground\docs\topic-printer.sls" />
+    <None Include="playground\docs\templates.sls" />
+    <None Include="playground\docs\topic-manager.sls" />
+    <None Include="playground\docs\topic.sls" />
     <None Include="examples\forms.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1184,14 +1160,10 @@
     <None Include="lib\ironscheme\clr\helpers.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="playground\collections\arraylist.sls">
-    </None>
-    <None Include="playground\collections\ilist.sls">
-    </None>
-    <None Include="playground\collections\icollection.sls">
-    </None>
-    <None Include="playground\collections\stack.sls">
-    </None>
+    <None Include="playground\collections\arraylist.sls" />
+    <None Include="playground\collections\ilist.sls" />
+    <None Include="playground\collections\icollection.sls" />
+    <None Include="playground\collections\stack.sls" />
     <None Include="lib\ironscheme\console.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1234,8 +1206,7 @@
     <None Include="lib\ironscheme\web.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="playground\docs.sls">
-    </None>
+    <None Include="playground\docs.sls" />
     <None Include="examples\declare-type.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1473,38 +1444,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="docs\bugs.txt">
@@ -1669,40 +1612,23 @@
     <None Include="lib\README.minikanren">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="playground\compiler\cps-convert.sls">
-    </None>
-    <None Include="playground\compiler\cps\cps-sexp-target.ss">
-    </None>
-    <None Include="playground\compiler\cps\cps.ss">
-    </None>
-    <None Include="playground\compiler\cps\sexp-to-cps.ss">
-    </None>
-    <None Include="playground\compiler\expander.sls">
-    </None>
-    <None Include="playground\compiler\codegen.sls">
-    </None>
-    <None Include="playground\compiler\riaxpander\classify.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\closure.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\denotation.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\environment.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\history.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\LICENCE">
-    </None>
-    <None Include="playground\compiler\riaxpander\sexp.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\standard.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\synrules.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\taxonomy.ss">
-    </None>
-    <None Include="playground\compiler\riaxpander\transform.ss">
-    </None>
+    <None Include="playground\compiler\cps-convert.sls" />
+    <None Include="playground\compiler\cps\cps-sexp-target.ss" />
+    <None Include="playground\compiler\cps\cps.ss" />
+    <None Include="playground\compiler\cps\sexp-to-cps.ss" />
+    <None Include="playground\compiler\expander.sls" />
+    <None Include="playground\compiler\codegen.sls" />
+    <None Include="playground\compiler\riaxpander\classify.ss" />
+    <None Include="playground\compiler\riaxpander\closure.ss" />
+    <None Include="playground\compiler\riaxpander\denotation.ss" />
+    <None Include="playground\compiler\riaxpander\environment.ss" />
+    <None Include="playground\compiler\riaxpander\history.ss" />
+    <None Include="playground\compiler\riaxpander\LICENCE" />
+    <None Include="playground\compiler\riaxpander\sexp.ss" />
+    <None Include="playground\compiler\riaxpander\standard.ss" />
+    <None Include="playground\compiler\riaxpander\synrules.ss" />
+    <None Include="playground\compiler\riaxpander\taxonomy.ss" />
+    <None Include="playground\compiler\riaxpander\transform.ss" />
     <None Include="genv4.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1952,8 +1878,7 @@
     <None Include="playground\bw.sps" />
     <None Include="playground\foo2.sls" />
     <None Include="playground\foo.sls" />
-    <None Include="playground\linq3.sls">
-    </None>
+    <None Include="playground\linq3.sls" />
     <None Include="lib\ironscheme\syntax\library-utils.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -1983,22 +1908,14 @@
     <None Include="lib\ironscheme\typed\core.sls">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="playground\source-optimizer\cp0.sls">
-    </None>
-    <None Include="playground\source-optimizer\cpletrec.sls">
-    </None>
-    <None Include="playground\source-optimizer\helpers.sls">
-    </None>
-    <None Include="playground\source-optimizer\match.sls">
-    </None>
-    <None Include="playground\source-optimizer\optimize.sls">
-    </None>
-    <None Include="playground\source-optimizer\prelex.sls">
-    </None>
-    <None Include="playground\source-optimizer\primitive.sls">
-    </None>
-    <None Include="playground\source-optimizer\transform.sls">
-    </None>
+    <None Include="playground\source-optimizer\cp0.sls" />
+    <None Include="playground\source-optimizer\cpletrec.sls" />
+    <None Include="playground\source-optimizer\helpers.sls" />
+    <None Include="playground\source-optimizer\match.sls" />
+    <None Include="playground\source-optimizer\optimize.sls" />
+    <None Include="playground\source-optimizer\prelex.sls" />
+    <None Include="playground\source-optimizer\primitive.sls" />
+    <None Include="playground\source-optimizer\transform.sls" />
     <None Include="stage.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2076,22 +1993,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <PropertyGroup>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent />
-  </PropertyGroup>
 </Project>

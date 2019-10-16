@@ -1,181 +1,35 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IronScheme</RootNamespace>
-    <AssemblyName>IronScheme</AssemblyName>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFramework>net462</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;BIGFRACTION;OPTIMIZATIONS;nCPS</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
     <NoWarn>1591</NoWarn>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;BIGFRACTION;OPTIMIZATIONS</DefineConstants>
-    <DocumentationFile>
-    </DocumentationFile>
     <NoWarn>1591;3021;0618</NoWarn>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <Optimize>true</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Actions\IronSchemeActionBinder.cs" />
-    <Compile Include="Compiler\AnnotatedCallGenerator.cs" />
-    <Compile Include="Compiler\AnnotationHelper.cs" />
-    <Compile Include="Compiler\BeginGenerator.cs" />
-    <Compile Include="Compiler\CaseLambdaGenerator.cs" />
-    <Compile Include="Compiler\ClrGenerators.cs" />
-    <Compile Include="Compiler\Optimizer.FixupTypedClosureCallsites.cs" />
-    <Compile Include="Compiler\Optimizer.AnalyzeProcedureReturns.cs" />
-    <Compile Include="Compiler\Optimizer.RemoveUselessConversions.cs" />
-    <Compile Include="Compiler\Optimizer.LoopHoist.cs" />
-    <Compile Include="Compiler\Optimizer.TCE.cs" />
-    <Compile Include="Compiler\Optimizer.TypeVariables.cs" />
-    <Compile Include="Compiler\Optimizer.ConversionCSE.cs" />
-    <Compile Include="Compiler\Optimizer.FixupConditionals.cs" />
-    <Compile Include="Compiler\Optimizer.FixupPrimitives.cs" />
-    <Compile Include="Compiler\Optimizer.FlattenBodies.cs" />
-    <Compile Include="Compiler\Optimizer.RemoveTemporaries.cs" />
-    <Compile Include="Compiler\RealParser.cs" />
-    <Compile Include="Compiler\TypedCaseLambdaGenerator.cs" />
-    <Compile Include="Compiler\FFICallGenerator.cs" />
-    <Compile Include="Compiler\SerializedConstant.cs" />
-    <Compile Include="Compiler\numberlexer.lex.cs" />
-    <Compile Include="Compiler\NumberParser.y.cs" />
-    <Compile Include="Compiler\LibraryLetrecStarGenerator.cs" />
-    <Compile Include="Compiler\LetrecGenerator.cs" />
-    <Compile Include="Compiler\Helper.cs" />
-    <Compile Include="Compiler\IronSchemeConstant.cs" />
-    <Compile Include="Compiler\LetrecStarGenerator.cs" />
-    <Compile Include="Compiler\Generator.InlineEmitters.cs" />
-    <Compile Include="Compiler\GeneratorAttribute.cs" />
-    <Compile Include="Compiler\InlineEmitter.cs" />
-    <Compile Include="Compiler\Optimizer.cs" />
-    <Compile Include="Compiler\QuoteGenerator.cs" />
-    <Compile Include="Compiler\SetGenerator.cs" />
-    <Compile Include="Compiler\IfGenerator.cs" />
-    <Compile Include="Compiler\Generator.Handlers.cs" />
-    <Compile Include="Compiler\Generator.Helpers.cs" />
-    <Compile Include="Compiler\Generator.Symbols.cs" />
-    <Compile Include="Compiler\Generator.cs" />
-    <Compile Include="Compiler\Generator.Methods.cs" />
-    <Compile Include="Compiler\ironscheme.lex.cs" />
-    <Compile Include="Compiler\IronScheme.y.cs" />
-    <Compile Include="Compiler\LambdaGenerator.cs" />
     <None Include="Executable.cs.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Compile Include="gppg\IScanner.cs" />
-    <Compile Include="gppg\ParserStack.cs" />
-    <Compile Include="gppg\Rule.cs" />
-    <Compile Include="gppg\ShiftReduceParser.cs" />
-    <Compile Include="gppg\State.cs" />
-    <Compile Include="Hosting\IronSchemeConsoleHost.cs" />
-    <Compile Include="Hosting\IronSchemeLanguageProvider.cs" />
-    <Compile Include="Hosting\IronSchemeScriptEngine.cs" />
-    <Compile Include="IronSchemeLanguageContext.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Condition="'$(TargetFrameworkVersion)' == 'v2.0' Or '$(TargetFrameworkVersion)' == 'v3.0' Or '$(TargetFrameworkVersion)' == 'v3.5'" Include="Properties\AssemblyInfo.CLR2.cs" />
-    <Compile Include="RuntimeExtensions.cs" />
-    <Compile Include="Runtime\BigFraction.cs" />
-    <Compile Include="Runtime\Booleans.cs" />
-    <Compile Include="Runtime\Builtins.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Runtime\ComplexFraction.cs" />
-    <Compile Include="Runtime\Cons.cs" />
-    <Compile Include="Runtime\Control.cs" />
-    <Compile Include="Runtime\Environment.cs" />
-    <Compile Include="Runtime\Equality.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Runtime\Helpers.cs" />
-    <Compile Include="Runtime\Lists.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Runtime\Numbers.cs" />
-    <Compile Include="Runtime\Ports.cs" />
-    <Compile Include="Runtime\psyntax\AnnotatedReader.cs" />
-    <Compile Include="Runtime\psyntax\Serialization.cs" />
-    <Compile Include="Runtime\R6RS\Conditions.cs" />
-    <Compile Include="Runtime\R6RS\Exceptions.cs" />
-    <Compile Include="Runtime\R6RS\IO.cs" />
-    <Compile Include="Runtime\R6RS\Hashtables.cs" />
-    <Compile Include="Runtime\R6RS\Records.cs" />
-    <Compile Include="Runtime\Reflection\BackingFieldResolver.cs" />
-    <Compile Include="Runtime\Reflection\ByteBuffer.cs" />
-    <Compile Include="Runtime\Reflection\Disassembler.cs" />
-    <Compile Include="Runtime\Reflection\ILPattern.cs" />
-    <Compile Include="Runtime\Reflection\Image.cs" />
-    <Compile Include="Runtime\Reflection\Instruction.cs" />
-    <Compile Include="Runtime\Reflection\MethodBodyReader.cs" />
-    <Compile Include="Runtime\SchemeDebugger.cs" />
-    <Compile Include="Runtime\SchemeException.cs" />
-    <Compile Include="Runtime\TraceClosure.cs" />
-    <Compile Include="Runtime\Unsafe.cs" />
-    <Compile Include="Runtime\Vectors.cs" />
+    <Compile Condition="'$(TargetFrameworkVersion)' == 'v2.0' Or '$(TargetFrameworkVersion)' == 'v3.0' Or '$(TargetFrameworkVersion)' == 'v3.5'" Update="Properties\AssemblyInfo.CLR2.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
-      <Project>{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}</Project>
-      <Name>IronScheme.Closures</Name>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Managed.Reflection\src\Managed.Reflection\Managed.Reflection.csproj">
-      <Project>{33ea6992-c24f-4f92-a12e-5db858014e0c}</Project>
-      <Name>Managed.Reflection</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj">
-      <Project>{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}</Project>
-      <Name>IronScheme.Scripting</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj">
-      <Project>{371F38E6-8D55-482F-B010-4AFAC11C3CDB}</Project>
-      <Name>Oyster.IntX</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
+    <ProjectReference Include="..\Managed.Reflection\src\Managed.Reflection\Managed.Reflection.csproj" />
+    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
+    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Compiler\NumberLexer.lex" />
@@ -184,25 +38,9 @@
     <None Include="Compiler\IronScheme.y" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Compile Remove="Runtime\R6RS\Lists.cs" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="attrib -R &quot;$(ProjectDir)Compiler\IronScheme.y.cs&quot;&#xD;&#xA;attrib -R &quot;$(ProjectDir)Compiler\IronScheme.lex.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\IronScheme.y&quot; &gt; &quot;$(ProjectDir)Compiler\IronScheme.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\IronScheme.lex.cs&quot; &quot;$(ProjectDir)Compiler\IronScheme.lex&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\NumberParser.y&quot; &gt; &quot;$(ProjectDir)Compiler\NumberParser.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\NumberLexer.lex.cs&quot; &quot;$(ProjectDir)Compiler\NumberLexer.lex&quot;" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <PropertyGroup>
-    <PreBuildEvent>
-attrib -R "$(ProjectDir)Compiler\IronScheme.y.cs"
-attrib -R "$(ProjectDir)Compiler\IronScheme.lex.cs"
-"$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\IronScheme.y" &gt; "$(ProjectDir)Compiler\IronScheme.y.cs"
-"$(SolutionDir)tools\gplex" /stack "/frame:$(SolutionDir)tools\gplexx.frame" "/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"
-"$(SolutionDir)tools\gppg" /gplex "$(ProjectDir)Compiler\NumberParser.y" &gt; "$(ProjectDir)Compiler\NumberParser.y.cs"
-"$(SolutionDir)tools\gplex" /stack "/frame:$(SolutionDir)tools\gplexx.frame" "/out:$(ProjectDir)Compiler\NumberLexer.lex.cs" "$(ProjectDir)Compiler\NumberLexer.lex"</PreBuildEvent>
-  </PropertyGroup>
 </Project>
