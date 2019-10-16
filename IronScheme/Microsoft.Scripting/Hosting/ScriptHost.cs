@@ -73,9 +73,6 @@ namespace Microsoft.Scripting.Hosting {
         public virtual IScriptModule DefaultModule {
             get {
                 if (_defaultModule == null) {
-                    if (Utilities.IsRemote(_environment)) 
-                        throw new InvalidOperationException("Default module should by created in the remote appdomain.");
-
                     CreateDefaultModule(ref _defaultModule);
                  }
 
@@ -100,7 +97,6 @@ namespace Microsoft.Scripting.Hosting {
         static internal void CreateDefaultModule(ref ScriptModule defaultModule) {
            // create a module and throw it away if there is already one:
             ScriptModule module = ScriptDomainManager.CurrentManager.CreateModule("<default>", null, ScriptCode.EmptyArray);
-            Utilities.MemoryBarrier();
             Interlocked.CompareExchange<ScriptModule>(ref defaultModule, module, null);
         }
 

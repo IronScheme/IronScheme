@@ -6,14 +6,14 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using IronScheme.Hosting;
-using IronScheme.Remoting.Server;
-using System.IO;
-using System.Collections.Generic;
+using IronScheme.Runtime;
 
-namespace IronScheme.Runtime
+namespace IronScheme.Console
 {
   class Program
   {
@@ -74,22 +74,21 @@ namespace IronScheme.Runtime
           break;
       }
 
-      args = Args(args, "--remoting-server", () => Host.Start());
       args = Args(args, "--show-loaded-libraries", () => Builtins.ShowImports = true);
       args = ParseIncludes(args);
 
-      Encoding oo = Console.OutputEncoding;
+      Encoding oo = System.Console.OutputEncoding;
 
       EnableMulticoreJIT();
 
       try
       {
-        Console.OutputEncoding = Encoding.UTF8;
+        System.Console.OutputEncoding = Encoding.UTF8;
         return IronSchemeConsoleHost.Execute(args);
       }
       finally
       {
-        Console.OutputEncoding = oo;
+        System.Console.OutputEncoding = oo;
       }
     }
 
@@ -110,7 +109,7 @@ namespace IronScheme.Runtime
           }
           else
           {
-            Console.Error.WriteLine("Error: Missing include path");
+            System.Console.Error.WriteLine("Error: Missing include path");
             Environment.Exit(1);
           }
         }
@@ -170,7 +169,7 @@ namespace IronScheme.Runtime
       {
         if (register)
         {
-          Console.WriteLine("WARNING: Profiler DLL ({0}) not available in application directory. Profiling will be disabled.", Path.GetFileName(ppath));
+          System.Console.WriteLine("WARNING: Profiler DLL ({0}) not available in application directory. Profiling will be disabled.", Path.GetFileName(ppath));
         }
 
         return false;

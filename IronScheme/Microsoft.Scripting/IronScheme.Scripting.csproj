@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="Current">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <Import Condition=" '$(BuildingTraversal)' == 'true' " Project="..\..\silverlight.settings.targets" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -21,13 +21,14 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +42,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -55,6 +57,7 @@
     <BaseAddress>4194304</BaseAddress>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <DebugSymbols>true</DebugSymbols>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -286,7 +289,6 @@
     <Compile Include="Utils\ReflectionUtils.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Utils\StrongBox.cs" />
-    <Compile Include="Utils\Utilities.cs" />
     <Compile Include="Math\MathResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -320,6 +322,10 @@
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Managed.Reflection\src\Managed.Reflection\Managed.Reflection.csproj">
+      <Project>{33ea6992-c24f-4f92-a12e-5db858014e0c}</Project>
+      <Name>Managed.Reflection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj">
       <Project>{371F38E6-8D55-482F-B010-4AFAC11C3CDB}</Project>
       <Name>Oyster.IntX</Name>

@@ -115,7 +115,6 @@ namespace Microsoft.Scripting {
                 lock (_singletonLock) {
                     if (_singleton == null) {
                         ScriptDomainManager singleton = new ScriptDomainManager();
-                        Utilities.MemoryBarrier();
                         _singleton = singleton;
                         new_created = true;
                     }
@@ -207,7 +206,6 @@ namespace Microsoft.Scripting {
 
                     // needn't to be locked, we can create multiple LPs:
                     LanguageProvider provider = ReflectionUtils.CreateInstance<LanguageProvider>(_type, manager);
-                    Utilities.MemoryBarrier();
                     _provider = provider;
                 }
                 return _provider;
