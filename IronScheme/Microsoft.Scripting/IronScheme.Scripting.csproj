@@ -60,7 +60,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Managed.Reflection\src\Managed.Reflection\Managed.Reflection.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
   </ItemGroup>
 </Project>
