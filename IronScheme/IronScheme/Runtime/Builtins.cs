@@ -119,14 +119,12 @@ namespace IronScheme.Runtime
     public static object DeserializePort(object binaryport)
     {
       Stream s = Requires<Stream>(binaryport);
-      var o = psyntax.Serialization.SERIALIZER.UnsafeDeserialize(s, null);
+      var o = psyntax.Serialization.SERIALIZER.Deserialize(s);
       return o;
     }
 
-
     public static readonly object Unspecified = new UnspecifiedObject();
-
-
+    
     [Builtin("unspecified?")]
     public static object IsUnspecified(object o)
     {
