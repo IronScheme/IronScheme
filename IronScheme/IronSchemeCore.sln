@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Oyster.IntX", "Oyster.IntX\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Tests", "IronScheme.Tests\IronScheme.Tests.csproj", "{FF22CD2F-F20D-4558-912B-460A9250BD6B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lokad.ILPack", "ILPack\src\Lokad.ILPack.csproj", "{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{FF22CD2F-F20D-4558-912B-460A9250BD6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF22CD2F-F20D-4558-912B-460A9250BD6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF22CD2F-F20D-4558-912B-460A9250BD6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

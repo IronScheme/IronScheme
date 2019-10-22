@@ -26,6 +26,7 @@
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
+    <ProjectReference Include="..\ILPack\src\Lokad.ILPack.csproj" Condition="'$(TargetFramework)' == 'netcoreapp2.0'" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Compiler\NumberLexer.lex" />

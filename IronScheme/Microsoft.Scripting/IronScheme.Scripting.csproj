@@ -61,5 +61,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
+    <ProjectReference Include="..\ILPack\src\Lokad.ILPack.csproj" Condition="'$(TargetFramework)' == 'netcoreapp2.0'" />
   </ItemGroup>
 </Project>

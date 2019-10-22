@@ -6,3 +6,6 @@
 	path = IronScheme/IronScheme.Console/lib/pfds
 	url = https://github.com/leppie/pfds.git
 	branch = master
+[submodule "IronScheme/ILPack"]
+	path = IronScheme/ILPack
+	url = https://github.com/leppie/ILPack.git
