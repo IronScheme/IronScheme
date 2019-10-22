@@ -91,7 +91,7 @@ namespace IronScheme.Compiler
               s.Position = 0;
 
               var mb = tg.TypeBuilder.Module as ModuleBuilder;
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
               if (compress)
               {
                 var cms = new MemoryStream();

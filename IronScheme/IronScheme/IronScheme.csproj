@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net20;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net20;netcoreapp2.1</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -26,7 +26,7 @@
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
-    <ProjectReference Include="..\ILPack\src\Lokad.ILPack.csproj" Condition="'$(TargetFramework)' == 'netcoreapp2.0'" />
+    <ProjectReference Include="..\ILPack\src\Lokad.ILPack.csproj" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Compiler\NumberLexer.lex" />

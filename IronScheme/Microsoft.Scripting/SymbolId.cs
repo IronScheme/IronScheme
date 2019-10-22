@@ -120,7 +120,7 @@ namespace Microsoft.Scripting {
             _id = SymbolTable.StringToId(info.GetString("symbolName"))._id;
         }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
 #endif
         public void GetObjectData(SerializationInfo info, StreamingContext context) {

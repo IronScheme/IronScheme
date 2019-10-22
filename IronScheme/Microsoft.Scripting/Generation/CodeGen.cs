@@ -813,7 +813,7 @@ namespace Microsoft.Scripting.Generation {
             Contract.RequiresNotNull(name, "name");
 
             LocalBuilder lb = DeclareLocal(type);
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
             if (EmitDebugInfo) lb.SetLocalSymInfo(name);
 #endif
             return new LocalSlot(lb, this);
@@ -926,7 +926,7 @@ namespace Microsoft.Scripting.Generation {
             {
               return cb.DefineParameter(position, attributes, strParamName);
             }
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
             DynamicMethod dm = _methodInfo as DynamicMethod;
             if (dm != null) {
                 return dm.DefineParameter(position, attributes, strParamName);
@@ -2062,7 +2062,7 @@ namespace Microsoft.Scripting.Generation {
 
             if (fn != null)
             {
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
               //Debug.WriteLine(string.Format("{4} : {5} ({0},{1}) - ({2},{3})", startLine, startColumn, endLine, endColumn, fn ?? "none", MethodBase.Name));
               _ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
@@ -2276,7 +2276,7 @@ namespace Microsoft.Scripting.Generation {
                   ISymbolDocumentWriter sw;
                   if (!SymbolWriters.TryGetValue(fn, out sw))
                   {
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
                     SymbolWriters[fn] = sw = _typeGen.AssemblyGen.ModuleBuilder.DefineDocument(
                       fn,
                       _typeGen.AssemblyGen.LanguageGuid,

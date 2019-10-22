@@ -199,7 +199,7 @@ namespace IronScheme.Compiler
         }
         return false;
       }
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
       return mb.IsTransient();
 #else
       return true;

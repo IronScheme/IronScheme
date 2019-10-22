@@ -169,7 +169,7 @@ namespace Microsoft.Scripting.Hosting {
             Contract.RequiresNotNull(engineOptions, "engineOptions");
             Contract.RequiresNotNull(languageContext, "languageContext");
 
-#if !NETCOREAPP2_0 // SecurityPermission
+#if !NETCOREAPP2_1 // SecurityPermission
             if (engineOptions.ClrDebuggingEnabled) {
                 // Currently, AssemblyBuilder.DefineDynamicModule requires high trust for emitting debug information.
                 new System.Security.Permissions.SecurityPermission(System.Security.Permissions.SecurityPermissionFlag.UnmanagedCode).Demand();

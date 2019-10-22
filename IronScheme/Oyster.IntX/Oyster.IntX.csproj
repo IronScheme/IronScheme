@@ -14,7 +14,7 @@
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
     <SignAssembly>true</SignAssembly>
-    <TargetFrameworks>net20;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net20;netcoreapp2.1</TargetFrameworks>
     <AssemblyTitle>Oyster.IntX</AssemblyTitle>
     <Company>Oyster</Company>
     <Product>IntX</Product>

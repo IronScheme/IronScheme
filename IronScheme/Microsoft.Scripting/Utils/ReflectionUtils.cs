@@ -46,7 +46,7 @@ namespace Microsoft.Scripting.Utils {
                 result.Append(' ');
             }
 
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
             MethodBuilder builder = method as MethodBuilder;
             if (builder != null) {
                 result.Append(builder.Signature);

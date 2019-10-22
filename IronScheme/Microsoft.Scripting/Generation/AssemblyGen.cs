@@ -118,25 +118,28 @@ namespace Microsoft.Scripting.Generation {
                 }
                 asmname.Version = new Version("1.0.0.0");
 #pragma warning disable 0618
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
                 _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.Save, outDir, null);
                 _myModule = _myAssembly.DefineDynamicModule( moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName,
                                                            _outFileName, EmitDebugInfo);
+#else
+                _myAssembly = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndCollect);
+                _myModule = _myAssembly.DefineDynamicModule(moduleName);
 #endif
 #pragma warning restore 0618
 
 
             } else {
                 asmname.Name = moduleName;
-#if NETCOREAPP2_0
-                _myAssembly = System.Reflection.Emit.AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
+#if NETCOREAPP2_1
+                _myAssembly = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
                 _myModule = _myAssembly.DefineDynamicModule(moduleName);
 #else
                 _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
                 _myModule = _myAssembly.DefineDynamicModule(moduleName, EmitDebugInfo);
 #endif
             }
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
             _myAssembly.DefineVersionInfoResource();
 #endif
 
@@ -206,7 +209,7 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-#if !NETCOREAPP2_0 // IResourceWriter
+#if !NETCOREAPP2_1 // IResourceWriter
         public void AddResourceFile(string name, string file, ResourceAttributes attribute) {
             IResourceWriter rw = _myModule.DefineResource(Path.GetFileName(file), name, attribute);
 
@@ -262,13 +265,16 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void Dump(string fileName) {
-#if !NETCOREAPP2_0 // AssemblyBuilder.Save
+#if !NETCOREAPP2_1 // AssemblyBuilder.Save
             _myAssembly.Save(fileName ?? _outFileName, _peKind, _machine);
 #if PEVERIFY
             if (VerifyAssemblies) {
                 PeVerifyThis();
             }
 #endif
+#else
+            var gen = new Lokad.ILPack.AssemblyGenerator();
+            gen.GenerateAssembly(_myAssembly, Path.Combine(_outDir, fileName));
 #endif
         }
 
@@ -435,7 +441,7 @@ namespace Microsoft.Scripting.Generation {
             }
             return cg;
         }
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
         public void SetEntryPoint(MethodInfo mi, PEFileKinds kind) {
             _myAssembly.SetEntryPoint(mi, kind);
         }
@@ -501,7 +507,7 @@ namespace Microsoft.Scripting.Generation {
 
         internal void CreateSymWriter()
         {
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
             _symbolWriter = _myModule.GetSymWriter();
 #endif
         }

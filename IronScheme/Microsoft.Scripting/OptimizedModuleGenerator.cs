@@ -60,7 +60,7 @@ namespace Microsoft.Scripting.Generation {
 
             // Silverlight: can't access SecurityPermission
             if (!ScriptDomainManager.Options.GenerateModulesAsSnippets) {
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
                 try {
                     // CreateStaticCodeGenerator requires ReflectionEmit (in CLR V2) or UnmanagedCode (in CLR V2 SP1) permission.
                     // If we are running in partial-trust, fall through to generated dynamic code.
@@ -70,7 +70,7 @@ namespace Microsoft.Scripting.Generation {
 
 #endif
                     return new StaticFieldModuleGenerator(moduleName, scriptCodes);
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
                 } catch (SecurityException) {
                 }
 #endif

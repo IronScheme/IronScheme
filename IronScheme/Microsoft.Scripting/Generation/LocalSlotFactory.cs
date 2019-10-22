@@ -30,7 +30,7 @@ namespace Microsoft.Scripting.Generation {
 
         protected override Slot CreateSlot(SymbolId name, Type type) {
             LocalBuilder b = _codeGen.DeclareLocal(type);
-#if !NETCOREAPP2_0
+#if !NETCOREAPP2_1
             if (_codeGen.EmitDebugInfo) b.SetLocalSymInfo(SymbolTable.IdToString(Ast.Variable.UnGenSym(name)));
 #endif
             return new LocalSlot(b, _codeGen);

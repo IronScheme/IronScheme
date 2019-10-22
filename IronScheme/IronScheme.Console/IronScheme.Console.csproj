@@ -4,7 +4,7 @@
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFrameworks>net20;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net20</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
     <AssemblyTitle>IronScheme.Console</AssemblyTitle>
     <Company>leppie</Company>
@@ -40,6 +40,13 @@
     <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+      <HintPath>../../../ironscheme.boot.dll</HintPath>
+      <Private>true</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="build\arithmetic\bitwise.sls">
@@ -1394,12 +1401,6 @@
     <Content Include="tests\trigtest.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="docs\bugs.txt">

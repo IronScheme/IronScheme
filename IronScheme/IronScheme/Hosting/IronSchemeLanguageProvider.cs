@@ -41,6 +41,11 @@ namespace IronScheme.Hosting
     void Initialize()
     {
       IronScheme.Compiler.BaseHelper.Initialize(this);
+#if NETCOREAPP2_1
+      Runtime.Builtins.Exact(1);
+      Thread.AllocateNamedDataSlot("foo");
+      Thread.FreeNamedDataSlot("foo");
+#endif
       Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
     

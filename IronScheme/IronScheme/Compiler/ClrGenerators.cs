@@ -13,7 +13,11 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using System.IO;
+#if NETCOREAPP2_1
+using System.Linq;
+#endif
 using System.Reflection.Emit;
+using System.Threading;
 
 namespace IronScheme.Compiler
 {
@@ -92,7 +96,7 @@ namespace IronScheme.Compiler
         if (!((ass is AssemblyBuilder) || ass.GetType().Name == "InternalAssemblyBuilder"))
         {
           t = ass.GetType(name);
-          if (t != null)
+          if (t != null && t.IsPublic)
           {
             return t;
           }
@@ -645,6 +649,13 @@ namespace IronScheme.Compiler
 
       foreach (MethodInfo mi in t.GetMember(member, MemberTypes.Method, bf))
       {
+#if NETCOREAPP2_1
+        if (mi.GetParameters()
+          .Any(x => x.ParameterType.Namespace == "System" && x.ParameterType.Name.Contains("Span")))
+        {
+          continue;
+        }
+#endif
         if (mi.ContainsGenericParameters)
         {
           if (gentypes != null && mi.GetGenericArguments().Length == gentypes.Length)

@@ -44,8 +44,7 @@ namespace IronScheme.Runtime
       return char.ConvertFromUtf32(Value);
     }
   }
-
-
+  
   public partial class Builtins
   {
     public static bool ShowImports { get; set; }
