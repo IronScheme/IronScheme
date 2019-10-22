@@ -64,7 +64,36 @@ namespace IronScheme.Hosting
 
         Console.ForegroundColor = old;
 
-        Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", Environment.Version.ToString(2));
+        var version = Environment.Version.ToString(2);
+
+        var ass = typeof(object).Assembly;
+
+        var isCore = ass.FullName.StartsWith("System.Private.CoreLib");
+
+        if (isCore)
+        {
+          var va =
+            ((AssemblyFileVersionAttribute) ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
+            ?.Version ?? string.Empty;
+          var v = new Version(va);
+          if (v.Minor == 6)
+          {
+            if (v.MajorRevision < 26515)
+            {
+              version = "Core 2.0";
+            }
+            else
+            {
+              version = "Core 2.1";
+            }
+          }
+          else if (v.Minor == 7)
+          {
+            version= "Core 3.0";
+          }
+        }
+
+        Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
         
       }
     }
