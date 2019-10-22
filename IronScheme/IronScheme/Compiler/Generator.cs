@@ -199,7 +199,11 @@ namespace IronScheme.Compiler
         }
         return false;
       }
+#if !NETCOREAPP2_0
       return mb.IsTransient();
+#else
+      return true;
+#endif
     }
 
     static bool IsSimpleCall(MethodCallExpression mce)
@@ -1114,7 +1118,7 @@ namespace IronScheme.Compiler
     }
 
 
-    #region Optimized calls
+#region Optimized calls
 
     static bool TryGetInlineEmitter(SymbolId f, out InlineEmitter ie)
     {
@@ -1206,7 +1210,7 @@ namespace IronScheme.Compiler
       return r;
     }
 
-    #endregion
+#endregion
 
     protected internal static Expression Unwrap(Expression ex)
     {

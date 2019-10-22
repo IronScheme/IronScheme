@@ -108,7 +108,7 @@ namespace Microsoft.Scripting {
 
         #region Cross-Domain/Process Serialization Support
 
-#if !SILVERLIGHT // Security, SerializationInfo, StreamingContext
+        // Security, SerializationInfo, StreamingContext
         // When leaving a context we serialize out our ID as a name
         // rather than a raw ID.  When we enter a new context we 
         // consult it's FieldTable to get the ID of the symbol name in
@@ -120,13 +120,15 @@ namespace Microsoft.Scripting {
             _id = SymbolTable.StringToId(info.GetString("symbolName"))._id;
         }
 
+#if !NETCOREAPP2_0
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#endif
         public void GetObjectData(SerializationInfo info, StreamingContext context) {
             Contract.RequiresNotNull(info, "info");
 
             info.AddValue("symbolName", SymbolTable.IdToString(this));
         }
-#endif
+
 
         #endregion
 

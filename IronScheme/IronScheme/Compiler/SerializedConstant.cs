@@ -91,7 +91,7 @@ namespace IronScheme.Compiler
               s.Position = 0;
 
               var mb = tg.TypeBuilder.Module as ModuleBuilder;
-
+#if !NETCOREAPP2_0
               if (compress)
               {
                 var cms = new MemoryStream();
@@ -106,6 +106,7 @@ namespace IronScheme.Compiler
               {
                 mb.DefineManifestResource("SerializedConstants", s, ResourceAttributes.Private);
               }
+#endif
             };
           }
 

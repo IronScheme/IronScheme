@@ -1,30 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProductVersion>9.0.30729</ProductVersion>
     <OutputType>Exe</OutputType>
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFramework>net462</TargetFramework>
-    <TargetZone>LocalIntranet</TargetZone>
+    <TargetFrameworks>net20;netcoreapp2.0</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
     <AssemblyTitle>IronScheme.Console</AssemblyTitle>
     <Company>leppie</Company>
     <Product>IronScheme.Console</Product>
@@ -33,7 +14,6 @@
     <Version>1.0.0.0</Version>
     <NoWarn>1591</NoWarn>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DocumentationFile />
@@ -43,24 +23,7 @@
     <PackageProjectUrl>https://github.com/leppie/IronScheme</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/leppie/IronScheme</PackageReleaseNotes>
     <PackageTags>scheme ironscheme r6rs</PackageTags>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
-    </PostBuildEvent>
-    <PostBuildEvent />
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
-    </PostBuildEvent>
-    <PostBuildEvent />
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
-    </PostBuildEvent>
-    <PostBuildEvent />
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -70,16 +33,6 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
     <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' == ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(FrameworkSDKDir)Bin\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</PostBuildEvent>
-    <PostBuildEvent Condition="'$(TargetFrameworkSDKToolsDirectory)' != ''">copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"
-"$(TargetFrameworkSDKToolsDirectory)\corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+
-    </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent />
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
@@ -1140,7 +1093,6 @@
     <None Include="playground\parse.ss" />
     <None Include="playground\random-stuff.ss" />
     <None Include="playground\sexpr2linq.ss" />
-    <None Include="Properties\app.manifest" />
     <None Include="system-libraries.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

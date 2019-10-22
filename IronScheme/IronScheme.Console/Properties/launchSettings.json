@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "IronScheme.Console": {
+      "commandName": "Project"
+    }
+  }
+}

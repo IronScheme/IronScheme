@@ -22,7 +22,6 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.Scripting.Generation;
 using System.Text;
-using System.Runtime.Remoting;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Hosting {

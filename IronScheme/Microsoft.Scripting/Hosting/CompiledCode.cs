@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using System.Runtime.Remoting;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Hosting {

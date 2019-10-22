@@ -46,6 +46,7 @@ namespace Microsoft.Scripting.Utils {
                 result.Append(' ');
             }
 
+#if !NETCOREAPP2_0
             MethodBuilder builder = method as MethodBuilder;
             if (builder != null) {
                 result.Append(builder.Signature);
@@ -57,6 +58,7 @@ namespace Microsoft.Scripting.Utils {
                 result.Append(cb.Signature);
                 return result;
             }
+#endif
 
             FormatTypeName(result, method.DeclaringType);
             result.Append("::");

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFrameworks>net20;net462</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>IronScheme.Closures</AssemblyTitle>
@@ -9,6 +9,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DebugType>pdbonly</DebugType>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>true</Optimize>

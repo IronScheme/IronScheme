@@ -50,7 +50,7 @@ namespace Microsoft.Scripting {
             _mappedLine = -1; // lazy
         }
 
-#if !SILVERLIGHT
+#if !NETCOREAPP2_0
         protected SyntaxErrorException(SerializationInfo info, StreamingContext context) 
             : base(info, context) { }
 

@@ -118,18 +118,28 @@ namespace Microsoft.Scripting.Generation {
                 }
                 asmname.Version = new Version("1.0.0.0");
 #pragma warning disable 0618
+#if !NETCOREAPP2_0
                 _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.Save, outDir, null);
-#pragma warning restore 0618
-              
                 _myModule = _myAssembly.DefineDynamicModule( moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName,
                                                            _outFileName, EmitDebugInfo);
+#endif
+#pragma warning restore 0618
+
+
             } else {
                 asmname.Name = moduleName;
+#if NETCOREAPP2_0
+                _myAssembly = System.Reflection.Emit.AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
+                _myModule = _myAssembly.DefineDynamicModule(moduleName);
+#else
                 _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
                 _myModule = _myAssembly.DefineDynamicModule(moduleName, EmitDebugInfo);
+#endif
             }
+#if !NETCOREAPP2_0
             _myAssembly.DefineVersionInfoResource();
-            
+#endif
+
 #endif
             if (EmitDebugInfo) SetDebuggableAttributes();
         }
@@ -196,7 +206,7 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-#if !SILVERLIGHT // IResourceWriter
+#if !NETCOREAPP2_0 // IResourceWriter
         public void AddResourceFile(string name, string file, ResourceAttributes attribute) {
             IResourceWriter rw = _myModule.DefineResource(Path.GetFileName(file), name, attribute);
 
@@ -252,7 +262,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void Dump(string fileName) {
-#if !SILVERLIGHT // AssemblyBuilder.Save
+#if !NETCOREAPP2_0 // AssemblyBuilder.Save
             _myAssembly.Save(fileName ?? _outFileName, _peKind, _machine);
 #if PEVERIFY
             if (VerifyAssemblies) {
@@ -425,7 +435,7 @@ namespace Microsoft.Scripting.Generation {
             }
             return cg;
         }
-#if !SILVERLIGHT
+#if !NETCOREAPP2_0
         public void SetEntryPoint(MethodInfo mi, PEFileKinds kind) {
             _myAssembly.SetEntryPoint(mi, kind);
         }
@@ -491,7 +501,9 @@ namespace Microsoft.Scripting.Generation {
 
         internal void CreateSymWriter()
         {
-          _symbolWriter = _myModule.GetSymWriter();
+#if !NETCOREAPP2_0
+            _symbolWriter = _myModule.GetSymWriter();
+#endif
         }
     }
 

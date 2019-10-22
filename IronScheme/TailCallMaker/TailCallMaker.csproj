@@ -2,11 +2,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyTitle>TailCallMaker</AssemblyTitle>
-    <Company>Light Edge Technology (Pty) Ltd.</Company>
+    <Company></Company>
     <Product>TailCallMaker</Product>
-    <Copyright>Copyright © Light Edge Technology (Pty) Ltd. 2007</Copyright>
+    <Copyright></Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net20</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>

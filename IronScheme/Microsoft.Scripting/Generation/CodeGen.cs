@@ -813,7 +813,9 @@ namespace Microsoft.Scripting.Generation {
             Contract.RequiresNotNull(name, "name");
 
             LocalBuilder lb = DeclareLocal(type);
+#if !NETCOREAPP2_0
             if (EmitDebugInfo) lb.SetLocalSymInfo(name);
+#endif
             return new LocalSlot(lb, this);
         }
 
@@ -924,11 +926,12 @@ namespace Microsoft.Scripting.Generation {
             {
               return cb.DefineParameter(position, attributes, strParamName);
             }
+#if !NETCOREAPP2_0
             DynamicMethod dm = _methodInfo as DynamicMethod;
             if (dm != null) {
                 return dm.DefineParameter(position, attributes, strParamName);
             }
-
+#endif
             throw new InvalidOperationException(Resources.InvalidOperation_DefineParameterBakedMethod);
         }
 
@@ -1493,7 +1496,7 @@ namespace Microsoft.Scripting.Generation {
             Emit(OpCodes.Ldstr, (string)value);
         }
 
-        #region Support for emitting constants
+#region Support for emitting constants
 
         public void EmitBoolean(bool value) {
             if (value) {
@@ -1656,7 +1659,7 @@ namespace Microsoft.Scripting.Generation {
           EmitCall(typeof(System.Runtime.CompilerServices.RuntimeHelpers).GetMethod("InitializeArray"));
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// The main entry to the constant emitting.
@@ -1921,7 +1924,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
 
-        #region ILGenerator methods
+#region ILGenerator methods
 
         public void BeginCatchBlock(Type exceptionType) {
             _ilg.BeginCatchBlock(exceptionType);
@@ -2059,8 +2062,10 @@ namespace Microsoft.Scripting.Generation {
 
             if (fn != null)
             {
+#if !NETCOREAPP2_0
               //Debug.WriteLine(string.Format("{4} : {5} ({0},{1}) - ({2},{3})", startLine, startColumn, endLine, endColumn, fn ?? "none", MethodBase.Name));
               _ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
+#endif
             }
         }
         
@@ -2068,9 +2073,9 @@ namespace Microsoft.Scripting.Generation {
             _ilg.EmitWriteLine(value);
         }
 
-        #endregion
+#endregion
 
-        #region IDisposable Members
+#region IDisposable Members
 
         public void Dispose() {
             Dispose(true);
@@ -2083,7 +2088,7 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        #endregion
+#endregion
 
 
         public MethodInfo MethodToOverride {
@@ -2271,11 +2276,13 @@ namespace Microsoft.Scripting.Generation {
                   ISymbolDocumentWriter sw;
                   if (!SymbolWriters.TryGetValue(fn, out sw))
                   {
+#if !NETCOREAPP2_0
                     SymbolWriters[fn] = sw = _typeGen.AssemblyGen.ModuleBuilder.DefineDocument(
                       fn,
                       _typeGen.AssemblyGen.LanguageGuid,
                       _typeGen.AssemblyGen.VendorGuid,
                       SymbolGuids.DocumentType_Text);
+#endif
                   }
 
                   impl._debugSymbolWriter = sw;

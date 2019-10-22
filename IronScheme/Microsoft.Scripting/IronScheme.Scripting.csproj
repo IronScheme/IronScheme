@@ -4,7 +4,7 @@
     <RootNamespace>Microsoft.Scripting</RootNamespace>
     <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
     <NoWarn>1591;1734</NoWarn>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFrameworks>net20;netcoreapp2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags />

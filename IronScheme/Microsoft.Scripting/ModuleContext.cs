@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
-using System.Runtime.Remoting;
 
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
