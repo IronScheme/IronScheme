@@ -13,11 +13,9 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using System.IO;
-#if NETCOREAPP2_1
-using System.Linq;
-#endif
 using System.Reflection.Emit;
 using System.Threading;
+using IronScheme.FrameworkPAL;
 
 namespace IronScheme.Compiler
 {
@@ -649,13 +647,10 @@ namespace IronScheme.Compiler
 
       foreach (MethodInfo mi in t.GetMember(member, MemberTypes.Method, bf))
       {
-#if NETCOREAPP2_1
-        if (mi.GetParameters()
-          .Any(x => x.ParameterType.Namespace == "System" && x.ParameterType.Name.Contains("Span")))
+        if (PAL.ExcludeParamtypes(mi))
         {
           continue;
         }
-#endif
         if (mi.ContainsGenericParameters)
         {
           if (gentypes != null && mi.GetGenericArguments().Length == gentypes.Length)

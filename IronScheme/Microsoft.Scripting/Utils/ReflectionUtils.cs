@@ -46,7 +46,7 @@ namespace Microsoft.Scripting.Utils {
                 result.Append(' ');
             }
 
-#if !NETCOREAPP2_1
+#if CHECK_IF_NEEDED
             MethodBuilder builder = method as MethodBuilder;
             if (builder != null) {
                 result.Append(builder.Signature);

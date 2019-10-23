@@ -26,7 +26,7 @@ using System.Security.Permissions;
 using System.Threading;
 using System.Globalization;
 using System.Collections.Generic;
-
+using IronScheme.FrameworkPAL;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
@@ -117,19 +117,21 @@ namespace Microsoft.Scripting.Generation {
                   asmname.KeyPair = new StrongNameKeyPair(File.ReadAllBytes("DEVELOPMENT.snk"));
                 }
                 asmname.Version = new Version("1.0.0.0");
+
+                var actualModuleName = moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName;
 #pragma warning disable 0618
 #if !NETCOREAPP2_1
-                _myAssembly = domain.DefineDynamicAssembly(asmname, moduleName == "ironscheme.boot.new" ? AssemblyBuilderAccess.Save : AssemblyBuilderAccess.Save, outDir, null);
-                _myModule = _myAssembly.DefineDynamicModule( moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName,
-                                                           _outFileName, EmitDebugInfo);
+                _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
+                _myModule = _myAssembly.DefineDynamicModule(actualModuleName, _outFileName, EmitDebugInfo);
 #else
                 _myAssembly = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndCollect);
-                _myModule = _myAssembly.DefineDynamicModule(moduleName);
+                _myModule = _myAssembly.DefineDynamicModule(actualModuleName);
 #endif
 #pragma warning restore 0618
 
 
-            } else {
+            }
+            else {
                 asmname.Name = moduleName;
 #if NETCOREAPP2_1
                 _myAssembly = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
@@ -209,27 +211,6 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-#if !NETCOREAPP2_1 // IResourceWriter
-        public void AddResourceFile(string name, string file, ResourceAttributes attribute) {
-            IResourceWriter rw = _myModule.DefineResource(Path.GetFileName(file), name, attribute);
-
-            string ext = Path.GetExtension(file);
-            if(String.Equals(ext, ".resources", StringComparison.OrdinalIgnoreCase)) {
-                ResourceReader rr = new ResourceReader(file);
-                using (rr) {
-                    System.Collections.IDictionaryEnumerator de = rr.GetEnumerator();
-
-                    while (de.MoveNext()) {
-                        string key = de.Key as string;
-                        rw.AddResource(key, de.Value);
-                    }
-                }
-            } else {
-                rw.AddResource(name, File.ReadAllBytes(file));
-            }
-        }
-#endif
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
         public Assembly DumpAndLoad() {
 #if SILVERLIGHT // AssemblyBuilder.Save
@@ -243,7 +224,7 @@ namespace Microsoft.Scripting.Generation {
 
             try {
               Dump(Path.GetFileName(fullPath));
-            } catch (IOException) {
+            } catch (IOException) { // this looks weird
                 return _myAssembly;
             }
 
@@ -251,9 +232,6 @@ namespace Microsoft.Scripting.Generation {
             {
               return _myAssembly;
             }
-
-            byte[] ass = File.ReadAllBytes(fullPath);
-            string pdbfn = Path.ChangeExtension(fullPath, ".pdb");
 
             // this is not really ideal, but it seems to work fine for now
             return Assembly.LoadFile(fullPath);
@@ -265,16 +243,11 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public void Dump(string fileName) {
-#if !NETCOREAPP2_1 // AssemblyBuilder.Save
-            _myAssembly.Save(fileName ?? _outFileName, _peKind, _machine);
+            PAL.Save(_myAssembly, fileName, _machine);
 #if PEVERIFY
             if (VerifyAssemblies) {
                 PeVerifyThis();
             }
-#endif
-#else
-            var gen = new Lokad.ILPack.AssemblyGenerator();
-            gen.GenerateAssembly(_myAssembly, Path.Combine(_outDir, fileName));
 #endif
         }
 
@@ -441,11 +414,6 @@ namespace Microsoft.Scripting.Generation {
             }
             return cg;
         }
-#if !NETCOREAPP2_1
-        public void SetEntryPoint(MethodInfo mi, PEFileKinds kind) {
-            _myAssembly.SetEntryPoint(mi, kind);
-        }
-#endif
 
         public bool GenerateStaticMethods {
             get {
@@ -507,9 +475,7 @@ namespace Microsoft.Scripting.Generation {
 
         internal void CreateSymWriter()
         {
-#if !NETCOREAPP2_1
-            _symbolWriter = _myModule.GetSymWriter();
-#endif
+            _symbolWriter = PAL.GetSymbolWriter(_myModule);
         }
     }
 

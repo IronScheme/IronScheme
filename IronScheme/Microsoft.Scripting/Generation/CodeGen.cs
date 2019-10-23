@@ -34,6 +34,7 @@ using System.Text;
 using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
 using System.Runtime.InteropServices;
+using IronScheme.FrameworkPAL;
 
 namespace Microsoft.Scripting.Generation {
 
@@ -813,9 +814,7 @@ namespace Microsoft.Scripting.Generation {
             Contract.RequiresNotNull(name, "name");
 
             LocalBuilder lb = DeclareLocal(type);
-#if !NETCOREAPP2_1
-            if (EmitDebugInfo) lb.SetLocalSymInfo(name);
-#endif
+            if (EmitDebugInfo) PAL.SetLocalSymInfo(lb, name);
             return new LocalSlot(lb, this);
         }
 
@@ -926,7 +925,7 @@ namespace Microsoft.Scripting.Generation {
             {
               return cb.DefineParameter(position, attributes, strParamName);
             }
-#if !NETCOREAPP2_1
+#if CHECK_IF_NEEDED
             DynamicMethod dm = _methodInfo as DynamicMethod;
             if (dm != null) {
                 return dm.DefineParameter(position, attributes, strParamName);
@@ -2045,13 +2044,17 @@ namespace Microsoft.Scripting.Generation {
         public void MarkLabel(Label loc) {
             _ilg.MarkLabel(loc);
         }
-        
-        void MarkSequencePoint(ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn) {
-          if (document == null)
-          {
-            return;
-          }
-          if (_context != null) {
+
+        void MarkSequencePoint(ISymbolDocumentWriter document, int startLine, int startColumn, int endLine,
+            int endColumn)
+        {
+            if (document == null)
+            {
+                return;
+            }
+
+            if (_context != null)
+            {
                 startLine = _context.SourceUnit.MapLine(startLine);
                 endLine = _context.SourceUnit.MapLine(endLine);
             }
@@ -2062,13 +2065,10 @@ namespace Microsoft.Scripting.Generation {
 
             if (fn != null)
             {
-#if !NETCOREAPP2_1
-              //Debug.WriteLine(string.Format("{4} : {5} ({0},{1}) - ({2},{3})", startLine, startColumn, endLine, endColumn, fn ?? "none", MethodBase.Name));
-              _ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
-#endif
+                PAL.MarkSequencePoint(_ilg, document, startLine, startColumn, endLine, endColumn);
             }
         }
-        
+
         public void EmitWriteLine(string value) {
             _ilg.EmitWriteLine(value);
         }
@@ -2276,13 +2276,12 @@ namespace Microsoft.Scripting.Generation {
                   ISymbolDocumentWriter sw;
                   if (!SymbolWriters.TryGetValue(fn, out sw))
                   {
-#if !NETCOREAPP2_1
-                    SymbolWriters[fn] = sw = _typeGen.AssemblyGen.ModuleBuilder.DefineDocument(
-                      fn,
+                    SymbolWriters[fn] = sw = PAL.CreateSymbolDocumentWriter(
+                        _typeGen.AssemblyGen.ModuleBuilder,
+                        fn,
                       _typeGen.AssemblyGen.LanguageGuid,
                       _typeGen.AssemblyGen.VendorGuid,
                       SymbolGuids.DocumentType_Text);
-#endif
                   }
 
                   impl._debugSymbolWriter = sw;

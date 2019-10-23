@@ -61,6 +61,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Tests", "IronSch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lokad.ILPack", "ILPack\src\Lokad.ILPack.csproj", "{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.FrameworkPAL", "IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj", "{5A0F3FDD-C1E0-4DFB-B15B-0C4C17AA5D45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E40D655-4D83-4133-8C6F-BD2CE4ADE672}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A0F3FDD-C1E0-4DFB-B15B-0C4C17AA5D45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A0F3FDD-C1E0-4DFB-B15B-0C4C17AA5D45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A0F3FDD-C1E0-4DFB-B15B-0C4C17AA5D45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A0F3FDD-C1E0-4DFB-B15B-0C4C17AA5D45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

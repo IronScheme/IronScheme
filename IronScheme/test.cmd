@@ -42,7 +42,7 @@ IF %ERRORLEVEL% NEQ 0 goto no_nunit
 
 set NUNIT=call :runtest
 
-cd IronScheme.Console\bin\Release\net462
+cd IronScheme.Console\bin\Release\net20
 md results 2> nul
 
 for %%t in (%TESTS%) do %NUNIT% %%t 

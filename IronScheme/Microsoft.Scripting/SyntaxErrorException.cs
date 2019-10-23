@@ -50,11 +50,12 @@ namespace Microsoft.Scripting {
             _mappedLine = -1; // lazy
         }
 
-#if !NETCOREAPP2_1
+
         protected SyntaxErrorException(SerializationInfo info, StreamingContext context) 
             : base(info, context) { }
-
+#if CHECK_IF_NEEDED
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+#endif
         public override void GetObjectData(SerializationInfo info, StreamingContext context) {
             Contract.RequiresNotNull(info, "info");
 
@@ -65,7 +66,7 @@ namespace Microsoft.Scripting {
             info.AddValue("MappedLine", _mappedLine);
             info.AddValue("ErrorCode", _errorCode);
         }
-#endif
+
 
         /// <summary>
         /// Unmapped span.

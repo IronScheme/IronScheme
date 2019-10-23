@@ -24,6 +24,7 @@
     <PackageReleaseNotes>https://github.com/leppie/IronScheme</PackageReleaseNotes>
     <PackageTags>scheme ironscheme r6rs</PackageTags>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <StartupObject>IronScheme.Console.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -1946,4 +1947,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
+    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot;&#xD;&#xA;&quot;$(TargetFrameworkSDKToolsDirectory)corflags.exe&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot; /32BIT+" />
+  </Target>
 </Project>

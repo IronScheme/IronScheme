@@ -17,6 +17,7 @@ using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
 using System.Reflection.Emit;
 using System.Text;
+using IronScheme.FrameworkPAL;
 
 namespace IronScheme.Compiler
 {
@@ -199,11 +200,8 @@ namespace IronScheme.Compiler
         }
         return false;
       }
-#if !NETCOREAPP2_1
-      return mb.IsTransient();
-#else
-      return true;
-#endif
+
+      return PAL.IsTransient(mb);
     }
 
     static bool IsSimpleCall(MethodCallExpression mce)

@@ -58,7 +58,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
-    <ProjectReference Include="..\ILPack\src\Lokad.ILPack.csproj" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
   </ItemGroup>
 </Project>

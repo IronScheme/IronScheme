@@ -15,6 +15,7 @@
 
 using System;
 using System.Reflection.Emit;
+using IronScheme.FrameworkPAL;
 
 namespace Microsoft.Scripting.Generation {
 
@@ -30,9 +31,9 @@ namespace Microsoft.Scripting.Generation {
 
         protected override Slot CreateSlot(SymbolId name, Type type) {
             LocalBuilder b = _codeGen.DeclareLocal(type);
-#if !NETCOREAPP2_1
-            if (_codeGen.EmitDebugInfo) b.SetLocalSymInfo(SymbolTable.IdToString(Ast.Variable.UnGenSym(name)));
-#endif
+
+            if (_codeGen.EmitDebugInfo) PAL.SetLocalSymInfo(b, SymbolTable.IdToString(Ast.Variable.UnGenSym(name)));
+
             return new LocalSlot(b, _codeGen);
         }
     }
