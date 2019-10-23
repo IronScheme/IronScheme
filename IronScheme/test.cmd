@@ -9,9 +9,10 @@ set TESTS=Debug,Release,Conformance,SRFI,Other,Teardown
 
 set QUIET=1
 set ARGS=%*
+set FX=net20
 
 rem the args you want to handle
-set MYARGS=verbose V
+set MYARGS=verbose V core
 
 rem the prefix for arg
 set PREFIX=/
@@ -30,6 +31,11 @@ rem implementation end
 set QUIET=
 goto :eof
 
+:core
+set TESTCORE=1
+set FX=netcoreapp2.1
+goto :eof
+
 :script
 rem setup path
 set PATH=%PATH%;%NUNIT_PATH%;
@@ -40,9 +46,11 @@ IF %ERRORLEVEL% NEQ 0 goto no_peverify
 where nunit-console-x86 >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 goto no_nunit
 
+IF %TESTCORE% == 1 set TESTS=Conformance,SRFI,Other
+
 set NUNIT=call :runtest
 
-cd IronScheme.Console\bin\Release\net20
+cd IronScheme.Console\bin\Release\%FX%
 md results 2> nul
 
 for %%t in (%TESTS%) do %NUNIT% %%t 

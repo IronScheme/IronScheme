@@ -14,7 +14,7 @@ namespace IronScheme.FrameworkPAL
     {
 #if NETCOREAPP2_1
       if (mi.GetParameters()
-        .Any(x => x.ParameterType.Namespace == "System" && x.ParameterType.Name.Contains("Span")))
+        .Any(x => x.ParameterType.Namespace == "System" && x.ParameterType.IsGenericType && x.ParameterType.Name.Contains("Span")))
       {
         return true;
       }

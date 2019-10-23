@@ -10,7 +10,7 @@ See docs/license.txt. |#
     current-directory
     current-user
     current-user-domain
-    get-hostname
+    ;get-hostname
     get-netbiosname
     get-logical-drives
     get-environment-variables
@@ -41,7 +41,7 @@ See docs/license.txt. |#
   (define (get-netbiosname)
     (clr-static-prop-get Environment MachineName))
     
-  (define (get-hostname)
+  #;(define (get-hostname)
     (clr-static-call System.Net.Dns GetHostName))
     
   (define (get-logical-drives)

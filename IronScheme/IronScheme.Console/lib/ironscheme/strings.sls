@@ -44,22 +44,22 @@ See docs/license.txt. |#
         (clr-call String (IndexOf String Int32) str sub k)]))
     
   (define/contract (string-contains? str:string sub:string)
-    (clr-call String Contains str sub))
+    (clr-call String (Contains String) str sub))
     
   (define/contract (string-ci-contains? str:string sub:string)
-    (clr-call String Contains (string-upcase str) (string-upcase sub)))
+    (clr-call String (Contains String) (string-upcase str) (string-upcase sub)))
 
   (define/contract (string-starts-with? str:string sub:string)
-    (clr-call String StartsWith str sub))
+    (clr-call String (StartsWith String) str sub))
 
   (define/contract (string-ci-starts-with? str:string sub:string)
-    (clr-call String StartsWith (string-upcase str) (string-upcase sub)))
+    (clr-call String (StartsWith String) (string-upcase str) (string-upcase sub)))
 
   (define/contract (string-ends-with? str:string sub:string)
-    (clr-call String EndsWith str sub))
+    (clr-call String (EndsWith String) str sub))
 
   (define/contract (string-ci-ends-with? str:string sub:string)
-    (clr-call String EndsWith (string-upcase str) (string-upcase sub)))
+    (clr-call String (EndsWith String) (string-upcase str) (string-upcase sub)))
 
   (define/contract (string-trim str:string)
     (clr-call String Trim str)))
