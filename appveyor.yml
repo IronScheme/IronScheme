@@ -36,13 +36,13 @@ build_script:
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
 
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
-    
+
     echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
 
-    msbuild "IronScheme\IronSchemeCore.sln" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
+    msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
 test_script:
 - cmd: >-
-    cd IronScheme\IronScheme.Console\bin\Release
+    cd IronScheme\IronScheme.Console\bin\Release\net20
 
     rem these have to be in order
 
