@@ -28,7 +28,10 @@ install:
 nuget:
   project_feed: true
 build_script:
-- cmd: msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
+- cmd: >-
+    nuget restore "IronScheme\IronSchemeCore.sln"
+
+    msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
 test_script:
 - cmd: >-
     cd IronScheme\IronScheme.Console\bin\Release
