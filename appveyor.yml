@@ -1,6 +1,6 @@
 version: 1.0.{build}
 skip_tags: true
-image: Previous Visual Studio 2019
+image: Visual Studio 2019
 branches:
   only:
   - master
@@ -30,6 +30,11 @@ nuget:
 build_script:
 - cmd: >-
     nuget restore "IronScheme\IronSchemeCore.sln"
+
+    echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
+    echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
+    echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
+    echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
 
     msbuild "IronScheme\IronSchemeCore.sln" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
 test_script:

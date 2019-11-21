@@ -20,6 +20,10 @@
     <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Compiler\*.lex.cs" />
+    <Compile Include="Compiler\*.y.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Condition="'$(TargetFrameworkVersion)' == 'v2.0' Or '$(TargetFrameworkVersion)' == 'v3.0' Or '$(TargetFrameworkVersion)' == 'v3.5'" Update="Properties\AssemblyInfo.CLR2.cs" />
   </ItemGroup>
   <ItemGroup>
