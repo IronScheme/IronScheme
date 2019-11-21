@@ -6,31 +6,36 @@ set PATH=%PATH%;%BUILD_ROOT%tools;
 
 mkdir bin >nul 2>&1
 
-pushd IronScheme.Console\bin\Release\
+pushd IronScheme.Console\bin\Release\net20
 
 ::echo 'starting log' > package.log
+rmdir /s /q merged
 mkdir merged >nul 2>&1
 
 IronScheme.Console32.exe -debug ironscheme-buildscript.sps >nul 2>&1
 echo '1' | IronScheme.Console32.exe -debug
 
-ILMerge /keyfile:DEVELOPMENT.snk /out:merged\IronScheme.dll IronScheme.dll IronScheme.Closures.dll IronScheme.Scripting.dll Oyster.IntX.dll ironscheme.boot.dll 
+ReferenceRemover IronScheme.FrameworkPAL.dll "IronScheme\.Scripting" IronScheme.dll >nul
+ReferenceRemover ..\netcoreapp2.1\IronScheme.FrameworkPAL.dll "IronScheme\.Scripting" IronScheme.dll >nul
+
+al /out:IronScheme.PALResources.dll /embed:IronScheme.FrameworkPAL.dll /embed:"..\netcoreapp2.1\IronScheme.FrameworkPAL.dll",core-IronScheme.FrameworkPAL.dll
+
+set MERGE=ILMerge
+%MERGE% /keyfile:DEVELOPMENT.snk /out:merged\IronScheme.dll IronScheme.dll IronScheme.Closures.dll IronScheme.Scripting.dll Oyster.IntX.dll ironscheme.boot.dll IronScheme.PALResources.dll
 copy /Y merged\IronScheme.* . >nul
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
 
 NamespaceRenamer IronScheme.dll Microsoft=IronScheme Oyster.Math=IronScheme.Scripting.Math gppg=IronScheme.gppg >nul
-ReferenceRemover IronScheme.Web.Runtime.dll "IronScheme\..*|Oyster.IntX.*" IronScheme.dll >nul
-ReferenceRemover IronScheme.Remoting.Server.dll "IronScheme\..*|Oyster.IntX.*" "IronScheme.Remoting.*" IronScheme.dll >nul
-NamespaceRenamer -r IronScheme.Web.Runtime.dll Microsoft=IronScheme >nul
-NamespaceRenamer -r IronScheme.Remoting.Server.dll Microsoft=IronScheme >nul
+rem ReferenceRemover IronScheme.Web.Runtime.dll "IronScheme\..*|Oyster.IntX.*" IronScheme.dll >nul
+rem ReferenceRemover IronScheme.Remoting.Server.dll "IronScheme\..*|Oyster.IntX.*" "IronScheme.Remoting.*" IronScheme.dll >nul
+rem NamespaceRenamer -r IronScheme.Web.Runtime.dll Microsoft=IronScheme >nul
+rem NamespaceRenamer -r IronScheme.Remoting.Server.dll Microsoft=IronScheme >nul
 
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
-peverify /nologo IronScheme.Web.Runtime.dll >nul
-peverify /nologo IronScheme.Remoting.Server.dll >nul
-
+rem peverify /nologo IronScheme.Web.Runtime.dll >nul
+rem peverify /nologo IronScheme.Remoting.Server.dll >nul
 ILMerge /ndebug /v4 /out:IronScheme.Console-v4.exe IronScheme.Console.exe
 ILMerge /ndebug /v4 /out:IronScheme.Console32-v4.exe IronScheme.Console32.exe
-
 rem the monolith IronScheme.dll is now built, start with packaging
 
 mkdir install-stage >nul 2>&1
@@ -41,17 +46,23 @@ copy IronScheme.Console.exe install-stage\IronScheme\IronScheme.Console-v2.exe
 copy IronScheme.Console32.exe install-stage\IronScheme\IronScheme.Console32-v2.exe
 copy IronScheme.Console-v4.exe install-stage\IronScheme
 copy IronScheme.Console32-v4.exe install-stage\IronScheme
+
+copy ..\netcoreapp2.1\IronScheme.ConsoleCore.dll install-stage\IronScheme
+copy ..\netcoreapp2.1\IronScheme.ConsoleCore.runtimeconfig.json install-stage\IronScheme
+
 copy DEVELOPMENT.snk install-stage\IronScheme
+
 copy system-libraries.ss install-stage\IronScheme
 copy system-libraries.srfi.ss install-stage\IronScheme
+
 copy IronScheme.dll install-stage\IronScheme
-copy IronScheme.Web.Runtime.dll install-stage\IronScheme
-copy IronScheme.Remoting*.dll install-stage\IronScheme >nul
-copy Executable.cs.template install-stage\IronScheme
-xcopy /e ..\..\examples install-stage\IronScheme\examples\ >nul
-xcopy /e ..\..\docs install-stage\IronScheme\docs\ >nul
-xcopy /e ..\..\lib install-stage\IronScheme\lib\ >nul
-xcopy /e ..\..\tests install-stage\IronScheme\tests\ >nul
+rem copy IronScheme.Web.Runtime.dll install-stage\IronScheme
+rem copy IronScheme.Remoting*.dll install-stage\IronScheme >nul
+rem copy Executable.cs.template install-stage\IronScheme
+xcopy /e ..\..\..\examples install-stage\IronScheme\examples\ >nul
+xcopy /e ..\..\..\docs install-stage\IronScheme\docs\ >nul
+xcopy /e ..\..\..\lib install-stage\IronScheme\lib\ >nul
+xcopy /e ..\..\..\tests install-stage\IronScheme\tests\ >nul
 del install-stage\IronScheme\lib\minikanren\mktests.scm
 del install-stage\IronScheme\lib\pfds\tests.scm
 del install-stage\IronScheme\tests\*.sps
@@ -70,7 +81,7 @@ copy ..\IronScheme.pdb IronScheme
 rem rename artefacts and copy to build root
 copy /y IronScheme-latest*.* %BUILD_ROOT%bin
 rem nuget
-copy /y ..\IronScheme.Core.nuspec .
+copy /y ..\..\IronScheme.Core.nuspec .
 nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
 copy /y IronScheme*.nupkg %BUILD_ROOT%bin
 popd

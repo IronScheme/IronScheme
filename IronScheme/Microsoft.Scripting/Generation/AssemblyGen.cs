@@ -110,40 +110,24 @@ namespace Microsoft.Scripting.Generation {
 
           // SymbolWriter fails on Mono for some reason
 
-            if (SaveAndReloadAssemblies) {
+            if (SaveAndReloadAssemblies)
+            {
                 asmname.Name = moduleName == "ironscheme.boot.new" ? "ironscheme.boot" : moduleName;
                 if (File.Exists("DEVELOPMENT.snk"))
                 {
-                  asmname.KeyPair = new StrongNameKeyPair(File.ReadAllBytes("DEVELOPMENT.snk"));
+                    asmname.KeyPair = new StrongNameKeyPair(File.ReadAllBytes("DEVELOPMENT.snk"));
                 }
                 asmname.Version = new Version("1.0.0.0");
 
                 var actualModuleName = moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName;
-#pragma warning disable 0618
-#if !NETCOREAPP2_1
-                _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
-                _myModule = _myAssembly.DefineDynamicModule(actualModuleName, _outFileName, EmitDebugInfo);
-#else
-                _myAssembly = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndCollect);
-                _myModule = _myAssembly.DefineDynamicModule(actualModuleName);
-#endif
-#pragma warning restore 0618
 
-
+                PAL.DefineAssembly(false, outDir, asmname, actualModuleName, _outFileName, EmitDebugInfo, ref _myAssembly, ref _myModule);
             }
             else {
                 asmname.Name = moduleName;
-#if NETCOREAPP2_1
-                _myAssembly = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
-                _myModule = _myAssembly.DefineDynamicModule(moduleName);
-#else
-                _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
-                _myModule = _myAssembly.DefineDynamicModule(moduleName, EmitDebugInfo);
-#endif
+
+                PAL.DefineAssembly(true, null, asmname, moduleName, null, EmitDebugInfo, ref _myAssembly, ref _myModule);
             }
-#if !NETCOREAPP2_1
-            _myAssembly.DefineVersionInfoResource();
-#endif
 
 #endif
             if (EmitDebugInfo) SetDebuggableAttributes();
@@ -233,8 +217,12 @@ namespace Microsoft.Scripting.Generation {
               return _myAssembly;
             }
 
-            // this is not really ideal, but it seems to work fine for now
-            return Assembly.LoadFile(fullPath);
+            if (File.Exists(fullPath))
+            {
+                // this is not really ideal, but it seems to work fine for now
+                return Assembly.LoadFile(fullPath);
+            }
+            return _myAssembly;
 #endif
         }
 

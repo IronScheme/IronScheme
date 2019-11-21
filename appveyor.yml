@@ -11,10 +11,6 @@ assembly_info:
   assembly_version: '1.0.0.0'
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}-$(SHA)'
-environment:
-  matrix:
-  - FX_VERSION: v2.0
-  - FX_VERSION: v4.0
 install:
 - cmd: >-
     cd %APPVEYOR_BUILD_FOLDER%
@@ -31,7 +27,7 @@ install:
 nuget:
   project_feed: true
 build_script:
-- cmd: msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:TargetFrameworkVersion=%FX_VERSION% /p:Configuration=Release
+- cmd: msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
 test_script:
 - cmd: >-
     cd IronScheme\IronScheme.Console\bin\Release
@@ -52,7 +48,7 @@ test_script:
 
     cd %APPVEYOR_BUILD_FOLDER%
 
-    if "%FX_VERSION%" EQU "v2.0" call ci-artefact.cmd
+    call ci-artefact.cmd
 artifacts:
 - path: IronScheme-*.zip
 - path: IronScheme*.nupkg

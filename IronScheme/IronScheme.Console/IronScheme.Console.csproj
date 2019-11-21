@@ -13,8 +13,6 @@
     <Copyright>Copyright 2007-2019</Copyright>
     <Version>1.0.0.0</Version>
     <NoWarn>1591</NoWarn>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <DocumentationFile />
     <Authors>Llewellyn Pritchard</Authors>
@@ -25,18 +23,21 @@
     <PackageTags>scheme ironscheme r6rs</PackageTags>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <StartupObject>IronScheme.Console.Program</StartupObject>
+    <AssemblyName>IronScheme.Console</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
-    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
-    <CodeAnalysisRuleAssemblies>C:\Program Files\Microsoft Visual Studio 8\Team Tools\Static Analysis Tools\FxCop\\rules</CodeAnalysisRuleAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <AssemblyName>IronScheme.ConsoleCore</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
+    <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
     <ProjectReference Include="..\IronScheme.Tests\IronScheme.Tests.csproj" />
     <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />

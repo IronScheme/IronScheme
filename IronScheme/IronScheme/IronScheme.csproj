@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net20;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net20</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -24,7 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
-    <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
   </ItemGroup>
@@ -33,6 +32,9 @@
     <None Include="Compiler\NumberParser.y" />
     <None Include="Compiler\IronScheme.lex" />
     <None Include="Compiler\IronScheme.y" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FrameworkPAL\" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
     <Exec Command="&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\IronScheme.y&quot; &gt; &quot;$(ProjectDir)Compiler\IronScheme.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\IronScheme.lex.cs&quot; &quot;$(ProjectDir)Compiler\IronScheme.lex&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\NumberParser.y&quot; &gt; &quot;$(ProjectDir)Compiler\NumberParser.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\NumberLexer.lex.cs&quot; &quot;$(ProjectDir)Compiler\NumberLexer.lex&quot;" />

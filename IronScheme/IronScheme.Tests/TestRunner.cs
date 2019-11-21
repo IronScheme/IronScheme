@@ -13,7 +13,7 @@ namespace IronScheme.Tests
     protected TestRunner()
     {
       Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
-      TestCore = Environment.GetEnvironmentVariable("TESTCORE") != null;
+      TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
 
     public bool TestCore { get; private set; }
@@ -57,7 +57,7 @@ namespace IronScheme.Tests
       {
         return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.Console.dll " + args, input, echo);
       }
-      return RunTest( "IronScheme.Console.exe", args, input, echo);
+      return RunTest( "IronScheme.Console32.exe", args, input, echo);
     }
 
     protected TestResult RunTest(string exe, string args, bool echo)

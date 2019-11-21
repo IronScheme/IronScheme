@@ -38,9 +38,9 @@ namespace IronScheme.Compiler
           cur = cur.cdr as Cons;
         }
 
-        if (lst.cdr is Cons)
+        if (lst.cdr is Cons cdr)
         {
-          lst = lst.cdr as Cons;
+          lst = cdr;
         }
         else
         {
@@ -54,33 +54,28 @@ namespace IronScheme.Compiler
 
     static object Strip(object p)
     {
-      if (p is Annotation)
+      switch (p)
       {
-        var ann = (Annotation)p;
-        return ann.stripped;
+        case Annotation ann:
+          return ann.stripped;
+        case Cons cons:
+          return Strip(cons);
+        default:
+          return p;
       }
-      if (p is Cons)
-      {
-        return Strip((Cons)p);
-      }
-      return p;
     }
 
     public static Annotation Annotate(object obj, SourceSpan loc)
     {
-      if (obj is Cons)
+      switch (obj)
       {
-        return AnnotateList(obj as Cons, loc);
-      }
-      else if (obj is object[])
-      {
-        var arr = (object[])obj;
-        var stripped = Array.ConvertAll(arr, x => Strip(x));
-        return new Annotation(obj, new Cons(Filename, loc.ToString()), stripped);
-      }
-      else
-      {
-        return new Annotation(obj, new Cons(Filename, loc.ToString()), obj);
+        case Cons cons:
+          return AnnotateList(cons, loc);
+        case object[] arr:
+          var stripped = Array.ConvertAll(arr, Strip);
+          return new Annotation(arr, new Cons(Filename, loc.ToString()), stripped);
+        default:
+          return new Annotation(obj, new Cons(Filename, loc.ToString()), obj);
       }
     }
   }

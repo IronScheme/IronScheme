@@ -35,7 +35,8 @@ namespace IronScheme.Tests
       foreach (var lib in libs)
       {
         if (!Quiet) Console.WriteLine("Verifying: " + lib);
-        RunTest("peverify.exe", "/nologo " + lib, false);
+        var r = RunTest("peverify.exe", "/nologo " + lib, false);
+        Assert.True(r.Output.Contains("All Classes and Methods in " + lib + " Verified."));
       }
 
       Assert.Pass("incredible!");
@@ -78,7 +79,8 @@ namespace IronScheme.Tests
         foreach (var lib in libs)
         {
           if (!Quiet) Console.WriteLine("Verifying: " + lib);
-          RunTest("peverify.exe", "/nologo " + lib, false);
+          var r = RunTest("peverify.exe", "/nologo " + lib, false);
+          Assert.True(r.Output.Contains("All Classes and Methods in " + lib + " Verified."));
         }
       }
       finally

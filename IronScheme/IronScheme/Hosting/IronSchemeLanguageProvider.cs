@@ -8,6 +8,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using IronScheme.FrameworkPAL;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
@@ -41,11 +42,8 @@ namespace IronScheme.Hosting
     void Initialize()
     {
       IronScheme.Compiler.BaseHelper.Initialize(this);
-#if NETCOREAPP2_1
-      Runtime.Builtins.Exact(1);
-      Thread.AllocateNamedDataSlot("foo");
-      Thread.FreeNamedDataSlot("foo");
-#endif
+      Runtime.Builtins.Exact(1); // something needed for .net core... ???
+      PAL.Initialize();
       Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
     

@@ -4,7 +4,7 @@
     <RootNamespace>Microsoft.Scripting</RootNamespace>
     <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
     <NoWarn>1591;1734</NoWarn>
-    <TargetFrameworks>net20;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net20</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags />
@@ -58,7 +58,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
   </ItemGroup>
 </Project>

@@ -13,6 +13,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting;
 using System.Collections.Generic;
+using IronScheme.FrameworkPAL;
 
 namespace IronScheme.Compiler
 {
@@ -77,7 +78,7 @@ namespace IronScheme.Compiler
             tg.CreatingType += (sender, ea) =>
             {
               var constants = new List<object>();
-  
+
               foreach (SerializedConstant sc in tg.SerializedConstants)
               {
                 constants.Add(sc.value);
@@ -91,22 +92,7 @@ namespace IronScheme.Compiler
               s.Position = 0;
 
               var mb = tg.TypeBuilder.Module as ModuleBuilder;
-#if !NETCOREAPP2_1
-              if (compress)
-              {
-                var cms = new MemoryStream();
-                var cs = new System.IO.Compression.GZipStream(cms, System.IO.Compression.CompressionMode.Compress, true);
-                var content = s.ToArray();
-                cs.Write(content, 0, content.Length);
-                cs.Close();
-
-                mb.DefineManifestResource("SerializedConstants.gz", cms, ResourceAttributes.Private);
-              }
-              else
-              {
-                mb.DefineManifestResource("SerializedConstants", s, ResourceAttributes.Private);
-              }
-#endif
+              PAL.SerializeConstants(s, mb, compress);
             };
           }
 
@@ -122,6 +108,8 @@ namespace IronScheme.Compiler
         tg.ConstantCounter++;
       }
     }
+
+
 
     static readonly BinaryFormatter bf = Runtime.psyntax.Serialization.SERIALIZER;
 

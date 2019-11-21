@@ -10,6 +10,7 @@ set TESTS=Debug,Release,Conformance,SRFI,Other,Teardown
 set QUIET=1
 set ARGS=%*
 set FX=net20
+set TESTCORE=0
 
 rem the args you want to handle
 set MYARGS=verbose V core

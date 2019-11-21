@@ -4,10 +4,11 @@
     <TargetFrameworks>net20;netcoreapp2.1</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
-    <ProjectReference Include="..\ILPack\src\Lokad.ILPack.csproj" />
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
   </ItemGroup>
-
 </Project>

@@ -24,6 +24,8 @@ namespace IronScheme.Compiler
       if (an is Annotation)
       {
         var anno = (Annotation)an;
+        currentAnnotation = anno;
+
         if (anno.source is Cons)
         {
           Cons src = anno.source as Cons;

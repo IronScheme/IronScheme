@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using IronScheme.Runtime.psyntax;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 
@@ -21,6 +22,7 @@ namespace IronScheme.Compiler
 
   abstract class SimpleGenerator : Generator, IGenerator
   {
+    //TODO: This should all be thread static
     public abstract Expression Generate(object args, CodeBlock cb);
     protected internal static readonly Dictionary<SymbolId, CodeBlockExpression> libraryglobals = new Dictionary<SymbolId, CodeBlockExpression>();
     protected internal static readonly Dictionary<SymbolId, CodeBlockDescriptor[]> libraryglobalsN = new Dictionary<SymbolId, CodeBlockDescriptor[]>();
@@ -28,6 +30,8 @@ namespace IronScheme.Compiler
 
     protected internal static readonly Dictionary<CodeBlockExpression, CodeBlockDescriptor> descriptorshack = new Dictionary<CodeBlockExpression, CodeBlockDescriptor>();
     protected internal static readonly Dictionary<Expression, CodeBlockDescriptor> descriptorshack2 = new Dictionary<Expression, CodeBlockDescriptor>();
+
+    protected internal static Annotation currentAnnotation;
 
     protected static readonly Regex LOCATIONMATCH = new Regex(
       @"\((?<startline>\d+),(?<startcol>\d+)\)\s-\s\((?<endline>\d+),(?<endcol>\d+)\)",
@@ -48,6 +52,8 @@ namespace IronScheme.Compiler
       libraryglobalsN.Clear();
       libraryglobalsX.Clear();
       descriptorshack.Clear();
+      descriptorshack2.Clear();
+      currentAnnotation = null;
     }
   }
 
