@@ -1,6 +1,6 @@
 version: 1.0.{build}
 skip_tags: true
-image: Visual Studio 2019
+image: Previous Visual Studio 2019
 branches:
   only:
   - master
@@ -31,7 +31,7 @@ build_script:
 - cmd: >-
     nuget restore "IronScheme\IronSchemeCore.sln"
 
-    msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
+    msbuild "IronScheme\IronSchemeCore.sln" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
 test_script:
 - cmd: >-
     cd IronScheme\IronScheme.Console\bin\Release

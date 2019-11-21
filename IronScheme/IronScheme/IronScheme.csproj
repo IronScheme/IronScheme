@@ -36,7 +36,7 @@
   <ItemGroup>
     <Folder Include="FrameworkPAL\" />
   </ItemGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\IronScheme.y&quot; &gt; &quot;$(ProjectDir)Compiler\IronScheme.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\IronScheme.lex.cs&quot; &quot;$(ProjectDir)Compiler\IronScheme.lex&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\NumberParser.y&quot; &gt; &quot;$(ProjectDir)Compiler\NumberParser.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\NumberLexer.lex.cs&quot; &quot;$(ProjectDir)Compiler\NumberLexer.lex&quot;" />
   </Target>
 </Project>
