@@ -32,8 +32,11 @@ build_script:
     nuget restore "IronScheme\IronSchemeCore.sln"
 
     echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
+
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
+
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
+    
     echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
 
     msbuild "IronScheme\IronSchemeCore.sln" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
