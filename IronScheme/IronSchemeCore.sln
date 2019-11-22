@@ -13,7 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		License.html = License.html
 		logo-128.png = logo-128.png
 		logo-192.png = logo-192.png
-		..\sync.sh = ..\sync.sh
 		test.cmd = test.cmd
 		welcome.bmp = welcome.bmp
 	EndProjectSection
@@ -25,16 +24,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9
 		tools\gppg.exe = tools\gppg.exe
 		tools\IronScheme.Profiler.x64.dll = tools\IronScheme.Profiler.x64.dll
 		tools\IronScheme.Profiler.x86.dll = tools\IronScheme.Profiler.x86.dll
-		tools\IronScheme.VisualStudio.dll = tools\IronScheme.VisualStudio.dll
-		tools\IronScheme.VisualStudio.vsix = tools\IronScheme.VisualStudio.vsix
 		tools\Mono.Cecil.dll = tools\Mono.Cecil.dll
 		tools\Mono.Cecil.Pdb.dll = tools\Mono.Cecil.Pdb.dll
 		tools\NamespaceRenamer.exe = tools\NamespaceRenamer.exe
 		tools\nunit.framework.dll = tools\nunit.framework.dll
 		package.cmd = package.cmd
 		tools\ReferenceRemover.exe = tools\ReferenceRemover.exe
-		tools\RegPkg.exe = tools\RegPkg.exe
-		tools\RegPkg.exe.config = tools\RegPkg.exe.config
 		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
 	EndProjectSection
 EndProject
