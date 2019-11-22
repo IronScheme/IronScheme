@@ -4,7 +4,7 @@
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFrameworks>netcoreapp2.1;net20</TargetFrameworks>
+    <TargetFrameworks>net20;netcoreapp2.1</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
     <AssemblyTitle>IronScheme.Console</AssemblyTitle>
     <Company>leppie</Company>
@@ -46,7 +46,6 @@
   <ItemGroup>
     <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
       <HintPath>../../../ironscheme.boot.dll</HintPath>
-      <Private>true</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
   </ItemGroup>
