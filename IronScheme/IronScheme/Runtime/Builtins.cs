@@ -248,14 +248,9 @@ namespace IronScheme.Runtime
     {
       get
       {
-        var loc = typeof(Builtins).Assembly.CodeBase;
-        //Replace("file:///","") breaks on Mono...
-        if (!IsMono)
-        {
-          loc = loc.Replace("file:///","");
-        }
+        var loc = typeof(Builtins).Assembly.Location;
 
-        return Path.GetDirectoryName(loc.Replace("file:\\", "").Replace("file:", ""));
+        return Path.GetDirectoryName(loc);
       }
     }
 
