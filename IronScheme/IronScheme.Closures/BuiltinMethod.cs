@@ -142,7 +142,6 @@ namespace IronScheme.Runtime
       this.methods = mg;
       meth = MethodBinder.MakeBinder(binder, name, mg, BinderType.Normal);
       this.foldable = foldable;
-
     }
 
     bool baked = false;
@@ -175,8 +174,7 @@ namespace IronScheme.Runtime
 
             bool needContext = false;
 
-#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655439
-            Type dt = (nargs > 8 || IsParams(mb)) ? // for mono
+            Type dt = (nargs > 8) ? 
               typeof(CallTargetN) : CallTargets.GetTargetType(needContext, nargs, false);
             Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
             if (d == null)
@@ -217,8 +215,7 @@ namespace IronScheme.Runtime
 
               bool needContext = NeedContext(mb); // TODO: check if can remove
 
-#warning Remove when Mono fixed: https://bugzilla.novell.com/show_bug.cgi?id=655439
-              Type dt = (nargs > 8 || IsParams(mb)) ? // for mono
+              Type dt = (nargs > 8) ?
                 typeof(CallTargetN) : CallTargets.GetTargetType(needContext, nargs, false);
               Delegate d = Delegate.CreateDelegate(dt, mb as MethodInfo, false);
               if (d == null)
