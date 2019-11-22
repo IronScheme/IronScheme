@@ -27,6 +27,7 @@ namespace IronScheme.Console
 
     static int Main(string[] args)
     {
+#if !NETCOREAPP2_1
       if ((Array.IndexOf(args, "-profile")) >= 0)
       {
         const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";
@@ -62,7 +63,7 @@ namespace IronScheme.Console
           args = Array.FindAll(args, x => x != "-profile");
         }
       }
-
+#endif
       var exename = Path.GetFileNameWithoutExtension(Environment.GetCommandLineArgs()[0]);
 
       switch (exename)
@@ -78,9 +79,9 @@ namespace IronScheme.Console
       args = ParseIncludes(args);
 
       Encoding oo = System.Console.OutputEncoding;
-
+#if !NETCOREAPP2_1
       EnableMulticoreJIT();
-
+#endif
       try
       {
         System.Console.OutputEncoding = Encoding.UTF8;
@@ -140,6 +141,8 @@ namespace IronScheme.Console
       return args;
     }
 
+#if !NETCOREAPP2_1
+
     static void EnableMulticoreJIT()
     {
       var type = typeof(object).Assembly.GetType("System.Runtime.ProfileOptimization", false);
@@ -193,5 +196,6 @@ namespace IronScheme.Console
       var dir = Path.GetDirectoryName(typeof(Program).Assembly.Location);
       return Path.Combine(dir, string.Format("IronScheme.Profiler.x{0}.dll", IntPtr.Size == 8 ? "64" : "86"));
     }
+#endif
   }
 }

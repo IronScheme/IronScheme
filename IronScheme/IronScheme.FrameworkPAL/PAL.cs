@@ -119,6 +119,7 @@ namespace IronScheme.FrameworkPAL
     public void Initialize()
     {
 #if NETCOREAPP2_1
+      //TODO: check if this can be removed, was possibly just a hacking artefact
       Thread.AllocateNamedDataSlot("foo");
       Thread.FreeNamedDataSlot("foo");
 #endif
