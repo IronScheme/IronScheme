@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 setlocal
 
 set BUILD_ROOT=%~dp0
@@ -12,8 +12,8 @@ pushd IronScheme.Console\bin\Release\net20
 rmdir /s /q merged
 mkdir merged >nul 2>&1
 
-IronScheme.Console32.exe -debug ironscheme-buildscript.sps >nul 2>&1
-echo '1' | IronScheme.Console32.exe -debug
+IronScheme.Console.exe -debug ironscheme-buildscript.sps >nul 2>&1
+echo '1' | IronScheme.Console.exe -debug
 
 ReferenceRemover IronScheme.FrameworkPAL.dll "IronScheme\.Scripting" IronScheme.dll >nul
 ReferenceRemover ..\netcoreapp2.1\IronScheme.FrameworkPAL.dll "IronScheme\.Scripting" IronScheme.dll >nul
@@ -48,7 +48,10 @@ copy IronScheme.Console-v4.exe install-stage\IronScheme
 copy IronScheme.Console32-v4.exe install-stage\IronScheme
 
 copy ..\netcoreapp2.1\IronScheme.ConsoleCore.dll install-stage\IronScheme
+copy ..\netcoreapp2.1\IronScheme.ConsoleCore.pdb install-stage\IronScheme
 copy ..\netcoreapp2.1\IronScheme.ConsoleCore.runtimeconfig.json install-stage\IronScheme
+
+ReferenceRemover install-stage\IronScheme\IronScheme.ConsoleCore.dll "IronScheme\.Closures" IronScheme.dll >nul
 
 copy DEVELOPMENT.snk install-stage\IronScheme
 
@@ -68,6 +71,7 @@ del install-stage\IronScheme\lib\pfds\tests.scm
 del install-stage\IronScheme\tests\*.sps
 del install-stage\IronScheme\lib\wak\fmt\private\test*.scm
 del install-stage\IronScheme\lib\wak\foof-loop\private\test-foof-loop.scm
+del install-stage\IronScheme\IronScheme.ConsoleCore.pdb
 rmdir /s /q install-stage\IronScheme\lib\srfi\tests
 rmdir /s /q install-stage\IronScheme\docs\notes
 cd install-stage
