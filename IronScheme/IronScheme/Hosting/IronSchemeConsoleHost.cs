@@ -91,6 +91,10 @@ namespace IronScheme.Hosting
           {
             version= "Core 3.0";
           }
+          else
+          {
+            version = "Core " + version;
+          }
         }
 
         Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
