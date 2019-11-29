@@ -18,23 +18,52 @@ Alternatively, using the `build.cmd` batchfile in the IronScheme directory.
 Running on Windows
 ==================
 
-Run the `IronScheme.Console.exe` for the runtime and bitness you want to target. V2 requires .NET3.5. V4 requires requires .NET4.0 or higher.
+Run the `IronScheme.Console.exe` for the runtime and bitness you want to target. 
+
+V2 requires .NET3.5. V4 requires requires .NET4.0 or higher. Pretty much any running Windows should have one or both of those.
+
+You can also run it with .NET Core, which has limited compilation functionality.
 
 Running on Linux/MacOS
 ======================
 ```
+# get .NET Core if you dont have it already
 wget https://dot.net/v1/dotnet-install.sh
 chmod +x dotnet-install.sh
 dotnet-install.sh --channel Current --runtime dotnet # v2.1+
 export -p PATH="$HOME/.dotnet:$PATH"
+```
 
+```
+# Download 
 wget https://github.com/leppie/IronScheme/releases/download/<latest release>.zip
 unzip <latest release>.zip
+```
+
+```
 cd IronScheme
 alias ironscheme="dotnet IronScheme.ConsoleCore.dll"
-ironscheme
 # if you prefer Mono
-mono  IronScheme.Console-v4.exe
+# alias ironscheme="mono IronScheme.Console-v4.exe"
+
+ironscheme
+```
+
+Library usage
+=============
+
+Reference `IronScheme.dll` from your project. 
+
+```
+using IronScheme;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        "(display 'hello-world)".Eval();
+    }
+} 
 ```
 
 Running tests
