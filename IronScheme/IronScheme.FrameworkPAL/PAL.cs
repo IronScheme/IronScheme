@@ -15,6 +15,7 @@ namespace IronScheme.FrameworkPAL
   {
     public bool ExcludeParamtypes(MethodInfo mi)
     {
+      // todo: check if this is a 'problem' on .NET 4.8+? too
 #if NETCOREAPP2_1
       if (mi.GetParameters()
         .Any(x => x.ParameterType.Namespace == "System" && x.ParameterType.IsGenericType && x.ParameterType.Name.Contains("Span")))
@@ -89,7 +90,7 @@ namespace IronScheme.FrameworkPAL
       if (run)
       {
 #if NETCOREAPP2_1
-        ab = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
+        ab = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndCollect);
         mb = ab.DefineDynamicModule(actualModuleName);
 #else
         var domain = AppDomain.CurrentDomain;
