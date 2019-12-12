@@ -68,7 +68,7 @@ test_script:
 
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
 
-    set QUIET=
+    set QUIET=0
 
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
 
