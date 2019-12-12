@@ -20,7 +20,8 @@ namespace IronScheme.Tests
     public void Trig()
     {
       var r = RunIronSchemeTest(@"tests\trigtest.sps");
-      Assert.True(r.Output.Contains("Passed all 17699 tests."));
+      if (!Quiet) Console.WriteLine("Expected 8 failed tests.");
+      Assert.True(r.Output.Contains("Failed 8 of 17707 tests."));
       AssertError(r);
     }
 

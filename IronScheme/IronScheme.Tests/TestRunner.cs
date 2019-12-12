@@ -55,7 +55,7 @@ namespace IronScheme.Tests
     {
       if (TestCore)
       {
-        return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.Console.dll " + args, input, echo);
+        return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.ConsoleCore.dll " + args, input, echo);
       }
       return RunTest( "IronScheme.Console32.exe", args, input, echo);
     }
