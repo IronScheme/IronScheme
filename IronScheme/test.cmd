@@ -52,6 +52,9 @@ IF %TESTCORE% == 1 set TESTS=Conformance,SRFI,Other
 set NUNIT=call :runtest
 
 cd IronScheme.Console\bin\Release\%FX%
+
+IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
+
 md results 2> nul
 
 for %%t in (%TESTS%) do %NUNIT% %%t 
