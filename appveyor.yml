@@ -68,8 +68,6 @@ test_script:
 
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
 
-    set QUIET=0
-
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
 
     cd %APPVEYOR_BUILD_FOLDER%
