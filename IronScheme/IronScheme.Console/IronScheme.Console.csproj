@@ -114,6 +114,9 @@
     <None Include="system-libraries.srfi.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="compile-system-libraries.sps">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="ironscheme.ico" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
