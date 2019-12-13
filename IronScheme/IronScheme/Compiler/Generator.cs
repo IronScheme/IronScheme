@@ -570,7 +570,7 @@ namespace IronScheme.Compiler
                 MethodBinder mb = bf.Binder;
                 Expression[] pars = Array.ConvertAll(GetAstList(c.cdr as Cons, cb), e => Unwrap(e));
 
-                if (bf.AllowConstantFold && !ScriptDomainManager.Options.DebugMode)
+                if (bf.AllowConstantFold && !Debugger.IsAttached)
                 {
                   bool constant = Array.TrueForAll(pars, e => e is ConstantExpression && e.Type != typeof(BigInteger));
 
@@ -635,7 +635,7 @@ namespace IronScheme.Compiler
 
                   Expression[] pars = Array.ConvertAll(GetAstList(c.cdr as Cons, cb), e => Unwrap(e));
 
-                  if (clos.AllowConstantFold && !ScriptDomainManager.Options.DebugMode)
+                  if (clos.AllowConstantFold && !Debugger.IsAttached)
                   {
                     bool constant = Array.TrueForAll(pars, e => e is ConstantExpression && e.Type != typeof(BigInteger));
 

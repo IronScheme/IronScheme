@@ -453,9 +453,9 @@ namespace IronScheme.Runtime
       {
         ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.EmitDebugInfo;
         ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.GenerateDebugAssemblies;
-        ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.DisableOptimizations;
+        //ScriptDomainManager.Options.AssemblyGenAttributes |= AssemblyGenAttributes.DisableOptimizations;
 
-        ScriptDomainManager.Options.DebugCodeGeneration = true;
+        ScriptDomainManager.Options.DebugCodeGeneration = false;
       }
       else
       {
