@@ -33,7 +33,7 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} github.com/leppie/IronScheme © 2007-2019 Llewellyn Pritchard ", VERSION);
+      logo = string.Format("IronScheme {0} github.com/IronScheme/IronScheme © 2007-2019 Llewellyn Pritchard ", VERSION);
     }
 
     public static int Execute(string[] args)
@@ -52,13 +52,13 @@ namespace IronScheme.Hosting
       if (Options.RunAction != ConsoleHostOptions.Action.RunFiles && !LanguageProvider.InputRedirected)
       {
         // errrkkk
-        var tokens = logo.Split(new string[] { "github.com/leppie/IronScheme" }, StringSplitOptions.None);
+        var tokens = logo.Split(new string[] { "github.com/IronScheme/IronScheme" }, StringSplitOptions.None);
 
         ConsoleColor old = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write(tokens[0]);
         Console.ForegroundColor = ConsoleColor.White;
-        Console.Write("github.com/leppie/IronScheme");
+        Console.Write("github.com/IronScheme/IronScheme");
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write(tokens[1]);
 

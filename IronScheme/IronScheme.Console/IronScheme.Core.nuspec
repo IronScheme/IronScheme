@@ -6,13 +6,13 @@
     <authors>Llewellyn Pritchard</authors>
     <owners>Llewellyn Pritchard</owners>
     <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
-    <projectUrl>https://github.com/leppie/IronScheme</projectUrl>
+    <projectUrl>https://github.com/IronScheme/IronScheme</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Only includes IronScheme.dll</description>
-    <releaseNotes>https://github.com/leppie/IronScheme</releaseNotes>
+    <releaseNotes>https://github.com/IronScheme/IronScheme</releaseNotes>
     <copyright>Copyright 2007-2019</copyright>
     <tags>scheme ironscheme r6rs</tags>
-    <repository type="git" url="https://github.com/leppie/IronScheme" branch="master" commit="$sha$" />
+    <repository type="git" url="https://github.com/IronScheme/IronScheme" branch="master" commit="$sha$" />
     <dependencies>
       <group targetFramework=".NETFramework3.5" />
       <group targetFramework=".NETFramework4.0" />

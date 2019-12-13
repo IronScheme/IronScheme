@@ -142,7 +142,7 @@ namespace IronScheme.Hosting
     {
       get
       {
-        return "leppie (c) 2009";
+        return "Llewellyn Pritchard (c) 2009-2019";
       }
     }
 
