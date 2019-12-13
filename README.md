@@ -5,7 +5,7 @@ IronScheme aims to be a R6RS conforming Scheme-like implementation based on the 
 
 IronScheme implements over 99% of the R6RS specification and specified behavior.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/github/leppie/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/IronScheme/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
 
 Building
 ========
@@ -36,7 +36,7 @@ export -p PATH="$HOME/.dotnet:$PATH"
 
 ```
 # Download 
-wget https://github.com/leppie/IronScheme/releases/download/<latest release>.zip
+wget https://github.com/IronScheme/IronScheme/releases/download/<latest release>.zip
 unzip <latest release>.zip
 ```
 
