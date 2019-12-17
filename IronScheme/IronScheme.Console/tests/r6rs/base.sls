@@ -1391,7 +1391,7 @@
 
     (test (call-with-values * -) -1)
     
-    (test (let ((path '())
+    #;(test (let ((path '())
                 (c #f))
             (let ((add (lambda (s)
                          (set! path (cons s path)))))

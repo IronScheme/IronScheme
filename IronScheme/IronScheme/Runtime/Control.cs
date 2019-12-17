@@ -121,9 +121,16 @@ namespace IronScheme.Runtime
       return ct;
     }
 
+    const bool DoCheckStack = false;
+
     // this is expensive, but only called when continuation is invoked
     static bool CheckStack(Continuation cc)
     {
+      if (!DoCheckStack)
+      {
+        return true;
+      }
+
       var st = new StackTrace();
       var c1 = cc.Stack.GetFrames();
       var f1 = st.GetFrames();
@@ -166,8 +173,8 @@ namespace IronScheme.Runtime
     public static object CallWithCurrentContinuation(object fc1)
     {
       Callable fc = RequiresNotNull<Callable>(fc1);
-      // disable stack check unless debug-mode is #t
-      Continuation ccc = new Continuation { Stack = new StackTrace(), Thread = Thread.CurrentThread };
+      // todo?: disable stack check unless debug-mode is #t
+      Continuation ccc = new Continuation { Stack = DoCheckStack ? new StackTrace() : null, Thread = Thread.CurrentThread };
 
       try
       {

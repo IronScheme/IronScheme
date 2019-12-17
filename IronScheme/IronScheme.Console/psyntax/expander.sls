@@ -37,7 +37,8 @@
           new-interaction-environment
           interaction-environment-symbols environment-bindings
           ellipsis-map assertion-error syntax-transpose
-		      environment environment? environment-symbols)
+		      environment environment? environment-symbols
+          stx? stx-expr)
   (import
     (except (rnrs)
       environment environment? identifier?
