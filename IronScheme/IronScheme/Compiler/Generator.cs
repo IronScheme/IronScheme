@@ -961,7 +961,7 @@ namespace IronScheme.Compiler
         Expression val = Unwrap(pp[i]);
         if (val.Type != typeof(SymbolId) && !Generator.assigns.ContainsKey(origname))
         {
-          if (p.Type == typeof(object))
+          if (p.Type == typeof(object) && val.Type != typeof(void))
           {
             p.Type = val.Type;
             assigns.Add(Ast.Write(p, val));
@@ -973,7 +973,7 @@ namespace IronScheme.Compiler
         }
         else
         {
-          if (p.Type == typeof(object))
+          if (p.Type == typeof(object) && val.Type != typeof(void))
           {
             assigns.Add(Ast.Write(p, pp[i]));
           }
