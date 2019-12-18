@@ -45,6 +45,8 @@ namespace Microsoft.Scripting {
         /// <summary> Singleton boxed instance of False  We should never box additional instances. </summary>
         public static readonly object False = false;
 
+        public static FieldInfo Unspecified;
+
         /// <summary> Table of dynamicly generated delegates which are shared based upon method signature. </summary>
         private static object[] MakeCache() {
             object[] result = new object[MAX_CACHE - MIN_CACHE];
@@ -153,6 +155,7 @@ namespace Microsoft.Scripting {
         public delegate object AssertHandler(object who, object msg, params object[] irritants);
 
         public static AssertHandler Assert;
+        
 
         public static void ThrowUnboundLocalError(SymbolId name) {
           if (Assert != null)

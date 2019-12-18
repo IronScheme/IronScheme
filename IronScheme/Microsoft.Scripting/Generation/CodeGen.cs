@@ -609,7 +609,7 @@ namespace Microsoft.Scripting.Generation {
 
             if (type.IsValueType) {
                 if (type == typeof(void)) {
-                    Emit(OpCodes.Ldnull);
+                    EmitFieldGet(RuntimeHelpers.Unspecified);
                 } else if (type == typeof(int)) {
                     EmitCall(typeof(RuntimeHelpers), "Int32ToObject");
                 } else if (type == typeof(bool)) {

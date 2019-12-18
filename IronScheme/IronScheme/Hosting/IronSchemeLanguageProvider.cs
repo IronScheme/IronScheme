@@ -33,6 +33,8 @@ namespace IronScheme.Hosting
       Closure.Unspecified = Builtins.Unspecified;
       Closure.ArrayFromCons = Builtins.ListToVector;
 
+      RuntimeHelpers.Unspecified = typeof(Builtins).GetField(nameof(Builtins.Unspecified));
+
       Initialize();
 
       // only register when done
