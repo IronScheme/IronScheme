@@ -1942,6 +1942,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         public LocalBuilder DeclareLocal(Type localType) {
+            Contract.Requires(localType != typeof(void));
             LocalBuilder lb = _ilg.DeclareLocal(localType);
             return lb;
         }

@@ -200,7 +200,7 @@ namespace IronScheme.Compiler
             {
               foreach (var kv in typecounts)
               {
-                if (kv.Key != typeof(object) && kv.Key != typeof(bool) && kv.Key != typeof(SymbolId))
+                if (kv.Key != typeof(object) && kv.Key != typeof(bool) && kv.Key != typeof(SymbolId) && kv.Key != typeof(void))
                 {
                   var.Type = kv.Key;
                   Count++;

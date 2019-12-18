@@ -165,7 +165,10 @@ namespace Microsoft.Scripting.Ast {
 
         public Type Type {
             get { return _type; }
-          set { _type = value; }
+          set {
+                Contract.Requires(value != typeof(void));
+                _type = value;
+            }
         }
 
         public Expression DefaultValue {
