@@ -76,25 +76,29 @@ namespace IronScheme.Hosting
             ((AssemblyFileVersionAttribute) ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
             ?.Version ?? string.Empty;
           var v = new Version(va);
-          if (v.Minor == 6)
+          if (v.Major == 4 && v.Minor == 6) // core 2.x
           {
-            if (v.MajorRevision < 26515)
-            {
-              version = "Core 2.0";
-            }
-            else
-            {
-              version = "Core 2.1";
-            }
+            var rta = typeof(System.IO.FileAttributes).Assembly;
+            v = rta.GetName().Version;
+
+            version = "Core " + v.ToString(3).Replace("4.", "");
           }
           else if (v.Minor == 7)
           {
             version= "Core 3.0";
           }
-          else
+          else // seems to work for core 3.1
           {
             version = "Core " + version;
           }
+        }
+        else if (Environment.Version.Major == 4)
+        {
+          var va =
+            ((AssemblyFileVersionAttribute)ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
+            ?.Version ?? string.Empty;
+          var v = new Version(va);
+          version = v.ToString(2);
         }
 
         Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
