@@ -22,16 +22,6 @@ namespace IronScheme.Compiler
 
       class Pass0 : DeepWalker
       {
-        static Expression Unwrap(Expression ex)
-        {
-          while (ex is UnaryExpression && ((UnaryExpression)ex).NodeType == AstNodeType.Convert)
-          {
-            ex = ((UnaryExpression)ex).Operand;
-          }
-
-          return ex;
-        }
-
         protected override void PostWalk(MethodCallExpression node)
         {
           base.PostWalk(node);

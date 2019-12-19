@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Scripting;
 using System.Diagnostics;
+using IronScheme.Runtime;
 
 namespace IronScheme.Compiler
 {
@@ -51,6 +52,19 @@ namespace IronScheme.Compiler
           {
             v.Type = typeof(object);
           }
+          else if (v.Type == typeof(Callable))
+          {
+            var uv = Unwrap(val);
+            if (!uv.Type.IsAssignableFrom(v.Type))
+            {
+              v.Type = typeof(object);
+              node.Value = Ast.ConvertHelper(Unwrap(val), typeof(object));
+            }
+            else
+            {
+              writecounts[node.Variable]--;
+            }
+          }
           else
           {
             writecounts[node.Variable]--;
@@ -88,17 +102,7 @@ namespace IronScheme.Compiler
         //  Console.WriteLine("Typed {0} variables", total);
         //}
       }
-
-      static Expression Unwrap(Expression ex)
-      {
-        while (ex is UnaryExpression && ex.NodeType == AstNodeType.Convert)
-        {
-          ex = ((UnaryExpression)ex).Operand;
-        }
-
-        return ex;
-      }
-
+           
       class Pass0 : DeepWalker
       {
         internal Dictionary<Variable, Dictionary<Type, List<Expression>>> vartypes;

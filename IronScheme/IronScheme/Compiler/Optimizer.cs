@@ -52,6 +52,16 @@ namespace IronScheme.Compiler
       public CodeBlock Root { get; set; }
 
       public abstract void Optimize();
+
+      protected static Expression Unwrap(Expression ex)
+      {
+        while (ex is UnaryExpression && ex.NodeType == AstNodeType.Convert)
+        {
+          ex = ((UnaryExpression)ex).Operand;
+        }
+
+        return ex;
+      }
     }
 
     static void Optimize<T>(CodeBlock cb) where T : OptimizerBase, new()
@@ -59,7 +69,9 @@ namespace IronScheme.Compiler
       var opt = new T { Root = cb };
       opt.Optimize();
     }
-    
+
+
+
     public static void Optimize(CodeBlock cb)
     {
       Optimize<FixupTypedClosureCallsites>(cb);
