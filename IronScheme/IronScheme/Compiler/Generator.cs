@@ -18,6 +18,7 @@ using BigInteger = Oyster.Math.IntX;
 using System.Reflection.Emit;
 using System.Text;
 using IronScheme.FrameworkPAL;
+using IronScheme.Runtime.R6RS;
 
 namespace IronScheme.Compiler
 {
@@ -108,6 +109,13 @@ namespace IronScheme.Compiler
       {
         StringBuilder f = (StringBuilder)args;
         return Ast.Constant(f.ToString());
+      }
+      else if (args is RecordTypeDescriptor || args is RecordConstructorDescriptor || args is Callable)
+      {
+        //TODO: this is probably very bad, but using it now as it is the best I can do
+        var name = Builtins.GenSym();
+        Builtins.SetSymbolValueFast(name, args);
+        return Ast.SimpleCallHelper(typeof(Builtins).GetMethod("SymbolValue"), Ast.Constant(name));
       }
       else
       {
