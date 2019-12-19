@@ -37,7 +37,7 @@ namespace IronScheme.Compiler
       @"\((?<startline>\d+),(?<startcol>\d+)\)\s-\s\((?<endline>\d+),(?<endcol>\d+)\)",
       RegexOptions.Compiled);
 
-    protected static SourceSpan ExtractLocation(string location)
+    protected internal static SourceSpan ExtractLocation(string location)
     {
       var m = LOCATIONMATCH.Match(location);
 

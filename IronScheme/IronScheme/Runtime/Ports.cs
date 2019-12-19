@@ -49,6 +49,12 @@ namespace IronScheme.Runtime
   {
     public static bool ShowImports { get; set; }
 
+    public static object SourceLocation(string location)
+    {
+      var ss = Compiler.SimpleGenerator.ExtractLocation(location);
+      return List(new Cons(ss.Start.Line, ss.Start.Column), new Cons(ss.End.Line, ss.End.Column));
+    }
+
     static Assembly AssemblyLoad(string path, bool loadinmemory)
     {
       var altpath = path.Replace("\\", "/");
