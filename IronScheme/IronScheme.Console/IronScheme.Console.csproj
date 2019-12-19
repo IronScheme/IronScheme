@@ -18,8 +18,8 @@
     <Authors>Llewellyn Pritchard</Authors>
     <PackageIconUrl>http://ironscheme.net/logo-192.png</PackageIconUrl>
     <PackageId>IronScheme.Core</PackageId>
-    <PackageProjectUrl>https://github.com/IronScheme/IronScheme</PackageProjectUrl>
-    <PackageReleaseNotes>https://github.com/IronScheme/IronScheme</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/IronScheme</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/IronScheme</PackageReleaseNotes>
     <PackageTags>scheme ironscheme r6rs</PackageTags>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <StartupObject>IronScheme.Console.Program</StartupObject>
