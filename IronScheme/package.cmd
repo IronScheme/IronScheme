@@ -26,14 +26,8 @@ copy /Y merged\IronScheme.* . >nul
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
 
 NamespaceRenamer IronScheme.dll Microsoft=IronScheme Oyster.Math=IronScheme.Scripting.Math gppg=IronScheme.gppg >nul
-rem ReferenceRemover IronScheme.Web.Runtime.dll "IronScheme\..*|Oyster.IntX.*" IronScheme.dll >nul
-rem ReferenceRemover IronScheme.Remoting.Server.dll "IronScheme\..*|Oyster.IntX.*" "IronScheme.Remoting.*" IronScheme.dll >nul
-rem NamespaceRenamer -r IronScheme.Web.Runtime.dll Microsoft=IronScheme >nul
-rem NamespaceRenamer -r IronScheme.Remoting.Server.dll Microsoft=IronScheme >nul
 
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
-rem peverify /nologo IronScheme.Web.Runtime.dll >nul
-rem peverify /nologo IronScheme.Remoting.Server.dll >nul
 ILMerge /ndebug /v4 /out:IronScheme.Console-v4.exe IronScheme.Console.exe
 ILMerge /ndebug /v4 /out:IronScheme.Console32-v4.exe IronScheme.Console32.exe
 rem the monolith IronScheme.dll is now built, start with packaging
@@ -59,9 +53,6 @@ copy system-libraries.ss install-stage\IronScheme
 copy system-libraries.srfi.ss install-stage\IronScheme
 
 copy IronScheme.dll install-stage\IronScheme
-rem copy IronScheme.Web.Runtime.dll install-stage\IronScheme
-rem copy IronScheme.Remoting*.dll install-stage\IronScheme >nul
-rem copy Executable.cs.template install-stage\IronScheme
 xcopy /e ..\..\..\examples install-stage\IronScheme\examples\ >nul
 xcopy /e ..\..\..\docs install-stage\IronScheme\docs\ >nul
 xcopy /e ..\..\..\lib install-stage\IronScheme\lib\ >nul
@@ -75,8 +66,6 @@ del install-stage\IronScheme\IronScheme.ConsoleCore.pdb
 rmdir /s /q install-stage\IronScheme\lib\srfi\tests
 rmdir /s /q install-stage\IronScheme\docs\notes
 cd install-stage
-rem tar -c -fIronScheme-latest.tar IronScheme >nul
-rem xz IronScheme-latest.tar
 copy ..\ngen-all.cmd IronScheme
 copy ..\un-ngen-all.cmd IronScheme
 7z a IronScheme-latest.zip IronScheme
