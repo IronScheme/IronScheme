@@ -213,7 +213,8 @@
     (eq? (cadr e) 'global-macro))
   
   (define (can-prune? subst env)
-    (not
+    #f
+    #;(not
       (exists
         (lambda (s)
           (exists
