@@ -120,6 +120,7 @@
   (only (srfi :156  predicate-combiners))
   (only (srfi :158))
   (only (srfi :158  generators-and-accumulators))
+  (only (srfi :175))
 
   (only (srfi private OS-id-features))
   (only (srfi private include))

@@ -16,6 +16,14 @@ namespace IronScheme.Tests
     }
 
     [Test]
+    public void Ascii()
+    {
+      var r = RunIronSchemeTest(@"lib\srfi\tests\ascii.sps");
+      Assert.True(r.Output.Length == 0);
+      AssertError(r);
+    }
+
+    [Test]
     public void CharSets()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\char-sets.sps");
