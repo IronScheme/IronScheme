@@ -101,8 +101,14 @@ namespace IronScheme.Hosting
           version = v.ToString(2);
         }
 
-        Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
-        
+        if (Builtins.IsMono)
+        {
+          Console.WriteLine("(Mono .NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
+        }
+        else
+        {
+          Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
+        }
       }
     }
   }
