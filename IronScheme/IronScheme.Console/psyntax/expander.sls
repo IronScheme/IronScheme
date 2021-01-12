@@ -1595,7 +1595,7 @@
          (let ((pos (or (expression-position stx)
                         (expression-position expr))))
            (bless 
-             `(unless ,expr (assertion-error ',expr ',pos))))))))
+             `(or ,expr (assertion-error ',expr ',pos))))))))
   
   (define endianness-macro
     (lambda (stx)
