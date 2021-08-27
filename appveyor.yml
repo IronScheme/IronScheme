@@ -58,6 +58,7 @@ test_script:
 
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown
 
+    set QUIET=
     set TESTCORE=1
 
     cd ..\netcoreapp2.1
