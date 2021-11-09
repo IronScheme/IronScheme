@@ -174,5 +174,23 @@
     (test 1e9999999999999999999999 +inf.0)
     (test 1e-9999999999999999999999 0.0)
     (test -1e9999999999999999999999 -inf.0)
-   
+
+    (test
+      (let ((v8 (make-bytevector 8 0)))
+        (bytevector-ieee-single-native-set! v8 4 -3/2)
+        (bytevector-ieee-single-native-ref v8 4))
+      -1.5)
+
+    (test
+      (let ((v8 (make-bytevector 8 0)))
+        (bytevector-ieee-single-set! v8 4 -3/2 'big)
+        (bytevector-ieee-single-ref v8 4 'big))
+      -1.5)
+
+    (test
+      (let ((v8 (make-bytevector 8 0)))
+        (bytevector-ieee-single-set! v8 4 -3/2 'little)
+        (bytevector-ieee-single-ref v8 4 'little))
+      -1.5)
+
     ))

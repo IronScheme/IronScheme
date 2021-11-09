@@ -12,7 +12,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"tests\r6rs\run.sps");
       if (!Quiet) Console.WriteLine("Expected 3 failed tests.");
-      Assert.True(r.Output.Contains("3 of 8969 tests failed."));
+      Assert.True(r.Output.Contains("3 of 8972 tests failed."));
       AssertError(r);
     }
 
