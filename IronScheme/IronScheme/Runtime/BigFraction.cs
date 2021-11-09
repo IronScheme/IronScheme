@@ -18,241 +18,46 @@
 #endregion
 
 using System;
-using System.Globalization;
 using BigInteger = Oyster.Math.IntX;
-
-namespace System.Runtime.CompilerServices
-{
-  public class ExtensionAttribute : Attribute
-  {
-  }
-}
-
 
 namespace IronScheme.Runtime
 {
-  static class DoubleExtensions
-  {
-    const long MANTISSA_MASK = (long)(ulong.MaxValue >> (64 - 52));
-    const long EXPONENT_MASK = (long)(ulong.MaxValue >> (64 - 11));
-    const long SIGN_MASK = 0x1;
-
-    public static long GetMantissa(this double d)
-    {
-      var r = BitConverter.DoubleToInt64Bits(d);
-      return GetMantissa(r);
-    }
-
-    static long GetMantissa(long r)
-    {
-      return r & MANTISSA_MASK;
-    }
-
-    public static int GetExponent(this double d)
-    {
-      var r = BitConverter.DoubleToInt64Bits(d);
-      return GetExponent(r);
-    }
-
-    static int GetExponent(long r)
-    {
-      r >>= 52;
-      return (int)(r & EXPONENT_MASK);
-    }
-
-    public static int GetSign(this double d)
-    {
-      var r = BitConverter.DoubleToInt64Bits(d);
-      return GetSign(r);
-    }
-
-    static int GetSign(long r)
-    {
-      r >>= 63;
-      return (int)(r & SIGN_MASK);
-    }
-
-    readonly static BigInteger MANTISSA = (ulong.MaxValue >> (64 - 52)) + 1;
-
-    public static bool GetMantissaAndExponent(this double d, out BigInteger mantissa, out BigInteger exponent)
-    {
-      if (double.IsNaN(d))
-      {
-        mantissa = exponent = 0;
-        return false;
-      }
-
-      if (double.IsNegativeInfinity(d))
-      {
-        mantissa = -1;
-        exponent = 0;
-        return false;
-      }
-
-      if (double.IsPositiveInfinity(d))
-      {
-        mantissa = 1;
-        exponent = 0;
-        return false;
-      }
-
-      var r = BitConverter.DoubleToInt64Bits(d);
-
-      var man = GetMantissa(r);
-      var exp = GetExponent(r);
-
-      const int BIAS = 1075;
-      if (exp == 0)
-      {
-        exponent = exp - BIAS;
-        mantissa = (man << 1);
-      }
-      else
-      {
-        exponent = exp - BIAS;
-        mantissa = man + MANTISSA;
-      }
-
-      return true;
-    }
-
-    public static bool GetComponents(this double d, out BigInteger numerator, out BigInteger denominator)
-    {
-      if (double.IsNaN(d))
-      {
-        numerator = denominator = 0;
-        return false;
-      }
-
-      if (double.IsNegativeInfinity(d))
-      {
-        numerator = -1;
-        denominator = 0;
-        return false;
-      }
-
-      if (double.IsPositiveInfinity(d))
-      {
-        numerator = 1;
-        denominator = 0;
-        return false;
-      }
-
-      if (d == 0.0)
-      {
-        numerator = 0;
-        denominator = 1;
-        return true;
-      }
-
-      var r = BitConverter.DoubleToInt64Bits(d);
-
-      var m = GetMantissa(r);
-      var e = GetExponent(r);
-      var s = GetSign(r) == 0 ? 1 : -1;
-
-
-
-      const int BIAS = 1023;
-      var re = e - BIAS;
-
-      var exp = (((BigInteger)1) << Math.Abs(re));
-
-      if (e == 0)
-      {
-        denominator = s * exp * (MANTISSA >> 1);
-        numerator = m;
-        return true;
-      }
-
-      if (re < 0)
-      {
-        denominator = MANTISSA * s * exp;
-        numerator = (MANTISSA + m);
-      }
-      else
-      {
-        denominator = MANTISSA * s;
-        numerator = exp * (MANTISSA + m);
-      }
-      
-
-      return true;
-    }
-
-  }
-	/// <summary>
-	/// An implementation of rational (fractional) numbers.
-	/// Numeric range: -BigInteger.MaxValue/1 to BigInteger.MaxValue/1
-	/// Smallest positive number: 1/BigInteger.MaxValue
-	/// Smallest negative number: -1/BigInteger.MaxValue
-	/// Zero: 0/1
-	/// One: 1/1
-	/// 
-	/// Fractional numbers exhibit no rounding errors as BigInteger as they stay 
-	/// in their numeric range. In other cases a System.OverflowException is
-	/// raised (coming from the underlying BigInteger computation).
-	/// Note that overflow exceptions can be raised even if the reduced result
-	/// fraction is inside the numeric range.
-	/// 
-	/// The typeCode of Fraction is Decimal since this is the closest numeric
-	/// representation. Note however that conversion to and from Decimal will
-	/// loose numeric precision:
-	/// - going from Fraction 1/3 to Decimal is limited by the number of digits
-	///		representable by a Decimal (28)
-	///	- going from Decimal 1m/3m to Fraction will introduce rounding errors in
-	///		the resulting Fraction because Fraction is constructed from a Decimal as
-	///		sign * (int / scale) where the int is unsigned 96bit and scale ranges from
-	///		1 to 10^28. We need to reduce the int to signed 64bit and limit the scale
-	///		to 10^18. This results in rounding errors in the scale number as well
-	///		as lost insignificant digits in the int. 
-	///	However it is guaranteed that the conversion is true if the Decimal uses 18 or
-	///	less significant digits. 
-	/// </summary>
-	/// <remarks>
-	/// A fraction is kept normalized in the following way:
-	/// - the denominator is always positive
-	/// - the fraction is always reduced by the gcd of the nominator and denominator
-	/// </remarks>
+  /// <summary>
+  /// An implementation of rational (fractional) numbers.
+  /// Numeric range: -BigInteger.MaxValue/1 to BigInteger.MaxValue/1
+  /// Smallest positive number: 1/BigInteger.MaxValue
+  /// Smallest negative number: -1/BigInteger.MaxValue
+  /// Zero: 0/1
+  /// One: 1/1
+  /// 
+  /// Fractional numbers exhibit no rounding errors as BigInteger as they stay 
+  /// in their numeric range. In other cases a System.OverflowException is
+  /// raised (coming from the underlying BigInteger computation).
+  /// Note that overflow exceptions can be raised even if the reduced result
+  /// fraction is inside the numeric range.
+  /// 
+  /// The typeCode of Fraction is Decimal since this is the closest numeric
+  /// representation. Note however that conversion to and from Decimal will
+  /// loose numeric precision:
+  /// - going from Fraction 1/3 to Decimal is limited by the number of digits
+  ///		representable by a Decimal (28)
+  ///	- going from Decimal 1m/3m to Fraction will introduce rounding errors in
+  ///		the resulting Fraction because Fraction is constructed from a Decimal as
+  ///		sign * (int / scale) where the int is unsigned 96bit and scale ranges from
+  ///		1 to 10^28. We need to reduce the int to signed 64bit and limit the scale
+  ///		to 10^18. This results in rounding errors in the scale number as well
+  ///		as lost insignificant digits in the int. 
+  ///	However it is guaranteed that the conversion is true if the Decimal uses 18 or
+  ///	less significant digits. 
+  /// </summary>
+  /// <remarks>
+  /// A fraction is kept normalized in the following way:
+  /// - the denominator is always positive
+  /// - the fraction is always reduced by the gcd of the nominator and denominator
+  /// </remarks>
   [Serializable]
-  //[System.ComponentModel.TypeConverter(typeof(Fraction.TypeConverter))]
 	public class Fraction : IComparable, IConvertible
 	{
-    //class TypeConverter : System.ComponentModel.TypeConverter
-    //{
-    //  public override bool CanConvertFrom(System.ComponentModel.ITypeDescriptorContext context, Type sourceType)
-    //  {
-    //    if (sourceType == typeof(Fraction))
-    //    {
-    //      return true;
-    //    }
-    //    switch (Type.GetTypeCode(sourceType))
-    //    {
-    //      case TypeCode.Boolean:
-    //      case TypeCode.DateTime:
-    //      case TypeCode.DBNull:
-    //      case TypeCode.Empty:
-    //      case TypeCode.Object:
-    //        return false;
-    //      default:
-    //        return true;
-    //    }
-    //  }
-
-    //  public override object ConvertFrom(System.ComponentModel.ITypeDescriptorContext context, CultureInfo culture, object value)
-    //  {
-    //    if (value != null)
-    //    {
-    //      Type vt = value.GetType();
-    //      if (vt == typeof(Fraction))
-    //      {
-    //        return value;
-    //      }
-    //      return (Fraction)Convert.ToDouble(value, CultureInfo.InvariantCulture);
-    //    }
-    //    return base.ConvertFrom(context, culture, value);
-    //  }
-    //}
 		#region Declarations
 
 		private BigInteger numerator;
@@ -415,11 +220,6 @@ namespace IronScheme.Runtime
 
     #region Conversions
 
-    //public static explicit operator Decimal(Fraction fraction)
-    //{
-    //  return (Decimal)fraction.numerator / (Decimal)fraction.denominator;
-    //}
-
     public double ToDouble(IFormatProvider foo)
     {
       return (double)this;
@@ -436,49 +236,6 @@ namespace IronScheme.Runtime
     {
       return (BigInteger)fraction.numerator / (BigInteger)fraction.denominator;
     }
-
-    //[method:CLSCompliant(false)]
-    //public static explicit operator UInt64(Fraction fraction)
-    //{
-    //  return (UInt64)(BigInteger)fraction;
-    //}
-
-    //public static explicit operator Int64(Fraction fraction)
-    //{
-    //  return (Int64)(BigInteger)fraction;
-    //}
-
-    //public static explicit operator Int32(Fraction fraction)
-    //{
-    //  return (Int32)(BigInteger)fraction;
-    //}
-
-    //[method:CLSCompliant(false)]
-    //public static explicit operator UInt32(Fraction fraction)
-    //{
-    //  return (UInt32)(BigInteger)fraction;
-    //}
-
-    //public static explicit operator Int16(Fraction fraction)
-    //{
-    //  return (Int16)(BigInteger)fraction;
-    //}
-
-    //[method:CLSCompliant(false)]
-    //public static explicit operator UInt16(Fraction fraction)
-    //{
-    //  return (UInt16)(BigInteger)fraction;
-    //}
-
-    //public static explicit operator Byte(Fraction fraction)
-    //{
-    //  return (Byte)(BigInteger)fraction;
-    //}
-
-    //public static explicit operator Single(Fraction fraction)
-    //{
-    //  return (Single)(BigInteger)fraction;
-    //}
 
     public static implicit operator Fraction(int number)
     {
@@ -501,102 +258,6 @@ namespace IronScheme.Runtime
       x.GetComponents(out num, out den);
       return new Fraction(num, den);
     }
-
-		#endregion
-
-		#region IConvertible Members
-
-    //[method:CLSCompliant(false)]
-    //public UInt64 ToUInt64(IFormatProvider provider)
-    //{
-    //  return (UInt64)this;
-    //}
-
-    //public Int64 ToInt64(IFormatProvider provider)
-    //{
-    //  return (Int64)this;
-    //}
-
-    //[method:CLSCompliant(false)]
-    //public sbyte ToSByte(IFormatProvider provider)
-    //{
-    //  return (SByte)this;
-    //}
-
-    //public double ToDouble(IFormatProvider provider)
-    //{
-    //  return (Double)this;
-    //}
-
-    //public DateTime ToDateTime(IFormatProvider provider)
-    //{
-    //  throw new InvalidCastException("Cannot convert fraction value to DateTime");
-    //}
-
-    //public float ToSingle(IFormatProvider provider)
-    //{
-    //  return (Single)this;
-    //}
-
-    //public bool ToBoolean(IFormatProvider provider)
-    //{
-    //  throw new InvalidCastException("Cannot convert fraction value to Boolean");
-    //}
-
-    //public Int32 ToInt32(IFormatProvider provider)
-    //{
-    //  return (Int32)this;
-    //}
-
-    //[method:CLSCompliant(false)]
-    //public ushort ToUInt16(IFormatProvider provider)
-    //{
-    //  return (UInt16)this;
-    //}
-
-    //public short ToInt16(IFormatProvider provider)
-    //{
-    //  return (Int16)this;
-    //}
-
-    //public string ToString(IFormatProvider provider)
-    //{
-    //  throw new InvalidCastException("Cannot convert fraction value to String");
-    //}
-
-    //public byte ToByte(IFormatProvider provider)
-    //{
-    //  return (Byte)this;
-    //}
-
-    //public char ToChar(IFormatProvider provider)
-    //{
-    //  throw new InvalidCastException("Cannot convert fraction value to Char");
-    //}
-
-    //public System.TypeCode GetTypeCode()
-    //{
-    //  return TypeCode.Decimal;
-    //}
-
-    //public decimal ToDecimal(IFormatProvider provider)
-    //{
-    //  return (Decimal)this;
-    //}
-
-    //public object ToType(Type conversionType, IFormatProvider provider)
-    //{
-    //  if (this.denominator == 1)
-    //    return Convert.ChangeType((BigInteger)this, conversionType, provider);
-    //  else
-    //    return Convert.ChangeType((Decimal)this, conversionType, provider);
-    //}
-
-    //[method:CLSCompliant(false)]
-    //public UInt32 ToUInt32(IFormatProvider provider)
-    //{
-    //  return (UInt32)this;
-    //}
 
 		#endregion
 
