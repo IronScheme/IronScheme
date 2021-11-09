@@ -33,7 +33,7 @@ namespace IronScheme.Hosting
     string logo;
     public IronSchemeConsoleHost()
     {
-      logo = string.Format("IronScheme {0} github.com/IronScheme © 2007-2019 Llewellyn Pritchard ", VERSION);
+      logo = string.Format("IronScheme {0} github.com/IronScheme © 2007-2021 Llewellyn Pritchard ", VERSION);
     }
 
     public static int Execute(string[] args)
