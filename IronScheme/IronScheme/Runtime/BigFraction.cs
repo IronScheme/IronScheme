@@ -825,7 +825,7 @@ namespace IronScheme.Runtime
 
     float IConvertible.ToSingle(IFormatProvider provider)
     {
-      throw new NotImplementedException();
+      return (float)(double)this;
     }
 
     string IConvertible.ToString(IFormatProvider provider)
