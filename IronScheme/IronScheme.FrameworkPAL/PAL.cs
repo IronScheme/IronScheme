@@ -9,6 +9,8 @@ using System.Reflection.Emit;
 using System.Threading;
 using IronScheme.Runtime;
 
+[assembly: Microsoft.Scripting.IronSchemeAssembly]
+
 namespace IronScheme.FrameworkPAL
 {
   public class PALImpl : IPAL
@@ -109,6 +111,8 @@ namespace IronScheme.FrameworkPAL
         mb = ab.DefineDynamicModule(actualModuleName);
 #endif
       }
+
+      ab.SetCustomAttribute(typeof(Microsoft.Scripting.IronSchemeAssemblyAttribute).GetConstructor(Type.EmptyTypes), new byte[4] { 1,0,0,0 });
 
 #if !NETCOREAPP2_1_OR_GREATER
       ab.DefineVersionInfoResource();

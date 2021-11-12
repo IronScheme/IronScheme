@@ -321,6 +321,23 @@ namespace Microsoft.Scripting.Ast
 
         bool ShouldTailCallBeRemoved(CodeGen cg)
         {
+            // figure out why I did this
+            /*
+            var ass = _method.DeclaringType.Assembly;
+
+            Console.WriteLine(ass + "::" +  _method);
+
+            if (!(ass is AssemblyBuilder))
+            {
+                if (ass.GetCustomAttributes(typeof(IronSchemeAssemblyAttribute), false).Length == 0)
+                {
+                    if (!ass.FullName.StartsWith("ironscheme", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }*/
+
             if (!_method.ReturnType.IsValueType && cg.MethodInfo.ReturnType.IsValueType)
             {
                 return true;
