@@ -15,5 +15,3 @@ using System.Security.Permissions;
 // these are for when Oyster.IntX gets merged. ILMerge seems to forget about them.
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [module: UnverifiableCode]
-
-[assembly: Microsoft.Scripting.IronSchemeAssembly] 
