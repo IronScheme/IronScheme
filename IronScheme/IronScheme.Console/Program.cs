@@ -27,7 +27,7 @@ namespace IronScheme.Console
 
     static int Main(string[] args)
     {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       if ((Array.IndexOf(args, "-profile")) >= 0)
       {
         const string PROFILER_GUID = "{9E2B38F2-7355-4C61-A54F-434B7AC266C0}";
@@ -79,13 +79,13 @@ namespace IronScheme.Console
       args = ParseIncludes(args);
 
       Encoding oo = System.Console.OutputEncoding;
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       EnableMulticoreJIT();
 #endif
       try
       {
         System.Console.OutputEncoding = Encoding.UTF8;
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1_OR_GREATER
         Builtins.Exact(1);
 #endif
 
@@ -141,7 +141,7 @@ namespace IronScheme.Console
       return args;
     }
 
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
 
     static void EnableMulticoreJIT()
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.SymbolStore;
 using System.IO;
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1_OR_GREATER
 using System.Linq;
 #endif
 using System.Reflection;
@@ -16,7 +16,7 @@ namespace IronScheme.FrameworkPAL
     public bool ExcludeParamtypes(MethodInfo mi)
     {
       // todo: check if this is a 'problem' on .NET 4.8+? too
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1_OR_GREATER
       if (mi.GetParameters()
         .Any(x => x.ParameterType.Namespace == "System" && x.ParameterType.IsGenericType && x.ParameterType.Name.Contains("Span")))
       {
@@ -31,7 +31,7 @@ namespace IronScheme.FrameworkPAL
 
     public bool IsTransient(ModuleBuilder mb)
     {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       return mb.IsTransient();
 #else
       return true;
@@ -40,7 +40,7 @@ namespace IronScheme.FrameworkPAL
 
     public ISymbolWriter GetSymbolWriter(ModuleBuilder mb)
     {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1_OR_GREATER
       return null;
 #else
       return mb.GetSymWriter();
@@ -49,21 +49,21 @@ namespace IronScheme.FrameworkPAL
 
     public void SetLocalSymInfo(LocalBuilder lb, string name)
     {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       lb.SetLocalSymInfo(name);
 #endif
     }
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
     }
 
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       return mb.DefineDocument(
         fn,
         lang,
@@ -76,7 +76,7 @@ namespace IronScheme.FrameworkPAL
 
     public void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind)
     {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
 #elif LOKAD
       var gen = new Lokad.ILPack.AssemblyGenerator();
@@ -89,7 +89,7 @@ namespace IronScheme.FrameworkPAL
 #pragma warning disable 0618
       if (run)
       {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1_OR_GREATER
         ab = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndCollect);
         mb = ab.DefineDynamicModule(actualModuleName);
 #else
@@ -100,7 +100,7 @@ namespace IronScheme.FrameworkPAL
       }
       else
       {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
         var domain = AppDomain.CurrentDomain;
         ab = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
         mb = ab.DefineDynamicModule(actualModuleName, outFileName, emitDebugInfo);
@@ -110,7 +110,7 @@ namespace IronScheme.FrameworkPAL
 #endif
       }
 
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       ab.DefineVersionInfoResource();
 #endif
 
@@ -119,7 +119,7 @@ namespace IronScheme.FrameworkPAL
 
     public void Initialize()
     {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1_OR_GREATER
       //TODO: check if this can be removed, was possibly just a hacking artefact
       Thread.AllocateNamedDataSlot("foo");
       Thread.FreeNamedDataSlot("foo");
@@ -128,7 +128,7 @@ namespace IronScheme.FrameworkPAL
 
     public void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress)
     {
-#if !NETCOREAPP2_1
+#if !NETCOREAPP2_1_OR_GREATER
       if (compress)
       {
         var cms = new MemoryStream();

@@ -321,13 +321,6 @@ namespace Microsoft.Scripting.Ast
 
         bool ShouldTailCallBeRemoved(CodeGen cg)
         {
-            var ass = _method.DeclaringType.Assembly;
-
-            if (ass.GlobalAssemblyCache)
-            {
-                return true;
-            }
-
             if (!_method.ReturnType.IsValueType && cg.MethodInfo.ReturnType.IsValueType)
             {
                 return true;

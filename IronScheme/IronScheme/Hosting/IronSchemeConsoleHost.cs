@@ -87,7 +87,7 @@ namespace IronScheme.Hosting
           {
             version= "Core 3.0";
           }
-          else // seems to work for core 3.1
+          else if (v.Major < 5) // seems to work for core 3.1
           {
             version = "Core " + version;
           }
