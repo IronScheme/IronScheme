@@ -47,6 +47,8 @@ copy ..\netcoreapp2.1\IronScheme.ConsoleCore.runtimeconfig.json install-stage\Ir
 
 ReferenceRemover install-stage\IronScheme\IronScheme.ConsoleCore.dll "IronScheme\.Closures" IronScheme.dll >nul
 
+copy ..\net5.0\IronScheme.ConsoleCore.exe install-stage\IronScheme
+
 copy DEVELOPMENT.snk install-stage\IronScheme
 
 copy system-libraries.ss install-stage\IronScheme
