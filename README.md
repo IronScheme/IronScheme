@@ -37,6 +37,10 @@ Example to run on .NET 6.0 when you have multiple framework versions installed:
 ```
 dotnet --fx-version 6.0.0 IronScheme.ConsoleCore.dll
 ```
+or
+```
+IronScheme.ConsoleCore.exe --fx-version 6.0.0
+```
 
 Running on Linux/MacOS
 ======================
