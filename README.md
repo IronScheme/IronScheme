@@ -103,13 +103,8 @@ Nuget feed
 
 On Nuget.org and CI-builds on https://ci.appveyor.com/nuget/ironscheme
 
-Issues
-======
+Issues/PR
+=========
 
-Please @leppie in your issues/PR's, else I will probably not know about it. I do not actively monitor Github. If I still dont answers, nag me on Twitter, also @leppie.
-
-Other
-=====
-
-* http://ironscheme.codeplex.com/ (old site)
+Please @leppie in your issues/PR's, else I will probably not know about it. I do not actively monitor Github. If I still dont answer, nag me on Twitter, also @leppie.
     
