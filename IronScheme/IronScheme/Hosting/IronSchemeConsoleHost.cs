@@ -70,7 +70,7 @@ namespace IronScheme.Hosting
 
         var isCore = ass.FullName.StartsWith("System.Private.CoreLib");
 
-        if (isCore)
+        if (isCore && Environment.Version.Major <= 4)
         {
           var va =
             ((AssemblyFileVersionAttribute) ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
