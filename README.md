@@ -24,6 +24,16 @@ V2 requires .NET3.5. V4 requires requires .NET4.0 or higher. Pretty much any run
 
 You can also run it with .NET Core, which has limited compilation functionality.
 
+By default, it will run on the lowest supported .NET Core runtime installed.
+
+To Run it on a specific .NET Core version, use the `--fx-version` option with `dotnet`.
+
+Example to run on .NET 6.0 when you have multiple framework versions installed:
+
+```
+dotnet --fx-version 6.0.0 IronScheme.ConsoleCore.dll
+```
+
 Running on Linux/MacOS
 ======================
 ```
