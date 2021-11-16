@@ -36,6 +36,9 @@ dotnet --fx-version 6.0.0 IronScheme.ConsoleCore.dll
 
 Running on Linux/MacOS
 ======================
+
+The preferred way to run on non-Windows OS is to use .NET Core. You can also run IronScheme on Mono, but your mileage may vary.
+
 ```
 # get .NET Core if you dont have it already
 wget https://dot.net/v1/dotnet-install.sh
