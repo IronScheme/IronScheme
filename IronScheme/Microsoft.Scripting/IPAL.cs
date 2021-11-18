@@ -31,7 +31,7 @@ namespace IronScheme.FrameworkPAL
         {
             const string fn = "IronScheme.FrameworkPAL.dll";
 
-            var fullPath = Path.Combine(typeof(PAL).Assembly.Location, fn);
+            var fullPath = Path.Combine(Path.GetDirectoryName(typeof(PAL).Assembly.Location), fn);
 
             if (File.Exists(fullPath))
             {
