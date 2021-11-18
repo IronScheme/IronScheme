@@ -31,10 +31,12 @@ namespace IronScheme.FrameworkPAL
         {
             const string fn = "IronScheme.FrameworkPAL.dll";
 
-            if (File.Exists(fn))
+            var fullPath = Path.Combine(typeof(PAL).Assembly.Location, fn);
+
+            if (File.Exists(fullPath))
             {
-                var ass = Assembly.LoadFrom(fn);
-                return (IPAL)Activator.CreateInstance(ass.GetType("IronScheme.FrameworkPAL.PALImpl"));
+                var ass = Assembly.LoadFrom(fullPath);
+                return (IPAL)Activator.CreateInstance(ass.GetType("IronScheme.FrameworkPAL.PALImpl", true));
             }
             else
             {
@@ -46,7 +48,8 @@ namespace IronScheme.FrameworkPAL
                 var buffer = new byte[resource.Length];
                 resource.Read(buffer, 0, buffer.Length);
                 var ass = Assembly.Load(buffer);
-                return (IPAL)Activator.CreateInstance(ass.GetType("IronScheme.FrameworkPAL.PALImpl"));
+                var type = ass.GetType("IronScheme.FrameworkPAL.PALImpl", true);
+                return (IPAL)Activator.CreateInstance(type);
             }
         }
         public static void Initialize() => pal.Initialize();
