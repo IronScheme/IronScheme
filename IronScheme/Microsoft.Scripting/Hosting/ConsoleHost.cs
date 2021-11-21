@@ -167,10 +167,6 @@ namespace Microsoft.Scripting.Hosting {
 
         protected virtual void ExecuteInternal() {
 
-            if (_options.DisplayLogo != false) {
-                PrintLogo();
-            }
-            
             if (_options.RunAction == ConsoleHostOptions.Action.DisplayHelp) {
                 PrintHelp();
                 _exitCode = 0; 
@@ -196,6 +192,11 @@ namespace Microsoft.Scripting.Hosting {
                 Console.Error.WriteLine(e.Message);
                 _exitCode = -1;
                 return;
+            }
+
+            if (_options.DisplayLogo != false)
+            {
+                PrintLogo();
             }
 
             switch (_options.RunAction) {

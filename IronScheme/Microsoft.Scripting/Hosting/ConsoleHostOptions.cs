@@ -62,14 +62,14 @@ namespace Microsoft.Scripting.Hosting {
         public string[,] GetHelp() {
             return new string[,] {
                 { "/help",                     "Displays this help." },
- //               { "/lang:<extension>",         "Specify language by the associated extension (py, js, vb, rb). Determined by an extension of the first file. Defaults to IronPython." },
-                { "/run:<files>",              "Executes specified files (semicolon separated list) one by one via the language engine." },
-                { "/execute:<file>",           "Execute a specified .exe file using its static entry point." },
-                { "/paths:<file-path-list>",   "Semicolon separated list of import paths (/run only)." },
+//               { "/lang:<extension>",         "Specify language by the associated extension (py, js, vb, rb). Determined by an extension of the first file. Defaults to IronPython." },
+//                { "/run:<files>",              "Executes specified files (semicolon separated list) one by one via the language engine." },
+//                { "/execute:<file>",           "Execute a specified .exe file using its static entry point." },
+//                { "/paths:<file-path-list>",   "Semicolon separated list of import paths (/run only)." },
                 { "/nologo",                   "Do not display host logo." },
                 { "/logo",                     "Display host logo." },
  //               { "/mta",                      "Starts command line thread in multi-threaded apartment. Not available on Silverlight." },
-                { "/setenv:<var1=value1;...>", "Sets specified environment variables for the console process. Not available on Silverlight." },
+ //               { "/setenv:<var1=value1;...>", "Sets specified environment variables for the console process. Not available on Silverlight." },
 #if DEBUG
                 { "/X:ShowASTs",               "Print generated Abstract Syntax Trees to the console" },
                 { "/X:DumpASTs",               "Write generated ASTs as files in the current directory" },

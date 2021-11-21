@@ -49,7 +49,12 @@ namespace IronScheme.Hosting
 
     protected override void PrintLogo()
     {
-      if (Options.RunAction == ConsoleHostOptions.Action.RunConsole && !LanguageProvider.InputRedirected)
+      if (Options.DisplayLogo == true)
+      {
+        Console.Write(logo);
+        PrintRuntimeVersion();
+      }
+      else if (Options.RunAction == ConsoleHostOptions.Action.RunConsole && !LanguageProvider.InputRedirected)
       {
         // errrkkk
         var tokens = logo.Split(new string[] { "github.com/IronScheme" }, StringSplitOptions.None);
@@ -64,55 +69,56 @@ namespace IronScheme.Hosting
 
         Console.ForegroundColor = old;
 
-        var version = Environment.Version.ToString(2);
+        PrintRuntimeVersion();
+      }
+    }
 
-        var ass = typeof(object).Assembly;
+    private static void PrintRuntimeVersion()
+    {
+      var version = Environment.Version.ToString(2);
 
-        var isCore = ass.FullName.StartsWith("System.Private.CoreLib");
+      var ass = typeof(object).Assembly;
 
-        if (isCore && Environment.Version.Major <= 4)
+      var isCore = ass.FullName.StartsWith("System.Private.CoreLib");
+
+      if (isCore && Environment.Version.Major <= 4)
+      {
+        var va =
+          ((AssemblyFileVersionAttribute)ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
+          ?.Version ?? string.Empty;
+        var v = new Version(va);
+        if (v.Major == 4 && v.Minor == 6) // core 2.x
         {
-          var va =
-            ((AssemblyFileVersionAttribute) ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
-            ?.Version ?? string.Empty;
-          var v = new Version(va);
-          if (v.Major == 4 && v.Minor == 6) // core 2.x
-          {
-            var rta = typeof(System.IO.FileAttributes).Assembly;
-            v = rta.GetName().Version;
+          var rta = typeof(System.IO.FileAttributes).Assembly;
+          v = rta.GetName().Version;
 
-            version = "Core " + v.ToString(3).Replace("4.", "");
-          }
-          else if (v.Minor == 7)
-          {
-            version= "Core 3.0";
-          }
-          else if (v.Major < 5) // seems to work for core 3.1
-          {
-            version = "Core " + version;
-          }
+          version = "Core " + v.ToString(3).Replace("4.", "");
         }
-        else if (Environment.Version.Major == 4)
+        else if (v.Minor == 7)
         {
-          var va =
-            ((AssemblyFileVersionAttribute)ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
-            ?.Version ?? string.Empty;
-          var v = new Version(va);
-          version = v.ToString(2);
+          version = "Core 3.0";
         }
-
-        if (Builtins.IsMono)
+        else if (v.Major < 5) // seems to work for core 3.1
         {
-          Console.WriteLine("(Mono .NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
-        }
-        else
-        {
-          Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
+          version = "Core " + version;
         }
       }
-      else if (Options.DisplayLogo == true)
+      else if (Environment.Version.Major == 4)
       {
-        Console.WriteLine(logo);
+        var va =
+          ((AssemblyFileVersionAttribute)ass.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)[0])
+          ?.Version ?? string.Empty;
+        var v = new Version(va);
+        version = v.ToString(2);
+      }
+
+      if (Builtins.IsMono)
+      {
+        Console.WriteLine("(Mono .NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
+      }
+      else
+      {
+        Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
       }
     }
   }
