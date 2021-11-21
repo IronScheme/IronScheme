@@ -169,10 +169,16 @@ See docs/license.txt. |#
     (clr-prop-get HttpRequest UserAgent (request)))
     
   (define (server-util)
-    (clr-prop-get HttpContext Server (context)))
+    (let ((c (context)))
+      (if (null? c)
+          #f
+          (clr-prop-get HttpContext Server c))))
     
   (define/contract (map-path p:string)
-    (clr-call HttpServerUtility MapPath (server-util) p))   
+    (let ((su (server-util)))
+        (if su
+            (clr-call HttpServerUtility MapPath su p)
+            p)))
 
   (define/contract (response-content-type-set! p:string)
     (clr-prop-set! HttpResponse ContentType (response) p)
