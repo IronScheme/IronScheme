@@ -49,7 +49,7 @@ namespace IronScheme.Hosting
 
     protected override void PrintLogo()
     {
-      if (Options.RunAction != ConsoleHostOptions.Action.RunFiles && !LanguageProvider.InputRedirected)
+      if (Options.RunAction == ConsoleHostOptions.Action.RunConsole && !LanguageProvider.InputRedirected)
       {
         // errrkkk
         var tokens = logo.Split(new string[] { "github.com/IronScheme" }, StringSplitOptions.None);
@@ -109,6 +109,10 @@ namespace IronScheme.Hosting
         {
           Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
         }
+      }
+      else if (Options.DisplayLogo == true)
+      {
+        Console.WriteLine(logo);
       }
     }
   }
