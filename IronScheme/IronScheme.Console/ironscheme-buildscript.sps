@@ -1213,6 +1213,7 @@
     (stx-expr                                   ic)
     (load                                       i)
     (compile                                    i)
+    (compile-to-current-directory?              i)
     (compile->closure                           i)
     (compile-system-libraries                   i)
     (serialize-library                          iser)

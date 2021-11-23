@@ -57,7 +57,7 @@
     (only (ironscheme unsafe) $fx+ $fx-)
     (ironscheme constant-fold)
     (except (ironscheme library) file-locator alternative-file-locator)
-    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? serialize-port deserialize-port time time-it string=?))
+    (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? compile-to-current-directory? serialize-port deserialize-port time time-it string=?))
     
   (clr-reference System)
     
@@ -300,7 +300,8 @@
   (set-symbol-value! 'stacktrace-enable? display-stacktrace)
   
   (file-options-constructor (enum-set-constructor fo))
-  
+
+  (compile-to-current-directory? #f)
   (library-path (get-library-paths))
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))

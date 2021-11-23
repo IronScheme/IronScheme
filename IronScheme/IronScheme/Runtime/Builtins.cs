@@ -267,6 +267,19 @@ namespace IronScheme.Runtime
       return Unspecified;
     }
 
+    [Builtin("compile-to-current-directory?")]
+    public static object CompileToCurrentDirectory()
+    {
+      return GetBool(ScriptDomainManager.Options.BinariesDirectory == null);
+    }
+
+    [Builtin("compile-to-current-directory?")]
+    public static object CompileToCurrentDirectory(object newmode)
+    {
+      ScriptDomainManager.Options.BinariesDirectory = IsTrue(newmode) ? null : ApplicationDirectory;
+      return Unspecified;
+    }
+
     [Builtin("lw-debug-mode?")]
     public static object IsLightWeightDebugMode()
     {
