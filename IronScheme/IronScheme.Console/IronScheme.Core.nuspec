@@ -10,17 +10,21 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Only includes IronScheme.dll</description>
     <releaseNotes>https://github.com/IronScheme</releaseNotes>
-    <copyright>Copyright 2007-2019</copyright>
+    <copyright>Copyright 2007-2021</copyright>
     <tags>scheme ironscheme r6rs</tags>
     <repository type="git" url="https://github.com/IronScheme/IronScheme" branch="master" commit="$sha$" />
     <dependencies>
-      <group targetFramework=".NETFramework3.5" />
-      <group targetFramework=".NETFramework4.0" />
-      <group targetFramework=".NETFramework4.5" />
+      <group targetFramework="net35" />
+      <group targetFramework="net40" />
+      <group targetFramework="net45" />
       <group targetFramework="netcoreapp2.1" />
+      <!--<group targetFramework="net5.0" />-->
     </dependencies>
   </metadata>
   <files>
     <file src="IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
+    <file src="..\IronScheme.FrameworkPAL.dll" target="lib\IronScheme.FrameworkPAL.dll" />
+    <file src="..\..\netcoreapp2.1\IronScheme.FrameworkPAL.dll" target="lib\netcoreapp2.1\IronScheme.FrameworkPAL.dll" />
+    <!--<file src="..\..\netcoreapp2.1\IronScheme.FrameworkPAL.dll" target="lib\net5.0\IronScheme.FrameworkPAL.dll" />-->
   </files>
 </package>

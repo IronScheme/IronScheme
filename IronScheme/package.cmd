@@ -4,6 +4,9 @@ setlocal
 set BUILD_ROOT=%~dp0
 set PATH=%PATH%;%BUILD_ROOT%tools;
 
+if "%APPVEYOR_BUILD_VERSION%"=="" set APPVEYOR_BUILD_VERSION="0.0.0"
+if "%SHA%"=="" set SHA="000000"
+
 mkdir bin >nul 2>&1
 
 pushd IronScheme.Console\bin\Release\net20
@@ -78,5 +81,6 @@ copy /y IronScheme-latest*.* %BUILD_ROOT%bin
 rem nuget
 copy /y ..\..\..\..\IronScheme.Core.nuspec .
 nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
+rem nuget pack IronScheme.Core.nuspec -Symbols -SymbolPackageFormat snupkg -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
 copy /y IronScheme*.nupkg %BUILD_ROOT%bin
 popd
