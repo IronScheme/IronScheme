@@ -23,8 +23,5 @@
   </metadata>
   <files>
     <file src="IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
-    <file src="..\IronScheme.FrameworkPAL.dll" target="lib\IronScheme.FrameworkPAL.dll" />
-    <file src="..\..\netcoreapp2.1\IronScheme.FrameworkPAL.dll" target="lib\netcoreapp2.1\IronScheme.FrameworkPAL.dll" />
-    <!--<file src="..\..\netcoreapp2.1\IronScheme.FrameworkPAL.dll" target="lib\net5.0\IronScheme.FrameworkPAL.dll" />-->
   </files>
 </package>
