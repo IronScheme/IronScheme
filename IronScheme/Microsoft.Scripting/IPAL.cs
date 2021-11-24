@@ -36,7 +36,8 @@ namespace IronScheme.FrameworkPAL
             if (File.Exists(fullPath))
             {
                 var ass = Assembly.LoadFrom(fullPath);
-                return (IPAL)Activator.CreateInstance(ass.GetType("IronScheme.FrameworkPAL.PALImpl", true));
+                var type = ass.GetType("IronScheme.FrameworkPAL.PALImpl", true);
+                return (IPAL)Activator.CreateInstance(type);
             }
             else
             {
@@ -52,6 +53,7 @@ namespace IronScheme.FrameworkPAL
                 return (IPAL)Activator.CreateInstance(type);
             }
         }
+
         public static void Initialize() => pal.Initialize();
         public static ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype) => pal.CreateSymbolDocumentWriter(mb, fn, lang, vendor, doctype);
         public static bool ExcludeParamtypes(MethodInfo mi) => pal.ExcludeParamtypes(mi);
