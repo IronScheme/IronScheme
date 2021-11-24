@@ -44,7 +44,6 @@ namespace IronScheme.Hosting
     void Initialize()
     {
       IronScheme.Compiler.BaseHelper.Initialize(this);
-      //Runtime.Builtins.Exact(1); // something needed for VS... ???
       PAL.Initialize();
       Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
