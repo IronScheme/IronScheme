@@ -3567,7 +3567,8 @@
       (let-values (((name pred) (parse-library-name spec*)))
         (when (null? name) 
           (syntax-violation 'import "empty library name" spec*))
-        (let ((lib (find-library-by-name name)))
+        (let ((lib (guard [ex [#t (raise (apply condition (extract-position-condition spec*) (simple-conditions ex)))]]
+                      (find-library-by-name name))))
           (unless lib
             (syntax-violation 'import 
                "cannot find library with required name"
