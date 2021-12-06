@@ -3135,6 +3135,7 @@
               (make-stx (stx-expr x) (append diff (stx-mark* x)) '() '()))
             id-vec))))
 
+  ;; what is this used for?
   (define (syntax-transpose object base-id new-id)
     (define who 'syntax-transpose)
     (define (err msg . args) (apply assertion-violation who msg args))
