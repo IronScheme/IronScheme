@@ -94,7 +94,7 @@ namespace IronScheme.Compiler
         if (!((ass is AssemblyBuilder) || ass.GetType().Name == "InternalAssemblyBuilder"))
         {
           t = ass.GetType(name);
-          if (t != null && t.IsPublic)
+          if (t != null && (t.IsPublic || t.IsNestedPublic))
           {
             return t;
           }
