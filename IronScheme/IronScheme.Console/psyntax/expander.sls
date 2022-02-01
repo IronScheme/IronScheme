@@ -3058,7 +3058,7 @@
              ((top-expr) 
               (let ((e (chi-expr (cdr rhs) r mr)))
                 (cons e (f (cdr lhs*) (cdr rhs*)))))
-             (else (error 'expand-interaction "invallid" rhs))))))))
+             (else (error 'expand-interaction "invalid" rhs))))))))
 
   (define chi-rhs*
     (lambda (rhs* r mr)
