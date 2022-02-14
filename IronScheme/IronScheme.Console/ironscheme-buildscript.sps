@@ -1215,7 +1215,6 @@
     (library-name->dll-name                     ic)
     (compiled-library-exists?                   ic)
     (library-exists?                            ic)
-    (library-extensions)                        ic)
     (load                                       i)
     (compile                                    i)
     (compile-to-current-directory?              i)
