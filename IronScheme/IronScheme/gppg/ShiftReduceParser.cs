@@ -199,13 +199,17 @@ namespace gppg
       return discard;
     }
 
+    public string GetLastError(string filename)
+    {
+      return string.Format("unexpected {0} in '{1}' at {2}", TerminalToString(next), filename, GetLocation(lastL));
+    }
 
     public void ReportError()
     {
       StringBuilder errorMsg = new StringBuilder();
       errorMsg.AppendFormat("unexpected {0}", TerminalToString(next));
 
-      if (current_state.parser_table.Count < 20)
+      if (current_state.parser_table != null && current_state.parser_table.Count < 20)
       {
         bool first = true;
         foreach (int terminal in current_state.parser_table.Keys)

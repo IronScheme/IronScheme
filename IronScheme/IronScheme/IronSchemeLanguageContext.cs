@@ -137,6 +137,15 @@ namespace IronScheme
       {
         return p.parsed;
       }
+      
+      if (code is FileStream)
+      {
+        var filename = ((FileStream)code).Name;
+        var errorMsg = p.GetLastError(filename);
+
+        return Builtins.LexicalError("invalid syntax", errorMsg);
+      }
+
       return Builtins.LexicalError("invalid syntax", code);
     }
 
@@ -158,7 +167,6 @@ namespace IronScheme
         return p.parsed;
       }
       return Builtins.LexicalError("invalid syntax", code);
-
     }
 
     internal static CodeBlock Compile(Cons expr)
