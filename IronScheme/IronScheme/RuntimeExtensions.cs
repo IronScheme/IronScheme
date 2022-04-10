@@ -141,7 +141,11 @@ namespace IronScheme
 
     public static Callable ToSchemeProcedure(this Delegate del)
     {
-      var m = del.Method;
+      return del.Method.ToSchemeProcedure(del.Target);
+    }
+
+    public static Callable ToSchemeProcedure(this MethodInfo m, object target = null)
+    {
       var pars = m.GetParameters();
       var rt = m.ReturnType;
       var partypes = Array.ConvertAll(pars, x => x.ParameterType);
@@ -154,7 +158,7 @@ namespace IronScheme
 
       if (Array.TrueForAll(allargs, x => x == typeof(object)))
       {
-        return Closure.Create(Delegate.CreateDelegate(CallTargets[partypes.Length], del.Target, m));
+        return Closure.Create(Delegate.CreateDelegate(CallTargets[partypes.Length], target, m));
       }
       else
       {
@@ -164,7 +168,7 @@ namespace IronScheme
         tc = tc.MakeGenericType(allargs);
         dt = dt.MakeGenericType(allargs);
 
-        var tci = Activator.CreateInstance(tc, Delegate.CreateDelegate(dt, del.Target, m));
+        var tci = Activator.CreateInstance(tc, Delegate.CreateDelegate(dt, target, m));
 
         return tci as Callable;
       }
