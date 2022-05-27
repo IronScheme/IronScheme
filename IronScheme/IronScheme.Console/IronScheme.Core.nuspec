@@ -18,7 +18,6 @@
       <group targetFramework="net40" />
       <group targetFramework="net45" />
       <group targetFramework="netcoreapp2.1" />
-      <!--<group targetFramework="net5.0" />-->
     </dependencies>
   </metadata>
   <files>
