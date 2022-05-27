@@ -658,6 +658,13 @@ namespace Microsoft.Scripting {
             foreach (MethodCandidate candidate in applicableTargets) {
                 if (IsBest(candidate, applicableTargets, callType, actualTypes)) return candidate;
             }
+
+            applicableTargets = applicableTargets.FindAll(x => !x.Target.HasParams);
+
+            foreach (MethodCandidate candidate in applicableTargets)
+            {
+                if (IsBest(candidate, applicableTargets, callType, actualTypes)) return candidate;
+            }
             return null;
         }
 

@@ -49,9 +49,14 @@ namespace Microsoft.Scripting.Generation {
             get { return _method; }
             set { _method = value; }
         }
-
+        
         public int ParameterCount {
             get { return _parameterCount; }
+        }
+
+        public bool HasParams
+        {
+            get { return _argBuilders.Count > _parameterCount && _argBuilders[_argBuilders.Count - 1] is ParamsArgBuilder; }
         }
 
       public bool NeedsContext

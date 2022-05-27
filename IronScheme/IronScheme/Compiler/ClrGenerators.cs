@@ -657,10 +657,11 @@ namespace IronScheme.Compiler
           if (mi.GetGenericArguments().Length == gentypes.Length)
           {
             candidates.Add(mi.MakeGenericMethod(gentypes));
-            continue;
           }
+          
+          continue;
         }
-        else
+        else if (gentypes == null)
         {
           candidates.Add(mi);
         }
