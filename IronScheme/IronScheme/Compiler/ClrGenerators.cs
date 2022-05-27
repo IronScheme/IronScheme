@@ -651,15 +651,19 @@ namespace IronScheme.Compiler
         {
           continue;
         }
-        if (mi.ContainsGenericParameters)
+
+        if (mi.ContainsGenericParameters && gentypes != null)
         {
-          if (gentypes != null && mi.GetGenericArguments().Length == gentypes.Length)
+          if (mi.GetGenericArguments().Length == gentypes.Length)
           {
             candidates.Add(mi.MakeGenericMethod(gentypes));
             continue;
           }
         }
-        candidates.Add(mi);    
+        else
+        {
+          candidates.Add(mi);
+        }
       }
 
       Type[] types = new Type[arguments.Length];
