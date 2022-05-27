@@ -76,7 +76,7 @@ namespace IronScheme.Compiler
 
     static Dictionary<string, string> ResetReferences()
     {
-      var namespaces = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+      var namespaces = new Dictionary<string, string>();
       namespaces.Add("System", "System");
       return namespaces;
     }
