@@ -444,6 +444,12 @@ namespace IronScheme.Runtime
 
     public static T ConvertToDelegate<T>(object proc)
     {
+      // this should be a callable, but we allow Delegate too if matching
+      if (proc is T)
+      {
+        return (T)proc;
+      }
+      
       if (!(proc is Callable))
       {
         Builtins.AssertionViolation("ConvertToDelegate", "not a procedure", proc);
