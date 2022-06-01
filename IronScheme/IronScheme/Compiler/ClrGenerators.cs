@@ -647,11 +647,6 @@ namespace IronScheme.Compiler
 
       foreach (MethodInfo mi in t.GetMember(member, MemberTypes.Method, bf))
       {
-        if (PAL.ExcludeParamtypes(mi))
-        {
-          continue;
-        }
-
         if (mi.ContainsGenericParameters && gentypes != null)
         {
           if (mi.GetGenericArguments().Length == gentypes.Length)

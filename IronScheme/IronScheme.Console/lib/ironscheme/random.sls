@@ -34,7 +34,7 @@ See docs/license.txt. |#
         (clr-call Random Next rg min max)]))
 
   (define/contract (next-bytevector rg:rng bytevector:bytevector)
-    (clr-call Random NextBytes rg bytevector))
+    (clr-call Random (NextBytes Byte[]) rg bytevector))
           
   (define/contract (next-flonum rg:rng)
     (clr-call Random NextDouble rg))

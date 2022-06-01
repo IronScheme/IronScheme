@@ -98,22 +98,22 @@ See docs/license.txt. |#
     (clr-static-call Path (Combine String String) path1 path2))
 
   (define/contract (get-directory-name path:string)
-    (clr-static-call Path GetDirectoryName path))
+    (clr-static-call Path (GetDirectoryName String) path))
 
   (define/contract (get-extension path:string)
-    (clr-static-call Path GetExtension path))
+    (clr-static-call Path (GetExtension String) path))
 
   (define/contract (get-filename path:string)
-    (clr-static-call Path GetFileName path))
+    (clr-static-call Path (GetFileName String) path))
 
   (define/contract (get-filename-without-extension path:string)
-    (clr-static-call Path GetFileNameWithoutExtension path))
+    (clr-static-call Path (GetFileNameWithoutExtension String) path))
 
   (define/contract (get-full-path path:string)
-    (clr-static-call Path GetFullPath path))
+    (clr-static-call Path (GetFullPath String) path))
 
   (define/contract (get-path-root path:string)
-    (clr-static-call Path GetPathRoot path))
+    (clr-static-call Path (GetPathRoot String) path))
 
   (define (get-random-filename)
     (clr-static-call Path GetRandomFileName))
@@ -125,10 +125,10 @@ See docs/license.txt. |#
     (clr-static-call Path GetTempPath))    
     
   (define/contract (path-rooted? path:string)
-    (clr-static-call Path IsPathRooted path))    
+    (clr-static-call Path (IsPathRooted String) path))    
 
   (define/contract (path-has-extension? path:string)
-    (clr-static-call Path HasExtension path))  
+    (clr-static-call Path (HasExtension String) path))  
     
   (define (invalid-filename-characters)
     (string->list

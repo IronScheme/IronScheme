@@ -10,7 +10,6 @@ namespace IronScheme.FrameworkPAL
     {
         void Initialize();
         ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype);
-        bool ExcludeParamtypes(MethodInfo mi);
         ISymbolWriter GetSymbolWriter(ModuleBuilder mb);
         bool IsTransient(ModuleBuilder mb);
         void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn);
@@ -56,12 +55,10 @@ namespace IronScheme.FrameworkPAL
 
         public static void Initialize() => pal.Initialize();
         public static ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype) => pal.CreateSymbolDocumentWriter(mb, fn, lang, vendor, doctype);
-        public static bool ExcludeParamtypes(MethodInfo mi) => pal.ExcludeParamtypes(mi);
         public static ISymbolWriter GetSymbolWriter(ModuleBuilder mb) => pal.GetSymbolWriter(mb);
         public static bool IsTransient(ModuleBuilder mb) => pal.IsTransient(mb);
         public static void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn) =>
             pal.MarkSequencePoint(ilg, document, startLine, startColumn, endLine, endColumn);
-
         public static void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress) => pal.SerializeConstants(s, mb, compress);
         public static void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind) => pal.Save(ass, filename, machineKind);
         public static void SetLocalSymInfo(LocalBuilder lb, string name) => pal.SetLocalSymInfo(lb, name);

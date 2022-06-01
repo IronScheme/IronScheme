@@ -13,22 +13,6 @@ namespace IronScheme.FrameworkPAL
 {
   public class PALImpl : IPAL
   {
-    public bool ExcludeParamtypes(MethodInfo mi)
-    {
-      // todo: check if this is a 'problem' on .NET 4.8+? too
-#if NETCOREAPP2_1_OR_GREATER
-      if (mi.GetParameters()
-        .Any(x => x.ParameterType.Namespace == "System" && x.ParameterType.IsGenericType && x.ParameterType.Name.Contains("Span")))
-      {
-        return true;
-      }
-
-      return false;
-#else
-      return false;
-#endif
-    }
-
     public bool IsTransient(ModuleBuilder mb)
     {
 #if !NETCOREAPP2_1_OR_GREATER
