@@ -18,11 +18,10 @@
       <group targetFramework="net40" />
       <group targetFramework="net45" />
       <group targetFramework="netcoreapp2.1" />
-      <group targetFramework="net5.0" />
     </dependencies>
   </metadata>
   <files>
     <file src="IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
-    <file src="IronScheme\IronScheme.pdb" target="lib\IronScheme.pdb" />
+    <!--<file src="IronScheme\IronScheme.pdb" target="lib\IronScheme.pdb" />-->
   </files>
 </package>
