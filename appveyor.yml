@@ -53,7 +53,7 @@ test_script:
     call ci-artefact.cmd
 artifacts:
 - path: IronScheme-*.zip
-- path: IronScheme*.nupkg
+- path: IronScheme*.*nupkg
 before_deploy:
 - cmd: |
     rem precompile libraries for Nuget
