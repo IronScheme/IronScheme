@@ -468,18 +468,18 @@ namespace IronScheme.Runtime
       {
         Builtins.AssertionViolation("ConvertToDelegate", "not a procedure", proc);
       }
-
-      // TODO: see if we have a (typed) callable that we can directly pass without conversion
       
       MethodInfo meth = typeof(T).GetMethod("Invoke");
       ParameterInfo[] pars = meth.GetParameters();
       if (meth.ReturnType == typeof(void))
       {
+        // cant optimize for void
         Delegate d = MakeVoidTypedCallable(Array.ConvertAll(pars, x => x.ParameterType), proc as Callable);
         return (T)(object)Delegate.CreateDelegate(typeof(T), d.Target , d.Method);
       }
       else
       {
+        // TODO: see if we have a (typed) callable that we can directly pass without conversion
         Delegate d = MakeTypedCallable(meth.ReturnType, Array.ConvertAll(pars, x => x.ParameterType), proc as Callable);
         return (T)(object)Delegate.CreateDelegate(typeof(T), d.Target, d.Method);
       }
