@@ -51,9 +51,6 @@ namespace Microsoft.Scripting.Ast {
         }
 
 #endif
-        internal Type DelegateType {
-            get { return _delegateType; }
-        }
 
         /// <summary>
         /// Whether this expression declares the block. If so, the declaring code's variable are accessible from within the block (a closure is created).

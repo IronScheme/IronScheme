@@ -219,12 +219,6 @@ namespace Microsoft.Scripting {
             return buf.ToString(); //@todo add helper info for more interesting signatures
         }
 
-        public NarrowingLevel NarrowingLevel {
-            get {
-                return _narrowingLevel;
-            }
-        }
-
         internal IList<ParameterWrapper> Parameters {
             get {
                 return _parameters;

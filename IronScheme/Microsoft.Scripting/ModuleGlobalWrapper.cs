@@ -48,11 +48,6 @@ namespace Microsoft.Scripting {
             _name = name;
         }
 
-        public static void SetValue(object value, ModuleGlobalWrapper wrapper)
-        {
-          wrapper.CurrentValue = value;
-        }
-
         public object CurrentValue {
 #if !DEBUG
           [DebuggerHidden]
@@ -102,23 +97,6 @@ namespace Microsoft.Scripting {
             get {
                 return _value;
             }
-        }
-
-        public string Display {
-            get {
-                if (_value != Uninitialized.Instance) return GetStringDisplay(_value);
-
-                if (_global.IsCaching && _global.HasValue) return GetStringDisplay(_global.Value);
-                object value;
-                if (_context.LanguageContext.TryLookupGlobal(_context, _name, out value))
-                    return GetStringDisplay(value);
-
-                return GetStringDisplay(Uninitialized.Instance);
-            }
-        }
-
-        private string GetStringDisplay(object val) {
-            return val == null ? "(null)" : val.ToString();
         }
 
         public override string ToString() {

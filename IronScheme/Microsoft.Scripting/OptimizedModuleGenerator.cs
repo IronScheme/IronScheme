@@ -526,17 +526,6 @@ namespace Microsoft.Scripting.Generation {
 
         #endregion
 
-        /// <summary>
-        /// Creates a new assembly for generating a module, ensuring a unique filename like "filename.N.exe" for the generated assembly
-        /// </summary>
-        AssemblyGen CreateModuleAssembly(ScriptCode scriptCode) 
-        {
-          var su = scriptCode.CompilerContext.SourceUnit;
-          var ag = CreateModuleAssembly(su.Id);
-          ag.SetSourceUnit(su);
-          return ag;
-        }
-
         private TypeGen GenerateModuleGlobalsType(AssemblyGen ag, ScriptCode sc)
         {
           var n = sc.CodeBlock.Name;

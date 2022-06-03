@@ -14,23 +14,19 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Globalization;
 
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Shell;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
-using System.Runtime.CompilerServices;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
-using System.Diagnostics;
 using System.IO;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Provides language specific facilities which are typicalled called by the runtime.
     /// </summary>
@@ -68,11 +64,6 @@ namespace Microsoft.Scripting {
         }
 
         #region Module Context
-
-        public ModuleContext GetModuleContext(ScriptModule module) {
-            Contract.RequiresNotNull(module, "module");
-            return module.GetModuleContext(ContextId);
-        }
         
         public ModuleContext EnsureModuleContext(ScriptModule module) {
             Contract.RequiresNotNull(module, "module");
@@ -133,10 +124,6 @@ namespace Microsoft.Scripting {
                 context.SourceUnit.CodeProperties = (block != null) ? SourceCodeProperties.None : SourceCodeProperties.IsInvalid;
             }
         }
-
-        public ScriptCode CompileSourceCode(SourceUnit sourceUnit) {
-            return CompileSourceCode(sourceUnit, null, null);
-        }
         
         public ScriptCode CompileSourceCode(SourceUnit sourceUnit, CompilerOptions options) {
             return CompileSourceCode(sourceUnit, options, null);
@@ -146,7 +133,6 @@ namespace Microsoft.Scripting {
       {
         CompilerContext context = new CompilerContext(SourceUnit.CreateSnippet(Engine, string.Empty), GetCompilerOptions(), Engine.GetCompilerErrorSink());
         AnalyzeBlock(block);
-        DumpBlock(block, null);
         return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
       }
 
@@ -154,7 +140,6 @@ namespace Microsoft.Scripting {
       {
         CompilerContext context = new CompilerContext(SourceUnit.CreateFileUnit(Engine, sourcefile), GetCompilerOptions(), Engine.GetCompilerErrorSink());
         AnalyzeBlock(block);
-        DumpBlock(block, null);
         return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
       }
 
@@ -172,21 +157,10 @@ namespace Microsoft.Scripting {
                 throw new SyntaxErrorException("invalid syntax|" + sourceUnit.GetCode().Trim());
             }
 
-            //DumpBlock(block, sourceUnit.Id);
-
             AnalyzeBlock(block);
-
-            DumpBlock(block, sourceUnit.Id);
 
             // TODO: ParseSourceCode can update CompilerContext.Options
             return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
-        }
-
-        [Conditional("DEBUG")]
-        private static void DumpBlock(CodeBlock block, string id) {
-#if DEBUG
-            AstWriter.Dump(block, id);
-#endif
         }
 
         public static void AnalyzeBlock(CodeBlock block)
@@ -227,32 +201,10 @@ namespace Microsoft.Scripting {
         }
 
         /// <summary>
-        /// Looks up the name in the provided scope using the current language's semantics.
-        /// 
-        /// If the name cannot be found throws the language appropriate exception or returns
-        /// the language's appropriate default value.
-        /// </summary>
-        public virtual object LookupName(CodeContext context, SymbolId name) {
-            object value;
-            if (!TryLookupName(context, name, out value) || value == Uninitialized.Instance) {
-                throw MissingName(name);
-            }
-
-            return value;
-        }
-
-        /// <summary>
         /// Attempts to set the name in the provided scope using the current language's semantics.
         /// </summary>
         public virtual void SetName(CodeContext context, SymbolId name, object value) {
             context.Scope.SetName(name, value);
-        }
-
-        /// <summary>
-        /// Attempts to remove the name from the provided scope using the current language's semantics.
-        /// </summary>
-        public virtual bool RemoveName(CodeContext context, SymbolId name) {
-            return context.Scope.RemoveName(this, name);
         }
 
         /// <summary>
@@ -293,81 +245,7 @@ namespace Microsoft.Scripting {
             return _noCache;
         }
 
-        #region ICloneable Members
-
-        public virtual object Clone() {
-            return MemberwiseClone();
-        }
-
-        #endregion
-
         public virtual bool IsTrue(object obj) {
-            return false;
-        }
-
-        /// <summary>
-        /// Calls the function with given arguments
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="function">The function to call</param>
-        /// <param name="args">The argumetns with which to call the function.</param>
-        /// <returns></returns>
-        public virtual object Call(CodeContext context, object function, object[] args) {
-            return null;
-        }
-
-        /// <summary>
-        /// Calls the function with instance as the "this" value.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="function">The function to call</param>
-        /// <param name="instance">The instance to pass as "this".</param>
-        /// <param name="args">The rest of the arguments.</param>
-        /// <returns></returns>
-        public virtual object CallWithThis(CodeContext context, object function, object instance, object[] args) {
-            return null;
-        }
-
-        /// <summary>
-        /// Calls the function with arguments, extra arguments in tuple and dictionary of keyword arguments
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="func">The function to call</param>
-        /// <param name="args">The arguments</param>
-        /// <param name="names">Argument names</param>
-        /// <param name="argsTuple">tuple of extra arguments</param>
-        /// <param name="kwDict">keyword dictionary</param>
-        /// <returns>The result of the function call.</returns>
-        public virtual object CallWithArgsKeywordsTupleDict(CodeContext context, object func, object[] args, string[] names, object argsTuple, object kwDict) {
-            return null;
-        }
-
-        /// <summary>
-        /// Calls function with arguments and additional arguments in the tuple
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="func">The function to call</param>
-        /// <param name="args">Argument array</param>
-        /// <param name="argsTuple">Tuple with extra arguments</param>
-        /// <returns>The result of calling the function "func"</returns>
-        public virtual object CallWithArgsTuple(CodeContext context, object func, object[] args, object argsTuple) {
-            return null;
-        }
-
-        /// <summary>
-        /// Calls the function with arguments, some of which are keyword arguments.
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="func">Function to call</param>
-        /// <param name="args">Argument array</param>
-        /// <param name="names">Names for some of the arguments</param>
-        /// <returns>The result of calling the function "func"</returns>
-        public virtual object CallWithKeywordArgs(CodeContext context, object func, object[] args, string[] names) {
-            return null;
-        }
-
-        // used only by ReflectedEvent.HandlerList
-        public virtual bool EqualReturnBool(CodeContext context, object x, object y) {
             return false;
         }
 
@@ -377,36 +255,6 @@ namespace Microsoft.Scripting {
         /// <returns></returns>
         public virtual object GetNotImplemented(params MethodCandidate []candidates) {
             throw new MissingMemberException("the specified operator is not implemented");
-        }
-
-
-        // used by DynamicHelpers.GetDelegate
-        /// <summary>
-        /// Checks whether the target is callable with given number of arguments.
-        /// </summary>
-        public void CheckCallable(object target, int argumentCount) {
-            int min, max;
-            if (!IsCallable(target, argumentCount, out min, out max)) {
-                if (min == max) {
-                    throw RuntimeHelpers.SimpleTypeError(String.Format("expected compatible function, but got parameter count mismatch (expected {0} args, target takes {1})", argumentCount, min));
-                } else {
-                    throw RuntimeHelpers.SimpleTypeError(String.Format("expected compatible function, but got parameter count mismatch (expected {0} args, target takes at least {1} and at most {2})", argumentCount, min, max));
-                }
-            }
-        }
-
-        public virtual bool IsCallable(object target, int argumentCount, out int min, out int max) {
-            min = max = 0;
-            return true;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
-        public virtual Assembly LoadAssemblyFromFile(string file) {
-#if SILVERLIGHT
-            return null;
-#else
-            return Assembly.LoadFile(file);
-#endif
         }
     }
 }
