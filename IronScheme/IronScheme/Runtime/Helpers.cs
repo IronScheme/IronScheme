@@ -449,11 +449,28 @@ namespace IronScheme.Runtime
       {
         return (T)proc;
       }
+
+      if (proc is Delegate)
+      {
+        var d = (Delegate)proc;
+
+        try
+        {
+          return (T)(object)Delegate.CreateDelegate(typeof(T), d.Target, d.Method);
+        }
+        catch (Exception ex)
+        {
+          Builtins.AssertionViolation("ConvertToDelegate", "delegate is not compatible: " + ex.Message, proc, typeof(T));
+        }
+      }
       
       if (!(proc is Callable))
       {
         Builtins.AssertionViolation("ConvertToDelegate", "not a procedure", proc);
       }
+
+      // TODO: see if we have a (typed) callable that we can directly pass without conversion
+      
       MethodInfo meth = typeof(T).GetMethod("Invoke");
       ParameterInfo[] pars = meth.GetParameters();
       if (meth.ReturnType == typeof(void))
