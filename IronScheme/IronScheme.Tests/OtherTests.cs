@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NUnit.Framework;
-using System.Diagnostics;
 
 namespace IronScheme.Tests
 {
@@ -20,7 +17,13 @@ namespace IronScheme.Tests
     public void MiniKanren()
     {
       var r = RunIronSchemeTestWithInput(@"(include ""lib/minikanren/mktests.scm"")");
+      if (!Quiet)
+      {
+        Console.WriteLine("Output: " + r.Output);
+      }
+      
       Assert.True(r.Output.Contains("Ignoring divergent test 10.62"));
+      
       AssertError(r);
     }
   }
