@@ -12,7 +12,7 @@ namespace IronScheme.Tests
   {
     protected TestRunner()
     {
-      Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
+      Quiet = Environment.GetEnvironmentVariable("QUIET") == "1";
       TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
 
