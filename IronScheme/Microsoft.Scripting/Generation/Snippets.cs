@@ -96,22 +96,6 @@ namespace Microsoft.Scripting.Generation {
             return new AssemblyGen(name, null, name + ".dll", attrs);
         }
 
-        public void Dump() {
-            Dump(null);
-        }
-
-        public void Dump(string fileName) {
-            if (_assembly != null && _assembly.SaveAndReloadAssemblies) {
-                _assembly.Dump(fileName);
-                _assembly = null;
-            }
-
-            if (_debugAssembly != null && _debugAssembly.SaveAndReloadAssemblies) {
-                _debugAssembly.Dump();
-                _debugAssembly = null;
-            }
-        }
-
         public TypeGen DefineDebuggableType(string typeName, SourceUnit sourceUnit) {
             typeName = typeName.Replace(Type.Delimiter, '_'); // '.' is for separating the namespace and the type name.
             DebugAssembly.SetSourceUnit(sourceUnit);

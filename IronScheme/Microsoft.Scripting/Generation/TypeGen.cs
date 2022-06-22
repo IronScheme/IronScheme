@@ -44,8 +44,6 @@ namespace Microsoft.Scripting.Generation {
         public int ConstantCounter = 0;
         public List<object> SerializedConstants = new List<object>();
 
-        private static readonly Type[] SymbolIdIntCtorSig = new Type[] { typeof(int) };
-
         public TypeGen(AssemblyGen myAssembly, TypeBuilder myType) {
             this._myAssembly = myAssembly;
             this._myType = myType;
@@ -103,26 +101,6 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        public ActionBinder Binder {
-            get {
-                return _binder;
-            }
-            set {
-                _binder = value;
-            }
-        }
-
-        public TypeGen DefineNestedType(string name, Type parent) {
-            TypeBuilder tb = _myType.DefineNestedType(name, TypeAttributes.NestedPublic);
-            tb.SetParent(parent);
-            TypeGen ret = new TypeGen(_myAssembly, tb);
-            _nestedTypeGens.Add(ret);
-
-            ret.AddCodeContextField();
-
-            return ret;
-        }
-
         public void AddCodeContextField() {
             FieldBuilder contextField = _myType.DefineField(CodeContext.ContextFieldName,
                     typeof(CodeContext),
@@ -131,12 +109,7 @@ namespace Microsoft.Scripting.Generation {
             _contextSlot = new StaticFieldSlot(contextField);
         }
 
-      public Slot AddField(Type fieldType, string name)
-      {
-        return AddField(fieldType, name, FieldAttributes.Public);
-      }
-
-      public Slot AddField(Type fieldType, string name, FieldAttributes attributes)
+        public Slot AddField(Type fieldType, string name, FieldAttributes attributes)
       {
         FieldBuilder fb = _myType.DefineField(name, fieldType, attributes);
           return new FieldSlot(new ThisSlot(_myType), fb);
@@ -167,10 +140,6 @@ namespace Microsoft.Scripting.Generation {
             CodeGen ret = CreateCodeGen(mb, mb.GetILGenerator(), baseSignature);
             ret.MethodToOverride = baseMethod;
             return ret;
-        }
-
-        public PropertyBuilder DefineProperty(string name, PropertyAttributes attrs, Type returnType) {
-            return _myType.DefineProperty(name, attrs, returnType, ArrayUtils.EmptyTypes);
         }
 
         private const MethodAttributes MethodAttributesToEraseInOveride =
@@ -250,27 +219,6 @@ namespace Microsoft.Scripting.Generation {
             return CreateCodeGen(cb, cb.GetILGenerator(), paramTypes);
         }
 
-        public CodeGen DefineStaticConstructor() {
-            ConstructorBuilder cb = _myType.DefineTypeInitializer();
-            return CreateCodeGen(cb, cb.GetILGenerator(), ArrayUtils.EmptyTypes);
-        }
-
-        public void SetCustomAttribute(Type type, object[] values) {
-            Contract.RequiresNotNull(type, "type");
-
-            Type[] types = new Type[values.Length];
-            for (int i = 0; i < types.Length; i++) {
-                if (values[i] != null) {
-                    types[i] = values[i].GetType();
-                } else {
-                    types[i] = typeof(object);
-                }
-            }
-            CustomAttributeBuilder cab = new CustomAttributeBuilder(type.GetConstructor(types), values);
-
-            _myType.SetCustomAttribute(cab);
-        }
-
         /// <summary>
         /// Constants
         /// </summary>
@@ -348,10 +296,6 @@ namespace Microsoft.Scripting.Generation {
 
         public TypeBuilder TypeBuilder {
             get { return _myType; }
-        }
-
-        public Slot ContextSlot {
-            get { return _contextSlot; }
         }
     }
 }
