@@ -41,7 +41,7 @@
   (string-replace
     (string-replace 
       (string-append origin "/" (string-join path "/"))
-      (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory)
+      (clr-static-prop-get System.Environment CurrentDirectory)
       ".")
      "\\"
      "/"))) ; make precompiled assemblies work on Linux
