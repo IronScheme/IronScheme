@@ -87,6 +87,14 @@ class Program
 } 
 ```
 
+Or with C# 9 and later as:
+
+```
+using IronScheme;
+
+"(display 'hello-world)".Eval();
+```
+
 Running tests
 =============
 
