@@ -11,19 +11,25 @@ namespace IronScheme.Runtime
 {
   public sealed class SchemeException : Exception
   {
+    const string IMPORT_SPEC = "(environment '(ironscheme))";
+    readonly string _who, _message, _stacktrace;
+
     public object Condition { get; private set; }
 
     public SchemeException(object cond)
     {
       Condition = cond;
+
+      _who = "(and (who-condition? {0}) (condition-who {0}))".EvalWithEnvironment(IMPORT_SPEC, Condition).ToString();
+      _message = "(and (message-condition? {0}) (condition-message {0}))".EvalWithEnvironment(IMPORT_SPEC, Condition) as string;
+      _stacktrace = "(and (stacktrace-condition? {0}) (condition-stacktrace {0}))".EvalWithEnvironment(IMPORT_SPEC, Condition) as string;
     }
 
     public string Who
     {
       get
       {
-        return "(and (who-condition? {0}) (condition-who {0}))"
-          .Eval(Condition).ToString();
+        return _who;
       }
     }
 
@@ -31,8 +37,7 @@ namespace IronScheme.Runtime
     {
       get
       {
-        return "(and (stacktrace-condition? {0}) (condition-stacktrace {0}))"
-          .Eval(Condition) as string;
+        return _stacktrace ?? base.StackTrace;
       }
     }
 
@@ -40,15 +45,14 @@ namespace IronScheme.Runtime
     {
       get
       {
-        return "(and (message-condition? {0}) (condition-message {0}))"
-          .Eval(Condition) as string;
+        return _message ?? base.Message;
       }
     }
 
     public override string ToString()
     {
       var sw = new StringWriter();
-      "(display {0} {1})".Eval(Condition, sw);
+      "(display {0} {1})".EvalWithEnvironment(IMPORT_SPEC, Condition, sw);
       return sw.ToString();
     }
   }
