@@ -572,15 +572,12 @@ namespace IronScheme.Runtime
 
         ScriptDomainManager.Options.AssemblyGenAttributes = aga;
 
-        Compiler.SimpleGenerator.ClearGlobals();
-
-        
-
         return TRUE;
       }
       finally
       {
         Compiler.Generator.AllowTransientBinding = true;
+        Compiler.SimpleGenerator.ClearGlobals();
       }
     }
 
