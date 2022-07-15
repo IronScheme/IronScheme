@@ -567,17 +567,18 @@ namespace IronScheme.Runtime
 
         ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(Path.GetFileNameWithoutExtension(filename as string), sc);
 
+        return TRUE;
+      }
+      finally
+      {
         // clean up transient non-generative types, could maybe also have used AllowTransientBinding to check?
         IronScheme.Runtime.R6RS.Records.ClearTypesFrom(Compiler.Generator.CurrentAssemblyGen);
 
         ScriptDomainManager.Options.AssemblyGenAttributes = aga;
 
-        return TRUE;
-      }
-      finally
-      {
-        Compiler.Generator.AllowTransientBinding = true;
         Compiler.SimpleGenerator.ClearGlobals();
+
+        Compiler.Generator.AllowTransientBinding = true;
       }
     }
 
