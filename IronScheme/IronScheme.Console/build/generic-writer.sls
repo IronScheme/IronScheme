@@ -10,16 +10,20 @@ See docs/license.txt. |#
     display
     writeln
     displayln
+    shorthand-syntax-output
     initialize-default-printers
     generic-write
     add-custom-printer!
     add-record-printer!)
   (import 
-    (except (ironscheme) write-char write display generic-write initialize-default-printers textual-output-port? writeln displayln)
+    (except (ironscheme) write-char write display generic-write initialize-default-printers textual-output-port? writeln displayln shorthand-syntax-output)
     (ironscheme contracts)
     (ironscheme unsafe)
     (ironscheme clr)
     (ironscheme typed))
+
+  (define shorthand-syntax-output
+    (make-parameter #t))
     
   (define (textual-output-port? obj)
     (and (output-port? obj)
@@ -242,7 +246,7 @@ See docs/license.txt. |#
       (define (write-short str)
         (put-string port str) 
         (generic-write (car dr) port readable?))
-      (if (and (symbol? ar) (pair? dr) (null? (cdr dr)))
+      (if (and (symbol? ar) (pair? dr) (null? (cdr dr)) (shorthand-syntax-output))
           (case ar
             [(quote)              (write-short "'")]
             [(quasiquote)         (write-short "`")]

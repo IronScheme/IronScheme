@@ -412,6 +412,7 @@
     (procedure-form                             i)
     (format                                     i ic)
     (fprintf                                    i)
+    (shorthand-syntax-output                    i)   
     (printf                                     i)
     (load-port                                  i)
     (load/args                                  i)
