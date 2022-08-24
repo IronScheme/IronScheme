@@ -55,6 +55,23 @@ namespace IronScheme
         throw new ArgumentException("importspec cannot be null or empty");
       }
 
+      if (importspec != INTERACTION_ENVIRONMENT)
+      {
+        importspec = importspec.Replace("(environment", "(environment '(only (ironscheme) define begin symbol-value)");
+      }
+
+      var env = se.Evaluate(importspec);
+
+      return EvalWithEnvironmentInstance(expr, env, args);
+    }
+
+    public static object EvalWithEnvironmentInstance(this string expr, object env, params object[] args)
+    {
+      var currentInteractionEnv = se.Evaluate("(interaction-environment)");
+      var envId = string.Format("env:{0}", Guid.NewGuid());
+      Builtins.SetSymbolValueFast(SymbolTable.StringToObject(envId), env);
+      var isInteractive = Builtins.IsTrue(se.Evaluate(string.Format("(interaction-environment? (symbol-value '{0}))", envId)));
+
       Guid[] replacements = new Guid[args.Length];
       string[] vars = new string[args.Length];
 
@@ -96,13 +113,12 @@ namespace IronScheme
       {
         if (assigns.Length > 0)
         {
-          expr = string.Format("(begin {0} {1})", string.Join(" ", assigns), expr);
+          expr = string.Format("({2} {0} {1})", string.Join(" ", assigns), expr, isInteractive ? "begin" : "let ()");
         }
 
-        if (importspec != INTERACTION_ENVIRONMENT)
+        if (!isInteractive || env != currentInteractionEnv)
         {
-          importspec = importspec.Replace("(environment", "(environment '(only (ironscheme) define begin symbol-value)");
-          expr = string.Format("(eval '{0} {1})", expr, importspec);
+          expr = string.Format("(eval '{0} (symbol-value '{1}))", expr, envId);
         }
 
         return se.Evaluate(expr);
@@ -113,6 +129,8 @@ namespace IronScheme
         {
           Builtins.RemoveLocation(SymbolTable.StringToObject(vars[i]));
         }
+
+        Builtins.RemoveLocation(SymbolTable.StringToObject(envId));
       }
     }
 
@@ -124,6 +142,11 @@ namespace IronScheme
     public static T EvalWithEnvironment<T>(this string expr, string importspec, params object[] args)
     {
       return (T)EvalWithEnvironment(expr, importspec, args);
+    }
+
+    public static T EvalWithEnvironmentInstance<T>(this string expr, object env, params object[] args)
+    {
+      return (T)EvalWithEnvironmentInstance(expr, env, args);
     }
 
     readonly static Type[] CallTargets = 
