@@ -367,6 +367,7 @@
     (make-compile-time-value                    i)
     (library-path                               i ic)
     (interaction-environment-symbols            i)
+    (interaction-environment?                   i)
     (environment-symbols                        i)
     (environment-bindings                       i)
     (hashtable-map                              i)
