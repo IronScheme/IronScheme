@@ -59,7 +59,13 @@ namespace IronScheme.Runtime
     [Builtin("ironscheme-version")]
     public static object Version()
     {
-      return IronScheme.Hosting.IronSchemeConsoleHost.VERSION;
+      return Hosting.IronSchemeConsoleHost.VERSION;
+    }
+
+    [Builtin("ironscheme-runtime")]
+    public static object GetRuntime()
+    {
+      return Hosting.IronSchemeConsoleHost.GetRuntime();
     }
 
     [Builtin("with-timeout")]

@@ -15,6 +15,7 @@ namespace IronScheme.Hosting
   public sealed class IronSchemeConsoleHost : ConsoleHost
   {
     internal static string VERSION = GetVersion();
+    private static string runtime = null;
 
     static string GetVersion()
     {
@@ -75,6 +76,12 @@ namespace IronScheme.Hosting
 
     private static void PrintRuntimeVersion()
     {
+      runtime = GetRuntimeVersion();
+      Console.WriteLine("(" + runtime + ")");
+    }
+
+    private static string GetRuntimeVersion()
+    {
       var version = Environment.Version.ToString(2);
 
       var ass = typeof(object).Assembly;
@@ -114,12 +121,24 @@ namespace IronScheme.Hosting
 
       if (Builtins.IsMono)
       {
-        Console.WriteLine("(Mono .NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
+        runtime = string.Format("Mono .NET {1} {0}", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
+
       }
       else
       {
-        Console.WriteLine("(.NET {1} {0})", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
+        runtime = string.Format(".NET {1} {0}", IntPtr.Size == 8 ? "64-bit" : "32-bit", version);
       }
+
+      return runtime;
+    }
+
+    internal static object GetRuntime()
+    {
+      if (runtime == null)
+      {
+        runtime = GetRuntimeVersion();
+      }
+      return runtime;
     }
   }
 }

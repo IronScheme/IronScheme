@@ -1258,6 +1258,7 @@
     (ironscheme-build                           i)
     (ironscheme-test                            i)
     (ironscheme-version                         i)
+    (ironscheme-runtime                         i)
     (last-pair                                  i)
     (make-list                                  i)
     (unspecified?                               i)
