@@ -35,11 +35,17 @@ To Run it on a specific .NET Core version, use the `--fx-version` option with `d
 Example to run on .NET 6.0 when you have multiple framework versions installed:
 
 ```
-dotnet --fx-version 6.0.0 IronScheme.ConsoleCore.dll
+dotnet --fx-version 6.0.0 IronScheme.ConsoleCore.dll <args...>
 ```
 or
 ```
-IronScheme.ConsoleCore.exe --fx-version 6.0.0
+IronScheme.ConsoleCore.exe --fx-version 6.0.0 <args...>
+```
+
+To run on the latest installed .NET Core version:
+
+```
+IronScheme.ConsoleCore.exe --roll-forward LatestMajor <args...>
 ```
 
 Running on Linux/MacOS
