@@ -12,6 +12,7 @@ using Microsoft.Scripting;
 
 namespace IronScheme.Runtime.R6RS
 {
+  [Serializable]
   public abstract class Condition
   {
     // make-record-type needs a public default constructor when abstract
@@ -19,14 +20,22 @@ namespace IronScheme.Runtime.R6RS
     {
     }
 
+    static Callable display;
+
     public override string ToString()
     {
-      var w = new StringWriter();
-      "(display {0} {1})".Eval(this, w);
-      return w.GetBuffer();
+      if (display == null)
+      {
+        display = "display".Eval<Callable>();
+      }
+
+      var sw = new StringWriter();
+      display.Call(this, sw);
+      return sw.ToString();
     }
   }
 
+  [Serializable]
   sealed class CompoundCondition : Condition
   {
     internal object[] conds;

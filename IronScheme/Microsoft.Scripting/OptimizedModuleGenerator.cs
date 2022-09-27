@@ -251,7 +251,7 @@ namespace Microsoft.Scripting.Generation {
                 GlobalFieldAllocator gfa = sa.LocalAllocator as GlobalFieldAllocator;
                 if (gfa != null)
                 {
-                  Dictionary<SymbolId, Slot> fields = gfa.SlotFactory.Fields;
+                  Dictionary<SymbolId, Slot> fields = gfa.SlotFactory.Fields; 
 
                   Label ok = cg.DefineLabel();
                   cg.ContextSlot.EmitGet(cg);
@@ -545,7 +545,7 @@ namespace Microsoft.Scripting.Generation {
             case "visit-code":
             case "invoke-code":
             case "guard-code":
-              TypeGen tg = ag.DefinePublicType("syntax-" + sc.CodeBlock.Name, typeof(CustomSymbolDictionary));
+              TypeGen tg = ag.DefinePublicType("syntax-" + n, typeof(CustomSymbolDictionary));
               tg.AddCodeContextField();
               tg.DefaultConstructor = tg.TypeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
               return tg;

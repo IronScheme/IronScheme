@@ -200,10 +200,10 @@ namespace Microsoft.Scripting {
         /// Called from generated code, helper to do a global name lookup
         /// </summary>
         public static object LookupGlobalName(CodeContext context, SymbolId name) {
-          return context.Scope.ModuleScope.LookupName(name);
+            //return context.Scope.ModuleScope.LookupName(name);
             // TODO: could we get rid of new context creation:
-            //CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
-            //return context.LanguageContext.LookupName(moduleScopedContext, name);
+            CodeContext moduleScopedContext = new CodeContext(context.Scope.ModuleScope, context.LanguageContext, context.ModuleContext);
+            return context.LanguageContext.LookupName(moduleScopedContext, name);
         }
 
         /// <summary>

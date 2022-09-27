@@ -591,6 +591,7 @@ namespace IronScheme.Runtime
     }
 
     static int evalcounter = 0;
+    internal static bool evalSpecial = false;
 
     [Builtin("compile-core")]
     public static object CompileCore(object expr)
@@ -669,8 +670,22 @@ namespace IronScheme.Runtime
           sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
           sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
 
-          ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
-          sc = sm.GetScripts()[0];
+          try
+          {
+            ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(string.Format("eval-core({0:D3})", c), sc);
+            sc = sm.GetScripts()[0];
+          }
+          catch (NotSupportedException)
+          {
+            if (evalSpecial)
+            {
+              sc.EnsureCompiled();
+            }
+            else
+            {
+              throw;
+            }
+          }
 
 #if DEBUG
       sw.Stop();
@@ -792,7 +807,6 @@ namespace IronScheme.Runtime
     static Scope ModuleScope;
 
     [Builtin("symbol-value")]
-    [UnspecifiedReturn]
     public static object SymbolValue(object symbol)
     {
       if (ModuleScope == null)
