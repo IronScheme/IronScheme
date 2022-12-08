@@ -13,7 +13,8 @@ See docs/license.txt. |#
 	  status
 	  task?)
   (import (ironscheme)
-	  (ironscheme clr))
+	  (ironscheme clr)
+	  (ironscheme clr dynamic))
 
   (clr-using System.Threading.Tasks)
   (clr-using System.Runtime.CompilerServices)
@@ -53,7 +54,8 @@ See docs/license.txt. |#
   ;; Await the task and return the result.
   (define (await task)
     (start task)
-    (clr-call (TaskAwaiter Object) GetResult (clr-call (Task Object) GetAwaiter task)))
+    (let ((awaiter (clr-dynamic task GetAwaiter)))
+      (clr-dynamic awaiter GetResult)))
 
   ;; Can be called any number of times without error, unlike Task.Start()
   ;; Returns the started task.
