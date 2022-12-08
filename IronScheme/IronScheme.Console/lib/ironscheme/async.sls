@@ -43,7 +43,7 @@ See docs/license.txt. |#
     (syntax-rules (->)
       ((_ (params ...) -> ret-type body1 body2 ...)
        (lambda (params ...)
-	 (clr-new (Task ret-type)
+	 (clr-new (System.Threading.Tasks.Task ret-type)
 		  (lambda ()
 		    body1
 		    body2 ...))))
