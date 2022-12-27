@@ -10,6 +10,7 @@ See docs/license.txt. |#
     make-regex
     group-value
     match-group
+    match-value
     group-success?
     regex-match
     regex-matches
@@ -82,7 +83,8 @@ See docs/license.txt. |#
       (clr-prop-get Match Groups match) 
       (clr-cast String group-name)))
   
-
+  (define/contract (match-value match:match)
+    (clr-prop-get Match Value match))
 
   (define/contract (regex-split input:string pattern/re)
     (if (regex? pattern/re)
@@ -103,4 +105,3 @@ See docs/license.txt. |#
 
   (define/contract (regex-unescape input:string)
     (clr-static-call Regex Unescape input)))
-    
