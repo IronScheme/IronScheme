@@ -10,7 +10,7 @@ See docs/license.txt. |#
     make-regex
     group-value
     match-group
-    match-value
+    (rename (group-value match-value))
     group-success?
     regex-match
     regex-matches
@@ -82,9 +82,6 @@ See docs/license.txt. |#
     (clr-indexer-get GroupCollection 
       (clr-prop-get Match Groups match) 
       (clr-cast String group-name)))
-  
-  (define/contract (match-value match:match)
-    (clr-prop-get Match Value match))
 
   (define/contract (regex-split input:string pattern/re)
     (if (regex? pattern/re)
