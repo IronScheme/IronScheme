@@ -330,7 +330,7 @@ See docs/license.txt. |#
     (unless (and (fixnum? k) ($fx>=? k 0))
       (assertion-violation 'string-set! "not a non-negative integer" k))
     (unless (char? val)
-      (assertion-violation 'string-fill! "not a character" val))
+      (assertion-violation 'string-set! "not a character" val))
     (if (clr-is Char val)
         (clr-prop-set! StringBuilder Chars str k val)
         (begin
