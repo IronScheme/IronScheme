@@ -1,16 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectType>Local</ProjectType>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <ApplicationIcon />
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
     <RootNamespace>Oyster.Math</RootNamespace>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <StartupObject />
-    <FileUpgradeFlags />
-    <UpgradeBackupLocation />
     <TargetFrameworks>net20</TargetFrameworks>
     <AssemblyTitle>Oyster.IntX</AssemblyTitle>
     <Company>Oyster</Company>
@@ -23,17 +17,11 @@
     <NoStdLib>false</NoStdLib>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <FileAlignment>4096</FileAlignment>
-    <ConfigurationOverrideFile />
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>bin\</OutputPath>
     <DocumentationFile>Oyster.IntX.xml</DocumentationFile>
     <RegisterForComInterop>false</RegisterForComInterop>
-    <PreBuildEvent />
-    <PostBuildEvent />
-    <PreBuildEvent />
-    <PostBuildEvent />
-    <PreBuildEvent />
-    <PostBuildEvent />
+    <ExecuteAsTool>false</ExecuteAsTool>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <NoWarn />
@@ -45,10 +33,6 @@
     <NoWarn>1591;1573</NoWarn>
     <DebugType>pdbonly</DebugType>
     <CodeAnalysisRuleSet />
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent />
-    <PostBuildEvent />
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Utils\Strings.Designer.cs">
