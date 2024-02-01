@@ -1,11 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
-    <DefaultClientScript>JScript</DefaultClientScript>
-    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
-    <DefaultTargetSchema>IE50</DefaultTargetSchema>
     <RootNamespace>Oyster.Math</RootNamespace>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <SignAssembly>true</SignAssembly>
     <TargetFrameworks>net20</TargetFrameworks>
     <AssemblyTitle>Oyster.IntX</AssemblyTitle>
@@ -16,7 +12,6 @@
     <AssemblyVersion>0.9.3.3</AssemblyVersion>
     <FileVersion>0.9.3.3</FileVersion>
     <BaseAddress>285212672</BaseAddress>
-    <NoStdLib>false</NoStdLib>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <FileAlignment>4096</FileAlignment>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
