@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProductVersion>9.0.30729</ProductVersion>
     <RootNamespace>Microsoft.Scripting</RootNamespace>
     <NoWarn>1591;1734</NoWarn>
     <TargetFrameworks>net20</TargetFrameworks>
-    <FileUpgradeFlags />
-    <UpgradeBackupLocation />
     <AssemblyTitle>Microsoft.Scripting</AssemblyTitle>
     <Company>Microsoft</Company>
     <Product>Microsoft.Scripting</Product>

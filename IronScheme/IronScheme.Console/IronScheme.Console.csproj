@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <FileUpgradeFlags />
-    <UpgradeBackupLocation />
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
     <TargetFrameworks>net20;net5.0;netcoreapp2.1</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
@@ -14,7 +12,6 @@
     <Version>1.0.0.0</Version>
     <NoWarn>1591</NoWarn>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <DocumentationFile />
     <Authors>Llewellyn Pritchard</Authors>
     <PackageIconUrl>http://ironscheme.net/logo-192.png</PackageIconUrl>
     <PackageId>IronScheme.Core</PackageId>
