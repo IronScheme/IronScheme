@@ -1,73 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BAF7E08E-2C51-47B2-B828-734E63AB69E0}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>IronScheme.Tests.Extensions</RootNamespace>
-    <AssemblyName>IronScheme.Tests.Extensions</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFrameworks>net472</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
+    <ProjectReference Include="..\IronScheme.Console\IronScheme.Console.csproj" />
+    <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
+    <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
+    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
+    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj">
-      <Project>{8554dcc7-7f8e-4f98-aa54-c27daa550d4c}</Project>
-      <Name>IronScheme.Closures</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IronScheme.Console\IronScheme.Console.csproj">
-      <Project>{5e6fdec6-9af4-4dfd-804e-d8a131326c20}</Project>
-      <Name>IronScheme.Console</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj">
-      <Project>{5a0f3fdd-c1e0-4dfb-b15b-0c4c17aa5d45}</Project>
-      <Name>IronScheme.FrameworkPAL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\IronScheme\IronScheme.csproj">
-      <Project>{04d8d17c-df2f-4894-9a66-2e75a78a5d22}</Project>
-      <Name>IronScheme</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj">
-      <Project>{2ae75f5a-cd1f-4925-9647-af4d1c282fb4}</Project>
-      <Name>IronScheme.Scripting</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj">
-      <Project>{371f38e6-8d55-482f-b010-4afac11c3cdb}</Project>
-      <Name>Oyster.IntX</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,7 +2,6 @@
   <PropertyGroup>
     <ProductVersion>9.0.30729</ProductVersion>
     <RootNamespace>Microsoft.Scripting</RootNamespace>
-    <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
     <NoWarn>1591;1734</NoWarn>
     <TargetFrameworks>net20</TargetFrameworks>
     <FileUpgradeFlags />
