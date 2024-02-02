@@ -49,7 +49,7 @@ IronScheme.ConsoleCore.exe --roll-forward LatestMajor <args...>
 ```
 
 Running on Linux/MacOS
-======================
+=======================
 
 The preferred way to run on non-Windows OS is to use .NET Core. You can also run IronScheme on Mono, but your mileage may vary.
 
