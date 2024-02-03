@@ -29,7 +29,7 @@ build_script:
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
     echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
-    dotnet build "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
+    dotnet build "IronScheme\IronSchemeCore.sln" /v:m /p:Configuration=Release
 test_script:
 - cmd: |
     cd IronScheme\IronScheme.Console\bin\Release\net472
