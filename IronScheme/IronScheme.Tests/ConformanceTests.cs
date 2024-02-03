@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace IronScheme.Tests
 {
+  [Order(3)]
   public class Conformance : TestRunner
   {
     [Test]

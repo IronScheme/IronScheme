@@ -14,9 +14,7 @@
     <tags>scheme ironscheme r6rs</tags>
     <repository type="git" url="https://github.com/IronScheme/IronScheme" branch="master" commit="$sha$" />
     <dependencies>
-      <group targetFramework="net35" />
-      <group targetFramework="net40" />
-      <group targetFramework="net45" />
+      <group targetFramework="net472" />
       <group targetFramework="netcoreapp2.1" />
     </dependencies>
   </metadata>

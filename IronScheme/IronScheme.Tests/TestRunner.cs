@@ -4,6 +4,7 @@ using System.Text;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace IronScheme.Tests
 {
@@ -77,7 +78,7 @@ namespace IronScheme.Tests
 
     protected TestResult RunTest(string exe, string args, string input, bool echo)
     {
-      
+
       var error = new StringWriter();
       var output = new StringWriter();
 
@@ -112,7 +113,7 @@ namespace IronScheme.Tests
       {
         if (!p.Start())
         {
-          Assert.Fail("could not start {0}", exe);
+          Assert.Fail(string.Format("could not start {0}", exe));
         }
 
         if (input != null)
@@ -150,7 +151,7 @@ namespace IronScheme.Tests
             Console.Error.WriteLine(r.Error);
           }
         }
- 
+
         Assert.AreEqual(0, p.ExitCode);
 
         return r;
@@ -161,7 +162,7 @@ namespace IronScheme.Tests
         {
           p.Kill();
         }
-        Assert.Fail("runner failed: {0}", ex);
+        Assert.Fail(string.Format("runner failed: {0}", ex));
         throw;
       }
     }

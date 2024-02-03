@@ -6,12 +6,13 @@ using System.IO;
 
 namespace IronScheme.Tests
 {
+  [Order(6)]
   public class Teardown : TestRunner
   {
     [Test]
     public void Run()
     {
-      var libs = File.ReadAllLines("compiled.lst");      
+      var libs = File.ReadAllLines("compiled.lst");
 
       if (!Quiet) Console.WriteLine("Deleting system libraries");
       foreach (var lib in libs)

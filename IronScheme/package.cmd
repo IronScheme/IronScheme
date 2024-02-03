@@ -9,7 +9,7 @@ if "%SHA%"=="" set SHA="000000"
 
 mkdir bin >nul 2>&1
 
-pushd IronScheme.Console\bin\Release\net20
+pushd IronScheme.Console\bin\Release\net472
 
 ::echo 'starting log' > package.log
 rmdir /s /q merged

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using System.Diagnostics;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace IronScheme.Tests
 {
+  [Order(5)]
   public class Other : TestRunner
   {
     [Test]

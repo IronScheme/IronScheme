@@ -19,35 +19,27 @@ install:
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     set QUIET=1
     cinst ilmerge
-    set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
+    set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
 nuget:
   project_feed: true
 build_script:
 - cmd: |
-    nuget restore "IronScheme\IronSchemeCore.sln"
+    dotnet restore "IronScheme\IronSchemeCore.sln"
     echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
     echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
-    msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
+    dotnet build "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
 test_script:
 - cmd: |
-    cd IronScheme\IronScheme.Console\bin\Release\net20
-    rem these have to be in order
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown
+    cd IronScheme\IronScheme.Console\bin\Release\net472
+    dotnet test IronScheme.Tests.dll
     set QUIET=
     set TESTCORE=1
 
     cd ..\netcoreapp2.1
-    copy /y ..\net20\ironscheme.boot.dll .
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
+    copy /y ..\net472\ironscheme.boot.dll .
+    dotnet test IronScheme.Tests.dll
 
     cd %APPVEYOR_BUILD_FOLDER%
     call ci-artefact.cmd

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using System.IO;
+using Assert = NUnit.Framework.Legacy.ClassicAssert;
 
 namespace IronScheme.Tests
 {
+  [Order(2)]
   public class Release : TestRunner
   {
     [Test]
@@ -13,7 +15,7 @@ namespace IronScheme.Tests
     {
       RunIronSchemeTest(@"ironscheme-buildscript.sps");
       RunIronSchemeTest(@"ironscheme-buildscript.sps");
-      
+
       var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
       Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
     }
@@ -43,6 +45,7 @@ namespace IronScheme.Tests
     }
   }
 
+  [Order(1)]
   public class Debug : TestRunner
   {
     [Test]

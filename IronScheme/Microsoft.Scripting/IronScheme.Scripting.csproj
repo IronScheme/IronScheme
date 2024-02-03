@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Microsoft.Scripting</RootNamespace>
     <NoWarn>1591;1734</NoWarn>
-    <TargetFrameworks>net20</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>Microsoft.Scripting</AssemblyTitle>

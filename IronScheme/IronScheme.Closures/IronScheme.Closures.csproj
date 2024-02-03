@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net20</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>IronScheme.Closures</AssemblyTitle>
@@ -10,7 +10,7 @@
     <DebugType>pdbonly</DebugType>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>
+    <UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">false</UseNetFxIlTools>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -43,6 +43,6 @@
       <ILDAsmPath>$(Pkgruntime_win-x64_Microsoft_NETCore_ILDAsm)\runtimes\win-x64\native\ildasm</ILDAsmPath>
     </PropertyGroup>
     <Exec Condition="$(UseNetFxIlTools) == True" Command="&quot;$(TargetFrameworkSDKToolsDirectory)ildasm&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /NOBAR /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(TargetedFrameworkDir)\ilasm&quot; /dll /PDB /NOLOGO /QUIET /KEY=&quot;$(SolutionDir)DEVELOPMENT.snk&quot; /out:&quot;$(TargetDir)$(TargetName).dll&quot; /res:&quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
-    <Exec Condition="$(UseNetFxIlTools) != True" Command="&quot;$(ILDAsmPath)&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(ILAsmPath)&quot; /dll /PDB /NOLOGO /QUIET /out:&quot;$(TargetDir)$(TargetName).dll&quot; /res:&quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
+    <Exec Condition="$(UseNetFxIlTools) != True" Command="&quot;$(ILDAsmPath)&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(ILAsmPath)&quot; /dll /PDB /NOLOGO /QUIET /out:&quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
   </Target>
 </Project>

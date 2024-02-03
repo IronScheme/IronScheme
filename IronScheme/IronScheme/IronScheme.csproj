@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net20</TargetFrameworks>
+    <TargetFrameworks>net472</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -34,6 +34,6 @@
     <None Include="Compiler\IronScheme.y" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\IronScheme.y&quot; &gt; &quot;$(ProjectDir)Compiler\IronScheme.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\IronScheme.lex.cs&quot; &quot;$(ProjectDir)Compiler\IronScheme.lex&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\NumberParser.y&quot; &gt; &quot;$(ProjectDir)Compiler\NumberParser.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\NumberLexer.lex.cs&quot; &quot;$(ProjectDir)Compiler\NumberLexer.lex&quot;" />
+    <Exec Command="&quot;$(ProjectDir)..\tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\IronScheme.y&quot; &gt; &quot;$(ProjectDir)Compiler\IronScheme.y.cs&quot;&#xD;&#xA;&quot;$(ProjectDir)..\tools\gplex&quot; /stack &quot;/frame:$(ProjectDir)..\tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\IronScheme.lex.cs&quot; &quot;$(ProjectDir)Compiler\IronScheme.lex&quot;&#xD;&#xA;&quot;$(ProjectDir)..\tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\NumberParser.y&quot; &gt; &quot;$(ProjectDir)Compiler\NumberParser.y.cs&quot;&#xD;&#xA;&quot;$(ProjectDir)..\tools\gplex&quot; /stack &quot;/frame:$(ProjectDir)..\tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\NumberLexer.lex.cs&quot; &quot;$(ProjectDir)Compiler\NumberLexer.lex&quot;" />
   </Target>
 </Project>

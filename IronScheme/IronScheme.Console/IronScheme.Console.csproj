@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFrameworks>net20;net5.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net472;net5.0;netcoreapp2.1</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
     <AssemblyTitle>IronScheme.Console</AssemblyTitle>
     <Company>leppie</Company>
@@ -29,7 +29,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net20'">
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net472'">
     <AssemblyName>IronScheme.ConsoleCore</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
@@ -41,7 +41,7 @@
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" Condition="'$(TargetFramework)' != 'net20'">
+    <Reference Include="ironscheme.boot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" Condition="'$(TargetFramework)' != 'net472'">
       <HintPath>../../../ironscheme.boot.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -95,7 +95,7 @@
     </None>
     <Content Include="ironscheme.ico" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net472'">
     <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot;&#xD;&#xA;&quot;$(TargetFrameworkSDKToolsDirectory)corflags.exe&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot; /32BIT+" />
   </Target>
 </Project>
