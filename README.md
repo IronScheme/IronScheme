@@ -12,7 +12,7 @@ IronScheme's macro system is based on psyntax, and thus behaves similar to other
 Building
 ========
 
-1. Open the `IronSchemeCore.sln` file in VS2022
+1. Open the `IronSchemeCore.sln` file in VS2019/2022
 2. Set startup project as `IronScheme.Console`
 
 Alternatively, using the `build.cmd` batchfile in the IronScheme directory.
@@ -24,7 +24,7 @@ Running on Windows
 
 Run the `IronScheme.Console.exe` for the runtime and bitness you want to target. 
 
-V4 requires requires .NET Framework 4.7.2 or higher. Pretty much any running Windows should have this version.
+V2 requires .NET3.5. V4 requires requires .NET4.0 or higher. Pretty much any running Windows should have one or both of those.
 
 You can also run it with .NET Core, which has no persisted compilation functionality. It may load precompiled libraries, but if it fails to load, it will fallback to runtime compilation. A warning will be display in that case.
 
