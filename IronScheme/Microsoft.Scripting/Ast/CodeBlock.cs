@@ -419,7 +419,9 @@ namespace Microsoft.Scripting.Ast
             foreach (VariableReference r in References) {
               if (r.Variable.Block == null)
               {
+#if DEBUG
                 Debugger.Break();
+#endif
               }
                 r.CreateSlot(cg);
                 Debug.Assert(r.Slot != null);

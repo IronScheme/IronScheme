@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <FileUpgradeFlags />
-    <UpgradeBackupLocation />
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
     <TargetFrameworks>net20;net5.0;netcoreapp2.1</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
@@ -14,7 +12,6 @@
     <Version>1.0.0.0</Version>
     <NoWarn>1591</NoWarn>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <DocumentationFile />
     <Authors>Llewellyn Pritchard</Authors>
     <PackageIconUrl>http://ironscheme.net/logo-192.png</PackageIconUrl>
     <PackageId>IronScheme.Core</PackageId>
@@ -24,6 +21,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <StartupObject>IronScheme.Console.Program</StartupObject>
     <AssemblyName>IronScheme.Console</AssemblyName>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -79,7 +77,7 @@
     </None>
     <None Include="..\DEVELOPMENT.snk">
       <Link>DEVELOPMENT.snk</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

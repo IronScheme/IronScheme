@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net35</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
+    <ProjectReference Include="..\IronScheme.Console\IronScheme.Console.csproj" />
+    <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
+    <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
+    <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
+    <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
+  </ItemGroup>
+</Project>

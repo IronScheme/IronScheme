@@ -24,7 +24,7 @@ ReferenceRemover ..\netcoreapp2.1\IronScheme.FrameworkPAL.dll "IronScheme\.Scrip
 al /out:IronScheme.PALResources.dll /embed:IronScheme.FrameworkPAL.dll /embed:"..\netcoreapp2.1\IronScheme.FrameworkPAL.dll",core-IronScheme.FrameworkPAL.dll
 
 set MERGE=ILMerge
-%MERGE% /keyfile:DEVELOPMENT.snk /out:merged\IronScheme.dll IronScheme.dll IronScheme.Closures.dll IronScheme.Scripting.dll Oyster.IntX.dll ironscheme.boot.dll IronScheme.PALResources.dll
+%MERGE% /out:merged\IronScheme.dll IronScheme.dll IronScheme.Closures.dll IronScheme.Scripting.dll Oyster.IntX.dll ironscheme.boot.dll IronScheme.PALResources.dll
 copy /Y merged\IronScheme.* . >nul
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
 
@@ -51,8 +51,6 @@ copy ..\netcoreapp2.1\IronScheme.ConsoleCore.runtimeconfig.json install-stage\Ir
 ReferenceRemover install-stage\IronScheme\IronScheme.ConsoleCore.dll "IronScheme\.Closures" IronScheme.dll >nul
 
 copy ..\net5.0\IronScheme.ConsoleCore.exe install-stage\IronScheme
-
-copy DEVELOPMENT.snk install-stage\IronScheme
 
 copy system-libraries.ss install-stage\IronScheme
 copy system-libraries.srfi.ss install-stage\IronScheme

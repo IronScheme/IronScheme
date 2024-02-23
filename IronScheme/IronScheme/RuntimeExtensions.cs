@@ -25,6 +25,8 @@ namespace IronScheme
 
     readonly static ScriptEngine se = provider.GetEngine();
 
+    static Callable eval, interactionEnv;
+
     public static ScriptEngine ScriptEngine
     {
       get { return se; }
@@ -55,64 +57,60 @@ namespace IronScheme
         throw new ArgumentException("importspec cannot be null or empty");
       }
 
-      Guid[] replacements = new Guid[args.Length];
+      if (INTERACTION_ENVIRONMENT == importspec)
+      {
+        interactionEnv = interactionEnv ?? (Callable) se.Evaluate("interaction-environment");
+
+        var env = interactionEnv.Call();
+        return EvalWithEnvironmentInstance(expr, env, args);
+      }
+      else
+      {
+        var env = se.Evaluate(importspec);
+        return EvalWithEnvironmentInstance(expr, env, args);
+      }
+    }
+
+
+    public static object EvalWithEnvironmentInstance(this string expr, object env, params object[] args)
+    {
       string[] vars = new string[args.Length];
 
       expr = INDEXREPLACE.Replace(expr, m =>
       {
-        Guid g = Guid.NewGuid();
         var index = Convert.ToInt32(m.Groups["index"].Value);
-        var p = replacements[index];
-        if (p == Guid.Empty)
+        if (index >= vars.Length)
         {
-          replacements[index] = g;
+          throw new ArgumentException("Missing argument for {" + index + "}");
         }
-        else
-        {
-          g = p;
-        }
-        return vars[index] = string.Format("$eval:{0}", g);
+
+        vars[index] = string.Format("$arg:{0}", index);
+        return "'," + vars[index];
       });
 
-      string[] assigns = new string[args.Length];
+      eval = eval ?? (Callable)se.Evaluate("eval");
 
-      for (int i = 0; i < args.Length; i++)
+      object src;
+
+      if (args.Length == 0)
       {
-        var arg = vars[i];
-        var rarg = args[i];
-
-        // intern symbols
-        if (rarg is SymbolId)
-        {
-          rarg = SymbolTable.Intern((SymbolId)rarg);
-        }
-
-        Builtins.SetSymbolValueFast(SymbolTable.StringToObject(arg), rarg);
-        assigns[i] = string.Format("(define {0} (symbol-value '{0}))", arg);
+        src = se.Evaluate("'" + expr);
+      }
+      else
+      {
+        var getSource = (Callable)se.Evaluate(string.Format("(lambda ({0}) `{1})", string.Join(" ", vars), expr));
+        src = getSource.Call(args);
       }
 
-      // must start try here, values have been assigned
+      var es = Builtins.evalSpecial;
       try
       {
-        if (assigns.Length > 0)
-        {
-          expr = string.Format("(begin {0} {1})", string.Join(" ", assigns), expr);
-        }
-
-        if (importspec != INTERACTION_ENVIRONMENT)
-        {
-          importspec = importspec.Replace("(environment", "(environment '(only (ironscheme) define begin symbol-value)");
-          expr = string.Format("(eval '{0} {1})", expr, importspec);
-        }
-
-        return se.Evaluate(expr);
+        Builtins.evalSpecial = true;
+        return eval.Call(src, env);
       }
       finally
       {
-        for (int i = 0; i < args.Length; i++)
-        {
-          Builtins.RemoveLocation(SymbolTable.StringToObject(vars[i]));
-        }
+        Builtins.evalSpecial = es;
       }
     }
 
@@ -124,6 +122,11 @@ namespace IronScheme
     public static T EvalWithEnvironment<T>(this string expr, string importspec, params object[] args)
     {
       return (T)EvalWithEnvironment(expr, importspec, args);
+    }
+
+    public static T EvalWithEnvironmentInstance<T>(this string expr, object env, params object[] args)
+    {
+      return (T)EvalWithEnvironmentInstance(expr, env, args);
     }
 
     readonly static Type[] CallTargets = 

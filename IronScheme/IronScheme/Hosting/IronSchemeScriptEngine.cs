@@ -30,10 +30,14 @@ namespace IronScheme.Hosting
       get { return (LanguageProvider as IronSchemeLanguageProvider).Console; }
     }
 
+    static Callable write, display;
+
     static string WriteFormat(object obj)
     {
-      var w = new IronScheme.Runtime.StringWriter();
-      "(write {0} {1})".Eval(obj, w);
+      write = write ?? (Callable)"write".Eval();
+      var w = new StringWriter();
+      write.Call(obj, w);
+      // TODO: See why there is null re via se.Evaluate
       return w.GetBuffer();
     }
 
@@ -91,9 +95,10 @@ namespace IronScheme.Hosting
         }
       }
 
-      var w = new IronScheme.Runtime.StringWriter();
+      var w = new StringWriter();
       w.WriteLine("Unhandled CLR exception reading input:");
-      "(display {0} {1})".Eval(exception, w);
+      display = display ?? (Callable)"display".Eval();
+      display.Call(exception, w);
       return w.GetBuffer();
     }
 

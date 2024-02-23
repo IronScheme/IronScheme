@@ -48,7 +48,7 @@ See docs/license.txt. |#
         (car x)
         (clr-new MultipleValues (list->vector x))))      
     
-  (define/contract (dynamic-wind in:procedure proc:procedure out:procedure)
+  (define (dynamic-wind in proc out)
     (in)
     ($try/finally (proc)
                   (out)))      

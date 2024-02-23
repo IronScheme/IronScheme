@@ -113,10 +113,6 @@ namespace Microsoft.Scripting.Generation {
             if (SaveAndReloadAssemblies)
             {
                 asmname.Name = moduleName == "ironscheme.boot.new" ? "ironscheme.boot" : moduleName;
-                if (File.Exists("DEVELOPMENT.snk"))
-                {
-                    asmname.KeyPair = new StrongNameKeyPair(File.ReadAllBytes("DEVELOPMENT.snk"));
-                }
                 asmname.Version = new Version("1.0.0.0");
 
                 var actualModuleName = moduleName == "ironscheme.boot.new" ? "ironscheme.boot.dll" : _outFileName;

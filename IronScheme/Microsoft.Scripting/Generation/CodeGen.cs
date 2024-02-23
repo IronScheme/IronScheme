@@ -2075,7 +2075,10 @@ namespace Microsoft.Scripting.Generation {
               if (block.DecorateWithNonRecursive)
               {
                 var mb = impl.MethodBase as MethodBuilder;
-                mb.SetCustomAttribute(CAB);
+                if (mb != null)
+                {
+                    mb.SetCustomAttribute(CAB);
+                }
               }
 
               // add custom attributes to method

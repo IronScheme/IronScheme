@@ -127,6 +127,10 @@ namespace IronScheme.Compiler
         {
           args = new SerializedConstant(args);
         }
+        else if (args != null && args is Condition)
+        {
+          args = new SerializedConstant(args);
+        }
         return Ast.Constant(args);
       }
     }

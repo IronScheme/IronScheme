@@ -1,14 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProductVersion>9.0.30729</ProductVersion>
     <RootNamespace>Microsoft.Scripting</RootNamespace>
-    <DocumentationFile>..\..\Bin\Release\Microsoft.Scripting.XML</DocumentationFile>
     <NoWarn>1591;1734</NoWarn>
     <TargetFrameworks>net20</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
-    <FileUpgradeFlags />
-    <UpgradeBackupLocation />
     <AssemblyTitle>Microsoft.Scripting</AssemblyTitle>
     <Company>Microsoft</Company>
     <Product>Microsoft.Scripting</Product>
@@ -20,6 +14,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <OutputPath>Bin\$(Configuration)\</OutputPath>
     <DocumentationFile>Bin\$(Configuration)\IronScheme.Scripting.xml</DocumentationFile>
+    <ExecuteAsTool>false</ExecuteAsTool>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
