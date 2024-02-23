@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net20</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>IronScheme.Closures</AssemblyTitle>
     <Product>IronScheme.Closures</Product>
     <Copyright>Copyright ©  2008</Copyright>
@@ -30,6 +28,6 @@
     </Content>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&quot;$(TargetFrameworkSDKToolsDirectory)ildasm&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /NOBAR /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(TargetedFrameworkDir)\ilasm&quot; /dll /PDB /NOLOGO /QUIET /KEY=&quot;$(SolutionDir)DEVELOPMENT.snk&quot; /out:&quot;$(TargetDir)$(TargetName).dll&quot; /res:&quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
+    <Exec Command="&quot;$(TargetFrameworkSDKToolsDirectory)ildasm&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /NOBAR /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(TargetedFrameworkDir)\ilasm&quot; /dll /PDB /NOLOGO /QUIET /out:&quot;$(TargetDir)$(TargetName).dll&quot; /res:&quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
   </Target>
 </Project>

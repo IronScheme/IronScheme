@@ -79,7 +79,7 @@
     </None>
     <None Include="..\DEVELOPMENT.snk">
       <Link>DEVELOPMENT.snk</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="ironscheme.boot.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

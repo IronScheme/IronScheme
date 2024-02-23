@@ -3,8 +3,6 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
     <ApplicationIcon />
-    <AssemblyKeyContainerName />
-    <AssemblyOriginatorKeyFile>../DEVELOPMENT.snk</AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
@@ -13,7 +11,6 @@
     <StartupObject />
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
-    <SignAssembly>true</SignAssembly>
     <TargetFrameworks>net20</TargetFrameworks>
     <AssemblyTitle>Oyster.IntX</AssemblyTitle>
     <Company>Oyster</Company>
