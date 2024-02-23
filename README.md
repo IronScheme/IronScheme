@@ -104,7 +104,9 @@ using IronScheme;
 Running tests
 =============
 
-After building, you can use NUnit to run `IronScheme.Tests.dll` in the `IronScheme.Console` bin folder. 
+To run the R6RS test suite, call the `(ironscheme-test)` procedure. There are a few known failure cases (currently 3 for .NET desktop). This can be run from the release package as well to confirm IronScheme runs correctly on a new platform or framework.
+
+After building, you can use NUnit to run `IronScheme.Tests.dll` in the `IronScheme.Console` bin folder.
 
 There is also a batch file in the IronScheme directory called `test.cmd`. You can pass the `/verbose` to the batch file to see complete output in case of failures.
 
