@@ -21,6 +21,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <StartupObject>IronScheme.Console.Program</StartupObject>
     <AssemblyName>IronScheme.Console</AssemblyName>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
