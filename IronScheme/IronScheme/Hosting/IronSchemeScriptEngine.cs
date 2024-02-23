@@ -147,7 +147,7 @@ namespace IronScheme.Hosting
     {
       get
       {
-        return "Llewellyn Pritchard (c) 2009-2019";
+        return "Llewellyn Pritchard (c) 2009-2024";
       }
     }
 
