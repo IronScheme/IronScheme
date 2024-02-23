@@ -126,7 +126,7 @@ namespace IronScheme.FrameworkPAL
     public void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress)
     {
 #if NET9_0_OR_GREATER
-      
+      mb.DefineInitializedData("SerializedConstants", s.ToArray(), FieldAttributes.Private);
 #elif !NETCOREAPP2_1_OR_GREATER
       if (compress)
       {
