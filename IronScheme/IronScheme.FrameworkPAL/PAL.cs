@@ -15,7 +15,9 @@ namespace IronScheme.FrameworkPAL
   {
     public bool IsTransient(ModuleBuilder mb)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      return true;
+#elif !NETCOREAPP2_1_OR_GREATER
       return mb.IsTransient();
 #else
       return true;
@@ -24,7 +26,9 @@ namespace IronScheme.FrameworkPAL
 
     public ISymbolWriter GetSymbolWriter(ModuleBuilder mb)
     {
-#if NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      return null;
+#elif NETCOREAPP2_1_OR_GREATER
       return null;
 #else
       return mb.GetSymWriter();
@@ -33,21 +37,25 @@ namespace IronScheme.FrameworkPAL
 
     public void SetLocalSymInfo(LocalBuilder lb, string name)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+#elif !NETCOREAPP2_1_OR_GREATER
       lb.SetLocalSymInfo(name);
 #endif
     }
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+#elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
     }
 
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      return null;
+#elif !NETCOREAPP2_1_OR_GREATER
       return mb.DefineDocument(
         fn,
         lang,
@@ -60,7 +68,9 @@ namespace IronScheme.FrameworkPAL
 
     public void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      ass.Save(filename);
+#elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
 #elif LOKAD
       var gen = new Lokad.ILPack.AssemblyGenerator();
@@ -84,7 +94,10 @@ namespace IronScheme.FrameworkPAL
       }
       else
       {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+        ab = AssemblyBuilder.DefinePersistedAssembly(asmname, typeof(object).Assembly);
+        mb = ab.DefineDynamicModule(actualModuleName);
+#elif !NETCOREAPP2_1_OR_GREATER
         var domain = AppDomain.CurrentDomain;
         ab = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
         mb = ab.DefineDynamicModule(actualModuleName, outFileName, emitDebugInfo);
@@ -112,7 +125,9 @@ namespace IronScheme.FrameworkPAL
 
     public void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      
+#elif !NETCOREAPP2_1_OR_GREATER
       if (compress)
       {
         var cms = new MemoryStream();
