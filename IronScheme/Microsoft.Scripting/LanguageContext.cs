@@ -201,6 +201,21 @@ namespace Microsoft.Scripting
         }
 
         /// <summary>
+        /// Looks up the name in the provided scope using the current language's semantics.
+        /// 
+        /// If the name cannot be found throws the language appropriate exception or returns
+        /// the language's appropriate default value.
+        /// </summary>
+        public virtual object LookupName(CodeContext context, SymbolId name) {
+            object value;
+            if (!TryLookupName(context, name, out value) || value == Uninitialized.Instance) {
+                throw MissingName(name);
+            }
+
+            return value;
+        }
+
+        /// <summary>
         /// Attempts to set the name in the provided scope using the current language's semantics.
         /// </summary>
         public virtual void SetName(CodeContext context, SymbolId name, object value) {
