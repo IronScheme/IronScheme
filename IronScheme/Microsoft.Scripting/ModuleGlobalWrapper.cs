@@ -104,23 +104,6 @@ namespace Microsoft.Scripting {
             }
         }
 
-        public string Display {
-            get {
-                if (_value != Uninitialized.Instance) return GetStringDisplay(_value);
-
-                if (_global.IsCaching && _global.HasValue) return GetStringDisplay(_global.Value);
-                object value;
-                if (_context.LanguageContext.TryLookupGlobal(_context, _name, out value))
-                    return GetStringDisplay(value);
-
-                return GetStringDisplay(Uninitialized.Instance);
-            }
-        }
-
-        private string GetStringDisplay(object val) {
-            return val == null ? "(null)" : val.ToString();
-        }
-
         public override string ToString() {
             return String.Format("ModuleGlobal: {0} Value: {1} ({2})",
                 _name,

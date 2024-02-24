@@ -32,6 +32,7 @@ build_script:
     msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release
 test_script:
 - cmd: |
+    set QUIET=
     cd IronScheme\IronScheme.Console\bin\Release\net20
     rem these have to be in order
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
@@ -40,7 +41,7 @@ test_script:
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown
-    set QUIET=
+    
     set TESTCORE=1
 
     cd ..\netcoreapp2.1

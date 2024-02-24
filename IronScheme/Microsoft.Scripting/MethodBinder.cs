@@ -50,10 +50,6 @@ namespace Microsoft.Scripting {
             return (method.CallingConvention & CallingConventions.VarArgs) != 0 || method.ContainsGenericParameters;
         }
 
-        public static MethodBinder MakeBinder(ActionBinder binder, string name, IList<MethodBase> mis, BinderType binderType, SymbolId[] keywordArgs) {
-            return new MethodBinder(binder, name, mis, binderType, keywordArgs);
-        }
-
         public static MethodBinder MakeBinder(ActionBinder binder, string name, IList<MethodBase> mis, BinderType binderType) {
             return new MethodBinder(binder, name, mis, binderType, SymbolId.EmptySymbols);
         }
@@ -155,10 +151,6 @@ namespace Microsoft.Scripting {
             }
             
             return null;
-        }
-
-        public object CallInstanceReflected(CodeContext context, object instance, params object[] args) {
-            return CallReflected(context, CallType.ImplicitInstance, ArrayUtils.Insert(instance, args));
         }
 
         public object CallReflected(CodeContext context, CallType callType, params object[] args) {
@@ -316,7 +308,6 @@ namespace Microsoft.Scripting {
                 parameters);
         }
 
-
         private MethodCandidate MakeByRefReducedMethodTarget(MethodBase method) {
             List<ParameterWrapper> parameters = new List<ParameterWrapper>();
             int argIndex = 0;
@@ -473,12 +464,6 @@ namespace Microsoft.Scripting {
             res.Add(_targetSets[key].ToString());
           }
           return string.Join(Environment.NewLine, res.ToArray());
-        }
-
-        public string Name {
-            get {
-                return _name;
-            }
         }
     }
 

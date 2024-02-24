@@ -48,21 +48,12 @@ namespace Microsoft.Scripting.Generation {
             cg.EmitPropertySet(typeof(ModuleGlobalWrapper), "CurrentValue");
         }
 
-        public void EmitGetRaw(CodeGen cg) {
-            _wrapper.EmitGet(cg);
-            cg.EmitPropertyGet(typeof(ModuleGlobalWrapper), "RawValue");
-        }
-
         public override void EmitCheck(CodeGen cg, SymbolId name) {
             // checks are handled in the get_CurrentValue
         }
 
         public void EmitWrapperAddr(CodeGen cg) {
             _wrapper.EmitGetAddr(cg);
-        }
-
-        public void EmitWrapper(CodeGen cg) {
-            _wrapper.EmitGet(cg);
         }
 
         public override void EmitGetAddr(CodeGen cg) {

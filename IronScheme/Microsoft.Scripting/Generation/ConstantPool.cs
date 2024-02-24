@@ -116,23 +116,5 @@ namespace Microsoft.Scripting.Generation {
                 return _staticData.Count - 1;
             }
         }
-
-        public static object GetConstantData(int index) {
-            lock (_staticData) {
-                object res = _staticData[index];
-                _staticData[index] = null;
-                _empties++;
-                Debug.Assert(res != null);
-                return res == _nullVal ? null : res;
-            }
-        }
-
-        public static object GetConstantDataReusable(int index) {
-            lock (_staticData) {
-                object res = _staticData[index];
-                Debug.Assert(res != null);
-                return res == _nullVal ? null : res;
-            }
-        }
     }
 }
