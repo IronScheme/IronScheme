@@ -31,7 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9
 		tools\Mono.Cecil.dll = tools\Mono.Cecil.dll
 		tools\Mono.Cecil.Pdb.dll = tools\Mono.Cecil.Pdb.dll
 		tools\NamespaceRenamer.exe = tools\NamespaceRenamer.exe
-		tools\nunit.framework.dll = tools\nunit.framework.dll
 		tools\ReferenceRemover.exe = tools\ReferenceRemover.exe
 		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
 	EndProjectSection
@@ -59,7 +58,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Tests", "IronSch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.FrameworkPAL", "IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj", "{5A0F3FDD-C1E0-4DFB-B15B-0C4C17AA5D45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Tests.Extensions", "IronScheme.Tests.Extensions\IronScheme.Tests.Extensions.csproj", "{BAF7E08E-2C51-47B2-B828-734E63AB69E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Tests.Extensions", "IronScheme.Tests.Extensions\IronScheme.Tests.Extensions.csproj", "{BAF7E08E-2C51-47B2-B828-734E63AB69E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

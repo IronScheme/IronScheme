@@ -24,7 +24,7 @@ nuget:
   project_feed: true
 build_script:
 - cmd: |
-    nuget restore "IronScheme\IronSchemeCore.sln"
+    dotnet restore "IronScheme\IronSchemeCore.sln"
     echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
