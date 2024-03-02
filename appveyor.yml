@@ -45,6 +45,7 @@ test_script:
 
     cd ..\netcoreapp2.1
     copy /y ..\net20\ironscheme.boot.dll .
+    copy /y ..\net20\nunit.framework.dll .
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
