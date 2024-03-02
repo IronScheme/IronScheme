@@ -14,22 +14,17 @@
  * ***************************************************************************/
 
 using System;
-
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
-using System.IO;
 
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
 
     /// <summary>
     /// This captures a block of code that should correspond to a .NET method body.  It takes
@@ -69,7 +64,6 @@ namespace Microsoft.Scripting.Ast {
         private bool _hasEnvironment;
         private bool _emitLocalDictionary;
         private bool _isGlobal;
-        private bool _visibleScope = true;
         private bool _parameterArray;
         internal bool Checked = false;
         bool inlined = false;
@@ -82,10 +76,6 @@ namespace Microsoft.Scripting.Ast {
 
         public object Source { get; set; }
         public bool IsRest { get; set; }
-
-        // Profile-driven compilation support
-        private int _callCount = 0;
-        private const int _maxInterpretedCalls = 2;
         
         /// <summary>
         /// True, if the block is referenced by a declarative reference (CodeBlockExpression).
@@ -113,10 +103,6 @@ namespace Microsoft.Scripting.Ast {
 
         public SourceLocation Start {
             get { return _start; }
-        }
-
-        public SourceLocation End {
-            get { return _end; }
         }
 
         public SourceSpan Span {
@@ -210,10 +196,6 @@ namespace Microsoft.Scripting.Ast {
             set { _parent = value; }
         }
 
-        public bool IsVisible {
-            get { return _visibleScope; }
-            set { _visibleScope = value; }
-        }
         public Statement Body {
             get { return _body; }
             set { _body = value; }
@@ -257,7 +239,6 @@ namespace Microsoft.Scripting.Ast {
           return v;
         }
 
-
         public Type EnvironmentType {
             get {
                 Debug.Assert(_environmentFactory != null);
@@ -280,13 +261,6 @@ namespace Microsoft.Scripting.Ast {
 
         public Variable CreateParameter(SymbolId name, Type type) {
             Variable variable = Variable.Parameter(this, name, type);
-            _parameters.Add(variable);
-            _parametersmap.Add(variable.Name, variable);
-            return variable;
-        }
-
-        public Variable CreateParameter(SymbolId name, Type type, bool inParameterArray) {
-            Variable variable = Variable.Parameter(this, name, type, inParameterArray);
             _parameters.Add(variable);
             _parametersmap.Add(variable.Name, variable);
             return variable;
@@ -320,68 +294,6 @@ namespace Microsoft.Scripting.Ast {
             Debug.Assert(!_variablesmap.ContainsKey(name));
             _variablesmap.Add(variable.Name, variable);
             return variable;
-        }
-
-        public Variable CreateGeneratorTempVariable(SymbolId name, Type type) {
-            Variable variable = Variable.GeneratorTemp(name, this, type);
-            _variables.Add(variable);
-            Debug.Assert(!_variablesmap.ContainsKey(name));
-            _variablesmap.Add(variable.Name, variable);
-            return variable;
-        }
-
-        private void EmitEnvironmentIDs(CodeGen cg) {
-            int size = 0;
-            foreach (Variable prm in _parameters) {
-                if (prm.Lift) size++;
-            }
-            foreach (Variable var in _variables) {
-                if (var.Lift) size++;
-            }
-
-            if (!cg.IsDynamicMethod) {
-                Debug.Assert(cg.TypeGen != null);
-
-                CodeGen cctor = cg.TypeGen.TypeInitializer;
-
-                EmitEnvironmentIdArray(cctor, size);
-                Slot fields = cg.TypeGen.AddStaticField(typeof(SymbolId[]), "__symbolIds$" + _name + "$" + Interlocked.Increment(ref _Counter));
-                fields.EmitSet(cctor);
-                fields.EmitGet(cg);
-
-            } else {
-                EmitEnvironmentIdArray(cg, size);
-            }
-        }
-
-
-        private void EmitEnvironmentIdArray(CodeGen cg, int size) {
-            // Create the array for the names
-            cg.EmitInt(size);
-            cg.Emit(OpCodes.Newarr, typeof(SymbolId));
-
-            int index = 0;
-
-            foreach (Variable prm in _parameters) {
-                if (prm.Lift) {
-                    EmitSetVariableName(cg, index++, prm.Name);
-                }
-            }
-
-            foreach (Variable var in _variables) {
-                if (var.Lift) {
-                    EmitSetVariableName(cg, index++, var.Name);
-                }
-            }
-        }
-
-        private static void EmitSetVariableName(CodeGen cg, int index, SymbolId name) {
-            cg.Emit(OpCodes.Dup);
-            cg.EmitInt(index);
-            cg.Emit(OpCodes.Ldelema, typeof(SymbolId));
-            cg.EmitSymbolId(name);
-            cg.EmitUnbox(typeof(SymbolId));
-            cg.Emit(OpCodes.Call, typeof(SymbolId).GetConstructor(new Type[] { typeof(SymbolId) }));
         }
 
         internal void CreateEnvironmentFactory(bool generator, CodeGen cg) {
@@ -523,7 +435,6 @@ namespace Microsoft.Scripting.Ast {
             CreateClosureAccessSlots(cg);
             CreateScopeAccessSlots(cg);
         }
-
 
         int depth = -1;
 
@@ -686,52 +597,6 @@ namespace Microsoft.Scripting.Ast {
             else return null;
         }
 
-        private bool ShouldCompile() {
-            return _callCount++ > _maxInterpretedCalls;
-        }
-
-        public void Update()
-      {
-        FlowChecker.Check(this);
-      }
-
-        protected Delegate GetCompiledDelegate(CompilerContext context, Type delegateType, bool forceWrapperMethod) {
-
-          if (_compiled != null)
-          {
-            return _compiled;
-          }
-            bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(false));
-            bool hasThis = HasThis();
-
-            CodeGen cg = CreateInterprettedMethod(context, delegateType, hasThis);
-            EmitFunctionImplementation(cg);
-
-            cg.Finish();
-
-            if (delegateType == null) {
-                if (createWrapperMethod) {
-                    CodeGen wrapper = MakeWrapperMethodN(null, cg, hasThis);
-                    wrapper.Finish();
-                    delegateType =
- typeof(CallTargetWithContextN);
-                    return wrapper.CreateDelegate(delegateType);
-                    //throw new NotImplementedException("Wrapper methods not implemented for code blocks in FastEval mode");
-                } else if (_parameterArray) {
-                  delegateType =
- typeof(CallTargetWithContextN);
-                    return cg.CreateDelegate(delegateType);
-                    //throw new NotImplementedException("Parameter arrays not implemented for code blocks in FastEval mode");
-                } else {
-                    delegateType = CallTargets.GetTargetType(true, _parameters.Count - (HasThis() ? 1 : 0), HasThis());
-                    return _compiled = cg.CreateDelegate(delegateType);
-                }
-            } else {
-              return _compiled = cg.CreateDelegate(delegateType);
-            }
-        }
-
-      Delegate _compiled;
       MethodInfo _impl;
 
       internal void EmitDirectCall(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType, bool tailcall)
@@ -837,19 +702,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-        private Type[] GetParameterTypes(bool hasContextParameter) {
-            Type[] result = new Type[_parameters.Count + (hasContextParameter ? 1 : 0)];
-            int j = 0;
-            if (hasContextParameter) {
-                result[j++] = typeof(CodeContext);
-            }
-
-            for (int i = 0; i < _parameters.Count; i++) {
-                result[j++] = _parameters[i].Type;
-            }
-            return result;
-        }
-
         int ComputeSignature(bool hasContextParameter, bool hasThis, out List<Type> paramTypes, out List<SymbolId> paramNames, out string implName) {
 
             paramTypes = new List<Type>();
@@ -889,19 +741,6 @@ namespace Microsoft.Scripting.Ast {
             implName = GetGeneratedName();
 
             return parameterIndex;
-        }
-
-        private int ComputeDelegateSignature(Type delegateType, out List<Type> paramTypes, out List<SymbolId> paramNames, out string implName) {
-            implName = GetGeneratedName();
-            MethodInfo invoke = delegateType.GetMethod("Invoke");
-            ParameterInfo[] pis = invoke.GetParameters();
-            paramNames = new List<SymbolId>();
-            paramTypes = new List<Type>();
-            foreach (ParameterInfo pi in pis) {
-                paramTypes.Add(pi.ParameterType);
-                paramNames.Add(SymbolTable.StringToId(pi.Name));
-            }
-            return -1;
         }
 
         private string GetGeneratedName() {
@@ -1002,44 +841,6 @@ namespace Microsoft.Scripting.Ast {
           impl.Allocator = CompilerHelpers.CreateLocalStorageAllocator(outer, impl);
 
           return impl;
-        }
-
-        private CodeGen CreateInterprettedMethod(CompilerContext context, Type delegateType, bool hasThis) {
-            List<Type> paramTypes;
-            List<SymbolId> paramNames;
-            CodeGen impl;
-            string implName;
-
-            int lastParamIndex;
-
-            if (delegateType == null) {
-                lastParamIndex = ComputeSignature(true, hasThis, out paramTypes, out paramNames, out implName);
-            } else {
-                Debug.Assert(!_parameterArray);
-                lastParamIndex = ComputeDelegateSignature(delegateType, out paramTypes, out paramNames, out implName);
-            }
-
-            impl = CompilerHelpers.CreateDynamicCodeGenerator(
-                    implName,
-                    typeof(object),
-                    paramTypes.ToArray(),
-                    new ConstantPool());
-            impl.InterpretedMode = true;
-            impl.ContextSlot = impl.ArgumentSlots[0];
-            impl.Context = context;
-            impl.EnvironmentSlot = new EnvironmentSlot(
-                new PropertySlot(
-                    new PropertySlot(impl.ContextSlot,
-                        typeof(CodeContext).GetProperty("Scope")),
-                    typeof(Scope).GetProperty("Dict"))
-                );
-            if (_parameterArray) {
-                impl.ParamsSlot = impl.GetArgumentSlot(lastParamIndex);
-            }
-
-            impl.Allocator = CompilerHelpers.CreateLocalStorageAllocator(null, impl);
-
-            return impl;
         }
 
         private CodeGen CreateWrapperCodeGen(CodeGen outer, string implName, List<Type> paramTypes, ConstantPool staticData) {
@@ -1223,7 +1024,6 @@ namespace Microsoft.Scripting.Ast {
             }
         }
 
-
         // This is used for compiling the toplevel CodeBlock object.
         internal T CreateDelegate<T>(CompilerContext context) 
             where T : class {
@@ -1261,7 +1061,6 @@ namespace Microsoft.Scripting.Ast {
           Type envType = typeof(Storage<>).MakeGenericType(storageType);
           return new ClassEnvironmentFactory(storageType, envType);
         }
-
 
         static int closure_counter = 0;
 
@@ -1302,7 +1101,6 @@ namespace Microsoft.Scripting.Ast {
           get { return _parameters.Count; }
         }
 
-
         public void RemoveVariables(List<Variable> toremove)
         {
           foreach (var v in toremove)
@@ -1311,7 +1109,6 @@ namespace Microsoft.Scripting.Ast {
             _variablesmap.Remove(v.Name);
           }
         }
-
 
         internal void ResetBindings()
         {
@@ -1348,39 +1145,10 @@ namespace Microsoft.Scripting.Ast {
             return CodeBlock(span, name, typeof(object));
         }
 
-        public static CodeBlock CodeBlock(SymbolId name) {
-            return CodeBlock(SourceSpan.None, SymbolTable.IdToString(name), typeof(object));
-        }
-
-        public static CodeBlock CodeBlock(SymbolId name, Type returnType) {
-            return CodeBlock(SourceSpan.None, SymbolTable.IdToString(name), returnType);
-        }
-
-        public static CodeBlock CodeBlock(SourceSpan span, SymbolId name) {
-            return CodeBlock(span, SymbolTable.IdToString(name), typeof(object));
-        }
-
         public static CodeBlock CodeBlock(SourceSpan span, string name, Type returnType) {
             Contract.RequiresNotNull(name, "name");
             Contract.RequiresNotNull(returnType, "returnType");
             return new CodeBlock(AstNodeType.CodeBlock, span, name, returnType);
-        }
-
-        public static CodeBlock EventHandlerBlock(string name, EventInfo eventInfo) {
-            Contract.RequiresNotNull(name, "name");
-            Contract.RequiresNotNull(eventInfo, "eventInfo");
-
-            ParameterInfo returnInfo;
-            ParameterInfo[] parameterInfos;
-
-            ReflectionUtils.GetDelegateSignature(eventInfo.EventHandlerType, out parameterInfos, out returnInfo);
-
-            CodeBlock result = Ast.CodeBlock(name, returnInfo.ParameterType);
-            for (int i = 0; i < parameterInfos.Length; i++) {
-                result.AddParameter(Variable.Parameter(result, SymbolTable.StringToId("$" + i), parameterInfos[i].ParameterType));
-            }
-
-            return result;
         }
     }
 }

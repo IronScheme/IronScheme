@@ -34,11 +34,6 @@ namespace Microsoft.Scripting.Generation {
             this._codeGen = codeGen;
         }
 
-        public void SetName(string name) {
-            _codeGen.DefineParameter(_index, ParameterAttributes.None, name);
-        }
-
-
         public override void EmitGet(CodeGen cg) {
             Contract.RequiresNotNull(cg, "cg");
             Debug.Assert(cg == this._codeGen);

@@ -80,10 +80,6 @@ namespace Microsoft.Scripting.Generation {
         private Slot _contextSlot;                  // code context
         private Slot _paramsSlot;                   // slot for the parameter array, if any
 
-        // Runtime line # tracking
-        private Slot _currentLineSlot;              // used to track the current line # at runtime
-        private int _currentLine;                   // last line number emitted to avoid dupes
-
         private Slot[] _argumentSlots;
         private CompilerContext _context;
         private ActionBinder _binder;
@@ -143,22 +139,7 @@ namespace Microsoft.Scripting.Generation {
             ILDebug = assemblyGen.ILDebug;
             // this is a bit more tricky than i would think :|
             //CacheConstants = true;
-
-#if !DEBUG
         }
-#else
-
-            }
-
-        private string GetPerfTrackName(MethodBase mi) {
-            for (int i = 0; i < mi.Name.Length; i++) {                
-                if (!Char.IsLetter(mi.Name[i]) && mi.Name[i] != '.') {
-                    return mi.Name.Substring(0, i);
-                }
-            }
-            return mi.Name;
-        }
-#endif
 
         public override string ToString() {
             return _methodInfo.ToString();
@@ -196,10 +177,6 @@ namespace Microsoft.Scripting.Generation {
                 _context = value;
                 this.Binder = _context.SourceUnit.Engine.DefaultBinder;
             }
-        }
-
-        public bool HasContext {
-            get { return _context != null; }
         }
 
         public ActionBinder Binder {
@@ -254,10 +231,6 @@ namespace Microsoft.Scripting.Generation {
                 Targets t = _targets.Peek();
                 _targets.Push(new Targets(t.breakLabel, t.continueLabel, type, returnFlag ?? t.finallyReturns, null));
             }
-        }
-
-        public void PushTryBlock() {
-            PushExceptionBlock(TargetBlockType.Try, null);
         }
 
         public void PushTargets(Nullable<Label> breakTarget, Nullable<Label> continueTarget, Statement statement) {
@@ -825,14 +798,6 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        internal Slot DupAndStoreInTemp(Type type) {
-            Debug.Assert(type != typeof(void));
-            this.Emit(OpCodes.Dup);
-            Slot ret = GetLocalTmp(type);
-            ret.EmitSet(this);
-            return ret;
-        }
-
         internal ScopeAllocator Allocator {
             get {
                 Debug.Assert(_allocator != null);
@@ -884,37 +849,6 @@ namespace Microsoft.Scripting.Generation {
             EmitCall(typeof(Debug), "WriteLine", new Type[] { typeof(string) });
         }
 
-        [Conditional("DEBUG")]
-        public void EmitAssertNotNull() {
-            EmitAssertNotNull("Accessing null reference.");
-        }
-
-        /// <summary>
-        /// asserts the value at the top of the stack is not null
-        /// </summary>
-        [Conditional("DEBUG")]
-        public void EmitAssertNotNull(string message) {
-            Emit(OpCodes.Dup);
-            Emit(OpCodes.Ldnull);
-            Emit(OpCodes.Ceq);
-            Emit(OpCodes.Ldc_I4_0);
-            Emit(OpCodes.Ceq);
-
-            if (message == null) {
-                EmitCall(typeof(Debug), "Assert", new Type[] { typeof(bool) });
-            } else {
-                EmitString(message);
-                EmitCall(typeof(Debug), "Assert", new Type[] { typeof(bool), typeof(string) });
-            }
-        }
-
-        public void SetCustomAttribute(CustomAttributeBuilder cab) {
-            MethodBuilder builder = _methodInfo as MethodBuilder;
-            if (builder != null) {
-                builder.SetCustomAttribute(cab);
-            }
-        }
-
         public ParameterBuilder DefineParameter(int position, ParameterAttributes attributes, string strParamName) {
             MethodBuilder builder = _methodInfo as MethodBuilder;
             if (builder != null) {
@@ -940,28 +874,6 @@ namespace Microsoft.Scripting.Generation {
             slot.EmitGet(this);
             if (check) {
                 slot.EmitCheck(this, name);
-            }
-        }
-
-        public virtual void EmitGetCurrentLine() {
-            if (_currentLineSlot != null) {
-                _currentLineSlot.EmitGet(this);
-            } else {
-                EmitInt(0);
-            }
-        }
-
-        public virtual void EmitCurrentLine(int line) {
-            if (!EmitLineInfo || !HasContext) return;
-
-            line = _context.SourceUnit.MapLine(line);
-            if (line != _currentLine && line != SourceLocation.None.Line) {
-                if (_currentLineSlot == null) {
-                    _currentLineSlot = GetNamedLocal(typeof(int), "$line");
-                }
-
-                EmitInt(_currentLine = line);
-                _currentLineSlot.EmitSet(this);
             }
         }
 
@@ -1004,11 +916,6 @@ namespace Microsoft.Scripting.Generation {
             ContextSlot.EmitGet(this);
         }
 
-        public void EmitLanguageContext() {
-            EmitCodeContext();
-            EmitPropertyGet(typeof(CodeContext), "LanguageContext");
-        }
-
         public void EmitEnvironmentOrNull() {
             if (_environmentSlot != null) {
                 _environmentSlot.EmitGet(this);
@@ -1046,10 +953,6 @@ namespace Microsoft.Scripting.Generation {
                 EmitConstant(items[i]);
                 EmitStoreElement(typeof(T));
             }
-        }
-
-        public void EmitTuple(Type tupleType, int count, EmitArrayHelper emit) {
-            EmitTuple(tupleType, 0, count, emit);
         }
 
         private void EmitTuple(Type tupleType, int start, int end, EmitArrayHelper emit) {
@@ -1093,7 +996,6 @@ namespace Microsoft.Scripting.Generation {
                 }
             }
         }
-
 
         /// <summary>
         /// Emits an array of values of count size.  The items are emitted via the callback
@@ -1170,19 +1072,6 @@ namespace Microsoft.Scripting.Generation {
                 //    Emit(OpCodes.Ldsfld, fi);
                 //} else {
                 _typeGen.EmitIndirectedSymbol(this, id);
-            }
-        }
-
-        public void EmitSymbolIdId(SymbolId id) {
-            if (DynamicMethod) {
-                EmitInt(id.Id);
-            } else {
-                EmitSymbolId(id);
-                Slot slot = GetLocalTmp(typeof(SymbolId));
-                slot.EmitSet(this);
-                slot.EmitGetAddr(this);
-                EmitPropertyGet(typeof(SymbolId), "Id");
-                FreeLocalTmp(slot);
             }
         }
 
@@ -1287,7 +1176,7 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-      public void EmitCall(MethodInfo mi, bool tailcall)
+        public void EmitCall(MethodInfo mi, bool tailcall)
       {
         Contract.RequiresNotNull(mi, "mi");
 
@@ -1298,16 +1187,6 @@ namespace Microsoft.Scripting.Generation {
 
         EmitCall(mi);
       }
-
-      public void EmitCall(Type type, String name, bool tailcall)
-      {
-        Contract.RequiresNotNull(type, "type");
-        Contract.RequiresNotNull(name, "name");
-        if (!type.IsVisible) throw new ArgumentException(String.Format(Resources.TypeMustBeVisible, type.FullName));
-
-        EmitCall(type.GetMethod(name), tailcall);
-      }
-
 
         public void EmitCall(Type type, String name) {
             Contract.RequiresNotNull(type, "type");
@@ -1323,12 +1202,6 @@ namespace Microsoft.Scripting.Generation {
             Contract.RequiresNotNull(paramTypes, "paramTypes");
 
             EmitCall(type.GetMethod(name, paramTypes));
-        }
-
-        public void EmitName(SymbolId name) {
-            if (name == SymbolId.Empty) throw new ArgumentException(Resources.EmptySymbolId, "name");
-
-            EmitString(SymbolTable.IdToString(name));
         }
 
         public void EmitType(Type type) {
@@ -1376,50 +1249,6 @@ namespace Microsoft.Scripting.Generation {
                 cache.EmitGet(this);
               }
             }
-        }
-
-        /// <summary>
-        /// Emits a Ldind* instruction for the appropriate type
-        /// </summary>
-        public void EmitLoadValueIndirect(Type type) {
-            Contract.RequiresNotNull(type, "type");
-
-            if (type.IsValueType) {
-                if (type == typeof(int)) Emit(OpCodes.Ldind_I4);
-                else if (type == typeof(uint)) Emit(OpCodes.Ldind_U4);
-                else if (type == typeof(short)) Emit(OpCodes.Ldind_I2);
-                else if (type == typeof(ushort)) Emit(OpCodes.Ldind_U2);
-                else if (type == typeof(long) || type == typeof(ulong)) Emit(OpCodes.Ldind_I8);
-                else if (type == typeof(char)) Emit(OpCodes.Ldind_I2);
-                else if (type == typeof(bool)) Emit(OpCodes.Ldind_I1);
-                else if (type == typeof(float)) Emit(OpCodes.Ldind_R4);
-                else if (type == typeof(double)) Emit(OpCodes.Ldind_R8);
-                else Emit(OpCodes.Ldobj, type);
-            } else {
-                Emit(OpCodes.Ldind_Ref);
-            }
-
-        }
-
-        /// <summary>
-        /// Emits a Stind* instruction for the appropriate type.
-        /// </summary>
-        public void EmitStoreValueIndirect(Type type) {
-            Contract.RequiresNotNull(type, "type");
-
-            if (type.IsValueType) {
-                if (type == typeof(int)) Emit(OpCodes.Stind_I4);
-                else if (type == typeof(short)) Emit(OpCodes.Stind_I2);
-                else if (type == typeof(long) || type == typeof(ulong)) Emit(OpCodes.Stind_I8);
-                else if (type == typeof(char)) Emit(OpCodes.Stind_I2);
-                else if (type == typeof(bool)) Emit(OpCodes.Stind_I1);
-                else if (type == typeof(float)) Emit(OpCodes.Stind_R4);
-                else if (type == typeof(double)) Emit(OpCodes.Stind_R8);
-                else Emit(OpCodes.Stobj, type);
-            } else {
-                Emit(OpCodes.Stind_Ref);
-            }
-
         }
 
         /// <summary>
@@ -1895,13 +1724,6 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        public Delegate CreateDelegate(Type delegateType, object target) {
-            Contract.RequiresNotNull(delegateType, "delegateType");
-            Debug.Assert(!ConstantPool.IsBound);
-
-            return ReflectionUtils.CreateDelegate(CreateDelegateMethodInfo(), delegateType, target);
-        }
-
         public CodeGen DefineMethod(string name, Type retType, IList<Type> paramTypes, string[] paramNames, ConstantPool constantPool) {
             Contract.RequiresNotNullItems(paramTypes, "paramTypes");
             //Contract.RequiresNotNull(paramNames, "paramNames");
@@ -1931,10 +1753,6 @@ namespace Microsoft.Scripting.Generation {
 
         public Label BeginExceptionBlock() {
             return _ilg.BeginExceptionBlock();
-        }
-
-        public void BeginFaultBlock() {
-            _ilg.BeginFaultBlock();
         }
 
         public void BeginFinallyBlock() {
@@ -2001,33 +1819,17 @@ namespace Microsoft.Scripting.Generation {
         public void Emit(OpCode opcode, MethodInfo meth) {
             _ilg.Emit(opcode, meth);
         }
-        
-        [CLSCompliant(false)]
-        public void Emit(OpCode opcode, sbyte arg)
-        {
-            _ilg.Emit(opcode, arg);
-        }
-        
+               
         public void Emit(OpCode opcode, short arg) {
             _ilg.Emit(opcode, arg);
         }
         
-#if !SILVERLIGHT
-        public void Emit(OpCode opcode, SignatureHelper signature) {
-            _ilg.Emit(opcode, signature);
-        }
-#endif
-
         public void Emit(OpCode opcode, string str) {
             _ilg.Emit(opcode, str);
         }
         
         public void Emit(OpCode opcode, Type cls) {
             _ilg.Emit(opcode, cls);
-        }
-        
-        public void EmitCall(OpCode opcode, MethodInfo methodInfo, Type[] optionalParameterTypes) {
-            _ilg.EmitCall(opcode, methodInfo, optionalParameterTypes);
         }
         
         public void EndExceptionBlock() {
@@ -2069,11 +1871,6 @@ namespace Microsoft.Scripting.Generation {
                 PAL.MarkSequencePoint(_ilg, document, startLine, startColumn, endLine, endColumn);
             }
         }
-
-        public void EmitWriteLine(string value) {
-            _ilg.EmitWriteLine(value);
-        }
-
 #endregion
 
 #region IDisposable Members
@@ -2183,25 +1980,6 @@ namespace Microsoft.Scripting.Generation {
             public Label returnStart;
         }
 
-        private bool CanUseFastSite() {
-            // TypeGen is required for fast sites.
-            if (_typeGen == null) {
-                return false;
-            }
-
-            // Fast sites are disabled for dynamic methods
-            if (DynamicMethod) {
-                return false;
-            }
-
-            // Fast sites only possible with global constext
-            if (!(this.ContextSlot is StaticFieldSlot)) {
-                return false;
-            }
-
-            return true;
-        }
-
         internal Slot GetTemporarySlot(Type type) {
             Slot temp;
 
@@ -2216,12 +1994,6 @@ namespace Microsoft.Scripting.Generation {
             return temp;
         }
 
-        internal void FreeTemporarySlot(Slot temp) {
-            if (!IsGenerator) {
-                FreeLocalTmp(temp);
-            }
-        }
-
         readonly internal static Dictionary<string, ISymbolDocumentWriter> SymbolWriters = new Dictionary<string, ISymbolDocumentWriter>();
 
         static string GetFilename(ISymbolDocumentWriter w)
@@ -2234,19 +2006,6 @@ namespace Microsoft.Scripting.Generation {
             }
           }
           return null;
-        }
-
-        internal CodeGen ProvideAbstractCodeBlock(CodeBlock block, bool hasContextParameter, bool hasThis)
-        {
-          Assert.NotNull(block);
-          CodeGen impl = null;
-
-          if (!hasContextParameter)
-          {
-            impl = block.CreateMethod(this, hasContextParameter, hasThis);
-          }
-
-          return impl;
         }
 
         static readonly ConstructorInfo NRC = typeof(IronScheme.Runtime.NonRecursiveAttribute).GetConstructor(Type.EmptyTypes);

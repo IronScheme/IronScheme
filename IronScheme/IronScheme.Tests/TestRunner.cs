@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using System.Diagnostics;
@@ -12,14 +11,19 @@ namespace IronScheme.Tests
   {
     protected TestRunner()
     {
-      Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
+      Quiet = Environment.GetEnvironmentVariable("QUIET") == "1";
       TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
 
     public bool TestCore { get; private set; }
 
-    protected static void AssertError(TestResult tr)
+    protected void AssertError(TestResult tr)
     {
+      if (!Quiet)
+      {
+        Console.WriteLine("Error output: " + tr.Error);
+      }
+      
       Assert.IsEmpty(tr.Error);
     }
 

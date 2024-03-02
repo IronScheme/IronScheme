@@ -72,16 +72,6 @@ namespace Microsoft.Scripting {
             _module = module;
         }
 
-        /// <summary>
-        /// Copy constructor.
-        /// </summary>
-        protected ModuleContext(ModuleContext context) {
-            Contract.RequiresNotNull(context, "context");
-            _module = context._module;
-            _showCls = context._showCls;
-            _compilerContext = context._compilerContext;
-        }
-
         internal protected virtual void ModuleReloading() {
             _showCls = false;
         }

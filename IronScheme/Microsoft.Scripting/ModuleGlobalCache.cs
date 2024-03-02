@@ -67,20 +67,5 @@ namespace Microsoft.Scripting {
                 _value = value;
             }
         }
-
-        /// <summary>
-        /// Event handler for when the value has changed.  Language implementors should call this when
-        /// the cached value is invalidated.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2109:ReviewVisibleEventHandlers")]
-        public void Changed(object sender, ModuleChangeEventArgs e) {
-            Contract.RequiresNotNull(e, "e");
-
-            switch (e.ChangeType) {
-                case ModuleChangeType.Delete: Value = Uninitialized.Instance; break;
-                case ModuleChangeType.Set: Value = e.Value; break;
-                default: Debug.Assert(false, "unknown ModuleChangeType"); break;
-            }
-        }
     }
 }
