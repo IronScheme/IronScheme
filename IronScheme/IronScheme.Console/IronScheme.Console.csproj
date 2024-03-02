@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFrameworks>net20;net5.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net20;net9;net5.0;netcoreapp2.1</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
     <AssemblyTitle>IronScheme.Console</AssemblyTitle>
     <Company>leppie</Company>
