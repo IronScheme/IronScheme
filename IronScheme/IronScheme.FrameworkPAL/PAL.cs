@@ -13,6 +13,7 @@ namespace IronScheme.FrameworkPAL
 {
   public class PALImpl : IPAL
   {
+    // this is just for some optimizations
     public bool IsTransient(ModuleBuilder mb)
     {
 #if NET9_0_OR_GREATER
@@ -38,6 +39,7 @@ namespace IronScheme.FrameworkPAL
     public void SetLocalSymInfo(LocalBuilder lb, string name)
     {
 #if NET9_0_OR_GREATER
+      
 #elif !NETCOREAPP2_1_OR_GREATER
       lb.SetLocalSymInfo(name);
 #endif
@@ -69,7 +71,11 @@ namespace IronScheme.FrameworkPAL
     public void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind)
     {
 #if NET9_0_OR_GREATER
-      ass.Save(filename);
+      if (filename == "ironscheme.boot.dll")
+      {
+        filename = Path.Combine("build", filename);
+      }
+      ((PersistedAssemblyBuilder) ass).Save(filename);
 #elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
 #elif LOKAD
@@ -95,7 +101,7 @@ namespace IronScheme.FrameworkPAL
       else
       {
 #if NET9_0_OR_GREATER
-        ab = AssemblyBuilder.DefinePersistedAssembly(asmname, typeof(object).Assembly);
+        ab =  new  PersistedAssemblyBuilder(asmname, typeof(object).Assembly);
         mb = ab.DefineDynamicModule(actualModuleName);
 #elif !NETCOREAPP2_1_OR_GREATER
         var domain = AppDomain.CurrentDomain;
