@@ -53,13 +53,13 @@ See docs/license.txt. |#
     (clr-static-call File Move from to))    
 
   (define/contract (file-create-time fn:string)
-    (clr-static-call File GetCreationTime fn))    
+    (clr-static-call File (GetCreationTime String) fn))    
 
   (define/contract (file-access-time fn:string)
-    (clr-static-call File GetLastAccessTime fn))    
+    (clr-static-call File (GetLastAccessTime String) fn))    
 
   (define/contract (file-modified-time fn:string)
-    (clr-static-call File GetLastWriteTime fn))    
+    (clr-static-call File (GetLastWriteTime String) fn))    
     
   (define/contract (directory-exists? fn:string)
     (clr-static-call Directory Exists fn))

@@ -41,7 +41,7 @@ See docs/license.txt. |#
     (clr-static-call File GetLastWriteTime (->string filename)))
     
   (define (file-mtime filename)
-    (let ((dt (clr-static-call File GetLastWriteTime filename)))
+    (let ((dt (clr-static-call File (GetLastWriteTime String) filename)))
       (clr-static-call IntX (Create Int64) (clr-prop-get DateTime Ticks dt))))
     
   (define (compare-time t1 t2)

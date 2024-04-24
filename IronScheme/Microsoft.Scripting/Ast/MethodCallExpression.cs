@@ -194,7 +194,7 @@ namespace Microsoft.Scripting.Ast
                     CodeGenDescriptor[] cgd;
                     if (CodeGen._codeBlockLookup.TryGetValue(be.Variable.Name, out rcg))
                     {
-                        var lpttt = pt.GetValue(rcg.MethodInfo) as Type[];
+                        var lpttt = GetParameterTypes(rcg.MethodInfo);
                         if (_arguments.Count == lpttt.Length)
                         {
                             _method = rcg.MethodInfo;
@@ -203,7 +203,7 @@ namespace Microsoft.Scripting.Ast
                     }
                     else if (CodeGen._codeBlockLookupX.TryGetValue(be.Variable.Name, out rcg))
                     {
-                        var lpppt = pt.GetValue(rcg.MethodInfo) as Type[];
+                        var lpppt = GetParameterTypes(rcg.MethodInfo);
                         if (lpppt.Length - 1 > _arguments.Count)
                         {
                         }
@@ -231,7 +231,7 @@ namespace Microsoft.Scripting.Ast
                                 if (i.arity == _arguments.Count)
                                 {
                                     _method = i.cg.MethodInfo;
-                                    pttt = pt.GetValue(_method) as Type[];
+                                    pttt = GetParameterTypes(_method);
                                     break;
                                 }
                             }
@@ -317,6 +317,34 @@ namespace Microsoft.Scripting.Ast
                 cg.EmitConstant(SpanToLong(Span));
                 cg.EmitCall(Debugging.DebugMethods.ExpressionOut);
             }
+        }
+
+        static Dictionary<Type, FieldInfo> parammap = new Dictionary<Type, FieldInfo>();
+
+        static Type[] GetParameterTypes(MethodInfo method)
+        {
+            var type = method.GetType();
+
+            if (parammap.TryGetValue(type, out var fieldInfo))
+            {
+                return (Type[])fieldInfo.GetValue(method);
+            }
+
+            var bf = BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+
+            foreach ( var field in type.GetFields(bf))
+            {
+                switch (field.Name)
+                {
+                    case "m_parameterTypes":
+                    case "_parameterTypes":  // net 9
+                    case "parameters": // mono
+                        parammap[type] = field;
+                        return GetParameterTypes(method);
+                }
+            }
+
+            return Array.ConvertAll(method.GetParameters(), p => p.ParameterType);
         }
 
         bool ShouldTailCallBeRemoved(CodeGen cg)
@@ -405,9 +433,6 @@ namespace Microsoft.Scripting.Ast
             }
             return true;
         }
-
-        static FieldInfo pt = typeof(MethodBuilder).GetField("m_parameterTypes", BindingFlags.NonPublic | BindingFlags.Instance) ??
-          typeof(MethodBuilder).GetField("parameters", BindingFlags.NonPublic | BindingFlags.Instance); // for mono
 
         bool IsParamsMethod()
         {

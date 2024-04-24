@@ -58,12 +58,12 @@ See docs/license.txt. |#
   (define/contract wait-for-exit
     (case-lambda
       [(p:process)     (clr-call Process WaitForExit p)]
-      [(p:process ms)  (clr-call Process WaitForExit p ms)]))
+      [(p:process ms)  (clr-call Process (WaitForExit Int32) p ms)]))
       
   (define/contract wait-for-input-idle
     (case-lambda 
       [(p:process)     (clr-call Process WaitForInputIdle p)]
-      [(p:process ms)  (clr-call Process WaitForInputIdle p ms)]))      
+      [(p:process ms)  (clr-call Process (WaitForInputIdle Int32) p ms)]))      
       
   (define/contract get-processes
     (case-lambda 

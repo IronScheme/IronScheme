@@ -33,12 +33,12 @@ See docs/license.txt. |#
     (ironscheme strings)
     
     (ironscheme threading)
-    (ironscheme web)
-    (ironscheme web-utils)
-    (ironscheme web routing-helper)
-    (ironscheme web controllers)
-    (ironscheme web views)
-    (ironscheme web models)
+;    (ironscheme web)
+;    (ironscheme web-utils)
+;    (ironscheme web routing-helper)
+;    (ironscheme web controllers)
+;    (ironscheme web views)
+;    (ironscheme web models)
     (ironscheme xml)
     
     (ironscheme clr reflection)

@@ -198,7 +198,19 @@ namespace Microsoft.Scripting.Generation {
 
     public override void EmitNewEnvironment(CodeGen cg)
     {
-      ConstructorInfo ctor = EnvironmentType.GetConstructor(new Type[] {StorageType});
+        ConstructorInfo ctor = null;
+
+        if (StorageType is TypeBuilder)
+        {
+            var baseci = EnvironmentType.GetGenericTypeDefinition().GetConstructors()[0];
+            ctor = TypeBuilder.GetConstructor(EnvironmentType, baseci);
+        }
+        else
+        {
+            ctor = EnvironmentType.GetConstructor(new Type[] { StorageType });
+        }
+
+      //ConstructorInfo ctor = EnvironmentType.GetConstructor(new Type[] {StorageType});
 
       // emit: dict.Tuple[.Item000...].Item000 = dict, and then leave dict on the stack
 
