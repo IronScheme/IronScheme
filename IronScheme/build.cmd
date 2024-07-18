@@ -8,6 +8,7 @@ if "%1" == "--help" goto help
 set CFG=%1
 if "%CFG%" == "" set CFG=Release
 
+dotnet restore IronSchemeCore.sln
 msbuild IronSchemeCore.sln /v:m /p:Configuration=%CFG%
 exit /B %ERRORLEVEL%
 

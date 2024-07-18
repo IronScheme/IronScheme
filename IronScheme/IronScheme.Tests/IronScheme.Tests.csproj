@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProductVersion>9.0.30729</ProductVersion>
     <TargetFramework>net20</TargetFramework>
-    <FileUpgradeFlags />
-    <UpgradeBackupLocation />
     <AssemblyTitle>IronScheme.Tests</AssemblyTitle>
     <Product>IronScheme.Tests</Product>
     <Copyright>Copyright ©  2016</Copyright>
@@ -18,9 +15,6 @@
     <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\tools\nunit.framework.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
+    <PackageReference Include="NUnit" Version="2.6.4" />
   </ItemGroup>
 </Project>
