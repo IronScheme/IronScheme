@@ -2,12 +2,10 @@
 using System.Diagnostics.SymbolStore;
 using System.IO;
 #if NETCOREAPP2_1_OR_GREATER
-using System.Linq;
+using System.Threading;
 #endif
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
-using IronScheme.Runtime;
 
 namespace IronScheme.FrameworkPAL
 {
@@ -39,7 +37,7 @@ namespace IronScheme.FrameworkPAL
     public void SetLocalSymInfo(LocalBuilder lb, string name)
     {
 #if NET9_0_OR_GREATER
-      
+      lb.SetLocalSymInfo(name);
 #elif !NETCOREAPP2_1_OR_GREATER
       lb.SetLocalSymInfo(name);
 #endif
@@ -48,6 +46,7 @@ namespace IronScheme.FrameworkPAL
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
 #if NET9_0_OR_GREATER
+      ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
@@ -56,7 +55,11 @@ namespace IronScheme.FrameworkPAL
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
 #if NET9_0_OR_GREATER
-      return null;
+      return mb.DefineDocument(
+        fn,
+        lang,
+        vendor,
+        doctype);
 #elif !NETCOREAPP2_1_OR_GREATER
       return mb.DefineDocument(
         fn,
@@ -101,8 +104,10 @@ namespace IronScheme.FrameworkPAL
       else
       {
 #if NET9_0_OR_GREATER
-        ab =  new  PersistedAssemblyBuilder(asmname, typeof(object).Assembly);
+        var pab = new PersistedAssemblyBuilder(asmname, typeof(object).Assembly);
+        ab = pab;
         mb = ab.DefineDynamicModule(actualModuleName);
+        //var metadataBuilder = pab.GenerateMetadata(out var ilStream, out var mappedFieldData, out var pdbBuilder);
 #elif !NETCOREAPP2_1_OR_GREATER
         var domain = AppDomain.CurrentDomain;
         ab = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
