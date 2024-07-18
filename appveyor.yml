@@ -18,7 +18,7 @@ install:
     git submodule update --init --recursive
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     set QUIET=1
-    cinst ilmerge
+    choco install ilmerge
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
 nuget:
   project_feed: true
