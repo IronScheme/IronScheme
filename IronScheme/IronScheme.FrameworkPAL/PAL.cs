@@ -7,6 +7,12 @@ using System.Threading;
 using System.Reflection;
 using System.Reflection.Emit;
 
+#if NET9_0_OR_GREATER
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
+#endif
+
 namespace IronScheme.FrameworkPAL
 {
   public class PALImpl : IPAL
@@ -78,7 +84,8 @@ namespace IronScheme.FrameworkPAL
       {
         filename = Path.Combine("build", filename);
       }
-      ((PersistedAssemblyBuilder) ass).Save(filename);
+      SaveNET9((PersistedAssemblyBuilder)ass, Path.GetFileNameWithoutExtension(filename), true);
+
 #elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
 #elif LOKAD
@@ -155,6 +162,33 @@ namespace IronScheme.FrameworkPAL
       }
 #endif
     }
+
+#if NET9_0_OR_GREATER
+    private static void SaveNET9(PersistedAssemblyBuilder ab, string assemblyFileName, bool emitDebugInfo)
+    {
+        MetadataBuilder metadataBuilder = ab.GenerateMetadata(out BlobBuilder ilStream, out _, out MetadataBuilder pdbBuilder);
+
+        BlobBuilder portablePdbBlob = new BlobBuilder();
+        PortablePdbBuilder portablePdbBuilder = new PortablePdbBuilder(pdbBuilder, metadataBuilder.GetRowCounts(), entryPoint: default);
+        BlobContentId pdbContentId = portablePdbBuilder.Serialize(portablePdbBlob);
+        using FileStream pdbFileStream = new FileStream($"{assemblyFileName}.pdb", FileMode.Create, FileAccess.Write);
+        portablePdbBlob.WriteContentTo(pdbFileStream);
+
+        DebugDirectoryBuilder debugDirectoryBuilder = new DebugDirectoryBuilder();
+        debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+
+        ManagedPEBuilder peBuilder = new ManagedPEBuilder(
+                        header: new PEHeaderBuilder(imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll),
+                        metadataRootBuilder: new MetadataRootBuilder(metadataBuilder),
+                        ilStream: ilStream,
+                        debugDirectoryBuilder: debugDirectoryBuilder);
+
+        BlobBuilder peBlob = new BlobBuilder();
+        peBuilder.Serialize(peBlob);
+        using var dllFileStream = new FileStream($"{assemblyFileName}.dll", FileMode.Create, FileAccess.Write);
+        peBlob.WriteContentTo(dllFileStream);
+    }
+#endif
   }
 }
 
