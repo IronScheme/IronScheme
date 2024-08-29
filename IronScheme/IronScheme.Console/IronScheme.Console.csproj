@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFrameworks>net20;net9;net5.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net9.0;net20;net5.0;netcoreapp2.1</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
     <AssemblyTitle>IronScheme.Console</AssemblyTitle>
     <Company>leppie</Company>
@@ -33,6 +33,9 @@
   <PropertyGroup Condition="'$(TargetFramework)' != 'net20'">
     <AssemblyName>IronScheme.ConsoleCore</AssemblyName>
   </PropertyGroup>
+<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+  <PackageReference Include="System.Runtime.Serialization.Formatters" Version="9.0.0-*" />
+</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
     <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />

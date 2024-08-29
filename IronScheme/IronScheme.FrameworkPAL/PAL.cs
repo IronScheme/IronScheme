@@ -32,7 +32,7 @@ namespace IronScheme.FrameworkPAL
     public ISymbolWriter GetSymbolWriter(ModuleBuilder mb)
     {
 #if NET9_0_OR_GREATER
-      return null;
+      return FakeSymbolWriter;
 #elif NETCOREAPP2_1_OR_GREATER
       return null;
 #else
@@ -84,7 +84,8 @@ namespace IronScheme.FrameworkPAL
       {
         filename = Path.Combine("build", filename);
       }
-      SaveNET9((PersistedAssemblyBuilder)ass, Path.GetFileNameWithoutExtension(filename), true);
+
+      SaveNET9((PersistedAssemblyBuilder)ass, Path.GetFileNameWithoutExtension(filename), FakeSymbolWriter != null);
 
 #elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
@@ -111,10 +112,13 @@ namespace IronScheme.FrameworkPAL
       else
       {
 #if NET9_0_OR_GREATER
+        if (emitDebugInfo)
+        {
+          FakeSymbolWriter = new Fake();
+        }
         var pab = new PersistedAssemblyBuilder(asmname, typeof(object).Assembly);
         ab = pab;
         mb = ab.DefineDynamicModule(actualModuleName);
-        //var metadataBuilder = pab.GenerateMetadata(out var ilStream, out var mappedFieldData, out var pdbBuilder);
 #elif !NETCOREAPP2_1_OR_GREATER
         var domain = AppDomain.CurrentDomain;
         ab = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
@@ -166,27 +170,145 @@ namespace IronScheme.FrameworkPAL
 #if NET9_0_OR_GREATER
     private static void SaveNET9(PersistedAssemblyBuilder ab, string assemblyFileName, bool emitDebugInfo)
     {
-        MetadataBuilder metadataBuilder = ab.GenerateMetadata(out BlobBuilder ilStream, out _, out MetadataBuilder pdbBuilder);
+      try
+      {
+        MetadataBuilder metadataBuilder = ab.GenerateMetadata(out BlobBuilder ilStream, out BlobBuilder fieldData, out MetadataBuilder pdbBuilder);
 
-        BlobBuilder portablePdbBlob = new BlobBuilder();
-        PortablePdbBuilder portablePdbBuilder = new PortablePdbBuilder(pdbBuilder, metadataBuilder.GetRowCounts(), entryPoint: default);
-        BlobContentId pdbContentId = portablePdbBuilder.Serialize(portablePdbBlob);
-        using FileStream pdbFileStream = new FileStream($"{assemblyFileName}.pdb", FileMode.Create, FileAccess.Write);
-        portablePdbBlob.WriteContentTo(pdbFileStream);
+        DebugDirectoryBuilder debugDirectoryBuilder = null;
 
-        DebugDirectoryBuilder debugDirectoryBuilder = new DebugDirectoryBuilder();
-        debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+        if (emitDebugInfo)
+        {
+          BlobBuilder portablePdbBlob = new BlobBuilder();
+          PortablePdbBuilder portablePdbBuilder = new PortablePdbBuilder(pdbBuilder, metadataBuilder.GetRowCounts(), entryPoint: default);
+          BlobContentId pdbContentId = portablePdbBuilder.Serialize(portablePdbBlob);
+          using FileStream pdbFileStream = new FileStream($"{assemblyFileName}.pdb", FileMode.Create, FileAccess.Write);
+          portablePdbBlob.WriteContentTo(pdbFileStream);
+
+          debugDirectoryBuilder = new DebugDirectoryBuilder();
+          debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+        }
 
         ManagedPEBuilder peBuilder = new ManagedPEBuilder(
                         header: new PEHeaderBuilder(imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll),
                         metadataRootBuilder: new MetadataRootBuilder(metadataBuilder),
                         ilStream: ilStream,
+                        mappedFieldData: fieldData,
                         debugDirectoryBuilder: debugDirectoryBuilder);
 
         BlobBuilder peBlob = new BlobBuilder();
         peBuilder.Serialize(peBlob);
         using var dllFileStream = new FileStream($"{assemblyFileName}.dll", FileMode.Create, FileAccess.Write);
         peBlob.WriteContentTo(dllFileStream);
+      }
+      finally
+      {
+        FakeSymbolWriter = null;
+      }
+    }
+
+    static ISymbolWriter FakeSymbolWriter = null;
+
+    class Fake : ISymbolWriter
+    {
+      public void Close()
+      {
+        throw new NotImplementedException();
+      }
+
+      public void CloseMethod()
+      {
+        throw new NotImplementedException();
+      }
+
+      public void CloseNamespace()
+      {
+        throw new NotImplementedException();
+      }
+
+      public void CloseScope(int endOffset)
+      {
+        throw new NotImplementedException();
+      }
+
+      public ISymbolDocumentWriter DefineDocument(string url, Guid language, Guid languageVendor, Guid documentType)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void DefineField(SymbolToken parent, string name, FieldAttributes attributes, byte[] signature, SymAddressKind addrKind, int addr1, int addr2, int addr3)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void DefineGlobalVariable(string name, FieldAttributes attributes, byte[] signature, SymAddressKind addrKind, int addr1, int addr2, int addr3)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void DefineLocalVariable(string name, FieldAttributes attributes, byte[] signature, SymAddressKind addrKind, int addr1, int addr2, int addr3, int startOffset, int endOffset)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void DefineParameter(string name, ParameterAttributes attributes, int sequence, SymAddressKind addrKind, int addr1, int addr2, int addr3)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void DefineSequencePoints(ISymbolDocumentWriter document, int[] offsets, int[] lines, int[] columns, int[] endLines, int[] endColumns)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void Initialize(nint emitter, string filename, bool fFullBuild)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void OpenMethod(SymbolToken method)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void OpenNamespace(string name)
+      {
+        throw new NotImplementedException();
+      }
+
+      public int OpenScope(int startOffset)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void SetMethodSourceRange(ISymbolDocumentWriter startDoc, int startLine, int startColumn, ISymbolDocumentWriter endDoc, int endLine, int endColumn)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void SetScopeRange(int scopeID, int startOffset, int endOffset)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void SetSymAttribute(SymbolToken parent, string name, byte[] data)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void SetUnderlyingWriter(nint underlyingWriter)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void SetUserEntryPoint(SymbolToken entryMethod)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void UsingNamespace(string fullName)
+      {
+        throw new NotImplementedException();
+      }
     }
 #endif
   }
