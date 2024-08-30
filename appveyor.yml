@@ -1,6 +1,6 @@
 version: 1.0.{build}
 skip_tags: true
-image: Visual Studio 2019
+image: Visual Studio 2022
 branches:
   only:
   - master
@@ -32,7 +32,7 @@ build_script:
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
     echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
-    dotnet msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:UseNetFxIlTools=False
+    dotnet msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:UseNetFxIlTools=False
 test_script:
 - cmd: |
     cd IronScheme\IronScheme.Console\bin\Release\net20
