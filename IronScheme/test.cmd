@@ -5,7 +5,7 @@ rem set nunit bin directory
 set NUNIT_PATH=D:\Downloads\NUnit-2.6.4\bin\
 
 rem these have to be in order
-set TESTS=Debug,Release,Conformance,SRFI,Other,Teardown
+set TESTS=Bootstrap.Debug,Compile.Debug,Bootstrap.Release,Compile.Release,Conformance,SRFI,Other,Teardown
 
 set QUIET=1
 set ARGS=%*
@@ -13,7 +13,7 @@ set FX=net20
 set TESTCORE=0
 
 rem the args you want to handle
-set MYARGS=verbose V core
+set MYARGS=verbose V core net9
 
 rem the prefix for arg
 set PREFIX=/
@@ -37,6 +37,11 @@ set TESTCORE=1
 set FX=netcoreapp2.1
 goto :eof
 
+:net9
+set TESTCORE=1
+set FX=net9.0
+goto :eof
+
 :script
 rem setup path
 set PATH=%PATH%;%NUNIT_PATH%;
@@ -48,6 +53,7 @@ where nunit-console-x86 >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 goto no_nunit
 
 IF %TESTCORE% == 1 set TESTS=Conformance,SRFI,Other
+IF %FX% == net9.0 set TESTS=Compile.Debug,Compile.Release,Conformance,SRFI,Other
 
 set NUNIT=call :runtest
 

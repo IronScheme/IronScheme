@@ -34,10 +34,12 @@ build_script:
 test_script:
 - cmd: |
     cd IronScheme\IronScheme.Console\bin\Release\net20
-    echo 1 | IronScheme.Console.exe
+    echo (ironscheme-runtime) | IronScheme.Console.exe
     rem these have to be in order
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Debug
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Release
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
@@ -48,6 +50,7 @@ test_script:
     cd ..\netcoreapp2.1
     copy /y ..\net20\ironscheme.boot.dll .
     copy /y ..\net20\nunit.framework.dll .
+    echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
@@ -55,6 +58,9 @@ test_script:
     cd ..\net9.0
     copy /y ..\net20\ironscheme.boot.dll .
     copy /y ..\net20\nunit.framework.dll .
+    echo (ironscheme-runtime) | IronScheme.ConsoleCore.exe
+    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
+    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
