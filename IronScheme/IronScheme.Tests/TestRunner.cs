@@ -12,7 +12,7 @@ namespace IronScheme.Tests
   {
     protected TestRunner()
     {
-      Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
+      Quiet = Environment.GetEnvironmentVariable("QUIET") == "1";
       TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
 
@@ -39,11 +39,6 @@ namespace IronScheme.Tests
     protected TestResult RunIronSchemeTest(string args)
     {
       return RunIronSchemeTest(args, null);
-    }
-
-    protected TestResult RunIronSchemeTest(string args, bool echo)
-    {
-      return RunIronSchemeTest(args, null, echo);
     }
 
     protected TestResult RunIronSchemeTest(string args, string input)
