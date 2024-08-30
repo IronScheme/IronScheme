@@ -21,13 +21,11 @@ install:
     choco install ilmerge
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
     choco install dotnet-9.0-sdk --pre -y
-    dotnet --info
 nuget:
   project_feed: true
 build_script:
 - cmd: |
     dotnet restore "IronScheme\IronSchemeCore.sln"
-    type "IronScheme\TailCallMaker\obj\project.assets.json"
     echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
@@ -36,6 +34,7 @@ build_script:
 test_script:
 - cmd: |
     cd IronScheme\IronScheme.Console\bin\Release\net20
+    echo 1 | IronScheme.Console.exe
     rem these have to be in order
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Debug
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Release
