@@ -19,7 +19,7 @@ install:
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     set QUIET=1
     choco install ilmerge
-    set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
+    set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
     choco install dotnet-9.0-sdk --pre -y
     dotnet --info
 nuget:

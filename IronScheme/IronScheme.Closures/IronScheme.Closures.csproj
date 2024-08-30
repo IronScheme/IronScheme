@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net20</TargetFrameworks>
+    <TargetFramework>net20</TargetFramework>
     <AssemblyTitle>IronScheme.Closures</AssemblyTitle>
     <Product>IronScheme.Closures</Product>
     <Copyright>Copyright ©  2008</Copyright>
