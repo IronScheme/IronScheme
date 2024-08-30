@@ -18,13 +18,13 @@ install:
     git submodule update --init --recursive
     set SHA=%APPVEYOR_REPO_COMMIT:~0,7%
     set QUIET=1
-    cinst ilmerge
+    choco install ilmerge
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
 nuget:
   project_feed: true
 build_script:
 - cmd: |
-    nuget restore "IronScheme\IronSchemeCore.sln"
+    dotnet restore "IronScheme\IronSchemeCore.sln"
     echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
@@ -45,6 +45,7 @@ test_script:
 
     cd ..\netcoreapp2.1
     copy /y ..\net20\ironscheme.boot.dll .
+    copy /y ..\net20\nunit.framework.dll .
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
