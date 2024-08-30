@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>Microsoft.Scripting</RootNamespace>
-    <NoWarn>1591;1734</NoWarn>
-    <TargetFrameworks>net20</TargetFrameworks>
+    <NoWarn>$(NoWarn);1591;1734</NoWarn>
+    <TargetFramework>net20</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <AssemblyTitle>Microsoft.Scripting</AssemblyTitle>
     <Company>Microsoft</Company>
     <Product>Microsoft.Scripting</Product>
@@ -13,7 +14,6 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <OutputPath>Bin\$(Configuration)\</OutputPath>
-    <DocumentationFile>Bin\$(Configuration)\IronScheme.Scripting.xml</DocumentationFile>
     <ExecuteAsTool>false</ExecuteAsTool>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
