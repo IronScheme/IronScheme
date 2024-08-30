@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net20</TargetFramework>
+    <TargetFrameworks>net20</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AssemblyTitle>IronScheme.Closures</AssemblyTitle>
     <Product>IronScheme.Closures</Product>
