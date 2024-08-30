@@ -27,6 +27,7 @@ nuget:
 build_script:
 - cmd: |
     dotnet restore "IronScheme\IronSchemeCore.sln"
+    type "IronScheme\TailCallMaker\obj\project.assets.json"
     echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
