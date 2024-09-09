@@ -5,7 +5,6 @@ branches:
   only:
   - master
 configuration: Release
-platform: Any CPU
 assembly_info:
   patch: true
   file: IronScheme\IronScheme\Properties\AssemblyInfo.cs
