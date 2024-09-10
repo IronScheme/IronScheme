@@ -11,6 +11,13 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>
   </PropertyGroup>
+  <!-- setup toolset emulation when using Core msbuild -->
+  <PropertyGroup Condition="$(MSBuildRuntimeType) == 'Core'">
+    <SystemRoot Condition="$(SystemRoot) == ''">C:\WINDOWS</SystemRoot>
+    <SDK40ToolsPath Condition="$(SDK40ToolsPath) == ''">$([MSBuild]::ValueOrDefault($([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.8.1\WinSDK-NetFx40Tools-x86', 'InstallationFolder', null, RegistryView.Registry32)), $([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.8\WinSDK-NetFx40Tools-x86', 'InstallationFolder', null, RegistryView.Registry32))))</SDK40ToolsPath>
+    <SDK35ToolsPath Condition="$(SDK35ToolsPath) == ''">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx35Tools-x86', 'InstallationFolder', null, RegistryView.Registry32))</SDK35ToolsPath>
+    <MSBuildFrameworkToolsRoot Condition="'$(MSBuildFrameworkToolsRoot)' == ''">$(SystemRoot)\Microsoft.NET\Framework\</MSBuildFrameworkToolsRoot>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>true</Optimize>
     <DefineConstants />
@@ -23,6 +30,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="$(UseNetFxIlTools) != True">
     <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILAsm" Version="9.0.0-preview.7.24405.7" GeneratePathProperty="true" ExcludeAssets="all" />
     <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILDAsm" Version="9.0.0-preview.7.24405.7" GeneratePathProperty="true" ExcludeAssets="all" />
   </ItemGroup>

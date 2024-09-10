@@ -19,17 +19,19 @@ install:
     set QUIET=1
     choco install ilmerge
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
-    choco install dotnet-9.0-sdk --pre -y
+    choco install dotnet-9.0-sdk --pre -y -r
+    for /d %%d in (%LOCALAPPDATA%\Microsoft\VisualStudio\17.0*) do echo UsePreviews=True > %%d\sdk.txt
 nuget:
   project_feed: true
 build_script:
 - cmd: |
-    dotnet restore "IronScheme\IronSchemeCore.sln"
+    rem dotnet restore "IronScheme\IronSchemeCore.sln"
     echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
     echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
-    dotnet msbuild "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:UseNetFxIlTools=False
+    rem dotnet msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
+    msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
 test_script:
 - cmd: |
     cd IronScheme\IronScheme.Console\bin\Release\net20
