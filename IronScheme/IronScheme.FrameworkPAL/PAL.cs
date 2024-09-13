@@ -17,22 +17,20 @@ namespace IronScheme.FrameworkPAL
 {
   public class PALImpl : IPAL
   {
-    // this is just for some optimizations
+    // this is just for some optimizations, probably only called on .NET Framework
     public bool IsTransient(ModuleBuilder mb)
     {
-#if NET9_0_OR_GREATER
-      return true;
-#elif !NETCOREAPP2_1_OR_GREATER
+#if !NETCOREAPP2_1_OR_GREATER
       return mb.IsTransient();
 #else
       return true;
 #endif
     }
 
-    public ISymbolWriter GetSymbolWriter(ModuleBuilder mb)
+    public object GetSymbolWriter(ModuleBuilder mb)
     {
 #if NET9_0_OR_GREATER
-      return FakeSymbolWriter;
+      return DummySymbolWriter;
 #elif NETCOREAPP2_1_OR_GREATER
       return null;
 #else
@@ -42,31 +40,21 @@ namespace IronScheme.FrameworkPAL
 
     public void SetLocalSymInfo(LocalBuilder lb, string name)
     {
-#if NET9_0_OR_GREATER
-      lb.SetLocalSymInfo(name);
-#elif !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
       lb.SetLocalSymInfo(name);
 #endif
     }
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
-#if NET9_0_OR_GREATER
-      ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
-#elif !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
     }
 
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
-#if NET9_0_OR_GREATER
-      return mb.DefineDocument(
-        fn,
-        lang,
-        vendor,
-        doctype);
-#elif !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
       return mb.DefineDocument(
         fn,
         lang,
@@ -85,13 +73,15 @@ namespace IronScheme.FrameworkPAL
         filename = Path.Combine("build", filename);
       }
 
-      SaveNET9((PersistedAssemblyBuilder)ass, Path.GetFileNameWithoutExtension(filename), FakeSymbolWriter != null);
+      SaveNET9((PersistedAssemblyBuilder)ass, Path.GetFileNameWithoutExtension(filename), DummySymbolWriter != null);
 
 #elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
 #elif LOKAD
       var gen = new Lokad.ILPack.AssemblyGenerator();
       gen.GenerateAssembly(ass, filename);
+#else
+      throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
     }
 
@@ -114,8 +104,9 @@ namespace IronScheme.FrameworkPAL
 #if NET9_0_OR_GREATER
         if (emitDebugInfo)
         {
-          FakeSymbolWriter = new Fake();
+          DummySymbolWriter = new object();
         }
+        //var mscorlib = Array.Find(AppDomain.CurrentDomain.GetAssemblies(), a => a.GetName().Name == "mscorlib");
         var pab = new PersistedAssemblyBuilder(asmname, typeof(object).Assembly);
         ab = pab;
         mb = ab.DefineDynamicModule(actualModuleName);
@@ -124,8 +115,7 @@ namespace IronScheme.FrameworkPAL
         ab = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
         mb = ab.DefineDynamicModule(actualModuleName, outFileName, emitDebugInfo);
 #else
-        ab = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndCollect);
-        mb = ab.DefineDynamicModule(actualModuleName);
+        throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
       }
 
@@ -202,114 +192,11 @@ namespace IronScheme.FrameworkPAL
       }
       finally
       {
-        FakeSymbolWriter = null;
+        DummySymbolWriter = null;
       }
     }
 
-    static ISymbolWriter FakeSymbolWriter = null;
-
-    class Fake : ISymbolWriter
-    {
-      public void Close()
-      {
-        throw new NotImplementedException();
-      }
-
-      public void CloseMethod()
-      {
-        throw new NotImplementedException();
-      }
-
-      public void CloseNamespace()
-      {
-        throw new NotImplementedException();
-      }
-
-      public void CloseScope(int endOffset)
-      {
-        throw new NotImplementedException();
-      }
-
-      public ISymbolDocumentWriter DefineDocument(string url, Guid language, Guid languageVendor, Guid documentType)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void DefineField(SymbolToken parent, string name, FieldAttributes attributes, byte[] signature, SymAddressKind addrKind, int addr1, int addr2, int addr3)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void DefineGlobalVariable(string name, FieldAttributes attributes, byte[] signature, SymAddressKind addrKind, int addr1, int addr2, int addr3)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void DefineLocalVariable(string name, FieldAttributes attributes, byte[] signature, SymAddressKind addrKind, int addr1, int addr2, int addr3, int startOffset, int endOffset)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void DefineParameter(string name, ParameterAttributes attributes, int sequence, SymAddressKind addrKind, int addr1, int addr2, int addr3)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void DefineSequencePoints(ISymbolDocumentWriter document, int[] offsets, int[] lines, int[] columns, int[] endLines, int[] endColumns)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void Initialize(nint emitter, string filename, bool fFullBuild)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void OpenMethod(SymbolToken method)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void OpenNamespace(string name)
-      {
-        throw new NotImplementedException();
-      }
-
-      public int OpenScope(int startOffset)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void SetMethodSourceRange(ISymbolDocumentWriter startDoc, int startLine, int startColumn, ISymbolDocumentWriter endDoc, int endLine, int endColumn)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void SetScopeRange(int scopeID, int startOffset, int endOffset)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void SetSymAttribute(SymbolToken parent, string name, byte[] data)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void SetUnderlyingWriter(nint underlyingWriter)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void SetUserEntryPoint(SymbolToken entryMethod)
-      {
-        throw new NotImplementedException();
-      }
-
-      public void UsingNamespace(string fullName)
-      {
-        throw new NotImplementedException();
-      }
-    }
+    static object DummySymbolWriter = null;
 #endif
   }
 }

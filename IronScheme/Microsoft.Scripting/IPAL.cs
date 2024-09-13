@@ -10,7 +10,7 @@ namespace IronScheme.FrameworkPAL
     {
         void Initialize();
         ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype);
-        ISymbolWriter GetSymbolWriter(ModuleBuilder mb);
+        object GetSymbolWriter(ModuleBuilder mb);
         bool IsTransient(ModuleBuilder mb);
         void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn);
         void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind);
@@ -55,7 +55,7 @@ namespace IronScheme.FrameworkPAL
 
         public static void Initialize() => pal.Initialize();
         public static ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype) => pal.CreateSymbolDocumentWriter(mb, fn, lang, vendor, doctype);
-        public static ISymbolWriter GetSymbolWriter(ModuleBuilder mb) => pal.GetSymbolWriter(mb);
+        public static object GetSymbolWriter(ModuleBuilder mb) => pal.GetSymbolWriter(mb);
         public static bool IsTransient(ModuleBuilder mb) => pal.IsTransient(mb);
         public static void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn) =>
             pal.MarkSequencePoint(ilg, document, startLine, startColumn, endLine, endColumn);

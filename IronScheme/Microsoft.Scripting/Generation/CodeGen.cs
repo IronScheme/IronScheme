@@ -167,7 +167,7 @@ namespace Microsoft.Scripting.Generation {
         public bool EmitDebugInfo {
             get 
             {
-              return _typeGen != null && _typeGen.AssemblyGen.SymbolWriter != null;// _debugSymbolWriter != null;
+                return _typeGen != null && _typeGen.AssemblyGen.HasSymbolWriter;
             }
         }
 
@@ -1289,7 +1289,7 @@ namespace Microsoft.Scripting.Generation {
         public void EmitCall(MethodInfo mi) {
             Contract.RequiresNotNull(mi, "mi");
 
-            if (mi.IsVirtual && !mi.DeclaringType.IsValueType /*&& !mi.DeclaringType.IsInterface*/) {
+            if (mi.IsVirtual && !mi.DeclaringType.IsValueType) {
                 Emit(OpCodes.Callvirt, mi);
             } else {
                 Emit(OpCodes.Call, mi);

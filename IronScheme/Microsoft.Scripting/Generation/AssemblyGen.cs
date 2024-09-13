@@ -37,7 +37,7 @@ namespace Microsoft.Scripting.Generation {
         private AssemblyGenAttributes _genAttrs;
         private int _index;
         
-        private ISymbolWriter _symbolWriter;
+        private object _symbolWriter;
         private readonly string _outFileName;       // can be null iff !SaveAndReloadAssemblies
         private PortableExecutableKinds _peKind;
         private ImageFileMachine _machine;
@@ -444,8 +444,8 @@ namespace Microsoft.Scripting.Generation {
 #endif
         
         // TODO: SourceUnit should provide writers for each symbol document file used in the unit
-        public ISymbolWriter SymbolWriter {
-            get { return _symbolWriter; }
+        public bool HasSymbolWriter {
+            get { return _symbolWriter != null; }
             //set { _symbolWriter = value; }
         }
 

@@ -67,6 +67,7 @@ namespace IronScheme.Runtime
         }
         try
         {
+          //TODO: skip exception with IsDynamic flag
           if (lass.CodeBase.EndsWith(altpath, true, CultureInfo.CurrentCulture))
           {
             return lass;
