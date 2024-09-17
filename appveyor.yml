@@ -50,22 +50,24 @@ test_script:
     set QUIET=
     set TESTCORE=1
 
-    cd ..\netcoreapp2.1
-    copy /y ..\net20\ironscheme.boot.dll .
-    copy /y ..\net20\nunit.framework.dll .
-    echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
-
     cd ..\net9.0
     copy /y ..\net20\ironscheme.boot.dll .
     copy /y ..\net20\nunit.framework.dll .
     echo (ironscheme-runtime) | IronScheme.ConsoleCore.exe
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Debug
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Debug
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Release
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Release
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
+
+    cd ..\netcoreapp2.1
+    copy /y ..\net20\ironscheme.boot.dll .
+    copy /y ..\net20\nunit.framework.dll .
+    echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
