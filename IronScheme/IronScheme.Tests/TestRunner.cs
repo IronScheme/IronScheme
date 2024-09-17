@@ -28,6 +28,14 @@ namespace IronScheme.Tests
     {
       public string Output;
       public string Error;
+
+      public override string ToString()
+      {
+        return $@"Output:
+{Output}
+Error:
+{Error}";
+      }
     }
 
     protected TestResult RunIronSchemeTestWithInput(string input)
@@ -145,7 +153,7 @@ namespace IronScheme.Tests
           }
         }
  
-        Assert.AreEqual(0, p.ExitCode);
+        Assert.AreEqual(0, p.ExitCode, "{0}", r);
 
         return r;
       }
