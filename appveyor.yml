@@ -19,7 +19,8 @@ install:
     set QUIET=1
     choco install ilmerge
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
-    choco install dotnet-9.0-sdk --pre -y -r
+    rem choco install dotnet-9.0-sdk --pre -y -r
+    powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) -Channel 9.0.1xx  -Quality daily -Verbose
     for /d %%d in (%LOCALAPPDATA%\Microsoft\VisualStudio\17.0*) do echo UsePreviews=True > %%d\sdk.txt
 nuget:
   project_feed: true
