@@ -5,7 +5,7 @@ rem set nunit bin directory
 set NUNIT_PATH=D:\Downloads\NUnit-2.6.4\bin\
 
 rem these have to be in order
-set TESTS=Bootstrap.Debug,Compile.Debug,Bootstrap.Release,Compile.Release,Conformance,SRFI,Other,Teardown
+set TESTS=Bootstrap.Debug,Compile.Debug,Verify.Debug,Bootstrap.Release,Compile.Release,Verify.Release,Conformance,SRFI,Other,Teardown
 
 set QUIET=1
 set ARGS=%*
@@ -53,7 +53,7 @@ where nunit-console-x86 >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 goto no_nunit
 
 IF %TESTCORE% == 1 set TESTS=Conformance,SRFI,Other
-IF %FX% == net9.0 set TESTS=Compile.Debug,Compile.Release,Conformance,SRFI,Other
+IF %FX% == net9.0 set TESTS=Compile.Debug,Verify.Debug,Compile.Release,Verify.Release,Conformance,SRFI,Other
 
 set NUNIT=call :runtest
 

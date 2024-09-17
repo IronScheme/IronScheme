@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NUnit.Framework;
 using System.IO;
 
@@ -15,21 +13,8 @@ namespace IronScheme.Tests.Compile
       Directory.Move("lib", "lib.hide");
       RunIronSchemeTest(@"compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
-    }
 
-    [Test]
-    public void Verify()
-    {
-      var libs = File.ReadAllLines("compiled.lst");
-
-      foreach (var lib in libs)
-      {
-        if (!Quiet) Console.WriteLine("Verifying: " + lib);
-        var r = RunTest("peverify.exe", "/nologo " + lib, false);
-        Assert.True(r.Output.Contains("All Classes and Methods in " + lib + " Verified."));
-      }
-
-      Assert.Pass("incredible!");
+      Assert.Pass();
     }
   }
 
@@ -47,30 +32,8 @@ namespace IronScheme.Tests.Compile
       Directory.Move("lib", "lib.hide");
       RunIronSchemeTest(@"-debug compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
-    }
 
-    [Test]
-    public void Verify()
-    {
-      var libs = File.ReadAllLines("compiled.lst");
-
-      try
-      {
-        foreach (var lib in libs)
-        {
-          if (!Quiet) Console.WriteLine("Verifying: " + lib);
-          var r = RunTest("peverify.exe", "/nologo " + lib, false);
-          Assert.True(r.Output.Contains("All Classes and Methods in " + lib + " Verified."));
-        }
-      }
-      finally
-      {
-        foreach (var lib in libs)
-        {
-          File.Delete(lib);
-          File.Delete(Path.ChangeExtension(lib, "pdb"));
-        }
-      }
+      Assert.Pass();
     }
   }
 }

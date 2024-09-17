@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using System.Diagnostics;
@@ -20,7 +19,7 @@ namespace IronScheme.Tests
 
     protected static void AssertError(TestResult tr)
     {
-      Assert.IsEmpty(tr.Error);
+      Assert.IsEmpty(tr.Error, "stderr is not empty");
     }
 
     protected bool Quiet { get; private set; }

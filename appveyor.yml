@@ -19,8 +19,7 @@ install:
     set QUIET=1
     choco install ilmerge
     set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
-    rem choco install dotnet-9.0-sdk --pre -y -r
-    powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) -Channel 9.0.1xx  -Quality daily -InstallDir 'c:\Program Files\dotnet' -Verbose"
+    powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) -Channel 9.0.1xx  -Quality daily -InstallDir 'c:\Program Files\dotnet'"
     for /d %%d in (%LOCALAPPDATA%\Microsoft\VisualStudio\17.0*) do echo UsePreviews=True > %%d\sdk.txt
 nuget:
   project_feed: true
@@ -40,8 +39,10 @@ test_script:
     rem these have to be in order
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Debug
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Debug
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Release
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Release
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
@@ -61,8 +62,10 @@ test_script:
     copy /y ..\net20\ironscheme.boot.dll .
     copy /y ..\net20\nunit.framework.dll .
     echo (ironscheme-runtime) | IronScheme.ConsoleCore.exe
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Debug
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
+    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Release
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other

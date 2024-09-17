@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
-using System.IO;
+﻿using NUnit.Framework;
 
 namespace IronScheme.Tests.Bootstrap
 {
@@ -13,9 +9,14 @@ namespace IronScheme.Tests.Bootstrap
     {
       RunIronSchemeTest(@"ironscheme-buildscript.sps");
       RunIronSchemeTest(@"ironscheme-buildscript.sps");
-      
-      var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
-      Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
+
+      if (!TestCore)
+      {
+        var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
+        Assert.That(r.Output, Is.StringContaining("All Classes and Methods in ironscheme.boot.dll Verified."));
+      }
+
+      Assert.Pass();
     }
   }
 
@@ -27,8 +28,13 @@ namespace IronScheme.Tests.Bootstrap
       RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
       RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
 
-      var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
-      Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
+      if (!TestCore)
+      {
+        var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
+        Assert.That(r.Output, Is.StringContaining("All Classes and Methods in ironscheme.boot.dll Verified."));
+      }
+
+      Assert.Pass();
     }
   }
 }
