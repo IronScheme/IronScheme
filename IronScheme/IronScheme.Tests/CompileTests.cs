@@ -9,7 +9,13 @@ namespace IronScheme.Tests.Compile
     [Test]
     public void Compile()
     {
-      RunIronSchemeTest(@"compile-system-libraries.sps");
+      var r = RunIronSchemeTest(@"compile-system-libraries.sps");
+      var compiledlibs = r.Output;
+      var list = Array.ConvertAll(compiledlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries), l => l.Replace("compiling ", ""));
+
+      File.Delete("compiled.lst");
+      File.WriteAllLines("compiled.lst", list);
+
       Directory.Move("lib", "lib.hide");
       RunIronSchemeTest(@"compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
@@ -27,6 +33,7 @@ namespace IronScheme.Tests.Compile
       var compiledlibs = r.Output;
       var list = Array.ConvertAll(compiledlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries), l => l.Replace("compiling ", ""));
 
+      File.Delete("compiled.lst");
       File.WriteAllLines("compiled.lst", list);
 
       Directory.Move("lib", "lib.hide");

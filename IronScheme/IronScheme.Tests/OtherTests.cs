@@ -5,7 +5,7 @@ namespace IronScheme.Tests
   public class Other : TestRunner
   {
     [Test]
-    [Ignore("test is flakey")]
+    //[Ignore("test is flakey")]
     public void PFDS()
     {
       var r = RunIronSchemeTest(@"lib\pfds\tests.scm");
