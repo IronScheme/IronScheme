@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net20</TargetFrameworks>
+    <TargetFramework>net20</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <AssemblyTitle>IronScheme.Closures</AssemblyTitle>
     <Product>IronScheme.Closures</Product>
     <Copyright>Copyright ©  2008</Copyright>
@@ -9,6 +10,13 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>
+  </PropertyGroup>
+  <!-- setup toolset emulation when using Core msbuild -->
+  <PropertyGroup Condition="$(MSBuildRuntimeType) == 'Core'">
+    <SystemRoot Condition="$(SystemRoot) == ''">C:\WINDOWS</SystemRoot>
+    <SDK40ToolsPath Condition="$(SDK40ToolsPath) == ''">$([MSBuild]::ValueOrDefault($([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.8.1\WinSDK-NetFx40Tools-x86', 'InstallationFolder', null, RegistryView.Registry32)), $([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\NETFXSDK\4.8\WinSDK-NetFx40Tools-x86', 'InstallationFolder', null, RegistryView.Registry32))))</SDK40ToolsPath>
+    <SDK35ToolsPath Condition="$(SDK35ToolsPath) == ''">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx35Tools-x86', 'InstallationFolder', null, RegistryView.Registry32))</SDK35ToolsPath>
+    <MSBuildFrameworkToolsRoot Condition="'$(MSBuildFrameworkToolsRoot)' == ''">$(SystemRoot)\Microsoft.NET\Framework\</MSBuildFrameworkToolsRoot>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -22,8 +30,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
-    <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILAsm" Version="8.0.0" GeneratePathProperty="true" ExcludeAssets="all" />
-    <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILDAsm" Version="8.0.0" GeneratePathProperty="true" ExcludeAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="$(UseNetFxIlTools) != True">
+    <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILAsm" Version="9.0.0-*" GeneratePathProperty="true" ExcludeAssets="all" />
+    <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILDAsm" Version="9.0.0-*" GeneratePathProperty="true" ExcludeAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="IronScheme.Glue.il">
@@ -40,6 +50,6 @@
       <ILDAsmPath>$(Pkgruntime_win-x64_Microsoft_NETCore_ILDAsm)\runtimes\win-x64\native\ildasm</ILDAsmPath>
     </PropertyGroup>
     <Exec Condition="$(UseNetFxIlTools) == True" Command="&quot;$(TargetFrameworkSDKToolsDirectory)ildasm&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /NOBAR /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(TargetedFrameworkDir)\ilasm&quot; /dll /PDB /NOLOGO /QUIET /out:&quot;$(TargetDir)$(TargetName).dll&quot; /res:&quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
-    <Exec Condition="$(UseNetFxIlTools) != True" Command="&quot;$(ILDAsmPath)&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(ILAsmPath)&quot; /dll /PDB /NOLOGO /QUIET /out:&quot;$(TargetDir)$(TargetName).dll&quot; /res:&quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
+    <Exec Condition="$(UseNetFxIlTools) != True" Command="&quot;$(ILDAsmPath)&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(ILAsmPath)&quot; /dll /PDB /DEBUG /NOLOGO /QUIET /mdv=&quot;v2.0.50727&quot; /out:&quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
   </Target>
 </Project>

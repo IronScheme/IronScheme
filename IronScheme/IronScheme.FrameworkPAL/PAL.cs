@@ -2,17 +2,28 @@
 using System.Diagnostics.SymbolStore;
 using System.IO;
 #if NETCOREAPP2_1_OR_GREATER
-using System.Linq;
+using System.Threading;
 #endif
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
-using IronScheme.Runtime;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+
+#if NET9_0_OR_GREATER
+using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
+#endif
+
+using Microsoft.Scripting;
+using System.Runtime.Serialization.Formatters;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace IronScheme.FrameworkPAL
 {
   public class PALImpl : IPAL
   {
+    // this is just for some optimizations, probably only called on .NET Framework
     public bool IsTransient(ModuleBuilder mb)
     {
 #if !NETCOREAPP2_1_OR_GREATER
@@ -22,9 +33,11 @@ namespace IronScheme.FrameworkPAL
 #endif
     }
 
-    public ISymbolWriter GetSymbolWriter(ModuleBuilder mb)
+    public object GetSymbolWriter(ModuleBuilder mb)
     {
-#if NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      return DummySymbolWriter;
+#elif NETCOREAPP2_1_OR_GREATER
       return null;
 #else
       return mb.GetSymWriter();
@@ -33,21 +46,21 @@ namespace IronScheme.FrameworkPAL
 
     public void SetLocalSymInfo(LocalBuilder lb, string name)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
       lb.SetLocalSymInfo(name);
 #endif
     }
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
     }
 
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
       return mb.DefineDocument(
         fn,
         lang,
@@ -60,11 +73,21 @@ namespace IronScheme.FrameworkPAL
 
     public void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      if (filename == "ironscheme.boot.dll")
+      {
+        filename = Path.Combine("build", filename);
+      }
+
+      SaveNET9((PersistedAssemblyBuilder)ass, Path.GetFileNameWithoutExtension(filename), DummySymbolWriter != null);
+
+#elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
 #elif LOKAD
       var gen = new Lokad.ILPack.AssemblyGenerator();
       gen.GenerateAssembly(ass, filename);
+#else
+      throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
     }
 
@@ -84,13 +107,20 @@ namespace IronScheme.FrameworkPAL
       }
       else
       {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+        if (emitDebugInfo)
+        {
+          DummySymbolWriter = new object();
+        }
+        var pab = new PersistedAssemblyBuilder(asmname, typeof(object).Assembly);
+        ab = pab;
+        mb = ab.DefineDynamicModule(actualModuleName);
+#elif !NETCOREAPP2_1_OR_GREATER
         var domain = AppDomain.CurrentDomain;
         ab = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Save, outDir, null);
         mb = ab.DefineDynamicModule(actualModuleName, outFileName, emitDebugInfo);
 #else
-        ab = AssemblyBuilder.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.RunAndCollect);
-        mb = ab.DefineDynamicModule(actualModuleName);
+        throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
       }
 
@@ -103,6 +133,20 @@ namespace IronScheme.FrameworkPAL
 
     public void Initialize()
     {
+#if NET9_0_OR_GREATER
+      //var SRSF = "System.Runtime.Serialization.Formatters.dll";
+      //if (!File.Exists(SRSF))
+      //{
+      //  var mr = typeof(IPAL).Assembly.GetManifestResourceStream(SRSF);
+
+      //  var bytes = new byte[mr.Length];
+      //  mr.ReadExactly(bytes);
+
+      //  var ass = Assembly.Load(bytes);
+
+      //  bf = ass.GetType("System.Runtime.Serialization.Formatters.Binary.BinaryFormatter");
+      //}
+#endif
 #if NETCOREAPP2_1_OR_GREATER
       //TODO: check if this can be removed, was possibly just a hacking artefact
       Thread.AllocateNamedDataSlot("foo");
@@ -112,7 +156,9 @@ namespace IronScheme.FrameworkPAL
 
     public void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress)
     {
-#if !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      mb.DefineInitializedData("SerializedConstants", s.ToArray(), FieldAttributes.Private);
+#elif !NETCOREAPP2_1_OR_GREATER
       if (compress)
       {
         var cms = new MemoryStream();
@@ -129,6 +175,184 @@ namespace IronScheme.FrameworkPAL
       }
 #endif
     }
+
+    public ISerializer GetSerializer(RecordBinderCallback recordBinder)
+    {
+      return new Serializer(recordBinder);
+    }
+
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+    class Serializer : ISerializer
+    {
+      readonly BinaryFormatter bf;
+
+      public Serializer(RecordBinderCallback recordBinder)
+      {
+        bf = new BinaryFormatter();
+        bf.AssemblyFormat = FormatterAssemblyStyle.Simple;
+        bf.Binder = new TypeCorrector(recordBinder);
+        bf.SurrogateSelector = new Selector();
+      }
+
+      public object Deserialize(Stream serializationStream)
+      {
+        return bf.Deserialize(serializationStream);
+      }
+
+      public void Serialize(Stream serializationStream, object graph)
+      {
+        bf.Serialize(serializationStream, graph); 
+      }
+
+      sealed class Selector : SurrogateSelector
+      {
+        public override ISerializationSurrogate GetSurrogate(Type type, StreamingContext context, out ISurrogateSelector selector)
+        {
+          if (type == typeof(SymbolId))
+          {
+            selector = this;
+            return surrogate;
+          }
+          if (type == typeof(bool))
+          {
+            selector = this;
+            return surrogate2;
+          }
+          return base.GetSurrogate(type, context, out selector);
+        }
+
+        static readonly ISerializationSurrogate surrogate = new SymbolSurrogate();
+        static readonly ISerializationSurrogate surrogate2 = new BooleanSurrogate();
+
+      }
+
+      sealed class SymbolSurrogate : ISerializationSurrogate
+      {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+          SymbolId s = (SymbolId)obj;
+          info.AddValue("symbolName", SymbolTable.IdToString(s));
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+          string value = info.GetString("symbolName");
+          int id = SymbolTable.StringToId(value).Id;
+          return SymbolTable.GetSymbol(id);
+        }
+      }
+
+      sealed class BooleanSurrogate : ISerializationSurrogate
+      {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+          bool s = (bool)obj;
+          info.AddValue("value", s);
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+          bool value = info.GetBoolean("value");
+          return value ? RuntimeHelpers.True : RuntimeHelpers.False;
+        }
+      }
+
+      static Assembly FindAssembly(string assname)
+      {
+        foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+        {
+          if (ass.FullName == assname)
+          {
+            return ass;
+          }
+        }
+
+        // this might accidentally load the debug file..., and screw up stuff, dunno why...
+        try
+        {
+          return Assembly.Load(assname);
+        }
+        // deal with public key shit, starting to regret this...
+        catch (FileLoadException)
+        {
+          return Assembly.Load(assname.Replace("PublicKeyToken=null", "PublicKeyToken=78f2e9d9541a0dee"));
+        }
+      }
+
+      sealed class TypeCorrector : SerializationBinder
+      {
+        readonly RecordBinderCallback recordBinder;
+
+        public TypeCorrector(RecordBinderCallback recordBinder)
+        {
+          this.recordBinder = recordBinder;
+        }
+
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+          Assembly a = FindAssembly(assemblyName);
+          Type tt = a.GetType(typeName, false);
+
+          if (tt == null)
+          {
+            //fall back for dynamic records
+            return recordBinder(assemblyName, typeName);
+          }
+          else
+          {
+            return tt;
+          }
+        }
+      }
+    }
+
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+
+#if NET9_0_OR_GREATER
+    Type bf;
+
+    private static void SaveNET9(PersistedAssemblyBuilder ab, string assemblyFileName, bool emitDebugInfo)
+    {
+      try
+      {
+        MetadataBuilder metadataBuilder = ab.GenerateMetadata(out BlobBuilder ilStream, out BlobBuilder fieldData, out MetadataBuilder pdbBuilder);
+
+        DebugDirectoryBuilder debugDirectoryBuilder = null;
+
+        if (emitDebugInfo)
+        {
+          BlobBuilder portablePdbBlob = new BlobBuilder();
+          PortablePdbBuilder portablePdbBuilder = new PortablePdbBuilder(pdbBuilder, metadataBuilder.GetRowCounts(), entryPoint: default);
+          BlobContentId pdbContentId = portablePdbBuilder.Serialize(portablePdbBlob);
+          using FileStream pdbFileStream = new FileStream($"{assemblyFileName}.pdb", FileMode.Create, FileAccess.Write);
+          portablePdbBlob.WriteContentTo(pdbFileStream);
+
+          debugDirectoryBuilder = new DebugDirectoryBuilder();
+          debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+        }
+
+        ManagedPEBuilder peBuilder = new ManagedPEBuilder(
+                        header: new PEHeaderBuilder(imageCharacteristics: Characteristics.ExecutableImage | Characteristics.Dll),
+                        metadataRootBuilder: new MetadataRootBuilder(metadataBuilder),
+                        ilStream: ilStream,
+                        mappedFieldData: fieldData,
+                        debugDirectoryBuilder: debugDirectoryBuilder);
+
+        BlobBuilder peBlob = new BlobBuilder();
+        peBuilder.Serialize(peBlob);
+        using var dllFileStream = new FileStream($"{assemblyFileName}.dll", FileMode.Create, FileAccess.Write);
+        peBlob.WriteContentTo(dllFileStream);
+      }
+      finally
+      {
+        DummySymbolWriter = null;
+      }
+    }
+
+    static object DummySymbolWriter = null;
+
+
+#endif
   }
 }
 

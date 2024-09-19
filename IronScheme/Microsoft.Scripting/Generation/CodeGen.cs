@@ -167,7 +167,7 @@ namespace Microsoft.Scripting.Generation {
         public bool EmitDebugInfo {
             get 
             {
-              return _typeGen != null && _typeGen.AssemblyGen.SymbolWriter != null;// _debugSymbolWriter != null;
+                return _typeGen != null && _typeGen.AssemblyGen.HasSymbolWriter;
             }
         }
 
@@ -1190,7 +1190,16 @@ namespace Microsoft.Scripting.Generation {
             Contract.RequiresNotNull(type, "type");
             Contract.RequiresNotNull(name, "name");
 
-            EmitPropertyGet(type.GetProperty(name));
+            if (type.Name  == "Storage`1"  && type.GetGenericArguments()[0] is TypeBuilder)
+            {
+                var mi = type.GetGenericTypeDefinition().GetProperty(name).GetGetMethod();
+                var pi = TypeBuilder.GetMethod(type, mi);
+                EmitCall(pi);
+            }
+            else
+            {
+                EmitPropertyGet(type.GetProperty(name));
+            }
         }
 
         public void EmitPropertyGet(PropertyInfo pi) {
@@ -1280,7 +1289,7 @@ namespace Microsoft.Scripting.Generation {
         public void EmitCall(MethodInfo mi) {
             Contract.RequiresNotNull(mi, "mi");
 
-            if (mi.IsVirtual && !mi.DeclaringType.IsValueType /*&& !mi.DeclaringType.IsInterface*/) {
+            if (mi.IsVirtual && !mi.DeclaringType.IsValueType) {
                 Emit(OpCodes.Callvirt, mi);
             } else {
                 Emit(OpCodes.Call, mi);
@@ -1874,7 +1883,8 @@ namespace Microsoft.Scripting.Generation {
             } else if (_methodInfo is MethodBuilder) {
                 MethodBuilder mb = _methodInfo as MethodBuilder;
                 Type methodType = _typeGen.FinishType();
-                return methodType.GetMethod(mb.Name);
+                var d = methodType.GetMethod(mb.Name);
+                return d;
             } else {
                 throw new InvalidOperationException();
             }

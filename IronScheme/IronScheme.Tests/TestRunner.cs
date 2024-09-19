@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using System.Diagnostics;
@@ -12,7 +11,7 @@ namespace IronScheme.Tests
   {
     protected TestRunner()
     {
-      Quiet = Environment.GetEnvironmentVariable("QUIET") != null;
+      Quiet = Environment.GetEnvironmentVariable("QUIET") == "1";
       TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
 
@@ -20,7 +19,7 @@ namespace IronScheme.Tests
 
     protected static void AssertError(TestResult tr)
     {
-      Assert.IsEmpty(tr.Error);
+      Assert.IsEmpty(tr.Error, "stderr is not empty");
     }
 
     protected bool Quiet { get; private set; }
@@ -29,6 +28,14 @@ namespace IronScheme.Tests
     {
       public string Output;
       public string Error;
+
+      public override string ToString()
+      {
+        return $@"Output:
+{Output}
+Error:
+{Error}";
+      }
     }
 
     protected TestResult RunIronSchemeTestWithInput(string input)
@@ -39,11 +46,6 @@ namespace IronScheme.Tests
     protected TestResult RunIronSchemeTest(string args)
     {
       return RunIronSchemeTest(args, null);
-    }
-
-    protected TestResult RunIronSchemeTest(string args, bool echo)
-    {
-      return RunIronSchemeTest(args, null, echo);
     }
 
     protected TestResult RunIronSchemeTest(string args, string input)
@@ -151,7 +153,7 @@ namespace IronScheme.Tests
           }
         }
  
-        Assert.AreEqual(0, p.ExitCode);
+        Assert.AreEqual(0, p.ExitCode, "{0}", r);
 
         return r;
       }

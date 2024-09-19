@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
 using System.IO;
+using NUnit.Framework;
 
-namespace IronScheme.Tests
+namespace IronScheme.Tests.Bootstrap
 {
   public class Release : TestRunner
   {
@@ -13,33 +11,24 @@ namespace IronScheme.Tests
     {
       RunIronSchemeTest(@"ironscheme-buildscript.sps");
       RunIronSchemeTest(@"ironscheme-buildscript.sps");
-      
-      var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
-      Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
-    }
 
-    [Test]
-    public void Compile()
-    {
-      RunIronSchemeTest(@"compile-system-libraries.sps");
-      Directory.Move("lib", "lib.hide");
-      RunIronSchemeTest(@"compile-system-libraries.sps");
-      Directory.Move("lib.hide", "lib");
-    }
-
-    [Test]
-    public void Verify()
-    {
-      var libs = File.ReadAllLines("compiled.lst");
-
-      foreach (var lib in libs)
+      if (!TestCore)
       {
-        if (!Quiet) Console.WriteLine("Verifying: " + lib);
-        var r = RunTest("peverify.exe", "/nologo " + lib, false);
-        Assert.True(r.Output.Contains("All Classes and Methods in " + lib + " Verified."));
+        var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
+        Assert.That(r.Output, Is.EqualTo("All Classes and Methods in ironscheme.boot.dll Verified.").IgnoreCase);
       }
+      else
+      {
+        var v = RunTest("dotnet", "--info");
+        var lines = v.Output.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+        var hi = Array.IndexOf(lines, "Host:");
+        var sdkVer = lines[hi + 1].Replace("Version:", "").Trim();
 
-      Assert.Pass("incredible!");
+        var refPath = $@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\{sdkVer}\*.dll";
+        var lib = "ironscheme.boot.dll";
+        var r = RunTest("ilverify", $@"{lib} -r ""{refPath}"" -r ""*.dll""", false);
+        Assert.That(r.Output, Is.EqualTo("All Classes and Methods in " + Path.GetFullPath(lib) + " Verified.").IgnoreCase);
+      }
     }
   }
 
@@ -51,45 +40,22 @@ namespace IronScheme.Tests
       RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
       RunIronSchemeTest(@"-debug ironscheme-buildscript.sps");
 
-      var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
-      Assert.True(r.Output.Contains("All Classes and Methods in ironscheme.boot.dll Verified."));
-    }
-
-    [Test]
-    public void Compile()
-    {
-      var r = RunIronSchemeTest(@"-debug compile-system-libraries.sps");
-      var compiledlibs = r.Output;
-      var list = Array.ConvertAll(compiledlibs.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries), l => l.Replace("compiling ", ""));
-
-      File.WriteAllLines("compiled.lst", list);
-
-      Directory.Move("lib", "lib.hide");
-      RunIronSchemeTest(@"-debug compile-system-libraries.sps");
-      Directory.Move("lib.hide", "lib");
-    }
-
-    [Test]
-    public void Verify()
-    {
-      var libs = File.ReadAllLines("compiled.lst");
-
-      try
+      if (!TestCore)
       {
-        foreach (var lib in libs)
-        {
-          if (!Quiet) Console.WriteLine("Verifying: " + lib);
-          var r = RunTest("peverify.exe", "/nologo " + lib, false);
-          Assert.True(r.Output.Contains("All Classes and Methods in " + lib + " Verified."));
-        }
+        var r = RunTest("peverify.exe", "/nologo ironscheme.boot.dll");
+        Assert.That(r.Output, Is.EqualTo("All Classes and Methods in ironscheme.boot.dll Verified.").IgnoreCase);
       }
-      finally
+      else
       {
-        foreach (var lib in libs)
-        {
-          File.Delete(lib);
-          File.Delete(Path.ChangeExtension(lib, "pdb"));
-        }
+        var v = RunTest("dotnet", "--info");
+        var lines = v.Output.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+        var hi = Array.IndexOf(lines, "Host:");
+        var sdkVer = lines[hi + 1].Replace("Version:", "").Trim();
+
+        var refPath = $@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\{sdkVer}\*.dll";
+        var lib = "ironscheme.boot.dll";
+        var r = RunTest("ilverify", $@"{lib} -r ""{refPath}"" -r ""*.dll""", false);
+        Assert.That(r.Output, Is.EqualTo("All Classes and Methods in " + Path.GetFullPath(lib) + " Verified.").IgnoreCase);
       }
     }
   }

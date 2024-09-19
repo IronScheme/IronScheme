@@ -30,7 +30,7 @@ namespace TailCallMaker
 
         if (ci >= 0)
         {
-          if (line.Substring(ci + 1).Trim().StartsWith("callvirt   instance object [Microsoft.Scripting]Microsoft.Scripting.CallTarget"))
+          if (line.Substring(ci + 1).Trim().StartsWith("callvirt") && line.Contains("::Invoke("))
           {
             lines[i] = line.Replace("callvirt", "call");
           }

@@ -18,12 +18,20 @@ mkdir merged >nul 2>&1
 IronScheme.Console.exe -debug ironscheme-buildscript.sps >nul 2>&1
 echo '1' | IronScheme.Console.exe -debug
 
+set MERGE=ilrepack
+
 ReferenceRemover IronScheme.FrameworkPAL.dll "IronScheme\.Scripting" IronScheme.dll >nul
 ReferenceRemover ..\netcoreapp2.1\IronScheme.FrameworkPAL.dll "IronScheme\.Scripting" IronScheme.dll >nul
+ReferenceRemover ..\net9.0\IronScheme.FrameworkPAL.dll "IronScheme\.Scripting" IronScheme.dll >nul
 
-al /out:IronScheme.PALResources.dll /embed:IronScheme.FrameworkPAL.dll /embed:"..\netcoreapp2.1\IronScheme.FrameworkPAL.dll",core-IronScheme.FrameworkPAL.dll
+NamespaceRenamer -r IronScheme.FrameworkPAL.dll Microsoft=IronScheme >nul
+NamespaceRenamer -r ..\netcoreapp2.1\IronScheme.FrameworkPAL.dll Microsoft=IronScheme >nul
+NamespaceRenamer -r ..\net9.0\IronScheme.FrameworkPAL.dll Microsoft=IronScheme >nul
 
-set MERGE=ILMerge
+%MERGE% /out:..\net9.0\net9-IronScheme.FrameworkPAL.dll /noRepackRes ..\net9.0\IronScheme.FrameworkPAL.dll ..\net9.0\System.Runtime.Serialization.Formatters.dll
+
+al /out:IronScheme.PALResources.dll /embed:IronScheme.FrameworkPAL.dll /embed:"..\netcoreapp2.1\IronScheme.FrameworkPAL.dll",core-IronScheme.FrameworkPAL.dll /embed:"..\net9.0\net9-IronScheme.FrameworkPAL.dll"
+
 %MERGE% /out:merged\IronScheme.dll IronScheme.dll IronScheme.Closures.dll IronScheme.Scripting.dll Oyster.IntX.dll ironscheme.boot.dll IronScheme.PALResources.dll
 copy /Y merged\IronScheme.* . >nul
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
@@ -31,6 +39,8 @@ peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 
 NamespaceRenamer IronScheme.dll Microsoft=IronScheme Oyster.Math=IronScheme.Scripting.Math gppg=IronScheme.gppg >nul
 
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
+
+rem ilrepack cant seem to deal with v4
 ILMerge /ndebug /v4 /out:IronScheme.Console-v4.exe IronScheme.Console.exe
 ILMerge /ndebug /v4 /out:IronScheme.Console32-v4.exe IronScheme.Console32.exe
 rem the monolith IronScheme.dll is now built, start with packaging
@@ -50,7 +60,7 @@ copy ..\netcoreapp2.1\IronScheme.ConsoleCore.runtimeconfig.json install-stage\Ir
 
 ReferenceRemover install-stage\IronScheme\IronScheme.ConsoleCore.dll "IronScheme\.Closures" IronScheme.dll >nul
 
-copy ..\net5.0\IronScheme.ConsoleCore.exe install-stage\IronScheme
+copy ..\net9.0\IronScheme.ConsoleCore.exe install-stage\IronScheme
 
 copy system-libraries.ss install-stage\IronScheme
 copy system-libraries.srfi.ss install-stage\IronScheme
@@ -78,7 +88,7 @@ rem rename artefacts and copy to build root
 copy /y IronScheme-latest*.* %BUILD_ROOT%bin
 rem nuget
 copy /y ..\..\..\..\IronScheme.Core.nuspec .
-rem nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
-nuget pack IronScheme.Core.nuspec -Symbols -SymbolPackageFormat snupkg -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
+nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
+rem nuget pack IronScheme.Core.nuspec -Symbols -SymbolPackageFormat snupkg -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
 copy /y IronScheme*.*nupkg %BUILD_ROOT%bin
 popd

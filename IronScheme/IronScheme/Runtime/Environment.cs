@@ -200,7 +200,7 @@ namespace IronScheme.Runtime
     internal static string GenGenSymString()
     {
       int c = Interlocked.Increment(ref anonsymcount);
-      return "g$" + c + "$" + TICKSTRING;
+      return "g$gen" + c + "$" + TICKSTRING;
     }
 
     [Builtin]

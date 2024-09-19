@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <RootNamespace>Oyster.Math</RootNamespace>
-    <TargetFrameworks>net20</TargetFrameworks>
+    <TargetFramework>net20</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <AssemblyTitle>Oyster.IntX</AssemblyTitle>
     <Company>Oyster</Company>
     <Product>IntX</Product>
@@ -14,20 +15,16 @@
     <FileAlignment>4096</FileAlignment>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>bin\</OutputPath>
-    <DocumentationFile>Oyster.IntX.xml</DocumentationFile>
     <RegisterForComInterop>false</RegisterForComInterop>
     <ExecuteAsTool>false</ExecuteAsTool>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <NoWarn />
-    <RunFxCop>false</RunFxCop>
-    <CodeAnalysisRuleSet />
+    <NoWarn>$(NoWarn)</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <NoWarn>1591;1573</NoWarn>
+    <NoWarn>$(NoWarn);1591;1573</NoWarn>
     <DebugType>pdbonly</DebugType>
-    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Utils\Strings.Designer.cs">

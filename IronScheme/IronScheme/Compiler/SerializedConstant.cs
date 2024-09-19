@@ -9,7 +9,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting;
 using System.Collections.Generic;
@@ -109,9 +108,7 @@ namespace IronScheme.Compiler
       }
     }
 
-
-
-    static readonly BinaryFormatter bf = Runtime.psyntax.Serialization.SERIALIZER;
+    static readonly ISerializer bf = Runtime.psyntax.Serialization.SERIALIZER;
 
     public override object Create()
     {

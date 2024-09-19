@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net20</TargetFramework>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <AssemblyTitle>IronScheme.Tests</AssemblyTitle>
     <Product>IronScheme.Tests</Product>
     <Copyright>Copyright ©  2016</Copyright>
