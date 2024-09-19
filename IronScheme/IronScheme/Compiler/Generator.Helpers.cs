@@ -8,9 +8,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
+using IronScheme.FrameworkPAL;
 using IronScheme.Hosting;
 using IronScheme.Runtime;
+using IronScheme.Runtime.psyntax;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Ast;
@@ -87,9 +90,43 @@ namespace IronScheme.Compiler
 
     internal static bool initme;
 
+    static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+    {
+      foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+      {
+        if (ass.FullName == args.Name)
+        {
+          return ass;
+        }
+
+        if (args.Name.StartsWith("System.Runtime.Serialization.Formatters") && ass.FullName.StartsWith("System.Runtime.Serialization.Formatters"))
+        {
+          return ass;
+        }
+      }
+
+      // last chance
+      var fn = Path.Combine(Environment.CurrentDirectory, args.Name + ".dll");
+
+      try
+      {
+        var a = Assembly.LoadFrom(fn);
+        return a;
+      }
+      catch (FileNotFoundException)
+      {
+        return null;
+      }
+    }
+
 
     static void Initialize()
     {
+      AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
+      PAL.Initialize();
+
+      //var merged = Serialization.IsILMerged;
       // builtin methods
       AddGenerators(Context, typeof(Generator).Assembly);
 

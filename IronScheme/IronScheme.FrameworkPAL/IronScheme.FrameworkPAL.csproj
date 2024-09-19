@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net20;netcoreapp2.1;net9.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net20;netcoreapp2.1</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net9.0'" Include="System.Runtime.Serialization.Formatters" Version="9.0.0-*"  />
   </ItemGroup>
 </Project>

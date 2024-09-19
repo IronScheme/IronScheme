@@ -6,12 +6,18 @@ using System.Threading;
 #endif
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 #if NET9_0_OR_GREATER
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
 #endif
+
+using Microsoft.Scripting;
+using System.Runtime.Serialization.Formatters;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace IronScheme.FrameworkPAL
 {
@@ -106,7 +112,6 @@ namespace IronScheme.FrameworkPAL
         {
           DummySymbolWriter = new object();
         }
-        //var mscorlib = Array.Find(AppDomain.CurrentDomain.GetAssemblies(), a => a.GetName().Name == "mscorlib");
         var pab = new PersistedAssemblyBuilder(asmname, typeof(object).Assembly);
         ab = pab;
         mb = ab.DefineDynamicModule(actualModuleName);
@@ -128,6 +133,20 @@ namespace IronScheme.FrameworkPAL
 
     public void Initialize()
     {
+#if NET9_0_OR_GREATER
+      //var SRSF = "System.Runtime.Serialization.Formatters.dll";
+      //if (!File.Exists(SRSF))
+      //{
+      //  var mr = typeof(IPAL).Assembly.GetManifestResourceStream(SRSF);
+
+      //  var bytes = new byte[mr.Length];
+      //  mr.ReadExactly(bytes);
+
+      //  var ass = Assembly.Load(bytes);
+
+      //  bf = ass.GetType("System.Runtime.Serialization.Formatters.Binary.BinaryFormatter");
+      //}
+#endif
 #if NETCOREAPP2_1_OR_GREATER
       //TODO: check if this can be removed, was possibly just a hacking artefact
       Thread.AllocateNamedDataSlot("foo");
@@ -157,7 +176,141 @@ namespace IronScheme.FrameworkPAL
 #endif
     }
 
+    public ISerializer GetSerializer(RecordBinderCallback recordBinder)
+    {
+      return new Serializer(recordBinder);
+    }
+
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+    class Serializer : ISerializer
+    {
+      readonly BinaryFormatter bf;
+
+      public Serializer(RecordBinderCallback recordBinder)
+      {
+        bf = new BinaryFormatter();
+        bf.AssemblyFormat = FormatterAssemblyStyle.Simple;
+        bf.Binder = new TypeCorrector(recordBinder);
+        bf.SurrogateSelector = new Selector();
+      }
+
+      public object Deserialize(Stream serializationStream)
+      {
+        return bf.Deserialize(serializationStream);
+      }
+
+      public void Serialize(Stream serializationStream, object graph)
+      {
+        bf.Serialize(serializationStream, graph); 
+      }
+
+      sealed class Selector : SurrogateSelector
+      {
+        public override ISerializationSurrogate GetSurrogate(Type type, StreamingContext context, out ISurrogateSelector selector)
+        {
+          if (type == typeof(SymbolId))
+          {
+            selector = this;
+            return surrogate;
+          }
+          if (type == typeof(bool))
+          {
+            selector = this;
+            return surrogate2;
+          }
+          return base.GetSurrogate(type, context, out selector);
+        }
+
+        static readonly ISerializationSurrogate surrogate = new SymbolSurrogate();
+        static readonly ISerializationSurrogate surrogate2 = new BooleanSurrogate();
+
+      }
+
+      sealed class SymbolSurrogate : ISerializationSurrogate
+      {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+          SymbolId s = (SymbolId)obj;
+          info.AddValue("symbolName", SymbolTable.IdToString(s));
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+          string value = info.GetString("symbolName");
+          int id = SymbolTable.StringToId(value).Id;
+          return SymbolTable.GetSymbol(id);
+        }
+      }
+
+      sealed class BooleanSurrogate : ISerializationSurrogate
+      {
+        public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
+        {
+          bool s = (bool)obj;
+          info.AddValue("value", s);
+        }
+
+        public object SetObjectData(object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
+        {
+          bool value = info.GetBoolean("value");
+          return value ? RuntimeHelpers.True : RuntimeHelpers.False;
+        }
+      }
+
+      static Assembly FindAssembly(string assname)
+      {
+        foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+        {
+          if (ass.FullName == assname)
+          {
+            return ass;
+          }
+        }
+
+        // this might accidentally load the debug file..., and screw up stuff, dunno why...
+        try
+        {
+          return Assembly.Load(assname);
+        }
+        // deal with public key shit, starting to regret this...
+        catch (FileLoadException)
+        {
+          return Assembly.Load(assname.Replace("PublicKeyToken=null", "PublicKeyToken=78f2e9d9541a0dee"));
+        }
+      }
+
+      sealed class TypeCorrector : SerializationBinder
+      {
+        readonly RecordBinderCallback recordBinder;
+
+        public TypeCorrector(RecordBinderCallback recordBinder)
+        {
+          this.recordBinder = recordBinder;
+        }
+
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+          Assembly a = FindAssembly(assemblyName);
+          Type tt = a.GetType(typeName, false);
+
+          if (tt == null)
+          {
+            //fall back for dynamic records
+            return recordBinder(assemblyName, typeName);
+          }
+          else
+          {
+            return tt;
+          }
+        }
+      }
+    }
+
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+
 #if NET9_0_OR_GREATER
+    Type bf;
+
     private static void SaveNET9(PersistedAssemblyBuilder ab, string assemblyFileName, bool emitDebugInfo)
     {
       try
@@ -197,6 +350,8 @@ namespace IronScheme.FrameworkPAL
     }
 
     static object DummySymbolWriter = null;
+
+
 #endif
   }
 }
