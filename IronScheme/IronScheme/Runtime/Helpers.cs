@@ -398,7 +398,7 @@ namespace IronScheme.Runtime
       if (fields.Length > 0)
       {
         var fi = fields[0];
-        if (fi.Name == "SerializedConstants")
+        if (fi.Name.StartsWith("SerializedConstants"))
         {
           var ca = fi.FieldType.StructLayoutAttribute;
           var data = new byte[ca.Size];
@@ -406,7 +406,8 @@ namespace IronScheme.Runtime
           
           using (var ms = new MemoryStream(data))
           {
-            var arr = psyntax.Serialization.SERIALIZER.Deserialize(ms);
+            var s = fi.Name.EndsWith(".gz") ? (Stream) new GZipStream(ms, CompressionMode.Decompress) : ms;
+            var arr = psyntax.Serialization.SERIALIZER.Deserialize(s);
             return arr as object[];
           }
         }

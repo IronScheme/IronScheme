@@ -7,7 +7,6 @@ using System.Threading;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.Serialization;
-using System.Text.RegularExpressions;
 
 #if NET9_0_OR_GREATER
 using System.Reflection.Metadata;
@@ -83,9 +82,6 @@ namespace IronScheme.FrameworkPAL
 
 #elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
-#elif LOKAD
-      var gen = new Lokad.ILPack.AssemblyGenerator();
-      gen.GenerateAssembly(ass, filename);
 #else
       throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
@@ -133,20 +129,6 @@ namespace IronScheme.FrameworkPAL
 
     public void Initialize()
     {
-#if NET9_0_OR_GREATER
-      //var SRSF = "System.Runtime.Serialization.Formatters.dll";
-      //if (!File.Exists(SRSF))
-      //{
-      //  var mr = typeof(IPAL).Assembly.GetManifestResourceStream(SRSF);
-
-      //  var bytes = new byte[mr.Length];
-      //  mr.ReadExactly(bytes);
-
-      //  var ass = Assembly.Load(bytes);
-
-      //  bf = ass.GetType("System.Runtime.Serialization.Formatters.Binary.BinaryFormatter");
-      //}
-#endif
 #if NETCOREAPP2_1_OR_GREATER
       //TODO: check if this can be removed, was possibly just a hacking artefact
       Thread.AllocateNamedDataSlot("foo");
@@ -157,7 +139,20 @@ namespace IronScheme.FrameworkPAL
     public void SerializeConstants(MemoryStream s, ModuleBuilder mb, bool compress)
     {
 #if NET9_0_OR_GREATER
-      mb.DefineInitializedData("SerializedConstants", s.ToArray(), FieldAttributes.Private);
+      if (compress)
+      {
+        var cms = new MemoryStream();
+        var cs = new System.IO.Compression.GZipStream(cms, System.IO.Compression.CompressionMode.Compress, true);
+        var content = s.ToArray();
+        cs.Write(content, 0, content.Length);
+        cs.Close();
+
+        mb.DefineInitializedData("SerializedConstants.gz", cms.ToArray(), FieldAttributes.Private);
+      }
+      else
+      {
+        mb.DefineInitializedData("SerializedConstants", s.ToArray(), FieldAttributes.Private);
+      }
 #elif !NETCOREAPP2_1_OR_GREATER
       if (compress)
       {
@@ -173,6 +168,8 @@ namespace IronScheme.FrameworkPAL
       {
         mb.DefineManifestResource("SerializedConstants", s, ResourceAttributes.Private);
       }
+#else
+      throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
     }
 
@@ -309,8 +306,6 @@ namespace IronScheme.FrameworkPAL
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
 
 #if NET9_0_OR_GREATER
-    Type bf;
-
     private static void SaveNET9(PersistedAssemblyBuilder ab, string assemblyFileName, bool emitDebugInfo)
     {
       try
