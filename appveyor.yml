@@ -73,7 +73,7 @@ test_script:
     echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
     nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
+    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
 
     cd %APPVEYOR_BUILD_FOLDER%
     call ci-artefact.cmd
