@@ -100,6 +100,11 @@
     <Content Include="ironscheme.ico" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
-    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot;&#xD;&#xA;&quot;$(TargetFrameworkSDKToolsDirectory)corflags.exe&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot; /32BIT+" />
+    <PropertyGroup>
+      <CopyCmd>copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"</CopyCmd>
+      <CorFlagsCmd>"$(TargetFrameworkSDKToolsDirectory)corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</CorFlagsCmd>
+    </PropertyGroup>
+    <Exec Command="$(CopyCmd)" />
+    <Exec Command="$(CorFlagsCmd)" />
   </Target>
 </Project>
