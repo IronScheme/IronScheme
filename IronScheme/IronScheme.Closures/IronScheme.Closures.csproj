@@ -5,12 +5,14 @@
     <AssemblyTitle>IronScheme.Closures</AssemblyTitle>
     <Product>IronScheme.Closures</Product>
     <Copyright>Copyright ©  2008</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <OutDir>bin/$(Configuration)/$(TargetFramework)</OutDir>
     <DebugType>pdbonly</DebugType>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>
+    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
+    <NoWarn>$(NoWarn);MSB3073</NoWarn>
+    <!--<UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>-->
   </PropertyGroup>
+
   <!-- setup toolset emulation when using Core msbuild -->
   <PropertyGroup Condition="$(MSBuildRuntimeType) == 'Core'">
     <SystemRoot Condition="$(SystemRoot) == ''">C:\WINDOWS</SystemRoot>
@@ -18,38 +20,70 @@
     <SDK35ToolsPath Condition="$(SDK35ToolsPath) == ''">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v8.0A\WinSDK-NetFx35Tools-x86', 'InstallationFolder', null, RegistryView.Registry32))</SDK35ToolsPath>
     <MSBuildFrameworkToolsRoot Condition="'$(MSBuildFrameworkToolsRoot)' == ''">$(SystemRoot)\Microsoft.NET\Framework\</MSBuildFrameworkToolsRoot>
   </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>true</Optimize>
-    <DefineConstants />
-    <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants />
-    <CodeAnalysisRuleSet />
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="$(UseNetFxIlTools) != True">
-    <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILAsm" Version="9.0.0-*" GeneratePathProperty="true" ExcludeAssets="all" />
-    <PackageReference Include="runtime.win-x64.Microsoft.NETCore.ILDAsm" Version="9.0.0-*" GeneratePathProperty="true" ExcludeAssets="all" />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.ILAsm" Version="9.0.0-*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NETCore.ILDAsm" Version="9.0.0-*" PrivateAssets="all" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Include="IronScheme.Glue.il">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
+  <Target Name="ClearRID" BeforeTargets="PreBuildEvent">
+    <PropertyGroup>
+      <RuntimeIdentifier></RuntimeIdentifier>
+    </PropertyGroup>
+  </Target>
+
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <PropertyGroup>
+      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == '' and Exists('$(TargetFrameworkSDKToolsDirectory)ildasm.exe') and Exists('$(TargetFrameworkDirectory)')">true</UseNetFxIlTools>
+      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == ''">false</UseNetFxIlTools>
+      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == 'True' and !(Exists('$(TargetFrameworkSDKToolsDirectory)ildasm.exe') and Exists('$(TargetFrameworkDirectory)'))">false</UseNetFxIlTools>
+      <TargetedRuntimeVersion Condition="$(TargetedRuntimeVersion) == '' or $(TargetedRuntimeVersion) == 'v'">v4.0.30319</TargetedRuntimeVersion>
+    </PropertyGroup>
+
     <PropertyGroup Condition="$(UseNetFxIlTools) == True">
-      <ILAsmPath>$(TargetFrameworkSDKToolsDirectory)ilasm</ILAsmPath>
-      <ILDAsmPath>$(TargetFrameworkSDKToolsDirectory)ildasm</ILDAsmPath>
+      <ILAsmPath>"$(TargetedFrameworkDir)\ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" /res:"$(TargetDir)$(TargetName).res"</ILAsmPath>
+      <ILDAsmPath>"$(TargetFrameworkSDKToolsDirectory)ildasm" /NOBAR /LINENUM</ILDAsmPath>
     </PropertyGroup>
+
     <PropertyGroup Condition="$(UseNetFxIlTools) != True">
-      <ILAsmPath>$(Pkgruntime_win-x64_Microsoft_NETCore_ILAsm)\runtimes\win-x64\native\ilasm</ILAsmPath>
-      <ILDAsmPath>$(Pkgruntime_win-x64_Microsoft_NETCore_ILDAsm)\runtimes\win-x64\native\ildasm</ILDAsmPath>
+      <ILAsmPath>"$(TargetDir)ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
+      <ILDAsmPath>"$(TargetDir)ildasm" /LINENUM</ILDAsmPath>
     </PropertyGroup>
-    <Exec Condition="$(UseNetFxIlTools) == True" Command="&quot;$(TargetFrameworkSDKToolsDirectory)ildasm&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /NOBAR /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(TargetedFrameworkDir)\ilasm&quot; /dll /PDB /NOLOGO /QUIET /out:&quot;$(TargetDir)$(TargetName).dll&quot; /res:&quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
-    <Exec Condition="$(UseNetFxIlTools) != True" Command="&quot;$(ILDAsmPath)&quot; /out:&quot;$(TargetDir)$(TargetName).il&quot; /LINENUM &quot;$(TargetPath)&quot;&#xD;&#xA;&quot;$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe&quot; &quot;$(TargetDir)$(TargetName).il&quot;&#xD;&#xA;&quot;$(ILAsmPath)&quot; /dll /PDB /DEBUG /NOLOGO /QUIET /mdv=&quot;v2.0.50727&quot; /out:&quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(TargetDir)$(TargetName).res&quot; &quot;$(TargetDir)$(TargetName).il&quot; &quot;$(TargetDir)IronScheme.Glue.il&quot;" />
+      
+    <PropertyGroup>
+      <ILOutputFile>$(TargetDir)$(TargetName).il</ILOutputFile>
+      <ILGlue>$(TargetDir)IronScheme.Glue.il</ILGlue>
+      <ILAsmArgs>/out:"$(TargetPath)" "$(ILOutputFile)" "$(ILGlue)"</ILAsmArgs>
+      <ILDAsmArgs>/out:"$(ILOutputFile)" "$(TargetPath)"</ILDAsmArgs>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <TailCallMaker>"$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(ILOutputFile)"</TailCallMaker>
+    </PropertyGroup>
+
+    <Exec Command="$(ILDAsmPath) $(ILDAsmArgs)"/>
+    <Exec Command="$(TailCallMaker)"/>
+
+    <!-- incase PDB failure -->
+    <Exec Condition="$(UseNetFxIlTools) == True" ContinueOnError="true" Command="$(ILAsmPath) $(ILAsmArgs)" />
+    <Exec Command="$(ILAsmPath) $(ILAsmArgs)" />
   </Target>
 </Project>
