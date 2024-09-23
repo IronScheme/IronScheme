@@ -4,3 +4,7 @@
 [submodule "IronScheme/IronScheme.Console/lib/srfi"]
 	path = IronScheme/IronScheme.Console/lib/srfi
 	url = https://github.com/IronScheme/chez-srfi.git
+[submodule "IronScheme.BuildTools"]
+	path = IronScheme.BuildTools
+	url = https://github.com/IronScheme/IronScheme.BuildTools.git
+	branch = master
