@@ -1,4 +1,5 @@
 <Project>
+  <Import Label="BuildToolsProps" Project="$(MSBuildThisFileDirectory)/../IronScheme.BuildTools/msbuild/Ironscheme.Build.props" />
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>

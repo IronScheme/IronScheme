@@ -8,7 +8,6 @@
     <OutDir>bin/$(Configuration)/$(TargetFramework)</OutDir>
     <DebugType>pdbonly</DebugType>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
     <NoWarn>$(NoWarn);MSB3073</NoWarn>
     <!--<UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>-->
   </PropertyGroup>
@@ -25,21 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.ILAsm" Version="9.0.0-*" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.NETCore.ILDAsm" Version="9.0.0-*" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="IronScheme.Glue.il">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
-  <Target Name="ClearRID" BeforeTargets="PreBuildEvent">
-    <PropertyGroup>
-      <RuntimeIdentifier></RuntimeIdentifier>
-    </PropertyGroup>
-  </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="BuildTools">
     <PropertyGroup>
@@ -55,8 +43,8 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="$(UseNetFxIlTools) != True">
-      <ILAsmPath>"$(TargetDir)ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
-      <ILDAsmPath>"$(TargetDir)ildasm" /LINENUM</ILDAsmPath>
+      <ILAsmPath>"$(BuildToolsPath)ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
+      <ILDAsmPath>"$(BuildToolsPath)ildasm" /LINENUM</ILDAsmPath>
     </PropertyGroup>
       
     <PropertyGroup>
@@ -67,7 +55,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-      <TailCallMaker>"$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(ILOutputFile)"</TailCallMaker>
+      <TailCallMaker>"$(BuildToolsPath)TailCallMaker" "$(ILOutputFile)"</TailCallMaker>
     </PropertyGroup>
 
     <Exec Command="$(ILDAsmPath) $(ILDAsmArgs)"/>
