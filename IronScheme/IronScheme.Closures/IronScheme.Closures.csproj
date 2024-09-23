@@ -29,7 +29,7 @@
     </Content>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="BuildTools">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="IronSchemeBuildTools">
     <PropertyGroup>
       <UseNetFxIlTools Condition="$(UseNetFxIlTools) == '' and Exists('$(TargetFrameworkSDKToolsDirectory)ildasm.exe') and Exists('$(TargetFrameworkDirectory)')">true</UseNetFxIlTools>
       <UseNetFxIlTools Condition="$(UseNetFxIlTools) == ''">false</UseNetFxIlTools>
@@ -43,8 +43,8 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="$(UseNetFxIlTools) != True">
-      <ILAsmPath>"$(BuildToolsPath)ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
-      <ILDAsmPath>"$(BuildToolsPath)ildasm" /LINENUM</ILDAsmPath>
+      <ILAsmPath>"$(IronSchemeBuildToolsPath)ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
+      <ILDAsmPath>"$(IronSchemeBuildToolsPath)ildasm" /LINENUM</ILDAsmPath>
     </PropertyGroup>
       
     <PropertyGroup>
@@ -55,7 +55,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-      <TailCallMaker>"$(BuildToolsPath)TailCallMaker" "$(ILOutputFile)"</TailCallMaker>
+      <TailCallMaker>"$(IronSchemeBuildToolsPath)TailCallMaker" "$(ILOutputFile)"</TailCallMaker>
     </PropertyGroup>
 
     <Exec Command="$(ILDAsmPath) $(ILDAsmArgs)"/>
