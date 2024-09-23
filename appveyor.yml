@@ -19,8 +19,6 @@ install:
     set QUIET=1
     set DOTNET_CLI_TELEMETRY_OPTOUT=1
     set DOTNET_NOLOGO=1
-    choco install ilmerge
-    set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
     powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) -Channel 9.0.1xx  -Quality daily -InstallDir 'c:\Program Files\dotnet'"
     for /d %%d in (%LOCALAPPDATA%\Microsoft\VisualStudio\17.0*) do echo UsePreviews=True > %%d\sdk.txt
     dotnet tool install --global dotnet-ilverify --prerelease
