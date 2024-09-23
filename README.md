@@ -28,9 +28,9 @@ V2 requires .NET3.5. V4 requires requires .NET4.0 or higher. Pretty much any run
 
 You can also run it with .NET Core, which has no persisted compilation functionality. It may load precompiled libraries, but if it fails to load, it will fallback to runtime compilation. A warning will be display in that case.
 
-By default, it will run on the lowest supported .NET Core runtime installed.
+By default, it will run on the lowest supported .NET Core runtime installed (.NET Core 2.1 or higher).
 
-To Run it on a specific .NET Core version, use the `--fx-version` option with `dotnet`.
+To Run it on a specific .NET Core version, use the `--fx-version` option with `dotnet` or `IronScheme.ConsoleCore.exe`.
 
 Example to run on .NET 6.0 when you have multiple framework versions installed:
 
@@ -44,6 +44,10 @@ IronScheme.ConsoleCore.exe --fx-version 6.0.0 <args...>
 
 To run on the latest installed .NET Core version:
 
+```
+dotnet --roll-forward LatestMajor IronScheme.ConsoleCore.dll <args...>
+```
+or
 ```
 IronScheme.ConsoleCore.exe --roll-forward LatestMajor <args...>
 ```
