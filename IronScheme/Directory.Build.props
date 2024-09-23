@@ -2,7 +2,6 @@
   
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <!--<IronSchemeBuildToolsTargetFramework>net4.0</IronSchemeBuildToolsTargetFramework>-->
   </PropertyGroup>
 
   <Import Label="BuildToolsProps" Project="$(MSBuildThisFileDirectory)/../IronScheme.BuildTools/msbuild/Ironscheme.Build.props" />
