@@ -4,6 +4,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <RunPreBuildEvent>Always</RunPreBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>TRACE;DEBUG;BIGFRACTION;OPTIMIZATIONS;nCPS</DefineConstants>
@@ -30,7 +31,33 @@
     <None Include="Compiler\IronScheme.lex" />
     <None Include="Compiler\IronScheme.y" />
   </ItemGroup>
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\IronScheme.y&quot; &gt; &quot;$(ProjectDir)Compiler\IronScheme.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\IronScheme.lex.cs&quot; &quot;$(ProjectDir)Compiler\IronScheme.lex&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gppg&quot; /gplex &quot;$(ProjectDir)Compiler\NumberParser.y&quot; &gt; &quot;$(ProjectDir)Compiler\NumberParser.y.cs&quot;&#xD;&#xA;&quot;$(SolutionDir)tools\gplex&quot; /stack &quot;/frame:$(SolutionDir)tools\gplexx.frame&quot; &quot;/out:$(ProjectDir)Compiler\NumberLexer.lex.cs&quot; &quot;$(ProjectDir)Compiler\NumberLexer.lex&quot;" />
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" DependsOnTargets="IronSchemeBuildTools">
+
+    <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) == 'net4.0'">
+      <GPPG>"$(SolutionDir)tools\gppg" /gplex</GPPG>
+      <GPLEX>"$(SolutionDir)tools\gplex" /stack "/frame:$(SolutionDir)tools\gplexx.frame"</GPLEX>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) != 'net4.0'">
+      <GPPG>dotnet "$(SolutionDir)tools\gppg.exe" /gplex</GPPG>
+      <GPLEX>dotnet "$(SolutionDir)tools\gplex.exe" /stack "/frame:$(SolutionDir)tools\gplexx.frame"</GPLEX>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <GPPGArgs>"$(ProjectDir)Compiler\IronScheme.y" > "$(ProjectDir)Compiler\IronScheme.y.cs"</GPPGArgs>
+      <GPLEXArgs>"/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"</GPLEXArgs>
+    </PropertyGroup>
+
+    <Exec Command="$(GPPG) $(GPPGArgs)" />
+    <Exec Command="$(GPLEX) $(GPLEXArgs)" />
+
+    <PropertyGroup>
+      <GPPGArgs>"$(ProjectDir)Compiler\NumberParser.y" > "$(ProjectDir)Compiler\NumberParser.y.cs"</GPPGArgs>
+      <GPLEXArgs>"/out:$(ProjectDir)Compiler\NumberLexer.lex.cs" "$(ProjectDir)Compiler\NumberLexer.lex"</GPLEXArgs>
+    </PropertyGroup>
+
+    <Exec Command="$(GPPG) $(GPPGArgs)" />
+    <Exec Command="$(GPLEX) $(GPLEXArgs)" />
   </Target>
 </Project>
