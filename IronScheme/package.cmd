@@ -2,7 +2,7 @@ rem @echo off
 setlocal
 
 set BUILD_ROOT=%~dp0
-set PATH=%PATH%;%BUILD_ROOT%tools;
+set PATH=%PATH%;%BUILD_ROOT%../IronScheme.BuildTools/bin;
 
 if "%APPVEYOR_BUILD_VERSION%"=="" set APPVEYOR_BUILD_VERSION="0.0.0"
 if "%SHA%"=="" set SHA="000000"
