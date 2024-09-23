@@ -40,6 +40,8 @@ NamespaceRenamer IronScheme.dll Microsoft=IronScheme Oyster.Math=IronScheme.Scri
 
 peverify /nologo /ignore=0x80131820,0x801318DE,0x80131854,0x8013185D,0x80131228 IronScheme.dll >nul
 
+rem ilverify ironscheme.dll -r:"*.dll" -r:"C:\Windows\Microsoft.NET\Framework\v2.0.50727\*.dll" -g UnmanagedPointer -g StackUnexpected -g ExpectedNumericType -g StackByRef
+
 rem ilrepack cant seem to deal with v4
 ILMerge /ndebug /v4 /out:IronScheme.Console-v4.exe IronScheme.Console.exe
 ILMerge /ndebug /v4 /out:IronScheme.Console32-v4.exe IronScheme.Console32.exe
