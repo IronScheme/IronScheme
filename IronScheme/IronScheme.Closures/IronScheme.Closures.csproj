@@ -44,7 +44,7 @@
 
     <PropertyGroup Condition="$(UseNetFxIlTools) != True">
       <ILAsmPath>"$(IronSchemeBuildToolsPath)ilasm" -dll -PDB -DEBUG -NOLOGO -QUIET -mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
-      <ILDAsmPath>"$(IronSchemeBuildToolsPath)ildasm" /LINENUM</ILDAsmPath>
+      <ILDAsmPath>"$(IronSchemeBuildToolsPath)ildasm" -LINENUM</ILDAsmPath>
     </PropertyGroup>
       
     <PropertyGroup>
