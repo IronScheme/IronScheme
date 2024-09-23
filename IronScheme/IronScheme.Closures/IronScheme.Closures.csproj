@@ -43,15 +43,15 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="$(UseNetFxIlTools) != True">
-      <ILAsmPath>"$(IronSchemeBuildToolsPath)ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
+      <ILAsmPath>"$(IronSchemeBuildToolsPath)ilasm" -dll -PDB -DEBUG -NOLOGO -QUIET -mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
       <ILDAsmPath>"$(IronSchemeBuildToolsPath)ildasm" /LINENUM</ILDAsmPath>
     </PropertyGroup>
       
     <PropertyGroup>
       <ILOutputFile>$(TargetDir)$(TargetName).il</ILOutputFile>
       <ILGlue>$(TargetDir)IronScheme.Glue.il</ILGlue>
-      <ILAsmArgs>/out:"$(TargetPath)" "$(ILOutputFile)" "$(ILGlue)"</ILAsmArgs>
-      <ILDAsmArgs>/out:"$(ILOutputFile)" "$(TargetPath)"</ILDAsmArgs>
+      <ILAsmArgs>-out:"$(TargetPath)" "$(ILOutputFile)" "$(ILGlue)"</ILAsmArgs>
+      <ILDAsmArgs>-out:"$(ILOutputFile)" "$(TargetPath)"</ILDAsmArgs>
     </PropertyGroup>
 
     <PropertyGroup>
