@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
 		build.cmd = build.cmd
+		build.sh = build.sh
 		..\ci-artefact.cmd = ..\ci-artefact.cmd
 		clean.cmd = clean.cmd
 		DEVELOPMENT.snk = DEVELOPMENT.snk
