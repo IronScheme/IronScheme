@@ -35,26 +35,26 @@
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" DependsOnTargets="IronSchemeBuildTools">
 
     <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) == 'net4.0'">
-      <GPPG>"$(SolutionDir)tools\gppg" /gplex</GPPG>
-      <GPLEX>"$(SolutionDir)tools\gplex" /stack "/frame:$(SolutionDir)tools\gplexx.frame"</GPLEX>
+      <GPPG>"$(SolutionDir)tools/gppg" /gplex</GPPG>
+      <GPLEX>"$(SolutionDir)tools/gplex" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) != 'net4.0'">
-      <GPPG>dotnet "$(SolutionDir)tools\gppg.exe" /gplex</GPPG>
-      <GPLEX>dotnet "$(SolutionDir)tools\gplex.exe" /stack "/frame:$(SolutionDir)tools\gplexx.frame"</GPLEX>
+      <GPPG>dotnet "$(SolutionDir)tools/gppg.exe" /gplex</GPPG>
+      <GPLEX>dotnet "$(SolutionDir)tools/gplex.exe" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
     </PropertyGroup>
 
     <PropertyGroup>
-      <GPPGArgs>"$(ProjectDir)Compiler\IronScheme.y" > "$(ProjectDir)Compiler\IronScheme.y.cs"</GPPGArgs>
-      <GPLEXArgs>"/out:$(ProjectDir)Compiler\IronScheme.lex.cs" "$(ProjectDir)Compiler\IronScheme.lex"</GPLEXArgs>
+      <GPPGArgs>"$(ProjectDir)Compiler/IronScheme.y" > "$(ProjectDir)Compiler/IronScheme.y.cs"</GPPGArgs>
+      <GPLEXArgs>"/out:$(ProjectDir)Compiler/IronScheme.lex.cs" "$(ProjectDir)Compiler/IronScheme.lex"</GPLEXArgs>
     </PropertyGroup>
 
     <Exec Command="$(GPPG) $(GPPGArgs)" />
     <Exec Command="$(GPLEX) $(GPLEXArgs)" />
 
     <PropertyGroup>
-      <GPPGArgs>"$(ProjectDir)Compiler\NumberParser.y" > "$(ProjectDir)Compiler\NumberParser.y.cs"</GPPGArgs>
-      <GPLEXArgs>"/out:$(ProjectDir)Compiler\NumberLexer.lex.cs" "$(ProjectDir)Compiler\NumberLexer.lex"</GPLEXArgs>
+      <GPPGArgs>"$(ProjectDir)Compiler/NumberParser.y" > "$(ProjectDir)Compiler/NumberParser.y.cs"</GPPGArgs>
+      <GPLEXArgs>"/out:$(ProjectDir)Compiler/NumberLexer.lex.cs" "$(ProjectDir)Compiler/NumberLexer.lex"</GPLEXArgs>
     </PropertyGroup>
 
     <Exec Command="$(GPPG) $(GPPGArgs)" />
