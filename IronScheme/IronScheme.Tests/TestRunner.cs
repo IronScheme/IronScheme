@@ -59,7 +59,7 @@ Error:
       {
         return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.ConsoleCore.dll " + args, input, echo);
       }
-      return RunTest( "IronScheme.Console.exe", args, input, echo);
+      return RunTest( "IronScheme.Console32.exe", args, input, echo);
     }
 
     protected TestResult RunTest(string exe, string args, bool echo)
