@@ -105,6 +105,13 @@ using IronScheme;
 "(display 'hello-world)".Eval();
 ```
 
+Compiling libraries
+===================
+
+When running on .NET Framework or .NET 9.0 or higher, you can precompile scheme libraries.
+
+You can do to this by running `(compile-system-libraries)`, or `(compile)` after importing your libraries.
+
 Running tests
 =============
 
