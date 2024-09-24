@@ -32,6 +32,9 @@ build_script:
     echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
     echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
     rem dotnet msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
+    cd IronScheme.BuildTools
+    dotnet restore
+    cd ..
     cd IronScheme
     msbuild -restore /v:n /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
 test_script:
