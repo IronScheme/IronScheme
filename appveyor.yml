@@ -37,6 +37,7 @@ build_script:
     cd ..
     cd IronScheme
     msbuild -restore /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
+    cd ..
 test_script:
 - cmd: |
     cd IronScheme\IronScheme.Console\bin\Release\net20
