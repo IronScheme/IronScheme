@@ -159,10 +159,14 @@ Error:
       }
       catch (Exception ex)
       {
-        if (!p.HasExited)
+        try
         {
-          p.Kill();
+          if (!p.HasExited)
+          {
+            p.Kill();
+          }
         }
+        catch { }
         Assert.Fail("runner failed: {0}", ex);
         throw;
       }
