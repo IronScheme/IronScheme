@@ -22,6 +22,7 @@
     <StartupObject>IronScheme.Console.Program</StartupObject>
     <AssemblyName>IronScheme.Console</AssemblyName>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -103,7 +104,7 @@
     <PropertyGroup>
       <CopySrc>$(TargetPath)</CopySrc>
       <CopyDst>$(TargetDir)$(ProjectName)32.exe</CopyDst>
-      <CorFlagsCmd>"$(IronSchemeBuildToolsPath)RuntimeChanger" "$(TargetDir)$(ProjectName)32.exe" /32bit+</CorFlagsCmd>
+      <CorFlagsCmd>"$(IronSchemeBuildToolsPath)RuntimeChanger" "$(CopyDst)" /32bit+</CorFlagsCmd>
     </PropertyGroup>
     <Copy SourceFiles="$(CopySrc)" DestinationFiles="$(CopyDst)" />
     <Exec Command="$(CorFlagsCmd)" />
