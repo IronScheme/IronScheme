@@ -4,7 +4,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>bin\$(Configuration)\</OutputPath>
-    <RunPreBuildEvent>Always</RunPreBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>TRACE;DEBUG;BIGFRACTION;OPTIMIZATIONS;nCPS</DefineConstants>
@@ -33,15 +32,9 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" DependsOnTargets="IronSchemeBuildTools">
-
-    <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) == 'net4.0'">
+    <PropertyGroup>
       <GPPG>"$(IronSchemeBuildToolsPath)gppg" /gplex</GPPG>
       <GPLEX>"$(IronSchemeBuildToolsPath)gplex" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) != 'net4.0'">
-      <GPPG>dotnet "$(IronSchemeBuildToolsPath)gppg.exe" /gplex</GPPG>
-      <GPLEX>dotnet "$(IronSchemeBuildToolsPath)gplex.exe" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
     </PropertyGroup>
 
     <PropertyGroup>

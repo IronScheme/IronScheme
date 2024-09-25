@@ -101,6 +101,7 @@
     <Content Include="ironscheme.ico" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'" DependsOnTargets="IronSchemeBuildTools">
+    <!-- move this to packaging -->
     <PropertyGroup>
       <CopySrc>$(TargetPath)</CopySrc>
       <CopyDst>$(TargetDir)$(ProjectName)32.exe</CopyDst>
