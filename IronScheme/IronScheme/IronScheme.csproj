@@ -35,13 +35,13 @@
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" DependsOnTargets="IronSchemeBuildTools">
 
     <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) == 'net4.0'">
-      <GPPG>"$(SolutionDir)tools/gppg" /gplex</GPPG>
-      <GPLEX>"$(SolutionDir)tools/gplex" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
+      <GPPG>"$(IronSchemeBuildToolsPath)gppg" /gplex</GPPG>
+      <GPLEX>"$(IronSchemeBuildToolsPath)gplex" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
     </PropertyGroup>
 
     <PropertyGroup Condition="$(IronSchemeBuildToolsTargetFramework) != 'net4.0'">
-      <GPPG>dotnet "$(SolutionDir)tools/gppg.exe" /gplex</GPPG>
-      <GPLEX>dotnet "$(SolutionDir)tools/gplex.exe" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
+      <GPPG>dotnet "$(IronSchemeBuildToolsPath)gppg.exe" /gplex</GPPG>
+      <GPLEX>dotnet "$(IronSchemeBuildToolsPath)gplex.exe" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
     </PropertyGroup>
 
     <PropertyGroup>

@@ -116,7 +116,7 @@ using gppg;
         
         enum Result {accept, noMatch, contextFound};
 
-        bool yywrap() { return true; }
+        //bool yywrap() { return true; }
 
 
 ##-->consts
