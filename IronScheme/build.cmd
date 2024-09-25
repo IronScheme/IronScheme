@@ -9,7 +9,7 @@ set CFG=%1
 if "%CFG%" == "" set CFG=Release
 
 rem `dotnet build` or `dotnet msbuild -restore` also works instead of `msbuild -restore`
-msbuild -restore IronSchemeCore.sln /v:n /p:Configuration=%CFG% -p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
+msbuild -restore IronSchemeCore.sln /v:m /p:Configuration=%CFG% -p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
 exit /B %ERRORLEVEL%
 
 :help
