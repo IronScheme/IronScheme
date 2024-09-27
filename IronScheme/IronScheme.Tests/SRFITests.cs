@@ -2,13 +2,14 @@
 
 namespace IronScheme.Tests
 {
+  [Category(nameof(SRFI))]
   public class SRFI : TestRunner
   {
     [Test]
     public void AndLet()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\and-let%2a.sps");
-      Assert.That(r.Output, Is.StringContaining("; *** checks *** : 36 correct, 0 failed."));
+      Assert.That(r.Output, Does.Contain("; *** checks *** : 36 correct, 0 failed."));
       AssertError(r);
     }
 
@@ -24,8 +25,8 @@ namespace IronScheme.Tests
     public void CharSets()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\char-sets.sps");
-      Assert.That(r.Output, Is.StringContaining(";; *** failed ***"));
-      Assert.That(r.Output, Is.StringContaining("test: (is char-set= char-set:digit)"));
+      Assert.That(r.Output, Does.Contain(";; *** failed ***"));
+      Assert.That(r.Output, Does.Contain("test: (is char-set= char-set:digit)"));
       AssertError(r);
     }
 
@@ -33,8 +34,8 @@ namespace IronScheme.Tests
     public void CompareProcedures()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\compare-procedures.sps");
-      Assert.That(r.Output, Is.StringContaining("*** correct examples: 99590"));
-      Assert.That(r.Output, Is.StringContaining("*** wrong examples:   0"));
+      Assert.That(r.Output, Does.Contain("*** correct examples: 99590"));
+      Assert.That(r.Output, Does.Contain("*** wrong examples:   0"));
       AssertError(r);
     }
 
@@ -42,7 +43,7 @@ namespace IronScheme.Tests
     public void Cut()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\cut.sps");
-      Assert.That(r.Output, Is.StringContaining(";; *** checks *** : 30 correct, 0 failed."));
+      Assert.That(r.Output, Does.Contain(";; *** checks *** : 30 correct, 0 failed."));
       AssertError(r);
     }
 
@@ -50,8 +51,8 @@ namespace IronScheme.Tests
     public void EagerComprehensions()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\eager-comprehensions.sps");
-      Assert.That(r.Output, Is.StringContaining("correct examples : 162"));
-      Assert.That(r.Output, Is.StringContaining("wrong examples   : 1"));
+      Assert.That(r.Output, Does.Contain("correct examples : 162"));
+      Assert.That(r.Output, Does.Contain("wrong examples   : 1"));
       AssertError(r);
     }
 
@@ -59,7 +60,7 @@ namespace IronScheme.Tests
     public void IntermediateFormatStrings()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\intermediate-format-strings.sps");
-      Assert.That(r.Output, Is.StringContaining("; *** checks *** : 95 correct, 0 failed."));
+      Assert.That(r.Output, Does.Contain("; *** checks *** : 95 correct, 0 failed."));
       AssertError(r);
     }
 
@@ -67,7 +68,7 @@ namespace IronScheme.Tests
     public void LightweightTesting()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\lightweight-testing.sps");
-      Assert.That(r.Output, Is.StringContaining("; *** checks *** : 9 correct, 4 failed. First failed example:"));
+      Assert.That(r.Output, Does.Contain("; *** checks *** : 9 correct, 4 failed. First failed example:"));
       AssertError(r);
     }
 
@@ -75,7 +76,7 @@ namespace IronScheme.Tests
     public void ListQueues()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\list-queues.sps");
-      Assert.That(r.Output, Is.StringContaining(@"%%%% Starting test list-queues/simple
+      Assert.That(r.Output, Does.Contain(@"%%%% Starting test list-queues/simple
 # of expected passes      16
 %%%% Starting test list-queues/whole
 # of expected passes      20
@@ -100,7 +101,7 @@ namespace IronScheme.Tests
     public void MultiDimensionalArraysArlib()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\multi-dimensional-arrays--arlib.sps");
-      Assert.That(r.Output, Is.StringContaining("; *** checks *** : 47 correct, 0 failed."));
+      Assert.That(r.Output, Does.Contain("; *** checks *** : 47 correct, 0 failed."));
       AssertError(r);
     }
 
@@ -108,7 +109,7 @@ namespace IronScheme.Tests
     public void MultiDimensionalArrays()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\multi-dimensional-arrays.sps");
-      Assert.That(r.Output, Is.StringContaining("; *** checks *** : 24 correct, 0 failed."));
+      Assert.That(r.Output, Does.Contain("; *** checks *** : 24 correct, 0 failed."));
       AssertError(r);
     }
 
@@ -116,7 +117,7 @@ namespace IronScheme.Tests
     public void OSEnvironmentVariables()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\os-environment-variables.sps");
-      Assert.That(r.Output, Is.StringContaining("; *** checks *** : 4 correct, 0 failed."));
+      Assert.That(r.Output, Does.Contain("; *** checks *** : 4 correct, 0 failed."));
       AssertError(r);
     }
 
@@ -132,8 +133,8 @@ namespace IronScheme.Tests
     public void R6RSHashtables()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\r6rs-hashtables.sps");
-      Assert.That(r.Output, Is.StringContaining("# of expected passes      179"));
-      Assert.That(r.Output, Is.StringContaining("# of unexpected failures  7")); // eqv? hashtable exposes hash function
+      Assert.That(r.Output, Does.Contain("# of expected passes      179"));
+      Assert.That(r.Output, Does.Contain("# of unexpected failures  7")); // eqv? hashtable exposes hash function
       AssertError(r);
     }
 
@@ -149,7 +150,7 @@ namespace IronScheme.Tests
     public void RandomBits()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\random-bits.sps");
-      Assert.That(r.Output, Is.Not.StringContaining("failed"));
+      Assert.That(r.Output, Does.Not.Contain("failed"));
       AssertError(r);
     }
 
@@ -157,7 +158,7 @@ namespace IronScheme.Tests
     public void Rec()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\rec.sps");
-      Assert.That(r.Output, Is.StringContaining("3628800"));
+      Assert.That(r.Output, Does.Contain("3628800"));
       AssertError(r);
     }
 
@@ -165,7 +166,7 @@ namespace IronScheme.Tests
     public void Records()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\records.sps");
-      Assert.That(r.Output, Is.StringContaining("; *** checks *** : 11 correct, 0 failed."));
+      Assert.That(r.Output, Does.Contain("; *** checks *** : 11 correct, 0 failed."));
       AssertError(r);
     }
 
@@ -173,7 +174,7 @@ namespace IronScheme.Tests
     public void Regexp()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\regexp.sps");
-      Assert.That(r.Output, Is.Not.StringContaining("*** failed ***"));
+      Assert.That(r.Output, Does.Not.Contain("*** failed ***"));
       AssertError(r);
     }
 
@@ -181,7 +182,7 @@ namespace IronScheme.Tests
     public void TablesTest()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\tables-test.sps");
-      Assert.That(r.Output, Is.Not.StringContaining("Error: test failed:"));
+      Assert.That(r.Output, Does.Not.Contain("Error: test failed:"));
       //AssertError(r); // spits out warnings
     }
 
@@ -189,8 +190,8 @@ namespace IronScheme.Tests
     public void Testing()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\testing.sps");
-      Assert.That(r.Output, Is.StringContaining("# of expected passes      51"));
-      Assert.That(r.Output, Is.StringContaining("# of expected failures    2"));
+      Assert.That(r.Output, Does.Contain("# of expected passes      51"));
+      Assert.That(r.Output, Does.Contain("# of expected failures    2"));
       AssertError(r);
     }
 
@@ -198,7 +199,7 @@ namespace IronScheme.Tests
     public void Time()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\time.sps");
-      Assert.That(r.Output, Is.StringContaining(";;; Results: Runs: 8; Goods: 8; Bads: 0; Pass rate: 1"));
+      Assert.That(r.Output, Does.Contain(";;; Results: Runs: 8; Goods: 8; Bads: 0; Pass rate: 1"));
       AssertError(r);
     }
 

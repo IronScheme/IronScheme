@@ -30,7 +30,13 @@
     <None Include="Compiler\IronScheme.lex" />
     <None Include="Compiler\IronScheme.y" />
   </ItemGroup>
-
+  <ItemGroup>
+    <GplexFile Include="Compiler\NumberLexer.lex" />
+    <GppgFile Include="Compiler\NumberParser.y" />
+    <GplexFile Include="Compiler\IronScheme.lex" />
+    <GppgFile Include="Compiler\IronScheme.y" />
+  </ItemGroup>
+<!--
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent" DependsOnTargets="IronSchemeBuildTools">
     <PropertyGroup>
       <GPPG>"$(IronSchemeBuildToolsPath)gppg" /gplex</GPPG>
@@ -52,5 +58,5 @@
 
     <Exec Command="$(GPPG) $(GPPGArgs)" />
     <Exec Command="$(GPLEX) $(GPLEXArgs)" />
-  </Target>
+  </Target>-->
 </Project>

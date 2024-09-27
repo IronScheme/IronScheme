@@ -54,15 +54,18 @@
       <ILDAsmArgs>-out:"$(ILOutputFile)" "$(TargetPath)"</ILDAsmArgs>
     </PropertyGroup>
 
-    <PropertyGroup>
-      <TailCallMaker>"$(IronSchemeBuildToolsPath)TailCallMaker" "$(ILOutputFile)"</TailCallMaker>
-    </PropertyGroup>
+    <ItemGroup>
+      <ILInputFiles Include="$(ILOutputFile);$(ILGlue)" />
+    </ItemGroup>
 
-    <Exec Command="$(ILDAsmPath) $(ILDAsmArgs)"/>
-    <Exec Command="$(TailCallMaker)"/>
+    <ILDasm Linenum="true" InputFile="$(TargetPath)" OutputFile="$(ILOutputFile)" />
+    <!--<Exec Command="$(ILDAsmPath) $(ILDAsmArgs)"/>-->
+    <TailCallMaker Input="$(ILOutputFile)" />
 
     <!-- incase PDB failure -->
-    <Exec Condition="$(UseNetFxIlTools) == True" ContinueOnError="true" Command="$(ILAsmPath) $(ILAsmArgs)" />
-    <Exec Command="$(ILAsmPath) $(ILAsmArgs)" />
+
+    <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="$(TargetPath)" />
+    <!--<Exec Condition="$(UseNetFxIlTools) == True" ContinueOnError="true" Command="$(ILAsmPath) $(ILAsmArgs)" />-->
+    <!--<Exec Command="$(ILAsmPath) $(ILAsmArgs)" />-->
   </Target>
 </Project>

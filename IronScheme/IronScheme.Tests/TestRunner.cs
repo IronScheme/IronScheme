@@ -19,7 +19,7 @@ namespace IronScheme.Tests
 
     protected static void AssertError(TestResult tr)
     {
-      Assert.IsEmpty(tr.Error, "stderr is not empty");
+      Assert.That(tr.Error, Is.Empty, "stderr is not empty");
     }
 
     protected bool Quiet { get; private set; }
@@ -114,7 +114,7 @@ Error:
       {
         if (!p.Start())
         {
-          Assert.Fail("could not start {0}", exe);
+          Assert.Fail($"could not start {exe}");
         }
 
         if (input != null)
@@ -152,8 +152,8 @@ Error:
             Console.Error.WriteLine(r.Error);
           }
         }
- 
-        Assert.AreEqual(0, p.ExitCode, "{0}", r);
+
+        Assert.That(p.ExitCode, Is.EqualTo(0), $"{r}");
 
         return r;
       }
@@ -167,7 +167,7 @@ Error:
           }
         }
         catch { }
-        Assert.Fail("runner failed: {0}", ex);
+        Assert.Fail($"runner failed: {ex}");
         throw;
       }
     }

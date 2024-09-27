@@ -3,6 +3,7 @@ using NUnit.Framework;
 
 namespace IronScheme.Tests
 {
+  [Category(nameof(Conformance))]
   public class Conformance : TestRunner
   {
     [Test]
@@ -10,7 +11,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"tests\r6rs\run.sps");
       if (!Quiet) Console.WriteLine("Expected 3 failed tests.");
-      Assert.That(r.Output, Is.StringContaining("3 of 8971 tests failed."));
+      Assert.That(r.Output, Does.Contain("3 of 8971 tests failed."));
       AssertError(r);
     }
 
@@ -19,7 +20,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"tests\trigtest.sps");
       if (!Quiet) Console.WriteLine("Expected 8 failed tests.");
-      Assert.That(r.Output, Is.StringContaining("Failed 8 of 17707 tests."));
+      Assert.That(r.Output, Does.Contain("Failed 8 of 17707 tests."));
       AssertError(r);
     }
 
@@ -28,7 +29,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTest(@"tests\clisp-number-tests.sps");
       if (!Quiet) Console.WriteLine("Expected 3 failed tests.");
-      Assert.That(r.Output, Is.StringContaining("Failed 3 of 2476 tests."));
+      Assert.That(r.Output, Does.Contain("Failed 3 of 2476 tests."));
       AssertError(r);
     }
 

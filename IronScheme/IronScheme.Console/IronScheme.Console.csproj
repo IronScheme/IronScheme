@@ -40,7 +40,6 @@
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
     <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
-    <ProjectReference Include="..\IronScheme.Tests\IronScheme.Tests.csproj" />
     <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
@@ -105,9 +104,8 @@
     <PropertyGroup>
       <CopySrc>$(TargetPath)</CopySrc>
       <CopyDst>$(TargetDir)$(ProjectName)32.exe</CopyDst>
-      <CorFlagsCmd>"$(IronSchemeBuildToolsPath)RuntimeChanger" "$(CopyDst)" /32bit+</CorFlagsCmd>
     </PropertyGroup>
-    <Copy SourceFiles="$(CopySrc)" DestinationFiles="$(CopyDst)" />
-    <Exec Command="$(CorFlagsCmd)" />
+
+    <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(CopyDst)" />
   </Target>
 </Project>
