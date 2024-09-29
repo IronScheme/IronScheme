@@ -34,25 +34,25 @@ build_script:
     
     msbuild -restore "IronScheme.BuildTools\IronScheme.Build\IronScheme.Build.csproj" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
     rem dotnet msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
-    msbuild -restore "IronScheme\IronSchemeCore.sln" /v:n /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
+    msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
 test_script:
 - cmd: |
     rem these have to be in order
     cd IronScheme\IronScheme.Console\bin\Release\net20
     echo (ironscheme-runtime) | IronScheme.Console32.exe
-    nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    nunit3-console --noh --noc --labels=BeforeAndAfter --workers=1 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
 
     set TESTCORE=1
     cd ..\net9.0
     copy /y ..\net20\ironscheme.boot.dll .
     echo (ironscheme-runtime) | IronScheme.ConsoleCore.exe
-    nunit3-console --noh --noc --labels=BeforeAndAfter -noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    nunit3-console --noh --noc --labels=BeforeAndAfter --workers=1 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
 
     cd ..\netcoreapp2.1
     copy /y ..\net20\ironscheme.boot.dll .
     echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
     set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
-    nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    nunit3-console --noh --noc --labels=BeforeAndAfter --workers=1 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
 
     cd %APPVEYOR_BUILD_FOLDER%
     call ci-artefact.cmd
