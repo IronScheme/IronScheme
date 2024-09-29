@@ -1,7 +1,12 @@
 ﻿using NUnit.Framework;
 
+//[assembly: LevelOfParallelism(8)]
+
 namespace IronScheme.Tests
 {
+  
+  [Parallelizable(scope: ParallelScope.All | ParallelScope.Fixtures)]
+  [Order(3)]
   [Category(nameof(SRFI))]
   public class SRFI : TestRunner
   {
@@ -146,6 +151,7 @@ namespace IronScheme.Tests
       AssertError(r);
     }
 
+    [Order(0)]
     [Test]
     public void RandomBits()
     {

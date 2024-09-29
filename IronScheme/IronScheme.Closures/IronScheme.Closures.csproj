@@ -24,48 +24,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="IronScheme.Glue.il">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <ILGlue Include="IronScheme.Glue.il"/>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="IronSchemeBuildTools">
     <PropertyGroup>
-      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == '' and Exists('$(TargetFrameworkSDKToolsDirectory)ildasm.exe') and Exists('$(TargetFrameworkDirectory)')">true</UseNetFxIlTools>
-      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == ''">false</UseNetFxIlTools>
-      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == 'True' and !(Exists('$(TargetFrameworkSDKToolsDirectory)ildasm.exe') and Exists('$(TargetFrameworkDirectory)'))">false</UseNetFxIlTools>
-      <TargetedRuntimeVersion Condition="$(TargetedRuntimeVersion) == '' or $(TargetedRuntimeVersion) == 'v'">v4.0.30319</TargetedRuntimeVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="$(UseNetFxIlTools) == True">
-      <ILAsmPath>"$(TargetedFrameworkDir)\ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" /res:"$(TargetDir)$(TargetName).res"</ILAsmPath>
-      <ILDAsmPath>"$(TargetFrameworkSDKToolsDirectory)ildasm" /NOBAR /LINENUM</ILDAsmPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="$(UseNetFxIlTools) != True">
-      <ILAsmPath>"$(IronSchemeBuildToolsPath)ilasm" -dll -PDB -DEBUG -NOLOGO -QUIET -mdv="$(TargetedRuntimeVersion)"</ILAsmPath>
-      <ILDAsmPath>"$(IronSchemeBuildToolsPath)ildasm" -LINENUM</ILDAsmPath>
-    </PropertyGroup>
-      
-    <PropertyGroup>
       <ILOutputFile>$(TargetDir)$(TargetName).il</ILOutputFile>
-      <ILGlue>$(TargetDir)IronScheme.Glue.il</ILGlue>
-      <ILAsmArgs>-out:"$(TargetPath)" "$(ILOutputFile)" "$(ILGlue)"</ILAsmArgs>
-      <ILDAsmArgs>-out:"$(ILOutputFile)" "$(TargetPath)"</ILDAsmArgs>
     </PropertyGroup>
 
     <ItemGroup>
-      <ILInputFiles Include="$(ILOutputFile);$(ILGlue)" />
+      <ILInputFiles Include="$(ILOutputFile);@(ILGlue)" />
     </ItemGroup>
 
     <ILDasm Linenum="true" InputFile="$(TargetPath)" OutputFile="$(ILOutputFile)" />
-    <!--<Exec Command="$(ILDAsmPath) $(ILDAsmArgs)"/>-->
     <TailCallMaker Input="$(ILOutputFile)" />
-
-    <!-- incase PDB failure -->
-
     <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="$(TargetPath)" />
-    <!--<Exec Condition="$(UseNetFxIlTools) == True" ContinueOnError="true" Command="$(ILAsmPath) $(ILAsmArgs)" />-->
-    <!--<Exec Command="$(ILAsmPath) $(ILAsmArgs)" />-->
+
   </Target>
 </Project>

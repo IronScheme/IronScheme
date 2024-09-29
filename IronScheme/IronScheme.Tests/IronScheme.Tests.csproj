@@ -5,7 +5,7 @@
     <AssemblyTitle>IronScheme.Tests</AssemblyTitle>
     <Product>IronScheme.Tests</Product>
     <Copyright>Copyright ©  2016</Copyright>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <OutDir>bin/$(Configuration)</OutDir>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

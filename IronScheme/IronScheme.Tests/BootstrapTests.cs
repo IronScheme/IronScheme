@@ -2,8 +2,9 @@
 using System.IO;
 using NUnit.Framework;
 
-namespace IronScheme.Tests.Bootstrap
+namespace IronScheme.Tests
 {
+  [Order(1)]
   [Category(nameof(Bootstrap))]
   public class Bootstrap : TestRunner
   {
@@ -116,13 +117,13 @@ namespace IronScheme.Tests.Bootstrap
       if (!TestCore)
       {
         var r = RunTest("peverify.exe", $"/nologo {assembly}");
-        Assert.That(r.Output, Is.EqualTo("All Classes and Methods in ironscheme.boot.dll Verified.").IgnoreCase);
+        Assert.That(r.Output, Is.EqualTo($"All Classes and Methods in {assembly} Verified.").IgnoreCase);
       }
       else
       {
 
-        var r = RunTest("ilverify", $@"{assembly} -r ""{SdkRefPath}"" -r ""*.dll""", false);
-        Assert.That(r.Output, Is.EqualTo("All Classes and Methods in " + Path.GetFullPath(assembly) + " Verified.").IgnoreCase);
+        var r = RunTest("ilverify", $@"{assembly} -r ""{SdkRefPath}"" -r ""*.dll""");
+        Assert.That(r.Output, Is.EqualTo($"All Classes and Methods in {Path.GetFullPath(assembly)} Verified.").IgnoreCase);
       }
     }
   }

@@ -3,6 +3,8 @@ using NUnit.Framework;
 
 namespace IronScheme.Tests
 {
+  [Parallelizable(scope: ParallelScope.All | ParallelScope.Fixtures)]
+  [Order(2)]
   [Category(nameof(Conformance))]
   public class Conformance : TestRunner
   {

@@ -3,6 +3,7 @@ using System.Text;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace IronScheme.Tests
 {
@@ -38,33 +39,23 @@ Error:
       }
     }
 
-    protected TestResult RunIronSchemeTestWithInput(string input)
+    protected TestResult RunIronSchemeTestWithInput(string input, [CallerMemberName] string method = null)
     {
-      return RunIronSchemeTest(null, input);
+      return RunIronSchemeTest(null, input, method);
     }
 
-    protected TestResult RunIronSchemeTest(string args)
+    protected TestResult RunIronSchemeTest(string args, [CallerMemberName] string method = null)
     {
-      return RunIronSchemeTest(args, null);
+      return RunIronSchemeTest(args, null, method);
     }
 
-    protected TestResult RunIronSchemeTest(string args, string input)
-    {
-      return RunIronSchemeTest(args, input, true);
-    }
-
-    protected TestResult RunIronSchemeTest(string args, string input, bool echo)
+    protected TestResult RunIronSchemeTest(string args, string input, [CallerMemberName] string method = null)
     {
       if (TestCore)
       {
-        return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.ConsoleCore.dll " + args, input, echo);
+        return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.ConsoleCore.dll " + args, input, method);
       }
-      return RunTest( "IronScheme.Console32.exe", args, input, echo);
-    }
-
-    protected TestResult RunTest(string exe, string args, bool echo)
-    {
-      return RunTest(exe, args, null, echo);
+      return RunTest( "IronScheme.Console32.exe", args, input, method);
     }
 
     protected TestResult RunTest(string exe, string args)
@@ -72,14 +63,8 @@ Error:
       return RunTest(exe, args, null);
     }
 
-    protected TestResult RunTest(string exe, string args, string input)
+    protected static TestResult RunTest(string exe, string args, string input, string method = null)
     {
-      return RunTest(exe, args, input, true);
-    }
-
-    protected TestResult RunTest(string exe, string args, string input, bool echo)
-    {
-      
       var error = new StringWriter();
       var output = new StringWriter();
 
@@ -100,13 +85,13 @@ Error:
 
       p.ErrorDataReceived += (s, e) =>
       {
-        if (echo && !Quiet) Console.Error.WriteLine(e.Data);
+        //if (echo && !Quiet) Console.Error.WriteLine(e.Data);
         error.WriteLine(e.Data);
       };
 
       p.OutputDataReceived += (s, e) =>
       {
-        if (echo && !Quiet) Console.WriteLine(e.Data);
+        //if (echo && !Quiet) Console.WriteLine(e.Data);
         output.WriteLine(e.Data);
       };
 
@@ -130,28 +115,42 @@ Error:
 
         var exited = p.WaitForExit(300000);
 
+        //output.WriteLine(p.StandardOutput.ReadToEnd());
+        //error.WriteLine(p.StandardError.ReadToEnd());
+
+        Assert.That(exited, Is.True);
+        Assert.That(p.HasExited, Is.True);
+
+        error.Flush();
+        output.Flush();
+
         var r = new TestResult
         {
           Output = output.ToString().TrimEnd(Environment.NewLine.ToCharArray()),
           Error = error.ToString().TrimEnd(Environment.NewLine.ToCharArray())
         };
 
-        if (!exited)
+        if (method != null)
         {
-          p.Kill();
+          //File.WriteAllText($"{method}.output", r.ToString());
         }
 
-        if (p.ExitCode != 0 && !echo)
-        {
-          if (r.Output.Length > 0)
-          {
-            Console.WriteLine(r.Output);
-          }
-          if (r.Error.Length > 0)
-          {
-            Console.Error.WriteLine(r.Error);
-          }
-        }
+        //if (!exited)
+        //{
+        //  p.Kill();
+        //}
+
+        //if (p.ExitCode != 0 && !echo)
+        //{
+        //  if (r.Output.Length > 0)
+        //  {
+        //    Console.WriteLine(r.Output);
+        //  }
+        //  if (r.Error.Length > 0)
+        //  {
+        //    Console.Error.WriteLine(r.Error);
+        //  }
+        //}
 
         Assert.That(p.ExitCode, Is.EqualTo(0), $"{r}");
 

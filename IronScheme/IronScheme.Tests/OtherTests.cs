@@ -2,6 +2,8 @@
 
 namespace IronScheme.Tests
 {
+  [Order(4)]
+  [Parallelizable(scope: ParallelScope.All | ParallelScope.Fixtures)]
   [Category(nameof(Other))]
   public class Other : TestRunner
   {
