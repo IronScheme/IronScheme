@@ -5,11 +5,11 @@ if "%1" == "/?" goto help
 if "%1" == "-h" goto help
 if "%1" == "--help" goto help
 
-dotnet build --disable-build-servers -tl:off -c Release ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj
-dotnet build --disable-build-servers -tl:off -c Release -f net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj
+dotnet build -restore --disable-build-servers -tl:off -c Release ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj
+dotnet build -restore --disable-build-servers -tl:off -c Release --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj
 
 rem `dotnet build` or `dotnet msbuild -restore` also works instead of `msbuild -restore`
-dotnet build --disable-build-servers -tl:off -c Release %*
+dotnet build -restore --disable-build-servers -tl:off -c Release %*
 exit /B %ERRORLEVEL%
 
 :help

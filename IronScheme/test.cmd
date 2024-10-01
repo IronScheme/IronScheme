@@ -2,7 +2,7 @@
 setlocal
 
 rem set nunit bin directory
-set NUNIT_PATH=d:\Downloads\NUnit.Console-3.18.2\bin\net462\
+rem set NUNIT_PATH=d:\Downloads\NUnit.Console-3.18.2\bin\net462\
 
 set QUIET=1
 set ARGS=%*
@@ -41,18 +41,27 @@ goto :eof
 
 :script
 rem setup path
-set PATH=%PATH%;%NUNIT_PATH%;
+rem set PATH=%PATH%;%NUNIT_PATH%;
 
 rem checks
-where peverify >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 goto no_peverify
-where nunit3-console >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 goto no_nunit
+IF %FX% == net20 (
+  where peverify >nul 2>&1
+  IF %ERRORLEVEL% NEQ 0 goto no_peverify
+)
+
+IF %FX% == net9.0 (
+  where ilverify >nul 2>&1
+  IF %ERRORLEVEL% NEQ 0 dotnet tool install -g dotnet-ilverify
+)
+
+rem where nunit3-console >nul 2>&1
+rem IF %ERRORLEVEL% NEQ 0 goto no_nunit
 
 IF %TESTCORE% == 1 IF %FX% neq net9.0 (
   set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
   set FILTER=--filter "Category=Conformance|SRFI|Other"
 )
+
 
 cd IronScheme.Console\bin\Release\%FX%
 
