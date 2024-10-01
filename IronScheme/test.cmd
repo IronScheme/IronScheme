@@ -4,11 +4,6 @@ setlocal
 rem set nunit bin directory
 set NUNIT_PATH=d:\Downloads\NUnit.Console-3.18.2\bin\net462\
 
-rem these have to be in order
-rem set TESTS=IronScheme.Tests.Bootstrap,IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other,IronScheme.Tests.Teardown
-rem set TESTS=Bootstrap.Debug,Compile.Debug,Verify.Debug,Bootstrap.Release,Compile.Release,Verify.Release,Conformance,SRFI,Other,Teardown
-
-
 set QUIET=1
 set ARGS=%*
 set FX=net20
@@ -54,21 +49,18 @@ IF %ERRORLEVEL% NEQ 0 goto no_peverify
 where nunit3-console >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 goto no_nunit
 
-IF %TESTCORE% == 1 IF %FX% neq net9.0 set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
-
-set TESTS=--test=IronScheme.Tests.SRFI
-
-rem set NUNIT=call :runtest
+IF %TESTCORE% == 1 IF %FX% neq net9.0 (
+  set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
+  set FILTER=--filter "Category=Conformance|SRFI|Other"
+)
 
 cd IronScheme.Console\bin\Release\%FX%
 
-rem IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
-
-rem copy /y ..\..\..\..\IronScheme.Tests\bin\Release\*.dll .
+IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
 
 SET ISWD=%CD%
-rem nunit3-console --noh --labels=BeforeAndAfter --workers=8 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll --trace=Verbose
-dotnet test -v n --no-build ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll --filter Category=SRFI -s .runsettings -- MaxCpuCount=8
+rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
 cd ..\..\..
 exit /b 0

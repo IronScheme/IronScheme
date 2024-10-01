@@ -11,8 +11,14 @@ namespace IronScheme.Tests
   [TestFixture]
   public abstract class TestRunner
   {
-    protected TestRunner()
+    [OneTimeSetUp]
+    public void Setup()
     {
+      var iswd = Environment.GetEnvironmentVariable("ISWD");
+      if (iswd != null)
+      {
+        Environment.CurrentDirectory = iswd;
+      }
       Quiet = Environment.GetEnvironmentVariable("QUIET") == "1";
       TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
@@ -54,9 +60,9 @@ Error:
     {
       if (TestCore)
       {
-        return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.ConsoleCore.dll " + args, input, method);
+        return RunTest("dotnet", "IronScheme.ConsoleCore.dll " + args, input, method);
       }
-      return RunTest( "IronScheme.Console32.exe", args, input, method);
+      return RunTest("IronScheme.Console32.exe", args, input, method);
     }
 
     protected TestResult RunTest(string exe, string args)
@@ -69,23 +75,18 @@ Error:
       var error = new StringWriter();
       var output = new StringWriter();
 
-      var iswd = Environment.GetEnvironmentVariable("ISWD") ?? ".";
-
-      Assert.That(File.Exists(Path.Combine(iswd, exe)), Is.True);
-
       using var p = new Process
       {
         StartInfo = new ProcessStartInfo
         {
-          FileName = Path.Combine(iswd, exe),
+          FileName = exe,
           RedirectStandardOutput = true,
           StandardOutputEncoding = Encoding.UTF8,
           RedirectStandardError = true,
-          RedirectStandardInput = input != null,
+          RedirectStandardInput = true,
           UseShellExecute = false,
           CreateNoWindow = true,
-          Arguments = args,
-          WorkingDirectory = iswd,
+          Arguments = args
         }
       };
 
@@ -142,10 +143,10 @@ Error:
           //File.WriteAllText($"{method}.output", r.ToString());
         }
 
-        //if (!exited)
-        //{
-        //  p.Kill();
-        //}
+        if (!exited)
+        {
+          p.Kill();
+        }
 
         //if (p.ExitCode != 0 && !echo)
         //{
