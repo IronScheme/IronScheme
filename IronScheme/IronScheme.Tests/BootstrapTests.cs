@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 
 namespace IronScheme.Tests
@@ -103,13 +105,29 @@ namespace IronScheme.Tests
     string SdkRefPath => _sdkRefPath ??= GetSdkRefPath();  
 
     string GetSdkRefPath()
-    { 
-      var v = RunTest("dotnet", "--info");
-      var lines = v.Output.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-      var hi = Array.IndexOf(lines, "Host:");
-      var sdkVer = lines[hi + 1].Replace("Version:", "").Trim();
+    {
+      var runtimes = RunTest("dotnet", "--list-runtimes").Output;
 
-      return $@"c:\Program Files\dotnet\shared\Microsoft.NETCore.App\{sdkVer}\*.dll";
+      var pathre = new Regex(@"^((?<tfm>.+)\s)?(?<ver>.+)\s\[(?<path>.+)\]$");
+
+      foreach (var line in runtimes.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Reverse())
+      {
+        var m = pathre.Match(line);
+        if (m.Success)
+        {
+          var tfm = m.Groups["tfm"].Value;
+          var ver = m.Groups["ver"].Value;
+          var path = m.Groups["path"].Value;
+
+          if (tfm == "Microsoft.NETCore.App")
+          {
+            var verpath = Path.Combine(path, ver);
+            return verpath;
+          }
+        }
+      }
+
+      throw new Exception("Runtime path not found");
     }
 
     private void VerifyAssembly(string assembly)
