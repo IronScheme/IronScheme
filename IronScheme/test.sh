@@ -1,5 +1,5 @@
 #!/bin/bash
-dotnet build -v:m -tl:off -c Release -p:TargetFramework=net9.0 IronScheme.Tests/IronScheme.Tests.csproj
+dotnet build -restore -v:m -tl:off -c Release -p:TargetFramework=net9.0 IronScheme.Tests/IronScheme.Tests.csproj
 
 cd IronScheme.Console/bin/Release/net9.0/
 export ISWD=$PWD

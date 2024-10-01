@@ -39,7 +39,7 @@ namespace IronScheme.Tests
 
       while ((line = sr.ReadLine()) != null)
       {
-        sw.WriteLine(line);
+        sw.WriteLine(line.Trim('\r','\n'));
       }
 
       return sw.ToString();
