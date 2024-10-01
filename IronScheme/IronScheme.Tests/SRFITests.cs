@@ -5,7 +5,7 @@
 namespace IronScheme.Tests
 {
   
-  [Parallelizable(scope: ParallelScope.All | ParallelScope.Fixtures)]
+  [Parallelizable(scope: ParallelScope.All)]
   [Order(3)]
   [Category(nameof(SRFI))]
   public class SRFI : TestRunner

@@ -56,7 +56,7 @@ IF %ERRORLEVEL% NEQ 0 goto no_nunit
 
 IF %TESTCORE% == 1 IF %FX% neq net9.0 set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
 
-rem set TESTS=--test=IronScheme.Tests.Other
+set TESTS=--test=IronScheme.Tests.SRFI
 
 rem set NUNIT=call :runtest
 
@@ -66,8 +66,9 @@ rem IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
 
 rem copy /y ..\..\..\..\IronScheme.Tests\bin\Release\*.dll .
 
-
-nunit3-console --noh --labels=BeforeAndAfter --workers=8 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+SET ISWD=%CD%
+rem nunit3-console --noh --labels=BeforeAndAfter --workers=8 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll --trace=Verbose
+dotnet test -v n --no-build ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll --filter Category=SRFI -s .runsettings -- MaxCpuCount=8
 
 cd ..\..\..
 exit /b 0

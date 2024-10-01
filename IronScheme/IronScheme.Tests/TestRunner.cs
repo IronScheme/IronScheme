@@ -68,18 +68,25 @@ Error:
       var error = new StringWriter();
       var output = new StringWriter();
 
-      var p = new Process
+      var iswd = Environment.GetEnvironmentVariable("ISWD");
+
+      Assert.That(File.Exists(Path.Combine(iswd, exe)), Is.True);
+
+      //Console.WriteLine(Path.Combine(iswd, exe));
+
+      using var p = new Process
       {
         StartInfo = new ProcessStartInfo
         {
-          FileName = exe,
+          FileName = Path.Combine(iswd, exe),
           RedirectStandardOutput = true,
           StandardOutputEncoding = Encoding.UTF8,
           RedirectStandardError = true,
-          RedirectStandardInput = true,
+          RedirectStandardInput = input != null,
           UseShellExecute = false,
           CreateNoWindow = true,
           Arguments = args,
+          WorkingDirectory = iswd,
         }
       };
 
@@ -108,7 +115,10 @@ Error:
           p.StandardInput.WriteLine("(exit)");
           p.StandardInput.Flush();
           p.StandardInput.Close();
+          p.StandardInput.Dispose();
         }
+
+
 
         p.BeginErrorReadLine();
         p.BeginOutputReadLine();
