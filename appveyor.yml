@@ -40,22 +40,29 @@ test_script:
     rem these have to be in order
     cd IronScheme\IronScheme.Console\bin\Release\net20
     echo (ironscheme-runtime) | IronScheme.Console32.exe
-    nunit3-console --noh --noc --labels=BeforeAndAfter --workers=1 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    SET ISWD=%CD%
+    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
     set TESTCORE=1
     cd ..\net9.0
     copy /y ..\net20\ironscheme.boot.dll .
     echo (ironscheme-runtime) | IronScheme.ConsoleCore.exe
-    nunit3-console --noh --noc --labels=BeforeAndAfter --workers=1 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    SET ISWD=%CD%
+    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
     cd ..\netcoreapp2.1
     copy /y ..\net20\ironscheme.boot.dll .
     echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
+    SET ISWD=%CD%
+    set FILTER=--filter "Category=Conformance|SRFI|Other"
     set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
-    nunit3-console --noh --noc --labels=BeforeAndAfter --workers=1 --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
     cd %APPVEYOR_BUILD_FOLDER%
-    call ci-artefact.cmd
+    rem call ci-artefact.cmd
 artifacts:
 - path: IronScheme-*.zip
 - path: IronScheme*.*nupkg
