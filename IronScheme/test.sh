@@ -2,6 +2,7 @@
 set -e
 
 dotnet build IronScheme.Tests/IronScheme.Tests.csproj -restore -tl:off -c Release -p:TargetFramework=net9.0 --disable-build-servers --no-incremental --force
+dotnet build IronScheme.Tests/IronScheme.Tests.csproj -restore -tl:off -c Release -p:TargetFramework=net9.0 --disable-build-servers --no-incremental --force
 
 cd IronScheme.Console/bin/Release/net9.0/
 export ISWD=$PWD
