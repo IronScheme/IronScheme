@@ -202,6 +202,11 @@ namespace IronScheme.Runtime
           }
           else
           {
+            if (Path.GetFileName(path) == "ironscheme.boot.dll")
+            {
+              // need to force load this into correct load context
+              Builtins.Exact(1);
+            }
 
             Assembly ext = AssemblyLoad(path, loadinmemory);
             // now that it is loaded, make sure we remove compiletime types
