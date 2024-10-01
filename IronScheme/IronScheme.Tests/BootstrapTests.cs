@@ -121,7 +121,7 @@ namespace IronScheme.Tests
 
           if (tfm == "Microsoft.NETCore.App")
           {
-            var verpath = Path.Combine(path, ver);
+            var verpath = Path.Combine(path, ver, "*.dll");
             return verpath;
           }
         }
