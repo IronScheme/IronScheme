@@ -19,7 +19,7 @@ namespace IronScheme.Tests
       {
         Environment.CurrentDirectory = iswd;
       }
-      Quiet = Environment.GetEnvironmentVariable("QUIET") == "1";
+      Quiet = true;// Environment.GetEnvironmentVariable("QUIET") == "1";
       TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
 
