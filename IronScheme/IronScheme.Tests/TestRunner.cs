@@ -30,6 +30,22 @@ namespace IronScheme.Tests
       Assert.That(tr.Error, Is.Empty, "stderr is not empty");
     }
 
+    protected static string NormalizeLineBreaks(string input)
+    {
+      using var sr = new StringReader(input);
+      using var sw = new StringWriter();
+
+      string line = null;
+
+      while ((line = sr.ReadLine()) != null)
+      {
+        sw.WriteLine(line);
+      }
+
+      return sw.ToString();
+    }
+     
+
     protected bool Quiet { get; private set; }
 
     protected class TestResult

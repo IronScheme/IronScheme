@@ -81,7 +81,7 @@ namespace IronScheme.Tests
     public void ListQueues()
     {
       var r = RunIronSchemeTest(@"lib\srfi\tests\list-queues.sps");
-      Assert.That(r.Output, Does.Contain(@"%%%% Starting test list-queues/simple
+      Assert.That(r.Output, Does.Contain(NormalizeLineBreaks(@"%%%% Starting test list-queues/simple
 # of expected passes      16
 %%%% Starting test list-queues/whole
 # of expected passes      20
@@ -90,7 +90,7 @@ namespace IronScheme.Tests
 %%%% Starting test list-queues/conversion
 # of expected passes      30
 %%%% Starting test list-queues/unfold
-# of expected passes      34"));
+# of expected passes      34")));
       AssertError(r);
     }
 
