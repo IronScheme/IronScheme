@@ -42,7 +42,7 @@ namespace IronScheme.Tests
         sw.WriteLine(line.Trim('\r','\n'));
       }
 
-      return sw.ToString();
+      return sw.ToString().TrimEnd('\r', '\n');
     }
      
 
