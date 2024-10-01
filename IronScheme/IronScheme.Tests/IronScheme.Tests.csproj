@@ -23,12 +23,5 @@
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <PackageReference Include="xunit.v3" Version="0.4.0-pre.20" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.35" />
    </ItemGroup>
-  <ItemGroup>
-    <None Update="xunit.runner.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>

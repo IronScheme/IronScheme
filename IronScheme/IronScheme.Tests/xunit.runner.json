@@ -1,6 +1,0 @@
-{
-  "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
-  "showLiveOutput": true,
-  "maxParallelThreads": 6,
-  "diagnosticMessages": true
-}

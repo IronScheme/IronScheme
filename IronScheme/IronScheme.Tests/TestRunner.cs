@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace IronScheme.Tests
 {
@@ -68,11 +69,9 @@ Error:
       var error = new StringWriter();
       var output = new StringWriter();
 
-      var iswd = Environment.GetEnvironmentVariable("ISWD");
+      var iswd = Environment.GetEnvironmentVariable("ISWD") ?? ".";
 
       Assert.That(File.Exists(Path.Combine(iswd, exe)), Is.True);
-
-      //Console.WriteLine(Path.Combine(iswd, exe));
 
       using var p = new Process
       {
@@ -118,12 +117,10 @@ Error:
           p.StandardInput.Dispose();
         }
 
-
-
         p.BeginErrorReadLine();
         p.BeginOutputReadLine();
 
-        var exited = p.WaitForExit(300000);
+        var exited = p.WaitForExit(Timeout.Infinite); // https://github.com/dotnet/runtime/issues/108395
 
         //output.WriteLine(p.StandardOutput.ReadToEnd());
         //error.WriteLine(p.StandardError.ReadToEnd());
