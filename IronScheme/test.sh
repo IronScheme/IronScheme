@@ -1,6 +1,5 @@
 #!/bin/bash
-dotnet clean IronScheme.Tests/IronScheme.Tests.csproj -tl:off -c Release 
-dotnet build IronScheme.Tests/IronScheme.Tests.csproj -tl:off -c Release -f net9.0 --disable-build-servers --no-incremental --force
+dotnet build IronScheme.Tests/IronScheme.Tests.csproj -tl:off -c Release -p:TargetFramework=net9.0 --disable-build-servers --no-incremental --force
 
 cd IronScheme.Console/bin/Release/net9.0/
 export ISWD=$PWD
