@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with: 
+        submodules: 'recursive'
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -25,3 +27,5 @@ jobs:
       run: cd IronScheme && sh build.sh
     - name: Test
       run: cd IronScheme && sh test.sh
+    - name: Package
+      run: cd IronScheme && sh package.sh
