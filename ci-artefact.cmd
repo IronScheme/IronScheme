@@ -1,6 +1,6 @@
 echo on
 cd IronScheme
-call package.cmd
+call package.cmd -v:n
 cd bin
 ren IronScheme-latest.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.zip
 ren IronScheme-latest-DEBUG.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%-DEBUG.zip

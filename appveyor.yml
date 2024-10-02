@@ -62,7 +62,7 @@ test_script:
     dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
     cd %APPVEYOR_BUILD_FOLDER%
-    rem call ci-artefact.cmd
+    call ci-artefact.cmd
 artifacts:
 - path: IronScheme-*.zip
 - path: IronScheme*.*nupkg
