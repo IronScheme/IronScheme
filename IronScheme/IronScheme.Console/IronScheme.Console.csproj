@@ -78,17 +78,7 @@
     <None Include="ironscheme-buildscript.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\DEVELOPMENT.snk">
-      <Link>DEVELOPMENT.snk</Link>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme.boot.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ngen-all.cmd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="un-ngen-all.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="system-libraries.srfi.ss">
