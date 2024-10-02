@@ -24,12 +24,18 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: |
+          '2.1.x'
+          '9.0.x'
         dotnet-quality: 'daily'
     - name: Build
       run: cd IronScheme && build.cmd
-    - name: Test
+    - name: Test (.NET Framework)
       run: cd IronScheme && test.cmd
+    - name: Test (.NET Core 2.1)
+      run: cd IronScheme && test.cmd /core
+    - name: Test (.NET 9.0)
+      run: cd IronScheme && test.cmd /net9
     - name: Package
       run: cd IronScheme && package.cmd
     - name: Upload dotnet test results

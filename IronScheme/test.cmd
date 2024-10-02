@@ -4,6 +4,8 @@ setlocal
 rem set nunit bin directory
 rem set NUNIT_PATH=d:\Downloads\NUnit.Console-3.18.2\bin\net462\
 
+set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;
+
 set QUIET=1
 set ARGS=%*
 set FX=net20
