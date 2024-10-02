@@ -26,7 +26,6 @@ jobs:
       with:
         dotnet-version: '9.0.x'
         dotnet-quality: 'daily'
-        cache: true
     - name: Build
       run: cd IronScheme && build.cmd
     - name: Test
