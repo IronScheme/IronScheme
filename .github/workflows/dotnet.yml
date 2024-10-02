@@ -20,6 +20,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+        dotnet-quality: 'daily'
     - name: Build
       run: cd IronScheme && sh build.sh
     - name: Test
