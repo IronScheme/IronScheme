@@ -15,8 +15,8 @@ public object result;
 protected override SourceSpan GetLocation(gppg.LexLocation loc)
 {
   return new SourceSpan(
-    new SourceLocation(1, loc.sLin, loc.sCol + 1),
-    new SourceLocation(1, loc.eLin, loc.eCol + 1));
+    new SourceLocation(1, loc.StartLine, loc.StartColumn + 1),
+    new SourceLocation(1, loc.EndLine, loc.EndColumn + 1));
 }
 
 static readonly Dictionary<char, int> charmap = GetCharMap();
@@ -110,7 +110,7 @@ object ConvertToDouble(string s)
 
 %union
 {
-  public bool? exact;
+  public Nullable<bool> exact;
   public object value;
   public string text;
 }

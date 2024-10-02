@@ -78,7 +78,7 @@ namespace IronScheme.FrameworkPAL
         filename = Path.Combine("build", filename);
       }
 
-      SaveNET9((PersistedAssemblyBuilder)ass, Path.GetFileNameWithoutExtension(filename), DummySymbolWriter != null);
+      SaveNET9((PersistedAssemblyBuilder)ass, filename, DummySymbolWriter != null);
 
 #elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
@@ -306,8 +306,11 @@ namespace IronScheme.FrameworkPAL
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
 
 #if NET9_0_OR_GREATER
-    private static void SaveNET9(PersistedAssemblyBuilder ab, string assemblyFileName, bool emitDebugInfo)
+    private static void SaveNET9(PersistedAssemblyBuilder ab, string path, bool emitDebugInfo)
     {
+      var assemblyFileName = Path.GetFileNameWithoutExtension(path);
+      var assPath = path;
+      var pdbPath = Path.ChangeExtension(assPath, "pdb");
       try
       {
         MetadataBuilder metadataBuilder = ab.GenerateMetadata(out BlobBuilder ilStream, out BlobBuilder fieldData, out MetadataBuilder pdbBuilder);
@@ -319,7 +322,7 @@ namespace IronScheme.FrameworkPAL
           BlobBuilder portablePdbBlob = new BlobBuilder();
           PortablePdbBuilder portablePdbBuilder = new PortablePdbBuilder(pdbBuilder, metadataBuilder.GetRowCounts(), entryPoint: default);
           BlobContentId pdbContentId = portablePdbBuilder.Serialize(portablePdbBlob);
-          using FileStream pdbFileStream = new FileStream($"{assemblyFileName}.pdb", FileMode.Create, FileAccess.Write);
+          using FileStream pdbFileStream = new FileStream(pdbPath, FileMode.Create, FileAccess.Write);
           portablePdbBlob.WriteContentTo(pdbFileStream);
 
           debugDirectoryBuilder = new DebugDirectoryBuilder();
@@ -335,7 +338,7 @@ namespace IronScheme.FrameworkPAL
 
         BlobBuilder peBlob = new BlobBuilder();
         peBuilder.Serialize(peBlob);
-        using var dllFileStream = new FileStream($"{assemblyFileName}.dll", FileMode.Create, FileAccess.Write);
+        using var dllFileStream = new FileStream(assPath, FileMode.Create, FileAccess.Write);
         peBlob.WriteContentTo(dllFileStream);
       }
       finally

@@ -85,7 +85,7 @@ namespace IronScheme.Console
       try
       {
         System.Console.OutputEncoding = new UTF8Encoding(false);
-#if NETCOREAPP2_1_OR_GREATER
+#if NETCOREAPP2_1_OR_GREATER && !NET9_0_OR_GREATER
         Builtins.Exact(1);
 #endif
 

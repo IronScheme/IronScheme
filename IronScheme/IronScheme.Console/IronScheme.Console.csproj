@@ -22,6 +22,7 @@
     <StartupObject>IronScheme.Console.Program</StartupObject>
     <AssemblyName>IronScheme.Console</AssemblyName>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -39,7 +40,6 @@
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
     <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
-    <ProjectReference Include="..\IronScheme.Tests\IronScheme.Tests.csproj" />
     <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
@@ -78,17 +78,7 @@
     <None Include="ironscheme-buildscript.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\DEVELOPMENT.snk">
-      <Link>DEVELOPMENT.snk</Link>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme.boot.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ngen-all.cmd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="un-ngen-all.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="system-libraries.srfi.ss">
@@ -99,12 +89,12 @@
     </None>
     <Content Include="ironscheme.ico" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'" DependsOnTargets="IronSchemeBuildTools">
+    <!-- move this to packaging -->
     <PropertyGroup>
-      <CopyCmd>copy /Y "$(TargetPath)" "$(TargetDir)$(ProjectName)32.exe"</CopyCmd>
-      <CorFlagsCmd>"$(TargetFrameworkSDKToolsDirectory)corflags.exe" "$(TargetDir)$(ProjectName)32.exe" /32BIT+</CorFlagsCmd>
+      <CopyDst>$(TargetDir)$(ProjectName)32.exe</CopyDst>
     </PropertyGroup>
-    <Exec Command="$(CopyCmd)" />
-    <Exec Command="$(CorFlagsCmd)" />
+
+    <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(CopyDst)" />
   </Target>
 </Project>

@@ -8,7 +8,6 @@
     <OutDir>bin/$(Configuration)/$(TargetFramework)</OutDir>
     <DebugType>pdbonly</DebugType>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
     <NoWarn>$(NoWarn);MSB3073</NoWarn>
     <!--<UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>-->
   </PropertyGroup>
@@ -25,56 +24,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.ILAsm" Version="9.0.0-*" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.NETCore.ILDAsm" Version="9.0.0-*" PrivateAssets="all" />
+    <ILGlue Include="IronScheme.Glue.il"/>
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="IronScheme.Glue.il">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <Target Name="ClearRID" BeforeTargets="PreBuildEvent">
-    <PropertyGroup>
-      <RuntimeIdentifier></RuntimeIdentifier>
-    </PropertyGroup>
-  </Target>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <PropertyGroup>
-      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == '' and Exists('$(TargetFrameworkSDKToolsDirectory)ildasm.exe') and Exists('$(TargetFrameworkDirectory)')">true</UseNetFxIlTools>
-      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == ''">false</UseNetFxIlTools>
-      <UseNetFxIlTools Condition="$(UseNetFxIlTools) == 'True' and !(Exists('$(TargetFrameworkSDKToolsDirectory)ildasm.exe') and Exists('$(TargetFrameworkDirectory)'))">false</UseNetFxIlTools>
-      <TargetedRuntimeVersion Condition="$(TargetedRuntimeVersion) == '' or $(TargetedRuntimeVersion) == 'v'">v4.0.30319</TargetedRuntimeVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="$(UseNetFxIlTools) == True">
-      <ILAsmPath>"$(TargetedFrameworkDir)\ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" /res:"$(TargetDir)$(TargetName).res"</ILAsmPath>
-      <ILDAsmPath>"$(TargetFrameworkSDKToolsDirectory)ildasm" /NOBAR /LINENUM</ILDAsmPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="$(UseNetFxIlTools) != True">
-      <ILAsmPath>"$(TargetDir)ilasm" /dll /PDB /DEBUG /NOLOGO /QUIET /mdv="$(TargetedRuntimeVersion)" "$(TargetDir)$(TargetName).res"</ILAsmPath>
-      <ILDAsmPath>"$(TargetDir)ildasm" /LINENUM</ILDAsmPath>
-    </PropertyGroup>
-      
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="IronSchemeBuildTools">
     <PropertyGroup>
       <ILOutputFile>$(TargetDir)$(TargetName).il</ILOutputFile>
-      <ILGlue>$(TargetDir)IronScheme.Glue.il</ILGlue>
-      <ILAsmArgs>/out:"$(TargetPath)" "$(ILOutputFile)" "$(ILGlue)"</ILAsmArgs>
-      <ILDAsmArgs>/out:"$(ILOutputFile)" "$(TargetPath)"</ILDAsmArgs>
     </PropertyGroup>
 
-    <PropertyGroup>
-      <TailCallMaker>"$(SolutionDir)TailCallMaker\$(OutDir)TailCallMaker.exe" "$(ILOutputFile)"</TailCallMaker>
-    </PropertyGroup>
+    <ItemGroup>
+      <ILInputFiles Include="$(ILOutputFile);@(ILGlue)" />
+    </ItemGroup>
 
-    <Exec Command="$(ILDAsmPath) $(ILDAsmArgs)"/>
-    <Exec Command="$(TailCallMaker)"/>
+    <ILDasm Linenum="true" InputFile="$(TargetPath)" OutputFile="$(ILOutputFile)" />
+    <TailCallMaker Input="$(ILOutputFile)" />
+    <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="$(TargetPath)" />
 
-    <!-- incase PDB failure -->
-    <Exec Condition="$(UseNetFxIlTools) == True" ContinueOnError="true" Command="$(ILAsmPath) $(ILAsmArgs)" />
-    <Exec Command="$(ILAsmPath) $(ILAsmArgs)" />
   </Target>
 </Project>
