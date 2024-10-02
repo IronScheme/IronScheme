@@ -19,8 +19,8 @@ install:
     set QUIET=1
     set DOTNET_CLI_TELEMETRY_OPTOUT=1
     set DOTNET_NOLOGO=1
-    choco install ilmerge
-    set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;%APPVEYOR_BUILD_FOLDER%\IronScheme\tools\;
+    rem for pevefiry and other build shit
+    set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;
     powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://dot.net/v1/dotnet-install.ps1'))) -Channel 9.0.1xx  -Quality daily -InstallDir 'c:\Program Files\dotnet'"
     for /d %%d in (%LOCALAPPDATA%\Microsoft\VisualStudio\17.0*) do echo UsePreviews=True > %%d\sdk.txt
     dotnet tool install --global dotnet-ilverify --prerelease
@@ -29,51 +29,37 @@ nuget:
   project_feed: true
 build_script:
 - cmd: |
-    echo 1 > IronScheme\IronScheme\Compiler\numberlexer.lex.cs
-    echo 1 > IronScheme\IronScheme\Compiler\ironscheme.lex.cs
-    echo 1 > IronScheme\IronScheme\Compiler\NumberParser.y.cs
-    echo 1 > IronScheme\IronScheme\Compiler\IronScheme.y.cs
+    dotnet restore "IronScheme.BuildTools\IronScheme.BuildTools.sln"
+    dotnet restore "IronScheme\IronSchemeCore.sln"
+    
+    msbuild -restore "IronScheme.BuildTools\IronScheme.Build\IronScheme.Build.csproj" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
     rem dotnet msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
-    msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021"
+    msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
 test_script:
 - cmd: |
-    cd IronScheme\IronScheme.Console\bin\Release\net20
-    echo (ironscheme-runtime) | IronScheme.Console.exe
     rem these have to be in order
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Release
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Release
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Teardown
-    set QUIET=
-    set TESTCORE=1
+    cd IronScheme\IronScheme.Console\bin\Release\net20
+    echo (ironscheme-runtime) | IronScheme.Console32.exe
+    SET ISWD=%CD%
+    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
+    set TESTCORE=1
     cd ..\net9.0
     copy /y ..\net20\ironscheme.boot.dll .
-    copy /y ..\net20\nunit.framework.dll .
     echo (ironscheme-runtime) | IronScheme.ConsoleCore.exe
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Debug
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Bootstrap.Release
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Compile.Release
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Verify.Release
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
+    SET ISWD=%CD%
+    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
     cd ..\netcoreapp2.1
     copy /y ..\net20\ironscheme.boot.dll .
-    copy /y ..\net20\nunit.framework.dll .
     echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Conformance
-    nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.SRFI
-    rem nunit-console IronScheme.Tests.dll /nologo /labels /run:IronScheme.Tests.Other
+    SET ISWD=%CD%
+    set FILTER=--filter "Category=Conformance|SRFI|Other"
+    set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
+    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
     cd %APPVEYOR_BUILD_FOLDER%
     call ci-artefact.cmd

@@ -4,6 +4,8 @@ using System.IO;
 
 namespace IronScheme.Tests
 {
+  [Order(100)]
+  [Category(nameof(Teardown))]
   public class Teardown : TestRunner
   {
     [Test]

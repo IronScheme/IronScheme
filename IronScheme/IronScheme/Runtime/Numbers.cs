@@ -51,7 +51,7 @@ namespace IronScheme.Runtime
       Parser number_parser = new Parser();
       Scanner number_scanner = new Scanner();
 
-      number_parser.scanner = number_scanner;
+      number_parser.Scanner = number_scanner;
       number_scanner.SetSource(str, 0);
       number_parser.result = null;
       number_scanner.yy_push_state(3);

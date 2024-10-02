@@ -129,7 +129,7 @@ namespace IronScheme
       }
       Parser p = parser;
       Scanner sc = new Scanner(code, "GUESS");
-      p.scanner = sc;
+      p.Scanner = sc;
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;
 
@@ -160,7 +160,7 @@ namespace IronScheme
       sc.SourceUnit = cc.SourceUnit;
       sc.Errors = cc.Errors;
       sc.SetSource(code, 0);
-      p.scanner = sc;
+      p.Scanner = sc;
 
       if (p.Parse())
       {
@@ -203,7 +203,7 @@ namespace IronScheme
         parser = new Parser();
       }
       Parser p = parser;
-      p.scanner = sc;
+      p.Scanner = sc;
 
       if (p.Parse() && (!cc.SourceUnit.CodeProperties.HasValue || cc.SourceUnit.CodeProperties.Value != SourceCodeProperties.None))
       {
