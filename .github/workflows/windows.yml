@@ -12,7 +12,7 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2019
     defaults:
       run:
         shell: cmd
@@ -26,6 +26,7 @@ jobs:
       with:
         dotnet-version: '9.0.x'
         dotnet-quality: 'daily'
+        cache: true
     - name: Build
       run: cd IronScheme && build.cmd
     - name: Test
