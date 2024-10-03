@@ -72,7 +72,8 @@ IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
 
 SET ISWD=%CD%
 rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
-dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
+dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true
+rem NUnit.StopOnError=true
 set TERR=%ERRORLEVEL%
 cd ..\..\..
 exit /b %TERR%
