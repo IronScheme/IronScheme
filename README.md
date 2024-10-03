@@ -1,3 +1,8 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/github/IronScheme/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
+[![Windows](https://github.com/IronScheme/IronScheme/actions/workflows/windows.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/windows.yml)
+[![OSX](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml)
+[![Linux](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml)
+
 IronScheme
 ==========
 
@@ -6,8 +11,6 @@ IronScheme aims to be a R6RS conforming Scheme-like implementation for all .NET 
 IronScheme implements over 99% of the R6RS specification and specified behavior. 
 
 IronScheme's macro system is based on psyntax, and thus behaves similar to other implementations using psyntax, ie Icarus, Vicare, Chez.
-
-[![Build status](https://ci.appveyor.com/api/projects/status/github/IronScheme/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
 
 Building
 ========
