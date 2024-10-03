@@ -43,8 +43,8 @@ namespace IronScheme.Hosting
 
     void Initialize()
     {
+      //PAL.Initialize();
       IronScheme.Compiler.BaseHelper.Initialize(this);
-      PAL.Initialize();
       Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
     

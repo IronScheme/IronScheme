@@ -1,3 +1,10 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/github/IronScheme/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
+[![Windows](https://github.com/IronScheme/IronScheme/actions/workflows/windows.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/windows.yml)
+[![OSX](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml)
+[![Linux](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml)
+
+[![NuGet version](https://badge.fury.io/nu/IronScheme.Core.svg)](https://badge.fury.io/nu/IronScheme.Core)
+
 IronScheme
 ==========
 
@@ -6,8 +13,6 @@ IronScheme aims to be a R6RS conforming Scheme-like implementation for all .NET 
 IronScheme implements over 99% of the R6RS specification and specified behavior. 
 
 IronScheme's macro system is based on psyntax, and thus behaves similar to other implementations using psyntax, ie Icarus, Vicare, Chez.
-
-[![Build status](https://ci.appveyor.com/api/projects/status/github/IronScheme/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
 
 Building
 ========
@@ -28,9 +33,9 @@ V2 requires .NET3.5. V4 requires requires .NET4.0 or higher. Pretty much any run
 
 You can also run it with .NET Core, which has no persisted compilation functionality. It may load precompiled libraries, but if it fails to load, it will fallback to runtime compilation. A warning will be display in that case.
 
-By default, it will run on the lowest supported .NET Core runtime installed.
+By default, it will run on the lowest supported .NET Core runtime installed (.NET Core 2.1 or higher).
 
-To Run it on a specific .NET Core version, use the `--fx-version` option with `dotnet`.
+To Run it on a specific .NET Core version, use the `--fx-version` option with `dotnet` or `IronScheme.ConsoleCore.exe`.
 
 Example to run on .NET 6.0 when you have multiple framework versions installed:
 
@@ -44,6 +49,10 @@ IronScheme.ConsoleCore.exe --fx-version 6.0.0 <args...>
 
 To run on the latest installed .NET Core version:
 
+```
+dotnet --roll-forward LatestMajor IronScheme.ConsoleCore.dll <args...>
+```
+or
 ```
 IronScheme.ConsoleCore.exe --roll-forward LatestMajor <args...>
 ```
@@ -100,6 +109,13 @@ using IronScheme;
 
 "(display 'hello-world)".Eval();
 ```
+
+Compiling libraries
+===================
+
+When running on .NET Framework or .NET 9.0 or higher, you can precompile scheme libraries.
+
+You can do to this by running `(compile-system-libraries)`, or `(compile)` after importing your libraries.
 
 Running tests
 =============

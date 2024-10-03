@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NUnit.Framework;
 using System.IO;
 
 namespace IronScheme.Tests
 {
+  [Order(100)]
+  [Category(nameof(Teardown))]
   public class Teardown : TestRunner
   {
     [Test]

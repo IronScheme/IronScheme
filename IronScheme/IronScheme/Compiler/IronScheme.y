@@ -58,21 +58,21 @@ static Cons Append(Cons c, Cons t, object end)
 
 static SourceSpan GetLocation(gppg.LexLocation start, gppg.LexLocation end)
 {
-  int ecol = end.eCol + 1;
+  int ecol = end.EndColumn + 1;
   if (ecol <= 0)
   {
     ecol = 1;
   }
   return new SourceSpan(
-    new SourceLocation(1, start.sLin, start.sCol + 1),
-    new SourceLocation(1, Math.Max(end.eLin, start.sLin), Math.Max(ecol, start.eCol + 1)));
+    new SourceLocation(1, start.StartLine, start.StartColumn + 1),
+    new SourceLocation(1, Math.Max(end.EndLine, start.StartLine), Math.Max(ecol, start.EndColumn + 1)));
 }
 
 protected override SourceSpan GetLocation(gppg.LexLocation loc)
 {
   return new SourceSpan(
-    new SourceLocation(1, loc.sLin, loc.sCol + 1),
-    new SourceLocation(1, loc.eLin, loc.eCol + 1));
+    new SourceLocation(1, loc.StartLine, loc.StartColumn + 1),
+    new SourceLocation(1, loc.EndLine, loc.EndColumn + 1));
 }
 
 static object MakeNumber(string input)

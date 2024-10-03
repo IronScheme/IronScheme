@@ -2,18 +2,18 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <ApplicationIcon>ironscheme.ico</ApplicationIcon>
-    <TargetFrameworks>net20;net5.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>net9.0;net20;netcoreapp2.1</TargetFrameworks>
     <GenerateManifests>false</GenerateManifests>
     <AssemblyTitle>IronScheme.Console</AssemblyTitle>
     <Company>leppie</Company>
     <Product>IronScheme.Console</Product>
     <Description>Only includes IronScheme.dll</Description>
-    <Copyright>Copyright 2007-2021</Copyright>
+    <Copyright>Copyright 2007-2024</Copyright>
     <Version>1.0.0.0</Version>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>$(NoWarn);1591</NoWarn>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <Authors>Llewellyn Pritchard</Authors>
-    <PackageIconUrl>http://ironscheme.net/logo-192.png</PackageIconUrl>
+    <PackageIcon>http://ironscheme.net/logo-192.png</PackageIcon>
     <PackageId>IronScheme.Core</PackageId>
     <PackageProjectUrl>https://github.com/IronScheme</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/IronScheme</PackageReleaseNotes>
@@ -22,6 +22,7 @@
     <StartupObject>IronScheme.Console.Program</StartupObject>
     <AssemblyName>IronScheme.Console</AssemblyName>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -33,10 +34,12 @@
   <PropertyGroup Condition="'$(TargetFramework)' != 'net20'">
     <AssemblyName>IronScheme.ConsoleCore</AssemblyName>
   </PropertyGroup>
+<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+  <PackageReference Include="System.Runtime.Serialization.Formatters" Version="9.0.0-*" />
+</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IronScheme.Closures\IronScheme.Closures.csproj" />
     <ProjectReference Include="..\IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj" />
-    <ProjectReference Include="..\IronScheme.Tests\IronScheme.Tests.csproj" />
     <ProjectReference Include="..\IronScheme\IronScheme.csproj" />
     <ProjectReference Include="..\Microsoft.Scripting\IronScheme.Scripting.csproj" />
     <ProjectReference Include="..\Oyster.IntX\Oyster.IntX.csproj" />
@@ -75,17 +78,7 @@
     <None Include="ironscheme-buildscript.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\DEVELOPMENT.snk">
-      <Link>DEVELOPMENT.snk</Link>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="ironscheme.boot.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ngen-all.cmd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="un-ngen-all.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="system-libraries.srfi.ss">
@@ -96,7 +89,12 @@
     </None>
     <Content Include="ironscheme.ico" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'">
-    <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot;&#xD;&#xA;&quot;$(TargetFrameworkSDKToolsDirectory)corflags.exe&quot; &quot;$(TargetDir)$(ProjectName)32.exe&quot; /32BIT+" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'" DependsOnTargets="IronSchemeBuildTools">
+    <!-- move this to packaging -->
+    <PropertyGroup>
+      <CopyDst>$(TargetDir)$(ProjectName)32.exe</CopyDst>
+    </PropertyGroup>
+
+    <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(CopyDst)" />
   </Target>
 </Project>

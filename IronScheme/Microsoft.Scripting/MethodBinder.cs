@@ -47,7 +47,8 @@ namespace Microsoft.Scripting {
         }
 
         private static bool IsUnsupported(MethodBase method) {
-            return (method.CallingConvention & CallingConventions.VarArgs) != 0 || method.ContainsGenericParameters;
+            return (method.CallingConvention & CallingConventions.VarArgs) != 0 || method.ContainsGenericParameters
+                || Array.Exists(method.GetParameters(), p => p.ParameterType.Name.EndsWith("Span`1"));
         }
 
         public static MethodBinder MakeBinder(ActionBinder binder, string name, IList<MethodBase> mis, BinderType binderType) {

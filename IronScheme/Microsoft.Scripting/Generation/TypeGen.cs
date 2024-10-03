@@ -43,6 +43,8 @@ namespace Microsoft.Scripting.Generation {
         public event EventHandler CreatingType;
         public int ConstantCounter = 0;
         public List<object> SerializedConstants = new List<object>();
+        internal Type BakedType;
+        private static readonly Type[] SymbolIdIntCtorSig = new Type[] { typeof(int) };
 
         public TypeGen(AssemblyGen myAssembly, TypeBuilder myType) {
             this._myAssembly = myAssembly;
@@ -88,7 +90,10 @@ namespace Microsoft.Scripting.Generation {
             foreach (TypeGen ntb in _nestedTypeGens) {
                 ntb.FinishType();
             }
-
+            if (ret is TypeBuilder && BakedType != null)
+            {
+                return BakedType;
+            }
             return ret;
         }
 

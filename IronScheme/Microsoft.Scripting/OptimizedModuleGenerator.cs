@@ -168,6 +168,11 @@ namespace Microsoft.Scripting.Generation {
             List<CodeGen> cgs = GenerateScriptMethods();
             List<Scope> scopes = GenerateScriptScopes();
 
+            if (ModuleName == "ironscheme.boot.new")
+            {
+                return scopes[0];
+            }
+
             Debug.Assert(cgs.Count == scopes.Count);
             Debug.Assert(scopes.Count == _scriptCodes.Length);
             Debug.Assert(_codeContexts.Count == _scriptCodes.Length);
@@ -499,6 +504,8 @@ namespace Microsoft.Scripting.Generation {
                 Console.WriteLine("Type: '{0}' not found in '{1}' (mono bug)", t.FullName, ass.FullName);
                 return null;
               }
+
+              li.TypeGen.BakedType = rt;
               return (IAttributesCollection)Activator.CreateInstance(rt);
             }
             catch (Exception ex)

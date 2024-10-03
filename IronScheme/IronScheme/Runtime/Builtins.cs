@@ -357,7 +357,7 @@ namespace IronScheme.Runtime
 
       paths.AddRange(includepaths);
 
-      if (Environment.CurrentDirectory != ApplicationDirectory)
+      //if (Environment.CurrentDirectory != ApplicationDirectory)
       {
         paths.Add(".");
       }

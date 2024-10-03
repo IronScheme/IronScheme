@@ -5,35 +5,18 @@ VisualStudioVersion = 17.4.32916.344
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}"
 	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
-		build.cmd = build.cmd
-		..\ci-artefact.cmd = ..\ci-artefact.cmd
-		clean.cmd = clean.cmd
-		DEVELOPMENT.snk = DEVELOPMENT.snk
-		header.bmp = header.bmp
-		ironscheme.ico = ironscheme.ico
-		License.html = License.html
-		logo-128.png = logo-128.png
-		logo-192.png = logo-192.png
-		package.cmd = package.cmd
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		LICENSE.txt = LICENSE.txt
+		NuGet.config = NuGet.config
 		..\README.md = ..\README.md
-		test.cmd = test.cmd
-		welcome.bmp = welcome.bmp
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{06F93FA9-2424-489F-8F3B-F1F7165E5A44}"
 	ProjectSection(SolutionItems) = preProject
-		tools\gplex.exe = tools\gplex.exe
 		tools\gplexx.frame = tools\gplexx.frame
-		tools\gppg.exe = tools\gppg.exe
 		tools\IronScheme.Profiler.x64.dll = tools\IronScheme.Profiler.x64.dll
 		tools\IronScheme.Profiler.x86.dll = tools\IronScheme.Profiler.x86.dll
-		tools\Mono.Cecil.dll = tools\Mono.Cecil.dll
-		tools\Mono.Cecil.Pdb.dll = tools\Mono.Cecil.Pdb.dll
-		tools\NamespaceRenamer.exe = tools\NamespaceRenamer.exe
-		tools\nunit.framework.dll = tools\nunit.framework.dll
-		tools\ReferenceRemover.exe = tools\ReferenceRemover.exe
-		tools\ShiftReduceParser.dll = tools\ShiftReduceParser.dll
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme", "IronScheme\IronScheme.csproj", "{04D8D17C-DF2F-4894-9A66-2E75A78A5D22}"
@@ -41,15 +24,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Scripting", "Microsoft.Scripting\IronScheme.Scripting.csproj", "{2AE75F5A-CD1F-4925-9647-AF4D1C282FB4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Closures", "IronScheme.Closures\IronScheme.Closures.csproj", "{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {36084D27-12DC-40FE-BE74-C830B7D0F620}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TailCallMaker", "TailCallMaker\TailCallMaker.csproj", "{36084D27-12DC-40FE-BE74-C830B7D0F620}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Console", "IronScheme.Console\IronScheme.Console.csproj", "{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}"
 	ProjectSection(ProjectDependencies) = postProject
-		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {36084D27-12DC-40FE-BE74-C830B7D0F620}
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C} = {8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}
 	EndProjectSection
 EndProject
@@ -59,7 +36,36 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Tests", "IronSch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.FrameworkPAL", "IronScheme.FrameworkPAL\IronScheme.FrameworkPAL.csproj", "{5A0F3FDD-C1E0-4DFB-B15B-0C4C17AA5D45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Tests.Extensions", "IronScheme.Tests.Extensions\IronScheme.Tests.Extensions.csproj", "{BAF7E08E-2C51-47B2-B828-734E63AB69E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronScheme.Tests.Extensions", "IronScheme.Tests.Extensions\IronScheme.Tests.Extensions.csproj", "{BAF7E08E-2C51-47B2-B828-734E63AB69E0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8C5B9D2B-6DC3-463C-9573-11BE46632C97}"
+	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
+		build.sh = build.sh
+		clean.cmd = clean.cmd
+		package.cmd = package.cmd
+		package.sh = package.sh
+		test.cmd = test.cmd
+		test.sh = test.sh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{7A7C2AF7-F813-4DE1-978A-5CA6819BB784}"
+	ProjectSection(SolutionItems) = preProject
+		..\appveyor.yml = ..\appveyor.yml
+		..\ci-artefact.cmd = ..\ci-artefact.cmd
+		..\.github\workflows\linux.yml = ..\.github\workflows\linux.yml
+		..\.github\workflows\osx.yml = ..\.github\workflows\osx.yml
+		..\.github\workflows\windows.yml = ..\.github\workflows\windows.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{0A81E939-5D7B-4B1B-93D6-B1E06D6C852F}"
+	ProjectSection(SolutionItems) = preProject
+		header.bmp = header.bmp
+		ironscheme.ico = ironscheme.ico
+		logo-128.png = logo-128.png
+		logo-192.png = logo-192.png
+		welcome.bmp = welcome.bmp
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,10 +85,6 @@ Global
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8554DCC7-7F8E-4F98-AA54-C27DAA550D4C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{36084D27-12DC-40FE-BE74-C830B7D0F620}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E6FDEC6-9AF4-4DFD-804E-D8A131326C20}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -108,7 +110,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{36084D27-12DC-40FE-BE74-C830B7D0F620} = {06F93FA9-2424-489F-8F3B-F1F7165E5A44}
+		{8C5B9D2B-6DC3-463C-9573-11BE46632C97} = {8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}
+		{7A7C2AF7-F813-4DE1-978A-5CA6819BB784} = {8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}
+		{0A81E939-5D7B-4B1B-93D6-B1E06D6C852F} = {8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B0B1BE43-E1CE-4EC6-B3D4-03876FF8FDAB}

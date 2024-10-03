@@ -393,6 +393,26 @@ namespace IronScheme.Runtime
           }
         }
       }
+
+      var fields  = t.Module.GetFields(BindingFlags.NonPublic | BindingFlags.Static);
+      if (fields.Length > 0)
+      {
+        var fi = fields[0];
+        if (fi.Name.StartsWith("SerializedConstants"))
+        {
+          var ca = fi.FieldType.StructLayoutAttribute;
+          var data = new byte[ca.Size];
+          System.Runtime.CompilerServices.RuntimeHelpers.InitializeArray(data, fi.FieldHandle);
+          
+          using (var ms = new MemoryStream(data))
+          {
+            var s = fi.Name.EndsWith(".gz") ? (Stream) new GZipStream(ms, CompressionMode.Decompress) : ms;
+            var arr = psyntax.Serialization.SERIALIZER.Deserialize(s);
+            return arr as object[];
+          }
+        }
+      }
+
       throw new ArgumentException("type contains no constants");
     }
 

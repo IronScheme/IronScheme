@@ -206,6 +206,15 @@ namespace IronScheme.Compiler
       var mb = m as ModuleBuilder;
       if (mb == null)
       {
+        var mn = m.Name;
+        if (mn == "ironscheme.boot.dll" || mn == "IronScheme.dll")
+        {
+          return false;
+        }
+        if (mn == "<In Memory Module>" && m.ScopeName == "RefEmit_InMemoryManifestModule")
+        {
+          return true;
+        }
         if (m.GetType().Name == "InternalModuleBuilder") // nice one .NET 4...
         {
           return true;

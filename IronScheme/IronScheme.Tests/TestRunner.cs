@@ -3,15 +3,23 @@ using System.Text;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace IronScheme.Tests
 {
   [TestFixture]
   public abstract class TestRunner
   {
-    protected TestRunner()
+    [OneTimeSetUp]
+    public void Setup()
     {
-      Quiet = Environment.GetEnvironmentVariable("QUIET") == "1";
+      var iswd = Environment.GetEnvironmentVariable("ISWD");
+      if (iswd != null)
+      {
+        Environment.CurrentDirectory = iswd;
+      }
+      Quiet = true;// Environment.GetEnvironmentVariable("QUIET") == "1";
       TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
     }
 
@@ -19,13 +27,24 @@ namespace IronScheme.Tests
 
     protected void AssertError(TestResult tr)
     {
-      if (!Quiet)
-      {
-        Console.WriteLine("Error output: " + tr.Error);
-      }
-      
-      Assert.IsEmpty(tr.Error);
+      Assert.That(tr.Error, Is.Empty, "stderr is not empty");
     }
+
+    protected static string NormalizeLineBreaks(string input)
+    {
+      using var sr = new StringReader(input);
+      using var sw = new StringWriter();
+
+      string line = null;
+
+      while ((line = sr.ReadLine()) != null)
+      {
+        sw.WriteLine(line.Trim('\r','\n'));
+      }
+
+      return sw.ToString().TrimEnd('\r', '\n');
+    }
+     
 
     protected bool Quiet { get; private set; }
 
@@ -33,40 +52,33 @@ namespace IronScheme.Tests
     {
       public string Output;
       public string Error;
+
+      public override string ToString()
+      {
+        return $@"Output:
+{Output}
+Error:
+{Error}";
+      }
     }
 
-    protected TestResult RunIronSchemeTestWithInput(string input)
+    protected TestResult RunIronSchemeTestWithInput(string input, [CallerMemberName] string method = null)
     {
-      return RunIronSchemeTest(null, input);
+      return RunIronSchemeTest(null, input, method);
     }
 
-    protected TestResult RunIronSchemeTest(string args)
+    protected TestResult RunIronSchemeTest(string args, [CallerMemberName] string method = null)
     {
-      return RunIronSchemeTest(args, null);
+      return RunIronSchemeTest(args, null, method);
     }
 
-    protected TestResult RunIronSchemeTest(string args, bool echo)
-    {
-      return RunIronSchemeTest(args, null, echo);
-    }
-
-    protected TestResult RunIronSchemeTest(string args, string input)
-    {
-      return RunIronSchemeTest(args, input, true);
-    }
-
-    protected TestResult RunIronSchemeTest(string args, string input, bool echo)
+    protected TestResult RunIronSchemeTest(string args, string input, [CallerMemberName] string method = null)
     {
       if (TestCore)
       {
-        return RunTest("C:\\Program Files\\dotnet\\dotnet.exe", "IronScheme.ConsoleCore.dll " + args, input, echo);
+        return RunTest("dotnet", "IronScheme.ConsoleCore.dll " + args, input, method);
       }
-      return RunTest( "IronScheme.Console32.exe", args, input, echo);
-    }
-
-    protected TestResult RunTest(string exe, string args, bool echo)
-    {
-      return RunTest(exe, args, null, echo);
+      return RunTest("IronScheme.Console32.exe", args, input, method);
     }
 
     protected TestResult RunTest(string exe, string args)
@@ -74,18 +86,12 @@ namespace IronScheme.Tests
       return RunTest(exe, args, null);
     }
 
-    protected TestResult RunTest(string exe, string args, string input)
+    protected static TestResult RunTest(string exe, string args, string input, string method = null)
     {
-      return RunTest(exe, args, input, true);
-    }
-
-    protected TestResult RunTest(string exe, string args, string input, bool echo)
-    {
-      
       var error = new StringWriter();
       var output = new StringWriter();
 
-      var p = new Process
+      using var p = new Process
       {
         StartInfo = new ProcessStartInfo
         {
@@ -96,19 +102,19 @@ namespace IronScheme.Tests
           RedirectStandardInput = true,
           UseShellExecute = false,
           CreateNoWindow = true,
-          Arguments = args,
+          Arguments = args
         }
       };
 
       p.ErrorDataReceived += (s, e) =>
       {
-        if (echo && !Quiet) Console.Error.WriteLine(e.Data);
+        //if (echo && !Quiet) Console.Error.WriteLine(e.Data);
         error.WriteLine(e.Data);
       };
 
       p.OutputDataReceived += (s, e) =>
       {
-        if (echo && !Quiet) Console.WriteLine(e.Data);
+        //if (echo && !Quiet) Console.WriteLine(e.Data);
         output.WriteLine(e.Data);
       };
 
@@ -116,7 +122,7 @@ namespace IronScheme.Tests
       {
         if (!p.Start())
         {
-          Assert.Fail("could not start {0}", exe);
+          Assert.Fail($"could not start {exe}");
         }
 
         if (input != null)
@@ -125,12 +131,22 @@ namespace IronScheme.Tests
           p.StandardInput.WriteLine("(exit)");
           p.StandardInput.Flush();
           p.StandardInput.Close();
+          p.StandardInput.Dispose();
         }
 
         p.BeginErrorReadLine();
         p.BeginOutputReadLine();
 
-        var exited = p.WaitForExit(300000);
+        var exited = p.WaitForExit(Timeout.Infinite); // https://github.com/dotnet/runtime/issues/108395
+
+        //output.WriteLine(p.StandardOutput.ReadToEnd());
+        //error.WriteLine(p.StandardError.ReadToEnd());
+
+        Assert.That(exited, Is.True);
+        Assert.That(p.HasExited, Is.True);
+
+        error.Flush();
+        output.Flush();
 
         var r = new TestResult
         {
@@ -138,34 +154,43 @@ namespace IronScheme.Tests
           Error = error.ToString().TrimEnd(Environment.NewLine.ToCharArray())
         };
 
+        if (method != null)
+        {
+          //File.WriteAllText($"{method}.output", r.ToString());
+        }
+
         if (!exited)
         {
           p.Kill();
         }
 
-        if (p.ExitCode != 0 && !echo)
-        {
-          if (r.Output.Length > 0)
-          {
-            Console.WriteLine(r.Output);
-          }
-          if (r.Error.Length > 0)
-          {
-            Console.Error.WriteLine(r.Error);
-          }
-        }
- 
-        Assert.AreEqual(0, p.ExitCode);
+        //if (p.ExitCode != 0 && !echo)
+        //{
+        //  if (r.Output.Length > 0)
+        //  {
+        //    Console.WriteLine(r.Output);
+        //  }
+        //  if (r.Error.Length > 0)
+        //  {
+        //    Console.Error.WriteLine(r.Error);
+        //  }
+        //}
+
+        Assert.That(p.ExitCode, Is.EqualTo(0), $"{r}");
 
         return r;
       }
       catch (Exception ex)
       {
-        if (!p.HasExited)
+        try
         {
-          p.Kill();
+          if (!p.HasExited)
+          {
+            p.Kill();
+          }
         }
-        Assert.Fail("runner failed: {0}", ex);
+        catch { }
+        Assert.Fail($"runner failed: {ex}");
         throw;
       }
     }

@@ -2,10 +2,9 @@
 setlocal
 
 rem set nunit bin directory
-set NUNIT_PATH=D:\Downloads\NUnit-2.6.4\bin\
+rem set NUNIT_PATH=d:\Downloads\NUnit.Console-3.18.2\bin\net462\
 
-rem these have to be in order
-set TESTS=Debug,Release,Conformance,SRFI,Other,Teardown
+set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;
 
 set QUIET=1
 set ARGS=%*
@@ -13,7 +12,7 @@ set FX=net20
 set TESTCORE=0
 
 rem the args you want to handle
-set MYARGS=verbose V core
+set MYARGS=verbose V core net9
 
 rem the prefix for arg
 set PREFIX=/
@@ -37,38 +36,46 @@ set TESTCORE=1
 set FX=netcoreapp2.1
 goto :eof
 
+:net9
+set TESTCORE=1
+set FX=net9.0
+goto :eof
+
 :script
 rem setup path
-set PATH=%PATH%;%NUNIT_PATH%;
+rem set PATH=%PATH%;%NUNIT_PATH%;
 
 rem checks
-where peverify >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 goto no_peverify
-where nunit-console-x86 >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 goto no_nunit
+IF %FX% == net20 (
+  where peverify >nul 2>&1
+  IF %ERRORLEVEL% NEQ 0 goto no_peverify
+)
 
-IF %TESTCORE% == 1 set TESTS=Conformance,SRFI,Other
+IF %FX% == net9.0 (
+  where ilverify >nul 2>&1
+  rem IF %ERRORLEVEL% NEQ 0
+  dotnet tool install -g dotnet-ilverify --prerelease
+)
 
-set NUNIT=call :runtest
+rem where nunit3-console >nul 2>&1
+rem IF %ERRORLEVEL% NEQ 0 goto no_nunit
+
+IF %TESTCORE% == 1 IF %FX% neq net9.0 (
+  set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
+  set FILTER=--filter "Category=Conformance|SRFI|Other"
+)
+
 
 cd IronScheme.Console\bin\Release\%FX%
 
 IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
 
-md results 2> nul
-
-for %%t in (%TESTS%) do %NUNIT% %%t 
+SET ISWD=%CD%
+rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
+dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
 cd ..\..\..
-exit /b 0
-
-:runtest
-@echo on
-nunit-console-x86.exe /nologo /labels ^
-/work:results /result:%1.xml ^
-IronScheme.Tests.dll /run:IronScheme.Tests.%1
-@echo off 
-goto :eof
+exit
 
 :no_peverify
 echo Error: PEVerify not found in PATH
