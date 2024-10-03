@@ -16,7 +16,7 @@ jobs:
     defaults:
       run:
         shell: cmd
-
+    timeout-minutes: 15
     steps:
     - uses: actions/checkout@v4
       with: 
@@ -41,5 +41,5 @@ jobs:
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v4
       with:
-        name: zip
+        name: packages
         path: IronScheme/bin/*.*
