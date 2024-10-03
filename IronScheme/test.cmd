@@ -75,7 +75,7 @@ rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS
 dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
 cd ..\..\..
-exit /b 0
+exit
 
 :no_peverify
 echo Error: PEVerify not found in PATH
