@@ -32,10 +32,10 @@ jobs:
       run: cd IronScheme && build.cmd
     - name: Test (.NET Framework)
       run: cd IronScheme && test.cmd
-    - name: Test (.NET Core 2.1)
-      run: cd IronScheme && test.cmd /core
     - name: Test (.NET 9.0)
       run: cd IronScheme && test.cmd /net9
+    - name: Test (.NET Core 2.1)
+      run: cd IronScheme && test.cmd /core
     - name: Package
       run: cd IronScheme && package.cmd
     - name: Upload dotnet test results
