@@ -1,6 +1,7 @@
 @echo off
 setlocal
 @rem dotnet build -tl:off -c Release ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj  -v:q
+dotnet tool install -g dotnet-ilrepack
 
 @SET COMMON=--no-dependencies -tl:off -m -c Release IronScheme.Console/IronScheme.Console.csproj -f net9.0 -v:q -noWarn:CS1030,CS0162 -noconlog
 

@@ -4,6 +4,8 @@ setlocal
 rem set nunit bin directory
 rem set NUNIT_PATH=d:\Downloads\NUnit.Console-3.18.2\bin\net462\
 
+set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;
+
 set QUIET=1
 set ARGS=%*
 set FX=net20
@@ -51,7 +53,8 @@ IF %FX% == net20 (
 
 IF %FX% == net9.0 (
   where ilverify >nul 2>&1
-  IF %ERRORLEVEL% NEQ 0 dotnet tool install -g dotnet-ilverify
+  rem IF %ERRORLEVEL% NEQ 0
+  dotnet tool install -g dotnet-ilverify --prerelease
 )
 
 rem where nunit3-console >nul 2>&1
@@ -72,7 +75,7 @@ rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS
 dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
 
 cd ..\..\..
-exit /b 0
+exit
 
 :no_peverify
 echo Error: PEVerify not found in PATH
