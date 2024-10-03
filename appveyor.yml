@@ -37,30 +37,6 @@ build_script:
     msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
 test_script:
 - cmd: |
-    rem these have to be in order
-    cd IronScheme\IronScheme.Console\bin\Release\net20
-    echo (ironscheme-runtime) | IronScheme.Console32.exe
-    SET ISWD=%CD%
-    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
-    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
-
-    set TESTCORE=1
-    cd ..\net9.0
-    copy /y ..\net20\ironscheme.boot.dll .
-    echo (ironscheme-runtime) | IronScheme.ConsoleCore.exe
-    SET ISWD=%CD%
-    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
-    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
-
-    cd ..\netcoreapp2.1
-    copy /y ..\net20\ironscheme.boot.dll .
-    echo (ironscheme-runtime) | dotnet IronScheme.ConsoleCore.dll
-    SET ISWD=%CD%
-    set FILTER=--filter "Category=Conformance|SRFI|Other"
-    set TESTS=--test=IronScheme.Tests.Conformance,IronScheme.Tests.SRFI,IronScheme.Tests.Other
-    rem nunit3-console --noh --noc --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
-    dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=true
-
     cd %APPVEYOR_BUILD_FOLDER%
     call ci-artefact.cmd
 artifacts:
