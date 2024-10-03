@@ -3,6 +3,8 @@
 [![OSX](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml)
 [![Linux](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml/badge.svg)](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml)
 
+[![NuGet version](https://badge.fury.io/nu/IronScheme.Core.svg)](https://badge.fury.io/nu/IronScheme.Core)
+
 IronScheme
 ==========
 
