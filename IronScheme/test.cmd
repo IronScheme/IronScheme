@@ -65,15 +65,13 @@ IF %TESTCORE% == 1 IF %FX% neq net9.0 (
   set FILTER=--filter "Category=Conformance|SRFI|Other"
 )
 
-
 cd IronScheme.Console\bin\Release\%FX%
 
 IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
 
 SET ISWD=%CD%
 rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
-dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true
-rem NUnit.StopOnError=true
+dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=false
 set TERR=%ERRORLEVEL%
 cd ..\..\..
 exit /b %TERR%
