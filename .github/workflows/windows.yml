@@ -38,5 +38,5 @@ jobs:
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v4
       with:
-        name: packages
+        name: packages-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
         path: IronScheme/bin/*.*
