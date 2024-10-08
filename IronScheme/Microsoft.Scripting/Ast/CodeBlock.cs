@@ -959,24 +959,9 @@ namespace Microsoft.Scripting.Ast
 
         internal void EmitFunctionImplementation(CodeGen impl)
         {
-#if FULL
-            CompilerHelpers.EmitStackTraceTryBlockStart(impl); 
-#endif
           // emit the actual body
             Debug.Assert(!Inlined);
             EmitBody(impl);
-
-#if FULL
-            string displayName;
-            
-            if (impl.HasContext) {
-                displayName = impl.Context.SourceUnit.GetSymbolDocument(Span.Start.Line) ?? _name;
-            } else {
-                displayName = _name;
-            }
-
-            CompilerHelpers.EmitStackTraceFaultBlock(impl, _name, displayName);
-#endif
         }
 
         internal protected virtual void EmitBody(CodeGen cg) {

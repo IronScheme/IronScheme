@@ -179,19 +179,6 @@ namespace Microsoft.Scripting.Actions {
             );
         }
 
-
-#if FULL
-        public virtual ErrorInfo MakeGenericAccessError(MemberTracker info) {
-            return ErrorInfo.FromException(
-                Ast.Ast.New(
-                    typeof(MemberAccessException).GetConstructor(new Type[] { typeof(string) }),
-                    Ast.Ast.Constant(info.Name)
-                )
-            );
-        } 
-#endif
-
-
         public virtual ErrorInfo MakeInvalidParametersError(string name, int expectedParams, params Expression[] args) {            
             return ErrorInfo.FromException(
                 Ast.Ast.Call(
@@ -217,25 +204,6 @@ namespace Microsoft.Scripting.Actions {
 
         #region Deprecated Error production
 
-
-#if FULL
-        /// <summary>
-        /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
-        /// doing this for the time being until we get a more robust error return mechanism.
-        /// 
-        /// Deprecated, use the non-generic version instead
-        /// </summary>
-        public virtual Statement MakeMissingMemberError<T>(StandardRule<T> rule, Type type, string name) {
-            return rule.MakeError(
-                Ast.Ast.New(
-                    typeof(MissingMemberException).GetConstructor(new Type[] { typeof(string) }),
-                    Ast.Ast.Constant(name)
-                )
-            );
-        } 
-#endif
-
-
         /// <summary>
         /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
         /// doing this for the time being until we get a more robust error return mechanism.
@@ -246,32 +214,6 @@ namespace Microsoft.Scripting.Actions {
                 Ast.Ast.Constant(name)
             );
         }
-
-
-#if FULL
-        /// <summary>
-        /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
-        /// doing this for the time being until we get a more robust error return mechanism.
-        /// </summary>
-        public virtual Statement MakeReadOnlyMemberError<T>(StandardRule<T> rule, Type type, string name) {
-            return rule.MakeError(
-                Ast.Ast.New(
-                    typeof(MissingMemberException).GetConstructor(new Type[] { typeof(string) }),
-                    Ast.Ast.Constant(name)
-                )
-            );
-        } 
-
-        /// <summary>
-        /// Provides a way for the binder to provide a custom error message when lookup fails.  Just
-        /// doing this for the time being until we get a more robust error return mechanism.
-        /// </summary>
-        public virtual Statement MakeUndeletableMemberError<T>(StandardRule<T> rule, Type type, string name) {
-            return MakeReadOnlyMemberError<T>(rule, type, name);
-        }
-#endif
-
-
 
         #endregion
 
