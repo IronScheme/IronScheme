@@ -40,7 +40,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ILInputFiles Include="$(ILOutputFile);@(ILGlue);@(RuntimeCopyLocalItems)" />
+      <ILInputFiles Include="$(ILOutputFile);@(ILGlue)" />
     </ItemGroup>
 
     <ILDasm Linenum="true" InputFile="@(IntermediateAssembly)" OutputFile="$(ILOutputFile)" />

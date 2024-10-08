@@ -1,10 +1,11 @@
 @echo off
 setlocal
 
-dotnet build-server shutdown
+dotnet build-server shutdown --msbuild
 
 @SET COMMON=-tl:off -m -c Release -v:q
 
+rem dotnet clean ../IronScheme.BuildTools/ %COMMON% -nowarn:NETSDK1138,NU1702,NETSDK1057
 dotnet clean %COMMON% -nowarn:NETSDK1138,NU1702,NETSDK1057
 
 pushd IronScheme.Console\bin\
