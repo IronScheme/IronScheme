@@ -24,10 +24,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ILGlue Include="IronScheme.Glue.il"/>
+    <ILGlue Include="IronScheme.Glue.il" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" DependsOnTargets="IronSchemeBuildTools">
+  <Target Name="PreCompile" BeforeTargets="BeforeCompile" Condition="$(DesignTimeBuild) != true">
+      <ItemGroup>
+        <Compile Remove="Glue.cs" />
+        <None Include="Glue.cs" />
+      </ItemGroup>
+  </Target>
+
+  <Target Name="PostCompile" Condition="Exists(@(IntermediateAssembly)) and $(DesignTimeBuild) != true" AfterTargets="AfterCompile" DependsOnTargets="IronSchemeBuildTools">
     <PropertyGroup>
       <ILOutputFile>$(TargetDir)$(TargetName).il</ILOutputFile>
     </PropertyGroup>
@@ -36,9 +43,9 @@
       <ILInputFiles Include="$(ILOutputFile);@(ILGlue)" />
     </ItemGroup>
 
-    <ILDasm Linenum="true" InputFile="$(TargetPath)" OutputFile="$(ILOutputFile)" />
+    <ILDasm Linenum="true" InputFile="@(IntermediateAssembly)" OutputFile="$(ILOutputFile)" />
     <TailCallMaker Input="$(ILOutputFile)" />
-    <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="$(TargetPath)" />
+    <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="@(IntermediateAssembly)" />
 
   </Target>
 </Project>

@@ -137,7 +137,12 @@ Error:
         p.BeginErrorReadLine();
         p.BeginOutputReadLine();
 
-        var exited = p.WaitForExit(Timeout.Infinite); // https://github.com/dotnet/runtime/issues/108395
+        var exited = p.WaitForExit(300000); // https://github.com/dotnet/runtime/issues/108395
+
+        if (exited)
+        {
+          p.WaitForExit();
+        }
 
         //output.WriteLine(p.StandardOutput.ReadToEnd());
         //error.WriteLine(p.StandardError.ReadToEnd());
