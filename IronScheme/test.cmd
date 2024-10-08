@@ -69,7 +69,7 @@ cd IronScheme.Console\bin\Release\%FX%
 
 IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
 
-SET LOGGER=--logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+SET LOGGER=--logger GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true
 
 SET ISWD=%CD%
 rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
