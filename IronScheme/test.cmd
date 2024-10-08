@@ -69,9 +69,11 @@ cd IronScheme.Console\bin\Release\%FX%
 
 IF %TESTCORE% == 1 copy /y ..\net20\ironscheme.boot.dll .
 
+SET LOGGER=--logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+
 SET ISWD=%CD%
 rem nunit3-console --noh --labels=BeforeAndAfter --noresult --stoponerror %TESTS% ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll
-dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=false
+dotnet test -v n ..\..\..\..\IronScheme.Tests\bin\Release\IronScheme.Tests.dll %LOGGER% %FILTER% -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=false
 set TERR=%ERRORLEVEL%
 cd ..\..\..
 exit /b %TERR%

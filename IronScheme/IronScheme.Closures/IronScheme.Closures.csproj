@@ -36,7 +36,7 @@
 
   <Target Name="PostCompile" Condition="Exists(@(IntermediateAssembly)) and $(DesignTimeBuild) != true" AfterTargets="AfterCompile" DependsOnTargets="IronSchemeBuildTools">
     <PropertyGroup>
-      <ILOutputFile>$(TargetDir)$(TargetName).il</ILOutputFile>
+      <ILOutputFile>$(IntermediateOutputPath)$(TargetName).il</ILOutputFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -46,6 +46,8 @@
     <ILDasm Linenum="true" InputFile="@(IntermediateAssembly)" OutputFile="$(ILOutputFile)" />
     <TailCallMaker Input="$(ILOutputFile)" />
     <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="@(IntermediateAssembly)" />
+
+    <Delete Files="$(ILOutputFile)"/>
 
   </Target>
 </Project>

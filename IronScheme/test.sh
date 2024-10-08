@@ -10,5 +10,7 @@ cd IronScheme.Console/bin/Release/net9.0/
 export ISWD=$PWD
 export TESTCORE=1
 
-dotnet test -v d ../../../../IronScheme.Tests/bin/Release/IronScheme.Tests.dll $* -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=false
+LOGGER=--logger "GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true"
+
+dotnet test -v d ../../../../IronScheme.Tests/bin/Release/IronScheme.Tests.dll $LOGGER $* -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=false
 cd ../../../..
