@@ -30,9 +30,9 @@ namespace Microsoft.Scripting.Ast {
         private SourceLocation _end;
 
         // Hold on to one instance for each member of the ControlFlow enumeration to avoid unnecessary boxing
-        internal static readonly object NextStatement = ControlFlow.NextStatement;
-        internal static readonly object Break = ControlFlow.Break;
-        internal static readonly object Continue = ControlFlow.Continue;
+        //internal static readonly object NextStatement = ControlFlow.NextStatement;
+        //internal static readonly object Break = ControlFlow.Break;
+        //internal static readonly object Continue = ControlFlow.Continue;
 
         protected Statement(AstNodeType nodeType, SourceSpan span)
             : base(nodeType) {

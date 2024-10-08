@@ -257,29 +257,8 @@ namespace Microsoft.Scripting.Ast {
         }
 
 
-        // BreakStatement
-        protected internal override bool Walk(BreakStatement node) {
-            ExitState exit = PeekStatement(node.Statement);
-            exit.And(_bits);
-            return true;
-        }
-
         // ContinueStatement
         protected internal override bool Walk(ContinueStatement node) { return true; }
-
-        // DelStatement
-        protected internal override bool Walk(DeleteStatement node) {
-            bool defined;
-            if (TryCheckVariable(node.Variable, out defined)) {
-                node.IsDefined = defined;
-            }
-            return true;
-        }
-
-        protected internal override void PostWalk(DeleteStatement node) {
-            Delete(node.Variable);
-        }
-
         // CodeBlockExpression interrupt flow analysis
         protected internal override bool Walk(CodeBlockExpression node) {
             return false;
@@ -292,39 +271,6 @@ namespace Microsoft.Scripting.Ast {
                 Define(p);
             }
             return true;
-        }
-
-        // GeneratorCodeBlock
-        protected internal override bool Walk(GeneratorCodeBlock node) {
-            return Walk((CodeBlock)node);
-        }
-
-        // DoStatement
-        protected internal override bool Walk(DoStatement node) {
-            BitArray loop = new BitArray(_bits); // State at the loop entry with which the loop runs
-            BitArray save = _bits;               // Save the state at loop entry
-
-            // Prepare loop exit state
-            BitArray exit = new BitArray(_bits.Length, true);
-            PushStatement(exit);
-
-            // Loop will be flown starting from the current state
-            _bits = loop;
-
-            // Walk the loop
-            WalkNode(node.Body);
-            // Walk the test in the context of the loop
-            WalkNode(node.Test);
-
-            // Handle the loop exit
-            PopStatement();
-            _bits.And(exit);
-
-            // Restore the state after walking the loop
-            _bits = save;
-            _bits.And(loop);
-
-            return false;
         }
 
         // IfStatement
@@ -364,41 +310,6 @@ namespace Microsoft.Scripting.Ast {
             // Remember the result
             _bits.SetAll(false);
             _bits.Or(result);
-            return false;
-        }
-
-        // LoopStatement
-        protected internal override bool Walk(LoopStatement node) {
-            // Expression is executed always at least once
-            if (node.Test != null) {
-                WalkNode(node.Test);
-            }
-
-            // Beyond this point, either body will be executed (test succeeded),
-            // or else is getting executed (test failed). There is no guarantee
-            // that both will be executed, though.
-            BitArray opte = new BitArray(_bits);
-            BitArray exit = new BitArray(_bits.Length, true);
-
-            PushStatement(exit);
-            WalkNode(node.Body);
-            WalkNode(node.Increment);
-            PopStatement();
-
-            _bits.And(exit);
-
-            if (node.ElseStatement != null) {
-                // Flow the else
-                BitArray save = _bits;
-                _bits = opte;
-                WalkNode(node.ElseStatement);
-                // Restore the bits
-                _bits = save;
-            }
-
-            // Intersect
-            _bits.And(opte);
-
             return false;
         }
 
@@ -445,85 +356,6 @@ namespace Microsoft.Scripting.Ast {
             // 4. Flow the finally clause, if present.
             if (node.FinallyStatement != null) {
                 WalkNode(node.FinallyStatement);
-            }
-
-            return false;
-        }
-
-        // SwitchStatement
-        protected internal override bool Walk(SwitchStatement node) {
-            // The expression is evaluated always.
-            // Then each case clause expression is evaluated until match is found.
-            // Therefore, the effects of the case clause expressions accumulate.
-            // Default clause is evaluated last (so all case clause expressions must
-            // accumulate first)
-            WalkNode(node.TestValue);
-
-            // Flow all the cases, they all start with the same initial state
-            int count;
-            IList<SwitchCase> cases = node.Cases;
-            if (cases != null && (count = cases.Count) > 0) {
-                SwitchCase @default = null;
-                // Save the initial state
-                BitArray entry = _bits;
-                // The state to progressively accumualte effects of the case clause expressions
-                BitArray values = new BitArray(entry);
-                // State to flow the case clause bodies.
-                BitArray caseFlow = new BitArray(_bits.Length);
-                // The state to accumulate results into
-                BitArray result = new BitArray(_bits.Length, true);
-
-                PushStatement(result);
-
-                for (int i = 0; i < count; i++) {
-                    if (cases[i].IsDefault) {
-                        Debug.Assert(@default == null);
-
-                        // postpone the default case
-                        @default = cases[i];
-                        continue;
-                    }
-
-                    // Set the state for the walking of the body
-                    caseFlow.SetAll(false);
-                    caseFlow.Or(values);
-
-                    // Walk the body
-                    _bits = caseFlow;
-                    WalkNode(cases[i].Body);
-
-                    // Accumulate the result into the overall case statement result.
-                    result.And(caseFlow);
-                }
-
-                // Walk the default at the end.
-                if (@default != null) {
-                    // Initialize
-                    caseFlow.SetAll(false);
-                    caseFlow.Or(values);
-
-                    // Walk the default body
-                    _bits = caseFlow;
-                    WalkNode(@default.Body);
-
-                    // Accumulate.
-                    result.And(caseFlow);
-
-                    // If there's a default clause, exactly one case got executed.
-                    // The final state is 'and' across all cases, stored in 'result'
-                    entry.SetAll(false);
-                    entry.Or(result);
-                } else {
-                    // In the absence of default clause, we may have executed case,
-                    // but didn't have to, so the result is an 'and' between the cases
-                    // and the initial state.
-                    entry.And(result);
-                }
-
-                PopStatement();
-
-                // Restore the original state.
-                _bits = entry;
             }
 
             return false;

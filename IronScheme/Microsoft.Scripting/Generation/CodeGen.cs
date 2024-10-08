@@ -625,51 +625,51 @@ namespace Microsoft.Scripting.Generation {
           return SourceSpan.Invalid;
         }
 
-        public void EmitReturn(Expression expr) {
-            if (_yieldLabels != null) {
-                EmitReturnInGenerator(expr);
-            } else {
-                if (expr == null) {
-                    EmitNull();
-                    if (ScriptDomainManager.Options.LightweightDebugging)
+        public void EmitReturn(Expression expr)
+        {
+            if (expr == null)
+            {
+                EmitNull();
+                if (ScriptDomainManager.Options.LightweightDebugging)
+                {
+                    EmitConstant(Node.SpanToLong(GetSpan(expr)));
+                    EmitCall(Debugging.DebugMethods.ProcedureExit);
+                }
+                EmitReturnFromObject();
+            }
+            else
+            {
+                if (ScriptDomainManager.Options.DebugMode)
+                {
+                    if (!skipreturn)
                     {
-                      EmitConstant(Node.SpanToLong(GetSpan(expr)));
-                      EmitCall(Debugging.DebugMethods.ProcedureExit);
-                    }
-                    EmitReturnFromObject();
-                } else {
-                    if (ScriptDomainManager.Options.DebugMode)
-                    {
-                      if (!skipreturn)
-                      {
                         var mce = expr as MethodCallExpression;
                         if (mce == null || !mce.TailCall)
                         {
-                          var s = GetSpan(expr);
-                          if (s.IsValid)
-                          {
-                            EmitPosition(s.Start, s.End);
-                          }
+                            var s = GetSpan(expr);
+                            if (s.IsValid)
+                            {
+                                EmitPosition(s.Start, s.End);
+                            }
                         }
-                      }
                     }
-                    expr.EmitAs(this, CompilerHelpers.GetReturnType(_methodInfo));
-                    if (!skipreturn)
+                }
+                expr.EmitAs(this, CompilerHelpers.GetReturnType(_methodInfo));
+                if (!skipreturn)
+                {
+                    if (ScriptDomainManager.Options.LightweightDebugging)
                     {
-                      if (ScriptDomainManager.Options.LightweightDebugging)
-                      {
                         var mce = expr as MethodCallExpression;
                         if (mce == null || !mce.TailCall)
                         {
 
-                          EmitConstant(Node.SpanToLong(GetSpan(expr)));
-                          EmitCall(Debugging.DebugMethods.ProcedureExit);
+                            EmitConstant(Node.SpanToLong(GetSpan(expr)));
+                            EmitCall(Debugging.DebugMethods.ProcedureExit);
                         }
-                      }
-                      EmitReturn();
                     }
-                    skipreturn = false;
+                    EmitReturn();
                 }
+                skipreturn = false;
             }
         }
 
@@ -678,51 +678,6 @@ namespace Microsoft.Scripting.Generation {
         public void EmitReturnFromObject() {
             EmitConvertFromObject(CompilerHelpers.GetReturnType(_methodInfo));
             EmitReturn();
-        }
-
-        public void EmitReturnInGenerator(Expression expr) {
-            EmitSetGeneratorReturnValue(expr);
-
-            EmitInt(0);
-            EmitReturn();
-        }
-
-        internal void EmitYield(Expression expr, YieldTarget target) {
-            Contract.RequiresNotNull(expr, "expr");
-
-            EmitSetGeneratorReturnValue(expr);
-            EmitUpdateGeneratorLocation(target.Index);
-
-            // Mark that we are yielding, which will ensure we skip
-            // all of the finally bodies that are on the way to exit
-
-            EmitInt(GotoRouterYielding);
-            GotoRouter.EmitSet(this);
-
-            EmitInt(1);
-            EmitReturn();
-
-            MarkLabel(target.EnsureLabel(this));
-            // Reached the routing destination, set router to GotoRouterNone
-            EmitInt(GotoRouterNone);
-            GotoRouter.EmitSet(this);
-        }
-
-        private void EmitSetGeneratorReturnValue(Expression expr) {
-            ArgumentSlots[1].EmitGet(this);
-            EmitExprAsObjectOrNull(expr);
-            Emit(OpCodes.Stind_Ref);
-        }
-
-        public void EmitUpdateGeneratorLocation(int index) {
-            ArgumentSlots[0].EmitGet(this);
-            EmitInt(index);
-            EmitFieldSet(typeof(Generator).GetField("location"));
-        }
-
-        public void EmitGetGeneratorLocation() {
-            ArgumentSlots[0].EmitGet(this);
-            EmitFieldGet(typeof(Generator), "location");
         }
 
         public void EmitUninitialized() {            

@@ -41,11 +41,6 @@ namespace Microsoft.Scripting.Ast {
         /// </summary>
         private bool _return;
 
-        /// <summary>
-        /// There is a yield statement in the analyzed block of code.
-        /// </summary>
-        private bool _yield;
-
         public bool Break {
             get { return _break; }
             set { _break = value; }
@@ -58,15 +53,9 @@ namespace Microsoft.Scripting.Ast {
             get { return _return; }
             set { _return = value; }
         }
-        public bool Yield {
-            get { return _yield; }
-            set { _yield = value; }
-        }
+
         public bool Any {
-            get { return _break || _continue || _return || _yield; }
-        }
-        public bool Loop {
-            get { return _break || _continue; }
+            get { return _break || _continue || _return; }
         }
     };
 
@@ -79,19 +68,6 @@ namespace Microsoft.Scripting.Ast {
         /// </summary>
         private TryFlowResult _result;
 
-        /// <summary>
-        /// Nested loops counter. We are only interested in
-        /// control flow statements outside on the top level.
-        /// </summary>
-        private int _nesting;
-
-        /// <summary>
-        /// Nested switch statement counter. We are only interested
-        /// in the top level "break" statement. One nested inside
-        /// switch is fully contained.
-        /// </summary>
-        private int _switch;
-
         public static TryFlowResult Analyze(Statement statement) {
             if (statement == null) {
                 return new TryFlowResult();
@@ -99,65 +75,17 @@ namespace Microsoft.Scripting.Ast {
                 // find it now.
                 TryFlowAnalyzer tfa = new TryFlowAnalyzer();
                 tfa.WalkNode(statement);
-
-                Debug.Assert(tfa._nesting == 0);
-                Debug.Assert(tfa._switch == 0);
-
                 return tfa._result;
             }
         }
 
-        protected internal override bool Walk(BreakStatement node) {
-            if (_nesting == 0 && _switch == 0) {
-                _result.Break = true;
-            }
-            return true;
-        }
-
         protected internal override bool Walk(ContinueStatement node) {
-            if (_nesting == 0) {
-                _result.Continue = true;
-            }
+            _result.Continue = true;
             return true;
         }
-
         protected internal override bool Walk(ReturnStatement node) {
             _result.Return = true;
             return true;
-        }
-
-        protected internal override bool Walk(YieldStatement node) {
-            _result.Yield = true;
-            return true;
-        }
-
-        // Keep track of nested loops, only loop flow control
-        // statements outside of nested loops concern us
-
-        protected internal override bool Walk(LoopStatement node) {
-            _nesting++;
-            return true;
-        }
-
-        protected internal override void PostWalk(LoopStatement node) {
-            _nesting--;
-        }
-
-        protected internal override bool Walk(DoStatement node) {
-            _nesting++;
-            return true;
-        }
-
-        protected internal override void PostWalk(DoStatement node) {
-            _nesting--;
-        }
-
-        protected internal override bool Walk(SwitchStatement node) {
-            _switch++;
-            return true;
-        }
-        protected internal override void PostWalk(SwitchStatement node) {
-            _switch--;
         }
     }
 }

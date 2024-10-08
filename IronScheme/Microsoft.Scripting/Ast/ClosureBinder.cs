@@ -114,11 +114,6 @@ namespace Microsoft.Scripting.Ast {
             return true;
         }
 
-        protected internal override bool Walk(DeleteStatement node) {
-            node.Ref = Reference(node.Variable);
-            return true;
-        }
-
         protected internal override bool Walk(CatchBlock node) {
             // CatchBlock is not required to have target variable
             if (node.Variable != null) {
@@ -137,18 +132,6 @@ namespace Microsoft.Scripting.Ast {
         protected internal override void PostWalk(CodeBlock node) {
             ProcessAndPop(node);
         }
-
-        protected internal override bool Walk(GeneratorCodeBlock node) {
-            Push(node);
-            return true;
-        }
-
-        protected internal override void PostWalk(GeneratorCodeBlock node) {
-            int temps = node.BuildYieldTargets();
-            AddGeneratorTemps(temps);
-            ProcessAndPop(node);
-        }
-
         private void Push(CodeBlock block) {
             _stack.Push(new Block(block));
         }
@@ -192,7 +175,7 @@ namespace Microsoft.Scripting.Ast {
         private void BindCodeBlock(CodeBlock block) {
             // If the function is generator or needs custom frame,
             // lift locals to closure
-            if (block is GeneratorCodeBlock || block.EmitLocalDictionary) {
+            if (block.EmitLocalDictionary) {
                 LiftLocalsToClosure(block);
             }
             ResolveClosure(block);
