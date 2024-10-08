@@ -64,7 +64,7 @@ namespace Microsoft.Scripting.Generation {
         private MethodInfo _methodToOverride;
         private ListStack<Targets> _targets = new ListStack<Targets>();
         private List<Slot> _freeSlots = new List<Slot>();
-        private IList<Label> _yieldLabels;
+
         private Nullable<ReturnBlock> _returnBlock;
         internal static Dictionary<CodeBlock, CodeGen> _codeBlockImplementations = new Dictionary<CodeBlock,CodeGen>();
         internal static Dictionary<CodeBlock, CodeGen> _codeBlockStubs = new Dictionary<CodeBlock, CodeGen>();
@@ -1866,13 +1866,6 @@ namespace Microsoft.Scripting.Generation {
             get {
                 return _constantPool; 
             }
-        }
-
-        // TODO: fix
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public IList<Label> YieldLabels {
-            get { return _yieldLabels; }
-            set { _yieldLabels = value; }
         }
         
         public IList<Slot> ArgumentSlots {
