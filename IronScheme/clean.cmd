@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+dotnet build-server shutdown
+
 @SET COMMON=-tl:off -m -c Release -v:q
 
 dotnet clean %COMMON% -nowarn:NETSDK1138,NU1702,NETSDK1057
