@@ -175,7 +175,7 @@ namespace Microsoft.Scripting.Generation {
             }
             set {
                 _context = value;
-                this.Binder = _context.SourceUnit.Engine.DefaultBinder;
+                _binder = _context.SourceUnit.Engine.DefaultBinder;
             }
         }
 

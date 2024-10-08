@@ -38,13 +38,11 @@ namespace Microsoft.Scripting.Generation {
         private Dictionary<SymbolId, Slot> _indirectSymbolIds = new Dictionary<SymbolId, Slot>();
         private List<TypeGen> _nestedTypeGens = new List<TypeGen>();
         private ConstructorBuilder _defaultCtor;
-        private ActionBinder _binder;
 
         public event EventHandler CreatingType;
         public int ConstantCounter = 0;
         public List<object> SerializedConstants = new List<object>();
         internal Type BakedType;
-        private static readonly Type[] SymbolIdIntCtorSig = new Type[] { typeof(int) };
 
         public TypeGen(AssemblyGen myAssembly, TypeBuilder myType) {
             this._myAssembly = myAssembly;
@@ -74,7 +72,6 @@ namespace Microsoft.Scripting.Generation {
 
         public CodeGen CreateCodeGen(MethodBase mi, ILGenerator ilg, IList<Type> paramTypes, ConstantPool constantPool) {
             CodeGen ret = new CodeGen(this, _myAssembly, mi, ilg, paramTypes, constantPool);
-            if (_binder != null) ret.Binder = _binder;
             if (_contextSlot != null) ret.ContextSlot = _contextSlot;
             return ret;
         }
