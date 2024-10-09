@@ -341,15 +341,8 @@ namespace Microsoft.Scripting.Ast
                     }
                   }
                 }
-                // Find the right environment factory for the size of elements to store
-                if (useclass)
-                {
-                  _environmentFactory = CreateEnvironmentFactory(lifted, cg, GetParentEvironmentType());
-                }
-                else
-                {
-                  _environmentFactory = CreateEnvironmentFactory(size);
-                }
+
+                _environmentFactory = CreateEnvironmentFactory(lifted, cg, GetParentEvironmentType());
             }
         }
 
@@ -1026,18 +1019,6 @@ namespace Microsoft.Scripting.Ast
             cg.Finish();
 
             return (T)(object)cg.CreateDelegate(typeof(T));
-        }
-
-        internal static EnvironmentFactory CreateEnvironmentFactory(int size) {
-            size++; // +1 for the FunctionEnvironmentDictionary 
-
-            Type[] argTypes = CompilerHelpers.MakeRepeatedArray(typeof(object), size);
-            argTypes[0] = typeof(IAttributesCollection);
-
-            Type tupleType = Tuple.MakeTupleType(argTypes);
-            Type envType = typeof(FunctionEnvironmentDictionary<>).MakeGenericType(tupleType);
-
-            return new PropertyEnvironmentFactory(tupleType, envType);
         }
 
         internal static EnvironmentFactory CreateEnvironmentFactory(List<Variable> vars, CodeGen cg, Type parentType)

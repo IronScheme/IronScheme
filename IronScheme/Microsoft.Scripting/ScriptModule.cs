@@ -137,15 +137,6 @@ namespace Microsoft.Scripting {
         #region Properties
 
         /// <summary>
-        /// Event fired when a module changes.
-        /// </summary>
-        public event EventHandler<ModuleChangeEventArgs> ModuleChanged;
-
-        public ScriptModuleKind Kind {
-            get { return _kind; }
-        }
-
-        /// <summary>
         /// Gets the context in which this module executes.
         /// </summary>
         public Scope Scope {
@@ -169,17 +160,6 @@ namespace Microsoft.Scripting {
             get { return _fileName; }
             set { _fileName = value; }
         }
-               
-        /// <summary>
-        /// Called by the base class to fire the module change event when the
-        /// module has been modified.
-        /// </summary>
-        private void OnModuleChange(ModuleChangeEventArgs e) {
-            EventHandler<ModuleChangeEventArgs> handler = ModuleChanged;
-            if (handler != null) {
-                handler(this, e);
-            }
-        }
 
         #endregion
 
@@ -192,24 +172,6 @@ namespace Microsoft.Scripting {
                 }
             }
             return null;
-        }
-
-        [SpecialName]
-        public void SetMemberAfter(string name, object value) {
-            OnModuleChange(new ModuleChangeEventArgs(SymbolTable.StringToId(name), ModuleChangeType.Set, value));
-
-            Scope.SetName(SymbolTable.StringToId(name), value);
-        }
-
-        [SpecialName]
-        public bool DeleteMember(CodeContext context, string name) {
-            if (Scope.TryRemoveName(context.LanguageContext, SymbolTable.StringToId(name))) {
-                OnModuleChange(new ModuleChangeEventArgs(SymbolTable.StringToId(name), ModuleChangeType.Delete));
-
-                return true;
-            } 
-
-            return false;
         }
 
         #region IMembersList
