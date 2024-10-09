@@ -11,10 +11,14 @@ jobs:
 
     runs-on: macos-latest
     timeout-minutes: 10
+    env:
+      DOTNET_NOLOGO: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
     steps:
     - uses: actions/checkout@v4
       with: 
         submodules: 'recursive'
+        fetch-depth: 0
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -26,8 +30,15 @@ jobs:
       run: cd IronScheme && sh test.sh
     - name: Package
       run: cd IronScheme && sh package.sh
-    - name: Upload dotnet test results
+    - name: Upload binlogs
+      uses: actions/upload-artifact@v4
+      with:
+        name: binlog-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+        path: IronScheme/*.binlog
+      if: ${{ always() }}
+    - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
         name: packages-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
         path: IronScheme/bin/*.*
+      if: ${{ always() }}
