@@ -52,7 +52,9 @@ namespace IronScheme.FrameworkPAL
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
-#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
+#elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
     }
@@ -60,11 +62,12 @@ namespace IronScheme.FrameworkPAL
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
 #if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
-      return mb.DefineDocument(
+      var docwriter = mb.DefineDocument(
         fn,
         lang,
         vendor,
         doctype);
+      return docwriter;
 #else
       return null;
 #endif

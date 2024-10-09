@@ -36,27 +36,4 @@
     <GplexFile Include="Compiler\IronScheme.lex" />
     <GppgFile Include="Compiler\IronScheme.y" />
   </ItemGroup>
-<!--
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent" DependsOnTargets="IronSchemeBuildTools">
-    <PropertyGroup>
-      <GPPG>"$(IronSchemeBuildToolsPath)gppg" /gplex</GPPG>
-      <GPLEX>"$(IronSchemeBuildToolsPath)gplex" /stack "/frame:$(SolutionDir)tools/gplexx.frame"</GPLEX>
-    </PropertyGroup>
-
-    <PropertyGroup>
-      <GPPGArgs>"$(ProjectDir)Compiler/IronScheme.y" > "$(ProjectDir)Compiler/IronScheme.y.cs"</GPPGArgs>
-      <GPLEXArgs>"/out:$(ProjectDir)Compiler/IronScheme.lex.cs" "$(ProjectDir)Compiler/IronScheme.lex"</GPLEXArgs>
-    </PropertyGroup>
-
-    <Exec Command="$(GPPG) $(GPPGArgs)" />
-    <Exec Command="$(GPLEX) $(GPLEXArgs)" />
-
-    <PropertyGroup>
-      <GPPGArgs>"$(ProjectDir)Compiler/NumberParser.y" > "$(ProjectDir)Compiler/NumberParser.y.cs"</GPPGArgs>
-      <GPLEXArgs>"/out:$(ProjectDir)Compiler/NumberLexer.lex.cs" "$(ProjectDir)Compiler/NumberLexer.lex"</GPLEXArgs>
-    </PropertyGroup>
-
-    <Exec Command="$(GPPG) $(GPPGArgs)" />
-    <Exec Command="$(GPLEX) $(GPLEXArgs)" />
-  </Target>-->
 </Project>
