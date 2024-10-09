@@ -3,4 +3,6 @@ set -e
 
 dotnet tool install -g dotnet-ilrepack
 
-dotnet build --no-restore -tl:off -c Release -m -t:Package $*
+COMMON='-m -c Release --no-restore -tl:off'
+
+dotnet build $COMMON -t:Package $*

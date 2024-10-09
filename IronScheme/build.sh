@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
-dotnet build -tl:off -m -c Release ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj
-dotnet build -tl:off -m -c Release -p:TargetFramework=net9.0 ../IronScheme.BuildTools/Setup/Setup.csproj
-dotnet build -tl:off -m -c Release -p:IronSchemeBuildToolsTargetFramework=net9.0 $*
+COMMON='-m -c Release -clp:NoSummary'
+
+dotnet build $COMMON  ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj -v:q
+dotnet build $COMMON -p:TargetFramework=net9.0 ../IronScheme.BuildTools/Setup/Setup.csproj -v:q
+dotnet build $COMMON -p:IronSchemeBuildToolsTargetFramework=net9.0 $*

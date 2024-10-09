@@ -5,12 +5,11 @@ if "%1" == "/?" goto help
 if "%1" == "-h" goto help
 if "%1" == "--help" goto help
 
-SET COMMON=-restore -tl:off -m -c Release
+SET COMMON=-m -c Release -clp:NoSummary
 
-dotnet build %COMMON% ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj
-dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj
+dotnet build %COMMON% ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj -v:q
+dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj -v:q 
 
-rem `dotnet build` or `dotnet msbuild -restore` also works instead of `msbuild -restore`
 dotnet build %COMMON% %*
 exit /B %ERRORLEVEL%
 

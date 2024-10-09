@@ -1,12 +1,12 @@
 @echo off
 setlocal
 
-dotnet build-server shutdown --msbuild
+dotnet build-server shutdown --msbuild >nul 2>&1
 
-@SET COMMON=-tl:off -m -c Release -v:q
+@SET COMMON=-m -c Release -clp:NoSummary -v:q
 
 rem dotnet clean ../IronScheme.BuildTools/ %COMMON% -nowarn:NETSDK1138,NU1702,NETSDK1057
-dotnet clean %COMMON% -nowarn:NETSDK1138,NU1702,NETSDK1057
+dotnet clean %COMMON% -nowarn:NETSDK1138,NU1702,NETSDK1057 %*
 
 pushd IronScheme.Console\bin\
 del /s /q *.dll >nul 2>&1
