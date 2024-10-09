@@ -34,7 +34,7 @@ jobs:
     - name: Test (.NET Core 2.1)
       run: cd IronScheme && test.cmd /core
     - name: Package
-      run: cd IronScheme && package.cmd
+      run: cd IronScheme && package.cmd -v:n
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v4
       with:
