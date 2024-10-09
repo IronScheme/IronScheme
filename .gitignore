@@ -14,3 +14,4 @@ IronScheme/Oyster.IntX/Oyster.IntX.xml
 *.csproj.user
 /.vs
  
+*.binlog

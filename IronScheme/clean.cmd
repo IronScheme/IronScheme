@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-dotnet build-server shutdown --msbuild >nul 2>&1
+dotnet build-server shutdown --msbuild >nul
 
 @SET COMMON=-m -c Release -clp:NoSummary -v:q
 

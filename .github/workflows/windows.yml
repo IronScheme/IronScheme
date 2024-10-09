@@ -35,6 +35,11 @@ jobs:
       run: cd IronScheme && test.cmd /core
     - name: Package
       run: cd IronScheme && package.cmd -v:n
+    - name: Upload binlogs
+      uses: actions/upload-artifact@v4
+      with:
+        name: binlog-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+        path: IronScheme/*.binlog
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v4
       with:
