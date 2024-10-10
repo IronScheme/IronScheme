@@ -39,10 +39,13 @@ namespace IronScheme.Tests
       Cleanup();
     }
 
+    
     internal static void Cleanup()
     {
+      TestContext.Error.WriteLine("CLEANUP!");
       if (File.Exists("compiled.lst"))
       {
+        
         var libs = File.ReadAllLines("compiled.lst");
 
         foreach (var lib in libs)
