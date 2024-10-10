@@ -95,13 +95,6 @@ namespace Microsoft.Scripting.Utils {
             return ToValidPath(path, false, true);
         }
 
-        public static string ToValidPath(string path, bool isMask) {
-            return ToValidPath(path, isMask, true);
-        }
-
-        public static string ToValidFileName(string path) {
-            return ToValidPath(path, false, false);
-        }
 
         private static string ToValidPath(string path, bool isMask, bool isPath) {
             Debug.Assert(!isMask || isPath);
@@ -117,16 +110,9 @@ namespace Microsoft.Scripting.Utils {
                     sb.Replace(c, '_');
                 }
             } else {
-#if SILVERLIGHT
-                foreach (char c in Path.GetInvalidPathChars()) {
-                    sb.Replace(c, '_');
-                }
-                sb.Replace(':', '_').Replace('*', '_').Replace('?', '_').Replace('\\', '_').Replace('/', '_');
-#else
                 foreach (char c in Path.GetInvalidFileNameChars()) {
                     sb.Replace(c, '_');
                 }
-#endif
             }
 
             if (!isMask) {

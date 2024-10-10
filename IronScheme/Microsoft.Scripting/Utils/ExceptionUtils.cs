@@ -21,14 +21,6 @@ using System.Threading;
 
 namespace Microsoft.Scripting.Utils {
     public static class ExceptionUtils {
-        public static ArgumentOutOfRangeException MakeArgumentOutOfRangeException(string paramName, object actualValue, string message) {
-#if SILVERLIGHT // ArgumentOutOfRangeException ctor overload
-            throw new ArgumentOutOfRangeException(paramName, string.Format("{0} (actual value is '{1}')", message, actualValue));
-#else
-            throw new ArgumentOutOfRangeException(paramName, actualValue, message);
-#endif
-        }
-
         public static ArgumentNullException MakeArgumentItemNullException(int index, string arrayName) {
             return new ArgumentNullException(String.Format("{0}[{1}]", arrayName, index));
         }
