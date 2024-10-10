@@ -72,15 +72,12 @@ namespace Microsoft.Scripting {
         private static readonly object _singletonLock = new object();
         private static ScriptDomainManager _singleton;
 
-        private readonly PlatformAdaptationLayer _pal;
         private readonly IScriptHost _host;
         private readonly Snippets _snippets;
         private readonly ScriptEnvironment _environment;
         private Dictionary<string, WeakReference> _modules;
         private CommandDispatcher _commandDispatcher; // can be null
         
-        // singletons:
-        public PlatformAdaptationLayer PAL { get { return _pal; } }
         public Snippets Snippets { get { return _snippets; } }
         public ScriptEnvironment Environment { get { return _environment; } }
 
@@ -136,7 +133,6 @@ namespace Microsoft.Scripting {
 
             // initialize snippets:
             _snippets = new Snippets();
-            _pal = null;
         }
 
         #endregion
@@ -194,7 +190,7 @@ namespace Microsoft.Scripting {
                     
                     if (_type == null) {
                         try {
-                            _type = ScriptDomainManager.CurrentManager.PAL.LoadAssembly(_assemblyName).GetType(_typeName, true);
+                            _type = Assembly.Load(_assemblyName).GetType(_typeName, true);
                         } catch (Exception e) {
                             throw new MissingTypeException(MakeAssemblyQualifiedName(_assemblyName, _typeName), e);
                         }

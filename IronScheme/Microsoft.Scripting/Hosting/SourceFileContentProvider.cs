@@ -55,7 +55,7 @@ namespace Microsoft.Scripting.Hosting {
         #endregion
 
         public override TextReader GetReader() {
-            Stream stream = OpenStream();
+            Stream stream = File.OpenRead(Path);
 
             if (stream == null) {
                 throw new InvalidImplementationException();
@@ -73,10 +73,6 @@ namespace Microsoft.Scripting.Hosting {
             }
 
             return reader;
-        }
-
-        protected virtual Stream OpenStream() {
-            return ScriptDomainManager.CurrentManager.PAL.OpenInputFileStream(Path);
         }
     }
 }

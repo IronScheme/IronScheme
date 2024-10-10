@@ -256,7 +256,7 @@ namespace Microsoft.Scripting.Hosting {
             Contract.RequiresNotNull(file, "file");
             Contract.RequiresNotNull(args, "args");
 
-            Assembly assembly = ScriptDomainManager.CurrentManager.PAL.LoadAssembly(file);
+            Assembly assembly = Assembly.Load(file);
             MethodInfo method = null;
 
             foreach (Type type in assembly.GetExportedTypes()) {

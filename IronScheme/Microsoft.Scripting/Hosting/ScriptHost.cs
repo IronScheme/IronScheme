@@ -28,7 +28,6 @@ namespace Microsoft.Scripting.Hosting {
     public interface IScriptHost {
         // virtual file-system ops:
         string NormalizePath(string path);  // throws ArgumentException
-        string[] GetSourceFileNames(string mask, string searchPattern);
         
         // source units:
         SourceUnit TryGetSourceFileUnit(IScriptEngine engine, string path, Encoding encoding);
@@ -117,11 +116,11 @@ namespace Microsoft.Scripting.Hosting {
         /// </remarks>
         public virtual string NormalizePath(string path) {
             Contract.RequiresNotNull(path, "path");
-            return (path.Length > 0) ? ScriptDomainManager.CurrentManager.PAL.GetFullPath(path) : "";
+            return (path.Length > 0) ? Path.GetFullPath(path) : "";
         }
 
         public virtual string[] GetSourceFileNames(string mask, string searchPattern) {
-            return ScriptDomainManager.CurrentManager.PAL.GetFiles(mask, searchPattern);
+            return Directory.GetFiles(mask, searchPattern);
         }
 
         #endregion
@@ -147,7 +146,7 @@ namespace Microsoft.Scripting.Hosting {
             Contract.RequiresNotNull(engine, "engine");
             Contract.RequiresNotNull(path, "path");
             
-            if (ScriptDomainManager.CurrentManager.PAL.FileExists(path)) {
+            if (File.Exists(path)) {
                 return SourceUnit.CreateFileUnit(engine, path, encoding);
             }
 
@@ -175,7 +174,7 @@ namespace Microsoft.Scripting.Hosting {
                 foreach (string extension in _environment.GetRegisteredFileExtensions()) {
                     string fullPath = Path.Combine(directory, name + extension);
 
-                    if (ScriptDomainManager.CurrentManager.PAL.FileExists(fullPath)) {
+                    if (File.Exists(fullPath)) {
                         if (result != null) {
                             throw new InvalidOperationException(String.Format(Resources.AmbigiousModule, fullPath, finalPath));
                         }
