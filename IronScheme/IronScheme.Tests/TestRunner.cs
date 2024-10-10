@@ -149,13 +149,13 @@ Error:
 
       p.ErrorDataReceived += (s, e) =>
       {
-        //if (echo && !Quiet) Console.Error.WriteLine(e.Data);
+        //Console.Error.WriteLine(e.Data);
         error.WriteLine(e.Data);
       };
 
       p.OutputDataReceived += (s, e) =>
       {
-        //if (echo && !Quiet) Console.WriteLine(e.Data);
+        //Console.Error.WriteLine(e.Data);
         output.WriteLine(e.Data);
       };
 

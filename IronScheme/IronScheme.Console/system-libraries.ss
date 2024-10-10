@@ -11,10 +11,13 @@ See docs/license.txt. |#
 
 (import (ironscheme))
 
-(include "system-libraries.ironscheme.ss")
+(let ()
+  (include "system-libraries.ironscheme.ss")
+  #f)
 
 (let ()
-  (import (ironscheme xml)))
+  (import (ironscheme xml))
+  #f)
 
 (let () 
   (include "system-libraries.srfi.ss")

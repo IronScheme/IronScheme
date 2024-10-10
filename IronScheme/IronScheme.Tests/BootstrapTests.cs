@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -10,6 +11,8 @@ namespace IronScheme.Tests
   [Category(nameof(Bootstrap))]
   public class Bootstrap : TestRunner
   {
+    const int LIBSCOUNT = 234;
+
     [Test]
     [Order(1)]
     public void Bootstrap_Debug()
@@ -35,7 +38,7 @@ namespace IronScheme.Tests
       RunIronSchemeTest(@"-debug compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
 
-      Assert.Pass();
+      Assert.That(list, Has.Length.EqualTo(LIBSCOUNT));
     }
 
     [Test]
@@ -50,6 +53,8 @@ namespace IronScheme.Tests
         {
           VerifyAssembly(lib);
         }
+
+        Assert.That(libs, Has.Length.EqualTo(LIBSCOUNT));
       }
       finally
       {
@@ -81,6 +86,8 @@ namespace IronScheme.Tests
       Directory.Move("lib", "lib.hide");
       RunIronSchemeTest(@"compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
+
+      Assert.That(list, Has.Length.EqualTo(LIBSCOUNT));
     }
 
     [Test]
@@ -88,10 +95,13 @@ namespace IronScheme.Tests
     public void Verify_Release()
     {
       var libs = File.ReadAllLines("compiled.lst");
+
       foreach (var lib in libs)
       {
         VerifyAssembly(lib);
       }
+
+      Assert.That(libs, Has.Length.EqualTo(LIBSCOUNT));
     }
 
     static string _sdkRefPath;
