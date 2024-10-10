@@ -18,37 +18,6 @@ using System.Reflection;
 using System.Diagnostics;
 
 namespace Microsoft.Scripting.Generation {    
-    class PropertyEnvironmentReference : Storage {
-        private int _index;
-        private Type _tupleType;
-        private Type _type;
-
-        public PropertyEnvironmentReference(Type tupleType, int index, Type type) {
-            Debug.Assert(tupleType != null);
-            Debug.Assert(index < Tuple.GetSize(tupleType));
-
-            _tupleType = tupleType;
-            _index = index;
-            _type = type;
-        }
-
-        public override bool RequireAccessSlot {
-            get { return true; }
-        }
-
-        public override Slot CreateSlot(Slot instance) {            
-            Slot slot = instance;
-            Type curType = null;
-            foreach (PropertyInfo pi in Tuple.GetAccessPath(_tupleType, _index)) {
-                slot = new PropertySlot(slot, pi);
-                curType = pi.PropertyType;
-            }
-            if (_type != curType) {
-                slot = new CastSlot(slot, _type);
-            }
-            return slot;
-        }
-    }
 
     class ClassEnvironmentReference : Storage
     {

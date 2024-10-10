@@ -584,9 +584,9 @@ namespace Microsoft.Scripting.Generation {
                 if (type == typeof(void)) {
                     EmitFieldGet(RuntimeHelpers.Unspecified);
                 } else if (type == typeof(int)) {
-                    EmitCall(typeof(RuntimeHelpers), "Int32ToObject");
+                    EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.Int32ToObject));
                 } else if (type == typeof(bool)) {
-                    EmitCall(typeof(RuntimeHelpers), "BooleanToObject");
+                    EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.BooleanToObject));
                 } else {
                     Emit(OpCodes.Box, type);
                 }
@@ -907,48 +907,6 @@ namespace Microsoft.Scripting.Generation {
                 EmitInt(i);
                 EmitConstant(items[i]);
                 EmitStoreElement(typeof(T));
-            }
-        }
-
-        private void EmitTuple(Type tupleType, int start, int end, EmitArrayHelper emit) {
-            int size = end - start;
-
-            if (size > Tuple.MaxSize) {
-                int multiplier = 1;
-                while (size > Tuple.MaxSize) {
-                    size = (size + Tuple.MaxSize - 1) / Tuple.MaxSize;
-                    multiplier *= Tuple.MaxSize;
-                }
-                for (int i = 0; i < size; i++) {
-                    int newStart = start + (i * multiplier);
-                    int newEnd = System.Math.Min(end, start + ((i + 1) * multiplier));
-
-                    PropertyInfo pi = tupleType.GetProperty("Item" + String.Format("{0:D3}", i));
-                    Debug.Assert(pi != null);
-                    EmitTuple(pi.PropertyType, newStart, newEnd, emit);
-                }
-            } else {
-                for (int i = start; i < end; i++) {
-                    emit(i);
-                }
-            }
-
-            // fill in emptys with null.
-            Type[] genArgs = tupleType.GetGenericArguments();
-            for (int i = size; i < genArgs.Length; i++) {
-                EmitNull();
-            }
-
-            EmitTupleNew(tupleType);
-        }
-
-        private void EmitTupleNew(Type tupleType) {
-            ConstructorInfo[] cis = tupleType.GetConstructors();
-            foreach (ConstructorInfo ci in cis) {
-                if (ci.GetParameters().Length != 0) {
-                    EmitNew(ci);
-                    break;
-                }
             }
         }
 
@@ -1652,7 +1610,7 @@ namespace Microsoft.Scripting.Generation {
 
         public void EmitTypeError(string format, params object[] args) {
             EmitString(String.Format(format, args));
-            EmitCall(typeof(RuntimeHelpers), "SimpleTypeError");
+            EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.SimpleTypeError));
             Emit(OpCodes.Throw);
         }
 

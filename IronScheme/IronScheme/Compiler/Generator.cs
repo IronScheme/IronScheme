@@ -50,9 +50,9 @@ namespace IronScheme.Compiler
     // this is probably not very threadsafe....
     protected static Dictionary<SymbolId, CodeBlockExpression> references = new Dictionary<SymbolId, CodeBlockExpression>();
 
-    protected internal readonly static FieldInfo Unspecified = typeof(Builtins).GetField("Unspecified");
-    protected internal readonly static FieldInfo True = typeof(RuntimeHelpers).GetField("True");
-    protected internal readonly static FieldInfo False = typeof(RuntimeHelpers).GetField("False");
+    protected internal readonly static FieldInfo Unspecified = typeof(Builtins).GetField(nameof(Builtins.Unspecified));
+    protected internal readonly static FieldInfo True = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.True));
+    protected internal readonly static FieldInfo False = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.False));
     internal static bool inconstant = false;
 
     protected static Expression GetCons(object args, CodeBlock cb)

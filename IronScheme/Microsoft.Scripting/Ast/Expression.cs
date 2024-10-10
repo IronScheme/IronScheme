@@ -96,8 +96,8 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitBoxing(Type);
         }
 
-        static readonly FieldInfo True = typeof(RuntimeHelpers).GetField("True");
-        static readonly FieldInfo False = typeof(RuntimeHelpers).GetField("False");
+        static readonly FieldInfo True = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.True));
+        static readonly FieldInfo False = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.False));
 
         /// <summary>
         /// Generates code for this expression in a value position.  This will leave

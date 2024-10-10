@@ -111,13 +111,13 @@ namespace Microsoft.Scripting.Generation {
             if (_local) {
                 cg.EmitSymbolId(name);
                 cg.EmitUnbox(typeof(SymbolId));
-                cg.EmitCall(typeof(RuntimeHelpers), "ThrowUnboundLocalError");
+                cg.EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.ThrowUnboundLocalError));
             } else {
                 cg.Emit(OpCodes.Pop);
                 cg.EmitCodeContext();
                 cg.EmitSymbolId(name);
                 cg.EmitUnbox(typeof(SymbolId));
-                cg.EmitCall(typeof(RuntimeHelpers), "LookupName");
+                cg.EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.LookupName));
             }
             cg.MarkLabel(endCheck);
         }

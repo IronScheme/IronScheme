@@ -244,10 +244,6 @@ namespace Microsoft.Scripting {
             wrapper = new ModuleGlobalWrapper(context, mgc, name);
         }
 
-        public static TupleType GetTupleDictionaryData<TupleType>(Scope scope) where TupleType : Tuple {
-            return ((TupleDictionary<TupleType>)scope.Dict).TupleData;
-        }
-
       [DebuggerStepThrough]
       [DebuggerHidden]
         public static StorageType GetStorageData<StorageType>(Scope scope) where StorageType : class, new()

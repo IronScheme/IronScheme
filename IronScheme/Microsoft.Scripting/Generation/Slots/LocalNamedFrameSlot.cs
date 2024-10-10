@@ -30,7 +30,7 @@ namespace Microsoft.Scripting.Generation {
             // RuntimeHelpers.LookupName(context, name)
             _frame.EmitGet(cg);
             cg.EmitSymbolId(_name);
-            cg.EmitCall(typeof(RuntimeHelpers), "LookupName");
+            cg.EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.LookupName));
         }
 
         public override void EmitGetAddr(CodeGen cg) {
@@ -52,15 +52,6 @@ namespace Microsoft.Scripting.Generation {
             if (cg.InterpretedMode) {
                 base.EmitSetUninitialized(cg);
             }
-        }
-
-        public override void EmitDelete(CodeGen cg, SymbolId name, bool check) {
-            // Emit the following:
-            //    RuntimeHelpers.RemoveName(context, symbol_id)
-            _frame.EmitGet(cg);
-            cg.EmitSymbolId(name);
-            cg.EmitCall(typeof(RuntimeHelpers), "RemoveName");
-            cg.Emit(OpCodes.Pop);
         }
 
         public override Type Type {

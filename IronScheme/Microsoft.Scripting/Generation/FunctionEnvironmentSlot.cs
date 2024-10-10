@@ -18,21 +18,6 @@ using System.Reflection.Emit;
 using System.Reflection;
 
 namespace Microsoft.Scripting.Generation {    
-    public class FunctionEnvironmentSlot : EnvironmentSlot {
-        private Type _storageType;
-
-        public FunctionEnvironmentSlot(Slot storage, Type storageType)
-            : base(storage) {
-            _storageType = storageType;
-        }
-
-        public override void EmitGetDictionary(CodeGen cg) {
-            EmitGet(cg);
-            foreach (PropertyInfo pi in Tuple.GetAccessPath(_storageType, 0)) {
-                cg.EmitPropertyGet(pi);
-            }
-        }        
-    }
 
     public class ClassEnvironmentSlot : EnvironmentSlot
     {

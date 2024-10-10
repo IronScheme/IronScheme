@@ -55,30 +55,9 @@ namespace Microsoft.Scripting.Generation {
         public static OptimizedModuleGenerator Create(string moduleName, params ScriptCode[] scriptCodes) {
             Contract.RequiresNotNull(moduleName, "moduleName");
             Contract.RequiresNotEmpty(scriptCodes, "scriptCodes");
-            
-            //if (scriptCodes.Length != 1) throw new NotSupportedException("Only one ScriptCode currently supported");
 
-            // Silverlight: can't access SecurityPermission
-            if (!ScriptDomainManager.Options.GenerateModulesAsSnippets) {
-#if CHECK_IF_NEEDED
-                try {
-                    // CreateStaticCodeGenerator requires ReflectionEmit (in CLR V2) or UnmanagedCode (in CLR V2 SP1) permission.
-                    // If we are running in partial-trust, fall through to generated dynamic code.
-                    // TODO: Symbol information requires unmanaged code permission.  Move the error
-                    // handling lower and just don't dump PDBs.
-                    new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Demand();
-
-#endif
-                    return new StaticFieldModuleGenerator(moduleName, scriptCodes);
-#if CHECK_IF_NEEDED
-                } catch (SecurityException) {
-                }
-#endif
-            }
-
-            return new TupleModuleGenerator(moduleName, scriptCodes);
+            return new StaticFieldModuleGenerator(moduleName, scriptCodes);
         }
-
 
         protected static void GetCompiledSourceUnitAssemblyLocation(string suid, out string outDir, out string fileName)
         {
@@ -306,40 +285,6 @@ namespace Microsoft.Scripting.Generation {
         protected abstract CodeGen CreateCodeGen(ScriptCode scriptCode);
         protected abstract IAttributesCollection CreateLanguageDictionary(LanguageContext context, ScopeAllocator allocator);
         protected abstract SlotFactory CreateSlotFactory(ScriptCode scriptCode);
-
-        #endregion
-    }
-
-    class TupleModuleGenerator : OptimizedModuleGenerator {
-        private Dictionary<LanguageContext, TupleSlotFactory> _languages = new Dictionary<LanguageContext, TupleSlotFactory>();
-
-        public TupleModuleGenerator(string moduleName, params ScriptCode[] scriptCodes)
-            : base(moduleName, scriptCodes) {
-        }
-
-        #region Abstract overrides
-
-        protected override SlotFactory CreateSlotFactory(ScriptCode scriptCode) {
-            return _languages[scriptCode.LanguageContext] = new TupleSlotFactory(typeof(ModuleGlobalDictionary<>));
-        }
-
-        protected override IAttributesCollection CreateLanguageDictionary(LanguageContext context, ScopeAllocator allocator) {
-            TupleSlotFactory tsf = _languages[context];
-            object tuple = tsf.CreateTupleInstance();
-
-            // TODO: Force all dictionaries to share same object data (for multi-module)
-
-            IAttributesCollection res = (IAttributesCollection)Activator.CreateInstance(
-                tsf.DictionaryType.MakeGenericType(tsf.TupleType),
-                tuple,
-                tsf.Names);
-
-            return res;
-        }
-
-        protected override CodeGen CreateCodeGen(ScriptCode scriptCode) {
-            return CompilerHelpers.CreateDynamicCodeGenerator(scriptCode.CompilerContext);
-        }
 
         #endregion
     }
@@ -588,7 +533,7 @@ namespace Microsoft.Scripting.Generation {
                   cg.EmitCodeContext();
                   cg.EmitSymbolId(kv.Key);
                   builtin.EmitWrapperAddr(cg);
-                  cg.EmitCall(typeof(RuntimeHelpers), "InitializeModuleFieldBoxed");
+                  cg.EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.InitializeModuleFieldBoxed));
                 }
 
                 StaticFieldSlot sfs = slot as StaticFieldSlot;
@@ -597,7 +542,7 @@ namespace Microsoft.Scripting.Generation {
                   cg.EmitCodeContext();
                   cg.EmitSymbolId(kv.Key);
                   sfs.EmitGetAddr(cg);
-                  cg.EmitCall(typeof(RuntimeHelpers).GetMethod("InitializeFieldBoxed").MakeGenericMethod( sfs.Type ));
+                  cg.EmitCall(typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.InitializeFieldBoxed)).MakeGenericMethod( sfs.Type ));
 
                 }
             }
@@ -607,7 +552,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         private void MakeGetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
-            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod("TryGetExtraValue", BindingFlags.NonPublic | BindingFlags.Instance));
+            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod(nameof(CustomSymbolDictionary.TryGetExtraValue), BindingFlags.NonPublic | BindingFlags.Instance));
 
             cg.EmitInt(0);
             cg.EmitReturn();
@@ -615,7 +560,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         private void MakeSetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
-            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod("TrySetExtraValue", BindingFlags.NonPublic | BindingFlags.Instance));
+            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod(nameof(CustomSymbolDictionary.TrySetExtraValue), BindingFlags.NonPublic | BindingFlags.Instance));
             Slot valueSlot = cg.GetArgumentSlot(1);
             cg.EmitInt(0);
             cg.EmitReturn();
@@ -631,7 +576,7 @@ namespace Microsoft.Scripting.Generation {
 
             rawKeysCache.EmitSet(init);
 
-            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod("GetExtraKeys", BindingFlags.Public | BindingFlags.Instance));
+            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod(nameof(CustomSymbolDictionary.GetExtraKeys), BindingFlags.Public | BindingFlags.Instance));
             rawKeysCache.EmitGet(cg);
             cg.EmitReturn();
             cg.Finish();

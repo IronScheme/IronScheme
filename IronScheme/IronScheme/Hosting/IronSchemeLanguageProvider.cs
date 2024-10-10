@@ -26,8 +26,6 @@ namespace IronScheme.Hosting
     internal IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
-      ScriptDomainManager.Options.DynamicStackTraceSupport = false;
-
       Closure.ConsFromArray = Cons.FromArray;
       Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
       Closure.Unspecified = Builtins.Unspecified;

@@ -144,16 +144,6 @@ namespace Microsoft.Scripting.Hosting {
                         OptionNotAvailableOnSilverlight(name);
                         _options.EnvironmentVars.AddRange(value.Split(';'));
                         break;
-
-                    case "x":
-                        switch(value) {
-                            case "ShowASTs": ScriptDomainManager.Options.ShowASTs = true; break;
-                            case "DumpASTs": ScriptDomainManager.Options.DumpASTs = true; break;
-                            case "ShowRules": ScriptDomainManager.Options.ShowRules = true; break;
-                            default: _options.IgnoredArgs.Add(current); break;
-                        }
-                        break;
-
                     case "help":
                     case "?":
                         _options.RunAction = ConsoleHostOptions.Action.DisplayHelp;

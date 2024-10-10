@@ -167,7 +167,7 @@ namespace Microsoft.Scripting.Ast
         public bool EmitLocalDictionary {
             get {
                 // When custom frames are turned on, we emit dictionaries everywhere
-                return ScriptDomainManager.Options.Frames || _emitLocalDictionary || ScriptDomainManager.Options.LightweightDebugging;
+                return _emitLocalDictionary || ScriptDomainManager.Options.LightweightDebugging;
             }
             set {
                 _emitLocalDictionary = value;
@@ -355,8 +355,6 @@ namespace Microsoft.Scripting.Ast
           return Parent.EnvironmentType;
         }
 
-        static bool useclass = true;
-
         internal EnvironmentSlot EmitEnvironmentAllocation(CodeGen cg) {
             Debug.Assert(_environmentFactory != null);
 
@@ -381,7 +379,7 @@ namespace Microsoft.Scripting.Ast
             Slot ctxSlot = cg.GetNamedLocal(typeof(CodeContext), "$frame");
             cg.EnvironmentSlot.EmitGetDictionary(cg);
             cg.EmitCodeContext();
-            cg.EmitCall(typeof(RuntimeHelpers), "CreateNestedCodeContext");
+            cg.EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.CreateNestedCodeContext));
             ctxSlot.EmitSet(cg);
             return ctxSlot;
         }
@@ -496,15 +494,7 @@ namespace Microsoft.Scripting.Ast
                 if (parent._environmentFactory != null)
                 {
                   scope.EmitGet(cg);
-
-                  if (useclass)
-                  {
-                    cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetStorageData").MakeGenericMethod(parent._environmentFactory.StorageType));
-                  }
-                  else
-                  {
-                    cg.EmitCall(typeof(RuntimeHelpers).GetMethod("GetTupleDictionaryData").MakeGenericMethod(parent._environmentFactory.StorageType));
-                  }
+                  cg.EmitCall(typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.GetStorageData)).MakeGenericMethod(parent._environmentFactory.StorageType));
 
                   Slot storage = new LocalSlot(cg.DeclareLocal(parent._environmentFactory.StorageType), cg);
                   storage.EmitSet(cg);
