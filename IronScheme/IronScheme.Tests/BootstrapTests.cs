@@ -81,8 +81,6 @@ namespace IronScheme.Tests
       Directory.Move("lib", "lib.hide");
       RunIronSchemeTest(@"compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
-
-      Assert.Pass();
     }
 
     [Test]

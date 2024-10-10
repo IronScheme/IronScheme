@@ -26,26 +26,11 @@ namespace IronScheme.Tests
       var r = TestRunner.RunIronSchemeTest(TestCore, null, "(ironscheme-runtime)");
       TestContext.Error.WriteLine($"ironscheme-runtime: {r.Output}");
     }
-
-    [OneTimeTearDown]
-    public void RunAfterAnyTests()
-    {
-      var iswd = Environment.GetEnvironmentVariable("ISWD");
-      if (iswd != null)
-      {
-        Environment.CurrentDirectory = iswd;
-      }
-
-      Cleanup();
-    }
-
     
     internal static void Cleanup()
     {
-      TestContext.Error.WriteLine("CLEANUP!");
       if (File.Exists("compiled.lst"))
       {
-        
         var libs = File.ReadAllLines("compiled.lst");
 
         foreach (var lib in libs)
