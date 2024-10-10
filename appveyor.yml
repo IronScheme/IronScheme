@@ -38,6 +38,8 @@ build_script:
 test_script:
 - cmd: |
     cd %APPVEYOR_BUILD_FOLDER%
+    cd IronScheme
+    call package.cmd
     call ci-artefact.cmd
 artifacts:
 - path: IronScheme-*.zip

@@ -33,7 +33,6 @@ See docs/license.txt. |#
     (ironscheme strings)
     
     (ironscheme threading)
-    (ironscheme xml)
     
     (ironscheme clr reflection)
     (ironscheme clr shorthand)
