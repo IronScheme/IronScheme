@@ -11,68 +11,7 @@ See docs/license.txt. |#
 
 (import (ironscheme))
 
-(let () 
-  (import 
-    (ironscheme clr)
-    
-    (ironscheme io)
-    (ironscheme fsm-cond)
-    (ironscheme console)
-    (ironscheme conversions)
-    (ironscheme datetime)
-    (ironscheme environment)
-    (ironscheme linq)
-    (ironscheme files)
-    (ironscheme process)
-    (ironscheme random)
-    (ironscheme record-case)
-    (ironscheme regex)
-    (ironscheme regex-cond)
-    (ironscheme registry)
-    
-    (ironscheme strings)
-    
-    (ironscheme threading)
-;    (ironscheme web)
-;    (ironscheme web-utils)
-;    (ironscheme web routing-helper)
-;    (ironscheme web controllers)
-;    (ironscheme web views)
-;    (ironscheme web models)
-    (ironscheme xml)
-    
-    (ironscheme clr reflection)
-    (ironscheme clr shorthand)
-    (ironscheme clr dynamic)
-    
-    ;(ironscheme ffi) ; cant compile due to dynamic codegen
-    (ironscheme integrable)
-    
-
-    (ironscheme syntax)
-    (ironscheme syntax define-macro)
-    (ironscheme syntax parameters)
-    (ironscheme syntax library-utils)
-    (ironscheme syntax symbolic-case)
-    
-    (ironscheme typed)
-    (ironscheme typed struct)
-    (ironscheme typed struct-case)
-    
-    (ironscheme contracts)
-    
-    (ironscheme debugger))
-  #f)
-  
-(let ()
-  (import (ironscheme typed language))
-  #f)
-  
-(let ()
-  (import (ironscheme typed fixnums))
-  (import (ironscheme typed flonums))
-  #f)
-  
+(include "system-libraries.ironscheme.ss")
 
 (let () 
   (include "system-libraries.srfi.ss")

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>IronScheme.Tool</id>
+    <version>$version$-alpha</version>
+    <authors>Llewellyn Pritchard</authors>
+    <owners>Llewellyn Pritchard</owners>
+    <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
+    <projectUrl>https://github.com/IronScheme</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Only includes IronScheme.dll</description>
+    <releaseNotes>https://github.com/IronScheme</releaseNotes>
+    <copyright>Copyright 2007-2024</copyright>
+    <tags>scheme ironscheme r6rs</tags>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/IronScheme/IronScheme" branch="master" commit="$sha$" />
+  </metadata>
+  <files>
+    <file src="IronScheme\IronScheme*.dll" target="tools\net9.0\any\" />
+    <file src="IronScheme\system-libraries.ironscheme.ss" target="tools\net9.0\any\system-libraries.ss" />
+    <file src="IronScheme\lib\ironscheme\**" target="tools\net9.0\any\lib\ironscheme\" exclude="**\web*.*;**web**"/>
+    <file src="IronScheme\tests\**" target="tools\net9.0\any\tests\" />
+    <file src="..\..\..\..\DotnetToolSettings.xml" target="tools\net9.0\any\" />
+    <file src="..\..\net9.0\IronScheme.ConsoleCore.runtimeconfig.json" target="tools\net9.0\any\" />
+
+    <file src="IronScheme\IronScheme*.dll" target="tools\netcoreapp2.1\any\" />
+    <file src="IronScheme\system-libraries.ironscheme.ss" target="tools\netcoreapp2.1\any\system-libraries.ss" />
+    <file src="IronScheme\lib\ironscheme\**" target="tools\netcoreapp2.1\any\lib\ironscheme\" exclude="**\web*.*;**web**"/>
+    <file src="IronScheme\tests\**" target="tools\netcoreapp2.1\any\tests\" />
+    <file src="..\..\..\..\DotnetToolSettings.xml" target="tools\netcoreapp2.1\any\" />
+    <file src="..\..\netcoreapp2.1\IronScheme.ConsoleCore.runtimeconfig.json" target="tools\netcoreapp2.1\any\" />
+  </files>
+</package>

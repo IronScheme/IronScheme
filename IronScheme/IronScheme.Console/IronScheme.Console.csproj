@@ -84,6 +84,9 @@
     <None Include="system-libraries.srfi.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="system-libraries.ironscheme.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="compile-system-libraries.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

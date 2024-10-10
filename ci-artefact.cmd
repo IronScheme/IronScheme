@@ -16,11 +16,14 @@ pushd ..\IronScheme.Console\bin\Release\net20\install-stage
 
 copy /y ..\..\..\..\IronScheme.Core.nuspec .
 nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
+copy /y ..\..\..\..\IronScheme.Tool.nuspec .
+nuget pack IronScheme.Tool.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
 copy /y IronScheme*.*nupkg %BINDIR%
 
 popd
 
 copy IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%*.* %APPVEYOR_BUILD_FOLDER%
 copy IronScheme.Core.%APPVEYOR_BUILD_VERSION%.*nupkg %APPVEYOR_BUILD_FOLDER%
+copy IronScheme.Tool.%APPVEYOR_BUILD_VERSION%.*nupkg %APPVEYOR_BUILD_FOLDER%
 cd %APPVEYOR_BUILD_FOLDER%
 @echo off

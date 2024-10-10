@@ -53,11 +53,7 @@ namespace IronScheme.Tests
       }
       finally
       {
-        foreach (var lib in libs)
-        {
-          File.Delete(lib);
-          File.Delete(Path.ChangeExtension(lib, "pdb"));
-        }
+        Setup.Cleanup();
       }
     }
 
