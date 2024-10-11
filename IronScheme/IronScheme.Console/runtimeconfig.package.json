@@ -1,8 +1,12 @@
 ﻿{
   "runtimeOptions": {
+    "rollForward": "LatestMajor",
     "framework": {
       "name": "Microsoft.NETCore.App"
     },
-    "rollForward": "LatestMajor"
+    "configProperties": {
+      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+      "System.Runtime.TieredPGO": true
+    }
   }
 }
