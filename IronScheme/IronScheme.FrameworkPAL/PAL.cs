@@ -84,7 +84,7 @@ namespace IronScheme.FrameworkPAL
       SaveNET9((PersistedAssemblyBuilder)ass, filename, DummySymbolWriter != null);
 
 #elif !NETCOREAPP2_1_OR_GREATER
-      ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
+      ass.Save(Path.GetFileName(filename), PortableExecutableKinds.ILOnly, machineKind);
 #else
       throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
