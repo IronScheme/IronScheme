@@ -180,7 +180,7 @@ namespace Microsoft.Scripting.Generation
             string fullPath = Path.Combine(_outDir, _outFileName);
 
             try {
-              Dump(Path.GetFileName(fullPath));
+              Dump(fullPath);
             } catch (IOException) { // this looks weird
                 return _myAssembly;
             }
