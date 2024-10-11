@@ -30,10 +30,9 @@ nuget:
 build_script:
 - cmd: |
     dotnet restore "IronScheme.BuildTools\IronScheme.BuildTools.sln"
-    dotnet restore "IronScheme\IronSchemeCore.sln"
-    
     msbuild -restore "IronScheme.BuildTools\IronScheme.Build\IronScheme.Build.csproj" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
     rem dotnet msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
+    dotnet restore "IronScheme\IronSchemeCore.sln"
     msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050"
 test_script:
 - cmd: |
