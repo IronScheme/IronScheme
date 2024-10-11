@@ -159,13 +159,8 @@ namespace IronScheme.Hosting
       }
     }
 
-    public override Guid LanguageGuid
-    {
-      get
-      {
-        return new Guid("4BFAEA21-B66A-458b-BC32-24457C9178B8");
-      }
-    }
+    public override Guid LanguageGuid { get; } = new Guid("68527482-ed8e-a102-2178-e96f924ac529");
+        //new Guid(System.Security.Cryptography.MD5.HashData("Scheme".Select(c => (byte) c).ToArray()))
 
     #endregion
 

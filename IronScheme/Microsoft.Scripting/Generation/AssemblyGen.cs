@@ -282,10 +282,6 @@ namespace Microsoft.Scripting.Generation
     }
 
     internal static class SymbolGuids {
-        internal static readonly Guid LanguageType_Scheme =
-            new Guid("68527482-ed8e-a102-2178-e96f924ac529");
-        //new Guid(System.Security.Cryptography.MD5.HashData("Scheme".Select(c => (byte) c).ToArray()))
-
         internal static readonly Guid LanguageType_ILAssembly =
             new Guid(-1358664493, -12063, 0x11d2, 0x97, 0x7c, 0, 160, 0xc9, 180, 0xd5, 12);
         
