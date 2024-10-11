@@ -5,5 +5,5 @@
     <NoWarn>$(SkipWarn);$(NoWarn);NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050</NoWarn>
   </PropertyGroup>
 
-  <Import Label="BuildToolsProps" Project="$(MSBuildThisFileDirectory)/../IronScheme.BuildTools/bin/IronScheme.Build.props" />
+  <Import Label="BuildToolsProps" Project="$(MSBuildThisFileDirectory)/../IronScheme.BuildTools/build/IronScheme.Build.props" />
 </Project>
