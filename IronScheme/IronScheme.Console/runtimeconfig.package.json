@@ -5,7 +5,6 @@
       "name": "Microsoft.NETCore.App"
     },
     "configProperties": {
-      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
       "System.Runtime.TieredPGO": true
     }
   }
