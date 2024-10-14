@@ -24,6 +24,5 @@
     <file src="IronScheme\tests\**" target="tools\netcoreapp2.1\any\tests\" />
     <file src="..\..\..\..\DotnetToolSettings.xml" target="tools\netcoreapp2.1\any\" />
     <file src="..\..\..\..\runtimeconfig.package.json" target="tools\netcoreapp2.1\any\IronScheme.ConsoleCore.runtimeconfig.json" />
-    <file src="IronScheme\IronScheme.pdb" target="tools\netcoreapp2.1\any\" />    
   </files>
 </package>

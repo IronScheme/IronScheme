@@ -8,13 +8,13 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DefineConstants>TRACE;DEBUG;BIGFRACTION;OPTIMIZATIONS;nCPS</DefineConstants>
     <NoWarn>$(NoWarn);1591;3021</NoWarn>
-    <DebugType>full</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DefineConstants>TRACE;BIGFRACTION;OPTIMIZATIONS</DefineConstants>
     <NoWarn>$(NoWarn);1591;3021;0618</NoWarn>
-    <DebugType>pdbonly</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Condition="'$(TargetFrameworkVersion)' == 'v2.0' Or '$(TargetFrameworkVersion)' == 'v3.0' Or '$(TargetFrameworkVersion)' == 'v3.5'" Update="Properties\AssemblyInfo.CLR2.cs" />

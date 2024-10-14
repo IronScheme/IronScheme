@@ -17,12 +17,12 @@
     <ExecuteAsTool>false</ExecuteAsTool>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">full</DebugType>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <CodeAnalysisRuleSet />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">pdbonly</DebugType>
     <DefineConstants>TRACE</DefineConstants>
     <BaseAddress>4194304</BaseAddress>
     <DebugSymbols>true</DebugSymbols>

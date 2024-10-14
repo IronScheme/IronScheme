@@ -6,7 +6,7 @@
     <Product>IronScheme.Closures</Product>
     <Copyright>Copyright ©  2008</Copyright>
     <OutDir>bin/$(Configuration)/$(TargetFramework)</OutDir>
-    <DebugType>pdbonly</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">pdbonly</DebugType>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <NoWarn>$(NoWarn);MSB3073</NoWarn>
     <!--<UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>-->

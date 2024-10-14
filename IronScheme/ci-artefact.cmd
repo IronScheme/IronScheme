@@ -7,7 +7,7 @@ if "%APPVEYOR_BUILD_FOLDER%"=="" set APPVEYOR_BUILD_FOLDER=%CD%
 
 cd bin
 ren IronScheme-latest.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%.zip
-ren IronScheme-latest-DEBUG.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%-DEBUG.zip
+rem ren IronScheme-latest-DEBUG.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%-DEBUG.zip
 
 set BINDIR=%CD%
 
@@ -15,7 +15,7 @@ pushd ..\IronScheme.Console\bin\Release\net20\install-stage
 
 copy /y ..\..\..\..\IronScheme.*.nuspec .
 nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
-nuget pack IronScheme.Tool.nuspec -Symbols -SymbolPackageFormat snupkg -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
+nuget pack IronScheme.Tool.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
 copy /y IronScheme*.*nupkg %BINDIR%
 
 popd

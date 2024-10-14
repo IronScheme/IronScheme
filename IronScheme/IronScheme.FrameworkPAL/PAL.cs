@@ -62,8 +62,30 @@ namespace IronScheme.FrameworkPAL
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
 #if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
+      string properfn = null;
+      if (fn.StartsWith("build") || fn.StartsWith("psyntax"))
+      {
+        // look for source up dir
+        var path = Path.GetFullPath(fn);
+        var rooti = path.LastIndexOf("IronScheme.Console");
+        if (rooti > -1)
+        {
+          var rootp = Path.Combine(Path.Combine(path.Substring(0, rooti), "IronScheme.Console"), fn);
+          if (File.Exists(rootp))
+          {
+            properfn = rootp;
+          }
+        }
+      }
+
+      if (properfn == null)
+      {
+        var fullPath = Path.GetFullPath(fn);
+        properfn = fullPath;
+      }
+
       var docwriter = mb.DefineDocument(
-        fn,
+        properfn,
         lang,
         vendor,
         doctype);
