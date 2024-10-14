@@ -40,11 +40,11 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: binlog-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
-        path: *.binlog
+        path: ./*.binlog
       if: ${{ always() }}
     - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
         name: packages-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
-        path: bin/*.*
+        path: ./bin/*.*
       if: ${{ always() }}
