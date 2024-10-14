@@ -1,4 +1,4 @@
-name: IronScheme (Linux)
+name: IronScheme (Non-Windows)
 
 on:
   push:
@@ -8,8 +8,10 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
     timeout-minutes: 10
     env:
       DOTNET_NOLOGO: 1

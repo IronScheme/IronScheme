@@ -7,6 +7,7 @@
     <Copyright>Copyright ©  2008</Copyright>
     <OutDir>bin/$(Configuration)/$(TargetFramework)</OutDir>
     <DebugType Condition="'$(DebugType)' == ''">pdbonly</DebugType>
+    <DebugType Condition="'$(DebugType)' == 'portable' and $(MSBuildRuntimeType) == 'Full'">pdbonly</DebugType>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <NoWarn>$(NoWarn);MSB3073</NoWarn>
     <!--<UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>-->
