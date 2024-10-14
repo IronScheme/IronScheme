@@ -1,9 +1,11 @@
 <Project>
-  
-  <PropertyGroup Condition="$(Configuration) == 'Release'">
+  <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <NoWarn>$(SkipWarn);$(NoWarn);NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050</NoWarn>
     <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(Configuration) == 'Release'">
+    <NoWarn>$(SkipWarn);$(NoWarn);NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050</NoWarn>
   </PropertyGroup>
 
   <Import Label="BuildToolsProps" Project="$(MSBuildThisFileDirectory)/../IronScheme.BuildTools/build/IronScheme.Build.props" />
