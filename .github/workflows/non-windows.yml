@@ -13,6 +13,10 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
     timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./IronScheme
     env:
       DOTNET_NOLOGO: 1
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
@@ -27,20 +31,20 @@ jobs:
         dotnet-version: '9.0.x'
         dotnet-quality: 'daily'
     - name: Build
-      run: cd IronScheme && sh build.sh
+      run: sh build.sh
     - name: Test
-      run: cd IronScheme && sh test.sh
+      run: sh test.sh
     - name: Package
-      run: cd IronScheme && sh package.sh
+      run: sh package.sh
     - name: Upload binlogs
       uses: actions/upload-artifact@v4
       with:
         name: binlog-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
-        path: IronScheme/*.binlog
+        path: *.binlog
       if: ${{ always() }}
     - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
         name: packages-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
-        path: IronScheme/bin/*.*
+        path: bin/*.*
       if: ${{ always() }}
