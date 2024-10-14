@@ -8,7 +8,7 @@
     <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
     <projectUrl>https://github.com/IronScheme</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Only includes IronScheme.dll</description>
+    <description>Basic IronScheme console with only ironscheme libraries</description>
     <releaseNotes>https://github.com/IronScheme</releaseNotes>
     <copyright>Copyright 2007-2024</copyright>
     <tags>scheme ironscheme r6rs</tags>
