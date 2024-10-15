@@ -1,15 +1,13 @@
 @echo off
 setlocal
 
-set PATH=%PATH%;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\;
-
 cd IronScheme.Console\bin\Release\net20
 del /q IronScheme.FrameworkPAL.*
 
 copy ..\netcoreapp2.1\IronScheme.ConsoleCore.dll .
 copy ..\net9.0\IronScheme.ConsoleCore.runtimeconfig.json .
 
-echo (compile-system-libraries) | dotnet IronScheme.ConsoleCore.dll -debug
+echo (compile-system-libraries) | dotnet IronScheme.ConsoleCore.dll
 echo (compile-system-libraries) | IronScheme.Console32-v2.exe -debug
 
 SET ISWD=%CD%
