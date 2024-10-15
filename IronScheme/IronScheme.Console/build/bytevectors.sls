@@ -156,7 +156,8 @@ See docs/license.txt. |#
   
   (clr-using IronScheme.Runtime)  
   (clr-using System.Text)
-  (clr-using Oyster.Math)    
+  (clr-using Oyster.Math)
+  (clr-using IronScheme.Scripting.Math)
      
   (define (native-endianness) 'little)
   

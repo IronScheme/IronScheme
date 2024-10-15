@@ -17,6 +17,7 @@ using System.Reflection.PortableExecutable;
 using Microsoft.Scripting;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 
 namespace IronScheme.FrameworkPAL
 {
@@ -50,9 +51,15 @@ namespace IronScheme.FrameworkPAL
 #endif
     }
 
+#if NET9_0_OR_GREATER
+    //HashSet<ILGenerator> ilgens = new();
+#endif
+
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
 #if NET9_0_OR_GREATER
+      //Console.Error.WriteLine("[{0:X4}] {1}:{2} - {3}:{4}", ilg.ILOffset, startLine, startColumn, endLine, endColumn);
+      //ilgens.Add(ilg);
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);

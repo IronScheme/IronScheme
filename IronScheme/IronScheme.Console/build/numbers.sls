@@ -158,6 +158,8 @@ See docs/license.txt. |#
     
   (clr-using Oyster.Math)
   (clr-using Microsoft.Scripting.Math)
+  (clr-using IronScheme.Scripting) 
+  (clr-using IronScheme.Scripting.Math)
   (clr-using IronScheme.Runtime)    
     
   (define (make-rectnum r1 r2)

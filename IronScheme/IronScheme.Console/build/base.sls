@@ -283,6 +283,7 @@ See docs/license.txt. |#
   (clr-using System.Text)
   (clr-using IronScheme.Runtime)
   (clr-using Microsoft.Scripting)
+  (clr-using IronScheme.Scripting)
   
   (define (char->integer chr)
     (if (clr-is SchemeChar chr)
