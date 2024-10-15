@@ -87,6 +87,9 @@
     <None Include="system-libraries.ironscheme.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="nuget.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="compile-system-libraries.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
