@@ -18,7 +18,7 @@ jobs:
 
     defaults:
       run:
-        shell: ${{matrix.os == windows-2019 && cmd || bash}}
+        shell: ${{matrix.os == 'windows-2019' && cmd || bash}}
         working-directory: ./IronScheme
 
     env:
