@@ -178,7 +178,7 @@ namespace Microsoft.Scripting
             List<ParameterWrapper> parameters = new List<ParameterWrapper>();
             int argIndex = 0;
             ArgBuilder instanceBuilder;
-            bool hasDefaults = false;
+            
             if (!CompilerHelpers.IsStatic(method)) {
                 parameters.Add(new ParameterWrapper(_binder, method.DeclaringType, true));
                 instanceBuilder = new SimpleArgBuilder(argIndex++, parameters[0].Type);
