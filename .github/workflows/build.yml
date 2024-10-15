@@ -14,11 +14,11 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-2019]
 
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     defaults:
       run:
-        shell: ${{ matrix.os == 'windows-2019' && 'cmd' || 'bash' }}
+        shell: ${{ runner.os == 'Windows' && 'cmd' || 'bash' }}
         working-directory: ./IronScheme
 
     env:
@@ -38,33 +38,33 @@ jobs:
         dotnet-quality: 'daily'
 
     - name: Setup .NETCore 2.1
-      if: ${{matrix.os == 'windows-2019'}}
+      if: ${{runner.os == 'Windows'}}
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 2.1.x
 
     - name: Build (sh)
-      if: ${{matrix.os != 'windows-2019'}}
+      if: ${{runner.os != 'Windows'}}
       run: sh build.sh
 
     - name: Build (cmd)
-      if: ${{matrix.os == 'windows-2019'}}
+      if: ${{runner.os == 'Windows'}}
       run: build.cmd
 
     - name: Test (sh)
-      if: ${{matrix.os != 'windows-2019'}}
+      if: ${{runner.os != 'Windows'}}
       run: sh test.sh
 
     - name: Test (cmd)
-      if: ${{matrix.os == 'windows-2019'}}
+      if: ${{runner.os == 'Windows'}}
       run: test.cmd && test.cmd /net9 && test.cmd /core
 
     - name: Package (sh)
-      if: ${{matrix.os != 'windows-2019'}}
+      if: ${{runner.os != 'Windows'}}
       run: sh package.sh
 
     - name: Package (cmd)
-      if: ${{matrix.os == 'windows-2019'}}
+      if: ${{runner.os == 'Windows'}}
       run: package.cmd
 
     - name: Upload binlogs
