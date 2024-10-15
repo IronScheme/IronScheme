@@ -12,7 +12,9 @@ rem ren IronScheme-latest-DEBUG.zip IronScheme-%APPVEYOR_BUILD_VERSION%-%SHA%-DE
 set BINDIR=%CD%
 
 pushd ..\IronScheme.Console\bin\Release\net20\install-stage
-
+cd IronScheme
+echo (import (nuget)) (fuck) | IronScheme.Console32-v2
+cd ..
 copy /y ..\..\..\..\IronScheme.*.nuspec .
 nuget pack IronScheme.Core.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%
 nuget pack IronScheme.Tool.nuspec -properties version=%APPVEYOR_BUILD_VERSION%;sha=%SHA%

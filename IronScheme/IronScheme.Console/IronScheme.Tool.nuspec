@@ -19,7 +19,8 @@
   </metadata>
   <files>
     <file src="IronScheme\IronScheme*.dll" target="tools\netcoreapp2.1\any\" />
-    <file src="IronScheme\system-libraries.ironscheme.ss" target="tools\netcoreapp2.1\any\system-libraries.ss" />
+    <file src="IronScheme\system-libraries*.ss" target="tools\netcoreapp2.1\any\" />
+    <file src="IronScheme\nuget.sls" target="tools\netcoreapp2.1\any\" />
     <file src="IronScheme\lib\**" target="tools\netcoreapp2.1\any\lib\" exclude="**\web*.*;**web**;xml.sls"/>
     <file src="IronScheme\tests\**" target="tools\netcoreapp2.1\any\tests\" />
     <file src="..\..\..\..\DotnetToolSettings.xml" target="tools\netcoreapp2.1\any\" />
