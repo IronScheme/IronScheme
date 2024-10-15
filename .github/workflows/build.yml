@@ -67,6 +67,17 @@ jobs:
       if: ${{runner.os == 'Windows'}}
       run: package.cmd
 
+    - name: Coverage (cmd)
+      if: ${{runner.os == 'Windows'}}
+      run: coverage.cmd
+
+    - name: Upload coverage
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+        path: IronScheme/output.coverage
+      if: ${{ always() && runner.os == 'Windows' }}
+
     - name: Upload binlogs
       uses: actions/upload-artifact@v4
       with:

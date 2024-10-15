@@ -43,6 +43,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8C5B
 		build.cmd = build.cmd
 		build.sh = build.sh
 		clean.cmd = clean.cmd
+		cov-run.cmd = cov-run.cmd
+		coverage.cmd = coverage.cmd
 		package.cmd = package.cmd
 		package.sh = package.sh
 		test.cmd = test.cmd
@@ -52,8 +54,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{7A7C2AF7-F813-4DE1-978A-5CA6819BB784}"
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
-		ci-artefact.cmd = ci-artefact.cmd
 		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
+		ci-artefact.cmd = ci-artefact.cmd
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{0A81E939-5D7B-4B1B-93D6-B1E06D6C852F}"
