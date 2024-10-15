@@ -7,13 +7,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using IronScheme.FrameworkPAL;
 using IronScheme.Hosting;
 using IronScheme.Runtime;
-using IronScheme.Runtime.psyntax;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Ast;
@@ -49,13 +47,6 @@ namespace IronScheme.Compiler
       get { return BaseHelper.binder; }
     } 
 
-    
-    static BaseHelper()
-    {
-
-    }
-
-
     internal static void Initialize(IronSchemeLanguageProvider ironSchemeLanguageProvider)
     {
       lp = ironSchemeLanguageProvider;
@@ -67,7 +58,7 @@ namespace IronScheme.Compiler
 
       mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
 
-      cc = new CodeContext(scriptmodule.Scope, se.GetLanguageContext(), mc);
+      cc = new CodeContext(scriptmodule.Scope, se.LanguageContext, mc);
 
       binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
 

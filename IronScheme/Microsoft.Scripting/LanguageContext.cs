@@ -125,31 +125,30 @@ namespace Microsoft.Scripting
             }
         }
         
-        public ScriptCode CompileSourceCode(SourceUnit sourceUnit, CompilerOptions options) {
-            return CompileSourceCode(sourceUnit, options, null);
+        public ScriptCode CompileSourceCode(SourceUnit sourceUnit) {
+            return CompileSourceCode(sourceUnit, null);
         }
 
       public ScriptCode CompileSourceCode(CodeBlock block)
       {
-        CompilerContext context = new CompilerContext(SourceUnit.CreateSnippet(Engine, string.Empty), GetCompilerOptions(), Engine.GetCompilerErrorSink());
+        CompilerContext context = new CompilerContext(SourceUnit.CreateSnippet(Engine, string.Empty));
         AnalyzeBlock(block);
-        return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
+        return new ScriptCode(block, Engine.GetLanguageContext(), context);
       }
 
       public ScriptCode CompileSourceCode(CodeBlock block, string sourcefile)
       {
-        CompilerContext context = new CompilerContext(SourceUnit.CreateFileUnit(Engine, sourcefile), GetCompilerOptions(), Engine.GetCompilerErrorSink());
+        CompilerContext context = new CompilerContext(SourceUnit.CreateFileUnit(Engine, sourcefile));
         AnalyzeBlock(block);
-        return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
+        return new ScriptCode(block, Engine.GetLanguageContext(), context);
       }
 
-        public ScriptCode CompileSourceCode(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink) {
+        public ScriptCode CompileSourceCode(SourceUnit sourceUnit, ErrorSink errorSink) {
             Contract.RequiresNotNull(sourceUnit, "sourceUnit");
 
-            if (options == null) options = GetCompilerOptions();
             if (errorSink == null) errorSink = Engine.GetCompilerErrorSink();
 
-            CompilerContext context = new CompilerContext(sourceUnit, options, errorSink);
+            CompilerContext context = new CompilerContext(sourceUnit, errorSink);
 
             CodeBlock block = ParseSourceCode(context);
 
@@ -160,7 +159,7 @@ namespace Microsoft.Scripting
             AnalyzeBlock(block);
 
             // TODO: ParseSourceCode can update CompilerContext.Options
-            return new ScriptCode(block, Engine.GetLanguageContext(context.Options), context);
+            return new ScriptCode(block, Engine.GetLanguageContext(), context);
         }
 
         public static void AnalyzeBlock(CodeBlock block)
@@ -177,16 +176,7 @@ namespace Microsoft.Scripting
 
         public virtual ScriptCode Reload(ScriptCode original, ScriptModule module) {
             original.SourceUnit.Reload();
-            return CompileSourceCode(original.SourceUnit, Engine.GetModuleCompilerOptions(module));
-        }
-
-        /// <summary>
-        /// Creates the language specific CompilerContext object for code compilation.  The 
-        /// language should flow any relevant options from the LanguageContext to the 
-        /// newly created CompilerContext.
-        /// </summary>
-        public virtual CompilerOptions GetCompilerOptions() {
-            return Engine.GetDefaultCompilerOptions();
+            return CompileSourceCode(original.SourceUnit);
         }
 
         /// <summary>

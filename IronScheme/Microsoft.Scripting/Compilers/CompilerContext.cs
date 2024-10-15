@@ -45,14 +45,6 @@ namespace Microsoft.Scripting {
         /// </summary>
         private readonly ParserSink _parserSink;
 
-        /// <summary>
-        /// Compiler specific options.
-        /// </summary>
-        private readonly CompilerOptions _options;
-
-        public int DefaultErrorCode { get { return -1; } }
-        public Severity DefaultSeverity { get { return Severity.Error; } }
-
         public SourceUnit SourceUnit {
             get {
                 return _sourceUnit;
@@ -69,45 +61,20 @@ namespace Microsoft.Scripting {
             get { return _errors; }
         }
 
-        public CompilerOptions Options {
-            get { return _options; }
-        }
-
         public CompilerContext(SourceUnit sourceUnit)
-            : this(sourceUnit, null, null, null) {
+            : this(sourceUnit, null, null) {
         }
 
-        public CompilerContext(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink)
-            : this(sourceUnit, options, errorSink, null) {
+        public CompilerContext(SourceUnit sourceUnit, ErrorSink errorSink)
+            : this(sourceUnit, errorSink, null) {
         }
 
-        public CompilerContext(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink, ParserSink parserSink) {
+        public CompilerContext(SourceUnit sourceUnit, ErrorSink errorSink, ParserSink parserSink) {
             Contract.RequiresNotNull(sourceUnit, "sourceUnit");
 
             _sourceUnit = sourceUnit;
-            _options = options ?? sourceUnit.Engine.GetDefaultCompilerOptions();
             _errors = errorSink ?? sourceUnit.Engine.GetCompilerErrorSink();
             _parserSink = parserSink ?? ParserSink.Null;
         }
-
-        public CompilerContext CopyWithNewSourceUnit(SourceUnit sourceUnit) {
-            return new CompilerContext(sourceUnit, (CompilerOptions)_options.Clone(), _errors);
-        }
-
-        #region Error Reporting
-
-        public void AddError(string message, SourceLocation start, SourceLocation end) {
-            AddError(message, start, end, DefaultSeverity, DefaultErrorCode);
-        }
-
-        public void AddError(string message, SourceLocation start, SourceLocation end, Severity severity) {
-            AddError(message, start, end, severity, DefaultErrorCode);
-        }
-
-        public void AddError(string message, SourceLocation start, SourceLocation end, Severity severity, int errorCode) {
-            _errors.Add(SourceUnit, message, new SourceSpan(start, end), errorCode, severity);
-        }
-
-        #endregion
     }
 }

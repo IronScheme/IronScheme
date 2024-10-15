@@ -681,7 +681,7 @@ namespace Microsoft.Scripting {
         /// <c>options</c> can be <c>null</c>.
         /// <c>errorSink</c> can be <c>null</c>.
         /// </summary>
-        public ScriptModule CompileModule(string name, ScriptModuleKind kind, Scope scope, CompilerOptions options, ErrorSink errorSink, 
+        public ScriptModule CompileModule(string name, ScriptModuleKind kind, Scope scope, ErrorSink errorSink, 
             params SourceUnit[] sourceUnits) {
 
             Contract.RequiresNotNull(name, "name");
@@ -692,7 +692,7 @@ namespace Microsoft.Scripting {
             // compiles all source units:
             ScriptCode[] scriptCodes = new ScriptCode[sourceUnits.Length];
             for (int i = 0; i < sourceUnits.Length; i++) {
-                scriptCodes[i] = LanguageContext.FromEngine(sourceUnits[i].Engine).CompileSourceCode(sourceUnits[i], options, errorSink);
+                scriptCodes[i] = LanguageContext.FromEngine(sourceUnits[i].Engine).CompileSourceCode(sourceUnits[i], errorSink);
             }
 
             return CreateModule(name, kind, scope, scriptCodes);

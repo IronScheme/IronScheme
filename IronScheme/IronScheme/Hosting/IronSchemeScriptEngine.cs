@@ -112,7 +112,7 @@ namespace IronScheme.Hosting
 
     #endregion
 
-    protected override LanguageContext GetLanguageContext(CompilerOptions compilerOptions)
+    protected override LanguageContext GetLanguageContext()
     {
       return LanguageContext;
     }
@@ -163,10 +163,5 @@ namespace IronScheme.Hosting
         //new Guid(System.Security.Cryptography.MD5.HashData("Scheme".Select(c => (byte) c).ToArray()))
 
     #endregion
-
-    internal LanguageContext GetLanguageContext()
-    {
-      return LanguageContext;
-    }
   }
 }

@@ -48,10 +48,6 @@ namespace Microsoft.Scripting {
         bool VariableExists(string name);
         bool RemoveVariable(string name);
         void ClearVariables();
-
-        // compiler options:
-        CompilerOptions GetCompilerOptions(IScriptEngine engine);
-
     }
 
     /// <summary>
@@ -199,11 +195,6 @@ namespace Microsoft.Scripting {
         #endregion
 
         #region IScriptModule Members
-
-        public CompilerOptions GetCompilerOptions(IScriptEngine engine) {
-            Contract.RequiresNotNull(engine, "engine");
-            return engine.GetModuleCompilerOptions(this);
-        }
 
         /// <summary>
         /// Trys to lookup the provided name in the current scope.

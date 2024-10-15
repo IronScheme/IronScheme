@@ -442,7 +442,7 @@ namespace IronScheme.Runtime
     {
       if (s is FileStream)
       {
-        return new CompilerContext(SourceUnit.CreateFileUnit(ScriptEngine, ((FileStream)s).Name), old.Options, old.Errors, old.ParserSink);
+        return new CompilerContext(SourceUnit.CreateFileUnit(ScriptEngine, ((FileStream)s).Name), old.Errors, old.ParserSink);
       }
       return old;
     }

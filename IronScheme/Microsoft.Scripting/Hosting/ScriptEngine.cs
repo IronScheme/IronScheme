@@ -47,7 +47,6 @@ namespace Microsoft.Scripting.Hosting {
 
         // configuration:
         void SetSourceUnitSearchPaths(string[] paths);
-        CompilerOptions GetDefaultCompilerOptions();
         SourceCodeProperties GetCodeProperties(string code, SourceCodeKind kind);
         SourceCodeProperties GetCodeProperties(string code, SourceCodeKind kind, ErrorSink errorSink);
         
@@ -96,10 +95,7 @@ namespace Microsoft.Scripting.Hosting {
         ICompiledCode CompileInteractiveCode(string code);
         ICompiledCode CompileInteractiveCode(string code, IScriptModule module);
         ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, IScriptModule module);
-        ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink);
-
-        // TODO: (internal)
-        CompilerOptions GetModuleCompilerOptions(ScriptModule module);
+        ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, ErrorSink errorSink);
 
         // TODO: output
         TextWriter GetOutputWriter(bool isErrorOutput);
@@ -313,7 +309,7 @@ namespace Microsoft.Scripting.Hosting {
             SourceUnit sourceUnit = SourceUnit.CreateSnippet(this, code, kind);
             
             // create compiler context with null error sink:
-            CompilerContext compilerContext = new CompilerContext(sourceUnit, null, errorSink ?? new ErrorSink());
+            CompilerContext compilerContext = new CompilerContext(sourceUnit, errorSink ?? new ErrorSink());
             
             _languageContext.UpdateSourceCodeProperties(compilerContext);
 
@@ -327,20 +323,6 @@ namespace Microsoft.Scripting.Hosting {
         #endregion
 
         #region Compilation and Execution
-
-        /// <summary>
-        /// Compiler options factory.
-        /// </summary>
-        public virtual CompilerOptions GetDefaultCompilerOptions() {
-            return new CompilerOptions();
-        }
-
-        /// <summary>
-        /// Creates compiler options initialized by the options associated with the module.
-        /// </summary>
-        public virtual CompilerOptions GetModuleCompilerOptions(ScriptModule module) { // TODO: internal protected
-            return GetDefaultCompilerOptions();
-        }
 
         public virtual ErrorSink GetCompilerErrorSink() {
             return new ErrorSink();
@@ -438,13 +420,12 @@ namespace Microsoft.Scripting.Hosting {
 
         public ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, IScriptModule module) {
             Contract.RequiresNotNull(sourceUnit, "sourceUnit");
-            CompilerOptions options = (module != null) ? module.GetCompilerOptions(this) : GetDefaultCompilerOptions();
-            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit, options));
+            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit));
         }
 
-        public ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink) {
+        public ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, ErrorSink errorSink) {
             Contract.RequiresNotNull(sourceUnit, "sourceUnit");
-            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit, options, errorSink));
+            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit, errorSink));
         }
         
         /// <summary>
@@ -541,10 +522,10 @@ namespace Microsoft.Scripting.Hosting {
 
         internal protected virtual LanguageContext GetLanguageContext(ScriptModule module) {
             Contract.RequiresNotNull(module, "module");
-            return GetLanguageContext(module.GetCompilerOptions(this));
+            return GetLanguageContext();
         }
         
-        internal protected virtual LanguageContext GetLanguageContext(CompilerOptions compilerOptions) {
+        internal protected virtual LanguageContext GetLanguageContext() {
             return InvariantContext.Instance;
         }
 
