@@ -78,20 +78,20 @@ jobs:
     - name: Upload coverage
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{coverage}}
+        name: coverage-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
         path: IronScheme/output.coverage
       if: ${{ always() && runner.os == 'Windows' && matrix.coverage }}
 
     - name: Upload binlogs
       uses: actions/upload-artifact@v4
       with:
-        name: binlog-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{coverage}}
+        name: binlog-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
         path: IronScheme/*.binlog
       if: ${{ always() }}
 
     - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
-        name: packages-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{coverage}}
+        name: packages-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
         path: IronScheme/bin/*.*
       if: ${{ always() }}
