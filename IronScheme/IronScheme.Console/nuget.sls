@@ -11,7 +11,10 @@ See docs/license.txt. |#
   (import
     (ironscheme)
     (ironscheme files)
-    (ironscheme strings))
+    (ironscheme strings)
+    (ironscheme environment))
+
+  (define dir (path-combine (application-directory) "./lib/srfi/" ))
 
   (define (fuck)
     (vector-for-each
@@ -19,24 +22,48 @@ See docs/license.txt. |#
         (directory-move
           f
           (string-replace f "%3a" "COLON" )))
-      (get-directories "./lib/srfi/" "%3a*"))
+      (get-directories dir "%3a*"))
     (vector-for-each
       (lambda (f)
         (file-move
           f
           (string-replace f "%3a" "COLON" )))
-      (get-files "./lib/srfi/" "%3a*.*")))
+      (get-files dir "%3a*.*"))
+    (vector-for-each
+      (lambda (f)
+        (file-move
+          f
+          (string-replace f "%21" "EXCLAIMATION" )))
+      (get-files dir "*%21.*"))
+    (vector-for-each
+      (lambda (f)
+        (file-move
+          f
+          (string-replace f "%2a" "ASTERIX" )))
+      (get-files dir "*%2a.*")))
 
   (define (unfuck)
     (vector-for-each
       (lambda (f)
         (file-move
           f
+          (string-replace f "ASTERIX" "%2a" )))
+      (get-files dir "*ASTERIX.*"))
+    (vector-for-each
+      (lambda (f)
+        (file-move
+          f
+          (string-replace f "EXCLAIMATION" "%21" )))
+      (get-files dir "*EXCLAIMATION.*"))
+    (vector-for-each
+      (lambda (f)
+        (file-move
+          f
           (string-replace f "COLON" "%3a" )))
-      (get-files "./lib/srfi/" "COLON*.*"))
+      (get-files dir "COLON*.*"))
     (vector-for-each
       (lambda (f)
         (directory-move
           f
           (string-replace f "COLON" "%3a" )))
-      (get-directories "./lib/srfi/" "COLON*"))))
+      (get-directories dir "COLON*"))))
