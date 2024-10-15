@@ -13,6 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-2019]
+        coverage: [false]
         include:
           - os: windows-2019
             coverage: [true, false]
@@ -41,7 +42,7 @@ jobs:
         dotnet-quality: 'daily'
 
     - name: Setup .NETCore 2.1
-      if: ${{runner.os == 'Windows'}}
+      if: ${{runner.os == 'Windows' && !matrix.coverage}}
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 2.1.x
