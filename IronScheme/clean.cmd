@@ -2,6 +2,7 @@
 setlocal
 
 dotnet build-server shutdown --msbuild >nul
+\sysinternals\pskill -nobanner msbuild 2>&1
 
 @SET COMMON=-m -c Release -clp:NoSummary -v:q
 

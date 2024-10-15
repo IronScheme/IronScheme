@@ -80,7 +80,7 @@ jobs:
       with:
         name: coverage-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
         path: IronScheme/output.coverage
-      if: ${{ always() && runner.os == 'Windows' && matrix.coverage }}
+      if: ${{ always() && matrix.coverage }}
 
     - name: Upload binlogs
       uses: actions/upload-artifact@v4
