@@ -53,9 +53,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{7A7C2AF7-F813-
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
 		ci-artefact.cmd = ci-artefact.cmd
-		..\.github\workflows\linux.yml = ..\.github\workflows\linux.yml
-		..\.github\workflows\osx.yml = ..\.github\workflows\osx.yml
-		..\.github\workflows\windows.yml = ..\.github\workflows\windows.yml
+		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{0A81E939-5D7B-4B1B-93D6-B1E06D6C852F}"

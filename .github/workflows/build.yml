@@ -57,10 +57,7 @@ jobs:
 
     - name: Test (cmd)
       if: ${{matrix.os == 'windows-2019'}}
-      run: |
-        test.cmd
-        test.cmd /net9
-        test.cmd /core
+      run: test.cmd && test.cmd /net9 && test.cmd /core
 
     - name: Package (sh)
       if: ${{matrix.os != 'windows-2019'}}
