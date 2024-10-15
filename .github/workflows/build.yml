@@ -16,7 +16,7 @@ jobs:
         coverage: [false]
         include:
           - os: windows-2019
-            coverage: [true, false]
+            coverage: [true]
 
     timeout-minutes: 20
 
