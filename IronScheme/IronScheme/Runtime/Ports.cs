@@ -106,6 +106,7 @@ namespace IronScheme.Runtime
           {
             if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
             {
+              //Console.Error.WriteLine("LoadFile (Ports.cs:110) {0}", fn);
               return Assembly.LoadFile(fn);
             }
             else
@@ -136,6 +137,7 @@ namespace IronScheme.Runtime
       {
         if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
         {
+          //Console.Error.WriteLine("LoadFile (Ports.cs:140) {0}", fn);
           return Assembly.LoadFile(fn);
         }
         else

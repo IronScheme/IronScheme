@@ -171,7 +171,6 @@ namespace Microsoft.Scripting.Generation
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
         public Assembly DumpAndLoad() {
             if (!SaveAndReloadAssemblies) {
                 return _myAssembly;
@@ -193,7 +192,15 @@ namespace Microsoft.Scripting.Generation
             if (File.Exists(fullPath))
             {
                 // this is not really ideal, but it seems to work fine for now
-                return Assembly.LoadFile(fullPath);
+                if (_outDir == Environment.CurrentDirectory)
+                {
+                    return Assembly.LoadFrom(fullPath);
+                }
+                else
+                {
+                    //Console.Error.WriteLine("LoadFile (AssemblyGen.cs:202) {0}", fullPath);
+                    return Assembly.LoadFile(fullPath);
+                }
             }
             return _myAssembly;
         }
