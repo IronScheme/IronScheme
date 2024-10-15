@@ -15,9 +15,9 @@ See docs/license.txt. |#
   (include "system-libraries.ironscheme.ss")
   #f)
 
-(let ()
-  (import (ironscheme xml))
-  #f)
+;(let ()
+;  (import (ironscheme xml))
+;  #f)
 
 (let () 
   (include "system-libraries.srfi.ss")
