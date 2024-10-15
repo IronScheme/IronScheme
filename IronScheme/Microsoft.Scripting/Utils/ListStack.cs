@@ -30,14 +30,6 @@ namespace Microsoft.Scripting.Utils {
             _list = new List<T>();
         }
 
-        public ListStack(int capacity) {
-            _list = new List<T>(capacity);
-        }
-
-        public ListStack(IEnumerable<T> collection) {
-            _list = new List<T>(collection);
-        }
-
         public T this[int index] {
             get { return _list[index]; }
             set { _list[index] = value; }
@@ -56,15 +48,6 @@ namespace Microsoft.Scripting.Utils {
             _version++;
             _list.RemoveAt(_list.Count - 1);
             return result;
-        }
-
-        public bool Contains(T t) {
-            return _list.Contains(t);
-        }
-
-        public void Clear() {
-            _version++;
-            _list.Clear();
         }
 
         public void Push(T item) {

@@ -13,6 +13,9 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-2019]
+        include:
+          - os: windows-2019
+            coverage: [true, false]
 
     timeout-minutes: 20
 
@@ -56,7 +59,7 @@ jobs:
       run: sh test.sh
 
     - name: Test (cmd)
-      if: ${{runner.os == 'Windows'}}
+      if: ${{runner.os == 'Windows' && !matrix.coverage}}
       run: test.cmd && test.cmd /net9 && test.cmd /core
 
     - name: Package (sh)
@@ -68,7 +71,7 @@ jobs:
       run: package.cmd
 
     - name: Coverage (cmd)
-      if: ${{runner.os == 'Windows'}}
+      if: ${{runner.os == 'Windows' && matrix.coverage}}
       run: coverage.cmd
 
     - name: Upload coverage
@@ -76,7 +79,7 @@ jobs:
       with:
         name: coverage-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
         path: IronScheme/output.coverage
-      if: ${{ always() && runner.os == 'Windows' }}
+      if: ${{ always() && runner.os == 'Windows' && matrix.coverage }}
 
     - name: Upload binlogs
       uses: actions/upload-artifact@v4

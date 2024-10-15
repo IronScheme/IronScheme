@@ -21,34 +21,6 @@ using System.Collections.ObjectModel;
 namespace Microsoft.Scripting.Utils {
     public static class CollectionUtils {
 
-        public static IEnumerator<S> ToCovariant<T, S>(IEnumerator<T> enumerator)
-            where T : S {
-
-            Contract.RequiresNotNull(enumerator, "enumerator");
-
-            while (enumerator.MoveNext()) {
-                yield return enumerator.Current;
-            }
-        }
-
-        private class CovariantConvertor<T, S> : IEnumerable<S> where T : S {
-            private IEnumerable<T> _enumerable;
-
-            public CovariantConvertor(IEnumerable<T> enumerable) {
-                Contract.RequiresNotNull(enumerable, "enumerable");
-                _enumerable = enumerable;
-            }
-
-            public IEnumerator<S> GetEnumerator() {
-                return CollectionUtils.ToCovariant<T, S>(_enumerable.GetEnumerator());
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() {
-                return GetEnumerator();
-            }
-        }
-
-
         public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(IList<T> list) {
             ReadOnlyCollection<T> roc;
             if (list == null) {

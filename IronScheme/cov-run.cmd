@@ -1,4 +1,4 @@
-rem @echo off
+@echo off
 setlocal
 
 cd IronScheme.Console\bin\Release\net20
