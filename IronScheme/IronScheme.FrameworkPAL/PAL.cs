@@ -53,26 +53,34 @@ namespace IronScheme.FrameworkPAL
     }
 
 #if NET9_0_OR_GREATER
-    Dictionary<ISymbolDocumentWriter, string> filemap = new();
+    Dictionary<ModuleBuilder, HashSet<ISymbolDocumentWriter>> modmap = new();
+    Dictionary<ISymbolDocumentWriter, HashSet<ILGenerator>> ilmap = new();
     Dictionary<ILGenerator, List<int>> iloffsets = new();
 #endif
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
 #if NET9_0_OR_GREATER
+      if (!ilmap.TryGetValue(document, out var ilgs))
+      {
+        ilmap[document] = ilgs = new ();
+      }
+
+      ilgs.Add(ilg);
+
       if (ilg.ILOffset == 0 && startLine == 16707566)
       {
         return;
       }
 
-      if (!iloffsets.TryGetValue(ilg, out var offsets))
-      {
-        iloffsets[ilg] = offsets = new List<int>();
-      }
-
       if (ilg.ILOffset == 0 && endColumn - startColumn == 1)
       {
         Debugger.Break();
+      }
+
+      if (!iloffsets.TryGetValue(ilg, out var offsets))
+      {
+        iloffsets[ilg] = offsets = new ();
       }
 
       if (offsets.Contains(ilg.ILOffset))
@@ -129,7 +137,12 @@ namespace IronScheme.FrameworkPAL
 
 #if NET9_0_OR_GREATER
 
-      filemap.Add(docwriter, Path.GetFileName(properfn));
+      if (!modmap.TryGetValue(mb, out var writers))
+      {
+        modmap[mb] = writers = new ();
+      }
+
+      writers.Add(docwriter);
 #endif
 
       return docwriter;
@@ -147,6 +160,26 @@ namespace IronScheme.FrameworkPAL
       }
 
       SaveNET9((PersistedAssemblyBuilder)ass, filename, DummySymbolWriter != null);
+
+      foreach (var (key, value) in modmap)
+      {
+        if (key == ass.ManifestModule)
+        {
+          Console.WriteLine("removign garbage from {0}", key.ScopeName);
+          foreach (var w in value)
+          {
+            foreach (var ilg in ilmap[w])
+            {
+              iloffsets.Remove(ilg);
+            }
+
+            ilmap.Remove(w);
+          }
+
+          modmap.Remove(key);
+          break;
+        }
+      }
 
 #elif !NETCOREAPP2_1_OR_GREATER
       ass.Save(Path.GetFileName(filename), PortableExecutableKinds.ILOnly, machineKind);
@@ -390,11 +423,12 @@ namespace IronScheme.FrameworkPAL
           BlobBuilder portablePdbBlob = new BlobBuilder();
           PortablePdbBuilder portablePdbBuilder = new PortablePdbBuilder(pdbBuilder, metadataBuilder.GetRowCounts(), entryPoint: default);
           BlobContentId pdbContentId = portablePdbBuilder.Serialize(portablePdbBlob);
-          using FileStream pdbFileStream = new FileStream(pdbPath, FileMode.Create, FileAccess.Write);
-          portablePdbBlob.WriteContentTo(pdbFileStream);
+          //using FileStream pdbFileStream = new FileStream(pdbPath, FileMode.Create, FileAccess.Write);
+          //portablePdbBlob.WriteContentTo(pdbFileStream);
 
           debugDirectoryBuilder = new DebugDirectoryBuilder();
-          debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+          //debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+          debugDirectoryBuilder.AddEmbeddedPortablePdbEntry(portablePdbBlob, portablePdbBuilder.FormatVersion);
         }
 
         ManagedPEBuilder peBuilder = new ManagedPEBuilder(

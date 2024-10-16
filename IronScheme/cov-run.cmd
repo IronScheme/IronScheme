@@ -7,8 +7,7 @@ del /q IronScheme.FrameworkPAL.*
 copy ..\netcoreapp2.1\IronScheme.ConsoleCore.dll .
 copy ..\net9.0\IronScheme.ConsoleCore.runtimeconfig.json .
 
-echo (compile-system-libraries) | dotnet IronScheme.ConsoleCore.dll
-echo (compile-system-libraries) | IronScheme.Console32-v2.exe -debug
+echo (compile-system-libraries) | dotnet IronScheme.ConsoleCore.dll -debug
 
 SET ISWD=%CD%
 SET TESTCORE=1
