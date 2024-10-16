@@ -302,7 +302,7 @@
   
   (file-options-constructor (enum-set-constructor fo))
 
-  (compile-to-current-directory? #f)
+  (compile-to-current-directory? #t)
   (library-path (get-library-paths))
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))

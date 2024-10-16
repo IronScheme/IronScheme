@@ -192,7 +192,7 @@ namespace IronScheme.Hosting
 
         var nuget = Path.Combine(Builtins.ApplicationDirectory, "nuget.sls");
 
-        if (File.Exists(nuget) && nuget.Contains("tools"))
+        if (File.Exists(nuget) && nuget.Contains(Path.DirectorySeparatorChar + "ironscheme.tool" + Path.DirectorySeparatorChar))
         {
           Engine.Execute("(import (nuget)) (unfuck)", Compiler.BaseHelper.scriptmodule);
           File.Delete(nuget);
