@@ -649,7 +649,7 @@ namespace Microsoft.Scripting.Generation {
                             var s = GetSpan(expr);
                             if (s.IsValid)
                             {
-                                EmitPosition(s.Start, s.End);
+                                //EmitPosition(s.Start, s.End);
                             }
                         }
                     }

@@ -18,6 +18,7 @@ using Microsoft.Scripting;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace IronScheme.FrameworkPAL
 {
@@ -52,14 +53,42 @@ namespace IronScheme.FrameworkPAL
     }
 
 #if NET9_0_OR_GREATER
-    //HashSet<ILGenerator> ilgens = new();
+    Dictionary<ISymbolDocumentWriter, string> filemap = new();
+    Dictionary<ILGenerator, List<int>> iloffsets = new();
 #endif
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
 #if NET9_0_OR_GREATER
-      //Console.Error.WriteLine("[{0:X4}] {1}:{2} - {3}:{4}", ilg.ILOffset, startLine, startColumn, endLine, endColumn);
-      //ilgens.Add(ilg);
+      if (ilg.ILOffset == 0 && startLine == 16707566)
+      {
+        return;
+      }
+
+      if (!iloffsets.TryGetValue(ilg, out var offsets))
+      {
+        iloffsets[ilg] = offsets = new List<int>();
+      }
+
+      if (ilg.ILOffset == 0 && endColumn - startColumn == 1)
+      {
+        Debugger.Break();
+      }
+
+      if (offsets.Contains(ilg.ILOffset))
+      {
+        // skipping
+        if (ilg.ILOffset == 0)
+        {
+          Debugger.Break();
+        }
+        return;
+      }
+
+      offsets.Add(ilg.ILOffset);
+
+      //Console.Error.WriteLine("{0},{1},{2},{3},{4},{5}, {6}", ilg.ILOffset, startLine, startColumn, endLine, endColumn, filemap[document], ilg.GetHashCode());
+      
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
@@ -68,6 +97,7 @@ namespace IronScheme.FrameworkPAL
 
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
+
 #if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
       string properfn = null;
       if (fn.StartsWith("build") || fn.StartsWith("psyntax"))
@@ -96,6 +126,12 @@ namespace IronScheme.FrameworkPAL
         lang,
         vendor,
         doctype);
+
+#if NET9_0_OR_GREATER
+
+      filemap.Add(docwriter, Path.GetFileName(properfn));
+#endif
+
       return docwriter;
 #else
       return null;

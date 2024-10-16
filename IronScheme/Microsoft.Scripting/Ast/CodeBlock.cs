@@ -953,17 +953,17 @@ namespace Microsoft.Scripting.Ast
 
           if (!ScriptDomainManager.Options.LightweightDebugging)
           {
-            if (Start.IsValid)
-            {
-              var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
+            //if (Start.IsValid)
+            //{
+            //  var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
 
-              cg.EmitPosition(Start, s);
-              cg.Emit(OpCodes.Nop);
-            }
-            else
-            {
-              cg.EmitSequencePointNone();
-            }
+            //  cg.EmitPosition(Start, s);
+            //  cg.Emit(OpCodes.Nop);
+            //}
+            //else
+            //{
+            //  cg.EmitSequencePointNone();
+            //}
 
             cg.lambdaspan = Span;
           }
