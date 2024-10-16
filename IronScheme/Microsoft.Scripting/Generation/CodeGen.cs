@@ -136,7 +136,7 @@ namespace Microsoft.Scripting.Generation {
             }
 
 
-            ILDebug = assemblyGen.ILDebug;
+            //ILDebug = assemblyGen.ILDebug;
             // this is a bit more tricky than i would think :|
             //CacheConstants = true;
         }
@@ -1841,19 +1841,6 @@ namespace Microsoft.Scripting.Generation {
         }
 
         /// <summary>
-        /// True if CodeGen should output a text file containing the generated IL, false otherwise.
-        /// </summary>
-        public bool ILDebug {
-            get {
-                return (_options & CodeGenOptions.ILDebug) != 0;
-            }
-            set {
-                if (value) _options |= CodeGenOptions.ILDebug;
-                else _options &= ~CodeGenOptions.ILDebug;
-            }
-        }
-
-        /// <summary>
         /// True if CodeGen should store all constants in static fields and emit loads of those fields,
         /// false if constants should be emitted and boxed at runtime.
         /// </summary>
@@ -1864,20 +1851,6 @@ namespace Microsoft.Scripting.Generation {
             set {
                 if (value) _options |= CodeGenOptions.CacheConstants;
                 else _options &= ~CodeGenOptions.CacheConstants;
-            }
-        }
-
-        /// <summary>
-        /// True if line information should be tracked during code execution to provide
-        /// runtime line-information in non-debug builds, false otherwise.
-        /// </summary>
-        public bool EmitLineInfo {
-            get {
-                return (_options & CodeGenOptions.EmitLineInfo) != 0;
-            }
-            set {
-                if (value) _options |= CodeGenOptions.EmitLineInfo;
-                else _options &= ~CodeGenOptions.EmitLineInfo;
             }
         }
 

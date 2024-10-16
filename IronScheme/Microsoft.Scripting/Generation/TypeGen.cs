@@ -15,19 +15,14 @@
 
 using System;
 using System.Diagnostics;
-using System.Collections;
 using System.Collections.Generic;
 
 using System.Reflection;
 using System.Reflection.Emit;
-
-using System.Security.Permissions;
-
-using Microsoft.Scripting.Math;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     public class TypeGen {
         private readonly AssemblyGen _myAssembly;
         private readonly TypeBuilder _myType;

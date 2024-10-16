@@ -153,12 +153,6 @@ namespace Microsoft.Scripting.Generation
             }
         }
 
-        public bool ILDebug {
-            get {
-                return (_genAttrs & AssemblyGenAttributes.ILDebug) == AssemblyGenAttributes.ILDebug;
-            }
-        }
-
         public bool BeforeFieldInit {
             get {
                 return (_genAttrs & AssemblyGenAttributes.BeforeFieldInit) == AssemblyGenAttributes.BeforeFieldInit;
