@@ -55,7 +55,7 @@ namespace IronScheme.FrameworkPAL
 #if NET9_0_OR_GREATER
     Dictionary<ModuleBuilder, HashSet<ISymbolDocumentWriter>> modmap = new();
     Dictionary<ISymbolDocumentWriter, HashSet<ILGenerator>> ilmap = new();
-    Dictionary<ILGenerator, List<int>> iloffsets = new();
+    Dictionary<ILGenerator, SortedSet<int>> iloffsets = new();
 #endif
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
@@ -75,7 +75,9 @@ namespace IronScheme.FrameworkPAL
 
       if (ilg.ILOffset == 0 && endColumn - startColumn == 1)
       {
+#if DEBUG
         Debugger.Break();
+#endif
       }
 
       if (!iloffsets.TryGetValue(ilg, out var offsets))
@@ -88,20 +90,20 @@ namespace IronScheme.FrameworkPAL
         // skipping
         if (ilg.ILOffset == 0)
         {
+#if DEBUG
           Debugger.Break();
+#endif
         }
         return;
       }
 
       offsets.Add(ilg.ILOffset);
-
-      //Console.Error.WriteLine("{0},{1},{2},{3},{4},{5}, {6}", ilg.ILOffset, startLine, startColumn, endLine, endColumn, filemap[document], ilg.GetHashCode());
       
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
-    }
+        }
 
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {

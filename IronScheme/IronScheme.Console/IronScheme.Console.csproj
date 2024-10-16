@@ -97,10 +97,6 @@
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'" DependsOnTargets="IronSchemeBuildTools">
     <!-- move this to packaging -->
-    <PropertyGroup>
-      <CopyDst>$(TargetDir)$(ProjectName)32.exe</CopyDst>
-    </PropertyGroup>
-
-    <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(CopyDst)" />
+    <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(TargetDir)$(ProjectName)32.exe" />
   </Target>
 </Project>
