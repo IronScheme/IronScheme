@@ -154,30 +154,39 @@ namespace IronScheme.FrameworkPAL
     public void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind)
     {
 #if NET9_0_OR_GREATER
-      if (filename == "ironscheme.boot.dll")
+      try
       {
-        filename = Path.Combine("build", filename);
-      }
-
-      SaveNET9((PersistedAssemblyBuilder)ass, filename, DummySymbolWriter != null);
-
-      foreach (var (key, value) in modmap)
-      {
-        if (key == ass.ManifestModule)
+        if (filename == "ironscheme.boot.dll")
         {
-          Console.WriteLine("removign garbage from {0}", key.ScopeName);
-          foreach (var w in value)
+          filename = Path.Combine("build", filename);
+        }
+
+        SaveNET9((PersistedAssemblyBuilder)ass, filename, DummySymbolWriter != null);
+      }
+      finally
+      {
+        foreach (var (key, value) in modmap)
+        {
+          if (key == ass.ManifestModule)
           {
-            foreach (var ilg in ilmap[w])
+            //Console.Write("removign garbage from {0} ", key.ScopeName);
+            foreach (var w in value)
             {
-              iloffsets.Remove(ilg);
+              
+              foreach (var ilg in ilmap[w])
+              {
+                //Console.Write("I");
+                iloffsets.Remove(ilg);
+              }
+
+              //Console.Write("W");
+              ilmap.Remove(w);
             }
 
-            ilmap.Remove(w);
+            //Console.WriteLine();
+            modmap.Remove(key);
+            break;
           }
-
-          modmap.Remove(key);
-          break;
         }
       }
 
@@ -423,12 +432,12 @@ namespace IronScheme.FrameworkPAL
           BlobBuilder portablePdbBlob = new BlobBuilder();
           PortablePdbBuilder portablePdbBuilder = new PortablePdbBuilder(pdbBuilder, metadataBuilder.GetRowCounts(), entryPoint: default);
           BlobContentId pdbContentId = portablePdbBuilder.Serialize(portablePdbBlob);
-          //using FileStream pdbFileStream = new FileStream(pdbPath, FileMode.Create, FileAccess.Write);
-          //portablePdbBlob.WriteContentTo(pdbFileStream);
+          using FileStream pdbFileStream = new FileStream(pdbPath, FileMode.Create, FileAccess.Write);
+          portablePdbBlob.WriteContentTo(pdbFileStream);
 
           debugDirectoryBuilder = new DebugDirectoryBuilder();
-          //debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
-          debugDirectoryBuilder.AddEmbeddedPortablePdbEntry(portablePdbBlob, portablePdbBuilder.FormatVersion);
+          debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+          //debugDirectoryBuilder.AddEmbeddedPortablePdbEntry(portablePdbBlob, portablePdbBuilder.FormatVersion);
         }
 
         ManagedPEBuilder peBuilder = new ManagedPEBuilder(
