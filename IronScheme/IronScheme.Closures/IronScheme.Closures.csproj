@@ -49,7 +49,5 @@
     <ILAsm Condition="'$(DebugType)' == 'portable'" ContinueOnError="true" MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="@(IntermediateAssembly)" />
     <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="@(IntermediateAssembly)" />
 
-    <Delete Files="$(ILOutputFile)"/>
-
   </Target>
 </Project>

@@ -190,6 +190,14 @@ namespace IronScheme.Hosting
           Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
         }
 
+        var nuget = Path.Combine(Builtins.ApplicationDirectory, "nuget.sls");
+
+        if (File.Exists(nuget) && nuget.Contains("tools"))
+        {
+          Engine.Execute("(import (nuget)) (unfuck)", Compiler.BaseHelper.scriptmodule);
+          File.Delete(nuget);
+        }
+
         if (File.Exists("init.ss"))
         {
           Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);

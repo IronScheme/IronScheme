@@ -7,11 +7,11 @@ if "%1" == "--help" goto help
 
 SET COMMON=-m -c Release -clp:NoSummary
 
-dotnet build %COMMON% ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj -v:q
-dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj -v:q 
+SET BUILD=dotnet build %COMMON% ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj 
+SET TOOLS=dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj 
+SET PROJ=dotnet build %COMMON% -bl:build.binlog %*
 
-dotnet build %COMMON% -bl:build.binlog %*
-exit /B %ERRORLEVEL%
+endLocal & goto #_undefined_# 2>NUL || %BUILD% && %TOOLS% && %PROJ%
 
 :help
 echo Usage: build [msbuild args]
