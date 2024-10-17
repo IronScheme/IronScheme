@@ -22,7 +22,7 @@ namespace Microsoft.Scripting.Generation.Slots
     /// <summary>
     /// Accessing self
     /// </summary>
-    public class ThisSlot : Slot
+    internal class ThisSlot : Slot
     {
         private readonly Type _type;
 

@@ -18,7 +18,7 @@ using System.Reflection.Emit;
 
 namespace Microsoft.Scripting.Generation.Slots
 {
-    public class LocalNamedFrameSlot : Slot
+    internal class LocalNamedFrameSlot : Slot
     {
         private readonly Slot _frame;
         private readonly SymbolId _name;

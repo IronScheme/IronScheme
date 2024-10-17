@@ -24,7 +24,7 @@ namespace Microsoft.Scripting.Generation.Slots
     /// <summary>
     /// Argument access
     /// </summary>
-    public class ArgSlot : Slot
+    internal class ArgSlot : Slot
     {
         private Type _argType;
         private int _index;

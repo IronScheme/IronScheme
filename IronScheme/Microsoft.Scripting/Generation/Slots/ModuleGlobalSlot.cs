@@ -22,7 +22,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Scripting.Generation.Slots
 {
-    public class ModuleGlobalSlot : Slot
+    internal class ModuleGlobalSlot : Slot
     {
         private Slot _wrapper;
 

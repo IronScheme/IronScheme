@@ -24,7 +24,7 @@ namespace Microsoft.Scripting.Generation.Slots
     /// Local variable access
     /// Note that access of local variables of an enclosing function is done using a FieldSlot
     /// </summary>
-    public class LocalSlot : Slot
+    internal class LocalSlot : Slot
     {
         private readonly LocalBuilder _localBuilder;
 

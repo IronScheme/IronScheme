@@ -23,7 +23,7 @@ using Microsoft.Scripting.Generation.Slots;
 
 namespace Microsoft.Scripting.Generation.Factories
 {
-    public class ModuleGlobalFactory : SlotFactory
+    internal class ModuleGlobalFactory : SlotFactory
     {
         private SlotFactory _storage;
 

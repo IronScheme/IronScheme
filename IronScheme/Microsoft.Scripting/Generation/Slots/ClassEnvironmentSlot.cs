@@ -20,7 +20,7 @@ using System.Reflection;
 namespace Microsoft.Scripting.Generation.Slots
 {
 
-    public class ClassEnvironmentSlot : EnvironmentSlot
+    internal class ClassEnvironmentSlot : EnvironmentSlot
     {
         private Type _storageType;
 

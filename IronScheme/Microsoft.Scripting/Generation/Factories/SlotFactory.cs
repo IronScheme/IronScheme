@@ -24,7 +24,7 @@ namespace Microsoft.Scripting.Generation.Factories
     /// Base class for all other slot factories.  Supports creating either strongly typed
     /// slots or slots that are always of type object.
     /// </summary>
-    public abstract class SlotFactory
+    internal abstract class SlotFactory
     {
         private Dictionary<SymbolId, Slot> _fields = new Dictionary<SymbolId, Slot>();
 

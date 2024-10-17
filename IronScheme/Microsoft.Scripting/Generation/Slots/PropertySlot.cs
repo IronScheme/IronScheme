@@ -23,7 +23,7 @@ namespace Microsoft.Scripting.Generation.Slots
     /// <summary>
     /// Slot that accesses a property off an object
     /// </summary>
-    public class PropertySlot : Slot
+    internal class PropertySlot : Slot
     {
         private Slot _instance;
         private PropertyInfo _property;

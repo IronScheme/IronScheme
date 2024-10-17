@@ -21,7 +21,7 @@ using Microsoft.Scripting.Generation.Slots;
 namespace Microsoft.Scripting.Generation.Factories
 {
 
-    public class StaticFieldSlotFactory : SlotFactory
+    internal class StaticFieldSlotFactory : SlotFactory
     {
         private TypeGen _typeGen;
 

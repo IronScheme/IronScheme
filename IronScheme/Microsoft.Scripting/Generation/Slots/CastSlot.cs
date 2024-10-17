@@ -24,7 +24,7 @@ namespace Microsoft.Scripting.Generation.Slots
     /// A slot that can be used to wrap other slots and perform a cast before
     /// getting or setting the value.
     /// </summary>
-    public class CastSlot : Slot
+    internal class CastSlot : Slot
     {
         private Slot _instance;
         private Type _type;

@@ -24,7 +24,7 @@ namespace Microsoft.Scripting.Generation.Factories
     /// <summary>
     /// Creates slots that are backed by fields in a type.
     /// </summary>
-    public class FieldSlotFactory : SlotFactory
+    internal class FieldSlotFactory : SlotFactory
     {
         private TypeGen _typeGen;
         private Slot _instance;

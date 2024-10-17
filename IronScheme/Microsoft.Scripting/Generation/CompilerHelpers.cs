@@ -31,7 +31,7 @@ namespace Microsoft.Scripting.Generation
 {
     using Ast = Microsoft.Scripting.Ast.Ast;
 
-    public static class CompilerHelpers {
+    internal static class CompilerHelpers {
         public static readonly MethodAttributes PublicStatic = MethodAttributes.Public | MethodAttributes.Static;
 
         public static Type GetReturnType(MethodBase mi) {
@@ -45,8 +45,7 @@ namespace Microsoft.Scripting.Generation
 
         public static bool IsParamsMethod(ParameterInfo[] pis) {
             foreach (ParameterInfo pi in pis) {
-              if (IsParamArray(pi)
-) return true;
+              if (IsParamArray(pi)) return true;
             }
             return false;
         }
