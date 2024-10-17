@@ -13,10 +13,10 @@
  *
  * ***************************************************************************/
 
-using System;
 using Microsoft.Scripting.Generation;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class ContinueStatement : Statement {
         private Statement _statement;
 

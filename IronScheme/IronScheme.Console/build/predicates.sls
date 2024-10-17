@@ -46,6 +46,8 @@ See docs/license.txt. |#
   (clr-using Microsoft.Scripting.Math)
   (clr-using Oyster.Math)
   (clr-using System.Text)
+  (clr-using IronScheme.Scripting) 
+  (clr-using IronScheme.Scripting.Math)
   
   (define (valuetype-vector? obj)
     (and (clr-is Array obj)

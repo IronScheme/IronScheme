@@ -14,10 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Text;
 using System.Diagnostics;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Represents a location in source code.
     /// </summary>

@@ -15,41 +15,48 @@
 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// A slot backed by a static field in a type
     /// </summary>
-    public class StaticFieldSlot : Slot {
+    internal class StaticFieldSlot : Slot
+    {
         private readonly FieldInfo _field;
 
-        public StaticFieldSlot(FieldInfo field) {
+        public StaticFieldSlot(FieldInfo field)
+        {
             Contract.RequiresNotNull(field, "field");
 
-            this._field = field;
+            _field = field;
         }
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             cg.EmitFieldGet(_field);
         }
 
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             cg.EmitFieldAddress(_field);
         }
 
-        public override void EmitSet(CodeGen cg) {
+        public override void EmitSet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             cg.EmitFieldSet(_field);
         }
 
-        public override Type Type {
-            get {
+        public override Type Type
+        {
+            get
+            {
                 return _field.FieldType;
             }
         }
@@ -57,12 +64,14 @@ namespace Microsoft.Scripting.Generation {
         /// <summary>
         /// Gets the FieldInfo for which this slot will emit a get / set for.
         /// </summary>
-        public FieldInfo Field {
+        public FieldInfo Field
+        {
             get { return _field; }
         }
 
-        public override string ToString() {
-            return String.Format("StaticFieldSlot Field: {0}.{1} Type: {1}", _field.DeclaringType, _field.Name, _field.FieldType);
+        public override string ToString()
+        {
+            return string.Format("StaticFieldSlot Field: {0}.{1} Type: {1}", _field.DeclaringType, _field.Name, _field.FieldType);
         }
     }
 }

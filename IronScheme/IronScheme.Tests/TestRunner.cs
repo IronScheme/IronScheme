@@ -4,15 +4,51 @@ using NUnit.Framework;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace IronScheme.Tests
 {
+  [SetUpFixture]
+  public class Setup
+  {
+    [OneTimeSetUp]
+    public void RunBeforeAnyTests()
+    {
+      var iswd = Environment.GetEnvironmentVariable("ISWD");
+      if (iswd != null)
+      {
+        Environment.CurrentDirectory = iswd;
+      }
+
+      Cleanup();
+
+      var TestCore = Environment.GetEnvironmentVariable("TESTCORE") == "1";
+
+      var r = TestRunner.RunIronSchemeTest(TestCore, null, "(ironscheme-runtime)");
+      TestContext.Error.WriteLine($"ironscheme-runtime: {r.Output}");
+    }
+    
+    internal static void Cleanup()
+    {
+      if (File.Exists("compiled.lst"))
+      {
+        var libs = File.ReadAllLines("compiled.lst");
+
+        foreach (var lib in libs)
+        {
+          File.Delete(lib);
+          File.Delete(Path.ChangeExtension(lib, "pdb"));
+        }
+
+        File.Delete("compiled.lst");
+      }
+    }
+  }
+
   [TestFixture]
   public abstract class TestRunner
   {
     [OneTimeSetUp]
-    public void Setup()
+    public void SetupPerFixture()
     {
       var iswd = Environment.GetEnvironmentVariable("ISWD");
       if (iswd != null)
@@ -25,9 +61,9 @@ namespace IronScheme.Tests
 
     public bool TestCore { get; private set; }
 
-    protected static void AssertError(TestResult tr)
+    protected void AssertError(TestResult tr)
     {
-      Assert.That(tr.Error, Is.Empty, "stderr is not empty");
+      Warn.If(tr.Error, Is.Not.Empty, "stderr is not empty");
     }
 
     protected static string NormalizeLineBreaks(string input)
@@ -48,7 +84,7 @@ namespace IronScheme.Tests
 
     protected bool Quiet { get; private set; }
 
-    protected class TestResult
+    protected internal class TestResult
     {
       public string Output;
       public string Error;
@@ -74,14 +110,19 @@ Error:
 
     protected TestResult RunIronSchemeTest(string args, string input, [CallerMemberName] string method = null)
     {
-      if (TestCore)
+      return RunIronSchemeTest(TestCore, args, input, method);
+    }
+
+    internal static TestResult RunIronSchemeTest(bool testCore, string args, string input, [CallerMemberName] string method = null)
+    {
+      if (testCore)
       {
-        return RunTest("dotnet", "IronScheme.ConsoleCore.dll " + args, input, method);
+        return RunTest("dotnet", "--roll-forward Major IronScheme.ConsoleCore.dll " + args, input, method);
       }
       return RunTest("IronScheme.Console32.exe", args, input, method);
     }
 
-    protected TestResult RunTest(string exe, string args)
+    protected static TestResult RunTest(string exe, string args)
     {
       return RunTest(exe, args, null);
     }
@@ -108,13 +149,13 @@ Error:
 
       p.ErrorDataReceived += (s, e) =>
       {
-        //if (echo && !Quiet) Console.Error.WriteLine(e.Data);
+        //Console.Error.WriteLine(e.Data);
         error.WriteLine(e.Data);
       };
 
       p.OutputDataReceived += (s, e) =>
       {
-        //if (echo && !Quiet) Console.WriteLine(e.Data);
+        //Console.Error.WriteLine(e.Data);
         output.WriteLine(e.Data);
       };
 

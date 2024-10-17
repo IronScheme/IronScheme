@@ -8,7 +8,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using IronScheme.FrameworkPAL;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
@@ -26,8 +25,6 @@ namespace IronScheme.Hosting
     internal IronSchemeLanguageProvider(ScriptDomainManager x)
       : base(x)
     {
-      ScriptDomainManager.Options.DynamicStackTraceSupport = false;
-
       Closure.ConsFromArray = Cons.FromArray;
       Closure.ConsStarFromArray = delegate(object[] args) { return Builtins.ToImproper(Cons.FromArray(args)); };
       Closure.Unspecified = Builtins.Unspecified;
@@ -44,7 +41,7 @@ namespace IronScheme.Hosting
     void Initialize()
     {
       //PAL.Initialize();
-      IronScheme.Compiler.BaseHelper.Initialize(this);
+      BaseHelper.Initialize(this);
       Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
     
@@ -55,12 +52,12 @@ namespace IronScheme.Hosting
 
     IronSchemeScriptEngine se;
 
-    public override ScriptEngine GetEngine(EngineOptions options)
+    public override ScriptEngine GetEngine()
     {
       if (se == null)
       {
         LanguageContext lc = new IronSchemeLanguageContext();
-        se = new IronSchemeScriptEngine(this, options ?? new IronSchemeOptionsParser.IronSchemeEngineOptions(), lc);
+        se = new IronSchemeScriptEngine(this, lc);
 
       }
       return se;
@@ -128,13 +125,13 @@ namespace IronScheme.Hosting
             tail[0] = tail[0].Replace("\\", "/");
 
             Engine.Execute(string.Format("(command-line '(\"{0}\"))", string.Join("\" \"", tail)), 
-              Compiler.BaseHelper.scriptmodule);
+              BaseHelper.scriptmodule);
           }
         }
 
         if (!Options.TabCompletion)
         {
-          Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(emacs-mode? #t)", BaseHelper.scriptmodule);
         }
         int ev = 0;
         AutoResetEvent e = new AutoResetEvent(false);
@@ -189,12 +186,20 @@ namespace IronScheme.Hosting
 
         if (!Options.TabCompletion)
         {
-          Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(emacs-mode? #t)", BaseHelper.scriptmodule);
+        }
+
+        var nuget = Path.Combine(Builtins.ApplicationDirectory, "nuget.sls");
+
+        if (File.Exists(nuget) && nuget.Contains(Path.DirectorySeparatorChar + "ironscheme.tool" + Path.DirectorySeparatorChar))
+        {
+          Engine.Execute("(import (nuget)) (unfuck)", BaseHelper.scriptmodule);
+          File.Delete(nuget);
         }
 
         if (File.Exists("init.ss"))
         {
-          Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(include \"init.ss\")", BaseHelper.scriptmodule);
         }
 
       }
@@ -265,27 +270,6 @@ namespace IronScheme.Hosting
         set
         {
           base.ConsoleOptions = value;
-        }
-      }
-
-      internal class IronSchemeEngineOptions : EngineOptions
-      {
-        public IronSchemeEngineOptions()
-        {
-          ProfileDrivenCompilation = false;
-        }
-      }
-
-      public override EngineOptions EngineOptions
-      {
-        get
-        {
-          EngineOptions eo = new IronSchemeEngineOptions();
-          return eo;
-        }
-        set
-        {
-          base.EngineOptions = value;
         }
       }
     }

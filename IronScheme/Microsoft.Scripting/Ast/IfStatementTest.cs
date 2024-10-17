@@ -13,9 +13,9 @@
  *
  * ***************************************************************************/
 
-using System;
 using Microsoft.Scripting.Utils;
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class IfStatementTest : Node {
         private readonly SourceLocation _start;
         private readonly SourceLocation _header;

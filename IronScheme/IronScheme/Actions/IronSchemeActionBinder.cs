@@ -8,7 +8,6 @@
 using System;
 using System.ComponentModel;
 using Microsoft.Scripting;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
 

@@ -14,13 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-
-using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Shell {
+namespace Microsoft.Scripting.Shell
+{
 
     [Serializable]
     public class ConsoleOptions {

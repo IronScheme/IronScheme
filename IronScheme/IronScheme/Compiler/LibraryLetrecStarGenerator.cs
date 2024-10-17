@@ -169,7 +169,9 @@ namespace IronScheme.Compiler
       {
         if (IsMakeRecord(defs[i]))
         {
+#if DEBUG
           //Debugger.Break();
+#endif
 
           Type type = CreateRecordType(defs[i] as Cons);
           if (type != null)

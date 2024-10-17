@@ -15,16 +15,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.Reflection;
-using Microsoft.Scripting.Shell;
-using System.Threading;
 using Microsoft.Scripting.Utils;
 using System.Globalization;
 using System.IO;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public class ConsoleHostOptions {
         public enum Action {
@@ -144,16 +141,6 @@ namespace Microsoft.Scripting.Hosting {
                         OptionNotAvailableOnSilverlight(name);
                         _options.EnvironmentVars.AddRange(value.Split(';'));
                         break;
-
-                    case "x":
-                        switch(value) {
-                            case "ShowASTs": ScriptDomainManager.Options.ShowASTs = true; break;
-                            case "DumpASTs": ScriptDomainManager.Options.DumpASTs = true; break;
-                            case "ShowRules": ScriptDomainManager.Options.ShowRules = true; break;
-                            default: _options.IgnoredArgs.Add(current); break;
-                        }
-                        break;
-
                     case "help":
                     case "?":
                         _options.RunAction = ConsoleHostOptions.Action.DisplayHelp;

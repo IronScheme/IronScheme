@@ -20,6 +20,7 @@ See docs/license.txt. |#
     
   (clr-using System.IO)
   (clr-using Oyster.Math)
+  (clr-using IronScheme.Scripting.Math)
 
   (define ->string
     (typed-lambda (str)

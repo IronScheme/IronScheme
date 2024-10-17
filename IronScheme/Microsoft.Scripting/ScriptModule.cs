@@ -15,17 +15,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-
-using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Flags]
     public enum CodeContextAttributes {
         None = 0,
@@ -48,10 +45,6 @@ namespace Microsoft.Scripting {
         bool VariableExists(string name);
         bool RemoveVariable(string name);
         void ClearVariables();
-
-        // compiler options:
-        CompilerOptions GetCompilerOptions(IScriptEngine engine);
-
     }
 
     /// <summary>
@@ -137,15 +130,6 @@ namespace Microsoft.Scripting {
         #region Properties
 
         /// <summary>
-        /// Event fired when a module changes.
-        /// </summary>
-        public event EventHandler<ModuleChangeEventArgs> ModuleChanged;
-
-        public ScriptModuleKind Kind {
-            get { return _kind; }
-        }
-
-        /// <summary>
         /// Gets the context in which this module executes.
         /// </summary>
         public Scope Scope {
@@ -169,17 +153,6 @@ namespace Microsoft.Scripting {
             get { return _fileName; }
             set { _fileName = value; }
         }
-               
-        /// <summary>
-        /// Called by the base class to fire the module change event when the
-        /// module has been modified.
-        /// </summary>
-        private void OnModuleChange(ModuleChangeEventArgs e) {
-            EventHandler<ModuleChangeEventArgs> handler = ModuleChanged;
-            if (handler != null) {
-                handler(this, e);
-            }
-        }
 
         #endregion
 
@@ -192,24 +165,6 @@ namespace Microsoft.Scripting {
                 }
             }
             return null;
-        }
-
-        [SpecialName]
-        public void SetMemberAfter(string name, object value) {
-            OnModuleChange(new ModuleChangeEventArgs(SymbolTable.StringToId(name), ModuleChangeType.Set, value));
-
-            Scope.SetName(SymbolTable.StringToId(name), value);
-        }
-
-        [SpecialName]
-        public bool DeleteMember(CodeContext context, string name) {
-            if (Scope.TryRemoveName(context.LanguageContext, SymbolTable.StringToId(name))) {
-                OnModuleChange(new ModuleChangeEventArgs(SymbolTable.StringToId(name), ModuleChangeType.Delete));
-
-                return true;
-            } 
-
-            return false;
         }
 
         #region IMembersList
@@ -237,11 +192,6 @@ namespace Microsoft.Scripting {
         #endregion
 
         #region IScriptModule Members
-
-        public CompilerOptions GetCompilerOptions(IScriptEngine engine) {
-            Contract.RequiresNotNull(engine, "engine");
-            return engine.GetModuleCompilerOptions(this);
-        }
 
         /// <summary>
         /// Trys to lookup the provided name in the current scope.

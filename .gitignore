@@ -14,3 +14,8 @@ IronScheme/Oyster.IntX/Oyster.IntX.xml
 *.csproj.user
 /.vs
  
+*.binlog
+/IronScheme/output.*
+/IronScheme/cov/**
+/IronScheme/*.coverage
+/IronScheme/coverage.xml

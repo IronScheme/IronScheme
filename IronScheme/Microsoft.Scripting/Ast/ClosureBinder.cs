@@ -17,9 +17,8 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-using Microsoft.Scripting.Generation;
-
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Ths ClosureBinder takes as an input a bound AST tree in which each Reference is initialized with respective Definition.
     /// The ClosureBinder will then resolve Reference->Definition relationships which span multiple scopes and ensure that the
@@ -114,11 +113,6 @@ namespace Microsoft.Scripting.Ast {
             return true;
         }
 
-        protected internal override bool Walk(DeleteStatement node) {
-            node.Ref = Reference(node.Variable);
-            return true;
-        }
-
         protected internal override bool Walk(CatchBlock node) {
             // CatchBlock is not required to have target variable
             if (node.Variable != null) {
@@ -137,18 +131,6 @@ namespace Microsoft.Scripting.Ast {
         protected internal override void PostWalk(CodeBlock node) {
             ProcessAndPop(node);
         }
-
-        protected internal override bool Walk(GeneratorCodeBlock node) {
-            Push(node);
-            return true;
-        }
-
-        protected internal override void PostWalk(GeneratorCodeBlock node) {
-            int temps = node.BuildYieldTargets();
-            AddGeneratorTemps(temps);
-            ProcessAndPop(node);
-        }
-
         private void Push(CodeBlock block) {
             _stack.Push(new Block(block));
         }
@@ -192,7 +174,7 @@ namespace Microsoft.Scripting.Ast {
         private void BindCodeBlock(CodeBlock block) {
             // If the function is generator or needs custom frame,
             // lift locals to closure
-            if (block is GeneratorCodeBlock || block.EmitLocalDictionary) {
+            if (block.EmitLocalDictionary) {
                 LiftLocalsToClosure(block);
             }
             ResolveClosure(block);

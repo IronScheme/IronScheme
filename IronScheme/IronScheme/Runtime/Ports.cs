@@ -68,7 +68,9 @@ namespace IronScheme.Runtime
         try
         {
           //TODO: skip exception with IsDynamic flag
-          if (lass.CodeBase.EndsWith(altpath, true, CultureInfo.CurrentCulture))
+          if (
+            lass.ManifestModule.Name != "<In Memory Module>" &&
+            lass.CodeBase.EndsWith(altpath, true, CultureInfo.CurrentCulture))
           {
             return lass;
           }
@@ -104,6 +106,7 @@ namespace IronScheme.Runtime
           {
             if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
             {
+              //Console.Error.WriteLine("LoadFile (Ports.cs:110) {0}", fn);
               return Assembly.LoadFile(fn);
             }
             else
@@ -134,6 +137,7 @@ namespace IronScheme.Runtime
       {
         if (altpath.StartsWith(basedir, StringComparison.OrdinalIgnoreCase))
         {
+          //Console.Error.WriteLine("LoadFile (Ports.cs:140) {0}", fn);
           return Assembly.LoadFile(fn);
         }
         else
@@ -167,7 +171,7 @@ namespace IronScheme.Runtime
     
     internal static object Load(object filename, bool loadinmemory)
     {
-      CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
+      CodeContext cc = BaseHelper.cc; // sneaky....
 
       string path = GetPath(filename as string);
 
@@ -440,7 +444,7 @@ namespace IronScheme.Runtime
     {
       if (s is FileStream)
       {
-        return new CompilerContext(SourceUnit.CreateFileUnit(ScriptEngine, ((FileStream)s).Name), old.Options, old.Errors, old.ParserSink);
+        return new CompilerContext(SourceUnit.CreateFileUnit(ScriptEngine, ((FileStream)s).Name), old.Errors, old.ParserSink);
       }
       return old;
     }

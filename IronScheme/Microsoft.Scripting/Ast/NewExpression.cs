@@ -15,14 +15,14 @@
 
 using System;
 using System.Reflection;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class NewExpression : Expression {
         private readonly ConstructorInfo /*!*/ _constructor;
         private readonly ReadOnlyCollection<Expression> /*!*/ _arguments;

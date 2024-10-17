@@ -17,8 +17,10 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Summary description for Expr.
     /// </summary>
@@ -96,8 +98,8 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitBoxing(Type);
         }
 
-        static readonly FieldInfo True = typeof(RuntimeHelpers).GetField("True");
-        static readonly FieldInfo False = typeof(RuntimeHelpers).GetField("False");
+        static readonly FieldInfo True = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.True));
+        static readonly FieldInfo False = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.False));
 
         /// <summary>
         /// Generates code for this expression in a value position.  This will leave

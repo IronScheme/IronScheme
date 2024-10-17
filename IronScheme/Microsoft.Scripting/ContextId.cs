@@ -15,9 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Represents a language context.  Typically there is at most 1 context 
     /// associated with each language, but some languages may use more than one context

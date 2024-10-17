@@ -13,9 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-
-namespace Microsoft.Scripting.Shell {
+namespace Microsoft.Scripting.Shell
+{
     public interface IConsole {
         // Read a single line of interactive input
         // AutoIndentSize is the indentation level to be used for the current suite of a compound statement.

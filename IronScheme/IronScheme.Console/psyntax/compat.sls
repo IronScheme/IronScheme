@@ -22,7 +22,7 @@
   (export make-parameter parameterize define-record compile-core file-options-constructor
           gensym void eval-core symbol-value set-symbol-value! file-options-spec
           read-annotated annotation? annotation-expression annotation-source
-          make-annotation application-directory
+          make-annotation application-directory current-directory
           annotation-stripped get-filename
 		      read-library-source-file
           library-version-mismatch-warning
@@ -41,6 +41,13 @@
           
   (define (application-directory) 
     (clr-static-prop-get IronScheme.Runtime.Builtins ApplicationDirectory))
+
+  (define current-directory
+    (case-lambda
+      [()       
+        (clr-static-prop-get Environment CurrentDirectory)]
+      [(path)
+        (clr-static-prop-set! Environment CurrentDirectory path)]))
     
   (define (compiled-library-filename? filename) 
     (string=? (clr-static-call System.IO.Path GetExtension filename) ".dll"))    

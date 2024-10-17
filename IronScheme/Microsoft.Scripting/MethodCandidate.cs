@@ -16,12 +16,11 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
 using System.Diagnostics;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     public class MethodCandidate {
         private MethodTarget _target;
         private List<ParameterWrapper> _parameters;
@@ -217,12 +216,6 @@ namespace Microsoft.Scripting {
             }
             buf.Append(")");
             return buf.ToString(); //@todo add helper info for more interesting signatures
-        }
-
-        public NarrowingLevel NarrowingLevel {
-            get {
-                return _narrowingLevel;
-            }
         }
 
         internal IList<ParameterWrapper> Parameters {

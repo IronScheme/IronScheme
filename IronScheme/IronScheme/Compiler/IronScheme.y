@@ -7,6 +7,8 @@
 %using IronScheme.Runtime
 %using IronScheme.Runtime.psyntax
 %using Microsoft.Scripting
+%visibility internal
+
 %{
 
 public bool skipnumbers = false;

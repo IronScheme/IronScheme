@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Threading;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Shell;
 
@@ -19,8 +18,8 @@ namespace IronScheme.Hosting
 {
   sealed class IronSchemeScriptEngine : ScriptEngine
   {
-    public IronSchemeScriptEngine(LanguageProvider lp, EngineOptions eo, LanguageContext lc)
-      : base(lp, eo, lc)
+    public IronSchemeScriptEngine(LanguageProvider lp, LanguageContext lc)
+      : base(lp, lc)
     {
       ((IronSchemeLanguageContext)LanguageContext).se = this;
     }
@@ -112,7 +111,7 @@ namespace IronScheme.Hosting
 
     #endregion
 
-    protected override LanguageContext GetLanguageContext(CompilerOptions compilerOptions)
+    protected override LanguageContext GetLanguageContext()
     {
       return LanguageContext;
     }
@@ -159,19 +158,9 @@ namespace IronScheme.Hosting
       }
     }
 
-    public override Guid LanguageGuid
-    {
-      get
-      {
-        return new Guid("4BFAEA21-B66A-458b-BC32-24457C9178B8");
-      }
-    }
+    public override Guid LanguageGuid { get; } = new Guid("68527482-ed8e-a102-2178-e96f924ac529");
+        //new Guid(System.Security.Cryptography.MD5.HashData("Scheme".Select(c => (byte) c).ToArray()))
 
     #endregion
-
-    internal LanguageContext GetLanguageContext()
-    {
-      return LanguageContext;
-    }
   }
 }

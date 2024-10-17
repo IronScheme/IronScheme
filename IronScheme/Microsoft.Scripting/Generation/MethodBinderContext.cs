@@ -14,12 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Ast;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     /// <summary>
     /// Helper class for emitting calls via the MethodBinder.
     /// </summary>

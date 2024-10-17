@@ -15,12 +15,12 @@
 
 using System;
 using System.Reflection.Emit;
-using System.Diagnostics;
 
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class ThrowStatement : Statement {
         private readonly Expression _val;
 

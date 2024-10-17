@@ -85,7 +85,6 @@ namespace IronScheme.Runtime
     internal class Continuation : Exception
     {
       public object Value {get; internal set;}
-      internal StackTrace Stack { get; set; }
       internal Thread Thread { get; set; }
     }
 
@@ -95,10 +94,6 @@ namespace IronScheme.Runtime
     {
       CallTargetN ct = delegate(object[] value)
       {
-        if (!CheckStack(cc)) 
-        {
-          return AssertionViolation("call/cc", "not supported, continuation called outside dynamic extent");
-        }
         if (value.Length == 0)
         {
           cc.Value = Unspecified;
@@ -123,60 +118,12 @@ namespace IronScheme.Runtime
       return ct;
     }
 
-    const bool DoCheckStack = false;
-
-    // this is expensive, but only called when continuation is invoked
-    static bool CheckStack(Continuation cc)
-    {
-      if (!DoCheckStack)
-      {
-        return true;
-      }
-
-      var st = new StackTrace();
-      var c1 = cc.Stack.GetFrames();
-      var f1 = st.GetFrames();
-
-      if (cc.Thread != Thread.CurrentThread)
-      {
-        // can't check reliably
-        return true;
-      }
-
-      if (IsMono)
-      {
-        // mono: for some reason the one stack is reversed... but not all the time... FFFFFUUUUUU!! 8/
-        if (c1[0].GetMethod().Name != "Main")
-        {
-          Array.Reverse(c1);
-        }
-        if (f1[0].GetMethod().Name != "Main")
-        {
-          Array.Reverse(f1);
-        }
-      }
-      else
-      {
-        Array.Reverse(c1);
-        Array.Reverse(f1);
-      }
-
-      for (int i = 0; i < c1.Length; i++)
-      {
-        if (c1[i].GetMethod() != f1[i].GetMethod())
-        {
-          return false;
-        }
-      }
-      return true;
-    }
     
     [Builtin("call-with-current-continuation", AllowTailCall = true), Builtin("call/cc")]
     public static object CallWithCurrentContinuation(object fc1)
     {
       Callable fc = RequiresNotNull<Callable>(fc1);
-      // todo?: disable stack check unless debug-mode is #t
-      Continuation ccc = new Continuation { Stack = DoCheckStack ? new StackTrace() : null, Thread = Thread.CurrentThread };
+      Continuation ccc = new Continuation { Thread = Thread.CurrentThread };
 
       try
       {

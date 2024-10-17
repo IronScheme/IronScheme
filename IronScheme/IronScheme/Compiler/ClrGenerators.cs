@@ -14,8 +14,6 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using System.IO;
 using System.Reflection.Emit;
-using System.Threading;
-using IronScheme.FrameworkPAL;
 
 namespace IronScheme.Compiler
 {
@@ -24,7 +22,7 @@ namespace IronScheme.Compiler
     static readonly MethodInfo Helpers_ConvertToDelegate = typeof (Helpers).GetMethod("ConvertToDelegate");
     static readonly MethodInfo Helpers_SymbolToEnum = typeof (Helpers).GetMethod("SymbolToEnum");
     static readonly MethodInfo Helpers_EnumToSymbol = typeof (Helpers).GetMethod("EnumToSymbol");
-    static readonly MethodInfo Helpers_Requires = typeof (Helpers).GetMethod("Requires");
+    //static readonly MethodInfo Helpers_Requires = typeof (Helpers).GetMethod("Requires");
     static readonly MethodInfo Helpers_RequiresArray = typeof (Helpers).GetMethod("RequiresArray");
 
     protected static Dictionary<string, string> namespaces = ResetReferences();

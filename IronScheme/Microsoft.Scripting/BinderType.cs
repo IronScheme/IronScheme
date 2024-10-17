@@ -13,11 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     public enum BinderType {
         /// <summary>
         /// The MethodBinder will perform normal method binding.

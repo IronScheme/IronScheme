@@ -18,71 +18,90 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// A slot that can be used to wrap other slots and perform a cast before
     /// getting or setting the value.
     /// </summary>
-    public class CastSlot : Slot {
+    internal class CastSlot : Slot
+    {
         private Slot _instance;
         private Type _type;
 
-        public CastSlot(Slot instance, Type type) {
+        public CastSlot(Slot instance, Type type)
+        {
             Contract.RequiresNotNull(instance, "instance");
             Contract.RequiresNotNull(type, "type");
-            if (!type.IsVisible) throw new ArgumentException(String.Format(Resources.TypeMustBeVisible, type.FullName));
+            if (!type.IsVisible) throw new ArgumentException(string.Format(Resources.TypeMustBeVisible, type.FullName));
 
-            this._instance = instance;
-            this._type = type;
+            _instance = instance;
+            _type = type;
         }
 
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             _instance.EmitGet(cg);
-            if (!_type.IsAssignableFrom(_instance.Type)) {
-                if (_type.IsValueType) {
+            if (!_type.IsAssignableFrom(_instance.Type))
+            {
+                if (_type.IsValueType)
+                {
                     Debug.Assert(_instance.Type == typeof(object));
                     cg.Emit(OpCodes.Unbox_Any, _type);
-                } else {
+                }
+                else
+                {
                     cg.Emit(OpCodes.Castclass, _type);
                 }
             }
         }
 
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             throw new NotImplementedException(Resources.NotImplemented);
         }
 
-        public override void EmitSet(CodeGen cg) {
+        public override void EmitSet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
-            if (_instance.Type.IsAssignableFrom(_type)) {
-                if (_type.IsValueType) {
+            if (_instance.Type.IsAssignableFrom(_type))
+            {
+                if (_type.IsValueType)
+                {
                     Debug.Assert(_instance.Type == typeof(object));
                     cg.Emit(OpCodes.Box, _type);
-                } else {
+                }
+                else
+                {
                     cg.Emit(OpCodes.Castclass, _instance.Type);
                 }
             }
             _instance.EmitSet(cg);
         }
 
-        public override void EmitSetUninitialized(CodeGen cg) {
+        public override void EmitSetUninitialized(CodeGen cg)
+        {
             // Cannot initialize non-object to "Uninitialized"
-            if (_type == typeof(object)) {
+            if (_type == typeof(object))
+            {
                 base.EmitSetUninitialized(cg);
             }
         }
 
-        public override Type Type {
-            get {
+        public override Type Type
+        {
+            get
+            {
                 return _type;
             }
         }
 
-        public override string ToString() {
-            return String.Format("CastSlot From: ({0}) To: {1}", _instance, _type);
+        public override string ToString()
+        {
+            return string.Format("CastSlot From: ({0}) To: {1}", _instance, _type);
         }
     }
 }

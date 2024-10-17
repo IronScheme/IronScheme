@@ -12,7 +12,7 @@ using System.Reflection.Emit;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting;
 using System.Collections.Generic;
-using IronScheme.FrameworkPAL;
+using Microsoft.Scripting.Generation.Slots;
 
 namespace IronScheme.Compiler
 {
@@ -33,7 +33,7 @@ namespace IronScheme.Compiler
       get { return typeof(object); }
     }
 
-    StaticFieldSlot fs;
+    Slot fs;
     LocalBuilder arrloc;
 
     public override void EmitCreation(CodeGen cg)
@@ -59,7 +59,7 @@ namespace IronScheme.Compiler
         }
         else
         {
-          fs = tg.AddStaticField(typeof(object), FieldAttributes.Private, "$z$" + index) as StaticFieldSlot;
+          fs = tg.AddStaticField(typeof(object), FieldAttributes.Private, "$z$" + index);
           tg.SerializedConstants.Add(this);
 
           var tcg = tg.TypeInitializer;

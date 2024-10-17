@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>IronScheme.Core</id>
+    <version>$version$</version>
+    <authors>Llewellyn Pritchard</authors>
+    <owners>Llewellyn Pritchard</owners>
+    <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
+    <projectUrl>https://github.com/IronScheme</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Only includes IronScheme.dll</description>
+    <releaseNotes>https://github.com/IronScheme</releaseNotes>
+    <copyright>Copyright 2007-2021</copyright>
+    <tags>scheme ironscheme r6rs</tags>
+    <repository type="git" url="https://github.com/IronScheme/IronScheme" branch="master" commit="$sha$" />
+    <dependencies>
+      <group targetFramework="net35" />
+      <group targetFramework="net40" />
+      <group targetFramework="net45" />
+      <group targetFramework="netcoreapp2.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
+  </files>
+</package>
