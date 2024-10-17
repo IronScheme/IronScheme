@@ -22,7 +22,7 @@ namespace Microsoft.Scripting {
     /// <summary>
     /// Exposes a IDictionary&lt;SymbolId, object&gt; as a IDictionary&lt;object, object&lt;
     /// </summary>
-    public class TransformDictionaryEnumerator : CheckedDictionaryEnumerator {
+    internal class TransformDictionaryEnumerator : CheckedDictionaryEnumerator {
         private IEnumerator<KeyValuePair<SymbolId, object>> _backing;
 
         public TransformDictionaryEnumerator(IDictionary<SymbolId, object> backing) {

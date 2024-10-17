@@ -22,7 +22,7 @@ namespace Microsoft.Scripting.Utils {
     /// <summary>
     /// A stack implemented as a list. Allows both Push/Pop access and indexing into any member of the list.
     /// </summary>
-    public class ListStack<T> : IEnumerable<T> {
+    internal class ListStack<T> : IEnumerable<T> {
         private readonly List<T> _list;
         private int _version;
 

@@ -19,7 +19,7 @@ using System.Text;
 using System.Globalization;
 
 namespace Microsoft.Scripting.Utils {
-    public static class StringUtils {       
+    internal static class StringUtils {       
         public static string GetSuffix(string str, char separator, bool includeSeparator) {
             Contract.RequiresNotNull(str, "str");
             int last = str.LastIndexOf(separator);

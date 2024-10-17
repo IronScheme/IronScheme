@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Microsoft.Scripting.Utils {
-    public static class CollectionUtils {
+    internal static class CollectionUtils {
 
         public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(IList<T> list) {
             ReadOnlyCollection<T> roc;

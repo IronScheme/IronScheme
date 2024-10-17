@@ -24,6 +24,38 @@ using Microsoft.Scripting.Generation.Allocators;
 
 namespace Microsoft.Scripting.Generation.Factories
 {
+    class ClassEnvironmentReference : Storage
+    {
+        private SymbolId _name;
+        private Type _storageType;
+        private Type _type;
+
+        public ClassEnvironmentReference(Type storageType, SymbolId name, Type type)
+        {
+            Debug.Assert(storageType != null);
+
+            _storageType = storageType;
+            _name = name;
+            _type = type;
+        }
+
+
+        public override bool RequireAccessSlot
+        {
+            get { return true; }
+        }
+
+        public override Slot CreateSlot(Slot instance)
+        {
+            var sym = SymbolTable.IdToString(_name);
+            Slot s = new FieldSlot(instance, _storageType.GetField(sym));
+            if (_type != s.Type)
+            {
+                s = new CastSlot(s, _type);
+            }
+            return s;
+        }
+    }
 
     class ClassEnvironmentFactory : EnvironmentFactory
     {

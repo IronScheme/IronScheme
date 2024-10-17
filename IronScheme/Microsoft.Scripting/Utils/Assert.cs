@@ -22,7 +22,7 @@ using System.Collections;
 
 namespace Microsoft.Scripting.Utils {
 
-    public static class Assert {
+    internal static class Assert {
 
         public static Exception Unreachable {
             get {

@@ -20,7 +20,7 @@ using System.IO;
 using System.Diagnostics;
 
 namespace Microsoft.Scripting.Utils {
-    public static class IOUtils {
+    internal static class IOUtils {
         /// <summary>
         /// Seeks the first character of a specified line in the text stream.
         /// Assumes the reader is currently positioned just before the first character of the first line.

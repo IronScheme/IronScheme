@@ -21,7 +21,7 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 
 namespace Microsoft.Scripting.Utils {
-    public static class ReflectionUtils {
+    internal static class ReflectionUtils {
 
         /// <exception cref="InvalidImplementationException">The type failed to instantiate.</exception>
         internal static T CreateInstance<T>(Type actualType, params object[] args) {

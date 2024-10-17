@@ -20,7 +20,7 @@ using System.Collections;
 using System.Diagnostics;
 
 namespace Microsoft.Scripting.Utils {
-    public static class Contract {
+    internal static class Contract {
 
         [Conditional("DEBUG")]
         public static void Requires(bool precondition) {

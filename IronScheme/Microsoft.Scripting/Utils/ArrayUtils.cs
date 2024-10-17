@@ -22,13 +22,8 @@ using System.Diagnostics;
 namespace Microsoft.Scripting.Utils {
     public static class ArrayUtils {
 
-#if SILVERLIGHT
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
-        public static readonly Type[] EmptyTypes = new Type[0];
-#else
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly Type[] EmptyTypes = Type.EmptyTypes;
-#endif
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly string[] EmptyStrings = new string[0];
