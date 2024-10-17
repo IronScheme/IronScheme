@@ -47,6 +47,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8C5B
 		cov-run.cmd = cov-run.cmd
 		coverage.cmd = coverage.cmd
 		nuget.cmd = nuget.cmd
+		nuget.sh = nuget.sh
 		package.cmd = package.cmd
 		package.sh = package.sh
 		test.cmd = test.cmd

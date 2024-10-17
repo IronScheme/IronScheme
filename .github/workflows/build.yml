@@ -71,6 +71,10 @@ jobs:
       if: ${{runner.os == 'Windows'}}
       run: package.cmd
 
+    - name: Nuget (sh)
+      if: ${{runner.os != 'Windows'}}
+      run: sh nuget.sh
+
     - name: Nuget (cmd)
       if: ${{runner.os == 'Windows' && matrix.coverage}}
       run: nuget.cmd
