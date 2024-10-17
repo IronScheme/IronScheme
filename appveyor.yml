@@ -38,7 +38,7 @@ test_script:
 - cmd: |
     cd %APPVEYOR_BUILD_FOLDER%
     cd IronScheme
-    SET COMMON=--no-dependencies -tl:off -m -c Release IronScheme.Console/IronScheme.Console.csproj -f net9.0 -v:q -noWarn:CS1030,CS0162 -clp:NoSummary
+    SET COMMON=--no-dependencies -tl:off -m -c Release IronScheme.Console/IronScheme.Console.csproj -f net9.0 -v:q -noWarn:CS1030,CS0162 -clp:NoSummary -p:BuildWithNetFrameworkHostedCompiler=false
     dotnet build %COMMON% -r osx-x64
     dotnet build %COMMON% -r linux-x64
     call package.cmd
