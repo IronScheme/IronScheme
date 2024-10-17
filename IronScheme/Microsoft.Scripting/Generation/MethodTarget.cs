@@ -17,15 +17,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Reflection.Emit;
 
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 
 namespace Microsoft.Scripting.Generation
 {
     using Ast = Microsoft.Scripting.Ast.Ast;
-    using Microsoft.Scripting.Utils;
     using Microsoft.Scripting.Generation.Builders;
 
     public class MethodTarget  {

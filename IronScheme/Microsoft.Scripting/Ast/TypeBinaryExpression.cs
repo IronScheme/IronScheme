@@ -14,12 +14,12 @@
  * ***************************************************************************/
 
 using System;
-using System.Diagnostics;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class TypeBinaryExpression : Expression {
         private readonly Expression /*!*/ _expression;
         private readonly Type /*!*/ _typeOperand;

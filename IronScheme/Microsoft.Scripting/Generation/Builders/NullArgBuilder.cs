@@ -13,10 +13,7 @@
  *
  * ***************************************************************************/
 
-using System.Collections.Generic;
-
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 
 namespace Microsoft.Scripting.Generation.Builders
 {

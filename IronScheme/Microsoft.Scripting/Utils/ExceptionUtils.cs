@@ -14,12 +14,9 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections;
-using System.Threading;
 
-namespace Microsoft.Scripting.Utils {
+namespace Microsoft.Scripting.Utils
+{
     internal static class ExceptionUtils {
         public static ArgumentNullException MakeArgumentItemNullException(int index, string arrayName) {
             return new ArgumentNullException(String.Format("{0}[{1}]", arrayName, index));

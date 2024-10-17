@@ -13,11 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Enum representing different types of operators.
     /// 

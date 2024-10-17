@@ -19,9 +19,7 @@ using System.Threading;
 using System.Globalization;
 
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
-using System.Reflection;
 using Microsoft.Scripting.Utils;
 using System.IO;
 

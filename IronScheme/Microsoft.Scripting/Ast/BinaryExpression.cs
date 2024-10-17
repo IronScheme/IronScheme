@@ -14,14 +14,14 @@
  * ***************************************************************************/
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class BinaryExpression : Expression {
         private readonly Expression /*!*/ _left;
         private readonly Expression /*!*/ _right;

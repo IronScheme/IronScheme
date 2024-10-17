@@ -14,16 +14,12 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 
 namespace Microsoft.Scripting.Generation.Builders
 {
     using Ast = Ast.Ast;
-    using System.Diagnostics;
     using Microsoft.Scripting.Utils;
 
     internal class ParamsArgBuilder : ArgBuilder

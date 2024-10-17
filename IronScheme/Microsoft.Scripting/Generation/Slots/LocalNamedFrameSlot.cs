@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Reflection.Emit;
 
 namespace Microsoft.Scripting.Generation.Slots
 {

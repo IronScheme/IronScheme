@@ -14,18 +14,15 @@
  * ***************************************************************************/
 
 using System;
-using System.Text;
-using System.IO;
-using System.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Shell;
-using Microsoft.Scripting.Generation;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
 
     [Serializable]
     public class InvalidOptionException : Exception {

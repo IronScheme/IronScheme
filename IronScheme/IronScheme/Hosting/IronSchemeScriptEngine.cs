@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Threading;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Shell;
 

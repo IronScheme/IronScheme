@@ -14,26 +14,17 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 using System.Reflection;
 using System.Reflection.Emit;
-
-using System.Resources;
 using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
-using System.IO;
 using System.Globalization;
-
-using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Math;
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
-using System.Text;
 using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
-using System.Runtime.InteropServices;
 using Microsoft.Scripting.Generation.Slots;
 using Microsoft.Scripting.Generation.Allocators;
 

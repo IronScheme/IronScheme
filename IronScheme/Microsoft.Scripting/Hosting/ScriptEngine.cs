@@ -14,13 +14,7 @@
  * ***************************************************************************/
 
 using System;
-using System.Threading;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
 
 using System.IO;

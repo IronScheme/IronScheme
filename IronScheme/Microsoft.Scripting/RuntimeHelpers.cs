@@ -14,19 +14,13 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.Threading;
 using System.Reflection;
-using System.Collections;
-
-using Microsoft.Scripting.Shell;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
-using Microsoft.Scripting.Actions;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// These are some generally useful helper methods.
     /// Currently the only methods are those to cached boxed representations of commonly

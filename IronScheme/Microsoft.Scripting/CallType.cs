@@ -14,10 +14,9 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Flags]
     public enum CallType {
         None = 0,

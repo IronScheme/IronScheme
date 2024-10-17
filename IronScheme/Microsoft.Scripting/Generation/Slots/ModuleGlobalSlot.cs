@@ -14,10 +14,6 @@
  * ***************************************************************************/
 
 using System;
-
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Microsoft.Scripting.Generation.Slots

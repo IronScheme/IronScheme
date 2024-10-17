@@ -17,10 +17,10 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Generation;
-using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class UnaryExpression : Expression {
         private Expression /*!*/ _operand;
         private Type /*!*/ _type;

@@ -13,12 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Globalization;
-
-namespace Microsoft.Scripting.Utils {
+namespace Microsoft.Scripting.Utils
+{
     internal static class StringUtils {       
         public static string GetSuffix(string str, char separator, bool includeSeparator) {
             Contract.RequiresNotNull(str, "str");

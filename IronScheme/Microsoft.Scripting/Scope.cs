@@ -15,13 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
-using System.Reflection;
-using Microsoft.Scripting.Ast;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Represents a context of execution.  A context of execution has a set of variables
     /// associated with it (its dictionary) and a parent context.  

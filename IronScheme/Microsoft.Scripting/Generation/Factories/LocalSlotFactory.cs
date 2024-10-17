@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Reflection.Emit;
 using Microsoft.Scripting.Generation.Slots;
 
 namespace Microsoft.Scripting.Generation.Factories

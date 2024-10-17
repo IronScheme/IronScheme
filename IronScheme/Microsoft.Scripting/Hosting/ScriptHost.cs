@@ -16,9 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Reflection;
-using System.Diagnostics;
-using System.Collections;
 using System.IO;
 using System.Threading;
 using Microsoft.Scripting.Utils;

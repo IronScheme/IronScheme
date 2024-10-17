@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Diagnostics;
 using System.Text;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Generation.Builders;
 

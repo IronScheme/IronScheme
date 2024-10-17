@@ -15,16 +15,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.Reflection;
-using Microsoft.Scripting.Shell;
-using System.Threading;
 using Microsoft.Scripting.Utils;
 using System.Globalization;
 using System.IO;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public class ConsoleHostOptions {
         public enum Action {

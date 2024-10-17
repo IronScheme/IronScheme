@@ -14,11 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     public struct ScriptModuleKind : IEquatable<ScriptModuleKind> {
         public static readonly ScriptModuleKind Default = new ScriptModuleKind("Default");
         public static readonly ScriptModuleKind Console = new ScriptModuleKind("System.Console");

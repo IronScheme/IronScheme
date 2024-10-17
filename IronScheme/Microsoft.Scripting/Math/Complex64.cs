@@ -15,18 +15,16 @@
 
 using System;
 using System.Diagnostics;
-using System.Text;
-using System.Collections;
-using Oyster.Math;
 
 
-namespace Microsoft.Scripting.Math {
+namespace Microsoft.Scripting.Math
+{
 
-  
+
     /// <summary>
     /// Implementation of the complex number data type.
     /// </summary>
-  [Serializable]
+    [Serializable]
     public struct Complex64 {
         readonly double real, imag;
 

@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,7 +21,8 @@ using System.Collections.ObjectModel;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Expression that represents list of expressions.
     /// The value of the CommaExpression is the expression identified by the index

@@ -18,9 +18,9 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Collections;
 
-namespace Microsoft.Scripting.Utils {
+namespace Microsoft.Scripting.Utils
+{
 
     internal static class Assert {
 

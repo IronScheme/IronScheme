@@ -15,15 +15,14 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection.Emit;
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Actions;
 using System.Reflection;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
-  
-  public class WriteStatement : Statement
+namespace Microsoft.Scripting.Ast
+{
+
+    public class WriteStatement : Statement
   {
     private readonly Variable /*!*/ _variable;
 

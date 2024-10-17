@@ -13,12 +13,9 @@
  *
  * ***************************************************************************/
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-
-using Microsoft.Scripting.Generation;
 
 /*
  * The data flow.
@@ -89,7 +86,8 @@ using Microsoft.Scripting.Generation;
  *  00 .. may be uninitialized
  */
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     class FlowChecker : Walker {
 
         private struct ExitState {

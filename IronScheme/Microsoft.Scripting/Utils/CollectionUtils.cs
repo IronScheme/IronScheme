@@ -13,12 +13,11 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Microsoft.Scripting.Utils {
+namespace Microsoft.Scripting.Utils
+{
     internal static class CollectionUtils {
 
         public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(IList<T> list) {

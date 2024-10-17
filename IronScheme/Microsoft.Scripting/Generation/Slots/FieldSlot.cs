@@ -16,7 +16,6 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Generation.Slots

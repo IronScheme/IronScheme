@@ -13,13 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Scripting;
-using System.Diagnostics;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Intended for internal use to initialization optimized module dictionaries.  Exposed publicly because 
     /// generated types implement this interface.

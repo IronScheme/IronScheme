@@ -13,14 +13,10 @@
  *
  * ***************************************************************************/
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
 using System.Diagnostics;
 
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 

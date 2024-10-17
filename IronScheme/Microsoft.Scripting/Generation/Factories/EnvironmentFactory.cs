@@ -14,8 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Scripting.Generation.Allocators;
 using Microsoft.Scripting.Generation.Slots;
 

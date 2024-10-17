@@ -14,12 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Diagnostics;
 
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Generation.Builders

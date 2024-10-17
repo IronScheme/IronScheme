@@ -14,13 +14,12 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Diagnostics;
 
-namespace Microsoft.Scripting.Utils {
+namespace Microsoft.Scripting.Utils
+{
     internal static class ReflectionUtils {
 
         /// <exception cref="InvalidImplementationException">The type failed to instantiate.</exception>

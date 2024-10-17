@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Reflection;
@@ -23,7 +22,8 @@ using System.Threading;
 using System.IO;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public abstract class ConsoleHost {
         private int _exitCode;

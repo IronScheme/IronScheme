@@ -17,20 +17,12 @@ using System;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Reflection.Emit;
-using System.IO;
-
-using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
-using Microsoft.Scripting.Math;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation.Allocators;
 using Microsoft.Scripting.Generation.Factories;
 
 namespace Microsoft.Scripting.Generation
 {
-    using Ast = Microsoft.Scripting.Ast.Ast;
-
     internal static class CompilerHelpers {
         public static readonly MethodAttributes PublicStatic = MethodAttributes.Public | MethodAttributes.Static;
 

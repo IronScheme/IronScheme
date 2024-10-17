@@ -13,18 +13,10 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Text;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-
-using System.Diagnostics;
 using Microsoft.Scripting.Generation;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public abstract class Statement : Node {
         private SourceLocation _start;
         private SourceLocation _end;

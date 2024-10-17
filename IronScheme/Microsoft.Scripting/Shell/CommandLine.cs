@@ -14,20 +14,15 @@
  * ***************************************************************************/
 
 using System;
-using System.IO;
-using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
-
-using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Shell {
+namespace Microsoft.Scripting.Shell
+{
 
     public class CommandLine {
         private IConsole _console;

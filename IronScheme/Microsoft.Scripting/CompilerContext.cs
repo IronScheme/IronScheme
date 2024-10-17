@@ -13,12 +13,6 @@
  *
  * ***************************************************************************/
 
-using System;
-using Microsoft.Scripting.Ast;
-using System.Globalization;
-
-using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 

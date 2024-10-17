@@ -15,15 +15,11 @@
 
 using System;
 using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-
-using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;

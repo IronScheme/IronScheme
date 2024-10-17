@@ -15,19 +15,11 @@
 
 using System;
 
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// An expression that will return a reference to a block of code.
     /// Currently these references are created by emitting a delegate of the 

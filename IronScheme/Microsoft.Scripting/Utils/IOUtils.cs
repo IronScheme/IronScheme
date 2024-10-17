@@ -14,12 +14,12 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
 
-namespace Microsoft.Scripting.Utils {
+namespace Microsoft.Scripting.Utils
+{
     internal static class IOUtils {
         /// <summary>
         /// Seeks the first character of a specified line in the text stream.

@@ -14,11 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation.Slots;
 
 namespace Microsoft.Scripting.Generation.Factories

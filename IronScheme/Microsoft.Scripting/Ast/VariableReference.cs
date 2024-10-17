@@ -13,7 +13,6 @@
  *
  * ***************************************************************************/
 
-using System;
 using System.Diagnostics;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Generation.Slots;

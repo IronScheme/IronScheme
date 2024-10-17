@@ -13,17 +13,6 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
-
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Utils;
-
 namespace Microsoft.Scripting
 {
     public class ModuleContext {

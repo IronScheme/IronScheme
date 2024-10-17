@@ -16,9 +16,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Microsoft.Scripting.Utils {
+namespace Microsoft.Scripting.Utils
+{
     /// <summary>
     /// Not all .NET enumerators throw exceptions if accessed in an invalid state. This type
     /// can be used to throw exceptions from enumerators implemented in IronPython.

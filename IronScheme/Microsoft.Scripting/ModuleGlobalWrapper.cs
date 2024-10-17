@@ -14,17 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.IO;
 using System.Diagnostics;
-using System.Threading;
 
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Provides cached global variable for modules to enable optimized access to
     /// module globals.  Both the module global value and the cached value can be held

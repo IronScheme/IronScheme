@@ -18,22 +18,15 @@ using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Security;
 using System.IO;
-using System.Threading;
-using System.Security.Permissions;
-
-using Microsoft.Scripting;
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation.Allocators;
 using Microsoft.Scripting.Generation.Factories;
 using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     /// <summary>
     /// Creates the code for an optimized module.  
     /// </summary>

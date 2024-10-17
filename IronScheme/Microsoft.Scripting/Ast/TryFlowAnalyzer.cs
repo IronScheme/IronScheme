@@ -13,9 +13,8 @@
  *
  * ***************************************************************************/
 
-using System.Diagnostics;
-
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
 
     /// <summary>
     /// The structure to capture the result of the control flow for the

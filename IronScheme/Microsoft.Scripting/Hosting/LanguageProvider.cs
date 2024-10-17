@@ -14,15 +14,13 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Shell;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public interface ILanguageService {
         // TODO:

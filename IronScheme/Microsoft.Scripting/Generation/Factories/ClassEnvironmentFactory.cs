@@ -17,7 +17,6 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Diagnostics;
-using System.Collections.Generic;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation.Slots;
 using Microsoft.Scripting.Generation.Allocators;

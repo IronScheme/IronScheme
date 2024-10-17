@@ -14,11 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Serializable]
     public class UnboundNameException : Exception {
         public UnboundNameException() : base() { }
