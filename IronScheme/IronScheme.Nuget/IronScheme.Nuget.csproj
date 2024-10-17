@@ -8,9 +8,10 @@
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     
-    <AppveyorBuildVersion>$([System.Environment]::GetEnvironmentVariable("APPVEYOR_BUILD_VERSION"))</AppveyorBuildVersion>
-    <Sha>$([System.Environment]::GetEnvironmentVariable("SHA"))</Sha>
+    <AppveyorBuildVersion Condition="$(AppveyorBuildVersion) == ''">$([System.Environment]::GetEnvironmentVariable("APPVEYOR_BUILD_VERSION"))</AppveyorBuildVersion>
     <AppveyorBuildVersion Condition="$(AppveyorBuildVersion) == ''">0.0.0</AppveyorBuildVersion>
+
+    <Sha Condition="$(Sha) == ''">$([System.Environment]::GetEnvironmentVariable("SHA"))</Sha>
     <Sha Condition="$(Sha) == ''">0000000</Sha>
 
     <PackageName Condition="$(PackageName) == ''">Tool</PackageName>

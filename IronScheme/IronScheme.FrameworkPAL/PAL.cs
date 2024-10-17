@@ -174,15 +174,17 @@ namespace IronScheme.FrameworkPAL
             //Console.Write("removign garbage from {0} ", key.ScopeName);
             foreach (var w in value)
             {
-              
-              foreach (var ilg in ilmap[w])
+              if (ilmap.ContainsKey(w))
               {
-                //Console.Write("I");
-                iloffsets.Remove(ilg);
-              }
+                foreach (var ilg in ilmap[w])
+                {
+                  //Console.Write("I");
+                  iloffsets.Remove(ilg);
+                }
 
-              //Console.Write("W");
-              ilmap.Remove(w);
+                //Console.Write("W");
+                ilmap.Remove(w);
+              }
             }
 
             //Console.WriteLine();

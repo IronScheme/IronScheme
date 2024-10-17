@@ -348,7 +348,7 @@ namespace Microsoft.Scripting.Generation {
                 default:
                 case TargetBlockType.Normal:
                     Emit(OpCodes.Ret);
-                    EmitSequencePointNone();
+                    //EmitSequencePointNone();
                     break;
                 case TargetBlockType.Catch:
                 case TargetBlockType.Try:
@@ -649,7 +649,7 @@ namespace Microsoft.Scripting.Generation {
                             var s = GetSpan(expr);
                             if (s.IsValid)
                             {
-                                //EmitPosition(s.Start, s.End);
+                                EmitPosition(s.Start, s.End);
                             }
                         }
                     }

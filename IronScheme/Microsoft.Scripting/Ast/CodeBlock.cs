@@ -988,7 +988,7 @@ namespace Microsoft.Scripting.Ast
             if (!ScriptDomainManager.Options.LightweightDebugging)
             {
               cg.lambdaspan = prevls;
-              cg.EmitSequencePointNone();
+              //cg.EmitSequencePointNone();
             }
         }
 

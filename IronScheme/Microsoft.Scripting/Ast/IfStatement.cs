@@ -44,10 +44,10 @@ namespace Microsoft.Scripting.Ast {
             foreach (IfStatementTest t in _tests) {
                 Label next = cg.DefineLabel();
 
-                //if (t.Test.Span.IsValid)
-                //{
-                //  cg.EmitPosition(t.Test.Start, t.Test.End);
-                //}
+                if (t.Test.Span.IsValid)
+                {
+                  cg.EmitPosition(t.Test.Start, t.Test.End);
+                }
                 
                 t.Test.EmitBranchFalse(cg, next);
 

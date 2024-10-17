@@ -106,69 +106,69 @@ namespace Microsoft.Scripting.Ast {
               case AstNodeType.GreaterThan:
                 _left.EmitAs(cg, GetEmitType());
                 _right.EmitAs(cg, GetEmitType());
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 cg.Emit(OpCodes.Bgt, label);
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 return true;
               case AstNodeType.GreaterThanOrEqual:
                 _left.EmitAs(cg, GetEmitType());
                 _right.EmitAs(cg, GetEmitType());
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 cg.Emit(OpCodes.Bge, label);
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 return true;
               case AstNodeType.LessThan:
                 _left.EmitAs(cg, GetEmitType());
                 _right.EmitAs(cg, GetEmitType());
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 cg.Emit(OpCodes.Blt, label);
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 return true;
               case AstNodeType.LessThanOrEqual:
                 _left.EmitAs(cg, GetEmitType());
                 _right.EmitAs(cg, GetEmitType());
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 cg.Emit(OpCodes.Ble, label);
-                cg.EmitSequencePointNone();
+                //cg.EmitSequencePointNone();
                 return true;
                 case AstNodeType.Equal:
                     if (_left.IsConstant(null)) {
                         _right.EmitAsObject(cg);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brfalse, label);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                     } else if (_right.IsConstant(null)) {
                         _left.EmitAsObject(cg);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brfalse, label);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                     } else {
                         _left.EmitAs(cg, GetEmitType());
                         _right.EmitAs(cg, GetEmitType());
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Beq, label);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                     }
                     return true;
 
                 case AstNodeType.NotEqual:
                     if (_left.IsConstant(null)) {
                         _right.EmitAsObject(cg);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brtrue, label);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                     } else if (_right.IsConstant(null)) {
                         _left.EmitAsObject(cg);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Brtrue, label);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                     } else {
                         _left.EmitAs(cg, GetEmitType());
                         _right.EmitAs(cg, GetEmitType());
                         //cg.Emit(OpCodes.Ceq);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                         cg.Emit(OpCodes.Bne_Un, label);
-                        cg.EmitSequencePointNone();
+                        //cg.EmitSequencePointNone();
                     }
                     return true;
 

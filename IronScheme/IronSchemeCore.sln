@@ -43,6 +43,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8C5B
 		build.cmd = build.cmd
 		build.sh = build.sh
 		clean.cmd = clean.cmd
+		cov-boot.cmd = cov-boot.cmd
 		cov-compile.cmd = cov-compile.cmd
 		cov-run.cmd = cov-run.cmd
 		coverage.cmd = coverage.cmd
