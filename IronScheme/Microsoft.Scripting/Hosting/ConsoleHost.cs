@@ -225,9 +225,7 @@ namespace Microsoft.Scripting.Hosting {
 
         private int RunFiles(OptionsParser optionsParser) {
 
-            EngineOptions engine_options = (optionsParser != null) ? optionsParser.EngineOptions : null;
-
-            IScriptEngine engine = _options.LanguageProvider.GetEngine(engine_options);
+            IScriptEngine engine = _options.LanguageProvider.GetEngine();
 
             engine.SetSourceUnitSearchPaths(_options.SourceUnitSearchPaths);
 
@@ -285,14 +283,12 @@ namespace Microsoft.Scripting.Hosting {
             
             CommandLine command_line;
             ConsoleOptions console_options;
-            EngineOptions engine_options;
 
             console_options = optionsParser.ConsoleOptions;
-            engine_options = optionsParser.EngineOptions;
 
             command_line = _options.LanguageProvider.GetCommandLine();
 
-            IScriptEngine engine = _options.LanguageProvider.GetEngine(engine_options);
+            IScriptEngine engine = _options.LanguageProvider.GetEngine();
 
             if (console_options.PrintVersionAndExit) {
                 Console.WriteLine(engine.VersionString);

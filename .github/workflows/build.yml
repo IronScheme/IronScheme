@@ -79,7 +79,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: coverage-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
-        path: IronScheme/output.coverage
+        path: IronScheme/*.coverage
       if: ${{ always() && matrix.coverage }}
 
     - name: Upload binlogs

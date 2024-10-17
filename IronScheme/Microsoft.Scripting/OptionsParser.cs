@@ -64,20 +64,8 @@ namespace Microsoft.Scripting {
             } 
         }
 
-        public virtual EngineOptions EngineOptions { 
-            get { 
-                throw new NotSupportedException(); 
-            } set { 
-                throw new NotSupportedException(); 
-            } 
-        }
-
         public virtual ConsoleOptions GetDefaultConsoleOptions() {
             return new ConsoleOptions();
-        }
-
-        public virtual EngineOptions GetDefaultEngineOptions() {
-            return new EngineOptions();
         }
 
         public IList<string> IgnoredArgs { get { return _ignoredArgs; } }

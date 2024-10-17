@@ -19,8 +19,8 @@ namespace IronScheme.Hosting
 {
   sealed class IronSchemeScriptEngine : ScriptEngine
   {
-    public IronSchemeScriptEngine(LanguageProvider lp, EngineOptions eo, LanguageContext lc)
-      : base(lp, eo, lc)
+    public IronSchemeScriptEngine(LanguageProvider lp, LanguageContext lc)
+      : base(lp, lc)
     {
       ((IronSchemeLanguageContext)LanguageContext).se = this;
     }

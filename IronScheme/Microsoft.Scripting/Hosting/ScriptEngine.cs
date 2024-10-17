@@ -37,7 +37,6 @@ namespace Microsoft.Scripting.Hosting {
 
         Guid LanguageGuid { get; }
         Guid VendorGuid { get; }
-        EngineOptions Options { get; }
         string VersionString { get; }
 
         // TODO: 
@@ -109,7 +108,6 @@ namespace Microsoft.Scripting.Hosting {
 
     public abstract class ScriptEngine : IScriptEngine {
         private readonly LanguageProvider _provider;
-        private readonly EngineOptions _options;
         private readonly LanguageContext _languageContext;
 
         #region Properties
@@ -124,10 +122,6 @@ namespace Microsoft.Scripting.Hosting {
 
         public LanguageContext LanguageContext {
             get { return _languageContext; }
-        }
-
-        public EngineOptions Options {
-            get { return _options; }
         }
 
         public virtual string Copyright {
@@ -160,19 +154,11 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        protected ScriptEngine(LanguageProvider provider, EngineOptions engineOptions, LanguageContext languageContext) {
+        protected ScriptEngine(LanguageProvider provider, LanguageContext languageContext) {
             Contract.RequiresNotNull(provider, "provider");
-            Contract.RequiresNotNull(engineOptions, "engineOptions");
             Contract.RequiresNotNull(languageContext, "languageContext");
 
-#if CHECK_IF_NEEDED // SecurityPermission
-            if (engineOptions.ClrDebuggingEnabled) {
-                // Currently, AssemblyBuilder.DefineDynamicModule requires high trust for emitting debug information.
-                new System.Security.Permissions.SecurityPermission(System.Security.Permissions.SecurityPermissionFlag.UnmanagedCode).Demand();
-            }
-#endif
             _provider = provider;
-            _options = engineOptions;
             _languageContext = languageContext;
         }
 

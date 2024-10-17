@@ -223,7 +223,7 @@ namespace Microsoft.Scripting.Generation {
         }
 
         internal static bool NeedDebuggableDynamicCodeGenerator(CompilerContext context) {
-            return context != null && context.SourceUnit.Engine.Options.ClrDebuggingEnabled && context.SourceUnit.IsVisibleToDebugger;
+            return context != null && context.SourceUnit.IsVisibleToDebugger;
         }
 
         #endregion

@@ -740,15 +740,15 @@ namespace Microsoft.Scripting {
 
             OptimizedModuleGenerator generator = null;
 
-            if (scope == null) {
-                if (scriptCodes.Length > 0) {
-                    if (scriptCodes[0].LanguageContext.Engine.Options.InterpretedMode) {
-                        scope = new Scope();
-                    } else {
-                        generator = OptimizedModuleGenerator.Create(name, scriptCodes);
-                        scope = generator.GenerateScope();
-                    }
-                } else {
+            if (scope == null)
+            {
+                if (scriptCodes.Length > 0)
+                {
+                    generator = OptimizedModuleGenerator.Create(name, scriptCodes);
+                    scope = generator.GenerateScope();
+                }
+                else
+                {
                     scope = new Scope();
                 }
             }
