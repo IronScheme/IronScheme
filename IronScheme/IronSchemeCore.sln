@@ -46,6 +46,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8C5B
 		cov-compile.cmd = cov-compile.cmd
 		cov-run.cmd = cov-run.cmd
 		coverage.cmd = coverage.cmd
+		nuget.cmd = nuget.cmd
 		package.cmd = package.cmd
 		package.sh = package.sh
 		test.cmd = test.cmd
@@ -69,6 +70,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{0A81E939
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9B09255E-5CF2-41CF-9936-ACA41038BEDF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronScheme.Nuget", "IronScheme.Nuget\IronScheme.Nuget.csproj", "{87C18A4C-3004-4884-8003-E7F06C5EF857}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -108,6 +111,10 @@ Global
 		{BAF7E08E-2C51-47B2-B828-734E63AB69E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAF7E08E-2C51-47B2-B828-734E63AB69E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAF7E08E-2C51-47B2-B828-734E63AB69E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87C18A4C-3004-4884-8003-E7F06C5EF857}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87C18A4C-3004-4884-8003-E7F06C5EF857}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87C18A4C-3004-4884-8003-E7F06C5EF857}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87C18A4C-3004-4884-8003-E7F06C5EF857}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +125,7 @@ Global
 		{8C5B9D2B-6DC3-463C-9573-11BE46632C97} = {8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}
 		{7A7C2AF7-F813-4DE1-978A-5CA6819BB784} = {8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}
 		{0A81E939-5D7B-4B1B-93D6-B1E06D6C852F} = {8E8F0778-DF4A-4B58-8A4B-9922BDF96D58}
+		{87C18A4C-3004-4884-8003-E7F06C5EF857} = {06F93FA9-2424-489F-8F3B-F1F7165E5A44}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B0B1BE43-E1CE-4EC6-B3D4-03876FF8FDAB}

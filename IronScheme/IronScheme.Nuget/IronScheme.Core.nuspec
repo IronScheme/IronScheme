@@ -22,6 +22,5 @@
   </metadata>
   <files>
     <file src="IronScheme\IronScheme.dll" target="lib\IronScheme.dll" />
-    <!--<file src="IronScheme\IronScheme.pdb" target="lib\IronScheme.pdb" />-->
   </files>
 </package>
