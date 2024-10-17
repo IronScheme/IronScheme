@@ -7,7 +7,7 @@
 
 using System;
 using System.Text.RegularExpressions;
-using IronScheme.FrameworkPAL;
+using Microsoft.Scripting;
 
 namespace IronScheme.Runtime.psyntax
 {

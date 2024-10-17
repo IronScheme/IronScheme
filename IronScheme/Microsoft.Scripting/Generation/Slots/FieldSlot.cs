@@ -19,35 +19,41 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// FieldSlot is an access of an attribute of an object 
     /// </summary>
-    public class FieldSlot : Slot {
+    public class FieldSlot : Slot
+    {
         private readonly Slot _instance;
         private readonly FieldInfo _field;
 
-        public FieldSlot(Slot instance, FieldInfo field) {
+        public FieldSlot(Slot instance, FieldInfo field)
+        {
             Contract.RequiresNotNull(instance, "instance");
             Contract.RequiresNotNull(field, "field");
 
-            this._instance = instance;
-            this._field = field;
+            _instance = instance;
+            _field = field;
         }
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             _instance.EmitGet(cg);
             cg.Emit(OpCodes.Ldfld, _field);
         }
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             _instance.EmitGet(cg);
             cg.EmitFieldAddress(_field);
         }
 
-        public override void EmitSet(CodeGen cg, Slot val) {
+        public override void EmitSet(CodeGen cg, Slot val)
+        {
             Contract.RequiresNotNull(cg, "cg");
             Contract.RequiresNotNull(val, "val");
 
@@ -56,17 +62,20 @@ namespace Microsoft.Scripting.Generation {
             cg.Emit(OpCodes.Stfld, _field);
         }
 
-        public override void EmitSet(CodeGen cg) {
+        public override void EmitSet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
-            Slot val = cg.GetLocalTmp(_field.FieldType);
+            var val = cg.GetLocalTmp(_field.FieldType);
             val.EmitSet(cg);
             EmitSet(cg, val);
             cg.FreeLocalTmp(val);
         }
 
-        public override Type Type {
-            get {
+        public override Type Type
+        {
+            get
+            {
                 return _field.FieldType;
             }
         }
@@ -74,19 +83,22 @@ namespace Microsoft.Scripting.Generation {
         /// <summary>
         /// Gets the slot that is used for the instance of the field
         /// </summary>
-        public Slot Instance {
+        public Slot Instance
+        {
             get { return _instance; }
         }
 
         /// <summary>
         /// Gets the FieldInfo for which this slot loads its value
         /// </summary>
-        public FieldInfo Field {
+        public FieldInfo Field
+        {
             get { return _field; }
         }
 
-        public override string ToString() {
-            return String.Format("FieldSlot From: ({0}) On {1} Field {2}", _instance, _field.DeclaringType, _field.Name);
+        public override string ToString()
+        {
+            return string.Format("FieldSlot From: ({0}) On {1} Field {2}", _instance, _field.DeclaringType, _field.Name);
         }
     }
 }

@@ -17,7 +17,6 @@ using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
 using System.Reflection.Emit;
 using System.Text;
-using IronScheme.FrameworkPAL;
 using IronScheme.Runtime.R6RS;
 
 namespace IronScheme.Compiler

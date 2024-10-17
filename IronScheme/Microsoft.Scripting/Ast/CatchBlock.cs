@@ -15,10 +15,11 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Generation.Slots;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class CatchBlock : Node {
         private readonly SourceLocation _start;
         private readonly SourceLocation _header;

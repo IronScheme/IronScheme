@@ -22,6 +22,9 @@ using System.Threading;
 
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Generation.Slots;
+using Microsoft.Scripting.Generation.Allocators;
+using Microsoft.Scripting.Generation.Factories;
 
 namespace Microsoft.Scripting.Ast
 {

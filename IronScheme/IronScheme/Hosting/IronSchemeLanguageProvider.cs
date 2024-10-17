@@ -8,7 +8,6 @@
 using System;
 using System.IO;
 using System.Threading;
-using IronScheme.FrameworkPAL;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;

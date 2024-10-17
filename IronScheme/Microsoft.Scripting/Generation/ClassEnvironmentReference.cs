@@ -16,8 +16,11 @@
 using System;
 using System.Reflection;
 using System.Diagnostics;
+using Microsoft.Scripting.Generation.Slots;
+using Microsoft.Scripting.Generation.Allocators;
 
-namespace Microsoft.Scripting.Generation {    
+namespace Microsoft.Scripting.Generation
+{
 
     class ClassEnvironmentReference : Storage
     {

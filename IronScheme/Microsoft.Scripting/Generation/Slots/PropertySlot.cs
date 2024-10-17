@@ -18,31 +18,36 @@ using System.Reflection;
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// Slot that accesses a property off an object
     /// </summary>
-    public class PropertySlot : Slot {
+    public class PropertySlot : Slot
+    {
         private Slot _instance;
         private PropertyInfo _property;
 
-        public PropertySlot(Slot instance, PropertyInfo property) {
+        public PropertySlot(Slot instance, PropertyInfo property)
+        {
             Debug.Assert(property != null);
 
-            this._instance = instance;
-            this._property = property;
+            _instance = instance;
+            _property = property;
         }
 
-        public override void EmitSet(CodeGen cg, Slot val) {
+        public override void EmitSet(CodeGen cg, Slot val)
+        {
             Contract.RequiresNotNull(cg, "cg");
             Contract.RequiresNotNull(val, "val");
 
-            MethodInfo method = _property.GetSetMethod();
+            var method = _property.GetSetMethod();
             Debug.Assert(method != null, "Cannot set property");
             Debug.Assert(method.GetParameters().Length == 1, "Wrong number of parameters on the property setter");
 
             //  Emit instance
-            if (!method.IsStatic) {
+            if (!method.IsStatic)
+            {
                 Debug.Assert(_instance != null, "need instance slot for instance property");
                 _instance.EmitGet(cg);
             }
@@ -54,15 +59,17 @@ namespace Microsoft.Scripting.Generation {
             cg.EmitCall(method);
         }
 
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
-            MethodInfo method = _property.GetGetMethod();
+            var method = _property.GetGetMethod();
             Debug.Assert(method != null, "Cannot set property");
             Debug.Assert(method.GetParameters().Length == 0, "Wrong number of parameters on the property getter");
 
             // Emit instance
-            if (!method.IsStatic) {
+            if (!method.IsStatic)
+            {
                 Debug.Assert(_instance != null, "need instance slot for instance property");
                 _instance.EmitGet(cg);
             }
@@ -71,20 +78,24 @@ namespace Microsoft.Scripting.Generation {
             cg.EmitCall(method);
         }
 
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             throw new NotImplementedException(Resources.NotImplemented);
         }
 
-        public override Type Type {
-            get {
+        public override Type Type
+        {
+            get
+            {
                 return _property.PropertyType;
             }
         }
 
-        public override string ToString() {
-            return String.Format("PropertySlot From: ({0}) On: {1} Property: {2}", _instance, _property.DeclaringType, _property.Name);
+        public override string ToString()
+        {
+            return string.Format("PropertySlot From: ({0}) On: {1} Property: {2}", _instance, _property.DeclaringType, _property.Name);
         }
     }
 }

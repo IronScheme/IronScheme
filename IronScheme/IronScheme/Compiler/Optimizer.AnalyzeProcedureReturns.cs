@@ -164,7 +164,7 @@ namespace IronScheme.Compiler
                   break;
                 }
 
-                if (!(mce.Method is MethodBuilder) && Attribute.IsDefined(mce.Method, typeof(IronScheme.Runtime.NonRecursiveAttribute)))
+                if (!(mce.Method is MethodBuilder) && Attribute.IsDefined(mce.Method, typeof(NonRecursiveAttribute)))
                 {
                   continue;
                 }

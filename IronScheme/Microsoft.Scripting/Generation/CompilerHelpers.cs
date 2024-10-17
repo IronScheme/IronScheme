@@ -24,8 +24,11 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Math;
 using Microsoft.Scripting.Actions;
+using Microsoft.Scripting.Generation.Allocators;
+using Microsoft.Scripting.Generation.Factories;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     using Ast = Microsoft.Scripting.Ast.Ast;
 
     public static class CompilerHelpers {

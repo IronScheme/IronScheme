@@ -16,6 +16,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
 using System.Diagnostics;
+using Microsoft.Scripting.Generation.Slots;
 
 namespace IronScheme.Runtime
 {

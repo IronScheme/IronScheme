@@ -22,7 +22,8 @@ using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Ast;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// Slot refers to a reference to an object. For eg, a global variable, a local variable, etc.
     /// A Slot is referred to using a Name. The Namespace is used to map a Name to a Slot.
@@ -31,14 +32,16 @@ namespace Microsoft.Scripting.Generation {
     /// function. Though each closure will use the same string (the name of the variable), each
     /// string is considered a unique Name or symbol.
     /// </summary>
-    public abstract class Slot {
+    public abstract class Slot
+    {
         private bool _local;
         private Type _knownType;
         public abstract void EmitGet(CodeGen cg);
         public abstract void EmitGetAddr(CodeGen cg);
 
         // Must override at least one of these two methods or get infinite loop
-        public virtual void EmitSet(CodeGen cg, Slot val) {
+        public virtual void EmitSet(CodeGen cg, Slot val)
+        {
             Contract.RequiresNotNull(val, "val");
             Contract.RequiresNotNull(cg, "cg");
 
@@ -48,16 +51,17 @@ namespace Microsoft.Scripting.Generation {
 
         public virtual void EmitSet(CodeGen cg, Expression value)
         {
-          value.Emit(cg);
-          EmitSet(cg);
+            value.Emit(cg);
+            EmitSet(cg);
         }
 
         // This override assumes that the IL stack already holds the value to be assigned from.
-        public virtual void EmitSet(CodeGen cg) {
+        public virtual void EmitSet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             // localTmpVal = <top of IL stack>
-            Slot localTmpVal = cg.GetLocalTmp(typeof(object));
+            var localTmpVal = cg.GetLocalTmp(typeof(object));
             localTmpVal.EmitSet(cg);
 
             // <slot> = localTmpVal
@@ -75,7 +79,8 @@ namespace Microsoft.Scripting.Generation {
         // Any access to the Slot first checks if it is holding Uninitialized.instance,
         // which means that it should virtually not exist
 
-        public virtual void EmitSetUninitialized(CodeGen cg) {
+        public virtual void EmitSetUninitialized(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             // Emit the following:
@@ -87,12 +92,14 @@ namespace Microsoft.Scripting.Generation {
             EmitSet(cg);
         }
 
-        public virtual void EmitDelete(CodeGen cg, SymbolId name, bool check) {
+        public virtual void EmitDelete(CodeGen cg, SymbolId name, bool check)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             // First check that the Name exists. Otherwise, deleting it
             // should cause a NameError
-            if (check /*&& Options.CheckInitialized*/) {
+            if (check /*&& Options.CheckInitialized*/)
+            {
                 EmitGet(cg);
                 EmitCheck(cg, name);
                 cg.Emit(OpCodes.Pop);
@@ -101,18 +108,22 @@ namespace Microsoft.Scripting.Generation {
             EmitSetUninitialized(cg);
         }
 
-        public virtual void EmitCheck(CodeGen cg, SymbolId name) {
+        public virtual void EmitCheck(CodeGen cg, SymbolId name)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
-            Label endCheck = cg.DefineLabel();
+            var endCheck = cg.DefineLabel();
             cg.Emit(OpCodes.Dup);
             cg.EmitUninitialized();
             cg.Emit(OpCodes.Bne_Un_S, endCheck);
-            if (_local) {
+            if (_local)
+            {
                 cg.EmitSymbolId(name);
                 cg.EmitUnbox(typeof(SymbolId));
                 cg.EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.ThrowUnboundLocalError));
-            } else {
+            }
+            else
+            {
                 cg.Emit(OpCodes.Pop);
                 cg.EmitCodeContext();
                 cg.EmitSymbolId(name);
@@ -122,29 +133,39 @@ namespace Microsoft.Scripting.Generation {
             cg.MarkLabel(endCheck);
         }
 
-        public void EmitGetAs(CodeGen cg, Type asType) {
+        public void EmitGetAs(CodeGen cg, Type asType)
+        {
             Contract.RequiresNotNull(cg, "cg");
             Contract.RequiresNotNull(asType, "asType");
 
             EmitGet(cg);
-            if (asType == typeof(object) && this.Type.IsValueType) {
-                cg.EmitBoxing(this.Type);
+            if (asType == typeof(object) && Type.IsValueType)
+            {
+                cg.EmitBoxing(Type);
                 return;
             }
 
-            if (asType.IsAssignableFrom(this.Type)) {
+            if (asType.IsAssignableFrom(Type))
+            {
                 return;
             }
 
-            if (asType.IsAssignableFrom(_knownType)) {
+            if (asType.IsAssignableFrom(_knownType))
+            {
                 cg.EmitUnbox(asType);
-            } else {
+            }
+            else
+            {
                 // A special case for int-> double until we can do the proper matrix
-                if (asType == typeof(double)) {
-                    if (this.Type == typeof(int)) {
+                if (asType == typeof(double))
+                {
+                    if (Type == typeof(int))
+                    {
                         cg.Emit(OpCodes.Conv_R8);
                         return;
-                    } else if (this.KnownType == typeof(int)) {
+                    }
+                    else if (KnownType == typeof(int))
+                    {
                         cg.EmitUnbox(typeof(int));
                         cg.Emit(OpCodes.Conv_R8);
                         return;
@@ -152,10 +173,11 @@ namespace Microsoft.Scripting.Generation {
                 }
 
 
-                if (this.Type != typeof(object)) {
+                if (Type != typeof(object))
+                {
                     // TODO make this efficient, for now just go to object and back
                     //throw new InvalidOperationException();
-                    cg.EmitBoxing(this.Type);
+                    cg.EmitBoxing(Type);
                 }
                 cg.EmitConvertFromObject(asType);
             }
@@ -167,18 +189,21 @@ namespace Microsoft.Scripting.Generation {
         /// <summary>
         /// True if the slot represents a local variable
         /// </summary>
-        public bool Local {
+        public bool Local
+        {
             get { return _local; }
             set { _local = value; }
         }
 
-        public Type KnownType {
+        public Type KnownType
+        {
             get { return _knownType; }
             set { _knownType = value; }
         }
 
-        public override string ToString() {
-            return String.Format("{0} Type: {1}", GetType().Name, Type.FullName);
+        public override string ToString()
+        {
+            return string.Format("{0} Type: {1}", GetType().Name, Type.FullName);
         }
     }
 }

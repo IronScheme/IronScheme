@@ -23,7 +23,8 @@ using System.IO;
 using System.Threading;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public interface IScriptHost {
         // virtual file-system ops:

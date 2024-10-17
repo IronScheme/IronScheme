@@ -22,6 +22,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Hosting;
 using RuntimeHelpers = Microsoft.Scripting.RuntimeHelpers;
 
 namespace IronScheme.Runtime

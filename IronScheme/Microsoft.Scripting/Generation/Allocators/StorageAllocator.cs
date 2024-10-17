@@ -14,25 +14,29 @@
  * ***************************************************************************/
 
 using System;
-using System.Reflection.Emit;
-using System.Reflection;
+using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Generation {    
-
-    public class ClassEnvironmentSlot : EnvironmentSlot
+namespace Microsoft.Scripting.Generation.Allocators
+{
+    abstract class Storage
     {
-      private Type _storageType;
+        public abstract bool RequireAccessSlot { get; }
+        public abstract Slot CreateSlot(Slot instance);
+    }
 
-      public ClassEnvironmentSlot(Slot storage, Type storageType)
-        : base(storage)
-      {
-        _storageType = storageType;
-      }
+    internal abstract class StorageAllocator
+    {
+        public virtual void PrepareForEmit(CodeGen cg)
+        {
+        }
 
-      public override void EmitGetDictionary(CodeGen cg)
-      {
-        EmitGet(cg);
-        cg.EmitFieldGet(_storageType, "$parent$");
-      }
+        // TODO: change the parameter to take Variable !!!
+        public abstract Storage AllocateStorage(SymbolId name, Type type);
+
+        public virtual Slot GetAccessSlot(CodeGen cg, CodeBlock block)
+        {
+            return null;
+        }
     }
 }

@@ -17,8 +17,10 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Summary description for Expr.
     /// </summary>

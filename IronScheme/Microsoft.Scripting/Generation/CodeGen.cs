@@ -34,9 +34,11 @@ using System.Text;
 using Microsoft.Scripting.Utils;
 using BigInteger = Oyster.Math.IntX;
 using System.Runtime.InteropServices;
-using IronScheme.FrameworkPAL;
+using Microsoft.Scripting.Generation.Slots;
+using Microsoft.Scripting.Generation.Allocators;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
 
     public delegate void EmitArrayHelper(int index);
 

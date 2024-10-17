@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Text;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Generation.Builders;
 
 namespace Microsoft.Scripting
 {

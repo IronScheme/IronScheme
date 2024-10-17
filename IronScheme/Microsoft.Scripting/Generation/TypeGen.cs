@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Generation.Slots;
 
 namespace Microsoft.Scripting.Generation
 {

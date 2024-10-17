@@ -17,71 +17,88 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using Microsoft.Scripting.Hosting;
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting.Hosting
+{
 
     /// <summary>
     /// Couples a source unit with an open text reader. Remotable (TextReader is a MBRO).
     /// </summary>
     [Serializable]
-    public sealed class SourceUnitReader : TextReader {
+    public sealed class SourceUnitReader : TextReader
+    {
 
         private readonly TextReader _textReader;
         private readonly SourceUnit _sourceUnit;
 
-        public SourceUnit SourceUnit {
+        public SourceUnit SourceUnit
+        {
             get { return _sourceUnit; }
         }
 
-        internal SourceUnitReader(SourceUnit sourceUnit, TextReader textReader) {
+        internal SourceUnitReader(SourceUnit sourceUnit, TextReader textReader)
+        {
             Assert.NotNull(sourceUnit, textReader);
 
             _textReader = textReader;
             _sourceUnit = sourceUnit;
         }
 
-        public override string ReadLine() {
-            if (_sourceUnit.DisableLineFeedLineSeparator) {
+        public override string ReadLine()
+        {
+            if (_sourceUnit.DisableLineFeedLineSeparator)
+            {
                 return IOUtils.ReadTo(_textReader, '\n');
-            } else {
+            }
+            else
+            {
                 return _textReader.ReadLine();
             }
         }
 
-        public bool SeekLine(int line) {
-            if (_sourceUnit.DisableLineFeedLineSeparator) {
-                int current_line = 1;
+        public bool SeekLine(int line)
+        {
+            if (_sourceUnit.DisableLineFeedLineSeparator)
+            {
+                var current_line = 1;
 
-                for (; ; ) {
+                for (; ; )
+                {
                     if (!IOUtils.SeekTo(_textReader, '\n')) return false;
                     current_line++;
                     if (current_line == line) return true;
                 }
-            } else {
+            }
+            else
+            {
                 return IOUtils.SeekLine(_textReader, line);
             }
         }
 
-        public override string ReadToEnd() {
+        public override string ReadToEnd()
+        {
             return _textReader.ReadToEnd();
         }
 
-        public override int Read(char[] buffer, int index, int count) {
+        public override int Read(char[] buffer, int index, int count)
+        {
             return _textReader.Read(buffer, index, count);
         }
 
-        public override int Peek() {
+        public override int Peek()
+        {
             return _textReader.Peek();
         }
 
-        public override int Read() {
+        public override int Read()
+        {
             return _textReader.Read();
         }
 
-        protected override void Dispose(bool disposing) {
+        protected override void Dispose(bool disposing)
+        {
             _textReader.Dispose();
         }
     }

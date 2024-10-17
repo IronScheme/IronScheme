@@ -17,32 +17,39 @@ using System;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// Slot that indexes into an array
     /// </summary>
-    public class IndexSlot : Slot {
+    public class IndexSlot : Slot
+    {
         private Slot _instance;
         private int _index;
         private Type _type;
 
         public IndexSlot(Slot instance, int index)
-            : this(instance, index, typeof(object)) {
+            : this(instance, index, typeof(object))
+        {
         }
 
-        public IndexSlot(Slot instance, int index, Type type) {
-            this._instance = instance;
-            this._index = index;
-            this._type = type;
+        public IndexSlot(Slot instance, int index, Type type)
+        {
+            _instance = instance;
+            _index = index;
+            _type = type;
         }
 
-        public int Index {
-            get {
+        public int Index
+        {
+            get
+            {
                 return _index;
             }
         }
 
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             _instance.EmitGet(cg);
@@ -51,16 +58,18 @@ namespace Microsoft.Scripting.Generation {
             else cg.Emit(OpCodes.Ldelem, Type);
         }
 
-        public override void EmitSet(CodeGen cg) {
+        public override void EmitSet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
-            Slot val = cg.GetLocalTmp(Type);
+            var val = cg.GetLocalTmp(Type);
             val.EmitSet(cg);
             EmitSet(cg, val);
             cg.FreeLocalTmp(val);
         }
 
-        public override void EmitSet(CodeGen cg, Slot val) {
+        public override void EmitSet(CodeGen cg, Slot val)
+        {
             Contract.RequiresNotNull(cg, "cg");
             Contract.RequiresNotNull(val, "val");
 
@@ -70,7 +79,8 @@ namespace Microsoft.Scripting.Generation {
             cg.EmitStoreElement(Type);
         }
 
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             _instance.EmitGet(cg);
@@ -78,14 +88,17 @@ namespace Microsoft.Scripting.Generation {
             cg.Emit(OpCodes.Ldelema, Type);
         }
 
-        public override Type Type {
-            get {
+        public override Type Type
+        {
+            get
+            {
                 return _type;
             }
         }
 
-        public override string ToString() {
-            return String.Format("IndexSlot From: ({0}) Index: {1} Type: {2}", _instance, _index, _type);
+        public override string ToString()
+        {
+            return string.Format("IndexSlot From: ({0}) Index: {1} Type: {2}", _instance, _index, _type);
         }
     }
 }

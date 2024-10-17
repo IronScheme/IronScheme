@@ -19,7 +19,8 @@ using System.Text;
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public interface ICompiledCode {
         IScriptModule MakeModule(string name);

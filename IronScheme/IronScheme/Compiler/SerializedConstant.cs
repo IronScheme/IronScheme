@@ -12,7 +12,7 @@ using System.Reflection.Emit;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting;
 using System.Collections.Generic;
-using IronScheme.FrameworkPAL;
+using Microsoft.Scripting.Generation.Slots;
 
 namespace IronScheme.Compiler
 {

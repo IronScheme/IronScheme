@@ -20,8 +20,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class TryStatement : Statement {
 
         private struct CatchRecord {

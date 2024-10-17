@@ -20,7 +20,6 @@ using System.Reflection.Emit;
 using System.IO;
 using System.Threading;
 using System.Collections.Generic;
-using IronScheme.FrameworkPAL;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 

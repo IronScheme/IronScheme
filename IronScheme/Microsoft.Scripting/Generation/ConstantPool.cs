@@ -17,8 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     public class ConstantPool {
         private List<object> _data;
 

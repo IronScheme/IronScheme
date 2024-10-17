@@ -28,7 +28,8 @@ using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
 
     public delegate void CommandDispatcher(Delegate command);
 

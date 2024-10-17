@@ -25,7 +25,8 @@ using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Flags]
     public enum CodeContextAttributes {
         None = 0,

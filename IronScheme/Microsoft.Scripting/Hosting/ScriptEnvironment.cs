@@ -17,14 +17,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Scripting;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Scripting.Generation;
 using System.Text;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public interface IScriptEnvironment {
         IScriptHost Host { get; }

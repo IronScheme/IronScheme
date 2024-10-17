@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using IronScheme.FrameworkPAL;
 using IronScheme.Hosting;
 using IronScheme.Runtime;
 using Microsoft.Scripting;

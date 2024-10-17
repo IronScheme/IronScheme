@@ -19,54 +19,63 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// Argument access
     /// </summary>
-    public class ArgSlot : Slot {
+    public class ArgSlot : Slot
+    {
         private Type _argType;
         private int _index;
         private CodeGen _codeGen;
 
-        public ArgSlot(int index, Type type, CodeGen codeGen) {
-            this._index = index;
-            this._argType = type;
-            this._codeGen = codeGen;
+        public ArgSlot(int index, Type type, CodeGen codeGen)
+        {
+            _index = index;
+            _argType = type;
+            _codeGen = codeGen;
         }
 
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
-            Debug.Assert(cg == this._codeGen);
+            Debug.Assert(cg == _codeGen);
             cg.EmitTrueArgGet(_index);
         }
 
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
-            Debug.Assert(cg == this._codeGen);
+            Debug.Assert(cg == _codeGen);
             cg.EmitArgAddr(_index);
         }
 
-        public override void EmitSet(CodeGen cg) {
+        public override void EmitSet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
-            Debug.Assert(cg == this._codeGen);
+            Debug.Assert(cg == _codeGen);
             if (_index < byte.MaxValue)
             {
-              cg.Emit(OpCodes.Starg_S, (byte)_index);
+                cg.Emit(OpCodes.Starg_S, (byte)_index);
             }
             else
             {
-              cg.Emit(OpCodes.Starg, (short)_index);
+                cg.Emit(OpCodes.Starg, (short)_index);
             }
         }
 
-        public override Type Type {
-            get {
+        public override Type Type
+        {
+            get
+            {
                 return _argType;
             }
         }
 
-        public override string ToString() {
-            return String.Format("ArgSlot Index: {0} Type: {1}", _index, _argType.FullName);
+        public override string ToString()
+        {
+            return string.Format("ArgSlot Index: {0} Type: {1}", _index, _argType.FullName);
         }
     }
 }

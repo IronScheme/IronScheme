@@ -16,7 +16,8 @@
 using System;
 using Microsoft.Scripting.Hosting;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Singleton LanguageContext which represents a language-neutral LanguageContext
     /// </summary>

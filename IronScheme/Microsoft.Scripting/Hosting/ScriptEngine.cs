@@ -19,8 +19,6 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
-
-using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
@@ -29,7 +27,8 @@ using System.IO;
 using System.Text;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
     public delegate T ModuleBinder<T>(ScriptModule scope);
 
     public interface IScriptEngine : ILanguageService {

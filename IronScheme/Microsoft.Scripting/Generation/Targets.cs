@@ -19,8 +19,10 @@ using System.Text;
 using System.Reflection.Emit;
 
 using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     public enum TargetBlockType {
         Normal,
         Try,
