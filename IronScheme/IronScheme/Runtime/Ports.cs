@@ -171,7 +171,7 @@ namespace IronScheme.Runtime
     
     internal static object Load(object filename, bool loadinmemory)
     {
-      CodeContext cc = IronScheme.Compiler.BaseHelper.cc; // sneaky....
+      CodeContext cc = BaseHelper.cc; // sneaky....
 
       string path = GetPath(filename as string);
 

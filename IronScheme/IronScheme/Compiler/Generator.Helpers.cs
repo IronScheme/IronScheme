@@ -9,62 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using IronScheme.Hosting;
 using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Hosting;
 
 namespace IronScheme.Compiler
 {
-  public abstract class BaseHelper : Glue
-  {
-    static IronSchemeScriptEngine se;
-    internal static CodeContext cc;
-    internal static ScriptModule scriptmodule;
-    internal static ActionBinder binder;
-    static LanguageProvider lp;
-
-    protected static LanguageProvider LanguageProvider
-    {
-      get { return BaseHelper.lp; }
-    } 
-
-    protected static ScriptEngine ScriptEngine
-    {
-      get { return BaseHelper.se; }
-    }
-
-    protected static CodeContext Context
-    {
-      get { return cc; }
-    }
-
-    protected static ActionBinder Binder
-    {
-      get { return BaseHelper.binder; }
-    } 
-
-    internal static void Initialize(IronSchemeLanguageProvider ironSchemeLanguageProvider)
-    {
-      lp = ironSchemeLanguageProvider;
-      se = lp.GetEngine() as IronSchemeScriptEngine;
-
-      scriptmodule = ScriptDomainManager.CurrentManager.Host.DefaultModule as ScriptModule;
-
-      ModuleContext mc = new ModuleContext(scriptmodule);
-
-      mc.CompilerContext = new CompilerContext(SourceUnit.CreateSnippet(se, ""));
-
-      cc = new CodeContext(scriptmodule.Scope, se.LanguageContext, mc);
-
-      binder = new IronScheme.Actions.IronSchemeActionBinder(cc);
-
-      MethodCallExpression.BuiltinsIsTrue = typeof(Builtins).GetMethod("IsTrue");
-
-      Generator.initme = true;
-    }
-  }
 
   partial class Generator : BaseHelper
   {

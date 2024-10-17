@@ -41,7 +41,7 @@ namespace IronScheme.Hosting
     void Initialize()
     {
       //PAL.Initialize();
-      IronScheme.Compiler.BaseHelper.Initialize(this);
+      BaseHelper.Initialize(this);
       Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
     }
     
@@ -125,13 +125,13 @@ namespace IronScheme.Hosting
             tail[0] = tail[0].Replace("\\", "/");
 
             Engine.Execute(string.Format("(command-line '(\"{0}\"))", string.Join("\" \"", tail)), 
-              Compiler.BaseHelper.scriptmodule);
+              BaseHelper.scriptmodule);
           }
         }
 
         if (!Options.TabCompletion)
         {
-          Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(emacs-mode? #t)", BaseHelper.scriptmodule);
         }
         int ev = 0;
         AutoResetEvent e = new AutoResetEvent(false);
@@ -186,20 +186,20 @@ namespace IronScheme.Hosting
 
         if (!Options.TabCompletion)
         {
-          Engine.Execute("(emacs-mode? #t)", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(emacs-mode? #t)", BaseHelper.scriptmodule);
         }
 
         var nuget = Path.Combine(Builtins.ApplicationDirectory, "nuget.sls");
 
         if (File.Exists(nuget) && nuget.Contains(Path.DirectorySeparatorChar + "ironscheme.tool" + Path.DirectorySeparatorChar))
         {
-          Engine.Execute("(import (nuget)) (unfuck)", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(import (nuget)) (unfuck)", BaseHelper.scriptmodule);
           File.Delete(nuget);
         }
 
         if (File.Exists("init.ss"))
         {
-          Engine.Execute("(include \"init.ss\")", Compiler.BaseHelper.scriptmodule);
+          Engine.Execute("(include \"init.ss\")", BaseHelper.scriptmodule);
         }
 
       }

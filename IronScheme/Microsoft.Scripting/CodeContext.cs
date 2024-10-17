@@ -14,20 +14,14 @@
  * ***************************************************************************/
 
 using System;
-using System.Threading;
-using System.Reflection;
 using System.Diagnostics;
-using System.Globalization;
 using System.Collections.Generic;
-
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Ast;
 using System.Collections;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// CodeContext represents an environment for execution of script code.  
     /// 
