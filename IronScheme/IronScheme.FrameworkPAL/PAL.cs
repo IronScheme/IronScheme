@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+//#define DEBUG_SEQ_POINTS
+
+using System;
 using System.Diagnostics.SymbolStore;
 using System.IO;
 #if NETCOREAPP2_1_OR_GREATER
@@ -55,7 +58,11 @@ namespace IronScheme.FrameworkPAL
 #if NET9_0_OR_GREATER
     Dictionary<ModuleBuilder, HashSet<ISymbolDocumentWriter>> modmap = new();
     Dictionary<ISymbolDocumentWriter, HashSet<ILGenerator>> ilmap = new();
+#if DEBUG_SEQ_POINTS
+    Dictionary<ILGenerator, SortedDictionary<int, object>> iloffsets = new();
+#else
     Dictionary<ILGenerator, SortedSet<int>> iloffsets = new();
+#endif
 #endif
 
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
@@ -70,12 +77,16 @@ namespace IronScheme.FrameworkPAL
 
       if (ilg.ILOffset == 0 && startLine == 16707566)
       {
+#if DEBUG_SEQ_POINTS
+        Console.WriteLine("Ignoring: Found hidden seq point at offset 0");
+#endif
         return;
       }
 
       if (ilg.ILOffset == 0 && endColumn - startColumn == 1)
       {
-#if DEBUG
+#if DEBUG_SEQ_POINTS
+        Console.WriteLine("Warning: Found 1 length seq point offset 0: {0}", (startLine, startColumn, endLine, endColumn));
         Debugger.Break();
 #endif
       }
@@ -85,20 +96,30 @@ namespace IronScheme.FrameworkPAL
         iloffsets[ilg] = offsets = new ();
       }
 
-      if (offsets.Contains(ilg.ILOffset))
+#if DEBUG_SEQ_POINTS
+      if (offsets.ContainsKey(ilg.ILOffset))
       {
+        Console.WriteLine("Ignoring: Found prev seq point at offset {0}: {1} new {2}", ilg.ILOffset, (startLine, startColumn, endLine, endColumn));
         // skipping
         if (ilg.ILOffset == 0)
         {
-#if DEBUG
           Debugger.Break();
-#endif
         }
         return;
       }
 
+      offsets.Add(ilg.ILOffset, (startLine,startColumn,endLine,endColumn));
+#else
+
+      if (offsets.Contains(ilg.ILOffset))
+      {
+        // skipping
+        return;
+      }
+
       offsets.Add(ilg.ILOffset);
-      
+#endif
+
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
