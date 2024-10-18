@@ -95,7 +95,7 @@
     </None>
     <Content Include="ironscheme.ico" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'" DependsOnTargets="IronSchemeBuildTools">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20' and Exists('$(TargetPath)')" DependsOnTargets="IronSchemeBuildTools">
     <!-- move this to packaging -->
     <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(TargetDir)$(ProjectName)32.exe" />
   </Target>
