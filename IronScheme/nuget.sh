@@ -1,15 +1,11 @@
 #!/bin/bash
 set -e
 
-pushd IronScheme.Console/bin/Release/net20/install-stage/IronScheme
-echo '(import (nuget)) (fuck)' | dotnet IronScheme.ConsoleCore.dll
-popd 
+(cd IronScheme.Console/bin/Release/net20/install-stage/IronScheme; echo '(import (nuget)) (fuck)' | dotnet IronScheme.ConsoleCore.dll);
 
-pushd IronScheme.Nuget
+cd IronScheme.Nuget
 dotnet pack -tl:off -p:PackageName=Tool $*
 dotnet pack -tl:off -p:PackageName=Core $*
-popd
+cd ..
 
-pushd IronScheme.Console/bin/Release/net20/install-stage/IronScheme
-echo '(import (nuget)) (unfuck)' | dotnet IronScheme.ConsoleCore.dll
-popd 
+(cd IronScheme.Console/bin/Release/net20/install-stage/IronScheme; echo '(import (nuget)) (unfuck)' | dotnet IronScheme.ConsoleCore.dll);

@@ -53,7 +53,7 @@ jobs:
 
     - name: Build (sh)
       if: ${{runner.os != 'Windows'}}
-      run: build.sh
+      run: ./build.sh
 
     - name: Build (cmd)
       if: ${{runner.os == 'Windows'}}
@@ -61,7 +61,7 @@ jobs:
 
     - name: Test (sh)
       if: ${{runner.os != 'Windows'}}
-      run: test.sh
+      run: ./test.sh
 
     - name: Test (cmd)
       if: ${{runner.os == 'Windows' && !matrix.coverage}}
@@ -69,7 +69,7 @@ jobs:
 
     - name: Package (sh)
       if: ${{runner.os != 'Windows'}}
-      run: package.sh
+      run: ./package.sh
 
     - name: Package (cmd)
       if: ${{runner.os == 'Windows'}}
@@ -77,7 +77,7 @@ jobs:
 
     - name: Nuget (sh)
       if: ${{runner.os != 'Windows'}}
-      run: nuget.sh
+      run: ./nuget.sh
 
     - name: Nuget (cmd)
       if: ${{runner.os == 'Windows' && matrix.coverage}}
