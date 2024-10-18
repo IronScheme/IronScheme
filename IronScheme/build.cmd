@@ -6,9 +6,10 @@ if "%1" == "-h" goto help
 if "%1" == "--help" goto help
 
 if "%1" == "--no-restore" (
-  dotnet  build -c Release -m %*
-  goto :eof
+  endLocal & goto #_undefined_# 2>NUL || dotnet  build -c Release -m %*
 )
+
+dotnet build-server shutdown --msbuild >nul
 
 SET COMMON=-m -c Release -clp:NoSummary --disable-build-servers
 
