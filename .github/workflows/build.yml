@@ -61,7 +61,7 @@ jobs:
 
     - name: Test (sh)
       if: ${{runner.os != 'Windows'}}
-      run: ./test.sh
+      run: ./test.sh && ./test-coreapp2.1.sh
 
     - name: Test (cmd)
       if: ${{runner.os == 'Windows' && !matrix.coverage}}

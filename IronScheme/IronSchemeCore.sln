@@ -51,6 +51,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{8C5B
 		nuget.sh = nuget.sh
 		package.cmd = package.cmd
 		package.sh = package.sh
+		test-coreapp2.1.sh = test-coreapp2.1.sh
 		test.cmd = test.cmd
 		test.sh = test.sh
 	EndProjectSection
