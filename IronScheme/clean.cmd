@@ -15,6 +15,4 @@ del /s /q *.pdb >nul 2>&1
 del /s /q *.output >nul 2>&1
 popd
 
-rd /q /s ..\IronScheme.BuildTools\Setup\bin >nul 2>&1
-rd /q /s ..\IronScheme.BuildTools\Setup\obj >nul 2>&1
 rd /q /s IronScheme.Console\obj >nul 2>&1

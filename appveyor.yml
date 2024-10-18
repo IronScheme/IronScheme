@@ -30,11 +30,8 @@ nuget:
 build_script:
 - cmd: |
     cd %APPVEYOR_BUILD_FOLDER%
-    cd IronScheme    
-    SET COMMON=-m -c Release -clp:NoSummary
-    dotnet build %COMMON% --p:TargetFramework=netstandard2.0 ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj 
-    dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj 
-    dotnet build %COMMON%
+    cd IronScheme
+    call build.cmd
 test_script:
 - cmd: |
     cd %APPVEYOR_BUILD_FOLDER%
