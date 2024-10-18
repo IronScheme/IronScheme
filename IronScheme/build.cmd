@@ -5,7 +5,12 @@ if "%1" == "/?" goto help
 if "%1" == "-h" goto help
 if "%1" == "--help" goto help
 
-SET COMMON=-m -c Release -clp:NoSummary
+if "%1" == "--no-restore" (
+  dotnet  build -c Release -m %*
+  goto :eof
+)
+
+SET COMMON=-m -c Release -clp:NoSummary --disable-build-servers
 
 SET BUILD=dotnet build %COMMON% --p:TargetFramework=netstandard2.0 ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj 
 SET TOOLS=dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj 
