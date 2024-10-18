@@ -10,7 +10,6 @@
     <DebugType Condition="'$(DebugType)' == 'portable' and $(MSBuildRuntimeType) == 'Full'">pdbonly</DebugType>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
     <NoWarn>$(NoWarn);MSB3073</NoWarn>
-    <!--<UseNetFxIlTools Condition="'$(UseNetFxIlTools)' == ''">true</UseNetFxIlTools>-->
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -25,7 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ILGlue Include="IronScheme.Glue.il" />
+    <ILGlue Include="IronScheme.Glue.il">
+      <ILOutputFile>$(IntermediateOutputPath)$(TargetName).il</ILOutputFile>
+    </ILGlue>
   </ItemGroup>
 
   <Target Name="PreCompile" BeforeTargets="BeforeCompile" Condition="$(DesignTimeBuild) != true">
@@ -35,9 +36,9 @@
       </ItemGroup>
   </Target>
 
-  <Target Name="PostCompile" Condition="Exists(@(IntermediateAssembly)) and $(DesignTimeBuild) != true" AfterTargets="AfterCompile" DependsOnTargets="IronSchemeBuildTools">
+  <Target Name="PostCompile" Condition="Exists(@(IntermediateAssembly)) and $(DesignTimeBuild) != true" AfterTargets="AfterCompile" DependsOnTargets="IronSchemeBuildTools" Inputs="@(IntermediateAssembly);@(ILGlue)" Outputs="@(ILGlue->'%(ILOutputFile)')">
     <PropertyGroup>
-      <ILOutputFile>$(IntermediateOutputPath)$(TargetName).il</ILOutputFile>
+      <ILOutputFile>@(ILGlue->'%(ILOutputFile)')</ILOutputFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -49,5 +50,11 @@
     <ILAsm Condition="'$(DebugType)' == 'portable'" ContinueOnError="true" MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="@(IntermediateAssembly)" />
     <ILAsm MetadataVersion="$(TargetedRuntimeVersion)" InputFiles="@(ILInputFiles)" OutputFile="@(IntermediateAssembly)" />
 
+    <Touch Files="$(ILOutputFile)" />
+
+  </Target>
+
+  <Target Name="CommonClean" BeforeTargets="Clean">
+    <Delete Files="@(ILGlue->'%(ILOutputFile)')" />
   </Target>
 </Project>
