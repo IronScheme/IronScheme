@@ -182,11 +182,6 @@ namespace Microsoft.Scripting.Generation
             CodeGen cg;
 
             string typeName = "";
-#if DEBUG
-            if (!String.IsNullOrEmpty(context.SourceUnit.Id)) {
-                typeName = ReflectionUtils.ToValidTypeName(Path.GetFileNameWithoutExtension(IOUtils.ToValidPath(context.SourceUnit.Id)));
-            }
-#endif
 
             if (NeedDebuggableDynamicCodeGenerator(context)) {
                 cg = CreateDebuggableDynamicCodeGenerator(
