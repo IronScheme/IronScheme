@@ -199,7 +199,6 @@ namespace IronScheme.Compiler
         {"hashtable[]", "System.Collections.Hashtable[]"}
       };
 
-
     protected static Type ScanForType(string name)
     {
       string mapname;
@@ -234,7 +233,6 @@ namespace IronScheme.Compiler
       ExtractTypeInfo(rtype, out t, out type, out inferred);
       return t;
     }
-
 
     protected static void ExtractTypeInfo(object rtype, out Type t, out string type, out bool inferred)
     {
