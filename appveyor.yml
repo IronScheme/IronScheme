@@ -29,11 +29,12 @@ nuget:
   project_feed: true
 build_script:
 - cmd: |
-    dotnet restore "IronScheme.BuildTools\IronScheme.BuildTools.sln"
-    msbuild -restore "IronScheme.BuildTools\IronScheme.Build\IronScheme.Build.csproj" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
-    rem dotnet msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\dotnetcore\Appveyor.MSBuildLogger.dll" /p:Configuration=Release 
-    dotnet restore "IronScheme\IronSchemeCore.sln"
-    msbuild -restore "IronScheme\IronSchemeCore.sln" /v:m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:NoWarn="NETSDK1138;NU1702;NU1902;NU1903;NU1701;CS3021;SYSLIB0050" 
+    cd %APPVEYOR_BUILD_FOLDER%
+    cd IronScheme    
+    SET COMMON=-m -c Release -clp:NoSummary
+    dotnet build %COMMON% --p:TargetFramework=netstandard2.0 ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj 
+    dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj 
+    dotnet build %COMMON%
 test_script:
 - cmd: |
     cd %APPVEYOR_BUILD_FOLDER%
