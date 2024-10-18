@@ -17,6 +17,7 @@ See docs/license.txt. |#
   (define dir (path-combine (application-directory) "./lib/srfi/" ))
 
   (define (fuck)
+    (displayln '(nuget fuck))
     (vector-for-each
       (lambda (f)
         (directory-move
@@ -43,6 +44,7 @@ See docs/license.txt. |#
       (get-files dir "*%2a.*")))
 
   (define (unfuck)
+    (displayln '(nuget unfuck))
     (vector-for-each
       (lambda (f)
         (file-move
