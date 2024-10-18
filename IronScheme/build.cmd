@@ -11,7 +11,7 @@ if "%1" == "--no-restore" (
 
 dotnet build-server shutdown --msbuild >nul
 
-SET COMMON=-m -c Release -clp:NoSummary --disable-build-servers
+SET COMMON=-m -c Release --disable-build-servers
 
 SET BUILD=dotnet build %COMMON% --p:TargetFramework=netstandard2.0 ../IronScheme.BuildTools/IronScheme.Build/IronScheme.Build.csproj 
 SET TOOLS=dotnet build %COMMON% --p:TargetFramework=net4.0 ../IronScheme.BuildTools/Setup/Setup.csproj 
