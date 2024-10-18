@@ -1686,7 +1686,7 @@ namespace Microsoft.Scripting.Generation
         }
 
         public void Emit(OpCode opcode) {
-          if (!EmitDebugInfo || opcode != OpCodes.Nop)
+          //if (!EmitDebugInfo || opcode != OpCodes.Nop)
           {
             _ilg.Emit(opcode);
           }
@@ -1777,8 +1777,6 @@ namespace Microsoft.Scripting.Generation
                 startLine = _context.SourceUnit.MapLine(startLine);
                 endLine = _context.SourceUnit.MapLine(endLine);
             }
-
-            Debug.Assert(document != null);
 
             var fn = GetFilename(document);
 
