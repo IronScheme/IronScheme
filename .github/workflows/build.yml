@@ -42,7 +42,7 @@ jobs:
         dotnet-quality: 'daily'
 
     - name: Setup .NETCore 2.1
-      if: ${{!matrix.coverage}}
+      if: ${{runner.os == 'Windows' && !matrix.coverage}}
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 2.1.x
@@ -61,7 +61,7 @@ jobs:
 
     - name: Test (sh)
       if: ${{runner.os != 'Windows'}}
-      run: ./test.sh && ./test-coreapp2.1.sh
+      run: ./test.sh && ./test-netbefore9.sh
 
     - name: Test (cmd)
       if: ${{runner.os == 'Windows' && !matrix.coverage}}
