@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Reflection;
@@ -23,7 +22,8 @@ using System.Threading;
 using System.IO;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public abstract class ConsoleHost {
         private int _exitCode;
@@ -225,9 +225,7 @@ namespace Microsoft.Scripting.Hosting {
 
         private int RunFiles(OptionsParser optionsParser) {
 
-            EngineOptions engine_options = (optionsParser != null) ? optionsParser.EngineOptions : null;
-
-            IScriptEngine engine = _options.LanguageProvider.GetEngine(engine_options);
+            IScriptEngine engine = _options.LanguageProvider.GetEngine();
 
             engine.SetSourceUnitSearchPaths(_options.SourceUnitSearchPaths);
 
@@ -256,7 +254,7 @@ namespace Microsoft.Scripting.Hosting {
             Contract.RequiresNotNull(file, "file");
             Contract.RequiresNotNull(args, "args");
 
-            Assembly assembly = ScriptDomainManager.CurrentManager.PAL.LoadAssembly(file);
+            Assembly assembly = Assembly.Load(file);
             MethodInfo method = null;
 
             foreach (Type type in assembly.GetExportedTypes()) {
@@ -285,14 +283,12 @@ namespace Microsoft.Scripting.Hosting {
             
             CommandLine command_line;
             ConsoleOptions console_options;
-            EngineOptions engine_options;
 
             console_options = optionsParser.ConsoleOptions;
-            engine_options = optionsParser.EngineOptions;
 
             command_line = _options.LanguageProvider.GetCommandLine();
 
-            IScriptEngine engine = _options.LanguageProvider.GetEngine(engine_options);
+            IScriptEngine engine = _options.LanguageProvider.GetEngine();
 
             if (console_options.PrintVersionAndExit) {
                 Console.WriteLine(engine.VersionString);

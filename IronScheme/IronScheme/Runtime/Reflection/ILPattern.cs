@@ -179,7 +179,7 @@ namespace IronScheme.Runtime.Reflection
 		}
 	}
 
-	public sealed class MatchContext {
+	sealed class MatchContext {
 
 		internal Instruction instruction;
 		internal bool success;

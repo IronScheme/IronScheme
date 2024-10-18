@@ -54,6 +54,7 @@ See docs/license.txt. |#
       bitwise-arithmetic-shift))
       
   (clr-using Oyster.Math)
+  (clr-using IronScheme.Scripting.Math)
       
   (define ->bignum
     (typed-lambda (ei) ((Object) IntX)

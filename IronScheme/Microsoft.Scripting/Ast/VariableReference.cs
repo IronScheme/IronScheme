@@ -13,11 +13,12 @@
  *
  * ***************************************************************************/
 
-using System;
 using System.Diagnostics;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Reference is representation of the use(s) of the variable (_variable).
     /// It is used to resolve closures and create actual slots for the code generation using

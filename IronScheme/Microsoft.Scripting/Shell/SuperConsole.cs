@@ -15,14 +15,13 @@
 
 using System;
 using System.Text;
-using System.Collections;
-using System.Threading;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.Scripting.Hosting;
 using System.IO;
 
-namespace Microsoft.Scripting.Shell {
+namespace Microsoft.Scripting.Shell
+{
 #if !SILVERLIGHT // SuperConsole (ConsoleColor)
     public sealed class SuperConsole : BasicConsole {
 

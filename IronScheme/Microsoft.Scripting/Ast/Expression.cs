@@ -17,8 +17,10 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Summary description for Expr.
     /// </summary>
@@ -96,8 +98,8 @@ namespace Microsoft.Scripting.Ast {
             cg.EmitBoxing(Type);
         }
 
-        static readonly FieldInfo True = typeof(RuntimeHelpers).GetField("True");
-        static readonly FieldInfo False = typeof(RuntimeHelpers).GetField("False");
+        static readonly FieldInfo True = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.True));
+        static readonly FieldInfo False = typeof(RuntimeHelpers).GetField(nameof(RuntimeHelpers.False));
 
         /// <summary>
         /// Generates code for this expression in a value position.  This will leave
@@ -149,9 +151,9 @@ namespace Microsoft.Scripting.Ast {
         /// <param name="label">Where to branch if this expression is false.</param>
         public virtual void EmitBranchFalse(CodeGen cg, Label label) {
             this.EmitAs(cg, typeof(bool));
-            cg.EmitSequencePointNone();
+            //cg.EmitSequencePointNone();
             cg.Emit(OpCodes.Brfalse, label);
-            cg.EmitSequencePointNone();
+            //cg.EmitSequencePointNone();
         }
 
         /// <summary>

@@ -11,18 +11,7 @@ namespace IronScheme.Tests
     [Test]
     public void Run()
     {
-      var libs = File.ReadAllLines("compiled.lst");      
-
-      if (!Quiet) Console.WriteLine("Deleting system libraries");
-      foreach (var lib in libs)
-      {
-        File.Delete(lib);
-      }
-
-      File.Delete("compiled.lst");
-
-      if (!Quiet) Console.WriteLine("Done");
+      Setup.Cleanup();
     }
   }
-
 }

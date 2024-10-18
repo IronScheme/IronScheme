@@ -15,12 +15,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Collections;
 using System.Diagnostics;
 
-namespace Microsoft.Scripting.Utils {
-    public static class Contract {
+namespace Microsoft.Scripting.Utils
+{
+    internal static class Contract {
 
         [Conditional("DEBUG")]
         public static void Requires(bool precondition) {

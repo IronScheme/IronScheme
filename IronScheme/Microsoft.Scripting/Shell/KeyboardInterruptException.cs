@@ -14,11 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Scripting.Shell {
+namespace Microsoft.Scripting.Shell
+{
     [Serializable]
     public class KeyboardInterruptException : Exception {
         public KeyboardInterruptException() : base() { }

@@ -14,13 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Scripting.Utils;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     public sealed class RuntimeConstant : CompilerConstant {
         private object/*!*/ _value;
 

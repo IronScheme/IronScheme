@@ -14,11 +14,11 @@
  * ***************************************************************************/
 
 using System;
-using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Generation;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class VoidExpression : Expression {
         private Statement _statement;
 

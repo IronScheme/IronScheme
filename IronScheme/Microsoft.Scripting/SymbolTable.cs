@@ -15,12 +15,11 @@
 
 using System;
 using System.Collections.Generic;
-
-using System.Diagnostics;
 using System.Threading;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     public static class SymbolTable {
         //private static object _lockObj = new object();
 

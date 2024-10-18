@@ -19,9 +19,9 @@ namespace Microsoft.Scripting.Generation {
     [Flags]
     public enum CodeGenOptions {
         None = 0x00,
-        ILDebug = 0x01,
+        //ILDebug = 0x01,
         CacheConstants = 0x02,
-        EmitLineInfo =  0x04,
+        //EmitLineInfo =  0x04,
         DynamicMethod = 0x08,
     }
 }

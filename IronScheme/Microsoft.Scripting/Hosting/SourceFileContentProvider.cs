@@ -14,12 +14,12 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     [Serializable]
     public class SourceFileContentProvider : SourceContentProvider {
@@ -55,7 +55,7 @@ namespace Microsoft.Scripting.Hosting {
         #endregion
 
         public override TextReader GetReader() {
-            Stream stream = OpenStream();
+            Stream stream = File.OpenRead(Path);
 
             if (stream == null) {
                 throw new InvalidImplementationException();
@@ -73,10 +73,6 @@ namespace Microsoft.Scripting.Hosting {
             }
 
             return reader;
-        }
-
-        protected virtual Stream OpenStream() {
-            return ScriptDomainManager.CurrentManager.PAL.OpenInputFileStream(Path);
         }
     }
 }

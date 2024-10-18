@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Collections;
 
 namespace Microsoft.Scripting
 {
-  public class Storage<T> : IAttributesCollection
+    public class Storage<T> : IAttributesCollection
   {
     #region IAttributesCollection Members
 

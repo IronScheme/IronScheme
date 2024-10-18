@@ -15,10 +15,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     public class ConstantPool {
         private List<object> _data;
 
@@ -114,24 +114,6 @@ namespace Microsoft.Scripting.Generation {
                 _lastCheck = 0;
                 _staticData.Add(data == null ? _nullVal : data);
                 return _staticData.Count - 1;
-            }
-        }
-
-        public static object GetConstantData(int index) {
-            lock (_staticData) {
-                object res = _staticData[index];
-                _staticData[index] = null;
-                _empties++;
-                Debug.Assert(res != null);
-                return res == _nullVal ? null : res;
-            }
-        }
-
-        public static object GetConstantDataReusable(int index) {
-            lock (_staticData) {
-                object res = _staticData[index];
-                Debug.Assert(res != null);
-                return res == _nullVal ? null : res;
             }
         }
     }

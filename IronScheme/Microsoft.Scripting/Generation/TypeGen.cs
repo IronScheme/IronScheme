@@ -15,19 +15,15 @@
 
 using System;
 using System.Diagnostics;
-using System.Collections;
 using System.Collections.Generic;
 
 using System.Reflection;
 using System.Reflection.Emit;
-
-using System.Security.Permissions;
-
-using Microsoft.Scripting.Math;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Generation.Slots;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     public class TypeGen {
         private readonly AssemblyGen _myAssembly;
         private readonly TypeBuilder _myType;
@@ -38,13 +34,11 @@ namespace Microsoft.Scripting.Generation {
         private Dictionary<SymbolId, Slot> _indirectSymbolIds = new Dictionary<SymbolId, Slot>();
         private List<TypeGen> _nestedTypeGens = new List<TypeGen>();
         private ConstructorBuilder _defaultCtor;
-        private ActionBinder _binder;
 
         public event EventHandler CreatingType;
         public int ConstantCounter = 0;
         public List<object> SerializedConstants = new List<object>();
         internal Type BakedType;
-        private static readonly Type[] SymbolIdIntCtorSig = new Type[] { typeof(int) };
 
         public TypeGen(AssemblyGen myAssembly, TypeBuilder myType) {
             this._myAssembly = myAssembly;
@@ -74,7 +68,6 @@ namespace Microsoft.Scripting.Generation {
 
         public CodeGen CreateCodeGen(MethodBase mi, ILGenerator ilg, IList<Type> paramTypes, ConstantPool constantPool) {
             CodeGen ret = new CodeGen(this, _myAssembly, mi, ilg, paramTypes, constantPool);
-            if (_binder != null) ret.Binder = _binder;
             if (_contextSlot != null) ret.ContextSlot = _contextSlot;
             return ret;
         }
@@ -106,26 +99,6 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        public ActionBinder Binder {
-            get {
-                return _binder;
-            }
-            set {
-                _binder = value;
-            }
-        }
-
-        public TypeGen DefineNestedType(string name, Type parent) {
-            TypeBuilder tb = _myType.DefineNestedType(name, TypeAttributes.NestedPublic);
-            tb.SetParent(parent);
-            TypeGen ret = new TypeGen(_myAssembly, tb);
-            _nestedTypeGens.Add(ret);
-
-            ret.AddCodeContextField();
-
-            return ret;
-        }
-
         public void AddCodeContextField() {
             FieldBuilder contextField = _myType.DefineField(CodeContext.ContextFieldName,
                     typeof(CodeContext),
@@ -134,12 +107,7 @@ namespace Microsoft.Scripting.Generation {
             _contextSlot = new StaticFieldSlot(contextField);
         }
 
-      public Slot AddField(Type fieldType, string name)
-      {
-        return AddField(fieldType, name, FieldAttributes.Public);
-      }
-
-      public Slot AddField(Type fieldType, string name, FieldAttributes attributes)
+        public Slot AddField(Type fieldType, string name, FieldAttributes attributes)
       {
         FieldBuilder fb = _myType.DefineField(name, fieldType, attributes);
           return new FieldSlot(new ThisSlot(_myType), fb);
@@ -170,10 +138,6 @@ namespace Microsoft.Scripting.Generation {
             CodeGen ret = CreateCodeGen(mb, mb.GetILGenerator(), baseSignature);
             ret.MethodToOverride = baseMethod;
             return ret;
-        }
-
-        public PropertyBuilder DefineProperty(string name, PropertyAttributes attrs, Type returnType) {
-            return _myType.DefineProperty(name, attrs, returnType, ArrayUtils.EmptyTypes);
         }
 
         private const MethodAttributes MethodAttributesToEraseInOveride =
@@ -253,27 +217,6 @@ namespace Microsoft.Scripting.Generation {
             return CreateCodeGen(cb, cb.GetILGenerator(), paramTypes);
         }
 
-        public CodeGen DefineStaticConstructor() {
-            ConstructorBuilder cb = _myType.DefineTypeInitializer();
-            return CreateCodeGen(cb, cb.GetILGenerator(), ArrayUtils.EmptyTypes);
-        }
-
-        public void SetCustomAttribute(Type type, object[] values) {
-            Contract.RequiresNotNull(type, "type");
-
-            Type[] types = new Type[values.Length];
-            for (int i = 0; i < types.Length; i++) {
-                if (values[i] != null) {
-                    types[i] = values[i].GetType();
-                } else {
-                    types[i] = typeof(object);
-                }
-            }
-            CustomAttributeBuilder cab = new CustomAttributeBuilder(type.GetConstructor(types), values);
-
-            _myType.SetCustomAttribute(cab);
-        }
-
         /// <summary>
         /// Constants
         /// </summary>
@@ -351,10 +294,6 @@ namespace Microsoft.Scripting.Generation {
 
         public TypeBuilder TypeBuilder {
             get { return _myType; }
-        }
-
-        public Slot ContextSlot {
-            get { return _contextSlot; }
         }
     }
 }

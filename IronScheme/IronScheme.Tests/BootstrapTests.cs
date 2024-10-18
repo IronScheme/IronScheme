@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -10,6 +11,8 @@ namespace IronScheme.Tests
   [Category(nameof(Bootstrap))]
   public class Bootstrap : TestRunner
   {
+    const int LIBSCOUNT = 232;
+
     [Test]
     [Order(1)]
     public void Bootstrap_Debug()
@@ -35,7 +38,7 @@ namespace IronScheme.Tests
       RunIronSchemeTest(@"-debug compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
 
-      Assert.Pass();
+      Assert.That(list, Has.Length.EqualTo(LIBSCOUNT));
     }
 
     [Test]
@@ -46,18 +49,13 @@ namespace IronScheme.Tests
 
       try
       {
-        foreach (var lib in libs)
-        {
-          VerifyAssembly(lib);
-        }
+        VerifyAssemblies(libs);
+
+        Assert.That(libs, Has.Length.EqualTo(LIBSCOUNT));
       }
       finally
       {
-        foreach (var lib in libs)
-        {
-          File.Delete(lib);
-          File.Delete(Path.ChangeExtension(lib, "pdb"));
-        }
+        Setup.Cleanup();
       }
     }
 
@@ -86,7 +84,7 @@ namespace IronScheme.Tests
       RunIronSchemeTest(@"compile-system-libraries.sps");
       Directory.Move("lib.hide", "lib");
 
-      Assert.Pass();
+      Assert.That(list, Has.Length.EqualTo(LIBSCOUNT));
     }
 
     [Test]
@@ -94,10 +92,10 @@ namespace IronScheme.Tests
     public void Verify_Release()
     {
       var libs = File.ReadAllLines("compiled.lst");
-      foreach (var lib in libs)
-      {
-        VerifyAssembly(lib);
-      }
+
+      VerifyAssemblies(libs);
+
+      Assert.That(libs, Has.Length.EqualTo(LIBSCOUNT));
     }
 
     static string _sdkRefPath;
@@ -130,6 +128,25 @@ namespace IronScheme.Tests
       throw new Exception("Runtime path not found");
     }
 
+    private void VerifyAssemblies(string[] assemblies)
+    {
+      if (TestCore)
+      {
+        var r = RunTest("ilverify", $@"-r ""{SdkRefPath}"" -r ""*.dll"" {string.Join(" ", assemblies)}");
+        foreach (var assembly in assemblies)
+        {
+          Assert.That(r.Output, Does.Contain($"All Classes and Methods in {Path.GetFullPath(assembly)} Verified.").IgnoreCase);
+        }
+      }
+      else
+      {
+        foreach (var assembly in assemblies)
+        {
+          VerifyAssembly(assembly);
+        }
+      }
+    }
+
     private void VerifyAssembly(string assembly)
     {
       if (!TestCore)
@@ -139,8 +156,7 @@ namespace IronScheme.Tests
       }
       else
       {
-
-        var r = RunTest("ilverify", $@"{assembly} -r ""{SdkRefPath}"" -r ""*.dll""");
+        var r = RunTest("ilverify", $@"-r ""{SdkRefPath}"" -r ""*.dll"" {assembly}");
         Assert.That(r.Output, Is.EqualTo($"All Classes and Methods in {Path.GetFullPath(assembly)} Verified.").IgnoreCase);
       }
     }

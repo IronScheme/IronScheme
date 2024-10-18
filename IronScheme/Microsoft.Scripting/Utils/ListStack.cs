@@ -22,20 +22,12 @@ namespace Microsoft.Scripting.Utils {
     /// <summary>
     /// A stack implemented as a list. Allows both Push/Pop access and indexing into any member of the list.
     /// </summary>
-    public class ListStack<T> : IEnumerable<T> {
+    internal class ListStack<T> : IEnumerable<T> {
         private readonly List<T> _list;
         private int _version;
 
         public ListStack() {
             _list = new List<T>();
-        }
-
-        public ListStack(int capacity) {
-            _list = new List<T>(capacity);
-        }
-
-        public ListStack(IEnumerable<T> collection) {
-            _list = new List<T>(collection);
         }
 
         public T this[int index] {
@@ -56,15 +48,6 @@ namespace Microsoft.Scripting.Utils {
             _version++;
             _list.RemoveAt(_list.Count - 1);
             return result;
-        }
-
-        public bool Contains(T t) {
-            return _list.Contains(t);
-        }
-
-        public void Clear() {
-            _version++;
-            _list.Clear();
         }
 
         public void Push(T item) {

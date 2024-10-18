@@ -14,15 +14,13 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.IO;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
-using System.Diagnostics;
 
-namespace Microsoft.Scripting.Shell {
+namespace Microsoft.Scripting.Shell
+{
 
     public class BasicConsole : IConsole, IDisposable {
 

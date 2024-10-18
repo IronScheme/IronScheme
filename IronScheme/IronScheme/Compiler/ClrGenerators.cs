@@ -14,8 +14,6 @@ using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Utils;
 using System.IO;
 using System.Reflection.Emit;
-using System.Threading;
-using IronScheme.FrameworkPAL;
 
 namespace IronScheme.Compiler
 {
@@ -24,7 +22,7 @@ namespace IronScheme.Compiler
     static readonly MethodInfo Helpers_ConvertToDelegate = typeof (Helpers).GetMethod("ConvertToDelegate");
     static readonly MethodInfo Helpers_SymbolToEnum = typeof (Helpers).GetMethod("SymbolToEnum");
     static readonly MethodInfo Helpers_EnumToSymbol = typeof (Helpers).GetMethod("EnumToSymbol");
-    static readonly MethodInfo Helpers_Requires = typeof (Helpers).GetMethod("Requires");
+    //static readonly MethodInfo Helpers_Requires = typeof (Helpers).GetMethod("Requires");
     static readonly MethodInfo Helpers_RequiresArray = typeof (Helpers).GetMethod("RequiresArray");
 
     protected static Dictionary<string, string> namespaces = ResetReferences();
@@ -201,7 +199,6 @@ namespace IronScheme.Compiler
         {"hashtable[]", "System.Collections.Hashtable[]"}
       };
 
-
     protected static Type ScanForType(string name)
     {
       string mapname;
@@ -236,7 +233,6 @@ namespace IronScheme.Compiler
       ExtractTypeInfo(rtype, out t, out type, out inferred);
       return t;
     }
-
 
     protected static void ExtractTypeInfo(object rtype, out Type t, out string type, out bool inferred)
     {

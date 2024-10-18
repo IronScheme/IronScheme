@@ -1,0 +1,109 @@
+name: IronScheme
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-2019]
+        coverage: [false]
+        include:
+          - os: windows-2019
+            coverage: true
+
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        shell: ${{ matrix.os == 'windows-2019' && 'cmd' || 'bash' }}
+        working-directory: ./IronScheme
+
+    env:
+      DOTNET_NOLOGO: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+    steps:
+    - uses: actions/checkout@v4
+      with: 
+        submodules: 'recursive'
+        fetch-depth: 0
+
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        dotnet-quality: 'daily'
+
+    - name: Setup .NETCore 2.1
+      if: ${{runner.os == 'Windows' && !matrix.coverage}}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 2.1.x
+
+    - name: Setup (sh)
+      if: ${{runner.os != 'Windows'}}
+      run: chmod +x *.sh
+
+    - name: Build (sh)
+      if: ${{runner.os != 'Windows'}}
+      run: ./build.sh
+
+    - name: Build (cmd)
+      if: ${{runner.os == 'Windows'}}
+      run: build.cmd
+
+    - name: Test (sh)
+      if: ${{runner.os != 'Windows'}}
+      run: ./test.sh && ./test-netbefore9.sh
+
+    - name: Test (cmd)
+      if: ${{runner.os == 'Windows' && !matrix.coverage}}
+      run: test.cmd && test.cmd /net9 && test.cmd /core
+
+    - name: Package (sh)
+      if: ${{runner.os != 'Windows'}}
+      run: ./package.sh
+
+    - name: Package (cmd)
+      if: ${{runner.os == 'Windows'&& matrix.coverage}}
+      run: package.cmd
+
+    - name: Nuget (sh)
+      if: ${{runner.os != 'Windows'}}
+      run: ./nuget.sh
+
+    - name: Nuget (cmd)
+      if: ${{runner.os == 'Windows' && matrix.coverage}}
+      run: nuget.cmd
+
+    - name: Coverage (cmd)
+      if: ${{runner.os == 'Windows' && matrix.coverage}}
+      run: coverage.cmd
+
+    - name: Upload coverage
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
+        path: IronScheme/*.coverage
+      if: ${{ always() && matrix.coverage }}
+
+    - name: Upload binlogs
+      uses: actions/upload-artifact@v4
+      with:
+        name: binlog-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
+        path: IronScheme/*.binlog
+      if: ${{ always() }}
+
+    - name: Upload packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: packages-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}-${{ matrix.coverage }}
+        path: IronScheme/bin/*.*
+      if: ${{ always() }}

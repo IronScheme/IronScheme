@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <NoWarn>$(NoWarn);1591;1573</NoWarn>
-    <DebugType>pdbonly</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Utils\Strings.Designer.cs">

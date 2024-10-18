@@ -149,13 +149,14 @@
       [()
         (compile-system-libraries #t)] ; make constant compression default (saves about 45% for all the libraries)
       [(constant-compression?)
-        (let ((path (string-append (application-directory) "/system-libraries.ss")))
-          (time-it "total compile time"
-            (lambda ()
-              (eval-top-level 
-                `(begin
-                   (include ,path)
-                   (compile ,path #f ,constant-compression?))))))]))
+        (parameterize ((current-directory (application-directory)))
+          (let ((path "system-libraries.ss"))
+            (time-it "total compile time"
+              (lambda ()
+                (eval-top-level 
+                  `(begin
+                     (include ,path)
+                     (compile ,path #f ,constant-compression?)))))))]))
                
   (define (with-guard f)
     (clr-guard [e [e (parameterize ((current-output-port (current-error-port)))
@@ -301,7 +302,7 @@
   
   (file-options-constructor (enum-set-constructor fo))
 
-  (compile-to-current-directory? #f)
+  (compile-to-current-directory? #t)
   (library-path (get-library-paths))
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))

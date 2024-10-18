@@ -16,37 +16,43 @@
 using System;
 using System.Diagnostics;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// NamedFrameSlot represens a global variables (or builtin) of CompiledCode _code executing 
     /// in the context of a CodeContext. They have to be looked up by name at runtime.
     /// </summary>
-    sealed class NamedFrameSlot : Slot {
+    sealed class NamedFrameSlot : Slot
+    {
         // The CodeContext whose Namespace will be used to resolve the Name
         private readonly Slot _frame;
         private readonly SymbolId _name;
 
-        public NamedFrameSlot(Slot frame, SymbolId name) {
+        public NamedFrameSlot(Slot frame, SymbolId name)
+        {
             Debug.Assert(typeof(CodeContext).IsAssignableFrom(frame.Type), "invalid frame type");
-            this._frame = frame;
-            this._name = name;
+            _frame = frame;
+            _name = name;
         }
 
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             //
             // Emit: RuntimeHelpers.LookupGlobalName(context, name)
             //
             _frame.EmitGet(cg);
             cg.EmitSymbolId(_name);
-            cg.EmitCall(typeof(RuntimeHelpers), "LookupGlobalName");
+            cg.EmitCall(typeof(RuntimeHelpers), nameof(RuntimeHelpers.LookupGlobalName));
         }
 
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             //???how bad is it that we can't do this???
             throw new NotImplementedException("address of frame slot");
         }
 
-        public override void EmitSet(CodeGen cg, Slot val) {
+        public override void EmitSet(CodeGen cg, Slot val)
+        {
             //
             // Emit: RuntimeHelpers.SetGlobalName(context, name, value)
             //
@@ -56,26 +62,21 @@ namespace Microsoft.Scripting.Generation {
             //cg.EmitCall(typeof(RuntimeHelpers), "SetGlobalName");
         }
 
-        public override void EmitSetUninitialized(CodeGen cg) {
+        public override void EmitSetUninitialized(CodeGen cg)
+        {
         }
 
-        public override void EmitDelete(CodeGen cg, SymbolId name, bool check) {
-            //
-            // RuntimeHelpers.DeleteGlobalName(context, name)
-            //
-            _frame.EmitGet(cg);
-            cg.EmitSymbolId(name);
-            cg.EmitCall(typeof(RuntimeHelpers), "RemoveGlobalName");
-        }
-
-        public override Type Type {
-            get {
+        public override Type Type
+        {
+            get
+            {
                 return typeof(object);
             }
         }
 
-        public override string ToString() {
-            return String.Format("NamedFromSlot Name: ({0}) From: {1}", SymbolTable.IdToString(_name), _frame);
+        public override string ToString()
+        {
+            return string.Format("NamedFromSlot Name: ({0}) From: {1}", SymbolTable.IdToString(_name), _frame);
         }
 
     }

@@ -330,12 +330,20 @@ See docs/license.txt. |#
                     (for-each cdrs))))))]))
 
   (define cons* 
-    (lambda (a . rest) 
-      (let f ((a a) (rest rest))
-        (if (null? rest) 
-            a
-            (cons a (f (car rest) (cdr rest)))))))
-            
+    (case-lambda
+      [(a) a]
+      [(a b)
+        (cons a b)]
+      [(a b c)
+        (cons a (cons b c))]
+      [(a b c d)
+        (cons a (cons b (cons c d)))]
+      [(a . rest) 
+        (let f ((a a) (rest rest))
+          (if (null? rest) 
+              a
+              (cons a (f (car rest) (cdr rest)))))]))
+
   (define (list-copy lst)
     (clr-static-call IronScheme.Runtime.Cons 
                      FromList 

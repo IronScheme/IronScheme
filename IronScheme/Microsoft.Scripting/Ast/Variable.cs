@@ -15,12 +15,14 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 using System.Collections.Generic;
+using Microsoft.Scripting.Generation.Slots;
+using Microsoft.Scripting.Generation.Allocators;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Definition represents actual memory/dictionary location in the generated code.
     /// </summary>

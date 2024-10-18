@@ -6,6 +6,7 @@
 %namespace IronScheme.Compiler.Numbers
 
 %option minimize
+%visibility internal
 
 %{
 

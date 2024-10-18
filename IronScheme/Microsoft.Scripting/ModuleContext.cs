@@ -13,18 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
-
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Utils;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     public class ModuleContext {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly ModuleContext[] EmptyArray = new ModuleContext[0];
@@ -70,16 +60,6 @@ namespace Microsoft.Scripting {
         /// <param name="module">Optional. <c>null</c> for default and invariant contexts.</param>
         public ModuleContext(ScriptModule module) {
             _module = module;
-        }
-
-        /// <summary>
-        /// Copy constructor.
-        /// </summary>
-        protected ModuleContext(ModuleContext context) {
-            Contract.RequiresNotNull(context, "context");
-            _module = context._module;
-            _showCls = context._showCls;
-            _compilerContext = context._compilerContext;
         }
 
         internal protected virtual void ModuleReloading() {

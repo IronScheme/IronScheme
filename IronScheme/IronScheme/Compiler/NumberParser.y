@@ -6,7 +6,7 @@
 %namespace IronScheme.Compiler.Numbers
 %using IronScheme.Runtime
 %using Microsoft.Scripting
-
+%visibility internal
 
 %{
 

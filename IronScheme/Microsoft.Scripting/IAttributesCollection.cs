@@ -13,11 +13,10 @@
  *
  * ***************************************************************************/
 
-using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// This interface represents a dictionary that can be accessed using symbols and also arbitrary objects.
     /// This should conceptually inherit from IDictionary&lt;object, object&gt;, but we do not do that as we want the default indexer

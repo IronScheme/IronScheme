@@ -14,12 +14,12 @@
  * ***************************************************************************/
 
 using System;
-using System.Diagnostics;
 
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class ArrayIndexExpression : Expression {
         private readonly Expression /*!*/ _array;
         private readonly Expression /*!*/ _index;

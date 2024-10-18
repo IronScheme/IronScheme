@@ -15,20 +15,17 @@
 
 using System;
 using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-
-using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
 
     public delegate void CommandDispatcher(Delegate command);
 
@@ -72,15 +69,12 @@ namespace Microsoft.Scripting {
         private static readonly object _singletonLock = new object();
         private static ScriptDomainManager _singleton;
 
-        private readonly PlatformAdaptationLayer _pal;
         private readonly IScriptHost _host;
         private readonly Snippets _snippets;
         private readonly ScriptEnvironment _environment;
         private Dictionary<string, WeakReference> _modules;
         private CommandDispatcher _commandDispatcher; // can be null
         
-        // singletons:
-        public PlatformAdaptationLayer PAL { get { return _pal; } }
         public Snippets Snippets { get { return _snippets; } }
         public ScriptEnvironment Environment { get { return _environment; } }
 
@@ -136,7 +130,6 @@ namespace Microsoft.Scripting {
 
             // initialize snippets:
             _snippets = new Snippets();
-            _pal = null;
         }
 
         #endregion
@@ -194,7 +187,7 @@ namespace Microsoft.Scripting {
                     
                     if (_type == null) {
                         try {
-                            _type = ScriptDomainManager.CurrentManager.PAL.LoadAssembly(_assemblyName).GetType(_typeName, true);
+                            _type = Assembly.Load(_assemblyName).GetType(_typeName, true);
                         } catch (Exception e) {
                             throw new MissingTypeException(MakeAssemblyQualifiedName(_assemblyName, _typeName), e);
                         }
@@ -685,7 +678,7 @@ namespace Microsoft.Scripting {
         /// <c>options</c> can be <c>null</c>.
         /// <c>errorSink</c> can be <c>null</c>.
         /// </summary>
-        public ScriptModule CompileModule(string name, ScriptModuleKind kind, Scope scope, CompilerOptions options, ErrorSink errorSink, 
+        public ScriptModule CompileModule(string name, ScriptModuleKind kind, Scope scope, ErrorSink errorSink, 
             params SourceUnit[] sourceUnits) {
 
             Contract.RequiresNotNull(name, "name");
@@ -696,7 +689,7 @@ namespace Microsoft.Scripting {
             // compiles all source units:
             ScriptCode[] scriptCodes = new ScriptCode[sourceUnits.Length];
             for (int i = 0; i < sourceUnits.Length; i++) {
-                scriptCodes[i] = LanguageContext.FromEngine(sourceUnits[i].Engine).CompileSourceCode(sourceUnits[i], options, errorSink);
+                scriptCodes[i] = LanguageContext.FromEngine(sourceUnits[i].Engine).CompileSourceCode(sourceUnits[i], errorSink);
             }
 
             return CreateModule(name, kind, scope, scriptCodes);
@@ -744,15 +737,15 @@ namespace Microsoft.Scripting {
 
             OptimizedModuleGenerator generator = null;
 
-            if (scope == null) {
-                if (scriptCodes.Length > 0) {
-                    if (scriptCodes[0].LanguageContext.Engine.Options.InterpretedMode) {
-                        scope = new Scope();
-                    } else {
-                        generator = OptimizedModuleGenerator.Create(name, scriptCodes);
-                        scope = generator.GenerateScope();
-                    }
-                } else {
+            if (scope == null)
+            {
+                if (scriptCodes.Length > 0)
+                {
+                    generator = OptimizedModuleGenerator.Create(name, scriptCodes);
+                    scope = generator.GenerateScope();
+                }
+                else
+                {
                     scope = new Scope();
                 }
             }

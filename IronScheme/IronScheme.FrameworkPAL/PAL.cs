@@ -1,4 +1,7 @@
-﻿using System;
+﻿
+//#define DEBUG_SEQ_POINTS
+
+using System;
 using System.Diagnostics.SymbolStore;
 using System.IO;
 #if NETCOREAPP2_1_OR_GREATER
@@ -17,6 +20,8 @@ using System.Reflection.PortableExecutable;
 using Microsoft.Scripting;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace IronScheme.FrameworkPAL
 {
@@ -50,21 +55,120 @@ namespace IronScheme.FrameworkPAL
 #endif
     }
 
+#if NET9_0_OR_GREATER
+    Dictionary<ModuleBuilder, HashSet<ISymbolDocumentWriter>> modmap = new();
+    Dictionary<ISymbolDocumentWriter, HashSet<ILGenerator>> ilmap = new();
+#if DEBUG_SEQ_POINTS
+    Dictionary<ILGenerator, SortedDictionary<int, object>> iloffsets = new();
+#else
+    Dictionary<ILGenerator, SortedSet<int>> iloffsets = new();
+#endif
+#endif
+
     public void MarkSequencePoint(ILGenerator ilg, ISymbolDocumentWriter document, int startLine, int startColumn, int endLine, int endColumn)
     {
-#if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
+#if NET9_0_OR_GREATER
+      if (!ilmap.TryGetValue(document, out var ilgs))
+      {
+        ilmap[document] = ilgs = new ();
+      }
+
+      ilgs.Add(ilg);
+
+      if (ilg.ILOffset == 0 && startLine == 16707566)
+      {
+#if DEBUG_SEQ_POINTS
+        Console.WriteLine("Ignoring: Found hidden seq point at offset 0");
+#endif
+        return;
+      }
+
+      if (ilg.ILOffset == 0 && endColumn - startColumn == 1)
+      {
+#if DEBUG_SEQ_POINTS
+        Console.WriteLine("Warning: Found 1 length seq point offset 0: {0}", (startLine, startColumn, endLine, endColumn));
+        Debugger.Break();
+#endif
+      }
+
+      if (!iloffsets.TryGetValue(ilg, out var offsets))
+      {
+        iloffsets[ilg] = offsets = new ();
+      }
+
+#if DEBUG_SEQ_POINTS
+      if (offsets.ContainsKey(ilg.ILOffset))
+      {
+        Console.WriteLine("Ignoring: Found prev seq point at offset {0}: {1} new {2}", ilg.ILOffset, (startLine, startColumn, endLine, endColumn));
+        // skipping
+        if (ilg.ILOffset == 0)
+        {
+          Debugger.Break();
+        }
+        return;
+      }
+
+      offsets.Add(ilg.ILOffset, (startLine,startColumn,endLine,endColumn));
+#else
+
+      if (offsets.Contains(ilg.ILOffset))
+      {
+        // skipping
+        return;
+      }
+
+      offsets.Add(ilg.ILOffset);
+#endif
+
+      ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
+#elif !NETCOREAPP2_1_OR_GREATER
       ilg.MarkSequencePoint(document, startLine, startColumn, endLine, endColumn);
 #endif
-    }
+        }
 
     public ISymbolDocumentWriter CreateSymbolDocumentWriter(ModuleBuilder mb, string fn, Guid lang, Guid vendor, Guid doctype)
     {
+
 #if NET9_0_OR_GREATER || !NETCOREAPP2_1_OR_GREATER
-      return mb.DefineDocument(
-        fn,
+      string properfn = null;
+      if (fn.StartsWith("build") || fn.StartsWith("psyntax"))
+      {
+        // look for source up dir
+        var path = Path.GetFullPath(fn);
+        var rooti = path.LastIndexOf("IronScheme.Console");
+        if (rooti > -1)
+        {
+          var rootp = Path.Combine(Path.Combine(path.Substring(0, rooti), "IronScheme.Console"), fn);
+          if (File.Exists(rootp))
+          {
+            properfn = rootp;
+          }
+        }
+      }
+
+      if (properfn == null)
+      {
+        var fullPath = Path.GetFullPath(fn);
+        properfn = fullPath;
+      }
+
+      var docwriter = mb.DefineDocument(
+        properfn,
         lang,
         vendor,
         doctype);
+
+#if NET9_0_OR_GREATER
+
+      if (!modmap.TryGetValue(mb, out var writers))
+      {
+        modmap[mb] = writers = new ();
+      }
+
+      writers.Add(docwriter);
+#endif
+
+      return docwriter;
 #else
       return null;
 #endif
@@ -73,15 +177,46 @@ namespace IronScheme.FrameworkPAL
     public void Save(AssemblyBuilder ass, string filename, ImageFileMachine machineKind)
     {
 #if NET9_0_OR_GREATER
-      if (filename == "ironscheme.boot.dll")
+      try
       {
-        filename = Path.Combine("build", filename);
+        if (filename == "ironscheme.boot.dll")
+        {
+          filename = Path.Combine("build", filename);
+        }
+
+        SaveNET9((PersistedAssemblyBuilder)ass, filename, DummySymbolWriter != null);
+      }
+      finally
+      {
+        foreach (var (key, value) in modmap)
+        {
+          if (key == ass.ManifestModule)
+          {
+            //Console.Write("removign garbage from {0} ", key.ScopeName);
+            foreach (var w in value)
+            {
+              if (ilmap.ContainsKey(w))
+              {
+                foreach (var ilg in ilmap[w])
+                {
+                  //Console.Write("I");
+                  iloffsets.Remove(ilg);
+                }
+
+                //Console.Write("W");
+                ilmap.Remove(w);
+              }
+            }
+
+            //Console.WriteLine();
+            modmap.Remove(key);
+            break;
+          }
+        }
       }
 
-      SaveNET9((PersistedAssemblyBuilder)ass, filename, DummySymbolWriter != null);
-
 #elif !NETCOREAPP2_1_OR_GREATER
-      ass.Save(filename, PortableExecutableKinds.ILOnly, machineKind);
+      ass.Save(Path.GetFileName(filename), PortableExecutableKinds.ILOnly, machineKind);
 #else
       throw new NotSupportedException("Compiling is only supported on .NET Framework and .NET 9 or higher");
 #endif
@@ -327,6 +462,7 @@ namespace IronScheme.FrameworkPAL
 
           debugDirectoryBuilder = new DebugDirectoryBuilder();
           debugDirectoryBuilder.AddCodeViewEntry($"{assemblyFileName}.pdb", pdbContentId, portablePdbBuilder.FormatVersion);
+          //debugDirectoryBuilder.AddEmbeddedPortablePdbEntry(portablePdbBlob, portablePdbBuilder.FormatVersion);
         }
 
         ManagedPEBuilder peBuilder = new ManagedPEBuilder(

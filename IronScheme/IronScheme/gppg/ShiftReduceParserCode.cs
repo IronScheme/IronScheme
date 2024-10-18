@@ -2,8 +2,6 @@
 // Copyright (c) Wayne Kelly, QUT 2005-2010
 // (see accompanying GPPGcopyright.rtf)
 
-#define EXPORT_GPPG
-
 using System;
 using System.Text;
 using System.Globalization;

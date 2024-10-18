@@ -14,10 +14,9 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     /// <summary>
     /// Specifies options for assembly generation
     /// </summary>
@@ -55,12 +54,12 @@ namespace Microsoft.Scripting.Generation {
         /// <summary>
         /// Verify generated assemblies.
         /// </summary>
-        VerifyAssemblies = 0x040,
+        //VerifyAssemblies = 0x040,
 
         /// <summary>
         /// Generate IL source files.
         /// TODO: Do not require GenerateStaticMethods when ILDebug is on - emit the textual IL even for dynamic methods ...
         /// </summary>
-        ILDebug = 0x080 | GenerateStaticMethods,
+        //ILDebug = 0x080 | GenerateStaticMethods,
     }
 }

@@ -21,6 +21,7 @@ namespace IronScheme.Tests
     {
       var r = RunIronSchemeTestWithInput(@"(include ""lib/minikanren/mktests.scm"")");
       Assert.That(r.Output, Does.Contain("Ignoring divergent test 10.62"));
+      
       AssertError(r);
     }
   }

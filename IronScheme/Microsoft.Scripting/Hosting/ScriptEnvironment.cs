@@ -14,17 +14,11 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using Microsoft.Scripting;
-using System.IO;
 using System.Diagnostics;
-using Microsoft.Scripting.Generation;
-using System.Text;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public interface IScriptEnvironment {
         IScriptHost Host { get; }
@@ -40,7 +34,7 @@ namespace Microsoft.Scripting.Hosting {
         IScriptModule CreateModule(string name, ScriptModuleKind kind, IAttributesCollection dictionary, params ICompiledCode[] compiledCodes);
 
         IScriptModule CompileModule(string name, params SourceUnit[] sourceUnits);
-        IScriptModule CompileModule(string name, ScriptModuleKind kind, CompilerOptions options, ErrorSink errorSink, IAttributesCollection dictionary, params SourceUnit[] sourceUnits);
+        IScriptModule CompileModule(string name, ScriptModuleKind kind, ErrorSink errorSink, IAttributesCollection dictionary, params SourceUnit[] sourceUnits);
         
 
         //void PublishModule(IScriptModule module);
@@ -137,7 +131,7 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         public IScriptModule CompileModule(string name, params SourceUnit[] sourceUnits) {
-            return CompileModule(name, ScriptModuleKind.Default, null, null, null, sourceUnits);
+            return CompileModule(name, ScriptModuleKind.Default, null, null, sourceUnits);
         }
 
         /// <summary>
@@ -146,30 +140,11 @@ namespace Microsoft.Scripting.Hosting {
         /// <c>errroSink</c> can be <c>null</c>
         /// <c>dictionary</c> can be <c>null</c>
         /// </summary>
-        public IScriptModule CompileModule(string name, ScriptModuleKind kind, CompilerOptions options, ErrorSink errorSink, 
+        public IScriptModule CompileModule(string name, ScriptModuleKind kind, ErrorSink errorSink, 
             IAttributesCollection dictionary, params SourceUnit[] sourceUnits) {
 
-            return _manager.CompileModule(name, kind, new Scope(dictionary), options, errorSink, sourceUnits);
+            return _manager.CompileModule(name, kind, new Scope(dictionary), errorSink, sourceUnits);
         }
-
-        //public void PublishModule(IScriptModule module) {
-        //    _manager.PublishModule(RemoteWrapper.GetLocalArgument<ScriptModule>(module, "module"));
-        //}
-
-        //public void PublishModule(IScriptModule module, string publicName) {
-        //    _manager.PublishModule(RemoteWrapper.GetLocalArgument<ScriptModule>(module, "module"), publicName);
-        //}
-
-        //public IDictionary<string, IScriptModule> GetPublishedModules() {
-        //    IDictionary<string, ScriptModule> local_modules = _manager.GetPublishedModules();
-
-        //    IDictionary<string, IScriptModule> result = new Dictionary<string, IScriptModule>(local_modules.Count);
-        //    foreach (KeyValuePair<string, ScriptModule> local_module in local_modules) {
-        //        result.Add(local_module.Key, local_module.Value);
-        //    }
-
-        //    return result;
-        //}
 
         #endregion
 

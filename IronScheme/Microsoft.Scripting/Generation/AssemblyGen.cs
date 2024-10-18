@@ -14,23 +14,17 @@
  * ***************************************************************************/
 
 using System;
-using System.Resources;
 using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.IO;
-using System.Security;
-using System.Security.Policy;
-using System.Security.Permissions;
 using System.Threading;
-using System.Globalization;
 using System.Collections.Generic;
-using IronScheme.FrameworkPAL;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     public class AssemblyGen {
         private readonly AssemblyBuilder _myAssembly;
         private ModuleBuilder _myModule;
@@ -42,12 +36,7 @@ namespace Microsoft.Scripting.Generation {
         private PortableExecutableKinds _peKind;
         private ImageFileMachine _machine;
 
-#if !SILVERLIGHT
         private readonly string _outDir;            // null means the current directory
-#if PEVERIFY
-        private const string peverify_exe = "peverify.exe";
-#endif
-#endif
 
         public static AssemblyGen CreateModuleAssembly(string suid)
         {
@@ -83,22 +72,13 @@ namespace Microsoft.Scripting.Generation {
             _peKind = peKind;
             _outFileName = outFile;
 
-#if SILVERLIGHT  // AssemblyBuilderAccess.RunAndSave, Environment.CurrentDirectory
-            asmname.Name = moduleName;
-            _myAssembly = domain.DefineDynamicAssembly(asmname, AssemblyBuilderAccess.Run);
-            _myModule = _myAssembly.DefineDynamicModule(moduleName, EmitDebugInfo);
-#else
             try {
                 outDir = Path.GetFullPath(String.IsNullOrEmpty(outDir) ? Environment.CurrentDirectory : outDir);
             } catch (Exception e) {
                 throw new ArgumentException("Invalid output directory", e);
             }
 
-            if (SaveAndReloadAssemblies
-#if PEVERIFY
-              || VerifyAssemblies
-#endif              
-              ) {
+            if (SaveAndReloadAssemblies) {
                 _outDir = outDir;
             }
 
@@ -125,7 +105,6 @@ namespace Microsoft.Scripting.Generation {
                 PAL.DefineAssembly(true, null, asmname, moduleName, null, EmitDebugInfo, ref _myAssembly, ref _myModule);
             }
 
-#endif
             if (EmitDebugInfo) SetDebuggableAttributes();
         }
 
@@ -173,12 +152,6 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        public bool ILDebug {
-            get {
-                return (_genAttrs & AssemblyGenAttributes.ILDebug) == AssemblyGenAttributes.ILDebug;
-            }
-        }
-
         public bool BeforeFieldInit {
             get {
                 return (_genAttrs & AssemblyGenAttributes.BeforeFieldInit) == AssemblyGenAttributes.BeforeFieldInit;
@@ -191,11 +164,7 @@ namespace Microsoft.Scripting.Generation {
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2001:AvoidCallingProblematicMethods", MessageId = "System.Reflection.Assembly.LoadFile")]
         public Assembly DumpAndLoad() {
-#if SILVERLIGHT // AssemblyBuilder.Save
-            return _myAssembly;
-#else
             if (!SaveAndReloadAssemblies) {
                 return _myAssembly;
             }
@@ -203,7 +172,7 @@ namespace Microsoft.Scripting.Generation {
             string fullPath = Path.Combine(_outDir, _outFileName);
 
             try {
-              Dump(Path.GetFileName(fullPath));
+              Dump(fullPath);
             } catch (IOException) { // this looks weird
                 return _myAssembly;
             }
@@ -216,156 +185,24 @@ namespace Microsoft.Scripting.Generation {
             if (File.Exists(fullPath))
             {
                 // this is not really ideal, but it seems to work fine for now
-                return Assembly.LoadFile(fullPath);
+                if (_outDir == Environment.CurrentDirectory)
+                {
+                    return Assembly.LoadFrom(fullPath);
+                }
+                else
+                {
+                    //Console.Error.WriteLine("LoadFile (AssemblyGen.cs:202) {0}", fullPath);
+                    return Assembly.LoadFile(fullPath);
+                }
             }
             return _myAssembly;
-#endif
-        }
-
-        public void Dump() {
-            Dump(null);
         }
 
         public void Dump(string fileName) {
             PAL.Save(_myAssembly, fileName, _machine);
-#if PEVERIFY
-            if (VerifyAssemblies) {
-                PeVerifyThis();
-            }
-#endif
         }
 
-        private static string FindPeverify() {
-#if !SILVERLIGHT // Environment.GetEnvironmentVariable
-#if PEVERIFY
-          string path = System.Environment.GetEnvironmentVariable("PATH");
-            string[] dirs = path.Split(';');
-            foreach (string dir in dirs) {
-                string file = Path.Combine(dir, peverify_exe);
-                if (File.Exists(file)) {
-                    return file;
-                }
-            }
-#endif
-#endif
-            return null;
-        }
 
-#if !SILVERLIGHT // ProcessStartInfo
-#if PEVERIFY
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        private void PeVerifyThis() {
-            string peverifyPath = FindPeverify();
-            if (peverifyPath == null) {
-                return;
-            }
-
-            int exitCode = 0;
-            string strOut = null;
-            string verifyFile = null;
-
-            try {
-                string pythonPath = new FileInfo(Assembly.GetEntryAssembly().Location).DirectoryName;
-
-                string assemblyFile = Path.Combine(_outDir, _outFileName).ToLower(CultureInfo.InvariantCulture);
-                string assemblyName = Path.GetFileNameWithoutExtension(_outFileName);
-                string assemblyExtension = Path.GetExtension(_outFileName);
-                Random rnd = new System.Random();
-
-                for (int i = 0; ; i++) {
-                    string verifyName = string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2}{3}", assemblyName, i, rnd.Next(1, 100), assemblyExtension);
-                    verifyName = Path.Combine(Path.GetTempPath(), verifyName);
-
-                    try {
-                        File.Copy(assemblyFile, verifyName);
-                        verifyFile = verifyName;
-                        break;
-                    } catch (IOException) {
-                    }
-                }
-
-                // copy any DLLs or EXEs created by the process during the run...
-                CopyFilesCreatedSinceStart(Path.GetTempPath(), Environment.CurrentDirectory);
-                CopyDirectory(Path.GetTempPath(), pythonPath);
-                if (ScriptDomainManager.Options.BinariesDirectory != null && ScriptDomainManager.Options.BinariesDirectory != Path.GetTempPath()) {
-                    CopyFilesCreatedSinceStart(Path.GetTempPath(), ScriptDomainManager.Options.BinariesDirectory);
-                }
-                
-                // /IGNORE=80070002 ignores errors related to files we can't find, this happens when we generate assemblies
-                // and then peverify the result.  Note if we can't resolve a token thats in an external file we still
-                // generate an error.
-                ProcessStartInfo psi = new ProcessStartInfo(peverifyPath, "/IGNORE=80070002 \"" + verifyFile + "\"");
-                psi.UseShellExecute = false;
-                psi.RedirectStandardOutput = true;
-                Process proc = Process.Start(psi);
-                Thread thread = new Thread(
-                    new ThreadStart(
-                        delegate {
-                            using (StreamReader sr = proc.StandardOutput) {
-                                strOut = sr.ReadToEnd();
-                            }
-                        }
-                        ));
-
-                thread.Start();
-                proc.WaitForExit();
-                thread.Join();
-                exitCode = proc.ExitCode;
-                proc.Close();
-            } catch(Exception e) {
-                strOut = "Unexpected exception: " + e.ToString();
-                exitCode = 1;
-            }
-
-            if (exitCode != 0) {
-                Console.WriteLine("Verification failed w/ exit code {0}: {1}", exitCode, strOut);
-                throw new VerificationException(String.Format(CultureInfo.CurrentCulture, 
-                    Resources.VerificationException,
-                    _outFileName, 
-                    verifyFile, 
-                    strOut ?? ""));
-            }
-
-            if (verifyFile != null) {
-                File.Delete(verifyFile);
-            }
-        }
-
-        private void CopyFilesCreatedSinceStart(string pythonPath, string dir) {
-            DateTime start = Process.GetCurrentProcess().StartTime;
-            foreach (string filename in Directory.GetFiles(dir)) {
-                FileInfo fi = new FileInfo(filename);
-                if (fi.Name != _outFileName) {
-                    if (fi.LastWriteTime - start >= TimeSpan.Zero) {
-                        try {
-                            File.Copy(filename, Path.Combine(pythonPath, fi.Name), true);
-                        } catch {
-                            Console.WriteLine("Error copying {0}", filename);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void CopyDirectory(string to, string from) {
-            foreach (string filename in Directory.GetFiles(from)) {
-                FileInfo fi = new FileInfo(filename);
-                string toFile = Path.Combine(to, fi.Name);
-                FileInfo toInfo = new FileInfo(toFile);
-
-                if (fi.Extension.ToLowerInvariant() == ".dll" || fi.Extension.ToLowerInvariant() == ".exe") {
-                    if (!File.Exists(toFile) || toInfo.LastWriteTime < fi.LastWriteTime) {
-                        try {
-                            File.Copy(filename, toFile, true);
-                        } catch { 
-                            Console.WriteLine("Error copying {0}", filename); 
-                        }
-                    }
-                }
-            }
-        }
-#endif
-#endif
       public TypeGen DefinePublicType(string name, Type parent, TypeAttributes attrs)
       {
         if (BeforeFieldInit) attrs |= TypeAttributes.BeforeFieldInit;
@@ -388,12 +225,7 @@ namespace Microsoft.Scripting.Generation {
             } else {
                 Type[] parameterTypes = CompilerHelpers.MakeParamTypeArray(paramTypes, constantPool);
                 string dynamicMethodName = methodName + "##" + Interlocked.Increment(ref _index);
-                DynamicMethod target;
-#if SILVERLIGHT // Module-hosted DynamicMethod is not available in SILVERLIGHT
-                target = new DynamicMethod(dynamicMethodName, returnType, parameterTypes);
-#else
-                target = new DynamicMethod(dynamicMethodName, returnType, parameterTypes, _myModule);
-#endif
+                DynamicMethod target = new DynamicMethod(dynamicMethodName, returnType, parameterTypes, _myModule);
                 cg = new CodeGen(null, this, target, target.GetILGenerator(), parameterTypes, constantPool);
             }
             return cg;
@@ -428,20 +260,6 @@ namespace Microsoft.Scripting.Generation {
                 else _genAttrs &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
             }
         }
-
-#if !SILVERLIGHT
-#if PEVERIFY
-        public bool VerifyAssemblies {
-            get {
-                return (_genAttrs & AssemblyGenAttributes.VerifyAssemblies) != 0;
-            }
-            set {
-                if (value) _genAttrs |= AssemblyGenAttributes.VerifyAssemblies;
-                else _genAttrs &= ~AssemblyGenAttributes.VerifyAssemblies;
-            }
-        }
-#endif
-#endif
         
         // TODO: SourceUnit should provide writers for each symbol document file used in the unit
         public bool HasSymbolWriter {

@@ -15,14 +15,12 @@
 
 using System;
 using System.Runtime.Serialization;
-using System.Text;
 
 using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
-using System.Security.Permissions;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Serializable]
     public class SyntaxErrorException : Exception {
         private SourceSpan _span;
