@@ -251,11 +251,7 @@ namespace Microsoft.Scripting.Ast
                 cg.EmitInt(CodeGen.BranchForReturn);
                 cg.Emit(OpCodes.Bne_Un, noReturn);
 
-                if (cg.IsGenerator) {
-                    // return true from the generator method
-                    cg.Emit(OpCodes.Ldc_I4_1);
-                    cg.EmitReturn();
-                } else if (flow.Any) {
+                if (flow.Any) {
                     // return the actual value
                     cg.EmitReturnValue();
                     cg.EmitReturn();

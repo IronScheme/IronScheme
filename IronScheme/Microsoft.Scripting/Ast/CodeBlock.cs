@@ -299,20 +299,10 @@ namespace Microsoft.Scripting.Ast
             return variable;
         }
 
-        internal void CreateEnvironmentFactory(bool generator, CodeGen cg) {
+        internal void CreateEnvironmentFactory(CodeGen cg) {
             if (HasEnvironment) {
                 // Get the environment size
                 int size = 0;
-
-                if (generator) {
-                    size += _generatorTemps;
-
-                    foreach (Variable var in _variables) {
-                        if (var.Kind == Variable.VariableKind.GeneratorTemporary) {
-                            size++;
-                        }
-                    }
-                }
 
                 List<Variable> lifted = new List<Variable>();
 
@@ -971,7 +961,7 @@ namespace Microsoft.Scripting.Ast
             cg.lambdaspan = Span;
           }
 
-            CreateEnvironmentFactory(false, cg);
+            CreateEnvironmentFactory(cg);
             CreateSlots(cg);
 
             if (ScriptDomainManager.Options.LightweightDebugging)

@@ -80,7 +80,6 @@ namespace Microsoft.Scripting.Generation
         private readonly ConstantPool _constantPool;
         internal Label startpoint;
 
-        private bool _generator;                    // true if emitting generator, false otherwise
         private Slot _gotoRouter;                   // Slot that stores the number of the label to go to.
 
         public const int FinallyExitsNormally = 0;
@@ -154,11 +153,6 @@ namespace Microsoft.Scripting.Generation
             get {
                 return _methodInfo;
             }
-        }
-
-        internal bool IsGenerator {
-            get { return _generator; }
-            set { _generator  = value; }
         }
 
         public CompilerContext Context {
@@ -1861,17 +1855,7 @@ namespace Microsoft.Scripting.Generation
         }
 
         internal Slot GetTemporarySlot(Type type) {
-            Slot temp;
-
-            if (IsGenerator) {
-                temp = _allocator.GetGeneratorTemp();
-                if (type != typeof(object)) {
-                    temp = new CastSlot(temp, type);
-                }
-            } else {
-                temp = GetLocalTmp(type);
-            }
-            return temp;
+            return GetLocalTmp(type);
         }
 
         readonly internal static Dictionary<string, ISymbolDocumentWriter> SymbolWriters = new Dictionary<string, ISymbolDocumentWriter>();

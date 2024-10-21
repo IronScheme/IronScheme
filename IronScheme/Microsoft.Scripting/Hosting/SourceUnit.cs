@@ -159,7 +159,7 @@ namespace Microsoft.Scripting.Hosting
 
         #endregion
 
-        public SourceUnitReader GetReader() {
+        internal SourceUnitReader GetReader() {
             return new SourceUnitReader(this, _contentProvider.GetReader());
         }
 
