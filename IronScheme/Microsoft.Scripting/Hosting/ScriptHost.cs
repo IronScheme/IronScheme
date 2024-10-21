@@ -93,7 +93,7 @@ namespace Microsoft.Scripting.Hosting
 
         static internal void CreateDefaultModule(ref ScriptModule defaultModule) {
            // create a module and throw it away if there is already one:
-            ScriptModule module = ScriptDomainManager.CurrentManager.CreateModule("<default>", null, ScriptCode.EmptyArray);
+            ScriptModule module = ScriptDomainManager.CurrentManager.CreateModule("<default>", ScriptCode.EmptyArray);
             Interlocked.CompareExchange<ScriptModule>(ref defaultModule, module, null);
         }
 

@@ -29,7 +29,7 @@ namespace Microsoft.Scripting
 
         // code execution:
         void Execute();
-        void Reload();
+        //void Reload();
 
         // module variables:
         bool TryGetVariable(string name, out object value);
@@ -52,9 +52,6 @@ namespace Microsoft.Scripting
     public sealed class ScriptModule : IScriptModule {
         private readonly Scope _scope;
         private ScriptCode[] _codeBlocks;
-        private ModuleContext[] _moduleContexts; // resizable
-        private readonly ScriptModuleKind _kind;
-
         private string _name;
         private string _fileName;
         private ModuleContext _moduleContext;
@@ -64,15 +61,13 @@ namespace Microsoft.Scripting
         /// ScriptCode block belonging to a different language). 
         /// Can ONLY be called from ScriptDomainManager.CreateModule factory (due to host notification).
         /// </summary>
-        internal ScriptModule(string name, ScriptModuleKind kind, Scope scope, ScriptCode[] codeBlocks) {
+        internal ScriptModule(string name, Scope scope, ScriptCode[] codeBlocks) {
             Assert.NotNull(name, scope, codeBlocks);
             Assert.NotNull(codeBlocks);
 
             _codeBlocks = ArrayUtils.Copy(codeBlocks);
             _name = name;
             _scope = scope;
-            _kind = kind;
-            _moduleContexts = ModuleContext.EmptyArray;
         }
 
         /// <summary>
@@ -83,38 +78,6 @@ namespace Microsoft.Scripting
                 ModuleContext moduleContext = GetModuleContext();
                 Debug.Assert(moduleContext != null, "ScriptCodes contained in the module are guaranteed to be associated with module contexts by SDM.CreateModule");
                 _codeBlocks[i].Run(_scope, moduleContext);
-            }
-        }
-
-        /// <summary>
-        /// Reloads a module from disk and executes the new module body.
-        /// </summary>
-        public void Reload() {
-            if (_codeBlocks.Length > 0) {
-                ScriptCode[] newCode = new ScriptCode[_codeBlocks.Length];
-
-                for (int i = 0; i < _moduleContexts.Length; i++) {
-                    if (_moduleContexts[i] != null) {
-                        _moduleContexts[i].ModuleReloading();
-                    }
-                }
-                
-                // get the new ScriptCode's...
-                for (int i = 0; i < _codeBlocks.Length; i++) {
-                    newCode[i] = _codeBlocks[i].LanguageContext.Reload(_codeBlocks[i], this);
-                }
-
-                // run the new code in the existing scope
-                // we don't clear the scope before doing this
-                _codeBlocks = newCode;
-
-                for (int i = 0; i < _moduleContexts.Length; i++) {
-                    if (_moduleContexts[i] != null) {
-                        _moduleContexts[i].ModuleReloaded();
-                    }
-                }
-
-                Execute();
             }
         }
 

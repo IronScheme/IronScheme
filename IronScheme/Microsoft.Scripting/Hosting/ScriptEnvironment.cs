@@ -31,10 +31,10 @@ namespace Microsoft.Scripting.Hosting
         
         // modules:
         IScriptModule CreateModule(string name, params ICompiledCode[] compiledCodes);
-        IScriptModule CreateModule(string name, ScriptModuleKind kind, IAttributesCollection dictionary, params ICompiledCode[] compiledCodes);
+        IScriptModule CreateModule(string name, IAttributesCollection dictionary, params ICompiledCode[] compiledCodes);
 
         IScriptModule CompileModule(string name, params SourceUnit[] sourceUnits);
-        IScriptModule CompileModule(string name, ScriptModuleKind kind, ErrorSink errorSink, IAttributesCollection dictionary, params SourceUnit[] sourceUnits);
+        IScriptModule CompileModule(string name, ErrorSink errorSink, IAttributesCollection dictionary, params SourceUnit[] sourceUnits);
         
 
         //void PublishModule(IScriptModule module);
@@ -108,7 +108,7 @@ namespace Microsoft.Scripting.Hosting
         #region Compilation, Module Creation
 
         public IScriptModule CreateModule(string name, params ICompiledCode[] compiledCodes) {
-            return CreateModule(name, ScriptModuleKind.Default, null, compiledCodes);
+            return CreateModule(name,null, compiledCodes);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Microsoft.Scripting.Hosting
         /// <c>dictionary</c> can be <c>null</c>
         /// </summary>
         /// <returns></returns>
-        public IScriptModule CreateModule(string name, ScriptModuleKind kind, IAttributesCollection dictionary, params ICompiledCode[] compiledCodes) {
+        public IScriptModule CreateModule(string name, IAttributesCollection dictionary, params ICompiledCode[] compiledCodes) {
             Contract.RequiresNotNullItems(compiledCodes, "compiledCodes");
 
             ScriptCode[] script_codes = new ScriptCode[compiledCodes.Length];
@@ -127,11 +127,11 @@ namespace Microsoft.Scripting.Hosting
                 }
             }
 
-            return _manager.CreateModule(name, kind, new Scope(dictionary), script_codes);
+            return _manager.CreateModule(name, new Scope(dictionary), script_codes);
         }
 
         public IScriptModule CompileModule(string name, params SourceUnit[] sourceUnits) {
-            return CompileModule(name, ScriptModuleKind.Default, null, null, sourceUnits);
+            return CompileModule(name, null, null, sourceUnits);
         }
 
         /// <summary>
@@ -140,10 +140,10 @@ namespace Microsoft.Scripting.Hosting
         /// <c>errroSink</c> can be <c>null</c>
         /// <c>dictionary</c> can be <c>null</c>
         /// </summary>
-        public IScriptModule CompileModule(string name, ScriptModuleKind kind, ErrorSink errorSink, 
+        public IScriptModule CompileModule(string name, ErrorSink errorSink, 
             IAttributesCollection dictionary, params SourceUnit[] sourceUnits) {
 
-            return _manager.CompileModule(name, kind, new Scope(dictionary), errorSink, sourceUnits);
+            return _manager.CompileModule(name, new Scope(dictionary), errorSink, sourceUnits);
         }
 
         #endregion

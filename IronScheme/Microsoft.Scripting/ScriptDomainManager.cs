@@ -669,7 +669,7 @@ namespace Microsoft.Scripting
         }
 
         public ScriptModule CompileModule(string name, SourceUnit sourceUnit) {
-            return CompileModule(name, ScriptModuleKind.Default, null, null, null, sourceUnit);
+            return CompileModule(name, null, null, null, sourceUnit);
         }
 
         /// <summary>
@@ -678,7 +678,7 @@ namespace Microsoft.Scripting
         /// <c>options</c> can be <c>null</c>.
         /// <c>errorSink</c> can be <c>null</c>.
         /// </summary>
-        public ScriptModule CompileModule(string name, ScriptModuleKind kind, Scope scope, ErrorSink errorSink, 
+        public ScriptModule CompileModule(string name, Scope scope, ErrorSink errorSink, 
             params SourceUnit[] sourceUnits) {
 
             Contract.RequiresNotNull(name, "name");
@@ -692,7 +692,7 @@ namespace Microsoft.Scripting
                 scriptCodes[i] = LanguageContext.FromEngine(sourceUnits[i].Engine).CompileSourceCode(sourceUnits[i], errorSink);
             }
 
-            return CreateModule(name, kind, scope, scriptCodes);
+            return CreateModule(name, scope, scriptCodes);
         }
 
         /// <summary>
@@ -717,10 +717,6 @@ namespace Microsoft.Scripting
             return CreateModule(name, scope, ScriptCode.EmptyArray);
         }
 
-        public ScriptModule CreateModule(string name, Scope scope, params ScriptCode[] scriptCodes) {
-            return CreateModule(name, ScriptModuleKind.Default, scope, scriptCodes);
-        }
-        
         /// <summary>
         /// Module creation factory. The only way how to create a module.
         /// Modules compiled from a single source file unit get <see cref="ScriptModule.FileName"/> property set to a host 
@@ -729,7 +725,7 @@ namespace Microsoft.Scripting
         /// 
         /// Ensures creation of module contexts for all languages whose code is assembled into the module.
         /// </summary>
-        public ScriptModule CreateModule(string name, ScriptModuleKind kind, Scope scope, params ScriptCode[] scriptCodes) {
+        public ScriptModule CreateModule(string name, Scope scope, params ScriptCode[] scriptCodes) {
             Contract.RequiresNotNull(name, "name");
             Contract.RequiresNotNullItems(scriptCodes, "scriptCodes");
 
@@ -750,7 +746,7 @@ namespace Microsoft.Scripting
                 }
             }
             
-            ScriptModule result = new ScriptModule(name, kind, scope, scriptCodes);
+            ScriptModule result = new ScriptModule(name, scope, scriptCodes);
 
             CodeGen.SymbolWriters.Clear();
 
