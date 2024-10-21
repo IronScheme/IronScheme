@@ -123,8 +123,8 @@ See docs/license.txt. |#
 
   (define-syntax checked
     (syntax-rules ()
-      [(_ expr)
-        (or expr (overflow-error #f))]))
+      [(_ name expr)
+        (or expr (overflow-error name))]))
         
   (define-syntax check (lambda (x) (syntax-violation #f)))
         
@@ -176,10 +176,10 @@ See docs/license.txt. |#
     ($fx- x 1))
 
   (define-fx (fx+ x1 x2)
-    (checked (fx+internal x1 x2)))
+    (checked 'fx+ (fx+internal x1 x2)))
 
   (define-fx (fx* x1 x2)
-    (checked (fx*internal x1 x2)))
+    (checked 'fx* (fx*internal x1 x2)))
 
   (define fx-
     (case-lambda
@@ -195,7 +195,7 @@ See docs/license.txt. |#
           (assertion-violation 'fx- "not a fixnum" x1))
         (unless (fixnum? x2)
           (assertion-violation 'fx- "not a fixnum" x2))
-        (checked (fx-internal x1 x2))]))
+        (checked 'fx- (fx-internal x1 x2))]))
 
   (define (overflow-error name . irritants)
     (raise
