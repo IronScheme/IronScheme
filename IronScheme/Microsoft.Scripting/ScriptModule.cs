@@ -23,12 +23,6 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting
 {
-    [Flags]
-    public enum CodeContextAttributes {
-        None = 0,
-        ShowCls = 0x01,
-    }
-
     public interface IScriptModule {
         string ModuleName { get; }
         string FileName { get; set; } // TODO: setter?
@@ -63,7 +57,8 @@ namespace Microsoft.Scripting
 
         private string _name;
         private string _fileName;
-        
+        private ModuleContext _moduleContext;
+
         /// <summary>
         /// Creates a ScriptModule consisting of multiple ScriptCode blocks (possibly with each
         /// ScriptCode block belonging to a different language). 
@@ -85,7 +80,7 @@ namespace Microsoft.Scripting
         /// </summary>
         public void Execute() {
             for (int i = 0; i < _codeBlocks.Length; i++) {
-                ModuleContext moduleContext = GetModuleContext(_codeBlocks[i].LanguageContext.ContextId);
+                ModuleContext moduleContext = GetModuleContext();
                 Debug.Assert(moduleContext != null, "ScriptCodes contained in the module are guaranteed to be associated with module contexts by SDM.CreateModule");
                 _codeBlocks[i].Run(_scope, moduleContext);
             }
@@ -250,22 +245,16 @@ namespace Microsoft.Scripting
         /// </summary>
         /// <param name="languageContextId"></param>
         /// <returns></returns>
-        internal ModuleContext GetModuleContext(ContextId languageContextId) {
-            return (languageContextId.Id < _moduleContexts.Length) ? _moduleContexts[languageContextId.Id] : null;
+        internal ModuleContext GetModuleContext() {
+            return _moduleContext;
         }
 
         /// <summary>
         /// Friend class: LanguageContext 
         /// Shouldn't be public since the module contexts are baked into code contexts in the case the module is optimized.
         /// </summary>
-        internal ModuleContext SetModuleContext(ContextId languageContextId, ModuleContext moduleContext) {
-            if (languageContextId.Id >= _moduleContexts.Length) {
-                Array.Resize(ref _moduleContexts, languageContextId.Id + 1);
-            }
-
-            ModuleContext original = Interlocked.CompareExchange<ModuleContext>(ref _moduleContexts[languageContextId.Id],
-                moduleContext,
-                null);
+        internal ModuleContext SetModuleContext(ModuleContext moduleContext) {
+            ModuleContext original = Interlocked.CompareExchange<ModuleContext>(ref _moduleContext, moduleContext, null);
 
             return original ?? moduleContext;
         }

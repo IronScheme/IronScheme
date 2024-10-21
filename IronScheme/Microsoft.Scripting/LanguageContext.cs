@@ -42,17 +42,6 @@ namespace Microsoft.Scripting
             }
         }
 
-        /// <summary>
-        /// Provides the ContextId which includes members that should only be shown for this LanguageContext.
-        /// 
-        /// ContextId's are used for filtering by Scope's.
-        /// </summary>
-        public virtual ContextId ContextId {
-            get {
-                return ContextId.Empty;
-            }
-        }
-
         protected LanguageContext() {
         }
 
@@ -65,14 +54,14 @@ namespace Microsoft.Scripting
         
         public ModuleContext EnsureModuleContext(ScriptModule module) {
             Contract.RequiresNotNull(module, "module");
-            ModuleContext context = module.GetModuleContext(ContextId);
+            ModuleContext context = module.GetModuleContext();
             
             if (context == null) {
                 context = CreateModuleContext(module);
                 if (context == null) {
                     throw new InvalidImplementationException("CreateModuleContext must return a module context.");
                 }
-                return module.SetModuleContext(ContextId, context);
+                return module.SetModuleContext(context);
             }
 
             return context;

@@ -47,11 +47,6 @@ namespace Microsoft.Scripting
     public sealed class Scope {
         private Scope _parent;
         private IAttributesCollection _dict;
-        //private ScopeAttributeDictionary _attrs;
-        //private ContextSensitiveScope _contextScopes;
-        //private IDictionary<Variable, object> _temps;
-        //private bool _isVisible;
-        //private SourceLocation _sourceLocation;
 
         /// <summary>
         /// Creates a new top-level scope with a new empty dictionary.  The scope
@@ -84,8 +79,6 @@ namespace Microsoft.Scripting
         public Scope(Scope parent, IAttributesCollection dictionary, bool isVisible) {
             _parent = parent;
             _dict = dictionary ?? new SymbolDictionary();
-            //_isVisible = isVisible;
-            //_temps = null;
         }
 
         /// <summary>
@@ -114,8 +107,7 @@ namespace Microsoft.Scripting
         public IEnumerable<SymbolId> Keys {
             get {
                 foreach (SymbolId si in _dict.SymbolAttributes.Keys) {
-                    //if (_attrs == null || _attrs.CheckEnumerable(si)) 
-                      yield return si;
+                   yield return si;
                 }
             }
         }
@@ -127,9 +119,7 @@ namespace Microsoft.Scripting
         public IEnumerable<KeyValuePair<SymbolId, object>> Items {
             get {
                 foreach (KeyValuePair<SymbolId, object> kvp in _dict.SymbolAttributes) {
-                    //if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) {
-                        yield return kvp;
-                    //}
+                    yield return kvp;
                 }
             }
         }
@@ -142,8 +132,7 @@ namespace Microsoft.Scripting
         /// </summary>
         public IEnumerable<SymbolId> GetKeys(LanguageContext context) {
             foreach (SymbolId si in _dict.SymbolAttributes.Keys) {
-                //if (_attrs == null || _attrs.CheckEnumerable(si)) 
-                  yield return si;
+               yield return si;
             }
         }
 
@@ -318,13 +307,10 @@ namespace Microsoft.Scripting
         /// </summary>
         public bool TryRemoveName(LanguageContext context, SymbolId name) {
             bool fRemoved = false;
-
-            //if (_contextScopes != null) fRemoved = _contextScopes.TryRemoveName(context, name);
             
             // TODO: Ideally, we could do this without having to do two lookups.
             object removedObject;
-            if (//(_attrs == null || _attrs.CheckDeletable(name)) && 
-              _dict.TryGetValue(name, out removedObject) && removedObject != Uninitialized.Instance) {
+            if (_dict.TryGetValue(name, out removedObject) && removedObject != Uninitialized.Instance) {
                 fRemoved = _dict.Remove(name) || fRemoved;
             }
 
@@ -335,10 +321,6 @@ namespace Microsoft.Scripting
         /// Attemps to remove the provided name from this scope's context specific dictionary
         /// </summary>
         public bool TryRemoveForContext(LanguageContext context, SymbolId name) {
-            //if (_contextScopes != null) {
-            //    return _contextScopes.TryRemoveName(context, name);
-            //}
-
             return false;
         }
 
@@ -371,13 +353,7 @@ namespace Microsoft.Scripting
         /// </summary>
         public bool TryRemoveObjectName(LanguageContext context, object name) {
             bool fRemoved = false;
-
-            //if (_contextScopes != null) fRemoved = _contextScopes.TryRemoveObjectName(context, name);
-
-            //if (_attrs == null || _attrs.CheckDeletable(name)) {
-                fRemoved = _dict.RemoveObjectKey(name) || fRemoved;
-            //}
-
+            fRemoved = _dict.RemoveObjectKey(name) || fRemoved;
             return fRemoved;
         }
 
@@ -386,12 +362,6 @@ namespace Microsoft.Scripting
         /// names that are only visible to the provided LanguageContext.
         /// </summary>
         public bool TryGetObjectName(LanguageContext context, object name, out object value) {
-            //if (_contextScopes != null) {
-            //    if (_contextScopes.TryGetObjectName(context, name, out value)) {
-            //        return true;
-            //    }
-            //}
-
             if (_dict.TryGetObjectValue(name, out value)) return true;
 
             value = null;
@@ -424,20 +394,8 @@ namespace Microsoft.Scripting
         /// 
         /// The name is an arbitrary object.
         /// </summary>
-        public void SetObjectName(ContextId context, object name, object value, ScopeMemberAttributes attributes) {
-            //int id = context.Id;
-            //if (id == 0) {
-            //    if (_attrs != null) _attrs.CheckWritable(name);
-
-                _dict.AddObjectKey(name, value);
-            //    if (attributes != ScopeMemberAttributes.None) {
-            //        if (_attrs == null) _attrs = new ScopeAttributeDictionary();
-            //        _attrs.Set(name, attributes);
-            //    }
-            //} else {
-            //    if (_contextScopes == null) _contextScopes = new ContextSensitiveScope();
-            //    _contextScopes.SetObjectName(context, name, value, attributes);
-            //}
+        public void SetObjectName(object name, object value, ScopeMemberAttributes attributes) {
+           _dict.AddObjectKey(name, value);
         }
 
         /// <summary>
@@ -448,17 +406,8 @@ namespace Microsoft.Scripting
         /// </summary>
         public IEnumerable<object> GetAllKeys(LanguageContext context) {
             foreach (object key in _dict.Keys) {
-                //if (_attrs == null || _attrs.CheckEnumerable(key)) 
-                  yield return key;
+                yield return key;
             }
-
-            //if (_contextScopes != null) {
-            //    foreach (KeyValuePair<object, object> kvp in _contextScopes.GetItems(context)) {
-            //        if (_dict.ContainsObjectKey(kvp.Key)) continue;
-
-            //        if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) yield return kvp.Key;
-            //    }
-            //}
         }
 
         /// <summary>
