@@ -38,9 +38,6 @@ namespace Microsoft.Scripting
 
         protected override bool DoMoveNext() {
             bool result = _backing.MoveNext();
-            if (result && _backing.Current.Key == CustomSymbolDictionary.ObjectKeys) {
-                result = MoveNext();
-            }
             return result;
         }
 

@@ -49,6 +49,7 @@ namespace Microsoft.Scripting
         /// However, some languages allow non-string keys too. We handle this case by lazily creating an object-keyed dictionary,
         /// and keeping it in the symbol-indexed dictionary. Such access is slower, which is acceptable.
         /// </summary>
+        [Obsolete]
         private Dictionary<object, object> GetObjectKeysDictionary() {
             Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
             if (objData == null) {
@@ -58,6 +59,7 @@ namespace Microsoft.Scripting
             return objData;
         }
 
+        [Obsolete]
         private Dictionary<object, object> GetObjectKeysDictionaryIfExists() {
             object objData;
             if (_data.TryGetValue(BaseSymbolDictionary.ObjectKeys, out objData))
@@ -72,12 +74,7 @@ namespace Microsoft.Scripting
 
             string strKey = key as string;
             lock (this) {
-                if (strKey != null) {
-                    _data.Add(SymbolTable.StringToId(strKey), value);
-                } else {
-                    Dictionary<object, object> objData = GetObjectKeysDictionary();
-                    objData[key] = value;
-                }
+               _data.Add(SymbolTable.StringToId(strKey), value);
             }
         }
 
@@ -85,17 +82,11 @@ namespace Microsoft.Scripting
             Debug.Assert(!(key is SymbolId));
             string strKey = key as string;
             lock (this) {
-                if (strKey != null) {
-                    if (!SymbolTable.StringHasId(strKey)) {
-                        // Avoid creating a SymbolID if this string does not already have one
-                        return false;
-                    }
-                    return _data.ContainsKey(SymbolTable.StringToId(strKey));
-                } else {
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData == null) return false;
-                    return objData.ContainsKey(key);
+                if (!SymbolTable.StringHasId(strKey)) {
+                    // Avoid creating a SymbolID if this string does not already have one
+                    return false;
                 }
+                return _data.ContainsKey(SymbolTable.StringToId(strKey));
             }
         }
 
@@ -107,12 +98,8 @@ namespace Microsoft.Scripting
 
                 lock (this) {
                     foreach (SymbolId x in _data.Keys) {
-                        if (x == BaseSymbolDictionary.ObjectKeys) continue;
                         res.Add(SymbolTable.IdToString(x));
                     }
-
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData != null) res.AddRange(objData.Keys);
                 }
 
                 return res;
@@ -123,13 +110,7 @@ namespace Microsoft.Scripting
             Debug.Assert(!(key is SymbolId));
             string strKey = key as string;
             lock (this) {
-                if (strKey != null) {
-                    return _data.Remove(SymbolTable.StringToId(strKey));
-                } else {
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData == null) return false;
-                    return objData.Remove(key);
-                }
+               return _data.Remove(SymbolTable.StringToId(strKey));
             }
         }
 
@@ -137,14 +118,7 @@ namespace Microsoft.Scripting
             Debug.Assert(!(key is SymbolId));
             string strKey = key as string;
             lock (this) {
-                if (strKey != null) {
-                    return _data.TryGetValue(SymbolTable.StringToId(strKey), out value);
-                } else {
-                    value = null;
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData == null) return false;
-                    return objData.TryGetValue(key, out value);
-                }
+               return _data.TryGetValue(SymbolTable.StringToId(strKey), out value);
             }
         }
 
@@ -152,23 +126,7 @@ namespace Microsoft.Scripting
             get {
                 // Are there any object-keys? If not we can use a fast-path
                 lock (this) {
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData == null)
-                        return _data.Values;
-
-                    // There any object-keys. We need to flatten out all the values
-                    List<object> res = new List<object>();
-
-                    foreach (KeyValuePair<SymbolId, object> x in _data) {
-                        if (x.Key == BaseSymbolDictionary.ObjectKeys) continue;
-                        res.Add(x.Value);
-                    }
-
-                    foreach (object o in objData.Values) {
-                        res.Add(o);
-                    }
-
-                    return res;
+                   return _data.Values;
                 }
             }
         }
@@ -178,15 +136,9 @@ namespace Microsoft.Scripting
                 Debug.Assert(!(key is SymbolId));
                 string strKey = key as string;
                 lock (this) {
-                    if (strKey != null) {
-                        object value;
-                        if (_data.TryGetValue(SymbolTable.StringToId(strKey), out value))
-                            return value;
-                    } else {
-                        Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                        if (objData != null)
-                            return objData[key];
-                    }
+                    object value;
+                    if (_data.TryGetValue(SymbolTable.StringToId(strKey), out value))
+                        return value;
                 }
                 throw new KeyNotFoundException(String.Format("'{0}'", key));
             }
@@ -194,12 +146,7 @@ namespace Microsoft.Scripting
                 Debug.Assert(!(key is SymbolId));
                 string strKey = key as string;
                 lock (this) {
-                    if (strKey != null) {
-                        _data[SymbolTable.StringToId(strKey)] = value;
-                    } else {
-                        Dictionary<object, object> objData = GetObjectKeysDictionary();
-                        objData[key] = value;
-                    }
+                    _data[SymbolTable.StringToId(strKey)] = value;
                 }
             }
         }
@@ -211,12 +158,7 @@ namespace Microsoft.Scripting
         public void Add(KeyValuePair<object, object> item) {
             string strKey = item.Key as string;
             lock (this) {
-                if (strKey != null) {
-                    _data.Add(SymbolTable.StringToId(strKey), item.Value);
-                } else {
-                    Dictionary<object, object> objData = GetObjectKeysDictionary();
-                    objData[item.Key] = item.Value;
-                }
+               _data.Add(SymbolTable.StringToId(strKey), item.Value);
             }
         }
 
@@ -239,11 +181,6 @@ namespace Microsoft.Scripting
             get {
                 lock (this) {
                     int count = _data.Count;
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData != null) {
-                        // -1 is because data contains objData
-                        count += objData.Count - 1;
-                    }
                     return count;
                 }
             }
@@ -274,15 +211,7 @@ namespace Microsoft.Scripting
         IEnumerator<KeyValuePair<object, object>> IEnumerable<KeyValuePair<object, object>>.GetEnumerator() {
             lock (this) {
                 foreach (KeyValuePair<SymbolId, object> o in _data) {
-                    if (o.Key == BaseSymbolDictionary.ObjectKeys) continue;
                     yield return new KeyValuePair<object, object>(SymbolTable.IdToString(o.Key), o.Value);
-                }
-
-                Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                if (objData != null) {
-                    foreach (KeyValuePair<object, object> o in objData) {
-                        yield return o;
-                    }
                 }
             }
         }
@@ -293,14 +222,7 @@ namespace Microsoft.Scripting
 
         public System.Collections.IEnumerator GetEnumerator() {
             foreach (KeyValuePair<SymbolId, object> o in _data) {
-                if (o.Key == BaseSymbolDictionary.ObjectKeys) continue;
                 yield return SymbolTable.IdToString(o.Key);
-            }
-
-            IDictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-            if (objData != null) {
-                foreach (object o in objData.Keys)
-                    yield return o;
             }
         }
 
@@ -336,14 +258,7 @@ namespace Microsoft.Scripting
         public IDictionary<SymbolId, object> SymbolAttributes {
             get {
                 lock (this) {
-                    if (GetObjectKeysDictionaryIfExists() == null) return _data;
-
-                    Dictionary<SymbolId, object> d = new Dictionary<SymbolId, object>();
-                    foreach (KeyValuePair<SymbolId, object> name in _data) {
-                        if (name.Key == BaseSymbolDictionary.ObjectKeys) continue;
-                        d.Add(name.Key, name.Value);
-                    }
-                    return d;
+                    return _data;
                 }
             }
         }
@@ -383,16 +298,7 @@ namespace Microsoft.Scripting
         }
 
         IDictionaryEnumerator IDictionary.GetEnumerator() {
-            Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-            if (objData == null) return new TransformDictionaryEnumerator(_data);
-
-            List<IDictionaryEnumerator> enums = new List<IDictionaryEnumerator>();
-            enums.Add(new TransformDictionaryEnumerator(_data));
-
-            Dictionary<object, object>.Enumerator objDataEnumerator = objData.GetEnumerator();
-            enums.Add(objDataEnumerator);
-
-            return new DictionaryUnionEnumerator(enums);
+            return new TransformDictionaryEnumerator(_data);
         }
 
         public bool IsFixedSize {
@@ -407,12 +313,8 @@ namespace Microsoft.Scripting
 
                 lock (this) {
                     foreach (SymbolId x in _data.Keys) {
-                        if (x == BaseSymbolDictionary.ObjectKeys) continue;
                         res.Add(SymbolTable.IdToString(x));
                     }
-
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData != null) res.AddRange(objData.Keys);
                 }
 
                 return res;
@@ -423,13 +325,7 @@ namespace Microsoft.Scripting
             Debug.Assert(!(key is SymbolId));
             string strKey = key as string;
             lock (this) {
-                if (strKey != null) {
-                    _data.Remove(SymbolTable.StringToId(strKey));
-                } else {
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData != null)
-                        objData.Remove(key);
-                }
+                _data.Remove(SymbolTable.StringToId(strKey));
             }
         }
 
@@ -439,12 +335,8 @@ namespace Microsoft.Scripting
 
                 lock (this) {
                     foreach (KeyValuePair<SymbolId, object> x in _data) {
-                        if (x.Key == BaseSymbolDictionary.ObjectKeys) continue;
                         res.Add(x.Value);
                     }
-
-                    Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
-                    if (objData != null) res.AddRange(objData.Values);
                 }
 
                 return res;

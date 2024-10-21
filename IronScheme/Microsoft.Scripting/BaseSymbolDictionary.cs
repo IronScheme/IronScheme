@@ -35,6 +35,7 @@ namespace Microsoft.Scripting
   {
         private static object _nullObject = new object();
         private const int ObjectKeysId = -2;
+        [Obsolete]
         internal static readonly SymbolId ObjectKeys = new SymbolId(ObjectKeysId);
 
         /// <summary>

@@ -70,6 +70,7 @@ namespace Microsoft.Scripting {
         /// However, Python does allow non-string keys too. We handle this case by lazily creating an object-keyed dictionary,
         /// and keeping it in the symbol-indexed dictionary. Such access is slower, which is acceptable.
         /// </summary>
+        [Obsolete]
         private Dictionary<object, object> GetObjectKeysDictionary() {
             Dictionary<object, object> objData = GetObjectKeysDictionaryIfExists();
             if (objData == null) {
@@ -80,6 +81,7 @@ namespace Microsoft.Scripting {
             return objData;
         }
 
+        [Obsolete]
         private Dictionary<object, object> GetObjectKeysDictionaryIfExists() {
             if (_data == null) return null;
 
@@ -120,21 +122,10 @@ namespace Microsoft.Scripting {
                 List<object> res = new List<object>();
                 lock (this) if (_data != null) {
                         foreach (SymbolId x in _data.Keys) {
-                            if (x == ObjectKeys) continue;
                             res.Add(SymbolTable.IdToString(x));
                         }
                     }
 
-                foreach (SymbolId key in GetExtraKeys()) {
-                    if (key.Id < 0) break;
-
-                    object dummy;
-                    if (TryGetExtraValue(key, out dummy) && dummy != Uninitialized.Instance) {
-                        res.Add(SymbolTable.IdToString(key));
-                    }
-                }
-
-                GetObjectKeys(res);
                 return res;
             }
         }
@@ -180,22 +171,11 @@ namespace Microsoft.Scripting {
                 lock (this) {
                     if (_data != null) {
                         foreach (SymbolId x in _data.Keys) {
-                            if (x == ObjectKeys) continue;
                             res.Add(_data[x]);
                         }
                     }
                 }
 
-                foreach (SymbolId key in GetExtraKeys()) {
-                    if (key.Id < 0) break;
-
-                    object value;
-                    if (TryGetExtraValue(key, out value) && value != Uninitialized.Instance) {
-                        res.Add(value);
-                    }
-                }
-
-                GetObjectValues(res);
                 return res;
             }
         }
@@ -305,7 +285,6 @@ namespace Microsoft.Scripting {
             if (_data != null) {
                 foreach (KeyValuePair<SymbolId, object> o in _data) {
                     if (o.Key == SymbolId.Invalid) break;
-                    if (o.Key == ObjectKeys) continue;
                     yield return new KeyValuePair<object, object>(SymbolTable.IdToString(o.Key), o.Value);
                 }
             }
@@ -396,8 +375,6 @@ namespace Microsoft.Scripting {
                 }
             }
             set {
-                //if (TrySetExtraValue(name, value)) return;
-
                 lock (this) {
                     if (_data == null) InitializeData();
                     _data[name] = value;
@@ -411,7 +388,6 @@ namespace Microsoft.Scripting {
                 lock (this) {
                     if (_data != null) {
                         foreach (KeyValuePair<SymbolId, object> name in _data) {
-                            if (name.Key == ObjectKeys) continue;
                             d.Add(name.Key, name.Value);
                         }
                     }
