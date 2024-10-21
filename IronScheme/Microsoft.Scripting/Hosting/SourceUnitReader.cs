@@ -24,7 +24,7 @@ namespace Microsoft.Scripting.Hosting
     /// Couples a source unit with an open text reader. Remotable (TextReader is a MBRO).
     /// </summary>
     [Serializable]
-    public sealed class SourceUnitReader : TextReader
+    sealed class SourceUnitReader : TextReader
     {
 
         private readonly TextReader _textReader;
