@@ -69,16 +69,9 @@ namespace Microsoft.Scripting
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="dictionary"></param>
-        public Scope(Scope parent, IAttributesCollection dictionary)
-            : this(parent, dictionary, true) {
-        }
-
-        /// <summary>
-        /// Creates a new Scope with the provided parent, dictionary and visibility.
-        /// </summary>
-        public Scope(Scope parent, IAttributesCollection dictionary, bool isVisible) {
+        public Scope(Scope parent, IAttributesCollection dictionary) { 
             _parent = parent;
-            _dict = dictionary ?? new SymbolDictionary();
+            _dict = dictionary ?? new SymbolDictionary();            
         }
 
         /// <summary>
@@ -91,59 +84,6 @@ namespace Microsoft.Scripting
         }
 
         /// <summary>
-        /// Gets if the context is visible at this scope.  Visibility is a per-language feature that enables
-        /// languages to include members in the Scope chain but hide them when directly exposed to the user.
-        /// </summary>
-        public bool IsVisible {
-            get {
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Returns the list of keys which are available to all languages.  Keys marked with the
-        /// DontEnumerate flag will not be returned.
-        /// </summary>
-        public IEnumerable<SymbolId> Keys {
-            get {
-                foreach (SymbolId si in _dict.SymbolAttributes.Keys) {
-                   yield return si;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns the list of Keys and Items which are available to all langauges.  Keys marked
-        /// with the DontEnumerate flag will not be returned.
-        /// </summary>
-        public IEnumerable<KeyValuePair<SymbolId, object>> Items {
-            get {
-                foreach (KeyValuePair<SymbolId, object> kvp in _dict.SymbolAttributes) {
-                    yield return kvp;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns the list of Keys available to all languages in addition to those keys
-        /// which are only available to the provided LanguageContext.
-        /// 
-        /// Keys marked with the DontEnumerate flag will not be returned.
-        /// </summary>
-        public IEnumerable<SymbolId> GetKeys(LanguageContext context) {
-            foreach (SymbolId si in _dict.SymbolAttributes.Keys) {
-               yield return si;
-            }
-        }
-
-        /// <summary>
-        /// Trys to lookup the provided name in the current scope.
-        /// </summary>
-        public bool TryGetName(SymbolId name, out object value) {
-            return TryGetName(InvariantContext.Instance, name, out value);
-        }
-
-        /// <summary>
         /// Trys to lookup the provided name in the current scope.  Search includes
         /// names that are only visible to the provided LanguageContext.
         /// </summary>
@@ -152,16 +92,6 @@ namespace Microsoft.Scripting
           if (_dict.TryGetValue(name, out value)) return true;
 
             value = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Trys to lookup the provided name in the current scope's context specific dictionary.  
-        /// Search includes names that are only visible to the provided LanguageContext.
-        /// </summary>
-        public bool TryGetNameForContext(LanguageContext context, SymbolId name, out object value)
-        {
-         value = null;
             return false;
         }
 
@@ -179,10 +109,8 @@ namespace Microsoft.Scripting
         public bool TryLookupName(LanguageContext context, SymbolId name, out object value) {
             Scope curScope = this;
             do {
-                if (curScope == this || curScope.IsVisible) {
-                    if (curScope.TryGetName(context, name, out value)) {
-                        return true;
-                    }
+                if (curScope.TryGetName(context, name, out value)) {
+                    return true;
                 }
 
                 curScope = curScope.Parent;
@@ -220,33 +148,17 @@ namespace Microsoft.Scripting
         /// </summary>
         /// <exception cref="MemberAccessException">The name has already been published and marked as ReadOnly</exception>
         public void SetName(SymbolId name, object value) {
-            //if (_attrs != null) _attrs.CheckWritable(name);
-
             _dict[name] = value;
-        }
-
-        /// <summary>
-        /// Sets the name to the specified value for the current context.
-        /// 
-        /// Provides the ScopeMemberAttributes which should be set on the provided object.
-        /// </summary>
-        /// <exception cref="MemberAccessException">The name has already been published and marked as ReadOnly</exception>
-        public void SetName(SymbolId name, object value, ScopeMemberAttributes attributes)
-        {
-          _dict[name] = value;
         }
 
         /// <summary>
         /// Removes all members from the dictionary and any context-sensitive dictionaries.
         /// </summary>
         public void Clear() {
-            //if (_contextScopes != null) _contextScopes.Clear();
-
             List<object> ids = new List<object>(_dict.Keys);
-            foreach (object name in ids) {
-                //if (_attrs == null || _attrs.CheckDeletable(name)) {
-                    _dict.RemoveObjectKey(name);
-                //}
+            foreach (object name in ids)
+            {
+                _dict.RemoveObjectKey(name);
             }
         }
 
@@ -285,23 +197,6 @@ namespace Microsoft.Scripting
         }
 
         /// <summary>
-        /// Removes the provided name from this scope removing names
-        /// visible to both the current context and all contexts.
-        /// </summary>
-        public void RemoveNameForContext(LanguageContext context, SymbolId name) {
-            if (!TryRemoveForContext(context, name)) {
-                throw context.MissingName(name);
-            }
-        }
-
-        /// <summary>
-        /// Attemps to remove the provided name from this scope
-        /// </summary>
-        public bool TryRemoveName(SymbolId name) {
-            return TryRemoveName(InvariantContext.Instance, name);
-        }
-
-        /// <summary>
         /// Attemps to remove the provided name from this scope removing names visible
         /// to both the current context and all contexts.
         /// </summary>
@@ -315,13 +210,6 @@ namespace Microsoft.Scripting
             }
 
             return fRemoved;
-        }
-
-        /// <summary>
-        /// Attemps to remove the provided name from this scope's context specific dictionary
-        /// </summary>
-        public bool TryRemoveForContext(LanguageContext context, SymbolId name) {
-            return false;
         }
 
         /// <summary>
@@ -344,93 +232,5 @@ namespace Microsoft.Scripting
                 return _dict;
             }
         }
-
-        #region Object key access
-
-        /// <summary>
-        /// Attemps to remove the provided object name from this scope removing names visible
-        /// to both the current context and all contexts.
-        /// </summary>
-        public bool TryRemoveObjectName(LanguageContext context, object name) {
-            bool fRemoved = false;
-            fRemoved = _dict.RemoveObjectKey(name) || fRemoved;
-            return fRemoved;
-        }
-
-        /// <summary>
-        /// Trys to lookup the provided name in the current scope.  Search includes
-        /// names that are only visible to the provided LanguageContext.
-        /// </summary>
-        public bool TryGetObjectName(LanguageContext context, object name, out object value) {
-            if (_dict.TryGetObjectValue(name, out value)) return true;
-
-            value = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Attempts to lookup the provided object name in this scope or any outer scope.   Lookup
-        /// includes searching for names that are visible to the provided LanguageContext as well
-        /// as those available to all contexts.
-        /// </summary>
-        public bool TryLookupObjectName(LanguageContext context, object name, out object value) {
-            Scope curScope = this;
-            do {
-                if (curScope == this || curScope.IsVisible) {
-                    if (curScope.TryGetObjectName(context, name, out value)) {
-                        return true;
-                    }
-                }
-
-                curScope = curScope.Parent;
-            } while (curScope != null);
-
-            value = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Sets the name to the specified value for the current context.
-        /// 
-        /// The name is an arbitrary object.
-        /// </summary>
-        public void SetObjectName(object name, object value, ScopeMemberAttributes attributes) {
-           _dict.AddObjectKey(name, value);
-        }
-
-        /// <summary>
-        /// Returns the list of Keys available to all languages in addition to those keys
-        /// which are only available to the provided LanguageContext.
-        /// 
-        /// Keys marked with the DontEnumerate flag will not be returned.
-        /// </summary>
-        public IEnumerable<object> GetAllKeys(LanguageContext context) {
-            foreach (object key in _dict.Keys) {
-                yield return key;
-            }
-        }
-
-        /// <summary>
-        /// Returns the list of Keys and Values available to all languages in addition to those
-        /// keys which are only available to the provided LanguageContext.
-        /// 
-        /// Keys marked with DontEnumerate flag will not be returned.
-        /// </summary>
-        public IEnumerable<KeyValuePair<object, object>> GetAllItems(LanguageContext context) {
-            foreach (KeyValuePair<object, object> kvp in _dict) {
-                //if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) {
-                    yield return kvp;
-                //}
-            }
-
-            //if (_contextScopes != null) {
-            //    // TODO: Filter dups
-            //    foreach (KeyValuePair<object, object> kvp in _contextScopes.GetItems(context)) {
-            //        if (_attrs == null || _attrs.CheckEnumerable(kvp.Key)) yield return kvp;
-            //    }
-            //}
-        }
-
-        #endregion
     }
 }

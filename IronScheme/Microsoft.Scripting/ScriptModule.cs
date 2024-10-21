@@ -14,7 +14,6 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -110,41 +109,6 @@ namespace Microsoft.Scripting
         public string FileName {
             get { return _fileName; }
             set { _fileName = value; }
-        }
-
-        #endregion
-
-        [SpecialName]
-        public object GetCustomMember(CodeContext context, string name) {
-            object value;
-            if (Scope.TryGetName(context.LanguageContext, SymbolTable.StringToId(name), out value)) {
-                if (value != Uninitialized.Instance) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-        #region IMembersList
-
-        public IList<object> GetCustomMemberNames(CodeContext context) {
-            List<object> ret;
-            if (!context.ModuleContext.ShowCls) {
-                ret = new List<object>();
-                foreach (KeyValuePair<object, object> kvp in Scope.GetAllItems(context.LanguageContext)) {                    
-                    if(kvp.Value != Uninitialized.Instance) {
-                        if (kvp.Key is SymbolId) {
-                            ret.Add(SymbolTable.IdToString((SymbolId)kvp.Key));
-                        } else {
-                            ret.Add(kvp.Key);
-                        }
-                    }
-                }
-            } else {
-                ret = new List<object>(Scope.GetAllKeys(context.LanguageContext));
-            }            
-
-            return ret;
         }
 
         #endregion
