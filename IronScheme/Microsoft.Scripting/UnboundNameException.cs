@@ -14,11 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Serializable]
     public class UnboundNameException : Exception {
         public UnboundNameException() : base() { }
@@ -26,9 +25,6 @@ namespace Microsoft.Scripting {
         public UnboundNameException(string message, Exception innerException)
             : base(message, innerException) {
         }
-#if !SILVERLIGHT // SerializationInfo
-        protected UnboundNameException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 
     [Serializable]
@@ -38,8 +34,5 @@ namespace Microsoft.Scripting {
         public UnboundLocalException(string message, Exception innerException)
             : base(message, innerException) {
         }
-#if !SILVERLIGHT // SerializationInfo
-        protected UnboundLocalException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 }

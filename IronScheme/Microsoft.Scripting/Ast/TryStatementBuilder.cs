@@ -14,10 +14,10 @@
  * ***************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public class TryStatementBuilder {
         private Statement _tryStatement;
         private List<CatchBlock> _catchBlocks;

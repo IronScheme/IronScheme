@@ -14,30 +14,20 @@
  * ***************************************************************************/
 
 using System;
-using System.Threading;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
-
-using Microsoft.Scripting;
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Generation;
 
 using System.IO;
 using System.Text;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
-    public delegate T ModuleBinder<T>(ScriptModule scope);
-
+namespace Microsoft.Scripting.Hosting
+{
     public interface IScriptEngine : ILanguageService {
         ILanguageProvider LanguageProvider { get; }
 
         Guid LanguageGuid { get; }
         Guid VendorGuid { get; }
-        EngineOptions Options { get; }
         string VersionString { get; }
 
         // TODO: 
@@ -47,7 +37,6 @@ namespace Microsoft.Scripting.Hosting {
 
         // configuration:
         void SetSourceUnitSearchPaths(string[] paths);
-        CompilerOptions GetDefaultCompilerOptions();
         SourceCodeProperties GetCodeProperties(string code, SourceCodeKind kind);
         SourceCodeProperties GetCodeProperties(string code, SourceCodeKind kind, ErrorSink errorSink);
         
@@ -96,10 +85,7 @@ namespace Microsoft.Scripting.Hosting {
         ICompiledCode CompileInteractiveCode(string code);
         ICompiledCode CompileInteractiveCode(string code, IScriptModule module);
         ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, IScriptModule module);
-        ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink);
-
-        // TODO: (internal)
-        CompilerOptions GetModuleCompilerOptions(ScriptModule module);
+        ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, ErrorSink errorSink);
 
         // TODO: output
         TextWriter GetOutputWriter(bool isErrorOutput);
@@ -113,7 +99,6 @@ namespace Microsoft.Scripting.Hosting {
 
     public abstract class ScriptEngine : IScriptEngine {
         private readonly LanguageProvider _provider;
-        private readonly EngineOptions _options;
         private readonly LanguageContext _languageContext;
 
         #region Properties
@@ -128,10 +113,6 @@ namespace Microsoft.Scripting.Hosting {
 
         public LanguageContext LanguageContext {
             get { return _languageContext; }
-        }
-
-        public EngineOptions Options {
-            get { return _options; }
         }
 
         public virtual string Copyright {
@@ -164,19 +145,11 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        protected ScriptEngine(LanguageProvider provider, EngineOptions engineOptions, LanguageContext languageContext) {
+        protected ScriptEngine(LanguageProvider provider, LanguageContext languageContext) {
             Contract.RequiresNotNull(provider, "provider");
-            Contract.RequiresNotNull(engineOptions, "engineOptions");
             Contract.RequiresNotNull(languageContext, "languageContext");
 
-#if CHECK_IF_NEEDED // SecurityPermission
-            if (engineOptions.ClrDebuggingEnabled) {
-                // Currently, AssemblyBuilder.DefineDynamicModule requires high trust for emitting debug information.
-                new System.Security.Permissions.SecurityPermission(System.Security.Permissions.SecurityPermissionFlag.UnmanagedCode).Demand();
-            }
-#endif
             _provider = provider;
-            _options = engineOptions;
             _languageContext = languageContext;
         }
 
@@ -313,7 +286,7 @@ namespace Microsoft.Scripting.Hosting {
             SourceUnit sourceUnit = SourceUnit.CreateSnippet(this, code, kind);
             
             // create compiler context with null error sink:
-            CompilerContext compilerContext = new CompilerContext(sourceUnit, null, errorSink ?? new ErrorSink());
+            CompilerContext compilerContext = new CompilerContext(sourceUnit, errorSink ?? new ErrorSink());
             
             _languageContext.UpdateSourceCodeProperties(compilerContext);
 
@@ -327,20 +300,6 @@ namespace Microsoft.Scripting.Hosting {
         #endregion
 
         #region Compilation and Execution
-
-        /// <summary>
-        /// Compiler options factory.
-        /// </summary>
-        public virtual CompilerOptions GetDefaultCompilerOptions() {
-            return new CompilerOptions();
-        }
-
-        /// <summary>
-        /// Creates compiler options initialized by the options associated with the module.
-        /// </summary>
-        public virtual CompilerOptions GetModuleCompilerOptions(ScriptModule module) { // TODO: internal protected
-            return GetDefaultCompilerOptions();
-        }
 
         public virtual ErrorSink GetCompilerErrorSink() {
             return new ErrorSink();
@@ -361,31 +320,7 @@ namespace Microsoft.Scripting.Hosting {
         }
 
         public void ExecuteCommand(string code, IScriptModule module) {
-            CommandDispatcher dispatcher = ScriptDomainManager.CurrentManager.GetCommandDispatcher();
-
-            if (dispatcher != null) {
-                Exception exception = null;
-                ICompiledCode compiled_code = CompileInteractiveCode(code, module);
-                if (compiled_code != null) { // TODO: should throw?
-
-                    CallTarget0 run_code = delegate() {
-                        try {
-                            PrintInteractiveCodeResult(compiled_code.Evaluate(module));
-                        } catch (Exception e) {
-                            exception = e;
-                        }
-                        return null;
-                    };
-
-                    dispatcher(run_code);
-
-                    // We catch and rethrow the exception since it could have been thrown on another thread
-                    if (exception != null)
-                        throw exception;
-                }
-            } else {
-                ExecuteInteractiveCode(code, module);
-            }
+            ExecuteInteractiveCode(code, module);
         }
 
         // VB should compile ?<expr> to the print statement
@@ -438,13 +373,12 @@ namespace Microsoft.Scripting.Hosting {
 
         public ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, IScriptModule module) {
             Contract.RequiresNotNull(sourceUnit, "sourceUnit");
-            CompilerOptions options = (module != null) ? module.GetCompilerOptions(this) : GetDefaultCompilerOptions();
-            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit, options));
+            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit));
         }
 
-        public ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink) {
+        public ICompiledCode CompileSourceUnit(SourceUnit sourceUnit, ErrorSink errorSink) {
             Contract.RequiresNotNull(sourceUnit, "sourceUnit");
-            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit, options, errorSink));
+            return new CompiledCode(_languageContext.CompileSourceCode(sourceUnit, errorSink));
         }
         
         /// <summary>
@@ -541,10 +475,10 @@ namespace Microsoft.Scripting.Hosting {
 
         internal protected virtual LanguageContext GetLanguageContext(ScriptModule module) {
             Contract.RequiresNotNull(module, "module");
-            return GetLanguageContext(module.GetCompilerOptions(this));
+            return GetLanguageContext();
         }
         
-        internal protected virtual LanguageContext GetLanguageContext(CompilerOptions compilerOptions) {
+        internal protected virtual LanguageContext GetLanguageContext() {
             return InvariantContext.Instance;
         }
 

@@ -15,12 +15,11 @@
 
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Diagnostics;
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     /// <summary>
     /// Member expression (statically typed) which represents 
     /// property or field set, both static and instance.

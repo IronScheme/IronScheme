@@ -14,13 +14,11 @@
  * ***************************************************************************/
 
 using System;
-using System.Text;
 using System.Runtime.Serialization;
-using System.Diagnostics;
-using System.Security.Permissions;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Serializable]
     public struct SymbolId : ISerializable, IComparable, IEquatable<SymbolId> {
         private int _id;
@@ -136,7 +134,6 @@ namespace Microsoft.Scripting {
         /// <summary>SymbolId for null string</summary>
         public static readonly SymbolId Empty = new SymbolId(EmptyId);
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly SymbolId[] EmptySymbols = new SymbolId[0];
 
         public bool IsEmpty {

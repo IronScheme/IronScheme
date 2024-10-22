@@ -17,14 +17,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Reflection.Emit;
 
 using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
     using Ast = Microsoft.Scripting.Ast.Ast;
-    using Microsoft.Scripting.Utils;
+    using Microsoft.Scripting.Generation.Builders;
 
     public class MethodTarget  {
         private MethodBinder _binder;
@@ -34,7 +33,7 @@ namespace Microsoft.Scripting.Generation {
         private ArgBuilder _instanceBuilder;
         private ReturnBuilder _returnBuilder;
 
-        public MethodTarget(MethodBinder binder, MethodBase method, int parameterCount, ArgBuilder instanceBuilder, IList<ArgBuilder> argBuilders, ReturnBuilder returnBuilder) {
+        internal MethodTarget(MethodBinder binder, MethodBase method, int parameterCount, ArgBuilder instanceBuilder, IList<ArgBuilder> argBuilders, ReturnBuilder returnBuilder) {
             this._binder = binder;
             this._method = method;
             this._parameterCount = parameterCount;

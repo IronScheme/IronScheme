@@ -6,6 +6,7 @@
 %namespace IronScheme.Compiler
 
 %option minimize, unicode
+%visibility internal
 
 
 %{

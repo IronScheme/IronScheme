@@ -16,17 +16,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Diagnostics;
 using System.Text;
-
-using Microsoft.Scripting.Ast;
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Utils;
+using Microsoft.Scripting.Generation.Builders;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     public class MethodBinder {
         internal string _name;
         private BinderType _binderType;
@@ -49,10 +45,6 @@ namespace Microsoft.Scripting {
         private static bool IsUnsupported(MethodBase method) {
             return (method.CallingConvention & CallingConventions.VarArgs) != 0 || method.ContainsGenericParameters
                 || Array.Exists(method.GetParameters(), p => p.ParameterType.Name.EndsWith("Span`1"));
-        }
-
-        public static MethodBinder MakeBinder(ActionBinder binder, string name, IList<MethodBase> mis, BinderType binderType, SymbolId[] keywordArgs) {
-            return new MethodBinder(binder, name, mis, binderType, keywordArgs);
         }
 
         public static MethodBinder MakeBinder(ActionBinder binder, string name, IList<MethodBase> mis, BinderType binderType) {
@@ -158,10 +150,6 @@ namespace Microsoft.Scripting {
             return null;
         }
 
-        public object CallInstanceReflected(CodeContext context, object instance, params object[] args) {
-            return CallReflected(context, CallType.ImplicitInstance, ArrayUtils.Insert(instance, args));
-        }
-
         public object CallReflected(CodeContext context, CallType callType, params object[] args) {
             TargetSet ts = GetTargetSet(args.Length);
             if (ts != null) return ts.CallReflected(context, callType, args, _kwArgs);
@@ -190,7 +178,7 @@ namespace Microsoft.Scripting {
             List<ParameterWrapper> parameters = new List<ParameterWrapper>();
             int argIndex = 0;
             ArgBuilder instanceBuilder;
-            bool hasDefaults = false;
+            
             if (!CompilerHelpers.IsStatic(method)) {
                 parameters.Add(new ParameterWrapper(_binder, method.DeclaringType, true));
                 instanceBuilder = new SimpleArgBuilder(argIndex++, parameters[0].Type);
@@ -209,106 +197,28 @@ namespace Microsoft.Scripting {
                     continue;
                 }
 
-                int newIndex, kwIndex = GetKeywordIndex(pi);
-                if (kwIndex == -1) {
-                    if (!CompilerHelpers.IsMandatoryParameter(pi)) {
-                        defaultBuilders.Add(new DefaultArgBuilder(pi.ParameterType, pi.DefaultValue));
-                        hasDefaults = true;
-                    } else if (defaultBuilders.Count > 0) {
-                        defaultBuilders.Add(null); 
-                    }
-                    newIndex = argIndex++;
-                } else {
-                    defaultBuilders.Add(null);
-                    newIndex = 0;
-                }
+                int newIndex= argIndex++;
 
                 ArgBuilder ab;
                 if (pi.ParameterType.IsByRef) {
-                    hasByRefOrOut = true;
-                    Type refType = typeof(StrongBox<>).MakeGenericType(pi.ParameterType.GetElementType());
-                    ParameterWrapper param = new ParameterWrapper(_binder, refType, true, SymbolTable.StringToId(pi.Name));
+                    hasByRefOrOut|= true;
+                    ParameterWrapper param = new ParameterWrapper(_binder, pi);
                     parameters.Add(param);
-                    ab = new ReferenceArgBuilder(newIndex, param.Type);
-                } else {
+                    ab = new SimpleArgBuilder(newIndex, param.Type, pi);
+                }
+                else {
                     hasByRefOrOut |= CompilerHelpers.IsOutParameter(pi);
                     ParameterWrapper param = new ParameterWrapper(_binder, pi);
                     parameters.Add(param);
                     ab = new SimpleArgBuilder(newIndex, param.Type, pi);
                 }
 
-                if (kwIndex == -1) {
                     argBuilders.Add(ab);
-                } else {
-                    argBuilders.Add(new KeywordArgBuilder(ab, _kwArgs.Length, kwIndex));
-                }
             }
 
-            ReturnBuilder returnBuilder = MakeKeywordReturnBuilder(
-                new ReturnBuilder(CompilerHelpers.GetReturnType(method)), 
-                methodParams, 
-                parameters);
-
-            if (hasDefaults) {
-                for (int defaultsUsed = 1; defaultsUsed < defaultBuilders.Count + 1; defaultsUsed++) {
-                    // if the left most default we'll use is not present then don't add a default.  This happens in cases such as:
-                    // a(a=1, b=2, c=3) and then call with a(a=5, c=3).  We'll come through once for c (no default, skip),
-                    // once for b (default present, emit) and then a (no default, skip again).  W/o skipping we'd generate the same
-                    // method multiple times.  This also happens w/ non-contigious default values, e.g. foo(a, b=3, c) where we don't want
-                    // to generate a default candidate for just c which matches the normal method.
-                    if (defaultBuilders[defaultBuilders.Count - defaultsUsed] != null) {
-                        AddTarget(MakeDefaultCandidate(
-                            method, 
-                            parameters, 
-                            instanceBuilder, 
-                            argBuilders, 
-                            defaultBuilders, 
-                            returnBuilder, 
-                            defaultsUsed));
-                    }
-                }
-            }
-
+            ReturnBuilder returnBuilder = new ReturnBuilder(CompilerHelpers.GetReturnType(method));
             if (hasByRefOrOut) AddSimpleTarget(MakeByRefReducedMethodTarget(method));
             AddSimpleTarget(MakeMethodCandidate(method, parameters, instanceBuilder, argBuilders, returnBuilder));
-        }
-
-        private MethodCandidate MakeDefaultCandidate(MethodBase method, List<ParameterWrapper> parameters, ArgBuilder instanceBuilder, List<ArgBuilder> argBuilders, List<ArgBuilder> defaultBuilders, ReturnBuilder returnBuilder, int defaultsUsed) {
-            List<ArgBuilder> defaultArgBuilders = new List<ArgBuilder>(argBuilders); // argBuilders.GetRange(0, argBuilders.Count - i);
-            List<ParameterWrapper> necessaryParams = parameters.GetRange(0, parameters.Count - defaultsUsed);
-
-            for (int curDefault = 0; curDefault < defaultsUsed; curDefault++) {
-                int readIndex = defaultBuilders.Count - defaultsUsed + curDefault;
-                int writeIndex = defaultArgBuilders.Count - defaultsUsed + curDefault;
-
-                if (defaultBuilders[readIndex] != null) {
-                    defaultArgBuilders[writeIndex] = defaultBuilders[readIndex];
-                } else {
-                    necessaryParams.Add(parameters[parameters.Count - defaultsUsed + curDefault]);
-                }
-            }
-
-            // shift any arguments forward that need to be...
-            int curArg = CompilerHelpers.IsStatic(method) ? 0 : 1;
-            for (int i = 0; i < defaultArgBuilders.Count; i++) {
-                if (defaultArgBuilders[i] is DefaultArgBuilder || 
-                    defaultArgBuilders[i] is ContextArgBuilder ||
-                    defaultArgBuilders[i] is KeywordArgBuilder) {
-                    continue;
-                }
-
-                ReferenceArgBuilder rab = defaultArgBuilders[i] as ReferenceArgBuilder;
-                if (rab != null) {
-                    defaultArgBuilders[i] = new ReferenceArgBuilder(curArg++, rab.Type);
-                    continue;
-                }
-                
-                SimpleArgBuilder sab = (SimpleArgBuilder)defaultArgBuilders[i];
-                Debug.Assert(sab.GetType() == typeof(SimpleArgBuilder));
-                defaultArgBuilders[i] = new SimpleArgBuilder(curArg++, sab.Type, sab.IsParamsArray, sab.IsParamsDict);
-            }
-
-            return MakeMethodCandidate(method, necessaryParams, instanceBuilder, defaultArgBuilders, returnBuilder);
         }
 
         private MethodCandidate MakeMethodCandidate(MethodBase method, List<ParameterWrapper> parameters, ArgBuilder instanceBuilder, List<ArgBuilder> argBuilders, ReturnBuilder returnBuilder) {
@@ -316,7 +226,6 @@ namespace Microsoft.Scripting {
                 new MethodTarget(this, method, parameters.Count, instanceBuilder, argBuilders, returnBuilder),
                 parameters);
         }
-
 
         private MethodCandidate MakeByRefReducedMethodTarget(MethodBase method) {
             List<ParameterWrapper> parameters = new List<ParameterWrapper>();
@@ -344,127 +253,22 @@ namespace Microsoft.Scripting {
                 }
                 paramCount++;
 
-                int newIndex = 0, kwIndex = -1;
-                if (!CompilerHelpers.IsOutParameter(pi)) {
-                    kwIndex = GetKeywordIndex(pi);
-                    if (kwIndex == -1) {
-                        newIndex = argIndex++;
-                    } 
-                }
+                int newIndex = argIndex++;
 
                 ArgBuilder ab;
-                if (CompilerHelpers.IsOutParameter(pi)) {
-                    returnArgs.Add(argBuilders.Count);
-                    ab = new OutArgBuilder(pi); 
-                } else if (pi.ParameterType.IsByRef) {
-                    returnArgs.Add(argBuilders.Count);
-                    ParameterWrapper param = new ParameterWrapper(_binder, pi.ParameterType.GetElementType(), SymbolTable.StringToId(pi.Name));
-                    parameters.Add(param);
-                    ab = new ReturnReferenceArgBuilder(newIndex, pi.ParameterType.GetElementType());
-                } else {
-                    ParameterWrapper param = new ParameterWrapper(_binder, pi);
-                    parameters.Add(param);
-                    ab = new SimpleArgBuilder(newIndex, param.Type, pi);
-                }
 
-                if (kwIndex == -1) {
-                    argBuilders.Add(ab);
-                } else {
-                    argBuilders.Add(new KeywordArgBuilder(ab, _kwArgs.Length, kwIndex));
-                }
+                ParameterWrapper param = new ParameterWrapper(_binder, pi);
+                parameters.Add(param);
+                ab = new SimpleArgBuilder(newIndex, param.Type, pi);
+
+                argBuilders.Add(ab);
+
             }
 
-            ReturnBuilder returnBuilder = MakeKeywordReturnBuilder(
-                new ByRefReturnBuilder(_binder, returnArgs), 
-                method.GetParameters(), 
-                parameters);
-
+            ReturnBuilder returnBuilder = new ReturnBuilder(CompilerHelpers.GetReturnType(method));
             return MakeMethodCandidate(method, parameters, instanceBuilder, argBuilders, returnBuilder);
         }
 
-        #region Keyword arg binding support
-
-        private ReturnBuilder MakeKeywordReturnBuilder(ReturnBuilder returnBuilder, ParameterInfo[] methodParams, List<ParameterWrapper> parameters) {
-            if (_binderType == BinderType.Constructor) {
-                List<SymbolId> unusedNames = GetUnusedKeywordParameters(methodParams);
-                List<MemberInfo> bindableMembers = GetBindableMembers(returnBuilder, unusedNames);
-                List<int> kwArgIndexs = new List<int>();
-                if (unusedNames.Count == bindableMembers.Count) {
-                    foreach (MemberInfo mi in bindableMembers) {
-                        ParameterWrapper pw = new ParameterWrapper(
-                            _binder,
-                            mi.MemberType == MemberTypes.Property ?
-                                ((PropertyInfo)mi).PropertyType :
-                                ((FieldInfo)mi).FieldType,
-                            false,
-                            SymbolTable.StringToId(mi.Name));
-                        parameters.Add(pw);
-                        kwArgIndexs.Add(GetKeywordIndex(mi.Name));
-                    }
-
-                    KeywordConstructorReturnBuilder kwBuilder = new KeywordConstructorReturnBuilder(returnBuilder,
-                        _kwArgs.Length,
-                        kwArgIndexs.ToArray(),
-                        bindableMembers.ToArray());
-
-                    return kwBuilder;
-                }
-
-            }
-            return returnBuilder;
-        }
-
-        private static List<MemberInfo> GetBindableMembers(ReturnBuilder returnBuilder, List<SymbolId> unusedNames) {
-            List<MemberInfo> bindableMembers = new List<MemberInfo>();
-
-            foreach (SymbolId si in unusedNames) {
-                string strName = SymbolTable.IdToString(si);
-
-                FieldInfo fi = returnBuilder.ReturnType.GetField(strName);
-                if (fi != null) {
-                    bindableMembers.Add(fi);
-                }
-
-                PropertyInfo pi = returnBuilder.ReturnType.GetProperty(strName);
-                if (pi != null) {
-                    bindableMembers.Add(pi);
-                }
-            }
-            return bindableMembers;
-        }
-
-        private List<SymbolId> GetUnusedKeywordParameters(ParameterInfo[] methodParams) {
-            List<SymbolId> unusedNames = new List<SymbolId>();
-            foreach (SymbolId si in _kwArgs) {
-                string strName = SymbolTable.IdToString(si);
-                bool found = false;
-                foreach (ParameterInfo pi in methodParams) {
-                    if (pi.Name == strName) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    unusedNames.Add(si);
-                }
-            }
-            return unusedNames;
-        }
-
-        private int GetKeywordIndex(ParameterInfo pi) {
-            return GetKeywordIndex(pi.Name);
-        }
-
-        private int GetKeywordIndex(string kwName) {
-            for (int i = 0; i < _kwArgs.Length; i++) {
-                if (kwName == SymbolTable.IdToString(_kwArgs[i])) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        #endregion
 
         public override string ToString()
         {
@@ -474,12 +278,6 @@ namespace Microsoft.Scripting {
             res.Add(_targetSets[key].ToString());
           }
           return string.Join(Environment.NewLine, res.ToArray());
-        }
-
-        public string Name {
-            get {
-                return _name;
-            }
         }
     }
 

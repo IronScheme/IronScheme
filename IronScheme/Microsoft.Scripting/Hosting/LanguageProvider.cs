@@ -14,15 +14,13 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Reflection;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Scripting.Shell;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public interface ILanguageService {
         // TODO:
@@ -36,7 +34,6 @@ namespace Microsoft.Scripting.Hosting {
 
         // well known services:
         IScriptEngine GetEngine();
-        IScriptEngine GetEngine(EngineOptions options);
 
         // TODO:
         OptionsParser GetOptionsParser(); // TODO
@@ -83,15 +80,11 @@ namespace Microsoft.Scripting.Hosting {
             return this.GetEngine();
         }
 
-        IScriptEngine ILanguageProvider.GetEngine(EngineOptions options) {
-            return this.GetEngine(options);
-        }
-
         #endregion
 
         #region Local Service Factories
 
-        public virtual ScriptEngine GetEngine(EngineOptions options) {
+        public virtual ScriptEngine GetEngine() {
             throw new NotSupportedException(String.Format(Resources.MissingService_OptionsParser, LanguageDisplayName));
         }
 
@@ -105,9 +98,6 @@ namespace Microsoft.Scripting.Hosting {
 
         #endregion
 
-        public ScriptEngine GetEngine() {
-            return GetEngine(null);
-        }
 
         // TODO:
 
@@ -156,7 +146,7 @@ namespace Microsoft.Scripting.Hosting {
             Type service_type = typeof(ServiceType);
             
             if (service_type == typeof(ScriptEngine)) {
-                return (ServiceType)(object)GetEngine(GetArg<EngineOptions>(args, 0, true));
+                return (ServiceType)(object)GetEngine();
             }
 
             if (service_type == typeof(IConsole)) {

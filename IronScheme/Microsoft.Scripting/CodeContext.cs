@@ -14,20 +14,14 @@
  * ***************************************************************************/
 
 using System;
-using System.Threading;
-using System.Reflection;
 using System.Diagnostics;
-using System.Globalization;
 using System.Collections.Generic;
-
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
 using Microsoft.Scripting.Ast;
 using System.Collections;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// CodeContext represents an environment for execution of script code.  
     /// 
@@ -122,9 +116,8 @@ namespace Microsoft.Scripting {
         {
           var nv = new Hashtable();
 
-          foreach (string s in scope.Dict.Keys)
+          foreach (var i in scope.Dict.Keys)
           {
-            SymbolId i = SymbolTable.StringToId(s);
             nv.Add(i, scope.LookupName(i));
           }
 
@@ -156,9 +149,8 @@ namespace Microsoft.Scripting {
 
               while (scope != null && scope != scope.ModuleScope)
               {
-                foreach (string s in scope.Dict.Keys)
+                foreach (var i in scope.Dict.Keys)
                 {
-                  SymbolId i = SymbolTable.StringToId(s);
                   v.Add(new NameValuePair
                   {
                     Name = Variable.UnGenSym(i),

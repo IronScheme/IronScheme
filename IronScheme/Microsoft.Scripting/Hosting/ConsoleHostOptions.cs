@@ -15,16 +15,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.Reflection;
-using Microsoft.Scripting.Shell;
-using System.Threading;
 using Microsoft.Scripting.Utils;
 using System.Globalization;
 using System.IO;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public class ConsoleHostOptions {
         public enum Action {
@@ -144,16 +141,6 @@ namespace Microsoft.Scripting.Hosting {
                         OptionNotAvailableOnSilverlight(name);
                         _options.EnvironmentVars.AddRange(value.Split(';'));
                         break;
-
-                    case "x":
-                        switch(value) {
-                            case "ShowASTs": ScriptDomainManager.Options.ShowASTs = true; break;
-                            case "DumpASTs": ScriptDomainManager.Options.DumpASTs = true; break;
-                            case "ShowRules": ScriptDomainManager.Options.ShowRules = true; break;
-                            default: _options.IgnoredArgs.Add(current); break;
-                        }
-                        break;
-
                     case "help":
                     case "?":
                         _options.RunAction = ConsoleHostOptions.Action.DisplayHelp;
@@ -186,7 +173,7 @@ namespace Microsoft.Scripting.Hosting {
                         throw new InvalidOptionException("No file to run.");
 
                     if (_options.LanguageProvider == null)
-                        _options.LanguageProvider = GetLanguageProvider(StringUtils.GetSuffix(_options.Files[0], '.', false));
+                        _options.LanguageProvider = GetLanguageProvider(GetSuffix(_options.Files[0], '.', false));
 
                     break;
 
@@ -202,6 +189,13 @@ namespace Microsoft.Scripting.Hosting {
                     _options.RunAction = ConsoleHostOptions.Action.RunConsole;
                     goto case ConsoleHostOptions.Action.RunConsole;
             }
+        }
+
+        private static string GetSuffix(string str, char separator, bool includeSeparator)
+        {
+            Contract.RequiresNotNull(str, "str");
+            int last = str.LastIndexOf(separator);
+            return (last != -1) ? str.Substring(includeSeparator ? last : last + 1) : null;
         }
 
         /// <summary>

@@ -14,17 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.IO;
 using System.Diagnostics;
-using System.Threading;
 
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Provides cached global variable for modules to enable optimized access to
     /// module globals.  Both the module global value and the cached value can be held
@@ -32,9 +25,7 @@ namespace Microsoft.Scripting {
     /// 
     /// The cached value is provided by the LanguageContext.GetModuleCache API.
     /// </summary>
-#if !SILVERLIGHT
     [DebuggerDisplay("{Display}")]
-#endif
     public sealed class ModuleGlobalWrapper {
         private object _value;
         private ModuleGlobalCache _global;
@@ -102,23 +93,6 @@ namespace Microsoft.Scripting {
             get {
                 return _value;
             }
-        }
-
-        public string Display {
-            get {
-                if (_value != Uninitialized.Instance) return GetStringDisplay(_value);
-
-                if (_global.IsCaching && _global.HasValue) return GetStringDisplay(_global.Value);
-                object value;
-                if (_context.LanguageContext.TryLookupGlobal(_context, _name, out value))
-                    return GetStringDisplay(value);
-
-                return GetStringDisplay(Uninitialized.Instance);
-            }
-        }
-
-        private string GetStringDisplay(object val) {
-            return val == null ? "(null)" : val.ToString();
         }
 
         public override string ToString() {

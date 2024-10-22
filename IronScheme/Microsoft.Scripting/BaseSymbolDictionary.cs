@@ -14,14 +14,10 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.Scripting;
-using Microsoft.Scripting.Actions;
-using System.Threading;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
 
     /// <summary>
     /// Base class for SymbolId dictionaries.  
@@ -35,24 +31,14 @@ namespace Microsoft.Scripting {
     /// when exposed directly to user code).  When indexed by objects null is a valid value for the
     /// key.
     /// </summary>
-  public abstract class BaseSymbolDictionary
-  {
-        private static object _nullObject = new object();
-        private const int ObjectKeysId = -2;
-        internal static readonly SymbolId ObjectKeys = new SymbolId(ObjectKeysId);
-
+    public abstract class BaseSymbolDictionary
+    {
         /// <summary>
         /// Creates a new SymbolIdDictBase from the specified creating context which will be
         /// used for comparisons.
         /// </summary>
         protected BaseSymbolDictionary() {
         }
-
-        #region Abstract Members
-
-        abstract public IDictionary<object, object> AsObjectKeyedDictionary();
-
-        #endregion                
 
         #region ICollection Members
 
@@ -69,15 +55,5 @@ namespace Microsoft.Scripting {
         }
 
         #endregion        
-        
-        public static object NullToObj(object o) {
-            if (o == null) return _nullObject;
-            return o;
-        }
-
-        public static object ObjToNull(object o) {
-            if (o == _nullObject) return null;
-            return o;
-        }
     }
 }

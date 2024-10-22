@@ -15,14 +15,12 @@
 
 using System;
 using System.Runtime.Serialization;
-using System.Text;
 
 using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Utils;
-using System.Security.Permissions;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     [Serializable]
     public class SyntaxErrorException : Exception {
         private SourceSpan _span;
@@ -49,24 +47,6 @@ namespace Microsoft.Scripting {
             _errorCode = errorCode;
             _mappedLine = -1; // lazy
         }
-
-
-        protected SyntaxErrorException(SerializationInfo info, StreamingContext context) 
-            : base(info, context) { }
-#if CHECK_IF_NEEDED
-        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#endif
-        public override void GetObjectData(SerializationInfo info, StreamingContext context) {
-            Contract.RequiresNotNull(info, "info");
-
-            base.GetObjectData(info, context);
-            info.AddValue("Span", _span);
-            info.AddValue("SourceUnit", _sourceUnit);
-            info.AddValue("Severity", _severity);
-            info.AddValue("MappedLine", _mappedLine);
-            info.AddValue("ErrorCode", _errorCode);
-        }
-
 
         /// <summary>
         /// Unmapped span.

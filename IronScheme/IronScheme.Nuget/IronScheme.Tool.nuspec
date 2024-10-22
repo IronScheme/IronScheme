@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>IronScheme.Tool</id>
+    <version>$version$</version>
+    <authors>Llewellyn Pritchard</authors>
+    <owners>Llewellyn Pritchard</owners>
+    <iconUrl>http://ironscheme.net/logo-192.png</iconUrl>
+    <projectUrl>https://github.com/IronScheme</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Basic IronScheme console with all the libraries</description>
+    <releaseNotes>https://github.com/IronScheme</releaseNotes>
+    <copyright>Copyright 2007-2024</copyright>
+    <tags>scheme ironscheme r6rs</tags>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/IronScheme/IronScheme" branch="master" commit="$sha$" />
+  </metadata>
+  <files>
+    <file src="IronScheme\IronScheme*.dll" target="tools\netcoreapp2.1\any\" />
+    <file src="IronScheme\system-libraries*.ss" target="tools\netcoreapp2.1\any\" />
+    <file src="IronScheme\nuget.sls" target="tools\netcoreapp2.1\any\" />
+    <file src="IronScheme\lib\**" target="tools\netcoreapp2.1\any\lib\" exclude="**\web*.*;**web**;**\xml.sls"/>
+    <file src="IronScheme\tests\**" target="tools\netcoreapp2.1\any\tests\" />
+    <file src="..\..\..\..\DotnetToolSettings.xml" target="tools\netcoreapp2.1\any\" />
+    <file src="..\..\..\..\runtimeconfig.package.json" target="tools\netcoreapp2.1\any\IronScheme.ConsoleCore.runtimeconfig.json" />
+  </files>
+</package>

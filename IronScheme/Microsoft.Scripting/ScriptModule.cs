@@ -14,31 +14,21 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-
-using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Actions;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
-    [Flags]
-    public enum CodeContextAttributes {
-        None = 0,
-        ShowCls = 0x01,
-    }
-
+namespace Microsoft.Scripting
+{
     public interface IScriptModule {
         string ModuleName { get; }
         string FileName { get; set; } // TODO: setter?
 
         // code execution:
         void Execute();
-        void Reload();
+        //void Reload();
 
         // module variables:
         bool TryGetVariable(string name, out object value);
@@ -48,10 +38,6 @@ namespace Microsoft.Scripting {
         bool VariableExists(string name);
         bool RemoveVariable(string name);
         void ClearVariables();
-
-        // compiler options:
-        CompilerOptions GetCompilerOptions(IScriptEngine engine);
-
     }
 
     /// <summary>
@@ -65,26 +51,22 @@ namespace Microsoft.Scripting {
     public sealed class ScriptModule : IScriptModule {
         private readonly Scope _scope;
         private ScriptCode[] _codeBlocks;
-        private ModuleContext[] _moduleContexts; // resizable
-        private readonly ScriptModuleKind _kind;
-
         private string _name;
         private string _fileName;
-        
+        private ModuleContext _moduleContext;
+
         /// <summary>
         /// Creates a ScriptModule consisting of multiple ScriptCode blocks (possibly with each
         /// ScriptCode block belonging to a different language). 
         /// Can ONLY be called from ScriptDomainManager.CreateModule factory (due to host notification).
         /// </summary>
-        internal ScriptModule(string name, ScriptModuleKind kind, Scope scope, ScriptCode[] codeBlocks) {
+        internal ScriptModule(string name, Scope scope, ScriptCode[] codeBlocks) {
             Assert.NotNull(name, scope, codeBlocks);
             Assert.NotNull(codeBlocks);
 
             _codeBlocks = ArrayUtils.Copy(codeBlocks);
             _name = name;
             _scope = scope;
-            _kind = kind;
-            _moduleContexts = ModuleContext.EmptyArray;
         }
 
         /// <summary>
@@ -92,41 +74,9 @@ namespace Microsoft.Scripting {
         /// </summary>
         public void Execute() {
             for (int i = 0; i < _codeBlocks.Length; i++) {
-                ModuleContext moduleContext = GetModuleContext(_codeBlocks[i].LanguageContext.ContextId);
+                ModuleContext moduleContext = GetModuleContext();
                 Debug.Assert(moduleContext != null, "ScriptCodes contained in the module are guaranteed to be associated with module contexts by SDM.CreateModule");
                 _codeBlocks[i].Run(_scope, moduleContext);
-            }
-        }
-
-        /// <summary>
-        /// Reloads a module from disk and executes the new module body.
-        /// </summary>
-        public void Reload() {
-            if (_codeBlocks.Length > 0) {
-                ScriptCode[] newCode = new ScriptCode[_codeBlocks.Length];
-
-                for (int i = 0; i < _moduleContexts.Length; i++) {
-                    if (_moduleContexts[i] != null) {
-                        _moduleContexts[i].ModuleReloading();
-                    }
-                }
-                
-                // get the new ScriptCode's...
-                for (int i = 0; i < _codeBlocks.Length; i++) {
-                    newCode[i] = _codeBlocks[i].LanguageContext.Reload(_codeBlocks[i], this);
-                }
-
-                // run the new code in the existing scope
-                // we don't clear the scope before doing this
-                _codeBlocks = newCode;
-
-                for (int i = 0; i < _moduleContexts.Length; i++) {
-                    if (_moduleContexts[i] != null) {
-                        _moduleContexts[i].ModuleReloaded();
-                    }
-                }
-
-                Execute();
             }
         }
 
@@ -135,15 +85,6 @@ namespace Microsoft.Scripting {
         }
 
         #region Properties
-
-        /// <summary>
-        /// Event fired when a module changes.
-        /// </summary>
-        public event EventHandler<ModuleChangeEventArgs> ModuleChanged;
-
-        public ScriptModuleKind Kind {
-            get { return _kind; }
-        }
 
         /// <summary>
         /// Gets the context in which this module executes.
@@ -169,79 +110,10 @@ namespace Microsoft.Scripting {
             get { return _fileName; }
             set { _fileName = value; }
         }
-               
-        /// <summary>
-        /// Called by the base class to fire the module change event when the
-        /// module has been modified.
-        /// </summary>
-        private void OnModuleChange(ModuleChangeEventArgs e) {
-            EventHandler<ModuleChangeEventArgs> handler = ModuleChanged;
-            if (handler != null) {
-                handler(this, e);
-            }
-        }
-
-        #endregion
-
-        [SpecialName]
-        public object GetCustomMember(CodeContext context, string name) {
-            object value;
-            if (Scope.TryGetName(context.LanguageContext, SymbolTable.StringToId(name), out value)) {
-                if (value != Uninitialized.Instance) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-        [SpecialName]
-        public void SetMemberAfter(string name, object value) {
-            OnModuleChange(new ModuleChangeEventArgs(SymbolTable.StringToId(name), ModuleChangeType.Set, value));
-
-            Scope.SetName(SymbolTable.StringToId(name), value);
-        }
-
-        [SpecialName]
-        public bool DeleteMember(CodeContext context, string name) {
-            if (Scope.TryRemoveName(context.LanguageContext, SymbolTable.StringToId(name))) {
-                OnModuleChange(new ModuleChangeEventArgs(SymbolTable.StringToId(name), ModuleChangeType.Delete));
-
-                return true;
-            } 
-
-            return false;
-        }
-
-        #region IMembersList
-
-        public IList<object> GetCustomMemberNames(CodeContext context) {
-            List<object> ret;
-            if (!context.ModuleContext.ShowCls) {
-                ret = new List<object>();
-                foreach (KeyValuePair<object, object> kvp in Scope.GetAllItems(context.LanguageContext)) {                    
-                    if(kvp.Value != Uninitialized.Instance) {
-                        if (kvp.Key is SymbolId) {
-                            ret.Add(SymbolTable.IdToString((SymbolId)kvp.Key));
-                        } else {
-                            ret.Add(kvp.Key);
-                        }
-                    }
-                }
-            } else {
-                ret = new List<object>(Scope.GetAllKeys(context.LanguageContext));
-            }            
-
-            return ret;
-        }
 
         #endregion
 
         #region IScriptModule Members
-
-        public CompilerOptions GetCompilerOptions(IScriptEngine engine) {
-            Contract.RequiresNotNull(engine, "engine");
-            return engine.GetModuleCompilerOptions(this);
-        }
 
         /// <summary>
         /// Trys to lookup the provided name in the current scope.
@@ -300,22 +172,16 @@ namespace Microsoft.Scripting {
         /// </summary>
         /// <param name="languageContextId"></param>
         /// <returns></returns>
-        internal ModuleContext GetModuleContext(ContextId languageContextId) {
-            return (languageContextId.Id < _moduleContexts.Length) ? _moduleContexts[languageContextId.Id] : null;
+        internal ModuleContext GetModuleContext() {
+            return _moduleContext;
         }
 
         /// <summary>
         /// Friend class: LanguageContext 
         /// Shouldn't be public since the module contexts are baked into code contexts in the case the module is optimized.
         /// </summary>
-        internal ModuleContext SetModuleContext(ContextId languageContextId, ModuleContext moduleContext) {
-            if (languageContextId.Id >= _moduleContexts.Length) {
-                Array.Resize(ref _moduleContexts, languageContextId.Id + 1);
-            }
-
-            ModuleContext original = Interlocked.CompareExchange<ModuleContext>(ref _moduleContexts[languageContextId.Id],
-                moduleContext,
-                null);
+        internal ModuleContext SetModuleContext(ModuleContext moduleContext) {
+            ModuleContext original = Interlocked.CompareExchange<ModuleContext>(ref _moduleContext, moduleContext, null);
 
             return original ?? moduleContext;
         }

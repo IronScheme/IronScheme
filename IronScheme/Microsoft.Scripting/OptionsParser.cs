@@ -14,18 +14,15 @@
  * ***************************************************************************/
 
 using System;
-using System.Text;
-using System.IO;
-using System.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Shell;
-using Microsoft.Scripting.Generation;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
 
     [Serializable]
     public class InvalidOptionException : Exception {
@@ -64,20 +61,8 @@ namespace Microsoft.Scripting {
             } 
         }
 
-        public virtual EngineOptions EngineOptions { 
-            get { 
-                throw new NotSupportedException(); 
-            } set { 
-                throw new NotSupportedException(); 
-            } 
-        }
-
         public virtual ConsoleOptions GetDefaultConsoleOptions() {
             return new ConsoleOptions();
-        }
-
-        public virtual EngineOptions GetDefaultEngineOptions() {
-            return new EngineOptions();
         }
 
         public IList<string> IgnoredArgs { get { return _ignoredArgs; } }

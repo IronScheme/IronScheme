@@ -27,9 +27,5 @@ namespace Microsoft.Scripting.Ast {
             // Do not recurse into nested code block expression
             return false;
         }
-        protected internal override bool Walk(GeneratorCodeBlock node) {
-            // Do not recurse into nested generator code block
-            return false;
-        }
     }
 }

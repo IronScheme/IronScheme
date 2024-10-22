@@ -13,11 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Diagnostics;
-using Microsoft.Scripting.Generation;
-
-namespace Microsoft.Scripting.Ast {
+namespace Microsoft.Scripting.Ast
+{
     public abstract class Node {
         private readonly AstNodeType _nodeType;
 
@@ -42,17 +39,6 @@ namespace Microsoft.Scripting.Ast {
           var en = (uint)((end.Line << 10) | (end.Column));
           return (long) (((ulong)en) << 32 | st); 
         }
-
-#if DEBUG
-        public string Dump {
-            get {
-                using (System.IO.StringWriter writer = new System.IO.StringWriter()) {
-                    AstWriter.Dump(this, GetType().Name, writer);
-                    return writer.ToString();
-                }
-            }
-        }
-#endif
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]

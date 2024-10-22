@@ -14,12 +14,9 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Cached global value.  Created and maintained on a per-language basis.  Default
     /// implementation returns a singleton which indicates caching is not occuring.
@@ -65,21 +62,6 @@ namespace Microsoft.Scripting {
             set {
                 if (_value == NotCaching) throw new ArgumentException("cannot change non-caching value");
                 _value = value;
-            }
-        }
-
-        /// <summary>
-        /// Event handler for when the value has changed.  Language implementors should call this when
-        /// the cached value is invalidated.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2109:ReviewVisibleEventHandlers")]
-        public void Changed(object sender, ModuleChangeEventArgs e) {
-            Contract.RequiresNotNull(e, "e");
-
-            switch (e.ChangeType) {
-                case ModuleChangeType.Delete: Value = Uninitialized.Instance; break;
-                case ModuleChangeType.Set: Value = e.Value; break;
-                default: Debug.Assert(false, "unknown ModuleChangeType"); break;
             }
         }
     }

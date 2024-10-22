@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace IronScheme.FrameworkPAL
+namespace Microsoft.Scripting
 {
     public interface ISerializer
     {

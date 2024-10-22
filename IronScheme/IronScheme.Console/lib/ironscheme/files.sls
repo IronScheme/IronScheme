@@ -82,14 +82,14 @@ See docs/license.txt. |#
       [(dir)            
         (get-files dir "*")]
       [(dir:string pattern:string)    
-        (clr-static-call Directory GetFiles dir pattern)]))   
+        (clr-static-call Directory GetFiles dir pattern 'AllDirectories)]))   
 
   (define/contract get-directories 
     (case-lambda
       [(dir)            
         (get-directories dir "*")]
       [(dir:string pattern:string)    
-        (clr-static-call Directory GetDirectories dir pattern)]))    
+        (clr-static-call Directory GetDirectories dir pattern 'AllDirectories)]))    
     
   (define/contract (change-extension path:string extension:string)
     (clr-static-call Path ChangeExtension path extension))

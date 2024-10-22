@@ -1,0 +1,11 @@
+﻿{
+  "runtimeOptions": {
+    "rollForward": "LatestMajor",
+    "framework": {
+      "name": "Microsoft.NETCore.App"
+    },
+    "configProperties": {
+      "System.Runtime.TieredPGO": true
+    }
+  }
+}

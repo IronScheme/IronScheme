@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <NoWarn>NU5119;NU5048;NU5101;NU5128</NoWarn>
+    <OutputPath>..\bin</OutputPath>
+
+    <NoBuild>true</NoBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    
+    <AppveyorBuildVersion Condition="$(AppveyorBuildVersion) == ''">$([System.Environment]::GetEnvironmentVariable("APPVEYOR_BUILD_VERSION"))</AppveyorBuildVersion>
+    <AppveyorBuildVersion Condition="$(AppveyorBuildVersion) == ''">0.0.0</AppveyorBuildVersion>
+
+    <Sha Condition="$(Sha) == ''">$([System.Environment]::GetEnvironmentVariable("SHA"))</Sha>
+    <Sha Condition="$(Sha) == ''">0000000</Sha>
+
+    <PackageName Condition="$(PackageName) == ''">Tool</PackageName>
+
+    <NuspecFile>IronScheme.$(PackageName).nuspec</NuspecFile>
+
+    <NuspecProperties Condition="$(PackageName) == 'Core'">version=$(AppveyorBuildVersion);sha=$(Sha)</NuspecProperties>
+    <NuspecProperties Condition="$(PackageName) != 'Core'">version=$(AppveyorBuildVersion)-alpha;sha=$(Sha)</NuspecProperties>
+    <NuspecBasePath>..\IronScheme.Console\bin\Release\net20\install-stage\</NuspecBasePath>
+  </PropertyGroup>
+</Project>

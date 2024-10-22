@@ -13,9 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-
-namespace Microsoft.Scripting.Shell {
+namespace Microsoft.Scripting.Shell
+{
     public enum Style {
         Prompt, Out, Error, Warning
     }

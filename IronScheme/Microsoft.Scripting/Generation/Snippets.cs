@@ -14,15 +14,12 @@
  * ***************************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Diagnostics;
-using System.Threading;
 using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation
+{
 
     public class Snippets {
         private const string AssemblyName = "IronScheme Runtime Generated Code";
@@ -94,22 +91,6 @@ namespace Microsoft.Scripting.Generation {
             Debug.Assert(!String.IsNullOrEmpty(name));
             name = GenerateAssemblyName(name);
             return new AssemblyGen(name, null, name + ".dll", attrs);
-        }
-
-        public void Dump() {
-            Dump(null);
-        }
-
-        public void Dump(string fileName) {
-            if (_assembly != null && _assembly.SaveAndReloadAssemblies) {
-                _assembly.Dump(fileName);
-                _assembly = null;
-            }
-
-            if (_debugAssembly != null && _debugAssembly.SaveAndReloadAssemblies) {
-                _debugAssembly.Dump();
-                _debugAssembly = null;
-            }
         }
 
         public TypeGen DefineDebuggableType(string typeName, SourceUnit sourceUnit) {

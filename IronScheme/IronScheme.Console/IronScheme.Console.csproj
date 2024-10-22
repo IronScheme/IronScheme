@@ -25,11 +25,11 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugType>full</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">full</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
+    <DebugType Condition="'$(DebugType)' == ''">pdbonly</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' != 'net20'">
     <AssemblyName>IronScheme.ConsoleCore</AssemblyName>
@@ -84,17 +84,19 @@
     <None Include="system-libraries.srfi.ss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="system-libraries.ironscheme.ss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="nuget.sls">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="compile-system-libraries.sps">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="ironscheme.ico" />
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20'" DependsOnTargets="IronSchemeBuildTools">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)' == 'net20' and Exists('$(TargetPath)') and $(DesignTimeBuild) != true" DependsOnTargets="IronSchemeBuildTools">
     <!-- move this to packaging -->
-    <PropertyGroup>
-      <CopyDst>$(TargetDir)$(ProjectName)32.exe</CopyDst>
-    </PropertyGroup>
-
-    <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(CopyDst)" />
+    <RuntimeChanger Required32Bit="true" Input="$(TargetPath)" Output="$(TargetDir)$(ProjectName)32.exe" />
   </Target>
 </Project>

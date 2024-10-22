@@ -14,24 +14,19 @@
  * ***************************************************************************/
 
 using System;
-using Microsoft.Scripting.Hosting;
 
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     /// <summary>
     /// Singleton LanguageContext which represents a language-neutral LanguageContext
     /// </summary>
     public class InvariantContext : LanguageContext {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] // TODO: fix
         public readonly static InvariantContext Instance;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")] // TODO: fix
         public readonly static CodeContext CodeContext;
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")] // TODO: fix
         static InvariantContext() {
             Instance = new InvariantContext();
             ModuleContext moduleContext = new ModuleContext(null);
-            moduleContext.ShowCls = true;
             CodeContext = new CodeContext(new Scope(null), Instance, moduleContext);
         }
         

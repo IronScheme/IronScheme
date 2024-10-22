@@ -13,24 +13,13 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Diagnostics;
-
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Hosting;
-using Microsoft.Scripting.Generation;
-using Microsoft.Scripting.Utils;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     public class ModuleContext {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly ModuleContext[] EmptyArray = new ModuleContext[0];
 
         private readonly ScriptModule _module;
-        private bool _showCls;
         private CompilerContext _compilerContext;
 
         /// <summary>
@@ -38,18 +27,6 @@ namespace Microsoft.Scripting {
         /// </summary>
         public ScriptModule Module {
             get { return _module; }
-        }
-
-        /// <summary>
-        /// Returns the attributes associated with this LanguageContext's code.
-        /// </summary>
-        public virtual bool ShowCls {
-            get {
-                return _showCls;
-            }
-            set {
-                _showCls = value;
-            }
         }
 
         /// <summary>
@@ -70,23 +47,6 @@ namespace Microsoft.Scripting {
         /// <param name="module">Optional. <c>null</c> for default and invariant contexts.</param>
         public ModuleContext(ScriptModule module) {
             _module = module;
-        }
-
-        /// <summary>
-        /// Copy constructor.
-        /// </summary>
-        protected ModuleContext(ModuleContext context) {
-            Contract.RequiresNotNull(context, "context");
-            _module = context._module;
-            _showCls = context._showCls;
-            _compilerContext = context._compilerContext;
-        }
-
-        internal protected virtual void ModuleReloading() {
-            _showCls = false;
-        }
-
-        internal protected virtual void ModuleReloaded() {
         }
     }
 }

@@ -15,14 +15,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Diagnostics;
 
-using Microsoft.Scripting.Actions;
-using Microsoft.Scripting.Utils;
-
-namespace Microsoft.Scripting {
+namespace Microsoft.Scripting
+{
     class ParameterWrapper {
         private Type _type;
         private bool _prohibitNull, _isParams;

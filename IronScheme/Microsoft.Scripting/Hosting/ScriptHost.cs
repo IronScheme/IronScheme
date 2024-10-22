@@ -16,19 +16,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Reflection;
-using System.Diagnostics;
-using System.Collections;
 using System.IO;
 using System.Threading;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public interface IScriptHost {
         // virtual file-system ops:
         string NormalizePath(string path);  // throws ArgumentException
-        string[] GetSourceFileNames(string mask, string searchPattern);
         
         // source units:
         SourceUnit TryGetSourceFileUnit(IScriptEngine engine, string path, Encoding encoding);
@@ -96,7 +93,7 @@ namespace Microsoft.Scripting.Hosting {
 
         static internal void CreateDefaultModule(ref ScriptModule defaultModule) {
            // create a module and throw it away if there is already one:
-            ScriptModule module = ScriptDomainManager.CurrentManager.CreateModule("<default>", null, ScriptCode.EmptyArray);
+            ScriptModule module = ScriptDomainManager.CurrentManager.CreateModule("<default>", ScriptCode.EmptyArray);
             Interlocked.CompareExchange<ScriptModule>(ref defaultModule, module, null);
         }
 
@@ -117,11 +114,11 @@ namespace Microsoft.Scripting.Hosting {
         /// </remarks>
         public virtual string NormalizePath(string path) {
             Contract.RequiresNotNull(path, "path");
-            return (path.Length > 0) ? ScriptDomainManager.CurrentManager.PAL.GetFullPath(path) : "";
+            return (path.Length > 0) ? Path.GetFullPath(path) : "";
         }
 
         public virtual string[] GetSourceFileNames(string mask, string searchPattern) {
-            return ScriptDomainManager.CurrentManager.PAL.GetFiles(mask, searchPattern);
+            return Directory.GetFiles(mask, searchPattern);
         }
 
         #endregion
@@ -147,7 +144,7 @@ namespace Microsoft.Scripting.Hosting {
             Contract.RequiresNotNull(engine, "engine");
             Contract.RequiresNotNull(path, "path");
             
-            if (ScriptDomainManager.CurrentManager.PAL.FileExists(path)) {
+            if (File.Exists(path)) {
                 return SourceUnit.CreateFileUnit(engine, path, encoding);
             }
 
@@ -175,7 +172,7 @@ namespace Microsoft.Scripting.Hosting {
                 foreach (string extension in _environment.GetRegisteredFileExtensions()) {
                     string fullPath = Path.Combine(directory, name + extension);
 
-                    if (ScriptDomainManager.CurrentManager.PAL.FileExists(fullPath)) {
+                    if (File.Exists(fullPath)) {
                         if (result != null) {
                             throw new InvalidOperationException(String.Format(Resources.AmbigiousModule, fullPath, finalPath));
                         }

@@ -16,6 +16,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
 using System.Diagnostics;
+using Microsoft.Scripting.Generation.Slots;
 
 namespace IronScheme.Runtime
 {
@@ -644,7 +645,7 @@ namespace IronScheme.Runtime.R6RS
       pgen.Emit(OpCodes.Isinst, tg.TypeBuilder);
       pgen.Emit(OpCodes.Ldnull);
       pgen.Emit(OpCodes.Cgt_Un);
-      pgen.Emit(OpCodes.Call, typeof(RuntimeHelpers).GetMethod("BooleanToObject"));
+      pgen.Emit(OpCodes.Call, typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.BooleanToObject)));
       pgen.Emit(OpCodes.Ret);
 
       rtd.predicate = pb;

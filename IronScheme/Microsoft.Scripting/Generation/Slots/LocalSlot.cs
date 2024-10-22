@@ -18,29 +18,34 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using Microsoft.Scripting.Utils;
 
-namespace Microsoft.Scripting.Generation {
+namespace Microsoft.Scripting.Generation.Slots
+{
     /// <summary>
     /// Local variable access
     /// Note that access of local variables of an enclosing function is done using a FieldSlot
     /// </summary>
-    public class LocalSlot : Slot {
+    internal class LocalSlot : Slot
+    {
         private readonly LocalBuilder _localBuilder;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         private readonly CodeGen _codeGen;           // LocalSlot's can only be used w/ codegen that created them
 
-        public LocalSlot(LocalBuilder localBuilder, CodeGen cg) {
-            this._localBuilder = localBuilder;
+        public LocalSlot(LocalBuilder localBuilder, CodeGen cg)
+        {
+            _localBuilder = localBuilder;
             _codeGen = cg;
         }
-        public override void EmitGet(CodeGen cg) {
+        public override void EmitGet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             Debug.Assert(cg == _codeGen);
 
             cg.Emit(OpCodes.Ldloc, _localBuilder);
         }
-        public override void EmitGetAddr(CodeGen cg) {
+        public override void EmitGetAddr(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             Debug.Assert(cg == _codeGen);
@@ -48,26 +53,30 @@ namespace Microsoft.Scripting.Generation {
             cg.Emit(OpCodes.Ldloca, _localBuilder);
         }
 
-        public override void EmitSet(CodeGen cg) {
+        public override void EmitSet(CodeGen cg)
+        {
             Contract.RequiresNotNull(cg, "cg");
 
             Debug.Assert(cg == _codeGen);
             cg.Emit(OpCodes.Stloc, _localBuilder);
         }
 
-        public override Type Type {
+        public override Type Type
+        {
             get { return _localBuilder.LocalType; }
         }
 
         /// <summary>
         /// Gets the LocalBuilder that this Slot emits a local for
         /// </summary>
-        public LocalBuilder LocalBuilder {
+        public LocalBuilder LocalBuilder
+        {
             get { return _localBuilder; }
         }
 
-        public override string ToString() {
-            return String.Format("LocalSlot Index: {0} Type {1}", _localBuilder.LocalIndex, _localBuilder.LocalType.FullName);
+        public override string ToString()
+        {
+            return string.Format("LocalSlot Index: {0} Type {1}", _localBuilder.LocalIndex, _localBuilder.LocalType.FullName);
         }
     }
 }

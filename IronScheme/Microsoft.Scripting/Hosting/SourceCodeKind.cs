@@ -13,11 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     /// <summary>
     /// Defines a kind of the source code. The parser sets its initial state accordingly.

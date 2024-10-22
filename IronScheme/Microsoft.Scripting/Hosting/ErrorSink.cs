@@ -13,10 +13,8 @@
  *
  * ***************************************************************************/
 
-using System;
-using Microsoft.Scripting.Generation;
-
-namespace Microsoft.Scripting.Hosting {
+namespace Microsoft.Scripting.Hosting
+{
 
     public enum Severity {
         Ignore,

@@ -22,6 +22,7 @@ using IronScheme.Compiler;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using Microsoft.Scripting.Generation;
+using Microsoft.Scripting.Hosting;
 using RuntimeHelpers = Microsoft.Scripting.RuntimeHelpers;
 
 namespace IronScheme.Runtime
@@ -485,7 +486,7 @@ namespace IronScheme.Runtime
 
 
       ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly =
-        Compiler.Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly("ironscheme.boot.new.dll");
+        Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly("ironscheme.boot.new.dll");
 
       //Console.WriteLine(new Cons(libs).PrettyPrint);
 
@@ -495,9 +496,9 @@ namespace IronScheme.Runtime
 
       ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb);
 
-      sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
-      sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
-      sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
+      sc.LibraryGlobals = SimpleGenerator.libraryglobals;
+      sc.LibraryGlobalsN = SimpleGenerator.libraryglobalsN;
+      sc.LibraryGlobalsX = SimpleGenerator.libraryglobalsX;
 
       sc.SourceUnit.IsVisibleToDebugger = true;
 
@@ -506,7 +507,7 @@ namespace IronScheme.Runtime
       ScriptDomainManager.Options.AssemblyGenAttributes = aga;
 
       sc.ClearCache();
-      Compiler.SimpleGenerator.ClearGlobals();
+      SimpleGenerator.ClearGlobals();
 
       return TRUE;
     }
@@ -514,7 +515,7 @@ namespace IronScheme.Runtime
     [Builtin("compile-library")]
     public static object CompileLibrary(object filename, object content)
     {
-      IronScheme.Compiler.Generator.LocationHint = null;
+      Generator.LocationHint = null;
       AssemblyGenAttributes aga = ScriptDomainManager.Options.AssemblyGenAttributes;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.EmitDebugInfo;
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.GenerateDebugAssemblies;
@@ -550,11 +551,10 @@ namespace IronScheme.Runtime
       //11: guard req?
       //12: visible?
 
-
-      Compiler.Generator.AllowTransientBinding = false;
+      Generator.AllowTransientBinding = false;
 
       ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly =
-        Compiler.Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly(filename as string);
+        Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly(filename as string);
 
       try
       {
@@ -565,28 +565,25 @@ namespace IronScheme.Runtime
 
         ScriptCode sc = cc.LanguageContext.CompileSourceCode(cb, filename as string);
 
-        sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
-        sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
-        sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
+        sc.LibraryGlobals = SimpleGenerator.libraryglobals;
+        sc.LibraryGlobalsN = SimpleGenerator.libraryglobalsN;
+        sc.LibraryGlobalsX = SimpleGenerator.libraryglobalsX;
 
         sc.SourceUnit.IsVisibleToDebugger = true;
 
         ScriptModule sm = ScriptDomainManager.CurrentManager.CreateModule(Path.GetFileNameWithoutExtension(filename as string), sc);
 
-        // clean up transient non-generative types, could maybe also have used AllowTransientBinding to check?
-        IronScheme.Runtime.R6RS.Records.ClearTypesFrom(Compiler.Generator.CurrentAssemblyGen);
-
-        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-
-        Compiler.SimpleGenerator.ClearGlobals();
-
-        
-
         return TRUE;
       }
       finally
       {
-        Compiler.Generator.AllowTransientBinding = true;
+        // clean up transient non-generative types, could maybe also have used AllowTransientBinding to check?
+        R6RS.Records.ClearTypesFrom(Generator.CurrentAssemblyGen);
+
+        ScriptDomainManager.Options.AssemblyGenAttributes = aga;
+
+        SimpleGenerator.ClearGlobals();
+        Generator.AllowTransientBinding = true;
       }
     }
 
@@ -627,19 +624,19 @@ namespace IronScheme.Runtime
       // if you ever want to inspect the emitted dll's comment the following out (or skip in the debugger), use with care
       ScriptDomainManager.Options.AssemblyGenAttributes &= ~AssemblyGenAttributes.SaveAndReloadAssemblies;
 
-      var prevt = IronScheme.Compiler.Generator.AllowTransientBinding;
-      var prevag = Compiler.Generator.CurrentAssemblyGen;
+      var prevt = Generator.AllowTransientBinding;
+      var prevag = Generator.CurrentAssemblyGen;
 
       if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
       {
-        IronScheme.Compiler.Generator.AllowTransientBinding = false;
+        Generator.AllowTransientBinding = false;
 
         ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly =
-          Compiler.Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly(null);
+          Generator.CurrentAssemblyGen = AssemblyGen.CreateModuleAssembly(null);
       }
       else
       {
-        Compiler.Generator.CurrentAssemblyGen = ScriptDomainManager.Options.DebugMode ? 
+        Generator.CurrentAssemblyGen = ScriptDomainManager.Options.DebugMode ? 
           ScriptDomainManager.CurrentManager.Snippets.DebugAssembly :
           ScriptDomainManager.CurrentManager.Snippets.Assembly;
       }
@@ -666,9 +663,9 @@ namespace IronScheme.Runtime
 #endif
         try
         {
-          sc.LibraryGlobals = Compiler.SimpleGenerator.libraryglobals;
-          sc.LibraryGlobalsN = Compiler.SimpleGenerator.libraryglobalsN;
-          sc.LibraryGlobalsX = Compiler.SimpleGenerator.libraryglobalsX;
+          sc.LibraryGlobals = SimpleGenerator.libraryglobals;
+          sc.LibraryGlobalsN = SimpleGenerator.libraryglobalsN;
+          sc.LibraryGlobalsX = SimpleGenerator.libraryglobalsX;
 
           try
           {
@@ -726,12 +723,12 @@ namespace IronScheme.Runtime
         {
           BoundExpression.Fixups.Clear();
           BoundExpression.FixupTypes.Clear();
-          Compiler.Generator.CurrentAssemblyGen = prevag;
+          Generator.CurrentAssemblyGen = prevag;
           ScriptDomainManager.Options.AssemblyGenAttributes = aga;
-          IronScheme.Compiler.Generator.AllowTransientBinding = prevt;
+          Generator.AllowTransientBinding = prevt;
           sc.ClearCache();
-          Compiler.SimpleGenerator.ClearGlobals();
-          Compiler.ClrGenerator.compiletimetypes.Clear();
+          SimpleGenerator.ClearGlobals();
+          ClrGenerator.compiletimetypes.Clear();
         }
       }
       catch (Continuation)
@@ -795,7 +792,7 @@ namespace IronScheme.Runtime
     {
       if (ModuleScope == null)
       {
-        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
+        ModuleScope = cc.Scope.ModuleScope;
       }
       if (ModuleScope.ContainsName((SymbolId)symbol))
       {
@@ -811,7 +808,7 @@ namespace IronScheme.Runtime
     {
       if (ModuleScope == null)
       {
-        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
+        ModuleScope = cc.Scope.ModuleScope;
       }
       object value;
       if (ModuleScope.TryLookupName((SymbolId)symbol, out value))
@@ -829,7 +826,7 @@ namespace IronScheme.Runtime
     {
       if (ModuleScope == null)
       {
-        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
+        ModuleScope = cc.Scope.ModuleScope;
       }
 
       return GetBool(ModuleScope.ContainsName((SymbolId)symbol));
@@ -842,7 +839,7 @@ namespace IronScheme.Runtime
     {
       if (ModuleScope == null)
       {
-        ModuleScope = BaseHelper.cc.Scope.ModuleScope;
+        ModuleScope = cc.Scope.ModuleScope;
       }
       ModuleScope.SetName((SymbolId)symbol, value);
     }
