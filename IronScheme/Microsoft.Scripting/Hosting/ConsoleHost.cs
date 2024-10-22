@@ -39,11 +39,7 @@ namespace Microsoft.Scripting.Hosting
         /// </summary>
         protected virtual string ExeName {
             get {
-#if !SILVERLIGHT
               return Assembly.GetEntryAssembly().GetName().Name;
-#else
-                return "ConsoleHost";
-#endif
             }
         }
 

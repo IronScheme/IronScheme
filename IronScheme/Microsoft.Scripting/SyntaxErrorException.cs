@@ -48,24 +48,6 @@ namespace Microsoft.Scripting
             _mappedLine = -1; // lazy
         }
 
-
-        protected SyntaxErrorException(SerializationInfo info, StreamingContext context) 
-            : base(info, context) { }
-#if CHECK_IF_NEEDED
-        [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-#endif
-        public override void GetObjectData(SerializationInfo info, StreamingContext context) {
-            Contract.RequiresNotNull(info, "info");
-
-            base.GetObjectData(info, context);
-            info.AddValue("Span", _span);
-            info.AddValue("SourceUnit", _sourceUnit);
-            info.AddValue("Severity", _severity);
-            info.AddValue("MappedLine", _mappedLine);
-            info.AddValue("ErrorCode", _errorCode);
-        }
-
-
         /// <summary>
         /// Unmapped span.
         /// </summary>

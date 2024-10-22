@@ -134,7 +134,6 @@ namespace Microsoft.Scripting
         /// <summary>SymbolId for null string</summary>
         public static readonly SymbolId Empty = new SymbolId(EmptyId);
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2105:ArrayFieldsShouldNotBeReadOnly")]
         public static readonly SymbolId[] EmptySymbols = new SymbolId[0];
 
         public bool IsEmpty {

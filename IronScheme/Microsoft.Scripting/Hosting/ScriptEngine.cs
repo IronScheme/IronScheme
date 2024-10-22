@@ -23,8 +23,6 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting.Hosting
 {
-    public delegate T ModuleBinder<T>(ScriptModule scope);
-
     public interface IScriptEngine : ILanguageService {
         ILanguageProvider LanguageProvider { get; }
 
@@ -322,31 +320,7 @@ namespace Microsoft.Scripting.Hosting
         }
 
         public void ExecuteCommand(string code, IScriptModule module) {
-            CommandDispatcher dispatcher = ScriptDomainManager.CurrentManager.GetCommandDispatcher();
-
-            if (dispatcher != null) {
-                Exception exception = null;
-                ICompiledCode compiled_code = CompileInteractiveCode(code, module);
-                if (compiled_code != null) { // TODO: should throw?
-
-                    CallTarget0 run_code = delegate() {
-                        try {
-                            PrintInteractiveCodeResult(compiled_code.Evaluate(module));
-                        } catch (Exception e) {
-                            exception = e;
-                        }
-                        return null;
-                    };
-
-                    dispatcher(run_code);
-
-                    // We catch and rethrow the exception since it could have been thrown on another thread
-                    if (exception != null)
-                        throw exception;
-                }
-            } else {
-                ExecuteInteractiveCode(code, module);
-            }
+            ExecuteInteractiveCode(code, module);
         }
 
         // VB should compile ?<expr> to the print statement

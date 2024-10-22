@@ -25,9 +25,6 @@ namespace Microsoft.Scripting
         public UnboundNameException(string message, Exception innerException)
             : base(message, innerException) {
         }
-#if !SILVERLIGHT // SerializationInfo
-        protected UnboundNameException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 
     [Serializable]
@@ -37,8 +34,5 @@ namespace Microsoft.Scripting
         public UnboundLocalException(string message, Exception innerException)
             : base(message, innerException) {
         }
-#if !SILVERLIGHT // SerializationInfo
-        protected UnboundLocalException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 }

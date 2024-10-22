@@ -19,11 +19,10 @@ namespace IronScheme.Compiler
 {
   abstract class ClrGenerator : SimpleGenerator
   {
-    static readonly MethodInfo Helpers_ConvertToDelegate = typeof (Helpers).GetMethod("ConvertToDelegate");
-    static readonly MethodInfo Helpers_SymbolToEnum = typeof (Helpers).GetMethod("SymbolToEnum");
-    static readonly MethodInfo Helpers_EnumToSymbol = typeof (Helpers).GetMethod("EnumToSymbol");
-    //static readonly MethodInfo Helpers_Requires = typeof (Helpers).GetMethod("Requires");
-    static readonly MethodInfo Helpers_RequiresArray = typeof (Helpers).GetMethod("RequiresArray");
+    static readonly MethodInfo Helpers_ConvertToDelegate = typeof (Helpers).GetMethod(nameof(Helpers.ConvertToDelegate));
+    static readonly MethodInfo Helpers_SymbolToEnum = typeof (Helpers).GetMethod(nameof(Helpers.SymbolToEnum));
+    static readonly MethodInfo Helpers_EnumToSymbol = typeof (Helpers).GetMethod(nameof(Helpers.EnumToSymbol));
+    static readonly MethodInfo Helpers_RequiresArray = typeof (Helpers).GetMethod(nameof(Helpers.RequiresArray));
 
     protected static Dictionary<string, string> namespaces = ResetReferences();
     internal static readonly Dictionary<string, Type> compiletimetypes = new Dictionary<string, Type>();

@@ -26,11 +26,8 @@ using Microsoft.Scripting.Utils;
 
 namespace Microsoft.Scripting
 {
-
-    public delegate void CommandDispatcher(Delegate command);
-
     [Serializable]
-    public class InvalidImplementationException : Exception {
+    class InvalidImplementationException : Exception {
         public InvalidImplementationException()
             : base() {
         }
@@ -42,24 +39,16 @@ namespace Microsoft.Scripting
         public InvalidImplementationException(string message, Exception e)
             : base(message, e) {
         }
-
-#if !SILVERLIGHT // SerializationInfo
-        protected InvalidImplementationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 
     [Serializable]
-    public class MissingTypeException : Exception {
+    class MissingTypeException : Exception {
         public MissingTypeException() {
         }
 
         public MissingTypeException(string name, Exception e) : 
             base(String.Format(Resources.MissingType, name), e) {
         }
-
-#if !SILVERLIGHT // SerializationInfo
-        protected MissingTypeException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 
     public sealed class ScriptDomainManager {
@@ -68,12 +57,9 @@ namespace Microsoft.Scripting
 
         private static readonly object _singletonLock = new object();
         private static ScriptDomainManager _singleton;
-
         private readonly IScriptHost _host;
         private readonly Snippets _snippets;
         private readonly ScriptEnvironment _environment;
-        private Dictionary<string, WeakReference> _modules;
-        private CommandDispatcher _commandDispatcher; // can be null
         
         public Snippets Snippets { get { return _snippets; } }
         public ScriptEnvironment Environment { get { return _environment; } }
@@ -205,7 +191,6 @@ namespace Microsoft.Scripting
             }
         }
 
-        // TODO: ReaderWriterLock (Silverlight?)
         private readonly object _languageProvidersLock = new object();
         private readonly Dictionary<string, LanguageProviderDesc> _languageIds = new Dictionary<string, LanguageProviderDesc>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, LanguageProviderDesc> _languageTypes = new Dictionary<string, LanguageProviderDesc>();
@@ -245,14 +230,6 @@ namespace Microsoft.Scripting
                 for (int i = 0; i < identifiers.Length; i++) {
                     _languageIds[identifiers[i]] = singleton_desc;
                 }
-            }
-        }
-
-        public bool RemoveLanguageMapping(string identifier) {
-            Contract.RequiresNotNull(identifier, "identifier");
-            
-            lock (_languageProvidersLock) {
-                return _languageIds.Remove(identifier);
             }
         }
 
@@ -344,19 +321,6 @@ namespace Microsoft.Scripting
             return result;
         }
 
-        /// <summary>
-        /// Gets language provider associated with a specified extension.
-        /// </summary>
-        /// <exception cref="ArgumentException"><paramref name="extension"/></exception>
-        /// <exception cref="MissingTypeException"><paramref name="extension"/></exception>
-        /// <exception cref="InvalidImplementationException">The language provider's implementation failed to instantiate.</exception>
-        public LanguageProvider GetLanguageProviderByFileExtension(string extension) {
-            if (String.IsNullOrEmpty(extension)) throw new ArgumentException("null or empty", "extension"); // TODO
-
-            // TODO: separate hashtable for extensions (see CodeDOM config)
-            if (extension[0] != '.') extension = '.' + extension;
-            return GetLanguageProvider(extension);
-        }
 
         public bool TryGetLanguageProviderByFileExtension(string extension, out LanguageProvider provider) {
             if (String.IsNullOrEmpty(extension)) {
@@ -373,39 +337,9 @@ namespace Microsoft.Scripting
             return GetLanguageIdentifiers(null, true);
         }
 
-        public string[] GetRegisteredLanguageIdentifiers() {
-            return GetLanguageIdentifiers(null, false);
-        }
-
         // TODO: separate hashtable for extensions (see CodeDOM config)
         private bool IsExtensionId(string id) {
             return id.StartsWith(".");
-        }
-
-        /// <exception cref="MissingTypeException"><paramref name="languageId"/></exception>
-        /// <exception cref="InvalidImplementationException">The language provider's implementation failed to instantiate.</exception>
-        public LanguageProvider[] GetLanguageProviders(bool usedOnly) {
-            List<LanguageProvider> results = new List<LanguageProvider>(_languageIds.Count);
-
-            List<LanguageProviderDesc> to_be_loaded = usedOnly ? null : new List<LanguageProviderDesc>();
-            
-            lock (_languageProvidersLock) {
-                foreach (LanguageProviderDesc desc in _languageIds.Values) {
-                    if (desc.Provider != null) {
-                        results.Add(desc.Provider);
-                    } else if (!usedOnly) {
-                        to_be_loaded.Add(desc);
-                    }
-                }
-            }
-
-            if (!usedOnly) {
-                foreach (LanguageProviderDesc desc in to_be_loaded) {
-                    results.Add(desc.LoadProvider(this));
-                }
-            }
-
-            return results.ToArray();
         }
 
         private static string MakeAssemblyQualifiedName(string typeName, string assemblyName) {
@@ -414,259 +348,8 @@ namespace Microsoft.Scripting
 
         #endregion
 
-        #region Variables
-
-        private IAttributesCollection _variables;
-
-        /// <summary>
-        /// A collection of environment variables or <c>null</c> for calling back to the host on each variable access.
-        /// It's up to the host to set the property via <see cref="ScriptEnvironment"/> and to ensure its correct behavior and thread safety.
-        /// </summary>
-        internal IAttributesCollection Variables { get { return _variables; } set { _variables = value; } }
-
-        public void SetVariable(CodeContext context, SymbolId name, object value) {
-            IAttributesCollection variables = _variables;
-            
-            if (variables != null) {
-                variables[name] = value;
-            } else {
-                if (!_host.TrySetVariable(context.LanguageContext.Engine, name, value)) {
-                    // TODO:
-                    throw context.LanguageContext.MissingName(name);
-                }
-            }
-        }
-
-        public object GetVariable(CodeContext context, SymbolId name) {
-            IAttributesCollection variables = _variables;
-
-            if (variables != null) {
-                return variables[name];
-            } else {
-                object result;
-                
-                if (!_host.TryGetVariable(context.LanguageContext.Engine, name, out result)) {
-                    // TODO:
-                    throw context.LanguageContext.MissingName(name);
-                }
-
-                return result;
-            }
-        }
-
-        #endregion
 
         #region Modules
-
-        /// <summary>
-        /// Uses the hosts search path and semantics to resolve the provided name to a SourceUnit.
-        /// 
-        /// If the host provides a SourceUnit which is equal to an already loaded SourceUnit the
-        /// previously loaded module is returned.
-        /// 
-        /// Returns null if a module could not be found.
-        /// </summary>
-        /// <param name="name">an opaque parameter which has meaning to the host.  Typically a filename without an extension.</param>
-        public ScriptModule UseModule(string name) {
-            Contract.RequiresNotNull(name, "name");
-            
-            SourceUnit su = _host.ResolveSourceFileUnit(name);
-            if (su == null) {
-                return null;
-            }
-
-            return CompileAndPublishModule(name, su);
-        }
-
-        /// <summary>
-        /// Requests a SourceUnit from the provided path and compiles it to a ScriptModule.
-        /// 
-        /// If the host provides a SourceUnit which is equal to an already loaded SourceUnit the
-        /// previously loaded module is returned.
-        /// 
-        /// Returns null if a module could not be found.
-        /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/></exception>
-        /// <exception cref="ArgumentException">no language registered</exception>
-        /// <exception cref="MissingTypeException"><paramref name="languageId"/></exception>
-        /// <exception cref="InvalidImplementationException">The language provider's implementation failed to instantiate.</exception>
-        public ScriptModule UseModule(string path, string languageId) {
-            Contract.RequiresNotNull(path, "path");
-            ScriptEngine engine = GetLanguageProvider(languageId).GetEngine();
-
-            SourceUnit su = _host.TryGetSourceFileUnit(engine, path, null);
-            if (su == null) {
-                return null;
-            }
-
-            return CompileAndPublishModule(Path.GetFileNameWithoutExtension(path), su);
-        }
-
-        /// <summary>
-        /// Gets the ScriptModule that has been published under the given SourceUnit.
-        /// </summary>
-        public bool TryGetScriptModule(string publicName, out ScriptModule module) {
-            if (_modules == null) {
-                module = null;
-                return false;
-            }
-
-            lock(_modules) {
-                module = GetCachedModuleNoLock(publicName);
-            }
-
-            return module != null;
-        }
-
-        public void PublishModule(ScriptModule module) {
-            Contract.RequiresNotNull(module, "module");
-            Contract.Requires(module.FileName != null, "module", "Cannot publish module with null file name");
-            PublishModule(module, module.FileName);
-        }
-        
-        /// <summary>
-        /// Sets the ScriptModule that is registered for the given SourceUnit.
-        /// </summary>
-        public void PublishModule(ScriptModule module, string publicName) {
-            Contract.RequiresNotNull(module, "module");
-            Contract.RequiresNotNull(publicName, "publicName");
-
-            EnsureModules();
-
-            lock (_modules) {
-                _modules[publicName] = new WeakReference(module);
-            }
-        }
-
-        /// <summary>
-        /// Gets a list of all ScriptModule's and the associated SourceUnit which generated them.
-        /// </summary>
-        public IDictionary<string, ScriptModule> GetPublishedModules() {
-            IDictionary<string, ScriptModule> res = new Dictionary<string, ScriptModule>();
-            if (_modules != null) {
-                lock (_modules) {
-                    foreach (KeyValuePair<string, WeakReference> kvp in _modules) {
-                        if (kvp.Value.IsAlive) {
-                            res.Add(kvp.Key, (ScriptModule)kvp.Value.Target);
-                        } else {
-                            _modules.Remove(kvp.Key);
-                        }
-                    }
-                }
-            }
-            return res;
-        }
-
-        private Dictionary<string, LoadInfo> _loading = new Dictionary<string, LoadInfo>();
-
-        class LoadInfo {
-            public ScriptModule Module;
-            public Thread Thread;
-            public Exception Exception;
-            public bool Done;
-            public ManualResetEvent Mre;
-        }
-
-        private ScriptModule CompileAndPublishModule(string moduleName, SourceUnit su) {
-            Assert.NotNull(moduleName, su);
-
-            EnsureModules();
-
-            string key = su.Id ?? moduleName;
-
-            // check if we've already published this SourceUnit
-            lock (_modules) {
-                ScriptModule tmp = GetCachedModuleNoLock(key);
-                if (tmp != null) return tmp;
-            }
-
-            // compile and initialize the module...
-            ScriptModule mod = CompileModule(moduleName, su);
-            lock (_modules) {
-                // check if someone else compiled it first...
-                ScriptModule tmp = GetCachedModuleNoLock(key);
-                if (tmp != null) return tmp;
-
-                LoadInfo load;
-                if (_loading.TryGetValue(key, out load)) {
-                    if (load.Thread == Thread.CurrentThread) {
-                        return load.Module;
-                    }
-
-                    Monitor.Exit(_modules);
-                    try {
-                        lock (load) {
-                            if (!load.Done) {
-                                if (load.Mre == null) load.Mre = new ManualResetEvent(false);
-
-                                Monitor.Exit(load);
-                                try {
-                                    load.Mre.WaitOne();
-                                } finally {
-                                    Monitor.Enter(load);
-                                }
-                            }
-                        }
-                        if(load.Module != null) return load.Module;
-
-                        throw load.Exception;
-                    } finally {
-                        Monitor.Enter(_modules);
-                    }
-                }
-                load = new LoadInfo();
-                load.Module = mod;
-                load.Thread = Thread.CurrentThread;
-                _loading[key] = load;
-
-                bool success = false;
-
-                Monitor.Exit(_modules);
-                try {
-                    mod.Execute();
-                    success = true;
-                    lock (load) {
-                        load.Done = true;
-                        if (load.Mre != null) load.Mre.Set();
-                    }
-                    return mod;
-                } catch(Exception e) {
-                    lock (load) {
-                        load.Exception = e;
-                        load.Done = true;
-                        if (load.Mre != null) load.Mre.Set();
-                    }
-                    throw;
-                } finally {
-                    Monitor.Enter(_modules);
-                    _loading.Remove(key);
-                    if (success) _modules[key] = new WeakReference(mod);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Must be called with _modules lock held
-        /// </summary>
-        private ScriptModule GetCachedModuleNoLock(string publicName) {
-            WeakReference wr;
-            if (_modules.TryGetValue(publicName, out wr)) {
-                if (wr.IsAlive) {
-                    return (ScriptModule)wr.Target;
-                }
-
-                _modules.Remove(publicName);
-            }
-            return null;
-        }
-
-        private void EnsureModules() {
-            if (_modules == null) {
-                Interlocked.CompareExchange<Dictionary<string, WeakReference>>(ref _modules,
-                    new Dictionary<string, WeakReference>(),
-                    null);
-            }
-        }
 
         public ScriptModule CompileModule(string name, SourceUnit sourceUnit) {
             return CompileModule(name, null, null, null, sourceUnit);
@@ -702,20 +385,6 @@ namespace Microsoft.Scripting
             return CreateModule(name, null, scriptCodes);
         }
 
-        /// <summary>
-        /// Module creation factory. The only way how to create a module.
-        /// </summary>
-        public ScriptModule CreateModule(string name) {
-            return CreateModule(name, null, ScriptCode.EmptyArray);
-        }
-        
-        /// <summary>
-        /// Module creation factory. The only way how to create a module.
-        /// <c>scope</c> can be <c>null</c>.
-        /// </summary>
-        public ScriptModule CreateModule(string name, Scope scope) {
-            return CreateModule(name, scope, ScriptCode.EmptyArray);
-        }
 
         /// <summary>
         /// Module creation factory. The only way how to create a module.
@@ -781,42 +450,8 @@ namespace Microsoft.Scripting
 
         #endregion
 
-        #region Command Dispatching
-
-        // This can be set to a method like System.Windows.Forms.Control.Invoke for Winforms scenario 
-        // to cause code to be executed on a separate thread.
-        // It will be called with a null argument to indicate that the console session should be terminated.
-        // Can be null.
-
-        public CommandDispatcher GetCommandDispatcher() {
-            return _commandDispatcher;
-        }
-
-        public CommandDispatcher SetCommandDispatcher(CommandDispatcher dispatcher) {
-            return Interlocked.Exchange(ref _commandDispatcher, dispatcher);
-        }
-
-        public void DispatchCommand(Delegate command) {
-            CommandDispatcher dispatcher = _commandDispatcher;
-            if (dispatcher != null) {
-                dispatcher(command);
-            }
-        }
-
-        #endregion
-
         #region TODO
 
-        // TODO: remove or reduce
-        public ScriptDomainOptions GlobalOptions {
-            get {
-                return _options;
-            }
-            set {
-                Contract.RequiresNotNull(value, "value");
-                _options = value;
-            }
-        }
 
         // TODO: remove or reduce     
         private static ScriptDomainOptions _options = new ScriptDomainOptions();

@@ -24,7 +24,6 @@ namespace Microsoft.Scripting.Hosting
         private bool _debugCodeGen = false;
         private AssemblyGenAttributes _assemblyGenAttributes = AssemblyGenAttributes.GenerateDebugAssemblies;
         private string _binariesDirectory;
-        private bool _privateBinding;
 
         public bool LightweightDebugging {get;set;}
 
@@ -56,11 +55,6 @@ namespace Microsoft.Scripting.Hosting
         public string BinariesDirectory {
             get { return _binariesDirectory; }
             set { _binariesDirectory = value; }
-        }
-
-        public bool PrivateBinding {
-            get { return _privateBinding; }
-            set { _privateBinding = value; }
         }
 
         #endregion

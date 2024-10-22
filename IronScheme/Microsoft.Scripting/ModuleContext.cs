@@ -20,7 +20,6 @@ namespace Microsoft.Scripting
         public static readonly ModuleContext[] EmptyArray = new ModuleContext[0];
 
         private readonly ScriptModule _module;
-        private bool _showCls;
         private CompilerContext _compilerContext;
 
         /// <summary>
@@ -28,18 +27,6 @@ namespace Microsoft.Scripting
         /// </summary>
         public ScriptModule Module {
             get { return _module; }
-        }
-
-        /// <summary>
-        /// Returns the attributes associated with this LanguageContext's code.
-        /// </summary>
-        public virtual bool ShowCls {
-            get {
-                return _showCls;
-            }
-            set {
-                _showCls = value;
-            }
         }
 
         /// <summary>
@@ -60,13 +47,6 @@ namespace Microsoft.Scripting
         /// <param name="module">Optional. <c>null</c> for default and invariant contexts.</param>
         public ModuleContext(ScriptModule module) {
             _module = module;
-        }
-
-        internal protected virtual void ModuleReloading() {
-            _showCls = false;
-        }
-
-        internal protected virtual void ModuleReloaded() {
         }
     }
 }

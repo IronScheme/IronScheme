@@ -54,15 +54,6 @@ namespace Microsoft.Scripting
 
     #endregion
 
-    #region IEnumerable<KeyValuePair<object,object>> Members
-
-    public IEnumerator<KeyValuePair<object, object>> GetEnumerator()
-    {
-      throw new NotImplementedException();
-    }
-
-    #endregion
-
     #region IEnumerable Members
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -70,9 +61,14 @@ namespace Microsoft.Scripting
       throw new NotImplementedException();
     }
 
-    #endregion
+        IEnumerator<KeyValuePair<object, object>> IEnumerable<KeyValuePair<object, object>>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
 
-    public T Data { get; private set; }
+        #endregion
+
+        public T Data { get; private set; }
 
     public Storage(T data)
     {

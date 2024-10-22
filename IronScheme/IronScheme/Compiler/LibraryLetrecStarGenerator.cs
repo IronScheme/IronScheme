@@ -389,26 +389,10 @@ namespace IronScheme.Compiler
       FillBody(cb, stmts, body, true);
       cb.ExplicitCodeContextExpression = Ast.CodeContext();
 
-#if OPTIMIZATIONS
       Expression ex = InlineCall(c, Ast.CodeBlockExpression(cb, false));
-#else
-      Expression ex = Ast.SimpleCallHelper(MakeClosure(cb, false), GetCallable(0));
-#endif
-
       NameHint = SymbolId.Invalid;
       ClrGenerator.ResetReferences(ns);
       return ex;
     }
-
-    Type CreateRecordType(Cons def)
-    {
-      return null;
-    }
-
-
-
-
-
-
   }
 }

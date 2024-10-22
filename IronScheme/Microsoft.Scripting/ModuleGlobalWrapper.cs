@@ -25,9 +25,7 @@ namespace Microsoft.Scripting
     /// 
     /// The cached value is provided by the LanguageContext.GetModuleCache API.
     /// </summary>
-#if !SILVERLIGHT
     [DebuggerDisplay("{Display}")]
-#endif
     public sealed class ModuleGlobalWrapper {
         private object _value;
         private ModuleGlobalCache _global;
