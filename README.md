@@ -12,8 +12,8 @@ IronScheme implements over 99% of the R6RS specification and specified behavior.
 
 IronScheme's macro system is based on psyntax, and thus behaves similar to other implementations using psyntax, ie Icarus, Vicare, Chez.
 
-Building
-========
+Building (Visual Studio)
+========================
 
 1. Open the `IronSchemeCore.sln` file in VS2019/2022
 2. Set startup project as `IronScheme.Console`
@@ -21,6 +21,40 @@ Building
 Alternatively, using the `build.cmd` batchfile in the IronScheme directory.
 
 Note: the VS solution is for an already bootstrapped configuration. It can behave differently to the `IronScheme.dll` in the release package. This is mostly to just provide debugging and advanced usage of IronScheme.
+
+Building (Windows)
+==================
+
+Make sure you have .NET 9 SDK installed.
+
+```
+git clone https://github.com/IronScheme/IronScheme.git -b master --recurse-submodules
+
+cd IronScheme/IronScheme
+
+build
+test && test /net9 && test /core
+package
+nuget
+coverage
+```
+
+Building (non-Windows)
+======================
+
+Make sure you have .NET 9 SDK installed.
+
+```
+git clone https://github.com/IronScheme/IronScheme.git -b master --recurse-submodules
+
+cd IronScheme/IronScheme
+
+sh build.sh
+sh test.sh
+#sh test-netbefore9.sh
+sh package.sh
+sh nuget.sh
+```
 
 Running on Windows
 ==================
