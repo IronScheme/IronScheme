@@ -10,7 +10,7 @@ cd IronScheme.Console/bin/Release/netcoreapp2.1/
 export ISWD=$PWD
 export TESTCORE=1
 
-FILTER='--filter "Category=Conformance|SRFI|Other"'
+FILTER='--filter "Category=fake|Conformance|SRFI|Other|fake"'
 LOGGER='--logger GitHubActions;summary.includePassedTests=true;summary.includeSkippedTests=true'
 
 dotnet test -v d ../../../../IronScheme.Tests/bin/Release/IronScheme.Tests.dll $LOGGER $FILTER $* -- NUnit.DefaultTestNamePattern="{c}.{m}" NUnit.PreFilter=true NUnit.StopOnError=false
