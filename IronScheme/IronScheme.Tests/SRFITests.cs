@@ -1,11 +1,9 @@
 ﻿using NUnit.Framework;
 
-//[assembly: LevelOfParallelism(8)]
-
 namespace IronScheme.Tests
 {
   
-  [Parallelizable(scope: ParallelScope.All)]
+  [Parallelizable(scope: ParallelScope.All | ParallelScope.All)]
   [Order(3)]
   [Category(nameof(SRFI))]
   public class SRFI : TestRunner
