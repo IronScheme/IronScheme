@@ -1,10 +1,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/github/IronScheme/IronScheme?branch=master&svg=true)](https://ci.appveyor.com/project/leppie/ironscheme/branch/master)
 [![NuGet version](https://badge.fury.io/nu/IronScheme.Core.svg)](https://badge.fury.io/nu/IronScheme.Core)
-
-[![Windows](https://github.com/IronScheme/IronScheme/actions/workflows/windows.yml/badge.svg?branch=master)](https://github.com/IronScheme/IronScheme/actions/workflows/windows.yml)
-[![OSX](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml/badge.svg?branch=master)](https://github.com/IronScheme/IronScheme/actions/workflows/osx.yml)
-[![Linux](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml/badge.svg?branch=master)](https://github.com/IronScheme/IronScheme/actions/workflows/linux.yml)
-
+[![Build](https://github.com/IronScheme/IronScheme/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/IronScheme/IronScheme/actions/workflows/build.yml)
 
 
 IronScheme
