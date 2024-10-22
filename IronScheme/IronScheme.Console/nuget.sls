@@ -44,7 +44,7 @@ See docs/license.txt. |#
       (get-files dir "*%2a.*")))
 
   (define (unfuck)
-    (displayln '(nuget unfuck))
+    ;(displayln '(nuget unfuck))
     (vector-for-each
       (lambda (f)
         (file-move
