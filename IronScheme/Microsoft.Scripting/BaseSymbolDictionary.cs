@@ -32,24 +32,13 @@ namespace Microsoft.Scripting
     /// key.
     /// </summary>
     public abstract class BaseSymbolDictionary
-  {
-        private static object _nullObject = new object();
-        private const int ObjectKeysId = -2;
-        [Obsolete]
-        internal static readonly SymbolId ObjectKeys = new SymbolId(ObjectKeysId);
-
+    {
         /// <summary>
         /// Creates a new SymbolIdDictBase from the specified creating context which will be
         /// used for comparisons.
         /// </summary>
         protected BaseSymbolDictionary() {
         }
-
-        #region Abstract Members
-
-        abstract public IDictionary<object, object> AsObjectKeyedDictionary();
-
-        #endregion                
 
         #region ICollection Members
 
@@ -66,15 +55,5 @@ namespace Microsoft.Scripting
         }
 
         #endregion        
-        
-        public static object NullToObj(object o) {
-            if (o == null) return _nullObject;
-            return o;
-        }
-
-        public static object ObjToNull(object o) {
-            if (o == _nullObject) return null;
-            return o;
-        }
     }
 }

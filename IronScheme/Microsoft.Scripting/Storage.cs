@@ -8,11 +8,6 @@ namespace Microsoft.Scripting
   {
     #region IAttributesCollection Members
 
-    public void Add(SymbolId name, object value)
-    {
-      throw new NotImplementedException();
-    }
-
     public bool TryGetValue(SymbolId name, out object value)
     {
       var s = SymbolTable.IdToString(name);
@@ -31,11 +26,6 @@ namespace Microsoft.Scripting
       throw new NotImplementedException();
     }
 
-    public bool ContainsKey(SymbolId name)
-    {
-      throw new NotImplementedException();
-    }
-
     public object this[SymbolId name]
     {
       get
@@ -48,61 +38,23 @@ namespace Microsoft.Scripting
       }
     }
 
-    public IDictionary<SymbolId, object> SymbolAttributes
-    {
-      get { throw new NotImplementedException(); }
-    }
-
-    public void AddObjectKey(object name, object value)
-    {
-      throw new NotImplementedException();
-    }
-
-    public bool TryGetObjectValue(object name, out object value)
-    {
-      SymbolId n = (SymbolId)name;
-      var s = SymbolTable.IdToString(n);
-      value = Data.GetType().GetField(s).GetValue(Data);
-      return true;
-    }
-
     public bool RemoveObjectKey(object name)
     {
       throw new NotImplementedException();
     }
 
-    public bool ContainsObjectKey(object name)
-    {
-      throw new NotImplementedException();
-    }
 
-    public IDictionary<object, object> AsObjectKeyedDictionary()
-    {
-      throw new NotImplementedException();
-    }
-
-    public int Count
-    {
-      get { return 0; }
-    }
-
-    static readonly ICollection<object> EMPTY = new List<object>();
-
-    public ICollection<object> Keys
+    public IEnumerable<SymbolId> Keys
     {
       get
       {
-        var keys = new List<object>();
-
         foreach (var fi in Data.GetType().GetFields())
         {
           if (fi.Name != "$parent$")
           {
-            keys.Add(fi.Name);
+            yield return SymbolTable.StringToId(fi.Name);
           }
         }
-
-        return keys;
       }
     }
 

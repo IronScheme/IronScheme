@@ -155,10 +155,10 @@ namespace Microsoft.Scripting
         /// Removes all members from the dictionary and any context-sensitive dictionaries.
         /// </summary>
         public void Clear() {
-            List<object> ids = new List<object>(_dict.Keys);
-            foreach (object name in ids)
+            var ids = new List<SymbolId>(_dict.Keys);
+            foreach (var name in ids)
             {
-                _dict.RemoveObjectKey(name);
+                _dict.Remove(name);
             }
         }
 

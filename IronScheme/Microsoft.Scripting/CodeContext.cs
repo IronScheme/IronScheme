@@ -116,9 +116,8 @@ namespace Microsoft.Scripting
         {
           var nv = new Hashtable();
 
-          foreach (string s in scope.Dict.Keys)
+          foreach (var i in scope.Dict.Keys)
           {
-            SymbolId i = SymbolTable.StringToId(s);
             nv.Add(i, scope.LookupName(i));
           }
 
@@ -150,9 +149,8 @@ namespace Microsoft.Scripting
 
               while (scope != null && scope != scope.ModuleScope)
               {
-                foreach (string s in scope.Dict.Keys)
+                foreach (var i in scope.Dict.Keys)
                 {
-                  SymbolId i = SymbolTable.StringToId(s);
                   v.Add(new NameValuePair
                   {
                     Name = Variable.UnGenSym(i),

@@ -13,6 +13,7 @@
  *
  * ***************************************************************************/
 
+using System;
 using System.Collections.Generic;
 
 namespace Microsoft.Scripting
@@ -26,26 +27,34 @@ namespace Microsoft.Scripting
         ///
         /// Access using SymbolId keys
         ///
-        void Add(SymbolId name, object value);
+        //[Obsolete]
+        //void Add(SymbolId name, object value);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]
         bool TryGetValue(SymbolId name, out object value);
         bool Remove(SymbolId name);
-        bool ContainsKey(SymbolId name);
+        //[Obsolete]
+        //bool ContainsKey(SymbolId name);
         object this[SymbolId name] { get; set; }
         // This returns just the attributes that are keyed using SymbolIds. It will ignore any object-keyed attributes
-        IDictionary<SymbolId, object> SymbolAttributes { get; }
+        //[Obsolete]
+        //IDictionary<SymbolId, object> SymbolAttributes { get; }
 
         //
         // Access using object keys
         //
-        void AddObjectKey(object name, object value);
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]
-        bool TryGetObjectValue(object name, out object value);
+        //[Obsolete]
+        //void AddObjectKey(object name, object value);
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]
+        //[Obsolete]
+        //bool TryGetObjectValue(object name, out object value);
         bool RemoveObjectKey(object name);
-        bool ContainsObjectKey(object name);
-        IDictionary<object, object> AsObjectKeyedDictionary();
+        //[Obsolete]
+        //bool ContainsObjectKey(object name);
+        //[Obsolete]
+        //IDictionary<object, object> AsObjectKeyedDictionary();
 
-        int Count { get; }
-        ICollection<object> Keys { get; }
+        //[Obsolete]
+        //int Count { get; }
+        IEnumerable<SymbolId> Keys { get; }
     }
 }
