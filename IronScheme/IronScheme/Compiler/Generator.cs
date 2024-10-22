@@ -27,7 +27,7 @@ namespace IronScheme.Compiler
     static Generator()
     {
       AllowTransientBinding = true;
-      UnaryExpression.Converter = typeof(Helpers).GetMethod("RequiresNotNull").MakeGenericMethod(typeof(Callable));
+      UnaryExpression.Converter = typeof(Helpers).GetMethod(nameof(Helpers.RequiresNotNull)).MakeGenericMethod(typeof(Callable));
       Initialize();
     }
 
@@ -865,71 +865,6 @@ namespace IronScheme.Compiler
         }
         return Ast.Constant(args);
       }
-    }
-
-    internal static MethodCallExpression TryConvertToDirectCall(SymbolId f, Expression[] ppp)
-    {
-      CodeBlockExpression cbe;
-
-      //// needs to do the same for overloads...
-      if (SimpleGenerator.libraryglobals.TryGetValue(f, out cbe))
-      {
-        if (cbe.Block.ParameterCount < 9 && cbe.Block.ParameterCount == ppp.Length)
-        {
-          return CallNormal(cbe, ppp) as MethodCallExpression;
-        }
-      }
-
-      // varargs
-      if (SimpleGenerator.libraryglobalsX.TryGetValue(f, out cbe))
-      {
-        if (cbe.Block.ParameterCount < 9 && cbe.Block.ParameterCount - 1 <= ppp.Length)
-        {
-          //inline here?
-          return CallVarArgs(cbe, ppp) as MethodCallExpression;
-        }
-      }
-
-      // overloads
-      CodeBlockDescriptor[] cbd;
-      if (SimpleGenerator.libraryglobalsN.TryGetValue(f, out cbd))
-      {
-        foreach (CodeBlockDescriptor d in cbd)
-        {
-          if (d.codeblock.Block.ParameterCount < 9)
-          {
-            if (ppp.Length == d.arity || (d.varargs && ppp.Length >= (-d.arity - 1)))
-            {
-              if (d.varargs)
-              {
-                //inline here?
-                return CallVarArgs(d.codeblock, ppp) as MethodCallExpression;
-              }
-              else
-              {
-                //inline here?
-                return CallNormal(d.codeblock, ppp) as MethodCallExpression;
-              }
-            }
-          }
-        }
-      }
-
-      return null;
-    }
-
-    static bool NotChildBlock(CodeBlock codeBlock, CodeBlock parent)
-    {
-      while (codeBlock.Parent != null)
-      {
-        if (codeBlock.Parent == parent)
-        {
-          return false;
-        }
-        codeBlock = codeBlock.Parent;
-      }
-
-      return true;
     }
 
     static object GetRuntimeConstant(ConstantExpression ce)
