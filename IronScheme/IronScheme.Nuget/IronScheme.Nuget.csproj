@@ -19,7 +19,7 @@
     <NuspecFile>IronScheme.$(PackageName).nuspec</NuspecFile>
 
     <NuspecProperties Condition="$(PackageName) == 'Core'">version=$(AppveyorBuildVersion);sha=$(Sha)</NuspecProperties>
-    <NuspecProperties Condition="$(PackageName) != 'Core'">version=$(AppveyorBuildVersion)-alpha;sha=$(Sha)</NuspecProperties>
+    <NuspecProperties Condition="$(PackageName) != 'Core'">version=$(AppveyorBuildVersion)-beta;sha=$(Sha)</NuspecProperties>
     <NuspecBasePath>..\IronScheme.Console\bin\Release\net20\install-stage\</NuspecBasePath>
   </PropertyGroup>
 </Project>
