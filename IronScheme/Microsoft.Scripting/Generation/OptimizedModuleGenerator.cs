@@ -235,12 +235,8 @@ namespace Microsoft.Scripting.Generation
 
                   Label ok = cg.DefineLabel();
                   cg.ContextSlot.EmitGet(cg);
-                  //cg.EmitNull();
-                  //cg.Emit(OpCodes.Ceq);
                   cg.Emit(OpCodes.Brtrue_S, ok);
 
-                  // MyModuleDictType.ContextSlot = arg0
-                  
                   cg.EmitNew(cg.TypeGen.DefaultConstructor);
                   cg.EmitArgGet(0);
                   cg.EmitCall(typeof(IModuleDictionaryInitialization), "InitializeModuleDictionary");
@@ -316,7 +312,6 @@ namespace Microsoft.Scripting.Generation
                 if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
                 {
                   ag = ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly;
-                    //CreateModuleAssembly(scriptCode);
                 }
                 else
                 {
@@ -328,7 +323,6 @@ namespace Microsoft.Scripting.Generation
                 if ((ScriptDomainManager.Options.AssemblyGenAttributes & AssemblyGenAttributes.SaveAndReloadAssemblies) != 0)
                 {
                   ag = ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly;
-                    //CreateModuleAssembly(scriptCode);
                 }
                 else
                 {
@@ -338,7 +332,7 @@ namespace Microsoft.Scripting.Generation
             }
             else
             {
-              ag = ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly; //CreateModuleAssembly(scriptCode);
+              ag = ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly; 
             }
 
             ScriptDomainManager.CurrentManager.Snippets.CurrentAssembly = ag;
@@ -500,9 +494,6 @@ namespace Microsoft.Scripting.Generation
         }
 
         private void BuildDictionary(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
-            MakeGetMethod(li, fields);
-            MakeSetMethod(li, fields);
-            MakeRawKeysMethod(li, fields);
             MakeInitialization(li, fields);
         }
 
@@ -545,39 +536,6 @@ namespace Microsoft.Scripting.Generation
 
             cg.EmitReturn();
             cg.Finish();
-        }
-
-        private void MakeGetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
-            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod(nameof(CustomSymbolDictionary.TryGetExtraValue), BindingFlags.NonPublic | BindingFlags.Instance));
-
-            cg.EmitInt(0);
-            cg.EmitReturn();
-            cg.Finish();
-        }
-
-        private void MakeSetMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
-            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod(nameof(CustomSymbolDictionary.TrySetExtraValue), BindingFlags.NonPublic | BindingFlags.Instance));
-            Slot valueSlot = cg.GetArgumentSlot(1);
-            cg.EmitInt(0);
-            cg.EmitReturn();
-            cg.Finish();
-        }
-
-        private CodeGen MakeRawKeysMethod(LanguageInfo li, Dictionary<SymbolId, Slot> fields) {
-            Slot rawKeysCache = li.TypeGen.AddStaticField(typeof(SymbolId[]), "ExtraKeysCache");
-            CodeGen init = li.TypeGen.TypeInitializer;
-
-            init.EmitInt(0);
-            init.Emit(OpCodes.Newarr, typeof(SymbolId));
-
-            rawKeysCache.EmitSet(init);
-
-            CodeGen cg = li.TypeGen.DefineMethodOverride(typeof(CustomSymbolDictionary).GetMethod(nameof(CustomSymbolDictionary.GetExtraKeys), BindingFlags.Public | BindingFlags.Instance));
-            rawKeysCache.EmitGet(cg);
-            cg.EmitReturn();
-            cg.Finish();
-
-            return cg;
         }
     }
 

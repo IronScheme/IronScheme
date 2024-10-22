@@ -40,28 +40,6 @@ namespace Microsoft.Scripting {
         protected CustomSymbolDictionary() {
         }
 
-        /// <summary>
-        /// Gets a list of the extra keys that are cached by the the optimized implementation
-        /// of the module.
-        /// </summary>
-        [Obsolete]
-        public abstract SymbolId[] GetExtraKeys();
-
-        /// <summary>
-        /// Try to set the extra value and return true if the specified key was found in the 
-        /// list of extra values.
-        /// </summary>
-        [Obsolete]
-        protected internal abstract bool TrySetExtraValue(SymbolId key, object value);
-
-        /// <summary>
-        /// Try to get the extra value and returns true if the specified key was found in the
-        /// list of extra values.  Returns true even if the value is Uninitialized.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]
-        [Obsolete]
-        protected internal abstract bool TryGetExtraValue(SymbolId key, out object value);
-
         private void InitializeData() {
             Debug.Assert(_data == null);
 
