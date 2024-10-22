@@ -38,12 +38,6 @@ namespace Microsoft.Scripting
       }
     }
 
-    public bool RemoveObjectKey(object name)
-    {
-      throw new NotImplementedException();
-    }
-
-
     public IEnumerable<SymbolId> Keys
     {
       get

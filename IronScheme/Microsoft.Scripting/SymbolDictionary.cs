@@ -74,10 +74,6 @@ namespace Microsoft.Scripting
             }
         }
 
-        public bool RemoveObjectKey(object key) {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<SymbolId> Keys { get { return _data.Keys; } }
 
         #endregion

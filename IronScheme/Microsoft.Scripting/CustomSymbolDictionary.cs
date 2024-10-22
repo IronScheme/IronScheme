@@ -44,12 +44,14 @@ namespace Microsoft.Scripting {
         /// Gets a list of the extra keys that are cached by the the optimized implementation
         /// of the module.
         /// </summary>
+        [Obsolete]
         public abstract SymbolId[] GetExtraKeys();
 
         /// <summary>
         /// Try to set the extra value and return true if the specified key was found in the 
         /// list of extra values.
         /// </summary>
+        [Obsolete]
         protected internal abstract bool TrySetExtraValue(SymbolId key, object value);
 
         /// <summary>
@@ -57,6 +59,7 @@ namespace Microsoft.Scripting {
         /// list of extra values.  Returns true even if the value is Uninitialized.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]
+        [Obsolete]
         protected internal abstract bool TryGetExtraValue(SymbolId key, out object value);
 
         private void InitializeData() {
@@ -64,7 +67,6 @@ namespace Microsoft.Scripting {
 
             _data = new Dictionary<SymbolId, object>();
         }
-
 
         #region IEnumerable<KeyValuePair<object,object>> Members
 
@@ -91,19 +93,10 @@ namespace Microsoft.Scripting {
 
 
         public bool Remove(SymbolId name) {
-            object value;
-            if (TryGetExtraValue(name, out value)) {
-                if (value == Uninitialized.Instance) return false;
-                if (TrySetExtraValue(name, Uninitialized.Instance)) return true;
-            }
-
-            if (_data == null) return false;
-
             lock (this) return _data.Remove(name);
         }
 
         public bool TryGetValue(SymbolId name, out object value) {
-            //if (TryGetExtraValue(name, out value) && value != Uninitialized.Instance) return true;
           value = null;
             if (_data == null) return false;
 
@@ -112,9 +105,6 @@ namespace Microsoft.Scripting {
 
         object IAttributesCollection.this[SymbolId name] {
             get {
-                object res;
-                if (TryGetExtraValue(name, out res) && res != Uninitialized.Instance) return res;
-
                 lock (this) {
                     if (_data == null) throw new KeyNotFoundException(SymbolTable.IdToString(name));
                     return _data[name];
@@ -128,15 +118,7 @@ namespace Microsoft.Scripting {
             }
         }
 
-        /// <summary>
-        /// Removes the specified object key from the dictionary.
-        /// </summary>
-        public virtual bool RemoveObjectKey(object name) {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<SymbolId> Keys { get { return _data.Keys; } }
-
 
         #endregion
 

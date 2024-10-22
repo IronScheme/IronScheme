@@ -24,37 +24,9 @@ namespace Microsoft.Scripting
     /// property to be indexed by SymbolId, not by object.
     /// </summary>
     public interface IAttributesCollection : IEnumerable<KeyValuePair<object, object>> {
-        ///
-        /// Access using SymbolId keys
-        ///
-        //[Obsolete]
-        //void Add(SymbolId name, object value);
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]
         bool TryGetValue(SymbolId name, out object value);
         bool Remove(SymbolId name);
-        //[Obsolete]
-        //bool ContainsKey(SymbolId name);
         object this[SymbolId name] { get; set; }
-        // This returns just the attributes that are keyed using SymbolIds. It will ignore any object-keyed attributes
-        //[Obsolete]
-        //IDictionary<SymbolId, object> SymbolAttributes { get; }
-
-        //
-        // Access using object keys
-        //
-        //[Obsolete]
-        //void AddObjectKey(object name, object value);
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1007:UseGenericsWhereAppropriate")]
-        //[Obsolete]
-        //bool TryGetObjectValue(object name, out object value);
-        bool RemoveObjectKey(object name);
-        //[Obsolete]
-        //bool ContainsObjectKey(object name);
-        //[Obsolete]
-        //IDictionary<object, object> AsObjectKeyedDictionary();
-
-        //[Obsolete]
-        //int Count { get; }
         IEnumerable<SymbolId> Keys { get; }
     }
 }
