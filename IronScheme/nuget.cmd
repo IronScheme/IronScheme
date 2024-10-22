@@ -13,3 +13,8 @@ popd
 pushd IronScheme.Console\bin\Release\net20\install-stage\IronScheme
 echo (import (nuget)) (unfuck) | IronScheme.Console32-v2
 popd
+
+dotnet tool install -g IronScheme.Tool --source bin/ --prerelease --allow-downgrade
+echo (ironscheme-test) | ironscheme
+echo (compile-system-libraries) | ironscheme
+echo (compile-system-libraries) | ironscheme
