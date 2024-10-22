@@ -56,14 +56,6 @@ namespace Microsoft.Scripting.Utils
         }
 
         [Conditional("DEBUG")]
-        public static void RequiresNotEmpty(string str, string paramName) {
-            RequiresNotNull(str, paramName);
-            if (str.Length == 0) {
-                throw new ArgumentException("Non-empty string required", paramName);
-            }
-        }
-
-        [Conditional("DEBUG")]
         public static void RequiresNotEmpty<T>(ICollection<T> collection, string paramName) {
             RequiresNotNull(collection, paramName);
             if (collection.Count == 0) {
@@ -85,49 +77,6 @@ namespace Microsoft.Scripting.Utils
         }
 
         /// <summary>
-        /// Requires the specified index to point inside the array or at the end
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Array is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Index is outside the array.</exception>
-        [Conditional("DEBUG")]
-        public static void RequiresArrayInsertIndex<T>(IList<T> array, int index, string indexName) {
-            Assert.NotEmpty(indexName);
-            Assert.NotNull(array);
-
-            if (index < 0 || index > array.Count) throw new ArgumentOutOfRangeException(indexName);
-        }
-
-        /// <summary>
-        /// Requires the range [offset, offset + count] to be a subset of [0, array.Count].
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Array is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Offset or count are out of range.</exception>
-        [Conditional("DEBUG")]
-        public static void RequiresArrayRange<T>(IList<T> array, int offset, int count, string offsetName, string countName) {
-            Assert.NotEmpty(offsetName);
-            Assert.NotEmpty(countName);
-            Assert.NotNull(array);
-
-            if (count < 0) throw new ArgumentOutOfRangeException(countName);
-            if (offset < 0 || array.Count - offset < count) throw new ArgumentOutOfRangeException(offsetName);
-        }
-
-        /// <summary>
-        /// Requires the range [offset, offset + count] to be a subset of [0, array.Count].
-        /// </summary>
-        /// <exception cref="ArgumentNullException">String is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Offset or count are out of range.</exception>
-        [Conditional("DEBUG")]
-        public static void RequiresArrayRange(string str, int offset, int count, string offsetName, string countName) {
-            Assert.NotEmpty(offsetName);
-            Assert.NotEmpty(countName);
-            Assert.NotNull(str);
-
-            if (count < 0) throw new ArgumentOutOfRangeException(countName);
-            if (offset < 0 || str.Length - offset < count) throw new ArgumentOutOfRangeException(offsetName);
-        }
-
-        /// <summary>
         /// Requires the array and all its items to be non-null.
         /// </summary>
         [Conditional("DEBUG")]
@@ -137,9 +86,14 @@ namespace Microsoft.Scripting.Utils
 
             for (int i = 0; i < array.Count; i++) {
                 if (array[i] == null) {
-                    throw ExceptionUtils.MakeArgumentItemNullException(i, arrayName);
+                    throw MakeArgumentItemNullException(i, arrayName);
                 }
             }
+        }
+
+        private static ArgumentNullException MakeArgumentItemNullException(int index, string arrayName)
+        {
+            return new ArgumentNullException(String.Format("{0}[{1}]", arrayName, index));
         }
     }
 }

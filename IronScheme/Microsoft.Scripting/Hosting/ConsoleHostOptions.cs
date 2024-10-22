@@ -173,7 +173,7 @@ namespace Microsoft.Scripting.Hosting
                         throw new InvalidOptionException("No file to run.");
 
                     if (_options.LanguageProvider == null)
-                        _options.LanguageProvider = GetLanguageProvider(StringUtils.GetSuffix(_options.Files[0], '.', false));
+                        _options.LanguageProvider = GetLanguageProvider(GetSuffix(_options.Files[0], '.', false));
 
                     break;
 
@@ -189,6 +189,13 @@ namespace Microsoft.Scripting.Hosting
                     _options.RunAction = ConsoleHostOptions.Action.RunConsole;
                     goto case ConsoleHostOptions.Action.RunConsole;
             }
+        }
+
+        private static string GetSuffix(string str, char separator, bool includeSeparator)
+        {
+            Contract.RequiresNotNull(str, "str");
+            int last = str.LastIndexOf(separator);
+            return (last != -1) ? str.Substring(includeSeparator ? last : last + 1) : null;
         }
 
         /// <summary>
