@@ -19,3 +19,5 @@ IronScheme/Oyster.IntX/Oyster.IntX.xml
 /IronScheme/cov/**
 /IronScheme/*.coverage
 /IronScheme/coverage.xml
+/IronScheme/*.nettrace
+/IronScheme/*.speedscope.json
