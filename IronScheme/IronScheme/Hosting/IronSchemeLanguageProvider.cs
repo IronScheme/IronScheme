@@ -116,7 +116,7 @@ namespace IronScheme.Hosting
       {
         if (!File.Exists(filename))
         {
-          return 1;
+          return 404;
         }
 
         var rest = Options.RemainingArgs;

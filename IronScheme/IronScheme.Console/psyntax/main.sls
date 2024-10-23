@@ -305,6 +305,8 @@
   (library-path (get-library-paths))
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))
+
+  (constant-fold)
   
   (interaction-environment (new-interaction-environment))
   
