@@ -60,16 +60,15 @@ namespace Microsoft.Scripting.Shell
 
             Initialize();
             
-            try {
+            try
+            {
                 return Run();
-
-#if !SILVERLIGHT // ThreadAbortException.ExceptionState
-            } catch (System.Threading.ThreadAbortException tae) {
+            }
+            catch (System.Threading.ThreadAbortException tae) {
                 if (tae.ExceptionState is KeyboardInterruptException) {
                     Thread.ResetAbort();
                 }
                 return -1;
-#endif
             } finally {
                 Shutdown(engine);
             }
