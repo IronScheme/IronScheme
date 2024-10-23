@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime;
 using System.Text;
 using IronScheme.Hosting;
 using IronScheme.Runtime;
@@ -141,11 +142,9 @@ namespace IronScheme.Console
       return args;
     }
 
-#if !NETCOREAPP2_1_OR_GREATER
-
     static void EnableMulticoreJIT()
     {
-      var type = typeof(object).Assembly.GetType("System.Runtime.ProfileOptimization", false);
+      var type = typeof(GCSettings).Assembly.GetType("System.Runtime.ProfileOptimization", false);
       if (type != null)
       {
         var sprmi = type.GetMethod("SetProfileRoot");
@@ -164,6 +163,8 @@ namespace IronScheme.Console
         }
       }
     }
+
+#if !NETCOREAPP2_1_OR_GREATER
 
     // https://github.com/sawilde/opencover/blob/master/main/OpenCover.Framework/ProfilerRegistration.cs
     static bool ExecuteRegsvr32(bool userRegistration, bool register)
