@@ -121,7 +121,7 @@ namespace IronScheme.Compiler
         {
           if (CheckParams(mi))
           {
-            string name = ba.Name ?? mi.Name.ToLower();
+            string name = ba.Name ?? mi.Name.ToLowerInvariant();
             List<MethodBase> meths;
 
             foldable[name] = ba.AllowConstantFold;
