@@ -100,9 +100,9 @@ namespace IronScheme.Runtime
       {
         if (ba.Name == null)
         {
-          return name.ToLower();
+          return name.ToLowerInvariant();
         }
-        return ba.Name.ToLower();
+        return ba.Name.ToLowerInvariant();
       }
 
       int i = name.IndexOf("::");

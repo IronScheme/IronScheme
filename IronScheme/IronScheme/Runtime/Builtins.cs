@@ -975,7 +975,7 @@ namespace IronScheme.Runtime
 
       foreach (BuiltinAttribute ba in v.GetCustomAttributes(typeof(BuiltinAttribute), false))
       {
-        return SymbolTable.StringToObject(ba.Name ?? v.Name.ToLower());
+        return SymbolTable.StringToObject(ba.Name ?? v.Name.ToLowerInvariant());
       }
       return UnGenSymInternal(SymbolTable.StringToId(v.Name));
     }

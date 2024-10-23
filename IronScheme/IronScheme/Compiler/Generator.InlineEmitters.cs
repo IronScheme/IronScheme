@@ -23,7 +23,7 @@ namespace IronScheme.Compiler
       {
         foreach (InlineEmitterAttribute ba in mi.GetCustomAttributes(typeof(InlineEmitterAttribute), false))
         {
-          string name = ba.Name ?? mi.Name.ToLower();
+          string name = ba.Name ?? mi.Name.ToLowerInvariant();
           object s = SymbolTable.StringToObject(name);
 
           inlineemitters[(SymbolId)s] = Delegate.CreateDelegate(typeof(InlineEmitter), mi) as InlineEmitter;

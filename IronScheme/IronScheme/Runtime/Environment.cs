@@ -162,7 +162,7 @@ namespace IronScheme.Runtime
 
     protected static bool IsR6RSLoaded()
     {
-      return r6rsloaded || (r6rsloaded = Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToId("r6rs-loaded")));
+      return r6rsloaded || (r6rsloaded = Context.Scope.ModuleScope.ContainsName(SymbolTable.StringToIdFast("r6rs-loaded")));
     }
 
     static readonly int TICKS = (int)((DateTime.Now.Ticks >> 16) & 0x7FFFFFFF);
@@ -206,7 +206,7 @@ namespace IronScheme.Runtime
     [Builtin]
     public static object GenSym()
     {
-      return SymbolTable.StringToObject(GenGenSymString());
+      return SymbolTable.StringToObjectFast(GenGenSymString());
     }
 
     [Builtin]

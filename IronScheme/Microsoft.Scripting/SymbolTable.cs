@@ -70,6 +70,12 @@ namespace Microsoft.Scripting
           return GetSymbol(id.Id);
         }
 
+        public static object StringToObjectFast(string name)
+        {
+            SymbolId id = StringToIdFast(name);
+            return GetSymbol(id.Id);
+        }
+
         public static SymbolId StringToId(string field) {
             if (field == null) {
                 throw new ArgumentNullException(Resources.NameMustBeString);
@@ -84,6 +90,11 @@ namespace Microsoft.Scripting
               return char.ConvertFromUtf32(iv);
             });
 
+            return StringToIdFast(field);
+        }
+
+        public static SymbolId StringToIdFast(string field)
+        {
             int res;
             // First, look up the identifier case-sensitively.
             if (!_idDict.TryGetValue(field, out res))

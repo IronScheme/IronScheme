@@ -331,9 +331,9 @@ namespace IronScheme.Runtime
       MethodBase m = st.GetFrame(0).GetMethod();
       foreach (BuiltinAttribute ba in m.GetCustomAttributes(typeof(BuiltinAttribute), false))
       {
-        return SymbolTable.StringToObject(ba.Name ?? m.Name.ToLower());
+        return SymbolTable.StringToObject(ba.Name ?? m.Name.ToLowerInvariant());
       }
-      return SymbolTable.StringToObject(m.Name.ToLower());
+      return SymbolTable.StringToObject(m.Name.ToLowerInvariant ());
     }
 
     [DebuggerNonUserCode]
