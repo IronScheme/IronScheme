@@ -271,6 +271,7 @@
   '(
     ;;;
     (load/unsafe                                i)
+    (constant-fold                              ic)
     (optimize                                   ic)
     (compress-constants?                        ic)
     (clr-string?                                ic)

@@ -273,7 +273,7 @@ namespace Microsoft.Scripting.Generation
 
                 value = AddStaticField(typeof(object), FieldAttributes.Private, "$s$" + SymbolTable.IdToString(id));
                 CodeGen init = TypeInitializer;
-                //Slot localTmp = init.GetLocalTmp(typeof(SymbolId));
+
                 var sid = SymbolTable.IdToString(id);
                 init.EmitString(sid);
                 if (SymbolTable.StringToObject(sid) != SymbolTable.StringToObjectFast(sid))
@@ -284,11 +284,8 @@ namespace Microsoft.Scripting.Generation
                 {
                     init.EmitCall(typeof(SymbolTable), "StringToObjectFast");
                 }
-                //localTmp.EmitSet(init);
-                //init.EmitBoxing(typeof(object));
                 value.EmitSet(init);
 
-                //init.FreeLocalTmp(localTmp);
                 _indirectSymbolIds[id] = value;
             }
 

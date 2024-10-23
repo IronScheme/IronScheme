@@ -50,12 +50,11 @@
     (psyntax internal)
     (psyntax library-manager)
     (psyntax expander)
-    (only (ironscheme core) get-command-line format compile-library load-library-dll compress-constants?)
+    (only (ironscheme core) get-command-line format compile-library load-library-dll compress-constants? constant-fold)
     (ironscheme enums)
     (ironscheme files)
     (ironscheme clr)
     (only (ironscheme unsafe) $fx+ $fx-)
-    (ironscheme constant-fold)
     (except (ironscheme library) file-locator alternative-file-locator)
     (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? compile-to-current-directory? serialize-port deserialize-port time time-it string=?))
     
@@ -306,15 +305,6 @@
   (library-path (get-library-paths))
   
   (library-extensions (cons ".ironscheme.sls" (library-extensions)))
-  
-  (enable-constant-fold/env 
-    '(only (rnrs) + - * / = < > <= >= negative? positive? zero? exp expt div mod div0 mod0 even? odd? 
-                  log abs tan sin cos atan asin acos angle denominator)
-    '(except (rnrs arithmetic fixnums) fx*/carry fx-/carry fx+/carry fxdiv0-and-mod0 fxdiv-and-mod)
-    '(except (rnrs arithmetic flonums) fldiv0-and-mod0 fldiv-and-mod 
-              make-no-infinities-violation make-no-nans-violation 
-              no-infinities-violation? no-nans-violation?)
-    '(rnrs arithmetic bitwise))
   
   (interaction-environment (new-interaction-environment))
   
