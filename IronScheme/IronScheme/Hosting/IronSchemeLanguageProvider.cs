@@ -114,11 +114,6 @@ namespace IronScheme.Hosting
 
       protected override int RunFile(string filename)
       {
-        if (!File.Exists(filename.Replace('\\', '/')))
-        {
-          return 1;
-        }
-
         var rest = Options.RemainingArgs;
         for (int i = 0; i < rest.Length; i++)
         {
