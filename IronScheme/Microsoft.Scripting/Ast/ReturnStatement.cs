@@ -32,7 +32,6 @@ namespace Microsoft.Scripting.Ast {
         public override void Emit(CodeGen cg) {
             cg.EmitPosition(Start, End);
             cg.EmitReturn(_expr);
-            //cg.EmitSequencePointNone();
         }
     }
 

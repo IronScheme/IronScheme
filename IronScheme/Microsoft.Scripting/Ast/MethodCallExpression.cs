@@ -390,8 +390,6 @@ namespace Microsoft.Scripting.Ast
                         cg.EmitConstant(s);
                         cg.EmitCall(Debugging.DebugMethods.ExpressionIn);
                     }
-
-
                 }
             }
             else
@@ -421,18 +419,6 @@ namespace Microsoft.Scripting.Ast
         public delegate MethodInfo MakeListHandler(Expression[] args, bool proper);
 
         public static MakeListHandler MakeList;
-
-        private bool HasNoCallableArgs()
-        {
-            foreach (var a in _arguments)
-            {
-                if (a.Type.Name == "Callable")
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
 
         bool IsParamsMethod()
         {

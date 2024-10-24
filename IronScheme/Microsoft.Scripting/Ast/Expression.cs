@@ -151,9 +151,7 @@ namespace Microsoft.Scripting.Ast
         /// <param name="label">Where to branch if this expression is false.</param>
         public virtual void EmitBranchFalse(CodeGen cg, Label label) {
             this.EmitAs(cg, typeof(bool));
-            //cg.EmitSequencePointNone();
             cg.Emit(OpCodes.Brfalse, label);
-            //cg.EmitSequencePointNone();
         }
 
         /// <summary>

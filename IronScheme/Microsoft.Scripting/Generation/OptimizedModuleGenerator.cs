@@ -147,11 +147,6 @@ namespace Microsoft.Scripting.Generation
                 targets.Add((CallTargetWithContext0)cg.CreateDelegate(typeof(CallTargetWithContext0)));
             }
 
-            // TODO: clean this up after clarifying dynamic site initialization logic
-            for (int i = 0; i < _scriptCodes.Length; i++) {
-                //Microsoft.Scripting.Actions.DynamicSiteHelpers.InitializeFields(_codeContexts[i], cgs[i].MethodInfo.DeclaringType);
-            }
-
             // everything succeeded, commit the results
             for (int i = 0; i < _scriptCodes.Length; i++) {
                 ScriptCode sc = _scriptCodes[i];
@@ -276,7 +271,6 @@ namespace Microsoft.Scripting.Generation
         private Dictionary<LanguageContext, LanguageInfo> _languages = new Dictionary<LanguageContext, LanguageInfo>();
 
         private class LanguageInfo {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")] // TODO: fix
             public StaticFieldSlotFactory SlotFactory;
             public TypeGen TypeGen;
 
@@ -504,7 +498,6 @@ namespace Microsoft.Scripting.Generation
                 Slot slot = kv.Value;
                 ModuleGlobalSlot builtin = slot as ModuleGlobalSlot;
 
-                Debug.Assert(builtin != null);
                 if (builtin != null)
                 {
                   cg.EmitCodeContext();
@@ -520,7 +513,6 @@ namespace Microsoft.Scripting.Generation
                   cg.EmitSymbolId(kv.Key);
                   sfs.EmitGetAddr(cg);
                   cg.EmitCall(typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.InitializeFieldBoxed)).MakeGenericMethod( sfs.Type ));
-
                 }
             }
 

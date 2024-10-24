@@ -62,57 +62,9 @@ namespace Microsoft.Scripting.Generation
             return (pi.Attributes & ParameterAttributes.HasDefault) != 0;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        public static object GetMissingValue(Type type) {
-            Contract.RequiresNotNull(type, "type");
-            
-            if (type.IsByRef) type = type.GetElementType();
-            if (type.IsEnum) return Activator.CreateInstance(type);
-
-            switch (Type.GetTypeCode(type)) {
-                default:
-                case TypeCode.Object:
-                    // struct
-                    if (type.IsSealed && type.IsValueType) {
-                        return Activator.CreateInstance(type);
-                    } else if (type == typeof(object)) {
-                        // parameter of type object receives the actual Missing value
-                        return Missing.Value;
-                    } else if (!type.IsValueType) {
-                        return null;
-                    } else {
-                        throw new ArgumentException(String.Format("Cannot create default value for type {0}", type));
-                    }
-                case TypeCode.Empty:
-                case TypeCode.DBNull:
-                case TypeCode.String:
-                    return null;
-
-                case TypeCode.Boolean: return false;
-                case TypeCode.Char: return '\0';
-                case TypeCode.SByte: return (sbyte)0;
-                case TypeCode.Byte: return (byte)0;
-                case TypeCode.Int16: return (short)0;
-                case TypeCode.UInt16: return (ushort)0;
-                case TypeCode.Int32: return (int)0;
-                case TypeCode.UInt32: return (uint)0;
-                case TypeCode.Int64: return 0L;
-                case TypeCode.UInt64: return 0UL;
-                case TypeCode.Single: return 0.0f;
-                case TypeCode.Double: return 0.0D;
-                case TypeCode.Decimal: return (decimal)0;
-                case TypeCode.DateTime: return DateTime.MinValue;
-            }
-        }
 
         public static bool IsStatic(MethodBase mi) {
             return mi.IsConstructor || mi.IsStatic;
-        }
-
-        public static T[] MakeRepeatedArray<T>(T item, int count) {
-            T[] ret = new T[count];
-            for (int i = 0; i < count; i++) ret[i] = item;
-            return ret;
         }
 
         /// <summary>
@@ -235,33 +187,6 @@ namespace Microsoft.Scripting.Generation
                 types[i] = GetType(args[i]);
             }
             return types;
-        }
-
-        /// <summary>
-        /// Given a MethodInfo which may be declared on a non-public type this attempts to
-        /// return a MethodInfo which will dispatch to the original MethodInfo but is declared
-        /// on a public type.
-        /// 
-        /// Returns null if a public method cannot be obtained.
-        /// </summary>
-        public static MethodInfo TryGetCallableMethod(MethodInfo method) {
-            if (method.DeclaringType.IsVisible) return method;
-            // first try and get it from the base type we're overriding...
-            method = method.GetBaseDefinition();
-
-            if (method.DeclaringType.IsVisible) return method;
-            // maybe we can get it from an interface...
-            Type[] interfaces = method.DeclaringType.GetInterfaces();
-            foreach (Type iface in interfaces) {
-                InterfaceMapping mapping = method.DeclaringType.GetInterfaceMap(iface);
-                for (int i = 0; i < mapping.TargetMethods.Length; i++) {
-                    if (mapping.TargetMethods[i] == method) {
-                        return mapping.InterfaceMethods[i];
-                    }
-                }
-            }
-
-            return method;
         }
 
         public static Type GetVisibleType(object value) {

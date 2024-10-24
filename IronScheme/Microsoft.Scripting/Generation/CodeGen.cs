@@ -1957,10 +1957,6 @@ namespace Microsoft.Scripting.Generation
 
               impl.Finish();
             }
-            else
-            {
-              ;
-            }
 
             return impl;
         }

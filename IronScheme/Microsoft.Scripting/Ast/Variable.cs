@@ -31,7 +31,6 @@ namespace Microsoft.Scripting.Ast
             Local,
             Parameter,
             Temporary,              // Temporary variable (name not important/published)
-
             Global,                 // Globals may need to go away and be handled on Python side only.
         };
 

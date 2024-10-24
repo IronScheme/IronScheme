@@ -40,7 +40,6 @@ namespace Microsoft.Scripting.Ast
             get { return _left; }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")] // TODO: Fix by holding onto the type directly
         public override Type Type {
             get {
                 switch (NodeType) {
@@ -467,13 +466,6 @@ namespace Microsoft.Scripting.Ast
             cg.MarkLabel(endif);
             return;
         }
-
-        private bool TestEquals(object l, object r) {
-            // We don't need to go through the same type checks as the emit case,
-            // since we know we're always dealing with boxed objects.
-
-            return Object.Equals(l, r);
-        }
     }
 
     public static partial class Ast {
@@ -507,8 +499,6 @@ namespace Microsoft.Scripting.Ast
             return MakeBinaryComparisonExpression(AstNodeType.LessThanOrEqual, left, right);
         }
 
-        #region Boolean Expressions
-
         public static BinaryExpression AndAlso(Expression left, Expression right) {
             return LogicalBinary(AstNodeType.AndAlso, left, right);
         }
@@ -526,78 +516,6 @@ namespace Microsoft.Scripting.Ast
 
             return new BinaryExpression(nodeType, left, right);
         }
-
-        #endregion
-
-        #region Coalescing Expressions
-
-        /// <summary>
-        /// Null coalescing expression (LINQ).
-        /// {result} ::= ((tmp = {_left}) == null) ? {right} : tmp
-        /// '??' operator in C#.
-        /// </summary>
-        public static Expression Coalesce(CodeBlock currentBlock, Expression left, Expression right) {
-            return CoalesceInternal(currentBlock, left, right, null, false);
-        }
-
-        /// <summary>
-        /// True coalescing expression.
-        /// {result} ::= IsTrue(tmp = {left}) ? {right} : tmp
-        /// Generalized AND semantics.
-        /// </summary>
-        public static Expression CoalesceTrue(CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue) {
-            Contract.RequiresNotNull(isTrue, "isTrue");
-            return CoalesceInternal(currentBlock, left, right, isTrue, false);
-        }
-
-        /// <summary>
-        /// False coalescing expression.
-        /// {result} ::= IsTrue(tmp = {left}) ? tmp : {right}
-        /// Generalized OR semantics.
-        /// </summary>
-        public static Expression CoalesceFalse(CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue) {
-            Contract.RequiresNotNull(isTrue, "isTrue");
-            return CoalesceInternal(currentBlock, left, right, isTrue, true);
-        }
-
-        private static Expression CoalesceInternal(CodeBlock currentBlock, Expression left, Expression right, MethodInfo isTrue, bool isReverse) {
-            Contract.RequiresNotNull(currentBlock, "currentBlock");
-            Contract.RequiresNotNull(left, "left");
-            Contract.RequiresNotNull(right, "right");
-
-            // A bit too strict, but on a safe side.
-            Contract.Requires(left.Type == right.Type, "Expression types must match");
-
-            Variable tmp = currentBlock.CreateTemporaryVariable(SymbolTable.StringToId("tmp_left"), left.Type);
-
-            Expression condition;
-            if (isTrue != null) {
-                Contract.Requires(isTrue.ReturnType == typeof(bool), "isTrue", "Predicate must return bool.");
-                ParameterInfo[] parameters = isTrue.GetParameters();
-                Contract.Requires(parameters.Length == 1, "isTrue", "Predicate must take one parameter.");
-                Contract.Requires(isTrue.IsStatic && isTrue.IsPublic, "isTrue", "Predicate must be public and static.");
-
-                Type pt = parameters[0].ParameterType;
-                Contract.Requires(TypeUtils.CanAssign(pt, left.Type), "left", "Incorrect left expression type");
-                condition = Call(isTrue, Assign(tmp, left));
-            } else {
-                Contract.Requires(TypeUtils.CanCompareToNull(left.Type), "left", "Incorrect left expression type");
-                condition = Equal(Assign(tmp, left), Null(left.Type));
-            }
-
-            Expression t, f;
-            if (isReverse) {
-                t = Read(tmp);
-                f = right;
-            } else {
-                t = right;
-                f = Read(tmp);
-            }
-
-            return Condition(condition, t, f);
-        }
-
-        #endregion
 
         /// <summary>
         /// Adds two arithmetic values of the same type.
@@ -620,7 +538,6 @@ namespace Microsoft.Scripting.Ast
         public static BinaryExpression Subtract(Expression left, Expression right) {
             return MakeBinaryArithmeticExpression(AstNodeType.Subtract, left, right);
         }
-
 
         /// <summary>
         /// Subtracts two arithmetic values of the same type.
@@ -658,7 +575,6 @@ namespace Microsoft.Scripting.Ast
         {
           return MakeBinaryArithmeticExpression(AstNodeType.MultiplyChecked, left, right);
         }
-
 
         /// <summary>
         /// Left shifts one arithmetic value by another aritmetic value of the same type.

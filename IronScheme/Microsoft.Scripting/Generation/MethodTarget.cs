@@ -40,8 +40,6 @@ namespace Microsoft.Scripting.Generation
             this._instanceBuilder = instanceBuilder;
             this._argBuilders = argBuilders;
             this._returnBuilder = returnBuilder;
-
-            //argBuilders.TrimExcess();
         }
 
         public MethodBase Method {
@@ -64,11 +62,6 @@ namespace Microsoft.Scripting.Generation
       }
 
         public bool CheckArgs(CodeContext context, object[] args) {
-            //if (!instanceBuilder.Check(context, args)) return false;
-            //foreach (ArgBuilder arg in argBuilders) {
-            //    if (!arg.Check(context, args)) return false;
-            //}
-            //return true;
             try {
                 _instanceBuilder.Build(context, args);
                 for (int i = 0; i < _argBuilders.Count; i++) {
@@ -81,7 +74,6 @@ namespace Microsoft.Scripting.Generation
                 return false;
             }
         }
-
 
         public object CallReflected(CodeContext context, object[] args)
         {

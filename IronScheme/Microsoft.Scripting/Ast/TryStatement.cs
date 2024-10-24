@@ -49,9 +49,6 @@ namespace Microsoft.Scripting.Ast
         private readonly ReadOnlyCollection<CatchBlock> _handlers;
         private readonly Statement _finally;
 
-        [ThreadStatic]
-        private static List<Exception> _evalExceptions;
-
         /// <summary>
         /// Called by <see cref="TryStatementBuilder"/>.
         /// Creates a try/catch/finally/else block.
@@ -83,26 +80,6 @@ namespace Microsoft.Scripting.Ast
 
         public Statement FinallyStatement {
             get { return _finally; }
-        }
-
-        private static void PopEvalException() {
-            _evalExceptions.RemoveAt(_evalExceptions.Count - 1);
-            if (_evalExceptions.Count == 0) _evalExceptions = null;
-        }
-
-        private static void PushEvalException(Exception exc) {
-            if (_evalExceptions == null) _evalExceptions = new List<Exception>();
-            _evalExceptions.Add(exc);
-        }
-
-        internal static Exception LastEvalException {
-            get {
-                if (_evalExceptions == null || _evalExceptions.Count == 0) {
-                    throw new InvalidOperationException("rethrow outside of catch block");
-                }
-
-                return _evalExceptions[_evalExceptions.Count - 1];
-            }
         }
 
         private bool HaveHandlers() {
@@ -300,8 +277,6 @@ namespace Microsoft.Scripting.Ast
             // Codegen is affected by presence/absence of loop control statements
             // (break/continue) or return/yield statement in finally clause
             TryFlowResult flow = TryFlowAnalyzer.Analyze(FinallyStatement);
-
-            //cg.EmitPosition(Start, _header);
 
             // If there's a yield anywhere, go for a complex codegen
             EmitSimpleTry(cg, flow);

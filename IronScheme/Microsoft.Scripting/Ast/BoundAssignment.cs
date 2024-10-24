@@ -195,7 +195,6 @@ namespace Microsoft.Scripting.Ast
           EmitLocation(cg);
             _value.Emit(cg);
             _vr.Slot.EmitSet(cg);
-            //_vr.Slot.EmitGetAddr(cg);
             if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
             {
               cg.EmitConstant(SpanToLong(Span));
@@ -206,7 +205,6 @@ namespace Microsoft.Scripting.Ast
         public override void Emit(CodeGen cg) {
           EmitLocation(cg);
             _value.EmitAs(cg, _vr.Slot.Type);
-            //cg.Emit(OpCodes.Dup);
             _vr.Slot.EmitSet(cg);
             if (ScriptDomainManager.Options.LightweightDebugging && Span.IsValid)
             {
@@ -221,7 +219,6 @@ namespace Microsoft.Scripting.Ast
         /// Performs an assignment variable = value
         /// </summary>
         public static Statement Write(Variable variable, Variable value) {
-          //return Statement(Assign(variable, Ast.Read(value)));  
           return new WriteStatement(variable, Ast.Read(value));
         }
 
@@ -229,7 +226,6 @@ namespace Microsoft.Scripting.Ast
         /// Performs an assignment variable = value
         /// </summary>
         public static Statement Write(Variable variable, Expression value) {
-          //return Statement(Assign(variable, value));  
             return new WriteStatement(variable, value);
         }
 

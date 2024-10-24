@@ -37,7 +37,6 @@ namespace Microsoft.Scripting.Ast {
         }
 
         public override void Emit(CodeGen cg) {
-            // RuntimeHelpers.LookupName(CodeContext, name)
             cg.EmitCodeContext();
             cg.EmitSymbolId(_name);
             cg.EmitUnbox(typeof(SymbolId));

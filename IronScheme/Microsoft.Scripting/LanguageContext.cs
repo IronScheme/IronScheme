@@ -161,11 +161,6 @@ namespace Microsoft.Scripting
 
         #endregion
 
-        public virtual ScriptCode Reload(ScriptCode original, ScriptModule module) {
-            original.SourceUnit.Reload();
-            return CompileSourceCode(original.SourceUnit);
-        }
-
         /// <summary>
         /// Looks up the name in the provided Scope using the current language's semantics.
         /// </summary>

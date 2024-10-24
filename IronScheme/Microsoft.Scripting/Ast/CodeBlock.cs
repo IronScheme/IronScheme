@@ -582,7 +582,6 @@ namespace Microsoft.Scripting.Ast
           cg.EmitCall(_impl, tailcall);
           return;
         }
-        //FlowChecker.Check(this);
 
         // TODO: explicit delegate type may be wrapped...
         bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
@@ -592,8 +591,6 @@ namespace Microsoft.Scripting.Ast
             IsClosure ||
             !(cg.ContextSlot is StaticFieldSlot) ||
             _parameterArray);
-
-        //hasContextParameter = true;
 
         bool hasThis = HasThis();
 
@@ -617,8 +614,6 @@ namespace Microsoft.Scripting.Ast
       }
 
         internal void EmitDelegateConstruction(CodeGen cg, bool forceWrapperMethod, bool stronglyTyped, Type delegateType) {
-            //FlowChecker.Check(this);
-
             // TODO: explicit delegate type may be wrapped...
             bool createWrapperMethod = !_parameterArray && (forceWrapperMethod || NeedsWrapperMethod(stronglyTyped));
 
@@ -628,11 +623,7 @@ namespace Microsoft.Scripting.Ast
                 !(cg.ContextSlot is StaticFieldSlot) ||
                 _parameterArray);
 
-            //hasContextParameter = true;
-
             bool hasThis = HasThis();
-
-            
 
             // TODO: storing implementations on code gen doesn't allow blocks being referenced from different methods
             // the implementations should be stored on some kind of Module when available
@@ -648,7 +639,6 @@ namespace Microsoft.Scripting.Ast
                   delegateType = typeof(CallTargetN);
                 }
                 _impl = wrapper.MethodInfo;
-                //cg.EmitPosition(Start, Start);
                 if (hasContextParameter)
                 {
                   cg.EmitCodeContext();
@@ -658,7 +648,6 @@ namespace Microsoft.Scripting.Ast
                 if (delegateType == null) {
                   delegateType = typeof(CallTargetN);
                 }
-                //cg.EmitPosition(Start, Start);
                 if (hasContextParameter)
                 {
                   cg.EmitCodeContext();
@@ -669,7 +658,6 @@ namespace Microsoft.Scripting.Ast
                         delegateType = CallTargets.GetTargetType(false, _parameters.Count - (hasThis ? 1 : 0), hasThis);
                 }
                 _impl = impl.MethodInfo;
-               // cg.EmitPosition(Start, Start);
                 if (hasContextParameter)
                 {
                   cg.EmitCodeContext();
@@ -826,35 +814,7 @@ namespace Microsoft.Scripting.Ast
                 return outer.DefineMethod(implName, typeof(object), paramTypes.ToArray(), null, staticData);
             }
         }
-/*
-        private CodeGen MakeUntypedWrapperMethod(CodeGen outer, CodeGen impl)
-        {
-          string implName = impl.MethodBase.Name;
-          List<Type> types = new List<Type>();
 
-          foreach (var p in _parameters)
-          {
-            types.Add(typeof(object));
-          }
-
-          CodeGen wrapper = CreateWrapperCodeGen(outer, implName, types, null);
-
-          for (int i = 0; i < _parameters.Count; i++)
-          {
-            wrapper.EmitArgAddr(i);
-            wrapper.EmitCall(Unbox.MakeGenericMethod(_parameters[i].Type));
-          }
-
-          wrapper.EmitCall(impl.MethodInfo);
-          wrapper.EmitCall(Box.MakeGenericMethod(_returnType), true);
-          wrapper.EmitReturn();
-
-          return wrapper;
-        }
-
-        public static MethodInfo Unbox;
-        public static MethodInfo Box;
-*/
         /// <summary>
         /// Creates a wrapper method for the user-defined function.  This allows us to use the CallTargetN
         /// delegate against the function when we don't have a CallTarget# which is large enough.
@@ -946,18 +906,6 @@ namespace Microsoft.Scripting.Ast
 
           if (!ScriptDomainManager.Options.LightweightDebugging)
           {
-            //if (Start.IsValid)
-            //{
-            //  var s = new SourceLocation(Start.Index, Start.Line, Start.Column + 1);
-
-            //  cg.EmitPosition(Start, s);
-            //  cg.Emit(OpCodes.Nop);
-            //}
-            //else
-            //{
-            //  cg.EmitSequencePointNone();
-            //}
-
             cg.lambdaspan = Span;
           }
 
@@ -981,7 +929,6 @@ namespace Microsoft.Scripting.Ast
             if (!ScriptDomainManager.Options.LightweightDebugging)
             {
               cg.lambdaspan = prevls;
-              //cg.EmitSequencePointNone();
             }
         }
 

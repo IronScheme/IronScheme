@@ -17,8 +17,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Scripting.Ast {
     public partial class Walker {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+
         public void WalkNode(Node node) {
             if (node == null) {
                 return;

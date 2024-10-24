@@ -33,8 +33,6 @@ namespace Microsoft.Scripting.Ast {
 
 
         public override void Emit(CodeGen cg) {
-            //cg.EmitPosition(Span.Start, Span.End);
-            // Should emit nop for the colon?
             foreach (Statement stmt in _statements) {
                 stmt.Emit(cg);
             }

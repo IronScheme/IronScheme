@@ -36,13 +36,6 @@ namespace Microsoft.Scripting.Ast
         {
           get { return _stronglyTyped; }
         }
-        
-#if DEBUG
-        internal bool ForceWrapperMethod {
-            get { return _forceWrapperMethod; }
-        }
-
-#endif
 
         /// <summary>
         /// Whether this expression declares the block. If so, the declaring code's variable are accessible from within the block (a closure is created).
@@ -88,8 +81,6 @@ namespace Microsoft.Scripting.Ast
     }
 
     public static partial class Ast {
-
-        // TODO: rename to CodeBlockDeclaration?
 
         public static CodeBlockExpression CodeBlockExpression(CodeBlock block, bool forceWrapper) {
             return new CodeBlockExpression(block, forceWrapper, false, true, null);
