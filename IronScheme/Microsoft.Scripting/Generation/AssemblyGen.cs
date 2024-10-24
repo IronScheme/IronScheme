@@ -33,7 +33,6 @@ namespace Microsoft.Scripting.Generation
         
         private object _symbolWriter;
         private readonly string _outFileName;       // can be null iff !SaveAndReloadAssemblies
-        private PortableExecutableKinds _peKind;
         private ImageFileMachine _machine;
 
         private readonly string _outDir;            // null means the current directory
@@ -48,15 +47,13 @@ namespace Microsoft.Scripting.Generation
             string outFile,
             AssemblyGenAttributes generationAttributes)
             :
-            this(moduleName, outDir, outFile, generationAttributes, 
-            PortableExecutableKinds.ILOnly, ImageFileMachine.I386) { 
+            this(moduleName, outDir, outFile, generationAttributes, ImageFileMachine.I386) { 
         }
 
         public AssemblyGen(string moduleName, 
             string outDir, 
             string outFile, 
             AssemblyGenAttributes generationAttributes,
-            PortableExecutableKinds peKind, 
             ImageFileMachine machine) {
 
             Contract.Requires(!String.IsNullOrEmpty(moduleName), "moduleName", "Module name cannot be a null reference or an empty string.");
@@ -69,7 +66,6 @@ namespace Microsoft.Scripting.Generation
             AppDomain domain = AppDomain.CurrentDomain; //System.Threading.Thread.GetDomain();
 
             _machine = machine;
-            _peKind = peKind;
             _outFileName = outFile;
 
             try {
@@ -203,7 +199,7 @@ namespace Microsoft.Scripting.Generation
         }
 
 
-      public TypeGen DefinePublicType(string name, Type parent, TypeAttributes attrs)
+      public TypeGen DefineType(string name, Type parent, TypeAttributes attrs)
       {
         if (BeforeFieldInit) attrs |= TypeAttributes.BeforeFieldInit;
         TypeBuilder tb = _myModule.DefineType(name.Replace('+', '_'), attrs); //& is also illegal here
@@ -212,7 +208,7 @@ namespace Microsoft.Scripting.Generation
       }
 
         public TypeGen DefinePublicType(string name, Type parent) {
-            return DefinePublicType(name, parent, TypeAttributes.Public);
+            return DefineType(name, parent, TypeAttributes.Public);
         }
 
         public CodeGen DefineMethod(string methodName, Type returnType, IList<Type> paramTypes, ConstantPool constantPool) {

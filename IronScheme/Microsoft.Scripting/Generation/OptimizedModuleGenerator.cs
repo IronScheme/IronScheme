@@ -96,16 +96,8 @@ namespace Microsoft.Scripting.Generation
           string outDir, fileName;
           GetCompiledSourceUnitAssemblyLocation(suid, out outDir, out fileName);
 
-
           AssemblyGen ag;
           string ext = ".dll";
-
-          //if (scriptCode.CodeBlock.Name == "ironscheme.boot.new")
-          //{
-          //  fileName = "ironscheme.boot.new";
-          //  ext = ".dll";
-          //}
-
 
           // Try to create a file called "filename.<cnt>.exe", ensuring that the filename does not clash with an existing file
           int cnt = 0;
@@ -130,8 +122,6 @@ namespace Microsoft.Scripting.Generation
               ext = "_" + cnt.ToString() + ext;
             }
           }
-
-          //ag.SetSourceUnit(su);
 
           return ag;
         }

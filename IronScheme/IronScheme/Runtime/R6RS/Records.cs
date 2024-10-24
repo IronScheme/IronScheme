@@ -607,7 +607,7 @@ namespace IronScheme.Runtime.R6RS
       var ns = "record." + gid;
       var typename = ns + "." + n.Replace("&", "$").Replace("*", "$"); // TODO: Make me better
 
-      TypeGen tg = ag.DefinePublicType(typename, parenttype, attrs);
+      TypeGen tg = ag.DefineType(typename, parenttype, attrs);
 
       rtd.tg = tg;
       rtd.type = tg.TypeBuilder;
