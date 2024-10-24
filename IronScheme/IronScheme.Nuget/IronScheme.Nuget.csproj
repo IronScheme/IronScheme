@@ -5,6 +5,10 @@
     <NoWarn>NU5119;NU5048;NU5101;NU5128</NoWarn>
     <OutputPath>..\bin</OutputPath>
 
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <ResolveAssemblyReferencesSilent>true</ResolveAssemblyReferencesSilent>
+
     <NoBuild>true</NoBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     
