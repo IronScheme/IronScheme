@@ -19,14 +19,11 @@ using System.Runtime.Serialization;
 namespace Microsoft.Scripting.Shell
 {
     [Serializable]
-    public class KeyboardInterruptException : Exception {
+    class KeyboardInterruptException : Exception {
         public KeyboardInterruptException() : base() { }
         public KeyboardInterruptException(string msg) : base(msg) { }
         public KeyboardInterruptException(string message, Exception innerException)
             : base(message, innerException) {
         }
-#if !SILVERLIGHT // SerializationInfo
-        protected KeyboardInterruptException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 }

@@ -67,11 +67,10 @@ namespace Microsoft.Scripting.Generation
             {
               result |= AssemblyGenAttributes.EmitDebugInfo;
 
-
-#if !SILVERLIGHT
               if (options.DebugCodeGeneration)
-#endif
-                result |= AssemblyGenAttributes.DisableOptimizations;
+              {
+                 result |= AssemblyGenAttributes.DisableOptimizations;
+              }
             }
             else
             {

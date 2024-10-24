@@ -98,11 +98,6 @@ namespace Microsoft.Scripting.Generation
                 } else {
                     result = Method.Invoke(instance, callArgs);
                 }
-#if SILVERLIGHT && DEBUG // TODO: drop when Silverlight gets fixed
-            } catch (System.Security.SecurityException) {
-                throw new System.Security.SecurityException(String.Format("Access to method '{0}' denied.", 
-                    ReflectionUtils.FormatSignature(new System.Text.StringBuilder(), Method)));
-#endif
             } catch (TargetInvocationException tie) {
                 throw tie.InnerException;
             }
@@ -113,18 +108,6 @@ namespace Microsoft.Scripting.Generation
             }
 
             return _returnBuilder.Build(context, callArgs, args, result);
-        }
-
-        private static MethodCallExpression GetNotImplemented() {
-            return Ast.Call(
-                Ast.ReadProperty(
-                    Ast.CodeContext(),
-                    typeof(CodeContext),
-                    "LanguageContext"
-                ),
-                typeof(LanguageContext).GetMethod("GetNotImplemented"),
-                Ast.NewArray(typeof(MethodCandidate[]))
-            );
         }
 
         private static int FindMaxPriority(IList<ArgBuilder> abs, int ceiling) {

@@ -22,8 +22,7 @@ using System.IO;
 
 namespace Microsoft.Scripting.Shell
 {
-#if !SILVERLIGHT // SuperConsole (ConsoleColor)
-    public sealed class SuperConsole : BasicConsole {
+   sealed class SuperConsole : BasicConsole {
 
         #region Nested types: History, SuperConsoleOptions, Cursor
 
@@ -688,11 +687,4 @@ namespace Microsoft.Scripting.Shell
             }
         }
     }
-#else
-    public sealed class SuperConsole : BasicConsole {
-        public SuperConsole(CommandLine commandLine, IScriptEngine engine, bool isColorful)
-            : base(engine, isColorful) {
-        }
-    }
-#endif
 }

@@ -31,9 +31,5 @@ namespace Microsoft.Scripting
         public ArgumentTypeException(string message, Exception innerException)
             : base(message, innerException) {
         }
-
-#if !SILVERLIGHT // SerializationInfo
-        protected ArgumentTypeException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 }

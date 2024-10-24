@@ -194,10 +194,6 @@ namespace Microsoft.Scripting.Shell
                   try
                   {
                     res = TryInteractiveAction();
-#if SILVERLIGHT 
-                    } catch (ExitProcessException e) {
-                        res = e.ExitCode;
-#endif
                   }
                   catch (Exception e) 
                   {

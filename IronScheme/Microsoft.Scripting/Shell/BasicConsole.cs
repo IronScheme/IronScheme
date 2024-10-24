@@ -82,15 +82,12 @@ namespace Microsoft.Scripting.Shell
                 _errorColor = ConsoleColor.Red;
                 _warningColor = ConsoleColor.Yellow;
             } else {
-#if !SILVERLIGHT
               _promptColor = _outColor = _errorColor = _warningColor = ConsoleColor.Gray;
-#endif
             }
         }
 
         protected void WriteColor(TextWriter output, string str, ConsoleColor c)
         {
-#if !SILVERLIGHT // Console.ForegroundColor
           if (string.IsNullOrEmpty(str))
           {
             return;
@@ -102,7 +99,6 @@ namespace Microsoft.Scripting.Shell
             try
             {
               Console.ForegroundColor = c;
-#endif
               string[] tokens = str.Split('\n');
 
 
@@ -150,7 +146,6 @@ namespace Microsoft.Scripting.Shell
                 output.Flush();
               }
 
-#if !SILVERLIGHT // Console.ForegroundColor
             }
             finally
             {
@@ -162,7 +157,6 @@ namespace Microsoft.Scripting.Shell
             output.Write(str);
             output.Flush();
           }
-#endif
         }
 
         #region IConsole Members

@@ -25,13 +25,9 @@ namespace Microsoft.Scripting
 {
 
     [Serializable]
-    public class InvalidOptionException : Exception {
+    class InvalidOptionException : Exception {
         public InvalidOptionException(string message) : base(message) {
         }
-
-#if !SILVERLIGHT // SerializationInfo
-        public InvalidOptionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-#endif
     }
 
     public abstract class OptionsParser {
@@ -210,42 +206,8 @@ namespace Microsoft.Scripting
             options = new string[,] {
 //                { "-c cmd",                 "Program passed in as string (terminates option list)" },
                 { "-h",                     "Display usage" },
-//#if !IRONPYTHON_WINDOW
-//                { "-i",                     "Inspect interactively after running script" },
-//#endif
                 { "-V",                     "Print the version number and exit" },
-//                { "-O",                     "Enable optimizations" },
-//#if DEBUG
-//                { "-D",                     "EngineDebug mode" },
-//#endif
-//                { "-OO",                    "Remove doc-strings in addition to the -O optimizations" },
-    
-               
-//                { "-X:AutoIndent",          "" },
-//                { "-X:AssembliesDir",       "Set the directory for saving generated assemblies" },
-//#if !SILVERLIGHT
-//                { "-X:ColorfulConsole",     "Enable ColorfulConsole" },
-//#endif
-//                { "-X:ExceptionDetail",     "Enable ExceptionDetail mode" },
-//                { "-X:Interpret",           "Enable interpreted mode" },
-//                { "-X:Frames",              "Generate custom frames" },
-//                { "-X:GenerateAsSnippets",  "Generate code to run in snippet mode" },
-//                { "-X:ILDebug",             "Output generated IL code to a text file for debugging" },
-//                { "-X:MaxRecursion",        "Set the maximum recursion level" },
-//                { "-X:NoOptimize",          "Disable JIT optimization in generated code" },
-//                { "-X:NoTraceback",         "Do not emit traceback code" },
-//                { "-X:PassExceptions",      "Do not catch exceptions that are unhandled by script code" },
-//                { "-X:PrivateBinding",      "Enable binding to private members" },
-//                { "-X:SaveAssemblies",      "Save generated assemblies" },
-//                { "-X:ShowClrExceptions",   "Display CLS Exception information" },
-//                { "-X:SlowOps",             "Enable fast ops" },
-//                { "-X:StaticMethods",       "Generate static methods only" },
-//#if !SILVERLIGHT
-//                { "-X:TabCompletion",       "Enable TabCompletion mode" },
-//#endif
-//#if DEBUG
-//                { "-X:TrackPerformance",    "Track performance sensitive areas" },
-//#endif
+
            };
 
             environmentVariables = new string[0, 0];

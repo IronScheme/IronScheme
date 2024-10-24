@@ -133,12 +133,10 @@ namespace Microsoft.Scripting.Hosting
                         break;
 
                     case "mta":
-                        OptionNotAvailableOnSilverlight(name);
                         _options.IsMTA = true;
                         break;
 
                     case "setenv":
-                        OptionNotAvailableOnSilverlight(name);
                         _options.EnvironmentVars.AddRange(value.Split(';'));
                         break;
                     case "help":
@@ -232,11 +230,6 @@ namespace Microsoft.Scripting.Hosting
             if (value == null) {
                 throw new InvalidOptionException(String.Format(CultureInfo.CurrentCulture, Resources.MissingOptionValue, optionName));
             }
-        }
-
-        [Conditional("SILVERLIGHT")]
-        private void OptionNotAvailableOnSilverlight(string optionName) {
-            throw new InvalidOptionException(String.Format("Option '{0}' is not available on Silverlight.", optionName));
         }
 
         private static LanguageProvider GetLanguageProvider(string languageId) {
