@@ -108,43 +108,6 @@ namespace Microsoft.Scripting.Shell
             }
         }
         
-        #region Console
-
-        static bool IsInputRedirected()
-        {
-          try
-          {
-            var f = System.Console.KeyAvailable;
-            return false;
-          }
-          catch
-          {
-            return true;
-          }
-        }
-
-        readonly bool inputredirected = IsInputRedirected();
-
-        private IConsole CreateConsole(CommandLine commandLine, ScriptEngine engine, bool isSuper, bool isColorful) {
-            Debug.Assert(engine != null);
-
-            if (!inputredirected && isSuper) {
-                return CreateSuperConsole(commandLine, engine, isColorful);
-            } else {
-                return new BasicConsole(engine, isColorful);
-            }
-        }
-
-        // The advanced console functions are in a special non-inlined function so that 
-        // dependencies are pulled in only if necessary.
-        [MethodImplAttribute(MethodImplOptions.NoInlining)]
-        private IConsole CreateSuperConsole(CommandLine commandLine, ScriptEngine engine, bool isColorful) {
-            Debug.Assert(engine != null);
-            return new SuperConsole(commandLine, engine, isColorful);
-        }
-        
-        #endregion
-
         /// <summary>
         /// Runs the specified filename
         ///
@@ -264,33 +227,12 @@ namespace Microsoft.Scripting.Shell
 
             try {
                 result = RunOneInteraction();
-#if SILVERLIGHT // ThreadAbortException.ExceptionState
-            } catch (ThreadAbortException) {
-#else
             } catch (ThreadAbortException tae) {
                 KeyboardInterruptException pki = tae.ExceptionState as KeyboardInterruptException;
                 if (pki != null) {
-                    //_console.WriteLine(_engine.FormatException(tae), Style.Error);
                     _console.WriteLine();
                     Thread.ResetAbort();
-
-                    /*!!!
-                    bool endOfMscorlib = false;
-                    string ex = engine.FormatException(tae, ExceptionConverter.ToPython(pki), delegate(StackFrame sf) {
-                        // filter out mscorlib methods that show up on the stack initially, 
-                        // for example ReadLine / ReadBuffer etc...
-                        if (!endOfMscorlib &&
-                            sf.GetMethod().DeclaringType != null &&
-                            sf.GetMethod().DeclaringType.Assembly == typeof(string).Assembly) {
-                            return false;
-                        }
-                        endOfMscorlib = true;
-                        return true;
-                    });
-                     *
-                    _console.Write(ex, Style.Error);*/
                 }
-#endif
             }
 
             return result;

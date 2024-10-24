@@ -149,7 +149,6 @@ namespace Microsoft.Scripting.Hosting
 
         private void Execute() {
 
-#if !SILVERLIGHT
             if (_options.IsMTA) {
                 Thread thread = new Thread(ExecuteInternal);
                 thread.SetApartmentState(ApartmentState.MTA);
@@ -157,7 +156,7 @@ namespace Microsoft.Scripting.Hosting
                 thread.Join();
                 return;
             }
-#endif            
+
             ExecuteInternal();
         }
 
@@ -209,14 +208,12 @@ namespace Microsoft.Scripting.Hosting
         private void SetEnvironment() {
             Debug.Assert(_options.EnvironmentVars != null);
 
-#if !SILVERLIGHT
             foreach (string env in _options.EnvironmentVars) {
                 if (!String.IsNullOrEmpty(env)) {
                     string[] var_def = env.Split('=');
                     System.Environment.SetEnvironmentVariable(var_def[0], (var_def.Length > 1) ? var_def[1] : "");
                 }
             }
-#endif
         }
 
         private int RunFiles(OptionsParser optionsParser) {
@@ -273,7 +270,6 @@ namespace Microsoft.Scripting.Hosting
             return (result is int) ? (int)result : Environment.ExitCode;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily")]
         protected virtual int RunCommandLine(OptionsParser optionsParser) {
             Contract.RequiresNotNull(optionsParser, "optionsParser");
             

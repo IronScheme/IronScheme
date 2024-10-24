@@ -64,7 +64,6 @@ namespace Microsoft.Scripting.Shell
             
             _errorOutput = engine.GetOutputWriter(true);
 
-#if !SILVERLIGHT // ConsoleCancelEventHandler
             Console.CancelKeyPress += new ConsoleCancelEventHandler(delegate(object sender, ConsoleCancelEventArgs e) {
                 if (e.SpecialKey == ConsoleSpecialKey.ControlC) {
                     e.Cancel = true;
@@ -72,7 +71,6 @@ namespace Microsoft.Scripting.Shell
                     _creatingThread.Abort(new KeyboardInterruptException(""));
                 }
             });
-#endif
             _ctrlCEvent = new AutoResetEvent(false);
         }
 
