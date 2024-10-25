@@ -149,9 +149,23 @@ namespace Microsoft.Scripting.Ast
                 }
                 else if (arg.Type == typeof(object))
                 {
+                    object i = null;
+
+                    if (arg is MethodCallExpression mce)
+                    {
+                        i = mce.Instance; // this is bound expr before
+                    }
+
+                    arg.Emit(cg);
+
+                    if (arg.Type == typeof(bool)) // really check why this can happen, inlining? changing types not OK
+                    {
+                        return;
+                    }
+
                     Label next = cg.DefineLabel();
                     Label end = cg.DefineLabel();
-                    arg.Emit(cg);
+
                     cg.Emit(OpCodes.Dup);
                     cg.Emit(OpCodes.Isinst, typeof(bool));
                     cg.Emit(OpCodes.Brfalse, next);
