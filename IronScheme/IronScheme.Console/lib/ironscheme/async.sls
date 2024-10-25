@@ -5,14 +5,16 @@ This source code is subject to terms and conditions of the BSD License.
 See docs/license.txt. |#
 
 (library (ironscheme async)
-  (export async-lambda
-   	  await
+  (export
+    async-lambda
+   	await
 	  define-async
 	  start
 	  started?
 	  status
 	  task?)
-  (import (ironscheme)
+  (import
+    (ironscheme)
 	  (ironscheme clr)
 	  (ironscheme clr dynamic))
 
@@ -21,16 +23,16 @@ See docs/license.txt. |#
 
   (define-syntax define-async
     (syntax-rules (->)
-      ((_ (name params ...) -> ret-type body1 body2 ...)
+      [(_ (name params ...) -> ret-type body1 body2 ...)
        (define name
-	 (async-lambda (params ...) -> ret-type
-		       body1
-		       body2 ...)))
-      ((_ (name params ...) body1 body2 ...)
+	       (async-lambda (params ...) -> ret-type
+		             body1
+		             body2 ...))]
+      [(_ (name params ...) body1 body2 ...)
        (define name
-	 (async-lambda (params ...)
-		       body1
-		       body2 ...)))))
+	       (async-lambda (params ...)
+		             body1
+		             body2 ...))]))
 
   (define (started? task)
     ;; Created is the only status where it has not yet been started.
@@ -42,14 +44,14 @@ See docs/license.txt. |#
   ;; Construct a Task
   (define-syntax async-lambda
     (syntax-rules (->)
-      ((_ (params ...) -> ret-type body1 body2 ...)
+      [(_ (params ...) -> ret-type body1 body2 ...)
        (lambda (params ...)
-	 (clr-new (System.Threading.Tasks.Task ret-type)
-		  (lambda ()
-		    body1
-		    body2 ...))))
-      ((_ (params ...) body1 body2 ...)
-       (async-lambda (params ...) -> Object body1 body2 ...))))
+	       (clr-new (System.Threading.Tasks.Task ret-type)
+		        (lambda ()
+		          body1
+		          body2 ...)))]
+      [(_ (params ...) body1 body2 ...)
+        (async-lambda (params ...) -> Object body1 body2 ...)]))
   
   ;; Await the task and return the result.
   (define (await task)
