@@ -192,23 +192,19 @@ namespace IronScheme.FrameworkPAL
         {
           if (key == ass.ManifestModule)
           {
-            //Console.Write("removign garbage from {0} ", key.ScopeName);
             foreach (var w in value)
             {
               if (ilmap.ContainsKey(w))
               {
                 foreach (var ilg in ilmap[w])
                 {
-                  //Console.Write("I");
                   iloffsets.Remove(ilg);
                 }
 
-                //Console.Write("W");
                 ilmap.Remove(w);
               }
             }
 
-            //Console.WriteLine();
             modmap.Remove(key);
             break;
           }
