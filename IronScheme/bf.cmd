@@ -1,0 +1,1 @@
+@build.cmd --no-restore
