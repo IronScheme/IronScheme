@@ -152,6 +152,7 @@ See docs/license.txt. |#
       add1
       sub1)
     (ironscheme core)
+    (ironscheme typed)
     (ironscheme contracts)
     (ironscheme unsafe)
     (ironscheme clr))
@@ -256,7 +257,7 @@ See docs/license.txt. |#
       (assertion-violation 'fixnum->flonum "not a fixnum" x))
     (clr-cast Double (clr-cast Int32 x)))
         
-  (define (nan? num)
+  (define: (nan? num -> bool)
     (cond
       [(or (fixnum? num)
            (bignum? num)
@@ -271,7 +272,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'nan? "not a number" num)]))
         
-  (define (finite? num)
+  (define: (finite? num -> bool)
     (cond
       [(or (fixnum? num)
            (bignum? num)
@@ -286,7 +287,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'finite? "not a number" num)]))        
         
-  (define (infinite? num)
+  (define: (infinite? num -> bool)
     (cond
       [(or (fixnum? num)
            (bignum? num)
@@ -301,7 +302,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'infinite? "not a number" num)]))
         
-  (define (exact? obj)
+  (define: (exact? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
@@ -314,7 +315,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'exact "not a number" obj)]))
 
-  (define (inexact? obj)
+  (define: (inexact? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
@@ -327,10 +328,10 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'inexact "not a number" obj)]))
         
-  (define (complex? obj)
+  (define: (complex? obj -> bool)
     (number? obj))
     
-  (define (real? obj)
+  (define: (real? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
@@ -343,7 +344,7 @@ See docs/license.txt. |#
               (exact? i)))]
       [else #f]))
         
-  (define (rational? obj)
+  (define: (rational? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
@@ -359,7 +360,7 @@ See docs/license.txt. |#
                (zero? i)))]
       [else #f]))
         
-  (define (integer? obj)
+  (define: (integer? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj))
@@ -376,7 +377,7 @@ See docs/license.txt. |#
                (= (denominator (real-part obj)) 1)))]
       [else #f]))
       
-  (define (real-valued? obj)
+  (define: (real-valued? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
@@ -388,7 +389,7 @@ See docs/license.txt. |#
           (zero? i))]
       [else #f])) 
       
-  (define (rational-valued? obj)
+  (define: (rational-valued? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj)
@@ -403,7 +404,7 @@ See docs/license.txt. |#
           (zero? i))]
       [else #f])) 
       
-  (define (integer-valued? obj)
+  (define: (integer-valued? obj -> bool)
     (cond
       [(or (fixnum? obj) 
            (bignum? obj))
@@ -602,12 +603,13 @@ See docs/license.txt. |#
                     (symbol->string (syntax->datum #'name))
                     "?")))))
             #'(define name
-                (case-lambda
-                  [(a) 
+                (case-lambda:
+                  ; have no idea why this is here, but chez does it too
+                  [(a -> bool) 
                     (if (number? a)
                         #t
                         (assertion-violation 'name "not a number" a))]
-                  [(a b)
+                  [(a b -> bool)
                     (cond 
                       [(and (real? a)
                             (real? b)
@@ -622,8 +624,8 @@ See docs/license.txt. |#
                         (inexact=? (inexact a) (inexact b))]
                       [else
                         (assertion-violation 'name "not number arguments" a b)])]
-                  [(x1 x2 . rest)
-                    (let f ((a x1)(b (cons x2 rest)))
+                  [(x1 x2 #(rest) -> bool)
+                    (let: f ((a x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
                         [(name a ($car b))
@@ -642,8 +644,8 @@ See docs/license.txt. |#
                     (symbol->string (syntax->datum #'name))
                     "?")))))
             #'(define name
-                (case-lambda
-                  [(a b)
+                (case-lambda:
+                  [(a b -> bool)
                     (cond 
                       [(and (real? a) 
                             (real? b)
@@ -659,7 +661,7 @@ See docs/license.txt. |#
                         (uname (inexact-compare (inexact a) (inexact b)) 0)]                                                
                       [else
                         (assertion-violation 'name "not real arguments" a b)])]
-                  [(x1 x2 . rest)
+                  [(x1 x2 #(rest) -> bool)
                     (let f ((a x1)(b (cons x2 rest)))
                       (cond 
                         [(null? b) #t]
