@@ -21,6 +21,10 @@ See docs/license.txt. |#
     (lambda (x)
       (define (parse type)
         (syntax-case type (->)
+          [(arg ... #(rest) -> ret)
+            (with-syntax (((arg ...) (map parse-type #'(arg ...)))
+                          (ret (parse-type #'ret)))
+              #'((arg ...) ret))]
           [(arg ... -> ret)
             (with-syntax (((arg ...) (map parse-type #'(arg ...)))
                           (ret (parse-type #'ret)))
@@ -39,6 +43,13 @@ See docs/license.txt. |#
                 
   (define (parse-lambda-clause x)
     (syntax-case x (->)
+      [((arg ... #(rest) -> ret-type) b b* ...)
+        (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...))))
+          (with-syntax (((type ...) (map parse-type #'(type ...)))
+                        (ret-type (parse-type #'ret-type)))
+            #'((id ... . rest) 
+               ((type ...) ret-type)
+               b b* ...)))]  
       [((arg ... -> ret-type) b b* ...)
         (with-syntax ((((id type) ...) (map parse-arg-type #'(arg ...))))
           (with-syntax (((type ...) (map parse-type #'(type ...)))

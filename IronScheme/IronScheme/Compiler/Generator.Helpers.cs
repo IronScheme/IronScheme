@@ -753,6 +753,7 @@ namespace IronScheme.Compiler
             SymbolId ta = (SymbolId)cargs.cdr;
             CreateParameter(ta, cb, typeof(object));
             isrest = true;
+            ctypes = null;
             break;
           }
           else
@@ -761,6 +762,7 @@ namespace IronScheme.Compiler
             ctypes = rt;
           }
         }
+
         if (ctypes != null)
         {
           SyntaxError("AssignParameters", "extra parameter type(s)", ctypes, Builtins.FALSE);
