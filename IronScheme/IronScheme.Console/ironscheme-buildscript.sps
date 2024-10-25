@@ -271,6 +271,7 @@
   '(
     ;;;
     (load/unsafe                                i)
+    (load/program                               i)
     (constant-fold                              ic)
     (optimize                                   ic)
     (compress-constants?                        ic)

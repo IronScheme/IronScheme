@@ -27,6 +27,7 @@
     load/unsafe
     load-port
     load/args
+    load/program
     load/unload
     ironscheme-build
     ironscheme-test
@@ -54,7 +55,7 @@
     (ironscheme enums)
     (ironscheme files)
     (ironscheme clr)
-    (only (ironscheme unsafe) $fx+ $fx-)
+    (only (ironscheme unsafe) $fx+ $fx- $throw)
     (except (ironscheme library) file-locator alternative-file-locator)
     (only (ironscheme) printf pretty-print initialize-default-printers debug-mode? compile-to-current-directory? serialize-port deserialize-port time time-it string=?))
     
@@ -88,6 +89,13 @@
                 (uninstall-library lib)))
             (installed-libraries))))))
 
+  (define (load/program filename)
+    (when (with-guard
+            (lambda ()
+              (load/unsafe filename)
+              #f))
+      ($throw (clr-new IronScheme.Runtime.ProgramFailedException))))
+
   (define (load/unsafe filename)
     (apply load-r6rs-top-level filename 'load (cdr (command-line)))
     (void))
@@ -119,7 +127,7 @@
     (clr-is SystemException e))  
     
   (define (eval-top-level x)
-    (clr-guard [e [e (parameterize ((foreground-color 'red)
+    (clr-guard [e [e (parameterize ((foreground-color 'Red)
                                     (current-output-port (current-error-port)))
                        (display "Unhandled CLR exception during evaluation:\n")
                        (display e)
@@ -129,12 +137,12 @@
           (with-exception-handler
             (lambda (e)
               (let ((serious? (or (serious-condition? e) (system-exception? e) (not (condition? e)))))
-                (parameterize ((foreground-color (if serious? 'red 'yellow))
-                               (current-output-port (current-error-port)))
-                  (when serious?
-                    (display "Unhandled exception during evaluation:\n"))
-                  (display e)
-                  (newline))
+                (when serious?
+                  (parameterize ((foreground-color (if serious? 'Red 'Yellow))
+                                 (current-output-port (current-error-port)))
+                    (display "Unhandled exception during evaluation:\n")
+                    (display e)
+                    (newline)))
                 (k)))
             (lambda ()
               (parameterize ([allow-library-redefinition #t])
@@ -167,10 +175,11 @@
           (with-exception-handler
             (lambda (e)
               (let ((serious? (or (serious-condition? e) (system-exception? e) (not (condition? e)))))
-                (parameterize ((current-output-port (current-error-port)))
-                  (when serious?
-                    (display "Unhandled exception during evaluation:\n"))
-                  (display e))
+                (when serious?
+                  (parameterize ((current-output-port (current-error-port)))
+                    (display "Unhandled exception during evaluation:\n")
+                    (display e)
+                    (newline)))
                 (k)))
             f)))))
     

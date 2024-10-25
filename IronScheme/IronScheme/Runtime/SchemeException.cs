@@ -9,6 +9,11 @@ using System;
 
 namespace IronScheme.Runtime
 {
+  public sealed class ProgramFailedException : Exception
+  {
+
+  }
+
   public sealed class SchemeException : Exception
   {
     public object Condition { get; private set; }

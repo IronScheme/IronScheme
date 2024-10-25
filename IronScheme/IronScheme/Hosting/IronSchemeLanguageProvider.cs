@@ -139,13 +139,17 @@ namespace IronScheme.Hosting
           {
             try
             {
-              Engine.Execute(string.Format("(load/unsafe \"{0}\")", filename.Replace('\\', '/')));
+              Engine.Execute(string.Format("(load/program \"{0}\")", filename.Replace('\\', '/')));
               ev = 0;
             }
             catch (ThreadAbortException)
             {
               Console.WriteLine("Execution interupted", Style.Error);
               ev = 2;
+            }
+            catch (ProgramFailedException)
+            {
+              ev = 1;
             }
             catch (Exception ex)
             {
