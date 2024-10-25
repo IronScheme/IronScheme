@@ -161,7 +161,7 @@ See docs/license.txt. |#
                        #'(unless (fixnum? f) 
                           (assertion-violation 'name "not a fixnum" f))))
                     #'(formals* ...))))
-              #'(define (name formals* ...)
+              #'(define: (name formals* ... -> bool)
                   checks ...
                   ((typed-lambda (formals ...) ((type ...) Boolean)                    
                       c ... 
@@ -302,7 +302,7 @@ See docs/license.txt. |#
                       (assertion-violation 'name "not a fixnum" x2))
                     (uname x1 x2)]
                   [(x1 x2 #(rest) -> bool)
-                    (let f ((a x1)(b (cons x2 rest)))
+                    (let: f ((a x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
                         [(name a ($car b))
