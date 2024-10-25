@@ -61,7 +61,7 @@ namespace IronScheme.Runtime
     [InlineEmitter("void")]
     public static Expression Void(Expression[] values)
     {
-      return Ast.ReadField(null, Compiler.Generator.Unspecified);
+      return Ast.ReadField(null, Generator.Unspecified);
     }
   }
 

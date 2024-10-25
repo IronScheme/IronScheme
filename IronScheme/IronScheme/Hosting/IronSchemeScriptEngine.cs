@@ -106,7 +106,7 @@ namespace IronScheme.Hosting
 
     public override ActionBinder DefaultBinder
     {
-      get { return Compiler.Generator.binder; }
+      get { return BaseHelper.binder; }
     }
 
     #endregion

@@ -189,7 +189,7 @@ namespace IronScheme.Compiler
               if (ws.Value is MemberExpression)
               {
                 var me = ws.Value as MemberExpression;
-                if (me.Member == Compiler.Generator.Unspecified && !ScriptDomainManager.Options.LightweightDebugging)
+                if (me.Member == Generator.Unspecified && !ScriptDomainManager.Options.LightweightDebugging)
                 {
                   return null;
                 }

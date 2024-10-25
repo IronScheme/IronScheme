@@ -36,8 +36,8 @@ namespace IronScheme.Runtime
           var e = Ast.Constant(new RecordPredicateConstant 
           { 
             RtdSymbol = rtdname, 
-            NameHint = IronScheme.Compiler.Generator.VarHint, 
-            NameHint2 = IronScheme.Compiler.Generator.VarHint2 
+            NameHint = Generator.VarHint, 
+            NameHint2 = Generator.VarHint2 
           });
           return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("RecordPredicate"), obj));
         }
@@ -61,8 +61,8 @@ namespace IronScheme.Runtime
           { 
             RtdSymbol = rtdname, 
             Index = i, 
-            NameHint = IronScheme.Compiler.Generator.VarHint ,
-            NameHint2 = IronScheme.Compiler.Generator.VarHint2
+            NameHint = Generator.VarHint ,
+            NameHint2 = Generator.VarHint2
           });
           return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("RecordAccessor"), obj));
         }
@@ -86,8 +86,8 @@ namespace IronScheme.Runtime
           { 
             RtdSymbol = rtdname, 
             Index = i, 
-            NameHint = IronScheme.Compiler.Generator.VarHint,
-            NameHint2 = IronScheme.Compiler.Generator.VarHint2
+            NameHint = Generator.VarHint,
+            NameHint2 = Generator.VarHint2
           });
 
           return Ast.Comma(e, Ast.Call(typeof(Records).GetMethod("RecordMutator"), obj));
@@ -99,7 +99,7 @@ namespace IronScheme.Runtime
     [InlineEmitter("make-record-type-descriptor")]
     public static Expression MakeRecordTypeDescriptor(Expression[] obj)
     {
-      if ((obj.Length == 6 || obj.Length == 7) && IronScheme.Compiler.Generator.VarHint != SymbolId.Empty)
+      if ((obj.Length == 6 || obj.Length == 7) && Generator.VarHint != SymbolId.Empty)
       {
         try
         {
@@ -174,7 +174,7 @@ namespace IronScheme.Runtime
             Parent = par,
             Fields = rfields,
             FieldTypes = tfields,
-            NameHint = IronScheme.Compiler.Generator.VarHint,
+            NameHint = Generator.VarHint,
           };
 
           var at = rtdc.Generate();
@@ -720,7 +720,7 @@ namespace IronScheme.Runtime.R6RS
           //mgen.Emit(OpCodes.Castclass, tg.TypeBuilder);
           mgen.Emit(OpCodes.Ldarg_1);
           mgen.Emit(OpCodes.Stfld, fd.field);
-          mgen.Emit(OpCodes.Ldsfld, Compiler.Generator.Unspecified);
+          mgen.Emit(OpCodes.Ldsfld, Generator.Unspecified);
           mgen.Emit(OpCodes.Ret);
 
           fd.mutator = mb;

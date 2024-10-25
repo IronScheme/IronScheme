@@ -31,7 +31,7 @@ namespace IronScheme.Compiler
     {
       var f1 = forms.Length > 0 ? forms[0] : Builtins.FALSE;
       var f2 = forms.Length > 1 ? forms[1] : Builtins.FALSE;
-      Builtins.SyntaxError(who, msg, f1, f2);
+      SyntaxError(who, msg, f1, f2);
     }
 
     public static void AddCompileTimeType(Type t)

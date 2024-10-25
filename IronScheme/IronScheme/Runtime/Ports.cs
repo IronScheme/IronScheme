@@ -209,12 +209,12 @@ namespace IronScheme.Runtime
             if (Path.GetFileName(path) == "ironscheme.boot.dll")
             {
               // need to force load this into correct load context
-              Builtins.Exact(1);
+              Exact(1);
             }
 
             Assembly ext = AssemblyLoad(path, loadinmemory);
             // now that it is loaded, make sure we remove compiletime types
-            IronScheme.Compiler.ClrGenerator.ClearTypesFrom(ext);
+            Compiler.ClrGenerator.ClearTypesFrom(ext);
 
             foreach (Type t in ext.GetExportedTypes())
             {
@@ -337,7 +337,7 @@ namespace IronScheme.Runtime
         
       }
 
-      IronScheme.Compiler.AnnotationHelper.Filename = filename;
+      Compiler.AnnotationHelper.Filename = filename;
 
       var res = ReadAnnotatedNext(port);
       return res;

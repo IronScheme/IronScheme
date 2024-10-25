@@ -116,7 +116,7 @@ namespace IronScheme.Runtime
 
     public static implicit operator ComplexFraction(BigInteger i)
     {
-      if (object.ReferenceEquals(i, null))
+      if (ReferenceEquals(i, null))
       {
         throw new ArgumentNullException("i");
       }
@@ -201,11 +201,11 @@ namespace IronScheme.Runtime
 
     public static ComplexFraction operator %(ComplexFraction x, ComplexFraction y)
     {
-      if (object.ReferenceEquals(x, null))
+      if (ReferenceEquals(x, null))
       {
         throw new ArgumentNullException("x");
       }
-      if (object.ReferenceEquals(y, null))
+      if (ReferenceEquals(y, null))
       {
         throw new ArgumentNullException("y");
       }

@@ -91,7 +91,7 @@ namespace IronScheme.Actions
       {
         return expr;
       }
-      Expression expr2 = IronScheme.Compiler.Generator.Unwrap(expr);
+      Expression expr2 = Compiler.Generator.Unwrap(expr);
       if (expr2.Type == toType)
       {
         return expr2;

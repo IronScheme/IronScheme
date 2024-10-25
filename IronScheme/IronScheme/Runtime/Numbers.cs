@@ -74,7 +74,7 @@ namespace IronScheme.Runtime
         {
           throw new Continuation();
         };
-        return Runtime.R6RS.Exceptions.WithExceptionHandler(
+        return WithExceptionHandler(
                           Closure.Create(handler),
                           Closure.Create(disp));
       }

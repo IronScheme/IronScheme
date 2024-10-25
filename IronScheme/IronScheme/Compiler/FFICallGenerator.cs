@@ -225,7 +225,7 @@ namespace IronScheme.Compiler
         case "char*":
           return typeof(string);
         default:
-          Builtins.SyntaxError("GetFFIType", "unknown ffi type", p, p);
+          SyntaxError("GetFFIType", "unknown ffi type", p, p);
           return typeof(void);
       }
     }
@@ -411,7 +411,7 @@ namespace IronScheme.Compiler
       }
       catch (Exception ex)
       {
-        Builtins.AssertionViolation("MakePInvokeStub", ex.Message, DllPath, EntryPoint);
+        AssertionViolation("MakePInvokeStub", ex.Message, DllPath, EntryPoint);
       }
       return mi;
     }

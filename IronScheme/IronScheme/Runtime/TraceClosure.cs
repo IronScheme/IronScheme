@@ -41,7 +41,7 @@ namespace IronScheme.Runtime
       {
         object ppo;
 
-        if (Builtins.cc.Scope.TryLookupName(SymbolTable.StringToId("trace-printer"), out ppo))
+        if (BaseHelper.cc.Scope.TryLookupName(SymbolTable.StringToId("trace-printer"), out ppo))
         {
           ppo = (ppo as Callable).Call();
         }

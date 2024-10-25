@@ -25,7 +25,7 @@ namespace IronScheme.Compiler
     public SerializedConstant(object value)
     {
       this.value = value;
-      compress = IronScheme.Runtime.Builtins.compressConstants;
+      compress = Runtime.Builtins.compressConstants;
     }
 
     public override Type Type

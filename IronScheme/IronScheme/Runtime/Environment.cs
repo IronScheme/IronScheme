@@ -56,16 +56,16 @@ namespace IronScheme.Runtime
               }
             }
 
-            return Builtins.AssertionViolation("disassemble", "procedure ambiguation failed", proc, argcount);
+            return AssertionViolation("disassemble", "procedure ambiguation failed", proc, argcount);
           }
           else
           {
-            return Builtins.AssertionViolation("disassemble", "procedure ambiguation requires an argument count parameter", proc);
+            return AssertionViolation("disassemble", "procedure ambiguation requires an argument count parameter", proc);
           }
         }
         else if (tc == 0)
         {
-          return Builtins.AssertionViolation("disassemble", "not possible on procedure", proc);
+          return AssertionViolation("disassemble", "not possible on procedure", proc);
         }
 
         if (st.Length == 1)
@@ -79,7 +79,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return Builtins.AssertionViolation("disassemble", "builtin procedures not supported, consult the source code", proc);
+        return AssertionViolation("disassemble", "builtin procedures not supported, consult the source code", proc);
       }
     }
 

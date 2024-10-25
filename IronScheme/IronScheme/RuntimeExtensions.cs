@@ -179,7 +179,7 @@ namespace IronScheme
 
     public static T ToDelegate<T>(this Callable c)
     {
-      return Runtime.Helpers.ConvertToDelegate<T>(c);
+      return Helpers.ConvertToDelegate<T>(c);
     }
 
     static int Main(string[] args)

@@ -251,7 +251,7 @@ namespace IronScheme.Runtime
     {
       if (x == 0.0)
       {
-        return Fraction.Zero;
+        return Zero;
       }
 
       BigInteger num, den;

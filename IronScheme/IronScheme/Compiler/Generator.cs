@@ -40,8 +40,8 @@ namespace IronScheme.Compiler
 
     protected static SourceSpan SpanHint
     {
-      get { return Generator.spanhint; }
-      set { Generator.spanhint = value; }
+      get { return spanhint; }
+      set { spanhint = value; }
     }
 
     internal static string LocationHint { get; set; }
@@ -608,7 +608,7 @@ namespace IronScheme.Compiler
 
                     try
                     {
-                      object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
+                      object result = WithExceptionHandler(
                         Closure.Create(handler),
                         Closure.Create(disp));
                       var rrrr = GetCons(result, cb);
@@ -676,7 +676,7 @@ namespace IronScheme.Compiler
 
                       try
                       {
-                        object result = Runtime.R6RS.Exceptions.WithExceptionHandler(
+                        object result = WithExceptionHandler(
                           Closure.Create(handler),
                           Closure.Create(disp));
                         var rrrr = GetCons(result, cb);
@@ -777,7 +777,7 @@ namespace IronScheme.Compiler
 
         if (ex is ConstantExpression)
         {
-          Builtins.SyntaxError(SymbolTable.StringToObject("generator"), "expecting a procedure", c.car, c);
+          SyntaxError(SymbolTable.StringToObject("generator"), "expecting a procedure", c.car, c);
         }
 
         Expression r = null;
@@ -790,7 +790,7 @@ namespace IronScheme.Compiler
           //TODO: add more checks, should we attempt some casting for types?
           if (m.GetParameters().Length != pp.Length)
           {
-            Builtins.SyntaxError(SymbolTable.StringToObject("apply-typed-lambda"), 
+            SyntaxError(SymbolTable.StringToObject("apply-typed-lambda"), 
               string.Format("incorrect number of parameters, expected {0} got {1}", m.GetParameters().Length, pp.Length),
               c.car, c);
           }

@@ -37,7 +37,7 @@ namespace IronScheme.Compiler
             var str = DecimalFloatingPointString.FromSource(s);
             var dbl = DoubleFloatingPointType.Instance;
             ulong result;
-            var status = RealParser.ConvertDecimalToFloatingPointBits(str, dbl, out result);
+            var status = ConvertDecimalToFloatingPointBits(str, dbl, out result);
             d = BitConverter.Int64BitsToDouble((long)result);
             return status != SLD_STATUS.SLD_OVERFLOW;
         }

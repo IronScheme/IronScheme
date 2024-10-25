@@ -232,7 +232,7 @@ namespace IronScheme.Compiler
           if (input[2] == 'x' && input.Length > 3)
           {
             //hex escape
-            int utf32 = int.Parse(input.Substring(3), System.Globalization.NumberStyles.HexNumber);
+            int utf32 = int.Parse(input.Substring(3), NumberStyles.HexNumber);
 
             if (((utf32 < 0) || (utf32 > 1114111)) || ((utf32 >= 55296) && (utf32 <= 57343)))
             {

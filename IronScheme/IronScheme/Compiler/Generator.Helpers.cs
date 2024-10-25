@@ -76,8 +76,8 @@ namespace IronScheme.Compiler
 
       //Builtins.Exact(1);
       
-      RuntimeHelpers.Assert = Builtins.AssertionViolation;
-      Closure.AssertionViolation = Builtins.AssertionViolation;
+      RuntimeHelpers.Assert = AssertionViolation;
+      Closure.AssertionViolation = AssertionViolation;
       Closure.Cons = Builtins.Cons;
       MethodCallExpression.MakeList = MakeList;
 
@@ -589,7 +589,7 @@ namespace IronScheme.Compiler
       {
         if (c.cdr != null && !(c.cdr is Cons))
         {
-          Builtins.SyntaxError("GetAstList", "improper list cant be used as an expression", c, Builtins.FALSE);
+          SyntaxError("GetAstList", "improper list cant be used as an expression", c, Builtins.FALSE);
         }
         iscontinuation = e.Count == 0;
         Expression ex = GetAst(c.car, cb);
@@ -735,7 +735,7 @@ namespace IronScheme.Compiler
 
           if (ctypes == null)
           {
-            Builtins.SyntaxError("AssignParameters", "missing parameter type", Builtins.UnGenSymInternal(an), Builtins.FALSE);
+            SyntaxError("AssignParameters", "missing parameter type", Builtins.UnGenSymInternal(an), Builtins.FALSE);
           }
 
           object type = Builtins.First(ctypes);
@@ -763,7 +763,7 @@ namespace IronScheme.Compiler
         }
         if (ctypes != null)
         {
-          Builtins.SyntaxError("AssignParameters", "extra parameter type(s)", ctypes, Builtins.FALSE);
+          SyntaxError("AssignParameters", "extra parameter type(s)", ctypes, Builtins.FALSE);
         }
       }
       else if (arg != null) // empty 

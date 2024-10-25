@@ -104,7 +104,7 @@ namespace IronScheme.Compiler
 
                       var tailarr = tail.ToArray();
 
-                      newargs.Add(Ast.ComplexCallHelper(Compiler.Generator.MakeList(tailarr, true), tailarr));
+                      newargs.Add(Ast.ComplexCallHelper(Generator.MakeList(tailarr, true), tailarr));
 
                       node.Arguments.Clear();
                       node.Arguments.AddRange(newargs);

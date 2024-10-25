@@ -42,7 +42,7 @@ namespace IronScheme.Hosting
     {
       //PAL.Initialize();
       BaseHelper.Initialize(this);
-      Runtime.Builtins.Load("~/ironscheme.boot.dll", false);
+      Builtins.Load("~/ironscheme.boot.dll", false);
     }
     
     public override string LanguageDisplayName
@@ -229,7 +229,7 @@ namespace IronScheme.Hosting
 
       static bool IsNotConsole()
       {
-        return System.Console.LargestWindowHeight == 0 && System.Console.LargestWindowWidth == 0 || LanguageProvider.InputRedirected;
+        return System.Console.LargestWindowHeight == 0 && System.Console.LargestWindowWidth == 0 || InputRedirected;
       }
 
       protected override void ParseArgument(string arg)

@@ -76,7 +76,7 @@ namespace IronScheme.Runtime
       }
       else
       {
-        return Cons.FromList(args);
+        return FromList(args);
       }
     }
 
