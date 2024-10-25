@@ -147,7 +147,28 @@ See docs/license.txt. |#
                       body body* ...)
                     formals* ...))))]
         [(_ (name formals ...) body body* ...)
-          #'(define-fx (name formals ...) (check) body body* ...)]))) 
+          #'(define-fx (name formals ...) (check) body body* ...)])))
+
+  (define-syntax define-fx?
+    (lambda (x)
+      (syntax-case x (check)
+        [(_ (name formals ...) (check c ...) body body* ...)
+          (with-syntax (((formals* ...) (generate-temporaries #'(formals ...)))
+                        ((type ...) (map (lambda (x) (datum->syntax x 'Int32)) #'(formals ...))))
+            (with-syntax (((checks ...) 
+              (map (lambda (f)
+                     (with-syntax ((f f))
+                       #'(unless (fixnum? f) 
+                          (assertion-violation 'name "not a fixnum" f))))
+                    #'(formals* ...))))
+              #'(define (name formals* ...)
+                  checks ...
+                  ((typed-lambda (formals ...) ((type ...) Boolean)                    
+                      c ... 
+                      body body* ...)
+                    formals* ...))))]
+        [(_ (name formals ...) body body* ...)
+          #'(define-fx? (name formals ...) (check) body body* ...)]))) 
 
   (define-syntax define-fx*
     (lambda (x)
@@ -251,7 +272,7 @@ See docs/license.txt. |#
                    ($fxarithmetic-shift-right x 1)))
             count))))
 
-  (define-fx (fxbit-set? x k)
+  (define-fx? (fxbit-set? x k)
     (when ($fx<? k 0)
       (assertion-violation 'fxbit-set? "cannot be negative" k))
     (cond 
@@ -273,14 +294,14 @@ See docs/license.txt. |#
                   (string-append "$"
                     (symbol->string (syntax->datum #'name)))))))
             #'(define name
-                (case-lambda
-                  [(x1 x2)
+                (case-lambda:
+                  [(x1 x2 -> bool)
                     (unless (fixnum? x1)
                       (assertion-violation 'name "not a fixnum" x1))
                     (unless (fixnum? x2)
                       (assertion-violation 'name "not a fixnum" x2))
                     (uname x1 x2)]
-                  [(x1 x2 . rest)
+                  [(x1 x2 #(rest) -> bool)
                     (let f ((a x1)(b (cons x2 rest)))
                       (cond 
                         [(null? b) #t]
@@ -389,19 +410,19 @@ See docs/license.txt. |#
     (let ((d (fxdiv0* x1 x2)))
       (values d ($fx- 0 ($fx- ($fx* d x2) x1)))))
       
-  (define-fx* (fxpositive? r)
+  (define-fx? (fxpositive? r)
     ($fx<? 0 r))
 
-  (define-fx* (fxnegative? r)
+  (define-fx? (fxnegative? r)
     ($fx>? 0 r))
 
-  (define-fx* (fxzero? r)
+  (define-fx? (fxzero? r)
     ($fx=? 0 r))
 
-  (define-fx* (fxeven? n)
+  (define-fx? (fxeven? n)
     ($fx=? 0 ($fxand n 1)))
 
-  (define-fx* (fxodd? n)
+  (define-fx? (fxodd? n)
     ($fx=? 1 ($fxand n 1)))
 
   ; TODO: improve this

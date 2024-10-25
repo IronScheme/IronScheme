@@ -361,11 +361,10 @@ See docs/license.txt. |#
         (assertion-violation 'string-length "not a string" str)]))
 
   ;; TODO: rewrite in new typed syntax        
-  (define ->string
-    (typed-lambda (str) ((Object) String)
-      (if (clr-string? str)
-          str
-          (clr-call Object ToString str))))
+  (define: (->string str -> String)
+    (if (clr-string? str)
+        str
+        (clr-call Object ToString str)))
         
   (define/contract (string . args:char)
     (let ((str (clr-new StringBuilder)))

@@ -172,18 +172,16 @@ See docs/license.txt. |#
       [(_ bv)
         (clr-prop-get Byte[] Length bv)]))
   
-  (define (bignum? obj)
+  (define: (bignum? obj -> bool)
     (clr-is IntX obj))      
     
-  (define ->bignum 
-    (typed-lambda (ei)
-      ((Object) IntX)
-        (cond
-          [(bignum? ei) ei]
-          [(fixnum? ei) 
-            (clr-static-call IntX (Create Int32) ei)]
-          [else
-            (assertion-violation #f "not a exact integer" ei)])))
+  (define: (->bignum ei -> IntX)
+    (cond
+      [(bignum? ei) ei]
+      [(fixnum? ei) 
+        (clr-static-call IntX (Create Int32) ei)]
+      [else
+        (assertion-violation #f "not a exact integer" ei)]))
             
   (define (get-bytes enc str)
     (clr-call Encoding (GetBytes String) enc str))
@@ -197,20 +195,16 @@ See docs/license.txt. |#
           ($fx- b 256)
           b)))
   
-  (define ->byte
-    (typed-lambda (k)
-      ((Object) Byte)
-      (unless (fixnum? k)
-        (assertion-violation #f "not a fixnum" k))
-      (let: (((k : Int32) k) -> Byte)
-        (when (or ($fx<? k -128) ($fx>? k 255))
-          (assertion-violation #f "too big or small for octect or byte" k))
-        (clr-cast Byte k))))
+  (define: (->byte k -> Byte)
+    (unless (fixnum? k)
+      (assertion-violation #f "not a fixnum" k))
+    (let: (((k : Int32) k) -> Byte)
+      (when (or ($fx<? k -128) ($fx>? k 255))
+        (assertion-violation #f "too big or small for octect or byte" k))
+      (clr-cast Byte k)))
     
-  (define ->fixnum
-    (typed-lambda (b)
-      ((Object) Int32)
-      (clr-static-call Convert (ToInt32 Object) b)))
+  (define: (->fixnum b -> Int32)
+    (clr-static-call Convert (ToInt32 Object) b))
   
   (define/contract make-bytevector
     (case-lambda
@@ -479,16 +473,13 @@ See docs/license.txt. |#
             (bytevector-copy! b 0 bv k size)))])
     (void))  
     
-  (define (clr-string? obj)
+  (define: (clr-string? obj -> bool)
     (clr-is String obj))  
 
-  (define ->string 
-    (typed-lambda (str)
-      ((Object) String)
-      (if (clr-string? str)
-          str
-          (clr-call Object ToString str))))
-       
+  (define: (->string str -> String)
+    (if (clr-string? str)
+        str
+        (clr-call Object ToString str)))
               
   (define/contract (string->utf8 s:string)
     (get-bytes utf8 (->string s)))
