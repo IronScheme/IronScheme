@@ -259,71 +259,71 @@ See docs/license.txt. |#
         
   (define: (nan? num -> bool)
     (cond
-      [(or (fixnum? num)
-           (bignum? num)
-           (ratnum? num)
-           (rectnum? num))
+      [($or? (fixnum? num)
+             (bignum? num)
+             (ratnum? num)
+             (rectnum? num))
         #f]
       [(flonum? num)
         (flnan? num)]
       [(complexnum? num)
-        (or (flnan? (complexnum-real-part num))
-            (flnan? (complexnum-imag-part num)))]
+        ($or? (flnan? (complexnum-real-part num))
+              (flnan? (complexnum-imag-part num)))]
       [else
         (assertion-violation 'nan? "not a number" num)]))
         
   (define: (finite? num -> bool)
     (cond
-      [(or (fixnum? num)
-           (bignum? num)
-           (ratnum? num)
-           (rectnum? num))
+      [($or? (fixnum? num)
+             (bignum? num)
+             (ratnum? num)
+             (rectnum? num))
         #t]
       [(flonum? num)
         (flfinite? num)]
       [(complexnum? num)
-        (and (flfinite? (complexnum-real-part num))
-             (flfinite? (complexnum-imag-part num)))]
+        ($and? (flfinite? (complexnum-real-part num))
+                (flfinite? (complexnum-imag-part num)))]
       [else
         (assertion-violation 'finite? "not a number" num)]))        
         
   (define: (infinite? num -> bool)
     (cond
-      [(or (fixnum? num)
-           (bignum? num)
-           (ratnum? num)
-           (rectnum? num))
+      [($or? (fixnum? num)
+             (bignum? num)
+             (ratnum? num)
+             (rectnum? num))
         #f]
       [(flonum? num)
         (flinfinite? num)]
       [(complexnum? num)
-        (or (flinfinite? (complexnum-real-part num))
-            (flinfinite? (complexnum-imag-part num)))]
+        ($or? (flinfinite? (complexnum-real-part num))
+              (flinfinite? (complexnum-imag-part num)))]
       [else
         (assertion-violation 'infinite? "not a number" num)]))
         
   (define: (exact? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (rectnum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj)
+             (rectnum? obj))
        #t]
-      [(or (flonum? obj)
-           (complexnum? obj))
+      [($or? (flonum? obj)
+             (complexnum? obj))
        #f]
       [else
         (assertion-violation 'exact "not a number" obj)]))
 
   (define: (inexact? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (rectnum? obj))
+      [($or? (fixnum? obj) 
+             (bignum? obj)
+             (ratnum? obj)
+             (rectnum? obj))
        #f]
-      [(or (flonum? obj)
-           (complexnum? obj))
+      [($or? (flonum? obj)
+             (complexnum? obj))
        #t]
       [else
         (assertion-violation 'inexact "not a number" obj)]))
@@ -333,12 +333,12 @@ See docs/license.txt. |#
     
   (define: (real? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj)
            (ratnum? obj)
            (flonum? obj))
        #t]
-      [(or (complexnum? obj) (rectnum? obj))
+      [($or? (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
          (and (zero? i)
               (exact? i)))]
@@ -346,11 +346,11 @@ See docs/license.txt. |#
         
   (define: (rational? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj)
            (ratnum? obj))
        #t]
-      [(and (or (complexnum? obj) 
+      [($and? ($or? (complexnum? obj) 
                 (rectnum? obj)
                 (flonum? obj)) 
             (finite? obj) 
@@ -362,10 +362,10 @@ See docs/license.txt. |#
         
   (define: (integer? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj))
        #t]
-      [(and (or (ratnum? obj) 
+      [($and? ($or? (ratnum? obj) 
                 (complexnum? obj) 
                 (rectnum? obj)
                 (flonum? obj))
@@ -379,23 +379,23 @@ See docs/license.txt. |#
       
   (define: (real-valued? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj)
            (ratnum? obj)
            (flonum? obj))
        #t]
-      [(or (complexnum? obj) (rectnum? obj))
+      [($or? (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
           (zero? i))]
       [else #f])) 
       
   (define: (rational-valued? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj)
            (ratnum? obj))
        #t]
-      [(and (or (complexnum? obj) 
+      [($and? ($or? (complexnum? obj) 
                 (rectnum? obj)
                 (flonum? obj)) 
             (finite? obj) 
@@ -406,10 +406,10 @@ See docs/license.txt. |#
       
   (define: (integer-valued? obj -> bool)
     (cond
-      [(or (fixnum? obj) 
+      [($or? (fixnum? obj) 
            (bignum? obj))
        #t]
-      [(and (or (ratnum? obj) 
+      [($and? ($or? (ratnum? obj) 
                 (complexnum? obj) 
                 (rectnum? obj)
                 (flonum? obj))
