@@ -46,7 +46,7 @@ namespace IronScheme.Runtime
       return null;
     }
 
-    static readonly MethodInfo IsTrue = typeof(Builtins).GetMethod("IsTrue");
+    static readonly MethodInfo IsTrue = typeof(Builtins).GetMethod(nameof(Builtins.IsTrue));
 
     static Expression Unwrap(Expression ex)
     {
@@ -95,7 +95,7 @@ namespace IronScheme.Runtime
         }
         else if (o1 is ConstantExpression || o2 is ConstantExpression)
         {
-          return Ast.Call(typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static), obj);
+          return Ast.Call(typeof(object).GetMethod(nameof(Equals), BindingFlags.Public | BindingFlags.Static), obj);
         }
       }
       return null;
