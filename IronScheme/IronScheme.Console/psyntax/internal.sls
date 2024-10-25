@@ -52,6 +52,13 @@
                 (lambda (x) 
                   (cons* (car x) (cadr x) (map f (cddr x))))
                 (cdr x))))                
+           ((annotated-typed-case-lambda) 
+            (cons* 'annotated-typed-case-lambda
+              (cadr x)
+              (map 
+                (lambda (x) 
+                  (cons* (car x) (cadr x) (map f (cddr x))))
+                (cddr x)))) 
            ((annotated-call) 
             (cons* 'annotated-call
                    (cadr x)
@@ -63,7 +70,6 @@
                      (lambda (x) 
                        (cons (car x) (map f (cdr x))))
                      (cddr x))))
-           ; annotated-typed-case-lambda is missing                
            ((lambda) ; not sure if this is ever hit
             (cons* 'lambda (cadr x) (map f (cddr x))))
            ((letrec) 
