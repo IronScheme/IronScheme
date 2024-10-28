@@ -456,7 +456,7 @@ See docs/license.txt. |#
           [else            
             (assertion-violation 'exact "no exact equivalent" num)])]
       [(flonum? num)
-        (if (or (flnan? num) (flinfinite? num))
+        (if ($or? (flnan? num) (flinfinite? num))
             (assertion-violation 'exact "no exact equivalent" num)
             (exact (flonum->ratnum num)))]
       [(bignum? num)
