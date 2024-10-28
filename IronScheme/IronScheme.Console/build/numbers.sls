@@ -925,9 +925,13 @@ See docs/license.txt. |#
               r))]))
               
   (define: (even? n -> bool)
+    (unless (number? n)
+      (assertion-violation 'even? "not a number" n))
     (zero? (mod n 2)))
 
   (define: (odd? n -> bool)
+    (unless (number? n)
+      (assertion-violation 'odd? "not a number" n))
     (not (zero? (mod n 2))))
   
   (define/contract (max a:real . rest:real)
