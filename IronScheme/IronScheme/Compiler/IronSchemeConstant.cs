@@ -43,7 +43,7 @@ namespace IronScheme.Compiler
             x.Emit(OpCodes.Isinst, rtd.type);
             x.Emit(OpCodes.Ldnull);
             x.Emit(OpCodes.Cgt_Un);
-            x.EmitCall(typeof(RuntimeHelpers).GetMethod("BooleanToObject"), y);
+            x.EmitCall(typeof(RuntimeHelpers).GetMethod(nameof(RuntimeHelpers.BooleanToObject)), y);
           };
 
         //if (NameHint.ToString().Contains("stx?")) Debugger.Break();
