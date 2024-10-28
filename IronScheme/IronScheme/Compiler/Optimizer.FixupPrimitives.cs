@@ -11,7 +11,6 @@ using IronScheme.Runtime;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Ast;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace IronScheme.Compiler
 {
@@ -70,11 +69,6 @@ namespace IronScheme.Compiler
                 else if (val is Closure)
                 {
                   var cc = val as Closure;
-
-                  if (cc.ToString() == "<=")
-                  {
-                    Debugger.Break();
-                  }
 
                   // will not work on varargs, need to somehow decorate them
                   var meth = Array.Find(cc.Targets,
