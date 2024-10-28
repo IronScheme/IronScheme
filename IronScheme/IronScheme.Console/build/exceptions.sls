@@ -44,7 +44,7 @@ See docs/license.txt. |#
       
   (define values
     (case-lambda
-      [() (void)]
+      [() (clr-new MultipleValues '#())]
       [(a) a]
       [(a b) (clr-new MultipleValues `#(,a ,b))]
       [(a b c) (clr-new MultipleValues `#(,a ,b ,c))]
