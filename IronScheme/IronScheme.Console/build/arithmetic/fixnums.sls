@@ -123,8 +123,8 @@ See docs/license.txt. |#
 
   (define-syntax checked
     (syntax-rules ()
-      [(_ name expr)
-        (or expr (overflow-error name))]))
+      [(_ name (expr arg ...))
+        (or (expr arg ...) (overflow-error name arg ...))]))
         
   (define-syntax check (lambda (x) (syntax-violation #f)))
         
