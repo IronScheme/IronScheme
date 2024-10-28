@@ -191,6 +191,11 @@ namespace IronScheme.Compiler
 
           bool isrest = AssignParameters(cb, arg, Builtins.Car(typespec));
 
+          if (isrest)
+          {
+            cb.Name += "+";
+          }
+
           List<Statement> stmts = new List<Statement>();
           FillBody(cb, stmts, body, true);
 

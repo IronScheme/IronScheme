@@ -58,8 +58,6 @@ namespace Microsoft.Scripting.Ast
 
         private EnvironmentFactory _environmentFactory;
 
-        private int _generatorTemps;
-
         public bool DecorateWithUnspecifiedReturn { get; set; }
         public bool DecorateWithNonRecursive { get; set; }
 
@@ -251,10 +249,6 @@ namespace Microsoft.Scripting.Ast
 
         internal EnvironmentFactory EnvironmentFactory {
             get { return _environmentFactory; }
-        }
-
-        protected internal int GeneratorTemps {
-            get { return _generatorTemps; }
         }
 
         internal void DeclarativeReferenceAdded() {
@@ -544,10 +538,6 @@ namespace Microsoft.Scripting.Ast
                 }
                 allocator = allocator.Parent;
             }
-        }
-
-        internal void AddGeneratorTemps(int count) {
-            _generatorTemps += count;
         }
 
         protected bool NeedsWrapperMethod(bool stronglyTyped) {
