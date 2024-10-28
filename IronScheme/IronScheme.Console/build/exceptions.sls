@@ -27,7 +27,7 @@ See docs/license.txt. |#
     values)
   (import 
     ;(psyntax config) 
-    (only (ironscheme) import make-stacktrace-condition stacktrace-condition? display-stacktrace ungensym make-parameter parameterize)
+    (only (ironscheme) import make-stacktrace-condition stacktrace-condition? display-stacktrace ungensym make-parameter parameterize void)
     (ironscheme clr)
     (ironscheme unsafe)
     (ironscheme contracts)
@@ -42,11 +42,14 @@ See docs/license.txt. |#
       
   (clr-using IronScheme.Runtime)
       
-  (define (values . x)
-    (if (and (not (null? x))
-             (null? (cdr x)))
-        (car x)
-        (clr-new MultipleValues (list->vector x))))      
+  (define values
+    (case-lambda
+      [() (void)]
+      [(a) a]
+      [(a b) (clr-new MultipleValues `#(,a ,b))]
+      [(a b c) (clr-new MultipleValues `#(,a ,b ,c))]
+      [(a b c d . rest)
+        (clr-new MultipleValues `#(,a ,b ,c ,d ,@rest))]))
     
   (define (dynamic-wind in proc out)
     (in)
