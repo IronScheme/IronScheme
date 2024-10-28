@@ -420,13 +420,13 @@ See docs/license.txt. |#
                (= (denominator (real-part obj)) 1)))]
       [else #f]))                
 
-  (define/contract (zero? num:number)
+  (define: (zero? num -> bool)
     (= num 0))
     
-  (define/contract (positive? num:number)
+  (define: (positive? num -> bool)
     (> num 0))
       
-  (define/contract (negative? num:number)
+  (define: (negative? num -> bool)
     (< num 0))
     
   (define (inexact num)
@@ -662,7 +662,7 @@ See docs/license.txt. |#
                       [else
                         (assertion-violation 'name "not real arguments" a b)])]
                   [(x1 x2 #(rest) -> bool)
-                    (let f ((a x1)(b (cons x2 rest)))
+                    (let: f ((a x1)(b (cons x2 rest)) -> bool)
                       (cond 
                         [(null? b) #t]
                         [(name a ($car b))
@@ -707,9 +707,9 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'magnitude "not a number" num)]))
     
-  (define (exact-integer? obj)
-    (or (fixnum? obj)
-        (bignum? obj)))    
+  (define: (exact-integer? obj -> bool)
+    ($or? (fixnum? obj)
+          (bignum? obj)))
     
   (define (numerator num)
     (cond
@@ -924,10 +924,10 @@ See docs/license.txt. |#
               (exact r)
               r))]))
               
-  (define/contract (even? n:integer)
+  (define: (even? n -> bool)
     (zero? (mod n 2)))
 
-  (define/contract (odd? n:integer)
+  (define: (odd? n -> bool)
     (not (zero? (mod n 2))))
   
   (define/contract (max a:real . rest:real)

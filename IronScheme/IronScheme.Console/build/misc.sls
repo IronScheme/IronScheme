@@ -24,6 +24,7 @@ See docs/license.txt. |#
   (import 
     (rnrs)
     (ironscheme contracts)
+    (ironscheme typed)
     (ironscheme clr))
   
   (clr-using IronScheme.Runtime)
@@ -43,12 +44,12 @@ See docs/license.txt. |#
   (define (make-guid)
     (clr-static-call Guid NewGuid))
   
-  (define (typeof obj)
+  (define (typeof obj -> Type)
     (if (null? obj)
         (clr-type-of Object)
         (clr-call Object GetType obj))) 
         
-  (define (clr-type? o)
+  (define: (clr-type? o -> bool)
     (clr-is Type o))
     
   (define (set-symbol-value! symbol value)

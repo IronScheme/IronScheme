@@ -46,6 +46,7 @@ See docs/license.txt. |#
   (import 
     (ironscheme core)
     (ironscheme clr)
+    (ironscheme typed)
     (ironscheme unsafe)
     (only (rnrs mutable-pairs) set-cdr!) 
     (ironscheme integrable)
@@ -84,10 +85,10 @@ See docs/license.txt. |#
   (define (list-tail lst index)
     (cond
       [(zero? index) lst]
-      [(or (null? lst) (negative? index))
+      [($or? (null? lst) (negative? index))
         (assertion-violation 'list-tail "index out of range" lst index)]
       [else
-        (list-tail (cdr lst) (- index 1))]))      
+        (list-tail (cdr lst) (- index 1))]))
         
   (define (list-ref lst index)
     (car (list-tail lst index)))
@@ -211,7 +212,7 @@ See docs/license.txt. |#
             lst
             (memp p? (cdr lst)))))
   
-  (define (all-empty? ls)
+  (define: (all-empty? ls -> bool)
     (or (null? ls) 
         (and (null? (car ls)) 
              (all-empty? (cdr ls))))) 
@@ -229,7 +230,7 @@ See docs/license.txt. |#
                      (cons (cdr a) cdrs))))))))
 
   ;;http://en.literateprograms.org/Floyd%27s_cycle-finding_algorithm_%28Scheme%29                     
-  (define (list/check? head tail)
+  (define: (list/check? head tail -> bool)
     (if (pair? head)
         (let ((head ($cdr head)))
            (if (pair? head)
@@ -238,7 +239,7 @@ See docs/license.txt. |#
                (null? head)))
         (null? head)))
                      
-  (define (list? obj)
+  (define: (list? obj -> bool)
     (list/check? obj obj))
 
   (define (length/check head tail i)
