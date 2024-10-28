@@ -9,7 +9,6 @@
   (export equal?)
   (import 
     (except (ironscheme) equal?)
-    (ironscheme typed)
     (ironscheme clr))
     
   (define k0 400)
@@ -34,7 +33,7 @@
   
   (define random
     (let ((rg (clr-new Random)))
-      (lambda: ((k : fixnum) -> fixnum)
+      (lambda (k)
         (clr-call Random Next rg k))))    
 
   (define (union-find ht x y)
@@ -70,7 +69,7 @@
                             (set-box-content! ry (+ ny nx))
                             #f)))))))))
 
-  (define: (pre? x y (k : fixnum))
+  (define (pre? x y k)
     (import UNSAFE)
     (cond
       [(eq? x y) k]
@@ -96,17 +95,17 @@
       [(bytevector? x) (and (bytevector? y) (bytevector=? x y) k)]
       [else (and (eqv? x y) k)]))
 
-  (define: (interleave? x y (k : fixnum) -> bool)
+  (define (interleave? x y k)
     (import UNSAFE)
     (let ([ht #f])
       (define (call-union-find x y)
         (unless ht (set! ht (make-eq-hashtable)))
         (union-find ht x y))
-      (define: (e? x y (k : fixnum) -> fixnum)
+      (define (e? x y k)
         (if (<= k 0)
             (if (= k kb) (fast? x y (random (* 2 k0))) (slow? x y k))
             (fast? x y k)))
-      (define: (slow? x y (k : fixnum) -> fixnum)
+      (define (slow? x y k)
         (cond
           [(eq? x y) k]
           [(pair? x)
@@ -131,7 +130,7 @@
           [(string? x) (and (string? y) (string=? x y) k)]
           [(bytevector? x) (and (bytevector? y) (bytevector=? x y) k)]
           [else (and (eqv? x y) k)]))
-      (define: (fast? x y (k : fixnum) -> fixnum)
+      (define (fast? x y k)
         (let ([k (- k 1)])
           (cond
             [(eq? x y) k]
@@ -157,12 +156,12 @@
 
 
   
-  (define: (interleave-equal? x y -> bool)
+  (define (interleave-equal? x y)
     (interleave? x y k0))
   
-  (define: (precheck/interleave-equal? x y -> bool)
+  (define (precheck/interleave-equal? x y)
     (let ([k (pre? x y k0)])
       (and k (or (> k 0) (interleave? x y 0)))))
 
-  (define: (equal? x y -> bool)
+  (define (equal? x y)
     (precheck/interleave-equal? x y)))
