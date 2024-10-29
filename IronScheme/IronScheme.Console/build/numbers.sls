@@ -1196,13 +1196,13 @@ See docs/license.txt. |#
 
 ; lets get printing!        
 
-  (define (get-digits flo)
+  (define: (get-digits (flo : flonum))
     (call-with-values (lambda () (decompose-flonum flo)) flonum->digits))  
 
   (define (get-chr i)
     (integer->char (+ (char->integer #\0)(fxmod i 10))))  
 
-  (define (flonum->string flo)
+  (define: (flonum->string (flo : flonum))
     (cond
       [(flzero? flo) "0.0"]
       [(flnan? flo) "+nan.0"]
