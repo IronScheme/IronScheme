@@ -44,7 +44,7 @@ See docs/license.txt. |#
   (define (make-guid)
     (clr-static-call Guid NewGuid))
   
-  (define (typeof obj -> Type)
+  (define: (typeof obj -> Type)
     (if (null? obj)
         (clr-type-of Object)
         (clr-call Object GetType obj))) 
