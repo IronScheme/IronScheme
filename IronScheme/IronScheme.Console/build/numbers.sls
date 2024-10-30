@@ -199,6 +199,7 @@ See docs/license.txt. |#
   (define (flonum->ratnum f)
     (clr-static-call Fraction (op_Implicit Double) f))
 
+  ; used?
   (define (ratnum->flonum r)
     (clr-call Fraction (ToDouble IFormatProvider) r '()))
     
@@ -239,7 +240,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation '->bignum "not an integer" num)]))     
 
-  (define (real->flonum x)
+  (define: (real->flonum x -> flonum)
     (cond
       [(flonum? x)
         x]
@@ -252,10 +253,8 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'real->flonum "not a real" x)]))
     
-  (define (fixnum->flonum x)
-    (unless (fixnum? x)
-      (assertion-violation 'fixnum->flonum "not a fixnum" x))
-    (clr-cast Double (clr-cast Int32 x)))
+  (define: (fixnum->flonum (x : fixnum) -> flonum)
+    (clr-cast Double x))
         
   (define: (nan? num -> bool)
     (cond
