@@ -123,6 +123,7 @@ See docs/license.txt. |#
   (import 
     (ironscheme clr)
     (ironscheme contracts)
+    (ironscheme typed)
     (ironscheme unsafe)
     (only (ironscheme reader) read-annotated)
     (only (psyntax compat) parameterize)
@@ -210,14 +211,14 @@ See docs/license.txt. |#
   (clr-using IronScheme.Runtime.R6RS)
   (clr-using IronScheme.Runtime.psyntax)
   
-  (define (codec? obj)
+  (define: (codec? obj -> bool)
     (clr-is Encoding obj))
     
-  (define (textual-input-port? obj)
+  (define: (textual-input-port? obj -> bool)
     (and (input-port? obj)
          (textual-port? obj)))   
          
-  (define (textual-output-port? obj)
+  (define: (textual-output-port? obj -> bool)
     (and (output-port? obj)
          (textual-port? obj)))                        
     
@@ -242,7 +243,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'transcode-port "not a valid eof symbol" sym)]))
         
-  (define (transcoder? obj)
+  (define: (transcoder? obj -> bool)
     (clr-is Transcoder obj))
     
   (define/contract make-transcoder
@@ -272,7 +273,7 @@ See docs/license.txt. |#
   (define (string-replace str old new)
     (clr-call String (Replace String String) str old new))
     
-  (define (has-preamble? bv)
+  (define: (has-preamble? (bv : bytevector) -> bool)
     (let ((b0 ($bytevector-ref bv 0))
           (b1 ($bytevector-ref bv 1)))
       ($or? ($and? ($fx=? b0 #xff) ($fx=? b1 #xfe))
@@ -291,28 +292,28 @@ See docs/license.txt. |#
             (port-transcoder (get-input-port port)))]
       [else #f]))
   
-  (define (textual-port? obj)
+  (define: (textual-port? obj -> bool)
     (or (clr-is TextReader obj)
         (clr-is TextWriter obj)
         (clr-is CustomTextReaderWriter obj)))
         
-  (define (binary-port? obj)
+  (define: (binary-port? obj -> bool)
     (clr-is Stream obj))
     
-  (define (binary-input-port? obj)
+  (define: (binary-input-port? obj -> bool)
     (and (clr-is Stream obj)
          (clr-prop-get Stream CanRead obj)))    
          
-  (define (binary-output-port? obj)
+  (define: (binary-output-port? obj -> bool)
     (and (clr-is Stream obj)
          (clr-prop-get Stream CanWrite obj)))    
     
-  (define (input-port? obj)
+  (define: (input-port? obj -> bool)
     (or (binary-input-port? obj)
         (clr-is TextReader obj)
         (clr-is CustomTextReaderWriter obj)))
         
-  (define (output-port? obj)
+  (define: (output-port? obj -> bool)
     (or (binary-output-port? obj)
         (clr-is TextWriter obj)
         (clr-is CustomTextReaderWriter obj)))
@@ -402,7 +403,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'close-output-port "not an output-port" port)]))  
         
-  (define (annotation? obj)
+  (define: (annotation? obj -> bool)
     (clr-is Annotation obj))
     
   (define/contract (annotation-expression anno:annotation)
@@ -436,7 +437,7 @@ See docs/license.txt. |#
               (clr-new TranscodedReader port tc))
           (clr-new TranscodedWriter port tc))))
           
-  (define (port-has-port-position? port)
+  (define: (port-has-port-position? port -> bool)
     (cond
       [(clr-is CustomTextWriter port)
         (clr-prop-get CustomTextWriter HasPosition port)]
@@ -478,7 +479,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation 'port-position "not supported" port)]))
 
-  (define (port-has-set-port-position!? port)
+  (define: (port-has-set-port-position!? port -> bool)
     (cond
       [(clr-is CustomTextWriter port)
         (clr-prop-get CustomTextWriter HasSetPosition port)]
@@ -573,7 +574,7 @@ See docs/license.txt. |#
   (define/contract (open-string-input-port str:string)
     (clr-new StringReader (->string str)))
     
-  (define (proc/false? obj)
+  (define: (proc/false? obj -> bool)
     (or (eq? obj #f)
         (procedure? obj)))  
     
@@ -800,12 +801,10 @@ See docs/license.txt. |#
     (clr-new CustomTextWriter id write get-pos set-pos close))          
     
 
-  (define (->byte k)
-    (unless (fixnum? k)
-      (assertion-violation #f "not a fixnum" k))
+  (define: (->byte (k : fixnum) -> Byte)
     (when ($or? ($fx<? k 0) ($fx>? k 255))
       (assertion-violation #f "too big or small for byte" k))
-    (clr-cast Byte (clr-cast Int32 k)))
+    (clr-cast Byte k))
 
   (define/contract (put-u8 port:binary-output-port byte:fixnum)
     (let ((byte (->byte byte)))
@@ -826,7 +825,7 @@ See docs/license.txt. |#
         (put-char (get-output-port port) chr)  
         (clr-call TextWriter (Write String) port (clr-call Object ToString chr))))
         
-  (define (->string str)
+  (define: (->string str -> string)
     (cond
       [(clr-is String str) str]
       [(clr-is StringBuilder str) 
@@ -870,7 +869,7 @@ See docs/license.txt. |#
            
   (define (native-eol-style) 'crlf)
   
-  (define (buffer-mode? obj)
+  (define: (buffer-mode? obj -> bool)
     (and (symbol? obj) 
          (memq obj '(none line block)) 
          #t))
@@ -891,7 +890,7 @@ See docs/license.txt. |#
     (let ((p (open-output-string)))
       (values p (lambda () (get-output-string p)))))
       
-  (define (port? obj)
+  (define: (port? obj -> bool)
     (or (textual-port? obj) 
         (binary-port? obj)))
     

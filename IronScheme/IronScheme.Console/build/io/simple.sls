@@ -39,6 +39,7 @@ See docs/license.txt. |#
     textual-output-port?)    
   (import 
     (ironscheme contracts)
+    (ironscheme typed)
     (except (ironscheme)
         peek-char 
         write-char
@@ -51,11 +52,11 @@ See docs/license.txt. |#
         textual-input-port?
         textual-output-port?))
 
-  (define (textual-input-port? obj)
+  (define: (textual-input-port? obj -> bool)
     (and (input-port? obj)
          (textual-port? obj)))   
          
-  (define (textual-output-port? obj)
+  (define: (textual-output-port? obj -> bool)
     (and (output-port? obj)
          (textual-port? obj)))               
         
