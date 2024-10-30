@@ -183,91 +183,83 @@ See docs/license.txt. |#
       [else
         (assertion-violation #f "not a exact integer" ei)]))
             
-  (define (get-bytes enc str)
+  (define: (get-bytes (enc : Encoding) (str : string) -> bytevector)
     (clr-call Encoding (GetBytes String) enc str))
 
-  (define (get-string enc bv)
+  (define: (get-string (enc : Encoding) (bv : bytevector) -> string)
     (clr-call Encoding (GetString Byte[]) enc bv))
   
-  (define (byte->sbyte b)
-    (let: (((b : Int32) (->fixnum b)))
-      (if ($fx>? b 127)
-          ($fx- b 256)
-          b)))
+  (define: (byte->sbyte (b : fixnum) -> fixnum)
+    (if ($fx>? b 127)
+        ($fx- b 256)
+        b))
   
-  (define: (->byte k -> Byte)
-    (unless (fixnum? k)
-      (assertion-violation #f "not a fixnum" k))
-    (let: (((k : Int32) k) -> Byte)
-      (when (or ($fx<? k -128) ($fx>? k 255))
-        (assertion-violation #f "too big or small for octect or byte" k))
-      (clr-cast Byte k)))
+  (define: (->byte (k : fixnum) -> Byte)
+    (when (or ($fx<? k -128) ($fx>? k 255))
+      (assertion-violation #f "too big or small for octet or byte" k))
+    (clr-cast Byte k))
     
   (define: (->fixnum b -> Int32)
     (clr-static-call Convert (ToInt32 Object) b))
   
-  (define/contract make-bytevector
-    (case-lambda
-      [(k:fixnum)
-        (clr-new-array Byte (clr-cast Int32 k))]
-      [(k:fixnum fill)
+  (define make-bytevector
+    (case-lambda:
+      [((k : fixnum) -> bytevector)
+        (clr-new-array Byte k)]
+      [((k : fixnum) (fill : fixnum) -> bytevector)
         (let ((bv (make-bytevector k)))
           (bytevector-fill! bv fill)
           bv)]))
           
-  (define/contract (bytevector-fold-left combine:procedure nil bv:bytevector)
+  (define: (bytevector-fold-left (combine : procedure) nil (bv : bytevector))
     (let ((len ($bytevector-length bv)))
       (let f ((i 0)(nil nil))
         (if ($fx=? i len)
             nil
             (f ($fx+ i 1) 
-               (combine nil (->fixnum ($bytevector-ref bv i))))))))          
+               (combine nil (clr-cast Int32 ($bytevector-ref bv i))))))))          
                   
-  (define/contract (bytevector-length bv:bytevector)
+  (define: (bytevector-length (bv : bytevector) -> fixnum)
     ($bytevector-length bv))  
     
-  (define/contract (bytevector=? bv1:bytevector bv2:bytevector)
-    (let: (((bv1 : Byte[]) bv1)((bv2 : Byte[]) bv2))
-      (cond
-        [(eq? bv1 bv2) #t]
-        [(let ((bl ($bytevector-length bv1)))
-          (if ($fx=? bl ($bytevector-length bv2))
-              (let: f (((i : Int32) 0))
-                (cond 
-                  [($fx=? i bl) #t]
-                  [($fx=? ($bytevector-ref bv1 i) ($bytevector-ref bv2 i))
-                    (f ($fx+ i 1))]
-                  [else #f]))
-              #f))]
-        [else #f])))
+  (define: (bytevector=? (bv1 : bytevector) (bv2 : bytevector) -> bool)
+    (cond
+      [(eq? bv1 bv2) #t]
+      [(let ((bl ($bytevector-length bv1)))
+        (if ($fx=? bl ($bytevector-length bv2))
+            (let: f (((i : Int32) 0) -> bool)
+              (cond 
+                [($fx=? i bl) #t]
+                [($fx=? ($bytevector-ref bv1 i) ($bytevector-ref bv2 i))
+                  (f ($fx+ i 1))]
+                [else #f]))
+            #f))]
+      [else #f]))
                       
-  (define/contract (bytevector-fill! bv:bytevector fill)
-    (let: (((bv : Byte[]) bv))
-      (let ((fill (->byte fill))
-            (k ($bytevector-length bv)))
-        (let f ((i 0))
-          (unless ($fx=? i k)
-            ($bytevector-set! bv i fill)
-            (f ($fx+ i 1)))))))
+  (define: (bytevector-fill! (bv : bytevector) (fill : fixnum))
+    (let ((fill (->byte fill))
+          (k ($bytevector-length bv)))
+      (let f ((i 0))
+        (unless ($fx=? i k)
+          ($bytevector-set! bv i fill)
+          (f ($fx+ i 1))))))
           
-  (define/contract (bytevector-copy! bv1:bytevector s1:fixnum bv2:bytevector s2:fixnum len:fixnum)
+  (define: (bytevector-copy! (bv1 : bytevector)(s1 : fixnum)(bv2 : bytevector)(s2 : fixnum)(len : fixnum))
     (clr-static-call Buffer BlockCopy bv1 s1 bv2 s2 len))  
     
-  (define/contract (bytevector-copy bv:bytevector)
+  (define: (bytevector-copy (bv : bytevector) -> bytevector)
     (clr-call Array Clone bv))  
     
-  (define/contract (bytevector-u8-ref bv:bytevector k:fixnum)
-    (let: (((bv : Byte[]) bv)((k : Int32) k))
-      (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
-        (assertion-violation 'bytevector-u8-ref "indexer out of bounds" bv k)) 
-      (clr-static-call Convert (ToInt32 Byte) 
-        ($bytevector-ref bv k))))
+  (define: (bytevector-u8-ref (bv : bytevector)(k : fixnum) -> fixnum)
+    (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
+      (assertion-violation 'bytevector-u8-ref "indexer out of bounds" bv k)) 
+    (clr-cast Int32
+      ($bytevector-ref bv k)))
       
-  (define/contract (bytevector-u8-set! bv:bytevector k:fixnum value:fixnum)
-    (let: (((bv : Byte[]) bv)((k : Int32) k))
-      (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
-        (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
-      ($bytevector-set! bv k (clr-static-call Convert (ToByte Object) value)))) ;TODO: can be ->byte ?
+  (define: (bytevector-u8-set! (bv : bytevector)(k : fixnum)(value : fixnum))
+    (unless ($and? ($fx>=? k 0) ($fx<? k ($bytevector-length bv)))
+      (assertion-violation 'bytevector-u8-set! "indexer out of bounds" bv k)) 
+    ($bytevector-set! bv k (->byte value)))
    
   (define/contract (bytevector-s8-ref bv:bytevector k:fixnum)
     (let: (((bv : Byte[]) bv)((k : Int32) k))
@@ -506,7 +498,7 @@ See docs/license.txt. |#
           [else
             (assertion-violation 'string->utf32 "unknown endianness" end)])]))
             
-  (define/contract (utf8->string bv:bytevector)
+  (define: (utf8->string (bv : bytevector) -> string)
     (get-string utf8 bv))
     
   (define (trim-front bv k)
@@ -596,7 +588,7 @@ See docs/license.txt. |#
             a
             (f ($fx- l size) (cons (bytevector-sint-ref bv ($fx- l size) end size) a))))))
           
-  (: single->double (Single -> Object))
+  (: single->double (Single -> flonum))
        
   (define: (single->double s)
     (clr-static-call Convert (ToDouble Single) s))
