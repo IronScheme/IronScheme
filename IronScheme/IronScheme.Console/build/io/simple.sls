@@ -33,10 +33,7 @@ See docs/license.txt. |#
     newline
     
     display
-    write
-    
-    textual-input-port?
-    textual-output-port?)    
+    write)    
   (import 
     (ironscheme contracts)
     (ironscheme typed)
@@ -48,18 +45,8 @@ See docs/license.txt. |#
         with-input-from-file
         with-output-to-file
         call-with-input-file
-        call-with-output-file
-        textual-input-port?
-        textual-output-port?))
+        call-with-output-file))
 
-  (define: (textual-input-port? obj -> bool)
-    (and (input-port? obj)
-         (textual-port? obj)))   
-         
-  (define: (textual-output-port? obj -> bool)
-    (and (output-port? obj)
-         (textual-port? obj)))               
-        
   (define/contract peek-char
     (case-lambda
       [()
@@ -73,7 +60,7 @@ See docs/license.txt. |#
         (read-char (current-input-port))]
       [(port:textual-input-port)   
         (get-char port)]))        
-      
+
   (define/contract write-char
     (case-lambda
       [(chr)       

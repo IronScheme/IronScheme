@@ -115,6 +115,9 @@ See docs/license.txt. |#
     
     open-output-string
     get-output-string
+
+    textual-input-port?
+    textual-output-port?
     
     annotation?
     annotation-expression
