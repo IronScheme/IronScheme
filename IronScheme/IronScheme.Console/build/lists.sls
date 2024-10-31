@@ -79,9 +79,9 @@ See docs/license.txt. |#
       list?
       length
       list))
-  
-  (define (list . x) x)     
-      
+
+  (define (list . x) x)
+
   (define (list-tail lst index)
     (cond
       [(zero? index) lst]

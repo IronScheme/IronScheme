@@ -31,6 +31,7 @@ See docs/license.txt. |#
     (ironscheme clr)
     (ironscheme unsafe)
     (ironscheme contracts)
+    (ironscheme typed)
     (except (rnrs) 
       with-exception-handler 
       raise 
@@ -51,7 +52,7 @@ See docs/license.txt. |#
       [(a b c d . rest)
         (clr-new MultipleValues `#(,a ,b ,c ,d ,@rest))]))
     
-  (define (dynamic-wind in proc out)
+  (define: (dynamic-wind (in : procedure)(proc : procedure)(out : procedure))
     (in)
     ($try/finally (proc)
                   (out)))      
