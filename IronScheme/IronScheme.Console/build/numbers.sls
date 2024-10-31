@@ -181,10 +181,10 @@ See docs/license.txt. |#
   (define (make-complexnum r1 r2)
     (clr-static-call Complex64 Make r1 r2))
     
-  (define (complexnum-imag-part c)
+  (define: (complexnum-imag-part (c : Complex64) -> flonum)
     (clr-prop-get Complex64 Imag c))
     
-  (define (complexnum-real-part c)
+  (define: (complexnum-real-part (c : Complex64) -> flonum)
     (clr-prop-get Complex64 Real c))
     
   (define (bignum/ a b)
@@ -196,14 +196,14 @@ See docs/license.txt. |#
   (define (bignum->fixnum b)
     (clr-call IntX ToInt32 b))
     
-  (define (flonum->ratnum f)
+  (define: (flonum->ratnum (f : flonum) -> Fraction)
     (clr-static-call Fraction (op_Implicit Double) f))
 
   ; used?
-  (define (ratnum->flonum r)
+  (define: (ratnum->flonum (r : Fraction) -> flonum)
     (clr-call Fraction (ToDouble IFormatProvider) r '()))
     
-  (define (fixnum->bignum f)
+  (define: (fixnum->bignum (f : fixnum) -> bignum)
     (clr-static-call IntX (Create Int32) f))   
     
   (define (real->complexnum num)
@@ -220,7 +220,7 @@ See docs/license.txt. |#
   (define (rectnum->complexnum num)
     (clr-call ComplexFraction ToComplex64 num))               
         
-  (define (->fixnum num)
+  (define: (->fixnum num -> fixnum)
     (if (fixnum? num)
         num
         (clr-call IntX ToInt32 num)))
@@ -233,7 +233,7 @@ See docs/license.txt. |#
       [else
         (assertion-violation '->ratnum "not a real" num)]))
         
-  (define (->bignum num)
+  (define: (->bignum num -> bignum)
     (cond 
       [(bignum? num) num]
       [(fixnum? num) (fixnum->bignum num)]
@@ -333,9 +333,9 @@ See docs/license.txt. |#
   (define: (real? obj -> bool)
     (cond
       [($or? (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (flonum? obj))
+             (bignum? obj)
+             (ratnum? obj)
+             (flonum? obj))
        #t]
       [($or? (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
@@ -346,14 +346,14 @@ See docs/license.txt. |#
   (define: (rational? obj -> bool)
     (cond
       [($or? (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj))
+             (bignum? obj)
+             (ratnum? obj))
        #t]
       [($and? ($or? (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj)) 
-            (finite? obj) 
-            (not (nan? obj)))
+                    (rectnum? obj)
+                    (flonum? obj)) 
+              (finite? obj) 
+              (not (nan? obj)))
         (let ((i (imag-part obj)))
           (and (exact? i) 
                (zero? i)))]
@@ -365,11 +365,11 @@ See docs/license.txt. |#
            (bignum? obj))
        #t]
       [($and? ($or? (ratnum? obj) 
-                (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj))
-            (finite? obj) 
-            (not (nan? obj)))            
+                  (complexnum? obj) 
+                  (rectnum? obj)
+                  (flonum? obj))
+              (finite? obj) 
+              (not (nan? obj)))            
         (let ((i (imag-part obj)))
           (and (exact? i) 
                (zero? i)
@@ -379,9 +379,9 @@ See docs/license.txt. |#
   (define: (real-valued? obj -> bool)
     (cond
       [($or? (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj)
-           (flonum? obj))
+             (bignum? obj)
+             (ratnum? obj)
+             (flonum? obj))
        #t]
       [($or? (complexnum? obj) (rectnum? obj))
         (let ((i (imag-part obj)))
@@ -391,14 +391,14 @@ See docs/license.txt. |#
   (define: (rational-valued? obj -> bool)
     (cond
       [($or? (fixnum? obj) 
-           (bignum? obj)
-           (ratnum? obj))
+             (bignum? obj)
+             (ratnum? obj))
        #t]
       [($and? ($or? (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj)) 
-            (finite? obj) 
-            (not (nan? obj)))
+                    (rectnum? obj)
+                    (flonum? obj)) 
+              (finite? obj) 
+              (not (nan? obj)))
         (let ((i (imag-part obj)))
           (zero? i))]
       [else #f])) 
@@ -409,11 +409,11 @@ See docs/license.txt. |#
            (bignum? obj))
        #t]
       [($and? ($or? (ratnum? obj) 
-                (complexnum? obj) 
-                (rectnum? obj)
-                (flonum? obj))
-            (finite? obj) 
-            (not (nan? obj)))            
+                    (complexnum? obj) 
+                    (rectnum? obj)
+                    (flonum? obj))
+              (finite? obj) 
+              (not (nan? obj)))            
         (let ((i (imag-part obj)))
           (and (zero? i)
                (= (denominator (real-part obj)) 1)))]
@@ -510,12 +510,12 @@ See docs/license.txt. |#
   (define (hex-char num)
     (integer->char ($fx+ num (char->integer (if ($fx<? num 10) #\0 #\W)))))
         
-  (define (fixnum->string num radix)
+  (define: (fixnum->string (num : fixnum) (radix : fixnum) -> string)
     (if ($fxnegative? num)
         (string-append "-" (number->string (abs num) radix))
         (clr-static-call Convert (ToString Int32 Int32) num radix)))
      
-  (define (bignum->string num radix)
+  (define: (bignum->string (num : bignum) (radix : fixnum) -> string)
     (if (zero? num)
         "0"
         (let* ((neg? (negative? num))
@@ -530,12 +530,12 @@ See docs/license.txt. |#
                out))))
         
   (define number->string
-    (case-lambda
-      [(num)
+    (case-lambda:
+      [(num -> string)
         (number->string num 10)]
-      [(num radix prec)
+      [(num radix prec -> string)
         (number->string num radix)]
-      [(num radix)
+      [(num radix -> string)
         (unless (fixnum? radix)
           (assertion-violation 'number->string "not a fixnum" radix))
         (unless (memv radix '(2 8 10 16))
@@ -1091,20 +1091,19 @@ See docs/license.txt. |#
                   [else 
                     (raise (make-restriction-violation))]))]))]))
                    
-  ; TODO: improve this    
-  (define/contract (fx*/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+  (define: (fx*/carry (fx1 : fixnum)(fx2 : fixnum)(fx3 : fixnum))
     (let ((s (+ (* fx1 fx2) fx3))
           (e (expt 2 (fixnum-width))))
       (let-values (((d m) (div0-and-mod0 s e)))
         (values m d))))
 
-  (define/contract (fx-/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+  (define: (fx-/carry (fx1 : fixnum)(fx2 : fixnum)(fx3 : fixnum))
     (let ((s (- fx1 fx2 fx3))
           (e (expt 2 (fixnum-width))))
       (let-values (((d m) (div0-and-mod0 s e)))
         (values m d))))
 
-  (define/contract (fx+/carry fx1:fixnum fx2:fixnum fx3:fixnum)
+  (define: (fx+/carry (fx1 : fixnum)(fx2 : fixnum)(fx3 : fixnum))
     (let ((s (+ fx1 fx2 fx3))
           (e (expt 2 (fixnum-width))))
       (let-values (((d m) (div0-and-mod0 s e)))
