@@ -1122,7 +1122,7 @@ namespace Microsoft.Scripting.Generation
               }
               else
               {
-                var cache = TypeGen.AddStaticField(delegateType, FieldAttributes.Private, "$p$" + delegateFunction.MethodInfo.Name);
+                var cache = TypeGen.Procedures.AddStaticField(delegateType, FieldAttributes.Assembly, delegateFunction.MethodInfo.Name);
                 TypeGen.TypeInitializer.EmitNull();
                 TypeGen.TypeInitializer.Emit(OpCodes.Ldftn, delegateFunction.MethodInfo);
                 TypeGen.TypeInitializer.Emit(OpCodes.Newobj, (ConstructorInfo)(delegateType.GetMember(".ctor")[0]));

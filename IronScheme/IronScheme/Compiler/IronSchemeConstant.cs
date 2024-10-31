@@ -452,8 +452,7 @@ namespace IronScheme.Compiler
       {
         CodeGen init = cg.TypeGen.TypeInitializer;
 
-        Slot s = cg.TypeGen.AddStaticField(typeof(object), FieldAttributes.InitOnly | FieldAttributes.Private, 
-          string.Format("$c${0:X4}", constantcounter++));
+        Slot s = cg.TypeGen.Constants.AddStaticField(typeof(object), FieldAttributes.Assembly,  string.Format("${0:X4}", constantcounter++));
 
         try
         {

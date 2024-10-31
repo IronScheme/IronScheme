@@ -27,6 +27,11 @@ namespace Microsoft.Scripting.Generation
     public class TypeGen {
         private readonly AssemblyGen _myAssembly;
         private readonly TypeBuilder _myType;
+        private TypeGen _symbolsType;
+        private TypeGen _constantsType;
+        private TypeGen _proceduresType;
+        private TypeGen _globalsType;
+        private TypeGen _closuresType;
         private Slot _contextSlot;
         private ConstructorBuilder _initializer; // The .cctor() of the type
         private CodeGen _initGen; // The IL generator for the .cctor()
@@ -220,12 +225,87 @@ namespace Microsoft.Scripting.Generation
         /// <summary>
         /// Constants
         /// </summary>
+        ///
 
-        internal Slot GetOrMakeConstant(object value) {
+        public TypeGen DefineNestedType(string name, TypeAttributes typeAttributes)
+        {
+            var tg = new TypeGen(_myAssembly, _myType.DefineNestedType(name, typeAttributes));
+            _nestedTypeGens.Add(tg);
+            return tg;
+        }
+
+        public TypeGen Closures
+        {
+            get
+            {
+                if (_closuresType == null)
+                {
+                    _closuresType = DefineNestedType("$closures", TypeAttributes.NestedPublic);
+                }
+
+                return _closuresType;
+            }
+        }
+
+        public TypeGen Globals
+        {
+            get
+            {
+                if (_globalsType == null)
+                {
+                    _globalsType = DefineNestedType("$globals", TypeAttributes.NestedPublic);
+                }
+
+                return _globalsType;
+            }
+        }
+
+        public TypeGen Procedures
+        {
+            get
+            {
+                if (_proceduresType == null)
+                {
+                    _proceduresType = DefineNestedType("$procedures", TypeAttributes.NestedPrivate);
+                }
+
+                return _proceduresType;
+            }
+        }
+
+        public TypeGen Constants
+        {
+            get
+            {
+                if (_constantsType == null)
+                {
+                    _constantsType = DefineNestedType("$constants", TypeAttributes.NestedPrivate);
+                }
+
+                return _constantsType;
+            }
+        }
+
+        public TypeGen Symbols
+        {
+            get
+            {
+                if (_symbolsType == null)
+                {
+                    _symbolsType = DefineNestedType("$symbols", TypeAttributes.NestedPrivate);
+                }
+
+                return _symbolsType;
+            }
+        }
+
+        internal Slot GetOrMakeConstant(object value)
+        {
             Debug.Assert(!(value is CompilerConstant));
 
             Slot ret;
-            if (_constants.TryGetValue(value, out ret)) {
+            if (_constants.TryGetValue(value, out ret))
+            {
                 return ret;
             }
 
@@ -233,16 +313,16 @@ namespace Microsoft.Scripting.Generation
 
             // Create a name like "c$3.141592$712"
             string name = value.ToString();
-            if (name.Length > 20) {
+            if (name.Length > 20)
+            {
                 name = name.Substring(0, 20);
             }
-            name = "c$" + name + "$" + _constants.Count;
+            name = name + "$" + _constants.Count;
 
-            FieldBuilder fb = _myType.DefineField(name, type, FieldAttributes.Static | FieldAttributes.InitOnly);
-            ret = new StaticFieldSlot(fb);
+            ret = Constants.AddStaticField(value.GetType(), name);
 
             TypeInitializer.EmitConstantNoCache(value);
-            _initGen.EmitFieldSet(fb);
+            ret.EmitSet(_initGen);
 
             _constants[value] = ret;
             return ret;
@@ -254,13 +334,12 @@ namespace Microsoft.Scripting.Generation
                 return ret;
             }
 
-            string name = "c$" + value.Name + "$" + _constants.Count;
+            string name = value.Name + "$" + _constants.Count;
 
-            FieldBuilder fb = _myType.DefineField(name, value.Type, FieldAttributes.Static | FieldAttributes.InitOnly);
-            ret = new StaticFieldSlot(fb);
+            ret = Constants.AddStaticField(value.Type, name);
 
             value.EmitCreation(TypeInitializer);
-            _initGen.EmitFieldSet(fb);
+            ret.EmitSet(_initGen);
 
             _constants[value] = ret;
             return ret;
@@ -268,10 +347,11 @@ namespace Microsoft.Scripting.Generation
 
         public void EmitIndirectedSymbol(CodeGen cg, SymbolId id) {
             Slot value;
+            
             if (!_indirectSymbolIds.TryGetValue(id, out value)) {
                 // create field, emit fix-up...
 
-                value = AddStaticField(typeof(object), FieldAttributes.Private, "$s$" + SymbolTable.IdToString(id));
+                value = Symbols.AddStaticField(typeof(object), FieldAttributes.Assembly, SymbolTable.IdToString(id));
                 CodeGen init = TypeInitializer;
 
                 var sid = SymbolTable.IdToString(id);
