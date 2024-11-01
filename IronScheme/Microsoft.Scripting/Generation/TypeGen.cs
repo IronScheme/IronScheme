@@ -31,7 +31,6 @@ namespace Microsoft.Scripting.Generation
         private TypeGen _constantsType;
         private TypeGen _proceduresType;
         private TypeGen _globalsType;
-        private TypeGen _closuresType;
         private Slot _contextSlot;
         private ConstructorBuilder _initializer; // The .cctor() of the type
         private CodeGen _initGen; // The IL generator for the .cctor()
@@ -225,26 +224,12 @@ namespace Microsoft.Scripting.Generation
         /// <summary>
         /// Constants
         /// </summary>
-        ///
 
         public TypeGen DefineNestedType(string name, TypeAttributes typeAttributes)
         {
             var tg = new TypeGen(_myAssembly, _myType.DefineNestedType(name, typeAttributes));
             _nestedTypeGens.Add(tg);
             return tg;
-        }
-
-        public TypeGen Closures
-        {
-            get
-            {
-                if (_closuresType == null)
-                {
-                    _closuresType = DefineNestedType("$closures", TypeAttributes.NestedPublic);
-                }
-
-                return _closuresType;
-            }
         }
 
         public TypeGen Globals
