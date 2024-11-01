@@ -336,8 +336,8 @@ namespace Microsoft.Scripting.Generation
             if (!_indirectSymbolIds.TryGetValue(id, out value)) {
                 // create field, emit fix-up...
 
-                value = Symbols.AddStaticField(typeof(object), FieldAttributes.Assembly, SymbolTable.IdToString(id));
-                CodeGen init = TypeInitializer;
+                value = Symbols.AddStaticField(typeof(object), FieldAttributes.Assembly | FieldAttributes.InitOnly, SymbolTable.IdToString(id));
+                CodeGen init = Symbols.TypeInitializer;
 
                 var sid = SymbolTable.IdToString(id);
                 init.EmitString(sid);
