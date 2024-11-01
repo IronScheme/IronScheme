@@ -304,9 +304,9 @@ namespace Microsoft.Scripting.Generation
             }
             name = name + "$" + _constants.Count;
 
-            ret = Constants.AddStaticField(value.GetType(), FieldAttributes.Assembly | FieldAttributes.InitOnly, name);
+            ret = Constants.AddStaticField(value.GetType(), name);
 
-            Constants.TypeInitializer.EmitConstantNoCache(value);
+            TypeInitializer.EmitConstantNoCache(value);
             ret.EmitSet(_initGen);
 
             _constants[value] = ret;
@@ -321,9 +321,9 @@ namespace Microsoft.Scripting.Generation
 
             string name = value.Name + "$" + _constants.Count;
 
-            ret = Constants.AddStaticField(value.Type, FieldAttributes.Assembly | FieldAttributes.InitOnly, name);
+            ret = Constants.AddStaticField(value.Type, name);
 
-            value.EmitCreation(Constants.TypeInitializer);
+            value.EmitCreation(TypeInitializer);
             ret.EmitSet(_initGen);
 
             _constants[value] = ret;
@@ -336,8 +336,8 @@ namespace Microsoft.Scripting.Generation
             if (!_indirectSymbolIds.TryGetValue(id, out value)) {
                 // create field, emit fix-up...
 
-                value = Symbols.AddStaticField(typeof(object), FieldAttributes.Assembly | FieldAttributes.InitOnly, SymbolTable.IdToString(id));
-                CodeGen init = Symbols.TypeInitializer;
+                value = Symbols.AddStaticField(typeof(object), FieldAttributes.Assembly, SymbolTable.IdToString(id));
+                CodeGen init = TypeInitializer;
 
                 var sid = SymbolTable.IdToString(id);
                 init.EmitString(sid);
@@ -349,7 +349,6 @@ namespace Microsoft.Scripting.Generation
                 {
                     init.EmitCall(typeof(SymbolTable), "StringToObjectFast");
                 }
-
                 value.EmitSet(init);
 
                 _indirectSymbolIds[id] = value;
