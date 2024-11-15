@@ -39,7 +39,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
-        dotnet-quality: 'daily'
 
     - name: Setup .NETCore 2.1
       if: ${{runner.os == 'Windows' && !matrix.coverage}}
