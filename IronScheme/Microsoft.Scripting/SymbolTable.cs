@@ -81,14 +81,17 @@ namespace Microsoft.Scripting
                 throw new ArgumentNullException(Resources.NameMustBeString);
             }
 
-            // convert unicode escapes
-            field = unichar.Replace(field, delegate(Match m)
+            if (field.IndexOf('\\') >= 0)
             {
-              string s = m.Value;
-              s = s.Substring(2, s.Length - 3);
-              int iv = int.Parse(s, System.Globalization.NumberStyles.HexNumber);
-              return char.ConvertFromUtf32(iv);
-            });
+                // convert unicode escapes
+                field = unichar.Replace(field, delegate (Match m)
+                {
+                    string s = m.Value;
+                    s = s.Substring(2, s.Length - 3);
+                    int iv = int.Parse(s, System.Globalization.NumberStyles.HexNumber);
+                    return char.ConvertFromUtf32(iv);
+                });
+            }
 
             return StringToIdFast(field);
         }
