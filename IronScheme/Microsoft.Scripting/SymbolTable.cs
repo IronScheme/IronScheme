@@ -33,7 +33,7 @@ namespace Microsoft.Scripting
             _fieldDict[0] = null;   // initialize the null string
         }
 
-        readonly static Regex unichar = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static Regex unichar;// = new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static object GetSymbol(int id)
         {
@@ -83,6 +83,7 @@ namespace Microsoft.Scripting
 
             if (field.IndexOf('\\') >= 0)
             {
+                unichar ??= new Regex(@"\\x[\da-f]+;", RegexOptions.Compiled | RegexOptions.IgnoreCase); 
                 // convert unicode escapes
                 field = unichar.Replace(field, delegate (Match m)
                 {
