@@ -64,12 +64,13 @@ See docs/license.txt. |#
     (except (ironscheme core) eqv-hash)
     (ironscheme contracts)
     (ironscheme clr)
+    (ironscheme typed)
     (ironscheme unsafe))
     
   (clr-using System.Collections)
   (clr-using IronScheme.Runtime.R6RS)
   
-  (define (hashtable? obj)
+  (define: (hashtable? obj -> bool)
     (clr-is Hashtable obj))
     
   (define-syntax to-null

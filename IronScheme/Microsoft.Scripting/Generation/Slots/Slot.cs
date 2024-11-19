@@ -47,12 +47,6 @@ namespace Microsoft.Scripting.Generation.Slots
             EmitSet(cg);
         }
 
-        public virtual void EmitSet(CodeGen cg, Expression value)
-        {
-            value.Emit(cg);
-            EmitSet(cg);
-        }
-
         // This override assumes that the IL stack already holds the value to be assigned from.
         public virtual void EmitSet(CodeGen cg)
         {
@@ -88,22 +82,6 @@ namespace Microsoft.Scripting.Generation.Slots
 
             cg.EmitUninitialized();
             EmitSet(cg);
-        }
-
-        public virtual void EmitDelete(CodeGen cg, SymbolId name, bool check)
-        {
-            Contract.RequiresNotNull(cg, "cg");
-
-            // First check that the Name exists. Otherwise, deleting it
-            // should cause a NameError
-            if (check /*&& Options.CheckInitialized*/)
-            {
-                EmitGet(cg);
-                EmitCheck(cg, name);
-                cg.Emit(OpCodes.Pop);
-            }
-
-            EmitSetUninitialized(cg);
         }
 
         public virtual void EmitCheck(CodeGen cg, SymbolId name)

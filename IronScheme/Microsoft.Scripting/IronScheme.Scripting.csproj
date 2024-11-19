@@ -15,6 +15,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <OutputPath>Bin\$(Configuration)\</OutputPath>
     <ExecuteAsTool>false</ExecuteAsTool>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType Condition="'$(DebugType)' == ''">full</DebugType>

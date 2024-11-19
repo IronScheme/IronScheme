@@ -46,6 +46,7 @@ See docs/license.txt. |#
   (import 
     (ironscheme core)
     (ironscheme clr)
+    (ironscheme typed)
     (ironscheme unsafe)
     (only (rnrs mutable-pairs) set-cdr!) 
     (ironscheme integrable)
@@ -78,21 +79,21 @@ See docs/license.txt. |#
       list?
       length
       list))
-  
-  (define (list . x) x)     
-      
+
+  (define (list . x) x)
+
   (define (list-tail lst index)
     (cond
       [(zero? index) lst]
-      [(or (null? lst) (negative? index))
+      [($or? (null? lst) (negative? index))
         (assertion-violation 'list-tail "index out of range" lst index)]
       [else
-        (list-tail (cdr lst) (- index 1))]))      
+        (list-tail (cdr lst) (- index 1))]))
         
   (define (list-ref lst index)
     (car (list-tail lst index)))
 
-  (define (last-pair lst)
+  (define: (last-pair (lst : list) -> cons)
     (cond 
       [(null? lst) lst]
       [(null? (cdr lst)) lst]
@@ -100,13 +101,13 @@ See docs/license.txt. |#
         (last-pair (cdr lst))]))
 
   (define make-list
-    (case-lambda
-      [(n)      
+    (case-lambda:
+      [((n : fixnum) -> list)      
         (vector->list (make-vector n))]
-      [(n fill) 
+      [((n : fixnum) fill -> list) 
         (vector->list (make-vector n fill))]))
       
-  (define (find proc l)
+  (define: (find (proc : procedure)(l : list))
     (if (null? l)
         #f
         (let ((e (car l))
@@ -116,7 +117,7 @@ See docs/license.txt. |#
               e
               (find proc r)))))
          
-  (define (partition proc l)
+  (define: (partition (proc : procedure)(l : list))
     (let f ((l l)(a '())(b '()))
       (if (null? l)
           (values (reverse! a) (reverse! b))
@@ -125,7 +126,7 @@ See docs/license.txt. |#
                 (f (cdr l) (cons e a) b)
                 (f (cdr l) a (cons e b)))))))
       
-  (define (remp proc l)
+  (define: (remp (proc : procedure)(l : list) -> list)
     (let f ((l l)(a '()))
       (if (null? l)
           (reverse! a)
@@ -134,7 +135,7 @@ See docs/license.txt. |#
                 (f (cdr l) a)
                 (f (cdr l) (cons e a)))))))
             
-  (define (filter proc l)
+  (define: (filter (proc : procedure)(l : list) -> list)
     (let f ((l l)(a '()))
       (if (null? l)
           (reverse! a)
@@ -143,7 +144,7 @@ See docs/license.txt. |#
                 (f (cdr l) (cons e a))
                 (f (cdr l) a))))))            
   
-  (define (assq obj lst)
+  (define: (assq obj (lst : list))
     (if (null? lst) 
         #f
         (let ((obj obj)
@@ -153,7 +154,7 @@ See docs/license.txt. |#
               t
               (assq obj r)))))
           
-  (define (assv obj lst)
+  (define: (assv obj (lst : list))
     (if (null? lst) 
         #f
         (let ((obj obj)
@@ -163,7 +164,7 @@ See docs/license.txt. |#
               t
               (assv obj r)))))          
 
-  (define (assoc obj lst)
+  (define: (assoc obj (lst : list))
     (if (null? lst) 
         #f
         (let ((obj obj)
@@ -173,7 +174,7 @@ See docs/license.txt. |#
               t
               (assoc obj r)))))          
             
-  (define (assp p? lst)
+  (define: (assp (p? : procedure)(lst : list))
     (if (null? lst) 
         #f
         (let ((p? p?)
@@ -183,35 +184,35 @@ See docs/license.txt. |#
               t
               (assp p? r)))))
   
-  (define (memq obj lst)
+  (define: (memq obj (lst : list))
     (if (null? lst) 
         #f
         (if (eq? obj (car lst)) 
             lst
             (memq obj (cdr lst)))))
 
-  (define (memv obj lst)
+  (define: (memv obj (lst : list))
     (if (null? lst) 
         #f
         (if (eqv? obj (car lst)) 
             lst
             (memv obj (cdr lst)))))
 
-  (define (member obj lst)
+  (define: (member obj (lst : list))
     (if (null? lst) 
         #f
         (if (equal? obj (car lst)) 
             lst
             (member obj (cdr lst)))))
 
-  (define (memp p? lst)
+  (define: (memp (p? : procedure)(lst : list))
     (if (null? lst) 
         #f
         (if (p? (car lst)) 
             lst
             (memp p? (cdr lst)))))
   
-  (define (all-empty? ls)
+  (define: (all-empty? ls -> bool)
     (or (null? ls) 
         (and (null? (car ls)) 
              (all-empty? (cdr ls))))) 
@@ -229,7 +230,7 @@ See docs/license.txt. |#
                      (cons (cdr a) cdrs))))))))
 
   ;;http://en.literateprograms.org/Floyd%27s_cycle-finding_algorithm_%28Scheme%29                     
-  (define (list/check? head tail)
+  (define: (list/check? head tail -> bool)
     (if (pair? head)
         (let ((head ($cdr head)))
            (if (pair? head)
@@ -238,7 +239,7 @@ See docs/license.txt. |#
                (null? head)))
         (null? head)))
                      
-  (define (list? obj)
+  (define: (list? obj -> bool)
     (list/check? obj obj))
 
   (define (length/check head tail i)
@@ -255,9 +256,7 @@ See docs/license.txt. |#
             i
             (assertion-violation 'length "not a proper list" head))))
           
-  (define (length lst)
-    (unless (or (null? lst) (pair? lst))
-      (assertion-violation 'length "not a pair" lst))
+  (define: (length (lst : list) -> fixnum)
     (length/check lst lst 0))
 
   (define for-all 
@@ -344,7 +343,7 @@ See docs/license.txt. |#
               a
               (cons a (f (car rest) (cdr rest)))))]))
 
-  (define (list-copy lst)
+  (define: (list-copy (lst : list) -> list)
     (clr-static-call IronScheme.Runtime.Cons 
                      FromList 
                      lst))
@@ -431,11 +430,11 @@ See docs/license.txt. |#
 						          (cdr list1) 
 						          (map cdr lists))))))])]))
 					    
-   (define (remove obj list)
+   (define: (remove obj (list : list) -> list)
      (remp (lambda (x) (equal? obj x)) list))
     
-   (define (remv obj list)
+   (define: (remv obj (list : list) -> list)
      (remp (lambda (x) (eqv? obj x)) list))
       
-   (define (remq obj list)
+   (define: (remq obj (list : list) -> list)
      (remp (lambda (x) (eq? obj x)) list)))

@@ -71,7 +71,7 @@ See docs/license.txt. |#
       [(num1:number num2:number)
         (when (and (exact? num1) (exact-zero? num2))
           (assertion-violation '/ "divide by zero" num1 num2))
-        (if (and (zero? num1) (zero? num2))
+        (if ($and? (zero? num1) (zero? num2))
             +nan.0
             (generic/ num1 num2))]
       [(num1 num2 num3 . rest)
