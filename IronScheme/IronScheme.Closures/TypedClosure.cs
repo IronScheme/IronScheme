@@ -305,8 +305,9 @@ namespace IronScheme.Runtime.Typed
 
         var cctype = typeof(CodeContext);
 
-        foreach (ParameterInfo pi in pis)
+        for (int i = 0; i < pis.Length; i++)
         {
+          ParameterInfo pi = pis[i];
           if (pi.ParameterType != cctype)
           {
             if (pi.ParameterType != typeof(object))
@@ -320,7 +321,15 @@ namespace IronScheme.Runtime.Typed
             }
             else
             {
-              form.Add(SymbolTable.StringToObject(pi.Name));
+              // if varargs then this must be #(name)
+              if (IsVarargs && i == pis.Length - 1)
+              {
+                form.Add(new object[] { SymbolTable.StringToObject(pi.Name) });
+              }
+              else
+              {
+                form.Add(SymbolTable.StringToObject(pi.Name));
+              }
             }
           }
         }
