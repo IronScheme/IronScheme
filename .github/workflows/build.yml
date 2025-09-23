@@ -35,6 +35,12 @@ jobs:
         submodules: 'recursive'
         fetch-depth: 0
 
+    - name: Setup .NET Latest
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        dotnet-quality: 'preview'
+        
     - name: Setup .NET 9
       uses: actions/setup-dotnet@v4
       with:
