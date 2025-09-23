@@ -3,7 +3,7 @@
     "rollForward": "LatestMajor",
     "framework": {
       "name": "Microsoft.NETCore.App",
-      "version": ""
+      "version": "2.1.0"
     },
     "configProperties": {
       "System.Runtime.TieredPGO": true
